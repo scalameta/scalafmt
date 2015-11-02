@@ -1,0 +1,13 @@
+language: scala
+script:
+  - sbt ++$TRAVIS_SCALA_VERSION clean update compile test package
+scala:
+  - 2.11.7
+jdk:
+  - oraclejdk7
+notifications:
+  email:
+    - olafurpg@gmail.com
+branches:
+  only:
+    - master
