@@ -1,0 +1,45 @@
+40 columns                              |
+<<< Object definition fits in one line
+@foobar object   a   {val x:Int=1}
+>>>
+@foobar object a { val x: Int = 1 }
+<<< Pathological case
+@ foobar("annot", {
+  val x = 2
+  val y = 2 // y=2
+  x + y
+})
+ object
+  a  extends b with c {
+   def
+   foo[T:Int#Double#Triple,
+       R <% String](
+    @annot1
+    x
+    : Int @annot2 = 2
+    , y: Int = 3): Int = {
+    "match" match {
+      case 1 | 2 =>
+        3
+      case <A>2</A> => 2
+    }
+   }
+}
+>>>
+@foobar("annot", {
+  val x = 2
+  val y = 2 // y=2
+  x + y
+})
+object a extends b with c {
+   def foo[
+     T:Int#Double#Triple,
+     R <% String](
+     @annot1 x : Int @annot2 = 2,
+     y: Int = 3): Int = {
+     "match" match {
+       case 1 | 2 => 3
+       case <A>2</A> => 2
+     }
+   }
+}

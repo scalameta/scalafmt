@@ -4,7 +4,6 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.concurrent.CopyOnWriteArrayList
 
-import org.scalatest.FlatSpec
 import collection.JavaConversions._
 
 import scala.concurrent.Await
@@ -17,7 +16,7 @@ import scala.meta._
  * Mostly borrowed from
  * https://github.com/lihaoyi/fastparse/blob/0d67eca8f9264bfaff68e5cbb227045ceac4a15f/scalaparse/jvm/src/test/scala/scalaparse/ProjectTests.scala
  */
-class ProjectTest extends FlatSpec {
+class ProjectTest {
 
   var parseFailures: java.util.List[ParseErr] = new CopyOnWriteArrayList
   var otherFailures: java.util.List[UnknownFailure] = new CopyOnWriteArrayList
@@ -51,22 +50,9 @@ class ProjectTest extends FlatSpec {
     }
   }
 
-  def listFiles(path: String): Vector[String] = {
-    def listFilesIter(s: java.io.File): Iterator[String] = {
-      val (dirs, files) = Option(s.listFiles()).toIterator
-        .flatMap(_.toIterator)
-        .partition(_.isDirectory)
-      files.map(_.getPath) ++ dirs.flatMap(listFilesIter)
-    }
-
-    for {
-      f0 <- Option(listFilesIter(new java.io.File(path))).toVector
-      filename <- f0
-    } yield filename
-  }
-
   def checkRepo(url: String, filter: String => Boolean = _ => true) = {
     import sys.process._
+    import FilesUtil._
     val name = repoName(url)
     val path = pathRoot + name
     println("CLONING?")
@@ -119,7 +105,7 @@ class ProjectTest extends FlatSpec {
 
   def bullet[T](msg: T) = s"* $msg"
 
-  "scala.meta parser" should "parse on-par with scalac" in {
+  def run: Unit = {
     checkRepo("https://github.com/scala/scala", scalaIgnore)
     checkRepo("https://github.com/akka/akka")
     checkRepo("https://github.com/apache/spark")
