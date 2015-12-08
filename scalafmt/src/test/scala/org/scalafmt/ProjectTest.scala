@@ -51,22 +51,9 @@ class ProjectTest extends FlatSpec {
     }
   }
 
-  def listFiles(path: String): Vector[String] = {
-    def listFilesIter(s: java.io.File): Iterator[String] = {
-      val (dirs, files) = Option(s.listFiles()).toIterator
-        .flatMap(_.toIterator)
-        .partition(_.isDirectory)
-      files.map(_.getPath) ++ dirs.flatMap(listFilesIter)
-    }
-
-    for {
-      f0 <- Option(listFilesIter(new java.io.File(path))).toVector
-      filename <- f0
-    } yield filename
-  }
-
   def checkRepo(url: String, filter: String => Boolean = _ => true) = {
     import sys.process._
+    import FilesUtil._
     val name = repoName(url)
     val path = pathRoot + name
     println("CLONING?")
