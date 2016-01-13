@@ -3,7 +3,7 @@
 @foobar object   a   {val x:Int=1}
 >>>
 @foobar object a { val x: Int = 1 }
-<<< Pathological case
+<<< DISABLE Pathological case
 @ foobar("annot", {
   val x = 2
   val y = 2 // y=2
