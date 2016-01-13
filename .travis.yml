@@ -1,6 +1,6 @@
 language: scala
-script:
-  - sbt ++$TRAVIS_SCALA_VERSION clean update compile test package
+script: "sbt clean coverage test"
+after_success: "sbt coveralls"
 scala:
   - 2.11.7
 jdk:
