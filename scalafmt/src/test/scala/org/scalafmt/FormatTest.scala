@@ -29,8 +29,8 @@ class FormatTest extends FunSuite with ScalaFmtLogger {
     }
   }
 
-  tests.foreach {
-    case Test(name, original, expected) =>
+  tests.withFilter(!_.name.startsWith("DISABLE")).foreach {
+    case Test(name, original, expected)=>
       test(name) {
         assert(fmt.format(original) diff expected)
       }
