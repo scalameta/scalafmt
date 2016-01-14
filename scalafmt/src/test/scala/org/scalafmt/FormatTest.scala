@@ -1,12 +1,14 @@
 package org.scalafmt
 
-import scala.meta._
-import org.scalatest.FunSuite
 import org.scalafmt.DiffUtil._
+import org.scalatest.FunSuite
+import org.scalatest.concurrent.Timeouts
+import org.scalatest.time.SpanSugar._
+
 
 case class Test(name: String, original: String, expected: String)
 
-class FormatTest extends FunSuite with ScalaFmtLogger {
+class FormatTest extends FunSuite with Timeouts with ScalaFmtLogger {
 
   val fmt = new ScalaFmt(Standard)
 
@@ -30,11 +32,12 @@ class FormatTest extends FunSuite with ScalaFmtLogger {
   }
 
   tests.withFilter(!_.name.startsWith("DISABLE")).foreach {
-    case Test(name, original, expected)=>
+    case Test(name, original, expected) =>
       test(name) {
-        assert(fmt.format(original) diff expected)
+        failAfter(1 second) {
+          assert(fmt.format(original) diff expected)
+        }
       }
   }
 }
-
 
