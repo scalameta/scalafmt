@@ -4,30 +4,6 @@ import scala.collection.mutable
 import scala.meta._
 import scala.meta.tokens.Token._
 
-trait Split
-
-case object NoSplit extends Split
-
-case object Space extends Split
-
-case object Newline extends Split
-
-/**
-  * A state represents one potential solution to reach token at index,
-  * @param cost The penalty for using path
-  * @param index The index of the current token.
-  * @param path The splits/decicions made to reach here.
-  */
-case class State(cost: Int,
-                 index: Int,
-                 path: List[Split]) extends Ordered[State] {
-
-  import scala.math.Ordered.orderingToOrdered
-
-  def compare(that: State): Int =
-    (-this.cost, this.index) compare(-that.cost, that.index)
-}
-
 class ScalaFmt(style: ScalaStyle) extends ScalaFmtLogger {
 
   /**
@@ -35,12 +11,20 @@ class ScalaFmt(style: ScalaStyle) extends ScalaFmtLogger {
     */
   def format(code: String): String = {
     val source = code.parse[Source]
-    val realTokens = source.tokens.filter(!_.isInstanceOf[Whitespace])
-    val path = shortestPath(source, realTokens)
+    val toks = formatTokens(source.tokens)
+    val path = shortestPath(source, toks)
+    reconstructPath(toks, path)
+  }
+
+  /**
+    * Returns formatted output from FormatTokens and Splits.
+    */
+  private def reconstructPath(toks: Array[FormatToken],
+                              splits: Vector[Split]): String = {
     val sb = new StringBuilder()
-    realTokens.zip(path).foreach {
+    toks.zip(splits).foreach {
       case (tok, split) =>
-        sb.append(tok.code)
+        sb.append(tok.left.code)
         split match {
           case Space =>
             sb.append(" ")
@@ -55,53 +39,46 @@ class ScalaFmt(style: ScalaStyle) extends ScalaFmtLogger {
   /**
     * Runs Dijstra's shortest path algorithm to find lowest penalty split.
     */
-  def shortestPath(source: Source, realTokens: Tokens): List[Split] = {
+  private def shortestPath(source: Source,
+                           splitTokens: Array[FormatToken]): Vector[Split] = {
     val owners = getOwners(source)
     val Q = new mutable.PriorityQueue[State]()
     var explored = 0
+    var result = Vector.empty[Split]
     // First state.
-    Q += State(0, 0, Nil)
+    Q += State(0, Vector.empty[Split])
     while (Q.nonEmpty) {
       val curr = Q.dequeue()
-      explored += 1
-      if (explored % 100000 == 0)
-        println(explored)
-      val tokens = realTokens
-        .drop(curr.index)
-        .dropWhile(_.isInstanceOf[Whitespace])
-      val left = tokens.head
-      if (left.isInstanceOf[EOF])
-        return curr.path.reverse
-      val right = tokens.tail
-        .find(!_.isInstanceOf[Whitespace])
-        .getOrElse(tokens.last)
-      val between = tokens.drop(1).takeWhile(_.isInstanceOf[Whitespace])
-      val splits = splitPenalty(owners, left, between, right)
-      splits.foreach {
-        case (split, cost) =>
-          Q.enqueue(State(curr.cost + cost, curr.index + 1, split :: curr.path))
+      if (curr.path.length == splitTokens.length) {
+        result = curr.path
+        Q.dequeueAll
+      }
+      else {
+        explored += 1
+        if (explored % 100000 == 0)
+          println(explored)
+        val splitToken = splitTokens(curr.path.length)
+        val splits = splitPenalty(owners, splitToken)
+        splits.foreach {
+          case (split, cost) =>
+            Q.enqueue(State(curr.cost + cost, curr.path :+ split))
+        }
       }
     }
-    // Could not find path to final token.
-    ???
-  }
+    result
+  } ensuring(_.length == splitTokens.length,
+    "Unable to reach the last token.")
 
   /**
     * Assigns cost of splitting between two non-whitespace tokens.
     */
-  def splitPenalty(owners: Map[Token, Tree],
-                   left: Token,
-                   between: Tokens,
-                   right: Token): List[(Split, Int)] = {
-    (left, right) match {
+  private def splitPenalty(owners: Map[Token, Tree],
+                           tok: FormatToken): List[(Split, Int)] = {
+    (tok.left, tok.right) match {
       case (_: BOF, _) => List(
         NoSplit -> 0
       )
       case (_, _: EOF) => List(
-        NoSplit -> 0
-      )
-      case (_, _) if left.name.startsWith("xml") &&
-                       right.name.startsWith("xml") => List(
         NoSplit -> 0
       )
       case (_, _: `,`) => List(
@@ -180,16 +157,27 @@ class ScalaFmt(style: ScalaStyle) extends ScalaFmtLogger {
       case (_: Delim, _) => List(
         Space -> 0
       )
+      // TODO(olafur) Ugly hack. Is there a better way?
+      case (_, _) if tok.left.name.startsWith("xml") &&
+        tok.right.name.startsWith("xml") => List(
+        NoSplit -> 0
+      )
       case _ =>
-        logger.debug(s"60 ===========\n${log(left)}\n${log(between)}\n${log(right)}")
+        logger.debug(
+          s"""
+             |60 ===========
+             |${log(tok.left)}
+             |${log(tok.between: _*)}
+             |${log(tok.right)}
+           """.stripMargin)
         ???
     }
   }
 
   /**
-    * Creates lookup table from token to its closest scala.meta contains tree.
+    * Creates lookup table from token to its closest scala.meta tree.
     */
-  def getOwners(source: Source): Map[Token, Tree] = {
+  private def getOwners(source: Source): Map[Token, Tree] = {
     val result = mutable.Map.empty[Token, Tree]
     def loop(x: Tree): Unit = {
       x.tokens
@@ -200,5 +188,34 @@ class ScalaFmt(style: ScalaStyle) extends ScalaFmtLogger {
     }
     loop(source)
     result.toMap
+  }
+
+  /**
+    * Convert scala.meta Tokens to FormatTokens.
+    *
+    * Since tokens might be very large, we try to allocate as
+    * little memory as possible.
+    */
+  private def formatTokens(tokens: Tokens): Array[FormatToken] = {
+    val N = tokens.length
+    require(N > 1)
+    var i = 1
+    var left = tokens.head
+    val ts = tokens.toArray
+    val result = mutable.ArrayBuilder.make[FormatToken]
+    val whitespace = mutable.ArrayBuilder.make[Whitespace]()
+    while (i < N) {
+      ts(i) match {
+        case t: Whitespace =>
+          whitespace += t
+        case right =>
+          // TODO(olafur) avoid result.toVector
+          result += FormatToken(left, right, whitespace.result.toVector)
+          left = right
+          whitespace.clear()
+      }
+      i += 1
+    }
+    result.result
   }
 }

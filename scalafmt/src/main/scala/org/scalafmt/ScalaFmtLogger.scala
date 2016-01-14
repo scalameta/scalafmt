@@ -38,5 +38,13 @@ trait ScalaFmtLogger {
          |TOKENS: ${t.tokens.map(x => reveal(x.code)).mkString(",")}
          |""".stripMargin)
   }
+
+  def time[T](msg: String)(thunk: => T): T = {
+    val t1 = System.currentTimeMillis
+    val x = thunk
+    val t2 = System.currentTimeMillis
+    logger.debug(s"msg=$msg time=${t2 - t1}ms")
+    x
+  }
 }
 
