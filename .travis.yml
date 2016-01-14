@@ -2,7 +2,7 @@ language: scala
 script:
   - sbt clean coverage test &&
     sbt coverageAggregate
-after_success: "sbt coveralls"
+after_success: "sbt coverageReport coveralls"
 scala:
   - 2.11.7
 jdk:

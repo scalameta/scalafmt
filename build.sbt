@@ -5,7 +5,6 @@ lazy val scalafmt = project.in(file("scalafmt")).settings(
   organization := "org.scalafmt",
   version := "0.0.1-SNAPSHOT",
   scalaVersion := "2.11.7",
-  coverageEnabled := true,
   resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
   libraryDependencies ++= Seq(
     "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0",
