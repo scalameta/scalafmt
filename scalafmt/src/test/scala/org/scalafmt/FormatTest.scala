@@ -10,7 +10,7 @@ case class Test(name: String, original: String, expected: String)
 
 class FormatTest extends FunSuite with Timeouts with ScalaFmtLogger {
 
-  val fmt = new ScalaFmt(Standard)
+  val fmt = new ScalaFmt(ScalaFmtTesting)
 
   def tests: Seq[Test] = {
     import FilesUtil._
@@ -31,7 +31,12 @@ class FormatTest extends FunSuite with Timeouts with ScalaFmtLogger {
     }
   }
 
-  tests.withFilter(!_.name.startsWith("DISABLE")).foreach {
+  val onlyOne = tests.exists(_.name.startsWith("ONLY"))
+
+  tests.withFilter { t =>
+    !t.name.startsWith("SKIP") &&
+      (!onlyOne || t.name.startsWith("ONLY"))
+  }.foreach {
     case Test(name, original, expected) =>
       test(name) {
         failAfter(1 second) {
