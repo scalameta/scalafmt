@@ -16,7 +16,7 @@ class FormatTest extends FunSuite with Timeouts with ScalaFmtLogger {
     import FilesUtil._
     for {
       filename <- listFiles(
-        "scalafmt/src/test/resources") if filename.endsWith(".test")
+        "src/test/resources") if filename.endsWith(".test")
       test <- {
         val content = new String(
           java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(filename)))
