@@ -1,9 +1,63 @@
 40 columns                              |
+<<< Warmup
+@foobar object a {val x:Int=1}
+>>>
+@foobar object a { val x: Int = 1 }
 <<< Object definition fits in one line
 @foobar object   a   {val x:Int=1}
 >>>
 @foobar object a { val x: Int = 1 }
-<<< DISABLE Pathological case
+<<< Object almost fits in one line
+@foobar object aaaaaaa { val x: Int = 1 }
+>>>
+@foobar object aaaaaaa {
+  val x: Int = 1
+}
+<<< Indentation is included for penalty.
+object aaaaaaaaaaaaaaaaaaaaaaaaaaaaa {
+  val bbbbbbbbbbbbbbbbbbbbbbbbbbbb = 1; aaa }
+>>>
+object aaaaaaaaaaaaaaaaaaaaaaaaaaaaa {
+  val bbbbbbbbbbbbbbbbbbbbbbbbbbbb = 1;
+  aaa
+}
+<<< Multiline object definition
+@foobar object LoooooooooooongNaaame { val x: Int = 1 }
+>>>
+@foobar object LoooooooooooongNaaame {
+  val x: Int = 1
+}
+<<< SKIP Unindent when leaving block, see #19.
+object aaaaaaaaaaaaaaaaaaaaaaaaaaaaa {
+  val bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb = 1
+}
+>>>
+object aaaaaaaaaaaaaaaaaaaaaaaaaaaaa {
+  val bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    = 1
+}
+<<< SKIP case statement splits block, see #15.
+object Object {
+  val x = { case 2 => 1
+    case 1 => 3 }
+}
+>>>
+object Object {
+  val x = {
+    case 2 => 1
+    case 1 => 3
+  }
+}
+<<< SKIP #15 Split at higher levels
+object Object {
+  val x = function(first(a, b), second(c, d))
+}
+>>>
+object Object {
+  val x = function(first(a, b),
+                   second(c, d))
+}
+<<< SKIP Pathological case
 @ foobar("annot", {
   val x = 2
   val y = 2 // y=2
@@ -32,13 +86,13 @@
   x + y
 })
 object a extends b with c {
-   def foo[
-     T:Int#Double#Triple,
-     R <% String](
-     @annot1 x : Int @annot2 = 2,
-     y: Int = 3): Int = {
+   def foo[T:Int#Double#Triple,
+           R <% String](
+       @annot1 x : Int @annot2 = 2,
+       y: Int = 3): Int = {
      "match" match {
-       case 1 | 2 => 3
+       case   1 |
+              2 => 3
        case <A>2</A> => 2
      }
    }

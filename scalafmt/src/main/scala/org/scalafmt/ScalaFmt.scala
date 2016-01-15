@@ -2,16 +2,21 @@ package org.scalafmt
 
 import scala.collection.mutable
 import scala.meta._
-import scala.meta.tokens.Token._
+import scala.meta.tokens.Token
 
 class ScalaFmt(style: ScalaStyle) extends ScalaFmtLogger {
+
+  /**
+    * Penalty to kill the current path.
+    */
+  val KILL = 1000
 
   /**
     * Pretty-prints Scala code.
     */
   def format(code: String): String = {
     val source = code.parse[Source]
-    val toks = formatTokens(source.tokens)
+    val toks = FormatToken.formatTokens(source.tokens)
     val path = shortestPath(source, toks)
     reconstructPath(toks, path)
   }
@@ -21,32 +26,36 @@ class ScalaFmt(style: ScalaStyle) extends ScalaFmtLogger {
     */
   private def reconstructPath(toks: Array[FormatToken],
                               splits: Vector[Split]): String = {
+    require(toks.length == splits.length)
     val sb = new StringBuilder()
+    var indentation = 0
     toks.zip(splits).foreach {
       case (tok, split) =>
         sb.append(tok.left.code)
-        split match {
-          case Space =>
+        indentation += split.indent
+        val ws = split match {
+          case _: Space =>
             sb.append(" ")
-          case Newline =>
-            sb.append("\n")
-          case NoSplit =>
+          case _: Newline =>
+            sb.append("\n" + " " * indentation)
+          case _ =>
+            // Nothing
         }
     }
     sb.toString()
   }
+
 
   /**
     * Runs Dijstra's shortest path algorithm to find lowest penalty split.
     */
   private def shortestPath(source: Source,
                            splitTokens: Array[FormatToken]): Vector[Split] = {
-    val owners = getOwners(source)
+    val formatter = new Formatter(style, getOwners(source))
     val Q = new mutable.PriorityQueue[State]()
     var explored = 0
     var result = Vector.empty[Split]
-    // First state.
-    Q += State(0, Vector.empty[Split])
+    Q += State.start
     while (Q.nonEmpty) {
       val curr = Q.dequeue()
       if (curr.path.length == splitTokens.length) {
@@ -58,10 +67,9 @@ class ScalaFmt(style: ScalaStyle) extends ScalaFmtLogger {
         if (explored % 100000 == 0)
           println(explored)
         val splitToken = splitTokens(curr.path.length)
-        val splits = splitPenalty(owners, splitToken)
-        splits.foreach {
-          case (split, cost) =>
-            Q.enqueue(State(curr.cost + cost, curr.path :+ split))
+        val splits = (curr.strategy orElse formatter.GetSplits)(splitToken)
+        splits.foreach { split =>
+          Q.enqueue(next(curr, split, splitToken))
         }
       }
     }
@@ -70,108 +78,25 @@ class ScalaFmt(style: ScalaStyle) extends ScalaFmtLogger {
     "Unable to reach the last token.")
 
   /**
-    * Assigns cost of splitting between two non-whitespace tokens.
+    * Calculates next State given split at tok.
+    *
+    * - Accumulates cost and strategies
+    * - Calculates column-width overflow penalty
     */
-  private def splitPenalty(owners: Map[Token, Tree],
-                           tok: FormatToken): List[(Split, Int)] = {
-    (tok.left, tok.right) match {
-      case (_: BOF, _) => List(
-        NoSplit -> 0
-      )
-      case (_, _: EOF) => List(
-        NoSplit -> 0
-      )
-      case (_, _: `,`) => List(
-        NoSplit -> 0
-      )
-      case (_: `,`, _) => List(
-        Space -> 0,
-        Newline -> 1
-      )
-      case (_: `{`, _) => List(
-        Space -> 0,
-        Newline -> 0
-      )
-      case (_, _: `{`) => List(
-        Space -> 0
-      )
-      case (_, _: `}`) => List(
-        Space -> 0,
-        Newline -> 1
-      )
-      case (_, _: `:`) => List(
-        NoSplit -> 0
-      )
-      case (_, _: `=`) => List(
-        Space -> 0
-      )
-      case (_: `:` | _: `=`, _) => List(
-        Space -> 0
-      )
-      case (_, _: `@`) => List(
-        Newline -> 0
-      )
-      case (_: `@`, _) => List(
-        NoSplit -> 0
-      )
-      case (_: Ident, _: `.` | _: `#`) => List(
-        NoSplit -> 0
-      )
-      case (_: `.` | _: `#`, _: Ident) => List(
-        NoSplit -> 0
-      )
-      case (_: Ident | _: Literal, _: Ident | _: Literal) => List(
-        Space -> 0
-      )
-      case (_, _: `)` | _: `]`) => List(
-        NoSplit -> 0
-      )
-      case (_, _: `(` | _: `[`) => List(
-        NoSplit -> 0
-      )
-      case (_: `(` | _: `[`, _) => List(
-        NoSplit -> 0,
-        Newline -> 1
-      )
-      case (_, _: `val`) => List(
-        Space -> 0,
-        Newline -> 1
-      )
-      case (_: Keyword | _: Modifier, _) => List(
-        Space -> 1,
-        Newline -> 2
-      )
-      case (_, _: Keyword) => List(
-        Space -> 0,
-        Newline -> 1
-      )
-      case (_, c: Comment) => List(
-        Space -> 0
-      )
-      case (c: Comment, _) =>
-        if (c.code.startsWith("//")) List(Newline -> 0)
-        else List(Space -> 0, Newline -> 1)
-      case (_, _: Delim) => List(
-        Space -> 0
-      )
-      case (_: Delim, _) => List(
-        Space -> 0
-      )
-      // TODO(olafur) Ugly hack. Is there a better way?
-      case (_, _) if tok.left.name.startsWith("xml") &&
-        tok.right.name.startsWith("xml") => List(
-        NoSplit -> 0
-      )
-      case _ =>
-        logger.debug(
-          s"""
-             |60 ===========
-             |${log(tok.left)}
-             |${log(tok.between: _*)}
-             |${log(tok.right)}
-           """.stripMargin)
-        ???
-    }
+  private def next(state: State,
+                   split: Split,
+                   tok: FormatToken): State = {
+    val newIndent = state.indentation + split.indent
+    val newColumn =
+      if (split.isInstanceOf[Newline]) newIndent
+      else state.column + split.length + tok.right.code.length
+    val overflowPenalty = if (newColumn < style.maxColumn) 0 else KILL
+    val totalCost = state.cost + split.cost + overflowPenalty
+    State(totalCost,
+      // TODO(olafur) expire strategies, see #18.
+      split.Strategy orElse state.strategy,
+      state.path :+ split,
+      newIndent, newColumn)
   }
 
   /**
@@ -190,32 +115,5 @@ class ScalaFmt(style: ScalaStyle) extends ScalaFmtLogger {
     result.toMap
   }
 
-  /**
-    * Convert scala.meta Tokens to FormatTokens.
-    *
-    * Since tokens might be very large, we try to allocate as
-    * little memory as possible.
-    */
-  private def formatTokens(tokens: Tokens): Array[FormatToken] = {
-    val N = tokens.length
-    require(N > 1)
-    var i = 1
-    var left = tokens.head
-    val ts = tokens.toArray
-    val result = mutable.ArrayBuilder.make[FormatToken]
-    val whitespace = mutable.ArrayBuilder.make[Whitespace]()
-    while (i < N) {
-      ts(i) match {
-        case t: Whitespace =>
-          whitespace += t
-        case right =>
-          // TODO(olafur) avoid result.toVector
-          result += FormatToken(left, right, whitespace.result.toVector)
-          left = right
-          whitespace.clear()
-      }
-      i += 1
-    }
-    result.result
-  }
+
 }
