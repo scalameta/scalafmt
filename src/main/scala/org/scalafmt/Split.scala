@@ -1,8 +1,10 @@
 package org.scalafmt
 
+case class Decision(formatToken: FormatToken, split: List[Split])
+
 sealed abstract class Split(val cost: Int,
                             val indent: Int,
-                            val Strategy: Strategy = EmptyStrategy) {
+                            val policy: Decision => Decision = identity) {
   def length: Int = this match {
     case _: NoSplit => 0
     case _: Newline => 0
@@ -15,13 +17,14 @@ sealed abstract class Split(val cost: Int,
 case class NoSplit(override val cost: Int) extends Split(cost, 0)
 
 case class Space(override val cost: Int,
-                 override val Strategy: Strategy = EmptyStrategy)
-  extends Split(cost: Int, 0, Strategy)
+                 override val policy: Decision => Decision = identity)
+
+  extends Split(cost: Int, 0,  policy)
 
 case class Newline(override val cost: Int,
                    override val indent: Int,
-                   override val Strategy: Strategy = EmptyStrategy)
-  extends Split(cost, indent, Strategy)
+                   override val policy: Decision => Decision = identity)
+  extends Split(cost, indent, policy)
 
 // objects
 
@@ -29,7 +32,7 @@ object NoSplitFree extends NoSplit(0)
 
 object SpaceFree extends Space(0)
 
-class NewlineFree(indent: Int) extends Newline(0, indent, EmptyStrategy)
+class NewlineFree(indent: Int) extends Newline(0, indent)
 
 object Newline0 extends NewlineFree(0)
 
