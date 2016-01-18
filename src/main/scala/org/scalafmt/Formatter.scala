@@ -1,5 +1,6 @@
 package org.scalafmt
 
+import scala.annotation.tailrec
 import scala.meta.Tree
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
@@ -11,12 +12,7 @@ class Formatter(style: ScalaStyle,
 
   val Fail: PartialFunction[FormatToken, List[Split]] = {
     case tok =>
-      logger.debug(
-        s"""
-           |=========== FAIL ============
-           |${log(tok.left)}
-           |${log(tok.between: _*)}
-           |${log(tok.right)}""".stripMargin)
+      logger.debug(log(tok))
       ???
   }
 
@@ -31,34 +27,40 @@ class Formatter(style: ScalaStyle,
       NoSplitFree
     )
     case FormatToken(_: `,`, _, _) => List(
-      SpaceFree,
+      SpaceFree(),
       Newline0
     )
     case FormatToken(_: `{`, _: `}`, _) => List(
       NoSplitFree
     )
-    case FormatToken(open: `{`, _, _) => List(
-      oneLinerBlock(open),
-      multiLineBlock(open)
+    case FormatToken(_: `}`, _: Keyword, _) => List(
+      new Newline(0, 0)
     )
+    case FormatToken(open: `{`, right, _) =>
+      List(
+        SingeLineBlock(1, open, owners),
+        MultiLineBlock(2, open, owners)
+      )
     case FormatToken(_, _: `{`, _) => List(
-      SpaceFree
+      SpaceFree()
     )
     case FormatToken(_, _: `;`, _) => List(
       NoSplitFree
     )
     case FormatToken(_: `;`, _, _) => List(
-      Newline(0, 0)
+      new Newline(0, 0)
     )
     case FormatToken(_, _: `:`, _) => List(
       NoSplitFree
     )
-    case FormatToken(_, _: `=`, _) => List(
-      SpaceFree,
-      Newline(3, 2)
-    )
-    case FormatToken(_: `:` | _: `=`, _, _) => List(
-      SpaceFree
+    case FormatToken(_, tok: `=`, _) =>
+      List(
+        new Space(2),
+        BreakStatement(3, tok, owners)
+      )
+    case tok@ FormatToken(_: `:` | _: `=`, _, _) => List(
+      SpaceFree(),
+      BreakStatement(5, tok.left, owners)
     )
     case FormatToken(_, _: `@`, _) => List(
       Newline0
@@ -73,7 +75,7 @@ class Formatter(style: ScalaStyle,
       NoSplitFree
     )
     case FormatToken(_: Ident | _: Literal, _: Ident | _: Literal, _) => List(
-      SpaceFree
+      SpaceFree()
     )
     case FormatToken(_, _: `)` | _: `]`, _) => List(
       NoSplitFree
@@ -88,27 +90,32 @@ class Formatter(style: ScalaStyle,
     case FormatToken(_, _: `val` | _: `case`, _) => List(
       Newline0
     )
-    case FormatToken(_: Keyword | _: Modifier, _, _) =>
+    case tok@FormatToken(_: `val`, _, _) =>
       List(
-        SpaceFree,
-        Newline(100, 4)
+        SpaceFree(),
+        BreakStatement(6, tok.left, owners)
+      )
+    case tok@FormatToken(_: Keyword | _: Modifier, _, _) =>
+      List(
+        SpaceFree(),
+        BreakStatement(4, tok.left, owners)
       )
     case FormatToken(_, _: Keyword, _) =>
       List(
-        SpaceFree,
-        Newline(6, 3)
+        SpaceFree(),
+        new Newline(2, 0)
       )
     case FormatToken(_, c: Comment, _) => List(
-      SpaceFree
+      SpaceFree()
     )
     case FormatToken(c: Comment, _, _) =>
       if (c.code.startsWith("//")) List(Newline0)
-      else List(SpaceFree, Newline0)
+      else List(SpaceFree(), Newline0)
     case FormatToken(_, _: Delim, _) => List(
-      SpaceFree
+      SpaceFree()
     )
     case FormatToken(_: Delim, _, _) => List(
-      SpaceFree
+      SpaceFree()
     )
     // TODO(olafur) Ugly hack. Is there a better way?
     case tok if tok.left.name.startsWith("xml") &&
@@ -116,20 +123,5 @@ class Formatter(style: ScalaStyle,
       NoSplitFree
     )
   }
-
-  def oneLinerBlock(open: `{`): Split =
-    Space(1, {
-      // Disallow newlines inside block
-      case Decision(tok, splits) =>
-        Decision(tok, splits.filterNot(_.isInstanceOf[Newline]))
-    })
-
-  def multiLineBlock(open: `{`): Split =
-    Newline(2, 2, {
-      case Decision(tok@FormatToken(_, close: `}`, _), _)
-        if owners.get(open) == owners.get(close) =>
-        Decision(tok, List(Newline_2))
-      case decision => decision
-    })
 }
 

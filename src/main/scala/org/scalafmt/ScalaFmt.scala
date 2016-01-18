@@ -3,13 +3,14 @@ package org.scalafmt
 import scala.collection.mutable
 import scala.meta._
 import scala.meta.tokens.Token
+import scala.meta.tokens.Token.`=`
 
 class ScalaFmt(style: ScalaStyle) extends ScalaFmtLogger {
 
   /**
     * Penalty to kill the current path.
     */
-  val KILL = 1000
+  val KILL = 10000
 
   /**
     * Pretty-prints Scala code.
@@ -31,7 +32,7 @@ class ScalaFmt(style: ScalaStyle) extends ScalaFmtLogger {
     var indentation = 0
     toks.zip(splits).foreach {
       case (tok, split) =>
-//        logger.debug(f"${tok.left.code}%20s $split")
+//        logger.debug(s"${log(tok.left)} ${log(split)}")
         indentation += split.indent
         sb.append(tok.left.code)
         val ws = split match {
@@ -71,7 +72,8 @@ class ScalaFmt(style: ScalaStyle) extends ScalaFmtLogger {
         val splits = formatter.GetSplits(splitToken)
         val actualSplit = curr.policy(Decision(splitToken, splits)).split
         actualSplit.foreach { split =>
-          Q.enqueue(next(curr, split, splitToken))
+          val nextState = next(curr, split, splitToken)
+          Q.enqueue(nextState)
         }
       }
     }
@@ -88,10 +90,17 @@ class ScalaFmt(style: ScalaStyle) extends ScalaFmtLogger {
                    split: Split,
                    tok: FormatToken): State = {
     val newIndent = state.indentation + split.indent
-    val newColumn =
+    // Always account for the cost of the right token.
+    val newColumn = tok.right.code.length + (
       if (split.isInstanceOf[Newline]) newIndent
-      else state.column + split.length + tok.right.code.length
-    val overflowPenalty = if (newColumn < style.maxColumn) 0 else KILL
+      else state.column + split.length)
+    val overflowPenalty =
+      if (newColumn < style.maxColumn) 0
+      else {
+        split.setPenalty()
+        KILL
+      }
+
     val totalCost = state.cost + split.cost + overflowPenalty
     State(totalCost,
       // TODO(olafur) expire policy, see #18.
@@ -115,6 +124,5 @@ class ScalaFmt(style: ScalaStyle) extends ScalaFmtLogger {
     loop(source)
     result.toMap
   }
-
 
 }
