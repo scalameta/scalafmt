@@ -31,8 +31,9 @@ class ScalaFmt(style: ScalaStyle) extends ScalaFmtLogger {
     var indentation = 0
     toks.zip(splits).foreach {
       case (tok, split) =>
-        sb.append(tok.left.code)
+//        logger.debug(f"${tok.left.code}%20s $split")
         indentation += split.indent
+        sb.append(tok.left.code)
         val ws = split match {
           case _: Space =>
             sb.append(" ")
@@ -67,15 +68,15 @@ class ScalaFmt(style: ScalaStyle) extends ScalaFmtLogger {
         if (explored % 100000 == 0)
           println(explored)
         val splitToken = splitTokens(curr.path.length)
-        val splits = (curr.strategy orElse formatter.GetSplits)(splitToken)
-        splits.foreach { split =>
+        val splits = formatter.GetSplits(splitToken)
+        val actualSplit = curr.policy(Decision(splitToken, splits)).split
+        actualSplit.foreach { split =>
           Q.enqueue(next(curr, split, splitToken))
         }
       }
     }
     result
-  } ensuring(_.length == splitTokens.length,
-    "Unable to reach the last token.")
+  } ensuring(_.length == splitTokens.length, "Unable to reach the last token.")
 
   /**
     * Calculates next State given split at tok.
@@ -93,8 +94,8 @@ class ScalaFmt(style: ScalaStyle) extends ScalaFmtLogger {
     val overflowPenalty = if (newColumn < style.maxColumn) 0 else KILL
     val totalCost = state.cost + split.cost + overflowPenalty
     State(totalCost,
-      // TODO(olafur) expire strategies, see #18.
-      split.Strategy orElse state.strategy,
+      // TODO(olafur) expire policy, see #18.
+      state.policy andThen split.policy,
       state.path :+ split,
       newIndent, newColumn)
   }

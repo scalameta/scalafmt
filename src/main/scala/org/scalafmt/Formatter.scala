@@ -9,7 +9,7 @@ class Formatter(style: ScalaStyle,
 
   lazy val GetSplits = Default orElse Fail
 
-  val Fail: Strategy = {
+  val Fail: PartialFunction[FormatToken, List[Split]] = {
     case tok =>
       logger.debug(
         s"""
@@ -19,7 +19,8 @@ class Formatter(style: ScalaStyle,
            |${log(tok.right)}""".stripMargin)
       ???
   }
-  val Default: Strategy = {
+
+  val Default: PartialFunction[FormatToken, List[Split]] = {
     case FormatToken(_: BOF, _, _) => List(
       NoSplitFree
     )
@@ -32,6 +33,9 @@ class Formatter(style: ScalaStyle,
     case FormatToken(_: `,`, _, _) => List(
       SpaceFree,
       Newline0
+    )
+    case FormatToken(_: `{`, _: `}`, _) => List(
+      NoSplitFree
     )
     case FormatToken(open: `{`, _, _) => List(
       oneLinerBlock(open),
@@ -115,20 +119,17 @@ class Formatter(style: ScalaStyle,
 
   def oneLinerBlock(open: `{`): Split =
     Space(1, {
-      case FormatToken(_, close: `}`, _)
-        if owners.get(open) == owners.get(close) =>
-        List(
-          SpaceFree
-        )
+      // Disallow newlines inside block
+      case Decision(tok, splits) =>
+        Decision(tok, splits.filterNot(_.isInstanceOf[Newline]))
     })
 
   def multiLineBlock(open: `{`): Split =
-    Newline(1, 2, {
-      // TODO(olafur) find matching parens, see #15.
-      case FormatToken(_, close: `}`, _)
+    Newline(2, 2, {
+      case Decision(tok@FormatToken(_, close: `}`, _), _)
         if owners.get(open) == owners.get(close) =>
-        List(
-          Newline_2
-        )
+        Decision(tok, List(Newline_2))
+      case decision => decision
     })
 }
+
