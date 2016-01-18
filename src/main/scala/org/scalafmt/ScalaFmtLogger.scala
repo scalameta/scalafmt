@@ -14,7 +14,15 @@ trait ScalaFmtLogger {
   private def getTokenClass(token: Token) =
     token.getClass.getName.stripPrefix("scala.meta.tokens.Token$")
 
-  def log(token: Token): String = f"$token%30s ${getTokenClass(token)}"
+  def log(split: Split): String =
+    s"${split.toString} (penalty=${split.getPenalty})"
+
+  def log(formatToken: FormatToken): String =
+    s"""${log(formatToken.left)}
+       |${log(formatToken.between:_*)}
+       |${log(formatToken.right)}""".stripMargin
+
+  def log(token: Token): String = f"$token%45s ${getTokenClass(token)}"
   def log(tokens: Token*): String = tokens.map(log).mkString("\n")
   def log(tokens: Tokens): String = tokens.map(log).mkString("\n")
 

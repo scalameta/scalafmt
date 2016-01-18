@@ -1,0 +1,44 @@
+40 columns                              |
+<<< Break first on =
+object a {
+  val A__________________a: Int = 123456789
+}
+>>>
+object a {
+  val A__________________a: Int
+    = 123456789
+}
+<<< Break next on type
+object a {
+  val A__________________a: Int_____________ = 123456789
+}
+>>>
+object a {
+  val A__________________a:
+    Int_____________ = 123456789
+}
+<<< Unindent after leaving statement
+object a {
+  val A__________________a: Int = 123456789
+  val B__________________b: Int = 123456789
+}
+>>>
+object a {
+  val A__________________a: Int
+    = 123456789
+  val B__________________b: Int
+    = 123456789
+}
+<<< Break on = and type
+object a {
+  val A__________________________a:
+    Int_____________________________ = 123456789
+  val b = 2 // correctly indented
+}
+>>>
+object a {
+  val A__________________________a:
+    Int_____________________________
+      = 123456789
+  val b = 2 // correctly indented
+}
