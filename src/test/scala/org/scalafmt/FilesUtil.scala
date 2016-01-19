@@ -14,4 +14,7 @@ object FilesUtil {
     } yield filename
   }
 
+  def readFile(filename: String): String = new String(
+    java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(filename)))
+
 }

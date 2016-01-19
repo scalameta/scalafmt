@@ -9,9 +9,10 @@ package org.scalafmt
   * @param column
   */
 case class State(cost: Int,
-                policy: Decision => Decision,
+                 policy: Decision => Decision,
                  path: Vector[Split],
                  indentation: Int,
+                 indents: Vector[Push],
                  column: Int) extends Ordered[State] {
 
   import scala.math.Ordered.orderingToOrdered
@@ -23,5 +24,10 @@ case class State(cost: Int,
 
 
 object State {
-  val start = State(0, identity, Vector.empty[Split], 0, 0)
+  val start = State(0,
+    identity,
+    Vector.empty[Split],
+    0,
+    Vector.empty[Push],
+    0)
 }

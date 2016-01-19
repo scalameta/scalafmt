@@ -6,6 +6,12 @@ import scala.meta.tokens.Token
 
 package object scalafmt {
 
+  type Policy = PartialFunction[Decision, Decision]
+  val NoPolicy = PartialFunction.empty[Decision, Decision]
+  val IdentityPolicy: PartialFunction[Decision, Decision] = {
+    case d => d
+  }
+
   // TODO(olafur) Move these elsewhere.
   @tailrec final def childOf(child: Tree, tree: Tree): Boolean =
     child == tree || (child.parent match {

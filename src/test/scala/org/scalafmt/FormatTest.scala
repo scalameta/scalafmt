@@ -5,46 +5,36 @@ import org.scalatest.FunSuite
 import org.scalatest.concurrent.Timeouts
 import org.scalatest.time.SpanSugar._
 
+case class DiffTest(spec: String, name: String, original: String, expected: String)
 
-case class Test(spec: String, name: String, original: String, expected: String)
+trait FormatTest extends FunSuite with Timeouts with ScalaFmtLogger {
 
-class FormatTest extends FunSuite with Timeouts with ScalaFmtLogger {
+  def tests: Seq[DiffTest]
 
-  val fmt = new ScalaFmt(ScalaFmtTesting)
   val testDir = "src/test/resources"
 
-  def tests: Seq[Test] = {
-    import FilesUtil._
-    for {
-      filename <- listFiles(testDir) if filename.endsWith(".test")
-      test <- {
-        val spec = filename.stripPrefix(testDir + "/").stripSuffix(".test")
-        val content = new String(
-          java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(filename)))
-        content.split("\n<<< ").tail.map { t =>
-          val before :: expected :: Nil = t.split(">>>\n", 2).toList
-          val name :: original :: Nil = before.split("\n", 2).toList
-          Test(spec, name, original, expected)
-        }
-      }
-    } yield {
-      test
-    }
-  }
+  def style: ScalaStyle = UnitTestStyle
 
-  val onlyOne = tests.exists(_.name.startsWith("ONLY"))
+  val fmt = new ScalaFmt(style)
 
-  tests.withFilter { t =>
+  lazy val onlyOne = tests.exists(_.name.startsWith("ONLY"))
+
+  tests.sortWith {
+    case (left, right) =>
+      import scala.math.Ordered.orderingToOrdered
+      if (left.name == "Warmup") true
+      else (left.spec, left.name).compare(right.spec -> right.name) < 0
+  }.withFilter { t =>
     !t.name.startsWith("SKIP") &&
       (!onlyOne || t.name.startsWith("ONLY"))
   }.foreach {
-    case Test(spec, name, original, expected) =>
-      val testName = s"$name"
-      test(f"$testName%-39s|") {
-        failAfter(1 second) {
+    case DiffTest(spec, name, original, expected) =>
+      val testName = s"$spec: $name"
+      test(f"$testName%-50s|") {
+        failAfter(10 seconds) {
           assert(fmt.format(original) diff expected)
         }
       }
   }
-}
 
+}
