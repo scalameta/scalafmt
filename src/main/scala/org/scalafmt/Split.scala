@@ -4,109 +4,106 @@ import scala.meta.Tree
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 
-case class Decision(formatToken: FormatToken, split: List[Split])
+case class Decision(state: State, formatToken: FormatToken, split: List[Split])
 
-sealed abstract class Split(val cost: Int,
-                            val indent: Int,
-                            val policy: Decision => Decision = identity) {
-  // TODO(olafur) Remove this ugly hack.
-  private var penalty = false
-  def setPenalty(): Unit = penalty = true
-  def getPenalty: Boolean = penalty
+sealed trait Modification
 
-  def length: Int = this match {
-    case _: NoSplit => 0
-    case _: Newline => 0
-    case _: Space => 1
+case object NoSplit extends Modification
+
+case object Newline extends Modification
+
+case object Space extends Modification
+
+
+class Split(val modification: Modification,
+            val cost: Int,
+            val indent: List[Indent] = List.empty[Indent],
+            val policy: Policy = NoPolicy,
+            val penalty: Boolean = false) {
+
+  def length: Int = modification match {
+    case NoSplit => 0
+    case Newline => 0
+    case Space => 1
   }
+
+  def withPenalty(penalty: Int): Split =
+    new Split(modification, cost + penalty, indent, policy, true)
+
+  def withIndent(newIndent: Indent): Split =
+    new Split(modification, cost, newIndent +: indent, policy, penalty)
 
 }
 
-// Direct subclasses.
+object Split {
+  val NoSplit0 = Split(NoSplit, 0)
+  val Space0 = Split(Space, 0)
+  val Newline0 = Split(Newline, 0)
 
-class NoSplit(override val cost: Int) extends Split(cost, 0)
+  def apply(modification: Modification,
+            cost: Int,
+            indent: Indent = NoOp,
+            policy: Policy = NoPolicy,
+            penalty: Boolean = false) =
+    new Split(modification, cost, List(indent), policy, penalty)
 
-class Space(override val cost: Int,
-            override val policy: Decision => Decision = identity)
-
-  extends Split(cost: Int, 0, policy)
-
-class Newline(override val cost: Int,
-              override val indent: Int,
-              override val policy: Decision => Decision = identity)
-  extends Split(cost, indent, policy) {
-  def reindent(decrement: Int) = new Newline(cost, indent + decrement, policy)
 }
 
 // objects
+object Unindent {
+  def apply(open: Delim, owners: Map[Token, Tree]): Policy = {
+    case Decision(state, t@FormatToken(close: `)`, _, _), splits)
+      if open.isInstanceOf[`(`] && owners.get(open) == owners.get(close) =>
+      Decision(state, t, splits.map(_.withIndent(Pop)))
+    case Decision(state, t@FormatToken(close: `]`, _, _), splits)
+      if open.isInstanceOf[`[`] && owners.get(open) == owners.get(close) =>
+      Decision(state, t, splits.map(_.withIndent(Pop)))
+  }
+}
 
-case object NoSplitFree extends NoSplit(0)
+object OneArgOneLineSplit {
+  def apply(open: Delim, owners: Map[Token, Tree]): Policy =
+    Unindent(open, owners) orElse {
+      // Unindent on close ).
+      // Newline on every comma.
+      case Decision(state, t@FormatToken(comma: `,`, _, _), splits)
+        if owners.get(open) == owners.get(comma) =>
+        Decision(state, t, splits.filter(_.modification == Newline))
+      // TODO(olafur) Make policy partial function.
+    }
+}
 
-case class SpaceFree() extends Space(0)
-
-class NewlineFree(indent: Int) extends Newline(0, indent)
-
-case object Newline0 extends NewlineFree(0)
-
-case object Newline_2 extends NewlineFree(-2)
-
-case object Newline2 extends NewlineFree(2)
-
-case object Newline_4 extends NewlineFree(-4)
-
-case object Newline4 extends NewlineFree(4)
-
-
-case class MultiLineBlock(override val cost: Int,
-                          override val policy: Decision => Decision)
-  extends Newline(cost, 2, policy)
-
-case class SingeLineBlock(override val cost: Int,
-                          override val policy: Decision => Decision)
-  extends Space(cost, policy)
-
-case class BreakStatement(override val cost: Int,
-                          override val policy: Decision => Decision)
-  extends Newline(cost, 2, policy)
-
-object MultiLineBlock {
-  def apply(cost: Int, open: `{`, owners: Map[Token, Tree]): MultiLineBlock = {
-    MultiLineBlock(cost, {
-      case Decision(tok@FormatToken(_, close: `}`, _), _)
-        if owners.get(open) == owners.get(close) =>
-        Decision(tok, List(Newline_2))
-      case decision => decision
-    })
+object MultiLineBlock extends ScalaFmtLogger {
+  def apply(open: `{`, owners: Map[Token, Tree]): Policy = {
+    case Decision(state, tok@FormatToken(_, close: `}`, _), splits)
+      if owners.get(open) == owners.get(close) =>
+      Decision(state, tok, splits.withFilter(_.modification == Newline).map {
+        case s => s.withIndent(Pop)
+      })
   }
 }
 
 
-object SingeLineBlock {
-  def apply(cost: Int, open: `{`, owners: Map[Token, Tree]): SingeLineBlock = {
+object SingleLineBlock {
+  def apply(open: Delim, owners: Map[Token, Tree]): Policy = {
     val end = owners(open).tokens.last.end
-    SingeLineBlock(cost, {
-      case Decision(tok, splits)
-        // TODO(olafur) expire policy.
+    val policy: Policy = {
+      case Decision(state, tok, splits)
         if tok.right.end <= end =>
-        Decision(tok, splits.filterNot(_.isInstanceOf[Newline]))
-      case decision => decision
-    })
+        Decision(state, tok, splits.filterNot(_.modification == Newline))
+    }
+    policy
   }
 }
 
 object BreakStatement {
-  def apply(cost: Int, tok: Token, owners: Map[Token, Tree]): BreakStatement = {
+  def apply(cost: Int, tok: Token, owners: Map[Token, Tree]): Split = {
     val parent = owners(tok)
-    BreakStatement(cost, {
-      case Decision(t@FormatToken(left, right, _), s)
+    Split(Newline, cost, Push(2), {
+      case Decision(state, t@FormatToken(left, right, _), s)
         if childOf(left, parent, owners) && !childOf(right, parent, owners) =>
-        Decision(t, s.map {
-          case nl: Newline => nl.reindent(-2)
-          case els => els
-        })
-      case decision => {
-        decision
-      }
+        Decision(state, t, s.map(_.withIndent(Pop)))
     })
   }
 }
+

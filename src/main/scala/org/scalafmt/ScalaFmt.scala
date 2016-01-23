@@ -3,7 +3,6 @@ package org.scalafmt
 import scala.collection.mutable
 import scala.meta._
 import scala.meta.tokens.Token
-import scala.meta.tokens.Token.`=`
 
 class ScalaFmt(style: ScalaStyle) extends ScalaFmtLogger {
 
@@ -29,24 +28,67 @@ class ScalaFmt(style: ScalaStyle) extends ScalaFmtLogger {
                               splits: Vector[Split]): String = {
     require(toks.length == splits.length)
     val sb = new StringBuilder()
-    var indentation = 0
+    var state = State.start
     toks.zip(splits).foreach {
       case (tok, split) =>
-//        logger.debug(s"${log(tok.left)} ${log(split)}")
-        indentation += split.indent
+        state = next(state, split, tok)
+        //        logger.debug(s"${log(tok.left)} $split ${state.indentation}")
         sb.append(tok.left.code)
-        val ws = split match {
-          case _: Space =>
+        val ws = split.modification match {
+          case Space =>
             sb.append(" ")
-          case _: Newline =>
-            sb.append("\n" + " " * indentation)
+          case Newline =>
+            sb.append("\n" + " " * state.indentation)
           case _ =>
-            // Nothing
+          // Nothing
         }
     }
     sb.toString()
   }
 
+  /**
+    * Calculates next State given split at tok.
+    *
+    * - Accumulates cost and strategies
+    * - Calculates column-width overflow penalty
+    */
+  private def next(state: State,
+                   split: Split,
+                   tok: FormatToken): State = {
+    // TODO(olafur) performance alert...
+    val newIndents = split.indent.foldLeft(state.indents) {
+      case (pushes, indent) => indent match {
+        case PushStateColumn =>
+          val i = state.column - state.indentation
+          Push(i) +: pushes
+        case p: Push =>
+          p +: pushes
+        case NoOp =>
+          pushes
+        case Pop =>
+          if (pushes.nonEmpty) pushes.tail
+          else throw TooManyIndentPops
+      }
+    }
+    val newIndent = newIndents.foldLeft(0)(_ + _.num)
+    // Always account for the cost of the right token.
+    val newColumn = tok.right.code.length + (
+      if (split.modification == Newline) newIndent
+      else state.column + split.length)
+    val splitWithPenalty =
+      if (newColumn < style.maxColumn) split
+      else split.withPenalty(KILL)
+    val newPolicy =
+      if (split.policy == NoPolicy) state.policy
+      else (split.policy orElse IdentityPolicy) andThen state.policy
+    State(state.cost + splitWithPenalty.cost,
+      // TODO(olafur) expire policy, see #18.
+      newPolicy,
+      state.path :+ splitWithPenalty,
+      newIndent,
+      newIndents,
+      newColumn)
+  }
 
   /**
     * Runs Dijstra's shortest path algorithm to find lowest penalty split.
@@ -70,7 +112,7 @@ class ScalaFmt(style: ScalaStyle) extends ScalaFmtLogger {
           println(explored)
         val splitToken = splitTokens(curr.path.length)
         val splits = formatter.GetSplits(splitToken)
-        val actualSplit = curr.policy(Decision(splitToken, splits)).split
+        val actualSplit = curr.policy(Decision(curr, splitToken, splits)).split
         actualSplit.foreach { split =>
           val nextState = next(curr, split, splitToken)
           Q.enqueue(nextState)
@@ -79,35 +121,6 @@ class ScalaFmt(style: ScalaStyle) extends ScalaFmtLogger {
     }
     result
   } ensuring(_.length == splitTokens.length, "Unable to reach the last token.")
-
-  /**
-    * Calculates next State given split at tok.
-    *
-    * - Accumulates cost and strategies
-    * - Calculates column-width overflow penalty
-    */
-  private def next(state: State,
-                   split: Split,
-                   tok: FormatToken): State = {
-    val newIndent = state.indentation + split.indent
-    // Always account for the cost of the right token.
-    val newColumn = tok.right.code.length + (
-      if (split.isInstanceOf[Newline]) newIndent
-      else state.column + split.length)
-    val overflowPenalty =
-      if (newColumn < style.maxColumn) 0
-      else {
-        split.setPenalty()
-        KILL
-      }
-
-    val totalCost = state.cost + split.cost + overflowPenalty
-    State(totalCost,
-      // TODO(olafur) expire policy, see #18.
-      state.policy andThen split.policy,
-      state.path :+ split,
-      newIndent, newColumn)
-  }
 
   /**
     * Creates lookup table from token to its closest scala.meta tree.

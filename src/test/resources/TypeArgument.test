@@ -1,0 +1,66 @@
+40 columns                              |
+<<< One argument per line
+object Object {
+  val x = function[a1234567, b1234567,
+                   c1234567, d1234567]
+  val y = 2 // indented correctly
+}
+>>>
+object Object {
+  val x = function[a1234567,
+                   b1234567,
+                   c1234567,
+                   d1234567]
+  val y = 2 // indented correctly
+}
+<<< Single line with newline at start.
+object a {
+  function[aaaaaaaaaaaaaa, aaaaaaaaaaaaaa]()
+}
+>>>
+object a {
+  function[
+      aaaaaaaaaaaaaa, aaaaaaaaaaaaaa]()
+}
+<<< One line one arg at 4 indent.
+object a {
+  function[aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,
+           aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa]
+}
+>>>
+object a {
+  function[
+      aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,
+      aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa]
+}
+<<< One line one arg at 4 indent, 2x.
+object a {
+  function[function[aaaaaaaaaaaaaaaaaaaaaa,
+                    aaaaaaaaaaaaaaaaaaaaaa],
+           aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa]
+}
+>>>
+object a {
+  function[
+      function[aaaaaaaaaaaaaaaaaaaaaa,
+               aaaaaaaaaaaaaaaaaaaaaa],
+      aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa]
+}
+<<< Break on higher level of nesting.
+object a {
+  function[function[aaaaa, b], function[ccccc, d]]
+}
+>>>
+object a {
+  function[function[aaaaa, b],
+           function[ccccc, d]]
+}
+<<< Break on higher level of nesting 2x.
+object a {
+  function[function[function[a, b], function[c, d]]]
+}
+>>>
+object a {
+  function[function[function[a, b],
+                    function[c, d]]]
+}

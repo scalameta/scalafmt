@@ -11,31 +11,21 @@ import scala.meta.tokens.Tokens
 trait ScalaFmtLogger {
   val logger = Logger(LoggerFactory.getLogger(this.getClass))
 
-  private def getTokenClass(token: Token) =
-    token.getClass.getName.stripPrefix("scala.meta.tokens.Token$")
-
-  def log(split: Split): String =
-    s"${split.toString} (penalty=${split.getPenalty})"
+  def log(split: Split): String = s"$split"
 
   def log(formatToken: FormatToken): String =
     s"""${log(formatToken.left)}
-       |${log(formatToken.between:_*)}
+       |${log(formatToken.between: _*)}
        |${log(formatToken.right)}""".stripMargin
 
-  def log(token: Token): String = f"$token%45s ${getTokenClass(token)}"
   def log(tokens: Token*): String = tokens.map(log).mkString("\n")
+
   def log(tokens: Tokens): String = tokens.map(log).mkString("\n")
 
-  def header[T](t: T): String = {
-    val line = s"=" * (t.toString.length + 3)
-    s"$line\n=> $t\n$line"
-  }
+  def log(token: Token): String = f"$token%-30s ${getTokenClass(token)}"
 
-  def reveal(s: String): String =
-    s.replaceAll("\n", "¶")
-      .replaceAll(" ", "∙")
-
-
+  private def getTokenClass(token: Token) =
+    token.getClass.getName.stripPrefix("scala.meta.tokens.Token$")
 
   def log(t: Tree, line: Int): Unit = {
     logger.debug(
@@ -45,6 +35,17 @@ trait ScalaFmtLogger {
          |STRUCTURE: ${t.show[Structure]}
          |TOKENS: ${t.tokens.map(x => reveal(x.code)).mkString(",")}
          |""".stripMargin)
+  }
+
+  def header[T](t: T): String = {
+    val line = s"=" * (t.toString.length + 3)
+    s"$line\n=> $t\n$line"
+  }
+
+  def reveal(s: String): String = s.map {
+    case '\n' => '¶'
+    case ' ' => '∙'
+    case ch => ch
   }
 
   def time[T](msg: String)(thunk: => T): T = {
