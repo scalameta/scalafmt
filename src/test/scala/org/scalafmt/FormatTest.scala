@@ -1,13 +1,16 @@
 package org.scalafmt
 
 import org.scalafmt.DiffUtil._
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.ConfigMap
 import org.scalatest.FunSuite
 import org.scalatest.concurrent.Timeouts
 import org.scalatest.time.SpanSugar._
 
 case class DiffTest(spec: String, name: String, original: String, expected: String)
 
-trait FormatTest extends FunSuite with Timeouts with ScalaFmtLogger {
+trait FormatTest
+  extends FunSuite with Timeouts with ScalaFmtLogger with BeforeAndAfterAll {
 
   def tests: Seq[DiffTest]
 
@@ -32,9 +35,18 @@ trait FormatTest extends FunSuite with Timeouts with ScalaFmtLogger {
       val testName = s"$spec: $name"
       test(f"$testName%-50s|") {
         failAfter(10 seconds) {
-          assert(fmt.format(original) diff expected)
+          Debug.clear()
+          val before = Debug.explored
+          val result = fmt.format(original)
+          logger.debug(f"${Debug.explored - before}%-4s $testName")
+          if (name.startsWith("ONLY"))
+            Debug.reportTokens
+          assert(result diff expected)
         }
       }
   }
 
+  override def afterAll(configMap: ConfigMap): Unit = {
+    logger.debug(s"Total explored: ${Debug.explored}")
+  }
 }

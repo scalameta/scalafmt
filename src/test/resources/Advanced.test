@@ -1,5 +1,5 @@
 40 columns                              |
-<<< Syntax rich
+<<< SKIP Syntax rich
 @ foobar("annot", {
   val x = 2
   val y = 2 // y=2

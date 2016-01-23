@@ -1,2 +1,6 @@
 SKIP src/main/scala/org/scalafmt/Indent.scala
 SKIP src/main/scala/org/scalafmt/ScalaStyle.scala
+SKIP src/main/scala/org/scalafmt/Formatter.scala
+SKIP src/main/scala/org/scalafmt/State.scala
+SKIP src/main/scala/org/scalafmt/ScalaFmtLogger.scala
+SKIP src/main/scala/org/scalafmt/package.scala
