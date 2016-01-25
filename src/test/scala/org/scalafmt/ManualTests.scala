@@ -4,6 +4,11 @@ class ManualTests extends FormatTest {
 
   override def style = Standard
 
+  def stripFilename(filename: String) = filename
+    .stripPrefix("SKIP")
+    .stripPrefix("ONLY")
+    .trim
+
   override def tests: Seq[DiffTest] = {
     import FilesUtil._
     for {
@@ -13,7 +18,7 @@ class ManualTests extends FormatTest {
           .stripPrefix(testDir + "/")
           .stripSuffix(".manual")
         readFile(filename).lines.map { name =>
-          val original = readFile(name.stripPrefix("SKIP").trim)
+          val original = readFile(stripFilename(name))
           DiffTest(spec, name, original, original)
         }
       }

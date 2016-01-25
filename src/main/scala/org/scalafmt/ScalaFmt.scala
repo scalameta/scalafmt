@@ -2,130 +2,119 @@ package org.scalafmt
 
 import scala.collection.mutable
 import scala.meta._
+import scala.meta.internal.ast.Defn
 import scala.meta.tokens.Token
 
-class ScalaFmt(style: ScalaStyle) extends ScalaFmtLogger {
-
-  /**
-    * Penalty to kill the current path.
-    */
-  val KILL = 10000
+class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
 
   /**
     * Pretty-prints Scala code.
     */
   def format(code: String): String = {
-    val source = code.parse[Source]
-    val toks = FormatToken.formatTokens(source.tokens)
-    val path = shortestPath(source, toks)
-    reconstructPath(toks, path)
-  }
-
-  /**
-    * Returns formatted output from FormatTokens and Splits.
-    */
-  private def reconstructPath(toks: Array[FormatToken],
-                              splits: Vector[Split]): String = {
-    require(toks.length == splits.length)
-    val sb = new StringBuilder()
-    var state = State.start
-    toks.zip(splits).foreach {
-      case (tok, split) =>
-        state = next(state, split, tok)
-        //        logger.debug(s"${log(tok.left)} $split ${state.indentation}")
-        sb.append(tok.left.code)
-        val ws = split.modification match {
-          case Space =>
-            sb.append(" ")
-          case Newline =>
-            sb.append("\n" + " " * state.indentation)
-          case _ =>
-          // Nothing
-        }
+    try {
+      val source = code.parse[Source]
+      formatTree(source)
+    } catch {
+      // Skip invalid code.
+      case e: ParseException =>
+        logger.warn("Unable to parse code", e)
+        code
     }
-    sb.toString()
   }
 
-  /**
-    * Calculates next State given split at tok.
-    *
-    * - Accumulates cost and strategies
-    * - Calculates column-width overflow penalty
-    */
-  private def next(state: State,
-                   split: Split,
-                   tok: FormatToken): State = {
-    // TODO(olafur) performance alert...
-    val newIndents = split.indent.foldLeft(state.indents) {
-      case (pushes, indent) => indent match {
-        case PushStateColumn =>
-          val i = state.column - state.indentation
-          Push(i) +: pushes
-        case p: Push =>
-          p +: pushes
-        case NoOp =>
-          pushes
-        case Pop =>
-          if (pushes.nonEmpty) pushes.tail
-          else throw TooManyIndentPops
-      }
-    }
-    val newIndent = newIndents.foldLeft(0)(_ + _.num)
-    // Always account for the cost of the right token.
-    val newColumn = tok.right.code.length + (
-      if (split.modification == Newline) newIndent
-      else state.column + split.length)
-    val splitWithPenalty =
-      if (newColumn < style.maxColumn) split
-      else split.withPenalty(KILL)
-    val newPolicy =
-      if (split.policy == NoPolicy) state.policy
-      else (split.policy orElse IdentityPolicy) andThen state.policy
-    State(state.cost + splitWithPenalty.cost,
-      // TODO(olafur) expire policy, see #18.
-      newPolicy,
-      state.path :+ splitWithPenalty,
-      newIndent,
-      newIndents,
-      newColumn)
-  }
-
-  /**
-    * Runs Dijstra's shortest path algorithm to find lowest penalty split.
-    */
-  private def shortestPath(source: Source,
-                           splitTokens: Array[FormatToken]): Vector[Split] = {
-    val formatter = new Formatter(style, getOwners(source))
-    val Q = new mutable.PriorityQueue[State]()
+  private def formatTree(tree: Tree): String = {
+    val toks = FormatToken.formatTokens(tree.tokens)
+    val owners = getOwners(tree)
+    val memo = mutable.Map.empty[(Int, Tree), State]
     var explored = 0
-    var result = Vector.empty[Split]
-    Q += State.start
-    while (Q.nonEmpty) {
-      val curr = Q.dequeue()
-      if (curr.path.length == splitTokens.length) {
-        result = curr.path
-        Q.dequeueAll
-      }
-      else {
+    val best = mutable.Map.empty[Token, State]
+    val formatter = new Formatter(style, owners)
+
+
+    /**
+      * Returns true if it's OK to skip over state.
+      */
+    def pruneOK(state: State): Boolean = {
+      val splitToken = toks(state.splits.length)
+      best.get(splitToken.left).exists(_.alwaysBetter(state))
+    }
+
+    /**
+      * Same as shortest path except caches results.
+      */
+    def shortestPathMemo(owner: Tree, start: State): State = {
+      val key = start.indentation -> owner
+      memo.getOrElseUpdate(key, shortestPath(owner, start))
+    }
+
+    /**
+      * Runs Dijstra's shortest path algorithm to find lowest penalty split.
+      */
+    def shortestPath(owner: Tree, start: State): State = {
+      Debug.visit(owner)
+      logger.debug(
+        s"""${start.indentation} ${start.splits.takeRight(3)}
+           |OWNER: $owner
+           |${owner.show[Structure]}
+           |FORMAT:
+           |${start.reconstructPath(toks, style)}""".stripMargin)
+      val Q = new mutable.PriorityQueue[State]()
+      var result = start
+      Q += start
+      while (Q.nonEmpty) {
+        val curr = Q.dequeue()
         explored += 1
         if (explored % 100000 == 0)
           println(explored)
-        val splitToken = splitTokens(curr.path.length)
-        val splits = formatter.GetSplits(splitToken)
-        val actualSplit = curr.policy(Decision(curr, splitToken, splits)).split
-        actualSplit.foreach { split =>
-          val nextState = next(curr, split, splitToken)
-          Q.enqueue(nextState)
+        val i = curr.splits.length
+        if (i == toks.length ||
+          !childOf(toks(i).right, owner, owners)) {
+          result = curr
+          Q.dequeueAll
+        }
+        else if (!pruneOK(curr)) {
+          val splitToken = toks(i)
+          Debug.visit(splitToken)
+          val splits = formatter.GetSplits(splitToken)
+          val actualSplit = curr.policy(Decision(splitToken, splits)).split
+          actualSplit.foreach { split =>
+            val nextState = curr.next(style, split, splitToken)
+            if (split.modification == Newline)
+              best += splitToken.left -> nextState
+            if (splitToken.left != owner.tokens.head &&
+              startsUnwrappedLine(splitToken.left, owners(splitToken.left))) {
+              val nextNextState = shortestPathMemo(owners(splitToken.left), nextState)
+              Q.enqueue(nextNextState)
+            } else {
+              Q.enqueue(nextState)
+            }
+          }
         }
       }
+      result
     }
-    result
-  } ensuring(_.length == splitTokens.length, "Unable to reach the last token.")
+
+    val state = shortestPathMemo(tree, State.start)
+    if (state.splits.length != toks.length) {
+      logger.warn("UNABLE TO FORMAT")
+    }
+    Debug.explored += explored
+    state.reconstructPath(toks, style)
+  }
+
+  def startsUnwrappedLine(token: Token,
+                          owner: Tree): Boolean = {
+    if (!owner.tokens.headOption.contains(token)) false
+    else owner match {
+      case _: Defn | _: Case => true
+      case _ => false
+    }
+  }
 
   /**
     * Creates lookup table from token to its closest scala.meta tree.
     */
-  private def getOwners(source: Source): Map[Token, Tree] = {
+  private def getOwners(tree: Tree): Map[Token, Tree] = {
     val result = mutable.Map.empty[Token, Tree]
     def loop(x: Tree): Unit = {
       x.tokens
@@ -134,7 +123,7 @@ class ScalaFmt(style: ScalaStyle) extends ScalaFmtLogger {
         }
       x.children.foreach(loop)
     }
-    loop(source)
+    loop(tree)
     result.toMap
   }
 

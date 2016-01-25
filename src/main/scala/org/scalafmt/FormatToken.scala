@@ -5,7 +5,9 @@ import scala.meta.tokens.Token
 import scala.meta.tokens.Token.Whitespace
 import scala.meta.tokens.Tokens
 
-case class FormatToken(left: Token, right: Token, between: Vector[Whitespace])
+case class FormatToken(left: Token, right: Token, between: Vector[Whitespace]) {
+  override def toString = s"${left.code}∙${right.code}"
+}
 
 object FormatToken {
 
