@@ -99,6 +99,8 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
       logger.warn("UNABLE TO FORMAT")
     }
     Debug.explored += explored
+    Debug.state = state
+    Debug.toks = toks
     state.reconstructPath(toks, style)
   }
 

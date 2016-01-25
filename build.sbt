@@ -38,6 +38,7 @@ libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic" % "1.1.3",
   "org.scalameta" %% "scalameta" % "0.1.0-SNAPSHOT",
   "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0" % "test",
+  "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
   "org.scalatest" %% "scalatest" % "2.2.1" % "test"
 )
 

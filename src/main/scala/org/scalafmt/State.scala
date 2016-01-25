@@ -33,7 +33,8 @@ case class State(cost: Int,
     * Returns formatted output from FormatTokens and Splits.
     */
   def reconstructPath(toks: Array[FormatToken],
-                      style: ScalaStyle): String = {
+                      style: ScalaStyle,
+                      f: FormatToken => String = _.left.code): String = {
     //    require(splits.length - start.splits.length == toks.length,
     //      s"${toks.toVector} $splits")
     val sb = new StringBuilder()
@@ -42,7 +43,7 @@ case class State(cost: Int,
       case (tok, split) =>
         //        logger.debug(s"${log(tok.left)} $split ${state.indents}")
         state = state.next(style, split, tok)
-        sb.append(tok.left.code)
+        sb.append(f(tok))
         val ws = split.modification match {
           case Space =>
             sb.append(" ")

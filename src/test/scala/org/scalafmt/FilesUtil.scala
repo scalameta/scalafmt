@@ -17,4 +17,9 @@ object FilesUtil {
   def readFile(filename: String): String = new String(
     java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(filename)))
 
+  def writeFile(filename: String, content: String): Unit = {
+    val path = java.nio.file.Paths.get(filename)
+    java.nio.file.Files.write(path, content.getBytes)
+  }
+
 }
