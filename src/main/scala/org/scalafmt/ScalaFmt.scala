@@ -2,7 +2,7 @@ package org.scalafmt
 
 import scala.collection.mutable
 import scala.meta._
-import scala.meta.internal.ast.Defn
+import scala.meta.internal.ast.{Pkg, Defn}
 import scala.meta.tokens.Token
 
 class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
@@ -22,14 +22,16 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
     }
   }
 
+
+
   private def formatTree(tree: Tree): String = {
     val toks = FormatToken.formatTokens(tree.tokens)
     val owners = getOwners(tree)
     val memo = mutable.Map.empty[(Int, Tree), State]
     var explored = 0
     val best = mutable.Map.empty[Token, State]
-    val formatter = new Formatter(style, owners)
-
+    val formatter = new Formatter(style, tree, toks, owners)
+//    val newline2x: Seq[Token] = tree.co
 
     /**
       * Returns true if it's OK to skip over state.
@@ -54,8 +56,7 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
       Debug.visit(owner)
       logger.debug(
         s"""${start.indentation} ${start.splits.takeRight(3)}
-           |OWNER: $owner
-           |${owner.show[Structure]}
+           |${log(owner)}
            |FORMAT:
            |${start.reconstructPath(toks, style)}""".stripMargin)
       val Q = new mutable.PriorityQueue[State]()
@@ -108,7 +109,7 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
                           owner: Tree): Boolean = {
     if (!owner.tokens.headOption.contains(token)) false
     else owner match {
-      case _: Defn | _: Case => true
+      case _: Defn | _: Case | _: Pkg => true
       case _ => false
     }
   }

@@ -6,11 +6,18 @@ import scala.meta.tokens.Token._
 
 case class Decision(formatToken: FormatToken, split: List[Split])
 
-sealed trait Modification
+sealed trait Modification {
+  def isNewline = this match {
+    case Newline | Newline2x => true
+    case _ => false
+  }
+}
 
 case object NoSplit extends Modification
 
 case object Newline extends Modification
+
+case object Newline2x extends Modification
 
 case object Space extends Modification
 
@@ -23,7 +30,7 @@ class Split(val modification: Modification,
 
   def length: Int = modification match {
     case NoSplit => 0
-    case Newline => 0
+    case Newline | Newline2x => 0
     case Space => 1
   }
 
@@ -32,6 +39,9 @@ class Split(val modification: Modification,
 
   def withIndent(newIndent: Indent): Split =
     new Split(modification, cost, newIndent +: indent, policy, penalty)
+
+  def withModification(newModification: Modification): Split =
+    new Split(newModification, cost, indent, policy, penalty)
 
   override def toString =
     s"""$modification(cost=$cost${if (indent.nonEmpty) s", indent=$indent" else ""})"""

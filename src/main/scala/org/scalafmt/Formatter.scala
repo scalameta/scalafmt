@@ -1,16 +1,20 @@
 package org.scalafmt
 
+import scala.annotation.tailrec
 import scala.meta.Tree
+import scala.meta.internal.ast.{Defn, Pkg}
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 
 class Formatter(style: ScalaStyle,
+                tree: Tree,
+                toks: Array[FormatToken],
                 owners: Map[Token, Tree]) extends ScalaFmtLogger {
 
   import Split._
 
   lazy val GetSplits = Default orElse Fail
-
+  val tok2idx = toks.zipWithIndex.toMap
   val Default: PartialFunction[FormatToken, List[Split]] = {
     case FormatToken(_: BOF, _, _) => List(
       NoSplit0
@@ -18,29 +22,60 @@ class Formatter(style: ScalaStyle,
     case FormatToken(_, _: EOF, _) => List(
       NoSplit0
     )
-    case FormatToken(_, _: `,`, _) => List(
-      NoSplit0
-    )
-    case FormatToken(_: `,`, _, _) => List(
-      Space0,
-      Newline0
-    )
     case FormatToken(_: `{`, _: `}`, _) => List(
       NoSplit0
     )
-    case FormatToken(_: `}`, _: Keyword, _) => List(
-      Newline0
-    )
-    case FormatToken(open: `{`, right, _) =>
+    case tok@FormatToken(open: `{`, _, _) =>
+      val nl: Modification = if (gets2x(tok)) Newline2x else Newline
       List(
-        Split(Space, 1, policy = SingleLineBlock(open)),
-        Split(Newline, 2, indent = Push(2),
+        Split(Space, 0, policy = SingleLineBlock(open)),
+        Split(nl, 1, indent = Push(2),
           policy = MultiLineBlock(open))
       )
     case FormatToken(_, _: `{`, _) => List(
       Space0
     )
+    case tok: FormatToken if !isDocstring(tok.left) && gets2x(tok) => List(
+      Split(Newline2x, 0)
+    )
     case FormatToken(_, _: `}`, _) => List(
+      Space0,
+      Newline0
+    )
+    case FormatToken(_, _: `import`, _) =>
+      List(Newline0)
+    case FormatToken(c: Comment, _, _)
+      if c.code.startsWith("//") =>
+      List(Newline0)
+    case FormatToken(_, c: Comment, between)
+      if c.code.startsWith("//") =>
+      val newlineCounts = between.count(_.isInstanceOf[`\n`])
+      if (newlineCounts > 1) List(Split(Newline2x, 0))
+      else if (newlineCounts == 1) List(Newline0)
+      else List(Space0)
+    case FormatToken(_, c: Comment, _)
+      if c.code.startsWith("/**") => List(
+      Split(Newline2x, 0)
+    )
+    case FormatToken(left: `package `, _, _)
+      if owners(left).isInstanceOf[Pkg] =>
+      val owner = owners(left).asInstanceOf[Pkg]
+      val lastRef = owner.ref.tokens.last
+      List(
+        Split(Space, 0, policy = {
+          // Following case:
+          // package foo // this is cool
+          //
+          // object a
+          case Decision(t@FormatToken(`lastRef`, _: Comment, between), splits)
+            if !between.exists(_.isInstanceOf[`\n`]) =>
+            Decision(t, splits.map(_.withModification(Space)))
+        })
+      )
+    case FormatToken(_, _: `,`, _) => List(
+      NoSplit0
+    )
+    case FormatToken(_: `,`, _, _) => List(
       Space0,
       Newline0
     )
@@ -102,22 +137,12 @@ class Formatter(style: ScalaStyle,
         Space0,
         BreakStatement(6, tok.left)
       )
-    case tok@FormatToken(_: Keyword | _: Modifier, _, _) =>
-      List(
-        Space0,
-        BreakStatement(4, tok.left)
-      )
-    case FormatToken(_, _: Keyword, _) =>
-      List(
-        Space0,
-        Split(Newline, 2)
-      )
-    case FormatToken(_, c: Comment, _) => List(
+    case tok@FormatToken(_: Keyword | _: Modifier, _, _) => List(
       Space0
     )
-    case FormatToken(c: Comment, _, _) =>
-      if (c.code.startsWith("//")) List(Newline0)
-      else List(Space0, Newline0)
+    case FormatToken(left, right: Keyword, _) =>
+      if (owners(left) == owners(right)) List(Space0)
+      else List(Newline0)
     case FormatToken(_, _: Delim, _) => List(
       Space0
     )
@@ -133,11 +158,46 @@ class Formatter(style: ScalaStyle,
       NoSplit0
     )
   }
-
   val Fail: PartialFunction[FormatToken, List[Split]] = {
     case tok =>
-      logger.debug(log(tok))
+      logger.debug("MISSING CASE:\n" + log(tok))
       ???
+  }
+
+  def isDocstring(token: Token): Boolean = {
+    token.isInstanceOf[Comment] && token.code.startsWith("/**")
+  }
+
+  @tailrec
+  final def nextNonComment(curr: FormatToken): FormatToken = {
+    if (!curr.right.isInstanceOf[Comment]) curr
+    else {
+      val tok = next(curr)
+      if (tok == curr) curr
+      else nextNonComment(tok)
+    }
+  }
+
+  def gets2x(formatToken: FormatToken): Boolean = {
+    val tok = nextNonComment(formatToken)
+    val owner = owners(tok.right)
+    if (!owner.tokens.headOption.contains(tok.right)) false
+    else owner match {
+      case _: Defn.Def | _: Defn.Class | _: Defn.Object => true
+      case _ => false
+    }
+  }
+
+  def next(tok: FormatToken): FormatToken = {
+    val i = tok2idx(tok)
+    if (i == toks.length - 1) tok
+    else toks(i + 1)
+  }
+
+  def prev(tok: FormatToken): FormatToken = {
+    val i = tok2idx(tok)
+    if (i == 0) tok
+    else toks(i - 1)
   }
 
   def OneArgOneLineSplit(open: Delim): Policy =
@@ -171,7 +231,7 @@ class Formatter(style: ScalaStyle,
     val policy: Policy = {
       case Decision(tok, splits)
         if tok.right.end <= end =>
-        Decision(tok, splits.filterNot(_.modification == Newline))
+        Decision(tok, splits.filterNot(_.modification.isNewline))
     }
     policy
   }

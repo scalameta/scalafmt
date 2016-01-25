@@ -49,6 +49,8 @@ case class State(cost: Int,
             sb.append(" ")
           case Newline =>
             sb.append("\n" + " " * state.indentation)
+          case Newline2x =>
+            sb.append("\n\n" + " " * state.indentation)
           case _ =>
           // Nothing
         }

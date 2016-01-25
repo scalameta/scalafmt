@@ -1,0 +1,29 @@
+40 columns                              |
+<<< separate by two newlines with docstring.
+package foo
+/**
+ * comment
+ */
+object a
+>>>
+package foo
+
+/**
+ * comment
+ */
+object a
+
+<<< separate by two newlines.
+package foo
+object a
+>>>
+package foo
+
+object a
+<<< separate by two newlines, with inline comment
+package foo // this package is cool.
+object a
+>>>
+package foo // this package is cool.
+
+object a

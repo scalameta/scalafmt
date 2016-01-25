@@ -2,16 +2,18 @@
 <<< Warmup
 @foobar object a {val x:Int=1}
 >>>
-@foobar object a { val x: Int = 1 }
+@foobar
+object a { val x: Int = 1 }
 <<< Object definition fits in one line
 @foobar object   a   {val x:Int=1}
 >>>
-@foobar object a { val x: Int = 1 }
+@foobar
+object a { val x: Int = 1 }
 <<< Object almost fits in one line
-@foobar object aaaaaaa { val x: Int = 1 }
+object Aaaaaaa { val x12345678: Int = 1 }
 >>>
-@foobar object aaaaaaa {
-  val x: Int = 1
+object Aaaaaaa {
+  val x12345678: Int = 1
 }
 <<< Indentation is included for penalty.
 object aaaaaaaaaaaaaaaaaaaaaaaaaaaaa {
@@ -24,29 +26,9 @@ object aaaaaaaaaaaaaaaaaaaaaaaaaaaaa {
 <<< Multiline object definition
 @foobar object LoooooooooooongNaaame { val x: Int = 1 }
 >>>
-@foobar object LoooooooooooongNaaame {
+@foobar
+object LoooooooooooongNaaame {
   val x: Int = 1
-}
-<<< SKIP Unindent when leaving block, see #19.
-object aaaaaaaaaaaaaaaaaaaaaaaaaaaaa {
-  val bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb = 1
-}
->>>
-object aaaaaaaaaaaaaaaaaaaaaaaaaaaaa {
-  val bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-    = 1
-}
-<<< case statement splits block, see #15.
-object Object {
-  val x = { case 2 => 1
-    case 1 => 3 }
-}
->>>
-object Object {
-  val x = {
-    case 2 => 1
-    case 1 => 3
-  }
 }
 <<< One-liner object contains no newlines
 object Object { function_____________() }
@@ -58,6 +40,7 @@ object Object {
 object Object { object Object______ { } }
 >>>
 object Object {
+
   object Object______ {}
 }
 <<< Multiline, single-line, multiline
@@ -67,7 +50,9 @@ object Object {
 }
 >>>
 object Object {
+
   object A { a }
+
   object B_________________________ {
     b123456
   }
