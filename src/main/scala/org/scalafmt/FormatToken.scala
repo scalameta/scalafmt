@@ -5,7 +5,9 @@ import scala.meta.tokens.Token
 import scala.meta.tokens.Token.Whitespace
 import scala.meta.tokens.Tokens
 
-case class FormatToken(left: Token, right: Token, between: Vector[Whitespace]) {
+case class FormatToken(left: Token,
+                       right: Token,
+                       between: Vector[Whitespace]) {
   override def toString = s"${left.code}∙${right.code}"
 }
 
@@ -24,6 +26,7 @@ object FormatToken {
     var left = tokens.head
     val ts = tokens.toArray
     val result = mutable.ArrayBuilder.make[FormatToken]
+    result.sizeHint(N)
     val whitespace = mutable.ArrayBuilder.make[Whitespace]()
     while (i < N) {
       ts(i) match {
@@ -31,7 +34,8 @@ object FormatToken {
           whitespace += t
         case right =>
           // TODO(olafur) avoid result.toVector
-          result += FormatToken(left, right, whitespace.result.toVector)
+          val tok = FormatToken(left, right, whitespace.result.toVector)
+          result += tok
           left = right
           whitespace.clear()
       }

@@ -9,6 +9,10 @@ import org.scalatest.exceptions.TestFailedException
 
 object DiffUtil extends ScalaFmtLogger {
 
+  def trailingSpace(str: String): String = {
+    str.replaceAll(" \n", "∙\n")
+  }
+
   implicit class DiffExtension(obtained: String) {
     def diff(expected: String): Boolean = {
       val result = compareContents(obtained, expected)
@@ -16,10 +20,10 @@ object DiffUtil extends ScalaFmtLogger {
       else throw new TestFailedException(
         s"""
            |${header("Obtained")}
-           |$obtained
+           |${trailingSpace(obtained)}
            |
            |${header("Diff")}
-           |$result
+           |${trailingSpace(result)}
          """.stripMargin, 1)
     }
   }

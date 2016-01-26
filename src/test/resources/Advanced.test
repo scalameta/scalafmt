@@ -39,3 +39,27 @@
     }
   }
 }
+<<< SKIP scalajs 1
+object a {
+  private def genApplyForSym(minArgc: Int, hasRestParam: Boolean,
+      sym: Symbol): js.Tree = {
+    if (isScalaJSDefinedJSClass(currentClassSym) &&
+        sym.owner != currentClassSym.get) {
+      genApplyForSymJSSuperCall(minArgc, hasRestParam, sym)
+    } else {
+      genApplyForSymNonJSSuperCall(minArgc, sym)
+    }
+  }
+}
+>>>
+object a {
+  private def genApplyForSym(minArgc: Int, hasRestParam: Boolean,
+      sym: Symbol): js.Tree = {
+    if (isScalaJSDefinedJSClass(currentClassSym) &&
+        sym.owner != currentClassSym.get) {
+      genApplyForSymJSSuperCall(minArgc, hasRestParam, sym)
+    } else {
+      genApplyForSymNonJSSuperCall(minArgc, sym)
+    }
+  }
+}

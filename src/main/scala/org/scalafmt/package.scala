@@ -8,16 +8,15 @@ package object scalafmt {
 
   type Policy = PartialFunction[Decision, Decision]
   val NoPolicy = PartialFunction.empty[Decision, Decision]
-  val IdentityPolicy: PartialFunction[Decision, Decision] = {
-    case d => d
-  }
+  val IdentityPolicy: PartialFunction[Decision, Decision] = { case d => d }
 
   // TODO(olafur) Move these elsewhere.
-  @tailrec final def childOf(child: Tree, tree: Tree): Boolean =
-    child == tree || (child.parent match {
-      case Some(parent) => childOf(parent, tree)
-      case _ => false
-    })
+  @tailrec final def childOf(child: Tree, tree: Tree): Boolean = {
+      child == tree || (child.parent match {
+        case Some(parent) => childOf(parent, tree)
+        case _ => false
+      })
+    }
 
   def childOf(tok: Token, tree: Tree, owners: Map[Token, Tree]): Boolean =
     childOf(owners(tok), tree)

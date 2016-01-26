@@ -8,6 +8,7 @@ import org.scalatest.concurrent.Timeouts
 import org.scalatest.time.SpanSugar._
 
 import scala.collection.mutable
+import scala.meta.parsers.common.ParseException
 
 case class DiffTest(spec: String, name: String, original: String, expected: String)
 
@@ -38,6 +39,16 @@ trait FormatTest
     Math.min(256, 270 - k)
   }
 
+  def assertParses(code: String): Unit = {
+    try {
+      import scala.meta._
+      code.parse[Source]
+    } catch {
+      case e: ParseException =>
+        fail(e)
+    }
+  }
+
   tests.sortWith {
     case (left, right) =>
       import scala.math.Ordered.orderingToOrdered
@@ -55,6 +66,7 @@ trait FormatTest
           val before = Debug.explored
           val start = System.currentTimeMillis()
           val obtained = fmt.format(original)
+          assertParses(obtained)
           logger.debug(f"${Debug.explored - before}%-4s $testName")
           var maxTok = 0
           val obtainedHtml =
@@ -69,9 +81,6 @@ trait FormatTest
             obtainedHtml,
             maxTok,
             System.currentTimeMillis() - start)
-
-          if (name.startsWith("ONLY"))
-            Debug.reportTokens()
           assert(obtained diff expected)
         }
       }
@@ -81,6 +90,8 @@ trait FormatTest
     logger.debug(s"Total explored: ${Debug.explored}")
     val report = Report.generate(reports.result())
     val filename = "target/index.html"
+    val alternativeFilename = s"target/$suiteName.html"
     FilesUtil.writeFile(filename, report)
+    FilesUtil.writeFile(alternativeFilename, report)
   }
 }
