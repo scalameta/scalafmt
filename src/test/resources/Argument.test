@@ -22,7 +22,7 @@ object Object {
                    d1234567)
   val y = 2 // indented correctly
 }
-<<< Single line with newline at start.
+<<< Single line with newline at start
 object a {
   function(aaaaaaaaaaaaaa, aaaaaaaaaaaaaa)
 }
@@ -31,7 +31,7 @@ object a {
   function(
       aaaaaaaaaaaaaa, aaaaaaaaaaaaaa)
 }
-<<< One line one arg at 4 indent.
+<<< One line one arg at 4 indent
 object a {
   function(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,
            aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)
@@ -42,7 +42,7 @@ object a {
       aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,
       aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)
 }
-<<< One line one arg at 4 indent, 2x.
+<<< One line one arg at 4 indent, 2x
 object a {
   function(function(aaaaaaaaaaaaaaaaaaaaaa,
                     aaaaaaaaaaaaaaaaaaaaaa),
@@ -55,7 +55,7 @@ object a {
                aaaaaaaaaaaaaaaaaaaaaa),
       aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)
 }
-<<< Break on higher level of nesting.
+<<< Break on higher level of nesting
 object a {
   function(function(aaaaa, b), function(ccccc, d))
 }
@@ -64,7 +64,7 @@ object a {
   function(function(aaaaa, b),
            function(ccccc, d))
 }
-<<< Break on higher level of nesting 2x.
+<<< Break on higher level of nesting 2x
 object a {
   function(function(function(a, b), function(c, d)))
 }

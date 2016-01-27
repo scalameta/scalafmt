@@ -29,34 +29,6 @@ case class State(cost: Int,
 
   override def toString = s"State($cost, ${splits.length}, $splits)"
 
-  /**
-    * Returns formatted output from FormatTokens and Splits.
-    */
-  def reconstructPath(toks: Array[FormatToken],
-                      style: ScalaStyle,
-                      f: FormatToken => String = _.left.code): String = {
-    //    require(splits.length - start.splits.length == toks.length,
-    //      s"${toks.toVector} $splits")
-    val sb = new StringBuilder()
-    var state = State.start
-    toks.zip(splits).foreach {
-      case (tok, split) =>
-        //        logger.debug(s"${log(tok.left)} $split ${state.indents}")
-        state = state.next(style, split, tok)
-        sb.append(f(tok))
-        val ws = split.modification match {
-          case Space =>
-            sb.append(" ")
-          case Newline =>
-            sb.append("\n" + " " * state.indentation)
-          case Newline2x =>
-            sb.append("\n\n" + " " * state.indentation)
-          case _ =>
-          // Nothing
-        }
-    }
-    sb.toString()
-  }
 
   /**
     * Calculates next State given split at tok.
@@ -112,4 +84,30 @@ object State {
     0,
     Vector.empty[Push],
     0)
+  /**
+    * Returns formatted output from FormatTokens and Splits.
+    */
+  def reconstructPath(toks: Array[FormatToken],
+                      splits: Vector[Split],
+                      style: ScalaStyle,
+                      f: FormatToken => String = _.left.code
+                     ): Seq[(FormatToken, String)] = {
+    var state = State.start
+    toks.zip(splits).map {
+      case (tok, split) =>
+        //        logger.debug(s"${log(tok.left)} $split ${state.indents}")
+        state = state.next(style, split, tok)
+        val whitespace = split.modification match {
+          case Space =>
+            " "
+          case Newline =>
+            "\n" + " " * state.indentation
+          case Newline2x =>
+            "\n\n" + " " * state.indentation
+          case _ =>
+            ""
+        }
+        tok -> whitespace
+    }
+  }
 }

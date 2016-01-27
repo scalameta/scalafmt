@@ -14,7 +14,8 @@
         </encoder>
     </appender>
 
-    <logger name="org.scalafmt.ScalaFmt" level="WARN"/>
+    <logger name="com.ibm.couchdb" level="ERROR"/>
+    <logger name="org.http4s" level="ERROR"/>
 
     <root level="debug">
         <appender-ref ref="STDOUT" />

@@ -1,11 +1,14 @@
 package org.scalafmt
 
+import java.util.concurrent.TimeUnit
+
 import com.typesafe.scalalogging.Logger
 import org.slf4j.LoggerFactory
 
 import scala.meta.Tree
 import scala.meta.prettyprinters.Structure
-import scala.meta.tokens.{Token, Tokens}
+import scala.meta.tokens.Token
+import scala.meta.tokens.Tokens
 
 trait ScalaFmtLogger {
   val logger = Logger(LoggerFactory.getLogger(this.getClass))
@@ -45,12 +48,5 @@ trait ScalaFmtLogger {
     s"$line\n=> $t\n$line"
   }
 
-  def time[T](msg: String)(thunk: => T): T = {
-    val t1 = System.currentTimeMillis
-    val x = thunk
-    val t2 = System.currentTimeMillis
-    logger.debug(s"msg=$msg time=${t2 - t1}ms")
-    x
-  }
 }
 

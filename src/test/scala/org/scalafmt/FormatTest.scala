@@ -1,5 +1,7 @@
 package org.scalafmt
 
+import java.util.concurrent.TimeUnit
+
 import org.scalafmt.DiffUtil._
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.ConfigMap
@@ -10,34 +12,39 @@ import org.scalatest.time.SpanSugar._
 import scala.collection.mutable
 import scala.meta.parsers.common.ParseException
 
-case class DiffTest(spec: String, name: String, original: String, expected: String)
+case class DiffTest(spec: String, name: String, original: String, expected: String) {
+  val fullName = s"$spec: $name"
+}
+
+case class FormatOutput(token: String, whitespace: String, visits: Int)
 
 case class Result(test: DiffTest,
                   obtained: String,
                   obtainedHtml: String,
-                  redness: Int,
-                  time: Long)
+                  tokens: Seq[FormatOutput],
+                  maxVisitsOnSingleToken: Int,
+                  visitedStates: Int,
+                  // minStates
+                  timeNs: Long) {
+
+  def timeMs = TimeUnit.MILLISECONDS.convert(timeNs, TimeUnit.NANOSECONDS)
+
+  def title = f"${test.name} (${timeMs}ms, $visitedStates states)"
+
+  def statesPerMs: Long = visitedStates / timeMs
+}
 
 trait FormatTest
   extends FunSuite with Timeouts with ScalaFmtLogger with BeforeAndAfterAll {
 
-  def tests: Seq[DiffTest]
-
-  val testDir = "src/test/resources"
-
-  def style: ScalaStyle = UnitTestStyle
-
-  val fmt = new ScalaFmt(style)
-
   lazy val onlyOne = tests.exists(_.name.startsWith("ONLY"))
+  val testDir = "src/test/resources"
+  val fmt = new ScalaFmt(style)
   val reports = mutable.ArrayBuilder.make[Result]
 
-  def red(token: FormatToken): Int = {
-    val max = 10
-    val i = Math.min(max, Debug.formatTokenExplored(token))
-    val k = (i.toDouble / max.toDouble * 256).toInt
-    Math.min(256, 270 - k)
-  }
+  def tests: Seq[DiffTest]
+
+  def style: ScalaStyle = UnitTestStyle
 
   def assertParses(code: String): Unit = {
     try {
@@ -47,6 +54,22 @@ trait FormatTest
       case e: ParseException =>
         fail(e)
     }
+  }
+
+  def maxVisitedToken: Int = {
+    val maxTok = Debug.toks.maxBy(x => Debug.formatTokenExplored(x))
+    Debug.formatTokenExplored(maxTok)
+  }
+
+  def getFormatOutput: Seq[FormatOutput] = {
+    val path = State.reconstructPath(Debug.toks,
+      Debug.state.splits, style)
+    val output = path.map {
+      case (token, whitespace) =>
+        FormatOutput(token.left.code,
+          whitespace, Debug.formatTokenExplored(token))
+    }
+    output
   }
 
   tests.sortWith {
@@ -59,28 +82,24 @@ trait FormatTest
       (!onlyOne || t.name.startsWith("ONLY"))
   }.foreach {
     case t@DiffTest(spec, name, original, expected) =>
-      val testName = s"$spec: $name"
-      test(f"$testName%-50s|") {
+      test(f"${t.fullName}%-50s|") {
         failAfter(10 seconds) {
           Debug.clear()
           val before = Debug.explored
-          val start = System.currentTimeMillis()
+          val timer = Stopwatch()
           val obtained = fmt.format(original)
           assertParses(obtained)
-          logger.debug(f"${Debug.explored - before}%-4s $testName")
-          var maxTok = 0
-          val obtainedHtml =
-            Debug.state.reconstructPath(Debug.toks, style, { tok =>
-              import scalatags.Text.all._
-              val color = red(tok)
-              maxTok = Math.max(Debug.formatTokenExplored(tok), maxTok)
-              span(background := s"rgb(256, $color, $color)", tok.left.code).render
-            })
+          val visitedStates = Debug.explored - before
+          logger.debug(f"$visitedStates%-4s ${t.fullName}")
+          val output = getFormatOutput
+          val obtainedHtml = Report.mkHtml(output)
           reports += Result(t,
             obtained,
             obtainedHtml,
-            maxTok,
-            System.currentTimeMillis() - start)
+            output,
+            maxVisitedToken,
+            visitedStates,
+            timer.elapsedNs)
           assert(obtained diff expected)
         }
       }
@@ -88,10 +107,7 @@ trait FormatTest
 
   override def afterAll(configMap: ConfigMap): Unit = {
     logger.debug(s"Total explored: ${Debug.explored}")
-    val report = Report.generate(reports.result())
-    val filename = "target/index.html"
-    val alternativeFilename = s"target/$suiteName.html"
-    FilesUtil.writeFile(filename, report)
-    FilesUtil.writeFile(alternativeFilename, report)
+    val result = reports.result()
+    Speed.submit(result, suiteName)
   }
 }

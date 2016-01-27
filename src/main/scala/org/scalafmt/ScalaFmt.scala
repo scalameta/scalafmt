@@ -31,7 +31,6 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
     var explored = 0
     val best = mutable.Map.empty[Token, State]
     val formatter = new Formatter(style, tree, toks, owners)
-//    val newline2x: Seq[Token] = tree.co
 
     /**
       * Returns true if it's OK to skip over state.
@@ -54,11 +53,11 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
       */
     def shortestPath(owner: Tree, start: State): State = {
       Debug.visit(owner)
-      logger.debug(
+      logger.trace(
         s"""${start.indentation} ${start.splits.takeRight(3)}
            |${log(owner)}
            |FORMAT:
-           |${start.reconstructPath(toks, style)}""".stripMargin)
+           |${State.reconstructPath(toks, start.splits, style)}""".stripMargin)
       val Q = new mutable.PriorityQueue[State]()
       var result = start
       Q += start
@@ -102,7 +101,17 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
     Debug.explored += explored
     Debug.state = state
     Debug.toks = toks
-    state.reconstructPath(toks, style)
+    mkString(State.reconstructPath(toks, state.splits, style))
+  }
+
+  def mkString(output: Seq[(FormatToken, String)]): String = {
+    val sb = new StringBuilder()
+    output.foreach {
+      case (tok, whitespace) =>
+        sb.append(tok.left.code)
+        sb.append(whitespace)
+    }
+    sb.toString()
   }
 
   def startsUnwrappedLine(token: Token,
