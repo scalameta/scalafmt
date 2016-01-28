@@ -1,0 +1,6 @@
+40 columns                              |
+<<< Warmup
+@foobar object a {val x:Int=1}
+>>>
+@foobar
+object a { val x: Int = 1 }

@@ -7,14 +7,6 @@ import scalatags.Text.all._
 
 object Report {
 
-  def write(results: Seq[Result], suiteName: String): Unit = {
-    val report = heatmap(results)
-    val filename = "target/index.html"
-    val alternativeFilename = s"target/$suiteName.html"
-    FilesUtil.writeFile(filename, report)
-    FilesUtil.writeFile(alternativeFilename, report)
-  }
-
   def heatmap(results: Seq[Result]): String = {
     html(
       head(
@@ -80,7 +72,7 @@ object Report {
     )
   ).render
 
-  def mergeResults(after: Result, before: Result) =
+  def mergeResults(after: Result, before: Result): Seq[FormatOutput] =
    after.tokens.zip(before.tokens).map {
     case (aft, bef) =>
       FormatOutput(aft.token, aft.whitespace, aft.visits - bef.visits)

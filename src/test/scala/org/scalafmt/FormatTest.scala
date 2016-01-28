@@ -10,9 +10,17 @@ import org.scalatest.concurrent.Timeouts
 import org.scalatest.time.SpanSugar._
 
 import scala.collection.mutable
+import scala.language.postfixOps
+import scala.meta.Tree
+import scala.meta.parsers.common.Parse
 import scala.meta.parsers.common.ParseException
 
-case class DiffTest(spec: String, name: String, original: String, expected: String) {
+case class DiffTest(spec: String,
+                    name: String,
+                    filename: String,
+                    original: String,
+                    expected: String,
+                    style: ScalaStyle) {
   val fullName = s"$spec: $name"
 }
 
@@ -24,45 +32,89 @@ case class Result(test: DiffTest,
                   tokens: Seq[FormatOutput],
                   maxVisitsOnSingleToken: Int,
                   visitedStates: Int,
-                  // minStates
                   timeNs: Long) {
 
-  def timeMs = TimeUnit.MILLISECONDS.convert(timeNs, TimeUnit.NANOSECONDS)
-
   def title = f"${test.name} (${timeMs}ms, $visitedStates states)"
+
+  def timeMs = TimeUnit.MILLISECONDS.convert(timeNs, TimeUnit.NANOSECONDS)
 
   def statesPerMs: Long = visitedStates / timeMs
 }
 
-trait FormatTest
-  extends FunSuite with Timeouts with ScalaFmtLogger with BeforeAndAfterAll {
-
-  lazy val onlyOne = tests.exists(_.name.startsWith("ONLY"))
+trait HasTests {
   val testDir = "src/test/resources"
-  val fmt = new ScalaFmt(style)
-  val reports = mutable.ArrayBuilder.make[Result]
+
+  def filename2parse(filename: String): Option[Parse[_ <: Tree]] =
+    extension(filename) match {
+      case "source" | "scala" => Some(scala.meta.parsers.parseSource)
+      case "stat" => Some(scala.meta.parsers.parseStat)
+      case _ => None
+    }
+
+  def extension(filename: String): String = filename.replaceAll(".*\\.", "")
 
   def tests: Seq[DiffTest]
+}
 
-  def style: ScalaStyle = UnitTestStyle
+class FormatTest
+  extends FunSuite with Timeouts with ScalaFmtLogger
+  with BeforeAndAfterAll with HasTests {
 
-  def assertParses(code: String): Unit = {
-    try {
-      import scala.meta._
-      code.parse[Source]
-    } catch {
-      case e: ParseException =>
-        fail(e)
+  lazy val onlyOne = tests.exists(_.name.startsWith("ONLY"))
+
+  lazy val debugResults = mutable.ArrayBuilder.make[Result]
+
+  override val tests = UnitTests.tests ++ ManualTests.tests
+
+  tests
+    .sortWith(bySpecThenName)
+    .withFilter(testShouldRun)
+    .foreach(runTest)
+
+  def testShouldRun(t: DiffTest): Boolean = {
+    !t.name.startsWith("SKIP") &&
+      (!onlyOne || t.name.startsWith("ONLY"))
+  }
+
+  def bySpecThenName(left: DiffTest, right: DiffTest): Boolean = {
+    import scala.math.Ordered.orderingToOrdered
+    (left.spec, left.name).compare(right.spec -> right.name) < 0
+  }
+
+  def runTest(t: DiffTest): Unit = {
+    val fmt = new ScalaFmt(t.style)
+    test(f"${t.fullName}%-70s|") {
+      Debug.newTest()
+      failAfter(10 seconds) {
+        filename2parse(t.filename) match {
+          case Some(parse) =>
+            val obtained = fmt.format(t.original)(parse)
+            saveResult(t, obtained)
+            assertParses(obtained)(parse)
+            assertNoDiff(obtained, t.expected)
+          case None =>
+            logger.warn(s"Found no parse for filename ${t.filename}")
+        }
+      }
     }
   }
 
-  def maxVisitedToken: Int = {
-    val maxTok = Debug.toks.maxBy(x => Debug.formatTokenExplored(x))
-    Debug.formatTokenExplored(maxTok)
+  def saveResult(t: DiffTest, obtained: String): Unit = {
+    val visitedStates = Debug.exploredInTest
+    logger.debug(f"$visitedStates%-4s ${t.fullName}")
+    val output = getFormatOutput(t.style)
+    val obtainedHtml = Report.mkHtml(output)
+    debugResults += Result(t,
+      obtained,
+      obtainedHtml,
+      output,
+      Debug.maxVisitedToken,
+      visitedStates,
+      Debug.timer.elapsedNs)
   }
 
-  def getFormatOutput: Seq[FormatOutput] = {
-    val path = State.reconstructPath(Debug.toks,
+  def getFormatOutput(style: ScalaStyle): Seq[FormatOutput] = {
+    val path = State.reconstructPath(Debug.tokens,
       Debug.state.splits, style)
     val output = path.map {
       case (token, whitespace) =>
@@ -72,42 +124,25 @@ trait FormatTest
     output
   }
 
-  tests.sortWith {
-    case (left, right) =>
-      import scala.math.Ordered.orderingToOrdered
-      if (left.name == "Warmup") true
-      else (left.spec, left.name).compare(right.spec -> right.name) < 0
-  }.withFilter { t =>
-    !t.name.startsWith("SKIP") &&
-      (!onlyOne || t.name.startsWith("ONLY"))
-  }.foreach {
-    case t@DiffTest(spec, name, original, expected) =>
-      test(f"${t.fullName}%-50s|") {
-        failAfter(10 seconds) {
-          Debug.clear()
-          val before = Debug.explored
-          val timer = Stopwatch()
-          val obtained = fmt.format(original)
-          assertParses(obtained)
-          val visitedStates = Debug.explored - before
-          logger.debug(f"$visitedStates%-4s ${t.fullName}")
-          val output = getFormatOutput
-          val obtainedHtml = Report.mkHtml(output)
-          reports += Result(t,
-            obtained,
-            obtainedHtml,
-            output,
-            maxVisitedToken,
-            visitedStates,
-            timer.elapsedNs)
-          assert(obtained diff expected)
-        }
-      }
+  def assertParses[T <: Tree](code: String)(implicit parse: Parse[T]): Unit = {
+    try {
+      import scala.meta._
+      code.parse[T]
+    } catch {
+      case e: ParseException =>
+        logger.debug("Code does not parse")
+        fail(
+          s"""Obtained code does not parse!
+             |${header("Obtained")}
+             |$code
+           """.stripMargin, e)
+    }
   }
 
   override def afterAll(configMap: ConfigMap): Unit = {
     logger.debug(s"Total explored: ${Debug.explored}")
-    val result = reports.result()
+    val result = debugResults.result()
     Speed.submit(result, suiteName)
+    FilesUtil.writeFile("target/index.html", Report.heatmap(result))
   }
 }

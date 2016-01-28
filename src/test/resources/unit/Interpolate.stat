@@ -1,0 +1,27 @@
+40 columns                              |
+<<< has expression
+s"${a.foo[Bar]}"
+>>>
+s"${a.foo[Bar]}"
+<<< xml
+<foobar>1</foobar>
+>>>
+<foobar>1</foobar>
+<<< with leading whitespace
+s"""${a.foo[Bar]}
+    Nicely indented
+"""
+>>>
+s"""${a.foo[Bar]}
+    Nicely indented
+"""
+<<< two separate
+{
+  val line = s"=" * 4
+  s"$line\n=> $t\n$line"
+}
+>>>
+{
+  val line = s"=" * 4
+  s"$line\n=> $t\n$line"
+}

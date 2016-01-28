@@ -4,17 +4,33 @@ import scala.collection.mutable
 import scala.meta.Tree
 import scala.meta.tokens.Token
 
+/**
+  * (ugly) Utility to collect data about formatter.
+  *
+  * Only used during development.
+  */
 object Debug extends ScalaFmtLogger {
   val treeExplored = mutable.Map.empty[Tree, Int]
   val tokenExplored = mutable.Map.empty[Token, Int]
   val formatTokenExplored = mutable.Map.empty[FormatToken, Int]
+  var lastTestExplored = 0
   var explored = 0
   var state = State.start
-  var toks = Array.empty[FormatToken]
+  var tokens = Array.empty[FormatToken]
+  var timer = Stopwatch()
 
-  def clear(): Unit = {
+  def newTest(): Unit = {
     treeExplored.clear()
     tokenExplored.clear()
+    timer = Stopwatch()
+    lastTestExplored = explored
+  }
+
+  def exploredInTest = explored - lastTestExplored
+
+  def maxVisitedToken: Int = {
+    val maxTok = tokens.maxBy(x => formatTokenExplored.getOrElse(x, 0))
+    formatTokenExplored(maxTok)
   }
 
   def visit(token: Token): Unit = {

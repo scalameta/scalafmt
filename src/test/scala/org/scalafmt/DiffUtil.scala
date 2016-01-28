@@ -9,23 +9,22 @@ import org.scalatest.exceptions.TestFailedException
 
 object DiffUtil extends ScalaFmtLogger {
 
-  def trailingSpace(str: String): String = {
-    str.replaceAll(" \n", "∙\n")
+  def assertNoDiff(a: String, b: String): Boolean = {
+    val result = compareContents(a, b)
+    if (result.isEmpty) true
+    else throw new TestFailedException(
+      s"""
+         |${header("Obtained")}
+         |${trailingSpace(a)}
+         |
+           |${header("Diff")}
+         |${trailingSpace(result)}
+         """.stripMargin, 1)
+
   }
 
-  implicit class DiffExtension(obtained: String) {
-    def diff(expected: String): Boolean = {
-      val result = compareContents(obtained, expected)
-      if (result.isEmpty) true
-      else throw new TestFailedException(
-        s"""
-           |${header("Obtained")}
-           |${trailingSpace(obtained)}
-           |
-           |${header("Diff")}
-           |${trailingSpace(result)}
-         """.stripMargin, 1)
-    }
+  def trailingSpace(str: String): String = {
+    str.replaceAll(" \n", "∙\n")
   }
 
   def compareContents(original: String, revised: String): String = {
@@ -38,7 +37,7 @@ object DiffUtil extends ScalaFmtLogger {
     val diff = difflib.DiffUtils.diff(original.asJava, revised.asJava)
     if (diff.getDeltas.isEmpty) ""
     else difflib.DiffUtils.generateUnifiedDiff(
-      "original", "revised",original.asJava, diff, 1).asScala.drop(3).mkString("\n")
+      "original", "revised", original.asJava, diff, 1).asScala.drop(3).mkString("\n")
   }
 
   def fileModificationTimeOrEpoch(file: File): String = {

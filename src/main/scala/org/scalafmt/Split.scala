@@ -1,9 +1,5 @@
 package org.scalafmt
 
-import scala.meta.Tree
-import scala.meta.tokens.Token
-import scala.meta.tokens.Token._
-
 case class Decision(formatToken: FormatToken, split: List[Split])
 
 sealed trait Modification {
@@ -26,7 +22,8 @@ class Split(val modification: Modification,
             val cost: Int,
             val indent: List[Indent] = List.empty[Indent],
             val policy: Policy = NoPolicy,
-            val penalty: Boolean = false) {
+            val penalty: Boolean = false,
+            val origin: String) {
 
   def length: Int = modification match {
     case NoSplit => 0
@@ -35,30 +32,35 @@ class Split(val modification: Modification,
   }
 
   def withPenalty(penalty: Int): Split =
-    new Split(modification, cost + penalty, indent, policy, true)
+    new Split(modification, cost + penalty, indent, policy, true, origin)
 
   def withIndent(newIndent: Indent): Split =
-    new Split(modification, cost, newIndent +: indent, policy, penalty)
+    new Split(modification, cost, newIndent +: indent, policy, penalty, origin)
 
   def withModification(newModification: Modification): Split =
-    new Split(newModification, cost, indent, policy, penalty)
+    new Split(newModification, cost, indent, policy, penalty, origin)
 
   override def toString =
-    s"""$modification(cost=$cost${if (indent.nonEmpty) s", indent=$indent" else ""})"""
+    s"""$modification:$origin(cost=$cost${if (indent.nonEmpty) s", indent=$indent" else ""})"""
 
 }
 
 object Split {
-  object NoSplit0 extends Split(NoSplit, 0)
-  object Space0 extends Split(Space, 0)
-  object Newline0 extends Split(Newline, 0)
+  def NoSplit0(implicit file: sourcecode.File, line: sourcecode.Line) =
+    new Split(NoSplit, 0, origin = s"${line.value}")
+  def Space0(implicit file: sourcecode.File, line: sourcecode.Line) =
+    new Split(Space, 0, origin = s"${line.value}")
+  def Newline0(implicit file: sourcecode.File, line: sourcecode.Line) =
+    new Split(Newline, 0, origin = s"${line.value}")
 
   def apply(modification: Modification,
             cost: Int,
             indent: Indent = NoOp,
             policy: Policy = NoPolicy,
-            penalty: Boolean = false) =
-    new Split(modification, cost, List(indent), policy, penalty)
+            penalty: Boolean = false)(
+    implicit line: sourcecode.Line) =
+    new Split(modification, cost, List(indent), policy, penalty,
+      s"${line.value}")
 
 }
 

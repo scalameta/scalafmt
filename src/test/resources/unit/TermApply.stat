@@ -1,0 +1,9 @@
+40 columns                              |
+<<< basic
+a .b .c
+>>>
+a.b.c
+<<< longer
+val logger = Logger(this .getClass)
+>>>
+val logger = Logger(this.getClass)

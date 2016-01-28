@@ -1,0 +1,17 @@
+40 columns                              |
+<<< single line
+def log(split: Split): String = s"$split"
+>>>
+def log(split: Split): String =
+  s"$split"
+<<< block
+{val x = 1
+def log(split: Split): String = s"$split"
+}
+>>>
+{
+  val x = 1
+
+  def log(split: Split): String =
+    s"$split"
+}

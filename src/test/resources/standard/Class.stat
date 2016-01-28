@@ -1,0 +1,24 @@
+80 columns                                                                     |
+<<< Long line
+class Formatter(style: ScalaStyle, tree: Tree, toks: Array[FormatToken], statementStarts: Set[Token], owners: Map[Token, Tree])
+>>>
+class Formatter(style: ScalaStyle,
+                tree: Tree,
+                toks: Array[FormatToken],
+                statementStarts: Set[Token],
+                owners: Map[Token, Tree])
+<<< SKIP extends with
+case class State(
+    cost: Int,
+    policy: Decision => Decision,
+    splits: Vector[Split],
+    indentation: Int,
+    indents: Vector[Push],
+    column: Int) extends Ordered[State] with ScalaFmtLogger
+>>>
+case class State(cost: Int,
+                 policy: Decision => Decision,
+                 splits: Vector[Split],
+                 indentation: Int,
+                 indents: Vector[Push],
+                 column: Int) extends Ordered[State] with ScalaFmtLogger
