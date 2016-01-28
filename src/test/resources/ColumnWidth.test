@@ -15,7 +15,7 @@ object Aaaaaaa { val x12345678: Int = 1 }
 object Aaaaaaa {
   val x12345678: Int = 1
 }
-<<< Indentation is included for penalty.
+<<< Indentation is included for penalty
 object aaaaaaaaaaaaaaaaaaaaaaaaaaaaa {
   val bbbbbbbbbbbbbbbbbbbbbbbbbbbb = 1; aaa }
 >>>

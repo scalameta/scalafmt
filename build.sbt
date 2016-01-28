@@ -10,7 +10,7 @@ scalaVersion := "2.11.7"
 
 testOptions in Test += Tests.Argument("-oD")
 
-resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+updateOptions := updateOptions.value.withCachedResolution(true)
 
 pomExtra := (
   <url>http://github.com/olafurpg/scalafmt</url>
@@ -36,7 +36,10 @@ pomExtra := (
 libraryDependencies ++= Seq(
   "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
   "ch.qos.logback" % "logback-classic" % "1.1.3",
-  "org.scalameta" %% "scalameta" % "0.1.0-SNAPSHOT",
+  "org.scalameta" %% "scalameta" % "0.0.5-M1",
+  "com.typesafe" % "config" % "1.3.0" % "test",
+  "com.iheart" %% "ficus" % "1.2.0" % "test",
+  "com.ibm" %% "couchdb-scala" % "0.6.0" % "test",
   "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0" % "test",
   "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
   "org.scalatest" %% "scalatest" % "2.2.1" % "test"
