@@ -1,12 +1,12 @@
 package org.scalafmt
 
-trait ArgumentHandling
+sealed trait ArgumentHandling
 
 case object BinPacking extends ArgumentHandling
 
 case object OneArgOneLine extends ArgumentHandling
 
-trait ScalaStyle {
+sealed trait ScalaStyle {
   def maxColumn: Int = 80
 
   def argumentHandling: ArgumentHandling = OneArgOneLine

@@ -27,3 +27,13 @@ object a
 package foo // this package is cool
 
 object a
+<<< with import
+package foo
+import a.b
+object a
+>>>
+package foo
+
+import a.b
+
+object a

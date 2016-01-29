@@ -2,13 +2,18 @@ package org.scalafmt
 
 import scala.annotation.tailrec
 import scala.meta.Tree
-import scala.meta.internal.ast.{Defn, Pkg}
+import scala.meta.internal.ast.Decl
+import scala.meta.internal.ast.Defn
+import scala.meta.internal.ast.Pkg
+import scala.meta.internal.ast.Term.Interpolate
+import scala.meta.internal.ast.Type
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 
 class Formatter(style: ScalaStyle,
                 tree: Tree,
                 toks: Array[FormatToken],
+                statementStarts: Set[Token],
                 owners: Map[Token, Tree]) extends ScalaFmtLogger {
 
   import Split._
@@ -22,6 +27,15 @@ class Formatter(style: ScalaStyle,
     case FormatToken(_, _: EOF, _) => List(
       NoSplit0
     )
+    case tok if tok.left.name.startsWith("xml") &&
+      tok.right.name.startsWith("xml") => List(
+      NoSplit0
+    )
+    case tok if owners(tok.left).isInstanceOf[Interpolate] &&
+      owners(tok.right).isInstanceOf[Interpolate] =>
+      List(
+        NoSplit0
+      )
     case FormatToken(_: `{`, _: `}`, _) => List(
       NoSplit0
     )
@@ -37,6 +51,9 @@ class Formatter(style: ScalaStyle,
     )
     case tok: FormatToken if !isDocstring(tok.left) && gets2x(tok) => List(
       Split(Newline2x, 0)
+    )
+    case FormatToken(_, right, _) if statementStarts.contains(right) => List(
+      Newline0
     )
     case FormatToken(_, _: `}`, _) => List(
       Space0,
@@ -70,7 +87,55 @@ class Formatter(style: ScalaStyle,
           case Decision(t@FormatToken(`lastRef`, _: Comment, between), splits)
             if !between.exists(_.isInstanceOf[`\n`]) =>
             Decision(t, splits.map(_.withModification(Space)))
+          case Decision(t@FormatToken(`lastRef`, _, _), splits) =>
+            Decision(t, splits.map(_.withModification(Newline2x)))
         })
+      )
+    case FormatToken(_, _: `)` | _: `]`, _) => List(
+      NoSplit0
+    )
+    case FormatToken(_, _: `(` | _: `[`, _) => List(
+      NoSplit0
+    )
+//     TODO(olafur) Naive match, can be 1) comment between 2) abstract decl.
+    case tok@FormatToken(d: `def`, name: Ident, _) =>
+      val owner = owners(d)
+      val last = getLastTokenInDef(owner)
+      List(
+        Split(Space, 0, Push(4), policy = {
+          case d@Decision(FormatToken(_, eq: `=`, _), s)
+            if owners(eq) == owner =>
+            logger.debug(s"splits=$s")
+            d.copy(split = s.map(_.withIndent(Pop)))
+        })
+      )
+    case FormatToken(e: `=`, _, _)
+      if owners(e).isInstanceOf[Defn.Def] =>
+      val last = owners(e).tokens.last
+      List(
+        Space0,
+        Split(Newline, 0, Push(2), policy = {
+          case d@Decision(FormatToken(`last`, _, _), s) =>
+            d.copy(split = s.map(_.withIndent(Pop)))
+        })
+      )
+    case tok@FormatToken(open: `(`, _, _)
+      if owners(open).isInstanceOf[Defn.Def] =>
+      val owner = owners(open)
+      List(
+        Split(NoSplit, 0)
+      )
+    case tok@FormatToken(_: `(` | _: `[`, _, _)
+      if !owners(tok.left).isInstanceOf[Defn.Def] =>
+      val open = tok.left.asInstanceOf[Delim]
+      val singleLine = SingleLineBlock(open)
+      val oneArgOneLine = OneArgOneLineSplit(open)
+      List(
+        Split(NoSplit, 0, policy = singleLine),
+        Split(Newline, 1, Push(4),
+          Unindent(open) orElse singleLine),
+        Split(NoSplit, 2, PushStateColumn, oneArgOneLine),
+        Split(Newline, 3, Push(4), oneArgOneLine)
       )
     case FormatToken(_, _: `,`, _) => List(
       NoSplit0
@@ -88,41 +153,28 @@ class Formatter(style: ScalaStyle,
     case FormatToken(_, _: `:`, _) => List(
       NoSplit0
     )
-    case FormatToken(_, tok: `=`, _) =>
+    case FormatToken(_, tok: `=`, _)
+      if !owners(tok).isInstanceOf[Defn.Def] =>
       List(
         Split(Space, 2),
         BreakStatement(3, tok)
       )
-    case tok@FormatToken(_: `:` | _: `=`, _, _) => List(
+    case tok@FormatToken(left: `:`, _, _)
+      if owners(left).isInstanceOf[Defn.Val] =>
+      List(
       Space0,
       BreakStatement(5, tok.left)
     )
-    case FormatToken(_: Ident, _: `.` | _: `#`, _) => List(
+    case FormatToken(_: Ident | _: `this`, _: `.` | _: `#`, _) => List(
       NoSplit0
     )
     case FormatToken(_: `.` | _: `#`, _: Ident, _) => List(
       NoSplit0
     )
-    case FormatToken(_: Ident | _: Literal, _: Ident | _: Literal, _) => List(
+    case FormatToken(_: Ident | _: Literal | _: Interpolation.End,
+    _: Ident | _: Literal, _) => List(
       Space0
     )
-    case FormatToken(_, _: `)` | _: `]`, _) => List(
-      NoSplit0
-    )
-    case FormatToken(_, _: `(` | _: `[`, _) => List(
-      NoSplit0
-    )
-    case tok@FormatToken(_: `(` | _: `[`, _, _) =>
-      val open = tok.left.asInstanceOf[Delim]
-      val singleLine = SingleLineBlock(open)
-      val oneArgOneLine = OneArgOneLineSplit(open)
-      List(
-        Split(NoSplit, 0, policy = singleLine),
-        Split(Newline, 1, Push(4),
-          Unindent(open) orElse singleLine),
-        Split(NoSplit, 2, PushStateColumn, oneArgOneLine),
-        Split(Newline, 3, Push(4), oneArgOneLine)
-      )
     case FormatToken(_, _: `@`, _) => List(
       Newline0
     )
@@ -148,14 +200,6 @@ class Formatter(style: ScalaStyle,
     )
     case FormatToken(_: Delim, _, _) => List(
       Space0
-    )
-    case tok if tok.left.name.startsWith("xml") &&
-      tok.right.name.startsWith("xml") => List(
-      NoSplit0
-    )
-    case tok if tok.left.getClass.getName.contains("Interpolation") ||
-      tok.right.getClass.getName.contains("Interpolation") => List(
-      NoSplit0
     )
   }
   val Fail: PartialFunction[FormatToken, List[Split]] = {
@@ -183,7 +227,9 @@ class Formatter(style: ScalaStyle,
     val owner = owners(tok.right)
     if (!owner.tokens.headOption.contains(tok.right)) false
     else owner match {
-      case _: Defn.Def | _: Defn.Class | _: Defn.Object => true
+      case _: Defn.Def | _: Pkg.Object |
+           _: Defn.Class | _: Defn.Object |
+           _: Defn.Trait => true
       case _ => false
     }
   }
@@ -236,13 +282,23 @@ class Formatter(style: ScalaStyle,
     policy
   }
 
-  def BreakStatement(cost: Int, tok: Token): Split = {
+  def BreakStatement(cost: Int, tok: Token)(
+    implicit line: sourcecode.Line): Split = {
     val parent = owners(tok)
     Split(Newline, cost, Push(2), {
       case Decision(t@FormatToken(left, right, _), s)
         if childOf(left, parent, owners) && !childOf(right, parent, owners) =>
         Decision(t, s.map(_.withIndent(Pop)))
-    })
+    })(line)
+  }
+
+  def getLastTokenInDef(d: Tree): Token = d match {
+    case defn: Defn.Def =>
+      defn.body.tokens.head
+    case defn: Decl.Def =>
+      defn.decltpe.tokens.last
+    case _ =>
+      ???
   }
 }
 

@@ -11,7 +11,8 @@ package object scalafmt {
   val IdentityPolicy: PartialFunction[Decision, Decision] = { case d => d }
 
   // TODO(olafur) Move these elsewhere.
-  @tailrec final def childOf(child: Tree, tree: Tree): Boolean = {
+  @tailrec
+  final def childOf(child: Tree, tree: Tree): Boolean = {
       child == tree || (child.parent match {
         case Some(parent) => childOf(parent, tree)
         case _ => false

@@ -77,7 +77,7 @@ case class State(cost: Int,
 }
 
 
-object State {
+object State extends ScalaFmtLogger {
   val start = State(0,
     identity,
     Vector.empty[Split],
@@ -95,7 +95,7 @@ object State {
     var state = State.start
     toks.zip(splits).map {
       case (tok, split) =>
-        //        logger.debug(s"${log(tok.left)} $split ${state.indents}")
+        logger.debug(s"${log(tok.left)} $split ${state.indents}")
         state = state.next(style, split, tok)
         val whitespace = split.modification match {
           case Space =>

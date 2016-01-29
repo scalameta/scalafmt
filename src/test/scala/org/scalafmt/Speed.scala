@@ -1,7 +1,5 @@
 package org.scalafmt
 
-import java.util.concurrent.TimeUnit
-
 import com.ibm.couchdb._
 import com.typesafe.config.ConfigFactory
 import net.ceedubs.ficus.Ficus._
@@ -33,8 +31,7 @@ object Speed extends ScalaFmtLogger {
     case Success(connection) =>
       val stats = TestStats(results)
       Future(invidualReport(stats, connection))
-      Future(comparisonReport(stats, "origin/master", connection))
-      Report.write(results, suiteName)
+      Future(comparisonReport(stats, "master", connection))
   }
 
   private def invidualReport(stat: TestStats,
@@ -57,17 +54,19 @@ object Speed extends ScalaFmtLogger {
     val commit = Seq("git", "rev-parse", branch).!!.trim
 
     val view = connection.db.query
-      .view[(String, Long), TestStats](branch, "commits").get
+      .view[(String, Long), TestStats]("speed", "commits").get
       .endKey((commit, 0))
       .startKey((commit, Long.MaxValue))
       .descending(true)
       .limit(1)
-
     view.query.attemptRun match {
+      case -\/(e: upickle.Invalid) =>
+        logger.debug("Received invalid data from server. Has TestStats changed?")
       case -\/(e) =>
         val currentBranch = GitInfo.currentBranch
         logger.warn(
-          s"""Found no data for branch $branch? Try this:
+          s"""Found no data for branch $branch. Try this:
+              |expected $commit
               |$$ git checkout $branch
               |$$ sbt test
               |$$ git checkout $currentBranch
