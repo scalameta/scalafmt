@@ -1,43 +1,21 @@
 package org.scalafmt
 
 import com.ibm.couchdb._
-import com.typesafe.config.ConfigFactory
-import net.ceedubs.ficus.Ficus._
 import org.scalafmt.stats.GitInfo
 import org.scalafmt.stats.TestStats
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
 import scalaz.-\/
 import scalaz.\/-
 
 object Speed extends ScalaFmtLogger {
-  lazy val config = ConfigFactory.load()
-  lazy val connectionConfig = {
-    import net.ceedubs.ficus.readers.ArbitraryTypeReader._
-    config.as[Try[Connection]]("speed")
-  }
-  val dbName = "scalafmt-teststats"
+  lazy val dbName = "scalafmt-teststats"
+  lazy val couch = CouchDb("speed.scalafmt.org", 443, https = true)
+  lazy val db = couch.db(dbName, typeMapping)
+  lazy val typeMapping = TypeMapping(classOf[TestStats] -> "TestStats")
 
-  val typeMapping = TypeMapping(classOf[TestStats] -> "TestStats")
-
-  def submit(results: Seq[Result],
-             suiteName: String): Unit = connectionConfig match {
-    case Failure(e) =>
-      logger.warn(s"speed.scalafmt.org: ${e.getMessage}")
-    case Success(connection) =>
-      val stats = TestStats(results)
-      Future(invidualReport(stats, connection))
-      Future(comparisonReport(stats, "master", connection))
-  }
-
-  private def invidualReport(stat: TestStats,
-                  connection: Connection): Unit = {
+  def submitStats(stat: TestStats): Unit = {
     val t = Stopwatch()
-    val actions = connection.db.docs.create(stat)
+    val actions = db.docs.create(stat)
     actions.attemptRun match {
       case -\/(e) =>
         logger.warn("Unable to submit to speed.scalafmt.org", e)
@@ -46,14 +24,13 @@ object Speed extends ScalaFmtLogger {
     }
   }
 
-  def comparisonReport(after: TestStats,
-                       branch: String,
-                       connection: Connection): Unit = {
+  def writeComparisonReport(after: TestStats,
+                            branch: String): Unit = {
     import sys.process._
     val t = Stopwatch()
     val commit = Seq("git", "rev-parse", branch).!!.trim
 
-    val view = connection.db.query
+    val view = db.query
       .view[(String, Long), TestStats]("speed", "commits").get
       .endKey((commit, 0))
       .startKey((commit, Long.MaxValue))
@@ -79,16 +56,6 @@ object Speed extends ScalaFmtLogger {
       case \/-(other) =>
         logger.warn(s"Unexpected view result $other ${other.rows}")
     }
-
-  }
-
-  case class Connection(hostname: String,
-                        port: Int,
-                        https: Boolean,
-                        username: String,
-                        password: String) {
-    val couch = CouchDb(hostname, port, https = https, username, password)
-    val db = couch.db(dbName, typeMapping)
   }
 
 }

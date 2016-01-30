@@ -6,6 +6,7 @@ after_success: "sbt coverageReport coveralls"
 scala:
   - 2.11.7
 jdk:
+# couchdb-scala uses http4s which forces us to run on java 8 :(
   - oraclejdk8
 notifications:
   email:
