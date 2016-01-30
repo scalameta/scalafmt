@@ -6,4 +6,3 @@
 # scalafmt: write pretty Scala
 
 For now, [the tests](src/test/resources) are the most up-to-date documentation.
-

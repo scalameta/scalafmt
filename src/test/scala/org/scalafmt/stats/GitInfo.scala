@@ -11,7 +11,22 @@ object GitInfo {
 
   lazy val email = Seq("git", "config", "--get", "user.email").!!.trim
 
-  def apply(): GitInfo = GitInfo(user, email, currentBranch, currentCommit)
+  val travis: Option[GitInfo] = for {
+    isTravis <- sys.env.get("TRAVIS") if isTravis == "true"
+    isCi <- sys.env.get("CONTINUOUS_INTEGRATION") if isCi == "true"
+    commit <- sys.env.get("TRAVIS_COMMIT")
+  } yield {
+    val branch = sys.env.get("TRAVIS_PULL_REQUEST")
+      .withFilter(_ != "false")
+      .map(x => s"pull_request/$x")
+      .orElse(sys.env.get("TRAVIS_BRANCH"))
+      .getOrElse("unknown")
+    GitInfo("Travis", "Travis", branch, commit)
+  }
+
+  def apply(): GitInfo = travis.getOrElse {
+    GitInfo(user, email, currentBranch, currentCommit)
+  }
 
   def currentCommit = Seq("git", "rev-parse", "HEAD").!!.trim
 

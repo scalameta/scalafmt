@@ -95,7 +95,7 @@ object State extends ScalaFmtLogger {
     var state = State.start
     toks.zip(splits).map {
       case (tok, split) =>
-        logger.debug(s"${log(tok.left)} $split ${state.indents}")
+//        logger.debug(s"${log(tok.left)} $split ${state.indents}")
         state = state.next(style, split, tok)
         val whitespace = split.modification match {
           case Space =>

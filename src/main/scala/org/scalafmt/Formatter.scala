@@ -105,7 +105,6 @@ class Formatter(style: ScalaStyle,
         Split(Space, 0, Push(4), policy = {
           case d@Decision(FormatToken(_, eq: `=`, _), s)
             if owners(eq) == owner =>
-            logger.debug(s"splits=$s")
             d.copy(split = s.map(_.withIndent(Pop)))
         })
       )

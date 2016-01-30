@@ -2,7 +2,10 @@ package org.scalafmt
 
 import java.util.concurrent.TimeUnit
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import org.scalafmt.DiffUtil._
+import org.scalafmt.stats.TestStats
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.ConfigMap
 import org.scalatest.FunSuite
@@ -10,6 +13,7 @@ import org.scalatest.concurrent.Timeouts
 import org.scalatest.time.SpanSugar._
 
 import scala.collection.mutable
+import scala.concurrent.Future
 import scala.language.postfixOps
 import scala.meta.Tree
 import scala.meta.parsers.common.Parse
@@ -141,8 +145,10 @@ class FormatTest
 
   override def afterAll(configMap: ConfigMap): Unit = {
     logger.debug(s"Total explored: ${Debug.explored}")
-    val result = debugResults.result()
-    Speed.submit(result, suiteName)
-    FilesUtil.writeFile("target/index.html", Report.heatmap(result))
+    val results = debugResults.result()
+    val stats = TestStats(results)
+    Future(Speed.submitStats(stats))
+    Future(Speed.writeComparisonReport(stats, "master"))
+    FilesUtil.writeFile("target/index.html", Report.heatmap(results))
   }
 }
