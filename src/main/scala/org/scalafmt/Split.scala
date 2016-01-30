@@ -20,6 +20,20 @@ case object Newline2x extends Modification
 case object Space extends Modification
 
 
+/**
+  * A Split is the whitespace between two non-whitespace tokens.
+  *
+  * Consider a split to be an edge in a search graph and [[FormatToken]]
+  * are the nodes.
+  *
+  * @param modification Is this a space, no space, newline or 2 newlines?
+  * @param cost How good is this output? Lower is better.
+  * @param indents Does this add indentation?
+  * @param policy How does this split affect other later splits?
+  * @param penalty Does this split overflow the column limit?
+  * @param origin For debugging only, to retrace how a particular output
+  *               manifested.
+  */
 class Split(val modification: Modification,
             val cost: Int,
             val indents: List[Indent] = List.empty[Indent],

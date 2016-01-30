@@ -6,8 +6,10 @@ import scala.meta.Tree
 import scala.meta.internal.ast.Decl
 import scala.meta.internal.ast.Defn
 import scala.meta.internal.ast.Pkg
+import scala.meta.internal.ast.Term
 import scala.meta.internal.ast.Term.ApplyUnary
 import scala.meta.internal.ast.Term.Interpolate
+import scala.meta.internal.ast.Type
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 
@@ -21,9 +23,16 @@ class Formatter(style: ScalaStyle,
   import Split._
 
 
-  lazy val GetSplits = Default orElse Fail
+  lazy val GetSplits = Route orElse Fail
   val tok2idx = toks.zipWithIndex.toMap
-  val Default: PartialFunction[FormatToken, List[Split]] = {
+  /**
+    * Assigns possible splits to a FormatToken.
+    *
+    * The FormatToken can be considered as a node in a graph and the
+    * splits as edges. Given a format token (a node in the graph), Route
+    * determines which edges lead out from the format token.
+    */
+  val Route: PartialFunction[FormatToken, List[Split]] = {
     case FormatToken(_: BOF, _, _) => List(
       NoSplit0
     )
@@ -97,7 +106,17 @@ class Formatter(style: ScalaStyle,
     case FormatToken(_, _: `)` | _: `]`, _) => List(
       NoSplit0
     )
-    case FormatToken(_, _: `(` | _: `[`, _) => List(
+    // Opening [ with no leading space.
+    case FormatToken(left, open: `[`, _)
+      if owners(open).isInstanceOf[Term.ApplyType] ||
+        owners(left).isInstanceOf[Type.Name] => List(
+      NoSplit0
+    )
+    // Opening ( with no leading space.
+    case FormatToken(left, open: `(`, _)
+      if owners(open).isInstanceOf[Term.Apply] ||
+        owners(left).parent.exists(_.isInstanceOf[Defn]) ||
+        owners(left).isInstanceOf[Type.Name] => List(
       NoSplit0
     )
     //     TODO(olafur) Naive match, can be 1) comment between 2) abstract decl.
@@ -116,14 +135,26 @@ class Formatter(style: ScalaStyle,
         Split(Newline, 0).withIndent(2, expire, Left)
       )
     case tok@FormatToken(open: `(`, _, _)
-      if owners(open).isInstanceOf[Defn.Def] =>
-      val owner = owners(open)
+      if owners(open).isInstanceOf[Defn] ||
+        owners(open).parent.exists(_.isInstanceOf[Defn.Class]) =>
       List(
-        Split(NoSplit, 0)
+        Split(NoSplit, 0).withIndent(4, matching(open), Left)
       )
-    case tok@FormatToken(_: `(` | _: `[`, _, _)
-      if !owners(tok.left).isInstanceOf[Defn.Def] =>
-      val open = tok.left.asInstanceOf[Delim]
+    case FormatToken(open: `[`, _, _)
+      if !owners(open).isInstanceOf[Defn.Def] =>
+      val singleLine = SingleLineBlock(open)
+      val oneArgOneLine = OneArgOneLineSplit(open)
+      val expire = matching(open)
+      List(
+        Split(NoSplit, 0, policy = singleLine),
+        Split(Newline, 1, singleLine).withIndent(4, expire, Left),
+        Split(NoSplit, 2, oneArgOneLine).withIndent(StateColumn, expire, Left),
+        Split(Newline, 3, oneArgOneLine).withIndent(4, expire, Left)
+      )
+    // TODO(olafur) Violating DRY. But prefer two
+    // different cases and I want to preserve line numbers.
+    case FormatToken(open: `(`, _, _)
+      if owners(open).isInstanceOf[Term.Apply] =>
       val singleLine = SingleLineBlock(open)
       val oneArgOneLine = OneArgOneLineSplit(open)
       val expire = matching(open)
@@ -185,6 +216,15 @@ class Formatter(style: ScalaStyle,
     _: Ident | _: Literal, _) => List(
       Space0
     )
+    case FormatToken(open: `(`, _, _)
+      if owners(open).isInstanceOf[Term.ApplyInfix] =>
+      List(
+      NoSplit0,
+      Split(Newline, 1).withIndent(2, matching(open), Left)
+    )
+
+    // Annotations
+    // TODO(olafur) what about "case t@Foobar =>..."?
     case FormatToken(_, _: `@`, _) => List(
       Newline0
     )
@@ -203,6 +243,25 @@ class Formatter(style: ScalaStyle,
     case tok@FormatToken(_: Keyword | _: Modifier, _, _) => List(
       Space0
     )
+    // Template
+    case FormatToken(_: `)`, right: `extends`, _) =>
+      val owner = owners(right)
+      val expire = owner.tokens
+        .find(_.isInstanceOf[`{`])
+        .getOrElse(owner.tokens.last)
+      List(
+      Split(Space, 0).withIndent(4, expire, Right)
+    )
+    case FormatToken(_, _: `with`, _) => List(
+      Space0,
+      Split(Newline, 1)
+    )
+    // If
+    case FormatToken(open: `(`, _, _)
+      if owners(open).isInstanceOf[Term.If] => List(
+      NoSplit0
+    )
+    // Fallback
     case FormatToken(left, right: Keyword, _) =>
       if (owners(left) == owners(right)) List(Space0)
       else List(Newline0)

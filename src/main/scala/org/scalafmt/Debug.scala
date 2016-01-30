@@ -29,6 +29,7 @@ object Debug extends ScalaFmtLogger {
   def exploredInTest = explored - lastTestExplored
 
   def maxVisitedToken: Int = {
+    require(tokens.nonEmpty, "Tokens cannot be empty.")
     val maxTok = tokens.maxBy(x => formatTokenExplored.getOrElse(x, 0))
     formatTokenExplored(maxTok)
   }

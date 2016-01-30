@@ -1,0 +1,41 @@
+40 columns                              |
+<<< extends
+class A(
+  b: B)
+  extends C
+>>>
+class A(b: B) extends C
+<<< extends with
+class A(
+  b: B)
+  extends C
+  with D
+>>>
+class A(b: B) extends C with D
+<<< extends with overflows columns
+class A(b: B) extends C___________ with D
+>>>
+class A(b: B) extends C___________
+    with D
+<<< Looong extends with
+class A(b: B) extends C with D with E with F with G {
+  def y = 1
+  def x = 2
+}
+>>>
+class A(b: B) extends C with D with E
+    with F with G {
+
+  def y = 1
+
+  def x = 2
+}
+<<< SKIP Looong extends, no inline
+class A(b: B) extends C with D with E with F with G {
+  def x = 2
+}
+>>>
+class A(b: B) extends C with D with E
+    with F with G {
+  def x = 2
+}
