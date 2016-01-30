@@ -1,0 +1,15 @@
+40 columns                              |
+<<< SKIP Long if condition
+if (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa &&
+      bbbbbbbbbbbbbbbbbb) println("a")
+>>>
+if (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa &&
+      bbbbbbbbbbbbbbbbbb) println("a")
+<<< If assignment
+val newColumn = tok.length + (
+if(split == Newline) newIndent
+else column + split.length)
+>>>
+val newColumn = tok.length + (
+  if (split == Newline) newIndent
+  else column + split.length)
