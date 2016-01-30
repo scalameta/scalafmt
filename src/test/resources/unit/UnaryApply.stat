@@ -1,0 +1,13 @@
+40 columns                              |
+<<< literal
+-100
+>>>
+-100
+<<< ident
+-a
+>>>
+-a
+<<< this
+-this.foo
+>>>
+-this.foo

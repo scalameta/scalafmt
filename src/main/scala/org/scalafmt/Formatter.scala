@@ -6,6 +6,7 @@ import scala.meta.Tree
 import scala.meta.internal.ast.Decl
 import scala.meta.internal.ast.Defn
 import scala.meta.internal.ast.Pkg
+import scala.meta.internal.ast.Term.ApplyUnary
 import scala.meta.internal.ast.Term.Interpolate
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
@@ -20,11 +21,7 @@ class Formatter(style: ScalaStyle,
   import Split._
 
 
-  // Used for convenience when calling withIndent.
-  private implicit def int2num(n: Int): Num = Num(n)
-
   lazy val GetSplits = Default orElse Fail
-
   val tok2idx = toks.zipWithIndex.toMap
   val Default: PartialFunction[FormatToken, List[Split]] = {
     case FormatToken(_: BOF, _, _) => List(
@@ -103,7 +100,7 @@ class Formatter(style: ScalaStyle,
     case FormatToken(_, _: `(` | _: `[`, _) => List(
       NoSplit0
     )
-//     TODO(olafur) Naive match, can be 1) comment between 2) abstract decl.
+    //     TODO(olafur) Naive match, can be 1) comment between 2) abstract decl.
     case tok@FormatToken(d: `def`, name: Ident, _) =>
       val owner = owners(d)
       val expire = owner.tokens.
@@ -163,15 +160,27 @@ class Formatter(style: ScalaStyle,
       if owners(left).isInstanceOf[Defn.Val] =>
       val expire = owners(left).tokens.last
       List(
-      Space0,
+        Space0,
         Split(Newline, 5).withIndent(2, expire, Left)
-    )
+      )
     case FormatToken(_: Ident | _: `this`, _: `.` | _: `#`, _) => List(
       NoSplit0
     )
     case FormatToken(_: `.` | _: `#`, _: Ident, _) => List(
       NoSplit0
     )
+    // ApplyUnary
+    case tok@FormatToken(_: Ident, _: Literal, _)
+      if owners(tok.left) == owners(tok.right) =>
+      List(
+        NoSplit0
+      )
+    case tok@FormatToken(_: Ident, _: Ident | _: `this`, _)
+      if owners(tok.left).parent.exists(_.isInstanceOf[ApplyUnary]) =>
+      List(
+        NoSplit0
+      )
+    // ApplyInfix
     case FormatToken(_: Ident | _: Literal | _: Interpolation.End,
     _: Ident | _: Literal, _) => List(
       Space0
@@ -249,18 +258,17 @@ class Formatter(style: ScalaStyle,
   }
 
   def OneArgOneLineSplit(open: Delim): Policy = {
-      // Newline on every comma.
-      case Decision(t@FormatToken(comma: `,`, _, _), splits)
-        if owners.get(open) == owners.get(comma) =>
-        Decision(t, splits.filter(_.modification == Newline))
-    }
+    // Newline on every comma.
+    case Decision(t@FormatToken(comma: `,`, _, _), splits)
+      if owners.get(open) == owners.get(comma) =>
+      Decision(t, splits.filter(_.modification == Newline))
+  }
 
   def MultiLineBlock(open: `{`): Policy = {
     case Decision(tok@FormatToken(_, close: `}`, _), splits)
       if owners.get(open) == owners.get(close) =>
       Decision(tok, splits.filter(_.modification == Newline))
   }
-
 
   def SingleLineBlock(open: Delim): Policy = {
     val end = owners(open).tokens.last.end
@@ -280,5 +288,8 @@ class Formatter(style: ScalaStyle,
     case _ =>
       ???
   }
+
+  // Used for convenience when calling withIndent.
+  private implicit def int2num(n: Int): Num = Num(n)
 }
 

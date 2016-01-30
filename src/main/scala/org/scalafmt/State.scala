@@ -84,13 +84,11 @@ object State extends ScalaFmtLogger {
     */
   def reconstructPath(toks: Array[FormatToken],
                       splits: Vector[Split],
-                      style: ScalaStyle,
-                      f: FormatToken => String = _.left.code
-                     ): Seq[(FormatToken, String)] = {
+                      style: ScalaStyle): Seq[(FormatToken, String)] = {
     var state = State.start
     toks.zip(splits).map {
       case (tok, split) =>
-//        logger.debug(s"${log(tok.left)} $split ${state.indents}")
+//        logger.debug(s"${log(tok.left)} $split ${state.pushes}")
         state = state.next(style, split, tok)
         val whitespace = split.modification match {
           case Space =>
