@@ -1,13 +1,25 @@
 package org.scalafmt
 
-sealed trait Indent
+import scala.meta.tokens.Token
 
-case object NoOp extends Indent
+sealed trait ExpiresOn
 
-case object Pop extends Indent
+case object Left extends ExpiresOn
 
-case object PushStateColumn extends Indent
+case object Right extends ExpiresOn
 
-case class Push(num: Int) extends Indent {
-  require(num > 0)
+sealed trait Length
+
+case class Num(n: Int) extends Length
+
+case object StateColumn extends Length
+
+case class Push(num: Int, expire: Token, expiresAt: ExpiresOn)
+
+case class Indent(num: Length, expire: Token, expiresAt: ExpiresOn) {
+  require(num match {
+    case Num(n) =>
+      n > 0
+    case _ => true
+  })
 }

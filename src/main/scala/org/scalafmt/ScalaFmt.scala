@@ -8,6 +8,12 @@ import scala.meta.internal.ast.Term.Block
 import scala.meta.internal.ast.Term.Interpolate
 import scala.meta.parsers.common.Parse
 import scala.meta.tokens.Token
+import scala.meta.tokens.Token.`(`
+import scala.meta.tokens.Token.`)`
+import scala.meta.tokens.Token.`[`
+import scala.meta.tokens.Token.`]`
+import scala.meta.tokens.Token.`{`
+import scala.meta.tokens.Token.`}`
 
 class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
 
@@ -22,8 +28,8 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
     * import a.b
     *
     * object c {
-    *   def x = 2
-    *   ...
+    * def x = 2
+    * ...
     * }
     *
     */
@@ -69,7 +75,9 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
     var explored = 0
     var deepestYet = State.start
     val best = mutable.Map.empty[Token, State]
-    val formatter = new Formatter(style, tree, toks, statementStarts, owners)
+    val parens = matchingParens(tree.tokens)
+    val formatter = new Formatter(style, tree, toks, parens,
+      statementStarts, owners)
 
     /**
       * Returns true if it's OK to skip over state.
@@ -186,6 +194,45 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
     loop(tree)
     ret.result()
   }
+
+  /**
+    * Finds matching parens [({})].
+    *
+    * Contains lookup keys in both directions, opening [({ and closing })].
+    */
+  private def matchingParens(tokens: Tokens): Map[Token, Token] = {
+    val ret = new mutable.MapBuilder[Token, Token, Map[Token, Token]](
+      Map.empty[Token, Token])
+    var stack = List.empty[Token]
+    tokens.foreach {
+      case open@(_: `{` | _: `[` | _: `(`) =>
+        stack = open :: stack
+      case close@(_: `}` | _: `]` | _: `)`) =>
+        val open = stack.head
+        ret += open -> close
+        ret += close -> open
+        stack = stack.tail
+      case _ =>
+    }
+    val result = ret.result()
+    assertValidParens(result)
+    result
+  }
+
+  def assertValidParens(parens: Map[Token, Token]): Unit = {
+    parens.foreach {
+      case (_: `{`, _: `}`) =>
+      case (_: `}`, _: `{`) =>
+      case (_: `[`, _: `]`) =>
+      case (_: `]`, _: `[`) =>
+      case (_: `(`, _: `)`) =>
+      case (_: `)`, _: `(`) =>
+      case (open, close) =>
+        throw new IllegalArgumentException(
+          s"Mismatching parens ($open, $close)")
+    }
+  }
+
   /**
     * Creates lookup table from token to its closest scala.meta tree.
     */
@@ -198,7 +245,7 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
         }
       x match {
         case _: Interpolate =>
-          // Nothing
+        // Nothing
         case _ =>
           x.children.foreach(loop)
 
