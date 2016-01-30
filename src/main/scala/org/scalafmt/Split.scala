@@ -1,5 +1,7 @@
 package org.scalafmt
 
+import scala.meta.tokens.Token
+
 case class Decision(formatToken: FormatToken, split: List[Split])
 
 sealed trait Modification {
@@ -20,7 +22,7 @@ case object Space extends Modification
 
 class Split(val modification: Modification,
             val cost: Int,
-            val indent: List[Indent] = List.empty[Indent],
+            val indents: List[Indent] = List.empty[Indent],
             val policy: Policy = NoPolicy,
             val penalty: Boolean = false,
             val origin: String) {
@@ -32,16 +34,17 @@ class Split(val modification: Modification,
   }
 
   def withPenalty(penalty: Int): Split =
-    new Split(modification, cost + penalty, indent, policy, true, origin)
+    new Split(modification, cost + penalty, indents, policy, true, origin)
 
-  def withIndent(newIndent: Indent): Split =
-    new Split(modification, cost, newIndent +: indent, policy, penalty, origin)
+  def withIndent(length: Length, expire: Token, expiresOn: ExpiresOn): Split =
+    new Split(modification, cost, Indent(length, expire, expiresOn) +: indents,
+      policy, penalty, origin)
 
   def withModification(newModification: Modification): Split =
-    new Split(newModification, cost, indent, policy, penalty, origin)
+    new Split(newModification, cost, indents, policy, penalty, origin)
 
   override def toString =
-    s"""$modification:$origin(cost=$cost${if (indent.nonEmpty) s", indent=$indent" else ""})"""
+    s"""$modification:$origin(cost=$cost${if (indents.nonEmpty) s", indent=$indents" else ""})"""
 
 }
 
@@ -55,11 +58,9 @@ object Split {
 
   def apply(modification: Modification,
             cost: Int,
-            indent: Indent = NoOp,
-            policy: Policy = NoPolicy,
-            penalty: Boolean = false)(
+            policy: Policy = NoPolicy)(
     implicit line: sourcecode.Line) =
-    new Split(modification, cost, List(indent), policy, penalty,
+    new Split(modification, cost, List.empty[Indent], policy, false,
       s"${line.value}")
 
 }

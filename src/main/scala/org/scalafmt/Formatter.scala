@@ -1,24 +1,30 @@
 package org.scalafmt
 
 import scala.annotation.tailrec
+import scala.language.implicitConversions
 import scala.meta.Tree
 import scala.meta.internal.ast.Decl
 import scala.meta.internal.ast.Defn
 import scala.meta.internal.ast.Pkg
 import scala.meta.internal.ast.Term.Interpolate
-import scala.meta.internal.ast.Type
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 
 class Formatter(style: ScalaStyle,
                 tree: Tree,
                 toks: Array[FormatToken],
+                matching: Map[Token, Token],
                 statementStarts: Set[Token],
                 owners: Map[Token, Tree]) extends ScalaFmtLogger {
 
   import Split._
 
+
+  // Used for convenience when calling withIndent.
+  private implicit def int2num(n: Int): Num = Num(n)
+
   lazy val GetSplits = Default orElse Fail
+
   val tok2idx = toks.zipWithIndex.toMap
   val Default: PartialFunction[FormatToken, List[Split]] = {
     case FormatToken(_: BOF, _, _) => List(
@@ -43,8 +49,8 @@ class Formatter(style: ScalaStyle,
       val nl: Modification = if (gets2x(tok)) Newline2x else Newline
       List(
         Split(Space, 0, policy = SingleLineBlock(open)),
-        Split(nl, 1, indent = Push(2),
-          policy = MultiLineBlock(open))
+        Split(nl, 1, MultiLineBlock(open))
+          .withIndent(2, matching(open), Right)
       )
     case FormatToken(_, _: `{`, _) => List(
       Space0
@@ -100,23 +106,17 @@ class Formatter(style: ScalaStyle,
 //     TODO(olafur) Naive match, can be 1) comment between 2) abstract decl.
     case tok@FormatToken(d: `def`, name: Ident, _) =>
       val owner = owners(d)
-      val last = getLastTokenInDef(owner)
+      val expire = owner.tokens.
+        find(t => t.isInstanceOf[`=`] && owners(t) == owner).get
       List(
-        Split(Space, 0, Push(4), policy = {
-          case d@Decision(FormatToken(_, eq: `=`, _), s)
-            if owners(eq) == owner =>
-            d.copy(split = s.map(_.withIndent(Pop)))
-        })
+        Split(Space, 0).withIndent(4, expire, Left)
       )
     case FormatToken(e: `=`, _, _)
       if owners(e).isInstanceOf[Defn.Def] =>
-      val last = owners(e).tokens.last
+      val expire = owners(e).tokens.last
       List(
         Space0,
-        Split(Newline, 0, Push(2), policy = {
-          case d@Decision(FormatToken(`last`, _, _), s) =>
-            d.copy(split = s.map(_.withIndent(Pop)))
-        })
+        Split(Newline, 0).withIndent(2, expire, Left)
       )
     case tok@FormatToken(open: `(`, _, _)
       if owners(open).isInstanceOf[Defn.Def] =>
@@ -129,12 +129,12 @@ class Formatter(style: ScalaStyle,
       val open = tok.left.asInstanceOf[Delim]
       val singleLine = SingleLineBlock(open)
       val oneArgOneLine = OneArgOneLineSplit(open)
+      val expire = matching(open)
       List(
         Split(NoSplit, 0, policy = singleLine),
-        Split(Newline, 1, Push(4),
-          Unindent(open) orElse singleLine),
-        Split(NoSplit, 2, PushStateColumn, oneArgOneLine),
-        Split(Newline, 3, Push(4), oneArgOneLine)
+        Split(Newline, 1, singleLine).withIndent(4, expire, Left),
+        Split(NoSplit, 2, oneArgOneLine).withIndent(StateColumn, expire, Left),
+        Split(Newline, 3, oneArgOneLine).withIndent(4, expire, Left)
       )
     case FormatToken(_, _: `,`, _) => List(
       NoSplit0
@@ -154,15 +154,17 @@ class Formatter(style: ScalaStyle,
     )
     case FormatToken(_, tok: `=`, _)
       if !owners(tok).isInstanceOf[Defn.Def] =>
+      val expire = owners(tok).tokens.last
       List(
         Split(Space, 2),
-        BreakStatement(3, tok)
+        Split(Newline, 3).withIndent(2, expire, Left)
       )
     case tok@FormatToken(left: `:`, _, _)
       if owners(left).isInstanceOf[Defn.Val] =>
+      val expire = owners(left).tokens.last
       List(
       Space0,
-      BreakStatement(5, tok.left)
+        Split(Newline, 5).withIndent(2, expire, Left)
     )
     case FormatToken(_: Ident | _: `this`, _: `.` | _: `#`, _) => List(
       NoSplit0
@@ -184,9 +186,10 @@ class Formatter(style: ScalaStyle,
       Newline0
     )
     case tok@FormatToken(_: `val`, _, _) =>
+      val expire = owners(tok.left).tokens.last
       List(
         Space0,
-        BreakStatement(6, tok.left)
+        Split(Newline, 6).withIndent(Num(2), expire, Left)
       )
     case tok@FormatToken(_: Keyword | _: Modifier, _, _) => List(
       Space0
@@ -245,29 +248,17 @@ class Formatter(style: ScalaStyle,
     else toks(i - 1)
   }
 
-  def OneArgOneLineSplit(open: Delim): Policy =
-    Unindent(open) orElse {
+  def OneArgOneLineSplit(open: Delim): Policy = {
       // Newline on every comma.
       case Decision(t@FormatToken(comma: `,`, _, _), splits)
         if owners.get(open) == owners.get(comma) =>
         Decision(t, splits.filter(_.modification == Newline))
     }
 
-  def Unindent(open: Delim): Policy = {
-    case Decision(t@FormatToken(close: `)`, _, _), splits)
-      if open.isInstanceOf[`(`] && owners.get(open) == owners.get(close) =>
-      Decision(t, splits.map(_.withIndent(Pop)))
-    case Decision(t@FormatToken(close: `]`, _, _), splits)
-      if open.isInstanceOf[`[`] && owners.get(open) == owners.get(close) =>
-      Decision(t, splits.map(_.withIndent(Pop)))
-  }
-
   def MultiLineBlock(open: `{`): Policy = {
     case Decision(tok@FormatToken(_, close: `}`, _), splits)
       if owners.get(open) == owners.get(close) =>
-      Decision(tok, splits.withFilter(_.modification == Newline).map {
-        case s => s.withIndent(Pop)
-      })
+      Decision(tok, splits.filter(_.modification == Newline))
   }
 
 
@@ -279,16 +270,6 @@ class Formatter(style: ScalaStyle,
         Decision(tok, splits.filterNot(_.modification.isNewline))
     }
     policy
-  }
-
-  def BreakStatement(cost: Int, tok: Token)(
-    implicit line: sourcecode.Line): Split = {
-    val parent = owners(tok)
-    Split(Newline, cost, Push(2), {
-      case Decision(t@FormatToken(left, right, _), s)
-        if childOf(left, parent, owners) && !childOf(right, parent, owners) =>
-        Decision(t, s.map(_.withIndent(Pop)))
-    })(line)
   }
 
   def getLastTokenInDef(d: Tree): Token = d match {
