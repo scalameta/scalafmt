@@ -2,8 +2,6 @@ package org.scalafmt
 
 import java.util.concurrent.TimeUnit
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
 import org.scalafmt.DiffUtil._
 import org.scalafmt.stats.TestStats
 import org.scalatest.BeforeAndAfterAll
@@ -13,6 +11,8 @@ import org.scalatest.concurrent.Timeouts
 import org.scalatest.time.SpanSugar._
 
 import scala.collection.mutable
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.language.postfixOps
 import scala.meta.Tree
@@ -40,9 +40,9 @@ case class Result(test: DiffTest,
 
   def title = f"${test.name} (${timeMs}ms, $visitedStates states)"
 
-  def timeMs = TimeUnit.MILLISECONDS.convert(timeNs, TimeUnit.NANOSECONDS)
-
   def statesPerMs: Long = visitedStates / timeMs
+
+  def timeMs = TimeUnit.MILLISECONDS.convert(timeNs, TimeUnit.NANOSECONDS)
 }
 
 trait HasTests {
@@ -137,8 +137,8 @@ class FormatTest
         logger.debug("Code does not parse")
         fail(
           s"""Obtained code does not parse!
-             |${header("Obtained")}
-             |$code
+              |${header("Obtained")}
+              |$code
            """.stripMargin, e)
     }
   }
@@ -147,8 +147,12 @@ class FormatTest
     logger.debug(s"Total explored: ${Debug.explored}")
     val results = debugResults.result()
     val stats = TestStats(results)
-    Future(Speed.submitStats(stats))
-    Future(Speed.writeComparisonReport(stats, "master"))
-    FilesUtil.writeFile("target/index.html", Report.heatmap(results))
+    // I don't want to deal with scalaz's Tasks :'(
+    val k = for {
+      _ <- Future(Speed.submitStats(stats))
+      _ <- Future(Speed.writeComparisonReport(stats, "master"))
+      _ <- Future(FilesUtil.writeFile("target/index.html", Report.heatmap(results)))
+    } yield ()
+    Await.ready(k, 3 seconds)
   }
 }
