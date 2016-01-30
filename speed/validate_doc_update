@@ -1,5 +1,0 @@
-function(newDoc, savedDoc, userCtx) {
-    if (savedDoc && userCtx.roles.indexOf("_admin") == -1) {
-        throw({forbidden: "Update/delete requires admin privileges."});
-    }
-}
