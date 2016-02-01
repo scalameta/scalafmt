@@ -12,7 +12,7 @@ case class State(cost: Int,
                  policy: Decision => Decision,
                  splits: Vector[Split],
                  indentation: Int,
-                 pushes: Vector[Push],
+                 pushes: Vector[Indent[Num]],
                  column: Int) extends Ordered[State] with ScalaFmtLogger {
 
   import scala.math.Ordered.orderingToOrdered
@@ -44,13 +44,9 @@ case class State(cost: Int,
       if (push.expiresAt == Left) push.expire == tok.left
       else push.expire == tok.right
     }
-    val newIndents = nonExpiredIndents ++ split.indents.map {
-      case Indent(StateColumn, t, left) =>
-        Push(column - indentation, t, left)
-      case Indent(Num(i), t, left) =>
-        Push(i, t, left)
-    }
-    val newIndent = newIndents.foldLeft(0)(_ + _.num)
+    val newIndents: Vector[Indent[Num]] =
+      nonExpiredIndents ++ split.indents.map(_.withNum(column, indentation))
+    val newIndent = newIndents.foldLeft(0)(_ + _.length.n)
     // Always account for the cost of the right token.
     val newColumn = tok.right.code.length + (
       if (split.modification == Newline) newIndent
@@ -77,7 +73,7 @@ object State extends ScalaFmtLogger {
     identity,
     Vector.empty[Split],
     0,
-    Vector.empty[Push],
+    Vector.empty,
     0)
   /**
     * Returns formatted output from FormatTokens and Splits.

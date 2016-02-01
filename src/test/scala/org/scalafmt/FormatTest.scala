@@ -160,12 +160,14 @@ class FormatTest
     logger.debug(s"Total explored: ${Debug.explored}")
     val results = debugResults.result()
     val stats = TestStats(results)
+    // TODO(olafur) don't block printing out test results.
     // I don't want to deal with scalaz's Tasks :'(
     val k = for {
       _ <- Future(Speed.submitStats(stats))
       _ <- Future(Speed.writeComparisonReport(stats, "master"))
       _ <- Future(FilesUtil.writeFile("target/index.html", Report.heatmap(results)))
     } yield ()
-    Await.ready(k, 3 seconds)
+    // Travis can take more than 10 seconds.
+    Await.ready(k, 10 seconds)
   }
 }
