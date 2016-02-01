@@ -36,7 +36,7 @@ case object Space extends Modification
   */
 class Split(val modification: Modification,
             val cost: Int,
-            val indents: List[Indent] = List.empty[Indent],
+            val indents: List[Indent[Length]] = List.empty,
             val policy: Policy = NoPolicy,
             val penalty: Boolean = false,
             val origin: String) {
@@ -74,7 +74,7 @@ object Split {
             cost: Int,
             policy: Policy = NoPolicy)(
     implicit line: sourcecode.Line) =
-    new Split(modification, cost, List.empty[Indent], policy, false,
+    new Split(modification, cost, List.empty, policy, false,
       s"${line.value}")
 
 }

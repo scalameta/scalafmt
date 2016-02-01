@@ -30,3 +30,23 @@ object a
 import org.{A => B, C => D}
 
 object a
+<<< SKIP scalajs,
+import scala.language.implicitConversions
+
+import scala.collection.mutable
+
+import java.{util => ju}
+
+import org.scalajs.core.tools.sem._
+import org.scalajs.core.tools.javascript._
+import org.scalajs.core.tools.optimizer._
+>>>
+import scala.language.implicitConversions
+
+import scala.collection.mutable
+
+import java.{util => ju}
+
+import org.scalajs.core.tools.sem._
+import org.scalajs.core.tools.javascript._
+import org.scalajs.core.tools.optimizer._
