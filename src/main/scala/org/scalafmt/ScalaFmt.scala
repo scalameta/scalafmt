@@ -62,7 +62,7 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
     } catch {
       // Skip invalid code.
       case e: ParseException =>
-        logger.warn("Unable to parse code", e)
+        logger.warn(s"Unable to parse code: ${e.getMessage}")
         code
     }
   }

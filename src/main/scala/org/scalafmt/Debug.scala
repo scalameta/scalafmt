@@ -51,20 +51,4 @@ object Debug extends ScalaFmtLogger {
     treeExplored += tree -> visits
   }
 
-  def reportTokens() = {
-    formatTokenExplored.toSeq.sortBy(_._1.right.end).foreach {
-      case (code, count) =>
-        logger.debug(
-          f"""$count%-5s $code""".stripMargin)
-    }
-  }
-
-  def reportTrees() = {
-    Debug.treeExplored.toSeq.sortBy(_._2).foreach { case (code, count) =>
-      logger.debug(
-        f"""$count%-5s
-           |$code""".stripMargin)
-    }
-  }
-
 }

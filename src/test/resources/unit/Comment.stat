@@ -1,0 +1,44 @@
+40 columns                              |
+<<< Inline comment binds left
+function(a,// comment
+         b)
+>>>
+function(a, // comment
+         b)
+<<< Inline comment binds right
+function(a,
+// comment
+         b)
+>>>
+function(a,
+         // comment
+         b)
+<<< comment respects 2x newline
+{val x = 1
+
+  // Give me 2x newlines!
+  val y = 2
+}
+>>>
+{
+  val x = 1
+
+  // Give me 2x newlines!
+  val y = 2
+}
+<<< muliline comment gets 2x newline
+{val x = 1
+  /*
+   * I'm so important
+   */
+  val y = 2
+}
+>>>
+{
+  val x = 1
+
+  /*
+   * I'm so important
+   */
+  val y = 2
+}

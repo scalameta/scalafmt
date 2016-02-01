@@ -24,6 +24,7 @@ class Formatter(style: ScalaStyle,
 
 
   lazy val GetSplits = Route orElse Fail
+
   val tok2idx = toks.zipWithIndex.toMap
   /**
     * Assigns possible splits to a FormatToken.
@@ -83,7 +84,7 @@ class Formatter(style: ScalaStyle,
       else if (newlineCounts == 1) List(Newline0)
       else List(Space0)
     case FormatToken(_, c: Comment, _)
-      if c.code.startsWith("/**") => List(
+      if c.code.startsWith("/*") => List(
       Split(Newline2x, 0)
     )
     case FormatToken(left: `package `, _, _)
@@ -225,9 +226,7 @@ class Formatter(style: ScalaStyle,
 
     // Annotations
     // TODO(olafur) what about "case t@Foobar =>..."?
-    case FormatToken(_, _: `@`, _) => List(
-      Newline0
-    )
+
     case FormatToken(_: `@`, _, _) => List(
       NoSplit0
     )
@@ -262,9 +261,9 @@ class Formatter(style: ScalaStyle,
       NoSplit0
     )
     // Fallback
-    case FormatToken(left, right: Keyword, _) =>
-      if (owners(left) == owners(right)) List(Space0)
-      else List(Newline0)
+    case FormatToken(left, right: Keyword, _) => List(
+      Newline0
+    )
     case FormatToken(_, _: Delim, _) => List(
       Space0
     )
@@ -310,16 +309,13 @@ class Formatter(style: ScalaStyle,
     else toks(i + 1)
   }
 
-  def prev(tok: FormatToken): FormatToken = {
-    val i = tok2idx(tok)
-    if (i == 0) tok
-    else toks(i - 1)
-  }
-
   def OneArgOneLineSplit(open: Delim): Policy = {
     // Newline on every comma.
-    case Decision(t@FormatToken(comma: `,`, _, _), splits)
-      if owners.get(open) == owners.get(comma) =>
+    case Decision(t@FormatToken(comma: `,`, right, between), splits)
+      if owners.get(open) == owners.get(comma) &&
+        // If comment is bound to comma, see unit/Comment.
+        (!right.isInstanceOf[Comment] ||
+          between.exists(_.isInstanceOf[`\n`])) =>
       Decision(t, splits.filter(_.modification == Newline))
   }
 
@@ -337,15 +333,6 @@ class Formatter(style: ScalaStyle,
         Decision(tok, splits.filterNot(_.modification.isNewline))
     }
     policy
-  }
-
-  def getLastTokenInDef(d: Tree): Token = d match {
-    case defn: Defn.Def =>
-      defn.body.tokens.head
-    case defn: Decl.Def =>
-      defn.decltpe.tokens.last
-    case _ =>
-      ???
   }
 
   // Used for convenience when calling withIndent.
