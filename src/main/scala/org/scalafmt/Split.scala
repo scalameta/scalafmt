@@ -47,6 +47,9 @@ class Split(val modification: Modification,
     case Space => 1
   }
 
+  def withPolicy(newPolicy: Policy): Split =
+    new Split(modification, cost, indents, newPolicy orElse policy, true, origin)
+
   def withPenalty(penalty: Int): Split =
     new Split(modification, cost + penalty, indents, policy, true, origin)
 

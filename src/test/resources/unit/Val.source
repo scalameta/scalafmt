@@ -1,0 +1,22 @@
+40 columns                              |
+<<< Break first after =
+object a {
+  val A__________________a: Int = 123456789
+}
+>>>
+object a {
+  val A__________________a: Int =
+    123456789
+}
+<<< Unindent after leaving statement
+object a {
+  val A__________________a: Int = 123456789
+  val B__________________b: Int = 123456789
+}
+>>>
+object a {
+  val A__________________a: Int =
+    123456789
+  val B__________________b: Int =
+    123456789
+}

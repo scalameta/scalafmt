@@ -79,6 +79,17 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
     val formatter = new Formatter(style, tree, toks, parens,
       statementStarts, owners)
 
+    def mkString(splits: Vector[Split]): String = {
+      val output = State.reconstructPath(toks, splits, style)
+      val sb = new StringBuilder()
+      output.foreach {
+        case (tok, whitespace) =>
+          sb.append(tok.left.code)
+          sb.append(whitespace)
+      }
+      sb.toString()
+    }
+
     /**
       * Returns true if it's OK to skip over state.
       */
@@ -90,9 +101,30 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
     /**
       * Same as shortest path except caches results.
       */
-    def shortestPathMemo(owner: Tree, start: State): State = {
-      val key = start.indentation -> owner
-      memo.getOrElseUpdate(key, shortestPath(owner, start))
+    def shortestPathMemo(owner: Tree, start: State, prev: State): State = {
+      val col = start.indentation
+      val i = Math.max(0, prev.splits.length - 1)
+      val key = col -> owner
+      memo.getOrElseUpdate(key, {
+        val result = shortestPath(owner, start)
+        val output = mkString(result.splits)
+        logger.trace(
+          s"""${result.cost} ${result.column} ${prev.column} ${prev.indentation} ${start.column} ${toks(i)}
+             |${header("splits")}
+             |${start.splits}
+             |${header("stripped output")}
+             |${output.stripPrefix(mkString(start.splits))}
+             |${header("prev.splits")}
+             |${mkString(prev.splits).length}
+             |${mkString(prev.splits)}
+             |${reveal(mkString(prev.splits))}
+             |${header("output")}
+             |${mkString(result.splits)}
+             |""".stripMargin)
+        result
+      })
+//      val result = shortestPath(owner, start)
+//      shortestPath(owner, start)
     }
 
     /**
@@ -113,18 +145,19 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
         if (curr.splits.length > deepestYet.splits.length)
           deepestYet = curr
         explored += 1
-        if (explored % 100000 == 0)
+        if (explored % 1000 == 0)
           println(explored)
         val i = curr.splits.length
-        if (i == toks.length ||
+        if (explored > 10000 || i == toks.length ||
           !childOf(toks(i).right, owner, owners)) {
           result = curr
           Q.dequeueAll
         }
         else if (!pruneOK(curr)) {
           val splitToken = toks(i)
+//          logger.debug(s"visit=$splitToken")
           Debug.visit(splitToken)
-          val splits = formatter.GetSplits(splitToken)
+          val splits = formatter.Route(splitToken)
           val actualSplit = curr.policy(Decision(splitToken, splits)).split
           actualSplit.foreach { split =>
             val nextState = curr.next(style, split, splitToken)
@@ -133,7 +166,8 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
             if (splitToken.left != owner.tokens.head &&
               startsUnwrappedLine(splitToken.left, statementStarts,
                 owners(splitToken.left))) {
-              val nextNextState = shortestPathMemo(owners(splitToken.left), nextState)
+              val nextNextState = shortestPathMemo(owners(splitToken.left),
+                nextState, curr)
               Q.enqueue(nextNextState)
             } else {
               Q.enqueue(nextState)
@@ -144,7 +178,7 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
       result
     }
 
-    var state = shortestPathMemo(tree, State.start)
+    var state = shortestPathMemo(tree, State.start, State.start)
     if (state.splits.length != toks.length) {
       state = deepestYet
       logger.warn("UNABLE TO FORMAT")
@@ -152,21 +186,12 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
     Debug.explored += explored
     Debug.state = state
     Debug.tokens = toks
-    mkString(State.reconstructPath(toks, state.splits, style))
+    mkString(state.splits)
   }
 
-  def mkString(output: Seq[(FormatToken, String)]): String = {
-    val sb = new StringBuilder()
-    output.foreach {
-      case (tok, whitespace) =>
-        sb.append(tok.left.code)
-        sb.append(whitespace)
-    }
-    sb.toString()
-  }
 
   def startsUnwrappedLine(token: Token,
-                          starts: Set[Token],
+                          starts: Map[Token, Tree],
                           owner: Tree): Boolean = {
     if (starts.contains(token)) true
     else if (!owner.tokens.headOption.contains(token)) false
@@ -176,17 +201,26 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
     }
   }
 
-  private def getStatementStarts(tree: Tree): Set[Token] = {
-    val ret = new mutable.SetBuilder[Token, Set[Token]](Set[Token]())
+  private def getStatementStarts(tree: Tree): Map[Token, Tree] = {
+    val ret = new mutable.MapBuilder[Token, Tree, Map[Token, Tree]](Map[Token, Tree]())
     def addAll(trees: Seq[Tree]): Unit = {
       trees.foreach { t =>
-        ret += t.tokens.head
+        ret += t.tokens.head -> t
       }
     }
     def loop(x: Tree): Unit = {
       x match {
+        case t: internal.ast.Source =>
+          addAll(t.stats)
+        case t: internal.ast.Pkg =>
+          addAll(t.stats)
+        case t: internal.ast.Term.Match =>
+          addAll(t.cases)
         case b: Block =>
           addAll(b.stats)
+        // TODO(olafur) Working with templates is really awkward.
+        case t: internal.ast.Template if t.stats.isDefined =>
+          addAll(t.stats.get)
         case _ => // Nothing
       }
       x.children.foreach(loop)
@@ -245,10 +279,11 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
         }
       x match {
         case _: Interpolate =>
+          // TODO(olafur) the mod is unintuitive
+        case _: scala.meta.internal.ast.Mod.Override.Api =>
         // Nothing
         case _ =>
           x.children.foreach(loop)
-
       }
     }
     loop(tree)

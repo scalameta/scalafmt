@@ -49,8 +49,9 @@ case class State(cost: Int,
     val newIndent = newIndents.foldLeft(0)(_ + _.length.n)
     // Always account for the cost of the right token.
     val newColumn = tok.right.code.length + (
-      if (split.modification == Newline) newIndent
+      if (split.modification.isNewline) newIndent
       else column + split.length)
+//    logger.debug(s"tok=$tok newColumn=$newColumn $newIndent")
     val splitWithPenalty =
       if (newColumn < style.maxColumn) split
       else split.withPenalty(KILL)
@@ -80,12 +81,14 @@ object State extends ScalaFmtLogger {
     */
   def reconstructPath(toks: Array[FormatToken],
                       splits: Vector[Split],
-                      style: ScalaStyle): Seq[(FormatToken, String)] = {
+                      style: ScalaStyle,
+                      debug: Boolean = false): Seq[(FormatToken, String)] = {
     var state = State.start
     toks.zip(splits).map {
       case (tok, split) =>
-        // Use the following line to debug origin of splits.
-//        logger.debug(s"${log(tok.left)} $split ${state.pushes}")
+        // TIP. Use the following line to debug origin of splits.
+        if (debug)
+          logger.debug(s"${log(tok.left)} $split ${state.pushes}")
         state = state.next(style, split, tok)
         val whitespace = split.modification match {
           case Space =>
