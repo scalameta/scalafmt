@@ -1,0 +1,21 @@
+80 columns                                                                     |
+<<< SKIP scalajs 1
+private def genApplyForSym(minArgc: Int, hasRestParam: Boolean,
+    sym: Symbol): js.Tree = {
+  if (isScalaJSDefinedJSClass(currentClassSym) &&
+      sym.owner != currentClassSym.get) {
+    genApplyForSymJSSuperCall(minArgc, hasRestParam, sym)
+  } else {
+    genApplyForSymNonJSSuperCall(minArgc, sym)
+  }
+}
+>>>
+private def genApplyForSym(minArgc: Int, hasRestParam: Boolean,
+    sym: Symbol): js.Tree = {
+  if (isScalaJSDefinedJSClass(currentClassSym) &&
+      sym.owner != currentClassSym.get) {
+    genApplyForSymJSSuperCall(minArgc, hasRestParam, sym)
+  } else {
+    genApplyForSymNonJSSuperCall(minArgc, sym)
+  }
+}
