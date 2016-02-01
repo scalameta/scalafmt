@@ -6,11 +6,6 @@ object ManualTests extends HasTests {
 
   val manual = ".manual"
 
-  def stripFilename(filename: String) = filename
-    .stripPrefix("SKIP")
-    .stripPrefix("ONLY")
-    .trim
-
   def tests: Seq[DiffTest] = {
     import FilesUtil._
     for {
@@ -20,8 +15,9 @@ object ManualTests extends HasTests {
           .stripPrefix(testDir + "/")
           .stripSuffix(manual)
         readFile(filename).lines.map { name =>
-          val original = readFile(stripFilename(name))
-          DiffTest(spec, name, name, original, original, style)
+          val original = readFile(stripPrefix(name))
+          DiffTest(spec, stripPrefix(name), name, original, original,
+          isSkip(name), isOnly(name), style)
         }
       }
     } yield test

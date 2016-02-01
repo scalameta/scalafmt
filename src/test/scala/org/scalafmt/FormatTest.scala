@@ -24,6 +24,8 @@ case class DiffTest(spec: String,
                     filename: String,
                     original: String,
                     expected: String,
+                    skip: Boolean,
+                    only: Boolean,
                     style: ScalaStyle) {
   val fullName = s"$spec: $name"
 }
@@ -46,7 +48,15 @@ case class Result(test: DiffTest,
 }
 
 trait HasTests {
+
   val testDir = "src/test/resources"
+
+  def isOnly(name: String) = name.startsWith("ONLY ")
+
+  def isSkip(name: String) = name.startsWith("SKIP ")
+
+  def stripPrefix(name: String) =
+    name.stripPrefix("SKIP ").stripPrefix("ONLY ").trim
 
   def filename2parse(filename: String): Option[Parse[_ <: Tree]] =
     extension(filename) match {
@@ -64,7 +74,7 @@ class FormatTest
   extends FunSuite with Timeouts with ScalaFmtLogger
   with BeforeAndAfterAll with HasTests {
 
-  lazy val onlyOne = tests.exists(_.name.startsWith("ONLY"))
+  lazy val onlyOne = tests.exists(_.only)
 
   lazy val debugResults = mutable.ArrayBuilder.make[Result]
 
@@ -75,10 +85,7 @@ class FormatTest
     .withFilter(testShouldRun)
     .foreach(runTest)
 
-  def testShouldRun(t: DiffTest): Boolean = {
-    !t.name.startsWith("SKIP") &&
-      (!onlyOne || t.name.startsWith("ONLY"))
-  }
+  def testShouldRun(t: DiffTest): Boolean = !onlyOne || t.only
 
   def bySpecThenName(left: DiffTest, right: DiffTest): Boolean = {
     import scala.math.Ordered.orderingToOrdered
@@ -86,18 +93,24 @@ class FormatTest
   }
 
   def runTest(t: DiffTest): Unit = {
-    val fmt = new ScalaFmt(t.style)
-    test(f"${t.fullName}%-70s|") {
-      Debug.newTest()
-      failAfter(10 seconds) {
-        filename2parse(t.filename) match {
-          case Some(parse) =>
-            val obtained = fmt.format(t.original)(parse)
-            saveResult(t, obtained)
-            assertParses(obtained)(parse)
-            assertNoDiff(obtained, t.expected)
-          case None =>
-            logger.warn(s"Found no parse for filename ${t.filename}")
+    val paddedName = f"${t.fullName}%-70s|"
+    if (t.skip) {
+      ignore(paddedName) {}
+    }
+    else {
+      val fmt = new ScalaFmt(t.style)
+      test(paddedName) {
+        Debug.newTest()
+        failAfter(10 seconds) {
+          filename2parse(t.filename) match {
+            case Some(parse) =>
+              val obtained = fmt.format(t.original)(parse)
+              saveResult(t, obtained)
+              assertParses(obtained)(parse)
+              assertNoDiff(obtained, t.expected)
+            case None =>
+              logger.warn(s"Found no parse for filename ${t.filename}")
+          }
         }
       }
     }
