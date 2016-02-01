@@ -18,6 +18,7 @@ import scala.language.postfixOps
 import scala.meta.Tree
 import scala.meta.parsers.common.Parse
 import scala.meta.parsers.common.ParseException
+import scala.util.Try
 
 case class DiffTest(spec: String,
                     name: String,
@@ -106,7 +107,7 @@ class FormatTest
             case Some(parse) =>
               val obtained = fmt.format(t.original)(parse)
               saveResult(t, obtained)
-              assertParses(obtained)(parse)
+              assertParses(obtained, t.original)(parse)
               assertNoDiff(obtained, t.expected)
             case None =>
               logger.warn(s"Found no parse for filename ${t.filename}")
@@ -141,18 +142,22 @@ class FormatTest
     output
   }
 
-  def assertParses[T <: Tree](code: String)(implicit parse: Parse[T]): Unit = {
-    try {
-      import scala.meta._
-      code.parse[T]
-    } catch {
-      case e: ParseException =>
-        logger.debug("Code does not parse")
-        fail(
-          s"""Obtained code does not parse!
-              |${header("Obtained")}
-              |$code
-           """.stripMargin, e)
+  def parses[T <: Tree](code: String)(implicit parse: Parse[T]): Boolean = {
+    import scala.meta._
+    Try(code.parse[T]).map(_ => true).getOrElse(false)
+  }
+
+  def assertParses[T <: Tree](obtained: String,
+                              original: String)(implicit parse: Parse[T]): Unit = {
+    if (!parses(obtained) && parses(original)) {
+      fail(
+        s"""Formatter output does not parse!
+            |${header("Obtained")}
+            |$obtained
+            |
+            |${header("Original")}
+            |$original
+           """.stripMargin)
     }
   }
 
