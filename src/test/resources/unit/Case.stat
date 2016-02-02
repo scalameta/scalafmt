@@ -1,0 +1,52 @@
+40 columns                              |
+<<< No inline
+object Object {
+  val x = { case 2 => 1
+    case 1 => 3 }
+}
+>>>
+object Object {
+  val x = {
+    case 2 => 1
+    case 1 => 3
+  }
+}
+<<< many with no body
+x match {
+case 1 =>
+case x =>
+  explode()
+}
+>>>
+x match {
+  case 1 =>
+  case x => explode()
+}
+<<< many with multiline bodies
+x match {
+case 1 =>
+    println(1)
+    println(2)
+case x =>
+    println(1)
+    println(2)
+}
+>>>
+x match {
+  case 1 =>
+    println(1)
+    println(2)
+  case x =>
+    println(1)
+    println(2)
+}
+<<< Memoize fux up
+  x match {
+  case 2 => 1
+  case 1 => 3
+    }
+>>>
+x match {
+  case 2 => 1
+  case 1 => 3
+}

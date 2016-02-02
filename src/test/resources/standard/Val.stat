@@ -1,0 +1,7 @@
+80 columns                                                                     |
+<<< Long line
+val newIndents: Vector[Indent[Num]]
+      = nonExpiredIndents ++ split.indents.map(_ .withNum(column, indentation))
+>>>
+val newIndents: Vector[Indent[Num]] =
+  nonExpiredIndents ++ split.indents.map(_.withNum(column, indentation))

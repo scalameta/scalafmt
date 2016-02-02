@@ -1,0 +1,29 @@
+80 columns                                                                     |
+<<< Unindent singleline
+case FormatToken(_: Ident | _: `this` | _: `_ ` | _: `(`, _: `.` | _: `#`, _) => List(
+  NoSplit0
+)
+>>>
+case FormatToken(
+    _: Ident | _: `this` | _: `_ ` | _: `(`, _: `.` | _: `#`, _) =>
+  List(NoSplit0)
+<<< Long if
+case tok if tok.left.name.startsWith("xml") && tok.right.name.startsWith("xml") => List( NoSplit0 )
+>>>
+case tok
+    if tok.left.name.startsWith("xml") && tok.right.name.startsWith("xml") =>
+  List(NoSplit0)
+<<< Pathological if
+case FormatToken(left, open: `(`, _)
+    if owners(open).isInstanceOf[Term.Apply] ||
+      owners(left).parent.exists(_.isInstanceOf[Defn.Def]) ||
+      owners(left).parent.exists(_.isInstanceOf[Defn.Class]) =>
+  List(
+    NoSplit0
+  )
+>>>
+case FormatToken(left, open: `(`, _)
+    if owners(open).isInstanceOf[Term.Apply] ||
+    owners(left).parent.exists(_.isInstanceOf[Defn.Def]) ||
+    owners(left).parent.exists(_.isInstanceOf[Defn.Class]) =>
+  List(NoSplit0)

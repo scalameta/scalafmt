@@ -63,6 +63,7 @@ trait HasTests {
     extension(filename) match {
       case "source" | "scala" => Some(scala.meta.parsers.parseSource)
       case "stat" => Some(scala.meta.parsers.parseStat)
+      case "case" => Some(scala.meta.parsers.parseCase)
       case _ => None
     }
 
@@ -133,7 +134,7 @@ class FormatTest
 
   def getFormatOutput(style: ScalaStyle): Seq[FormatOutput] = {
     val path = State.reconstructPath(Debug.tokens,
-      Debug.state.splits, style)
+      Debug.state.splits, style, debug = onlyOne)
     val output = path.map {
       case (token, whitespace) =>
         FormatOutput(token.left.code,
@@ -173,6 +174,6 @@ class FormatTest
       _ <- Future(FilesUtil.writeFile("target/index.html", Report.heatmap(results)))
     } yield ()
     // Travis can take more than 10 seconds.
-    Await.ready(k, 10 seconds)
+//    Await.ready(k, 10 seconds)
   }
 }
