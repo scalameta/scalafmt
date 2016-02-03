@@ -122,7 +122,7 @@ class FormatTest
     val visitedStates = Debug.exploredInTest
     logger.debug(f"$visitedStates%-4s ${t.fullName}")
     val output = getFormatOutput(t.style)
-    val obtainedHtml = Report.mkHtml(output)
+    val obtainedHtml = Report.mkHtml(output, t.style)
     debugResults += Result(t,
       obtained,
       obtainedHtml,

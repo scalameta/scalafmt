@@ -6,16 +6,44 @@ case class Decision(formatToken: FormatToken, split: List[Split])
 
 sealed trait Modification {
   def isNewline = this match {
-    case Newline | Newline2x => true
+    case _: NewlineT => true
     case _ => false
   }
 }
 
 case object NoSplit extends Modification
 
-case object Newline extends Modification
+trait NewlineT extends Modification {
+  def isDouble: Boolean = false
+  def noIndent: Boolean = false
+}
 
-case object Newline2x extends Modification
+object NewlineT {
+  def apply(isDouble: Boolean, noIndent: Boolean): NewlineT =
+    (isDouble, noIndent) match {
+      case (true, true) => NoIndent2xNewline
+      case (true, false) => Newline2x
+      case (false, true) => NoIndentNewline
+      case _ => Newline
+    }
+}
+
+
+case object Newline extends NewlineT {
+}
+
+case object Newline2x extends NewlineT {
+  override def isDouble: Boolean = true
+}
+
+case object NoIndentNewline extends NewlineT {
+  override def noIndent: Boolean = true
+}
+
+case object NoIndent2xNewline extends NewlineT {
+  override def noIndent: Boolean = true
+  override def isDouble: Boolean = true
+}
 
 case object Space extends Modification
 
@@ -36,49 +64,48 @@ case object Space extends Modification
   */
 class Split(val modification: Modification,
             val cost: Int,
-            val indents: List[Indent[Length]] = List.empty,
-            val policy: Policy = NoPolicy,
-            val penalty: Boolean = false,
+            val indents: List[Indent[Length]],
+            val policy: Policy,
+            val penalty: Boolean,
+            val optimalAt: Option[Token],
             val origin: String) {
 
   def length: Int = modification match {
+    case m if m.isNewline => 0
     case NoSplit => 0
-    case Newline | Newline2x => 0
     case Space => 1
   }
 
-  def withPolicy(newPolicy: Policy): Split =
-    new Split(modification, cost, indents, newPolicy orElse policy, true, origin)
+  def withOptimal(token: Token): Split =
+    new Split(modification, cost, indents, policy, true, Some(token), origin)
+
+  def withPolicy(newPolicy: Policy): Split = {
+    val update = if (policy == NoPolicy) newPolicy else newPolicy orElse policy
+    new Split(modification, cost, indents, update, true, optimalAt, origin)
+  }
 
   def withPenalty(penalty: Int): Split =
-    new Split(modification, cost + penalty, indents, policy, true, origin)
+    new Split(modification, cost + penalty, indents, policy, true, optimalAt, origin)
 
   def withIndent(length: Length, expire: Token, expiresOn: ExpiresOn): Split =
     new Split(modification, cost, Indent(length, expire, expiresOn) +: indents,
-      policy, penalty, origin)
+      policy, penalty, optimalAt, origin)
 
   def withModification(newModification: Modification): Split =
-    new Split(newModification, cost, indents, policy, penalty, origin)
+    new Split(newModification, cost, indents, policy, penalty, optimalAt, origin)
 
   override def toString =
     s"""$modification:$origin(cost=$cost${if (indents.nonEmpty) s", indent=$indents" else ""})"""
 
+  // TODO(olafur) come with better concept of split equality.
+  // For example update origin in withOptimal.
+  def sameOrigin(other: Split) = this.origin == other.origin
+
 }
 
 object Split {
-  def NoSplit0(implicit file: sourcecode.File, line: sourcecode.Line) =
-    new Split(NoSplit, 0, origin = s"${line.value}")
-  def Space0(implicit file: sourcecode.File, line: sourcecode.Line) =
-    new Split(Space, 0, origin = s"${line.value}")
-  def Newline0(implicit file: sourcecode.File, line: sourcecode.Line) =
-    new Split(Newline, 0, origin = s"${line.value}")
-
-  def apply(modification: Modification,
-            cost: Int,
-            policy: Policy = NoPolicy)(
-    implicit line: sourcecode.Line) =
-    new Split(modification, cost, List.empty, policy, false,
-      s"${line.value}")
+  def apply(modification: Modification, cost: Int)(implicit line: sourcecode.Line) =
+    new Split(modification, cost, List.empty, NoPolicy, false, None, s"${line.value}")
 
 }
 

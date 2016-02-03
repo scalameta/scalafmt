@@ -27,3 +27,17 @@ case FormatToken(left, open: `(`, _)
     owners(left).parent.exists(_.isInstanceOf[Defn.Def]) ||
     owners(left).parent.exists(_.isInstanceOf[Defn.Class]) =>
   List(NoSplit0)
+<<< SKIP wrapped cond inside if
+case Decision(t@FormatToken(comma: `,`, right, between), splits)
+        if owners.get(open) == owners.get(comma) &&
+        // If comment is bound to comma, see unit/Comment.
+        (
+          !right.isInstanceOf[Comment] ||
+          between123.exists(_.isInstanceOf[`\n`])) =>
+      Decision(t, splits.filter(_.modification == Newline))
+>>>
+case Decision(t@FormatToken(comma: `,`, right, between), splits)
+    if owners.get(open) == owners.get(comma) &&
+    // If comment is bound to comma, see unit/Comment.
+    (!right.isInstanceOf[Comment] || between123.exists(_.isInstanceOf[`\n`])) =>
+  Decision(t, splits.filter(_.modification == Newline))

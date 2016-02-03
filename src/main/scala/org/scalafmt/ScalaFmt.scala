@@ -17,6 +17,8 @@ import scala.meta.tokens.Token.`}`
 
 class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
 
+  val MaxVisits = 20000
+
   /**
     * Formats a Scala compilation unit.
     *
@@ -79,6 +81,7 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
     val formatter = new Formatter(style, tree, toks, parens,
       statementStarts, owners)
 
+
     def mkString(splits: Vector[Split]): String = {
       val output = State.reconstructPath(toks, splits, style)
       val sb = new StringBuilder()
@@ -88,14 +91,6 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
           sb.append(whitespace)
       }
       sb.toString()
-    }
-
-    /**
-      * Returns true if it's OK to skip over state.
-      */
-    def pruneOK(state: State): Boolean = {
-      val splitToken = toks(state.splits.length)
-      best.get(splitToken.left).exists(_.alwaysBetter(state))
     }
 
     /**
@@ -123,10 +118,9 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
              |""".stripMargin)
         result
       })
-//      val result = shortestPath(owner, start)
-//      shortestPath(owner, start)
     }
 
+    // TODO(olafur) refactor shortestPath
     /**
       * Runs Dijstra's shortest path algorithm to find lowest penalty split.
       */
@@ -137,6 +131,42 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
            |${log(owner)}
            |FORMAT:
            |${State.reconstructPath(toks, start.splits, style)}""".stripMargin)
+      // NOTE! Optimal can be different for same owner but with different start.
+      val optimal = mutable.Map.empty[Int, Split]
+
+      /**
+        * Returns true if it's OK to skip over state.
+        */
+      def pruneOK(state: State): Boolean = {
+        val hasOptimal = state.splits.zipWithIndex.forall {
+          case (split, i) =>
+            optimal.get(i).forall(_.sameOrigin(split))
+        }
+
+        val splitToken = toks(state.splits.length)
+        val hasBest = best.get(splitToken.left).exists(_.alwaysBetter(state))
+        if (!hasOptimal)
+          logger.trace(
+            s"""
+               |${header("eliminated")}
+               |${mkString(state.splits)}""".stripMargin)
+        !hasOptimal || hasBest
+      }
+
+      def updateOptimal(tok: FormatToken, curr: State): Unit = {
+        curr.splits.zipWithIndex.foreach {
+          case (split, i) =>
+            if (split.optimalAt.contains(tok.left)) {
+              logger.trace(
+                s"""optimal update $split ${curr.cost} $tok
+                    |${header("output")}
+                    |${mkString(curr.splits)}
+             """.stripMargin)
+              optimal += i -> split
+            }
+        }
+      }
+
       val Q = new mutable.PriorityQueue[State]()
       var result = start
       Q += start
@@ -148,21 +178,35 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
         if (explored % 1000 == 0)
           println(explored)
         val i = curr.splits.length
-        if (explored > 10000 || i == toks.length ||
+        if (explored > MaxVisits || i == toks.length ||
           !childOf(toks(i).right, owner, owners)) {
           result = curr
           Q.dequeueAll
         }
         else if (!pruneOK(curr)) {
           val splitToken = toks(i)
-//          logger.debug(s"visit=$splitToken")
+          updateOptimal(splitToken, curr)
           Debug.visit(splitToken)
+          if (Q.nonEmpty) {
+            val minCost = Q.minBy(_.cost)
+            logger.trace(
+              s"""
+                 |visit=$splitToken
+                 |lastSplit=${curr.splits.last}
+                 |cost=${curr.cost}
+                 |minCost=${minCost.cost}
+                 |Q.size=${Q.size}
+                 |""".stripMargin)
+          }
           val splits = formatter.Route(splitToken)
           val actualSplit = curr.policy(Decision(splitToken, splits)).split
           actualSplit.foreach { split =>
             val nextState = curr.next(style, split, splitToken)
             if (split.modification == Newline)
               best += splitToken.left -> nextState
+            // TODO(olafur) this is a questionable optimization, it introduces
+            // a lot of complexity to the search and I'm not still convinced of its
+            // usefulness if we design the graph better.
             if (splitToken.left != owner.tokens.head &&
               startsUnwrappedLine(splitToken.left, statementStarts,
                 owners(splitToken.left))) {

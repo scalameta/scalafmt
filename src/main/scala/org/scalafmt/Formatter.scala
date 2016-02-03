@@ -1,10 +1,9 @@
 package org.scalafmt
-
 import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.language.implicitConversions
 import scala.meta.Tree
 import scala.meta.internal.ast.Case
-import scala.meta.internal.ast.Decl
 import scala.meta.internal.ast.Defn
 import scala.meta.internal.ast.Pat
 import scala.meta.internal.ast.Pkg
@@ -12,7 +11,6 @@ import scala.meta.internal.ast.Term
 import scala.meta.internal.ast.Term.ApplyUnary
 import scala.meta.internal.ast.Term.Interpolate
 import scala.meta.internal.ast.Type
-import scala.meta.prettyprinters.Structure
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 
@@ -22,75 +20,68 @@ class Formatter(style: ScalaStyle,
                 matching: Map[Token, Token],
                 statementStarts: Map[Token, Tree],
                 owners: Map[Token, Tree]) extends ScalaFmtLogger {
-
-  import Split._
-
-  val tok2idx = toks.zipWithIndex.toMap
-  /**
-    * Assigns possible splits to a FormatToken.
-    *
-    * The FormatToken can be considered as a node in a graph and the
-    * splits as edges. Given a format token (a node in the graph), Route
-    * determines which edges lead out from the format token.
-    */
-  val Route: PartialFunction[FormatToken, List[Split]] = {
+  private val leftTok2tok: Map[Token, FormatToken] = toks.map(t => t.left -> t).toMap
+  private val tok2idx: Map[FormatToken, Int] = toks.zipWithIndex.toMap
+  private val cache = mutable.Map.empty[FormatToken, List[Split]]
+  // TODO(olafur) move into function, store owners(left/right), etc.
+  private val RouteRun: PartialFunction[FormatToken, List[Split]] = {
     case FormatToken(_: BOF, _, _) => List(
-      NoSplit0
+      Split(NoSplit, 0)
     )
     case FormatToken(_, _: EOF, _) => List(
-      NoSplit0
+      Split(NoSplit, 0)
     )
     case tok if tok.left.name.startsWith("xml") &&
       tok.right.name.startsWith("xml") => List(
-      NoSplit0
+      Split(NoSplit, 0)
     )
     case tok if owners(tok.left).isInstanceOf[Interpolate] &&
       owners(tok.right).isInstanceOf[Interpolate] =>
       List(
-        NoSplit0
+        Split(NoSplit, 0)
       )
     case FormatToken(_: `{`, _: `}`, _) => List(
-      NoSplit0
+      Split(NoSplit, 0)
     )
-    case tok@FormatToken(open: `{`, _, _) =>
+    case tok@FormatToken(open: `{`, right, between) =>
       val nl: Modification = if (gets2x(tok)) Newline2x else Newline
       val close = matching(open)
-      val p: Policy = {
+      List(
+        Split(Space, 0).withPolicy(SingleLineBlock(close)),
+        Split(nl, 1).withPolicy({
           case Decision(t@FormatToken(_, `close`, _), s) =>
-            Decision(t, List(Newline0))
-        }
-      val multiline = Split(nl, 1, p).withIndent(2, close, Right)
-      // Optimization. Don't try single line if gap is too big.
-      if (close.start - open.end < 50)
-        List(
-          Split(Space, 0, SingleLineBlock(close)),
-          multiline
-        )
-      else List(multiline)
+            Decision(t, List(Split(Newline, 0)))
+        }).withIndent(2, close, Right)
+      )
+    case FormatToken(_: `(`, _: `{`, _) => List(
+      Split(NoSplit, 0)
+    )
     case FormatToken(_, _: `{`, _) => List(
-      Space0
+      Split(Space, 0)
     )
     case tok: FormatToken if !isDocstring(tok.left) && gets2x(tok) => List(
       Split(Newline2x, 0)
     )
     case FormatToken(_, right, _) if statementStarts.contains(right) => List(
-      Newline0
+      Split(Newline, 0)
     )
     case FormatToken(_, _: `}`, _) => List(
-      Space0,
-      Newline0
+      Split(Space, 0),
+      Split(Newline, 0)
     )
     case FormatToken(_, _: `import`, _) =>
-      List(Newline0)
-    case FormatToken(c: Comment, _, _)
+      List(Split(Newline, 0))
+    case FormatToken(c: Comment, _, between)
       if c.code.startsWith("//") =>
-      List(Newline0)
+      if (between.lastOption.exists(_.isInstanceOf[`\n`]))
+        List(Split(NoIndentNewline, 0))
+      else List(Split(Newline, 0))
     case FormatToken(_, c: Comment, between)
       if c.code.startsWith("//") =>
       val newlineCounts = between.count(_.isInstanceOf[`\n`])
       if (newlineCounts > 1) List(Split(Newline2x, 0))
-      else if (newlineCounts == 1) List(Newline0)
-      else List(Space0)
+      else if (newlineCounts == 1) List(Split(Newline, 0))
+      else List(Split(Space, 0))
     case FormatToken(_, c: Comment, _)
       if c.code.startsWith("/*") => List(
       Split(Newline2x, 0)
@@ -100,7 +91,7 @@ class Formatter(style: ScalaStyle,
       val owner = owners(left).asInstanceOf[Pkg]
       val lastRef = owner.ref.tokens.last
       List(
-        Split(Space, 0, policy = {
+        Split(Space, 0).withPolicy({
           // Following case:
           // package foo // this is cool
           //
@@ -113,13 +104,13 @@ class Formatter(style: ScalaStyle,
         })
       )
     case FormatToken(_, _: `)` | _: `]`, _) => List(
-      NoSplit0
+      Split(NoSplit, 0)
     )
     // Opening [ with no leading space.
     case FormatToken(left, open: `[`, _)
       if owners(open).isInstanceOf[Term.ApplyType] ||
         owners(left).isInstanceOf[Type.Name] => List(
-      NoSplit0
+      Split(NoSplit, 0)
     )
     // Opening ( with no leading space.
     case FormatToken(left, open: `(`, _)
@@ -127,13 +118,13 @@ class Formatter(style: ScalaStyle,
         owners(left).parent.exists(_.isInstanceOf[Defn.Def]) ||
         owners(left).parent.exists(_.isInstanceOf[Defn.Class]) =>
       List(
-        NoSplit0
+        Split(NoSplit, 0)
       )
     // NOTE. && and || are infix applications, this case is before ApplyInfix.
     case FormatToken(cond: Ident, _, _)
       if cond.code == "&&" || cond.code == "||" =>
       List(
-        Space0,
+        Split(Space, 0),
         Split(Newline, 1)
       )
     // DefDef
@@ -149,8 +140,7 @@ class Formatter(style: ScalaStyle,
       if owners(e).isInstanceOf[Defn.Def] =>
       val expire = owners(e).tokens.last
       List(
-      // TODO(olafur) put some contraint on where newlines can appear.
-        Split(Space, 0, SingleLineBlock(expire)),
+        Split(Space, 0).withPolicy(SingleLineBlock(expire)),
         Split(Newline, 0).withIndent(2, expire, Left)
       )
     case tok@FormatToken(open: `(`, _, _)
@@ -159,49 +149,83 @@ class Formatter(style: ScalaStyle,
       List(
         Split(NoSplit, 0).withIndent(4, matching(open), Left)
       )
-    case FormatToken(open: `[`, _, _)
-      if !owners(open).isInstanceOf[Defn.Def] =>
-      val expire = matching(open)
-      val singleLine = SingleLineBlock(expire)
-      val oneArgOneLine = OneArgOneLineSplit(open)
-      List(
-        Split(NoSplit, 0, policy = singleLine),
-        Split(Newline, 1, singleLine).withIndent(4, expire, Left),
-        Split(NoSplit, 2, oneArgOneLine).withIndent(StateColumn, expire, Left),
-        Split(Newline, 3, oneArgOneLine).withIndent(4, expire, Left)
-      )
-    // TODO(olafur) Violating DRY with previous case.
-    // I prefer to handle them separately.
-    case FormatToken(open: `(`, _, _)
-      if owners(open).isInstanceOf[Term.Apply] =>
+    // TODO(olafur) Split this up.
+    case tok@FormatToken(_: `(` | _: `[`, _, _)
+      if owners(tok.left).isInstanceOf[Term.Apply] ||
+        owners(tok.left).isInstanceOf[Pat.Extract] ||
+        owners(tok.left).isInstanceOf[Pat.Tuple] ||
+        owners(tok.left).isInstanceOf[Term.ApplyType] ||
+        owners(tok.left).isInstanceOf[Type.Apply] =>
+      val open = tok.left.asInstanceOf[Delim]
+      val args: Seq[Tree] = owners(tok.left) match {
+        case t: Term.Apply => t.args
+        case t: Pat.Extract => t.args
+        case t: Pat.Tuple => t.elements
+        case t: Term.ApplyType => t.targs
+        case t: Type.Apply => t.args
+      }
       val close = matching(open)
       val singleLine = SingleLineBlock(close)
       val oneArgOneLine = OneArgOneLineSplit(open)
       val expire = matching(open)
-      List(
-        Split(NoSplit, 0, policy = singleLine),
-        Split(Newline, 1, singleLine).withIndent(4, expire, Left),
-        Split(NoSplit, 2, oneArgOneLine).withIndent(StateColumn, expire, Left),
-        Split(Newline, 3, oneArgOneLine).withIndent(4, expire, Left)
+      // TODO(olafur) recursively?
+      val optimalTok: Token = leftTok2tok(close) match {
+        case FormatToken(_, right: `,`, _) => right
+        case FormatToken(_, right: `)`, _) => right
+        case FormatToken(_, right: `]`, _) => right
+        case FormatToken(_, right: `;`, _) => right
+        case FormatToken(_, right: `=>`, _) =>
+          right
+        case _ => close
+      }
+      val nestedPenalty = NestedApplies(owners(open))
+      val indent = owners(open) match {
+        case _: Pat => 2
+        case _ => 4
+      }
+      // TODO(olafur) add ignoreIf(cond: Boolean) to Split.
+      if (args.length == 1) List(
+        Split(NoSplit, 0)
+          .withIndent(4, close, Left)
+          .withOptimal(optimalTok),
+        Split(Newline, 1 + nestedPenalty)
+          .withIndent(4, close, Left)
+          .withOptimal(optimalTok)
+      )
+      else List(
+        Split(NoSplit, 0)
+          .withPolicy(singleLine)
+          .withOptimal(optimalTok),
+        Split(Newline, 1 + nestedPenalty)
+          .withPolicy(singleLine)
+          .withIndent(indent, expire, Left)
+          .withOptimal(optimalTok),
+        Split(NoSplit, 2)
+          .withPolicy(oneArgOneLine)
+          .withIndent(StateColumn, expire, Left)
+          .withOptimal(optimalTok),
+        Split(Newline, 3 + nestedPenalty)
+          .withPolicy(oneArgOneLine)
+          .withIndent(indent, expire, Left)
       )
 
     // Delim
     case FormatToken(_, _: `,`, _) => List(
-      NoSplit0
+      Split(NoSplit, 0)
     )
     // These are mostly filtered out/modified by policies.
     case FormatToken(_: `,`, _, _) => List(
-      Space0,
-      Newline0
+      Split(Space, 0),
+      Split(Newline, 0)
     )
     case FormatToken(_, _: `;`, _) => List(
-      NoSplit0
+      Split(NoSplit, 0)
     )
     case FormatToken(_: `;`, _, _) => List(
-      Newline0
+      Split(Newline, 0)
     )
     case FormatToken(_, _: `:`, _) => List(
-      NoSplit0
+      Split(NoSplit, 0)
     )
     // Only allow space after = in val if rhs is a single line or not
     // an infix application or an if. For example, this is allowed:
@@ -211,38 +235,39 @@ class Formatter(style: ScalaStyle,
       if owners(tok).isInstanceOf[Defn.Val] =>
       val owner = owners(tok).asInstanceOf[Defn.Val]
       val expire = owners(tok).tokens.last
-      val isInfix = owner.rhs.isInstanceOf[Term.ApplyInfix]
-      val isIfStmt = owner.rhs.isInstanceOf[Term.If]
       val spacePolicy: Policy = owner.rhs match {
         case _: Term.ApplyInfix | _: Term.If =>
           SingleLineBlock(expire)
         case _ => NoPolicy
       }
       List(
-        Split(Space, 0, spacePolicy),
+        Split(Space, 0).withPolicy(spacePolicy),
         Split(Newline, 1).withIndent(2, expire, Left)
       )
     case FormatToken(_: Ident | _: `this` | _: `_ ` | _: `)`, _: `.` | _: `#`, _) => List(
-      NoSplit0
+      Split(NoSplit, 0)
     )
     case FormatToken(_: `.` | _: `#`, _: Ident, _) => List(
-      NoSplit0
+      Split(NoSplit, 0)
     )
     // ApplyUnary
     case tok@FormatToken(_: Ident, _: Literal, _)
       if owners(tok.left) == owners(tok.right) =>
       List(
-        NoSplit0
+        Split(NoSplit, 0)
       )
     case tok@FormatToken(_: Ident, _: Ident | _: `this`, _)
       if owners(tok.left).parent.exists(_.isInstanceOf[ApplyUnary]) =>
       List(
-        NoSplit0
+        Split(NoSplit, 0)
       )
     // Annotations
-    // TODO(olafur) what about "case t@Foobar =>..."?
+    case FormatToken(_, bind: `@`, _)
+      if owners(bind).isInstanceOf[Pat.Bind] => List(
+      Split(NoSplit, 0)
+    )
     case FormatToken(_: `@`, _, _) => List(
-      NoSplit0
+      Split(NoSplit, 0)
     )
     // Template
     case FormatToken(_, right: `extends`, _) =>
@@ -254,7 +279,7 @@ class Formatter(style: ScalaStyle,
         Split(Space, 0).withIndent(4, expire, Right)
       )
     case FormatToken(_, _: `with`, _) => List(
-      Space0,
+      Split(Space, 0),
       Split(Newline, 1)
     )
     // If
@@ -269,55 +294,45 @@ class Formatter(style: ScalaStyle,
           val splits = s.map(_.withIndent(2, owner.thenp.tokens.last, Left))
           d.copy(split = splits)
         case Decision(tok@FormatToken(`close`, _, _), s) =>
-        Decision(tok, List(
-          Split(Newline, 0).withIndent(2, owner.thenp.tokens.last, Left)
-        ))
+          Decision(tok, List(
+            Split(Newline, 0).withIndent(2, owner.thenp.tokens.last, Left)
+          ))
       }
       List(
-        Split(NoSplit, 0,  SingleLineBlock(owner.thenp.tokens.last))
+        Split(NoSplit, 0)
+          .withPolicy(SingleLineBlock(owner.thenp.tokens.last))
           .withIndent(StateColumn, close, Left),
-        Split(NoSplit, 1, forceNewlineBeforeThen)
+        Split(NoSplit, 1)
+          .withPolicy(forceNewlineBeforeThen)
           .withIndent(StateColumn, close, Left)
-    )
+      )
     case tok@FormatToken(_: `=`, _, _)
       if nextNonComment(tok).right.isInstanceOf[`if`] =>
       val expire = owners(nextNonComment(tok).right).tokens.last
       List(
-      Split(Space, 0, SingleLineBlock(expire)),
-      Split(Newline, 1).withIndent(2, expire, Left)
-    )
+        Split(Space, 0).withPolicy(SingleLineBlock(expire)),
+        Split(Newline, 1).withIndent(2, expire, Left)
+      )
     // ApplyInfix.
     case FormatToken(_: Ident | _: Literal | _: Interpolation.End,
     _: Ident | _: Literal, _) => List(
-      Space0
+      Split(Space, 0)
     )
     case FormatToken(open: `(`, _, _)
       if owners(open).isInstanceOf[Term.ApplyInfix] =>
       List(
-        Split(NoSplit, 0, SingleLineBlock(matching(open))),
+        Split(NoSplit, 0).withPolicy(SingleLineBlock(matching(open))),
         Split(Newline, 1).withIndent(2, matching(open), Left)
       )
 
     // Pattern matching
     case tok@FormatToken(_, open: `(`, _)
       if owners(open).isInstanceOf[Pat.Extract] => List(
-      NoSplit0
+      Split(NoSplit, 0)
     )
-    case tok@FormatToken(open: `(`, _, _)
-      if owners(open).isInstanceOf[Pat] =>
-      val close = matching(open)
-      val singleLine = SingleLineBlock(close)
-      val oneArgOneLine = OneArgOneLineSplit(open)
-      val expire = matching(open)
-      List(
-        Split(NoSplit, 0, policy = singleLine),
-        Split(Newline, 1, singleLine).withIndent(2, expire, Left),
-        Split(NoSplit, 2, oneArgOneLine).withIndent(StateColumn, expire, Left),
-        Split(Newline, 3, oneArgOneLine).withIndent(2, expire, Left)
-      )
     // Case
     case tok@FormatToken(_, _: `match`, _) => List(
-      Space0
+      Split(Space, 0)
     )
     case tok@FormatToken(cs: `case`, _, _)
       if owners(cs).isInstanceOf[Case] =>
@@ -333,10 +348,10 @@ class Formatter(style: ScalaStyle,
           Decision(tok, s.filter(_.modification.isNewline))
       }
       List(
-        Split(Space, 0, {
+        Split(Space, 0).withPolicy({
           case Decision(t, s)
             if tok.right.end <= lastToken.end =>
-            Decision(t, s.map{
+            Decision(t, s.map {
               case nl if nl.modification.isNewline =>
                 val result =
                   if (t.right.isInstanceOf[`if`] && owners(t.right) == owner) nl
@@ -360,8 +375,8 @@ class Formatter(style: ScalaStyle,
           })
       }
       List(
-        Split(Space, 0, p),
-        Split(Newline, 0, p).withIndent(2, arrow, Left)
+        Split(Space, 0).withPolicy(p).withIndent(2, arrow, Left),
+        Split(Newline, 0).withPolicy(p).withIndent(2, arrow, Left)
       )
     case tok@FormatToken(arrow: `=>`, _, _)
       if owners(arrow).isInstanceOf[Case] =>
@@ -370,26 +385,37 @@ class Formatter(style: ScalaStyle,
         .filterNot(_.isInstanceOf[Whitespace])
         .lastOption.getOrElse(arrow)
       List(
-        Split(Space, 0, SingleLineBlock(expire)),
+        Split(Space, 0).withPolicy(SingleLineBlock(expire)),
         Split(Newline, 1)
       )
     // Fallback
     case FormatToken(_: Keyword | _: Modifier, _, _) => List(
-      Space0
+      Split(Space, 0)
     )
     case FormatToken(_, _: Keyword, _) => List(
-      Newline0
+      Split(Newline, 0)
     )
     case FormatToken(_, _: Delim, _) => List(
-      Space0
+      Split(Space, 0)
     )
     case FormatToken(_: Delim, _, _) => List(
-      Space0
+      Split(Space, 0)
     )
     case tok =>
       logger.debug("MISSING CASE:\n" + log(tok))
       List() // No solution available, partially format tree.
   }
+
+  /**
+    * Assigns possible splits to a FormatToken.
+    *
+    * The FormatToken can be considered as a node in a graph and the
+    * splits as edges. Given a format token (a node in the graph), Route
+    * determines which edges lead out from the format token.
+    */
+
+  def Route(formatToken: FormatToken): List[Split] =
+    cache.getOrElseUpdate(formatToken, RouteRun(formatToken))
 
   def isDocstring(token: Token): Boolean = {
     token.isInstanceOf[Comment] && token.code.startsWith("/**")
@@ -439,6 +465,20 @@ class Formatter(style: ScalaStyle,
   def MultiLineBlock(close: Token): Policy = {
     case Decision(tok@FormatToken(_, `close`, _), splits) =>
       Decision(tok, splits.filter(_.modification == Newline))
+  }
+
+
+  /**
+    * How many parents of tree are Term.Apply?
+    */
+  def NestedApplies(tree: Tree): Int = {
+    // TODO(olafur) optimize?
+    tree.parent.fold(0) {
+      case parent: Term.Apply =>
+        1 + NestedApplies(parent)
+      case parent =>
+        NestedApplies(parent)
+    }
   }
 
   def SingleLineBlock(expire: Token): Policy = {

@@ -51,10 +51,9 @@ case class State(cost: Int,
     val newColumn = tok.right.code.length + (
       if (split.modification.isNewline) newIndent
       else column + split.length)
-//    logger.debug(s"tok=$tok newColumn=$newColumn $newIndent")
     val splitWithPenalty =
       if (newColumn < style.maxColumn) split
-      else split.withPenalty(KILL)
+      else split.withPenalty(KILL + newColumn) // minimize overflow
     val newPolicy =
       if (split.policy == NoPolicy) policy
       else (split.policy orElse IdentityPolicy) andThen policy
@@ -84,23 +83,24 @@ object State extends ScalaFmtLogger {
                       style: ScalaStyle,
                       debug: Boolean = false): Seq[(FormatToken, String)] = {
     var state = State.start
-    toks.zip(splits).map {
+    val result = toks.zip(splits).map {
       case (tok, split) =>
         // TIP. Use the following line to debug origin of splits.
         if (debug)
           logger.debug(s"${log(tok.left)} $split ${state.pushes}")
         state = state.next(style, split, tok)
         val whitespace = split.modification match {
-          case Space =>
-            " "
-          case Newline =>
-            "\n" + " " * state.indentation
-          case Newline2x =>
-            "\n\n" + " " * state.indentation
-          case _ =>
-            ""
+          case Space => " "
+          case nl: NewlineT =>
+            val newline = if (nl.isDouble) "\n\n" else "\n"
+            val indentation = if (nl.noIndent) "" else " " * state.indentation
+            newline + indentation
+          case _ => ""
         }
         tok -> whitespace
     }
+    if (debug)
+      logger.debug(s"Total cost: ${state.cost}")
+    result
   }
 }

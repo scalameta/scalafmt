@@ -7,3 +7,78 @@ a.b.c
 val logger = Logger(this .getClass)
 >>>
 val logger = Logger(this.getClass)
+<<< one arg chained (state explosion)
+a(b).c(d).e(f).g(h).i(j).k { aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa }
+>>>
+a(b).c(d).e(f).g(h).i(j).k {
+  aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+}
+<<< avoid dead ends
+function(
+    firstCall(a, b, c, d, e, f, g, h),
+    secondCall("very long argument string here"));
+>>>
+function(
+    firstCall(a, b, c, d, e, f, g, h),
+    secondCall(
+        "very long argument string here"));
+<<< Prune redundant branches
+new Compiler(
+    assertions.options.has("checked-mode"),
+    annotations.options.has("annotations"),
+    primitives.options.has("primitives"),
+    minify.options.has("minify"),
+    preserve.options.has("preserve"),
+    liveAnalysis.check(options.has("live"), options.has("analysis")),
+    multi.options.has("multi"),
+    sourceMap.options.has("source-map"));
+>>>
+new Compiler(
+    assertions.options.has(
+        "checked-mode"),
+    annotations.options.has(
+        "annotations"),
+    primitives.options.has(
+        "primitives"),
+    minify.options.has("minify"),
+    preserve.options.has("preserve"),
+    liveAnalysis.check(
+        options.has("live"),
+        options.has("analysis")),
+    multi.options.has("multi"),
+    sourceMap.options.has(
+        "source-map"));
+<<< SKIP comment after (
+var list = List( // comment
+  function(a: A, b: B, c: C)
+)
+>>>
+var list = List( // comment
+  function(a: A, b: B, c: C)
+)
+<<< long
+var list = List(
+  function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C)
+);
+>>>
+var list = List(
+    function(a: A, b: B, c: C),
+    function(a: A, b: B, c: C),
+    function(a: A, b: B, c: C),
+    function(a: A, b: B, c: C),
+    function(a: A, b: B, c: C),
+    function(a: A, b: B, c: C),
+    function(a: A, b: B, c: C),
+    function(a: A, b: B, c: C),
+    function(a: A, b: B, c: C),
+    function(a: A, b: B, c: C),
+    function(a: A, b: B, c: C),
+    function(a: A, b: B, c: C),
+    function(a: A, b: B, c: C),
+    function(a: A, b: B, c: C),
+    function(a: A, b: B, c: C),
+    function(a: A, b: B, c: C),
+    function(a: A, b: B, c: C),
+    function(a: A, b: B, c: C),
+    function(a: A, b: B, c: C),
+    function(a: A, b: B, c: C));

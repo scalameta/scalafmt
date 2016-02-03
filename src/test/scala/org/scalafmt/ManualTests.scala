@@ -8,7 +8,7 @@ object ManualTests extends HasTests {
 
   def tests: Seq[DiffTest] = {
     import FilesUtil._
-    for {
+    val manualFiles = for {
       filename <- listFiles(testDir) if filename.endsWith(manual)
       test <- {
         val spec = filename
@@ -21,6 +21,13 @@ object ManualTests extends HasTests {
         }
       }
     } yield test
+    val scalaFiles = for {
+      filename <- listFiles(testDir) if filename.endsWith(".scala")
+    } yield {
+      val content = readFile(filename)
+      DiffTest("Scala", filename, filename, content, content, false, false, style)
+    }
+    manualFiles ++ scalaFiles
   }
 }
 
