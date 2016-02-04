@@ -173,7 +173,8 @@ class FormatTest
       _ <- Future(Speed.writeComparisonReport(stats, "master"))
       _ <- Future(FilesUtil.writeFile("target/index.html", Report.heatmap(results)))
     } yield ()
-    // Travis can take more than 10 seconds.
-//    Await.ready(k, 10 seconds)
+    // Travis exits right after running tests.
+    if (sys.env.contains("TRAVIS"))
+      Await.ready(k, 20 seconds)
   }
 }
