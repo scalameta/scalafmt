@@ -20,15 +20,17 @@ object Report {
     } :+ span("\n" + ("_" * scalaStyle.maxColumn) + "\n")
 
   def explanation =
-    span(
-      s"""
-         |Style configuration
-         |===================
-         |Declaration arguments: bin packed
-         |Callsite arguments: one arg per line if overflowing.
-         |
-           |Background color indicates number of visits to that token during formatting.
-         |""".stripMargin)
+    div(
+      p( """Formatting output from scalafmt's test suite.
+           |The formatter uses Dijkstra's shortest path to determine the
+           |formatting with the "cheapest" cost. The red regions are
+           |tokens the formatter visits often.
+         """.stripMargin),
+      ul(
+        li("Declaration arguments: bin packed"),
+        li("Callsite arguments: one arg per line if overflowing")
+      )
+    )
 
   def heatmap(results: Seq[Result]): String = {
     html(
@@ -36,6 +38,7 @@ object Report {
       ),
       body(
         div(
+          background := "#f9f9f9",
           h1(id := "title", "Heatmap"),
           explanation,
           for (result <- results.sortBy(-_.maxVisitsOnSingleToken)
@@ -43,6 +46,10 @@ object Report {
             div(
               h2(result.title),
               pre(
+                fontFamily := "monospace",
+                background := "#fff",
+                fontSize := "16px",
+                width := result.test.style.maxColumn.toDouble * 9.625,
                 code(
                   heatmapBar(result.test.style),
                   raw(result.obtainedHtml),
@@ -114,30 +121,16 @@ object Report {
 
   def mkHtml(output: Seq[FormatOutput], scalaStyle: ScalaStyle): String = {
     val sb = new StringBuilder()
-    var column = 0
-
-    def appendPadding(): Unit = {
-      sb.append(" " * (scalaStyle.maxColumn - 1 - column))
-      if (column < scalaStyle.maxColumn)
-        sb.append("|")
-      column = 0
-    }
 
     output.foreach { x =>
       import scalatags.Text.all._
-      val color = red(x.visits)
-      column += x.token.length
+      val redness = red(x.visits)
       val html = span(
-        background := s"rgb(256, $color, $color)",
+        background := s"rgb(256, $redness, $redness)",
         x.token).render
       sb.append(html)
-      if (x.whitespace.startsWith("\n")) {
-        appendPadding()
-      }
       sb.append(x.whitespace.replace("\n\n", "\n\n"))
-      column += x.whitespace.count(_ == ' ')
     }
-    appendPadding()
     sb.toString()
   }
 

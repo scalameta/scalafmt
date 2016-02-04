@@ -53,3 +53,9 @@ case SuperDuperCool(aaaaaaa, bbbbbbb, _) =>
 case SuperDuperCool(
     aaaaaaa, bbbbbbb, _) =>
   danger()
+<<< with |
+case _: Defn.Def | _: Pkg.Object | _: Defn.Class | _: Defn.Trait => true
+>>>
+case _: Defn.Def | _: Pkg.Object |
+    _: Defn.Class | _: Defn.Trait =>
+  true

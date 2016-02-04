@@ -64,15 +64,15 @@ object a {
   function[function[function[a, b],
                     function[c, d]]]
 }
-<<< SKIP Break on higher level of nesting 3x
+<<< Break on higher level of nesting 3x
 object a {
   function[function[function[function[a, b], function[c, d]]]]
 }
 >>>
 object a {
-  function[function[
-      function[function[a, b],
-               function[c, d]]]]
+  function[function[function[
+              function[a, b],
+              function[c, d]]]]
 }
 <<< SKIP Type args and args different policy
 object Object {

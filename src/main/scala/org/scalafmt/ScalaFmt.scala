@@ -140,7 +140,7 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
       def pruneOK(state: State): Boolean = {
         val hasOptimal = state.splits.zipWithIndex.forall {
           case (split, i) =>
-            optimal.get(i).forall(_.sameOrigin(split))
+            optimal.get(i).forall(_.sameLine(split))
         }
 
         val splitToken = toks(state.splits.length)
@@ -200,7 +200,7 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
           }
           val splits = formatter.Route(splitToken)
           val actualSplit = curr.policy(Decision(splitToken, splits)).split
-          actualSplit.foreach { split =>
+          actualSplit.withFilter(!_.ignoreIf).foreach { split =>
             val nextState = curr.next(style, split, splitToken)
             if (split.modification == Newline)
               best += splitToken.left -> nextState

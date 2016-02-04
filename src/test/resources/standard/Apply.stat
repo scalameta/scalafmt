@@ -11,3 +11,23 @@ List(Split(Space, 0).withPolicy(SingleLineBlock(close)),
        case Decision(t@FormatToken(_, `close`, _), s) =>
          Decision(t, List(Split(Newline, 0)))
      }).withIndent(2, close, Right))
+<<< Massive argument 2
+ List(Split(Space,
+            0,
+            policy = SingleLineBlock(close),
+            ignoreIf = blockSize > style.maxColumn),
+      Split(nl,
+            1,
+            policy = {
+            case Decision(t@FormatToken(_, `close`, _), s) =>
+            Decision(t, List(Split(Newline, 0)))
+>>>
+ List(Split(Space,
+            0,
+            policy = SingleLineBlock(close),
+            ignoreIf = blockSize > style.maxColumn),
+      Split(nl,
+            1,
+            policy = {
+            case Decision(t@FormatToken(_, `close`, _), s) =>
+            Decision(t, List(Split(Newline, 0)))
