@@ -6,6 +6,7 @@ import scala.language.implicitConversions
 import scala.meta.Tree
 import scala.meta.internal.ast.Case
 import scala.meta.internal.ast.Defn
+import scala.meta.internal.ast.Import
 import scala.meta.internal.ast.Pat
 import scala.meta.internal.ast.Pkg
 import scala.meta.internal.ast.Term
@@ -44,17 +45,21 @@ class Formatter(style: ScalaStyle,
     case FormatToken(_: `{`, _: `}`, _) => List(
       Split(NoSplit, 0)
     )
+    case FormatToken(_: `]`, _: `(`, _) => List(
+      Split(NoSplit, 0)
+    )
     case tok@FormatToken(open: `{`, right, between) =>
       val nl: Modification = if (gets2x(tok)) Newline2x else Newline
       val close = matching(open)
       val blockSize = close.start - open.end
+      val ignore = blockSize > style.maxColumn || isInlineComment(right)
       List(
-        Split(Space, 0, policy = SingleLineBlock(close),
-          ignoreIf = blockSize > style.maxColumn),
-        Split(nl, 1, policy = {
+        Split(Space, 0, ignoreIf = ignore)
+          .withPolicy(SingleLineBlock(close)),
+        Split(nl, 1).withPolicy {
           case Decision(t@FormatToken(_, `close`, _), s) =>
             Decision(t, List(Split(Newline, 0)))
-        }).withIndent(2, close, Right)
+        }.withIndent(2, close, Right)
       )
     case FormatToken(_: `(`, _: `{`, _) => List(
       Split(NoSplit, 0)
@@ -94,7 +99,7 @@ class Formatter(style: ScalaStyle,
       val owner = owners(left).asInstanceOf[Pkg]
       val lastRef = owner.ref.tokens.last
       List(
-        Split(Space, 0, policy = {
+        Split(Space, 0).withPolicy {
           // Following case:
           // package foo // this is cool
           //
@@ -104,7 +109,7 @@ class Formatter(style: ScalaStyle,
             Decision(t, splits.map(_.withModification(Space)))
           case Decision(t@FormatToken(`lastRef`, _, _), splits) =>
             Decision(t, splits.map(_.withModification(Newline2x)))
-        })
+        }
       )
     case FormatToken(_, _: `)` | _: `]`, _) => List(
       Split(NoSplit, 0)
@@ -157,15 +162,17 @@ class Formatter(style: ScalaStyle,
       if owners(tok.left).isInstanceOf[Term.Apply] ||
         owners(tok.left).isInstanceOf[Pat.Extract] ||
         owners(tok.left).isInstanceOf[Pat.Tuple] ||
+        owners(tok.left).isInstanceOf[Term.Tuple] ||
         owners(tok.left).isInstanceOf[Term.ApplyType] ||
         owners(tok.left).isInstanceOf[Type.Apply] =>
       val open = tok.left.asInstanceOf[Delim]
-      val args: Seq[Tree] = owners(tok.left) match {
-        case t: Term.Apply => t.args
-        case t: Pat.Extract => t.args
-        case t: Pat.Tuple => t.elements
-        case t: Term.ApplyType => t.targs
-        case t: Type.Apply => t.args
+      val (lhs, args): (Tree, Seq[Tree]) = owners(tok.left) match {
+        case t: Term.Apply => t.fun -> t.args
+        case t: Pat.Extract => t.ref -> t.args
+        case t: Pat.Tuple => t -> t.elements
+        case t: Term.ApplyType => t -> t.targs
+        case t: Term.Tuple => t -> t.elements
+        case t: Type.Apply => t.tpe -> t.args
       }
       val close = matching(open)
       val expire = matching(open)
@@ -179,28 +186,35 @@ class Formatter(style: ScalaStyle,
           right
         case _ => close
       }
+      // In long sequence of select/apply, we penalize splitting on
+      // parens furthest to the right.
+      val lhsPenalty = lhs.tokens.length
       val nestedPenalty = NestedApplies(owners(open))
+
+      val exclude = insideBlock(tok, close)
       val indent = owners(open) match {
         case _: Pat => Num(0) // Indentation already provided by case.
+        // TODO(olafur) This is an odd rule, when is it wrong?
         case _ => Num(4)
       }
       val singleArgument = args.length == 1
+
       val singleLine = // Don't force single line policy if only one argument.
         if (singleArgument) NoPolicy
-        else SingleLineBlock(close)
+        else SingleLineBlock(close, exclude)
       val oneArgOneLine = OneArgOneLineSplit(open)
       List(
         Split(NoSplit, 0, policy = singleLine)
           .withIndent(indent, expire, Left)
           .withOptimal(optimalTok),
-        Split(Newline, 1 + nestedPenalty, policy = singleLine)
+        Split(Newline, 1 + nestedPenalty + lhsPenalty, policy = singleLine)
           .withIndent(indent, expire, Left)
           .withOptimal(optimalTok),
-        Split(NoSplit, 2, policy = oneArgOneLine, ignoreIf = singleArgument)
+        Split(NoSplit, 2 + lhsPenalty, policy = oneArgOneLine, ignoreIf = singleArgument)
           .withIndent(StateColumn, expire, Right)
           .withOptimal(optimalTok),
         Split(Newline,
-          3 + nestedPenalty,
+          3 + nestedPenalty + lhsPenalty,
           policy = oneArgOneLine, ignoreIf = singleArgument)
           .withIndent(indent, expire, Left)
       )
@@ -228,10 +242,15 @@ class Formatter(style: ScalaStyle,
     // val x = function(a,
     //                  b)
     case FormatToken(tok: `=`, _, _)
-      if owners(tok).isInstanceOf[Defn.Val] =>
-      val owner = owners(tok).asInstanceOf[Defn.Val]
+      // TODO(olafur) scala.meta should have uniform api for these two
+      if owners(tok).isInstanceOf[Defn.Val] ||
+      owners(tok).isInstanceOf[Defn.Var] =>
+      val rhs = owners(tok) match {
+        case l: Defn.Val => l.rhs
+        case r: Defn.Var => r.rhs
+      }
       val expire = owners(tok).tokens.last
-      val spacePolicy: Policy = owner.rhs match {
+      val spacePolicy: Policy = rhs match {
         case _: Term.ApplyInfix | _: Term.If =>
           SingleLineBlock(expire)
         case _ => NoPolicy
@@ -240,7 +259,28 @@ class Formatter(style: ScalaStyle,
         Split(Space, 0, policy = spacePolicy),
         Split(Newline, 1).withIndent(2, expire, Left)
       )
-    case FormatToken(_: Ident | _: `this` | _: `_ ` | _: `)`, _: `.` | _: `#`, _) => List(
+    case FormatToken(left, dot: `.`, _)
+      if owners(dot).isInstanceOf[Term.Select] &&
+        !left.isInstanceOf[`_ `] &&
+        // TODO(olafur) optimize
+        !parents(owners(dot)).exists(_.isInstanceOf[Import]) =>
+      val nestedPenalty = NestedSelect(owners(dot))
+      val isLhsOfApply = owners(dot).parent.exists {
+        case apply: Term.Apply =>
+          apply.fun.tokens.contains(left)
+        case _ => false
+      }
+      val noApplyPenalty =
+        if (!isLhsOfApply) 1
+        else 0
+      // TODO(olafur) missing optimalAt
+      List(
+        Split(NoSplit, 0),
+        Split(Newline, 1 + nestedPenalty + noApplyPenalty)
+          .withIndent(2, dot, Left)
+      )
+    case FormatToken(_: Ident | _: `this` | _: `_ ` | _: `)`, _: `.` | _: `#`, _) =>
+      List(
       Split(NoSplit, 0)
     )
     case FormatToken(_: `.` | _: `#`, _: Ident, _) => List(
@@ -320,10 +360,14 @@ class Formatter(style: ScalaStyle,
     _: Ident | _: Literal, _) => List(
       Split(Space, 0)
     )
-    case FormatToken(open: `(`, _, _)
+    case FormatToken(open: `(`, right, _)
       if owners(open).isInstanceOf[Term.ApplyInfix] =>
+      val close = matching(open)
+      val policy =
+        if (right.isInstanceOf[`if`]) SingleLineBlock(close)
+        else NoPolicy
       List(
-        Split(NoSplit, 0, policy = SingleLineBlock(matching(open))),
+        Split(NoSplit, 0).withPolicy(policy).withIndent(2, matching(open), Left),
         Split(Newline, 1).withIndent(2, matching(open), Left)
       )
 
@@ -348,7 +392,10 @@ class Formatter(style: ScalaStyle,
       val arrow = owner.tokens.find(t => t.isInstanceOf[`=>`] && owners(t) == owner).get
       // TODO(olafur) expire on token.end to avoid this bug.
       val lastToken = owner.body.tokens
-        .filterNot(_.isInstanceOf[Whitespace])
+        .filter {
+          case _: Whitespace | _: Comment => false
+          case _ => true
+        }
         // edge case, if body is empty expire on arrow.
         .lastOption.getOrElse(arrow)
       val breakOnArrow: Policy = {
@@ -356,7 +403,7 @@ class Formatter(style: ScalaStyle,
           Decision(tok, s.filter(_.modification.isNewline))
       }
       List(
-        Split(Space, 0, policy = {
+        Split(Space, 0).withPolicy {
           case Decision(t, s)
             if tok.right.end <= lastToken.end =>
             Decision(t, s.map {
@@ -367,7 +414,7 @@ class Formatter(style: ScalaStyle,
                 result.withPolicy(breakOnArrow)
               case x => x
             })
-        }).withIndent(2, lastToken, Left)
+        }.withIndent(2, lastToken, Left)
           .withIndent(2, arrow, Left)
       )
     case tok@FormatToken(_, cond: `if`, _)
@@ -409,6 +456,9 @@ class Formatter(style: ScalaStyle,
     )
     case FormatToken(_, _: Delim, _) => List(
       Split(Space, 0)
+    )
+    case FormatToken(_: `[`, _, _) => List(
+      Split(NoSplit, 0)
     )
     case FormatToken(_: Delim, _, _) => List(
       Split(Space, 0)
@@ -493,11 +543,46 @@ class Formatter(style: ScalaStyle,
     }
   }
 
-  def SingleLineBlock(expire: Token): Policy = {
+  // TODO(olafur) abstract with [[NestedApplies]]
+  def NestedSelect(tree: Tree): Int = {
+    tree.parent.fold(0) {
+      case parent: Term.Select =>
+        1 + NestedSelect(parent)
+      case parent =>
+        NestedSelect(parent)
+    }
+  }
+
+  def SingleLineBlock(expire: Token,
+                      exclude: Set[Range] = Set.empty): Policy = {
     case Decision(tok, splits)
-      if tok.right.end <= expire.end =>
+      if exclude.forall(!_.contains(tok.left.start)) && tok.right.end <= expire.end =>
       Decision(tok, splits.filterNot(_.modification.isNewline))
   }
+
+
+  def insideBlock(start: FormatToken, end: Token): Set[Range] = {
+    var inside = false
+    val result = mutable.Set.empty[Range]
+    var curr = start
+    while (curr.left != end) {
+      if (curr.left.isInstanceOf[`{`]) {
+        inside = true
+        result += Range(curr.left.start, matching(curr.left).end)
+        curr = leftTok2tok(matching(curr.left))
+      }
+      else {
+        curr = next(curr)
+      }
+    }
+    result.toSet
+  }
+
+  def isInlineComment(token: Token): Boolean = token match {
+    case c: Comment => c.code.startsWith("//")
+    case _ => false
+  }
+
 
   // Used for convenience when calling withIndent.
   private implicit def int2num(n: Int): Num = Num(n)

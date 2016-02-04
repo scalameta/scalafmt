@@ -50,3 +50,35 @@ x match {
   case 2 => 1
   case 1 => 3
 }
+<<< Bind comment to case
+x match {
+
+    case 1 =>
+      banana
+      1
+    // I bind to default
+    case default => ???
+}
+>>>
+x match {
+  case 1 =>
+    banana
+    1
+  // I bind to default
+  case default => ???
+}
+<<< Bind comment to body
+x match {
+    case 1 =>
+      banana
+      1 // I bind to 1
+
+    case default => ???
+}
+>>>
+x match {
+  case 1 =>
+    banana
+    1 // I bind to 1
+  case default => ???
+}

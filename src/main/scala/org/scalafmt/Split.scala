@@ -54,12 +54,17 @@ case class Split(modification: Modification,
 
   }
 
+  val indentation = indents.map(_.length match {
+    case Num(x) => x.toString
+    case _ => toString
+  }).mkString("[", ", ", "]")
+
   def withModification(newModification: Modification): Split =
     new Split(newModification, cost, ignoreIf, indents, policy, penalty,
       optimalAt)(line)
 
   override def toString =
-    s"""$modification:${line.value}(cost=$cost${if (indents.nonEmpty) s", indent=$indents" else ""})"""
+    s"""$modification:${line.value}(cost=$cost, indents=$indentation)"""
 
   // TODO(olafur) come with better concept of split equality.
   // For example update line in withOptimal.

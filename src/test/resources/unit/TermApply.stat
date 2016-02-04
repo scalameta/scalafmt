@@ -34,20 +34,20 @@ new Compiler(
     sourceMap.options.has("source-map"));
 >>>
 new Compiler(
-    assertions.options.has(
-        "checked-mode"),
-    annotations.options.has(
-        "annotations"),
-    primitives.options.has(
-        "primitives"),
+    assertions.options
+      .has("checked-mode"),
+    annotations.options
+      .has("annotations"),
+    primitives.options
+      .has("primitives"),
     minify.options.has("minify"),
     preserve.options.has("preserve"),
-    liveAnalysis.check(
-        options.has("live"),
-        options.has("analysis")),
+    liveAnalysis
+      .check(options.has("live"),
+             options.has("analysis")),
     multi.options.has("multi"),
-    sourceMap.options.has(
-        "source-map"));
+    sourceMap.options
+      .has("source-map"));
 <<< SKIP comment after (
 var list = List( // comment
   function(a: A, b: B, c: C)

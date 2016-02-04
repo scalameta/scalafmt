@@ -1,5 +1,5 @@
 80 columns                                                                     |
-<<< Massive argument
+<<< Massive 1
 List(Split(Space, 0).withPolicy(SingleLineBlock(close)),
            Split(nl, 1).withPolicy({
              case Decision(t@FormatToken(_, `close`, _), s) =>
@@ -11,7 +11,7 @@ List(Split(Space, 0).withPolicy(SingleLineBlock(close)),
        case Decision(t@FormatToken(_, `close`, _), s) =>
          Decision(t, List(Split(Newline, 0)))
      }).withIndent(2, close, Right))
-<<< Massive argument 2
+<<< Massive 2
  List(Split(Space,
             0,
             policy = SingleLineBlock(close),
@@ -31,3 +31,51 @@ List(Split(Space, 0).withPolicy(SingleLineBlock(close)),
             policy = {
             case Decision(t@FormatToken(_, `close`, _), s) =>
             Decision(t, List(Split(Newline, 0)))
+<<< Massive (good API) 3
+Split(Space, 0).withPolicy {
+    // Following case:
+    // package foo // this is cool
+    //
+    // object a
+    case Decision(t@FormatToken(`lastRef`, _: Comment, between), splits)
+        if !between.exists(_.isInstanceOf[`\n`]) =>
+      Decision(t, splits.map(_.withModification(Space)))
+    case Decision(t@FormatToken(`lastRef`, _, _), splits) =>
+      Decision(t, splits.map(_.withModification(Newline2x)))
+}
+>>>
+Split(Space, 0).withPolicy {
+  // Following case:
+  // package foo // this is cool
+  //
+  // object a
+  case Decision(t@FormatToken(`lastRef`, _: Comment, between), splits)
+      if !between.exists(_.isInstanceOf[`\n`]) =>
+    Decision(t, splits.map(_.withModification(Space)))
+  case Decision(t@FormatToken(`lastRef`, _, _), splits) =>
+    Decision(t, splits.map(_.withModification(Newline2x)))
+}
+<<< Massive (bad API) 3
+Split(Space, 0, policy = {
+    // Following case:
+    // package foo // this is cool
+    //
+    // object a
+    case Decision(t@FormatToken(`lastRef`, _: Comment, between), splits)
+        if !between.exists(_.isInstanceOf[`\n`]) =>
+      Decision(t, splits.map(_.withModification(Space)))
+    case Decision(t@FormatToken(`lastRef`, _, _), splits) =>
+      Decision(t, splits.map(_.withModification(Newline2x)))
+})
+>>>
+Split(Space, 0, policy = {
+      // Following case:
+      // package foo // this is cool
+      //
+      // object a
+      case Decision(t@FormatToken(`lastRef`, _: Comment, between), splits)
+          if !between.exists(_.isInstanceOf[`\n`]) =>
+        Decision(t, splits.map(_.withModification(Space)))
+      case Decision(t@FormatToken(`lastRef`, _, _), splits) =>
+        Decision(t, splits.map(_.withModification(Newline2x)))
+    })

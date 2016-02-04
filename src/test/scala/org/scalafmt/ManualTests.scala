@@ -6,7 +6,7 @@ object ManualTests extends HasTests {
 
   val manual = ".manual"
 
-  def tests: Seq[DiffTest] = {
+  lazy val tests: Seq[DiffTest] = {
     import FilesUtil._
     val manualFiles = for {
       filename <- listFiles(testDir) if filename.endsWith(manual)
