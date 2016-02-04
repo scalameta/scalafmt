@@ -16,12 +16,12 @@ a(b).c(d).e(f).g(h).i(j).k {
 <<< avoid dead ends
 function(
     firstCall(a, b, c, d, e, f, g, h),
-    secondCall("very long argument string here"));
+    secondCall("very long argument string"));
 >>>
 function(
     firstCall(a, b, c, d, e, f, g, h),
     secondCall(
-        "very long argument string here"));
+        "very long argument string"));
 <<< Prune redundant branches
 new Compiler(
     assertions.options.has("checked-mode"),
