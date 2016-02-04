@@ -2,7 +2,7 @@ package org.scalafmt
 
 object UnitTests extends HasTests with ScalaFmtLogger {
 
-  override def tests: Seq[DiffTest] = {
+  override lazy val tests: Seq[DiffTest] = {
     import FilesUtil._
     for {
       filename <- listFiles(testDir) if filename2parse(filename).isDefined

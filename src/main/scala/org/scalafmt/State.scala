@@ -87,7 +87,7 @@ object State extends ScalaFmtLogger {
       case (tok, split) =>
         // TIP. Use the following line to debug origin of splits.
         if (debug)
-          logger.debug(f"${tok.left.code.slice(0, 10)}%-10s $split ${state.pushes}")
+          logger.debug(f"${tok.left.code.slice(0, 10)}%-10s $split")
         state = state.next(style, split, tok)
         val whitespace = split.modification match {
           case Space => " "

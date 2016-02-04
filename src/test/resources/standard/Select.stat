@@ -1,0 +1,35 @@
+80 columns                                                                     |
+<<< Break on .
+val expire =
+        owner.body.tokens.filterNot(_.isInstanceOf[Whitespace]).lastOption.getOrElse(
+            arrow)
+>>>
+val expire = owner.body.tokens.filterNot(_.isInstanceOf[Whitespace]).lastOption
+  .getOrElse(arrow)
+<<< Bind . to closing }
+map {
+    // foo
+} .withIndent
+>>>
+map {
+  // foo
+}.withIndent
+<<< Break on . 2
+Split(NoSplit, 0, policy = SingleLineBlock(owner.thenp.tokens.last)).withIndent(
+              StateColumn, close, Left)
+>>>
+Split(NoSplit, 0, policy = SingleLineBlock(owner.thenp.tokens.last))
+  .withIndent(StateColumn, close, Left)
+<<< Break on . 3
+val expire = owner.tokens.find(_.isInstanceOf[`{`]).getOrElse(owner.tokens.last)
+>>>
+val expire = owner.tokens.find(_.isInstanceOf[`{`])
+  .getOrElse(owner.tokens.last)
+<<< state explosion
+a.b.c.d.e.f.g.h.i.j.k {
+// Crazy comment =================================================================>
+}
+>>>
+a.b.c.d.e.f.g.h.i.j.k {
+  // Crazy comment =================================================================>
+}

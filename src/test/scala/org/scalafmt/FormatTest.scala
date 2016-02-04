@@ -76,11 +76,16 @@ class FormatTest
   extends FunSuite with Timeouts with ScalaFmtLogger
   with BeforeAndAfterAll with HasTests {
 
+  lazy val onlyUnit = UnitTests.tests.exists(_.only)
+  lazy val onlyManual = ManualTests.tests.exists(_.only)
   lazy val onlyOne = tests.exists(_.only)
 
   lazy val debugResults = mutable.ArrayBuilder.make[Result]
 
-  override val tests = UnitTests.tests ++ ManualTests.tests
+  override val tests = {
+    if (onlyManual && !onlyUnit) ManualTests.tests
+    else UnitTests.tests
+  }
 
   tests
     .sortWith(bySpecThenName)
@@ -173,7 +178,8 @@ class FormatTest
       _ <- Future(Speed.writeComparisonReport(stats, "master"))
       _ <- Future(FilesUtil.writeFile("target/index.html", Report.heatmap(results)))
     } yield ()
-    // Travis can take more than 10 seconds.
-//    Await.ready(k, 10 seconds)
+    // Travis exits right after running tests.
+    if (sys.env.contains("TRAVIS"))
+      Await.ready(k, 20 seconds)
   }
 }

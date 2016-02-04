@@ -16,3 +16,7 @@ case class State(
 case class State(cost: Int, policy: Decision => Decision,
     splits: Vector[Split], indentation: Int, indents: Vector[Push],
     column: Int) extends Ordered[State] with ScalaFmtLogger
+<<< With targs
+case class Indent[ T <: Length] (length: T, expire: Token, expiresAt: ExpiresOn)
+>>>
+case class Indent[T <: Length](length: T, expire: Token, expiresAt: ExpiresOn)
