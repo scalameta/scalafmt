@@ -7,7 +7,7 @@ import scalatags.Text.all._
 
 object Report {
 
-  val MaxVisits = 5 // 2 ** 5
+  val MaxVisits = 6 // 2 ** 6
 
   def heatmapBar(scalaStyle: ScalaStyle): Seq[Text.Modifier] =
     (1 to MaxVisits).map { i =>
@@ -32,36 +32,31 @@ object Report {
       )
     )
 
-  def heatmap(results: Seq[Result]): String = {
-    html(
-      head(
-      ),
-      body(
+  def testWidth(result: Result) = result.test.style.maxColumn.toDouble * 9.625
+
+  def heatmap(results: Seq[Result]): String = reportBody(
+    div(
+      h1(id := "title", "Heatmap"),
+      explanation,
+      for (result <- results.sortBy(-_.maxVisitsOnSingleToken)
+           if result.test.name != "Warmup") yield {
         div(
-          background := "#f9f9f9",
-          h1(id := "title", "Heatmap"),
-          explanation,
-          for (result <- results.sortBy(-_.maxVisitsOnSingleToken)
-               if result.test.name != "Warmup") yield {
-            div(
-              h2(result.title),
-              pre(
-                fontFamily := "monospace",
-                background := "#fff",
-                fontSize := "16px",
-                width := result.test.style.maxColumn.toDouble * 9.625,
-                code(
-                  heatmapBar(result.test.style),
-                  raw(result.obtainedHtml),
-                  span("\n" + ("‾" * result.test.style.maxColumn))
-                )
-              )
+          h2(result.title),
+          pre(
+            fontFamily := "monospace",
+            background := "#fff",
+            fontSize := "16px",
+            width := testWidth(result),
+            code(
+              heatmapBar(result.test.style),
+              raw(result.obtainedHtml),
+              span("\n" + ("‾" * result.test.style.maxColumn))
             )
-          }
+          )
         )
-      )
-    ).render
-  }
+      }
+    )
+  ).render
 
   def compare(before: TestStats, after: TestStats): String = reportBody(
     div(
@@ -97,7 +92,12 @@ object Report {
               )
             ),
             pre(
+              fontFamily := "monospace",
+              background := "#fff",
+              fontSize := "16px",
+              width := testWidth(aft),
               code(
+                heatmapBar(aft.test.style),
                 raw( mkHtml(mergeResults(aft, bef), aft.test.style) )
               )
             )
@@ -109,24 +109,29 @@ object Report {
   def mergeResults(after: Result, before: Result): Seq[FormatOutput] =
    after.tokens.zip(before.tokens).map {
     case (aft, bef) =>
-      FormatOutput(aft.token, aft.whitespace, bef.visits - aft.visits)
+      FormatOutput(aft.token, aft.whitespace, aft.visits - bef.visits)
   }
 
   def reportBody(xs: Text.Modifier*) =
     html(
-      body(xs: _*)
+      body(
+        background := "#f9f9f9",
+        xs)
     )
 
 
 
   def mkHtml(output: Seq[FormatOutput], scalaStyle: ScalaStyle): String = {
     val sb = new StringBuilder()
-
     output.foreach { x =>
       import scalatags.Text.all._
-      val redness = red(x.visits)
+      val redness = red(Math.abs(x.visits))
+      val isRed = if (x.visits > 0) true else false
+      val styleBackground =
+        if (isRed) s"rgb(256, $redness, $redness)"
+        else s"rgb($redness, 256, $redness)" // green
       val html = span(
-        background := s"rgb(256, $redness, $redness)",
+        background := styleBackground,
         x.token).render
       sb.append(html)
       sb.append(x.whitespace.replace("\n\n", "\n\n"))

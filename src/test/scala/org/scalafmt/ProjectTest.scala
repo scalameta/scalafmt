@@ -4,6 +4,8 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.concurrent.CopyOnWriteArrayList
 
+import org.scalatest.FunSuite
+
 import collection.JavaConversions._
 
 import scala.concurrent.Await
@@ -16,7 +18,7 @@ import scala.meta._
  * Mostly borrowed from
  * https://github.com/lihaoyi/fastparse/blob/0d67eca8f9264bfaff68e5cbb227045ceac4a15f/scalaparse/jvm/src/test/scala/scalaparse/ProjectTests.scala
  */
-class ProjectTest {
+object ProjectTest extends App {
 
   var parseFailures: java.util.List[ParseErr] = new CopyOnWriteArrayList
   var otherFailures: java.util.List[UnknownFailure] = new CopyOnWriteArrayList
@@ -105,7 +107,7 @@ class ProjectTest {
 
   def bullet[T](msg: T) = s"* $msg"
 
-  def run: Unit = {
+  def run(): Unit = {
     checkRepo("https://github.com/scala/scala", scalaIgnore)
     checkRepo("https://github.com/akka/akka")
     checkRepo("https://github.com/apache/spark")
@@ -160,4 +162,5 @@ class ProjectTest {
     println(f"Successes: ${successes.length}, avg time to parse a single file $avgTime%2.2f ms")
     println(s"Skipped: ${skipped.length}")
   }
+  run()
 }

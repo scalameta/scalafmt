@@ -1,0 +1,8 @@
+80 columns                                                                     |
+<<< Break before then condition
+if (between.lastOption.exists(_.isInstanceOf[`\n`])) List(Split(NoIndentNewline, 0))
+else List(Split(Newline, 0))
+>>>
+if (between.lastOption.exists(_.isInstanceOf[`\n`]))
+  List(Split(NoIndentNewline, 0))
+else List(Split(Newline, 0))
