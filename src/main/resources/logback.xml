@@ -17,7 +17,7 @@
     <logger name="com.ibm.couchdb" level="ERROR"/>
     <logger name="org.http4s" level="ERROR"/>
 
-    <root level="debug">
+    <root level="${root-level:-debug}">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
     </root>

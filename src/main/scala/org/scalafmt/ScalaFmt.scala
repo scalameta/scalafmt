@@ -57,10 +57,12 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
     *           for available types.
     * @return The source code formatted.
     */
-  def format[T <: Tree](code: String)(implicit ev: Parse[T]): String = {
+  def format[T <: Tree](code: String,
+                        rangeOpt: Option[Range] = None)(implicit ev: Parse[T]): String = {
+    val range = rangeOpt.getOrElse(Range(0, Int.MaxValue))
     try {
       val source = code.parse[T]
-      formatTree(source)
+      formatTree(source, range)
     } catch {
       // Skip invalid code.
       case e: ParseException =>
@@ -69,7 +71,7 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
     }
   }
 
-  private def formatTree(tree: Tree): String = {
+  private def formatTree(tree: Tree, range: Range): String = {
     val toks = FormatToken.formatTokens(tree.tokens)
     val owners = getOwners(tree)
     val statementStarts = getStatementStarts(tree)
@@ -178,6 +180,16 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
         }
       }
 
+      def provided(formatToken: FormatToken): Split = {
+        // TODO(olafur) the indentation is not correctly set.
+        val split = Split(Provided(formatToken.between.map(_.code).mkString), 0)
+        val result =
+          if (formatToken.left.isInstanceOf[`{`])
+            split.withIndent(Num(2), parens(formatToken.left), Right)
+          else split
+        result
+      }
+
       val Q = new mutable.PriorityQueue[State]()
       var result = start
       Q += start
@@ -209,7 +221,10 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
                  |Q.size=${Q.size}
                  |""".stripMargin)
           }
-          val splits = formatter.Route(splitToken)
+          val splits: List[Split] =
+            if (splitToken.insideRange(range)) formatter.Route(splitToken)
+            else List(provided(splitToken))
+
           val actualSplit = curr.policy(Decision(splitToken, splits)).split
           actualSplit.withFilter(!_.ignoreIf).foreach { split =>
             val nextState = curr.next(style, split, splitToken)
@@ -243,6 +258,11 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
     Debug.tokens = toks
     mkString(state.splits)
   }
+
+  def shouldFormat(range: Range, formatToken: FormatToken): Boolean = {
+    range.contains(formatToken.left.position.start.line)
+  }
+
 
 
   def startsUnwrappedLine(token: Token,
@@ -347,4 +367,10 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
     result.toMap
   }
 
+}
+
+object ScalaFmt {
+  def format(code: String, style: ScalaStyle, range: Option[Range] = None): String = {
+    new ScalaFmt(style).format[scala.meta.Stat](code, range.map(r => Range(r.start - 1, r.end).inclusive))
+  }
 }

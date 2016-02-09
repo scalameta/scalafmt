@@ -95,7 +95,8 @@ object State extends ScalaFmtLogger {
             val newline = if (nl.isDouble) "\n\n" else "\n"
             val indentation = if (nl.noIndent) "" else " " * state.indentation
             newline + indentation
-          case _ => ""
+          case Provided(literal) => literal
+          case NoSplit => ""
         }
         tok -> whitespace
     }
