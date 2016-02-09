@@ -27,7 +27,7 @@ case class State(cost: Int,
   def alwaysBetter(other: State): Boolean =
     this.cost <= other.cost && this.indentation <= other.indentation
 
-  override def toString = s"State($cost, ${splits.length}, $splits)"
+  override def toString = s"State($cost, ${splits.length})"
 
 
   /**

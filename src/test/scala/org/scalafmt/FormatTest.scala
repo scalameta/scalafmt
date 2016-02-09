@@ -108,16 +108,14 @@ class FormatTest
       val fmt = new ScalaFmt(t.style)
       test(paddedName) {
         Debug.newTest()
-        failAfter(10 seconds) {
-          filename2parse(t.filename) match {
-            case Some(parse) =>
-              val obtained = fmt.format(t.original)(parse)
-              saveResult(t, obtained)
-              assertParses(obtained, t.original)(parse)
-              assertNoDiff(obtained, t.expected)
-            case None =>
-              logger.warn(s"Found no parse for filename ${t.filename}")
-          }
+        filename2parse(t.filename) match {
+          case Some(parse) =>
+            val obtained = fmt.format(t.original)(parse)
+            saveResult(t, obtained)
+            assertParses(obtained, t.original)(parse)
+            assertNoDiff(obtained, t.expected)
+          case None =>
+            logger.warn(s"Found no parse for filename ${t.filename}")
         }
       }
     }

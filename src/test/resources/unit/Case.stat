@@ -82,3 +82,13 @@ x match {
     1 // I bind to 1
   case default => ???
 }
+<<< partial function
+parens.foreach {
+  case (_: `{`, _: `}`) =>
+  case (_: `}`, _: `{`) =>
+}
+>>>
+parens.foreach {
+  case (_: `{`, _: `}`) =>
+  case (_: `}`, _: `{`) =>
+}

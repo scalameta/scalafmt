@@ -17,7 +17,7 @@ import scala.meta.tokens.Token.`}`
 
 class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
 
-  val MaxVisits = 20000
+  val MaxVisits = 10000
 
   /**
     * Formats a Scala compilation unit.
@@ -80,6 +80,9 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
     val parens = matchingParens(tree.tokens)
     val formatter = new Formatter(style, tree, toks, parens,
       statementStarts, owners)
+    // Keeps track of optimalAt optimization.
+    // TODO(olafur) inefficient to key by Vector[Split]? The split prefix is what matters.
+    val optimal = mutable.Map.empty[(Int, FormatToken), Split]
 
 
     def mkString(splits: Vector[Split]): String = {
@@ -131,39 +134,47 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
            |${log(owner)}
            |FORMAT:
            |${State.reconstructPath(toks, start.splits, style)}""".stripMargin)
-      // NOTE! Optimal can be different for same owner but with different start.
-      val optimal = mutable.Map.empty[Int, Split]
 
       /**
         * Returns true if it's OK to skip over state.
         */
       def pruneOK(state: State): Boolean = {
+        val splitToken = toks(state.splits.length)
+        // TODO(olafur) inefficient
+        var curr = State.start
         val hasOptimal = state.splits.zipWithIndex.forall {
           case (split, i) =>
-            optimal.get(i).forall(_.sameLine(split))
+            val tok = toks(i)
+            val result = optimal.get(curr.column -> tok)
+              .forall(_.sameLine(split))
+            if (!result)
+              logger.trace(
+                s"""
+                   |${header(s"$split eliminated $state at ${toks(i)}, $tok")}
+                   |${mkString(state.splits)}
+                   |${optimal.toVector.mkString("\n")}""".stripMargin)
+            curr = curr.next(style, split, tok)
+            result
         }
-
-        val splitToken = toks(state.splits.length)
         val hasBest = best.get(splitToken.left).exists(_.alwaysBetter(state))
-        if (!hasOptimal)
-          logger.trace(
-            s"""
-               |${header("eliminated")}
-               |${mkString(state.splits)}""".stripMargin)
         !hasOptimal || hasBest
       }
 
       def updateOptimal(tok: FormatToken, curr: State): Unit = {
+        // TODO(olafur) inefficient
+        var state = State.start
         curr.splits.zipWithIndex.foreach {
           case (split, i) =>
+            val currTok = toks(i)
             if (split.optimalAt.contains(tok.left)) {
               logger.trace(
-                s"""optimal update $split ${curr.cost} $tok
+                s"""optimal $curr $split ${curr.cost} $tok
                     |${header("output")}
                     |${mkString(curr.splits)}
              """.stripMargin)
-              optimal += i -> split
+              optimal += (state.column -> currTok) -> split
             }
+            state = state.next(style, split, currTok)
         }
       }
 
@@ -176,7 +187,7 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
           deepestYet = curr
         explored += 1
         if (explored % 1000 == 0)
-          println(explored)
+          logger.debug(s"Explored $explored")
         val i = curr.splits.length
         if (explored > MaxVisits || i == toks.length ||
           !childOf(toks(i).right, owner, owners)) {
@@ -259,6 +270,8 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
         case t: internal.ast.Pkg =>
           addAll(t.stats)
         case t: internal.ast.Term.Match =>
+          addAll(t.cases)
+        case t: internal.ast.Term.PartialFunction =>
           addAll(t.cases)
         case b: Block =>
           addAll(b.stats)

@@ -140,7 +140,8 @@ class Formatter(style: ScalaStyle,
     case tok@FormatToken(d: `def`, name: Ident, _) =>
       val owner = owners(d)
       val expire = owner.tokens.
-        find(t => t.isInstanceOf[`=`] && owners(t) == owner).get
+        find(t => t.isInstanceOf[`=`] && owners(t) == owner)
+        .getOrElse(owner.tokens.last)
       List(
         Split(Space, 0).withIndent(4, expire, Left)
       )
@@ -177,15 +178,7 @@ class Formatter(style: ScalaStyle,
       val close = matching(open)
       val expire = matching(open)
       // TODO(olafur) recursively?
-      val optimalTok: Token = leftTok2tok(close) match {
-        case FormatToken(_, right: `,`, _) => right
-        case FormatToken(_, right: `)`, _) => right
-        case FormatToken(_, right: `]`, _) => right
-        case FormatToken(_, right: `;`, _) => right
-        case FormatToken(_, right: `=>`, _) =>
-          right
-        case _ => close
-      }
+      val optimalTok: Token = rhsOptimalToken(leftTok2tok(close))
       // In long sequence of select/apply, we penalize splitting on
       // parens furthest to the right.
       val lhsPenalty = lhs.tokens.length
@@ -259,8 +252,11 @@ class Formatter(style: ScalaStyle,
         Split(Space, 0, policy = spacePolicy),
         Split(Newline, 1).withIndent(2, expire, Left)
       )
-    case FormatToken(left, dot: `.`, _)
+    case tok@FormatToken(left, dot: `.`, _)
       if owners(dot).isInstanceOf[Term.Select] &&
+        // Only split if rhs is an application
+        // TODO(olafur) counterexample? For example a.b[C]
+        next(next(tok)).right.isInstanceOf[`(`] &&
         !left.isInstanceOf[`_ `] &&
         // TODO(olafur) optimize
         !parents(owners(dot)).exists(_.isInstanceOf[Import]) =>
@@ -273,16 +269,19 @@ class Formatter(style: ScalaStyle,
       val noApplyPenalty =
         if (!isLhsOfApply) 1
         else 0
-      // TODO(olafur) missing optimalAt
+      val open = next(next(tok)).right
+      val close = matching(open)
+      val optimal = rhsOptimalToken(leftTok2tok(close))
+//      logger.debug(s"$optimal ${next(tok)}")
       List(
-        Split(NoSplit, 0),
+        Split(NoSplit, 0).withOptimal(optimal),
         Split(Newline, 1 + nestedPenalty + noApplyPenalty)
           .withIndent(2, dot, Left)
       )
-    case FormatToken(_: Ident | _: `this` | _: `_ ` | _: `)`, _: `.` | _: `#`, _) =>
+    case FormatToken(_, _: `.` | _: `#`, _) =>
       List(
-      Split(NoSplit, 0)
-    )
+        Split(NoSplit, 0)
+      )
     case FormatToken(_: `.` | _: `#`, _: Ident, _) => List(
       Split(NoSplit, 0)
     )
@@ -420,8 +419,6 @@ class Formatter(style: ScalaStyle,
     case tok@FormatToken(_, cond: `if`, _)
       if owners(cond).isInstanceOf[Case] =>
       val owner = owners(cond).asInstanceOf[Case]
-      val arrow = owner.tokens.find(t => t.isInstanceOf[`=>`] && owners(t) == owner).get
-      // TODO(olafur) bug in scala.meta cond tokens.
       val p: Policy = {
         case Decision(t, s) if t.left.code != "||" =>
           Decision(t, s.map {
@@ -432,7 +429,7 @@ class Formatter(style: ScalaStyle,
       }
       List(
         Split(Space, 0, policy = p),
-        Split(Newline, 0, policy = p)
+        Split(Newline, 1, policy = p)
       )
     case tok@FormatToken(arrow: `=>`, _, _)
       if owners(arrow).isInstanceOf[Case] =>
@@ -581,6 +578,13 @@ class Formatter(style: ScalaStyle,
   def isInlineComment(token: Token): Boolean = token match {
     case c: Comment => c.code.startsWith("//")
     case _ => false
+  }
+
+  @tailrec
+  final def rhsOptimalToken(start: FormatToken): Token = start.right match {
+    case _: `,` | _: `)` | _: `]` | _: `;` | _: `=>` if next(start) != start =>
+      rhsOptimalToken(next(start))
+    case _ => start.left
   }
 
 

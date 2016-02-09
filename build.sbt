@@ -34,6 +34,7 @@ pomExtra := (
     </developers>)
 
 libraryDependencies ++= Seq(
+  "com.github.scopt" %% "scopt" % "3.3.0",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
   "ch.qos.logback" % "logback-classic" % "1.1.3",
   "org.scalameta" %% "scalameta" % "0.0.5-M1",
@@ -44,4 +45,6 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.2.1" % "test"
 )
 
+mainClass in assembly := Some("org.scalafmt.Cli")
 
+assemblyJarName in assembly := "scalafmt.jar"
