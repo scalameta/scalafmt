@@ -18,6 +18,8 @@ For now, [the tests](src/test/resources) are the most up-to-date documentation.
 
 ### Updates
 
+* Feb 9rd
+   * pre-release https://github.com/olafurpg/scalafmt/releases/tag/v0.1.0
 * Feb 3rd
     * [Sneak peek output from the
     formatter](https://htmlpreview.github.io/?https://github.com/olafurpg/scalafmt/blob/htmlpreview/reports/scalafmt-feb3.html).
