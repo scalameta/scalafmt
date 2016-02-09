@@ -29,6 +29,10 @@ case class Split(modification: Modification,
     case m if m.isNewline => 0
     case NoSplit => 0
     case Space => 1
+    case Provided(code) =>
+      val firstLine = code.indexOf("\n")
+      if (firstLine == -1) code.length
+      else firstLine
   }
 
   def withOptimal(token: Token): Split =

@@ -1,30 +1,38 @@
 package org.scalafmt
 
 import java.io.File
+import scala.meta. _
 
-import scala.io.Source
+case class Config(file: Option[File], // if not set, reads from stdin
+    range: Option[Range])
 
-case class Config(stdin: Boolean = true,
-                  file: Option[File] = None, // Must be set if stdin is false.
-                  rangeFrom: Option[Int] = None,
-                  rangeTo: Option[Int] = None)
-
-object Cli extends App {
+object Cli extends App with ScalaFmtLogger {
   val parser = new scopt.OptionParser[Config]("scalafmt") {
     head("scalafmt", "0.1")
-    opt[Int]("from") action { (from, c) =>
-      c.copy(rangeFrom = Some(from))
-    } text "from must be an int."
-    opt[Int]("to") action { (to, c) =>
-      c.copy(rangeTo = Some(to))
-    } text "to must be an int."
-    opt[File]('f', "file") action { (file, c) =>
+    opt[( Int,
+        Int)]("range") action {
+      case ((from, to), c) => c.copy(range = Some(Range(from - 1, to - 1)))
+    } text "only format line range from=to"
+    opt[File]('f', "file") action {
+      ( file, c) =>
       c.copy(file = Some(file))
-    } text "std must be bool."
+    } text "if not set, reads from stdin"
   }
 
-  val code = Source.fromInputStream(System.in).getLines().mkString("\n")
-  val fmt = new ScalaFmt(Standard)
-  val output = fmt.formatSource(code)
-  println(output)
+  def getCode(config: Config): String =
+    config.file match {
+      case Some(file) =>
+        new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths
+                  .get(file.toURI)))
+      case _ =>
+        scala.io.Source.fromInputStream(System.in).getLines().mkString("\n")
+    }
+  parser.parse(args, Config(None, None)) match {
+    case Some(config) =>
+      val code = getCode(config)
+      val fmt = new ScalaFmt(Standard)
+      val output = fmt.format[scala.meta.Source](code, config.range)
+      println(output)
+    case _ =>
+  }
 }

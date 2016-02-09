@@ -1,11 +1,13 @@
 package org.scalafmt
 
-sealed trait Modification {
+sealed abstract class Modification {
   def isNewline = this match {
     case _: NewlineT => true
     case _ => false
   }
 }
+
+case class Provided(code: String) extends Modification
 
 case object NoSplit extends Modification
 
