@@ -3,8 +3,7 @@ package org.scalafmt
 import java.io.File
 import scala.meta. _
 
-case class Config(file: Option[File], // if not set, reads from stdin
-    range: Option[Range])
+case class Config(file: Option[File], inPlace: Boolean, range: Option[Range])
 
 object Cli extends App with ScalaFmtLogger {
   val parser = new scopt.OptionParser[Config]("scalafmt") {
@@ -16,7 +15,12 @@ object Cli extends App with ScalaFmtLogger {
     opt[File]('f', "file") action {
       ( file, c) =>
       c.copy(file = Some(file))
-    } text "if not set, reads from stdin"
+    } text "if not provided, reads from stdin"
+    opt[Unit]('i', "in-place") action {
+      ( _, c) =>
+      c.copy(inPlace =
+          true)
+    } text "write output to file, does nothing if file is not specified"
   }
 
   def getCode(config: Config): String =
@@ -27,12 +31,21 @@ object Cli extends App with ScalaFmtLogger {
       case _ =>
         scala.io.Source.fromInputStream(System.in).getLines().mkString("\n")
     }
-  parser.parse(args, Config(None, None)) match {
+  parser.parse(args,
+               Config(None,
+                      inPlace =
+                      false,
+                      None)) match {
     case Some(config) =>
       val code = getCode(config)
       val fmt = new ScalaFmt(Standard)
       val output = fmt.format[scala.meta.Source](code, config.range)
-      println(output)
+      config match {
+        case Config(Some(filename), true, _) =>
+          val path = java.nio.file.Paths.get(filename.toURI)
+          java.nio.file.Files.write(path, output.getBytes)
+        case _ => println(output)
+      }
     case _ =>
   }
 }
