@@ -30,4 +30,9 @@ println("hello"
 if (split.optimalAt.contains(tok.left)) {
   println("hello"
 }
-
+<<< SKIP if else throw
+if (result.isEmpty)
+  true else throw new TestFailedException("")
+>>>
+if (result.isEmpty) true
+else throw new TestFailedException("")
