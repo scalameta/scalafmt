@@ -1,0 +1,11 @@
+40 columns                              |
+<<< SKIP keep x to {
+lst.map { x =>
+      println(x)
+  x + 1
+}
+>>>
+lst.map { x =>
+  println(x)
+  x + 1
+}
