@@ -5,15 +5,65 @@
 [![Join the chat at https://gitter.im/olafurpg/scalafmt](https://badges.gitter.im/olafurpg/scalafmt.svg)](https://gitter.im/olafurpg/scalafmt?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Codacy Badge](https://api.codacy.com/project/badge/grade/7461ebc94f9a4db6ac91befb5bc98e4c)](https://www.codacy.com/app/olafurpg/scalafmt)
 
-Scalafmt is a code formatter for Scala that can wrap your lines if they get too long.
+Scalafmt is a code formatter for Scala. It wraps your lines when they get too long.
 
+![scalafmt](https://cloud.githubusercontent.com/assets/1408093/12928034/99d3ffe8-cf6b-11e5-9ec5-42de7c4e0155.gif)
 
 ### Warning
-This project is under active development and is not ready for production use.
+This project is under active development and is far from production ready.
+
+Main issues:
+* Slow for large files (100+ LOC)
+* Produces ugly output in some cases.
 
 ### Documentation
-
 For now, [the tests](src/test/resources) are the most up-to-date documentation.
+
+### Installation
+
+*NOTE.* Installing is awkward at the moment. It will get easier once the tool matures.
+
+Go to [releases](https://github.com/olafurpg/scalafmt/releases) and download the latest `scalafmt.jar`.
+
+Create a script named `scalafmt` somewhere in your `PATH` with the command
+
+```
+java -Droot-level=error -jar </PATH/TO>scalafmt.jar $@
+```
+
+Then you can run the formatter on a file like this:
+
+```
+scalafmt --file MyCode.scala
+```
+
+For more details
+
+```
+scalafmt --help
+```
+
+#### Vim
+
+* install [vim-autoformat](https://github.com/Chiel92/vim-autoformat)
+* add to your `.vimrc`
+
+```vim
+noremap <F5> :Autoformat<CR> "" Optional
+let g:formatdef_scalafmt = "'scalafmt'"
+let g:formatters_scala = ['scalafmt']
+```
+* run `:Autoformat` or `F5`
+
+#### IntelliJ
+
+* Open settings, create a `scalafmt` "external tool"
+
+<img width="519" alt="scalafmt-intellij1" src="https://cloud.githubusercontent.com/assets/1408093/12949316/6963ffce-d007-11e5-847e-65956d5cc781.png">
+<img width="485" alt="scalafmt-intellij2" src="https://cloud.githubusercontent.com/assets/1408093/12949336/854a029c-d007-11e5-8856-743a0d76861e.png">
+* Assign a shortcut to `scalafmt`
+
+<img width="513" alt="scalafmt-intellij3" src="https://cloud.githubusercontent.com/assets/1408093/12949347/9c07dda6-d007-11e5-96d4-8cd53394a52c.png">
 
 
 ### Updates
