@@ -1,0 +1,22 @@
+40 columns                              |
+<<< Two annotations
+@foobar @ast class A { def xyz: Int = 1 }
+>>>
+@foobar
+@ast
+class A { def xyz: Int = 1 }
+<<< Two annotations with final
+@foobar @ast final class A { def xyz: Int = 1 }
+>>>
+@foobar
+@ast
+final class A { def xyz: Int = 1 }
+<<< Two annotations with sealed abstract
+@foobar @ast sealed abstract class A { def xyz: Int = 1 }
+>>>
+@foobar
+@ast
+sealed abstract class A {
+
+  def xyz: Int = 1
+}

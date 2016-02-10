@@ -1,5 +1,5 @@
 40 columns                              |
-<<< SKIP newline for each clause
+<<< newline for each clause
 for { f0 <- Option(a)
   filename <- f0
 } yield filename

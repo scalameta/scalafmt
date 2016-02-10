@@ -1,5 +1,5 @@
 40 columns                              |
-<<< SKIP keep x to {
+<<< keep x to {
 lst.map { x =>
       println(x)
   x + 1
@@ -8,4 +8,15 @@ lst.map { x =>
 lst.map { x =>
   println(x)
   x + 1
+}
+<<< long argument to lambda {
+lst.map { xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx =>
+      println(x)
+  x + 1
+}
+>>>
+lst.map {
+  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx =>
+    println(x)
+    x + 1
 }

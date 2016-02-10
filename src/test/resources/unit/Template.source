@@ -30,12 +30,13 @@ class A(b: B) extends C with D with E
 
   def x = 2
 }
-<<< SKIP Looong extends, no inline
+<<< Looong extends, no inline
 class A(b: B) extends C with D with E with F with G {
   def x = 2
 }
 >>>
 class A(b: B) extends C with D with E
     with F with G {
+
   def x = 2
 }

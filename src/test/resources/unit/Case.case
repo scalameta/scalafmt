@@ -25,11 +25,11 @@ case x if x > 2 =>
   danger()
 >>>
 case x if x > 2 => danger()
-<<< SKIP with @ bind
+<<< with @ bind
 case x@Foooooooooooooooo(1111,1111) if true =>
   danger()
 >>>
-case x@Foooooooooooooooo(1111,1111)
+case x@Foooooooooooooooo(1111, 1111)
     if true =>
   danger()
 <<< with long condition
@@ -59,3 +59,7 @@ case _: Defn.Def | _: Pkg.Object | _: Defn.Class | _: Defn.Trait => true
 case _: Defn.Def | _: Pkg.Object |
     _: Defn.Class | _: Defn.Trait =>
   true
+<<< bind @ with symbols
+case f@ \/-(a) => f
+>>>
+case f@ \/-(a) => f

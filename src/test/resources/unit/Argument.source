@@ -1,13 +1,4 @@
 40 columns                              |
-<<< SKIP Bin pack, do we want this?
-object Object {
-  val x = function(a123, b123, c123, d123)
-}
->>>
-object Object {
-  val x = function(a123, b123, c123,
-      d123)
-}
 <<< One argument per line
 object Object {
   val x = function(a1234567, b1234567,

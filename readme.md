@@ -56,7 +56,7 @@ let g:formatters_scala = ['scalafmt']
 
 #### IntelliJ
 
-*NOTE.* Does not support undo after formatting :(
+*NOTE.* Does not support undo after formatting.
 
 * Open settings, create a `scalafmt` "external tool"
 

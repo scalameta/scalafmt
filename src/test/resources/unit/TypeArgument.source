@@ -74,12 +74,12 @@ object a {
               function[a, b],
               function[c, d]]]]
 }
-<<< SKIP Type args and args different policy
+<<< Type args and args different policy
 object Object {
   val x = function[a1234567, b1234567](a)
 }
 >>>
 object Object {
-  val x = function[a1234567,
-                   b1234567](a)
+  val x =
+    function[a1234567, b1234567](a)
 }
