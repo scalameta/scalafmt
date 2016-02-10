@@ -30,7 +30,7 @@ object Debug extends ScalaFmtLogger {
 
   def maxVisitedToken: Int = {
     if (tokens.isEmpty) 0
-    else  {
+    else {
       val maxTok = tokens.maxBy(x => formatTokenExplored.getOrElse(x, 0))
       formatTokenExplored(maxTok)
     }
@@ -52,5 +52,4 @@ object Debug extends ScalaFmtLogger {
     val visits = treeExplored.getOrElse(tree, 0) + 1
     treeExplored += tree -> visits
   }
-
 }

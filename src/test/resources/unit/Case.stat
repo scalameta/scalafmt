@@ -92,3 +92,7 @@ parens.foreach {
   case (_: `{`, _: `}`) =>
   case (_: `}`, _: `{`) =>
 }
+<<< SKIP bind @ with symbols
+case f@ \/-(a) => f
+>>>
+case f@ \/-(a) => f
