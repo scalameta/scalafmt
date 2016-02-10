@@ -3,7 +3,6 @@ package org.scalafmt
 import org.scalatest.FunSuite
 
 class RangeTest extends FunSuite {
-
   test("range preserves indent") {
     val original =
       """{
@@ -20,5 +19,4 @@ class RangeTest extends FunSuite {
     val obtained = ScalaFmt.format(original, Standard, Some(Range(2, 2)))
     DiffUtil.assertNoDiff(obtained, expected)
   }
-
 }

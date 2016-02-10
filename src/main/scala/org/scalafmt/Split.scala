@@ -17,62 +17,74 @@ import scala.meta.tokens.Token
   *             this split originates.
   *
   */
-case class Split(modification: Modification,
-                 cost: Int,
-                 ignoreIf: Boolean = false,
-                 indents: List[Indent[Length]] = List.empty,
-                 policy: Policy = NoPolicy,
-                 penalty: Boolean = false,
-                 optimalAt: Option[Token] = None)(implicit val line: sourcecode.Line) {
+case class Split(modification: Modification, cost: Int, ignoreIf: Boolean =
+    false, indents: List[Indent[Length]] = List.empty,
+    policy: Policy = NoPolicy, penalty: Boolean =
+    false,
+    optimalAt: Option[Token] = None)(implicit val line: sourcecode.Line) {
 
-  def length: Int = modification match {
-    case m if m.isNewline => 0
-    case NoSplit => 0
-    case Space => 1
-    case Provided(code) =>
-      val firstLine = code.indexOf("\n")
-      if (firstLine == -1) code.length
-      else firstLine
-  }
+  def length: Int =
+    modification match {
+      case m if m.isNewline => 0
+      case NoSplit => 0
+      case Space => 1
+      case Provided(code) =>
+        val firstLine = code.indexOf("\n")
+        if (firstLine == - 1) code.length
+        else firstLine
+    }
 
   def withOptimal(token: Token): Split =
-    new Split(modification, cost, ignoreIf, indents, policy, true, Some(token))(line)
+    new Split(modification, cost, ignoreIf, indents, policy, true, Some(token))(
+        line)
 
   def withPolicy(newPolicy: Policy): Split = {
-    val update = if (policy == NoPolicy) newPolicy else newPolicy orElse policy
-    new Split(modification, cost, ignoreIf, indents, update, true, optimalAt)(line)
+    val update =
+      if (policy == NoPolicy) newPolicy
+      else newPolicy orElse policy
+    new Split(modification, cost, ignoreIf, indents, update, true, optimalAt)(
+        line)
   }
 
   def withPenalty(penalty: Int): Split =
-    new Split(modification, cost + penalty, ignoreIf, indents, policy, true,
-      optimalAt)(line)
+    new Split(modification,
+              cost + penalty,
+              ignoreIf,
+              indents,
+              policy,
+              true,
+              optimalAt)(line)
 
-  def withIndent(length: Length, expire: Token, expiresOn: ExpiresOn): Split = {
+  def withIndent(length: Length, expire: Token,
+          expiresOn: ExpiresOn): Split = {
     length match {
       case Num(0) => this
       case _ =>
-        new Split(modification, cost, ignoreIf,
-          Indent(length, expire, expiresOn) +: indents,
-          policy, penalty, optimalAt)(line)
+        new Split(modification,
+                  cost,
+                  ignoreIf,
+                  Indent(length, expire, expiresOn) +: indents,
+                  policy,
+                  penalty,
+                  optimalAt)(line)
     }
-
   }
-
   val indentation = indents.map(_.length match {
-    case Num(x) => x.toString
-    case _ => toString
-  }).mkString("[", ", ", "]")
+        case Num(x) => x.toString
+        case _ => toString
+      }).mkString("[", ", ", "]")
 
   def withModification(newModification: Modification): Split =
-    new Split(newModification, cost, ignoreIf, indents, policy, penalty,
-      optimalAt)(line)
+    new Split(
+        newModification, cost, ignoreIf, indents, policy, penalty, optimalAt)(
+        line)
 
   override def toString =
     s"""$modification:${line.value}(cost=$cost, indents=$indentation)"""
 
   // TODO(olafur) come with better concept of split equality.
+
   // For example update line in withOptimal.
+
   def sameLine(other: Split) = this.line == other.line
-
 }
-
