@@ -1,5 +1,5 @@
 80 columns                                                                     |
-<<< SKIP scalajs 1
+<<< scalajs 1
 private def genApplyForSym(minArgc: Int, hasRestParam: Boolean,
     sym: Symbol): js.Tree = {
   if (isScalaJSDefinedJSClass(currentClassSym) &&

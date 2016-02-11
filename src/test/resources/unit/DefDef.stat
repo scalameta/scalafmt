@@ -26,3 +26,7 @@ object a {
   override def log(a: Split): String =
     s"$split"
 }
+<<< with type
+def identity[T](t: T): T =   t
+>>>
+def identity[T](t: T): T = t

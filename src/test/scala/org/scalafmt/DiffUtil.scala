@@ -26,7 +26,7 @@ object DiffUtil extends ScalaFmtLogger {
 
   def compareContents(original: String,
           revised: String): String = {
-    compareContents(original.split("\n"), revised.split("\n"))
+    compareContents(original.trim.split("\n"), revised.trim.split("\n"))
   }
 
   def compareContents(original: Seq[String], revised: Seq[String]): String = {

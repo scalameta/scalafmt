@@ -28,6 +28,7 @@ function(a,
 }
 <<< muliline comment gets 2x newline
 {val x = 1
+
   /*
    * I'm so important
    */
@@ -36,6 +37,29 @@ function(a,
 >>>
 {
   val x = 1
+
+  /*
+   * I'm so important
+   */
+  val y = 2
+}
+<<< two comments in a row
+{
+
+  /*
+   * who wrote this?
+   */
+
+  /*
+   * I'm so important
+   */
+  val y = 2
+}
+>>>
+{
+  /*
+   * who wrote this?
+   */
 
   /*
    * I'm so important

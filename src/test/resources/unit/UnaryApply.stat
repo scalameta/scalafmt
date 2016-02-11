@@ -25,12 +25,4 @@
 >>>
 (!right.isInstanceOf[Comment] ||
   between.exists(_.isInstanceOf[`\n`]))
-<<< If assignment with parens
-val newColumn = tok.length + (
-if(split == Newline) newIndent
-else column + split.length)
->>>
-val newColumn =
-  tok.length + (
-    if (split == Newline) newIndent
-    else column + split.length)
+

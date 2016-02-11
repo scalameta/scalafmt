@@ -64,14 +64,13 @@ new Compiler(
     multi.options.has("multi"),
     sourceMap.options
       .has("source-map"));
-<<< SKIP comment after (
+<<< comment after (
 var list = List( // comment
   function(a: A, b: B, c: C)
 )
 >>>
 var list = List( // comment
-  function(a: A, b: B, c: C)
-)
+    function(a: A, b: B, c: C))
 <<< long
 var list = List(
   function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C)

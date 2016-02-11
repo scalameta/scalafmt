@@ -12,7 +12,7 @@ coding style.
 **TIP.** Prefix the name of a test with
 
 * `ONLY` to only run that test (including other tests marked as ONLY).
-* `SKIP` to only run that test.
+* `SKIP` to ignore that test.
 
 Do the same to the first line in the file to apply the rule to all tests
 in that file.

@@ -8,12 +8,10 @@ import scala.meta.internal.ast.Term.Block
 import scala.meta.internal.ast.Term.Interpolate
 import scala.meta.parsers.common.Parse
 import scala.meta.tokens.Token
-import scala.meta.tokens.Token.`(`
-import scala.meta.tokens.Token.`)`
-import scala.meta.tokens.Token.`[`
-import scala.meta.tokens.Token.`]`
-import scala.meta.tokens.Token.`{`
-import scala.meta.tokens.Token.`}`
+import scala.meta.tokens.Token._
+
+import scala.reflect.{ClassTag, classTag}
+
 
 class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
   val MaxVisits = 10000
@@ -94,8 +92,6 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
           sb.append(tok.left.code)
           sb.append(whitespace)
       }
-      if (sb.last != '\n') // Always trailing newline.
-        sb.append('\n')
       sb.toString()
     }
 
@@ -283,21 +279,43 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
       new mutable.MapBuilder[Token, Tree, Map[Token, Tree]](Map[Token, Tree]())
 
     def addAll(trees: Seq[Tree]): Unit = {
-      trees.foreach {
-        t =>
+      trees.foreach { t =>
         ret += t.tokens.head -> t
       }
+    }
+
+    def addDefn[T <: Keyword: ClassTag](mods: Seq[Mod], tree: Tree): Unit = {
+      // Each @annotation gets a separate line
+      val annotations = mods.filter(_.isInstanceOf[Mod.Annot])
+      addAll(annotations)
+      val firstNonAnnotation: Token = mods
+        .collectFirst {
+          case x if !x.isInstanceOf[Mod.Annot] =>
+            // Non-annotation modifier, for example `sealed`/`abstract`
+            x.tokens.head
+        }.getOrElse {
+        // No non-annotation modifier exists, fallback to keyword like `object`
+        tree.tokens.find(x => classTag[T].runtimeClass.isInstance(x)).get
+      }
+      ret += firstNonAnnotation -> tree
     }
 
     def loop(x: Tree): Unit = {
       x match {
         case t: internal.ast.Source => addAll(t.stats)
         case t: internal.ast.Pkg => addAll(t.stats)
+        case t: internal.ast.Term.ForYield => addAll(t.enums)
+        case t: internal.ast.Term.For => addAll(t.enums)
         case t: internal.ast.Term.Match => addAll(t.cases)
         case t: internal.ast.Term.PartialFunction => addAll(t.cases)
-        case b: Block =>
-          addAll(b.stats)
-        // TODO(olafur) Working with templates is really awkward.
+        case b: internal.ast.Term.Block => addAll(b.stats)
+        case t: internal.ast.Defn.Object => addDefn[`object`](t.mods, t)
+        case t: internal.ast.Defn.Class => addDefn[`class `](t.mods, t)
+        case t: internal.ast.Defn.Trait => addDefn[`trait`](t.mods, t)
+        case t: internal.ast.Defn.Def => addDefn[`def`](t.mods, t)
+        case t: internal.ast.Defn.Val => addDefn[`val`](t.mods, t)
+        case t: internal.ast.Defn.Var => addDefn[`var`](t.mods, t)
+        case t: internal.ast.Defn.Type => addDefn[`type`](t.mods, t)
         case t: internal.ast.Template if t.stats.isDefined =>
           addAll(t.stats.get)
         case _ => // Nothing
@@ -359,7 +377,7 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
       x match {
         case _: Interpolate =>
         // TODO(olafur) the mod is unintuitive
-        case _: scala.meta.internal.ast.Mod.Override.Api =>
+//        case _: scala.meta.internal.ast.Mod.Override.Api =>
         // Nothing
         case _ => x.children.foreach(loop)
       }

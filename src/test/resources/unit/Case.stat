@@ -51,8 +51,7 @@ x match {
   case 1 => 3
 }
 <<< Bind comment to case
-x match {
-
+x   match {
     case 1 =>
       banana
       1
@@ -68,7 +67,7 @@ x match {
   case default => ???
 }
 <<< Bind comment to body
-x match {
+x   match {
     case 1 =>
       banana
       1 // I bind to 1
@@ -80,6 +79,7 @@ x match {
   case 1 =>
     banana
     1 // I bind to 1
+
   case default => ???
 }
 <<< partial function
@@ -92,7 +92,3 @@ parens.foreach {
   case (_: `{`, _: `}`) =>
   case (_: `}`, _: `{`) =>
 }
-<<< SKIP bind @ with symbols
-case f@ \/-(a) => f
->>>
-case f@ \/-(a) => f
