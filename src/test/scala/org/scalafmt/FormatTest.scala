@@ -20,26 +20,17 @@ import scala.meta.parsers.common.Parse
 import scala.meta.parsers.common.ParseException
 import scala.util.Try
 
-case class DiffTest(spec: String,
-                    name: String,
-                    filename: String,
-                    original: String,
-                    expected: String,
-                    skip: Boolean,
-                    only: Boolean,
-                    style: ScalaStyle) {
+case class DiffTest(spec: String, name: String, filename: String,
+    original: String, expected: String, skip: Boolean, only: Boolean,
+    style: ScalaStyle) {
   val fullName = s"$spec: $name"
 }
 
 case class FormatOutput(token: String, whitespace: String, visits: Int)
 
-case class Result(test: DiffTest,
-                  obtained: String,
-                  obtainedHtml: String,
-                  tokens: Seq[FormatOutput],
-                  maxVisitsOnSingleToken: Int,
-                  visitedStates: Int,
-                  timeNs: Long) {
+case class Result(test: DiffTest, obtained: String, obtainedHtml: String,
+    tokens: Seq[FormatOutput], maxVisitsOnSingleToken: Int, visitedStates: Int,
+    timeNs: Long) {
 
   def title = f"${test.name} (${timeMs}ms, $visitedStates states)"
 
@@ -49,7 +40,6 @@ case class Result(test: DiffTest,
 }
 
 trait HasTests {
-
   val testDir = "src/test/resources"
 
   def isOnly(name: String) = name.startsWith("ONLY ")
@@ -72,10 +62,8 @@ trait HasTests {
   def tests: Seq[DiffTest]
 }
 
-class FormatTest
-  extends FunSuite with Timeouts with ScalaFmtLogger
-  with BeforeAndAfterAll with HasTests {
-
+class FormatTest extends FunSuite with Timeouts with ScalaFmtLogger
+    with BeforeAndAfterAll with HasTests {
   lazy val onlyUnit = UnitTests.tests.exists(_.only)
   lazy val onlyManual = ManualTests.tests.exists(_.only)
   lazy val onlyOne = tests.exists(_.only)
@@ -87,12 +75,9 @@ class FormatTest
     else UnitTests.tests
   }
 
-  tests
-    .sortWith(bySpecThenName)
-    .withFilter(testShouldRun)
-    .foreach(runTest)
+  tests.sortWith(bySpecThenName).withFilter(testShouldRun).foreach(runTest)
 
-  def testShouldRun(t: DiffTest): Boolean = !onlyOne || t.only
+  def testShouldRun(t: DiffTest): Boolean = !onlyOne|| t.only
 
   def bySpecThenName(left: DiffTest, right: DiffTest): Boolean = {
     import scala.math.Ordered.orderingToOrdered
@@ -103,8 +88,7 @@ class FormatTest
     val paddedName = f"${t.fullName}%-70s|"
     if (t.skip) {
       ignore(paddedName) {}
-    }
-    else {
+    } else {
       val fmt = new ScalaFmt(t.style)
       test(paddedName) {
         Debug.newTest()
@@ -127,35 +111,35 @@ class FormatTest
     val output = getFormatOutput(t.style)
     val obtainedHtml = Report.mkHtml(output, t.style)
     debugResults += Result(t,
-      obtained,
-      obtainedHtml,
-      output,
-      Debug.maxVisitedToken,
-      visitedStates,
-      Debug.timer.elapsedNs)
+                           obtained,
+                           obtainedHtml,
+                           output,
+                           Debug.maxVisitedToken,
+                           visitedStates,
+                           Debug.timer.elapsedNs)
   }
 
   def getFormatOutput(style: ScalaStyle): Seq[FormatOutput] = {
-    val path = State.reconstructPath(Debug.tokens,
-      Debug.state.splits, style, debug = onlyOne)
+    val path = State.reconstructPath(
+        Debug.tokens, Debug.state.splits, style, debug = onlyOne)
     val output = path.map {
       case (token, whitespace) =>
-        FormatOutput(token.left.code,
-          whitespace, Debug.formatTokenExplored(token))
+        FormatOutput(
+            token.left.code, whitespace, Debug.formatTokenExplored(token))
     }
     output
   }
 
-  def parses[T <: Tree](code: String)(implicit parse: Parse[T]): Boolean = {
+  def parses[T <: Tree](code: String) (implicit parse: Parse[T]): Boolean = {
     import scala.meta._
     Try(code.parse[T]).map(_ => true).getOrElse(false)
   }
 
   def assertParses[T <: Tree](obtained: String,
-                              original: String)(implicit parse: Parse[T]): Unit = {
+      original: String) (implicit parse: Parse[T]): Unit = {
     if (!parses(obtained) && parses(original)) {
       fail(
-        s"""Formatter output does not parse!
+          s"""Formatter output does not parse!
             |${header("Obtained")}
             |$obtained
             |
@@ -174,7 +158,8 @@ class FormatTest
     val k = for {
       _ <- Future(Speed.submitStats(stats))
       _ <- Future(Speed.writeComparisonReport(stats, "master"))
-      _ <- Future(FilesUtil.writeFile("target/index.html", Report.heatmap(results)))
+      _ <- Future(FilesUtil.writeFile("target/index.html",
+                                      Report.heatmap(results)))
     } yield ()
     // Travis exits right after running tests.
     if (sys.env.contains("TRAVIS"))

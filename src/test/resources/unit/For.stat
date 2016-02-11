@@ -8,3 +8,14 @@ for {
   f0 <- Option(a)
   filename <- f0
 } yield filename
+<<< SKIP unit
+for (
+(msg, parseErrors) <- parseFailures.groupBy(_.err)) {
+  println(header(msg))
+  parseErrors.sortBy(_.url).map(bullet).foreach(println)
+}
+>>>
+for ((msg, parseErrors) <- parseFailures.groupBy(_.err)) {
+  println(header(msg))
+  parseErrors.sortBy(_.url).map(bullet).foreach(println)
+}

@@ -1,6 +1,6 @@
 package org.scalafmt
 
-import com.ibm.couchdb. _
+import com.ibm.couchdb._
 import org.scalafmt.stats.GitInfo
 import org.scalafmt.stats.TestStats
 import scalaz.-\/
@@ -8,10 +8,7 @@ import scalaz.\/-
 
 object Speed extends ScalaFmtLogger {
   lazy val dbName = "scalafmt-teststats"
-  lazy val couch = CouchDb("speed.scalafmt.org",
-                           443,
-                           https =
-                           true)
+  lazy val couch = CouchDb("speed.scalafmt.org", 443, https = true)
   lazy val db = couch.db(dbName, typeMapping)
   lazy val typeMapping = TypeMapping(classOf[TestStats] -> "TestStats")
 
@@ -26,7 +23,7 @@ object Speed extends ScalaFmtLogger {
   }
 
   def writeComparisonReport(after: TestStats, branch: String): Unit = {
-    import sys.process. _
+    import sys.process._
     val t = Stopwatch()
     val commit = Seq("git", "rev-parse", branch).!!.trim
     val view =

@@ -1,7 +1,7 @@
 package org.scalafmt
 
 import scala.collection.mutable
-import scala.meta. _
+import scala.meta._
 import scala.meta.internal.ast.Defn
 import scala.meta.internal.ast.Pkg
 import scala.meta.internal.ast.Term.Block
@@ -11,7 +11,6 @@ import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 
 import scala.reflect.{ClassTag, classTag}
-
 
 class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
   val MaxVisits = 10000
@@ -54,14 +53,13 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
     *           for available types.
     * @return The source code formatted.
     */
-  def format [T <: Tree](code: String,
-          rangeOpt: Option[Range] = None) (implicit ev: Parse[T]): String = {
+  def format[T <: Tree](code: String,
+      rangeOpt: Option[Range] = None) (implicit ev: Parse[T]): String = {
     val range = rangeOpt.getOrElse(Range(0, Int.MaxValue))
     try {
       val source = code.parse[T]
       formatTree(source, range)
-    }
-    catch {
+    } catch {
       // Skip invalid code.
       case e: ParseException =>
         logger.warn(s"Unable to parse code: ${e.getMessage}")
@@ -123,7 +121,6 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
     }
 
     // TODO(olafur) refactor shortestPath
-
     /**
       * Runs Dijstra's shortest path algorithm to find lowest penalty split.
       */
@@ -166,15 +163,14 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
         curr.splits.zipWithIndex.foreach {
           case (split, i) =>
             val currTok = toks(i)
-            if (split.optimalAt.contains(tok.left))
-              {
-                logger.trace(
-                    s"""optimal $curr $split ${curr.cost} $tok
+            if (split.optimalAt.contains(tok.left)) {
+              logger.trace(
+                  s"""optimal $curr $split ${curr.cost} $tok
                     |${header("output")}
                     |${mkString(curr.splits)}
              """.stripMargin)
-                optimal += (state.column -> currTok) -> split
-              }
+              optimal += (state.column -> currTok) -> split
+            }
             state = state.next(style, split, currTok)
         }
       }
@@ -199,61 +195,51 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
         if (explored % 1000 == 0) logger.debug(s"Explored $explored")
         val i = curr.splits.length
         if (explored > MaxVisits || i == toks.length ||
-            !childOf(toks(i).right, owner, owners))
-          {
-            result = curr
-            Q.dequeueAll
-          }
-        else if (!pruneOK(curr))
-          {
-            val splitToken = toks(i)
-            updateOptimal(splitToken, curr)
-            Debug.visit(splitToken)
-            if (Q.nonEmpty)
-              {
-                val minCost = Q.minBy(_.cost)
-                logger.trace(
-                    s"""
+            !childOf(toks(i).right, owner, owners)) {
+          result = curr
+          Q.dequeueAll
+        } else if (!pruneOK(curr)) {
+          val splitToken = toks(i)
+          updateOptimal(splitToken, curr)
+          Debug.visit(splitToken)
+          if (Q.nonEmpty) {
+            val minCost = Q.minBy(_.cost)
+            logger.trace(
+                s"""
                  |visit=$splitToken
                  |lastSplit=${curr.splits.last}
                  |cost=${curr.cost}
                  |minCost=${minCost.cost}
                  |Q.size=${Q.size}
                  |""".stripMargin)
-              }
-            val splits: List[Split] =
-              if (splitToken.insideRange(range)) formatter.Route(splitToken)
-              else List(provided(splitToken))
-            val actualSplit = curr.policy(Decision(splitToken, splits)).split
-            actualSplit.withFilter(! _.ignoreIf).foreach {
-              split =>
-              val nextState = curr.next(style, split, splitToken)
-              if (split.modification == Newline)
-                best += splitToken.left -> nextState
-              // TODO(olafur) this is a questionable optimization, it introduces
-              // a lot of complexity to the search and I'm not still convinced of its
-              // usefulness if we design the graph better.
-              if (splitToken.left != owner.tokens.head &&
-                  startsUnwrappedLine(splitToken.left,
-                                      statementStarts,
-                                      owners(splitToken.left)))
-                {
-                  val nextNextState =
-                    shortestPathMemo(owners(splitToken.left), nextState, curr)
-                  Q.enqueue(nextNextState)
-                }
-              else { Q.enqueue(nextState) }
-            }
           }
+          val splits: List[Split] =
+            if (splitToken.insideRange(range)) formatter.Route(splitToken)
+            else List(provided(splitToken))
+          val actualSplit = curr.policy(Decision(splitToken, splits)).split
+          actualSplit.withFilter(! _.ignoreIf).foreach { split =>
+            val nextState = curr.next(style, split, splitToken)
+            if (split.modification == Newline)
+              best += splitToken.left -> nextState
+            // TODO(olafur) this is a questionable optimization, it introduces
+            // a lot of complexity to the search and I'm not still convinced of its
+            // usefulness if we design the graph better.
+            if (splitToken.left != owner.tokens.head && startsUnwrappedLine(
+                    splitToken.left, statementStarts, owners(splitToken.left))) {
+              val nextNextState =
+                shortestPathMemo(owners(splitToken.left), nextState, curr)
+              Q.enqueue(nextNextState)
+            } else { Q.enqueue(nextState) }
+          }
+        }
       }
       result
     }
     var state = shortestPathMemo(tree, State.start, State.start)
-    if (state.splits.length != toks.length)
-      {
-        state = deepestYet
-        logger.warn("UNABLE TO FORMAT")
-      }
+    if (state.splits.length != toks.length) {
+      state = deepestYet
+      logger.warn("UNABLE TO FORMAT")
+    }
     Debug.explored += explored
     Debug.state = state
     Debug.tokens = toks
@@ -265,13 +251,16 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
   }
 
   def startsUnwrappedLine(token: Token, starts: Map[Token, Tree],
-          owner: Tree): Boolean = {
+      owner: Tree): Boolean = {
     if (starts.contains(token))
-      true else if (!owner.tokens.headOption.contains(token))
-      false else owner match {
-      case _: Defn | _: Case | _: Pkg => true
-      case _ => false
-    }
+      true
+    else if (!owner.tokens.headOption.contains(token))
+      false
+    else
+      owner match {
+        case _: Defn | _: Case | _: Pkg => true
+        case _ => false
+      }
   }
 
   private def getStatementStarts(tree: Tree): Map[Token, Tree] = {
@@ -288,12 +277,11 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
       // Each @annotation gets a separate line
       val annotations = mods.filter(_.isInstanceOf[Mod.Annot])
       addAll(annotations)
-      val firstNonAnnotation: Token = mods
-        .collectFirst {
-          case x if !x.isInstanceOf[Mod.Annot] =>
-            // Non-annotation modifier, for example `sealed`/`abstract`
-            x.tokens.head
-        }.getOrElse {
+      val firstNonAnnotation: Token = mods.collectFirst {
+        case x if !x.isInstanceOf[Mod.Annot] =>
+          // Non-annotation modifier, for example `sealed`/`abstract`
+          x.tokens.head
+      }.getOrElse {
         // No non-annotation modifier exists, fallback to keyword like `object`
         tree.tokens.find(x => classTag[T].runtimeClass.isInstance(x)).get
       }
@@ -336,8 +324,8 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
         Map.empty[Token, Token])
     var stack = List.empty[Token]
     tokens.foreach {
-      case open@( _: `{` | _: `[` | _: `(`) => stack = open :: stack
-      case close@( _: `}` | _: `]` | _: `)`) =>
+      case open@ ( _: `{` | _: `[` | _: `(`) => stack = open :: stack
+      case close@ ( _: `}` | _: `]` | _: `)`) =>
         val open = stack.head
         ret += open -> close
         ret += close -> open
@@ -370,14 +358,12 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
     val result = mutable.Map.empty[Token, Tree]
 
     def loop(x: Tree): Unit = {
-      x.tokens.foreach {
-        tok =>
+      x.tokens.foreach { tok =>
         result += tok -> x
       }
       x match {
-        case _: Interpolate =>
-        // TODO(olafur) the mod is unintuitive
-//        case _: scala.meta.internal.ast.Mod.Override.Api =>
+        case _: Interpolate => // TODO(olafur) the mod is unintuitive
+        //        case _: scala.meta.internal.ast.Mod.Override.Api =>
         // Nothing
         case _ => x.children.foreach(loop)
       }
@@ -390,7 +376,7 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
 object ScalaFmt {
 
   def format(code: String, style: ScalaStyle,
-          range: Option[Range] = None): String = {
+      range: Option[Range] = None): String = {
     new ScalaFmt(style).format[scala.meta.Stat](
         code, range.map(r => Range(r.start - 1, r.end).inclusive))
   }
