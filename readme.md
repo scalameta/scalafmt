@@ -102,3 +102,4 @@ let g:formatters_scala = ['scalafmt']
   * Still haven't covered some common cases (like breaking before `.` in
   `a.b(c)`), so the output looks weird in some cases.
 
+[scalajs]: https://github.com/scala-js/scala-js
