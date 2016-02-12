@@ -38,7 +38,7 @@ object UnitTests extends HasTests with ScalaFmtLogger {
   def file2style(filename: String): ScalaStyle =
     filename.split("/").reverse(1) match {
       case "unit" => UnitTest40
-      case "standard" => Standard
+      case "standard" => UnitTest80
       case _ =>
         logger.debug(s"Unknown dir $filename")
         ???
