@@ -22,7 +22,17 @@ For now, [the tests](src/test/resources) are the most up-to-date documentation.
 
 *NOTE.* Installing is awkward at the moment. It will get easier once the tool matures.
 
-Go to [releases](https://github.com/olafurpg/scalafmt/releases) and download the latest `scalafmt.jar`.
+There are two options:
+
+1. Build from source (recommended)
+  * clone the repo
+  * run `sbt assembly`, master branch should pass tests
+  * `target/scala-2.11/scalafmt.jar` should exist
+2. Download pre-built scalafmt.jar
+  * Go to [releases](https://github.com/olafurpg/scalafmt/releases) and
+    download the latest `scalafmt.jar`.
+
+### Create scalafmt executable
 
 Create a script named `scalafmt` somewhere in your `PATH` with the command
 
@@ -30,7 +40,7 @@ Create a script named `scalafmt` somewhere in your `PATH` with the command
 java -Droot-level=error -jar </PATH/TO>scalafmt.jar $@
 ```
 
-Then you can run the formatter on a file like this:
+Then you can use the formatter like this:
 
 ```
 scalafmt --file MyCode.scala
