@@ -8,14 +8,23 @@ for {
   f0 <- Option(a)
   filename <- f0
 } yield filename
-<<< SKIP unit
+<<< unit
 for (
-(msg, parseErrors) <- parseFailures.groupBy(_.err)) {
+(msg, parseErrors) <- xs) {
   println(header(msg))
-  parseErrors.sortBy(_.url).map(bullet).foreach(println)
 }
 >>>
-for ((msg, parseErrors) <- parseFailures.groupBy(_.err)) {
+for ((msg, parseErrors) <- xs) {
   println(header(msg))
-  parseErrors.sortBy(_.url).map(bullet).foreach(println)
 }
+<<< ONLY crazy one-liner
+val sizes = for (
+row <- table) yield ( for (
+cell <- row) yield if (cell == null) 0
+else cell.toString.length)
+>>>
+val sizes =
+  for (row <- table) yield (
+    for (cell <- row) yield
+        if (cell == null) 0
+        else cell.toString.length)

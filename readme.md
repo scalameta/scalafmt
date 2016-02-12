@@ -79,23 +79,26 @@ let g:formatters_scala = ['scalafmt']
 
 ### Updates
 
+* Feb 12th
+  * Ran scalafmt on all [scala-js][scalajs] files with a 200ms timeout.
+  The formatter completed before timeout on 68 files and timed out on 848 files.
 * Feb 9rd
-   * pre-release https://github.com/olafurpg/scalafmt/releases/tag/v0.1.0
+  * pre-release https://github.com/olafurpg/scalafmt/releases/tag/v0.1.0
 * Feb 3rd
-    * [Sneak peek output from the
-    formatter](https://htmlpreview.github.io/?https://github.com/olafurpg/scalafmt/blob/htmlpreview/reports/scalafmt-feb3.html).
-    The red regions are spots where the formatter's performance still suffers.
-    * The actual implementation, under `src/main/scala/`, is 684 LOC, excluding blank lines and comments and including some debugging stuff.
-    * Running time for a ~500 LOC file is around 5 seconds. Will hopefully
-    reach <100ms soon. Last week the formatter choked on 10 LOC (exponential
-    growth, yay).
-    * There is one style to begin with, adapted from the [Scala.js coding
-    style](https://github.com/scala-js/scala-js/blob/master/CODINGSTYLE.md).
-    Support for
-    configuration flags comes later.
-    * The formatter uses [scala.meta's](https://github.com/scalameta/scalameta)
-    tokens and AST. The implementation works mostly on the token level, but
-    relies heavily on the AST for "smarter" features.
-    * Still haven't covered some common cases (like breaking before `.` in
-    `a.b(c)`), so the output looks weird in some cases.
+  * [Sneak peek output from the
+  formatter](https://htmlpreview.github.io/?https://github.com/olafurpg/scalafmt/blob/htmlpreview/reports/scalafmt-feb3.html).
+  The red regions are spots where the formatter's performance still suffers.
+  * The actual implementation, under `src/main/scala/`, is 684 LOC, excluding blank lines and comments and including some debugging stuff.
+  * Running time for a ~500 LOC file is around 5 seconds. Will hopefully
+  reach <100ms soon. Last week the formatter choked on 10 LOC (exponential
+  growth, yay).
+  * There is one style to begin with, adapted from the [Scala.js coding
+  style](https://github.com/scala-js/scala-js/blob/master/CODINGSTYLE.md).
+  Support for
+  configuration flags comes later.
+  * The formatter uses [scala.meta's](https://github.com/scalameta/scalameta)
+  tokens and AST. The implementation works mostly on the token level, but
+  relies heavily on the AST for "smarter" features.
+  * Still haven't covered some common cases (like breaking before `.` in
+  `a.b(c)`), so the output looks weird in some cases.
 

@@ -42,6 +42,7 @@ libraryDependencies ++= Seq(
   "com.ibm" %% "couchdb-scala" % "0.6.0" % "test",
   "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0" % "test",
   "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
+  "org.apache.commons" % "commons-math3" % "3.6" % "test",
   "org.scalatest" %% "scalatest" % "2.2.1" % "test"
 )
 

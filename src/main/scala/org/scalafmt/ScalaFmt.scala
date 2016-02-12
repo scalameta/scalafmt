@@ -1,6 +1,11 @@
 package org.scalafmt
 
+import java.util.concurrent.TimeoutException
+
 import scala.collection.mutable
+import scala.concurrent.Await
+import scala.concurrent.Future
+import scala.concurrent.duration.Duration
 import scala.meta._
 import scala.meta.internal.ast.Defn
 import scala.meta.internal.ast.Pkg
@@ -9,11 +14,11 @@ import scala.meta.internal.ast.Term.Interpolate
 import scala.meta.parsers.common.Parse
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.reflect.{ClassTag, classTag}
 
 class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
-  val MaxVisits = 10000
 
   /**
     * Formats a Scala compilation unit.
@@ -43,26 +48,42 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
   def formatStatement(code: String): String = format[Stat](code)
 
   /**
-    * Formats any kind of [[scala.meta.Tree]].
+    * Formats any kind of [[scala.meta.Tree]], throws exceptions on failure.
     *
-    * Most likely, [[formatSource()]] or [[formatStatement()]] is what you need.
+    * Useful alternatives: [[format]], [[formatSource]] and [[formatStatement]].
     *
     * @param code The source code to format.
-    * @param ev The implicit evidence that the source code can be parsed.
+    * @param ev See [[scala.meta.parsers]] for available parsers.
     * @tparam T The type of the source code, refer to [[scala.meta.parsers.Api]]
     *           for available types.
     * @return The source code formatted.
     */
-  def format[T <: Tree](code: String,
-      rangeOpt: Option[Range] = None) (implicit ev: Parse[T]): String = {
+  def format_![T <: Tree](code: String,
+                        rangeOpt: Option[Range] = None)(implicit ev: Parse[T]): String = {
     val range = rangeOpt.getOrElse(Range(0, Int.MaxValue))
+    val source = code.parse[T]
+    formatTree(source, range)
+  }
+
+  /**
+    * Safe alternative to [[format_!]], always returns
+    */
+  def format[T <: Tree](code: String,
+      rangeOpt: Option[Range] = None)(implicit ev: Parse[T]): String = {
     try {
-      val source = code.parse[T]
-      formatTree(source, range)
+      val formatted = Future(format_![T](code, rangeOpt))
+      Await.result(formatted, style.maxDuration)
     } catch {
       // Skip invalid code.
       case e: ParseException =>
+        // Parse exception messages are huge, suppress stacktrace.
         logger.warn(s"Unable to parse code: ${e.getMessage}")
+        code
+      case e: TimeoutException =>
+        logger.warn(s"Too slow formatting to parse code:", e)
+        code
+      case e: Throwable =>
+        logger.warn(s"Unexpected error", e)
         code
     }
   }
@@ -125,7 +146,9 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
       * Runs Dijstra's shortest path algorithm to find lowest penalty split.
       */
     def shortestPath(owner: Tree, start: State): State = {
-      Debug.visit(owner)
+      if (style.debug) {
+        Debug.visit(owner)
+      }
       logger.trace(
           s"""${start.indentation} ${start.splits.takeRight(3)}
            |${log(owner)}
@@ -192,16 +215,18 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
         val curr = Q.dequeue()
         if (curr.splits.length > deepestYet.splits.length) deepestYet = curr
         explored += 1
-        if (explored % 1000 == 0) logger.debug(s"Explored $explored")
+        if (explored % 1000 == 0 && style.debug) logger.trace(s"Explored $explored")
         val i = curr.splits.length
-        if (explored > MaxVisits || i == toks.length ||
+        if (explored > style.maxStateVisits || i == toks.length ||
             !childOf(toks(i).right, owner, owners)) {
           result = curr
           Q.dequeueAll
         } else if (!pruneOK(curr)) {
           val splitToken = toks(i)
           updateOptimal(splitToken, curr)
-          Debug.visit(splitToken)
+          if (style.debug) {
+            Debug.visit(splitToken)
+          }
           if (Q.nonEmpty) {
             val minCost = Q.minBy(_.cost)
             logger.trace(
@@ -237,12 +262,18 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
     }
     var state = shortestPathMemo(tree, State.start, State.start)
     if (state.splits.length != toks.length) {
-      state = deepestYet
-      logger.warn("UNABLE TO FORMAT")
+      if (style.debug) {
+        logger.warn("UNABLE TO FORMAT")
+        state = deepestYet
+      } else {
+        throw CantFormatFile
+      }
     }
-    Debug.explored += explored
-    Debug.state = state
-    Debug.tokens = toks
+    if (style.debug) {
+      Debug.explored += explored
+      Debug.state = state
+      Debug.tokens = toks
+    }
     mkString(state.splits)
   }
 

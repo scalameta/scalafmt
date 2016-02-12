@@ -1,7 +1,7 @@
 package org.scalafmt
 
 object ManualTests extends HasTests {
-  val style = Standard
+  val style = UnitTest80
 
   val manual = ".manual"
 
