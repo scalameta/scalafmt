@@ -9,10 +9,8 @@ object UnitTests extends HasTests with ScalaFmtLogger {
       test <- {
         // Tests are sorted first by spec, and warmup should run first.
         val spec =
-          if (filename.contains("Warmup"))
-            "===> Warmup"
-          else
-            filename.stripPrefix(testDir + "/").replaceAll("\\.[^\\.]*$", "")
+          if (filename.contains("Warmup")) "===> Warmup"
+          else filename.stripPrefix(testDir + "/")
 
         val content = readFile(filename)
         val moduleOnly = isOnly(content)
@@ -39,7 +37,7 @@ object UnitTests extends HasTests with ScalaFmtLogger {
 
   def file2style(filename: String): ScalaStyle =
     filename.split("/").reverse(1) match {
-      case "unit" => UnitTestStyle
+      case "unit" => UnitTest40
       case "standard" => Standard
       case _ =>
         logger.debug(s"Unknown dir $filename")

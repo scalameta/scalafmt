@@ -106,7 +106,7 @@ class Formatter(style: ScalaStyle,
         Split(nl, 1).withPolicy(newlineBeforeClosingCurly)
           .withIndent(2, close, Right)
       )
-    case FormatToken(_: `(`, _: `{`, _) => List(
+    case FormatToken(_: `(`, _: `(` | _: `{`, _) => List(
       Split(NoSplit, 0)
     )
     case FormatToken(_, _: `{`, _) => List(
@@ -429,7 +429,7 @@ class Formatter(style: ScalaStyle,
       Split(Newline, 1)
     )
     case tok@FormatToken(_: Ident | _: Literal | _: Interpolation.End,
-    _: Ident | _: Literal, _) => List(
+    _: Ident | _: Literal | _: Xml.End, _) => List(
       Split(Space, 0)
     )
     case FormatToken(open: `(`, right, _)
@@ -517,10 +517,7 @@ class Formatter(style: ScalaStyle,
     // Inline comment
     case FormatToken(_, c: Comment, between)
       if c.code.startsWith("//") =>
-      val newlineCounts = between.count(_.isInstanceOf[`\n`])
-      if (newlineCounts > 1) List(Split(Newline2x, 0))
-      else if (newlineCounts == 1) List(Split(Newline, 0))
-      else List(Split(Space, 0))
+      List(Split(newlines2Modification(between), 0) )
     // Commented out code should stay to the left
     case FormatToken(c: Comment, _, between)
       if c.code.startsWith("//") &&
@@ -539,6 +536,15 @@ class Formatter(style: ScalaStyle,
       List(
         Split(newline, 0)
       )
+    case FormatToken(c: Comment, _, between) =>
+      List(Split(newlines2Modification(between), 0) )
+    // Interpolation
+    case FormatToken(_, _: Interpolation.Id | _: Xml.Start, _) => List(
+      Split(Space, 0)
+    )
+    case FormatToken(_: Interpolation.Id | _: Xml.Start, _, _) => List(
+      Split(NoSplit, 0)
+    )
     // Throw exception
     case FormatToken(_: `throw`, _, _) => List(
       Split(Space, 0)
@@ -553,11 +559,11 @@ class Formatter(style: ScalaStyle,
     case FormatToken(_: Keyword | _: Modifier, _, _) => List(
       Split(Space, 0)
     )
-    case FormatToken(_, _: Delim, _) => List(
-      Split(Space, 0)
-    )
     case FormatToken(_: `[`, _, _) => List(
       Split(NoSplit, 0)
+    )
+    case FormatToken(_, _: Delim, _) => List(
+      Split(Space, 0)
     )
     case FormatToken(_: Delim, _, _) => List(
       Split(Space, 0)
@@ -698,6 +704,13 @@ class Formatter(style: ScalaStyle,
 
   def newlinesBetween(between: Vector[Whitespace]): Int =
     between.count(_.isInstanceOf[`\n`])
+
+  def newlines2Modification(between: Vector[Whitespace]): Modification =
+    newlinesBetween(between) match {
+      case 0 => Space
+      case 1 => Newline
+      case _ => Newline2x
+    }
 
   def defnTemplate(tree: Tree): Option[Template] = tree match {
     case t: Defn.Object => Some(t.templ)
