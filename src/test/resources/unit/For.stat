@@ -17,7 +17,7 @@ for (
 for ((msg, parseErrors) <- xs) {
   println(header(msg))
 }
-<<< ONLY crazy one-liner
+<<< SKIP crazy one-liner
 val sizes = for (
 row <- table) yield ( for (
 cell <- row) yield if (cell == null) 0
