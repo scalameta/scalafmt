@@ -1,10 +1,20 @@
 # scalafmt
+> Any style guide written in English is either so brief that it’s ambiguous, or
+> so long that no one reads it.
+>
+> -- Bob Nystrom, ["Hardest Program I've Ever Written"][journal],
+>    Dart Team, Google.
 
 [![Coverage Status](https://coveralls.io/repos/olafurpg/scalafmt/badge.svg?branch=master&service=github)](https://coveralls.io/github/olafurpg/scalafmt?branch=master)
 [![Build Status](https://travis-ci.org/olafurpg/scalafmt.svg?branch=master)](https://travis-ci.org/olafurpg/scalafmt)
 [![Join the chat at https://gitter.im/olafurpg/scalafmt](https://badges.gitter.im/olafurpg/scalafmt.svg)](https://gitter.im/olafurpg/scalafmt?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Codacy Badge](https://api.codacy.com/project/badge/grade/7461ebc94f9a4db6ac91befb5bc98e4c)](https://www.codacy.com/app/olafurpg/scalafmt)
 
-Scalafmt is a code formatter for Scala. It wraps your lines when they get too long.
+
+### Overview
+Scalafmt is a code formatter for Scala that does its best to make your code
+look readable, idiomatic and consistent.
+When your lines get really long, scalafmt makes them short again.
 
 ![scalafmt](https://cloud.githubusercontent.com/assets/1408093/12928034/99d3ffe8-cf6b-11e5-9ec5-42de7c4e0155.gif)
 
@@ -12,8 +22,8 @@ Scalafmt is a code formatter for Scala. It wraps your lines when they get too lo
 This project is under active development and is far from production ready.
 
 Main issues:
-* Slow for large files (100+ LOC)
-* Produces ugly output in some cases.
+* Can't format large files (200+ LOC) in less than 200ms.
+* Occasionally produces invalid code.
 
 ### Documentation
 For now, [the tests](src/test/resources) are the most up-to-date documentation.
@@ -103,3 +113,4 @@ let g:formatters_scala = ['scalafmt']
   `a.b(c)`), so the output looks weird in some cases.
 
 [scalajs]: https://github.com/scala-js/scala-js
+[journal]: http://journal.stuffwithstuff.com/2015/09/08/the-hardest-program-ive-ever-written/
