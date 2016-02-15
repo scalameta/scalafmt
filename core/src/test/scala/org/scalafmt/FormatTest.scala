@@ -40,7 +40,7 @@ case class Result(test: DiffTest, obtained: String, obtainedHtml: String,
 }
 
 trait HasTests {
-  val testDir = "src/test/resources"
+  val testDir = "core/src/test/resources"
 
   def isOnly(name: String) = name.startsWith("ONLY ")
 

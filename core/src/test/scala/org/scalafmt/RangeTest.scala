@@ -19,4 +19,5 @@ class RangeTest extends FunSuite {
     val obtained = ScalaFmt.format(original, UnitTest40, Some(Range(2, 2)))
     DiffUtil.assertNoDiff(obtained, expected)
   }
+
 }
