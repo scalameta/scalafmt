@@ -22,7 +22,8 @@ trait ScalaFmtLogger {
 
   def log(token: Token): String = f"$token%-30s ${getTokenClass(token)}"
 
-  def small(token: Token): String = token.code.replace("\n", "").slice(0,10)
+  def small(token: Token): String =
+    token.code.replace("\n", "").slice(0,10)
 
   private def getTokenClass(token: Token) =
     token.getClass.getName.stripPrefix("scala.meta.tokens.Token$")

@@ -8,7 +8,7 @@ package org.scalafmt
   * @param indentation
   * @param column
   */
-case class State(cost: Int, policy: Decision => Decision,
+final case class State(cost: Int, policy: Decision => Decision,
     splits: Vector[Split], indentation: Int, pushes: Vector[Indent[Num]],
     column: Int) extends Ordered[State] with ScalaFmtLogger {
   import scala.math.Ordered.orderingToOrdered
@@ -64,7 +64,7 @@ case class State(cost: Int, policy: Decision => Decision,
 }
 
 object State extends ScalaFmtLogger {
-  val start = State(0, identity, Vector.empty[Split], 0, Vector.empty, 0)
+  val start = State(0, identity, Vector.empty[Split], 0, Vector.empty[Indent[Num]], 0)
 
   /**
     * Returns formatted output from FormatTokens and Splits.
@@ -77,7 +77,8 @@ object State extends ScalaFmtLogger {
       case (tok, split) =>
         // TIP. Use the following line to debug origin of splits.
         if (debug) {
-          logger.debug(f"${small(tok.left)}%-10s $split")
+          val left = small(tok.left)
+          logger.debug(f"$left%-10s $split")
         }
         state = state.next(style, split, tok)
         val whitespace = split.modification match {

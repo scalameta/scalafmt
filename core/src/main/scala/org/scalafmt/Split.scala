@@ -18,7 +18,7 @@ import scala.meta.tokens.Token
   *
   */
 case class Split(modification: Modification, cost: Int, ignoreIf: Boolean =
-    false, indents: List[Indent[Length]] = List.empty,
+    false, indents: List[Indent[Length]] = List.empty[Indent[Length]],
     policy: Policy = NoPolicy, penalty: Boolean =
     false,
     optimalAt: Option[Token] = None)(implicit val line: sourcecode.Line) {

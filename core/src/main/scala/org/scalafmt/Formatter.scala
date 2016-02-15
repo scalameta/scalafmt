@@ -125,7 +125,7 @@ class Formatter(style: ScalaStyle,
     // New statement
     case tok@FormatToken(left, right, between)
       if statementStarts.contains(right) =>
-      val newline =
+      val newline: Modification =
         if ((gets2x(tok) ||
           newlinesBetween(tok.between) > 1) &&
           !(isDocstring(left) && newlinesBetween(between) < 2)) Newline2x
@@ -289,9 +289,9 @@ class Formatter(style: ScalaStyle,
       // TODO(olafur) scala.meta should have uniform api for these two
       if owners(tok).isInstanceOf[Defn.Val] ||
         owners(tok).isInstanceOf[Defn.Var] =>
-      val rhs = owners(tok) match {
+      val rhs: Term = owners(tok) match {
         case l: Defn.Val => l.rhs
-        case r: Defn.Var => r.rhs
+        case r: Defn.Var if r.rhs.isDefined => r.rhs.get
       }
       val expire = owners(tok).tokens.last
       val spacePolicy: Policy = rhs match {
@@ -527,7 +527,7 @@ class Formatter(style: ScalaStyle,
       if c.code.startsWith("//") =>
       List(Split(Newline, 0))
     case tok@FormatToken(_, c: Comment, _) =>
-      val newline =
+      val newline: Modification =
         if (isDocstring(c) ||
           gets2x(next(tok)) ||
           newlinesBetween(tok.between) > 1)

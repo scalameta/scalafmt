@@ -16,7 +16,8 @@ import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import scala.reflect.{ClassTag, classTag}
+import scala.reflect.ClassTag
+import scala.reflect.classTag
 
 class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
 
@@ -314,7 +315,10 @@ class ScalaFmt(val style: ScalaStyle) extends ScalaFmtLogger {
           x.tokens.head
       }.getOrElse {
         // No non-annotation modifier exists, fallback to keyword like `object`
-        tree.tokens.find(x => classTag[T].runtimeClass.isInstance(x)).get
+        tree.tokens.find(x => classTag[T].runtimeClass.isInstance(x)) match {
+          case Some(x) => x
+          case None => throw CantFindDefnToken[T](tree)
+        }
       }
       ret += firstNonAnnotation -> tree
     }

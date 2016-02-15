@@ -25,7 +25,7 @@ package object scalafmt {
   // TODO(olafur) Move these elsewhere.
 
   @tailrec
-  final def parents(tree: Tree, accum: Seq[Tree] = Seq.empty): Seq[Tree] = {
+  final def parents(tree: Tree, accum: Seq[Tree] = Seq.empty[Tree]): Seq[Tree] = {
     tree.parent match {
       case Some(parent) => parents(parent, parent +: accum)
       case _ => accum

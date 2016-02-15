@@ -2,7 +2,24 @@ lazy val buildSettings = Seq(
   organization := "org.scalafmt",
   version := "0.1.0-SNAPSHOT",
   scalaVersion := "2.11.7",
-  updateOptions := updateOptions.value.withCachedResolution(true)
+  updateOptions := updateOptions.value.withCachedResolution(true),
+  // Many useful rules are ignored, at least they're explicitly ignored.
+  wartremoverWarnings in (Compile, compile) ++=
+    Warts.allBut(
+      // TODO(olafur) include these below.
+      Wart.Nothing, // Can't provide explicit type for scala.meta.Tree.collect.
+      Wart.ToString, // Issues in logger, solvable with Loggable typeclass.
+      Wart.Any, // Issues in logger with format strings.
+
+      Wart.Throw,
+      Wart.NoNeedForMonad,
+      Wart.FinalCaseClass,
+      Wart.NonUnitStatements,
+      Wart.MutableDataStructures,
+      Wart.IsInstanceOf,
+      Wart.Var,
+      Wart.Null,
+      Wart.DefaultArguments)
 )
 
 lazy val compilerOptions = Seq(
