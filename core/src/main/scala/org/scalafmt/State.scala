@@ -9,7 +9,7 @@ package org.scalafmt
   * @param column
   */
 final case class State(cost: Int, policy: Decision => Decision,
-    splits: Vector[Split], indentation: Int, pushes: Vector[Indent[Num]],
+    splits: Vector[Split], states: Vector[State], indentation: Int, pushes: Vector[Indent[Num]],
     column: Int) extends Ordered[State] with ScalaFmtLogger {
   import scala.math.Ordered.orderingToOrdered
 
@@ -56,7 +56,8 @@ final case class State(cost: Int, policy: Decision => Decision,
     State(cost + splitWithPenalty.cost,
           // TODO(olafur) expire policy, see #18.
           newPolicy,
-          splits :+ splitWithPenalty,
+      splits :+ splitWithPenalty,
+          states :+ this,
           newIndent,
           newIndents,
           newColumn)
@@ -64,7 +65,10 @@ final case class State(cost: Int, policy: Decision => Decision,
 }
 
 object State extends ScalaFmtLogger {
-  val start = State(0, identity, Vector.empty[Split], 0, Vector.empty[Indent[Num]], 0)
+  val start = State(0,
+    identity,
+    Vector.empty[Split],
+    Vector.empty[State], 0, Vector.empty[Indent[Num]], 0)
 
   /**
     * Returns formatted output from FormatTokens and Splits.

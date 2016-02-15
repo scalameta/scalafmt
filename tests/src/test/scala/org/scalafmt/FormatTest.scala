@@ -20,11 +20,8 @@ import scala.meta.parsers.common.Parse
 import scala.meta.parsers.common.ParseException
 import scala.util.Try
 
-
-
-
 class FormatTest extends FunSuite with Timeouts with ScalaFmtLogger
-    with BeforeAndAfterAll with HasTests {
+  with BeforeAndAfterAll with HasTests {
   lazy val onlyUnit = UnitTests.tests.exists(_.only)
   lazy val onlyManual = ManualTests.tests.exists(_.only)
   lazy val onlyOne = tests.exists(_.only)
@@ -36,9 +33,10 @@ class FormatTest extends FunSuite with Timeouts with ScalaFmtLogger
     else UnitTests.tests
   }
 
+
   tests.sortWith(bySpecThenName).withFilter(testShouldRun).foreach(runTest)
 
-  def testShouldRun(t: DiffTest): Boolean = !onlyOne|| t.only
+  def testShouldRun(t: DiffTest): Boolean = !onlyOne || t.only
 
   def bySpecThenName(left: DiffTest, right: DiffTest): Boolean = {
     import scala.math.Ordered.orderingToOrdered
@@ -49,7 +47,8 @@ class FormatTest extends FunSuite with Timeouts with ScalaFmtLogger
     val paddedName = f"${t.fullName}%-70s|"
     if (t.skip) {
       ignore(paddedName) {}
-    } else {
+    }
+    else {
       val fmt = new ScalaFmt(t.style)
       test(paddedName) {
         Debug.newTest()
@@ -68,39 +67,39 @@ class FormatTest extends FunSuite with Timeouts with ScalaFmtLogger
 
   def saveResult(t: DiffTest, obtained: String): Unit = {
     val visitedStates = Debug.exploredInTest
-//    logger.debug(f"$visitedStates%-4s ${t.fullName}")
+    //    logger.debug(f"$visitedStates%-4s ${t.fullName}")
     val output = getFormatOutput(t.style)
     val obtainedHtml = Report.mkHtml(output, t.style)
     debugResults += Result(t,
-                           obtained,
-                           obtainedHtml,
-                           output,
-                           Debug.maxVisitedToken,
-                           visitedStates,
-                           Debug.timer.elapsedNs)
+      obtained,
+      obtainedHtml,
+      output,
+      Debug.maxVisitedToken,
+      visitedStates,
+      Debug.timer.elapsedNs)
   }
 
   def getFormatOutput(style: ScalaStyle): Seq[FormatOutput] = {
     val path = State.reconstructPath(
-        Debug.tokens, Debug.state.splits, style, debug = onlyOne)
+      Debug.tokens, Debug.state.splits, style, debug = onlyOne)
     val output = path.map {
       case (token, whitespace) =>
         FormatOutput(
-            token.left.code, whitespace, Debug.formatTokenExplored(token))
+          token.left.code, whitespace, Debug.formatTokenExplored(token))
     }
     output
   }
 
-  def parses[T <: Tree](code: String) (implicit parse: Parse[T]): Boolean = {
+  def parses[T <: Tree](code: String)(implicit parse: Parse[T]): Boolean = {
     import scala.meta._
     Try(code.parse[T]).map(_ => true).getOrElse(false)
   }
 
   def assertParses[T <: Tree](obtained: String,
-      original: String) (implicit parse: Parse[T]): Unit = {
+    original: String)(implicit parse: Parse[T]): Unit = {
     if (!parses(obtained) && parses(original)) {
       fail(
-          s"""Formatter output does not parse!
+        s"""Formatter output does not parse!
             |${header("Obtained")}
             |$obtained
             |
@@ -120,10 +119,11 @@ class FormatTest extends FunSuite with Timeouts with ScalaFmtLogger
       _ <- Future(Speed.submitStats(stats))
       _ <- Future(Speed.writeComparisonReport(stats, "master"))
       _ <- Future(FilesUtil.writeFile("target/index.html",
-                                      Report.heatmap(results)))
+        Report.heatmap(results)))
     } yield ()
     // Travis exits right after running tests.
     if (sys.env.contains("TRAVIS"))
       Await.ready(k, 20 seconds)
   }
+
 }

@@ -53,6 +53,12 @@ sealed trait UnitTestStyle extends ScalaStyle {
   override val debug = true
 }
 
+case object ManualTestStyle extends ScalaStyle {
+  override def maxStateVisits = 20000
+  override def maxDuration = Duration(10, "min")
+  override val debug = true
+}
+
 case object UnitTest80 extends UnitTestStyle
 
 case object UnitTest40 extends UnitTestStyle {
