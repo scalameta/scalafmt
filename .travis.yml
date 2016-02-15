@@ -1,12 +1,16 @@
 language: scala
+sudo: false
+scala:
+  - 2.11.7
+before_install:
+  - pip install --user codecov
 script:
   - sbt clean coverage test &&
     sbt coverageAggregate
-after_success: "sbt coverageReport coveralls"
-scala:
-  - 2.11.7
+after_success:
+  - codecov
 jdk:
-# couchdb-scala uses http4s which forces us to run on java 8 :(
+# Need java 8 for http4s in tests.
   - oraclejdk8
 notifications:
   email:
