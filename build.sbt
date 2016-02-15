@@ -76,18 +76,13 @@ lazy val root = project.in(file("."))
   .settings(
     initialCommands in console :=
       """
-        |import io.finch.{Endpoint => _, _}
-        |import io.finch.argonaut._
-        |import io.finch.request._
-        |import io.finch.request.items._
-        |import io.finch.response._
-        |import io.finch.route._
+        |import org.scalafmt._
       """.stripMargin
-  )
-  .aggregate(core)
+  ).aggregate(core, tests, benchmarks)
   .dependsOn(core)
 
-lazy val core = project.in(file("core"))
+
+lazy val core = project
   .settings(allSettings)
   .settings(
     moduleName := "scalafmt-core",
@@ -98,12 +93,47 @@ lazy val core = project.in(file("core"))
       "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
       "ch.qos.logback" % "logback-classic" % "1.1.3",
       "org.scalameta" %% "scalameta" % "0.0.5-M1",
-      "com.lihaoyi" %% "sourcecode" % "0.1.0",
-      "com.ibm" %% "couchdb-scala" % "0.6.0" % "test",
-      "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0" % "test",
-      "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
-      "org.apache.commons" % "commons-math3" % "3.6" % "test",
-      "org.scalatest" %% "scalatest" % "2.2.1" % "test"
+      "com.lihaoyi" %% "sourcecode" % "0.1.0"
     )
   ).settings(allSettings)
 
+lazy val tests = project
+  .settings(allSettings)
+  .settings(
+    moduleName := "scalafmt-tests",
+    libraryDependencies ++= Seq(
+      "com.ibm" %% "couchdb-scala" % "0.6.0",
+      "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0",
+      "com.lihaoyi" %% "scalatags" % "0.5.4",
+      "org.apache.commons" % "commons-math3" % "3.6",
+      "org.scalatest" %% "scalatest" % "2.2.1" % "test"
+    )
+  ).dependsOn(core)
+
+lazy val benchmarks = project
+  .settings(moduleName := "scalafmt-benchmarks")
+  .settings(allSettings)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scalariform" %% "scalariform" % "0.1.8"
+    ),
+    javaOptions in run ++= Seq(
+      "-Djava.net.preferIPv4Stack=true",
+      "-XX:+AggressiveOpts",
+      "-XX:+UseParNewGC",
+      "-XX:+UseConcMarkSweepGC",
+      "-XX:+CMSParallelRemarkEnabled",
+      "-XX:+CMSClassUnloadingEnabled",
+      "-XX:ReservedCodeCacheSize=128m",
+      "-XX:MaxPermSize=1024m",
+      "-Xss8M",
+      "-Xms512M",
+      "-XX:SurvivorRatio=128",
+      "-XX:MaxTenuringThreshold=0",
+      "-Xss8M",
+      "-Xms512M",
+      "-Xmx2G",
+      "-server"
+    )
+  ).dependsOn(core, tests)
+  .enablePlugins(JmhPlugin)
