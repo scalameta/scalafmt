@@ -4,9 +4,9 @@ object FilesUtil {
 
   def listFiles(path: String): Vector[String] = {
 
-    def listFilesIter(s: java.io.File): Iterator[String] = {
+    def listFilesIter(s: java.io.File): Iterable[String] = {
       val (dirs, files) =
-        Option(s.listFiles()).toIterator.flatMap(_.toIterator)
+        Option(s.listFiles()).toIterable.flatMap(_.toIterator)
           .partition(_.isDirectory)
       files.map(_.getPath) ++ dirs.flatMap(listFilesIter)
     }

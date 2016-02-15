@@ -20,47 +20,8 @@ import scala.meta.parsers.common.Parse
 import scala.meta.parsers.common.ParseException
 import scala.util.Try
 
-case class DiffTest(spec: String, name: String, filename: String,
-    original: String, expected: String, skip: Boolean, only: Boolean,
-    style: ScalaStyle) {
-  val fullName = s"$spec: $name"
-}
 
-case class FormatOutput(token: String, whitespace: String, visits: Int)
 
-case class Result(test: DiffTest, obtained: String, obtainedHtml: String,
-    tokens: Seq[FormatOutput], maxVisitsOnSingleToken: Int, visitedStates: Int,
-    timeNs: Long) {
-
-  def title = f"${test.name} (${timeMs}ms, $visitedStates states)"
-
-  def statesPerMs: Long = visitedStates / timeMs
-
-  def timeMs = TimeUnit.MILLISECONDS.convert(timeNs, TimeUnit.NANOSECONDS)
-}
-
-trait HasTests {
-  val testDir = "core/src/test/resources"
-
-  def isOnly(name: String) = name.startsWith("ONLY ")
-
-  def isSkip(name: String) = name.startsWith("SKIP ")
-
-  def stripPrefix(name: String) =
-    name.stripPrefix("SKIP ").stripPrefix("ONLY ").trim
-
-  def filename2parse(filename: String): Option[Parse[_ <: Tree]] =
-    extension(filename) match {
-      case "source" | "scala" => Some(scala.meta.parsers.parseSource)
-      case "stat" => Some(scala.meta.parsers.parseStat)
-      case "case" => Some(scala.meta.parsers.parseCase)
-      case _ => None
-    }
-
-  def extension(filename: String): String = filename.replaceAll(".*\\.", "")
-
-  def tests: Seq[DiffTest]
-}
 
 class FormatTest extends FunSuite with Timeouts with ScalaFmtLogger
     with BeforeAndAfterAll with HasTests {
@@ -107,7 +68,7 @@ class FormatTest extends FunSuite with Timeouts with ScalaFmtLogger
 
   def saveResult(t: DiffTest, obtained: String): Unit = {
     val visitedStates = Debug.exploredInTest
-    logger.debug(f"$visitedStates%-4s ${t.fullName}")
+//    logger.debug(f"$visitedStates%-4s ${t.fullName}")
     val output = getFormatOutput(t.style)
     val obtainedHtml = Report.mkHtml(output, t.style)
     debugResults += Result(t,
