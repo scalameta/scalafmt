@@ -86,9 +86,29 @@ let g:formatters_scala = ['scalafmt']
 
 <img width="513" alt="scalafmt-intellij3" src="https://cloud.githubusercontent.com/assets/1408093/12949347/9c07dda6-d007-11e5-96d4-8cd53394a52c.png">
 
-
 ### Updates
 
+* Feb 16th
+  * Ran benchmarks against Scalariform. I'm not surprised `scalafmt` is
+    **significantly** slower since 1. I've done little optimizations and 2.
+    `scalafmt` supports column-width limit which introduces a huge overhead.
+```
+    [info] # Run complete. Total time: 00:10:29
+    [info]
+    [info] Benchmark                    Mode  Cnt     Score     Error  Units
+    [info] BaseLinker.scalafmt          avgt   10  6226.143 ±  97.964  ms/op
+    [info] BaseLinker.scalariform       avgt   10    13.604 ±   0.273  ms/op
+    [info] Basic.scalafmt               avgt   10    20.116 ±   0.723  ms/op
+    [info] Basic.scalariform            avgt   10     0.481 ±   0.087  ms/op
+    [info] Division.scalafmt            avgt   10  6792.488 ± 519.506  ms/op
+    [info] Division.scalariform         avgt   10    34.708 ±   8.885  ms/op
+    [info] JsDependency.scalafmt        avgt   10   127.133 ±   6.151  ms/op
+    [info] JsDependency.scalariform     avgt   10     3.395 ±   0.171  ms/op
+    [info] SourceMapWriter.scalafmt     avgt   10   494.667 ±  45.247  ms/op
+    [info] SourceMapWriter.scalariform  avgt   10     6.887 ±   0.078  ms/op
+    [info] Utils.scalafmt               avgt   10   156.653 ±   2.729  ms/op
+    [info] Utils.scalariform            avgt   10     4.214 ±   0.096  ms/op
+```
 * Feb 12th
   * Ran scalafmt on all [scala-js][scalajs] files with a 200ms timeout.
   The formatter completed before timeout on 68 files and timed out on 848 files.

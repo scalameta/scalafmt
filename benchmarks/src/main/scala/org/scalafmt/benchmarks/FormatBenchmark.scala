@@ -1,6 +1,5 @@
 package org.scalafmt.benchmarks
 
-import java.nio.file.FileSystem
 import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Path
@@ -22,6 +21,13 @@ import scala.meta.Source
 import scalariform.formatter.ScalaFormatter
 import scalariform.formatter.preferences._
 
+/**
+  * Formats filename at [[path]] with scalafmt and scalariform.
+  *
+  * To run benchmark:
+  *
+  * > benchmarks/jmh:run -i 10 -wi 10 -f1 -t1 org.scalafmt.*
+  */
 @org.openjdk.jmh.annotations.State(Scope.Benchmark)
 @Warmup(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
@@ -74,7 +80,7 @@ object run {
 
   class Utils extends ScalaJsBenchmark("Utils.scala")
   class Division extends ScalaJsBenchmark("Division.scala")
-  class JsDependency extends ScalaJsBenchmark("JsDependency.scala")
+  class JsDependency extends ScalaJsBenchmark("JSDependency.scala")
   class SourceMapWriter extends ScalaJsBenchmark("SourceMapWriter.scala")
   class BaseLinker extends ScalaJsBenchmark("BaseLinker.scala")
   class Semantics extends ScalaJsBenchmark("Semantics.scala")
