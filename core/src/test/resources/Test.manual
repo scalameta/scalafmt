@@ -1,1 +1,1 @@
-SKIP core/src/main/scala/org/scalafmt/Formatter.scala
+SKIP core/src/main/scala/org/scalafmt/internal/Router.scala

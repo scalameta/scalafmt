@@ -1,5 +1,6 @@
-package org.scalafmt
+package org.scalafmt.util
 
+import org.scalafmt.ScalaStyle
 import org.scalafmt.stats.TestStats
 
 import scalatags.Text
@@ -8,31 +9,6 @@ import scalatags.Text.all._
 object Report {
 
   val MaxVisits = 6 // 2 ** 6
-
-  def heatmapBar(scalaStyle: ScalaStyle): Seq[Text.Modifier] =
-    (1 to MaxVisits).map { i =>
-      val v = Math.pow(2, i).toInt
-      val color = red(v)
-      span(
-        background := s"rgb(256, $color, $color)",
-        s" $v "
-      )
-    } :+ span("\n" + ("_" * scalaStyle.maxColumn) + "\n")
-
-  def explanation =
-    div(
-      p( """Formatting output from scalafmt's test suite.
-           |The formatter uses Dijkstra's shortest path to determine the
-           |formatting with the "cheapest" cost. The red regions are
-           |tokens the formatter visits often.
-         """.stripMargin),
-      ul(
-        li("Declaration arguments: bin packed"),
-        li("Callsite arguments: one arg per line if overflowing")
-      )
-    )
-
-  def testWidth(result: Result) = result.test.style.maxColumn.toDouble * 9.625
 
   def heatmap(results: Seq[Result]): String = reportBody(
     div(
@@ -57,6 +33,50 @@ object Report {
       }
     )
   ).render
+
+  def heatmapBar(scalaStyle: ScalaStyle): Seq[Text.Modifier] =
+    (1 to MaxVisits).map { i =>
+      val v = Math.pow(2, i).toInt
+      val color = red(v)
+      span(
+        background := s"rgb(256, $color, $color)",
+        s" $v "
+      )
+    } :+ span("\n" + ("_" * scalaStyle.maxColumn) + "\n")
+
+  def red(visits: Int): Int = {
+    val v = log(visits, 2)
+    val ratio = v / MaxVisits.toDouble
+    val result = Math.min(256, 20 + 256 - (ratio * 256)).toInt
+    result
+  }
+
+  def log(x: Int, base: Int): Double = {
+    Math.log(x) / Math.log(base)
+  }
+
+  def explanation =
+    div(
+      p(
+        """Formatting output from scalafmt's test suite.
+          |The formatter uses Dijkstra's shortest path to determine the
+          |formatting with the "cheapest" cost. The red regions are
+          |tokens the formatter visits often.
+        """.stripMargin),
+      ul(
+        li("Declaration arguments: bin packed"),
+        li("Callsite arguments: one arg per line if overflowing")
+      )
+    )
+
+  def testWidth(result: Result) = result.test.style.maxColumn.toDouble * 9.625
+
+  def reportBody(xs: Text.Modifier*) =
+    html(
+      body(
+        background := "#f9f9f9",
+        xs)
+    )
 
   def compare(before: TestStats, after: TestStats): String = reportBody(
     div(
@@ -98,7 +118,7 @@ object Report {
               width := testWidth(aft),
               code(
                 heatmapBar(aft.test.style),
-                raw( mkHtml(mergeResults(aft, bef), aft.test.style) )
+                raw(mkHtml(mergeResults(aft, bef), aft.test.style))
               )
             )
           )
@@ -107,19 +127,10 @@ object Report {
   ).render
 
   def mergeResults(after: Result, before: Result): Seq[FormatOutput] =
-   after.tokens.zip(before.tokens).map {
-    case (aft, bef) =>
-      FormatOutput(aft.token, aft.whitespace, aft.visits - bef.visits)
-  }
-
-  def reportBody(xs: Text.Modifier*) =
-    html(
-      body(
-        background := "#f9f9f9",
-        xs)
-    )
-
-
+    after.tokens.zip(before.tokens).map {
+      case (aft, bef) =>
+        FormatOutput(aft.token, aft.whitespace, aft.visits - bef.visits)
+    }
 
   def mkHtml(output: Seq[FormatOutput], scalaStyle: ScalaStyle): String = {
     val sb = new StringBuilder()
@@ -130,24 +141,13 @@ object Report {
       val styleBackground =
         if (isRed) s"rgb(256, $redness, $redness)"
         else s"rgb($redness, 256, $redness)" // green
-      val html = span(
+    val html = span(
         background := styleBackground,
         x.token).render
       sb.append(html)
       sb.append(x.whitespace.replace("\n\n", "\n\n"))
     }
     sb.toString()
-  }
-
-  def red(visits: Int): Int = {
-    val v = log(visits, 2)
-    val ratio = v / MaxVisits.toDouble
-    val result = Math.min(256, 20 + 256 - (ratio * 256)).toInt
-    result
-  }
-
-  def log(x: Int, base: Int): Double = {
-    Math.log(x) / Math.log(base)
   }
 
 

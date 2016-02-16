@@ -2,7 +2,7 @@ package org.scalafmt.stats
 
 import java.util.Date
 
-import org.scalafmt.Result
+import org.scalafmt.util.Result
 
 case class TestStats(createdAt: Long,
                      results: Seq[Result],

@@ -1,7 +1,9 @@
-package org.scalafmt
+package org.scalafmt.internal
+
+import org.scalafmt._
 
 /**
-  * The decision made by [[Formatter]].
+  * The decision made by [[Router]].
   *
   * Used by [[Policy]] to enforce non-local formatting.
   */

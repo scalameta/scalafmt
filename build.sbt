@@ -100,7 +100,9 @@ lazy val core = project
       "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
       "org.apache.commons" % "commons-math3" % "3.6" % "test",
       "org.scalatest" %% "scalatest" % "2.2.1" % "test"
-    )
+    ),
+    ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages :=
+      ".*Debug;.*ScalaFmtLogger"
   ).settings(allSettings)
 
 lazy val benchmarks = project
@@ -109,6 +111,11 @@ lazy val benchmarks = project
   .settings(
     libraryDependencies ++= Seq(
       "org.scalariform" %% "scalariform" % Deps.scalariform,
+      // For some odd reason, the logging deps from core are not found, but
+      // when I include these it finds multiple SLF4J bindings.
+      // TODO(olafur) solve this mess.
+      "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0" % "test",
+      "org.slf4j" % "slf4j-log4j12" % "1.7.10" % "test",
       "org.scalatest" %% "scalatest" % Deps.scalatest % "test"
     ),
     javaOptions in run ++= Seq(

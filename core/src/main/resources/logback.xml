@@ -10,7 +10,9 @@
         <file>/tmp/test.log</file>
         <append>true</append>
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} TKD [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} TKD [%thread] %-5level %logger{36} -
+                %msg%n
+            </pattern>
         </encoder>
     </appender>
 
@@ -18,7 +20,7 @@
     <logger name="org.http4s" level="ERROR"/>
 
     <root level="${root-level:-debug}">
-        <appender-ref ref="STDOUT" />
-        <appender-ref ref="FILE" />
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/>
     </root>
 </configuration>

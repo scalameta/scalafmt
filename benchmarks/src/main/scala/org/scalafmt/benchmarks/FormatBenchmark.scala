@@ -15,11 +15,12 @@ import org.openjdk.jmh.annotations.Scope
 import org.openjdk.jmh.annotations.Setup
 import org.openjdk.jmh.annotations.Warmup
 import org.scalafmt.ScalaFmt
-import org.scalafmt.Standard
+import org.scalafmt.ScalaStyle
 
 import scala.meta.Source
 import scalariform.formatter.ScalaFormatter
-import scalariform.formatter.preferences._
+import scalariform.formatter.preferences.FormattingPreferences
+import scalariform.formatter.preferences.IndentSpaces
 
 /**
   * Formats filename at [[path]] with scalafmt and scalariform.
@@ -35,17 +36,17 @@ import scalariform.formatter.preferences._
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 abstract class FormatBenchmark(path: String*) {
 
-  var code: String = _
-
-  val scalafmtFormatter = new ScalaFmt(Standard)
-
   val scalariformPreferences =
     FormattingPreferences().setPreference(IndentSpaces, 3)
-
   val classLoader = getClass.getClassLoader
-
   val separator = FileSystems.getDefault.getSeparator
   val filename = path.mkString(separator)
+  var code: String = _
+
+  @Setup
+  def setup(): Unit = {
+    code = new String(Files.readAllBytes(getPath))
+  }
 
   def getPath: Path = {
     val path = Paths.get("src", "resources", filename)
@@ -55,14 +56,9 @@ abstract class FormatBenchmark(path: String*) {
     else Paths.get("benchmarks", "src", "resources", filename)
   }
 
-  @Setup
-  def setup(): Unit = {
-    code = new String(Files.readAllBytes(getPath))
-  }
-
   @Benchmark
   def scalafmt(): String = {
-    scalafmtFormatter.format_![Source](code)(scala.meta.parsers.parseSource)
+    ScalaFmt.format_![Source](code, ScalaStyle.Standard)(scala.meta.parsers.parseSource)
   }
 
   @Benchmark
@@ -72,17 +68,23 @@ abstract class FormatBenchmark(path: String*) {
 }
 
 object run {
-  class Basic extends FormatBenchmark("scalafmt", "Basic.scala")
 
   // Scala-js benchmarks
   abstract class ScalaJsBenchmark(filename: String)
     extends FormatBenchmark("scala-js", filename)
 
+  class Basic extends FormatBenchmark("scalafmt", "Basic.scala")
+
   class Utils extends ScalaJsBenchmark("Utils.scala")
+
   class Division extends ScalaJsBenchmark("Division.scala")
+
   class JsDependency extends ScalaJsBenchmark("JSDependency.scala")
+
   class SourceMapWriter extends ScalaJsBenchmark("SourceMapWriter.scala")
+
   class BaseLinker extends ScalaJsBenchmark("BaseLinker.scala")
+
   class Semantics extends ScalaJsBenchmark("Semantics.scala")
 
   // Scalafmt can't format these, yet.

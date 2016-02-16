@@ -1,4 +1,4 @@
-package org.scalafmt
+package org.scalafmt.internal
 
 import scala.meta.tokens.Token
 
@@ -16,9 +16,9 @@ case object StateColumn extends Length
 
 case class Indent[T <: Length](length: T, expire: Token, expiresAt: ExpiresOn) {
   require(length match {
-        case Num(n) => n > 0
-        case _ => true
-      })
+    case Num(n) => n > 0
+    case _ => true
+  })
 
   def withNum(column: Int, indentation: Int): Indent[Num] =
     length match {

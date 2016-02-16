@@ -1,10 +1,10 @@
-package org.scalafmt
+package org.scalafmt.util
 
 import scala.meta.Tree
 import scala.meta.parsers.common.Parse
 
 trait HasTests {
-  val testDir = "tests/src/test/resources"
+  val testDir = "core/src/test/resources"
 
   def isOnly(name: String) = name.startsWith("ONLY ")
 

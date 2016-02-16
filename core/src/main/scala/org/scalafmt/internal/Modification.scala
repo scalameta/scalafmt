@@ -1,4 +1,4 @@
-package org.scalafmt
+package org.scalafmt.internal
 
 sealed abstract class Modification {
 
@@ -18,17 +18,6 @@ trait NewlineT extends Modification {
   def isDouble: Boolean = false
 
   def noIndent: Boolean = false
-}
-
-object NewlineT {
-
-  def apply(isDouble: Boolean, noIndent: Boolean): NewlineT =
-    (isDouble, noIndent) match {
-      case (true, true) => NoIndent2xNewline
-      case (true, false) => Newline2x
-      case (false, true) => NoIndentNewline
-      case _ => Newline
-    }
 }
 
 case object Newline extends NewlineT {}

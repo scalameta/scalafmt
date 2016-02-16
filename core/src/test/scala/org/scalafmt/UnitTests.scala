@@ -1,7 +1,14 @@
 package org.scalafmt
 
+import org.scalafmt.internal.ScalaFmtLogger
+import org.scalafmt.util.DiffTest
+import org.scalafmt.util.FilesUtil
+import org.scalafmt.util.HasTests
+
 object UnitTests extends HasTests with ScalaFmtLogger {
+
   import FilesUtil._
+
   override lazy val tests: Seq[DiffTest] = {
     for {
       filename <- listFiles(testDir)
@@ -21,13 +28,13 @@ object UnitTests extends HasTests with ScalaFmtLogger {
           val name :: original :: Nil = before.split("\n", 2).toList
           val actualName = stripPrefix(name)
           DiffTest(spec,
-                   actualName,
-                   filename,
-                   original,
-                   expected,
-                   moduleSkip || isSkip(name),
-                   moduleOnly || isOnly(name),
-                   file2style(filename))
+            actualName,
+            filename,
+            original,
+            expected,
+            moduleSkip || isSkip(name),
+            moduleOnly || isOnly(name),
+            file2style(filename))
         }
       }
     } yield {
@@ -37,8 +44,8 @@ object UnitTests extends HasTests with ScalaFmtLogger {
 
   def file2style(filename: String): ScalaStyle =
     filename.split("/").reverse(1) match {
-      case "unit" => UnitTest40
-      case "standard" => UnitTest80
+      case "unit" => ScalaStyle.UnitTest40
+      case "standard" => ScalaStyle.UnitTest80
       case _ =>
         logger.debug(s"Unknown dir $filename")
         ???

@@ -1,4 +1,4 @@
-package org.scalafmt
+package org.scalafmt.util
 
 import scala.tools.nsc.Global
 import scala.tools.nsc.Settings
@@ -10,24 +10,24 @@ import scala.tools.nsc.Settings
 object ScalacParser {
   var current = Thread.currentThread().getContextClassLoader
   val files = collection.mutable.Buffer.empty[java.io.File]
+  val settings = new Settings()
   files.appendAll(System.getProperty("sun.boot.class.path").split(":")
-        .map(new java.io.File(_)))
-  while ( current != null) {
+    .map(new java.io.File(_)))
+  while (current != null) {
     current match {
       case t: java.net.URLClassLoader =>
         files.appendAll(t.getURLs.map(u =>
-                new java.io.File(u.toURI)))
+          new java.io.File(u.toURI)))
       case _ =>
     }
     current = current.getParent
   }
-  val settings = new Settings()
-  settings.usejavacp.value =
-  true
-  settings.embeddedDefaults[ScalacParser.
-      type]
-  settings.classpath.append(files.mkString(":"))
   val global = new Global(settings)
+  settings.usejavacp.value =
+    true
+  settings.embeddedDefaults[ScalacParser.
+    type]
+  settings.classpath.append(files.mkString(":"))
 
   def checkParseFails(input: String) =
     this.synchronized {
@@ -42,28 +42,28 @@ object ScalacParser {
 
             override def error(off: Offset, msg: String) = {
               fail =
-              true
+                true
             }
 
             override def syntaxError(off: Offset, msg: String) = {
               fail =
-              true
+                true
             }
 
             override def incompleteInputError(off: Offset, msg: String) = {
               fail =
-              true
+                true
             }
           }
 
         override def incompleteInputError(msg: String) = {
           fail =
-          true
+            true
         }
 
         override def syntaxError(offset: Offset, msg: String) = {
           fail =
-          true
+            true
         }
       }
       parser.parse()
