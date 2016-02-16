@@ -1,4 +1,6 @@
-package org.scalafmt
+package org.scalafmt.internal
+
+import org.scalafmt.ScalaStyle
 
 /**
   * A state represents one potential solution to reach token at index,
@@ -9,12 +11,13 @@ package org.scalafmt
   * @param column
   */
 final case class State(cost: Int, policy: Decision => Decision,
-    splits: Vector[Split], states: Vector[State], indentation: Int, pushes: Vector[Indent[Num]],
-    column: Int) extends Ordered[State] with ScalaFmtLogger {
+                       splits: Vector[Split], states: Vector[State], indentation: Int, pushes: Vector[Indent[Num]],
+                       column: Int) extends Ordered[State] with ScalaFmtLogger {
+
   import scala.math.Ordered.orderingToOrdered
 
   def compare(that: State): Int =
-    (-this.cost, this.splits.length, -this.indentation) compare (-that.cost,
+    (-this.cost, this.splits.length, -this.indentation) compare(-that.cost,
       that.splits.length, -that.indentation)
 
   /**
@@ -32,12 +35,12 @@ final case class State(cost: Int, policy: Decision => Decision,
     * - Calculates column-width overflow penalty
     */
   def next(style: ScalaStyle, split: Split,
-          tok: FormatToken): State = {
+           tok: FormatToken): State = {
     val KILL = 10000
     val nonExpiredIndents = pushes.filterNot {
       push =>
-      if (push.expiresAt == Left) push.expire == tok.left
-      else push.expire == tok.right
+        if (push.expiresAt == Left) push.expire == tok.left
+        else push.expire == tok.right
     }
     val newIndents: Vector[Indent[Num]] =
       nonExpiredIndents ++ split.indents.map(_.withNum(column, indentation))
@@ -54,13 +57,13 @@ final case class State(cost: Int, policy: Decision => Decision,
       if (split.policy == NoPolicy) policy
       else (split.policy orElse IdentityPolicy) andThen policy
     State(cost + splitWithPenalty.cost,
-          // TODO(olafur) expire policy, see #18.
-          newPolicy,
+      // TODO(olafur) expire policy, see #18.
+      newPolicy,
       splits :+ splitWithPenalty,
-          states :+ this,
-          newIndent,
-          newIndents,
-          newColumn)
+      states :+ this,
+      newIndent,
+      newIndents,
+      newColumn)
   }
 }
 
@@ -74,8 +77,8 @@ object State extends ScalaFmtLogger {
     * Returns formatted output from FormatTokens and Splits.
     */
   def reconstructPath(toks: Array[FormatToken], splits: Vector[Split],
-          style: ScalaStyle, debug: Boolean =
-          false): Seq[( FormatToken, String)] = {
+                      style: ScalaStyle, debug: Boolean =
+                      false): Seq[(FormatToken, String)] = {
     var state = State.start
     val result = toks.zip(splits).map {
       case (tok, split) =>

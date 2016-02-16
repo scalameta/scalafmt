@@ -1,4 +1,6 @@
-package org.scalafmt
+package org.scalafmt.internal
+
+import java.util.concurrent.TimeUnit
 
 import scala.collection.mutable
 import scala.meta.Tree
@@ -17,14 +19,19 @@ object Debug extends ScalaFmtLogger {
   var explored = 0
   var state = State.start
   var tokens = Array.empty[FormatToken]
-  var timer = Stopwatch()
+  var startTime = System.nanoTime()
 
   def newTest(): Unit = {
     treeExplored.clear()
     tokenExplored.clear()
-    timer = Stopwatch()
+    startTime = System.nanoTime()
     lastTestExplored = explored
   }
+
+  def ns2ms(nanoseconds: Long): Long =
+    TimeUnit.MILLISECONDS.convert(nanoseconds, TimeUnit.NANOSECONDS)
+
+  def elapsedNs = System.nanoTime() - startTime
 
   def exploredInTest = explored - lastTestExplored
 
@@ -36,16 +43,16 @@ object Debug extends ScalaFmtLogger {
     }
   }
 
-  def visit(token: Token): Unit = {
-    val visits = tokenExplored.getOrElse(token, 0) + 1
-    tokenExplored += token -> visits
-  }
-
   def visit(token: FormatToken): Unit = {
     visit(token.left)
     visit(token.right)
     val visits = formatTokenExplored.getOrElse(token, 0) + 1
     formatTokenExplored += token -> visits
+  }
+
+  def visit(token: Token): Unit = {
+    val visits = tokenExplored.getOrElse(token, 0) + 1
+    tokenExplored += token -> visits
   }
 
   def visit(tree: Tree): Unit = {

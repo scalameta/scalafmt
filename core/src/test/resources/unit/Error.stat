@@ -1,9 +1,0 @@
-40 columns                              |
-<<< missing closing parens
-function(
->>>
-function(
-<<< missing def body
-def x =
->>>
-def x =

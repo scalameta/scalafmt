@@ -1,4 +1,4 @@
-package org.scalafmt
+package org.scalafmt.util
 
 object FilesUtil {
 
@@ -18,7 +18,7 @@ object FilesUtil {
 
   def readFile(filename: String): String =
     new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths
-              .get(filename)))
+      .get(filename)))
 
   def writeFile(filename: String, content: String): Unit = {
     val path = java.nio.file.Paths.get(filename)

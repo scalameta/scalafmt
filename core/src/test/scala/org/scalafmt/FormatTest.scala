@@ -1,9 +1,17 @@
 package org.scalafmt
 
-import java.util.concurrent.TimeUnit
-
-import org.scalafmt.DiffUtil._
+import org.scalafmt.internal.Debug
+import org.scalafmt.internal.ScalaFmtLogger
+import org.scalafmt.internal.State
 import org.scalafmt.stats.TestStats
+import org.scalafmt.util.DiffTest
+import org.scalafmt.util.DiffUtil
+import org.scalafmt.util.FilesUtil
+import org.scalafmt.util.FormatOutput
+import org.scalafmt.util.HasTests
+import org.scalafmt.util.Report
+import org.scalafmt.util.Result
+import org.scalafmt.util.Speed
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.ConfigMap
 import org.scalatest.FunSuite
@@ -17,11 +25,10 @@ import scala.concurrent.Future
 import scala.language.postfixOps
 import scala.meta.Tree
 import scala.meta.parsers.common.Parse
-import scala.meta.parsers.common.ParseException
 import scala.util.Try
 
 class FormatTest extends FunSuite with Timeouts with ScalaFmtLogger
-  with BeforeAndAfterAll with HasTests {
+with BeforeAndAfterAll with HasTests {
   lazy val onlyUnit = UnitTests.tests.exists(_.only)
   lazy val onlyManual = ManualTests.tests.exists(_.only)
   lazy val onlyOne = tests.exists(_.only)
@@ -49,15 +56,14 @@ class FormatTest extends FunSuite with Timeouts with ScalaFmtLogger
       ignore(paddedName) {}
     }
     else {
-      val fmt = new ScalaFmt(t.style)
       test(paddedName) {
         Debug.newTest()
         filename2parse(t.filename) match {
           case Some(parse) =>
-            val obtained = fmt.format(t.original)(parse)
+            val obtained = ScalaFmt.format_!(t.original, t.style)(parse)
             saveResult(t, obtained)
             assertParses(obtained, t.original)(parse)
-            assertNoDiff(obtained, t.expected)
+            DiffUtil.assertNoDiff(obtained, t.expected)
           case None =>
             logger.warn(s"Found no parse for filename ${t.filename}")
         }
@@ -76,7 +82,7 @@ class FormatTest extends FunSuite with Timeouts with ScalaFmtLogger
       output,
       Debug.maxVisitedToken,
       visitedStates,
-      Debug.timer.elapsedNs)
+      Debug.elapsedNs)
   }
 
   def getFormatOutput(style: ScalaStyle): Seq[FormatOutput] = {
@@ -90,13 +96,8 @@ class FormatTest extends FunSuite with Timeouts with ScalaFmtLogger
     output
   }
 
-  def parses[T <: Tree](code: String)(implicit parse: Parse[T]): Boolean = {
-    import scala.meta._
-    Try(code.parse[T]).map(_ => true).getOrElse(false)
-  }
-
   def assertParses[T <: Tree](obtained: String,
-    original: String)(implicit parse: Parse[T]): Unit = {
+                              original: String)(implicit parse: Parse[T]): Unit = {
     if (!parses(obtained) && parses(original)) {
       fail(
         s"""Formatter output does not parse!
@@ -107,6 +108,11 @@ class FormatTest extends FunSuite with Timeouts with ScalaFmtLogger
             |$original
            """.stripMargin)
     }
+  }
+
+  def parses[T <: Tree](code: String)(implicit parse: Parse[T]): Boolean = {
+    import scala.meta._
+    Try(code.parse[T]).map(_ => true).getOrElse(false)
   }
 
   override def afterAll(configMap: ConfigMap): Unit = {

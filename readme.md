@@ -89,6 +89,7 @@ let g:formatters_scala = ['scalafmt']
 ### Updates
 
 * Feb 16th
+  * `scalafmt` can format 235 out of 917 files from Scala.js in under 200ms.
   * Ran benchmarks against Scalariform. I'm not surprised `scalafmt` is
     **significantly** slower since 1. I've done little optimizations and 2.
     `scalafmt` supports column-width limit which introduces a huge overhead.

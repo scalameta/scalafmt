@@ -1,8 +1,11 @@
-package org.scalafmt
+package org.scalafmt.util
 
 import com.ibm.couchdb._
+import org.scalafmt.internal.Debug
+import org.scalafmt.internal.ScalaFmtLogger
 import org.scalafmt.stats.GitInfo
 import org.scalafmt.stats.TestStats
+
 import scalaz.-\/
 import scalaz.\/-
 
@@ -13,21 +16,22 @@ object Speed extends ScalaFmtLogger {
   lazy val typeMapping = TypeMapping(classOf[TestStats] -> "TestStats")
 
   def submitStats(stat: TestStats): Unit = {
-    val t = Stopwatch()
+    val startTime = System.nanoTime()
     val actions = db.docs.create(stat)
     actions.attemptRun match {
       case -\/(e) => logger.warn("Unable to submit to speed.scalafmt.org", e)
       case f@ \/-(a) =>
-        logger.debug(s"Submitted to speed.scalafmt.org (${t.elapsedMs}ms)")
+        val elapsed = Debug.ns2ms(System.nanoTime() - startTime)
+        logger.debug(s"Submitted to speed.scalafmt.org (${elapsed}ms)")
     }
   }
 
   def writeComparisonReport(after: TestStats, branch: String): Unit = {
     import sys.process._
-    val t = Stopwatch()
+    val startTime = System.nanoTime()
     val commit = Seq("git", "rev-parse", branch).!!.trim
     val view =
-      db.query.view[( String, Long), TestStats]("speed", "commits").get
+      db.query.view[(String, Long), TestStats]("speed", "commits").get
         .endKey((commit, 0)).startKey((commit, Long.MaxValue)).descending(true)
         .limit(1)
     view.query.attemptRun match {
@@ -37,7 +41,7 @@ object Speed extends ScalaFmtLogger {
       case -\/(e) =>
         val currentBranch = GitInfo.currentBranch
         logger.warn(
-            s"""Found no data for branch $branch. Try this:
+          s"""Found no data for branch $branch. Try this:
               |expected $commit
               |$$ git checkout $branch
               |$$ sbt test
@@ -47,7 +51,8 @@ object Speed extends ScalaFmtLogger {
         val report = Report.compare(before, after)
         val filename = "target/compare.html"
         FilesUtil.writeFile(filename, report)
-        logger.debug(s"Compare results in $filename (${t.elapsedMs}ms)")
+        val elapsed = Debug.ns2ms(System.nanoTime() - startTime)
+        logger.debug(s"Compare results in $filename (${elapsed}ms)")
       case \/-(other) =>
         logger.warn(s"Unexpected view result $other ${other.rows}")
     }

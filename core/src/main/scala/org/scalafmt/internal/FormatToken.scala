@@ -1,4 +1,4 @@
-package org.scalafmt
+package org.scalafmt.internal
 
 import scala.collection.mutable
 import scala.meta.tokens.Token

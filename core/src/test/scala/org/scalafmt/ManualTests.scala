@@ -1,10 +1,10 @@
 package org.scalafmt
 
+import org.scalafmt.util.DiffTest
+import org.scalafmt.util.FilesUtil
+import org.scalafmt.util.HasTests
+
 object ManualTests extends HasTests {
-
-  val style = ManualTestStyle
-
-  val manual = ".manual"
 
   lazy val tests: Seq[DiffTest] = {
     import FilesUtil._
@@ -16,13 +16,13 @@ object ManualTests extends HasTests {
         readFile(filename).lines.map { name =>
           val original = readFile(stripPrefix(name))
           DiffTest(spec,
-                   stripPrefix(name),
-                   name,
-                   original,
-                   original,
-                   isSkip(name),
-                   isOnly(name),
-                   style)
+            stripPrefix(name),
+            name,
+            original,
+            original,
+            isSkip(name),
+            isOnly(name),
+            style)
         }
       }
     } yield test
@@ -32,8 +32,10 @@ object ManualTests extends HasTests {
     } yield {
       val content = readFile(filename)
       DiffTest(
-          "Scala", filename, filename, content, content, false, false, style)
+        "Scala", filename, filename, content, content, false, false, style)
     }
     manualFiles ++ scalaFiles
   }
+  val style = ScalaStyle.ManualTest
+  val manual = ".manual"
 }

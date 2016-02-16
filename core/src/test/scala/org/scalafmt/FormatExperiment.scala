@@ -1,28 +1,32 @@
 package org.scalafmt
 
+import org.scalafmt.util.FilesUtil
+import org.scalafmt.util.ScalaProjectsExperiment
+import org.scalafmt.util.ScalacParser
+
 import scala.concurrent.Await
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.meta._
 
 
-object FormatExperiment extends App with GithubExperiment {
+object FormatExperiment extends App with ScalaProjectsExperiment {
   override val verbose = false
   override val globalFilter: String => Boolean = !_.contains("scala-js/scala-js")
-  val fmt = new ScalaFmt(Standard)
 
   override def runOn(filename: String): Boolean = {
     val code = FilesUtil.readFile(filename)
     if (!ScalacParser.checkParseFails(code)) {
-      val t = Stopwatch()
-      val f = Future(fmt.format_![Source](code))
-      Await.result(f, Standard.maxDuration)
+      val startTime = System.nanoTime()
+      val f = Future(ScalaFmt.format_![Source](code, ScalaStyle.Standard))
+      Await.result(f, ScalaStyle.Standard.maxDuration)
       print("+")
-      formatSuccesses.add(FormatSuccess(filename, t.elapsedNs))
+      formatSuccesses.add(FormatSuccess(filename, System.nanoTime() - startTime))
     } else {
       skipped.add(filename)
     }
   }
+
   runExperiment()
   printResults()
 }
