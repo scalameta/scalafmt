@@ -78,7 +78,7 @@ lazy val root = project.in(file("."))
       """
         |import org.scalafmt._
       """.stripMargin
-  ).aggregate(core, tests, benchmarks)
+  ).aggregate(core, benchmarks)
   .dependsOn(core)
 
 
@@ -89,34 +89,27 @@ lazy val core = project
     mainClass in assembly := Some("org.scalafmt.Cli"),
     assemblyJarName in assembly := "scalafmt.jar",
     libraryDependencies ++= Seq(
-      "com.github.scopt" %% "scopt" % "3.3.0",
-      "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
       "ch.qos.logback" % "logback-classic" % "1.1.3",
-      "org.scalameta" %% "scalameta" % "0.0.5-M1",
-      "com.lihaoyi" %% "sourcecode" % "0.1.0"
-    )
-  ).settings(allSettings)
-
-lazy val tests = project
-  .settings(allSettings)
-  .settings(
-    moduleName := "scalafmt-tests",
-    libraryDependencies ++= Seq(
-      "com.ibm" %% "couchdb-scala" % "0.6.0",
-      "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0",
-      "com.lihaoyi" %% "scalatags" % "0.5.4",
-      "org.apache.commons" % "commons-math3" % "3.6",
+      "com.github.scopt" %% "scopt" % "3.3.0",
+      "com.lihaoyi" %% "sourcecode" % "0.1.0",
+      "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
+      "org.scalameta" %% "scalameta" % Deps.scalameta,
+    // Test dependencies
+      "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0" % "test",
+      "com.ibm" %% "couchdb-scala" % "0.6.0" % "test",
+      "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
+      "org.apache.commons" % "commons-math3" % "3.6" % "test",
       "org.scalatest" %% "scalatest" % "2.2.1" % "test"
     )
-  ).dependsOn(core)
+  ).settings(allSettings)
 
 lazy val benchmarks = project
   .settings(moduleName := "scalafmt-benchmarks")
   .settings(allSettings)
   .settings(
     libraryDependencies ++= Seq(
-      "org.scalariform" %% "scalariform" % "0.1.8",
-      "org.scalatest" %% "scalatest" % "2.2.1" % "test"
+      "org.scalariform" %% "scalariform" % Deps.scalariform,
+      "org.scalatest" %% "scalatest" % Deps.scalatest % "test"
     ),
     javaOptions in run ++= Seq(
       "-Djava.net.preferIPv4Stack=true",
@@ -136,5 +129,5 @@ lazy val benchmarks = project
       "-Xmx2G",
       "-server"
     )
-  ).dependsOn(core, tests)
+  ).dependsOn(core)
   .enablePlugins(JmhPlugin)
