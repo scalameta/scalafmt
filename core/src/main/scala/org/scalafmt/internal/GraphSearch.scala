@@ -4,7 +4,6 @@ import org.scalafmt.Error
 import org.scalafmt.ScalaStyle
 
 import scala.collection.mutable
-import scala.meta.Case
 import scala.meta.Mod
 import scala.meta.Tree
 import scala.meta.internal.ast.Defn
@@ -30,13 +29,66 @@ class GraphSearch(style: ScalaStyle, tree: Tree, range: Int => Boolean)
   val statementStarts = getStatementStarts(tree)
   val memo = mutable.Map.empty[(Int, Tree), State]
   val best = mutable.Map.empty[Token, State]
-  val parens = matchingParens(tree.tokens)
-  // Keeps track of optimalAt optimization.
-  // TODO(olafur) inefficient to key by Vector[Split]? The split prefix is what matters.
+  val matchingParentheses = getMatchingParentheses(tree.tokens)
+  // TODO(olafur) better name.
   val optimal = mutable.Map.empty[(Int, FormatToken), Split]
-  val router = new Router(style, tree, toks, parens, statementStarts, owners)
+  val router = new Router(style, tree, toks,
+    matchingParentheses, statementStarts, owners)
   var explored = 0
   var deepestYet = State.start
+  var statementCount = 0
+  /**
+    *
+    * Returns true if it's OK to skip over state.
+    */
+  def pruneOK(state: State): Boolean = {
+    val splitToken = toks(state.splits.length)
+    // TODO(olafur) super inefficient
+    val hasOptimal = state.splits.zipWithIndex.forall {
+      case (split, i) =>
+        val tok = toks(i)
+        val result = optimal.get(state.states(i).column -> tok)
+          .forall(_.sameLine(split))
+        if (!result) {
+          logger.trace(
+            s"""
+               |${header(s"$split eliminated $state at ${toks(i)}, $tok")}
+               |${mkString(state.splits)}
+               |${optimal.toVector.mkString("\n")}""".stripMargin)
+        }
+        result
+    }
+    val hasBest = best.get(splitToken.left).exists(_.alwaysBetter(state))
+    !hasOptimal || hasBest
+  }
+
+  def updateOptimal(tok: FormatToken, curr: State): Unit = {
+    // TODO(olafur) inefficient
+    curr.splits.zipWithIndex.foreach {
+      case (split, i) =>
+        val currTok = toks(i)
+        if (split.optimalAt.contains(tok.left)) {
+          logger.trace(
+            s"""optimal $curr $split ${curr.cost} $tok
+                |${header("output")}
+                |${mkString(curr.splits)}
+                """.stripMargin)
+          optimal += (curr.states(i).column -> currTok) -> split
+        }
+    }
+  }
+
+  def provided(formatToken: FormatToken): Split = {
+    // TODO(olafur) the indentation is not correctly set.
+    val split =
+      Split(Provided(formatToken.between.map(_.code).mkString), 0)
+    val result =
+      if (formatToken.left.isInstanceOf[`{`])
+        split.withIndent(Num(2),
+          matchingParentheses(hash(formatToken.left)), Right)
+      else split
+    result
+  }
 
   /**
     *
@@ -60,65 +112,11 @@ class GraphSearch(style: ScalaStyle, tree: Tree, range: Int => Boolean)
       }""".
         stripMargin)
 
-    /**
-      *
-      * Returns true if it's OK to skip over state.
-      */
-    def pruneOK(state: State): Boolean = {
-      val splitToken = toks(state.splits.length)
-      // TODO(olafur) super inefficient
-      val hasOptimal = state.splits.zipWithIndex.forall {
-        case (split, i) =>
-          val tok = toks(i)
-          val result = optimal.get(state.states(i).column -> tok)
-            .forall(_.sameLine(split))
-          if (!result) {
-            logger.trace(
-              s"""
-                 |${header(s"$split eliminated $state at ${toks(i)}, $tok")}
-                 |${mkString(state.splits)}
-                 |${optimal.toVector.mkString("\n")}""".stripMargin)
-          }
-          result
-      }
-      val hasBest = best.get(splitToken.left).exists(_.alwaysBetter(state))
-      !hasOptimal || hasBest
-    }
-
-    def updateOptimal(tok: FormatToken, curr: State): Unit = {
-      // TODO(olafur) inefficient
-      curr.splits.zipWithIndex.foreach {
-        case (split, i) =>
-          val currTok = toks(i)
-          if (split.optimalAt.contains(tok.left)) {
-            logger.trace(
-              s"""optimal $curr $split ${curr.cost} $tok
-                  |${header("output")}
-                  |${mkString(curr.splits)}
-                """.stripMargin)
-            optimal += (curr.states(i).column -> currTok) -> split
-          }
-      }
-    }
-
-    def provided(formatToken: FormatToken): Split = {
-      // TODO(olafur) the indentation is not correctly set.
-      val split =
-        Split(Provided(formatToken.between.map(_.code).mkString), 0)
-      val result =
-        if (formatToken.left.isInstanceOf[`{`])
-          split.withIndent(Num(2), parens(formatToken.left), Right)
-        else split
-      result
-    }
     val Q = new mutable.PriorityQueue[State]()
     var result = start
     Q += start
     while (Q.nonEmpty) {
       val curr = Q.dequeue()
-      if (curr.splits.length > deepestYet.splits.length) {
-        deepestYet = curr
-      }
       explored += 1
       if (explored % 1000 == 0 && style.debug) {
         logger.debug(s"Explored $explored")
@@ -127,10 +125,17 @@ class GraphSearch(style: ScalaStyle, tree: Tree, range: Int => Boolean)
       if (explored > style.maxStateVisits || i == toks.length ||
         !childOf(toks(i).right, owner, owners)) {
         result = curr
+        logger.trace(
+          s"""Q.size: ${Q.size}
+              |${Q.map(x => curr.splits.length - x.splits.length).mkString("\n")}
+           """.stripMargin)
         Q.dequeueAll
       }
       else if (!pruneOK(curr)) {
         val splitToken = toks(i)
+        if (curr.splits.length > deepestYet.splits.length) {
+          deepestYet = curr
+        }
         updateOptimal(splitToken, curr)
         if (style.debug) {
           Debug.visit(splitToken)
@@ -146,23 +151,22 @@ class GraphSearch(style: ScalaStyle, tree: Tree, range: Int => Boolean)
                |Q.size=${Q.size}
                |""".stripMargin)
         }
-        val splits: List[Split] =
+        val splits: Seq[Split] =
           if (splitToken.inside(range))
             router.Route(splitToken)
           else List(provided(splitToken))
-        val actualSplit = curr.policy(Decision(splitToken, splits)).split
+        val actualSplit = curr.policy.execute(Decision(splitToken, splits)).splits
+        if (splits.length != actualSplit.length) {
+          logger.trace(s"${curr.policy.policies.mkString(", ")} killed $splits")
+        }
         actualSplit.withFilter(!_.ignoreIf).foreach { split =>
           val nextState = curr.next(style, split, splitToken)
           if (split.modification == Newline)
             best += splitToken.left -> nextState
-          // TODO(olafur) this is a questionable optimization, it introduces
-
-          // a lot of complexity to the search and I'm not still convinced of its
-          // usefulness if we design the graph better.
           if (splitToken.left != owner.tokens.head &&
-            statementStarts.contains(splitToken.left)) {
+            statementStarts.contains(hash(splitToken.left))) {
             val nextNextState =
-              shortestPathMemo(owners(splitToken.left), nextState, curr)
+              shortestPathMemo(owners(hash(splitToken.left)), nextState, curr)
             Q.enqueue(nextNextState)
           }
           else {
@@ -234,13 +238,13 @@ class GraphSearch(style: ScalaStyle, tree: Tree, range: Int => Boolean)
 }
 
 object GraphSearch {
-  def getStatementStarts(tree: Tree): Map[Token, Tree] = {
+  def getStatementStarts(tree: Tree): Map[Long, Tree] = {
     val ret =
-      new mutable.MapBuilder[Token, Tree, Map[Token, Tree]](Map[Token, Tree]())
+      new mutable.MapBuilder[Long, Tree, Map[Long, Tree]](Map[Long, Tree]())
 
     def addAll(trees: Seq[Tree]): Unit = {
       trees.foreach { t =>
-        ret += t.tokens.head -> t
+        ret += hash(t.tokens.head) -> t
       }
     }
 
@@ -259,7 +263,7 @@ object GraphSearch {
           case None => throw Error.CantFindDefnToken[T](tree)
         }
       }
-      ret += firstNonAnnotation -> tree
+      ret += hash(firstNonAnnotation) -> tree
     }
 
     def loop(x: Tree): Unit = {
@@ -293,46 +297,43 @@ object GraphSearch {
     *
     * Contains lookup keys in both directions, opening [({ and closing })].
     */
-  def matchingParens(tokens: Tokens): Map[Token, Token] = {
-    val ret = new mutable.MapBuilder[Token, Token, Map[Token, Token]](
-      Map.empty[Token, Token])
+  def getMatchingParentheses(tokens: Tokens): Map[Long, Token] = {
+    val ret = new mutable.MapBuilder[Long, Token, Map[Long, Token]](
+      Map.empty[Long, Token])
     var stack = List.empty[Token]
     tokens.foreach {
       case open@(_: `{` | _: `[` | _: `(`) => stack = open :: stack
       case close@(_: `}` | _: `]` | _: `)`) =>
         val open = stack.head
-        ret += open -> close
-        ret += close -> open
+        assertValidParens(open, close)
+        ret += hash(open) -> close
+        ret += hash(close) -> open
         stack = stack.tail
       case _ =>
     }
     val result = ret.result()
-    assertValidParens(result)
     result
   }
 
-  def assertValidParens(parens: Map[Token, Token]): Unit = {
-    parens.foreach {
+  def assertValidParens(open: Token, close: Token): Unit = {
+    (open, close) match {
       case (_: `{`, _: `}`) =>
-      case (_: `}`, _: `{`) =>
       case (_: `[`, _: `]`) =>
-      case (_: `]`, _: `[`) =>
       case (_: `(`, _: `)`) =>
-      case (_: `)`, _: `(`) =>
-      case (open, close) =>
+      case (o, c) =>
         throw new IllegalArgumentException(
-          s"Mismatching parens ($open, $close)")
+          s"Mismatching parens ($o, $c)")
     }
   }
 
   /**
-    * Creates lookup table from token to its closest scala.meta tree.
+    * Creates lookup table from token offset to its closest scala.meta tree.
     */
-  def getOwners(tree: Tree): Map[Token, Tree] = {
-    val result = mutable.Map.empty[Token, Tree]
+  def getOwners(tree: Tree): Map[Long, Tree] = {
+    val result = mutable.Map.empty[Long, Tree]
     def loop(x: Tree): Unit = {
       x.tokens.foreach { tok =>
-        result += tok -> x
+        result += hash(tok) -> x
       }
       x match {
         case _: Term.Interpolate => // TODO(olafur) the mod is unintuitive

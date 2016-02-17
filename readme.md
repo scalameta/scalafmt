@@ -86,6 +86,12 @@ let g:formatters_scala = ['scalafmt']
 
 <img width="513" alt="scalafmt-intellij3" src="https://cloud.githubusercontent.com/assets/1408093/12949347/9c07dda6-d007-11e5-96d4-8cd53394a52c.png">
 
+### Contributing
+
+To run main formatting tests:
+
+* `~core/testOnly org.scalafmt.FormatTest`
+
 ### Updates
 
 * Feb 16th

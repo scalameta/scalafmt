@@ -10,7 +10,7 @@ import org.scalafmt.ScalaStyle
   * @param indentation
   * @param column
   */
-final case class State(cost: Int, policy: Decision => Decision,
+final case class State(cost: Int, policy: PolicySummary,
                        splits: Vector[Split], states: Vector[State], indentation: Int, pushes: Vector[Indent[Num]],
                        column: Int) extends Ordered[State] with ScalaFmtLogger {
 
@@ -53,9 +53,9 @@ final case class State(cost: Int, policy: Decision => Decision,
     val splitWithPenalty =
       if (newColumn < style.maxColumn) split
       else split.withPenalty(KILL + newColumn) // minimize overflow
-    val newPolicy =
+    val newPolicy: PolicySummary =
       if (split.policy == NoPolicy) policy
-      else (split.policy orElse IdentityPolicy) andThen policy
+      else policy.combine(split.policy, tok.left.end)
     State(cost + splitWithPenalty.cost,
       // TODO(olafur) expire policy, see #18.
       newPolicy,
@@ -69,7 +69,7 @@ final case class State(cost: Int, policy: Decision => Decision,
 
 object State extends ScalaFmtLogger {
   val start = State(0,
-    identity,
+    PolicySummary.empty,
     Vector.empty[Split],
     Vector.empty[State], 0, Vector.empty[Indent[Num]], 0)
 
@@ -83,7 +83,7 @@ object State extends ScalaFmtLogger {
     val result = toks.zip(splits).map {
       case (tok, split) =>
         // TIP. Use the following line to debug origin of splits.
-        if (debug) {
+        if (debug && toks.length < 100) {
           val left = small(tok.left)
           logger.debug(f"$left%-10s $split")
         }

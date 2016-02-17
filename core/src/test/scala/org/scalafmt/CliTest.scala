@@ -4,10 +4,10 @@ import java.io.File
 import java.nio.file.Files
 
 import org.scalafmt.cli.Cli
-import org.scalafmt.util.DiffUtil
+import org.scalafmt.util.DiffAssertions
 import org.scalatest.FunSuite
 
-class CliTest extends FunSuite {
+class CliTest extends FunSuite with DiffAssertions {
   test("cli parses args") {
     val expected = Cli.Config(Some(new File("foo")), inPlace = true, None)
     val args = Seq("--file", "foo", "-i")
@@ -33,7 +33,7 @@ class CliTest extends FunSuite {
     val formatInPlace = Cli.Config(Some(tmpFile.toFile), inPlace = true, None)
     Cli.run(formatInPlace)
     val obtained = new String(Files.readAllBytes(tmpFile))
-    DiffUtil.assertNoDiff(obtained, expected)
+    assertNoDiff(obtained, expected)
   }
 
 }

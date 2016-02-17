@@ -5,9 +5,10 @@ import org.scalafmt.internal.ScalaFmtLogger
 import org.scalafmt.internal.State
 import org.scalafmt.stats.TestStats
 import org.scalafmt.util.DiffTest
-import org.scalafmt.util.DiffUtil
+import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.FilesUtil
 import org.scalafmt.util.FormatOutput
+import org.scalafmt.util.FormatAssertions
 import org.scalafmt.util.HasTests
 import org.scalafmt.util.Report
 import org.scalafmt.util.Result
@@ -23,12 +24,10 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.language.postfixOps
-import scala.meta.Tree
-import scala.meta.parsers.common.Parse
-import scala.util.Try
 
-class FormatTest extends FunSuite with Timeouts with ScalaFmtLogger
-with BeforeAndAfterAll with HasTests {
+class FormatTests
+  extends FunSuite with Timeouts with ScalaFmtLogger
+  with BeforeAndAfterAll with HasTests with FormatAssertions with DiffAssertions {
   lazy val onlyUnit = UnitTests.tests.exists(_.only)
   lazy val onlyManual = ManualTests.tests.exists(_.only)
   lazy val onlyOne = tests.exists(_.only)
@@ -39,7 +38,6 @@ with BeforeAndAfterAll with HasTests {
     if (onlyManual && !onlyUnit) ManualTests.tests
     else UnitTests.tests
   }
-
 
   tests.sortWith(bySpecThenName).withFilter(testShouldRun).foreach(runTest)
 
@@ -62,8 +60,8 @@ with BeforeAndAfterAll with HasTests {
           case Some(parse) =>
             val obtained = ScalaFmt.format_!(t.original, t.style)(parse)
             saveResult(t, obtained)
-            assertParses(obtained, t.original)(parse)
-            DiffUtil.assertNoDiff(obtained, t.expected)
+            assertFormatPreservesAst(obtained, t.original)(parse)
+            assertNoDiff(obtained, t.expected)
           case None =>
             logger.warn(s"Found no parse for filename ${t.filename}")
         }
@@ -94,25 +92,6 @@ with BeforeAndAfterAll with HasTests {
           token.left.code, whitespace, Debug.formatTokenExplored(token))
     }
     output
-  }
-
-  def assertParses[T <: Tree](obtained: String,
-                              original: String)(implicit parse: Parse[T]): Unit = {
-    if (!parses(obtained) && parses(original)) {
-      fail(
-        s"""Formatter output does not parse!
-            |${header("Obtained")}
-            |$obtained
-            |
-            |${header("Original")}
-            |$original
-           """.stripMargin)
-    }
-  }
-
-  def parses[T <: Tree](code: String)(implicit parse: Parse[T]): Boolean = {
-    import scala.meta._
-    Try(code.parse[T]).map(_ => true).getOrElse(false)
   }
 
   override def afterAll(configMap: ConfigMap): Unit = {
