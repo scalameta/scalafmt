@@ -18,7 +18,7 @@ class RangeTest extends FunSuite {
         |}
       """.stripMargin
     val obtained = ScalaFmt.format(original,
-      ScalaStyle.UnitTest40, Some(Range(1, 2).inclusive))
+      ScalaStyle.UnitTest40, _ == 2)
     DiffUtil.assertNoDiff(obtained, expected)
   }
 

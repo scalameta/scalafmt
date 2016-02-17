@@ -21,9 +21,8 @@ case class FormatToken(left: Token,
                        between: Vector[Whitespace]) {
   override def toString = s"${left.code}∙${right.code}"
 
-  def insideRange(range: Range): Boolean = {
-    range.contains(left.position.start.line) &&
-      range.contains(right.position.end.line)
+  def inside(range: Int => Boolean): Boolean = {
+    range(right.position.end.line)
   }
 }
 

@@ -105,3 +105,24 @@ function(a, b, c, {
 function(a, b, c, {
       case Foo("a", 1) => Foo("b", 2)
     })
+<<< MUST NOT use automatic formatting 1 alexandru/scala-best-practices
+val dp = new DispatchPlan(Set(filteredAssets), start =
+  startDate, end = endDate, product, scheduleMap, availabilityMap,
+  Set(activationIntervals), contractRepository, priceRepository)
+>>>
+val dp = new DispatchPlan(
+    Set(filteredAssets),
+    start = startDate,
+    end = endDate,
+    product,
+    scheduleMap,
+    availabilityMap,
+    Set(activationIntervals),
+    contractRepository,
+    priceRepository)
+<<< SKIP MUST NOT use automatic formatting 2 alexandru/scala-best-practices
+val result = service.something(param1, param2, param3, param4).map(transform)
+>>>
+val result = service
+  .something(param1, param2, param3, param4)
+  .map(transform)

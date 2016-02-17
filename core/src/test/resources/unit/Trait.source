@@ -1,0 +1,19 @@
+40 columns                              |
+<<< trait start new lines
+object A {
+  val x = 1;
+  trait B {
+    type X = Int
+  }
+  class C extends B
+}
+>>>
+object A {
+  val x = 1;
+
+  trait B {
+    type X = Int
+  }
+
+  class C extends B
+}

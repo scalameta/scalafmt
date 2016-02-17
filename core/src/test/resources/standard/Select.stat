@@ -35,7 +35,7 @@ val expire = owner.tokens.find(_.isInstanceOf[`{`])
   .getOrElse(owner.tokens.last)
 <<< state explosion
 a.b.c.d.e.f.g.h.i.j.k {
-// Crazy comment =================================================================>
+ // Crazy comment =================================================================>
 }
 >>>
 a.b.c.d.e.f.g.h.i.j.k {
@@ -43,7 +43,7 @@ a.b.c.d.e.f.g.h.i.j.k {
 }
 <<< state explosion 2
 a.b(c).d(e).f(g).h(i).j(k) {
-// Crazy comment =================================================================>
+ // Crazy comment =================================================================>
 }
 >>>
 a.b(c).d(e).f(g).h(i).j(k) {

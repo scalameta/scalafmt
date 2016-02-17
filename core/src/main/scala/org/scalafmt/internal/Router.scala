@@ -95,9 +95,7 @@ class Router(style: ScalaStyle,
     case tok @ FormatToken(open: `{`, right, between) =>
       val startsLambda = statementStarts.get(right)
         .exists(_.isInstanceOf[Term.Function])
-      val nl: Modification =
-        if (gets2x(nextNonComment(tok))) Newline2x
-        else Newline
+      val nl = Newline(gets2x(nextNonComment(tok)), rhsIsCommentedOut(tok))
       val close = matching(open)
       val blockSize = close.start - open.end
       val ignore = blockSize > style.maxColumn || isInlineComment(right)
@@ -145,11 +143,7 @@ class Router(style: ScalaStyle,
       Split(Space, 0),
       Split(Newline, 0)
     )
-    case FormatToken(_, _: `import`, _) =>
-      List(Split(Newline, 0))
     case FormatToken(left: `package `, _, _) if owners(left).isInstanceOf[Pkg] =>
-      val owner = owners(left).asInstanceOf[Pkg]
-      val lastRef = owner.ref.tokens.last
       List(
         Split(Space, 0)
       )
@@ -244,7 +238,7 @@ class Router(style: ScalaStyle,
         else SingleLineBlock(close, exclude)
       val oneArgOneLine = OneArgOneLineSplit(open)
       val modification =
-        if (right.isInstanceOf[Comment]) getCommentModification(between)
+        if (right.isInstanceOf[Comment]) newlines2Modification(between)
         else NoSplit
       List(
         Split(modification, 0, policy = singleLine)
@@ -388,13 +382,6 @@ class Router(style: ScalaStyle,
         Split(newlineModification, 1)
           .withIndent(2, expire, Left)
       )
-    case tok @ FormatToken(_: `=`, _, _) if nextNonComment(tok).right.isInstanceOf[`if`] =>
-      val ifOwner = owners(nextNonComment(tok).right)
-      val expire = ifOwner.tokens.last
-      List(
-        Split(Space, 0, policy = SingleLineBlock(expire)),
-        Split(Newline, 1).withIndent(2, expire, Left)
-      )
     case tok @ FormatToken(_: `}`, els: `else`, _) =>
       List(
         Split(Space, 0)
@@ -499,9 +486,6 @@ class Router(style: ScalaStyle,
     case FormatToken(_, c: Comment, between) if c.code.startsWith("//") =>
       List(Split(newlines2Modification(between), 0))
     // Commented out code should stay to the left
-    case FormatToken(c: Comment, _, between) if c.code.startsWith("//") &&
-      between.lastOption.exists(_.isInstanceOf[`\n`]) =>
-      List(Split(NoIndentNewline, 0))
     case FormatToken(c: Comment, _, between) if c.code.startsWith("//") =>
       List(Split(Newline, 0))
     case tok @ FormatToken(_, c: Comment, _) =>
@@ -562,13 +546,6 @@ class Router(style: ScalaStyle,
   def Route(formatToken: FormatToken): List[Split] =
     cache.getOrElseUpdate(formatToken, RouteRun(formatToken))
 
-  def getCommentModification(between: Vector[Whitespace]): Modification = {
-    val newlineCounts = between.count(_.isInstanceOf[`\n`])
-    if (newlineCounts > 1) Newline2x
-    else if (newlineCounts == 1) Newline
-    else Space
-  }
-
   def isDocstring(token: Token): Boolean = {
     token.isInstanceOf[Comment] && token.code.startsWith("/**")
   }
@@ -606,11 +583,6 @@ class Router(style: ScalaStyle,
       (!right.isInstanceOf[Comment] ||
         between.exists(_.isInstanceOf[`\n`])) =>
       Decision(t, splits.filter(_.modification == Newline))
-  }
-
-  def MultiLineBlock(close: Token): Policy = {
-    case Decision(tok @ FormatToken(_, `close`, _), splits) =>
-      Decision(tok, splits.filter(_.modification == Newline))
   }
 
   /**
@@ -681,8 +653,7 @@ class Router(style: ScalaStyle,
   def newlines2Modification(between: Vector[Whitespace]): Modification =
     newlinesBetween(between) match {
       case 0 => Space
-      case 1 => Newline
-      case _ => Newline2x
+      case x => Newline(x == 2, endsWithNoIndent(between))
     }
 
   def newlinesBetween(between: Vector[Whitespace]): Int =
@@ -694,6 +665,13 @@ class Router(style: ScalaStyle,
     case t: Defn.Trait => Some(t.templ)
     case _ => None
   }
+
+  def rhsIsCommentedOut(formatToken: FormatToken): Boolean =
+    formatToken.right.isInstanceOf[Comment] &&
+      endsWithNoIndent(formatToken.between)
+
+  def endsWithNoIndent(between: Vector[Whitespace]): Boolean =
+    between.lastOption.exists(_.isInstanceOf[`\n`])
 
   // Used for convenience when calling withIndent.
   private implicit def int2num(n: Int): Num = Num(n)

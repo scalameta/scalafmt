@@ -13,6 +13,7 @@ import scala.meta.Tree
 import scala.meta.parseSource
 import scala.meta.parsers.common.Parse
 import scala.meta.parsers.common.ParseException
+import scala.util.control.NonFatal
 
 object ScalaFmt extends ScalaFmtLogger {
   /**
@@ -32,7 +33,7 @@ object ScalaFmt extends ScalaFmtLogger {
     */
   def format(code: String,
              style: ScalaStyle = ScalaStyle.Standard,
-             range: Option[Range] = None): String = {
+             range: Int => Boolean = _ => true): String = {
     try {
       val formatted = Future(format_![Source](code, style, range)(parseSource))
       Await.result(formatted, style.maxDuration)
@@ -46,7 +47,7 @@ object ScalaFmt extends ScalaFmtLogger {
       case e: TimeoutException =>
         logger.warn(s"Too slow formatting to parse code:", e)
         code
-      case e: Throwable =>
+      case NonFatal(e) =>
         logger.warn(s"Unexpected error", e)
         code
     }
@@ -67,9 +68,9 @@ object ScalaFmt extends ScalaFmtLogger {
     */
   def format_![T <: Tree](code: String,
                           style: ScalaStyle,
-                          rangeOpt: Option[Range] = None)(implicit ev: Parse[T]): String = {
+                          range: Int => Boolean = _ => true)
+                         (implicit ev: Parse[T]): String = {
     import scala.meta._
-    val range = rangeOpt.getOrElse(Range(0, Int.MaxValue))
     val source = code.parse[T]
     val graphSearch = new GraphSearch(style, source, range)
     graphSearch.formatTree()

@@ -8,7 +8,11 @@ import org.scalafmt.internal.ScalaFmtLogger
 
 
 object Cli extends ScalaFmtLogger {
-  case class Config(file: Option[File], inPlace: Boolean, range: Option[Range])
+  case class Config(file: Option[File], inPlace: Boolean, range: Option[Range]) {
+    def rangeLambda: Int => Boolean = range.map { r =>
+      x: Int => x >= r.head && x <= r.last
+    }.getOrElse(_ => true)
+  }
   lazy val parser = new scopt.OptionParser[Config]("scalafmt") {
     head("scalafmt", "0.1")
     opt[(Int,
@@ -37,7 +41,7 @@ object Cli extends ScalaFmtLogger {
 
   def run(config: Config): Unit = {
     val code = getCode(config)
-    val output = ScalaFmt.format(code, ScalaStyle.Standard, config.range)
+    val output = ScalaFmt.format(code, ScalaStyle.Standard, config.rangeLambda)
     config match {
       case Config(Some(filename), true, _) =>
         val path = java.nio.file.Paths.get(filename.toURI)

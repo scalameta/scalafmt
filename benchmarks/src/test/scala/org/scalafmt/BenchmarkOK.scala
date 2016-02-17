@@ -10,8 +10,9 @@ class BenchmarkOK extends FunSuite {
     new Basic,
     new Utils,
     new SourceMapWriter,
-    new Division,
-    new BaseLinker,
+   // TODO(olafur) make larger files integration tests.
+//    new Division,
+//    new BaseLinker,
     new JsDependency
   )
   formatBenchmarks.foreach { formatBenchmark =>

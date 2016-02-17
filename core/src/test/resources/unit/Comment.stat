@@ -66,3 +66,15 @@ function(a,
    */
   val y = 2
 }
+<<< commented out code stays to the left
+{
+//  val x = 1
+val y = 2
+//  val x = 1
+}
+>>>
+{
+//  val x = 1
+  val y = 2
+//  val x = 1
+}

@@ -20,7 +20,8 @@ import scala.reflect.classTag
 /**
   * Implements Dijkstra's shortest path search to find optimal formatting.
   */
-class GraphSearch(style: ScalaStyle, tree: Tree, range: Range) extends ScalaFmtLogger {
+class GraphSearch(style: ScalaStyle, tree: Tree, range: Int => Boolean)
+  extends ScalaFmtLogger {
 
   import GraphSearch._
 
@@ -146,7 +147,7 @@ class GraphSearch(style: ScalaStyle, tree: Tree, range: Range) extends ScalaFmtL
                |""".stripMargin)
         }
         val splits: List[Split] =
-          if (splitToken.insideRange(range))
+          if (splitToken.inside(range))
             router.Route(splitToken)
           else List(provided(splitToken))
         val actualSplit = curr.policy(Decision(splitToken, splits)).split
@@ -159,8 +160,7 @@ class GraphSearch(style: ScalaStyle, tree: Tree, range: Range) extends ScalaFmtL
           // a lot of complexity to the search and I'm not still convinced of its
           // usefulness if we design the graph better.
           if (splitToken.left != owner.tokens.head &&
-            startsUnwrappedLine(
-              splitToken.left, statementStarts, owners(splitToken.left))) {
+            statementStarts.contains(splitToken.left)) {
             val nextNextState =
               shortestPathMemo(owners(splitToken.left), nextState, curr)
             Q.enqueue(nextNextState)
@@ -234,19 +234,6 @@ class GraphSearch(style: ScalaStyle, tree: Tree, range: Range) extends ScalaFmtL
 }
 
 object GraphSearch {
-  def startsUnwrappedLine(token: Token, starts: Map[Token, Tree],
-                          owner: Tree): Boolean = {
-    if (starts.contains(token))
-      true
-    else if (!owner.tokens.headOption.contains(token))
-      false
-    else
-      owner match {
-        case _: Defn | _: Case | _: Pkg => true
-        case _ => false
-      }
-  }
-
   def getStatementStarts(tree: Tree): Map[Token, Tree] = {
     val ret =
       new mutable.MapBuilder[Token, Tree, Map[Token, Tree]](Map[Token, Tree]())
@@ -356,10 +343,6 @@ object GraphSearch {
     }
     loop(tree)
     result.toMap
-  }
-
-  def shouldFormat(range: Range, formatToken: FormatToken): Boolean = {
-    range.contains(formatToken.left.position.start.line)
   }
 
 }

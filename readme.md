@@ -12,9 +12,9 @@
 
 
 ### Overview
-Scalafmt is a code formatter for Scala that does its best to make your code
-look readable, idiomatic and consistent.
-When your lines get really long, scalafmt makes them short again.
+Scalafmt is a code formatter for Scala that aims to make your code look
+readable, idiomatic and consistent. When your lines get really long,
+scalafmt makes them short again.
 
 ![scalafmt](https://cloud.githubusercontent.com/assets/1408093/12928034/99d3ffe8-cf6b-11e5-9ec5-42de7c4e0155.gif)
 

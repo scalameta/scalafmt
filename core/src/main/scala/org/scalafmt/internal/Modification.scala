@@ -20,7 +20,15 @@ trait NewlineT extends Modification {
   def noIndent: Boolean = false
 }
 
-case object Newline extends NewlineT {}
+case object Newline extends NewlineT {
+  def apply(gets2x: Boolean, hasIndent: Boolean): NewlineT =
+    (gets2x, hasIndent) match {
+      case (true, true) => Newline2xNoIndent
+      case (true, false) => Newline2x
+      case (false, true) => NoIndentNewline
+      case _ => Newline
+    }
+}
 
 case object Newline2x extends NewlineT {
 
@@ -32,7 +40,7 @@ case object NoIndentNewline extends NewlineT {
   override def noIndent: Boolean = true
 }
 
-case object NoIndent2xNewline extends NewlineT {
+case object Newline2xNoIndent extends NewlineT {
 
   override def noIndent: Boolean = true
 
