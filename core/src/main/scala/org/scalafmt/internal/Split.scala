@@ -75,15 +75,10 @@ false, indents: List[Indent[Length]] = List.empty[Indent[Length]],
     }
   }
 
-  def withModification(newModification: Modification): Split =
-    new Split(
-      newModification, cost, ignoreIf, indents, policy, penalty, optimalAt)(
-      line)
+  def hasPolicy = policy ne NoPolicy
 
   override def toString =
     s"""$modification:${line.value}(cost=$cost, indents=$indentation, p=$hasPolicy)"""
-
-  def hasPolicy = policy ne NoPolicy
 
   // TODO(olafur) come with better concept of split equality.
 

@@ -78,3 +78,15 @@ val y = 2
   val y = 2
 //  val x = 1
 }
+<<< commented out code with 2x newline
+{
+val x = 1
+
+//  val x = 2
+}
+>>>
+{
+  val x = 1
+
+//  val x = 2
+}
