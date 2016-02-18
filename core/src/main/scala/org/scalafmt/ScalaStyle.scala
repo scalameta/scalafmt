@@ -52,7 +52,7 @@ object ScalaStyle {
   protected[scalafmt] case object ManualTest extends ScalaStyle {
     override val debug = true
 
-    override def maxStateVisits = 20000
+    override def maxStateVisits = 50000
 
     override def maxDuration = Duration(10, "min")
   }

@@ -4,7 +4,7 @@ import org.scalafmt.ScalaFmt
 import org.scalafmt.ScalaStyle
 import org.scalatest.FunSuite
 
-class ErrorTest extends FunSuite {
+class ErrorTest extends FunSuite with DiffAssertions {
   test("errors are caught") {
     val nonSourceFile = Seq(
       "class A {",
@@ -13,7 +13,7 @@ class ErrorTest extends FunSuite {
     )
     nonSourceFile.foreach { original =>
       val obtained = ScalaFmt.format(original, ScalaStyle.UnitTest40)
-      DiffUtil.assertNoDiff(obtained, original)
+      assertNoDiff(obtained, original)
     }
   }
 }

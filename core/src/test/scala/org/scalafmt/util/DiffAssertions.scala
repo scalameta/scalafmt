@@ -1,29 +1,42 @@
 package org.scalafmt.util
 
 import java.io.File
+
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.TimeZone
 
 import org.scalafmt.internal.ScalaFmtLogger
+import org.scalatest.FunSuite
 import org.scalatest.exceptions.TestFailedException
 
-object DiffUtil extends ScalaFmtLogger {
+trait DiffAssertions extends FunSuite with ScalaFmtLogger {
 
-  def assertNoDiff(obtained: String, expected: String): Boolean = {
+  def error2message(obtained: String, expected: String): String = {
+    if (expected.length > 10000)
+    s"""
+       |${header("Obtained")}
+       |${trailingSpace(obtained)}
+         """.stripMargin
+    else
+    s"""
+       |${header("Obtained")}
+       |${trailingSpace(obtained)}
+       |
+       |${header("Diff")}
+       |${trailingSpace(compareContents(obtained, expected))}
+         """.stripMargin
+
+  }
+
+  def assertNoDiff(obtained: String, expected: String, title: String = ""): Boolean = {
     val result = compareContents(obtained, expected)
     if (result.isEmpty)
       true
-    else
-      throw new TestFailedException(
-        s"""
-           |${header("Obtained")}
-           |${trailingSpace(obtained)}
-           |
-           |${header("Diff")}
-           |${trailingSpace(result)}
-         """.stripMargin,
-        1)
+    else {
+        throw new TestFailedException( title + "\n" +
+          error2message(obtained, expected), 1)
+      }
   }
 
   def trailingSpace(str: String): String = str.replaceAll(" \n", "∙\n")

@@ -10,6 +10,7 @@ lazy val buildSettings = Seq(
       Wart.Nothing, // Can't provide explicit type for scala.meta.Tree.collect.
       Wart.ToString, // Issues in logger, solvable with Loggable typeclass.
       Wart.Any, // Issues in logger with format strings.
+      Wart.AsInstanceOf, // pops up in pattern matching, why? It's guarded.
 
       Wart.Throw,
       Wart.NoNeedForMonad,
@@ -136,5 +137,5 @@ lazy val benchmarks = project
       "-Xmx2G",
       "-server"
     )
-  ).dependsOn(core)
+  ).dependsOn(core % "compile->test")
   .enablePlugins(JmhPlugin)

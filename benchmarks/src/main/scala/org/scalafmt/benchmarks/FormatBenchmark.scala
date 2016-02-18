@@ -57,8 +57,15 @@ abstract class FormatBenchmark(path: String*) {
   }
 
   @Benchmark
+  def scalametaParser(): Unit = {
+    import scala.meta._
+    code.parse[Source]
+  }
+
+  @Benchmark
   def scalafmt(): String = {
-    ScalaFmt.format_![Source](code, ScalaStyle.Standard)(scala.meta.parsers.parseSource)
+    ScalaFmt.format_![Source](code,
+      ScalaStyle.Standard)(scala.meta.parsers.parseSource)
   }
 
   @Benchmark

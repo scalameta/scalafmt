@@ -1,9 +1,9 @@
 package org.scalafmt
 
-import org.scalafmt.util.DiffUtil
+import org.scalafmt.util.DiffAssertions
 import org.scalatest.FunSuite
 
-class RangeTest extends FunSuite {
+class RangeTest extends FunSuite with DiffAssertions {
   test("range preserves indent") {
     val original =
       """object a {
@@ -19,7 +19,7 @@ class RangeTest extends FunSuite {
       """.stripMargin
     val obtained = ScalaFmt.format(original,
       ScalaStyle.UnitTest40, _ == 2)
-    DiffUtil.assertNoDiff(obtained, expected)
+    assertNoDiff(obtained, expected)
   }
 
 }

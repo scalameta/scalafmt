@@ -7,4 +7,4 @@ import org.scalafmt._
   *
   * Used by [[Policy]] to enforce non-local formatting.
   */
-case class Decision(formatToken: FormatToken, split: List[Split])
+case class Decision(formatToken: FormatToken, splits: Seq[Split])
