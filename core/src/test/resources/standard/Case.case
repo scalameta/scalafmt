@@ -10,8 +10,8 @@ case FormatToken(
 <<< Long if
 case tok if tok.left.name.startsWith("xml") && tok.right.name.startsWith("xml") => List( NoSplit0 )
 >>>
-case tok
-    if tok.left.name.startsWith("xml") && tok.right.name.startsWith("xml") =>
+case tok if tok.left.name.startsWith("xml") &&
+    tok.right.name.startsWith("xml") =>
   List(NoSplit0)
 <<< Pathological if
 case FormatToken(left, open: `(`, _)
@@ -41,3 +41,24 @@ case Decision(t@FormatToken(comma: `,`, right, between), splits)
     // If comment is bound to comma, see unit/Comment.
     (!right.isInstanceOf[Comment] || between.exists(_.isInstanceOf[`\n`])) =>
   Decision(t, splits.filter(_.modification == Newline))
+<<< Bug
+case FormatToken(open: `(`, right, _) if leftOwner.isInstanceOf[Term.ApplyInfix] =>
+val close = matchingParentheses(hash(open))
+val policy =
+  if (right.isInstanceOf[`if`]) SingleLineBlock(close)
+  else NoPolicy
+Seq(
+  Split(NoSplit, 0).withPolicy(policy).withIndent(2, matchingParentheses(hash(open)), Left),
+  Split(Newline, 1).withIndent(2, matchingParentheses(hash(open)), Left)
+)
+>>>
+case FormatToken(open: `(`, right, _)
+    if leftOwner.isInstanceOf[Term.ApplyInfix] =>
+  val close = matchingParentheses(hash(open))
+  val policy =
+    if (right.isInstanceOf[`if`]) SingleLineBlock(close)
+    else NoPolicy
+  Seq(Split(NoSplit, 0).withPolicy(policy)
+        .withIndent(2, matchingParentheses(hash(open)), Left),
+      Split(Newline, 1).withIndent(2, matchingParentheses(hash(open)), Left))
+

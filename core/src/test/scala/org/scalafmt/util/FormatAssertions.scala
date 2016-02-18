@@ -19,8 +19,9 @@ trait FormatAssertions extends FunSuiteLike with DiffAssertions {
           case Some(obtainedParsed) =>
             val originalStructure = originalParsed.show[Structure]
             val obtainedStructure = obtainedParsed.show[Structure]
-            assertNoDiff(originalStructure, obtainedStructure,
-              "formatter changed AST!")
+            if (originalStructure != obtainedStructure) {
+              fail("formatter changed AST!\n" + obtained)
+            }
           case None =>
             fail("Formatter output does not parse!\n" +
               error2message(obtained, original))

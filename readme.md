@@ -92,8 +92,48 @@ To run main formatting tests:
 
 * `~core/testOnly org.scalafmt.FormatTest`
 
-### Updates
+### Updates (mostly for myself)
 
+* Feb 19th
+  * Ran `scalafmt` on  Scala.js repo with 10s timeout. Performance is slower
+  than yesterday since 
+  I fixed some formatting bugs which made the performance slightly worse.
+```
+Unknown Failures: 60
+Timeout Failures: 21
+Parse exceptions: 19
+Format successes: 821
+Summary of running times (in ms, 1E8 is 100ms):
+Q1=25th percentile, Q2=median, Q3=75th percentile
++------+------+-------+------+------+------+------+
+|   Max|   Min|    Sum|  Mean|    Q1|    Q2|    Q3|
++------+------+-------+------+------+------+------+
+|9.79E9|1.65E6|5.41E11|6.58E8|3.45E7|1.19E8|5.18E8|
++------+------+-------+------+------+------+------+
+
+Benchmark                        Mode  Cnt     Score     Error  Units
+BaseLinker.scalafmt              avgt    3   749.977 ± 289.092  ms/op
+BaseLinker.scalametaParser       avgt    3     8.171 ±   8.260  ms/op
+BaseLinker.scalariform           avgt    3    15.634 ±  22.799  ms/op
+Basic.scalafmt                   avgt    3    25.089 ±  29.384  ms/op
+Basic.scalametaParser            avgt    3    18.783 ±  23.687  ms/op
+Basic.scalariform                avgt    3     0.666 ±   1.207  ms/op
+Division.scalafmt                avgt    3  2765.606 ± 521.940  ms/op
+Division.scalametaParser         avgt    3    16.796 ±   9.724  ms/op
+Division.scalariform             avgt    3    35.425 ±   9.046  ms/op
+JsDependency.scalafmt            avgt    3    57.497 ±  41.198  ms/op
+JsDependency.scalametaParser     avgt    3     1.792 ±   5.853  ms/op
+JsDependency.scalariform         avgt    3     3.828 ±  10.027  ms/op
+Semantics.scalafmt               avgt    3    60.998 ±  72.010  ms/op
+Semantics.scalametaParser        avgt    3     2.053 ±   4.469  ms/op
+Semantics.scalariform            avgt    3     3.954 ±   2.780  ms/op
+SourceMapWriter.scalafmt         avgt    3   218.982 ±  82.800  ms/op
+SourceMapWriter.scalametaParser  avgt    3     3.997 ±  11.506  ms/op
+SourceMapWriter.scalariform      avgt    3     7.576 ±   7.467  ms/op
+Utils.scalafmt                   avgt    3    74.701 ±  76.110  ms/op
+Utils.scalametaParser            avgt    3     2.364 ±   4.006  ms/op
+Utils.scalariform                avgt    3     4.812 ±   6.279  ms/op
+```
 * Feb 18th
   * Ran `scalafmt` on  Scala.js repo with 200ms timeout.
 ```

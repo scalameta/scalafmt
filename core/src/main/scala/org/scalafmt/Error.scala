@@ -1,5 +1,6 @@
 package org.scalafmt
 
+import scala.meta.Case
 import scala.meta.Tree
 import scala.meta.tokens.Token.Keyword
 import scala.reflect.ClassTag
@@ -14,6 +15,9 @@ object Error {
 
     case object TooManyIndentPops extends Error("Too many Indent Pop.")
 
-    case object CantFormatFile
-      extends Error("scalafmt cannot format this file")
+  case class CaseMissingArrow(tree: Case)
+    extends Error(s"Missing => in case: \n$tree")
+
+  case object CantFormatFile
+    extends Error("scalafmt cannot format this file")
 }

@@ -7,6 +7,8 @@ import org.scalafmt.cli.Cli
 import org.scalafmt.util.DiffAssertions
 import org.scalatest.FunSuite
 
+import scala.concurrent.duration.Duration
+
 class CliTest extends FunSuite with DiffAssertions {
   test("cli parses args") {
     val expected = Cli.Config(Some(new File("foo")), inPlace = true, None)
@@ -30,7 +32,9 @@ class CliTest extends FunSuite with DiffAssertions {
         |}
       """.stripMargin
     Files.write(tmpFile, unformatted.getBytes)
-    val formatInPlace = Cli.Config(Some(tmpFile.toFile), inPlace = true, None)
+    val formatInPlace = Cli.Config(Some(tmpFile.toFile),
+      inPlace = true,
+      None, Duration(10, "s"))
     Cli.run(formatInPlace)
     val obtained = new String(Files.readAllBytes(tmpFile))
     assertNoDiff(obtained, expected)

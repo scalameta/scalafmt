@@ -41,6 +41,8 @@ lazy val compilerOptions = Seq(
 lazy val commonSettings = Seq(
   triggeredMessage in ThisBuild := Watched.clearWhenTriggered,
   scalacOptions in (Compile, console) := compilerOptions :+ "-Yrepl-class-based",
+  mainClass in assembly := Some("org.scalafmt.cli.Cli"),
+  assemblyJarName in assembly := "scalafmt.jar",
   testOptions in Test += Tests.Argument("-oD")
 )
 
@@ -87,8 +89,6 @@ lazy val core = project
   .settings(allSettings)
   .settings(
     moduleName := "scalafmt-core",
-    mainClass in assembly := Some("org.scalafmt.Cli"),
-    assemblyJarName in assembly := "scalafmt.jar",
     libraryDependencies ++= Seq(
       "ch.qos.logback" % "logback-classic" % "1.1.3",
       "com.github.scopt" %% "scopt" % "3.3.0",

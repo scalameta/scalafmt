@@ -49,3 +49,16 @@ a.b(c).d(e).f(g).h(i).j(k) {
 a.b(c).d(e).f(g).h(i).j(k) {
   // Crazy comment =================================================================>
 }
+<<< Crazy comment
+val lastToken = owner.body.tokens
+    .filter {
+        case _: Whitespace | _: Comment => false
+        case _ => true
+    } // edge case, if body is empty expire on arrow.
+    .lastOption.getOrElse(arrow)
+>>>
+val lastToken = owner.body.tokens.filter {
+  case _: Whitespace | _: Comment => false
+  case _ => true
+} // edge case, if body is empty expire on arrow.
+.lastOption.getOrElse(arrow)

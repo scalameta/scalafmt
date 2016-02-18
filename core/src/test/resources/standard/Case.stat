@@ -39,32 +39,21 @@ List(Split(Space, 0).withPolicy {
               case x => x
             })
     })
-<<< router
+<<< chain of || and &&
 x match {
-  case tok if tok.left.name.startsWith("xml") &&
-      tok.right.name.startsWith("xml") =>
-    Seq(Split(NoSplit, 0))
   case tok if // TODO(olafur) DRY.
       (leftOwner.isInstanceOf[Term.Interpolate] &&
         rightOwner.isInstanceOf[Term.Interpolate]) ||
       (leftOwner.isInstanceOf[Pat.Interpolate] &&
         rightOwner.isInstanceOf[Pat.Interpolate]) =>
-    Seq(Split(NoSplit, 0))
-  case FormatToken(_: `{`, _: `}`, _) => Seq(Split(NoSplit, 0))
-  case FormatToken(_: `]`, _: `(`, _) =>
     Seq(Split(NoSplit, 0))
 }
 >>>
 x match {
-  case tok
-      if tok.left.name.startsWith("xml") && tok.right.name.startsWith("xml") =>
-    Seq(Split(NoSplit, 0))
   case tok if // TODO(olafur) DRY.
       (leftOwner.isInstanceOf[Term.Interpolate] &&
         rightOwner.isInstanceOf[Term.Interpolate]) ||
       (leftOwner.isInstanceOf[Pat.Interpolate] &&
         rightOwner.isInstanceOf[Pat.Interpolate]) =>
     Seq(Split(NoSplit, 0))
-  case FormatToken(_: `{`, _: `}`, _) => Seq(Split(NoSplit, 0))
-  case FormatToken(_: `]`, _: `(`, _) => Seq(Split(NoSplit, 0))
 }

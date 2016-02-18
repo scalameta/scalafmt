@@ -2,12 +2,13 @@ package org.scalafmt
 
 import java.util.concurrent.TimeoutException
 
-import org.scalafmt.internal.GraphSearch
+import org.scalafmt.internal.BestFirstSearch
 import org.scalafmt.internal.ScalaFmtLogger
 
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.concurrent.duration.Duration
 import scala.meta.Source
 import scala.meta.Tree
 import scala.meta.parseSource
@@ -29,14 +30,19 @@ object ScalaFmt extends ScalaFmtLogger {
     * @param code The code to format.
     * @param style The coding style to use for formatting.
     * @param range EXPERIMENTAL. Format only certain ranges of the file.
+    * @param maxDuration Return code if maxDuration has passed. The maximum
+    *                    duration the formatter is allowed to run before
+    *                    giving up. If the formatter times out, the original
+    *                    source code is returned.
     * @return The code formatted if successful, the original code otherwise.
     */
   def format(code: String,
              style: ScalaStyle = ScalaStyle.Standard,
-             range: Int => Boolean = _ => true): String = {
+             range: Int => Boolean = _ => true,
+             maxDuration: Duration = Duration(400, "ms")): String = {
     try {
       val formatted = Future(format_![Source](code, style, range)(parseSource))
-      Await.result(formatted, style.maxDuration)
+      Await.result(formatted, maxDuration)
     }
     catch {
       // Skip invalid code.
@@ -72,7 +78,7 @@ object ScalaFmt extends ScalaFmtLogger {
                          (implicit ev: Parse[T]): String = {
     import scala.meta._
     val source = code.parse[T]
-    val graphSearch = new GraphSearch(style, source, range)
+    val graphSearch = new BestFirstSearch(style, source, range)
     graphSearch.formatTree()
   }
 
