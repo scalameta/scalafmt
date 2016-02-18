@@ -1,13 +1,14 @@
 package org.scalafmt.util
 
 import org.scalatest.FunSuite
+import org.scalatest.FunSuiteLike
 
 import scala.meta.Tree
 import scala.meta.parsers.common.Parse
 import scala.meta.prettyprinters.Structure
 import scala.util.Try
 
-trait FormatAssertions extends FunSuite with DiffAssertions {
+trait FormatAssertions extends FunSuiteLike with DiffAssertions {
   def assertFormatPreservesAst[T <: Tree](original: String,
                                           obtained: String)
                                          (implicit ev: Parse[T]): Unit = {

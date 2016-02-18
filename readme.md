@@ -94,27 +94,63 @@ To run main formatting tests:
 
 ### Updates
 
+* Feb 18th
+  * Ran `scalafmt` on  Scala.js repo with 200ms timeout.
+```
+Unknown Failures: 48
+Timeout Failures: 268
+Parse exceptions: 13
+Format successes: 592
+```
+  * Updated benchmark:
+
+```
+Benchmark                        Mode  Cnt     Score     Error  Units
+BaseLinker.scalafmt              avgt    3   707.864 ±  87.023  ms/op
+BaseLinker.scalametaParser       avgt    3    10.876 ±  49.694  ms/op
+BaseLinker.scalariform           avgt    3    15.764 ±   3.908  ms/op
+Basic.scalafmt                   avgt    3    25.363 ±  46.914  ms/op
+Basic.scalametaParser            avgt    3    19.608 ±  18.905  ms/op
+Basic.scalariform                avgt    3     0.659 ±   1.250  ms/op
+Division.scalafmt                avgt    3  2253.869 ± 556.383  ms/op
+Division.scalametaParser         avgt    3    16.818 ±  11.662  ms/op
+Division.scalariform             avgt    3    35.331 ±  42.856  ms/op
+JsDependency.scalafmt            avgt    3    51.908 ±  21.290  ms/op
+JsDependency.scalametaParser     avgt    3     1.810 ±   5.086  ms/op
+JsDependency.scalariform         avgt    3     3.741 ±   8.991  ms/op
+Semantics.scalafmt               avgt    3    64.453 ± 107.310  ms/op
+Semantics.scalametaParser        avgt    3     2.105 ±   4.223  ms/op
+Semantics.scalariform            avgt    3     4.192 ±   4.279  ms/op
+SourceMapWriter.scalafmt         avgt    3   203.994 ± 146.662  ms/op
+SourceMapWriter.scalametaParser  avgt    3     4.099 ±  11.523  ms/op
+SourceMapWriter.scalariform      avgt    3     9.539 ±  14.685  ms/op
+Utils.scalafmt                   avgt    3    71.421 ± 123.586  ms/op
+Utils.scalametaParser            avgt    3     2.414 ±   4.647  ms/op
+Utils.scalariform                avgt    3     4.779 ±   2.180  ms/op
+```
+  
 * Feb 16th
   * `scalafmt` can format 235 out of 917 files from Scala.js in under 200ms.
   * Ran benchmarks against Scalariform. I'm not surprised `scalafmt` is
     **significantly** slower since 1. I've done little optimizations and 2.
     `scalafmt` supports column-width limit which introduces a huge overhead.
+    
 ```
-    [info] # Run complete. Total time: 00:10:29
-    [info]
-    [info] Benchmark                    Mode  Cnt     Score     Error  Units
-    [info] BaseLinker.scalafmt          avgt   10  6226.143 ±  97.964  ms/op
-    [info] BaseLinker.scalariform       avgt   10    13.604 ±   0.273  ms/op
-    [info] Basic.scalafmt               avgt   10    20.116 ±   0.723  ms/op
-    [info] Basic.scalariform            avgt   10     0.481 ±   0.087  ms/op
-    [info] Division.scalafmt            avgt   10  6792.488 ± 519.506  ms/op
-    [info] Division.scalariform         avgt   10    34.708 ±   8.885  ms/op
-    [info] JsDependency.scalafmt        avgt   10   127.133 ±   6.151  ms/op
-    [info] JsDependency.scalariform     avgt   10     3.395 ±   0.171  ms/op
-    [info] SourceMapWriter.scalafmt     avgt   10   494.667 ±  45.247  ms/op
-    [info] SourceMapWriter.scalariform  avgt   10     6.887 ±   0.078  ms/op
-    [info] Utils.scalafmt               avgt   10   156.653 ±   2.729  ms/op
-    [info] Utils.scalariform            avgt   10     4.214 ±   0.096  ms/op
+# Run complete. Total time: 00:10:29
+
+Benchmark                    Mode  Cnt     Score     Error  Units
+BaseLinker.scalafmt          avgt   10  6226.143 ±  97.964  ms/op
+BaseLinker.scalariform       avgt   10    13.604 ±   0.273  ms/op
+Basic.scalafmt               avgt   10    20.116 ±   0.723  ms/op
+Basic.scalariform            avgt   10     0.481 ±   0.087  ms/op
+Division.scalafmt            avgt   10  6792.488 ± 519.506  ms/op
+Division.scalariform         avgt   10    34.708 ±   8.885  ms/op
+JsDependency.scalafmt        avgt   10   127.133 ±   6.151  ms/op
+JsDependency.scalariform     avgt   10     3.395 ±   0.171  ms/op
+SourceMapWriter.scalafmt     avgt   10   494.667 ±  45.247  ms/op
+SourceMapWriter.scalariform  avgt   10     6.887 ±   0.078  ms/op
+Utils.scalafmt               avgt   10   156.653 ±   2.729  ms/op
+Utils.scalariform            avgt   10     4.214 ±   0.096  ms/op
 ```
 * Feb 12th
   * Ran scalafmt on all [scala-js][scalajs] files with a 200ms timeout.
