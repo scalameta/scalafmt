@@ -2,6 +2,8 @@ package org.scalafmt.internal
 
 import org.scalafmt.ScalaStyle
 
+import scala.meta.tokens.Token
+
 /**
   * A state represents one potential solution to reach token at index,
   *
@@ -10,9 +12,15 @@ import org.scalafmt.ScalaStyle
   * @param indentation
   * @param column
   */
-final case class State(cost: Int, policy: PolicySummary,
-                       splits: Vector[Split], states: Vector[State], indentation: Int, pushes: Vector[Indent[Num]],
-                       column: Int) extends Ordered[State] with ScalaFmtLogger {
+final case class State(cost: Int,
+                       policy: PolicySummary,
+                       splits: Vector[Split],
+                       states: Vector[State],
+                       optimalTokens: Map[Token, Set[Int]],
+                       indentation: Int,
+                       pushes: Vector[Indent[Num]],
+                       column: Int
+                      ) extends Ordered[State] with ScalaFmtLogger {
 
   import scala.math.Ordered.orderingToOrdered
 
@@ -56,11 +64,19 @@ final case class State(cost: Int, policy: PolicySummary,
     val newPolicy: PolicySummary =
       if (split.policy == NoPolicy) policy
       else policy.combine(split.policy, tok.left.end)
+    val newOptimalTokens: Map[Token, Set[Int]] =
+      split.optimalAt.fold(optimalTokens) {
+        tok =>
+          val updated: Set[Int] =
+            optimalTokens.getOrElse(tok, Set.empty[Int]) + splits.length
+          optimalTokens + (tok -> updated)
+      }
     State(cost + splitWithPenalty.cost,
       // TODO(olafur) expire policy, see #18.
       newPolicy,
       splits :+ splitWithPenalty,
       states :+ this,
+      newOptimalTokens,
       newIndent,
       newIndents,
       newColumn)
@@ -71,7 +87,9 @@ object State extends ScalaFmtLogger {
   val start = State(0,
     PolicySummary.empty,
     Vector.empty[Split],
-    Vector.empty[State], 0, Vector.empty[Indent[Num]], 0)
+    Vector.empty[State],
+    Map.empty[Token, Set[Int]],
+    0, Vector.empty[Indent[Num]], 0)
 
   /**
     * Returns formatted output from FormatTokens and Splits.

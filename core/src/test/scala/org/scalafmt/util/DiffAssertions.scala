@@ -7,10 +7,10 @@ import java.util.Date
 import java.util.TimeZone
 
 import org.scalafmt.internal.ScalaFmtLogger
-import org.scalatest.FunSuite
+import org.scalatest.FunSuiteLike
 import org.scalatest.exceptions.TestFailedException
 
-trait DiffAssertions extends FunSuite with ScalaFmtLogger {
+trait DiffAssertions extends FunSuiteLike with ScalaFmtLogger {
 
   def error2message(obtained: String, expected: String): String = {
     if (expected.length > 10000)

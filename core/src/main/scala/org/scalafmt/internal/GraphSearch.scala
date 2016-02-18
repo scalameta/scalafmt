@@ -24,13 +24,14 @@ class GraphSearch(style: ScalaStyle, tree: Tree, range: Int => Boolean)
 
   import GraphSearch._
 
-  val toks = FormatToken.formatTokens(tree.tokens)
+  val toks: Array[FormatToken] = FormatToken.formatTokens(tree.tokens)
   val owners = getOwners(tree)
   val statementStarts = getStatementStarts(tree)
   val memo = mutable.Map.empty[(Int, Tree), State]
   val best = mutable.Map.empty[Token, State]
   val matchingParentheses = getMatchingParentheses(tree.tokens)
   // TODO(olafur) better name.
+  val optimalIdx = mutable.Set.empty[Int]
   val optimal = mutable.Map.empty[(Int, FormatToken), Split]
   val router = new Router(style, tree, toks,
     matchingParentheses, statementStarts, owners)
@@ -41,40 +42,49 @@ class GraphSearch(style: ScalaStyle, tree: Tree, range: Int => Boolean)
     *
     * Returns true if it's OK to skip over state.
     */
-  def pruneOK(state: State): Boolean = {
-    val splitToken = toks(state.splits.length)
+  def pruneOK(curr: State): Boolean = {
+    val splitToken = toks(curr.splits.length)
     // TODO(olafur) super inefficient
-    val hasOptimal = state.splits.zipWithIndex.forall {
-      case (split, i) =>
-        val tok = toks(i)
-        val result = optimal.get(state.states(i).column -> tok)
-          .forall(_.sameLine(split))
-        if (!result) {
-          logger.trace(
-            s"""
-               |${header(s"$split eliminated $state at ${toks(i)}, $tok")}
-               |${mkString(state.splits)}
-               |${optimal.toVector.mkString("\n")}""".stripMargin)
-        }
-        result
+    def hasOptimal = optimalIdx.forall { i =>
+      if (i >= curr.splits.length) {
+        true // missing forall on FilterMonadic, for some reason.
+      } else {
+      val split = curr.splits(i)
+      val tok = toks(i)
+      val currIsOptimal = optimal
+        .get(curr.states(i).column -> tok) match {
+        case None => true
+        case Some(otherSplit) => otherSplit.sameLine(split)
+      }
+      if (!currIsOptimal) {
+        logger.trace(
+          s"""
+             |${header(s"$split eliminated $curr at ${toks(i)}, $tok")}
+             |${mkString(curr.splits)}
+             |${optimal.toVector.mkString("\n")}
+             |""".stripMargin)
+      }
+      currIsOptimal
+      }
     }
-    val hasBest = best.get(splitToken.left).exists(_.alwaysBetter(state))
-    !hasOptimal || hasBest
+    val hasBest = best.get(splitToken.left).exists(_.alwaysBetter(curr))
+    hasBest || !hasOptimal
   }
 
   def updateOptimal(tok: FormatToken, curr: State): Unit = {
     // TODO(olafur) inefficient
-    curr.splits.zipWithIndex.foreach {
-      case (split, i) =>
+    curr.optimalTokens.get(tok.left).foreach {
+      optimalSplits => optimalSplits.foreach { i =>
         val currTok = toks(i)
-        if (split.optimalAt.contains(tok.left)) {
-          logger.trace(
-            s"""optimal $curr $split ${curr.cost} $tok
-                |${header("output")}
-                |${mkString(curr.splits)}
+        val split = curr.splits(i)
+        logger.trace(
+          s"""optimal $curr $split ${curr.cost} $tok
+              |${header("output")}
+              |${mkString(curr.splits)}
                 """.stripMargin)
-          optimal += (curr.states(i).column -> currTok) -> split
-        }
+        optimal += (curr.states(i).column -> currTok) -> split
+        optimalIdx += i
+      }
     }
   }
 
@@ -122,8 +132,7 @@ class GraphSearch(style: ScalaStyle, tree: Tree, range: Int => Boolean)
         logger.debug(s"Explored $explored")
       }
       val i = curr.splits.length
-      if (explored > style.maxStateVisits || i == toks.length ||
-        !childOf(toks(i).right, owner, owners)) {
+      if (i == toks.length || !childOf(toks(i).right, owner, owners)) {
         result = curr
         logger.trace(
           s"""Q.size: ${Q.size}
@@ -161,8 +170,10 @@ class GraphSearch(style: ScalaStyle, tree: Tree, range: Int => Boolean)
         }
         actualSplit.withFilter(!_.ignoreIf).foreach { split =>
           val nextState = curr.next(style, split, splitToken)
-          if (split.modification == Newline)
+          // TODO(olafur) convince myself this is safe.
+          if (split.modification.isNewline) {
             best += splitToken.left -> nextState
+          }
           if (splitToken.left != owner.tokens.head &&
             statementStarts.contains(hash(splitToken.left))) {
             val nextNextState =

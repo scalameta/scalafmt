@@ -20,13 +20,6 @@ sealed trait ScalaStyle {
   def maxDuration: Duration = Duration(400, "ms")
 
   /**
-    * Debugging only. Maximum number of states that the formatter may visit.
-    *
-    * @return
-    */
-  def maxStateVisits = 10000
-
-  /**
     * Debugging only. Should scalafmt create a diagnostics report.
     */
   def debug: Boolean = false
@@ -51,8 +44,6 @@ object ScalaStyle {
 
   protected[scalafmt] case object ManualTest extends ScalaStyle {
     override val debug = true
-
-    override def maxStateVisits = 50000
 
     override def maxDuration = Duration(10, "min")
   }
