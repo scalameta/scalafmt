@@ -31,7 +31,7 @@ class FidelityTest extends FunSuite with FormatAssertions with ScalaFmtLogger {
       "benchmarks/src/resources/scala-js/SourceMapWriter.scala",
       "benchmarks/src/resources/scala-js/Division.scala",
       "benchmarks/src/resources/scala-js/BaseLinker.scala",
-      "benchmarks/src/resources/scala-js/JSDependency.scala")
+      "benchmarks/src/resources/scala-js/JSDependency.scala") ++ thisProject
 
 
   val examples = files.map(Test.apply)

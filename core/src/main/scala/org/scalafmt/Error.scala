@@ -1,5 +1,7 @@
 package org.scalafmt
 
+import org.scalafmt.internal.ScalaFmtLogger
+
 import scala.meta.Case
 import scala.meta.Tree
 import scala.meta.tokens.Token.Keyword
@@ -8,7 +10,7 @@ import scala.reflect.classTag
 
 sealed abstract class Error(msg: String) extends Exception(msg)
 
-object Error {
+object Error extends ScalaFmtLogger {
     case class CantFindDefnToken[T <: Keyword : ClassTag](tree: Tree)
       extends Error(
           s"Expected keyword of type ${classTag[T].getClass} in tree $tree")
@@ -20,4 +22,8 @@ object Error {
 
   case object CantFormatFile
     extends Error("scalafmt cannot format this file")
+
+  case class UnexpectedTree[Expected <: Tree : ClassTag](obtained: Tree)
+    extends Error(
+      s"Expected: ${classTag[Expected].getClass}\nObtained: ${log(obtained)}")
 }

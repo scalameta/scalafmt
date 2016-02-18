@@ -25,8 +25,30 @@ s"""${a.foo[Bar]}
   val line = s"=" * 4
   s"$line\n=> $t\n$line"
 }
-<<< SKIP new inside expr
+<<< new inside expr
 def shortInfo: String = s"created=${new Date()}"
 >>>
 def shortInfo: String =
   s"created=${new Date()}"
+<<< example 1
+s"cols:${e.  pos.start.  column}-${e.pos.end.column}"
+>>>
+s"cols:${e.pos.start.column}-${e.pos.end.column}"
+<<< skip multiline interpolate with following token
+s"""${a.foo[Bar]}
+    Nicely indented
+""".format(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)
+>>>
+s"""${a.foo[Bar]}
+    Nicely indented
+""".format(
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)
+<<< multiline string with following token
+"a" + """
+    Nicely indented
+""".format(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)
+>>>
+"a" + """
+    Nicely indented
+""".format(
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)
