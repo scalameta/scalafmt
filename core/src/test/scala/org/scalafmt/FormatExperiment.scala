@@ -21,7 +21,7 @@ object FormatExperiment extends App with ScalaProjectsExperiment with FormatAsse
     if (!ScalacParser.checkParseFails(code)) {
       val startTime = System.nanoTime()
       val f = Future(ScalaFmt.format_![Source](code, ScalaStyle.Standard))
-      val formatted = Await.result(f, Duration(400, "ms"))
+      val formatted = Await.result(f, Duration(10, "s"))
       assertFormatPreservesAst[Source](code, formatted)
       print("+")
       formatSuccesses.add(FormatSuccess(filename, System.nanoTime() - startTime))

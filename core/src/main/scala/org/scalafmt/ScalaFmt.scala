@@ -38,7 +38,7 @@ object ScalaFmt extends ScalaFmtLogger {
     */
   def format(code: String,
              style: ScalaStyle = ScalaStyle.Standard,
-             range: Int => Boolean = _ => true,
+             range: Set[Range] = Set.empty[Range],
              maxDuration: Duration = Duration(400, "ms")): String = {
     try {
       val formatted = Future(format_![Source](code, style, range)(parseSource))
@@ -74,7 +74,7 @@ object ScalaFmt extends ScalaFmtLogger {
     */
   def format_![T <: Tree](code: String,
                           style: ScalaStyle,
-                          range: Int => Boolean = _ => true)
+                          range: Set[Range] = Set.empty[Range])
                          (implicit ev: Parse[T]): String = {
     import scala.meta._
     val source = code.parse[T]

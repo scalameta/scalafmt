@@ -21,8 +21,9 @@ case class FormatToken(left: Token,
                        between: Vector[Whitespace]) extends ScalaFmtLogger {
   override def toString = s"${left.code}∙${right.code}"
 
-  def inside(range: Int => Boolean): Boolean = {
-    range(right.position.end.line)
+  def inside(range: Set[Range]): Boolean = {
+    if (range.isEmpty) true
+    else range.exists(_.contains(right.position.end.line))
   }
 }
 

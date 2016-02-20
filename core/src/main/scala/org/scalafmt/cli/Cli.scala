@@ -10,19 +10,15 @@ import scala.concurrent.duration.Duration
 
 
 object Cli extends ScalaFmtLogger {
-  case class Config(file: Option[File],
-                    inPlace: Boolean,
-                    range: Option[Range],
-                    maxDuration: Duration = Duration(10, "s")) {
-    def rangeLambda: Int => Boolean = range.map { r =>
-      x: Int => x >= r.head && x <= r.last
-    }.getOrElse(_ => true)
-  }
+  case class Config(file: Option[File] = None,
+                    inPlace: Boolean = false,
+                    range: Set[Range] = Set.empty[Range],
+                    maxDuration: Duration = Duration(10, "s"))
   lazy val parser = new scopt.OptionParser[Config]("scalafmt") {
     head("scalafmt", "0.1")
     opt[(Int,
       Int)]("range") action {
-      case ((from, to), c) => c.copy(range = Some(Range(from - 1, to - 1)))
+      case ((from, to), c) => c.copy(range = c.range + Range(from - 1, to - 1))
     } text "only format line range from=to"
     opt[File]('f', "file") action {
       (file, c) =>
@@ -46,7 +42,8 @@ object Cli extends ScalaFmtLogger {
 
   def run(config: Config): Unit = {
     val code = getCode(config)
-    val output = ScalaFmt.format(code, ScalaStyle.Standard, config.rangeLambda, config.maxDuration)
+    val output = ScalaFmt.format(code, ScalaStyle.Standard,
+      config.range.toIterable.toSet, config.maxDuration)
     config match {
       case Config(Some(filename), true, _, _) =>
         val path = java.nio.file.Paths.get(filename.toURI)
@@ -57,7 +54,7 @@ object Cli extends ScalaFmtLogger {
 
   def main(args: Array[String]) {
     parser
-      .parse(args, Config(None, inPlace = false, None))
+      .parse(args, Config(None, inPlace = false, Set.empty[Range]))
       .foreach(run)
   }
 }
