@@ -126,3 +126,13 @@ val result = service.something(param1, param2, param3, param4).map(transform)
 val result = service
   .something(param1, param2, param3, param4)
   .map(transform)
+<<< SKIP One arg per line
+Seq(
+  Split(Space, 0), // End files with trailing newline
+  Split(Newline, 1)
+)
+>>>
+Seq(
+    Split(Space, 0), // End files with trailing newline
+    Split(Newline, 1)
+)

@@ -3,6 +3,8 @@ package org.scalafmt.util
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.text.DecimalFormat
+import java.text.NumberFormat
+import java.util.Locale
 import java.util.concurrent.CopyOnWriteArrayList
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
@@ -26,7 +28,13 @@ trait ScalaProjectsExperiment extends ScalaFmtLogger {
   val verbose = false
   val globalFilter: String => Boolean = _ => true
   val colLength = 10
-  val decimalFormat = new DecimalFormat("#.##")
+  val numberFormat = {
+    // I prefer . as thousand separator.
+    val format = NumberFormat.getNumberInstance(Locale.GERMAN)
+    format.setMaximumFractionDigits(3)
+    format
+  }
+
   private val timeoutFailures: java.util.List[TimeoutErr] = new CopyOnWriteArrayList
   private val parseFailures: java.util.List[ParseErr] = new CopyOnWriteArrayList
   private val otherFailures: java.util.List[UnknownFailure] = new CopyOnWriteArrayList
@@ -185,13 +193,16 @@ trait ScalaProjectsExperiment extends ScalaFmtLogger {
     ))
 
   private def formatNumber(x: Any): String = x match {
-    case d: Double => decimalFormat.format(Debug.ns2ms(d.asInstanceOf[Long])) + "ms"
+    case d: Double =>
+      // TODO(olafur) no better lib to do this?
+      val ms = d / Math.pow(10, 6)
+      numberFormat.format(d) + " ms"
     case _ => x.toString
   }
 
   private def col(strings: Any*): String = strings.map { s =>
     val x = s match {
-      case d: Double => decimalFormat.format(d)
+      case d: Double => numberFormat.format(d)
       case _ => s
     }
     x.toString.slice(0, colLength - 2).padTo(colLength - 1, " ").mkString

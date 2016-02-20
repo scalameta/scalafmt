@@ -30,8 +30,8 @@ import scalariform.formatter.preferences.IndentSpaces
   * > benchmarks/jmh:run -i 10 -wi 10 -f1 -t1 org.scalafmt.*
   */
 @org.openjdk.jmh.annotations.State(Scope.Benchmark)
-@Warmup(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
-@Measurement(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
+@Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
+@Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @BenchmarkMode(Array(Mode.AverageTime))
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 abstract class FormatBenchmark(path: String*) {
@@ -56,7 +56,6 @@ abstract class FormatBenchmark(path: String*) {
     else Paths.get("benchmarks", "src", "resources", filename)
   }
 
-  @Benchmark
   def scalametaParser(): Unit = {
     import scala.meta._
     code.parse[Source]
@@ -68,7 +67,8 @@ abstract class FormatBenchmark(path: String*) {
       ScalaStyle.Standard)(scala.meta.parsers.parseSource)
   }
 
-  @Benchmark
+  // No need to run same benchmark again and again.
+  //  @Benchmark
   def scalariform(): String = {
     ScalaFormatter.format(code, scalariformPreferences)
   }
@@ -80,19 +80,18 @@ object run {
   abstract class ScalaJsBenchmark(filename: String)
     extends FormatBenchmark("scala-js", filename)
 
-  class Basic extends FormatBenchmark("scalafmt", "Basic.scala")
-
-  class Utils extends ScalaJsBenchmark("Utils.scala")
 
   class Division extends ScalaJsBenchmark("Division.scala")
-
-  class JsDependency extends ScalaJsBenchmark("JSDependency.scala")
 
   class SourceMapWriter extends ScalaJsBenchmark("SourceMapWriter.scala")
 
   class BaseLinker extends ScalaJsBenchmark("BaseLinker.scala")
 
-  class Semantics extends ScalaJsBenchmark("Semantics.scala")
+  // These files are too small to be interesting.
+  //  class Basic extends FormatBenchmark("scalafmt", "Basic.scala")
+  //  class Utils extends ScalaJsBenchmark("Utils.scala")
+  //  class JsDependency extends ScalaJsBenchmark("JSDependency.scala")
+  //  class Semantics extends ScalaJsBenchmark("Semantics.scala")
 
   // Scalafmt can't format these, yet.
   //  class TypeKinds extends ScalaJsBenchmark("TypeKinds.scala")

@@ -26,7 +26,7 @@ class FidelityTest extends FunSuite with FormatAssertions with ScalaFmtLogger {
 
   val files =
     Seq(
-      "core/src/test/resources/standard/Router.scala",
+      "core/src/test/resources/standard/TestingClassNameDoNotEdit.scalafmt",
       "benchmarks/src/resources/scalafmt/Basic.scala",
       "benchmarks/src/resources/scala-js/SourceMapWriter.scala",
       "benchmarks/src/resources/scala-js/Division.scala",

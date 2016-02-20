@@ -45,10 +45,11 @@ final case class State(cost: Int,
   def next(style: ScalaStyle, split: Split,
            tok: FormatToken): State = {
     val KILL = 10000
-    val nonExpiredIndents = pushes.filterNot {
-      push =>
-        if (push.expiresAt == Left) push.expire.end <= tok.left.end
-        else push.expire.end <= tok.right.end
+    val nonExpiredIndents = pushes.filterNot { push =>
+      val expireToken: Token =
+        if (push.expiresAt == Left) tok.left
+        else tok.right
+      push.expire.end <= expireToken.end
     }
     val newIndents: Vector[Indent[Num]] =
       nonExpiredIndents ++ split.indents.map(_.withNum(column, indentation))
@@ -61,15 +62,14 @@ final case class State(cost: Int,
     val splitWithPenalty =
       if (newColumn < style.maxColumn) split
       else split.withPenalty(KILL + newColumn) // minimize overflow
-    val newPolicy: PolicySummary =
-      if (split.policy == NoPolicy) policy
-      else policy.combine(split.policy, tok.left.end)
+    val newPolicy: PolicySummary = policy.combine(split.policy, tok.left.end)
     val newOptimalTokens: Map[Token, Set[Int]] =
-      split.optimalAt.fold(optimalTokens) {
-        tok =>
+      split.optimalAt match {
+        case None => optimalTokens
+        case Some(optimalTok) =>
           val updated: Set[Int] =
-            optimalTokens.getOrElse(tok, Set.empty[Int]) + splits.length
-          optimalTokens + (tok -> updated)
+            optimalTokens.getOrElse(optimalTok, Set.empty[Int]) + splits.length
+          optimalTokens + (optimalTok -> updated)
       }
     State(cost + splitWithPenalty.cost,
       // TODO(olafur) expire policy, see #18.
