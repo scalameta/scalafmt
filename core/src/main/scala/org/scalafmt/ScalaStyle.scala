@@ -14,12 +14,6 @@ sealed trait ScalaStyle {
   def maxColumn: Int = 80
 
   /**
-    * The maximum duration the formatter is allowed to run before giving up.
-    * If the formatter times out, the original source code is returned.
-    */
-  def maxDuration: Duration = Duration(400, "ms")
-
-  /**
     * Debugging only. Should scalafmt create a diagnostics report.
     */
   def debug: Boolean = false
@@ -31,8 +25,6 @@ sealed trait ScalaStyle {
   */
 protected[scalafmt] sealed trait UnitTestStyle extends ScalaStyle {
   override val debug = true
-
-  override def maxDuration = Duration(10, "s")
 }
 
 object ScalaStyle {
@@ -41,12 +33,6 @@ object ScalaStyle {
     * Recommended style if you are not sure which one to pick.
     */
   case object Standard extends ScalaStyle
-
-  protected[scalafmt] case object ManualTest extends ScalaStyle {
-    override val debug = true
-
-    override def maxDuration = Duration(10, "min")
-  }
 
   protected[scalafmt] case object UnitTest80 extends UnitTestStyle
 

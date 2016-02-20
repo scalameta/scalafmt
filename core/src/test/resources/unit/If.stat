@@ -30,10 +30,10 @@ val newColumn =
   if (split == Newline) newIndent
   else column + split.length
 <<< Egyptian curlies
-if (split.optimalAt.contains(tok.left))
+if (optimalAt.contains(tok.left))
 { println("hello") }
 >>>
-if (split.optimalAt.contains(tok.left)) {
+if (optimalAt.contains(tok.left)) {
   println("hello")
 }
 <<< if else throw

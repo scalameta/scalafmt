@@ -17,10 +17,23 @@ package object internal {
     })
   }
 
-  def childOf(tok: Token, tree: Tree, owners: Map[Long, Tree]): Boolean =
+  def childOf(tok: Token, tree: Tree, owners: Map[TokenHash, Tree]): Boolean =
     childOf(owners(hash(tok)), tree)
 
   /**
+    * TODO(olafur) Temporary hack until
+    *
+    * https://github.com/scalameta/scalameta/issues/332
+    *
+    * is fixed.
+    * @param token
+    */
+  case class TokenHash(token: Token)
+
+
+  /**
+    * IGNORE, see [[TokenHash]].
+    *
     * Custom hash code for token.
     *
     * The default hashCode is slow because it prevents conflicts between
@@ -35,9 +48,10 @@ package object internal {
     * The only chance for collision is if two empty length tokens with the same
     * type lie next to each other. @xeno-by said this should not happen.
     */
-  def hash(token: Token): Long = {
-    (token.privateTag << (62 - 8)) |
-      (token.start << (62 - (8 + 28))) |token.end
+  def hash(token: Token): TokenHash = {
+//    (token.privateTag << (62 - 8)) |
+//      (token.start << (62 - (8 + 28))) |token.end
+    new TokenHash(token)
   }
 
   @tailrec

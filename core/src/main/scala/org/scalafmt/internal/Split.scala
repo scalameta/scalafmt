@@ -46,7 +46,8 @@ false, indents: List[Indent[Length]] = List.empty[Indent[Length]],
   def withPolicy(newPolicy: Policy): Split = {
     val update =
       if (policy == NoPolicy) newPolicy
-      else newPolicy orElse policy
+      else throw new UnsupportedOperationException(
+        "Can't have two policies yet.")
     new Split(modification, cost, ignoreIf, indents, update, true, optimalAt)(
       line)
   }
@@ -80,9 +81,8 @@ false, indents: List[Indent[Length]] = List.empty[Indent[Length]],
   override def toString =
     s"""$modification:${line.value}(cost=$cost, indents=$indentation, p=$hasPolicy)"""
 
-  // TODO(olafur) come with better concept of split equality.
-
-  // For example update line in withOptimal.
-
-  def sameLine(other: Split) = this.line == other.line
+  def sameLine(other: Split) =
+    this.line == other.line &&
+      this.cost == other.cost &&
+      this.modification == other.modification
 }

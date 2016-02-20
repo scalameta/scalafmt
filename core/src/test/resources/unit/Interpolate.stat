@@ -25,3 +25,8 @@ s"""${a.foo[Bar]}
   val line = s"=" * 4
   s"$line\n=> $t\n$line"
 }
+<<< SKIP new inside expr
+def shortInfo: String = s"created=${new Date()}"
+>>>
+def shortInfo: String =
+  s"created=${new Date()}"

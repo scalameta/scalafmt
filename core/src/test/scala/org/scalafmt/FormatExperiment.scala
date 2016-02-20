@@ -8,6 +8,7 @@ import org.scalafmt.util.ScalacParser
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.concurrent.duration.Duration
 import scala.meta._
 
 
@@ -20,7 +21,7 @@ object FormatExperiment extends App with ScalaProjectsExperiment with FormatAsse
     if (!ScalacParser.checkParseFails(code)) {
       val startTime = System.nanoTime()
       val f = Future(ScalaFmt.format_![Source](code, ScalaStyle.Standard))
-      val formatted = Await.result(f, ScalaStyle.Standard.maxDuration)
+      val formatted = Await.result(f, Duration(400, "ms"))
       assertFormatPreservesAst[Source](code, formatted)
       print("+")
       formatSuccesses.add(FormatSuccess(filename, System.nanoTime() - startTime))

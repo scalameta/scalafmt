@@ -6,6 +6,7 @@ import java.text.DecimalFormat
 import java.util.concurrent.CopyOnWriteArrayList
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
+import org.scalafmt.internal.Debug
 import org.scalafmt.internal.ScalaFmtLogger
 
 import scala.collection.JavaConversions._
@@ -25,7 +26,7 @@ trait ScalaProjectsExperiment extends ScalaFmtLogger {
   val verbose = false
   val globalFilter: String => Boolean = _ => true
   val colLength = 10
-  val decimalFormat = new DecimalFormat("0.##E0")
+  val decimalFormat = new DecimalFormat("#.##")
   private val timeoutFailures: java.util.List[TimeoutErr] = new CopyOnWriteArrayList
   private val parseFailures: java.util.List[ParseErr] = new CopyOnWriteArrayList
   private val otherFailures: java.util.List[UnknownFailure] = new CopyOnWriteArrayList
@@ -33,6 +34,7 @@ trait ScalaProjectsExperiment extends ScalaFmtLogger {
 
   /**
     * Run
+    *
     * @param filename
     */
   def runOn(filename: String): Boolean
@@ -183,7 +185,7 @@ trait ScalaProjectsExperiment extends ScalaFmtLogger {
     ))
 
   private def formatNumber(x: Any): String = x match {
-    case d: Double => decimalFormat.format(d)
+    case d: Double => decimalFormat.format(Debug.ns2ms(d.asInstanceOf[Long])) + "ms"
     case _ => x.toString
   }
 

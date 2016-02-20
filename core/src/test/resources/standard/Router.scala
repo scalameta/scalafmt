@@ -1,6 +1,5 @@
 package org.scalafmt.internal
 
-import org.scalafmt.Error.CaseMissingArrow
 import org.scalafmt.ScalaStyle
 
 import scala.annotation.tailrec
@@ -19,6 +18,10 @@ import scala.meta.tokens.Token
 
 // Too many to import individually.
 import scala.meta.tokens.Token._
+
+case class TokenHash(token: Token) {
+//  override def hashCode: Int = token.hashCode()
+}
 
 /**
   * Assigns splits to format tokens.
@@ -175,7 +178,7 @@ class Router(style: ScalaStyle,
           Split(NoSplit, 0)
         )
       // NOTE. && and || are infix applications, this case is before ApplyInfix.
-      case FormatToken(cond: Ident, _, _) if isBoolOperator(cond) =>
+      case FormatToken(cond: Ident, _, _) if cond.code == "&&" || cond.code == "||" =>
         Seq(
           Split(Space, 0),
           Split(Newline, 1)
@@ -282,6 +285,9 @@ class Router(style: ScalaStyle,
       case FormatToken(_, _: `;`, _) => Seq(
         Split(NoSplit, 0)
       )
+      case FormatToken(_: `;`, _, _) => Seq(
+        Split(Newline, 0)
+      )
       case FormatToken(_, _: `:`, _) => Seq(
         Split(NoSplit, 0)
       )
@@ -330,6 +336,13 @@ class Router(style: ScalaStyle,
           Split(Newline, 1 + nestedPenalty + noApplyPenalty)
             .withIndent(2, dot, Left)
         )
+      case FormatToken(_, _: `.` | _: `#`, _) =>
+        Seq(
+          Split(NoSplit, 0)
+        )
+      case FormatToken(_: `.` | _: `#`, _: Ident, _) => Seq(
+        Split(NoSplit, 0)
+      )
       // ApplyUnary
       case tok@FormatToken(_: Ident, _: Literal, _) if leftOwner == rightOwner =>
         Seq(
@@ -442,7 +455,7 @@ class Router(style: ScalaStyle,
       )
       case tok@FormatToken(cs: `case`, _, _) if leftOwner.isInstanceOf[Case] =>
         val owner = leftOwner.asInstanceOf[Case]
-        val arrow = getArrow(owner)
+        val arrow = owner.tokens.find(t => t.isInstanceOf[`=>`] && owners(t) == owner).get
         // TODO(olafur) expire on token.end to avoid this bug.
         val lastToken = owner.body.tokens
           .filter {
@@ -451,37 +464,46 @@ class Router(style: ScalaStyle,
           }
           // edge case, if body is empty expire on arrow.
           .lastOption.getOrElse(arrow)
+        val breakOnArrow = Policy({
+          case Decision(tok@FormatToken(`arrow`, _, _), s) =>
+            Decision(tok, s.filter(_.modification.isNewline))
+        }, arrow.end)
         Seq(
-          // Either everything fits in one line or break on =>
-          Split(Space, 0).withPolicy(SingleLineBlock(lastToken)),
-          Split(Space, 1)
+            Split(Space, 0)
               .withPolicy(Policy({
-                case Decision(t@FormatToken(`arrow`, _, _), s) =>
-                  Decision(t, s.filter(_.modification.isNewline))
-              }, expire = lastToken.end))
-            .withIndent(2, lastToken, Left) // case body indented by 2.
-            .withIndent(2, arrow, Left) // cond body indented by 4.
+                case Decision(t, s) if tok.right.end <= lastToken.end =>
+                  Decision(t, s.map {
+                    case nl if nl.modification.isNewline =>
+                      val result =
+                        if (t.right.isInstanceOf[`if`] && owners(t.right) == owner) nl
+                        else nl.withPenalty(1)
+                      result.withPolicy(breakOnArrow)
+                    case x => x
+                  })
+              }, lastToken.end, noDequeue = true))
+              .withIndent(2, lastToken, Left)
+              .withIndent(2, arrow, Left)
         )
       case tok@FormatToken(_, cond: `if`, _) if rightOwner.isInstanceOf[Case] =>
-        val owner = rightOwner.asInstanceOf[Case]
-        val lastToken = getArrow(owner)
-        val range = Range(cond.start, lastToken.end).inclusive
-        val penalizeNewlines = Policy({
-          case Decision(t, s) if range.contains(t.right.start) && !isBoolOperator(t.left) =>
+        val favorNewlineAfter_|| = Policy({
+          case Decision(t, s) if t.left.code != "||" =>
             Decision(t, s.map {
-              case split if split.modification.isNewline =>
-                split.withPenalty(1)
-              case x =>
-                x
+              case nl if nl.modification.isNewline =>
+                nl.withPenalty(1)
+              case x => x
             })
-        }, lastToken.end)
-        Seq(
-          Split(Space, 0, policy = penalizeNewlines),
-          Split(Newline, 1, policy = penalizeNewlines)
-        )
-      case tok@FormatToken(arrow: `=>`, _, _) if leftOwner.isInstanceOf[Case] =>
+        }, rightOwner.tokens.last.end, noDequeue = true)
         Seq(
           Split(Space, 0),
+          Split(Newline, 1)
+        )
+      case tok@FormatToken(arrow: `=>`, _, _) if leftOwner.isInstanceOf[Case] =>
+        val owner = leftOwner.asInstanceOf[Case]
+        val expire = owner.body.tokens
+          .filterNot(_.isInstanceOf[Whitespace])
+          .lastOption.getOrElse(arrow)
+        Seq(
+          Split(Space, 0, policy = SingleLineBlock(expire)),
           Split(Newline, 1)
         )
       // Inline comment
@@ -514,13 +536,6 @@ class Router(style: ScalaStyle,
         Split(Space, 0)
       )
       // Fallback
-      case FormatToken(_, _: `.` | _: `#`, _) =>
-        Seq(
-          Split(NoSplit, 0)
-        )
-      case FormatToken(_: `.` | _: `#`, _: Ident, _) => Seq(
-        Split(NoSplit, 0)
-      )
       case FormatToken(_, _: `)` | _: `]`, _) => Seq(
         Split(NoSplit, 0)
       )
@@ -627,7 +642,7 @@ class Router(style: ScalaStyle,
                      (implicit line: sourcecode.Line): Policy = {
     Policy({
       case Decision(tok, splits) if exclude.forall(!_.contains(tok.left.start)) &&
-        tok.right.end <= expire.end =>
+        tok.right.end < expire.end =>
         Decision(tok, splits.filterNot(_.modification.isNewline))
     }, expire.end, noDequeue = true)
   }
@@ -689,15 +704,6 @@ class Router(style: ScalaStyle,
 
   def endsWithNoIndent(between: Vector[Whitespace]): Boolean =
     between.lastOption.exists(_.isInstanceOf[`\n`])
-
-  def isBoolOperator(token: Token): Boolean = token.code match {
-    case "||" | "&&" => true
-    case _ => false
-  }
-
-  def getArrow(caseStat: Case): Token =
-    caseStat.tokens.find(t => t.isInstanceOf[`=>`] && owners(t) == caseStat)
-      .getOrElse(throw CaseMissingArrow(caseStat))
 
   // Used for convenience when calling withIndent.
   private implicit def int2num(n: Int): Num = Num(n)

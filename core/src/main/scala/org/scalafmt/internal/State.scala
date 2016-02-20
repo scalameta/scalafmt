@@ -47,8 +47,8 @@ final case class State(cost: Int,
     val KILL = 10000
     val nonExpiredIndents = pushes.filterNot {
       push =>
-        if (push.expiresAt == Left) push.expire == tok.left
-        else push.expire == tok.right
+        if (push.expiresAt == Left) push.expire.end <= tok.left.end
+        else push.expire.end <= tok.right.end
     }
     val newIndents: Vector[Indent[Num]] =
       nonExpiredIndents ++ split.indents.map(_.withNum(column, indentation))
@@ -101,7 +101,7 @@ object State extends ScalaFmtLogger {
     val result = toks.zip(splits).map {
       case (tok, split) =>
         // TIP. Use the following line to debug origin of splits.
-        if (debug && toks.length < 100) {
+        if (debug && toks.length < 1000) {
           val left = small(tok.left)
           logger.debug(f"$left%-10s $split")
         }

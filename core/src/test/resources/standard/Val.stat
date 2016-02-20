@@ -10,3 +10,7 @@ var inside =
     false
 >>>
 var inside = false
+<<< SKIP underscore assignment
+var inside: Int   = _
+>>>
+var inside: Int = _

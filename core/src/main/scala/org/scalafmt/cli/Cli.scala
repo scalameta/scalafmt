@@ -6,9 +6,14 @@ import org.scalafmt.ScalaFmt
 import org.scalafmt.ScalaStyle
 import org.scalafmt.internal.ScalaFmtLogger
 
+import scala.concurrent.duration.Duration
+
 
 object Cli extends ScalaFmtLogger {
-  case class Config(file: Option[File], inPlace: Boolean, range: Option[Range]) {
+  case class Config(file: Option[File],
+                    inPlace: Boolean,
+                    range: Option[Range],
+                    maxDuration: Duration = Duration(10, "s")) {
     def rangeLambda: Int => Boolean = range.map { r =>
       x: Int => x >= r.head && x <= r.last
     }.getOrElse(_ => true)
@@ -41,9 +46,9 @@ object Cli extends ScalaFmtLogger {
 
   def run(config: Config): Unit = {
     val code = getCode(config)
-    val output = ScalaFmt.format(code, ScalaStyle.Standard, config.rangeLambda)
+    val output = ScalaFmt.format(code, ScalaStyle.Standard, config.rangeLambda, config.maxDuration)
     config match {
-      case Config(Some(filename), true, _) =>
+      case Config(Some(filename), true, _, _) =>
         val path = java.nio.file.Paths.get(filename.toURI)
         java.nio.file.Files.write(path, output.getBytes)
       case _ => println(output)

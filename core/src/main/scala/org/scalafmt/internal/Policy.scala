@@ -12,13 +12,6 @@ package org.scalafmt.internal
 case class Policy(f: PartialFunction[Decision, Decision],
                   expire: Int, noDequeue: Boolean = false)(implicit val line: sourcecode.Line) {
 
-  def apply(decision: Decision): Decision = f(decision)
-
-  def orElse(other: Policy): Policy =
-    Policy(f orElse other.f, Math.max(expire, other.expire),
-      // TODO(olafur) wrong in some corner cases
-      noDequeue || other.noDequeue )
-
   override def toString = s"P:${line.value}(D=$noDequeue)"
 
 }

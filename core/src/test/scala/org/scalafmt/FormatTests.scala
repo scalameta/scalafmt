@@ -60,7 +60,7 @@ class FormatTests
           case Some(parse) =>
             val obtained = ScalaFmt.format_!(t.original, t.style)(parse)
             saveResult(t, obtained)
-            assertFormatPreservesAst(obtained, t.original)(parse)
+            assertFormatPreservesAst(t.original, obtained)(parse)
             assertNoDiff(obtained, t.expected)
           case None =>
             logger.warn(s"Found no parse for filename ${t.filename}")

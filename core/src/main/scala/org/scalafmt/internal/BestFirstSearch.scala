@@ -17,12 +17,12 @@ import scala.reflect.ClassTag
 import scala.reflect.classTag
 
 /**
-  * Implements Dijkstra's shortest path search to find optimal formatting.
+  * Implements best first search to find optimal formatting.
   */
-class GraphSearch(style: ScalaStyle, tree: Tree, range: Int => Boolean)
+class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Int => Boolean)
   extends ScalaFmtLogger {
 
-  import GraphSearch._
+  import BestFirstSearch._
 
   val toks: Array[FormatToken] = FormatToken.formatTokens(tree.tokens)
   val owners = getOwners(tree)
@@ -38,6 +38,16 @@ class GraphSearch(style: ScalaStyle, tree: Tree, range: Int => Boolean)
   var explored = 0
   var deepestYet = State.start
   var statementCount = 0
+
+  /**
+    * Unique key for state by its column/indentation combination.
+    *
+    * Problem: two states can be at same column bug with different indentation.
+    * TODO(olafur) property based testing on this?
+    */
+  def stateColumnKey(state: State): Int = {
+    state.column << 16 | state.indentation
+  }
   /**
     *
     * Returns true if it's OK to skip over state.
@@ -49,21 +59,24 @@ class GraphSearch(style: ScalaStyle, tree: Tree, range: Int => Boolean)
       if (i >= curr.splits.length) {
         true // missing forall on FilterMonadic, for some reason.
       } else {
-      val split = curr.splits(i)
-      val tok = toks(i)
-      val currIsOptimal = optimal
-        .get(curr.states(i).column -> tok) match {
-        case None => true
-        case Some(otherSplit) => otherSplit.sameLine(split)
-      }
-      if (!currIsOptimal) {
-        logger.trace(
-          s"""
-             |${header(s"$split eliminated $curr at ${toks(i)}, $tok")}
-             |${mkString(curr.splits)}
-             |${optimal.toVector.mkString("\n")}
-             |""".stripMargin)
-      }
+        val split = curr.splits(i)
+        val tok = toks(i)
+        val pastState = curr.states(1)
+        val currIsOptimal = optimal
+          .get(stateColumnKey(pastState) -> tok) match {
+          case None => true
+          case Some(otherSplit) =>
+            val result = otherSplit.sameLine(split)
+            if (!result) {
+              logger.trace(
+                s"""
+                   |${header(s"$otherSplit eliminated $split at $tok")}
+                   |${mkString(curr.splits)}
+                   |${optimal.toVector.mkString("\n")}
+                   |""".stripMargin)
+            }
+            result
+        }
       currIsOptimal
       }
     }
@@ -77,12 +90,14 @@ class GraphSearch(style: ScalaStyle, tree: Tree, range: Int => Boolean)
       optimalSplits => optimalSplits.foreach { i =>
         val currTok = toks(i)
         val split = curr.splits(i)
+        logger.trace(s"optimal $split $currTok $tok ${curr.cost}")
         logger.trace(
           s"""optimal $curr $split ${curr.cost} $tok
               |${header("output")}
               |${mkString(curr.splits)}
                 """.stripMargin)
-        optimal += (curr.states(i).column -> currTok) -> split
+        val pastState = curr.states(i)
+        optimal += (stateColumnKey(pastState) -> currTok) -> split
         optimalIdx += i
       }
     }
@@ -132,7 +147,7 @@ class GraphSearch(style: ScalaStyle, tree: Tree, range: Int => Boolean)
         logger.debug(s"Explored $explored")
       }
       val i = curr.splits.length
-      if (i == toks.length || !childOf(toks(i).right, owner, owners)) {
+      if (explored > 50000 || i == toks.length || !childOf(toks(i).right, owner, owners)) {
         result = curr
         logger.trace(
           s"""Q.size: ${Q.size}
@@ -164,9 +179,12 @@ class GraphSearch(style: ScalaStyle, tree: Tree, range: Int => Boolean)
           if (splitToken.inside(range))
             router.Route(splitToken)
           else List(provided(splitToken))
+
+        // TODO(olafur) global policies? For example inline comments must get newline.
         val actualSplit = curr.policy.execute(Decision(splitToken, splits)).splits
         if (splits.length != actualSplit.length) {
-          logger.trace(s"${curr.policy.policies.mkString(", ")} killed $splits")
+          val activePolicies = curr.policy.policies.filterNot(_.expire < splitToken.left.end)
+          logger.trace(s"${activePolicies.mkString(", ")} killed $splits")
         }
         actualSplit.withFilter(!_.ignoreIf).foreach { split =>
           val nextState = curr.next(style, split, splitToken)
@@ -223,9 +241,8 @@ class GraphSearch(style: ScalaStyle, tree: Tree, range: Int => Boolean)
     * Same as shortest path except caches results.
     */
   private def shortestPathMemo(owner: Tree, start: State, prev: State): State = {
-    val col = start.indentation
     val i = Math.max(0, prev.splits.length - 1)
-    val key = col -> owner
+    val key = stateColumnKey(start) -> owner
     memo.getOrElseUpdate(key, {
       val result = shortestPath(owner, start)
       val output = mkString(result.splits)
@@ -248,10 +265,10 @@ class GraphSearch(style: ScalaStyle, tree: Tree, range: Int => Boolean)
 
 }
 
-object GraphSearch {
-  def getStatementStarts(tree: Tree): Map[Long, Tree] = {
+object BestFirstSearch {
+  def getStatementStarts(tree: Tree): Map[TokenHash, Tree] = {
     val ret =
-      new mutable.MapBuilder[Long, Tree, Map[Long, Tree]](Map[Long, Tree]())
+      new mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](Map[TokenHash, Tree]())
 
     def addAll(trees: Seq[Tree]): Unit = {
       trees.foreach { t =>
@@ -308,9 +325,9 @@ object GraphSearch {
     *
     * Contains lookup keys in both directions, opening [({ and closing })].
     */
-  def getMatchingParentheses(tokens: Tokens): Map[Long, Token] = {
-    val ret = new mutable.MapBuilder[Long, Token, Map[Long, Token]](
-      Map.empty[Long, Token])
+  def getMatchingParentheses(tokens: Tokens): Map[TokenHash, Token] = {
+    val ret = new mutable.MapBuilder[TokenHash, Token, Map[TokenHash, Token]](
+      Map.empty[TokenHash, Token])
     var stack = List.empty[Token]
     tokens.foreach {
       case open@(_: `{` | _: `[` | _: `(`) => stack = open :: stack
@@ -340,8 +357,8 @@ object GraphSearch {
   /**
     * Creates lookup table from token offset to its closest scala.meta tree.
     */
-  def getOwners(tree: Tree): Map[Long, Tree] = {
-    val result = mutable.Map.empty[Long, Tree]
+  def getOwners(tree: Tree): Map[TokenHash, Tree] = {
+    val result = mutable.Map.empty[TokenHash, Tree]
     def loop(x: Tree): Unit = {
       x.tokens.foreach { tok =>
         result += hash(tok) -> x

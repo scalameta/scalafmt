@@ -18,7 +18,7 @@ import scala.meta.tokens.Tokens
   */
 case class FormatToken(left: Token,
                        right: Token,
-                       between: Vector[Whitespace]) {
+                       between: Vector[Whitespace]) extends ScalaFmtLogger {
   override def toString = s"${left.code}∙${right.code}"
 
   def inside(range: Int => Boolean): Boolean = {
