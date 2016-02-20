@@ -11,9 +11,9 @@ import scala.concurrent.duration.Duration
 
 class CliTest extends FunSuite with DiffAssertions {
   test("cli parses args") {
-    val expected = Cli.Config(Some(new File("foo")), inPlace = true, None)
+    val expected = Cli.Config(Some(new File("foo")), inPlace = true)
     val args = Seq("--file", "foo", "-i")
-    val init = Cli.Config(None, inPlace = false, None)
+    val init = Cli.Config(None, inPlace = false)
     val obtained = Cli.parser.parse(args, init)
     assert(obtained.contains(expected))
   }
@@ -33,8 +33,7 @@ class CliTest extends FunSuite with DiffAssertions {
       """.stripMargin
     Files.write(tmpFile, unformatted.getBytes)
     val formatInPlace = Cli.Config(Some(tmpFile.toFile),
-      inPlace = true,
-      None, Duration(10, "s"))
+      inPlace = true, maxDuration = Duration(10, "s"))
     Cli.run(formatInPlace)
     val obtained = new String(Files.readAllBytes(tmpFile))
     assertNoDiff(obtained, expected)

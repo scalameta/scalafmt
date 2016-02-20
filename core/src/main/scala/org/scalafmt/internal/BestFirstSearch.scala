@@ -19,7 +19,7 @@ import scala.reflect.classTag
 /**
   * Implements best first search to find optimal formatting.
   */
-class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Int => Boolean)
+class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
   extends ScalaFmtLogger {
 
   import BestFirstSearch._
