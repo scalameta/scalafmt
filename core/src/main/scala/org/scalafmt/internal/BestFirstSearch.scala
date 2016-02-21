@@ -10,6 +10,7 @@ import scala.meta.internal.ast.Defn
 import scala.meta.internal.ast.Pkg
 import scala.meta.internal.ast.Template
 import scala.meta.internal.ast.Term
+import scala.meta.prettyprinters.Structure
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 import scala.meta.tokens.Tokens
@@ -265,7 +266,7 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
 
 }
 
-object BestFirstSearch {
+object BestFirstSearch extends ScalaFmtLogger {
   def getStatementStarts(tree: Tree): Map[TokenHash, Tree] = {
     val ret =
       new mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](Map[TokenHash, Tree]())
@@ -363,12 +364,7 @@ object BestFirstSearch {
       x.tokens.foreach { tok =>
         result += hash(tok) -> x
       }
-      x match {
-        case _: Term.Interpolate => // TODO(olafur) the mod is unintuitive
-        //        case _: scala.meta.internal.ast.Mod.Override.Api =>
-        // Nothing
-        case _ => x.children.foreach(loop)
-      }
+      x.children.foreach(loop)
     }
     loop(tree)
     result.toMap

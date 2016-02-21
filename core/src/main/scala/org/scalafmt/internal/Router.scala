@@ -1,6 +1,7 @@
 package org.scalafmt.internal
 
 import org.scalafmt.Error.CaseMissingArrow
+import org.scalafmt.Error.UnexpectedTree
 import org.scalafmt.ScalaStyle
 
 import scala.annotation.tailrec
@@ -15,6 +16,7 @@ import scala.meta.internal.ast.Pkg
 import scala.meta.internal.ast.Template
 import scala.meta.internal.ast.Term
 import scala.meta.internal.ast.Type
+import scala.meta.prettyprinters.Structure
 import scala.meta.tokens.Token
 
 // Too many to import individually.
@@ -74,11 +76,16 @@ class Router(style: ScalaStyle,
         tok.right.name.startsWith("xml") => Seq(
         Split(NoSplit, 0)
       )
-      case tok if // TODO(olafur) DRY.
-      (leftOwner.isInstanceOf[Term.Interpolate] &&
-        rightOwner.isInstanceOf[Term.Interpolate]) ||
-        (leftOwner.isInstanceOf[Pat.Interpolate] &&
-          rightOwner.isInstanceOf[Pat.Interpolate]) =>
+      case FormatToken(
+      _: Interpolation.Id | _: Interpolation.Part |
+      _: Interpolation.Start | _: Interpolation.SpliceStart,
+      _,
+      _) =>
+        Seq(
+          Split(NoSplit, 0)
+        )
+      case FormatToken( _, _: Interpolation.Part | _: Interpolation.End |
+                           _: Interpolation.SpliceEnd, _) =>
         Seq(
           Split(NoSplit, 0)
         )
@@ -94,11 +101,13 @@ class Router(style: ScalaStyle,
         Split(NoSplit, 0)
       )
       case FormatToken(open: `{`, _, _)
-        if parents(leftOwner).exists(_.isInstanceOf[Import]) => Seq(
+        if parents(leftOwner).exists(_.isInstanceOf[Import]) ||
+          leftOwner.isInstanceOf[Term.Interpolate] => Seq(
         Split(NoSplit, 0)
       )
       case FormatToken(_, close: `}`, _)
-        if parents(rightOwner).exists(_.isInstanceOf[Import]) => Seq(
+        if parents(rightOwner).exists(_.isInstanceOf[Import]) ||
+          rightOwner.isInstanceOf[Term.Interpolate] => Seq(
         Split(NoSplit, 0)
       )
       case FormatToken(_: `.`, underscore: `_ `, _)
@@ -164,8 +173,9 @@ class Router(style: ScalaStyle,
           Split(Space, 0)
         )
       // Opening [ with no leading space.
-      case FormatToken(left, open: `[`, _) if rightOwner.isInstanceOf[Term.ApplyType] ||
-        leftOwner.isInstanceOf[Type.Name] => Seq(
+      case tok@FormatToken(left, open: `[`, _)
+        if rightOwner.isInstanceOf[Term.ApplyType] ||
+            leftOwner.isInstanceOf[Type.Name] => Seq(
         Split(NoSplit, 0)
       )
       // Opening ( with no leading space.
@@ -175,13 +185,6 @@ class Router(style: ScalaStyle,
         Seq(
           Split(NoSplit, 0)
         )
-      // NOTE. && and || are infix applications, this case is before ApplyInfix.
-      case FormatToken(cond: Ident, _, _) if isBoolOperator(cond) =>
-        Seq(
-          Split(Space, 0),
-          Split(Newline, 1)
-        )
-
       // Defn.{Object, Class, Trait}
       case tok@FormatToken(_: `object` | _: `class ` | _: `trait`, _, _) =>
         val owner = leftOwner
@@ -201,7 +204,7 @@ class Router(style: ScalaStyle,
         Seq(
           Split(Space, 0).withIndent(4, expire, Left)
         )
-      case FormatToken(e: `=`, _, _) if leftOwner.isInstanceOf[Defn.Def] =>
+      case tok@FormatToken(e: `=`, _, _) if leftOwner.isInstanceOf[Defn.Def] =>
         val expire = leftOwner.asInstanceOf[Defn.Def].body.tokens.last
         Seq(
           Split(Space, 0, policy = SingleLineBlock(expire)),
@@ -293,9 +296,12 @@ class Router(style: ScalaStyle,
       case FormatToken(tok: `=`, _, _) // TODO(olafur) scala.meta should have uniform api for these two
         if leftOwner.isInstanceOf[Defn.Val] ||
           leftOwner.isInstanceOf[Defn.Var] =>
-        val rhs: Term = leftOwner match {
+        val rhs: Tree = leftOwner match {
           case l: Defn.Val => l.rhs
-          case r: Defn.Var if r.rhs.isDefined => r.rhs.get
+          case r: Defn.Var => r.rhs match {
+            case Some(x) => x
+            case None => r // var x: Int = _, no policy
+          }
         }
         val expire = leftOwner.tokens.last
         val spacePolicy: Policy = rhs match {
@@ -403,19 +409,35 @@ class Router(style: ScalaStyle,
           Split(Newline, 0)
         )
       // Last else branch
-      case tok@FormatToken(els: `else`, _, _) if !nextNonComment(tok).right.isInstanceOf[`if`] =>
-        val expire = leftOwner.asInstanceOf[Term.If].elsep.tokens.last
+      case tok@FormatToken(els: `else`, _, _)
+        if !nextNonComment(tok).right.isInstanceOf[`if`] =>
+        val expire = leftOwner match {
+          case t: Term.If => t.elsep.tokens.last
+          case x => throw new UnexpectedTree[Term.If](x)
+        }
         Seq(
           Split(Space, 0, policy = SingleLineBlock(expire)),
           Split(Newline, 1).withIndent(2, expire, Left)
         )
       // ApplyInfix.
-      case FormatToken(left: Ident, _, _) if leftOwner.isInstanceOf[Term.ApplyInfix] => Seq(
-        Split(Space, 0),
-        Split(Newline, 1)
-      )
+      case tok@FormatToken(left: Ident, _, _) if isBoolOperator(left) =>
+        Seq(
+          Split(Space, 0),
+          Split(Newline, 1)
+        )
+        // TODO(olafur) handle infix application for non boolean operators.
+//      case tok@FormatToken(left: Ident, _, _) if false && leftOwner.parent.exists {
+//          case parent: Term.ApplyInfix => parent.op.tokens.head == left
+//          case _ => false
+//        } =>
+//        val newlinePenalty = infixPrecedence(left)
+//        Seq(
+//          Split(Space, 0),
+//          Split(Newline, newlinePenalty)
+//        )
       case tok@FormatToken(_: Ident | _: Literal | _: Interpolation.End,
-      _: Ident | _: Literal | _: Xml.End, _) => Seq(
+      _: Ident | _: Literal | _: Xml.End, _) =>
+        Seq(
         Split(Space, 0)
       )
       case FormatToken(open: `(`, right, _) if leftOwner.isInstanceOf[Term.ApplyInfix] =>
@@ -695,6 +717,26 @@ class Router(style: ScalaStyle,
     case "||" | "&&" => true
     case _ => false
   }
+
+  // TODO(olafur) use these
+//  /**
+//    * See https://github.com/scala/scala/blob/2.12.x/spec/06-expressions.md
+//    */
+//  def infixPrecedence(token: Token): Int =
+//    token.code.charAt(0) match {
+//      case '*' | '/' | '%' => 1
+//      case '+' | '-' => 1
+//      case ':' => 1
+//      case '<' | '>' => 1
+//      case '=' | '!' => 1
+//      case '&' => 1
+//      case '^' => 1
+//      case '"' => 1
+//      // TODO(olafur) consider last token is :
+//      case x =>
+//        logger.warn(s"Unexpected token $x")
+//        8
+//    }
 
   def getArrow(caseStat: Case): Token =
     caseStat.tokens.find(t => t.isInstanceOf[`=>`] && owners(t) == caseStat)

@@ -54,15 +54,38 @@ final case class State(cost: Int,
     val newIndents: Vector[Indent[Num]] =
       nonExpiredIndents ++ split.indents.map(_.withNum(column, indentation))
     val newIndent = newIndents.foldLeft(0)(_ + _.length.n)
+
     // Always account for the cost of the right token.
-    val newColumn =
-      tok.right.code.length + (
+    val tokLength = tok.right.code.length
+
+    // Some tokens contain newline, like multiline strings/comments.
+    val lengthOnFirstLine = {
+      val firstNewline = tok.right.code.indexOf('\n')
+      if (firstNewline == -1) tokLength
+      else firstNewline
+    }
+    val columnOnCurrentLine = lengthOnFirstLine + {
+      if (split.modification.isNewline) newIndent
+      else column + split.length
+    }
+    val lengthOnLastLine = {
+      val lastNewline = tok.right.code.lastIndexOf('\n')
+      if (lastNewline == -1) tokLength
+      else tokLength - (lastNewline - 1)
+    }
+    val nextStateColumn = lengthOnLastLine + {
         if (split.modification.isNewline) newIndent
-        else column + split.length)
-    val splitWithPenalty =
-      if (newColumn < style.maxColumn) split
-      else split.withPenalty(KILL + newColumn) // minimize overflow
+        else column + split.length
+    }
     val newPolicy: PolicySummary = policy.combine(split.policy, tok.left.end)
+    val splitWithPenalty = {
+      if (columnOnCurrentLine < style.maxColumn) {
+        split // fits inside column
+      }
+      else {
+        split.withPenalty(KILL + columnOnCurrentLine) // overflow
+      }
+    }
     val newOptimalTokens: Map[Token, Set[Int]] =
       split.optimalAt match {
         case None => optimalTokens
@@ -79,7 +102,7 @@ final case class State(cost: Int,
       newOptimalTokens,
       newIndent,
       newIndents,
-      newColumn)
+      nextStateColumn)
   }
 }
 
@@ -103,7 +126,7 @@ object State extends ScalaFmtLogger {
         // TIP. Use the following line to debug origin of splits.
         if (debug && toks.length < 1000) {
           val left = small(tok.left)
-          logger.debug(f"$left%-10s $split")
+          logger.debug(f"$left%-10s $split ${state.column}")
         }
         state = state.next(style, split, tok)
         val whitespace = split.modification match {
