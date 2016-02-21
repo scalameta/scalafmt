@@ -1,5 +1,7 @@
 package org.scalafmt
 
+import org.scalafmt.util.ExperimentResult.Skipped
+import org.scalafmt.util.ExperimentResult.Success
 import org.scalafmt.util.FilesUtil
 import org.scalafmt.util.FormatAssertions
 import org.scalafmt.util.ScalaProjectsExperiment
@@ -24,9 +26,9 @@ object FormatExperiment extends App with ScalaProjectsExperiment with FormatAsse
       val formatted = Await.result(f, Duration(10, "s"))
       assertFormatPreservesAst[Source](code, formatted)
       print("+")
-      formatSuccesses.add(FormatSuccess(filename, System.nanoTime() - startTime))
+      results.add(Success(filename, System.nanoTime() - startTime))
     } else {
-      skipped.add(filename)
+      results.add(Skipped(filename))
     }
   }
 

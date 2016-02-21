@@ -1,5 +1,7 @@
 package org.scalafmt.util
 
+import org.scalafmt.Error.FormatterChangedAST
+import org.scalafmt.Error.FormatterOutputDoesNotParse
 import org.scalatest.FunSuite
 import org.scalatest.FunSuiteLike
 
@@ -20,11 +22,10 @@ trait FormatAssertions extends FunSuiteLike with DiffAssertions {
             val originalStructure = originalParsed.show[Structure]
             val obtainedStructure = obtainedParsed.show[Structure]
             if (originalStructure != obtainedStructure) {
-              fail("formatter changed AST!\n" + obtained)
+              throw FormatterChangedAST
             }
           case None =>
-            fail("Formatter output does not parse!\n" +
-              error2message(obtained, original))
+            throw FormatterOutputDoesNotParse(error2message(obtained, original))
         }
     }
   }

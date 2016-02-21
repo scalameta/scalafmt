@@ -20,10 +20,18 @@ object Error extends ScalaFmtLogger {
   case class CaseMissingArrow(tree: Case)
     extends Error(s"Missing => in case: \n$tree")
 
-  case object CantFormatFile
-    extends Error("scalafmt cannot format this file")
+  case object FormatterChangedAST
+    extends Error("Formatter changed AST")
+
+  case class FormatterOutputDoesNotParse(msg: String)
+    extends Error("Formatter output does not parse:\n" + msg)
 
   case class UnexpectedTree[Expected <: Tree : ClassTag](obtained: Tree)
     extends Error(
       s"Expected: ${classTag[Expected].getClass}\nObtained: ${log(obtained)}")
+
+  case object CantFormatFile
+    extends Error("scalafmt cannot format this file")
+
+
 }

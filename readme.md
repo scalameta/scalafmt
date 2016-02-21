@@ -94,6 +94,25 @@ To run main formatting tests:
 
 ### Updates (mostly for myself)
 
+* Feb 21th
+  * Scala.js experiment with 10s timeout. Now, formats 848 files out of 920! 
+  
+```
+org.scalafmt.Error$FormatterOutputDoesNotParse: 9
+scala.meta.ParseException: 19
+org.scalafmt.Error$FormatterChangedAST$: 4
+java.lang.ClassCastException: 11
+org.scalafmt.Error$CantFormatFile$: 9
+Success: 848
+Timed out: 20
+
++------------+--------+--------------+----------+---------+----------+----------+
+|         Max|     Min|           Sum|      Mean|       Q1|        Q2|        Q3|
++------------+--------+--------------+----------+---------+----------+----------+
+|9.982,152 ms|1,343 ms|488.630,586 ms|576,215 ms|34,954 ms|114,927 ms|468,503 ms|
++------------+--------+--------------+----------+---------+----------+----------+
+```
+
 * Feb 19th
   * Ran `scalafmt` on  Scala.js repo with 10s timeout. Performance is slower
   than yesterday since 

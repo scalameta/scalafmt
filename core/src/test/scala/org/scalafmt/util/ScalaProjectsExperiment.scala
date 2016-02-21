@@ -2,14 +2,16 @@ package org.scalafmt.util
 
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.util.Locale
 import java.util.concurrent.CopyOnWriteArrayList
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
-import org.scalafmt.internal.Debug
 import org.scalafmt.internal.ScalaFmtLogger
+import org.scalafmt.util.ExperimentResult.ParseErr
+import org.scalafmt.util.ExperimentResult.Success
+import org.scalafmt.util.ExperimentResult.Timeout
+import org.scalafmt.util.ExperimentResult.UnknownFailure
 
 import scala.collection.JavaConversions._
 import scala.concurrent.Await
@@ -17,14 +19,14 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.meta._
+import scala.util.control.NonFatal
 
 /**
   * Mostly borrowed from
   * https://github.com/lihaoyi/fastparse/blob/0d67eca8f9264bfaff68e5cbb227045ceac4a15f/scalaparse/jvm/src/test/scala/scalaparse/ProjectTests.scala
   */
 trait ScalaProjectsExperiment extends ScalaFmtLogger {
-  val formatSuccesses: java.util.List[FormatSuccess] = new CopyOnWriteArrayList[FormatSuccess]()
-  val skipped: java.util.List[String] = new CopyOnWriteArrayList[String]()
+  val results: java.util.List[ExperimentResult] = new CopyOnWriteArrayList[ExperimentResult]()
   val verbose = false
   val globalFilter: String => Boolean = _ => true
   val colLength = 10
@@ -34,14 +36,10 @@ trait ScalaProjectsExperiment extends ScalaFmtLogger {
     format.setMaximumFractionDigits(3)
     format
   }
-
-  private val timeoutFailures: java.util.List[TimeoutErr] = new CopyOnWriteArrayList
-  private val parseFailures: java.util.List[ParseErr] = new CopyOnWriteArrayList
-  private val otherFailures: java.util.List[UnknownFailure] = new CopyOnWriteArrayList
   private val pathRoot = "target/repos/"
 
   /**
-    * Run
+    * Implement this method.
     *
     * @param filename
     */
@@ -109,12 +107,13 @@ trait ScalaProjectsExperiment extends ScalaFmtLogger {
   }
 
   def recoverError(fileUrl: String): PartialFunction[Throwable, Boolean] = {
-    case e: ParseException => parseFailures.add(ParseErr(fileUrl, e))
+    case e: ParseException => results.add(ParseErr(fileUrl, e))
     case e: java.util.concurrent.TimeoutException =>
       print("-")
-      timeoutFailures.add(TimeoutErr(fileUrl))
-    case e: java.lang.Throwable =>
-      otherFailures.add(UnknownFailure(fileUrl, e))
+      results.add(Timeout(fileUrl))
+    case NonFatal(e) =>
+      print("X")
+      results.add(UnknownFailure(fileUrl, e))
   }
 
   private def repoName(url: String): String = url.split("/").last
@@ -153,34 +152,22 @@ trait ScalaProjectsExperiment extends ScalaFmtLogger {
       .exists(x.startsWith)
 
   def printResults(): Unit = {
-    if (verbose) {
-      for ((msg, parseErrors) <- parseFailures.groupBy(_.err)) {
-        println(header(msg))
-        parseErrors.sortBy(_.url).map(bullet).foreach { x =>
-          println(x)
-        }
-      }
-      println(header("Throwable"))
-      otherFailures.toIterator.map(bullet).foreach { x =>
-        println(x)
-      }
-    }
     println(header("Summary:"))
-    println(s"Unknown Failures: ${otherFailures.length}")
-    println(s"Timeout Failures: ${timeoutFailures.length}")
-    println(s"Parse exceptions: ${parseFailures.length}")
-    val formatStats = new DescriptiveStatistics()
-    formatSuccesses.foreach { x =>
-      formatStats.addValue(x.nanos)
+    results.groupBy(_.key).foreach {
+      case (categoryName, categoryResults) =>
+        println(s"$categoryName: ${categoryResults.length}")
     }
-    println(
-      s"Format successes: ${formatSuccesses.length}\n${summarize(formatStats)}")
-    println(s"Skipped: ${skipped.length}")
+    val formatStats = new DescriptiveStatistics()
+    results.foreach {
+      case x: Success =>
+        formatStats.addValue(x.nanos)
+      case _ =>
+    }
+    println(s"Total: ${results.length}")
+    println(s"${summarize(formatStats)}")
   }
 
   private def header(msg: String) = s"\n\n## $msg\n"
-
-  private def bullet[T](msg: T) = s"* $msg"
 
   private def summarize(stats: DescriptiveStatistics): String =
     Tabulator.format(Seq(
@@ -196,7 +183,7 @@ trait ScalaProjectsExperiment extends ScalaFmtLogger {
     case d: Double =>
       // TODO(olafur) no better lib to do this?
       val ms = d / Math.pow(10, 6)
-      numberFormat.format(d) + " ms"
+      numberFormat.format(ms) + " ms"
     case _ => x.toString
   }
 
@@ -208,25 +195,4 @@ trait ScalaProjectsExperiment extends ScalaFmtLogger {
     x.toString.slice(0, colLength - 2).padTo(colLength - 1, " ").mkString
   }.mkString(" ")
 
-  case class FormatSuccess(filename: String, nanos: Long)
-
-  private case class TimeoutErr(url: String)
-
-  private case class UnknownFailure(url: String, e: Throwable) {
-
-    override def toString: String = s"$url $e"
-  }
-
-  private case class ParseErr(url: String, e: ParseException) {
-
-    def err: String = e.getMessage.replaceAll(" at .*", "")
-
-    def lineNumber = e.pos.point.line
-
-    def content = s"cols:${e.pos.start.column}-${e.pos.end.column}"
-
-    override def toString: String = s"$url#L${e.pos.start.line + 1} $cols"
-
-    def cols = s"cols:${e.pos.start.column}-${e.pos.end.column}"
-  }
 }
