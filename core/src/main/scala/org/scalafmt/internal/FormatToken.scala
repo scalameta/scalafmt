@@ -25,6 +25,11 @@ case class FormatToken(left: Token,
     if (range.isEmpty) true
     else range.exists(_.contains(right.position.end.line))
   }
+
+  /**
+    * A format token is uniquely identified by its left token.
+    */
+  override def hashCode(): Int = hash(left)
 }
 
 object FormatToken {

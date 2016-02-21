@@ -1,6 +1,8 @@
-package org.scalafmt.internal
+package standard
 
 import org.scalafmt.ScalaStyle
+import org.scalafmt.internal.FormatToken
+import org.scalafmt.internal.TokenHash
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -19,14 +21,10 @@ import scala.meta.tokens.Token
 // Too many to import individually.
 import scala.meta.tokens.Token._
 
-case class TokenHash(token: Token) {
-//  override def hashCode: Int = token.hashCode()
-}
-
 /**
   * Assigns splits to format tokens.
   */
-class Router(style: ScalaStyle,
+class TestingClassNameDoNotEdit(style: ScalaStyle,
              tree: Tree,
              tokens: Array[FormatToken],
              matchingParentheses: Map[TokenHash, Token],

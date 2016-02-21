@@ -66,9 +66,10 @@ class Router(style: ScalaStyle,
       case FormatToken(_: BOF, _, _) => Seq(
         Split(NoSplit, 0)
       )
-      case FormatToken(_, _: EOF, _) => Seq(
-        Split(Newline, 0) // End files with trailing newline
-      )
+      case FormatToken(_, _: EOF, _) =>
+        Seq(
+          Split(Newline, 0) // End files with trailing newline
+        )
       case tok if tok.left.name.startsWith("xml") &&
         tok.right.name.startsWith("xml") => Seq(
         Split(NoSplit, 0)

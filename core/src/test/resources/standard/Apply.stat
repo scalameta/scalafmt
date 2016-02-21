@@ -115,3 +115,27 @@ Seq(Split(modification, 0, policy = singleLine).withIndent(indent, close, Left)
           3 + nestedPenalty + lhsPenalty,
           policy = oneArgOneLine,
           ignoreIf = singleArgument).withIndent(indent, close, Left))
+<<< SKIP continuation indent
+Seq(
+            // Either everything fits in one line or break on =>
+            Split(Space, 0).withPolicy(SingleLineBlock(lastToken)),
+            Split(Space, 1).withPolicy(Policy({
+                  case Decision(t@FormatToken(`arrow`, _, _), s) =>
+                    Decision(t, s.filter(_.modification.isNewline))
+                },
+                expire = lastToken.end))
+              .withIndent(2, lastToken, Left) // case body indented by 2.
+              .withIndent(2, arrow, Left) // cond body indented by 4.
+        )
+>>>
+Seq(
+    // Either everything fits in one line or break on =>
+    Split(Space, 0).withPolicy(SingleLineBlock(lastToken)),
+    Split(Space, 1).withPolicy(Policy({
+          case Decision(t@FormatToken(`arrow`, _, _), s) =>
+            Decision(t, s.filter(_.modification.isNewline))
+        },
+        expire = lastToken.end))
+      .withIndent(2, lastToken, Left) // case body indented by 2.
+      .withIndent(2, arrow, Left) // cond body indented by 4.
+)
