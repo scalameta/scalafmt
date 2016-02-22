@@ -164,7 +164,7 @@ trait ScalaProjectsExperiment extends ScalaFmtLogger {
         categoryResults.foreach {
           case _: Success | _: Skipped =>
           case e =>
-            println(s"* ${e.details}")
+            println(e.details)
         }
         if (categoryResults.nonEmpty) {
           println()

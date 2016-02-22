@@ -26,12 +26,15 @@ trait FormatAssertions extends FunSuiteLike with DiffAssertions {
             val originalStructure = originalParsed.show[scala.meta.Structure]
             val obtainedStructure = obtainedParsed.show[scala.meta.Structure]
             if (originalStructure.trim != obtainedStructure.trim) {
+            // TODO(olafur) Can produce false negatives, see
+            // https://github.com/scalameta/scalameta/issues/342
               throw FormatterChangedAST(
                 diffAsts(originalStructure, obtainedStructure),
                 obtained)
             }
           case Failure(e: ParseException) =>
-            throw FormatterOutputDoesNotParse(parseException2Message(e))
+            throw FormatterOutputDoesNotParse(
+              parseException2Message(e ,obtained))
           case _ =>
         }
     }
@@ -53,12 +56,12 @@ trait FormatAssertions extends FunSuiteLike with DiffAssertions {
   def diffAsts(original: String, obtained: String): String = {
 //    compareContents(formatAst(original), formatAst(obtained))
     compareContents(original.replace("(", "\n("), obtained.replace("(", "\n("))
+      .lines.take(10).mkString("\n")
   }
 
   // TODO(olafur) move this to scala.meta?
-  def parseException2Message(e: ParseException): String = {
+  def parseException2Message(e: ParseException, obtained: String): String = {
     val range = 3
-    val obtained = e.pos.input.toString
     val i = e.pos.start.line
     val lines = obtained.lines.toVector
     val arrow = (" " * (e.pos.start.column - 2)) + "^"
@@ -66,6 +69,7 @@ trait FormatAssertions extends FunSuiteLike with DiffAssertions {
        |$arrow
        |${e.getMessage}
        |${lines.slice(i + 1, i + range).mkString("\n")}
+       |$obtained
        |""".stripMargin
   }
 }

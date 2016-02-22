@@ -5,18 +5,11 @@ import org.scalafmt.ScalaStyle
 import scala.meta.tokens.Token
 
 /**
-  * A state represents one potential solution to reach token at index,
-  *
-  * @param cost
-  * @param splits
-  * @param indentation
-  * @param column
+  * A partial formatting solution up to splits.length number of tokens.
   */
 final case class State(cost: Int,
                        policy: PolicySummary,
                        splits: Vector[Split],
-                       states: Vector[State],
-                       optimalTokens: Map[Token, Set[Int]],
                        indentation: Int,
                        pushes: Vector[Indent[Num]],
                        column: Int
@@ -86,20 +79,10 @@ final case class State(cost: Int,
         split.withPenalty(KILL + columnOnCurrentLine) // overflow
       }
     }
-    val newOptimalTokens: Map[Token, Set[Int]] =
-      split.optimalAt match {
-        case None => optimalTokens
-        case Some(optimalTok) =>
-          val updated: Set[Int] =
-            optimalTokens.getOrElse(optimalTok, Set.empty[Int]) + splits.length
-          optimalTokens + (optimalTok -> updated)
-      }
     State(cost + splitWithPenalty.cost,
       // TODO(olafur) expire policy, see #18.
       newPolicy,
       splits :+ splitWithPenalty,
-      states :+ this,
-      newOptimalTokens,
       newIndent,
       newIndents,
       nextStateColumn)
@@ -110,8 +93,6 @@ object State extends ScalaFmtLogger {
   val start = State(0,
     PolicySummary.empty,
     Vector.empty[Split],
-    Vector.empty[State],
-    Map.empty[Token, Set[Int]],
     0, Vector.empty[Indent[Num]], 0)
 
   /**

@@ -13,7 +13,8 @@ object ManualTests extends HasTests {
       if filename.endsWith(manual)
       test <- {
         val spec = filename.stripPrefix(testDir + "/").stripSuffix(manual)
-        readFile(filename).lines.map { name =>
+        readFile(filename).lines
+          .withFilter(_.startsWith("ONLY")).map { name =>
           val original = readFile(stripPrefix(name))
           DiffTest(spec,
             stripPrefix(name),

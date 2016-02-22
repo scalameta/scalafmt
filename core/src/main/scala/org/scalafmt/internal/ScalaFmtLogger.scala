@@ -30,12 +30,17 @@ trait ScalaFmtLogger {
   private def getTokenClass(token: Token) =
     token.getClass.getName.stripPrefix("scala.meta.tokens.Token$")
 
-  def log(t: Tree): String = {
-    s"""TYPE: ${t.getClass.getName.stripPrefix("scala.meta.")}
-        |SOURCE: $t
-        |STRUCTURE: ${t.show[Structure]}
-        |TOKENS: ${t.tokens.map(x => reveal(x.code)).mkString(",")}
-        |""".stripMargin
+  def log(t: Tree, tokensOnly: Boolean = false): String = {
+    val tokens =
+      s"TOKENS: ${t.tokens.map(x => reveal(x.code)).mkString(",")}"
+    if (tokensOnly)
+      tokens
+    else
+      s"""TYPE: ${t.getClass.getName.stripPrefix("scala.meta.")}
+          |SOURCE: $t
+          |STRUCTURE: ${t.show[Structure]}
+          |$tokens
+          |""".stripMargin
   }
 
   def reveal(s: String): String =

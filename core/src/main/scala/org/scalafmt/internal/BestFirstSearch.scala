@@ -29,12 +29,8 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
   val toks: Array[FormatToken] = FormatToken.formatTokens(tree.tokens)
   val owners = getOwners(tree)
   val statementStarts = getStatementStarts(tree)
-  val memo = mutable.Map.empty[(Int, Tree), State]
   val best = mutable.Map.empty[Token, State]
   val matchingParentheses = getMatchingParentheses(tree.tokens)
-  // TODO(olafur) better name.
-  val optimalIdx = mutable.Set.empty[Int]
-  val optimal = mutable.Map.empty[(Int, FormatToken), Split]
   val router = new Router(style, tree, toks,
     matchingParentheses, statementStarts, owners)
   var explored = 0
@@ -42,67 +38,13 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
   var statementCount = 0
 
   /**
-    * Unique key for state by its column/indentation combination.
-    *
-    * Problem: two states can be at same column bug with different indentation.
-    * TODO(olafur) property based testing on this?
-    */
-  def stateColumnKey(state: State): Int = {
-    state.column << 16 | state.indentation
-  }
-  /**
     *
     * Returns true if it's OK to skip over state.
     */
   def pruneOK(curr: State): Boolean = {
     val splitToken = toks(curr.splits.length)
-    // TODO(olafur) super inefficient
-    def hasOptimal = optimalIdx.forall { i =>
-      if (i >= curr.splits.length) {
-        true // missing forall on FilterMonadic, for some reason.
-      } else {
-        val split = curr.splits(i)
-        val tok = toks(i)
-        val pastState = curr.states(1)
-        val currIsOptimal = optimal
-          .get(stateColumnKey(pastState) -> tok) match {
-          case None => true
-          case Some(otherSplit) =>
-            val result = otherSplit.sameLine(split)
-            if (!result) {
-              logger.trace(
-                s"""
-                   |${header(s"$otherSplit eliminated $split at $tok")}
-                   |${mkString(curr.splits)}
-                   |${optimal.toVector.mkString("\n")}
-                   |""".stripMargin)
-            }
-            result
-        }
-      currIsOptimal
-      }
-    }
     val hasBest = best.get(splitToken.left).exists(_.alwaysBetter(curr))
-    hasBest || !hasOptimal
-  }
-
-  def updateOptimal(tok: FormatToken, curr: State): Unit = {
-    // TODO(olafur) inefficient
-    curr.optimalTokens.get(tok.left).foreach {
-      optimalSplits => optimalSplits.foreach { i =>
-        val currTok = toks(i)
-        val split = curr.splits(i)
-        logger.trace(s"optimal $split $currTok $tok ${curr.cost}")
-        logger.trace(
-          s"""optimal $curr $split ${curr.cost} $tok
-              |${header("output")}
-              |${mkString(curr.splits)}
-                """.stripMargin)
-        val pastState = curr.states(i)
-        optimal += (stateColumnKey(pastState) -> currTok) -> split
-        optimalIdx += i
-      }
-    }
+    hasBest
   }
 
   def provided(formatToken: FormatToken): Split = {
@@ -119,25 +61,17 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
 
   /**
     *
-    * Runs Dijstra's shortest path algorithm to find lowest penalty split.
+    * Runs best first search to find lowest penalty split.
     */
   def shortestPath(owner: Tree, start: State): State = {
     if (style.debug) {
       Debug.visit(owner)
     }
     logger.trace(
-      s"""${
-        start.indentation
-      } ${start.splits.takeRight(3)}
-
+      s"""${ start.indentation } ${start.splits.takeRight(3)}
          |${log(owner)}
-
          |FORMAT:
-         |${
-        State.
-          reconstructPath(toks, start.splits, style)
-      }""".
-        stripMargin)
+         |${ State. reconstructPath(toks, start.splits, style) }""".stripMargin)
 
     val Q = new mutable.PriorityQueue[State]()
     var result = start
@@ -149,37 +83,45 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
         logger.debug(s"Explored $explored")
       }
       val i = curr.splits.length
-      if (explored > 50000 || i == toks.length || !childOf(toks(i).right, owner, owners)) {
+      if (i == toks.length ||
+        !childOf(owners(hash(toks(i).right)), owner)) {
         result = curr
         logger.trace(
-          s"""Q.size: ${Q.size}
-              |${Q.map(x => curr.splits.length - x.splits.length).mkString("\n")}
+          s"""
+             |${log(owner, tokensOnly = true)}
+             |${toks.length}
+             |${curr.splits.length}
+             |Q.size: ${Q.size}
+             |${curr.splits.length}
            """.stripMargin)
         Q.dequeueAll
+        Unit
       }
       else if (!pruneOK(curr)) {
         val splitToken = toks(i)
         if (curr.splits.length > deepestYet.splits.length) {
           deepestYet = curr
         }
-        updateOptimal(splitToken, curr)
+        if (statementStarts.contains(hash(splitToken.left)) &&
+          curr.splits.last.modification.isNewline ) {
+          Q.dequeueAll
+        }
+
         if (style.debug) {
           Debug.visit(splitToken)
         }
         if (Q.nonEmpty) {
-          val minCost = Q.minBy(_.cost)
           logger.trace(
             s"""
                |visit=$splitToken
                |lastSplit=${curr.splits.last}
                |cost=${curr.cost}
-               |minCost=${minCost.cost}
                |Q.size=${Q.size}
                |""".stripMargin)
         }
         val splits: Seq[Split] =
           if (splitToken.inside(range))
-            router.Route(splitToken)
+            router.getSplitsMemo(splitToken)
           else List(provided(splitToken))
 
         // TODO(olafur) global policies? For example inline comments must get newline.
@@ -194,31 +136,26 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
           if (split.modification.isNewline) {
             best += splitToken.left -> nextState
           }
-          if (splitToken.left != owner.tokens.head &&
-            statementStarts.contains(hash(splitToken.left))) {
-            val nextNextState =
-              shortestPathMemo(owners(hash(splitToken.left)), nextState, curr)
-            Q.enqueue(nextNextState)
-          }
-          else {
-            Q.enqueue(nextState)
-          }
+          Q.enqueue(nextState)
         }
+        Unit
       }
     }
     result
   }
 
   def formatTree(): String = {
-    var state = shortestPathMemo(tree, State.start, State.start)
+    logger.trace(log(tree, tokensOnly = true))
+    val state = shortestPath(tree, State.start)
     if (state.splits.length != toks.length) {
-      if (style.debug) {
-        logger.warn("UNABLE TO FORMAT")
-        state = deepestYet
-      }
-      else {
-        throw Error.CantFormatFile
-      }
+      val msg =
+        s"""UNABLE TO FORMAT,
+            |state.length=${state.splits.length}
+            |toks.length=${toks.length}
+            |Output:
+            |${mkString(state.splits)}
+            |""".stripMargin
+      throw Error.CantFormatFile(msg)
     }
     if (style.debug) {
       Debug.explored += explored
@@ -237,32 +174,6 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
         sb.append(whitespace)
     }
     sb.toString()
-  }
-
-  /**
-    * Same as shortest path except caches results.
-    */
-  private def shortestPathMemo(owner: Tree, start: State, prev: State): State = {
-    val i = Math.max(0, prev.splits.length - 1)
-    val key = stateColumnKey(start) -> owner
-    memo.getOrElseUpdate(key, {
-      val result = shortestPath(owner, start)
-      val output = mkString(result.splits)
-      logger.trace(
-        s"""${result.cost} ${result.column} ${prev.column} ${prev.indentation} ${start.column} ${toks(i)}
-           |${header("splits")}
-           |${start.splits}
-           |${header("stripped output")}
-           |${output.stripPrefix(mkString(start.splits))}
-           |${header("prev.splits")}
-           |${mkString(prev.splits).length}
-           |${mkString(prev.splits)}
-           |${reveal(mkString(prev.splits))}
-           |${header("output")}
-           |${mkString(result.splits)}
-           |""".stripMargin)
-      result
-    })
   }
 
 }

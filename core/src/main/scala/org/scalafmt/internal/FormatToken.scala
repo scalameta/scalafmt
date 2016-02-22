@@ -29,10 +29,10 @@ case class FormatToken(left: Token,
   /**
     * A format token is uniquely identified by its left token.
     */
-  override def hashCode(): Int = hash(left)
+  override def hashCode(): Int = java.lang.Long.hashCode(hash(left))
 }
 
-object FormatToken {
+object FormatToken extends ScalaFmtLogger {
 
   /**
     * Convert scala.meta Tokens to FormatTokens.
@@ -41,26 +41,18 @@ object FormatToken {
     * little memory as possible.
     */
   def formatTokens(tokens: Tokens): Array[FormatToken] = {
-    val N = tokens.length
-    require(N > 1)
-    var i = 1
     var left = tokens.head
-    val ts = tokens.toArray
     val result = mutable.ArrayBuilder.make[FormatToken]
-    result.sizeHint(N)
     val whitespace = mutable.ArrayBuilder.make[Whitespace]()
-    while (i < N) {
-      ts(i) match {
-        case t: Whitespace =>
-          whitespace += t
-        case right =>
-          // TODO(olafur) avoid result.toVector
-          val tok = FormatToken(left, right, whitespace.result.toVector)
-          result += tok
-          left = right
-          whitespace.clear()
-      }
-      i += 1
+    tokens.toArray.foreach {
+      case t: Whitespace =>
+        whitespace += t
+      case right =>
+        // TODO(olafur) avoid result.toVector
+        val tok = FormatToken(left, right, whitespace.result.toVector)
+        result += tok
+        left = right
+        whitespace.clear()
     }
     result.result
   }

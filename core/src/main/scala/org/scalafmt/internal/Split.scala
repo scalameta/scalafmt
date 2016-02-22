@@ -17,11 +17,12 @@ import scala.meta.tokens.Token
   *             this split originates.
   *
   */
-case class Split(modification: Modification, cost: Int, ignoreIf: Boolean =
-false, indents: List[Indent[Length]] = List.empty[Indent[Length]],
-                 policy: Policy = NoPolicy, penalty: Boolean =
-                 false,
-                 optimalAt: Option[Token] = None)(implicit val line: sourcecode.Line) {
+case class Split(modification: Modification, cost: Int,
+                 ignoreIf: Boolean = false,
+                 indents: List[Indent[Length]] = List.empty[Indent[Length]],
+                 policy: Policy = NoPolicy,
+                 penalty: Boolean = false)
+                (implicit val line: sourcecode.Line) {
 
   val indentation = indents.map(_.length match {
     case Num(x) => x.toString
@@ -39,16 +40,12 @@ false, indents: List[Indent[Length]] = List.empty[Indent[Length]],
         else firstLine
     }
 
-  def withOptimal(token: Token): Split =
-    new Split(modification, cost, ignoreIf, indents, policy, true, Some(token))(
-      line)
-
   def withPolicy(newPolicy: Policy): Split = {
     val update =
       if (policy == NoPolicy) newPolicy
       else throw new UnsupportedOperationException(
         "Can't have two policies yet.")
-    new Split(modification, cost, ignoreIf, indents, update, true, optimalAt)(
+    new Split(modification, cost, ignoreIf, indents, update, true)(
       line)
   }
 
@@ -58,8 +55,7 @@ false, indents: List[Indent[Length]] = List.empty[Indent[Length]],
       ignoreIf,
       indents,
       policy,
-      true,
-      optimalAt)(line)
+      true)(line)
 
   def withIndent(length: Length, expire: Token,
                  expiresOn: ExpiresOn): Split = {
@@ -71,8 +67,7 @@ false, indents: List[Indent[Length]] = List.empty[Indent[Length]],
           ignoreIf,
           Indent(length, expire, expiresOn) +: indents,
           policy,
-          penalty,
-          optimalAt)(line)
+          penalty)(line)
     }
   }
 
@@ -81,8 +76,4 @@ false, indents: List[Indent[Length]] = List.empty[Indent[Length]],
   override def toString =
     s"""$modification:${line.value}(cost=$cost, indents=$indentation, p=$hasPolicy)"""
 
-  def sameLine(other: Split) =
-    this.line == other.line &&
-      this.cost == other.cost &&
-      this.modification == other.modification
 }

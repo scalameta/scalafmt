@@ -1,5 +1,6 @@
 package org.scalafmt
 
+import org.scalafmt.internal.Decision
 import org.scalafmt.internal.ScalaFmtLogger
 
 import scala.meta.Case
@@ -25,7 +26,7 @@ object Error extends ScalaFmtLogger {
         |=====================
         |$diff
         |=====================
-        |$output
+        |${output.lines.toVector.take(10).mkString("\n")}
         |=====================
         |Formatter changed AST
       """.stripMargin)
@@ -37,8 +38,10 @@ object Error extends ScalaFmtLogger {
     extends Error(
       s"Expected: ${classTag[Expected].getClass}\nObtained: ${log(obtained)}")
 
-  case object CantFormatFile
-    extends Error("scalafmt cannot format this file")
+  case class CantFormatFile(msg: String)
+    extends Error("scalafmt cannot format this file:\n"  + msg)
 
+  case class NoopDefaultPolicyApplied(decision: Decision)
+    extends Error(s"Default policy run on $decision")
 
 }
