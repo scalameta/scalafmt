@@ -1,6 +1,6 @@
 resolvers += Classpaths.sbtPluginReleases
 
-addSbtPlugin("com.github.alexarchambault" % "coursier-sbt-plugin" % "1.0.0-M7")
+addSbtPlugin("com.github.alexarchambault" % "coursier-sbt-plugin" % "1.0.0-M8")
 addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.14.1")
 addSbtPlugin("org.brianmckenna" % "sbt-wartremover" % "0.14")
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.0.1")
