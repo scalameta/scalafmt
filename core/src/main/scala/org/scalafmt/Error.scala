@@ -16,8 +16,6 @@ object Error extends ScalaFmtLogger {
       extends Error(
           s"Expected keyword of type ${classTag[T].getClass} in tree $tree")
 
-    case object TooManyIndentPops extends Error("Too many Indent Pop.")
-
   case class CaseMissingArrow(tree: Case)
     extends Error(s"Missing => in case: \n$tree")
 

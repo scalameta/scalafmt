@@ -6,7 +6,7 @@ class PolicySummary(val policies: Vector[Policy]) extends ScalaFmtLogger {
 
   def combine(other: Policy, position: Int): PolicySummary = {
     // TODO(olafur) filter policies by expiration date
-    val activePolicies = policies.filter(_.expire >= position)
+    val activePolicies = policies.filter(_.expire > position)
     val newPolicies =
       if (other == NoPolicy) activePolicies
       else other +: activePolicies

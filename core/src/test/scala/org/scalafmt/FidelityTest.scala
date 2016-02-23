@@ -19,20 +19,10 @@ class FidelityTest extends FunSuite with FormatAssertions with ScalaFmtLogger {
 
 
   // TODO(olafur) append to [[files]]
-  val thisProject = FilesUtil.listFiles(".")
+  val files = FilesUtil.listFiles(".")
     .filter(_.endsWith(".scala"))
     .filterNot(_.contains("/target/"))
     .filterNot(_.contains("/resources/"))
-
-  val files =
-    Seq(
-      "core/src/test/resources/standard/TestingClassNameDoNotEdit.scalafmt",
-      "benchmarks/src/resources/scalafmt/Basic.scala",
-      "benchmarks/src/resources/scala-js/SourceMapWriter.scala",
-      "benchmarks/src/resources/scala-js/Division.scala",
-      "benchmarks/src/resources/scala-js/BaseLinker.scala",
-      "benchmarks/src/resources/scala-js/JSDependency.scala") ++ thisProject
-
 
   val examples = files.map(Test.apply)
 
