@@ -30,6 +30,15 @@ Main issues:
 ### Documentation
 For now, [the tests](core/src/test/resources) are the most up-to-date documentation.
 
+### Contributing
+
+* `core/testOnly org.scalafmt.FormatTests`: runs the fast, most relevant, unit tests.
+* `core/testOnly org.scalafmt.FidelityTest`: runs the formatter on all files in
+  this project.
+* `run-benchmarks.sh` script to run jmh benchmarks.
+* `core/test:runMain  org.scalafmt.FormatExperiment`: clones Scala.js, runs
+  formatter on all cloned files and prints summary.
+
 ### Installation
 
 *NOTE.* Installing is awkward at the moment. It will get easier once the tool matures.
