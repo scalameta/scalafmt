@@ -26,9 +26,14 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
 
   import BestFirstSearch._
 
+  val maxVisitStates = 10000000 // For debugging purposes only.
+  val doOptimizations = true // For debugging purposes only.
+  val pruneNonOptimal = doOptimizations
+  val dequeOnNewStatements = doOptimizations
   val toks: Array[FormatToken] = FormatToken.formatTokens(tree.tokens)
   val owners = getOwners(tree)
   val statementStarts = getStatementStarts(tree)
+  val noOptimizations = noOptimizationZones(tree)
   val best = mutable.Map.empty[Token, State]
   val matchingParentheses = getMatchingParentheses(tree.tokens)
   val router = new Router(style, tree, toks,
@@ -37,14 +42,23 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
   var deepestYet = State.start
   var statementCount = 0
 
+
+  def isInsideNoOptZone(token: FormatToken): Boolean = {
+    // TODO(olafur) use more efficient range map, for example Guava.
+    noOptimizations.exists(_.contains(token.left.start))
+  }
   /**
-    *
     * Returns true if it's OK to skip over state.
     */
   def pruneOK(curr: State): Boolean = {
-    val splitToken = toks(curr.splits.length)
-    val hasBest = best.get(splitToken.left).exists(_.alwaysBetter(curr))
-    hasBest
+    if (pruneNonOptimal) {
+      val splitToken = toks(curr.splits.length)
+      // TODO(olafur) document why/how this optimization works.
+      val hasBest = best.get(splitToken.left).exists(_.alwaysBetter(curr))
+      hasBest
+    } else {
+      false
+    }
   }
 
   def provided(formatToken: FormatToken): Split = {
@@ -83,7 +97,8 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
         logger.debug(s"Explored $explored")
       }
       val i = curr.splits.length
-      if (i == toks.length ||
+      if (explored > maxVisitStates ||
+        i == toks.length ||
         !childOf(owners(hash(toks(i).right)), owner)) {
         result = curr
         logger.trace(
@@ -97,48 +112,56 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
         Q.dequeueAll
         Unit
       }
-      else if (!pruneOK(curr)) {
+      else {
         val splitToken = toks(i)
-        if (curr.splits.length > deepestYet.splits.length) {
-          deepestYet = curr
-        }
-        if (statementStarts.contains(hash(splitToken.left)) &&
-          curr.splits.last.modification.isNewline ) {
-          Q.dequeueAll
-        }
-
-        if (style.debug) {
-          Debug.visit(splitToken)
-        }
-        if (Q.nonEmpty) {
-          logger.trace(
-            s"""
-               |visit=$splitToken
-               |lastSplit=${curr.splits.last}
-               |cost=${curr.cost}
-               |Q.size=${Q.size}
-               |""".stripMargin)
-        }
-        val splits: Seq[Split] =
-          if (splitToken.inside(range))
-            router.getSplitsMemo(splitToken)
-          else List(provided(splitToken))
-
-        // TODO(olafur) global policies? For example inline comments must get newline.
-        val actualSplit = curr.policy.execute(Decision(splitToken, splits)).splits
-        if (splits.length != actualSplit.length) {
-          val activePolicies = curr.policy.policies.filterNot(_.expire < splitToken.left.end)
-          logger.trace(s"${activePolicies.mkString(", ")} killed $splits")
-        }
-        actualSplit.withFilter(!_.ignoreIf).foreach { split =>
-          val nextState = curr.next(style, split, splitToken)
-          // TODO(olafur) convince myself this is safe.
-          if (split.modification.isNewline) {
-            best += splitToken.left -> nextState
+        val noOpt = curr.policy.noDequeue || isInsideNoOptZone(splitToken)
+        if (noOpt || !pruneOK(curr)) {
+          if (curr.splits.length > deepestYet.splits.length) {
+            deepestYet = curr
+            // Only dequeue if this solution is the deepest solution so far.
           }
-          Q.enqueue(nextState)
+          if (dequeOnNewStatements &&
+            !curr.policy.noDequeue &&
+            statementStarts.contains(hash(splitToken.left)) &&
+            curr.splits.last.modification.isNewline ) {
+            logger.trace(Q.map(s => mkString(s.splits)).mkString("\n\n"))
+            logger.trace(mkString(curr.splits))
+            Q.dequeueAll
+          }
+          if (style.debug) {
+            Debug.visit(splitToken)
+          }
+          if (Q.nonEmpty) {
+            logger.trace(
+              s"""
+                 |visit=$splitToken
+                 |lastSplit=${curr.splits.last}
+                 |cost=${curr.cost}
+                 |Q.size=${Q.size}
+                 |""".stripMargin)
+          }
+          val splits: Seq[Split] =
+            if (splitToken.inside(range))
+              router.getSplitsMemo(splitToken)
+            else List(provided(splitToken))
+
+          val actualSplit = curr.policy
+            .execute(Decision(splitToken, splits)).splits
+          if (splits.length != actualSplit.length) {
+            val activePolicies = curr.policy.policies
+              .filterNot(_.expire < splitToken.left.end)
+            logger.trace(s"${activePolicies.mkString(", ")} killed $splits")
+          }
+          actualSplit.withFilter(!_.ignoreIf).foreach { split =>
+            val nextState = curr.next(style, split, splitToken)
+            // TODO(olafur) convince myself this is safe.
+            if (split.modification.isNewline) {
+              best += splitToken.left -> nextState
+            }
+            Q.enqueue(nextState)
+          }
+          Unit
         }
-        Unit
       }
     }
     result
@@ -152,8 +175,9 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
         s"""UNABLE TO FORMAT,
             |state.length=${state.splits.length}
             |toks.length=${toks.length}
+            |deepestYet.length=${deepestYet.splits.length}
             |Output:
-            |${mkString(state.splits)}
+            |${mkString(deepestYet.splits)}
             |""".stripMargin
       throw Error.CantFormatFile(msg)
     }
@@ -222,6 +246,7 @@ object BestFirstSearch extends ScalaFmtLogger {
         case t: Term.ForYield => addAll(t.enums)
         case t: Term.Match => addAll(t.cases)
         case t: Term.PartialFunction => addAll(t.cases)
+        case t: Term.TryWithCases => addAll(t.catchp)
         case t: Type.Compound => addAll(t.refinement)
         case t: scala.meta.internal.ast.Source => addAll(t.stats)
         case t: Template if t.stats.isDefined =>
@@ -281,6 +306,18 @@ object BestFirstSearch extends ScalaFmtLogger {
     }
     loop(tree)
     result.toMap
+  }
+
+  def noOptimizationZones(tree: Tree): Set[Range] = {
+    val result = mutable.Set[Range]()
+    def loop(x: Tree): Unit = x match {
+      case t: Term.Apply =>
+        result += Range(t.tokens.head.start, t.tokens.last.end).inclusive
+      case _ =>
+        x.children.foreach(loop)
+    }
+    loop(tree)
+    result.toSet
   }
 
 }

@@ -19,3 +19,144 @@ private def genApplyForSym(minArgc: Int, hasRestParam: Boolean,
     genApplyForSymNonJSSuperCall(minArgc, sym)
   }
 }
+<<< js emitter TODO(olafur) ugly output
+val createAsStat = if (semantics.asInstanceOfs == Unchecked) {
+        js.Skip()
+      } else {
+        envFieldDef("as", className,
+          js.Function(List(objParam), js.Return(className match {
+            case Definitions.ObjectClass =>
+              obj
+            case _ =>
+              val throwError = {
+                genCallHelper("throwClassCastException",
+                    obj, js.StringLiteral(displayName))
+              }
+              if (className == RuntimeNothingClass) {
+                // Always throw for .asInstanceOf[Nothing], even for null
+                throwError
+              } else {
+                js.If(js.Apply(envField("is", className), List(obj)) ||
+                    (obj === js.Null()), {
+                  obj
+                }, {
+                  throwError
+                })
+              }
+        })))
+      }
+>>>
+val createAsStat =
+  if (semantics.asInstanceOfs == Unchecked) {
+    js.Skip()
+  } else {
+    envFieldDef("as",
+                className,
+                js.Function(List(objParam),
+                            js.Return(className match {
+                                  case Definitions.ObjectClass => obj
+                                  case _ =>
+                                    val throwError = {
+                                      genCallHelper(
+                                          "throwClassCastException",
+                                          obj,
+                                          js.StringLiteral(displayName))
+                                    }
+                                    if (className == RuntimeNothingClass) {
+                                      // Always throw for .asInstanceOf[Nothing], even for null
+                                      throwError
+                                    } else {
+                                      js.If(
+                                          js.Apply(envField("is", className), List(obj)) || (obj === js.Null()), {
+                                            obj
+                                          }, {
+                                            throwError
+                                          })
+                                    }
+                                })))
+  }
+<<< processOptions
+  def processOptions(): Unit = {
+      if (option.startsWith("relSourceMap:")) {
+        val uriStr = option.stripPrefix("relSourceMap:")
+        try { relSourceMap = Some(new URI(uriStr)) }
+        catch {
+          case e: URISyntaxException => error(s"$uriStr is not a valid URI")
+        }
+      } else {
+        error("Option not understood: " + option)
+      }
+  }
+>>>
+def processOptions(): Unit = {
+  if (option.startsWith("relSourceMap:")) {
+    val uriStr = option.stripPrefix("relSourceMap:")
+    try { relSourceMap = Some(new URI(uriStr)) } catch {
+      case e: URISyntaxException => error(s"$uriStr is not a valid URI")
+    }
+  } else {
+    error("Option not understood: " + option)
+  }
+}
+<<< js plugin
+  private def scalaJSStageSettings = Seq(
+      usesScalaJSLinkerTag in key := {
+        Tags
+      },
+
+      // Prevent this linker from being used concurrently
+      concurrentRestrictions in Global +=
+        Tags.limit((usesScalaJSLinkerTag in key).value, 1)
+
+)
+>>>
+private def scalaJSStageSettings =
+  Seq(usesScalaJSLinkerTag in key := {
+        Tags
+      },
+      // Prevent this linker from being used concurrently
+      concurrentRestrictions in Global += Tags.limit((
+        usesScalaJSLinkerTag in key).value, 1))
+<<< testFilter
+  val testFilter: String => Boolean = {
+    options.testFilter match {
+      case UnknownTests => { absPath =>
+        !blacklistedTestFileNames.contains(absPath) &&
+        !whitelistedTestFileNames.contains(absPath) &&
+        !buglistedTestFileNames.contains(absPath)
+      }
+    }
+  }
+>>>
+val testFilter: String => Boolean = {
+  options.testFilter match {
+    case UnknownTests => { absPath =>
+        !blacklistedTestFileNames.contains(absPath) &&
+        !whitelistedTestFileNames.contains(absPath) && !buglistedTestFileNames
+          .contains(absPath)
+      }
+  }
+}
+<<< testFilter inline comment
+  options.testFilter match {
+    case UnknownTests => // inline comment
+        !blacklistedTestFileNames.contains(absPath) &&
+        !whitelistedTestFileNames.contains(absPath) && !buglistedTestFileNames
+          .contains(absPath)
+  }
+>>>
+options.testFilter match {
+  case UnknownTests => // inline comment
+    !blacklistedTestFileNames.contains(absPath) && !whitelistedTestFileNames
+      .contains(absPath) && !buglistedTestFileNames.contains(absPath)
+}
+<<< SKIP scalatags
+  private def sbtIgnore: String => Boolean =
+    x => !Seq(
+      // Unicode escapes in weird places
+      "target/repos/sbt/main/settings/src/main/scala/sbt/std/InputWrapper.scala",
+      // uses a package called `macro`
+      "target/repos/sbt/sbt/src/sbt-test/source-dependencies/inherited-macros",
+      "target/repos/sbt/sbt/src/sbt-test/source-dependencies/macro")
+      .exists(x.startsWith)
+>>>

@@ -225,12 +225,13 @@ class Router(style: ScalaStyle,
           Split(NoSplit, 0)
         )
       // TODO(olafur) Split this up.
-      case tok@FormatToken(_: `(` | _: `[`, right, between) if leftOwner.isInstanceOf[Term.Apply] ||
-        leftOwner.isInstanceOf[Pat.Extract] ||
-        leftOwner.isInstanceOf[Pat.Tuple] ||
-        leftOwner.isInstanceOf[Term.Tuple] ||
-        leftOwner.isInstanceOf[Term.ApplyType] ||
-        leftOwner.isInstanceOf[Type.Apply] =>
+      case tok@FormatToken(_: `(` | _: `[`, right, between)
+        if leftOwner.isInstanceOf[Term.Apply] ||
+          leftOwner.isInstanceOf[Pat.Extract] ||
+          leftOwner.isInstanceOf[Pat.Tuple] ||
+          leftOwner.isInstanceOf[Term.Tuple] ||
+          leftOwner.isInstanceOf[Term.ApplyType] ||
+          leftOwner.isInstanceOf[Type.Apply] =>
         val open = tok.left.asInstanceOf[Delim]
         val (lhs, args): (Tree, Seq[Tree]) = leftOwner match {
           case t: Term.Apply => t.fun -> t.args
@@ -280,10 +281,11 @@ class Router(style: ScalaStyle,
         Split(NoSplit, 0)
       )
       // These are mostly filtered out/modified by policies.
-      case FormatToken(_: `,`, _, _) => Seq(
-        Split(Space, 0),
-        Split(Newline, 0)
-      )
+      case tok@FormatToken(_: `,`, _, _) =>
+        Seq(
+          Split(Space, 0),
+          Split(Newline, 1)
+        )
       case FormatToken(_, _: `;`, _) => Seq(
         Split(NoSplit, 0)
       )
@@ -363,7 +365,7 @@ class Router(style: ScalaStyle,
         Seq(
           Split(Space, 0)
         )
-      case FormatToken(_, right: `with`, _) =>
+      case FormatToken(_, right: `with`, _) if rightOwner.isInstanceOf[Template] =>
         val template = rightOwner.asInstanceOf[Template]
         // TODO(olafur) is this correct?
         val expire = for {
@@ -461,7 +463,7 @@ class Router(style: ScalaStyle,
       // Pat
       case tok@FormatToken(or: Ident, _, _) if or.code == "|" && leftOwner.isInstanceOf[Pat.Alternative] => Seq(
         Split(Space, 0),
-        Split(Newline, 0)
+        Split(Newline, 1)
       )
       // Case
       case tok@FormatToken(_, _: `match`, _) => Seq(
@@ -483,7 +485,10 @@ class Router(style: ScalaStyle,
           Split(Space, 0).withPolicy(SingleLineBlock(lastToken)),
           Split(Space, 1)
               .withPolicy(Policy({
-                case Decision(t@FormatToken(`arrow`, _, _), s) =>
+                case Decision(t@FormatToken(`arrow`, right, between), s)
+//                   TODO(olafur) any other corner cases?
+                  if !right.isInstanceOf[`{`] &&
+                    (!isInlineComment(right) || newlinesBetween(between) > 0) =>
                   Decision(t, s.filter(_.modification.isNewline))
               }, expire = lastToken.end))
             .withIndent(2, lastToken, Left) // case body indented by 2.
@@ -636,8 +641,8 @@ class Router(style: ScalaStyle,
         // If comment is bound to comma, see unit/Comment.
         (!right.isInstanceOf[Comment] ||
           between.exists(_.isInstanceOf[`\n`])) =>
-        Decision(t, splits.filter(_.modification == Newline))
-    }, expire.end, noDequeue = true)
+        Decision(t, splits.filter(_.modification.isNewline))
+    }, expire.end)
   }
 
   /**

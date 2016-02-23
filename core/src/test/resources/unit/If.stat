@@ -58,5 +58,13 @@ val newColumn =
   tok.length + (
     if (split == Newline) newIndent
     else column + split.length)
-
+<<< no newline
+val policy =
+ if (right) SingleLineBlock(close)
+ else
+   NoPolicy
+>>>
+val policy =
+  if (right) SingleLineBlock(close)
+  else NoPolicy
 
