@@ -7,8 +7,10 @@ import java.util.Locale
 import java.util.concurrent.CopyOnWriteArrayList
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
+import org.scalafmt.Error.FormatterOutputDoesNotParse
 import org.scalafmt.internal.ScalaFmtLogger
 import org.scalafmt.util.ExperimentResult.ParseErr
+import org.scalafmt.util.ExperimentResult.Skipped
 import org.scalafmt.util.ExperimentResult.Success
 import org.scalafmt.util.ExperimentResult.Timeout
 import org.scalafmt.util.ExperimentResult.UnknownFailure
@@ -28,7 +30,7 @@ import scala.util.control.NonFatal
 trait ScalaProjectsExperiment extends ScalaFmtLogger {
   val results: java.util.List[ExperimentResult] = new CopyOnWriteArrayList[ExperimentResult]()
   val verbose = false
-  val globalFilter: String => Boolean = _ => true
+  val skipProject: String => Boolean = _ => false
   val colLength = 10
   val numberFormat = {
     // I prefer . as thousand separator.
@@ -83,7 +85,7 @@ trait ScalaProjectsExperiment extends ScalaFmtLogger {
   }
 
   private def checkRepo(url: String, filter: String => Boolean = _ => true): Unit = {
-    if (globalFilter(url)) return
+    if (skipProject(url)) return
     import FilesUtil._
 
     import sys.process._
@@ -99,7 +101,7 @@ trait ScalaProjectsExperiment extends ScalaFmtLogger {
     println("Checking project " + name)
     val files = listFiles(path).withFilter(x => filter(x) &&
       x.endsWith(".scala")).map(filename => {
-      val fileUrl = s"$url/blob/$branch${filename.stripPrefix(path)}"
+      val fileUrl = s"$url/blob/$branch${filename.stripPrefix(path)}".replaceAll("\\s", "")
       run(filename).recover(recoverError(fileUrl))
     })
     files.foreach(Await.result(_, files.length.seconds))
@@ -156,6 +158,17 @@ trait ScalaProjectsExperiment extends ScalaFmtLogger {
     results.groupBy(_.key).foreach {
       case (categoryName, categoryResults) =>
         println(s"$categoryName: ${categoryResults.length}")
+        if (categoryResults.nonEmpty) {
+          println()
+        }
+        categoryResults.foreach {
+          case _: Success | _: Skipped =>
+          case e =>
+            println(s"* ${e.details}")
+        }
+        if (categoryResults.nonEmpty) {
+          println()
+        }
     }
     val formatStats = new DescriptiveStatistics()
     results.foreach {

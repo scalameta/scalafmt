@@ -50,3 +50,17 @@ import java.{util => ju}
 import org.scalajs.core.tools.sem._
 import org.scalajs.core.tools.javascript._
 import org.scalajs.core.tools.optimizer._
+<<< import block
+object a {
+  import LowPrioGenBCodeCompat.genBCode._
+  {
+  initializeCoreBTypes()
+  }
+}
+>>>
+object a {
+  import LowPrioGenBCodeCompat.genBCode._
+  {
+    initializeCoreBTypes()
+  }
+}

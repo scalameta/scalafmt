@@ -9,6 +9,7 @@ import scala.collection.mutable
 import scala.language.implicitConversions
 import scala.meta.Tree
 import scala.meta.internal.ast.Case
+import scala.meta.internal.ast.Decl
 import scala.meta.internal.ast.Defn
 import scala.meta.internal.ast.Import
 import scala.meta.internal.ast.Pat
@@ -92,9 +93,6 @@ class Router(style: ScalaStyle,
       case FormatToken(_: `{`, _: `}`, _) => Seq(
         Split(NoSplit, 0)
       )
-      case FormatToken(_: `]`, _: `(`, _) => Seq(
-        Split(NoSplit, 0)
-      )
       // Import
       case FormatToken(_: `.`, open: `{`, _)
         if parents(rightOwner).exists(_.isInstanceOf[Import]) => Seq(
@@ -139,9 +137,6 @@ class Router(style: ScalaStyle,
       case FormatToken(_: `(`, _: `(` | _: `{`, _) => Seq(
         Split(NoSplit, 0)
       )
-      case FormatToken(_, _: `{`, _) => Seq(
-        Split(Space, 0)
-      )
       case tok: FormatToken if !isDocstring(tok.left) && gets2x(tok) => Seq(
         Split(Newline2x, 0)
       )
@@ -164,6 +159,15 @@ class Router(style: ScalaStyle,
           Split(newline, 0)
         )
 
+      case FormatToken(_: `]`, right: `(`, _) => Seq(
+        Split(NoSplit, 0)
+      )
+
+      // non-statement starting curly brace
+      case FormatToken(_, _: `{`, between) => Seq(
+        Split(Space, 0)
+      )
+
       case FormatToken(_, _: `}`, _) => Seq(
         Split(Space, 0),
         Split(Newline, 0)
@@ -179,9 +183,11 @@ class Router(style: ScalaStyle,
         Split(NoSplit, 0)
       )
       // Opening ( with no leading space.
-      case FormatToken(left, open: `(`, _) if rightOwner.isInstanceOf[Term.Apply] ||
-        leftOwner.parent.exists(_.isInstanceOf[Defn.Def]) ||
-        leftOwner.parent.exists(_.isInstanceOf[Defn.Class]) =>
+      case FormatToken(left, open: `(`, _)
+        if rightOwner.isInstanceOf[Term.Apply] ||
+          leftOwner.parent.exists(_.isInstanceOf[Decl.Def]) ||
+          leftOwner.parent.exists(_.isInstanceOf[Defn.Def]) ||
+          leftOwner.parent.exists(_.isInstanceOf[Defn.Class]) =>
         Seq(
           Split(NoSplit, 0)
         )
@@ -286,9 +292,14 @@ class Router(style: ScalaStyle,
       case FormatToken(_, _: `;`, _) => Seq(
         Split(NoSplit, 0)
       )
-      case FormatToken(_, _: `:`, _) => Seq(
-        Split(NoSplit, 0)
-      )
+      case FormatToken(left: Ident, _: `:`, _) =>
+        Seq(
+          Split(identModification(left), 0)
+        )
+      case FormatToken(_, _: `:`, _) =>
+        Seq(
+          Split(NoSplit, 0)
+        )
       // Only allow space after = in val if rhs is a single line or not
       // an infix application or an if. For example, this is allowed:
       // val x = function(a,
@@ -536,6 +547,11 @@ class Router(style: ScalaStyle,
       case FormatToken(_: `throw`, _, _) => Seq(
         Split(Space, 0)
       )
+      // Open paren generally gets no space.
+      case FormatToken(_: `(`, _, _) =>
+        Seq(
+          Split(NoSplit, 0)
+        )
       // Fallback
       case FormatToken(_, _: `.` | _: `#`, _) =>
         Seq(
@@ -568,6 +584,11 @@ class Router(style: ScalaStyle,
     }
   }
 
+  val GlobalPolicy: PartialFunction[Decision, Decision] = {
+    case d@Decision(FormatToken(c: Comment, _, _), s) if c.code.startsWith("//") =>
+      d.copy(splits = s.filterNot(_.modification.isNewline))
+  }
+
   /**
    * Assigns possible splits to a FormatToken.
    *
@@ -577,7 +598,17 @@ class Router(style: ScalaStyle,
    */
 
   def Route(formatToken: FormatToken): Seq[Split] =
-    cache.getOrElseUpdate(formatToken, getSplits(formatToken))
+    cache.getOrElseUpdate(formatToken, {
+      val splits = getSplits(formatToken)
+      formatToken match {
+        // TODO(olafur) refactor into "global policy"
+        // Only newlines after inline comments.
+        case FormatToken(c: Comment, _, _) if c.code.startsWith("//") =>
+          splits.filter(_.modification.isNewline)
+        case _ =>
+          splits
+      }
+    })
 
   def isDocstring(token: Token): Boolean = {
     token.isInstanceOf[Comment] && token.code.startsWith("/**")
@@ -737,6 +768,10 @@ class Router(style: ScalaStyle,
 //        logger.warn(s"Unexpected token $x")
 //        8
 //    }
+
+  def identModification(ident: Ident): Modification =
+    if (Character.isLetterOrDigit(ident.code.last)) NoSplit
+    else Space
 
   def getArrow(caseStat: Case): Token =
     caseStat.tokens.find(t => t.isInstanceOf[`=>`] && owners(t) == caseStat)

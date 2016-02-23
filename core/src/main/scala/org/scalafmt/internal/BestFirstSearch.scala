@@ -10,6 +10,7 @@ import scala.meta.internal.ast.Defn
 import scala.meta.internal.ast.Pkg
 import scala.meta.internal.ast.Template
 import scala.meta.internal.ast.Term
+import scala.meta.internal.ast.Type
 import scala.meta.prettyprinters.Structure
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
@@ -297,20 +298,21 @@ object BestFirstSearch extends ScalaFmtLogger {
 
     def loop(x: Tree): Unit = {
       x match {
-        case t: scala.meta.internal.ast.Source => addAll(t.stats)
-        case t: Pkg => addAll(t.stats)
-        case t: Term.ForYield => addAll(t.enums)
-        case t: Term.For => addAll(t.enums)
-        case t: Term.Match => addAll(t.cases)
-        case t: Term.PartialFunction => addAll(t.cases)
         case b: Term.Block => addAll(b.stats)
-        case t: Defn.Object => addDefn[`object`](t.mods, t)
         case t: Defn.Class => addDefn[`class `](t.mods, t)
-        case t: Defn.Trait => addDefn[`trait`](t.mods, t)
         case t: Defn.Def => addDefn[`def`](t.mods, t)
+        case t: Defn.Object => addDefn[`object`](t.mods, t)
+        case t: Defn.Trait => addDefn[`trait`](t.mods, t)
+        case t: Defn.Type => addDefn[`type`](t.mods, t)
         case t: Defn.Val => addDefn[`val`](t.mods, t)
         case t: Defn.Var => addDefn[`var`](t.mods, t)
-        case t: Defn.Type => addDefn[`type`](t.mods, t)
+        case t: Pkg => addAll(t.stats)
+        case t: Term.For => addAll(t.enums)
+        case t: Term.ForYield => addAll(t.enums)
+        case t: Term.Match => addAll(t.cases)
+        case t: Term.PartialFunction => addAll(t.cases)
+        case t: Type.Compound => addAll(t.refinement)
+        case t: scala.meta.internal.ast.Source => addAll(t.stats)
         case t: Template if t.stats.isDefined =>
           addAll(t.stats.get)
         case _ => // Nothing

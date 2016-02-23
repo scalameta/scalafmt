@@ -1,36 +1,71 @@
 package org.scalafmt.util
 
+import java.io.ByteArrayInputStream
+
 import org.scalafmt.Error.FormatterChangedAST
 import org.scalafmt.Error.FormatterOutputDoesNotParse
-import org.scalatest.FunSuite
 import org.scalatest.FunSuiteLike
 
 import scala.meta.Tree
 import scala.meta.parsers.common.Parse
-import scala.meta.prettyprinters.Structure
+import scala.meta.parsers.common.ParseException
+import scala.util.Failure
+import scala.util.Success
 import scala.util.Try
 
 trait FormatAssertions extends FunSuiteLike with DiffAssertions {
   def assertFormatPreservesAst[T <: Tree](original: String,
                                           obtained: String)
                                          (implicit ev: Parse[T]): Unit = {
-    parses(original) match {
-      case None => // ignore
-      case Some(originalParsed) =>
-        parses(obtained) match {
-          case Some(obtainedParsed) =>
-            val originalStructure = originalParsed.show[Structure]
-            val obtainedStructure = obtainedParsed.show[Structure]
-            if (originalStructure != obtainedStructure) {
-              throw FormatterChangedAST
+    import scala.meta._
+    Try(original.parse[T]) match {
+      case Failure(_) => // ignore
+      case Success(originalParsed) =>
+        Try(obtained.parse[T]) match {
+          case Success(obtainedParsed) =>
+            val originalStructure = originalParsed.show[scala.meta.Structure]
+            val obtainedStructure = obtainedParsed.show[scala.meta.Structure]
+            if (originalStructure.trim != obtainedStructure.trim) {
+              throw FormatterChangedAST(
+                diffAsts(originalStructure, obtainedStructure),
+                obtained)
             }
-          case None =>
-            throw FormatterOutputDoesNotParse(error2message(obtained, original))
+          case Failure(e: ParseException) =>
+            throw FormatterOutputDoesNotParse(parseException2Message(e))
+          case _ =>
         }
     }
   }
-  def parses[T <: Tree](code: String)(implicit parse: Parse[T]): Option[Tree] = {
-    import scala.meta._
-    Try(code.parse[T]).toOption
+
+  def formatAst(ast: String): String = {
+    import scala.sys.process._
+    val input = new ByteArrayInputStream(ast.getBytes("UTF-8"))
+    val command = List(
+      "clang-format",
+      "-style={ContinuationIndentWidth: 2, ColumnLimit: 120}")
+    (command #< input).!!.trim
+  }
+
+  /**
+    * Creates diff from structures.
+    * WARNING: slow for large asts.
+    */
+  def diffAsts(original: String, obtained: String): String = {
+//    compareContents(formatAst(original), formatAst(obtained))
+    compareContents(original.replace("(", "\n("), obtained.replace("(", "\n("))
+  }
+
+  // TODO(olafur) move this to scala.meta?
+  def parseException2Message(e: ParseException): String = {
+    val range = 3
+    val obtained = e.pos.input.toString
+    val i = e.pos.start.line
+    val lines = obtained.lines.toVector
+    val arrow = (" " * (e.pos.start.column - 2)) + "^"
+    s"""${lines.slice(i - range, i + 1).mkString("\n")}
+       |$arrow
+       |${e.getMessage}
+       |${lines.slice(i + 1, i + range).mkString("\n")}
+       |""".stripMargin
   }
 }

@@ -4,6 +4,7 @@ import scala.meta.parsers.common.ParseException
 
 sealed abstract class ExperimentResult(fileUrl: String) {
   def key: String
+  def details: String = fileUrl
 }
 object ExperimentResult {
   case class Success(fileUrl: String, nanos: Long) extends ExperimentResult(fileUrl) {
@@ -23,15 +24,14 @@ object ExperimentResult {
   }
   case class ParseErr(fileUrl: String, e: ParseException)
     extends ExperimentResult(fileUrl) {
-    override def key: String = e.getClass.getName
-
-    def err: String = e.getMessage.replaceAll(" at .*", "")
+    override def key: String =
+      e.getClass.getName + ": " + e.getMessage.replaceAll(" at .*", "")
 
     def lineNumber = e.pos.point.line
 
     def content = s"cols:${e.pos.start.column}-${e.pos.end.column}"
 
-    override def toString: String = s"$fileUrl#L${e.pos.start.line + 1} $cols"
+    override def details: String = s"$fileUrl#L${e.pos.start.line + 1} $cols"
 
     def cols = s"cols:${e.pos.start.column}-${e.pos.end.column}"
   }

@@ -1,0 +1,5 @@
+40 columns                              |
+<<< symbols get space
+def unary_!   : Boolean = !value
+>>>
+def unary_! : Boolean = !value
