@@ -26,7 +26,7 @@ Main issues:
 * Occasionally produces invalid code.
 
 ### Documentation
-For now, [the tests](src/test/resources) are the most up-to-date documentation.
+For now, [the tests](core/src/test/resources) are the most up-to-date documentation.
 
 ### Installation
 
