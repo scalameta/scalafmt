@@ -20,8 +20,15 @@ object Error extends ScalaFmtLogger {
   case class CaseMissingArrow(tree: Case)
     extends Error(s"Missing => in case: \n$tree")
 
-  case object FormatterChangedAST
-    extends Error("Formatter changed AST")
+  case class FormatterChangedAST(diff: String, output: String) extends Error(
+    s"""Formatter changed AST
+        |=====================
+        |$diff
+        |=====================
+        |$output
+        |=====================
+        |Formatter changed AST
+      """.stripMargin)
 
   case class FormatterOutputDoesNotParse(msg: String)
     extends Error("Formatter output does not parse:\n" + msg)

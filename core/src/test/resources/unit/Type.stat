@@ -1,0 +1,11 @@
+40 columns                              |
+<<< abstract defs get newline
+type ObjNotifyLike = Any {
+        def notify(): Unit
+        def notifyAll(): Unit
+      }
+>>>
+type ObjNotifyLike = Any {
+  def notify(): Unit
+  def notifyAll(): Unit
+}

@@ -81,7 +81,7 @@ lazy val root = project.in(file("."))
   .settings(
     initialCommands in console :=
       """
-        |import org.scalameta._
+        |import scala.meta._
         |import org.scalafmt.internal._
         |import org.scalafmt._
       """.stripMargin
