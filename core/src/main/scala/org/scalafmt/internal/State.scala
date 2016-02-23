@@ -15,11 +15,18 @@ final case class State(cost: Int,
                        column: Int
                       ) extends Ordered[State] with ScalaFmtLogger {
 
-  import scala.math.Ordered.orderingToOrdered
 
-  def compare(that: State): Int =
-    (-this.cost, this.splits.length, -this.indentation) compare(-that.cost,
-      that.splits.length, -that.indentation)
+  def compare(that: State): Int = {
+    val costCompare = Integer.compare(-this.cost, -that.cost)
+    if (costCompare != 0) costCompare
+    else {
+      val splitsCompare = Integer.compare(
+        this.splits.length,
+        that.splits.length)
+      if (splitsCompare != 0) splitsCompare
+      else Integer.compare(-this.indentation, -that.indentation)
+    }
+  }
 
   /**
     * Returns True is this state will always return better formatting than other.
