@@ -1,5 +1,7 @@
 package org.scalafmt.internal
 
+import org.scalafmt.Error.NoopDefaultPolicyApplied
+
 
 /**
   * The decision made by [[Router]].
@@ -18,7 +20,8 @@ case class Policy(f: PartialFunction[Decision, Decision],
 
 object Policy {
   val IdentityPolicy: PartialFunction[Decision, Decision] = {
-    case d => d
+    case d =>
+      throw NoopDefaultPolicyApplied(d)
   }
   val empty = Policy(IdentityPolicy, Integer.MAX_VALUE)
 }

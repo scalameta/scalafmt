@@ -60,7 +60,6 @@ class Router(style: ScalaStyle,
     tokens.map(t => t.left -> t).toMap
   private val tok2idx: Map[FormatToken, Int] = tokens.zipWithIndex.toMap
   private val cache = mutable.Map.empty[FormatToken, Seq[Split]]
-  // TODO(olafur) move into function, store owners(left/right), etc.
 
   def getSplits(formatToken: FormatToken): Seq[Split] = {
     val leftOwner = owners(formatToken.left)
@@ -243,7 +242,6 @@ class Router(style: ScalaStyle,
         }
         val close = matchingParentheses(hash(open))
         // TODO(olafur) recursively?
-        val optimalTok: Token = rhsOptimalToken(leftTok2tok(close))
         // In long sequence of select/apply, we penalize splitting on
         // parens furthest to the right.
         val lhsPenalty = lhs.tokens.length
@@ -266,14 +264,11 @@ class Router(style: ScalaStyle,
           else NoSplit
         Seq(
           Split(modification, 0, policy = singleLine)
-            .withIndent(indent, close, Left)
-            .withOptimal(optimalTok),
+            .withIndent(indent, close, Left),
           Split(Newline, 1 + nestedPenalty + lhsPenalty, policy = singleLine)
-            .withIndent(indent, close, Left)
-            .withOptimal(optimalTok),
+            .withIndent(indent, close, Left),
           Split(modification, 2 + lhsPenalty, policy = oneArgOneLine, ignoreIf = singleArgument)
-            .withIndent(StateColumn, close, Right)
-            .withOptimal(optimalTok),
+            .withIndent(StateColumn, close, Right),
           Split(Newline,
             3 + nestedPenalty + lhsPenalty,
             policy = oneArgOneLine, ignoreIf = singleArgument)
@@ -341,10 +336,8 @@ class Router(style: ScalaStyle,
           if (!isLhsOfApply) 1
           else 0
         val open = next(next(tok)).right
-        val close = matchingParentheses(hash(open))
-        val optimal = rhsOptimalToken(leftTok2tok(close))
         Seq(
-          Split(NoSplit, 0).withOptimal(optimal),
+          Split(NoSplit, 0),
           Split(Newline, 1 + nestedPenalty + noApplyPenalty)
             .withIndent(2, dot, Left)
         )
@@ -584,11 +577,6 @@ class Router(style: ScalaStyle,
     }
   }
 
-  val GlobalPolicy: PartialFunction[Decision, Decision] = {
-    case d@Decision(FormatToken(c: Comment, _, _), s) if c.code.startsWith("//") =>
-      d.copy(splits = s.filterNot(_.modification.isNewline))
-  }
-
   /**
    * Assigns possible splits to a FormatToken.
    *
@@ -596,8 +584,7 @@ class Router(style: ScalaStyle,
    * splits as edges. Given a format token (a node in the graph), Route
    * determines which edges lead out from the format token.
    */
-
-  def Route(formatToken: FormatToken): Seq[Split] =
+  def getSplitsMemo(formatToken: FormatToken): Seq[Split] =
     cache.getOrElseUpdate(formatToken, {
       val splits = getSplits(formatToken)
       formatToken match {
@@ -714,12 +701,6 @@ class Router(style: ScalaStyle,
     case _ => false
   }
 
-  @tailrec
-  final def rhsOptimalToken(start: FormatToken): Token = start.right match {
-    case _: `,` | _: `)` | _: `]` | _: `;` | _: `=>` if next(start) != start =>
-      rhsOptimalToken(next(start))
-    case _ => start.left
-  }
 
   def newlines2Modification(between: Vector[Whitespace]): Modification =
     newlinesBetween(between) match {

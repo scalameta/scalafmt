@@ -23,7 +23,7 @@ package object internal {
   /**
     * For convenience when experimenting with different hashing strategies.
     */
-  type TokenHash = Int
+  type TokenHash = Long
 
   /**
     * Custom hash code for token.
@@ -40,11 +40,11 @@ package object internal {
     * The only chance for collision is if two empty length tokens with the same
     * type lie next to each other. @xeno-by said this should not happen.
     */
-  def hash(token: Token): TokenHash = {
-    val longHash =
-      (token.privateTag << (62 - 8)) |
-        (token.start << (62 - (8 + 28))) |token.end
-    java.lang.Long.hashCode(longHash)
+  @inline def hash(token: Token): TokenHash = {
+    val longHash: Long =
+      (token.privateTag.toLong << (62 - 8)) |
+        (token.start.toLong << (62 - (8 + 28))) | token.end
+    longHash
   }
 
   @tailrec
@@ -55,3 +55,4 @@ package object internal {
     }
   }
 }
+

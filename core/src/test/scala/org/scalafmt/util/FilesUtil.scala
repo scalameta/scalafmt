@@ -16,9 +16,17 @@ object FilesUtil {
     } yield filename
   }
 
-  def readFile(filename: String): String =
-    new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths
-      .get(filename)))
+  /**
+    * Reads file from file system or from http url.
+    */
+  def readFile(filename: String): String = {
+    if (filename.startsWith("http")) {
+      scala.io.Source.fromURL(filename).mkString
+    } else {
+      new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths
+        .get(filename)))
+    }
+  }
 
   def writeFile(filename: String, content: String): Unit = {
     val path = java.nio.file.Paths.get(filename)

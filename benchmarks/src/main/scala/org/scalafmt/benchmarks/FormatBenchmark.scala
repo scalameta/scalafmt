@@ -68,7 +68,7 @@ abstract class FormatBenchmark(path: String*) {
   }
 
   // No need to run same benchmark again and again.
-  //  @Benchmark
+    @Benchmark
   def scalariform(): String = {
     ScalaFormatter.format(code, scalariformPreferences)
   }
@@ -87,6 +87,8 @@ object run {
 
   class BaseLinker extends ScalaJsBenchmark("BaseLinker.scala")
 
+  class OptimizerCore extends ScalaJsBenchmark("OptimizerCore.scala")
+
   // These files are too small to be interesting.
   //  class Basic extends FormatBenchmark("scalafmt", "Basic.scala")
   //  class Utils extends ScalaJsBenchmark("Utils.scala")
@@ -97,7 +99,6 @@ object run {
   //  class TypeKinds extends ScalaJsBenchmark("TypeKinds.scala")
   //  class Analyzer extends ScalaJsBenchmark("Analyzer.scala")
   //  class Trees extends ScalaJsBenchmark("Trees.scala")
-  //  class OptimizerCore extends ScalaJsBenchmark("OptimizerCore.scala")
   //  class GenJsCode extends ScalaJsBenchmark("GenJsCode.scala")
   //  class CopyOnWriteArrayList extends ScalaJsBenchmark("CopyOnWriteArrayList.scala")
 }

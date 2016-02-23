@@ -2,8 +2,6 @@ lazy val buildSettings = Seq(
   organization := "org.scalafmt",
   version := "0.1.0-SNAPSHOT",
   scalaVersion := "2.11.7",
-  resolvers +=
-    "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
   updateOptions := updateOptions.value.withCachedResolution(true),
   // Many useful rules are ignored, at least they're explicitly ignored.
   wartremoverWarnings in (Compile, compile) ++=

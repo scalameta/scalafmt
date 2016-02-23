@@ -4,7 +4,11 @@ import scala.meta.parsers.common.ParseException
 
 sealed abstract class ExperimentResult(fileUrl: String) {
   def key: String
-  def details: String = fileUrl
+  // TODO(olafur) abstract over whether raw or non-raw link.
+//  def details: String = fileUrl
+  def details = fileUrl
+    .replace("github.com", "raw.githubusercontent.com")
+    .replace("/blob/", "/")
 }
 object ExperimentResult {
   case class Success(fileUrl: String, nanos: Long) extends ExperimentResult(fileUrl) {
@@ -31,7 +35,7 @@ object ExperimentResult {
 
     def content = s"cols:${e.pos.start.column}-${e.pos.end.column}"
 
-    override def details: String = s"$fileUrl#L${e.pos.start.line + 1} $cols"
+    def urlWithLineHighlighted: String = s"$fileUrl#L${e.pos.start.line + 1} $cols"
 
     def cols = s"cols:${e.pos.start.column}-${e.pos.end.column}"
   }

@@ -10,6 +10,7 @@ class BenchmarkOK extends FunSuite with FormatAssertions {
 
   // TODO(olafur) DRY.
   val formatBenchmarks = Seq(
+    new OptimizerCore,
     new SourceMapWriter,
     new Division,
     new BaseLinker
