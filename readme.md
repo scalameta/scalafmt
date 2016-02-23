@@ -94,6 +94,43 @@ To run main formatting tests:
 
 ### Updates (mostly for myself)
 
+* Feb 23th
+  * replaced memoization with a simple heuristic to prune out dead states and
+  got up to ~100x speed improvements.
+  * fixed remainig output bugs, no more AST changes or other formatting errors.
+```
+JMH
+===
+[info] Benchmark                    Mode  Cnt     Score    Error  Units
+[info] BaseLinker.scalafmt          avgt   10   134.951 ± 65.239  ms/op
+[info] BaseLinker.scalariform       avgt   10    26.815 ±  6.342  ms/op
+[info] Division.scalafmt            avgt   10   169.684 ± 15.607  ms/op
+[info] Division.scalariform         avgt   10    35.659 ±  6.397  ms/op
+[info] OptimizerCore.scalafmt       avgt   10  1389.404 ± 88.609  ms/op
+[info] OptimizerCore.scalariform    avgt   10   256.030 ± 33.611  ms/op
+[info] SourceMapWriter.scalafmt     avgt   10    34.418 ±  0.940  ms/op
+[info] SourceMapWriter.scalariform  avgt   10     7.728 ±  0.679  ms/op
+
+NOTE. OptimizerCore is 4k LOC and did not format under 1min before today.
+
+Scala.js
+========
+Formatter timed out: 29
+Success: 891
+
+Total: 920
++-------------+--------+--------------+----------+---------+---------+----------+
+|          Max|     Min|           Sum|      Mean|       Q1|       Q2|        Q3|
++-------------+--------+--------------+----------+---------+---------+----------+
+|10.008,617 ms|3,029 ms|425.785,847 ms|477,874 ms|35,239 ms|95,027 ms|342,221 ms|
++-------------+--------+--------------+----------+---------+---------+----------+
+
+Note. These timing results are ad-hoc benchmarks, expect up to a ±100ms margin
+error. Still, observe that 75% of files in the Scala.js repo format in under
+350ms.
+```
+
+
 * Feb 21th
   * Scala.js experiment with 10s timeout. Now, formats 848 files out of 920! 
   
