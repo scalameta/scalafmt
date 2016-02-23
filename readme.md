@@ -22,8 +22,10 @@ scalafmt makes them short again.
 This project is under active development and is far from production ready.
 
 Main issues:
-* Can't format large files (200+ LOC) in less than 200ms.
-* Occasionally produces invalid code.
+
+* Still slow for some files with large bodies inside term applications.
+* The output is not always aesthetically pleasing (fixing performance
+  issues first).
 
 ### Documentation
 For now, [the tests](core/src/test/resources) are the most up-to-date documentation.
