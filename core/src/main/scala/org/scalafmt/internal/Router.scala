@@ -48,17 +48,18 @@ class Router(style: ScalaStyle,
    *
    */
   val packageTokens: Set[Token] = {
-    val result = mutable.Set.empty[Token]
+    val result = new mutable.SetBuilder[Token, Set[Token]](Set.empty[Token])
     tree.collect {
       case p: Pkg =>
         result ++= p.ref.tokens
     }
-    result.toSet
+    result.result()
   }
 
   private val leftTok2tok: Map[Token, FormatToken] =
     tokens.map(t => t.left -> t).toMap
   private val tok2idx: Map[FormatToken, Int] = tokens.zipWithIndex.toMap
+  // TODO(olafur) replace cache with array of list[split]
   private val cache = mutable.Map.empty[FormatToken, Seq[Split]]
 
   def getSplits(formatToken: FormatToken): Seq[Split] = {
@@ -680,7 +681,7 @@ class Router(style: ScalaStyle,
 
   def insideBlock(start: FormatToken, end: Token): Set[Range] = {
     var inside = false
-    val result = mutable.Set.empty[Range]
+    val result = new mutable.SetBuilder[Range, Set[Range]](Set.empty[Range])
     var curr = start
     while (curr.left != end) {
       if (curr.left.isInstanceOf[`{`]) {
@@ -692,7 +693,7 @@ class Router(style: ScalaStyle,
         curr = next(curr)
       }
     }
-    result.toSet
+    result.result()
   }
 
   def next(tok: FormatToken): FormatToken = {

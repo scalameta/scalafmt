@@ -45,7 +45,7 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
 
   def isInsideNoOptZone(token: FormatToken): Boolean = {
     // TODO(olafur) use more efficient range map, for example Guava.
-    noOptimizations.exists(_.contains(token.left.start))
+    noOptimizations.contains(token.left)
   }
   /**
     * Returns true if it's OK to skip over state.
@@ -297,7 +297,8 @@ object BestFirstSearch extends ScalaFmtLogger {
     * Creates lookup table from token offset to its closest scala.meta tree.
     */
   def getOwners(tree: Tree): Map[TokenHash, Tree] = {
-    val result = mutable.Map.empty[TokenHash, Tree]
+    val result = new mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](
+      Map.empty[TokenHash, Tree])
     def loop(x: Tree): Unit = {
       x.tokens.foreach { tok =>
         result += hash(tok) -> x
@@ -305,19 +306,19 @@ object BestFirstSearch extends ScalaFmtLogger {
       x.children.foreach(loop)
     }
     loop(tree)
-    result.toMap
+    result.result()
   }
 
-  def noOptimizationZones(tree: Tree): Set[Range] = {
-    val result = mutable.Set[Range]()
+  def noOptimizationZones(tree: Tree): Set[Token] = {
+    val result = new mutable.SetBuilder[Token, Set[Token]](Set.empty[Token])
     def loop(x: Tree): Unit = x match {
       case t: Term.Apply =>
-        result += Range(t.tokens.head.start, t.tokens.last.end).inclusive
+        result ++= t.tokens
       case _ =>
         x.children.foreach(loop)
     }
     loop(tree)
-    result.toSet
+    result.result()
   }
 
 }
