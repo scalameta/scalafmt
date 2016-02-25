@@ -18,7 +18,7 @@ scalafmt makes them short again.
 
 ![scalafmt](https://cloud.githubusercontent.com/assets/1408093/12928034/99d3ffe8-cf6b-11e5-9ec5-42de7c4e0155.gif)
 
-### Warning
+### ⚠Warning⚠
 This project is under active development and is far from production ready.
 
 Main issues:
@@ -105,6 +105,10 @@ To run main formatting tests:
 
 ### Updates (mostly for myself)
 
+* Feb 25th
+  * Can format [GenJsCode](https://github.com/scala-js/scala-js/blob/master/compiler/src/main/scala/org/scalajs/core/compiler/GenJSCode.scala)
+    in ~1.5s! Previously didn't terminate.
+  * Still struggling with other pathological cases [like here](https://github.com/scala-js/scala-js/blob/29e46c2284afd48dcfe2dcacbcfe9f9fdbadf617/tools/shared/src/main/scala/org/scalajs/core/tools/linker/backend/emitter/ScalaJSClassEmitter.scala#L584).
 * Feb 23th
   * replaced memoization with a simple heuristic to prune out dead states and
   got up to ~100x speed improvements.
@@ -140,7 +144,6 @@ Note. These timing results are ad-hoc benchmarks, expect up to a ±100ms margin
 error. Still, observe that 75% of files in the Scala.js repo format in under
 350ms.
 ```
-
 
 * Feb 21th
   * Scala.js experiment with 10s timeout. Now, formats 848 files out of 920! 
