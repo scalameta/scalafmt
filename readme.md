@@ -18,13 +18,15 @@ scalafmt makes them short again.
 
 ![scalafmt](https://cloud.githubusercontent.com/assets/1408093/12928034/99d3ffe8-cf6b-11e5-9ec5-42de7c4e0155.gif)
 
-### ⚠Warning⚠
-This project is under active development and is far from production ready.
+### ![warning][warning]Under construction![warning][warning]
+Warning. This project is under active development and is not production ready.
+
+[warning]: https://cdn3.iconfinder.com/data/icons/fatcow/32x32_0400/error.png
 
 Main issues:
 
-* Still slow for some files with large bodies inside term applications.
-* The output is not always aesthetically pleasing (fixing performance
+* Still painstakingly slow for [massive bodies inside term applications][emitter]
+* The output is not always aesthetically pleasing (fixing exponential growth
   issues first).
 
 ### Documentation
@@ -108,11 +110,12 @@ To run main formatting tests:
 * Feb 25th
   * Can format [GenJsCode](https://github.com/scala-js/scala-js/blob/master/compiler/src/main/scala/org/scalajs/core/compiler/GenJSCode.scala)
     in ~1.5s! Previously didn't terminate.
-  * Still struggling with other pathological cases [like here](https://github.com/scala-js/scala-js/blob/29e46c2284afd48dcfe2dcacbcfe9f9fdbadf617/tools/shared/src/main/scala/org/scalajs/core/tools/linker/backend/emitter/ScalaJSClassEmitter.scala#L584).
+  * Still struggling with other pathological cases [like here]().
 * Feb 23th
   * replaced memoization with a simple heuristic to prune out dead states and
   got up to ~100x speed improvements.
   * fixed remainig output bugs, no more AST changes or other formatting errors.
+[emitter]: https://github.com/scala-js/scala-js/blob/29e46c2284afd48dcfe2dcacbcfe9f9fdbadf617/tools/shared/src/main/scala/org/scalajs/core/tools/linker/backend/emitter/ScalaJSClassEmitter.scala#L584
 ```
 JMH
 ===
