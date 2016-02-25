@@ -73,16 +73,10 @@ var list = List( // comment
     function(a: A, b: B, c: C))
 <<< long
 var list = List(
-  function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C)
+  function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C)
 );
 >>>
 var list = List(
-    function(a: A, b: B, c: C),
-    function(a: A, b: B, c: C),
-    function(a: A, b: B, c: C),
-    function(a: A, b: B, c: C),
-    function(a: A, b: B, c: C),
-    function(a: A, b: B, c: C),
     function(a: A, b: B, c: C),
     function(a: A, b: B, c: C),
     function(a: A, b: B, c: C),
@@ -103,8 +97,8 @@ function(a, b, c, {
   })
 >>>
 function(a, b, c, {
-      case Foo("a", 1) => Foo("b", 2)
-    })
+  case Foo("a", 1) => Foo("b", 2)
+})
 <<< MUST NOT use automatic formatting 1 alexandru/scala-best-practices
 val dp = new DispatchPlan(Set(filteredAssets), start =
   startDate, end = endDate, product, scheduleMap, availabilityMap,

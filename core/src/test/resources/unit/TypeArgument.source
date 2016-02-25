@@ -61,8 +61,8 @@ object a {
 }
 >>>
 object a {
-  function[function[function[a, b],
-                    function[c, d]]]
+  function[function[
+      function[a, b], function[c, d]]]
 }
 <<< Break on higher level of nesting 3x
 object a {
@@ -71,8 +71,7 @@ object a {
 >>>
 object a {
   function[function[function[
-              function[a, b],
-              function[c, d]]]]
+      function[a, b], function[c, d]]]]
 }
 <<< Type args and args different policy
 object Object {

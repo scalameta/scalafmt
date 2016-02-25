@@ -9,6 +9,7 @@ object UnitTests extends HasTests with ScalaFmtLogger {
 
   import FilesUtil._
 
+  // TODO(olafur) make possible to limit states per unit test.
   override lazy val tests: Seq[DiffTest] = {
     for {
       filename <- listFiles(testDir)

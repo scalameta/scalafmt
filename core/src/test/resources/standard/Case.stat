@@ -28,17 +28,17 @@ List(Split(Space, 0).withPolicy {
             })
 >>>
 List(Split(Space, 0).withPolicy {
-      case Decision(t, s) if tok.right.end <= lastToken.end =>
-        Decision(t, s.map {
-              case nl if nl.modification.isNewline =>
-                val result =
-                  if (t.right.isInstanceOf[`if`] && owners(t.right) == owner)
-                    nl
-                  else nl.withPenalty(1)
-                result.withPolicy(breakOnArrow)
-              case x => x
-            })
+  case Decision(t, s) if tok.right.end <= lastToken.end =>
+    Decision(t, s.map {
+      case nl if nl.modification.isNewline =>
+        val result =
+          if (t.right.isInstanceOf[`if`] && owners(t.right) == owner)
+            nl
+          else nl.withPenalty(1)
+        result.withPolicy(breakOnArrow)
+      case x => x
     })
+})
 <<< chain of || and &&
 x match {
   case tok if // TODO(olafur) DRY.
