@@ -98,6 +98,11 @@ class Router(style: ScalaStyle,
         if parents(rightOwner).exists(_.isInstanceOf[Import]) => Seq(
         Split(NoSplit, 0)
       )
+//        // Argument block
+//      case FormatToken(_: `,`, open: `{`, _)
+//        if leftOwner.isInstanceOf[Term.Apply] => Seq(
+//        Split(Space, 0)
+//      )
       case FormatToken(open: `{`, _, _)
         if parents(leftOwner).exists(_.isInstanceOf[Import]) ||
           leftOwner.isInstanceOf[Term.Interpolate] => Seq(
@@ -226,6 +231,7 @@ class Router(style: ScalaStyle,
           Split(NoSplit, 0)
         )
       // TODO(olafur) Split this up.
+      // Term.Apply and friends
       case tok@FormatToken(_: `(` | _: `[`, right, between)
         if leftOwner.isInstanceOf[Term.Apply] ||
           leftOwner.isInstanceOf[Pat.Extract] ||
@@ -264,16 +270,27 @@ class Router(style: ScalaStyle,
         val modification =
           if (right.isInstanceOf[Comment]) newlines2Modification(between)
           else NoSplit
+        val charactersInside = (close.start - open.end) - 2
+        val fitsOnOneLine =
+          singleArgument || exclude.nonEmpty || charactersInside <= style.maxColumn
+        // TODO(olafur) ignoreIf: State => Boolean?
+        val optimalToken = Some(rhsOptimalToken(leftTok2tok(close)))
         Seq(
-          Split(modification, 0, policy = singleLine)
-            .withIndent(indent, close, Left),
-          Split(Newline, 1 + nestedPenalty + lhsPenalty, policy = singleLine)
-            .withIndent(indent, close, Left),
-          Split(modification, 2 + lhsPenalty, policy = oneArgOneLine, ignoreIf = singleArgument)
+          Split(modification, 0, policy = singleLine,
+            ignoreIf = !fitsOnOneLine, optimalAt = optimalToken)
+            // TODO(olafur) allow style to specify indent here?
+            .withIndent(indent, nextNonComment(tok).right, Left),
+          Split(Newline, 1 + nestedPenalty + lhsPenalty,
+            policy = singleLine, ignoreIf = !fitsOnOneLine,
+            optimalAt = optimalToken )
+            .withIndent(indent, right, Left),
+          Split(modification, 2 + lhsPenalty, policy = oneArgOneLine, ignoreIf = singleArgument,
+            optimalAt = optimalToken )
             .withIndent(StateColumn, close, Right),
           Split(Newline,
             3 + nestedPenalty + lhsPenalty,
-            policy = oneArgOneLine, ignoreIf = singleArgument)
+            policy = oneArgOneLine, ignoreIf = singleArgument,
+            optimalAt = optimalToken )
             .withIndent(indent, close, Left)
         )
 
@@ -354,6 +371,9 @@ class Router(style: ScalaStyle,
           Split(NoSplit, 0)
         )
       // Annotations
+      case FormatToken(left: Ident, bind: `@`, _) if rightOwner.isInstanceOf[Pat.Bind] => Seq(
+        Split(identModification(left), 0)
+      )
       case FormatToken(_, bind: `@`, _) if rightOwner.isInstanceOf[Pat.Bind] => Seq(
         Split(NoSplit, 0)
       )
@@ -366,7 +386,7 @@ class Router(style: ScalaStyle,
         Seq(
           Split(Space, 0)
         )
-      case FormatToken(_, right: `with`, _) if rightOwner.isInstanceOf[Template] =>
+      case tok@FormatToken(_, right: `with`, _) if rightOwner.isInstanceOf[Template] =>
         val template = rightOwner.asInstanceOf[Template]
         // TODO(olafur) is this correct?
         val expire = for {
@@ -432,16 +452,6 @@ class Router(style: ScalaStyle,
           Split(Space, 0),
           Split(Newline, 1)
         )
-        // TODO(olafur) handle infix application for non boolean operators.
-//      case tok@FormatToken(left: Ident, _, _) if false && leftOwner.parent.exists {
-//          case parent: Term.ApplyInfix => parent.op.tokens.head == left
-//          case _ => false
-//        } =>
-//        val newlinePenalty = infixPrecedence(left)
-//        Seq(
-//          Split(Space, 0),
-//          Split(Newline, newlinePenalty)
-//        )
       case tok@FormatToken(_: Ident | _: Literal | _: Interpolation.End,
       _: Ident | _: Literal | _: Xml.End, _) =>
         Seq(
@@ -639,6 +649,8 @@ class Router(style: ScalaStyle,
       // Newline on every comma.
       case Decision(t @ FormatToken(comma: `,`, right, between), splits)
         if owners(open) == owners(comma) &&
+          // TODO(olafur) what the right { decides to be single line?
+          !right.isInstanceOf[`{`] &&
         // If comment is bound to comma, see unit/Comment.
         (!right.isInstanceOf[Comment] ||
           between.exists(_.isInstanceOf[`\n`])) =>
@@ -676,7 +688,7 @@ class Router(style: ScalaStyle,
       case Decision(tok, splits) if exclude.forall(!_.contains(tok.left.start)) &&
         tok.right.end <= expire.end =>
         Decision(tok, splits.filterNot(_.modification.isNewline))
-    }, expire.end, noDequeue = true)
+    }, expire.end, noDequeue = exclude.isEmpty)
   }
 
   def insideBlock(start: FormatToken, end: Token): Set[Range] = {
@@ -724,6 +736,12 @@ class Router(style: ScalaStyle,
     case _ => None
   }
 
+  @tailrec
+  final def rhsOptimalToken(start: FormatToken): Token = start.right match {
+    case _: `,` | _: `(` | _: `)` | _: `]` | _: `;` | _: `=>` if next(start) != start =>
+      rhsOptimalToken(next(start))
+    case _ => start.left
+  }
   def rhsIsCommentedOut(formatToken: FormatToken): Boolean =
     formatToken.right.isInstanceOf[Comment] &&
       endsWithNoIndent(formatToken.between)
@@ -735,26 +753,6 @@ class Router(style: ScalaStyle,
     case "||" | "&&" => true
     case _ => false
   }
-
-  // TODO(olafur) use these
-//  /**
-//    * See https://github.com/scala/scala/blob/2.12.x/spec/06-expressions.md
-//    */
-//  def infixPrecedence(token: Token): Int =
-//    token.code.charAt(0) match {
-//      case '*' | '/' | '%' => 1
-//      case '+' | '-' => 1
-//      case ':' => 1
-//      case '<' | '>' => 1
-//      case '=' | '!' => 1
-//      case '&' => 1
-//      case '^' => 1
-//      case '"' => 1
-//      // TODO(olafur) consider last token is :
-//      case x =>
-//        logger.warn(s"Unexpected token $x")
-//        8
-//    }
 
   def identModification(ident: Ident): Modification =
     if (Character.isLetterOrDigit(ident.code.last)) NoSplit

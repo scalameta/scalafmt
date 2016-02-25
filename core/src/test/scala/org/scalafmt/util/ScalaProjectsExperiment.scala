@@ -111,7 +111,7 @@ trait ScalaProjectsExperiment extends ScalaFmtLogger {
   def recoverError(fileUrl: String): PartialFunction[Throwable, Boolean] = {
     case e: ParseException => results.add(ParseErr(fileUrl, e))
     case e: java.util.concurrent.TimeoutException =>
-      print("-")
+      println(s"- $fileUrl")
       results.add(Timeout(fileUrl))
     case NonFatal(e) =>
       print("X")

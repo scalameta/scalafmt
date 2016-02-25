@@ -81,13 +81,17 @@ object run {
     extends FormatBenchmark("scala-js", filename)
 
 
-  class Division extends ScalaJsBenchmark("Division.scala")
-
-  class SourceMapWriter extends ScalaJsBenchmark("SourceMapWriter.scala")
-
-  class BaseLinker extends ScalaJsBenchmark("BaseLinker.scala")
+//  class Division extends ScalaJsBenchmark("Division.scala")
+//
+//  class SourceMapWriter extends ScalaJsBenchmark("SourceMapWriter.scala")
+//
+//  class BaseLinker extends ScalaJsBenchmark("BaseLinker.scala")
 
   class OptimizerCore extends ScalaJsBenchmark("OptimizerCore.scala")
+
+  class GenJsCode extends ScalaJsBenchmark("GenJSCode.scala")
+
+  class ScalaJSClassEmitter extends ScalaJsBenchmark("ScalaJSClassEmitter.scala")
 
   // These files are too small to be interesting.
   //  class Basic extends FormatBenchmark("scalafmt", "Basic.scala")
@@ -99,7 +103,6 @@ object run {
   //  class TypeKinds extends ScalaJsBenchmark("TypeKinds.scala")
   //  class Analyzer extends ScalaJsBenchmark("Analyzer.scala")
   //  class Trees extends ScalaJsBenchmark("Trees.scala")
-  //  class GenJsCode extends ScalaJsBenchmark("GenJsCode.scala")
   //  class CopyOnWriteArrayList extends ScalaJsBenchmark("CopyOnWriteArrayList.scala")
 }
 
