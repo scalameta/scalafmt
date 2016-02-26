@@ -52,3 +52,14 @@ s"""${a.foo[Bar]}
     Nicely indented
 """.format(
     aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)
+<<< SKIP don't break if no nead
+val msg =
+
+  s"""UNABLE TO FORMAT,
+      |${mkString(deepestYet.splits)}
+      |""".stripMargin
+>>>
+val msg =
+  s"""UNABLE TO FORMAT,
+      |${mkString(deepestYet.splits)}
+      |""".stripMargin

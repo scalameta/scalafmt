@@ -28,3 +28,13 @@ val sizes =
     for (cell <- row) yield
         if (cell == null) 0
         else cell.toString.length)
+<<< SKIP if
+val k = for {
+    _ <- Future(Speed.submitStats(stats)) if !onlyOne
+  _ <- Future(Speed.writeComparisonReport(stats, "master"))
+} yield ()
+>>>
+val k = for {
+  _ <- Future(Speed.submitStats(stats)) if !onlyOne
+  _ <- Future(Speed.writeComparisonReport(stats, "master"))
+} yield ()

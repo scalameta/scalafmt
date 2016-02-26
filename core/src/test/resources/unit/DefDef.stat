@@ -37,3 +37,8 @@ def identity[T](t: T): T = t
         sym.hasAnnotation(JSBracketCallAnnotation)
 >>>
 x
+<<< SKIP curried functions
+def format_![T <: Tree](code: String, a: Int)(implicit ev: Parse[T]): String
+>>>
+def format_![T <: Tree](code: String,
+    a: Int)(implicit ev: Parse[T]): String

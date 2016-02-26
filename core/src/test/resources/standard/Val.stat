@@ -14,3 +14,15 @@ var inside = false
 var inside: Int   = _
 >>>
 var inside: Int = _
+<<< SKIP && gets space
+val attachedComment = !rightIsOnNewLine&& isInlineComment(right)
+>>>
+val attachedComment = !rightIsOnNewLine && isInlineComment(right)
+<<< SKIP break in higher nesting
+    val longHash: Long =
+      (token.privateTag.toLong << (62 - 8)) |
+        (token.start.toLong << (62 - (8 + 28))) | token.end
+>>>
+val longHash: Long =
+  (token.privateTag.toLong << (62 - 8)) |
+    (token.start.toLong << (62 - (8 + 28))) | token.end

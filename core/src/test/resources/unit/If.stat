@@ -67,4 +67,15 @@ val policy =
 val policy =
   if (right) SingleLineBlock(close)
   else NoPolicy
-
+<<< SKIP bang ! binds to right
+if ((gets2x(tok) ||
+         newlinesBetween(tok.between) > 1) &&
+     !(isDocstring(left) && newlinesBetween(between) < 2))
+>>>
+if ((gets2x(tok) ||
+     newlinesBetween(tok.between) > 1) &&
+     !(isDocstring(left) && newlinesBetween(between) < 2))
+<<< SKIP == unary nosplit literal
+if   (firstNewline == -1) tokLength
+>>>
+if (firstNewline == -1) tokLength

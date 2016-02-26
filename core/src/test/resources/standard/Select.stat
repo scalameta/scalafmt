@@ -62,3 +62,34 @@ val lastToken = owner.body.tokens.filter {
   case _ => true
 } // edge case, if body is empty expire on arrow.
 .lastOption.getOrElse(arrow)
+<<< SKIP apply infix has indent
+val expire = owner.tokens.
+  find(t => t.isInstanceOf[`=`] && owners(t) == owner)
+  .getOrElse(owner.tokens.last)
+>>>
+val expire = owner.tokens
+  .find(t => t.isInstanceOf[`=`] && owners(t) == owner)
+  .getOrElse(owner.tokens.last)
+<<< SKIP comment gets 2 indent
+Split(modification, 0, policy = singleLine,
+ignoreIf = !fitsOnOneLine, optimalAt = optimalToken)
+// TODO(olafur) allow style to specify indent here?
+.withIndent(indent, nextNonComment(tok).right, Left),
+>>>
+Split(modification,
+      0,
+      policy = singleLine,
+      ignoreIf = !fitsOnOneLine,
+      optimalAt = optimalToken)
+  // TODO(olafur) allow style to specify indent here?
+  .withIndent(indent, nextNonComment(tok).right, Left),
+<<< SKIP preserve chains
+  val files = FilesUtil.listFiles(".")
+    .filter(_.endsWith(".scala"))
+    .filterNot(_.contains("/target/"))
+    .filterNot(_.contains("/resources/"))
+>>>
+val files = FilesUtil.listFiles(".")
+  .filter(_.endsWith(".scala"))
+  .filterNot(_.contains("/target/"))
+  .filterNot(_.contains("/resources/"))

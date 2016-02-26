@@ -20,6 +20,8 @@ object Speed extends ScalaFmtLogger {
     val startTime = System.nanoTime()
     val actions = db.docs.create(stat)
     actions.attemptRun match {
+      case -\/(e: java.nio.channels.UnresolvedAddressException) =>
+        logger.warn("No internet connection.")
       case -\/(e: Invalid) => logger.warn("Unable to submit to speed.scalafmt.org: Invalid data")
       case -\/(e) => logger.warn("Unable to submit to speed.scalafmt.org", e)
       case f@ \/-(a) =>

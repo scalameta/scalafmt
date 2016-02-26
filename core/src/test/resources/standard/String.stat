@@ -1,0 +1,12 @@
+80 columns                                                                     |
+<<< SKIP Indent multiline strings with margin
+val x =
+                  s"""Formatter changed AST
+                |=====================
+                |$diff
+              """.stripMargin
+>>>
+val x = s"""Formatter changed AST
+           |=====================
+           |$diff
+         """.stripMargin

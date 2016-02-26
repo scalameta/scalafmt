@@ -139,3 +139,11 @@ Seq(
       .withIndent(2, lastToken, Left) // case body indented by 2.
       .withIndent(2, arrow, Left) // cond body indented by 4.
 )
+<<< SKIP breaking on ( is cheaper than [
+val ret =
+  new mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](Map[TokenHash, Tree]())
+>>>
+val ret =
+  new mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](
+      Map[TokenHash, Tree]())
+80 columns                                                                     |
