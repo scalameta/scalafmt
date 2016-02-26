@@ -40,7 +40,6 @@ class FormatTests
   }
 
   tests.sortWith(bySpecThenName).withFilter(testShouldRun).foreach(runTest)
-
   def testShouldRun(t: DiffTest): Boolean = !onlyOne || t.only
 
   def bySpecThenName(left: DiffTest, right: DiffTest): Boolean = {
@@ -95,16 +94,23 @@ class FormatTests
   }
 
   override def afterAll(configMap: ConfigMap): Unit = {
+    val splits = Debug.enqueuedSplits
+      .groupBy(_.line.value)
+      .toVector
+      .sortBy(-_._2.size)
+      .map(x => s"Split(line=${x._1}, count=${x._2.size})")
+      .take(3)
+    logger.debug(splits.mkString(", "))
     logger.debug(s"Total explored: ${Debug.explored}")
     val results = debugResults.result()
     val stats = TestStats(results)
     // TODO(olafur) don't block printing out test results.
     // I don't want to deal with scalaz's Tasks :'(
     val k = for {
-      _ <- Future(Speed.submitStats(stats))
-      _ <- Future(Speed.writeComparisonReport(stats, "master"))
       _ <- Future(FilesUtil.writeFile("target/index.html",
         Report.heatmap(results)))
+      _ <- Future(Speed.submitStats(stats)) if !onlyOne
+      _ <- Future(Speed.writeComparisonReport(stats, "master"))
     } yield ()
     // Travis exits right after running tests.
     if (sys.env.contains("TRAVIS"))

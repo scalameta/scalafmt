@@ -30,3 +30,10 @@ object a {
 def identity[T](t: T): T =   t
 >>>
 def identity[T](t: T): T = t
+<<< SKIP def kill?
+      def hasExplicitJSEncoding =
+        sym.hasAnnotation(JSNameAnnotation) ||
+        sym.hasAnnotation(JSBracketAccessAnnotation) ||
+        sym.hasAnnotation(JSBracketCallAnnotation)
+>>>
+x
