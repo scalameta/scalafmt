@@ -107,6 +107,24 @@ To run main formatting tests:
 
 ### Updates (mostly for myself)
 
+* Feb 26th
+  * Able to format 916 of 920 files in Scala.js! And 75 percentile format in
+  under 200ms.
+```
+Benchmark                        Mode  Cnt     Score    Error  Units
+GenJsCode.scalafmt               avgt   10  1283.002 ± 77.631  ms/op
+GenJsCode.scalariform            avgt   10   228.591 ± 10.815  ms/op
+OptimizerCore.scalafmt           avgt   10  1242.236 ± 46.238  ms/op
+OptimizerCore.scalariform        avgt   10   230.396 ±  8.253  ms/op
+ScalaJSClassEmitter.scalafmt     avgt   10   308.831 ± 15.678  ms/op
+ScalaJSClassEmitter.scalariform  avgt   10    35.309 ±  0.602  ms/op
+
++-------------+--------+--------------+----------+--------+---------+----------+
+|          Max|     Min|           Sum|      Mean|      Q1|       Q2|        Q3|
++-------------+--------+--------------+----------+--------+---------+----------+
+|15.362,715 ms|2,165 ms|309.145,298 ms|340,094 ms|29,87 ms|74,412 ms|197,866 ms|
++-------------+--------+--------------+----------+--------+---------+----------+
+```
 * Feb 25th
   * Can format [GenJsCode](https://github.com/scala-js/scala-js/blob/master/compiler/src/main/scala/org/scalajs/core/compiler/GenJSCode.scala)
     in ~1.5s! Previously didn't terminate.

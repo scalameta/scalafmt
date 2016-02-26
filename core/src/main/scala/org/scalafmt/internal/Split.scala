@@ -19,9 +19,10 @@ import scala.meta.tokens.Token
   */
 case class Split(modification: Modification, cost: Int,
                  ignoreIf: Boolean = false,
-                 indents: List[Indent[Length]] = List.empty[Indent[Length]],
+                 indents: Vector[Indent[Length]] = Vector.empty[Indent[Length]],
                  policy: Policy = NoPolicy,
-                 penalty: Boolean = false)
+                 penalty: Boolean = false,
+                 optimalAt: Option[Token] = None)
                 (implicit val line: sourcecode.Line) {
 
   val indentation = indents.map(_.length match {
@@ -45,7 +46,7 @@ case class Split(modification: Modification, cost: Int,
       if (policy == NoPolicy) newPolicy
       else throw new UnsupportedOperationException(
         "Can't have two policies yet.")
-    new Split(modification, cost, ignoreIf, indents, update, true)(
+    new Split(modification, cost, ignoreIf, indents, update, true, optimalAt)(
       line)
   }
 
@@ -55,7 +56,7 @@ case class Split(modification: Modification, cost: Int,
       ignoreIf,
       indents,
       policy,
-      true)(line)
+      true, optimalAt)(line)
 
   def withIndent(length: Length, expire: Token,
                  expiresOn: ExpiresOn): Split = {
@@ -67,9 +68,14 @@ case class Split(modification: Modification, cost: Int,
           ignoreIf,
           Indent(length, expire, expiresOn) +: indents,
           policy,
-          penalty)(line)
+          penalty, optimalAt)(line)
     }
   }
+
+  def sameSplit(other: Split): Boolean =
+    this.modification == other.modification &&
+      this.line.value == other.line.value &&
+      this.cost == other.cost
 
   def hasPolicy = policy ne NoPolicy
 

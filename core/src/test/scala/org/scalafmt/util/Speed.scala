@@ -5,6 +5,7 @@ import org.scalafmt.internal.Debug
 import org.scalafmt.internal.ScalaFmtLogger
 import org.scalafmt.stats.GitInfo
 import org.scalafmt.stats.TestStats
+import upickle.Invalid
 
 import scalaz.-\/
 import scalaz.\/-
@@ -19,6 +20,7 @@ object Speed extends ScalaFmtLogger {
     val startTime = System.nanoTime()
     val actions = db.docs.create(stat)
     actions.attemptRun match {
+      case -\/(e: Invalid) => logger.warn("Unable to submit to speed.scalafmt.org: Invalid data")
       case -\/(e) => logger.warn("Unable to submit to speed.scalafmt.org", e)
       case f@ \/-(a) =>
         val elapsed = Debug.ns2ms(System.nanoTime() - startTime)

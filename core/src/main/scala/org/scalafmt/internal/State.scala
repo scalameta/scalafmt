@@ -3,6 +3,7 @@ package org.scalafmt.internal
 import org.scalafmt.ScalaStyle
 
 import scala.meta.tokens.Token
+import scala.meta.tokens.Token.Comment
 
 /**
   * A partial formatting solution up to splits.length number of tokens.
@@ -42,8 +43,7 @@ final case class State(cost: Int,
     * - Accumulates cost and strategies
     * - Calculates column-width overflow penalty
     */
-  def next(style: ScalaStyle, split: Split,
-           tok: FormatToken): State = {
+  def next(style: ScalaStyle, split: Split, tok: FormatToken): State = {
     val KILL = 10000
     val nonExpiredIndents = pushes.filterNot { push =>
       val expireToken: Token =
@@ -79,20 +79,26 @@ final case class State(cost: Int,
     }
     val newPolicy: PolicySummary = policy.combine(split.policy, tok.left.end)
     val splitWithPenalty = {
-      if (columnOnCurrentLine < style.maxColumn) {
+      if (columnOnCurrentLine < style.maxColumn || {
+        val commentExceedsLineLength = tok.right.isInstanceOf[Comment] &&
+          tok.right.code.length >= (style.maxColumn - newIndent)
+        commentExceedsLineLength && split.modification.isNewline
+      }) {
         split // fits inside column
       }
       else {
         split.withPenalty(KILL + columnOnCurrentLine) // overflow
       }
     }
+
     State(cost + splitWithPenalty.cost,
       // TODO(olafur) expire policy, see #18.
       newPolicy,
       splits :+ splitWithPenalty,
       newIndent,
       newIndents,
-      nextStateColumn)
+      nextStateColumn
+    )
   }
 }
 
@@ -100,7 +106,9 @@ object State extends ScalaFmtLogger {
   val start = State(0,
     PolicySummary.empty,
     Vector.empty[Split],
-    0, Vector.empty[Indent[Num]], 0)
+    0,
+    Vector.empty[Indent[Num]], 0
+  )
 
   /**
     * Returns formatted output from FormatTokens and Splits.

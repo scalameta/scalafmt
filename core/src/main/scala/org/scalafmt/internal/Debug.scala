@@ -15,6 +15,7 @@ object Debug extends ScalaFmtLogger {
   val treeExplored = mutable.Map.empty[Tree, Int]
   val tokenExplored = mutable.Map.empty[Token, Int]
   val formatTokenExplored = mutable.Map.empty[FormatToken, Int]
+  val enqueuedSplits = mutable.Set.empty[Split]
   var lastTestExplored = 0
   var explored = 0
   var state = State.start
@@ -39,8 +40,12 @@ object Debug extends ScalaFmtLogger {
     if (tokens.isEmpty) 0
     else {
       val maxTok = tokens.maxBy(x => formatTokenExplored.getOrElse(x, 0))
-      formatTokenExplored(maxTok)
+      formatTokenExplored.getOrElse(maxTok, -1)
     }
+  }
+
+  def enqueued(split: Split): Unit = {
+    enqueuedSplits += split
   }
 
   def visit(token: FormatToken): Unit = {
