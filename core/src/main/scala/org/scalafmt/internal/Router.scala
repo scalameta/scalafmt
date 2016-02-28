@@ -140,9 +140,14 @@ class Router(style: ScalaStyle,
           Split(nl, 1).withPolicy(newlineBeforeClosingCurly)
             .withIndent(2, close, Right)
         )
-      case FormatToken(_: `(`, _: `(` | _: `{`, _) => Seq(
-        Split(NoSplit, 0)
-      )
+      // For loop with (
+      case tok@FormatToken(_: `(`, _, _)
+        if leftOwner.isInstanceOf[Term.For] ||
+          leftOwner.isInstanceOf[Term.ForYield] =>
+        // TODO(olafur) allow newlines?
+        Seq(
+          Split(NoSplit, 0)
+        )
       case tok: FormatToken if !isDocstring(tok.left) && gets2x(tok) => Seq(
         Split(Newline2x, 0)
       )
@@ -165,7 +170,11 @@ class Router(style: ScalaStyle,
           Split(newline, 0)
         )
 
+        // TODO(olafur) more general?
       case FormatToken(_: `]`, right: `(`, _) => Seq(
+        Split(NoSplit, 0)
+      )
+      case FormatToken(_: `(`, _: `{`, between) => Seq(
         Split(NoSplit, 0)
       )
 
@@ -254,7 +263,7 @@ class Router(style: ScalaStyle,
         // In long sequence of select/apply, we penalize splitting on
         // parens furthest to the right.
         val lhsPenalty = lhs.tokens.length
-        val nestedPenalty = NestedApplies(leftOwner)
+        val nestedPenalty = nestedApplies(leftOwner)
 
         val exclude = insideBlock(tok, close)
         val indent = leftOwner match {
@@ -368,7 +377,7 @@ class Router(style: ScalaStyle,
         !left.isInstanceOf[`_ `] &&
         // TODO(olafur) optimize
         !parents(rightOwner).exists(_.isInstanceOf[Import]) =>
-        val nestedPenalty = NestedSelect(rightOwner)
+        val nestedPenalty = nestedSelect(rightOwner)
         val isLhsOfApply = rightOwner.parent.exists {
           case apply: Term.Apply =>
             apply.fun.tokens.contains(left)
@@ -377,7 +386,6 @@ class Router(style: ScalaStyle,
         val noApplyPenalty =
           if (!isLhsOfApply) 1
           else 0
-        val open = next(next(tok)).right
         Seq(
           Split(NoSplit, 0),
           Split(Newline, 1 + nestedPenalty + noApplyPenalty)
@@ -388,7 +396,8 @@ class Router(style: ScalaStyle,
         Seq(
           Split(NoSplit, 0)
         )
-      case tok@FormatToken(_: Ident, _: Ident | _: `this`, _) if leftOwner.parent.exists(_.isInstanceOf[Term.ApplyUnary]) =>
+      case tok@FormatToken(_: Ident, _, _)
+        if leftOwner.parent.exists(_.isInstanceOf[Term.ApplyUnary]) =>
         Seq(
           Split(NoSplit, 0)
         )
@@ -428,9 +437,11 @@ class Router(style: ScalaStyle,
       // If
       case FormatToken(open: `(`, _, _) if leftOwner.isInstanceOf[Term.If] =>
         val close = matchingParentheses(hash(open))
+        val penalizeNewlines = penalizeNewlineByNesting(open, close)
         Seq(
           Split(NoSplit, 0)
             .withIndent(StateColumn, close, Left)
+            .withPolicy(penalizeNewlines)
         )
       case FormatToken(close: `)`, right, between) if leftOwner.isInstanceOf[Term.If] =>
         val owner = leftOwner.asInstanceOf[Term.If]
@@ -467,6 +478,10 @@ class Router(style: ScalaStyle,
         Seq(
           Split(Space, 0, policy = SingleLineBlock(expire)),
           Split(Newline, 1).withIndent(2, expire, Left)
+        )
+      case FormatToken(_: `(`, _: `(` | _: `{`, _) =>
+        Seq(
+          Split(NoSplit, 0)
         )
       // ApplyInfix.
       case tok@FormatToken(left: Ident, _, _) if isBoolOperator(left) =>
@@ -536,16 +551,7 @@ class Router(style: ScalaStyle,
       case tok@FormatToken(_, cond: `if`, _) if rightOwner.isInstanceOf[Case] =>
         val owner = rightOwner.asInstanceOf[Case]
         val lastToken = getArrow(owner)
-        val range = Range(cond.start, lastToken.end).inclusive
-        val penalizeNewlines = Policy({
-          case Decision(t, s) if range.contains(t.right.start) && !isBoolOperator(t.left) =>
-            Decision(t, s.map {
-              case split if split.modification.isNewline =>
-                split.withPenalty(1)
-              case x =>
-                x
-            })
-        }, lastToken.end)
+        val penalizeNewlines = penalizeNewlineByNesting(cond, lastToken)
         Seq(
           Split(Space, 0, policy = penalizeNewlines),
           Split(Newline, 1, policy = penalizeNewlines)
@@ -589,6 +595,7 @@ class Router(style: ScalaStyle,
         Seq(
           Split(NoSplit, 0)
         )
+
       // Fallback
       case FormatToken(_, _: `.` | _: `#`, _) =>
         Seq(
@@ -687,26 +694,45 @@ class Router(style: ScalaStyle,
     }, expire.end)
   }
 
+  def penalizeNewlineByNesting(from: Token, to: Token)(implicit line: sourcecode.Line): Policy = {
+    val range = Range(from.start, to.end).inclusive
+    Policy({
+      case Decision(t, s) if range.contains(t.right.start)=>
+        // TODO(olafur) hack, overfitting unit test. Use spans, see
+        // http://journal.stuffwithstuff.com/2015/09/08/the-hardest-program-ive-ever-written/#12
+        val nonBoolPenalty = if (isBoolOperator(t.left)) 0 else 1
+        val tree = owners(t.right)
+        val penalty =
+          nestedSelect(owners(t.left)) + nestedApplies(tree) + nonBoolPenalty
+        Decision(t, s.map {
+          case split if split.modification.isNewline =>
+            split.withPenalty(penalty)
+          case x =>
+            x
+        })
+    }, to.end)
+  }
+
   /**
    * How many parents of tree are Term.Apply?
    */
-  def NestedApplies(tree: Tree): Int = {
+  def nestedApplies(tree: Tree): Int = {
     // TODO(olafur) optimize?
     tree.parent.fold(0) {
-      case parent: Term.Apply =>
-        1 + NestedApplies(parent)
+      case parent@(_: Term.Apply | _: Term.ApplyInfix) =>
+        1 + nestedApplies(parent)
       case parent =>
-        NestedApplies(parent)
+        nestedApplies(parent)
     }
   }
 
   // TODO(olafur) abstract with [[NestedApplies]]
-  def NestedSelect(tree: Tree): Int = {
+  def nestedSelect(tree: Tree): Int = {
     tree.parent.fold(0) {
       case parent: Term.Select =>
-        1 + NestedSelect(parent)
+        1 + nestedSelect(parent)
       case parent =>
-        NestedSelect(parent)
+        nestedSelect(parent)
     }
   }
 

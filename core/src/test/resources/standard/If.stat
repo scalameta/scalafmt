@@ -6,18 +6,18 @@ else List(Split(Newline, 0))
 if (between.lastOption.exists(_.isInstanceOf[`\n`]))
   List(Split(NoIndentNewline, 0))
 else List(Split(Newline, 0))
-<<< SKIP break by nesting depth
-        if (dequeOnNewStatements &&
+<<< break by nesting depth
+        if (aaaaaaaaaaaadequeOnNewStatements &&
           (depth > 0 || !isInsideNoOptZone(splitToken)) &&
           statementStarts.contains(hash(splitToken.left)) &&
           curr.splits.last.modification.isNewline ) {
           Q.dequeueAll
         }
 >>>
-if (dequeOnNewStatements &&
-     (depth > 0 || !isInsideNoOptZone(splitToken)) &&
-     statementStarts.contains(hash(splitToken.left)) &&
-     curr.splits.last.modification.isNewline) {
+if (aaaaaaaaaaaadequeOnNewStatements &&
+    (depth > 0 || !isInsideNoOptZone(splitToken)) &&
+    statementStarts.contains(hash(splitToken.left)) &&
+    curr.splits.last.modification.isNewline) {
   Q.dequeueAll
 }
 <<< SKIP break on &&

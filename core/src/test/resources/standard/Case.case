@@ -12,8 +12,8 @@ case FormatToken(
 <<< Long if
 case tok if tok.left.name.startsWith("xml") && tok.right.name.startsWith("xml") => List( NoSplit0 )
 >>>
-case tok if tok.left.name.startsWith("xml") &&
-    tok.right.name.startsWith("xml") =>
+case tok
+    if tok.left.name.startsWith("xml") && tok.right.name.startsWith("xml") =>
   List(NoSplit0)
 <<< Pathological if
 case FormatToken(left, open: `(`, _)

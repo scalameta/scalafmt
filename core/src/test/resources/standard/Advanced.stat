@@ -114,8 +114,8 @@ private def scalaJSStageSettings =
         Tags
       },
       // Prevent this linker from being used concurrently
-      concurrentRestrictions in Global += Tags.limit((
-        usesScalaJSLinkerTag in key).value, 1)
+      concurrentRestrictions in Global += Tags
+        .limit((usesScalaJSLinkerTag in key).value, 1)
   )
 <<< testFilter
   val testFilter: String => Boolean = {
@@ -384,7 +384,7 @@ private def withNewLocalDefs(bindings: List[Binding]) (buildInner:(List[
             }))
 
           case _ =>
-            js.Return(! (! ({
+            js.Return(!(!({
               genIsScalaJSObject(obj) && ((
                 obj DOT "$classData" DOT "arrayDepth") === depth) &&
               genIsClassNameInAncestors(
@@ -423,7 +423,7 @@ val createIsArrayOfStat = {
           }))
 
         case _ =>
-          js.Return(! (! ({
+          js.Return(!(!({
             genIsScalaJSObject(obj) && ((
               obj DOT "$classData" DOT "arrayDepth") === depth) &&
             genIsClassNameInAncestors(

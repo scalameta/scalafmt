@@ -300,7 +300,8 @@ object BestFirstSearch extends ScalaFmtLogger {
 
   def getStatementStarts(tree: Tree): Map[TokenHash, Tree] = {
     val ret =
-      new mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](Map[TokenHash, Tree]())
+      new mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](
+        Map[TokenHash, Tree]())
 
     def addAll(trees: Seq[Tree]): Unit = {
       trees.foreach { t =>
