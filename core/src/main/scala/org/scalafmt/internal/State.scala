@@ -71,11 +71,13 @@ final case class State(cost: Int,
     val lengthOnLastLine = {
       val lastNewline = tok.right.code.lastIndexOf('\n')
       if (lastNewline == -1) tokLength
-      else tokLength - (lastNewline - 1)
+      else tokLength - lastNewline - 1
     }
     val nextStateColumn = lengthOnLastLine + {
-        if (split.modification.isNewline) newIndent
-        else column + split.length
+      // Tokens with newlines get no indentation.
+      if (tok.right.code.contains('\n')) 0
+      else if (split.modification.isNewline) newIndent
+      else column + split.length
     }
     val newPolicy: PolicySummary = policy.combine(split.policy, tok.left.end)
     val splitWithPenalty = {
@@ -121,8 +123,8 @@ object State extends ScalaFmtLogger {
       case (tok, split) =>
         // TIP. Use the following line to debug origin of splits.
         if (debug && toks.length < 1000) {
-          val left = small(tok.left)
-          logger.debug(f"$left%-10s $split ${state.column}")
+          val left = cleanup(tok.left).slice(0, 15)
+          logger.debug(f"$left%-15s $split ${state.indentation} ${state.column}")
         }
         state = state.next(style, split, tok)
         val whitespace = split.modification match {
