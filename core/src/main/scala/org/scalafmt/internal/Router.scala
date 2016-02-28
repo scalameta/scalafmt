@@ -319,9 +319,12 @@ class Router(style: ScalaStyle,
       )
       // These are mostly filtered out/modified by policies.
       case tok@FormatToken(_: `,`, _, _) =>
+        // TODO(olafur) DRY, see OneArgOneLine.
+        val rhsIsAttachedComment =
+          tok.right.isInstanceOf[Comment] && newlinesBetween(tok.between) == 0
         Seq(
           Split(Space, 0),
-          Split(Newline, 1)
+          Split(Newline, 1, ignoreIf = rhsIsAttachedComment)
         )
       case FormatToken(_, _: `;`, _) => Seq(
         Split(NoSplit, 0)
@@ -758,6 +761,7 @@ class Router(style: ScalaStyle,
       case x => Newline(x == 2, endsWithNoIndent(between))
     }
 
+  // TODO(olafur) calculate this once inside getSplits.
   def newlinesBetween(between: Vector[Whitespace]): Int =
     between.count(_.isInstanceOf[`\n`])
 

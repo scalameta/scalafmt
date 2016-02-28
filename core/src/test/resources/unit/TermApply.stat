@@ -129,7 +129,7 @@ Seq(
     Split(Space, 0),
     Split(Newline, 1)
 )
-<<< SKIP config style with inline comment
+<<< config style with inline comment
 Seq(
   Split(Space, 0), // End files with trailing newline
   Split(Newline, 1)
