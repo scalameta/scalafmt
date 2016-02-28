@@ -9,15 +9,15 @@ type ObjNotifyLike = Any {
   def notify(): Unit
   def notifyAll(): Unit
 }
-<<< SKIP type indent by 2
-object A {
+<<< type indent by 2
+package object internal {
   /**
     * For convenience when
     */
   type TokenHash = Long
   }
 >>>
-object A {
+package object internal {
   /**
     * For convenience when
     */

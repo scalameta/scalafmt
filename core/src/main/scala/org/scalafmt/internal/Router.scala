@@ -733,6 +733,7 @@ class Router(style: ScalaStyle,
     case t: Defn.Object => Some(t.templ)
     case t: Defn.Class => Some(t.templ)
     case t: Defn.Trait => Some(t.templ)
+    case t: Pkg.Object => Some(t.templ)
     case _ => None
   }
 
