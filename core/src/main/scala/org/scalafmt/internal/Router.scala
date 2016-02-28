@@ -268,6 +268,17 @@ class Router(style: ScalaStyle,
           if (singleArgument) NoPolicy
           else SingleLineBlock(close, exclude)
         val oneArgOneLine = OneArgOneLineSplit(open)
+
+        // TODO(olafur) document how "config style" works.
+        val configStyle = oneArgOneLine.copy(f = oneArgOneLine.f.orElse {
+          case Decision(t@FormatToken(_, `close`, _), splits) =>
+            Decision(t, Seq(Split(Newline, 0)))
+        })
+        val closeFormatToken = prev(leftTok2tok(close))
+        val isConfigStyle =
+          newlinesBetween(between) > 0 &&
+            newlinesBetween(closeFormatToken.between) > 0
+
         val modification =
           if (right.isInstanceOf[Comment]) newlines2Modification(between)
           else NoSplit
@@ -278,21 +289,28 @@ class Router(style: ScalaStyle,
         val optimalToken = Some(rhsOptimalToken(leftTok2tok(close)))
         Seq(
           Split(modification, 0, policy = singleLine,
-            ignoreIf = !fitsOnOneLine, optimalAt = optimalToken)
+            ignoreIf = !fitsOnOneLine || isConfigStyle, optimalAt = optimalToken)
             // TODO(olafur) allow style to specify indent here?
             .withIndent(indent, nextNonComment(tok).right, Left),
           Split(Newline, 1 + nestedPenalty + lhsPenalty,
-            policy = singleLine, ignoreIf = !fitsOnOneLine,
+            policy = singleLine, ignoreIf = !fitsOnOneLine || isConfigStyle,
             optimalAt = optimalToken )
             .withIndent(indent, right, Left),
-          Split(modification, 2 + lhsPenalty, policy = oneArgOneLine, ignoreIf = singleArgument,
+          Split(modification, 2 + lhsPenalty, policy = oneArgOneLine,
+            ignoreIf = singleArgument || isConfigStyle,
             optimalAt = optimalToken )
             .withIndent(StateColumn, close, Right),
           Split(Newline,
             3 + nestedPenalty + lhsPenalty,
-            policy = oneArgOneLine, ignoreIf = singleArgument,
+            policy = oneArgOneLine,
+            ignoreIf = singleArgument || isConfigStyle,
             optimalAt = optimalToken )
-            .withIndent(indent, close, Left)
+            .withIndent(indent, close, Left),
+          Split(Newline,
+            0,
+            policy = configStyle,
+            ignoreIf = !isConfigStyle)
+            .withIndent(indent, close, Right)
         )
 
       // Delim
@@ -714,6 +732,12 @@ class Router(style: ScalaStyle,
       }
     }
     result.result()
+  }
+
+  def prev(tok: FormatToken): FormatToken = {
+    val i = tok2idx(tok)
+    if (i == 0) tok
+    else tokens(i - 1)
   }
 
   def next(tok: FormatToken): FormatToken = {

@@ -88,7 +88,7 @@ Defn.Object(Nil,
 Seq(
   Split(modification, 0, policy = singleLine)
     .withIndent(indent, close, Left)
-    .withOptimal(optimalTok),
+     .withOptimal(optimalTok),
   Split(Newline, 1 + nestedPenalty + lhsPenalty, policy = singleLine)
     .withIndent(indent, close, Left)
     .withOptimal(optimalTok),
@@ -102,7 +102,8 @@ Seq(
 
 )
 >>>
-Seq(Split(modification, 0, policy = singleLine).withIndent(indent, close, Left)
+Seq(
+    Split(modification, 0, policy = singleLine).withIndent(indent, close, Left)
       .withOptimal(optimalTok),
     Split(Newline, 1 + nestedPenalty + lhsPenalty, policy = singleLine)
       .withIndent(indent, close, Left).withOptimal(optimalTok),
@@ -114,7 +115,8 @@ Seq(Split(modification, 0, policy = singleLine).withIndent(indent, close, Left)
     Split(Newline,
           3 + nestedPenalty + lhsPenalty,
           policy = oneArgOneLine,
-          ignoreIf = singleArgument).withIndent(indent, close, Left))
+          ignoreIf = singleArgument).withIndent(indent, close, Left)
+)
 <<< SKIP continuation indent
 Seq(
             // Either everything fits in one line or break on =>

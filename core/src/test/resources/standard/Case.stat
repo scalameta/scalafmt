@@ -10,7 +10,9 @@ val Route: PartialFunction[Decision, Decision] = {
 val Route: PartialFunction[Decision, Decision] = {
   case FormatToken(
       _: Ident | _: `this` | _: `_ ` | _: `(`, _: `.` | _: `#`, _) =>
-    List(NoSplit0)
+    List(
+        NoSplit0
+    )
 }
 <<< What idiot wrote this code
 List(Split(Space, 0).withPolicy {
