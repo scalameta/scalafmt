@@ -12,6 +12,7 @@ import scala.meta.internal.ast.Case
 import scala.meta.internal.ast.Decl
 import scala.meta.internal.ast.Defn
 import scala.meta.internal.ast.Import
+import scala.meta.internal.ast.Mod
 import scala.meta.internal.ast.Pat
 import scala.meta.internal.ast.Pkg
 import scala.meta.internal.ast.Template
@@ -480,6 +481,12 @@ class Router(style: ScalaStyle,
       case tok@FormatToken(_, _: `match`, _) => Seq(
         Split(Space, 0)
       )
+      // Protected []
+      case tok@FormatToken(_, _: `[`, _)
+        if leftOwner.isInstanceOf[Mod.Protected] =>
+        Seq(
+          Split(NoSplit, 0)
+        )
       case tok@FormatToken(cs: `case`, _, _) if leftOwner.isInstanceOf[Case] =>
         val owner = leftOwner.asInstanceOf[Case]
         val arrow = getArrow(owner)
@@ -575,9 +582,10 @@ class Router(style: ScalaStyle,
       case FormatToken(_, _: Keyword, _) => Seq(
         Split(Space, 0)
       )
-      case FormatToken(_: Keyword | _: Modifier, _, _) => Seq(
-        Split(Space, 0)
-      )
+      case FormatToken(_: Keyword | _: Modifier, _, _) =>
+        Seq(
+          Split(Space, 0)
+        )
       case FormatToken(_: `[`, _, _) => Seq(
         Split(NoSplit, 0)
       )

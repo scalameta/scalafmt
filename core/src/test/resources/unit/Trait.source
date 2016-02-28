@@ -17,7 +17,7 @@ object A {
 
   class C extends B
 }
-<<< SKIP scoped decl
+<<< mod protected
 protected [scalafmt] sealed trait UnitTestStyle
 >>>
 protected[scalafmt] sealed trait UnitTestStyle
