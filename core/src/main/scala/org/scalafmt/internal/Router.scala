@@ -11,6 +11,7 @@ import scala.meta.Tree
 import scala.meta.internal.ast.Case
 import scala.meta.internal.ast.Decl
 import scala.meta.internal.ast.Defn
+import scala.meta.internal.ast.Enumerator
 import scala.meta.internal.ast.Import
 import scala.meta.internal.ast.Mod
 import scala.meta.internal.ast.Pat
@@ -401,6 +402,14 @@ class Router(style: ScalaStyle,
         Seq(
           Split(NoSplit, 0)
         )
+      case tok@FormatToken(left: Ident, _, _)
+        if left.code == "-" && {
+          logger.debug(s"$leftOwner $rightOwner")
+          rightOwner == leftOwner
+        } =>
+        Seq(
+          Split(NoSplit, 0)
+        )
       // Annotations
       case FormatToken(left: Ident, bind: `@`, _) if rightOwner.isInstanceOf[Pat.Bind] => Seq(
         Split(identModification(left), 0)
@@ -583,6 +592,25 @@ class Router(style: ScalaStyle,
         )
       case FormatToken(c: Comment, _, between) =>
         Seq(Split(newlines2Modification(between), 0))
+        // Term.For{Yield}
+      case tok@FormatToken(_, arrow: `if`, _)
+        if rightOwner.isInstanceOf[Enumerator.Guard] =>
+        logger.debug(s"$rightOwner")
+        Seq(
+          // Either everything fits in one line or break on =>
+          Split(Space, 0),
+          Split(Newline, 1).withIndent(4, leftOwner.tokens.last, Left)
+        )
+      case tok@FormatToken(arrow: `<-`, _, _)
+        if leftOwner.isInstanceOf[Enumerator.Generator] =>
+        logger.debug(s"$leftOwner")
+        val lastToken = findSiblingGuard(leftOwner.asInstanceOf[Enumerator.Generator])
+          .map(_.tokens.last)
+          .getOrElse(rightOwner.tokens.last)
+        Seq(
+          // Either everything fits in one line or break on =>
+          Split(Space, 0).withIndent(StateColumn, lastToken, Left)
+        )
       // Interpolation
       case FormatToken(_, _: Interpolation.Id | _: Xml.Start, _) => Seq(
         Split(Space, 0)
@@ -828,6 +856,23 @@ class Router(style: ScalaStyle,
   def getArrow(caseStat: Case): Token =
     caseStat.tokens.find(t => t.isInstanceOf[`=>`] && owners(t) == caseStat)
       .getOrElse(throw CaseMissingArrow(caseStat))
+
+  // TODO(olafur) scala.meta should make this easier.
+  def findSiblingGuard(generator: Enumerator.Generator): Option[Enumerator.Guard] = {
+    for {
+      parent <- generator.parent
+      if parent.isInstanceOf[Term.For] || parent.isInstanceOf[Term.ForYield]
+      sibling <- {
+        val enums = parent match {
+          case p: Term.For => p.enums
+          case p: Term.ForYield => p.enums
+        }
+        enums.zip (enums.tail).collectFirst {
+          case (`generator`, guard: Enumerator.Guard) => guard
+        }
+      }
+    } yield sibling
+  }
 
   // Used for convenience when calling withIndent.
   private implicit def int2num(n: Int): Num = Num(n)

@@ -7,6 +7,7 @@ import scala.collection.mutable
 import scala.meta.Mod
 import scala.meta.Tree
 import scala.meta.internal.ast.Defn
+import scala.meta.internal.ast.Enumerator
 import scala.meta.internal.ast.Pkg
 import scala.meta.internal.ast.Template
 import scala.meta.internal.ast.Term
@@ -286,8 +287,8 @@ object BestFirstSearch extends ScalaFmtLogger {
   def extractStatementsIfAny(tree: Tree): Seq[Tree] = tree match {
     case b: Term.Block => b.stats
     case t: Pkg => t.stats
-    case t: Term.For => t.enums
-    case t: Term.ForYield => t.enums
+    case t: Term.For => t.enums.filter(_.isInstanceOf[Enumerator.Generator])
+    case t: Term.ForYield => t.enums.filter(_.isInstanceOf[Enumerator.Generator])
     case t: Term.Match => t.cases
     case t: Term.PartialFunction => t.cases
     case t: Term.TryWithCases => t.catchp

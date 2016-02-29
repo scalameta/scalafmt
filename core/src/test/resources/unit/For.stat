@@ -28,13 +28,36 @@ val sizes =
     for (cell <- row) yield
         if (cell == null) 0
         else cell.toString.length)
-<<< SKIP if
+<<< if singleline
 val k = for {
-    _ <- Future(Speed.submitStats(stats)) if !onlyOne
-  _ <- Future(Speed.writeComparisonReport(stats, "master"))
+    _ <- Future(1) if !onlyOne
+  _ <- Future(2)
 } yield ()
 >>>
 val k = for {
-  _ <- Future(Speed.submitStats(stats)) if !onlyOne
-  _ <- Future(Speed.writeComparisonReport(stats, "master"))
+  _ <- Future(1) if !onlyOne
+  _ <- Future(2)
+} yield ()
+<<< if multiline
+val k = for {
+    _ <- Future(aaaaaaaaaaaaaa) if !onlyOne
+  _ <- Future(2)
+} yield ()
+>>>
+val k = for {
+  _ <- Future(aaaaaaaaaaaaaa)
+          if !onlyOne
+  _ <- Future(2)
+} yield ()
+<<< if multiline, split before If
+val k = for {
+    _ <- Future(aaaaaa, bbbbbbbbbbbb, cccccccc) if one
+  _ <- Future(2)
+} yield ()
+>>>
+val k = for {
+  _ <- Future(aaaaaa,
+              bbbbbbbbbbbb,
+              cccccccc) if one
+  _ <- Future(2)
 } yield ()
