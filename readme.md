@@ -128,7 +128,7 @@ ScalaJSClassEmitter.scalariform  avgt   10    35.309 ±  0.602  ms/op
 * Feb 25th
   * Can format [GenJsCode](https://github.com/scala-js/scala-js/blob/master/compiler/src/main/scala/org/scalajs/core/compiler/GenJSCode.scala)
     in ~1.5s! Previously didn't terminate.
-  * Still struggling with other pathological cases [like here]().
+  * Still struggling with other pathological cases [like here][emitter].
 * Feb 23th
   * replaced memoization with a simple heuristic to prune out dead states and
   got up to ~100x speed improvements.
