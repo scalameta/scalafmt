@@ -302,27 +302,19 @@ withNewLocalNameScope {
     js.Closure(ctorParamDefs, patchedParams, patchedBody, capturedArgs)
   }
 }
-<<< SKIP instance_of_?
-  object MaybeAsInstanceOf {
-
-      def unapply(tree: Tree): Some[Tree] =
-        tree match {
-          case Apply(TypeApply(asInstanceOf_?@Select(base, _), _), _)
-              if asInstanceOf_?.symbol == Object_asInstanceOf =>
-            Some(base)
-          case _ => Some(tree)
-        }
-    }
+<<< instance_of_?
+tree match {
+  case Apply(TypeApply(asInstanceOf_? @Select(base, _), _), _)
+      if asInstanceOf_?.symbol == Object_asInstanceOf =>
+    Some(base)
+  case _ => Some(tree)
+}
 >>>
-object MaybeAsInstanceOf {
-
-  def unapply(tree: Tree): Some[Tree] =
-    tree match {
-      case Apply(TypeApply(asInstanceOf_?@Select(base, _), _), _)
-          if asInstanceOf_?.symbol == Object_asInstanceOf =>
-        Some(base)
-      case _ => Some(tree)
-    }
+tree match {
+  case Apply(TypeApply(asInstanceOf_? @Select(base, _), _), _)
+      if asInstanceOf_?.symbol == Object_asInstanceOf =>
+    Some(base)
+  case _ => Some(tree)
 }
 <<< double args infinite loop?
   private def withNewLocalDefs = {
@@ -475,14 +467,28 @@ js.Function(List(objParam, depthParam), js.Return {
                         depth)
         })
 })
-<<< SKIP dequeue on new stat (state explosion)
+<<< dequeue on new stat (state explosion)
 {
   Array((1, 2), (1, 2), (1, 2), (1, 2), (1, 2), (1, 2), (1, 2), (1, 2), (1, 2), (1, 2), (1, 2))
 
   aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 }
 >>>
-x
+{
+  Array((1, 2),
+        (1, 2),
+        (1, 2),
+        (1, 2),
+        (1, 2),
+        (1, 2),
+        (1, 2),
+        (1, 2),
+        (1, 2),
+        (1, 2),
+        (1, 2))
+
+  aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+}
 <<< resolution copier
 class ResolutionCopier(x: Int) {
 

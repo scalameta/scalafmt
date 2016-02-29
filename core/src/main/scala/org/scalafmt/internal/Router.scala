@@ -318,6 +318,7 @@ class Router(style: ScalaStyle,
             policy = singleLine, ignoreIf = !fitsOnOneLine || isConfigStyle,
             optimalAt = optimalToken )
             .withIndent(indent, right, Left),
+          // TODO(olafur) singleline per argument!
           Split(modification, 2 + lhsPenalty, policy = oneArgOneLine,
             ignoreIf = singleArgument || isConfigStyle,
             optimalAt = optimalToken )
