@@ -403,10 +403,7 @@ class Router(style: ScalaStyle,
           Split(NoSplit, 0)
         )
       case tok@FormatToken(left: Ident, _, _)
-        if left.code == "-" && {
-          logger.debug(s"$leftOwner $rightOwner")
-          rightOwner == leftOwner
-        } =>
+        if left.code == "-" && rightOwner == leftOwner =>
         Seq(
           Split(NoSplit, 0)
         )
@@ -592,10 +589,10 @@ class Router(style: ScalaStyle,
         )
       case FormatToken(c: Comment, _, between) =>
         Seq(Split(newlines2Modification(between), 0))
-        // Term.For{Yield}
+
+      // Term.ForYield
       case tok@FormatToken(_, arrow: `if`, _)
         if rightOwner.isInstanceOf[Enumerator.Guard] =>
-        logger.debug(s"$rightOwner")
         Seq(
           // Either everything fits in one line or break on =>
           Split(Space, 0),
@@ -603,13 +600,22 @@ class Router(style: ScalaStyle,
         )
       case tok@FormatToken(arrow: `<-`, _, _)
         if leftOwner.isInstanceOf[Enumerator.Generator] =>
-        logger.debug(s"$leftOwner")
         val lastToken = findSiblingGuard(leftOwner.asInstanceOf[Enumerator.Generator])
           .map(_.tokens.last)
           .getOrElse(rightOwner.tokens.last)
         Seq(
           // Either everything fits in one line or break on =>
           Split(Space, 0).withIndent(StateColumn, lastToken, Left)
+        )
+      case tok@FormatToken(_: `yield`, _, _)
+        if leftOwner.isInstanceOf[Term.ForYield] =>
+        val lastToken = leftOwner.asInstanceOf[Term.ForYield].body.tokens.last
+        logger.debug(s"$leftOwner $lastToken")
+        Seq(
+          // Either everything fits in one line or break on =>
+          Split(Space, 0).withPolicy(SingleLineBlock(lastToken)),
+          Split(Newline, 1)
+          .withIndent(2, lastToken, Left)
         )
       // Interpolation
       case FormatToken(_, _: Interpolation.Id | _: Xml.Start, _) => Seq(

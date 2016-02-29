@@ -17,17 +17,16 @@ for (
 for ((msg, parseErrors) <- xs) {
   println(header(msg))
 }
-<<< SKIP crazy one-liner
+<<< crazy one-liner
 val sizes = for (
 row <- table) yield ( for (
 cell <- row) yield if (cell == null) 0
 else cell.toString.length)
 >>>
-val sizes =
-  for (row <- table) yield (
-    for (cell <- row) yield
-        if (cell == null) 0
-        else cell.toString.length)
+val sizes = for (row <- table) yield
+  (for (cell <- row) yield
+    if (cell == null) 0
+    else cell.toString.length)
 <<< if singleline
 val k = for {
     _ <- Future(1) if !onlyOne
@@ -49,7 +48,7 @@ val k = for {
           if !onlyOne
   _ <- Future(2)
 } yield ()
-<<< if multiline, split before If
+<<< if multiline, split before If?
 val k = for {
     _ <- Future(aaaaaa, bbbbbbbbbbbb, cccccccc) if one
   _ <- Future(2)
