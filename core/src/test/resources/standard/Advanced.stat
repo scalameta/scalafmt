@@ -324,10 +324,8 @@ object MaybeAsInstanceOf {
       case _ => Some(tree)
     }
 }
-<<< double args infinte loop?
-  private def withNewLocalDefs(bindings: List[Binding])(
-      buildInner: (List[LocalDef], PreTransCont) => TailRec[Tree])(
-      cont: PreTransCont): TailRec[Tree] = {
+<<< double args infinite loop?
+  private def withNewLocalDefs = {
     bindings match {
       case first :: rest =>
         withNewLocalDef(first) { (firstLocalDef, cont1) =>
@@ -341,9 +339,7 @@ object MaybeAsInstanceOf {
     }
   }
 >>>
-private def withNewLocalDefs(bindings: List[Binding]) (buildInner:(List[
-        LocalDef],
-    PreTransCont) => TailRec[Tree]) (cont: PreTransCont): TailRec[Tree] = {
+private def withNewLocalDefs = {
   bindings match {
     case first :: rest =>
       withNewLocalDef(first) { (firstLocalDef, cont1) =>

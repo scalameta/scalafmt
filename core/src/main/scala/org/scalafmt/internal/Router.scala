@@ -195,9 +195,12 @@ class Router(style: ScalaStyle,
       // Opening [ with no leading space.
       case tok@FormatToken(left, open: `[`, _)
         if rightOwner.isInstanceOf[Term.ApplyType] ||
-            leftOwner.isInstanceOf[Type.Name] => Seq(
-        Split(NoSplit, 0)
-      )
+          rightOwner.isInstanceOf[Defn.Def] ||
+          rightOwner.isInstanceOf[Decl.Def] ||
+          leftOwner.isInstanceOf[Type.Name] =>
+        Seq(
+          Split(NoSplit, 0)
+        )
       // Opening ( with no leading space.
       case FormatToken(left, open: `(`, _)
         if rightOwner.isInstanceOf[Term.Apply] ||
@@ -630,6 +633,11 @@ class Router(style: ScalaStyle,
       )
       // Open paren generally gets no space.
       case FormatToken(_: `(`, _, _) =>
+        Seq(
+          Split(NoSplit, 0)
+        )
+      // Curried functions
+      case FormatToken(_: `)`, _: `(`, _) =>
         Seq(
           Split(NoSplit, 0)
         )

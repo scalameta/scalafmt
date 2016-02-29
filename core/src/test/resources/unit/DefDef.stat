@@ -43,8 +43,14 @@ def hasExplicitJSEncoding =
       JSBracketAccessAnnotation) ||
   sym.hasAnnotation(
       JSBracketCallAnnotation)
-<<< SKIP curried functions
+<<< curried functions
 def format_![T <: Tree](code: String, a: Int)(implicit ev: Parse[T]): String
 >>>
 def format_![T <: Tree](code: String,
     a: Int)(implicit ev: Parse[T]): String
+<<< curried functions defn
+def format_![T <: Tree](code: String, a: Int)(implicit ev: Parse[T]): String = 1
+>>>
+def format_![T <: Tree](code: String,
+    a: Int)(implicit ev: Parse[T]): String =
+  1
