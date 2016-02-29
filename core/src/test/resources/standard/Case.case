@@ -67,7 +67,7 @@ case FormatToken(open: `(`, right, _)
         .withIndent(2, matchingParentheses(hash(open)), Left),
       Split(Newline, 1).withIndent(2, matchingParentheses(hash(open)), Left)
   )
-<<< SKIP bind @ to (
+<<< bind @ to (
 case   open@(_: `{` | _: `[` | _: `(`) => stack = open :: stack
 >>>
 case open@(_: `{` | _: `[` | _: `(`) => stack = open :: stack

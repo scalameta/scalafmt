@@ -429,10 +429,12 @@ class Router(style: ScalaStyle,
       case FormatToken(_, bind: `@`, _) if rightOwner.isInstanceOf[Pat.Bind] => Seq(
         Split(NoSplit, 0)
       )
-      case FormatToken(_: `@`, right, _) =>
+      case FormatToken(_: `@`, right: Delim, _) =>
+        Seq(Split(NoSplit, 0))
+      case FormatToken(_: `@`, right: Ident, _) =>
         // Add space if right starts with a symbol
-        if (right.code.matches("\\w.*")) Seq(Split(NoSplit, 0))
-        else Seq(Split(Space, 0))
+        Seq(Split(identModification(right), 0))
+
       // Template
       case FormatToken(_, right: `extends`, _) =>
         Seq(
