@@ -373,7 +373,7 @@ class Router(style: ScalaStyle,
             case None => r // var x: Int = _, no policy
           }
         }
-        val expire = leftOwner.tokens.last
+        val expire = rhs.tokens.last
         val spacePolicy: Policy = rhs match {
           case _: Term.ApplyInfix | _: Term.If =>
             SingleLineBlock(expire)
@@ -409,13 +409,11 @@ class Router(style: ScalaStyle,
         Seq(
           Split(NoSplit, 0)
         )
-      case tok@FormatToken(_: Ident, _, _)
-        if leftOwner.parent.exists(_.isInstanceOf[Term.ApplyUnary]) =>
-        Seq(
-          Split(NoSplit, 0)
-        )
-      case tok@FormatToken(left: Ident, _, _)
-        if left.code == "-" && rightOwner == leftOwner =>
+      case tok@FormatToken(op: Ident, _, _)
+        if leftOwner.parent.exists {
+          case unary: Term.ApplyUnary => unary.op.tokens.head == op
+          case _ => false
+        } =>
         Seq(
           Split(NoSplit, 0)
         )
