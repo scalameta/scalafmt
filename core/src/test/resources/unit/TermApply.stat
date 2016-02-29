@@ -24,9 +24,9 @@ MyObject(
     config.getBoolean("shortKey"),
     config.getString(
         "reallyReallyReallyLongKey"),
-    liveAnalysis
-      .check(options.has("live"),
-             options.has("analysis")))
+    liveAnalysis.check(
+        options.has("live"),
+        options.has("analysis")))
 <<< optimalAt memoization is by split prefix
 new Compiler(
     primitives.options.has("primitives"),
@@ -58,9 +58,9 @@ new Compiler(
       .has("primitives"),
     minify.options.has("minify"),
     preserve.options.has("preserve"),
-    liveAnalysis
-      .check(options.has("live"),
-             options.has("analysis")),
+    liveAnalysis.check(
+        options.has("live"),
+        options.has("analysis")),
     multi.options.has("multi"),
     sourceMap.options
       .has("source-map"));

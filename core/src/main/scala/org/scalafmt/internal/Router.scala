@@ -378,7 +378,7 @@ class Router(style: ScalaStyle,
         !left.isInstanceOf[`_ `] &&
         // TODO(olafur) optimize
         !parents(rightOwner).exists(_.isInstanceOf[Import]) =>
-        val nestedPenalty = nestedSelect(rightOwner)
+        val nestedPenalty = nestedSelect(rightOwner) + nestedApplies(leftOwner)
         val isLhsOfApply = rightOwner.parent.exists {
           case apply: Term.Apply =>
             apply.fun.tokens.contains(left)
@@ -739,9 +739,8 @@ class Router(style: ScalaStyle,
         // TODO(olafur) hack, overfitting unit test. Use spans, see
         // http://journal.stuffwithstuff.com/2015/09/08/the-hardest-program-ive-ever-written/#12
         val nonBoolPenalty = if (isBoolOperator(t.left)) 0 else 1
-        val tree = owners(t.right)
         val penalty =
-          nestedSelect(owners(t.left)) + nestedApplies(tree) + nonBoolPenalty
+          nestedSelect(owners(t.left)) + nestedApplies(owners(t.right)) + nonBoolPenalty
         Decision(t, s.map {
           case split if split.modification.isNewline =>
             split.withPenalty(penalty)

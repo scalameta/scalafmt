@@ -31,8 +31,8 @@ Split(NoSplit, 0, policy = SingleLineBlock(owner.thenp.tokens.last))
 <<< Break on . 3
 val expire = owner.tokens.find(_.isInstanceOf[`{`]).getOrElse(owner.tokens.last)
 >>>
-val expire = owner.tokens.find(_.isInstanceOf[`{`])
-  .getOrElse(owner.tokens.last)
+val expire =
+  owner.tokens.find(_.isInstanceOf[`{`]).getOrElse(owner.tokens.last)
 <<< state explosion
 a.b.c.d.e.f.g.h.i.j.k {
  // Crazy comment =================================================================>
