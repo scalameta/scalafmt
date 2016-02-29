@@ -34,3 +34,32 @@ def identModification(ident: Ident): Modification =
 def identModification(ident: Ident): Modification =
   if (Character.isLetterOrDigit(ident.code.last)) NoSplit
   else Space
+<<< thisLocalDef
+{
+    val newParamDefs = for { _ <- params } yield {
+      ParamDef()
+      ((name -> localDef), newParamDef)
+    }
+    val thisLocalDef =
+      if (thisType == NoType) None
+      else {
+        Some("this" -> LocalDef(
+            RefinedType(thisType, isExact = false, isNullable = false),
+            false, ReplaceWithThis()))
+      }
+      }
+>>>
+{
+  val newParamDefs = for { _ <- params } yield {
+    ParamDef()
+    ((name -> localDef), newParamDef)
+  }
+  val thisLocalDef =
+    if (thisType == NoType) None
+    else {
+      Some("this" -> LocalDef(
+          RefinedType(thisType, isExact = false, isNullable = false),
+          false,
+          ReplaceWithThis()))
+    }
+}

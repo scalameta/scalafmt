@@ -187,8 +187,6 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
               router.getSplitsMemo(splitToken)
             else List(provided(splitToken))
 
-
-
           val actualSplit = {
             curr.policy
               .execute(Decision(splitToken, splits)).splits

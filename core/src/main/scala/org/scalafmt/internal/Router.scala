@@ -504,7 +504,7 @@ class Router(style: ScalaStyle,
         val close = matchingParentheses(hash(open))
         Seq(
           Split(NoSplit, 0)
-            .withIndent(4, matchingParentheses(hash(open)), Left)
+            .withIndent(4, close, Left)
         )
       case FormatToken(_, open: `(`, _) if rightOwner.isInstanceOf[Term.ApplyInfix] =>
         val close = matchingParentheses(hash(open))
@@ -607,10 +607,10 @@ class Router(style: ScalaStyle,
           // Either everything fits in one line or break on =>
           Split(Space, 0).withIndent(StateColumn, lastToken, Left)
         )
-      case tok@FormatToken(_: `yield`, _, _)
-        if leftOwner.isInstanceOf[Term.ForYield] =>
+      case tok@FormatToken(_: `yield`, right, _)
+        if leftOwner.isInstanceOf[Term.ForYield]
+        && !right.isInstanceOf[`{`] =>
         val lastToken = leftOwner.asInstanceOf[Term.ForYield].body.tokens.last
-        logger.debug(s"$leftOwner $lastToken")
         Seq(
           // Either everything fits in one line or break on =>
           Split(Space, 0).withPolicy(SingleLineBlock(lastToken)),
@@ -839,7 +839,9 @@ class Router(style: ScalaStyle,
 
   @tailrec
   final def rhsOptimalToken(start: FormatToken): Token = start.right match {
-    case _: `,` | _: `(` | _: `)` | _: `]` | _: `;` | _: `=>` if next(start) != start =>
+    case _: `,` | _: `(` | _: `)` | _: `]` | _: `;` | _: `=>`
+      if next(start) != start &&
+        !owners(start.right).tokens.headOption.contains(start.right) =>
       rhsOptimalToken(next(start))
     case _ => start.left
   }
