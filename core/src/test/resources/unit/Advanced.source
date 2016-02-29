@@ -8,7 +8,7 @@
  object
   a  extends b with c {
    def
-   foo[T:Int#Double#Triple,
+   foo[T: Int#Double#Triple,
        R <% String](
     @annot1
     x
@@ -29,7 +29,7 @@
 })
 object a extends b with c {
 
-  def foo[T: Int#Double#Triple,
+  def foo[T : Int#Double#Triple,
       R <% String](
       @annot1 x: Int @annot2 = 2,
       y: Int = 3): Int = {

@@ -356,6 +356,11 @@ class Router(style: ScalaStyle,
       case FormatToken(_, _: `;`, _) => Seq(
         Split(NoSplit, 0)
       )
+      case FormatToken(left: Ident, _: `:`, _)
+        if rightOwner.isInstanceOf[Type.Param] =>
+        Seq(
+          Split(Space, 0)
+        )
       case FormatToken(left: Ident, _: `:`, _) =>
         Seq(
           Split(identModification(left), 0)
