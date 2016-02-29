@@ -64,8 +64,8 @@ val createAsStat =
                       // Always throw for .asInstanceOf[Nothing], even for null
                       throwError
                     } else {
-                      js.If(js.Apply(envField("is", className), List(obj)) || (
-                              obj === js.Null()), {
+                      js.If(js.Apply(envField("is", className), List(obj)) ||
+                            (obj === js.Null()), {
                               obj
                             }, {
                               throwError
@@ -416,16 +416,16 @@ val createIsArrayOfStat = {
               // Array[A] </: Array[Array[A]]
               !js.BinaryOp(JSBinaryOp.<, arrayDepth, depth) &&
               (// Array[Array[A]] <: Array[Object]
-                js.BinaryOp(JSBinaryOp.>, arrayDepth, depth) ||
-                // Array[Int] </: Array[Object]
-                !genIdentBracketSelect(data DOT "arrayBase", "isPrimitive"))
+                  js.BinaryOp(JSBinaryOp.>, arrayDepth, depth) ||
+                  // Array[Int] </: Array[Object]
+                  !genIdentBracketSelect(data DOT "arrayBase", "isPrimitive"))
             })
           }))
 
         case _ =>
           js.Return(!(!({
-            genIsScalaJSObject(obj) && ((
-              obj DOT "$classData" DOT "arrayDepth") === depth) &&
+            genIsScalaJSObject(obj) &&
+            ((obj DOT "$classData" DOT "arrayDepth") === depth) &&
             genIsClassNameInAncestors(
                 className,
                 obj DOT "$classData" DOT "arrayBase" DOT "ancestors")
@@ -450,9 +450,9 @@ js.Block(arrayDepthVarDef, js.Return {
   // Array[A] </: Array[Array[A]]
   !js.BinaryOp(JSBinaryOp.<, arrayDepth, depth) &&
   (// Array[Array[A]] <: Array[Object]
-    js.BinaryOp(JSBinaryOp.>, arrayDepth, depth) ||
-    // Array[Int] </: Array[Object]
-    !genIdentBracketSelect(data DOT "arrayBase", "isPrimitive"))
+      js.BinaryOp(JSBinaryOp.>, arrayDepth, depth) ||
+      // Array[Int] </: Array[Object]
+      !genIdentBracketSelect(data DOT "arrayBase", "isPrimitive"))
 })
 <<< Js.Function
 js.Function(List(objParam, depthParam), js.Return {
@@ -468,8 +468,8 @@ js.Function(List(objParam, depthParam), js.Return {
                   })
 >>>
 js.Function(List(objParam, depthParam), js.Return {
-  js.If(js.Apply(envField("isArrayOf", className), List(obj, depth)) || (
-          obj === js.Null()), {
+  js.If(js.Apply(envField("isArrayOf", className), List(obj, depth)) ||
+        (obj === js.Null()), {
           obj
         }, {
           genCallHelper("throwArrayCastException",

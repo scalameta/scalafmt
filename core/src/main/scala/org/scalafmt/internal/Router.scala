@@ -496,12 +496,16 @@ class Router(style: ScalaStyle,
       )
       case FormatToken(open: `(`, right, _) if leftOwner.isInstanceOf[Term.ApplyInfix] =>
         val close = matchingParentheses(hash(open))
-        val policy =
-          if (right.isInstanceOf[`if`]) SingleLineBlock(close)
-          else NoPolicy
         Seq(
-          Split(NoSplit, 0).withPolicy(policy).withIndent(2, matchingParentheses(hash(open)), Left),
-          Split(Newline, 1).withIndent(2, matchingParentheses(hash(open)), Left)
+          Split(NoSplit, 0)
+            .withIndent(4, matchingParentheses(hash(open)), Left)
+        )
+      case FormatToken(_, open: `(`, _) if rightOwner.isInstanceOf[Term.ApplyInfix] =>
+        val close = matchingParentheses(hash(open))
+        Seq(
+          Split(Space, 0, optimalAt = Some(close))
+            .withPolicy(SingleLineBlock(close)),
+          Split(Newline, 1, optimalAt = Some(close))
         )
 
       // Pattern matching

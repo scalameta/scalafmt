@@ -55,9 +55,9 @@ if(split == Newline) newIndent
 else column + split.length)
 >>>
 val newColumn =
-  tok.length + (
-    if (split == Newline) newIndent
-    else column + split.length)
+  tok.length +
+  (if (split == Newline) newIndent
+      else column + split.length)
 <<< no newline
 val policy =
  if (right) SingleLineBlock(close)
@@ -69,11 +69,11 @@ val policy =
   else NoPolicy
 <<< bang ! binds to right
 if ((gets2x(tok) ||
-     linesBetween(tok.between) > 1) &&
+     lines(tok.between) > 1) &&
      !(isDocstring(left) && between)) 1
 >>>
 if ((gets2x(tok) ||
-      linesBetween(tok.between) > 1) &&
+        lines(tok.between) > 1) &&
     !(isDocstring(left) && between)) 1
 <<< SKIP == unary nosplit literal
 if   (firstNewline == -1) tokLength
