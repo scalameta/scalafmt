@@ -121,8 +121,6 @@ class Router(style: ScalaStyle,
       )
       // { ... } Blocks
       case tok@FormatToken(open: `{`, right, between) =>
-        val startsLambda = statementStarts.get(hash(right))
-          .exists(_.isInstanceOf[Term.Function])
         val nl = Newline(gets2x(nextNonComment(tok)), rhsIsCommentedOut(tok))
         val close = matchingParentheses(hash(open))
         val blockSize = close.start - open.end
@@ -131,13 +129,28 @@ class Router(style: ScalaStyle,
           case Decision(t@FormatToken(_, `close`, _), s) =>
             Decision(t, Seq(Split(Newline, 0)))
         }, close.end)
+
+        val (startsLambda, lambdaPolicy, lambdaArrow) =
+          statementStarts.get(hash(right))
+            .collect {
+              case owner: Term.Function =>
+                val arrow = owner.tokens.find(_.isInstanceOf[`=>`])
+                logger.trace(s"$tok  ${leftTok2tok(arrow.get)}")
+                val singleLineUntilArrow = newlineBeforeClosingCurly.orElse(
+                  SingleLineBlock(
+                    arrow.getOrElse(owner.params.last.tokens.last)).f)
+                logger.trace(s"${leftTok2tok(close)} ${leftTok2tok(arrow.get)}")
+                (true, singleLineUntilArrow, arrow)
+            }.getOrElse((false, NoPolicy, None))
+
         val skipSingleLineBlock = ignore || startsLambda ||
           newlinesBetween(between) > 0
+
         Seq(
           Split(Space, 0, ignoreIf = skipSingleLineBlock)
             .withPolicy(SingleLineBlock(close)),
-          Split(Space, 0, ignoreIf = !startsLambda)
-            .withPolicy(newlineBeforeClosingCurly),
+          Split(Space, 0, ignoreIf = !startsLambda, optimalAt = lambdaArrow)
+            .withPolicy(lambdaPolicy),
           Split(nl, 1).withPolicy(newlineBeforeClosingCurly)
             .withIndent(2, close, Right)
         )
@@ -152,12 +165,22 @@ class Router(style: ScalaStyle,
       case tok: FormatToken if !isDocstring(tok.left) && gets2x(tok) => Seq(
         Split(Newline2x, 0)
       )
+      // Term.Function
       case FormatToken(arrow: `=>`, right, _)
         if statementStarts.contains(hash(right)) &&
         leftOwner.isInstanceOf[Term.Function] =>
         val endOfFunction = leftOwner.tokens.last
         Seq(
           Split(Newline, 0).withIndent(2, endOfFunction, Left)
+        )
+      case FormatToken(arrow: `=>`, right, _)
+        if leftOwner.isInstanceOf[Term.Function] =>
+        val endOfFunction = leftOwner.tokens.last
+        Seq(
+          Split(Space, 0)
+            .withPolicy(SingleLineBlock(endOfFunction)),
+          Split(Newline, 1 + nestedApplies(leftOwner))
+            .withIndent(2, endOfFunction, Left)
         )
       // New statement
       case tok@FormatToken(left, right, between)
@@ -315,6 +338,7 @@ class Router(style: ScalaStyle,
           singleArgument || exclude.nonEmpty || charactersInside <= style.maxColumn
         // TODO(olafur) ignoreIf: State => Boolean?
         val optimalToken = Some(rhsOptimalToken(leftTok2tok(close)))
+        logger.trace(s"$tok ${leftTok2tok(optimalToken.get)}")
         Seq(
           Split(modification, 0, policy = singleLine,
             ignoreIf = !fitsOnOneLine || isConfigStyle, optimalAt = optimalToken)

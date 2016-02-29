@@ -1,0 +1,30 @@
+80 columns                                                                     |
+<<< resolveLocalDef
+    def withDedicatedVar: Unit = {
+
+      def doBuildInner = {
+        buildInner({ tinner =>
+            tinner match {
+              case _ =>
+                rhsSideEfs match {
+                  case _ =>
+                      cont(PbreTransBlock(rhsSideEffects :: Nil, tinner))
+                }
+              }
+        })
+      }
+    }
+>>>
+def withDedicatedVar: Unit = {
+
+  def doBuildInner = {
+    buildInner({ tinner =>
+      tinner match {
+        case _ =>
+          rhsSideEfs match {
+            case _ => cont(PbreTransBlock(rhsSideEffects :: Nil, tinner))
+          }
+      }
+    })
+  }
+}

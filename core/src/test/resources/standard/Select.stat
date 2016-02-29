@@ -62,28 +62,28 @@ val lastToken = owner.body.tokens.filter {
   case _ => true
 } // edge case, if body is empty expire on arrow.
 .lastOption.getOrElse(arrow)
-<<< SKIP apply infix has indent
-val expire = owner.tokens.
+<<< apply infix has indent
+val expireAAAAAAAAAAAAAAAAAAAAA = owner.tokens.
   find(t => t.isInstanceOf[`=`] && owners(t) == owner)
   .getOrElse(owner.tokens.last)
 >>>
-val expire = owner.tokens
-  .find(t => t.isInstanceOf[`=`] && owners(t) == owner)
-  .getOrElse(owner.tokens.last)
-<<< SKIP comment gets 2 indent
+val expireAAAAAAAAAAAAAAAAAAAAA =
+  owner.tokens.find(t => t.isInstanceOf[`=`] && owners(t) == owner)
+    .getOrElse(owner.tokens.last)
+<<< SKIP comment gets 2 indent TODO(olafur)
 Split(modification, 0, policy = singleLine,
 ignoreIf = !fitsOnOneLine, optimalAt = optimalToken)
-// TODO(olafur) allow style to specify indent here?
-.withIndent(indent, nextNonComment(tok).right, Left),
+ // allow style to specify indent here?
+.withIndent(indent, nextNonComment(tok).right, Left)
 >>>
 Split(modification,
       0,
       policy = singleLine,
       ignoreIf = !fitsOnOneLine,
       optimalAt = optimalToken)
-  // TODO(olafur) allow style to specify indent here?
-  .withIndent(indent, nextNonComment(tok).right, Left),
-<<< SKIP preserve chains
+  // allow style to specify indent here?
+  .withIndent(indent, nextNonComment(tok).right, Left)
+<<< SKIP preserve chains, this is scala.js style.
   val files = FilesUtil.listFiles(".")
     .filter(_.endsWith(".scala"))
     .filterNot(_.contains("/target/"))

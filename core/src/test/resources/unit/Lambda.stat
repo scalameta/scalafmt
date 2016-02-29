@@ -20,3 +20,14 @@ lst.map {
     println(x)
     x + 1
 }
+<<< long argument singleline
+lst.map { (xxxxxxxxxxxx, yyyyyyyyyyy) =>
+      println(x)
+  x + 1
+}
+>>>
+lst.map {
+  (xxxxxxxxxxxx, yyyyyyyyyyy) =>
+    println(x)
+    x + 1
+}

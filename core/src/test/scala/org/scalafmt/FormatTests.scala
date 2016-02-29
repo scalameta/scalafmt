@@ -25,6 +25,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.language.postfixOps
 
+// TODO(olafur) property test: same solution without optimization or timeout.
 class FormatTests
   extends FunSuite with Timeouts with ScalaFmtLogger
   with BeforeAndAfterAll with HasTests with FormatAssertions with DiffAssertions {

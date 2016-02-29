@@ -262,11 +262,11 @@ callStatement = js.If(genIsInstanceOf(callTrg, rtClass.tpe), {
 >>>
 val ctorParamDefs =
   usedCtorParams map { p =>
-  // in the apply method's context
-  js.ParamDef(encodeLocalSym(p)(p.pos),
-              toIRType(p.tpe),
-              mutable = false,
-              rest = false)(p.pos)
+    // in the apply method's context
+    js.ParamDef(encodeLocalSym(p)(p.pos),
+                toIRType(p.tpe),
+                mutable = false,
+                rest = false)(p.pos)
   }
 <<< single arg block
       withNewLocalNameScope {

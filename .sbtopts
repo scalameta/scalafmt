@@ -1,0 +1,2 @@
+-J-XX:MaxMetaspaceSize=1G
+-J-XX:+CMSClassUnloadingEnabled
