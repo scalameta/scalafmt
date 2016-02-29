@@ -368,7 +368,7 @@ class Router(style: ScalaStyle,
       // an infix application or an if. For example, this is allowed:
       // val x = function(a,
       //                  b)
-      case FormatToken(tok: `=`, _, _) // TODO(olafur) scala.meta should have uniform api for these two
+      case FormatToken(tok: `=`, right, between) // TODO(olafur) scala.meta should have uniform api for these two
         if leftOwner.isInstanceOf[Defn.Val] ||
           leftOwner.isInstanceOf[Defn.Var] =>
         val rhs: Tree = leftOwner match {
@@ -384,9 +384,14 @@ class Router(style: ScalaStyle,
             SingleLineBlock(expire)
           case _ => NoPolicy
         }
+
+        val mod: Modification =
+          if (isAttachedComment(right, between)) Space
+          else Newline
+
         Seq(
           Split(Space, 0, policy = spacePolicy),
-          Split(Newline, 1).withIndent(2, expire, Left)
+          Split(mod, 1).withIndent(2, expire, Left)
         )
       case tok@FormatToken(left, dot: `.`, _) if rightOwner.isInstanceOf[Term.Select] &&
         // Only split if rhs is an application
@@ -572,7 +577,7 @@ class Router(style: ScalaStyle,
                 case Decision(t@FormatToken(`arrow`, right, between), s)
 //                   TODO(olafur) any other corner cases?
                   if !right.isInstanceOf[`{`] &&
-                    (!isInlineComment(right) || newlinesBetween(between) > 0) =>
+                    !isAttachedComment(right, between) =>
                   Decision(t, s.filter(_.modification.isNewline))
               }, expire = lastToken.end))
             .withIndent(2, lastToken, Left) // case body indented by 2.
@@ -921,6 +926,9 @@ class Router(style: ScalaStyle,
       headToken <- statHead.tokens.headOption
     } yield headToken
   }
+
+  def isAttachedComment(token: Token, between: Vector[Whitespace]) =
+    isInlineComment(token) && newlinesBetween(between) == 0
 
   // Used for convenience when calling withIndent.
   private implicit def int2num(n: Int): Num = Num(n)
