@@ -436,18 +436,21 @@ class Router(style: ScalaStyle,
         Seq(Split(identModification(right), 0))
 
       // Template
-      case FormatToken(_, right: `extends`, _) =>
+      case FormatToken(_, right: `extends`, _)
+        if rightOwner.isInstanceOf[Defn.Class] =>
+        val owner = rightOwner.asInstanceOf[Defn.Class]
+        val lastToken = templateLastToken(owner.templ)
+          .getOrElse(owner.tokens.last)
+        // TODO(olafur) use more precise policy?
+        val penalizeNewlines = penalizeNewlineByNesting(right, lastToken)
         Seq(
-          Split(Space, 0)
+          Split(Space, 0).withPolicy(penalizeNewlines),
+          Split(Newline, 1)
         )
       case tok@FormatToken(_, right: `with`, _) if rightOwner.isInstanceOf[Template] =>
         val template = rightOwner.asInstanceOf[Template]
         // TODO(olafur) is this correct?
-        val expire = for {
-          stats <- template.stats
-          headStat <- stats.headOption
-          headStatToken <- headStat.tokens.headOption
-        } yield headStatToken
+        val expire = templateLastToken(template)
         Seq(
           Split(Space, 0),
           Split(Newline, 1).withPolicy(Policy({
@@ -910,6 +913,14 @@ class Router(style: ScalaStyle,
   def treeDepth(tree: Tree): Int =
     if (tree.children.isEmpty) 0
     else 1 + tree.children.map(treeDepth).max
+
+  def templateLastToken(template: Template): Option[Token] = {
+    for {
+      templStat <- template.stats
+      statHead <- templStat.headOption
+      headToken <- statHead.tokens.headOption
+    } yield headToken
+  }
 
   // Used for convenience when calling withIndent.
   private implicit def int2num(n: Int): Num = Num(n)

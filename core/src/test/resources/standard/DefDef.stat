@@ -28,8 +28,3 @@ private def withNewLocalDefs(bindings: List[Binding]) (buildInner:(List[
 private def withNewLocalDefs(bindings: List[Binding])(
     buildInner:(List[LocalDef], PreTransCont) => TailRec[Tree])(
     cont: PreTransCont): TailRec[Tree]
-<<< curried functions defn.class
-class Fmt[T <: Tree](code: String, a: Int, bbbbbbbbbbbbbbbbbbbbbbbbbbb: Int)(implicit ev: Parse[T])
->>>
-class Fmt[T <: Tree](code: String, a: Int, bbbbbbbbbbbbbbbbbbbbbbbbbbb: Int)(
-    implicit ev: Parse[T])
