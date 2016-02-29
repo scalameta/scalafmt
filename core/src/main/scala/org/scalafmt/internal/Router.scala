@@ -219,6 +219,16 @@ class Router(style: ScalaStyle,
         Seq(
           Split(Space, 0).withIndent(4, expire, Left)
         )
+      case FormatToken(_: `(`, _, _)
+        if (leftOwner match {
+          case _: Decl.Def | _: Defn.Def => true
+          case _ if leftOwner.parent.exists(_.isInstanceOf[Defn.Class]) => true
+          case _ => false
+        }) =>
+        Seq(
+          Split(NoSplit, 0),
+          Split(Newline, 1)
+        )
       // DefDef
       //     TODO(olafur) Naive match, can be 1) comment between 2) abstract decl.
       case tok@FormatToken(d: `def`, name: Ident, _) =>
@@ -251,8 +261,7 @@ class Router(style: ScalaStyle,
           leftOwner.isInstanceOf[Pat.Extract] ||
           leftOwner.isInstanceOf[Pat.Tuple] ||
           leftOwner.isInstanceOf[Term.Tuple] ||
-          leftOwner.isInstanceOf[Term.ApplyType] ||
-          leftOwner.isInstanceOf[Type.Apply] =>
+          leftOwner.isInstanceOf[Term.ApplyType] =>
         val open = tok.left.asInstanceOf[Delim]
         val (lhs, args): (Tree, Seq[Tree]) = leftOwner match {
           case t: Term.Apply => t.fun -> t.args
