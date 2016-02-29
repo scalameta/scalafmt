@@ -20,13 +20,12 @@ if (aaaaaaaaaaaadequeOnNewStatements &&
     curr.splits.last.modification.isNewline) {
   Q.dequeueAll
 }
-<<< SKIP break on &&
+<<< break on &&
 if (packageTokensaaaaaa.contains(tok.left) && !packageTokens.contains(tok.right)) true
 >>>
 if (packageTokensaaaaaa.contains(tok.left) &&
-     !packageTokens.contains(tok.right))
-  true
-<<< SKIP if space (
+    !packageTokens.contains(tok.right)) true
+<<< if space (
 def identModification(ident: Ident): Modification =
       if (Character.isLetterOrDigit(ident.code.last)) NoSplit
       else Space

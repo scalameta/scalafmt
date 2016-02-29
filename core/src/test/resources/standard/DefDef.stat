@@ -26,5 +26,5 @@ private def withNewLocalDefs(bindings: List[Binding]) (buildInner:(List[
     PreTransCont) => TailRec[Tree]) (cont: PreTransCont): TailRec[Tree]
 >>>
 private def withNewLocalDefs(bindings: List[Binding])(
-    buildInner:(List[LocalDef], PreTransCont) => TailRec[Tree])(
+    buildInner: (List[LocalDef], PreTransCont) => TailRec[Tree])(
     cont: PreTransCont): TailRec[Tree]
