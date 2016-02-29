@@ -275,7 +275,11 @@ class Router(style: ScalaStyle,
         // TODO(olafur) recursively?
         // In long sequence of select/apply, we penalize splitting on
         // parens furthest to the right.
-        val lhsPenalty = lhs.tokens.length
+        val lhsPenalty = treeDepth(lhs)
+        val bracketPenalty = open match {
+          case _: `[` => 1
+          case _ => 0
+        }
         val nestedPenalty = nestedApplies(leftOwner)
 
         val exclude = insideBlock(tok, close)
@@ -314,17 +318,17 @@ class Router(style: ScalaStyle,
             ignoreIf = !fitsOnOneLine || isConfigStyle, optimalAt = optimalToken)
             // TODO(olafur) allow style to specify indent here?
             .withIndent(indent, nextNonComment(tok).right, Left),
-          Split(Newline, 1 + nestedPenalty + lhsPenalty,
+          Split(Newline, 1 + nestedPenalty + lhsPenalty + bracketPenalty,
             policy = singleLine, ignoreIf = !fitsOnOneLine || isConfigStyle,
             optimalAt = optimalToken )
             .withIndent(indent, right, Left),
           // TODO(olafur) singleline per argument!
-          Split(modification, 2 + lhsPenalty, policy = oneArgOneLine,
+          Split(modification, 2 + lhsPenalty + bracketPenalty, policy = oneArgOneLine,
             ignoreIf = singleArgument || isConfigStyle,
             optimalAt = optimalToken )
             .withIndent(StateColumn, close, Right),
           Split(Newline,
-            3 + nestedPenalty + lhsPenalty,
+            3 + nestedPenalty + lhsPenalty + bracketPenalty,
             policy = oneArgOneLine,
             ignoreIf = singleArgument || isConfigStyle,
             optimalAt = optimalToken )
@@ -896,6 +900,14 @@ class Router(style: ScalaStyle,
       }
     } yield sibling
   }
+
+  /**
+    * Calculates depth to deepest child in tree.
+    */
+  // TODO(olafur) inefficient, precalculate?
+  def treeDepth(tree: Tree): Int =
+    if (tree.children.isEmpty) 0
+    else 1 + tree.children.map(treeDepth).max
 
   // Used for convenience when calling withIndent.
   private implicit def int2num(n: Int): Num = Num(n)
