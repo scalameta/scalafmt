@@ -1,6 +1,7 @@
 SKIP benchmarks/src/resources/scala-js/ScalaJSClassEmitter.scala
 SKIP benchmarks/src/resources/scala-js/GenJsCode.scala
 SKIP benchmarks/src/resources/scala-js/OptimizerCore.scala
+SKIP benchmarks/src/resources/scala-js/JavaLangString.scala
 SKIP benchmarks/src/resources/scala-js/Primality.scala
 SKIP core/src/main/scala/org/scalafmt/internal/BestFirstSearch.scala
 SKIP https://raw.githubusercontent.com/scala-js/scala-js/5d447c8851abcdf513605fe1f61075e83c22ebe4/project/JavaLangString.scala

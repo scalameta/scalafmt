@@ -4,11 +4,18 @@ import scala.meta.parsers.common.ParseException
 
 sealed abstract class ExperimentResult(fileUrl: String) {
   def key: String
+
   // TODO(olafur) abstract over whether raw or non-raw link.
-//  def details: String = fileUrl
   def details = fileUrl
     .replace("github.com", "raw.githubusercontent.com")
     .replace("/blob/", "/")
+
+  override def toString: String =
+    s"""key=$key
+        |fileUrl=$fileUrl
+        |details=$details
+     """.stripMargin
+
 }
 object ExperimentResult {
   case class Success(fileUrl: String, nanos: Long) extends ExperimentResult(fileUrl) {
