@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory
 import scala.meta.Tree
 import scala.meta.prettyprinters.Structure
 import scala.meta.tokens.Token
+import scala.meta.tokens.Token.Interpolation
 import scala.meta.tokens.Tokens
 
 trait ScalaFmtLogger {
@@ -18,14 +19,23 @@ trait ScalaFmtLogger {
        |${log(formatToken.between: _*)}
        |${log(formatToken.right)}""".stripMargin
 
+  def escape(raw: String): String = {
+    import scala.reflect.runtime.universe._
+    Literal(Constant(raw)).toString
+  }
+
   def log(tokens: Token*): String = tokens.map(log).mkString("\n")
 
-  def small(token: Token): String =
-    token.code.replace("\n", "").slice(0, 10)
+  def cleanup(token: Token): String = token match {
+    case _: Token.Literal | _: Interpolation.Part =>
+      escape(token.code).stripPrefix("\"").stripSuffix("\"")
+    case _ =>
+      token.code.replace("\n", "")
+  }
 
   def log(tokens: Tokens): String = tokens.map(log).mkString("\n")
 
-  def log(token: Token): String = f"$token%-30s ${getTokenClass(token)}"
+  def log(token: Token): String = f"${cleanup(token).slice(0, 30)}%-30s ${getTokenClass(token)}"
 
   private def getTokenClass(token: Token) =
     token.getClass.getName.stripPrefix("scala.meta.tokens.Token$")

@@ -14,6 +14,8 @@ import org.scalafmt.Error.NoopDefaultPolicyApplied
 case class Policy(f: PartialFunction[Decision, Decision],
                   expire: Int, noDequeue: Boolean = false)(implicit val line: sourcecode.Line) {
 
+  def orElse(otherF: PartialFunction[Decision, Decision]) = copy(f = f orElse otherF)
+
   override def toString = s"P:${line.value}(D=$noDequeue)"
 
 }

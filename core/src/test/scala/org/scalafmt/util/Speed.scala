@@ -1,5 +1,7 @@
 package org.scalafmt.util
 
+import java.nio.channels.UnresolvedAddressException
+
 import com.ibm.couchdb._
 import org.scalafmt.internal.Debug
 import org.scalafmt.internal.ScalaFmtLogger
@@ -20,6 +22,8 @@ object Speed extends ScalaFmtLogger {
     val startTime = System.nanoTime()
     val actions = db.docs.create(stat)
     actions.attemptRun match {
+      case -\/(e: UnresolvedAddressException) =>
+        logger.debug("No internet")
       case -\/(e: Invalid) => logger.warn("Unable to submit to speed.scalafmt.org: Invalid data")
       case -\/(e) => logger.warn("Unable to submit to speed.scalafmt.org", e)
       case f@ \/-(a) =>
@@ -37,6 +41,9 @@ object Speed extends ScalaFmtLogger {
         .endKey((commit, 0)).startKey((commit, Long.MaxValue)).descending(true)
         .limit(1)
     view.query.attemptRun match {
+      case -\/(e: UnresolvedAddressException) =>
+        logger
+          .debug("No internet")
       case -\/(e: upickle.Invalid) =>
         logger
           .debug("Received invalid data from server. Has TestStats changed?")

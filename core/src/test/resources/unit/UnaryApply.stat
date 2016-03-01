@@ -21,8 +21,8 @@
 <<< bang
 (
           !right.isInstanceOf[Comment] ||
-          between.exists(_.isInstanceOf[`\n`]))
+          exists(_.isInstanceOf[`\n`]))
 >>>
 (!right.isInstanceOf[Comment] ||
-  between.exists(_.isInstanceOf[`\n`]))
+    exists(_.isInstanceOf[`\n`]))
 

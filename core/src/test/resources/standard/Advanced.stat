@@ -64,8 +64,8 @@ val createAsStat =
                       // Always throw for .asInstanceOf[Nothing], even for null
                       throwError
                     } else {
-                      js.If(js.Apply(envField("is", className), List(obj)) || (
-                              obj === js.Null()), {
+                      js.If(js.Apply(envField("is", className), List(obj)) ||
+                            (obj === js.Null()), {
                               obj
                             }, {
                               throwError
@@ -109,12 +109,14 @@ def processOptions(): Unit = {
 )
 >>>
 private def scalaJSStageSettings =
-  Seq(usesScalaJSLinkerTag in key := {
+  Seq(
+      usesScalaJSLinkerTag in key := {
         Tags
       },
       // Prevent this linker from being used concurrently
-      concurrentRestrictions in Global += Tags.limit((
-        usesScalaJSLinkerTag in key).value, 1))
+      concurrentRestrictions in Global += Tags.limit(
+          (usesScalaJSLinkerTag in key).value, 1)
+  )
 <<< testFilter
   val testFilter: String => Boolean = {
     options.testFilter match {
@@ -130,8 +132,8 @@ val testFilter: String => Boolean = {
   options.testFilter match {
     case UnknownTests => { absPath =>
         !blacklistedTestFileNames.contains(absPath) &&
-        !whitelistedTestFileNames.contains(absPath) && !buglistedTestFileNames
-          .contains(absPath)
+        !whitelistedTestFileNames.contains(absPath) &&
+        !buglistedTestFileNames.contains(absPath)
       }
   }
 }
@@ -145,8 +147,9 @@ val testFilter: String => Boolean = {
 >>>
 options.testFilter match {
   case UnknownTests => // inline comment
-    !blacklistedTestFileNames.contains(absPath) && !whitelistedTestFileNames
-      .contains(absPath) && !buglistedTestFileNames.contains(absPath)
+    !blacklistedTestFileNames.contains(absPath) &&
+    !whitelistedTestFileNames.contains(absPath) &&
+    !buglistedTestFileNames.contains(absPath)
 }
 <<< callStatement genjscode
           callStatement = js.If(genIsInstanceOf(callTrg, rtClass.tpe), {
@@ -259,11 +262,11 @@ callStatement = js.If(genIsInstanceOf(callTrg, rtClass.tpe), {
 >>>
 val ctorParamDefs =
   usedCtorParams map { p =>
-  // in the apply method's context
-  js.ParamDef(encodeLocalSym(p)(p.pos),
-              toIRType(p.tpe),
-              mutable = false,
-              rest = false)(p.pos)
+    // in the apply method's context
+    js.ParamDef(encodeLocalSym(p)(p.pos),
+                toIRType(p.tpe),
+                mutable = false,
+                rest = false)(p.pos)
   }
 <<< single arg block
       withNewLocalNameScope {
@@ -299,32 +302,22 @@ withNewLocalNameScope {
     js.Closure(ctorParamDefs, patchedParams, patchedBody, capturedArgs)
   }
 }
-<<< SKIP instance_of_?
-  object MaybeAsInstanceOf {
-
-      def unapply(tree: Tree): Some[Tree] =
-        tree match {
-          case Apply(TypeApply(asInstanceOf_?@Select(base, _), _), _)
-              if asInstanceOf_?.symbol == Object_asInstanceOf =>
-            Some(base)
-          case _ => Some(tree)
-        }
-    }
->>>
-object MaybeAsInstanceOf {
-
-  def unapply(tree: Tree): Some[Tree] =
-    tree match {
-      case Apply(TypeApply(asInstanceOf_?@Select(base, _), _), _)
-          if asInstanceOf_?.symbol == Object_asInstanceOf =>
-        Some(base)
-      case _ => Some(tree)
-    }
+<<< instance_of_?
+tree match {
+  case Apply(TypeApply(asInstanceOf_? @Select(base, _), _), _)
+      if asInstanceOf_?.symbol == Object_asInstanceOf =>
+    Some(base)
+  case _ => Some(tree)
 }
-<<< double args infinte loop?
-  private def withNewLocalDefs(bindings: List[Binding])(
-      buildInner: (List[LocalDef], PreTransCont) => TailRec[Tree])(
-      cont: PreTransCont): TailRec[Tree] = {
+>>>
+tree match {
+  case Apply(TypeApply(asInstanceOf_? @Select(base, _), _), _)
+      if asInstanceOf_?.symbol == Object_asInstanceOf =>
+    Some(base)
+  case _ => Some(tree)
+}
+<<< double args infinite loop?
+  private def withNewLocalDefs = {
     bindings match {
       case first :: rest =>
         withNewLocalDef(first) { (firstLocalDef, cont1) =>
@@ -338,9 +331,7 @@ object MaybeAsInstanceOf {
     }
   }
 >>>
-private def withNewLocalDefs(bindings: List[Binding]) (buildInner:(List[
-        LocalDef],
-    PreTransCont) => TailRec[Tree]) (cont: PreTransCont): TailRec[Tree] = {
+private def withNewLocalDefs = {
   bindings match {
     case first :: rest =>
       withNewLocalDef(first) { (firstLocalDef, cont1) =>
@@ -382,7 +373,7 @@ private def withNewLocalDefs(bindings: List[Binding]) (buildInner:(List[
             }))
 
           case _ =>
-            js.Return(! (! ({
+            js.Return(!(!({
               genIsScalaJSObject(obj) && ((
                 obj DOT "$classData" DOT "arrayDepth") === depth) &&
               genIsClassNameInAncestors(
@@ -414,16 +405,16 @@ val createIsArrayOfStat = {
               // Array[A] </: Array[Array[A]]
               !js.BinaryOp(JSBinaryOp.<, arrayDepth, depth) &&
               (// Array[Array[A]] <: Array[Object]
-                js.BinaryOp(JSBinaryOp.>, arrayDepth, depth) ||
-                // Array[Int] </: Array[Object]
-                !genIdentBracketSelect(data DOT "arrayBase", "isPrimitive"))
+                  js.BinaryOp(JSBinaryOp.>, arrayDepth, depth) ||
+                  // Array[Int] </: Array[Object]
+                  !genIdentBracketSelect(data DOT "arrayBase", "isPrimitive"))
             })
           }))
 
         case _ =>
-          js.Return(! (! ({
-            genIsScalaJSObject(obj) && ((
-              obj DOT "$classData" DOT "arrayDepth") === depth) &&
+          js.Return(!(!({
+            genIsScalaJSObject(obj) &&
+            ((obj DOT "$classData" DOT "arrayDepth") === depth) &&
             genIsClassNameInAncestors(
                 className,
                 obj DOT "$classData" DOT "arrayBase" DOT "ancestors")
@@ -448,9 +439,9 @@ js.Block(arrayDepthVarDef, js.Return {
   // Array[A] </: Array[Array[A]]
   !js.BinaryOp(JSBinaryOp.<, arrayDepth, depth) &&
   (// Array[Array[A]] <: Array[Object]
-    js.BinaryOp(JSBinaryOp.>, arrayDepth, depth) ||
-    // Array[Int] </: Array[Object]
-    !genIdentBracketSelect(data DOT "arrayBase", "isPrimitive"))
+      js.BinaryOp(JSBinaryOp.>, arrayDepth, depth) ||
+      // Array[Int] </: Array[Object]
+      !genIdentBracketSelect(data DOT "arrayBase", "isPrimitive"))
 })
 <<< Js.Function
 js.Function(List(objParam, depthParam), js.Return {
@@ -466,8 +457,8 @@ js.Function(List(objParam, depthParam), js.Return {
                   })
 >>>
 js.Function(List(objParam, depthParam), js.Return {
-  js.If(js.Apply(envField("isArrayOf", className), List(obj, depth)) || (
-          obj === js.Null()), {
+  js.If(js.Apply(envField("isArrayOf", className), List(obj, depth)) ||
+        (obj === js.Null()), {
           obj
         }, {
           genCallHelper("throwArrayCastException",
@@ -476,11 +467,100 @@ js.Function(List(objParam, depthParam), js.Return {
                         depth)
         })
 })
-<<< SKIP dequeue on new stat (state explosion)
+<<< dequeue on new stat (state explosion)
 {
   Array((1, 2), (1, 2), (1, 2), (1, 2), (1, 2), (1, 2), (1, 2), (1, 2), (1, 2), (1, 2), (1, 2))
 
   aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 }
 >>>
-x
+{
+  Array((1, 2),
+        (1, 2),
+        (1, 2),
+        (1, 2),
+        (1, 2),
+        (1, 2),
+        (1, 2),
+        (1, 2),
+        (1, 2),
+        (1, 2),
+        (1, 2))
+
+  aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+}
+<<< resolution copier
+class ResolutionCopier(x: Int) {
+
+  def visitClassDeclaration(node: ClassDeclaration): Boolean = {
+    val toNode = this._toNode.asInstanceOf[ClassDeclaration];
+    javaBooleanAnd(
+        javaBooleanAnd(
+            javaBooleanAnd(
+                javaBooleanAnd(javaBooleanAnd(javaBooleanAnd(
+                        javaBooleanAnd(javaBooleanAnd(
+                            javaBooleanAnd(javaBooleanAnd(javaBooleanAnd(
+                                    _isEqualNodes(node.documentationComment,
+                                        toNode.documentationComment),
+                                    _isEqualNodeLists(
+                                        node.metadata, toNode.metadata)),
+                                _isEqualTokens(node.abstractKeyword,
+                                    toNode.abstractKeyword)), _isEqualTokens(
+                                node.classKeyword, toNode.classKeyword)),
+                            _isEqualNodes(
+                                node.name, toNode.name)), _isEqualNodes(
+                            node.typeParameters, toNode.typeParameters)),
+                        _isEqualNodes(
+                            node.extendsClause, toNode.extendsClause)),
+                    _isEqualNodes(
+                        node.withClause, toNode.withClause)), _isEqualNodes(
+                    node.implementsClause, toNode.implementsClause)),
+                _isEqualTokens(node.leftBracket, toNode.leftBracket)),
+            _isEqualNodeLists(
+                node.members,
+                toNode.members)),
+        _isEqualTokens(
+            node.rightBracket,
+            toNode.rightBracket));
+  }
+}
+>>>
+class ResolutionCopier(x: Int) {
+
+  def visitClassDeclaration(node: ClassDeclaration): Boolean = {
+    val toNode = this._toNode.asInstanceOf[ClassDeclaration];
+    javaBooleanAnd(
+        javaBooleanAnd(
+            javaBooleanAnd(
+                javaBooleanAnd(
+                    javaBooleanAnd(
+                        javaBooleanAnd(
+                            javaBooleanAnd(
+                                javaBooleanAnd(
+                                    javaBooleanAnd(
+                                        javaBooleanAnd(
+                                            javaBooleanAnd(
+                                                _isEqualNodes(
+                                                    node.documentationComment,
+                                                    toNode.documentationComment),
+                                                _isEqualNodeLists(
+                                                    node.metadata,
+                                                    toNode.metadata)),
+                                            _isEqualTokens(
+                                                node.abstractKeyword,
+                                                toNode.abstractKeyword)),
+                                        _isEqualTokens(node.classKeyword,
+                                                       toNode.classKeyword)),
+                                    _isEqualNodes(node.name, toNode.name)),
+                                _isEqualNodes(node.typeParameters,
+                                              toNode.typeParameters)),
+                            _isEqualNodes(node.extendsClause,
+                                          toNode.extendsClause)),
+                        _isEqualNodes(node.withClause, toNode.withClause)),
+                    _isEqualNodes(node.implementsClause,
+                                  toNode.implementsClause)),
+                _isEqualTokens(node.leftBracket, toNode.leftBracket)),
+            _isEqualNodeLists(node.members, toNode.members)),
+        _isEqualTokens(node.rightBracket, toNode.rightBracket));
+  }
+}

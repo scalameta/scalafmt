@@ -7,6 +7,7 @@ import scala.collection.mutable
 import scala.meta.Mod
 import scala.meta.Tree
 import scala.meta.internal.ast.Defn
+import scala.meta.internal.ast.Enumerator
 import scala.meta.internal.ast.Pkg
 import scala.meta.internal.ast.Template
 import scala.meta.internal.ast.Term
@@ -130,7 +131,8 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
 
   val memo = mutable.Map.empty[(Int, StateHash), State]
 
-  def shortestPathMemo(start: State, stop: Token, depth: Int): State = {
+  def shortestPathMemo(start: State, stop: Token, depth: Int)(
+    implicit line: sourcecode.Line): State = {
     memo.getOrElseUpdate((start.splits.length, stateColumnKey(start)), {
       shortestPath(start, stop, depth)
     })
@@ -140,7 +142,8 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
     * Runs best first search to find lowest penalty split.
     */
   def shortestPath(start: State, stop: Token, depth: Int = 0,
-                   maxCost: Int = Integer.MAX_VALUE): State = {
+                   maxCost: Int = Integer.MAX_VALUE)(
+    implicit line: sourcecode.Line): State = {
     val Q = new mutable.PriorityQueue[State]()
     var result = start
     Q += start
@@ -152,13 +155,14 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
         logger.debug(s"Explored $explored")
       }
       if (hasReachedEof(curr) ||
-        toks(curr.splits.length).left == stop) {
+        toks(curr.splits.length).left.start >= stop.start) {
         result = curr
+        logger.trace(s"depth=$depth, result=$result ${toks.length}")
         Q.dequeueAll
         Unit
       } else if (shouldEnterState(curr)) {
         val splitToken = toks(curr.splits.length)
-        if (curr.splits.length > deepestYet.splits.length) {
+        if (depth == 0 && curr.splits.length > deepestYet.splits.length) {
           deepestYet = curr
           // Only dequeue if this solution is the deepest solution so far.
         }
@@ -174,10 +178,17 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
           Debug.visit(splitToken)
         }
         if (shouldRecurseOnBlock(curr, stop)) {
+          val close = matchingParentheses(hash(getLeftLeft(curr)))
           val nextState = shortestPathMemo(
             curr,
-            matchingParentheses(hash(getLeftLeft(curr))),
+            close,
             depth = depth + 1)
+          // TODO(olafur) what if we don't reach close?
+          logger.trace(
+            s"""$splitToken ${toks(nextState.splits.length)} $stop $depth
+               |${mkString(nextState.splits)}
+               |${nextState.policy.policies}
+             """.stripMargin)
           Q.enqueue(nextState)
         } else {
 
@@ -186,13 +197,14 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
               router.getSplitsMemo(splitToken)
             else List(provided(splitToken))
 
-
-
           val actualSplit = {
             curr.policy
               .execute(Decision(splitToken, splits)).splits
               .filter(!_.ignoreIf)
               .sortBy(_.cost)
+          }
+          if (curr == deepestYet) {
+            logger.trace(s"actualSplits=$actualSplit ${curr.splits.length} ${toks.length}")
           }
           var optimalNotFound = true
           actualSplit.foreach { split =>
@@ -207,16 +219,20 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
             split.optimalAt match {
               case Some(token) if actualSplit.length > 1 && split.cost == 0 =>
                 val nextNextState = shortestPath(nextState, token, depth, maxCost = 0)
-                if (toks(nextNextState.splits.length).left == token) {
+                if (nextNextState.splits.length < toks.length &&
+                  toks(nextNextState.splits.length).left == token) {
                   optimalNotFound = false
                   Q.enqueue(nextNextState)
                 } else if (nextState.cost - curr.cost <= maxCost) {
                   // TODO(olafur) DRY. This solution can still be optimal.
                   Q.enqueue(nextState)
+                  logger.trace(s"$nextState ${curr.splits.length} ${toks.length}")
                 }
               case _ if optimalNotFound && nextState.cost - curr.cost <= maxCost =>
                 Q.enqueue(nextState)
+                logger.trace(s"$line depth=$depth $nextState ${nextState.splits.length} ${toks.length}")
               case _ => // Other split was optimal
+                logger.trace(s"depth=$depth $nextState ${curr.splits.length} ${toks.length}")
             }
           }
         }
@@ -231,6 +247,12 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
     if (state.splits.length != toks.length) {
       if (style.debug) {
         state = deepestYet
+//        val ft = toks(state.splits.length)
+//        val nextSplits = router.getSplits(ft)
+//        logger.debug(s"$nextSplits")
+//        logger.debug(s"${state.policy.execute(Decision(ft, nextSplits))}")
+//        val nextStates = nextSplits.map(state.next(style, _, ft))
+//        logger.debug(s"$state $nextStates ${shouldRecurseOnBlock(state, tree.tokens.last)}")
       } else {
         val msg =
           s"""UNABLE TO FORMAT,
@@ -267,7 +289,16 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
     var inside = false
     var expire = tree.tokens.head
     tree.tokens.foreach {
-      case t: `(` if owners(hash(t)).isInstanceOf[Term.Apply] && !inside =>
+      case t
+        if !inside &&  ((t, owners(hash(t))) match {
+          case (_: `(`,  _: Term.Apply) =>
+            // TODO(olafur) https://github.com/scalameta/scalameta/issues/345
+            val x = true; x
+          // Type compounds can be inside defn.defs
+          // TODO(olafur) what about large type aliases?
+          case (_: `{`,  _: Type.Compound) => true
+          case _ => false
+        }) =>
         inside = true
         expire = matchingParentheses(hash(t))
       case x if x == expire =>
@@ -283,11 +314,13 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
 
 object BestFirstSearch extends ScalaFmtLogger {
 
+
   def extractStatementsIfAny(tree: Tree): Seq[Tree] = tree match {
     case b: Term.Block => b.stats
     case t: Pkg => t.stats
-    case t: Term.For => t.enums
-    case t: Term.ForYield => t.enums
+    // TODO(olafur) would be nice to have an abstract "For" superclass.
+    case t: Term.For => t.enums.filterNot(_.isInstanceOf[Enumerator.Guard])
+    case t: Term.ForYield => t.enums.filterNot(_.isInstanceOf[Enumerator.Guard])
     case t: Term.Match => t.cases
     case t: Term.PartialFunction => t.cases
     case t: Term.TryWithCases => t.catchp
@@ -300,7 +333,8 @@ object BestFirstSearch extends ScalaFmtLogger {
 
   def getStatementStarts(tree: Tree): Map[TokenHash, Tree] = {
     val ret =
-      new mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](Map[TokenHash, Tree]())
+      new mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](
+        Map[TokenHash, Tree]())
 
     def addAll(trees: Seq[Tree]): Unit = {
       trees.foreach { t =>

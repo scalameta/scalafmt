@@ -6,12 +6,14 @@ case FormatToken(_: Ident | _: `this` | _: `_ ` | _: `(`, _: `.` | _: `#`, _) =>
 >>>
 case FormatToken(
     _: Ident | _: `this` | _: `_ ` | _: `(`, _: `.` | _: `#`, _) =>
-  List(NoSplit0)
+  List(
+      NoSplit0
+  )
 <<< Long if
 case tok if tok.left.name.startsWith("xml") && tok.right.name.startsWith("xml") => List( NoSplit0 )
 >>>
-case tok if tok.left.name.startsWith("xml") &&
-    tok.right.name.startsWith("xml") =>
+case tok
+    if tok.left.name.startsWith("xml") && tok.right.name.startsWith("xml") =>
   List(NoSplit0)
 <<< Pathological if
 case FormatToken(left, open: `(`, _)
@@ -26,7 +28,9 @@ case FormatToken(left, open: `(`, _)
     if owners(open).isInstanceOf[Term.Apply] ||
     owners(left).parent.exists(_.isInstanceOf[Defn.Def]) ||
     owners(left).parent.exists(_.isInstanceOf[Defn.Class]) =>
-  List(NoSplit0)
+  List(
+      NoSplit0
+  )
 <<< wrapped cond inside if
 case Decision(t@FormatToken(comma: `,`, right, between), splits)
         if owners.get(open) == owners.get(comma) &&
@@ -58,7 +62,12 @@ case FormatToken(open: `(`, right, _)
   val policy =
     if (right.isInstanceOf[`if`]) SingleLineBlock(close)
     else NoPolicy
-  Seq(Split(NoSplit, 0).withPolicy(policy)
+  Seq(
+      Split(NoSplit, 0).withPolicy(policy)
         .withIndent(2, matchingParentheses(hash(open)), Left),
-      Split(Newline, 1).withIndent(2, matchingParentheses(hash(open)), Left))
-
+      Split(Newline, 1).withIndent(2, matchingParentheses(hash(open)), Left)
+  )
+<<< bind @ to (
+case   open@(_: `{` | _: `[` | _: `(`) => stack = open :: stack
+>>>
+case open@(_: `{` | _: `[` | _: `(`) => stack = open :: stack

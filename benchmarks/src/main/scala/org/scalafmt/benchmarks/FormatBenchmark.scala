@@ -68,7 +68,7 @@ abstract class FormatBenchmark(path: String*) {
   }
 
   // No need to run same benchmark again and again.
-    @Benchmark
+  @Benchmark
   def scalariform(): String = {
     ScalaFormatter.format(code, scalariformPreferences)
   }

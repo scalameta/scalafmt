@@ -55,9 +55,9 @@ if(split == Newline) newIndent
 else column + split.length)
 >>>
 val newColumn =
-  tok.length + (
-    if (split == Newline) newIndent
-    else column + split.length)
+  tok.length +
+  (if (split == Newline) newIndent
+      else column + split.length)
 <<< no newline
 val policy =
  if (right) SingleLineBlock(close)
@@ -67,4 +67,15 @@ val policy =
 val policy =
   if (right) SingleLineBlock(close)
   else NoPolicy
-
+<<< bang ! binds to right
+if ((gets2x(tok) ||
+     lines(tok.between) > 1) &&
+     !(isDocstring(left) && between)) 1
+>>>
+if ((gets2x(tok) ||
+        lines(tok.between) > 1) &&
+    !(isDocstring(left) && between)) 1
+<<< SKIP == unary nosplit literal, see https://github.com/scalameta/scalameta/issues/344
+if   (firstNewline == -1) tokLength
+>>>
+if (firstNewline == -1) tokLength

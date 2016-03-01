@@ -17,3 +17,7 @@ object A {
 
   class C extends B
 }
+<<< mod protected
+protected [scalafmt] sealed trait UnitTestStyle
+>>>
+protected[scalafmt] sealed trait UnitTestStyle

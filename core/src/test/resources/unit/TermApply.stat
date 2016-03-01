@@ -24,9 +24,9 @@ MyObject(
     config.getBoolean("shortKey"),
     config.getString(
         "reallyReallyReallyLongKey"),
-    liveAnalysis
-      .check(options.has("live"),
-             options.has("analysis")))
+    liveAnalysis.check(
+        options.has("live"),
+        options.has("analysis")))
 <<< optimalAt memoization is by split prefix
 new Compiler(
     primitives.options.has("primitives"),
@@ -58,9 +58,9 @@ new Compiler(
       .has("primitives"),
     minify.options.has("minify"),
     preserve.options.has("preserve"),
-    liveAnalysis
-      .check(options.has("live"),
-             options.has("analysis")),
+    liveAnalysis.check(
+        options.has("live"),
+        options.has("analysis")),
     multi.options.has("multi"),
     sourceMap.options
       .has("source-map"));
@@ -73,8 +73,7 @@ var list = List( // comment
     function(a: A, b: B, c: C))
 <<< long
 var list = List(
-  function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C)
-);
+  function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C), function(a: A, b: B, c: C) );
 >>>
 var list = List(
     function(a: A, b: B, c: C),
@@ -120,7 +119,17 @@ val result = service.something(param1, param2, param3, param4).map(transform)
 val result = service
   .something(param1, param2, param3, param4)
   .map(transform)
-<<< SKIP One arg per line
+<<< config style
+Seq(
+  Split(Space, 0),
+  Split(Newline, 1)
+)
+>>>
+Seq(
+    Split(Space, 0),
+    Split(Newline, 1)
+)
+<<< config style with inline comment
 Seq(
   Split(Space, 0), // End files with trailing newline
   Split(Newline, 1)

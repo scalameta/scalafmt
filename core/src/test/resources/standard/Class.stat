@@ -20,3 +20,20 @@ case class State(cost: Int, policy: Decision => Decision,
 case class Indent[ T <: Length] (length: T, expire: Token, expiresAt: ExpiresOn)
 >>>
 case class Indent[T <: Length](length: T, expire: Token, expiresAt: ExpiresOn)
+<<< newline extends is cheapest
+case class CaseMissingArrow(tree: Case) extends Error(
+      s"Missing => in case: \n$tree")
+>>>
+case class CaseMissingArrow(tree: Case)
+    extends Error(s"Missing => in case: \n$tree")
+<<< newline extends is cheapest 2
+class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
+        extends ScalaFmtLogger
+>>>
+class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
+    extends ScalaFmtLogger
+<<< curried defn.class
+class Fmt[T <: Tree](code: String, a: Int, bbbbbbbbbbbbbbbbbbbbbbbbbbb: Int)(implicit ev: Parse[T])
+>>>
+class Fmt[T <: Tree](code: String, a: Int, bbbbbbbbbbbbbbbbbbbbbbbbbbb: Int)(
+    implicit ev: Parse[T])

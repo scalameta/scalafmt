@@ -1,0 +1,9 @@
+80 columns                                                                     |
+<<< assign comment to left inline
+val singleLine = // Don't force single line policy if only one argument.
+    if (singleArgument) NoPolicy
+    else SingleLineBlock(close, exclude)
+>>>
+val singleLine = // Don't force single line policy if only one argument.
+  if (singleArgument) NoPolicy
+  else SingleLineBlock(close, exclude)

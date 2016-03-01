@@ -6,3 +6,59 @@ else List(Split(Newline, 0))
 if (between.lastOption.exists(_.isInstanceOf[`\n`]))
   List(Split(NoIndentNewline, 0))
 else List(Split(Newline, 0))
+<<< break by nesting depth
+        if (aaaaaaaaaaaadequeOnNewStatements &&
+          (depth > 0 || !isInsideNoOptZone(splitToken)) &&
+          statementStarts.contains(hash(splitToken.left)) &&
+          curr.splits.last.modification.isNewline ) {
+          Q.dequeueAll
+        }
+>>>
+if (aaaaaaaaaaaadequeOnNewStatements &&
+    (depth > 0 || !isInsideNoOptZone(splitToken)) &&
+    statementStarts.contains(hash(splitToken.left)) &&
+    curr.splits.last.modification.isNewline) {
+  Q.dequeueAll
+}
+<<< break on &&
+if (packageTokensaaaaaa.contains(tok.left) && !packageTokens.contains(tok.right)) true
+>>>
+if (packageTokensaaaaaa.contains(tok.left) &&
+    !packageTokens.contains(tok.right)) true
+<<< if space (
+def identModification(ident: Ident): Modification =
+      if (Character.isLetterOrDigit(ident.code.last)) NoSplit
+      else Space
+>>>
+def identModification(ident: Ident): Modification =
+  if (Character.isLetterOrDigit(ident.code.last)) NoSplit
+  else Space
+<<< thisLocalDef
+{
+    val newParamDefs = for { _ <- params } yield {
+      ParamDef()
+      ((name -> localDef), newParamDef)
+    }
+    val thisLocalDef =
+      if (thisType == NoType) None
+      else {
+        Some("this" -> LocalDef(
+            RefinedType(thisType, isExact = false, isNullable = false),
+            false, ReplaceWithThis()))
+      }
+      }
+>>>
+{
+  val newParamDefs = for { _ <- params } yield {
+    ParamDef()
+    ((name -> localDef), newParamDef)
+  }
+  val thisLocalDef =
+    if (thisType == NoType) None
+    else {
+      Some("this" -> LocalDef(
+          RefinedType(thisType, isExact = false, isNullable = false),
+          false,
+          ReplaceWithThis()))
+    }
+}

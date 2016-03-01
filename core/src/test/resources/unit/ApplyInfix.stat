@@ -1,0 +1,16 @@
+40 columns                              |
+<<< no newline after binding (
+js.Return(!(!({
+genIsScalaJSObject(obj) && ((
+  obj DOT "$classData") === depth) &&
+genIsClassNameInAncestors(
+    className,
+    obj DOT "$classData")
+})))
+>>>
+js.Return(!(!({
+  genIsScalaJSObject(obj) &&
+  ((obj DOT "$classData") === depth) &&
+  genIsClassNameInAncestors(
+      className, obj DOT "$classData")
+})))

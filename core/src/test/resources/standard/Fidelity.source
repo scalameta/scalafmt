@@ -1,3 +1,16 @@
 80 columns                                                                     |
-<<< premature EOF
+<<< group id
+object ScalaJSGroupID {
+  def auto_impl(c: Context { type PrefixType = ScalaJSGroupID })(): Expr[CrossGroupArtifactID] = {
+    reify {
+    }
+  }
+}
 >>>
+object ScalaJSGroupID {
+
+  def auto_impl(c: Context { type PrefixType = ScalaJSGroupID })(
+      ): Expr[CrossGroupArtifactID] = {
+    reify {}
+  }
+}

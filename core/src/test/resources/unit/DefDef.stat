@@ -30,10 +30,26 @@ object a {
 def identity[T](t: T): T =   t
 >>>
 def identity[T](t: T): T = t
-<<< SKIP def kill?
+<<< def kill?
       def hasExplicitJSEncoding =
         sym.hasAnnotation(JSNameAnnotation) ||
         sym.hasAnnotation(JSBracketAccessAnnotation) ||
         sym.hasAnnotation(JSBracketCallAnnotation)
 >>>
-x
+def hasExplicitJSEncoding =
+  sym
+    .hasAnnotation(JSNameAnnotation) ||
+  sym.hasAnnotation(
+      JSBracketAccessAnnotation) ||
+  sym.hasAnnotation(
+      JSBracketCallAnnotation)
+<<< curried functions
+def format_![T <: Tree](code: String)(implicit ev: Parse[T]): String
+>>>
+def format_![T <: Tree](code: String)(
+    implicit ev: Parse[T]): String
+<<< curried functions defn.def
+def format_![T <: Tree](code: String)(implicit ev: Parse[T]): String = 1
+>>>
+def format_![T <: Tree](code: String)(
+    implicit ev: Parse[T]): String = 1
