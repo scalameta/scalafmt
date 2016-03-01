@@ -107,6 +107,40 @@ To run main formatting tests:
 
 ### Updates (mostly for myself)
 
+* March 1st
+  * Can format all files in Scala.js!
+```
+Scala.js
+========
+Success: 920
+Total: 920
++------------+--------+--------------+----------+---------+---------+----------+
+|         Max|     Min|           Sum|      Mean|       Q1|       Q2|        Q3|
++------------+--------+--------------+----------+---------+---------+----------+
+|8.406,451 ms|2,713 ms|172.574,826 ms|187,581 ms|32,167 ms|79,585 ms|173,553 ms|
++------------+--------+--------------+----------+---------+---------+----------+
+
+JMH
+===
+# Run complete. Total time: 00:03:24
+
+Benchmark                        Mode  Cnt     Score     Error  Units
+GenJsCode.scalafmt               avgt   10  1375.404 ± 203.097  ms/op
+GenJsCode.scalariform            avgt   10   238.604 ±  10.338  ms/op
+JavaLangString.scalafmt          avgt   10   181.791 ±   3.683  ms/op
+JavaLangString.scalariform       avgt   10     6.878 ±   0.769  ms/op
+OptimizerCore.scalafmt           avgt   10  1330.836 ±  74.754  ms/op
+OptimizerCore.scalariform        avgt   10   235.918 ±  10.049  ms/op
+ScalaJSClassEmitter.scalafmt     avgt   10   305.206 ±  44.357  ms/op
+ScalaJSClassEmitter.scalariform  avgt   10    37.935 ±   4.010  ms/op
+
+Note. JavaLangString didn't terminate before.
+```
+  * See [scalafmt formatted with scalafmt][format-with-scalafmt]. Still have a few
+    things to fix before merging "bootstrap".
+  
+[format-with-scalafmt]: https://github.com/olafurpg/scalafmt/compare/format-with-scalafmt?expand=1
+
 * Feb 26th
   * Able to format 916 of 920 files in Scala.js! And 75 percentile format in
   under 200ms.
