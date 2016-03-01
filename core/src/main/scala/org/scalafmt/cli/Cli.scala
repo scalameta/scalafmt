@@ -42,7 +42,7 @@ object Cli extends ScalaFmtLogger {
 
   def run(config: Config): Unit = {
     val code = getCode(config)
-    val output = ScalaFmt.format(code, ScalaStyle.Standard,
+    val output = ScalaFmt.format(code, ScalaStyle.Default,
       config.range.toIterable.toSet, config.maxDuration)
     config match {
       case Config(Some(filename), true, _, _) =>

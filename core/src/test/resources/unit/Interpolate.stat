@@ -5,6 +5,7 @@ s"${a.foo[Bar]}"
 s"${a.foo[Bar]}"
 <<< xml
 <foobar>1</foobar>
+
 >>>
 <foobar>1</foobar>
 <<< with leading whitespace

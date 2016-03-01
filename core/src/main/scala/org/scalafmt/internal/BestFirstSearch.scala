@@ -38,6 +38,8 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
     *
     * If a solution is reaches a point at cost X then any other solution that
     * reaches the same token with a cost > X will be eliminated.
+    *
+    * TODO(olafur) benchmark this optimization, I think it doesn't give much.
     */
   val pruneNonOptimal = true && doOptimizations
 
@@ -98,7 +100,11 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
     def hasBestSolution = !pruneNonOptimal || insideOptimizationZone || {
       val splitToken = toks(curr.splits.length)
       // TODO(olafur) document why/how this optimization works.
-      !best.get(splitToken.left).exists(_.alwaysBetter(curr))
+      val result = !best.get(splitToken.left).exists(_.alwaysBetter(curr))
+      if (!result) {
+        logger.trace(s"Eliminated $curr ${curr.splits.last}")
+      }
+      result
     }
    hasBestSolution
   }
@@ -172,19 +178,17 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
       if (hasReachedEof(curr) ||
         toks(curr.splits.length).left.start >= stop.start) {
         result = curr
-        logger.trace(s"depth=$depth, result=$result ${toks.length}")
         Q.dequeueAll
         Unit
       } else if (shouldEnterState(curr)) {
         val splitToken = toks(curr.splits.length)
         if (depth == 0 && curr.splits.length > deepestYet.splits.length) {
           deepestYet = curr
-          // Only dequeue if this solution is the deepest solution so far.
         }
 
         if (dequeOnNewStatements &&
-          (depth > 0 || !isInsideNoOptZone(splitToken) || Q.size > maxQueueSize) &&
           statementStarts.contains(hash(splitToken.left)) &&
+          (depth > 0 || !isInsideNoOptZone(splitToken) || Q.size > maxQueueSize) &&
           curr.splits.last.modification.isNewline ) {
           Q.dequeueAll
         }
@@ -225,7 +229,7 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
           actualSplit.foreach { split =>
             val nextState = curr.next(style, split, splitToken)
             // TODO(olafur) convince myself this is safe.
-            if (split.modification.isNewline) {
+            if (depth == 0 && split.modification.isNewline) {
               best.update(splitToken.left, nextState)
             }
             if (style.debug) {
@@ -233,21 +237,23 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
             }
             split.optimalAt match {
               case Some(token) if actualSplit.length > 1 && split.cost == 0 =>
-                val nextNextState = shortestPath(nextState, token, depth + 1, maxCost = 0)
-                if (nextNextState.splits.length < toks.length &&
-                  toks(nextNextState.splits.length).left == token) {
+                val nextNextState = shortestPath(nextState, token, depth + 1, maxCost = 0)(sourcecode.Line.generate)
+                if (hasReachedEof(nextNextState) ||
+                  (nextNextState.splits.length < toks.length &&
+                    toks(nextNextState.splits.length).left.start >= token.start)) {
                   optimalNotFound = false
                   Q.enqueue(nextNextState)
                 } else if (nextState.cost - curr.cost <= maxCost) {
                   // TODO(olafur) DRY. This solution can still be optimal.
                   Q.enqueue(nextState)
-                  logger.trace(s"$nextState ${curr.splits.length} ${toks.length}")
+                } else {
+                  logger.trace(s"$split depth=$depth $nextState ${nextState.splits.length} ${toks.length}")
                 }
               case _ if optimalNotFound && nextState.cost - curr.cost <= maxCost =>
                 Q.enqueue(nextState)
                 logger.trace(s"$line depth=$depth $nextState ${nextState.splits.length} ${toks.length}")
               case _ => // Other split was optimal
-                logger.trace(s"depth=$depth $nextState ${curr.splits.length} ${toks.length}")
+                logger.trace(s"$split depth=$depth $nextState ${nextState.splits.length} ${toks.length}")
             }
           }
         }
@@ -260,23 +266,27 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
   def formatTree(): String = {
     var state = shortestPath(State.start, tree.tokens.last)
     if (state.splits.length != toks.length) {
+      val nextSplits = router.getSplits(toks(deepestYet.splits.length))
+      val tok = toks(deepestYet.splits.length)
+      val msg =
+        s"""UNABLE TO FORMAT,
+            |tok=$tok
+            |state.length=${state.splits.length}
+            |toks.length=${toks.length}
+            |deepestYet.length=${deepestYet.splits.length}
+            |policies=${deepestYet.policy.policies}
+            |nextSplits=$nextSplits
+            |splitsAfterPolicy=${deepestYet.policy.execute(Decision(tok, nextSplits))}
+            |Output:
+            |${mkString(deepestYet.splits)}
+            |""".stripMargin
       if (style.debug) {
+        logger.warn(
+          s"""Failed to format
+            |$msg
+          """.stripMargin)
         state = deepestYet
-//        val ft = toks(state.splits.length)
-//        val nextSplits = router.getSplits(ft)
-//        logger.debug(s"$nextSplits")
-//        logger.debug(s"${state.policy.execute(Decision(ft, nextSplits))}")
-//        val nextStates = nextSplits.map(state.next(style, _, ft))
-//        logger.debug(s"$state $nextStates ${shouldRecurseOnBlock(state, tree.tokens.last)}")
       } else {
-        val msg =
-          s"""UNABLE TO FORMAT,
-              |state.length=${state.splits.length}
-              |toks.length=${toks.length}
-              |deepestYet.length=${deepestYet.splits.length}
-              |Output:
-              |${mkString(deepestYet.splits)}
-              |""".stripMargin
         throw Error.CantFormatFile(msg)
       }
     }
@@ -285,7 +295,8 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
       Debug.state = state
       Debug.tokens = toks
     }
-    mkString(state.splits)
+    val formatted = mkString(state.splits)
+    formatted
   }
 
   private def mkString(splits: Vector[Split]): String = {

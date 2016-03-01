@@ -1,5 +1,6 @@
 package org.scalafmt
 
+import org.scalafmt.Error.UnknownStyle
 import org.scalafmt.internal.ScalaFmtLogger
 import org.scalafmt.util.DiffTest
 import org.scalafmt.util.FilesUtil
@@ -8,6 +9,7 @@ import org.scalafmt.util.HasTests
 object UnitTests extends HasTests with ScalaFmtLogger {
 
   import FilesUtil._
+
 
   // TODO(olafur) make possible to limit states per unit test.
   override lazy val tests: Seq[DiffTest] = {
@@ -25,7 +27,7 @@ object UnitTests extends HasTests with ScalaFmtLogger {
         val moduleSkip = isSkip(content)
 
         content.split("\n<<< ").tail.map { t =>
-          val before :: expected :: Nil = t.split(">>>\n", 2).toList
+          val before :: expected :: Nil = t.split("\n>>>\n", 2).toList
           val name :: original :: Nil = before.split("\n", 2).toList
           val actualName = stripPrefix(name)
           DiffTest(spec,
@@ -46,9 +48,10 @@ object UnitTests extends HasTests with ScalaFmtLogger {
   def file2style(filename: String): ScalaStyle =
     filename.split("/").reverse(1) match {
       case "unit" => ScalaStyle.UnitTest40
-      case "standard" => ScalaStyle.UnitTest80
-      case _ =>
-        logger.debug(s"Unknown dir $filename")
-        ???
+      case "default" | "standard" => ScalaStyle.UnitTest80
+      case "scala" => ScalaStyle.UnitTest80
+      case "scalajs" => ScalaStyle.ScalaJs
+      case style =>
+        throw UnknownStyle(style)
     }
 }

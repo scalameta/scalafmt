@@ -24,7 +24,7 @@ object Error extends ScalaFmtLogger {
         |=====================
         |$diff
         |=====================
-        |${output.lines.toVector.take(10).mkString("\n")}
+        |${output.lines.toVector.mkString("\n")}
         |=====================
         |Formatter changed AST
       """.stripMargin)
@@ -41,5 +41,8 @@ object Error extends ScalaFmtLogger {
 
   case class NoopDefaultPolicyApplied(decision: Decision)
     extends Error(s"Default policy run on $decision")
+
+  case class UnknownStyle(style: String)
+    extends Error(s"Don't understand style $style")
 
 }
