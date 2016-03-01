@@ -108,6 +108,8 @@ To run main formatting tests:
 ### Updates (mostly for myself)
 
 * March 1st
+  * See [scalafmt formatted with scalafmt][format-with-scalafmt]. Still have a few
+    things to fix before merging that branch.
   * Can format all files in Scala.js!
 ```
 Scala.js
@@ -136,10 +138,6 @@ ScalaJSClassEmitter.scalariform  avgt   10    37.935 ±   4.010  ms/op
 
 Note. JavaLangString didn't terminate before.
 ```
-  * See [scalafmt formatted with scalafmt][format-with-scalafmt]. Still have a few
-    things to fix before merging "bootstrap".
-  
-[format-with-scalafmt]: https://github.com/olafurpg/scalafmt/compare/format-with-scalafmt?expand=1
 
 * Feb 26th
   * Able to format 916 of 920 files in Scala.js! And 75 percentile format in
@@ -340,5 +338,6 @@ Utils.scalariform            avgt   10     4.214 ±   0.096  ms/op
   * Still haven't covered some common cases (like breaking before `.` in
   `a.b(c)`), so the output looks weird in some cases.
 
+[format-with-scalafmt]: https://github.com/olafurpg/scalafmt/compare/format-with-scalafmt?expand=1
 [scalajs]: https://github.com/scala-js/scala-js
 [journal]: http://journal.stuffwithstuff.com/2015/09/08/the-hardest-program-ive-ever-written/
