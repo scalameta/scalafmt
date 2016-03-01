@@ -47,7 +47,22 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
   val dequeOnNewStatements = true && doOptimizations
 
   /**
-    * Recursively format {} wrapped blocks inside no optimization zones.
+    * Dequeue on new statements if queue exceeds this size,
+    *
+    * Overrides [[dequeOnNewStatements]], appears necessary in cases like
+    * JavaLangObject.scala in Scala.js.
+    *
+    * TODO(olafur) come up with less hacky solution.
+    */
+  val maxQueueSize = 555
+
+  /**
+    * Do not optimize inside certain areas such as term apply.
+    */
+  val disableOptimizationsInsideSensitiveAreas = true && doOptimizations
+
+  /**
+    * Recursively format { ... } blocks inside no optimization zones.
     *
     * By starting a new search queue, we can perform aggressive optimizations
     * inside optimizations zones.
@@ -70,7 +85,7 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
 
 
   def isInsideNoOptZone(token: FormatToken): Boolean = {
-    noOptimizations.contains(token.left)
+    !disableOptimizationsInsideSensitiveAreas || noOptimizations.contains(token.left)
   }
 
   /**
@@ -152,7 +167,7 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
       val curr = Q.dequeue()
       explored += 1
       if (explored % 10000 == 0 && style.debug) {
-        logger.debug(s"Explored $explored")
+        logger.debug(s"Explored $explored, depth=$depth Q.size=${Q.size}")
       }
       if (hasReachedEof(curr) ||
         toks(curr.splits.length).left.start >= stop.start) {
@@ -168,7 +183,7 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
         }
 
         if (dequeOnNewStatements &&
-          (depth > 0 || !isInsideNoOptZone(splitToken)) &&
+          (depth > 0 || !isInsideNoOptZone(splitToken) || Q.size > maxQueueSize) &&
           statementStarts.contains(hash(splitToken.left)) &&
           curr.splits.last.modification.isNewline ) {
           Q.dequeueAll
@@ -218,7 +233,7 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
             }
             split.optimalAt match {
               case Some(token) if actualSplit.length > 1 && split.cost == 0 =>
-                val nextNextState = shortestPath(nextState, token, depth, maxCost = 0)
+                val nextNextState = shortestPath(nextState, token, depth + 1, maxCost = 0)
                 if (nextNextState.splits.length < toks.length &&
                   toks(nextNextState.splits.length).left == token) {
                   optimalNotFound = false

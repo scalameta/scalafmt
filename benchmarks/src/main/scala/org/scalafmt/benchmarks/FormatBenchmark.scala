@@ -76,16 +76,8 @@ abstract class FormatBenchmark(path: String*) {
 
 object run {
 
-  // Scala-js benchmarks
   abstract class ScalaJsBenchmark(filename: String)
     extends FormatBenchmark("scala-js", filename)
-
-
-//  class Division extends ScalaJsBenchmark("Division.scala")
-//
-//  class SourceMapWriter extends ScalaJsBenchmark("SourceMapWriter.scala")
-//
-//  class BaseLinker extends ScalaJsBenchmark("BaseLinker.scala")
 
   class OptimizerCore extends ScalaJsBenchmark("OptimizerCore.scala")
 
@@ -93,16 +85,7 @@ object run {
 
   class ScalaJSClassEmitter extends ScalaJsBenchmark("ScalaJSClassEmitter.scala")
 
-  // These files are too small to be interesting.
-  //  class Basic extends FormatBenchmark("scalafmt", "Basic.scala")
-  //  class Utils extends ScalaJsBenchmark("Utils.scala")
-  //  class JsDependency extends ScalaJsBenchmark("JSDependency.scala")
-  //  class Semantics extends ScalaJsBenchmark("Semantics.scala")
+  class JavaLangString extends ScalaJsBenchmark("JavaLangString.scala")
 
-  // Scalafmt can't format these, yet.
-  //  class TypeKinds extends ScalaJsBenchmark("TypeKinds.scala")
-  //  class Analyzer extends ScalaJsBenchmark("Analyzer.scala")
-  //  class Trees extends ScalaJsBenchmark("Trees.scala")
-  //  class CopyOnWriteArrayList extends ScalaJsBenchmark("CopyOnWriteArrayList.scala")
 }
 
