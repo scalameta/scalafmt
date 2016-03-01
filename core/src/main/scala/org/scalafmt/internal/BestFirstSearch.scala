@@ -289,7 +289,16 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
     var inside = false
     var expire = tree.tokens.head
     tree.tokens.foreach {
-      case t: `(` if owners(hash(t)).isInstanceOf[Term.Apply] && !inside =>
+      case t
+        if !inside &&  ((t, owners(hash(t))) match {
+          case (_: `(`,  _: Term.Apply) =>
+            // TODO(olafur) https://github.com/scalameta/scalameta/issues/345
+            val x = true; x
+          // Type compounds can be inside defn.defs
+          // TODO(olafur) what about large type aliases?
+          case (_: `{`,  _: Type.Compound) => true
+          case _ => false
+        }) =>
         inside = true
         expire = matchingParentheses(hash(t))
       case x if x == expire =>
@@ -305,11 +314,13 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
 
 object BestFirstSearch extends ScalaFmtLogger {
 
+
   def extractStatementsIfAny(tree: Tree): Seq[Tree] = tree match {
     case b: Term.Block => b.stats
     case t: Pkg => t.stats
-    case t: Term.For => t.enums.filter(_.isInstanceOf[Enumerator.Generator])
-    case t: Term.ForYield => t.enums.filter(_.isInstanceOf[Enumerator.Generator])
+    // TODO(olafur) would be nice to have an abstract "For" superclass.
+    case t: Term.For => t.enums.filterNot(_.isInstanceOf[Enumerator.Guard])
+    case t: Term.ForYield => t.enums.filterNot(_.isInstanceOf[Enumerator.Guard])
     case t: Term.Match => t.cases
     case t: Term.PartialFunction => t.cases
     case t: Term.TryWithCases => t.catchp

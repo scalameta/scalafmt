@@ -60,3 +60,15 @@ val k = for {
               cccccccc) if one
   _ <- Future(2)
 } yield ()
+<<< enumerator val
+for {
+          srcDir <- sourceDirectories
+          normSrcDir = normPath(srcDir)
+          src <- (srcDir ** "*.scala").get
+        } Unit
+>>>
+for {
+  srcDir <- sourceDirectories
+  normSrcDir = normPath(srcDir)
+  src <- (srcDir ** "*.scala").get
+} Unit
