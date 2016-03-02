@@ -64,7 +64,7 @@ abstract class FormatBenchmark(path: String*) {
   @Benchmark
   def scalafmt(): String = {
     ScalaFmt.format_![Source](code,
-      ScalaStyle.Standard)(scala.meta.parsers.parseSource)
+      ScalaStyle.Default)(scala.meta.parsers.parseSource)
   }
 
   // No need to run same benchmark again and again.

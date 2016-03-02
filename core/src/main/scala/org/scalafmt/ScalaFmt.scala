@@ -37,7 +37,7 @@ object ScalaFmt extends ScalaFmtLogger {
     * @return The code formatted if successful, the original code otherwise.
     */
   def format(code: String,
-             style: ScalaStyle = ScalaStyle.Standard,
+             style: ScalaStyle = ScalaStyle.Default,
              range: Set[Range] = Set.empty[Range],
              maxDuration: Duration = Duration(400, "ms")): String = {
     try {

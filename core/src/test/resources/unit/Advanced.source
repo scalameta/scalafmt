@@ -30,7 +30,7 @@
 object a extends b with c {
 
   def foo[T : Int#Double#Triple,
-      R <% String](
+          R <% String](
       @annot1 x: Int @annot2 = 2,
       y: Int = 3): Int = {
     "match" match {

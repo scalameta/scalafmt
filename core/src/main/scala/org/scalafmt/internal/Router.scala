@@ -9,6 +9,7 @@ import scala.collection.mutable
 import scala.language.implicitConversions
 import scala.meta.Tree
 import scala.meta.internal.ast.Case
+import scala.meta.internal.ast.Ctor
 import scala.meta.internal.ast.Decl
 import scala.meta.internal.ast.Defn
 import scala.meta.internal.ast.Enumerator
@@ -245,24 +246,16 @@ class Router(style: ScalaStyle,
           Split(Space, 0).withIndent(4, expire, Left)
         )
       case FormatToken(_: `(`, _, _)
-        if (leftOwner match {
-          case _: Decl.Def | _: Defn.Def => true
-          case _ if leftOwner.parent.exists(_.isInstanceOf[Defn.Class]) => true
-          case _ => false
-        }) =>
+        if style.binPackParameters && isDefnSite(leftOwner) =>
         Seq(
           Split(NoSplit, 0),
-          Split(Newline, 1)
+          Split(Newline, 1) // indent handled by name of def/class.
         )
       // DefDef
       //     TODO(olafur) Naive match, can be 1) comment between 2) abstract decl.
       case tok@FormatToken(d: `def`, name: Ident, _) =>
-        val owner = leftOwner
-        val expire = owner.tokens.
-          find(t => t.isInstanceOf[`=`] && owners(t) == owner)
-          .getOrElse(owner.tokens.last)
         Seq(
-          Split(Space, 0).withIndent(4, expire, Left)
+          Split(Space, 0).withIndent(4, defnSiteLastToken(leftOwner), Left)
         )
       case tok@FormatToken(e: `=`, _, _) if leftOwner.isInstanceOf[Defn.Def] =>
         val expire = leftOwner.asInstanceOf[Defn.Def].body.tokens.last
@@ -274,19 +267,26 @@ class Router(style: ScalaStyle,
         Seq(
           Split(NoSplit, 0)
         )
-      case tok@FormatToken(open: `(`, _, _) if leftOwner.isInstanceOf[Defn] ||
-        leftOwner.parent.exists(_.isInstanceOf[Defn.Class]) =>
+      case tok@FormatToken(open: `(`, _, _)
+        if style.binPackParameters && isDefnSite(leftOwner) =>
         Seq(
           Split(NoSplit, 0)
         )
-      // TODO(olafur) Split this up.
       // Term.Apply and friends
+      case FormatToken(_: `(` | _: `[`, _, _)
+        if style.binPackArguments && isCallSite(leftOwner) =>
+        val open = formatToken.left
+        val close = matchingParentheses(hash(open))
+        val optimal = leftOwner.tokens
+          .find(_.isInstanceOf[`,`])
+          .orElse(Some(close))
+        Seq(
+          Split(NoSplit, 0, optimalAt = optimal).withIndent(4, close, Left),
+          Split(Newline, 1).withIndent(4, close, Left)
+        )
       case tok@FormatToken(_: `(` | _: `[`, right, between)
-        if leftOwner.isInstanceOf[Term.Apply] ||
-          leftOwner.isInstanceOf[Pat.Extract] ||
-          leftOwner.isInstanceOf[Pat.Tuple] ||
-          leftOwner.isInstanceOf[Term.Tuple] ||
-          leftOwner.isInstanceOf[Term.ApplyType] =>
+        if (!style.binPackArguments && isCallSite(leftOwner)) ||
+          (!style.binPackParameters && isDefnSite(leftOwner)) =>
         val open = tok.left.asInstanceOf[Delim]
         val (lhs, args): (Tree, Seq[Tree]) = leftOwner match {
           case t: Term.Apply => t.fun -> t.args
@@ -295,12 +295,23 @@ class Router(style: ScalaStyle,
           case t: Term.ApplyType => t -> t.targs
           case t: Term.Tuple => t -> t.elements
           case t: Type.Apply => t.tpe -> t.args
+          // TODO(olafur) flatten correct? Filter by this () section?
+          case t: Defn.Def => t.name -> t.paramss.flatten
+          case t: Decl.Def => t.name -> t.paramss.flatten
+          case t: Defn.Class => t.name -> t.ctor.paramss.flatten
+          case t: Ctor.Primary => t.name -> t.paramss.flatten
+          case x =>
+            logger.error(
+              s"""Unknown tree
+                 |${log((x.parent.get))}
+                 |${isDefnSite(leftOwner)}""".stripMargin)
+            ???
         }
         val close = matchingParentheses(hash(open))
-        // TODO(olafur) recursively?
         // In long sequence of select/apply, we penalize splitting on
         // parens furthest to the right.
         val lhsPenalty = treeDepth(lhs)
+
         val bracketPenalty = open match {
           case _: `[` => 1
           case _ => 0
@@ -311,6 +322,7 @@ class Router(style: ScalaStyle,
         val indent = leftOwner match {
           case _: Pat => Num(0) // Indentation already provided by case.
           // TODO(olafur) This is an odd rule, when is it wrong?
+          case x if isDefnSite(x) => Num(0)
           case _ => Num(4)
         }
         val singleArgument = args.length == 1
@@ -326,19 +338,25 @@ class Router(style: ScalaStyle,
             Decision(t, Seq(Split(Newline, 0)))
         })
         val closeFormatToken = prev(leftTok2tok(close))
+
         val isConfigStyle =
-          newlinesBetween(between) > 0 &&
+          style.configStyleArguments &&
+            newlinesBetween(between) > 0 &&
             newlinesBetween(closeFormatToken.between) > 0
 
         val modification =
           if (right.isInstanceOf[Comment]) newlines2Modification(between)
           else NoSplit
+
         val charactersInside = (close.start - open.end) - 2
         val fitsOnOneLine =
           singleArgument || exclude.nonEmpty || charactersInside <= style.maxColumn
+
         // TODO(olafur) ignoreIf: State => Boolean?
-        val optimalToken = Some(rhsOptimalToken(leftTok2tok(close)))
-        logger.trace(s"$tok ${leftTok2tok(optimalToken.get)}")
+        val optimalToken =
+          if (isDefnSite(leftOwner)) Some(defnSiteLastToken(leftOwner))
+          else Some(rhsOptimalToken(leftTok2tok(close)))
+
         Seq(
           Split(modification, 0, policy = singleLine,
             ignoreIf = !fitsOnOneLine || isConfigStyle, optimalAt = optimalToken)
@@ -375,8 +393,20 @@ class Router(style: ScalaStyle,
         // TODO(olafur) DRY, see OneArgOneLine.
         val rhsIsAttachedComment =
           tok.right.isInstanceOf[Comment] && newlinesBetween(tok.between) == 0
+        val endOfArgument = findFirst(next(tok), leftOwner.tokens.last) {
+          case FormatToken(expire: `,`, _, _) if owners(expire) == leftOwner =>
+            true
+          case FormatToken(expire: `)`, _, _) if owners(expire) == leftOwner =>
+            true
+          case _ => false
+        }
+        val singleLineToEndOfArg: Policy = endOfArgument
+          .map(expire => SingleLineBlock(expire.left))
+          .getOrElse(NoPolicy)
+        val optimalToken = endOfArgument.map(_.left)
         Seq(
-          Split(Space, 0),
+          Split(Space, 0, optimalAt = optimalToken)
+            .withPolicy(singleLineToEndOfArg),
           Split(Newline, 1, ignoreIf = rhsIsAttachedComment)
         )
       case FormatToken(_, _: `;`, _) => Seq(
@@ -753,6 +783,17 @@ class Router(style: ScalaStyle,
   }
 
   @tailrec
+  final def findFirst(start: FormatToken, end: Token)(f: FormatToken => Boolean): Option[FormatToken] = {
+    if (start.left.start < end.start) None
+    else if (f(start)) Some(start)
+    else {
+      val next_ = next(start)
+      if (next_ == start) None
+      else findFirst(next_, end)(f)
+    }
+  }
+
+  @tailrec
   final def nextNonComment(curr: FormatToken): FormatToken = {
     if (!curr.right.isInstanceOf[Comment]) curr
     else {
@@ -838,8 +879,10 @@ class Router(style: ScalaStyle,
                       exclude: Set[Range] = Set.empty)
                      (implicit line: sourcecode.Line): Policy = {
     Policy({
-      case Decision(tok, splits) if exclude.forall(!_.contains(tok.left.start)) &&
-        tok.right.end <= expire.end =>
+      case Decision(tok, splits)
+        if exclude.forall(!_.contains(tok.left.start)) &&
+          !tok.right.isInstanceOf[EOF] &&
+          tok.right.end <= expire.end =>
         Decision(tok, splits.filterNot(_.modification.isNewline))
     }, expire.end, noDequeue = exclude.isEmpty)
   }
@@ -960,6 +1003,26 @@ class Router(style: ScalaStyle,
 
   def isAttachedComment(token: Token, between: Vector[Whitespace]) =
     isInlineComment(token) && newlinesBetween(between) == 0
+
+  def isDefnSite(tree: Tree): Boolean = tree match {
+    case _: Decl.Def | _: Defn.Def | _: Defn.Class => true
+    case x: Ctor.Primary if x.parent.exists(_.isInstanceOf[Defn.Class]) =>
+      true
+    case _ => false
+  }
+
+  def isCallSite(tree: Tree): Boolean = tree match {
+    case _: Term.Apply | _: Pat.Extract | _: Pat.Tuple | _: Term.Tuple |
+         _: Term.ApplyType => true
+    case _ => false
+  }
+
+  def defnSiteLastToken(tree: Tree): Token = {
+    tree.tokens.
+      find(t => t.isInstanceOf[`=`] && owners(t) == tree)
+      .getOrElse(tree.tokens.last)
+  }
+
 
   // Used for convenience when calling withIndent.
   private implicit def int2num(n: Int): Num = Num(n)

@@ -77,9 +77,7 @@ case class Split(modification: Modification, cost: Int,
       this.line.value == other.line.value &&
       this.cost == other.cost
 
-  def hasPolicy = policy ne NoPolicy
-
   override def toString =
-    s"""$modification:${line.value}(cost=$cost, indents=$indentation, p=$hasPolicy)"""
+    s"""$modification:${line.value}(cost=$cost, indents=$indentation, $policy)"""
 
 }

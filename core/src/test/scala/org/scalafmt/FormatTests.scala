@@ -32,8 +32,11 @@ class FormatTests
   lazy val onlyUnit = UnitTests.tests.exists(_.only)
   lazy val onlyManual = ManualTests.tests.exists(_.only)
   lazy val onlyOne = tests.exists(_.only)
-
   lazy val debugResults = mutable.ArrayBuilder.make[Result]
+
+  def ignore(t: DiffTest): Boolean = {
+    false
+  }
 
   override val tests = {
     if (onlyManual && !onlyUnit) ManualTests.tests
@@ -50,7 +53,10 @@ class FormatTests
 
   def runTest(t: DiffTest): Unit = {
     val paddedName = f"${t.fullName}%-70s|"
-    if (t.skip) {
+
+    if (ignore(t)) {
+      // Not even ignore(t), save console space.
+    } else if (t.skip) {
       ignore(paddedName) {}
     }
     else {

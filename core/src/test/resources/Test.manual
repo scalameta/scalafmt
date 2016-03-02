@@ -3,6 +3,7 @@ SKIP benchmarks/src/resources/scala-js/GenJsCode.scala
 SKIP benchmarks/src/resources/scala-js/OptimizerCore.scala
 SKIP benchmarks/src/resources/scala-js/JavaLangString.scala
 SKIP benchmarks/src/resources/scala-js/Primality.scala
+SKIP core/src/main/scala/org/scalafmt/internal/Decision.scala
 SKIP core/src/main/scala/org/scalafmt/internal/BestFirstSearch.scala
 SKIP https://raw.githubusercontent.com/scala-js/scala-js/5d447c8851abcdf513605fe1f61075e83c22ebe4/project/JavaLangString.scala
 SKIP https://raw.githubusercontent.com/scala-js/scala-js/5d447c8851abcdf513605fe1f61075e83c22ebe4/project/JavaLangObject.scala
@@ -10,3 +11,4 @@ SKIP https://raw.githubusercontent.com/scala-js/scala-js/5d447c8851abcdf513605fe
 SKIP https://raw.githubusercontent.com/scala-js/scala-js/5d447c8851abcdf513605fe1f61075e83c22ebe4/tools/shared/src/main/scala/org/scalajs/core/tools/linker/backend/emitter/JSDesugaring.scala
 SKIP https://raw.githubusercontent.com/scala-js/scala-js/19c1793b3fa93e145ba02eba703b0dcfdb63316c/tools/shared/src/main/scala/org/scalajs/core/tools/linker/backend/emitter/JSDesugaring.scala
 SKIP https://raw.githubusercontent.com/scala-js/scala-js/19c1793b3fa93e145ba02eba703b0dcfdb63316c/tools/shared/src/main/scala/org/scalajs/core/tools/linker/backend/emitter/JSDesugaring.scala
+SKIP https://raw.githubusercontent.com/scala-js/scala-js/19c1793b3fa93e145ba02eba703b0dcfdb63316c/library/src/main/scala/scala/scalajs/js/typedarray/TypedArrayBufferOps.scala

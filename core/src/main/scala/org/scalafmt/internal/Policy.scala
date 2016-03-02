@@ -25,6 +25,9 @@ object Policy {
     case d =>
       throw NoopDefaultPolicyApplied(d)
   }
-  val empty = Policy(IdentityPolicy, Integer.MAX_VALUE)
+  val empty = new Policy(IdentityPolicy, Integer.MAX_VALUE) {
+    override def toString: String = "NoPolicy"
+  }
+
 }
 
