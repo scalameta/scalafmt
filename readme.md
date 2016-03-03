@@ -5,11 +5,10 @@
 > -- Bob Nystrom, ["Hardest Program I've Ever Written"][journal],
 >    Dart Team, Google.
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.geirsson/scalafmt-core_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.geirsson/scalafmt-core_2.11)
 [![codecov.io](https://codecov.io/github/olafurpg/scalafmt/coverage.svg?branch=master)](https://codecov.io/github/olafurpg/scalafmt?branch=master)
 [![Build Status](https://travis-ci.org/olafurpg/scalafmt.svg?branch=master)](https://travis-ci.org/olafurpg/scalafmt)
 [![Join the chat at https://gitter.im/olafurpg/scalafmt](https://badges.gitter.im/olafurpg/scalafmt.svg)](https://gitter.im/olafurpg/scalafmt?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Codacy Badge](https://api.codacy.com/project/badge/grade/7461ebc94f9a4db6ac91befb5bc98e4c)](https://www.codacy.com/app/olafurpg/scalafmt)
-
 
 ### Overview
 Scalafmt is a code formatter for Scala that aims to make your code look
@@ -19,41 +18,53 @@ scalafmt makes them short again.
 ![scalafmt](https://cloud.githubusercontent.com/assets/1408093/12928034/99d3ffe8-cf6b-11e5-9ec5-42de7c4e0155.gif)
 
 ### ![warning][warning]Under construction![warning][warning]
-Warning. This project is under active development and is not production ready.
-
-[warning]: https://cdn3.iconfinder.com/data/icons/fatcow/32x32_0400/error.png
+This project is under active development and is not production ready.
 
 Main issues:
+* Struggles with computer generated code like [here][any] and [here][pain]. 
+* The output is still evolving.
+* There are few configuration options.
 
-* Still painstakingly slow for [massive bodies inside term applications][emitter]
-* The output is not always aesthetically pleasing (fixing exponential growth
-  issues first).
+[warning]: https://cdn3.iconfinder.com/data/icons/fatcow/32x32_0400/error.png
+[any]: https://raw.githubusercontent.com/scala-js/scala-js/f27a42c6aa83833bb44e9efe8d58b426131893f9/library/src/main/scala/scala/scalajs/js/ThisFunction.scala
+[pain]: https://gist.github.com/olafurpg/00ce1601a7e213141f25#file-prettyprinthack-scala-L10
 
-### Documentation
-For now, [the tests](core/src/test/resources) are the most up-to-date documentation.
+### Use as a library
+Latest release: 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.geirsson/scalafmt-core_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.geirsson/scalafmt-core_2.11)
 
-### Contributing
+```scala
+// build.sbt
+libraryDependencies += "com.geirsson" %% "scalafmt" % "XXX"
 
-* `core/testOnly org.scalafmt.FormatTests`: runs the fast, most relevant, unit tests.
-* `core/testOnly org.scalafmt.FidelityTest`: runs the formatter on all files in
-  this project.
-* `run-benchmarks.sh` script to run jmh benchmarks.
-* `core/test:runMain  org.scalafmt.FormatExperiment`: clones Scala.js, runs
-  formatter on all cloned files and prints summary.
+// Example usage
+scala> org.scalafmt.ScalaFmt.format("""
+object FormatMe { List(Split(Space, 0).withPolicy(SingleLineBlock(close)), Split(Newline, 1).withPolicy{ case Decision(t@FormatToken(_, `close`, _), s) => Decision(t, List(Split(Newline, 0)))}.withIndent(2, close, Right)) }
+""")
+result: String = """
+object FormatMe {
+  List(Split(Space, 0).withPolicy(SingleLineBlock(close)),
+       Split(Newline, 1).withPolicy {
+         case Decision(t@FormatToken(_, `close`, _), s) =>
+           Decision(t, List(Split(Newline, 0)))
+       }.withIndent(2, close, Right))
+}
+"""
+```
 
-### Installation
+There is only one supported style at the moment: `ScalaStyle.Default`.
 
-*NOTE.* Installing is awkward at the moment. It will get easier once the tool matures.
+Feel free to post an issue if you want a custom style.
 
-There are two options:
+### Install binary
 
-1. Build from source (recommended)
-  * clone the repo
-  * run `sbt assembly`, master branch should pass tests
-  * `target/scala-2.11/scalafmt.jar` should exist
-2. Download pre-built scalafmt.jar
-  * Go to [releases](https://github.com/olafurpg/scalafmt/releases) and
-    download the latest `scalafmt.jar`.
+Build `scalafmt` from source:
+
+* clone the repo
+* run `sbt assembly`, master branch should pass tests
+* `target/scala-2.11/scalafmt.jar` should exist
+
+**Note.** It will get easier soon, promise!
 
 ### Create scalafmt executable
 
@@ -99,8 +110,27 @@ let g:formatters_scala = ['scalafmt']
 
 <img width="513" alt="scalafmt-intellij3" src="https://cloud.githubusercontent.com/assets/1408093/12949347/9c07dda6-d007-11e5-96d4-8cd53394a52c.png">
 
+### Documentation
+For now, [the tests](core/src/test/resources) are the most up-to-date documentation.
+
+### Contributing
+
+* `core/testOnly org.scalafmt.FormatTests`: runs the fast, most relevant, unit tests.
+    * After each run, a performance report is generated in `target/index.html`. 
+    I usually keep a browser tab open at `localhost:3000/target/index.html`
+    along with this background process:
+    `browser-sync start --server --files "target/*.html"`.
+    See [Browsersync](https://www.browsersync.io/).
+* `core/testOnly org.scalafmt.FidelityTest`: runs the formatter on all files in
+  this project.
+* `run-benchmarks.sh` script to run jmh benchmarks.
+* `core/test:runMain  org.scalafmt.FormatExperimentApp`: clones Scala.js, runs
+  formatter on all cloned files and prints summary.
+
 ### Updates (mostly for myself)
 
+* March 3st
+  * Published release candidate to Maven Central.
 * March 1st
   * See [scalafmt formatted with scalafmt][format-with-scalafmt]. Still have a few
     things to fix before merging that branch.

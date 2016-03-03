@@ -68,7 +68,8 @@ trait ScalaProjectsExperiment extends ScalaFmtLogger {
     checkRepo("https://github.com/saddle/saddle")
     checkRepo("https://github.com/sbt/sbt", sbtIgnore)
     checkRepo("https://github.com/scala-ide/scala-ide")
-    checkRepo("https://github.com/scala-js/scala-js")
+    checkRepo("https://github.com/scala-js/scala-js",
+      commit = "f27a42c6aa83833bb44e9efe8d58b426131893f9")
     checkRepo("https://github.com/scala/pickling")
     checkRepo("https://github.com/scala/scala", scalaIgnore)
     checkRepo("https://github.com/scalafx/scalafx")
@@ -84,7 +85,9 @@ trait ScalaProjectsExperiment extends ScalaFmtLogger {
     checkRepo("https://github.com/twitter/util")
   }
 
-  private def checkRepo(url: String, filter: String => Boolean = _ => true): Unit = {
+  private def checkRepo(url: String,
+                        filter: String => Boolean = _ => true,
+                        commit: String = "master"): Unit = {
     if (skipProject(url)) return
     import FilesUtil._
 
@@ -97,6 +100,8 @@ trait ScalaProjectsExperiment extends ScalaFmtLogger {
       val exit =
         List("git", "clone", url, "target/repos/" + name, "--depth", "1").!
     }
+    // Avoid flakiness.
+    Seq("git", s"--git-dir=$path/.git", s"checkout", commit).!
     val branch = Seq("git", s"--git-dir=$path/.git", "rev-parse", "HEAD").!!
     println("Checking project " + name)
     val files = listFiles(path).withFilter(x => filter(x) &&

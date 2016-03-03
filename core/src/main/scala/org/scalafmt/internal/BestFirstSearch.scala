@@ -277,8 +277,6 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
             |policies=${deepestYet.policy.policies}
             |nextSplits=$nextSplits
             |splitsAfterPolicy=${deepestYet.policy.execute(Decision(tok, nextSplits))}
-            |Output:
-            |${mkString(deepestYet.splits)}
             |""".stripMargin
       if (style.debug) {
         logger.warn(

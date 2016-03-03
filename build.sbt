@@ -1,6 +1,6 @@
 lazy val buildSettings = Seq(
-  organization := "org.scalafmt",
-  version := "0.1.0-SNAPSHOT",
+  organization := "com.geirsson",
+  version := "0.1.0-RC2",
   scalaVersion := "2.11.7",
   updateOptions := updateOptions.value.withCachedResolution(true),
   // Many useful rules are ignored, at least they're explicitly ignored.
@@ -46,28 +46,40 @@ lazy val commonSettings = Seq(
   testOptions in Test += Tests.Argument("-oD")
 )
 
-// Haven't published yet.
 lazy val publishSettings = Seq(
+  publishMavenStyle := true,
+  publishArtifact := true,
+  publishTo := {
+    val nexus = "https://oss.sonatype.org/"
+    if (isSnapshot.value)
+      Some("snapshots" at nexus + "content/repositories/snapshots")
+    else
+      Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+  },
+  publishArtifact in Test := false,
+  licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+  homepage := Some(url("https://github.com/olafurpg/scalafmt")),
+  autoAPIMappings := true,
+  apiURL := Some(url("https://olafurpg.github.io/scalafmt/docs/")),
+  scmInfo := Some(
+    ScmInfo(
+      url("https://github.com/olafurpg/scalafmt"),
+      "scm:git:git@github.com:olafurpg/scalafmt.git"
+    )
+  ),
   pomExtra :=
-    <url>http://github.com/olafurpg/scalafmt</url>
-      <licenses>
-        <license>
-          <name>BSD-style</name>
-          <url>http://www.opensource.org/licenses/bsd-license.php</url>
-          <distribution>repo</distribution>
-        </license>
-      </licenses>
-      <scm>
-        <url>git@github.com:olafurpg/scalafmt.git</url>
-        <connection>scm:git:git@github.com:olafurpg/scalafmt.git</connection>
-      </scm>
-      <developers>
-        <developer>
-          <id>olafurpg</id>
-          <name>Ólafur Páll Geirsson</name>
-          <url>http://geirsson.com</url>
-        </developer>
-      </developers>
+    <developers>
+      <developer>
+        <id>olafurpg</id>
+        <name>Ólafur Páll Geirsson</name>
+        <url>https://geirsson.com</url>
+      </developer>
+    </developers>
+)
+
+lazy val noPublish = Seq(
+  publish := {},
+  publishLocal := {}
 )
 
 lazy val allSettings = commonSettings ++ buildSettings ++ publishSettings
@@ -76,6 +88,7 @@ lazy val allSettings = commonSettings ++ buildSettings ++ publishSettings
 lazy val root = project.in(file("."))
   .settings(moduleName := "scalafmt")
   .settings(allSettings)
+  .settings(noPublish)
   .settings(
     initialCommands in console :=
       """
@@ -111,6 +124,7 @@ lazy val core = project
 lazy val benchmarks = project
   .settings(moduleName := "scalafmt-benchmarks")
   .settings(allSettings)
+  .settings(noPublish)
   .settings(
     libraryDependencies ++= Seq(
       "org.scalariform" %% "scalariform" % Deps.scalariform,
@@ -136,3 +150,4 @@ lazy val benchmarks = project
     )
   ).dependsOn(core % "compile->test")
   .enablePlugins(JmhPlugin)
+

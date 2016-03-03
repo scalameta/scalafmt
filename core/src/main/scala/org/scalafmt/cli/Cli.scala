@@ -6,6 +6,9 @@ import org.scalafmt.ScalaFmt
 import org.scalafmt.ScalaStyle
 import org.scalafmt.internal.ScalaFmtLogger
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Await
+import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 
 
@@ -42,8 +45,10 @@ object Cli extends ScalaFmtLogger {
 
   def run(config: Config): Unit = {
     val code = getCode(config)
-    val output = ScalaFmt.format(code, ScalaStyle.Default,
-      config.range.toIterable.toSet, config.maxDuration)
+
+    val outputF = Future(ScalaFmt.format(code, ScalaStyle.Default,
+      config.range.toIterable.toSet))
+    val output = Await.result(outputF, config.maxDuration)
     config match {
       case Config(Some(filename), true, _, _) =>
         val path = java.nio.file.Paths.get(filename.toURI)

@@ -30,7 +30,9 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
     else Duration(20, "s")
 
   def ignore(filename: String): Boolean = Seq(
-    "emitter/JSDesugaring.scala"
+    "emitter/JSDesugaring.scala",
+    "js/ThisFunction.scala", // Computer generated.
+    "js/Any.scala" // Computer generated.
   ).exists(filename.contains)
 
   override def runOn(filename: String): Boolean = {
@@ -63,6 +65,7 @@ class FormatExperimentTest extends FunSuite with FormatExperiment {
         s"""Unexpected failure:
             |$failure""".stripMargin)
   }
+
   test("scalafmt formats all files in Scala.js") {
     runExperiment()
     results.toIterable.foreach(validate)
