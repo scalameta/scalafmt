@@ -18,18 +18,23 @@ scalafmt makes them short again.
 ![scalafmt](https://cloud.githubusercontent.com/assets/1408093/12928034/99d3ffe8-cf6b-11e5-9ec5-42de7c4e0155.gif)
 
 ### ![warning][warning]Under construction![warning][warning]
-This project is under active development and is not production ready.
-
-Main issues:
-* Struggles with computer generated code like [here][any] and [here][pain]. 
-* The output is still evolving.
-* There are few configuration options.
+This project is under active development. Issues I am aware of:
+* Tolerates badly computer generated code like [here][any] and
+  [here][pain].
+* Limited number of configuration options, there is only one supported
+  style: `ScalaStyle.Default`.
+ 
+For any questions, drop by the gitter channel.
 
 [warning]: https://cdn3.iconfinder.com/data/icons/fatcow/32x32_0400/error.png
 [any]: https://raw.githubusercontent.com/scala-js/scala-js/f27a42c6aa83833bb44e9efe8d58b426131893f9/library/src/main/scala/scala/scalajs/js/ThisFunction.scala
 [pain]: https://gist.github.com/olafurpg/00ce1601a7e213141f25#file-prettyprinthack-scala-L10
 
-### Use as a library
+## Installation
+
+Still very primitive, will hopefully get easier soon.
+
+### Standalone library
 Latest release: 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.geirsson/scalafmt-core_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.geirsson/scalafmt-core_2.11)
 
@@ -52,43 +57,43 @@ object FormatMe {
 """
 ```
 
-There is only one supported style at the moment: `ScalaStyle.Default`.
 
-Feel free to post an issue if you want a custom style.
+### Homebrew/OSX
 
-### Install binary
+```
+brew tap olafurpg/scalafmt
+brew install scalafmt
+scalafmt --file path/to/My.scala
+scalafmt --help
+```
 
-Build `scalafmt` from source:
+### scalafmt.jar
+
+Download pre-compiled release [here](releases).
+
+I recommend you create a script named `scalafmt` somewhere in your `PATH` with
+the command:
+
+```
+java -Droot-level=error -jar PATH_TO/scalafmt.jar $@
+```
+
+### Build from source
 
 * clone the repo
 * run `sbt assembly`, master branch should pass tests
 * `target/scala-2.11/scalafmt.jar` should exist
 
-**Note.** It will get easier soon, promise!
+#### IntelliJ
 
-### Create scalafmt executable
-
-Create a script named `scalafmt` somewhere in your `PATH` with the command
-
-```
-java -Droot-level=error -jar </PATH/TO>scalafmt.jar $@
-```
-
-Then you can use the formatter like this:
-
-```
-scalafmt --file MyCode.scala
-```
-
-For more details
-
-```
-scalafmt --help
-```
+* [Plugin pending review][intellij].
+* Zip available with [releases](/releases).
 
 #### Vim
 
-* install [vim-autoformat](https://github.com/Chiel92/vim-autoformat)
+* make sure you have a `scalafmt` executable script in path
+* install [vim-autoformat](https://github.com/Chiel92/vim-autoformat), for
+  example with vundle.
 * add to your `.vimrc`
 
 ```vim
@@ -98,20 +103,11 @@ let g:formatters_scala = ['scalafmt']
 ```
 * run `:Autoformat` or `F5`
 
-#### IntelliJ
+#### Coming soon...
 
-*NOTE.* Does not support undo after formatting.
-
-* Open settings, create a `scalafmt` "external tool"
-
-<img width="519" alt="scalafmt-intellij1" src="https://cloud.githubusercontent.com/assets/1408093/12949316/6963ffce-d007-11e5-847e-65956d5cc781.png">
-<img width="485" alt="scalafmt-intellij2" src="https://cloud.githubusercontent.com/assets/1408093/12949336/854a029c-d007-11e5-8856-743a0d76861e.png">
-* Assign a shortcut to `scalafmt`
-
-<img width="513" alt="scalafmt-intellij3" src="https://cloud.githubusercontent.com/assets/1408093/12949347/9c07dda6-d007-11e5-96d4-8cd53394a52c.png">
-
-### Documentation
-For now, [the tests](core/src/test/resources) are the most up-to-date documentation.
+* Ensime
+* Scala IDE
+* Your favorite editor? Join the gitter channel.
 
 ### Contributing
 
@@ -126,10 +122,15 @@ For now, [the tests](core/src/test/resources) are the most up-to-date documentat
 * `run-benchmarks.sh` script to run jmh benchmarks.
 * `core/test:runMain  org.scalafmt.FormatExperimentApp`: clones Scala.js, runs
   formatter on all cloned files and prints summary.
+  
+### Documentation
+For now, [the tests](core/src/test/resources) are the most up-to-date
+documentation.
 
 ### Updates (mostly for myself)
 
 * March 3st
+  * Created [Intellij plugin][intellij].
   * Published release candidate to Maven Central.
 * March 1st
   * See [scalafmt formatted with scalafmt][format-with-scalafmt]. Still have a few
@@ -365,3 +366,4 @@ Utils.scalariform            avgt   10     4.214 ±   0.096  ms/op
 [format-with-scalafmt]: https://github.com/olafurpg/scalafmt/compare/format-with-scalafmt?expand=1
 [scalajs]: https://github.com/scala-js/scala-js
 [journal]: http://journal.stuffwithstuff.com/2015/09/08/the-hardest-program-ive-ever-written/
+[intellij]: https://plugins.jetbrains.com/plugin/8236?pr=

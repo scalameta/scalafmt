@@ -1,0 +1,3 @@
+# For some odd reason the `scalafmt` is not executable when installed
+# with brew. This line does the trick.
+chmod u+x scalafmt
