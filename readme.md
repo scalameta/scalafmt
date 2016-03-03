@@ -105,6 +105,7 @@ let g:formatters_scala = ['scalafmt']
 
 #### Coming soon...
 
+* SBT
 * Ensime
 * Scala IDE
 * Your favorite editor? Join the gitter channel.
