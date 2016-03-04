@@ -1,6 +1,6 @@
 lazy val buildSettings = Seq(
   organization := "com.geirsson",
-  version := "0.1.0-RC2",
+  version := "0.1.0-RC3",
   scalaVersion := "2.11.7",
   updateOptions := updateOptions.value.withCachedResolution(true),
   // Many useful rules are ignored, at least they're explicitly ignored.
