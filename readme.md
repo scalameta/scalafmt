@@ -69,7 +69,7 @@ scalafmt --help
 
 ### scalafmt.jar
 
-Download pre-compiled release [here](releases).
+Download pre-compiled release [here][releases].
 
 I recommend you create a script named `scalafmt` somewhere in your `PATH` with
 the command:
@@ -87,7 +87,7 @@ java -Droot-level=error -jar PATH_TO/scalafmt.jar $@
 #### IntelliJ
 
 * [Plugin pending review][intellij].
-* Zip available with [releases](/releases).
+* Zip available with [releases][releases].
 
 #### Vim
 
@@ -345,7 +345,7 @@ Utils.scalariform            avgt   10     4.214 ±   0.096  ms/op
   * Ran scalafmt on all [scala-js][scalajs] files with a 200ms timeout.
   The formatter completed before timeout on 68 files and timed out on 848 files.
 * Feb 9rd
-  * pre-release https://github.com/olafurpg/scalafmt/releases/tag/v0.1.0
+  * [pre-release][releases]
 * Feb 3rd
   * [Sneak peek output from the
   formatter](https://htmlpreview.github.io/?https://github.com/olafurpg/scalafmt/blob/htmlpreview/reports/scalafmt-feb3.html).
@@ -368,3 +368,4 @@ Utils.scalariform            avgt   10     4.214 ±   0.096  ms/op
 [scalajs]: https://github.com/scala-js/scala-js
 [journal]: http://journal.stuffwithstuff.com/2015/09/08/the-hardest-program-ive-ever-written/
 [intellij]: https://plugins.jetbrains.com/plugin/8236?pr=
+[releases]: https://github.com/olafurpg/scalafmt/releases
