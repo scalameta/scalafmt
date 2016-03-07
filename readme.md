@@ -1,22 +1,9 @@
-# scalafmt
-> Any style guide written in English is either so brief that it’s ambiguous, or
-> so long that no one reads it.
->
-> -- Bob Nystrom, ["Hardest Program I've Ever Written"][journal],
->    Dart Team, Google.
+# scalafmt [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.geirsson/scalafmt-core_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.geirsson/scalafmt-core_2.11) [![codecov.io](https://codecov.io/github/olafurpg/scalafmt/coverage.svg?branch=master)](https://codecov.io/github/olafurpg/scalafmt?branch=master) [![Build Status](https://travis-ci.org/olafurpg/scalafmt.svg?branch=master)](https://travis-ci.org/olafurpg/scalafmt) [![Join the chat at https://gitter.im/olafurpg/scalafmt](https://badges.gitter.im/olafurpg/scalafmt.svg)](https://gitter.im/olafurpg/scalafmt?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.geirsson/scalafmt-core_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.geirsson/scalafmt-core_2.11)
-[![codecov.io](https://codecov.io/github/olafurpg/scalafmt/coverage.svg?branch=master)](https://codecov.io/github/olafurpg/scalafmt?branch=master)
-[![Build Status](https://travis-ci.org/olafurpg/scalafmt.svg?branch=master)](https://travis-ci.org/olafurpg/scalafmt)
-[![Join the chat at https://gitter.im/olafurpg/scalafmt](https://badges.gitter.im/olafurpg/scalafmt.svg)](https://gitter.im/olafurpg/scalafmt?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+### [User documentation][docs]
+Head over to [the user docs][docs] for instructions on how to install scalafmt.
 
-
-## [Documentation](docs)
-Head to https://olafurpg.github.io/scalafmt for installation instructions.
-
-[docs]: https://olafurpg.github.io/scalafmt
-
-### Contributing
+### Developer documentation - contributing
 
 * `core/testOnly org.scalafmt.FormatTests`: runs the fast, most relevant, unit tests.
     * After each run, a performance report is generated in `target/index.html`. 
@@ -33,6 +20,10 @@ Head to https://olafurpg.github.io/scalafmt for installation instructions.
 
 ### Updates (mostly for myself)
 
+* March 8st
+  * Released 0.1.0, now with sbt-plugin.
+  * Published [docs](docs) using the amazing [Scalatex](scalatex).
+  * Removed dependency on logback, replaced with the amazing [sourcecode library](sourcecode).
 * March 3st
   * Created [Intellij plugin][intellij].
   * Published release candidate to Maven Central.
@@ -267,8 +258,11 @@ Utils.scalariform            avgt   10     4.214 ±   0.096  ms/op
   * Still haven't covered some common cases (like breaking before `.` in
   `a.b(c)`), so the output looks weird in some cases.
 
+[docs]: http://scalafmt.org
 [format-with-scalafmt]: https://github.com/olafurpg/scalafmt/compare/format-with-scalafmt?expand=1
 [scalajs]: https://github.com/scala-js/scala-js
+[scalatex]: https://github.com/lihaoyi/scalatex
+[sourcecode]: https://github.com/lihaoyi/sourcecode
 [journal]: http://journal.stuffwithstuff.com/2015/09/08/the-hardest-program-ive-ever-written/
 [intellij]: https://plugins.jetbrains.com/plugin/8236?pr=
 [releases]: https://github.com/olafurpg/scalafmt/releases

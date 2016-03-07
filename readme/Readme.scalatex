@@ -17,6 +17,19 @@
 @sect("Scalafmt", org.scalafmt.Versions.scalafmt)
   @h1
     Opinionated code formatter for Scala
+
+  @blockquote
+    Any style guide written in English is either so brief that it’s ambiguous,
+    or so long that no one reads it.
+
+  @blockquote
+    -- Bob Nystrom, @lnk("\"Hardest Program I've Ever Written\"", "http://journal.stuffwithstuff.com/2015/09/08/the-hardest-program-ive-ever-written/"),
+    Dart, Google.
+
+  @p
+    @lnk("Scalafmt", repo) turns the mess on the left into the (hopefully)
+    readable, idiomatic and consistent code on the right.
+
   @demo
     object FormatMe { List(number) match { case head :: Nil if head % 2 == 0 => "number is even"
       case head :: Nil => "number is not even"
@@ -24,27 +37,28 @@
       function(arg1, arg2(arg3(arg4, arg5, "arg6"), arg7 + arg8), arg9.select(1, 2, 3, 4, 5, 6)) }
 
   @p
-    @lnk("Scalafmt", repo) is an opinionated code formatter for Scala that aims
-    to make your code look readable, idiomatic and consistent.
-    By being opinionated, Scalafmt relieves your attention from manipulating
-    whitespace and indentation and let you focus instead on writing correct,
+    @lnk("Scalafmt", repo) is an opinionated code formatter.
+    It means most of the time you can relieve your attention from manipulating
+    whitespace and indentation and focus instead on writing correct,
     maintainable code. Mark the end of dreadful arguments about formatting!
-
 
   @p
     @img(marginLeft := "auto", marginRight := "auto", display := "block", src := "https://cloud.githubusercontent.com/assets/1408093/12928034/99d3ffe8-cf6b-11e5-9ec5-42de7c4e0155.gif")
 
-
-  @sect{Installation}
     @p
-      @note. Scalafmt is still very new.
-      However, scalafmt is useful for me so it might also be useful for you.
+      Scalafmt is very new.
+      Still, scalafmt is already useful for me so it might also be useful for you.
       Scalafmt is also mature enough to format all 920 files in the Scala.js
-      repo, without problems. Over 75% of the files format in under 200ms.
+      repo. It's quite fast, too. Over 75% of the Scala.js files format in
+      under 200ms.
 
+    @p
       Don't hesitate to join the
       @lnk("gitter channel", "https://gitter.im/olafurpg/scalafmt")
       or post an @lnk("issue", repo + "/issues") in case of problems.
+
+
+  @sect{Installation}
 
     @sect{SBT}
       @hl.scala
@@ -168,14 +182,34 @@
         be a fun challenge to write a code formatter :)
 
       @sect{Why is it so slow?}
-        I am still working on making scalafmt faster.
-        The feature that makes scalafmt slower than formatter like scalariform
-        is the column-width limit.
-        To figure the "best" way to break a long line, Scalafmt tries thousands
-        of formatting solutions.
-        This search for the best solution complicates the design of the formatter
-        and makes is slower.
+        My benchmarks show that scalafmt is around 4-6x slower than scalariform.
+        The main feature that makes scalafmt slower than scalariform is the
+        column-width limit.
+        To figure the "best" way to break a long line, Scalafmt sometimes tries
+        thousands of different formatting solutions.
+
+        @p
+          The hope is that further optimizations will make scalafmt at
+          least 2-3x faster than it is now.
 
       @sect{How do I customize scalafmt?}
         There is only one supported style at the moment: @code("ScalaStyle.Default").
         More settings will come later.
+
+@raw
+  <!-- Stats -->
+  <script type="text/javascript">
+    var _paq = _paq || [];
+    _paq.push(["setDomains", ["*.olafurpg.github.io/scalafmt"]]);
+    _paq.push(['trackPageView']);
+    _paq.push(['enableLinkTracking']);
+    (function() {
+      var u="https://stats.lassie.io/hello/";
+      _paq.push(['setTrackerUrl', u+'hello.php']);
+      _paq.push(['setSiteId', 3]);
+      var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+      g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'hello.js'; s.parentNode.insertBefore(g,s);
+    })();
+  </script>
+  <noscript><p><img src="https://stats.lassie.io/hello/hello.php?idsite=3" style="border:0;" alt="" /></p></noscript>
+  <!-- End Stats Code -->
