@@ -12,15 +12,19 @@ import scala.reflect.classTag
 sealed abstract class Error(msg: String) extends Exception(msg)
 
 object Error extends ScalaFmtLogger {
-    case class CantFindDefnToken[T <: Keyword : ClassTag](tree: Tree)
+
+  def reportIssue: String =
+    "Please file an issue on https://github.com/olafurpg/scalafmt/issues"
+
+  case class CantFindDefnToken[T <: Keyword : ClassTag](tree: Tree)
       extends Error(
           s"Expected keyword of type ${classTag[T].getClass} in tree $tree")
 
   case class CaseMissingArrow(tree: Case)
-    extends Error(s"Missing => in case: \n$tree")
+      extends Error(s"Missing => in case: \n$tree")
 
-  case class FormatterChangedAST(diff: String, output: String) extends Error(
-    s"""Formatter changed AST
+  case class FormatterChangedAST(diff: String, output: String)
+      extends Error(s"""Formatter changed AST
         |=====================
         |$diff
         |=====================
@@ -30,19 +34,18 @@ object Error extends ScalaFmtLogger {
       """.stripMargin)
 
   case class FormatterOutputDoesNotParse(msg: String)
-    extends Error("Formatter output does not parse:\n" + msg)
+      extends Error("Formatter output does not parse:\n" + msg)
 
   case class UnexpectedTree[Expected <: Tree : ClassTag](obtained: Tree)
-    extends Error(
-      s"Expected: ${classTag[Expected].getClass}\nObtained: ${log(obtained)}")
+      extends Error(s"Expected: ${classTag[Expected].getClass}\nObtained: ${log(
+      obtained)}")
 
   case class CantFormatFile(msg: String)
-    extends Error("scalafmt cannot format this file:\n"  + msg)
+      extends Error("scalafmt cannot format this file:\n" + msg)
 
   case class NoopDefaultPolicyApplied(decision: Decision)
-    extends Error(s"Default policy run on $decision")
+      extends Error(s"Default policy run on $decision")
 
   case class UnknownStyle(style: String)
-    extends Error(s"Don't understand style $style")
-
+      extends Error(s"Don't understand style $style")
 }

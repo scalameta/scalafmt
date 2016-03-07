@@ -1,7 +1,9 @@
+import scoverage.ScoverageSbtPlugin.ScoverageKeys.coverageHighlighting
+
 lazy val buildSettings = Seq(
   organization := "com.geirsson",
-  version := "0.1.0-RC3",
-  scalaVersion := "2.11.7",
+  version :=  org.scalafmt.Versions.scalafmt,
+  scalaVersion :=  "2.11.7",
   updateOptions := updateOptions.value.withCachedResolution(true),
   // Many useful rules are ignored, at least they're explicitly ignored.
   wartremoverWarnings in (Compile, compile) ++=
@@ -46,10 +48,13 @@ lazy val commonSettings = Seq(
   scalacOptions in (Compile, console) := compilerOptions :+ "-Yrepl-class-based",
   mainClass in assembly := Some("org.scalafmt.cli.Cli"),
   assemblyJarName in assembly := "scalafmt.jar",
+  ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages :=
+      ".*Debug;.*ScalaFmtLogger;.*Versions",
   testOptions in Test += Tests.Argument("-oD")
 )
 
 lazy val publishSettings = Seq(
+  publishMavenStyle := true,
   publishMavenStyle := true,
   publishArtifact := true,
   publishTo := {
@@ -60,7 +65,7 @@ lazy val publishSettings = Seq(
       Some("releases"  at nexus + "service/local/staging/deploy/maven2")
   },
   publishArtifact in Test := false,
-  licenses := Seq("Apache 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+  licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
   homepage := Some(url("https://github.com/olafurpg/scalafmt")),
   autoAPIMappings := true,
   apiURL := Some(url("https://olafurpg.github.io/scalafmt/docs/")),
@@ -99,7 +104,7 @@ lazy val root = project.in(file("."))
         |import org.scalafmt.internal._
         |import org.scalafmt._
       """.stripMargin
-  ).aggregate(core, benchmarks)
+  ).aggregate(core, benchmarks, scalafmtSbt)
   .dependsOn(core)
 
 
@@ -121,10 +126,20 @@ lazy val core = project
       "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
       "org.apache.commons" % "commons-math3" % "3.6" % "test",
       "org.scalatest" %% "scalatest" % "2.2.1" % "test"
-    ),
-    ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages :=
-      ".*Debug;.*ScalaFmtLogger"
-  ).settings(allSettings)
+    )
+  )
+
+
+lazy val scalafmtSbt = project
+  .settings(allSettings)
+  .settings(
+    coverageHighlighting := false,
+    sbtPlugin := true,
+    scalaVersion := "2.10.5",
+    moduleName := "scalafmt-sbt",
+    sources in Compile +=
+      baseDirectory.value / "../core/src/main/scala/org/scalafmt/Versions.scala"
+  )
 
 lazy val benchmarks = project
   .settings(moduleName := "scalafmt-benchmarks")
