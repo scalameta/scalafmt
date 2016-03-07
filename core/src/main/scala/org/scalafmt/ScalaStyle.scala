@@ -80,9 +80,9 @@ object ScalaStyle {
     override def binPackArguments = false
   }
 
-  protected[scalafmt] case object UnitTest80 extends UnitTestStyle
+  case object UnitTest80 extends UnitTestStyle
 
-  protected[scalafmt] case object UnitTest40 extends UnitTestStyle {
+  case object UnitTest40 extends UnitTestStyle {
     override def maxColumn = 40
   }
 

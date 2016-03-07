@@ -1,0 +1,181 @@
+@import Main._
+
+@def note = b("NOTE")
+
+@def repo: String = "https://github.com/olafurpg/scalafmt"
+
+@def half(frags: Frag*) = div(frags, width:="50%", float.left)
+
+@def pairs(frags: Frag*) = div(frags, div(clear:="both"))
+
+@def demo(code: String) = {
+  import org.scalafmt._
+  val formatted = ScalaFmt.format(code, ScalaStyle.UnitTest40)
+  pairs(List(code, formatted).map(x => half(hl.scala(x))):_*)
+}
+
+@sect("Scalafmt", org.scalafmt.Versions.scalafmt)
+  @h1
+    Opinionated code formatter for Scala
+  @demo
+    object FormatMe { List(number) match { case head :: Nil if head % 2 == 0 => "number is even"
+      case head :: Nil => "number is not even"
+      case Nil => "List is empty" }
+      function(arg1, arg2(arg3(arg4, arg5, "arg6"), arg7 + arg8), arg9.select(1, 2, 3, 4, 5, 6)) }
+
+  @p
+    @lnk("Scalafmt", repo) is an opinionated code formatter for Scala that aims
+    to make your code look readable, idiomatic and consistent.
+    By being opinionated, Scalafmt relieves your attention from manipulating
+    whitespace and indentation and let you focus instead on writing correct,
+    maintainable code. Mark the end of dreadful arguments about formatting!
+
+
+  @p
+    @img(marginLeft := "auto", marginRight := "auto", display := "block", src := "https://cloud.githubusercontent.com/assets/1408093/12928034/99d3ffe8-cf6b-11e5-9ec5-42de7c4e0155.gif")
+
+
+  @sect{Installation}
+    @p
+      @note. Scalafmt is still very new.
+      However, scalafmt is useful for me so it might also be useful for you.
+      Scalafmt is also mature enough to format all 920 files in the Scala.js
+      repo, without problems. Over 75% of the files format in under 200ms.
+
+      Don't hesitate to join the
+      @lnk("gitter channel", "https://gitter.im/olafurpg/scalafmt")
+      or post an @lnk("issue", repo + "/issues") in case of problems.
+
+    @sect{SBT}
+      @hl.scala
+        addSbtPlugin("com.geirsson" %% "sbt-scalafmt" % "@org.scalafmt.Versions.scalafmt")
+
+      @ul
+        @li
+          Run @code("sbt scalafmtFormat") to format all files in the project.
+        @li
+          Add @code("reformatOnCompileSettings") to you build settings to
+          to enable automatically formatting files on compile.
+          @b("WARNING"). Formatting a large file (~4.000 LOC) can take up
+          to 1-2s, so it might be undesirable to let scalafmt delay compilation.
+          Computer generated code with deeply nested applications may take even
+          longer to format or it might not even complete.
+
+    @sect{IntelliJ}
+      @lnk("Here is the plugin", "https://plugins.jetbrains.com/plugin/8236?pr=").
+      You can install it directly from within IntelliJ,
+      @ul
+        @li
+          open @code("Settings > Plugins")
+        @li
+          open @code("Browse repositories")
+        @li
+          search for @code("scalafmt")
+        @li
+          restart IntelliJ.
+
+      @p
+        The default shortcut is @code("Ctrl + Shift + L").
+        Undo works, but not redo.
+
+    @sect{scalafmt.jar}
+
+      Download a pre-compiled jar from the
+      @lnk("releases page", repo + "/releases").
+
+      I recommend you create a script named @code("scalafmt") somewhere in your
+      @code("PATH") with the command:
+
+      @hl.scala
+        java -Droot-level=error -jar PATH_TO/scalafmt.jar $@@
+
+    @sect{Build from source}
+      For the greatest performance and prettiest output.
+
+      @ul
+        @li
+          Clone the @lnk("repo", repo).
+        @li
+          Run @code("sbt assembly"), master branch should pass tests.
+        @li
+          @code("target/scala-2.11/scalafmt.jar") should exist.
+
+    @sect{Homebrew/OSX}
+      @note. The Homebrew version could be old.
+
+      @hl.scala
+        brew tap olafurpg/scalafmt
+        brew install scalafmt
+        scalafmt --file path/to/My.scala
+        scalafmt --help
+
+    @sect{Vim}
+      @ul
+        @li
+          Make sure you have a @code("scalafmt") executable script in path.
+        @li
+          install @lnk("vim-autoformat", "https://github.com/Chiel92/vim-autoformat")
+        @li
+          add to your @code(".vimrc")
+          @hl.scala
+            noremap <F5> :Autoformat<CR>
+            let g:formatdef_scalafmt = "'scalafmt'"
+            let g:formatters_scala = ['scalafmt']
+
+      @note. You pay the JVM startup penalty on every format.
+
+    @sect{Standalone library}
+      Add to your dependencies
+      @hl.scala
+        libraryDependencies += "com.geirsson" %% "scalafmt" % "@org.scalafmt.Versions.scalafmt"
+      @p
+        Use the API like this
+        @hl.ref(wd/'readme/"library-usage.example")
+
+    @sect{Coming soon...}
+
+      @ul
+        @li
+          Ensime
+        @li
+          Scala IDE
+        @li
+          Your favorite editor? Join the gitter channel.
+
+   @sect{FAQ}
+
+      @sect{Why not Scalariform?}
+        @lnk("Scalariform", "http://scala-ide.org/scalariform/") does an
+        excellent job of tidying up common formatting errors. However,
+
+        @ul
+          @li
+            Scalariform does not support enforcing column-width limits, which
+            I personally like and is present in many popular coding styles.
+          @li
+            Scalariform gives too much freedom on how you format your code, which
+            makes it easy to write sloppy looking code after a few rounds of
+            refactoring.
+          @li
+            Scalariform cannot format @lnk("Dotty", "https://github.com/lampepfl/dotty") code,
+            which has minor syntactic differences to Scala. Being built with scala.meta,
+            scalafmt can format dotty.
+          @li
+            The original Scalariform author stopped maintaining the library a
+            few years ago.
+
+        Finally, scalafmt is my Master's thesis project and I thought it would
+        be a fun challenge to write a code formatter :)
+
+      @sect{Why is it so slow?}
+        I am still working on making scalafmt faster.
+        The feature that makes scalafmt slower than formatter like scalariform
+        is the column-width limit.
+        To figure the "best" way to break a long line, Scalafmt tries thousands
+        of formatting solutions.
+        This search for the best solution complicates the design of the formatter
+        and makes is slower.
+
+      @sect{How do I customize scalafmt?}
+        There is only one supported style at the moment: @code("ScalaStyle.Default").
+        More settings will come later.

@@ -104,7 +104,7 @@ lazy val root = project.in(file("."))
         |import org.scalafmt.internal._
         |import org.scalafmt._
       """.stripMargin
-  ).aggregate(core, benchmarks, scalafmtSbt)
+  ).aggregate(core, benchmarks, scalafmtSbt, readme)
   .dependsOn(core)
 
 
@@ -170,4 +170,13 @@ lazy val benchmarks = project
     )
   ).dependsOn(core % "compile->test")
   .enablePlugins(JmhPlugin)
+
+lazy val readme = scalatex.ScalatexReadme(
+  projectId = "readme",
+  wd = file(""),
+  url = "https://github.com/olafurpg/scalafmt/tree/master",
+  source = "Readme")
+    .settings(allSettings)
+    .settings(noPublish)
+    .dependsOn(core)
 
