@@ -10,105 +10,11 @@
 [![Build Status](https://travis-ci.org/olafurpg/scalafmt.svg?branch=master)](https://travis-ci.org/olafurpg/scalafmt)
 [![Join the chat at https://gitter.im/olafurpg/scalafmt](https://badges.gitter.im/olafurpg/scalafmt.svg)](https://gitter.im/olafurpg/scalafmt?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-### Overview
-Scalafmt is a code formatter for Scala that aims to make your code look
-readable, idiomatic and consistent. When your lines get really long,
-scalafmt makes them short again.
 
-![scalafmt](https://cloud.githubusercontent.com/assets/1408093/12928034/99d3ffe8-cf6b-11e5-9ec5-42de7c4e0155.gif)
+## [Documentation](docs)
+Head to https://olafurpg.github.io/scalafmt for installation instructions.
 
-### ![warning][warning]Under construction![warning][warning]
-This project is under active development. Issues I am aware of:
-* Tolerates badly computer generated code like [here][any] and
-  [here][pain].
-* Limited number of configuration options, there is only one supported
-  style: `ScalaStyle.Default`.
- 
-For any questions, drop by the gitter channel.
-
-[warning]: https://cdn3.iconfinder.com/data/icons/fatcow/32x32_0400/error.png
-[any]: https://raw.githubusercontent.com/scala-js/scala-js/f27a42c6aa83833bb44e9efe8d58b426131893f9/library/src/main/scala/scala/scalajs/js/ThisFunction.scala
-[pain]: https://gist.github.com/olafurpg/00ce1601a7e213141f25#file-prettyprinthack-scala-L10
-
-## Installation
-
-Still very primitive, will hopefully get easier soon.
-
-### Standalone library
-Latest release: 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.geirsson/scalafmt-core_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.geirsson/scalafmt-core_2.11)
-
-```scala
-// build.sbt
-libraryDependencies += "com.geirsson" %% "scalafmt" % "XXX"
-
-// Example usage
-scala> org.scalafmt.ScalaFmt.format("""
-object FormatMe { List(Split(Space, 0).withPolicy(SingleLineBlock(close)), Split(Newline, 1).withPolicy{ case Decision(t@FormatToken(_, `close`, _), s) => Decision(t, List(Split(Newline, 0)))}.withIndent(2, close, Right)) }
-""")
-result: String = """
-object FormatMe {
-  List(Split(Space, 0).withPolicy(SingleLineBlock(close)),
-       Split(Newline, 1).withPolicy {
-         case Decision(t@FormatToken(_, `close`, _), s) =>
-           Decision(t, List(Split(Newline, 0)))
-       }.withIndent(2, close, Right))
-}
-"""
-```
-
-
-### Homebrew/OSX
-
-```
-brew tap olafurpg/scalafmt
-brew install scalafmt
-scalafmt --file path/to/My.scala
-scalafmt --help
-```
-
-### scalafmt.jar
-
-Download pre-compiled release [here][releases].
-
-I recommend you create a script named `scalafmt` somewhere in your `PATH` with
-the command:
-
-```
-java -Droot-level=error -jar PATH_TO/scalafmt.jar $@
-```
-
-### Build from source
-
-* clone the repo
-* run `sbt assembly`, master branch should pass tests
-* `target/scala-2.11/scalafmt.jar` should exist
-
-#### IntelliJ
-
-* [Plugin pending review][intellij].
-* Zip available with [releases][releases].
-
-#### Vim
-
-* make sure you have a `scalafmt` executable script in path
-* install [vim-autoformat](https://github.com/Chiel92/vim-autoformat), for
-  example with vundle.
-* add to your `.vimrc`
-
-```vim
-noremap <F5> :Autoformat<CR> "" Optional
-let g:formatdef_scalafmt = "'scalafmt'"
-let g:formatters_scala = ['scalafmt']
-```
-* run `:Autoformat` or `F5`
-
-#### Coming soon...
-
-* SBT
-* Ensime
-* Scala IDE
-* Your favorite editor? Join the gitter channel.
+[docs]: https://olafurpg.github.io/scalafmt
 
 ### Contributing
 
@@ -123,10 +29,7 @@ let g:formatters_scala = ['scalafmt']
 * `run-benchmarks.sh` script to run jmh benchmarks.
 * `core/test:runMain  org.scalafmt.FormatExperimentApp`: clones Scala.js, runs
   formatter on all cloned files and prints summary.
-  
-### Documentation
-For now, [the tests](core/src/test/resources) are the most up-to-date
-documentation.
+* instructions for the tests [are here](core/src/test/resources).
 
 ### Updates (mostly for myself)
 
