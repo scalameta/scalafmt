@@ -32,13 +32,8 @@ object ScalaFmt extends ScalaFmtLogger {
     try {
       format_![Source](code, style, range)(parseSource)
     } catch {
-      // Skip invalid code.
-      case e: ParseException =>
-        // Parse exception messages are huge, suppress stacktrace.
-        logger.warn(s"Unable to parse code: ${e.getMessage}")
-        code
       case NonFatal(e) =>
-        logger.warn(s"Unexpected error", e)
+        // TODO(olafur) return more meaningful result type than string.
         code
     }
   }

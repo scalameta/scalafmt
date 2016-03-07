@@ -1,18 +1,15 @@
-The following snippet
-
-```
+Original:
+```scala
 ORIGINAL CODE SNIPPET
 ```
 
-is formatted into
-
-```
+Scalafmt:
+```scala
 OUTPUT FROM SCALAFMT
 ```
 
-I would like the input to look like this
-
-```
+I would like the input to look like this:
+```scala
 HOW YOU WANT THE OUTPUT TO LOOK LIKE.
 ```
 

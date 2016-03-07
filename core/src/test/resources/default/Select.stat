@@ -93,3 +93,9 @@ val files = FilesUtil.listFiles(".")
   .filter(_.endsWith(".scala"))
   .filterNot(_.contains("/target/"))
   .filterNot(_.contains("/resources/"))
+<<< SKIP select is cheaper
+      new ReflectiveDynamicAccess(classLoader).createInstanceFor[ScalaFmtLike](
+          "org.scalafmt.ScalaFmt210", Seq.empty)
+>>>
+new ReflectiveDynamicAccess(classLoader)
+  .createInstanceFor[ScalaFmtLike]("org.scalafmt.ScalaFmt210", Seq.empty)

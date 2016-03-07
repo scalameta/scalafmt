@@ -4,6 +4,7 @@ import java.io.File
 
 import org.scalafmt.ScalaFmt
 import org.scalafmt.ScalaStyle
+import org.scalafmt.Versions
 import org.scalafmt.internal.ScalaFmtLogger
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -18,7 +19,7 @@ object Cli extends ScalaFmtLogger {
                     range: Set[Range] = Set.empty[Range],
                     maxDuration: Duration = Duration(10, "s"))
   lazy val parser = new scopt.OptionParser[Config]("scalafmt") {
-    head("scalafmt", "0.1")
+    head("scalafmt", Versions.scalafmt)
     opt[(Int,
       Int)]("range") action {
       case ((from, to), c) => c.copy(range = c.range + Range(from - 1, to - 1))

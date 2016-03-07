@@ -1,7 +1,6 @@
 package org.scalafmt.internal
 
 import org.scalafmt.util.PrintlnLogger
-
 import scala.meta.Tree
 import scala.meta.prettyprinters.Structure
 import scala.meta.tokens.Token

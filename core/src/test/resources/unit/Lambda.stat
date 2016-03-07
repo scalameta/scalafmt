@@ -31,3 +31,11 @@ lst.map {
     println(x)
     x + 1
 }
+<<< SKIP curried
+Thing() { implicit ctx => j =>
+      ???
+}
+>>>
+Thing() { implicit ctx => j =>
+  ???
+}
