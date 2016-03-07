@@ -136,7 +136,7 @@ lazy val scalafmtSbt = project
     coverageHighlighting := false,
     sbtPlugin := true,
     scalaVersion := "2.10.5",
-    moduleName := "scalafmt-sbt",
+    moduleName := "sbt-scalafmt",
     sources in Compile +=
       baseDirectory.value / "../core/src/main/scala/org/scalafmt/Versions.scala"
   )
