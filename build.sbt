@@ -12,6 +12,9 @@ lazy val buildSettings = Seq(
       Wart.Any, // Issues in logger with format strings.
       Wart.AsInstanceOf, // pops up in pattern matching, why? It's guarded.
 
+      // TODO(olafur) remove after https://github.com/puffnfresh/wartremover/issues/188
+      Wart.ExplicitImplicitTypes,
+
       Wart.Throw,
       Wart.NoNeedForMonad,
       Wart.FinalCaseClass,
@@ -105,12 +108,14 @@ lazy val core = project
   .settings(
     moduleName := "scalafmt-core",
     libraryDependencies ++= Seq(
-      "ch.qos.logback" % "logback-classic" % "1.1.3",
-      "com.github.scopt" %% "scopt" % "3.3.0",
-      "com.lihaoyi" %% "sourcecode" % "0.1.0",
-      "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
+      "com.lihaoyi" %% "sourcecode" % "0.1.1",
       "org.scalameta" %% "scalameta" % Deps.scalameta,
-    // Test dependencies
+
+      // TODO(olafur) move to cli project.
+      "com.github.scopt" %% "scopt" % "3.3.0",
+
+      // Test dependencies
+      "ch.qos.logback" % "logback-classic" % "1.1.6" % "test",
       "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0" % "test",
       "com.ibm" %% "couchdb-scala" % "0.6.0" % "test",
       "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
