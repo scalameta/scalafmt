@@ -101,7 +101,15 @@
       @code("PATH") with the command:
 
       @hl.scala
-        java -Droot-level=error -jar PATH_TO/scalafmt.jar $@@
+        java -jar PATH_TO/scalafmt.jar $@@
+
+      Profit
+
+      @hl.scala
+        $ scalafmt --help
+
+        // Format all files in current directory.
+        $ scalafmt -i -f .
 
     @sect{Build from source}
       For the greatest performance and prettiest output.
@@ -112,7 +120,7 @@
         @li
           Run @code("sbt assembly"), master branch should pass tests.
         @li
-          @code("target/scala-2.11/scalafmt.jar") should exist.
+          @code("cli/target/scala-2.11/scalafmt.jar") should exist.
 
     @sect{Homebrew/OSX}
       @note. The Homebrew version could be old.

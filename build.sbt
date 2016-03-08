@@ -46,7 +46,6 @@ lazy val compilerOptions = Seq(
 lazy val commonSettings = Seq(
   triggeredMessage in ThisBuild := Watched.clearWhenTriggered,
   scalacOptions in (Compile, console) := compilerOptions :+ "-Yrepl-class-based",
-  mainClass in assembly := Some("org.scalafmt.cli.Cli"),
   assemblyJarName in assembly := "scalafmt.jar",
   ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages :=
       ".*Debug;.*ScalaFmtLogger;.*Versions",
@@ -104,7 +103,7 @@ lazy val root = project.in(file("."))
         |import org.scalafmt.internal._
         |import org.scalafmt._
       """.stripMargin
-  ).aggregate(core, benchmarks, scalafmtSbt, readme)
+  ).aggregate(core, cli, benchmarks, scalafmtSbt, readme)
   .dependsOn(core)
 
 
@@ -116,18 +115,27 @@ lazy val core = project
       "com.lihaoyi" %% "sourcecode" % "0.1.1",
       "org.scalameta" %% "scalameta" % Deps.scalameta,
 
-      // TODO(olafur) move to cli project.
-      "com.github.scopt" %% "scopt" % "3.3.0",
-
       // Test dependencies
       "ch.qos.logback" % "logback-classic" % "1.1.6" % "test",
       "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0" % "test",
       "com.ibm" %% "couchdb-scala" % "0.6.0" % "test",
       "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
       "org.apache.commons" % "commons-math3" % "3.6" % "test",
-      "org.scalatest" %% "scalatest" % "2.2.1" % "test"
+      "org.scalatest" %% "scalatest" % Deps.scalatest % "test"
     )
   )
+
+
+lazy val cli = project
+    .settings(allSettings)
+    .settings(noPublish)
+    .settings(
+      moduleName := "scalafmt-cli",
+      mainClass in assembly := Some("org.scalafmt.cli.Cli"),
+      libraryDependencies ++= Seq(
+        "com.github.scopt" %% "scopt" % "3.3.0"
+      )
+    ).dependsOn(core % "compile->compile;test->test")
 
 
 lazy val scalafmtSbt = project
@@ -136,6 +144,7 @@ lazy val scalafmtSbt = project
     coverageHighlighting := false,
     sbtPlugin := true,
     scalaVersion := "2.10.5",
+    // In convention of sbt plugins, the module is sbt-scalafmt instead of scalafmt-sbt.
     moduleName := "sbt-scalafmt",
     sources in Compile +=
       baseDirectory.value / "../core/src/main/scala/org/scalafmt/Versions.scala"
