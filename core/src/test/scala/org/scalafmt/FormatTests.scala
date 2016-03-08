@@ -26,9 +26,10 @@ import scala.concurrent.Future
 import scala.language.postfixOps
 
 // TODO(olafur) property test: same solution without optimization or timeout.
+
 class FormatTests
-  extends FunSuite with Timeouts with ScalaFmtLogger
-  with BeforeAndAfterAll with HasTests with FormatAssertions with DiffAssertions {
+    extends FunSuite with Timeouts with ScalaFmtLogger with BeforeAndAfterAll
+    with HasTests with FormatAssertions with DiffAssertions {
   lazy val onlyUnit = UnitTests.tests.exists(_.only)
   lazy val onlyManual = ManualTests.tests.exists(_.only)
   lazy val onlyOne = tests.exists(_.only)
@@ -44,6 +45,7 @@ class FormatTests
   }
 
   tests.sortWith(bySpecThenName).withFilter(testShouldRun).foreach(runTest)
+
   def testShouldRun(t: DiffTest): Boolean = !onlyOne || t.only
 
   def bySpecThenName(left: DiffTest, right: DiffTest): Boolean = {
@@ -58,8 +60,7 @@ class FormatTests
       // Not even ignore(t), save console space.
     } else if (t.skip) {
       ignore(paddedName) {}
-    }
-    else {
+    } else {
       test(paddedName) {
         Debug.newTest()
         filename2parse(t.filename) match {
@@ -81,32 +82,29 @@ class FormatTests
     val output = getFormatOutput(t.style)
     val obtainedHtml = Report.mkHtml(output, t.style)
     debugResults += Result(t,
-      obtained,
-      obtainedHtml,
-      output,
-      Debug.maxVisitedToken,
-      visitedStates,
-      Debug.elapsedNs)
+                           obtained,
+                           obtainedHtml,
+                           output,
+                           Debug.maxVisitedToken,
+                           visitedStates,
+                           Debug.elapsedNs)
   }
 
   def getFormatOutput(style: ScalaStyle): Seq[FormatOutput] = {
     val path = State.reconstructPath(
-      Debug.tokens, Debug.state.splits, style, debug = onlyOne)
+        Debug.tokens, Debug.state.splits, style, debug = onlyOne)
     val output = path.map {
       case (token, whitespace) =>
         FormatOutput(
-          token.left.code, whitespace, Debug.formatTokenExplored(token))
+            token.left.code, whitespace, Debug.formatTokenExplored(token))
     }
     output
   }
 
   override def afterAll(configMap: ConfigMap): Unit = {
-    val splits = Debug.enqueuedSplits
-      .groupBy(_.line.value)
-      .toVector
-      .sortBy(-_._2.size)
-      .map(x => s"Split(line=${x._1}, count=${x._2.size})")
-      .take(3)
+    val splits =
+      Debug.enqueuedSplits.groupBy(_.line.value).toVector.sortBy(-_._2.size)
+        .map(x => s"Split(line=${x._1}, count=${x._2.size})").take(3)
     logger.debug(splits.mkString(", "))
     logger.debug(s"Total explored: ${Debug.explored}")
     val results = debugResults.result()
@@ -114,8 +112,8 @@ class FormatTests
     // TODO(olafur) don't block printing out test results.
     // I don't want to deal with scalaz's Tasks :'(
     val k = for {
-      _ <- Future(FilesUtil.writeFile("target/index.html",
-        Report.heatmap(results)))
+      _ <- Future(
+          FilesUtil.writeFile("target/index.html", Report.heatmap(results)))
       _ <- Future(Speed.submitStats(stats)) if !onlyOne
       _ <- Future(Speed.writeComparisonReport(stats, "master"))
     } yield ()
@@ -123,5 +121,4 @@ class FormatTests
     if (sys.env.contains("TRAVIS"))
       Await.ready(k, 20 seconds)
   }
-
 }

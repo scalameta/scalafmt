@@ -17,4 +17,3 @@ object LogLevel {
 
   case object Error extends LogLevel(Console.RED)
 }
-

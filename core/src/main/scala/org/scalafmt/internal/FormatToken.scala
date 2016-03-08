@@ -18,7 +18,9 @@ import scala.meta.tokens.Tokens
   */
 case class FormatToken(left: Token,
                        right: Token,
-                       between: Vector[Whitespace]) extends ScalaFmtLogger {
+                       between: Vector[Whitespace])
+    extends ScalaFmtLogger {
+
   override def toString = s"${left.code}∙${right.code}"
 
   def inside(range: Set[Range]): Boolean = {
@@ -45,8 +47,7 @@ object FormatToken extends ScalaFmtLogger {
     val result = mutable.ArrayBuilder.make[FormatToken]
     val whitespace = mutable.ArrayBuilder.make[Whitespace]()
     tokens.toArray.foreach {
-      case t: Whitespace =>
-        whitespace += t
+      case t: Whitespace => whitespace += t
       case right =>
         // TODO(olafur) avoid result.toVector
         val tok = FormatToken(left, right, whitespace.result.toVector)
@@ -56,7 +57,4 @@ object FormatToken extends ScalaFmtLogger {
     }
     result.result
   }
-
 }
-
-

@@ -17,14 +17,14 @@ import scala.meta.tokens.Token
   *             this split originates.
   *
   */
-case class Split(modification: Modification, cost: Int,
-                 ignoreIf: Boolean = false,
-                 indents: Vector[Indent[Length]] = Vector.empty[Indent[Length]],
-                 policy: Policy = NoPolicy,
-                 penalty: Boolean = false,
-                 optimalAt: Option[Token] = None)
-                (implicit val line: sourcecode.Line) {
-
+case class Split(
+    modification: Modification,
+    cost: Int,
+    ignoreIf: Boolean = false,
+    indents: Vector[Indent[Length]] = Vector.empty[Indent[Length]],
+    policy: Policy = NoPolicy,
+    penalty: Boolean = false,
+    optimalAt: Option[Token] = None)(implicit val line: sourcecode.Line) {
   val indentation = indents.map(_.length match {
     case Num(x) => x.toString
     case x => x.toString
@@ -37,47 +37,46 @@ case class Split(modification: Modification, cost: Int,
       case Space => 1
       case Provided(code) =>
         val firstLine = code.indexOf("\n")
-        if (firstLine == -1) code.length
+        if (firstLine == - 1) code.length
         else firstLine
     }
 
   def withPolicy(newPolicy: Policy): Split = {
     val update =
       if (policy == NoPolicy) newPolicy
-      else throw new UnsupportedOperationException(
-        "Can't have two policies yet.")
+      else
+        throw new UnsupportedOperationException("Can't have two policies yet.")
     new Split(modification, cost, ignoreIf, indents, update, true, optimalAt)(
-      line)
+        line)
   }
 
   def withPenalty(penalty: Int): Split =
     new Split(modification,
-      cost + penalty,
-      ignoreIf,
-      indents,
-      policy,
-      true, optimalAt)(line)
+              cost + penalty,
+              ignoreIf,
+              indents,
+              policy,
+              true,
+              optimalAt)(line)
 
-  def withIndent(length: Length, expire: Token,
-                 expiresOn: ExpiresOn): Split = {
+  def withIndent(length: Length, expire: Token, expiresOn: ExpiresOn): Split = {
     length match {
       case Num(0) => this
       case _ =>
         new Split(modification,
-          cost,
-          ignoreIf,
-          Indent(length, expire, expiresOn) +: indents,
-          policy,
-          penalty, optimalAt)(line)
+                  cost,
+                  ignoreIf,
+                  Indent(length, expire, expiresOn) +: indents,
+                  policy,
+                  penalty,
+                  optimalAt)(line)
     }
   }
 
   def sameSplit(other: Split): Boolean =
     this.modification == other.modification &&
-      this.line.value == other.line.value &&
-      this.cost == other.cost
+    this.line.value == other.line.value && this.cost == other.cost
 
   override def toString =
     s"""$modification:${line.value}(cost=$cost, indents=$indentation, $policy)"""
-
 }

@@ -6,11 +6,14 @@ import scala.concurrent.duration.Duration
   * A scalafmt style, use [[ScalaStyle.Default]].
   */
 // TODO(olafur) refactor to case class or something simpler
+
 sealed trait ScalaStyle {
+
   /**
     * Column limit, any formatting exceeding this field is penalized heavily.
     */
   // TODO(olafur) soft column-limit?
+
   def maxColumn: Int = 80
 
   /**
@@ -43,13 +46,10 @@ sealed trait ScalaStyle {
     */
   def binPackDotChains: Boolean = false
 
-
   /**
     * Debugging only. Should scalafmt create a diagnostics report.
     */
   def debug: Boolean = false
-
-
 }
 
 /**
@@ -77,21 +77,20 @@ object ScalaStyle {
     override def binPackParameters = true
 
     // TODO(olafur) should be true
+
     override def binPackArguments = false
   }
 
   case object UnitTest80 extends UnitTestStyle
 
   case object UnitTest40 extends UnitTestStyle {
+
     override def maxColumn = 40
   }
 
-  case class CustomStyleBecauseIDontLikeTheProvidedStyles
-  (override val maxColumn: Int,
-   override val binPackParameters: Boolean,
-   override val binPackArguments: Boolean,
-   override val binPackDotChains: Boolean
-  ) extends ScalaStyle
-
+  case class CustomStyleBecauseIDontLikeTheProvidedStyles(
+      override val maxColumn: Int,
+      override val binPackParameters: Boolean,
+      override val binPackArguments: Boolean,
+      override val binPackDotChains: Boolean) extends ScalaStyle
 }
-

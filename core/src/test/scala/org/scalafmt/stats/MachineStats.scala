@@ -5,13 +5,13 @@ case class MachineStats(javaInfo: JavaInfo,
                         runtimeInfo: RuntimeInfo,
                         gitInfo: GitInfo)
 
-
 object MachineStats {
+
   def apply(): MachineStats =
     MachineStats(
-      JavaInfo(),
-      OsInfo(),
-      RuntimeInfo(),
-      GitInfo()
+        JavaInfo(),
+        OsInfo(),
+        RuntimeInfo(),
+        GitInfo()
     )
 }

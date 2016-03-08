@@ -13,17 +13,15 @@ final case class State(cost: Int,
                        splits: Vector[Split],
                        indentation: Int,
                        pushes: Vector[Indent[Num]],
-                       column: Int
-                      ) extends Ordered[State] with ScalaFmtLogger {
-
+                       column: Int)
+    extends Ordered[State] with ScalaFmtLogger {
 
   def compare(that: State): Int = {
     val costCompare = Integer.compare(-this.cost, -that.cost)
     if (costCompare != 0) costCompare
     else {
-      val splitsCompare = Integer.compare(
-        this.splits.length,
-        that.splits.length)
+      val splitsCompare =
+        Integer.compare(this.splits.length, that.splits.length)
       if (splitsCompare != 0) splitsCompare
       else Integer.compare(-this.indentation, -that.indentation)
     }
@@ -61,70 +59,73 @@ final case class State(cost: Int,
     // Some tokens contain newline, like multiline strings/comments.
     val lengthOnFirstLine = {
       val firstNewline = tok.right.code.indexOf('\n')
-      if (firstNewline == -1) tokLength
+      if (firstNewline == - 1) tokLength
       else firstNewline
     }
-    val columnOnCurrentLine = lengthOnFirstLine + {
-      if (split.modification.isNewline) newIndent
-      else column + split.length
-    }
+    val columnOnCurrentLine =
+      lengthOnFirstLine + {
+        if (split.modification.isNewline) newIndent
+        else column + split.length
+      }
     val lengthOnLastLine = {
       val lastNewline = tok.right.code.lastIndexOf('\n')
-      if (lastNewline == -1) tokLength
+      if (lastNewline == - 1) tokLength
       else tokLength - lastNewline - 1
     }
-    val nextStateColumn = lengthOnLastLine + {
-      // Tokens with newlines get no indentation.
-      if (tok.right.code.contains('\n')) 0
-      else if (split.modification.isNewline) newIndent
-      else column + split.length
-    }
+    val nextStateColumn =
+      lengthOnLastLine + {
+        // Tokens with newlines get no indentation.
+        if (tok.right.code.contains('\n')) 0
+        else if (split.modification.isNewline) newIndent
+        else column + split.length
+      }
     val newPolicy: PolicySummary = policy.combine(split.policy, tok.left.end)
     val splitWithPenalty = {
       if (columnOnCurrentLine < style.maxColumn || {
-        val commentExceedsLineLength = tok.right.isInstanceOf[Comment] &&
-          tok.right.code.length >= (style.maxColumn - newIndent)
-        commentExceedsLineLength && split.modification.isNewline
-      }) {
+            val commentExceedsLineLength =
+              tok.right.isInstanceOf[Comment] && tok.right.code.length >=
+              (style.maxColumn - newIndent)
+            commentExceedsLineLength && split.modification.isNewline
+          }) {
         split // fits inside column
-      }
-      else {
+      } else {
         split.withPenalty(KILL + columnOnCurrentLine) // overflow
       }
     }
 
     State(cost + splitWithPenalty.cost,
-      // TODO(olafur) expire policy, see #18.
-      newPolicy,
-      splits :+ splitWithPenalty,
-      newIndent,
-      newIndents,
-      nextStateColumn
-    )
+          // TODO(olafur) expire policy, see #18.
+          newPolicy,
+          splits :+ splitWithPenalty,
+          newIndent,
+          newIndents,
+          nextStateColumn)
   }
 }
 
 object State extends ScalaFmtLogger {
   val start = State(0,
-    PolicySummary.empty,
-    Vector.empty[Split],
-    0,
-    Vector.empty[Indent[Num]], 0
-  )
+                    PolicySummary.empty,
+                    Vector.empty[Split],
+                    0,
+                    Vector.empty[Indent[Num]],
+                    0)
 
   /**
     * Returns formatted output from FormatTokens and Splits.
     */
-  def reconstructPath(toks: Array[FormatToken], splits: Vector[Split],
-                      style: ScalaStyle, debug: Boolean =
-                      false): Seq[(FormatToken, String)] = {
+  def reconstructPath(toks: Array[FormatToken],
+                      splits: Vector[Split],
+                      style: ScalaStyle,
+                      debug: Boolean = false): Seq[(FormatToken, String)] = {
     var state = State.start
     val result = toks.zip(splits).map {
       case (tok, split) =>
         // TIP. Use the following line to debug origin of splits.
         if (debug && toks.length < 1000) {
           val left = cleanup(tok.left).slice(0, 15)
-          logger.debug(f"$left%-15s $split ${state.indentation} ${state.column}")
+          logger.debug(
+              f"$left%-15s $split ${state.indentation} ${state.column}")
         }
         state = state.next(style, split, tok)
         val whitespace = split.modification match {

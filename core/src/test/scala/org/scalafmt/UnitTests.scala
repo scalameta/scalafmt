@@ -7,15 +7,11 @@ import org.scalafmt.util.FilesUtil
 import org.scalafmt.util.HasTests
 
 object UnitTests extends HasTests with ScalaFmtLogger {
-
   import FilesUtil._
-
-
   // TODO(olafur) make possible to limit states per unit test.
   override lazy val tests: Seq[DiffTest] = {
     for {
-      filename <- listFiles(testDir)
-      if filename2parse(filename).isDefined
+      filename <- listFiles(testDir) if filename2parse(filename).isDefined
       test <- {
         // Tests are sorted first by spec, and warmup should run first.
         val spec =
@@ -31,13 +27,13 @@ object UnitTests extends HasTests with ScalaFmtLogger {
           val name :: original :: Nil = before.split("\n", 2).toList
           val actualName = stripPrefix(name)
           DiffTest(spec,
-            actualName,
-            filename,
-            original,
-            expected,
-            moduleSkip || isSkip(name),
-            moduleOnly || isOnly(name),
-            file2style(filename))
+                   actualName,
+                   filename,
+                   original,
+                   expected,
+                   moduleSkip || isSkip(name),
+                   moduleOnly || isOnly(name),
+                   file2style(filename))
         }
       }
     } yield {
@@ -51,7 +47,6 @@ object UnitTests extends HasTests with ScalaFmtLogger {
       case "default" | "standard" => ScalaStyle.UnitTest80
       case "scala" => ScalaStyle.UnitTest80
       case "scalajs" => ScalaStyle.ScalaJs
-      case style =>
-        throw UnknownStyle(style)
+      case style => throw UnknownStyle(style)
     }
 }

@@ -14,9 +14,9 @@ import scala.util.Success
 import scala.util.Try
 
 trait FormatAssertions extends FunSuiteLike with DiffAssertions {
-  def assertFormatPreservesAst[T <: Tree](original: String,
-                                          obtained: String)
-                                         (implicit ev: Parse[T]): Unit = {
+
+  def assertFormatPreservesAst[T <: Tree](original: String, obtained: String)(
+      implicit ev: Parse[T]): Unit = {
     import scala.meta._
     Try(original.parse[T]) match {
       case Failure(_) => // ignore
@@ -26,15 +26,15 @@ trait FormatAssertions extends FunSuiteLike with DiffAssertions {
             val originalStructure = originalParsed.show[scala.meta.Structure]
             val obtainedStructure = obtainedParsed.show[scala.meta.Structure]
             if (originalStructure.trim != obtainedStructure.trim) {
-            // TODO(olafur) Can produce false negatives, see
-            // https://github.com/scalameta/scalameta/issues/342
+              // TODO(olafur) Can produce false negatives, see
+              // https://github.com/scalameta/scalameta/issues/342
               throw FormatterChangedAST(
-                diffAsts(originalStructure, obtainedStructure),
-                obtained)
+                  diffAsts(originalStructure, obtainedStructure),
+                  obtained)
             }
           case Failure(e: ParseException) =>
             throw FormatterOutputDoesNotParse(
-              parseException2Message(e ,obtained))
+                parseException2Message(e, obtained))
           case _ =>
         }
     }
@@ -43,9 +43,8 @@ trait FormatAssertions extends FunSuiteLike with DiffAssertions {
   def formatAst(ast: String): String = {
     import scala.sys.process._
     val input = new ByteArrayInputStream(ast.getBytes("UTF-8"))
-    val command = List(
-      "clang-format",
-      "-style={ContinuationIndentWidth: 2, ColumnLimit: 120}")
+    val command = List("clang-format",
+                       "-style={ContinuationIndentWidth: 2, ColumnLimit: 120}")
     (command #< input).!!.trim
   }
 
@@ -55,11 +54,12 @@ trait FormatAssertions extends FunSuiteLike with DiffAssertions {
     */
   def diffAsts(original: String, obtained: String): String = {
 //    compareContents(formatAst(original), formatAst(obtained))
-    compareContents(original.replace("(", "\n("), obtained.replace("(", "\n("))
-      .lines.mkString("\n")
+    compareContents(original.replace("(", "\n("), obtained.replace("(", "\n(")).lines
+      .mkString("\n")
   }
 
   // TODO(olafur) move this to scala.meta?
+
   def parseException2Message(e: ParseException, obtained: String): String = {
     val range = 3
     val i = e.pos.start.line

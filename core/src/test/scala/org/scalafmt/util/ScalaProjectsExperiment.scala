@@ -28,7 +28,8 @@ import scala.util.control.NonFatal
   * https://github.com/lihaoyi/fastparse/blob/0d67eca8f9264bfaff68e5cbb227045ceac4a15f/scalaparse/jvm/src/test/scala/scalaparse/ProjectTests.scala
   */
 trait ScalaProjectsExperiment extends ScalaFmtLogger {
-  val results: java.util.List[ExperimentResult] = new CopyOnWriteArrayList[ExperimentResult]()
+  val results: java.util.List[ExperimentResult] =
+    new CopyOnWriteArrayList[ExperimentResult]()
   val verbose = false
   val skipProject: String => Boolean = _ => false
   val colLength = 10
@@ -69,7 +70,7 @@ trait ScalaProjectsExperiment extends ScalaFmtLogger {
     checkRepo("https://github.com/sbt/sbt", sbtIgnore)
     checkRepo("https://github.com/scala-ide/scala-ide")
     checkRepo("https://github.com/scala-js/scala-js",
-      commit = "f27a42c6aa83833bb44e9efe8d58b426131893f9")
+              commit = "f27a42c6aa83833bb44e9efe8d58b426131893f9")
     checkRepo("https://github.com/scala/pickling")
     checkRepo("https://github.com/scala/scala", scalaIgnore)
     checkRepo("https://github.com/scalafx/scalafx")
@@ -97,18 +98,20 @@ trait ScalaProjectsExperiment extends ScalaFmtLogger {
     println("CLONING?")
     if (!Files.exists(Paths.get("target", "repos", name))) {
       println("CLONING")
-      val exit =
-        List("git", "clone", url, "target/repos/" + name, "--depth", "1").!
+      val exit = List(
+          "git", "clone", url, "target/repos/" + name, "--depth", "1").!
     }
     // Avoid flakiness.
     Seq("git", s"--git-dir=$path/.git", s"checkout", commit).!
     val branch = Seq("git", s"--git-dir=$path/.git", "rev-parse", "HEAD").!!
     println("Checking project " + name)
-    val files = listFiles(path).withFilter(x => filter(x) &&
-      x.endsWith(".scala")).map(filename => {
-      val fileUrl = s"$url/blob/$branch${filename.stripPrefix(path)}".replaceAll("\\s", "")
-      run(filename).recover(recoverError(fileUrl))
-    })
+    val files = listFiles(path).withFilter(x =>
+      filter(x) && x.endsWith(".scala")).map(filename =>
+      {
+        val fileUrl = s"$url/blob/$branch${filename.stripPrefix(path)}"
+          .replaceAll("\\s", "")
+        run(filename).recover(recoverError(fileUrl))
+      })
     files.foreach(Await.result(_, files.length.seconds))
     println("")
   }
@@ -128,35 +131,37 @@ trait ScalaProjectsExperiment extends ScalaFmtLogger {
   private def run(filename: String): Future[Boolean] = Future(runOn(filename))
 
   private def sbtIgnore: String => Boolean =
-    x => !Seq(
-      // Unicode escapes in weird places
-      "target/repos/sbt/main/settings/src/main/scala/sbt/std/InputWrapper.scala",
-      // uses a package called `macro`
-      "target/repos/sbt/sbt/src/sbt-test/source-dependencies/inherited-macros",
-      "target/repos/sbt/sbt/src/sbt-test/source-dependencies/macro")
-      .exists(x.startsWith)
+    x =>
+      !Seq(
+          // Unicode escapes in weird places
+          "target/repos/sbt/main/settings/src/main/scala/sbt/std/InputWrapper.scala",
+          // uses a package called `macro`
+          "target/repos/sbt/sbt/src/sbt-test/source-dependencies/inherited-macros",
+          "target/repos/sbt/sbt/src/sbt-test/source-dependencies/macro")
+        .exists(x.startsWith)
 
   private def scalaIgnore: String => Boolean =
-    x => !Seq(
-      // This fella seems to make the scalac parser hang (???)
-      "target/repos/scala/test/files/neg/t5510.scala",
-      // Unicode escapes in weird places
-      "target/repos/scala/test/files/neg/t8015-ffb.scala",
-      "target/repos/scala/test/files/pos/t389.scala",
-      "target/repos/scala/test/files/run/literals.scala",
-      "target/repos/scala/test/files/run/t3835.scala",
-      // Scalac parser seems to accept this, though it blows up later
-      "target/repos/scala/test/files/neg/t8266-invalid-interp.scala",
-      "target/repos/scala/test/disabled/",
-      "target/repos/scala/test/files/neg/",
-      // trailing . after number
-      "target/repos/scala/test/files/presentation/infix-completion/src/Snippet.scala")
-      .exists(x.startsWith)
+    x =>
+      !Seq(
+           // This fella seems to make the scalac parser hang (???)
+           "target/repos/scala/test/files/neg/t5510.scala",
+           // Unicode escapes in weird places
+           "target/repos/scala/test/files/neg/t8015-ffb.scala",
+           "target/repos/scala/test/files/pos/t389.scala",
+           "target/repos/scala/test/files/run/literals.scala",
+           "target/repos/scala/test/files/run/t3835.scala",
+           // Scalac parser seems to accept this, though it blows up later
+           "target/repos/scala/test/files/neg/t8266-invalid-interp.scala",
+           "target/repos/scala/test/disabled/",
+           "target/repos/scala/test/files/neg/",
+           // trailing . after number
+           "target/repos/scala/test/files/presentation/infix-completion/src/Snippet.scala")
+        .exists(x.startsWith)
 
   private def lilaIgnore: String => Boolean =
-    x => !Seq(
-      "target/repos/lila/modules/lobby/src/main/SocketHandler.scala")
-      .exists(x.startsWith)
+    x =>
+      !Seq("target/repos/lila/modules/lobby/src/main/SocketHandler.scala")
+        .exists(x.startsWith)
 
   def printResults(): Unit = {
     println(header("Summary:"))
@@ -168,8 +173,7 @@ trait ScalaProjectsExperiment extends ScalaFmtLogger {
         }
         categoryResults.foreach {
           case _: Success | _: Skipped =>
-          case e =>
-            println(e.details)
+          case e => println(e.details)
         }
         if (categoryResults.nonEmpty) {
           println()
@@ -177,8 +181,7 @@ trait ScalaProjectsExperiment extends ScalaFmtLogger {
     }
     val formatStats = new DescriptiveStatistics()
     results.foreach {
-      case x: Success =>
-        formatStats.addValue(x.nanos)
+      case x: Success => formatStats.addValue(x.nanos)
       case _ =>
     }
     println(s"Total: ${results.length}")
@@ -189,28 +192,31 @@ trait ScalaProjectsExperiment extends ScalaFmtLogger {
 
   private def summarize(stats: DescriptiveStatistics): String =
     Tabulator.format(Seq(
-      Seq("Max", "Min", "Sum", "Mean", "Q1", "Q2", "Q3"),
-      Seq(stats.getMax, stats.getMin,
-        stats.getSum, stats.getMean,
-        stats.getPercentile(25),
-        stats.getPercentile(50),
-        stats.getPercentile(75)).map(formatNumber)
+        Seq("Max", "Min", "Sum", "Mean", "Q1", "Q2", "Q3"),
+        Seq(stats.getMax,
+            stats.getMin,
+            stats.getSum,
+            stats.getMean,
+            stats.getPercentile(25),
+            stats.getPercentile(50),
+            stats.getPercentile(75)).map(formatNumber)
     ))
 
-  private def formatNumber(x: Any): String = x match {
-    case d: Double =>
-      // TODO(olafur) no better lib to do this?
-      val ms = d / Math.pow(10, 6)
-      numberFormat.format(ms) + " ms"
-    case _ => x.toString
-  }
-
-  private def col(strings: Any*): String = strings.map { s =>
-    val x = s match {
-      case d: Double => numberFormat.format(d)
-      case _ => s
+  private def formatNumber(x: Any): String =
+    x match {
+      case d: Double =>
+        // TODO(olafur) no better lib to do this?
+        val ms = d / Math.pow(10, 6)
+        numberFormat.format(ms) + " ms"
+      case _ => x.toString
     }
-    x.toString.slice(0, colLength - 2).padTo(colLength - 1, " ").mkString
-  }.mkString(" ")
 
+  private def col(strings: Any *): String =
+    strings.map { s =>
+      val x = s match {
+        case d: Double => numberFormat.format(d)
+        case _ => s
+      }
+      x.toString.slice(0, colLength - 2).padTo(colLength - 1, " ").mkString
+    }.mkString(" ")
 }

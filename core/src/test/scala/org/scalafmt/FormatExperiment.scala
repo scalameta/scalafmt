@@ -18,10 +18,10 @@ import scala.meta._
 
 import scala.collection.JavaConversions._
 
-
 trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
   override val verbose = false
-  override val skipProject: String => Boolean = !_.contains("scala-js/scala-js")
+  override val skipProject: String => Boolean =
+    !_.contains("scala-js/scala-js")
 
   val awaitMaxDuration =
     // Can't guarantee performance on Travis
@@ -29,11 +29,12 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
     // Max on @olafurpg's machine is 5.9s, 2,5 GHz Intel Core i7 Macbook Pro.
     else Duration(20, "s")
 
-  def ignore(filename: String): Boolean = Seq(
-    "emitter/JSDesugaring.scala",
-    "js/ThisFunction.scala", // Computer generated.
-    "js/Any.scala" // Computer generated.
-  ).exists(filename.contains)
+  def ignore(filename: String): Boolean =
+    Seq(
+        "emitter/JSDesugaring.scala",
+        "js/ThisFunction.scala", // Computer generated.
+        "js/Any.scala" // Computer generated.
+    ).exists(filename.contains)
 
   override def runOn(filename: String): Boolean = {
     if (!ignore(filename)) {
@@ -48,23 +49,22 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
       } else {
         results.add(Skipped(filename))
       }
-    }
-    else {
+    } else {
       false
     }
   }
 }
 
 // TODO(olafur) integration test?
+
 class FormatExperimentTest extends FunSuite with FormatExperiment {
 
-  def validate(result: ExperimentResult): Unit = result match {
-    case _: Success | _: Timeout  =>
-    case failure =>
-      fail(
-        s"""Unexpected failure:
+  def validate(result: ExperimentResult): Unit =
+    result match {
+      case _: Success | _: Timeout =>
+      case failure => fail(s"""Unexpected failure:
             |$failure""".stripMargin)
-  }
+    }
 
   test("scalafmt formats all files in Scala.js") {
     runExperiment()
