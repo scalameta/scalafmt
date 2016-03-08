@@ -14,7 +14,7 @@
   pairs(List(code, formatted).map(x => half(hl.scala(x))):_*)
 }
 
-@sect("Scalafmt", org.scalafmt.Versions.scalafmt)
+@sect("Scalafmt", org.scalafmt.Versions.latestPublished)
   @h1
     Opinionated code formatter for Scala
 
@@ -28,7 +28,7 @@
 
   @p
     @lnk("Scalafmt", repo) turns the mess on the left into the (hopefully)
-    readable, idiomatic and consistent code on the right.
+    readable, idiomatic and consistent Scala code on the right.
 
   @demo
     object FormatMe { List(number) match { case head :: Nil if head % 2 == 0 => "number is even"
@@ -38,9 +38,9 @@
 
   @p
     @lnk("Scalafmt", repo) is an opinionated code formatter.
-    It means most of the time you can relieve your attention from manipulating
-    whitespace and indentation and focus instead on writing correct,
-    maintainable code. Mark the end of dreadful arguments about formatting!
+    It means most of the time you can relieve your attention from carefully
+    manipulating whitespace and focus instead on writing correct,
+    maintainable code. Mark the end of dreadful arguments on formatting!
 
   @p
     @img(marginLeft := "auto", marginRight := "auto", display := "block", src := "https://cloud.githubusercontent.com/assets/1408093/12928034/99d3ffe8-cf6b-11e5-9ec5-42de7c4e0155.gif")
@@ -62,18 +62,18 @@
 
     @sect{SBT}
       @hl.scala
-        addSbtPlugin("com.geirsson" %% "sbt-scalafmt" % "@org.scalafmt.Versions.scalafmt")
+        addSbtPlugin("com.geirsson" %% "sbt-scalafmt" % "@org.scalafmt.Versions.latestPublished")
 
       @ul
         @li
           Run @code("sbt scalafmtFormat") to format all files in the project.
         @li
           Add @code("reformatOnCompileSettings") to you build settings to
-          to enable automatically formatting files on compile.
+          enable automatically formatting files on compile.
           @b("WARNING"). Formatting a large file (~4.000 LOC) can take up
           to 1-2s, so it might be undesirable to let scalafmt delay compilation.
           Computer generated code with deeply nested applications may take even
-          longer to format or it might not even complete.
+          longer to format or it might not even complete!
 
     @sect{IntelliJ}
       @lnk("Here is the plugin", "https://plugins.jetbrains.com/plugin/8236?pr=").
@@ -141,7 +141,7 @@
     @sect{Standalone library}
       Add to your dependencies
       @hl.scala
-        libraryDependencies += "com.geirsson" %% "scalafmt" % "@org.scalafmt.Versions.scalafmt"
+        libraryDependencies += "com.geirsson" %% "scalafmt" % "@org.scalafmt.Versions.latestPublished"
       @p
         Use the API like this
         @hl.ref(wd/'readme/"library-usage.example")

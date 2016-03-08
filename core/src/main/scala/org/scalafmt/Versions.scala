@@ -5,4 +5,5 @@ package org.scalafmt
   */
 object Versions {
   val scalafmt = "0.1.1-SNAPSHOT"
+  val latestPublished = "0.1.0"
 }
