@@ -24,6 +24,7 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.language.postfixOps
+import scala.meta.parsers.common.ParseException
 
 // TODO(olafur) property test: same solution without optimization or timeout.
 
@@ -65,10 +66,17 @@ class FormatTests
         Debug.newTest()
         filename2parse(t.filename) match {
           case Some(parse) =>
-            val obtained = ScalaFmt.format_!(t.original, t.style)(parse)
-            saveResult(t, obtained)
-            assertFormatPreservesAst(t.original, obtained)(parse)
-            assertNoDiff(obtained, t.expected)
+            try {
+              val obtained = ScalaFmt.format_!(t.original, t.style)(parse)
+              saveResult(t, obtained)
+              assertFormatPreservesAst(t.original, obtained)(parse)
+              assertNoDiff(obtained, t.expected)
+            } catch {
+              case e: ParseException =>
+                fail("test does not parse" + parseException2Message(
+                    e, t.original))
+            }
+
           case None =>
             logger.warn(s"Found no parse for filename ${t.filename}")
         }

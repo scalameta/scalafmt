@@ -701,7 +701,7 @@ class Router(style: ScalaStyle,
             Split(Newline, 1)
         )
       // Inline comment
-      case FormatToken(_, c: Comment, between) if c.code.startsWith("//") =>
+      case FormatToken(_, c: Comment, between) =>
         Seq(Split(newlines2Modification(between), 0))
       // Commented out code should stay to the left
       case FormatToken(c: Comment, _, between) if c.code.startsWith("//") =>
