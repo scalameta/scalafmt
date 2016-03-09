@@ -535,14 +535,11 @@ class Router(style: ScalaStyle,
         Seq(Split(identModification(right), 0))
 
       // Template
-      case FormatToken(_, right: `extends`, _)
-          if rightOwner.isInstanceOf[Defn.Class] =>
-        val owner = rightOwner.asInstanceOf[Defn.Class]
-        val lastToken = templateCurly(owner.templ)
-        // TODO(olafur) use more precise policy?
-        val penalizeNewlines = penalizeNewlineByNesting(right, lastToken)
+      case FormatToken(_, right: `extends`, _) =>
+        val lastToken = defnTemplate(rightOwner).map(templateCurly)
+          .getOrElse(rightOwner.tokens.last)
         Seq(
-            Split(Space, 0).withPolicy(penalizeNewlines),
+            Split(Space, 0).withPolicy(SingleLineBlock(lastToken)),
             Split(Newline, 1)
         )
       case tok@FormatToken(_, right: `with`, _)

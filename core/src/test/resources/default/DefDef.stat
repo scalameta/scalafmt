@@ -43,3 +43,7 @@ x
 def myMethod[F[_]:Functor, G[_]:Applicative, A:DecodeJson:TypeTag:Meta, B:DecodeJson:TypeTag:Meta, C:Meta:TypeTag:UrlParameterEncode](gfa: G[F[A]], b: B)(f: (A,B) => C): Foo[C]
 >>>
 x
+<<< SKIP type apply formats too #117
+val x:FooBarrrrrr[BaaaaaaaaaaaazBazzz[String, Option[List[Either[Int, Option[String]]]]]]
+>>>
+x

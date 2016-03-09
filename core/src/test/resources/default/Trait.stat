@@ -1,5 +1,20 @@
 80 columns                                                                     |
-<<< ONLY break on extends #109
+<<< break on extends trait #109
 trait WorkerNavigator extends NavigatorID with NavigatorOnLine with NavigatorLanguage
 >>>
-trait WorkerNavigator extends NavigatorID with NavigatorOnLine with NavigatorLanguage
+trait WorkerNavigator
+    extends NavigatorID with NavigatorOnLine with NavigatorLanguage
+<<< break on extends object #109
+object WorkerNavigator extends NavigatorID with NavigatorOnLine with NavigatorLanguage
+>>>
+object WorkerNavigator
+    extends NavigatorID with NavigatorOnLine with NavigatorLanguage
+<<< break on extends object with curlies #109
+object WorkerNavigator extends NavigatorID with NavigatorOnLine with NavigatorLanguage {
+  val x = 1
+}
+>>>
+object WorkerNavigator
+    extends NavigatorID with NavigatorOnLine with NavigatorLanguage {
+  val x = 1
+}
