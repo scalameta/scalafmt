@@ -26,7 +26,7 @@ val attachedComment = !rightIsOnNewLine && isInlineComment(right)
 val longHash: Long =
   (token.privateTag.toLong << (62 - 8)) |
   (token.start.toLong << (62 - (8 + 28))) | token.end
-<<< backticks get no space
+<<< backticks get no space #95
   val `type`: String = js.native
 >>>
 val `type`: String = js.native

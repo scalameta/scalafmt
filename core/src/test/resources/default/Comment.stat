@@ -16,7 +16,7 @@
    */
   def read(): js.Promise[Chunk[T]] = js.native
 }
-<<< keep blank lines 2
+<<< keep blank lines 2 #99
 object KeyValue {
 
   // ================================

@@ -61,3 +61,19 @@ parser.foreach(run)
 def main(args: Array[String]) {
   parser.foreach(run)
 }
+<<< var args tuple #103
+def fill(points: (Double, Double)*) = {
+      ctx.fill()
+    }
+>>>
+def fill(points: (Double, Double)*) = {
+  ctx.fill()
+}
+<<< var args
+def fill(points: Double*) = {
+      ctx.fill()
+    }
+>>>
+def fill(points: Double*) = {
+  ctx.fill()
+}

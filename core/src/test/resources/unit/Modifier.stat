@@ -1,5 +1,5 @@
 40 columns                              |
-<<< private this
+<<< private this #94
   private[this] val root = 1
 >>>
 private[this] val root = 1

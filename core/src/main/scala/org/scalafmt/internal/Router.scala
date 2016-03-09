@@ -597,6 +597,13 @@ class Router(style: ScalaStyle,
             Split(NoSplit, 0)
         )
 
+      // Var args
+      case FormatToken(_, asterisk: Ident, _) if asterisk.code == "*" &&
+          rightOwner.isInstanceOf[Type.Arg.Repeated] =>
+        Seq(
+          Split(NoSplit, 0)
+        )
+
       // ApplyInfix.
       case tok@FormatToken(left: Ident, _, _) if isBoolOperator(left) =>
         Seq(

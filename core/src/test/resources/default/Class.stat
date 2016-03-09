@@ -51,7 +51,7 @@ final class TypedArrayBufferOps[ // scalastyle:ignore
 final class TypedArrayBufferOps[ // scalastyle:ignore
     TypedArrayType <: TypedArray[_, TypedArrayType]](val buffer: Buffer)
     extends AnyVal
-<<< template curly
+<<< template curly #100
 class MediaStream() extends EventTarget {
 
   /**
