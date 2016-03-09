@@ -1,0 +1,10 @@
+80 columns                                                                     |
+<<< ONLY js.native def is special #108
+  def uniform4fv(location: WebGLUniformLocation, v: Float32Array): Unit = js.native
+>>>
+def uniform4fv(location: WebGLUniformLocation,
+    v: Float32Array): Unit = js.native
+<<< ONLY js.native val is special #108
+  val uniform4fv________________________________________________X: Unit = js.native
+>>>
+val uniform4fv________________________________________________X: Unit = js.native

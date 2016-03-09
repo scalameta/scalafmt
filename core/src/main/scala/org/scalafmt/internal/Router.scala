@@ -270,11 +270,14 @@ class Router(style: ScalaStyle,
         Seq(
             Split(Space, 0).withIndent(4, defnSiteLastToken(leftOwner), Left)
         )
-      case tok@FormatToken(e: `=`, _, _) if leftOwner.isInstanceOf[Defn.Def] =>
+      case tok@FormatToken(e: `=`, right, _)
+          if leftOwner.isInstanceOf[Defn.Def] =>
         val expire = leftOwner.asInstanceOf[Defn.Def].body.tokens.last
+        val rhsIsJsNative = isJsNative(right)
         Seq(
             Split(Space, 0, policy = SingleLineBlock(expire)),
-            Split(Newline, 0).withIndent(2, expire, Left)
+            Split(Newline, 0, ignoreIf = rhsIsJsNative)
+              .withIndent(2, expire, Left)
         )
       case tok@FormatToken(_, open: `[`, _)
           if rightOwner.isInstanceOf[Defn.Def] =>
@@ -471,14 +474,15 @@ class Router(style: ScalaStyle,
 
         Seq(
             Split(Space, 0, policy = spacePolicy),
-            Split(mod, 1).withIndent(2, expire, Left)
+            Split(mod, 1, ignoreIf = isJsNative(right))
+              .withIndent(2, expire, Left)
         )
       case tok@FormatToken(left, dot: `.`, _)
           if rightOwner.isInstanceOf[Term.Select] &&
           // Only split if rhs is an application
           // TODO(olafur) counterexample? For example a.b[C]
-          isOpenApply(next(next(tok)).right) &&
-          !left.isInstanceOf[`_ `] && // TODO(olafur) optimize
+          isOpenApply(next(next(tok)).right) && !left.isInstanceOf[`_ `] &&
+          // TODO(olafur) optimize
           !parents(rightOwner).exists(_.isInstanceOf[Import]) =>
         val nestedPenalty = nestedSelect(rightOwner) + nestedApplies(leftOwner)
         val isLhsOfApply = rightOwner.parent.exists {
@@ -1099,6 +1103,18 @@ class Router(style: ScalaStyle,
       case _: `(` | _: `[` => true
       case _ => false
     }
+
+  /**
+    * js.native is very special in Scala.js.
+    *
+    * Context: https://github.com/olafurpg/scalafmt/issues/108
+    */
+  def isJsNative(jsToken: Token): Boolean = {
+    logger.elem(owners(jsToken).parent.get.show[Structure])
+    style == ScalaStyle.ScalaJs && jsToken.code == "js" &&
+    owners(jsToken).parent.exists(
+        _.show[Structure].trim == """Term.Select(Term.Name("js"), Term.Name("native"))""")
+  }
 
   @tailrec
   final def startsStatement(tok: FormatToken): Boolean = {

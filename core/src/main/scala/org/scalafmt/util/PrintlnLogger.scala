@@ -23,10 +23,14 @@ object PrintlnLogger {
     println(f"$logLevel%-7s $position%-25s $key")
   }
 
-  def elem[T](t: sourcecode.Text[T])(implicit line: sourcecode.Line,
-                                      file: sourcecode.File,
-                                      enclosing: sourcecode.Enclosing): Unit =
-    log(t, LogLevel.Debug, line, file, enclosing, showSource = true)
+  def elem[T](
+      ts: sourcecode.Text[T] *)(implicit line: sourcecode.Line,
+                                file: sourcecode.File,
+                                enclosing: sourcecode.Enclosing): Unit = {
+    ts.foreach { t =>
+      log(t, LogLevel.Debug, line, file, enclosing, showSource = true)
+    }
+  }
 
   def trace[T](t: sourcecode.Text[T])(implicit line: sourcecode.Line,
                                       file: sourcecode.File,
