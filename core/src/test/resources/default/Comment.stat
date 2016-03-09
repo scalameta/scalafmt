@@ -61,3 +61,23 @@ object a {
   final val BLEND_EQUATION_RGB = 0x8009 /* same as BLEND_EQUATION */
   final val BLEND_EQUATION_ALPHA = 0x883D
 }
+<<< Definitions
+object D {
+
+  private val decompressedPrefixes: Seq[(String, String)] =
+    compressedPrefixes map { case (a, b) => (b, a) }
+
+  /**
+   */
+  def decodeMethodName = 2
+  }
+>>>
+object D {
+
+  private val decompressedPrefixes: Seq[(String, String)] =
+    compressedPrefixes map { case (a, b) => (b, a) }
+
+  /**
+   */
+  def decodeMethodName = 2
+}

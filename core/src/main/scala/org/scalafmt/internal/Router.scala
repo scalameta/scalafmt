@@ -201,12 +201,16 @@ class Router(style: ScalaStyle,
           .getOrElse(rightOwner.tokens.last)
 
         val spaceCouldBeOk =
-          oldNewlines == 0 && right.isInstanceOf[Keyword] &&
+          oldNewlines == 0 && !left.isInstanceOf[Comment] &&
+          right.isInstanceOf[Keyword] &&
           isSingleIdentifierAnnotation(prev(tok))
         Seq(
-            Split(Space, 0, ignoreIf = !spaceCouldBeOk)
+            Split(
+              // This split needs to have an optimalAt field.
+                Space, 0, ignoreIf = !spaceCouldBeOk, optimalAt = Some(expire))
               .withPolicy(SingleLineBlock(expire)),
-            Split(newline, 1)
+            // For some reason, this newline cannot cost 1.
+            Split(newline, 0)
         )
 
       // TODO(olafur) more general?

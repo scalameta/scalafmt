@@ -44,6 +44,6 @@ def myMethod[F[_]:Functor, G[_]:Applicative, A:DecodeJson:TypeTag:Meta, B:Decode
 >>>
 x
 <<< SKIP type apply formats too #117
-val x:FooBarrrrrr[BaaaaaaaaaaaazBazzz[String, Option[List[Either[Int, Option[String]]]]]]
+def x:FooBarrrrrr[BaaaaaaaaaaaazBazzz[ String, Option[ List[Either[ Int, Option[String] ]]] ]]
 >>>
 x
