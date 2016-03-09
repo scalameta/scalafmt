@@ -49,7 +49,7 @@ object KeyValue {
   /** This key value */
   final val Unidentified = "Unidentified"
 }
-<<< ONLY /* */ attach like // #107
+<<< /* */ attach like // #107
 object a {
   final val BLEND_EQUATION = 0x8009
   final val BLEND_EQUATION_RGB = 0x8009   /* same as BLEND_EQUATION */

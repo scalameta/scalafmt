@@ -236,14 +236,16 @@ class Router(style: ScalaStyle,
             Split(NoSplit, 0)
         )
       // Opening ( with no leading space.
-      case FormatToken(left, open: `(`, _) if (rightOwner match {
-            case _: Term.Apply | _: Decl.Def | _: Defn.Def |
-                _: Ctor.Secondary =>
-              true
-            case _ if rightOwner.parent.exists(_.isInstanceOf[Defn.Class]) =>
-              true
-            case _ => false
-          }) =>
+      case FormatToken(left, open: `(`, _) if !left.isInstanceOf[Modifier] &&
+          (rightOwner match {
+                case _: Term.Apply | _: Decl.Def | _: Defn.Def |
+                    _: Ctor.Secondary =>
+                  true
+                case _
+                    if rightOwner.parent.exists(_.isInstanceOf[Defn.Class]) =>
+                  true
+                case _ => false
+              }) =>
         Seq(
             Split(NoSplit, 0)
         )
@@ -313,7 +315,7 @@ class Router(style: ScalaStyle,
           case t: Ctor.Primary => t.name -> t.paramss.flatten
           case x =>
             logger.error(s"""Unknown tree
-                 |${log((x.parent.get))}
+                 |${log(x.parent.get)}
                  |${isDefnSite(leftOwner)}""".stripMargin)
             ???
         }
@@ -323,7 +325,8 @@ class Router(style: ScalaStyle,
         val lhsPenalty = treeDepth(lhs)
 
         val bracketPenalty = open match {
-          case _: `[` => 1
+          // TODO(olafur) no magic number.
+          case _: `[` => 20
           case _ => 0
         }
         val nestedPenalty = nestedApplies(leftOwner)
@@ -474,7 +477,7 @@ class Router(style: ScalaStyle,
           if rightOwner.isInstanceOf[Term.Select] &&
           // Only split if rhs is an application
           // TODO(olafur) counterexample? For example a.b[C]
-          next(next(tok)).right.isInstanceOf[`(`] &&
+          isOpenApply(next(next(tok)).right) &&
           !left.isInstanceOf[`_ `] && // TODO(olafur) optimize
           !parents(rightOwner).exists(_.isInstanceOf[Import]) =>
         val nestedPenalty = nestedSelect(rightOwner) + nestedApplies(leftOwner)
@@ -706,15 +709,6 @@ class Router(style: ScalaStyle,
       // Commented out code should stay to the left
       case FormatToken(c: Comment, _, between) if c.code.startsWith("//") =>
         Seq(Split(Newline, 0))
-      case tok@FormatToken(_, c: Comment, _) =>
-        val newline: Modification =
-          if (isDocstring(c) || gets2x(next(tok)) ||
-              newlinesBetween(tok.between) > 1)
-            Newline2x
-          else Newline
-        Seq(
-            Split(newline, 0)
-        )
       case FormatToken(c: Comment, _, between) =>
         Seq(Split(newlines2Modification(between), 0))
 
@@ -1069,7 +1063,7 @@ class Router(style: ScalaStyle,
 
   def isDefnSite(tree: Tree): Boolean =
     tree match {
-      case _: Decl.Def | _: Defn.Def | _: Defn.Class => true
+      case _: Decl.Def | _: Defn.Def | _: Defn.Class | _: Type.Apply => true
       case x: Ctor.Primary if x.parent.exists(_.isInstanceOf[Defn.Class]) =>
         true
       case _ => false
@@ -1097,6 +1091,12 @@ class Router(style: ScalaStyle,
   def isTypeVariant(tree: Tree): Boolean =
     tree match {
       case _: Mod.Contravariant | _: Mod.Covariant => true
+      case _ => false
+    }
+
+  def isOpenApply(token: Token): Boolean =
+    token match {
+      case _: `(` | _: `[` => true
       case _ => false
     }
 
