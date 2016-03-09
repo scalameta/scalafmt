@@ -128,7 +128,9 @@ class Router(style: ScalaStyle,
         )
       // { ... } Blocks
       case tok@FormatToken(open: `{`, right, between) =>
-        val nl = Newline(gets2x(nextNonComment(tok)), rhsIsCommentedOut(tok))
+        val nl = Newline(
+            newlinesBetween(between) > 1 || gets2x(nextNonComment(tok)),
+            rhsIsCommentedOut(tok))
         val close = matchingParentheses(hash(open))
         val blockSize = close.start - open.end
         val ignore = blockSize > style.maxColumn || isInlineComment(right)
@@ -188,11 +190,11 @@ class Router(style: ScalaStyle,
               .withIndent(2, endOfFunction, Left)
         )
       // New statement
-      case tok@FormatToken(left, right, between)
-          if statementStarts.contains(hash(right)) =>
+      case tok@FormatToken(left, right, between) if startsStatement(tok) =>
+        val oldNewlines = newlinesBetween(between)
         val newline: Modification =
-          if ((gets2x(tok) || newlinesBetween(tok.between) > 1) &&
-              !(isDocstring(left) && newlinesBetween(between) < 2)) Newline2x
+          if ((gets2x(nextNonComment(tok)) || oldNewlines > 1) &&
+              !isDocstring(left)) Newline2x
           else Newline
         Seq(
             Split(newline, 0)
@@ -1086,6 +1088,13 @@ class Router(style: ScalaStyle,
       case _: Mod.Contravariant | _: Mod.Covariant => true
       case _ => false
     }
+
+  @tailrec
+  final def startsStatement(tok: FormatToken): Boolean = {
+    statementStarts.contains(hash(tok.right)) ||
+    (tok.right.isInstanceOf[Comment] &&
+        tok.between.exists(_.isInstanceOf[`\n`]) && startsStatement(next(tok)))
+  }
   // Used for convenience when calling withIndent.
 
   private implicit def int2num(n: Int): Num = Num(n)

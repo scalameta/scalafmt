@@ -1,9 +1,51 @@
 80 columns                                                                     |
-<<< assign comment to left inline
-val singleLine = // Don't force single line policy if only one argument.
-    if (singleArgument) NoPolicy
-    else SingleLineBlock(close, exclude)
+<<< keep blank lines
+{
+  def cancel(reason: Any): js.Promise[Any] = js.native // comment
+
+  /**
+   */
+  def read(): js.Promise[Chunk[T]] = js.native
+  }
 >>>
-val singleLine = // Don't force single line policy if only one argument.
-  if (singleArgument) NoPolicy
-  else SingleLineBlock(close, exclude)
+{
+
+  def cancel(reason: Any): js.Promise[Any] = js.native // comment
+
+  /**
+   */
+  def read(): js.Promise[Chunk[T]] = js.native
+}
+<<< keep blank lines 2
+object KeyValue {
+
+  // ================================
+  // 6.3.1 Special Key Values
+
+
+  /** This key value */
+    final val Unidentified = "Unidentified"
+}
+>>>
+object KeyValue {
+
+  // ================================
+  // 6.3.1 Special Key Values
+
+  /** This key value */
+  final val Unidentified = "Unidentified"
+}
+<<< two comments attached to def
+object KeyValue {
+
+  // comment
+  /** This key value */
+    final val Unidentified = "Unidentified"
+}
+>>>
+object KeyValue {
+
+  // comment
+  /** This key value */
+  final val Unidentified = "Unidentified"
+}
