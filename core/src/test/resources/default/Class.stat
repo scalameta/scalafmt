@@ -65,3 +65,13 @@ class MediaStream() extends EventTarget {
    */
   val ended: Boolean = js.native
 }
+<<< secondary constructor #110
+class ClipboardEvent(`type`: String) extends Event {
+  @deprecated("Use the overload with a ClipboardEventInit instead.", "0.8.1")
+  def this(`type`: String) = this(`type`)
+  }
+>>>
+class ClipboardEvent(`type`: String) extends Event {
+  @deprecated("Use the overload with a ClipboardEventInit instead.", "0.8.1")
+  def this(`type`: String) = this(`type`)
+}

@@ -237,7 +237,9 @@ class Router(style: ScalaStyle,
         )
       // Opening ( with no leading space.
       case FormatToken(left, open: `(`, _) if (rightOwner match {
-            case _: Term.Apply | _: Decl.Def | _: Defn.Def => true
+            case _: Term.Apply | _: Decl.Def | _: Defn.Def |
+                _: Ctor.Secondary =>
+              true
             case _ if rightOwner.parent.exists(_.isInstanceOf[Defn.Class]) =>
               true
             case _ => false
