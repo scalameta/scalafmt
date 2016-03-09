@@ -601,7 +601,7 @@ class Router(style: ScalaStyle,
       case FormatToken(_, asterisk: Ident, _) if asterisk.code == "*" &&
           rightOwner.isInstanceOf[Type.Arg.Repeated] =>
         Seq(
-          Split(NoSplit, 0)
+            Split(NoSplit, 0)
         )
 
       // ApplyInfix.
@@ -763,6 +763,13 @@ class Router(style: ScalaStyle,
         )
       // Curried functions
       case FormatToken(_: `)`, _: `(`, _) =>
+        Seq(
+            Split(NoSplit, 0)
+        )
+
+      // Singleton types
+      case FormatToken(_, _: `type`, _)
+          if rightOwner.isInstanceOf[Type.Singleton] =>
         Seq(
             Split(NoSplit, 0)
         )

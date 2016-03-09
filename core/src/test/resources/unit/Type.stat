@@ -27,3 +27,7 @@ package object internal {
  trait JSIterator[+A] extends js.Object
 >>>
 trait JSIterator[+A] extends js.Object
+<<< ONLY singleton type #104
+  lazy val Blob: raw.Blob.type = raw.Blob
+>>>
+lazy val Blob: raw.Blob.type = raw.Blob
