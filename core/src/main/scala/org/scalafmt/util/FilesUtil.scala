@@ -1,8 +1,7 @@
 package org.scalafmt.util
 
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.Paths
+import java.io.PrintWriter
 
 import org.scalafmt.internal.ScalaFmtLogger
 
@@ -13,7 +12,7 @@ object FilesUtil extends ScalaFmtLogger {
   }
 
   def listFiles(file: File): Vector[String] = {
-    if (Files.isRegularFile(Paths.get(file.toURI))) {
+    if (file.isFile) {
       Vector(file.getAbsolutePath)
     } else {
 
@@ -35,13 +34,24 @@ object FilesUtil extends ScalaFmtLogger {
     */
   def readFile(filename: String): String = {
     if (filename.startsWith("http")) {
-      scala.io.Source.fromURL(filename).mkString
+      scala.io.Source.fromURL(filename)("UTF-8").getLines().mkString("\n")
     } else {
-      new String(Files.readAllBytes(Paths.get(filename)))
+      // TODO(olafur) allow user to specify encoding through CLI.
+      scala.io.Source.fromFile(filename)("UTF-8").getLines().mkString("\n")
     }
   }
 
+  def getFile(path: String *): File = {
+    new File(path.mkString(File.separator))
+  }
+
   def writeFile(filename: String, content: String): Unit = {
-    Files.write(Paths.get(filename), content.getBytes)
+    // For java 6 compatibility we don't use java.nio.
+    val pw = new PrintWriter(new File(filename))
+    try {
+      pw.write(content)
+    } finally {
+      pw.close()
+    }
   }
 }

@@ -6,5 +6,3 @@ addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.0.1")
 addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.2.6")
 addSbtPlugin("com.lihaoyi" % "scalatex-sbt-plugin" % "0.3.5")
 
-
-

@@ -1,7 +1,6 @@
 package org.scalafmt.util
 
-import java.nio.file.Files
-import java.nio.file.Paths
+import java.io.File
 import java.text.NumberFormat
 import java.util.Locale
 import java.util.concurrent.CopyOnWriteArrayList
@@ -96,10 +95,10 @@ trait ScalaProjectsExperiment extends ScalaFmtLogger {
     val name = repoName(url)
     val path = pathRoot + name
     println("CLONING?")
-    if (!Files.exists(Paths.get("target", "repos", name))) {
+    if (!FilesUtil.getFile("target", "repos", name).isDirectory) {
       println("CLONING")
       val exit = List(
-          "git", "clone", url, "target/repos/" + name, "--depth", "1").!
+          "git", "clone", url, "target/repos/" + name).!
     }
     // Avoid flakiness.
     Seq("git", s"--git-dir=$path/.git", s"checkout", commit).!
