@@ -1,8 +1,6 @@
 package org.scalafmt.cli
 
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.Paths
 
 import org.scalafmt.ScalaFmt
 import org.scalafmt.ScalaStyle

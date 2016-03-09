@@ -10,8 +10,11 @@ script:
 after_success:
   - codecov
 jdk:
-# Need java 8 for http4s in tests.
   - oraclejdk8
+  - oraclejdk7
+# The actual formatter (core+cli main projects) should work on Java 6 as well,
+# only the surrounding projects (like readme) rely on Java 7 APIs through
+# transitive dependencies.
 notifications:
   email:
     - olafurpg@gmail.com

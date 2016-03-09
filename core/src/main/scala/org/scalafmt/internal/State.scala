@@ -17,13 +17,13 @@ final case class State(cost: Int,
     extends Ordered[State] with ScalaFmtLogger {
 
   def compare(that: State): Int = {
-    val costCompare = Integer.compare(-this.cost, -that.cost)
+    val costCompare = Integer.valueOf(-this.cost).compareTo(-that.cost)
     if (costCompare != 0) costCompare
     else {
       val splitsCompare =
-        Integer.compare(this.splits.length, that.splits.length)
+        Integer.valueOf(this.splits.length).compareTo(that.splits.length)
       if (splitsCompare != 0) splitsCompare
-      else Integer.compare(-this.indentation, -that.indentation)
+      else Integer.valueOf(-this.indentation).compareTo(-that.indentation)
     }
   }
 

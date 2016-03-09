@@ -1,6 +1,6 @@
 package org.scalafmt.util
 
-import java.nio.file.Paths
+import java.io.File
 
 /**
   * Yet Another Logger.
@@ -16,7 +16,7 @@ object PrintlnLogger {
                      file: sourcecode.File,
                      enclosing: sourcecode.Enclosing,
                      showSource: Boolean): Unit = {
-    val position = f"${Paths.get(file.value).getFileName}:${line.value}"
+    val position = f"${new File(file.value).getName}:${line.value}"
     val key =
       if (showSource) s"(${t.source})= ${t.value}"
       else t.value

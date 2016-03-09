@@ -1,9 +1,6 @@
 package org.scalafmt.benchmarks
 
-import java.nio.file.FileSystems
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
+import java.io.File
 import java.util.concurrent.TimeUnit
 
 import org.openjdk.jmh.annotations.Benchmark
@@ -16,6 +13,7 @@ import org.openjdk.jmh.annotations.Setup
 import org.openjdk.jmh.annotations.Warmup
 import org.scalafmt.ScalaFmt
 import org.scalafmt.ScalaStyle
+import org.scalafmt.util.FilesUtil
 
 import scala.meta.Source
 import scalariform.formatter.ScalaFormatter
@@ -38,21 +36,19 @@ abstract class FormatBenchmark(path: String *) {
   val scalariformPreferences =
     FormattingPreferences().setPreference(IndentSpaces, 3)
   val classLoader = getClass.getClassLoader
-  val separator = FileSystems.getDefault.getSeparator
-  val filename = path.mkString(separator)
   var code: String = _
 
   @Setup
   def setup(): Unit = {
-    code = new String(Files.readAllBytes(getPath))
+    code = FilesUtil.readFile(getPath.getAbsolutePath)
   }
 
-  def getPath: Path = {
-    val path = Paths.get("src", "resources", filename)
+  def getPath: File = {
+    val filename = FilesUtil.getFile(Seq("src", "resources") ++ path:_*)
     // jmh runs from benchmarks directory while tests run from from root.
     // Can't bother to find more generic solution
-    if (Files.isRegularFile(path)) path
-    else Paths.get("benchmarks", "src", "resources", filename)
+    if (filename.isFile) filename
+    else FilesUtil.getFile(Seq("benchmarks", "src", "resources") ++ path:_*)
   }
 
   def scalametaParser(): Unit = {

@@ -31,7 +31,7 @@ case class FormatToken(left: Token,
   /**
     * A format token is uniquely identified by its left token.
     */
-  override def hashCode(): Int = java.lang.Long.hashCode(hash(left))
+  override def hashCode(): Int = hash(left).##
 }
 
 object FormatToken extends ScalaFmtLogger {
