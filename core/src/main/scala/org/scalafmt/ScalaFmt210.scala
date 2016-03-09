@@ -5,6 +5,7 @@ package org.scalafmt
   * plugin.
   */
 class ScalaFmt210 {
+
   def format(code: String): String = {
     ScalaFmt.format(code)
   }

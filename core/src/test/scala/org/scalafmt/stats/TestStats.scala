@@ -4,9 +4,12 @@ import java.util.Date
 
 import org.scalafmt.util.Result
 
-case class TestStats(createdAt: Long, results: Seq[Result], javaInfo: JavaInfo,
-    osInfo: OsInfo, runtimeInfo: RuntimeInfo,
-    gitInfo: GitInfo) {
+case class TestStats(createdAt: Long,
+                     results: Seq[Result],
+                     javaInfo: JavaInfo,
+                     osInfo: OsInfo,
+                     runtimeInfo: RuntimeInfo,
+                     gitInfo: GitInfo) {
 
   // TODO: remove machineStats
 
@@ -15,7 +18,7 @@ case class TestStats(createdAt: Long, results: Seq[Result], javaInfo: JavaInfo,
 
   def shortCommit: String = gitInfo.commit.take(6)
 
-  def intersectResults(other: TestStats): Seq[( Result, Result)] = {
+  def intersectResults(other: TestStats): Seq[(Result, Result)] = {
     val resultByName = other.results.map(x => x.test.fullName -> x).toMap
     results.collect {
       case r if resultByName.contains(r.test.fullName) =>

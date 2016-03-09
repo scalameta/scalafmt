@@ -23,16 +23,14 @@ import scala.reflect.classTag
   * Implements best first search to find optimal formatting.
   */
 class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
-  extends ScalaFmtLogger {
-
+    extends ScalaFmtLogger {
   import BestFirstSearch._
 
-  val maxVisitStates =  // For debugging purposes only.
+  val maxVisitStates = // For debugging purposes only.
     if (style.debug) 100000 // Unit tests must be < 100k states
     else 10000000
 
   val doOptimizations = true // For debugging purposes only.
-
   /**
     * Eliminate solutions that are inferior to already explored solutions.
     *
@@ -77,17 +75,17 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
   val matchingParentheses = getMatchingParentheses(tree.tokens)
   val noOptimizations = noOptimizationZones(tree)
   val best = mutable.Map.empty[Token, State]
-  val router = new Router(style, tree, toks,
-    matchingParentheses, statementStarts, owners)
+  val router = new Router(
+      style, tree, toks, matchingParentheses, statementStarts, owners)
   var explored = 0
   var deepestYet = State.start
   var statementCount = 0
 
   type StateHash = Long
 
-
   def isInsideNoOptZone(token: FormatToken): Boolean = {
-    !disableOptimizationsInsideSensitiveAreas || noOptimizations.contains(token.left)
+    !disableOptimizationsInsideSensitiveAreas ||
+    noOptimizations.contains(token.left)
   }
 
   /**
@@ -97,16 +95,18 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
     val splitToken = toks(curr.splits.length)
     val insideOptimizationZone =
       curr.policy.noDequeue || isInsideNoOptZone(splitToken)
-    def hasBestSolution = !pruneNonOptimal || insideOptimizationZone || {
-      val splitToken = toks(curr.splits.length)
-      // TODO(olafur) document why/how this optimization works.
-      val result = !best.get(splitToken.left).exists(_.alwaysBetter(curr))
-      if (!result) {
-        logger.trace(s"Eliminated $curr ${curr.splits.last}")
+
+    def hasBestSolution =
+      !pruneNonOptimal || insideOptimizationZone || {
+        val splitToken = toks(curr.splits.length)
+        // TODO(olafur) document why/how this optimization works.
+        val result = !best.get(splitToken.left).exists(_.alwaysBetter(curr))
+        if (!result) {
+          logger.trace(s"Eliminated $curr ${curr.splits.last}")
+        }
+        result
       }
-      result
-    }
-   hasBestSolution
+    hasBestSolution
   }
 
   def getLeftLeft(curr: State): Token = {
@@ -117,27 +117,23 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
     val leftLeft = getLeftLeft(curr)
     val leftLeftOwner = owners(hash(leftLeft))
     val splitToken = toks(curr.splits.length)
-    recurseOnBlocks &&
-      isInsideNoOptZone(splitToken) &&
-      leftLeft.isInstanceOf[`{`] &&
-      matchingParentheses(hash(leftLeft)) != stop &&
-      {
-        // Block must span at least 3 lines to be worth recursing.
-        val close = matchingParentheses(hash(leftLeft))
-        // TODO(olafur) magic number
-        close.start - leftLeft.end > style.maxColumn * 3
-      } &&
-      extractStatementsIfAny(leftLeftOwner).nonEmpty
+    recurseOnBlocks && isInsideNoOptZone(splitToken) &&
+    leftLeft.isInstanceOf[`{`] &&
+    matchingParentheses(hash(leftLeft)) != stop && {
+      // Block must span at least 3 lines to be worth recursing.
+      val close = matchingParentheses(hash(leftLeft))
+      // TODO(olafur) magic number
+      close.start - leftLeft.end > style.maxColumn * 3
+    } && extractStatementsIfAny(leftLeftOwner).nonEmpty
   }
 
   def provided(formatToken: FormatToken): Split = {
     // TODO(olafur) the indentation is not correctly set.
-    val split =
-      Split(Provided(formatToken.between.map(_.code).mkString), 0)
+    val split = Split(Provided(formatToken.between.map(_.code).mkString), 0)
     val result =
       if (formatToken.left.isInstanceOf[`{`])
-        split.withIndent(Num(2),
-          matchingParentheses(hash(formatToken.left)), Right)
+        split.withIndent(
+            Num(2), matchingParentheses(hash(formatToken.left)), Right)
       else split
     result
   }
@@ -153,7 +149,7 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
   val memo = mutable.Map.empty[(Int, StateHash), State]
 
   def shortestPathMemo(start: State, stop: Token, depth: Int)(
-    implicit line: sourcecode.Line): State = {
+      implicit line: sourcecode.Line): State = {
     memo.getOrElseUpdate((start.splits.length, stateColumnKey(start)), {
       shortestPath(start, stop, depth)
     })
@@ -162,9 +158,11 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
   /**
     * Runs best first search to find lowest penalty split.
     */
-  def shortestPath(start: State, stop: Token, depth: Int = 0,
+  def shortestPath(start: State,
+                   stop: Token,
+                   depth: Int = 0,
                    maxCost: Int = Integer.MAX_VALUE)(
-    implicit line: sourcecode.Line): State = {
+      implicit line: sourcecode.Line): State = {
     val Q = new mutable.PriorityQueue[State]()
     var result = start
     Q += start
@@ -176,7 +174,7 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
         logger.debug(s"Explored $explored, depth=$depth Q.size=${Q.size}")
       }
       if (hasReachedEof(curr) ||
-        toks(curr.splits.length).left.start >= stop.start) {
+          toks(curr.splits.length).left.start >= stop.start) {
         result = curr
         Q.dequeueAll
         Unit
@@ -187,9 +185,9 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
         }
 
         if (dequeOnNewStatements &&
-          statementStarts.contains(hash(splitToken.left)) &&
-          (depth > 0 || !isInsideNoOptZone(splitToken) || Q.size > maxQueueSize) &&
-          curr.splits.last.modification.isNewline ) {
+            statementStarts.contains(hash(splitToken.left)) && (depth > 0 ||
+                !isInsideNoOptZone(splitToken) || Q.size > maxQueueSize) &&
+            curr.splits.last.modification.isNewline) {
           Q.dequeueAll
         }
 
@@ -198,32 +196,27 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
         }
         if (shouldRecurseOnBlock(curr, stop)) {
           val close = matchingParentheses(hash(getLeftLeft(curr)))
-          val nextState = shortestPathMemo(
-            curr,
-            close,
-            depth = depth + 1)
+          val nextState = shortestPathMemo(curr, close, depth = depth + 1)
           // TODO(olafur) what if we don't reach close?
           logger.trace(
-            s"""$splitToken ${toks(nextState.splits.length)} $stop $depth
+              s"""$splitToken ${toks(nextState.splits.length)} $stop $depth
                |${mkString(nextState.splits)}
                |${nextState.policy.policies}
              """.stripMargin)
           Q.enqueue(nextState)
         } else {
-
           val splits: Seq[Split] =
             if (splitToken.inside(range))
               router.getSplitsMemo(splitToken)
             else List(provided(splitToken))
 
           val actualSplit = {
-            curr.policy
-              .execute(Decision(splitToken, splits)).splits
-              .filter(!_.ignoreIf)
-              .sortBy(_.cost)
+            curr.policy.execute(Decision(splitToken, splits)).splits
+              .filter(!_.ignoreIf).sortBy(_.cost)
           }
           if (curr == deepestYet) {
-            logger.trace(s"actualSplits=$actualSplit ${curr.splits.length} ${toks.length}")
+            logger.trace(
+                s"actualSplits=$actualSplit ${curr.splits.length} ${toks.length}")
           }
           var optimalNotFound = true
           actualSplit.foreach { split =>
@@ -237,23 +230,29 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
             }
             split.optimalAt match {
               case Some(token) if actualSplit.length > 1 && split.cost == 0 =>
-                val nextNextState = shortestPath(nextState, token, depth + 1, maxCost = 0)(sourcecode.Line.generate)
+                val nextNextState =
+                  shortestPath(nextState, token, depth + 1, maxCost = 0)(
+                      sourcecode.Line.generate)
                 if (hasReachedEof(nextNextState) ||
-                  (nextNextState.splits.length < toks.length &&
-                    toks(nextNextState.splits.length).left.start >= token.start)) {
+                    (nextNextState.splits.length < toks.length &&
+                        toks(nextNextState.splits.length).left.start >= token.start)) {
                   optimalNotFound = false
                   Q.enqueue(nextNextState)
                 } else if (nextState.cost - curr.cost <= maxCost) {
                   // TODO(olafur) DRY. This solution can still be optimal.
                   Q.enqueue(nextState)
                 } else {
-                  logger.trace(s"$split depth=$depth $nextState ${nextState.splits.length} ${toks.length}")
+                  logger.trace(
+                      s"$split depth=$depth $nextState ${nextState.splits.length} ${toks.length}")
                 }
-              case _ if optimalNotFound && nextState.cost - curr.cost <= maxCost =>
+              case _ if optimalNotFound &&
+                  nextState.cost - curr.cost <= maxCost =>
                 Q.enqueue(nextState)
-                logger.trace(s"$line depth=$depth $nextState ${nextState.splits.length} ${toks.length}")
+                logger.trace(
+                    s"$line depth=$depth $nextState ${nextState.splits.length} ${toks.length}")
               case _ => // Other split was optimal
-                logger.trace(s"$split depth=$depth $nextState ${nextState.splits.length} ${toks.length}")
+                logger.trace(
+                    s"$split depth=$depth $nextState ${nextState.splits.length} ${toks.length}")
             }
           }
         }
@@ -268,19 +267,18 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
     if (state.splits.length != toks.length) {
       val nextSplits = router.getSplits(toks(deepestYet.splits.length))
       val tok = toks(deepestYet.splits.length)
-      val msg =
-        s"""UNABLE TO FORMAT,
+      val msg = s"""UNABLE TO FORMAT,
             |tok=$tok
             |state.length=${state.splits.length}
             |toks.length=${toks.length}
             |deepestYet.length=${deepestYet.splits.length}
             |policies=${deepestYet.policy.policies}
             |nextSplits=$nextSplits
-            |splitsAfterPolicy=${deepestYet.policy.execute(Decision(tok, nextSplits))}
+            |splitsAfterPolicy=${deepestYet.policy.execute(Decision(
+          tok, nextSplits))}
             |""".stripMargin
       if (style.debug) {
-        logger.warn(
-          s"""Failed to format
+        logger.warn(s"""Failed to format
             |$msg
           """.stripMargin)
         state = deepestYet
@@ -313,51 +311,47 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
     var inside = false
     var expire = tree.tokens.head
     tree.tokens.foreach {
-      case t
-        if !inside &&  ((t, owners(hash(t))) match {
-          case (_: `(`,  _: Term.Apply) =>
-            // TODO(olafur) https://github.com/scalameta/scalameta/issues/345
-            val x = true; x
-          // Type compounds can be inside defn.defs
-          // TODO(olafur) what about large type aliases?
-          case (_: `{`,  _: Type.Compound) => true
-          case _ => false
-        }) =>
+      case t if !inside && ((t, owners(hash(t))) match {
+            case (_: `(`, _: Term.Apply) =>
+              // TODO(olafur) https://github.com/scalameta/scalameta/issues/345
+              val x = true;
+              x
+            // Type compounds can be inside defn.defs
+            // TODO(olafur) what about large type aliases?
+            case (_: `{`, _: Type.Compound) => true
+            case _ => false
+          }) =>
         inside = true
         expire = matchingParentheses(hash(t))
-      case x if x == expire =>
-        inside = false
-      case x if inside =>
-        result += x
+      case x if x == expire => inside = false
+      case x if inside => result += x
       case _ =>
     }
     result.result()
   }
-
 }
 
 object BestFirstSearch extends ScalaFmtLogger {
 
-
-  def extractStatementsIfAny(tree: Tree): Seq[Tree] = tree match {
-    case b: Term.Block => b.stats
-    case t: Pkg => t.stats
-    // TODO(olafur) would be nice to have an abstract "For" superclass.
-    case t: Term.For => t.enums.filterNot(_.isInstanceOf[Enumerator.Guard])
-    case t: Term.ForYield => t.enums.filterNot(_.isInstanceOf[Enumerator.Guard])
-    case t: Term.Match => t.cases
-    case t: Term.PartialFunction => t.cases
-    case t: Term.TryWithCases => t.catchp
-    case t: Type.Compound => t.refinement
-    case t: scala.meta.internal.ast.Source => t.stats
-    case t: Template if t.stats.isDefined => t.stats.get
-    case _ => Seq.empty[Tree]
-  }
-
+  def extractStatementsIfAny(tree: Tree): Seq[Tree] =
+    tree match {
+      case b: Term.Block => b.stats
+      case t: Pkg => t.stats
+      // TODO(olafur) would be nice to have an abstract "For" superclass.
+      case t: Term.For => t.enums.filterNot(_.isInstanceOf[Enumerator.Guard])
+      case t: Term.ForYield =>
+        t.enums.filterNot(_.isInstanceOf[Enumerator.Guard])
+      case t: Term.Match => t.cases
+      case t: Term.PartialFunction => t.cases
+      case t: Term.TryWithCases => t.catchp
+      case t: Type.Compound => t.refinement
+      case t: scala.meta.internal.ast.Source => t.stats
+      case t: Template if t.stats.isDefined => t.stats.get
+      case _ => Seq.empty[Tree]
+    }
 
   def getStatementStarts(tree: Tree): Map[TokenHash, Tree] = {
-    val ret =
-      new mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](
+    val ret = new mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](
         Map[TokenHash, Tree]())
 
     def addAll(trees: Seq[Tree]): Unit = {
@@ -409,7 +403,7 @@ object BestFirstSearch extends ScalaFmtLogger {
     */
   def getMatchingParentheses(tokens: Tokens): Map[TokenHash, Token] = {
     val ret = new mutable.MapBuilder[TokenHash, Token, Map[TokenHash, Token]](
-      Map.empty[TokenHash, Token])
+        Map.empty[TokenHash, Token])
     var stack = List.empty[Token]
     tokens.foreach {
       case open@(_: `{` | _: `[` | _: `(`) => stack = open :: stack
@@ -431,8 +425,7 @@ object BestFirstSearch extends ScalaFmtLogger {
       case (_: `[`, _: `]`) =>
       case (_: `(`, _: `)`) =>
       case (o, c) =>
-        throw new IllegalArgumentException(
-          s"Mismatching parens ($o, $c)")
+        throw new IllegalArgumentException(s"Mismatching parens ($o, $c)")
     }
   }
 
@@ -441,7 +434,8 @@ object BestFirstSearch extends ScalaFmtLogger {
     */
   def getOwners(tree: Tree): Map[TokenHash, Tree] = {
     val result = new mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](
-      Map.empty[TokenHash, Tree])
+        Map.empty[TokenHash, Tree])
+
     def loop(x: Tree): Unit = {
       x.tokens.foreach { tok =>
         result += hash(tok) -> x
@@ -451,5 +445,4 @@ object BestFirstSearch extends ScalaFmtLogger {
     loop(tree)
     result.result()
   }
-
 }

@@ -12,9 +12,9 @@ package object internal {
   @tailrec
   final def childOf(child: Tree, tree: Tree): Boolean = {
     child == tree || (child.parent match {
-      case Some(parent) => childOf(parent, tree)
-      case _ => false
-    })
+          case Some(parent) => childOf(parent, tree)
+          case _ => false
+        })
   }
 
   def childOf(tok: Token, tree: Tree, owners: Map[TokenHash, Tree]): Boolean =
@@ -40,19 +40,20 @@ package object internal {
     * The only chance for collision is if two empty length tokens with the same
     * type lie next to each other. @xeno-by said this should not happen.
     */
-  @inline def hash(token: Token): TokenHash = {
+  @inline
+  def hash(token: Token): TokenHash = {
     val longHash: Long =
       (token.privateTag.toLong << (62 - 8)) |
-        (token.start.toLong << (62 - (8 + 28))) | token.end
+      (token.start.toLong << (62 - (8 + 28))) | token.end
     longHash
   }
 
   @tailrec
-  final def parents(tree: Tree, accum: Seq[Tree] = Seq.empty[Tree]): Seq[Tree] = {
+  final def parents(
+      tree: Tree, accum: Seq[Tree] = Seq.empty[Tree]): Seq[Tree] = {
     tree.parent match {
       case Some(parent) => parents(parent, parent +: accum)
       case _ => accum
     }
   }
 }
-

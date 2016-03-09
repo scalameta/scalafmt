@@ -15,7 +15,8 @@ trait HasTests {
 
   def filename2parse(filename: String): Option[Parse[_ <: Tree]] =
     extension(filename) match {
-      case "source" | "scala" | "scalafmt" => Some(scala.meta.parsers.parseSource)
+      case "source" | "scala" | "scalafmt" =>
+        Some(scala.meta.parsers.parseSource)
       case "stat" => Some(scala.meta.parsers.parseStat)
       case "case" => Some(scala.meta.parsers.parseCase)
       case _ => None

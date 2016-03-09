@@ -51,14 +51,13 @@ object ScalaFmt extends ScalaFmtLogger {
     *           for available types.
     * @return The source code formatted.
     */
-  def format_![T <: Tree](code: String,
-                          style: ScalaStyle,
-                          range: Set[Range] = Set.empty[Range])
-                         (implicit ev: Parse[T]): String = {
+  def format_![T <: Tree](
+      code: String,
+      style: ScalaStyle,
+      range: Set[Range] = Set.empty[Range])(implicit ev: Parse[T]): String = {
     import scala.meta._
     val source = code.parse[T]
     val graphSearch = new BestFirstSearch(style, source, range)
     graphSearch.formatTree()
   }
-
 }

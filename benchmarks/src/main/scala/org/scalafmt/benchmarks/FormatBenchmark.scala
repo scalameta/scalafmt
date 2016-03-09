@@ -34,8 +34,7 @@ import scalariform.formatter.preferences.IndentSpaces
 @Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @BenchmarkMode(Array(Mode.AverageTime))
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
-abstract class FormatBenchmark(path: String*) {
-
+abstract class FormatBenchmark(path: String *) {
   val scalariformPreferences =
     FormattingPreferences().setPreference(IndentSpaces, 3)
   val classLoader = getClass.getClassLoader
@@ -63,8 +62,8 @@ abstract class FormatBenchmark(path: String*) {
 
   @Benchmark
   def scalafmt(): String = {
-    ScalaFmt.format_![Source](code,
-      ScalaStyle.Default)(scala.meta.parsers.parseSource)
+    ScalaFmt.format_![Source](code, ScalaStyle.Default)(
+        scala.meta.parsers.parseSource)
   }
 
   // No need to run same benchmark again and again.
@@ -77,15 +76,14 @@ abstract class FormatBenchmark(path: String*) {
 object run {
 
   abstract class ScalaJsBenchmark(filename: String)
-    extends FormatBenchmark("scala-js", filename)
+      extends FormatBenchmark("scala-js", filename)
 
   class OptimizerCore extends ScalaJsBenchmark("OptimizerCore.scala")
 
   class GenJsCode extends ScalaJsBenchmark("GenJSCode.scala")
 
-  class ScalaJSClassEmitter extends ScalaJsBenchmark("ScalaJSClassEmitter.scala")
+  class ScalaJSClassEmitter
+      extends ScalaJsBenchmark("ScalaJSClassEmitter.scala")
 
   class JavaLangString extends ScalaJsBenchmark("JavaLangString.scala")
-
 }
-

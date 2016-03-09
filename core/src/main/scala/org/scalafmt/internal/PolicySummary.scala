@@ -1,7 +1,6 @@
 package org.scalafmt.internal
 
 class PolicySummary(val policies: Vector[Policy]) extends ScalaFmtLogger {
-
   val noDequeue = policies.exists(_.noDequeue)
 
   def combine(other: Policy, position: Int): PolicySummary = {
@@ -30,7 +29,6 @@ class PolicySummary(val policies: Vector[Policy]) extends ScalaFmtLogger {
     result
   }
 }
-
 
 object PolicySummary {
   val empty = new PolicySummary(Vector.empty[Policy])

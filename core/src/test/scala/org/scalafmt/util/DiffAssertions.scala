@@ -14,29 +14,28 @@ trait DiffAssertions extends FunSuiteLike with ScalaFmtLogger {
 
   def error2message(obtained: String, expected: String): String = {
     if (expected.length > 10000)
-    s"""
+      s"""
        |${header("Obtained")}
        |${trailingSpace(obtained)}
          """.stripMargin
-    else
-    s"""
+    else s"""
        |${header("Obtained")}
        |${trailingSpace(obtained)}
        |
        |${header("Diff")}
        |${trailingSpace(compareContents(obtained, expected))}
          """.stripMargin
-
   }
 
-  def assertNoDiff(obtained: String, expected: String, title: String = ""): Boolean = {
+  def assertNoDiff(
+      obtained: String, expected: String, title: String = ""): Boolean = {
     val result = compareContents(obtained, expected)
     if (result.isEmpty)
       true
     else {
-        throw new TestFailedException( title + "\n" +
-          error2message(obtained, expected), 1)
-      }
+      throw new TestFailedException(
+          title + "\n" + error2message(obtained, expected), 1)
+    }
   }
 
   def trailingSpace(str: String): String = str.replaceAll(" \n", "∙\n")
@@ -51,11 +50,11 @@ trait DiffAssertions extends FunSuiteLike with ScalaFmtLogger {
     if (diff.getDeltas.isEmpty) ""
     else
       difflib.DiffUtils.generateUnifiedDiff(
-        "original",
-        "revised",
-        original.asJava,
-        diff,
-        1
+          "original",
+          "revised",
+          original.asJava,
+          diff,
+          1
       ).asScala.drop(3).mkString("\n")
   }
 
