@@ -520,8 +520,7 @@ class Router(style: ScalaStyle,
       case FormatToken(_, right: `extends`, _)
           if rightOwner.isInstanceOf[Defn.Class] =>
         val owner = rightOwner.asInstanceOf[Defn.Class]
-        val lastToken =
-          templateLastToken(owner.templ).getOrElse(owner.tokens.last)
+        val lastToken = templateCurly(owner.templ)
         // TODO(olafur) use more precise policy?
         val penalizeNewlines = penalizeNewlineByNesting(right, lastToken)
         Seq(
@@ -532,7 +531,7 @@ class Router(style: ScalaStyle,
           if rightOwner.isInstanceOf[Template] =>
         val template = rightOwner.asInstanceOf[Template]
         // TODO(olafur) is this correct?
-        val expire = templateLastToken(template)
+        val expire = templateCurly(template)
         Seq(
             Split(Space, 0),
             Split(Newline, 1).withPolicy(Policy({
@@ -540,7 +539,7 @@ class Router(style: ScalaStyle,
               case d@Decision(FormatToken(open: `{`, _, _), splits)
                   if childOf(template, owners(open)) =>
                 d.copy(splits = splits.filter(_.modification.isNewline))
-            }, expire.getOrElse(template.tokens.last).end))
+            }, expire.end))
         )
       // If
       case FormatToken(open: `(`, _, _) if leftOwner.isInstanceOf[Term.If] =>
@@ -1045,12 +1044,8 @@ class Router(style: ScalaStyle,
     if (tree.children.isEmpty) 0
     else 1 + tree.children.map(treeDepth).max
 
-  def templateLastToken(template: Template): Option[Token] = {
-    for {
-      templStat <- template.stats
-      statHead <- templStat.headOption
-      headToken <- statHead.tokens.headOption
-    } yield headToken
+  def templateCurly(template: Template): Token = {
+    template.tokens.find(_.isInstanceOf[`{`]).getOrElse(template.tokens.last)
   }
 
   def isAttachedComment(token: Token, between: Vector[Whitespace]) =

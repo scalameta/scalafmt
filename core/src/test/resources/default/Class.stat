@@ -51,3 +51,17 @@ final class TypedArrayBufferOps[ // scalastyle:ignore
 final class TypedArrayBufferOps[ // scalastyle:ignore
     TypedArrayType <: TypedArray[_, TypedArrayType]](val buffer: Buffer)
     extends AnyVal
+<<< template curly
+class MediaStream() extends EventTarget {
+
+  /**
+   */
+  val ended: Boolean = js.native
+}
+>>>
+class MediaStream() extends EventTarget {
+
+  /**
+   */
+  val ended: Boolean = js.native
+}
