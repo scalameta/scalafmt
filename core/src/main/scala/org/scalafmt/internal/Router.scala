@@ -588,6 +588,14 @@ class Router(style: ScalaStyle,
         Seq(
             Split(NoSplit, 0)
         )
+
+      // Type variance
+      case tok@FormatToken(_: Ident, _: Ident, _)
+          if isTypeVariant(leftOwner) =>
+        Seq(
+            Split(NoSplit, 0)
+        )
+
       // ApplyInfix.
       case tok@FormatToken(left: Ident, _, _) if isBoolOperator(left) =>
         Seq(
@@ -998,7 +1006,8 @@ class Router(style: ScalaStyle,
 
   def identModification(ident: Ident): Modification = {
     val lastCharacter = ident.code.last
-    if (Character.isLetterOrDigit(lastCharacter) || lastCharacter == '`') NoSplit
+    if (Character.isLetterOrDigit(lastCharacter) || lastCharacter == '`')
+      NoSplit
     else Space
   }
 
@@ -1069,6 +1078,12 @@ class Router(style: ScalaStyle,
   def isModPrivateProtected(tree: Tree): Boolean =
     tree match {
       case _: Mod.Private | _: Mod.Protected => true
+      case _ => false
+    }
+
+  def isTypeVariant(tree: Tree): Boolean =
+    tree match {
+      case _: Mod.Contravariant | _: Mod.Covariant => true
       case _ => false
     }
   // Used for convenience when calling withIndent.

@@ -23,3 +23,7 @@ package object internal {
     */
   type TokenHash = Long
 }
+<<< variance annotation
+ trait JSIterator[+A] extends js.Object
+>>>
+trait JSIterator[+A] extends js.Object
