@@ -634,11 +634,16 @@ class Router(style: ScalaStyle,
             Split(Space, 0)
         )
       // Protected []
-      case tok@FormatToken(_, _: `[`, _)
-          if leftOwner.isInstanceOf[Mod.Protected] =>
+      case tok@FormatToken(_, _: `[`, _) if isModPrivateProtected(leftOwner) =>
         Seq(
             Split(NoSplit, 0)
         )
+      case tok@FormatToken(_: `[`, _, _) if isModPrivateProtected(leftOwner) =>
+        Seq(
+            Split(NoSplit, 0)
+        )
+
+      // Case
       case tok@FormatToken(cs: `case`, _, _) if leftOwner.isInstanceOf[Case] =>
         val owner = leftOwner.asInstanceOf[Case]
         val arrow = getArrow(owner)
@@ -646,9 +651,9 @@ class Router(style: ScalaStyle,
         val lastToken = owner.body.tokens.filter {
           case _: Whitespace | _: Comment => false
           case _ => true
-        }
-        // edge case, if body is empty expire on arrow.
-        .lastOption.getOrElse(arrow)
+        }.lastOption
+          .getOrElse(arrow) // edge case, if body is empty expire on arrow.
+
         Seq(
             // Either everything fits in one line or break on =>
             Split(Space, 0).withPolicy(SingleLineBlock(lastToken)),
@@ -1058,6 +1063,12 @@ class Router(style: ScalaStyle,
     tree.tokens.find(t => t.isInstanceOf[`=`] && owners(t) == tree)
       .getOrElse(tree.tokens.last)
   }
+
+  def isModPrivateProtected(tree: Tree): Boolean =
+    tree match {
+      case _: Mod.Private | _: Mod.Protected => true
+      case _ => false
+    }
   // Used for convenience when calling withIndent.
 
   private implicit def int2num(n: Int): Num = Num(n)

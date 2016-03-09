@@ -1,0 +1,17 @@
+40 columns                              |
+<<< private this
+  private[this] val root = 1
+>>>
+private[this] val root = 1
+<<< protected this
+  protected[this] val root = 1
+>>>
+protected[this] val root = 1
+<<< private ident
+  private[Enclosing] val root = 1
+>>>
+private[Enclosing] val root = 1
+<<< protected ident
+  protected[Enclosing] val root = 1
+>>>
+protected[Enclosing] val root = 1
