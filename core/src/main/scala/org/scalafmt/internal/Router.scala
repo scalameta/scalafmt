@@ -996,9 +996,11 @@ class Router(style: ScalaStyle,
       case _ => false
     }
 
-  def identModification(ident: Ident): Modification =
-    if (Character.isLetterOrDigit(ident.code.last)) NoSplit
+  def identModification(ident: Ident): Modification = {
+    val lastCharacter = ident.code.last
+    if (Character.isLetterOrDigit(lastCharacter) || lastCharacter == '`') NoSplit
     else Space
+  }
 
   def getArrow(caseStat: Case): Token =
     caseStat.tokens.find(t => t.isInstanceOf[`=>`] && owners(t) == caseStat)
