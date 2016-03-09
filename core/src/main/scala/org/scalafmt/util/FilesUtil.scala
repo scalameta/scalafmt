@@ -1,6 +1,8 @@
 package org.scalafmt.util
 
+import java.io.BufferedReader
 import java.io.File
+import java.io.FileReader
 import java.io.PrintWriter
 
 import org.scalafmt.internal.ScalaFmtLogger
@@ -20,7 +22,7 @@ object FilesUtil extends ScalaFmtLogger {
         val (dirs, files) =
           Option(s.listFiles()).toIterable.flatMap(_.toIterator)
             .partition(_.isDirectory)
-        files.map(_.getAbsolutePath) ++ dirs.flatMap(listFilesIter)
+        files.map(_.getPath) ++ dirs.flatMap(listFilesIter)
       }
       for {
         f0 <- Option(listFilesIter(file)).toVector
@@ -29,6 +31,7 @@ object FilesUtil extends ScalaFmtLogger {
     }
   }
 
+  // TODO(olafur) allow user to specify encoding through CLI.
   /**
     * Reads file from file system or from http url.
     */
@@ -36,8 +39,23 @@ object FilesUtil extends ScalaFmtLogger {
     if (filename.startsWith("http")) {
       scala.io.Source.fromURL(filename)("UTF-8").getLines().mkString("\n")
     } else {
-      // TODO(olafur) allow user to specify encoding through CLI.
-      scala.io.Source.fromFile(filename)("UTF-8").getLines().mkString("\n")
+      // Prefer this to inefficient Source.fromFile.
+      val sb = new StringBuilder
+      val br = new BufferedReader(new FileReader(filename))
+      val lineSeparator = System.getProperty("line.separator")
+      try {
+        var line = ""
+        while ({
+          line = br.readLine()
+          line != null
+        }) {
+          sb.append(line)
+          sb.append(lineSeparator)
+        }
+      } finally {
+        br.close()
+      }
+      sb.toString()
     }
   }
 
