@@ -196,8 +196,16 @@ class Router(style: ScalaStyle,
           if ((gets2x(nextNonComment(tok)) || oldNewlines > 1) &&
               !isDocstring(left)) Newline2x
           else Newline
+        val expire = rightOwner.tokens.find(_.isInstanceOf[`=`])
+          .getOrElse(rightOwner.tokens.last)
+
+        val spaceCouldBeOk =
+          oldNewlines == 0 && right.isInstanceOf[Keyword] &&
+          isSingleIdentifierAnnotation(prev(tok))
         Seq(
-            Split(newline, 0)
+            Split(Space, 0, ignoreIf = !spaceCouldBeOk)
+              .withPolicy(SingleLineBlock(expire)),
+            Split(newline, 1)
         )
 
       // TODO(olafur) more general?
@@ -1110,7 +1118,6 @@ class Router(style: ScalaStyle,
     * Context: https://github.com/olafurpg/scalafmt/issues/108
     */
   def isJsNative(jsToken: Token): Boolean = {
-    logger.elem(owners(jsToken).parent.get.show[Structure])
     style == ScalaStyle.ScalaJs && jsToken.code == "js" &&
     owners(jsToken).parent.exists(
         _.show[Structure].trim == """Term.Select(Term.Name("js"), Term.Name("native"))""")
@@ -1122,6 +1129,12 @@ class Router(style: ScalaStyle,
     (tok.right.isInstanceOf[Comment] &&
         tok.between.exists(_.isInstanceOf[`\n`]) && startsStatement(next(tok)))
   }
+
+  def isSingleIdentifierAnnotation(tok: FormatToken): Boolean =
+    tok match {
+      case FormatToken(_: `@`, _: Ident, _) => true
+      case _ => false
+    }
   // Used for convenience when calling withIndent.
 
   private implicit def int2num(n: Int): Num = Num(n)

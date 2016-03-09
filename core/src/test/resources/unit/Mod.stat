@@ -3,20 +3,33 @@
 @foobar @ast class A { def xyz: Int = 1 }
 >>>
 @foobar
-@ast
-class A { def xyz: Int = 1 }
+@ast class A { def xyz: Int = 1 }
 <<< Two annotations with final
 @foobar @ast final class A { def xyz: Int = 1 }
 >>>
 @foobar
-@ast
-final class A { def xyz: Int = 1 }
+@ast final class A { def xyz: Int = 1 }
 <<< Two annotations with sealed abstract
 @foobar @ast sealed abstract class A { def xyz: Int = 1 }
 >>>
 @foobar
-@ast
-sealed abstract class A {
+@ast sealed abstract class A {
 
   def xyz: Int = 1
 }
+<<< private this #94
+  private[this] val root = 1
+>>>
+private[this] val root = 1
+<<< protected this
+  protected[this] val root = 1
+>>>
+protected[this] val root = 1
+<<< private ident
+  private[Enclosing] val root = 1
+>>>
+private[Enclosing] val root = 1
+<<< protected ident
+  protected[Enclosing] val root = 1
+>>>
+protected[Enclosing] val root = 1

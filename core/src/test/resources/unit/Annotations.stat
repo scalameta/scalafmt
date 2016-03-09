@@ -1,5 +1,10 @@
 40 columns                              |
-<<< SKIP single line annotation
+<<< single line annotation
   @inline def Rule = raw.CSSRule
 >>>
 @inline def Rule = raw.CSSRule
+<<< single line annotation with {}
+  @inline def Rule = raw.CSSRule.aaaaaaaaaaaa
+>>>
+@inline def Rule =
+  raw.CSSRule.aaaaaaaaaaaa
