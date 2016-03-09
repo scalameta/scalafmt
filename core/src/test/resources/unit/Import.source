@@ -64,3 +64,8 @@ object a {
     initializeCoreBTypes()
   }
 }
+<<< super long #101
+import org.scalajs.dom.experimental.serviceworkers.{ ServiceWorkerGlobalScope, ServiceWorkerRegistration}
+>>>
+import org.scalajs.dom.experimental.serviceworkers.{ServiceWorkerGlobalScope, ServiceWorkerRegistration}
+

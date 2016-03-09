@@ -1,0 +1,5 @@
+80 columns                                                                     |
+<<< ONLY break on extends #109
+trait WorkerNavigator extends NavigatorID with NavigatorOnLine with NavigatorLanguage
+>>>
+trait WorkerNavigator extends NavigatorID with NavigatorOnLine with NavigatorLanguage

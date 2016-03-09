@@ -113,7 +113,8 @@ class Router(style: ScalaStyle,
           if parents(leftOwner).exists(_.isInstanceOf[Import]) ||
           leftOwner.isInstanceOf[Term.Interpolate] =>
         Seq(
-            Split(NoSplit, 0)
+            Split(NoSplit, 0).withPolicy(SingleLineBlock(
+                matchingParentheses(hash(open))))
         )
       case FormatToken(_, close: `}`, _)
           if parents(rightOwner).exists(_.isInstanceOf[Import]) ||
