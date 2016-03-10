@@ -1,0 +1,45 @@
+<idea-plugin version="2">
+  <id>org.scalafmt.ScalaFmt</id>
+  <name>Scalafmt</name>
+  <version>0.1.2</version>
+  <vendor email="olafurpg@gmail.com" url="https://github.com/olafurpg/scalafmt">Olafur Pall Geirsson</vendor>
+
+  <description><![CDATA[
+      Opinionated code formatter for Scala.
+    ]]></description>
+
+  <change-notes><![CDATA[
+      <p>See full changelog at <a href="http://scalafmt.org">scalafmt.org</a>.</p>
+      <ul>
+        <li>
+          Updated to 0.1.2. Default shortcut is now shift+ctrl+L. Customize
+          the shortcut in Settings > Keymap, lookt  for "Reformat with scalafmt".
+        </li>
+        <li>Created basic plugin.</li>
+      </ul>
+    ]]>
+  </change-notes>
+
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+  <idea-version since-build="141.0"/>
+
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+       on how to target different products -->
+  <!-- uncomment to enable plugin in all products
+  <depends>com.intellij.modules.lang</depends>
+  -->
+
+  <extensions defaultExtensionNs="com.intellij">
+    <!-- Add your extensions here -->
+  </extensions>
+
+  <actions>
+    <!-- Add your actions here -->
+    <action id="ScalaFmtFormat" class="org.scalafmt.intellij.ScalafmtAction" text="Reformat with scalafmt"
+            description="Reformat current file with scalafmt">
+      <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl L"/>
+      <add-to-group group-id="CodeMenu" anchor="first"/>
+    </action>
+  </actions>
+
+</idea-plugin>
