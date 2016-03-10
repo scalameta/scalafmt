@@ -10,8 +10,7 @@ import org.scalafmt.internal.ScalaFmtLogger
 import org.scalafmt.util.FilesUtil
 
 object Cli extends ScalaFmtLogger {
-  val usageExamples =
-    """
+  val usageExamples = """
       |// get help
       |scalafmt --help
       |
@@ -40,6 +39,13 @@ object Cli extends ScalaFmtLogger {
       extends InputMethod(code)
 
   lazy val parser = new scopt.OptionParser[Config]("scalafmt") {
+
+    def printHelpAndExit(ignore: Unit, c: Config): Config = {
+      showHeader
+      sys.exit
+      c
+    }
+
     head("scalafmt", Versions.scalafmt)
     opt[File]('f', "file") action { (file, c) =>
       c.copy(file = Some(file))
@@ -47,7 +53,8 @@ object Cli extends ScalaFmtLogger {
     opt[Unit]('i', "in-place") action { (_, c) =>
       c.copy(inPlace = true)
     } text "write output to file, does nothing if file is not specified"
-    help("help") text "prints this usage text"
+    opt[Unit]('v', "version") action printHelpAndExit text "print version "
+    opt[Unit]('h', "help") action printHelpAndExit text "prints this usage text"
     note(s"""
         |Examples:
         |
