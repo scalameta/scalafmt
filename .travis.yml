@@ -1,5 +1,7 @@
 language: scala
 sudo: false
+git:
+  submodules: false
 scala:
   - 2.11.7
 before_install:
