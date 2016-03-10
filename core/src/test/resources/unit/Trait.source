@@ -1,7 +1,7 @@
 40 columns                              |
 <<< trait start new lines
 object A {
-  val x = 1;
+      val x = 1;
   trait B {
     type X = Int
   }
@@ -10,11 +10,9 @@ object A {
 >>>
 object A {
   val x = 1;
-
   trait B {
     type X = Int
   }
-
   class C extends B
 }
 <<< mod protected

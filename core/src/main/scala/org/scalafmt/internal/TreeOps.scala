@@ -8,6 +8,8 @@ import scala.meta.internal.ast.Defn
 import scala.meta.internal.ast.Enumerator
 import scala.meta.internal.ast.Mod
 import scala.meta.internal.ast.Pat
+import scala.meta.internal.ast.Pkg
+import scala.meta.internal.ast.Source
 import scala.meta.internal.ast.Template
 import scala.meta.internal.ast.Term
 import scala.meta.internal.ast.Type
@@ -18,6 +20,11 @@ import scala.meta.tokens.Token
   * Stateless helper functions on [[scala.meta.Tree]].
   */
 trait TreeOps extends TokenOps {
+
+  def isTopLevel(tree: Tree): Boolean = tree match {
+    case _: Pkg | _: Source => true
+    case _ => false
+  }
 
   def isDefnSite(tree: Tree): Boolean =
     tree match {

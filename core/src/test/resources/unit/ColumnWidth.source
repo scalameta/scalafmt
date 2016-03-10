@@ -36,11 +36,11 @@ object Object {
 object Object { object Object______ { } }
 >>>
 object Object {
-
   object Object______ {}
 }
 <<< Multiline, single-line, multiline
 object Object {
+
   object A { a }
   object B_________________________ { b123456 }
 }
@@ -48,7 +48,6 @@ object Object {
 object Object {
 
   object A { a }
-
   object B_________________________ {
     b123456
   }

@@ -101,3 +101,15 @@ object RsaHashedImportParams {
     js.Dynamic.literal(name = name, hash = hash.asInstanceOf[js.Any])
       .asInstanceOf[RsaHashed]
 }
+<<< no 2x newlines unless necessary
+object Result {
+      case object Foo extends C
+      case object Bar extends C
+      case object Kaz extends C
+}
+>>>
+object Result {
+  case object Foo extends C
+  case object Bar extends C
+  case object Kaz extends C
+}

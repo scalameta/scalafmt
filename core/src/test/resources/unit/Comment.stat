@@ -7,7 +7,7 @@ function(a, // comment
          b)
 <<< Inline comment binds right
 function(a,
-// comment
+ // comment
          b)
 >>>
 function(a,

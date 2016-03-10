@@ -12,12 +12,17 @@ import scala.meta.internal.ast.Template
   */
 trait TokenOps {
 
+  def shouldGet2xNewlines(tok: FormatToken): Boolean = {
+    !isDocstring(tok.left) && {
+      val newlines = newlinesBetween(tok.between)
+      newlines > 1 || (isDocstring(tok.right) &&
+          !tok.left.isInstanceOf[Comment])
+    }
+  }
+
   def isDocstring(token: Token): Boolean = {
     token.isInstanceOf[Comment] && token.code.startsWith("/**")
   }
-
-  def endsWithNoIndent(right: Token, between: Vector[Whitespace]): Boolean =
-    right.isInstanceOf[Comment] && endsWithNoIndent(between)
 
   def endsWithNoIndent(between: Vector[Whitespace]): Boolean =
     between.lastOption.exists(_.isInstanceOf[`\n`])

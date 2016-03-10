@@ -93,11 +93,17 @@ class Router(val style: ScalaStyle,
         Seq(
             Split(NoSplit, 0)
         )
+
+      // Top level defns
+      case tok: FormatToken
+          if !isDocstring(tok.left) && gets2x(tok) =>
+        Seq(
+            Split(Newline2x, 0)
+        )
+
       // { ... } Blocks
       case tok@FormatToken(open: `{`, right, between) =>
-        val nl = Newline(
-            newlinesBetween(between) > 1 || gets2x(nextNonComment(tok)),
-            rhsIsCommentedOut(tok))
+        val nl = Newline(shouldGet2xNewlines(tok))
         val close = matchingParentheses(hash(open))
         val blockSize = close.start - open.end
         val ignore = blockSize > style.maxColumn || isInlineComment(right)
@@ -136,10 +142,7 @@ class Router(val style: ScalaStyle,
         Seq(
             Split(NoSplit, 0)
         )
-      case tok: FormatToken if !isDocstring(tok.left) && gets2x(tok) =>
-        Seq(
-            Split(Newline2x, 0)
-        )
+
       // Term.Function
       case FormatToken(arrow: `=>`, right, _)
           if statementStarts.contains(hash(right)) &&
@@ -159,10 +162,7 @@ class Router(val style: ScalaStyle,
       // New statement
       case tok@FormatToken(left, right, between) if startsStatement(tok) =>
         val oldNewlines = newlinesBetween(between)
-        val newline: Modification = Newline(
-            (gets2x(nextNonComment(tok)) || oldNewlines > 1) &&
-            !isDocstring(left),
-            endsWithNoIndent(right, between))
+        val newline: Modification = Newline(shouldGet2xNewlines(tok))
         //          if () Newline2x
         //          else Newline
         val expire = rightOwner.tokens.find(_.isInstanceOf[`=`])
@@ -685,7 +685,8 @@ class Router(val style: ScalaStyle,
           if leftOwner.isInstanceOf[Case] =>
         Seq(
             Split(Space, 0),
-            Split(Newline(false, endsWithNoIndent(right, between)), 1)
+            Split(
+                Newline(gets2x = false, hasIndent = rhsIsCommentedOut(tok)), 1)
         )
       // Inline comment
       case FormatToken(_, c: Comment, between) =>
@@ -805,7 +806,7 @@ class Router(val style: ScalaStyle,
    */
   def getSplitsMemo(formatToken: FormatToken): Seq[Split] =
     cache.getOrElseUpdate(formatToken, {
-      val splits = getSplits(formatToken)
+      val splits = getSplits(formatToken).map(_.adapt(formatToken))
       formatToken match {
         // TODO(olafur) refactor into "global policy"
         // Only newlines after inline comments.

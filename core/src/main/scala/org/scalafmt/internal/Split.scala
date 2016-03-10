@@ -24,7 +24,15 @@ case class Split(
     indents: Vector[Indent[Length]] = Vector.empty[Indent[Length]],
     policy: Policy = NoPolicy,
     penalty: Boolean = false,
-    optimalAt: Option[Token] = None)(implicit val line: sourcecode.Line) {
+    optimalAt: Option[Token] = None)(implicit val line: sourcecode.Line)
+    extends TokenOps {
+
+  def adapt(formatToken: FormatToken): Split =
+    modification match {
+      case n: NewlineT if !n.noIndent && rhsIsCommentedOut(formatToken) =>
+        copy(modification = Newline(n.isDouble, hasIndent = true))
+      case _ => this
+    }
 
   val indentation = indents.map(_.length match {
     case Num(x) => x.toString

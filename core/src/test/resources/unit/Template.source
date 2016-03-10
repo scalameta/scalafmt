@@ -25,6 +25,5 @@ class A(b: B) extends C with D with E with F with G {
 class A(b: B)
     extends C with D with E with F
     with G {
-
   def x = 2
 }

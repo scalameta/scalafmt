@@ -1,6 +1,7 @@
 80 columns                                                                     |
 <<< keep blank lines
 {
+
   def cancel(reason: Any): js.Promise[Any] = js.native // comment
 
   /**

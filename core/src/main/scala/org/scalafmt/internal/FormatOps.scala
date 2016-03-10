@@ -38,7 +38,7 @@ trait FormatOps extends TreeOps {
    */
   val packageTokens: Set[Token] = {
     val result = new scala.collection.mutable.SetBuilder[Token, Set[Token]](Set
-        .empty[Token])
+      .empty[Token])
     tree.collect {
       case p: Pkg => result ++= p.ref.tokens
     }
@@ -85,14 +85,15 @@ trait FormatOps extends TreeOps {
   def gets2x(tok: FormatToken): Boolean = {
     if (!statementStarts.contains(hash(tok.right))) false
     else if (packageTokens.contains(tok.left) &&
-        !packageTokens.contains(tok.right)) true
+             !packageTokens.contains(tok.right)) true
     else {
       val rightOwner = statementStarts(hash(tok.right))
       if (!rightOwner.tokens.headOption.contains(tok.right)) false
+      else if (!rightOwner.parent.exists(isTopLevel)) false
       else
         rightOwner match {
           case _: Defn.Def | _: Pkg.Object | _: Defn.Class | _: Defn.Object |
-               _: Defn.Trait =>
+              _: Defn.Trait =>
             true
           case _ => false
         }
@@ -104,12 +105,12 @@ trait FormatOps extends TreeOps {
     Policy({
       // Newline on every comma.
       case Decision(t@FormatToken(comma: `,`, right, between), splits)
-        if owners(open) == owners(comma) &&
-            // TODO(olafur) what the right { decides to be single line?
-            !right.isInstanceOf[`{`] &&
-            // If comment is bound to comma, see unit/Comment.
-            (!right.isInstanceOf[Comment] ||
-                between.exists(_.isInstanceOf[`\n`])) =>
+          if owners(open) == owners(comma) &&
+          // TODO(olafur) what the right { decides to be single line?
+          !right.isInstanceOf[`{`] &&
+          // If comment is bound to comma, see unit/Comment.
+          (!right.isInstanceOf[Comment] ||
+              between.exists(_.isInstanceOf[`\n`])) =>
         Decision(t, splits.filter(_.modification.isNewline))
     }, expire.end)
   }
@@ -117,8 +118,8 @@ trait FormatOps extends TreeOps {
   final def rhsOptimalToken(start: FormatToken): Token =
     start.right match {
       case _: `,` | _: `(` | _: `)` | _: `]` | _: `;` | _: `=>`
-        if next(start) != start &&
-            !owners(start.right).tokens.headOption.contains(start.right) =>
+          if next(start) != start &&
+          !owners(start.right).tokens.headOption.contains(start.right) =>
         rhsOptimalToken(next(start))
       case _ => start.left
     }
@@ -130,27 +131,27 @@ trait FormatOps extends TreeOps {
     */
   def isJsNative(jsToken: Token): Boolean = {
     style == ScalaStyle.ScalaJs && jsToken.code == "js" &&
-        owners(jsToken).parent.exists(
-          _.show[Structure].trim == """Term.Select(Term.Name("js"), Term.Name("native"))""")
+    owners(jsToken).parent.exists(
+        _.show[Structure].trim == """Term.Select(Term.Name("js"), Term.Name("native"))""")
   }
 
   @tailrec
   final def startsStatement(tok: FormatToken): Boolean = {
     statementStarts.contains(hash(tok.right)) ||
-        (tok.right.isInstanceOf[Comment] &&
-            tok.between.exists(_.isInstanceOf[`\n`]) && startsStatement(next(tok)))
+    (tok.right.isInstanceOf[Comment] &&
+        tok.between.exists(_.isInstanceOf[`\n`]) && startsStatement(next(tok)))
   }
 
   def insideBlock(start: FormatToken, end: Token): Set[Range] = {
     var inside = false
     val result = new scala.collection.mutable.SetBuilder[Range, Set[Range]](Set
-        .empty[Range])
+      .empty[Range])
     var curr = start
     while (curr.left != end) {
       if (curr.left.isInstanceOf[`{`]) {
         inside = true
         result += Range(
-          curr.left.start, matchingParentheses(hash(curr.left)).end)
+            curr.left.start, matchingParentheses(hash(curr.left)).end)
         curr = leftTok2tok(matchingParentheses(hash(curr.left)))
       } else {
         curr = next(curr)
@@ -158,10 +159,12 @@ trait FormatOps extends TreeOps {
     }
     result.result()
   }
+
   def defnSiteLastToken(tree: Tree): Token = {
     tree.tokens.find(t => t.isInstanceOf[`=`] && owners(t) == tree)
-        .getOrElse(tree.tokens.last)
+      .getOrElse(tree.tokens.last)
   }
+
   def penalizeNewlineByNesting(from: Token, to: Token)(
       implicit line: sourcecode.Line): Policy = {
     val range = Range(from.start, to.end).inclusive
@@ -181,9 +184,7 @@ trait FormatOps extends TreeOps {
     }, to.end)
   }
 
-
   def getArrow(caseStat: Case): Token =
     caseStat.tokens.find(t => t.isInstanceOf[`=>`] && owners(t) == caseStat)
-        .getOrElse(throw CaseMissingArrow(caseStat))
-
+      .getOrElse(throw CaseMissingArrow(caseStat))
 }
