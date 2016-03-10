@@ -45,7 +45,6 @@ function(a,
 }
 <<< two comments in a row
 {
-
   /*
    * who wrote this?
    */

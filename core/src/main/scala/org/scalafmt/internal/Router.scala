@@ -113,7 +113,8 @@ class Router(style: ScalaStyle,
           if parents(leftOwner).exists(_.isInstanceOf[Import]) ||
           leftOwner.isInstanceOf[Term.Interpolate] =>
         Seq(
-            Split(NoSplit, 0)
+            Split(NoSplit, 0).withPolicy(SingleLineBlock(
+                matchingParentheses(hash(open))))
         )
       case FormatToken(_, close: `}`, _)
           if parents(rightOwner).exists(_.isInstanceOf[Import]) ||
@@ -128,7 +129,9 @@ class Router(style: ScalaStyle,
         )
       // { ... } Blocks
       case tok@FormatToken(open: `{`, right, between) =>
-        val nl = Newline(gets2x(nextNonComment(tok)), rhsIsCommentedOut(tok))
+        val nl = Newline(
+            newlinesBetween(between) > 1 || gets2x(nextNonComment(tok)),
+            rhsIsCommentedOut(tok))
         val close = matchingParentheses(hash(open))
         val blockSize = close.start - open.end
         val ignore = blockSize > style.maxColumn || isInlineComment(right)
@@ -188,13 +191,25 @@ class Router(style: ScalaStyle,
               .withIndent(2, endOfFunction, Left)
         )
       // New statement
-      case tok@FormatToken(left, right, between)
-          if statementStarts.contains(hash(right)) =>
+      case tok@FormatToken(left, right, between) if startsStatement(tok) =>
+        val oldNewlines = newlinesBetween(between)
         val newline: Modification =
-          if ((gets2x(tok) || newlinesBetween(tok.between) > 1) &&
-              !(isDocstring(left) && newlinesBetween(between) < 2)) Newline2x
+          if ((gets2x(nextNonComment(tok)) || oldNewlines > 1) &&
+              !isDocstring(left)) Newline2x
           else Newline
+        val expire = rightOwner.tokens.find(_.isInstanceOf[`=`])
+          .getOrElse(rightOwner.tokens.last)
+
+        val spaceCouldBeOk =
+          oldNewlines == 0 && !left.isInstanceOf[Comment] &&
+          right.isInstanceOf[Keyword] &&
+          isSingleIdentifierAnnotation(prev(tok))
         Seq(
+            Split(
+              // This split needs to have an optimalAt field.
+                Space, 0, ignoreIf = !spaceCouldBeOk, optimalAt = Some(expire))
+              .withPolicy(SingleLineBlock(expire)),
+            // For some reason, this newline cannot cost 1.
             Split(newline, 0)
         )
 
@@ -234,12 +249,16 @@ class Router(style: ScalaStyle,
             Split(NoSplit, 0)
         )
       // Opening ( with no leading space.
-      case FormatToken(left, open: `(`, _) if (rightOwner match {
-            case _: Term.Apply | _: Decl.Def | _: Defn.Def => true
-            case _ if rightOwner.parent.exists(_.isInstanceOf[Defn.Class]) =>
-              true
-            case _ => false
-          }) =>
+      case FormatToken(left, open: `(`, _) if !left.isInstanceOf[Modifier] &&
+          (rightOwner match {
+                case _: Term.Apply | _: Decl.Def | _: Defn.Def |
+                    _: Ctor.Secondary =>
+                  true
+                case _
+                    if rightOwner.parent.exists(_.isInstanceOf[Defn.Class]) =>
+                  true
+                case _ => false
+              }) =>
         Seq(
             Split(NoSplit, 0)
         )
@@ -264,11 +283,14 @@ class Router(style: ScalaStyle,
         Seq(
             Split(Space, 0).withIndent(4, defnSiteLastToken(leftOwner), Left)
         )
-      case tok@FormatToken(e: `=`, _, _) if leftOwner.isInstanceOf[Defn.Def] =>
+      case tok@FormatToken(e: `=`, right, _)
+          if leftOwner.isInstanceOf[Defn.Def] =>
         val expire = leftOwner.asInstanceOf[Defn.Def].body.tokens.last
+        val rhsIsJsNative = isJsNative(right)
         Seq(
             Split(Space, 0, policy = SingleLineBlock(expire)),
-            Split(Newline, 0).withIndent(2, expire, Left)
+            Split(Newline, 0, ignoreIf = rhsIsJsNative)
+              .withIndent(2, expire, Left)
         )
       case tok@FormatToken(_, open: `[`, _)
           if rightOwner.isInstanceOf[Defn.Def] =>
@@ -309,7 +331,7 @@ class Router(style: ScalaStyle,
           case t: Ctor.Primary => t.name -> t.paramss.flatten
           case x =>
             logger.error(s"""Unknown tree
-                 |${log((x.parent.get))}
+                 |${log(x.parent.get)}
                  |${isDefnSite(leftOwner)}""".stripMargin)
             ???
         }
@@ -319,7 +341,8 @@ class Router(style: ScalaStyle,
         val lhsPenalty = treeDepth(lhs)
 
         val bracketPenalty = open match {
-          case _: `[` => 1
+          // TODO(olafur) no magic number.
+          case _: `[` => 20
           case _ => 0
         }
         val nestedPenalty = nestedApplies(leftOwner)
@@ -464,14 +487,15 @@ class Router(style: ScalaStyle,
 
         Seq(
             Split(Space, 0, policy = spacePolicy),
-            Split(mod, 1).withIndent(2, expire, Left)
+            Split(mod, 1, ignoreIf = isJsNative(right))
+              .withIndent(2, expire, Left)
         )
       case tok@FormatToken(left, dot: `.`, _)
           if rightOwner.isInstanceOf[Term.Select] &&
           // Only split if rhs is an application
           // TODO(olafur) counterexample? For example a.b[C]
-          next(next(tok)).right.isInstanceOf[`(`] &&
-          !left.isInstanceOf[`_ `] && // TODO(olafur) optimize
+          isOpenApply(next(next(tok)).right) && !left.isInstanceOf[`_ `] &&
+          // TODO(olafur) optimize
           !parents(rightOwner).exists(_.isInstanceOf[Import]) =>
         val nestedPenalty = nestedSelect(rightOwner) + nestedApplies(leftOwner)
         val isLhsOfApply = rightOwner.parent.exists {
@@ -515,22 +539,18 @@ class Router(style: ScalaStyle,
         Seq(Split(identModification(right), 0))
 
       // Template
-      case FormatToken(_, right: `extends`, _)
-          if rightOwner.isInstanceOf[Defn.Class] =>
-        val owner = rightOwner.asInstanceOf[Defn.Class]
-        val lastToken =
-          templateLastToken(owner.templ).getOrElse(owner.tokens.last)
-        // TODO(olafur) use more precise policy?
-        val penalizeNewlines = penalizeNewlineByNesting(right, lastToken)
+      case FormatToken(_, right: `extends`, _) =>
+        val lastToken = defnTemplate(rightOwner).map(templateCurly)
+          .getOrElse(rightOwner.tokens.last)
         Seq(
-            Split(Space, 0).withPolicy(penalizeNewlines),
+            Split(Space, 0).withPolicy(SingleLineBlock(lastToken)),
             Split(Newline, 1)
         )
       case tok@FormatToken(_, right: `with`, _)
           if rightOwner.isInstanceOf[Template] =>
         val template = rightOwner.asInstanceOf[Template]
         // TODO(olafur) is this correct?
-        val expire = templateLastToken(template)
+        val expire = templateCurly(template)
         Seq(
             Split(Space, 0),
             Split(Newline, 1).withPolicy(Policy({
@@ -538,7 +558,7 @@ class Router(style: ScalaStyle,
               case d@Decision(FormatToken(open: `{`, _, _), splits)
                   if childOf(template, owners(open)) =>
                 d.copy(splits = splits.filter(_.modification.isNewline))
-            }, expire.getOrElse(template.tokens.last).end))
+            }, expire.end))
         )
       // If
       case FormatToken(open: `(`, _, _) if leftOwner.isInstanceOf[Term.If] =>
@@ -588,6 +608,21 @@ class Router(style: ScalaStyle,
         Seq(
             Split(NoSplit, 0)
         )
+
+      // Type variance
+      case tok@FormatToken(_: Ident, _: Ident, _)
+          if isTypeVariant(leftOwner) =>
+        Seq(
+            Split(NoSplit, 0)
+        )
+
+      // Var args
+      case FormatToken(_, asterisk: Ident, _) if asterisk.code == "*" &&
+          rightOwner.isInstanceOf[Type.Arg.Repeated] =>
+        Seq(
+            Split(NoSplit, 0)
+        )
+
       // ApplyInfix.
       case tok@FormatToken(left: Ident, _, _) if isBoolOperator(left) =>
         Seq(
@@ -634,11 +669,16 @@ class Router(style: ScalaStyle,
             Split(Space, 0)
         )
       // Protected []
-      case tok@FormatToken(_, _: `[`, _)
-          if leftOwner.isInstanceOf[Mod.Protected] =>
+      case tok@FormatToken(_, _: `[`, _) if isModPrivateProtected(leftOwner) =>
         Seq(
             Split(NoSplit, 0)
         )
+      case tok@FormatToken(_: `[`, _, _) if isModPrivateProtected(leftOwner) =>
+        Seq(
+            Split(NoSplit, 0)
+        )
+
+      // Case
       case tok@FormatToken(cs: `case`, _, _) if leftOwner.isInstanceOf[Case] =>
         val owner = leftOwner.asInstanceOf[Case]
         val arrow = getArrow(owner)
@@ -646,9 +686,9 @@ class Router(style: ScalaStyle,
         val lastToken = owner.body.tokens.filter {
           case _: Whitespace | _: Comment => false
           case _ => true
-        }
-        // edge case, if body is empty expire on arrow.
-        .lastOption.getOrElse(arrow)
+        }.lastOption
+          .getOrElse(arrow) // edge case, if body is empty expire on arrow.
+
         Seq(
             // Either everything fits in one line or break on =>
             Split(Space, 0).withPolicy(SingleLineBlock(lastToken)),
@@ -678,20 +718,11 @@ class Router(style: ScalaStyle,
             Split(Newline, 1)
         )
       // Inline comment
-      case FormatToken(_, c: Comment, between) if c.code.startsWith("//") =>
+      case FormatToken(_, c: Comment, between) =>
         Seq(Split(newlines2Modification(between), 0))
       // Commented out code should stay to the left
       case FormatToken(c: Comment, _, between) if c.code.startsWith("//") =>
         Seq(Split(Newline, 0))
-      case tok@FormatToken(_, c: Comment, _) =>
-        val newline: Modification =
-          if (isDocstring(c) || gets2x(next(tok)) ||
-              newlinesBetween(tok.between) > 1)
-            Newline2x
-          else Newline
-        Seq(
-            Split(newline, 0)
-        )
       case FormatToken(c: Comment, _, between) =>
         Seq(Split(newlines2Modification(between), 0))
 
@@ -742,6 +773,13 @@ class Router(style: ScalaStyle,
         )
       // Curried functions
       case FormatToken(_: `)`, _: `(`, _) =>
+        Seq(
+            Split(NoSplit, 0)
+        )
+
+      // Singleton types
+      case FormatToken(_, _: `type`, _)
+          if rightOwner.isInstanceOf[Type.Singleton] =>
         Seq(
             Split(NoSplit, 0)
         )
@@ -991,9 +1029,12 @@ class Router(style: ScalaStyle,
       case _ => false
     }
 
-  def identModification(ident: Ident): Modification =
-    if (Character.isLetterOrDigit(ident.code.last)) NoSplit
+  def identModification(ident: Ident): Modification = {
+    val lastCharacter = ident.code.last
+    if (Character.isLetterOrDigit(lastCharacter) || lastCharacter == '`')
+      NoSplit
     else Space
+  }
 
   def getArrow(caseStat: Case): Token =
     caseStat.tokens.find(t => t.isInstanceOf[`=>`] && owners(t) == caseStat)
@@ -1027,12 +1068,8 @@ class Router(style: ScalaStyle,
     if (tree.children.isEmpty) 0
     else 1 + tree.children.map(treeDepth).max
 
-  def templateLastToken(template: Template): Option[Token] = {
-    for {
-      templStat <- template.stats
-      statHead <- templStat.headOption
-      headToken <- statHead.tokens.headOption
-    } yield headToken
+  def templateCurly(template: Template): Token = {
+    template.tokens.find(_.isInstanceOf[`{`]).getOrElse(template.tokens.last)
   }
 
   def isAttachedComment(token: Token, between: Vector[Whitespace]) =
@@ -1040,7 +1077,7 @@ class Router(style: ScalaStyle,
 
   def isDefnSite(tree: Tree): Boolean =
     tree match {
-      case _: Decl.Def | _: Defn.Def | _: Defn.Class => true
+      case _: Decl.Def | _: Defn.Def | _: Defn.Class | _: Type.Apply => true
       case x: Ctor.Primary if x.parent.exists(_.isInstanceOf[Defn.Class]) =>
         true
       case _ => false
@@ -1058,6 +1095,48 @@ class Router(style: ScalaStyle,
     tree.tokens.find(t => t.isInstanceOf[`=`] && owners(t) == tree)
       .getOrElse(tree.tokens.last)
   }
+
+  def isModPrivateProtected(tree: Tree): Boolean =
+    tree match {
+      case _: Mod.Private | _: Mod.Protected => true
+      case _ => false
+    }
+
+  def isTypeVariant(tree: Tree): Boolean =
+    tree match {
+      case _: Mod.Contravariant | _: Mod.Covariant => true
+      case _ => false
+    }
+
+  def isOpenApply(token: Token): Boolean =
+    token match {
+      case _: `(` | _: `[` => true
+      case _ => false
+    }
+
+  /**
+    * js.native is very special in Scala.js.
+    *
+    * Context: https://github.com/olafurpg/scalafmt/issues/108
+    */
+  def isJsNative(jsToken: Token): Boolean = {
+    style == ScalaStyle.ScalaJs && jsToken.code == "js" &&
+    owners(jsToken).parent.exists(
+        _.show[Structure].trim == """Term.Select(Term.Name("js"), Term.Name("native"))""")
+  }
+
+  @tailrec
+  final def startsStatement(tok: FormatToken): Boolean = {
+    statementStarts.contains(hash(tok.right)) ||
+    (tok.right.isInstanceOf[Comment] &&
+        tok.between.exists(_.isInstanceOf[`\n`]) && startsStatement(next(tok)))
+  }
+
+  def isSingleIdentifierAnnotation(tok: FormatToken): Boolean =
+    tok match {
+      case FormatToken(_: `@`, _: Ident, _) => true
+      case _ => false
+    }
   // Used for convenience when calling withIndent.
 
   private implicit def int2num(n: Int): Num = Num(n)

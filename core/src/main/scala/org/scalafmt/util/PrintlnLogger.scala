@@ -18,9 +18,18 @@ object PrintlnLogger {
                      showSource: Boolean): Unit = {
     val position = f"${new File(file.value).getName}:${line.value}"
     val key =
-      if (showSource) s"(${t.source})= ${t.value}"
+      if (showSource) s"[${t.source}]: ${t.value}"
       else t.value
     println(f"$logLevel%-7s $position%-25s $key")
+  }
+
+  def elem[T](
+      ts: sourcecode.Text[T] *)(implicit line: sourcecode.Line,
+                                file: sourcecode.File,
+                                enclosing: sourcecode.Enclosing): Unit = {
+    ts.foreach { t =>
+      log(t, LogLevel.Debug, line, file, enclosing, showSource = true)
+    }
   }
 
   def trace[T](t: sourcecode.Text[T])(implicit line: sourcecode.Line,

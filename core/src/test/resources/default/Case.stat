@@ -59,3 +59,20 @@ x match {
           rightOwner.isInstanceOf[Pat.Interpolate]) =>
     Seq(Split(NoSplit, 0))
 }
+<<< PrepJSInterop
+x match {
+      case cldef if true =>
+        enterOwner(OwnerKind.EnumImpl) { super.transform(cldef) }
+
+      // Catch Scala Enumerations to transform calls to scala.Enumeration.Value
+      case i => x
+}
+>>>
+x match {
+  case cldef if true =>
+    enterOwner(OwnerKind.EnumImpl) { super.transform(cldef) }
+
+  // Catch Scala Enumerations to transform calls to scala.Enumeration.Value
+  case i => x
+}
+

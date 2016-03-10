@@ -23,3 +23,11 @@ package object internal {
     */
   type TokenHash = Long
 }
+<<< variance annotation #98
+ trait JSIterator[+A] extends js.Object
+>>>
+trait JSIterator[+A] extends js.Object
+<<< singleton type #104
+  lazy val Blob: raw.Blob.type = raw.Blob
+>>>
+lazy val Blob: raw.Blob.type = raw.Blob

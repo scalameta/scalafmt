@@ -1,16 +1,2 @@
 SKIP benchmarks/src/resources/scala-js/ScalaJSClassEmitter.scala
-SKIP benchmarks/src/resources/scala-js/GenJsCode.scala
-SKIP benchmarks/src/resources/scala-js/OptimizerCore.scala
-SKIP benchmarks/src/resources/scala-js/JavaLangString.scala
-SKIP benchmarks/src/resources/scala-js/Primality.scala
-SKIP core/src/main/scala/org/scalafmt/internal/Decision.scala
-SKIP core/src/main/scala/org/scalafmt/internal/BestFirstSearch.scala
-SKIP https://raw.githubusercontent.com/scala-js/scala-js/5d447c8851abcdf513605fe1f61075e83c22ebe4/project/JavaLangString.scala
-SKIP https://raw.githubusercontent.com/scala-js/scala-js/5d447c8851abcdf513605fe1f61075e83c22ebe4/project/JavaLangObject.scala
-SKIP https://raw.githubusercontent.com/scala-js/scala-js/5d447c8851abcdf513605fe1f61075e83c22ebe4/sbt-plugin/src/main/scala/scala/scalajs/sbtplugin/ScalaJSPluginInternal.scala
-SKIP https://raw.githubusercontent.com/scala-js/scala-js/5d447c8851abcdf513605fe1f61075e83c22ebe4/tools/shared/src/main/scala/org/scalajs/core/tools/linker/backend/emitter/JSDesugaring.scala
-SKIP https://raw.githubusercontent.com/scala-js/scala-js/19c1793b3fa93e145ba02eba703b0dcfdb63316c/tools/shared/src/main/scala/org/scalajs/core/tools/linker/backend/emitter/JSDesugaring.scala
-SKIP https://raw.githubusercontent.com/scala-js/scala-js/19c1793b3fa93e145ba02eba703b0dcfdb63316c/tools/shared/src/main/scala/org/scalajs/core/tools/linker/backend/emitter/JSDesugaring.scala
-SKIP https://raw.githubusercontent.com/scala-js/scala-js/19c1793b3fa93e145ba02eba703b0dcfdb63316c/library/src/main/scala/scala/scalajs/js/typedarray/TypedArrayBufferOps.scala
-SKIP https://raw.githubusercontent.com/scala-js/scala-js/f27a42c6aa83833bb44e9efe8d58b426131893f9/library/src/main/scala/scala/scalajs/js/ThisFunction.scala
-SKIP https://raw.githubusercontent.com/scala-js/scala-js/f27a42c6aa83833bb44e9efe8d58b426131893f9/library/src/main/scala/scala/scalajs/js/Any.scala
+SKIP https://raw.githubusercontent.com/scala-js/scala-js/f82f5cc34c66c15a7f14578ace4e53e5a034202d/compiler/src/main/scala/org/scalajs/core/compiler/PrepJSInterop.scala

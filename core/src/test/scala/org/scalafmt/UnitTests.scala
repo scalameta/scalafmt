@@ -1,5 +1,7 @@
 package org.scalafmt
 
+import java.io.File
+
 import org.scalafmt.Error.UnknownStyle
 import org.scalafmt.internal.ScalaFmtLogger
 import org.scalafmt.util.DiffTest
@@ -8,6 +10,9 @@ import org.scalafmt.util.HasTests
 
 object UnitTests extends HasTests with ScalaFmtLogger {
   import FilesUtil._
+
+  val workingDirectory = System.getProperty("user.dir")
+
   // TODO(olafur) make possible to limit states per unit test.
   override lazy val tests: Seq[DiffTest] = {
     for {
@@ -16,7 +21,9 @@ object UnitTests extends HasTests with ScalaFmtLogger {
         // Tests are sorted first by spec, and warmup should run first.
         val spec =
           if (filename.contains("Warmup")) "===> Warmup"
-          else filename.stripPrefix(testDir + "/")
+          else
+            filename.stripPrefix(
+                workingDirectory + File.separator + testDir + File.separator)
 
         val content = readFile(filename)
         val moduleOnly = isOnly(content)

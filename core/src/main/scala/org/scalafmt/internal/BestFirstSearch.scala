@@ -6,6 +6,7 @@ import org.scalafmt.ScalaStyle
 import scala.collection.mutable
 import scala.meta.Mod
 import scala.meta.Tree
+import scala.meta.internal.ast.Ctor
 import scala.meta.internal.ast.Defn
 import scala.meta.internal.ast.Enumerator
 import scala.meta.internal.ast.Pkg
@@ -382,6 +383,7 @@ object BestFirstSearch extends ScalaFmtLogger {
       x match {
         case t: Defn.Class => addDefn[`class `](t.mods, t)
         case t: Defn.Def => addDefn[`def`](t.mods, t)
+        case t: Ctor.Secondary => addDefn[`def`](t.mods, t)
         case t: Defn.Object => addDefn[`object`](t.mods, t)
         case t: Defn.Trait => addDefn[`trait`](t.mods, t)
         case t: Defn.Type => addDefn[`type`](t.mods, t)

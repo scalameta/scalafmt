@@ -1,6 +1,7 @@
 40 columns                              |
 <<< Object definition fits in one line
-@foobar object   a   {val x:Int=1}
+@foobar
+object   a   {val x:Int=1}
 >>>
 @foobar
 object a { val x: Int = 1 }
