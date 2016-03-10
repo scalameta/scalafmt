@@ -92,49 +92,51 @@
         The default shortcut is @code("Ctrl + Shift + L").
         Undo works, but not redo.
 
-    @sect{scalafmt.jar}
+    @sect{CLI}
+      There are several ways to install the CLI.
 
-      Download a pre-compiled jar from the
-      @lnk("releases page", repo + "/releases").
+      @sect{Build from source}
+        For the greatest performance and prettiest output.
 
-      I recommend you create a script named @code("scalafmt") somewhere in your
-      @code("PATH") with the command:
+        @ul
+          @li
+            Clone the @lnk("repo", repo).
+          @li
+            Run @code("sbt assembly"), master branch should pass tests.
+          @li
+            @code("cli/target/scala-2.11/scalafmt.jar") should exist.
+          @li
+            follow instructions in @sect.ref{scalafmt.jar}.
 
-      @hl.scala
-        java -jar PATH_TO/scalafmt.jar $@@
 
-      Profit
+      @sect{scalafmt.jar}
 
-      @hl.scala
-        $ scalafmt --help
+        You can also download a pre-compiled jar from the
+        @lnk("releases page", repo + "/releases").
 
-        // Format all files in current directory.
-        $ scalafmt -i -f .
+        Next, create a script named @code("scalafmt") somewhere in your
+        @code("PATH") with the command:
 
-    @sect{Build from source}
-      For the greatest performance and prettiest output.
+        @hl.scala
+          java -jar PATH_TO/scalafmt.jar $@@
 
-      @ul
-        @li
-          Clone the @lnk("repo", repo).
-        @li
-          Run @code("sbt assembly"), master branch should pass tests.
-        @li
-          @code("cli/target/scala-2.11/scalafmt.jar") should exist.
 
-    @sect{Homebrew/OSX}
-      @note. The Homebrew version could be old.
+      @sect{Homebrew/OSX}
+        @hl.scala
+          brew tap olafurpg/scalafmt
+          brew install scalafmt
+          scalafmt --version // should be @org.scalafmt.Versions.scalafmt
 
-      @hl.scala
-        brew tap olafurpg/scalafmt
-        brew install scalafmt
-        scalafmt --file path/to/My.scala
-        scalafmt --help
+      @sect{Usage examples}
+
+        Once correctly installed, use the CLI like this.
+
+        @hl.scala(org.scalafmt.cli.Cli.usageExamples)
 
     @sect{Vim}
       @ul
         @li
-          Make sure you have a @code("scalafmt") executable script in path.
+          Make sure you have the @sect.ref{CLI} installed and working.
         @li
           install @lnk("vim-autoformat", "https://github.com/Chiel92/vim-autoformat")
         @li
@@ -210,7 +212,9 @@
 
        @ul
          @li
-           Java 6 compatibility, was Java 8 before.
+           Closed @lnk("17 formatting issues", "https://github.com/olafurpg/scalafmt/issues?utf8=%E2%9C%93&q=author%3Asjrd+created%3A%3C2016-03-10").
+         @li
+           Added Java 6+7 compatibility, was Java 8 before.
 
      @sect{0.1.1}
        @ul

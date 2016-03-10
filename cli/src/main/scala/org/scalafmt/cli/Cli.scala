@@ -10,6 +10,23 @@ import org.scalafmt.internal.ScalaFmtLogger
 import org.scalafmt.util.FilesUtil
 
 object Cli extends ScalaFmtLogger {
+  val usageExamples =
+    """
+      |// get help
+      |scalafmt --help
+      |
+      |// print formatted contents of file to stdout.
+      |scalafmt -f Code.scala
+      |
+      |// write formatted contents to file.
+      |scalafmt -i -f Code.scala
+      |
+      |// format all files in current directory, write new contents to each file.
+      |scalafmt -i -f .
+      |
+      |// read scala code from stdin and print formatted contents to stdout.
+      |scalafmt
+    """.stripMargin
 
   case class Config(file: Option[File] = None,
                     inPlace: Boolean = false,
@@ -31,20 +48,10 @@ object Cli extends ScalaFmtLogger {
       c.copy(inPlace = true)
     } text "write output to file, does nothing if file is not specified"
     help("help") text "prints this usage text"
-    note("""
+    note(s"""
         |Examples:
         |
-        |  // write formatted contents to file.
-        |  scalafmt -i -f Code.scala
-        |
-        |  // format all files in current directory, write new contents to each file.
-        |  scalafmt -i -f .
-        |
-        |  // print formatted contents of file to stdout.
-        |  scalafmt -f Code.scala
-        |
-        |  // read scala code from stdin and print formatted contents to stdout.
-        |  scalafmt
+        |$usageExamples
         |
         |Please file bugs to https://github.com/olafurpg/scalafmt/issues
       """.stripMargin)

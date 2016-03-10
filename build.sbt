@@ -188,4 +188,5 @@ lazy val readme = scalatex.ScalatexReadme(
     .settings(allSettings)
     .settings(noPublish)
     .dependsOn(core)
+    .dependsOn(cli)
 
