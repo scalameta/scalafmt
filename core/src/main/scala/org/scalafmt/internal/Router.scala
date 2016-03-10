@@ -23,6 +23,10 @@ import scala.meta.tokens.Token
 // Too many to import individually.
 import scala.meta.tokens.Token._
 
+object Constants {
+  val BracketPenalty = 20
+}
+
 /**
   * Assigns splits to format tokens.
   */
@@ -95,8 +99,7 @@ class Router(val style: ScalaStyle,
         )
 
       // Top level defns
-      case tok: FormatToken
-          if !isDocstring(tok.left) && gets2x(tok) =>
+      case tok: FormatToken if !isDocstring(tok.left) && gets2x(tok) =>
         Seq(
             Split(Newline2x, 0)
         )
@@ -249,7 +252,7 @@ class Router(val style: ScalaStyle,
             Split(Newline, 1) // indent handled by name of def/class.
         )
       // DefDef
-      case tok@FormatToken(_: `def` | _: `val` | _: `var`, name: Ident, _) =>
+      case tok@FormatToken(_: `def`, name: Ident, _) =>
         //          if style.binPackParameters =>
         Seq(
             Split(Space, 0).withIndent(4, defnSiteLastToken(leftOwner), Left)
@@ -312,23 +315,35 @@ class Router(val style: ScalaStyle,
         val lhsPenalty = treeDepth(lhs)
 
         val isBracket = open.isInstanceOf[`[`]
-        val bracketPenalty =
-          if (isBracket) 20 // TODO(olafur) no magic number.
-          else 0
+        val bracketMultiplier =
+          if (isBracket)
+            Constants.BracketPenalty
+          else 1
 
         val nestedPenalty = nestedApplies(leftOwner)
-        val exclude = insideBlock(tok, close)
+        val exclude =
+          if (isBracket) insideBlock(tok, close, _.isInstanceOf[`[`])
+          else insideBlock(tok, close, _.isInstanceOf[`{`])
+        //          insideBlock(tok, close, _.isInstanceOf[`{`])
         val indent = leftOwner match {
           case _: Pat => Num(0) // Indentation already provided by case.
           // TODO(olafur) This is an odd rule, when is it wrong?
           case x if isDefnSite(x) && !x.isInstanceOf[Type.Apply] => Num(0)
           case _ => Num(4)
         }
+
         val singleArgument = args.length == 1
 
         val singleLine = // Don't force single line policy if only one argument.
-          if (singleArgument) NoPolicy
-          else SingleLineBlock(close, exclude)
+          if (isBracket) {
+            if (singleArgument)
+              SingleLineBlock(close, exclude, killInlineComments = false)
+            else SingleLineBlock(close)
+          } else {
+            // is (
+            if (singleArgument) NoPolicy
+            else SingleLineBlock(close, exclude)
+          }
         val oneArgOneLine = OneArgOneLineSplit(open)
 
         // TODO(olafur) document how "config style" works.
@@ -346,16 +361,27 @@ class Router(val style: ScalaStyle,
           if (right.isInstanceOf[Comment]) newlines2Modification(between)
           else NoSplit
 
+        val newlineModification: Modification =
+          if (right.isInstanceOf[Comment] && newlinesBetween(between) == 0)
+            Space
+          else Newline
+
         val charactersInside = (close.start - open.end) - 2
+
         val fitsOnOneLine =
           singleArgument || exclude.nonEmpty ||
           charactersInside <= style.maxColumn
 
         // TODO(olafur) ignoreIf: State => Boolean?
-        val optimalToken =
-          if (isDefnSite(leftOwner)) Some(defnSiteLastToken(leftOwner))
-          else Some(rhsOptimalToken(leftTok2tok(close)))
+        val expirationToken: Token =
+          if (isDefnSite(leftOwner)) defnSiteLastToken(leftOwner)
+          else rhsOptimalToken(leftTok2tok(close))
 
+        val optimalToken = Some(expirationToken)
+
+        val singleLineExpiration: Token =
+          if (isBracket) expirationToken
+          else nextNonComment(tok).right
         Seq(
             Split(modification,
                   0,
@@ -363,21 +389,22 @@ class Router(val style: ScalaStyle,
                   ignoreIf = !fitsOnOneLine || isConfigStyle,
                   optimalAt = optimalToken)
             // TODO(olafur) allow style to specify indent here?
-              .withIndent(indent, nextNonComment(tok).right, Left),
-            Split(Newline,
-                  1 + nestedPenalty + lhsPenalty + bracketPenalty,
+              .withIndent(indent, singleLineExpiration, Left),
+            Split(newlineModification,
+                  (1 + nestedPenalty + lhsPenalty) * bracketMultiplier,
                   policy = singleLine,
-                  ignoreIf = isBracket || !fitsOnOneLine || isConfigStyle,
-                  optimalAt = optimalToken).withIndent(indent, right, Left),
+                  ignoreIf = !fitsOnOneLine || isConfigStyle,
+                  optimalAt = optimalToken)
+              .withIndent(indent, singleLineExpiration, Left),
             // TODO(olafur) singleline per argument!
             Split(modification,
-                  2 + lhsPenalty + bracketPenalty,
+                  (2 + lhsPenalty) * bracketMultiplier,
                   policy = oneArgOneLine,
                   ignoreIf = singleArgument || isConfigStyle,
                   optimalAt = optimalToken)
               .withIndent(StateColumn, close, Right),
             Split(Newline,
-                  3 + nestedPenalty + lhsPenalty + bracketPenalty,
+                  (3 + nestedPenalty + lhsPenalty) * bracketMultiplier,
                   policy = oneArgOneLine,
                   ignoreIf = singleArgument || isConfigStyle,
                   optimalAt = optimalToken).withIndent(indent, close, Left),
@@ -385,6 +412,20 @@ class Router(val style: ScalaStyle,
                   0,
                   policy = configStyle,
                   ignoreIf = !isConfigStyle).withIndent(indent, close, Right)
+        )
+
+      // Closing def site ): ReturnType
+      case FormatToken(_, close: `)`, _)
+          if next(formatToken).right.isInstanceOf[`:`] &&
+          !style.binPackParameters && defDefReturnType(rightOwner).isDefined =>
+        val expire = lastToken(defDefReturnType(rightOwner).get)
+        val penalizeNewlines = penalizeAllNewlines(
+            expire, Constants.BracketPenalty)
+        Seq(
+            Split(NoSplit, 0).withPolicy(penalizeNewlines),
+            // In case the return type is super long, we may need to break
+            // before the closing ).
+            Split(Newline, 3)
         )
 
       // Delim

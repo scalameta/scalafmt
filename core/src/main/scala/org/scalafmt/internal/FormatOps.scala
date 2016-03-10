@@ -100,20 +100,6 @@ trait FormatOps extends TreeOps {
     }
   }
 
-  def OneArgOneLineSplit(open: Delim)(implicit line: sourcecode.Line): Policy = {
-    val expire = matchingParentheses(hash(open))
-    Policy({
-      // Newline on every comma.
-      case Decision(t@FormatToken(comma: `,`, right, between), splits)
-          if owners(open) == owners(comma) &&
-          // TODO(olafur) what the right { decides to be single line?
-          !right.isInstanceOf[`{`] &&
-          // If comment is bound to comma, see unit/Comment.
-          (!right.isInstanceOf[Comment] ||
-              between.exists(_.isInstanceOf[`\n`])) =>
-        Decision(t, splits.filter(_.modification.isNewline))
-    }, expire.end)
-  }
   @tailrec
   final def rhsOptimalToken(start: FormatToken): Token =
     start.right match {
@@ -142,13 +128,15 @@ trait FormatOps extends TreeOps {
         tok.between.exists(_.isInstanceOf[`\n`]) && startsStatement(next(tok)))
   }
 
-  def insideBlock(start: FormatToken, end: Token): Set[Range] = {
+  def insideBlock(start: FormatToken,
+                  end: Token,
+                  matches: Token => Boolean): Set[Range] = {
     var inside = false
     val result = new scala.collection.mutable.SetBuilder[Range, Set[Range]](Set
       .empty[Range])
-    var curr = start
+    var curr = next(start)
     while (curr.left != end) {
-      if (curr.left.isInstanceOf[`{`]) {
+      if (matches(curr.left)) {
         inside = true
         result += Range(
             curr.left.start, matchingParentheses(hash(curr.left)).end)
@@ -163,6 +151,33 @@ trait FormatOps extends TreeOps {
   def defnSiteLastToken(tree: Tree): Token = {
     tree.tokens.find(t => t.isInstanceOf[`=`] && owners(t) == tree)
       .getOrElse(tree.tokens.last)
+  }
+
+  def OneArgOneLineSplit(open: Delim)(implicit line: sourcecode.Line): Policy = {
+    val expire = matchingParentheses(hash(open))
+    Policy({
+      // Newline on every comma.
+      case Decision(t@FormatToken(comma: `,`, right, between), splits)
+          if owners(open) == owners(comma) &&
+          // TODO(olafur) what the right { decides to be single line?
+          !right.isInstanceOf[`{`] &&
+          // If comment is bound to comma, see unit/Comment.
+          (!right.isInstanceOf[Comment] ||
+              between.exists(_.isInstanceOf[`\n`])) =>
+        Decision(t, splits.filter(_.modification.isNewline))
+    }, expire.end)
+  }
+
+  def penalizeAllNewlines(expire: Token, penalty: Int)(
+      implicit line: sourcecode.Line): Policy = {
+    Policy({
+      case Decision(tok, s) if tok.right.end < expire.end =>
+        Decision(tok, s.map {
+          case split if split.modification.isNewline =>
+            split.withPenalty(penalty)
+          case x => x
+        })
+    }, expire.end)
   }
 
   def penalizeNewlineByNesting(from: Token, to: Token)(

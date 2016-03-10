@@ -14,5 +14,4 @@ HOW YOU WANT THE OUTPUT TO LOOK LIKE.
 ```
 
 Using
-* version
-* style
+* 0.1.x

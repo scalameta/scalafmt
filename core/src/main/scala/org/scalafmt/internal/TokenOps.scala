@@ -10,7 +10,7 @@ import scala.meta.internal.ast.Template
 /**
   * Stateless helper functions on [[scala.meta.Token]].
   */
-trait TokenOps {
+trait TokenOps extends ScalaFmtLogger {
 
   def shouldGet2xNewlines(tok: FormatToken): Boolean = {
     !isDocstring(tok.left) && {
@@ -22,6 +22,15 @@ trait TokenOps {
 
   def isDocstring(token: Token): Boolean = {
     token.isInstanceOf[Comment] && token.code.startsWith("/**")
+  }
+
+  def lastToken(tree: Tree): Token = {
+    val lastIndex = tree.tokens.lastIndexWhere {
+      case _: Trivia | _: EOF => false
+      case _ => true
+    }
+    if (lastIndex == - 1) tree.tokens.last
+    else tree.tokens(lastIndex)
   }
 
   def endsWithNoIndent(between: Vector[Whitespace]): Boolean =
@@ -56,12 +65,15 @@ trait TokenOps {
       case _ => false
     }
 
-  def SingleLineBlock(expire: Token, exclude: Set[Range] = Set.empty)(
+  def SingleLineBlock(expire: Token,
+                      exclude: Set[Range] = Set.empty,
+                      killInlineComments: Boolean = true)(
       implicit line: sourcecode.Line): Policy = {
     Policy({
       case Decision(tok, splits)
-          if exclude.forall(!_.contains(tok.left.start)) &&
-          !tok.right.isInstanceOf[EOF] && tok.right.end <= expire.end =>
+          if !tok.right.isInstanceOf[EOF] && tok.right.end <= expire.end &&
+          exclude.forall(!_.contains(tok.left.start)) &&
+          (killInlineComments || !isInlineComment(tok.left)) =>
         Decision(tok, splits.filterNot(_.modification.isNewline))
     }, expire.end, noDequeue = exclude.isEmpty)
   }

@@ -34,6 +34,19 @@ trait TreeOps extends TokenOps {
       case _ => false
     }
 
+  def isDefDef(tree: Tree): Boolean =
+    tree match {
+      case _: Decl.Def | _: Defn.Def => true
+      case _ => false
+    }
+
+  def defDefReturnType(tree: Tree): Option[Type] =
+    tree match {
+      case d: Decl.Def  => Some(d.decltpe)
+      case d: Defn.Def => d.decltpe
+      case _ => None
+    }
+
   def isCallSite(tree: Tree): Boolean =
     tree match {
       case _: Term.Apply | _: Pat.Extract | _: Pat.Tuple | _: Term.Tuple |

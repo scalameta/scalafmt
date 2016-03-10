@@ -19,8 +19,8 @@ object a {
 }
 >>>
 object a {
-  function[aaaaaaaaaaaaaa,
-           aaaaaaaaaaaaaa]()
+  function[
+      aaaaaaaaaaaaaa, aaaaaaaaaaaaaa]()
 }
 <<< One line one arg at 4 indent
 object a {
@@ -42,26 +42,3 @@ object Object {
   val x =
     function[a1234567, b1234567](a)
 }
-<<< val type apply formats too #117
-val x:FooBarrrrrr[BaaaaaaaaaaaazBazzz[ String, Option[ List[Either[ Int, Option[String] ]]] ]]
->>>
-val x: FooBarrrrrr[BaaaaaaaaaaaazBazzz[
-        String,
-        Option[List[Either[
-            Int,
-            Option[String]]]]]]
-<<< SKIP var type apply formats too #117
-var x:FooBarrrrrr[B[AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA, AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]
->>>
-x
-<<< insane type apply from u/refriedi via reddit
-def myMethod[F[_]:Functor, G[_]:Applicative, A:DecodeJson:TypeTag:Meta, B:DecodeJson:TypeTag:Meta, C:Meta:TypeTag:UrlParameterEncode](gfa: G[F[A]], b: B)(f: (A,B) => C): Foo[C]
->>>
-def myMethod[
-    F[_]: Functor,
-    G[_]: Applicative,
-    A : DecodeJson : TypeTag : Meta,
-    B : DecodeJson : TypeTag : Meta,
-    C : Meta : TypeTag : UrlParameterEncode](
-    gfa: G[F[A]], b: B)(
-    f: (A, B) => C): Foo[C]
