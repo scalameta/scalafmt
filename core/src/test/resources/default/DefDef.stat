@@ -39,11 +39,3 @@ implicit def fromFunction17[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12,
     x12, x13, x14, x15, x16, x17))
 >>>
 x
-<<< SKIP insane type apply from u/refriedi via reddit
-def myMethod[F[_]:Functor, G[_]:Applicative, A:DecodeJson:TypeTag:Meta, B:DecodeJson:TypeTag:Meta, C:Meta:TypeTag:UrlParameterEncode](gfa: G[F[A]], b: B)(f: (A,B) => C): Foo[C]
->>>
-x
-<<< SKIP type apply formats too #117
-def x:FooBarrrrrr[BaaaaaaaaaaaazBazzz[ String, Option[ List[Either[ Int, Option[String] ]]] ]]
->>>
-x

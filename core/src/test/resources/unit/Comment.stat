@@ -155,3 +155,23 @@ val OffsetPrimes = Array(
     (97, 75),
     aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 )
+<<< flush commented code to left
+x match {
+case x =>
+//     println(x)
+  x
+// case y => 3
+// case y => 3
+// case y => 3
+case z => 4
+}
+>>>
+x match {
+  case x =>
+//     println(x)
+    x
+// case y => 3
+// case y => 3
+// case y => 3
+  case z => 4
+}

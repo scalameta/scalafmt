@@ -25,6 +25,7 @@ case class Split(
     policy: Policy = NoPolicy,
     penalty: Boolean = false,
     optimalAt: Option[Token] = None)(implicit val line: sourcecode.Line) {
+
   val indentation = indents.map(_.length match {
     case Num(x) => x.toString
     case x => x.toString

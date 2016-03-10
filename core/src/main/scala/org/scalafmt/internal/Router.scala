@@ -1,12 +1,11 @@
 package org.scalafmt.internal
 
-import org.scalafmt.Error.CaseMissingArrow
+import scala.language.implicitConversions
+
 import org.scalafmt.Error.UnexpectedTree
 import org.scalafmt.ScalaStyle
 
-import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.language.implicitConversions
 import scala.meta.Tree
 import scala.meta.internal.ast.Case
 import scala.meta.internal.ast.Ctor
@@ -14,13 +13,11 @@ import scala.meta.internal.ast.Decl
 import scala.meta.internal.ast.Defn
 import scala.meta.internal.ast.Enumerator
 import scala.meta.internal.ast.Import
-import scala.meta.internal.ast.Mod
 import scala.meta.internal.ast.Pat
 import scala.meta.internal.ast.Pkg
 import scala.meta.internal.ast.Template
 import scala.meta.internal.ast.Term
 import scala.meta.internal.ast.Type
-import scala.meta.prettyprinters.Structure
 import scala.meta.tokens.Token
 
 // Too many to import individually.
@@ -29,39 +26,13 @@ import scala.meta.tokens.Token._
 /**
   * Assigns splits to format tokens.
   */
-class Router(style: ScalaStyle,
-             tree: Tree,
-             tokens: Array[FormatToken],
-             matchingParentheses: Map[TokenHash, Token],
-             statementStarts: Map[TokenHash, Tree],
-             ownersMap: Map[TokenHash, Tree]) extends ScalaFmtLogger {
-  @inline
-  def owners(token: Token): Tree = ownersMap(hash(token))
-
-  /*
-   * The tokens on the left hand side of Pkg
-   *
-   * For example Set(org, ., scalafmt) in:
-   *
-   * package org.scalafmt
-   *
-   * import foo.bar
-   * ...
-   *
-   */
-  val packageTokens: Set[Token] = {
-    val result = new mutable.SetBuilder[Token, Set[Token]](Set.empty[Token])
-    tree.collect {
-      case p: Pkg => result ++= p.ref.tokens
-    }
-    result.result()
-  }
-
-  private val leftTok2tok: Map[Token, FormatToken] =
-    tokens.map(t => t.left -> t).toMap
-  private val tok2idx: Map[FormatToken, Int] = tokens.zipWithIndex.toMap
-  // TODO(olafur) replace cache with array of list[split]
-  private val cache = mutable.Map.empty[FormatToken, Seq[Split]]
+class Router(val style: ScalaStyle,
+             val tree: Tree,
+             val tokens: Array[FormatToken],
+             val matchingParentheses: Map[TokenHash, Token],
+             val statementStarts: Map[TokenHash, Tree],
+             val ownersMap: Map[TokenHash, Tree])
+    extends ScalaFmtLogger with FormatOps {
 
   def getSplits(formatToken: FormatToken): Seq[Split] = {
     val leftOwner = owners(formatToken.left)
@@ -104,11 +75,6 @@ class Router(style: ScalaStyle,
         Seq(
             Split(NoSplit, 0)
         )
-//        // Argument block
-//      case FormatToken(_: `,`, open: `{`, _)
-//        if leftOwner.isInstanceOf[Term.Apply] => Seq(
-//        Split(Space, 0)
-//      )
       case FormatToken(open: `{`, _, _)
           if parents(leftOwner).exists(_.isInstanceOf[Import]) ||
           leftOwner.isInstanceOf[Term.Interpolate] =>
@@ -193,10 +159,12 @@ class Router(style: ScalaStyle,
       // New statement
       case tok@FormatToken(left, right, between) if startsStatement(tok) =>
         val oldNewlines = newlinesBetween(between)
-        val newline: Modification =
-          if ((gets2x(nextNonComment(tok)) || oldNewlines > 1) &&
-              !isDocstring(left)) Newline2x
-          else Newline
+        val newline: Modification = Newline(
+            (gets2x(nextNonComment(tok)) || oldNewlines > 1) &&
+            !isDocstring(left),
+            endsWithNoIndent(right, between))
+        //          if () Newline2x
+        //          else Newline
         val expire = rightOwner.tokens.find(_.isInstanceOf[`=`])
           .getOrElse(rightOwner.tokens.last)
 
@@ -206,9 +174,12 @@ class Router(style: ScalaStyle,
           isSingleIdentifierAnnotation(prev(tok))
         Seq(
             Split(
-              // This split needs to have an optimalAt field.
-                Space, 0, ignoreIf = !spaceCouldBeOk, optimalAt = Some(expire))
-              .withPolicy(SingleLineBlock(expire)),
+                  // This split needs to have an optimalAt field.
+                  Space,
+                  0,
+                  ignoreIf = !spaceCouldBeOk,
+                  optimalAt = Some(expire)).withPolicy(SingleLineBlock(
+                expire)),
             // For some reason, this newline cannot cost 1.
             Split(newline, 0)
         )
@@ -278,8 +249,8 @@ class Router(style: ScalaStyle,
             Split(Newline, 1) // indent handled by name of def/class.
         )
       // DefDef
-      //     TODO(olafur) Naive match, can be 1) comment between 2) abstract decl.
-      case tok@FormatToken(d: `def`, name: Ident, _) =>
+      case tok@FormatToken(_: `def` | _: `val` | _: `var`, name: Ident, _) =>
+        //          if style.binPackParameters =>
         Seq(
             Split(Space, 0).withIndent(4, defnSiteLastToken(leftOwner), Left)
         )
@@ -340,18 +311,17 @@ class Router(style: ScalaStyle,
         // parens furthest to the right.
         val lhsPenalty = treeDepth(lhs)
 
-        val bracketPenalty = open match {
-          // TODO(olafur) no magic number.
-          case _: `[` => 20
-          case _ => 0
-        }
-        val nestedPenalty = nestedApplies(leftOwner)
+        val isBracket = open.isInstanceOf[`[`]
+        val bracketPenalty =
+          if (isBracket) 20 // TODO(olafur) no magic number.
+          else 0
 
+        val nestedPenalty = nestedApplies(leftOwner)
         val exclude = insideBlock(tok, close)
         val indent = leftOwner match {
           case _: Pat => Num(0) // Indentation already provided by case.
           // TODO(olafur) This is an odd rule, when is it wrong?
-          case x if isDefnSite(x) => Num(0)
+          case x if isDefnSite(x) && !x.isInstanceOf[Type.Apply] => Num(0)
           case _ => Num(4)
         }
         val singleArgument = args.length == 1
@@ -397,7 +367,7 @@ class Router(style: ScalaStyle,
             Split(Newline,
                   1 + nestedPenalty + lhsPenalty + bracketPenalty,
                   policy = singleLine,
-                  ignoreIf = !fitsOnOneLine || isConfigStyle,
+                  ignoreIf = isBracket || !fitsOnOneLine || isConfigStyle,
                   optimalAt = optimalToken).withIndent(indent, right, Left),
             // TODO(olafur) singleline per argument!
             Split(modification,
@@ -711,11 +681,11 @@ class Router(style: ScalaStyle,
             Split(Space, 0, policy = penalizeNewlines),
             Split(Newline, 1, policy = penalizeNewlines)
         )
-      case tok@FormatToken(arrow: `=>`, _, _)
+      case tok@FormatToken(arrow: `=>`, right, between)
           if leftOwner.isInstanceOf[Case] =>
         Seq(
             Split(Space, 0),
-            Split(Newline, 1)
+            Split(Newline(false, endsWithNoIndent(right, between)), 1)
         )
       // Inline comment
       case FormatToken(_, c: Comment, between) =>
@@ -823,6 +793,9 @@ class Router(style: ScalaStyle,
     }
   }
 
+  // TODO(olafur) replace cache with array of seq[split]
+  private val cache = mutable.Map.empty[FormatToken, Seq[Split]]
+
   /**
    * Assigns possible splits to a FormatToken.
    *
@@ -841,303 +814,6 @@ class Router(style: ScalaStyle,
         case _ => splits
       }
     })
-
-  def isDocstring(token: Token): Boolean = {
-    token.isInstanceOf[Comment] && token.code.startsWith("/**")
-  }
-
-  @tailrec
-  final def findFirst(start: FormatToken, end: Token)(
-      f: FormatToken => Boolean): Option[FormatToken] = {
-    if (start.left.start < end.start) None
-    else if (f(start)) Some(start)
-    else {
-      val next_ = next(start)
-      if (next_ == start) None
-      else findFirst(next_, end)(f)
-    }
-  }
-
-  @tailrec
-  final def nextNonComment(curr: FormatToken): FormatToken = {
-    if (!curr.right.isInstanceOf[Comment]) curr
-    else {
-      val tok = next(curr)
-      if (tok == curr) curr
-      else nextNonComment(tok)
-    }
-  }
-
-  def gets2x(tok: FormatToken): Boolean = {
-    if (!statementStarts.contains(hash(tok.right))) false
-    else if (packageTokens.contains(tok.left) &&
-             !packageTokens.contains(tok.right)) true
-    else {
-      val rightOwner = statementStarts(hash(tok.right))
-      if (!rightOwner.tokens.headOption.contains(tok.right)) false
-      else
-        rightOwner match {
-          case _: Defn.Def | _: Pkg.Object | _: Defn.Class | _: Defn.Object |
-              _: Defn.Trait =>
-            true
-          case _ => false
-        }
-    }
-  }
-
-  def OneArgOneLineSplit(open: Delim)(implicit line: sourcecode.Line): Policy = {
-    val expire = matchingParentheses(hash(open))
-    Policy({
-      // Newline on every comma.
-      case Decision(t@FormatToken(comma: `,`, right, between), splits)
-          if owners(open) == owners(comma) &&
-          // TODO(olafur) what the right { decides to be single line?
-          !right.isInstanceOf[`{`] &&
-          // If comment is bound to comma, see unit/Comment.
-          (!right.isInstanceOf[Comment] ||
-              between.exists(_.isInstanceOf[`\n`])) =>
-        Decision(t, splits.filter(_.modification.isNewline))
-    }, expire.end)
-  }
-
-  def penalizeNewlineByNesting(from: Token, to: Token)(
-      implicit line: sourcecode.Line): Policy = {
-    val range = Range(from.start, to.end).inclusive
-    Policy({
-      case Decision(t, s) if range.contains(t.right.start) =>
-        // TODO(olafur) hack, overfitting unit test. Use spans, see
-        // http://journal.stuffwithstuff.com/2015/09/08/the-hardest-program-ive-ever-written/#12
-        val nonBoolPenalty =
-          if (isBoolOperator(t.left)) 0
-          else 1
-        val penalty =
-          nestedSelect(owners(t.left)) + nestedApplies(owners(t.right)) + nonBoolPenalty
-        Decision(t, s.map {
-          case split if split.modification.isNewline =>
-            split.withPenalty(penalty)
-          case x => x
-        })
-    }, to.end)
-  }
-
-  /**
-   * How many parents of tree are Term.Apply?
-   */
-  def nestedApplies(tree: Tree): Int = {
-    // TODO(olafur) optimize?
-    tree.parent.fold(0) {
-      case parent@(_: Term.Apply | _: Term.ApplyInfix) =>
-        1 + nestedApplies(parent)
-      case parent => nestedApplies(parent)
-    }
-  }
-
-  // TODO(olafur) abstract with [[NestedApplies]]
-
-  def nestedSelect(tree: Tree): Int = {
-    tree.parent.fold(0) {
-      case parent: Term.Select => 1 + nestedSelect(parent)
-      case parent => nestedSelect(parent)
-    }
-  }
-
-  def SingleLineBlock(expire: Token, exclude: Set[Range] = Set.empty)(
-      implicit line: sourcecode.Line): Policy = {
-    Policy({
-      case Decision(tok, splits)
-          if exclude.forall(!_.contains(tok.left.start)) &&
-          !tok.right.isInstanceOf[EOF] && tok.right.end <= expire.end =>
-        Decision(tok, splits.filterNot(_.modification.isNewline))
-    }, expire.end, noDequeue = exclude.isEmpty)
-  }
-
-  def insideBlock(start: FormatToken, end: Token): Set[Range] = {
-    var inside = false
-    val result = new mutable.SetBuilder[Range, Set[Range]](Set.empty[Range])
-    var curr = start
-    while (curr.left != end) {
-      if (curr.left.isInstanceOf[`{`]) {
-        inside = true
-        result += Range(
-            curr.left.start, matchingParentheses(hash(curr.left)).end)
-        curr = leftTok2tok(matchingParentheses(hash(curr.left)))
-      } else {
-        curr = next(curr)
-      }
-    }
-    result.result()
-  }
-
-  def prev(tok: FormatToken): FormatToken = {
-    val i = tok2idx(tok)
-    if (i == 0) tok
-    else tokens(i - 1)
-  }
-
-  def next(tok: FormatToken): FormatToken = {
-    val i = tok2idx(tok)
-    if (i == tokens.length - 1) tok
-    else tokens(i + 1)
-  }
-
-  def isInlineComment(token: Token): Boolean =
-    token match {
-      case c: Comment => c.code.startsWith("//")
-      case _ => false
-    }
-
-  def newlines2Modification(between: Vector[Whitespace]): Modification =
-    newlinesBetween(between) match {
-      case 0 => Space
-      case x => Newline(x == 2, endsWithNoIndent(between))
-    }
-
-  // TODO(olafur) calculate this once inside getSplits.
-
-  def newlinesBetween(between: Vector[Whitespace]): Int =
-    between.count(_.isInstanceOf[`\n`])
-
-  def defnTemplate(tree: Tree): Option[Template] =
-    tree match {
-      case t: Defn.Object => Some(t.templ)
-      case t: Defn.Class => Some(t.templ)
-      case t: Defn.Trait => Some(t.templ)
-      case t: Pkg.Object => Some(t.templ)
-      case _ => None
-    }
-
-  @tailrec
-  final def rhsOptimalToken(start: FormatToken): Token =
-    start.right match {
-      case _: `,` | _: `(` | _: `)` | _: `]` | _: `;` | _: `=>`
-          if next(start) != start &&
-          !owners(start.right).tokens.headOption.contains(start.right) =>
-        rhsOptimalToken(next(start))
-      case _ => start.left
-    }
-
-  def rhsIsCommentedOut(formatToken: FormatToken): Boolean =
-    formatToken.right.isInstanceOf[Comment] &&
-    endsWithNoIndent(formatToken.between)
-
-  def endsWithNoIndent(between: Vector[Whitespace]): Boolean =
-    between.lastOption.exists(_.isInstanceOf[`\n`])
-
-  def isBoolOperator(token: Token): Boolean =
-    token.code match {
-      case "||" | "&&" => true
-      case _ => false
-    }
-
-  def identModification(ident: Ident): Modification = {
-    val lastCharacter = ident.code.last
-    if (Character.isLetterOrDigit(lastCharacter) || lastCharacter == '`')
-      NoSplit
-    else Space
-  }
-
-  def getArrow(caseStat: Case): Token =
-    caseStat.tokens.find(t => t.isInstanceOf[`=>`] && owners(t) == caseStat)
-      .getOrElse(throw CaseMissingArrow(caseStat))
-
-  // TODO(olafur) scala.meta should make this easier.
-
-  def findSiblingGuard(
-      generator: Enumerator.Generator): Option[Enumerator.Guard] = {
-    for {
-      parent <- generator.parent if parent.isInstanceOf[Term.For] ||
-               parent.isInstanceOf[Term.ForYield]
-      sibling <- {
-        val enums = parent match {
-          case p: Term.For => p.enums
-          case p: Term.ForYield => p.enums
-        }
-        enums.zip(enums.tail).collectFirst {
-          case (`generator`, guard: Enumerator.Guard) => guard
-        }
-      }
-    } yield sibling
-  }
-
-  /**
-    * Calculates depth to deepest child in tree.
-    */
-  // TODO(olafur) inefficient, precalculate?
-
-  def treeDepth(tree: Tree): Int =
-    if (tree.children.isEmpty) 0
-    else 1 + tree.children.map(treeDepth).max
-
-  def templateCurly(template: Template): Token = {
-    template.tokens.find(_.isInstanceOf[`{`]).getOrElse(template.tokens.last)
-  }
-
-  def isAttachedComment(token: Token, between: Vector[Whitespace]) =
-    isInlineComment(token) && newlinesBetween(between) == 0
-
-  def isDefnSite(tree: Tree): Boolean =
-    tree match {
-      case _: Decl.Def | _: Defn.Def | _: Defn.Class | _: Type.Apply => true
-      case x: Ctor.Primary if x.parent.exists(_.isInstanceOf[Defn.Class]) =>
-        true
-      case _ => false
-    }
-
-  def isCallSite(tree: Tree): Boolean =
-    tree match {
-      case _: Term.Apply | _: Pat.Extract | _: Pat.Tuple | _: Term.Tuple |
-          _: Term.ApplyType =>
-        true
-      case _ => false
-    }
-
-  def defnSiteLastToken(tree: Tree): Token = {
-    tree.tokens.find(t => t.isInstanceOf[`=`] && owners(t) == tree)
-      .getOrElse(tree.tokens.last)
-  }
-
-  def isModPrivateProtected(tree: Tree): Boolean =
-    tree match {
-      case _: Mod.Private | _: Mod.Protected => true
-      case _ => false
-    }
-
-  def isTypeVariant(tree: Tree): Boolean =
-    tree match {
-      case _: Mod.Contravariant | _: Mod.Covariant => true
-      case _ => false
-    }
-
-  def isOpenApply(token: Token): Boolean =
-    token match {
-      case _: `(` | _: `[` => true
-      case _ => false
-    }
-
-  /**
-    * js.native is very special in Scala.js.
-    *
-    * Context: https://github.com/olafurpg/scalafmt/issues/108
-    */
-  def isJsNative(jsToken: Token): Boolean = {
-    style == ScalaStyle.ScalaJs && jsToken.code == "js" &&
-    owners(jsToken).parent.exists(
-        _.show[Structure].trim == """Term.Select(Term.Name("js"), Term.Name("native"))""")
-  }
-
-  @tailrec
-  final def startsStatement(tok: FormatToken): Boolean = {
-    statementStarts.contains(hash(tok.right)) ||
-    (tok.right.isInstanceOf[Comment] &&
-        tok.between.exists(_.isInstanceOf[`\n`]) && startsStatement(next(tok)))
-  }
-
-  def isSingleIdentifierAnnotation(tok: FormatToken): Boolean =
-    tok match {
-      case FormatToken(_: `@`, _: Ident, _) => true
-      case _ => false
-    }
-  // Used for convenience when calling withIndent.
 
   private implicit def int2num(n: Int): Num = Num(n)
 }
