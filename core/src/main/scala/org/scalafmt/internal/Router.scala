@@ -758,6 +758,17 @@ class Router(val style: ScalaStyle,
         Seq(
             Split(NoSplit, 0)
         )
+      // seq to var args foo(seq:_*)
+      case FormatToken(_: `:`, _: `_ `, _)
+          if next(formatToken).right.code == "*" =>
+        Seq(
+            Split(NoSplit, 0)
+        )
+      case FormatToken(_: `_ `, asterisk: Ident, _) if asterisk.code == "*" &&
+          prev(formatToken).left.isInstanceOf[`:`] =>
+        Seq(
+            Split(NoSplit, 0)
+        )
 
       // Fallback
       case FormatToken(_, _: `.` | _: `#`, _) =>
