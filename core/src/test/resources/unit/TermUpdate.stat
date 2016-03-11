@@ -1,0 +1,17 @@
+40 columns                              |
+<<< one arg
+ sieve(1) = false
+>>>
+sieve(1) = false
+<<< multiple args
+ sieve(1, 2, 3) = false
+>>>
+sieve(1, 2, 3) = false
+<<< one arg one line
+sieve(1, // aaaaaaaaaaaaaaaaaa
+      2,
+      3) = false
+>>>
+sieve(1, // aaaaaaaaaaaaaaaaaa
+      2,
+      3) = false

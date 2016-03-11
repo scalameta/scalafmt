@@ -275,8 +275,7 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
             |deepestYet.length=${deepestYet.splits.length}
             |policies=${deepestYet.policy.policies}
             |nextSplits=$nextSplits
-            |splitsAfterPolicy=${deepestYet.policy.execute(Decision(
-          tok, nextSplits))}
+            |splitsAfterPolicy=${deepestYet.policy.execute(Decision(tok, nextSplits))}
             |""".stripMargin
       if (style.debug) {
         logger.warn(s"""Failed to format
