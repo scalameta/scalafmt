@@ -16,7 +16,7 @@ trait ScalaFmtLogger {
   def log(split: Split): String = s"$split"
 
   def log(formatToken: FormatToken): String = s"""${log(formatToken.left)}
-       |${log(formatToken.between: _ *)}
+       |${log(formatToken.between:_*)}
        |${log(formatToken.right)}""".stripMargin
 
   def escape(raw: String): String = {
@@ -24,7 +24,7 @@ trait ScalaFmtLogger {
     Literal(Constant(raw)).toString
   }
 
-  def log(tokens: Token *): String = tokens.map(log).mkString("\n")
+  def log(tokens: Token*): String = tokens.map(log).mkString("\n")
 
   def cleanup(token: Token): String =
     token match {

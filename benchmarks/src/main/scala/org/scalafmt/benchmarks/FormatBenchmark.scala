@@ -32,7 +32,7 @@ import scalariform.formatter.preferences.IndentSpaces
 @Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @BenchmarkMode(Array(Mode.AverageTime))
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
-abstract class FormatBenchmark(path: String *) {
+abstract class FormatBenchmark(path: String*) {
   val scalariformPreferences =
     FormattingPreferences().setPreference(IndentSpaces, 3)
   val classLoader = getClass.getClassLoader
