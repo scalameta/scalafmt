@@ -59,7 +59,7 @@ object FilesUtil extends ScalaFmtLogger {
     }
   }
 
-  def getFile(path: String *): File = {
+  def getFile(path: String*): File = {
     new File(path.mkString(File.separator))
   }
 

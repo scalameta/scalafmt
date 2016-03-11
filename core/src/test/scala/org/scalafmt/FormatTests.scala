@@ -76,7 +76,6 @@ class FormatTests
                 fail("test does not parse" + parseException2Message(
                     e, t.original))
             }
-
           case None =>
             logger.warn(s"Found no parse for filename ${t.filename}")
         }

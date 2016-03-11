@@ -37,8 +37,8 @@ object Error extends ScalaFmtLogger {
       extends Error("Formatter output does not parse:\n" + msg)
 
   case class UnexpectedTree[Expected <: Tree : ClassTag](obtained: Tree)
-      extends Error(s"Expected: ${classTag[Expected].getClass}\nObtained: ${log(
-      obtained)}")
+      extends Error(
+          s"Expected: ${classTag[Expected].getClass}\nObtained: ${log(obtained)}")
 
   case class CantFormatFile(msg: String)
       extends Error("scalafmt cannot format this file:\n" + msg)

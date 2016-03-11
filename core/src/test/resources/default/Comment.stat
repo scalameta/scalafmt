@@ -1,6 +1,7 @@
 80 columns                                                                     |
 <<< keep blank lines
 {
+
   def cancel(reason: Any): js.Promise[Any] = js.native // comment
 
   /**
@@ -80,4 +81,24 @@ object D {
   /**
    */
   def decodeMethodName = 2
+}
+<<< multiline comments
+object Primes {
+
+   // prime sieve; use instead of the test or stream when you know the
+   // upper bound of the primes you will need.
+   // en.wikipedia.org/wiki/Sieve_of_Eratosthenes
+   // this is the genuine sieve algorithm; see www.cs.hmc.edu/~oneill/papers/Sieve-JFP.pdf
+   // for a discussion of impostors
+     def primesBelow(limit: Int): List[Int]
+}
+>>>
+object Primes {
+
+  // prime sieve; use instead of the test or stream when you know the
+  // upper bound of the primes you will need.
+  // en.wikipedia.org/wiki/Sieve_of_Eratosthenes
+  // this is the genuine sieve algorithm; see www.cs.hmc.edu/~oneill/papers/Sieve-JFP.pdf
+  // for a discussion of impostors
+  def primesBelow(limit: Int): List[Int]
 }

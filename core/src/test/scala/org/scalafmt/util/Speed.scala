@@ -20,9 +20,11 @@ object Speed extends ScalaFmtLogger {
   // The couchdb client requires java 8 because of transitive dependency
   // on http4s, see https://github.com/http4s/http4s/issues/158
   val isJava8 = System.getProperty("java.version").startsWith("1.8")
+  val submitResults = sys.env.contains("TRAVIS")
+  val shouldRun = isJava8 && submitResults
 
   def submitStats(stat: TestStats): Unit = {
-    if (!isJava8) return
+    if (!shouldRun) return
     val startTime = System.nanoTime()
     val actions = db.docs.create(stat)
     actions.attemptRun match {
@@ -37,7 +39,7 @@ object Speed extends ScalaFmtLogger {
   }
 
   def writeComparisonReport(after: TestStats, branch: String): Unit = {
-    if (!isJava8) return
+    if (!shouldRun) return
     import sys.process._
     val startTime = System.nanoTime()
     val commit = Seq("git", "rev-parse", branch).!!.trim

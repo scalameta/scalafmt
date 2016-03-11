@@ -11,14 +11,14 @@ type ObjNotifyLike = Any {
 }
 <<< type indent by 2
 package object internal {
-  /**
+  /*
     * For convenience when
     */
   type TokenHash = Long
   }
 >>>
 package object internal {
-  /**
+  /*
     * For convenience when
     */
   type TokenHash = Long

@@ -6,6 +6,7 @@ def log(split: Split): String =
   "aasplit"
 <<< def gets 2x newline
 {val x = 1
+
 def log(split: Split): String = "aasplit"
 }
 >>>
@@ -17,6 +18,7 @@ def log(split: Split): String = "aasplit"
 }
 <<< override def gets 2x newline
 object a {val x = 1
+
 override def log(a: Split): String = "aasplit"
 }
 >>>

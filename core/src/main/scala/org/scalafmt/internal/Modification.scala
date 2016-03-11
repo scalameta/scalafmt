@@ -22,7 +22,7 @@ trait NewlineT extends Modification {
 
 case object Newline extends NewlineT {
 
-  def apply(gets2x: Boolean, hasIndent: Boolean): NewlineT =
+  def apply(gets2x: Boolean, hasIndent: Boolean = false): NewlineT =
     (gets2x, hasIndent) match {
       case (true, true) => Newline2xNoIndent
       case (true, false) => Newline2x

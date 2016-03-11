@@ -5,7 +5,7 @@ package org.scalafmt
   */
 object Versions {
   // Nightly, used in CLI, build.sbt, etc.
-  val scalafmt = "0.1.2"
+  val scalafmt = "0.1.3"
   // Stable, used in official user docs.
   val latestPublished = "0.1.2"
 }

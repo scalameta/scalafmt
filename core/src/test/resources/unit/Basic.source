@@ -1,7 +1,9 @@
 40 columns                              |
 <<< Two methods
 object a {
+
     def one = 1
+
     def two = 2 }
 >>>
 object a {
