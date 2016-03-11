@@ -13,6 +13,7 @@ import scala.meta.internal.ast.Source
 import scala.meta.internal.ast.Template
 import scala.meta.internal.ast.Term
 import scala.meta.internal.ast.Type
+import scala.meta.prettyprinters.Structure
 import scala.meta.tokens.Token._
 import scala.meta.tokens.Token
 
@@ -21,16 +22,9 @@ import scala.meta.tokens.Token
   */
 trait TreeOps extends TokenOps {
 
-  def isTopLevel(tree: Tree): Boolean = tree match {
-    case _: Pkg | _: Source => true
-    case _ => false
-  }
-
-  def isDefnSite(tree: Tree): Boolean =
+  def isTopLevel(tree: Tree): Boolean =
     tree match {
-      case _: Decl.Def | _: Defn.Def | _: Defn.Class | _: Type.Apply => true
-      case x: Ctor.Primary if x.parent.exists(_.isInstanceOf[Defn.Class]) =>
-        true
+      case _: Pkg | _: Source => true
       case _ => false
     }
 
@@ -42,19 +36,31 @@ trait TreeOps extends TokenOps {
 
   def defDefReturnType(tree: Tree): Option[Type] =
     tree match {
-      case d: Decl.Def  => Some(d.decltpe)
+      case d: Decl.Def => Some(d.decltpe)
       case d: Defn.Def => d.decltpe
       case _ => None
+    }
+
+  def isDefnSite(tree: Tree): Boolean =
+    tree match {
+      case _: Decl.Def | _: Defn.Def | _: Defn.Class | _: Defn.Trait |
+          _: Ctor.Secondary | _: Type.Apply | _: Type.Param =>
+        true
+      case x: Ctor.Primary if x.parent.exists(_.isInstanceOf[Defn.Class]) =>
+        true
+      case _ => false
     }
 
   def isCallSite(tree: Tree): Boolean =
     tree match {
       case _: Term.Apply | _: Pat.Extract | _: Pat.Tuple | _: Term.Tuple |
-          _: Term.ApplyType =>
+          _: Term.ApplyType | _: Term.Update =>
         true
       case _ => false
     }
 
+  def noSpaceBeforeOpeningParen(tree: Tree): Boolean =
+    isDefnSite(tree) || isCallSite(tree)
 
   def isModPrivateProtected(tree: Tree): Boolean =
     tree match {
@@ -88,6 +94,7 @@ trait TreeOps extends TokenOps {
       case parent => nestedSelect(parent)
     }
   }
+
   // TODO(olafur) scala.meta should make this easier.
 
   def findSiblingGuard(
@@ -111,6 +118,7 @@ trait TreeOps extends TokenOps {
     * Calculates depth to deepest child in tree.
     */
   // TODO(olafur) inefficient, precalculate?
+
   def treeDepth(tree: Tree): Int =
     if (tree.children.isEmpty) 0
     else 1 + tree.children.map(treeDepth).max

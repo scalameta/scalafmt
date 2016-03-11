@@ -186,12 +186,6 @@ class Router(val style: ScalaStyle,
             // For some reason, this newline cannot cost 1.
             Split(newline, 0)
         )
-
-      // TODO(olafur) more general?
-      case FormatToken(_: `]`, right: `(`, _) =>
-        Seq(
-            Split(NoSplit, 0)
-        )
       case FormatToken(_: `(`, _: `{`, between) =>
         Seq(
             Split(NoSplit, 0)
@@ -214,25 +208,10 @@ class Router(val style: ScalaStyle,
             Split(Space, 0)
         )
       // Opening [ with no leading space.
-      case tok@FormatToken(left, open: `[`, _)
-          if rightOwner.isInstanceOf[Term.ApplyType] ||
-          rightOwner.isInstanceOf[Defn.Def] ||
-          rightOwner.isInstanceOf[Decl.Def] ||
-          leftOwner.isInstanceOf[Type.Name] =>
-        Seq(
-            Split(NoSplit, 0)
-        )
       // Opening ( with no leading space.
-      case FormatToken(left, open: `(`, _) if !left.isInstanceOf[Modifier] &&
-          (rightOwner match {
-                case _: Term.Apply | _: Decl.Def | _: Defn.Def |
-                    _: Ctor.Secondary =>
-                  true
-                case _
-                    if rightOwner.parent.exists(_.isInstanceOf[Defn.Class]) =>
-                  true
-                case _ => false
-              }) =>
+      case FormatToken(
+          _: `this` | _: Ident | _: `]` | _: `}` | _: `)`, _: `(` | _: `[`, _)
+          if noSpaceBeforeOpeningParen(rightOwner) =>
         Seq(
             Split(NoSplit, 0)
         )
@@ -266,11 +245,6 @@ class Router(val style: ScalaStyle,
             Split(Newline, 0, ignoreIf = rhsIsJsNative)
               .withIndent(2, expire, Left)
         )
-      case tok@FormatToken(_, open: `[`, _)
-          if rightOwner.isInstanceOf[Defn.Def] =>
-        Seq(
-            Split(NoSplit, 0)
-        )
       case tok@FormatToken(open: `(`, _, _)
           if style.binPackParameters && isDefnSite(leftOwner) =>
         Seq(
@@ -296,13 +270,17 @@ class Router(val style: ScalaStyle,
           case t: Pat.Extract => t.ref -> t.args
           case t: Pat.Tuple => t -> t.elements
           case t: Term.ApplyType => t -> t.targs
+          case t: Term.Update => t.fun -> t.argss.flatten
           case t: Term.Tuple => t -> t.elements
           case t: Type.Apply => t.tpe -> t.args
+          case t: Type.Param => t.name -> t.tparams
           // TODO(olafur) flatten correct? Filter by this () section?
           case t: Defn.Def => t.name -> t.paramss.flatten
           case t: Decl.Def => t.name -> t.paramss.flatten
           case t: Defn.Class => t.name -> t.ctor.paramss.flatten
+          case t: Defn.Trait => t.name -> t.ctor.paramss.flatten
           case t: Ctor.Primary => t.name -> t.paramss.flatten
+          case t: Ctor.Secondary => t.name -> t.paramss.flatten
           case x =>
             logger.error(s"""Unknown tree
                  |${log(x.parent.get)}
@@ -327,20 +305,19 @@ class Router(val style: ScalaStyle,
         //          insideBlock(tok, close, _.isInstanceOf[`{`])
         val indent = leftOwner match {
           case _: Pat => Num(0) // Indentation already provided by case.
-          // TODO(olafur) This is an odd rule, when is it wrong?
           case x if isDefnSite(x) && !x.isInstanceOf[Type.Apply] => Num(0)
           case _ => Num(4)
         }
 
         val singleArgument = args.length == 1
 
-        val singleLine = // Don't force single line policy if only one argument.
+        // TODO(olafur) overfitting unit tests?
+        val singleLine =
           if (isBracket) {
             if (singleArgument)
               SingleLineBlock(close, exclude, killInlineComments = false)
             else SingleLineBlock(close)
           } else {
-            // is (
             if (singleArgument) NoPolicy
             else SingleLineBlock(close, exclude)
           }
@@ -615,10 +592,6 @@ class Router(val style: ScalaStyle,
             Split(Space, 0, policy = SingleLineBlock(expire)),
             Split(Newline, 1).withIndent(2, expire, Left)
         )
-      case FormatToken(_: `(`, _: `(` | _: `{`, _) =>
-        Seq(
-            Split(NoSplit, 0)
-        )
 
       // Type variance
       case tok@FormatToken(_: Ident, _: Ident, _)
@@ -661,12 +634,6 @@ class Router(val style: ScalaStyle,
             Split(Newline, 1, optimalAt = Some(close))
         )
 
-      // Pattern matching
-      case tok@FormatToken(_, open: `(`, _)
-          if rightOwner.isInstanceOf[Pat.Extract] =>
-        Seq(
-            Split(NoSplit, 0)
-        )
       // Pat
       case tok@FormatToken(or: Ident, _, _)
           if or.code == "|" && leftOwner.isInstanceOf[Pat.Alternative] =>
@@ -679,6 +646,7 @@ class Router(val style: ScalaStyle,
         Seq(
             Split(Space, 0)
         )
+
       // Protected []
       case tok@FormatToken(_, _: `[`, _) if isModPrivateProtected(leftOwner) =>
         Seq(
@@ -780,11 +748,6 @@ class Router(val style: ScalaStyle,
         )
       // Open paren generally gets no space.
       case FormatToken(_: `(`, _, _) =>
-        Seq(
-            Split(NoSplit, 0)
-        )
-      // Curried functions
-      case FormatToken(_: `)`, _: `(`, _) =>
         Seq(
             Split(NoSplit, 0)
         )

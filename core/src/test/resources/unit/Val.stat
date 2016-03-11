@@ -20,3 +20,7 @@ object a {
   val B__________________b: Int =
     123456789
 }
+<<< assignment to array
+ sieve(1) = false
+>>>
+sieve(1) = false
