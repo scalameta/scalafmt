@@ -42,7 +42,7 @@ function maven-publish() {
 function update-gh-pages() {
     git checkout gh-pages
     git reset --hard master
-    sbt readme/run --validate
+    sbt "readme/run --validate"
     cp -r readme/target/scalatex/* .
     git add .
     git commit -m "Update ghpages."
