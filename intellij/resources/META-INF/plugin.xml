@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>org.scalafmt.ScalaFmt</id>
   <name>Scalafmt</name>
-  <version>0.1.2</version>
+  <version>0.1.3</version>
   <vendor email="olafurpg@gmail.com" url="https://github.com/olafurpg/scalafmt">Olafur Pall Geirsson</vendor>
 
   <description><![CDATA[
@@ -10,7 +10,9 @@
 
   <change-notes><![CDATA[
       <p>See full changelog at <a href="http://scalafmt.org">scalafmt.org</a>.</p>
+      <p>Please report any bugs <a href="http://github.com/olafurpg/scalafmt/issues">on Github</a>.</p>
       <ul>
+        <li>Updated to 0.1.3.</li>
         <li>
           Updated to 0.1.2. Default shortcut is now shift+ctrl+L. Customize
           the shortcut in Settings > Keymap, lookt  for "Reformat with scalafmt".
