@@ -216,12 +216,12 @@
        @ul
          @li
            @lnk("Better handling of type parameters", "https://github.com/olafurpg/scalafmt/issues/117").
-           Try it on your @lnk("craziest type signatures", https://github.com/olafurpg/scalafmt/blob/6c4e5165bcbfa3a932cc112d7e87a1e919fcaf99/core/src/test/resources/default/DefDef.stat#L63").
+           Try it on your @lnk("craziest type signatures", "https://github.com/olafurpg/scalafmt/blob/6c4e5165bcbfa3a932cc112d7e87a1e919fcaf99/core/src/test/resources/default/DefDef.stat#L63").
          @li
            @lnk("Array assignments are treated like regular call-site applications", "https://github.com/olafurpg/scalafmt/issues/122").
          @li
-           Commented out code (lines that start with @code("//") at indentation 0),
-           remain un-indented.
+           Commented out code remains un-indented (lines that start with
+           @code("//") stay at indentation 0).
          @li
            Blank lines are only forced before top-level definitions and methods
            with docstrings.

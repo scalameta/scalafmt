@@ -39,16 +39,6 @@ function maven-publish() {
     sbt publishSigned sonatypeRelease
 }
 
-function update-gh-pages() {
-    git checkout gh-pages
-    git reset --hard master
-    sbt "readme/run --validate"
-    cp -r readme/target/scalatex/* .
-    git add .
-    git commit -m "Update ghpages."
-    git push -f origin gh-pages
-    git checkout master
-}
 
 function update-github-release() {
     tarfile="cli/target/scalafmt.tar.gz"
@@ -90,12 +80,12 @@ function update-homebrew-release() {
     cd ..
 }
 
-#assert-dependencies-are-installed
-#confirm-release
-#assemble-jar
-#push-tag
-#maven-publish
-#update-github-release
-#update-homebrew-release
-update-gh-pages
+assert-dependencies-are-installed
+confirm-release
+assemble-jar
+push-tag
+maven-publish
+update-github-release
+update-homebrew-release
+./update-gh-pages.sh
 # TODO(olafur) update-intellij-plugin
