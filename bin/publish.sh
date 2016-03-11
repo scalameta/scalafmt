@@ -95,7 +95,7 @@ confirm-release
 assemble-jar
 push-tag
 maven-publish
-update-gh-pages
 update-github-release
 update-homebrew-release
+update-gh-pages
 # TODO(olafur) update-intellij-plugin
