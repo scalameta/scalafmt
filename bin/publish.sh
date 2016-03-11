@@ -90,12 +90,12 @@ function update-homebrew-release() {
     cd ..
 }
 
-assert-dependencies-are-installed
-confirm-release
-assemble-jar
-push-tag
-maven-publish
-update-github-release
-update-homebrew-release
+#assert-dependencies-are-installed
+#confirm-release
+#assemble-jar
+#push-tag
+#maven-publish
+#update-github-release
+#update-homebrew-release
 update-gh-pages
 # TODO(olafur) update-intellij-plugin

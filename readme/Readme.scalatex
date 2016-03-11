@@ -215,19 +215,23 @@
      @sect{0.1.3}
        @ul
          @li
-           @lnk("Polished type parameter indentation", "https://github.com/olafurpg/scalafmt/issues/117").
+           @lnk("Better handling of type parameters", "https://github.com/olafurpg/scalafmt/issues/117").
+           Try it on your @lnk("craziest type signatures", https://github.com/olafurpg/scalafmt/blob/6c4e5165bcbfa3a932cc112d7e87a1e919fcaf99/core/src/test/resources/default/DefDef.stat#L63").
          @li
-           Ensures in various situations that commented out code, lines that
-           start with @code("//") at 0 indentation, remain un-indented.
+           @lnk("Array assignments are treated like regular call-site applications", "https://github.com/olafurpg/scalafmt/issues/122").
          @li
-           Does not force blank line before declarations unless they are top-level
-           or have leading doc-strings.
+           Commented out code (lines that start with @code("//") at indentation 0),
+           remain un-indented.
+         @li
+           Blank lines are only forced before top-level definitions and methods
+           with docstrings.
 
      @sect{0.1.2}
 
        @ul
          @li
            Closed @lnk("17 formatting issues", "https://github.com/olafurpg/scalafmt/issues?utf8=%E2%9C%93&q=author%3Asjrd+created%3A%3C2016-03-10").
+           Thank you Sebastian!
          @li
            Added Java 6+7 compatibility, was Java 8 before.
 
