@@ -9,15 +9,13 @@
     ]]></description>
 
   <change-notes><![CDATA[
-      <p>See full changelog at <a href="http://scalafmt.org">scalafmt.org</a>.</p>
-      <p>Please report any bugs <a href="http://github.com/olafurpg/scalafmt/issues">on Github</a>.</p>
       <ul>
-        <li>Updated to 0.1.3.</li>
-        <li>
-          Updated to 0.1.2. Default shortcut is now shift+ctrl+L. Customize
-          the shortcut in Settings > Keymap, lookt  for "Reformat with scalafmt".
+        <li>See full changelog at <a href="http://scalafmt.org">scalafmt.org</a>.</li>
+        <li>Please report any bugs <a href="http://github.com/olafurpg/scalafmt/issues">on Github</a>.</li>
+        <li>Default shortcut is now shift+ctrl+L.
+            Customize the shortcut under Settings > Keymap.
+            Action is "Reformat with scalafmt".
         </li>
-        <li>Created basic plugin.</li>
       </ul>
     ]]>
   </change-notes>

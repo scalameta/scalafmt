@@ -1,0 +1,9 @@
+40 columns                              |
+<<< SKIP Just at column limit
+object Aaaaaaaaaaaaaaaa extends Bbbbbbb{
+  val x = 1
+}
+>>>
+object Aaaaaaaaaaaaaaaa extends Bbbbbbb {
+  val x = 1
+}

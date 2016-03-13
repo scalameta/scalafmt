@@ -19,3 +19,12 @@ object A {
 protected [scalafmt] sealed trait UnitTestStyle
 >>>
 protected[scalafmt] sealed trait UnitTestStyle
+<<< SKIP self type
+  trait Cap extends Util {
+    self =>
+    val x = 1
+    }
+>>>
+trait Cap extends Util { self =>
+  val x = 1
+}

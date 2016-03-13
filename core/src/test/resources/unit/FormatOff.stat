@@ -1,0 +1,17 @@
+40 columns                              |
+<<< SKIP identity matrix
+    object A   {
+  // format: OFF
+  val identityMatrix = Array(1, 0, 0
+                             0, 1, 0
+                             0, 0, 1)
+  // format: ON
+             }
+>>>
+object A {
+  // format: OFF
+  val identityMatrix = Array(1, 0, 0
+                             0, 1, 0
+                             0, 0, 1)
+  // format: ON
+}
