@@ -119,12 +119,10 @@ class Router(val style: ScalaStyle,
         val (startsLambda, lambdaPolicy, lambdaArrow, lambdaIndent) =
           statementStarts.get(hash(right)).collect {
             case owner: Term.Function =>
-              val arrow = owner.tokens.find(_.isInstanceOf[`=>`])
-              logger.trace(s"$tok  ${leftTok2tok(arrow.get)}")
+              val arrow = lastLambda(owner).tokens.find(_.isInstanceOf[`=>`])
               val singleLineUntilArrow =
                 newlineBeforeClosingCurly.orElse(SingleLineBlock(
                     arrow.getOrElse(owner.params.last.tokens.last)).f)
-              logger.trace(s"${leftTok2tok(close)} ${leftTok2tok(arrow.get)}")
               (true, singleLineUntilArrow, arrow, 0)
           }.getOrElse {
             leftOwner match {
@@ -162,8 +160,11 @@ class Router(val style: ScalaStyle,
           if statementStarts.contains(hash(right)) &&
           leftOwner.isInstanceOf[Term.Function] =>
         val endOfFunction = leftOwner.tokens.last
+        val canBeSpace =
+          statementStarts(hash(right)).isInstanceOf[Term.Function]
         Seq(
-            Split(Newline, 0).withIndent(2, endOfFunction, Left)
+            Split(Space, 0, ignoreIf = !canBeSpace),
+            Split(Newline, 1).withIndent(2, endOfFunction, Left)
         )
       case FormatToken(arrow: `=>`, right, _)
           if leftOwner.isInstanceOf[Term.Function] =>

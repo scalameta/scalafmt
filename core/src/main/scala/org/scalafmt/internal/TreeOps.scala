@@ -1,5 +1,6 @@
 package org.scalafmt.internal
 
+import scala.annotation.tailrec
 import scala.meta.Tree
 
 import scala.meta.internal.ast.Ctor
@@ -125,6 +126,14 @@ trait TreeOps extends TokenOps {
 
   def templateCurly(owner: Tree): Token = {
     defnTemplate(owner).flatMap(templateCurly).getOrElse(owner.tokens.last)
+  }
+
+  @tailrec
+  final def lastLambda(first: Term.Function): Term.Function = first.body match {
+    case child: Term.Function => lastLambda(child)
+    case block: Term.Block if block.stats.headOption.exists(_.isInstanceOf[Term.Function]) =>
+      lastLambda(block.stats.head.asInstanceOf[Term.Function])
+    case _ => first
   }
 
   def templateCurly(template: Template): Option[Token] = {

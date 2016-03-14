@@ -65,6 +65,9 @@ trait TokenOps extends ScalaFmtLogger {
       case _ => false
     }
 
+  /**
+    * Forces allssplits up to including expire to be on a single line.
+    */
   def SingleLineBlock(expire: Token,
                       exclude: Set[Range] = Set.empty,
                       killInlineComments: Boolean = true)(
