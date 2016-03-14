@@ -48,6 +48,13 @@ trait TokenOps extends ScalaFmtLogger {
       case _ => false
     }
 
+  // TODO(olafur) come up with more generic solution
+  def newlineIsOkOperator(token: Token): Boolean =
+    token.code match {
+      case "+" | "-" => true
+      case _ => false
+    }
+
   def identModification(ident: Ident): Modification = {
     val lastCharacter = ident.code.last
     if (Character.isLetterOrDigit(lastCharacter) || lastCharacter == '`')

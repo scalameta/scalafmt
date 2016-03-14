@@ -644,6 +644,11 @@ class Router(val style: ScalaStyle,
             Split(Space, 0),
             Split(Newline, 1)
         )
+      case tok@FormatToken(left: Ident, right, _) if newlineIsOkOperator(left) =>
+        Seq(
+            Split(Space, 0),
+            Split(Newline, 3).withIndent(4, right, Right)
+        )
       case tok@FormatToken(_: Ident | _: Literal | _: Interpolation.End,
                            _: Ident | _: Literal | _: Xml.End,
                            _) =>
