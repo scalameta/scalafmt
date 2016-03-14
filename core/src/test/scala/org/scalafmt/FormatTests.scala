@@ -32,7 +32,7 @@ class FormatTests
     extends FunSuite with Timeouts with ScalaFmtLogger with BeforeAndAfterAll
     with HasTests with FormatAssertions with DiffAssertions {
   lazy val onlyUnit = UnitTests.tests.exists(_.only)
-  lazy val onlyManual = ManualTests.tests.exists(_.only)
+  lazy val onlyManual = !onlyUnit && ManualTests.tests.exists(_.only)
   lazy val onlyOne = tests.exists(_.only)
   lazy val debugResults = mutable.ArrayBuilder.make[Result]
 
@@ -41,7 +41,7 @@ class FormatTests
   }
 
   override val tests = {
-    if (onlyManual && !onlyUnit) ManualTests.tests
+    if (onlyManual) ManualTests.tests
     else UnitTests.tests
   }
 

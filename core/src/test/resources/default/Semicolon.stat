@@ -1,0 +1,9 @@
+80 columns                                                                     |
+<<< SKIP Keep single line
+      text.charAt(pos) match {
+        case '<' => handle("&lt;"); prev = pos + 1
+        }
+>>>
+text.charAt(pos) match {
+  case '<' => handle("&lt;"); prev = pos + 1
+}

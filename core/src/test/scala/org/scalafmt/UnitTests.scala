@@ -13,18 +13,22 @@ object UnitTests extends HasTests with ScalaFmtLogger {
 
   val workingDirectory = System.getProperty("user.dir")
 
+  /** Avoids parsing all files if some tests are marked ONLY.
+    */
+  def getTestFiles: Vector[String] = {
+    val testsFiles = listFiles(testDir).filter(filename2parse(_).isDefined)
+    val onlyTests = testsFiles.filter(_.contains("\n<<< ONLY"))
+    if (onlyTests.nonEmpty) onlyTests
+    else testsFiles
+  }
+
   // TODO(olafur) make possible to limit states per unit test.
   override lazy val tests: Seq[DiffTest] = {
     for {
-      filename <- listFiles(testDir) if filename2parse(filename).isDefined
+      filename <- getTestFiles
       test <- {
-        // Tests are sorted first by spec, and warmup should run first.
-        val spec =
-          if (filename.contains("Warmup")) "===> Warmup"
-          else
-            filename.stripPrefix(
-                workingDirectory + File.separator + testDir + File.separator)
-
+        val spec = filename.stripPrefix(
+            workingDirectory + File.separator + testDir + File.separator)
         val content = readFile(filename)
         val moduleOnly = isOnly(content)
         val moduleSkip = isSkip(content)
