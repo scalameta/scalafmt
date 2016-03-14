@@ -7,6 +7,8 @@ import scala.meta.internal.ast.Defn
 import scala.meta.internal.ast.Pkg
 import scala.meta.internal.ast.Template
 
+object TokenOps extends TokenOps
+
 /**
   * Stateless helper functions on [[scala.meta.Token]].
   */
@@ -109,4 +111,26 @@ trait TokenOps extends ScalaFmtLogger {
       case t: Pkg.Object => Some(t.templ)
       case _ => None
     }
+
+  def isFormatOn(token: Token): Boolean =
+    token match {
+      case c: Comment if formatOnCode.contains(c.code.toLowerCase) => true
+      case _ => false
+    }
+
+  def isFormatOff(token: Token): Boolean =
+    token match {
+      case c: Comment if formatOffCode.contains(c.code.toLowerCase) => true
+      case _ => false
+    }
+
+  val formatOffCode = Set(
+      "// @formatter:off", // IntelliJ
+      "// format: off" // scalariform
+  )
+
+  val formatOnCode = Set(
+      "// @formatter:on", // IntelliJ
+      "// format: on" // scalariform
+  )
 }

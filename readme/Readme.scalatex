@@ -166,6 +166,37 @@
         @li
           Your favorite editor? Join the gitter channel.
 
+   @sect{Preferences}
+
+     Scalafmt currently supports very limited number of preferences.
+
+     @sect{// format: off}
+       Disable formatting for specific regions of code by wrapping them in
+       @code("// format: OFF") blocks:
+
+       @hl.scala
+         object A   {
+           // format: off
+           val identityMatrix = Array(1, 0, 0,
+                                      0, 1, 0,
+                                      0, 0, 1)
+           // format: on
+         }
+
+       To disable formatting for a whole file, put the first comment
+       at the top of the file.
+
+       @ul
+         @li
+           the comment string is not case sensitive, so you can write also
+           @code("// format: OFF").
+         @li
+           The comments @code("// @formatter:off") and @code("// @formatter:off")
+           will also work, for compatibility with the default IntelliJ formatter.
+         @li
+           Scalafmt will do it's best to resume formatting at the correct
+           indentation level. It's best to enable it at the same level as
+           when it was disabled.
    @sect{FAQ}
 
       @sect{Why not Scalariform?}

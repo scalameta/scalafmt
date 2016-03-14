@@ -207,8 +207,8 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
           Q.enqueue(nextState)
         } else {
           val splits: Seq[Split] =
-            if (splitToken.inside(range))
-              router.getSplitsMemo(splitToken)
+            if (curr.formatOff) List(provided(splitToken))
+            else if (splitToken.inside(range)) router.getSplitsMemo(splitToken)
             else List(provided(splitToken))
 
           val actualSplit = {

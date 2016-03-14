@@ -13,7 +13,8 @@ final case class State(cost: Int,
                        splits: Vector[Split],
                        indentation: Int,
                        pushes: Vector[Indent[Num]],
-                       column: Int)
+                       column: Int,
+                       formatOff: Boolean)
     extends Ordered[State] with ScalaFmtLogger {
 
   def compare(that: State): Int = {
@@ -93,13 +94,19 @@ final case class State(cost: Int,
       }
     }
 
+    val nextFormatOff =
+      if (TokenOps.isFormatOff(tok.right)) true
+      else if (TokenOps.isFormatOn(tok.right)) false
+      else formatOff
+
     State(cost + splitWithPenalty.cost,
           // TODO(olafur) expire policy, see #18.
           newPolicy,
           splits :+ splitWithPenalty,
           newIndent,
           newIndents,
-          nextStateColumn)
+          nextStateColumn,
+          nextFormatOff)
   }
 }
 
@@ -109,7 +116,8 @@ object State extends ScalaFmtLogger {
                     Vector.empty[Split],
                     0,
                     Vector.empty[Indent[Num]],
-                    0)
+                    0,
+                    formatOff = false)
 
   /**
     * Returns formatted output from FormatTokens and Splits.
