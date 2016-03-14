@@ -1,5 +1,5 @@
 40 columns                              |
-<<< SKIP Just at column limit
+<<< SKIP tried but it didn't give pretty results.
 object Aaaaaaaaaaaaaaaa extends Bbbbbbb{
   val x = 1
 }
