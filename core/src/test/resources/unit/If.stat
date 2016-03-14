@@ -12,8 +12,7 @@ if (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa && bbbbbbbbbbbbbbbbbb)
   println("a")
 >>>
 if (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa &&
-    bbbbbbbbbbbbbbbbbb)
-  println("a")
+    bbbbbbbbbbbbbbbbbb) println("a")
 <<< Long if condition with inline comment
 if (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa &&
       bbbbbbbbbbbbbbbbbb) // comment
@@ -79,7 +78,7 @@ if ((gets2x(tok) ||
 if   (firstNewline == -1) tokLength
 >>>
 if (firstNewline == -1) tokLength
-<<< SKIP Gimme newline
+<<< Gimme newline
   if (isBracket)
     Constants.BracketPenalty
   else 0

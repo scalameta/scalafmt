@@ -591,7 +591,7 @@ class Router(val style: ScalaStyle,
           if leftOwner.isInstanceOf[Term.If] =>
         val owner = leftOwner.asInstanceOf[Term.If]
         val expire = owner.thenp.tokens.last
-        val rightIsOnNewLine = newlinesBetween(between) > 0
+        val rightIsOnNewLine = newlines > 0
         // Inline comment attached to closing `)`
         val attachedComment = !rightIsOnNewLine && isInlineComment(right)
         val newlineModification: Modification =
@@ -599,7 +599,7 @@ class Router(val style: ScalaStyle,
             Space // Inline comment will force newline later.
           else Newline
         Seq(
-            Split(Space, 0, ignoreIf = rightIsOnNewLine || attachedComment)
+            Split(Space, 0, ignoreIf = attachedComment)
               .withIndent(2, expire, Left).withPolicy(SingleLineBlock(expire)),
             Split(newlineModification, 1).withIndent(2, expire, Left)
         )
