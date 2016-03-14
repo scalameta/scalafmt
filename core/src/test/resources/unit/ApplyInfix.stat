@@ -14,7 +14,7 @@ js.Return(!(!({
   genIsClassNameInAncestors(
       className, obj DOT "$classData")
 })))
-<<< SKIP hidden space
+<<< SKIP hidden space, see https://github.com/scalameta/scalameta/issues/346
 opt[(Int, Int)]("range") hidden () action {}
 >>>
 opt[(Int, Int)]("range") hidden() action {}
