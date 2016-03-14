@@ -55,7 +55,7 @@ def format_![T <: Tree](code: String)(implicit ev: Parse[T]): String = 1
 >>>
 def format_![T <: Tree](code: String)(
     implicit ev: Parse[T]): String = 1
-<<< SKIP procedure syntax
+<<< procedure syntax
 def main(args: Array[String]) {
 parser.foreach(run)
 }

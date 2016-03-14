@@ -149,9 +149,14 @@ trait FormatOps extends TreeOps {
   }
 
   def defnSiteLastToken(tree: Tree): Token = {
-    tree.tokens.find(t => t.isInstanceOf[`=`] && owners(t) == tree)
-      .getOrElse(tree.tokens.last)
-  }
+    tree match {
+      // TODO(olafur) scala.meta should make this easier.
+      case procedure: Defn.Def if procedure.decltpe.isDefined &&
+          procedure.decltpe.get.tokens.isEmpty =>
+        procedure.body.tokens.find(_.isInstanceOf[`{`])
+      case _ => tree.tokens.find(t => t.isInstanceOf[`=`] && owners(t) == tree)
+    }
+  }.getOrElse(tree.tokens.last)
 
   def OneArgOneLineSplit(open: Delim)(implicit line: sourcecode.Line): Policy = {
     val expire = matchingParentheses(hash(open))
