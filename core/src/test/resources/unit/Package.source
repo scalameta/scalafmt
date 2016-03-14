@@ -37,7 +37,7 @@ package foo
 import a.b
 
 object a
-<<< SKIP 2x packages
+<<< 2x packages
 package foo
 package bar
 object a

@@ -101,7 +101,8 @@ class Router(val style: ScalaStyle,
         )
 
       // Top level defns
-      case tok: FormatToken if !isDocstring(tok.left) && gets2x(tok) =>
+      case tok@FormatToken(_, right, _) if !right.isInstanceOf[`package `] &&
+          !isDocstring(tok.left) && gets2x(tok) =>
         Seq(
             Split(Newline2x, 0)
         )
