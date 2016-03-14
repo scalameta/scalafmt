@@ -7,8 +7,7 @@
             tinner match {
               case _ =>
                 rhsSideEfs match {
-                  case _ =>
-                      cont(PbreTransBlock(rhsSideEffects :: Nil, tinner))
+                  case _ =>  cont(PbreTransBlock(rhsSideEffects :: Nil, tinner))
                 }
               }
         })

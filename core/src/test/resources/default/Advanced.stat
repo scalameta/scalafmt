@@ -25,8 +25,7 @@ val createAsStat = if (semantics.asInstanceOfs == Unchecked) {
       } else {
         envFieldDef("as", className,
           js.Function(List(objParam), js.Return(className match {
-            case Definitions.ObjectClass =>
-              obj
+            case Definitions.ObjectClass => obj
             case _ =>
               val throwError = {
                 genCallHelper("throwClassCastException",
@@ -341,7 +340,8 @@ private def withNewLocalDefs = {
         }(cont1)
       }(cont)
 
-    case Nil => buildInner(Nil, cont)
+    case Nil =>
+      buildInner(Nil, cont)
   }
 }
 <<< genArrayInstanceTests

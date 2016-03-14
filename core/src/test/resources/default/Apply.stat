@@ -146,3 +146,29 @@ val ret =
 >>>
 val ret = new mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](
     Map[TokenHash, Tree]())
+<<< SKIP . is cheaper
+{{{{
+        Seq(
+            Split(
+                  // This split needs to have an optimalAt field.
+                  Space,
+                  0,
+                  ignoreIf = !spaceCouldBeOk,
+                  optimalAt = Some(expire)).withPolicy(SingleLineBlock(
+                expire))
+        )
+
+}}}}
+>>>
+{{{{
+        Seq(
+            Split(
+                  // This split needs to have an optimalAt field.
+                  Space,
+                  0,
+                  ignoreIf = !spaceCouldBeOk,
+                  optimalAt = Some(expire))
+                    .withPolicy(SingleLineBlock(expire))
+        )
+
+}}}}

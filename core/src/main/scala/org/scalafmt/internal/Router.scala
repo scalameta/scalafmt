@@ -42,6 +42,7 @@ class Router(val style: ScalaStyle,
   def getSplits(formatToken: FormatToken): Seq[Split] = {
     val leftOwner = owners(formatToken.left)
     val rightOwner = owners(formatToken.right)
+    val newlines = newlinesBetween(formatToken.between)
     formatToken match {
       case FormatToken(_: BOF, _, _) =>
         Seq(
@@ -174,12 +175,32 @@ class Router(val style: ScalaStyle,
             Split(Newline, 1 + nestedApplies(leftOwner))
               .withIndent(2, endOfFunction, Left)
         )
+      // Case arrow
+      case tok@FormatToken(arrow: `=>`, right, between)
+          if leftOwner.isInstanceOf[Case] =>
+        Seq(
+            Split(Space, 0, ignoreIf = newlines != 0), // Gets killed by `case` policy.
+            Split(
+                Newline(gets2x = false, hasIndent = rhsIsCommentedOut(tok)), 1)
+        )
       // New statement
+      case tok@FormatToken(_: `;`, right, between)
+          if startsStatement(tok) && newlines == 0 =>
+        val expire = statementStarts(hash(right)).tokens.last
+        Seq(
+            Split(
+                  // This split needs to have an optimalAt field.
+                  Space,
+                  0,
+                  optimalAt = Some(expire)).withPolicy(SingleLineBlock(
+                expire)),
+            // For some reason, this newline cannot cost 1.
+            Split(Newline(shouldGet2xNewlines(tok)), 0)
+        )
+
       case tok@FormatToken(left, right, between) if startsStatement(tok) =>
         val oldNewlines = newlinesBetween(between)
         val newline: Modification = Newline(shouldGet2xNewlines(tok))
-        //          if () Newline2x
-        //          else Newline
         val expire = rightOwner.tokens.find(_.isInstanceOf[`=`])
           .getOrElse(rightOwner.tokens.last)
 
@@ -698,13 +719,6 @@ class Router(val style: ScalaStyle,
         Seq(
             Split(Space, 0, policy = penalizeNewlines),
             Split(Newline, 1, policy = penalizeNewlines)
-        )
-      case tok@FormatToken(arrow: `=>`, right, between)
-          if leftOwner.isInstanceOf[Case] =>
-        Seq(
-            Split(Space, 0),
-            Split(
-                Newline(gets2x = false, hasIndent = rhsIsCommentedOut(tok)), 1)
         )
       // Inline comment
       case FormatToken(_, c: Comment, between) =>

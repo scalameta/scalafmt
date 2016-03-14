@@ -1,9 +1,22 @@
 80 columns                                                                     |
-<<< SKIP Keep single line
+<<< keep on single line, if possible
       text.charAt(pos) match {
         case '<' => handle("&lt;"); prev = pos + 1
+        case '<' => handle("&lt;"); prev = pos + 1 // aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        case '<' => handle("&lt;"); prev = pos + aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        case '<' =>
+       handle("&lt;");
+       prev = pos + 1 // aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
         }
 >>>
 text.charAt(pos) match {
   case '<' => handle("&lt;"); prev = pos + 1
+  case '<' =>
+    handle("&lt;"); prev = pos + 1 // aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  case '<' =>
+    handle("&lt;");
+    prev = pos + aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  case '<' =>
+    handle("&lt;");
+    prev = pos + 1 // aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 }

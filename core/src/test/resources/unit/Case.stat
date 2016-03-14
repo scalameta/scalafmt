@@ -14,8 +14,7 @@ object Object {
 <<< many with no body
 x match {
 case 1 =>
-case x =>
-  explode()
+case x =>   explode()
 }
 >>>
 x match {
