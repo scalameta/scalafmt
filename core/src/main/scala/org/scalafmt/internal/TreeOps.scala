@@ -123,7 +123,11 @@ trait TreeOps extends TokenOps {
     if (tree.children.isEmpty) 0
     else 1 + tree.children.map(treeDepth).max
 
-  def templateCurly(template: Template): Token = {
-    template.tokens.find(_.isInstanceOf[`{`]).getOrElse(template.tokens.last)
+  def templateCurly(owner: Tree): Token = {
+    defnTemplate(owner).flatMap(templateCurly).getOrElse(owner.tokens.last)
+  }
+
+  def templateCurly(template: Template): Option[Token] = {
+    template.tokens.find(_.isInstanceOf[`{`])
   }
 }

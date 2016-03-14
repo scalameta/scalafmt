@@ -19,12 +19,24 @@ object A {
 protected [scalafmt] sealed trait UnitTestStyle
 >>>
 protected[scalafmt] sealed trait UnitTestStyle
-<<< ONLY self type
+<<< self type
   trait Cap extends Util {
     self =>
-    val x = 1
+object Foo {
+x
+}
+
+    val x: Int => Int =  { y =>
+      y + 1
+    }
     }
 >>>
 trait Cap extends Util { self =>
-  val x = 1
+  object Foo {
+    x
+  }
+
+  val x: Int => Int = { y =>
+    y + 1
+  }
 }

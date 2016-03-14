@@ -13,6 +13,7 @@ import scala.meta.internal.ast.Decl
 import scala.meta.internal.ast.Defn
 import scala.meta.internal.ast.Enumerator
 import scala.meta.internal.ast.Import
+import scala.meta.internal.ast.Name
 import scala.meta.internal.ast.Pat
 import scala.meta.internal.ast.Pkg
 import scala.meta.internal.ast.Template
@@ -115,7 +116,7 @@ class Router(val style: ScalaStyle,
             Decision(t, Seq(Split(Newline, 0)))
         }, close.end)
 
-        val (startsLambda, lambdaPolicy, lambdaArrow) =
+        val (startsLambda, lambdaPolicy, lambdaArrow, lambdaIndent) =
           statementStarts.get(hash(right)).collect {
             case owner: Term.Function =>
               val arrow = owner.tokens.find(_.isInstanceOf[`=>`])
@@ -124,8 +125,18 @@ class Router(val style: ScalaStyle,
                 newlineBeforeClosingCurly.orElse(SingleLineBlock(
                     arrow.getOrElse(owner.params.last.tokens.last)).f)
               logger.trace(s"${leftTok2tok(close)} ${leftTok2tok(arrow.get)}")
-              (true, singleLineUntilArrow, arrow)
-          }.getOrElse((false, NoPolicy, None))
+              (true, singleLineUntilArrow, arrow, 0)
+          }.getOrElse {
+            leftOwner match {
+              // Self type: trait foo { self => ... }
+              case t: Template if !t.self.name.isInstanceOf[Name.Anonymous] =>
+                val arrow = t.tokens.find(_.isInstanceOf[`=>`])
+                val singleLineUntilArrow = newlineBeforeClosingCurly.orElse(
+                    SingleLineBlock(arrow.getOrElse(t.self.tokens.last)).f)
+                (true, singleLineUntilArrow, arrow, 2)
+              case _ => (false, NoPolicy, None, 0)
+            }
+          }
 
         val skipSingleLineBlock =
           ignore || startsLambda || newlinesBetween(between) > 0
@@ -134,7 +145,7 @@ class Router(val style: ScalaStyle,
             Split(Space, 0, ignoreIf = skipSingleLineBlock)
               .withPolicy(SingleLineBlock(close)),
             Split(Space, 0, ignoreIf = !startsLambda, optimalAt = lambdaArrow)
-              .withPolicy(lambdaPolicy),
+              .withIndent(lambdaIndent, close, Right).withPolicy(lambdaPolicy),
             Split(nl, 1).withPolicy(newlineBeforeClosingCurly)
               .withIndent(2, close, Right)
         )
@@ -217,10 +228,8 @@ class Router(val style: ScalaStyle,
         )
       // Defn.{Object, Class, Trait}
       case tok@FormatToken(_: `object` | _: `class ` | _: `trait`, _, _) =>
-        val owner = leftOwner
-        val expire = defnTemplate(owner).flatMap { templ =>
-          templ.tokens.find(_.isInstanceOf[`{`])
-        }.getOrElse(owner.tokens.last)
+        val expire = defnTemplate(leftOwner).flatMap(templateCurly)
+          .getOrElse(leftOwner.tokens.last)
         Seq(
             Split(Space, 0).withIndent(4, expire, Left)
         )
@@ -528,7 +537,7 @@ class Router(val style: ScalaStyle,
 
       // Template
       case FormatToken(_, right: `extends`, _) =>
-        val lastToken = defnTemplate(rightOwner).map(templateCurly)
+        val lastToken = defnTemplate(rightOwner).flatMap(templateCurly)
           .getOrElse(rightOwner.tokens.last)
         Seq(
             Split(Space, 0).withPolicy(SingleLineBlock(lastToken)),
@@ -536,9 +545,8 @@ class Router(val style: ScalaStyle,
         )
       case tok@FormatToken(_, right: `with`, _)
           if rightOwner.isInstanceOf[Template] =>
-        val template = rightOwner.asInstanceOf[Template]
-        // TODO(olafur) is this correct?
-        val expire = templateCurly(template)
+        val template = rightOwner
+        val expire = templateCurly(rightOwner)
         Seq(
             Split(Space, 0),
             Split(Newline, 1).withPolicy(Policy({
