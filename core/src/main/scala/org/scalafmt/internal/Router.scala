@@ -264,7 +264,6 @@ class Router(val style: ScalaStyle,
         )
       // DefDef
       case tok@FormatToken(_: `def`, name: Ident, _) =>
-        //          if style.binPackParameters =>
         Seq(
             Split(Space, 0).withIndent(4, defnSiteLastToken(leftOwner), Left)
         )
@@ -276,6 +275,13 @@ class Router(val style: ScalaStyle,
             Split(Space, 0, policy = SingleLineBlock(expire)),
             Split(Newline, 0, ignoreIf = rhsIsJsNative)
               .withIndent(2, expire, Left)
+        )
+      // Named argument foo(arg = 1)
+      case tok@FormatToken(e: `=`, right, _)
+          if leftOwner.isInstanceOf[Term.Arg.Named] =>
+        val expire = leftOwner.asInstanceOf[Term.Arg.Named].rhs.tokens.last
+        Seq(
+            Split(Space, 0).withIndent(2, expire, Left)
         )
       case tok@FormatToken(open: `(`, _, _)
           if style.binPackParameters && isDefnSite(leftOwner) =>
