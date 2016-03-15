@@ -14,7 +14,7 @@
   def cancel(reason: Any): js.Promise[Any] = js.native // comment
 
   /**
-   */
+    */
   def read(): js.Promise[Chunk[T]] = js.native
 }
 <<< keep blank lines 2 #99
@@ -69,7 +69,7 @@ object D {
     compressedPrefixes map { case (a, b) => (b, a) }
 
   /**
-   */
+    */
   def decodeMethodName = 2
   }
 >>>
@@ -79,7 +79,7 @@ object D {
     compressedPrefixes map { case (a, b) => (b, a) }
 
   /**
-   */
+    */
   def decodeMethodName = 2
 }
 <<< multiline comments

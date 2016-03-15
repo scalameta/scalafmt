@@ -175,7 +175,7 @@ x match {
 // case y => 3
   case z => 4
 }
-<<< SKIP indent multiline comments
+<<< indent multiline comments
 object a {
 /*
 * This

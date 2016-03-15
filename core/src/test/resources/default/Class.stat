@@ -55,14 +55,14 @@ final class TypedArrayBufferOps[ // scalastyle:ignore
 class MediaStream() extends EventTarget {
 
   /**
-   */
+    */
   val ended: Boolean = js.native
 }
 >>>
 class MediaStream() extends EventTarget {
 
   /**
-   */
+    */
   val ended: Boolean = js.native
 }
 <<< secondary constructor #110

@@ -295,11 +295,23 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
     formatted
   }
 
+  private def formatComment(comment: Comment, indent: Int): String = {
+    val isDocstring = comment.code.startsWith("/**")
+    val spaces: String =
+      if (isDocstring && style.scalaDocs) " " * (indent + 2)
+      else " " * (indent + 1)
+    comment.code.replaceAll("\n *\\*", s"\n$spaces\\*")
+  }
+
   private def mkString(splits: Vector[Split]): String = {
     val sb = new StringBuilder()
     State.reconstructPath(toks, splits, style) {
-      case (_, tok, whitespace) =>
-        sb.append(tok.left.code)
+      case (state, formatToken, whitespace) =>
+        formatToken.left match {
+          case c: Comment if c.code.startsWith("/*") =>
+            sb.append(formatComment(c, state.indentation))
+          case token => sb.append(token.code)
+        }
         sb.append(whitespace)
     }
     sb.toString()

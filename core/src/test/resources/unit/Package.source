@@ -9,8 +9,8 @@ object a
 package foo
 
 /**
- * comment
- */
+  * comment
+  */
 object a
 
 <<< separate by two newlines

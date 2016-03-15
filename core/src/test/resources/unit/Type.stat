@@ -19,8 +19,8 @@ package object internal {
 >>>
 package object internal {
   /*
-    * For convenience when
-    */
+   * For convenience when
+   */
   type TokenHash = Long
 }
 <<< variance annotation #98

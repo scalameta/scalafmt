@@ -17,6 +17,24 @@ sealed trait ScalaStyle {
   def maxColumn: Int = 80
 
   /**
+    * Use scaladoc style docstring, otherwise javadoc style comments.
+    *
+    * Scaladoc:
+    *
+    * /** Title.
+    *   *
+    *   */
+    *
+    * Javadoc:
+    * /**
+    *  * Title.
+    *  */
+    *
+    *
+    */
+  def scalaDocs: Boolean = true
+
+  /**
     * Call-site arguments.
     *
     * If true, will fit as many arguments on each line, only breaking at commas.
@@ -77,7 +95,6 @@ object ScalaStyle {
     override def binPackParameters = true
 
     // TODO(olafur) should be true
-
     override def binPackArguments = false
   }
 
@@ -88,9 +105,12 @@ object ScalaStyle {
     override def maxColumn = 40
   }
 
+  // TODO(olafur) make scalastyle a case class and each style is an instance.
   case class CustomStyleBecauseIDontLikeTheProvidedStyles(
-      override val maxColumn: Int,
-      override val binPackParameters: Boolean,
-      override val binPackArguments: Boolean,
-      override val binPackDotChains: Boolean) extends ScalaStyle
+      override val scalaDocs: Boolean = Default.scalaDocs,
+      override val maxColumn: Int = Default.maxColumn,
+      override val binPackParameters: Boolean = Default.binPackParameters,
+      override val binPackArguments: Boolean = Default.binPackArguments,
+      override val binPackDotChains: Boolean = Default.binPackDotChains)
+      extends ScalaStyle
 }
