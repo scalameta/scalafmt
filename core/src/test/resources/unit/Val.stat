@@ -29,3 +29,11 @@ Split(
     ignoreIf = !fitsOnOneLine ||
       isConfigStyle
 )
+<<< single line, exclude {} blocks
+val fill = x match {
+case ctx => 1
+}
+>>>
+val fill = x match {
+  case ctx => 1
+}

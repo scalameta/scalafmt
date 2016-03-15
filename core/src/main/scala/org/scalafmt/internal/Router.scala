@@ -270,9 +270,12 @@ class Router(val style: ScalaStyle,
       case tok@FormatToken(e: `=`, right, _)
           if leftOwner.isInstanceOf[Defn.Def] =>
         val expire = leftOwner.asInstanceOf[Defn.Def].body.tokens.last
+        val exclude =
+          insideBlock(tok, expire, _.isInstanceOf[`{`]).map(parensRange)
         val rhsIsJsNative = isJsNative(right)
         Seq(
-            Split(Space, 0, policy = SingleLineBlock(expire)),
+            Split(
+                Space, 0, policy = SingleLineBlock(expire, exclude = exclude)),
             Split(Newline, 0, ignoreIf = rhsIsJsNative)
               .withIndent(2, expire, Left)
         )

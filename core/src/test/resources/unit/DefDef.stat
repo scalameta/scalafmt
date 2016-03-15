@@ -79,7 +79,7 @@ def fill(points: Double*) = {
 def fill(points: Double*) = {
   ctx.fill()
 }
-<<< SKIP single line towards {
+<<< single line, exclude {} blocks
 def fill(points: Double) = x match {
 case ctx => 1
 }
