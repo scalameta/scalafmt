@@ -332,8 +332,11 @@ class Router(val style: ScalaStyle,
 
         val nestedPenalty = nestedApplies(leftOwner)
         val exclude =
-          if (isBracket) insideBlock(tok, close, _.isInstanceOf[`[`])
+          if (isBracket)
+            insideBlock(tok, close, _.isInstanceOf[`[`])
           else insideBlock(tok, close, _.isInstanceOf[`{`])
+        val excludeRanges = exclude.map(parensRange)
+
         //          insideBlock(tok, close, _.isInstanceOf[`{`])
         val indent = leftOwner match {
           case _: Pat => Num(0) // Indentation already provided by case.
@@ -341,18 +344,27 @@ class Router(val style: ScalaStyle,
           case _ => Num(4)
         }
 
+        val unindentAtExclude: PartialFunction[Decision, Decision] = {
+          case Decision(t, s) if exclude.contains(t.left) =>
+            val close = matchingParentheses(hash(t.left))
+            Decision(t, s.map(_.withIndent(-4, close, Left)))
+        }
         val singleArgument = args.length == 1
 
         // TODO(olafur) overfitting unit tests?
-        val singleLine =
+
+        val baseSingleLinePolicy =
           if (isBracket) {
             if (singleArgument)
-              SingleLineBlock(close, exclude, killInlineComments = false)
+              SingleLineBlock(close, excludeRanges, killInlineComments = false)
             else SingleLineBlock(close)
           } else {
-            if (singleArgument) NoPolicy
-            else SingleLineBlock(close, exclude)
+            if (singleArgument) {
+              Policy(PartialFunction.empty[Decision, Decision], close.end)
+            } else SingleLineBlock(close, excludeRanges)
           }
+        val singleLine = baseSingleLinePolicy.orElse(unindentAtExclude)
+
         val oneArgOneLine = OneArgOneLineSplit(open)
 
         // TODO(olafur) document how "config style" works.
@@ -378,7 +390,7 @@ class Router(val style: ScalaStyle,
         val charactersInside = (close.start - open.end) - 2
 
         val fitsOnOneLine =
-          singleArgument || exclude.nonEmpty ||
+          singleArgument || excludeRanges.nonEmpty ||
           charactersInside <= style.maxColumn
 
         // TODO(olafur) ignoreIf: State => Boolean?
@@ -388,23 +400,17 @@ class Router(val style: ScalaStyle,
 
         val optimalToken = Some(expirationToken)
 
-        val singleLineExpiration: Token =
-          if (isBracket) expirationToken
-          else nextNonComment(tok).right
         Seq(
             Split(modification,
                   0,
                   policy = singleLine,
                   ignoreIf = !fitsOnOneLine || isConfigStyle,
-                  optimalAt = optimalToken)
-            // TODO(olafur) allow style to specify indent here?
-              .withIndent(indent, singleLineExpiration, Left),
+                  optimalAt = optimalToken).withIndent(indent, close, Left),
             Split(newlineModification,
                   (1 + nestedPenalty + lhsPenalty) * bracketMultiplier,
                   policy = singleLine,
                   ignoreIf = !fitsOnOneLine || isConfigStyle,
-                  optimalAt = optimalToken)
-              .withIndent(indent, singleLineExpiration, Left),
+                  optimalAt = optimalToken).withIndent(indent, close, Left),
             // TODO(olafur) singleline per argument!
             Split(modification,
                   (2 + lhsPenalty) * bracketMultiplier,
@@ -644,11 +650,6 @@ class Router(val style: ScalaStyle,
             Split(Space, 0),
             Split(Newline, 1)
         )
-      case tok@FormatToken(left: Ident, right, _) if newlineIsOkOperator(left) =>
-        Seq(
-            Split(Space, 0),
-            Split(Newline, 3).withIndent(4, right, Right)
-        )
       case tok@FormatToken(_: Ident | _: Literal | _: Interpolation.End,
                            _: Ident | _: Literal | _: Xml.End,
                            _) =>
@@ -668,6 +669,13 @@ class Router(val style: ScalaStyle,
             Split(Space, 0, optimalAt = Some(close))
               .withPolicy(SingleLineBlock(close)),
             Split(Newline, 1, optimalAt = Some(close))
+        )
+      case tok@FormatToken(left: Ident, right, _)
+          if leftOwner.isInstanceOf[Term.ApplyInfix] &&
+          newlineIsOkOperator(left) =>
+        Seq(
+            Split(Space, 0),
+            Split(Newline, 3).withIndent(4, right, Right)
         )
 
       // Pat

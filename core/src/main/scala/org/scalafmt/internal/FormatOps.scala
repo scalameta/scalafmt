@@ -128,19 +128,20 @@ trait FormatOps extends TreeOps {
         tok.between.exists(_.isInstanceOf[`\n`]) && startsStatement(next(tok)))
   }
 
+  def parensRange(open: Token): Range =
+    Range(open.start, matchingParentheses(hash(open)).end)
+
   def insideBlock(start: FormatToken,
                   end: Token,
-                  matches: Token => Boolean): Set[Range] = {
-    var inside = false
-    val result = new scala.collection.mutable.SetBuilder[Range, Set[Range]](Set
-      .empty[Range])
+                  matches: Token => Boolean): Set[Token] = {
+    val result = new scala.collection.mutable.SetBuilder[Token, Set[Token]](Set
+      .empty[Token])
     var curr = next(start)
     while (curr.left != end) {
       if (matches(curr.left)) {
-        inside = true
-        result += Range(
-            curr.left.start, matchingParentheses(hash(curr.left)).end)
-        curr = leftTok2tok(matchingParentheses(hash(curr.left)))
+        val close = matchingParentheses(hash(curr.left))
+        result += curr.left
+        curr = leftTok2tok(close)
       } else {
         curr = next(curr)
       }
