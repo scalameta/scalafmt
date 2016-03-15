@@ -63,7 +63,7 @@ abstract class FormatBenchmark(path: String*) {
   }
 
   // No need to run same benchmark again and again.
-  @Benchmark
+//  @Benchmark
   def scalariform(): String = {
     ScalaFormatter.format(code, scalariformPreferences)
   }
@@ -74,12 +74,12 @@ object run {
   abstract class ScalaJsBenchmark(filename: String)
       extends FormatBenchmark("scala-js", filename)
 
-  class OptimizerCore extends ScalaJsBenchmark("OptimizerCore.scala")
+//  class OptimizerCore extends ScalaJsBenchmark("OptimizerCore.scala")
 
   class GenJsCode extends ScalaJsBenchmark("GenJSCode.scala")
 
-  class ScalaJSClassEmitter
-      extends ScalaJsBenchmark("ScalaJSClassEmitter.scala")
-
-  class JavaLangString extends ScalaJsBenchmark("JavaLangString.scala")
+//  class ScalaJSClassEmitter
+//      extends ScalaJsBenchmark("ScalaJSClassEmitter.scala")
+//
+//  class JavaLangString extends ScalaJsBenchmark("JavaLangString.scala")
 }

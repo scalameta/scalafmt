@@ -20,3 +20,9 @@ object a {
   val B__________________b: Int =
     123456789
 }
+<<< SKIP indent at =
+Split(
+      ignoreIf = !fitsOnOneLine || isConfigStyle
+      )
+>>>
+Testing

@@ -57,8 +57,8 @@ def identModification(ident: Ident): Modification =
     if (thisType == NoType) None
     else {
       Some("this" -> LocalDef(
-          RefinedType(thisType, isExact = false, isNullable = false),
-          false,
-          ReplaceWithThis()))
+              RefinedType(thisType, isExact = false, isNullable = false),
+              false,
+              ReplaceWithThis()))
     }
 }

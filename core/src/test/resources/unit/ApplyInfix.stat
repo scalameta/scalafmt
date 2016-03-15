@@ -18,12 +18,12 @@ js.Return(!(!({
 opt[(Int, Int)]("range") hidden () action {}
 >>>
 opt[(Int, Int)]("range") hidden() action {}
-<<< SKIP string concatenation
+<<< string concatenation
 logger.warning("foooooooooooooo" +
-           "baaaaaaaaaaaaaar")
+"baaaaaaaaaaaaaar")
 >>>
 logger.warning("foooooooooooooo" +
-               "baaaaaaaaaaaaaar")
+    "baaaaaaaaaaaaaar")
 <<< SKIP string concatenation 2
 logger.warning(a, "foooooooooooooo" +
            "baaaaaaaaaaaaaar")

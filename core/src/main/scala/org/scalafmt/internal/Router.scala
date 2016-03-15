@@ -344,14 +344,14 @@ class Router(val style: ScalaStyle,
           case _ => Num(4)
         }
 
+        // It seems acceptable to unindent by the continuation indent inside
+        // curly brace wrapped blocks.
         val unindentAtExclude: PartialFunction[Decision, Decision] = {
           case Decision(t, s) if exclude.contains(t.left) =>
             val close = matchingParentheses(hash(t.left))
             Decision(t, s.map(_.withIndent(-4, close, Left)))
         }
         val singleArgument = args.length == 1
-
-        // TODO(olafur) overfitting unit tests?
 
         val baseSingleLinePolicy =
           if (isBracket) {
@@ -363,7 +363,9 @@ class Router(val style: ScalaStyle,
               Policy(PartialFunction.empty[Decision, Decision], close.end)
             } else SingleLineBlock(close, excludeRanges)
           }
-        val singleLine = baseSingleLinePolicy.orElse(unindentAtExclude)
+        val singleLine =
+          if (exclude.isEmpty || isBracket) baseSingleLinePolicy
+          else baseSingleLinePolicy.orElse(unindentAtExclude)
 
         val oneArgOneLine = OneArgOneLineSplit(open)
 
@@ -393,7 +395,6 @@ class Router(val style: ScalaStyle,
           singleArgument || excludeRanges.nonEmpty ||
           charactersInside <= style.maxColumn
 
-        // TODO(olafur) ignoreIf: State => Boolean?
         val expirationToken: Token =
           if (isDefnSite(leftOwner)) defnSiteLastToken(leftOwner)
           else rhsOptimalToken(leftTok2tok(close))
@@ -645,17 +646,6 @@ class Router(val style: ScalaStyle,
         )
 
       // ApplyInfix.
-      case tok@FormatToken(left: Ident, _, _) if isBoolOperator(left) =>
-        Seq(
-            Split(Space, 0),
-            Split(Newline, 1)
-        )
-      case tok@FormatToken(_: Ident | _: Literal | _: Interpolation.End,
-                           _: Ident | _: Literal | _: Xml.End,
-                           _) =>
-        Seq(
-            Split(Space, 0)
-        )
       case FormatToken(open: `(`, right, _)
           if leftOwner.isInstanceOf[Term.ApplyInfix] =>
         val close = matchingParentheses(hash(open))
@@ -670,12 +660,33 @@ class Router(val style: ScalaStyle,
               .withPolicy(SingleLineBlock(close)),
             Split(Newline, 1, optimalAt = Some(close))
         )
-      case tok@FormatToken(left: Ident, right, _)
-          if leftOwner.isInstanceOf[Term.ApplyInfix] &&
-          newlineIsOkOperator(left) =>
+      // Infix operator
+      case tok@FormatToken(op: Ident, _, _) if leftOwner.parent.exists {
+            case infix: Term.ApplyInfix => infix.op == owners(op)
+            case _ => false
+          } =>
+        val isAssignment = isAssignmentOperator(op)
+        val isBool = isBoolOperator(op)
+        val newlineOk =
+          isAssignment || isBool || newlineOkOperators.contains(op.code)
+        val newlineCost =
+          if (isAssignment || isBool) 1
+          else if (newlineOk) 3
+          else 0 // Ignored
+        val indent =
+          if (isAssignment) 2
+          else 0
         Seq(
             Split(Space, 0),
-            Split(Newline, 3).withIndent(4, right, Right)
+            Split(Newline, newlineCost, ignoreIf = !newlineOk)
+              .withIndent(indent, formatToken.right, Left)
+        )
+
+      case tok@FormatToken(_: Ident | _: Literal | _: Interpolation.End,
+                           _: Ident | _: Literal | _: Xml.End,
+                           _) =>
+        Seq(
+            Split(Space, 0)
         )
 
       // Pat

@@ -191,10 +191,10 @@ trait FormatOps extends TreeOps {
     val range = Range(from.start, to.end).inclusive
     Policy({
       case Decision(t, s) if range.contains(t.right.start) =>
-        // TODO(olafur) overfitting unit test?
         val nonBoolPenalty =
           if (isBoolOperator(t.left)) 0
-          else 1
+          else 5
+
         val penalty =
           nestedSelect(owners(t.left)) + nestedApplies(owners(t.right)) + nonBoolPenalty
         Decision(t, s.map {

@@ -70,12 +70,12 @@ Thing(implicit ctx => j => ???)
 Thing(implicit ctx => j => k => aaaaaaaaaaaaa(bbbbbbbbbbbbbbbbbbb, cccccccccc, ddddddddddddddddddddj)) // coooooooooooooooomment
 >>>
 Thing(implicit ctx =>
-  j =>
-    k =>
-      aaaaaaaaaaaaa(
-          bbbbbbbbbbbbbbbbbbb,
-          cccccccccc,
-          ddddddddddddddddddddj)) // coooooooooooooooomment
+      j =>
+        k =>
+          aaaaaaaaaaaaa(
+              bbbbbbbbbbbbbbbbbbb,
+              cccccccccc,
+              ddddddddddddddddddddj)) // coooooooooooooooomment
 <<< single line uncurried
 Thing() { implicit ctx =>
       ???

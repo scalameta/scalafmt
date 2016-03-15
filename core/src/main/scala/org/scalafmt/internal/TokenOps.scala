@@ -42,18 +42,38 @@ trait TokenOps extends ScalaFmtLogger {
     formatToken.right.isInstanceOf[Comment] &&
     endsWithNoIndent(formatToken.between)
 
-  def isBoolOperator(token: Token): Boolean =
-    token.code match {
-      case "||" | "&&" => true
-      case _ => false
-    }
+  val booleanOperators = Set("&&", "||")
 
-  // TODO(olafur) come up with more generic solution
-  def newlineIsOkOperator(token: Token): Boolean =
-    token.code match {
-      case "+" | "-" => true
-      case _ => false
-    }
+  // TODO(olafur) more general solution.
+  val newlineOkOperators = Set("+", "-", "++")
+
+  def isBoolOperator(token: Token): Boolean =
+    booleanOperators.contains(token.code)
+
+  def newlineOkOperator(token: Token): Boolean =
+    booleanOperators.contains(token.code) ||
+    newlineOkOperators.contains(token.code)
+
+
+  // See http://scala-lang.org/files/archive/spec/2.11/06-expressions.html#assignment-operators
+  val specialAssignmentOperators = Set("<=", ">=", "!=")
+
+  def isAssignmentOperator(token: Token): Boolean = {
+    val code = token.code
+    code.last == '=' && code.head != '=' &&
+    !specialAssignmentOperators.contains(code)
+  }
+
+  val symbolOperatorPrecendence: PartialFunction[Char, Int] = {
+    case '|' => 2
+    case '^' => 3
+    case '&' => 4
+    case '=' | '!' => 5
+    case '<' | '>' => 6
+    case ':' => 7
+    case '+' | '-' => 8
+    case '*' | '/' | '%' => 9
+  }
 
   def identModification(ident: Ident): Modification = {
     val lastCharacter = ident.code.last

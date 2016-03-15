@@ -62,7 +62,7 @@ object Cli extends ScalaFmtLogger {
         |
         |Please file bugs to https://github.com/olafurpg/scalafmt/issues
       """.stripMargin)
-    opt[(Int, Int)]("range") hidden () action {
+    opt[(Int, Int)]("range").hidden() action {
       case ((from, to), c) => c.copy(range = c.range + Range(from - 1, to - 1))
     } text "(experimental) only format line range from=to"
   }

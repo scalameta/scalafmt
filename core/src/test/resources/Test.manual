@@ -1,3 +1,3 @@
-SKIP core/src/main/scala/org/scalafmt/internal/BestFirstSearch.scala
+SKIP core/src/main/scala/org/scalafmt/internal/Router.scala
 SKIP benchmarks/src/resources/scala-js/ScalaJSClassEmitter.scala
 SKIP https://raw.githubusercontent.com/scala-js/scala-js/f82f5cc34c66c15a7f14578ace4e53e5a034202d/compiler/src/main/scala/org/scalajs/core/compiler/PrepJSInterop.scala
