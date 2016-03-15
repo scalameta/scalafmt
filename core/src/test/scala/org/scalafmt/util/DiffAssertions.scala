@@ -15,16 +15,16 @@ trait DiffAssertions extends FunSuiteLike with ScalaFmtLogger {
   def error2message(obtained: String, expected: String): String = {
     if (expected.length > 10000)
       s"""
-       |${header("Obtained")}
-       |${trailingSpace(obtained)}
-         """.stripMargin
+       #${header("Obtained")}
+       #${trailingSpace(obtained)}
+         """.stripMargin('#')
     else s"""
-       |${header("Obtained")}
-       |${trailingSpace(obtained)}
-       |
-       |${header("Diff")}
-       |${trailingSpace(compareContents(obtained, expected))}
-         """.stripMargin
+       #${header("Obtained")}
+       #${trailingSpace(obtained)}
+       #
+       #${header("Diff")}
+       #${trailingSpace(compareContents(obtained, expected))}
+         """.stripMargin('#')
   }
 
   def assertNoDiff(

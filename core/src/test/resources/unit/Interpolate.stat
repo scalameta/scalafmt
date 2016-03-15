@@ -62,9 +62,30 @@ val msg =
 >>>
 val msg =
   s"""AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-      |${mkString(deepestYet.splits)}
+     |${mkString(deepestYet.splits)}
+     |""".stripMargin
+<<< break indentation
+val msg =
+
+  s"""AAAAAAA
+      |${mkString(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, bbb)}
       |""".stripMargin
+>>>
+val msg =
+  s"""AAAAAAA
+     |${mkString(
+         aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,
+         bbb)}
+     |""".stripMargin
 <<< SKIP Align | margin
+val msg = """UNABLE TO FORMAT,
+          |fooooo baaaaaaaarrrrr
+      |""".stripMargin
+>>>
+val msg = """UNABLE TO FORMAT,
+            |fooooo baaaaaaaarrrrr
+            |""".stripMargin
+<<< SKIP Align | margin 2
 val msg =
 
   s"""UNABLE TO FORMAT,
@@ -72,5 +93,5 @@ val msg =
       |""".stripMargin
 >>>
 val msg = s"""UNABLE TO FORMAT,
-      |${mkString(deepestYet.splits)}
-      |""".stripMargin
+             |${mkString(deepestYet.splits)}
+             |""".stripMargin

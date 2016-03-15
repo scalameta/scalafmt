@@ -23,7 +23,7 @@ object PrintlnLogger {
     println(f"$logLevel%-7s $position%-25s $key")
   }
 
-  def elem[T](ts: sourcecode.Text[T]*)(
+  def elem(ts: sourcecode.Text[Any]*)(
       implicit line: sourcecode.Line,
       file: sourcecode.File,
       enclosing: sourcecode.Enclosing): Unit = {

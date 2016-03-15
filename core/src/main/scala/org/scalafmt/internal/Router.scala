@@ -40,6 +40,7 @@ class Router(val style: ScalaStyle,
     extends ScalaFmtLogger with FormatOps {
 
   def getSplits(formatToken: FormatToken): Seq[Split] = {
+    val FormatToken(left, right, between) = formatToken
     val leftOwner = owners(formatToken.left)
     val rightOwner = owners(formatToken.right)
     val newlines = newlinesBetween(formatToken.between)
@@ -56,6 +57,13 @@ class Router(val style: ScalaStyle,
           tok.right.name.startsWith("xml") =>
         Seq(
             Split(NoSplit, 0)
+        )
+      case FormatToken(_: Interpolation.Start, _, _) =>
+        val expire = matchingParentheses(hash(left))
+        Seq(
+            Split(NoSplit, 0)
+              .withIndent(StateColumn, expire, Left) // -1 because
+              .withIndent(-1, expire, Left)
         )
       case FormatToken(_: Interpolation.Id | _: Interpolation.Part |
                        _: Interpolation.Start | _: Interpolation.SpliceStart,
@@ -84,9 +92,11 @@ class Router(val style: ScalaStyle,
       case FormatToken(open: `{`, _, _)
           if parents(leftOwner).exists(_.isInstanceOf[Import]) ||
           leftOwner.isInstanceOf[Term.Interpolate] =>
+        val policy =
+          if (leftOwner.isInstanceOf[Term.Interpolate]) NoPolicy
+          else SingleLineBlock(matchingParentheses(hash(open)))
         Seq(
-            Split(NoSplit, 0).withPolicy(SingleLineBlock(
-                matchingParentheses(hash(open))))
+            Split(NoSplit, 0).withPolicy(policy)
         )
       case FormatToken(_, close: `}`, _)
           if parents(rightOwner).exists(_.isInstanceOf[Import]) ||

@@ -19,9 +19,9 @@ trait FormatOps extends TreeOps {
   val style: ScalaStyle
   val tree: Tree
   val tokens: Array[FormatToken]
-  val matchingParentheses: Map[TokenHash, Token]
-  val statementStarts: Map[TokenHash, Tree]
   val ownersMap: Map[TokenHash, Tree]
+  val statementStarts: Map[TokenHash, Tree]
+  val matchingParentheses: Map[TokenHash, Token]
 
   @inline
   def owners(token: Token): Tree = ownersMap(hash(token))
@@ -45,8 +45,9 @@ trait FormatOps extends TreeOps {
     result.result()
   }
 
-  val leftTok2tok: Map[Token, FormatToken] = tokens.map(t => t.left -> t).toMap
-  val tok2idx: Map[FormatToken, Int] = tokens.zipWithIndex.toMap
+  lazy val leftTok2tok: Map[Token, FormatToken] =
+    tokens.map(t => t.left -> t).toMap
+  lazy val tok2idx: Map[FormatToken, Int] = tokens.zipWithIndex.toMap
 
   def prev(tok: FormatToken): FormatToken = {
     val i = tok2idx(tok)

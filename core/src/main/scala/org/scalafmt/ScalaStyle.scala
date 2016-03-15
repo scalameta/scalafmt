@@ -34,6 +34,13 @@ sealed trait ScalaStyle {
     */
   def scalaDocs: Boolean = true
 
+
+  /**
+    * Indents
+    * @return
+    */
+  def indentMarginizedStrings: Option[Char] = Some('|')
+
   /**
     * Call-site arguments.
     *
