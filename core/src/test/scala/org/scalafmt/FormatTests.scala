@@ -97,15 +97,15 @@ class FormatTests
                            Debug.elapsedNs)
   }
 
-  def getFormatOutput(style: ScalaStyle): Seq[FormatOutput] = {
-    val path = State.reconstructPath(
-        Debug.tokens, Debug.state.splits, style, debug = onlyOne)
-    val output = path.map {
-      case (token, whitespace) =>
-        FormatOutput(
+  def getFormatOutput(style: ScalaStyle): Array[FormatOutput] = {
+    val builder = mutable.ArrayBuilder.make[FormatOutput]()
+    State.reconstructPath(
+        Debug.tokens, Debug.state.splits, style, debug = onlyOne) {
+      case (_, token, whitespace) =>
+        builder += FormatOutput(
             token.left.code, whitespace, Debug.formatTokenExplored(token))
     }
-    output
+    builder.result()
   }
 
   override def afterAll(configMap: ConfigMap): Unit = {

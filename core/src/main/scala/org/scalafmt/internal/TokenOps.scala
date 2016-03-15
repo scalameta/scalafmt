@@ -40,6 +40,7 @@ trait TokenOps extends ScalaFmtLogger {
 
   def rhsIsCommentedOut(formatToken: FormatToken): Boolean =
     formatToken.right.isInstanceOf[Comment] &&
+    formatToken.right.code.startsWith("//") &&
     endsWithNoIndent(formatToken.between)
 
   val booleanOperators = Set("&&", "||")
@@ -53,7 +54,6 @@ trait TokenOps extends ScalaFmtLogger {
   def newlineOkOperator(token: Token): Boolean =
     booleanOperators.contains(token.code) ||
     newlineOkOperators.contains(token.code)
-
 
   // See http://scala-lang.org/files/archive/spec/2.11/06-expressions.html#assignment-operators
   val specialAssignmentOperators = Set("<=", ">=", "!=")

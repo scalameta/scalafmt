@@ -120,14 +120,15 @@ object State extends ScalaFmtLogger {
                     formatOff = false)
 
   /**
-    * Returns formatted output from FormatTokens and Splits.
+    * Reconstructs path for all tokens and invokes callback for each token/split combination.
     */
   def reconstructPath(toks: Array[FormatToken],
                       splits: Vector[Split],
                       style: ScalaStyle,
-                      debug: Boolean = false): Seq[(FormatToken, String)] = {
+                      debug: Boolean = false)(
+      callback: (State, FormatToken, String) => Unit): Unit = {
     var state = State.start
-    val result = toks.zip(splits).map {
+    toks.zip(splits).foreach {
       case (tok, split) =>
         // TIP. Use the following line to debug origin of splits.
         if (debug && toks.length < 1000) {
@@ -149,9 +150,8 @@ object State extends ScalaFmtLogger {
           case Provided(literal) => literal
           case NoSplit => ""
         }
-        tok -> whitespace
+        callback.apply(state, tok, whitespace)
     }
     if (debug) logger.debug(s"Total cost: ${state.cost}")
-    result
   }
 }

@@ -296,10 +296,9 @@ class BestFirstSearch(style: ScalaStyle, tree: Tree, range: Set[Range])
   }
 
   private def mkString(splits: Vector[Split]): String = {
-    val output = State.reconstructPath(toks, splits, style)
     val sb = new StringBuilder()
-    output.foreach {
-      case (tok, whitespace) =>
+    State.reconstructPath(toks, splits, style) {
+      case (_, tok, whitespace) =>
         sb.append(tok.left.code)
         sb.append(whitespace)
     }
