@@ -117,9 +117,22 @@ trait FormatOps extends TreeOps {
     * Context: https://github.com/olafurpg/scalafmt/issues/108
     */
   def isJsNative(jsToken: Token): Boolean = {
-    style == ScalaStyle.ScalaJs && jsToken.code == "js" &&
+    style.noNewlinesBeforeJsNative && jsToken.code == "js" &&
     owners(jsToken).parent.exists(
         _.show[Structure].trim == """Term.Select(Term.Name("js"), Term.Name("native"))""")
+  }
+
+  def isMarginizedString(token: Token): Boolean = token match {
+    case start: Interpolation.Start =>
+      val end = matchingParentheses(hash(start))
+      val afterEnd = next(leftTok2tok(end))
+      afterEnd.left.code == "." && afterEnd.right.code == "stripMargin"
+    case string: Literal.String =>
+      string.code.startsWith("\"\"\"") && {
+        val afterString = next(leftTok2tok(string))
+        afterString.left.code == "." && afterString.right.code == "stripMargin"
+      }
+    case _ => false
   }
 
   @tailrec

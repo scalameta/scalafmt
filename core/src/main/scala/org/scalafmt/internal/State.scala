@@ -38,9 +38,6 @@ final case class State(cost: Int,
 
   /**
     * Calculates next State given split at tok.
-    *
-    * - Accumulates cost and strategies
-    * - Calculates column-width overflow penalty
     */
   def next(style: ScalaStyle, split: Split, tok: FormatToken): State = {
     val KILL = 10000

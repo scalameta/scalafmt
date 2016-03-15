@@ -85,7 +85,7 @@ if (firstNewline == -1) tokLength
 >>>
 if (isBracket) Constants.BracketPenalty
 else 0
-<<< SKIP Tuple body is OK
+<<< ONLY Tuple body is OK
           if (left.isInstanceOf[Interpolation.Start])(
               StateColumn, matchingParentheses(hash(left)))
 >>>

@@ -11,8 +11,6 @@ import org.scalafmt.util.HasTests
 object UnitTests extends HasTests with ScalaFmtLogger {
   import FilesUtil._
 
-  val workingDirectory = System.getProperty("user.dir")
-
   /** Avoids parsing all files if some tests are marked ONLY.
     */
   def getTestFiles: Vector[String] = {
@@ -27,8 +25,7 @@ object UnitTests extends HasTests with ScalaFmtLogger {
     for {
       filename <- getTestFiles
       test <- {
-        val spec = filename.stripPrefix(
-            workingDirectory + File.separator + testDir + File.separator)
+        val spec = filename.stripPrefix(testDir + File.separator)
         val content = readFile(filename)
         val moduleOnly = isOnly(content)
         val moduleSkip = isSkip(content)

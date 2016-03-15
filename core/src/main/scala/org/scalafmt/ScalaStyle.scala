@@ -34,10 +34,9 @@ sealed trait ScalaStyle {
     */
   def scalaDocs: Boolean = true
 
-
   /**
-    * Indents
-    * @return
+    * If set to some character, the margin character is treated as the new
+    * indentation in multiline strings ending with `.stripMargin`.
     */
   def indentMarginizedStrings: Option[Char] = Some('|')
 
@@ -72,6 +71,13 @@ sealed trait ScalaStyle {
   def binPackDotChains: Boolean = false
 
   /**
+    * If true, a newline will never be placed in front of js.native.
+    *
+    * This is because js.native is special.
+    */
+  def noNewlinesBeforeJsNative: Boolean = false
+
+  /**
     * Debugging only. Should scalafmt create a diagnostics report.
     */
   def debug: Boolean = false
@@ -98,6 +104,8 @@ object ScalaStyle {
   case object ScalaJs extends ScalaStyle {
 
     override def debug = true
+
+    override def noNewlinesBeforeJsNative = true
 
     override def binPackParameters = true
 

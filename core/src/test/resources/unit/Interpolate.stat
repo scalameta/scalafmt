@@ -57,13 +57,23 @@ s"""${a.foo[Bar]}
 val msg =
 
   s"""AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-      |${mkString(deepestYet.splits)}
+ |${mkString(deepestYet.splits)}
       |""".stripMargin
 >>>
 val msg =
   s"""AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
      |${mkString(deepestYet.splits)}
      |""".stripMargin
+<<< no align if no margin
+val msg =
+  s"""
+ ${mkString(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)}
+      """
+>>>
+val msg = s"""
+ ${mkString(
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)}
+      """
 <<< break indentation
 val msg =
 
@@ -77,15 +87,7 @@ val msg =
          aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,
          bbb)}
      |""".stripMargin
-<<< SKIP Align | margin
-val msg = """UNABLE TO FORMAT,
-          |fooooo baaaaaaaarrrrr
-      |""".stripMargin
->>>
-val msg = """UNABLE TO FORMAT,
-            |fooooo baaaaaaaarrrrr
-            |""".stripMargin
-<<< SKIP Align | margin 2
+<<< Align | margin 2
 val msg =
 
   s"""UNABLE TO FORMAT,

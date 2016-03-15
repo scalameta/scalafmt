@@ -58,7 +58,8 @@ class Router(val style: ScalaStyle,
         Seq(
             Split(NoSplit, 0)
         )
-      case FormatToken(_: Interpolation.Start, _, _) =>
+      case FormatToken(start: Interpolation.Start, _, _)
+          if isMarginizedString(start) =>
         val expire = matchingParentheses(hash(left))
         Seq(
             Split(NoSplit, 0)
