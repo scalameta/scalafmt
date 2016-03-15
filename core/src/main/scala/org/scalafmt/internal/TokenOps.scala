@@ -44,8 +44,8 @@ trait TokenOps extends ScalaFmtLogger {
 
   val booleanOperators = Set("&&", "||")
 
-  // TODO(olafur) more general solution.
-  val newlineOkOperators = Set("+", "-", "++")
+  // TODO(olafur) more general solution?
+  val newlineOkOperators = Set("+", "-")
 
   def isBoolOperator(token: Token): Boolean =
     booleanOperators.contains(token.code)

@@ -669,13 +669,16 @@ class Router(val style: ScalaStyle,
               .withPolicy(SingleLineBlock(close)),
             Split(Newline, 1, optimalAt = Some(close))
         )
-      // Infix operator
+      // Infix operator.
       case tok@FormatToken(op: Ident, _, _) if leftOwner.parent.exists {
             case infix: Term.ApplyInfix => infix.op == owners(op)
             case _ => false
           } =>
         val isAssignment = isAssignmentOperator(op)
         val isBool = isBoolOperator(op)
+        // TODO(olafur) Document that we only allow newlines for this subset
+        // of infix operators. To force a newline for other operators it's
+        // possible to wrap arguments in parentheses.
         val newlineOk =
           isAssignment || isBool || newlineOkOperators.contains(op.code)
         val newlineCost =

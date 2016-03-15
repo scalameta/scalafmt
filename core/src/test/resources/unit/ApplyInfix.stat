@@ -42,3 +42,9 @@ logger.warning("foooooooooooooo" &&
 >>>
 logger.warning("foooooooooooooo" &&
     "baaaaaaaaaaaaaar")
+<<< too many pluses + (state explosion)
+a + b + c + d + e + f + g + h + i + j + j + j + j + j + j + j + j + j + j + j + j
+>>>
+a + b + c + d + e + f + g + h + i + j +
+j + j + j + j + j + j + j + j + j + j +
+j
