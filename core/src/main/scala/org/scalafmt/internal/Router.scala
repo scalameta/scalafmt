@@ -533,6 +533,8 @@ class Router(val style: ScalaStyle,
           isOpenApply(next(next(tok)).right) && !left.isInstanceOf[`_ `] &&
           // TODO(olafur) optimize
           !parents(rightOwner).exists(_.isInstanceOf[Import]) =>
+        val open = next(next(tok)).right
+        val close = matchingParentheses(hash(open))
         val nestedPenalty = nestedSelect(rightOwner) + nestedApplies(leftOwner)
         val isLhsOfApply = rightOwner.parent.exists {
           case apply: Term.Apply => apply.fun.tokens.contains(left)
@@ -541,10 +543,13 @@ class Router(val style: ScalaStyle,
         val noApplyPenalty =
           if (!isLhsOfApply) 1
           else 0
+        // Must apply to both space and newlines, otherwise we will take
+        // the newline even if it doesn't prevent a newline inside the apply.
+        val penalizeNewlinesInApply = penalizeAllNewlines(close, 1)
         Seq(
-            Split(NoSplit, 0),
+            Split(NoSplit, 0).withPolicy(penalizeNewlinesInApply),
             Split(Newline, 1 + nestedPenalty + noApplyPenalty)
-              .withIndent(2, dot, Left)
+              .withPolicy(penalizeNewlinesInApply).withIndent(2, dot, Left)
         )
       // ApplyUnary
       case tok@FormatToken(_: Ident, _: Literal, _)

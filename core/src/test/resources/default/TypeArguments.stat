@@ -29,7 +29,15 @@ def compile[T, T2, C[_]](
                             C,
                             _,
                             _]): direct.BaseJoinQuery[T, T2, T, T2, C]
-<<< SKIP slick BaseJoinQuery
+<<< slick BaseJoinQuery
 new BaseJoinQuery[E, Rep[Long], U, Long, C, E, Rep[Long]](leftGen, rightGen, toNode, RangeFrom(0L), JoinType.Zip, aliased1.zip(aliased2), aliased1.value, aliased2.value)
 >>>
-x
+new BaseJoinQuery[E, Rep[Long], U, Long, C, E, Rep[Long]](
+    leftGen,
+    rightGen,
+    toNode,
+    RangeFrom(0L),
+    JoinType.Zip,
+    aliased1.zip(aliased2),
+    aliased1.value,
+    aliased2.value)
