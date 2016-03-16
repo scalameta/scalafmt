@@ -40,7 +40,6 @@ class Router(val style: ScalaStyle,
     extends ScalaFmtLogger with FormatOps {
 
   def getSplits(formatToken: FormatToken): Seq[Split] = {
-    val FormatToken(left, right, between) = formatToken
     val leftOwner = owners(formatToken.left)
     val rightOwner = owners(formatToken.right)
     val newlines = newlinesBetween(formatToken.between)
@@ -60,11 +59,10 @@ class Router(val style: ScalaStyle,
         )
       case FormatToken(start: Interpolation.Start, _, _)
           if isMarginizedString(start) =>
-        val expire = matchingParentheses(hash(left))
+        val end = matchingParentheses(hash(start))
         Seq(
-            Split(NoSplit, 0)
-              .withIndent(StateColumn, expire, Left) // -1 because
-              .withIndent(-1, expire, Left)
+            Split(NoSplit, 0).withIndent(StateColumn, end, Left) // -1 because
+              .withIndent(-1, end, Left)
         )
       case FormatToken(_: Interpolation.Id | _: Interpolation.Part |
                        _: Interpolation.Start | _: Interpolation.SpliceStart,
@@ -314,32 +312,17 @@ class Router(val style: ScalaStyle,
             Split(Newline, 1).withIndent(4, close, Left)
         )
       case tok@FormatToken(_: `(` | _: `[`, right, between)
-          if (!style.binPackArguments && isCallSite(leftOwner)) ||
+          if !isSuperfluousParenthesis(formatToken.left, leftOwner) &&
+          (!style.binPackArguments && isCallSite(leftOwner)) ||
           (!style.binPackParameters && isDefnSite(leftOwner)) =>
         val open = tok.left.asInstanceOf[Delim]
-        val (lhs, args): (Tree, Seq[Tree]) = leftOwner match {
-          case t: Term.Apply => t.fun -> t.args
-          case t: Pat.Extract => t.ref -> t.args
-          case t: Pat.Tuple => t -> t.elements
-          case t: Term.ApplyType => t -> t.targs
-          case t: Term.Update => t.fun -> t.argss.flatten
-          case t: Term.Tuple => t -> t.elements
-          case t: Type.Apply => t.tpe -> t.args
-          case t: Type.Param => t.name -> t.tparams
-          // TODO(olafur) flatten correct? Filter by this () section?
-          case t: Defn.Def => t.name -> t.paramss.flatten
-          case t: Decl.Def => t.name -> t.paramss.flatten
-          case t: Defn.Class => t.name -> t.ctor.paramss.flatten
-          case t: Defn.Trait => t.name -> t.ctor.paramss.flatten
-          case t: Ctor.Primary => t.name -> t.paramss.flatten
-          case t: Ctor.Secondary => t.name -> t.paramss.flatten
-          case x =>
-            logger.error(s"""Unknown tree
-                 |${log(x.parent.get)}
-                 |${isDefnSite(leftOwner)}""".stripMargin)
-            ???
-        }
         val close = matchingParentheses(hash(open))
+        val (lhs, args) = splitApplyIntoLhsAndArgsLifted(leftOwner).getOrElse {
+          logger.error(s"""Unknown tree
+                               |${log(leftOwner.parent.get)}
+                               |${isDefnSite(leftOwner)}""".stripMargin)
+          ???
+        }
         // In long sequence of select/apply, we penalize splitting on
         // parens furthest to the right.
         val lhsPenalty = treeDepth(lhs)
@@ -376,7 +359,8 @@ class Router(val style: ScalaStyle,
         val baseSingleLinePolicy =
           if (isBracket) {
             if (singleArgument)
-              SingleLineBlock(close, excludeRanges, killInlineComments = false)
+              SingleLineBlock(
+                  close, excludeRanges, disallowInlineComments = false)
             else SingleLineBlock(close)
           } else {
             if (singleArgument) {
@@ -539,28 +523,35 @@ class Router(val style: ScalaStyle,
         )
       case tok@FormatToken(left, dot: `.`, _)
           if rightOwner.isInstanceOf[Term.Select] &&
-          // Only split if rhs is an application
-          // TODO(olafur) counterexample? For example a.b[C]
           isOpenApply(next(next(tok)).right) && !left.isInstanceOf[`_ `] &&
-          // TODO(olafur) optimize
           !parents(rightOwner).exists(_.isInstanceOf[Import]) =>
         val open = next(next(tok)).right
         val close = matchingParentheses(hash(open))
         val nestedPenalty = nestedSelect(rightOwner) + nestedApplies(leftOwner)
-        val isLhsOfApply = rightOwner.parent.exists {
-          case apply: Term.Apply => apply.fun.tokens.contains(left)
-          case _ => false
-        }
-        val noApplyPenalty =
-          if (!isLhsOfApply) 1
-          else 0
         // Must apply to both space and newlines, otherwise we will take
         // the newline even if it doesn't prevent a newline inside the apply.
-        val penalizeNewlinesInApply = penalizeAllNewlines(close, 1)
+        val penalizeNewlinesInApply = penalizeAllNewlines(close, 2)
+        val chain = getSelectChain(Some(rightOwner))
+        val names = chain.map(_.name)
+        val lastToken = lastTokenInChain(chain)
+//        logger.elem(lastTokenInChain, next(tok), names, chain.length)
+        val breakOnEveryDot = Policy({
+          case Decision(t@FormatToken(_, dot2: `.`, _), s)
+              if chain.contains(owners(dot2)) =>
+//            logger.elem(s)
+            Decision(t, Seq(Split(Newline, 0).withIndent(2, dot, Left)))
+        }, lastToken.end)
+        val exclude =
+          insideBlock(tok, close, _.isInstanceOf[`{`]).map(parensRange)
+        val expire = Math.max(lastToken.end, close.end)
+        val noSplitPolicy =
+          SingleLineBlock(lastToken, exclude, disallowInlineComments = false)
+            .orElse(penalizeNewlinesInApply.f).copy(expire = expire)
+        val newlinePolicy = breakOnEveryDot.orElse(penalizeNewlinesInApply.f).copy(expire = expire)
         Seq(
-            Split(NoSplit, 0).withPolicy(penalizeNewlinesInApply),
-            Split(Newline, 1 + nestedPenalty + noApplyPenalty)
-              .withPolicy(penalizeNewlinesInApply).withIndent(2, dot, Left)
+            Split(NoSplit, 0).withPolicy(noSplitPolicy),
+            Split(Newline, 1 + nestedPenalty).withPolicy(newlinePolicy)
+              .withIndent(2, close, Left)
         )
       // ApplyUnary
       case tok@FormatToken(_: Ident, _: Literal, _)

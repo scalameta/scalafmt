@@ -99,13 +99,13 @@ trait TokenOps extends ScalaFmtLogger {
     */
   def SingleLineBlock(expire: Token,
                       exclude: Set[Range] = Set.empty,
-                      killInlineComments: Boolean = true)(
+                      disallowInlineComments: Boolean = true)(
       implicit line: sourcecode.Line): Policy = {
     Policy({
       case Decision(tok, splits)
           if !tok.right.isInstanceOf[EOF] && tok.right.end <= expire.end &&
           exclude.forall(!_.contains(tok.left.start)) &&
-          (killInlineComments || !isInlineComment(tok.left)) =>
+          (disallowInlineComments || !isInlineComment(tok.left)) =>
         Decision(tok, splits.filterNot(_.modification.isNewline))
     }, expire.end, noDequeue = exclude.isEmpty)
   }

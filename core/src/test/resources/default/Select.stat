@@ -12,7 +12,9 @@ val expire =
         owner.body.tokens.filterNot(_.isInstanceOf[Whitespace]).lastOption.getOrElse(
             arrow)
 >>>
-val expire = owner.body.tokens.filterNot(_.isInstanceOf[Whitespace]).lastOption
+val expire = owner.body.tokens
+  .filterNot(_.isInstanceOf[Whitespace])
+  .lastOption
   .getOrElse(arrow)
 <<< Bind . to closing }
 map {
@@ -67,9 +69,9 @@ val expireAAAAAAAAAAAAAAAAAAAAA = owner.tokens.
   find(t => t.isInstanceOf[`=`] && owners(t) == owner)
   .getOrElse(owner.tokens.last)
 >>>
-val expireAAAAAAAAAAAAAAAAAAAAA =
-  owner.tokens.find(t => t.isInstanceOf[`=`] && owners(t) == owner)
-    .getOrElse(owner.tokens.last)
+val expireAAAAAAAAAAAAAAAAAAAAA = owner.tokens
+  .find(t => t.isInstanceOf[`=`] && owners(t) == owner)
+  .getOrElse(owner.tokens.last)
 <<< SKIP comment gets 2 indent TODO(olafur)
 Split(modification, 0, policy = singleLine,
 ignoreIf = !fitsOnOneLine, optimalAt = optimalToken)
@@ -83,16 +85,40 @@ Split(modification,
       optimalAt = optimalToken)
   // allow style to specify indent here?
   .withIndent(indent, nextNonComment(tok).right, Left)
-<<< SKIP preserve chains, this is scala.js style.
+<<< preserve chains 0
+ a.b(1).c[T].d(f.g).e(2).k(3)
+>>>
+a.b(1).c[T].d(f.g).e(2).k(3)
+<<< preserve chains
   val files = FilesUtil.listFiles(".")
     .filter(_.endsWith(".scala"))
     .filterNot(_.contains("/target/"))
     .filterNot(_.contains("/resources/"))
 >>>
-val files = FilesUtil.listFiles(".")
+val files = FilesUtil
+  .listFiles(".")
   .filter(_.endsWith(".scala"))
   .filterNot(_.contains("/target/"))
   .filterNot(_.contains("/resources/"))
+<<< rhino superfluous parenthesis
+
+  private def extractRhino(e: js.Dynamic): js.Array[String] = {
+    (e.stack.asInstanceOf[js.UndefOr[String]]).getOrElse("")
+      .jsReplace("""^\s+at\s+""".re("gm"), "") // remove 'at' and indentation
+      .jsReplace("""^(.+?)(?: \((.+)\))?$""".re("gm"), "$2@$1")
+      .jsReplace("""\r\n?""".re("gm"), "\n") // Rhino has platform-dependent EOL's
+      .jsSplit("\n")
+  }
+>>>
+private def extractRhino(e: js.Dynamic): js.Array[String] = {
+  (e.stack
+    .asInstanceOf[js.UndefOr[String]])
+    .getOrElse("")
+    .jsReplace("""^\s+at\s+""".re("gm"), "") // remove 'at' and indentation
+    .jsReplace("""^(.+?)(?: \((.+)\))?$""".re("gm"), "$2@$1")
+    .jsReplace("""\r\n?""".re("gm"), "\n") // Rhino has platform-dependent EOL's
+    .jsSplit("\n")
+}
 <<< select is cheaper
       new ReflectiveDynamicAccess(classLoader).createInstanceFor[ScalaFmtLike](
           "org.scalafmt.ScalaFmt210", Seq.empty)

@@ -88,3 +88,18 @@ final class BaseJoinQuery[+E1, +E2, U1, U2, C[_], +B1, +B2](
     base: ShapedValue[_ <: (E1, E2), (U1, U2)],
     b1: B1,
     b2: B2)
+<<< SKIP Single line state column
+  @tailrec
+  final def getSelectChain(child: Term.Select,
+                           accum: Vector[Term.Select] = Vector
+                             .empty[Term.Select]): Vector[Term.Select] = {
+    body
+  }
+>>>
+  @tailrec
+  final def getSelectChain(
+      child: Term.Select,
+      accum: Vector[Term.Select] = Vector.empty[Term.Select]
+      ): Vector[Term.Select] = {
+    body
+  }

@@ -63,7 +63,8 @@ case FormatToken(open: `(`, right, _)
     if (right.isInstanceOf[`if`]) SingleLineBlock(close)
     else NoPolicy
   Seq(
-      Split(NoSplit, 0).withPolicy(policy)
+      Split(NoSplit, 0)
+        .withPolicy(policy)
         .withIndent(2, matchingParentheses(hash(open)), Left),
       Split(Newline, 1).withIndent(2, matchingParentheses(hash(open)), Left)
   )
