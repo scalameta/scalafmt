@@ -60,8 +60,14 @@ trait TreeOps extends TokenOps {
       case _ => false
     }
 
+  def isTuple(tree: Tree): Boolean =
+    tree match {
+      case _: Pat.Tuple | _: Term.Tuple => true
+      case _ => false
+    }
+
   def noSpaceBeforeOpeningParen(tree: Tree): Boolean =
-    isDefnSite(tree) || isCallSite(tree)
+    !isTuple(tree) && (isDefnSite(tree) || isCallSite(tree))
 
   def isModPrivateProtected(tree: Tree): Boolean =
     tree match {
@@ -129,12 +135,14 @@ trait TreeOps extends TokenOps {
   }
 
   @tailrec
-  final def lastLambda(first: Term.Function): Term.Function = first.body match {
-    case child: Term.Function => lastLambda(child)
-    case block: Term.Block if block.stats.headOption.exists(_.isInstanceOf[Term.Function]) =>
-      lastLambda(block.stats.head.asInstanceOf[Term.Function])
-    case _ => first
-  }
+  final def lastLambda(first: Term.Function): Term.Function =
+    first.body match {
+      case child: Term.Function => lastLambda(child)
+      case block: Term.Block
+          if block.stats.headOption.exists(_.isInstanceOf[Term.Function]) =>
+        lastLambda(block.stats.head.asInstanceOf[Term.Function])
+      case _ => first
+    }
 
   def templateCurly(template: Template): Option[Token] = {
     template.tokens.find(_.isInstanceOf[`{`])
