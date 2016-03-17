@@ -369,8 +369,7 @@ class Router(formatOps: FormatOps) {
             else SingleLineBlock(close)
           } else {
             if (singleArgument) {
-              penalizeAllNewlines(close, 2)
-//              Policy(PartialFunction.empty[Decision, Decision], close.end)
+              penalizeAllNewlines(close, 5) // TODO(olafur) magic number
             } else SingleLineBlock(close, excludeRanges)
           }
         val singleLine =

@@ -181,10 +181,21 @@ val ret = new mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](
     }
   }
 }
-<<< penalize newlines inside apply
+<<< penalize newlines inside apply 1
 val ret =
        new mutable.MapBuilder[TokenHash, Token, Map[TokenHash, Token]](Map
              .empty[TokenHash, Token])
 >>>
 val ret = new mutable.MapBuilder[TokenHash, Token, Map[TokenHash, Token]](
     Map.empty[TokenHash, Token])
+<<< penalize newlines inside apply 2
+{{
+val result = new scala.collection.mutable.SetBuilder[Token, Set[Token]](Set.empty[Token])
+}}
+>>>
+{
+  {
+    val result = new scala.collection.mutable.SetBuilder[Token, Set[Token]](
+        Set.empty[Token])
+  }
+}
