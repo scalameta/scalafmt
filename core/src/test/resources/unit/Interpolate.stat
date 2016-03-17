@@ -63,3 +63,9 @@ val msg = s"""
  ${mkString(
     aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)}
       """
+<<< single quote is single line
+val msg =
+  s"${mkString(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)}"
+>>>
+val msg =
+  s"${mkString(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)}"

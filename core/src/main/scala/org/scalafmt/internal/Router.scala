@@ -8,8 +8,6 @@ import org.scalafmt.ScalaStyle
 import scala.collection.mutable
 import scala.meta.Tree
 import scala.meta.internal.ast.Case
-import scala.meta.internal.ast.Ctor
-import scala.meta.internal.ast.Decl
 import scala.meta.internal.ast.Defn
 import scala.meta.internal.ast.Enumerator
 import scala.meta.internal.ast.Import
@@ -57,12 +55,17 @@ class Router(val style: ScalaStyle,
         Seq(
             Split(NoSplit, 0)
         )
-      case FormatToken(start: Interpolation.Start, _, _)
-          if isMarginizedString(start) =>
+      case FormatToken(start: Interpolation.Start, _, _) =>
+        val isStripMargin = isMarginizedString(start)
         val end = matchingParentheses(hash(start))
+        val policy =
+          if (isTripleQuote(start)) NoPolicy
+          else SingleLineBlock(end)
         Seq(
-            Split(NoSplit, 0).withIndent(StateColumn, end, Left) // -1 because
-              .withIndent(-1, end, Left)
+            // statecolumn - 1 because of margin characters |
+            Split(NoSplit, 0, ignoreIf = !isStripMargin).withPolicy(policy)
+              .withIndent(StateColumn, end, Left).withIndent(-1, end, Left),
+            Split(NoSplit, 0, ignoreIf = isStripMargin).withPolicy(policy)
         )
       case FormatToken(_: Interpolation.Id | _: Interpolation.Part |
                        _: Interpolation.Start | _: Interpolation.SpliceStart,

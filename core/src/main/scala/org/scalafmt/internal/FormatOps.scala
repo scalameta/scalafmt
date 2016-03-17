@@ -122,6 +122,8 @@ trait FormatOps extends TreeOps {
         _.show[Structure].trim == """Term.Select(Term.Name("js"), Term.Name("native"))""")
   }
 
+  def isTripleQuote(token: Token): Boolean = token.code.startsWith("\"\"\"")
+
   def isMarginizedString(token: Token): Boolean = token match {
     case start: Interpolation.Start =>
       val end = matchingParentheses(hash(start))
