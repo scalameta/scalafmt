@@ -181,3 +181,10 @@ val ret = new mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](
     }
   }
 }
+<<< penalize newlines inside apply
+val ret =
+       new mutable.MapBuilder[TokenHash, Token, Map[TokenHash, Token]](Map
+             .empty[TokenHash, Token])
+>>>
+val ret = new mutable.MapBuilder[TokenHash, Token, Map[TokenHash, Token]](
+    Map.empty[TokenHash, Token])

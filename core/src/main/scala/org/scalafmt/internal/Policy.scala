@@ -15,8 +15,18 @@ case class Policy(f: PartialFunction[Decision, Decision],
                   noDequeue: Boolean = false)(
     implicit val line: sourcecode.Line) {
 
-  def orElse(otherF: PartialFunction[Decision, Decision]) =
-    copy(f = f orElse otherF)
+  /** Similar to PartialFunction.andThen, except applies second pf even if the
+    * first pf is not defined at argument.
+    */
+  def andThen(otherF: PartialFunction[Decision, Decision]) = {
+    // TODO(olafur) optimize?
+    val newPf: PartialFunction[Decision, Decision] = {
+      case x =>
+        otherF.applyOrElse(
+            f.applyOrElse(x, identity[Decision]), identity[Decision])
+    }
+    copy(f = newPf)
+  }
 
   override def toString = s"P:${line.value}(D=$noDequeue)"
 }
@@ -25,6 +35,7 @@ object Policy {
   val IdentityPolicy: PartialFunction[Decision, Decision] = {
     case d => throw NoopDefaultPolicyApplied(d)
   }
+
   val empty = new Policy(IdentityPolicy, Integer.MAX_VALUE) {
 
     override def toString: String = "NoPolicy"

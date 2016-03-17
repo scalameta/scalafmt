@@ -130,7 +130,7 @@ class Router(formatOps: FormatOps) {
             case owner: Term.Function =>
               val arrow = lastLambda(owner).tokens.find(_.isInstanceOf[`=>`])
               val singleLineUntilArrow =
-                newlineBeforeClosingCurly.orElse(SingleLineBlock(
+                newlineBeforeClosingCurly.andThen(SingleLineBlock(
                     arrow.getOrElse(owner.params.last.tokens.last)).f)
               (true, singleLineUntilArrow, arrow, 0)
           }.getOrElse {
@@ -138,7 +138,7 @@ class Router(formatOps: FormatOps) {
               // Self type: trait foo { self => ... }
               case t: Template if !t.self.name.isInstanceOf[Name.Anonymous] =>
                 val arrow = t.tokens.find(_.isInstanceOf[`=>`])
-                val singleLineUntilArrow = newlineBeforeClosingCurly.orElse(
+                val singleLineUntilArrow = newlineBeforeClosingCurly.andThen(
                     SingleLineBlock(arrow.getOrElse(t.self.tokens.last)).f)
                 (true, singleLineUntilArrow, arrow, 2)
               case _ => (false, NoPolicy, None, 0)
@@ -369,12 +369,13 @@ class Router(formatOps: FormatOps) {
             else SingleLineBlock(close)
           } else {
             if (singleArgument) {
-              Policy(PartialFunction.empty[Decision, Decision], close.end)
+              penalizeAllNewlines(close, 2)
+//              Policy(PartialFunction.empty[Decision, Decision], close.end)
             } else SingleLineBlock(close, excludeRanges)
           }
         val singleLine =
           if (exclude.isEmpty || isBracket) baseSingleLinePolicy
-          else baseSingleLinePolicy.orElse(unindentAtExclude)
+          else baseSingleLinePolicy.andThen(unindentAtExclude)
 
         val oneArgOneLine = OneArgOneLineSplit(open)
 
@@ -551,8 +552,8 @@ class Router(formatOps: FormatOps) {
         val expire = Math.max(lastToken.end, close.end)
         val noSplitPolicy =
           SingleLineBlock(lastToken, exclude, disallowInlineComments = false)
-            .orElse(penalizeNewlinesInApply.f).copy(expire = expire)
-        val newlinePolicy = breakOnEveryDot.orElse(penalizeNewlinesInApply.f)
+            .andThen(penalizeNewlinesInApply.f).copy(expire = expire)
+        val newlinePolicy = breakOnEveryDot.andThen(penalizeNewlinesInApply.f)
           .copy(expire = expire)
         Seq(
             Split(NoSplit, 0).withPolicy(noSplitPolicy),
