@@ -41,7 +41,8 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
       val code = FilesUtil.readFile(filename)
       if (!ScalacParser.checkParseFails(code)) {
         val startTime = System.nanoTime()
-        val f = Future(ScalaFmt.format_![Source](code, ScalaStyle.Default))
+        val f = Future(
+            ScalaFmt.format_![Source](code, ScalaStyle.NoIndentStripMargin))
         val formatted = Await.result(f, awaitMaxDuration)
         assertFormatPreservesAst[Source](code, formatted)
         print("+")

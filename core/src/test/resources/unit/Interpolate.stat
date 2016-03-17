@@ -53,17 +53,6 @@ s"""${a.foo[Bar]}
     Nicely indented
 """.format(
     aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)
-<<< don't break if no need
-val msg =
-
-  s"""AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
- |${mkString(deepestYet.splits)}
-      |""".stripMargin
->>>
-val msg =
-  s"""AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-     |${mkString(deepestYet.splits)}
-     |""".stripMargin
 <<< no align if no margin
 val msg =
   s"""
@@ -74,26 +63,3 @@ val msg = s"""
  ${mkString(
     aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)}
       """
-<<< break indentation
-val msg =
-
-  s"""AAAAAAA
-      |${mkString(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, bbb)}
-      |""".stripMargin
->>>
-val msg =
-  s"""AAAAAAA
-     |${mkString(
-         aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,
-         bbb)}
-     |""".stripMargin
-<<< Align | margin 2
-val msg =
-
-  s"""UNABLE TO FORMAT,
-      |${mkString(deepestYet.splits)}
-      |""".stripMargin
->>>
-val msg = s"""UNABLE TO FORMAT,
-             |${mkString(deepestYet.splits)}
-             |""".stripMargin

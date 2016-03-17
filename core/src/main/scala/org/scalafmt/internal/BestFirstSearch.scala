@@ -305,7 +305,9 @@ class BestFirstSearch(
   }
 
   private def formatMarginizedString(token: Token, indent: Int): String = {
-    if (token.isInstanceOf[Interpolation.Part] || isMarginizedString(token)) {
+    if (!style.indentMarginizedStrings) token.code
+    else if (token.isInstanceOf[Interpolation.Part] ||
+             isMarginizedString(token)) {
       val spaces = " " * indent
       token.code.replaceAll("\n *\\|", s"\n$spaces\\|")
     } else {

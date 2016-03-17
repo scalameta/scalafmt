@@ -35,10 +35,10 @@ sealed trait ScalaStyle {
   def scalaDocs: Boolean = true
 
   /**
-    * If set to some character, the margin character is treated as the new
+    * If true, the margin character | is treated as the new
     * indentation in multiline strings ending with `.stripMargin`.
     */
-  def indentMarginizedStrings: Option[Char] = Some('|')
+  def indentMarginizedStrings: Boolean = true
 
   /**
     * Call-site arguments.
@@ -87,6 +87,7 @@ sealed trait ScalaStyle {
   * Debugging only. Used in unit tests.
   */
 protected[scalafmt] sealed trait UnitTestStyle extends ScalaStyle {
+  override val indentMarginizedStrings = false
   override val debug = true
 }
 
@@ -96,6 +97,12 @@ object ScalaStyle {
     * Recommended style if you are not sure which one to pick.
     */
   case object Default extends ScalaStyle
+
+  // TODO(olafur) refactor style into case class, use copy.
+  case object NoIndentStripMargin extends ScalaStyle {
+    override val indentMarginizedStrings = false
+  }
+
 
   /**
     * EXPERIMENTAL.
@@ -111,6 +118,10 @@ object ScalaStyle {
 
     // TODO(olafur) should be true
     override def binPackArguments = false
+  }
+
+  case object StripMarginTest extends UnitTestStyle {
+    override val indentMarginizedStrings = true
   }
 
   case object UnitTest80 extends UnitTestStyle
