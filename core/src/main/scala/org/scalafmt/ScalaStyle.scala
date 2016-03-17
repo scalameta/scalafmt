@@ -98,11 +98,14 @@ object ScalaStyle {
     */
   case object Default extends ScalaStyle
 
+  case object Default40 extends ScalaStyle {
+    override def maxColumn = 40
+  }
+
   // TODO(olafur) refactor style into case class, use copy.
   case object NoIndentStripMargin extends ScalaStyle {
     override val indentMarginizedStrings = false
   }
-
 
   /**
     * EXPERIMENTAL.

@@ -14,6 +14,12 @@
   pairs(List(code, formatted).map(x => half(hl.scala(x))):_*)
 }
 
+@def example(code: String) = {
+  import org.scalafmt._
+  val formatted = ScalaFmt.format(code, ScalaStyle.Default40)
+  hl.scala(formatted)
+}
+
 @sect("Scalafmt", org.scalafmt.Versions.latestPublished)
   @h1
     Opinionated code formatter for Scala
@@ -166,37 +172,118 @@
         @li
           Your favorite editor? Join the gitter channel.
 
-   @sect{Preferences}
+   @sect{Code examples}
 
-     Scalafmt currently supports very limited number of preferences.
+     The following examples show which rules scalafmt uses to format your
+     code. All examples use a 40 column limit.
+
+     @p
+       @note. The plan is to add support for few official coding styles that have
+       proven to work for large codebases and scale to at least a few dozens
+       of contributors. For example, the
+       @lnk("Scala.js", "https://github.com/scala-js/scala-js/blob/master/CODINGSTYLE.md") and
+       @lnk("Spark", "https://cwiki.apache.org/confluence/display/SPARK/Spark+Code+Style+Guide")
+       coding styles.
+
+     @p
+       To start with, I implemented a default style for myself. The
+       rules are still evolving. Feel free to discuss about them
+       in the gitter channel.
+
+     @sect{Function application}
+
+       @example
+         // 40 columns                          |
+         object FunctionApplication {
+           // 1. Fits on a single line
+           function(arg1, arg2, arg3)
+
+           // 2. Fits on a single line, with newline indented by 4
+           function(longerArg1, longerArg2, arg3)
+
+           // 3. One line for each argument, indented at (
+           function(longerArg1, longerArg2, longerArg3)
+
+           // 4. One line for each argument, indented at 4
+           function(superDuperLongArg(
+               evenHasNestedArgs, notOnlyOneButTwo), // This arg is too long.
+               arg2IsNotAsBad)
+
+           // 5. (opt-in) "Config style", put newline after opening (
+           // and newline before closing ) to force one argument
+           // on each line indented by 4. Overrides other options.
+           function(
+               longerArg1 = defaultValue1, longerArg2 = defaultValue2, longerArg3 = defaultValue3
+               ) // Closing ) gets a newline
+         }
+
+       These rules are re-used in the following contexts:
+       @ul
+         @li
+           Curried functions. Rules are applied on each individual pair of
+           parentheses independently from each other.
+         @li
+           Function declaration. No difference, default values
+            are treated like named argument.
+         @li
+           Type application. Same rules, except for brackets @code("[]") instead
+           of parentheses.
+
+     @sect{Select chains}
+
+       @example
+         // 40 columns                          |
+         object SelectChains {
+           // 1. Fits on a single line
+           List(1).map(_ + 1).filter(_ == 2)
+
+           // 2. Force newline at each dot, with indent 2.
+           List(1, 2, 3, 4)
+             .map(_ + 1)
+             .filter(_ % 2 == 0)
+         }
+
+     @sect{Pattern matching}
+
+       @example
+         // 40 columns                          |
+         object PatternMatching {
+           List(1, 2, 3) match {
+             // if indented by 2, for separation from the case body.
+             case 1 :: tail if tail.length == 2 => "1 is head"
+             // if put on separate line, if condition doesn't fit on single line
+             case lst if lst.length == 2 && lst.head == 1 => "lst has lenght 3"
+           }
+         }
+
+     @sect{stripMargin alignment}
+       The margin character @code("|") is aligned with the opening triple
+       quote @code("\"\"\"") in interpolated and raw string literals.
+
+       @example(org.scalafmt.util.FilesUtil.readFile("readme/stripMargin.example"))
 
      @sect{// format: off}
        Disable formatting for specific regions of code by wrapping them in
        @code("// format: OFF") blocks:
 
-       @hl.scala
-         object A   {
-           // format: off
-           val identityMatrix = Array(1, 0, 0,
-                                      0, 1, 0,
-                                      0, 0, 1)
-           // format: on
-         }
+       @example(org.scalafmt.util.FilesUtil.readFile("readme/matrix.example"))
 
        To disable formatting for a whole file, put the first comment
        at the top of the file.
 
        @ul
          @li
-           the comment string is not case sensitive, so you can write also
+           the comment string is not case sensitive, so you can also write
            @code("// format: OFF").
          @li
            The comments @code("// @formatter:off") and @code("// @formatter:off")
-           will also work, for compatibility with the default IntelliJ formatter.
+           will also work, for compatibility with the IntelliJ formatter.
          @li
            Scalafmt will do it's best to resume formatting at the correct
            indentation level. It's best to enable it at the same level as
            when it was disabled.
+
+
    @sect{FAQ}
 
       @sect{Why not Scalariform?}
@@ -219,8 +306,19 @@
             The original Scalariform author stopped maintaining the library a
             few years ago.
 
-        Finally, scalafmt is my Master's thesis project and I thought it would
+        Finally, scalafmt is my Master's thesis project. I thought it would
         be a fun challenge to write a code formatter :)
+
+     @sect{The formatter creates unnecessary diffs!}
+       I understand that some rules may trigger unnecessarily large diffs in pull
+       requests. I still believe it's worth it, considering
+
+       @ol
+         @li
+           you can enable non-whitespace diffs during code review. For Github,
+           add @code("?w=1") to the URL and the diff ignores whitespace changes.
+         @li
+           code is read more often outside of pull requests.
 
       @sect{Why is it so slow?}
         My benchmarks show that scalafmt is around 4-6x slower than scalariform.
@@ -242,6 +340,19 @@
         More settings will come later.
 
    @sect{Changelog}
+
+     @sect{0.1.4}
+       @ul
+         @li
+           @sect.ref{stripMargin alignment}.
+         @li
+           @sect.ref{// format: off}.
+         @li
+           @sect.ref{Select chains}.
+         @li
+           @lnk("Hanging behavior", "https://github.com/olafurpg/scalafmt/issues/127").
+         @li
+           @lnk("Dozens of other small fixes", "https://github.com/olafurpg/scalafmt/pull/128").
 
      @sect{0.1.3}
        @ul

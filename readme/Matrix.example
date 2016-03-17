@@ -1,0 +1,7 @@
+object PrettyMatrix  {
+  // format: off
+  val identity = Array(1, 0, 0,
+                       0, 1, 0,
+                       0, 0, 1)
+  // format: on
+}
