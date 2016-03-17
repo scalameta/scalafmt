@@ -6,10 +6,10 @@ import org.scalafmt.ScalaFmt
 import org.scalafmt.ScalaStyle
 import org.scalafmt.Versions
 import org.scalafmt.internal.Debug
-import org.scalafmt.internal.ScalaFmtLogger
+import org.scalafmt.internal.ScalaFmtLogger._
 import org.scalafmt.util.FilesUtil
 
-object Cli extends ScalaFmtLogger {
+object Cli {
   val usageExamples = """
       |// get help
       |scalafmt --help

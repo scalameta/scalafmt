@@ -1,5 +1,7 @@
 package org.scalafmt.internal
 
+import org.scalafmt.internal.ScalaFmtLogger._
+
 import scala.meta.Tree
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
@@ -12,7 +14,7 @@ object TokenOps extends TokenOps
 /**
   * Stateless helper functions on [[scala.meta.Token]].
   */
-trait TokenOps extends ScalaFmtLogger {
+trait TokenOps {
 
   def shouldGet2xNewlines(tok: FormatToken): Boolean = {
     !isDocstring(tok.left) && {

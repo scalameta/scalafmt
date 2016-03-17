@@ -5,9 +5,9 @@ import java.io.File
 import java.io.FileReader
 import java.io.PrintWriter
 
-import org.scalafmt.internal.ScalaFmtLogger
+import org.scalafmt.internal.ScalaFmtLogger._
 
-object FilesUtil extends ScalaFmtLogger {
+object FilesUtil {
 
   def listFiles(path: String): Vector[String] = {
     listFiles(new File(path))

@@ -1,13 +1,12 @@
 package org.scalafmt.util
 
-import java.io.File
 import java.text.NumberFormat
 import java.util.Locale
 import java.util.concurrent.CopyOnWriteArrayList
 
+
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
-import org.scalafmt.Error.FormatterOutputDoesNotParse
-import org.scalafmt.internal.ScalaFmtLogger
+import org.scalafmt.internal.ScalaFmtLogger._
 import org.scalafmt.util.ExperimentResult.ParseErr
 import org.scalafmt.util.ExperimentResult.Skipped
 import org.scalafmt.util.ExperimentResult.Success
@@ -26,7 +25,7 @@ import scala.util.control.NonFatal
   * Mostly borrowed from
   * https://github.com/lihaoyi/fastparse/blob/0d67eca8f9264bfaff68e5cbb227045ceac4a15f/scalaparse/jvm/src/test/scala/scalaparse/ProjectTests.scala
   */
-trait ScalaProjectsExperiment extends ScalaFmtLogger {
+trait ScalaProjectsExperiment {
   val results: java.util.List[ExperimentResult] =
     new CopyOnWriteArrayList[ExperimentResult]()
   val verbose = false

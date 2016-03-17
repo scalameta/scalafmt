@@ -1,5 +1,7 @@
 package org.scalafmt.internal
 
+import org.scalafmt.internal.ScalaFmtLogger._
+
 import scala.collection.mutable
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token.Whitespace
@@ -18,7 +20,7 @@ import scala.meta.tokens.Tokens
   */
 case class FormatToken(left: Token,
                        right: Token,
-                       between: Vector[Whitespace]) extends ScalaFmtLogger {
+                       between: Vector[Whitespace]) {
 
   override def toString = s"${left.code}∙${right.code}"
 
@@ -33,7 +35,7 @@ case class FormatToken(left: Token,
   override def hashCode(): Int = hash(left).##
 }
 
-object FormatToken extends ScalaFmtLogger {
+object FormatToken {
 
   /**
     * Convert scala.meta Tokens to FormatTokens.

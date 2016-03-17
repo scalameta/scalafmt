@@ -15,13 +15,13 @@ import scala.meta.prettyprinters.Structure
 /**
   * Helper functions for generating splits/policies for a given tree.
   */
-trait FormatOps extends TreeOps {
-  val style: ScalaStyle
-  val tree: Tree
-  val tokens: Array[FormatToken]
-  val ownersMap: Map[TokenHash, Tree]
-  val statementStarts: Map[TokenHash, Tree]
-  val matchingParentheses: Map[TokenHash, Token]
+class FormatOps(val style: ScalaStyle,
+                val tree: Tree,
+                val tokens: Array[FormatToken],
+                val ownersMap: Map[TokenHash, Tree],
+                val statementStarts: Map[TokenHash, Tree],
+                val matchingParentheses: Map[TokenHash, Token])
+    extends TreeOps {
 
   @inline
   def owners(token: Token): Tree = ownersMap(hash(token))
@@ -124,18 +124,20 @@ trait FormatOps extends TreeOps {
 
   def isTripleQuote(token: Token): Boolean = token.code.startsWith("\"\"\"")
 
-  def isMarginizedString(token: Token): Boolean = token match {
-    case start: Interpolation.Start =>
-      val end = matchingParentheses(hash(start))
-      val afterEnd = next(leftTok2tok(end))
-      afterEnd.left.code == "." && afterEnd.right.code == "stripMargin"
-    case string: Literal.String =>
-      string.code.startsWith("\"\"\"") && {
-        val afterString = next(leftTok2tok(string))
-        afterString.left.code == "." && afterString.right.code == "stripMargin"
-      }
-    case _ => false
-  }
+  def isMarginizedString(token: Token): Boolean =
+    token match {
+      case start: Interpolation.Start =>
+        val end = matchingParentheses(hash(start))
+        val afterEnd = next(leftTok2tok(end))
+        afterEnd.left.code == "." && afterEnd.right.code == "stripMargin"
+      case string: Literal.String =>
+        string.code.startsWith("\"\"\"") && {
+          val afterString = next(leftTok2tok(string))
+          afterString.left.code == "." &&
+          afterString.right.code == "stripMargin"
+        }
+      case _ => false
+    }
 
   @tailrec
   final def startsStatement(tok: FormatToken): Boolean = {

@@ -3,7 +3,7 @@ package org.scalafmt.internal
 import scala.language.implicitConversions
 
 import org.scalafmt.Error.UnexpectedTree
-import org.scalafmt.ScalaStyle
+import org.scalafmt.internal.ScalaFmtLogger._
 
 import scala.collection.mutable
 import scala.meta.Tree
@@ -29,13 +29,8 @@ object Constants {
 /**
   * Assigns splits to format tokens.
   */
-class Router(val style: ScalaStyle,
-             val tree: Tree,
-             val tokens: Array[FormatToken],
-             val matchingParentheses: Map[TokenHash, Token],
-             val statementStarts: Map[TokenHash, Tree],
-             val ownersMap: Map[TokenHash, Tree])
-    extends ScalaFmtLogger with FormatOps {
+class Router(formatOps: FormatOps) {
+  import formatOps._
 
   def getSplits(formatToken: FormatToken): Seq[Split] = {
     val leftOwner = owners(formatToken.left)

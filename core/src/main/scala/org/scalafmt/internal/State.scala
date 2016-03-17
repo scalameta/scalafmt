@@ -1,6 +1,7 @@
 package org.scalafmt.internal
 
 import org.scalafmt.ScalaStyle
+import org.scalafmt.internal.ScalaFmtLogger._
 
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token.Comment
@@ -15,7 +16,7 @@ final case class State(cost: Int,
                        pushes: Vector[Indent[Num]],
                        column: Int,
                        formatOff: Boolean)
-    extends Ordered[State] with ScalaFmtLogger with TokenOps {
+    extends Ordered[State] with TokenOps {
 
   def compare(that: State): Int = {
     val costCompare = Integer.valueOf(-this.cost).compareTo(-that.cost)
@@ -103,7 +104,7 @@ final case class State(cost: Int,
   }
 }
 
-object State extends ScalaFmtLogger {
+object State {
   val start = State(0,
                     PolicySummary.empty,
                     Vector.empty[Split],

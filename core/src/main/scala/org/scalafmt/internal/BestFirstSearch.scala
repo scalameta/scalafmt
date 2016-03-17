@@ -2,6 +2,7 @@ package org.scalafmt.internal
 
 import org.scalafmt.Error
 import org.scalafmt.ScalaStyle
+import org.scalafmt.internal.ScalaFmtLogger._
 
 import scala.collection.mutable
 import scala.meta.Mod
@@ -13,7 +14,6 @@ import scala.meta.internal.ast.Pkg
 import scala.meta.internal.ast.Template
 import scala.meta.internal.ast.Term
 import scala.meta.internal.ast.Type
-import scala.meta.prettyprinters.Structure
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 import scala.meta.tokens.Tokens
@@ -23,10 +23,17 @@ import scala.reflect.classTag
 /**
   * Implements best first search to find optimal formatting.
   */
-class BestFirstSearch(
-    override val style: ScalaStyle, override val tree: Tree, range: Set[Range])
-    extends FormatOps with ScalaFmtLogger {
+class BestFirstSearch(val style: ScalaStyle, val tree: Tree, range: Set[Range]) {
   import BestFirstSearch._
+
+  val tokens: Array[FormatToken] = FormatToken.formatTokens(tree.tokens)
+  val ownersMap = getOwners(tree)
+  val statementStarts = getStatementStarts(tree)
+  val matchingParentheses = getMatchingParentheses(tree.tokens)
+  val formatOps = new FormatOps(
+      style, tree, tokens, ownersMap, statementStarts, matchingParentheses)
+  val router = new Router(formatOps)
+  import formatOps._
 
   val maxVisitStates = // For debugging purposes only.
     if (style.debug) 100000 // Unit tests must be < 100k states
@@ -71,14 +78,8 @@ class BestFirstSearch(
     */
   val recurseOnBlocks = true && doOptimizations
 
-  val tokens: Array[FormatToken] = FormatToken.formatTokens(tree.tokens)
-  val ownersMap = getOwners(tree)
-  val statementStarts = getStatementStarts(tree)
-  val matchingParentheses = getMatchingParentheses(tree.tokens)
   val noOptimizations = noOptimizationZones(tree)
   val best = mutable.Map.empty[Token, State]
-  val router = new Router(
-      style, tree, tokens, matchingParentheses, statementStarts, ownersMap)
   var explored = 0
   var deepestYet = State.start
   var statementCount = 0
@@ -368,7 +369,7 @@ class BestFirstSearch(
   }
 }
 
-object BestFirstSearch extends ScalaFmtLogger {
+object BestFirstSearch {
 
   def extractStatementsIfAny(tree: Tree): Seq[Tree] =
     tree match {

@@ -1,7 +1,7 @@
 package org.scalafmt
 
 import org.scalafmt.internal.Debug
-import org.scalafmt.internal.ScalaFmtLogger
+import org.scalafmt.internal.ScalaFmtLogger._
 import org.scalafmt.internal.State
 import org.scalafmt.stats.TestStats
 import org.scalafmt.util.DiffTest
@@ -29,7 +29,7 @@ import scala.meta.parsers.common.ParseException
 // TODO(olafur) property test: same solution without optimization or timeout.
 
 class FormatTests
-    extends FunSuite with Timeouts with ScalaFmtLogger with BeforeAndAfterAll
+    extends FunSuite with Timeouts with BeforeAndAfterAll
     with HasTests with FormatAssertions with DiffAssertions {
   lazy val onlyUnit = UnitTests.tests.exists(_.only)
   lazy val onlyManual = !onlyUnit && ManualTests.tests.exists(_.only)

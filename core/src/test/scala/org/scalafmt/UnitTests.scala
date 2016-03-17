@@ -1,11 +1,11 @@
 package org.scalafmt
 
-import org.scalafmt.internal.ScalaFmtLogger
+import org.scalafmt.internal.ScalaFmtLogger._
 import org.scalafmt.util.DiffTest
 import org.scalafmt.util.FilesUtil
 import org.scalafmt.util.HasTests
 
-object UnitTests extends HasTests with ScalaFmtLogger {
+object UnitTests extends HasTests {
   import FilesUtil._
 
   /** Avoids parsing all files if some tests are marked ONLY.
