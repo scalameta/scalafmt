@@ -296,8 +296,7 @@ class Router(val style: ScalaStyle,
           }) =>
         val expire = leftOwner match {
           case t: Term.Arg.Named => t.rhs.tokens.last
-          case t: Term.Param =>
-            t.default.get.tokens.last
+          case t: Term.Param => t.default.get.tokens.last
           case t => throw UnexpectedTree[Term.Param](t)
         }
         Seq(
@@ -690,6 +689,7 @@ class Router(val style: ScalaStyle,
             case infix: Term.ApplyInfix => infix.op == owners(op)
             case _ => false
           } =>
+        val owner = leftOwner.parent.get.asInstanceOf[Term.ApplyInfix]
         val isAssignment = isAssignmentOperator(op)
         val isBool = isBoolOperator(op)
         // TODO(olafur) Document that we only allow newlines for this subset
@@ -704,8 +704,13 @@ class Router(val style: ScalaStyle,
         val indent =
           if (isAssignment) 2
           else 0
+        // Optimization, assignment operators make the state space explode in
+        // sbt build files because of := operators everywhere.
+        val optimalToken =
+          if (isAssignment) Some(owner.args.last.tokens.last)
+          else None
         Seq(
-            Split(Space, 0),
+            Split(Space, 0, optimalAt = optimalToken),
             Split(Newline, newlineCost, ignoreIf = !newlineOk)
               .withIndent(indent, formatToken.right, Left)
         )
