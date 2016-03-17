@@ -289,9 +289,17 @@ class Router(val style: ScalaStyle,
               .withIndent(2, expire, Left)
         )
       // Named argument foo(arg = 1)
-      case tok@FormatToken(e: `=`, right, _)
-          if leftOwner.isInstanceOf[Term.Arg.Named] =>
-        val expire = leftOwner.asInstanceOf[Term.Arg.Named].rhs.tokens.last
+      case tok@FormatToken(e: `=`, right, _) if (leftOwner match {
+            case t: Term.Arg.Named => true
+            case t: Term.Param if t.default.isDefined => true
+            case _ => false
+          }) =>
+        val expire = leftOwner match {
+          case t: Term.Arg.Named => t.rhs.tokens.last
+          case t: Term.Param =>
+            t.default.get.tokens.last
+          case t => throw UnexpectedTree[Term.Param](t)
+        }
         Seq(
             Split(Space, 0).withIndent(2, expire, Left)
         )
@@ -547,7 +555,8 @@ class Router(val style: ScalaStyle,
         val noSplitPolicy =
           SingleLineBlock(lastToken, exclude, disallowInlineComments = false)
             .orElse(penalizeNewlinesInApply.f).copy(expire = expire)
-        val newlinePolicy = breakOnEveryDot.orElse(penalizeNewlinesInApply.f).copy(expire = expire)
+        val newlinePolicy = breakOnEveryDot.orElse(penalizeNewlinesInApply.f)
+          .copy(expire = expire)
         Seq(
             Split(NoSplit, 0).withPolicy(noSplitPolicy),
             Split(Newline, 1 + nestedPenalty).withPolicy(newlinePolicy)

@@ -88,7 +88,7 @@ final class BaseJoinQuery[+E1, +E2, U1, U2, C[_], +B1, +B2](
     base: ShapedValue[_ <: (E1, E2), (U1, U2)],
     b1: B1,
     b2: B2)
-<<< SKIP Single line state column
+<<< Single line state column
   @tailrec
   final def getSelectChain(child: Term.Select,
                            accum: Vector[Term.Select] = Vector
@@ -96,13 +96,12 @@ final class BaseJoinQuery[+E1, +E2, U1, U2, C[_], +B1, +B2](
     body
   }
 >>>
-  @tailrec
-  final def getSelectChain(
-      child: Term.Select,
-      accum: Vector[Term.Select] = Vector.empty[Term.Select]
-      ): Vector[Term.Select] = {
-    body
-  }
+@tailrec
+final def getSelectChain(child: Term.Select,
+                         accum: Vector[Term.Select] = Vector
+                             .empty[Term.Select]): Vector[Term.Select] = {
+  body
+}
 <<< hanging #127
  /**
    * If any errors happen below this line, but before a groupBy, write to a TypedSink
