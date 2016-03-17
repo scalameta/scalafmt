@@ -13,6 +13,13 @@ trait HasTests {
 
   def tests: Seq[DiffTest]
 
+  def testsToRun: Seq[DiffTest] = {
+    val evalTests = tests
+    val onlyTests = evalTests.filter(_.only)
+    if (onlyTests.nonEmpty) onlyTests
+    else tests
+  }
+
   def isOnly(name: String) = name.startsWith("ONLY ")
 
   def isSkip(name: String) = name.startsWith("SKIP ")

@@ -139,6 +139,26 @@ trait TokenOps extends ScalaFmtLogger {
       case _ => None
     }
 
+  def tokenLength(token: Token): Int =
+    token match {
+      case lit: Literal.String =>
+        // Even if the literal is not strip margined, we use the longest line
+        // excluding margins. The will only affect is multiline string literals
+        // with a short first line but long lines inside, example:
+        //
+        // val x = """short
+        //  Long aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        // """
+        //
+        // In this case, we would put a newline before """short and indent by
+        // two.
+        lit.code.lines.map(_.replaceAll(" *|", "").length).max
+      case _ =>
+        val firstNewline = token.code.indexOf('\n')
+        if (firstNewline == - 1) token.code.length
+        else firstNewline
+    }
+
   def isFormatOn(token: Token): Boolean =
     token match {
       case c: Comment if formatOnCode.contains(c.code.toLowerCase) => true

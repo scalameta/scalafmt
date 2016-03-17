@@ -9,3 +9,12 @@ val x = """Formatter changed AST
                 |=====================
                 |$diff
               """
+<<< column limit
+val x = """Short line
+  |Long line aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+              """
+>>>
+val x =
+  """Short line
+  |Long line aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+              """

@@ -15,7 +15,7 @@ final case class State(cost: Int,
                        pushes: Vector[Indent[Num]],
                        column: Int,
                        formatOff: Boolean)
-    extends Ordered[State] with ScalaFmtLogger {
+    extends Ordered[State] with ScalaFmtLogger with TokenOps {
 
   def compare(that: State): Int = {
     val costCompare = Integer.valueOf(-this.cost).compareTo(-that.cost)
@@ -55,11 +55,7 @@ final case class State(cost: Int,
     val tokLength = tok.right.code.length
 
     // Some tokens contain newline, like multiline strings/comments.
-    val lengthOnFirstLine = {
-      val firstNewline = tok.right.code.indexOf('\n')
-      if (firstNewline == - 1) tokLength
-      else firstNewline
-    }
+    val lengthOnFirstLine = tokenLength(tok.right)
     val columnOnCurrentLine =
       lengthOnFirstLine + {
         if (split.modification.isNewline) newIndent

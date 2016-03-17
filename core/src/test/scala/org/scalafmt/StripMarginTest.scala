@@ -6,7 +6,7 @@ import org.scalatest.FunSuite
 
 class StripMarginTest extends FunSuite with HasTests with DiffAssertions {
 
-  val examples = """
+  val rawStrings = """
 <<< Align | margin 1
 val x =
 '''Formatter changed AST
@@ -33,9 +33,18 @@ val x = '''Formatter changed AST
     |fooooo baaaaaaaarrrrr
     |'''.stripMargin
 }
+<<< Align | margin 3
+val x = '''Short line
+          |Long line aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          |'''.stripMargin
+>>>
+val x =
+  '''Short line
+    |Long line aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    |'''.stripMargin
   """.replace("'''", "\"\"\"")
 
-  val interpolateExamples = """
+  val interpolatedStrings = """
 <<< break indentation
 val msg =
 
@@ -70,10 +79,10 @@ val msg = s'''AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
              |'''.stripMargin""".replace("'''", "\"\"\"")
 
   override val tests =
-    parseDiffTests(examples, "stripMargin/String.stat") ++
-    (parseDiffTests(interpolateExamples, "stripMargin/Interpolate.stat"))
+    parseDiffTests(rawStrings, "stripMargin/String.stat") ++
+    (parseDiffTests(interpolatedStrings, "stripMargin/Interpolate.stat"))
 
-  tests.foreach { t =>
+  testsToRun.foreach { t =>
     test(t.fullName) {
       val parse = filename2parse(t.filename).get
       val formatted =
