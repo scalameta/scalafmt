@@ -103,3 +103,29 @@ final class BaseJoinQuery[+E1, +E2, U1, U2, C[_], +B1, +B2](
       ): Vector[Term.Select] = {
     body
   }
+<<< hanging #127
+ /**
+   * If any errors happen below this line, but before a groupBy, write to a TypedSink
+   */
+  def addTrap[U >: T](trapSink: Source with TypedSink[T])(implicit conv: TupleConverter[U]): TypedPipe[U] =
+    TypedPipeFactory({ (flowDef, mode) =>
+      val fields = trapSink.sinkFields
+      // TODO: with diamonds in the graph, this might not be correct
+      val pipe = RichPipe.assignName(fork.toPipe[T](fields)(flowDef, mode, trapSink.setter))
+      flowDef.addTrap(pipe, trapSink.createTap(Write)(mode))
+      TypedPipe.from[U](pipe, fields)(flowDef, mode, conv)
+    })
+>>>
+/**
+  * If any errors happen below this line, but before a groupBy, write to a TypedSink
+  */
+def addTrap[U >: T](trapSink: Source with TypedSink[T])(
+    implicit conv: TupleConverter[U]): TypedPipe[U] =
+  TypedPipeFactory({ (flowDef, mode) =>
+    val fields = trapSink.sinkFields
+    // TODO: with diamonds in the graph, this might not be correct
+    val pipe = RichPipe
+      .assignName(fork.toPipe[T](fields)(flowDef, mode, trapSink.setter))
+    flowDef.addTrap(pipe, trapSink.createTap(Write)(mode))
+    TypedPipe.from[U](pipe, fields)(flowDef, mode, conv)
+  })
