@@ -60,8 +60,6 @@ trait TreeOps extends TokenOps {
     * parenthesis can be removed without changing the AST. For example:
     *
     * `(a(1))` will parse into the same tree as `a(1)`.
-    *
-    * TODO(olafur) hack, what about ((1, 2))?
     */
   def isSuperfluousParenthesis(open: Token, owner: Tree): Boolean = {
     open.isInstanceOf[`(`] && !isTuple(owner) &&
