@@ -1,11 +1,10 @@
 package org.scalafmt.internal
 
-import scala.language.implicitConversions
-
 import org.scalafmt.Error.UnexpectedTree
 import org.scalafmt.internal.ScalaFmtLogger._
 
 import scala.collection.mutable
+import scala.language.implicitConversions
 import scala.meta.Tree
 import scala.meta.internal.ast.Case
 import scala.meta.internal.ast.Defn
@@ -533,22 +532,25 @@ class Router(formatOps: FormatOps) {
         val open = next(next(tok)).right
         val close = matchingParentheses(hash(open))
         val nestedPenalty = nestedSelect(rightOwner) + nestedApplies(leftOwner)
-        // Must apply to both space and newlines, otherwise we will take
-        // the newline even if it doesn't prevent a newline inside the apply.
-        val penalizeNewlinesInApply = penalizeAllNewlines(close, 2)
         val chain = getSelectChain(Some(rightOwner))
-        val names = chain.map(_.name)
         val lastToken = lastTokenInChain(chain)
-//        logger.elem(lastTokenInChain, next(tok), names, chain.length)
         val breakOnEveryDot = Policy({
           case Decision(t@FormatToken(_, dot2: `.`, _), s)
               if chain.contains(owners(dot2)) =>
-//            logger.elem(s)
-            Decision(t, Seq(Split(Newline, 0).withIndent(2, dot, Left)))
+            val expire = selectExpire(dot2)
+            val newlineSplits = s.filter(_.modification.isNewline)
+            // A plain select with no apply has no newline splits.
+            val newSplits =
+              if (newlineSplits.nonEmpty) newlineSplits
+              else Seq(Split(Newline, 1).withIndent(2, expire, Left))
+            Decision(t, newSplits)
         }, lastToken.end)
         val exclude =
           insideBlock(tok, close, _.isInstanceOf[`{`]).map(parensRange)
         val expire = Math.max(lastToken.end, close.end)
+        // This policy will apply to both the space and newline splits, otherwise
+        // the newline is too cheap even it doesn't actually prevent other newlines.
+        val penalizeNewlinesInApply = penalizeAllNewlines(close, 2)
         val noSplitPolicy =
           SingleLineBlock(lastToken, exclude, disallowInlineComments = false)
             .andThen(penalizeNewlinesInApply.f).copy(expire = expire)

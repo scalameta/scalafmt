@@ -125,3 +125,13 @@ private def extractRhino(e: js.Dynamic): js.Array[String] = {
 >>>
 new ReflectiveDynamicAccess(classLoader)
   .createInstanceFor[ScalaFmtLike]("org.scalafmt.ScalaFmt210", Seq.empty)
+<<< indent until closing }
+abb.b(c).j {
+x + 1
+}
+>>>
+abb
+  .b(c)
+  .j {
+    x + 1
+  }

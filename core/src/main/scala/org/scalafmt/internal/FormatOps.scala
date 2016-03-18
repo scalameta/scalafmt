@@ -7,6 +7,7 @@ import scala.annotation.tailrec
 import scala.meta.Tree
 import scala.meta.internal.ast.Case
 import scala.meta.internal.ast.Template
+import scala.meta.internal.ast.Term
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 import scala.meta.internal.ast.Defn
@@ -234,5 +235,24 @@ class FormatOps(val style: ScalaStyle,
 
   def templateCurly(template: Template): Option[Token] = {
     template.tokens.find(x => x.isInstanceOf[`{`] && owners(x) == template)
+  }
+
+  /**
+    * Returns the expire token for the owner of dot.
+    *
+    * If the select is part of an apply like
+    *
+    * foo.bar { ... }
+    *
+    * the expire token is the closing }, otherwise it's bar.
+    */
+  def selectExpire(dot: `.`): Token = {
+    val owner = ownersMap(hash(dot))
+    (for {
+      parent <- owner.parent
+      (_, args) <- splitApplyIntoLhsAndArgsLifted(parent) if args.nonEmpty
+    } yield {
+      args.last.tokens.last
+    }).getOrElse(owner.tokens.last)
   }
 }
