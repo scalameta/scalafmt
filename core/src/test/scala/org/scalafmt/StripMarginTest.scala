@@ -49,7 +49,7 @@ val x =
   """.replace("'''", "\"\"\"")
 
   val interpolatedStrings = """
-<<< ONLY class indent
+<<< tricky tempalate curly
 case class FormatterChangedAST(diff: String, output: String)
     extends Error(s'''Formatter changed AST
         |=====================

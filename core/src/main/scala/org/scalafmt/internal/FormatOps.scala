@@ -6,6 +6,7 @@ import org.scalafmt.ScalaStyle
 import scala.annotation.tailrec
 import scala.meta.Tree
 import scala.meta.internal.ast.Case
+import scala.meta.internal.ast.Template
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 import scala.meta.internal.ast.Defn
@@ -226,4 +227,12 @@ class FormatOps(val style: ScalaStyle,
   def getArrow(caseStat: Case): Token =
     caseStat.tokens.find(t => t.isInstanceOf[`=>`] && owners(t) == caseStat)
       .getOrElse(throw CaseMissingArrow(caseStat))
+
+  def templateCurly(owner: Tree): Token = {
+    defnTemplate(owner).flatMap(templateCurly).getOrElse(owner.tokens.last)
+  }
+
+  def templateCurly(template: Template): Option[Token] = {
+    template.tokens.find(x => x.isInstanceOf[`{`] && owners(x) == template)
+  }
 }
