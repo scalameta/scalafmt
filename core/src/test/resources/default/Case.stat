@@ -51,7 +51,8 @@ x match {
 }
 >>>
 x match {
-  case tok if // TODO(olafur) DRY.
+  case tok
+      if // TODO(olafur) DRY.
       (leftOwner.isInstanceOf[Term.Interpolate] &&
           rightOwner.isInstanceOf[Term.Interpolate]) ||
       (leftOwner.isInstanceOf[Pat.Interpolate] &&

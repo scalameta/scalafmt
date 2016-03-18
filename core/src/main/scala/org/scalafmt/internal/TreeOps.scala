@@ -187,9 +187,6 @@ trait TreeOps extends TokenOps {
     if (tree.children.isEmpty) 0
     else 1 + tree.children.map(treeDepth).max
 
-  def templateCurly(owner: Tree): Token = {
-    defnTemplate(owner).flatMap(templateCurly).getOrElse(owner.tokens.last)
-  }
 
   @tailrec
   final def lastLambda(first: Term.Function): Term.Function =
@@ -200,8 +197,4 @@ trait TreeOps extends TokenOps {
         lastLambda(block.stats.head.asInstanceOf[Term.Function])
       case _ => first
     }
-
-  def templateCurly(template: Template): Option[Token] = {
-    template.tokens.find(_.isInstanceOf[`{`])
-  }
 }

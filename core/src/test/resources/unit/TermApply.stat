@@ -8,8 +8,8 @@ a(b)
   .g(h)
   .i(j)
   .k {
-  aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-}
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  }
 <<< avoid dead ends
 function(
     firstCall(a, b, c, d, e, f, g, h),

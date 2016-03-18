@@ -1,11 +1,10 @@
 package org.scalafmt.internal
 
-import scala.language.implicitConversions
-
 import org.scalafmt.Error.UnexpectedTree
 import org.scalafmt.internal.ScalaFmtLogger._
 
 import scala.collection.mutable
+import scala.language.implicitConversions
 import scala.meta.Tree
 import scala.meta.internal.ast.Case
 import scala.meta.internal.ast.Defn
@@ -177,11 +176,13 @@ class Router(formatOps: FormatOps) {
         )
       case FormatToken(arrow: `=>`, right, _)
           if leftOwner.isInstanceOf[Term.Function] =>
-        val endOfFunction = leftOwner.tokens.last
+        val endOfFunction = functionExpire(
+            leftOwner.asInstanceOf[Term.Function])
         Seq(
-            Split(Space, 0).withPolicy(SingleLineBlock(endOfFunction)),
+            Split(Space, 0, ignoreIf = isInlineComment(right))
+              .withPolicy(SingleLineBlock(endOfFunction)),
             Split(Newline, 1 + nestedApplies(leftOwner))
-              .withIndent(2, endOfFunction, Left)
+              .withIndent(2, endOfFunction, Right)
         )
       // Case arrow
       case tok@FormatToken(arrow: `=>`, right, between)
@@ -533,22 +534,25 @@ class Router(formatOps: FormatOps) {
         val open = next(next(tok)).right
         val close = matchingParentheses(hash(open))
         val nestedPenalty = nestedSelect(rightOwner) + nestedApplies(leftOwner)
-        // Must apply to both space and newlines, otherwise we will take
-        // the newline even if it doesn't prevent a newline inside the apply.
-        val penalizeNewlinesInApply = penalizeAllNewlines(close, 2)
         val chain = getSelectChain(Some(rightOwner))
-        val names = chain.map(_.name)
         val lastToken = lastTokenInChain(chain)
-//        logger.elem(lastTokenInChain, next(tok), names, chain.length)
         val breakOnEveryDot = Policy({
           case Decision(t@FormatToken(_, dot2: `.`, _), s)
               if chain.contains(owners(dot2)) =>
-//            logger.elem(s)
-            Decision(t, Seq(Split(Newline, 0).withIndent(2, dot, Left)))
+            val expire = selectExpire(dot2)
+            val newlineSplits = s.filter(_.modification.isNewline)
+            // A plain select with no apply has no newline splits.
+            val newSplits =
+              if (newlineSplits.nonEmpty) newlineSplits
+              else Seq(Split(Newline, 1).withIndent(2, expire, Left))
+            Decision(t, newSplits)
         }, lastToken.end)
         val exclude =
           insideBlock(tok, close, _.isInstanceOf[`{`]).map(parensRange)
         val expire = Math.max(lastToken.end, close.end)
+        // This policy will apply to both the space and newline splits, otherwise
+        // the newline is too cheap even it doesn't actually prevent other newlines.
+        val penalizeNewlinesInApply = penalizeAllNewlines(close, 2)
         val noSplitPolicy =
           SingleLineBlock(lastToken, exclude, disallowInlineComments = false)
             .andThen(penalizeNewlinesInApply.f).copy(expire = expire)
@@ -769,12 +773,13 @@ class Router(formatOps: FormatOps) {
         )
       case tok@FormatToken(_, cond: `if`, _)
           if rightOwner.isInstanceOf[Case] =>
-        val owner = rightOwner.asInstanceOf[Case]
-        val lastToken = getArrow(owner)
-        val penalizeNewlines = penalizeNewlineByNesting(cond, lastToken)
+        val arrow = getArrow(rightOwner.asInstanceOf[Case])
+        val exclude =
+          insideBlock(tok, arrow, _.isInstanceOf[`{`]).map(parensRange)
+        val singleLine = SingleLineBlock(arrow, exclude = exclude)
         Seq(
-            Split(Space, 0, policy = penalizeNewlines),
-            Split(Newline, 1, policy = penalizeNewlines)
+            Split(Space, 0, policy = singleLine),
+            Split(Newline, 1)
         )
       // Inline comment
       case FormatToken(_, c: Comment, between) =>
