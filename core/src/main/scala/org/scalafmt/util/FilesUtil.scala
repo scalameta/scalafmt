@@ -16,9 +16,9 @@ object FilesUtil {
   def listFiles(file: File): Vector[String] = {
     if (file.isFile) { Vector(file.getAbsolutePath) } else {
       def listFilesIter(s: File): Iterable[String] = {
-        val (dirs, files) =
-          Option(s.listFiles()).toIterable.flatMap(_.toIterator)
-            .partition(_.isDirectory)
+        val (dirs, files) = Option(s.listFiles()).toIterable
+          .flatMap(_.toIterator)
+          .partition(_.isDirectory)
         files.map(_.getPath) ++ dirs.flatMap(listFilesIter)
       }
       for {

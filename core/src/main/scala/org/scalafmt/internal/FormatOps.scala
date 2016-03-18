@@ -39,8 +39,8 @@ class FormatOps(val style: ScalaStyle,
    *
    */
   val packageTokens: Set[Token] = {
-    val result = new scala.collection.mutable.SetBuilder[Token, Set[Token]](Set
-      .empty[Token])
+    val result = new scala.collection.mutable.SetBuilder[Token, Set[Token]](
+        Set.empty[Token])
     tree.collect {
       case p: Pkg => result ++= p.ref.tokens
     }
@@ -104,14 +104,13 @@ class FormatOps(val style: ScalaStyle,
   }
 
   @tailrec
-  final def rhsOptimalToken(start: FormatToken): Token =
-    start.right match {
-      case _: `,` | _: `(` | _: `)` | _: `]` | _: `;` | _: `=>`
-          if next(start) != start &&
-          !owners(start.right).tokens.headOption.contains(start.right) =>
-        rhsOptimalToken(next(start))
-      case _ => start.left
-    }
+  final def rhsOptimalToken(start: FormatToken): Token = start.right match {
+    case _: `,` | _: `(` | _: `)` | _: `]` | _: `;` | _: `=>`
+        if next(start) != start &&
+        !owners(start.right).tokens.headOption.contains(start.right) =>
+      rhsOptimalToken(next(start))
+    case _ => start.left
+  }
 
   /**
     * js.native is very special in Scala.js.
@@ -126,20 +125,18 @@ class FormatOps(val style: ScalaStyle,
 
   def isTripleQuote(token: Token): Boolean = token.code.startsWith("\"\"\"")
 
-  def isMarginizedString(token: Token): Boolean =
-    token match {
-      case start: Interpolation.Start =>
-        val end = matchingParentheses(hash(start))
-        val afterEnd = next(leftTok2tok(end))
-        afterEnd.left.code == "." && afterEnd.right.code == "stripMargin"
-      case string: Literal.String =>
-        string.code.startsWith("\"\"\"") && {
-          val afterString = next(leftTok2tok(string))
-          afterString.left.code == "." &&
-          afterString.right.code == "stripMargin"
-        }
-      case _ => false
-    }
+  def isMarginizedString(token: Token): Boolean = token match {
+    case start: Interpolation.Start =>
+      val end = matchingParentheses(hash(start))
+      val afterEnd = next(leftTok2tok(end))
+      afterEnd.left.code == "." && afterEnd.right.code == "stripMargin"
+    case string: Literal.String =>
+      string.code.startsWith("\"\"\"") && {
+        val afterString = next(leftTok2tok(string))
+        afterString.left.code == "." && afterString.right.code == "stripMargin"
+      }
+    case _ => false
+  }
 
   @tailrec
   final def startsStatement(tok: FormatToken): Boolean = {
@@ -154,8 +151,8 @@ class FormatOps(val style: ScalaStyle,
   def insideBlock(start: FormatToken,
                   end: Token,
                   matches: Token => Boolean): Set[Token] = {
-    val result = new scala.collection.mutable.SetBuilder[Token, Set[Token]](Set
-      .empty[Token])
+    val result = new scala.collection.mutable.SetBuilder[Token, Set[Token]](
+        Set.empty[Token])
     var curr = next(start)
     while (curr.left != end) {
       if (matches(curr.left)) {
@@ -172,7 +169,8 @@ class FormatOps(val style: ScalaStyle,
   def defnSiteLastToken(tree: Tree): Token = {
     tree match {
       // TODO(olafur) scala.meta should make this easier.
-      case procedure: Defn.Def if procedure.decltpe.isDefined &&
+      case procedure: Defn.Def
+          if procedure.decltpe.isDefined &&
           procedure.decltpe.get.tokens.isEmpty =>
         procedure.body.tokens.find(_.isInstanceOf[`{`])
       case _ => tree.tokens.find(t => t.isInstanceOf[`=`] && owners(t) == tree)
@@ -216,7 +214,8 @@ class FormatOps(val style: ScalaStyle,
           else 5
 
         val penalty =
-          nestedSelect(owners(t.left)) + nestedApplies(owners(t.right)) + nonBoolPenalty
+          nestedSelect(owners(t.left)) + nestedApplies(owners(t.right)) +
+          nonBoolPenalty
         Decision(t, s.map {
           case split if split.modification.isNewline =>
             split.withPenalty(penalty)
@@ -226,7 +225,8 @@ class FormatOps(val style: ScalaStyle,
   }
 
   def getArrow(caseStat: Case): Token =
-    caseStat.tokens.find(t => t.isInstanceOf[`=>`] && owners(t) == caseStat)
+    caseStat.tokens
+      .find(t => t.isInstanceOf[`=>`] && owners(t) == caseStat)
       .getOrElse(throw CaseMissingArrow(caseStat))
 
   def templateCurly(owner: Tree): Token = {

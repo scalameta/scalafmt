@@ -23,34 +23,30 @@ import scala.meta.tokens.Token
   */
 trait TreeOps extends TokenOps {
 
-  def isTopLevel(tree: Tree): Boolean =
-    tree match {
-      case _: Pkg | _: Source => true
-      case _ => false
-    }
+  def isTopLevel(tree: Tree): Boolean = tree match {
+    case _: Pkg | _: Source => true
+    case _ => false
+  }
 
-  def isDefDef(tree: Tree): Boolean =
-    tree match {
-      case _: Decl.Def | _: Defn.Def => true
-      case _ => false
-    }
+  def isDefDef(tree: Tree): Boolean = tree match {
+    case _: Decl.Def | _: Defn.Def => true
+    case _ => false
+  }
 
-  def defDefReturnType(tree: Tree): Option[Type] =
-    tree match {
-      case d: Decl.Def => Some(d.decltpe)
-      case d: Defn.Def => d.decltpe
-      case _ => None
-    }
+  def defDefReturnType(tree: Tree): Option[Type] = tree match {
+    case d: Decl.Def => Some(d.decltpe)
+    case d: Defn.Def => d.decltpe
+    case _ => None
+  }
 
-  def isDefnSite(tree: Tree): Boolean =
-    tree match {
-      case _: Decl.Def | _: Defn.Def | _: Defn.Class | _: Defn.Trait |
-          _: Ctor.Secondary | _: Type.Apply | _: Type.Param =>
-        true
-      case x: Ctor.Primary if x.parent.exists(_.isInstanceOf[Defn.Class]) =>
-        true
-      case _ => false
-    }
+  def isDefnSite(tree: Tree): Boolean = tree match {
+    case _: Decl.Def | _: Defn.Def | _: Defn.Class | _: Defn.Trait |
+        _: Ctor.Secondary | _: Type.Apply | _: Type.Param =>
+      true
+    case x: Ctor.Primary if x.parent.exists(_.isInstanceOf[Defn.Class]) =>
+      true
+    case _ => false
+  }
 
   /**
     *
@@ -66,34 +62,30 @@ trait TreeOps extends TokenOps {
     owner.tokens.headOption.contains(open)
   }
 
-  def isCallSite(tree: Tree): Boolean =
-    tree match {
-      case _: Term.Apply | _: Pat.Extract | _: Pat.Tuple | _: Term.Tuple |
-          _: Term.ApplyType | _: Term.Update =>
-        true
-      case _ => false
-    }
+  def isCallSite(tree: Tree): Boolean = tree match {
+    case _: Term.Apply | _: Pat.Extract | _: Pat.Tuple | _: Term.Tuple |
+        _: Term.ApplyType | _: Term.Update =>
+      true
+    case _ => false
+  }
 
-  def isTuple(tree: Tree): Boolean =
-    tree match {
-      case _: Pat.Tuple | _: Term.Tuple => true
-      case _ => false
-    }
+  def isTuple(tree: Tree): Boolean = tree match {
+    case _: Pat.Tuple | _: Term.Tuple => true
+    case _ => false
+  }
 
   def noSpaceBeforeOpeningParen(tree: Tree): Boolean =
     !isTuple(tree) && (isDefnSite(tree) || isCallSite(tree))
 
-  def isModPrivateProtected(tree: Tree): Boolean =
-    tree match {
-      case _: Mod.Private | _: Mod.Protected => true
-      case _ => false
-    }
+  def isModPrivateProtected(tree: Tree): Boolean = tree match {
+    case _: Mod.Private | _: Mod.Protected => true
+    case _ => false
+  }
 
-  def isTypeVariant(tree: Tree): Boolean =
-    tree match {
-      case _: Mod.Contravariant | _: Mod.Covariant => true
-      case _ => false
-    }
+  def isTypeVariant(tree: Tree): Boolean = tree match {
+    case _: Mod.Contravariant | _: Mod.Covariant => true
+    case _ => false
+  }
 
   val splitApplyIntoLhsAndArgs: PartialFunction[Tree, (Tree, Seq[Tree])] = {
     case t: Term.Apply => t.fun -> t.args
@@ -118,12 +110,13 @@ trait TreeOps extends TokenOps {
   @tailrec
   final def getSelectChain(child: Option[Tree],
                            accum: Vector[Term.Select] = Vector
-                             .empty[Term.Select]): Vector[Term.Select] = {
+                               .empty[Term.Select]): Vector[Term.Select] = {
     child match {
       case Some(child: Term.Select) =>
         getSelectChain(child.parent, accum :+ child)
-      case Some(child) if splitApplyIntoLhsAndArgsLifted(child).exists(
-              _._1.isInstanceOf[Term.Select]) =>
+      case Some(child)
+          if splitApplyIntoLhsAndArgsLifted(child)
+            .exists(_._1.isInstanceOf[Term.Select]) =>
         getSelectChain(child.parent, accum)
       case els => accum
     }
@@ -171,9 +164,11 @@ trait TreeOps extends TokenOps {
           case p: Term.For => p.enums
           case p: Term.ForYield => p.enums
         }
-        enums.zip(enums.tail).collectFirst {
-          case (`generator`, guard: Enumerator.Guard) => guard
-        }
+        enums
+          .zip(enums.tail)
+          .collectFirst {
+            case (`generator`, guard: Enumerator.Guard) => guard
+          }
       }
     } yield sibling
   }
@@ -186,7 +181,6 @@ trait TreeOps extends TokenOps {
   def treeDepth(tree: Tree): Int =
     if (tree.children.isEmpty) 0
     else 1 + tree.children.map(treeDepth).max
-
 
   @tailrec
   final def lastLambda(first: Term.Function): Term.Function =

@@ -27,28 +27,26 @@ case class Split(
     optimalAt: Option[Token] = None)(implicit val line: sourcecode.Line)
     extends TokenOps {
 
-  def adapt(formatToken: FormatToken): Split =
-    modification match {
-      case n: NewlineT if !n.noIndent && rhsIsCommentedOut(formatToken) =>
-        copy(modification = Newline(n.isDouble, hasIndent = true))
-      case _ => this
-    }
+  def adapt(formatToken: FormatToken): Split = modification match {
+    case n: NewlineT if !n.noIndent && rhsIsCommentedOut(formatToken) =>
+      copy(modification = Newline(n.isDouble, hasIndent = true))
+    case _ => this
+  }
 
   val indentation = indents.map(_.length match {
     case Num(x) => x.toString
     case x => x.toString
   }).mkString("[", ", ", "]")
 
-  def length: Int =
-    modification match {
-      case m if m.isNewline => 0
-      case NoSplit => 0
-      case Space => 1
-      case Provided(code) =>
-        val firstLine = code.indexOf("\n")
-        if (firstLine == - 1) code.length
-        else firstLine
-    }
+  def length: Int = modification match {
+    case m if m.isNewline => 0
+    case NoSplit => 0
+    case Space => 1
+    case Provided(code) =>
+      val firstLine = code.indexOf("\n")
+      if (firstLine == -1) code.length
+      else firstLine
+  }
 
   def withPolicy(newPolicy: Policy): Split = {
     val update =

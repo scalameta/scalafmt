@@ -64,7 +64,7 @@ final case class State(cost: Int,
       }
     val lengthOnLastLine = {
       val lastNewline = tok.right.code.lastIndexOf('\n')
-      if (lastNewline == - 1) tokLength
+      if (lastNewline == -1) tokLength
       else tokLength - lastNewline - 1
     }
     val nextStateColumn =
@@ -78,8 +78,8 @@ final case class State(cost: Int,
     val splitWithPenalty = {
       if (columnOnCurrentLine < style.maxColumn || {
             val commentExceedsLineLength =
-              tok.right.isInstanceOf[Comment] && tok.right.code.length >=
-              (style.maxColumn - newIndent)
+              tok.right.isInstanceOf[Comment] &&
+              tok.right.code.length >= (style.maxColumn - newIndent)
             commentExceedsLineLength && split.modification.isNewline
           }) {
         split // fits inside column
@@ -122,30 +122,32 @@ object State {
                       debug: Boolean = false)(
       callback: (State, FormatToken, String) => Unit): Unit = {
     var state = State.start
-    toks.zip(splits).foreach {
-      case (tok, split) =>
-        // TIP. Use the following line to debug origin of splits.
-        if (debug && toks.length < 1000) {
-          val left = cleanup(tok.left).slice(0, 15)
-          logger.debug(
-              f"$left%-15s $split ${state.indentation} ${state.column}")
-        }
-        state = state.next(style, split, tok)
-        val whitespace = split.modification match {
-          case Space => " "
-          case nl: NewlineT =>
-            val newline =
-              if (nl.isDouble) "\n\n"
-              else "\n"
-            val indentation =
-              if (nl.noIndent) ""
-              else " " * state.indentation
-            newline + indentation
-          case Provided(literal) => literal
-          case NoSplit => ""
-        }
-        callback.apply(state, tok, whitespace)
-    }
+    toks
+      .zip(splits)
+      .foreach {
+        case (tok, split) =>
+          // TIP. Use the following line to debug origin of splits.
+          if (debug && toks.length < 1000) {
+            val left = cleanup(tok.left).slice(0, 15)
+            logger
+              .debug(f"$left%-15s $split ${state.indentation} ${state.column}")
+          }
+          state = state.next(style, split, tok)
+          val whitespace = split.modification match {
+            case Space => " "
+            case nl: NewlineT =>
+              val newline =
+                if (nl.isDouble) "\n\n"
+                else "\n"
+              val indentation =
+                if (nl.noIndent) ""
+                else " " * state.indentation
+              newline + indentation
+            case Provided(literal) => literal
+            case NoSplit => ""
+          }
+          callback.apply(state, tok, whitespace)
+      }
     if (debug) logger.debug(s"Total cost: ${state.cost}")
   }
 }

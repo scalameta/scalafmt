@@ -39,10 +39,9 @@ case object StateColumn extends Length
   */
 case class Indent[T <: Length](length: T, expire: Token, expiresAt: ExpiresOn) {
 
-  def withNum(column: Int, indentation: Int): Indent[Num] =
-    length match {
-      case n: Num => Indent(n, expire, expiresAt)
-      case _: StateColumn.type =>
-        Indent(Num(column - indentation), expire, expiresAt)
-    }
+  def withNum(column: Int, indentation: Int): Indent[Num] = length match {
+    case n: Num => Indent(n, expire, expiresAt)
+    case _: StateColumn.type =>
+      Indent(Num(column - indentation), expire, expiresAt)
+  }
 }

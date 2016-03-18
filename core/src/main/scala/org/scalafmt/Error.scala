@@ -25,12 +25,12 @@ object Error {
 
   case class FormatterChangedAST(diff: String, output: String)
       extends Error(s"""Formatter changed AST
-        |=====================
-        |$diff
-        |=====================
-        |${output.lines.toVector.mkString("\n")}
-        |=====================
-        |Formatter changed AST
+                       |=====================
+                       |$diff
+                       |=====================
+                       |${output.lines.toVector.mkString("\n")}
+                       |=====================
+                       |Formatter changed AST
       """.stripMargin)
 
   case class FormatterOutputDoesNotParse(msg: String)
