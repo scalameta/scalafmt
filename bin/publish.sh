@@ -73,9 +73,12 @@ function update-homebrew-release() {
     tar_sha256=$(shasum -a 256 ${tarfile} | cut -f1 -d" ")
     sed -i '' -e "s/\(sha256 \"\).*\"/\1${tar_sha256}\"/" ${brew_file}
     cd homebrew
-    git commit -am "Update to ${tag}"
+    git add .
+    git commit -m "Update to ${tag}"
     git push origin master
     cd ..
+    git commit -am "Update homebrew submodule."
+    git push origin master
 }
 
 assert-dependencies-are-installed
@@ -85,5 +88,6 @@ push-tag
 maven-publish
 update-github-release
 update-homebrew-release
+echo "Released ${tag}!"
 #./update-gh-pages.sh
 # TODO(olafur) update-intellij-plugin
