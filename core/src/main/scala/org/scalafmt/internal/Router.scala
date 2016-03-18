@@ -774,8 +774,11 @@ class Router(formatOps: FormatOps) {
       case tok@FormatToken(_, cond: `if`, _)
           if rightOwner.isInstanceOf[Case] =>
         val arrow = getArrow(rightOwner.asInstanceOf[Case])
+        val exclude =
+          insideBlock(tok, arrow, _.isInstanceOf[`{`]).map(parensRange)
+        val singleLine = SingleLineBlock(arrow, exclude = exclude)
         Seq(
-            Split(Space, 0, policy = SingleLineBlock(arrow)),
+            Split(Space, 0, policy = singleLine),
             Split(Newline, 1)
         )
       // Inline comment
