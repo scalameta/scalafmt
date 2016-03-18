@@ -769,12 +769,10 @@ class Router(formatOps: FormatOps) {
         )
       case tok@FormatToken(_, cond: `if`, _)
           if rightOwner.isInstanceOf[Case] =>
-        val owner = rightOwner.asInstanceOf[Case]
-        val lastToken = getArrow(owner)
-        val penalizeNewlines = penalizeNewlineByNesting(cond, lastToken)
+        val arrow = getArrow(rightOwner.asInstanceOf[Case])
         Seq(
-            Split(Space, 0, policy = penalizeNewlines),
-            Split(Newline, 1, policy = penalizeNewlines)
+            Split(Space, 0, policy = SingleLineBlock(arrow)),
+            Split(Newline, 1)
         )
       // Inline comment
       case FormatToken(_, c: Comment, between) =>
