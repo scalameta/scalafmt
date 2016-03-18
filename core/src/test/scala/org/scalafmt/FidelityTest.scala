@@ -1,6 +1,6 @@
 package org.scalafmt
 
-import org.scalafmt.internal.ScalaFmtLogger
+import org.scalafmt.internal.ScalaFmtLogger._
 import org.scalafmt.util.FilesUtil
 import org.scalafmt.util.FormatAssertions
 import org.scalatest.FunSuite
@@ -10,7 +10,7 @@ import org.scalatest.FunSuite
   *
   * Will maybe use scalacheck someday.
   */
-class FidelityTest extends FunSuite with FormatAssertions with ScalaFmtLogger {
+class FidelityTest extends FunSuite with FormatAssertions {
 
   case class Test(filename: String, code: String)
 

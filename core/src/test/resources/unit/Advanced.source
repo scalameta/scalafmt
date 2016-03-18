@@ -16,8 +16,7 @@
     : Int @annot2 = 2
     , y: Int = 3): Int = {
     "match" match {
-      case 1 | 2 =>
-        3
+      case 1 | 2 =>   3
       case <A>2</A> => 2
     }
    }

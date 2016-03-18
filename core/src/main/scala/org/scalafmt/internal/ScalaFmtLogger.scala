@@ -10,7 +10,7 @@ import scala.meta.tokens.Tokens
 /**
   * Debugging utility.
   */
-trait ScalaFmtLogger {
+object ScalaFmtLogger {
   val logger = PrintlnLogger
 
   def log(split: Split): String = s"$split"

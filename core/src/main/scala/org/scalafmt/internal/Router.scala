@@ -3,16 +3,15 @@ package org.scalafmt.internal
 import scala.language.implicitConversions
 
 import org.scalafmt.Error.UnexpectedTree
-import org.scalafmt.ScalaStyle
+import org.scalafmt.internal.ScalaFmtLogger._
 
 import scala.collection.mutable
 import scala.meta.Tree
 import scala.meta.internal.ast.Case
-import scala.meta.internal.ast.Ctor
-import scala.meta.internal.ast.Decl
 import scala.meta.internal.ast.Defn
 import scala.meta.internal.ast.Enumerator
 import scala.meta.internal.ast.Import
+import scala.meta.internal.ast.Name
 import scala.meta.internal.ast.Pat
 import scala.meta.internal.ast.Pkg
 import scala.meta.internal.ast.Template
@@ -30,17 +29,13 @@ object Constants {
 /**
   * Assigns splits to format tokens.
   */
-class Router(val style: ScalaStyle,
-             val tree: Tree,
-             val tokens: Array[FormatToken],
-             val matchingParentheses: Map[TokenHash, Token],
-             val statementStarts: Map[TokenHash, Tree],
-             val ownersMap: Map[TokenHash, Tree])
-    extends ScalaFmtLogger with FormatOps {
+class Router(formatOps: FormatOps) {
+  import formatOps._
 
   def getSplits(formatToken: FormatToken): Seq[Split] = {
     val leftOwner = owners(formatToken.left)
     val rightOwner = owners(formatToken.right)
+    val newlines = newlinesBetween(formatToken.between)
     formatToken match {
       case FormatToken(_: BOF, _, _) =>
         Seq(
@@ -54,6 +49,18 @@ class Router(val style: ScalaStyle,
           tok.right.name.startsWith("xml") =>
         Seq(
             Split(NoSplit, 0)
+        )
+      case FormatToken(start: Interpolation.Start, _, _) =>
+        val isStripMargin = isMarginizedString(start)
+        val end = matchingParentheses(hash(start))
+        val policy =
+          if (isTripleQuote(start)) NoPolicy
+          else SingleLineBlock(end)
+        Seq(
+            // statecolumn - 1 because of margin characters |
+            Split(NoSplit, 0, ignoreIf = !isStripMargin).withPolicy(policy)
+              .withIndent(StateColumn, end, Left).withIndent(-1, end, Left),
+            Split(NoSplit, 0, ignoreIf = isStripMargin).withPolicy(policy)
         )
       case FormatToken(_: Interpolation.Id | _: Interpolation.Part |
                        _: Interpolation.Start | _: Interpolation.SpliceStart,
@@ -82,9 +89,11 @@ class Router(val style: ScalaStyle,
       case FormatToken(open: `{`, _, _)
           if parents(leftOwner).exists(_.isInstanceOf[Import]) ||
           leftOwner.isInstanceOf[Term.Interpolate] =>
+        val policy =
+          if (leftOwner.isInstanceOf[Term.Interpolate]) NoPolicy
+          else SingleLineBlock(matchingParentheses(hash(open)))
         Seq(
-            Split(NoSplit, 0).withPolicy(SingleLineBlock(
-                matchingParentheses(hash(open))))
+            Split(NoSplit, 0).withPolicy(policy)
         )
       case FormatToken(_, close: `}`, _)
           if parents(rightOwner).exists(_.isInstanceOf[Import]) ||
@@ -99,7 +108,8 @@ class Router(val style: ScalaStyle,
         )
 
       // Top level defns
-      case tok: FormatToken if !isDocstring(tok.left) && gets2x(tok) =>
+      case tok@FormatToken(_, right, _) if !right.isInstanceOf[`package `] &&
+          !isDocstring(tok.left) && gets2x(tok) =>
         Seq(
             Split(Newline2x, 0)
         )
@@ -115,17 +125,25 @@ class Router(val style: ScalaStyle,
             Decision(t, Seq(Split(Newline, 0)))
         }, close.end)
 
-        val (startsLambda, lambdaPolicy, lambdaArrow) =
+        val (startsLambda, lambdaPolicy, lambdaArrow, lambdaIndent) =
           statementStarts.get(hash(right)).collect {
             case owner: Term.Function =>
-              val arrow = owner.tokens.find(_.isInstanceOf[`=>`])
-              logger.trace(s"$tok  ${leftTok2tok(arrow.get)}")
+              val arrow = lastLambda(owner).tokens.find(_.isInstanceOf[`=>`])
               val singleLineUntilArrow =
-                newlineBeforeClosingCurly.orElse(SingleLineBlock(
+                newlineBeforeClosingCurly.andThen(SingleLineBlock(
                     arrow.getOrElse(owner.params.last.tokens.last)).f)
-              logger.trace(s"${leftTok2tok(close)} ${leftTok2tok(arrow.get)}")
-              (true, singleLineUntilArrow, arrow)
-          }.getOrElse((false, NoPolicy, None))
+              (true, singleLineUntilArrow, arrow, 0)
+          }.getOrElse {
+            leftOwner match {
+              // Self type: trait foo { self => ... }
+              case t: Template if !t.self.name.isInstanceOf[Name.Anonymous] =>
+                val arrow = t.tokens.find(_.isInstanceOf[`=>`])
+                val singleLineUntilArrow = newlineBeforeClosingCurly.andThen(
+                    SingleLineBlock(arrow.getOrElse(t.self.tokens.last)).f)
+                (true, singleLineUntilArrow, arrow, 2)
+              case _ => (false, NoPolicy, None, 0)
+            }
+          }
 
         val skipSingleLineBlock =
           ignore || startsLambda || newlinesBetween(between) > 0
@@ -134,7 +152,7 @@ class Router(val style: ScalaStyle,
             Split(Space, 0, ignoreIf = skipSingleLineBlock)
               .withPolicy(SingleLineBlock(close)),
             Split(Space, 0, ignoreIf = !startsLambda, optimalAt = lambdaArrow)
-              .withPolicy(lambdaPolicy),
+              .withIndent(lambdaIndent, close, Right).withPolicy(lambdaPolicy),
             Split(nl, 1).withPolicy(newlineBeforeClosingCurly)
               .withIndent(2, close, Right)
         )
@@ -151,8 +169,11 @@ class Router(val style: ScalaStyle,
           if statementStarts.contains(hash(right)) &&
           leftOwner.isInstanceOf[Term.Function] =>
         val endOfFunction = leftOwner.tokens.last
+        val canBeSpace =
+          statementStarts(hash(right)).isInstanceOf[Term.Function]
         Seq(
-            Split(Newline, 0).withIndent(2, endOfFunction, Left)
+            Split(Space, 0, ignoreIf = !canBeSpace),
+            Split(Newline, 1).withIndent(2, endOfFunction, Left)
         )
       case FormatToken(arrow: `=>`, right, _)
           if leftOwner.isInstanceOf[Term.Function] =>
@@ -162,12 +183,32 @@ class Router(val style: ScalaStyle,
             Split(Newline, 1 + nestedApplies(leftOwner))
               .withIndent(2, endOfFunction, Left)
         )
+      // Case arrow
+      case tok@FormatToken(arrow: `=>`, right, between)
+          if leftOwner.isInstanceOf[Case] =>
+        Seq(
+            Split(Space, 0, ignoreIf = newlines != 0), // Gets killed by `case` policy.
+            Split(
+                Newline(gets2x = false, hasIndent = rhsIsCommentedOut(tok)), 1)
+        )
       // New statement
+      case tok@FormatToken(_: `;`, right, between)
+          if startsStatement(tok) && newlines == 0 =>
+        val expire = statementStarts(hash(right)).tokens.last
+        Seq(
+            Split(
+                  // This split needs to have an optimalAt field.
+                  Space,
+                  0,
+                  optimalAt = Some(expire)).withPolicy(SingleLineBlock(
+                expire)),
+            // For some reason, this newline cannot cost 1.
+            Split(Newline(shouldGet2xNewlines(tok)), 0)
+        )
+
       case tok@FormatToken(left, right, between) if startsStatement(tok) =>
         val oldNewlines = newlinesBetween(between)
         val newline: Modification = Newline(shouldGet2xNewlines(tok))
-        //          if () Newline2x
-        //          else Newline
         val expire = rightOwner.tokens.find(_.isInstanceOf[`=`])
           .getOrElse(rightOwner.tokens.last)
 
@@ -217,10 +258,8 @@ class Router(val style: ScalaStyle,
         )
       // Defn.{Object, Class, Trait}
       case tok@FormatToken(_: `object` | _: `class ` | _: `trait`, _, _) =>
-        val owner = leftOwner
-        val expire = defnTemplate(owner).flatMap { templ =>
-          templ.tokens.find(_.isInstanceOf[`{`])
-        }.getOrElse(owner.tokens.last)
+        val expire = defnTemplate(leftOwner).flatMap(templateCurly)
+          .getOrElse(leftOwner.tokens.last)
         Seq(
             Split(Space, 0).withIndent(4, expire, Left)
         )
@@ -232,18 +271,34 @@ class Router(val style: ScalaStyle,
         )
       // DefDef
       case tok@FormatToken(_: `def`, name: Ident, _) =>
-        //          if style.binPackParameters =>
         Seq(
             Split(Space, 0).withIndent(4, defnSiteLastToken(leftOwner), Left)
         )
       case tok@FormatToken(e: `=`, right, _)
           if leftOwner.isInstanceOf[Defn.Def] =>
         val expire = leftOwner.asInstanceOf[Defn.Def].body.tokens.last
+        val exclude =
+          insideBlock(tok, expire, _.isInstanceOf[`{`]).map(parensRange)
         val rhsIsJsNative = isJsNative(right)
         Seq(
-            Split(Space, 0, policy = SingleLineBlock(expire)),
+            Split(
+                Space, 0, policy = SingleLineBlock(expire, exclude = exclude)),
             Split(Newline, 0, ignoreIf = rhsIsJsNative)
               .withIndent(2, expire, Left)
+        )
+      // Named argument foo(arg = 1)
+      case tok@FormatToken(e: `=`, right, _) if (leftOwner match {
+            case t: Term.Arg.Named => true
+            case t: Term.Param if t.default.isDefined => true
+            case _ => false
+          }) =>
+        val expire = leftOwner match {
+          case t: Term.Arg.Named => t.rhs.tokens.last
+          case t: Term.Param => t.default.get.tokens.last
+          case t => throw UnexpectedTree[Term.Param](t)
+        }
+        Seq(
+            Split(Space, 0).withIndent(2, expire, Left)
         )
       case tok@FormatToken(open: `(`, _, _)
           if style.binPackParameters && isDefnSite(leftOwner) =>
@@ -262,32 +317,17 @@ class Router(val style: ScalaStyle,
             Split(Newline, 1).withIndent(4, close, Left)
         )
       case tok@FormatToken(_: `(` | _: `[`, right, between)
-          if (!style.binPackArguments && isCallSite(leftOwner)) ||
+          if !isSuperfluousParenthesis(formatToken.left, leftOwner) &&
+          (!style.binPackArguments && isCallSite(leftOwner)) ||
           (!style.binPackParameters && isDefnSite(leftOwner)) =>
         val open = tok.left.asInstanceOf[Delim]
-        val (lhs, args): (Tree, Seq[Tree]) = leftOwner match {
-          case t: Term.Apply => t.fun -> t.args
-          case t: Pat.Extract => t.ref -> t.args
-          case t: Pat.Tuple => t -> t.elements
-          case t: Term.ApplyType => t -> t.targs
-          case t: Term.Update => t.fun -> t.argss.flatten
-          case t: Term.Tuple => t -> t.elements
-          case t: Type.Apply => t.tpe -> t.args
-          case t: Type.Param => t.name -> t.tparams
-          // TODO(olafur) flatten correct? Filter by this () section?
-          case t: Defn.Def => t.name -> t.paramss.flatten
-          case t: Decl.Def => t.name -> t.paramss.flatten
-          case t: Defn.Class => t.name -> t.ctor.paramss.flatten
-          case t: Defn.Trait => t.name -> t.ctor.paramss.flatten
-          case t: Ctor.Primary => t.name -> t.paramss.flatten
-          case t: Ctor.Secondary => t.name -> t.paramss.flatten
-          case x =>
-            logger.error(s"""Unknown tree
-                 |${log(x.parent.get)}
-                 |${isDefnSite(leftOwner)}""".stripMargin)
-            ???
-        }
         val close = matchingParentheses(hash(open))
+        val (lhs, args) = splitApplyIntoLhsAndArgsLifted(leftOwner).getOrElse {
+          logger.error(s"""Unknown tree
+                               |${log(leftOwner.parent.get)}
+                               |${isDefnSite(leftOwner)}""".stripMargin)
+          ???
+        }
         // In long sequence of select/apply, we penalize splitting on
         // parens furthest to the right.
         val lhsPenalty = treeDepth(lhs)
@@ -300,8 +340,11 @@ class Router(val style: ScalaStyle,
 
         val nestedPenalty = nestedApplies(leftOwner)
         val exclude =
-          if (isBracket) insideBlock(tok, close, _.isInstanceOf[`[`])
+          if (isBracket)
+            insideBlock(tok, close, _.isInstanceOf[`[`])
           else insideBlock(tok, close, _.isInstanceOf[`{`])
+        val excludeRanges = exclude.map(parensRange)
+
         //          insideBlock(tok, close, _.isInstanceOf[`{`])
         val indent = leftOwner match {
           case _: Pat => Num(0) // Indentation already provided by case.
@@ -309,18 +352,30 @@ class Router(val style: ScalaStyle,
           case _ => Num(4)
         }
 
+        // It seems acceptable to unindent by the continuation indent inside
+        // curly brace wrapped blocks.
+        val unindentAtExclude: PartialFunction[Decision, Decision] = {
+          case Decision(t, s) if exclude.contains(t.left) =>
+            val close = matchingParentheses(hash(t.left))
+            Decision(t, s.map(_.withIndent(-4, close, Left)))
+        }
         val singleArgument = args.length == 1
 
-        // TODO(olafur) overfitting unit tests?
-        val singleLine =
+        val baseSingleLinePolicy =
           if (isBracket) {
             if (singleArgument)
-              SingleLineBlock(close, exclude, killInlineComments = false)
+              SingleLineBlock(
+                  close, excludeRanges, disallowInlineComments = false)
             else SingleLineBlock(close)
           } else {
-            if (singleArgument) NoPolicy
-            else SingleLineBlock(close, exclude)
+            if (singleArgument) {
+              penalizeAllNewlines(close, 5) // TODO(olafur) magic number
+            } else SingleLineBlock(close, excludeRanges)
           }
+        val singleLine =
+          if (exclude.isEmpty || isBracket) baseSingleLinePolicy
+          else baseSingleLinePolicy.andThen(unindentAtExclude)
+
         val oneArgOneLine = OneArgOneLineSplit(open)
 
         // TODO(olafur) document how "config style" works.
@@ -346,33 +401,26 @@ class Router(val style: ScalaStyle,
         val charactersInside = (close.start - open.end) - 2
 
         val fitsOnOneLine =
-          singleArgument || exclude.nonEmpty ||
+          singleArgument || excludeRanges.nonEmpty ||
           charactersInside <= style.maxColumn
 
-        // TODO(olafur) ignoreIf: State => Boolean?
         val expirationToken: Token =
           if (isDefnSite(leftOwner)) defnSiteLastToken(leftOwner)
           else rhsOptimalToken(leftTok2tok(close))
 
         val optimalToken = Some(expirationToken)
 
-        val singleLineExpiration: Token =
-          if (isBracket) expirationToken
-          else nextNonComment(tok).right
         Seq(
             Split(modification,
                   0,
                   policy = singleLine,
                   ignoreIf = !fitsOnOneLine || isConfigStyle,
-                  optimalAt = optimalToken)
-            // TODO(olafur) allow style to specify indent here?
-              .withIndent(indent, singleLineExpiration, Left),
+                  optimalAt = optimalToken).withIndent(indent, close, Left),
             Split(newlineModification,
                   (1 + nestedPenalty + lhsPenalty) * bracketMultiplier,
                   policy = singleLine,
                   ignoreIf = !fitsOnOneLine || isConfigStyle,
-                  optimalAt = optimalToken)
-              .withIndent(indent, singleLineExpiration, Left),
+                  optimalAt = optimalToken).withIndent(indent, close, Left),
             // TODO(olafur) singleline per argument!
             Split(modification,
                   (2 + lhsPenalty) * bracketMultiplier,
@@ -480,23 +528,36 @@ class Router(val style: ScalaStyle,
         )
       case tok@FormatToken(left, dot: `.`, _)
           if rightOwner.isInstanceOf[Term.Select] &&
-          // Only split if rhs is an application
-          // TODO(olafur) counterexample? For example a.b[C]
           isOpenApply(next(next(tok)).right) && !left.isInstanceOf[`_ `] &&
-          // TODO(olafur) optimize
           !parents(rightOwner).exists(_.isInstanceOf[Import]) =>
+        val open = next(next(tok)).right
+        val close = matchingParentheses(hash(open))
         val nestedPenalty = nestedSelect(rightOwner) + nestedApplies(leftOwner)
-        val isLhsOfApply = rightOwner.parent.exists {
-          case apply: Term.Apply => apply.fun.tokens.contains(left)
-          case _ => false
-        }
-        val noApplyPenalty =
-          if (!isLhsOfApply) 1
-          else 0
+        // Must apply to both space and newlines, otherwise we will take
+        // the newline even if it doesn't prevent a newline inside the apply.
+        val penalizeNewlinesInApply = penalizeAllNewlines(close, 2)
+        val chain = getSelectChain(Some(rightOwner))
+        val names = chain.map(_.name)
+        val lastToken = lastTokenInChain(chain)
+//        logger.elem(lastTokenInChain, next(tok), names, chain.length)
+        val breakOnEveryDot = Policy({
+          case Decision(t@FormatToken(_, dot2: `.`, _), s)
+              if chain.contains(owners(dot2)) =>
+//            logger.elem(s)
+            Decision(t, Seq(Split(Newline, 0).withIndent(2, dot, Left)))
+        }, lastToken.end)
+        val exclude =
+          insideBlock(tok, close, _.isInstanceOf[`{`]).map(parensRange)
+        val expire = Math.max(lastToken.end, close.end)
+        val noSplitPolicy =
+          SingleLineBlock(lastToken, exclude, disallowInlineComments = false)
+            .andThen(penalizeNewlinesInApply.f).copy(expire = expire)
+        val newlinePolicy = breakOnEveryDot.andThen(penalizeNewlinesInApply.f)
+          .copy(expire = expire)
         Seq(
-            Split(NoSplit, 0),
-            Split(Newline, 1 + nestedPenalty + noApplyPenalty)
-              .withIndent(2, dot, Left)
+            Split(NoSplit, 0).withPolicy(noSplitPolicy),
+            Split(Newline, 1 + nestedPenalty).withPolicy(newlinePolicy)
+              .withIndent(2, close, Left)
         )
       // ApplyUnary
       case tok@FormatToken(_: Ident, _: Literal, _)
@@ -528,7 +589,7 @@ class Router(val style: ScalaStyle,
 
       // Template
       case FormatToken(_, right: `extends`, _) =>
-        val lastToken = defnTemplate(rightOwner).map(templateCurly)
+        val lastToken = defnTemplate(rightOwner).flatMap(templateCurly)
           .getOrElse(rightOwner.tokens.last)
         Seq(
             Split(Space, 0).withPolicy(SingleLineBlock(lastToken)),
@@ -536,9 +597,8 @@ class Router(val style: ScalaStyle,
         )
       case tok@FormatToken(_, right: `with`, _)
           if rightOwner.isInstanceOf[Template] =>
-        val template = rightOwner.asInstanceOf[Template]
-        // TODO(olafur) is this correct?
-        val expire = templateCurly(template)
+        val template = rightOwner
+        val expire = templateCurly(rightOwner)
         Seq(
             Split(Space, 0),
             Split(Newline, 1).withPolicy(Policy({
@@ -560,7 +620,7 @@ class Router(val style: ScalaStyle,
           if leftOwner.isInstanceOf[Term.If] =>
         val owner = leftOwner.asInstanceOf[Term.If]
         val expire = owner.thenp.tokens.last
-        val rightIsOnNewLine = newlinesBetween(between) > 0
+        val rightIsOnNewLine = newlines > 0
         // Inline comment attached to closing `)`
         val attachedComment = !rightIsOnNewLine && isInlineComment(right)
         val newlineModification: Modification =
@@ -568,7 +628,7 @@ class Router(val style: ScalaStyle,
             Space // Inline comment will force newline later.
           else Newline
         Seq(
-            Split(Space, 0, ignoreIf = rightIsOnNewLine || attachedComment)
+            Split(Space, 0, ignoreIf = attachedComment)
               .withIndent(2, expire, Left).withPolicy(SingleLineBlock(expire)),
             Split(newlineModification, 1).withIndent(2, expire, Left)
         )
@@ -608,17 +668,6 @@ class Router(val style: ScalaStyle,
         )
 
       // ApplyInfix.
-      case tok@FormatToken(left: Ident, _, _) if isBoolOperator(left) =>
-        Seq(
-            Split(Space, 0),
-            Split(Newline, 1)
-        )
-      case tok@FormatToken(_: Ident | _: Literal | _: Interpolation.End,
-                           _: Ident | _: Literal | _: Xml.End,
-                           _) =>
-        Seq(
-            Split(Space, 0)
-        )
       case FormatToken(open: `(`, right, _)
           if leftOwner.isInstanceOf[Term.ApplyInfix] =>
         val close = matchingParentheses(hash(open))
@@ -632,6 +681,43 @@ class Router(val style: ScalaStyle,
             Split(Space, 0, optimalAt = Some(close))
               .withPolicy(SingleLineBlock(close)),
             Split(Newline, 1, optimalAt = Some(close))
+        )
+      // Infix operator.
+      case tok@FormatToken(op: Ident, _, _) if leftOwner.parent.exists {
+            case infix: Term.ApplyInfix => infix.op == owners(op)
+            case _ => false
+          } =>
+        val owner = leftOwner.parent.get.asInstanceOf[Term.ApplyInfix]
+        val isAssignment = isAssignmentOperator(op)
+        val isBool = isBoolOperator(op)
+        // TODO(olafur) Document that we only allow newlines for this subset
+        // of infix operators. To force a newline for other operators it's
+        // possible to wrap arguments in parentheses.
+        val newlineOk =
+          isAssignment || isBool || newlineOkOperators.contains(op.code)
+        val newlineCost =
+          if (isAssignment || isBool) 1
+          else if (newlineOk) 3
+          else 0 // Ignored
+        val indent =
+          if (isAssignment) 2
+          else 0
+        // Optimization, assignment operators make the state space explode in
+        // sbt build files because of := operators everywhere.
+        val optimalToken =
+          if (isAssignment) Some(owner.args.last.tokens.last)
+          else None
+        Seq(
+            Split(Space, 0, optimalAt = optimalToken),
+            Split(Newline, newlineCost, ignoreIf = !newlineOk)
+              .withIndent(indent, formatToken.right, Left)
+        )
+
+      case tok@FormatToken(_: Ident | _: Literal | _: Interpolation.End,
+                           _: Ident | _: Literal | _: Xml.End,
+                           _) =>
+        Seq(
+            Split(Space, 0)
         )
 
       // Pat
@@ -689,13 +775,6 @@ class Router(val style: ScalaStyle,
         Seq(
             Split(Space, 0, policy = penalizeNewlines),
             Split(Newline, 1, policy = penalizeNewlines)
-        )
-      case tok@FormatToken(arrow: `=>`, right, between)
-          if leftOwner.isInstanceOf[Case] =>
-        Seq(
-            Split(Space, 0),
-            Split(
-                Newline(gets2x = false, hasIndent = rhsIsCommentedOut(tok)), 1)
         )
       // Inline comment
       case FormatToken(_, c: Comment, between) =>

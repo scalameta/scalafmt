@@ -1,5 +1,7 @@
 package org.scalafmt.internal
 
+import org.scalafmt.internal.ScalaFmtLogger._
+
 import java.util.concurrent.TimeUnit
 
 import scala.collection.mutable
@@ -11,7 +13,7 @@ import scala.meta.tokens.Token
   *
   * Only used during development.
   */
-object Debug extends ScalaFmtLogger {
+object Debug {
   val treeExplored = mutable.Map.empty[Tree, Int]
   val tokenExplored = mutable.Map.empty[Token, Int]
   val formatTokenExplored = mutable.Map.empty[FormatToken, Int]

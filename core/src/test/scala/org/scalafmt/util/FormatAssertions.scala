@@ -23,8 +23,8 @@ trait FormatAssertions extends FunSuiteLike with DiffAssertions {
       case Success(originalParsed) =>
         Try(obtained.parse[T]) match {
           case Success(obtainedParsed) =>
-            val originalStructure = originalParsed.show[scala.meta.Structure]
-            val obtainedStructure = obtainedParsed.show[scala.meta.Structure]
+            val originalStructure = originalParsed.show[Structure]
+            val obtainedStructure = obtainedParsed.show[Structure]
             if (originalStructure.trim != obtainedStructure.trim) {
               // TODO(olafur) Can produce false negatives, see
               // https://github.com/scalameta/scalameta/issues/342

@@ -1,7 +1,7 @@
 package org.scalafmt
 
 import org.scalafmt.internal.Decision
-import org.scalafmt.internal.ScalaFmtLogger
+import org.scalafmt.internal.ScalaFmtLogger._
 
 import scala.meta.Case
 import scala.meta.Tree
@@ -11,7 +11,7 @@ import scala.reflect.classTag
 
 sealed abstract class Error(msg: String) extends Exception(msg)
 
-object Error extends ScalaFmtLogger {
+object Error {
 
   def reportIssue: String =
     "Please file an issue on https://github.com/olafurpg/scalafmt/issues"

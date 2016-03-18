@@ -15,13 +15,13 @@ import scala.meta.prettyprinters.Structure
 /**
   * Helper functions for generating splits/policies for a given tree.
   */
-trait FormatOps extends TreeOps {
-  val style: ScalaStyle
-  val tree: Tree
-  val tokens: Array[FormatToken]
-  val matchingParentheses: Map[TokenHash, Token]
-  val statementStarts: Map[TokenHash, Tree]
-  val ownersMap: Map[TokenHash, Tree]
+class FormatOps(val style: ScalaStyle,
+                val tree: Tree,
+                val tokens: Array[FormatToken],
+                val ownersMap: Map[TokenHash, Tree],
+                val statementStarts: Map[TokenHash, Tree],
+                val matchingParentheses: Map[TokenHash, Token])
+    extends TreeOps {
 
   @inline
   def owners(token: Token): Tree = ownersMap(hash(token))
@@ -45,8 +45,9 @@ trait FormatOps extends TreeOps {
     result.result()
   }
 
-  val leftTok2tok: Map[Token, FormatToken] = tokens.map(t => t.left -> t).toMap
-  val tok2idx: Map[FormatToken, Int] = tokens.zipWithIndex.toMap
+  lazy val leftTok2tok: Map[Token, FormatToken] =
+    tokens.map(t => t.left -> t).toMap
+  lazy val tok2idx: Map[FormatToken, Int] = tokens.zipWithIndex.toMap
 
   def prev(tok: FormatToken): FormatToken = {
     val i = tok2idx(tok)
@@ -116,10 +117,27 @@ trait FormatOps extends TreeOps {
     * Context: https://github.com/olafurpg/scalafmt/issues/108
     */
   def isJsNative(jsToken: Token): Boolean = {
-    style == ScalaStyle.ScalaJs && jsToken.code == "js" &&
+    style.noNewlinesBeforeJsNative && jsToken.code == "js" &&
     owners(jsToken).parent.exists(
         _.show[Structure].trim == """Term.Select(Term.Name("js"), Term.Name("native"))""")
   }
+
+  def isTripleQuote(token: Token): Boolean = token.code.startsWith("\"\"\"")
+
+  def isMarginizedString(token: Token): Boolean =
+    token match {
+      case start: Interpolation.Start =>
+        val end = matchingParentheses(hash(start))
+        val afterEnd = next(leftTok2tok(end))
+        afterEnd.left.code == "." && afterEnd.right.code == "stripMargin"
+      case string: Literal.String =>
+        string.code.startsWith("\"\"\"") && {
+          val afterString = next(leftTok2tok(string))
+          afterString.left.code == "." &&
+          afterString.right.code == "stripMargin"
+        }
+      case _ => false
+    }
 
   @tailrec
   final def startsStatement(tok: FormatToken): Boolean = {
@@ -128,19 +146,20 @@ trait FormatOps extends TreeOps {
         tok.between.exists(_.isInstanceOf[`\n`]) && startsStatement(next(tok)))
   }
 
+  def parensRange(open: Token): Range =
+    Range(open.start, matchingParentheses(hash(open)).end)
+
   def insideBlock(start: FormatToken,
                   end: Token,
-                  matches: Token => Boolean): Set[Range] = {
-    var inside = false
-    val result = new scala.collection.mutable.SetBuilder[Range, Set[Range]](Set
-      .empty[Range])
+                  matches: Token => Boolean): Set[Token] = {
+    val result = new scala.collection.mutable.SetBuilder[Token, Set[Token]](Set
+      .empty[Token])
     var curr = next(start)
     while (curr.left != end) {
       if (matches(curr.left)) {
-        inside = true
-        result += Range(
-            curr.left.start, matchingParentheses(hash(curr.left)).end)
-        curr = leftTok2tok(matchingParentheses(hash(curr.left)))
+        val close = matchingParentheses(hash(curr.left))
+        result += curr.left
+        curr = leftTok2tok(close)
       } else {
         curr = next(curr)
       }
@@ -149,9 +168,14 @@ trait FormatOps extends TreeOps {
   }
 
   def defnSiteLastToken(tree: Tree): Token = {
-    tree.tokens.find(t => t.isInstanceOf[`=`] && owners(t) == tree)
-      .getOrElse(tree.tokens.last)
-  }
+    tree match {
+      // TODO(olafur) scala.meta should make this easier.
+      case procedure: Defn.Def if procedure.decltpe.isDefined &&
+          procedure.decltpe.get.tokens.isEmpty =>
+        procedure.body.tokens.find(_.isInstanceOf[`{`])
+      case _ => tree.tokens.find(t => t.isInstanceOf[`=`] && owners(t) == tree)
+    }
+  }.getOrElse(tree.tokens.last)
 
   def OneArgOneLineSplit(open: Delim)(implicit line: sourcecode.Line): Policy = {
     val expire = matchingParentheses(hash(open))
@@ -185,10 +209,10 @@ trait FormatOps extends TreeOps {
     val range = Range(from.start, to.end).inclusive
     Policy({
       case Decision(t, s) if range.contains(t.right.start) =>
-        // TODO(olafur) overfitting unit test?
         val nonBoolPenalty =
           if (isBoolOperator(t.left)) 0
-          else 1
+          else 5
+
         val penalty =
           nestedSelect(owners(t.left)) + nestedApplies(owners(t.right)) + nonBoolPenalty
         Decision(t, s.map {

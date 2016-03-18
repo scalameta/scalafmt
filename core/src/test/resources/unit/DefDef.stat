@@ -55,7 +55,7 @@ def format_![T <: Tree](code: String)(implicit ev: Parse[T]): String = 1
 >>>
 def format_![T <: Tree](code: String)(
     implicit ev: Parse[T]): String = 1
-<<< SKIP procedure syntax
+<<< procedure syntax
 def main(args: Array[String]) {
 parser.foreach(run)
 }
@@ -78,4 +78,12 @@ def fill(points: Double*) = {
 >>>
 def fill(points: Double*) = {
   ctx.fill()
+}
+<<< single line, exclude {} blocks
+def fill(points: Double) = x match {
+case ctx => 1
+}
+>>>
+def fill(points: Double) = x match {
+  case ctx => 1
 }

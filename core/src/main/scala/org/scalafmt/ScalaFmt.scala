@@ -1,7 +1,7 @@
 package org.scalafmt
 
 import org.scalafmt.internal.BestFirstSearch
-import org.scalafmt.internal.ScalaFmtLogger
+import org.scalafmt.internal.ScalaFmtLogger._
 
 import scala.meta.Source
 import scala.meta.Tree
@@ -10,7 +10,7 @@ import scala.meta.parsers.common.Parse
 import scala.meta.parsers.common.ParseException
 import scala.util.control.NonFatal
 
-object ScalaFmt extends ScalaFmtLogger {
+object ScalaFmt {
 
   /**
     * Safely format contents of a Scala compilation unit.

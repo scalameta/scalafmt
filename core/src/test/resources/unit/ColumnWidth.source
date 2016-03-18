@@ -13,7 +13,8 @@ object Aaaaaaa {
 }
 <<< Indentation is included for penalty
 object aaaaaaaaaaaaaaaaaaaaaaaaaaaaa {
-  val bbbbbbbbbbbbbbbbbbbbbbbbbbbb = 1; aaa }
+  val bbbbbbbbbbbbbbbbbbbbbbbbbbbb = 1;
+  aaa }
 >>>
 object aaaaaaaaaaaaaaaaaaaaaaaaaaaaa {
   val bbbbbbbbbbbbbbbbbbbbbbbbbbbb = 1;

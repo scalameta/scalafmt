@@ -17,6 +17,30 @@ sealed trait ScalaStyle {
   def maxColumn: Int = 80
 
   /**
+    * Use scaladoc style docstring, otherwise javadoc style comments.
+    *
+    * Scaladoc:
+    *
+    * /** Title.
+    *   *
+    *   */
+    *
+    * Javadoc:
+    * /**
+    *  * Title.
+    *  */
+    *
+    *
+    */
+  def scalaDocs: Boolean = true
+
+  /**
+    * If true, the margin character | is treated as the new
+    * indentation in multiline strings ending with `.stripMargin`.
+    */
+  def indentMarginizedStrings: Boolean = true
+
+  /**
     * Call-site arguments.
     *
     * If true, will fit as many arguments on each line, only breaking at commas.
@@ -47,6 +71,13 @@ sealed trait ScalaStyle {
   def binPackDotChains: Boolean = false
 
   /**
+    * If true, a newline will never be placed in front of js.native.
+    *
+    * This is because js.native is special.
+    */
+  def noNewlinesBeforeJsNative: Boolean = false
+
+  /**
     * Debugging only. Should scalafmt create a diagnostics report.
     */
   def debug: Boolean = false
@@ -56,6 +87,7 @@ sealed trait ScalaStyle {
   * Debugging only. Used in unit tests.
   */
 protected[scalafmt] sealed trait UnitTestStyle extends ScalaStyle {
+  override val indentMarginizedStrings = false
   override val debug = true
 }
 
@@ -66,6 +98,12 @@ object ScalaStyle {
     */
   case object Default extends ScalaStyle
 
+  // TODO(olafur) refactor style into case class, use copy.
+  case object NoIndentStripMargin extends ScalaStyle {
+    override val indentMarginizedStrings = false
+  }
+
+
   /**
     * EXPERIMENTAL.
     * https://github.com/scala-js/scala-js/blob/master/CODINGSTYLE.md
@@ -74,11 +112,16 @@ object ScalaStyle {
 
     override def debug = true
 
+    override def noNewlinesBeforeJsNative = true
+
     override def binPackParameters = true
 
     // TODO(olafur) should be true
-
     override def binPackArguments = false
+  }
+
+  case object StripMarginTest extends UnitTestStyle {
+    override val indentMarginizedStrings = true
   }
 
   case object UnitTest80 extends UnitTestStyle
@@ -88,9 +131,12 @@ object ScalaStyle {
     override def maxColumn = 40
   }
 
+  // TODO(olafur) make scalastyle a case class and each style is an instance.
   case class CustomStyleBecauseIDontLikeTheProvidedStyles(
-      override val maxColumn: Int,
-      override val binPackParameters: Boolean,
-      override val binPackArguments: Boolean,
-      override val binPackDotChains: Boolean) extends ScalaStyle
+      override val scalaDocs: Boolean = Default.scalaDocs,
+      override val maxColumn: Int = Default.maxColumn,
+      override val binPackParameters: Boolean = Default.binPackParameters,
+      override val binPackArguments: Boolean = Default.binPackArguments,
+      override val binPackDotChains: Boolean = Default.binPackDotChains)
+      extends ScalaStyle
 }

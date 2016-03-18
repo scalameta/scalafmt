@@ -26,4 +26,3 @@
 >>>
 (!right.isInstanceOf[Comment] ||
     exists(_.isInstanceOf[`\n`]))
-

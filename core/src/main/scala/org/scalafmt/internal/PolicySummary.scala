@@ -1,6 +1,8 @@
 package org.scalafmt.internal
 
-class PolicySummary(val policies: Vector[Policy]) extends ScalaFmtLogger {
+import org.scalafmt.internal.ScalaFmtLogger._
+
+class PolicySummary(val policies: Vector[Policy]) {
   val noDequeue = policies.exists(_.noDequeue)
 
   def combine(other: Policy, position: Int): PolicySummary = {

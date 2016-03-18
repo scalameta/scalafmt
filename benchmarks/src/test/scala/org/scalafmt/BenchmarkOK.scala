@@ -10,9 +10,9 @@ class BenchmarkOK extends FunSuite with FormatAssertions {
 
   // TODO(olafur) DRY.
   val formatBenchmarks = Seq(
-    new GenJsCode,
-    new ScalaJSClassEmitter,
-    new OptimizerCore
+    new GenJsCode
+//    new ScalaJSClassEmitter,
+//    new OptimizerCore
   )
   formatBenchmarks.foreach { formatBenchmark =>
     val name = formatBenchmark.getClass.getSimpleName

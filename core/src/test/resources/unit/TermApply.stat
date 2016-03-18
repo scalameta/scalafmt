@@ -2,7 +2,12 @@
 <<< one arg chained (state explosion)
 a(b).c(d).e(f).g(h).i(j).k { aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa }
 >>>
-a(b).c(d).e(f).g(h).i(j).k {
+a(b)
+  .c(d)
+  .e(f)
+  .g(h)
+  .i(j)
+  .k {
   aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 }
 <<< avoid dead ends
@@ -24,9 +29,9 @@ MyObject(
     config.getBoolean("shortKey"),
     config.getString(
         "reallyReallyReallyLongKey"),
-    liveAnalysis.check(
-        options.has("live"),
-        options.has("analysis")))
+    liveAnalysis
+      .check(options.has("live"),
+             options.has("analysis")))
 <<< optimalAt memoization is by split prefix
 new Compiler(
     primitives.options.has("primitives"),
@@ -58,9 +63,9 @@ new Compiler(
       .has("primitives"),
     minify.options.has("minify"),
     preserve.options.has("preserve"),
-    liveAnalysis.check(
-        options.has("live"),
-        options.has("analysis")),
+    liveAnalysis
+      .check(options.has("live"),
+             options.has("analysis")),
     multi.options.has("multi"),
     sourceMap.options
       .has("source-map"));
@@ -113,11 +118,12 @@ val dp = new DispatchPlan(
     Set(activationIntervals),
     contractRepository,
     priceRepository)
-<<< SKIP MUST NOT use automatic formatting 2 alexandru/scala-best-practices
+<<< MUST NOT use automatic formatting 2 alexandru/scala-best-practices
 val result = service.something(param1, param2, param3, param4).map(transform)
 >>>
 val result = service
-  .something(param1, param2, param3, param4)
+  .something(
+      param1, param2, param3, param4)
   .map(transform)
 <<< config style
 Seq(
@@ -143,3 +149,8 @@ Seq(
  FilesUtil.getFile(path:_*)
 >>>
 FilesUtil.getFile(path:_*)
+<<< tuple superfluous
+((1111111, aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa))
+>>>
+((1111111,
+  aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa))

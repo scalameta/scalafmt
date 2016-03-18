@@ -1,7 +1,7 @@
 package org.scalafmt
 
 import org.scalafmt.internal.Debug
-import org.scalafmt.internal.ScalaFmtLogger
+import org.scalafmt.internal.ScalaFmtLogger._
 import org.scalafmt.internal.State
 import org.scalafmt.stats.TestStats
 import org.scalafmt.util.DiffTest
@@ -29,10 +29,10 @@ import scala.meta.parsers.common.ParseException
 // TODO(olafur) property test: same solution without optimization or timeout.
 
 class FormatTests
-    extends FunSuite with Timeouts with ScalaFmtLogger with BeforeAndAfterAll
+    extends FunSuite with Timeouts with BeforeAndAfterAll
     with HasTests with FormatAssertions with DiffAssertions {
   lazy val onlyUnit = UnitTests.tests.exists(_.only)
-  lazy val onlyManual = ManualTests.tests.exists(_.only)
+  lazy val onlyManual = !onlyUnit && ManualTests.tests.exists(_.only)
   lazy val onlyOne = tests.exists(_.only)
   lazy val debugResults = mutable.ArrayBuilder.make[Result]
 
@@ -41,7 +41,7 @@ class FormatTests
   }
 
   override val tests = {
-    if (onlyManual && !onlyUnit) ManualTests.tests
+    if (onlyManual) ManualTests.tests
     else UnitTests.tests
   }
 
@@ -97,15 +97,15 @@ class FormatTests
                            Debug.elapsedNs)
   }
 
-  def getFormatOutput(style: ScalaStyle): Seq[FormatOutput] = {
-    val path = State.reconstructPath(
-        Debug.tokens, Debug.state.splits, style, debug = onlyOne)
-    val output = path.map {
-      case (token, whitespace) =>
-        FormatOutput(
+  def getFormatOutput(style: ScalaStyle): Array[FormatOutput] = {
+    val builder = mutable.ArrayBuilder.make[FormatOutput]()
+    State.reconstructPath(
+        Debug.tokens, Debug.state.splits, style, debug = onlyOne) {
+      case (_, token, whitespace) =>
+        builder += FormatOutput(
             token.left.code, whitespace, Debug.formatTokenExplored(token))
     }
-    output
+    builder.result()
   }
 
   override def afterAll(configMap: ConfigMap): Unit = {

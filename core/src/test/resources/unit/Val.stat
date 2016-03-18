@@ -20,3 +20,20 @@ object a {
   val B__________________b: Int =
     123456789
 }
+<<< indent at =
+Split(
+      ignoreIf = !fitsOnOneLine || isConfigStyle
+      )
+>>>
+Split(
+    ignoreIf = !fitsOnOneLine ||
+      isConfigStyle
+)
+<<< single line, exclude {} blocks
+val fill = x match {
+case ctx => 1
+}
+>>>
+val fill = x match {
+  case ctx => 1
+}

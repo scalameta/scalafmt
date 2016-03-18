@@ -1,12 +1,20 @@
 80 columns                                                                     |
-<<< SKIP Indent multiline strings with margin
-val x =
-                  s"""Formatter changed AST
+<<< no indent multiline strings without margin
+val x = """Formatter changed AST
                 |=====================
                 |$diff
-              """.stripMargin
+              """
 >>>
-val x = s"""Formatter changed AST
-           |=====================
-           |$diff
-         """.stripMargin
+val x = """Formatter changed AST
+                |=====================
+                |$diff
+              """
+<<< column limit
+val x = """Short line
+  |Long line aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+              """
+>>>
+val x =
+  """Short line
+  |Long line aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+              """

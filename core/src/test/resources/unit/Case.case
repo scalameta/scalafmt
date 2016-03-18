@@ -1,12 +1,10 @@
 40 columns                              |
 <<< Match tuple
-case (x, y) =>
-x -> y
+case (x, y) =>   x -> y
 >>>
 case (x, y) => x -> y
 <<< Match extract
-case Class(x, y) =>
-x -> y
+case Class(x, y) =>   x -> y
 >>>
 case Class(x, y) => x -> y
 <<< Without body
@@ -21,8 +19,7 @@ case x =>
   function(aaaaaaaaaaaaaaaaaaa,
            bbbbbbbbbbbbbbbbbbb)
 <<< with condition
-case x if x > 2 =>
-  danger()
+case x if x > 2 =>   danger()
 >>>
 case x if x > 2 => danger()
 <<< with @ bind

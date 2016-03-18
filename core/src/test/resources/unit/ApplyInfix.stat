@@ -14,7 +14,39 @@ js.Return(!(!({
   genIsClassNameInAncestors(
       className, obj DOT "$classData")
 })))
-<<< SKIP hidden space
-opt[(Int, Int)]("range") hidden () action {}
->>>
+<<< force space on infix application arguments
 opt[(Int, Int)]("range") hidden() action {}
+>>>
+opt[(Int, Int)]("range") hidden () action {}
+<<< string concatenation
+logger.warning("foooooooooooooo" +
+"baaaaaaaaaaaaaar")
+>>>
+logger.warning("foooooooooooooo" +
+    "baaaaaaaaaaaaaar")
+<<< string concatenation 2
+logger.warning(a, "foooooooooooooo" +
+           "baaaaaaaaaaaaaar")
+>>>
+logger.warning(a,
+               "foooooooooooooo" +
+               "baaaaaaaaaaaaaar")
+<<< bool and
+logger.warning(a, "foooooooooooooo" &&
+           "baaaaaaaaaaaaaar")
+>>>
+logger.warning(a,
+               "foooooooooooooo" &&
+               "baaaaaaaaaaaaaar")
+<<< and single arg
+logger.warning("foooooooooooooo" &&
+           "baaaaaaaaaaaaaar")
+>>>
+logger.warning("foooooooooooooo" &&
+    "baaaaaaaaaaaaaar")
+<<< too many pluses + (state explosion)
+a + b + c + d + e + f + g + h + i + j + j + j + j + j + j + j + j + j + j + j + j
+>>>
+a + b + c + d + e + f + g + h + i + j +
+j + j + j + j + j + j + j + j + j + j +
+j

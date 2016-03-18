@@ -175,3 +175,21 @@ x match {
 // case y => 3
   case z => 4
 }
+<<< indent multiline comments
+object a {
+/*
+* This
+* is
+* multiline
+*/
+val x = 1
+}
+>>>
+object a {
+  /*
+   * This
+   * is
+   * multiline
+   */
+  val x = 1
+}

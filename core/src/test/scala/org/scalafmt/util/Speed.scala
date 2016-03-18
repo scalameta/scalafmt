@@ -4,7 +4,7 @@ import java.nio.channels.UnresolvedAddressException
 
 import com.ibm.couchdb._
 import org.scalafmt.internal.Debug
-import org.scalafmt.internal.ScalaFmtLogger
+import org.scalafmt.internal.ScalaFmtLogger._
 import org.scalafmt.stats.GitInfo
 import org.scalafmt.stats.TestStats
 import upickle.Invalid
@@ -12,7 +12,7 @@ import upickle.Invalid
 import scalaz.-\/
 import scalaz.\/-
 
-object Speed extends ScalaFmtLogger {
+object Speed {
   lazy val dbName = "scalafmt-teststats"
   lazy val couch = CouchDb("speed.scalafmt.org", 443, https = true)
   lazy val db = couch.db(dbName, typeMapping)

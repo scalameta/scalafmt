@@ -12,8 +12,7 @@ if (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa && bbbbbbbbbbbbbbbbbb)
   println("a")
 >>>
 if (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa &&
-    bbbbbbbbbbbbbbbbbb)
-  println("a")
+    bbbbbbbbbbbbbbbbbb) println("a")
 <<< Long if condition with inline comment
 if (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa &&
       bbbbbbbbbbbbbbbbbb) // comment
@@ -75,14 +74,21 @@ if ((gets2x(tok) ||
 if ((gets2x(tok) ||
         lines(tok.between) > 1) &&
     !(isDocstring(left) && between)) 1
-<<< SKIP == unary nosplit literal, see https://github.com/scalameta/scalameta/issues/344
+<<< == unary nosplit literal, scalameta/scalameta#344
 if   (firstNewline == -1) tokLength
 >>>
 if (firstNewline == -1) tokLength
-<<< SKIP Gimme newline
+<<< Gimme newline
   if (isBracket)
     Constants.BracketPenalty
   else 0
 >>>
 if (isBracket) Constants.BracketPenalty
 else 0
+<<< Tuple body is OK
+if (left.is[Interpolation.Start])
+  (StateColumn,
+  matchingParentheses())
+>>>
+if (left.is[Interpolation.Start])
+  (StateColumn, matchingParentheses())

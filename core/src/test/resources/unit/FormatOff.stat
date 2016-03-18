@@ -1,0 +1,33 @@
+40 columns                              |
+<<< identity matrix
+    object A   {
+  // format: OFF
+  val identityMatrix = Array(1, 0, 0,
+                             0, 1, 0,
+                             0, 0, 1)
+  // format: ON
+             }
+>>>
+object A {
+  // format: OFF
+  val identityMatrix = Array(1, 0, 0,
+                             0, 1, 0,
+                             0, 0, 1)
+  // format: ON
+}
+<<< disable whole file
+// format: OFF
+    object A   {
+  val identityMatrix = Array(1, 0, 0,
+                             0, 1, 0,
+                             0, 0, 1)
+                             function("I don't care about formatting at all")
+             }
+>>>
+// format: OFF
+    object A   {
+  val identityMatrix = Array(1, 0, 0,
+                             0, 1, 0,
+                             0, 0, 1)
+                             function("I don't care about formatting at all")
+             }

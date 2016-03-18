@@ -31,11 +31,56 @@ lst.map {
     println(x)
     x + 1
 }
-<<< SKIP curried
+<<< curried
 Thing() { implicit ctx => j =>
       ???
 }
 >>>
 Thing() { implicit ctx => j =>
+  ???
+}
+<<< curried break before first
+Thing() { implicit ctx => j => kkkkkkkkkk =>
+      ???
+}
+>>>
+Thing() {
+  implicit ctx => j => kkkkkkkkkk =>
+    ???
+}
+<<< curried insanity, fit as much on line as possible
+Thing() { implicit ctx => j => kkkkkkkkkkkkkkkkkkk => llllllllllll => mmmmmmmmmmmmmmmmmmm =>
+      ???
+}
+>>>
+Thing() {
+  implicit ctx => j =>
+    kkkkkkkkkkkkkkkkkkk =>
+      llllllllllll =>
+        mmmmmmmmmmmmmmmmmmm =>
+          ???
+}
+<<< curried with ()
+Thing(implicit ctx => j =>
+      ???
+)
+>>>
+Thing(implicit ctx => j => ???)
+<<< long curried with ()
+Thing(implicit ctx => j => k => aaaaaaaaaaaaa(bbbbbbbbbbbbbbbbbbb, cccccccccc, ddddddddddddddddddddj)) // coooooooooooooooomment
+>>>
+Thing(implicit ctx =>
+      j =>
+        k =>
+          aaaaaaaaaaaaa(
+              bbbbbbbbbbbbbbbbbbb,
+              cccccccccc,
+              ddddddddddddddddddddj)) // coooooooooooooooomment
+<<< single line uncurried
+Thing() { implicit ctx =>
+      ???
+}
+>>>
+Thing() { implicit ctx =>
   ???
 }

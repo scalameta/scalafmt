@@ -1,6 +1,7 @@
 package org.scalafmt.internal
 
 import org.scalafmt.ScalaStyle
+import org.scalafmt.internal.ScalaFmtLogger._
 
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token.Comment
@@ -13,8 +14,9 @@ final case class State(cost: Int,
                        splits: Vector[Split],
                        indentation: Int,
                        pushes: Vector[Indent[Num]],
-                       column: Int)
-    extends Ordered[State] with ScalaFmtLogger {
+                       column: Int,
+                       formatOff: Boolean)
+    extends Ordered[State] with TokenOps {
 
   def compare(that: State): Int = {
     val costCompare = Integer.valueOf(-this.cost).compareTo(-that.cost)
@@ -37,9 +39,6 @@ final case class State(cost: Int,
 
   /**
     * Calculates next State given split at tok.
-    *
-    * - Accumulates cost and strategies
-    * - Calculates column-width overflow penalty
     */
   def next(style: ScalaStyle, split: Split, tok: FormatToken): State = {
     val KILL = 10000
@@ -57,11 +56,7 @@ final case class State(cost: Int,
     val tokLength = tok.right.code.length
 
     // Some tokens contain newline, like multiline strings/comments.
-    val lengthOnFirstLine = {
-      val firstNewline = tok.right.code.indexOf('\n')
-      if (firstNewline == - 1) tokLength
-      else firstNewline
-    }
+    val lengthOnFirstLine = tokenLength(tok.right)
     val columnOnCurrentLine =
       lengthOnFirstLine + {
         if (split.modification.isNewline) newIndent
@@ -93,33 +88,41 @@ final case class State(cost: Int,
       }
     }
 
+    val nextFormatOff =
+      if (TokenOps.isFormatOff(tok.right)) true
+      else if (TokenOps.isFormatOn(tok.right)) false
+      else formatOff
+
     State(cost + splitWithPenalty.cost,
           // TODO(olafur) expire policy, see #18.
           newPolicy,
           splits :+ splitWithPenalty,
           newIndent,
           newIndents,
-          nextStateColumn)
+          nextStateColumn,
+          nextFormatOff)
   }
 }
 
-object State extends ScalaFmtLogger {
+object State {
   val start = State(0,
                     PolicySummary.empty,
                     Vector.empty[Split],
                     0,
                     Vector.empty[Indent[Num]],
-                    0)
+                    0,
+                    formatOff = false)
 
   /**
-    * Returns formatted output from FormatTokens and Splits.
+    * Reconstructs path for all tokens and invokes callback for each token/split combination.
     */
   def reconstructPath(toks: Array[FormatToken],
                       splits: Vector[Split],
                       style: ScalaStyle,
-                      debug: Boolean = false): Seq[(FormatToken, String)] = {
+                      debug: Boolean = false)(
+      callback: (State, FormatToken, String) => Unit): Unit = {
     var state = State.start
-    val result = toks.zip(splits).map {
+    toks.zip(splits).foreach {
       case (tok, split) =>
         // TIP. Use the following line to debug origin of splits.
         if (debug && toks.length < 1000) {
@@ -141,9 +144,8 @@ object State extends ScalaFmtLogger {
           case Provided(literal) => literal
           case NoSplit => ""
         }
-        tok -> whitespace
+        callback.apply(state, tok, whitespace)
     }
     if (debug) logger.debug(s"Total cost: ${state.cost}")
-    result
   }
 }

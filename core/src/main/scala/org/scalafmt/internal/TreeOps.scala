@@ -1,5 +1,6 @@
 package org.scalafmt.internal
 
+import scala.annotation.tailrec
 import scala.meta.Tree
 
 import scala.meta.internal.ast.Ctor
@@ -51,6 +52,20 @@ trait TreeOps extends TokenOps {
       case _ => false
     }
 
+  /**
+    *
+    * Returns true if open is "unnecessary".
+    *
+    * An opening parenthesis is unnecessary if without it and its closing
+    * parenthesis can be removed without changing the AST. For example:
+    *
+    * `(a(1))` will parse into the same tree as `a(1)`.
+    */
+  def isSuperfluousParenthesis(open: Token, owner: Tree): Boolean = {
+    open.isInstanceOf[`(`] && !isTuple(owner) &&
+    owner.tokens.headOption.contains(open)
+  }
+
   def isCallSite(tree: Tree): Boolean =
     tree match {
       case _: Term.Apply | _: Pat.Extract | _: Pat.Tuple | _: Term.Tuple |
@@ -59,8 +74,14 @@ trait TreeOps extends TokenOps {
       case _ => false
     }
 
+  def isTuple(tree: Tree): Boolean =
+    tree match {
+      case _: Pat.Tuple | _: Term.Tuple => true
+      case _ => false
+    }
+
   def noSpaceBeforeOpeningParen(tree: Tree): Boolean =
-    isDefnSite(tree) || isCallSite(tree)
+    !isTuple(tree) && (isDefnSite(tree) || isCallSite(tree))
 
   def isModPrivateProtected(tree: Tree): Boolean =
     tree match {
@@ -73,6 +94,50 @@ trait TreeOps extends TokenOps {
       case _: Mod.Contravariant | _: Mod.Covariant => true
       case _ => false
     }
+
+  val splitApplyIntoLhsAndArgs: PartialFunction[Tree, (Tree, Seq[Tree])] = {
+    case t: Term.Apply => t.fun -> t.args
+    case t: Pat.Extract => t.ref -> t.args
+    case t: Pat.Tuple => t -> t.elements
+    case t: Term.ApplyType => t.fun -> t.targs
+    case t: Term.Update => t.fun -> t.argss.flatten
+    case t: Term.Tuple => t -> t.elements
+    case t: Type.Apply => t.tpe -> t.args
+    case t: Type.Param => t.name -> t.tparams
+    // TODO(olafur) flatten correct? Filter by this () section?
+    case t: Defn.Def => t.name -> t.paramss.flatten
+    case t: Decl.Def => t.name -> t.paramss.flatten
+    case t: Defn.Class => t.name -> t.ctor.paramss.flatten
+    case t: Defn.Trait => t.name -> t.ctor.paramss.flatten
+    case t: Ctor.Primary => t.name -> t.paramss.flatten
+    case t: Ctor.Secondary => t.name -> t.paramss.flatten
+  }
+
+  val splitApplyIntoLhsAndArgsLifted = splitApplyIntoLhsAndArgs.lift
+
+  @tailrec
+  final def getSelectChain(child: Option[Tree],
+                           accum: Vector[Term.Select] = Vector
+                             .empty[Term.Select]): Vector[Term.Select] = {
+    child match {
+      case Some(child: Term.Select) =>
+        getSelectChain(child.parent, accum :+ child)
+      case Some(child) if splitApplyIntoLhsAndArgsLifted(child).exists(
+              _._1.isInstanceOf[Term.Select]) =>
+        getSelectChain(child.parent, accum)
+      case els => accum
+    }
+  }
+
+  def lastTokenInChain(chain: Vector[Term.Select]): Token = {
+    if (chain.length == 1) chain.last.tokens.last
+    else {
+      chain.last.parent.map(splitApplyIntoLhsAndArgsLifted) match {
+        case Some(_) => chain.last.parent.get.tokens.last
+        case _ => chain.last.tokens.last
+      }
+    }
+  }
 
   /**
     * How many parents of tree are Term.Apply?
@@ -96,7 +161,6 @@ trait TreeOps extends TokenOps {
   }
 
   // TODO(olafur) scala.meta should make this easier.
-
   def findSiblingGuard(
       generator: Enumerator.Generator): Option[Enumerator.Guard] = {
     for {
@@ -123,7 +187,21 @@ trait TreeOps extends TokenOps {
     if (tree.children.isEmpty) 0
     else 1 + tree.children.map(treeDepth).max
 
-  def templateCurly(template: Template): Token = {
-    template.tokens.find(_.isInstanceOf[`{`]).getOrElse(template.tokens.last)
+  def templateCurly(owner: Tree): Token = {
+    defnTemplate(owner).flatMap(templateCurly).getOrElse(owner.tokens.last)
+  }
+
+  @tailrec
+  final def lastLambda(first: Term.Function): Term.Function =
+    first.body match {
+      case child: Term.Function => lastLambda(child)
+      case block: Term.Block
+          if block.stats.headOption.exists(_.isInstanceOf[Term.Function]) =>
+        lastLambda(block.stats.head.asInstanceOf[Term.Function])
+      case _ => first
+    }
+
+  def templateCurly(template: Template): Option[Token] = {
+    template.tokens.find(_.isInstanceOf[`{`])
   }
 }

@@ -53,24 +53,19 @@ s"""${a.foo[Bar]}
     Nicely indented
 """.format(
     aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)
-<<< don't break if no need
+<<< no align if no margin
 val msg =
-
-  s"""AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-      |${mkString(deepestYet.splits)}
-      |""".stripMargin
+  s"""
+ ${mkString(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)}
+      """
+>>>
+val msg = s"""
+ ${mkString(
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)}
+      """
+<<< single quote is single line
+val msg =
+  s"${mkString(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)}"
 >>>
 val msg =
-  s"""AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-      |${mkString(deepestYet.splits)}
-      |""".stripMargin
-<<< SKIP Align | margin
-val msg =
-
-  s"""UNABLE TO FORMAT,
-      |${mkString(deepestYet.splits)}
-      |""".stripMargin
->>>
-val msg = s"""UNABLE TO FORMAT,
-      |${mkString(deepestYet.splits)}
-      |""".stripMargin
+  s"${mkString(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)}"

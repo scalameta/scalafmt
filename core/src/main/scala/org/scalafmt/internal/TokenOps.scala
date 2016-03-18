@@ -1,5 +1,7 @@
 package org.scalafmt.internal
 
+import org.scalafmt.internal.ScalaFmtLogger._
+
 import scala.meta.Tree
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
@@ -7,10 +9,12 @@ import scala.meta.internal.ast.Defn
 import scala.meta.internal.ast.Pkg
 import scala.meta.internal.ast.Template
 
+object TokenOps extends TokenOps
+
 /**
   * Stateless helper functions on [[scala.meta.Token]].
   */
-trait TokenOps extends ScalaFmtLogger {
+trait TokenOps {
 
   def shouldGet2xNewlines(tok: FormatToken): Boolean = {
     !isDocstring(tok.left) && {
@@ -38,13 +42,40 @@ trait TokenOps extends ScalaFmtLogger {
 
   def rhsIsCommentedOut(formatToken: FormatToken): Boolean =
     formatToken.right.isInstanceOf[Comment] &&
+    formatToken.right.code.startsWith("//") &&
     endsWithNoIndent(formatToken.between)
 
+  val booleanOperators = Set("&&", "||")
+
+  // TODO(olafur) more general solution?
+  val newlineOkOperators = Set("+", "-")
+
   def isBoolOperator(token: Token): Boolean =
-    token.code match {
-      case "||" | "&&" => true
-      case _ => false
-    }
+    booleanOperators.contains(token.code)
+
+  def newlineOkOperator(token: Token): Boolean =
+    booleanOperators.contains(token.code) ||
+    newlineOkOperators.contains(token.code)
+
+  // See http://scala-lang.org/files/archive/spec/2.11/06-expressions.html#assignment-operators
+  val specialAssignmentOperators = Set("<=", ">=", "!=")
+
+  def isAssignmentOperator(token: Token): Boolean = {
+    val code = token.code
+    code.last == '=' && code.head != '=' &&
+    !specialAssignmentOperators.contains(code)
+  }
+
+  val symbolOperatorPrecendence: PartialFunction[Char, Int] = {
+    case '|' => 2
+    case '^' => 3
+    case '&' => 4
+    case '=' | '!' => 5
+    case '<' | '>' => 6
+    case ':' => 7
+    case '+' | '-' => 8
+    case '*' | '/' | '%' => 9
+  }
 
   def identModification(ident: Ident): Modification = {
     val lastCharacter = ident.code.last
@@ -65,15 +96,18 @@ trait TokenOps extends ScalaFmtLogger {
       case _ => false
     }
 
+  /**
+    * Forces allssplits up to including expire to be on a single line.
+    */
   def SingleLineBlock(expire: Token,
                       exclude: Set[Range] = Set.empty,
-                      killInlineComments: Boolean = true)(
+                      disallowInlineComments: Boolean = true)(
       implicit line: sourcecode.Line): Policy = {
     Policy({
       case Decision(tok, splits)
           if !tok.right.isInstanceOf[EOF] && tok.right.end <= expire.end &&
           exclude.forall(!_.contains(tok.left.start)) &&
-          (killInlineComments || !isInlineComment(tok.left)) =>
+          (disallowInlineComments || !isInlineComment(tok.left)) =>
         Decision(tok, splits.filterNot(_.modification.isNewline))
     }, expire.end, noDequeue = exclude.isEmpty)
   }
@@ -106,4 +140,46 @@ trait TokenOps extends ScalaFmtLogger {
       case t: Pkg.Object => Some(t.templ)
       case _ => None
     }
+
+  def tokenLength(token: Token): Int =
+    token match {
+      case lit: Literal.String =>
+        // Even if the literal is not strip margined, we use the longest line
+        // excluding margins. The will only affect is multiline string literals
+        // with a short first line but long lines inside, example:
+        //
+        // val x = """short
+        //  Long aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        // """
+        //
+        // In this case, we would put a newline before """short and indent by
+        // two.
+        lit.code.lines.map(_.replaceAll(" *|", "").length).max
+      case _ =>
+        val firstNewline = token.code.indexOf('\n')
+        if (firstNewline == - 1) token.code.length
+        else firstNewline
+    }
+
+  def isFormatOn(token: Token): Boolean =
+    token match {
+      case c: Comment if formatOnCode.contains(c.code.toLowerCase) => true
+      case _ => false
+    }
+
+  def isFormatOff(token: Token): Boolean =
+    token match {
+      case c: Comment if formatOffCode.contains(c.code.toLowerCase) => true
+      case _ => false
+    }
+
+  val formatOffCode = Set(
+      "// @formatter:off", // IntelliJ
+      "// format: off" // scalariform
+  )
+
+  val formatOnCode = Set(
+      "// @formatter:on", // IntelliJ
+      "// format: on" // scalariform
+  )
 }

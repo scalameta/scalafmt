@@ -103,14 +103,17 @@ Seq(
 )
 >>>
 Seq(
-    Split(modification, 0, policy = singleLine).withIndent(indent, close, Left)
+    Split(modification, 0, policy = singleLine)
+      .withIndent(indent, close, Left)
       .withOptimal(optimalTok),
     Split(Newline, 1 + nestedPenalty + lhsPenalty, policy = singleLine)
-      .withIndent(indent, close, Left).withOptimal(optimalTok),
+      .withIndent(indent, close, Left)
+      .withOptimal(optimalTok),
     Split(modification,
           2 + lhsPenalty,
           policy = oneArgOneLine,
-          ignoreIf = singleArgument).withIndent(StateColumn, close, Right)
+          ignoreIf = singleArgument)
+      .withIndent(StateColumn, close, Right)
       .withOptimal(optimalTok),
     Split(Newline,
           3 + nestedPenalty + lhsPenalty,
@@ -133,10 +136,11 @@ Seq(
 Seq(
     // Either everything fits in one line or break on =>
     Split(Space, 0).withPolicy(SingleLineBlock(lastToken)),
-    Split(Space, 1).withPolicy(Policy({
-      case Decision(t@FormatToken(`arrow`, _, _), s) =>
-        Decision(t, s.filter(_.modification.isNewline))
-    }, expire = lastToken.end))
+    Split(Space, 1)
+      .withPolicy(Policy({
+        case Decision(t@FormatToken(`arrow`, _, _), s) =>
+          Decision(t, s.filter(_.modification.isNewline))
+      }, expire = lastToken.end))
       .withIndent(2, lastToken, Left) // case body indented by 2.
       .withIndent(2, arrow, Left) // cond body indented by 4.
 )
@@ -146,3 +150,52 @@ val ret =
 >>>
 val ret = new mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](
     Map[TokenHash, Tree]())
+<<< . is cheaper
+{{{{
+        Seq(
+            Split(
+                  // This split needs to have an optimalAt field.
+                  Space,
+                  0,
+                  ignoreIf = !spaceCouldBeOk,
+                  optimalAt = Some(expire)).withPolicy(SingleLineBlockAAAA(
+                expire))
+        )
+
+}}}}
+>>>
+{
+  {
+    {
+      {
+        Seq(
+            Split(
+                  // This split needs to have an optimalAt field.
+                  Space,
+                  0,
+                  ignoreIf = !spaceCouldBeOk,
+                  optimalAt = Some(expire))
+              .withPolicy(SingleLineBlockAAAA(expire))
+        )
+      }
+    }
+  }
+}
+<<< penalize newlines inside apply 1
+val ret =
+       new mutable.MapBuilder[TokenHash, Token, Map[TokenHash, Token]](Map
+             .empty[TokenHash, Token])
+>>>
+val ret = new mutable.MapBuilder[TokenHash, Token, Map[TokenHash, Token]](
+    Map.empty[TokenHash, Token])
+<<< penalize newlines inside apply 2
+{{
+val result = new scala.collection.mutable.SetBuilder[Token, Set[Token]](Set.empty[Token])
+}}
+>>>
+{
+  {
+    val result = new scala.collection.mutable.SetBuilder[Token, Set[Token]](
+        Set.empty[Token])
+  }
+}

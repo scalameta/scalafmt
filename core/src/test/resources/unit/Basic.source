@@ -26,12 +26,12 @@ object a {
 object a {
 
   /**
-   * One
-   */
+    * One
+    */
   def one = 1
 
   /**
-   * Two
-   */
+    * Two
+    */
   def two = 2
 }

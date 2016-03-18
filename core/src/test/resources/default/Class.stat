@@ -55,14 +55,14 @@ final class TypedArrayBufferOps[ // scalastyle:ignore
 class MediaStream() extends EventTarget {
 
   /**
-   */
+    */
   val ended: Boolean = js.native
 }
 >>>
 class MediaStream() extends EventTarget {
 
   /**
-   */
+    */
   val ended: Boolean = js.native
 }
 <<< secondary constructor #110
@@ -98,7 +98,8 @@ object RsaHashedImportParams {
   @inline
   def apply(
       name: String, hash: HashAlgorithmIdentifier): RsaHashedImportParams =
-    js.Dynamic.literal(name = name, hash = hash.asInstanceOf[js.Any])
+    js.Dynamic
+      .literal(name = name, hash = hash.asInstanceOf[js.Any])
       .asInstanceOf[RsaHashed]
 }
 <<< no 2x newlines unless necessary
