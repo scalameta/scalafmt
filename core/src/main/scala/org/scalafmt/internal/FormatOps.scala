@@ -255,4 +255,13 @@ class FormatOps(val style: ScalaStyle,
       args.last.tokens.last
     }).getOrElse(owner.tokens.last)
   }
+  def functionExpire(function: Term.Function): Token = {
+    (for {
+      parent <- function.parent
+      blockEnd <- parent match {
+        case b: Term.Block if b.stats.length == 1 => Some(b.tokens.last)
+        case _ => None
+      }
+    } yield blockEnd).getOrElse(function.tokens.last)
+  }
 }

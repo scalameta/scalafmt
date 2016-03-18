@@ -135,3 +135,11 @@ abb
   .j {
     x + 1
   }
+<<< Comment indent
+lst.map { x =>
+    // complicated stuff
+}
+>>>
+lst.map { x =>
+  // complicated stuff
+}

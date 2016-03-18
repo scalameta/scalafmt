@@ -176,11 +176,13 @@ class Router(formatOps: FormatOps) {
         )
       case FormatToken(arrow: `=>`, right, _)
           if leftOwner.isInstanceOf[Term.Function] =>
-        val endOfFunction = leftOwner.tokens.last
+        val endOfFunction = functionExpire(
+            leftOwner.asInstanceOf[Term.Function])
         Seq(
-            Split(Space, 0).withPolicy(SingleLineBlock(endOfFunction)),
+            Split(Space, 0, ignoreIf = isInlineComment(right))
+              .withPolicy(SingleLineBlock(endOfFunction)),
             Split(Newline, 1 + nestedApplies(leftOwner))
-              .withIndent(2, endOfFunction, Left)
+              .withIndent(2, endOfFunction, Right)
         )
       // Case arrow
       case tok@FormatToken(arrow: `=>`, right, between)
