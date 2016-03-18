@@ -10,7 +10,8 @@ import org.scalafmt.internal.ScalaFmtLogger._
 import org.scalafmt.util.FilesUtil
 
 object Cli {
-  val usageExamples = """
+  val usageExamples =
+    """
       |// get help
       |scalafmt --help
       |
@@ -56,30 +57,31 @@ object Cli {
     opt[Unit]('v', "version") action printHelpAndExit text "print version "
     opt[Unit]('h', "help") action printHelpAndExit text "prints this usage text"
     note(s"""
-        |Examples:
-        |
-        |$usageExamples
-        |
-        |Please file bugs to https://github.com/olafurpg/scalafmt/issues
+            |Examples:
+            |
+            |$usageExamples
+            |
+            |Please file bugs to https://github.com/olafurpg/scalafmt/issues
       """.stripMargin)
     opt[(Int, Int)]("range").hidden() action {
       case ((from, to), c) => c.copy(range = c.range + Range(from - 1, to - 1))
     } text "(experimental) only format line range from=to"
   }
 
-  def getCode(config: Config): Seq[InputMethod] =
-    config.file match {
-      case Some(file) =>
-        FilesUtil.listFiles(file).withFilter(_.endsWith(".scala")).map {
-          filename =>
-            val contents = FilesUtil.readFile(filename)
-            FileContents(filename, contents)
+  def getCode(config: Config): Seq[InputMethod] = config.file match {
+    case Some(file) =>
+      FilesUtil
+        .listFiles(file)
+        .withFilter(_.endsWith(".scala"))
+        .map { filename =>
+          val contents = FilesUtil.readFile(filename)
+          FileContents(filename, contents)
         }
-      case _ =>
-        val contents =
-          scala.io.Source.fromInputStream(System.in).getLines().mkString("\n")
-        Seq(StdinCode(contents))
-    }
+    case _ =>
+      val contents =
+        scala.io.Source.fromInputStream(System.in).getLines().mkString("\n")
+      Seq(StdinCode(contents))
+  }
 
   def run(config: Config): Unit = {
     val inputMethods = getCode(config)

@@ -11,7 +11,8 @@ package object internal {
 
   @tailrec
   final def childOf(child: Tree, tree: Tree): Boolean = {
-    child == tree || (child.parent match {
+    child == tree ||
+    (child.parent match {
           case Some(parent) => childOf(parent, tree)
           case _ => false
         })

@@ -99,16 +99,15 @@ class BestFirstSearch(val style: ScalaStyle, val tree: Tree, range: Set[Range]) 
     val insideOptimizationZone =
       curr.policy.noDequeue || isInsideNoOptZone(splitToken)
 
-    def hasBestSolution =
-      !pruneNonOptimal || insideOptimizationZone || {
-        val splitToken = tokens(curr.splits.length)
-        // TODO(olafur) document why/how this optimization works.
-        val result = !best.get(splitToken.left).exists(_.alwaysBetter(curr))
-        if (!result) {
-          logger.trace(s"Eliminated $curr ${curr.splits.last}")
-        }
-        result
+    def hasBestSolution = !pruneNonOptimal || insideOptimizationZone || {
+      val splitToken = tokens(curr.splits.length)
+      // TODO(olafur) document why/how this optimization works.
+      val result = !best.get(splitToken.left).exists(_.alwaysBetter(curr))
+      if (!result) {
+        logger.trace(s"Eliminated $curr ${curr.splits.last}")
       }
+      result
+    }
     hasBestSolution
   }
 
@@ -188,8 +187,9 @@ class BestFirstSearch(val style: ScalaStyle, val tree: Tree, range: Set[Range]) 
         }
 
         if (dequeOnNewStatements &&
-            statementStarts.contains(hash(splitToken.left)) && (depth > 0 ||
-                !isInsideNoOptZone(splitToken) || Q.size > maxQueueSize) &&
+            statementStarts.contains(hash(splitToken.left)) &&
+            (depth > 0 || !isInsideNoOptZone(splitToken) ||
+                Q.size > maxQueueSize) &&
             curr.splits.last.modification.isNewline) {
           Q.dequeueAll
         }
@@ -203,8 +203,8 @@ class BestFirstSearch(val style: ScalaStyle, val tree: Tree, range: Set[Range]) 
           // TODO(olafur) what if we don't reach close?
           logger.trace(
               s"""$splitToken ${tokens(nextState.splits.length)} $stop $depth
-               |${mkString(nextState.splits)}
-               |${nextState.policy.policies}
+                 |${mkString(nextState.splits)}
+                 |${nextState.policy.policies}
              """.stripMargin)
           Q.enqueue(nextState)
         } else {
@@ -214,8 +214,11 @@ class BestFirstSearch(val style: ScalaStyle, val tree: Tree, range: Set[Range]) 
             else List(provided(splitToken))
 
           val actualSplit = {
-            curr.policy.execute(Decision(splitToken, splits)).splits
-              .filter(!_.ignoreIf).sortBy(_.cost)
+            curr.policy
+              .execute(Decision(splitToken, splits))
+              .splits
+              .filter(!_.ignoreIf)
+              .sortBy(_.cost)
           }
           if (curr == deepestYet) {
             logger.trace(
@@ -248,7 +251,8 @@ class BestFirstSearch(val style: ScalaStyle, val tree: Tree, range: Set[Range]) 
                   logger.trace(
                       s"$split depth=$depth $nextState ${nextState.splits.length} ${tokens.length}")
                 }
-              case _ if optimalNotFound &&
+              case _
+                  if optimalNotFound &&
                   nextState.cost - curr.cost <= maxCost =>
                 Q.enqueue(nextState)
                 logger.trace(
@@ -271,17 +275,18 @@ class BestFirstSearch(val style: ScalaStyle, val tree: Tree, range: Set[Range]) 
       val nextSplits = router.getSplits(tokens(deepestYet.splits.length))
       val tok = tokens(deepestYet.splits.length)
       val msg = s"""UNABLE TO FORMAT,
-            |tok=$tok
-            |state.length=${state.splits.length}
-            |toks.length=${tokens.length}
-            |deepestYet.length=${deepestYet.splits.length}
-            |policies=${deepestYet.policy.policies}
-            |nextSplits=$nextSplits
-            |splitsAfterPolicy=${deepestYet.policy.execute(Decision(tok, nextSplits))}
-            |""".stripMargin
+                   |tok=$tok
+                   |state.length=${state.splits.length}
+                   |toks.length=${tokens.length}
+                   |deepestYet.length=${deepestYet.splits.length}
+                   |policies=${deepestYet.policy.policies}
+                   |nextSplits=$nextSplits
+                   |splitsAfterPolicy=${deepestYet.policy
+                     .execute(Decision(tok, nextSplits))}
+                   |""".stripMargin
       if (style.debug) {
         logger.warn(s"""Failed to format
-            |$msg
+                       |$msg
           """.stripMargin)
         state = deepestYet
       } else {
@@ -350,7 +355,9 @@ class BestFirstSearch(val style: ScalaStyle, val tree: Tree, range: Set[Range]) 
     var inside = false
     var expire = tree.tokens.head
     tree.tokens.foreach {
-      case t if !inside && ((t, ownersMap(hash(t))) match {
+      case t
+          if !inside &&
+          ((t, ownersMap(hash(t))) match {
                 case (_: `(`, _: Term.Apply) =>
                   // TODO(olafur) https://github.com/scalameta/scalameta/issues/345
                   val x = true
@@ -371,22 +378,21 @@ class BestFirstSearch(val style: ScalaStyle, val tree: Tree, range: Set[Range]) 
 
 object BestFirstSearch {
 
-  def extractStatementsIfAny(tree: Tree): Seq[Tree] =
-    tree match {
-      case b: Term.Block => b.stats
-      case t: Pkg => t.stats
-      // TODO(olafur) would be nice to have an abstract "For" superclass.
-      case t: Term.For => t.enums.filterNot(_.isInstanceOf[Enumerator.Guard])
-      case t: Term.ForYield =>
-        t.enums.filterNot(_.isInstanceOf[Enumerator.Guard])
-      case t: Term.Match => t.cases
-      case t: Term.PartialFunction => t.cases
-      case t: Term.TryWithCases => t.catchp
-      case t: Type.Compound => t.refinement
-      case t: scala.meta.internal.ast.Source => t.stats
-      case t: Template if t.stats.isDefined => t.stats.get
-      case _ => Seq.empty[Tree]
-    }
+  def extractStatementsIfAny(tree: Tree): Seq[Tree] = tree match {
+    case b: Term.Block => b.stats
+    case t: Pkg => t.stats
+    // TODO(olafur) would be nice to have an abstract "For" superclass.
+    case t: Term.For => t.enums.filterNot(_.isInstanceOf[Enumerator.Guard])
+    case t: Term.ForYield =>
+      t.enums.filterNot(_.isInstanceOf[Enumerator.Guard])
+    case t: Term.Match => t.cases
+    case t: Term.PartialFunction => t.cases
+    case t: Term.TryWithCases => t.catchp
+    case t: Type.Compound => t.refinement
+    case t: scala.meta.internal.ast.Source => t.stats
+    case t: Template if t.stats.isDefined => t.stats.get
+    case _ => Seq.empty[Tree]
+  }
 
   def getStatementStarts(tree: Tree): Map[TokenHash, Tree] = {
     val ret = new mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](

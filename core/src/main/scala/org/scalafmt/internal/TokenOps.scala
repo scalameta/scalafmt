@@ -19,8 +19,8 @@ trait TokenOps {
   def shouldGet2xNewlines(tok: FormatToken): Boolean = {
     !isDocstring(tok.left) && {
       val newlines = newlinesBetween(tok.between)
-      newlines > 1 || (isDocstring(tok.right) &&
-          !tok.left.isInstanceOf[Comment])
+      newlines > 1 ||
+      (isDocstring(tok.right) && !tok.left.isInstanceOf[Comment])
     }
   }
 
@@ -33,7 +33,7 @@ trait TokenOps {
       case _: Trivia | _: EOF => false
       case _ => true
     }
-    if (lastIndex == - 1) tree.tokens.last
+    if (lastIndex == -1) tree.tokens.last
     else tree.tokens(lastIndex)
   }
 
@@ -84,17 +84,15 @@ trait TokenOps {
     else Space
   }
 
-  def isOpenApply(token: Token): Boolean =
-    token match {
-      case _: `(` | _: `[` => true
-      case _ => false
-    }
+  def isOpenApply(token: Token): Boolean = token match {
+    case _: `(` | _: `[` => true
+    case _ => false
+  }
 
-  def isSingleIdentifierAnnotation(tok: FormatToken): Boolean =
-    tok match {
-      case FormatToken(_: `@`, _: Ident, _) => true
-      case _ => false
-    }
+  def isSingleIdentifierAnnotation(tok: FormatToken): Boolean = tok match {
+    case FormatToken(_: `@`, _: Ident, _) => true
+    case _ => false
+  }
 
   /**
     * Forces allssplits up to including expire to be on a single line.
@@ -112,11 +110,10 @@ trait TokenOps {
     }, expire.end, noDequeue = exclude.isEmpty)
   }
 
-  def isInlineComment(token: Token): Boolean =
-    token match {
-      case c: Comment => c.code.startsWith("//")
-      case _ => false
-    }
+  def isInlineComment(token: Token): Boolean = token match {
+    case c: Comment => c.code.startsWith("//")
+    case _ => false
+  }
 
   def newlines2Modification(between: Vector[Whitespace]): Modification =
     newlinesBetween(between) match {
@@ -132,46 +129,42 @@ trait TokenOps {
   def isAttachedComment(token: Token, between: Vector[Whitespace]) =
     isInlineComment(token) && newlinesBetween(between) == 0
 
-  def defnTemplate(tree: Tree): Option[Template] =
-    tree match {
-      case t: Defn.Object => Some(t.templ)
-      case t: Defn.Class => Some(t.templ)
-      case t: Defn.Trait => Some(t.templ)
-      case t: Pkg.Object => Some(t.templ)
-      case _ => None
-    }
+  def defnTemplate(tree: Tree): Option[Template] = tree match {
+    case t: Defn.Object => Some(t.templ)
+    case t: Defn.Class => Some(t.templ)
+    case t: Defn.Trait => Some(t.templ)
+    case t: Pkg.Object => Some(t.templ)
+    case _ => None
+  }
 
-  def tokenLength(token: Token): Int =
-    token match {
-      case lit: Literal.String =>
-        // Even if the literal is not strip margined, we use the longest line
-        // excluding margins. The will only affect is multiline string literals
-        // with a short first line but long lines inside, example:
-        //
-        // val x = """short
-        //  Long aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-        // """
-        //
-        // In this case, we would put a newline before """short and indent by
-        // two.
-        lit.code.lines.map(_.replaceAll(" *|", "").length).max
-      case _ =>
-        val firstNewline = token.code.indexOf('\n')
-        if (firstNewline == - 1) token.code.length
-        else firstNewline
-    }
+  def tokenLength(token: Token): Int = token match {
+    case lit: Literal.String =>
+      // Even if the literal is not strip margined, we use the longest line
+      // excluding margins. The will only affect is multiline string literals
+      // with a short first line but long lines inside, example:
+      //
+      // val x = """short
+      //  Long aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      // """
+      //
+      // In this case, we would put a newline before """short and indent by
+      // two.
+      lit.code.lines.map(_.replaceAll(" *|", "").length).max
+    case _ =>
+      val firstNewline = token.code.indexOf('\n')
+      if (firstNewline == -1) token.code.length
+      else firstNewline
+  }
 
-  def isFormatOn(token: Token): Boolean =
-    token match {
-      case c: Comment if formatOnCode.contains(c.code.toLowerCase) => true
-      case _ => false
-    }
+  def isFormatOn(token: Token): Boolean = token match {
+    case c: Comment if formatOnCode.contains(c.code.toLowerCase) => true
+    case _ => false
+  }
 
-  def isFormatOff(token: Token): Boolean =
-    token match {
-      case c: Comment if formatOffCode.contains(c.code.toLowerCase) => true
-      case _ => false
-    }
+  def isFormatOff(token: Token): Boolean = token match {
+    case c: Comment if formatOffCode.contains(c.code.toLowerCase) => true
+    case _ => false
+  }
 
   val formatOffCode = Set(
       "// @formatter:off", // IntelliJ
