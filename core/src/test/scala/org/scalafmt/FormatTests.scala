@@ -24,88 +24,42 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.language.postfixOps
+import scala.meta.Tree
+import scala.meta.parsers.common.Parse
 import scala.meta.parsers.common.ParseException
 
 // TODO(olafur) property test: same solution without optimization or timeout.
 
 class FormatTests
-    extends FunSuite with Timeouts with BeforeAndAfterAll
-    with HasTests with FormatAssertions with DiffAssertions {
+    extends FunSuite with Timeouts with BeforeAndAfterAll with HasTests
+    with FormatAssertions with DiffAssertions {
   lazy val onlyUnit = UnitTests.tests.exists(_.only)
   lazy val onlyManual = !onlyUnit && ManualTests.tests.exists(_.only)
   lazy val onlyOne = tests.exists(_.only)
   lazy val debugResults = mutable.ArrayBuilder.make[Result]
 
-  def ignore(t: DiffTest): Boolean = {
-    false
-  }
+  override def ignore(t: DiffTest): Boolean = false
 
   override val tests = {
     if (onlyManual) ManualTests.tests
     else UnitTests.tests
   }
 
-  tests.sortWith(bySpecThenName).withFilter(testShouldRun).foreach(runTest)
+  tests.sortWith(bySpecThenName).withFilter(testShouldRun).foreach(runTest(
+      run))
+
+  def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
+    val obtained = ScalaFmt.format_!(t.original, t.style)(parse)
+    debugResults += saveResult(t, obtained, onlyOne)
+    assertFormatPreservesAst(t.original, obtained)(parse)
+    assertNoDiff(obtained, t.expected)
+  }
 
   def testShouldRun(t: DiffTest): Boolean = !onlyOne || t.only
 
   def bySpecThenName(left: DiffTest, right: DiffTest): Boolean = {
     import scala.math.Ordered.orderingToOrdered
     (left.spec, left.name).compare(right.spec -> right.name) < 0
-  }
-
-  def runTest(t: DiffTest): Unit = {
-    val paddedName = f"${t.fullName}%-70s|"
-
-    if (ignore(t)) {
-      // Not even ignore(t), save console space.
-    } else if (t.skip) {
-      ignore(paddedName) {}
-    } else {
-      test(paddedName) {
-        Debug.newTest()
-        filename2parse(t.filename) match {
-          case Some(parse) =>
-            try {
-              val obtained = ScalaFmt.format_!(t.original, t.style)(parse)
-              saveResult(t, obtained)
-              assertFormatPreservesAst(t.original, obtained)(parse)
-              assertNoDiff(obtained, t.expected)
-            } catch {
-              case e: ParseException =>
-                fail("test does not parse" + parseException2Message(
-                    e, t.original))
-            }
-          case None =>
-            logger.warn(s"Found no parse for filename ${t.filename}")
-        }
-      }
-    }
-  }
-
-  def saveResult(t: DiffTest, obtained: String): Unit = {
-    val visitedStates = Debug.exploredInTest
-    //    logger.debug(f"$visitedStates%-4s ${t.fullName}")
-    val output = getFormatOutput(t.style)
-    val obtainedHtml = Report.mkHtml(output, t.style)
-    debugResults += Result(t,
-                           obtained,
-                           obtainedHtml,
-                           output,
-                           Debug.maxVisitedToken,
-                           visitedStates,
-                           Debug.elapsedNs)
-  }
-
-  def getFormatOutput(style: ScalaStyle): Array[FormatOutput] = {
-    val builder = mutable.ArrayBuilder.make[FormatOutput]()
-    State.reconstructPath(
-        Debug.tokens, Debug.state.splits, style, debug = onlyOne) {
-      case (_, token, whitespace) =>
-        builder += FormatOutput(
-            token.left.code, whitespace, Debug.formatTokenExplored(token))
-    }
-    builder.result()
   }
 
   override def afterAll(configMap: ConfigMap): Unit = {

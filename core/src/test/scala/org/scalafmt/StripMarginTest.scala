@@ -1,8 +1,12 @@
 package org.scalafmt
 
 import org.scalafmt.util.DiffAssertions
+import org.scalafmt.util.DiffTest
 import org.scalafmt.util.HasTests
 import org.scalatest.FunSuite
+
+import scala.meta.Tree
+import scala.meta.parsers.common.Parse
 
 class StripMarginTest extends FunSuite with HasTests with DiffAssertions {
 
@@ -45,6 +49,27 @@ val x =
   """.replace("'''", "\"\"\"")
 
   val interpolatedStrings = """
+<<< ONLY class indent
+case class FormatterChangedAST(diff: String, output: String)
+    extends Error(s'''Formatter changed AST
+        |=====================
+        |$diff
+        |=====================
+        |${output.lines.toVector.mkString("\n")}
+        |=====================
+        |Formatter changed AST
+    '''.stripMargin)
+>>>
+case class FormatterChangedAST(diff: String, output: String)
+    extends Error(s'''Formatter changed AST
+                     |=====================
+                     |$diff
+                     |=====================
+                     |${output.lines.toVector.mkString("\n")}
+                     |=====================
+                     |Formatter changed AST
+    '''.stripMargin)
+
 <<< break indentation
 val msg =
 
@@ -82,12 +107,13 @@ val msg = s'''AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
     parseDiffTests(rawStrings, "stripMargin/String.stat") ++
     (parseDiffTests(interpolatedStrings, "stripMargin/Interpolate.stat"))
 
-  testsToRun.foreach { t =>
-    test(t.fullName) {
-      val parse = filename2parse(t.filename).get
-      val formatted =
-        ScalaFmt.format_!(t.original, ScalaStyle.StripMarginTest)(parse)
-      assertNoDiff(formatted, t.expected)
-    }
+  testsToRun.foreach(runTest(run))
+
+  def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
+    val parse = filename2parse(t.filename).get
+    val formatted =
+      ScalaFmt.format_!(t.original, ScalaStyle.StripMarginTest)(parse)
+    saveResult(t, formatted, t.only)
+    assertNoDiff(formatted, t.expected)
   }
 }
