@@ -1,9 +1,9 @@
 package org.scalafmt.util
 
+import java.io.File
 import java.text.NumberFormat
 import java.util.Locale
 import java.util.concurrent.CopyOnWriteArrayList
-
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
 import org.scalafmt.internal.ScalaFmtLogger._
@@ -37,7 +37,9 @@ trait ScalaProjectsExperiment {
     format.setMaximumFractionDigits(3)
     format
   }
-  private val pathRoot = "target/repos/"
+
+  val separator = File.pathSeparator
+  private val pathRoot = FilesUtil.getFile("target", "repos")
 
   /**
     * Implement this method.
@@ -67,8 +69,7 @@ trait ScalaProjectsExperiment {
     checkRepo("https://github.com/saddle/saddle")
     checkRepo("https://github.com/sbt/sbt", sbtIgnore)
     checkRepo("https://github.com/scala-ide/scala-ide")
-    checkRepo("https://github.com/scala-js/scala-js",
-              commit = "f27a42c6aa83833bb44e9efe8d58b426131893f9")
+    checkRepo("https://github.com/scala-js/scala-js")
     checkRepo("https://github.com/scala/pickling")
     checkRepo("https://github.com/scala/scala", scalaIgnore)
     checkRepo("https://github.com/scalafx/scalafx")
@@ -93,17 +94,19 @@ trait ScalaProjectsExperiment {
     import sys.process._
     val name = repoName(url)
     val path = pathRoot + name
+    val projectDir = FilesUtil.getFile("target", "repos", name)
+    val gitDir = FilesUtil.getFile("target", "repos", name, ".git")
     println("CLONING?")
-    if (!FilesUtil.getFile("target", "repos", name).isDirectory) {
-      println("CLONING")
-      val exit = List(
-          "git", "clone", url, "target/repos/" + name).!
+    if (!projectDir.isDirectory) {
+      println(s"CLONING $url ${gitDir.getPath} ${projectDir.getPath}")
+      List("git", "clone", url, projectDir.getPath).!
     }
     // Avoid flakiness.
-    Seq("git", s"--git-dir=$path/.git", s"checkout", commit).!
-    val branch = Seq("git", s"--git-dir=$path/.git", "rev-parse", "HEAD").!!
+//    Seq("git", s"--git-dir=${gitDir.getPath}", s"checkout", commit).!
+    val branch = Seq(
+        "git", s"--git-dir=${gitDir.getPath}", "rev-parse", "HEAD").!!
     println("Checking project " + name)
-    val files = listFiles(path).withFilter(x =>
+    val files = listFiles(projectDir.getPath).withFilter(x =>
       filter(x) && x.endsWith(".scala")).map(filename =>
       {
         val fileUrl = s"$url/blob/$branch${filename.stripPrefix(path)}"
@@ -209,7 +212,7 @@ trait ScalaProjectsExperiment {
       case _ => x.toString
     }
 
-  private def col(strings: Any *): String =
+  private def col(strings: Any*): String =
     strings.map { s =>
       val x = s match {
         case d: Double => numberFormat.format(d)
