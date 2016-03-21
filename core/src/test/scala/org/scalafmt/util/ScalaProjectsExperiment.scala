@@ -13,6 +13,7 @@ import org.scalafmt.util.ExperimentResult.Success
 import org.scalafmt.util.ExperimentResult.Timeout
 import org.scalafmt.util.ExperimentResult.UnknownFailure
 
+import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -50,16 +51,34 @@ trait ScalaProjectsExperiment {
 
   def runOn(scalaFile: ScalaFile): ExperimentResult
 
+  val taskChunk = 100
+
+  /**
+    * Runs all tasks in chunks of [[taskChunk]].
+    * This is to prevent false negative timeout exceptions because we can't run
+    * thousands of tasks at a each time.
+    */
+  @tailrec
+  // TODO(olafur) use better concurrency primitive than task/future.
+  final def runTasksInChunks(tasks: Seq[Task[ExperimentResult]]): Unit = {
+    if (tasks.nonEmpty) {
+      println(s"\n${tasks.length} tasks remaining...")
+      val (toRun, nextRound) = tasks.splitAt(taskChunk)
+      Task
+        .gatherUnordered(toRun)
+        .runFor(awaitMaxDuration * toRun.length)
+        .foreach { e =>
+          results.add(e)
+        }
+      runTasksInChunks(nextRound)
+    }
+  }
+
   def runExperiment(scalaFiles: Seq[ScalaFile]): Unit = {
     val tasks = scalaFiles.map { file =>
-      Task(runOn(file)).handle(recoverError(file)).timed(awaitMaxDuration)
+      Task(runOn(file)).timed(awaitMaxDuration).handle(recoverError(file))
     }
-    Task
-      .gatherUnordered(tasks)
-      .runFor(awaitMaxDuration * tasks.length)
-      .foreach { e =>
-        results.add(e)
-      }
+    runTasksInChunks(tasks)
   }
 
   def recoverError(

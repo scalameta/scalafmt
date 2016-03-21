@@ -9,4 +9,4 @@ SKIP https://raw.githubusercontent.com/scala-js/scala-js/f27a42c6aa83833bb44e9ef
 SKIP https://raw.githubusercontent.com/lihaoyi/fastparse/b445fb5c7003983cec379a4a3b452a9adc3066eb/fastparse/shared/src/main/scala/fastparse/parsers/Combinators.scala
 SKIP https://raw.githubusercontent.com/scala-js/scala-js/8663c8060ca96a51bfc1f87f2f3f30babbeadbc3/javalanglib/src/main/scala/java/lang/Class.scala
 SKIP https://raw.githubusercontent.com/lihaoyi/fastparse/b445fb5c7003983cec379a4a3b452a9adc3066eb/fastparse/shared/src/test/scala/fastparse/ExampleTests.scala
-ONLY https://raw.githubusercontent.com/twitter/scalding/7759d9c399896fc4c54be0f2406e047e030d8586/scalding-core/src/test/scala/com/twitter/scalding/LookupJoinTest.scala
+SKIP https://raw.githubusercontent.com/twitter/scalding/7759d9c399896fc4c54be0f2406e047e030d8586/scalding-core/src/test/scala/com/twitter/scalding/LookupJoinTest.scala
