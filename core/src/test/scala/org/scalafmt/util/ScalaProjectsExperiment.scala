@@ -30,7 +30,6 @@ trait ScalaProjectsExperiment {
   val results: java.util.List[ExperimentResult] =
     new CopyOnWriteArrayList[ExperimentResult]()
   val verbose = false
-  val skipProject: String => Boolean = _ => false
   val colLength = 10
   val numberFormat = {
     // I prefer . as thousand separator.

@@ -49,7 +49,6 @@ trait TreeOps extends TokenOps {
   }
 
   /**
-    *
     * Returns true if open is "unnecessary".
     *
     * An opening parenthesis is unnecessary if without it and its closing
@@ -60,6 +59,11 @@ trait TreeOps extends TokenOps {
   def isSuperfluousParenthesis(open: Token, owner: Tree): Boolean = {
     open.isInstanceOf[`(`] && !isTuple(owner) &&
     owner.tokens.headOption.contains(open)
+  }
+
+  def isFirstOrLastToken(token: Token, owner: Tree): Boolean = {
+    owner.tokens.headOption.contains(token) ||
+    owner.tokens.lastOption.contains(token)
   }
 
   def isCallSite(tree: Tree): Boolean = tree match {

@@ -21,10 +21,6 @@ import scala.collection.JavaConversions._
 
 trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
   override val verbose = false
-  override val skipProject: String => Boolean = x =>
-    !Seq(
-        "twitter/scalding"
-    ).exists(x.contains)
 
   val awaitMaxDuration =
     // Can't guarantee performance on Travis
@@ -33,7 +29,12 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
     else Duration(20, "s")
 
   val okRepos = Set(
-      "scala-js"
+//    "goose",
+//      "scala-js",
+    "fastparse"
+  )
+  val badRepos = Set(
+    "kafka"
   )
 
   def okScalaFile(scalaFile: ScalaFile): Boolean = {

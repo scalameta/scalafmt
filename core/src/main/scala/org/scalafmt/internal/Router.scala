@@ -637,7 +637,8 @@ class Router(formatOps: FormatOps) {
               .withPolicy(penalizeNewlines)
         )
       case FormatToken(close: `)`, right, between)
-          if leftOwner.isInstanceOf[Term.If] =>
+          if leftOwner.isInstanceOf[Term.If] &&
+          !isFirstOrLastToken(close, leftOwner) =>
         val owner = leftOwner.asInstanceOf[Term.If]
         val expire = owner.thenp.tokens.last
         val rightIsOnNewLine = newlines > 0
@@ -658,9 +659,10 @@ class Router(formatOps: FormatOps) {
             Split(Space, 0)
         )
       case tok@FormatToken(_, els: `else`, _) =>
-        // According to scala-js style guide, no single-line if else.
         Seq(
-            Split(Newline, 0)
+            Split(Space, 0, ignoreIf = newlines > 0)
+              .withPolicy(SingleLineBlock(rightOwner.tokens.last)),
+            Split(Newline, 1)
         )
       // Last else branch
       case tok@FormatToken(els: `else`, _, _)
