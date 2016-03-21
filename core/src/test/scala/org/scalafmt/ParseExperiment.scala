@@ -1,5 +1,6 @@
 package org.scalafmt
 
+import org.scalafmt.util.ExperimentResult
 import org.scalafmt.util.ExperimentResult.Skipped
 import org.scalafmt.util.ExperimentResult.Success
 import org.scalafmt.util.FilesUtil
@@ -18,17 +19,15 @@ object ParseExperiment
     extends App with ScalaProjectsExperiment with FormatAssertions {
   override val verbose = false
 
-//  override val skipProject: String => Boolean = !_.contains("intelli")
-
-  override def runOn(scalaFile: ScalaFile): Boolean = {
+  override def runOn(scalaFile: ScalaFile): ExperimentResult = {
     val code = scalaFile.read
     if (!ScalacParser.checkParseFails(code)) {
       val startTime = System.nanoTime()
       code.parse[Source]
       print("+")
-      results.add(Success(scalaFile, System.nanoTime() - startTime))
+      Success(scalaFile, System.nanoTime() - startTime)
     } else {
-      results.add(Skipped(scalaFile))
+      Skipped(scalaFile)
     }
   }
 

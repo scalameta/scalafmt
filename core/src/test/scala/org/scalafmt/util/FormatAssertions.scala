@@ -2,6 +2,7 @@ package org.scalafmt.util
 
 import java.io.ByteArrayInputStream
 
+import org.scalafmt.internal.ScalaFmtLogger._
 import org.scalafmt.Error.FormatterChangedAST
 import org.scalafmt.Error.FormatterOutputDoesNotParse
 import org.scalatest.FunSuiteLike
@@ -19,7 +20,8 @@ trait FormatAssertions extends FunSuiteLike with DiffAssertions {
       implicit ev: Parse[T]): Unit = {
     import scala.meta._
     Try(original.parse[T]) match {
-      case Failure(_) => // ignore
+      case Failure(t) => // ignore
+        logger.warn(s"original does not parse $t")
       case Success(originalParsed) =>
         Try(obtained.parse[T]) match {
           case Success(obtainedParsed) =>
@@ -35,7 +37,13 @@ trait FormatAssertions extends FunSuiteLike with DiffAssertions {
           case Failure(e: ParseException) =>
             throw FormatterOutputDoesNotParse(
                 parseException2Message(e, obtained))
-          case _ =>
+          case Failure(e: TokenizeException) =>
+            throw FormatterOutputDoesNotParse(s"""${e.getMessage}
+                                                 |$obtained
+                                                 |""".stripMargin)
+          case Failure(e) =>
+            logger.error(s"Unexpected error $e, $obtained")
+            throw e
         }
     }
   }

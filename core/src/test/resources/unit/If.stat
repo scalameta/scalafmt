@@ -92,3 +92,13 @@ if (left.is[Interpolation.Start])
 >>>
 if (left.is[Interpolation.Start])
   (StateColumn, matchingParentheses())
+<<< single line
+if (true) 1  else 2
+>>>
+if (true) 1 else 2
+<<< no single line
+if (true) 1
+  else 2
+>>>
+if (true) 1
+else 2

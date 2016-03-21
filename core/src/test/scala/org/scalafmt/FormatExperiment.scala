@@ -1,5 +1,6 @@
 package org.scalafmt
 
+import org.scalafmt.internal.ScalaFmtLogger._
 import org.scalafmt.util.ExperimentResult
 import org.scalafmt.util.ExperimentResult.Skipped
 import org.scalafmt.util.ExperimentResult.Success
@@ -18,23 +19,20 @@ import scala.concurrent.duration.Duration
 import scala.meta._
 
 import scala.collection.JavaConversions._
+import scalaz.concurrent.Task
 
 trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
   override val verbose = false
 
-  val awaitMaxDuration =
-    // Can't guarantee performance on Travis
-    if (sys.env.contains("TRAVIS")) Duration(1, "min")
-    // Max on @olafurpg's machine is 5.9s, 2,5 GHz Intel Core i7 Macbook Pro.
-    else Duration(20, "s")
-
   val okRepos = Set(
-//    "goose",
+//      "goose",
 //      "scala-js",
-    "fastparse"
+//      "fastparse",
+      "scalding",
+      "I wan't trailing commas!!!"
   )
   val badRepos = Set(
-    "kafka"
+      "kafka"
   )
 
   def okScalaFile(scalaFile: ScalaFile): Boolean = {
@@ -48,22 +46,21 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
         "js/Any.scala" // Computer generated.
     ).exists(filename.contains)
 
-  override def runOn(scalaFile: ScalaFile): Boolean = {
+  override def runOn(scalaFile: ScalaFile): ExperimentResult = {
     val code = scalaFile.read
     if (!ScalacParser.checkParseFails(code)) {
       val startTime = System.nanoTime()
-      val f = Future(
-          ScalaFmt.format_![Source](code, ScalaStyle.NoIndentStripMargin))
-      val formatted = Await.result(f, awaitMaxDuration)
+      val formatted =
+        ScalaFmt.format_![Source](code, ScalaStyle.NoIndentStripMargin)
       assertFormatPreservesAst[Source](code, formatted)
       print("+")
-      results.add(Success(scalaFile, System.nanoTime() - startTime))
+      Success(scalaFile, System.nanoTime() - startTime)
     } else {
-      results.add(Skipped(scalaFile))
+      Skipped(scalaFile)
     }
   }
 
-  def scalaFiles = ScalaFile.getAll.filter(okScalaFile).take(1000)
+  def scalaFiles = ScalaFile.getAll.filter(okScalaFile)
 }
 
 // TODO(olafur) integration test?

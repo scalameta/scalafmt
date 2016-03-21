@@ -21,12 +21,20 @@ import scala.concurrent.duration.Duration
 import scala.meta._
 import scala.util.Try
 import scala.util.control.NonFatal
+import scalaz.-\/
+import scalaz.concurrent.Task
 
 /**
   * Mostly borrowed from
   * https://github.com/lihaoyi/fastparse/blob/0d67eca8f9264bfaff68e5cbb227045ceac4a15f/scalaparse/jvm/src/test/scala/scalaparse/ProjectTests.scala
   */
 trait ScalaProjectsExperiment {
+  val awaitMaxDuration =
+    // Can't guarantee performance on Travis
+    if (sys.env.contains("TRAVIS")) Duration(1, "min")
+    // Max on @olafurpg's machine is 5.9s, 2,5 GHz Intel Core i7 Macbook Pro.
+    else Duration(20, "s")
+
   val results: java.util.List[ExperimentResult] =
     new CopyOnWriteArrayList[ExperimentResult]()
   val verbose = false
@@ -40,23 +48,29 @@ trait ScalaProjectsExperiment {
 
   val separator = File.pathSeparator
 
-  def runOn(scalaFile: ScalaFile): Boolean
+  def runOn(scalaFile: ScalaFile): ExperimentResult
 
   def runExperiment(scalaFiles: Seq[ScalaFile]): Unit = {
-    val files = scalaFiles.map { file =>
-      Future(runOn(file)).recover(recoverError(file))
+    val tasks = scalaFiles.map { file =>
+      Task(runOn(file)).handle(recoverError(file)).timed(awaitMaxDuration)
     }
-    Await.result(Future.sequence(files), Duration(5, "min"))
+    Task
+      .gatherUnordered(tasks)
+      .runFor(awaitMaxDuration * tasks.length)
+      .foreach { e =>
+        results.add(e)
+      }
   }
 
-  def recoverError(scalaFile: ScalaFile): PartialFunction[Throwable, Boolean] = {
-    case e: ParseException => results.add(ParseErr(scalaFile, e))
+  def recoverError(
+      scalaFile: ScalaFile): PartialFunction[Throwable, ExperimentResult] = {
+    case e: ParseException => ParseErr(scalaFile, e)
     case e: java.util.concurrent.TimeoutException =>
       println(s"- $scalaFile")
-      results.add(Timeout(scalaFile))
+      Timeout(scalaFile)
     case NonFatal(e) =>
-      print("X")
-      results.add(UnknownFailure(scalaFile, e))
+      print(s"X $scalaFile")
+      UnknownFailure(scalaFile, e)
   }
 
   private def repoName(url: String): String = url.split("/").last
