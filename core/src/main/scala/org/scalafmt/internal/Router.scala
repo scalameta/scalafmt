@@ -158,7 +158,8 @@ class Router(formatOps: FormatOps) {
         Seq(
             Split(Space, 0, ignoreIf = skipSingleLineBlock)
               .withPolicy(SingleLineBlock(close)),
-            Split(Space, 0, ignoreIf = !startsLambda, optimalAt = lambdaArrow)
+            Split(Space, 0, ignoreIf = !startsLambda)
+              .withOptimalToken(lambdaArrow)
               .withIndent(lambdaIndent, close, Right)
               .withPolicy(lambdaPolicy),
             Split(nl, 1)
@@ -208,11 +209,8 @@ class Router(formatOps: FormatOps) {
           if startsStatement(tok) && newlines == 0 =>
         val expire = statementStarts(hash(right)).tokens.last
         Seq(
-            Split(
-                  // This split needs to have an optimalAt field.
-                  Space,
-                  0,
-                  optimalAt = Some(expire))
+            Split(Space, 0)
+              .withOptimalToken(expire)
               .withPolicy(SingleLineBlock(expire)),
             // For some reason, this newline cannot cost 1.
             Split(Newline(shouldGet2xNewlines(tok)), 0)
@@ -234,8 +232,8 @@ class Router(formatOps: FormatOps) {
                   // This split needs to have an optimalAt field.
                   Space,
                   0,
-                  ignoreIf = !spaceCouldBeOk,
-                  optimalAt = Some(expire))
+                  ignoreIf = !spaceCouldBeOk)
+              .withOptimalToken(expire)
               .withPolicy(SingleLineBlock(expire)),
             // For some reason, this newline cannot cost 1.
             Split(newline, 0)
@@ -327,7 +325,9 @@ class Router(formatOps: FormatOps) {
         val optimal =
           leftOwner.tokens.find(_.isInstanceOf[`,`]).orElse(Some(close))
         Seq(
-            Split(NoSplit, 0, optimalAt = optimal).withIndent(4, close, Left),
+            Split(NoSplit, 0)
+              .withOptimalToken(optimal)
+              .withIndent(4, close, Left),
             Split(Newline, 1).withIndent(4, close, Left)
         )
       case tok@FormatToken(_: `(` | _: `[`, right, between)
@@ -420,31 +420,32 @@ class Router(formatOps: FormatOps) {
           if (isDefnSite(leftOwner)) defnSiteLastToken(leftOwner)
           else rhsOptimalToken(leftTok2tok(close))
 
-        val optimalToken = Some(expirationToken)
-
         Seq(
             Split(modification,
                   0,
                   policy = singleLine,
-                  ignoreIf = !fitsOnOneLine || isConfigStyle,
-                  optimalAt = optimalToken).withIndent(indent, close, Left),
+                  ignoreIf = !fitsOnOneLine || isConfigStyle)
+              .withOptimalToken(expirationToken)
+              .withIndent(indent, close, Left),
             Split(newlineModification,
                   (1 + nestedPenalty + lhsPenalty) * bracketMultiplier,
                   policy = singleLine,
-                  ignoreIf = !fitsOnOneLine || isConfigStyle,
-                  optimalAt = optimalToken).withIndent(indent, close, Left),
+                  ignoreIf = !fitsOnOneLine || isConfigStyle)
+              .withOptimalToken(expirationToken)
+              .withIndent(indent, close, Left),
             // TODO(olafur) singleline per argument!
             Split(modification,
                   (2 + lhsPenalty) * bracketMultiplier,
                   policy = oneArgOneLine,
-                  ignoreIf = singleArgument || isConfigStyle,
-                  optimalAt = optimalToken)
+                  ignoreIf = singleArgument || isConfigStyle)
+              .withOptimalToken(expirationToken)
               .withIndent(StateColumn, close, Right),
             Split(Newline,
                   (3 + nestedPenalty + lhsPenalty) * bracketMultiplier,
                   policy = oneArgOneLine,
-                  ignoreIf = singleArgument || isConfigStyle,
-                  optimalAt = optimalToken).withIndent(indent, close, Left),
+                  ignoreIf = singleArgument || isConfigStyle)
+              .withOptimalToken(expirationToken)
+              .withIndent(indent, close, Left),
             Split(Newline,
                   0,
                   policy = configStyle,
@@ -487,7 +488,8 @@ class Router(formatOps: FormatOps) {
           .getOrElse(NoPolicy)
         val optimalToken = endOfArgument.map(_.left)
         Seq(
-            Split(Space, 0, optimalAt = optimalToken)
+            Split(Space, 0)
+              .withOptimalToken(optimalToken)
               .withPolicy(singleLineToEndOfArg),
             Split(Newline, 1, ignoreIf = rhsIsAttachedComment)
         )
@@ -541,15 +543,17 @@ class Router(formatOps: FormatOps) {
       case tok@FormatToken(left, dot: `.`, _)
           if rightOwner.isInstanceOf[Term.Select] &&
           isOpenApply(next(next(tok)).right) && !left.isInstanceOf[`_ `] &&
-          !parents(rightOwner).exists(_.isInstanceOf[Import]) =>
+          !parents(rightOwner).exists(_.isInstanceOf[Import])
+        =>
+        val owner = rightOwner.asInstanceOf[Term.Select]
         val open = next(next(tok)).right
         val close = matchingParentheses(hash(open))
         val nestedPenalty = nestedSelect(rightOwner) + nestedApplies(leftOwner)
-        val chain = getSelectChain(Some(rightOwner))
+        val chain = owner +: getSelectChain(owner)
         val lastToken = lastTokenInChain(chain)
         val breakOnEveryDot = Policy({
-          case Decision(t@FormatToken(_, dot2: `.`, _), s)
-              if chain.contains(owners(dot2)) =>
+          case Decision(t@FormatToken(left, dot2: `.`, _), s)
+              if chain.contains(owners(dot2)) && !left.isInstanceOf[`}`] =>
             val expire = selectExpire(dot2)
             val newlineSplits = s.filter(_.modification.isNewline)
             // A plain select with no apply has no newline splits.
@@ -701,10 +705,11 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_, open: `(`, _)
           if rightOwner.isInstanceOf[Term.ApplyInfix] =>
         val close = matchingParentheses(hash(open))
+        val optimalToken = Some(OptimalToken(close))
         Seq(
-            Split(Space, 0, optimalAt = Some(close))
+            Split(Space, 0, optimalAt = optimalToken)
               .withPolicy(SingleLineBlock(close)),
-            Split(Newline, 1, optimalAt = Some(close))
+            Split(Newline, 1, optimalAt = optimalToken)
         )
       // Infix operator.
       case tok@FormatToken(op: Ident, _, _) if leftOwner.parent.exists {
@@ -729,7 +734,7 @@ class Router(formatOps: FormatOps) {
         // Optimization, assignment operators make the state space explode in
         // sbt build files because of := operators everywhere.
         val optimalToken =
-          if (isAssignment) Some(owner.args.last.tokens.last)
+          if (isAssignment) Some(OptimalToken(owner.args.last.tokens.last))
           else None
         Seq(
             Split(Space, 0, optimalAt = optimalToken),

@@ -1,5 +1,6 @@
 package org.scalafmt.internal
 
+import org.scalafmt.internal.ScalaFmtLogger._
 import scala.annotation.tailrec
 import scala.meta.Tree
 
@@ -11,10 +12,8 @@ import scala.meta.internal.ast.Mod
 import scala.meta.internal.ast.Pat
 import scala.meta.internal.ast.Pkg
 import scala.meta.internal.ast.Source
-import scala.meta.internal.ast.Template
 import scala.meta.internal.ast.Term
 import scala.meta.internal.ast.Type
-import scala.meta.prettyprinters.Structure
 import scala.meta.tokens.Token._
 import scala.meta.tokens.Token
 
@@ -112,28 +111,33 @@ trait TreeOps extends TokenOps {
   val splitApplyIntoLhsAndArgsLifted = splitApplyIntoLhsAndArgs.lift
 
   @tailrec
-  final def getSelectChain(child: Option[Tree],
+  final def getSelectChain(child: Tree,
                            accum: Vector[Term.Select] = Vector
                                .empty[Term.Select]): Vector[Term.Select] = {
-    child match {
-      case Some(child: Term.Select) =>
-        getSelectChain(child.parent, accum :+ child)
-      case Some(child)
-          if splitApplyIntoLhsAndArgsLifted(child)
-            .exists(_._1.isInstanceOf[Term.Select]) =>
-        getSelectChain(child.parent, accum)
+    child.parent match {
+      case Some(parent: Term.Select) =>
+        getSelectChain(parent, accum :+ parent)
+      case Some(parent)
+          if splitApplyIntoLhsAndArgsLifted(parent).exists(_._1 == child) =>
+        getSelectChain(parent, accum)
       case els => accum
     }
   }
 
   def lastTokenInChain(chain: Vector[Term.Select]): Token = {
-    if (chain.length == 1) chain.last.tokens.last
-    else {
-      chain.last.parent.map(splitApplyIntoLhsAndArgsLifted) match {
-        case Some(_) => chain.last.parent.get.tokens.last
-        case _ => chain.last.tokens.last
-      }
+    if (chain.length == 1) lastToken(chain.last)
+    else chainOptimalToken(chain)
+  }
+
+  def chainOptimalToken(chain: Vector[Term.Select]): Token = {
+    chain.last.parent.map(splitApplyIntoLhsAndArgsLifted) match {
+      case Some(_) => lastToken(chain.last.parent.get)
+      case _ => lastToken(chain.last)
     }
+  }
+
+  def existsChild(tree: Tree)(f: Tree => Boolean): Boolean = {
+    f(tree) || tree.children.exists(x => existsChild(x)(f))
   }
 
   /**

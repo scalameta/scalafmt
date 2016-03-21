@@ -2,6 +2,8 @@ package org.scalafmt.internal
 
 import scala.meta.tokens.Token
 
+case class OptimalToken(token: Token, killOnFail: Boolean = false)
+
 /**
   * A Split is the whitespace between two non-whitespace tokens.
   *
@@ -24,7 +26,7 @@ case class Split(
     indents: Vector[Indent[Length]] = Vector.empty[Indent[Length]],
     policy: Policy = NoPolicy,
     penalty: Boolean = false,
-    optimalAt: Option[Token] = None)(implicit val line: sourcecode.Line)
+    optimalAt: Option[OptimalToken] = None)(implicit val line: sourcecode.Line)
     extends TokenOps {
 
   def adapt(formatToken: FormatToken): Split = modification match {
@@ -46,6 +48,22 @@ case class Split(
       val firstLine = code.indexOf("\n")
       if (firstLine == -1) code.length
       else firstLine
+  }
+
+  def withOptimalToken(token: Option[Token]): Split = token match {
+    case Some(token) => withOptimalToken(token)
+    case _ => this
+  }
+
+  def withOptimalToken(token: Token, killOnFail: Boolean = false): Split = {
+    require(optimalAt.isEmpty)
+    new Split(modification,
+              cost,
+              ignoreIf,
+              indents,
+              policy,
+              true,
+              Some(OptimalToken(token, killOnFail)))(line)
   }
 
   def withPolicy(newPolicy: Policy): Split = {

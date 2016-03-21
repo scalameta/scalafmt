@@ -235,7 +235,8 @@ class BestFirstSearch(val style: ScalaStyle, val tree: Tree, range: Set[Range]) 
               Debug.enqueued(split)
             }
             split.optimalAt match {
-              case Some(token) if actualSplit.length > 1 && split.cost == 0 =>
+              case Some(OptimalToken(token, killOnFail))
+                  if actualSplit.length > 1 && split.cost == 0 =>
                 val nextNextState =
                   shortestPath(nextState, token, depth + 1, maxCost = 0)(
                       sourcecode.Line.generate)
@@ -244,7 +245,8 @@ class BestFirstSearch(val style: ScalaStyle, val tree: Tree, range: Set[Range]) 
                             nextNextState.splits.length).left.start >= token.start)) {
                   optimalNotFound = false
                   Q.enqueue(nextNextState)
-                } else if (nextState.cost - curr.cost <= maxCost) {
+                } else if (!killOnFail &&
+                           nextState.cost - curr.cost <= maxCost) {
                   // TODO(olafur) DRY. This solution can still be optimal.
                   Q.enqueue(nextState)
                 } else {
@@ -285,8 +287,8 @@ class BestFirstSearch(val style: ScalaStyle, val tree: Tree, range: Set[Range]) 
                      .execute(Decision(tok, nextSplits))}
                    |""".stripMargin
       if (style.debug) {
-        logger.warn(s"""Failed to format
-                       |$msg
+        logger.error(s"""Failed to format
+                        |$msg
           """.stripMargin)
         state = deepestYet
       } else {

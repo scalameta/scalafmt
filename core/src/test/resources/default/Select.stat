@@ -143,3 +143,16 @@ lst.map { x =>
 lst.map { x =>
   // complicated stuff
 }
+<<< rightSumming chain conflict
+  LookupJoin.rightSumming(TypedPipe.from(in1))
+    .map {
+      x =>
+        x
+    }
+    .write(TypedTsv[(String, String, String, String)]("output2"))
+>>>
+LookupJoin
+  .rightSumming(TypedPipe.from(in1))
+  .map { x =>
+    x
+  }.write(TypedTsv[(String, String, String, String)]("output2"))

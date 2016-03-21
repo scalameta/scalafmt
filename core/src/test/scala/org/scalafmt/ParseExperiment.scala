@@ -3,16 +3,11 @@ package org.scalafmt
 import org.scalafmt.util.ExperimentResult
 import org.scalafmt.util.ExperimentResult.Skipped
 import org.scalafmt.util.ExperimentResult.Success
-import org.scalafmt.util.FilesUtil
 import org.scalafmt.util.FormatAssertions
 import org.scalafmt.util.ScalaFile
 import org.scalafmt.util.ScalaProjectsExperiment
 import org.scalafmt.util.ScalacParser
 
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.concurrent.duration.Duration
 import scala.meta._
 
 object ParseExperiment
