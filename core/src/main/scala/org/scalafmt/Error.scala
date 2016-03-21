@@ -28,7 +28,7 @@ object Error {
                        |=====================
                        |$diff
                        |=====================
-                       |${output.lines.toVector.mkString("\n")}
+                       |${output.lines.toVector.take(10).mkString("\n")}
                        |=====================
                        |Formatter changed AST
       """.stripMargin)

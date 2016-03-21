@@ -36,24 +36,28 @@ object FilesUtil {
     if (filename.startsWith("http")) {
       scala.io.Source.fromURL(filename)("UTF-8").getLines().mkString("\n")
     } else {
-      // Prefer this to inefficient Source.fromFile.
-      val sb = new StringBuilder
-      val br = new BufferedReader(new FileReader(filename))
-      val lineSeparator = System.getProperty("line.separator")
-      try {
-        var line = ""
-        while ({
-          line = br.readLine()
-          line != null
-        }) {
-          sb.append(line)
-          sb.append(lineSeparator)
-        }
-      } finally {
-        br.close()
-      }
-      sb.toString()
+      readFile(new File(filename))
     }
+  }
+
+  def readFile(file: File): String = {
+    // Prefer this to inefficient Source.fromFile.
+    val sb = new StringBuilder
+    val br = new BufferedReader(new FileReader(file))
+    val lineSeparator = System.getProperty("line.separator")
+    try {
+      var line = ""
+      while ({
+        line = br.readLine()
+        line != null
+      }) {
+        sb.append(line)
+        sb.append(lineSeparator)
+      }
+    } finally {
+      br.close()
+    }
+    sb.toString()
   }
 
   def getFile(path: String*): File = {
