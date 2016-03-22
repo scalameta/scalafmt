@@ -110,10 +110,13 @@ trait TreeOps extends TokenOps {
 
   val splitApplyIntoLhsAndArgsLifted = splitApplyIntoLhsAndArgs.lift
 
+  final def getSelectChain(select: Term.Select): Vector[Term.Select] = {
+    select +: getSelectChain(select, Vector.empty[Term.Select])
+  }
+
   @tailrec
-  final def getSelectChain(child: Tree,
-                           accum: Vector[Term.Select] = Vector
-                               .empty[Term.Select]): Vector[Term.Select] = {
+  final def getSelectChain(
+      child: Tree, accum: Vector[Term.Select]): Vector[Term.Select] = {
     child.parent match {
       case Some(parent: Term.Select) =>
         getSelectChain(parent, accum :+ parent)
@@ -134,6 +137,13 @@ trait TreeOps extends TokenOps {
       case Some(_) => lastToken(chain.last.parent.get)
       case _ => lastToken(chain.last)
     }
+  }
+
+  def startsSelectChain(tree: Tree): Boolean = tree match {
+    case select: Term.Select =>
+      !(existsChild(_.isInstanceOf[Term.Select])(select) &&
+          existsChild(splitApplyIntoLhsAndArgs.isDefinedAt)(select))
+    case _ => false
   }
 
   /**

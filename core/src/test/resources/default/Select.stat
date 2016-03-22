@@ -130,11 +130,9 @@ abb.b(c).j {
 x + 1
 }
 >>>
-abb
-  .b(c)
-  .j {
-    x + 1
-  }
+abb.b(c).j {
+  x + 1
+}
 <<< Comment indent
 lst.map { x =>
     // complicated stuff
@@ -155,7 +153,8 @@ LookupJoin
   .rightSumming(TypedPipe.from(in1))
   .map { x =>
     x
-  }.write(TypedTsv[(String, String, String, String)]("output2"))
+  }
+  .write(TypedTsv[(String, String, String, String)]("output2"))
 <<< scalding discardTestJob
 
 class DiscardTestJob(args: Args) extends Job(args) {
@@ -170,14 +169,29 @@ class DiscardTestJob(args: Args) extends Job(args) {
   TextLine(args("in"))
     .map('words -> 'wsize) { word: String =>
       word.length
-    }.discard('words)
+    }
+    .discard('words)
     .map('* -> 'correct) { te: TupleEntry =>
       te.getFields.contains('words)
-    }.write(Tsv(args("out")))
+    }
+    .write(Tsv(args("out")))
 }
-<<< ONLY scalding typedthrowserrorsjov
-TypedPipe.from(input)
+<<< scalding typedthrowserrorsjov
+  TypedPipe.from(input)
   .map { trans1 }
+  .addTrap
+  .addTrap
+  .addTrap
+  .addTrap
   .addTrap
   .addTrap2(trap2)
 >>>
+TypedPipe
+  .from(input)
+  .map { trans1 }
+  .addTrap
+  .addTrap
+  .addTrap
+  .addTrap
+  .addTrap
+  .addTrap2(trap2)

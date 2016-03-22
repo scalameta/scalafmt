@@ -370,10 +370,6 @@ class BestFirstSearch(val style: ScalaStyle, val tree: Tree, range: Set[Range]) 
               }) =>
         inside = true
         expire = matchingParentheses(hash(t))
-      case dot: `.`
-        if !inside && ownersMap(hash(dot)).isInstanceOf[Term.Select] =>
-        inside = true
-        expire = lastTokenInChain(getSelectChain(ownersMap(hash(dot))))
       case x if x == expire => inside = false
       case x if inside => result += x
       case _ =>

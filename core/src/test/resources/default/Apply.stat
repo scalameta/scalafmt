@@ -7,10 +7,12 @@ List(Split(Space, 0).withPolicy(SingleLineBlock(close)),
            }).withIndent(2, close, Right))
 >>>
 List(Split(Space, 0).withPolicy(SingleLineBlock(close)),
-     Split(nl, 1).withPolicy({
-       case Decision(t@FormatToken(_, `close`, _), s) =>
-         Decision(t, List(Split(Newline, 0)))
-     }).withIndent(2, close, Right))
+     Split(nl, 1)
+       .withPolicy({
+         case Decision(t@FormatToken(_, `close`, _), s) =>
+           Decision(t, List(Split(Newline, 0)))
+       })
+       .withIndent(2, close, Right))
 <<< Massive 2
  List(Split(Space,
             0,

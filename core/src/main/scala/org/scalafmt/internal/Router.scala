@@ -155,9 +155,9 @@ class Router(formatOps: FormatOps) {
         val skipSingleLineBlock =
           ignore || startsLambda || newlinesBetween(between) > 0
 
-            logger.elem(leftTok2tok(close))
         Seq(
             Split(Space, 0, ignoreIf = skipSingleLineBlock)
+              .withOptimalToken(close, killOnFail = true)
               .withPolicy(SingleLineBlock(close)),
             Split(Space, 0, ignoreIf = !startsLambda)
               .withOptimalToken(lambdaArrow)
@@ -544,38 +544,41 @@ class Router(formatOps: FormatOps) {
       case tok@FormatToken(left, dot: `.`, _)
           if rightOwner.isInstanceOf[Term.Select] &&
           isOpenApply(next(next(tok)).right) && !left.isInstanceOf[`_ `] &&
-          !parents(rightOwner).exists(_.isInstanceOf[Import]) &&
-          // match only first select statement.
-          !existsChild(_.isInstanceOf[Term.Select])(rightOwner) =>
+          !parents(rightOwner).exists(_.isInstanceOf[Import]) && true =>
+        // match only first select statement.
+//              startsSelectChain(rightOwner) =>
+//          !existsChild(_.isInstanceOf[Term.Select])(rightOwner) =>
+
         val owner = rightOwner.asInstanceOf[Term.Select]
-        val open = next(next(tok)).right
-        val close = matchingParentheses(hash(open))
         val nestedPenalty = nestedSelect(rightOwner) + nestedApplies(leftOwner)
-        val chain = owner +: getSelectChain(owner)
+        val chain = getSelectChain(owner)
+        val names = chain.map(_.name)
         val lastToken = lastTokenInChain(chain)
+//        logger.elem(names, lastToken)
         val breakOnEveryDot = Policy({
           case Decision(t@FormatToken(left, dot2: `.`, _), s)
               if chain.contains(owners(dot2)) =>
             Decision(t, Seq(Split(Newline, 1)))
         }, lastToken.end)
         val exclude =
-          insideBlock(tok, close, _.isInstanceOf[`{`]).map(parensRange)
-        val expire = Math.max(lastToken.end, close.end)
+          if (lastToken.isInstanceOf[`}`]) // allow newlines in final {} block
+            Set(Range(
+                    matchingParentheses(hash(lastToken)).start, lastToken.end))
+          else Set.empty[Range]
+//          insideBlock(tok, lastToken, _.isInstanceOf[`{`]).map(parensRange)
         // This policy will apply to both the space and newline splits, otherwise
         // the newline is too cheap even it doesn't actually prevent other newlines.
-        val penalizeNewlinesInApply = penalizeAllNewlines(close, 2)
+        val penalizeNewlinesInApply = penalizeAllNewlines(lastToken, 2)
         val noSplitPolicy =
           SingleLineBlock(lastToken, exclude, disallowInlineComments = false)
             .andThen(penalizeNewlinesInApply.f)
-            .copy(expire = expire)
+            .copy(expire = lastToken.end)
         val newlinePolicy = breakOnEveryDot
           .andThen(penalizeNewlinesInApply.f)
-          .copy(expire = expire)
-        val names = chain.map(_.name)
-        logger.elem(names)
+          .copy(expire = lastToken.end)
+//        logger.elem(names)
         Seq(
-            Split(NoSplit, 0, ignoreIf = chain.length > 2)
-              .withPolicy(noSplitPolicy),
+            Split(NoSplit, 0).withPolicy(noSplitPolicy),
             Split(Newline, 1 + nestedPenalty)
               .withPolicy(newlinePolicy)
               .withIndent(2, lastToken, Left)
