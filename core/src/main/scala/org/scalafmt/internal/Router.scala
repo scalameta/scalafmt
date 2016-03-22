@@ -940,7 +940,9 @@ class Router(formatOps: FormatOps) {
         // TODO(olafur) refactor into "global policy"
         // Only newlines after inline comments.
         case FormatToken(c: Comment, _, _) if c.code.startsWith("//") =>
-          splits.filter(_.modification.isNewline)
+          val newlineSplits = splits.filter(_.modification.isNewline)
+          if (newlineSplits.isEmpty) Seq(Split(Newline, 0))
+          else newlineSplits
         case _ => splits
       }
     })
