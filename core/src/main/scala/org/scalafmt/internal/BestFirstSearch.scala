@@ -24,7 +24,7 @@ import scala.reflect.classTag
 /**
   * Implements best first search to find optimal formatting.
   */
-class BestFirstSearch(val style: ScalaStyle, val tree: Tree, range: Set[Range]) {
+class BestFirstSearch(val tree: Tree, val style: ScalaStyle, range: Set[Range]) {
   import BestFirstSearch._
 
   val tokens: Array[FormatToken] = FormatToken.formatTokens(tree.tokens)

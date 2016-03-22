@@ -57,7 +57,7 @@ object ScalaFmt {
       implicit ev: Parse[T]): String = {
     import scala.meta._
     val source = code.parse[T]
-    val graphSearch = new BestFirstSearch(style, source, range)
+    val graphSearch = new BestFirstSearch(source, style, range)
     graphSearch.formatTree()
   }
 }
