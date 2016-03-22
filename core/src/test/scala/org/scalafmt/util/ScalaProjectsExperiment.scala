@@ -34,7 +34,7 @@ trait ScalaProjectsExperiment {
     // Can't guarantee performance on Travis
     if (sys.env.contains("TRAVIS")) Duration(1, "min")
     // Max on @olafurpg's machine is 5.9s, 2,5 GHz Intel Core i7 Macbook Pro.
-    else Duration(20, "s")
+    else Duration(10, "s")
 
   val results: java.util.List[ExperimentResult] =
     new CopyOnWriteArrayList[ExperimentResult]()

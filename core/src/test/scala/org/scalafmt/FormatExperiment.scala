@@ -5,21 +5,15 @@ import org.scalafmt.util.ExperimentResult
 import org.scalafmt.util.ExperimentResult.Skipped
 import org.scalafmt.util.ExperimentResult.Success
 import org.scalafmt.util.ExperimentResult.Timeout
-import org.scalafmt.util.FilesUtil
 import org.scalafmt.util.FormatAssertions
 import org.scalafmt.util.ScalaFile
 import org.scalafmt.util.ScalaProjectsExperiment
 import org.scalafmt.util.ScalacParser
 import org.scalatest.FunSuite
 
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.concurrent.duration.Duration
 import scala.meta._
 
 import scala.collection.JavaConversions._
-import scalaz.concurrent.Task
 
 trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
   override val verbose = false

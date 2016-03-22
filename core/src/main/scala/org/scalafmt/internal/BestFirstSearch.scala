@@ -163,8 +163,8 @@ class BestFirstSearch(val style: ScalaStyle, val tree: Tree, range: Set[Range]) 
     cachedState match {
       case Some(state) => state
       case None =>
+        // Only update state if it reached stop.
         val nextState = shortestPath(start, stop, depth, maxCost)
-        // Only update state if it reached end.
         if (tokens(nextState.splits.length).left == stop) {
           memo.update(key, nextState)
         }
@@ -216,11 +216,6 @@ class BestFirstSearch(val style: ScalaStyle, val tree: Tree, range: Set[Range]) 
           val close = matchingParentheses(hash(getLeftLeft(curr)))
           val nextState = shortestPathMemo(
               curr, close, depth = depth + 1, maxCost = maxCost)
-          logger.trace(
-              s"""$splitToken ${tokens(nextState.splits.length)} $stop $depth
-                 |${mkString(nextState.splits)}
-                 |${nextState.policy.policies}
-             """.stripMargin)
           val nextToken = tokens(nextState.splits.length)
           if (nextToken.left == close) {
             Q.enqueue(nextState)

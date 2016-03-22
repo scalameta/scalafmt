@@ -30,6 +30,8 @@ case class ScalaFile(filename: String, projectUrl: String, commit: String) {
 object ScalaFile {
   def includeFile(filename: String): Boolean = {
     !Seq(
+        // Computer generated
+        "library/src/main/scala/scala/scalajs/js/Tuple.scala",
         // This fella seems to make the scalac parser hang (???)
         "target/repos/scala/test/files/neg/t5510.scala",
         // Unicode escapes in weird places
