@@ -54,9 +54,8 @@ trait ScalaProjectsExperiment {
   val taskChunk = 100
 
   /**
-    * Runs all tasks in chunks of [[taskChunk]].
-    * This is to prevent false negative timeout exceptions because we can't run
-    * thousands of tasks at a each time.
+    * This is an awkward workaround to prevent false negative timeout exceptions
+    * when formatting thousands of files.
     */
   @tailrec
   // TODO(olafur) use better concurrency primitive than task/future.

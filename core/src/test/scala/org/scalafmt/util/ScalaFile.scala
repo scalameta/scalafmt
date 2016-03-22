@@ -21,10 +21,10 @@ case class ScalaFile(filename: String, projectUrl: String, commit: String) {
   def user = userRepo.split("/")(0)
 
   override def toString: String = s"""ScalaFile(
-                                      |    project: $user
-                                      |    github: $githubUrl
-                                      |    raw: $rawUrl
-                                      |)""".stripMargin
+                                     |    project: $user
+                                     |    github: $githubUrl
+                                     |    raw: $rawUrl
+                                     |)""".stripMargin
 }
 
 object ScalaFile {
@@ -54,21 +54,28 @@ object ScalaFile {
 
   def getAll: Seq[ScalaFile] = {
     val repos = FilesUtil.getFile("target", "repos")
-    repos
-      .listFiles()
-      .flatMap { repo =>
-        val repoPrefix = repo.getPath // + File.pathSeparator
-        val commit = FilesUtil.readFile(new File(repo, "COMMIT")).trim
-        val url = FilesUtil.readFile(new File(repo, "URL")).trim
-        FilesUtil
-          .listFiles(repo)
-          .withFilter(_.endsWith(".scala"))
-          .withFilter(includeFile)
-          .map { sourceFile =>
-            val filename = sourceFile.stripPrefix(repoPrefix)
-            ScalaFile(filename.trim, url, commit)
-          }
-      }
+    println(System.getProperty("user.dir"))
+    val files = Option(repos.listFiles()).getOrElse {
+      throw new IllegalStateException(
+          s"""${repos.getAbsolutePath} is not a directory:
+             |* wget https://github.com/olafurpg/scalafmt/releases/download/v0.1.4/repos.tar.gz
+             |* tar xvf repos.tar.gz
+        |""".stripMargin)
+    }
+
+    files.flatMap { repo =>
+      val repoPrefix = repo.getPath // + File.pathSeparator
+      val commit = FilesUtil.readFile(new File(repo, "COMMIT")).trim
+      val url = FilesUtil.readFile(new File(repo, "URL")).trim
+      FilesUtil
+        .listFiles(repo)
+        .withFilter(_.endsWith(".scala"))
+        .withFilter(includeFile)
+        .map { sourceFile =>
+          val filename = sourceFile.stripPrefix(repoPrefix)
+          ScalaFile(filename.trim, url, commit)
+        }
+    }
   }
 
   def forall(scalaFile: ScalaFile => Unit): Unit = {}
