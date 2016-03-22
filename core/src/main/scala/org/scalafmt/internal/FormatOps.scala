@@ -148,6 +148,12 @@ class FormatOps(val style: ScalaStyle,
   def parensRange(open: Token): Range =
     Range(open.start, matchingParentheses(hash(open)).end)
 
+  def getExcludeIfEndingWithBlock(end: Token): Set[Range] = {
+    if (end.isInstanceOf[`}`]) // allow newlines in final {} block
+      Set(Range(matchingParentheses(hash(end)).start, end.end))
+    else Set.empty[Range]
+  }
+
   def insideBlock(start: FormatToken,
                   end: Token,
                   matches: Token => Boolean): Set[Token] = {

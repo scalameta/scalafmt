@@ -290,8 +290,7 @@ class Router(formatOps: FormatOps) {
       case tok@FormatToken(e: `=`, right, _)
           if leftOwner.isInstanceOf[Defn.Def] =>
         val expire = leftOwner.asInstanceOf[Defn.Def].body.tokens.last
-        val exclude =
-          insideBlock(tok, expire, _.isInstanceOf[`{`]).map(parensRange)
+        val exclude = getExcludeIfEndingWithBlock(expire)
         val rhsIsJsNative = isJsNative(right)
         Seq(
             Split(
@@ -560,11 +559,7 @@ class Router(formatOps: FormatOps) {
               if chain.contains(owners(dot2)) =>
             Decision(t, Seq(Split(Newline, 1)))
         }, lastToken.end)
-        val exclude =
-          if (lastToken.isInstanceOf[`}`]) // allow newlines in final {} block
-            Set(Range(
-                    matchingParentheses(hash(lastToken)).start, lastToken.end))
-          else Set.empty[Range]
+        val exclude = getExcludeIfEndingWithBlock(lastToken)
 //          insideBlock(tok, lastToken, _.isInstanceOf[`{`]).map(parensRange)
         // This policy will apply to both the space and newline splits, otherwise
         // the newline is too cheap even it doesn't actually prevent other newlines.
