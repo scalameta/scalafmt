@@ -156,7 +156,7 @@ LookupJoin
   .map { x =>
     x
   }.write(TypedTsv[(String, String, String, String)]("output2"))
-<<< ONLY scalding discardTestJob
+<<< scalding discardTestJob
 
 class DiscardTestJob(args: Args) extends Job(args) {
   TextLine(args("in"))
@@ -166,4 +166,18 @@ class DiscardTestJob(args: Args) extends Job(args) {
     .write(Tsv(args("out")))
 }
 >>>
-x
+class DiscardTestJob(args: Args) extends Job(args) {
+  TextLine(args("in"))
+    .map('words -> 'wsize) { word: String =>
+      word.length
+    }.discard('words)
+    .map('* -> 'correct) { te: TupleEntry =>
+      te.getFields.contains('words)
+    }.write(Tsv(args("out")))
+}
+<<< ONLY scalding typedthrowserrorsjov
+TypedPipe.from(input)
+  .map { trans1 }
+  .addTrap
+  .addTrap2(trap2)
+>>>

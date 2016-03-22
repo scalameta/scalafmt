@@ -155,6 +155,7 @@ class Router(formatOps: FormatOps) {
         val skipSingleLineBlock =
           ignore || startsLambda || newlinesBetween(between) > 0
 
+            logger.elem(leftTok2tok(close))
         Seq(
             Split(Space, 0, ignoreIf = skipSingleLineBlock)
               .withPolicy(SingleLineBlock(close)),
@@ -182,7 +183,6 @@ class Router(formatOps: FormatOps) {
         val endOfFunction = leftOwner.tokens.last
         val canBeSpace = statementStarts(hash(right))
           .isInstanceOf[Term.Function]
-//        logger.elem(canBeSpace, statementStarts(hash(right)))
         Seq(
             Split(Space, 0, ignoreIf = !canBeSpace),
             Split(Newline, 1).withIndent(2, endOfFunction, Left)
@@ -544,9 +544,9 @@ class Router(formatOps: FormatOps) {
       case tok@FormatToken(left, dot: `.`, _)
           if rightOwner.isInstanceOf[Term.Select] &&
           isOpenApply(next(next(tok)).right) && !left.isInstanceOf[`_ `] &&
-          !parents(rightOwner).exists(_.isInstanceOf[Import])
-        && !existsChild(_.isInstanceOf[Term.Select])(rightOwner)
-        =>
+          !parents(rightOwner).exists(_.isInstanceOf[Import]) &&
+          // match only first select statement.
+          !existsChild(_.isInstanceOf[Term.Select])(rightOwner) =>
         val owner = rightOwner.asInstanceOf[Term.Select]
         val open = next(next(tok)).right
         val close = matchingParentheses(hash(open))
@@ -555,14 +555,8 @@ class Router(formatOps: FormatOps) {
         val lastToken = lastTokenInChain(chain)
         val breakOnEveryDot = Policy({
           case Decision(t@FormatToken(left, dot2: `.`, _), s)
-              if chain.contains(owners(dot2)) && !left.isInstanceOf[`}`] =>
-            val expire = selectExpire(dot2)
-            val newlineSplits = s.filter(_.modification.isNewline)
-            // A plain select with no apply has no newline splits.
-            val newSplits =
-              if (newlineSplits.nonEmpty) newlineSplits
-              else Seq(Split(Newline, 1).withIndent(2, expire, Left))
-            Decision(t, newSplits)
+              if chain.contains(owners(dot2)) =>
+            Decision(t, Seq(Split(Newline, 1)))
         }, lastToken.end)
         val exclude =
           insideBlock(tok, close, _.isInstanceOf[`{`]).map(parensRange)
@@ -580,10 +574,11 @@ class Router(formatOps: FormatOps) {
         val names = chain.map(_.name)
         logger.elem(names)
         Seq(
-            Split(NoSplit, 0).withPolicy(noSplitPolicy),
+            Split(NoSplit, 0, ignoreIf = chain.length > 2)
+              .withPolicy(noSplitPolicy),
             Split(Newline, 1 + nestedPenalty)
               .withPolicy(newlinePolicy)
-              .withIndent(2, close, Left)
+              .withIndent(2, lastToken, Left)
         )
       // ApplyUnary
       case tok@FormatToken(_: Ident, _: Literal, _)
