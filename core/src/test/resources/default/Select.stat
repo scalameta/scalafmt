@@ -156,3 +156,14 @@ LookupJoin
   .map { x =>
     x
   }.write(TypedTsv[(String, String, String, String)]("output2"))
+<<< ONLY scalding discardTestJob
+
+class DiscardTestJob(args: Args) extends Job(args) {
+  TextLine(args("in"))
+    .map('words -> 'wsize) { word: String => word.length }
+    .discard('words)
+    .map('* -> 'correct) { te: TupleEntry => te.getFields.contains('words) }
+    .write(Tsv(args("out")))
+}
+>>>
+x

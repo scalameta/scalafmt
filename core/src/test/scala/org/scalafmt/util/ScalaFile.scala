@@ -54,13 +54,12 @@ object ScalaFile {
 
   def getAll: Seq[ScalaFile] = {
     val repos = FilesUtil.getFile("target", "repos")
-    println(System.getProperty("user.dir"))
     val files = Option(repos.listFiles()).getOrElse {
       throw new IllegalStateException(
           s"""${repos.getAbsolutePath} is not a directory:
              |* wget https://github.com/olafurpg/scalafmt/releases/download/v0.1.4/repos.tar.gz
              |* tar xvf repos.tar.gz
-        |""".stripMargin)
+             |""".stripMargin)
     }
 
     files.flatMap { repo =>

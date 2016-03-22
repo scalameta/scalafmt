@@ -136,8 +136,11 @@ trait TreeOps extends TokenOps {
     }
   }
 
-  def existsChild(tree: Tree)(f: Tree => Boolean): Boolean = {
-    f(tree) || tree.children.exists(x => existsChild(x)(f))
+  /**
+    * Returns true tree has a child for which f(child) is true.
+    */
+  def existsChild(f: Tree => Boolean)(tree: Tree): Boolean = {
+    tree.children.exists(f) || tree.children.exists(existsChild(f))
   }
 
   /**

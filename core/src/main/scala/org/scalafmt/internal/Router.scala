@@ -55,7 +55,7 @@ class Router(formatOps: FormatOps) {
         val end = matchingParentheses(hash(start))
         val policy =
           if (isTripleQuote(start)) NoPolicy
-          else SingleLineBlock(end)
+          else penalizeAllNewlines(end, 100)
         Seq(
             // statecolumn - 1 because of margin characters |
             Split(NoSplit, 0, ignoreIf = !isStripMargin)
@@ -182,6 +182,7 @@ class Router(formatOps: FormatOps) {
         val endOfFunction = leftOwner.tokens.last
         val canBeSpace = statementStarts(hash(right))
           .isInstanceOf[Term.Function]
+//        logger.elem(canBeSpace, statementStarts(hash(right)))
         Seq(
             Split(Space, 0, ignoreIf = !canBeSpace),
             Split(Newline, 1).withIndent(2, endOfFunction, Left)
@@ -544,6 +545,7 @@ class Router(formatOps: FormatOps) {
           if rightOwner.isInstanceOf[Term.Select] &&
           isOpenApply(next(next(tok)).right) && !left.isInstanceOf[`_ `] &&
           !parents(rightOwner).exists(_.isInstanceOf[Import])
+        && !existsChild(_.isInstanceOf[Term.Select])(rightOwner)
         =>
         val owner = rightOwner.asInstanceOf[Term.Select]
         val open = next(next(tok)).right
@@ -575,6 +577,8 @@ class Router(formatOps: FormatOps) {
         val newlinePolicy = breakOnEveryDot
           .andThen(penalizeNewlinesInApply.f)
           .copy(expire = expire)
+        val names = chain.map(_.name)
+        logger.elem(names)
         Seq(
             Split(NoSplit, 0).withPolicy(noSplitPolicy),
             Split(Newline, 1 + nestedPenalty)
