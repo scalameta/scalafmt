@@ -1,6 +1,7 @@
 package org.scalafmt.internal
 
 import org.scalafmt.Error
+import org.scalafmt.Error.CantFormatFile
 import org.scalafmt.ScalaStyle
 import org.scalafmt.internal.ScalaFmtLogger._
 
@@ -64,6 +65,11 @@ class BestFirstSearch(val style: ScalaStyle, val tree: Tree, range: Set[Range]) 
     * TODO(olafur) come up with less hacky solution.
     */
   val maxQueueSize = 555
+
+  /**
+    * Whether to listen to optimalAt fields in Splits.
+    */
+  val acceptOptimalAtHints = true && doOptimizations
 
   /**
     * Do not optimize inside certain areas such as term apply.
@@ -140,7 +146,7 @@ class BestFirstSearch(val style: ScalaStyle, val tree: Tree, range: Set[Range]) 
     result
   }
 
-  def stateColumnKey(state: State): Int = {
+  def stateColumnKey(state: State): StateHash = {
     state.column << 8 | state.indentation
   }
 
@@ -150,11 +156,20 @@ class BestFirstSearch(val style: ScalaStyle, val tree: Tree, range: Set[Range]) 
 
   val memo = mutable.Map.empty[(Int, StateHash), State]
 
-  def shortestPathMemo(start: State, stop: Token, depth: Int)(
+  def shortestPathMemo(start: State, stop: Token, depth: Int, maxCost: Int)(
       implicit line: sourcecode.Line): State = {
-    memo.getOrElseUpdate((start.splits.length, stateColumnKey(start)), {
-      shortestPath(start, stop, depth)
-    })
+    val key = (start.splits.length, stateColumnKey(start))
+    val cachedState = memo.get(key)
+    cachedState match {
+      case Some(state) => state
+      case None =>
+        val nextState = shortestPath(start, stop, depth, maxCost)
+        // Only update state if it reached end.
+        if (tokens(nextState.splits.length).left == stop) {
+          memo.update(key, nextState)
+        }
+        nextState
+    }
   }
 
   /**
@@ -199,14 +214,17 @@ class BestFirstSearch(val style: ScalaStyle, val tree: Tree, range: Set[Range]) 
         }
         if (shouldRecurseOnBlock(curr, stop)) {
           val close = matchingParentheses(hash(getLeftLeft(curr)))
-          val nextState = shortestPathMemo(curr, close, depth = depth + 1)
-          // TODO(olafur) what if we don't reach close?
+          val nextState = shortestPathMemo(
+              curr, close, depth = depth + 1, maxCost = maxCost)
           logger.trace(
               s"""$splitToken ${tokens(nextState.splits.length)} $stop $depth
                  |${mkString(nextState.splits)}
                  |${nextState.policy.policies}
              """.stripMargin)
-          Q.enqueue(nextState)
+          val nextToken = tokens(nextState.splits.length)
+          if (nextToken.left == close) {
+            Q.enqueue(nextState)
+          }
         } else {
           val splits: Seq[Split] =
             if (curr.formatOff) List(provided(splitToken))
@@ -236,7 +254,8 @@ class BestFirstSearch(val style: ScalaStyle, val tree: Tree, range: Set[Range]) 
             }
             split.optimalAt match {
               case Some(OptimalToken(token, killOnFail))
-                  if actualSplit.length > 1 && split.cost == 0 =>
+                  if acceptOptimalAtHints && actualSplit.length > 1 &&
+                  split.cost == 0 =>
                 val nextNextState =
                   shortestPath(nextState, token, depth + 1, maxCost = 0)(
                       sourcecode.Line.generate)

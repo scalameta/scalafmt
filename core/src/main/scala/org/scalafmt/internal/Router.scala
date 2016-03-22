@@ -340,7 +340,7 @@ class Router(formatOps: FormatOps) {
           logger.error(s"""Unknown tree
                           |${log(leftOwner.parent.get)}
                           |${isDefnSite(leftOwner)}""".stripMargin)
-          ???
+          throw UnexpectedTree[Term.Apply](leftOwner)
         }
         // In long sequence of select/apply, we penalize splitting on
         // parens furthest to the right.
@@ -543,24 +543,18 @@ class Router(formatOps: FormatOps) {
       case tok@FormatToken(left, dot: `.`, _)
           if rightOwner.isInstanceOf[Term.Select] &&
           isOpenApply(next(next(tok)).right) && !left.isInstanceOf[`_ `] &&
-          !parents(rightOwner).exists(_.isInstanceOf[Import]) && true =>
-        // match only first select statement.
-//              startsSelectChain(rightOwner) =>
-//          !existsChild(_.isInstanceOf[Term.Select])(rightOwner) =>
-
+          !parents(rightOwner).exists(_.isInstanceOf[Import]) =>
         val owner = rightOwner.asInstanceOf[Term.Select]
         val nestedPenalty = nestedSelect(rightOwner) + nestedApplies(leftOwner)
         val chain = getSelectChain(owner)
         val names = chain.map(_.name)
         val lastToken = lastTokenInChain(chain)
-//        logger.elem(names, lastToken)
         val breakOnEveryDot = Policy({
           case Decision(t@FormatToken(left, dot2: `.`, _), s)
               if chain.contains(owners(dot2)) =>
             Decision(t, Seq(Split(Newline, 1)))
         }, lastToken.end)
         val exclude = getExcludeIfEndingWithBlock(lastToken)
-//          insideBlock(tok, lastToken, _.isInstanceOf[`{`]).map(parensRange)
         // This policy will apply to both the space and newline splits, otherwise
         // the newline is too cheap even it doesn't actually prevent other newlines.
         val penalizeNewlinesInApply = penalizeAllNewlines(lastToken, 2)
@@ -571,7 +565,6 @@ class Router(formatOps: FormatOps) {
         val newlinePolicy = breakOnEveryDot
           .andThen(penalizeNewlinesInApply.f)
           .copy(expire = lastToken.end)
-//        logger.elem(names)
         Seq(
             Split(NoSplit, 0).withPolicy(noSplitPolicy),
             Split(Newline, 1 + nestedPenalty)
