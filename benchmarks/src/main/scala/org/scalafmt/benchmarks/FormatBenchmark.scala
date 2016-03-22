@@ -71,15 +71,15 @@ abstract class FormatBenchmark(path: String*) {
 
 object run {
 
-  abstract class ScalaJsBenchmark(filename: String)
+  abstract class ScalaJsFile(filename: String)
       extends FormatBenchmark("scala-js", filename)
 
-//  class OptimizerCore extends ScalaJsBenchmark("OptimizerCore.scala")
+//  class OptimizerCore extends ScalaJsFile("OptimizerCore.scala")
 
-  class GenJsCode extends ScalaJsBenchmark("GenJSCode.scala")
+  class GenJsCode extends ScalaJsFile("GenJSCode.scala")
 
 //  class ScalaJSClassEmitter
-//      extends ScalaJsBenchmark("ScalaJSClassEmitter.scala")
+//      extends ScalaJsFile("ScalaJSClassEmitter.scala")
 //
-//  class JavaLangString extends ScalaJsBenchmark("JavaLangString.scala")
+//  class JavaLangString extends ScalaJsFile("JavaLangString.scala")
 }
