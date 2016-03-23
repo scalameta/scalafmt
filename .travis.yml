@@ -6,9 +6,6 @@ scala:
   - 2.11.7
 before_install:
   - pip install --user codecov
-  # ~30k Scala source files for tests.
-  - wget https://github.com/olafurpg/scalafmt/releases/download/v0.1.4/repos.tar.gz &&
-    tar xvf repos.tar.gz
 script:
   - sbt clean coverage test &&
     sbt coverageAggregate

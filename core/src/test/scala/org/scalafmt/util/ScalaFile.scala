@@ -54,11 +54,27 @@ object ScalaFile {
       .exists(filename.contains)
   }
 
+  def downloadReposTar(): Unit = {
+    import sys.process._
+    // Easier and less awkward than dealing with scala.io.Source
+    Seq("wget",
+        "https://github.com/olafurpg/scalafmt/releases/download/v0.1.4/repos.tar.gz").!
+  }
+  def extractReposTar(): Unit = {
+    import sys.process._
+    Seq("tar", "xf", "repos.tar.gz").!
+  }
+
   def getAll: Seq[ScalaFile] = {
+    if (!FileOps.getFile("target", "repos").isDirectory) {
+      downloadReposTar()
+      extractReposTar()
+    }
+
     val repos = FileOps.getFile("target", "repos")
     val files = Option(repos.listFiles()).getOrElse {
       throw new IllegalStateException(
-          s"""${repos.getAbsolutePath} is not a directory:
+          s"""${repos.getAbsolutePath} is not a directory, run:
              |* wget https://github.com/olafurpg/scalafmt/releases/download/v0.1.4/repos.tar.gz
              |* tar xvf repos.tar.gz
              |""".stripMargin)
