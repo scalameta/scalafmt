@@ -10,8 +10,8 @@ case class ScalaFile(filename: String, projectUrl: String, commit: String) {
   }
 
   def read: String = {
-    val toRead = new File(FilesUtil.getFile("target", "repos", repo), filename)
-    FilesUtil.readFile(toRead)
+    val toRead = new File(FileOps.getFile("target", "repos", repo), filename)
+    FileOps.readFile(toRead)
   }
 
   def githubUrl = s"$projectUrl/blob/$commit$filename"
@@ -55,7 +55,7 @@ object ScalaFile {
   }
 
   def getAll: Seq[ScalaFile] = {
-    val repos = FilesUtil.getFile("target", "repos")
+    val repos = FileOps.getFile("target", "repos")
     val files = Option(repos.listFiles()).getOrElse {
       throw new IllegalStateException(
           s"""${repos.getAbsolutePath} is not a directory:
@@ -66,9 +66,9 @@ object ScalaFile {
 
     files.flatMap { repo =>
       val repoPrefix = repo.getPath // + File.pathSeparator
-      val commit = FilesUtil.readFile(new File(repo, "COMMIT")).trim
-      val url = FilesUtil.readFile(new File(repo, "URL")).trim
-      FilesUtil
+      val commit = FileOps.readFile(new File(repo, "COMMIT")).trim
+      val url = FileOps.readFile(new File(repo, "URL")).trim
+      FileOps
         .listFiles(repo)
         .withFilter(_.endsWith(".scala"))
         .withFilter(includeFile)

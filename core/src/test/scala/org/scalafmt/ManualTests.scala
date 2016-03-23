@@ -1,12 +1,12 @@
 package org.scalafmt
 
 import org.scalafmt.util.DiffTest
-import org.scalafmt.util.FilesUtil
+import org.scalafmt.util.FileOps
 import org.scalafmt.util.HasTests
 
 object ManualTests extends HasTests {
   lazy val tests: Seq[DiffTest] = {
-    import FilesUtil._
+    import FileOps._
     val manualFiles = for {
       filename <- listFiles(testDir) if filename.endsWith(manual)
       test <- {

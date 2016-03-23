@@ -5,7 +5,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 
 import org.scalafmt.util.DiffAssertions
-import org.scalafmt.util.FilesUtil
+import org.scalafmt.util.FileOps
 import org.scalatest.FunSuite
 
 import scala.concurrent.duration.Duration
@@ -33,7 +33,7 @@ class CliTest extends FunSuite with DiffAssertions {
     Files.write(tmpFile, unformatted.getBytes)
     val formatInPlace = Cli.Config(Some(tmpFile.toFile), inPlace = true)
     Cli.run(formatInPlace)
-    val obtained = FilesUtil.readFile(tmpFile.toString)
+    val obtained = FileOps.readFile(tmpFile.toString)
     assertNoDiff(obtained, expected)
   }
 
@@ -42,7 +42,7 @@ class CliTest extends FunSuite with DiffAssertions {
     Files.write(tmpFile, unformatted.getBytes)
     val formatInPlace = Cli.Config(Some(tmpFile.toFile), inPlace = true)
     Cli.run(formatInPlace)
-    val obtained = FilesUtil.readFile(tmpFile.toString)
+    val obtained = FileOps.readFile(tmpFile.toString)
     assertNoDiff(obtained, unformatted)
   }
 }

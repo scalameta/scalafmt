@@ -63,7 +63,7 @@ object Speed {
       case \/-(CouchKeyVals(_, _, Seq(CouchKeyVal(_, _, before)))) =>
         val report = Report.compare(before, after)
         val filename = "target/compare.html"
-        FilesUtil.writeFile(filename, report)
+        FileOps.writeFile(filename, report)
         val elapsed = Debug.ns2ms(System.nanoTime() - startTime)
         logger.debug(s"Compare results in $filename (${elapsed}ms)")
       case \/-(other) =>

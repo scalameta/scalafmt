@@ -8,7 +8,7 @@ import org.scalafmt.Versions
 import org.scalafmt.internal.Debug
 import org.scalafmt.util.ScalaFmtLogger
 import ScalaFmtLogger._
-import org.scalafmt.util.FilesUtil
+import org.scalafmt.util.FileOps
 
 object Cli {
   val usageExamples =
@@ -71,11 +71,11 @@ object Cli {
 
   def getCode(config: Config): Seq[InputMethod] = config.file match {
     case Some(file) =>
-      FilesUtil
+      FileOps
         .listFiles(file)
         .withFilter(_.endsWith(".scala"))
         .map { filename =>
-          val contents = FilesUtil.readFile(filename)
+          val contents = FileOps.readFile(filename)
           FileContents(filename, contents)
         }
     case _ =>
@@ -93,7 +93,7 @@ object Cli {
         inputMethod match {
           case FileContents(filename, _) if config.inPlace =>
             if (inputMethod.code != formatted) {
-              FilesUtil.writeFile(filename, formatted)
+              FileOps.writeFile(filename, formatted)
             }
             val elapsed = Debug.ns2ms(System.nanoTime() - start)
             logger.info(

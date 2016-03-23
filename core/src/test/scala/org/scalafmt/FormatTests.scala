@@ -7,7 +7,7 @@ import org.scalafmt.internal.State
 import org.scalafmt.stats.TestStats
 import org.scalafmt.util.DiffTest
 import org.scalafmt.util.DiffAssertions
-import org.scalafmt.util.FilesUtil
+import org.scalafmt.util.FileOps
 import org.scalafmt.util.FormatOutput
 import org.scalafmt.util.FormatAssertions
 import org.scalafmt.util.HasTests
@@ -75,7 +75,7 @@ class FormatTests
     // I don't want to deal with scalaz's Tasks :'(
     val k = for {
       _ <- Future(
-          FilesUtil.writeFile("target/index.html", Report.heatmap(results)))
+          FileOps.writeFile("target/index.html", Report.heatmap(results)))
       _ <- Future(Speed.submitStats(stats)) if !onlyOne
       _ <- Future(Speed.writeComparisonReport(stats, "master"))
     } yield ()

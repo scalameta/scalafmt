@@ -7,7 +7,7 @@ import java.io.PrintWriter
 
 import ScalaFmtLogger._
 
-object FilesUtil {
+object FileOps {
 
   def listFiles(path: String): Vector[String] = {
     listFiles(new File(path))

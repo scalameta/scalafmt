@@ -2,7 +2,7 @@ package org.scalafmt
 
 import org.scalafmt.util.ScalaFmtLogger
 import ScalaFmtLogger._
-import org.scalafmt.util.FilesUtil
+import org.scalafmt.util.FileOps
 import org.scalafmt.util.FormatAssertions
 import org.scalatest.FunSuite
 
@@ -18,10 +18,10 @@ class FidelityTest extends FunSuite with FormatAssertions {
   object Test {
 
     def apply(filename: String): Test =
-      Test(filename, FilesUtil.readFile(filename))
+      Test(filename, FileOps.readFile(filename))
   }
   // TODO(olafur) append to [[files]]
-  val files = FilesUtil.listFiles(".").filter(_.endsWith(".scala"))
+  val files = FileOps.listFiles(".").filter(_.endsWith(".scala"))
     .filterNot(_.contains("/target/")).filterNot(_.contains("/resources/"))
 
   val examples = files.map(Test.apply)
