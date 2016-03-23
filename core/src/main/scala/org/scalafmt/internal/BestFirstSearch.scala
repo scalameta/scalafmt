@@ -48,12 +48,12 @@ class BestFirstSearch(tree: Tree, style: ScalaStyle, range: Set[Range]) {
   /**
     * When entering a new statement, clear out search queue.
     */
-  val dequeOnNewStatements = true && doOptimizations
+  val dequeueOnNewStatements = true && doOptimizations
 
   /**
     * Dequeue on new statements if queue exceeds this size,
     *
-    * Overrides [[dequeOnNewStatements]], appears necessary in cases like
+    * Overrides [[dequeueOnNewStatements]], appears necessary in cases like
     * JavaLangObject.scala in Scala.js.
     *
     * TODO(olafur) come up with less hacky solution.
@@ -195,7 +195,7 @@ class BestFirstSearch(tree: Tree, style: ScalaStyle, range: Set[Range]) {
           deepestYet = curr
         }
 
-        if (dequeOnNewStatements &&
+        if (dequeueOnNewStatements &&
             statementStarts.contains(hash(splitToken.left)) &&
             (depth > 0 || !isInsideNoOptZone(splitToken) ||
                 Q.size > maxQueueSize) &&
