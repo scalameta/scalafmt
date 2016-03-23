@@ -23,9 +23,9 @@ class FormatOps(val style: ScalaStyle,
                 val tokens: Array[FormatToken],
                 val ownersMap: Map[TokenHash, Tree],
                 val statementStarts: Map[TokenHash, Tree],
-                val matchingParentheses: Map[TokenHash, Token])
-    extends TreeOps {
-
+                val matchingParentheses: Map[TokenHash, Token]) {
+  import TokenOps._
+  import TreeOps._
 
   @inline
   def owners(token: Token): Tree = ownersMap(hash(token))

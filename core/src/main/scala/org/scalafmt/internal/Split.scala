@@ -20,15 +20,16 @@ case class OptimalToken(token: Token, killOnFail: Boolean = false)
   *             this split originates.
   *
   */
-case class Split(
-    modification: Modification,
-    cost: Int,
-    ignoreIf: Boolean = false,
-    indents: Vector[Indent[Length]] = Vector.empty[Indent[Length]],
-    policy: Policy = NoPolicy,
-    penalty: Boolean = false,
-    optimalAt: Option[OptimalToken] = None)(implicit val line: sourcecode.Line)
-    extends TokenOps {
+case class Split(modification: Modification,
+                 cost: Int,
+                 ignoreIf: Boolean = false,
+                 indents: Vector[Indent[Length]] = Vector
+                     .empty[Indent[Length]],
+                 policy: Policy = NoPolicy,
+                 penalty: Boolean = false,
+                 optimalAt: Option[OptimalToken] = None)(
+    implicit val line: sourcecode.Line) {
+  import TokenOps._
 
   def adapt(formatToken: FormatToken): Split = modification match {
     case n: NewlineT if !n.noIndent && rhsIsCommentedOut(formatToken) =>

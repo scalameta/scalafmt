@@ -9,12 +9,10 @@ import scala.meta.internal.ast.Defn
 import scala.meta.internal.ast.Pkg
 import scala.meta.internal.ast.Template
 
-object TokenOps extends TokenOps
-
 /**
   * Stateless helper functions on [[scala.meta.Token]].
   */
-trait TokenOps {
+object TokenOps {
 
   /**
     * For convenience when experimenting with different hashing strategies.

@@ -26,6 +26,8 @@ import scala.reflect.classTag
   */
 class BestFirstSearch(val tree: Tree, val style: ScalaStyle, range: Set[Range]) {
   import BestFirstSearch._
+  import TreeOps._
+  import TokenOps._
 
   val tokens: Array[FormatToken] = FormatToken.formatTokens(tree.tokens)
   val ownersMap = getOwners(tree)

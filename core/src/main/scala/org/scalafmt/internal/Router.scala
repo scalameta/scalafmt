@@ -31,6 +31,8 @@ object Constants {
   */
 class Router(formatOps: FormatOps) {
   import formatOps._
+  import TreeOps._
+  import TokenOps._
 
   def getSplits(formatToken: FormatToken): Seq[Split] = {
     val leftOwner = owners(formatToken.left)

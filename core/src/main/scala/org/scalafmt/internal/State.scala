@@ -16,7 +16,8 @@ final case class State(cost: Int,
                        pushes: Vector[Indent[Num]],
                        column: Int,
                        formatOff: Boolean)
-    extends Ordered[State] with TokenOps {
+    extends Ordered[State] {
+  import TokenOps._
 
   def compare(that: State): Int = {
     val costCompare = Integer.valueOf(-this.cost).compareTo(-that.cost)

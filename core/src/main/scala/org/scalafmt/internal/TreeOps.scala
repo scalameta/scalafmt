@@ -20,7 +20,8 @@ import scala.meta.tokens.Token
 /**
   * Stateless helper functions on [[scala.meta.Tree]].
   */
-trait TreeOps extends TokenOps {
+object TreeOps {
+  import TokenOps._
 
   @tailrec
   final def childOf(child: Tree, tree: Tree): Boolean = {
