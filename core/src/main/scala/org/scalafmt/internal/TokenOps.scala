@@ -1,6 +1,7 @@
 package org.scalafmt.internal
 
-import org.scalafmt.internal.ScalaFmtLogger._
+import org.scalafmt.util.ScalaFmtLogger
+import ScalaFmtLogger._
 
 import scala.meta.Tree
 import scala.meta.tokens.Token

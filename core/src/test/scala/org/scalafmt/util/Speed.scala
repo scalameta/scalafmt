@@ -4,7 +4,7 @@ import java.nio.channels.UnresolvedAddressException
 
 import com.ibm.couchdb._
 import org.scalafmt.internal.Debug
-import org.scalafmt.internal.ScalaFmtLogger._
+import ScalaFmtLogger._
 import org.scalafmt.stats.GitInfo
 import org.scalafmt.stats.TestStats
 import upickle.Invalid

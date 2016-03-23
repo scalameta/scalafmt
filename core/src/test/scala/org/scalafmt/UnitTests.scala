@@ -1,6 +1,7 @@
 package org.scalafmt
 
-import org.scalafmt.internal.ScalaFmtLogger._
+import org.scalafmt.util.ScalaFmtLogger
+import ScalaFmtLogger._
 import org.scalafmt.util.DiffTest
 import org.scalafmt.util.FilesUtil
 import org.scalafmt.util.HasTests

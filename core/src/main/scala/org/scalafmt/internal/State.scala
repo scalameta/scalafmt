@@ -1,7 +1,8 @@
 package org.scalafmt.internal
 
 import org.scalafmt.ScalaStyle
-import org.scalafmt.internal.ScalaFmtLogger._
+import org.scalafmt.util.ScalaFmtLogger
+import ScalaFmtLogger._
 
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token.Comment
@@ -15,8 +16,7 @@ final case class State(cost: Int,
                        indentation: Int,
                        pushes: Vector[Indent[Num]],
                        column: Int,
-                       formatOff: Boolean)
-    extends Ordered[State] {
+                       formatOff: Boolean) extends Ordered[State] {
   import TokenOps._
 
   def compare(that: State): Int = {

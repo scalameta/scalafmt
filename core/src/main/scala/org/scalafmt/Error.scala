@@ -1,7 +1,8 @@
 package org.scalafmt
 
 import org.scalafmt.internal.Decision
-import org.scalafmt.internal.ScalaFmtLogger._
+import org.scalafmt.util.ScalaFmtLogger
+import ScalaFmtLogger._
 
 import scala.meta.Case
 import scala.meta.Tree

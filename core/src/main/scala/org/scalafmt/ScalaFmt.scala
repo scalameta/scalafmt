@@ -1,7 +1,8 @@
 package org.scalafmt
 
 import org.scalafmt.internal.BestFirstSearch
-import org.scalafmt.internal.ScalaFmtLogger._
+import org.scalafmt.util.ScalaFmtLogger
+import ScalaFmtLogger._
 
 import scala.meta.Source
 import scala.meta.Tree

@@ -2,7 +2,7 @@ package org.scalafmt.util
 
 import java.io.ByteArrayInputStream
 
-import org.scalafmt.internal.ScalaFmtLogger._
+import ScalaFmtLogger._
 import org.scalafmt.Error.FormatterChangedAST
 import org.scalafmt.Error.FormatterOutputDoesNotParse
 import org.scalatest.FunSuiteLike

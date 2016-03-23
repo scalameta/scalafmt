@@ -3,7 +3,8 @@ package org.scalafmt.internal
 import org.scalafmt.Error
 import org.scalafmt.Error.CantFormatFile
 import org.scalafmt.ScalaStyle
-import org.scalafmt.internal.ScalaFmtLogger._
+import org.scalafmt.util.ScalaFmtLogger
+import ScalaFmtLogger._
 
 import scala.collection.mutable
 import scala.meta.Mod

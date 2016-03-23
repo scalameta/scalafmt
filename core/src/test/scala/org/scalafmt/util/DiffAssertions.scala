@@ -6,7 +6,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.TimeZone
 
-import org.scalafmt.internal.ScalaFmtLogger._
+import ScalaFmtLogger._
 import org.scalatest.FunSuiteLike
 import org.scalatest.exceptions.TestFailedException
 

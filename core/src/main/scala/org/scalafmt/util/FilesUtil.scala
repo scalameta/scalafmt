@@ -5,7 +5,7 @@ import java.io.File
 import java.io.FileReader
 import java.io.PrintWriter
 
-import org.scalafmt.internal.ScalaFmtLogger._
+import ScalaFmtLogger._
 
 object FilesUtil {
 
