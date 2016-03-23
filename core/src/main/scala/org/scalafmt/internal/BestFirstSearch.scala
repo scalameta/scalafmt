@@ -35,15 +35,6 @@ class BestFirstSearch(tree: Tree, style: ScalaStyle, range: Set[Range]) {
     else 10000000
 
   val doOptimizations = true // For debugging purposes only.
-  /**
-    * Eliminate solutions that are inferior to already explored solutions.
-    *
-    * If a solution is reaches a point at cost X then any other solution that
-    * reaches the same token with a cost > X will be eliminated.
-    *
-    * TODO(olafur) benchmark this optimization, I think it doesn't give much.
-    */
-  val pruneNonOptimal = false && doOptimizations
 
   /**
     * When entering a new statement, clear out search queue.
@@ -79,7 +70,6 @@ class BestFirstSearch(tree: Tree, style: ScalaStyle, range: Set[Range]) {
   val recurseOnBlocks = true && doOptimizations
 
   val noOptimizations = noOptimizationZones(tree)
-  val best = mutable.Map.empty[Token, State]
   var explored = 0
   var deepestYet = State.start
   var statementCount = 0
@@ -89,26 +79,6 @@ class BestFirstSearch(tree: Tree, style: ScalaStyle, range: Set[Range]) {
   def isInsideNoOptZone(token: FormatToken): Boolean = {
     !disableOptimizationsInsideSensitiveAreas ||
     noOptimizations.contains(token.left)
-  }
-
-  /**
-    * Returns true if it's OK to skip over state.
-    */
-  def shouldEnterState(curr: State): Boolean = {
-    val splitToken = tokens(curr.splits.length)
-    val insideOptimizationZone =
-      curr.policy.noDequeue || isInsideNoOptZone(splitToken)
-
-    def hasBestSolution = !pruneNonOptimal || insideOptimizationZone || {
-      val splitToken = tokens(curr.splits.length)
-      // TODO(olafur) document why/how this optimization works.
-      val result = !best.get(splitToken.left).exists(_.alwaysBetter(curr))
-      if (!result) {
-        logger.debug(s"Eliminated $curr ${curr.splits.last}")
-      }
-      result
-    }
-    hasBestSolution
   }
 
   def getLeftLeft(curr: State): Token = {
@@ -188,7 +158,7 @@ class BestFirstSearch(tree: Tree, style: ScalaStyle, range: Set[Range]) {
           tokens(curr.splits.length).left.start >= stop.start) {
         result = curr
         Q.dequeueAll
-      } else if (shouldEnterState(curr)) {
+      } else {
         val splitToken = tokens(curr.splits.length)
         if (depth == 0 && curr.splits.length > deepestYet.splits.length) {
           deepestYet = curr
@@ -229,10 +199,6 @@ class BestFirstSearch(tree: Tree, style: ScalaStyle, range: Set[Range]) {
           var optimalNotFound = true
           actualSplit.foreach { split =>
             val nextState = curr.next(style, split, splitToken)
-            // TODO(olafur) convince myself this is safe.
-            if (depth == 0 && split.modification.isNewline) {
-              best.update(splitToken.left, nextState)
-            }
             if (style.debug) {
               Debug.enqueued(split)
             }
