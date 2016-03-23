@@ -188,7 +188,6 @@ class BestFirstSearch(tree: Tree, style: ScalaStyle, range: Set[Range]) {
           tokens(curr.splits.length).left.start >= stop.start) {
         result = curr
         Q.dequeueAll
-        Unit
       } else if (shouldEnterState(curr)) {
         val splitToken = tokens(curr.splits.length)
         if (depth == 0 && curr.splits.length > deepestYet.splits.length) {
@@ -227,10 +226,6 @@ class BestFirstSearch(tree: Tree, style: ScalaStyle, range: Set[Range]) {
               .filter(!_.ignoreIf)
               .sortBy(_.cost)
           }
-          if (curr == deepestYet) {
-            logger.trace(
-                s"actualSplits=$actualSplit ${curr.splits.length} ${tokens.length}")
-          }
           var optimalNotFound = true
           actualSplit.foreach { split =>
             val nextState = curr.next(style, split, splitToken)
@@ -257,23 +252,15 @@ class BestFirstSearch(tree: Tree, style: ScalaStyle, range: Set[Range]) {
                            nextState.cost - curr.cost <= maxCost) {
                   // TODO(olafur) DRY. This solution can still be optimal.
                   Q.enqueue(nextState)
-                } else {
-                  logger.trace(
-                      s"$split depth=$depth $nextState ${nextState.splits.length} ${tokens.length}")
-                }
+                } // else kill branch
               case _
                   if optimalNotFound &&
                   nextState.cost - curr.cost <= maxCost =>
                 Q.enqueue(nextState)
-                logger.trace(
-                    s"$line depth=$depth $nextState ${nextState.splits.length} ${tokens.length}")
-              case _ => // Other split was optimal
-                logger.trace(
-                    s"$split depth=$depth $nextState ${nextState.splits.length} ${tokens.length}")
+              case _ => // Kill branch.
             }
           }
         }
-        Unit
       }
     }
     result
