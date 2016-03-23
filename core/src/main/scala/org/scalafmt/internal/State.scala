@@ -18,7 +18,6 @@ final case class State(cost: Int,
                        pushes: Vector[Indent[Num]],
                        column: Int,
                        formatOff: Boolean) extends Ordered[State] {
-  import TokenOps._
 
   def compare(that: State): Int = {
     val costCompare = Integer.valueOf(-this.cost).compareTo(-that.cost)
@@ -38,11 +37,25 @@ final case class State(cost: Int,
     this.cost <= other.cost && this.indentation <= other.indentation
 
   override def toString = s"State($cost, ${splits.length})"
+}
+
+object State {
+  val start = State(0,
+                    PolicySummary.empty,
+                    Vector.empty[Split],
+                    0,
+                    Vector.empty[Indent[Num]],
+                    0,
+                    formatOff = false)
 
   /**
     * Calculates next State given split at tok.
     */
-  def next(style: ScalaStyle, split: Split, tok: FormatToken): State = {
+  def next(curr: State,
+           style: ScalaStyle,
+           split: Split,
+           tok: FormatToken): State = {
+    import curr._
     val KILL = 10000
     val nonExpiredIndents = pushes.filterNot { push =>
       val expireToken: Token =
@@ -58,7 +71,7 @@ final case class State(cost: Int,
     val tokLength = tok.right.code.length
 
     // Some tokens contain newline, like multiline strings/comments.
-    val lengthOnFirstLine = tokenLength(tok.right)
+    val lengthOnFirstLine = TokenOps.tokenLength(tok.right)
     val columnOnCurrentLine =
       lengthOnFirstLine + {
         if (split.modification.isNewline) newIndent
@@ -104,16 +117,6 @@ final case class State(cost: Int,
           nextStateColumn,
           nextFormatOff)
   }
-}
-
-object State {
-  val start = State(0,
-                    PolicySummary.empty,
-                    Vector.empty[Split],
-                    0,
-                    Vector.empty[Indent[Num]],
-                    0,
-                    formatOff = false)
 
   /**
     * Reconstructs path for all tokens and invokes callback for each token/split combination.
@@ -134,7 +137,7 @@ object State {
             logger
               .debug(f"$left%-15s $split ${state.indentation} ${state.column}")
           }
-          state = state.next(style, split, tok)
+          state = State.next(state, style, split, tok)
           val whitespace = split.modification match {
             case Space => " "
             case nl: NewlineT =>

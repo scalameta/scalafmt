@@ -190,7 +190,7 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
           }
           var optimalNotFound = true
           actualSplit.foreach { split =>
-            val nextState = curr.next(style, split, splitToken)
+            val nextState = State.next(curr, style, split, splitToken)
             if (style.debug) {
               Debug.enqueued(split)
             }
