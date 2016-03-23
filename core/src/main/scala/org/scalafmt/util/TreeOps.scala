@@ -1,5 +1,7 @@
 package org.scalafmt.util
 
+import org.scalafmt.Error
+
 import scala.annotation.tailrec
 import scala.meta.Tree
 import scala.meta.internal.ast.Ctor
@@ -10,16 +12,136 @@ import scala.meta.internal.ast.Mod
 import scala.meta.internal.ast.Pat
 import scala.meta.internal.ast.Pkg
 import scala.meta.internal.ast.Source
+import scala.meta.internal.ast.Template
 import scala.meta.internal.ast.Term
 import scala.meta.internal.ast.Type
 import scala.meta.tokens.Token
-import scala.meta.tokens.Token.`(`
+import scala.meta.tokens.Token._
+import scala.meta.tokens.Tokens
+import scala.collection.mutable
+import scala.reflect.ClassTag
+import scala.reflect.classTag
 
 /**
   * Stateless helper functions on [[scala.meta.Tree]].
   */
 object TreeOps {
   import TokenOps._
+
+  def extractStatementsIfAny(tree: Tree): Seq[Tree] = tree match {
+    case b: Term.Block => b.stats
+    case t: Pkg => t.stats
+    // TODO(olafur) would be nice to have an abstract "For" superclass.
+    case t: Term.For => t.enums.filterNot(_.isInstanceOf[Enumerator.Guard])
+    case t: Term.ForYield =>
+      t.enums.filterNot(_.isInstanceOf[Enumerator.Guard])
+    case t: Term.Match => t.cases
+    case t: Term.PartialFunction => t.cases
+    case t: Term.TryWithCases => t.catchp
+    case t: Type.Compound => t.refinement
+    case t: scala.meta.internal.ast.Source => t.stats
+    case t: Template if t.stats.isDefined => t.stats.get
+    case _ => Seq.empty[Tree]
+  }
+
+  def getStatementStarts(tree: Tree): Map[TokenHash, Tree] = {
+    val ret = new scala.collection.mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](
+      Map[TokenHash, Tree]())
+
+    def addAll(trees: Seq[Tree]): Unit = {
+      trees.foreach { t =>
+        ret += hash(t.tokens.head) -> t
+      }
+    }
+
+    def addDefn[T <: Keyword : ClassTag](mods: Seq[Mod], tree: Tree): Unit = {
+      // Each @annotation gets a separate line
+      val annotations = mods.filter(_.isInstanceOf[Mod.Annot])
+      addAll(annotations)
+      val firstNonAnnotation: Token = mods.collectFirst {
+        case x if !x.isInstanceOf[Mod.Annot] =>
+          // Non-annotation modifier, for example `sealed`/`abstract`
+          x.tokens.head
+      }.getOrElse {
+        // No non-annotation modifier exists, fallback to keyword like `object`
+        tree.tokens.find(x => classTag[T].runtimeClass.isInstance(x)) match {
+          case Some(x) => x
+          case None => throw Error.CantFindDefnToken[T](tree)
+        }
+      }
+      ret += hash(firstNonAnnotation) -> tree
+    }
+
+    def loop(x: Tree): Unit = {
+      x match {
+        case t: Defn.Class => addDefn[`class `](t.mods, t)
+        case t: Defn.Def => addDefn[`def`](t.mods, t)
+        case t: Ctor.Secondary => addDefn[`def`](t.mods, t)
+        case t: Defn.Object => addDefn[`object`](t.mods, t)
+        case t: Defn.Trait => addDefn[`trait`](t.mods, t)
+        case t: Defn.Type => addDefn[`type`](t.mods, t)
+        case t: Defn.Val => addDefn[`val`](t.mods, t)
+        case t: Defn.Var => addDefn[`var`](t.mods, t)
+        case t => // Nothing
+          addAll(extractStatementsIfAny(t))
+      }
+      x.children.foreach(loop)
+    }
+    loop(tree)
+    ret.result()
+  }
+
+  /**
+    * Finds matching parens [({})].
+    *
+    * Contains lookup keys in both directions, opening [({ and closing })].
+    */
+  def getMatchingParentheses(tokens: Tokens): Map[TokenHash, Token] = {
+    val ret = new mutable.MapBuilder[TokenHash, Token, Map[TokenHash, Token]](
+      Map.empty[TokenHash, Token])
+    var stack = List.empty[Token]
+    tokens.foreach {
+      case open@(_: `{` | _: `[` | _: `(` | _: Interpolation.Start) =>
+        stack = open :: stack
+      case close@(_: `}` | _: `]` | _: `)` | _: Interpolation.End) =>
+        val open = stack.head
+        assertValidParens(open, close)
+        ret += hash(open) -> close
+        ret += hash(close) -> open
+        stack = stack.tail
+      case _ =>
+    }
+    val result = ret.result()
+    result
+  }
+
+  def assertValidParens(open: Token, close: Token): Unit = {
+    (open, close) match {
+      case (_: Interpolation.Start, _: Interpolation.End) =>
+      case (_: `{`, _: `}`) =>
+      case (_: `[`, _: `]`) =>
+      case (_: `(`, _: `)`) =>
+      case (o, c) =>
+        throw new IllegalArgumentException(s"Mismatching parens ($o, $c)")
+    }
+  }
+
+  /**
+    * Creates lookup table from token offset to its closest scala.meta tree.
+    */
+  def getOwners(tree: Tree): Map[TokenHash, Tree] = {
+    val result = new mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](
+      Map.empty[TokenHash, Tree])
+
+    def loop(x: Tree): Unit = {
+      x.tokens.foreach { tok =>
+        result += hash(tok) -> x
+      }
+      x.children.foreach(loop)
+    }
+    loop(tree)
+    result.result()
+  }
 
   @tailrec
   final def childOf(child: Tree, tree: Tree): Boolean = {
