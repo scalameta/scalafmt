@@ -1,16 +1,15 @@
 package org.scalafmt.util
 
 import java.io.File
-
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.TimeZone
 
-import LoggerOps._
 import org.scalatest.FunSuiteLike
 import org.scalatest.exceptions.TestFailedException
 
 trait DiffAssertions extends FunSuiteLike {
+  import LoggerOps._
 
   def error2message(obtained: String, expected: String): String = {
     if (expected.length > 10000)

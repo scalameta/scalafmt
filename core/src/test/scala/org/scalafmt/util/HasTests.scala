@@ -7,7 +7,6 @@ import org.scalafmt.ScalaStyle
 import org.scalafmt.internal.Debug
 import org.scalafmt.internal.State
 import org.scalatest.FunSuiteLike
-
 import scala.collection.mutable
 import scala.meta.Tree
 import scala.meta.parsers.common.Parse

@@ -1,16 +1,15 @@
 package org.scalafmt
 
+import scala.language.postfixOps
+
 import org.scalafmt.internal.Debug
-import org.scalafmt.util.LoggerOps
-import LoggerOps._
-import org.scalafmt.internal.State
 import org.scalafmt.stats.TestStats
-import org.scalafmt.util.DiffTest
 import org.scalafmt.util.DiffAssertions
+import org.scalafmt.util.DiffTest
 import org.scalafmt.util.FileOps
-import org.scalafmt.util.FormatOutput
 import org.scalafmt.util.FormatAssertions
 import org.scalafmt.util.HasTests
+import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.Report
 import org.scalafmt.util.Result
 import org.scalafmt.util.Speed
@@ -19,21 +18,19 @@ import org.scalatest.ConfigMap
 import org.scalatest.FunSuite
 import org.scalatest.concurrent.Timeouts
 import org.scalatest.time.SpanSugar._
-
 import scala.collection.mutable
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.language.postfixOps
 import scala.meta.Tree
 import scala.meta.parsers.common.Parse
-import scala.meta.parsers.common.ParseException
 
 // TODO(olafur) property test: same solution without optimization or timeout.
 
 class FormatTests
     extends FunSuite with Timeouts with BeforeAndAfterAll with HasTests
     with FormatAssertions with DiffAssertions {
+  import LoggerOps._
   lazy val onlyUnit = UnitTests.tests.exists(_.only)
   lazy val onlyManual = !onlyUnit && ManualTests.tests.exists(_.only)
   lazy val onlyOne = tests.exists(_.only)

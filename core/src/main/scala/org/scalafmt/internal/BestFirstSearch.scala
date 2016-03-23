@@ -1,26 +1,23 @@
 package org.scalafmt.internal
 
 import org.scalafmt.Error.CantFormatFile
-import org.scalafmt.ScalaStyle
 import org.scalafmt.util.LoggerOps
-import LoggerOps._
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
-
 import scala.collection.mutable
-import scala.meta.Tree
-import scala.meta.internal.ast.Term
 import scala.meta.tokens.Token
-import scala.meta.tokens.Token._
 
 /**
   * Implements best first search to find optimal formatting.
   */
 class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
-  import TreeOps._
+  import LoggerOps._
+  import Token._
   import TokenOps._
-  val router = new Router(formatOps)
+  import TreeOps._
   import formatOps._
+
+  val router = new Router(formatOps)
 
   val maxVisitStates = // For debugging purposes only.
     if (style.debug) 100000 // Unit tests must be < 100k states
@@ -224,7 +221,7 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
     result
   }
 
-  def getBestPath(): Vector[Split] = {
+  def getBestPath: Vector[Split] = {
     var state = shortestPath(State.start, tree.tokens.last)
     if (state.splits.length != tokens.length) {
       val nextSplits = router.getSplits(tokens(deepestYet.splits.length))
@@ -255,5 +252,4 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
     }
     state.splits
   }
-
 }

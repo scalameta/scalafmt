@@ -1,7 +1,5 @@
 package org.scalafmt
 
-import org.scalafmt.util.LoggerOps
-import LoggerOps._
 import org.scalafmt.util.ExperimentResult
 import org.scalafmt.util.ExperimentResult.Skipped
 import org.scalafmt.util.ExperimentResult.Success
@@ -11,10 +9,8 @@ import org.scalafmt.util.ScalaFile
 import org.scalafmt.util.ScalaProjectsExperiment
 import org.scalafmt.util.ScalacParser
 import org.scalatest.FunSuite
-
-import scala.meta._
-
 import scala.collection.JavaConversions._
+import scala.meta._
 
 trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
   override val verbose = false

@@ -1,24 +1,21 @@
 package org.scalafmt.internal
 
-import org.scalafmt.util.TokenOps
-import TokenOps._
 import org.scalafmt.Error.CaseMissingArrow
 import org.scalafmt.ScalaStyle
+import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
-
 import scala.annotation.tailrec
 import scala.collection.mutable
-
 import scala.meta.Tree
 import scala.meta.internal.ast.Case
+import scala.meta.internal.ast.Defn
+import scala.meta.internal.ast.Pkg
 import scala.meta.internal.ast.Template
 import scala.meta.internal.ast.Term
 import scala.meta.internal.ast.Type
+import scala.meta.prettyprinters.Structure
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
-import scala.meta.internal.ast.Defn
-import scala.meta.internal.ast.Pkg
-import scala.meta.prettyprinters.Structure
 
 /**
   * Helper functions for generating splits/policies for a given tree.

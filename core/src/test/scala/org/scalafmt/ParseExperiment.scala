@@ -7,7 +7,6 @@ import org.scalafmt.util.FormatAssertions
 import org.scalafmt.util.ScalaFile
 import org.scalafmt.util.ScalaProjectsExperiment
 import org.scalafmt.util.ScalacParser
-
 import scala.meta._
 
 object ParseExperiment

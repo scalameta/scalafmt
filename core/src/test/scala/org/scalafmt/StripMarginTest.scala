@@ -4,7 +4,6 @@ import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.DiffTest
 import org.scalafmt.util.HasTests
 import org.scalatest.FunSuite
-
 import scala.meta.Tree
 import scala.meta.parsers.common.Parse
 

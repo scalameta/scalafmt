@@ -2,9 +2,7 @@ package org.scalafmt.internal
 
 import org.scalafmt.ScalaStyle
 import org.scalafmt.util.LoggerOps
-import LoggerOps._
 import org.scalafmt.util.TokenOps
-
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token.Comment
 
@@ -30,16 +28,11 @@ final case class State(cost: Int,
     }
   }
 
-  /**
-    * Returns True is this state will always return better formatting than other.
-    */
-  def alwaysBetter(other: State): Boolean =
-    this.cost <= other.cost && this.indentation <= other.indentation
-
   override def toString = s"State($cost, ${splits.length})"
 }
 
 object State {
+  import LoggerOps._
   val start = State(0,
                     PolicySummary.empty,
                     Vector.empty[Split],

@@ -1,8 +1,5 @@
 package org.scalafmt.internal
 
-import org.scalafmt.util.LoggerOps
-import LoggerOps._
-
 import java.util.concurrent.TimeUnit
 
 import scala.collection.mutable

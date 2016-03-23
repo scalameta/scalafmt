@@ -1,7 +1,5 @@
 package org.scalafmt
 
-import org.scalafmt.util.LoggerOps
-import LoggerOps._
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.FormatAssertions
 import org.scalatest.FunSuite

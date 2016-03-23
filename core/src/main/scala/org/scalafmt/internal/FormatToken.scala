@@ -1,10 +1,6 @@
 package org.scalafmt.internal
 
-import org.scalafmt.util.LoggerOps
-import LoggerOps._
-import org.scalafmt.util.TokenOps
-import TokenOps._
-
+import org.scalafmt.util.TokenOps._
 import scala.collection.mutable
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token.Whitespace

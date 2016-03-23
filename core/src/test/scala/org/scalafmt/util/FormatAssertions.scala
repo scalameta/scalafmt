@@ -2,11 +2,9 @@ package org.scalafmt.util
 
 import java.io.ByteArrayInputStream
 
-import LoggerOps._
 import org.scalafmt.Error.FormatterChangedAST
 import org.scalafmt.Error.FormatterOutputDoesNotParse
 import org.scalatest.FunSuiteLike
-
 import scala.meta.Tree
 import scala.meta.parsers.common.Parse
 import scala.meta.parsers.common.ParseException
@@ -15,6 +13,7 @@ import scala.util.Success
 import scala.util.Try
 
 trait FormatAssertions extends FunSuiteLike with DiffAssertions {
+  import LoggerOps._
 
   def assertFormatPreservesAst[T <: Tree](original: String, obtained: String)(
       implicit ev: Parse[T]): Unit = {

@@ -7,7 +7,6 @@ import org.scalafmt.internal.Newline
 import org.scalafmt.internal.NoSplit
 import org.scalafmt.internal.Policy
 import org.scalafmt.internal.Space
-
 import scala.meta.Tree
 import scala.meta.internal.ast.Defn
 import scala.meta.internal.ast.Pkg

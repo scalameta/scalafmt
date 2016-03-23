@@ -3,7 +3,6 @@ package org.scalafmt
 import org.scalafmt.internal.BestFirstSearch
 import org.scalafmt.internal.FormatOps
 import org.scalafmt.internal.FormatWriter
-
 import scala.meta.Source
 import scala.meta.Tree
 import scala.meta.parseSource
@@ -60,7 +59,6 @@ object ScalaFmt {
     val formatOps = new FormatOps(source, style)
     val formatWriter = new FormatWriter(formatOps)
     val search = new BestFirstSearch(formatOps, range)
-    val path = search.getBestPath()
-    formatWriter.mkString(path)
+    formatWriter.mkString(search.getBestPath)
   }
 }

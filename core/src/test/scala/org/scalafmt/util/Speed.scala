@@ -2,17 +2,19 @@ package org.scalafmt.util
 
 import java.nio.channels.UnresolvedAddressException
 
-import com.ibm.couchdb._
+import com.ibm.couchdb.CouchDb
+import com.ibm.couchdb.CouchKeyVal
+import com.ibm.couchdb.CouchKeyVals
+import com.ibm.couchdb.TypeMapping
 import org.scalafmt.internal.Debug
-import LoggerOps._
 import org.scalafmt.stats.GitInfo
 import org.scalafmt.stats.TestStats
-import upickle.Invalid
-
 import scalaz.-\/
 import scalaz.\/-
+import upickle.Invalid
 
 object Speed {
+  import LoggerOps._
   lazy val dbName = "scalafmt-teststats"
   lazy val couch = CouchDb("speed.scalafmt.org", 443, https = true)
   lazy val db = couch.db(dbName, typeMapping)

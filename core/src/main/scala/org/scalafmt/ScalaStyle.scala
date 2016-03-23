@@ -1,7 +1,5 @@
 package org.scalafmt
 
-import scala.concurrent.duration.Duration
-
 /**
   * A scalafmt style, use [[ScalaStyle.Default]].
   */

@@ -6,23 +6,16 @@ import java.util.Locale
 import java.util.concurrent.CopyOnWriteArrayList
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
-import LoggerOps._
 import org.scalafmt.util.ExperimentResult.ParseErr
 import org.scalafmt.util.ExperimentResult.Skipped
 import org.scalafmt.util.ExperimentResult.Success
 import org.scalafmt.util.ExperimentResult.Timeout
 import org.scalafmt.util.ExperimentResult.UnknownFailure
-
 import scala.annotation.tailrec
 import scala.collection.JavaConversions._
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 import scala.meta._
-import scala.util.Try
 import scala.util.control.NonFatal
-import scalaz.-\/
 import scalaz.concurrent.Task
 
 /**

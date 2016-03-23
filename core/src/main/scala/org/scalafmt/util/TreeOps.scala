@@ -1,8 +1,8 @@
 package org.scalafmt.util
 
 import org.scalafmt.Error
-
 import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.meta.Tree
 import scala.meta.internal.ast.Ctor
 import scala.meta.internal.ast.Decl
@@ -18,7 +18,6 @@ import scala.meta.internal.ast.Type
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 import scala.meta.tokens.Tokens
-import scala.collection.mutable
 import scala.reflect.ClassTag
 import scala.reflect.classTag
 

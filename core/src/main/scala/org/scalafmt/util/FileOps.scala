@@ -5,8 +5,6 @@ import java.io.File
 import java.io.FileReader
 import java.io.PrintWriter
 
-import LoggerOps._
-
 object FileOps {
 
   def listFiles(path: String): Vector[String] = {

@@ -3,14 +3,13 @@ package org.scalafmt.cli
 import java.io.File
 
 import org.scalafmt.ScalaFmt
-import org.scalafmt.ScalaStyle
 import org.scalafmt.Versions
 import org.scalafmt.internal.Debug
 import org.scalafmt.util.LoggerOps
-import LoggerOps._
 import org.scalafmt.util.FileOps
 
 object Cli {
+  import LoggerOps._
   val usageExamples =
     """
       |// get help

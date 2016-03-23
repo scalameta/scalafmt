@@ -2,7 +2,6 @@ package org.scalafmt.util
 
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.Split
-
 import scala.meta.Tree
 import scala.meta.prettyprinters.Structure
 import scala.meta.tokens.Token

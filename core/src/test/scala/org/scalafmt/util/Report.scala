@@ -2,7 +2,6 @@ package org.scalafmt.util
 
 import org.scalafmt.ScalaStyle
 import org.scalafmt.stats.TestStats
-
 import scalatags.Text
 import scalatags.Text.all._
 
