@@ -260,13 +260,13 @@
       The margin character @code("|") is aligned with the opening triple
       quote @code("\"\"\"") in interpolated and raw string literals.
 
-      @example(org.scalafmt.util.FilesUtil.readFile("readme/stripMargin.example"))
+      @example(org.scalafmt.util.FileOps.readFile("readme/stripMargin.example"))
 
     @sect{// format: off}
       Disable formatting for specific regions of code by wrapping them in
       @code("// format: OFF") blocks:
 
-      @example(org.scalafmt.util.FilesUtil.readFile("readme/matrix.example"))
+      @example(org.scalafmt.util.FileOps.readFile("readme/matrix.example"))
 
       To disable formatting for a whole file, put the first comment
       at the top of the file.

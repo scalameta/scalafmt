@@ -9,19 +9,19 @@ class CommentTest extends FunSuite with DiffAssertions {
       scalaDocs = false)
   test("javadoc docstrings are correct") {
     val original = """object a {
-        |/**
-        |   * Y is cool
-        |   */
-        |val y = 2
-        |}
+                     |/**
+                     |   * Y is cool
+                     |   */
+                     |val y = 2
+                     |}
       """.stripMargin
     val expected = """object a {
-        |
-        |  /**
-        |   * Y is cool
-        |   */
-        |  val y = 2
-        |}
+                     |
+                     |  /**
+                     |   * Y is cool
+                     |   */
+                     |  val y = 2
+                     |}
       """.stripMargin
     val obtained =
       ScalaFmt.format_!(original, javadocStyle)(scala.meta.parseSource)

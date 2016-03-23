@@ -1,8 +1,11 @@
 package org.scalafmt.internal
 
-import org.scalafmt.internal.ScalaFmtLogger._
+import org.scalafmt.internal.Policy.NoPolicy
+import org.scalafmt.util.LoggerOps
 
 class PolicySummary(val policies: Vector[Policy]) {
+  import LoggerOps._
+
   val noDequeue = policies.exists(_.noDequeue)
 
   def combine(other: Policy, position: Int): PolicySummary = {

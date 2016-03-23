@@ -2,49 +2,43 @@ package org.scalafmt.util
 
 import scala.meta.parsers.common.ParseException
 
-sealed abstract class ExperimentResult(fileUrl: String) {
+sealed abstract class ExperimentResult(scalaFile: ScalaFile) {
   def key: String
 
-  // TODO(olafur) abstract over whether raw or non-raw link.
-
-  def details =
-    fileUrl.replace("github.com", "raw.githubusercontent.com")
-      .replace("/blob/", "/")
-
-  override def toString: String = s"""key=$key
-        |fileUrl=$fileUrl
-        |details=$details
-     """.stripMargin
+  override def toString: String =
+    s"""${this.getClass.getSimpleName}($scalaFile)""".stripMargin
 }
 
 object ExperimentResult {
 
-  case class Success(fileUrl: String, nanos: Long)
-      extends ExperimentResult(fileUrl) {
+  case class Success(scalaFile: ScalaFile, nanos: Long)
+      extends ExperimentResult(scalaFile) {
 
     override def key = "Success"
   }
 
-  case class Timeout(fileUrl: String) extends ExperimentResult(fileUrl) {
+  case class Timeout(scalaFile: ScalaFile)
+      extends ExperimentResult(scalaFile) {
 
     override def key = "Formatter timed out"
   }
 
-  case class Skipped(fileUrl: String) extends ExperimentResult(fileUrl) {
+  case class Skipped(scalaFile: ScalaFile)
+      extends ExperimentResult(scalaFile) {
 
     override def key = "Ignored, scalac won't parse"
   }
 
-  case class UnknownFailure(fileUrl: String, e: Throwable)
-      extends ExperimentResult(fileUrl) {
+  case class UnknownFailure(scalaFile: ScalaFile, e: Throwable)
+      extends ExperimentResult(scalaFile) {
 
     override def key: String = e.getClass.getName
 
-    override def toString: String = s"$fileUrl $e"
+    override def toString: String = s"$scalaFile $e"
   }
 
-  case class ParseErr(fileUrl: String, e: ParseException)
-      extends ExperimentResult(fileUrl) {
+  case class ParseErr(scalaFile: ScalaFile, e: ParseException)
+      extends ExperimentResult(scalaFile) {
 
     override def key: String =
       e.getClass.getName + ": " + e.getMessage.replaceAll(" at .*", "")
@@ -54,7 +48,7 @@ object ExperimentResult {
     def content = s"cols:${e.pos.start.column}-${e.pos.end.column}"
 
     def urlWithLineHighlighted: String =
-      s"$fileUrl#L${e.pos.start.line + 1} $cols"
+      s"${scalaFile.githubUrl}#L${e.pos.start.line + 1} $cols"
 
     def cols = s"cols:${e.pos.start.column}-${e.pos.end.column}"
   }

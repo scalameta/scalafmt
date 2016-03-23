@@ -3,18 +3,17 @@ package org.scalafmt
 import org.scalafmt.util.DiffAssertions
 import org.scalatest.FunSuite
 
-class RangeTest
-    extends FunSuite with DiffAssertions {
+class RangeTest extends FunSuite with DiffAssertions {
   test("range preserves indent") {
     val original = """object a {
-        |val x = 1
-        |val y = 2
-        |}
+                     |val x = 1
+                     |val y = 2
+                     |}
       """.stripMargin
     val expected = """object a {
-        |val x = 1
-        |  val y = 2
-        |}
+                     |val x = 1
+                     |  val y = 2
+                     |}
       """.stripMargin
     val obtained =
       ScalaFmt.format_!(original,

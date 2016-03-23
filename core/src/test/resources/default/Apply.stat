@@ -7,10 +7,12 @@ List(Split(Space, 0).withPolicy(SingleLineBlock(close)),
            }).withIndent(2, close, Right))
 >>>
 List(Split(Space, 0).withPolicy(SingleLineBlock(close)),
-     Split(nl, 1).withPolicy({
-       case Decision(t@FormatToken(_, `close`, _), s) =>
-         Decision(t, List(Split(Newline, 0)))
-     }).withIndent(2, close, Right))
+     Split(nl, 1)
+       .withPolicy({
+         case Decision(t@FormatToken(_, `close`, _), s) =>
+           Decision(t, List(Split(Newline, 0)))
+       })
+       .withIndent(2, close, Right))
 <<< Massive 2
  List(Split(Space,
             0,
@@ -199,3 +201,22 @@ val result = new scala.collection.mutable.SetBuilder[Token, Set[Token]](Set.empt
         Set.empty[Token])
   }
 }
+<<< property scalding
+  writeRead(
+    // Use list because Array has a shitty toString
+    { (b: List[Byte], os) => os.writePosVarInt(b.size); os.writeBytes(b.toArray) },
+    { is =>
+      val bytes = new Array[Byte](is.readPosVarInt)
+      is.readFully(bytes)
+      bytes.toList
+    })
+>>>
+writeRead(
+          // Use list because Array has a shitty toString
+          { (b: List[Byte], os) =>
+            os.writePosVarInt(b.size); os.writeBytes(b.toArray)
+          }, { is =>
+            val bytes = new Array[Byte](is.readPosVarInt)
+            is.readFully(bytes)
+            bytes.toList
+          })

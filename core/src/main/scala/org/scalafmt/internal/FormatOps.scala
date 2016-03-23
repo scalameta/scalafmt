@@ -2,28 +2,32 @@ package org.scalafmt.internal
 
 import org.scalafmt.Error.CaseMissingArrow
 import org.scalafmt.ScalaStyle
-
+import org.scalafmt.util.TokenOps
+import org.scalafmt.util.TreeOps
 import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.meta.Tree
 import scala.meta.internal.ast.Case
-import scala.meta.internal.ast.Template
-import scala.meta.internal.ast.Term
-import scala.meta.tokens.Token
-import scala.meta.tokens.Token._
 import scala.meta.internal.ast.Defn
 import scala.meta.internal.ast.Pkg
+import scala.meta.internal.ast.Template
+import scala.meta.internal.ast.Term
+import scala.meta.internal.ast.Type
 import scala.meta.prettyprinters.Structure
+import scala.meta.tokens.Token
+import scala.meta.tokens.Token._
 
 /**
   * Helper functions for generating splits/policies for a given tree.
   */
-class FormatOps(val style: ScalaStyle,
-                val tree: Tree,
-                val tokens: Array[FormatToken],
-                val ownersMap: Map[TokenHash, Tree],
-                val statementStarts: Map[TokenHash, Tree],
-                val matchingParentheses: Map[TokenHash, Token])
-    extends TreeOps {
+class FormatOps(val tree: Tree, val style: ScalaStyle) {
+  import TokenOps._
+  import TreeOps._
+
+  val tokens: Array[FormatToken] = FormatToken.formatTokens(tree.tokens)
+  val ownersMap = getOwners(tree)
+  val statementStarts = getStatementStarts(tree)
+  val matchingParentheses = getMatchingParentheses(tree.tokens)
 
   @inline
   def owners(token: Token): Tree = ownersMap(hash(token))
@@ -148,6 +152,12 @@ class FormatOps(val style: ScalaStyle,
   def parensRange(open: Token): Range =
     Range(open.start, matchingParentheses(hash(open)).end)
 
+  def getExcludeIfEndingWithBlock(end: Token): Set[Range] = {
+    if (end.isInstanceOf[`}`]) // allow newlines in final {} block
+      Set(Range(matchingParentheses(hash(end)).start, end.end))
+    else Set.empty[Range]
+  }
+
   def insideBlock(start: FormatToken,
                   end: Token,
                   matches: Token => Boolean): Set[Token] = {
@@ -255,6 +265,7 @@ class FormatOps(val style: ScalaStyle,
       args.last.tokens.last
     }).getOrElse(owner.tokens.last)
   }
+
   def functionExpire(function: Term.Function): Token = {
     (for {
       parent <- function.parent
@@ -263,5 +274,30 @@ class FormatOps(val style: ScalaStyle,
         case _ => None
       }
     } yield blockEnd).getOrElse(function.tokens.last)
+  }
+
+  def noOptimizationZones(tree: Tree): Set[Token] = {
+    val result = new mutable.SetBuilder[Token, Set[Token]](Set.empty[Token])
+    var inside = false
+    var expire = tree.tokens.head
+    tree.tokens.foreach {
+      case t
+          if !inside &&
+          ((t, ownersMap(hash(t))) match {
+                case (_: `(`, _: Term.Apply) =>
+                  // TODO(olafur) https://github.com/scalameta/scalameta/issues/345
+                  val x = true
+                  x
+                // Type compounds can be inside defn.defs
+                case (_: `{`, _: Type.Compound) => true
+                case _ => false
+              }) =>
+        inside = true
+        expire = matchingParentheses(hash(t))
+      case x if x == expire => inside = false
+      case x if inside => result += x
+      case _ =>
+    }
+    result.result()
   }
 }

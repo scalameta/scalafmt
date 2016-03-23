@@ -62,3 +62,17 @@ def identModification(ident: Ident): Modification =
               ReplaceWithThis()))
     }
 }
+<<< AST violate
+object a {
+def toString(): String = {
+    (if (isInterface()) "interface " else
+        if (isPrimitive()) "" else "class ")+getName()
+  }
+  }
+>>>
+object a {
+  def toString(): String = {
+    (if (isInterface()) "interface "
+     else if (isPrimitive()) "" else "class ") + getName()
+  }
+}

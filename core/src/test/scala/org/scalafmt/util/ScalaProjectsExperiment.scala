@@ -6,30 +6,32 @@ import java.util.Locale
 import java.util.concurrent.CopyOnWriteArrayList
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
-import org.scalafmt.internal.ScalaFmtLogger._
 import org.scalafmt.util.ExperimentResult.ParseErr
 import org.scalafmt.util.ExperimentResult.Skipped
 import org.scalafmt.util.ExperimentResult.Success
 import org.scalafmt.util.ExperimentResult.Timeout
 import org.scalafmt.util.ExperimentResult.UnknownFailure
-
+import scala.annotation.tailrec
 import scala.collection.JavaConversions._
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.concurrent.duration._
+import scala.concurrent.duration.Duration
 import scala.meta._
 import scala.util.control.NonFatal
+import scalaz.concurrent.Task
 
 /**
   * Mostly borrowed from
   * https://github.com/lihaoyi/fastparse/blob/0d67eca8f9264bfaff68e5cbb227045ceac4a15f/scalaparse/jvm/src/test/scala/scalaparse/ProjectTests.scala
   */
 trait ScalaProjectsExperiment {
+  val awaitMaxDuration =
+    // Can't guarantee performance on Travis
+    if (sys.env.contains("TRAVIS")) Duration(1, "min")
+    // Max on @olafurpg's machine is 5.9s, 2,5 GHz Intel Core i7 Macbook Pro.
+    else Duration(10, "s")
+
   val results: java.util.List[ExperimentResult] =
     new CopyOnWriteArrayList[ExperimentResult]()
   val verbose = false
-  val skipProject: String => Boolean = _ => false
   val colLength = 10
   val numberFormat = {
     // I prefer . as thousand separator.
@@ -39,147 +41,71 @@ trait ScalaProjectsExperiment {
   }
 
   val separator = File.pathSeparator
-  private val pathRoot = FilesUtil.getFile("target", "repos")
+
+  def runOn(scalaFile: ScalaFile): ExperimentResult
+
+  val taskChunk = 100
 
   /**
-    * Implement this method.
-    *
-    * @param filename
+    * This is an awkward workaround to prevent false negative timeout exceptions
+    * when formatting thousands of files.
     */
-  def runOn(filename: String): Boolean
-
-  def runExperiment(): Unit = {
-    checkRepo("https://github.com/GravityLabs/goose")
-    checkRepo("https://github.com/JetBrains/intellij-scala")
-    checkRepo("https://github.com/PredictionIO/PredictionIO")
-    checkRepo("https://github.com/akka/akka")
-    checkRepo("https://github.com/apache/kafka")
-    checkRepo("https://github.com/apache/spark")
-    checkRepo("https://github.com/ensime/ensime-server")
-    checkRepo("https://github.com/lift/framework")
-    checkRepo("https://github.com/lihaoyi/fastparse")
-    checkRepo("https://github.com/mesosphere/marathon")
-    checkRepo("https://github.com/milessabin/shapeless")
-    checkRepo("https://github.com/non/cats")
-    checkRepo("https://github.com/non/spire")
-    checkRepo("https://github.com/ornicar/lila", lilaIgnore)
-    checkRepo("https://github.com/playframework/playframework")
-    checkRepo("https://github.com/pocorall/scaloid")
-    checkRepo("https://github.com/precog/platform")
-    checkRepo("https://github.com/saddle/saddle")
-    checkRepo("https://github.com/sbt/sbt", sbtIgnore)
-    checkRepo("https://github.com/scala-ide/scala-ide")
-    checkRepo("https://github.com/scala-js/scala-js")
-    checkRepo("https://github.com/scala/pickling")
-    checkRepo("https://github.com/scala/scala", scalaIgnore)
-    checkRepo("https://github.com/scalafx/scalafx")
-    checkRepo("https://github.com/scalafx/scalafx-ensemble")
-    checkRepo("https://github.com/scalanlp/breeze")
-    checkRepo("https://github.com/scalatra/scalatra")
-    checkRepo("https://github.com/scalaz/scalaz")
-    checkRepo("https://github.com/slick/slick")
-    checkRepo("https://github.com/takezoe/gitbucket")
-    checkRepo("https://github.com/twitter/finagle")
-    checkRepo("https://github.com/twitter/scalding")
-    checkRepo("https://github.com/twitter/summingbird")
-    checkRepo("https://github.com/twitter/util")
-  }
-
-  private def checkRepo(url: String,
-                        filter: String => Boolean = _ => true,
-                        commit: String = "master"): Unit = {
-    if (skipProject(url)) return
-    import FilesUtil._
-
-    import sys.process._
-    val name = repoName(url)
-    val path = pathRoot + name
-    val projectDir = FilesUtil.getFile("target", "repos", name)
-    val gitDir = FilesUtil.getFile("target", "repos", name, ".git")
-    println("CLONING?")
-    if (!projectDir.isDirectory) {
-      println(s"CLONING $url ${gitDir.getPath} ${projectDir.getPath}")
-      List("git", "clone", url, projectDir.getPath).!
+  @tailrec
+  // TODO(olafur) use better concurrency primitive than task/future.
+  final def runTasksInChunks(tasks: Seq[Task[ExperimentResult]]): Unit = {
+    if (tasks.nonEmpty) {
+      println(s"\n${tasks.length} tasks remaining...")
+      val (toRun, nextRound) = tasks.splitAt(taskChunk)
+      Task
+        .gatherUnordered(toRun)
+        .runFor(awaitMaxDuration * toRun.length)
+        .foreach { e =>
+          results.add(e)
+        }
+      runTasksInChunks(nextRound)
     }
-    // Avoid flakiness.
-//    Seq("git", s"--git-dir=${gitDir.getPath}", s"checkout", commit).!
-    val branch = Seq(
-        "git", s"--git-dir=${gitDir.getPath}", "rev-parse", "HEAD").!!
-    println("Checking project " + name)
-    val files = listFiles(projectDir.getPath).withFilter(x =>
-      filter(x) && x.endsWith(".scala")).map(filename =>
-      {
-        val fileUrl = s"$url/blob/$branch${filename.stripPrefix(path)}"
-          .replaceAll("\\s", "")
-        run(filename).recover(recoverError(fileUrl))
-      })
-    files.foreach(Await.result(_, files.length.seconds))
-    println("")
   }
 
-  def recoverError(fileUrl: String): PartialFunction[Throwable, Boolean] = {
-    case e: ParseException => results.add(ParseErr(fileUrl, e))
+  def runExperiment(scalaFiles: Seq[ScalaFile]): Unit = {
+    val tasks = scalaFiles.map { file =>
+      Task(runOn(file)).timed(awaitMaxDuration).handle(recoverError(file))
+    }
+    runTasksInChunks(tasks)
+  }
+
+  def recoverError(
+      scalaFile: ScalaFile): PartialFunction[Throwable, ExperimentResult] = {
+    case e: ParseException => ParseErr(scalaFile, e)
     case e: java.util.concurrent.TimeoutException =>
-      println(s"- $fileUrl")
-      results.add(Timeout(fileUrl))
+      println(s"- $scalaFile")
+      Timeout(scalaFile)
     case NonFatal(e) =>
-      print("X")
-      results.add(UnknownFailure(fileUrl, e))
+      print(s"X $scalaFile")
+      UnknownFailure(scalaFile, e)
   }
 
   private def repoName(url: String): String = url.split("/").last
 
-  private def run(filename: String): Future[Boolean] = Future(runOn(filename))
-
-  private def sbtIgnore: String => Boolean =
-    x =>
-      !Seq(
-          // Unicode escapes in weird places
-          "target/repos/sbt/main/settings/src/main/scala/sbt/std/InputWrapper.scala",
-          // uses a package called `macro`
-          "target/repos/sbt/sbt/src/sbt-test/source-dependencies/inherited-macros",
-          "target/repos/sbt/sbt/src/sbt-test/source-dependencies/macro")
-        .exists(x.startsWith)
-
-  private def scalaIgnore: String => Boolean =
-    x =>
-      !Seq(
-           // This fella seems to make the scalac parser hang (???)
-           "target/repos/scala/test/files/neg/t5510.scala",
-           // Unicode escapes in weird places
-           "target/repos/scala/test/files/neg/t8015-ffb.scala",
-           "target/repos/scala/test/files/pos/t389.scala",
-           "target/repos/scala/test/files/run/literals.scala",
-           "target/repos/scala/test/files/run/t3835.scala",
-           // Scalac parser seems to accept this, though it blows up later
-           "target/repos/scala/test/files/neg/t8266-invalid-interp.scala",
-           "target/repos/scala/test/disabled/",
-           "target/repos/scala/test/files/neg/",
-           // trailing . after number
-           "target/repos/scala/test/files/presentation/infix-completion/src/Snippet.scala")
-        .exists(x.startsWith)
-
-  private def lilaIgnore: String => Boolean =
-    x =>
-      !Seq("target/repos/lila/modules/lobby/src/main/SocketHandler.scala")
-        .exists(x.startsWith)
+  private def lilaIgnore: String => Boolean = x => !Seq().exists(x.startsWith)
 
   def printResults(): Unit = {
     println(header("Summary:"))
-    results.groupBy(_.key).foreach {
-      case (categoryName, categoryResults) =>
-        println(s"$categoryName: ${categoryResults.length}")
-        if (categoryResults.nonEmpty) {
-          println()
-        }
-        categoryResults.foreach {
-          case _: Success | _: Skipped =>
-          case e => println(e.details)
-        }
-        if (categoryResults.nonEmpty) {
-          println()
-        }
-    }
+    results
+      .groupBy(_.key)
+      .foreach {
+        case (categoryName, categoryResults) =>
+          println(s"$categoryName: ${categoryResults.length}")
+          if (categoryResults.nonEmpty) {
+            println()
+          }
+          categoryResults.foreach {
+            case _: Success | _: Skipped =>
+            case e => println(e)
+          }
+          if (categoryResults.nonEmpty) {
+            println()
+          }
+      }
     val formatStats = new DescriptiveStatistics()
     results.foreach {
       case x: Success => formatStats.addValue(x.nanos)
@@ -193,31 +119,29 @@ trait ScalaProjectsExperiment {
 
   private def summarize(stats: DescriptiveStatistics): String =
     Tabulator.format(Seq(
-        Seq("Max", "Min", "Sum", "Mean", "Q1", "Q2", "Q3"),
-        Seq(stats.getMax,
-            stats.getMin,
-            stats.getSum,
-            stats.getMean,
-            stats.getPercentile(25),
-            stats.getPercentile(50),
-            stats.getPercentile(75)).map(formatNumber)
-    ))
+            Seq("Max", "Min", "Sum", "Mean", "Q1", "Q2", "Q3"),
+            Seq(stats.getMax,
+                stats.getMin,
+                stats.getSum,
+                stats.getMean,
+                stats.getPercentile(25),
+                stats.getPercentile(50),
+                stats.getPercentile(75)).map(formatNumber)
+        ))
 
-  private def formatNumber(x: Any): String =
-    x match {
-      case d: Double =>
-        // TODO(olafur) no better lib to do this?
-        val ms = d / Math.pow(10, 6)
-        numberFormat.format(ms) + " ms"
-      case _ => x.toString
+  private def formatNumber(x: Any): String = x match {
+    case d: Double =>
+      // TODO(olafur) no better lib to do this?
+      val ms = d / Math.pow(10, 6)
+      numberFormat.format(ms) + " ms"
+    case _ => x.toString
+  }
+
+  private def col(strings: Any*): String = strings.map { s =>
+    val x = s match {
+      case d: Double => numberFormat.format(d)
+      case _ => s
     }
-
-  private def col(strings: Any*): String =
-    strings.map { s =>
-      val x = s match {
-        case d: Double => numberFormat.format(d)
-        case _ => s
-      }
-      x.toString.slice(0, colLength - 2).padTo(colLength - 1, " ").mkString
-    }.mkString(" ")
+    x.toString.slice(0, colLength - 2).padTo(colLength - 1, " ").mkString
+  }.mkString(" ")
 }

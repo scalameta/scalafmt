@@ -1,20 +1,51 @@
-package org.scalafmt.internal
+package org.scalafmt.util
 
-import org.scalafmt.internal.ScalaFmtLogger._
-
+import org.scalafmt.internal.Decision
+import org.scalafmt.internal.FormatToken
+import org.scalafmt.internal.Modification
+import org.scalafmt.internal.Newline
+import org.scalafmt.internal.NoSplit
+import org.scalafmt.internal.Policy
+import org.scalafmt.internal.Space
 import scala.meta.Tree
-import scala.meta.tokens.Token
-import scala.meta.tokens.Token._
 import scala.meta.internal.ast.Defn
 import scala.meta.internal.ast.Pkg
 import scala.meta.internal.ast.Template
-
-object TokenOps extends TokenOps
+import scala.meta.tokens.Token
+import scala.meta.tokens.Token._
 
 /**
   * Stateless helper functions on [[scala.meta.Token]].
   */
-trait TokenOps {
+object TokenOps {
+
+  /**
+    * For convenience when experimenting with different hashing strategies.
+    */
+  type TokenHash = Long
+
+  /**
+    * Custom hash code for token.
+    *
+    * The default hashCode is slow because it prevents conflicts between
+    * tokens from different source files. We only care about getting a unique
+    * identifier for the token inside this source file.
+    *
+    * The hash code works like this this:
+    * Top 8 bits go to privateTag, a unique identifier for the tokens class.
+    * Next 28 bits go to the tokens **start** offset byte.
+    * Final 28 bits go to the tokens **end** offset byte.
+    *
+    * The only chance for collision is if two empty length tokens with the same
+    * type lie next to each other. @xeno-by said this should not happen.
+    */
+  @inline
+  def hash(token: Token): TokenHash = {
+    val longHash: Long =
+      (token.privateTag.toLong << (62 - 8)) |
+      (token.start.toLong << (62 - (8 + 28))) | token.end
+    longHash
+  }
 
   def shouldGet2xNewlines(tok: FormatToken): Boolean = {
     !isDocstring(tok.left) && {

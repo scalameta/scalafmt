@@ -1,10 +1,13 @@
 package org.scalafmt.internal
 
-import org.scalafmt.Error.UnexpectedTree
-import org.scalafmt.internal.ScalaFmtLogger._
-
-import scala.collection.mutable
 import scala.language.implicitConversions
+
+import org.scalafmt.Error.UnexpectedTree
+import org.scalafmt.internal.Policy.NoPolicy
+import org.scalafmt.util.LoggerOps
+import org.scalafmt.util.TokenOps
+import org.scalafmt.util.TreeOps
+import scala.collection.mutable
 import scala.meta.Tree
 import scala.meta.internal.ast.Case
 import scala.meta.internal.ast.Defn
@@ -29,6 +32,9 @@ object Constants {
   * Assigns splits to format tokens.
   */
 class Router(formatOps: FormatOps) {
+  import LoggerOps._
+  import TokenOps._
+  import TreeOps._
   import formatOps._
 
   def getSplits(formatToken: FormatToken): Seq[Split] = {
@@ -55,7 +61,7 @@ class Router(formatOps: FormatOps) {
         val end = matchingParentheses(hash(start))
         val policy =
           if (isTripleQuote(start)) NoPolicy
-          else SingleLineBlock(end)
+          else penalizeAllNewlines(end, 100)
         Seq(
             // statecolumn - 1 because of margin characters |
             Split(NoSplit, 0, ignoreIf = !isStripMargin)
@@ -157,8 +163,10 @@ class Router(formatOps: FormatOps) {
 
         Seq(
             Split(Space, 0, ignoreIf = skipSingleLineBlock)
+              .withOptimalToken(close, killOnFail = true)
               .withPolicy(SingleLineBlock(close)),
-            Split(Space, 0, ignoreIf = !startsLambda, optimalAt = lambdaArrow)
+            Split(Space, 0, ignoreIf = !startsLambda)
+              .withOptimalToken(lambdaArrow)
               .withIndent(lambdaIndent, close, Right)
               .withPolicy(lambdaPolicy),
             Split(nl, 1)
@@ -208,11 +216,8 @@ class Router(formatOps: FormatOps) {
           if startsStatement(tok) && newlines == 0 =>
         val expire = statementStarts(hash(right)).tokens.last
         Seq(
-            Split(
-                  // This split needs to have an optimalAt field.
-                  Space,
-                  0,
-                  optimalAt = Some(expire))
+            Split(Space, 0)
+              .withOptimalToken(expire)
               .withPolicy(SingleLineBlock(expire)),
             // For some reason, this newline cannot cost 1.
             Split(Newline(shouldGet2xNewlines(tok)), 0)
@@ -234,8 +239,8 @@ class Router(formatOps: FormatOps) {
                   // This split needs to have an optimalAt field.
                   Space,
                   0,
-                  ignoreIf = !spaceCouldBeOk,
-                  optimalAt = Some(expire))
+                  ignoreIf = !spaceCouldBeOk)
+              .withOptimalToken(expire)
               .withPolicy(SingleLineBlock(expire)),
             // For some reason, this newline cannot cost 1.
             Split(newline, 0)
@@ -291,8 +296,7 @@ class Router(formatOps: FormatOps) {
       case tok@FormatToken(e: `=`, right, _)
           if leftOwner.isInstanceOf[Defn.Def] =>
         val expire = leftOwner.asInstanceOf[Defn.Def].body.tokens.last
-        val exclude =
-          insideBlock(tok, expire, _.isInstanceOf[`{`]).map(parensRange)
+        val exclude = getExcludeIfEndingWithBlock(expire)
         val rhsIsJsNative = isJsNative(right)
         Seq(
             Split(
@@ -327,7 +331,9 @@ class Router(formatOps: FormatOps) {
         val optimal =
           leftOwner.tokens.find(_.isInstanceOf[`,`]).orElse(Some(close))
         Seq(
-            Split(NoSplit, 0, optimalAt = optimal).withIndent(4, close, Left),
+            Split(NoSplit, 0)
+              .withOptimalToken(optimal)
+              .withIndent(4, close, Left),
             Split(Newline, 1).withIndent(4, close, Left)
         )
       case tok@FormatToken(_: `(` | _: `[`, right, between)
@@ -340,7 +346,7 @@ class Router(formatOps: FormatOps) {
           logger.error(s"""Unknown tree
                           |${log(leftOwner.parent.get)}
                           |${isDefnSite(leftOwner)}""".stripMargin)
-          ???
+          throw UnexpectedTree[Term.Apply](leftOwner)
         }
         // In long sequence of select/apply, we penalize splitting on
         // parens furthest to the right.
@@ -420,31 +426,32 @@ class Router(formatOps: FormatOps) {
           if (isDefnSite(leftOwner)) defnSiteLastToken(leftOwner)
           else rhsOptimalToken(leftTok2tok(close))
 
-        val optimalToken = Some(expirationToken)
-
         Seq(
             Split(modification,
                   0,
                   policy = singleLine,
-                  ignoreIf = !fitsOnOneLine || isConfigStyle,
-                  optimalAt = optimalToken).withIndent(indent, close, Left),
+                  ignoreIf = !fitsOnOneLine || isConfigStyle)
+              .withOptimalToken(expirationToken)
+              .withIndent(indent, close, Left),
             Split(newlineModification,
                   (1 + nestedPenalty + lhsPenalty) * bracketMultiplier,
                   policy = singleLine,
-                  ignoreIf = !fitsOnOneLine || isConfigStyle,
-                  optimalAt = optimalToken).withIndent(indent, close, Left),
+                  ignoreIf = !fitsOnOneLine || isConfigStyle)
+              .withOptimalToken(expirationToken)
+              .withIndent(indent, close, Left),
             // TODO(olafur) singleline per argument!
             Split(modification,
                   (2 + lhsPenalty) * bracketMultiplier,
                   policy = oneArgOneLine,
-                  ignoreIf = singleArgument || isConfigStyle,
-                  optimalAt = optimalToken)
+                  ignoreIf = singleArgument || isConfigStyle)
+              .withOptimalToken(expirationToken)
               .withIndent(StateColumn, close, Right),
             Split(Newline,
                   (3 + nestedPenalty + lhsPenalty) * bracketMultiplier,
                   policy = oneArgOneLine,
-                  ignoreIf = singleArgument || isConfigStyle,
-                  optimalAt = optimalToken).withIndent(indent, close, Left),
+                  ignoreIf = singleArgument || isConfigStyle)
+              .withOptimalToken(expirationToken)
+              .withIndent(indent, close, Left),
             Split(Newline,
                   0,
                   policy = configStyle,
@@ -487,7 +494,8 @@ class Router(formatOps: FormatOps) {
           .getOrElse(NoPolicy)
         val optimalToken = endOfArgument.map(_.left)
         Seq(
-            Split(Space, 0, optimalAt = optimalToken)
+            Split(Space, 0)
+              .withOptimalToken(optimalToken)
               .withPolicy(singleLineToEndOfArg),
             Split(Newline, 1, ignoreIf = rhsIsAttachedComment)
         )
@@ -542,40 +550,32 @@ class Router(formatOps: FormatOps) {
           if rightOwner.isInstanceOf[Term.Select] &&
           isOpenApply(next(next(tok)).right) && !left.isInstanceOf[`_ `] &&
           !parents(rightOwner).exists(_.isInstanceOf[Import]) =>
-        val open = next(next(tok)).right
-        val close = matchingParentheses(hash(open))
+        val owner = rightOwner.asInstanceOf[Term.Select]
         val nestedPenalty = nestedSelect(rightOwner) + nestedApplies(leftOwner)
-        val chain = getSelectChain(Some(rightOwner))
+        val chain = getSelectChain(owner)
+        val names = chain.map(_.name)
         val lastToken = lastTokenInChain(chain)
         val breakOnEveryDot = Policy({
-          case Decision(t@FormatToken(_, dot2: `.`, _), s)
+          case Decision(t@FormatToken(left, dot2: `.`, _), s)
               if chain.contains(owners(dot2)) =>
-            val expire = selectExpire(dot2)
-            val newlineSplits = s.filter(_.modification.isNewline)
-            // A plain select with no apply has no newline splits.
-            val newSplits =
-              if (newlineSplits.nonEmpty) newlineSplits
-              else Seq(Split(Newline, 1).withIndent(2, expire, Left))
-            Decision(t, newSplits)
+            Decision(t, Seq(Split(Newline, 1)))
         }, lastToken.end)
-        val exclude =
-          insideBlock(tok, close, _.isInstanceOf[`{`]).map(parensRange)
-        val expire = Math.max(lastToken.end, close.end)
+        val exclude = getExcludeIfEndingWithBlock(lastToken)
         // This policy will apply to both the space and newline splits, otherwise
         // the newline is too cheap even it doesn't actually prevent other newlines.
-        val penalizeNewlinesInApply = penalizeAllNewlines(close, 2)
+        val penalizeNewlinesInApply = penalizeAllNewlines(lastToken, 2)
         val noSplitPolicy =
           SingleLineBlock(lastToken, exclude, disallowInlineComments = false)
             .andThen(penalizeNewlinesInApply.f)
-            .copy(expire = expire)
+            .copy(expire = lastToken.end)
         val newlinePolicy = breakOnEveryDot
           .andThen(penalizeNewlinesInApply.f)
-          .copy(expire = expire)
+          .copy(expire = lastToken.end)
         Seq(
             Split(NoSplit, 0).withPolicy(noSplitPolicy),
             Split(Newline, 1 + nestedPenalty)
               .withPolicy(newlinePolicy)
-              .withIndent(2, close, Left)
+              .withIndent(2, lastToken, Left)
         )
       // ApplyUnary
       case tok@FormatToken(_: Ident, _: Literal, _)
@@ -637,7 +637,8 @@ class Router(formatOps: FormatOps) {
               .withPolicy(penalizeNewlines)
         )
       case FormatToken(close: `)`, right, between)
-          if leftOwner.isInstanceOf[Term.If] =>
+          if leftOwner.isInstanceOf[Term.If] &&
+          !isFirstOrLastToken(close, leftOwner) =>
         val owner = leftOwner.asInstanceOf[Term.If]
         val expire = owner.thenp.tokens.last
         val rightIsOnNewLine = newlines > 0
@@ -658,9 +659,10 @@ class Router(formatOps: FormatOps) {
             Split(Space, 0)
         )
       case tok@FormatToken(_, els: `else`, _) =>
-        // According to scala-js style guide, no single-line if else.
         Seq(
-            Split(Newline, 0)
+            Split(Space, 0, ignoreIf = newlines > 0)
+              .withPolicy(SingleLineBlock(rightOwner.tokens.last)),
+            Split(Newline, 1)
         )
       // Last else branch
       case tok@FormatToken(els: `else`, _, _)
@@ -699,10 +701,11 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_, open: `(`, _)
           if rightOwner.isInstanceOf[Term.ApplyInfix] =>
         val close = matchingParentheses(hash(open))
+        val optimalToken = Some(OptimalToken(close))
         Seq(
-            Split(Space, 0, optimalAt = Some(close))
+            Split(Space, 0, optimalAt = optimalToken)
               .withPolicy(SingleLineBlock(close)),
-            Split(Newline, 1, optimalAt = Some(close))
+            Split(Newline, 1, optimalAt = optimalToken)
         )
       // Infix operator.
       case tok@FormatToken(op: Ident, _, _) if leftOwner.parent.exists {
@@ -727,7 +730,7 @@ class Router(formatOps: FormatOps) {
         // Optimization, assignment operators make the state space explode in
         // sbt build files because of := operators everywhere.
         val optimalToken =
-          if (isAssignment) Some(owner.args.last.tokens.last)
+          if (isAssignment) Some(OptimalToken(owner.args.last.tokens.last))
           else None
         Seq(
             Split(Space, 0, optimalAt = optimalToken),
@@ -931,7 +934,9 @@ class Router(formatOps: FormatOps) {
         // TODO(olafur) refactor into "global policy"
         // Only newlines after inline comments.
         case FormatToken(c: Comment, _, _) if c.code.startsWith("//") =>
-          splits.filter(_.modification.isNewline)
+          val newlineSplits = splits.filter(_.modification.isNewline)
+          if (newlineSplits.isEmpty) Seq(Split(Newline, 0))
+          else newlineSplits
         case _ => splits
       }
     })

@@ -2,14 +2,9 @@
 <<< one arg chained (state explosion)
 a(b).c(d).e(f).g(h).i(j).k { aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa }
 >>>
-a(b)
-  .c(d)
-  .e(f)
-  .g(h)
-  .i(j)
-  .k {
-    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-  }
+a(b).c(d).e(f).g(h).i(j).k {
+  aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+}
 <<< avoid dead ends
 function(
     firstCall(a, b, c, d, e, f, g, h),
@@ -19,34 +14,8 @@ function(
     firstCall(a, b, c, d, e, f, g, h),
     secondCall(
         "very long argument string"));
-<<< Presentation
-MyObject(config.getBoolean("shortKey"),
-         config.getString("reallyReallyReallyLongKey"),
-         liveAnalysis.check(options.has("live"),
-                            options.has("analysis")))
->>>
-MyObject(
-    config.getBoolean("shortKey"),
-    config.getString(
-        "reallyReallyReallyLongKey"),
-    liveAnalysis
-      .check(options.has("live"),
-             options.has("analysis")))
-<<< optimalAt memoization is by split prefix
-new Compiler(
-    primitives.options.has("primitives"),
-    minify.options.has("minify"),
-    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)
->>>
-new Compiler(
-    primitives.options
-      .has("primitives"),
-    minify.options.has("minify"),
-    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)
 <<< Prune redundant branches
 new Compiler(
-    assertions.options.has("checked-mode"),
-    annotations.options.has("annotations"),
     primitives.options.has("primitives"),
     minify.options.has("minify"),
     preserve.options.has("preserve"),
@@ -55,17 +24,13 @@ new Compiler(
     sourceMap.options.has("source-map"));
 >>>
 new Compiler(
-    assertions.options
-      .has("checked-mode"),
-    annotations.options
-      .has("annotations"),
     primitives.options
       .has("primitives"),
     minify.options.has("minify"),
     preserve.options.has("preserve"),
-    liveAnalysis
-      .check(options.has("live"),
-             options.has("analysis")),
+    liveAnalysis.check(
+        options.has("live"),
+        options.has("analysis")),
     multi.options.has("multi"),
     sourceMap.options
       .has("source-map"));

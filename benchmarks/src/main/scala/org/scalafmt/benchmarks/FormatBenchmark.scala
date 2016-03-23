@@ -13,7 +13,7 @@ import org.openjdk.jmh.annotations.Setup
 import org.openjdk.jmh.annotations.Warmup
 import org.scalafmt.ScalaFmt
 import org.scalafmt.ScalaStyle
-import org.scalafmt.util.FilesUtil
+import org.scalafmt.util.FileOps
 
 import scala.meta.Source
 import scalariform.formatter.ScalaFormatter
@@ -40,15 +40,15 @@ abstract class FormatBenchmark(path: String*) {
 
   @Setup
   def setup(): Unit = {
-    code = FilesUtil.readFile(getPath.getAbsolutePath)
+    code = FileOps.readFile(getPath.getAbsolutePath)
   }
 
   def getPath: File = {
-    val filename = FilesUtil.getFile(Seq("src", "resources") ++ path:_*)
+    val filename = FileOps.getFile(Seq("src", "resources") ++ path:_*)
     // jmh runs from benchmarks directory while tests run from from root.
     // Can't bother to find more generic solution
     if (filename.isFile) filename
-    else FilesUtil.getFile(Seq("benchmarks", "src", "resources") ++ path:_*)
+    else FileOps.getFile(Seq("benchmarks", "src", "resources") ++ path:_*)
   }
 
   def scalametaParser(): Unit = {
@@ -71,15 +71,15 @@ abstract class FormatBenchmark(path: String*) {
 
 object run {
 
-  abstract class ScalaJsBenchmark(filename: String)
+  abstract class ScalaJsFile(filename: String)
       extends FormatBenchmark("scala-js", filename)
 
-//  class OptimizerCore extends ScalaJsBenchmark("OptimizerCore.scala")
+//  class OptimizerCore extends ScalaJsFile("OptimizerCore.scala")
 
-  class GenJsCode extends ScalaJsBenchmark("GenJSCode.scala")
+  class GenJsCode extends ScalaJsFile("GenJSCode.scala")
 
 //  class ScalaJSClassEmitter
-//      extends ScalaJsBenchmark("ScalaJSClassEmitter.scala")
+//      extends ScalaJsFile("ScalaJSClassEmitter.scala")
 //
-//  class JavaLangString extends ScalaJsBenchmark("JavaLangString.scala")
+//  class JavaLangString extends ScalaJsFile("JavaLangString.scala")
 }

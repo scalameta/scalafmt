@@ -63,8 +63,8 @@ case class HasScalaFmt(reflective: ScalaFmtLike,
         // Very unlikely, since NonFatal exceptions are caught by scalafmt.
         streams.log.warn(
             s"""Scalafmt error, please report to https://github.com/olafurpg/scalafmt/issues
-                |  $file:
-                |  ${e.getMessage}""".stripMargin)
+               |  $file:
+               |  ${e.getMessage}""".stripMargin)
     }
   }
 

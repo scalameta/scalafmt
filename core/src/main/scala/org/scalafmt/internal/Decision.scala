@@ -1,7 +1,5 @@
 package org.scalafmt.internal
 
-import org.scalafmt._
-
 /**
   * The decision made by [[Router]].
   *

@@ -40,4 +40,6 @@ object Policy {
 
     override def toString: String = "NoPolicy"
   }
+
+  val NoPolicy = empty
 }

@@ -1,7 +1,5 @@
 package org.scalafmt.internal
 
-import org.scalafmt.internal.ScalaFmtLogger._
-
 import java.util.concurrent.TimeUnit
 
 import scala.collection.mutable

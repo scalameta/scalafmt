@@ -1,7 +1,6 @@
 package org.scalafmt.internal
 
-import org.scalafmt.internal.ScalaFmtLogger._
-
+import org.scalafmt.util.TokenOps._
 import scala.collection.mutable
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token.Whitespace
