@@ -4,6 +4,8 @@ import org.scalafmt.Error.UnexpectedTree
 import org.scalafmt.util.ScalaFmtLogger
 import ScalaFmtLogger._
 import org.scalafmt.internal.Policy.NoPolicy
+import org.scalafmt.util.TokenOps
+import org.scalafmt.util.TreeOps
 
 import scala.collection.mutable
 import scala.language.implicitConversions

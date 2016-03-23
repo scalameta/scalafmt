@@ -1,14 +1,19 @@
-package org.scalafmt.internal
+package org.scalafmt.util
 
-import org.scalafmt.util.ScalaFmtLogger
-import ScalaFmtLogger._
+import org.scalafmt.internal.Decision
+import org.scalafmt.internal.FormatToken
+import org.scalafmt.internal.Modification
+import org.scalafmt.internal.Newline
+import org.scalafmt.internal.NoSplit
+import org.scalafmt.internal.Policy
+import org.scalafmt.internal.Space
 
 import scala.meta.Tree
-import scala.meta.tokens.Token
-import scala.meta.tokens.Token._
 import scala.meta.internal.ast.Defn
 import scala.meta.internal.ast.Pkg
 import scala.meta.internal.ast.Template
+import scala.meta.tokens.Token
+import scala.meta.tokens.Token._
 
 /**
   * Stateless helper functions on [[scala.meta.Token]].

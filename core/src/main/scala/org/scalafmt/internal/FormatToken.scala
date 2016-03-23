@@ -2,7 +2,8 @@ package org.scalafmt.internal
 
 import org.scalafmt.util.ScalaFmtLogger
 import ScalaFmtLogger._
-import org.scalafmt.internal.TokenOps._
+import org.scalafmt.util.TokenOps
+import TokenOps._
 
 import scala.collection.mutable
 import scala.meta.tokens.Token

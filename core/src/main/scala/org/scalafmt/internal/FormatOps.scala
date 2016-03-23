@@ -1,8 +1,10 @@
 package org.scalafmt.internal
 
-import org.scalafmt.internal.TokenOps._
+import org.scalafmt.util.TokenOps
+import TokenOps._
 import org.scalafmt.Error.CaseMissingArrow
 import org.scalafmt.ScalaStyle
+import org.scalafmt.util.TreeOps
 
 import scala.annotation.tailrec
 import scala.meta.Tree

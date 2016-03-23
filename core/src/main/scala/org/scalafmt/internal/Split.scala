@@ -1,6 +1,7 @@
 package org.scalafmt.internal
 
 import org.scalafmt.internal.Policy.NoPolicy
+import org.scalafmt.util.TokenOps
 import scala.meta.tokens.Token
 
 case class OptimalToken(token: Token, killOnFail: Boolean = false)

@@ -3,6 +3,7 @@ package org.scalafmt.internal
 import org.scalafmt.ScalaStyle
 import org.scalafmt.util.ScalaFmtLogger
 import ScalaFmtLogger._
+import org.scalafmt.util.TokenOps
 
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token.Comment

@@ -1,10 +1,7 @@
-package org.scalafmt.internal
+package org.scalafmt.util
 
-import org.scalafmt.util.ScalaFmtLogger
-import ScalaFmtLogger._
 import scala.annotation.tailrec
 import scala.meta.Tree
-
 import scala.meta.internal.ast.Ctor
 import scala.meta.internal.ast.Decl
 import scala.meta.internal.ast.Defn
@@ -15,8 +12,8 @@ import scala.meta.internal.ast.Pkg
 import scala.meta.internal.ast.Source
 import scala.meta.internal.ast.Term
 import scala.meta.internal.ast.Type
-import scala.meta.tokens.Token._
 import scala.meta.tokens.Token
+import scala.meta.tokens.Token.`(`
 
 /**
   * Stateless helper functions on [[scala.meta.Tree]].

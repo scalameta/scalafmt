@@ -5,6 +5,8 @@ import org.scalafmt.Error.CantFormatFile
 import org.scalafmt.ScalaStyle
 import org.scalafmt.util.ScalaFmtLogger
 import ScalaFmtLogger._
+import org.scalafmt.util.TokenOps
+import org.scalafmt.util.TreeOps
 
 import scala.collection.mutable
 import scala.meta.Mod
