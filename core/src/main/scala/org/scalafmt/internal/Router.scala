@@ -1,8 +1,8 @@
 package org.scalafmt.internal
 
 import org.scalafmt.Error.UnexpectedTree
-import org.scalafmt.util.ScalaFmtLogger
-import ScalaFmtLogger._
+import org.scalafmt.util.LoggerOps
+import LoggerOps._
 import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps

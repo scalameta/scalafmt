@@ -1,7 +1,7 @@
 package org.scalafmt
 
-import org.scalafmt.util.ScalaFmtLogger
-import ScalaFmtLogger._
+import org.scalafmt.util.LoggerOps
+import LoggerOps._
 import org.scalafmt.util.ExperimentResult
 import org.scalafmt.util.ExperimentResult.Skipped
 import org.scalafmt.util.ExperimentResult.Success

@@ -1,7 +1,7 @@
 package org.scalafmt.internal
 
-import org.scalafmt.util.ScalaFmtLogger
-import ScalaFmtLogger._
+import org.scalafmt.util.LoggerOps
+import LoggerOps._
 
 import java.util.concurrent.TimeUnit
 

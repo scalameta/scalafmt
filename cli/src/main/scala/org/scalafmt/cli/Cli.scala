@@ -6,8 +6,8 @@ import org.scalafmt.ScalaFmt
 import org.scalafmt.ScalaStyle
 import org.scalafmt.Versions
 import org.scalafmt.internal.Debug
-import org.scalafmt.util.ScalaFmtLogger
-import ScalaFmtLogger._
+import org.scalafmt.util.LoggerOps
+import LoggerOps._
 import org.scalafmt.util.FileOps
 
 object Cli {

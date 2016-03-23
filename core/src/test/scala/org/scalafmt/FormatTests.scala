@@ -1,8 +1,8 @@
 package org.scalafmt
 
 import org.scalafmt.internal.Debug
-import org.scalafmt.util.ScalaFmtLogger
-import ScalaFmtLogger._
+import org.scalafmt.util.LoggerOps
+import LoggerOps._
 import org.scalafmt.internal.State
 import org.scalafmt.stats.TestStats
 import org.scalafmt.util.DiffTest
