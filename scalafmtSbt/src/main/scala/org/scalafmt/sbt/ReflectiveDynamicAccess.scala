@@ -26,10 +26,10 @@ import scala.reflect.ClassTag
 import scala.util.Try
 
 /**
- * Original:
- * https://github.com/akka/akka/blob/master/akka-actor/src/main/scala/akka/actor/ReflectiveDynamicAccess.scala
- *
- */
+  * Original:
+  * https://github.com/akka/akka/blob/master/akka-actor/src/main/scala/akka/actor/ReflectiveDynamicAccess.scala
+  *
+  */
 class ReflectiveDynamicAccess(val classLoader: ClassLoader) {
 
   def getClassFor[T : ClassTag](fqcn: String): Try[Class[_ <: T]] =
@@ -42,22 +42,20 @@ class ReflectiveDynamicAccess(val classLoader: ClassLoader) {
     })
 
   def createInstanceFor[T : ClassTag](
-      clazz: Class[_], args: immutable.Seq[(Class[_], AnyRef)]): Try[T] =
-    Try {
-      val types = args.map(_._1).toArray
-      val values = args.map(_._2).toArray
-      val constructor = clazz.getDeclaredConstructor(types: _ *)
-      constructor.setAccessible(true)
-      val obj = constructor.newInstance(values: _ *)
-      val t = implicitly[ClassTag[T]].runtimeClass
-      if (t.isInstance(obj)) obj.asInstanceOf[T]
-      else
-        throw new ClassCastException(
-            s"${clazz.getName} is not a subtype of $t")
-    } recover {
-      case i: InvocationTargetException if i.getTargetException ne null ⇒
-        throw i.getTargetException
-    }
+      clazz: Class[_], args: immutable.Seq[(Class[_], AnyRef)]): Try[T] = Try {
+    val types = args.map(_._1).toArray
+    val values = args.map(_._2).toArray
+    val constructor = clazz.getDeclaredConstructor(types:_*)
+    constructor.setAccessible(true)
+    val obj = constructor.newInstance(values:_*)
+    val t = implicitly[ClassTag[T]].runtimeClass
+    if (t.isInstance(obj)) obj.asInstanceOf[T]
+    else
+      throw new ClassCastException(s"${clazz.getName} is not a subtype of $t")
+  } recover {
+    case i: InvocationTargetException if i.getTargetException ne null ⇒
+      throw i.getTargetException
+  }
 
   def createInstanceFor[T : ClassTag](
       fqcn: String, args: immutable.Seq[(Class[_], AnyRef)]): Try[T] =

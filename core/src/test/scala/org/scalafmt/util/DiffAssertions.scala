@@ -12,8 +12,7 @@ trait DiffAssertions extends FunSuiteLike {
   import LoggerOps._
 
   def error2message(obtained: String, expected: String): String = {
-    if (expected.length > 10000)
-      s"""
+    if (expected.length > 10000) s"""
        #${header("Obtained")}
        #${trailingSpace(obtained)}
          """.stripMargin('#')
@@ -29,8 +28,7 @@ trait DiffAssertions extends FunSuiteLike {
   def assertNoDiff(
       obtained: String, expected: String, title: String = ""): Boolean = {
     val result = compareContents(obtained, expected)
-    if (result.isEmpty)
-      true
+    if (result.isEmpty) true
     else {
       throw new TestFailedException(
           title + "\n" + error2message(obtained, expected), 1)
@@ -48,13 +46,17 @@ trait DiffAssertions extends FunSuiteLike {
     val diff = difflib.DiffUtils.diff(original.asJava, revised.asJava)
     if (diff.getDeltas.isEmpty) ""
     else
-      difflib.DiffUtils.generateUnifiedDiff(
-          "original",
-          "revised",
-          original.asJava,
-          diff,
-          1
-      ).asScala.drop(3).mkString("\n")
+      difflib.DiffUtils
+        .generateUnifiedDiff(
+            "original",
+            "revised",
+            original.asJava,
+            diff,
+            1
+        )
+        .asScala
+        .drop(3)
+        .mkString("\n")
   }
 
   def fileModificationTimeOrEpoch(file: File): String = {

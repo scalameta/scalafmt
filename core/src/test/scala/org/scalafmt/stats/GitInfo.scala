@@ -16,17 +16,18 @@ object GitInfo {
     isCi <- sys.env.get("CONTINUOUS_INTEGRATION") if isCi == "true"
     commit <- sys.env.get("TRAVIS_COMMIT")
   } yield {
-    val branch =
-      sys.env.get("TRAVIS_PULL_REQUEST").withFilter(_ != "false").map(x =>
-        s"pull_request/$x").orElse(sys.env.get("TRAVIS_BRANCH"))
-        .getOrElse("unknown")
+    val branch = sys.env
+      .get("TRAVIS_PULL_REQUEST")
+      .withFilter(_ != "false")
+      .map(x => s"pull_request/$x")
+      .orElse(sys.env.get("TRAVIS_BRANCH"))
+      .getOrElse("unknown")
     GitInfo("Travis", "Travis", branch, commit)
   }
 
-  def apply(): GitInfo =
-    travis.getOrElse {
-      GitInfo(user, email, currentBranch, currentCommit)
-    }
+  def apply(): GitInfo = travis.getOrElse {
+    GitInfo(user, email, currentBranch, currentCommit)
+  }
 
   def currentCommit = Seq("git", "rev-parse", "HEAD").!!.trim
 

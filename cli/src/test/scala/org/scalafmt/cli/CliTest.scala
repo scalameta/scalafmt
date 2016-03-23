@@ -2,14 +2,10 @@ package org.scalafmt.cli
 
 import java.io.File
 import java.nio.file.Files
-import java.nio.file.Paths
 
 import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.FileOps
 import org.scalatest.FunSuite
-
-import scala.concurrent.duration.Duration
-import scala.tools.nsc.classpath.FileUtils
 
 class CliTest extends FunSuite with DiffAssertions {
   val unformatted = """

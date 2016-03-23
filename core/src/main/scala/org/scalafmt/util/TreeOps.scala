@@ -44,8 +44,8 @@ object TreeOps {
   }
 
   def getStatementStarts(tree: Tree): Map[TokenHash, Tree] = {
-    val ret = new scala.collection.mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](
-      Map[TokenHash, Tree]())
+    val ret = new scala.collection.mutable.MapBuilder[
+        TokenHash, Tree, Map[TokenHash, Tree]](Map[TokenHash, Tree]())
 
     def addAll(trees: Seq[Tree]): Unit = {
       trees.foreach { t =>
@@ -97,7 +97,7 @@ object TreeOps {
     */
   def getMatchingParentheses(tokens: Tokens): Map[TokenHash, Token] = {
     val ret = new mutable.MapBuilder[TokenHash, Token, Map[TokenHash, Token]](
-      Map.empty[TokenHash, Token])
+        Map.empty[TokenHash, Token])
     var stack = List.empty[Token]
     tokens.foreach {
       case open@(_: `{` | _: `[` | _: `(` | _: Interpolation.Start) =>
@@ -130,7 +130,7 @@ object TreeOps {
     */
   def getOwners(tree: Tree): Map[TokenHash, Tree] = {
     val result = new mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](
-      Map.empty[TokenHash, Tree])
+        Map.empty[TokenHash, Tree])
 
     def loop(x: Tree): Unit = {
       x.tokens.foreach { tok =>

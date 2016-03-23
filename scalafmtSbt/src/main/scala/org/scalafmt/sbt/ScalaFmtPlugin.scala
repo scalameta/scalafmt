@@ -103,22 +103,21 @@ object ScalaFmtPlugin extends AutoPlugin {
 
   private def getScalafmtLike(
       classLoader: URLClassLoader, streams: TaskStreams): ScalaFmtLike = {
-    val loadedClass =
-      new ReflectiveDynamicAccess(classLoader).createInstanceFor[ScalaFmtLike](
-          "org.scalafmt.ScalaFmt210", Seq.empty)
+    val loadedClass = new ReflectiveDynamicAccess(classLoader)
+      .createInstanceFor[ScalaFmtLike]("org.scalafmt.ScalaFmt210", Seq.empty)
 
     loadedClass match {
       case Success(x) => x
       case Failure(e) =>
         streams.log
           .error(s"""Unable to classload ScalaFmt, please file an issue:
-                     |https://github.com/olafurpg/scalafmt/issues
-                     |
-                     |URLs: ${classLoader.getURLs.mkString("\n")}
-                     |Version: ${org.scalafmt.Versions.scalafmt}
-                     |Error: ${e.getClass}
-                     |Message: ${e.getMessage}
-                     |${e.getStackTrace.mkString("\n")}""".stripMargin)
+                    |https://github.com/olafurpg/scalafmt/issues
+                    |
+                    |URLs: ${classLoader.getURLs.mkString("\n")}
+                    |Version: ${org.scalafmt.Versions.scalafmt}
+                    |Error: ${e.getClass}
+                    |Message: ${e.getMessage}
+                    |${e.getStackTrace.mkString("\n")}""".stripMargin)
         throw e
     }
   }

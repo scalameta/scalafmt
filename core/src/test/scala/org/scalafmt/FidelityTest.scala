@@ -19,8 +19,11 @@ class FidelityTest extends FunSuite with FormatAssertions {
       Test(filename, FileOps.readFile(filename))
   }
   // TODO(olafur) append to [[files]]
-  val files = FileOps.listFiles(".").filter(_.endsWith(".scala"))
-    .filterNot(_.contains("/target/")).filterNot(_.contains("/resources/"))
+  val files = FileOps
+    .listFiles(".")
+    .filter(_.endsWith(".scala"))
+    .filterNot(_.contains("/target/"))
+    .filterNot(_.contains("/resources/"))
 
   val examples = files.map(Test.apply)
 

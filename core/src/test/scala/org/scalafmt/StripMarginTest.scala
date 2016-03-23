@@ -9,7 +9,8 @@ import scala.meta.parsers.common.Parse
 
 class StripMarginTest extends FunSuite with HasTests with DiffAssertions {
 
-  val rawStrings = """
+  val rawStrings =
+    """
 <<< Align | margin 1
 val x =
 '''Formatter changed AST
@@ -47,7 +48,8 @@ val x =
     |'''.stripMargin
   """.replace("'''", "\"\"\"")
 
-  val interpolatedStrings = """
+  val interpolatedStrings =
+    """
 <<< tricky tempalate curly
 case class FormatterChangedAST(diff: String, output: String)
     extends Error(s'''Formatter changed AST

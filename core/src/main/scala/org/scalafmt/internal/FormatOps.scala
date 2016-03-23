@@ -282,16 +282,16 @@ class FormatOps(val tree: Tree, val style: ScalaStyle) {
     var expire = tree.tokens.head
     tree.tokens.foreach {
       case t
-        if !inside &&
-            ((t, ownersMap(hash(t))) match {
-              case (_: `(`, _: Term.Apply) =>
-                // TODO(olafur) https://github.com/scalameta/scalameta/issues/345
-                val x = true
-                x
-              // Type compounds can be inside defn.defs
-              case (_: `{`, _: Type.Compound) => true
-              case _ => false
-            }) =>
+          if !inside &&
+          ((t, ownersMap(hash(t))) match {
+                case (_: `(`, _: Term.Apply) =>
+                  // TODO(olafur) https://github.com/scalameta/scalameta/issues/345
+                  val x = true
+                  x
+                // Type compounds can be inside defn.defs
+                case (_: `{`, _: Type.Compound) => true
+                case _ => false
+              }) =>
         inside = true
         expire = matchingParentheses(hash(t))
       case x if x == expire => inside = false

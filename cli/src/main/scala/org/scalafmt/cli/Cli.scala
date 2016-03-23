@@ -5,8 +5,8 @@ import java.io.File
 import org.scalafmt.ScalaFmt
 import org.scalafmt.Versions
 import org.scalafmt.internal.Debug
-import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.FileOps
+import org.scalafmt.util.LoggerOps
 
 object Cli {
   import LoggerOps._

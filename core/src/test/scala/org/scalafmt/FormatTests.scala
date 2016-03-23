@@ -43,8 +43,10 @@ class FormatTests
     else UnitTests.tests
   }
 
-  tests.sortWith(bySpecThenName).withFilter(testShouldRun).foreach(runTest(
-      run))
+  tests
+    .sortWith(bySpecThenName)
+    .withFilter(testShouldRun)
+    .foreach(runTest(run))
 
   def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
     val obtained = ScalaFmt.format_!(t.original, t.style)(parse)
@@ -61,9 +63,12 @@ class FormatTests
   }
 
   override def afterAll(configMap: ConfigMap): Unit = {
-    val splits =
-      Debug.enqueuedSplits.groupBy(_.line.value).toVector.sortBy(-_._2.size)
-        .map(x => s"Split(line=${x._1}, count=${x._2.size})").take(3)
+    val splits = Debug.enqueuedSplits
+      .groupBy(_.line.value)
+      .toVector
+      .sortBy(-_._2.size)
+      .map(x => s"Split(line=${x._1}, count=${x._2.size})")
+      .take(3)
     logger.debug(splits.mkString(", "))
     logger.debug(s"Total explored: ${Debug.explored}")
     val results = debugResults.result()
@@ -77,7 +82,6 @@ class FormatTests
       _ <- Future(Speed.writeComparisonReport(stats, "master"))
     } yield ()
     // Travis exits right after running tests.
-    if (sys.env.contains("TRAVIS"))
-      Await.ready(k, 20 seconds)
+    if (sys.env.contains("TRAVIS")) Await.ready(k, 20 seconds)
   }
 }

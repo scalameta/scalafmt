@@ -57,9 +57,9 @@ object Report {
   def explanation =
     div(
         p("""Formatting output from scalafmt's test suite.
-          |The formatter uses Dijkstra's shortest path to determine the
-          |formatting with the "cheapest" cost. The red regions are
-          |tokens the formatter visits often.
+            |The formatter uses Dijkstra's shortest path to determine the
+            |formatting with the "cheapest" cost. The red regions are
+            |tokens the formatter visits often.
         """.stripMargin),
         ul(
             li("Declaration arguments: bin packed"),
@@ -69,7 +69,7 @@ object Report {
 
   def testWidth(result: Result) = result.test.style.maxColumn.toDouble * 9.625
 
-  def reportBody(xs: Text.Modifier *) =
+  def reportBody(xs: Text.Modifier*) =
     html(
         body(background := "#f9f9f9", xs)
     )
@@ -78,55 +78,63 @@ object Report {
     reportBody(
         div(
             h1(id := "title",
-               s"Compare ${after.gitInfo.branch} and" + s" ${before.gitInfo.branch}" + s" (${before.shortCommit}...${after.shortCommit})"),
+               s"Compare ${after.gitInfo.branch} and" +
+               s" ${before.gitInfo.branch}" +
+               s" (${before.shortCommit}...${after.shortCommit})"),
             explanation,
-            after.intersectResults(before).sortBy {
-              case (aft, bef) =>
-                -Math.abs(aft.visitedStates - bef.visitedStates)
-            }.map {
-              case (aft, bef) =>
-                div(
-                    h2(aft.test.fullName),
-                    table(
-                        tr(
-                            th(""),
-                            th("Before"),
-                            th("After"),
-                            th("Diff")
-                        ),
-                        tr(
-                            td("Time (ms)"),
-                            td(bef.timeMs),
-                            td(aft.timeMs),
-                            td(bef.timeMs - aft.timeMs)
-                        ),
-                        tr(
-                            td("States"),
-                            td(bef.visitedStates),
-                            td(aft.visitedStates),
-                            td(aft.visitedStates - bef.visitedStates)
-                        )
-                    ),
-                    pre(
-                        fontFamily := "monospace",
-                        background := "#fff",
-                        fontSize := "16px",
-                        width := testWidth(aft),
-                        code(
-                            heatmapBar(aft.test.style),
-                            raw(mkHtml(mergeResults(aft, bef), aft.test.style))
-                        )
-                    )
-                )
-            }
+            after
+              .intersectResults(before)
+              .sortBy {
+                case (aft, bef) =>
+                  -Math.abs(aft.visitedStates - bef.visitedStates)
+              }
+              .map {
+                case (aft, bef) =>
+                  div(
+                      h2(aft.test.fullName),
+                      table(
+                          tr(
+                              th(""),
+                              th("Before"),
+                              th("After"),
+                              th("Diff")
+                          ),
+                          tr(
+                              td("Time (ms)"),
+                              td(bef.timeMs),
+                              td(aft.timeMs),
+                              td(bef.timeMs - aft.timeMs)
+                          ),
+                          tr(
+                              td("States"),
+                              td(bef.visitedStates),
+                              td(aft.visitedStates),
+                              td(aft.visitedStates - bef.visitedStates)
+                          )
+                      ),
+                      pre(
+                          fontFamily := "monospace",
+                          background := "#fff",
+                          fontSize := "16px",
+                          width := testWidth(aft),
+                          code(
+                              heatmapBar(aft.test.style),
+                              raw(mkHtml(mergeResults(aft, bef),
+                                         aft.test.style))
+                          )
+                      )
+                  )
+              }
         )
     ).render
 
   def mergeResults(after: Result, before: Result): Seq[FormatOutput] =
-    after.tokens.zip(before.tokens).map {
-      case (aft, bef) =>
-        FormatOutput(aft.token, aft.whitespace, aft.visits - bef.visits)
-    }
+    after.tokens
+      .zip(before.tokens)
+      .map {
+        case (aft, bef) =>
+          FormatOutput(aft.token, aft.whitespace, aft.visits - bef.visits)
+      }
 
   def mkHtml(output: Seq[FormatOutput], scalaStyle: ScalaStyle): String = {
     val sb = new StringBuilder()
