@@ -1,5 +1,6 @@
 package org.scalafmt.internal
 
+import org.scalafmt.internal.TokenOps._
 import org.scalafmt.Error.CaseMissingArrow
 import org.scalafmt.ScalaStyle
 
@@ -24,6 +25,7 @@ class FormatOps(val style: ScalaStyle,
                 val statementStarts: Map[TokenHash, Tree],
                 val matchingParentheses: Map[TokenHash, Token])
     extends TreeOps {
+
 
   @inline
   def owners(token: Token): Tree = ownersMap(hash(token))

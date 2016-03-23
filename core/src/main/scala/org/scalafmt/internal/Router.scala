@@ -2,6 +2,7 @@ package org.scalafmt.internal
 
 import org.scalafmt.Error.UnexpectedTree
 import org.scalafmt.internal.ScalaFmtLogger._
+import org.scalafmt.internal.Policy.NoPolicy
 
 import scala.collection.mutable
 import scala.language.implicitConversions

@@ -1,6 +1,7 @@
 package org.scalafmt.internal
 
 import org.scalafmt.internal.ScalaFmtLogger._
+import org.scalafmt.internal.Policy.NoPolicy
 
 class PolicySummary(val policies: Vector[Policy]) {
   val noDequeue = policies.exists(_.noDequeue)

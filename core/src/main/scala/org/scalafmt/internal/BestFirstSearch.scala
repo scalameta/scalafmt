@@ -393,6 +393,7 @@ class BestFirstSearch(val tree: Tree, val style: ScalaStyle, range: Set[Range]) 
 }
 
 object BestFirstSearch {
+  import TokenOps._
 
   def extractStatementsIfAny(tree: Tree): Seq[Tree] = tree match {
     case b: Term.Block => b.stats

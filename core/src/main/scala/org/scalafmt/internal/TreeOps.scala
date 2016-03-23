@@ -22,6 +22,27 @@ import scala.meta.tokens.Token
   */
 trait TreeOps extends TokenOps {
 
+  @tailrec
+  final def childOf(child: Tree, tree: Tree): Boolean = {
+    child == tree ||
+    (child.parent match {
+          case Some(parent) => childOf(parent, tree)
+          case _ => false
+        })
+  }
+
+  def childOf(tok: Token, tree: Tree, owners: Map[TokenHash, Tree]): Boolean =
+    childOf(owners(hash(tok)), tree)
+
+  @tailrec
+  final def parents(
+      tree: Tree, accum: Seq[Tree] = Seq.empty[Tree]): Seq[Tree] = {
+    tree.parent match {
+      case Some(parent) => parents(parent, parent +: accum)
+      case _ => accum
+    }
+  }
+
   def isTopLevel(tree: Tree): Boolean = tree match {
     case _: Pkg | _: Source => true
     case _ => false
