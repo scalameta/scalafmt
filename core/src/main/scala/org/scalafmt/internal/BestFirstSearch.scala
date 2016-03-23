@@ -10,23 +10,15 @@ import org.scalafmt.util.TreeOps
 import scala.collection.mutable
 import scala.meta.Tree
 import scala.meta.internal.ast.Term
-import scala.meta.internal.ast.Type
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 
 /**
   * Implements best first search to find optimal formatting.
   */
-class BestFirstSearch(tree: Tree, style: ScalaStyle, range: Set[Range]) {
+class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
   import TreeOps._
   import TokenOps._
-
-  val tokens: Array[FormatToken] = FormatToken.formatTokens(tree.tokens)
-  val ownersMap = getOwners(tree)
-  val statementStarts = getStatementStarts(tree)
-  val matchingParentheses = getMatchingParentheses(tree.tokens)
-  val formatOps = new FormatOps(
-      style, tree, tokens, ownersMap, statementStarts, matchingParentheses)
   val router = new Router(formatOps)
   import formatOps._
 
@@ -232,7 +224,7 @@ class BestFirstSearch(tree: Tree, style: ScalaStyle, range: Set[Range]) {
     result
   }
 
-  def formatTree(): String = {
+  def getBestPath(): Vector[Split] = {
     var state = shortestPath(State.start, tree.tokens.last)
     if (state.splits.length != tokens.length) {
       val nextSplits = router.getSplits(tokens(deepestYet.splits.length))
@@ -261,80 +253,7 @@ class BestFirstSearch(tree: Tree, style: ScalaStyle, range: Set[Range]) {
       Debug.state = state
       Debug.tokens = tokens
     }
-    val formatted = mkString(state.splits)
-    formatted
+    state.splits
   }
 
-  private def formatComment(comment: Comment, indent: Int): String = {
-    val isDocstring = comment.code.startsWith("/**")
-    val spaces: String =
-      if (isDocstring && style.scalaDocs) " " * (indent + 2)
-      else " " * (indent + 1)
-    comment.code.replaceAll("\n *\\*", s"\n$spaces\\*")
-  }
-
-  private def formatMarginizedString(token: Token, indent: Int): String = {
-    if (!style.indentMarginizedStrings) token.code
-    else if (token.isInstanceOf[Interpolation.Part] ||
-             isMarginizedString(token)) {
-      val spaces = " " * indent
-      token.code.replaceAll("\n *\\|", s"\n$spaces\\|")
-    } else {
-      token.code
-    }
-  }
-
-  private def mkString(splits: Vector[Split]): String = {
-    val sb = new StringBuilder()
-    var lastState =
-      State.start // used to calculate start of formatToken.right.
-    State.reconstructPath(tokens, splits, style) {
-      case (state, formatToken, whitespace) =>
-        formatToken.left match {
-          case c: Comment if c.code.startsWith("/*") =>
-            sb.append(formatComment(c, state.indentation))
-          case token: Interpolation.Part =>
-            sb.append(formatMarginizedString(token, state.indentation))
-          case literal: Literal.String => // Ignore, see below.
-          case token => sb.append(token.code)
-        }
-        sb.append(whitespace)
-        formatToken.right match {
-          // state.column matches the end of formatToken.right
-          case literal: Literal.String =>
-            val column =
-              if (state.splits.last.modification.isNewline) state.indentation
-              else lastState.column + whitespace.length
-            sb.append(formatMarginizedString(literal, column + 2))
-          case _ => // Ignore
-        }
-        lastState = state
-    }
-    sb.toString()
-  }
-
-  def noOptimizationZones(tree: Tree): Set[Token] = {
-    val result = new mutable.SetBuilder[Token, Set[Token]](Set.empty[Token])
-    var inside = false
-    var expire = tree.tokens.head
-    tree.tokens.foreach {
-      case t
-          if !inside &&
-          ((t, ownersMap(hash(t))) match {
-                case (_: `(`, _: Term.Apply) =>
-                  // TODO(olafur) https://github.com/scalameta/scalameta/issues/345
-                  val x = true
-                  x
-                // Type compounds can be inside defn.defs
-                case (_: `{`, _: Type.Compound) => true
-                case _ => false
-              }) =>
-        inside = true
-        expire = matchingParentheses(hash(t))
-      case x if x == expire => inside = false
-      case x if inside => result += x
-      case _ =>
-    }
-    result.result()
-  }
 }

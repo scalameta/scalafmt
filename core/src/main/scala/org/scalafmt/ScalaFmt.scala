@@ -1,14 +1,13 @@
 package org.scalafmt
 
 import org.scalafmt.internal.BestFirstSearch
-import org.scalafmt.util.LoggerOps
-import LoggerOps._
+import org.scalafmt.internal.FormatOps
+import org.scalafmt.internal.FormatWriter
 
 import scala.meta.Source
 import scala.meta.Tree
 import scala.meta.parseSource
 import scala.meta.parsers.common.Parse
-import scala.meta.parsers.common.ParseException
 import scala.util.control.NonFatal
 
 object ScalaFmt {
@@ -58,7 +57,10 @@ object ScalaFmt {
       implicit ev: Parse[T]): String = {
     import scala.meta._
     val source = code.parse[T]
-    val graphSearch = new BestFirstSearch(source, style, range)
-    graphSearch.formatTree()
+    val formatOps = new FormatOps(source, style)
+    val formatWriter = new FormatWriter(formatOps)
+    val search = new BestFirstSearch(formatOps, range)
+    val path = search.getBestPath()
+    formatWriter.mkString(path)
   }
 }
