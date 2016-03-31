@@ -563,3 +563,75 @@ class ResolutionCopier(x: Int) {
         _isEqualTokens(node.rightBracket, toNode.rightBracket));
   }
 }
+<<< scala.js resolve (state explosion)
+    if (uri.isAbsolute() || this.isOpaque()) uri
+    else if (uri._scheme.isEmpty && uri._authority.isEmpty &&
+      uri._path.get == "" && uri._query.isEmpty)
+      new URI(
+        this.getScheme(),
+        this.getRawAuthority(),
+        this.getRawPath(),
+        this.getRawQuery(),
+        uri.getRawFragment())
+    else if (uri._authority.isDefined)
+      new URI(
+        this.getScheme(),
+        uri.getRawAuthority(),
+        uri.getRawPath(),
+        uri.getRawQuery(),
+        uri.getRawFragment())
+    else if (uri._path.get.startsWith("/"))
+      new URI(
+        this.getScheme(),
+        this.getRawAuthority(),
+        uri.getRawPath(),
+        uri.getRawQuery(),
+        uri.getRawFragment())
+    else {
+      val basePath = this._path.get
+      val relPath = uri._path.get
+      val endIdx = basePath.lastIndexOf('/')
+      val path =
+        if (endIdx == -1) relPath
+        else basePath.substring(0, endIdx+1) + relPath
+      new URI(
+        this.getScheme(),
+        this.getAuthority(),
+        path,
+        uri.getRawQuery(),
+        uri.getRawFragment()).normalize()
+    }
+>>>
+if (uri.isAbsolute() || this.isOpaque()) uri
+else if (uri._scheme.isEmpty &&
+         uri._authority.isEmpty && uri._path.get == "" && uri._query.isEmpty)
+  new URI(this.getScheme(),
+          this.getRawAuthority(),
+          this.getRawPath(),
+          this.getRawQuery(),
+          uri.getRawFragment())
+else if (uri._authority.isDefined)
+  new URI(this.getScheme(),
+          uri.getRawAuthority(),
+          uri.getRawPath(),
+          uri.getRawQuery(),
+          uri.getRawFragment())
+else if (uri._path.get.startsWith("/"))
+  new URI(this.getScheme(),
+          this.getRawAuthority(),
+          uri.getRawPath(),
+          uri.getRawQuery(),
+          uri.getRawFragment())
+else {
+  val basePath = this._path.get
+  val relPath = uri._path.get
+  val endIdx = basePath.lastIndexOf('/')
+  val path =
+    if (endIdx == -1) relPath
+    else basePath.substring(0, endIdx + 1) + relPath
+  new URI(this.getScheme(),
+          this.getAuthority(),
+          path,
+          uri.getRawQuery(),
+          uri.getRawFragment()).normalize()
+}

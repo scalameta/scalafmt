@@ -154,7 +154,7 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
         }
 
         if (dequeueOnNewStatements &&
-            statementStarts.contains(hash(splitToken.left)) &&
+            dequeueSpots.contains(hash(splitToken.left)) &&
             (depth > 0 || !isInsideNoOptZone(splitToken) ||
                 Q.size > maxQueueSize) &&
             curr.splits.last.modification.isNewline) {

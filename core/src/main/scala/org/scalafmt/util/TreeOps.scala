@@ -26,6 +26,7 @@ import scala.reflect.classTag
   */
 object TreeOps {
   import TokenOps._
+  import LoggerOps._
 
   def extractStatementsIfAny(tree: Tree): Seq[Tree] = tree match {
     case b: Term.Block => b.stats
@@ -41,6 +42,19 @@ object TreeOps {
     case t: scala.meta.internal.ast.Source => t.stats
     case t: Template if t.stats.isDefined => t.stats.get
     case _ => Seq.empty[Tree]
+  }
+
+  def getDequeueSpots(tree: Tree): Set[TokenHash] = {
+    val ret =
+      new scala.collection.mutable.SetBuilder[TokenHash, Set[TokenHash]](
+          Set[TokenHash]())
+    tree.tokens.foreach {
+      case t: `else` =>
+        ret += hash(t)
+      case _ =>
+    }
+    ret.result()
+//    Set.empty[TokenHash]
   }
 
   def getStatementStarts(tree: Tree): Map[TokenHash, Tree] = {

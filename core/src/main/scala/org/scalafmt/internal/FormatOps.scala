@@ -27,6 +27,7 @@ class FormatOps(val tree: Tree, val style: ScalaStyle) {
   val tokens: Array[FormatToken] = FormatToken.formatTokens(tree.tokens)
   val ownersMap = getOwners(tree)
   val statementStarts = getStatementStarts(tree)
+  val dequeueSpots = getDequeueSpots(tree) ++ statementStarts.keys
   val matchingParentheses = getMatchingParentheses(tree.tokens)
 
   @inline
