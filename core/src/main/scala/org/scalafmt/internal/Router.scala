@@ -26,6 +26,9 @@ import scala.meta.tokens.Token._
 
 object Constants {
   val BracketPenalty = 20
+  val ExceedColumnPenalty = 1000
+  // Breaking a line like s"aaaaaaa${111111 + 22222}" should be last resort.
+  val BreakSingleLineInterpolatedString = 10 * ExceedColumnPenalty
 }
 
 /**
@@ -36,6 +39,7 @@ class Router(formatOps: FormatOps) {
   import TokenOps._
   import TreeOps._
   import formatOps._
+  import Constants._
 
   def getSplits(formatToken: FormatToken): Seq[Split] = {
     val leftOwner = owners(formatToken.left)
@@ -61,7 +65,7 @@ class Router(formatOps: FormatOps) {
         val end = matchingParentheses(hash(start))
         val policy =
           if (isTripleQuote(start)) NoPolicy
-          else penalizeAllNewlines(end, 100)
+          else penalizeAllNewlines(end, BreakSingleLineInterpolatedString)
         Seq(
             // statecolumn - 1 because of margin characters |
             Split(NoSplit, 0, ignoreIf = !isStripMargin)
@@ -564,10 +568,9 @@ class Router(formatOps: FormatOps) {
         // This policy will apply to both the space and newline splits, otherwise
         // the newline is too cheap even it doesn't actually prevent other newlines.
         val penalizeNewlinesInApply = penalizeAllNewlines(lastToken, 2)
-        val noSplitPolicy =
-          SingleLineBlock(lastToken, exclude)
-            .andThen(penalizeNewlinesInApply.f)
-            .copy(expire = lastToken.end)
+        val noSplitPolicy = SingleLineBlock(lastToken, exclude)
+          .andThen(penalizeNewlinesInApply.f)
+          .copy(expire = lastToken.end)
         val newlinePolicy = breakOnEveryDot
           .andThen(penalizeNewlinesInApply.f)
           .copy(expire = lastToken.end)

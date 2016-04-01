@@ -52,7 +52,6 @@ object State {
            split: Split,
            tok: FormatToken): State = {
     import curr._
-    val KILL = 10000
     val nonExpiredIndents = pushes.filterNot { push =>
       val expireToken: Token =
         if (push.expiresAt == Left) tok.left
@@ -95,7 +94,8 @@ object State {
           }) {
         split // fits inside column
       } else {
-        split.withPenalty(KILL + columnOnCurrentLine) // overflow
+        split
+          .withPenalty(Constants.ExceedColumnPenalty + columnOnCurrentLine) // overflow
       }
     }
 

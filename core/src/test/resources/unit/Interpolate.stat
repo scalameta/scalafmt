@@ -69,6 +69,12 @@ val msg =
 >>>
 val msg =
   s"${mkString(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)}"
+<<< single quote is single line 2
+val msg =
+  s"${aaaaaaaaaaaaaaaaaaaaaaaaaa + 222222222222L}"
+>>>
+val msg =
+  s"${aaaaaaaaaaaaaaaaaaaaaaaaaa + 222222222222L}"
 <<< if else
 s"Succ(${if (s.cut) ", cut" else ""})"
 >>>
