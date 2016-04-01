@@ -90,22 +90,20 @@ trait ScalaProjectsExperiment {
 
   def printResults(): Unit = {
     println(header("Summary:"))
-    results
-      .groupBy(_.key)
-      .foreach {
-        case (categoryName, categoryResults) =>
-          println(s"$categoryName: ${categoryResults.length}")
-          if (categoryResults.nonEmpty) {
-            println()
-          }
-          categoryResults.foreach {
-            case _: Success | _: Skipped =>
-            case e => println(e)
-          }
-          if (categoryResults.nonEmpty) {
-            println()
-          }
-      }
+    results.groupBy(_.key).foreach {
+      case (categoryName, categoryResults) =>
+        println(s"$categoryName: ${categoryResults.length}")
+        if (categoryResults.nonEmpty) {
+          println()
+        }
+        categoryResults.foreach {
+          case _: Success | _: Skipped =>
+          case e => println(e)
+        }
+        if (categoryResults.nonEmpty) {
+          println()
+        }
+    }
     val formatStats = new DescriptiveStatistics()
     results.foreach {
       case x: Success => formatStats.addValue(x.nanos)
@@ -137,11 +135,12 @@ trait ScalaProjectsExperiment {
     case _ => x.toString
   }
 
-  private def col(strings: Any*): String = strings.map { s =>
-    val x = s match {
-      case d: Double => numberFormat.format(d)
-      case _ => s
-    }
-    x.toString.slice(0, colLength - 2).padTo(colLength - 1, " ").mkString
-  }.mkString(" ")
+  private def col(strings: Any*): String =
+    strings.map { s =>
+      val x = s match {
+        case d: Double => numberFormat.format(d)
+        case _ => s
+      }
+      x.toString.slice(0, colLength - 2).padTo(colLength - 1, " ").mkString
+    }.mkString(" ")
 }

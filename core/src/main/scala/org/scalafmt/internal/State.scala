@@ -123,32 +123,30 @@ object State {
                       debug: Boolean = false)(
       callback: (State, FormatToken, String) => Unit): Unit = {
     var state = State.start
-    toks
-      .zip(splits)
-      .foreach {
-        case (tok, split) =>
-          // TIP. Use the following line to debug origin of splits.
-          if (debug && toks.length < 1000) {
-            val left = cleanup(tok.left).slice(0, 15)
-            logger
-              .debug(f"$left%-15s $split ${state.indentation} ${state.column}")
-          }
-          state = State.next(state, style, split, tok)
-          val whitespace = split.modification match {
-            case Space => " "
-            case nl: NewlineT =>
-              val newline =
-                if (nl.isDouble) "\n\n"
-                else "\n"
-              val indentation =
-                if (nl.noIndent) ""
-                else " " * state.indentation
-              newline + indentation
-            case Provided(literal) => literal
-            case NoSplit => ""
-          }
-          callback.apply(state, tok, whitespace)
-      }
+    toks.zip(splits).foreach {
+      case (tok, split) =>
+        // TIP. Use the following line to debug origin of splits.
+        if (debug && toks.length < 1000) {
+          val left = cleanup(tok.left).slice(0, 15)
+          logger.debug(
+              f"$left%-15s $split ${state.indentation} ${state.column}")
+        }
+        state = State.next(state, style, split, tok)
+        val whitespace = split.modification match {
+          case Space => " "
+          case nl: NewlineT =>
+            val newline =
+              if (nl.isDouble) "\n\n"
+              else "\n"
+            val indentation =
+              if (nl.noIndent) ""
+              else " " * state.indentation
+            newline + indentation
+          case Provided(literal) => literal
+          case NoSplit => ""
+        }
+        callback.apply(state, tok, whitespace)
+    }
     if (debug) logger.debug(s"Total cost: ${state.cost}")
   }
 }

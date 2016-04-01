@@ -274,7 +274,8 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
       val splitsAfterPolicy =
         deepestYet.policy.execute(Decision(tok, nextSplits))
       val nextStates = splitsAfterPolicy.splits
-        .map(x => State.next(deepestYet, style, x, tok)).map(_.splits)
+        .map(x => State.next(deepestYet, style, x, tok))
+        .map(_.splits)
 
       val msg = s"""UNABLE TO FORMAT,
                    |tok=$tok

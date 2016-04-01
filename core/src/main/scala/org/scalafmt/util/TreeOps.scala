@@ -340,11 +340,9 @@ object TreeOps {
           case p: Term.For => p.enums
           case p: Term.ForYield => p.enums
         }
-        enums
-          .zip(enums.tail)
-          .collectFirst {
-            case (`generator`, guard: Enumerator.Guard) => guard
-          }
+        enums.zip(enums.tail).collectFirst {
+          case (`generator`, guard: Enumerator.Guard) => guard
+        }
       }
     } yield sibling
   }

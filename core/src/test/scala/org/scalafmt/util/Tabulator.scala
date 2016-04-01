@@ -29,7 +29,8 @@ object Tabulator {
     cells.mkString("|", "|", "|")
   }
 
-  def rowSeparator(colSizes: Seq[Int]) = colSizes map {
-    "-" * _
-  } mkString ("+", "+", "+")
+  def rowSeparator(colSizes: Seq[Int]) =
+    colSizes map {
+      "-" * _
+    } mkString ("+", "+", "+")
 }
