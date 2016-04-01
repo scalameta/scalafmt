@@ -51,6 +51,27 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
   val disableOptimizationsInsideSensitiveAreas = true && doOptimizations
 
   /**
+    * Eliminate solutions that move slower than other solutions.
+    *
+    * If a solution reaches a point X first and other solution that
+    * reaches the same point later, the first solution is preferred if it
+    * can be verified to be always better (see [[State.alwaysBetter()]]).
+    *
+    * Note. This affects the output positively because it breaks a tie between
+    * two equally expensive solutions by eliminating the slower one.
+    *
+    * Example, solution 1 is preferred even though both solutions cost the same:
+    *
+    * // solution 1
+    * a + b +
+    * c + d
+    * // solution 2
+    * a +
+    * b + c + d
+    */
+  val pruneSlowStates = true && doOptimizations
+
+  /**
     * Recursively format { ... } blocks inside no optimization zones.
     *
     * By starting a new search queue, we can perform aggressive optimizations
@@ -63,6 +84,8 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
   var deepestYet = State.start
   var statementCount = 0
 
+  val best = mutable.Map.empty[Token, State]
+
   type StateHash = Long
 
   def isInsideNoOptZone(token: FormatToken): Boolean = {
@@ -72,6 +95,25 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
 
   def getLeftLeft(curr: State): Token = {
     tokens(Math.max(0, curr.splits.length - 1)).left
+  }
+
+  /**
+    * Returns true if it's OK to skip over state.
+    */
+  def shouldEnterState(curr: State): Boolean = {
+    val splitToken = tokens(curr.splits.length)
+    val insideOptimizationZone =
+      curr.policy.noDequeue || isInsideNoOptZone(splitToken)
+    def hasBestSolution = !pruneSlowStates || insideOptimizationZone || {
+      val splitToken = tokens(curr.splits.length)
+      // TODO(olafur) document why/how this optimization works.
+      val result = !best.get(splitToken.left).exists(_.alwaysBetter(curr))
+      if (!result) {
+        logger.trace(s"Eliminated $curr ${curr.splits.last}")
+      }
+      result
+    }
+    hasBestSolution
   }
 
   def shouldRecurseOnBlock(curr: State, stop: Token) = {
@@ -147,7 +189,7 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
           tokens(curr.splits.length).left.start >= stop.start) {
         result = curr
         Q.dequeueAll
-      } else {
+      } else if (shouldEnterState(curr)) {
         val splitToken = tokens(curr.splits.length)
         if (depth == 0 && curr.splits.length > deepestYet.splits.length) {
           deepestYet = curr
@@ -188,6 +230,9 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
           var optimalNotFound = true
           actualSplit.foreach { split =>
             val nextState = State.next(curr, style, split, splitToken)
+            if (depth == 0 && split.modification.isNewline) {
+              best.update(splitToken.left, nextState)
+            }
             if (style.debug) {
               Debug.enqueued(split)
             }
@@ -226,6 +271,11 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
     if (state.splits.length != tokens.length) {
       val nextSplits = router.getSplits(tokens(deepestYet.splits.length))
       val tok = tokens(deepestYet.splits.length)
+      val splitsAfterPolicy =
+        deepestYet.policy.execute(Decision(tok, nextSplits))
+      val nextStates = splitsAfterPolicy.splits
+        .map(x => State.next(deepestYet, style, x, tok)).map(_.splits)
+
       val msg = s"""UNABLE TO FORMAT,
                    |tok=$tok
                    |state.length=${state.splits.length}
@@ -233,8 +283,8 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
                    |deepestYet.length=${deepestYet.splits.length}
                    |policies=${deepestYet.policy.policies}
                    |nextSplits=$nextSplits
-                   |splitsAfterPolicy=${deepestYet.policy
-                     .execute(Decision(tok, nextSplits))}
+                   |splitsAfterPolicy=$splitsAfterPolicy
+                   |afterDeepestState=$nextStates
                    |""".stripMargin
       if (style.debug) {
         logger.error(s"""Failed to format

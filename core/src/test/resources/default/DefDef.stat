@@ -62,14 +62,15 @@ def groupBy[K, T, G, P](
 <<< slick groupBy 2
   def groupBy[K, T, G, P](f: E => K)(implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G], vshape: Shape[_ <: FlatShapeLevel, E, _, P]): Query[(G, Query[P, U, Seq]), (T, Query[P, U, Seq]), C, (T, Query[P, U, Seq]), (T, Query[P, U, Seq])]
 >>>
-def groupBy[K, T, G, P](
-    f: E => K)(implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G],
-               vshape: Shape[_ <: FlatShapeLevel, E, _, P]
+def groupBy[K, T, G, P](f: E => K)(
+    implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G],
+    vshape: Shape[_ <: FlatShapeLevel, E, _, P]
     ): Query[(G, Query[P, U, Seq]),
              (T, Query[P, U, Seq]),
              C,
              (T, Query[P, U, Seq]),
              (T, Query[P, U, Seq])]
+
 <<< slick queryShape
   @inline implicit def queryShape[Level >: NestedShapeLevel <: ShapeLevel, T, Q <: QueryBase[_]](implicit ev: Q <:< Rep[T]) = RepShape[Level, Q, T]
 >>>

@@ -659,9 +659,11 @@ class Router(formatOps: FormatOps) {
             Split(Space, 0)
         )
       case tok@FormatToken(_, els: `else`, _) =>
+        val expire = rhsOptimalToken(leftTok2tok(rightOwner.tokens.last))
         Seq(
             Split(Space, 0, ignoreIf = newlines > 0)
-              .withPolicy(SingleLineBlock(rightOwner.tokens.last)),
+              .withOptimalToken(expire)
+              .withPolicy(SingleLineBlock(expire)),
             Split(Newline, 1)
         )
       // Last else branch
@@ -695,8 +697,12 @@ class Router(formatOps: FormatOps) {
       case FormatToken(open: `(`, right, _)
           if leftOwner.isInstanceOf[Term.ApplyInfix] =>
         val close = matchingParentheses(hash(open))
+        val indent: Length = right match {
+          case _: `if` => StateColumn
+          case _ => Num(4)
+        }
         Seq(
-            Split(NoSplit, 0).withIndent(4, close, Left)
+            Split(NoSplit, 0).withIndent(indent, close, Left)
         )
       case FormatToken(_, open: `(`, _)
           if rightOwner.isInstanceOf[Term.ApplyInfix] =>

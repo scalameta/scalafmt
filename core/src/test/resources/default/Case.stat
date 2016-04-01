@@ -75,4 +75,3 @@ x match {
   // Catch Scala Enumerations to transform calls to scala.Enumeration.Value
   case i => x
 }
-
