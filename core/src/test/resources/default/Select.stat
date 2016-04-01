@@ -195,3 +195,22 @@ TypedPipe
   .addTrap
   .addTrap
   .addTrap2(trap2)
+<<< scalding  hashjoin with inline comment
+class TypedPipeJoinWithDescriptionJob {
+  x.hashJoin() // this triggers an implicit that somehow pushes the line number to the next one
+    .withDescription("hashJoin")
+    .leftJoin(z)
+    .withDescription("leftJoin")
+    .values
+    .write(TypedTsv[((Int, String), Option[Boolean])]("output"))
+}
+>>>
+class TypedPipeJoinWithDescriptionJob {
+  x
+    .hashJoin() // this triggers an implicit that somehow pushes the line number to the next one
+    .withDescription("hashJoin")
+    .leftJoin(z)
+    .withDescription("leftJoin")
+    .values
+    .write(TypedTsv[((Int, String), Option[Boolean])]("output"))
+}

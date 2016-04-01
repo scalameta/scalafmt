@@ -565,7 +565,7 @@ class Router(formatOps: FormatOps) {
         // the newline is too cheap even it doesn't actually prevent other newlines.
         val penalizeNewlinesInApply = penalizeAllNewlines(lastToken, 2)
         val noSplitPolicy =
-          SingleLineBlock(lastToken, exclude, disallowInlineComments = false)
+          SingleLineBlock(lastToken, exclude)
             .andThen(penalizeNewlinesInApply.f)
             .copy(expire = lastToken.end)
         val newlinePolicy = breakOnEveryDot
