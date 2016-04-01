@@ -168,27 +168,23 @@
         @li
           Ensime
         @li
-          Scala IDE
+          Scala IDE (@lnk("help wanted!", "https://github.com/olafurpg/scalafmt/issues/125"))
         @li
           Your favorite editor? Join the gitter channel.
 
   @sect{Code examples}
-
-    The following examples show which rules scalafmt uses to format your
-    code. All examples use a 40 column limit.
+    @p
+      To start with, I implemented a default style that I like myself. The
+      rules are still evolving. Feel free to discuss about them in the gitter
+      channel.
 
     @p
-      @note. The plan is to add support for few official coding styles that have
+      @note. The plan is to later add support for few official coding styles that have
       proven to work for large codebases and scale to at least a few dozens
       of contributors. For example, the
       @lnk("Scala.js", "https://github.com/scala-js/scala-js/blob/master/CODINGSTYLE.md") and
       @lnk("Spark", "https://cwiki.apache.org/confluence/display/SPARK/Spark+Code+Style+Guide")
       coding styles.
-
-    @p
-      To start with, I implemented a default style for myself. The
-      rules are still evolving. Feel free to discuss about them
-      in the gitter channel.
 
     @sect{Function application}
 
@@ -286,6 +282,12 @@
 
   @sect{FAQ}
 
+     @sect{How do I customize scalafmt?}
+       There is only one supported style at the moment: @code("ScalaStyle.Default").
+       More settings and easier configuration is planned for later MINOR releases.
+       The 0.1.x series will focus speed and quality formatting output of the
+       default style.
+
      @sect{Why not Scalariform?}
        @lnk("Scalariform", "http://scala-ide.org/scalariform/") does an
        excellent job of tidying up common formatting errors. However,
@@ -301,7 +303,7 @@
          @li
            Scalariform cannot format @lnk("Dotty", "https://github.com/lampepfl/dotty") code,
            which has minor syntactic differences to Scala. Being built with scala.meta,
-           scalafmt can format dotty.
+           scalafmt is ready to support dotty.
          @li
            The original Scalariform author stopped maintaining the library a
            few years ago.
@@ -309,7 +311,31 @@
        Finally, scalafmt is my Master's thesis project. I thought it would
        be a fun challenge to write a code formatter :)
 
-     @sect{The formatter creates unnecessary diffs!}
+     @sect{Why is scalafmt so slow?}
+       @p
+         My benchmarks show that scalafmt is for most common cases around 4-6x
+         slower than scalariform (which is impressively fast).
+         This means that formatting your average 1.000 LOC file on modern
+         hardware will take around 200ms, which should still feel close enough
+         to instant.
+
+       @p
+         For some
+         @lnk("pathological cases", "https://github.com/twitter/scalding/blob/develop/scalding-core/src/main/scala/com/twitter/scalding/typed/GeneratedFlattenGroup.scala#L449")
+         (usually auto-generated code),
+         scalafmt can be orders of magnitude slower, or may not even terminate.
+
+       @p
+         The main feature that makes scalafmt slower than scalariform is the
+         column-width limit.
+         To figure the "best" way to break a long line, Scalafmt may try
+         thousands of different formatting solutions.
+
+       @p
+         Performance is still a work in progress and will hopefully improve
+         even more in future releases.
+
+     @sect{scalafmt created huge diffs!}
        I understand that some rules may trigger unnecessarily large diffs in pull
        requests. I still believe it's worth it, considering
 
@@ -320,39 +346,41 @@
          @li
            code is read more often outside of pull requests.
 
-     @sect{Why is it so slow?}
-       My benchmarks show that scalafmt is around 4-6x slower than scalariform.
-       The main feature that makes scalafmt slower than scalariform is the
-       column-width limit.
-       To figure the "best" way to break a long line, Scalafmt sometimes tries
-       thousands of different formatting solutions.
-
-       @p
-         The hope is that further optimizations will make scalafmt at
-         least 2-3x faster than it is now.
-
-      @sect{Is the formatting output stable between releases?}
-        No, you can expect the formatting output to evolve with new releases.
-      It's only at @org.scalafmt.Versions.latestPublished, after all.
-
-      @sect{How do I customize scalafmt?}
-        There is only one supported style at the moment: @code("ScalaStyle.Default").
-        More settings will come later.
+     @sect{Is the formatting output stable between releases?}
+       No, the formatting rules will evolve even between PATCH releases.
+       I recommend you add a commit formatting your whole project for every time
+       scalafmt update.
 
   @sect{Changelog}
+
+    @sect{0.1.5}
+      @ul
+        @li
+          Various bug and speed improvements.
+          Some files that didn't format with 0.1.4 will format with 0.1.5.
+        @li
+          Quite large internal refactoring.
+          @lnk("Fastparse", "https://github.com/lihaoyi/fastparse/"),
+          @lnk("scalding", "https://github.com/twitter/scalding") and
+          @lnk("goose", "https://github.com/GravityLabs/goose")
+          are included in the unit test suite, making a total of 1405 files.
+          Around 6.000 more files will be added in next releases, from
+          @lnk("spark", "https://github.com/olafurpg/scalafmt/issues/133"),
+          @lnk("akka", "https://github.com/olafurpg/scalafmt/issues/134") and
+          @lnk("intellij-scala", "https://github.com/olafurpg/scalafmt/issues/135").
 
     @sect{0.1.4}
       @ul
         @li
           @sect.ref{stripMargin alignment}.
-      @li
-        @sect.ref{// format: off}.
-      @li
-        @sect.ref{Select chains}.
-      @li
-        @lnk("Hanging behavior", "https://github.com/olafurpg/scalafmt/issues/127").
-      @li
-        @lnk("Dozens of other small fixes", "https://github.com/olafurpg/scalafmt/pull/128").
+        @li
+          @sect.ref{// format: off}.
+        @li
+          @sect.ref{Select chains}.
+        @li
+          @lnk("Hanging behavior", "https://github.com/olafurpg/scalafmt/issues/127").
+        @li
+          @lnk("Dozens of other small fixes", "https://github.com/olafurpg/scalafmt/pull/128").
 
     @sect{0.1.3}
       @ul
