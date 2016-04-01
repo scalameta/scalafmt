@@ -18,7 +18,7 @@ class FidelityTest extends FunSuite with FormatAssertions {
     def apply(filename: String): Test =
       Test(filename, FileOps.readFile(filename))
   }
-  // TODO(olafur) append to [[files]]
+
   val files = FileOps
     .listFiles(".")
     .filter(_.endsWith(".scala"))

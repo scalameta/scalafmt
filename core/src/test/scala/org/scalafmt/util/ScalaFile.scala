@@ -15,7 +15,6 @@ case class ScalaFile(filename: String, projectUrl: String, commit: String) {
   }
 
   def githubUrl = s"$projectUrl/blob/$commit$filename"
-
   def userRepo = projectUrl.stripPrefix("https://github.com/")
   def repo = userRepo.split("/")(1)
   def user = userRepo.split("/")(0)
@@ -60,6 +59,7 @@ object ScalaFile {
     Seq("wget",
         "https://github.com/olafurpg/scalafmt/releases/download/v0.1.4/repos.tar.gz").!
   }
+
   def extractReposTar(): Unit = {
     import sys.process._
     Seq("tar", "xf", "repos.tar.gz").!

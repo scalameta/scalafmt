@@ -19,7 +19,7 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
       "goose",
       "scala-js",
       "fastparse",
-//      "scalding",
+      "scalding",
       "I wan't trailing commas!!!"
   )
   val badRepos = Set(
@@ -32,9 +32,13 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
 
   def badFile(filename: String): Boolean =
     Seq(
+        // Auto generated files
+        "scalding-core/src/main/scala/com/twitter/scalding/macros/impl/TypeDescriptorProviderImpl.scala",
+        "scalding/serialization/macros/impl/ordered_serialization/providers/ProductOrderedBuf.scala",
+        "scalding-core/src/main/scala/com/twitter/scalding/typed/GeneratedFlattenGroup.scala",
         "emitter/JSDesugaring.scala",
-        "js/ThisFunction.scala", // Computer generated.
-        "js/Any.scala" // Computer generated.
+        "js/ThisFunction.scala",
+        "js/Any.scala"
     ).exists(filename.contains)
 
   override def runOn(scalaFile: ScalaFile): ExperimentResult = {
@@ -59,12 +63,12 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
 class FormatExperimentTest extends FunSuite with FormatExperiment {
 
   def validate(result: ExperimentResult): Unit = result match {
-    case _: Success | _: Timeout =>
+    case _: Success | _: Timeout | _: Skipped =>
     case failure => fail(s"""Unexpected failure:
                             |$failure""".stripMargin)
   }
 
-  test("scalafmt formats all files in Scala.js") {
+  test(s"scalafmt formats a bunch of OSS projects") {
     runExperiment(scalaFiles)
     results.toIterable.foreach(validate)
     printResults()

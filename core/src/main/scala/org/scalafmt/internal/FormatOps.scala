@@ -27,6 +27,7 @@ class FormatOps(val tree: Tree, val style: ScalaStyle) {
   val tokens: Array[FormatToken] = FormatToken.formatTokens(tree.tokens)
   val ownersMap = getOwners(tree)
   val statementStarts = getStatementStarts(tree)
+  val dequeueSpots = getDequeueSpots(tree) ++ statementStarts.keys
   val matchingParentheses = getMatchingParentheses(tree.tokens)
 
   @inline
@@ -52,7 +53,7 @@ class FormatOps(val tree: Tree, val style: ScalaStyle) {
   }
 
   lazy val leftTok2tok: Map[Token, FormatToken] =
-    tokens.map(t => t.left -> t).toMap
+    tokens.map(t => t.left -> t).toMap + (tokens.last.right -> tokens.last)
   lazy val tok2idx: Map[FormatToken, Int] = tokens.zipWithIndex.toMap
 
   def prev(tok: FormatToken): FormatToken = {

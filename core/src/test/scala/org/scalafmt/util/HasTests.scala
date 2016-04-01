@@ -47,22 +47,19 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
     val moduleOnly = isOnly(content)
     val moduleSkip = isSkip(content)
 
-    content
-      .split("\n<<< ")
-      .tail
-      .map { t =>
-        val before :: expected :: Nil = t.split("\n>>>\n", 2).toList
-        val name :: original :: Nil = before.split("\n", 2).toList
-        val actualName = stripPrefix(name)
-        DiffTest(spec,
-                 actualName,
-                 filename,
-                 original,
-                 expected,
-                 moduleSkip || isSkip(name),
-                 moduleOnly || isOnly(name),
-                 file2style(filename))
-      }
+    content.split("\n<<< ").tail.map { t =>
+      val before :: expected :: Nil = t.split("\n>>>\n", 2).toList
+      val name :: original :: Nil = before.split("\n", 2).toList
+      val actualName = stripPrefix(name)
+      DiffTest(spec,
+               actualName,
+               filename,
+               original,
+               expected,
+               moduleSkip || isSkip(name),
+               moduleOnly || isOnly(name),
+               file2style(filename))
+    }
   }
 
   def file2style(filename: String): ScalaStyle =

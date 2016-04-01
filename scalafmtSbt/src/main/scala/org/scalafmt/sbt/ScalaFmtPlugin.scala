@@ -77,7 +77,7 @@ object ScalaFmtPlugin extends AutoPlugin {
             // the scala-compiler dependency needs to be explicitly added to
             // avoid noclassdeferror.
             "org.scala-lang" % "scala-compiler" % "2.11.7" % "scalafmt",
-            "com.geirsson" % "scalafmt-core_2.11" % org.scalafmt.Versions.scalafmt % "scalafmt"
+            "com.geirsson" % "scalafmt-core_2.11" % org.scalafmt.Versions.nightly % "scalafmt"
         )
     )
 
@@ -114,7 +114,7 @@ object ScalaFmtPlugin extends AutoPlugin {
                     |https://github.com/olafurpg/scalafmt/issues
                     |
                     |URLs: ${classLoader.getURLs.mkString("\n")}
-                    |Version: ${org.scalafmt.Versions.scalafmt}
+                    |Version: ${org.scalafmt.Versions.nightly}
                     |Error: ${e.getClass}
                     |Message: ${e.getMessage}
                     |${e.getStackTrace.mkString("\n")}""".stripMargin)

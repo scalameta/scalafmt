@@ -129,12 +129,10 @@ object Report {
     ).render
 
   def mergeResults(after: Result, before: Result): Seq[FormatOutput] =
-    after.tokens
-      .zip(before.tokens)
-      .map {
-        case (aft, bef) =>
-          FormatOutput(aft.token, aft.whitespace, aft.visits - bef.visits)
-      }
+    after.tokens.zip(before.tokens).map {
+      case (aft, bef) =>
+        FormatOutput(aft.token, aft.whitespace, aft.visits - bef.visits)
+    }
 
   def mkHtml(output: Seq[FormatOutput], scalaStyle: ScalaStyle): String = {
     val sb = new StringBuilder()

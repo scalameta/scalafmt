@@ -45,7 +45,9 @@ object Speed {
     import sys.process._
     val startTime = System.nanoTime()
     val commit = Seq("git", "rev-parse", branch).!!.trim
-    val view = db.query.view[(String, Long), TestStats]("speed", "commits").get
+    val view = db.query
+      .view[(String, Long), TestStats]("speed", "commits")
+      .get
       .endKey((commit, 0))
       .startKey((commit, Long.MaxValue))
       .descending(true)
@@ -53,8 +55,8 @@ object Speed {
     view.query.attemptRun match {
       case -\/(e: UnresolvedAddressException) => logger.debug("No internet")
       case -\/(e: upickle.Invalid) =>
-        logger
-          .debug("Received invalid data from server. Has TestStats changed?")
+        logger.debug(
+            "Received invalid data from server. Has TestStats changed?")
       case -\/(e) =>
         val currentBranch = GitInfo.currentBranch
         logger.warn(s"""Found no data for branch $branch. Try this:

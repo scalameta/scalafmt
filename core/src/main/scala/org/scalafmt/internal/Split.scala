@@ -38,10 +38,12 @@ case class Split(modification: Modification,
     case _ => this
   }
 
-  val indentation = indents.map(_.length match {
-    case Num(x) => x.toString
-    case x => x.toString
-  }).mkString("[", ", ", "]")
+  val indentation = indents
+    .map(_.length match {
+      case Num(x) => x.toString
+      case x => x.toString
+    })
+    .mkString("[", ", ", "]")
 
   def length: Int = modification match {
     case m if m.isNewline => 0

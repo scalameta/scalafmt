@@ -53,3 +53,8 @@ object Object {
     b123456
   }
 }
+<<< SKIP inline comment extends expire
+split.withPenalty(columnOnCurrentLine) // overflow
+>>>
+split.withPenalty(
+    columnOnCurrentLine) // overflow

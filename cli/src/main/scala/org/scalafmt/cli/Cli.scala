@@ -47,7 +47,7 @@ object Cli {
       c
     }
 
-    head("scalafmt", Versions.scalafmt)
+    head("scalafmt", Versions.nightly)
     opt[File]('f', "file") action { (file, c) =>
       c.copy(file = Some(file))
     } text "can be directory, in which case all *.scala files are formatted. If not provided, reads from stdin."
@@ -70,13 +70,11 @@ object Cli {
 
   def getCode(config: Config): Seq[InputMethod] = config.file match {
     case Some(file) =>
-      FileOps
-        .listFiles(file)
-        .withFilter(_.endsWith(".scala"))
-        .map { filename =>
+      FileOps.listFiles(file).withFilter(_.endsWith(".scala")).map {
+        filename =>
           val contents = FileOps.readFile(filename)
           FileContents(filename, contents)
-        }
+      }
     case _ =>
       val contents =
         scala.io.Source.fromInputStream(System.in).getLines().mkString("\n")
