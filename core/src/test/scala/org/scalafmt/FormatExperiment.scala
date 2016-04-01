@@ -63,12 +63,12 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
 class FormatExperimentTest extends FunSuite with FormatExperiment {
 
   def validate(result: ExperimentResult): Unit = result match {
-    case _: Success | _: Timeout =>
+    case _: Success | _: Timeout | _: Skipped =>
     case failure => fail(s"""Unexpected failure:
                             |$failure""".stripMargin)
   }
 
-  test("scalafmt formats all files in Scala.js") {
+  test(s"scalafmt formats a bunch of OSS projects") {
     runExperiment(scalaFiles)
     results.toIterable.foreach(validate)
     printResults()
