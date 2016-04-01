@@ -4,6 +4,8 @@ set -e
 version=$(sed -n -e 's/.*val stable = "\(.*\)"/\1/p' core/src/main/scala/org/scalafmt/Versions.scala)
 tag="v${version}"
 tarfile="cli/target/scalafmt.tar.gz"
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+
 function assert-installed() {
   binary=$1
   command -v ${binary} >/dev/null 2>&1 || { echo >&2 "Missing dependency ${binary}, exiting."; exit 1; }
@@ -15,6 +17,14 @@ function assert-dependencies-are-installed() {
   assert-installed sbt
   assert-installed shasum
   assert-installed tar
+}
+
+function assert-preconditions() {
+    if [ "$current_branch" != "master" ]; then
+      echo "On branch $current_branch! You should be on master branch."
+      exit 1
+    fi
+    assert-dependencies-are-installed
 }
 
 function confirm-release() {
@@ -81,7 +91,7 @@ function update-homebrew-release() {
     git push origin master
 }
 
-assert-dependencies-are-installed
+assert-preconditions
 confirm-release
 assemble-jar
 push-tag
