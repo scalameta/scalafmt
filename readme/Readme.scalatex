@@ -356,19 +356,43 @@
     @sect{0.1.5}
       @ul
         @li
-          Various bug and speed improvements.
-          Some files that didn't format with 0.1.4 will format with 0.1.5.
+          Select chains are kept on a single line if they fit up to the last
+          opening curly brace.
+
+          @hl.scala
+            // column          |
+            // before
+            List(1)
+              .map { x =>
+                x + 1
+              }
+            // after
+            List(1).map { x =>
+              x + 1
+            }
         @li
-          Quite large internal refactoring.
+          Really long sequences of infix applications (for example, string
+          concatenations) don't hog anymore.
+        @li
+          Various small bug and speed improvements.
+          For example, all files in
           @lnk("Fastparse", "https://github.com/lihaoyi/fastparse/"),
-          @lnk("scalding", "https://github.com/twitter/scalding") and
-          @lnk("goose", "https://github.com/GravityLabs/goose")
-          are included in the unit test suite, making a total of 1405 files.
-          Around 6.000 more files will be added in next releases, from
+          @lnk("Scalding", "https://github.com/twitter/scalding") and
+          @lnk("Goose", "https://github.com/GravityLabs/goose") that had
+          problems with 0.1.4 format without issues on 0.1.5.
+        @li
+          Ramped up testing.
+          Fastparse, Scalding and Goose
+          have been added to the test suite, which now runs on 1405 files
+          from external projects.
+          The plan is to reach around 28.000 files in the coming 0.1.x releases,
+          by including projects like
           @lnk("spark", "https://github.com/olafurpg/scalafmt/issues/133"),
           @lnk("akka", "https://github.com/olafurpg/scalafmt/issues/134") and
           @lnk("intellij-scala", "https://github.com/olafurpg/scalafmt/issues/135").
-
+        @li
+          Made rather large internal refactorings, which shouldn't affect
+          you as a user.
     @sect{0.1.4}
       @ul
         @li
