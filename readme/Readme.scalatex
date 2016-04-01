@@ -20,7 +20,7 @@
   hl.scala(formatted)
 }
 
-@sect("Scalafmt", org.scalafmt.Versions.latestPublished)
+@sect("Scalafmt", org.scalafmt.Versions.stable)
   @h1
     Opinionated code formatter for Scala
 
@@ -68,7 +68,7 @@
 
     @sect{SBT}
       @hl.scala
-        addSbtPlugin("com.geirsson" %% "sbt-scalafmt" % "@org.scalafmt.Versions.latestPublished")
+        addSbtPlugin("com.geirsson" %% "sbt-scalafmt" % "@org.scalafmt.Versions.stable")
 
       @ul
         @li
@@ -131,7 +131,7 @@
         @hl.scala
           brew tap olafurpg/scalafmt
           brew install scalafmt
-          scalafmt --version // should be @org.scalafmt.Versions.scalafmt
+          scalafmt --version // should be @org.scalafmt.Versions.stable
 
       @sect{Usage examples}
 
@@ -157,7 +157,7 @@
     @sect{Standalone library}
       Add to your dependencies
       @hl.scala
-        libraryDependencies += "com.geirsson" %% "scalafmt" % "@org.scalafmt.Versions.latestPublished"
+        libraryDependencies += "com.geirsson" %% "scalafmt" % "@org.scalafmt.Versions.stable"
       @p
         Use the API like this
         @hl.ref(wd/'readme/"library-usage.example")

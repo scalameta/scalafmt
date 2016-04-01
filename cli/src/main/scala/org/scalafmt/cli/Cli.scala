@@ -47,7 +47,7 @@ object Cli {
       c
     }
 
-    head("scalafmt", Versions.scalafmt)
+    head("scalafmt", Versions.nightly)
     opt[File]('f', "file") action { (file, c) =>
       c.copy(file = Some(file))
     } text "can be directory, in which case all *.scala files are formatted. If not provided, reads from stdin."
