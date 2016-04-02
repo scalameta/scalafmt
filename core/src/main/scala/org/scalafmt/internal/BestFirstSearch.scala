@@ -189,8 +189,11 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
       if (explored % 10000 == 0 && style.debug) {
         logger.debug(s"Explored $explored, depth=$depth Q.size=${Q.size}")
       }
-      if (hasReachedEof(curr) ||
-          tokens(curr.splits.length).left.start >= stop.start) {
+      if (hasReachedEof(curr) || {
+            val token = tokens(curr.splits.length)
+            // If token is empty we can take one more split before reaching stop.
+            token.left.code.nonEmpty && token.left.start >= stop.start
+          }) {
         result = curr
         Q.dequeueAll
       } else if (shouldEnterState(curr)) {
