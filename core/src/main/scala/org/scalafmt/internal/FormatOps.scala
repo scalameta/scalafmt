@@ -2,6 +2,7 @@ package org.scalafmt.internal
 
 import org.scalafmt.Error.CaseMissingArrow
 import org.scalafmt.ScalaStyle
+import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
 import scala.annotation.tailrec
@@ -21,6 +22,7 @@ import scala.meta.tokens.Token._
   * Helper functions for generating splits/policies for a given tree.
   */
 class FormatOps(val tree: Tree, val style: ScalaStyle) {
+  import LoggerOps._
   import TokenOps._
   import TreeOps._
 
