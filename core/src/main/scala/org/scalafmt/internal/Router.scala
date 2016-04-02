@@ -557,8 +557,8 @@ class Router(formatOps: FormatOps) {
         val owner = rightOwner.asInstanceOf[Term.Select]
         val nestedPenalty = nestedSelect(rightOwner) + nestedApplies(leftOwner)
         val chain = getSelectChain(owner)
-        val names = chain.map(_.name)
         val lastToken = lastTokenInChain(chain)
+        val optimalToken = chainOptimalToken(chain)
         val breakOnEveryDot = Policy({
           case Decision(t@FormatToken(left, dot2: `.`, _), s)
               if chain.contains(owners(dot2)) =>
@@ -575,7 +575,9 @@ class Router(formatOps: FormatOps) {
           .andThen(penalizeNewlinesInApply.f)
           .copy(expire = lastToken.end)
         Seq(
-            Split(NoSplit, 0).withPolicy(noSplitPolicy),
+            Split(NoSplit, 0)
+              .withOptimalToken(optimalToken, killOnFail = false)
+              .withPolicy(noSplitPolicy),
             Split(Newline, 1 + nestedPenalty)
               .withPolicy(newlinePolicy)
               .withIndent(2, lastToken, Left)

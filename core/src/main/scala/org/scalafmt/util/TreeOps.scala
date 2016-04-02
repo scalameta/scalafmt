@@ -282,18 +282,6 @@ object TreeOps {
     }
   }
 
-  def lastTokenInChain(chain: Vector[Term.Select]): Token = {
-    if (chain.length == 1) lastToken(chain.last)
-    else chainOptimalToken(chain)
-  }
-
-  def chainOptimalToken(chain: Vector[Term.Select]): Token = {
-    chain.last.parent.map(splitApplyIntoLhsAndArgsLifted) match {
-      case Some(_) => lastToken(chain.last.parent.get)
-      case _ => lastToken(chain.last)
-    }
-  }
-
   def startsSelectChain(tree: Tree): Boolean = tree match {
     case select: Term.Select =>
       !(existsChild(_.isInstanceOf[Term.Select])(select) &&
