@@ -14,8 +14,14 @@ Head over to [the user docs][docs] for instructions on how to install scalafmt.
 * `core/testOnly org.scalafmt.FidelityTest`: runs the formatter on all files in
   this project.
 * `run-benchmarks.sh` script to run jmh benchmarks.
-* `core/test:runMain  org.scalafmt.FormatExperimentApp`: clones Scala.js, runs
-  formatter on all cloned files and prints summary.
+* `core/test:runMain  org.scalafmt.FormatExperimentApp`:
+  1. Uses `wget` to download a ~20mb tar
+     ([repos.tar.gz](https://github.com/olafurpg/scalafmt/releases/tag/v0.1.4))
+     that contains ~28.000 Scala source files from public Github repos,
+  2. untars with `tar`,
+  3. runs scalafmt on a subset of the files, specified in `FormatExperiment`.
+     Runs various property based checks under timing constraints (around 10s per file),
+  4. prints summary report to console.
 * instructions for the tests [are here](core/src/test/resources).
 
 [docs]: http://scalafmt.org
