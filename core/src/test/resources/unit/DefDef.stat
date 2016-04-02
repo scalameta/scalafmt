@@ -39,8 +39,7 @@ def identity[T](t: T): T = t
         sym.hasAnnotation(JSBracketCallAnnotation)
 >>>
 def hasExplicitJSEncoding =
-  sym
-    .hasAnnotation(JSNameAnnotation) ||
+  sym.hasAnnotation(JSNameAnnotation) ||
   sym.hasAnnotation(
       JSBracketAccessAnnotation) ||
   sym.hasAnnotation(

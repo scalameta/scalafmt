@@ -2,6 +2,7 @@ package org.scalafmt.internal
 
 import org.scalafmt.Error.CaseMissingArrow
 import org.scalafmt.ScalaStyle
+import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
 import scala.annotation.tailrec
@@ -21,6 +22,7 @@ import scala.meta.tokens.Token._
   * Helper functions for generating splits/policies for a given tree.
   */
 class FormatOps(val tree: Tree, val style: ScalaStyle) {
+  import LoggerOps._
   import TokenOps._
   import TreeOps._
 
@@ -246,6 +248,39 @@ class FormatOps(val tree: Tree, val style: ScalaStyle) {
 
   def templateCurly(template: Template): Option[Token] = {
     template.tokens.find(x => x.isInstanceOf[`{`] && owners(x) == template)
+  }
+
+  def lastTokenInChain(chain: Vector[Term.Select]): Token = {
+    if (chain.length == 1) lastToken(chain.last)
+    else chainOptimalToken(chain)
+  }
+
+  /**
+    * Returns last token of select, handles case when select's parent is apply.
+    *
+    * For example, in:
+    * foo.bar[T](1, 2)
+    * the last token is the final )
+    * @param dot the dot owned by the select.
+    */
+  def getSelectsLastToken(dot: `.`): Token = {
+    val sibling = next(leftTok2tok(dot))
+    if (!isOpenApply(sibling.right)) sibling.left
+    else {
+      var curr = leftTok2tok(matchingParentheses(hash(sibling.right)))
+      while (isOpenApply(curr.right)) curr = next(curr)
+      curr.left
+    }
+  }
+
+  def chainOptimalToken(chain: Vector[Term.Select]): Token = {
+    val lastDotIndex = chain.last.tokens.lastIndexWhere(_.isInstanceOf[`.`])
+    val lastDot =
+      if (lastDotIndex != -1) chain.last.tokens(lastDotIndex).asInstanceOf[`.`]
+      else
+        throw new IllegalStateException(s"Missing . in select ${chain.last}")
+    rhsOptimalToken(
+        leftTok2tok(lastToken(owners(getSelectsLastToken(lastDot)))))
   }
 
   /**

@@ -4,6 +4,7 @@ sealed abstract class Modification {
 
   def isNewline = this match {
     case _: NewlineT => true
+    case Provided(code) if code.contains('\n') => true
     case _ => false
   }
 }

@@ -40,6 +40,8 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
     */
   val maxQueueSize = 555
 
+  val escapeInPathologicalCases = true && doOptimizations
+
   /**
     * Whether to listen to optimalAt fields in Splits.
     */
@@ -85,6 +87,8 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
   var statementCount = 0
 
   val best = mutable.Map.empty[Token, State]
+  val MaxVisitsPerToken = 200
+  val visits = mutable.Map.empty[FormatToken, Int].withDefaultValue(0)
 
   type StateHash = Long
 
@@ -185,14 +189,22 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
       if (explored % 10000 == 0 && style.debug) {
         logger.debug(s"Explored $explored, depth=$depth Q.size=${Q.size}")
       }
-      if (hasReachedEof(curr) ||
-          tokens(curr.splits.length).left.start >= stop.start) {
+      if (hasReachedEof(curr) || {
+            val token = tokens(curr.splits.length)
+            // If token is empty we can take one more split before reaching stop.
+            token.left.code.nonEmpty && token.left.start >= stop.start
+          }) {
         result = curr
         Q.dequeueAll
       } else if (shouldEnterState(curr)) {
         val splitToken = tokens(curr.splits.length)
+        val inTrouble = visits(splitToken) > 30
         if (depth == 0 && curr.splits.length > deepestYet.splits.length) {
           deepestYet = curr
+        }
+        if (style.debug) {
+          Debug.visit(splitToken)
+          visits.put(splitToken, visits(splitToken) + 1)
         }
 
         if (dequeueOnNewStatements &&
@@ -201,11 +213,13 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
                 Q.size > maxQueueSize) &&
             curr.splits.last.modification.isNewline) {
           Q.dequeueAll
+        } else if (escapeInPathologicalCases &&
+                   visits(splitToken) > MaxVisitsPerToken &&
+                   !curr.policy.noDequeue) {
+          // Danger zone: escape hatch for pathological cases.
+          Q.dequeueAll
         }
 
-        if (style.debug) {
-          Debug.visit(splitToken)
-        }
         if (shouldRecurseOnBlock(curr, stop)) {
           val close = matchingParentheses(hash(getLeftLeft(curr)))
           val nextState = shortestPathMemo(
@@ -248,7 +262,7 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
                             nextNextState.splits.length).left.start >= token.start)) {
                   optimalNotFound = false
                   Q.enqueue(nextNextState)
-                } else if (!killOnFail &&
+                } else if (!killOnFail && !inTrouble &&
                            nextState.cost - curr.cost <= maxCost) {
                   // TODO(olafur) DRY. This solution can still be optimal.
                   Q.enqueue(nextState)

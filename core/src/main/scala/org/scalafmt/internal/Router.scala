@@ -54,12 +54,6 @@ class Router(formatOps: FormatOps) {
         Seq(
             Split(Newline, 0) // End files with trailing newline
         )
-      case tok
-          if tok.left.name.startsWith("xml") &&
-          tok.right.name.startsWith("xml") =>
-        Seq(
-            Split(NoSplit, 0)
-        )
       case FormatToken(start: Interpolation.Start, _, _) =>
         val isStripMargin = isMarginizedString(start)
         val end = matchingParentheses(hash(start))
@@ -557,8 +551,8 @@ class Router(formatOps: FormatOps) {
         val owner = rightOwner.asInstanceOf[Term.Select]
         val nestedPenalty = nestedSelect(rightOwner) + nestedApplies(leftOwner)
         val chain = getSelectChain(owner)
-        val names = chain.map(_.name)
         val lastToken = lastTokenInChain(chain)
+        val optimalToken = chainOptimalToken(chain)
         val breakOnEveryDot = Policy({
           case Decision(t@FormatToken(left, dot2: `.`, _), s)
               if chain.contains(owners(dot2)) =>
@@ -575,7 +569,9 @@ class Router(formatOps: FormatOps) {
           .andThen(penalizeNewlinesInApply.f)
           .copy(expire = lastToken.end)
         Seq(
-            Split(NoSplit, 0).withPolicy(noSplitPolicy),
+            Split(NoSplit, 0)
+              .withOptimalToken(optimalToken, killOnFail = false)
+              .withPolicy(noSplitPolicy),
             Split(Newline, 1 + nestedPenalty)
               .withPolicy(newlinePolicy)
               .withIndent(2, lastToken, Left)
@@ -747,8 +743,9 @@ class Router(formatOps: FormatOps) {
               .withIndent(indent, formatToken.right, Left)
         )
 
-      case tok@FormatToken(_: Ident | _: Literal | _: Interpolation.End,
-                           _: Ident | _: Literal | _: Xml.End,
+      case tok@FormatToken(_: Ident | _: Literal | _: Interpolation.End |
+                           _: Xml.End,
+                           _: Ident | _: Literal | _: Xml.Start,
                            _) =>
         Seq(
             Split(Space, 0)
@@ -885,6 +882,15 @@ class Router(formatOps: FormatOps) {
           prev(formatToken).left.isInstanceOf[`:`] =>
         Seq(
             Split(NoSplit, 0)
+        )
+      // Xml
+      case FormatToken(_: Xml.Part, _, _) =>
+        Seq(
+          Split(NoSplit, 0)
+        )
+      case FormatToken(_, _: Xml.Part, _) =>
+        Seq(
+          Split(NoSplit, 0)
         )
 
       // Fallback

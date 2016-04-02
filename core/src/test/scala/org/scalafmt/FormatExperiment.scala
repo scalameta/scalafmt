@@ -20,6 +20,7 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
       "scala-js",
       "fastparse",
       "scalding",
+//      "spark",
       "I wan't trailing commas!!!"
   )
   val badRepos = Set(

@@ -70,7 +70,6 @@ case class FormatterChangedAST(diff: String, output: String)
                      |=====================
                      |Formatter changed AST
     '''.stripMargin)
-
 <<< break indentation
 val msg =
 
