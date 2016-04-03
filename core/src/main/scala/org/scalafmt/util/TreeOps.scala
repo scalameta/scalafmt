@@ -93,6 +93,7 @@ object TreeOps {
         case t: Defn.Object => addDefn[`object`](t.mods, t)
         case t: Defn.Trait => addDefn[`trait`](t.mods, t)
         case t: Defn.Type => addDefn[`type`](t.mods, t)
+        case t: Decl.Type => addDefn[`type`](t.mods, t)
         case t: Defn.Val => addDefn[`val`](t.mods, t)
         case t: Defn.Var => addDefn[`var`](t.mods, t)
         case t => // Nothing

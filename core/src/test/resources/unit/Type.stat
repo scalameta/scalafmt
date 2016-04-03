@@ -31,3 +31,15 @@ trait JSIterator[+A] extends js.Object
   lazy val Blob: raw.Blob.type = raw.Blob
 >>>
 lazy val Blob: raw.Blob.type = raw.Blob
+<<< multiple types
+type Type = Class[F, E, M] forSome {
+    type F
+    type M <: ClassificationModel[F, M]
+    type E <: Classifier[F, E, M]
+  }
+>>>
+type Type = Class[F, E, M] forSome {
+  type F
+  type M <: ClassificationModel[F, M]
+  type E <: Classifier[F, E, M]
+}
