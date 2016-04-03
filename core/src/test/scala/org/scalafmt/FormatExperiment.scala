@@ -33,6 +33,11 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
 
   def badFile(filename: String): Boolean =
     Seq(
+        // Formats OK, but contains huge function calls which
+        // would definitely be excluded from automatic formatting.
+        "javalanglib/src/main/scala/java/lang/Character.scala",
+        // Duplicate file, both in scala.js and fastparse.
+        "jvm/src/test/resources/scalaparse/GenJSCode.scala",
         // Auto generated files
         "scalding-core/src/main/scala/com/twitter/scalding/macros/impl/TypeDescriptorProviderImpl.scala",
         "scalding/serialization/macros/impl/ordered_serialization/providers/ProductOrderedBuf.scala",

@@ -4,7 +4,8 @@ import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.HasTests
 import org.scalatest.FunSuite
 
-class PathologicalCasesTest extends FunSuite with HasTests  with DiffAssertions {
+class PathologicalCasesTest
+    extends FunSuite with HasTests with DiffAssertions {
   // Don't be afraid to override the expected value in these tests.
   val stateExplosions =
     """
@@ -292,8 +293,8 @@ Defn
                             Term.Name("result"))))))))
     """.replace("'''", "\"\"\"")
 
-  override val tests =
-    parseDiffTests(stateExplosions, "default/StateExplosion.stat")
+  override val tests = parseDiffTests(
+      stateExplosions, "default/StateExplosion.stat")
 
   runTestsDefault()
 }

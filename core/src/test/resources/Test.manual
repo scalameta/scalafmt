@@ -12,3 +12,5 @@ SKIP https://raw.githubusercontent.com/scala-js/scala-js/8663c8060ca96a51bfc1f87
 SKIP https://raw.githubusercontent.com/scala-js/scala-js/8663c8060ca96a51bfc1f87f2f3f30babbeadbc3/javalib/src/main/scala/java/util/Formatter.scala
 SKIP https://raw.githubusercontent.com/twitter/scalding/7759d9c399896fc4c54be0f2406e047e030d8586/scalding-hadoop-test/src/test/scala/com/twitter/scalding/platform/PlatformTest.scala
 SKIP https://raw.githubusercontent.com/apache/spark/2c5b18fb0fdeabd378dd97e91f72d1eac4e21cc7/streaming/src/test/scala/org/apache/spark/streaming/rdd/MapWithStateRDDSuite.scala
+ONLY https://raw.githubusercontent.com/scala-js/scala-js/8663c8060ca96a51bfc1f87f2f3f30babbeadbc3/javalanglib/src/main/scala/java/lang/Character.scala
+

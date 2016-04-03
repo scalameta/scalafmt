@@ -424,6 +424,8 @@ class Router(formatOps: FormatOps) {
           if (isDefnSite(leftOwner)) defnSiteLastToken(leftOwner)
           else rhsOptimalToken(leftTok2tok(close))
 
+        val tooManyArguments = args.length > 100
+
         Seq(
             Split(modification,
                   0,
@@ -441,7 +443,8 @@ class Router(formatOps: FormatOps) {
             Split(modification,
                   (2 + lhsPenalty) * bracketMultiplier,
                   policy = oneArgOneLine,
-                  ignoreIf = singleArgument || isConfigStyle)
+                  ignoreIf = singleArgument || isConfigStyle ||
+                    tooManyArguments)
               .withOptimalToken(expirationToken)
               .withIndent(StateColumn, close, Right),
             Split(Newline,
@@ -782,7 +785,7 @@ class Router(formatOps: FormatOps) {
         val expire = Option(owner.body)
           .filter(_.tokens.exists(!_.isInstanceOf[Trivia]))
           .map(lastToken)
-                .map(getRightAttachedComment)
+          .map(getRightAttachedComment)
           .getOrElse(arrow) // edge case, if body is empty expire on arrow.
 
         Seq(
