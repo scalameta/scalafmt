@@ -213,11 +213,6 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
                 Q.size > maxQueueSize) &&
             curr.splits.last.modification.isNewline) {
           Q.dequeueAll
-        } else if (escapeInPathologicalCases &&
-                   visits(splitToken) > MaxVisitsPerToken &&
-                   !curr.policy.noDequeue) {
-          // Danger zone: escape hatch for pathological cases.
-          Q.dequeueAll
         }
 
         if (shouldRecurseOnBlock(curr, stop)) {
@@ -229,6 +224,12 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
             Q.enqueue(nextState)
           }
         } else {
+          if (escapeInPathologicalCases &&
+              visits(splitToken) > MaxVisitsPerToken &&
+              !curr.policy.noDequeue) {
+            // Danger zone: escape hatch for pathological cases.
+            Q.dequeueAll
+          }
           val splits: Seq[Split] =
             if (curr.formatOff) List(provided(splitToken))
             else if (splitToken.inside(range)) router.getSplitsMemo(splitToken)

@@ -358,7 +358,7 @@ class Router(formatOps: FormatOps) {
         val nestedPenalty = nestedApplies(leftOwner)
         val exclude =
           if (isBracket) insideBlock(tok, close, _.isInstanceOf[`[`])
-          else insideBlock(tok, close, _.isInstanceOf[`{`])
+          else insideBlock(tok, close, x => x.isInstanceOf[`{`])
         val excludeRanges = exclude.map(parensRange)
 
         //          insideBlock(tok, close, _.isInstanceOf[`{`])

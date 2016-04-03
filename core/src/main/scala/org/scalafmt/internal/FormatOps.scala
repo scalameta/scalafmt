@@ -191,6 +191,7 @@ class FormatOps(val tree: Tree, val style: ScalaStyle) {
   }.getOrElse(tree.tokens.last)
 
   def OneArgOneLineSplit(open: Delim)(implicit line: sourcecode.Line): Policy = {
+    // TODO(olafur) clear queue between arguments, they are independent.
     val expire = matchingParentheses(hash(open))
     Policy({
       // Newline on every comma.
