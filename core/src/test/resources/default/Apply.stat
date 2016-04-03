@@ -262,3 +262,17 @@ val configsWithAlternatives = Map[String, Seq[AlternateConfig]](
         "spark.yarn.jars" -> Seq(AlternateConfig("spark.yarn.jar", "2.0"))
     )
 }
+<<< SKIP spark comment explodes matrix
+{
+  test("add") {
+    val blocks: Seq[((Int, Int), Matrix)] = Seq(
+      ((0, 0), new DenseMatrix(2, 2, Array(1.0, 0.0, 0.0, 2.0))),
+      ((0, 1), new DenseMatrix(2, 2, Array(0.0, 1.0, 0.0, 0.0))),
+      ((1, 0), new DenseMatrix(2, 2, Array(3.0, 0.0, 1.0, 1.0))),
+      ((1, 1), new DenseMatrix(2, 2, Array(1.0, 2.0, 0.0, 1.0))),
+      ((2, 0), new DenseMatrix(1, 2, Array(1.0, 0.0))), // This comment will make scalafmt go crazy
+      ((2, 1), new DenseMatrix(1, 2, Array(1.0, 5.0))))
+      }
+}
+>>>
+x
