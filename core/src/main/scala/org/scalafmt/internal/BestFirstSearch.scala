@@ -298,13 +298,10 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
                    |deepestYet.length=${deepestYet.splits.length}
                    |policies=${deepestYet.policy.policies}
                    |nextSplits=$nextSplits
-                   |splitsAfterPolicy=$splitsAfterPolicy
-                   |afterDeepestState=$nextStates
-                   |""".stripMargin
+                   |splitsAfterPolicy=$splitsAfterPolicy""".stripMargin
       if (style.debug) {
         logger.error(s"""Failed to format
-                        |$msg
-          """.stripMargin)
+                        |$msg""".stripMargin)
         state = deepestYet
       } else {
         throw CantFormatFile(msg)

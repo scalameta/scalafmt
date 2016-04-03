@@ -273,6 +273,13 @@ class FormatOps(val tree: Tree, val style: ScalaStyle) {
     }
   }
 
+  def getRightAttachedComment(token: Token): Token = {
+    val formatToken = leftTok2tok(token)
+    if (isAttachedComment(formatToken.right, formatToken.between))
+      formatToken.right
+    else token
+  }
+
   def chainOptimalToken(chain: Vector[Term.Select]): Token = {
     val lastDotIndex = chain.last.tokens.lastIndexWhere(_.isInstanceOf[`.`])
     val lastDot =

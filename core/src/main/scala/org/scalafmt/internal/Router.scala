@@ -779,24 +779,26 @@ class Router(formatOps: FormatOps) {
         val owner = leftOwner.asInstanceOf[Case]
         val arrow = getArrow(owner)
         // TODO(olafur) expire on token.end to avoid this bug.
-        val lastToken = owner.body.tokens.filter {
-          case _: Whitespace | _: Comment => false
-          case _ => true
-        }.lastOption
+        val expire = Option(owner.body)
+          .filter(_.tokens.exists(!_.isInstanceOf[Trivia]))
+          .map(lastToken)
+                .map(getRightAttachedComment)
           .getOrElse(arrow) // edge case, if body is empty expire on arrow.
 
         Seq(
             // Either everything fits in one line or break on =>
-            Split(Space, 0).withPolicy(SingleLineBlock(lastToken)),
+            Split(Space, 0)
+              .withOptimalToken(expire, killOnFail = true)
+              .withPolicy(SingleLineBlock(expire)),
             Split(Space, 1)
               .withPolicy(Policy({
                 case Decision(t@FormatToken(`arrow`, right, between), s)
-//                   TODO(olafur) any other corner cases?
+                    // TODO(olafur) any other corner cases?
                     if !right.isInstanceOf[`{`] &&
                     !isAttachedComment(right, between) =>
                   Decision(t, s.filter(_.modification.isNewline))
-              }, expire = lastToken.end))
-              .withIndent(2, lastToken, Left) // case body indented by 2.
+              }, expire = expire.end))
+              .withIndent(2, expire, Left) // case body indented by 2.
               .withIndent(2, arrow, Left) // cond body indented by 4.
         )
       case tok@FormatToken(_, cond: `if`, _)
@@ -886,11 +888,11 @@ class Router(formatOps: FormatOps) {
       // Xml
       case FormatToken(_: Xml.Part, _, _) =>
         Seq(
-          Split(NoSplit, 0)
+            Split(NoSplit, 0)
         )
       case FormatToken(_, _: Xml.Part, _) =>
         Seq(
-          Split(NoSplit, 0)
+            Split(NoSplit, 0)
         )
 
       // Fallback
