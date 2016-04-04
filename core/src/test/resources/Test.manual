@@ -1,5 +1,2 @@
 SKIP core/src/main/scala/org/scalafmt/internal/Router.scala
-SKIP https://raw.githubusercontent.com/apache/spark/2c5b18fb0fdeabd378dd97e91f72d1eac4e21cc7/core/src/main/scala/org/apache/spark/ui/jobs/JobPage.scala
-SKIP benchmarks/src/resources/scala-js/ScalaJSClassEmitter.scala
-SKIP https://raw.githubusercontent.com/apache/spark/2c5b18fb0fdeabd378dd97e91f72d1eac4e21cc7/core/src/main/scala/org/apache/spark/SparkConf.scala
-SKIP https://raw.githubusercontent.com/apache/spark/2c5b18fb0fdeabd378dd97e91f72d1eac4e21cc7/mllib/src/test/scala/org/apache/spark/mllib/linalg/distributed/BlockMatrixSuite.scala
+ONLY https://raw.githubusercontent.com/apache/spark/2c5b18fb0fdeabd378dd97e91f72d1eac4e21cc7/sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/parser/CatalystQl.scala

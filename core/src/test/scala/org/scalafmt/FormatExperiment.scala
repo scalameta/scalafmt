@@ -5,6 +5,7 @@ import org.scalafmt.util.ExperimentResult.Skipped
 import org.scalafmt.util.ExperimentResult.Success
 import org.scalafmt.util.ExperimentResult.Timeout
 import org.scalafmt.util.FormatAssertions
+import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.ScalaFile
 import org.scalafmt.util.ScalaProjectsExperiment
 import org.scalafmt.util.ScalacParser
@@ -13,26 +14,45 @@ import scala.collection.JavaConversions._
 import scala.meta._
 
 trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
+  import LoggerOps._
   override val verbose = false
 
   val okRepos = Set(
-//      "goose",
-//      "scala-js",
-//      "fastparse",
-//      "scalding",
+      "goose",
+      "scala-js",
+      "fastparse",
+      "scalding",
       "spark",
       "I wan't trailing commas!!!"
   )
   val badRepos = Set(
       "kafka"
   )
-
   def okScalaFile(scalaFile: ScalaFile): Boolean = {
     okRepos(scalaFile.repo) && !badFile(scalaFile.filename)
   }
 
   def badFile(filename: String): Boolean =
+//  !Seq(
+//    "mllib/src/main/scala/org/apache/spark/ml/param/shared/SharedParamsCodeGen.scala",
+//    "project/MimaExcludes.scala",
+//    "sql/catalyst/src/test/scala/org/apache/spark/sql/catalyst/ScalaReflectionSuite.scala",
+//    "sql/core/src/test/scala/org/apache/spark/sql/JoinSuite.scala",
+//    "sql/core/src/test/scala/org/apache/spark/sql/execution/datasources/json/JsonSuite.scala",
+//    "sql/core/src/test/scala/org/apache/spark/sql/sources/TableScanSuite.scala"
+//  ).exists(filename.contains)
+//
+//    !filename.contains(
+//
+//  "catalyst/src/main/scala/org/apache/spark/sql/catalyst"
+//       yarn/src/test/scala/org/apache/spark/network/
+//      "sql/hive/src/test/scala/org/apache/spark/sql"
+//     ) ||
     Seq(
+        // These format fine when run individually, but hog when run together with other files.
+        "core/src/main/scala/org/apache/spark/deploy/SparkSubmit.scala",
+        "sql/hive/src/test/scala/org/apache/spark/sql/hive/execution/WindowQuerySuite.scala",
+        "core/src/main/scala/org/apache/spark/SparkConf.scala",
         // Formats OK, but contains huge function calls which
         // would definitely be excluded from automatic formatting.
         "javalanglib/src/main/scala/java/lang/Character.scala",

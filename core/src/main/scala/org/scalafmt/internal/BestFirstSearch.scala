@@ -21,7 +21,7 @@ class BestFirstSearch(
   val router = new Router(formatOps)
 
   val maxVisitStates = // For debugging purposes only.
-    if (style.debug) 100000 // Unit tests must be < 100k states
+    if (style.debug) 10000000 // Unit tests must be < 100k states
     else 10000000
 
   val doOptimizations = true // For debugging purposes only.
@@ -41,7 +41,24 @@ class BestFirstSearch(
     */
   val maxQueueSize = 555
 
+  /**
+    * Use heuristics to escape when the search state grows out of bounds.
+    *
+    * An optimization that trades off optimal formatting output in order to
+    * complete in a reasonable time. Used as a last resort.
+    */
   val escapeInPathologicalCases = true && doOptimizations
+
+  /**
+    * Visit the same formatToken at most [[MaxVisitsPerToken]] times.
+    *
+    * If the same token is
+    */
+  val MaxVisitsPerToken = 200
+
+  val MaxEscapes = 16
+
+  val MaxDepth = 100
 
   /**
     * Whether to listen to optimalAt fields in Splits.
@@ -89,7 +106,8 @@ class BestFirstSearch(
   var statementCount = 0
 
   val best = mutable.Map.empty[Token, State]
-  val MaxVisitsPerToken = 200
+  var pathologicalEscapes = 0
+
   val visits = mutable.Map.empty[FormatToken, Int].withDefaultValue(0)
 
   type StateHash = Long
@@ -173,6 +191,16 @@ class BestFirstSearch(
     }
   }
 
+  def untilNextStatement(state: State): State = {
+    var curr = state
+    while (!hasReachedEof(curr) &&
+    !statementStarts.contains(hash(tokens(curr.splits.length).left))) {
+      val tok = tokens(curr.splits.length)
+      curr = State.next(curr, style, provided(tok), tok)
+    }
+    curr
+  }
+
   /**
     * Runs best first search to find lowest penalty split.
     */
@@ -181,6 +209,7 @@ class BestFirstSearch(
                    depth: Int = 0,
                    maxCost: Int = Integer.MAX_VALUE)(
       implicit line: sourcecode.Line): State = {
+//    logger.elem(depth, line)
     val Q = new mutable.PriorityQueue[State]()
     var result = start
     Q += start
@@ -209,8 +238,8 @@ class BestFirstSearch(
         }
         if (style.debug) {
           Debug.visit(splitToken)
-          visits.put(splitToken, visits(splitToken) + 1)
         }
+        visits.put(splitToken, visits(splitToken) + 1)
 
         if (dequeueOnNewStatements &&
             dequeueSpots.contains(hash(splitToken.left)) &&
@@ -230,11 +259,16 @@ class BestFirstSearch(
           }
         } else {
           if (escapeInPathologicalCases &&
-              visits(splitToken) > MaxVisitsPerToken &&
-              !curr.policy.noDequeue) {
+              visits(splitToken) > MaxVisitsPerToken) {
             // Danger zone: escape hatch for pathological cases.
             Q.dequeueAll
-            Q.enqueue(deepestYetSafe)
+            best.clear()
+            if (pathologicalEscapes >= MaxEscapes) {
+              Q.enqueue(untilNextStatement(curr))
+            } else {
+              Q.enqueue(deepestYetSafe)
+              pathologicalEscapes += 1
+            }
           }
 
           val splits: Seq[Split] =
@@ -261,7 +295,7 @@ class BestFirstSearch(
             split.optimalAt match {
               case Some(OptimalToken(token, killOnFail))
                   if acceptOptimalAtHints && actualSplit.length > 1 &&
-                  split.cost == 0 =>
+                  depth < MaxDepth && split.cost == 0 =>
                 val nextNextState =
                   shortestPath(nextState, token, depth + 1, maxCost = 0)(
                       sourcecode.Line.generate)
