@@ -10,7 +10,8 @@ import scala.meta.tokens.Token
 /**
   * Implements best first search to find optimal formatting.
   */
-class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
+class BestFirstSearch(
+    val formatOps: FormatOps, range: Set[Range], formatWriter: FormatWriter) {
   import LoggerOps._
   import Token._
   import TokenOps._
@@ -84,6 +85,7 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
   val noOptimizations = noOptimizationZones(tree)
   var explored = 0
   var deepestYet = State.start
+  var deepestYetSafe = State.start
   var statementCount = 0
 
   val best = mutable.Map.empty[Token, State]
@@ -198,9 +200,12 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
         Q.dequeueAll
       } else if (shouldEnterState(curr)) {
         val splitToken = tokens(curr.splits.length)
-        val inTrouble = visits(splitToken) > 30
         if (depth == 0 && curr.splits.length > deepestYet.splits.length) {
           deepestYet = curr
+        }
+        if (depth == 0 && curr.policy.isSafe &&
+            curr.splits.length > deepestYetSafe.splits.length) {
+          deepestYetSafe = curr
         }
         if (style.debug) {
           Debug.visit(splitToken)
@@ -229,7 +234,9 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
               !curr.policy.noDequeue) {
             // Danger zone: escape hatch for pathological cases.
             Q.dequeueAll
+            Q.enqueue(deepestYetSafe)
           }
+
           val splits: Seq[Split] =
             if (curr.formatOff) List(provided(splitToken))
             else if (splitToken.inside(range)) router.getSplitsMemo(splitToken)
@@ -263,7 +270,7 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
                             nextNextState.splits.length).left.start >= token.start)) {
                   optimalNotFound = false
                   Q.enqueue(nextNextState)
-                } else if (!killOnFail && !inTrouble &&
+                } else if (!killOnFail &&
                            nextState.cost - curr.cost <= maxCost) {
                   // TODO(olafur) DRY. This solution can still be optimal.
                   Q.enqueue(nextState)

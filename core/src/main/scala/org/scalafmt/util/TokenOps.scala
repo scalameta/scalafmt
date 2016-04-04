@@ -180,7 +180,7 @@ object TokenOps {
       //
       // In this case, we would put a newline before """short and indent by
       // two.
-      lit.code.lines.map(_.replaceAll(" *|", "").length).max
+      lit.code.lines.map(_.replaceFirst(" *|", "").length).max
     case _ =>
       val firstNewline = token.code.indexOf('\n')
       if (firstNewline == -1) token.code.length

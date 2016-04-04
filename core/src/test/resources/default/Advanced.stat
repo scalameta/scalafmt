@@ -488,7 +488,7 @@ js.Function(List(objParam, depthParam), js.Return {
 
   aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 }
-<<< resolution copier
+<<< ONLY resolution copier
 class ResolutionCopier(x: Int) {
 
   def visitClassDeclaration(node: ClassDeclaration): Boolean = {

@@ -58,7 +58,7 @@ object ScalaFmt {
     val source = code.parse[T]
     val formatOps = new FormatOps(source, style)
     val formatWriter = new FormatWriter(formatOps)
-    val search = new BestFirstSearch(formatOps, range)
+    val search = new BestFirstSearch(formatOps, range, formatWriter)
     formatWriter.mkString(search.getBestPath)
   }
 }
