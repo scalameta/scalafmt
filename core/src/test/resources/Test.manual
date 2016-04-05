@@ -1,1 +1,2 @@
 SKIP core/src/main/scala/org/scalafmt/internal/Router.scala
+SKIP https://raw.githubusercontent.com/akka/akka/3698928fbdaa8fef8e2037fbc51887ab60addefb/project/AkkaBuild.scala

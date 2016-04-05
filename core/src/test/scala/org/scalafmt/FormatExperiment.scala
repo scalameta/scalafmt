@@ -1,6 +1,7 @@
 package org.scalafmt
 
 import org.scalafmt.util.ExperimentResult
+import org.scalafmt.util.ExperimentResult.ParseErr
 import org.scalafmt.util.ExperimentResult.Skipped
 import org.scalafmt.util.ExperimentResult.Success
 import org.scalafmt.util.ExperimentResult.Timeout
@@ -23,6 +24,7 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
       "fastparse",
       "scalding",
       "spark",
+      "akka",
       "I wan't trailing commas!!!"
   )
   val badRepos = Set(
@@ -33,21 +35,6 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
   }
 
   def badFile(filename: String): Boolean =
-//  !Seq(
-//    "mllib/src/main/scala/org/apache/spark/ml/param/shared/SharedParamsCodeGen.scala",
-//    "project/MimaExcludes.scala",
-//    "sql/catalyst/src/test/scala/org/apache/spark/sql/catalyst/ScalaReflectionSuite.scala",
-//    "sql/core/src/test/scala/org/apache/spark/sql/JoinSuite.scala",
-//    "sql/core/src/test/scala/org/apache/spark/sql/execution/datasources/json/JsonSuite.scala",
-//    "sql/core/src/test/scala/org/apache/spark/sql/sources/TableScanSuite.scala"
-//  ).exists(filename.contains)
-//
-//    !filename.contains(
-//
-//  "catalyst/src/main/scala/org/apache/spark/sql/catalyst"
-//       yarn/src/test/scala/org/apache/spark/network/
-//      "sql/hive/src/test/scala/org/apache/spark/sql"
-//     ) ||
     Seq(
         // These format fine when run individually, but hog when run together with other files.
         "core/src/main/scala/org/apache/spark/deploy/SparkSubmit.scala",
@@ -89,7 +76,7 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
 class FormatExperimentTest extends FunSuite with FormatExperiment {
 
   def validate(result: ExperimentResult): Unit = result match {
-    case _: Success | _: Timeout | _: Skipped =>
+    case _: Success | _: Timeout | _: Skipped | _: ParseErr =>
     case failure => fail(s"""Unexpected failure:
                             |$failure""".stripMargin)
   }

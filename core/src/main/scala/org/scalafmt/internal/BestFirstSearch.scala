@@ -21,7 +21,7 @@ class BestFirstSearch(
   val router = new Router(formatOps)
 
   val maxVisitStates = // For debugging purposes only.
-    if (style.debug) 10000000 // Unit tests must be < 100k states
+    if (style.debug) 100000 // Unit tests must be < 100k states
     else 10000000
 
   val doOptimizations = true // For debugging purposes only.
@@ -252,6 +252,7 @@ class BestFirstSearch(
             // Danger zone: escape hatch for pathological cases.
             Q.dequeueAll
             best.clear()
+            visits.clear()
             if (pathologicalEscapes >= MaxEscapes) {
               // Last resort. No other optimization has worked.
               Q.enqueue(untilNextStatement(curr))
