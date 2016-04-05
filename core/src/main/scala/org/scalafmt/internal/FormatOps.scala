@@ -191,6 +191,7 @@ class FormatOps(val tree: Tree, val style: ScalaStyle) {
   }.getOrElse(tree.tokens.last)
 
   def OneArgOneLineSplit(open: Delim)(implicit line: sourcecode.Line): Policy = {
+    // TODO(olafur) clear queue between arguments, they are independent.
     val expire = matchingParentheses(hash(open))
     Policy({
       // Newline on every comma.
@@ -271,6 +272,13 @@ class FormatOps(val tree: Tree, val style: ScalaStyle) {
       while (isOpenApply(curr.right)) curr = next(curr)
       curr.left
     }
+  }
+
+  def getRightAttachedComment(token: Token): Token = {
+    val formatToken = leftTok2tok(token)
+    if (isAttachedComment(formatToken.right, formatToken.between))
+      formatToken.right
+    else token
   }
 
   def chainOptimalToken(chain: Vector[Term.Select]): Token = {

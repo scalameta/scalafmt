@@ -12,7 +12,8 @@ import org.scalafmt.Error.NoopDefaultPolicyApplied
   */
 case class Policy(f: PartialFunction[Decision, Decision],
                   expire: Int,
-                  noDequeue: Boolean = false)(
+                  noDequeue: Boolean = false,
+                  isSingleLine: Boolean = false)(
     implicit val line: sourcecode.Line) {
 
   /** Similar to PartialFunction.andThen, except applies second pf even if the

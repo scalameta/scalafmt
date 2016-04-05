@@ -1,10 +1,12 @@
 package org.scalafmt
 
 import org.scalafmt.util.ExperimentResult
+import org.scalafmt.util.ExperimentResult.ParseErr
 import org.scalafmt.util.ExperimentResult.Skipped
 import org.scalafmt.util.ExperimentResult.Success
 import org.scalafmt.util.ExperimentResult.Timeout
 import org.scalafmt.util.FormatAssertions
+import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.ScalaFile
 import org.scalafmt.util.ScalaProjectsExperiment
 import org.scalafmt.util.ScalacParser
@@ -13,6 +15,7 @@ import scala.collection.JavaConversions._
 import scala.meta._
 
 trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
+  import LoggerOps._
   override val verbose = false
 
   val okRepos = Set(
@@ -20,19 +23,29 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
       "scala-js",
       "fastparse",
       "scalding",
-//      "spark",
+      "spark",
+      "akka",
+      "intellij-scala",
       "I wan't trailing commas!!!"
   )
   val badRepos = Set(
       "kafka"
   )
-
   def okScalaFile(scalaFile: ScalaFile): Boolean = {
     okRepos(scalaFile.repo) && !badFile(scalaFile.filename)
   }
 
   def badFile(filename: String): Boolean =
     Seq(
+        // These format fine when run individually, but hog when run together with other files.
+        "core/src/main/scala/org/apache/spark/deploy/SparkSubmit.scala",
+        "sql/hive/src/test/scala/org/apache/spark/sql/hive/execution/WindowQuerySuite.scala",
+        "core/src/main/scala/org/apache/spark/SparkConf.scala",
+        // Formats OK, but contains huge function calls which
+        // would definitely be excluded from automatic formatting.
+        "javalanglib/src/main/scala/java/lang/Character.scala",
+        // Duplicate file, both in scala.js and fastparse.
+        "jvm/src/test/resources/scalaparse/GenJSCode.scala",
         // Auto generated files
         "scalding-core/src/main/scala/com/twitter/scalding/macros/impl/TypeDescriptorProviderImpl.scala",
         "scalding/serialization/macros/impl/ordered_serialization/providers/ProductOrderedBuf.scala",
@@ -64,7 +77,7 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
 class FormatExperimentTest extends FunSuite with FormatExperiment {
 
   def validate(result: ExperimentResult): Unit = result match {
-    case _: Success | _: Timeout | _: Skipped =>
+    case _: Success | _: Timeout | _: Skipped | _: ParseErr =>
     case failure => fail(s"""Unexpected failure:
                             |$failure""".stripMargin)
   }

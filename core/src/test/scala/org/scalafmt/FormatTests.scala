@@ -52,7 +52,9 @@ class FormatTests
     val obtained = ScalaFmt.format_!(t.original, t.style)(parse)
     debugResults += saveResult(t, obtained, onlyOne)
     assertFormatPreservesAst(t.original, obtained)(parse)
-    assertNoDiff(obtained, t.expected)
+    if (!onlyManual) {
+      assertNoDiff(obtained, t.expected)
+    }
   }
 
   def testShouldRun(t: DiffTest): Boolean = !onlyOne || t.only

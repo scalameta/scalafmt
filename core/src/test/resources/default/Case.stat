@@ -75,3 +75,19 @@ x match {
   // Catch Scala Enumerations to transform calls to scala.Enumeration.Value
   case i => x
 }
+<<< spark case dequeueAll bug
+{
+  def testZipPartitions4(rdd: RDD[Int]): Unit = {
+    rdd.zipPartitions(rdd, rdd, rdd) { case (it1, it2, it3, it4) => return; it1 }.count()
+  }
+}
+>>>
+{
+  def testZipPartitions4(rdd: RDD[Int]): Unit = {
+    rdd
+      .zipPartitions(rdd, rdd, rdd) {
+        case (it1, it2, it3, it4) => return; it1
+      }
+      .count()
+  }
+}

@@ -358,7 +358,7 @@ class Router(formatOps: FormatOps) {
         val nestedPenalty = nestedApplies(leftOwner)
         val exclude =
           if (isBracket) insideBlock(tok, close, _.isInstanceOf[`[`])
-          else insideBlock(tok, close, _.isInstanceOf[`{`])
+          else insideBlock(tok, close, x => x.isInstanceOf[`{`])
         val excludeRanges = exclude.map(parensRange)
 
         //          insideBlock(tok, close, _.isInstanceOf[`{`])
@@ -424,6 +424,8 @@ class Router(formatOps: FormatOps) {
           if (isDefnSite(leftOwner)) defnSiteLastToken(leftOwner)
           else rhsOptimalToken(leftTok2tok(close))
 
+        val tooManyArguments = args.length > 100
+
         Seq(
             Split(modification,
                   0,
@@ -441,7 +443,8 @@ class Router(formatOps: FormatOps) {
             Split(modification,
                   (2 + lhsPenalty) * bracketMultiplier,
                   policy = oneArgOneLine,
-                  ignoreIf = singleArgument || isConfigStyle)
+                  ignoreIf = singleArgument || isConfigStyle ||
+                    tooManyArguments)
               .withOptimalToken(expirationToken)
               .withIndent(StateColumn, close, Right),
             Split(Newline,
@@ -500,6 +503,11 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_, _: `;`, _) =>
         Seq(
             Split(NoSplit, 0)
+        )
+      // Return always gets space
+      case FormatToken(_: `return`, _, _) =>
+        Seq(
+            Split(Space, 0)
         )
       case FormatToken(left: Ident, _: `:`, _)
           if rightOwner.isInstanceOf[Type.Param] =>
@@ -621,8 +629,9 @@ class Router(formatOps: FormatOps) {
             Split(Space, 0),
             Split(Newline, 1).withPolicy(Policy({
               // Force template to be multiline.
-              case d@Decision(FormatToken(open: `{`, _, _), splits)
-                  if childOf(template, owners(open)) =>
+              case d@Decision(FormatToken(open: `{`, right, _), splits)
+                  if !right.isInstanceOf[`}`] &&  // corner case, body is {}
+                  childOf(template, owners(open)) =>
                 d.copy(splits = splits.filter(_.modification.isNewline))
             }, expire.end))
         )
@@ -779,24 +788,26 @@ class Router(formatOps: FormatOps) {
         val owner = leftOwner.asInstanceOf[Case]
         val arrow = getArrow(owner)
         // TODO(olafur) expire on token.end to avoid this bug.
-        val lastToken = owner.body.tokens.filter {
-          case _: Whitespace | _: Comment => false
-          case _ => true
-        }.lastOption
+        val expire = Option(owner.body)
+          .filter(_.tokens.exists(!_.isInstanceOf[Trivia]))
+          .map(lastToken)
+          .map(getRightAttachedComment)
           .getOrElse(arrow) // edge case, if body is empty expire on arrow.
 
         Seq(
             // Either everything fits in one line or break on =>
-            Split(Space, 0).withPolicy(SingleLineBlock(lastToken)),
+            Split(Space, 0)
+              .withOptimalToken(expire, killOnFail = true)
+              .withPolicy(SingleLineBlock(expire)),
             Split(Space, 1)
               .withPolicy(Policy({
                 case Decision(t@FormatToken(`arrow`, right, between), s)
-//                   TODO(olafur) any other corner cases?
+                    // TODO(olafur) any other corner cases?
                     if !right.isInstanceOf[`{`] &&
                     !isAttachedComment(right, between) =>
                   Decision(t, s.filter(_.modification.isNewline))
-              }, expire = lastToken.end))
-              .withIndent(2, lastToken, Left) // case body indented by 2.
+              }, expire = expire.end))
+              .withIndent(2, expire, Left) // case body indented by 2.
               .withIndent(2, arrow, Left) // cond body indented by 4.
         )
       case tok@FormatToken(_, cond: `if`, _)
@@ -886,11 +897,11 @@ class Router(formatOps: FormatOps) {
       // Xml
       case FormatToken(_: Xml.Part, _, _) =>
         Seq(
-          Split(NoSplit, 0)
+            Split(NoSplit, 0)
         )
       case FormatToken(_, _: Xml.Part, _) =>
         Seq(
-          Split(NoSplit, 0)
+            Split(NoSplit, 0)
         )
 
       // Fallback

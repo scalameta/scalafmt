@@ -138,7 +138,7 @@ object TokenOps {
           exclude.forall(!_.contains(tok.left.start)) &&
           (disallowInlineComments || !isInlineComment(tok.left)) =>
         Decision(tok, splits.filterNot(_.modification.isNewline))
-    }, expire.end, noDequeue = exclude.isEmpty)
+    }, expire.end, noDequeue = exclude.isEmpty, isSingleLine = true)
   }
 
   def isInlineComment(token: Token): Boolean = token match {
@@ -180,7 +180,7 @@ object TokenOps {
       //
       // In this case, we would put a newline before """short and indent by
       // two.
-      lit.code.lines.map(_.replaceAll(" *|", "").length).max
+      lit.code.lines.map(_.replaceFirst(" *|", "").length).max
     case _ =>
       val firstNewline = token.code.indexOf('\n')
       if (firstNewline == -1) token.code.length

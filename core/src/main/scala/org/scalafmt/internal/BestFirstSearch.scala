@@ -10,7 +10,8 @@ import scala.meta.tokens.Token
 /**
   * Implements best first search to find optimal formatting.
   */
-class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
+class BestFirstSearch(
+    val formatOps: FormatOps, range: Set[Range], formatWriter: FormatWriter) {
   import LoggerOps._
   import Token._
   import TokenOps._
@@ -31,16 +32,23 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
   val dequeueOnNewStatements = true && doOptimizations
 
   /**
-    * Dequeue on new statements if queue exceeds this size,
+    * Use heuristics to escape when the search state grows out of bounds.
     *
-    * Overrides [[dequeueOnNewStatements]], appears necessary in cases like
-    * JavaLangObject.scala in Scala.js.
-    *
-    * TODO(olafur) come up with less hacky solution.
+    * An optimization that trades off optimal formatting output in order to
+    * complete in a reasonable time. Used as a last resort.
     */
-  val maxQueueSize = 555
-
   val escapeInPathologicalCases = true && doOptimizations
+
+  /**
+    * Visit the same formatToken at most [[MaxVisitsPerToken]] times.
+    *
+    * If the same token is
+    */
+  val MaxVisitsPerToken = 200
+
+  val MaxEscapes = 16
+
+  val MaxDepth = 100
 
   /**
     * Whether to listen to optimalAt fields in Splits.
@@ -84,10 +92,12 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
   val noOptimizations = noOptimizationZones(tree)
   var explored = 0
   var deepestYet = State.start
+  var deepestYetSafe = State.start
   var statementCount = 0
 
   val best = mutable.Map.empty[Token, State]
-  val MaxVisitsPerToken = 200
+  var pathologicalEscapes = 0
+
   val visits = mutable.Map.empty[FormatToken, Int].withDefaultValue(0)
 
   type StateHash = Long
@@ -171,6 +181,16 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
     }
   }
 
+  def untilNextStatement(state: State): State = {
+    var curr = state
+    while (!hasReachedEof(curr) &&
+    !statementStarts.contains(hash(tokens(curr.splits.length).left))) {
+      val tok = tokens(curr.splits.length)
+      curr = State.next(curr, style, provided(tok), tok)
+    }
+    curr
+  }
+
   /**
     * Runs best first search to find lowest penalty split.
     */
@@ -179,6 +199,7 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
                    depth: Int = 0,
                    maxCost: Int = Integer.MAX_VALUE)(
       implicit line: sourcecode.Line): State = {
+//    logger.elem(depth, line)
     val Q = new mutable.PriorityQueue[State]()
     var result = start
     Q += start
@@ -198,25 +219,22 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
         Q.dequeueAll
       } else if (shouldEnterState(curr)) {
         val splitToken = tokens(curr.splits.length)
-        val inTrouble = visits(splitToken) > 30
         if (depth == 0 && curr.splits.length > deepestYet.splits.length) {
           deepestYet = curr
         }
+        if (depth == 0 && curr.policy.isSafe &&
+            curr.splits.length > deepestYetSafe.splits.length) {
+          deepestYetSafe = curr
+        }
         if (style.debug) {
           Debug.visit(splitToken)
-          visits.put(splitToken, visits(splitToken) + 1)
         }
+        visits.put(splitToken, visits(splitToken) + 1)
 
         if (dequeueOnNewStatements &&
             dequeueSpots.contains(hash(splitToken.left)) &&
-            (depth > 0 || !isInsideNoOptZone(splitToken) ||
-                Q.size > maxQueueSize) &&
+            (depth > 0 || !isInsideNoOptZone(splitToken)) &&
             curr.splits.last.modification.isNewline) {
-          Q.dequeueAll
-        } else if (escapeInPathologicalCases &&
-                   visits(splitToken) > MaxVisitsPerToken &&
-                   !curr.policy.noDequeue) {
-          // Danger zone: escape hatch for pathological cases.
           Q.dequeueAll
         }
 
@@ -229,6 +247,23 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
             Q.enqueue(nextState)
           }
         } else {
+          if (escapeInPathologicalCases &&
+              visits(splitToken) > MaxVisitsPerToken) {
+            // Danger zone: escape hatch for pathological cases.
+            Q.dequeueAll
+            best.clear()
+            visits.clear()
+            if (pathologicalEscapes >= MaxEscapes) {
+              // Last resort. No other optimization has worked.
+              Q.enqueue(untilNextStatement(curr))
+            } else {
+              // We are stuck, but try to continue with one cheap/fast and
+              // one expensive/slow state.
+              Q.enqueue(deepestYetSafe)
+              pathologicalEscapes += 1
+            }
+          }
+
           val splits: Seq[Split] =
             if (curr.formatOff) List(provided(splitToken))
             else if (splitToken.inside(range)) router.getSplitsMemo(splitToken)
@@ -253,7 +288,7 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
             split.optimalAt match {
               case Some(OptimalToken(token, killOnFail))
                   if acceptOptimalAtHints && actualSplit.length > 1 &&
-                  split.cost == 0 =>
+                  depth < MaxDepth && split.cost == 0 =>
                 val nextNextState =
                   shortestPath(nextState, token, depth + 1, maxCost = 0)(
                       sourcecode.Line.generate)
@@ -262,7 +297,7 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
                             nextNextState.splits.length).left.start >= token.start)) {
                   optimalNotFound = false
                   Q.enqueue(nextNextState)
-                } else if (!killOnFail && !inTrouble &&
+                } else if (!killOnFail &&
                            nextState.cost - curr.cost <= maxCost) {
                   // TODO(olafur) DRY. This solution can still be optimal.
                   Q.enqueue(nextState)
@@ -298,13 +333,10 @@ class BestFirstSearch(val formatOps: FormatOps, range: Set[Range]) {
                    |deepestYet.length=${deepestYet.splits.length}
                    |policies=${deepestYet.policy.policies}
                    |nextSplits=$nextSplits
-                   |splitsAfterPolicy=$splitsAfterPolicy
-                   |afterDeepestState=$nextStates
-                   |""".stripMargin
+                   |splitsAfterPolicy=$splitsAfterPolicy""".stripMargin
       if (style.debug) {
         logger.error(s"""Failed to format
-                        |$msg
-          """.stripMargin)
+                        |$msg""".stripMargin)
         state = deepestYet
       } else {
         throw CantFormatFile(msg)
