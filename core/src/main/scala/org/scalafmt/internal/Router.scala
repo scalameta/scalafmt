@@ -504,6 +504,11 @@ class Router(formatOps: FormatOps) {
         Seq(
             Split(NoSplit, 0)
         )
+      // Return always gets space
+      case FormatToken(_: `return`, _, _) =>
+        Seq(
+          Split(Space, 0)
+        )
       case FormatToken(left: Ident, _: `:`, _)
           if rightOwner.isInstanceOf[Type.Param] =>
         Seq(

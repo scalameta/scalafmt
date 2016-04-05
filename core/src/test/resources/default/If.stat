@@ -113,3 +113,16 @@ object a {
     }
 >>>
 x
+<<< return
+      if (fullInfo)
+        return (candidates.toSeq.map(c => forMap(c, withLocalTypeInference = false, checkFast = false)) ++
+          candidates.toSeq.map(c => forMap(c, withLocalTypeInference = true, checkFast = false))).
+          flatMap(_.toSeq).map(_._1).toSet
+>>>
+if (fullInfo)
+  return (candidates.toSeq.map(c =>
+            forMap(c, withLocalTypeInference = false, checkFast = false)) ++ candidates.toSeq
+        .map(c => forMap(c, withLocalTypeInference = true, checkFast = false)))
+    .flatMap(_.toSeq)
+    .map(_._1)
+    .toSet
