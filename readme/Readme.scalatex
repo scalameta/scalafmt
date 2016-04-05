@@ -78,8 +78,6 @@
           enable automatically formatting files on compile.
           @b("WARNING"). Formatting a large file (~4.000 LOC) can take up
           to 1-2s, so it might be undesirable to let scalafmt delay compilation.
-          Computer generated code with deeply nested applications may take even
-          longer to format or it might not even complete!
 
     @sect{IntelliJ}
       @lnk("Here is the plugin", "https://plugins.jetbrains.com/plugin/8236?pr=").
@@ -320,12 +318,6 @@
          to instant.
 
        @p
-         For some
-         @lnk("pathological cases", "https://github.com/twitter/scalding/blob/develop/scalding-core/src/main/scala/com/twitter/scalding/typed/GeneratedFlattenGroup.scala#L449")
-         (usually auto-generated code),
-         scalafmt can be orders of magnitude slower, or may not even terminate.
-
-       @p
          The main feature that makes scalafmt slower than scalariform is the
          column-width limit.
          To figure the "best" way to break a long line, Scalafmt may try
@@ -352,6 +344,80 @@
        scalafmt update.
 
   @sect{Changelog}
+    @sect{0.1.6}
+      @ul
+        @li
+          Scalafmt will not hang anymore, not even for
+          @lnk("deeply nested computer generated code", "https://github.com/olafurpg/scalafmt/blob/124134dcd6a6c45d398d713ade266e071f4dc73c/core/src/test/scala/org/scalafmt/PathologicalCasesTest.scala#L13").
+          When scalafmt detects it's struggling to format a statement,
+          it falls back to heuristics that return decent, but suboptimal, formatting
+          output. If the heuristics still fail, scalafmt falls back to the
+          original formatting of the code up until the next statement.
+        @li
+          Spark, Akka and the IntelliJ Scala Plugin have been added to the
+          test suite, which now runs on a total of 9.398 files from external
+          projects. That's almost 8.000 more files than in 0.1.5! Some key
+          statistics from formatting all 9.398 files:
+
+          @table
+            @thead
+              @tr
+                @th
+                  Computer
+                @th
+                  75th percentile
+                @th
+                  Average
+                @th
+                  Max
+            @tbody
+              @tr
+                @td
+                  2.5 GHz i7 Macbook Pro
+                @td
+                  119ms
+                @td
+                  112ms
+                @td
+                  7.1s
+              @tr
+                @td
+                  Travis CI (for fun)
+                @td
+                  3.7s
+                @td
+                  2.8s
+                @td
+                  45.2s
+
+          @p
+            There is still a lot of work to do. The plan is to investigate
+            the 90+ percentile cases in future releases as well as run
+            more JMH benchmarks.
+
+        @li
+          For loops can now have multiple if guards in a row. For example:
+          @example
+            object ForLoopGuards {
+              for {
+                x <- List(1, 2, 3)
+                if (x != 1)
+                if (x != 3)
+              } yield x
+            }
+        @li
+          Fixed bugs where a newline would come after return keyword.
+        @li
+          Fixed bugs where scalafmt would crash on the following if it exceeded
+          the column limit.
+
+          @hl.scala
+            new Foo with Bar with Kaz {}
+        @li
+          Scalafmt no longer crashes when xml literal are used in infix
+          applications.
+        @li
+          Minor changes to select statement formatting.
 
     @sect{0.1.5}
       @ul
