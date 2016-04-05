@@ -207,8 +207,8 @@ object TreeOps {
   }
 
   def isDefnSite(tree: Tree): Boolean = tree match {
-    case _: Decl.Def | _: Defn.Def | _: Defn.Class | _: Defn.Trait |
-        _: Ctor.Secondary | _: Type.Apply | _: Type.Param =>
+    case _: Decl.Def | _: Defn.Def | _: Defn.Class |
+        _: Defn.Trait | _: Ctor.Secondary | _: Type.Apply | _: Type.Param =>
       true
     case x: Ctor.Primary if x.parent.exists(_.isInstanceOf[Defn.Class]) =>
       true

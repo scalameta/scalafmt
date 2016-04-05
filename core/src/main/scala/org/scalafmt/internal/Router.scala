@@ -170,7 +170,7 @@ class Router(formatOps: FormatOps) {
             Split(nl, 1)
               .withPolicy(newlineBeforeClosingCurly)
               .withIndent(2, close, Right)
-        )
+          )
       // For loop with (
       case tok@FormatToken(_: `(`, _, _)
           if leftOwner.isInstanceOf[Term.For] ||
@@ -583,7 +583,7 @@ class Router(formatOps: FormatOps) {
             Split(Newline, 1 + nestedPenalty)
               .withPolicy(newlinePolicy)
               .withIndent(2, lastToken, Left)
-        )
+          )
       // ApplyUnary
       case tok@FormatToken(_: Ident, _: Literal, _)
           if leftOwner == rightOwner =>
@@ -630,7 +630,7 @@ class Router(formatOps: FormatOps) {
             Split(Newline, 1).withPolicy(Policy({
               // Force template to be multiline.
               case d@Decision(FormatToken(open: `{`, right, _), splits)
-                  if !right.isInstanceOf[`}`] &&  // corner case, body is {}
+                  if !right.isInstanceOf[`}`] && // corner case, body is {}
                   childOf(template, owners(open)) =>
                 d.copy(splits = splits.filter(_.modification.isNewline))
             }, expire.end))
@@ -643,7 +643,7 @@ class Router(formatOps: FormatOps) {
             Split(NoSplit, 0)
               .withIndent(StateColumn, close, Left)
               .withPolicy(penalizeNewlines)
-        )
+          )
       case FormatToken(close: `)`, right, between)
           if leftOwner.isInstanceOf[Term.If] &&
           !isFirstOrLastToken(close, leftOwner) =>

@@ -125,8 +125,8 @@ object Report {
                       )
                   )
               }
-        )
-    ).render
+          )
+      ).render
 
   def mergeResults(after: Result, before: Result): Seq[FormatOutput] =
     after.tokens.zip(before.tokens).map {
