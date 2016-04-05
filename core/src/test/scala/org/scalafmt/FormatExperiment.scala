@@ -19,12 +19,12 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
   override val verbose = false
 
   val okRepos = Set(
-//      "goose",
-//      "scala-js",
-//      "fastparse",
-//      "scalding",
-//      "spark",
-//      "akka",
+      "goose",
+      "scala-js",
+      "fastparse",
+      "scalding",
+      "spark",
+      "akka",
       "intellij-scala",
       "I wan't trailing commas!!!"
   )

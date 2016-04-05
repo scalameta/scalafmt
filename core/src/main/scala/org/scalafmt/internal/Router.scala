@@ -507,7 +507,7 @@ class Router(formatOps: FormatOps) {
       // Return always gets space
       case FormatToken(_: `return`, _, _) =>
         Seq(
-          Split(Space, 0)
+            Split(Space, 0)
         )
       case FormatToken(left: Ident, _: `:`, _)
           if rightOwner.isInstanceOf[Type.Param] =>
@@ -629,8 +629,9 @@ class Router(formatOps: FormatOps) {
             Split(Space, 0),
             Split(Newline, 1).withPolicy(Policy({
               // Force template to be multiline.
-              case d@Decision(FormatToken(open: `{`, _, _), splits)
-                  if childOf(template, owners(open)) =>
+              case d@Decision(FormatToken(open: `{`, right, _), splits)
+                  if !right.isInstanceOf[`}`] &&  // corner case, body is {}
+                  childOf(template, owners(open)) =>
                 d.copy(splits = splits.filter(_.modification.isNewline))
             }, expire.end))
         )
