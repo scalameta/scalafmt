@@ -28,13 +28,26 @@ object TreeOps {
   import TokenOps._
   import LoggerOps._
 
+  def getEnumStatements(enums: Seq[Enumerator]): Seq[Enumerator] = {
+    val ret = Seq.newBuilder[Enumerator]
+    enums.zipWithIndex.foreach {
+      case (x, 0) => x
+      case (enum: Enumerator.Guard, i) =>
+        // Only guard that follows another guards starts a statement.
+        if (enums(i - 1).isInstanceOf[Enumerator.Guard]) {
+          ret += enum
+        }
+      case (x, _) => ret += x
+    }
+    ret.result()
+  }
+
   def extractStatementsIfAny(tree: Tree): Seq[Tree] = tree match {
     case b: Term.Block => b.stats
     case t: Pkg => t.stats
     // TODO(olafur) would be nice to have an abstract "For" superclass.
-    case t: Term.For => t.enums.filterNot(_.isInstanceOf[Enumerator.Guard])
-    case t: Term.ForYield =>
-      t.enums.filterNot(_.isInstanceOf[Enumerator.Guard])
+    case t: Term.For => getEnumStatements(t.enums)
+    case t: Term.ForYield => getEnumStatements(t.enums)
     case t: Term.Match => t.cases
     case t: Term.PartialFunction => t.cases
     case t: Term.TryWithCases => t.catchp
@@ -54,7 +67,6 @@ object TreeOps {
       case _ =>
     }
     ret.result()
-//    Set.empty[TokenHash]
   }
 
   def getStatementStarts(tree: Tree): Map[TokenHash, Tree] = {
@@ -329,9 +341,15 @@ object TreeOps {
           case p: Term.For => p.enums
           case p: Term.ForYield => p.enums
         }
-        enums.zip(enums.tail).collectFirst {
-          case (`generator`, guard: Enumerator.Guard) => guard
-        }
+        val i = enums.indexOf(generator)
+        if (i == -1)
+          throw new IllegalStateException(
+              s"Generator $generator is part of parents enums.")
+        enums
+          .drop(i + 1)
+          .takeWhile(_.isInstanceOf[Enumerator.Guard])
+          .lastOption
+          .asInstanceOf[Option[Enumerator.Guard]]
       }
     } yield sibling
   }
