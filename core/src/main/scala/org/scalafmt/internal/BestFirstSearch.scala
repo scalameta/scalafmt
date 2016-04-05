@@ -32,16 +32,6 @@ class BestFirstSearch(
   val dequeueOnNewStatements = true && doOptimizations
 
   /**
-    * Dequeue on new statements if queue exceeds this size,
-    *
-    * Overrides [[dequeueOnNewStatements]], appears necessary in cases like
-    * JavaLangObject.scala in Scala.js.
-    *
-    * TODO(olafur) come up with less hacky solution.
-    */
-  val maxQueueSize = 555
-
-  /**
     * Use heuristics to escape when the search state grows out of bounds.
     *
     * An optimization that trades off optimal formatting output in order to
@@ -243,8 +233,7 @@ class BestFirstSearch(
 
         if (dequeueOnNewStatements &&
             dequeueSpots.contains(hash(splitToken.left)) &&
-            (depth > 0 || !isInsideNoOptZone(splitToken) ||
-                Q.size > maxQueueSize) &&
+            (depth > 0 || !isInsideNoOptZone(splitToken)) &&
             curr.splits.last.modification.isNewline) {
           Q.dequeueAll
         }
@@ -264,8 +253,11 @@ class BestFirstSearch(
             Q.dequeueAll
             best.clear()
             if (pathologicalEscapes >= MaxEscapes) {
+              // Last resort. No other optimization has worked.
               Q.enqueue(untilNextStatement(curr))
             } else {
+              // We are stuck, but try to continue with one cheap/fast and
+              // one expensive/slow state.
               Q.enqueue(deepestYetSafe)
               pathologicalEscapes += 1
             }

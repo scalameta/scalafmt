@@ -1,2 +1,1 @@
 SKIP core/src/main/scala/org/scalafmt/internal/Router.scala
-ONLY https://raw.githubusercontent.com/apache/spark/2c5b18fb0fdeabd378dd97e91f72d1eac4e21cc7/sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/parser/CatalystQl.scala
