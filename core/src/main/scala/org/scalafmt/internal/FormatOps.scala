@@ -265,13 +265,11 @@ class FormatOps(val tree: Tree, val style: ScalaStyle) {
     * @param dot the dot owned by the select.
     */
   def getSelectsLastToken(dot: `.`): Token = {
-    val sibling = next(leftTok2tok(dot))
-    if (!isOpenApply(sibling.right)) sibling.left
-    else {
-      var curr = leftTok2tok(matchingParentheses(hash(sibling.right)))
-      while (isOpenApply(curr.right)) curr = next(curr)
-      curr.left
+    var curr = next(leftTok2tok(dot))
+    while (isOpenApply(curr.right, includeCurly = true)) {
+      curr = leftTok2tok(matchingParentheses(hash(curr.right)))
     }
+    curr.left
   }
 
   def getRightAttachedComment(token: Token): Token = {

@@ -115,10 +115,12 @@ object TokenOps {
     else Space
   }
 
-  def isOpenApply(token: Token): Boolean = token match {
-    case _: `(` | _: `[` => true
-    case _ => false
-  }
+  def isOpenApply(token: Token, includeCurly: Boolean = false): Boolean =
+    token match {
+      case _: `(` | _: `[` => true
+      case _: `{` if includeCurly => true
+      case _ => false
+    }
 
   def isSingleIdentifierAnnotation(tok: FormatToken): Boolean = tok match {
     case FormatToken(_: `@`, _: Ident, _) => true
