@@ -3,6 +3,13 @@ package org.scalafmt
 import scala.meta.Tree
 import scala.meta.parsers.common.Parse
 
+import org.scalafmt.FormatEvent.CompleteFormat
+import org.scalafmt.FormatEvent.Enqueue
+import org.scalafmt.FormatEvent.Explored
+import org.scalafmt.FormatEvent.VisitToken
+import org.scalafmt.internal.Debug
+import org.scalafmt.util.LoggerOps
+
 /**
   * A FormatRunner configures how formatting should behave.
   *
@@ -22,6 +29,7 @@ case class ScalafmtRunner(debug: Boolean,
 }
 
 object ScalafmtRunner {
+  import LoggerOps._
 
   /**
     * The default runner formats a compilation unit and listens to no events.
@@ -38,5 +46,19 @@ object ScalafmtRunner {
     * An example of how to format something other than a compilation unit.
     */
   val statement = default.withParser(scala.meta.parseStat)
-  val testing = default.copy(debug = true, maxStateVisits = 100000)
+  val testing = default.copy(
+      debug = true,
+      maxStateVisits = 100000,
+      eventCallback = {
+        case VisitToken(tok) => Debug.visit(tok)
+        case explored: Explored if explored.n % 10000 == 0 =>
+          logger.elem(explored)
+        case Enqueue(split) => Debug.enqueued(split)
+        case CompleteFormat(explored, state, tokens) =>
+          Debug.explored += explored
+          Debug.state = state
+          Debug.tokens = tokens
+        case _ =>
+      }
+  )
 }

@@ -1,6 +1,10 @@
 package org.scalafmt.internal
 
 import org.scalafmt.Error.CantFormatFile
+import org.scalafmt.FormatEvent.CompleteFormat
+import org.scalafmt.FormatEvent.Enqueue
+import org.scalafmt.FormatEvent.Explored
+import org.scalafmt.FormatEvent.VisitToken
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
@@ -20,16 +24,13 @@ class BestFirstSearch(
   import formatOps.runner.optimizer._
 
   val router = new Router(formatOps)
-
   val noOptimizations = noOptimizationZones(tree)
   var explored = 0
   var deepestYet = State.start
   var deepestYetSafe = State.start
   var statementCount = 0
-
   val best = mutable.Map.empty[Token, State]
   var pathologicalEscapes = 0
-
   val visits = mutable.Map.empty[FormatToken, Int].withDefaultValue(0)
 
   type StateHash = Long
@@ -131,7 +132,6 @@ class BestFirstSearch(
                    depth: Int = 0,
                    maxCost: Int = Integer.MAX_VALUE)(
       implicit line: sourcecode.Line): State = {
-//    logger.elem(depth, line)
     val Q = new mutable.PriorityQueue[State]()
     var result = start
     Q += start
@@ -139,9 +139,7 @@ class BestFirstSearch(
     while (Q.nonEmpty) {
       val curr = Q.dequeue()
       explored += 1
-      if (explored % 10000 == 0 && runner.debug) {
-        logger.debug(s"Explored $explored, depth=$depth Q.size=${Q.size}")
-      }
+      runner.eventCallback(Explored(explored, depth, Q.size))
       if (hasReachedEof(curr) || {
             val token = tokens(curr.splits.length)
             // If token is empty we can take one more split before reaching stop.
@@ -158,9 +156,7 @@ class BestFirstSearch(
             curr.splits.length > deepestYetSafe.splits.length) {
           deepestYetSafe = curr
         }
-        if (runner.debug) {
-          Debug.visit(splitToken)
-        }
+        runner.eventCallback(VisitToken(splitToken))
         visits.put(splitToken, visits(splitToken) + 1)
 
         if (dequeueOnNewStatements &&
@@ -214,9 +210,7 @@ class BestFirstSearch(
             if (depth == 0 && split.modification.isNewline) {
               best.update(splitToken.left, nextState)
             }
-            if (runner.debug) {
-              Debug.enqueued(split)
-            }
+            runner.eventCallback(Enqueue(split))
             split.optimalAt match {
               case Some(OptimalToken(token, killOnFail))
                   if acceptOptimalAtHints && actualSplit.length > 1 &&
@@ -274,11 +268,7 @@ class BestFirstSearch(
         throw CantFormatFile(msg)
       }
     }
-    if (runner.debug) {
-      Debug.explored += explored
-      Debug.state = state
-      Debug.tokens = tokens
-    }
+    runner.eventCallback(CompleteFormat(explored, state, tokens))
     state.splits
   }
 }
