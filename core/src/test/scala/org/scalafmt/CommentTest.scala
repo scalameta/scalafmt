@@ -5,8 +5,8 @@ import org.scalafmt.util.DiffAssertions
 import org.scalatest.FunSuite
 
 class CommentTest extends FunSuite with DiffAssertions {
-  val javadocStyle = CustomStyleBecauseIDontLikeTheProvidedStyles(
-      scalaDocs = false)
+  val javadocStyle = ScalafmtConfig.default.copy(scalaDocs = false)
+
   test("javadoc docstrings are correct") {
     val original = """object a {
                      |/**
@@ -23,8 +23,7 @@ class CommentTest extends FunSuite with DiffAssertions {
                      |  val y = 2
                      |}
       """.stripMargin
-    val obtained =
-      ScalaFmt.format_!(original, javadocStyle)(scala.meta.parseSource)
+    val obtained = Scalafmt.format(original, javadocStyle).get
     assertNoDiff(obtained, expected)
   }
 }

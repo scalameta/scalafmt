@@ -10,13 +10,13 @@
 
 @def demo(code: String) = {
   import org.scalafmt._
-  val formatted = ScalaFmt.format(code, ScalaStyle.UnitTest40)
+  val formatted = Scalafmt.format(code, ScalafmtConfig.default40).get
   pairs(List(code, formatted).map(x => half(hl.scala(x))):_*)
 }
 
 @def example(code: String) = {
   import org.scalafmt._
-  val formatted = ScalaFmt.format(code, ScalaStyle.Default40)
+  val formatted = Scalafmt.format(code, ScalafmtConfig.default40).get
   hl.scala(formatted)
 }
 

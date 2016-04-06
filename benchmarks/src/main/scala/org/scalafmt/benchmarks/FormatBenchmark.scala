@@ -11,8 +11,8 @@ import org.openjdk.jmh.annotations.OutputTimeUnit
 import org.openjdk.jmh.annotations.Scope
 import org.openjdk.jmh.annotations.Setup
 import org.openjdk.jmh.annotations.Warmup
-import org.scalafmt.ScalaFmt
-import org.scalafmt.ScalaStyle
+import org.scalafmt.Scalafmt
+import org.scalafmt.ScalafmtConfig
 import org.scalafmt.util.FileOps
 
 import scala.meta.Source
@@ -58,8 +58,7 @@ abstract class FormatBenchmark(path: String*) {
 
   @Benchmark
   def scalafmt(): String = {
-    ScalaFmt.format_![Source](code, ScalaStyle.Default)(
-        scala.meta.parsers.parseSource)
+    Scalafmt.format(code).get
   }
 
   // No need to run same benchmark again and again.

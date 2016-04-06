@@ -110,9 +110,9 @@ val msg = s'''AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
   testsToRun.foreach(runTest(run))
 
   def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
-    val parse = filename2parse(t.filename).get
-    val formatted =
-      ScalaFmt.format_!(t.original, ScalaStyle.StripMarginTest)(parse)
+    val runner = ScalafmtRunner.default.withParser(parse)
+    val formatted = Scalafmt.format(
+        t.original, ScalafmtConfig.default.copy(debug = true), runner).get
     saveResult(t, formatted, t.only)
     assertNoDiff(formatted, t.expected)
   }

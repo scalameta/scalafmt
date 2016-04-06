@@ -7,6 +7,9 @@ package org.scalafmt
 class ScalaFmt210 {
 
   def format(code: String): String = {
-    ScalaFmt.format(code)
+    Scalafmt.format(code) match {
+      case FormatResult.Success(formattedCode) => formattedCode
+      case _ => code
+    }
   }
 }

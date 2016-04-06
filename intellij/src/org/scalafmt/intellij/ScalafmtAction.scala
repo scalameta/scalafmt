@@ -13,7 +13,7 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.vfs.VirtualFile
-import org.scalafmt.ScalaFmt
+import org.scalafmt.Scalafmt
 
 case class FileDocument(file: VirtualFile, document: Document) {
 
@@ -25,7 +25,7 @@ class ScalafmtAction extends AnAction {
   override def actionPerformed(event: AnActionEvent): Unit = {
     getCurrentFileDocument(event).filter(_.isScala).foreach { fileDoc =>
       val source = fileDoc.document.getText()
-      val formatted = ScalaFmt.format(source)
+      val formatted = Scalafmt.format(source)
       if (source != formatted) {
         ApplicationManager.getApplication.runWriteAction(new Runnable {
 

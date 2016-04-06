@@ -33,6 +33,6 @@ object ManualTests extends HasTests {
     }
     manualFiles ++ scalaFiles
   }
-  val style = ScalaStyle.UnitTest80
+  val style = ScalafmtConfig.unitTest80
   val manual = ".manual"
 }

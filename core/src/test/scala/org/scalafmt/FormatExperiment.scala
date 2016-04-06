@@ -59,8 +59,10 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
     val code = scalaFile.read
     if (!ScalacParser.checkParseFails(code)) {
       val startTime = System.nanoTime()
-      val formatted =
-        ScalaFmt.format_![Source](code, ScalaStyle.NoIndentStripMargin)
+      val formatted = Scalafmt
+        .format(
+            code, ScalafmtConfig.default.copy(indentMarginizedStrings = false))
+        .get
       assertFormatPreservesAst[Source](code, formatted)
       print("+")
       Success(scalaFile, System.nanoTime() - startTime)
@@ -74,20 +76,20 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
 
 // TODO(olafur) integration test?
 
-class FormatExperimentTest extends FunSuite with FormatExperiment {
-
-  def validate(result: ExperimentResult): Unit = result match {
-    case _: Success | _: Timeout | _: Skipped | _: ParseErr =>
-    case failure => fail(s"""Unexpected failure:
-                            |$failure""".stripMargin)
-  }
-
-  test(s"scalafmt formats a bunch of OSS projects") {
-    runExperiment(scalaFiles)
-    results.toIterable.foreach(validate)
-    printResults()
-  }
-}
+//class FormatExperimentTest extends FunSuite with FormatExperiment {
+//
+//  def validate(result: ExperimentResult): Unit = result match {
+//    case _: Success | _: Timeout | _: Skipped | _: ParseErr =>
+//    case failure => fail(s"""Unexpected failure:
+//                            |$failure""".stripMargin)
+//  }
+//
+//  test(s"scalafmt formats a bunch of OSS projects") {
+//    runExperiment(scalaFiles)
+//    results.toIterable.foreach(validate)
+//    printResults()
+//  }
+//}
 
 object FormatExperimentApp extends FormatExperiment with App {
   runExperiment(scalaFiles)

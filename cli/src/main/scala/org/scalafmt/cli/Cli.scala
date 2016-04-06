@@ -2,7 +2,8 @@ package org.scalafmt.cli
 
 import java.io.File
 
-import org.scalafmt.ScalaFmt
+import org.scalafmt.FormatResult
+import org.scalafmt.Scalafmt
 import org.scalafmt.Versions
 import org.scalafmt.internal.Debug
 import org.scalafmt.util.FileOps
@@ -28,9 +29,9 @@ object Cli {
       |scalafmt
     """.stripMargin
 
-  case class Config(file: Option[File] = None,
-                    inPlace: Boolean = false,
-                    range: Set[Range] = Set.empty[Range])
+  case class CliConfig(file: Option[File] = None,
+                       inPlace: Boolean = false,
+                       range: Set[Range] = Set.empty[Range])
 
   sealed abstract class InputMethod(val code: String)
 
@@ -39,9 +40,9 @@ object Cli {
   case class FileContents(filename: String, override val code: String)
       extends InputMethod(code)
 
-  lazy val parser = new scopt.OptionParser[Config]("scalafmt") {
+  lazy val parser = new scopt.OptionParser[CliConfig]("scalafmt") {
 
-    def printHelpAndExit(ignore: Unit, c: Config): Config = {
+    def printHelpAndExit(ignore: Unit, c: CliConfig): CliConfig = {
       showHeader
       sys.exit
       c
@@ -68,7 +69,7 @@ object Cli {
     } text "(experimental) only format line range from=to"
   }
 
-  def getCode(config: Config): Seq[InputMethod] = config.file match {
+  def getCode(config: CliConfig): Seq[InputMethod] = config.file match {
     case Some(file) =>
       FileOps.listFiles(file).withFilter(_.endsWith(".scala")).map {
         filename =>
@@ -81,27 +82,30 @@ object Cli {
       Seq(StdinCode(contents))
   }
 
-  def run(config: Config): Unit = {
+  def run(config: CliConfig): Unit = {
     val inputMethods = getCode(config)
     inputMethods.zipWithIndex.foreach {
       case (inputMethod, i) =>
         val start = System.nanoTime()
-        val formatted = ScalaFmt.format(inputMethod.code)
-        inputMethod match {
-          case FileContents(filename, _) if config.inPlace =>
-            if (inputMethod.code != formatted) {
-              FileOps.writeFile(filename, formatted)
+        Scalafmt.format(inputMethod.code) match {
+          case FormatResult.Success(formatted) =>
+            inputMethod match {
+              case FileContents(filename, _) if config.inPlace =>
+                if (inputMethod.code != formatted) {
+                  FileOps.writeFile(filename, formatted)
+                }
+                val elapsed = Debug.ns2ms(System.nanoTime() - start)
+                logger.info(
+                    f"${i + 1}%3s/${inputMethods.length} file:$filename%-50s (${elapsed}ms)")
+              case _ => println(formatted)
             }
-            val elapsed = Debug.ns2ms(System.nanoTime() - start)
-            logger.info(
-                f"${i + 1}%3s/${inputMethods.length} file:$filename%-50s (${elapsed}ms)")
-          case _ => println(formatted)
+          case _ =>
         }
     }
   }
 
-  def getConfig(args: Array[String]): Option[Config] = {
-    parser.parse(args, Config(None, inPlace = false, Set.empty[Range]))
+  def getConfig(args: Array[String]): Option[CliConfig] = {
+    parser.parse(args, CliConfig(None, inPlace = false, Set.empty[Range]))
   }
 
   def main(args: Array[String]): Unit = {

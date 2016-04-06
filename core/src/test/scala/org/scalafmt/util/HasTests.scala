@@ -3,8 +3,9 @@ package org.scalafmt.util
 import java.io.File
 
 import org.scalafmt.Error.UnknownStyle
-import org.scalafmt.ScalaFmt
-import org.scalafmt.ScalaStyle
+import org.scalafmt.ScalafmtRunner$
+import org.scalafmt.Scalafmt
+import org.scalafmt.ScalafmtConfig
 import org.scalafmt.internal.Debug
 import org.scalafmt.internal.State
 import org.scalatest.FunSuiteLike
@@ -63,13 +64,12 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
     }
   }
 
-  def file2style(filename: String): ScalaStyle =
+  def file2style(filename: String): ScalafmtConfig =
     filename.split("/").reverse(1) match {
-      case "unit" => ScalaStyle.UnitTest40
-      case "default" | "standard" => ScalaStyle.UnitTest80
-      case "scala" => ScalaStyle.UnitTest80
-      case "scalajs" => ScalaStyle.ScalaJs
-      case "stripMargin" => ScalaStyle.Default
+      case "unit" => ScalafmtConfig.unitTest40
+      case "default" | "standard" | "scala" => ScalafmtConfig.unitTest80
+      case "scalajs" => ScalafmtConfig.scalaJs
+      case "stripMargin" => ScalafmtConfig.default
       case style => throw UnknownStyle(style)
     }
 
@@ -118,13 +118,14 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
   }
 
   def defaultRun(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
-    val obtained = ScalaFmt.format_!(t.original, t.style)(parse)
+    val runner = ScalafmtRunner.default.withParser(parse)
+    val obtained = Scalafmt.format(t.original, t.style, runner).get
     assertFormatPreservesAst(t.original, obtained)(parse)
     assertNoDiff(obtained, t.expected)
   }
 
   def getFormatOutput(
-      style: ScalaStyle, onlyOne: Boolean): Array[FormatOutput] = {
+      style: ScalafmtConfig, onlyOne: Boolean): Array[FormatOutput] = {
     val builder = mutable.ArrayBuilder.make[FormatOutput]()
     State.reconstructPath(
         Debug.tokens, Debug.state.splits, style, debug = onlyOne) {

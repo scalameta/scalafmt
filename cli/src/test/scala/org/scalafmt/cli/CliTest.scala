@@ -18,7 +18,7 @@ class CliTest extends FunSuite with DiffAssertions {
                    |}
                  """.stripMargin
   test("cli parses args") {
-    val expected = Cli.Config(Some(new File("foo")), inPlace = true)
+    val expected = Cli.CliConfig(Some(new File("foo")), inPlace = true)
     val args = Array("--file", "foo", "-i")
     val obtained = Cli.getConfig(args)
     assert(obtained.contains(expected))
@@ -27,7 +27,7 @@ class CliTest extends FunSuite with DiffAssertions {
   test("scalafmt -i --file tmpFile") {
     val tmpFile = Files.createTempFile("prefix", ".scala")
     Files.write(tmpFile, unformatted.getBytes)
-    val formatInPlace = Cli.Config(Some(tmpFile.toFile), inPlace = true)
+    val formatInPlace = Cli.CliConfig(Some(tmpFile.toFile), inPlace = true)
     Cli.run(formatInPlace)
     val obtained = FileOps.readFile(tmpFile.toString)
     assertNoDiff(obtained, expected)
@@ -36,7 +36,7 @@ class CliTest extends FunSuite with DiffAssertions {
   test("scalafmt -i ignores non-scala files") {
     val tmpFile = Files.createTempFile("prefix", "suffix")
     Files.write(tmpFile, unformatted.getBytes)
-    val formatInPlace = Cli.Config(Some(tmpFile.toFile), inPlace = true)
+    val formatInPlace = Cli.CliConfig(Some(tmpFile.toFile), inPlace = true)
     Cli.run(formatInPlace)
     val obtained = FileOps.readFile(tmpFile.toString)
     assertNoDiff(obtained, unformatted)

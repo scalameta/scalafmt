@@ -1,7 +1,8 @@
 package org.scalafmt.internal
 
 import org.scalafmt.Error.CaseMissingArrow
-import org.scalafmt.ScalaStyle
+import org.scalafmt.ScalafmtConfig
+import org.scalafmt.ScalafmtConfig
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
@@ -21,7 +22,7 @@ import scala.meta.tokens.Token._
 /**
   * Helper functions for generating splits/policies for a given tree.
   */
-class FormatOps(val tree: Tree, val style: ScalaStyle) {
+class FormatOps(val tree: Tree, val style: ScalafmtConfig) {
   import LoggerOps._
   import TokenOps._
   import TreeOps._
@@ -262,6 +263,7 @@ class FormatOps(val tree: Tree, val style: ScalaStyle) {
     * For example, in:
     * foo.bar[T](1, 2)
     * the last token is the final )
+ *
     * @param dot the dot owned by the select.
     */
   def getSelectsLastToken(dot: `.`): Token = {
