@@ -6,15 +6,17 @@ import scala.meta.parsers.common.Parse
 /**
   * A FormatRunner configures how formatting should behave.
   *
-  * @param debug Should we collect debugging statistics?
+  * @param debug         Should we collect debugging statistics?
   * @param eventCallback Listen to events that happens while formatting
-  * @param parser Are we formatting a scala.meta.{Source,Stat,Case,...}? For
-  *               more details, see members of [[scala.meta.parsers]].
+  * @param parser        Are we formatting a scala.meta.{Source,Stat,Case,...}? For
+  *                      more details, see members of [[scala.meta.parsers]].
   */
 case class ScalafmtRunner(debug: Boolean,
                           eventCallback: FormatEvent => Unit,
                           parser: Parse[_ <: Tree],
+                          optimizer: ScalafmtOptimizer,
                           maxStateVisits: Int) {
+
   def withParser(newParser: Parse[_ <: Tree]): ScalafmtRunner =
     this.copy(parser = newParser)
 }
@@ -27,6 +29,7 @@ object ScalafmtRunner {
   val default = ScalafmtRunner(debug = false,
                                eventCallback = _ => Unit,
                                parser = scala.meta.parseSource,
+                               optimizer = ScalafmtOptimizer.default,
                                maxStateVisits = 1000000)
 
   /**
@@ -35,9 +38,5 @@ object ScalafmtRunner {
     * An example of how to format something other than a compilation unit.
     */
   val statement = default.withParser(scala.meta.parseStat)
-
-  val testing = ScalafmtRunner(debug = true,
-                               eventCallback = _ => Unit,
-                               parser = scala.meta.parseSource,
-                               maxStateVisits = 100000)
+  val testing = default.copy(debug = true, maxStateVisits = 100000)
 }
