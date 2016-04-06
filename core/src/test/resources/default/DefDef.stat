@@ -130,3 +130,12 @@ def addTrap[U >: T](trapSink: Source with TypedSink[T])(
     flowDef.addTrap(pipe, trapSink.createTap(Write)(mode))
     TypedPipe.from[U](pipe, fields)(flowDef, mode, conv)
   })
+<<< SKIP config style at defn site #144
+def point(
+  x: Int,
+  y: Int
+): Point = {
+  Point(x, y)
+}
+>>>
+x
