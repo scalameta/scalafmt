@@ -1,5 +1,10 @@
 package org.scalafmt.internal
 
+import org.scalafmt.FormatResult
+import org.scalafmt.internal.ExpiresOn.Right
+import org.scalafmt.internal.ExpiresOn.Left
+import org.scalafmt.internal.Length.StateColumn
+import org.scalafmt.internal.Length.Num
 import org.scalafmt.Error.CantFormatFile
 import org.scalafmt.FormatEvent.CompleteFormat
 import org.scalafmt.FormatEvent.Enqueue
@@ -241,17 +246,16 @@ class BestFirstSearch(
     result
   }
 
-  def getBestPath: Vector[Split] = {
+  def getBestPath: SearchResult = {
     var state = shortestPath(State.start, tree.tokens.last)
-    if (state.splits.length != tokens.length) {
+    runner.eventCallback(CompleteFormat(explored, state, tokens))
+    if (state.splits.length == tokens.length) {
+      SearchResult(state.splits, reachedEOF = true)
+    } else {
       val nextSplits = router.getSplits(tokens(deepestYet.splits.length))
       val tok = tokens(deepestYet.splits.length)
       val splitsAfterPolicy =
         deepestYet.policy.execute(Decision(tok, nextSplits))
-      val nextStates = splitsAfterPolicy.splits
-        .map(x => State.next(deepestYet, style, x, tok))
-        .map(_.splits)
-
       val msg = s"""UNABLE TO FORMAT,
                    |tok=$tok
                    |state.length=${state.splits.length}
@@ -260,15 +264,12 @@ class BestFirstSearch(
                    |policies=${deepestYet.policy.policies}
                    |nextSplits=$nextSplits
                    |splitsAfterPolicy=$splitsAfterPolicy""".stripMargin
-      if (runner.debug) {
-        logger.error(s"""Failed to format
-                        |$msg""".stripMargin)
-        state = deepestYet
-      } else {
-        throw CantFormatFile(msg)
-      }
+      logger.error(s"""Failed to format
+                      |$msg""".stripMargin)
+      state = deepestYet
+      SearchResult(deepestYet.splits, reachedEOF = false)
     }
-    runner.eventCallback(CompleteFormat(explored, state, tokens))
-    state.splits
   }
 }
+
+case class SearchResult(splits: Vector[Split], reachedEOF: Boolean)

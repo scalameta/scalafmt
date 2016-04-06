@@ -30,8 +30,13 @@ object Scalafmt {
       val formatOps = new FormatOps(tree, config, runner)
       val formatWriter = new FormatWriter(formatOps)
       val search = new BestFirstSearch(formatOps, range, formatWriter)
-      val formattedString = formatWriter.mkString(search.getBestPath)
-      FormatResult.Success(formattedString)
+      val partial = search.getBestPath
+      val formattedString = formatWriter.mkString(partial.splits)
+      if (partial.reachedEOF) {
+        FormatResult.Success(formattedString)
+      } else {
+        FormatResult.Incomplete(formattedString)
+      }
     } catch {
       // TODO(olafur) add more fine grained errors.
       case NonFatal(e) => FormatResult.Failure(e)

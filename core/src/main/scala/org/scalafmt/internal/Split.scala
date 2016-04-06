@@ -1,5 +1,9 @@
 package org.scalafmt.internal
 
+import org.scalafmt.internal.ExpiresOn.Right
+import org.scalafmt.internal.ExpiresOn.Left
+import org.scalafmt.internal.Length.StateColumn
+import org.scalafmt.internal.Length.Num
 import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util.TokenOps
 import scala.meta.tokens.Token

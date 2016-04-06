@@ -2,6 +2,10 @@ package org.scalafmt.internal
 
 import scala.language.implicitConversions
 
+import org.scalafmt.internal.ExpiresOn.Right
+import org.scalafmt.internal.ExpiresOn.Left
+import org.scalafmt.internal.Length.StateColumn
+import org.scalafmt.internal.Length.Num
 import org.scalafmt.Error.UnexpectedTree
 import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util.LoggerOps

@@ -1,5 +1,9 @@
 package org.scalafmt.internal
 
+import org.scalafmt.internal.ExpiresOn.Right
+import org.scalafmt.internal.ExpiresOn.Left
+import org.scalafmt.internal.Length.StateColumn
+import org.scalafmt.internal.Length.Num
 import org.scalafmt.ScalafmtConfig
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.TokenOps
