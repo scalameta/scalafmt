@@ -3,6 +3,7 @@ package org.scalafmt.util
 import java.io.File
 
 import org.scalafmt.Error.UnknownStyle
+import org.scalafmt.ScalafmtRunner
 import org.scalafmt.ScalafmtRunner$
 import org.scalafmt.Scalafmt
 import org.scalafmt.ScalafmtConfig
@@ -118,7 +119,7 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
   }
 
   def defaultRun(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
-    val runner = ScalafmtRunner.default.withParser(parse)
+    val runner = ScalafmtRunner.testing.withParser(parse)
     val obtained = Scalafmt.format(t.original, t.style, runner).get
     assertFormatPreservesAst(t.original, obtained)(parse)
     assertNoDiff(obtained, t.expected)

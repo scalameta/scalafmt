@@ -20,6 +20,10 @@ class BestFirstSearch(
 
   val router = new Router(formatOps)
 
+  val maxVisitStates = // For debugging purposes only.
+    if (style.debug) 100000 // Unit tests must be < 100k states
+    else 10000000
+
   val doOptimizations = true // For debugging purposes only.
 
   /**
@@ -156,7 +160,7 @@ class BestFirstSearch(
   }
 
   def hasReachedEof(state: State): Boolean = {
-    explored > runner.maxStateVisits || state.splits.length == tokens.length
+    explored > maxVisitStates || state.splits.length == tokens.length
   }
 
   val memo = mutable.Map.empty[(Int, StateHash), State]
@@ -203,7 +207,7 @@ class BestFirstSearch(
     while (Q.nonEmpty) {
       val curr = Q.dequeue()
       explored += 1
-      if (explored % 10000 == 0 && runner.debug) {
+      if (explored % 10000 == 0 && style.debug) {
         logger.debug(s"Explored $explored, depth=$depth Q.size=${Q.size}")
       }
       if (hasReachedEof(curr) || {
@@ -222,7 +226,7 @@ class BestFirstSearch(
             curr.splits.length > deepestYetSafe.splits.length) {
           deepestYetSafe = curr
         }
-        if (runner.debug) {
+        if (style.debug) {
           Debug.visit(splitToken)
         }
         visits.put(splitToken, visits(splitToken) + 1)
@@ -278,7 +282,7 @@ class BestFirstSearch(
             if (depth == 0 && split.modification.isNewline) {
               best.update(splitToken.left, nextState)
             }
-            if (runner.debug) {
+            if (style.debug) {
               Debug.enqueued(split)
             }
             split.optimalAt match {
@@ -330,7 +334,7 @@ class BestFirstSearch(
                    |policies=${deepestYet.policy.policies}
                    |nextSplits=$nextSplits
                    |splitsAfterPolicy=$splitsAfterPolicy""".stripMargin
-      if (runner.debug) {
+      if (style.debug) {
         logger.error(s"""Failed to format
                         |$msg""".stripMargin)
         state = deepestYet
@@ -338,7 +342,7 @@ class BestFirstSearch(
         throw CantFormatFile(msg)
       }
     }
-    if (runner.debug) {
+    if (style.debug) {
       Debug.explored += explored
       Debug.state = state
       Debug.tokens = tokens

@@ -27,7 +27,7 @@ object Scalafmt {
     try {
       val tree = new scala.meta.XtensionParseInputLike(code)
         .parse(stringToInput, runner.parser)
-      val formatOps = new FormatOps(tree, config)
+      val formatOps = new FormatOps(tree, config, runner)
       val formatWriter = new FormatWriter(formatOps)
       val search = new BestFirstSearch(formatOps, range, formatWriter)
       val formattedString = formatWriter.mkString(search.getBestPath)

@@ -32,8 +32,8 @@ case class ScalafmtConfig(maxColumn: Int,
                           binPackParameters: Boolean,
                           configStyleArguments: Boolean,
                           binPackDotChains: Boolean,
-                          noNewlinesBeforeJsNative: Boolean,
-                          debug: Boolean)(implicit name: sourcecode.Name)
+                          noNewlinesBeforeJsNative: Boolean)(
+    implicit name: sourcecode.Name)
 
 object ScalafmtConfig {
   val default = ScalafmtConfig(maxColumn = 80,
@@ -43,8 +43,7 @@ object ScalafmtConfig {
                                binPackParameters = false,
                                configStyleArguments = true,
                                binPackDotChains = false,
-                               noNewlinesBeforeJsNative = false,
-                               debug = false)
+                               noNewlinesBeforeJsNative = false)
   val default40 = default.copy(maxColumn = 40)
   val default120 = default.copy(maxColumn = 120)
 
@@ -55,8 +54,9 @@ object ScalafmtConfig {
   val scalaJs = default.copy(noNewlinesBeforeJsNative = true,
                              binPackArguments = true,
                              binPackParameters = true)
+
   // TODO(olafur) move these elsewhere.
-  val testing = default.copy(debug = true, indentMarginizedStrings = false)
+  val testing = default.copy(indentMarginizedStrings = false)
   val unitTest80 = testing.copy(maxColumn = 80)
   val unitTest40 = testing.copy(maxColumn = 40)
 }

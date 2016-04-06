@@ -49,7 +49,7 @@ class FormatTests
     .foreach(runTest(run))
 
   def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
-    val runner = ScalafmtRunner.default.withParser(parse)
+    val runner = ScalafmtRunner.testing.withParser(parse)
     val obtained = Scalafmt.format(t.original, t.style, runner).get
     debugResults += saveResult(t, obtained, onlyOne)
     assertFormatPreservesAst(t.original, obtained)(parse)

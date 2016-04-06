@@ -13,7 +13,8 @@ import scala.meta.parsers.common.Parse
   */
 case class ScalafmtRunner(debug: Boolean,
                           eventCallback: FormatEvent => Unit,
-                          parser: Parse[_ <: Tree]) {
+                          parser: Parse[_ <: Tree],
+                          maxStateVisits: Int) {
   def withParser(newParser: Parse[_ <: Tree]): ScalafmtRunner =
     this.copy(parser = newParser)
 }
@@ -23,13 +24,20 @@ object ScalafmtRunner {
   /**
     * The default runner formats a compilation unit and listens to no events.
     */
-  val default = ScalafmtRunner(
-      debug = true, eventCallback = _ => Unit, parser = scala.meta.parseSource)
+  val default = ScalafmtRunner(debug = false,
+                               eventCallback = _ => Unit,
+                               parser = scala.meta.parseSource,
+                               maxStateVisits = 1000000)
 
   /**
     * Same as [[default]], except formats the input as a statement/expression.
     *
     * An example of how to format something other than a compilation unit.
     */
-  val statement = default.copy(parser = scala.meta.parseStat)
+  val statement = default.withParser(scala.meta.parseStat)
+
+  val testing = ScalafmtRunner(debug = true,
+                               eventCallback = _ => Unit,
+                               parser = scala.meta.parseSource,
+                               maxStateVisits = 100000)
 }
