@@ -1,7 +1,7 @@
 package org.scalafmt
 
 import scala.meta.Tree
-import scala.meta.parsers.common.Parse
+import scala.meta.parsers.Parse
 
 import org.scalafmt.FormatEvent.CompleteFormat
 import org.scalafmt.FormatEvent.Enqueue
@@ -36,7 +36,7 @@ object ScalafmtRunner {
     */
   val default = ScalafmtRunner(debug = false,
                                eventCallback = _ => Unit,
-                               parser = scala.meta.parseSource,
+                               parser = scala.meta.parsers.Parse.parseSource,
                                optimizer = ScalafmtOptimizer.default,
                                maxStateVisits = 1000000)
 
@@ -45,7 +45,7 @@ object ScalafmtRunner {
     *
     * An example of how to format something other than a compilation unit.
     */
-  val statement = default.withParser(scala.meta.parseStat)
+  val statement = default.withParser(scala.meta.parsers.Parse.parseStat)
   val testing = default.copy(
       debug = true,
       maxStateVisits = 100000,

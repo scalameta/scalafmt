@@ -116,6 +116,8 @@ lazy val core = project
       "org.scalameta" %% "scalameta" % Deps.scalameta,
 
       // Test dependencies
+      "org.scala-lang" % "scala-reflect" % "2.11.8" % "test",
+      "org.scala-lang" % "scala-compiler" % "2.11.8" % "test",
       "ch.qos.logback" % "logback-classic" % "1.1.6" % "test",
       "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0" % "test",
       "com.ibm" %% "couchdb-scala" % "0.6.0" % "test",

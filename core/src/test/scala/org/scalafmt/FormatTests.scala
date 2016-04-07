@@ -23,7 +23,7 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.meta.Tree
-import scala.meta.parsers.common.Parse
+import scala.meta.parsers.Parse
 
 // TODO(olafur) property test: same solution without optimization or timeout.
 

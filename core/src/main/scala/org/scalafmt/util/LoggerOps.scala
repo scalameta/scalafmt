@@ -21,8 +21,7 @@ object LoggerOps {
                                                  |${log(formatToken.right)}""".stripMargin
 
   def escape(raw: String): String = {
-    import scala.reflect.runtime.universe._
-    Literal(Constant(raw)).toString
+    raw
   }
 
   def log(tokens: Token*): String = tokens.map(log).mkString("\n")

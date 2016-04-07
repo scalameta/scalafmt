@@ -4,17 +4,17 @@ import org.scalafmt.Error
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.meta.Tree
-import scala.meta.internal.ast.Ctor
-import scala.meta.internal.ast.Decl
-import scala.meta.internal.ast.Defn
-import scala.meta.internal.ast.Enumerator
-import scala.meta.internal.ast.Mod
-import scala.meta.internal.ast.Pat
-import scala.meta.internal.ast.Pkg
-import scala.meta.internal.ast.Source
-import scala.meta.internal.ast.Template
-import scala.meta.internal.ast.Term
-import scala.meta.internal.ast.Type
+import scala.meta.Ctor
+import scala.meta.Decl
+import scala.meta.Defn
+import scala.meta.Enumerator
+import scala.meta.Mod
+import scala.meta.Pat
+import scala.meta.Pkg
+import scala.meta.Source
+import scala.meta.Template
+import scala.meta.Term
+import scala.meta.Type
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 import scala.meta.tokens.Tokens
@@ -52,7 +52,7 @@ object TreeOps {
     case t: Term.PartialFunction => t.cases
     case t: Term.TryWithCases => t.catchp
     case t: Type.Compound => t.refinement
-    case t: scala.meta.internal.ast.Source => t.stats
+    case t: scala.meta.Source => t.stats
     case t: Template if t.stats.isDefined => t.stats.get
     case _ => Seq.empty[Tree]
   }

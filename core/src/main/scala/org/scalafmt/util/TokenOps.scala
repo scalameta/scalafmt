@@ -8,9 +8,9 @@ import org.scalafmt.internal.NoSplit
 import org.scalafmt.internal.Policy
 import org.scalafmt.internal.Space
 import scala.meta.Tree
-import scala.meta.internal.ast.Defn
-import scala.meta.internal.ast.Pkg
-import scala.meta.internal.ast.Template
+import scala.meta.Defn
+import scala.meta.Pkg
+import scala.meta.Template
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 

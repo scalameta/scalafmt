@@ -12,8 +12,8 @@ import org.scalafmt.internal.State
 import org.scalatest.FunSuiteLike
 import scala.collection.mutable
 import scala.meta.Tree
-import scala.meta.parsers.common.Parse
-import scala.meta.parsers.common.ParseException
+import scala.meta.parsers.Parse
+import scala.meta.parsers.ParseException
 
 trait HasTests extends FunSuiteLike with FormatAssertions {
   val testDir = "core/src/test/resources"
@@ -37,9 +37,9 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
   def filename2parse(filename: String): Option[Parse[_ <: Tree]] =
     extension(filename) match {
       case "source" | "scala" | "scalafmt" =>
-        Some(scala.meta.parsers.parseSource)
-      case "stat" => Some(scala.meta.parsers.parseStat)
-      case "case" => Some(scala.meta.parsers.parseCase)
+        Some(scala.meta.parsers.Parse.parseSource)
+      case "stat" => Some(scala.meta.parsers.Parse.parseStat)
+      case "case" => Some(scala.meta.parsers.Parse.parseCase)
       case _ => None
     }
 

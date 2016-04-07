@@ -1,6 +1,5 @@
 package org.scalafmt
 
-import org.scalafmt.ScalaStyle.CustomStyleBecauseIDontLikeTheProvidedStyles
 import org.scalafmt.util.DiffAssertions
 import org.scalatest.FunSuite
 

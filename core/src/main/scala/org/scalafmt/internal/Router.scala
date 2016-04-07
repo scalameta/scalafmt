@@ -13,16 +13,16 @@ import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
 import scala.collection.mutable
 import scala.meta.Tree
-import scala.meta.internal.ast.Case
-import scala.meta.internal.ast.Defn
-import scala.meta.internal.ast.Enumerator
-import scala.meta.internal.ast.Import
-import scala.meta.internal.ast.Name
-import scala.meta.internal.ast.Pat
-import scala.meta.internal.ast.Pkg
-import scala.meta.internal.ast.Template
-import scala.meta.internal.ast.Term
-import scala.meta.internal.ast.Type
+import scala.meta.Case
+import scala.meta.Defn
+import scala.meta.Enumerator
+import scala.meta.Import
+import scala.meta.Name
+import scala.meta.Pat
+import scala.meta.Pkg
+import scala.meta.Template
+import scala.meta.Term
+import scala.meta.Type
 import scala.meta.tokens.Token
 
 // Too many to import individually.
