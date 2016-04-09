@@ -281,8 +281,9 @@ class Router(formatOps: FormatOps) {
         val expire = defnTemplate(leftOwner)
           .flatMap(templateCurly)
           .getOrElse(leftOwner.tokens.last)
+        val indent = if (style.binPackParameters) Num(4) else Num(0)
         Seq(
-            Split(Space, 0).withIndent(4, expire, Left)
+            Split(Space, 0).withIndent(indent, expire, Left)
         )
       case FormatToken(_: `(`, _, _)
           if style.binPackParameters && isDefnSite(leftOwner) =>
@@ -292,8 +293,10 @@ class Router(formatOps: FormatOps) {
         )
       // DefDef
       case tok@FormatToken(_: `def`, name: Ident, _) =>
+        val indent = if (style.binPackParameters) Num(4) else Num(0)
         Seq(
-            Split(Space, 0).withIndent(4, defnSiteLastToken(leftOwner), Left)
+            Split(Space, 0)
+              .withIndent(indent, defnSiteLastToken(leftOwner), Left)
         )
       case tok@FormatToken(e: `=`, right, _)
           if leftOwner.isInstanceOf[Defn.Def] =>
@@ -368,8 +371,10 @@ class Router(formatOps: FormatOps) {
         //          insideBlock(tok, close, _.isInstanceOf[`{`])
         val indent = leftOwner match {
           case _: Pat => Num(0) // Indentation already provided by case.
-          case x if isDefnSite(x) && !x.isInstanceOf[Type.Apply] => Num(0)
-          case _ => Num(4)
+          case x if isDefnSite(x) && !x.isInstanceOf[Type.Apply] =>
+            if (style.binPackParameters) Num(0)
+            else Num(style.continuationIndentDefnSite)
+          case _ => Num(style.continuationIndentCallSite)
         }
 
         // It seems acceptable to unindent by the continuation indent inside
@@ -622,8 +627,10 @@ class Router(formatOps: FormatOps) {
           .flatMap(templateCurly)
           .getOrElse(rightOwner.tokens.last)
         Seq(
-            Split(Space, 0).withPolicy(SingleLineBlock(lastToken)),
-            Split(Newline, 1)
+            Split(Space, 0)
+              .withPolicy(SingleLineBlock(lastToken))
+              .withIndent(Num(4), lastToken, Left),
+            Split(Newline, 1).withIndent(Num(4), lastToken, Left)
         )
       case tok@FormatToken(_, right: `with`, _)
           if rightOwner.isInstanceOf[Template] =>

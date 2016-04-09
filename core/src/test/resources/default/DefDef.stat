@@ -58,18 +58,18 @@ def zipWith[E2, U2, F, G, T, D[_]](q2: Query[E2, U2, D], f: (E, E2) => F)(
 def groupBy[K, T, G, P](
     f: E => K)(implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G],
                vshape: Shape[_ <: FlatShapeLevel, E, _, P]
-    ): Query[(G, Query[P, U, Seq]), (T, Query[P, U, Seq]), C]
+): Query[(G, Query[P, U, Seq]), (T, Query[P, U, Seq]), C]
 <<< slick groupBy 2
   def groupBy[K, T, G, P](f: E => K)(implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G], vshape: Shape[_ <: FlatShapeLevel, E, _, P]): Query[(G, Query[P, U, Seq]), (T, Query[P, U, Seq]), C, (T, Query[P, U, Seq]), (T, Query[P, U, Seq])]
 >>>
-def groupBy[K, T, G, P](f: E => K)(
-    implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G],
-    vshape: Shape[_ <: FlatShapeLevel, E, _, P]
-    ): Query[(G, Query[P, U, Seq]),
-             (T, Query[P, U, Seq]),
-             C,
-             (T, Query[P, U, Seq]),
-             (T, Query[P, U, Seq])]
+def groupBy[K, T, G, P](
+    f: E => K)(implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G],
+               vshape: Shape[_ <: FlatShapeLevel, E, _, P]
+): Query[(G, Query[P, U, Seq]),
+         (T, Query[P, U, Seq]),
+         C,
+         (T, Query[P, U, Seq]),
+         (T, Query[P, U, Seq])]
 
 <<< slick queryShape
   @inline implicit def queryShape[Level >: NestedShapeLevel <: ShapeLevel, T, Q <: QueryBase[_]](implicit ev: Q <:< Rep[T]) = RepShape[Level, Q, T]
@@ -130,12 +130,17 @@ def addTrap[U >: T](trapSink: Source with TypedSink[T])(
     flowDef.addTrap(pipe, trapSink.createTap(Write)(mode))
     TypedPipe.from[U](pipe, fields)(flowDef, mode, conv)
   })
-<<< SKIP config style at defn site #144
+<<< config style at defn site #144
 def point(
   x: Int,
   y: Int
 ): Point = {
+Point(x, y)
+                }
+>>>
+def point(
+    x: Int,
+    y: Int
+): Point = {
   Point(x, y)
 }
->>>
-x

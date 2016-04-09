@@ -1,7 +1,10 @@
 package org.scalafmt
 
+import org.scalafmt.util.ValidationOps
+
 /** Configuration options for scalafmt.
   *
+  * @param name Name of this style.
   * @param maxColumn Column limit, any formatting exceeding this field is
   *                  penalized heavily.
   * @param scalaDocs Use scaladoc style docstring, otherwise javadoc style
@@ -24,8 +27,13 @@ package org.scalafmt
   *                         go on the same line or will have one line each.
   * @param noNewlinesBeforeJsNative If true, a newline will never be placed in
   *                                 front of js.native.
+  * @param continuationIndentCallSite Indent width for line continuation at
+  *                                   call site.
+  * @param continuationIndentDefnSite Indent width for line continuation at
+  *                                   definition/declaration site.
   */
-case class ScalafmtConfig(maxColumn: Int,
+case class ScalafmtConfig(name: String,
+                          maxColumn: Int,
                           scalaDocs: Boolean,
                           indentMarginizedStrings: Boolean,
                           binPackArguments: Boolean,
@@ -33,18 +41,28 @@ case class ScalafmtConfig(maxColumn: Int,
                           configStyleArguments: Boolean,
                           binPackDotChains: Boolean,
                           noNewlinesBeforeJsNative: Boolean,
-                          name: String)
+                          continuationIndentCallSite: Int,
+                          continuationIndentDefnSite: Int) {
+  ValidationOps.assertNonNegative(
+      continuationIndentCallSite,
+      continuationIndentDefnSite
+  )
+}
 
 object ScalafmtConfig {
-  val default = ScalafmtConfig(maxColumn = 80,
-                               scalaDocs = true,
-                               indentMarginizedStrings = true,
-                               binPackArguments = false,
-                               binPackParameters = false,
-                               configStyleArguments = true,
-                               binPackDotChains = false,
-                               noNewlinesBeforeJsNative = false,
-                               name = "default")
+  val default = ScalafmtConfig(
+      name = "default",
+      maxColumn = 80,
+      scalaDocs = true,
+      indentMarginizedStrings = true,
+      binPackArguments = false,
+      binPackParameters = false,
+      configStyleArguments = true,
+      binPackDotChains = false,
+      noNewlinesBeforeJsNative = false,
+      continuationIndentCallSite = 4,
+      continuationIndentDefnSite = 4
+  )
   val default40 = default.copy(maxColumn = 40)
   val default120 = default.copy(maxColumn = 120)
 
