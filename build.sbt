@@ -191,4 +191,7 @@ lazy val readme = scalatex.ScalatexReadme(
     .settings(noPublish)
     .dependsOn(core)
     .dependsOn(cli)
+    .settings(
+      dependencyOverrides += "com.lihaoyi" %% "scalaparse" % "0.3.1"
+    )
 
