@@ -1,11 +1,11 @@
 package org.scalafmt.cli
 
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 import org.scalafmt.FormatResult
 import org.scalafmt.Scalafmt
 import org.scalafmt.Versions
-import org.scalafmt.internal.Debug
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.LoggerOps
 
@@ -94,7 +94,8 @@ object Cli {
                 if (inputMethod.code != formatted) {
                   FileOps.writeFile(filename, formatted)
                 }
-                val elapsed = Debug.ns2ms(System.nanoTime() - start)
+                val elapsed = TimeUnit.MILLISECONDS
+                  .convert(System.nanoTime() - start, TimeUnit.NANOSECONDS)
                 logger.info(
                     f"${i + 1}%3s/${inputMethods.length} file:$filename%-50s (${elapsed}ms)")
               case _ => println(formatted)

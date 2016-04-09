@@ -2,7 +2,10 @@ package org.scalafmt
 
 import scala.language.postfixOps
 
-import org.scalafmt.internal.Debug
+import org.scalafmt.FormatEvent.CompleteFormat
+import org.scalafmt.FormatEvent.Enqueue
+import org.scalafmt.FormatEvent.Explored
+import org.scalafmt.FormatEvent.VisitToken
 import org.scalafmt.stats.TestStats
 import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.DiffTest
@@ -49,7 +52,7 @@ class FormatTests
     .foreach(runTest(run))
 
   def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
-    val runner = ScalafmtRunner.testing.withParser(parse)
+    val runner = scalafmtRunner.withParser(parse)
     val obtained = Scalafmt.format(t.original, t.style, runner).get
     debugResults += saveResult(t, obtained, onlyOne)
     assertFormatPreservesAst(t.original, obtained)(parse)

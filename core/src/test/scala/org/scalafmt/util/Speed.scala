@@ -6,7 +6,7 @@ import com.ibm.couchdb.CouchDb
 import com.ibm.couchdb.CouchKeyVal
 import com.ibm.couchdb.CouchKeyVals
 import com.ibm.couchdb.TypeMapping
-import org.scalafmt.internal.Debug
+import org.scalafmt.Debug
 import org.scalafmt.stats.GitInfo
 import org.scalafmt.stats.TestStats
 import scalaz.-\/

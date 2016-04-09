@@ -7,7 +7,6 @@ import org.scalafmt.FormatEvent.CompleteFormat
 import org.scalafmt.FormatEvent.Enqueue
 import org.scalafmt.FormatEvent.Explored
 import org.scalafmt.FormatEvent.VisitToken
-import org.scalafmt.internal.Debug
 import org.scalafmt.util.LoggerOps
 
 /**
@@ -46,19 +45,4 @@ object ScalafmtRunner {
     * An example of how to format something other than a compilation unit.
     */
   val statement = default.withParser(scala.meta.parsers.Parse.parseStat)
-  val testing = default.copy(
-      debug = true,
-      maxStateVisits = 100000,
-      eventCallback = {
-        case VisitToken(tok) => Debug.visit(tok)
-        case explored: Explored if explored.n % 10000 == 0 =>
-          logger.elem(explored)
-        case Enqueue(split) => Debug.enqueued(split)
-        case CompleteFormat(explored, state, tokens) =>
-          Debug.explored += explored
-          Debug.state = state
-          Debug.tokens = tokens
-        case _ =>
-      }
-  )
 }

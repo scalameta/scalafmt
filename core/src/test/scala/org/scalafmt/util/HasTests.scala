@@ -2,12 +2,15 @@ package org.scalafmt.util
 
 import java.io.File
 
+import org.scalafmt.Debug
 import org.scalafmt.Error.UnknownStyle
+import org.scalafmt.FormatEvent.CompleteFormat
+import org.scalafmt.FormatEvent.Enqueue
+import org.scalafmt.FormatEvent.Explored
+import org.scalafmt.FormatEvent.VisitToken
 import org.scalafmt.ScalafmtRunner
-import org.scalafmt.ScalafmtRunner$
 import org.scalafmt.Scalafmt
 import org.scalafmt.ScalafmtConfig
-import org.scalafmt.internal.Debug
 import org.scalafmt.internal.State
 import org.scalatest.FunSuiteLike
 import scala.collection.mutable
@@ -16,6 +19,22 @@ import scala.meta.parsers.Parse
 import scala.meta.parsers.ParseException
 
 trait HasTests extends FunSuiteLike with FormatAssertions {
+  import LoggerOps._
+  val scalafmtRunner = ScalafmtRunner.default.copy(
+    debug = true,
+    maxStateVisits = 100000,
+    eventCallback = {
+      case VisitToken(tok) => Debug.visit(tok)
+      case explored: Explored if explored.n % 10000 == 0 =>
+        logger.elem(explored)
+      case Enqueue(split) => Debug.enqueued(split)
+      case CompleteFormat(explored, state, tokens) =>
+        Debug.explored += explored
+        Debug.state = state
+        Debug.tokens = tokens
+      case _ =>
+    }
+  )
   val testDir = "core/src/test/resources"
 
   def tests: Seq[DiffTest]
@@ -119,7 +138,7 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
   }
 
   def defaultRun(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
-    val runner = ScalafmtRunner.testing.withParser(parse)
+    val runner = scalafmtRunner.withParser(parse)
     val obtained = Scalafmt.format(t.original, t.style, runner).get
     assertFormatPreservesAst(t.original, obtained)(parse)
     assertNoDiff(obtained, t.expected)
