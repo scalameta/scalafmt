@@ -47,7 +47,7 @@ class FormatWriter(formatOps: FormatOps) {
   }
 
   private def formatMarginizedString(token: Token, indent: Int): String = {
-    if (!style.indentMarginizedStrings) token.code
+    if (!style.alignStripMarginStrings) token.code
     else if (token.isInstanceOf[Interpolation.Part] ||
              isMarginizedString(token)) {
       val spaces = " " * indent

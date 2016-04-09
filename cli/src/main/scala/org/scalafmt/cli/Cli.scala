@@ -5,9 +5,11 @@ import java.util.concurrent.TimeUnit
 
 import org.scalafmt.FormatResult
 import org.scalafmt.Scalafmt
+import org.scalafmt.ScalafmtConfig
 import org.scalafmt.Versions
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.LoggerOps
+import scopt.Read
 
 object Cli {
   import LoggerOps._
@@ -29,9 +31,16 @@ object Cli {
       |scalafmt
     """.stripMargin
 
-  case class CliConfig(file: Option[File] = None,
-                       inPlace: Boolean = false,
-                       range: Set[Range] = Set.empty[Range])
+  case class Config(file: Option[File] = None,
+                    inPlace: Boolean = false,
+                    style: ScalafmtConfig,
+                    range: Set[Range] = Set.empty[Range])
+  object Config {
+    val default = Config(None,
+                         inPlace = false,
+                         style = ScalafmtConfig.default,
+                         Set.empty[Range])
+  }
 
   sealed abstract class InputMethod(val code: String)
 
@@ -40,9 +49,15 @@ object Cli {
   case class FileContents(filename: String, override val code: String)
       extends InputMethod(code)
 
-  lazy val parser = new scopt.OptionParser[CliConfig]("scalafmt") {
+  implicit val styleReads: Read[ScalafmtConfig] = Read.reads { styleName =>
+    ScalafmtConfig.availableStyles.find(_.name == styleName).getOrElse {
+      throw new IllegalArgumentException(s"Unknown style name $styleName.")
+    }
+  }
 
-    def printHelpAndExit(ignore: Unit, c: CliConfig): CliConfig = {
+  lazy val parser = new scopt.OptionParser[Config]("scalafmt") {
+
+    def printHelpAndExit(ignore: Unit, c: Config): Config = {
       showHeader
       sys.exit
       c
@@ -51,12 +66,40 @@ object Cli {
     head("scalafmt", Versions.nightly)
     opt[File]('f', "file") action { (file, c) =>
       c.copy(file = Some(file))
-    } text "can be directory, in which case all *.scala files are formatted. If not provided, reads from stdin."
+    } text "can be directory, in which case all *.scala files are formatted. " +
+    "If not provided, reads from stdin."
     opt[Unit]('i', "in-place") action { (_, c) =>
       c.copy(inPlace = true)
     } text "write output to file, does nothing if file is not specified"
     opt[Unit]('v', "version") action printHelpAndExit text "print version "
     opt[Unit]('h', "help") action printHelpAndExit text "prints this usage text"
+    opt[(Int, Int)]("range").hidden() action {
+      case ((from, to), c) => c.copy(range = c.range + Range(from - 1, to - 1))
+    } text "(experimental) only format line range from=to"
+    note(s"\nStyle configuration options:")
+
+    // Style configs
+    opt[ScalafmtConfig]('s', "style") action { (style, c) =>
+      c.copy(style = style)
+    } text s"base style, must be one of: ${ScalafmtConfig.availableStyleNames}"
+    opt[Int]("maxColumn") action { (col, c) =>
+      c.copy(style = c.style.copy(maxColumn = col))
+    } text s"See ScalafmtConfig scaladoc."
+    opt[Int]("continuationIndentCallSite") action { (n, c) =>
+      c.copy(style = c.style.copy(continuationIndentCallSite = n))
+    } text s"See ScalafmtConfig scaladoc."
+    opt[Int]("continuationIndentDefnSite") action { (n, c) =>
+      c.copy(style = c.style.copy(continuationIndentDefnSite = n))
+    } text s"See ScalafmtConfig scaladoc."
+    opt[Unit]("scalaDocs") action { (_, c) =>
+      c.copy(style = c.style.copy(scalaDocs = true))
+    } text s"See ScalafmtConfig scaladoc."
+    opt[Unit]("javaDocs") action { (_, c) =>
+      c.copy(style = c.style.copy(scalaDocs = false))
+    } text s"Sets scalaDocs to false. See ScalafmtConfig scaladoc."
+    opt[Boolean]("alignStripMarginStrings") action { (bool, c) =>
+      c.copy(style = c.style.copy(alignStripMarginStrings = bool))
+    } text s"See ScalafmtConfig scaladoc."
     note(s"""
             |Examples:
             |
@@ -64,12 +107,9 @@ object Cli {
             |
             |Please file bugs to https://github.com/olafurpg/scalafmt/issues
       """.stripMargin)
-    opt[(Int, Int)]("range").hidden() action {
-      case ((from, to), c) => c.copy(range = c.range + Range(from - 1, to - 1))
-    } text "(experimental) only format line range from=to"
   }
 
-  def getCode(config: CliConfig): Seq[InputMethod] = config.file match {
+  def getCode(config: Config): Seq[InputMethod] = config.file match {
     case Some(file) =>
       FileOps.listFiles(file).withFilter(_.endsWith(".scala")).map {
         filename =>
@@ -82,7 +122,7 @@ object Cli {
       Seq(StdinCode(contents))
   }
 
-  def run(config: CliConfig): Unit = {
+  def run(config: Config): Unit = {
     val inputMethods = getCode(config)
     inputMethods.zipWithIndex.foreach {
       case (inputMethod, i) =>
@@ -105,8 +145,8 @@ object Cli {
     }
   }
 
-  def getConfig(args: Array[String]): Option[CliConfig] = {
-    parser.parse(args, CliConfig(None, inPlace = false, Set.empty[Range]))
+  def getConfig(args: Array[String]): Option[Config] = {
+    parser.parse(args, Config.default)
   }
 
   def main(args: Array[String]): Unit = {

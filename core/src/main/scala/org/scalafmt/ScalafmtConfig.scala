@@ -9,7 +9,7 @@ import org.scalafmt.util.ValidationOps
   *                  penalized heavily.
   * @param scalaDocs Use scaladoc style docstring, otherwise javadoc style
   *                  comments.
-  * @param indentMarginizedStrings If true, the margin character | is treated
+  * @param alignStripMarginStrings If true, the margin character | is treated
   *                                as the new indentation in multiline strings
   *                                ending with `.stripMargin`.
   * @param binPackArguments If true, will fit as many arguments on each line,
@@ -35,7 +35,7 @@ import org.scalafmt.util.ValidationOps
 case class ScalafmtConfig(name: String,
                           maxColumn: Int,
                           scalaDocs: Boolean,
-                          indentMarginizedStrings: Boolean,
+                          alignStripMarginStrings: Boolean,
                           binPackArguments: Boolean,
                           binPackParameters: Boolean,
                           configStyleArguments: Boolean,
@@ -54,7 +54,7 @@ object ScalafmtConfig {
       name = "default",
       maxColumn = 80,
       scalaDocs = true,
-      indentMarginizedStrings = true,
+      alignStripMarginStrings = true,
       binPackArguments = false,
       binPackParameters = false,
       configStyleArguments = true,
@@ -75,8 +75,16 @@ object ScalafmtConfig {
                              binPackArguments = true,
                              binPackParameters = true)
 
+  /**
+    * Ready styles provided by scalafmt.
+    */
+  val availableStyles = Seq(
+      default
+  )
+  val availableStyleNames = availableStyles.map(_.name).mkString(", ")
+
   // TODO(olafur) move these elsewhere.
-  val testing = default.copy(name = "testing", indentMarginizedStrings = false)
+  val testing = default.copy(name = "testing", alignStripMarginStrings = false)
   val unitTest80 = testing.copy(maxColumn = 80)
   val unitTest40 = testing.copy(maxColumn = 40)
 }
