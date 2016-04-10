@@ -22,7 +22,7 @@ object Cli {
       |scalafmt -f Code.scala
       |
       |// write formatted contents to file.
-      |scalafmt -i -f Code.scala
+      |scalafmt -i -f Code1.scala Code2.scala
       |
       |// read style options from a configuration file
       |$ cat .scalafmt
@@ -37,13 +37,13 @@ object Cli {
       |scalafmt
     """.stripMargin
 
-  case class Config(file: Option[File],
+  case class Config(files: Seq[File],
                     configFile: Option[File],
                     inPlace: Boolean,
                     style: ScalafmtConfig,
                     range: Set[Range])
   object Config {
-    val default = Config(None,
+    val default = Config(Seq.empty[File],
                          None,
                          inPlace = false,
                          style = ScalafmtConfig.default,
@@ -72,8 +72,8 @@ object Cli {
     }
 
     head("scalafmt", Versions.nightly)
-    opt[File]('f', "file") action { (file, c) =>
-      c.copy(file = Some(file))
+    opt[Seq[File]]('f', "files") action { (files, c) =>
+      c.copy(files = files)
     } text "can be directory, in which case all *.scala files are formatted. " +
     "If not provided, reads from stdin."
     opt[File]('c', "config") action { (file, c) =>
@@ -122,17 +122,20 @@ object Cli {
       """.stripMargin)
   }
 
-  def getCode(config: Config): Seq[InputMethod] = config.file match {
-    case Some(file) =>
-      FileOps.listFiles(file).withFilter(_.endsWith(".scala")).map {
-        filename =>
-          val contents = FileOps.readFile(filename)
-          FileContents(filename, contents)
-      }
-    case _ =>
+  def getCode(config: Config): Seq[InputMethod] = {
+    if (config.files.isEmpty) {
       val contents =
         scala.io.Source.fromInputStream(System.in).getLines().mkString("\n")
       Seq(StdinCode(contents))
+    } else {
+      config.files.flatMap { file =>
+        FileOps.listFiles(file).withFilter(_.endsWith(".scala")).map {
+          filename =>
+            val contents = FileOps.readFile(filename)
+            FileContents(filename, contents)
+        }
+      }
+    }
   }
 
   def run(config: Config): Unit = {

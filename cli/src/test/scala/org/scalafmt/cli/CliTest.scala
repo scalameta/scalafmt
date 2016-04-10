@@ -29,7 +29,7 @@ class CliTest extends FunSuite with DiffAssertions {
       scalaDocs = false,
       alignStripMarginStrings = false)
   val expectedConfig = Cli.Config.default
-    .copy(style = expectedStyle, file = Some(new File("foo")), inPlace = true)
+    .copy(style = expectedStyle, files = Seq(new File("foo")), inPlace = true)
   val args = Array(
       "--maxColumn",
       "99",
@@ -40,7 +40,7 @@ class CliTest extends FunSuite with DiffAssertions {
       "--javaDocs",
       "--alignStripMarginStrings",
       "false",
-      "--file",
+      "--files",
       "foo",
       "-i"
   )
@@ -65,7 +65,7 @@ class CliTest extends FunSuite with DiffAssertions {
     Files.write(tmpFile, unformatted.getBytes)
     val formatInPlace = Cli.Config.default.copy(
         style = ScalafmtConfig.default.copy(maxColumn = 7),
-        file = Some(tmpFile.toFile),
+        files = Seq(tmpFile.toFile),
         inPlace = true)
     Cli.run(formatInPlace)
     val obtained = FileOps.readFile(tmpFile.toString)
@@ -76,7 +76,7 @@ class CliTest extends FunSuite with DiffAssertions {
     val tmpFile = Files.createTempFile("prefix", "suffix")
     Files.write(tmpFile, unformatted.getBytes)
     val formatInPlace =
-      Cli.Config.default.copy(file = Some(tmpFile.toFile), inPlace = true)
+      Cli.Config.default.copy(files = Seq(tmpFile.toFile), inPlace = true)
     Cli.run(formatInPlace)
     val obtained = FileOps.readFile(tmpFile.toString)
     assertNoDiff(obtained, unformatted)
