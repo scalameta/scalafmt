@@ -130,7 +130,6 @@ lazy val core = project
 
 lazy val cli = project
     .settings(allSettings)
-    .settings(noPublish)
     .settings(
       moduleName := "scalafmt-cli",
       mainClass in assembly := Some("org.scalafmt.cli.Cli"),

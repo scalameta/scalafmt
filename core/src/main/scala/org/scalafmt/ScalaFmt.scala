@@ -12,7 +12,7 @@ object Scalafmt {
     * Format Scala code using scalafmt.
     *
     * @param code Code string to format.
-    * @param config Configuration for formatting output.
+    * @param style Configuration for formatting output.
     * @param runner Configuration for how the formatting should run.
     * @param range EXPERIMENTAL. Format a subset of lines.
     * @return [[FormatResult.Success]] if successful,
@@ -21,13 +21,13 @@ object Scalafmt {
     *        string.
     */
   def format(code: String,
-             config: ScalafmtConfig = ScalafmtConfig.default,
+             style: ScalafmtConfig = ScalafmtConfig.default,
              runner: ScalafmtRunner = ScalafmtRunner.default,
              range: Set[Range] = Set.empty[Range]): FormatResult = {
     try {
       val tree = new scala.meta.XtensionParseInputLike(code)
         .parse(stringToInput, runner.parser, scala.meta.dialects.Scala211).get
-      val formatOps = new FormatOps(tree, config, runner)
+      val formatOps = new FormatOps(tree, style, runner)
       val formatWriter = new FormatWriter(formatOps)
       val search = new BestFirstSearch(formatOps, range, formatWriter)
       val partial = search.getBestPath

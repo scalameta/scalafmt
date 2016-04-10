@@ -24,6 +24,12 @@ object Cli {
       |// write formatted contents to file.
       |scalafmt -i -f Code.scala
       |
+      |// read style options from a configuration file
+      |$ cat .scalafmt
+      |--maxColumn 120
+      |--javaDocs // This is a comment.
+      |$ scalafmt --config .scalafmt -i -f Code.scala
+      |
       |// format all files in current directory, write new contents to each file.
       |scalafmt -i -f .
       |
@@ -31,12 +37,14 @@ object Cli {
       |scalafmt
     """.stripMargin
 
-  case class Config(file: Option[File] = None,
-                    inPlace: Boolean = false,
+  case class Config(file: Option[File],
+                    configFile: Option[File],
+                    inPlace: Boolean,
                     style: ScalafmtConfig,
-                    range: Set[Range] = Set.empty[Range])
+                    range: Set[Range])
   object Config {
     val default = Config(None,
+                         None,
                          inPlace = false,
                          style = ScalafmtConfig.default,
                          Set.empty[Range])
@@ -58,7 +66,7 @@ object Cli {
   lazy val parser = new scopt.OptionParser[Config]("scalafmt") {
 
     def printHelpAndExit(ignore: Unit, c: Config): Config = {
-      showHeader
+      showUsage
       sys.exit
       c
     }
@@ -68,17 +76,22 @@ object Cli {
       c.copy(file = Some(file))
     } text "can be directory, in which case all *.scala files are formatted. " +
     "If not provided, reads from stdin."
+    opt[File]('c', "config") action { (file, c) =>
+      c.copy(configFile = Some(file))
+    } text "read style flags, see \"Style configuration option\", from this" +
+    " config file. The file can contain comments starting with //"
     opt[Unit]('i', "in-place") action { (_, c) =>
       c.copy(inPlace = true)
     } text "write output to file, does nothing if file is not specified"
     opt[Unit]('v', "version") action printHelpAndExit text "print version "
     opt[Unit]('h', "help") action printHelpAndExit text "prints this usage text"
     opt[(Int, Int)]("range").hidden() action {
-      case ((from, to), c) => c.copy(range = c.range + Range(from - 1, to - 1))
+      case ((from, to), c) =>
+        c.copy(range = c.range + Range(from - 1, to - 1))
     } text "(experimental) only format line range from=to"
-    note(s"\nStyle configuration options:")
 
     // Style configs
+    note(s"\nStyle configuration options:")
     opt[ScalafmtConfig]('s', "style") action { (style, c) =>
       c.copy(style = style)
     } text s"base style, must be one of: ${ScalafmtConfig.availableStyleNames}"
@@ -127,7 +140,7 @@ object Cli {
     inputMethods.zipWithIndex.foreach {
       case (inputMethod, i) =>
         val start = System.nanoTime()
-        Scalafmt.format(inputMethod.code) match {
+        Scalafmt.format(inputMethod.code, style = config.style) match {
           case FormatResult.Success(formatted) =>
             inputMethod match {
               case FileContents(filename, _) if config.inPlace =>
@@ -146,7 +159,17 @@ object Cli {
   }
 
   def getConfig(args: Array[String]): Option[Config] = {
-    parser.parse(args, Config.default)
+    parser.parse(args, Config.default) match {
+      case Some(c) if c.configFile.isDefined =>
+        val externalConfig = FileOps
+          .readFile(c.configFile.get)
+          .replaceAll("//.*$", "") // remove comments
+          .split("\\s")
+        parser
+          .parse(externalConfig, Config.default)
+          .map(x => c.copy(style = x.style))
+      case x => x
+    }
   }
 
   def main(args: Array[String]): Unit = {

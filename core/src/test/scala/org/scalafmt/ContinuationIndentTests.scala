@@ -39,6 +39,7 @@ def foo(
       continuationIndentCallSite = 5,
       continuationIndentDefnSite = 3
   )
+
   def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
     val runner = scalafmtRunner.withParser(parse)
     val formatted = Scalafmt.format(t.original, style, runner).get

@@ -13,10 +13,9 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.vfs.VirtualFile
-import org.scalafmt.Scalafmt
+import org.scalafmt.ScalaFmt
 
 case class FileDocument(file: VirtualFile, document: Document) {
-
   def isScala: Boolean = file.getFileType.getName == "Scala"
 }
 
@@ -25,16 +24,15 @@ class ScalafmtAction extends AnAction {
   override def actionPerformed(event: AnActionEvent): Unit = {
     getCurrentFileDocument(event).filter(_.isScala).foreach { fileDoc =>
       val source = fileDoc.document.getText()
-      val formatted = Scalafmt.format(source)
+      val formatted = ScalaFmt.format(source)
       if (source != formatted) {
         ApplicationManager.getApplication.runWriteAction(new Runnable {
-
           override def run(): Unit = {
-            CommandProcessor.getInstance()
+            CommandProcessor
+              .getInstance()
               .runUndoTransparentAction(new Runnable {
-
-              override def run(): Unit = fileDoc.document.setText(formatted)
-            })
+                override def run(): Unit = fileDoc.document.setText(formatted)
+              })
           }
         })
       }
