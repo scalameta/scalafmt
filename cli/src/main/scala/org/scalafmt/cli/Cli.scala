@@ -22,7 +22,7 @@ object Cli {
       |scalafmt -f Code.scala
       |
       |// write formatted contents to file.
-      |scalafmt -i -f Code1.scala Code2.scala
+      |scalafmt -i -f Code1.scala,Code2.scala
       |
       |// read style options from a configuration file
       |$ cat .scalafmt
@@ -40,22 +40,30 @@ object Cli {
   case class Config(files: Seq[File],
                     configFile: Option[File],
                     inPlace: Boolean,
+                    testing: Boolean,
                     style: ScalafmtConfig,
-                    range: Set[Range])
+                    range: Set[Range]) {
+    require(!(inPlace && testing), "inPlace and testing can't both be true")
+  }
   object Config {
     val default = Config(Seq.empty[File],
                          None,
                          inPlace = false,
+                         testing = false,
                          style = ScalafmtConfig.default,
                          Set.empty[Range])
   }
 
   sealed abstract class InputMethod(val code: String)
-
   case class StdinCode(override val code: String) extends InputMethod(code)
-
   case class FileContents(filename: String, override val code: String)
       extends InputMethod(code)
+
+  sealed abstract class Action
+  case object NoOp extends Action
+  case object Exit extends Action
+  case class Write(filename: String, contents: String) extends Action
+  case class Print(contents: String) extends Action
 
   implicit val styleReads: Read[ScalafmtConfig] = Read.reads { styleName =>
     ScalafmtConfig.availableStyles.find(_.name == styleName).getOrElse {
@@ -83,6 +91,9 @@ object Cli {
     opt[Unit]('i', "in-place") action { (_, c) =>
       c.copy(inPlace = true)
     } text "write output to file, does nothing if file is not specified"
+    opt[Unit]("test") action { (_, c) =>
+      c.copy(testing = true)
+    } text "test for mis-formatted code, exits with status 1 on failure."
     opt[Unit]('v', "version") action printHelpAndExit text "print version "
     opt[Unit]('h', "help") action printHelpAndExit text "prints this usage text"
     opt[(Int, Int)]("range").hidden() action {
@@ -138,27 +149,46 @@ object Cli {
     }
   }
 
-  def run(config: Config): Unit = {
+  def getActions(config: Config): Seq[Action] = {
     val inputMethods = getCode(config)
-    inputMethods.zipWithIndex.foreach {
+    val result: Seq[Action] = inputMethods.zipWithIndex.map {
       case (inputMethod, i) =>
         val start = System.nanoTime()
         Scalafmt.format(inputMethod.code, style = config.style) match {
           case FormatResult.Success(formatted) =>
             inputMethod match {
               case FileContents(filename, _) if config.inPlace =>
-                if (inputMethod.code != formatted) {
-                  FileOps.writeFile(filename, formatted)
-                }
                 val elapsed = TimeUnit.MILLISECONDS
                   .convert(System.nanoTime() - start, TimeUnit.NANOSECONDS)
                 logger.info(
                     f"${i + 1}%3s/${inputMethods.length} file:$filename%-50s (${elapsed}ms)")
-              case _ => println(formatted)
+                if (inputMethod.code != formatted) {
+                  Write(filename, formatted)
+                } else {
+                  NoOp
+                }
+              case FileContents(filename, _) if config.testing =>
+                if (inputMethod.code != formatted) {
+                  System.err.println(s"$filename is misformatted")
+                  Exit
+                } else {
+                  NoOp
+                }
+              case _ =>
+                Print(formatted)
             }
           case _ =>
+            NoOp
         }
     }
+    result
+  }
+
+  def eval(action: Action): Unit = action match {
+    case Write(filename, contents) => FileOps.writeFile(filename, contents)
+    case Print(contents) => println(contents)
+    case Exit => System.exit(1)
+    case NoOp =>
   }
 
   def getConfig(args: Array[String]): Option[Config] = {
@@ -174,6 +204,8 @@ object Cli {
       case x => x
     }
   }
+
+  def run(config: Config): Unit = getActions(config).foreach(eval)
 
   def main(args: Array[String]): Unit = {
     getConfig(args).foreach(run)

@@ -4,6 +4,7 @@ import java.io.File
 import java.nio.file.Files
 
 import org.scalafmt.ScalafmtConfig
+import org.scalafmt.cli.Cli.Exit
 import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.FileOps
 import org.scalatest.FunSuite
@@ -70,6 +71,15 @@ class CliTest extends FunSuite with DiffAssertions {
     Cli.run(formatInPlace)
     val obtained = FileOps.readFile(tmpFile.toString)
     assertNoDiff(obtained, expected)
+  }
+
+  test("scalafmt --test --file tmpFile") {
+    val tmpFile = Files.createTempFile("prefix", ".scala")
+    Files.write(tmpFile, unformatted.getBytes)
+    val formatInPlace =
+      Cli.Config.default.copy(files = Seq(tmpFile.toFile), testing = true)
+    val obtained = Cli.getActions(formatInPlace)
+    assert(obtained == Seq(Cli.Exit))
   }
 
   test("scalafmt -i ignores non-scala files") {
