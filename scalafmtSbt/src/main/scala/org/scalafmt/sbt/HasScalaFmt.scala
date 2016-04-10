@@ -60,6 +60,7 @@ case class HasScalaFmt(reflective: ScalaFmtLike,
 
   private def testFormatted(result: FormatResult): Unit = {
     if (result.formattedContents != result.originalContents) {
+      System.err.println(s"${result.file.getPath} is mis-formatted.")
       System.exit(1)
     }
   }

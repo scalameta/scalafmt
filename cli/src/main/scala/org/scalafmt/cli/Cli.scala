@@ -191,15 +191,17 @@ object Cli {
     case NoOp =>
   }
 
+  def parseConfigFile(contents: String): Option[Config] = {
+    val args = contents
+      .replaceAll("//.*$", "") // Allow comments
+      .split("\\s")
+    parser.parse(args, Config.default)
+  }
+
   def getConfig(args: Array[String]): Option[Config] = {
     parser.parse(args, Config.default) match {
       case Some(c) if c.configFile.isDefined =>
-        val externalConfig = FileOps
-          .readFile(c.configFile.get)
-          .replaceAll("//.*$", "") // remove comments
-          .split("\\s")
-        parser
-          .parse(externalConfig, Config.default)
+        parseConfigFile(FileOps.readFile(c.configFile.get))
           .map(x => c.copy(style = x.style))
       case x => x
     }
