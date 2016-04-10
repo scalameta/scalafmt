@@ -38,6 +38,10 @@ object ScalaFmtPlugin extends AutoPlugin {
     lazy val scalafmtFormat: TaskKey[Unit] =
       taskKey[Unit]("Format Scala sources using scalafmt")
 
+    lazy val scalafmtFormatTest: TaskKey[Unit] =
+      taskKey[Unit]("Test for mis-formatted Scala sources, " +
+          "exits with status 1 on failure.")
+
     lazy val hasScalafmt: TaskKey[HasScalaFmt] = taskKey[HasScalaFmt](
         "Classloaded ScalaFmt210 instance to overcome 2.10 incompatibility issues.")
 
@@ -98,7 +102,8 @@ object ScalaFmtPlugin extends AutoPlugin {
               (excludeFilter in hasScalafmt).value,
               thisProjectRef.value)
         },
-        scalafmtFormat := hasScalafmt.value.formatFiles()
+        scalafmtFormat := hasScalafmt.value.writeFormattedContentsToFiles(),
+        scalafmtFormatTest := hasScalafmt.value.testProjectIsFormatted()
     )
 
   private def getScalafmtLike(
