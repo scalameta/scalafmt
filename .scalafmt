@@ -1,0 +1,3 @@
+// This is an example .scalafmt file.
+// It's picked up by the sbt and IntelliJ plugins.
+--maxColumn 80

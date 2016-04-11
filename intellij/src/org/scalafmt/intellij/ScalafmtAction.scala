@@ -4,19 +4,31 @@
  */
 package org.scalafmt.intellij
 
+import scala.collection.mutable
+import scala.meta.parsers.ParseException
+
 import java.io.File
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.actionSystem.DataKeys
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.ui.MessageType
+import com.intellij.openapi.ui.popup.Balloon
+import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.vfs.VirtualFile
-import org.scalafmt.ScalaFmt
-import org.scalafmt.ScalaStyle
+import com.intellij.openapi.wm.WindowManager
+import com.intellij.ui.JBProgressBar
+import com.intellij.ui.awt.RelativePoint
+import org.scalafmt.FormatResult
+import org.scalafmt.Scalafmt
+import org.scalafmt.ScalafmtConfig
+import org.scalafmt.cli.Cli
 import org.scalafmt.util.FileOps
 
 case class FileDocument(file: VirtualFile, document: Document) {
@@ -26,40 +38,44 @@ case class FileDocument(file: VirtualFile, document: Document) {
 class ScalafmtAction extends AnAction {
 
   override def actionPerformed(event: AnActionEvent): Unit = {
-    val currentPath = new File(".").getAbsolutePath
+    val style = getStyle(event)
     getCurrentFileDocument(event).filter(_.isScala).foreach { fileDoc =>
       val source = fileDoc.document.getText()
-      val formatted = ScalaFmt.format(source)
-      if (source != formatted) {
-        ApplicationManager.getApplication.runWriteAction(new Runnable {
-          override def run(): Unit = {
-            CommandProcessor
-              .getInstance()
-              .runUndoTransparentAction(new Runnable {
-                override def run(): Unit =
-                  fileDoc.document
-                    .setText(event.getProject.getBasePath + formatted)
-              })
+      Scalafmt.format(source, style = style) match {
+        case FormatResult.Failure(e: ParseException) =>
+          displayMessage(
+              event, "Parse error: " + e.getMessage, MessageType.ERROR)
+        case FormatResult.Failure(e) =>
+          displayMessage(event, e.getMessage.take(100), MessageType.ERROR)
+        case FormatResult.Success(formatted) =>
+          if (source != formatted) {
+            ApplicationManager.getApplication.runWriteAction(new Runnable {
+              override def run(): Unit = {
+                CommandProcessor
+                  .getInstance()
+                  .runUndoTransparentAction(new Runnable {
+                    override def run(): Unit =
+                      fileDoc.document.setText(formatted)
+                  })
+              }
+            })
           }
-        })
       }
     }
   }
 
-  private def getStyle(event: AnActionEvent): ScalaStyle = {
-    val customStyle = (for {
+  private def getStyle(event: AnActionEvent): ScalafmtConfig = {
+    val customStyle = for {
       project <- Option(event.getData(CommonDataKeys.PROJECT))
       configFile = FileOps.getFile(project.getBasePath, ".scalafmt")
-          if (configFile.isFile)
-      style <- org.scalafmt.Cli
-        .parseConfigFile(FileOps.readFile(configFile))
-        .style
-    } yield style)
-    customStyle.getOrElse(ScalaStyle.Default)
+          if configFile.isFile
+      style <- ScalafmtAction.getStyleForFile(configFile.getAbsolutePath)
+    } yield style
+    customStyle.getOrElse(ScalafmtConfig.default)
   }
 
   private def getCurrentFileDocument(
-      event: AnActionEvent): Option[FileDocument] =
+      event: AnActionEvent): Option[FileDocument] = {
     for {
       project <- Option(event.getData(CommonDataKeys.PROJECT))
       editor <- Option(
@@ -67,4 +83,35 @@ class ScalafmtAction extends AnAction {
       document <- Option(editor.getDocument)
       vfile <- Option(FileDocumentManager.getInstance().getFile(document))
     } yield FileDocument(vfile, document)
+  }
+
+  def displayMessage(event: AnActionEvent,
+                     msg: String,
+                     messageType: MessageType): Unit = {
+    WindowManager.getInstance()
+    val statusBar = WindowManager.getInstance().getStatusBar(event.getProject)
+    JBPopupFactory
+      .getInstance()
+      .createHtmlTextBalloonBuilder(msg, messageType, null)
+      .setFadeoutTime(5000)
+      .createBalloon()
+      .show(RelativePoint.getCenterOf(statusBar.getComponent),
+            Balloon.Position.atRight)
+  }
+}
+
+object ScalafmtAction {
+  private val style = mutable.Map.empty[String, ScalafmtConfig]
+  def getStyleForFile(filename: String): Option[ScalafmtConfig] = {
+    if (style.contains(filename)) style.get(filename)
+    else {
+      val file = new File(filename)
+      Cli.parseConfigFile(FileOps.readFile(file)).map { config =>
+        // Cache result forever. I prefer to create a nice IDE-agnostic UI for
+        // experimenting with different config flags.
+        style.put(filename, config.style)
+        config.style
+      }
+    }
+  }
 }
