@@ -11,6 +11,7 @@ import org.scalafmt.FormatEvent.VisitToken
 import org.scalafmt.ScalafmtRunner
 import org.scalafmt.Scalafmt
 import org.scalafmt.ScalafmtStyle
+import org.scalafmt.internal.FormatWriter
 import org.scalafmt.internal.State
 import org.scalatest.FunSuiteLike
 import scala.collection.mutable
@@ -21,19 +22,19 @@ import scala.meta.parsers.ParseException
 trait HasTests extends FunSuiteLike with FormatAssertions {
   import LoggerOps._
   val scalafmtRunner = ScalafmtRunner.default.copy(
-    debug = true,
-    maxStateVisits = 100000,
-    eventCallback = {
-      case VisitToken(tok) => Debug.visit(tok)
-      case explored: Explored if explored.n % 10000 == 0 =>
-        logger.elem(explored)
-      case Enqueue(split) => Debug.enqueued(split)
-      case CompleteFormat(explored, state, tokens) =>
-        Debug.explored += explored
-        Debug.state = state
-        Debug.tokens = tokens
-      case _ =>
-    }
+      debug = true,
+      maxStateVisits = 100000,
+      eventCallback = {
+        case VisitToken(tok) => Debug.visit(tok)
+        case explored: Explored if explored.n % 10000 == 0 =>
+          logger.elem(explored)
+        case Enqueue(split) => Debug.enqueued(split)
+        case CompleteFormat(explored, state, tokens) =>
+          Debug.explored += explored
+          Debug.state = state
+          Debug.tokens = tokens
+        case _ =>
+      }
   )
   val testDir = "core/src/test/resources"
 
@@ -145,9 +146,9 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
   }
 
   def getFormatOutput(
-                         style: ScalafmtStyle, onlyOne: Boolean): Array[FormatOutput] = {
+      style: ScalafmtStyle, onlyOne: Boolean): Array[FormatOutput] = {
     val builder = mutable.ArrayBuilder.make[FormatOutput]()
-    State.reconstructPath(
+    FormatWriter.reconstructPath(
         Debug.tokens, Debug.state.splits, style, debug = onlyOne) {
       case (_, token, whitespace) =>
         builder += FormatOutput(
