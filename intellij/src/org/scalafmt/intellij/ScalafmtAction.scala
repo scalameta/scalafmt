@@ -27,7 +27,7 @@ import com.intellij.ui.JBProgressBar
 import com.intellij.ui.awt.RelativePoint
 import org.scalafmt.FormatResult
 import org.scalafmt.Scalafmt
-import org.scalafmt.ScalafmtConfig
+import org.scalafmt.ScalafmtStyle
 import org.scalafmt.cli.Cli
 import org.scalafmt.util.FileOps
 
@@ -64,14 +64,14 @@ class ScalafmtAction extends AnAction {
     }
   }
 
-  private def getStyle(event: AnActionEvent): ScalafmtConfig = {
+  private def getStyle(event: AnActionEvent): ScalafmtStyle = {
     val customStyle = for {
       project <- Option(event.getData(CommonDataKeys.PROJECT))
       configFile = FileOps.getFile(project.getBasePath, ".scalafmt")
           if configFile.isFile
       style <- ScalafmtAction.getStyleForFile(configFile.getAbsolutePath)
     } yield style
-    customStyle.getOrElse(ScalafmtConfig.default)
+    customStyle.getOrElse(ScalafmtStyle.default)
   }
 
   private def getCurrentFileDocument(
@@ -101,8 +101,8 @@ class ScalafmtAction extends AnAction {
 }
 
 object ScalafmtAction {
-  private val style = mutable.Map.empty[String, ScalafmtConfig]
-  def getStyleForFile(filename: String): Option[ScalafmtConfig] = {
+  private val style = mutable.Map.empty[String, ScalafmtStyle]
+  def getStyleForFile(filename: String): Option[ScalafmtStyle] = {
     if (style.contains(filename)) style.get(filename)
     else {
       val file = new File(filename)

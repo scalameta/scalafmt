@@ -4,7 +4,7 @@ import org.scalafmt.util.DiffAssertions
 import org.scalatest.FunSuite
 
 class CommentTest extends FunSuite with DiffAssertions {
-  val javadocStyle = ScalafmtConfig.default.copy(scalaDocs = false)
+  val javadocStyle = ScalafmtStyle.default.copy(scalaDocs = false)
 
   test("javadoc docstrings are correct") {
     val original = """object a {

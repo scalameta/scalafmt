@@ -12,7 +12,7 @@ import org.openjdk.jmh.annotations.Scope
 import org.openjdk.jmh.annotations.Setup
 import org.openjdk.jmh.annotations.Warmup
 import org.scalafmt.Scalafmt
-import org.scalafmt.ScalafmtConfig
+import org.scalafmt.ScalafmtStyle
 import org.scalafmt.util.FileOps
 
 import scala.meta.Source

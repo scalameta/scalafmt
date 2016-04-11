@@ -4,7 +4,7 @@ import java.io.File
 import java.nio.file.Files
 
 import org.scalafmt.Error.MisformattedFile
-import org.scalafmt.ScalafmtConfig
+import org.scalafmt.ScalafmtStyle
 import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.FileOps
 import org.scalatest.FunSuite
@@ -23,7 +23,7 @@ class CliTest extends FunSuite with DiffAssertions {
                    |      "hello world!")
                    |}
                  """.stripMargin
-  val expectedStyle = ScalafmtConfig.default.copy(
+  val expectedStyle = ScalafmtStyle.default.copy(
       maxColumn = 99,
       continuationIndentCallSite = 2,
       continuationIndentDefnSite = 3,
@@ -65,7 +65,7 @@ class CliTest extends FunSuite with DiffAssertions {
     val tmpFile = Files.createTempFile("prefix", ".scala")
     Files.write(tmpFile, unformatted.getBytes)
     val formatInPlace = Cli.Config.default.copy(
-        style = ScalafmtConfig.default.copy(maxColumn = 7),
+        style = ScalafmtStyle.default.copy(maxColumn = 7),
         files = Seq(tmpFile.toFile),
         inPlace = true)
     Cli.run(formatInPlace)

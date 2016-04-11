@@ -21,7 +21,7 @@ object Scalafmt {
     *        string.
     */
   def format(code: String,
-             style: ScalafmtConfig = ScalafmtConfig.default,
+             style: ScalafmtStyle = ScalafmtStyle.default,
              runner: ScalafmtRunner = ScalafmtRunner.default,
              range: Set[Range] = Set.empty[Range]): FormatResult = {
     try {

@@ -113,7 +113,7 @@ val msg = s'''AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
   def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
     val runner = scalafmtRunner.withParser(parse)
     val formatted =
-      Scalafmt.format(t.original, ScalafmtConfig.default, runner).get
+      Scalafmt.format(t.original, ScalafmtStyle.default, runner).get
     saveResult(t, formatted, t.only)
     assertNoDiff(formatted, t.expected)
   }

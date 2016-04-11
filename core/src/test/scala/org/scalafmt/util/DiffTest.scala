@@ -1,6 +1,6 @@
 package org.scalafmt.util
 
-import org.scalafmt.ScalafmtConfig
+import org.scalafmt.ScalafmtStyle
 
 case class DiffTest(spec: String,
                     name: String,
@@ -9,6 +9,6 @@ case class DiffTest(spec: String,
                     expected: String,
                     skip: Boolean,
                     only: Boolean,
-                    style: ScalafmtConfig) {
+                    style: ScalafmtStyle) {
   val fullName = s"$spec: $name"
 }

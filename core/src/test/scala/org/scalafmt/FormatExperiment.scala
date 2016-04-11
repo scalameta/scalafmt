@@ -61,7 +61,7 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
       val startTime = System.nanoTime()
       val formatted = Scalafmt
         .format(
-            code, ScalafmtConfig.default.copy(alignStripMarginStrings = false))
+            code, ScalafmtStyle.default.copy(alignStripMarginStrings = false))
         .get
       assertFormatPreservesAst[Source](code, formatted)
       print("+")

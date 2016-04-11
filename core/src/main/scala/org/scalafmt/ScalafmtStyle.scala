@@ -7,8 +7,7 @@ import sourcecode.Text
   *
   * @param maxColumn Column limit, any formatting exceeding this field is
   *                  penalized heavily.
-  * @param scalaDocs Use scaladoc style docstring, otherwise javadoc style
-  *                  comments.
+  * @param scalaDocs Use scaladoc style docstring, otherwise use javadoc style.
   * @param alignStripMarginStrings If true, the margin character | is treated
   *                                as the new indentation in multiline strings
   *                                ending with `.stripMargin`.
@@ -32,24 +31,24 @@ import sourcecode.Text
   * @param continuationIndentDefnSite Indent width for line continuation at
   *                                   definition/declaration site.
   */
-case class ScalafmtConfig(maxColumn: Int,
-                          scalaDocs: Boolean,
-                          alignStripMarginStrings: Boolean,
-                          binPackArguments: Boolean,
-                          binPackParameters: Boolean,
-                          configStyleArguments: Boolean,
-                          binPackDotChains: Boolean,
-                          noNewlinesBeforeJsNative: Boolean,
-                          continuationIndentCallSite: Int,
-                          continuationIndentDefnSite: Int) {
+case class ScalafmtStyle(maxColumn: Int,
+                         scalaDocs: Boolean,
+                         alignStripMarginStrings: Boolean,
+                         binPackArguments: Boolean,
+                         binPackParameters: Boolean,
+                         configStyleArguments: Boolean,
+                         binPackDotChains: Boolean,
+                         noNewlinesBeforeJsNative: Boolean,
+                         continuationIndentCallSite: Int,
+                         continuationIndentDefnSite: Int) {
   ValidationOps.assertNonNegative(
       continuationIndentCallSite,
       continuationIndentDefnSite
   )
 }
 
-object ScalafmtConfig {
-  val default = ScalafmtConfig(
+object ScalafmtStyle {
+  val default = ScalafmtStyle(
       maxColumn = 80,
       scalaDocs = true,
       alignStripMarginStrings = true,
@@ -74,7 +73,7 @@ object ScalafmtConfig {
 
   // TODO(olafur) parameterize
   private def name2style(
-      styles: Text[ScalafmtConfig]*): Map[String, ScalafmtConfig] =
+      styles: Text[ScalafmtStyle]*): Map[String, ScalafmtStyle] =
     styles.map(x => x.source -> x.value).toMap
 
   /**

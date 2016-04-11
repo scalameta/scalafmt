@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit
 import org.scalafmt.Error.MisformattedFile
 import org.scalafmt.FormatResult
 import org.scalafmt.Scalafmt
-import org.scalafmt.ScalafmtConfig
+import org.scalafmt.ScalafmtStyle
 import org.scalafmt.Versions
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.LoggerOps
@@ -42,7 +42,7 @@ object Cli {
                     configFile: Option[File],
                     inPlace: Boolean,
                     testing: Boolean,
-                    style: ScalafmtConfig,
+                    style: ScalafmtStyle,
                     range: Set[Range]) {
     require(!(inPlace && testing), "inPlace and testing can't both be true")
   }
@@ -51,7 +51,7 @@ object Cli {
                          None,
                          inPlace = false,
                          testing = false,
-                         style = ScalafmtConfig.default,
+                         style = ScalafmtStyle.default,
                          Set.empty[Range])
   }
 
@@ -60,10 +60,10 @@ object Cli {
   case class FileContents(filename: String, override val code: String)
       extends InputMethod(code)
 
-  implicit val styleReads: Read[ScalafmtConfig] = Read.reads { styleName =>
-    ScalafmtConfig.availableStyles.getOrElse(styleName, {
+  implicit val styleReads: Read[ScalafmtStyle] = Read.reads { styleName =>
+    ScalafmtStyle.availableStyles.getOrElse(styleName, {
       throw new IllegalArgumentException(
-          s"Unknown style name $styleName. Expected one of ${ScalafmtConfig.availableStyles.keys}")
+          s"Unknown style name $styleName. Expected one of ${ScalafmtStyle.availableStyles.keys}")
     })
   }
 
@@ -99,9 +99,9 @@ object Cli {
 
     // Style configs
     note(s"\nStyle configuration options:")
-    opt[ScalafmtConfig]('s', "style") action { (style, c) =>
+    opt[ScalafmtStyle]('s', "style") action { (style, c) =>
       c.copy(style = style)
-    } text s"base style, must be one of: ${ScalafmtConfig.availableStyles.keys}"
+    } text s"base style, must be one of: ${ScalafmtStyle.availableStyles.keys}"
     opt[Int]("maxColumn") action { (col, c) =>
       c.copy(style = c.style.copy(maxColumn = col))
     } text s"See ScalafmtConfig scaladoc."

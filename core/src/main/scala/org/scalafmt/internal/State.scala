@@ -4,7 +4,7 @@ import org.scalafmt.internal.ExpiresOn.Right
 import org.scalafmt.internal.ExpiresOn.Left
 import org.scalafmt.internal.Length.StateColumn
 import org.scalafmt.internal.Length.Num
-import org.scalafmt.ScalafmtConfig
+import org.scalafmt.ScalafmtStyle
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.TokenOps
 import scala.meta.tokens.Token
@@ -52,7 +52,7 @@ object State {
     * Calculates next State given split at tok.
     */
   def next(curr: State,
-           style: ScalafmtConfig,
+           style: ScalafmtStyle,
            split: Split,
            tok: FormatToken): State = {
     import curr._
@@ -122,7 +122,7 @@ object State {
     */
   def reconstructPath(toks: Array[FormatToken],
                       splits: Vector[Split],
-                      style: ScalafmtConfig,
+                      style: ScalafmtStyle,
                       debug: Boolean = false)(
       callback: (State, FormatToken, String) => Unit): Unit = {
     var state = State.start

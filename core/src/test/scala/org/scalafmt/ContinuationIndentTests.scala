@@ -35,7 +35,7 @@ def foo(
 
   testsToRun.foreach(runTest(run))
 
-  val style = ScalafmtConfig.default.copy(
+  val style = ScalafmtStyle.default.copy(
       continuationIndentCallSite = 5,
       continuationIndentDefnSite = 3
   )

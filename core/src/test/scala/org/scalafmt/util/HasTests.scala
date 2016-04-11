@@ -10,7 +10,7 @@ import org.scalafmt.FormatEvent.Explored
 import org.scalafmt.FormatEvent.VisitToken
 import org.scalafmt.ScalafmtRunner
 import org.scalafmt.Scalafmt
-import org.scalafmt.ScalafmtConfig
+import org.scalafmt.ScalafmtStyle
 import org.scalafmt.internal.State
 import org.scalatest.FunSuiteLike
 import scala.collection.mutable
@@ -84,12 +84,12 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
     }
   }
 
-  def file2style(filename: String): ScalafmtConfig =
+  def file2style(filename: String): ScalafmtStyle =
     filename.split("/").reverse(1) match {
-      case "unit" => ScalafmtConfig.unitTest40
-      case "default" | "standard" | "scala" => ScalafmtConfig.unitTest80
-      case "scalajs" => ScalafmtConfig.scalaJs
-      case "stripMargin" => ScalafmtConfig.default
+      case "unit" => ScalafmtStyle.unitTest40
+      case "default" | "standard" | "scala" => ScalafmtStyle.unitTest80
+      case "scalajs" => ScalafmtStyle.scalaJs
+      case "stripMargin" => ScalafmtStyle.default
       case style => throw UnknownStyle(style)
     }
 
@@ -145,7 +145,7 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
   }
 
   def getFormatOutput(
-      style: ScalafmtConfig, onlyOne: Boolean): Array[FormatOutput] = {
+                         style: ScalafmtStyle, onlyOne: Boolean): Array[FormatOutput] = {
     val builder = mutable.ArrayBuilder.make[FormatOutput]()
     State.reconstructPath(
         Debug.tokens, Debug.state.splits, style, debug = onlyOne) {
