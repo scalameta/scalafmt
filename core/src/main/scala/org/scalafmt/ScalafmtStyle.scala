@@ -1,5 +1,6 @@
 package org.scalafmt
 
+
 import org.scalafmt.util.ValidationOps
 import sourcecode.Text
 
@@ -40,7 +41,9 @@ case class ScalafmtStyle(maxColumn: Int,
                          binPackDotChains: Boolean,
                          noNewlinesBeforeJsNative: Boolean,
                          continuationIndentCallSite: Int,
-                         continuationIndentDefnSite: Int) {
+                         continuationIndentDefnSite: Int,
+                         alignTokens: Set[String]) {
+  lazy val alignRegexp = s"(${alignTokens.mkString("|")})".r
   ValidationOps.assertNonNegative(
       continuationIndentCallSite,
       continuationIndentDefnSite
@@ -58,7 +61,8 @@ object ScalafmtStyle {
       binPackDotChains = false,
       noNewlinesBeforeJsNative = false,
       continuationIndentCallSite = 4,
-      continuationIndentDefnSite = 4
+      continuationIndentDefnSite = 4,
+      alignTokens = Set("//.*", "=>", "->", "=", "%", "%%")
   )
   val default40 = default.copy(maxColumn = 40)
   val default120 = default.copy(maxColumn = 120)

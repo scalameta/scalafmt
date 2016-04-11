@@ -64,11 +64,12 @@ object FormatWriter {
   case class FormatLocation(
       formatToken: FormatToken, split: Split, state: State)
   import org.scalafmt.util.LoggerOps._
+  import org.scalafmt.util.TokenOps._
 
-  def getStates(toks: Array[FormatToken],
-                splits: Vector[Split],
-                style: ScalafmtStyle,
-                debug: Boolean): Array[FormatLocation] = {
+  def getFormatLocations(toks: Array[FormatToken],
+                         splits: Vector[Split],
+                         style: ScalafmtStyle,
+                         debug: Boolean): Array[FormatLocation] = {
     require(toks.length >= splits.length, "splits !=")
     val statesBuilder = Array.newBuilder[FormatLocation]
     statesBuilder.sizeHint(toks.length)
@@ -98,11 +99,12 @@ object FormatWriter {
                       debug: Boolean = false)(
       callback: (State, FormatToken, String) => Unit): Unit = {
     require(toks.length >= splits.length, "splits !=")
-    val states = getStates(toks, splits, style, debug)
-    states.zipWithIndex.foreach {
+    val locations = getFormatLocations(toks, splits, style, debug)
+    val tokenAligns = alignmentTokens(locations, style).withDefaultValue(0)
+    locations.zipWithIndex.foreach {
       case (FormatLocation(tok, split, state), i) =>
         val whitespace = split.modification match {
-          case Space => " "
+          case Space => " " * (1 + tokenAligns(tok))
           case nl: NewlineT =>
             val newline =
               if (nl.isDouble) "\n\n"
@@ -116,6 +118,87 @@ object FormatWriter {
         }
         callback.apply(state, tok, whitespace)
     }
-    if (debug) logger.debug(s"Total cost: ${states.last.split.cost}")
+    if (debug) logger.debug(s"Total cost: ${locations.last.split.cost}")
+  }
+
+  private def isCandidate(
+      location: FormatLocation, style: ScalafmtStyle): Boolean = {
+    location.split.modification == Space &&
+    style.alignRegexp.findFirstIn(location.formatToken.right.code).isDefined
+  }
+
+  def key(token: Token): Int = (token.getClass.getName).hashCode()
+
+  private def columnsMatch(
+      a: Array[FormatLocation], b: Array[FormatLocation]): Boolean = {
+    if (a.length != b.length) false
+    else {
+      a.zip(b).forall {
+        case (left, right) =>
+          key(left.formatToken.right) == key(right.formatToken.right)
+      }
+    }
+  }
+
+  def alignmentTokens(locations: Array[FormatLocation],
+                      style: ScalafmtStyle): Map[FormatToken, Int] = {
+    if (style.alignTokens.isEmpty) Map.empty[FormatToken, Int]
+    else {
+      val finalResult = Map.newBuilder[FormatToken, Int]
+      var i = 0
+      var block = Vector.empty[Array[FormatLocation]]
+      while (i < locations.length) {
+        val columnCandidates = Array.newBuilder[FormatLocation]
+        while (i < locations.length &&
+        !locations(i).split.modification.isNewline) {
+          // One row
+          if (isCandidate(locations(i), style)) {
+            columnCandidates += locations(i)
+          }
+          i += 1
+        }
+        val candidates = columnCandidates.result()
+        if (block.isEmpty) {
+          if (candidates.nonEmpty) {
+            block = block :+ candidates
+          }
+        } else {
+          val newlines = locations(i).split.modification.newlines
+          val isMatch = columnsMatch(block.last, candidates)
+          if (isMatch) {
+            block = block :+ candidates
+          }
+          if (!isMatch || newlines > 1) {
+            // Build result
+            var column = 0
+            val columns = block.head.length
+            while (column < columns) {
+              val blockWithWidth = {
+                block.map { line =>
+                  val columnWidth =
+                    if (column == 0) {
+                      line(column).state.column
+                    } else {
+                      line(column).state.column - line(column - 1).state.column
+                    }
+                  val key =
+                    columnWidth - line(column).formatToken.right.code.length
+                  key -> line(column)
+                }
+              }
+              val (maxWidth, _) = blockWithWidth.maxBy(_._1)
+              blockWithWidth.foreach {
+                case (width, line) =>
+                  finalResult += line.formatToken -> (maxWidth - width)
+              }
+              column += 1
+            }
+            block = Vector.empty[Array[FormatLocation]]
+          }
+        }
+        i += 1
+      }
+      finalResult.result()
+    }
   }
 }

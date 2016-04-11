@@ -120,6 +120,9 @@ object Cli {
     opt[Boolean]("alignStripMarginStrings") action { (bool, c) =>
       c.copy(style = c.style.copy(alignStripMarginStrings = bool))
     } text s"See ScalafmtConfig scaladoc."
+    opt[Seq[String]]("alignTokens") action { (tokens, c) =>
+      c.copy(style = c.style.copy(alignTokens = tokens.toSet))
+    } text s"See ScalafmtConfig scaladoc."
     note(s"""
             |Examples:
             |
