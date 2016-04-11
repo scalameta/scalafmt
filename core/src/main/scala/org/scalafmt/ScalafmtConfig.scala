@@ -1,10 +1,10 @@
 package org.scalafmt
 
 import org.scalafmt.util.ValidationOps
+import sourcecode.Text
 
 /** Configuration options for scalafmt.
   *
-  * @param name Name of this style.
   * @param maxColumn Column limit, any formatting exceeding this field is
   *                  penalized heavily.
   * @param scalaDocs Use scaladoc style docstring, otherwise javadoc style
@@ -32,8 +32,7 @@ import org.scalafmt.util.ValidationOps
   * @param continuationIndentDefnSite Indent width for line continuation at
   *                                   definition/declaration site.
   */
-case class ScalafmtConfig(name: String,
-                          maxColumn: Int,
+case class ScalafmtConfig(maxColumn: Int,
                           scalaDocs: Boolean,
                           alignStripMarginStrings: Boolean,
                           binPackArguments: Boolean,
@@ -51,7 +50,6 @@ case class ScalafmtConfig(name: String,
 
 object ScalafmtConfig {
   val default = ScalafmtConfig(
-      name = "default",
       maxColumn = 80,
       scalaDocs = true,
       alignStripMarginStrings = true,
@@ -70,21 +68,25 @@ object ScalafmtConfig {
     * Experimental implementation of:
     * https://github.com/scala-js/scala-js/blob/master/CODINGSTYLE.md
     */
-  val scalaJs = default.copy(name = "scalajs",
-                             noNewlinesBeforeJsNative = true,
+  val scalaJs = default.copy(noNewlinesBeforeJsNative = true,
                              binPackArguments = true,
                              binPackParameters = true)
+
+  // TODO(olafur) parameterize
+  private def name2style(
+      styles: Text[ScalafmtConfig]*): Map[String, ScalafmtConfig] =
+    styles.map(x => x.source -> x.value).toMap
 
   /**
     * Ready styles provided by scalafmt.
     */
-  val availableStyles = Seq(
-      default
+  val availableStyles = name2style(
+      default,
+      scalaJs
   )
-  val availableStyleNames = availableStyles.map(_.name).mkString(", ")
 
   // TODO(olafur) move these elsewhere.
-  val testing = default.copy(name = "testing", alignStripMarginStrings = false)
+  val testing = default.copy(alignStripMarginStrings = false)
   val unitTest80 = testing.copy(maxColumn = 80)
   val unitTest40 = testing.copy(maxColumn = 40)
 }

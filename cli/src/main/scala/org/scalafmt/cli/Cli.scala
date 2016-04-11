@@ -3,6 +3,7 @@ package org.scalafmt.cli
 import java.io.File
 import java.util.concurrent.TimeUnit
 
+import org.scalafmt.Error.MisformattedFile
 import org.scalafmt.FormatResult
 import org.scalafmt.Scalafmt
 import org.scalafmt.ScalafmtConfig
@@ -59,16 +60,11 @@ object Cli {
   case class FileContents(filename: String, override val code: String)
       extends InputMethod(code)
 
-  sealed abstract class Action
-  case object NoOp extends Action
-  case object Exit extends Action
-  case class Write(filename: String, contents: String) extends Action
-  case class Print(contents: String) extends Action
-
   implicit val styleReads: Read[ScalafmtConfig] = Read.reads { styleName =>
-    ScalafmtConfig.availableStyles.find(_.name == styleName).getOrElse {
-      throw new IllegalArgumentException(s"Unknown style name $styleName.")
-    }
+    ScalafmtConfig.availableStyles.getOrElse(styleName, {
+      throw new IllegalArgumentException(
+          s"Unknown style name $styleName. Expected one of ${ScalafmtConfig.availableStyles.keys}")
+    })
   }
 
   lazy val parser = new scopt.OptionParser[Config]("scalafmt") {
@@ -105,7 +101,7 @@ object Cli {
     note(s"\nStyle configuration options:")
     opt[ScalafmtConfig]('s', "style") action { (style, c) =>
       c.copy(style = style)
-    } text s"base style, must be one of: ${ScalafmtConfig.availableStyleNames}"
+    } text s"base style, must be one of: ${ScalafmtConfig.availableStyles.keys}"
     opt[Int]("maxColumn") action { (col, c) =>
       c.copy(style = c.style.copy(maxColumn = col))
     } text s"See ScalafmtConfig scaladoc."
@@ -149,9 +145,9 @@ object Cli {
     }
   }
 
-  def getActions(config: Config): Seq[Action] = {
+  def run(config: Config): Unit = {
     val inputMethods = getCode(config)
-    val result: Seq[Action] = inputMethods.zipWithIndex.map {
+    inputMethods.zipWithIndex.foreach {
       case (inputMethod, i) =>
         val start = System.nanoTime()
         Scalafmt.format(inputMethod.code, style = config.style) match {
@@ -163,32 +159,18 @@ object Cli {
                 logger.info(
                     f"${i + 1}%3s/${inputMethods.length} file:$filename%-50s (${elapsed}ms)")
                 if (inputMethod.code != formatted) {
-                  Write(filename, formatted)
-                } else {
-                  NoOp
+                  FileOps.writeFile(filename, formatted)
                 }
               case FileContents(filename, _) if config.testing =>
                 if (inputMethod.code != formatted) {
-                  System.err.println(s"$filename is misformatted")
-                  Exit
-                } else {
-                  NoOp
+                  throw MisformattedFile(new File(filename))
                 }
               case _ =>
-                Print(formatted)
+                println(formatted)
             }
           case _ =>
-            NoOp
         }
     }
-    result
-  }
-
-  def eval(action: Action): Unit = action match {
-    case Write(filename, contents) => FileOps.writeFile(filename, contents)
-    case Print(contents) => println(contents)
-    case Exit => System.exit(1)
-    case NoOp =>
   }
 
   def parseConfigFile(contents: String): Option[Config] = {
@@ -206,8 +188,6 @@ object Cli {
       case x => x
     }
   }
-
-  def run(config: Config): Unit = getActions(config).foreach(eval)
 
   def main(args: Array[String]): Unit = {
     getConfig(args).foreach(run)
