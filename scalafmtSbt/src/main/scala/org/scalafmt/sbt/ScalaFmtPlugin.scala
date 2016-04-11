@@ -43,7 +43,7 @@ object ScalaFmtPlugin extends AutoPlugin {
           "exits with status 1 on failure.")
 
     lazy val hasScalafmt: TaskKey[HasScalaFmt] = taskKey[HasScalaFmt](
-        "Classloaded ScalaFmt210 instance to overcome 2.10 incompatibility issues.")
+        "Classloaded Scalafmt210 instance to overcome 2.10 incompatibility issues.")
 
     def scalafmtSettings: Seq[Setting[_]] =
       noConfigScalafmtSettings ++ inConfig(Compile)(configScalafmtSettings) ++ inConfig(
@@ -109,7 +109,7 @@ object ScalaFmtPlugin extends AutoPlugin {
   private def getScalafmtLike(
       classLoader: URLClassLoader, streams: TaskStreams): ScalaFmtLike = {
     val loadedClass = new ReflectiveDynamicAccess(classLoader)
-      .createInstanceFor[ScalaFmtLike]("org.scalafmt.ScalaFmt210", Seq.empty)
+      .createInstanceFor[ScalaFmtLike]("org.scalafmt.Scalafmt210", Seq.empty)
 
     loadedClass match {
       case Success(x) => x

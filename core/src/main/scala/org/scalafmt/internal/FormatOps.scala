@@ -22,8 +22,9 @@ import scala.meta.tokens.Token._
 /**
   * Helper functions for generating splits/policies for a given tree.
   */
-class FormatOps(
-                   val tree: Tree, val style: ScalafmtStyle, val runner: ScalafmtRunner) {
+class FormatOps(val tree: Tree,
+                val style: ScalafmtStyle,
+                val runner: ScalafmtRunner) {
   import LoggerOps._
   import TokenOps._
   import TreeOps._
