@@ -133,9 +133,9 @@
 
       @sect{Usage examples}
 
-        Once correctly installed, use the CLI like this.
+        Please refer to the @code("--help") page.
 
-        @hl.scala(org.scalafmt.cli.Cli.usageExamples)
+        @hl.scala(org.scalafmt.cli.Cli.parser.usage)
 
     @sect{Vim}
       @ul
@@ -172,17 +172,16 @@
 
   @sect{Code examples}
     @p
-      To start with, I implemented a default style that I like myself. The
-      rules are still evolving. Feel free to discuss about them in the gitter
-      channel.
+      @note. The rules are still evolving. Feel free to discuss about them in
+      the gitter channel. To start with, I implemented a default style that I
+      like myself.
 
     @p
-      @note. The plan is to later add support for few official coding styles that have
+      The plan is to later add support for few official coding styles that have
       proven to work for large codebases and scale to at least a few dozens
-      of contributors. For example, the
+      of contributors. For example, from
       @lnk("Scala.js", "https://github.com/scala-js/scala-js/blob/master/CODINGSTYLE.md") and
-      @lnk("Spark", "https://cwiki.apache.org/confluence/display/SPARK/Spark+Code+Style+Guide")
-      coding styles.
+      @lnk("Spark", "https://cwiki.apache.org/confluence/display/SPARK/Spark+Code+Style+Guide").
 
     @sect{Function application}
 
@@ -277,14 +276,28 @@
           indentation level. It's best to enable it at the same level as
           when it was disabled.
 
+  @sect{Configuration}
+
+    @p
+      Configuration options for scalafmt are at the moment very few.
+      There are two ways to configure @code("scalafmt").
+
+      @ol
+        @li
+          As Scala code via the @code("ScalafmtConfig") case class.
+          This is handy when using scalafmt as a standalone library.
+          For details, refer to the Scaladoc.
+        @li
+          (experimental) In a plain text file, options are defined as CLI flags.
+          The sbt and IntelliJ plugins assume this file is named @code(".scalafmt")
+          and is located at the root directory of your project.
+          For details, read about the @code("--config") flag in the
+          @code("--help") page of the CLI.
 
   @sect{FAQ}
 
      @sect{How do I customize scalafmt?}
-       There is only one supported style at the moment: @code("ScalaStyle.Default").
-       More settings and easier configuration is planned for later MINOR releases.
-       The 0.1.x series will focus speed and quality formatting output of the
-       default style.
+       See @sect.ref{Configuration}
 
      @sect{Why not Scalariform?}
        @lnk("Scalariform", "http://scala-ide.org/scalariform/") does an
