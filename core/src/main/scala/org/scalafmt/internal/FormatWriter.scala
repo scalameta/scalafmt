@@ -177,7 +177,8 @@ class FormatWriter(formatOps: FormatOps) {
         }
         val candidates = columnCandidates.result()
         if (block.isEmpty) {
-          if (candidates.nonEmpty) {
+          if (candidates.nonEmpty &&
+              locations(i).split.modification.newlines == 1) {
             block = block :+ candidates
           }
         } else {
