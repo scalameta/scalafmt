@@ -404,13 +404,19 @@
         @li
           Token alignment, see @sect.ref{Token alignment}
         @li
-          Closed issues: @issues(
-          144,
-          143,
-          138,
-          131,
-          120,
-          114).
+          Closed issues: @issues( 144, 143, 138, 131, 120, 114).
+        @li
+          @code("ScalaFmt") was renamed to @code("Scalafmt").
+        @li
+          The @code("scalafmtFormat") sbt task is now @code("scalafmt").
+        @li
+          @code("ScalaStyle") is now @code("ScalafmtStyle").
+        @li
+          @code("ScalaFmt.format") and
+          @code("ScalaFmt.format_+") have been replaced by a single
+          @code("Scalafmt.format"). The new methods supports more flexibility
+          via the @lnk("ScalafmtRunner", "https://github.com/olafurpg/scalafmt/blob/555e87cabb3caf313a5915ac6506f9a79a84457c/core/src/main/scala/org/scalafmt/ScalafmtRunner.scala")
+          argument.
 
     @sect{0.1.6}
       @ul
