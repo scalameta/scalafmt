@@ -3,7 +3,7 @@ import scoverage.ScoverageSbtPlugin.ScoverageKeys.coverageHighlighting
 lazy val buildSettings = Seq(
   organization := "com.geirsson",
   version :=  org.scalafmt.Versions.nightly,
-  scalaVersion :=  "2.11.7",
+  scalaVersion :=  "2.11.8",
   updateOptions := updateOptions.value.withCachedResolution(true),
   // Many useful rules are ignored, at least they're explicitly ignored.
   wartremoverWarnings in (Compile, compile) ++=

@@ -30,6 +30,7 @@ import scala.util.control.NonFatal
 import scala.collection.immutable.Seq
 
 case class HasScalaFmt(reflective: ScalaFmtLike,
+                       configFile: Option[File],
                        streams: TaskStreams,
                        sourceDirectories: Seq[File],
                        includeFilter: FileFilter,
@@ -77,7 +78,14 @@ case class HasScalaFmt(reflective: ScalaFmtLike,
   private def handleFile(callback: FormatResult => Unit)(file: File): Unit = {
     try {
       val contents = IO.read(file)
-      val formatted = reflective.format(contents)
+
+      val formatted = configFile match {
+        case Some(configFile) =>
+          println(s"config file: ${configFile.getAbsolutePath}")
+          reflective.format(contents, configFile.getAbsolutePath)
+        case None => reflective.format(contents)
+      }
+
       callback(FormatResult(file, contents, formatted))
     } catch {
       case NonFatal(e) =>

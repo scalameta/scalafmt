@@ -42,6 +42,9 @@ object ScalaFmtPlugin extends AutoPlugin {
       taskKey[Unit]("Test for mis-formatted Scala sources, " +
           "exits with status 1 on failure.")
 
+    lazy val scalafmtConfig: TaskKey[Option[File]] =
+      taskKey[Option[File]]("Configuration file for scalafmt.")
+
     lazy val hasScalafmt: TaskKey[HasScalaFmt] = taskKey[HasScalaFmt](
         "Classloaded Scalafmt210 instance to overcome 2.10 incompatibility issues.")
 
@@ -81,7 +84,7 @@ object ScalaFmtPlugin extends AutoPlugin {
             // the scala-compiler dependency needs to be explicitly added to
             // avoid noclassdeferror.
             "org.scala-lang" % "scala-compiler" % "2.11.7" % "scalafmt",
-            "com.geirsson" % "scalafmt-core_2.11" % org.scalafmt.Versions.nightly % "scalafmt"
+            "com.geirsson" % "scalafmt-cli_2.11" % org.scalafmt.Versions.nightly % "scalafmt"
         )
     )
 
@@ -89,6 +92,7 @@ object ScalaFmtPlugin extends AutoPlugin {
     List(
         (sourceDirectories in hasScalafmt) := List(scalaSource.value),
         includeFilter in Global in hasScalafmt := "*.scala",
+        scalafmtConfig in Global := None,
         hasScalafmt := {
           val report = update.value
           val jars = report.select(configurationFilter("scalafmt"))
@@ -96,6 +100,7 @@ object ScalaFmtPlugin extends AutoPlugin {
               getScalafmtLike(
                   new URLClassLoader(jars.map(_.toURI.toURL).toArray, null),
                   streams.value),
+              scalafmtConfig.value,
               streams.value,
               (sourceDirectories in hasScalafmt).value.toList,
               (includeFilter in hasScalafmt).value,
@@ -108,8 +113,9 @@ object ScalaFmtPlugin extends AutoPlugin {
 
   private def getScalafmtLike(
       classLoader: URLClassLoader, streams: TaskStreams): ScalaFmtLike = {
-    val loadedClass = new ReflectiveDynamicAccess(classLoader)
-      .createInstanceFor[ScalaFmtLike]("org.scalafmt.Scalafmt210", Seq.empty)
+    val loadedClass =
+      new ReflectiveDynamicAccess(classLoader).createInstanceFor[ScalaFmtLike](
+          "org.scalafmt.cli.Scalafmt210", Seq.empty)
 
     loadedClass match {
       case Success(x) => x

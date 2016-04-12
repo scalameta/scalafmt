@@ -158,6 +158,12 @@ class FormatWriter(formatOps: FormatOps) {
     result.length
   }
 
+  /**
+    * Returns how many extra spaces are needed to align tokens, as configured
+    * by [[style.alignTokens]].
+    */
+  // TODO(olafur) Refactor implementation to make it maintainable. It's super
+  // imperative and error-prone right now.
   def alignmentTokens(locations: Array[FormatLocation],
                       style: ScalafmtStyle): Map[FormatToken, Int] = {
     if (style.alignTokens.isEmpty) Map.empty[FormatToken, Int]
