@@ -66,8 +66,10 @@ object ScalaFile {
   }
 
   def getAll: Seq[ScalaFile] = {
-    if (!FileOps.getFile("target", "repos").isDirectory) {
+    if (!FileOps.getFile("repos.tar.gz").isDirectory) {
       downloadReposTar()
+    }
+    if (!FileOps.getFile("target", "repos").isDirectory) {
       extractReposTar()
     }
 

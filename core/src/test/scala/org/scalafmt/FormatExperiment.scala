@@ -75,7 +75,7 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
 }
 
 // TODO(olafur) integration test?
-
+//
 //class FormatExperimentTest extends FunSuite with FormatExperiment {
 //
 //  def validate(result: ExperimentResult): Unit = result match {

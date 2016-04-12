@@ -35,10 +35,10 @@ object ScalaFmtPlugin extends AutoPlugin {
 
   object autoImport {
     // These should in fact be commands instead of tasks.
-    lazy val scalafmtFormat: TaskKey[Unit] =
+    lazy val scalafmt: TaskKey[Unit] =
       taskKey[Unit]("Format Scala sources using scalafmt")
 
-    lazy val scalafmtFormatTest: TaskKey[Unit] =
+    lazy val scalafmtTest: TaskKey[Unit] =
       taskKey[Unit]("Test for mis-formatted Scala sources, " +
           "exits with status 1 on failure.")
 
@@ -56,15 +56,15 @@ object ScalaFmtPlugin extends AutoPlugin {
       List(
           compileInputs in (Compile, compile) <<=
           (compileInputs in (Compile, compile)) dependsOn
-          (scalafmtFormat in Compile),
+          (scalafmt in Compile),
           compileInputs in (Test, compile) <<=
-          (compileInputs in (Test, compile)) dependsOn (scalafmtFormat in Test)
+          (compileInputs in (Test, compile)) dependsOn (scalafmt in Test)
       )
 
     lazy val reformatOnCompileWithItSettings: Seq[Def.Setting[_]] =
       reformatOnCompileSettings ++ List(
           compileInputs in (It, compile) <<= (compileInputs in (It, compile)) dependsOn
-          (scalafmtFormat in It)
+          (scalafmt in It)
       )
   }
   import autoImport._
@@ -107,8 +107,8 @@ object ScalaFmtPlugin extends AutoPlugin {
               (excludeFilter in hasScalafmt).value,
               thisProjectRef.value)
         },
-        scalafmtFormat := hasScalafmt.value.writeFormattedContentsToFiles(),
-        scalafmtFormatTest := hasScalafmt.value.testProjectIsFormatted()
+        scalafmt := hasScalafmt.value.writeFormattedContentsToFiles(),
+        scalafmtTest := hasScalafmt.value.testProjectIsFormatted()
     )
 
   private def getScalafmtLike(

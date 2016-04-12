@@ -139,26 +139,28 @@ object Cli {
               |        name of the scala.meta.Tree that "owns" that token.
               |
               |        Examples:
-              |        1. Align by -> tuples.
+              |
+              |        1. => in pattern matching
+              |        =>;Case
+              |
+              |        2. Align by -> tuples.
               |        ->;Term.ApplyInfix
               |
               |        NOTE. the closest owner of -> is actually Term.Name,
               |        but in case Term.Name we match against the parent of Term.Name.
               |
-              |        2. Assignment of def var/val/def
+              |        3. Assignment of def var/val/def
               |        =;Defn.(Va(l|r)|Def)
               |
-              |        3. Comment owned by whatever tree
+              |        4. Comment owned by whatever tree
               |        //;.*
               |
-              |        To use all three rules, set <value> to:
-              |        =;Defn.(Va(l|r)|Def),->;Term.ApplyInfix,//;.*
-              |        The base style defaultWithAlign already does this
-              |        for you.
+              |        To use all default alignment rules, use --style defaultWithAlign.
+              |        To pick your favirite alignment rules, set --alignTokens <value> to:
+              |        =>;Case,=;Defn.(Va(l|r)|Def),->;Term.ApplyInfix,//;.*
               |
-              |
-              |        It's best to play around with scala.meta in a console to understand
-              |        how trees are parsed and which tokens are "owned" by which tree.
+              |        It's best to play around with scala.meta in a console to
+              |        understand which regexp you should use for the owner.
               |""".stripMargin
     note(s"""
             |Examples:
