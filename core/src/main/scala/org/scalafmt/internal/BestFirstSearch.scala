@@ -1,6 +1,15 @@
 package org.scalafmt.internal
 
+import org.scalafmt.FormatResult
+import org.scalafmt.internal.ExpiresOn.Right
+import org.scalafmt.internal.ExpiresOn.Left
+import org.scalafmt.internal.Length.StateColumn
+import org.scalafmt.internal.Length.Num
 import org.scalafmt.Error.CantFormatFile
+import org.scalafmt.FormatEvent.CompleteFormat
+import org.scalafmt.FormatEvent.Enqueue
+import org.scalafmt.FormatEvent.Explored
+import org.scalafmt.FormatEvent.VisitToken
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
@@ -17,87 +26,16 @@ class BestFirstSearch(
   import TokenOps._
   import TreeOps._
   import formatOps._
+  import formatOps.runner.optimizer._
 
   val router = new Router(formatOps)
-
-  val maxVisitStates = // For debugging purposes only.
-    if (style.debug) 100000 // Unit tests must be < 100k states
-    else 10000000
-
-  val doOptimizations = true // For debugging purposes only.
-
-  /**
-    * When entering a new statement, clear out search queue.
-    */
-  val dequeueOnNewStatements = true && doOptimizations
-
-  /**
-    * Use heuristics to escape when the search state grows out of bounds.
-    *
-    * An optimization that trades off optimal formatting output in order to
-    * complete in a reasonable time. Used as a last resort.
-    */
-  val escapeInPathologicalCases = true && doOptimizations
-
-  /**
-    * Visit the same formatToken at most [[MaxVisitsPerToken]] times.
-    *
-    * If the same token is
-    */
-  val MaxVisitsPerToken = 200
-
-  val MaxEscapes = 16
-
-  val MaxDepth = 100
-
-  /**
-    * Whether to listen to optimalAt fields in Splits.
-    */
-  val acceptOptimalAtHints = true && doOptimizations
-
-  /**
-    * Do not optimize inside certain areas such as term apply.
-    */
-  val disableOptimizationsInsideSensitiveAreas = true && doOptimizations
-
-  /**
-    * Eliminate solutions that move slower than other solutions.
-    *
-    * If a solution reaches a point X first and other solution that
-    * reaches the same point later, the first solution is preferred if it
-    * can be verified to be always better (see [[State.alwaysBetter()]]).
-    *
-    * Note. This affects the output positively because it breaks a tie between
-    * two equally expensive solutions by eliminating the slower one.
-    *
-    * Example, solution 1 is preferred even though both solutions cost the same:
-    *
-    * // solution 1
-    * a + b +
-    * c + d
-    * // solution 2
-    * a +
-    * b + c + d
-    */
-  val pruneSlowStates = true && doOptimizations
-
-  /**
-    * Recursively format { ... } blocks inside no optimization zones.
-    *
-    * By starting a new search queue, we can perform aggressive optimizations
-    * inside optimizations zones.
-    */
-  val recurseOnBlocks = true && doOptimizations
-
   val noOptimizations = noOptimizationZones(tree)
   var explored = 0
   var deepestYet = State.start
   var deepestYetSafe = State.start
   var statementCount = 0
-
   val best = mutable.Map.empty[Token, State]
   var pathologicalEscapes = 0
-
   val visits = mutable.Map.empty[FormatToken, Int].withDefaultValue(0)
 
   type StateHash = Long
@@ -160,7 +98,7 @@ class BestFirstSearch(
   }
 
   def hasReachedEof(state: State): Boolean = {
-    explored > maxVisitStates || state.splits.length == tokens.length
+    explored > runner.maxStateVisits || state.splits.length == tokens.length
   }
 
   val memo = mutable.Map.empty[(Int, StateHash), State]
@@ -199,7 +137,6 @@ class BestFirstSearch(
                    depth: Int = 0,
                    maxCost: Int = Integer.MAX_VALUE)(
       implicit line: sourcecode.Line): State = {
-//    logger.elem(depth, line)
     val Q = new mutable.PriorityQueue[State]()
     var result = start
     Q += start
@@ -207,9 +144,7 @@ class BestFirstSearch(
     while (Q.nonEmpty) {
       val curr = Q.dequeue()
       explored += 1
-      if (explored % 10000 == 0 && style.debug) {
-        logger.debug(s"Explored $explored, depth=$depth Q.size=${Q.size}")
-      }
+      runner.eventCallback(Explored(explored, depth, Q.size))
       if (hasReachedEof(curr) || {
             val token = tokens(curr.splits.length)
             // If token is empty we can take one more split before reaching stop.
@@ -226,9 +161,7 @@ class BestFirstSearch(
             curr.splits.length > deepestYetSafe.splits.length) {
           deepestYetSafe = curr
         }
-        if (style.debug) {
-          Debug.visit(splitToken)
-        }
+        runner.eventCallback(VisitToken(splitToken))
         visits.put(splitToken, visits(splitToken) + 1)
 
         if (dequeueOnNewStatements &&
@@ -282,9 +215,7 @@ class BestFirstSearch(
             if (depth == 0 && split.modification.isNewline) {
               best.update(splitToken.left, nextState)
             }
-            if (style.debug) {
-              Debug.enqueued(split)
-            }
+            runner.eventCallback(Enqueue(split))
             split.optimalAt match {
               case Some(OptimalToken(token, killOnFail))
                   if acceptOptimalAtHints && actualSplit.length > 1 &&
@@ -315,17 +246,16 @@ class BestFirstSearch(
     result
   }
 
-  def getBestPath: Vector[Split] = {
+  def getBestPath: SearchResult = {
     var state = shortestPath(State.start, tree.tokens.last)
-    if (state.splits.length != tokens.length) {
+    runner.eventCallback(CompleteFormat(explored, state, tokens))
+    if (state.splits.length == tokens.length) {
+      SearchResult(state.splits, reachedEOF = true)
+    } else {
       val nextSplits = router.getSplits(tokens(deepestYet.splits.length))
       val tok = tokens(deepestYet.splits.length)
       val splitsAfterPolicy =
         deepestYet.policy.execute(Decision(tok, nextSplits))
-      val nextStates = splitsAfterPolicy.splits
-        .map(x => State.next(deepestYet, style, x, tok))
-        .map(_.splits)
-
       val msg = s"""UNABLE TO FORMAT,
                    |tok=$tok
                    |state.length=${state.splits.length}
@@ -334,19 +264,12 @@ class BestFirstSearch(
                    |policies=${deepestYet.policy.policies}
                    |nextSplits=$nextSplits
                    |splitsAfterPolicy=$splitsAfterPolicy""".stripMargin
-      if (style.debug) {
-        logger.error(s"""Failed to format
-                        |$msg""".stripMargin)
-        state = deepestYet
-      } else {
-        throw CantFormatFile(msg)
-      }
+      logger.error(s"""Failed to format
+                      |$msg""".stripMargin)
+      state = deepestYet
+      SearchResult(deepestYet.splits, reachedEOF = false)
     }
-    if (style.debug) {
-      Debug.explored += explored
-      Debug.state = state
-      Debug.tokens = tokens
-    }
-    state.splits
   }
 }
+
+case class SearchResult(splits: Vector[Split], reachedEOF: Boolean)

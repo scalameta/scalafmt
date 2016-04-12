@@ -6,8 +6,8 @@ import org.scalafmt.Error.FormatterChangedAST
 import org.scalafmt.Error.FormatterOutputDoesNotParse
 import org.scalatest.FunSuiteLike
 import scala.meta.Tree
-import scala.meta.parsers.common.Parse
-import scala.meta.parsers.common.ParseException
+import scala.meta.parsers.Parse
+import scala.meta.parsers.ParseException
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
@@ -18,12 +18,12 @@ trait FormatAssertions extends FunSuiteLike with DiffAssertions {
   def assertFormatPreservesAst[T <: Tree](original: String, obtained: String)(
       implicit ev: Parse[T]): Unit = {
     import scala.meta._
-    Try(original.parse[T]) match {
-      case Failure(t) => // ignore
-        logger.warn(s"original does not parse $t")
-      case Success(originalParsed) =>
-        Try(obtained.parse[T]) match {
-          case Success(obtainedParsed) =>
+    original.parse[T] match {
+      case Parsed.Error(pos, message, details) =>
+        logger.warn(s"original does not parse $message")
+      case Parsed.Success(originalParsed) =>
+        obtained.parse[T] match {
+          case Parsed.Success(obtainedParsed) =>
             val originalStructure = originalParsed.show[Structure]
             val obtainedStructure = obtainedParsed.show[Structure]
             if (originalStructure.trim != obtainedStructure.trim) {
@@ -33,16 +33,9 @@ trait FormatAssertions extends FunSuiteLike with DiffAssertions {
                   diffAsts(originalStructure, obtainedStructure),
                   obtained)
             }
-          case Failure(e: ParseException) =>
+          case Parsed.Error(pos, message, details) =>
             throw FormatterOutputDoesNotParse(
-                parseException2Message(e, obtained))
-          case Failure(e: TokenizeException) =>
-            throw FormatterOutputDoesNotParse(s"""${e.getMessage}
-                                                 |$obtained
-                                                 |""".stripMargin)
-          case Failure(e) =>
-            logger.error(s"Unexpected error $e, $obtained")
-            throw e
+                parseException2Message(details, obtained))
         }
     }
   }

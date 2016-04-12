@@ -30,6 +30,7 @@ import scala.util.control.NonFatal
 import scala.collection.immutable.Seq
 
 case class HasScalaFmt(reflective: ScalaFmtLike,
+                       configFile: Option[File],
                        streams: TaskStreams,
                        sourceDirectories: Seq[File],
                        includeFilter: FileFilter,
@@ -45,19 +46,47 @@ case class HasScalaFmt(reflective: ScalaFmtLike,
   val files =
     sourceDirectories.descendantsExcept(includeFilter, excludeFilter).get.toSet
 
-  def formatFiles(): Unit = {
+  def writeFormattedContentsToFiles(): Unit = {
     val cache = streams.cacheDirectory / "scalafmt"
-    handleFiles(files, cache, logFun("Formatting %s %s ..."), performFormat)
+    handleFiles(files,
+                cache,
+                logFun("Formatting %s %s ..."),
+                files => files.foreach(handleFile(writeFormatted)))
     handleFiles(files, cache, logFun("Reformatted %s %s."), _ => ())
   }
 
-  private def formatFile(file: File): Unit = {
+  def testProjectIsFormatted(): Unit = {
+    files.foreach(handleFile(testFormatted))
+  }
+
+  private def testFormatted(result: FormatResult): Unit = {
+    if (result.formattedContents != result.originalContents) {
+      System.err.println(s"${result.file.getPath} is mis-formatted.")
+      System.exit(1)
+    }
+  }
+
+  private def writeFormatted(result: FormatResult): Unit = {
+    if (result.formattedContents != result.originalContents) {
+      IO.write(result.file, result.formattedContents)
+    }
+  }
+
+  private case class FormatResult(
+      file: File, originalContents: String, formattedContents: String)
+
+  private def handleFile(callback: FormatResult => Unit)(file: File): Unit = {
     try {
       val contents = IO.read(file)
-      val formatted = reflective.format(contents)
-      if (formatted != contents) {
-        IO.write(file, formatted)
+
+      val formatted = configFile match {
+        case Some(configFile) =>
+          println(s"config file: ${configFile.getAbsolutePath}")
+          reflective.format(contents, configFile.getAbsolutePath)
+        case None => reflective.format(contents)
       }
+
+      callback(FormatResult(file, contents, formatted))
     } catch {
       case NonFatal(e) =>
         // Very unlikely, since NonFatal exceptions are caught by scalafmt.
@@ -66,10 +95,6 @@ case class HasScalaFmt(reflective: ScalaFmtLike,
                |  $file:
                |  ${e.getMessage}""".stripMargin)
     }
-  }
-
-  private def performFormat(files: Set[File]): Unit = {
-    files.foreach(formatFile)
   }
 
   private def handleFiles(files: Set[File],

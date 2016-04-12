@@ -1,10 +1,15 @@
-package org.scalafmt.internal
-
-import java.util.concurrent.TimeUnit
+package org.scalafmt
 
 import scala.collection.mutable
 import scala.meta.Tree
 import scala.meta.tokens.Token
+
+import java.util.concurrent.TimeUnit
+
+import org.scalafmt.internal.FormatOps
+import org.scalafmt.internal.FormatToken
+import org.scalafmt.internal.Split
+import org.scalafmt.internal.State
 
 /**
   * (ugly) Utility to collect data about formatter.
@@ -17,6 +22,7 @@ object Debug {
   val formatTokenExplored =
     mutable.Map.empty[FormatToken, Int].withDefaultValue(0)
   val enqueuedSplits = mutable.Set.empty[Split]
+  var formatOps: FormatOps = _
   var lastTestExplored = 0
   var explored = 0
   var state = State.start

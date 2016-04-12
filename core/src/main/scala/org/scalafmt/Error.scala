@@ -1,5 +1,7 @@
 package org.scalafmt
 
+import java.io.File
+
 import org.scalafmt.internal.Decision
 import org.scalafmt.util.LoggerOps
 import scala.meta.Case
@@ -48,4 +50,7 @@ object Error {
 
   case class UnknownStyle(style: String)
       extends Error(s"Don't understand style $style")
+
+  case class MisformattedFile(file: File)
+      extends Error(s"${file.getPath} is mis-formatted")
 }

@@ -1,64 +1,47 @@
 package org.scalafmt
 
+import org.scalafmt.FormatEvent.CreateFormatOps
 import org.scalafmt.internal.BestFirstSearch
 import org.scalafmt.internal.FormatOps
 import org.scalafmt.internal.FormatWriter
-import scala.meta.Source
-import scala.meta.Tree
-import scala.meta.parseSource
-import scala.meta.parsers.common.Parse
 import scala.util.control.NonFatal
+import scala.meta.Input.stringToInput
 
-object ScalaFmt {
+object Scalafmt {
 
   /**
-    * Safely format contents of a Scala compilation unit.
+    * Format Scala code using scalafmt.
     *
-    * The original code is returned in case of any unexpected failure.
-    *
-    * For a more flexible method, see [[format_!]].
-    *
-    * Note. Formatting sbt files is not yet supported.
-    *
-    * @param code The code to format.
-    * @param style The coding style to use for formatting.
-    * @param range EXPERIMENTAL. Format only certain ranges of the file.
-    * @return The code formatted if successful, the original code otherwise.
+    * @param code Code string to format.
+    * @param style Configuration for formatting output.
+    * @param runner Configuration for how the formatting should run.
+    * @param range EXPERIMENTAL. Format a subset of lines.
+    * @return [[FormatResult.Success]] if successful,
+    *        [[FormatResult.Failure]] otherwise. If you are OK with throwing
+    *        exceptions, use [[FormatResult.Success.get]] to get back a
+    *        string.
     */
   def format(code: String,
-             style: ScalaStyle = ScalaStyle.Default,
-             range: Set[Range] = Set.empty[Range]): String = {
+             style: ScalafmtStyle = ScalafmtStyle.default,
+             runner: ScalafmtRunner = ScalafmtRunner.default,
+             range: Set[Range] = Set.empty[Range]): FormatResult = {
     try {
-      format_![Source](code, style, range)(parseSource)
+      val tree = new scala.meta.XtensionParseInputLike(code)
+        .parse(stringToInput, runner.parser, scala.meta.dialects.Scala211).get
+      val formatOps = new FormatOps(tree, style, runner)
+      runner.eventCallback(CreateFormatOps(formatOps))
+      val formatWriter = new FormatWriter(formatOps)
+      val search = new BestFirstSearch(formatOps, range, formatWriter)
+      val partial = search.getBestPath
+      val formattedString = formatWriter.mkString(partial.splits)
+      if (partial.reachedEOF) {
+        FormatResult.Success(formattedString)
+      } else {
+        FormatResult.Incomplete(formattedString)
+      }
     } catch {
-      case NonFatal(e) =>
-        // TODO(olafur) return more meaningful result type than string.
-        code
+      // TODO(olafur) add more fine grained errors.
+      case NonFatal(e) => FormatResult.Failure(e)
     }
-  }
-
-  /**
-    * Formats any kind of Scala tree structure.
-    *
-    * WARNING. Could run for a very long time on large input.
-    *
-    * Safe alternatives: [[format]].
-    *
-    * @param code The source code to format.
-    * @param ev See [[scala.meta.parsers]] for available parsers.
-    * @tparam T The type of the source code, refer to [[scala.meta.parsers.Api]]
-    *           for available types.
-    * @return The source code formatted.
-    */
-  def format_![T <: Tree](code: String,
-                          style: ScalaStyle,
-                          range: Set[Range] = Set.empty[Range])(
-      implicit ev: Parse[T]): String = {
-    import scala.meta._
-    val source = code.parse[T]
-    val formatOps = new FormatOps(source, style)
-    val formatWriter = new FormatWriter(formatOps)
-    val search = new BestFirstSearch(formatOps, range, formatWriter)
-    formatWriter.mkString(search.getBestPath)
   }
 }

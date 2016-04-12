@@ -1,13 +1,14 @@
 package org.scalafmt
 
+import scala.meta.Tree
+import scala.meta.parsers.Parse
+
 import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.DiffTest
 import org.scalafmt.util.HasTests
 import org.scalatest.FunSuite
-import scala.meta.Tree
-import scala.meta.parsers.common.Parse
 
-class StripMarginTest extends FunSuite with HasTests with DiffAssertions {
+class StripMarginTests extends FunSuite with HasTests with DiffAssertions {
 
   val rawStrings =
     """
@@ -110,9 +111,9 @@ val msg = s'''AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
   testsToRun.foreach(runTest(run))
 
   def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
-    val parse = filename2parse(t.filename).get
+    val runner = scalafmtRunner.withParser(parse)
     val formatted =
-      ScalaFmt.format_!(t.original, ScalaStyle.StripMarginTest)(parse)
+      Scalafmt.format(t.original, ScalafmtStyle.default, runner).get
     saveResult(t, formatted, t.only)
     assertNoDiff(formatted, t.expected)
   }

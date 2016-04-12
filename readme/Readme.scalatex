@@ -1,24 +1,5 @@
 @import Main._
-
-@def note = b("NOTE")
-
-@def repo: String = "https://github.com/olafurpg/scalafmt"
-
-@def half(frags: Frag*) = div(frags, width:="50%", float.left)
-
-@def pairs(frags: Frag*) = div(frags, div(clear:="both"))
-
-@def demo(code: String) = {
-  import org.scalafmt._
-  val formatted = ScalaFmt.format(code, ScalaStyle.UnitTest40)
-  pairs(List(code, formatted).map(x => half(hl.scala(x))):_*)
-}
-
-@def example(code: String) = {
-  import org.scalafmt._
-  val formatted = ScalaFmt.format(code, ScalaStyle.Default40)
-  hl.scala(formatted)
-}
+@import org.scalafmt.readme.Readme._
 
 @sect("Scalafmt", org.scalafmt.Versions.stable)
   @h1
@@ -66,19 +47,6 @@
 
   @sect{Installation}
 
-    @sect{SBT}
-      @hl.scala
-        addSbtPlugin("com.geirsson" %% "sbt-scalafmt" % "@org.scalafmt.Versions.stable")
-
-      @ul
-        @li
-          Run @code("sbt scalafmtFormat") to format all files in the project.
-        @li
-          Add @code("reformatOnCompileSettings") to you build settings to
-          enable automatically formatting files on compile.
-          @b("WARNING"). Formatting a large file (~4.000 LOC) can take up
-          to 1-2s, so it might be undesirable to let scalafmt delay compilation.
-
     @sect{IntelliJ}
       @lnk("Here is the plugin", "https://plugins.jetbrains.com/plugin/8236?pr=").
       You can install it directly from within IntelliJ,
@@ -95,6 +63,33 @@
       @p
         The default shortcut is @code("Ctrl + Shift + L").
         Undo works, but not redo.
+
+      @p
+        The plugin picks up custom style configuration from the file @code(".scalafmt")
+        if it exists in the root directory of your project.
+        For details, see @sect.ref{Configuration}.
+
+    @sect{SBT}
+      @hl.scala
+        addSbtPlugin("com.geirsson" %% "sbt-scalafmt" % "@org.scalafmt.Versions.stable")
+
+      @ul
+        @li
+          Run @code("sbt scalafmt") to format all files in the project.
+        @li
+          Run @code("sbt scalafmtTest") to test whether all files are are
+          properly formatted. An exception is thrown in case of failure, no
+          files are formatted.
+        @li
+          Set @code("scalafmtConfig := Some(file(\".scalafmt\"))") to let the
+          plugin pick up custom style configurations from @code(".scalafmt")
+          in the root directory of your project.
+          For details, see @sect.ref{Configuration}.
+        @li
+          Add @code("reformatOnCompileSettings") to you build settings to
+          enable automatically formatting files on compile.
+          @b("WARNING"). Formatting a large file (~4.000 LOC) can take up
+          to 1-2s, so it might be undesirable to let scalafmt delay compilation.
 
     @sect{CLI}
       There are several ways to install the CLI.
@@ -133,9 +128,9 @@
 
       @sect{Usage examples}
 
-        Once correctly installed, use the CLI like this.
+        Please refer to the @code("--help") page.
 
-        @hl.scala(org.scalafmt.cli.Cli.usageExamples)
+        @hl.scala(org.scalafmt.cli.Cli.parser.usage)
 
     @sect{Vim}
       @ul
@@ -172,17 +167,16 @@
 
   @sect{Code examples}
     @p
-      To start with, I implemented a default style that I like myself. The
-      rules are still evolving. Feel free to discuss about them in the gitter
-      channel.
+      @note. The rules are still evolving. Feel free to discuss about them in
+      the gitter channel. To start with, I implemented a default style that I
+      like myself.
 
     @p
-      @note. The plan is to later add support for few official coding styles that have
+      The plan is to later add support for few official coding styles that have
       proven to work for large codebases and scale to at least a few dozens
-      of contributors. For example, the
+      of contributors. For example, from
       @lnk("Scala.js", "https://github.com/scala-js/scala-js/blob/master/CODINGSTYLE.md") and
-      @lnk("Spark", "https://cwiki.apache.org/confluence/display/SPARK/Spark+Code+Style+Guide")
-      coding styles.
+      @lnk("Spark", "https://cwiki.apache.org/confluence/display/SPARK/Spark+Code+Style+Guide").
 
     @sect{Function application}
 
@@ -250,6 +244,34 @@
           }
         }
 
+    @sect{Token alignment}
+
+      The style @code("defaultWithAlign") will align various related tokens.
+
+      @exampleAlign
+        // 40 columns                          |
+        object TokenAlignment {
+          x match {
+            // Align by => and -> and //
+            case 1 => 1 -> 2 // first
+            case 11 => 11 -> 22 // second
+
+            // A blank line separates alignment blocks.
+            case `ignoreMe` => 111 -> 222
+          }
+
+          // Align assignments of similar type.
+          def name = column[String]("name")
+          def status = column[Int]("status")
+          val x = 1
+          val xx = 22
+
+          // Align sbt module IDs.
+          libraryDependencies ++= Seq(
+            "org.scala-lang" % "scala-compiler" % scalaVersion.value,
+            "com.lihaoyi" %% "sourcecode" % "0.1.1"
+          )
+        }
     @sect{stripMargin alignment}
       The margin character @code("|") is aligned with the opening triple
       quote @code("\"\"\"") in interpolated and raw string literals.
@@ -277,14 +299,41 @@
           indentation level. It's best to enable it at the same level as
           when it was disabled.
 
+  @sect{Configuration}
+
+    @p
+      There are two ways to configure @code("scalafmt").
+
+      @ol
+        @li
+          As Scala code via the @code("ScalafmtConfig") case class.
+          This is handy when using scalafmt as a standalone library.
+          For details, refer to the Scaladoc.
+        @li
+          (experimental) In a plain text file, options are defined as CLI flags.
+          I recommend you create a file named @code(".scalafmt") and keep it in
+          the root directory of your project.
+
+          @p
+            Here is an example @code(".scalafmt"), note that comments are allowed.
+
+            @hl.scala
+              --style defaultWithAlign // aligns tokens like => and -> and comments
+              --maxColumn 100          // column limit is 100 instead of 80
+
+            To experiment with different options, I recommend you use the CLI.
+            For details, read about the @code("--config") flag in the
+            @code("--help") page of the CLI.
+
+          @p
+            Consult the section on your
+
+      @note. Configuration options for scalafmt are still very few.
 
   @sect{FAQ}
 
      @sect{How do I customize scalafmt?}
-       There is only one supported style at the moment: @code("ScalaStyle.Default").
-       More settings and easier configuration is planned for later MINOR releases.
-       The 0.1.x series will focus speed and quality formatting output of the
-       default style.
+       See @sect.ref{Configuration}.
 
      @sect{Why not Scalariform?}
        @lnk("Scalariform", "http://scala-ide.org/scalariform/") does an
@@ -295,9 +344,10 @@
            Scalariform does not support enforcing column-width limits, which
            I personally like and is present in many popular coding styles.
          @li
-           Scalariform gives too much freedom on how you format your code, which
-           makes it easy to write sloppy looking code after a few rounds of
-           refactoring.
+           In my experience, Scalariform gives makes it easy to write sloppy
+           looking code after a few rounds of refactoring. Scalafmt is
+           more opinionated, and takes a lot more liberty to add/remove
+           newlines.
          @li
            Scalariform cannot format @lnk("Dotty", "https://github.com/lampepfl/dotty") code,
            which has minor syntactic differences to Scala. Being built with scala.meta,
@@ -312,7 +362,7 @@
      @sect{Why is scalafmt so slow?}
        @p
          My benchmarks show that scalafmt is for most common cases around 4-6x
-         slower than scalariform (which is impressively fast).
+         slower than scalariform (btw, scalariform is already impressively fast).
          This means that formatting your average 1.000 LOC file on modern
          hardware will take around 200ms, which should still feel close enough
          to instant.
@@ -324,14 +374,16 @@
          thousands of different formatting solutions.
 
        @p
-         Performance is still a work in progress and will hopefully improve
-         even more in future releases.
+         Still, performance is still a work in progress and will hopefully
+         continue to improve in future releases. Help here is appreciated.
 
-     @sect{scalafmt created huge diffs!}
+     @sect{scalafmt creates huge diffs!}
        I understand that some rules may trigger unnecessarily large diffs in pull
        requests. I still believe it's worth it, considering
 
        @ol
+         @li
+           Proper formatting @lnk("helps you catch bugs", "https://twitter.com/extempore2/status/717716747181096960")!
          @li
            you can enable non-whitespace diffs during code review. For Github,
            add @code("?w=1") to the URL and the diff ignores whitespace changes.
@@ -344,6 +396,22 @@
        scalafmt update.
 
   @sect{Changelog}
+    @sect{0.2.0}
+
+      @ul
+        @li
+          Custom style configuration, see @sect.ref{Configuration}
+        @li
+          Token alignment, see @sect.ref{Token alignment}
+        @li
+          Closed issues: @issues(
+          144,
+          143,
+          138,
+          131,
+          120,
+          114).
+
     @sect{0.1.6}
       @ul
         @li

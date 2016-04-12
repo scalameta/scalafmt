@@ -1,6 +1,6 @@
 package org.scalafmt.util
 
-import scala.meta.parsers.common.ParseException
+import scala.meta.parsers.ParseException
 
 sealed abstract class ExperimentResult(scalaFile: ScalaFile) {
   def key: String

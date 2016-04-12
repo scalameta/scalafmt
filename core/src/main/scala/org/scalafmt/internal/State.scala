@@ -1,6 +1,10 @@
 package org.scalafmt.internal
 
-import org.scalafmt.ScalaStyle
+import org.scalafmt.internal.ExpiresOn.Right
+import org.scalafmt.internal.ExpiresOn.Left
+import org.scalafmt.internal.Length.StateColumn
+import org.scalafmt.internal.Length.Num
+import org.scalafmt.ScalafmtStyle
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.TokenOps
 import scala.meta.tokens.Token
@@ -48,7 +52,7 @@ object State {
     * Calculates next State given split at tok.
     */
   def next(curr: State,
-           style: ScalaStyle,
+           style: ScalafmtStyle,
            split: Split,
            tok: FormatToken): State = {
     import curr._
@@ -113,39 +117,4 @@ object State {
           nextFormatOff)
   }
 
-  /**
-    * Reconstructs path for all tokens and invokes callback for each token/split combination.
-    */
-  def reconstructPath(toks: Array[FormatToken],
-                      splits: Vector[Split],
-                      style: ScalaStyle,
-                      debug: Boolean = false)(
-      callback: (State, FormatToken, String) => Unit): Unit = {
-    var state = State.start
-    toks.zip(splits).foreach {
-      case (tok, split) =>
-        // TIP. Use the following line to debug origin of splits.
-        if (debug && toks.length < 1000) {
-          val left = cleanup(tok.left).slice(0, 15)
-          logger.debug(
-              f"$left%-15s $split ${state.indentation} ${state.column}")
-        }
-        state = State.next(state, style, split, tok)
-        val whitespace = split.modification match {
-          case Space => " "
-          case nl: NewlineT =>
-            val newline =
-              if (nl.isDouble) "\n\n"
-              else "\n"
-            val indentation =
-              if (nl.noIndent) ""
-              else " " * state.indentation
-            newline + indentation
-          case Provided(literal) => literal
-          case NoSplit => ""
-        }
-        callback.apply(state, tok, whitespace)
-    }
-    if (debug) logger.debug(s"Total cost: ${state.cost}")
-  }
 }

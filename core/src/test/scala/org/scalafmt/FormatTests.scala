@@ -2,7 +2,10 @@ package org.scalafmt
 
 import scala.language.postfixOps
 
-import org.scalafmt.internal.Debug
+import org.scalafmt.FormatEvent.CompleteFormat
+import org.scalafmt.FormatEvent.Enqueue
+import org.scalafmt.FormatEvent.Explored
+import org.scalafmt.FormatEvent.VisitToken
 import org.scalafmt.stats.TestStats
 import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.DiffTest
@@ -23,7 +26,7 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.meta.Tree
-import scala.meta.parsers.common.Parse
+import scala.meta.parsers.Parse
 
 // TODO(olafur) property test: same solution without optimization or timeout.
 
@@ -49,7 +52,8 @@ class FormatTests
     .foreach(runTest(run))
 
   def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
-    val obtained = ScalaFmt.format_!(t.original, t.style)(parse)
+    val runner = scalafmtRunner.withParser(parse)
+    val obtained = Scalafmt.format(t.original, t.style, runner).get
     debugResults += saveResult(t, obtained, onlyOne)
     assertFormatPreservesAst(t.original, obtained)(parse)
     if (!onlyManual) {

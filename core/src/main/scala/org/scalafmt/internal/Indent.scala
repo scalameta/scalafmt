@@ -2,25 +2,32 @@ package org.scalafmt.internal
 
 import scala.meta.tokens.Token
 
-sealed trait ExpiresOn
+import org.scalafmt.internal.ExpiresOn._
+import org.scalafmt.internal.Length._
 
-case object Left extends ExpiresOn
+sealed abstract class ExpiresOn
 
-case object Right extends ExpiresOn
+object ExpiresOn {
+  case object Left extends ExpiresOn
 
-sealed trait Length
+  case object Right extends ExpiresOn
+}
 
-case class Num(n: Int) extends Length
+sealed abstract class Length
 
-/**
-  * Indent up to the column of the left token.
-  *
-  * Example: the opening parenthesis below indents by [[StateColumn]].
-  *
-  * foobar(arg1,
-  *        arg2)
-  */
-case object StateColumn extends Length
+object Length {
+  case class Num(n: Int) extends Length
+
+  /**
+    * Indent up to the column of the left token.
+    *
+    * Example: the opening parenthesis below indents by [[StateColumn]].
+    *
+    * foobar(arg1,
+    *        arg2)
+    */
+  case object StateColumn extends Length
+}
 
 /**
   * One layer of indentation, created by an opening (, {, etc.

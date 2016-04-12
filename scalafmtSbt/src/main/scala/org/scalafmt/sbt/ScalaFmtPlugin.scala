@@ -35,11 +35,18 @@ object ScalaFmtPlugin extends AutoPlugin {
 
   object autoImport {
     // These should in fact be commands instead of tasks.
-    lazy val scalafmtFormat: TaskKey[Unit] =
+    lazy val scalafmt: TaskKey[Unit] =
       taskKey[Unit]("Format Scala sources using scalafmt")
 
+    lazy val scalafmtTest: TaskKey[Unit] =
+      taskKey[Unit]("Test for mis-formatted Scala sources, " +
+          "exits with status 1 on failure.")
+
+    lazy val scalafmtConfig: TaskKey[Option[File]] =
+      taskKey[Option[File]]("Configuration file for scalafmt.")
+
     lazy val hasScalafmt: TaskKey[HasScalaFmt] = taskKey[HasScalaFmt](
-        "Classloaded ScalaFmt210 instance to overcome 2.10 incompatibility issues.")
+        "Classloaded Scalafmt210 instance to overcome 2.10 incompatibility issues.")
 
     def scalafmtSettings: Seq[Setting[_]] =
       noConfigScalafmtSettings ++ inConfig(Compile)(configScalafmtSettings) ++ inConfig(
@@ -49,15 +56,15 @@ object ScalaFmtPlugin extends AutoPlugin {
       List(
           compileInputs in (Compile, compile) <<=
           (compileInputs in (Compile, compile)) dependsOn
-          (scalafmtFormat in Compile),
+          (scalafmt in Compile),
           compileInputs in (Test, compile) <<=
-          (compileInputs in (Test, compile)) dependsOn (scalafmtFormat in Test)
+          (compileInputs in (Test, compile)) dependsOn (scalafmt in Test)
       )
 
     lazy val reformatOnCompileWithItSettings: Seq[Def.Setting[_]] =
       reformatOnCompileSettings ++ List(
           compileInputs in (It, compile) <<= (compileInputs in (It, compile)) dependsOn
-          (scalafmtFormat in It)
+          (scalafmt in It)
       )
   }
   import autoImport._
@@ -77,7 +84,7 @@ object ScalaFmtPlugin extends AutoPlugin {
             // the scala-compiler dependency needs to be explicitly added to
             // avoid noclassdeferror.
             "org.scala-lang" % "scala-compiler" % "2.11.7" % "scalafmt",
-            "com.geirsson" % "scalafmt-core_2.11" % org.scalafmt.Versions.nightly % "scalafmt"
+            "com.geirsson" % "scalafmt-cli_2.11" % org.scalafmt.Versions.nightly % "scalafmt"
         )
     )
 
@@ -85,6 +92,7 @@ object ScalaFmtPlugin extends AutoPlugin {
     List(
         (sourceDirectories in hasScalafmt) := List(scalaSource.value),
         includeFilter in Global in hasScalafmt := "*.scala",
+        scalafmtConfig in Global := None,
         hasScalafmt := {
           val report = update.value
           val jars = report.select(configurationFilter("scalafmt"))
@@ -92,19 +100,22 @@ object ScalaFmtPlugin extends AutoPlugin {
               getScalafmtLike(
                   new URLClassLoader(jars.map(_.toURI.toURL).toArray, null),
                   streams.value),
+              scalafmtConfig.value,
               streams.value,
               (sourceDirectories in hasScalafmt).value.toList,
               (includeFilter in hasScalafmt).value,
               (excludeFilter in hasScalafmt).value,
               thisProjectRef.value)
         },
-        scalafmtFormat := hasScalafmt.value.formatFiles()
+        scalafmt := hasScalafmt.value.writeFormattedContentsToFiles(),
+        scalafmtTest := hasScalafmt.value.testProjectIsFormatted()
     )
 
   private def getScalafmtLike(
       classLoader: URLClassLoader, streams: TaskStreams): ScalaFmtLike = {
-    val loadedClass = new ReflectiveDynamicAccess(classLoader)
-      .createInstanceFor[ScalaFmtLike]("org.scalafmt.ScalaFmt210", Seq.empty)
+    val loadedClass =
+      new ReflectiveDynamicAccess(classLoader).createInstanceFor[ScalaFmtLike](
+          "org.scalafmt.cli.Scalafmt210", Seq.empty)
 
     loadedClass match {
       case Success(x) => x

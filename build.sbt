@@ -3,7 +3,7 @@ import scoverage.ScoverageSbtPlugin.ScoverageKeys.coverageHighlighting
 lazy val buildSettings = Seq(
   organization := "com.geirsson",
   version :=  org.scalafmt.Versions.nightly,
-  scalaVersion :=  "2.11.7",
+  scalaVersion :=  "2.11.8",
   updateOptions := updateOptions.value.withCachedResolution(true),
   // Many useful rules are ignored, at least they're explicitly ignored.
   wartremoverWarnings in (Compile, compile) ++=
@@ -116,6 +116,8 @@ lazy val core = project
       "org.scalameta" %% "scalameta" % Deps.scalameta,
 
       // Test dependencies
+      "org.scala-lang" % "scala-reflect" % scalaVersion.value % "test",
+      "org.scala-lang" % "scala-compiler" % scalaVersion.value % "test",
       "ch.qos.logback" % "logback-classic" % "1.1.6" % "test",
       "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0" % "test",
       "com.ibm" %% "couchdb-scala" % "0.6.0" % "test",
@@ -128,7 +130,6 @@ lazy val core = project
 
 lazy val cli = project
     .settings(allSettings)
-    .settings(noPublish)
     .settings(
       moduleName := "scalafmt-cli",
       mainClass in assembly := Some("org.scalafmt.cli.Cli"),
@@ -189,4 +190,7 @@ lazy val readme = scalatex.ScalatexReadme(
     .settings(noPublish)
     .dependsOn(core)
     .dependsOn(cli)
+    .settings(
+      dependencyOverrides += "com.lihaoyi" %% "scalaparse" % "0.3.1"
+    )
 
