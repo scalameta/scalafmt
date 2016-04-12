@@ -12,6 +12,7 @@ import org.scalafmt.internal.FormatWriter.FormatLocation
   */
 class FormatWriter(formatOps: FormatOps) {
   import formatOps._
+  import org.scalafmt.util.TreeOps._
 
   def mkString(splits: Vector[Split]): String = {
     val sb = new StringBuilder()
@@ -140,21 +141,21 @@ class FormatWriter(formatOps: FormatOps) {
   def key(token: Token): Int =
     (token.getClass.getName, owners(token).getClass.getName).hashCode()
 
-  private def columnsMatch(
-      a: Array[FormatLocation], b: Array[FormatLocation]): Int = {
+  private def columnsMatch(a: Array[FormatLocation],
+                           b: Array[FormatLocation],
+                           endOfLine: FormatToken): Int = {
     a
       .zip(b)
       .takeWhile {
-        case (left, right) =>
-          logger.elem(left)
-          val leftToken = left.formatToken.right
-          val rightToken = right.formatToken.right
-          val leftOwner = owners(leftToken)
-          val rightOwner = owners(rightToken)
-
-          key(leftToken) == key(rightToken) &&
-          !leftOwner.parent.contains(rightOwner) &&
-          !rightOwner.parent.contains(leftOwner)
+        case (column1, column2) =>
+          val rightOwner = column2.formatToken match {
+            // Corner case when line ends with comment
+            case FormatToken(x, c: Comment, _) if isInlineComment(c) =>
+              owners(x)
+            case FormatToken(_, r, _) => owners(r)
+          }
+          key(column1.formatToken.right) == key(column2.formatToken.right) &&
+          !parents(owners(endOfLine.right)).contains(rightOwner)
       }
       .length
   }
@@ -177,6 +178,9 @@ class FormatWriter(formatOps: FormatOps) {
           }
           i += 1
         }
+//        {
+//          statementStarts.contains(hash(locations(i).formatToken.right))
+//        }
         val candidates = columnCandidates.result()
         if (block.isEmpty) {
           if (candidates.nonEmpty) {
@@ -184,9 +188,9 @@ class FormatWriter(formatOps: FormatOps) {
           }
         } else {
           val newlines = locations(i).split.modification.newlines
-          val matches = columnsMatch(block.last, candidates)
+          val matches = columnsMatch(
+              block.last, candidates, locations(i).formatToken)
           maxMatches = Math.max(maxMatches, matches)
-          logger.elem(matches)
           if (matches > 0) {
             block = block :+ candidates
           }
@@ -223,6 +227,11 @@ class FormatWriter(formatOps: FormatOps) {
             maxMatches = -1
           }
         }
+//        logger.elem(locations(i).formatToken)
+//        if (!(statementStarts.contains(rightToken) ||
+//            argumentStarts.contains(rightToken))) {
+//          block = Vector.empty[Array[FormatLocation]]
+//        }
         i += 1
       }
       finalResult.result()

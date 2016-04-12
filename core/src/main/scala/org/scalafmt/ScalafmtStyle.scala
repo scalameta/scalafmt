@@ -64,6 +64,7 @@ object ScalafmtStyle {
       noNewlinesBeforeJsNative = false,
       continuationIndentCallSite = 4,
       continuationIndentDefnSite = 4,
+//      alignTokens = AlignToken.default
       alignTokens = Set.empty[AlignToken]
   )
 

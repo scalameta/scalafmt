@@ -32,6 +32,14 @@ class FormatOps(val tree: Tree,
   val tokens: Array[FormatToken] = FormatToken.formatTokens(tree.tokens)
   val ownersMap = getOwners(tree)
   val statementStarts = getStatementStarts(tree)
+  val argumentStarts: Set[TokenHash] = {
+    val b = Set.newBuilder[TokenHash]
+    tree.collect {
+      case t: Term.Arg if t.tokens.nonEmpty =>
+        b += hash(t.tokens.head)
+    }
+    b.result()
+  }
   val dequeueSpots = getDequeueSpots(tree) ++ statementStarts.keys
   val matchingParentheses = getMatchingParentheses(tree.tokens)
 
