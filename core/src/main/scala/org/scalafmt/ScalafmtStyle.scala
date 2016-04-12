@@ -1,5 +1,6 @@
 package org.scalafmt
 
+import scala.util.matching.Regex
 
 import org.scalafmt.util.ValidationOps
 import sourcecode.Text
@@ -42,8 +43,9 @@ case class ScalafmtStyle(maxColumn: Int,
                          noNewlinesBeforeJsNative: Boolean,
                          continuationIndentCallSite: Int,
                          continuationIndentDefnSite: Int,
-                         alignTokens: Set[String]) {
-  lazy val alignRegexp = s"(${alignTokens.mkString("|")})".r
+                         alignTokens: Set[AlignToken]) {
+  lazy val alignMap: Map[String, Regex] =
+    alignTokens.map(x => x.code -> x.owner).toMap
   ValidationOps.assertNonNegative(
       continuationIndentCallSite,
       continuationIndentDefnSite
@@ -62,8 +64,9 @@ object ScalafmtStyle {
       noNewlinesBeforeJsNative = false,
       continuationIndentCallSite = 4,
       continuationIndentDefnSite = 4,
-      alignTokens = Set("//.*", "=>", "->", "=", "%", "%%")
+      alignTokens = Set.empty[AlignToken]
   )
+
   val default40 = default.copy(maxColumn = 40)
   val default120 = default.copy(maxColumn = 120)
 

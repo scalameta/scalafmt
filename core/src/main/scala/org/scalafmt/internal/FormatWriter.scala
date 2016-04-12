@@ -1,9 +1,11 @@
 package org.scalafmt.internal
 
+import scala.meta.Term
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 
 import org.scalafmt.ScalafmtStyle
+import org.scalafmt.internal.FormatWriter.FormatLocation
 
 /**
   * Produces formatted output from sequence of splits.
@@ -59,9 +61,6 @@ class FormatWriter(formatOps: FormatOps) {
     }
   }
 
-  case class FormatLocation(formatToken: FormatToken,
-                            split: Split,
-                            state: State)
   import org.scalafmt.util.LoggerOps._
   import org.scalafmt.util.TokenOps._
 
@@ -122,21 +121,42 @@ class FormatWriter(formatOps: FormatOps) {
 
   private def isCandidate(
       location: FormatLocation, style: ScalafmtStyle): Boolean = {
-    location.split.modification == Space &&
-    style.alignRegexp.findFirstIn(location.formatToken.right.code).isDefined
+    location.split.modification == Space && {
+      val token = location.formatToken.right
+      val code = token match {
+        case c: Comment if isInlineComment(c) => "//"
+        case t => t.code
+      }
+      style.alignMap.get(code).map { ownerRegexp =>
+        val owner = owners(token) match {
+          case name: Term.Name if name.parent.isDefined => name.parent.get
+          case x => x
+        }
+        ownerRegexp.findFirstIn(owner.getClass.getName).isDefined
+      }
+    }.getOrElse(false)
   }
 
-  def key(token: Token): Int = (token.getClass.getName).hashCode()
+  def key(token: Token): Int =
+    (token.getClass.getName, owners(token).getClass.getName).hashCode()
 
   private def columnsMatch(
-      a: Array[FormatLocation], b: Array[FormatLocation]): Boolean = {
-    if (a.length != b.length) false
-    else {
-      a.zip(b).forall {
+      a: Array[FormatLocation], b: Array[FormatLocation]): Int = {
+    a
+      .zip(b)
+      .takeWhile {
         case (left, right) =>
-          key(left.formatToken.right) == key(right.formatToken.right)
+          logger.elem(left)
+          val leftToken = left.formatToken.right
+          val rightToken = right.formatToken.right
+          val leftOwner = owners(leftToken)
+          val rightOwner = owners(rightToken)
+
+          key(leftToken) == key(rightToken) &&
+          !leftOwner.parent.contains(rightOwner) &&
+          !rightOwner.parent.contains(leftOwner)
       }
-    }
+      .length
   }
 
   def alignmentTokens(locations: Array[FormatLocation],
@@ -145,6 +165,7 @@ class FormatWriter(formatOps: FormatOps) {
     else {
       val finalResult = Map.newBuilder[FormatToken, Int]
       var i = 0
+      var maxMatches = -1
       var block = Vector.empty[Array[FormatLocation]]
       while (i < locations.length) {
         val columnCandidates = Array.newBuilder[FormatLocation]
@@ -163,14 +184,16 @@ class FormatWriter(formatOps: FormatOps) {
           }
         } else {
           val newlines = locations(i).split.modification.newlines
-          val isMatch = columnsMatch(block.last, candidates)
-          if (isMatch) {
+          val matches = columnsMatch(block.last, candidates)
+          maxMatches = Math.max(maxMatches, matches)
+          logger.elem(matches)
+          if (matches > 0) {
             block = block :+ candidates
           }
-          if (!isMatch || newlines > 1) {
+          if (matches == 0 || newlines > 1) {
             // Build result
             var column = 0
-            val columns = block.head.length
+            val columns = maxMatches
             while (column < columns) {
               val blockWithWidth = {
                 block.map { line =>
@@ -178,7 +201,11 @@ class FormatWriter(formatOps: FormatOps) {
                     if (column == 0) {
                       line(column).state.column
                     } else {
-                      line(column).state.column - line(column - 1).state.column
+                      val previousLocation = line(column - 1)
+                      val previousColumn =
+                        previousLocation.state.column -
+                        previousLocation.formatToken.right.code.length
+                      line(column).state.column - previousColumn
                     }
                   val key =
                     columnWidth - line(column).formatToken.right.code.length
@@ -193,6 +220,7 @@ class FormatWriter(formatOps: FormatOps) {
               column += 1
             }
             block = Vector.empty[Array[FormatLocation]]
+            maxMatches = -1
           }
         }
         i += 1
@@ -200,4 +228,11 @@ class FormatWriter(formatOps: FormatOps) {
       finalResult.result()
     }
   }
+}
+
+object FormatWriter {
+
+  case class FormatLocation(formatToken: FormatToken,
+                            split: Split,
+                            state: State)
 }

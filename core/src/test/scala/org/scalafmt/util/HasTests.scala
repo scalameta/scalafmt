@@ -2,6 +2,7 @@ package org.scalafmt.util
 
 import java.io.File
 
+import org.scalafmt.AlignToken
 import org.scalafmt.Debug
 import org.scalafmt.Error.UnknownStyle
 import org.scalafmt.FormatEvent.CompleteFormat
@@ -94,6 +95,7 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
       case "default" | "standard" | "scala" => ScalafmtStyle.unitTest80
       case "scalajs" => ScalafmtStyle.scalaJs
       case "stripMargin" => ScalafmtStyle.default
+      case "align" => ScalafmtStyle.default.copy(alignTokens = AlignToken.default)
       case style => throw UnknownStyle(style)
     }
 
@@ -151,8 +153,7 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
   def getFormatOutput(
       style: ScalafmtStyle, onlyOne: Boolean): Array[FormatOutput] = {
     val builder = mutable.ArrayBuilder.make[FormatOutput]()
-    val formatWriter = new FormatWriter(Debug.formatOps)
-    formatWriter.reconstructPath(
+    new FormatWriter(Debug.formatOps).reconstructPath(
         Debug.tokens, Debug.state.splits, style, debug = onlyOne) {
       case (_, token, whitespace) =>
         builder += FormatOutput(
