@@ -5,12 +5,14 @@ import java.io.File
 import org.scalafmt.Debug
 import org.scalafmt.Error.UnknownStyle
 import org.scalafmt.FormatEvent.CompleteFormat
+import org.scalafmt.FormatEvent.CreateFormatOps
 import org.scalafmt.FormatEvent.Enqueue
 import org.scalafmt.FormatEvent.Explored
 import org.scalafmt.FormatEvent.VisitToken
 import org.scalafmt.ScalafmtRunner
 import org.scalafmt.Scalafmt
 import org.scalafmt.ScalafmtStyle
+import org.scalafmt.internal.FormatOps
 import org.scalafmt.internal.FormatWriter
 import org.scalafmt.internal.State
 import org.scalatest.FunSuiteLike
@@ -25,6 +27,7 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
       debug = true,
       maxStateVisits = 100000,
       eventCallback = {
+        case CreateFormatOps(ops) => Debug.formatOps = ops
         case VisitToken(tok) => Debug.visit(tok)
         case explored: Explored if explored.n % 10000 == 0 =>
           logger.elem(explored)
@@ -148,7 +151,8 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
   def getFormatOutput(
       style: ScalafmtStyle, onlyOne: Boolean): Array[FormatOutput] = {
     val builder = mutable.ArrayBuilder.make[FormatOutput]()
-    FormatWriter.reconstructPath(
+    val formatWriter = new FormatWriter(Debug.formatOps)
+    formatWriter.reconstructPath(
         Debug.tokens, Debug.state.splits, style, debug = onlyOne) {
       case (_, token, whitespace) =>
         builder += FormatOutput(

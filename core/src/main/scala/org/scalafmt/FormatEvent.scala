@@ -1,5 +1,6 @@
 package org.scalafmt
 
+import org.scalafmt.internal.FormatOps
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.State
 import org.scalafmt.internal.Split
@@ -10,6 +11,7 @@ import org.scalafmt.internal.Split
 abstract class FormatEvent
 
 object FormatEvent {
+  case class CreateFormatOps(formatOps: FormatOps) extends FormatEvent
   case class VisitToken(formatToken: FormatToken) extends FormatEvent
   case class Explored(n: Int, depth: Int, queueSize: Int) extends FormatEvent
   case class Enqueue(split: Split) extends FormatEvent

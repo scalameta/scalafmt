@@ -1,4 +1,4 @@
-80 columns                                                                     |
+ONLY 80 columns                                                                     |
 <<< => with comment
 x match {
   case 1 => 2 // this is a comment

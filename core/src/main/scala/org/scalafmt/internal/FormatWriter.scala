@@ -15,7 +15,7 @@ class FormatWriter(formatOps: FormatOps) {
     val sb = new StringBuilder()
     var lastState =
       State.start // used to calculate start of formatToken.right.
-    FormatWriter.reconstructPath(tokens, splits, style) {
+    reconstructPath(tokens, splits, style) {
       case (state, formatToken, whitespace) =>
         formatToken.left match {
           case c: Comment if c.code.startsWith("/*") =>
@@ -58,11 +58,10 @@ class FormatWriter(formatOps: FormatOps) {
       token.code
     }
   }
-}
 
-object FormatWriter {
-  case class FormatLocation(
-      formatToken: FormatToken, split: Split, state: State)
+  case class FormatLocation(formatToken: FormatToken,
+                            split: Split,
+                            state: State)
   import org.scalafmt.util.LoggerOps._
   import org.scalafmt.util.TokenOps._
 

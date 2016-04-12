@@ -1,5 +1,6 @@
 package org.scalafmt
 
+import org.scalafmt.FormatEvent.CreateFormatOps
 import org.scalafmt.internal.BestFirstSearch
 import org.scalafmt.internal.FormatOps
 import org.scalafmt.internal.FormatWriter
@@ -28,6 +29,7 @@ object Scalafmt {
       val tree = new scala.meta.XtensionParseInputLike(code)
         .parse(stringToInput, runner.parser, scala.meta.dialects.Scala211).get
       val formatOps = new FormatOps(tree, style, runner)
+      runner.eventCallback(CreateFormatOps(formatOps))
       val formatWriter = new FormatWriter(formatOps)
       val search = new BestFirstSearch(formatOps, range, formatWriter)
       val partial = search.getBestPath
