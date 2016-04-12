@@ -15,7 +15,7 @@ x match {
 
   case 1111 => 1111 // Please ignore me, I'm a loner
 }
-<<< = with comment
+<<< val = with comment
 {
   val x = 2 // x
   val xx = 22 // xx
@@ -30,6 +30,38 @@ x match {
   val xxx = 222 // xxx
 
   val xxxx = 2222 // loner
+}
+<<< var = with comment
+{
+  var x = 2 // x
+  var xx = 22 // xx
+  var xxx = 222 // xxx
+
+  var xxxx = 2222 // loner
+}
+>>>
+{
+  var x   = 2   // x
+  var xx  = 22  // xx
+  var xxx = 222 // xxx
+
+  var xxxx = 2222 // loner
+}
+<<< def = with comment
+{
+  def x = 2 // x
+  def xx = 22 // xx
+  def xxx = 222 // xxx
+
+  def xxxx = 2222 // loner
+}
+>>>
+{
+  def x   = 2   // x
+  def xx  = 22  // xx
+  def xxx = 222 // xxx
+
+  def xxxx = 2222 // loner
 }
 <<< module id
     libraryDependencies ++= Seq(
@@ -61,3 +93,115 @@ def noAlign = 3
 val x         = 1 // comment
 val noComment = 2
 def noAlign = 3
+<<< slick #138
+def address = column[String]("address", O.PrimaryKey)
+def name = column[String]("name")
+def status = column[Int]("status")
+// comment
+>>>
+def address = column[String]("address", O.PrimaryKey)
+def name    = column[String]("name")
+def status  = column[Int]("status")
+// comment
+<<< colors #138
+// tuples
+val colors = Map (
+  "white"   -> white,
+  "green"   -> green,
+  "yellow"  -> yellow,
+  "red"     -> red,
+  "blue"    -> blue,
+  "cyan"    -> cyan,
+  "black"   -> black,
+  "magenta" -> magenta
+)
+>>>
+// tuples
+val colors = Map(
+    "white"   -> white,
+    "green"   -> green,
+    "yellow"  -> yellow,
+    "red"     -> red,
+    "blue"    -> blue,
+    "cyan"    -> cyan,
+    "black"   -> black,
+    "magenta" -> magenta
+)
+<<< sbt module ID #138
+addSbtPlugin("com.eed3si9n"   % "sbt-unidoc"            % "0.3.2")
+addSbtPlugin("com.github.gseitz"    % "sbt-release"           % "1.0.0")
+addSbtPlugin("com.jsuereth"  % "sbt-pgp"               % "1.0.0")
+addSbtPlugin("com.typesafe.sbt"     % "sbt-ghpages"           % "0.5.3")
+addSbtPlugin("com.typesafe.sbt"     % "sbt-site"              % "0.8.1")
+addSbtPlugin("org.tpolecat"  % "tut-plugin"            % "0.4.0")
+addSbtPlugin("pl.project13.scala"   % "sbt-jmh"               % "0.2.3")
+addSbtPlugin("org.scalastyle"      %% "scalastyle-sbt-plugin" % "0.8.0")
+addSbtPlugin("org.scoverage" % "sbt-scoverage"         % "1.2.0")
+addSbtPlugin("com.typesafe.sbt"     % "sbt-git"               % "0.8.4")
+addSbtPlugin("org.scala-js" % "sbt-scalajs"           % "0.6.8")
+addSbtPlugin("com.github.tkawachi"  % "sbt-doctest"           % "0.3.5")
+addSbtPlugin("org.xerial.sbt"       % "sbt-sonatype"          %  "1.1")
+// dependencies
+>>>
+addSbtPlugin("com.eed3si9n"        % "sbt-unidoc"             % "0.3.2")
+addSbtPlugin("com.github.gseitz"   % "sbt-release"            % "1.0.0")
+addSbtPlugin("com.jsuereth"        % "sbt-pgp"                % "1.0.0")
+addSbtPlugin("com.typesafe.sbt"    % "sbt-ghpages"            % "0.5.3")
+addSbtPlugin("com.typesafe.sbt"    % "sbt-site"               % "0.8.1")
+addSbtPlugin("org.tpolecat"        % "tut-plugin"             % "0.4.0")
+addSbtPlugin("pl.project13.scala"  % "sbt-jmh"                % "0.2.3")
+addSbtPlugin("org.scalastyle"      %% "scalastyle-sbt-plugin" % "0.8.0")
+addSbtPlugin("org.scoverage"       % "sbt-scoverage"          % "1.2.0")
+addSbtPlugin("com.typesafe.sbt"    % "sbt-git"                % "0.8.4")
+addSbtPlugin("org.scala-js"        % "sbt-scalajs"            % "0.6.8")
+addSbtPlugin("com.github.tkawachi" % "sbt-doctest"            % "0.3.5")
+addSbtPlugin("org.xerial.sbt"      % "sbt-sonatype"           % "1.1")
+// dependencies
+<<< final val #138
+final val CAPTURED      = 1 << 16       // var
+final val LABEL         = 1 << 17       // meth
+final val INCONSTRUCTOR = 1 << 17       // class
+final val SYNTHETIC     = 1 << 21       // symbol
+final val STABLE        = 1 << 22       // f
+final val BRIDGE        = 1 << 26       // fu
+final val ACCESSOR      = 1 << 27       // a v
+final val SUPERACCESSOR = 1 << 28       // a su
+final val MODULEVAR     = 1 << 30       // for v
+final val IS_ERROR      = 1L << 32      // symbol
+final val OVERLOADED    = 1L << 33      // symbol
+// comments
+>>>
+final val CAPTURED      = 1 << 16  // var
+final val LABEL         = 1 << 17  // meth
+final val INCONSTRUCTOR = 1 << 17  // class
+final val SYNTHETIC     = 1 << 21  // symbol
+final val STABLE        = 1 << 22  // f
+final val BRIDGE        = 1 << 26  // fu
+final val ACCESSOR      = 1 << 27  // a v
+final val SUPERACCESSOR = 1 << 28  // a su
+final val MODULEVAR     = 1 << 30  // for v
+final val IS_ERROR      = 1L << 32 // symbol
+final val OVERLOADED    = 1L << 33 // symbol
+// comments
+<<< tricky regex #138
+def f[A](x: A)(f: A => Int) = f(x) match {
+  case 1 => true
+  case 222 => false
+}
+>>>
+def f[A](x: A)(f: A => Int) = f(x) match {
+  case 1   => true
+  case 222 => false
+}
+<<< conflicting number of columns
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-reflect" % scalaVersion.value % "test",
+      "org.scala-lang" % "scala-compiler",
+      "ch.qos.logback" % "logback-classic" % "1.1.6" % "test"
+     )
+>>>
+libraryDependencies ++= Seq(
+    "org.scala-lang" % "scala-reflect" % scalaVersion.value % "test",
+    "org.scala-lang" % "scala-compiler",
+    "ch.qos.logback" % "logback-classic" % "1.1.6" % "test"
+)

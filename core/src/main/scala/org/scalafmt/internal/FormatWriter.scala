@@ -144,20 +144,18 @@ class FormatWriter(formatOps: FormatOps) {
   private def columnsMatch(a: Array[FormatLocation],
                            b: Array[FormatLocation],
                            endOfLine: FormatToken): Int = {
-    a
-      .zip(b)
-      .takeWhile {
-        case (column1, column2) =>
-          val rightOwner = column2.formatToken match {
-            // Corner case when line ends with comment
-            case FormatToken(x, c: Comment, _) if isInlineComment(c) =>
-              owners(x)
-            case FormatToken(_, r, _) => owners(r)
-          }
-          key(column1.formatToken.right) == key(column2.formatToken.right) &&
-          !parents(owners(endOfLine.right)).contains(rightOwner)
-      }
-      .length
+    val result = a.zip(b).takeWhile {
+      case (column1, column2) =>
+        val rightOwner = column2.formatToken match {
+          // Corner case when line ends with comment
+          case FormatToken(x, c: Comment, _) if isInlineComment(c) =>
+            owners(x)
+          case FormatToken(_, r, _) => owners(r)
+        }
+        key(column1.formatToken.right) == key(column2.formatToken.right) &&
+        !parents(owners(endOfLine.right)).contains(rightOwner)
+    }
+    result.length
   }
 
   def alignmentTokens(locations: Array[FormatLocation],
@@ -166,21 +164,17 @@ class FormatWriter(formatOps: FormatOps) {
     else {
       val finalResult = Map.newBuilder[FormatToken, Int]
       var i = 0
-      var maxMatches = -1
+      var minMatches = Integer.MAX_VALUE
       var block = Vector.empty[Array[FormatLocation]]
       while (i < locations.length) {
         val columnCandidates = Array.newBuilder[FormatLocation]
         while (i < locations.length &&
         !locations(i).split.modification.isNewline) {
-          // One row
           if (isCandidate(locations(i), style)) {
             columnCandidates += locations(i)
           }
           i += 1
         }
-//        {
-//          statementStarts.contains(hash(locations(i).formatToken.right))
-//        }
         val candidates = columnCandidates.result()
         if (block.isEmpty) {
           if (candidates.nonEmpty) {
@@ -190,14 +184,14 @@ class FormatWriter(formatOps: FormatOps) {
           val newlines = locations(i).split.modification.newlines
           val matches = columnsMatch(
               block.last, candidates, locations(i).formatToken)
-          maxMatches = Math.max(maxMatches, matches)
+          minMatches = Math.min(
+              minMatches, if (matches > 0) matches else block.head.length)
           if (matches > 0) {
             block = block :+ candidates
           }
           if (matches == 0 || newlines > 1) {
-            // Build result
             var column = 0
-            val columns = maxMatches
+            val columns = minMatches
             while (column < columns) {
               val blockWithWidth = {
                 block.map { line =>
@@ -223,15 +217,14 @@ class FormatWriter(formatOps: FormatOps) {
               }
               column += 1
             }
-            block = Vector.empty[Array[FormatLocation]]
-            maxMatches = -1
+            if (candidates.isEmpty || newlines > 1) {
+              block = Vector.empty[Array[FormatLocation]]
+            } else {
+              block = Vector(candidates)
+            }
+            minMatches = Integer.MAX_VALUE
           }
         }
-//        logger.elem(locations(i).formatToken)
-//        if (!(statementStarts.contains(rightToken) ||
-//            argumentStarts.contains(rightToken))) {
-//          block = Vector.empty[Array[FormatLocation]]
-//        }
         i += 1
       }
       finalResult.result()
