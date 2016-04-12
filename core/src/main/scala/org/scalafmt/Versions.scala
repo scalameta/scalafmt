@@ -5,7 +5,7 @@ package org.scalafmt
   */
 object Versions {
   // Nightly, used in CLI, build.sbt, etc.
-  val nightly = "0.2.0-SNAPSHOT"
+  val nightly = "0.2.0"
   // Stable, used in official user docs.
-  val stable = "0.1.6"
+  val stable = "0.2.0"
 }
