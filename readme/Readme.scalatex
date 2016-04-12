@@ -315,11 +315,11 @@
           the root directory of your project.
 
           @p
-            Here is an example @code(".scalafmt"), note that comments are allowed.
+            Here is an example @code(".scalafmt").
 
             @hl.scala
-              --style defaultWithAlign // aligns tokens like => and -> and comments
-              --maxColumn 100          // column limit is 100 instead of 80
+              --style defaultWithAlign
+              --maxColumn 100
 
             To experiment with different options, I recommend you use the CLI.
             For details, read about the @code("--config") flag in the
