@@ -3,6 +3,7 @@ package org.scalafmt.cli
 import java.io.File
 import java.util.concurrent.TimeUnit
 
+import org.scalafmt.AlignToken
 import org.scalafmt.Error.MisformattedFile
 import org.scalafmt.FormatResult
 import org.scalafmt.Scalafmt
@@ -24,6 +25,9 @@ object Cli {
       |
       |// write formatted contents to file.
       |scalafmt -i -f Code1.scala,Code2.scala
+      |
+      |// format with predefined custom style
+      |scalafmt --style defaultWithAlign -f Code.scala
       |
       |// read style options from a configuration file
       |$ cat .scalafmt
@@ -121,8 +125,41 @@ object Cli {
       c.copy(style = c.style.copy(alignStripMarginStrings = bool))
     } text s"See ScalafmtConfig scaladoc."
     opt[Seq[String]]("alignTokens") action { (tokens, c) =>
-      c.copy(style = c.style.copy(alignTokens = tokens.toSet))
-    } text s"See ScalafmtConfig scaladoc."
+      val alignsTokens = tokens.map { token =>
+        val splitted = token.split(";", 2)
+        if (splitted.length != 2)
+          throw new IllegalArgumentException("align token must contain ;")
+        AlignToken(splitted(0), splitted(1))
+      }
+      c.copy(style = c.style.copy(alignTokens = alignsTokens.toSet))
+    } text s"""(experimental). Comma separated sequence of tokens to align by. Each
+              |        token is a ; separated pair of strings where the first string
+              |        is the string literal value of the token to align by and the
+              |        second string is a regular expression matching the class
+              |        name of the scala.meta.Tree that "owns" that token.
+              |
+              |        Examples:
+              |        1. Align by -> tuples.
+              |        ->;Term.ApplyInfix
+              |
+              |        NOTE. the closest owner of -> is actually Term.Name,
+              |        but in case Term.Name we match against the parent of Term.Name.
+              |
+              |        2. Assignment of def var/val/def
+              |        =;Defn.(Va(l|r)|Def)
+              |
+              |        3. Comment owned by whatever tree
+              |        //;.*
+              |
+              |        To use all three rules, set <value> to:
+              |        =;Defn.(Va(l|r)|Def),->;Term.ApplyInfix,//;.*
+              |        The base style defaultWithAlign already does this
+              |        for you.
+              |
+              |
+              |        It's best to play around with scala.meta in a console to understand
+              |        how trees are parsed and which tokens are "owned" by which tree.
+              |""".stripMargin
     note(s"""
             |Examples:
             |

@@ -45,7 +45,7 @@ case class ScalafmtStyle(maxColumn: Int,
                          continuationIndentDefnSite: Int,
                          alignTokens: Set[AlignToken]) {
   lazy val alignMap: Map[String, Regex] =
-    alignTokens.map(x => x.code -> x.owner).toMap
+    alignTokens.map(x => x.code -> x.owner.r).toMap
   ValidationOps.assertNonNegative(
       continuationIndentCallSite,
       continuationIndentDefnSite
@@ -64,9 +64,9 @@ object ScalafmtStyle {
       noNewlinesBeforeJsNative = false,
       continuationIndentCallSite = 4,
       continuationIndentDefnSite = 4,
-//      alignTokens = AlignToken.default
       alignTokens = Set.empty[AlignToken]
   )
+  val defaultWithAlign = default.copy(alignTokens = AlignToken.default)
 
   val default40 = default.copy(maxColumn = 40)
   val default120 = default.copy(maxColumn = 120)
@@ -89,6 +89,7 @@ object ScalafmtStyle {
     */
   val availableStyles = name2style(
       default,
+      defaultWithAlign,
       scalaJs
   )
 

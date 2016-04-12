@@ -92,4 +92,5 @@ class CliTest extends FunSuite with DiffAssertions {
     val obtained = FileOps.readFile(tmpFile.toString)
     assertNoDiff(obtained, unformatted)
   }
+  Cli.parser.showUsage
 }
