@@ -4,15 +4,11 @@
  */
 package org.scalafmt.intellij
 
-import scala.collection.mutable
 import scala.meta.parsers.ParseException
-
-import java.io.File
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
-import com.intellij.openapi.actionSystem.DataKeys
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.Document
@@ -23,12 +19,11 @@ import com.intellij.openapi.ui.popup.Balloon
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.WindowManager
-import com.intellij.ui.JBProgressBar
 import com.intellij.ui.awt.RelativePoint
 import org.scalafmt.FormatResult
 import org.scalafmt.Scalafmt
 import org.scalafmt.ScalafmtStyle
-import org.scalafmt.cli.Cli
+import org.scalafmt.cli.StyleCache
 import org.scalafmt.util.FileOps
 
 case class FileDocument(file: VirtualFile, document: Document) {
@@ -42,6 +37,7 @@ class ScalafmtAction extends AnAction {
     getCurrentFileDocument(event).filter(_.isScala).foreach { fileDoc =>
       val source = fileDoc.document.getText()
       Scalafmt.format(source, style = style) match {
+        case _: FormatResult.Incomplete =>
         case FormatResult.Failure(e: ParseException) =>
           displayMessage(
               event, "Parse error: " + e.getMessage, MessageType.ERROR)
@@ -69,7 +65,7 @@ class ScalafmtAction extends AnAction {
       project <- Option(event.getData(CommonDataKeys.PROJECT))
       configFile = FileOps.getFile(project.getBasePath, ".scalafmt")
           if configFile.isFile
-      style <- ScalafmtAction.getStyleForFile(configFile.getAbsolutePath)
+      style <- StyleCache.getStyleForFile(configFile.getAbsolutePath)
     } yield style
     customStyle.getOrElse(ScalafmtStyle.default)
   }
@@ -97,21 +93,5 @@ class ScalafmtAction extends AnAction {
       .createBalloon()
       .show(RelativePoint.getCenterOf(statusBar.getComponent),
             Balloon.Position.atRight)
-  }
-}
-
-object ScalafmtAction {
-  private val style = mutable.Map.empty[String, ScalafmtStyle]
-  def getStyleForFile(filename: String): Option[ScalafmtStyle] = {
-    if (style.contains(filename)) style.get(filename)
-    else {
-      val file = new File(filename)
-      Cli.parseConfigFile(FileOps.readFile(file)).map { config =>
-        // Cache result forever. I prefer to create a nice IDE-agnostic UI for
-        // experimenting with different config flags.
-        style.put(filename, config.style)
-        config.style
-      }
-    }
   }
 }
