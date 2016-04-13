@@ -1,6 +1,7 @@
 package org.scalafmt.internal
 
 import scala.meta.Term
+import scala.meta.Tree
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 
@@ -141,19 +142,23 @@ class FormatWriter(formatOps: FormatOps) {
   def key(token: Token): Int =
     (token.getClass.getName, owners(token).getClass.getName).hashCode()
 
+  private def getAlignOwner(formatToken: FormatToken): Tree =
+    formatToken match {
+      // Corner case when line ends with comment
+      // TODO(olafur) should this be part of owners?
+      case FormatToken(x, c: Comment, _) if isInlineComment(c) =>
+        owners(x)
+      case FormatToken(_, r, _) => owners(r)
+    }
+
   private def columnsMatch(a: Array[FormatLocation],
                            b: Array[FormatLocation],
                            endOfLine: FormatToken): Int = {
     val result = a.zip(b).takeWhile {
-      case (column1, column2) =>
-        val rightOwner = column2.formatToken match {
-          // Corner case when line ends with comment
-          case FormatToken(x, c: Comment, _) if isInlineComment(c) =>
-            owners(x)
-          case FormatToken(_, r, _) => owners(r)
-        }
-        key(column1.formatToken.right) == key(column2.formatToken.right) &&
-        !parents(owners(endOfLine.right)).contains(rightOwner)
+      case (row1, row2) =>
+        val row1Owner = getAlignOwner(row1.formatToken)
+        key(row1.formatToken.right) == key(row2.formatToken.right) &&
+        !parents(owners(endOfLine.right)).contains(row1Owner)
     }
     result.length
   }

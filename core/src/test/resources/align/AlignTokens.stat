@@ -285,3 +285,17 @@ for {
   a   ← List(1)
   aaa ← List(1)
 } yield 1
+<<< don't jump scope #152
+object Cleaver {
+   def apply[R, A, B](): Cleaver[R, A, B] = new Cleaver[R, A, B] {
+    def split(x: R): A -> B               = (l(x), r(x))
+    def join(x: A -> B): R                = f(x._1, x._2)
+   }
+ }
+>>>
+object Cleaver {
+  def apply[R, A, B](): Cleaver[R, A, B] = new Cleaver[R, A, B] {
+    def split(x: R): A -> B = (l(x), r(x))
+    def join(x: A -> B): R  = f(x._1, x._2)
+  }
+}
