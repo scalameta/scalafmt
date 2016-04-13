@@ -73,8 +73,9 @@ object Cli {
 
   lazy val parser = new scopt.OptionParser[Config]("scalafmt") {
 
-    def printHelpAndExit(ignore: Unit, c: Config): Config = {
-      showUsage
+    def printAndExit(inludeUsage: Boolean)(ignore: Unit, c: Config): Config = {
+      if (inludeUsage) showUsage
+      else showHeader
       sys.exit
       c
     }
@@ -94,8 +95,8 @@ object Cli {
     opt[Unit]("test") action { (_, c) =>
       c.copy(testing = true)
     } text "test for mis-formatted code, exits with status 1 on failure."
-    opt[Unit]('v', "version") action printHelpAndExit text "print version "
-    opt[Unit]('h', "help") action printHelpAndExit text "prints this usage text"
+    opt[Unit]('v', "version") action printAndExit(inludeUsage = false) text "print version "
+    opt[Unit]('h', "help") action printAndExit(inludeUsage = true) text "prints this usage text"
     opt[(Int, Int)]("range").hidden() action {
       case ((from, to), c) =>
         c.copy(range = c.range + Range(from - 1, to - 1))
