@@ -80,10 +80,6 @@ object ScalaFmtPlugin extends AutoPlugin {
     List(
         ivyConfigurations += config("scalafmt").hide,
         libraryDependencies ++= Seq(
-            // scala.meta uses scala-compiler to parse xml literals, for some reason
-            // the scala-compiler dependency needs to be explicitly added to
-            // avoid noclassdeferror.
-            "org.scala-lang" % "scala-compiler" % "2.11.7" % "scalafmt",
             "com.geirsson" % "scalafmt-cli_2.11" % org.scalafmt.Versions.nightly % "scalafmt"
         )
     )
