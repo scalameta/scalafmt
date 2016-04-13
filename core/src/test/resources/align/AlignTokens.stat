@@ -245,45 +245,57 @@ object A {
   trait Eq[-A]   extends Any            { def eqv(x: A, y: A): Boolean }
   trait Hash[-A] extends Any with Eq[A] { def hash(x: A): Int          }
 }
-<<< unicode symbols #155
+<<< unicode => #155
 1 match {
   case 1 ⇒ 1
   case 11 ⇒ 1
 }
-
-val m = Map(
-  1 → 1,
-  11 → 1
-)
-
-for {
-  a <- List(1)
-  aaa <- List(1)
-} yield 1
-
-for {
-  a ← List(1)
-  aaa ← List(1)
-} yield 1
 >>>
 1 match {
   case 1  ⇒ 1
   case 11 ⇒ 1
 }
-
+<<< unicode -> #155
+val m = Map(
+  1 → 1,
+  11 → 1
+)
+>>>
 val m = Map(
     1  → 1,
     11 → 1
 )
-
+<<< align by <- #155
+for {
+  a <- List(1)
+  aaa <- List(1)
+} yield 1
+>>>
 for {
   a   <- List(1)
   aaa <- List(1)
 } yield 1
-
+<<< unicode <- #155
+for {
+  a ← List(1)
+  aaa ← List(1)
+} yield 1
+>>>
 for {
   a   ← List(1)
   aaa ← List(1)
+} yield 1
+<<< enumerator val = #155
+for {
+  a ← List(1)
+  a = List(1)
+  aaa = List(1)
+} yield 1
+>>>
+for {
+  a ← List(1)
+  a   = List(1)
+  aaa = List(1)
 } yield 1
 <<< don't jump scope #152
 object Cleaver {

@@ -144,7 +144,7 @@ def point(
 ): Point = {
   Point(x, y)
 }
-<<< ONLY macro #149
+<<< macro #149
 def callMain [T] (t: T): T = macro callMainImpl[T]
 >>>
 def callMain[T](t: T): T = macro callMainImpl[T]

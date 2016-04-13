@@ -24,6 +24,6 @@ object AlignToken {
       AlignToken("←", "Enumerator.Generator"),
       AlignToken("->", applyInfix),
       AlignToken("→", applyInfix),
-      AlignToken("=", "Defn.(Va(l|r)|Def|Type)")
+      AlignToken("=", "(Enumerator.Val|Defn.(Va(l|r)|Def|Type))")
   )
 }
