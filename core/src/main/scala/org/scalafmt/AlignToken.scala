@@ -1,9 +1,14 @@
 package org.scalafmt
 
+/**
+  * Configuration option for aligning tokens.
+  *
+  * @param code string literal value of the token to align by.
+  * @param owner regexp for class name of scala.meta.Tree "owner" of [[code]].
+  */
 case class AlignToken(code: String, owner: String)
 
 object AlignToken {
-  // TODO(olafur) Matching against class name is flaky.
   val applyInfix = "Term.ApplyInfix"
 
   val default = Set(
