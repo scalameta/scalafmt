@@ -245,3 +245,43 @@ object A {
   trait Eq[-A]   extends Any            { def eqv(x: A, y: A): Boolean }
   trait Hash[-A] extends Any with Eq[A] { def hash(x: A): Int          }
 }
+<<< unicode symbols #155
+1 match {
+  case 1 ⇒ 1
+  case 11 ⇒ 1
+}
+
+val m = Map(
+  1 → 1,
+  11 → 1
+)
+
+for {
+  a <- List(1)
+  aaa <- List(1)
+} yield 1
+
+for {
+  a ← List(1)
+  aaa ← List(1)
+} yield 1
+>>>
+1 match {
+  case 1  ⇒ 1
+  case 11 ⇒ 1
+}
+
+val m = Map(
+    1  → 1,
+    11 → 1
+)
+
+for {
+  a   <- List(1)
+  aaa <- List(1)
+} yield 1
+
+for {
+  a   ← List(1)
+  aaa ← List(1)
+} yield 1

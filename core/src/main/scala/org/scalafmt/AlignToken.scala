@@ -19,7 +19,11 @@ object AlignToken {
       AlignToken("%", applyInfix),
       AlignToken("%%", applyInfix),
       AlignToken("=>", "Case"),
+      AlignToken("⇒", "Case"),
+      AlignToken("<-", "Enumerator.Generator"),
+      AlignToken("←", "Enumerator.Generator"),
       AlignToken("->", applyInfix),
+      AlignToken("→", applyInfix),
       AlignToken("=", "Defn.(Va(l|r)|Def|Type)")
   )
 }
