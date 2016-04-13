@@ -1,12 +1,13 @@
 40 columns                              |
 <<< One per line
 import foo.bar
+
 import kaz.bar
 object a
 >>>
 import foo.bar
-import kaz.bar
 
+import kaz.bar
 object a
 <<< One per line, with docstring
 import foo.bar
@@ -28,7 +29,6 @@ import org.{A    => B}
 object a
 >>>
 import org.{A => B}
-
 object a
 <<< scalajs imports
 import scala.language.implicitConversions

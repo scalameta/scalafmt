@@ -18,14 +18,12 @@ package foo
 object a
 >>>
 package foo
-
 object a
 <<< with inline comment
 package foo // this package is cool
 object a
 >>>
 package foo // this package is cool
-
 object a
 <<< with import
 package foo
@@ -33,9 +31,7 @@ import a.b
 object a
 >>>
 package foo
-
 import a.b
-
 object a
 <<< 2x packages
 package foo
@@ -44,5 +40,15 @@ object a
 >>>
 package foo
 package bar
-
 object a
+
+<<< top-level stats have flexible newlines #153
+package foo
+abstract class Dsl
+class A     extends Dsl
+class B extends Dsl
+>>>
+package foo
+abstract class Dsl
+class A extends Dsl
+class B extends Dsl
