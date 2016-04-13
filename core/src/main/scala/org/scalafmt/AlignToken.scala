@@ -1,25 +1,20 @@
 package org.scalafmt
 
-import scala.util.matching.Regex
-
 case class AlignToken(code: String, owner: String)
 
 object AlignToken {
   // TODO(olafur) Matching against class name is flaky.
   val applyInfix = "Term.ApplyInfix"
-  val alignComments = AlignToken("//", ".*")
-  val alignCaseArrow = AlignToken("=>", "Case")
-  val alignTupleArrow = AlignToken("->", applyInfix)
-  val alignAssignment = AlignToken("=", "Defn.(Va(l|r)|Def)")
 
-  val alignModuleId = Set(
+  val default = Set(
+      AlignToken("extends", "Defn.(Class|Trait|Object)"),
+      AlignToken("//", ".*"),
+      AlignToken("{", "Template"),
+      AlignToken("}", "Template"),
       AlignToken("%", applyInfix),
-      AlignToken("%%", applyInfix)
+      AlignToken("%%", applyInfix),
+      AlignToken("=>", "Case"),
+      AlignToken("->", applyInfix),
+      AlignToken("=", "Defn.(Va(l|r)|Def|Type)")
   )
-
-  val default =
-    Set(alignComments,
-        alignCaseArrow,
-        alignTupleArrow,
-        alignAssignment) ++ alignModuleId
 }

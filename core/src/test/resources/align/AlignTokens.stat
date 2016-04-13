@@ -217,3 +217,31 @@ class A {
 
   override def xx = 11
 }
+<<< align extends, #148
+object A {
+  trait B  extends A
+  trait BB extends A
+
+class B  extends A
+class BB extends A
+
+type C = Int
+type CC = String
+
+  trait Eq[-A]   extends Any            { def eqv(x: A, y: A): Boolean }
+  trait Hash[-A] extends Any with Eq[A] { def hash(x: A): Int          }
+}
+>>>
+object A {
+  trait B  extends A
+  trait BB extends A
+
+  class B  extends A
+  class BB extends A
+
+  type C  = Int
+  type CC = String
+
+  trait Eq[-A]   extends Any            { def eqv(x: A, y: A): Boolean }
+  trait Hash[-A] extends Any with Eq[A] { def hash(x: A): Int          }
+}
