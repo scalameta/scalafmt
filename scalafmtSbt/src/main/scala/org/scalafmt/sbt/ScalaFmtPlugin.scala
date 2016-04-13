@@ -55,8 +55,7 @@ object ScalaFmtPlugin extends AutoPlugin {
     lazy val reformatOnCompileSettings: Seq[Def.Setting[_]] =
       List(
           compileInputs in (Compile, compile) <<=
-          (compileInputs in (Compile, compile)) dependsOn
-          (scalafmt in Compile),
+          (compileInputs in (Compile, compile)) dependsOn (scalafmt in Compile),
           compileInputs in (Test, compile) <<=
           (compileInputs in (Test, compile)) dependsOn (scalafmt in Test)
       )

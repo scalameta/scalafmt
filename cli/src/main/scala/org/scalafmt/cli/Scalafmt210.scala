@@ -11,9 +11,8 @@ import org.scalafmt.ScalafmtStyle
 class Scalafmt210 {
 
   def format(code: String, configFile: String): String = {
-    val style = StyleCache
-      .getStyleForFile(configFile)
-      .getOrElse(ScalafmtStyle.default)
+    val style =
+      StyleCache.getStyleForFile(configFile).getOrElse(ScalafmtStyle.default)
     format(code, style)
   }
 
