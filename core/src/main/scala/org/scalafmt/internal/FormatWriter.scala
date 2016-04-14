@@ -156,9 +156,12 @@ class FormatWriter(formatOps: FormatOps) {
                            endOfLine: FormatToken): Int = {
     val result = a.zip(b).takeWhile {
       case (row1, row2) =>
+        val row2Owner = getAlignOwner(row2.formatToken)
         val row1Owner = getAlignOwner(row1.formatToken)
-        key(row1.formatToken.right) == key(row2.formatToken.right) &&
-        !parents(owners(endOfLine.right)).contains(row1Owner)
+        key(row1.formatToken.right) == key(row2.formatToken.right) && {
+          val eofParents = parents(owners(endOfLine.right))
+          !(eofParents.contains(row1Owner) || eofParents.contains(row2Owner))
+        }
     }
     result.length
   }

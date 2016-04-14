@@ -311,3 +311,13 @@ object Cleaver {
     def join(x: A -> B): R  = f(x._1, x._2)
   }
 }
+<<< only align single-line statements
+val a = function(1, b)
+val aaaaa = function(1, b)
+val aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = function(1, b, bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb)
+>>>
+val a     = function(1, b)
+val aaaaa = function(1, b)
+val aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = function(
+    1, b, bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb)
+
