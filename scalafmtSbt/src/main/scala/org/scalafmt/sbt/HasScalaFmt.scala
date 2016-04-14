@@ -59,10 +59,12 @@ case class HasScalaFmt(reflective: ScalaFmtLike,
     files.foreach(handleFile(testFormatted))
   }
 
+  case class MisformattedFile(file: File)
+      extends Exception(s"${file.getPath} is mis-formatted.")
+
   private def testFormatted(result: FormatResult): Unit = {
     if (result.formattedContents != result.originalContents) {
-      System.err.println(s"${result.file.getPath} is mis-formatted.")
-      System.exit(1)
+      throw MisformattedFile(result.file)
     }
   }
 
