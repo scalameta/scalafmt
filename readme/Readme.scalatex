@@ -400,17 +400,20 @@
     @sect{0.2.1}
       @ul
         @li
-          Closed issues @issues(148, 151, 147, 149, 155, 152, 153).
-          Thanks for everyone who contributed bug reports on Github, Gitter
-          and reddit.
+          @code("defaultWithAlign") will not jump scope @issue(152).
         @li
           @code("defaultWithAlign") now includes a lot more alignment rules,
-          check out the @lnk("test suite", "https://github.com/olafurpg/scalafmt/blob/555e87cabb3caf313a5915ac6506f9a79a84457c/core/src/test/resources/align/AlignTokens.stat").
+          see the @lnk("diff against 0.2.0", "https://github.com/olafurpg/scalafmt/commit/9b14be99510f4763b8ea59be91b99af4ea4f8ad7").
+          and @lnk("updated test suite", "https://github.com/olafurpg/scalafmt/blob/555e87cabb3caf313a5915ac6506f9a79a84457c/core/src/test/resources/align/AlignTokens.stat").
         @li
           If you had troubles with @code("--alignTokens") please try again,
           it may have been caused by @issue(151).
         @li
           @code(".scalafmt") now supports comments starting with @code("#").
+        @li
+          Other closed issues: @issues(148, 147, 149, 155, 153).
+          Thanks for everyone who contributed bug reports via Github, Gitter
+          and Reddit.
 
     @sect{0.2.0}
 
