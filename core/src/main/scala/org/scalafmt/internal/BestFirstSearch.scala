@@ -1,5 +1,7 @@
 package org.scalafmt.internal
 
+import scala.meta.Defn
+
 import org.scalafmt.FormatResult
 import org.scalafmt.internal.ExpiresOn.Right
 import org.scalafmt.internal.ExpiresOn.Left

@@ -27,7 +27,8 @@ object Scalafmt {
              range: Set[Range] = Set.empty[Range]): FormatResult = {
     try {
       val tree = new scala.meta.XtensionParseInputLike(code)
-        .parse(stringToInput, runner.parser, scala.meta.dialects.Scala211).get
+        .parse(stringToInput, runner.parser, scala.meta.dialects.Scala211)
+        .get
       val formatOps = new FormatOps(tree, style, runner)
       runner.eventCallback(CreateFormatOps(formatOps))
       val formatWriter = new FormatWriter(formatOps)

@@ -117,14 +117,6 @@ class Router(formatOps: FormatOps) {
             Split(NoSplit, 0)
         )
 
-      // Top level defns
-      case tok@FormatToken(_, right, _)
-          if !right.isInstanceOf[`package `] && !isDocstring(tok.left) &&
-          gets2x(tok) =>
-        Seq(
-            Split(Newline2x, 0)
-        )
-
       // { ... } Blocks
       case tok@FormatToken(open: `{`, right, between) =>
         val nl = Newline(shouldGet2xNewlines(tok))

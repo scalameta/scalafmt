@@ -3,11 +3,13 @@ package org.scalafmt.cli
 import java.io.File
 import java.nio.file.Files
 
+import org.scalafmt.AlignToken
 import org.scalafmt.Error.MisformattedFile
 import org.scalafmt.ScalafmtStyle
 import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.FileOps
 import org.scalatest.FunSuite
+import shapeless.ops.hlist.Align
 
 class CliTest extends FunSuite with DiffAssertions {
   import org.scalafmt.util.LoggerOps._
@@ -53,12 +55,17 @@ class CliTest extends FunSuite with DiffAssertions {
 
   test("cli parses style from config file") {
     val tmpFile = Files.createTempFile("prefix", ".scalafmt")
-    val comment = "// this is a comment"
-    val contents = args.mkString("\n").replaceFirst("\n", " ")
-    Files.write(tmpFile, (contents + comment).getBytes)
+    val contents = s"""
+                      |# Config files without comments suck.
+                      |${args.mkString("\n").replaceFirst("\n", " ")}
+                      |--alignTokens #;Template,//;.*
+      """.stripMargin
+    Files.write(tmpFile, contents.getBytes)
     val externalConfigArgs = Array("--config", tmpFile.toAbsolutePath.toString)
+    val expectedCustomStyle = expectedStyle.copy(
+        alignTokens = Set(AlignToken("#", "Template"), AlignToken("//", ".*")))
     val obtained = Cli.getConfig(externalConfigArgs)
-    assert(obtained.exists(_.style == expectedStyle))
+    assert(obtained.exists(_.style == expectedCustomStyle))
   }
 
   test("scalafmt -i --file tmpFile") {

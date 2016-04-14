@@ -318,8 +318,9 @@
             Here is an example @code(".scalafmt").
 
             @hl.scala
-              --style defaultWithAlign
-              --maxColumn 100
+              # Example .scalafmt, comments are supported.
+              --style defaultWithAlign # For pretty alignment.
+              --maxColumn 100 # For my wide 30" display.
 
             To experiment with different options, I recommend you use the CLI.
             For details, read about the @code("--config") flag in the
@@ -396,6 +397,21 @@
        scalafmt update.
 
   @sect{Changelog}
+    @sect{0.2.1}
+      @ul
+        @li
+          Closed issues @issues(148, 151, 147, 149, 155, 152, 153).
+          Thanks for everyone who contributed bug reports on Github, Gitter
+          and reddit.
+        @li
+          @code("defaultWithAlign") now includes a lot more alignment rules,
+          check out the @lnk("test suite", "https://github.com/olafurpg/scalafmt/blob/555e87cabb3caf313a5915ac6506f9a79a84457c/core/src/test/resources/align/AlignTokens.stat").
+        @li
+          If you had troubles with @code("--alignTokens") please try again,
+          it may have been caused by @issue(151).
+        @li
+          @code(".scalafmt") now supports comments starting with @code("#").
+
     @sect{0.2.0}
 
       @ul
@@ -404,13 +420,19 @@
         @li
           Token alignment, see @sect.ref{Token alignment}
         @li
-          Closed issues: @issues(
-          144,
-          143,
-          138,
-          131,
-          120,
-          114).
+          Closed issues: @issues( 144, 143, 138, 131, 120, 114).
+        @li
+          @code("ScalaFmt") was renamed to @code("Scalafmt").
+        @li
+          The @code("scalafmtFormat") sbt task is now @code("scalafmt").
+        @li
+          @code("ScalaStyle") is now @code("ScalafmtStyle").
+        @li
+          @code("ScalaFmt.format") and
+          @code("ScalaFmt.format_+") have been replaced by a single
+          @code("Scalafmt.format"). The new methods supports more flexibility
+          via the @lnk("ScalafmtRunner", "https://github.com/olafurpg/scalafmt/blob/555e87cabb3caf313a5915ac6506f9a79a84457c/core/src/main/scala/org/scalafmt/ScalafmtRunner.scala")
+          argument.
 
     @sect{0.1.6}
       @ul

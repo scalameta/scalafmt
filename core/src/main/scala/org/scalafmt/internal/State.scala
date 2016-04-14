@@ -116,5 +116,4 @@ object State {
           nextStateColumn,
           nextFormatOff)
   }
-
 }

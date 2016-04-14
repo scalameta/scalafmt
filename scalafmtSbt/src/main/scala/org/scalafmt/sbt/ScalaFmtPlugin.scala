@@ -55,8 +55,7 @@ object ScalaFmtPlugin extends AutoPlugin {
     lazy val reformatOnCompileSettings: Seq[Def.Setting[_]] =
       List(
           compileInputs in (Compile, compile) <<=
-          (compileInputs in (Compile, compile)) dependsOn
-          (scalafmt in Compile),
+          (compileInputs in (Compile, compile)) dependsOn (scalafmt in Compile),
           compileInputs in (Test, compile) <<=
           (compileInputs in (Test, compile)) dependsOn (scalafmt in Test)
       )
@@ -80,10 +79,6 @@ object ScalaFmtPlugin extends AutoPlugin {
     List(
         ivyConfigurations += config("scalafmt").hide,
         libraryDependencies ++= Seq(
-            // scala.meta uses scala-compiler to parse xml literals, for some reason
-            // the scala-compiler dependency needs to be explicitly added to
-            // avoid noclassdeferror.
-            "org.scala-lang" % "scala-compiler" % "2.11.7" % "scalafmt",
             "com.geirsson" % "scalafmt-cli_2.11" % org.scalafmt.Versions.nightly % "scalafmt"
         )
     )

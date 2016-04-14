@@ -1,5 +1,7 @@
 package org.scalafmt.internal
 
+import scala.meta.Import
+
 import org.scalafmt.Error.CaseMissingArrow
 import org.scalafmt.ScalafmtStyle
 import org.scalafmt.ScalafmtRunner
@@ -56,13 +58,14 @@ class FormatOps(val tree: Tree,
    * ...
    *
    */
-  val packageTokens: Set[Token] = {
-    val result = new scala.collection.mutable.SetBuilder[Token, Set[Token]](
-        Set.empty[Token])
+  val (packageTokens, importTokens) = {
+    val packages = Set.newBuilder[Token]
+    val imports = Set.newBuilder[Token]
     tree.collect {
-      case p: Pkg => result ++= p.ref.tokens
+      case p: Pkg => packages ++= p.ref.tokens
+      case i: Import => imports ++= i.tokens
     }
-    result.result()
+    (packages.result(), imports.result())
   }
 
   lazy val leftTok2tok: Map[Token, FormatToken] =
@@ -100,24 +103,6 @@ class FormatOps(val tree: Tree,
       val tok = next(curr)
       if (tok == curr) curr
       else nextNonComment(tok)
-    }
-  }
-
-  def gets2x(tok: FormatToken): Boolean = {
-    if (!statementStarts.contains(hash(tok.right))) false
-    else if (packageTokens.contains(tok.left) &&
-             !packageTokens.contains(tok.right)) true
-    else {
-      val rightOwner = statementStarts(hash(tok.right))
-      if (!rightOwner.tokens.headOption.contains(tok.right)) false
-      else if (!rightOwner.parent.exists(isTopLevel)) false
-      else
-        rightOwner match {
-          case _: Defn.Def | _: Pkg.Object | _: Defn.Class | _: Defn.Object |
-              _: Defn.Trait =>
-            true
-          case _ => false
-        }
     }
   }
 

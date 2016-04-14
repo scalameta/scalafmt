@@ -15,9 +15,9 @@ object Readme {
 
   def repo: String = "https://github.com/olafurpg/scalafmt"
 
-  def issue(id: Int) = span(a(href := repo + s"/$id", s"#$id"))
+  def issue(id: Int) = a(href := repo + s"/issues/$id", s"#$id")
 
-  def issues(ids: Int*) = div(ids.map(issue):_*)
+  def issues(ids: Int*) = span(ids.map(issue):_*)
 
   def half(frags: Frag*) = div(frags, width := "50%", float.left)
 
