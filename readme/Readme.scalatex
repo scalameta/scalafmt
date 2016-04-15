@@ -1,9 +1,7 @@
 @import Main._
 @import org.scalafmt.readme.Readme._
 
-@sect("Scalafmt", org.scalafmt.Versions.stable)
-  @h1
-    Opinionated code formatter for Scala
+@sect("Scalafmt - code formatter for Scala", org.scalafmt.Versions.stable)
 
   @blockquote
     Any style guide written in English is either so brief that it’s ambiguous,
