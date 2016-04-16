@@ -101,13 +101,16 @@ object TreeOps {
       x match {
         case t: Defn.Class => addDefn[`class `](t.mods, t)
         case t: Defn.Def => addDefn[`def`](t.mods, t)
+        case t: Decl.Def => addDefn[`def`](t.mods, t)
         case t: Ctor.Secondary => addDefn[`def`](t.mods, t)
         case t: Defn.Object => addDefn[`object`](t.mods, t)
         case t: Defn.Trait => addDefn[`trait`](t.mods, t)
         case t: Defn.Type => addDefn[`type`](t.mods, t)
         case t: Decl.Type => addDefn[`type`](t.mods, t)
         case t: Defn.Val => addDefn[`val`](t.mods, t)
+        case t: Decl.Val => addDefn[`val`](t.mods, t)
         case t: Defn.Var => addDefn[`var`](t.mods, t)
+        case t: Decl.Var => addDefn[`var`](t.mods, t)
         case t => // Nothing
           addAll(extractStatementsIfAny(t))
       }
