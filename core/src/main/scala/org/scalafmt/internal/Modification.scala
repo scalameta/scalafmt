@@ -19,26 +19,31 @@ case class Provided(code: String) extends Modification
 
 case object NoSplit extends Modification
 
-case class NewlineT(isDouble: Boolean = false, noIndent: Boolean = false)
-    extends Modification
+/**
+  * A split representing a newline.
+  * @param isDouble Insert a blank line?
+  * @param noIndent Should no indentation follow? For example in commented out
+  *                 code.
+  * @param acceptNoSplit Is it ok to replace this newline with a [[NoSplit]]
+  *                      if the newline will indent beyond the current column?
+  *                      For example, used by select chains in [[Router]].
+  */
+case class NewlineT(isDouble: Boolean = false,
+                    noIndent: Boolean = false,
+                    acceptNoSplit: Boolean = false) extends Modification
 
 object Newline extends NewlineT {
   def apply: NewlineT = NewlineT()
 
-  def apply(gets2x: Boolean, hasIndent: Boolean = false): NewlineT =
-    (gets2x, hasIndent) match {
-      case (true, true) => Newline2xNoIndent
-      case (true, false) => Newline2x
-      case (false, true) => NoIndentNewline
-      case _ => Newline
-    }
+  // TODO(olafur) remove method with NewlineT
+  def apply(isDouble: Boolean, noIndent: Boolean = false): NewlineT =
+    NewlineT(isDouble = isDouble, noIndent = noIndent)
 }
 
 object Newline2x extends NewlineT(isDouble = true)
 
 object NoIndentNewline extends NewlineT(noIndent = true)
 
-object Newline2xNoIndent
-    extends NewlineT(isDouble = true, noIndent = true)
+object Newline2xNoIndent extends NewlineT(isDouble = true, noIndent = true)
 
 object Space extends Modification

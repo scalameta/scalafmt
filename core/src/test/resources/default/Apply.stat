@@ -371,7 +371,6 @@ class ResolutionCopier(x: Int) {
 implicit class IterableW[+A](it: JSIterable[A]) {
   def iterator(): Iterator[A] =
     toIterator(
-        it
-          .asInstanceOf[IteratorMethodAccess]
+        it.asInstanceOf[IteratorMethodAccess]
           .bracketCall[JSIterator[A]](iteratorSymbol)())
 }

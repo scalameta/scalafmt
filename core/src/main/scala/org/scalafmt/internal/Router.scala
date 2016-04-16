@@ -202,8 +202,8 @@ class Router(formatOps: FormatOps) {
           if leftOwner.isInstanceOf[Case] =>
         Seq(
             Split(Space, 0, ignoreIf = newlines != 0), // Gets killed by `case` policy.
-            Split(
-                Newline(gets2x = false, hasIndent = rhsIsCommentedOut(tok)), 1)
+            Split(Newline(isDouble = false, noIndent = rhsIsCommentedOut(tok)),
+                  1)
         )
       // New statement
       case tok@FormatToken(_: `;`, right, between)
@@ -379,7 +379,7 @@ class Router(formatOps: FormatOps) {
             if (isBracket) {
               if (singleArgument)
                 SingleLineBlock(
-                  close, excludeRanges, disallowInlineComments = false)
+                    close, excludeRanges, disallowInlineComments = false)
               else SingleLineBlock(close)
             } else {
               if (singleArgument) {
@@ -550,7 +550,7 @@ class Router(formatOps: FormatOps) {
             Split(Space, 0, policy = spacePolicy),
             Split(mod, 1, ignoreIf = isJsNative(right))
               .withIndent(2, expire, Left)
-          )
+        )
       case tok@FormatToken(left, dot: `.`, _)
           if rightOwner.isInstanceOf[Term.Select] &&
           isOpenApply(next(next(tok)).right) && !left.isInstanceOf[`_ `] &&
@@ -579,7 +579,7 @@ class Router(formatOps: FormatOps) {
             Split(NoSplit, 0)
               .withOptimalToken(optimalToken, killOnFail = false)
               .withPolicy(noSplitPolicy),
-            Split(Newline, 2 + nestedPenalty)
+            Split(Newline.copy(acceptNoSplit = true), 2 + nestedPenalty)
               .withPolicy(newlinePolicy)
               .withIndent(2, lastToken, Left)
           )
