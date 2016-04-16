@@ -210,8 +210,9 @@ object TreeOps {
   }
 
   def isDefnSite(tree: Tree): Boolean = tree match {
-    case _: Decl.Def | _: Defn.Def | _: Defn.Macro | _: Defn.Class |
-        _: Defn.Trait | _: Ctor.Secondary | _: Type.Apply | _: Type.Param =>
+    case _: Decl.Def | _: Defn.Def | _: Defn.Macro |
+        _: Defn.Class | _: Defn.Trait | _: Ctor.Secondary | _: Defn.Type |
+        _: Type.Apply | _: Type.Param =>
       true
     case x: Ctor.Primary if x.parent.exists(_.isInstanceOf[Defn.Class]) =>
       true
@@ -271,6 +272,7 @@ object TreeOps {
     case t: Type.Apply => t.tpe -> t.args
     case t: Type.Param => t.name -> t.tparams
     // TODO(olafur) flatten correct? Filter by this () section?
+    case t: Defn.Type => t.name -> t.tparams
     case t: Defn.Def => t.name -> t.paramss.flatten
     case t: Defn.Macro => t.name -> t.paramss.flatten
     case t: Decl.Def => t.name -> t.paramss.flatten
