@@ -53,7 +53,11 @@ class FormatTests
 
   def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
     val runner = scalafmtRunner.withParser(parse)
-    val obtained = Scalafmt.format(t.original, t.style, runner).get
+    val obtained = Scalafmt.format(t.original, t.style, runner) match {
+      case FormatResult.Incomplete(code) =>
+        code
+      case x => x.get
+    }
     debugResults += saveResult(t, obtained, onlyOne)
     assertFormatPreservesAst(t.original, obtained)(parse)
     if (!onlyManual) {

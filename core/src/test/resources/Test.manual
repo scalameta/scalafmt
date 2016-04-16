@@ -2,4 +2,4 @@ SKIP core/src/main/scala/org/scalafmt/internal/Router.scala
 SKIP https://raw.githubusercontent.com/akka/akka/3698928fbdaa8fef8e2037fbc51887ab60addefb/project/AkkaBuild.scala
 SKIP https://raw.githubusercontent.com/JetBrains/intellij-scala/45c86930977278eb445b6aba79ac7011bc418490/src/org/jetbrains/plugins/scala/lang/psi/implicits/ImplicitCollector.scala
 SKIP https://raw.githubusercontent.com/JetBrains/intellij-scala/45c86930977278eb445b6aba79ac7011bc418490/src/org/jetbrains/plugins/scala/lang/psi/types/Conformance.scala
-
+SKIP https://raw.githubusercontent.com/apache/spark/2c5b18fb0fdeabd378dd97e91f72d1eac4e21cc7/project/MimaExcludes.scala
