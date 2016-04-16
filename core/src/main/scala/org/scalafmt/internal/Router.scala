@@ -270,8 +270,19 @@ class Router(formatOps: FormatOps) {
         )
       // Defn.{Object, Class, Trait}
       case tok@FormatToken(_: `object` | _: `class ` | _: `trait`, _, _) =>
+        val expire = defnTemplate(leftOwner)
+          .flatMap(templateCurly)
+          .getOrElse(leftOwner.tokens.last)
+        val forceNewlineBeforeExtends = Policy({
+          case Decision(t@FormatToken(_, right: `extends`, _), s)
+              if owners(right) == leftOwner =>
+            Decision(t, s.filter(_.modification.isNewline))
+        }, expire.end)
         Seq(
             Split(Space, 0)
+              .withOptimalToken(expire, killOnFail = true)
+              .withPolicy(SingleLineBlock(expire)),
+            Split(Space, 1).withPolicy(forceNewlineBeforeExtends)
         )
       case FormatToken(open: `(`, right, _)
           if style.binPackParameters && isDefnSite(leftOwner) =>

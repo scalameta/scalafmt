@@ -15,7 +15,8 @@ case class State(
 >>>
 case class State(cost: Int, policy: Decision => Decision,
     splits: Vector[Split], indentation: Int, indents: Vector[Push],
-    column: Int) extends Ordered[State] with ScalaFmtLogger
+    column: Int)
+    extends Ordered[State] with ScalaFmtLogger
 <<< curried defn.class
 class Fmt[T <: Tree](code: String, a: Int, bbbbbbbbbbbbbbbbbbbbbbbbbbb: Int)(implicit ev: Parse[T])
 >>>
