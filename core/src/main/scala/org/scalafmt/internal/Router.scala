@@ -298,9 +298,8 @@ class Router(formatOps: FormatOps) {
         Seq(
             Split(Space, 0)
         )
-      case tok@FormatToken(e: `=`, right, _)
-          if leftOwner.isInstanceOf[Defn.Def] =>
-        val expire = leftOwner.asInstanceOf[Defn.Def].body.tokens.last
+      case tok@FormatToken(e: `=`, right, _) if defBody(leftOwner).isDefined =>
+        val expire = defBody(leftOwner).get.tokens.last
         val exclude = getExcludeIfEndingWithBlock(expire)
         val rhsIsJsNative = isJsNative(right)
         Seq(

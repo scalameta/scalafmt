@@ -369,6 +369,12 @@ object TreeOps {
     if (tree.children.isEmpty) 0
     else 1 + tree.children.map(treeDepth).max
 
+  def defBody(tree: Tree): Option[Tree] = tree match {
+    case t: Defn.Def => Some(t.body)
+    case t: Ctor.Secondary => Some(t.body)
+    case _ => None
+  }
+
   @tailrec
   final def lastLambda(first: Term.Function): Term.Function =
     first.body match {
