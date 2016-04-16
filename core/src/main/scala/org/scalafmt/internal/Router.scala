@@ -317,6 +317,22 @@ class Router(formatOps: FormatOps) {
             Split(NoSplit, 0)
         )
       // Term.Apply and friends
+      case FormatToken(_: `(` | _: `[`, _, between)
+          if style.configStyleArguments &&
+          (isDefnSite(leftOwner) || isCallSite(leftOwner)) &&
+          opensConfigStyle(formatToken) =>
+        val open = formatToken.left.asInstanceOf[Delim]
+        val indent = getApplyIndent(leftOwner)
+        val close = matchingParentheses(hash(open))
+        val oneArgOneLine = OneArgOneLineSplit(open)
+        val configStyle = oneArgOneLine.copy(f = oneArgOneLine.f.orElse {
+            case Decision(t@FormatToken(_, `close`, _), splits) =>
+              Decision(t, Seq(Split(Newline, 0)))
+          })
+        Seq(
+            Split(Newline, 0, policy = configStyle)
+              .withIndent(indent, close, Right)
+        )
       case FormatToken(_: `(` | _: `[`, _, _)
           if style.binPackArguments && isCallSite(leftOwner) =>
         val open = formatToken.left
@@ -356,14 +372,7 @@ class Router(formatOps: FormatOps) {
           else insideBlock(tok, close, x => x.isInstanceOf[`{`])
         val excludeRanges = exclude.map(parensRange)
 
-        //          insideBlock(tok, close, _.isInstanceOf[`{`])
-        val indent = leftOwner match {
-          case _: Pat => Num(0) // Indentation already provided by case.
-          case x if isDefnSite(x) && !x.isInstanceOf[Type.Apply] =>
-            if (style.binPackParameters) Num(0)
-            else Num(style.continuationIndentDefnSite)
-          case _ => Num(style.continuationIndentCallSite)
-        }
+        val indent = getApplyIndent(leftOwner)
 
         // It seems acceptable to unindent by the continuation indent inside
         // curly brace wrapped blocks.
@@ -393,17 +402,6 @@ class Router(formatOps: FormatOps) {
 
         val oneArgOneLine = OneArgOneLineSplit(open)
 
-        // TODO(olafur) document how "config style" works.
-        val configStyle = oneArgOneLine.copy(f = oneArgOneLine.f.orElse {
-            case Decision(t@FormatToken(_, `close`, _), splits) =>
-              Decision(t, Seq(Split(Newline, 0)))
-          })
-        val closeFormatToken = prev(leftTok2tok(close))
-
-        val isConfigStyle =
-          style.configStyleArguments && newlinesBetween(between) > 0 &&
-          newlinesBetween(closeFormatToken.between) > 0
-
         val modification =
           if (right.isInstanceOf[Comment]) newlines2Modification(between)
           else NoSplit
@@ -429,34 +427,29 @@ class Router(formatOps: FormatOps) {
             Split(modification,
                   0,
                   policy = singleLine(6),
-                  ignoreIf = !fitsOnOneLine || isConfigStyle)
+                  ignoreIf = !fitsOnOneLine)
               .withOptimalToken(expirationToken)
               .withIndent(indent, close, Left),
             Split(newlineModification,
                   (1 + nestedPenalty + lhsPenalty) * bracketMultiplier,
                   policy = singleLine(5),
-                  ignoreIf = !fitsOnOneLine || isConfigStyle)
+                  ignoreIf = !fitsOnOneLine)
               .withOptimalToken(expirationToken)
               .withIndent(indent, close, Left),
             // TODO(olafur) singleline per argument!
             Split(modification,
                   (2 + lhsPenalty) * bracketMultiplier,
                   policy = oneArgOneLine,
-                  ignoreIf = singleArgument || isConfigStyle ||
-                    tooManyArguments)
+                  ignoreIf = singleArgument || tooManyArguments)
               .withOptimalToken(expirationToken)
               .withIndent(StateColumn, close, Right),
             Split(Newline,
                   (3 + nestedPenalty + lhsPenalty) * bracketMultiplier,
                   policy = oneArgOneLine,
-                  ignoreIf = singleArgument || isConfigStyle)
+                  ignoreIf = singleArgument)
               .withOptimalToken(expirationToken)
-              .withIndent(indent, close, Left),
-            Split(Newline,
-                  0,
-                  policy = configStyle,
-                  ignoreIf = !isConfigStyle).withIndent(indent, close, Right)
-        )
+              .withIndent(indent, close, Left)
+          )
 
       // Closing def site ): ReturnType
       case FormatToken(_, close: `)`, _)

@@ -1,10 +1,12 @@
 package org.scalafmt.internal
 
 import scala.meta.Import
+import scala.meta.Pat
 
 import org.scalafmt.Error.CaseMissingArrow
 import org.scalafmt.ScalafmtStyle
 import org.scalafmt.ScalafmtRunner
+import org.scalafmt.internal.Length.Num
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
@@ -338,5 +340,19 @@ class FormatOps(val tree: Tree,
       case _ =>
     }
     result.result()
+  }
+
+  def opensConfigStyle(formatToken: FormatToken): Boolean = {
+    newlinesBetween(formatToken.between) > 0 && {
+      val close = matchingParentheses(hash(formatToken.left))
+      newlinesBetween(prev(leftTok2tok(close)).between) > 0
+    }
+  }
+  def getApplyIndent(leftOwner: Tree): Length = leftOwner match {
+    case _: Pat => Num(0) // Indentation already provided by case.
+    case x if isDefnSite(x) && !x.isInstanceOf[Type.Apply] =>
+      if (style.binPackParameters) Num(0)
+      else Num(style.continuationIndentDefnSite)
+    case _ => Num(style.continuationIndentCallSite)
   }
 }
