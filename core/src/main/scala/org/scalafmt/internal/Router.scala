@@ -270,25 +270,21 @@ class Router(formatOps: FormatOps) {
         )
       // Defn.{Object, Class, Trait}
       case tok@FormatToken(_: `object` | _: `class ` | _: `trait`, _, _) =>
-        val expire = defnTemplate(leftOwner)
-          .flatMap(templateCurly)
-          .getOrElse(leftOwner.tokens.last)
-        val indent = if (style.binPackParameters) Num(4) else Num(0)
         Seq(
-            Split(Space, 0).withIndent(indent, expire, Left)
+            Split(Space, 0)
         )
-      case FormatToken(_: `(`, _, _)
+      case FormatToken(open: `(`, _, _)
           if style.binPackParameters && isDefnSite(leftOwner) =>
+        val close = matchingParentheses(hash(open))
+        val indent = Num(style.continuationIndentDefnSite)
         Seq(
-            Split(NoSplit, 0),
-            Split(Newline, 1) // indent handled by name of def/class.
+            Split(NoSplit, 0).withIndent(indent, close, Left),
+            Split(Newline, 1).withIndent(indent, close, Left)
         )
       // DefDef
       case tok@FormatToken(_: `def`, name: Ident, _) =>
-        val indent = if (style.binPackParameters) Num(4) else Num(0)
         Seq(
             Split(Space, 0)
-              .withIndent(indent, defnSiteLastToken(leftOwner), Left)
         )
       case tok@FormatToken(e: `=`, right, _)
           if leftOwner.isInstanceOf[Defn.Def] =>
