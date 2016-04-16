@@ -327,7 +327,7 @@ class Router(formatOps: FormatOps) {
             Split(NoSplit, 0)
               .withOptimalToken(optimal)
               .withIndent(4, close, Left),
-            Split(Newline, 1).withIndent(4, close, Left)
+            Split(Newline, 2).withIndent(4, close, Left)
         )
       case tok@FormatToken(_: `(` | _: `[`, right, between)
           if !isSuperfluousParenthesis(formatToken.left, leftOwner) &&
@@ -523,7 +523,7 @@ class Router(formatOps: FormatOps) {
       // an infix application or an if. For example, this is allowed:
       // val x = function(a,
       //                  b)
-      case FormatToken(tok: `=`, right, between) // TODO(olafur) scala.meta should have uniform api for these two
+      case FormatToken(tok: `=`, right, between)
           if leftOwner.isInstanceOf[Defn.Val] ||
           leftOwner.isInstanceOf[Defn.Var] =>
         val rhs: Tree = leftOwner match {
@@ -548,7 +548,7 @@ class Router(formatOps: FormatOps) {
             Split(Space, 0, policy = spacePolicy),
             Split(mod, 1, ignoreIf = isJsNative(right))
               .withIndent(2, expire, Left)
-        )
+          )
       case tok@FormatToken(left, dot: `.`, _)
           if rightOwner.isInstanceOf[Term.Select] &&
           isOpenApply(next(next(tok)).right) && !left.isInstanceOf[`_ `] &&
@@ -577,7 +577,7 @@ class Router(formatOps: FormatOps) {
             Split(NoSplit, 0)
               .withOptimalToken(optimalToken, killOnFail = false)
               .withPolicy(noSplitPolicy),
-            Split(Newline, 1 + nestedPenalty)
+            Split(Newline, 2 + nestedPenalty)
               .withPolicy(newlinePolicy)
               .withIndent(2, lastToken, Left)
           )
