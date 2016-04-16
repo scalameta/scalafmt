@@ -81,7 +81,6 @@ case class HasScalaFmt(reflective: ScalaFmtLike,
     val contents = IO.read(file)
     val formatted = configFile match {
       case Some(configFile) =>
-        println(s"config file: ${configFile.getAbsolutePath}")
         reflective.format(contents, configFile.getAbsolutePath)
       case None => reflective.format(contents)
     }
