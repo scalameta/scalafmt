@@ -374,20 +374,22 @@ class Router(formatOps: FormatOps) {
         }
         val singleArgument = args.length == 1
 
-        val baseSingleLinePolicy =
-          if (isBracket) {
-            if (singleArgument)
-              SingleLineBlock(
+        def singleLine(newlinePenalty: Int): Policy = {
+          val baseSingleLinePolicy =
+            if (isBracket) {
+              if (singleArgument)
+                SingleLineBlock(
                   close, excludeRanges, disallowInlineComments = false)
-            else SingleLineBlock(close)
-          } else {
-            if (singleArgument) {
-              penalizeAllNewlines(close, 5) // TODO(olafur) magic number
-            } else SingleLineBlock(close, excludeRanges)
-          }
-        val singleLine =
+              else SingleLineBlock(close)
+            } else {
+              if (singleArgument) {
+                penalizeAllNewlines(close, newlinePenalty)
+              } else SingleLineBlock(close, excludeRanges)
+            }
+
           if (exclude.isEmpty || isBracket) baseSingleLinePolicy
           else baseSingleLinePolicy.andThen(unindentAtExclude)
+        }
 
         val oneArgOneLine = OneArgOneLineSplit(open)
 
@@ -426,13 +428,13 @@ class Router(formatOps: FormatOps) {
         Seq(
             Split(modification,
                   0,
-                  policy = singleLine,
+                  policy = singleLine(6),
                   ignoreIf = !fitsOnOneLine || isConfigStyle)
               .withOptimalToken(expirationToken)
               .withIndent(indent, close, Left),
             Split(newlineModification,
                   (1 + nestedPenalty + lhsPenalty) * bracketMultiplier,
-                  policy = singleLine,
+                  policy = singleLine(5),
                   ignoreIf = !fitsOnOneLine || isConfigStyle)
               .withOptimalToken(expirationToken)
               .withIndent(indent, close, Left),
