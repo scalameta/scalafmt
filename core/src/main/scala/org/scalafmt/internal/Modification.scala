@@ -19,14 +19,11 @@ case class Provided(code: String) extends Modification
 
 case object NoSplit extends Modification
 
-trait NewlineT extends Modification {
+case class NewlineT(isDouble: Boolean = false, noIndent: Boolean = false)
+    extends Modification
 
-  def isDouble: Boolean = false
-
-  def noIndent: Boolean = false
-}
-
-case object Newline extends NewlineT {
+object Newline extends NewlineT {
+  def apply: NewlineT = NewlineT()
 
   def apply(gets2x: Boolean, hasIndent: Boolean = false): NewlineT =
     (gets2x, hasIndent) match {
@@ -37,21 +34,11 @@ case object Newline extends NewlineT {
     }
 }
 
-case object Newline2x extends NewlineT {
+object Newline2x extends NewlineT(isDouble = true)
 
-  override def isDouble: Boolean = true
-}
+object NoIndentNewline extends NewlineT(noIndent = true)
 
-case object NoIndentNewline extends NewlineT {
+object Newline2xNoIndent
+    extends NewlineT(isDouble = true, noIndent = true)
 
-  override def noIndent: Boolean = true
-}
-
-case object Newline2xNoIndent extends NewlineT {
-
-  override def noIndent: Boolean = true
-
-  override def isDouble: Boolean = true
-}
-
-case object Space extends Modification
+object Space extends Modification
