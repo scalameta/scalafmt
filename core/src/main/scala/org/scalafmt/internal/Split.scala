@@ -38,7 +38,7 @@ case class Split(modification: Modification,
 
   def adapt(formatToken: FormatToken): Split = modification match {
     case n: NewlineT if !n.noIndent && rhsIsCommentedOut(formatToken) =>
-      copy(modification = Newline(n.isDouble, hasIndent = true))
+      copy(modification = Newline(n.isDouble, noIndent = true))
     case _ => this
   }
 

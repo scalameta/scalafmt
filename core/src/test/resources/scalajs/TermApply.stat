@@ -1,0 +1,15 @@
+80 columns                                                                     |
+<<< breaking cost #158
+ object ReferrerPolicy {
+  val `no-referrer-when-downgrade` = "no-referrer-when-downgrade".asInstanceOf[
+      ReferrerPolicy]
+  val `origin-when-cross-origin` = "origin-when-cross-origin".asInstanceOf[
+      ReferrerPolicy]
+ }
+>>>
+ object ReferrerPolicy {
+  val `no-referrer-when-downgrade` =
+    "no-referrer-when-downgrade".asInstanceOf[ReferrerPolicy]
+  val `origin-when-cross-origin` =
+    "origin-when-cross-origin".asInstanceOf[ReferrerPolicy]
+}

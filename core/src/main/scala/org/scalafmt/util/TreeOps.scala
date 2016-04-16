@@ -101,13 +101,16 @@ object TreeOps {
       x match {
         case t: Defn.Class => addDefn[`class `](t.mods, t)
         case t: Defn.Def => addDefn[`def`](t.mods, t)
+        case t: Decl.Def => addDefn[`def`](t.mods, t)
         case t: Ctor.Secondary => addDefn[`def`](t.mods, t)
         case t: Defn.Object => addDefn[`object`](t.mods, t)
         case t: Defn.Trait => addDefn[`trait`](t.mods, t)
         case t: Defn.Type => addDefn[`type`](t.mods, t)
         case t: Decl.Type => addDefn[`type`](t.mods, t)
         case t: Defn.Val => addDefn[`val`](t.mods, t)
+        case t: Decl.Val => addDefn[`val`](t.mods, t)
         case t: Defn.Var => addDefn[`var`](t.mods, t)
+        case t: Decl.Var => addDefn[`var`](t.mods, t)
         case t => // Nothing
           addAll(extractStatementsIfAny(t))
       }
@@ -207,8 +210,9 @@ object TreeOps {
   }
 
   def isDefnSite(tree: Tree): Boolean = tree match {
-    case _: Decl.Def | _: Defn.Def | _: Defn.Macro | _: Defn.Class |
-        _: Defn.Trait | _: Ctor.Secondary | _: Type.Apply | _: Type.Param =>
+    case _: Decl.Def | _: Defn.Def | _: Defn.Macro |
+        _: Defn.Class | _: Defn.Trait | _: Ctor.Secondary | _: Defn.Type |
+        _: Type.Apply | _: Type.Param =>
       true
     case x: Ctor.Primary if x.parent.exists(_.isInstanceOf[Defn.Class]) =>
       true
@@ -268,6 +272,7 @@ object TreeOps {
     case t: Type.Apply => t.tpe -> t.args
     case t: Type.Param => t.name -> t.tparams
     // TODO(olafur) flatten correct? Filter by this () section?
+    case t: Defn.Type => t.name -> t.tparams
     case t: Defn.Def => t.name -> t.paramss.flatten
     case t: Defn.Macro => t.name -> t.paramss.flatten
     case t: Decl.Def => t.name -> t.paramss.flatten
@@ -363,6 +368,12 @@ object TreeOps {
   def treeDepth(tree: Tree): Int =
     if (tree.children.isEmpty) 0
     else 1 + tree.children.map(treeDepth).max
+
+  def defBody(tree: Tree): Option[Tree] = tree match {
+    case t: Defn.Def => Some(t.body)
+    case t: Ctor.Secondary => Some(t.body)
+    case _ => None
+  }
 
   @tailrec
   final def lastLambda(first: Term.Function): Term.Function =

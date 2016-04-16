@@ -21,7 +21,8 @@ case class State(cost: Int,
                  splits: Vector[Split],
                  indentation: Int,
                  indents: Vector[Push],
-                 column: Int) extends Ordered[State] with ScalaFmtLogger
+                 column: Int)
+    extends Ordered[State] with ScalaFmtLogger
 <<< With targs
 case class Indent[ T <: Length] (length: T, expire: Token, expiresAt: ExpiresOn)
 >>>
@@ -113,4 +114,15 @@ object Result {
   case object Foo extends C
   case object Bar extends C
   case object Kaz extends C
+}
+<<< force newline before extends #163
+class NumberFormat(locales: String | js.Array[String],
+                   options: js.UndefOr[NumberFormatOptions]) extends Object {
+     val x = 1
+     }
+>>>
+class NumberFormat(locales: String | js.Array[String],
+                   options: js.UndefOr[NumberFormatOptions])
+    extends Object {
+  val x = 1
 }

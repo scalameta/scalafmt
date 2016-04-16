@@ -8,3 +8,45 @@
 >>>
 @inline def Rule =
   raw.CSSRule.aaaaaaaaaaaa
+<<< single line is opt-in #159
+@js.native
+    private trait Iterator {
+    @js.native
+    def bra(meth: Any)(): A
+
+    @js.native
+    val bra: A
+
+    @js.native
+    var bra: A
+
+    @js.native
+    type bra[Meth]
+
+    @jsnative val bra: A
+
+    @jsnative var bra: A
+
+    @jsnative type bra[Meth]
+}
+>>>
+@js.native
+private trait Iterator {
+  @js.native
+  def bra(meth: Any)(): A
+
+  @js.native
+  val bra: A
+
+  @js.native
+  var bra: A
+
+  @js.native
+  type bra [Meth]
+
+  @jsnative val bra: A
+
+  @jsnative var bra: A
+
+  @jsnative type bra [Meth]
+}

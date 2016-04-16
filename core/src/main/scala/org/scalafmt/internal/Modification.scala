@@ -19,39 +19,40 @@ case class Provided(code: String) extends Modification
 
 case object NoSplit extends Modification
 
-trait NewlineT extends Modification {
-
-  def isDouble: Boolean = false
-
-  def noIndent: Boolean = false
+/**
+  * A split representing a newline.
+  *
+  * @param isDouble Insert a blank line?
+  * @param noIndent Should no indentation follow? For example in commented out
+  *                 code.
+  * @param acceptNoSplit Is it ok to replace this newline with a [[NoSplit]]
+  *                      if the newline will indent beyond the current column?
+  *                      For example, used by select chains in [[Router]].
+  */
+case class NewlineT(isDouble: Boolean = false,
+                    noIndent: Boolean = false,
+                    acceptNoSplit: Boolean = false) extends Modification {
+  override def toString = {
+    val double = if (isDouble) "Double" else ""
+    val indent = if (noIndent) "NoIndent" else ""
+    double + indent + "Newline"
+  }
 }
 
-case object Newline extends NewlineT {
+object Newline extends NewlineT {
+  def apply: NewlineT = NewlineT()
 
-  def apply(gets2x: Boolean, hasIndent: Boolean = false): NewlineT =
-    (gets2x, hasIndent) match {
-      case (true, true) => Newline2xNoIndent
-      case (true, false) => Newline2x
-      case (false, true) => NoIndentNewline
-      case _ => Newline
-    }
+  // TODO(olafur) remove method with NewlineT
+  def apply(isDouble: Boolean, noIndent: Boolean = false): NewlineT =
+    NewlineT(isDouble = isDouble, noIndent = noIndent)
 }
 
-case object Newline2x extends NewlineT {
+object Newline2x extends NewlineT(isDouble = true)
 
-  override def isDouble: Boolean = true
+object NoIndentNewline extends NewlineT(noIndent = true)
+
+object Newline2xNoIndent extends NewlineT(isDouble = true, noIndent = true)
+
+object Space extends Modification {
+  override def toString = "Space"
 }
-
-case object NoIndentNewline extends NewlineT {
-
-  override def noIndent: Boolean = true
-}
-
-case object Newline2xNoIndent extends NewlineT {
-
-  override def noIndent: Boolean = true
-
-  override def isDouble: Boolean = true
-}
-
-case object Space extends Modification

@@ -1,0 +1,11 @@
+80 columns                                                                     |
+<<< config style #158
+function(
+  a,
+  b
+)
+>>>
+function(
+    a,
+    b
+)

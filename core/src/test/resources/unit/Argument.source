@@ -61,6 +61,7 @@ object a {
 }
 >>>
 object a {
-  function(function(function(a, b),
-                    function(c, d)))
+  function(
+      function(function(a, b),
+               function(c, d)))
 }

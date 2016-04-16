@@ -202,8 +202,8 @@ class Router(formatOps: FormatOps) {
           if leftOwner.isInstanceOf[Case] =>
         Seq(
             Split(Space, 0, ignoreIf = newlines != 0), // Gets killed by `case` policy.
-            Split(
-                Newline(gets2x = false, hasIndent = rhsIsCommentedOut(tok)), 1)
+            Split(Newline(isDouble = false, noIndent = rhsIsCommentedOut(tok)),
+                  1)
         )
       // New statement
       case tok@FormatToken(_: `;`, right, between)
@@ -273,26 +273,33 @@ class Router(formatOps: FormatOps) {
         val expire = defnTemplate(leftOwner)
           .flatMap(templateCurly)
           .getOrElse(leftOwner.tokens.last)
-        val indent = if (style.binPackParameters) Num(4) else Num(0)
+        val forceNewlineBeforeExtends = Policy({
+          case Decision(t@FormatToken(_, right: `extends`, _), s)
+              if owners(right) == leftOwner =>
+            Decision(t, s.filter(_.modification.isNewline))
+        }, expire.end)
         Seq(
-            Split(Space, 0).withIndent(indent, expire, Left)
+            Split(Space, 0)
+              .withOptimalToken(expire, killOnFail = true)
+              .withPolicy(SingleLineBlock(expire)),
+            Split(Space, 1).withPolicy(forceNewlineBeforeExtends)
         )
-      case FormatToken(_: `(`, _, _)
+      case FormatToken(open: `(`, right, _)
           if style.binPackParameters && isDefnSite(leftOwner) =>
+        val close = matchingParentheses(hash(open))
+        val indent = Num(style.continuationIndentDefnSite)
         Seq(
-            Split(NoSplit, 0),
-            Split(Newline, 1) // indent handled by name of def/class.
+            Split(NoSplit, 0).withIndent(indent, close, Left),
+            Split(Newline, 1, ignoreIf = right.isInstanceOf[`)`])
+              .withIndent(indent, close, Left)
         )
       // DefDef
       case tok@FormatToken(_: `def`, name: Ident, _) =>
-        val indent = if (style.binPackParameters) Num(4) else Num(0)
         Seq(
             Split(Space, 0)
-              .withIndent(indent, defnSiteLastToken(leftOwner), Left)
         )
-      case tok@FormatToken(e: `=`, right, _)
-          if leftOwner.isInstanceOf[Defn.Def] =>
-        val expire = leftOwner.asInstanceOf[Defn.Def].body.tokens.last
+      case tok@FormatToken(e: `=`, right, _) if defBody(leftOwner).isDefined =>
+        val expire = defBody(leftOwner).get.tokens.last
         val exclude = getExcludeIfEndingWithBlock(expire)
         val rhsIsJsNative = isJsNative(right)
         Seq(
@@ -321,6 +328,22 @@ class Router(formatOps: FormatOps) {
             Split(NoSplit, 0)
         )
       // Term.Apply and friends
+      case FormatToken(_: `(` | _: `[`, _, between)
+          if style.configStyleArguments &&
+          (isDefnSite(leftOwner) || isCallSite(leftOwner)) &&
+          opensConfigStyle(formatToken) =>
+        val open = formatToken.left.asInstanceOf[Delim]
+        val indent = getApplyIndent(leftOwner)
+        val close = matchingParentheses(hash(open))
+        val oneArgOneLine = OneArgOneLineSplit(open)
+        val configStyle = oneArgOneLine.copy(f = oneArgOneLine.f.orElse {
+            case Decision(t@FormatToken(_, `close`, _), splits) =>
+              Decision(t, Seq(Split(Newline, 0)))
+          })
+        Seq(
+            Split(Newline, 0, policy = configStyle)
+              .withIndent(indent, close, Right)
+        )
       case FormatToken(_: `(` | _: `[`, _, _)
           if style.binPackArguments && isCallSite(leftOwner) =>
         val open = formatToken.left
@@ -331,7 +354,7 @@ class Router(formatOps: FormatOps) {
             Split(NoSplit, 0)
               .withOptimalToken(optimal)
               .withIndent(4, close, Left),
-            Split(Newline, 1).withIndent(4, close, Left)
+            Split(Newline, 2).withIndent(4, close, Left)
         )
       case tok@FormatToken(_: `(` | _: `[`, right, between)
           if !isSuperfluousParenthesis(formatToken.left, leftOwner) &&
@@ -360,14 +383,7 @@ class Router(formatOps: FormatOps) {
           else insideBlock(tok, close, x => x.isInstanceOf[`{`])
         val excludeRanges = exclude.map(parensRange)
 
-        //          insideBlock(tok, close, _.isInstanceOf[`{`])
-        val indent = leftOwner match {
-          case _: Pat => Num(0) // Indentation already provided by case.
-          case x if isDefnSite(x) && !x.isInstanceOf[Type.Apply] =>
-            if (style.binPackParameters) Num(0)
-            else Num(style.continuationIndentDefnSite)
-          case _ => Num(style.continuationIndentCallSite)
-        }
+        val indent = getApplyIndent(leftOwner)
 
         // It seems acceptable to unindent by the continuation indent inside
         // curly brace wrapped blocks.
@@ -378,33 +394,24 @@ class Router(formatOps: FormatOps) {
         }
         val singleArgument = args.length == 1
 
-        val baseSingleLinePolicy =
-          if (isBracket) {
-            if (singleArgument)
-              SingleLineBlock(
-                  close, excludeRanges, disallowInlineComments = false)
-            else SingleLineBlock(close)
-          } else {
-            if (singleArgument) {
-              penalizeAllNewlines(close, 5) // TODO(olafur) magic number
-            } else SingleLineBlock(close, excludeRanges)
-          }
-        val singleLine =
+        def singleLine(newlinePenalty: Int): Policy = {
+          val baseSingleLinePolicy =
+            if (isBracket) {
+              if (singleArgument)
+                SingleLineBlock(
+                    close, excludeRanges, disallowInlineComments = false)
+              else SingleLineBlock(close)
+            } else {
+              if (singleArgument) {
+                penalizeAllNewlines(close, newlinePenalty)
+              } else SingleLineBlock(close, excludeRanges)
+            }
+
           if (exclude.isEmpty || isBracket) baseSingleLinePolicy
           else baseSingleLinePolicy.andThen(unindentAtExclude)
+        }
 
         val oneArgOneLine = OneArgOneLineSplit(open)
-
-        // TODO(olafur) document how "config style" works.
-        val configStyle = oneArgOneLine.copy(f = oneArgOneLine.f.orElse {
-            case Decision(t@FormatToken(_, `close`, _), splits) =>
-              Decision(t, Seq(Split(Newline, 0)))
-          })
-        val closeFormatToken = prev(leftTok2tok(close))
-
-        val isConfigStyle =
-          style.configStyleArguments && newlinesBetween(between) > 0 &&
-          newlinesBetween(closeFormatToken.between) > 0
 
         val modification =
           if (right.isInstanceOf[Comment]) newlines2Modification(between)
@@ -430,35 +437,30 @@ class Router(formatOps: FormatOps) {
         Seq(
             Split(modification,
                   0,
-                  policy = singleLine,
-                  ignoreIf = !fitsOnOneLine || isConfigStyle)
+                  policy = singleLine(6),
+                  ignoreIf = !fitsOnOneLine)
               .withOptimalToken(expirationToken)
               .withIndent(indent, close, Left),
             Split(newlineModification,
                   (1 + nestedPenalty + lhsPenalty) * bracketMultiplier,
-                  policy = singleLine,
-                  ignoreIf = !fitsOnOneLine || isConfigStyle)
+                  policy = singleLine(5),
+                  ignoreIf = !fitsOnOneLine)
               .withOptimalToken(expirationToken)
               .withIndent(indent, close, Left),
             // TODO(olafur) singleline per argument!
             Split(modification,
                   (2 + lhsPenalty) * bracketMultiplier,
                   policy = oneArgOneLine,
-                  ignoreIf = singleArgument || isConfigStyle ||
-                    tooManyArguments)
+                  ignoreIf = singleArgument || tooManyArguments)
               .withOptimalToken(expirationToken)
               .withIndent(StateColumn, close, Right),
             Split(Newline,
                   (3 + nestedPenalty + lhsPenalty) * bracketMultiplier,
                   policy = oneArgOneLine,
-                  ignoreIf = singleArgument || isConfigStyle)
+                  ignoreIf = singleArgument)
               .withOptimalToken(expirationToken)
-              .withIndent(indent, close, Left),
-            Split(Newline,
-                  0,
-                  policy = configStyle,
-                  ignoreIf = !isConfigStyle).withIndent(indent, close, Right)
-        )
+              .withIndent(indent, close, Left)
+          )
 
       // Closing def site ): ReturnType
       case FormatToken(_, close: `)`, _)
@@ -480,25 +482,18 @@ class Router(formatOps: FormatOps) {
             Split(NoSplit, 0)
         )
       // These are mostly filtered out/modified by policies.
-      case tok@FormatToken(_: `,`, _, _) =>
+      case tok@FormatToken(_: `,`, right, _) =>
         // TODO(olafur) DRY, see OneArgOneLine.
         val rhsIsAttachedComment =
           tok.right.isInstanceOf[Comment] && newlinesBetween(tok.between) == 0
-        val endOfArgument = findFirst(next(tok), leftOwner.tokens.last) {
-          case FormatToken(expire: `,`, _, _) if owners(expire) == leftOwner =>
-            true
-          case FormatToken(expire: `)`, _, _) if owners(expire) == leftOwner =>
-            true
-          case _ => false
-        }
-        val singleLineToEndOfArg: Policy = endOfArgument
-          .map(expire => SingleLineBlock(expire.left))
-          .getOrElse(NoPolicy)
-        val optimalToken = endOfArgument.map(_.left)
+        val penalizeNewlineInNextArg: Policy =
+          argumentStarts.get(hash(right)) match {
+            case Some(nextArg) if isBinPack(leftOwner) =>
+              penalizeAllNewlines(nextArg.tokens.last, 1)
+            case _ => NoPolicy
+          }
         Seq(
-            Split(Space, 0)
-              .withOptimalToken(optimalToken)
-              .withPolicy(singleLineToEndOfArg),
+            Split(Space, 0).withPolicy(penalizeNewlineInNextArg),
             Split(Newline, 1, ignoreIf = rhsIsAttachedComment)
         )
       case FormatToken(_, _: `;`, _) =>
@@ -527,7 +522,7 @@ class Router(formatOps: FormatOps) {
       // an infix application or an if. For example, this is allowed:
       // val x = function(a,
       //                  b)
-      case FormatToken(tok: `=`, right, between) // TODO(olafur) scala.meta should have uniform api for these two
+      case FormatToken(tok: `=`, right, between)
           if leftOwner.isInstanceOf[Defn.Val] ||
           leftOwner.isInstanceOf[Defn.Var] =>
         val rhs: Tree = leftOwner match {
@@ -581,7 +576,7 @@ class Router(formatOps: FormatOps) {
             Split(NoSplit, 0)
               .withOptimalToken(optimalToken, killOnFail = false)
               .withPolicy(noSplitPolicy),
-            Split(Newline, 1 + nestedPenalty)
+            Split(Newline.copy(acceptNoSplit = true), 2 + nestedPenalty)
               .withPolicy(newlinePolicy)
               .withIndent(2, lastToken, Left)
           )

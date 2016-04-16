@@ -69,7 +69,8 @@ Thing(implicit ctx => j => ???)
 <<< long curried with ()
 Thing(implicit ctx => j => k => aaaaaaaaaaaaa(bbbbbbbbbbbbbbbbbbb, cccccccccc, ddddddddddddddddddddj)) // coooooooooooooooomment
 >>>
-Thing(implicit ctx =>
+Thing(
+    implicit ctx =>
       j =>
         k =>
           aaaaaaaaaaaaa(

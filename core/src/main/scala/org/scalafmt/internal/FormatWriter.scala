@@ -103,8 +103,13 @@ class FormatWriter(formatOps: FormatOps) {
     val tokenAligns = alignmentTokens(locations, style).withDefaultValue(0)
     locations.zipWithIndex.foreach {
       case (FormatLocation(tok, split, state), i) =>
+        val previous = locations(Math.max(0, i - 1))
         val whitespace = split.modification match {
           case Space => " " * (1 + tokenAligns(tok))
+          case nl: NewlineT
+              if nl.acceptNoSplit &&
+              state.indentation >= previous.state.column =>
+            ""
           case nl: NewlineT =>
             val newline =
               if (nl.isDouble) "\n\n"

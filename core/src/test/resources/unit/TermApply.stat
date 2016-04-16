@@ -32,8 +32,8 @@ new Compiler(
         options.has("live"),
         options.has("analysis")),
     multi.options.has("multi"),
-    sourceMap.options
-      .has("source-map"));
+    sourceMap.options.has(
+        "source-map"));
 <<< comment after (
 var list = List( // comment
   function(a: A, b: B, c: C)

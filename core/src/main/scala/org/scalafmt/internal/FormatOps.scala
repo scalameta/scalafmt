@@ -1,10 +1,13 @@
 package org.scalafmt.internal
 
 import scala.meta.Import
+import scala.meta.Pat
+import scala.meta.tokens.Tokens
 
 import org.scalafmt.Error.CaseMissingArrow
 import org.scalafmt.ScalafmtStyle
 import org.scalafmt.ScalafmtRunner
+import org.scalafmt.internal.Length.Num
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
@@ -34,13 +37,18 @@ class FormatOps(val tree: Tree,
   val tokens: Array[FormatToken] = FormatToken.formatTokens(tree.tokens)
   val ownersMap = getOwners(tree)
   val statementStarts = getStatementStarts(tree)
-  val argumentStarts: Set[TokenHash] = {
-    val b = Set.newBuilder[TokenHash]
-    tree.collect {
-      case t: Term.Arg if t.tokens.nonEmpty =>
-        b += hash(t.tokens.head)
+  val argumentStarts: Map[TokenHash, Tree] = {
+    val b = mutable.Map.empty[TokenHash, Tree]
+    def add(tree: Tree): Unit = {
+      if (tree.tokens.nonEmpty && !b.contains(hash(tree.tokens.head))) {
+        b += hash(tree.tokens.head) -> tree
+      }
     }
-    b.result()
+    tree.collect {
+      case t: Term.Arg => add(t)
+      case t: Term.Param => add(t)
+    }
+    b.toMap
   }
   val dequeueSpots = getDequeueSpots(tree) ++ statementStarts.keys
   val matchingParentheses = getMatchingParentheses(tree.tokens)
@@ -338,5 +346,24 @@ class FormatOps(val tree: Tree,
       case _ =>
     }
     result.result()
+  }
+
+  def opensConfigStyle(formatToken: FormatToken): Boolean = {
+    newlinesBetween(formatToken.between) > 0 && {
+      val close = matchingParentheses(hash(formatToken.left))
+      newlinesBetween(prev(leftTok2tok(close)).between) > 0
+    }
+  }
+  def getApplyIndent(leftOwner: Tree): Length = leftOwner match {
+    case _: Pat => Num(0) // Indentation already provided by case.
+    case x if isDefnSite(x) && !x.isInstanceOf[Type.Apply] =>
+      if (style.binPackParameters) Num(0)
+      else Num(style.continuationIndentDefnSite)
+    case _ => Num(style.continuationIndentCallSite)
+  }
+
+  def isBinPack(owner: Tree): Boolean = {
+    (style.binPackArguments && isCallSite(owner)) ||
+    (style.binPackParameters && isDefnSite(owner))
   }
 }

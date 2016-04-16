@@ -148,4 +148,9 @@ def point(
 def callMain [T] (t: T): T = macro callMainImpl[T]
 >>>
 def callMain[T](t: T): T = macro callMainImpl[T]
+<<< secondary constructor #168
+def this(`type`: String, settings: js.Dynamic) = this(`type`, settings.asInstanceOf[Clipboard])
+>>>
+def this(`type`: String, settings: js.Dynamic) =
+  this(`type`, settings.asInstanceOf[Clipboard])
 

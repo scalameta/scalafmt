@@ -206,8 +206,7 @@ class TypedPipeJoinWithDescriptionJob {
 }
 >>>
 class TypedPipeJoinWithDescriptionJob {
-  x
-    .hashJoin() // this triggers an implicit that somehow pushes the line number to the next one
+  x.hashJoin() // this triggers an implicit that somehow pushes the line number to the next one
     .withDescription("hashJoin")
     .leftJoin(z)
     .withDescription("leftJoin")

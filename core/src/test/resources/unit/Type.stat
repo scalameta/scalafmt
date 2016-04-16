@@ -43,3 +43,7 @@ type Type = Class[F, E, M] forSome {
   type M <: ClassificationModel[F, M]
   type E <: Classifier[F, E, M]
 }
+<<< no space #165
+type Sequence [T] = js.Array[T]
+>>>
+type Sequence[T] = js.Array[T]
