@@ -8,3 +8,20 @@ def uniform4fv(location: WebGLUniformLocation,
   val uniform4fv________________________________________________X: Unit = js.native
 >>>
 val uniform4fv________________________________________________X: Unit = js.native
+<<< newline before closing parens #162
+{
+def tee(): js.Array[_ <: ReadableStream[T]] = js.native  //TODO js.Tuple2[ReadableStream[T
+}
+>>>
+{
+  def tee(): js.Array[_ <: ReadableStream[T]] = js.native //TODO js.Tuple2[ReadableStream[T
+}
+<<< newline before closing parens #162 with arg
+{
+def tee(arg: IntAAAAAAAAAAA): js.Array[_ <: ReadableStreamBBBBBBBBBBBBBBBBBBBBB[T]] = js.native  //TODO js.Tuple2[ReadableStream[T
+}
+>>>
+{
+  def tee(
+      arg: IntAAAAAAAAAAA): js.Array[_ <: ReadableStreamBBBBBBBBBBBBBBBBBBBBB[T]] = js.native //TODO js.Tuple2[ReadableStream[T
+}

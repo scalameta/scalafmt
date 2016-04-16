@@ -273,13 +273,14 @@ class Router(formatOps: FormatOps) {
         Seq(
             Split(Space, 0)
         )
-      case FormatToken(open: `(`, _, _)
+      case FormatToken(open: `(`, right, _)
           if style.binPackParameters && isDefnSite(leftOwner) =>
         val close = matchingParentheses(hash(open))
         val indent = Num(style.continuationIndentDefnSite)
         Seq(
             Split(NoSplit, 0).withIndent(indent, close, Left),
-            Split(Newline, 1).withIndent(indent, close, Left)
+            Split(Newline, 1, ignoreIf = right.isInstanceOf[`)`])
+              .withIndent(indent, close, Left)
         )
       // DefDef
       case tok@FormatToken(_: `def`, name: Ident, _) =>
