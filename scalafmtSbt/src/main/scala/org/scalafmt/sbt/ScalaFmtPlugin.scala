@@ -29,7 +29,6 @@ import sbt.{IntegrationTest => It}
 import scala.collection.immutable.Seq
 import scala.util.Failure
 import scala.util.Success
-import scala.util.control.NonFatal
 
 object ScalaFmtPlugin extends AutoPlugin {
 

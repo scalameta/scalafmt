@@ -78,25 +78,14 @@ case class HasScalaFmt(reflective: ScalaFmtLike,
       file: File, originalContents: String, formattedContents: String)
 
   private def handleFile(callback: FormatResult => Unit)(file: File): Unit = {
-    try {
-      val contents = IO.read(file)
-
-      val formatted = configFile match {
-        case Some(configFile) =>
-          println(s"config file: ${configFile.getAbsolutePath}")
-          reflective.format(contents, configFile.getAbsolutePath)
-        case None => reflective.format(contents)
-      }
-
-      callback(FormatResult(file, contents, formatted))
-    } catch {
-      case NonFatal(e) =>
-        // Very unlikely, since NonFatal exceptions are caught by scalafmt.
-        streams.log.warn(
-            s"""Scalafmt error, please report to https://github.com/olafurpg/scalafmt/issues
-               |  $file:
-               |  ${e.getMessage}""".stripMargin)
+    val contents = IO.read(file)
+    val formatted = configFile match {
+      case Some(configFile) =>
+        println(s"config file: ${configFile.getAbsolutePath}")
+        reflective.format(contents, configFile.getAbsolutePath)
+      case None => reflective.format(contents)
     }
+    callback(FormatResult(file, contents, formatted))
   }
 
   private def handleFiles(files: Set[File],
