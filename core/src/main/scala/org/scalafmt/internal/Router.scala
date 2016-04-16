@@ -483,25 +483,18 @@ class Router(formatOps: FormatOps) {
             Split(NoSplit, 0)
         )
       // These are mostly filtered out/modified by policies.
-      case tok@FormatToken(_: `,`, _, _) =>
+      case tok@FormatToken(_: `,`, right, _) =>
         // TODO(olafur) DRY, see OneArgOneLine.
         val rhsIsAttachedComment =
           tok.right.isInstanceOf[Comment] && newlinesBetween(tok.between) == 0
-        val endOfArgument = findFirst(next(tok), leftOwner.tokens.last) {
-          case FormatToken(expire: `,`, _, _) if owners(expire) == leftOwner =>
-            true
-          case FormatToken(expire: `)`, _, _) if owners(expire) == leftOwner =>
-            true
-          case _ => false
-        }
-        val singleLineToEndOfArg: Policy = endOfArgument
-          .map(expire => SingleLineBlock(expire.left))
-          .getOrElse(NoPolicy)
-        val optimalToken = endOfArgument.map(_.left)
+        val penalizeNewlineInNextArg: Policy =
+          argumentStarts.get(hash(right)) match {
+            case Some(nextArg) if isBinPack(leftOwner) =>
+              penalizeAllNewlines(nextArg.tokens.last, 1)
+            case _ => NoPolicy
+          }
         Seq(
-            Split(Space, 0)
-              .withOptimalToken(optimalToken)
-              .withPolicy(singleLineToEndOfArg),
+            Split(Space, 0).withPolicy(penalizeNewlineInNextArg),
             Split(Newline, 1, ignoreIf = rhsIsAttachedComment)
         )
       case FormatToken(_, _: `;`, _) =>

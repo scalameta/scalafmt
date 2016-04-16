@@ -25,3 +25,11 @@ def tee(arg: IntAAAAAAAAAAA): js.Array[_ <: ReadableStreamBBBBBBBBBBBBBBBBBBBBB[
   def tee(
       arg: IntAAAAAAAAAAA): js.Array[_ <: ReadableStreamBBBBBBBBBBBBBBBBBBBBB[T]] = js.native //TODO js.Tuple2[ReadableStream[T
 }
+<<< breaking precedence #164
+   def getUserMedia(constraints: MediaStreamConstraints,
+      success: js.Function1[MediaStream, Any],
+      error: js.Function1[DOMError, Any] ): Unit = js.native
+>>>
+def getUserMedia(constraints: MediaStreamConstraints,
+    success: js.Function1[MediaStream, Any],
+    error: js.Function1[DOMError, Any]): Unit = js.native

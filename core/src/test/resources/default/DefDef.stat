@@ -148,4 +148,3 @@ def point(
 def callMain [T] (t: T): T = macro callMainImpl[T]
 >>>
 def callMain[T](t: T): T = macro callMainImpl[T]
-
