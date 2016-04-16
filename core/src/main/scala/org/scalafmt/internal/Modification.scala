@@ -21,6 +21,7 @@ case object NoSplit extends Modification
 
 /**
   * A split representing a newline.
+  *
   * @param isDouble Insert a blank line?
   * @param noIndent Should no indentation follow? For example in commented out
   *                 code.
@@ -30,7 +31,13 @@ case object NoSplit extends Modification
   */
 case class NewlineT(isDouble: Boolean = false,
                     noIndent: Boolean = false,
-                    acceptNoSplit: Boolean = false) extends Modification
+                    acceptNoSplit: Boolean = false) extends Modification {
+  override def toString = {
+    val double = if (isDouble) "Double" else ""
+    val indent = if (noIndent) "NoIndent" else ""
+    double + indent + "Newline"
+  }
+}
 
 object Newline extends NewlineT {
   def apply: NewlineT = NewlineT()
@@ -46,4 +53,6 @@ object NoIndentNewline extends NewlineT(noIndent = true)
 
 object Newline2xNoIndent extends NewlineT(isDouble = true, noIndent = true)
 
-object Space extends Modification
+object Space extends Modification {
+  override def toString = "Space"
+}
