@@ -159,8 +159,9 @@ class FormatOps(val tree: Tree,
   def parensRange(open: Token): Range =
     Range(open.start, matchingParentheses(hash(open)).end)
 
-  def getExcludeIfEndingWithBlock(end: Token): Set[Range] = {
-    if (end.isInstanceOf[`}`]) // allow newlines in final {} block
+  def getExcludeIf(
+      end: Token, cond: Token => Boolean = _.isInstanceOf[`}`]): Set[Range] = {
+    if (cond(end)) // allow newlines in final {} block
       Set(Range(matchingParentheses(hash(end)).start, end.end))
     else Set.empty[Range]
   }

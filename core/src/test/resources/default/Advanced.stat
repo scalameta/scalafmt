@@ -107,15 +107,14 @@ def processOptions(): Unit = {
 
 )
 >>>
-private def scalaJSStageSettings =
-  Seq(
-      usesScalaJSLinkerTag in key := {
-        Tags
-      },
-      // Prevent this linker from being used concurrently
-      concurrentRestrictions in Global +=
-        Tags.limit((usesScalaJSLinkerTag in key).value, 1)
-  )
+private def scalaJSStageSettings = Seq(
+    usesScalaJSLinkerTag in key := {
+      Tags
+    },
+    // Prevent this linker from being used concurrently
+    concurrentRestrictions in Global +=
+      Tags.limit((usesScalaJSLinkerTag in key).value, 1)
+)
 <<< testFilter
   val testFilter: String => Boolean = {
     options.testFilter match {

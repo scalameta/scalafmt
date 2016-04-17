@@ -153,4 +153,15 @@ def this(`type`: String, settings: js.Dynamic) = this(`type`, settings.asInstanc
 >>>
 def this(`type`: String, settings: js.Dynamic) =
   this(`type`, settings.asInstanceOf[Clipboard])
-
+<<< single expression body #171
+def viewMethod: Gen[ViewClass.Op] = oneOf(
+  lowHalf     ^^ lop(n => s"drop $n"   -> (_ drop n)),
+  highHalf    ^^ lop(n => s"take $n"   -> (_ take n)),
+  chooseRange ^^ lop(r => s"slice $r"  -> (_ slice r))
+)
+>>>
+def viewMethod: Gen[ViewClass.Op] = oneOf(
+    lowHalf ^^ lop(n => s"drop $n" -> (_ drop n)),
+    highHalf ^^ lop(n => s"take $n" -> (_ take n)),
+    chooseRange ^^ lop(r => s"slice $r" -> (_ slice r))
+)
