@@ -103,13 +103,14 @@ class Router(formatOps: FormatOps) {
           if (leftOwner.isInstanceOf[Term.Interpolate]) NoPolicy
           else SingleLineBlock(matchingParentheses(hash(open)))
         Seq(
-            Split(NoSplit, 0).withPolicy(policy)
+            Split(if (style.spacesInImportCurlyBrackets) Space else NoSplit, 0)
+              .withPolicy(policy)
         )
       case FormatToken(_, close: `}`, _)
           if parents(rightOwner).exists(_.isInstanceOf[Import]) ||
           rightOwner.isInstanceOf[Term.Interpolate] =>
         Seq(
-            Split(NoSplit, 0)
+            Split(if (style.spacesInImportCurlyBrackets) Space else NoSplit, 0)
         )
       case FormatToken(_: `.`, underscore: `_ `, _)
           if parents(rightOwner).exists(_.isInstanceOf[Import]) =>
@@ -300,11 +301,24 @@ class Router(formatOps: FormatOps) {
         )
       case tok@FormatToken(e: `=`, right, _) if defBody(leftOwner).isDefined =>
         val expire = defBody(leftOwner).get.tokens.last
-        val exclude = getExcludeIfEndingWithBlock(expire)
+        val exclude = getExcludeIf(expire, {
+          case _: `}` => true
+          case close: `)`
+              if newlinesBetween(prev(leftTok2tok(close)).between) > 0 =>
+            // Example:
+            // def x = foo(
+            //     1
+            // )
+            true
+          case _ => false
+        })
+
         val rhsIsJsNative = isJsNative(right)
         Seq(
-            Split(
-                Space, 0, policy = SingleLineBlock(expire, exclude = exclude)),
+            Split(Space,
+                  0,
+                  ignoreIf = newlines > 0 && !rhsIsJsNative,
+                  policy = SingleLineBlock(expire, exclude = exclude)),
             Split(Newline, 0, ignoreIf = rhsIsJsNative)
               .withIndent(2, expire, Left)
         )
@@ -314,13 +328,16 @@ class Router(formatOps: FormatOps) {
             case t: Term.Param if t.default.isDefined => true
             case _ => false
           }) =>
-        val expire = leftOwner match {
-          case t: Term.Arg.Named => t.rhs.tokens.last
-          case t: Term.Param => t.default.get.tokens.last
+        val rhsBody = leftOwner match {
+          case t: Term.Arg.Named => t.rhs
+          case t: Term.Param => t.default.get
           case t => throw UnexpectedTree[Term.Param](t)
         }
+        val expire = rhsBody.tokens.last
+        val exclude = insideBlock(formatToken, expire, _.isInstanceOf[`{`])
+        val unindent = Policy(UnindentAtExclude(exclude, Num(-2)), expire.end)
         Seq(
-            Split(Space, 0).withIndent(2, expire, Left)
+            Split(Space, 0).withIndent(2, expire, Left).withPolicy(unindent)
         )
       case tok@FormatToken(open: `(`, _, _)
           if style.binPackParameters && isDefnSite(leftOwner) =>
@@ -387,11 +404,7 @@ class Router(formatOps: FormatOps) {
 
         // It seems acceptable to unindent by the continuation indent inside
         // curly brace wrapped blocks.
-        val unindentAtExclude: PartialFunction[Decision, Decision] = {
-          case Decision(t, s) if exclude.contains(t.left) =>
-            val close = matchingParentheses(hash(t.left))
-            Decision(t, s.map(_.withIndent(-4, close, Left)))
-        }
+        val unindent = UnindentAtExclude(exclude, Num(-4))
         val singleArgument = args.length == 1
 
         def singleLine(newlinePenalty: Int): Policy = {
@@ -408,7 +421,7 @@ class Router(formatOps: FormatOps) {
             }
 
           if (exclude.isEmpty || isBracket) baseSingleLinePolicy
-          else baseSingleLinePolicy.andThen(unindentAtExclude)
+          else baseSingleLinePolicy.andThen(unindent)
         }
 
         val oneArgOneLine = OneArgOneLineSplit(open)
@@ -562,7 +575,7 @@ class Router(formatOps: FormatOps) {
               if chain.contains(owners(dot2)) =>
             Decision(t, Seq(Split(Newline, 1)))
         }, lastToken.end)
-        val exclude = getExcludeIfEndingWithBlock(lastToken)
+        val exclude = getExcludeIf(lastToken)
         // This policy will apply to both the space and newline splits, otherwise
         // the newline is too cheap even it doesn't actually prevent other newlines.
         val penalizeNewlinesInApply = penalizeAllNewlines(lastToken, 2)
@@ -593,17 +606,17 @@ class Router(formatOps: FormatOps) {
         Seq(
             Split(NoSplit, 0)
         )
-      // Annotations
-      case FormatToken(left: Ident, bind: `@`, _)
-          if rightOwner.isInstanceOf[Pat.Bind] =>
-        Seq(
-            Split(identModification(left), 0)
-        )
+      // Annotations, see #183 for discussion on this.
       case FormatToken(_, bind: `@`, _) if rightOwner.isInstanceOf[Pat.Bind] =>
         Seq(
-            Split(NoSplit, 0)
+            Split(Space, 0)
         )
-      case FormatToken(_: `@`, right: Delim, _) => Seq(Split(NoSplit, 0))
+      case FormatToken(bind: `@`, _, _) if leftOwner.isInstanceOf[Pat.Bind] =>
+        Seq(
+            Split(Space, 0)
+        )
+      case FormatToken(_: `@`, right: Delim, _) =>
+        Seq(Split(NoSplit, 0))
       case FormatToken(_: `@`, right: Ident, _) =>
         // Add space if right starts with a symbol
         Seq(Split(identModification(right), 0))
@@ -750,6 +763,13 @@ class Router(formatOps: FormatOps) {
               .withIndent(indent, formatToken.right, Left)
         )
 
+      // Pat
+      case tok@FormatToken(or: Ident, _, _)
+          if or.code == "|" && leftOwner.isInstanceOf[Pat.Alternative] =>
+        Seq(
+            Split(Space, 0),
+            Split(Newline, 1)
+        )
       case tok@FormatToken(_: Ident | _: Literal | _: Interpolation.End |
                            _: Xml.End,
                            _: Ident | _: Literal | _: Xml.Start,
@@ -758,13 +778,6 @@ class Router(formatOps: FormatOps) {
             Split(Space, 0)
         )
 
-      // Pat
-      case tok@FormatToken(or: Ident, _, _)
-          if or.code == "|" && leftOwner.isInstanceOf[Pat.Alternative] =>
-        Seq(
-            Split(Space, 0),
-            Split(Newline, 1)
-        )
       // Case
       case tok@FormatToken(_, _: `match`, _) =>
         Seq(
@@ -884,7 +897,7 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_: `:`, _: `_ `, _)
           if next(formatToken).right.code == "*" =>
         Seq(
-            Split(NoSplit, 0)
+            Split(Space, 0)
         )
       case FormatToken(_: `_ `, asterisk: Ident, _)
           if asterisk.code == "*" &&
@@ -907,11 +920,11 @@ class Router(formatOps: FormatOps) {
         Seq(
             Split(NoSplit, 0)
         )
-      case FormatToken(_: `.` | _: `#`, _: Ident, _) =>
+      case FormatToken(_: `.` | _: `#`, _: Ident | _: `this`, _) =>
         Seq(
             Split(NoSplit, 0)
         )
-      case FormatToken(_, _: `)` | _: `]`, _) =>
+      case FormatToken(_, _: `]` | _: `)`, _) =>
         Seq(
             Split(NoSplit, 0)
         )

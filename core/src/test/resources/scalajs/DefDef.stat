@@ -33,3 +33,8 @@ def tee(arg: IntAAAAAAAAAAA): js.Array[_ <: ReadableStreamBBBBBBBBBBBBBBBBBBBBB[
 def getUserMedia(constraints: MediaStreamConstraints,
     success: js.Function1[MediaStream, Any],
     error: js.Function1[DOMError, Any]): Unit = js.native
+<<< don't move body if it was on new line, #182
+def a =
+ js.native
+>>>
+def a = js.native

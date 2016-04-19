@@ -95,6 +95,8 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
       case "default" | "standard" | "scala" => ScalafmtStyle.unitTest80
       case "scalajs" => ScalafmtStyle.scalaJs
       case "stripMargin" => ScalafmtStyle.default
+      case "spaces" =>
+        ScalafmtStyle.default.copy(spacesInImportCurlyBrackets = true)
       case "align" =>
         ScalafmtStyle.default.copy(alignTokens = AlignToken.default)
       case style => throw UnknownStyle(style)

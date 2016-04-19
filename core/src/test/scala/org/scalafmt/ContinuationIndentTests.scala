@@ -15,19 +15,22 @@ class ContinuationIndentTests
 def foo(
 a: Int,
 b: Int
-): Int = function(
+): Int = {
+  function(
 2,
 3
 )
+}
 >>>
 def foo(
    a: Int,
    b: Int
-): Int =
+): Int = {
   function(
        2,
        3
   )
+}
 """.replace("'''", "\"\"\"")
 
   override val tests = parseDiffTests(

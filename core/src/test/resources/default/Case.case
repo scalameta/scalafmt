@@ -40,7 +40,7 @@ case Decision(t@FormatToken(comma: `,`, right, between), splits)
           between.exists(_.isInstanceOf[`\n`])) =>
       Decision(t, splits.filter(_.modification == Newline))
 >>>
-case Decision(t@FormatToken(comma: `,`, right, between), splits)
+case Decision(t @ FormatToken(comma: `,`, right, between), splits)
     if owners.get(open) == owners.get(comma) &&
     // If comment is bound to comma, see unit/Comment.
     (!right.isInstanceOf[Comment] || between.exists(_.isInstanceOf[`\n`])) =>
@@ -71,4 +71,21 @@ case FormatToken(open: `(`, right, _)
 <<< bind @ to (
 case   open@(_: `{` | _: `[` | _: `(`) => stack = open :: stack
 >>>
-case open@(_: `{` | _: `[` | _: `(`) => stack = open :: stack
+case open @ (_: `{` | _: `[` | _: `(`) => stack = open :: stack
+<<< or #177
+   case NullTag
+           | UnitTag
+           | BooleanTag
+           | ByteTag
+           | ShortTag
+           | CharTag
+           | IntTag
+           | LongTag
+           | FloatTag
+           | DoubleTag
+           | StringTag =>
+         focus withValue genLiteralValue(lit)
+>>>
+case NullTag | UnitTag | BooleanTag | ByteTag | ShortTag | CharTag | IntTag |
+    LongTag | FloatTag | DoubleTag | StringTag =>
+  focus withValue genLiteralValue(lit)

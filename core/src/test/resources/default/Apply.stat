@@ -9,7 +9,7 @@ List(Split(Space, 0).withPolicy(SingleLineBlock(close)),
 List(Split(Space, 0).withPolicy(SingleLineBlock(close)),
      Split(nl, 1)
        .withPolicy({
-         case Decision(t@FormatToken(_, `close`, _), s) =>
+         case Decision(t @ FormatToken(_, `close`, _), s) =>
            Decision(t, List(Split(Newline, 0)))
        })
        .withIndent(2, close, Right))
@@ -30,7 +30,7 @@ List(Split(Space,
            policy = SingleLineBlock(close),
            ignoreIf = blockSize > style.maxColumn),
      Split(nl, 1, policy = {
-       case Decision(t@FormatToken(_, `close`, _), s) =>
+       case Decision(t @ FormatToken(_, `close`, _), s) =>
          Decision(t, List(Split(Newline, 0)))
      }))
 <<< Massive (good API) 3
@@ -51,10 +51,10 @@ Split(Space, 0).withPolicy {
   // package foo // this is cool
   //
   // object a
-  case Decision(t@FormatToken(`lastRef`, _: Comment, between), splits)
+  case Decision(t @ FormatToken(`lastRef`, _: Comment, between), splits)
       if !between.exists(_.isInstanceOf[`\n`]) =>
     Decision(t, splits.map(_.withModification(Space)))
-  case Decision(t@FormatToken(`lastRef`, _, _), splits) =>
+  case Decision(t @ FormatToken(`lastRef`, _, _), splits) =>
     Decision(t, splits.map(_.withModification(Newline2x)))
 }
 <<< Massive (bad API) 3
@@ -75,10 +75,10 @@ Split(Space, 0, policy = {
   // package foo // this is cool
   //
   // object a
-  case Decision(t@FormatToken(`lastRef`, _: Comment, between), splits)
+  case Decision(t @ FormatToken(`lastRef`, _: Comment, between), splits)
       if !between.exists(_.isInstanceOf[`\n`]) =>
     Decision(t, splits.map(_.withModification(Space)))
-  case Decision(t@FormatToken(`lastRef`, _, _), splits) =>
+  case Decision(t @ FormatToken(`lastRef`, _, _), splits) =>
     Decision(t, splits.map(_.withModification(Newline2x)))
 })
 <<< Looong
@@ -135,7 +135,7 @@ Seq(
     Split(Space, 0).withPolicy(SingleLineBlock(lastToken)),
     Split(Space, 1)
       .withPolicy(Policy({
-        case Decision(t@FormatToken(`arrow`, _, _), s) =>
+        case Decision(t @ FormatToken(`arrow`, _, _), s) =>
           Decision(t, s.filter(_.modification.isNewline))
       }, expire = lastToken.end))
       .withIndent(2, lastToken, Left) // case body indented by 2.
@@ -374,3 +374,4 @@ implicit class IterableW[+A](it: JSIterable[A]) {
         it.asInstanceOf[IteratorMethodAccess]
           .bracketCall[JSIterator[A]](iteratorSymbol)())
 }
+

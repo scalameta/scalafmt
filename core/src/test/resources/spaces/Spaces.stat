@@ -1,0 +1,17 @@
+80 columns                                                                     |
+<<< SKIP square bracket
+function[A, B]
+>>>
+function[ A, B ]
+<<< SKIP parens empty
+function()
+>>>
+function()
+<<< SKIP parens
+function(a, b)
+>>>
+function( a, b )
+<<< import
+import a.b.{c => d}
+>>>
+import a.b.{ c => d }

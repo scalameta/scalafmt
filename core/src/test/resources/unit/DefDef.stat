@@ -104,3 +104,9 @@ def compare(): Int =
   else {
     x
   }
+<<< don't move body if it was on new line, #182
+def a =
+ b
+>>>
+def a =
+  b

@@ -110,10 +110,10 @@ Seq(
     Split(Space, 0), // End files with trailing newline
     Split(Newline, 1)
 )
-<<< seq to var arg
+<<< seq to var arg, #178
  FilesUtil.getFile(path:_*)
 >>>
-FilesUtil.getFile(path:_*)
+FilesUtil.getFile(path: _*)
 <<< tuple superfluous
 ((1111111, aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa))
 >>>

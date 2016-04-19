@@ -159,8 +159,9 @@ class FormatOps(val tree: Tree,
   def parensRange(open: Token): Range =
     Range(open.start, matchingParentheses(hash(open)).end)
 
-  def getExcludeIfEndingWithBlock(end: Token): Set[Range] = {
-    if (end.isInstanceOf[`}`]) // allow newlines in final {} block
+  def getExcludeIf(
+      end: Token, cond: Token => Boolean = _.isInstanceOf[`}`]): Set[Range] = {
+    if (cond(end)) // allow newlines in final {} block
       Set(Range(matchingParentheses(hash(end)).start, end.end))
     else Set.empty[Range]
   }
@@ -208,6 +209,14 @@ class FormatOps(val tree: Tree,
               between.exists(_.isInstanceOf[`\n`])) =>
         Decision(t, splits.filter(_.modification.isNewline))
     }, expire.end)
+  }
+
+  def UnindentAtExclude(
+      exclude: Set[Token],
+      indent: Length): PartialFunction[Decision, Decision] = {
+    case Decision(t, s) if exclude.contains(t.left) =>
+      val close = matchingParentheses(hash(t.left))
+      Decision(t, s.map(_.withIndent(indent, close, ExpiresOn.Left)))
   }
 
   def penalizeAllNewlines(expire: Token, penalty: Int)(
