@@ -604,17 +604,17 @@ class Router(formatOps: FormatOps) {
         Seq(
             Split(NoSplit, 0)
         )
-      // Annotations
-      case FormatToken(left: Ident, bind: `@`, _)
-          if rightOwner.isInstanceOf[Pat.Bind] =>
-        Seq(
-            Split(identModification(left), 0)
-        )
+      // Annotations, see #183 for discussion on this.
       case FormatToken(_, bind: `@`, _) if rightOwner.isInstanceOf[Pat.Bind] =>
         Seq(
-            Split(NoSplit, 0)
+            Split(Space, 0)
         )
-      case FormatToken(_: `@`, right: Delim, _) => Seq(Split(NoSplit, 0))
+      case FormatToken(bind: `@`, _, _) if leftOwner.isInstanceOf[Pat.Bind] =>
+        Seq(
+          Split(Space, 0)
+        )
+      case FormatToken(_: `@`, right: Delim, _)=>
+        Seq(Split(NoSplit, 0))
       case FormatToken(_: `@`, right: Ident, _) =>
         // Add space if right starts with a symbol
         Seq(Split(identModification(right), 0))

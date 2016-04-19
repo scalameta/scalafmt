@@ -308,7 +308,7 @@ tree match {
 }
 >>>
 tree match {
-  case Apply(TypeApply(asInstanceOf_? @Select(base, _), _), _)
+  case Apply(TypeApply(asInstanceOf_? @ Select(base, _), _), _)
       if asInstanceOf_?.symbol == Object_asInstanceOf =>
     Some(base)
   case _ => Some(tree)
