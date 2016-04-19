@@ -761,6 +761,13 @@ class Router(formatOps: FormatOps) {
               .withIndent(indent, formatToken.right, Left)
         )
 
+      // Pat
+      case tok@FormatToken(or: Ident, _, _)
+          if or.code == "|" && leftOwner.isInstanceOf[Pat.Alternative] =>
+        Seq(
+            Split(Space, 0),
+            Split(Newline, 1)
+        )
       case tok@FormatToken(_: Ident | _: Literal | _: Interpolation.End |
                            _: Xml.End,
                            _: Ident | _: Literal | _: Xml.Start,
@@ -769,13 +776,6 @@ class Router(formatOps: FormatOps) {
             Split(Space, 0)
         )
 
-      // Pat
-      case tok@FormatToken(or: Ident, _, _)
-          if or.code == "|" && leftOwner.isInstanceOf[Pat.Alternative] =>
-        Seq(
-            Split(Space, 0),
-            Split(Newline, 1)
-        )
       // Case
       case tok@FormatToken(_, _: `match`, _) =>
         Seq(
