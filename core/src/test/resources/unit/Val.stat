@@ -37,3 +37,7 @@ case ctx => 1
 val fill = x match {
   case ctx => 1
 }
+<<< space before this, #175
+val global: NirCodeGen. this.global.type
+>>>
+val global: NirCodeGen.this.global.type

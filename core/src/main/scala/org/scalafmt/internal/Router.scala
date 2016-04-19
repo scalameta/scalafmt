@@ -918,7 +918,7 @@ class Router(formatOps: FormatOps) {
         Seq(
             Split(NoSplit, 0)
         )
-      case FormatToken(_: `.` | _: `#`, _: Ident, _) =>
+      case FormatToken(_: `.` | _: `#`, _: Ident | _: `this`, _) =>
         Seq(
             Split(NoSplit, 0)
         )
