@@ -11,7 +11,8 @@ object ScalacParser {
   var current = Thread.currentThread().getContextClassLoader
   val files = collection.mutable.Buffer.empty[java.io.File]
   val settings = new Settings()
-  files.appendAll(System
+  files.appendAll(
+      System
         .getProperty("sun.boot.class.path")
         .split(":")
         .map(new java.io.File(_)))

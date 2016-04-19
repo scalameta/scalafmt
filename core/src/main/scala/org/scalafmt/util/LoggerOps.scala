@@ -16,9 +16,11 @@ object LoggerOps {
 
   def log(split: Split): String = s"$split"
 
-  def log(formatToken: FormatToken): String = s"""${log(formatToken.left)}
-                                                 |${log(formatToken.between:_*)}
-                                                 |${log(formatToken.right)}""".stripMargin
+  def log(formatToken: FormatToken): String =
+    s"""${log(formatToken.left)}
+       |${log(
+           formatToken.between: _*)}
+       |${log(formatToken.right)}""".stripMargin
 
   def escape(raw: String): String = {
     raw

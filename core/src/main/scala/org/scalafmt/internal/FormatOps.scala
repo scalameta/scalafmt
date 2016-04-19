@@ -200,7 +200,7 @@ class FormatOps(val tree: Tree,
     val expire = matchingParentheses(hash(open))
     Policy({
       // Newline on every comma.
-      case Decision(t@FormatToken(comma: `,`, right, between), splits)
+      case Decision(t @ FormatToken(comma: `,`, right, between), splits)
           if owners(open) == owners(comma) &&
           // TODO(olafur) what the right { decides to be single line?
           !right.isInstanceOf[`{`] &&

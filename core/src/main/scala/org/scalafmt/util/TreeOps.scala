@@ -130,9 +130,9 @@ object TreeOps {
         Map.empty[TokenHash, Token])
     var stack = List.empty[Token]
     tokens.foreach {
-      case open@(_: `{` | _: `[` | _: `(` | _: Interpolation.Start) =>
+      case open @ (_: `{` | _: `[` | _: `(` | _: Interpolation.Start) =>
         stack = open :: stack
-      case close@(_: `}` | _: `]` | _: `)` | _: Interpolation.End) =>
+      case close @ (_: `}` | _: `]` | _: `)` | _: Interpolation.End) =>
         val open = stack.head
         assertValidParens(open, close)
         ret += hash(open) -> close
@@ -321,7 +321,7 @@ object TreeOps {
   def nestedApplies(tree: Tree): Int = {
     // TODO(olafur) optimize?
     tree.parent.fold(0) {
-      case parent@(_: Term.Apply | _: Term.ApplyInfix) =>
+      case parent @ (_: Term.Apply | _: Term.ApplyInfix) =>
         1 + nestedApplies(parent)
       case parent => nestedApplies(parent)
     }
