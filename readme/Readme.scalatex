@@ -395,6 +395,18 @@
        scalafmt update.
 
   @sect{Changelog}
+    @sect{0.2.2}
+      This release changes the formatting rules for many small cases.
+      I recommend you reformat your whole project in one commit.
+
+      @ul
+        @li
+          Issues closed: @issues(171, 177, 175, 183, 178, 116, 186,
+          168, 165, 164, 163, 162, 161, 160, 159, 158, 157, 169, 114).
+          Thank you everyone who reported bugs via Github and Gitter.
+        @li
+          New @code("--spacesInImportCurlyBraces") flag.
+
     @sect{0.2.1}
       @ul
         @li
