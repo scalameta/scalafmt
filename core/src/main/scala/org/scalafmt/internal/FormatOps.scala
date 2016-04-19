@@ -211,6 +211,14 @@ class FormatOps(val tree: Tree,
     }, expire.end)
   }
 
+  def UnindentAtExclude(
+      exclude: Set[Token],
+      indent: Length): PartialFunction[Decision, Decision] = {
+    case Decision(t, s) if exclude.contains(t.left) =>
+      val close = matchingParentheses(hash(t.left))
+      Decision(t, s.map(_.withIndent(indent, close, ExpiresOn.Left)))
+  }
+
   def penalizeAllNewlines(expire: Token, penalty: Int)(
       implicit line: sourcecode.Line): Policy = {
     Policy({

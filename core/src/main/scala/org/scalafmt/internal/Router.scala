@@ -326,13 +326,16 @@ class Router(formatOps: FormatOps) {
             case t: Term.Param if t.default.isDefined => true
             case _ => false
           }) =>
-        val expire = leftOwner match {
-          case t: Term.Arg.Named => t.rhs.tokens.last
-          case t: Term.Param => t.default.get.tokens.last
+        val rhsBody = leftOwner match {
+          case t: Term.Arg.Named => t.rhs
+          case t: Term.Param => t.default.get
           case t => throw UnexpectedTree[Term.Param](t)
         }
+        val expire = rhsBody.tokens.last
+        val exclude = insideBlock(formatToken, expire, _.isInstanceOf[`{`])
+        val unindent = Policy(UnindentAtExclude(exclude, Num(-2)), expire.end)
         Seq(
-            Split(Space, 0).withIndent(2, expire, Left)
+            Split(Space, 0).withIndent(2, expire, Left).withPolicy(unindent)
         )
       case tok@FormatToken(open: `(`, _, _)
           if style.binPackParameters && isDefnSite(leftOwner) =>
@@ -399,11 +402,7 @@ class Router(formatOps: FormatOps) {
 
         // It seems acceptable to unindent by the continuation indent inside
         // curly brace wrapped blocks.
-        val unindentAtExclude: PartialFunction[Decision, Decision] = {
-          case Decision(t, s) if exclude.contains(t.left) =>
-            val close = matchingParentheses(hash(t.left))
-            Decision(t, s.map(_.withIndent(-4, close, Left)))
-        }
+        val unindent = UnindentAtExclude(exclude, Num(-4))
         val singleArgument = args.length == 1
 
         def singleLine(newlinePenalty: Int): Policy = {
@@ -420,7 +419,7 @@ class Router(formatOps: FormatOps) {
             }
 
           if (exclude.isEmpty || isBracket) baseSingleLinePolicy
-          else baseSingleLinePolicy.andThen(unindentAtExclude)
+          else baseSingleLinePolicy.andThen(unindent)
         }
 
         val oneArgOneLine = OneArgOneLineSplit(open)

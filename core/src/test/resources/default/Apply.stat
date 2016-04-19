@@ -374,3 +374,4 @@ implicit class IterableW[+A](it: JSIterable[A]) {
         it.asInstanceOf[IteratorMethodAccess]
           .bracketCall[JSIterator[A]](iteratorSymbol)())
 }
+
