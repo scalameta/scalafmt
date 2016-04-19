@@ -103,13 +103,14 @@ class Router(formatOps: FormatOps) {
           if (leftOwner.isInstanceOf[Term.Interpolate]) NoPolicy
           else SingleLineBlock(matchingParentheses(hash(open)))
         Seq(
-            Split(NoSplit, 0).withPolicy(policy)
+            Split(if (style.spacesInImportCurlyBrackets) Space else NoSplit, 0)
+              .withPolicy(policy)
         )
       case FormatToken(_, close: `}`, _)
           if parents(rightOwner).exists(_.isInstanceOf[Import]) ||
           rightOwner.isInstanceOf[Term.Interpolate] =>
         Seq(
-            Split(NoSplit, 0)
+            Split(if (style.spacesInImportCurlyBrackets) Space else NoSplit, 0)
         )
       case FormatToken(_: `.`, underscore: `_ `, _)
           if parents(rightOwner).exists(_.isInstanceOf[Import]) =>
@@ -426,6 +427,9 @@ class Router(formatOps: FormatOps) {
 
         val modification =
           if (right.isInstanceOf[Comment]) newlines2Modification(between)
+          else if (args.isEmpty) NoSplit
+          else if (isBracket && style.spacesInSquareBrackets) Space
+          else if (!isBracket && style.spacesInParentheses) Space
           else NoSplit
 
         val newlineModification: Modification =
@@ -611,9 +615,9 @@ class Router(formatOps: FormatOps) {
         )
       case FormatToken(bind: `@`, _, _) if leftOwner.isInstanceOf[Pat.Bind] =>
         Seq(
-          Split(Space, 0)
+            Split(Space, 0)
         )
-      case FormatToken(_: `@`, right: Delim, _)=>
+      case FormatToken(_: `@`, right: Delim, _) =>
         Seq(Split(NoSplit, 0))
       case FormatToken(_: `@`, right: Ident, _) =>
         // Add space if right starts with a symbol
@@ -922,9 +926,13 @@ class Router(formatOps: FormatOps) {
         Seq(
             Split(NoSplit, 0)
         )
-      case FormatToken(_, _: `)` | _: `]`, _) =>
+      case FormatToken(_, _: `)`, _) =>
         Seq(
-            Split(NoSplit, 0)
+            Split(if (style.spacesInParentheses) Space else NoSplit, 0)
+        )
+      case FormatToken(_, _: `]`, _) =>
+        Seq(
+            Split(if (style.spacesInSquareBrackets) Space else NoSplit, 0)
         )
       case FormatToken(_, _: Keyword, _) =>
         Seq(

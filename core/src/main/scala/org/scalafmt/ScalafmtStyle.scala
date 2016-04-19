@@ -43,7 +43,10 @@ case class ScalafmtStyle(maxColumn: Int,
                          noNewlinesBeforeJsNative: Boolean,
                          continuationIndentCallSite: Int,
                          continuationIndentDefnSite: Int,
-                         alignTokens: Set[AlignToken]) {
+                         alignTokens: Set[AlignToken],
+                         spacesInParentheses: Boolean,
+                         spacesInSquareBrackets: Boolean,
+                         spacesInImportCurlyBrackets: Boolean) {
   lazy val alignMap: Map[String, Regex] =
     alignTokens.map(x => x.code -> x.owner.r).toMap
   ValidationOps.assertNonNegative(
@@ -64,8 +67,12 @@ object ScalafmtStyle {
       noNewlinesBeforeJsNative = false,
       continuationIndentCallSite = 4,
       continuationIndentDefnSite = 4,
-      alignTokens = Set.empty[AlignToken]
+      alignTokens = Set.empty[AlignToken],
+      spacesInParentheses = false,
+      spacesInSquareBrackets = false,
+      spacesInImportCurlyBrackets = false
   )
+
   val defaultWithAlign = default.copy(alignTokens = AlignToken.default)
 
   val default40 = default.copy(maxColumn = 40)

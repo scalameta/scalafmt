@@ -125,6 +125,15 @@ object Cli {
     opt[Boolean]("alignStripMarginStrings") action { (bool, c) =>
       c.copy(style = c.style.copy(alignStripMarginStrings = bool))
     } text s"See ScalafmtConfig scaladoc."
+    opt[Boolean]("spacesInParentheses") action { (bool, c) =>
+      c.copy(style = c.style.copy(spacesInParentheses = bool))
+    } text s"See ScalafmtConfig scaladoc."
+    opt[Boolean]("spacesInSquareBrackets") action { (bool, c) =>
+      c.copy(style = c.style.copy(spacesInSquareBrackets = bool))
+    } text s"See ScalafmtConfig scaladoc."
+    opt[Boolean]("spacesInImportCurlyBraces") action { (bool, c) =>
+      c.copy(style = c.style.copy(spacesInImportCurlyBrackets = bool))
+    } text s"See ScalafmtConfig scaladoc."
     opt[Seq[String]]("alignTokens") action { (tokens, c) =>
       val alignsTokens = tokens.map { token =>
         val splitted = token.split(";", 2)
