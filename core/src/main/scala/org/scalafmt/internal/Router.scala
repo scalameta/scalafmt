@@ -315,8 +315,10 @@ class Router(formatOps: FormatOps) {
 
         val rhsIsJsNative = isJsNative(right)
         Seq(
-            Split(
-                Space, 0, policy = SingleLineBlock(expire, exclude = exclude)),
+            Split(Space,
+                  0,
+                  ignoreIf = newlines > 0 && !rhsIsJsNative,
+                  policy = SingleLineBlock(expire, exclude = exclude)),
             Split(Newline, 0, ignoreIf = rhsIsJsNative)
               .withIndent(2, expire, Left)
         )
