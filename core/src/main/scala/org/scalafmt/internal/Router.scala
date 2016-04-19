@@ -895,7 +895,7 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_: `:`, _: `_ `, _)
           if next(formatToken).right.code == "*" =>
         Seq(
-            Split(NoSplit, 0)
+            Split(Space, 0)
         )
       case FormatToken(_: `_ `, asterisk: Ident, _)
           if asterisk.code == "*" &&
