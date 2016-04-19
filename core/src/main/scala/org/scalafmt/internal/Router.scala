@@ -428,9 +428,6 @@ class Router(formatOps: FormatOps) {
 
         val modification =
           if (right.isInstanceOf[Comment]) newlines2Modification(between)
-          else if (args.isEmpty) NoSplit
-          else if (isBracket && style.spacesInSquareBrackets) Space
-          else if (!isBracket && style.spacesInParentheses) Space
           else NoSplit
 
         val newlineModification: Modification =
@@ -927,13 +924,9 @@ class Router(formatOps: FormatOps) {
         Seq(
             Split(NoSplit, 0)
         )
-      case FormatToken(_, _: `)`, _) =>
+      case FormatToken(_, _: `]` | _: `)`, _) =>
         Seq(
-            Split(if (style.spacesInParentheses) Space else NoSplit, 0)
-        )
-      case FormatToken(_, _: `]`, _) =>
-        Seq(
-            Split(if (style.spacesInSquareBrackets) Space else NoSplit, 0)
+            Split(NoSplit, 0)
         )
       case FormatToken(_, _: Keyword, _) =>
         Seq(

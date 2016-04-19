@@ -44,8 +44,6 @@ case class ScalafmtStyle(maxColumn: Int,
                          continuationIndentCallSite: Int,
                          continuationIndentDefnSite: Int,
                          alignTokens: Set[AlignToken],
-                         spacesInParentheses: Boolean,
-                         spacesInSquareBrackets: Boolean,
                          spacesInImportCurlyBrackets: Boolean) {
   lazy val alignMap: Map[String, Regex] =
     alignTokens.map(x => x.code -> x.owner.r).toMap
@@ -68,8 +66,6 @@ object ScalafmtStyle {
       continuationIndentCallSite = 4,
       continuationIndentDefnSite = 4,
       alignTokens = Set.empty[AlignToken],
-      spacesInParentheses = false,
-      spacesInSquareBrackets = false,
       spacesInImportCurlyBrackets = false
   )
 

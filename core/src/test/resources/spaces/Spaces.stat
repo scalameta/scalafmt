@@ -1,13 +1,13 @@
 80 columns                                                                     |
-<<< square bracket
+<<< SKIP square bracket
 function[A, B]
 >>>
 function[ A, B ]
-<<< parens empty
+<<< SKIP parens empty
 function()
 >>>
 function()
-<<< parens
+<<< SKIP parens
 function(a, b)
 >>>
 function( a, b )
