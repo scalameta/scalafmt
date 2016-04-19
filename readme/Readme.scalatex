@@ -396,8 +396,14 @@
 
   @sect{Changelog}
     @sect{0.2.2}
-      This release changes the formatting rules for many small cases.
-      I recommend you reformat your whole project in one commit.
+
+      @p
+        @note. This release contains a bug, see @issue(192).
+        Please hold of from updating.
+
+      @p
+        This release changes the formatting rules for many small cases.
+        I recommend you reformat your whole project in one commit.
 
       @ul
         @li
