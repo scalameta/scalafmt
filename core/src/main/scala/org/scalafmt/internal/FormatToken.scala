@@ -1,9 +1,9 @@
 package org.scalafmt.internal
 
+import org.scalafmt.util.Whitespace
 import org.scalafmt.util.TokenOps._
 import scala.collection.mutable
 import scala.meta.tokens.Token
-import scala.meta.tokens.Token.Whitespace
 import scala.meta.tokens.Tokens
 
 /**
@@ -17,13 +17,13 @@ import scala.meta.tokens.Tokens
   * @param right The left non-whitespace token.
   * @param between The whitespace tokens between left and right.
   */
-case class FormatToken(left: Token, right: Token, between: Vector[Whitespace]) {
+case class FormatToken(left: Token, right: Token, between: Vector[Token]) {
 
-  override def toString = s"${left.code}∙${right.code}"
+  override def toString = s"${left.syntax}∙${right.syntax}"
 
   def inside(range: Set[Range]): Boolean = {
     if (range.isEmpty) true
-    else range.exists(_.contains(right.position.end.line))
+    else range.exists(_.contains(right.pos.end.line))
   }
 
   val leftHasNewline = left.code.contains('\n')
@@ -45,9 +45,9 @@ object FormatToken {
   def formatTokens(tokens: Tokens): Array[FormatToken] = {
     var left = tokens.head
     val result = Array.newBuilder[FormatToken]
-    val whitespace = Vector.newBuilder[Whitespace]
+    val whitespace = Vector.newBuilder[Token]
     tokens.toArray.foreach {
-      case t: Whitespace => whitespace += t
+      case t @ Whitespace() => whitespace += t
       case right =>
         val tok = FormatToken(left, right, whitespace.result)
         result += tok

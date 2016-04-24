@@ -25,7 +25,7 @@ class FormatWriter(formatOps: FormatOps) {
         formatToken.left match {
           case c: Comment =>
             sb.append(formatComment(c, state.indentation))
-          case token: Interpolation.Part =>
+          case token @ Interpolation.Part(_) =>
             sb.append(formatMarginizedString(token, state.indentation))
           case literal: Literal.String => // Ignore, see below.
           case token =>
@@ -36,7 +36,7 @@ class FormatWriter(formatOps: FormatOps) {
         sb.append(whitespace)
         formatToken.right match {
           // state.column matches the end of formatToken.right
-          case literal: Literal.String =>
+          case literal: Constant.String =>
             val column =
               if (state.splits.last.modification.isNewline) state.indentation
               else lastState.column + whitespace.length
@@ -72,14 +72,14 @@ class FormatWriter(formatOps: FormatOps) {
   val leadingPipeSpace = Pattern.compile("\n *\\|", Pattern.MULTILINE)
   private def formatMarginizedString(token: Token, indent: Int): String = {
     if (!style.alignStripMarginStrings) token.code
-    else if (token.isInstanceOf[Interpolation.Part] ||
+    else if (token.is[Interpolation.Part] ||
              isMarginizedString(token)) {
       val firstChar: Char = token match {
-        case _: Interpolation.Part =>
+        case Interpolation.Part() =>
           (for {
             parent <- owners(token).parent
             firstInterpolationPart <- parent.tokens.find(
-                                         _.isInstanceOf[Interpolation.Part])
+                                         _.is[Interpolation.Part])
             char <- firstInterpolationPart.code.headOption
           } yield char).getOrElse(' ')
         case _ =>
@@ -89,7 +89,7 @@ class FormatWriter(formatOps: FormatOps) {
       val spaces = " " * (indent + extraIndent)
       leadingPipeSpace.matcher(token.code).replaceAll(s"\n$spaces\\|")
     } else {
-      token.code
+      token.syntax
     }
   }
 
@@ -168,7 +168,7 @@ class FormatWriter(formatOps: FormatOps) {
       val token = location.formatToken.right
       val code = token match {
         case c: Comment if isInlineComment(c) => "//"
-        case t => t.code
+        case t => t.syntax
       }
       style.alignMap.get(code).map { ownerRegexp =>
         val owner = getAlignOwner(location.formatToken)
@@ -271,7 +271,7 @@ class FormatWriter(formatOps: FormatOps) {
                     line(column).state.column - previousColumn
                   }
                   val key =
-                    columnWidth - line(column).formatToken.right.code.length
+                    columnWidth - line(column).formatToken.right.syntax.length
                   key -> line(column)
                 }
               }

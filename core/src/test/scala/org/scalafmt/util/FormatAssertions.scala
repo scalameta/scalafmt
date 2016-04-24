@@ -33,9 +33,10 @@ trait FormatAssertions extends FunSuiteLike with DiffAssertions {
                   diffAsts(originalStructure, obtainedStructure),
                   obtained)
             }
-          case Parsed.Error(pos, message, details) =>
+          case Parsed.Error(pos, message, details: ParseException) =>
             throw FormatterOutputDoesNotParse(
                 parseException2Message(details, obtained))
+          case _ =>
         }
     }
   }

@@ -28,9 +28,9 @@ object LoggerOps {
   def log(tokens: Token*): String = tokens.map(log).mkString("\n")
 
   def cleanup(token: Token): String = token match {
-    case _: Token.Literal | _: Interpolation.Part =>
-      escape(token.code).stripPrefix("\"").stripSuffix("\"")
-    case _ => token.code.replace("\n", "")
+    case Literal() | Interpolation.Part(_) =>
+      escape(token.syntax).stripPrefix("\"").stripSuffix("\"")
+    case _ => token.syntax.replace("\n", "")
   }
 
   def log(tokens: Tokens): String = tokens.map(log).mkString("\n")
@@ -42,7 +42,8 @@ object LoggerOps {
     token.getClass.getName.stripPrefix("scala.meta.tokens.Token$")
 
   def log(t: Tree, tokensOnly: Boolean = false): String = {
-    val tokens = s"TOKENS: ${t.tokens.map(x => reveal(x.code)).mkString(",")}"
+    val tokens =
+      s"TOKENS: ${t.tokens.map(x => reveal(x.syntax)).mkString(",")}"
     if (tokensOnly) tokens
     else s"""TYPE: ${t.getClass.getName.stripPrefix("scala.meta.")}
             |SOURCE: $t

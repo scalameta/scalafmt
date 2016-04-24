@@ -2,6 +2,7 @@ package org.scalafmt.internal
 
 import scala.meta.Import
 import scala.meta.Pat
+import scala.meta.dialects.Scala211
 import scala.meta.tokens.Tokens
 
 import org.scalafmt.internal.ExpiresOn.Left
@@ -13,6 +14,7 @@ import org.scalafmt.internal.Length.Num
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
+import org.scalafmt.util.Delim
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.meta.Tree
@@ -114,7 +116,7 @@ class FormatOps(val tree: Tree,
 
   @tailrec
   final def nextNonComment(curr: FormatToken): FormatToken = {
-    if (!curr.right.isInstanceOf[Comment]) curr
+    if (!curr.right.is[Comment]) curr
     else {
       val tok = next(curr)
       if (tok == curr) curr
@@ -124,7 +126,8 @@ class FormatOps(val tree: Tree,
 
   @tailrec
   final def rhsOptimalToken(start: FormatToken): Token = start.right match {
-    case _: `,` | _: `(` | _: `)` | _: `]` | _: `;` | _: `=>`
+    case Comma() | LeftParen() | RightParen() | RightBracket() | Semicolon() |
+        RightArrow()
         if next(start) != start &&
           !owners(start.right).tokens.headOption.contains(start.right) &&
           newlinesBetween(start.between) == 0 =>
@@ -138,22 +141,23 @@ class FormatOps(val tree: Tree,
     * Context: https://github.com/olafurpg/scalafmt/issues/108
     */
   def isJsNative(jsToken: Token): Boolean = {
-    style.noNewlinesBeforeJsNative && jsToken.code == "js" &&
+    style.noNewlinesBeforeJsNative && jsToken.syntax == "js" &&
     owners(jsToken).parent.exists(
         _.show[Structure].trim == """Term.Select(Term.Name("js"), Term.Name("native"))""")
   }
 
-  def isTripleQuote(token: Token): Boolean = token.code.startsWith("\"\"\"")
+  def isTripleQuote(token: Token): Boolean = token.syntax.startsWith("\"\"\"")
 
   def isMarginizedString(token: Token): Boolean = token match {
-    case start: Interpolation.Start =>
+    case start @ Interpolation.Start() =>
       val end = matchingParentheses(hash(start))
       val afterEnd = next(leftTok2tok(end))
-      afterEnd.left.code == "." && afterEnd.right.code == "stripMargin"
-    case string: Literal.String =>
-      string.code.startsWith("\"\"\"") && {
+      afterEnd.left.syntax == "." && afterEnd.right.syntax == "stripMargin"
+    case string: Constant.String =>
+      string.syntax.startsWith("\"\"\"") && {
         val afterString = next(leftTok2tok(string))
-        afterString.left.code == "." && afterString.right.code == "stripMargin"
+        afterString.left.syntax == "." &&
+        afterString.right.syntax == "stripMargin"
       }
     case _ => false
   }
@@ -161,16 +165,15 @@ class FormatOps(val tree: Tree,
   @tailrec
   final def startsStatement(tok: FormatToken): Boolean = {
     statementStarts.contains(hash(tok.right)) ||
-    (tok.right.isInstanceOf[Comment] &&
-        tok.between.exists(_.isInstanceOf[`\n`]) && startsStatement(next(tok)))
+    (tok.right.is[Comment] && tok.between.exists(_.is[LF]) &&
+        startsStatement(next(tok)))
   }
 
   def parensRange(open: Token): Range =
     Range(open.start, matchingParentheses(hash(open)).end)
 
   def getExcludeIf(
-      end: Token,
-      cond: Token => Boolean = _.isInstanceOf[`}`]): Set[Range] = {
+      end: Token, cond: Token => Boolean = _.is[RightBrace]): Set[Range] = {
     if (cond(end)) // allow newlines in final {} block
       Set(Range(matchingParentheses(hash(end)).start, end.end))
     else Set.empty[Range]
@@ -191,6 +194,8 @@ class FormatOps(val tree: Tree,
         prev = curr
         curr = next(curr)
       }
+      require(curr != lastCurr)
+      lastCurr = curr
     }
     result.result()
   }
@@ -201,23 +206,23 @@ class FormatOps(val tree: Tree,
       case procedure: Defn.Def
           if procedure.decltpe.isDefined &&
             procedure.decltpe.get.tokens.isEmpty =>
-        procedure.body.tokens.find(_.isInstanceOf[`{`])
-      case _ => tree.tokens.find(t => t.isInstanceOf[`=`] && owners(t) == tree)
+        procedure.body.tokens.find(_.is[LeftBrace])
+      case _ => tree.tokens.find(t => t.is[Equals] && owners(t) == tree)
     }
   }.getOrElse(tree.tokens.last)
 
-  def OneArgOneLineSplit(open: Delim)(implicit line: sourcecode.Line): Policy = {
+  def OneArgOneLineSplit(open: Token)(implicit line: sourcecode.Line): Policy = {
     // TODO(olafur) clear queue between arguments, they are independent.
     val expire = matchingParentheses(hash(open))
     Policy({
       // Newline on every comma.
-      case d @ Decision(t @ FormatToken(comma: `,`, right, between), splits)
+      case d @ Decision(t @ FormatToken(comma @ Comma(), right, between), splits)
           if owners(open) == owners(comma) &&
             // TODO(olafur) what the right { decides to be single line?
-            !right.isInstanceOf[`{`] &&
+            !right.is[LeftBrace] &&
             // If comment is bound to comma, see unit/Comment.
-            (!right.isInstanceOf[Comment] ||
-                  between.exists(_.isInstanceOf[`\n`])) =>
+            (!right.is[Comment] ||
+                  between.exists(_.is[LF])) =>
         Decision(t, splits.filter(_.modification.isNewline))
     }, expire.end)
   }
@@ -273,7 +278,7 @@ class FormatOps(val tree: Tree,
 
   def getArrow(caseStat: Case): Token =
     caseStat.tokens
-      .find(t => t.isInstanceOf[`=>`] && owners(t) == caseStat)
+      .find(t => t.is[RightArrow] && owners(t) == caseStat)
       .getOrElse(throw CaseMissingArrow(caseStat))
 
   def templateCurly(owner: Tree): Token = {
@@ -281,9 +286,27 @@ class FormatOps(val tree: Tree,
   }
 
   def templateCurly(template: Template): Option[Token] = {
-    template.tokens.find(x => x.isInstanceOf[`{`] && owners(x) == template)
+    template.tokens.find(x => x.is[LeftBrace] && owners(x) == template)
   }
 
+  def safeFilterNewlines(splits: Seq[Split])(
+      implicit line: sourcecode.Line): Seq[Split] = {
+    val filtered = splits.filter(_.modification.isNewline)
+    if (filtered.nonEmpty) filtered
+    else Seq(Split(Newline, 0))
+  }
+
+  final def getElseChain(term: Term.If): Vector[KwElse] = {
+    term.tokens.find(x => x.is[KwElse] && owners(x) == term) match {
+      case Some(els @ KwElse()) =>
+        val rest = term.elsep match {
+          case t: Term.If => getElseChain(t)
+          case _ => Vector.empty[KwElse]
+        }
+        els +: rest
+      case _ => Vector.empty[KwElse]
+    }
+  }
   def lastTokenInChain(chain: Vector[Term.Select]): Token = {
     if (chain.length == 1) lastToken(chain.last)
     else chainOptimalToken(chain)
@@ -310,7 +333,7 @@ class FormatOps(val tree: Tree,
     *
     * @param dot the dot owned by the select.
     */
-  def getSelectsLastToken(dot: `.`): Token = {
+  def getSelectsLastToken(dot: Dot): Token = {
     var curr = next(leftTok2tok(dot))
     while (isOpenApply(curr.right, includeCurly = true) &&
            !statementStarts.contains(hash(curr.right))) {
@@ -327,9 +350,10 @@ class FormatOps(val tree: Tree,
   }
 
   def chainOptimalToken(chain: Vector[Term.Select]): Token = {
-    val lastDotIndex = chain.last.tokens.lastIndexWhere(_.isInstanceOf[`.`])
+    val lastDotIndex = chain.last.tokens.lastIndexWhere(_.is[Dot])
     val lastDot =
-      if (lastDotIndex != -1) chain.last.tokens(lastDotIndex).asInstanceOf[`.`]
+      if (lastDotIndex != -1)
+        chain.last.tokens(Scala211)(lastDotIndex).asInstanceOf[Dot]
       else
         throw new IllegalStateException(s"Missing . in select ${chain.last}")
     lastToken(owners(getSelectsLastToken(lastDot)))
@@ -369,7 +393,7 @@ class FormatOps(val tree: Tree,
     *
     * the expire token is the closing }, otherwise it's bar.
     */
-  def selectExpire(dot: `.`): Token = {
+  def selectExpire(dot: Dot): Token = {
     val owner = ownersMap(hash(dot))
     (for {
       parent <- owner.parent
@@ -396,12 +420,12 @@ class FormatOps(val tree: Tree,
     var expire = tree.tokens.head
     tree.tokens.foreach {
       case t if !inside && ((t, ownersMap(hash(t))) match {
-                case (_: `(`, _: Term.Apply) =>
+                case (LeftParen(), _: Term.Apply) =>
                   // TODO(olafur) https://github.com/scalameta/scalameta/issues/345
                   val x = true
                   x
                 // Type compounds can be inside defn.defs
-                case (_: `{`, _: Type.Compound) => true
+                case (LeftBrace(), _: Type.Compound) => true
                 case _ => false
               }) =>
         inside = true

@@ -9,7 +9,7 @@ import org.scalafmt.internal.State
 import org.scalafmt.util.LoggerOps
 import scala.meta.Case
 import scala.meta.Tree
-import scala.meta.tokens.Token.Keyword
+import scala.meta.tokens.Token
 import scala.reflect.ClassTag
 import scala.reflect.classTag
 
@@ -21,7 +21,7 @@ object Error {
   def reportIssue: String =
     "Please file an issue on https://github.com/olafurpg/scalafmt/issues"
 
-  case class CantFindDefnToken[T <: Keyword: ClassTag](tree: Tree)
+  case class CantFindDefnToken[T : ClassTag](tree: Tree)
       extends Error(
           s"Expected keyword of type ${classTag[T].getClass} in tree $tree")
 
