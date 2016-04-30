@@ -11,3 +11,12 @@ scrut.branchSwitch(scrut.value,
                    casefs = normalcases.map {
                      case (_, body) => genExpr(body, _: Focus)
                    })
+<<< SKIP indent negative weird, lila
++                negotiate(
++                    html = fuccess(redirectPov(pov)),
++                    api = apiVersion =>
++                        Env.api.roundApi.player(pov, apiVersion) map { data =>
++                        Created(data) as JSON
++                    }
++                )
+>>>

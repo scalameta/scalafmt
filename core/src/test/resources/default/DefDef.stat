@@ -165,3 +165,9 @@ def viewMethod: Gen[ViewClass.Op] = oneOf(
     highHalf ^^ lop(n => s"take $n" -> (_ take n)),
     chooseRange ^^ lop(r => s"slice $r" -> (_ slice r))
 )
+<<< SKIP typelevel/cats
+-  implicit def validatedInstances[E](implicit E: Semigroup[E]): Traverse[Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] =
++  implicit def validatedInstances[E](implicit E: Semigroup[E]
++      ): Traverse[Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] =
+>>>
+x
