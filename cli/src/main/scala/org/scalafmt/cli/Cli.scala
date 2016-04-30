@@ -232,7 +232,7 @@ object Cli {
 
   def getConfig(args: Array[String]): Option[Config] = {
     parser.parse(args, Config.default) match {
-      case Some(c) if c.configFile.isDefined =>
+      case Some(c) if c.configFile.exists(_.isFile) =>
         parseConfigFile(FileOps.readFile(c.configFile.get))
           .map(x => c.copy(style = x.style))
       case x => x
