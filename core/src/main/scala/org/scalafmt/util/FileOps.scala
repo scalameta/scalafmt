@@ -31,7 +31,7 @@ object FileOps {
     * Reads file from file system or from http url.
     */
   def readFile(filename: String): String = {
-    if (filename.startsWith("http")) {
+    if (filename matches "https?://.*") {
       scala.io.Source.fromURL(filename)("UTF-8").getLines().mkString("\n")
     } else {
       readFile(new File(filename))
