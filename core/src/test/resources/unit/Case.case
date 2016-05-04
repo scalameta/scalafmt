@@ -60,3 +60,7 @@ case _: Defn.Def | _: Pkg.Object |
 case f@ \/-(a) => f
 >>>
 case f @ \/-(a) => f
+<<< Pat.Type #207
+case x:Foo [_] => 1
+>>>
+case x: Foo[_] => 1
