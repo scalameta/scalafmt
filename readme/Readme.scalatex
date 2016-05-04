@@ -329,7 +329,7 @@
 
       @note. Configuration options for scalafmt are still very few.
 
-  @sect{FAQ}
+  @sect{FAQ / Troubleshooting}
 
      @sect{How do I customize scalafmt?}
        See @sect.ref{Configuration}.
@@ -393,6 +393,18 @@
        No, the formatting rules will evolve even between PATCH releases.
        I recommend you add a commit formatting your whole project for every time
        scalafmt update.
+
+     @sect{The SBT plugin doesn't format anything}
+       @ul
+         @li
+           Run @code("reload"), @code("clean") and then try again.
+         @li
+           If that doesn't work. Try adding this to your build.sbt:
+
+       @hl.scala
+         sourceDirectories in (Compile,
+                               org.scalafmt.sbt.ScalaFmtPlugin.autoImport.hasScalafmt) :=
+           (sourceDirectories in Compile).value
 
   @sect{Changelog}
     @sect{0.2.2}
