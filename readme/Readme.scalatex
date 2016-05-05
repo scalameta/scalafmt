@@ -151,7 +151,11 @@
         libraryDependencies += "com.geirsson" %% "scalafmt" % "@org.scalafmt.Versions.stable"
       @p
         Use the API like this
-        @hl.ref(wd/'readme/"library-usage.example")
+
+      @repl
+        org.scalafmt.Scalafmt.format("""
+        object FormatMe { List(Split(Space, 0).withPolicy(SingleLineBlock(close)), Split(Newline, 1).withPolicy{ case Decision(t@@FormatToken(_, `close`, _), s) => Decision(t, List(Split(Newline, 0)))}.withIndent(2, close, Right)) }
+         """).get
 
     @sect{Coming soon...}
 
