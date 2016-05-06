@@ -99,7 +99,8 @@ object Cli {
     opt[Unit]('h', "help") action printAndExit(inludeUsage = true) text "prints this usage text"
     opt[(Int, Int)]("range").hidden() action {
       case ((from, to), c) =>
-        c.copy(range = c.range + Range(from - 1, to - 1))
+        val offset = if (from == to) 0 else -1
+        c.copy(range = c.range + Range(from - 1, to + offset))
     } text "(experimental) only format line range from=to"
 
     // Style configs
@@ -196,12 +197,14 @@ object Cli {
     inputMethods.zipWithIndex.foreach {
       case (inputMethod, i) =>
         val start = System.nanoTime()
-        Scalafmt.format(inputMethod.code, style = config.style) match {
+        Scalafmt.format(inputMethod.code,
+                        style = config.style,
+                        range = config.range) match {
           case FormatResult.Success(formatted) =>
             inputMethod match {
               case FileContents(filename, _) if config.inPlace =>
-                val elapsed = TimeUnit.MILLISECONDS.convert(
-                    System.nanoTime() - start, TimeUnit.NANOSECONDS)
+                val elapsed = TimeUnit.MILLISECONDS
+                  .convert(System.nanoTime() - start, TimeUnit.NANOSECONDS)
                 logger.info(
                     f"${i + 1}%3s/${inputMethods.length} file:$filename%-50s (${elapsed}ms)")
                 if (inputMethod.code != formatted) {
@@ -229,7 +232,7 @@ object Cli {
 
   def getConfig(args: Array[String]): Option[Config] = {
     parser.parse(args, Config.default) match {
-      case Some(c) if c.configFile.isDefined =>
+      case Some(c) if c.configFile.exists(_.isFile) =>
         parseConfigFile(FileOps.readFile(c.configFile.get))
           .map(x => c.copy(style = x.style))
       case x => x

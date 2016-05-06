@@ -42,3 +42,12 @@ object Object {
   val x =
     function[a1234567, b1234567](a)
 }
+<<< SKIP Pat.Type.Apply
+x match {
+  case c: Eval.Compute [A] =>
+}
+>>>
+x match {
+  case c: Eval.Compute[A] =>
+}
+

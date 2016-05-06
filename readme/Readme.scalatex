@@ -151,7 +151,11 @@
         libraryDependencies += "com.geirsson" %% "scalafmt" % "@org.scalafmt.Versions.stable"
       @p
         Use the API like this
-        @hl.ref(wd/'readme/"library-usage.example")
+
+      @repl
+        org.scalafmt.Scalafmt.format("""
+        object FormatMe { List(Split(Space, 0).withPolicy(SingleLineBlock(close)), Split(Newline, 1).withPolicy{ case Decision(t@@FormatToken(_, `close`, _), s) => Decision(t, List(Split(Newline, 0)))}.withIndent(2, close, Right)) }
+         """).get
 
     @sect{Coming soon...}
 
@@ -329,7 +333,7 @@
 
       @note. Configuration options for scalafmt are still very few.
 
-  @sect{FAQ}
+  @sect{FAQ / Troubleshooting}
 
      @sect{How do I customize scalafmt?}
        See @sect.ref{Configuration}.
@@ -393,6 +397,18 @@
        No, the formatting rules will evolve even between PATCH releases.
        I recommend you add a commit formatting your whole project for every time
        scalafmt update.
+
+     @sect{The SBT plugin doesn't format anything}
+       @ul
+         @li
+           Run @code("reload"), @code("clean") and then try again.
+         @li
+           If that doesn't work. Try adding this to your build.sbt:
+
+       @hl.scala
+         sourceDirectories in (Compile,
+                               org.scalafmt.sbt.ScalaFmtPlugin.autoImport.hasScalafmt) :=
+           (sourceDirectories in Compile).value
 
   @sect{Changelog}
     @sect{0.2.2}
