@@ -345,6 +345,10 @@
 
   @sect{FAQ / Troubleshooting}
 
+     @sect{How can I be notified of releases/annoucements?}
+       Join @lnk("https://groups.google.com/forum/#!forum/scalafmt", "the scalafmt mailing list")
+       to receive announcements of new releases only. No spam, promise.
+
      @sect{How do I customize scalafmt?}
        See @sect.ref{Configuration}.
 
