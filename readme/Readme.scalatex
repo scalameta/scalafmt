@@ -435,6 +435,10 @@
           and 2. it makes the false assumption that
           @code("stripMargin") comes from the standard library (discussion here @issues(170)).
           Refer to @sect.ref{stripMargin alignment} to enable it at your own risk.
+        @li
+          IntelliJ plugin does not require restart when @code(".scalafmt") changes.
+          Instead, new changes are picked up automatically and a green info bubble
+          pops up.
     @sect{0.2.2}
 
       @p
