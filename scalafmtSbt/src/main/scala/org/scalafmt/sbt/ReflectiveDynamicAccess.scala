@@ -46,9 +46,9 @@ class ReflectiveDynamicAccess(val classLoader: ClassLoader) {
     Try {
       val types = args.map(_._1).toArray
       val values = args.map(_._2).toArray
-      val constructor = clazz.getDeclaredConstructor(types: _*)
+      val constructor = clazz.getDeclaredConstructor(types:_*)
       constructor.setAccessible(true)
-      val obj = constructor.newInstance(values: _*)
+      val obj = constructor.newInstance(values:_*)
       val t = implicitly[ClassTag[T]].runtimeClass
       if (t.isInstance(obj)) obj.asInstanceOf[T]
       else

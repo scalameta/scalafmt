@@ -37,9 +37,9 @@ object ScalaFmtPlugin extends AutoPlugin {
     lazy val scalafmt: TaskKey[Unit] =
       taskKey[Unit]("Format Scala sources using scalafmt")
 
-    lazy val scalafmtTest: TaskKey[Unit] = taskKey[Unit](
-        "Test for mis-formatted Scala sources, " +
-        "exits with status 1 on failure.")
+    lazy val scalafmtTest: TaskKey[Unit] =
+      taskKey[Unit]("Test for mis-formatted Scala sources, " +
+          "exits with status 1 on failure.")
 
     lazy val scalafmtConfig: TaskKey[Option[File]] =
       taskKey[Option[File]]("Configuration file for scalafmt.")
@@ -114,15 +114,15 @@ object ScalaFmtPlugin extends AutoPlugin {
     loadedClass match {
       case Success(x) => x
       case Failure(e) =>
-        streams.log.error(
-            s"""Unable to classload ScalaFmt, please file an issue:
-               |https://github.com/olafurpg/scalafmt/issues
-               |
-               |URLs: ${classLoader.getURLs.mkString("\n")}
-               |Version: ${org.scalafmt.Versions.nightly}
-               |Error: ${e.getClass}
-               |Message: ${e.getMessage}
-               |${e.getStackTrace.mkString("\n")}""".stripMargin)
+        streams.log
+          .error(s"""Unable to classload ScalaFmt, please file an issue:
+                    |https://github.com/olafurpg/scalafmt/issues
+                    |
+                    |URLs: ${classLoader.getURLs.mkString("\n")}
+                    |Version: ${org.scalafmt.Versions.nightly}
+                    |Error: ${e.getClass}
+                    |Message: ${e.getMessage}
+                    |${e.getStackTrace.mkString("\n")}""".stripMargin)
         throw e
     }
   }

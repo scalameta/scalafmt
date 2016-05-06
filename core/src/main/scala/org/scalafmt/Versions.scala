@@ -8,5 +8,4 @@ object Versions {
   val nightly = "0.2.2"
   // Stable, used in official user docs.
   val stable = "0.2.1"
-
 }

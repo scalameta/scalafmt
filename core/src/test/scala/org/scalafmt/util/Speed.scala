@@ -34,7 +34,7 @@ object Speed {
       case -\/(e: Invalid) =>
         logger.warn("Unable to submit to speed.scalafmt.org: Invalid data")
       case -\/(e) => logger.warn("Unable to submit to speed.scalafmt.org", e)
-      case f @ \/-(a) =>
+      case f@ \/-(a) =>
         val elapsed = Debug.ns2ms(System.nanoTime() - startTime)
         logger.debug(s"Submitted to speed.scalafmt.org (${elapsed}ms)")
     }

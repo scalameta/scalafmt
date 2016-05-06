@@ -19,8 +19,7 @@ final case class State(cost: Int,
                        indentation: Int,
                        pushes: Vector[Indent[Num]],
                        column: Int,
-                       formatOff: Boolean)
-    extends Ordered[State] {
+                       formatOff: Boolean) extends Ordered[State] {
 
   def compare(that: State): Int = {
     val costCompare = Integer.valueOf(-this.cost).compareTo(-that.cost)
