@@ -41,7 +41,7 @@ function assemble-jar() {
 }
 
 function push-tag() {
-    git tag -a ${tag} -m "See changelog."
+    git tag ${tag} -m "See changelog."
     git push --tags
 }
 
@@ -91,10 +91,10 @@ function update-homebrew-release() {
     git push origin master
 }
 
-#assert-preconditions
-#confirm-release
-#assemble-jar
-#push-tag
+assert-preconditions
+confirm-release
+assemble-jar
+push-tag
 maven-publish
 update-github-release
 update-homebrew-release
