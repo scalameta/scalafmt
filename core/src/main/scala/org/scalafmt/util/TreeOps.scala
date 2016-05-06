@@ -238,7 +238,7 @@ object TreeOps {
   }
 
   def isCallSite(tree: Tree): Boolean = tree match {
-    case _: Term.Apply | _: Pat.Type | _: Pat.Extract |
+    case _: Term.Apply | _: Pat.Type.Apply | _: Pat.Extract |
         _: Pat.Tuple | _: Term.Tuple | _: Term.ApplyType | _: Term.Update =>
       true
     case _ => false
@@ -266,8 +266,7 @@ object TreeOps {
     case t: Term.Apply => t.fun -> t.args
     case t: Pat.Extract => t.ref -> t.args
     case t: Pat.Tuple => t -> t.elements
-    case t: Pat.Type if splitApplyIntoLhsAndArgs.isDefinedAt(t.tpe) =>
-      splitApplyIntoLhsAndArgs(t.tpe)
+    case t: Pat.Type.Apply => t.tpe -> t.args
     case t: Term.ApplyType => t.fun -> t.targs
     case t: Term.Update => t.fun -> t.argss.flatten
     case t: Term.Tuple => t -> t.elements
