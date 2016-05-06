@@ -44,11 +44,11 @@ abstract class FormatBenchmark(path: String*) {
   }
 
   def getPath: File = {
-    val filename = FileOps.getFile(Seq("src", "resources") ++ path:_*)
+    val filename = FileOps.getFile(Seq("src", "resources") ++ path: _*)
     // jmh runs from benchmarks directory while tests run from from root.
     // Can't bother to find more generic solution
     if (filename.isFile) filename
-    else FileOps.getFile(Seq("benchmarks", "src", "resources") ++ path:_*)
+    else FileOps.getFile(Seq("benchmarks", "src", "resources") ++ path: _*)
   }
 
   def scalametaParser(): Unit = {

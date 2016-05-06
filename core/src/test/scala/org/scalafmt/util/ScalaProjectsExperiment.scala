@@ -116,7 +116,8 @@ trait ScalaProjectsExperiment {
   private def header(msg: String) = s"\n\n## $msg\n"
 
   private def summarize(stats: DescriptiveStatistics): String =
-    Tabulator.format(Seq(
+    Tabulator.format(
+        Seq(
             Seq("Max", "Min", "Sum", "Mean", "Q1", "Q2", "Q3"),
             Seq(stats.getMax,
                 stats.getMin,

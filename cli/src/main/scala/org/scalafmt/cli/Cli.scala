@@ -134,8 +134,8 @@ object Cli {
     } text s"See ScalafmtConfig scaladoc."
     opt[Boolean]("allowNewlineBeforeColonInMassiveReturnTypes") action {
       (bool, c) =>
-        c.copy(style = c.style
-                .copy(allowNewlineBeforeColonInMassiveReturnTypes = bool))
+        c.copy(style = c.style.copy(
+                  allowNewlineBeforeColonInMassiveReturnTypes = bool))
     } text s"See ScalafmtConfig scaladoc."
     opt[Seq[String]]("alignTokens") action { (tokens, c) =>
       val alignsTokens = tokens.map { token =>
@@ -211,8 +211,8 @@ object Cli {
           case FormatResult.Success(formatted) =>
             inputMethod match {
               case FileContents(filename, _) if config.inPlace =>
-                val elapsed = TimeUnit.MILLISECONDS
-                  .convert(System.nanoTime() - start, TimeUnit.NANOSECONDS)
+                val elapsed = TimeUnit.MILLISECONDS.convert(
+                    System.nanoTime() - start, TimeUnit.NANOSECONDS)
                 logger.info(
                     f"${i + 1}%3s/${inputMethods.length} file:$filename%-50s (${elapsed}ms)")
                 if (inputMethod.code != formatted) {
