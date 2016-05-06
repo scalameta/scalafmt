@@ -4,6 +4,7 @@
  */
 package org.scalafmt.intellij
 
+import scala.collection.mutable
 import scala.meta.parsers.ParseException
 
 import com.intellij.openapi.actionSystem.AnAction
@@ -28,6 +29,10 @@ import org.scalafmt.util.FileOps
 
 case class FileDocument(file: VirtualFile, document: Document) {
   def isScala: Boolean = file.getFileType.getName == "Scala"
+}
+
+object StyleChangedCache {
+  val styleCache = mutable.Map.empty[String, ScalafmtStyle]
 }
 
 class ScalafmtAction extends AnAction {
@@ -66,7 +71,16 @@ class ScalafmtAction extends AnAction {
       configFile = FileOps.getFile(project.getBasePath, ".scalafmt")
           if configFile.isFile
       style <- StyleCache.getStyleForFile(configFile.getAbsolutePath)
-    } yield style
+    } yield {
+      val key = configFile.getAbsolutePath
+      if (!StyleChangedCache.styleCache.get(key).contains(style)) {
+        displayMessage(event,
+                       "scalafmt picked up new style configuration",
+                       MessageType.INFO)
+        StyleChangedCache.styleCache.update(key, style)
+      }
+      style
+    }
     customStyle.getOrElse(ScalafmtStyle.default)
   }
 
@@ -81,9 +95,8 @@ class ScalafmtAction extends AnAction {
     } yield FileDocument(vfile, document)
   }
 
-  def displayMessage(event: AnActionEvent,
-                     msg: String,
-                     messageType: MessageType): Unit = {
+  def displayMessage(
+      event: AnActionEvent, msg: String, messageType: MessageType): Unit = {
     WindowManager.getInstance()
     val statusBar = WindowManager.getInstance().getStatusBar(event.getProject)
     JBPopupFactory

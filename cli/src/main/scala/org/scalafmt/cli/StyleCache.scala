@@ -9,10 +9,14 @@ import org.scalafmt.util.FileOps
 
 object StyleCache {
   private val styleCache = mutable.Map.empty[String, ScalafmtStyle]
+  private val timeStamps = mutable.Map.empty[String, Long]
   def getStyleForFile(filename: String): Option[ScalafmtStyle] = {
-    if (styleCache.contains(filename)) styleCache.get(filename)
+    val file = new File(filename)
+    val lastModified = file.lastModified()
+    val configChanged = timeStamps.get(filename).contains(lastModified)
+    timeStamps.update(filename, lastModified)
+    if (styleCache.contains(filename) && configChanged) styleCache.get(filename)
     else {
-      val file = new File(filename)
       // Throw an exception if file does not exist. Better to fail fast than
       // continue silently.
       Cli.parseConfigFile(FileOps.readFile(file)).map { config =>
