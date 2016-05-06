@@ -387,7 +387,7 @@
          thousands of different formatting solutions.
 
        @p
-         Still, performance is still a work in progress and will hopefully
+         Performance is still a work in progress and will hopefully
          continue to improve in future releases. Help here is appreciated.
 
      @sect{scalafmt creates huge diffs!}
@@ -421,11 +421,25 @@
            (sourceDirectories in Compile).value
 
   @sect{Changelog}
+    @sect{0.2.3}
+      @p
+        @lnk("Issues on Github with label 0.2.3.", "https://github.com/olafurpg/scalafmt/issues?utf8=%E2%9C%93&q=is%3Aissue+milestone%3A0.2.3")
+      @ul
+        @li
+          Fixes 3 issues that caused non-idempotent formatting.
+          The tests now format 1.244.070 LOC @b("twice") to ensure that
+          scalafmt is idempotent.
+        @li
+          @sect.ref{stripMargin alignment} is now disabled by default for two
+          reasons: 1. it may cause non-idempotent formatting in very rare cases
+          and 2. it makes the false assumption that
+          @code("stripMargin") comes from the standard library (discussion here @issues(170)).
+          Refer to @sect.ref{stripMargin alignment} to enable it at your own risk.
     @sect{0.2.2}
 
       @p
         @note. This release contains a bug, see @issue(192).
-        Please hold of from updating.
+        Please hold off from updating.
 
       @p
         This release changes the formatting rules for many small cases.
