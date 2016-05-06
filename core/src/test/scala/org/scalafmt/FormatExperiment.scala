@@ -59,6 +59,7 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
 
   override def runOn(scalaFile: ScalaFile): ExperimentResult = {
     val code = scalaFile.read
+
     if (!ScalacParser.checkParseFails(code)) {
       val startTime = System.nanoTime()
       val formatted = Scalafmt
@@ -66,6 +67,11 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
             code, ScalafmtStyle.default.copy(alignStripMarginStrings = false))
         .get
       assertFormatPreservesAst[Source](code, formatted)
+      val formattedSecondTime = Scalafmt
+        .format(
+            code, ScalafmtStyle.default.copy(alignStripMarginStrings = false))
+        .get
+      assertNoDiff(formattedSecondTime, formatted, "Idempotency")
       print("+")
       Success(scalaFile, System.nanoTime() - startTime)
     } else {

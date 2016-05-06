@@ -57,19 +57,19 @@ def zipWith[E2, U2, F, G, T, D[_]](q2: Query[E2, U2, D], f: (E, E2) => F)(
 >>>
 def groupBy[K, T, G, P](
     f: E => K)(implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G],
-               vshape: Shape[_ <: FlatShapeLevel, E, _, P]
-): Query[(G, Query[P, U, Seq]), (T, Query[P, U, Seq]), C]
+               vshape: Shape[_ <: FlatShapeLevel, E, _, P])
+  : Query[(G, Query[P, U, Seq]), (T, Query[P, U, Seq]), C]
 <<< slick groupBy 2
-  def groupBy[K, T, G, P](f: E => K)(implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G], vshape: Shape[_ <: FlatShapeLevel, E, _, P]): Query[(G, Query[P, U, Seq]), (T, Query[P, U, Seq]), C, (T, Query[P, U, Seq]), (T, Query[P, U, Seq])]
+  def groupBy[K, T, G, P](f: E => K)(implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G], vshape: Shape[_ <: FlatShapeLevel, E, _, P]): Query[(G, Query[P, U, Seq]), (T, Query[P, U, Seq]), CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC, (T, Query[P, U, Seq]), (T, Query[P, U, Seq])]
 >>>
 def groupBy[K, T, G, P](
     f: E => K)(implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G],
-               vshape: Shape[_ <: FlatShapeLevel, E, _, P]
-): Query[(G, Query[P, U, Seq]),
-         (T, Query[P, U, Seq]),
-         C,
-         (T, Query[P, U, Seq]),
-         (T, Query[P, U, Seq])]
+               vshape: Shape[_ <: FlatShapeLevel, E, _, P])
+  : Query[(G, Query[P, U, Seq]),
+          (T, Query[P, U, Seq]),
+          CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC,
+          (T, Query[P, U, Seq]),
+          (T, Query[P, U, Seq])]
 
 <<< slick queryShape
   @inline implicit def queryShape[Level >: NestedShapeLevel <: ShapeLevel, T, Q <: QueryBase[_]](implicit ev: Q <:< Rep[T]) = RepShape[Level, Q, T]
@@ -165,9 +165,24 @@ def viewMethod: Gen[ViewClass.Op] = oneOf(
     highHalf ^^ lop(n => s"take $n" -> (_ take n)),
     chooseRange ^^ lop(r => s"slice $r" -> (_ slice r))
 )
-<<< SKIP typelevel/cats
--  implicit def validatedInstances[E](implicit E: Semigroup[E]): Traverse[Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] =
-+  implicit def validatedInstances[E](implicit E: Semigroup[E]
-+      ): Traverse[Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] =
+<<< typelevel/cats
+  implicit def validatedInstances[E](implicit E: Semigroup[E]): Traverse[Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] = 2
 >>>
-x
+implicit def validatedInstances[E](implicit E: Semigroup[E])
+  : Traverse[Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] = 2
+<<< #212 is last resort 0.2.3-RC1 bug
+{
+   def UnindentAtExclude(
+       exclude: Set[Token],
+       indent: Length): PartialFunction[Decision, Decision] = {
+   println("hello")
+ }
+ }
+>>>
+{
+  def UnindentAtExclude(
+      exclude: Set[Token],
+      indent: Length): PartialFunction[Decision, Decision] = {
+    println("hello")
+  }
+}

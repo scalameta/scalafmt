@@ -1,0 +1,18 @@
+80 columns                                                                     |
+<<< paulp example #192
+class A {
+  def traced(in: A => Unit, out: B => Unit): Fun[A, B] = ( f
+    .   mapIn[A] { x => in(x) ; x }
+    .  mapOut[B] { x => out(x) ; x }
+  )
+}
+>>>
+class A {
+  def traced(in: A => Unit, out: B => Unit): Fun[A, B] =
+    (f.mapIn[A] { x =>
+        in(x); x
+      }
+      .mapOut[B] { x =>
+        out(x); x
+      })
+}

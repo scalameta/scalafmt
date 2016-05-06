@@ -32,19 +32,24 @@ import sourcecode.Text
   *                                   call site.
   * @param continuationIndentDefnSite Indent width for line continuation at
   *                                   definition/declaration site.
+  * @param continuationIndentDefnSite Indent width for line continuation at
+  *                                   definition/declaration site.
   */
-case class ScalafmtStyle(maxColumn: Int,
-                         scalaDocs: Boolean,
-                         alignStripMarginStrings: Boolean,
-                         binPackArguments: Boolean,
-                         binPackParameters: Boolean,
-                         configStyleArguments: Boolean,
-                         binPackDotChains: Boolean,
-                         noNewlinesBeforeJsNative: Boolean,
-                         continuationIndentCallSite: Int,
-                         continuationIndentDefnSite: Int,
-                         alignTokens: Set[AlignToken],
-                         spacesInImportCurlyBrackets: Boolean) {
+case class ScalafmtStyle(
+    maxColumn: Int,
+    scalaDocs: Boolean,
+    alignStripMarginStrings: Boolean,
+    binPackArguments: Boolean,
+    binPackParameters: Boolean,
+    configStyleArguments: Boolean,
+    binPackDotChains: Boolean,
+    noNewlinesBeforeJsNative: Boolean,
+    continuationIndentCallSite: Int,
+    continuationIndentDefnSite: Int,
+    alignTokens: Set[AlignToken],
+    spacesInImportCurlyBrackets: Boolean,
+    allowNewlineBeforeColonInMassiveReturnTypes: Boolean
+) {
   lazy val alignMap: Map[String, Regex] =
     alignTokens.map(x => x.code -> x.owner.r).toMap
   ValidationOps.assertNonNegative(
@@ -57,7 +62,7 @@ object ScalafmtStyle {
   val default = ScalafmtStyle(
       maxColumn = 80,
       scalaDocs = true,
-      alignStripMarginStrings = true,
+      alignStripMarginStrings = false,
       binPackArguments = false,
       binPackParameters = false,
       configStyleArguments = true,
@@ -66,7 +71,8 @@ object ScalafmtStyle {
       continuationIndentCallSite = 4,
       continuationIndentDefnSite = 4,
       alignTokens = Set.empty[AlignToken],
-      spacesInImportCurlyBrackets = false
+      spacesInImportCurlyBrackets = false,
+      allowNewlineBeforeColonInMassiveReturnTypes = true
   )
 
   val defaultWithAlign = default.copy(alignTokens = AlignToken.default)
@@ -78,9 +84,12 @@ object ScalafmtStyle {
     * Experimental implementation of:
     * https://github.com/scala-js/scala-js/blob/master/CODINGSTYLE.md
     */
-  val scalaJs = default.copy(noNewlinesBeforeJsNative = true,
-                             binPackArguments = true,
-                             binPackParameters = true)
+  val scalaJs = default.copy(
+      noNewlinesBeforeJsNative = true,
+      binPackArguments = true,
+      binPackParameters = true,
+      allowNewlineBeforeColonInMassiveReturnTypes = false
+  )
 
   // TODO(olafur) parameterize
   private def name2style(

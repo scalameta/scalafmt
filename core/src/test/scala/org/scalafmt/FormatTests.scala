@@ -62,6 +62,10 @@ class FormatTests
     assertFormatPreservesAst(t.original, obtained)(parse)
     if (!onlyManual) {
       assertNoDiff(obtained, t.expected)
+      Debug.newTest()
+      val formattedAgain = Scalafmt.format(obtained, t.style, runner).get
+//      getFormatOutput(t.style, true) // uncomment to debug
+      assertNoDiff(formattedAgain, obtained, "Idempotency violated")
     }
   }
 

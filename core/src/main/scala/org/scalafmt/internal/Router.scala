@@ -29,6 +29,7 @@ import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 
 object Constants {
+  val SparkColonNewline = 10
   val BracketPenalty = 20
   val ExceedColumnPenalty = 1000
   // Breaking a line like s"aaaaaaa${111111 + 22222}" should be last resort.
@@ -305,7 +306,8 @@ class Router(formatOps: FormatOps) {
         val exclude = getExcludeIf(expire, {
           case _: `}` => true
           case close: `)`
-              if newlinesBetween(prev(leftTok2tok(close)).between) > 0 =>
+              if opensConfigStyle(
+                  leftTok2tok(matchingParentheses(hash(close)))) =>
             // Example:
             // def x = foo(
             //     1
@@ -320,7 +322,7 @@ class Router(formatOps: FormatOps) {
                   0,
                   ignoreIf = newlines > 0 && !rhsIsJsNative,
                   policy = SingleLineBlock(expire, exclude = exclude)),
-            Split(Newline, 0, ignoreIf = rhsIsJsNative)
+            Split(Newline, 1, ignoreIf = rhsIsJsNative)
               .withIndent(2, expire, Left)
         )
       // Named argument foo(arg = 1)
@@ -478,18 +480,20 @@ class Router(formatOps: FormatOps) {
           )
 
       // Closing def site ): ReturnType
-      case FormatToken(_, close: `)`, _)
-          if next(formatToken).right.isInstanceOf[`:`] &&
-          !style.binPackParameters && defDefReturnType(rightOwner).isDefined =>
+      case FormatToken(close: `)`, colon: `:`, _)
+          if style.allowNewlineBeforeColonInMassiveReturnTypes &&
+          defDefReturnType(leftOwner).isDefined =>
         val expire = lastToken(defDefReturnType(rightOwner).get)
         val penalizeNewlines = penalizeAllNewlines(
             expire, Constants.BracketPenalty)
         Seq(
             Split(NoSplit, 0).withPolicy(penalizeNewlines),
-            // In case the return type is super long, we may need to break
-            // before the closing ).
-            Split(Newline, 3)
-        )
+            // Spark style guide allows this:
+            // https://github.com/databricks/scala-style-guide#indent
+            Split(Newline, Constants.SparkColonNewline)
+              .withIndent(2, expire, Left)
+              .withPolicy(penalizeNewlines)
+          )
 
       // Delim
       case FormatToken(_, _: `,`, _) =>
