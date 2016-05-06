@@ -304,7 +304,8 @@ class Router(formatOps: FormatOps) {
         val exclude = getExcludeIf(expire, {
           case _: `}` => true
           case close: `)`
-              if newlinesBetween(prev(leftTok2tok(close)).between) > 0 =>
+              if opensConfigStyle(
+                  leftTok2tok(matchingParentheses(hash(close)))) =>
             // Example:
             // def x = foo(
             //     1
@@ -319,7 +320,7 @@ class Router(formatOps: FormatOps) {
                   0,
                   ignoreIf = newlines > 0 && !rhsIsJsNative,
                   policy = SingleLineBlock(expire, exclude = exclude)),
-            Split(Newline, 0, ignoreIf = rhsIsJsNative)
+            Split(Newline, 1, ignoreIf = rhsIsJsNative)
               .withIndent(2, expire, Left)
         )
       // Named argument foo(arg = 1)

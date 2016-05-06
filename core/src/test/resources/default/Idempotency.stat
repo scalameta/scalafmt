@@ -1,0 +1,27 @@
+80 columns                                                                     |
+<<< paulp example #192
+class A {
+  def traced(in: A => Unit, out: B => Unit): Fun[A, B] = ( f
+    .   mapIn[A] { x => in(x) ; x }
+    .  mapOut[B] { x => out(x) ; x }
+  )
+}
+>>>
+class A {
+  def traced(in: A => Unit, out: B => Unit): Fun[A, B] =
+    (f.mapIn[A] { x =>
+        in(x); x
+      }
+      .mapOut[B] { x =>
+        out(x); x
+      })
+}
+<<< SKIP olafurpg example #192
+  def log(formatToken: FormatToken): String = s"""${log(formatToken.left)}
+                                                 |${log(formatToken.between:_*)}
+                                                 |${log(formatToken.right)}""".stripMargin
+>>>
+def log(formatToken: FormatToken): String =
+  s"""${log(formatToken.left)}
+     |${log(formatToken.between:_*)}
+     |${log(formatToken.right)}""".stripMargin

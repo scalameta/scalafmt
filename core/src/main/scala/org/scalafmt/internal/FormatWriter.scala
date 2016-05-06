@@ -123,7 +123,7 @@ class FormatWriter(formatOps: FormatOps) {
         }
         callback.apply(state, tok, whitespace)
     }
-    if (debug) logger.debug(s"Total cost: ${locations.last.split.cost}")
+    if (debug) logger.debug(s"Total cost: ${locations.last.state.cost}")
   }
 
   private def isCandidate(
