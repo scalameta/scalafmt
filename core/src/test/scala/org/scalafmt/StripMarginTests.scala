@@ -93,6 +93,18 @@ val msg =
 val msg = s'''UNABLE TO FORMAT,
              |${mkString(deepestYet.splits)}
              |'''.stripMargin
+<<< SKIP olafurpg example #192
+{
+  def log(formatToken: FormatToken): String = s'''${log(formatToken.left)}
+  |${log(formatToken.between:_*)}
+  |${log(formatToken.right)}'''.stripMargin
+}
+>>>
+{
+  def log(formatToken: FormatToken): String = s'''${log(formatToken.left)}
+                                                 |${log(formatToken.between: _*)}
+                                                 |${log(formatToken.right)}'''.stripMargin
+}
 <<< don't break if no need
 val msg =
 
@@ -110,11 +122,15 @@ val msg = s'''AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
   testsToRun.foreach(runTest(run))
 
+  val alignStyle = ScalafmtStyle.default.copy(alignStripMarginStrings = true)
+
   def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
     val runner = scalafmtRunner.withParser(parse)
-    val formatted =
-      Scalafmt.format(t.original, ScalafmtStyle.default, runner).get
+    val formatted = Scalafmt.format(t.original, alignStyle, runner).get
     saveResult(t, formatted, t.only)
     assertNoDiff(formatted, t.expected)
+    assertNoDiff(Scalafmt.format(formatted, alignStyle, runner).get,
+                 formatted,
+                 "Idempotency violated")
   }
 }

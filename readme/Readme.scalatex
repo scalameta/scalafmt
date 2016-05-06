@@ -275,10 +275,20 @@
           )
         }
     @sect{stripMargin alignment}
-      The margin character @code("|") is aligned with the opening triple
-      quote @code("\"\"\"") in interpolated and raw string literals.
+      @p
+        Off by default, enable with
 
-      @example(org.scalafmt.util.FileOps.readFile("readme/stripMargin.example"))
+        @cliFlags
+          --assumeStandardLibraryStripMargin true
+      @p
+        @note. May cause non-idempotent formatting in rare cases, see @issue(192).
+
+      @p
+        The margin character @code("|") is aligned with the opening triple
+        quote @code("\"\"\"") in interpolated and raw string literals.
+
+        @example(org.scalafmt.util.FileOps.readFile("readme/stripMargin.example"),
+                 stripMarginStyle)
 
     @sect{// format: off}
       Disable formatting for specific regions of code by wrapping them in
@@ -319,7 +329,7 @@
           @p
             Here is an example @code(".scalafmt").
 
-            @hl.scala
+            @cliFlags
               # Example .scalafmt, comments are supported.
               --style defaultWithAlign # For pretty alignment.
               --maxColumn 100 # For my wide 30" display.

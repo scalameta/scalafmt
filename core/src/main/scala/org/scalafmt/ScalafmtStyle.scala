@@ -57,7 +57,7 @@ object ScalafmtStyle {
   val default = ScalafmtStyle(
       maxColumn = 80,
       scalaDocs = true,
-      alignStripMarginStrings = true,
+      alignStripMarginStrings = false,
       binPackArguments = false,
       binPackParameters = false,
       configStyleArguments = true,

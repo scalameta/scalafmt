@@ -7,6 +7,7 @@ import com.twitter.util.Eval
 import org.scalafmt.AlignToken
 import org.scalafmt.Scalafmt
 import org.scalafmt.ScalafmtStyle
+import org.scalafmt.cli.Cli
 
 object hl extends scalatex.site.Highlighter
 
@@ -37,6 +38,11 @@ object Readme {
                     |res0: ${evaluated.getClass.getName} = $output
                     |""".stripMargin
     hl.scala(result)
+  }
+
+  def cliFlags(flags: String) = {
+    require(Cli.parseConfigFile(flags).isDefined)
+    hl.scala(flags)
   }
 
   def note = b("NOTE")
@@ -71,6 +77,8 @@ object Readme {
       .get
     hl.scala(formatted)
   }
+
+  val stripMarginStyle = ScalafmtStyle.default.copy(alignStripMarginStrings = true)
 
   def example(code: String, style: ScalafmtStyle): TypedTag[String] = {
     val formatted = Scalafmt.format(code, style).get

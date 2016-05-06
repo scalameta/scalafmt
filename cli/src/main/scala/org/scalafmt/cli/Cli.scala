@@ -125,6 +125,9 @@ object Cli {
     } text s"Sets scalaDocs to false. See ScalafmtConfig scaladoc."
     opt[Boolean]("alignStripMarginStrings") action { (bool, c) =>
       c.copy(style = c.style.copy(alignStripMarginStrings = bool))
+    } text s"(deprecated) Use assumeStandardLibraryStripMargin, will be removed in 0.3."
+    opt[Boolean]("assumeStandardLibraryStripMargin") action { (bool, c) =>
+      c.copy(style = c.style.copy(alignStripMarginStrings = bool))
     } text s"See ScalafmtConfig scaladoc."
     opt[Boolean]("spacesInImportCurlyBraces") action { (bool, c) =>
       c.copy(style = c.style.copy(spacesInImportCurlyBrackets = bool))
