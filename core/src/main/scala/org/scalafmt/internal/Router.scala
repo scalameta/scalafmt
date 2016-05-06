@@ -29,6 +29,7 @@ import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 
 object Constants {
+  val SparkColonNewline = 10
   val BracketPenalty = 20
   val ExceedColumnPenalty = 1000
   // Breaking a line like s"aaaaaaa${111111 + 22222}" should be last resort.
@@ -478,7 +479,7 @@ class Router(formatOps: FormatOps) {
 
       // Closing def site ): ReturnType
       case FormatToken(close: `)`, colon: `:`, _)
-          if !style.binPackParameters &&
+          if style.allowNewlineBeforeColonInMassiveReturnTypes &&
           defDefReturnType(leftOwner).isDefined =>
         val expire = lastToken(defDefReturnType(rightOwner).get)
         val penalizeNewlines = penalizeAllNewlines(
@@ -487,8 +488,10 @@ class Router(formatOps: FormatOps) {
             Split(NoSplit, 0).withPolicy(penalizeNewlines),
             // Spark style guide allows this:
             // https://github.com/databricks/scala-style-guide#indent
-            Split(Newline, 3).withIndent(2, expire, Left)
-        )
+            Split(Newline, Constants.SparkColonNewline)
+              .withIndent(2, expire, Left)
+              .withPolicy(penalizeNewlines)
+          )
 
       // Delim
       case FormatToken(_, _: `,`, _) =>

@@ -60,14 +60,14 @@ def groupBy[K, T, G, P](
                vshape: Shape[_ <: FlatShapeLevel, E, _, P])
   : Query[(G, Query[P, U, Seq]), (T, Query[P, U, Seq]), C]
 <<< slick groupBy 2
-  def groupBy[K, T, G, P](f: E => K)(implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G], vshape: Shape[_ <: FlatShapeLevel, E, _, P]): Query[(G, Query[P, U, Seq]), (T, Query[P, U, Seq]), C, (T, Query[P, U, Seq]), (T, Query[P, U, Seq])]
+  def groupBy[K, T, G, P](f: E => K)(implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G], vshape: Shape[_ <: FlatShapeLevel, E, _, P]): Query[(G, Query[P, U, Seq]), (T, Query[P, U, Seq]), CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC, (T, Query[P, U, Seq]), (T, Query[P, U, Seq])]
 >>>
-def groupBy[K, T, G, P](f: E => K)(
-    implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G],
-    vshape: Shape[_ <: FlatShapeLevel, E, _, P])
+def groupBy[K, T, G, P](
+    f: E => K)(implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G],
+               vshape: Shape[_ <: FlatShapeLevel, E, _, P])
   : Query[(G, Query[P, U, Seq]),
           (T, Query[P, U, Seq]),
-          C,
+          CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC,
           (T, Query[P, U, Seq]),
           (T, Query[P, U, Seq])]
 
@@ -170,3 +170,19 @@ def viewMethod: Gen[ViewClass.Op] = oneOf(
 >>>
 implicit def validatedInstances[E](implicit E: Semigroup[E])
   : Traverse[Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] = 2
+<<< #212 is last resort 0.2.3-RC1 bug
+{
+   def UnindentAtExclude(
+       exclude: Set[Token],
+       indent: Length): PartialFunction[Decision, Decision] = {
+   println("hello")
+ }
+ }
+>>>
+{
+  def UnindentAtExclude(
+      exclude: Set[Token],
+      indent: Length): PartialFunction[Decision, Decision] = {
+    println("hello")
+  }
+}

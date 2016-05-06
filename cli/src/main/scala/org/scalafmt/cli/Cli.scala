@@ -132,6 +132,11 @@ object Cli {
     opt[Boolean]("spacesInImportCurlyBraces") action { (bool, c) =>
       c.copy(style = c.style.copy(spacesInImportCurlyBrackets = bool))
     } text s"See ScalafmtConfig scaladoc."
+    opt[Boolean]("allowNewlineBeforeColonInMassiveReturnTypes") action {
+      (bool, c) =>
+        c.copy(style = c.style
+                .copy(allowNewlineBeforeColonInMassiveReturnTypes = bool))
+    } text s"See ScalafmtConfig scaladoc."
     opt[Seq[String]]("alignTokens") action { (tokens, c) =>
       val alignsTokens = tokens.map { token =>
         val splitted = token.split(";", 2)
