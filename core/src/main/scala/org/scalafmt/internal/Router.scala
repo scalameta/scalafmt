@@ -476,17 +476,17 @@ class Router(formatOps: FormatOps) {
           )
 
       // Closing def site ): ReturnType
-      case FormatToken(_, close: `)`, _)
-          if next(formatToken).right.isInstanceOf[`:`] &&
-          !style.binPackParameters && defDefReturnType(rightOwner).isDefined =>
+      case FormatToken(close: `)`, colon: `:`, _)
+          if !style.binPackParameters &&
+          defDefReturnType(leftOwner).isDefined =>
         val expire = lastToken(defDefReturnType(rightOwner).get)
         val penalizeNewlines = penalizeAllNewlines(
             expire, Constants.BracketPenalty)
         Seq(
             Split(NoSplit, 0).withPolicy(penalizeNewlines),
-            // In case the return type is super long, we may need to break
-            // before the closing ).
-            Split(Newline, 3)
+            // Spark style guide allows this:
+            // https://github.com/databricks/scala-style-guide#indent
+            Split(Newline, 3).withIndent(2, expire, Left)
         )
 
       // Delim
