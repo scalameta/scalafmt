@@ -1,8 +1,12 @@
 package org.scalafmt.util
 
+import scala.concurrent.Await
+import scala.concurrent.Future
+
 import java.io.File
 import java.text.NumberFormat
 import java.util.Locale
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CopyOnWriteArrayList
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
@@ -25,12 +29,13 @@ import scalaz.concurrent.Task
 trait ScalaProjectsExperiment {
   val awaitMaxDuration =
     // Can't guarantee performance on Travis
-    if (sys.env.contains("TRAVIS")) Duration(1, "min")
+    if (sys.env.contains("TRAVIS")) Duration(60, "s")
     // Max on @olafurpg's machine is 5.9s, 2,5 GHz Intel Core i7 Macbook Pro.
     else Duration(10, "s")
 
   val results: java.util.List[ExperimentResult] =
     new CopyOnWriteArrayList[ExperimentResult]()
+  var totalNanos: Long = _
   val verbose = false
   val colLength = 10
   val numberFormat = {
@@ -44,33 +49,34 @@ trait ScalaProjectsExperiment {
 
   def runOn(scalaFile: ScalaFile): ExperimentResult
 
-  val taskChunk = 100
-
-  /**
-    * This is an awkward workaround to prevent false negative timeout exceptions
-    * when formatting thousands of files.
-    */
-  @tailrec
-  // TODO(olafur) use better concurrency primitive than task/future.
-  final def runTasksInChunks(tasks: Seq[Task[ExperimentResult]]): Unit = {
-    if (tasks.nonEmpty) {
-      println(s"\n${tasks.length} tasks remaining...")
-      val (toRun, nextRound) = tasks.splitAt(taskChunk)
-      Task
-        .gatherUnordered(toRun)
-        .runFor(awaitMaxDuration * toRun.length)
-        .foreach { e =>
-          results.add(e)
-        }
-      runTasksInChunks(nextRound)
-    }
-  }
-
   def runExperiment(scalaFiles: Seq[ScalaFile]): Unit = {
-    val tasks = scalaFiles.map { file =>
-      Task(runOn(file)).timed(awaitMaxDuration).handle(recoverError(file))
-    }
-    runTasksInChunks(tasks)
+    import LoggerOps._
+    import scala.concurrent.ExecutionContext.Implicits.global
+    val start = System.nanoTime()
+    val queue = new ConcurrentLinkedQueue[ScalaFile]()
+    queue.addAll(scalaFiles)
+    // 1 future per available processor, each future processes 1 file at a time.
+    val workers: Seq[Future[Unit]] =
+      (1 to Runtime.getRuntime.availableProcessors()).map { _ =>
+        Future {
+          while (!queue.isEmpty) {
+            val file = queue.poll()
+            val result = Task(runOn(file))
+              .timed(awaitMaxDuration)
+              .handle(recoverError(file))
+              .run
+            results.add(result)
+            val size = queue.size()
+            if (size % 100 == 0) {
+              println()
+              logger.debug(s"$size remaining...")
+            }
+          }
+        }
+      }
+    Await.result(
+        Future.sequence(workers), scalaFiles.length * awaitMaxDuration)
+    totalNanos = System.nanoTime() - start
   }
 
   def recoverError(
@@ -118,10 +124,10 @@ trait ScalaProjectsExperiment {
   private def summarize(stats: DescriptiveStatistics): String =
     Tabulator.format(
         Seq(
-            Seq("Max", "Min", "Sum", "Mean", "Q1", "Q2", "Q3"),
-            Seq(stats.getMax,
+            Seq("Total time", "Max", "Min", "Mean", "Q1", "Q2", "Q3"),
+            Seq(totalNanos,
+                stats.getMax,
                 stats.getMin,
-                stats.getSum,
                 stats.getMean,
                 stats.getPercentile(25),
                 stats.getPercentile(50),
