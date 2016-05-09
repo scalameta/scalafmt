@@ -72,7 +72,6 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
             code, ScalafmtStyle.default.copy(alignStripMarginStrings = false))
         .get
       assertNoDiff(formattedSecondTime, formatted, "Idempotency")
-      print("+")
       Success(scalaFile, System.nanoTime() - startTime)
     } else {
       Skipped(scalaFile)

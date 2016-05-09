@@ -58,9 +58,7 @@ object TreeOps {
   }
 
   def getDequeueSpots(tree: Tree): Set[TokenHash] = {
-    val ret =
-      new scala.collection.mutable.SetBuilder[TokenHash, Set[TokenHash]](
-          Set[TokenHash]())
+    val ret = Set.newBuilder[TokenHash]
     tree.tokens.foreach {
       case t: `else` =>
         ret += hash(t)
@@ -70,8 +68,8 @@ object TreeOps {
   }
 
   def getStatementStarts(tree: Tree): Map[TokenHash, Tree] = {
-    val ret = new scala.collection.mutable.MapBuilder[
-        TokenHash, Tree, Map[TokenHash, Tree]](Map[TokenHash, Tree]())
+    val ret = Map.newBuilder[TokenHash, Tree]
+    ret.sizeHint(tree.tokens.length)
 
     def addAll(trees: Seq[Tree]): Unit = {
       trees.foreach { t =>
@@ -126,8 +124,7 @@ object TreeOps {
     * Contains lookup keys in both directions, opening [({ and closing })].
     */
   def getMatchingParentheses(tokens: Tokens): Map[TokenHash, Token] = {
-    val ret = new mutable.MapBuilder[TokenHash, Token, Map[TokenHash, Token]](
-        Map.empty[TokenHash, Token])
+    val ret = Map.newBuilder[TokenHash, Token]
     var stack = List.empty[Token]
     tokens.foreach {
       case open @ (_: `{` | _: `[` | _: `(` | _: Interpolation.Start) =>
@@ -159,9 +156,7 @@ object TreeOps {
     * Creates lookup table from token offset to its closest scala.meta tree.
     */
   def getOwners(tree: Tree): Map[TokenHash, Tree] = {
-    val result = new mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](
-        Map.empty[TokenHash, Tree])
-
+    val result = Map.newBuilder[TokenHash, Tree]
     def loop(x: Tree): Unit = {
       x.tokens.foreach { tok =>
         result += hash(tok) -> x

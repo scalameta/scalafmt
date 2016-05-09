@@ -30,7 +30,17 @@ class BestFirstSearch(
   import formatOps._
   import formatOps.runner.optimizer._
 
-  val router = new Router(formatOps)
+  /**
+    * Precomputed table of splits for each token.
+    */
+  val routes: Array[Seq[Split]] = {
+    val router = new Router(formatOps)
+    val result = Array.newBuilder[Seq[Split]]
+    tokens.foreach { t =>
+      result += router.getSplitsMemo(t)
+    }
+    result.result()
+  }
   val noOptimizations = noOptimizationZones(tree)
   var explored = 0
   var deepestYet = State.start
@@ -201,7 +211,7 @@ class BestFirstSearch(
 
           val splits: Seq[Split] =
             if (curr.formatOff) List(provided(splitToken))
-            else if (splitToken.inside(range)) router.getSplitsMemo(splitToken)
+            else if (splitToken.inside(range)) routes(curr.splits.length)
             else List(provided(splitToken))
 
           val actualSplit = {
@@ -254,7 +264,7 @@ class BestFirstSearch(
     if (state.splits.length == tokens.length) {
       SearchResult(state.splits, reachedEOF = true)
     } else {
-      val nextSplits = router.getSplits(tokens(deepestYet.splits.length))
+      val nextSplits = routes(deepestYet.splits.length)
       val tok = tokens(deepestYet.splits.length)
       val splitsAfterPolicy =
         deepestYet.policy.execute(Decision(tok, nextSplits))
