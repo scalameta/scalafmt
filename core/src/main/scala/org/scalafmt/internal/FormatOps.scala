@@ -37,19 +37,6 @@ class FormatOps(val tree: Tree,
   val tokens: Array[FormatToken] = FormatToken.formatTokens(tree.tokens)
   val ownersMap = getOwners(tree)
   val statementStarts = getStatementStarts(tree)
-  val argumentStarts: Map[TokenHash, Tree] = {
-    val b = mutable.Map.empty[TokenHash, Tree]
-    def add(tree: Tree): Unit = {
-      if (tree.tokens.nonEmpty && !b.contains(hash(tree.tokens.head))) {
-        b += hash(tree.tokens.head) -> tree
-      }
-    }
-    tree.collect {
-      case t: Term.Arg => add(t)
-      case t: Term.Param => add(t)
-    }
-    b.toMap
-  }
   val dequeueSpots = getDequeueSpots(tree) ++ statementStarts.keys
   val matchingParentheses = getMatchingParentheses(tree.tokens)
 
@@ -66,18 +53,37 @@ class FormatOps(val tree: Tree,
    * ...
    *
    */
-  val (packageTokens, importTokens) = {
+  val (packageTokens, importTokens, argumentStarts) = {
     val packages = Set.newBuilder[Token]
     val imports = Set.newBuilder[Token]
-    tree.collect {
-      case p: Pkg => packages ++= p.ref.tokens
-      case i: Import => imports ++= i.tokens
+    val b = mutable.Map.empty[TokenHash, Tree]
+    def add(tree: Tree): Unit = {
+      if (tree.tokens.nonEmpty && !b.contains(hash(tree.tokens.head))) {
+        b += hash(tree.tokens.head) -> tree
+      }
     }
-    (packages.result(), imports.result())
+    def iter(tree: Tree): Unit = {
+      tree match {
+        case p: Pkg => packages ++= p.ref.tokens
+        case i: Import => imports ++= i.tokens
+        case t: Term.Arg => add(t)
+        case t: Term.Param => add(t)
+        case _ =>
+      }
+      tree.children.foreach(iter)
+    }
+    iter(tree)
+    (packages.result(), imports.result(), b.toMap)
   }
 
-  lazy val leftTok2tok: Map[Token, FormatToken] =
-    tokens.map(t => t.left -> t).toMap + (tokens.last.right -> tokens.last)
+  lazy val leftTok2tok: Map[Token, FormatToken] = {
+    val result = Map.newBuilder[Token, FormatToken]
+    result.sizeHint(tokens.length)
+    tokens.foreach(t => result += t.left -> t)
+    result += (tokens.last.right -> tokens.last)
+    result.result()
+  }
+
   lazy val tok2idx: Map[FormatToken, Int] = tokens.zipWithIndex.toMap
 
   def prev(tok: FormatToken): FormatToken = {
@@ -169,8 +175,7 @@ class FormatOps(val tree: Tree,
   def insideBlock(start: FormatToken,
                   end: Token,
                   matches: Token => Boolean): Set[Token] = {
-    val result = new scala.collection.mutable.SetBuilder[Token, Set[Token]](
-        Set.empty[Token])
+    val result = Set.newBuilder[Token]
     var curr = next(start)
     while (curr.left != end) {
       if (matches(curr.left)) {
@@ -333,7 +338,7 @@ class FormatOps(val tree: Tree,
   }
 
   def noOptimizationZones(tree: Tree): Set[Token] = {
-    val result = new mutable.SetBuilder[Token, Set[Token]](Set.empty[Token])
+    val result = Set.newBuilder[Token]
     var inside = false
     var expire = tree.tokens.head
     tree.tokens.foreach {

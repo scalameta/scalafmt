@@ -31,7 +31,7 @@ class BestFirstSearch(
   import formatOps.runner.optimizer._
 
   /**
-    * Precomputed
+    * Precomputed table of splits for each token.
     */
   val routes: Array[Seq[Split]] = {
     val router = new Router(formatOps)
