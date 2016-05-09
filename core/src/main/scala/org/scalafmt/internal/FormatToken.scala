@@ -44,13 +44,12 @@ object FormatToken {
     */
   def formatTokens(tokens: Tokens): Array[FormatToken] = {
     var left = tokens.head
-    val result = mutable.ArrayBuilder.make[FormatToken]
-    val whitespace = mutable.ArrayBuilder.make[Whitespace]()
+    val result = Array.newBuilder[FormatToken]
+    val whitespace = Vector.newBuilder[Whitespace]
     tokens.toArray.foreach {
       case t: Whitespace => whitespace += t
       case right =>
-        // TODO(olafur) avoid result.toVector
-        val tok = FormatToken(left, right, whitespace.result.toVector)
+        val tok = FormatToken(left, right, whitespace.result)
         result += tok
         left = right
         whitespace.clear()

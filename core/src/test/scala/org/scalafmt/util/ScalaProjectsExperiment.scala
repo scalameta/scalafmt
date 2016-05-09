@@ -2,12 +2,14 @@ package org.scalafmt.util
 
 import scala.concurrent.Await
 import scala.concurrent.Future
+import scala.util.Try
 
 import java.io.File
 import java.text.NumberFormat
 import java.util.Locale
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicInteger
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
 import org.scalafmt.util.ExperimentResult.ParseErr
@@ -50,32 +52,17 @@ trait ScalaProjectsExperiment {
   def runOn(scalaFile: ScalaFile): ExperimentResult
 
   def runExperiment(scalaFiles: Seq[ScalaFile]): Unit = {
-    import LoggerOps._
-    import scala.concurrent.ExecutionContext.Implicits.global
     val start = System.nanoTime()
-    val queue = new ConcurrentLinkedQueue[ScalaFile]()
-    queue.addAll(scalaFiles)
-    // 1 future per available processor, each future processes 1 file at a time.
-    val workers: Seq[Future[Unit]] =
-      (1 to Runtime.getRuntime.availableProcessors()).map { _ =>
-        Future {
-          while (!queue.isEmpty) {
-            val file = queue.poll()
-            val result = Task(runOn(file))
-              .timed(awaitMaxDuration)
-              .handle(recoverError(file))
-              .run
-            results.add(result)
-            val size = queue.size()
-            if (size % 100 == 0) {
-              println()
-              logger.debug(s"$size remaining...")
-            }
-          }
-        }
+    val counter = new AtomicInteger()
+    val N = scalaFiles.length
+    scalaFiles.toArray.par.foreach { file =>
+      val result = Try(runOn(file)).recover(recoverError(file)).get
+      results.add(result)
+      val count = counter.incrementAndGet()
+      if (count % 100 == 0) {
+        println(s"$count processed, ${N - count} remaining...")
       }
-    Await.result(
-        Future.sequence(workers), scalaFiles.length * awaitMaxDuration)
+    }
     totalNanos = System.nanoTime() - start
   }
 
