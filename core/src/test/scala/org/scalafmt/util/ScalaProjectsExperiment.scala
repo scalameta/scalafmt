@@ -111,14 +111,26 @@ trait ScalaProjectsExperiment {
   private def summarize(stats: DescriptiveStatistics): String =
     Tabulator.format(
         Seq(
-            Seq("Total time", "Max", "Min", "Mean", "Q1", "Q2", "Q3"),
+            Seq("Total time",
+                "Max",
+                "Min",
+                "Mean",
+                "Q1",
+                "Q2",
+                "Q3",
+                "90th",
+                "95th",
+                "99th"),
             Seq(totalNanos,
                 stats.getMax,
                 stats.getMin,
                 stats.getMean,
                 stats.getPercentile(25),
                 stats.getPercentile(50),
-                stats.getPercentile(75)).map(formatNumber)
+                stats.getPercentile(75),
+                stats.getPercentile(90),
+                stats.getPercentile(95),
+                stats.getPercentile(99)).map(formatNumber)
         ))
 
   private def formatNumber(x: Any): String = x match {

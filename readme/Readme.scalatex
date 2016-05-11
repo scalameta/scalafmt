@@ -23,25 +23,27 @@
 
   @p
     @lnk("Scalafmt", repo) is an opinionated code formatter.
-    It means most of the time you can relieve your attention from carefully
-    manipulating whitespace and focus instead on writing correct,
-    maintainable code. Mark the end of dreadful arguments on formatting!
+    The default style should work great out of the box so you can focus on
+    writing correct, maintainable and fast code.
+    Mark the end of dreadful arguments on formatting!
 
   @p
-    @img(marginLeft := "auto", marginRight := "auto", display := "block", src := "https://cloud.githubusercontent.com/assets/1408093/12928034/99d3ffe8-cf6b-11e5-9ec5-42de7c4e0155.gif")
+    Scalafmt is very new.
+    Still, scalafmt is already useful for me so it might also be useful for you.
+    Scalafmt can format all of Spark, Akka, Scala.js and the IntelliJ Scala plugin.
+    It's quite fast, too.
+    Over 95% of all files format in under under 160ms on my laptop.
 
-    @p
-      Scalafmt is very new.
-      Still, scalafmt is already useful for me so it might also be useful for you.
-      Scalafmt is also mature enough to format all 920 files in the Scala.js
-      repo. It's quite fast, too. Over 75% of the Scala.js files format in
-      under 200ms.
+  @p
+    Don't hesitate to join the
+    @lnk("gitter channel", "https://gitter.im/olafurpg/scalafmt")
+    or post an @lnk("issue", repo + "/issues") in case of problems.
 
-    @p
-      Don't hesitate to join the
-      @lnk("gitter channel", "https://gitter.im/olafurpg/scalafmt")
-      or post an @lnk("issue", repo + "/issues") in case of problems.
+  @p
+    To learn more about scalafmt, check out this talk:
 
+  @raw
+    <iframe src="https://player.vimeo.com/video/165929294" width="100%" style="height: 28em;" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
 
   @sect{Installation}
 
@@ -346,7 +348,7 @@
   @sect{FAQ / Troubleshooting}
 
      @sect{How can I be notified of releases/annoucements?}
-       Join @lnk("https://groups.google.com/forum/#!forum/scalafmt", "the scalafmt mailing list")
+       Join @lnk("the scalafmt mailing list", "https://groups.google.com/forum/#!forum/scalafmt")
        to receive announcements of new releases only. No spam, promise.
 
      @sect{How do I customize scalafmt?}
