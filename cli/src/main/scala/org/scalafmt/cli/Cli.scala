@@ -65,9 +65,9 @@ object Cli {
       extends InputMethod(code)
 
   implicit val styleReads: Read[ScalafmtStyle] = Read.reads { styleName =>
-    ScalafmtStyle.availableStyles.getOrElse(styleName, {
+    ScalafmtStyle.availableStyles.getOrElse(styleName.toLowerCase, {
       throw new IllegalArgumentException(
-          s"Unknown style name $styleName. Expected one of ${ScalafmtStyle.availableStyles.keys}")
+          s"Unknown style name $styleName. Expected one of ${ScalafmtStyle.activeStyles.keys}")
     })
   }
 
@@ -107,7 +107,7 @@ object Cli {
     note(s"\nStyle configuration options:")
     opt[ScalafmtStyle]('s', "style") action { (style, c) =>
       c.copy(style = style)
-    } text s"base style, must be one of: ${ScalafmtStyle.availableStyles.keys}"
+    } text s"base style, must be one of: ${ScalafmtStyle.activeStyles.keys}"
     opt[Int]("maxColumn") action { (col, c) =>
       c.copy(style = c.style.copy(maxColumn = col))
     } text s"See ScalafmtConfig scaladoc."

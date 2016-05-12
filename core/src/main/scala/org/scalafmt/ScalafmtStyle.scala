@@ -101,13 +101,16 @@ object ScalafmtStyle {
   /**
     * Ready styles provided by scalafmt.
     */
-  val availableStyles =
-    name2style(
+  val activeStyles =
+    Map(
+        "Scala.js" -> scalaJs
+    ) ++ name2style(
         default,
-        defaultWithAlign,
-        scalaJs // TODO(olafur) remove in 0.3, #227
-    ) ++ Map(
-        "scala.js" -> scalaJs
+        defaultWithAlign
+    )
+  val availableStyles =
+    activeStyles ++ name2style(
+        scalaJs
     )
 
   // TODO(olafur) move these elsewhere.
