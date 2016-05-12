@@ -135,10 +135,7 @@ class FormatWriter(formatOps: FormatOps) {
         case t => t.code
       }
       style.alignMap.get(code).map { ownerRegexp =>
-        val owner = owners(token) match {
-          case name: Term.Name if name.parent.isDefined => name.parent.get
-          case x => x
-        }
+        val owner = getAlignOwner(location.formatToken)
         ownerRegexp.findFirstIn(owner.getClass.getName).isDefined
       }
     }.getOrElse(false)
@@ -153,7 +150,13 @@ class FormatWriter(formatOps: FormatOps) {
       // TODO(olafur) should this be part of owners?
       case FormatToken(x, c: Comment, _) if isInlineComment(c) =>
         owners(x)
-      case FormatToken(_, r, _) => owners(r)
+      case FormatToken(_, r, _) =>
+        owners(r) match {
+          case name: Term.Name
+              if name.parent.exists(_.isInstanceOf[Term.ApplyInfix]) =>
+            name.parent.get
+          case x => x
+        }
     }
 
   private def columnsMatch(a: Array[FormatLocation],
