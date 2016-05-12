@@ -543,10 +543,14 @@ class Router(formatOps: FormatOps) {
       // an infix application or an if. For example, this is allowed:
       // val x = function(a,
       //                  b)
-      case FormatToken(tok: `=`, right, between)
-          if leftOwner.isInstanceOf[Defn.Val] ||
-          leftOwner.isInstanceOf[Defn.Var] =>
+      case FormatToken(tok: `=`, right, between) if (leftOwner match {
+            case _: Defn.Val | _: Defn.Var | _: Term.Update | _: Term.Assign =>
+              true
+            case _ => false
+          }) =>
         val rhs: Tree = leftOwner match {
+          case l: Term.Assign => l.rhs
+          case l: Term.Update => l.rhs
           case l: Defn.Val => l.rhs
           case r: Defn.Var =>
             r.rhs match {
