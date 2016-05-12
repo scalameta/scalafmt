@@ -1,0 +1,11 @@
+80 columns                                                                     |
+<<< while condition is like if
+    while (!hasReachedEof(curr) &&
+    !statementStarts.contains(hash(tokens(curr.splits.length).left))) {
+      foo
+    }
+>>>
+while (!hasReachedEof(curr) &&
+    !statementStarts.contains(hash(tokens(curr.splits.length).left))) {
+  foo
+}

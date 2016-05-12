@@ -48,7 +48,8 @@ case class ScalafmtStyle(
     spacesInImportCurlyBrackets: Boolean,
     allowNewlineBeforeColonInMassiveReturnTypes: Boolean,
     binPackParentConstructors: Boolean,
-    alignByArrowEnumeratorGenerator: Boolean
+    alignByArrowEnumeratorGenerator: Boolean,
+    alignByIfWhileOpenParen: Boolean
 ) {
   lazy val alignMap: Map[String, Regex] =
     alignTokens.map(x => x.code -> x.owner.r).toMap
@@ -74,7 +75,8 @@ object ScalafmtStyle {
       spacesInImportCurlyBrackets = false,
       allowNewlineBeforeColonInMassiveReturnTypes = true,
       binPackParentConstructors = false,
-      alignByArrowEnumeratorGenerator = true
+      alignByArrowEnumeratorGenerator = true,
+      alignByIfWhileOpenParen = true
   )
 
   val defaultWithAlign = default.copy(alignTokens = AlignToken.default)
@@ -93,7 +95,8 @@ object ScalafmtStyle {
       allowNewlineBeforeColonInMassiveReturnTypes = false,
       scalaDocs = false,
       binPackParentConstructors = true,
-      alignByArrowEnumeratorGenerator = false
+      alignByArrowEnumeratorGenerator = false,
+      alignByIfWhileOpenParen = false
   )
 
   // TODO(olafur) parameterize

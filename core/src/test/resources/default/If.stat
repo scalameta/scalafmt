@@ -106,17 +106,15 @@ object a {
     }
   }
 }
-<<< SKIP while condition is like if
+<<< while condition is like if
     while (!hasReachedEof(curr) &&
     !statementStarts.contains(hash(tokens(curr.splits.length).left))) {
-      val tok = tokens(curr.splits.length)
-      curr = State.next(curr, style, provided(tok), tok)
+      foo
     }
 >>>
 while (!hasReachedEof(curr) &&
        !statementStarts.contains(hash(tokens(curr.splits.length).left))) {
-  val tok = tokens(curr.splits.length)
-  curr = State.next(curr, style, provided(tok), tok)
+  foo
 }
 <<< return
       if (fullInfo)

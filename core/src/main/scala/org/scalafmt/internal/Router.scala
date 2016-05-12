@@ -678,12 +678,18 @@ class Router(formatOps: FormatOps) {
             }, expire.end))
         )
       // If
-      case FormatToken(open: `(`, _, _) if leftOwner.isInstanceOf[Term.If] =>
+      case FormatToken(open: `(`, _, _) if (leftOwner match {
+            case _: Term.If | _: Term.While => true
+            case _ => false
+          }) =>
         val close = matchingParentheses(hash(open))
         val penalizeNewlines = penalizeNewlineByNesting(open, close)
+        val indent: Length =
+          if (style.alignByIfWhileOpenParen) StateColumn
+          else style.continuationIndentCallSite
         Seq(
             Split(NoSplit, 0)
-              .withIndent(StateColumn, close, Left)
+              .withIndent(indent, close, Left)
               .withPolicy(penalizeNewlines)
           )
       case FormatToken(close: `)`, right, between)
