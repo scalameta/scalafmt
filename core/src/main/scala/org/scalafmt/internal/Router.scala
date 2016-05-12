@@ -529,7 +529,7 @@ class Router(formatOps: FormatOps) {
       case FormatToken(left: Ident, _: `:`, _)
           if rightOwner.isInstanceOf[Type.Param] =>
         Seq(
-            Split(Space, 0)
+            Split(NoSplit, 0)
         )
       case FormatToken(left: Ident, _: `:`, _) =>
         Seq(

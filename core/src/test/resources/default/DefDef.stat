@@ -19,7 +19,7 @@ object a {
 <<< context bound
 def addDefn[T <: Keyword: ClassTag](mods: Seq[Mod], tree: Tree): Unit
 >>>
-def addDefn[T <: Keyword : ClassTag](mods: Seq[Mod], tree: Tree): Unit
+def addDefn[T <: Keyword: ClassTag](mods: Seq[Mod], tree: Tree): Unit
 <<< crazy signature
 private def withNewLocalDefs(bindings: List[Binding]) (buildInner:(List[
         LocalDef],
