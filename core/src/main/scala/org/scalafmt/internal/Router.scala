@@ -723,25 +723,35 @@ class Router(formatOps: FormatOps) {
       // ApplyInfix.
       case FormatToken(open: `(`, right, _)
           if leftOwner.isInstanceOf[Term.ApplyInfix] =>
+        val isConfig = opensConfigStyle(formatToken)
         val close = matchingParentheses(hash(open))
+        val breakOnClose = Policy({
+          case Decision(t @ FormatToken(_, `close`, _), s) =>
+            Decision(t, Seq(Split(Newline, 0)))
+        }, close.end)
         val indent: Length = right match {
           case _: `if` => StateColumn
           case _ => Num(4)
         }
         Seq(
-            Split(NoSplit, 0).withIndent(indent, close, Left)
+            Split(Newline, 0, ignoreIf = !isConfig)
+              .withPolicy(breakOnClose)
+              .withIndent(style.continuationIndentCallSite, close, Right),
+            Split(NoSplit, 0, ignoreIf = isConfig)
+              .withIndent(indent, close, Left)
         )
-      case FormatToken(_, open: `(`, _)
-          if rightOwner.isInstanceOf[Term.ApplyInfix] =>
-        val close = matchingParentheses(hash(open))
-        val optimalToken = Some(OptimalToken(close))
-        Seq(
-            Split(Space, 0, optimalAt = optimalToken)
-              .withPolicy(SingleLineBlock(close)),
-            Split(Newline, 1, optimalAt = optimalToken)
-        )
+//      case FormatToken(_, open: `(`, _)
+//          if rightOwner.isInstanceOf[Term.ApplyInfix] =>
+//        val close = matchingParentheses(hash(open))
+//        val optimalToken = Some(OptimalToken(close))
+//        Seq(
+//            Split(Space, 0, optimalAt = optimalToken)
+//              .withPolicy(SingleLineBlock(close)),
+//            Split(Newline, 1, optimalAt = optimalToken)
+//        )
       // Infix operator.
-      case tok @ FormatToken(op: Ident, _, _) if leftOwner.parent.exists {
+      case tok @ FormatToken(op: Ident, _, between)
+          if leftOwner.parent.exists {
             case infix: Term.ApplyInfix => infix.op == owners(op)
             case _ => false
           } =>
@@ -751,11 +761,11 @@ class Router(formatOps: FormatOps) {
         // TODO(olafur) Document that we only allow newlines for this subset
         // of infix operators. To force a newline for other operators it's
         // possible to wrap arguments in parentheses.
-        val newlineOk =
+        val weControlSplit =
           isAssignment || isBool || newlineOkOperators.contains(op.code)
         val newlineCost =
           if (isAssignment || isBool) 1
-          else if (newlineOk) 3
+          else if (weControlSplit) 3
           else 0 // Ignored
         val indent =
           if (isAssignment) 2
@@ -765,9 +775,14 @@ class Router(formatOps: FormatOps) {
         val optimalToken =
           if (isAssignment) Some(OptimalToken(owner.args.last.tokens.last))
           else None
+        val modification = newlines2Modification(between)
         Seq(
-            Split(Space, 0, optimalAt = optimalToken),
-            Split(Newline, newlineCost, ignoreIf = !newlineOk)
+            Split(modification, 0, ignoreIf = weControlSplit),
+            Split(Space,
+                  0,
+                  optimalAt = optimalToken,
+                  ignoreIf = !weControlSplit),
+            Split(Newline, newlineCost, ignoreIf = !weControlSplit)
               .withIndent(indent, formatToken.right, Left)
         )
 

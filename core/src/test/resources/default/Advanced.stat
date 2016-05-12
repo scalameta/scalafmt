@@ -435,11 +435,12 @@ val createIsArrayOfStat = {
 >>>
 js.Block(arrayDepthVarDef, js.Return {
   // Array[A] </: Array[Array[A]]
-  !js.BinaryOp(JSBinaryOp.<, arrayDepth, depth) &&
-  (// Array[Array[A]] <: Array[Object]
+  !js.BinaryOp(JSBinaryOp.<, arrayDepth, depth) && (
+      // Array[Array[A]] <: Array[Object]
       js.BinaryOp(JSBinaryOp.>, arrayDepth, depth) ||
       // Array[Int] </: Array[Object]
-      !genIdentBracketSelect(data DOT "arrayBase", "isPrimitive"))
+      !genIdentBracketSelect(data DOT "arrayBase", "isPrimitive")
+  )
 })
 <<< Js.Function
 js.Function(List(objParam, depthParam), js.Return {
