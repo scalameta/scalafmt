@@ -285,7 +285,8 @@ class FormatOps(val tree: Tree,
     */
   def getSelectsLastToken(dot: `.`): Token = {
     var curr = next(leftTok2tok(dot))
-    while (isOpenApply(curr.right, includeCurly = true)) {
+    while (isOpenApply(curr.right, includeCurly = true) &&
+    !statementStarts.contains(hash(curr.right))) {
       curr = leftTok2tok(matchingParentheses(hash(curr.right)))
     }
     curr.left

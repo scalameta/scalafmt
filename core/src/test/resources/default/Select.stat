@@ -213,3 +213,21 @@ class TypedPipeJoinWithDescriptionJob {
     .values
     .write(TypedTsv[((Int, String), Option[Boolean])]("output"))
 }
+<<< chain indent expire #194
+{
+ (playerStore
+      .updatePlayer(_: String, _: PlayerUpdate))
+      .expects("123", PlayerUpdate(active = Some(true)))
+      .returning(Future.value(Unit))
+    (cache.delete _).expects("123")
+  Await.result(service.setActive("123", active = true))
+}
+>>>
+{
+  (playerStore
+    .updatePlayer(_: String, _: PlayerUpdate))
+    .expects("123", PlayerUpdate(active = Some(true)))
+    .returning(Future.value(Unit))
+  (cache.delete _).expects("123")
+  Await.result(service.setActive("123", active = true))
+}
