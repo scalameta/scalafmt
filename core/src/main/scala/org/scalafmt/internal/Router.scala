@@ -901,18 +901,18 @@ class Router(formatOps: FormatOps) {
           if rightOwner.isInstanceOf[Enumerator.Guard] =>
         Seq(
             // Either everything fits in one line or break on =>
-            Split(Space, 0),
-            Split(Newline, 1).withIndent(4, leftOwner.tokens.last, Left)
+            Split(Space, 0, ignoreIf = newlines > 0),
+            Split(Newline, 1)
         )
       case tok @ FormatToken(arrow: `<-`, _, _)
           if leftOwner.isInstanceOf[Enumerator.Generator] =>
-        val lastToken =
-          findSiblingGuard(leftOwner.asInstanceOf[Enumerator.Generator])
-            .map(_.tokens.last)
-            .getOrElse(rightOwner.tokens.last)
+        val lastToken = leftOwner.tokens.last
+        val indent: Length =
+          if (style.alignByArrowEnumeratorGenerator) StateColumn
+          else Num(0)
         Seq(
             // Either everything fits in one line or break on =>
-            Split(Space, 0).withIndent(StateColumn, lastToken, Left)
+            Split(Space, 0).withIndent(indent, lastToken, Left)
         )
       case tok @ FormatToken(_: `yield`, right, _)
           if leftOwner.isInstanceOf[Term.ForYield] &&
