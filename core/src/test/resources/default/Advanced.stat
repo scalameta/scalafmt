@@ -216,8 +216,10 @@ callStatement = js.If(genIsInstanceOf(callTrg, rtClass.tpe), {
                                     castCallTrg :: arguments,
                                     toIRType(retTpe))
       // Box the result of the implementing method if required
-      if (isPrimitiveValueType(retTpe)) makePrimitiveBox(rawApply, retTpe)
-      else rawApply
+      if (isPrimitiveValueType(retTpe))
+        makePrimitiveBox(rawApply, retTpe)
+      else
+        rawApply
     } else {
       val reflBoxClassPatched = {
 

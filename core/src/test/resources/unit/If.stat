@@ -12,7 +12,8 @@ if (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa && bbbbbbbbbbbbbbbbbb)
   println("a")
 >>>
 if (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa &&
-    bbbbbbbbbbbbbbbbbb) println("a")
+    bbbbbbbbbbbbbbbbbb)
+  println("a")
 <<< Long if condition with inline comment
 if (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa &&
       bbbbbbbbbbbbbbbbbb) // comment
@@ -62,8 +63,7 @@ val newColumn =
 <<< no newline
 val policy =
  if (right) SingleLineBlock(close)
- else
-   NoPolicy
+ else   NoPolicy
 >>>
 val policy =
   if (right) SingleLineBlock(close)
@@ -81,8 +81,7 @@ if   (firstNewline == -1) tokLength
 >>>
 if (firstNewline == -1) tokLength
 <<< Gimme newline
-  if (isBracket)
-    Constants.BracketPenalty
+  if (isBracket)   Constants.BracketPenalty
   else 0
 >>>
 if (isBracket) Constants.BracketPenalty

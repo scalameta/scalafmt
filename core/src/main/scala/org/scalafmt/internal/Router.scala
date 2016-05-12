@@ -699,7 +699,7 @@ class Router(formatOps: FormatOps) {
             Space // Inline comment will force newline later.
           else Newline
         Seq(
-            Split(Space, 0, ignoreIf = attachedComment)
+            Split(Space, 0, ignoreIf = attachedComment || newlines > 0)
               .withIndent(2, expire, Left)
               .withPolicy(SingleLineBlock(expire)),
             Split(newlineModification, 1).withIndent(2, expire, Left)
@@ -724,7 +724,10 @@ class Router(formatOps: FormatOps) {
           case x => throw new UnexpectedTree[Term.If](x)
         }
         Seq(
-            Split(Space, 0, policy = SingleLineBlock(expire)),
+            Split(Space,
+                  0,
+                  policy = SingleLineBlock(expire),
+                  ignoreIf = newlines > 0),
             Split(Newline, 1).withIndent(2, expire, Left)
         )
 
