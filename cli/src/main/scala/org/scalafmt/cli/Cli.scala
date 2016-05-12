@@ -2,6 +2,7 @@ package org.scalafmt.cli
 
 import java.io.File
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 
 import org.scalafmt.AlignToken
 import org.scalafmt.Error.MisformattedFile
@@ -202,8 +203,9 @@ object Cli {
 
   def run(config: Config): Unit = {
     val inputMethods = getCode(config)
-    inputMethods.zipWithIndex.foreach {
-      case (inputMethod, i) =>
+    val counter = new AtomicInteger()
+    inputMethods.par.foreach {
+      case inputMethod =>
         val start = System.nanoTime()
         Scalafmt.format(inputMethod.code,
                         style = config.style,
@@ -213,6 +215,7 @@ object Cli {
               case FileContents(filename, _) if config.inPlace =>
                 val elapsed = TimeUnit.MILLISECONDS.convert(
                     System.nanoTime() - start, TimeUnit.NANOSECONDS)
+                val i = counter.incrementAndGet()
                 logger.info(
                     f"${i + 1}%3s/${inputMethods.length} file:$filename%-50s (${elapsed}ms)")
                 if (inputMethod.code != formatted) {
