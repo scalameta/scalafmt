@@ -546,13 +546,15 @@ class Router(formatOps: FormatOps) {
       // val x = function(a,
       //                  b)
       case FormatToken(tok: `=`, right, between) if (leftOwner match {
-            case _: Defn.Val | _: Defn.Var | _: Term.Update | _: Term.Assign =>
+            case _: Defn.Type | _: Defn.Val | _: Defn.Var |
+                _: Term.Update | _: Term.Assign =>
               true
             case _ => false
           }) =>
         val rhs: Tree = leftOwner match {
           case l: Term.Assign => l.rhs
           case l: Term.Update => l.rhs
+          case l: Defn.Type => l.body
           case l: Defn.Val => l.rhs
           case r: Defn.Var =>
             r.rhs match {
@@ -646,7 +648,8 @@ class Router(formatOps: FormatOps) {
           if (style.binPackParentConstructors) NoPolicy
           else {
             Policy({
-              case Decision(t @ FormatToken(_, right: `with`, _), splits) =>
+              case Decision(t @ FormatToken(_, right: `with`, _), splits)
+                  if template == ownersMap.get(hash(right)) =>
                 Decision(t, splits.filter(_.modification.isNewline))
             }, lastToken.end)
           }
@@ -658,8 +661,10 @@ class Router(formatOps: FormatOps) {
               .withPolicy(breakOnEveryWith)
               .withIndent(Num(4), lastToken, Left)
           )
-      case tok @ FormatToken(_, right: `with`, _)
-          if rightOwner.isInstanceOf[Template] =>
+      case tok @ FormatToken(_, right: `with`, _) if (rightOwner match {
+            case _: Template => true
+            case _ => false
+          }) =>
         val template = rightOwner
         val expire = templateCurly(rightOwner)
         Seq(
@@ -791,7 +796,11 @@ class Router(formatOps: FormatOps) {
         // Optimization, assignment operators make the state space explode in
         // sbt build files because of := operators everywhere.
         val optimalToken =
-          if (isAssignment) Some(OptimalToken(owner.args.last.tokens.last))
+          if (isAssignment)
+            for {
+              lastArg <- owner.args.lastOption
+              lastToken <- lastArg.tokens.lastOption
+            } yield OptimalToken(lastToken)
           else None
         val modification = newlines2Modification(between)
         Seq(

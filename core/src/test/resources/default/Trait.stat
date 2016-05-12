@@ -54,3 +54,21 @@ trait AllSyntax
     with ContravariantSyntax
     with EitherSyntax
     with EqSyntax
+<<< nested with
+trait Grouped[K, +V]
+  extends KeyedListLike[K, V, UnsortedGrouped]
+  with HashJoinable[K, V]
+  with Sortable[V, ({ type t[+x] = SortedGrouped[K, x] with Reversable[SortedGrouped[K, x]] })#t]
+  with WithReducers[Grouped[K, V]]
+  with WithDescription[Grouped[K, V]]
+>>>
+trait Grouped[K, +V]
+    extends KeyedListLike[K, V, UnsortedGrouped]
+    with HashJoinable[K, V]
+    with Sortable[V,
+                  ({
+                    type t[+x] =
+                      SortedGrouped[K, x] with Reversable[SortedGrouped[K, x]]
+                  })#t]
+    with WithReducers[Grouped[K, V]]
+    with WithDescription[Grouped[K, V]]

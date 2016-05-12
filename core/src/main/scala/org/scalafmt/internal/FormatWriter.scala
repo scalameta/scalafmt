@@ -123,7 +123,9 @@ class FormatWriter(formatOps: FormatOps) {
         }
         callback.apply(state, tok, whitespace)
     }
-    if (debug) logger.debug(s"Total cost: ${locations.last.state.cost}")
+    locations.lastOption.foreach { location =>
+      if (debug) logger.debug(s"Total cost: ${location.state.cost}")
+    }
   }
 
   private def isCandidate(
