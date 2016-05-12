@@ -88,7 +88,8 @@ object ScalafmtStyle {
       noNewlinesBeforeJsNative = true,
       binPackArguments = true,
       binPackParameters = true,
-      allowNewlineBeforeColonInMassiveReturnTypes = false
+      allowNewlineBeforeColonInMassiveReturnTypes = false,
+      scalaDocs = false
   )
 
   // TODO(olafur) parameterize
@@ -99,11 +100,14 @@ object ScalafmtStyle {
   /**
     * Ready styles provided by scalafmt.
     */
-  val availableStyles = name2style(
-      default,
-      defaultWithAlign,
-      scalaJs
-  )
+  val availableStyles =
+    name2style(
+        default,
+        defaultWithAlign,
+        scalaJs // TODO(olafur) remove in 0.3, #227
+    ) ++ Map(
+        "scala.js" -> scalaJs
+    )
 
   // TODO(olafur) move these elsewhere.
   val testing = default.copy(alignStripMarginStrings = false)
