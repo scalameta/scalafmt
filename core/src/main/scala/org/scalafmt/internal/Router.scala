@@ -193,10 +193,12 @@ class Router(formatOps: FormatOps) {
           if leftOwner.isInstanceOf[Term.Function] =>
         val endOfFunction = functionExpire(
             leftOwner.asInstanceOf[Term.Function])
+        val hasBlock = nextNonComment(formatToken).right.isInstanceOf[`{`]
         Seq(
             Split(Space, 0, ignoreIf = isInlineComment(right))
               .withPolicy(SingleLineBlock(endOfFunction)),
-            Split(Newline, 1 + nestedApplies(leftOwner))
+            Split(Space, 0, ignoreIf = !hasBlock),
+            Split(Newline, 1 + nestedApplies(leftOwner), ignoreIf = hasBlock)
               .withIndent(2, endOfFunction, Right)
         )
       // Case arrow

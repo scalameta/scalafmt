@@ -374,17 +374,20 @@ implicit class IterableW[+A](it: JSIterable[A]) {
         it.asInstanceOf[IteratorMethodAccess]
           .bracketCall[JSIterator[A]](iteratorSymbol)())
 }
-<<< SKIP => {
-+        foo.fold(
-+            err =>
-+              {
-+                logger.warn(s"Malformed request: $err\n${req.body}")
-+                BadRequest(jsonError(JsError toJson err)).fuccess
-+            },
-+            data => data)
+<<< => {, #224
+        foo.fold(
+            err =>
+              {
+                logger.warn(s"Malformed request: $err\n${req.body}")
+                BadRequest(jsonError(JsError toJson err)).fuccess
+            },
+            data => data)
 >>>
-x
->>> SKIP indent cats
+foo.fold(err => {
+  logger.warn(s"Malformed request: $err\n${req.body}")
+  BadRequest(jsonError(JsError toJson err)).fuccess
+}, data => data)
+<<< SKIP indent cats
 -    XorT(F.flatMap(fea.value) {
 -      case Xor.Left(e) => f(e).value
 -      case r @ Xor.Right(_) => F.pure(r)
