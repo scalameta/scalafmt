@@ -25,3 +25,22 @@ def withDedicatedVar: Unit = {
     })
   }
 }
+<<< missing 2 indent #209
+{{ {
+ preloads.foreach{p =>
+      cache.getOrElseUpdate(p,
+        futureStreams.map{r => r.streams.get(p)})
+    }
+    }}}
+>>>
+{
+  {
+    {
+      preloads.foreach { p =>
+        cache.getOrElseUpdate(p, futureStreams.map { r =>
+          r.streams.get(p)
+        })
+      }
+    }
+  }
+}
