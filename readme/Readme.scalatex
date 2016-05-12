@@ -415,16 +415,7 @@
        scalafmt update.
 
      @sect{The SBT plugin doesn't format anything}
-       @ul
-         @li
-           Run @code("reload"), @code("clean") and then try again.
-         @li
-           If that doesn't work. Try adding this to your build.sbt:
-
-       @hl.scala
-         sourceDirectories in (Compile,
-                               org.scalafmt.sbt.ScalaFmtPlugin.autoImport.hasScalafmt) :=
-           (sourceDirectories in Compile).value
+       Run @code("reload"), @code("clean") and then try again.
 
   @sect{Changelog}
     @sect{0.2.3}

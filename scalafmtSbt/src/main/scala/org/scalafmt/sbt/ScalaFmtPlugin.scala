@@ -84,7 +84,7 @@ object ScalaFmtPlugin extends AutoPlugin {
 
   def configScalafmtSettings: Seq[Setting[_]] =
     List(
-        (sourceDirectories in hasScalafmt) := List(scalaSource.value),
+        (sourceDirectories in hasScalafmt) := unmanagedSourceDirectories.value,
         includeFilter in Global in hasScalafmt := "*.scala",
         scalafmtConfig in Global := None,
         hasScalafmt := {
