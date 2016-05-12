@@ -108,10 +108,11 @@ object ScalafmtStyle {
         default,
         defaultWithAlign
     )
-  val availableStyles =
+  val availableStyles = {
     activeStyles ++ name2style(
         scalaJs
     )
+  }.map { case (k, v) => k.toLowerCase -> v }
 
   // TODO(olafur) move these elsewhere.
   val testing = default.copy(alignStripMarginStrings = false)
