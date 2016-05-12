@@ -62,9 +62,9 @@ def groupBy[K, T, G, P](
 <<< slick groupBy 2
   def groupBy[K, T, G, P](f: E => K)(implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G], vshape: Shape[_ <: FlatShapeLevel, E, _, P]): Query[(G, Query[P, U, Seq]), (T, Query[P, U, Seq]), CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC, (T, Query[P, U, Seq]), (T, Query[P, U, Seq])]
 >>>
-def groupBy[K, T, G, P](
-    f: E => K)(implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G],
-               vshape: Shape[_ <: FlatShapeLevel, E, _, P])
+def groupBy[K, T, G, P](f: E => K)(
+    implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G],
+    vshape: Shape[_ <: FlatShapeLevel, E, _, P])
   : Query[(G, Query[P, U, Seq]),
           (T, Query[P, U, Seq]),
           CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC,
@@ -185,4 +185,13 @@ implicit def validatedInstances[E](implicit E: Semigroup[E])
       indent: Length): PartialFunction[Decision, Decision] = {
     println("hello")
   }
+}
+<<< bad newline #198
+object a {
+  override def composeWithFunctor[G[_]: Functor]: Functor[Lambda[X => F[G[X]]]] = compose[G]
+  }
+>>>
+object a {
+  override def composeWithFunctor[G[_]: Functor]
+    : Functor[Lambda[X => F[G[X]]]] = compose[G]
 }

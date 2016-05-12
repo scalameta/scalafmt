@@ -448,11 +448,13 @@ class Router(formatOps: FormatOps) {
           charactersInside <= style.maxColumn
 
         val expirationToken: Token =
-          if (isDefnSite(leftOwner)) defnSiteLastToken(leftOwner)
+          if (isDefnSite(leftOwner) && !isBracket) defnSiteLastToken(leftOwner)
           else rhsOptimalToken(leftTok2tok(close))
+//          rhsOptimalToken(leftTok2tok(close))
 
         val tooManyArguments = args.length > 100
 
+//        logger.elem(formatToken, expirationToken)
         Seq(
             Split(modification,
                   0,
@@ -482,7 +484,7 @@ class Router(formatOps: FormatOps) {
           )
 
       // Closing def site ): ReturnType
-      case FormatToken(close: `)`, colon: `:`, _)
+      case FormatToken(_, colon: `:`, _)
           if style.allowNewlineBeforeColonInMassiveReturnTypes &&
           defDefReturnType(leftOwner).isDefined =>
         val expire = lastToken(defDefReturnType(rightOwner).get)
