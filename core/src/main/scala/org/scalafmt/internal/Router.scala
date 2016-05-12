@@ -637,15 +637,27 @@ class Router(formatOps: FormatOps) {
 
       // Template
       case FormatToken(_, right: `extends`, _) =>
-        val lastToken = defnTemplate(rightOwner)
+        val template = defnTemplate(rightOwner)
+        val lastToken = template
           .flatMap(templateCurly)
+          .orElse(template.map(_.tokens.last))
           .getOrElse(rightOwner.tokens.last)
+        val breakOnEveryWith =
+          if (style.binPackParentConstructors) NoPolicy
+          else {
+            Policy({
+              case Decision(t @ FormatToken(_, right: `with`, _), splits) =>
+                Decision(t, splits.filter(_.modification.isNewline))
+            }, lastToken.end)
+          }
         Seq(
             Split(Space, 0)
               .withPolicy(SingleLineBlock(lastToken))
               .withIndent(Num(4), lastToken, Left),
-            Split(Newline, 1).withIndent(Num(4), lastToken, Left)
-        )
+            Split(Newline, 1)
+              .withPolicy(breakOnEveryWith)
+              .withIndent(Num(4), lastToken, Left)
+          )
       case tok @ FormatToken(_, right: `with`, _)
           if rightOwner.isInstanceOf[Template] =>
         val template = rightOwner

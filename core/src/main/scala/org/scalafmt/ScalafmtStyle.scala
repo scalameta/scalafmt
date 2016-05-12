@@ -32,8 +32,6 @@ import sourcecode.Text
   *                                   call site.
   * @param continuationIndentDefnSite Indent width for line continuation at
   *                                   definition/declaration site.
-  * @param continuationIndentDefnSite Indent width for line continuation at
-  *                                   definition/declaration site.
   */
 case class ScalafmtStyle(
     maxColumn: Int,
@@ -48,7 +46,8 @@ case class ScalafmtStyle(
     continuationIndentDefnSite: Int,
     alignTokens: Set[AlignToken],
     spacesInImportCurlyBrackets: Boolean,
-    allowNewlineBeforeColonInMassiveReturnTypes: Boolean
+    allowNewlineBeforeColonInMassiveReturnTypes: Boolean,
+    binPackParentConstructors: Boolean
 ) {
   lazy val alignMap: Map[String, Regex] =
     alignTokens.map(x => x.code -> x.owner.r).toMap
@@ -72,7 +71,8 @@ object ScalafmtStyle {
       continuationIndentDefnSite = 4,
       alignTokens = Set.empty[AlignToken],
       spacesInImportCurlyBrackets = false,
-      allowNewlineBeforeColonInMassiveReturnTypes = true
+      allowNewlineBeforeColonInMassiveReturnTypes = true,
+      binPackParentConstructors = false
   )
 
   val defaultWithAlign = default.copy(alignTokens = AlignToken.default)
@@ -89,7 +89,8 @@ object ScalafmtStyle {
       binPackArguments = true,
       binPackParameters = true,
       allowNewlineBeforeColonInMassiveReturnTypes = false,
-      scalaDocs = false
+      scalaDocs = false,
+      binPackParentConstructors = true
   )
 
   // TODO(olafur) parameterize

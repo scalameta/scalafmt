@@ -3,18 +3,54 @@
 trait WorkerNavigator extends NavigatorID with NavigatorOnLine with NavigatorLanguage
 >>>
 trait WorkerNavigator
-    extends NavigatorID with NavigatorOnLine with NavigatorLanguage
+    extends NavigatorID
+    with NavigatorOnLine
+    with NavigatorLanguage
 <<< break on extends object #109
 object WorkerNavigator extends NavigatorID with NavigatorOnLine with NavigatorLanguage
 >>>
 object WorkerNavigator
-    extends NavigatorID with NavigatorOnLine with NavigatorLanguage
+    extends NavigatorID
+    with NavigatorOnLine
+    with NavigatorLanguage
 <<< break on extends object with curlies #109
 object WorkerNavigator extends NavigatorID with NavigatorOnLine with NavigatorLanguage {
   val x = 1
 }
 >>>
 object WorkerNavigator
-    extends NavigatorID with NavigatorOnLine with NavigatorLanguage {
+    extends NavigatorID
+    with NavigatorOnLine
+    with NavigatorLanguage {
   val x = 1
 }
+<<< parent constructors align #200
+trait AllSyntax
+    extends ApplicativeSyntax
+    with ApplicativeErrorSyntax
+    with ApplySyntax
+    with BifunctorSyntax
+    with BifoldableSyntax
+    with BitraverseSyntax
+    with CartesianSyntax
+    with CoflatMapSyntax
+    with ComonadSyntax
+    with ComposeSyntax
+    with ContravariantSyntax
+    with EitherSyntax
+    with EqSyntax
+>>>
+trait AllSyntax
+    extends ApplicativeSyntax
+    with ApplicativeErrorSyntax
+    with ApplySyntax
+    with BifunctorSyntax
+    with BifoldableSyntax
+    with BitraverseSyntax
+    with CartesianSyntax
+    with CoflatMapSyntax
+    with ComonadSyntax
+    with ComposeSyntax
+    with ContravariantSyntax
+    with EitherSyntax
+    with EqSyntax
