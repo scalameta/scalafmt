@@ -22,7 +22,8 @@ case class State(cost: Int,
                  indentation: Int,
                  indents: Vector[Push],
                  column: Int)
-    extends Ordered[State] with ScalaFmtLogger
+    extends Ordered[State]
+    with ScalaFmtLogger
 <<< With targs
 case class Indent[ T <: Length] (length: T, expire: Token, expiresAt: ExpiresOn)
 >>>

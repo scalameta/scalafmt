@@ -47,3 +47,11 @@ type Type = Class[F, E, M] forSome {
 type Sequence [T] = js.Array[T]
 >>>
 type Sequence[T] = js.Array[T]
+<<< no space before colon #180
+def map[T : Class](f: N => T): S[T]
+>>>
+def map[T: Class](f: N => T): S[T]
+<<< no space before colon 2 #180
+def orderLaws[A : Eq : Arbitrary] = O
+>>>
+def orderLaws[A: Eq: Arbitrary] = O

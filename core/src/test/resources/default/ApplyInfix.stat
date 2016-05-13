@@ -48,3 +48,48 @@ lelem + relem + "{1,4}:" + ipv4 + "|" +
 "::" + lelem + "{1,5}" + ipv4 +
 // ::2:3:4:5:10.0.0.1    ::5:10.0.0.1         ::10.0.0.1
 ")(?:%[0-9a-z]+)?"
+<<< infix should stay #219
+      inits.map(materializer.materialize(_).toString) ++
+      libs.map(dep => materializer.materialize(dep.lib).toString) :+
+      code.path
+>>>
+inits.map(materializer.materialize(_).toString) ++
+libs.map(dep => materializer.materialize(dep.lib).toString) :+
+code.path
+<<< json play parse
+implicit val locationWrites: Writes[Location] = (
+  (JsPath \ "lat").write[Double] and
+  (JsPath \ "long").write[Double]
+)(unlift(Location.unapply))
+>>>
+implicit val locationWrites: Writes[Location] = (
+    (JsPath \ "lat").write[Double] and
+    (JsPath \ "long").write[Double]
+)(unlift(Location.unapply))
+<<< lila #219
+      (granted | isGranted(_.ModerateForum)) fold (
+        a,
+        fuccess(Forbidden("You cannot post to this category"))
+      )
+>>>
+(granted | isGranted(_.ModerateForum)) fold (
+    a, fuccess(Forbidden("You cannot post to this category"))
+)
+<<< lila 2 #219
+    private[controllers] def doClose(user: UserModel) =
+     (UserRepo disable user) >>-
+       env.onlineUserIdMemo.remove(user.id) >>
+       relationEnv.api.unfollowAll(user.id) >>
+       Env.team.api.quitAll(user.id) >>-
+       Env.challenge.api.removeByUserId(user.id) >>-
+       Env.tournament.api.withdrawAll(user) >>
+       (Env.security disconnect user.id)
+>>>
+private[controllers] def doClose(user: UserModel) =
+  (UserRepo disable user) >>-
+  env.onlineUserIdMemo.remove(user.id) >>
+  relationEnv.api.unfollowAll(user.id) >>
+  Env.team.api.quitAll(user.id) >>-
+  Env.challenge.api.removeByUserId(user.id) >>-
+  Env.tournament.api.withdrawAll(user) >>
+  (Env.security disconnect user.id)

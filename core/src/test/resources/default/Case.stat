@@ -21,8 +21,7 @@ List(Split(Space, 0).withPolicy {
                     case nl if nl.modification.isNewline =>
                       val result =
                         if (t.right.isInstanceOf[`if`] &&
-                            owners(t.right) == owner)
-                          nl
+                            owners(t.right) == owner) nl
                         else nl.withPenalty(1)
                       result.withPolicy(breakOnArrow)
                     case x => x

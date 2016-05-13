@@ -3,3 +3,6 @@ SKIP https://raw.githubusercontent.com/akka/akka/3698928fbdaa8fef8e2037fbc51887a
 SKIP https://raw.githubusercontent.com/JetBrains/intellij-scala/45c86930977278eb445b6aba79ac7011bc418490/src/org/jetbrains/plugins/scala/lang/psi/implicits/ImplicitCollector.scala
 SKIP https://raw.githubusercontent.com/JetBrains/intellij-scala/45c86930977278eb445b6aba79ac7011bc418490/src/org/jetbrains/plugins/scala/lang/psi/types/Conformance.scala
 SKIP https://raw.githubusercontent.com/apache/spark/2c5b18fb0fdeabd378dd97e91f72d1eac4e21cc7/project/MimaExcludes.scala
+SKIP https://raw.githubusercontent.com/scala-js/scala-js/8663c8060ca96a51bfc1f87f2f3f30babbeadbc3/test-suite/shared/src/test/scala/org/scalajs/testsuite/scalalib/ArrayBuilderTest.scala
+SKIP https://raw.githubusercontent.com/akka/akka/3698928fbdaa8fef8e2037fbc51887ab60addefb/project/AkkaBuild.scala
+SKIP https://raw.githubusercontent.com/twitter/scalding/7759d9c399896fc4c54be0f2406e047e030d8586/scalding-core/src/main/scala/com/twitter/scalding/typed/Grouped.scala

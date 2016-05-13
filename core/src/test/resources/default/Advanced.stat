@@ -216,8 +216,10 @@ callStatement = js.If(genIsInstanceOf(callTrg, rtClass.tpe), {
                                     castCallTrg :: arguments,
                                     toIRType(retTpe))
       // Box the result of the implementing method if required
-      if (isPrimitiveValueType(retTpe)) makePrimitiveBox(rawApply, retTpe)
-      else rawApply
+      if (isPrimitiveValueType(retTpe))
+        makePrimitiveBox(rawApply, retTpe)
+      else
+        rawApply
     } else {
       val reflBoxClassPatched = {
 
@@ -435,11 +437,12 @@ val createIsArrayOfStat = {
 >>>
 js.Block(arrayDepthVarDef, js.Return {
   // Array[A] </: Array[Array[A]]
-  !js.BinaryOp(JSBinaryOp.<, arrayDepth, depth) &&
-  (// Array[Array[A]] <: Array[Object]
+  !js.BinaryOp(JSBinaryOp.<, arrayDepth, depth) && (
+      // Array[Array[A]] <: Array[Object]
       js.BinaryOp(JSBinaryOp.>, arrayDepth, depth) ||
       // Array[Int] </: Array[Object]
-      !genIdentBracketSelect(data DOT "arrayBase", "isPrimitive"))
+      !genIdentBracketSelect(data DOT "arrayBase", "isPrimitive")
+  )
 })
 <<< Js.Function
 js.Function(List(objParam, depthParam), js.Return {

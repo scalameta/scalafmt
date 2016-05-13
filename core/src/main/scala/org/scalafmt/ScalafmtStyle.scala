@@ -32,8 +32,6 @@ import sourcecode.Text
   *                                   call site.
   * @param continuationIndentDefnSite Indent width for line continuation at
   *                                   definition/declaration site.
-  * @param continuationIndentDefnSite Indent width for line continuation at
-  *                                   definition/declaration site.
   */
 case class ScalafmtStyle(
     maxColumn: Int,
@@ -48,7 +46,10 @@ case class ScalafmtStyle(
     continuationIndentDefnSite: Int,
     alignTokens: Set[AlignToken],
     spacesInImportCurlyBrackets: Boolean,
-    allowNewlineBeforeColonInMassiveReturnTypes: Boolean
+    allowNewlineBeforeColonInMassiveReturnTypes: Boolean,
+    binPackParentConstructors: Boolean,
+    alignByArrowEnumeratorGenerator: Boolean,
+    alignByIfWhileOpenParen: Boolean
 ) {
   lazy val alignMap: Map[String, Regex] =
     alignTokens.map(x => x.code -> x.owner.r).toMap
@@ -72,7 +73,10 @@ object ScalafmtStyle {
       continuationIndentDefnSite = 4,
       alignTokens = Set.empty[AlignToken],
       spacesInImportCurlyBrackets = false,
-      allowNewlineBeforeColonInMassiveReturnTypes = true
+      allowNewlineBeforeColonInMassiveReturnTypes = true,
+      binPackParentConstructors = false,
+      alignByArrowEnumeratorGenerator = true,
+      alignByIfWhileOpenParen = true
   )
 
   val defaultWithAlign = default.copy(alignTokens = AlignToken.default)
@@ -88,7 +92,11 @@ object ScalafmtStyle {
       noNewlinesBeforeJsNative = true,
       binPackArguments = true,
       binPackParameters = true,
-      allowNewlineBeforeColonInMassiveReturnTypes = false
+      allowNewlineBeforeColonInMassiveReturnTypes = false,
+      scalaDocs = false,
+      binPackParentConstructors = true,
+      alignByArrowEnumeratorGenerator = false,
+      alignByIfWhileOpenParen = false
   )
 
   // TODO(olafur) parameterize
@@ -99,11 +107,18 @@ object ScalafmtStyle {
   /**
     * Ready styles provided by scalafmt.
     */
-  val availableStyles = name2style(
-      default,
-      defaultWithAlign,
-      scalaJs
-  )
+  val activeStyles =
+    Map(
+        "Scala.js" -> scalaJs
+    ) ++ name2style(
+        default,
+        defaultWithAlign
+    )
+  val availableStyles = {
+    activeStyles ++ name2style(
+        scalaJs
+    )
+  }.map { case (k, v) => k.toLowerCase -> v }
 
   // TODO(olafur) move these elsewhere.
   val testing = default.copy(alignStripMarginStrings = false)

@@ -2,6 +2,7 @@ package org.scalafmt.cli
 
 import java.io.File
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 
 import org.scalafmt.AlignToken
 import org.scalafmt.Error.MisformattedFile
@@ -65,9 +66,9 @@ object Cli {
       extends InputMethod(code)
 
   implicit val styleReads: Read[ScalafmtStyle] = Read.reads { styleName =>
-    ScalafmtStyle.availableStyles.getOrElse(styleName, {
+    ScalafmtStyle.availableStyles.getOrElse(styleName.toLowerCase, {
       throw new IllegalArgumentException(
-          s"Unknown style name $styleName. Expected one of ${ScalafmtStyle.availableStyles.keys}")
+          s"Unknown style name $styleName. Expected one of ${ScalafmtStyle.activeStyles.keys}")
     })
   }
 
@@ -107,7 +108,7 @@ object Cli {
     note(s"\nStyle configuration options:")
     opt[ScalafmtStyle]('s', "style") action { (style, c) =>
       c.copy(style = style)
-    } text s"base style, must be one of: ${ScalafmtStyle.availableStyles.keys}"
+    } text s"base style, must be one of: ${ScalafmtStyle.activeStyles.keys}"
     opt[Int]("maxColumn") action { (col, c) =>
       c.copy(style = c.style.copy(maxColumn = col))
     } text s"See ScalafmtConfig scaladoc."
@@ -202,8 +203,9 @@ object Cli {
 
   def run(config: Config): Unit = {
     val inputMethods = getCode(config)
-    inputMethods.zipWithIndex.foreach {
-      case (inputMethod, i) =>
+    val counter = new AtomicInteger()
+    inputMethods.par.foreach {
+      case inputMethod =>
         val start = System.nanoTime()
         Scalafmt.format(inputMethod.code,
                         style = config.style,
@@ -213,6 +215,7 @@ object Cli {
               case FileContents(filename, _) if config.inPlace =>
                 val elapsed = TimeUnit.MILLISECONDS.convert(
                     System.nanoTime() - start, TimeUnit.NANOSECONDS)
+                val i = counter.incrementAndGet()
                 logger.info(
                     f"${i + 1}%3s/${inputMethods.length} file:$filename%-50s (${elapsed}ms)")
                 if (inputMethod.code != formatted) {

@@ -14,9 +14,9 @@ def myMethod[F[_]:Functor, G[_]:Applicative, A:DecodeJson:TypeTag:Meta, B:Decode
 >>>
 def myMethod[F[_]: Functor,
              G[_]: Applicative,
-             A : DecodeJson : TypeTag : Meta,
-             B : DecodeJson : TypeTag : Meta,
-             C : Meta : TypeTag : UrlParameterEncode](gfa: G[F[A]], b: B)(
+             A: DecodeJson: TypeTag: Meta,
+             B: DecodeJson: TypeTag: Meta,
+             C: Meta: TypeTag: UrlParameterEncode](gfa: G[F[A]], b: B)(
     f: (A, B) => C): Foo[C]
 <<< directembedding slick mega types
 def compile[T, T2, C[_]](e: lifted.BaseJoinQuery[AbstractTable[T], AbstractTable[T2], AbstractTable[T]#TableElementType, AbstractTable[T2]#TableElementType, C, _, _]): direct.BaseJoinQuery[T, T2, T, T2, C]

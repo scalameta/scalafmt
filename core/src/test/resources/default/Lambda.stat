@@ -25,3 +25,46 @@ def withDedicatedVar: Unit = {
     })
   }
 }
+<<< missing 2 indent #209
+{{ {
+ preloads.foreach{p =>
+      cache.getOrElseUpdate(p,
+        futureStreams.map{r => r.streams.get(p)})
+    }
+    }}}
+>>>
+{
+  {
+    {
+      preloads.foreach { p =>
+        cache.getOrElseUpdate(p, futureStreams.map { r =>
+          r.streams.get(p)
+        })
+      }
+    }
+  }
+}
+<<< nested lambdas #195
+(excty, { focus: Focus =>
+      val enter = symopt.map { sym =>
+        val cast = focus withOp Op.As(excty, exc.value)
+        curEnv.enter(sym, cast.value)
+        cast
+      }.getOrElse(focus)
+      val begin = enter withOp Nrt.call(Nrt.begin_catch, excwrap.value)
+      val res   = genExpr(body, begin)
+      val end   = res withOp Nrt.call(Nrt.end_catch)
+      end withValue res.value
+    })
+>>>
+(excty, { focus: Focus =>
+  val enter = symopt.map { sym =>
+    val cast = focus withOp Op.As(excty, exc.value)
+    curEnv.enter(sym, cast.value)
+    cast
+  }.getOrElse(focus)
+  val begin = enter withOp Nrt.call(Nrt.begin_catch, excwrap.value)
+  val res = genExpr(body, begin)
+  val end = res withOp Nrt.call(Nrt.end_catch)
+  end withValue res.value
+})

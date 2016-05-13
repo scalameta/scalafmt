@@ -45,7 +45,7 @@ val k = for {
 >>>
 val k = for {
   _ <- Future(aaaaaaaaaaaaaa)
-          if !onlyOne
+  if !onlyOne
   _ <- Future(2)
 } yield ()
 <<< if multiline, split before If?
@@ -72,3 +72,23 @@ for {
   normSrcDir = normPath(srcDir)
   src <- (srcDir ** "*.scala").get
 } Unit
+<<< If gets a line #176
+   for {
+  parent <- sym.info.parents
+   psym = parent.typeS
+  if psym.isInt
+  foo <- barOpt
+  if foo.isBar
+} yield {
+  genClassName(psym)
+}
+>>>
+for {
+  parent <- sym.info.parents
+  psym = parent.typeS
+  if psym.isInt
+  foo <- barOpt
+  if foo.isBar
+} yield {
+  genClassName(psym)
+}
