@@ -769,18 +769,10 @@ class Router(formatOps: FormatOps) {
               .withIndent(style.continuationIndentCallSite, close, Right),
             Split(NoSplit, 0, ignoreIf = isConfig)
               .withIndent(indent, close, Left)
+              .withPolicy(penalizeAllNewlines(close, 1))
         )
-//      case FormatToken(_, open: `(`, _)
-//          if rightOwner.isInstanceOf[Term.ApplyInfix] =>
-//        val close = matchingParentheses(hash(open))
-//        val optimalToken = Some(OptimalToken(close))
-//        Seq(
-//            Split(Space, 0, optimalAt = optimalToken)
-//              .withPolicy(SingleLineBlock(close)),
-//            Split(Newline, 1, optimalAt = optimalToken)
-//        )
       // Infix operator.
-      case tok @ FormatToken(op: Ident, _, between)
+      case tok @ FormatToken(op: Ident, right, between)
           if leftOwner.parent.exists {
             case infix: Term.ApplyInfix => infix.op == owners(op)
             case _ => false
@@ -793,6 +785,7 @@ class Router(formatOps: FormatOps) {
         // possible to wrap arguments in parentheses.
         val weControlSplit =
           isAssignment || isBool || newlineOkOperators.contains(op.code)
+        val openParenPenalty = if (right.isInstanceOf[`(`]) 0 else 1
         val newlineCost =
           if (isAssignment || isBool) 1
           else if (weControlSplit) 3
@@ -816,7 +809,9 @@ class Router(formatOps: FormatOps) {
                   0,
                   optimalAt = optimalToken,
                   ignoreIf = !weControlSplit),
-            Split(Newline, newlineCost, ignoreIf = !weControlSplit)
+            Split(Newline,
+                  newlineCost,
+                  ignoreIf = !weControlSplit)
               .withIndent(indent, formatToken.right, Left)
         )
 

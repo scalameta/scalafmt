@@ -94,3 +94,59 @@ private[controllers] def doClose(user: UserModel) =
   Env.challenge.api.removeByUserId(user.id) >>-
   Env.tournament.api.withdrawAll(user) >>
   (Env.security disconnect user.id)
+<<< space ok
+{{{{{
+val spaceCouldBeOk =
+          oldNewlines == 0 && !left.isInstanceOf[Comment] &&
+          right.isInstanceOf[Keyword] &&
+          isSingleIdentifierAnnotation(prev(tok))
+          }}}}}
+>>>
+{
+  {
+    {
+      {
+        {
+          val spaceCouldBeOk =
+            oldNewlines == 0 && !left.isInstanceOf[Comment] &&
+            right.isInstanceOf[Keyword] &&
+            isSingleIdentifierAnnotation(prev(tok))
+        }
+      }
+    }
+  }
+}
+<<< penalty &&
+{{
+   def rhsIsCommentedOut(formatToken: FormatToken): Boolean =
+      formatToken.right.isInstanceOf[Comment] &&
+     formatToken.right.code.startsWith("//") &&
+     endsWithNoIndent(formatToken.between)
+     }}
+>>>
+{
+  {
+    def rhsIsCommentedOut(formatToken: FormatToken): Boolean =
+      formatToken.right.isInstanceOf[Comment] &&
+      formatToken.right.code.startsWith("//") &&
+      endsWithNoIndent(formatToken.between)
+  }
+}
+<<< bool weirdness #233
+{{
+!isDocstring(tok.left) && {
+        val newlines = newlinesBetween(tok.between)
+       newlines > 1 ||
+       (isDocstring(tok.right) && !tok.left.isInstanceOf[Comment])
+       }
+       }}
+>>>
+{
+  {
+    !isDocstring(tok.left) && {
+      val newlines = newlinesBetween(tok.between)
+      newlines > 1 ||
+      (isDocstring(tok.right) && !tok.left.isInstanceOf[Comment])
+    }
+  }
+}
