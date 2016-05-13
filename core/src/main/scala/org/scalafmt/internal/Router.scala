@@ -894,9 +894,10 @@ class Router(formatOps: FormatOps) {
         val exclude =
           insideBlock(tok, arrow, _.isInstanceOf[`{`]).map(parensRange)
         val singleLine = SingleLineBlock(arrow, exclude = exclude)
+
         Seq(
             Split(Space, 0, policy = singleLine),
-            Split(Newline, 1)
+            Split(Newline, 1).withPolicy(penalizeNewlineByNesting(cond, arrow))
         )
       // Inline comment
       case FormatToken(_, c: Comment, between) =>
