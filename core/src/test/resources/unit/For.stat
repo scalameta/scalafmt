@@ -25,8 +25,8 @@ else cell.toString.length)
 >>>
 val sizes = for (row <- table) yield
   (for (cell <- row) yield
-    if (cell == null) 0
-    else cell.toString.length)
+     if (cell == null) 0
+     else cell.toString.length)
 <<< if singleline
 val k = for {
     _ <- Future(1) if !onlyOne
@@ -91,4 +91,20 @@ for {
   if foo.isBar
 } yield {
   genClassName(psym)
+}
+<<< align by ( #233
+for (result <- results.sortBy(-_.x)
+                               if result != "W") yield x
+>>>
+for (result <- results.sortBy(-_.x)
+     if result != "W") yield x
+<<< align by ( #233, no yield
+for (result <- results.sortBy(-_.x)
+                               if result != "W") {
+                               println(1)
+                               }
+>>>
+for (result <- results.sortBy(-_.x)
+     if result != "W") {
+  println(1)
 }

@@ -169,14 +169,6 @@ class Router(formatOps: FormatOps) {
               .withPolicy(newlineBeforeClosingCurly)
               .withIndent(2, close, Right)
           )
-      // For loop with (
-      case tok @ FormatToken(_: `(`, _, _)
-          if leftOwner.isInstanceOf[Term.For] ||
-          leftOwner.isInstanceOf[Term.ForYield] =>
-        // TODO(olafur) allow newlines?
-        Seq(
-            Split(NoSplit, 0)
-        )
 
       // Term.Function
       case FormatToken(arrow: `=>`, right, _)
@@ -684,7 +676,8 @@ class Router(formatOps: FormatOps) {
         )
       // If
       case FormatToken(open: `(`, _, _) if (leftOwner match {
-            case _: Term.If | _: Term.While => true
+            case _: Term.If | _: Term.While | _: Term.For | _: Term.ForYield =>
+              true
             case _ => false
           }) =>
         val close = matchingParentheses(hash(open))
