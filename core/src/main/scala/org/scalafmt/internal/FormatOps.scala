@@ -124,7 +124,8 @@ class FormatOps(val tree: Tree,
   final def rhsOptimalToken(start: FormatToken): Token = start.right match {
     case _: `,` | _: `(` | _: `)` | _: `]` | _: `;` | _: `=>`
         if next(start) != start &&
-        !owners(start.right).tokens.headOption.contains(start.right) =>
+        !owners(start.right).tokens.headOption.contains(start.right) &&
+        newlinesBetween(start.between) == 0 =>
       rhsOptimalToken(next(start))
     case _ => start.left
   }
