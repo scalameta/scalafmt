@@ -450,11 +450,9 @@ class Router(formatOps: FormatOps) {
         val expirationToken: Token =
           if (isDefnSite(leftOwner) && !isBracket) defnSiteLastToken(leftOwner)
           else rhsOptimalToken(leftTok2tok(close))
-//          rhsOptimalToken(leftTok2tok(close))
 
         val tooManyArguments = args.length > 100
 
-//        logger.elem(formatToken, expirationToken)
         Seq(
             Split(modification,
                   0,
@@ -515,9 +513,16 @@ class Router(formatOps: FormatOps) {
               penalizeAllNewlines(nextArg.tokens.last, 1)
             case _ => NoPolicy
           }
+        val modification =
+          if (newlines > 0) Newline
+          else Space
+        val isInfix = leftOwner.isInstanceOf[Term.ApplyInfix]
         Seq(
-            Split(Space, 0).withPolicy(penalizeNewlineInNextArg),
-            Split(Newline, 1, ignoreIf = rhsIsAttachedComment)
+            // Do whatever the user did if infix.
+            Split(modification, 0, ignoreIf = !isInfix),
+            Split(Space, 0, ignoreIf = isInfix)
+              .withPolicy(penalizeNewlineInNextArg),
+            Split(Newline, 1, ignoreIf = rhsIsAttachedComment || isInfix)
         )
       case FormatToken(_, _: `;`, _) =>
         Seq(

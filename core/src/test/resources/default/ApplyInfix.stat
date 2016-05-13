@@ -73,7 +73,8 @@ implicit val locationWrites: Writes[Location] = (
       )
 >>>
 (granted | isGranted(_.ModerateForum)) fold (
-    a, fuccess(Forbidden("You cannot post to this category"))
+    a,
+    fuccess(Forbidden("You cannot post to this category"))
 )
 <<< lila 2 #219
     private[controllers] def doClose(user: UserModel) =
