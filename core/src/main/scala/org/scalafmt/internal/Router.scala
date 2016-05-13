@@ -169,14 +169,6 @@ class Router(formatOps: FormatOps) {
               .withPolicy(newlineBeforeClosingCurly)
               .withIndent(2, close, Right)
           )
-      // For loop with (
-      case tok @ FormatToken(_: `(`, _, _)
-          if leftOwner.isInstanceOf[Term.For] ||
-          leftOwner.isInstanceOf[Term.ForYield] =>
-        // TODO(olafur) allow newlines?
-        Seq(
-            Split(NoSplit, 0)
-        )
 
       // Term.Function
       case FormatToken(arrow: `=>`, right, _)
@@ -450,11 +442,9 @@ class Router(formatOps: FormatOps) {
         val expirationToken: Token =
           if (isDefnSite(leftOwner) && !isBracket) defnSiteLastToken(leftOwner)
           else rhsOptimalToken(leftTok2tok(close))
-//          rhsOptimalToken(leftTok2tok(close))
 
         val tooManyArguments = args.length > 100
 
-//        logger.elem(formatToken, expirationToken)
         Seq(
             Split(modification,
                   0,
@@ -515,9 +505,16 @@ class Router(formatOps: FormatOps) {
               penalizeAllNewlines(nextArg.tokens.last, 1)
             case _ => NoPolicy
           }
+        val modification =
+          if (newlines > 0) Newline
+          else Space
+        val isInfix = leftOwner.isInstanceOf[Term.ApplyInfix]
         Seq(
-            Split(Space, 0).withPolicy(penalizeNewlineInNextArg),
-            Split(Newline, 1, ignoreIf = rhsIsAttachedComment)
+            // Do whatever the user did if infix.
+            Split(modification, 0, ignoreIf = !isInfix),
+            Split(Space, 0, ignoreIf = isInfix)
+              .withPolicy(penalizeNewlineInNextArg),
+            Split(Newline, 1, ignoreIf = rhsIsAttachedComment || isInfix)
         )
       case FormatToken(_, _: `;`, _) =>
         Seq(
@@ -679,7 +676,8 @@ class Router(formatOps: FormatOps) {
         )
       // If
       case FormatToken(open: `(`, _, _) if (leftOwner match {
-            case _: Term.If | _: Term.While => true
+            case _: Term.If | _: Term.While | _: Term.For | _: Term.ForYield =>
+              true
             case _ => false
           }) =>
         val close = matchingParentheses(hash(open))
@@ -771,18 +769,10 @@ class Router(formatOps: FormatOps) {
               .withIndent(style.continuationIndentCallSite, close, Right),
             Split(NoSplit, 0, ignoreIf = isConfig)
               .withIndent(indent, close, Left)
-        )
-//      case FormatToken(_, open: `(`, _)
-//          if rightOwner.isInstanceOf[Term.ApplyInfix] =>
-//        val close = matchingParentheses(hash(open))
-//        val optimalToken = Some(OptimalToken(close))
-//        Seq(
-//            Split(Space, 0, optimalAt = optimalToken)
-//              .withPolicy(SingleLineBlock(close)),
-//            Split(Newline, 1, optimalAt = optimalToken)
-//        )
+              .withPolicy(penalizeAllNewlines(close, 1))
+          )
       // Infix operator.
-      case tok @ FormatToken(op: Ident, _, between)
+      case tok @ FormatToken(op: Ident, right, between)
           if leftOwner.parent.exists {
             case infix: Term.ApplyInfix => infix.op == owners(op)
             case _ => false
@@ -795,6 +785,7 @@ class Router(formatOps: FormatOps) {
         // possible to wrap arguments in parentheses.
         val weControlSplit =
           isAssignment || isBool || newlineOkOperators.contains(op.code)
+        val openParenPenalty = if (right.isInstanceOf[`(`]) 0 else 1
         val newlineCost =
           if (isAssignment || isBool) 1
           else if (weControlSplit) 3
@@ -818,7 +809,9 @@ class Router(formatOps: FormatOps) {
                   0,
                   optimalAt = optimalToken,
                   ignoreIf = !weControlSplit),
-            Split(Newline, newlineCost, ignoreIf = !weControlSplit)
+            Split(Newline,
+                  newlineCost,
+                  ignoreIf = !weControlSplit)
               .withIndent(indent, formatToken.right, Left)
         )
 
@@ -889,9 +882,10 @@ class Router(formatOps: FormatOps) {
         val exclude =
           insideBlock(tok, arrow, _.isInstanceOf[`{`]).map(parensRange)
         val singleLine = SingleLineBlock(arrow, exclude = exclude)
+
         Seq(
             Split(Space, 0, policy = singleLine),
-            Split(Newline, 1)
+            Split(Newline, 1).withPolicy(penalizeNewlineByNesting(cond, arrow))
         )
       // Inline comment
       case FormatToken(_, c: Comment, between) =>

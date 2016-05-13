@@ -45,8 +45,7 @@ object Length {
   * @tparam T Can be a known number [[Num]] (used in [[State]]) or unknown
   *           integer [[StateColumn]] (used in [[Split]]).
   */
-case class Indent[
-    T <: Length](length: T, expire: Token, expiresAt: ExpiresOn) {
+case class Indent[T <: Length](length: T, expire: Token, expiresAt: ExpiresOn) {
 
   def withNum(column: Int, indentation: Int): Indent[Num] = length match {
     case n: Num => Indent(n, expire, expiresAt)

@@ -231,3 +231,16 @@ class TypedPipeJoinWithDescriptionJob {
   (cache.delete _).expects("123")
   Await.result(service.setActive("123", active = true))
 }
+<<< indent expire
+Seq(
+            Split()
+              .withIndent(indent, close, Left)
+              .withPolicy(penalizeAllNewlines(close, 1))
+          )
+>>>
+Seq(
+    Split()
+      .withIndent(indent, close, Left)
+      .withPolicy(penalizeAllNewlines(close, 1))
+)
+

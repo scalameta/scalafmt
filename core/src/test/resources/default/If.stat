@@ -144,3 +144,4 @@ if (fullInfo)
 +                                        env scheduleJsonView visible))
 +            } map NoCache
 >>>
+x

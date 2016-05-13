@@ -100,7 +100,8 @@ class CliTest extends FunSuite with DiffAssertions {
     assertNoDiff(obtained, unformatted)
   }
   test("--style Scala.js is OK") {
-    val obtained = Cli.parser.parse(Seq("--style", "Scala.js"), Cli.Config.default)
+    val obtained =
+      Cli.parser.parse(Seq("--style", "Scala.js"), Cli.Config.default)
     assert(obtained.get.style == ScalafmtStyle.scalaJs)
   }
 }

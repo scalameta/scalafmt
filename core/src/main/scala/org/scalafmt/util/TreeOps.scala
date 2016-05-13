@@ -77,7 +77,7 @@ object TreeOps {
       }
     }
 
-    def addDefn[T <: Keyword : ClassTag](mods: Seq[Mod], tree: Tree): Unit = {
+    def addDefn[T <: Keyword: ClassTag](mods: Seq[Mod], tree: Tree): Unit = {
       // Each @annotation gets a separate line
       val annotations = mods.filter(_.isInstanceOf[Mod.Annot])
       addAll(annotations)
@@ -169,8 +169,7 @@ object TreeOps {
 
   @tailrec
   final def childOf(child: Tree, tree: Tree): Boolean = {
-    child == tree ||
-    (child.parent match {
+    child == tree || (child.parent match {
           case Some(parent) => childOf(parent, tree)
           case _ => false
         })
@@ -337,7 +336,7 @@ object TreeOps {
       generator: Enumerator.Generator): Option[Enumerator.Guard] = {
     for {
       parent <- generator.parent if parent.isInstanceOf[Term.For] ||
-               parent.isInstanceOf[Term.ForYield]
+      parent.isInstanceOf[Term.ForYield]
       sibling <- {
         val enums = parent match {
           case p: Term.For => p.enums

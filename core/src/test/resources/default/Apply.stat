@@ -387,14 +387,29 @@ foo.fold(err => {
   BadRequest(jsonError(JsError toJson err)).fuccess
 }, data => data)
 <<< SKIP indent cats
--    XorT(F.flatMap(fea.value) {
--      case Xor.Left(e) => f(e).value
--      case r @ Xor.Right(_) => F.pure(r)
--    })
+    XorT(F.flatMap(fea.value) {
+      case Xor.Left(e) => f(e).value
+      case r @ Xor.Right(_) => F.pure(r)
+    })
+>>>
 +    XorT(
 +      F.flatMap(fea.value) {
 +    case Xor.Left(e) => f(e).value
 +    case r @ Xor.Right(_) => F.pure(r)
 +  })
+<<< quirk in 0.2.4-RC1, #233
+{{{{{
+          compileInputs in (It, compile) <<= (compileInputs in (It, compile)) dependsOn
+          }}}}}
 >>>
-x
+{
+  {
+    {
+      {
+        {
+          compileInputs in (It, compile) <<= (compileInputs in (It, compile)) dependsOn
+        }
+      }
+    }
+  }
+}

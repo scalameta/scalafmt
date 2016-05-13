@@ -89,3 +89,13 @@ case open @ (_: `{` | _: `[` | _: `(`) => stack = open :: stack
 case NullTag | UnitTag | BooleanTag | ByteTag | ShortTag | CharTag | IntTag |
     LongTag | FloatTag | DoubleTag | StringTag =>
   focus withValue genLiteralValue(lit)
+<<< quirk #233
+      case FormatToken(_: `(` | _: `[`, _, between)
+          if style.configStyleArguments &&
+          (isDefnSite(leftOwner) || isCallSite(leftOwner)) &&
+          opensConfigStyle(formatToken) =>
+>>>
+case FormatToken(_: `(` | _: `[`, _, between)
+    if style.configStyleArguments &&
+    (isDefnSite(leftOwner) || isCallSite(leftOwner)) &&
+    opensConfigStyle(formatToken) =>
