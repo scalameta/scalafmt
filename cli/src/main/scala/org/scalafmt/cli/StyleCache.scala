@@ -15,7 +15,8 @@ object StyleCache {
     val lastModified = file.lastModified()
     val configChanged = timeStamps.get(filename).contains(lastModified)
     timeStamps.update(filename, lastModified)
-    if (styleCache.contains(filename) && configChanged) styleCache.get(filename)
+    if (styleCache.contains(filename) && configChanged)
+      styleCache.get(filename)
     else {
       // Throw an exception if file does not exist. Better to fail fast than
       // continue silently.

@@ -193,7 +193,7 @@ class FormatWriter(formatOps: FormatOps) {
       while (i < locations.length) {
         val columnCandidates = Array.newBuilder[FormatLocation]
         while (i < locations.length &&
-        !locations(i).split.modification.isNewline) {
+               !locations(i).split.modification.isNewline) {
           if (isCandidate(locations(i), style)) {
             columnCandidates += locations(i)
           }

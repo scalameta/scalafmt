@@ -770,7 +770,7 @@ class Router(formatOps: FormatOps) {
             Split(NoSplit, 0, ignoreIf = isConfig)
               .withIndent(indent, close, Left)
               .withPolicy(penalizeAllNewlines(close, 1))
-        )
+          )
       // Infix operator.
       case tok @ FormatToken(op: Ident, right, between)
           if leftOwner.parent.exists {

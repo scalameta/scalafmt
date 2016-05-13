@@ -286,7 +286,7 @@ class FormatOps(val tree: Tree,
   def getSelectsLastToken(dot: `.`): Token = {
     var curr = next(leftTok2tok(dot))
     while (isOpenApply(curr.right, includeCurly = true) &&
-    !statementStarts.contains(hash(curr.right))) {
+           !statementStarts.contains(hash(curr.right))) {
       curr = leftTok2tok(matchingParentheses(hash(curr.right)))
     }
     curr.left
@@ -321,21 +321,22 @@ class FormatOps(val tree: Tree,
   def selectExpire(dot: `.`): Token = {
     val owner = ownersMap(hash(dot))
     (for {
-      parent <- owner.parent
-      (_, args) <- splitApplyIntoLhsAndArgsLifted(parent) if args.nonEmpty
-    } yield {
-      args.last.tokens.last
-    }).getOrElse(owner.tokens.last)
+       parent <- owner.parent
+       (_, args) <- splitApplyIntoLhsAndArgsLifted(parent) if args.nonEmpty
+     } yield {
+       args.last.tokens.last
+     }).getOrElse(owner.tokens.last)
   }
 
   def functionExpire(function: Term.Function): Token = {
     (for {
-      parent <- function.parent
-      blockEnd <- parent match {
-        case b: Term.Block if b.stats.length == 1 => Some(b.tokens.last)
-        case _ => None
-      }
-    } yield blockEnd).getOrElse(function.tokens.last)
+       parent <- function.parent
+       blockEnd <- parent match {
+                    case b: Term.Block if b.stats.length == 1 =>
+                      Some(b.tokens.last)
+                    case _ => None
+                  }
+     } yield blockEnd).getOrElse(function.tokens.last)
   }
 
   def noOptimizationZones(tree: Tree): Set[Token] = {
@@ -343,9 +344,7 @@ class FormatOps(val tree: Tree,
     var inside = false
     var expire = tree.tokens.head
     tree.tokens.foreach {
-      case t
-          if !inside &&
-          ((t, ownersMap(hash(t))) match {
+      case t if !inside && ((t, ownersMap(hash(t))) match {
                 case (_: `(`, _: Term.Apply) =>
                   // TODO(olafur) https://github.com/scalameta/scalameta/issues/345
                   val x = true
