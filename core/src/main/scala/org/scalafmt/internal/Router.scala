@@ -171,6 +171,14 @@ class Router(formatOps: FormatOps) {
           )
 
       // Term.Function
+      case FormatToken(open: `(`, _, _)
+          // Argument list for anonymous function
+          if !style.binPackParameters &&
+          leftOwner.isInstanceOf[Term.Function] =>
+        val close = matchingParentheses(hash(open))
+        Seq(
+            Split(NoSplit, 0).withIndent(StateColumn, close, Left)
+        )
       case FormatToken(arrow: `=>`, right, _)
           if statementStarts.contains(hash(right)) &&
           leftOwner.isInstanceOf[Term.Function] =>
@@ -377,12 +385,7 @@ class Router(formatOps: FormatOps) {
           (!style.binPackParameters && isDefnSite(leftOwner)) =>
         val open = tok.left.asInstanceOf[Delim]
         val close = matchingParentheses(hash(open))
-        val (lhs, args) = splitApplyIntoLhsAndArgsLifted(leftOwner).getOrElse {
-          logger.error(s"""Unknown tree
-                          |${log(leftOwner.parent.get)}
-                          |${isDefnSite(leftOwner)}""".stripMargin)
-          throw UnexpectedTree[Term.Apply](leftOwner)
-        }
+        val (lhs, args) = getApplyArgs(formatToken, leftOwner)
         // In long sequence of select/apply, we penalize splitting on
         // parens furthest to the right.
         val lhsPenalty = treeDepth(lhs)
@@ -408,9 +411,7 @@ class Router(formatOps: FormatOps) {
         def singleLine(newlinePenalty: Int): Policy = {
           val baseSingleLinePolicy =
             if (isBracket) {
-              if (singleArgument)
-                SingleLineBlock(
-                    close, excludeRanges, disallowInlineComments = false)
+              if (singleArgument) penalizeAllNewlines(close, newlinePenalty)
               else SingleLineBlock(close)
             } else {
               if (singleArgument) {
@@ -938,7 +939,8 @@ class Router(formatOps: FormatOps) {
             Split(Space, 0)
         )
       // Open paren generally gets no space.
-      case FormatToken(_: `(`, _, _) =>
+      case FormatToken(open: `(`, _, _) =>
+        val close = matchingParentheses(hash(open))
         Seq(
             Split(NoSplit, 0)
         )

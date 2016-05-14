@@ -21,6 +21,9 @@ import scala.meta.tokens.Tokens
 import scala.reflect.ClassTag
 import scala.reflect.classTag
 
+import org.scalafmt.Error.UnexpectedTree
+import org.scalafmt.internal.FormatToken
+
 /**
   * Stateless helper functions on [[scala.meta.Tree]].
   */
@@ -77,7 +80,7 @@ object TreeOps {
       }
     }
 
-    def addDefn[T <: Keyword: ClassTag](mods: Seq[Mod], tree: Tree): Unit = {
+    def addDefn[T <: Keyword : ClassTag](mods: Seq[Mod], tree: Tree): Unit = {
       // Each @annotation gets a separate line
       val annotations = mods.filter(_.isInstanceOf[Mod.Annot])
       addAll(annotations)
@@ -169,7 +172,8 @@ object TreeOps {
 
   @tailrec
   final def childOf(child: Tree, tree: Tree): Boolean = {
-    child == tree || (child.parent match {
+    child == tree ||
+    (child.parent match {
           case Some(parent) => childOf(parent, tree)
           case _ => false
         })
@@ -204,9 +208,9 @@ object TreeOps {
   }
 
   def isDefnSite(tree: Tree): Boolean = tree match {
-    case _: Decl.Def | _: Defn.Def | _: Defn.Macro |
-        _: Defn.Class | _: Defn.Trait | _: Ctor.Secondary | _: Defn.Type |
-        _: Type.Apply | _: Type.Param =>
+    case _: Decl.Def | _: Defn.Def | _: Defn.Macro | _: Defn.Class |
+        _: Defn.Trait | _: Ctor.Secondary |
+        _: Defn.Type | _: Type.Apply | _: Type.Param | _: Type.Tuple =>
       true
     case x: Ctor.Primary if x.parent.exists(_.isInstanceOf[Defn.Class]) =>
       true
@@ -264,6 +268,8 @@ object TreeOps {
     case t: Term.ApplyType => t.fun -> t.targs
     case t: Term.Update => t.fun -> t.argss.flatten
     case t: Term.Tuple => t -> t.elements
+    case t: Term.Function => t -> t.params
+    case t: Type.Tuple => t -> t.elements
     case t: Type.Apply => t.tpe -> t.args
     case t: Type.Param => t.name -> t.tparams
     // TODO(olafur) flatten correct? Filter by this () section?
@@ -278,6 +284,22 @@ object TreeOps {
   }
 
   val splitApplyIntoLhsAndArgsLifted = splitApplyIntoLhsAndArgs.lift
+
+  def getApplyArgs(
+      formatToken: FormatToken, leftOwner: Tree): (Tree, Seq[Tree]) = {
+    leftOwner match {
+      case t: Defn.Def if formatToken.left.isInstanceOf[`[`] =>
+        t.name -> t.tparams
+      // TODO(olafur) missing Defn.Def with `(` case.
+      case _ =>
+        splitApplyIntoLhsAndArgsLifted(leftOwner).getOrElse {
+          logger.error(s"""Unknown tree
+                           |${log(leftOwner.parent.get)}
+                           |${isDefnSite(leftOwner)}""".stripMargin)
+          throw UnexpectedTree[Term.Apply](leftOwner)
+        }
+    }
+  }
 
   final def getSelectChain(select: Term.Select): Vector[Term.Select] = {
     select +: getSelectChain(select, Vector.empty[Term.Select])
@@ -336,7 +358,7 @@ object TreeOps {
       generator: Enumerator.Generator): Option[Enumerator.Guard] = {
     for {
       parent <- generator.parent if parent.isInstanceOf[Term.For] ||
-      parent.isInstanceOf[Term.ForYield]
+               parent.isInstanceOf[Term.ForYield]
       sibling <- {
         val enums = parent match {
           case p: Term.For => p.enums
