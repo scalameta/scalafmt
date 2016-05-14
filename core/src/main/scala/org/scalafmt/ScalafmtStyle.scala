@@ -32,6 +32,17 @@ import sourcecode.Text
   *                                   call site.
   * @param continuationIndentDefnSite Indent width for line continuation at
   *                                   definition/declaration site.
+  * @param allowNewlineBeforeColonInMassiveReturnTypes If true, scalafmt
+  *                                                    may choose to put a newline
+  *                                                    before colon : at defs.
+  * @param binPackParentConstructors Parent constructors are C and D in
+  *                                  "class A extends B with C and D". If true,
+  *                                  scalafmt will fit as many parent constructors
+  *                                  on a single line. If false, each parent
+  *                                  constructor gets its own line.
+  * @param alignByArrowEnumeratorGenerator If true, aligns by <- in for comprehensions.
+  * @param alignByIfWhileOpenParen If true, aligns by ( in if/while/for. If false,
+  *                                indents by [[continuationIndentCallSite]].
   */
 case class ScalafmtStyle(
     maxColumn: Int,
