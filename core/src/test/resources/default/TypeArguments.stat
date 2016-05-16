@@ -76,3 +76,15 @@ def processTypeForUpdateOrApply(
                                Option[ScalaResolveResult])] = {
   println(1)
 }
+<<< Any foo
+{{
+val func = function.asInstanceOf[
+          (Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any) => Any]
+}}
+>>>
+{
+  {
+    val func = function.asInstanceOf[(Any, Any, Any, Any, Any, Any, Any, Any,
+                                      Any, Any, Any) => Any]
+  }
+}
