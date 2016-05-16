@@ -477,7 +477,7 @@ class Router(formatOps: FormatOps) {
       // Closing def site ): ReturnType
       case FormatToken(_, colon: `:`, _)
           if style.allowNewlineBeforeColonInMassiveReturnTypes &&
-          defDefReturnType(leftOwner).isDefined =>
+              defDefReturnType(leftOwner).isDefined =>
         val expire = lastToken(defDefReturnType(rightOwner).get)
         val penalizeNewlines = penalizeAllNewlines(
             expire, Constants.BracketPenalty)

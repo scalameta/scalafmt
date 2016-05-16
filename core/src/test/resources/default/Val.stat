@@ -30,3 +30,33 @@ val longHash: Long =
   val `type`: String = js.native
 >>>
 val `type`: String = js.native
+<<< Insane type
+{
+  implicit val enumeratorTMonadTrans: MonadTrans[λ[(β[_], α) => EnumeratorT[
+              α, β]]] = new MonadTrans[λ[(β[_], α) => EnumeratorT[α, β]]] {
+    def liftM[G[_]: Monad, E](ga: G[E]): EnumeratorT[E, G] =
+      new EnumeratorT[E, G] {
+        def apply[A] =
+          (s: StepT[E, G, A]) =>
+            iterateeT(
+                Monad[G].bind(ga) { e =>
+              s.mapCont(k => k(elInput(e))).value
+            })
+      }
+      }
+      }
+>>>
+{
+  implicit val enumeratorTMonadTrans: MonadTrans[λ[(β[_],
+                                                    α) => EnumeratorT[α, β]]] =
+    new MonadTrans[λ[(β[_], α) => EnumeratorT[α, β]]] {
+      def liftM[G[_]: Monad, E](ga: G[E]): EnumeratorT[E, G] =
+        new EnumeratorT[E, G] {
+          def apply[A] =
+            (s: StepT[E, G, A]) =>
+              iterateeT(Monad[G].bind(ga) { e =>
+                s.mapCont(k => k(elInput(e))).value
+              })
+        }
+    }
+}

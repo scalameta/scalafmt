@@ -204,6 +204,8 @@ object TreeOps {
   def defDefReturnType(tree: Tree): Option[Type] = tree match {
     case d: Decl.Def => Some(d.decltpe)
     case d: Defn.Def => d.decltpe
+    case d: Defn.Val => d.decltpe
+    case d: Defn.Var => d.decltpe
     case _ => None
   }
 
