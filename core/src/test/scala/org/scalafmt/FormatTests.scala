@@ -31,8 +31,12 @@ import scala.meta.parsers.Parse
 // TODO(olafur) property test: same solution without optimization or timeout.
 
 class FormatTests
-    extends FunSuite with Timeouts with BeforeAndAfterAll with HasTests
-    with FormatAssertions with DiffAssertions {
+    extends FunSuite
+    with Timeouts
+    with BeforeAndAfterAll
+    with HasTests
+    with FormatAssertions
+    with DiffAssertions {
   import LoggerOps._
   lazy val onlyUnit = UnitTests.tests.exists(_.only)
   lazy val onlyManual = !onlyUnit && ManualTests.tests.exists(_.only)
@@ -91,7 +95,7 @@ class FormatTests
     // I don't want to deal with scalaz's Tasks :'(
     val k = for {
       _ <- Future(
-          FileOps.writeFile("target/index.html", Report.heatmap(results)))
+              FileOps.writeFile("target/index.html", Report.heatmap(results)))
       _ <- Future(Speed.submitStats(stats)) if !onlyOne
       _ <- Future(Speed.writeComparisonReport(stats, "master"))
     } yield ()

@@ -168,13 +168,12 @@ class Router(formatOps: FormatOps) {
             Split(nl, 1)
               .withPolicy(newlineBeforeClosingCurly)
               .withIndent(2, close, Right)
-          )
+        )
 
       // Term.Function
       case FormatToken(open: `(`, _, _)
           // Argument list for anonymous function
-          if !style.binPackParameters &&
-          (leftOwner match {
+          if !style.binPackParameters && (leftOwner match {
                 case _: Term.Function | _: Type.Function => true
                 case _ => false
               }) =>
@@ -350,8 +349,7 @@ class Router(formatOps: FormatOps) {
         val indent = getApplyIndent(leftOwner)
         val close = matchingParentheses(hash(open))
         val oneArgOneLine = OneArgOneLineSplit(open)
-        val configStyle = oneArgOneLine.copy(
-            f = oneArgOneLine.f.orElse {
+        val configStyle = oneArgOneLine.copy(f = oneArgOneLine.f.orElse {
           case Decision(t @ FormatToken(_, `close`, _), splits) =>
             Decision(t, Seq(Split(Newline, 0)))
         })
@@ -472,12 +470,12 @@ class Router(formatOps: FormatOps) {
                   ignoreIf = singleArgument || isTuple)
               .withOptimalToken(expirationToken)
               .withIndent(indent, close, Left)
-          )
+        )
 
       // Closing def site ): ReturnType
       case FormatToken(_, colon: `:`, _)
           if style.allowNewlineBeforeColonInMassiveReturnTypes &&
-              defDefReturnType(leftOwner).isDefined =>
+          defDefReturnType(leftOwner).isDefined =>
         val expire = lastToken(defDefReturnType(rightOwner).get)
         val penalizeNewlines = penalizeAllNewlines(
             expire, Constants.BracketPenalty)
@@ -488,7 +486,7 @@ class Router(formatOps: FormatOps) {
             Split(Newline, Constants.SparkColonNewline)
               .withIndent(2, expire, Left)
               .withPolicy(penalizeNewlines)
-          )
+        )
 
       // Delim
       case FormatToken(_, _: `,`, _) =>
@@ -610,7 +608,7 @@ class Router(formatOps: FormatOps) {
             Split(Newline.copy(acceptNoSplit = true), 2 + nestedPenalty)
               .withPolicy(newlinePolicy)
               .withIndent(2, lastToken, Left)
-          )
+        )
       // ApplyUnary
       case tok @ FormatToken(_: Ident, _: Literal, _)
           if leftOwner == rightOwner =>
@@ -662,7 +660,7 @@ class Router(formatOps: FormatOps) {
             Split(Newline, 1)
               .withPolicy(breakOnEveryWith)
               .withIndent(Num(4), lastToken, Left)
-          )
+        )
       case tok @ FormatToken(_, right: `with`, _) if (rightOwner match {
             case _: Template => true
             case _ => false
@@ -696,7 +694,7 @@ class Router(formatOps: FormatOps) {
             Split(NoSplit, 0)
               .withIndent(indent, close, Left)
               .withPolicy(penalizeNewlines)
-          )
+        )
       case FormatToken(_: `if`, _, _) if leftOwner.isInstanceOf[Term.If] =>
         val owner = leftOwner.asInstanceOf[Term.If]
         val expire = owner.elsep.tokens.lastOption.getOrElse(owner.tokens.last)
@@ -792,7 +790,7 @@ class Router(formatOps: FormatOps) {
             Split(NoSplit, 0, ignoreIf = isConfig)
               .withIndent(indent, close, Left)
               .withPolicy(penalizeAllNewlines(close, 1))
-          )
+        )
       // Infix operator.
       case tok @ FormatToken(op: Ident, right, between)
           if leftOwner.parent.exists {

@@ -10,7 +10,9 @@ import org.scalafmt.util.ScalacParser
 import scala.meta._
 
 object ParseExperiment
-    extends App with ScalaProjectsExperiment with FormatAssertions {
+    extends App
+    with ScalaProjectsExperiment
+    with FormatAssertions {
   override val verbose = false
 
   override def runOn(scalaFile: ScalaFile): ExperimentResult = {

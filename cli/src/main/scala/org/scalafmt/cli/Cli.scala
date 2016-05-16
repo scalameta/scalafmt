@@ -138,8 +138,8 @@ object Cli {
     } text s"See ScalafmtConfig scaladoc."
     opt[Boolean]("allowNewlineBeforeColonInMassiveReturnTypes") action {
       (bool, c) =>
-        c.copy(style = c.style.copy(
-                  allowNewlineBeforeColonInMassiveReturnTypes = bool))
+        c.copy(style =
+              c.style.copy(allowNewlineBeforeColonInMassiveReturnTypes = bool))
     } text s"See ScalafmtConfig scaladoc."
     opt[Seq[String]]("alignTokens") action { (tokens, c) =>
       val alignsTokens = tokens.map { token =>
@@ -247,8 +247,8 @@ object Cli {
   def getConfig(args: Array[String]): Option[Config] = {
     parser.parse(args, Config.default) match {
       case Some(c) if c.configFile.exists(_.isFile) =>
-        parseConfigFile(FileOps.readFile(c.configFile.get))
-          .map(x => c.copy(style = x.style))
+        parseConfigFile(FileOps.readFile(c.configFile.get)).map(x =>
+              c.copy(style = x.style))
       case x => x
     }
   }

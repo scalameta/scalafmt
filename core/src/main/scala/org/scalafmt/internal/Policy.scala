@@ -10,11 +10,11 @@ import org.scalafmt.Error.NoopDefaultPolicyApplied
   * @param f is applied to every decision until expire
   * @param expire The latest token offset.
   */
-case class Policy(f: PartialFunction[Decision, Decision],
-                  expire: Int,
-                  noDequeue: Boolean = false,
-                  isSingleLine: Boolean = false)(
-    implicit val line: sourcecode.Line) {
+case class Policy(
+    f: PartialFunction[Decision, Decision],
+    expire: Int,
+    noDequeue: Boolean = false,
+    isSingleLine: Boolean = false)(implicit val line: sourcecode.Line) {
 
   /** Similar to PartialFunction.andThen, except applies second pf even if the
     * first pf is not defined at argument.
