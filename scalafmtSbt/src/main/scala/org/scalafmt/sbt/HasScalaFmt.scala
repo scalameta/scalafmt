@@ -51,7 +51,7 @@ case class HasScalaFmt(reflective: ScalaFmtLike,
     handleFiles(files,
                 cache,
                 logFun("Formatting %s %s ..."),
-                files => files.foreach(handleFile(writeFormatted)))
+                files => files.par.foreach(handleFile(writeFormatted)))
     handleFiles(files, cache, logFun("Reformatted %s %s."), _ => ())
   }
 
