@@ -195,3 +195,18 @@ object a {
   override def composeWithFunctor[G[_]: Functor]
     : Functor[Lambda[X => F[G[X]]]] = compose[G]
 }
+<<< #238
+object a {
+private def a012345678901234567(
+      b01234567890123456789aaaaaaaaaaaaaaaaa: B01234567890123456789): Future[C012345678901[D012345678901]] = {
+    ???
+  }
+}
+>>>
+object a {
+  private def a012345678901234567(
+      b01234567890123456789aaaaaaaaaaaaaaaaa: B01234567890123456789)
+    : Future[C012345678901[D012345678901]] = {
+    ???
+  }
+}
