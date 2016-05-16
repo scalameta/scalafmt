@@ -5,8 +5,8 @@ Head over to [the user docs][docs] for instructions on how to install scalafmt.
 
 ## Hacking on scalafmt
 
-I hope to make scalafmt become a community effort instead of having a [truck
-number 1](https://en.wikipedia.org/wiki/Bus_factor).
+I hope to make scalafmt a community effort so that the project has a
+[truck number](https://en.wikipedia.org/wiki/Bus_factor) bigger than 1.
 I've tried to do my best to concisely summarise how I work on scalafmt.
 For any questions, don't hesitate to ask on gitter.
 
