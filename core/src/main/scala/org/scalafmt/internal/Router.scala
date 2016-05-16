@@ -271,7 +271,13 @@ class Router(formatOps: FormatOps) {
       // Opening ( with no leading space.
       case FormatToken(
           _: `this` | _: Ident | _: `]` | _: `}` | _: `)`, _: `(` | _: `[`, _)
-          if noSpaceBeforeOpeningParen(rightOwner) =>
+          if noSpaceBeforeOpeningParen(rightOwner) && {
+            leftOwner.parent.forall {
+              // infix applications have no space.
+              case _: Type.ApplyInfix | _: Term.ApplyInfix => false
+              case parent => true
+            }
+          } =>
         Seq(
             Split(NoSplit, 0)
         )
