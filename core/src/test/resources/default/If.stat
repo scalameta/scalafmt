@@ -74,7 +74,8 @@ def toString(): String = {
 object a {
   def toString(): String = {
     (if (isInterface()) "is interface "
-     else if (isPrimitive()) "" else "class ") + getName()
+     else if (isPrimitive()) ""
+     else "class ") + getName()
   }
 }
 <<< pruneNonOptimal bug
@@ -95,8 +96,7 @@ object a {
                 {
                   (if (hasFlag("-")) FormattableFlags.LEFT_JUSTIFY else 0) |
                   (if (hasFlag("#")) FormattableFlags.ALTERNATE else 0) |
-                  (if (isConversionUpperCase) FormattableFlags.UPPERCASE
-                   else 0)
+                  (if (isConversionUpperCase) FormattableFlags.UPPERCASE else 0)
                 }
               }
             }
@@ -123,10 +123,10 @@ while (!hasReachedEof(curr) &&
           flatMap(_.toSeq).map(_._1).toSet
 >>>
 if (fullInfo)
-  return (candidates.toSeq.map(
-          c => forMap(c, withLocalTypeInference = false, checkFast = false)) ++
-      candidates.toSeq.map(
-          c => forMap(c, withLocalTypeInference = true, checkFast = false)))
+  return (candidates.toSeq.map(c =>
+            forMap(c, withLocalTypeInference = false, checkFast = false)) ++
+      candidates.toSeq.map(c =>
+            forMap(c, withLocalTypeInference = true, checkFast = false)))
     .flatMap(_.toSeq)
     .map(_._1)
     .toSet

@@ -61,3 +61,30 @@ new BaseJoinQuery[E, Rep[Long], U, Long, C, E, Rep[Long]](
   with Alternative[Option]
 >>>
 x
+<<< type.tuple
+  def processTypeForUpdateOrApply(tp: ScType, call: MethodInvocation, isShape: Boolean):
+      Option[(ScType, collection.Set[ImportUsed], Option[PsiNamedElement], Option[ScalaResolveResult])] = {
+      println(1)
+      }
+>>>
+def processTypeForUpdateOrApply(
+    tp: ScType,
+    call: MethodInvocation,
+    isShape: Boolean): Option[(ScType,
+                               collection.Set[ImportUsed],
+                               Option[PsiNamedElement],
+                               Option[ScalaResolveResult])] = {
+  println(1)
+}
+<<< Any foo
+{{
+val func = function.asInstanceOf[
+          (Any, Any, Any, Any, Any, Any, Any, Any, Any, Any, Any) => Any]
+}}
+>>>
+{
+  {
+    val func = function.asInstanceOf[(Any, Any, Any, Any, Any, Any, Any, Any,
+                                      Any, Any, Any) => Any]
+  }
+}

@@ -32,7 +32,7 @@ import scala.util.Try
   */
 class ReflectiveDynamicAccess(val classLoader: ClassLoader) {
 
-  def getClassFor[T: ClassTag](fqcn: String): Try[Class[_ <: T]] =
+  def getClassFor[T : ClassTag](fqcn: String): Try[Class[_ <: T]] =
     Try[Class[_ <: T]]({
       val c =
         Class.forName(fqcn, false, classLoader).asInstanceOf[Class[_ <: T]]
@@ -41,7 +41,7 @@ class ReflectiveDynamicAccess(val classLoader: ClassLoader) {
       else throw new ClassCastException(s"$t is not assignable from $c")
     })
 
-  def createInstanceFor[T: ClassTag](
+  def createInstanceFor[T : ClassTag](
       clazz: Class[_], args: immutable.Seq[(Class[_], AnyRef)]): Try[T] =
     Try {
       val types = args.map(_._1).toArray
@@ -59,7 +59,7 @@ class ReflectiveDynamicAccess(val classLoader: ClassLoader) {
         throw i.getTargetException
     }
 
-  def createInstanceFor[T: ClassTag](
+  def createInstanceFor[T : ClassTag](
       fqcn: String, args: immutable.Seq[(Class[_], AnyRef)]): Try[T] =
     getClassFor(fqcn) flatMap { c ⇒
       createInstanceFor(c, args)

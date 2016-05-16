@@ -62,9 +62,9 @@ def groupBy[K, T, G, P](
 <<< slick groupBy 2
   def groupBy[K, T, G, P](f: E => K)(implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G], vshape: Shape[_ <: FlatShapeLevel, E, _, P]): Query[(G, Query[P, U, Seq]), (T, Query[P, U, Seq]), CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC, (T, Query[P, U, Seq]), (T, Query[P, U, Seq])]
 >>>
-def groupBy[K, T, G, P](f: E => K)(
-    implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G],
-    vshape: Shape[_ <: FlatShapeLevel, E, _, P])
+def groupBy[K, T, G, P](
+    f: E => K)(implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G],
+               vshape: Shape[_ <: FlatShapeLevel, E, _, P])
   : Query[(G, Query[P, U, Seq]),
           (T, Query[P, U, Seq]),
           CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC,
@@ -99,8 +99,8 @@ final class BaseJoinQuery[+E1, +E2, U1, U2, C[_], +B1, +B2](
 >>>
 @tailrec
 final def getSelectChain(child: Term.Select,
-                         accum: Vector[Term.Select] = Vector
-                             .empty[Term.Select]): Vector[Term.Select] = {
+                         accum: Vector[Term.Select] =
+                           Vector.empty[Term.Select]): Vector[Term.Select] = {
   body
 }
 <<< hanging #127
@@ -195,3 +195,44 @@ object a {
   override def composeWithFunctor[G[_]: Functor]
     : Functor[Lambda[X => F[G[X]]]] = compose[G]
 }
+<<< #238
+object a {
+private def a012345678901234567(
+      b01234567890123456789aaaaaaaaaaaaaaaaa: B01234567890123456789): Future[C012345678901[D012345678901]] = {
+    ???
+  }
+}
+>>>
+object a {
+  private def a012345678901234567(
+      b01234567890123456789aaaaaaaaaaaaaaaaa: B01234567890123456789)
+    : Future[C012345678901[D012345678901]] = {
+    ???
+  }
+}
+<<< type tuple type functions madness
+{
+  def conditionalUpdatePersistentPath(
+           path: String,
+           data: String,
+           expectVersion: Int,
+           optionalChecker: Option[(ZkUtils, String, String) => (Boolean, Int)] = None)
+         : (Boolean, Int) = {
+         ???
+         }
+           }
+>>>
+{
+  def conditionalUpdatePersistentPath(
+      path: String,
+      data: String,
+      expectVersion: Int,
+      optionalChecker: Option[(ZkUtils, String, String) => (Boolean, Int)] =
+        None): (Boolean, Int) = {
+    ???
+  }
+}
+<<< infix types
+  def zip[C](x: A =>? C): A =>? (B, C) = 2
+>>>
+def zip[C](x: A =>? C): A =>? (B, C) = 2

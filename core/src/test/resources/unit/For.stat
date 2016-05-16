@@ -25,8 +25,8 @@ else cell.toString.length)
 >>>
 val sizes = for (row <- table) yield
   (for (cell <- row) yield
-     if (cell == null) 0
-     else cell.toString.length)
+    if (cell == null) 0
+    else cell.toString.length)
 <<< if singleline
 val k = for {
     _ <- Future(1) if !onlyOne

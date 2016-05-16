@@ -5,9 +5,7 @@ import org.scalafmt.util.HasTests
 import org.scalatest.FunSuite
 
 class PathologicalCasesTest
-    extends FunSuite
-    with HasTests
-    with DiffAssertions {
+    extends FunSuite with HasTests with DiffAssertions {
   // Don't be afraid to override the expected value in these tests.
   val stateExplosions =
     """

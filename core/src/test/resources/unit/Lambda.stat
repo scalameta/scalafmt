@@ -85,3 +85,13 @@ Thing() { implicit ctx =>
 Thing() { implicit ctx =>
   ???
 }
+<<< ( arg =>
+val groupedData = Array(topic1, topic2).flatMap(
+        topic =>
+          partitionDataFetchResponseMap.map(foobar))
+>>>
+val groupedData = Array(topic1, topic2)
+  .flatMap(topic =>
+      partitionDataFetchResponseMap
+        .map(foobar))
+

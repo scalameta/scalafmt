@@ -130,6 +130,9 @@ object Cli {
     opt[Boolean]("assumeStandardLibraryStripMargin") action { (bool, c) =>
       c.copy(style = c.style.copy(alignStripMarginStrings = bool))
     } text s"See ScalafmtConfig scaladoc."
+    opt[Boolean]("binPackParentConstructors") action { (bool, c) =>
+      c.copy(style = c.style.copy(binPackParentConstructors = bool))
+    } text s"See ScalafmtConfig scaladoc."
     opt[Boolean]("spacesInImportCurlyBraces") action { (bool, c) =>
       c.copy(style = c.style.copy(spacesInImportCurlyBrackets = bool))
     } text s"See ScalafmtConfig scaladoc."
