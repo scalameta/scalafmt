@@ -444,7 +444,8 @@
           default parameter values and named arguments received a lot of
           attention and should look nicer now.
         @li
-          SBT plugin now uses @code("unmanagedSourceDirectories") instead of
+          Thanks to @user("fthomas"),
+          the SBT plugin now uses @code("unmanagedSourceDirectories") instead of
           @code("scalaSource") to decide which files to format.
           This should improve your experience in Scala.js and cross-built projects.
     @sect{0.2.3}

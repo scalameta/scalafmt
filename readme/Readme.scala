@@ -47,7 +47,10 @@ object Readme {
 
   def note = b("NOTE")
 
+  def github: String = "https://github.com"
   def repo: String = "https://github.com/olafurpg/scalafmt"
+
+  def user(name: String) = a(href := s"$github/$name", s"@$name")
 
   def issue(id: Int) = a(href := repo + s"/issues/$id", s"#$id")
 
