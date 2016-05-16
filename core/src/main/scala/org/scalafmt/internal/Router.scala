@@ -174,7 +174,10 @@ class Router(formatOps: FormatOps) {
       case FormatToken(open: `(`, _, _)
           // Argument list for anonymous function
           if !style.binPackParameters &&
-          leftOwner.isInstanceOf[Term.Function] =>
+          (leftOwner match {
+                case _: Term.Function | _: Type.Function => true
+                case _ => false
+              }) =>
         val close = matchingParentheses(hash(open))
         Seq(
             Split(NoSplit, 0).withIndent(StateColumn, close, Left)
@@ -411,7 +414,8 @@ class Router(formatOps: FormatOps) {
         def singleLine(newlinePenalty: Int): Policy = {
           val baseSingleLinePolicy =
             if (isBracket) {
-              if (singleArgument) penalizeAllNewlines(close, newlinePenalty)
+              if (singleArgument)
+                penalizeAllNewlines(close, newlinePenalty)
               else SingleLineBlock(close)
             } else {
               if (singleArgument) {
@@ -446,6 +450,11 @@ class Router(formatOps: FormatOps) {
 
         val tooManyArguments = args.length > 100
 
+        val isTuple = leftOwner match {
+          case _: Type.Tuple | _: Term.Tuple => true
+          case _ => false
+        }
+
         Seq(
             Split(modification,
                   0,
@@ -456,7 +465,7 @@ class Router(formatOps: FormatOps) {
             Split(newlineModification,
                   (1 + nestedPenalty + lhsPenalty) * bracketMultiplier,
                   policy = singleLine(5),
-                  ignoreIf = !fitsOnOneLine)
+                  ignoreIf = !fitsOnOneLine || isTuple)
               .withOptimalToken(expirationToken)
               .withIndent(indent, close, Left),
             // TODO(olafur) singleline per argument!
@@ -469,7 +478,7 @@ class Router(formatOps: FormatOps) {
             Split(Newline,
                   (3 + nestedPenalty + lhsPenalty) * bracketMultiplier,
                   policy = oneArgOneLine,
-                  ignoreIf = singleArgument)
+                  ignoreIf = singleArgument || isTuple)
               .withOptimalToken(expirationToken)
               .withIndent(indent, close, Left)
           )
@@ -560,6 +569,7 @@ class Router(formatOps: FormatOps) {
               case None => r // var x: Int = _, no policy
             }
         }
+
         val expire = rhs.tokens.last
         val spacePolicy: Policy = rhs match {
           case _: Term.ApplyInfix | _: Term.If => SingleLineBlock(expire)
@@ -957,7 +967,6 @@ class Router(formatOps: FormatOps) {
         )
       // Open paren generally gets no space.
       case FormatToken(open: `(`, _, _) =>
-        val close = matchingParentheses(hash(open))
         Seq(
             Split(NoSplit, 0)
         )

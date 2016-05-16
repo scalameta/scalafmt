@@ -62,9 +62,9 @@ def groupBy[K, T, G, P](
 <<< slick groupBy 2
   def groupBy[K, T, G, P](f: E => K)(implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G], vshape: Shape[_ <: FlatShapeLevel, E, _, P]): Query[(G, Query[P, U, Seq]), (T, Query[P, U, Seq]), CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC, (T, Query[P, U, Seq]), (T, Query[P, U, Seq])]
 >>>
-def groupBy[K, T, G, P](f: E => K)(
-    implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G],
-    vshape: Shape[_ <: FlatShapeLevel, E, _, P])
+def groupBy[K, T, G, P](
+    f: E => K)(implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G],
+               vshape: Shape[_ <: FlatShapeLevel, E, _, P])
   : Query[(G, Query[P, U, Seq]),
           (T, Query[P, U, Seq]),
           CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC,
@@ -207,6 +207,28 @@ object a {
   private def a012345678901234567(
       b01234567890123456789aaaaaaaaaaaaaaaaa: B01234567890123456789)
     : Future[C012345678901[D012345678901]] = {
+    ???
+  }
+}
+<<< type tuple type functions madness
+{
+  def conditionalUpdatePersistentPath(
+           path: String,
+           data: String,
+           expectVersion: Int,
+           optionalChecker: Option[(ZkUtils, String, String) => (Boolean, Int)] = None)
+         : (Boolean, Int) = {
+         ???
+         }
+           }
+>>>
+{
+  def conditionalUpdatePersistentPath(
+      path: String,
+      data: String,
+      expectVersion: Int,
+      optionalChecker: Option[(ZkUtils, String, String) => (Boolean, Int)] =
+        None): (Boolean, Int) = {
     ???
   }
 }

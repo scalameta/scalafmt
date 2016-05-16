@@ -171,7 +171,7 @@ val ret = new mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](
                   Space,
                   0,
                   ignoreIf = !spaceCouldBeOk,
-                  optimalAt = Some(expire))
+                  optimalAt = Some(expire_______________a))
               .withPolicy(SingleLineBlockAAAA(expire))
         )
       }
