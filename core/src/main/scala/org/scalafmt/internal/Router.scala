@@ -398,11 +398,13 @@ class Router(formatOps: FormatOps) {
           val baseSingleLinePolicy =
             if (isBracket) {
               if (singleArgument)
-                penalizeAllNewlines(close, newlinePenalty)
+                penalizeAllNewlines(
+                    close, newlinePenalty, penalizeLambdas = false)
               else SingleLineBlock(close)
             } else {
               if (singleArgument) {
-                penalizeAllNewlines(close, newlinePenalty)
+                penalizeAllNewlines(
+                    close, newlinePenalty, penalizeLambdas = false)
               } else SingleLineBlock(close, excludeRanges)
             }
 
@@ -537,7 +539,7 @@ class Router(formatOps: FormatOps) {
       //                  b)
       case FormatToken(tok: `=`, right, between) if (leftOwner match {
             case _: Defn.Type | _: Defn.Val | _: Defn.Var |
-                _: Term.Update | _: Term.Assign |  _: Term.Arg.Named =>
+                _: Term.Update | _: Term.Assign | _: Term.Arg.Named =>
               true
             case t: Term.Param => t.default.isDefined
             case _ => false
