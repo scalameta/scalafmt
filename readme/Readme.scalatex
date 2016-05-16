@@ -71,7 +71,7 @@
 
     @sect{SBT}
       @hl.scala
-        addSbtPlugin("com.geirsson" %% "sbt-scalafmt" % "@org.scalafmt.Versions.stable")
+        addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "@org.scalafmt.Versions.stable")
 
       @ul
         @li
