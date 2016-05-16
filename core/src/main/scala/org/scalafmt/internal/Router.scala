@@ -330,23 +330,6 @@ class Router(formatOps: FormatOps) {
             Split(Newline, 1, ignoreIf = rhsIsJsNative)
               .withIndent(2, expire, Left)
         )
-      // Named argument foo(arg = 1)
-      case tok @ FormatToken(e: `=`, right, _) if (leftOwner match {
-            case t: Term.Arg.Named => true
-            case t: Term.Param if t.default.isDefined => true
-            case _ => false
-          }) =>
-        val rhsBody = leftOwner match {
-          case t: Term.Arg.Named => t.rhs
-          case t: Term.Param => t.default.get
-          case t => throw UnexpectedTree[Term.Param](t)
-        }
-        val expire = rhsBody.tokens.last
-        val exclude = insideBlock(formatToken, expire, _.isInstanceOf[`{`])
-        val unindent = Policy(UnindentAtExclude(exclude, Num(-2)), expire.end)
-        Seq(
-            Split(Space, 0).withIndent(2, expire, Left).withPolicy(unindent)
-        )
       case tok @ FormatToken(open: `(`, _, _)
           if style.binPackParameters && isDefnSite(leftOwner) =>
         Seq(
@@ -554,13 +537,16 @@ class Router(formatOps: FormatOps) {
       //                  b)
       case FormatToken(tok: `=`, right, between) if (leftOwner match {
             case _: Defn.Type | _: Defn.Val | _: Defn.Var |
-                _: Term.Update | _: Term.Assign =>
+                _: Term.Update | _: Term.Assign |  _: Term.Arg.Named =>
               true
+            case t: Term.Param => t.default.isDefined
             case _ => false
           }) =>
         val rhs: Tree = leftOwner match {
           case l: Term.Assign => l.rhs
           case l: Term.Update => l.rhs
+          case l: Term.Arg.Named => l.rhs
+          case l: Term.Param => l.default.get
           case l: Defn.Type => l.body
           case l: Defn.Val => l.rhs
           case r: Defn.Var =>

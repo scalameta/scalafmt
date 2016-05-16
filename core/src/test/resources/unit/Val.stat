@@ -26,8 +26,8 @@ Split(
       )
 >>>
 Split(
-    ignoreIf = !fitsOnOneLine ||
-      isConfigStyle
+    ignoreIf =
+      !fitsOnOneLine || isConfigStyle
 )
 <<< single line, exclude {} blocks
 val fill = x match {
