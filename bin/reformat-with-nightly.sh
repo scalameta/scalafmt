@@ -7,3 +7,4 @@ scalafmt-nightly -i -f cli/src/main/scala
 scalafmt-nightly -i -f cli/src/test/scala
 scalafmt-nightly -i -f scalafmtSbt/src/main/scala
 scalafmt-nightly -i -f scalafmtSbt/src/test/scala
+scalafmt-nightly -i -f intellij/src
