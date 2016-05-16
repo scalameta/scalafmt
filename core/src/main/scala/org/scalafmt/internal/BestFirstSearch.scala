@@ -134,7 +134,7 @@ class BestFirstSearch(
   def untilNextStatement(state: State): State = {
     var curr = state
     while (!hasReachedEof(curr) &&
-           !statementStarts.contains(hash(tokens(curr.splits.length).left))) {
+    !statementStarts.contains(hash(tokens(curr.splits.length).left))) {
       val tok = tokens(curr.splits.length)
       curr = State.next(curr, style, provided(tok), tok)
     }

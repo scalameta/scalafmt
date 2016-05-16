@@ -18,7 +18,7 @@ object Error {
   def reportIssue: String =
     "Please file an issue on https://github.com/olafurpg/scalafmt/issues"
 
-  case class CantFindDefnToken[T <: Keyword: ClassTag](tree: Tree)
+  case class CantFindDefnToken[T <: Keyword : ClassTag](tree: Tree)
       extends Error(
           s"Expected keyword of type ${classTag[T].getClass} in tree $tree")
 
@@ -38,7 +38,7 @@ object Error {
   case class FormatterOutputDoesNotParse(msg: String)
       extends Error("Formatter output does not parse:\n" + msg)
 
-  case class UnexpectedTree[Expected <: Tree: ClassTag](obtained: Tree)
+  case class UnexpectedTree[Expected <: Tree : ClassTag](obtained: Tree)
       extends Error(
           s"Expected: ${classTag[Expected].getClass}\nObtained: ${log(obtained)}")
 

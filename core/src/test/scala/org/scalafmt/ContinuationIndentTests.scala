@@ -8,9 +8,7 @@ import scala.meta.Tree
 import scala.meta.parsers.Parse
 
 class ContinuationIndentTests
-    extends FunSuite
-    with HasTests
-    with DiffAssertions {
+    extends FunSuite with HasTests with DiffAssertions {
 
   val defnSite3callSite5 = """
 <<< #143
