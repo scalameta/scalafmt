@@ -418,10 +418,40 @@
        Run @code("reload"), @code("clean") and then try again.
 
   @sect{Changelog}
+    @sect{0.2.4}
+      @ul
+        @li
+          @lnk("17 issues closed on Github.", "https://github.com/olafurpg/scalafmt/issues?utf8=%E2%9C%93&q=is%3Aissue+milestone%3A0.2.4")
+        @li
+          @lnk("See diff between 0.2.3 and 0.2.4 on three million lines of code.",
+               "https://github.com/olafurpg/scala-repos/pull/1/files#diff-34de65dbb43d071baaf87f34e40e123cL44")
+          There are many new changes.
+          I recommend you reformat your whole project before upgrading.
+          The plan from now on is to release a diff like this for each new release.
+        @li
+          CLI now formats files in parallel. Formatting a large repo is around 6x
+          faster on my machine with 8 virtual cores.
+        @li
+          Line breaking is now preserved in infix applications. Your pretty DSLs
+          should not be ruined by scalafmt anymore.
+        @li
+          By default, scalafmt now puts a newline before every @code("with") if a class/trait/object
+          definition doesn't fit in a single line. Set @code("--binPackParentConstructors true")
+          to get the old behavior where scalafmt would fit as many parent constructors
+          on a line as possible.
+        @li
+          For comprehensions, anonymous functions, tuples, var re-assignment,
+          default parameter values and named arguments received a lot of
+          attention and should look nicer now.
+        @li
+          SBT plugin now uses @code("unmanagedSourceDirectories") instead of
+          @code("scalaSource") to decide which files to format.
+          This should improve your experience in Scala.js and cross-built projects.
     @sect{0.2.3}
       @p
-        @lnk("Issues on Github with label 0.2.3.", "https://github.com/olafurpg/scalafmt/issues?utf8=%E2%9C%93&q=is%3Aissue+milestone%3A0.2.3")
       @ul
+        @li
+          @lnk("5 issues closed on Github.", "https://github.com/olafurpg/scalafmt/issues?utf8=%E2%9C%93&q=is%3Aissue+milestone%3A0.2.3")
         @li
           Fixes 3 issues that caused non-idempotent formatting.
           The tests now format 1.244.070 LOC @b("twice") to ensure that
@@ -440,7 +470,7 @@
 
       @p
         @note. This release contains a bug, see @issue(192).
-        Please hold off from updating.
+        Please hold off from upgrading.
 
       @p
         This release changes the formatting rules for many small cases.
