@@ -675,9 +675,11 @@ class Router(formatOps: FormatOps) {
                 d.copy(splits = splits.filter(_.modification.isNewline))
             }, expire.end))
         )
-      // If
+      // If/For/While/For with (
       case FormatToken(open: `(`, _, _) if (leftOwner match {
-            case _: Term.If | _: Term.While | _: Term.For | _: Term.ForYield =>
+            case _: Term.If | _: Term.While => true
+            case _: Term.For | _: Term.ForYield
+                if !isSuperfluousParenthesis(open, leftOwner) =>
               true
             case _ => false
           }) =>
@@ -691,6 +693,21 @@ class Router(formatOps: FormatOps) {
               .withIndent(indent, close, Left)
               .withPolicy(penalizeNewlines)
           )
+      case FormatToken(_: `if`, _, _) if leftOwner.isInstanceOf[Term.If] =>
+        val owner = leftOwner.asInstanceOf[Term.If]
+        val expire = owner.elsep.tokens.lastOption.getOrElse(owner.tokens.last)
+        val elses = getElseChain(owner)
+        val breakOnlyBeforeElse = Policy({
+          case d @ Decision(t, s)
+              if elses.contains(t.right) && !t.left.isInstanceOf[`}`] =>
+            d.safeNoNewlines
+        }, expire.end)
+        Seq(
+            Split(Space, 0)
+              .withOptimalToken(expire, killOnFail = true)
+              .withPolicy(SingleLineBlock(expire)),
+            Split(Space, 1).withPolicy(breakOnlyBeforeElse)
+        )
       case FormatToken(close: `)`, right, between)
           if leftOwner.isInstanceOf[Term.If] &&
           !isFirstOrLastToken(close, leftOwner) =>
