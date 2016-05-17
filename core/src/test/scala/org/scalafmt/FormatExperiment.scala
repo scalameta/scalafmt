@@ -91,10 +91,14 @@ class FormatExperimentTest extends FunSuite with FormatExperiment {
                             |$failure""".stripMargin)
   }
 
-  test(s"scalafmt formats a bunch of OSS projects") {
-    runExperiment(scalaFiles)
-    results.toIterable.foreach(validate)
-    printResults()
+  // Java 7 times out on Travis.
+  if (!sys.env.contains("TRAVIS") ||
+      sys.props("java.specification.version") == "1.8") {
+    test(s"scalafmt formats a bunch of OSS projects") {
+      runExperiment(scalaFiles)
+      results.toIterable.foreach(validate)
+      printResults()
+    }
   }
 }
 
