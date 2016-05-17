@@ -59,8 +59,8 @@ function update-github-release() {
         --user olafurpg \
         --repo scalafmt \
         --tag ${tag} \
-        --name "New release." \
-        --description "See changelog in user docs: http://scalafmt.org"
+        --name "${tag}" \
+        --description "Changelog: https://olafurpg.github.io/scalafmt/#${version}"
 
     echo "Uploading tar..."
     github-release upload \

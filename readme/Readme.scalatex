@@ -526,7 +526,7 @@
           @code("ScalaStyle") is now @code("ScalafmtStyle").
         @li
           @code("ScalaFmt.format") and
-          @code("ScalaFmt.format_+") have been replaced by a single
+          @code("ScalaFmt.format_!") have been replaced by a single
           @code("Scalafmt.format"). The new methods supports more flexibility
           via the @lnk("ScalafmtRunner", "https://github.com/olafurpg/scalafmt/blob/555e87cabb3caf313a5915ac6506f9a79a84457c/core/src/main/scala/org/scalafmt/ScalafmtRunner.scala")
           argument.
