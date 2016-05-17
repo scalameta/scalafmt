@@ -75,6 +75,9 @@
 
       @ul
         @li
+          @lnk("Here is an example repository using sbt plugin.",
+               "https://github.com/olafurpg/sbt-scalafmt-example")
+        @li
           Run @code("sbt scalafmt") to format all files in the project.
         @li
           Run @code("sbt scalafmtTest") to test whether all files are are
@@ -90,6 +93,15 @@
           enable automatically formatting files on compile.
           @b("WARNING"). Formatting a large file (~4.000 LOC) can take up
           to 1-2s, so it might be undesirable to let scalafmt delay compilation.
+        @li
+          In case of any trouble, try to run @code("reload") and @code("clean").
+        @li
+          If you have a multi-project build and the custom @code(".scalafmt") configuration is
+          not picked up, make sure that @code("scalafmtConfig") is defined for
+          all of your projects, not only the root project.
+          Use @code("show scalafmtConfig") to verify that
+          @code("scalafmtConfig := Some(file(.scalafmt))")
+          in all of your projects.
 
     @sect{CLI}
       There are several ways to install the CLI.
@@ -413,9 +425,6 @@
        No, the formatting rules will evolve even between PATCH releases.
        I recommend you add a commit formatting your whole project for every time
        scalafmt update.
-
-     @sect{The SBT plugin doesn't format anything}
-       Run @code("reload"), @code("clean") and then try again.
 
   @sect{Changelog}
     @sect{0.2.5}
