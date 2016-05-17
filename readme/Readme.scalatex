@@ -418,6 +418,12 @@
        Run @code("reload"), @code("clean") and then try again.
 
   @sect{Changelog}
+    @sect{0.2.5}
+      @ul
+        @li
+          SBT plugin now formats files in parallel like the CLI.
+          If you don't use the SBT plugin, you don't need to upgrade to 0.2.5.
+
     @sect{0.2.4}
       @ul
         @li
