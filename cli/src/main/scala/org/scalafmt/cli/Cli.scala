@@ -111,36 +111,36 @@ object Cli {
     } text s"base style, must be one of: ${ScalafmtStyle.activeStyles.keys}"
     opt[Int]("maxColumn") action { (col, c) =>
       c.copy(style = c.style.copy(maxColumn = col))
-    } text s"See ScalafmtConfig scaladoc."
+    } text s"See ScalafmtStyle scaladoc."
     opt[Int]("continuationIndentCallSite") action { (n, c) =>
       c.copy(style = c.style.copy(continuationIndentCallSite = n))
-    } text s"See ScalafmtConfig scaladoc."
+    } text s"See ScalafmtStyle scaladoc."
     opt[Int]("continuationIndentDefnSite") action { (n, c) =>
       c.copy(style = c.style.copy(continuationIndentDefnSite = n))
-    } text s"See ScalafmtConfig scaladoc."
+    } text s"See ScalafmtStyle scaladoc."
     opt[Unit]("scalaDocs") action { (_, c) =>
       c.copy(style = c.style.copy(scalaDocs = true))
-    } text s"See ScalafmtConfig scaladoc."
+    } text s"See ScalafmtStyle scaladoc."
     opt[Unit]("javaDocs") action { (_, c) =>
       c.copy(style = c.style.copy(scalaDocs = false))
-    } text s"Sets scalaDocs to false. See ScalafmtConfig scaladoc."
+    } text s"Sets scalaDocs to false. See ScalafmtStyle scaladoc."
     opt[Boolean]("alignStripMarginStrings") action { (bool, c) =>
       c.copy(style = c.style.copy(alignStripMarginStrings = bool))
     } text s"(deprecated) Use assumeStandardLibraryStripMargin, will be removed in 0.3."
     opt[Boolean]("assumeStandardLibraryStripMargin") action { (bool, c) =>
       c.copy(style = c.style.copy(alignStripMarginStrings = bool))
-    } text s"See ScalafmtConfig scaladoc."
+    } text s"See ScalafmtStyle scaladoc."
     opt[Boolean]("binPackParentConstructors") action { (bool, c) =>
       c.copy(style = c.style.copy(binPackParentConstructors = bool))
-    } text s"See ScalafmtConfig scaladoc."
+    } text s"See ScalafmtStyle scaladoc."
     opt[Boolean]("spacesInImportCurlyBraces") action { (bool, c) =>
       c.copy(style = c.style.copy(spacesInImportCurlyBrackets = bool))
-    } text s"See ScalafmtConfig scaladoc."
+    } text s"See ScalafmtStyle scaladoc."
     opt[Boolean]("allowNewlineBeforeColonInMassiveReturnTypes") action {
       (bool, c) =>
         c.copy(style =
               c.style.copy(allowNewlineBeforeColonInMassiveReturnTypes = bool))
-    } text s"See ScalafmtConfig scaladoc."
+    } text s"See ScalafmtStyle scaladoc."
     opt[Seq[String]]("alignTokens") action { (tokens, c) =>
       val alignsTokens = tokens.map { token =>
         val splitted = token.split(";", 2)

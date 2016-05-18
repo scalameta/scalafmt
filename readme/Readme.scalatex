@@ -65,9 +65,16 @@
         Undo works, but not redo.
 
       @p
-        The plugin picks up custom style configuration from the file @code(".scalafmt")
-        if it exists in the root directory of your project.
-        For details, see @sect.ref{Configuration}.
+        The plugin determines which style to use in this order:
+        @ol
+          @li
+            @code(".scalafmt") in the project's root directory, if it exists
+          @li
+            @code("$HOME/.scalafmt"), if it exists
+          @li
+            Otherwise, uses @code("default") style.
+        For details on how @code(".scalafmt") should look like, see
+        @sect.ref{Configuration}.
 
     @sect{SBT}
       @hl.scala
