@@ -4,6 +4,8 @@
  */
 package org.scalafmt.intellij
 
+import java.io.File
+
 import scala.collection.mutable
 import scala.meta.parsers.ParseException
 
@@ -65,19 +67,27 @@ class ScalafmtAction extends AnAction {
     }
   }
 
+  private def getConfigFileInPath(path: String) = {
+    Option(FileOps.getFile(path, ".scalafmt")).collect {
+      case file: File if file.isFile => file.getAbsolutePath
+    }
+  }
+
+  private val homeDir = System.getProperty("user.home")
+
   private def getStyle(event: AnActionEvent): ScalafmtStyle = {
     val customStyle = for {
       project <- Option(event.getData(CommonDataKeys.PROJECT))
-      configFile = FileOps.getFile(project.getBasePath, ".scalafmt")
-          if configFile.isFile
-      style <- StyleCache.getStyleForFile(configFile.getAbsolutePath)
+      localConfig = getConfigFileInPath(project.getBasePath)
+      globalConfig = getConfigFileInPath(homeDir)
+      configFile <- localConfig.orElse(globalConfig)
+      style <- StyleCache.getStyleForFile(configFile)
     } yield {
-      val key = configFile.getAbsolutePath
-      if (!StyleChangedCache.styleCache.get(key).contains(style)) {
+      if (!StyleChangedCache.styleCache.get(configFile).contains(style)) {
         displayMessage(event,
                        "scalafmt picked up new style configuration",
                        MessageType.INFO)
-        StyleChangedCache.styleCache.update(key, style)
+        StyleChangedCache.styleCache.update(configFile, style)
       }
       style
     }
