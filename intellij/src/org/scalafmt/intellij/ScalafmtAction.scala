@@ -4,6 +4,8 @@
  */
 package org.scalafmt.intellij
 
+import java.io.File
+
 import scala.collection.mutable
 import scala.meta.parsers.ParseException
 
@@ -66,11 +68,9 @@ class ScalafmtAction extends AnAction {
   }
 
   private def getConfigFileInPath(path: String) = {
-    val file = FileOps.getFile(path, ".scalafmt")
-    if (file.isFile)
-      Some(file.getAbsolutePath)
-    else
-      None
+    Option(FileOps.getFile(path, ".scalafmt")).collect {
+      case file: File if file.isFile => file.getAbsolutePath
+    }
   }
 
   private val homeDir = System.getProperty("user.home")
@@ -80,7 +80,7 @@ class ScalafmtAction extends AnAction {
       project <- Option(event.getData(CommonDataKeys.PROJECT))
       localConfig = getConfigFileInPath(project.getBasePath)
       globalConfig = getConfigFileInPath(homeDir)
-      configFile <- localConfig orElse globalConfig
+      configFile <- localConfig.orElse(globalConfig)
       style <- StyleCache.getStyleForFile(configFile)
     } yield {
       if (!StyleChangedCache.styleCache.get(configFile).contains(style)) {
