@@ -432,6 +432,10 @@
         @li
           SBT plugin now formats files in parallel like the CLI.
           If you don't use the SBT plugin, you don't need to upgrade to 0.2.5.
+        @li
+          IntelliJ plugin now picks up configuration from @code("$HOME/.scalafmt")
+          if there is no @code(".scalafmt") in a project's root directory.
+          See @issue(239).
 
     @sect{0.2.4}
       @ul
