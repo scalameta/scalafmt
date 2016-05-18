@@ -29,6 +29,7 @@ import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 
 object Constants {
+  val BinPackAssignmentPenalty = 10
   val SparkColonNewline = 10
   val BracketPenalty = 20
   val ExceedColumnPenalty = 1000
@@ -228,6 +229,14 @@ class Router(formatOps: FormatOps) {
         val newline: Modification = Newline(shouldGet2xNewlines(tok))
         val expire = rightOwner.tokens
           .find(_.isInstanceOf[`=`])
+          .map { equalsToken =>
+            val equalsFormatToken = leftTok2tok(equalsToken)
+            if (equalsFormatToken.right.isInstanceOf[`{`]) {
+              equalsFormatToken.right
+            } else {
+              equalsToken
+            }
+          }
           .getOrElse(rightOwner.tokens.last)
 
         val spaceCouldBeOk =
@@ -300,6 +309,11 @@ class Router(formatOps: FormatOps) {
           if style.binPackParameters && isDefnSite(leftOwner) =>
         val close = matchingParentheses(hash(open))
         val indent = Num(style.continuationIndentDefnSite)
+        val nextArg: Policy = argumentStarts.get(hash(right)) match {
+          case Some(arg) => penalizeAllNewlines(arg.tokens.last, 3)
+          case _ => NoPolicy
+        }
+
         Seq(
             Split(NoSplit, 0).withIndent(indent, close, Left),
             Split(Newline, 1, ignoreIf = right.isInstanceOf[`)`])
@@ -366,6 +380,7 @@ class Router(formatOps: FormatOps) {
         Seq(
             Split(NoSplit, 0)
               .withOptimalToken(optimal)
+              .withPolicy(penalizeAllNewlines(close, 3))
               .withIndent(4, close, Left),
             Split(Newline, 2).withIndent(4, close, Left)
         )
@@ -498,23 +513,52 @@ class Router(formatOps: FormatOps) {
         // TODO(olafur) DRY, see OneArgOneLine.
         val rhsIsAttachedComment =
           tok.right.isInstanceOf[Comment] && newlinesBetween(tok.between) == 0
-        val penalizeNewlineInNextArg: Policy =
-          argumentStarts.get(hash(right)) match {
-            case Some(nextArg) if isBinPack(leftOwner) =>
-              penalizeAllNewlines(nextArg.tokens.last, 1)
-            case _ => NoPolicy
-          }
-        val modification =
-          if (newlines > 0) Newline
-          else Space
+        val binPack = isBinPack(leftOwner)
         val isInfix = leftOwner.isInstanceOf[Term.ApplyInfix]
-        Seq(
-            // Do whatever the user did if infix.
-            Split(modification, 0, ignoreIf = !isInfix),
-            Split(Space, 0, ignoreIf = isInfix)
-              .withPolicy(penalizeNewlineInNextArg),
-            Split(Newline, 1, ignoreIf = rhsIsAttachedComment || isInfix)
-        )
+        argumentStarts.get(hash(right)) match {
+          case Some(nextArg) if binPack =>
+            val nextComma: Option[FormatToken] = next(
+                leftTok2tok(nextArg.tokens.last)) match {
+              case t @ FormatToken(left: `,`, _, _)
+                  if owners(left) == leftOwner =>
+                Some(t)
+              case _ => None
+            }
+            penalizeAllNewlines(nextArg.tokens.last, 3)
+            val singleLine = SingleLineBlock(nextArg.tokens.last)
+            val breakOnNextComma = nextComma match {
+              case Some(comma) =>
+                Policy({
+                  case d @ Decision(t, s) if comma == t =>
+                    d.forceNewline
+                }, comma.right.end)
+              case _ => NoPolicy
+            }
+            val optToken = nextComma.map(_ =>
+                  OptimalToken(
+                      rhsOptimalToken(leftTok2tok(nextArg.tokens.last)),
+                      killOnFail = true))
+            Seq(
+                Split(Space, 0, optimalAt = optToken).withPolicy(singleLine),
+                Split(Newline, 1, optimalAt = optToken).withPolicy(singleLine),
+                // next argument doesn't fit on a single line, break on comma before
+                // and comma after.
+                Split(Newline, 2, optimalAt = optToken)
+                  .withPolicy(breakOnNextComma)
+            )
+          case _ if isInfix =>
+            Seq(
+                // Do whatever the user did if infix.
+                Split(if (newlines > 0) Newline
+                      else Space,
+                      0)
+            )
+          case _ =>
+            Seq(
+                Split(Space, 0),
+                Split(Newline, 1, ignoreIf = rhsIsAttachedComment)
+            )
+        }
       case FormatToken(_, _: `;`, _) =>
         Seq(
             Split(NoSplit, 0)
@@ -568,13 +612,21 @@ class Router(formatOps: FormatOps) {
           case _ => NoPolicy
         }
 
+        val penalty = leftOwner match {
+          case l: Term.Arg.Named if style.binPackArguments =>
+            Constants.BinPackAssignmentPenalty
+          case l: Term.Param if style.binPackParameters =>
+            Constants.BinPackAssignmentPenalty
+          case _ => 0
+        }
+
         val mod: Modification =
           if (isAttachedComment(right, between)) Space
           else Newline
 
         Seq(
             Split(Space, 0, policy = spacePolicy),
-            Split(mod, 1, ignoreIf = isJsNative(right))
+            Split(mod, 1 + penalty, ignoreIf = isJsNative(right))
               .withIndent(2, expire, Left)
         )
       case tok @ FormatToken(left, dot: `.`, _)

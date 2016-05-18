@@ -38,3 +38,61 @@ def a =
  js.native
 >>>
 def a = js.native
+<<< default penalty #247
+{
+  def fetch(info: RequestInfo, init: RequestInit = null): js.Promise[Response] = js.native
+}
+>>>
+{
+  def fetch(info: RequestInfo,
+      init: RequestInit = null): js.Promise[Response] = js.native
+}
+<<< default penalty 2 #247
+  def apply(_status: Int = 200,
+      _statusText: ByteString = "OK",
+      _headers: HeadersInit = js.Dictionary[String]()): ResponseInit = new ResponseInit {
+  ???
+}
+>>>
+def apply(_status: Int = 200, _statusText: ByteString = "OK",
+    _headers: HeadersInit = js.Dictionary[String]()): ResponseInit =
+  new ResponseInit {
+    ???
+  }
+<<< default penalty 3 #247
+{
+  def getRegistration(scope: String = ""): js.Promise[js.UndefOr[ServiceWorkerRegistration]] = 2
+}
+>>>
+{
+  def getRegistration(
+      scope: String = ""): js.Promise[js.UndefOr[ServiceWorkerRegistration]] =
+    2
+}
+<<< default penalty 4 #247
+class RTCPeerConnection(
+    configuration: js.UndefOr[RTCConfiguration] = js.undefined) extends EventTarget {
+  ???
+}
+>>>
+class RTCPeerConnection(
+    configuration: js.UndefOr[RTCConfiguration] = js.undefined)
+    extends EventTarget {
+  ???
+}
+<<< column limit is holy
+ {
+   @inline def insertAll(n: Int,
+               elems: scala.collection.Traversable[A]): Unit = {
+       array.splice(n, 0, elems.toSeq: _*)
+
+               }
+
+ }
+>>>
+{
+  @inline
+  def insertAll(n: Int, elems: scala.collection.Traversable[A]): Unit = {
+    array.splice(n, 0, elems.toSeq: _*)
+  }
+}

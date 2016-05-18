@@ -224,7 +224,8 @@ class BestFirstSearch(
           var optimalNotFound = true
           actualSplit.foreach { split =>
             val nextState = State.next(curr, style, split, splitToken)
-            if (depth == 0 && split.modification.isNewline) {
+            if (depth == 0 && split.modification.isNewline &&
+                !best.contains(splitToken.left)) {
               best.update(splitToken.left, nextState)
             }
             runner.eventCallback(Enqueue(split))

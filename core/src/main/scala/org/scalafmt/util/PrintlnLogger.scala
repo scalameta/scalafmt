@@ -32,9 +32,10 @@ object PrintlnLogger {
     }
   }
 
-  def trace[T](t: sourcecode.Text[T])(implicit line: sourcecode.Line,
-                                      file: sourcecode.File,
-                                      enclosing: sourcecode.Enclosing): Unit =
+  def trace[T](
+      t: => sourcecode.Text[T])(implicit line: sourcecode.Line,
+                                file: sourcecode.File,
+                                enclosing: sourcecode.Enclosing): Unit =
     Unit
 
   def debug[T](t: sourcecode.Text[T])(implicit line: sourcecode.Line,

@@ -9,3 +9,52 @@ function(
     a,
     b
 )
+<<< penalty #248
+     def iterator(): Iterator[A] =
+      toIterator(it
+            .asInstanceOf[IteratorMethodAccess]
+            .bracketCall[JSIterator[A]](iteratorSymbol)())
+>>>
+def iterator(): Iterator[A] =
+  toIterator(
+      it.asInstanceOf[IteratorMethodAccess]
+        .bracketCall[JSIterator[A]](iteratorSymbol)())
+<<< penalty 2 #248
+{
+  apply(
+  body= js.undefined,
+      dir= js.undefined,
+            it.asInstanceOf[IteratorMethodAccess]
+        .bracketCall[JSIterator[A]](iteratorSymbol)(),
+      icon= js.undefined,
+      lang= js.undefined,
+      vibrate= js.undefined )
+        }
+>>>
+{
+  apply(body = js.undefined, dir = js.undefined,
+      it.asInstanceOf[IteratorMethodAccess]
+        .bracketCall[JSIterator[A]](iteratorSymbol)(),
+      icon = js.undefined, lang = js.undefined, vibrate = js.undefined)
+}
+<<< many args #248
+apply( body= js.undefined,
+      dir= js.undefined,
+      icon= js.undefined,
+      lang= js.undefined,
+      noscreen= js.undefined,
+      renotify= js.undefined,
+      silent= js.undefined,
+      sound= js.undefined,
+      sticky= js.undefined,
+      tag= js.undefined,
+      onclick= js.undefined,
+      onerror= js.undefined,
+      vibrate= js.undefined
+        )
+>>>
+apply(body = js.undefined, dir = js.undefined, icon = js.undefined,
+    lang = js.undefined, noscreen = js.undefined, renotify = js.undefined,
+    silent = js.undefined, sound = js.undefined, sticky = js.undefined,
+    tag = js.undefined, onclick = js.undefined, onerror = js.undefined,
+    vibrate = js.undefined)

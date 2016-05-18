@@ -236,3 +236,11 @@ object a {
   def zip[C](x: A =>? C): A =>? (B, C) = 2
 >>>
 def zip[C](x: A =>? C): A =>? (B, C) = 2
+<<< SKIP bad default arg
+  def penalizeAllNewlines(expire: Token,
+                          penalty: Int,
+                          penalizeLambdas: Boolean = true,
+                          ignore: FormatToken => Boolean = _ =>
+                            false)(implicit line: sourcecode.Line): Policy
+>>>
+x

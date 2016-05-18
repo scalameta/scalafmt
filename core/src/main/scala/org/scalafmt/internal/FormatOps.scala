@@ -227,8 +227,9 @@ class FormatOps(val tree: Tree,
 
   def penalizeAllNewlines(expire: Token,
                           penalty: Int,
-                          penalizeLambdas: Boolean = true)(
-      implicit line: sourcecode.Line): Policy = {
+                          penalizeLambdas: Boolean = true,
+                          ignore: FormatToken => Boolean = _ =>
+                            false)(implicit line: sourcecode.Line): Policy = {
     Policy({
       case Decision(tok, s)
           if tok.right.end < expire.end &&
