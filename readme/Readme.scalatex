@@ -96,6 +96,9 @@
           in the root directory of your project.
           For details, see @sect.ref{Configuration}.
         @li
+          If you use @code("*.scala") build rules you may need to import
+          @code("org.scalafmt.sbt.ScalaFmtPlugin.autoImport._").
+        @li
           Add @code("reformatOnCompileSettings") to you build settings to
           enable automatically formatting files on compile.
           @b("WARNING"). Formatting a large file (~4.000 LOC) can take up
