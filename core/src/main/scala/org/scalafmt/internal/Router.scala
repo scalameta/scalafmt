@@ -209,8 +209,9 @@ class Router(formatOps: FormatOps) {
           if leftOwner.isInstanceOf[Case] =>
         Seq(
             Split(Space, 0, ignoreIf = newlines != 0), // Gets killed by `case` policy.
-            Split(NewlineT(isDouble = false, noIndent = rhsIsCommentedOut(tok)),
-                  1)
+            Split(
+                NewlineT(isDouble = false, noIndent = rhsIsCommentedOut(tok)),
+                1)
         )
       // New statement
       case tok @ FormatToken(_: `;`, right, between)
@@ -353,7 +354,9 @@ class Router(formatOps: FormatOps) {
               .withIndent(indent, close, Right)
         )
       case FormatToken(open @ (_: `(` | _: `[`), right, _)
-          if style.binPackParameters && isDefnSite(leftOwner) =>
+          if style.binPackParameters && isDefnSite(leftOwner) ||
+          // TODO(olafur) generalize Term.Function
+          leftOwner.isInstanceOf[Term.Function] =>
         val close = matchingParentheses(hash(open))
         val isBracket = open.isInstanceOf[`[`]
         val indent = Num(style.continuationIndentDefnSite)
@@ -365,19 +368,32 @@ class Router(formatOps: FormatOps) {
         } else {
           def penalizeBrackets(penalty: Int): Policy =
             if (isBracket)
-              penalizeAllNewlines(close, Constants.BracketPenalty * penalty + 3)
+              penalizeAllNewlines(
+                  close, Constants.BracketPenalty * penalty + 3)
             else NoPolicy
-          val bracketMultiplier = if (isBracket) Constants.BracketPenalty else 1
+          val bracketMultiplier =
+            if (isBracket) Constants.BracketPenalty else 1
           val bracketPenalty = if (isBracket) 1 else 0
           val nestingPenalty = nestedApplies(leftOwner)
 
-//          logger.elem(formatToken, nestingPenalty)
+          val noSplitPenalizeNewlines = penalizeBrackets(1 + bracketPenalty)
+          val noSplitPolicy: Policy = argumentStarts.get(hash(right)) match {
+            case Some(arg) =>
+              val singleLine = SingleLineBlock(arg.tokens.last)
+              if (isBracket) {
+                noSplitPenalizeNewlines.andThen(singleLine.f)
+              } else {
+                singleLine
+              }
+            case _ => noSplitPenalizeNewlines
+          }
+
           Seq(
               Split(NoSplit, 0 + (nestingPenalty * bracketMultiplier))
-                .withPolicy(penalizeBrackets(1 + bracketPenalty))
+                .withPolicy(noSplitPolicy)
                 .withIndent(indent, close, Left),
               Split(Newline,
-                    (1 + nestingPenalty * nestingPenalty)  * bracketMultiplier,
+                    (1 + nestingPenalty * nestingPenalty) * bracketMultiplier,
                     ignoreIf = right.isInstanceOf[`)`])
                 .withPolicy(penalizeBrackets(1))
                 .withIndent(indent, close, Left)
