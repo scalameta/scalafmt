@@ -305,20 +305,6 @@ class Router(formatOps: FormatOps) {
               .withPolicy(SingleLineBlock(expire)),
             Split(Space, 1).withPolicy(forceNewlineBeforeExtends)
         )
-      case FormatToken(open: `(`, right, _)
-          if style.binPackParameters && isDefnSite(leftOwner) =>
-        val close = matchingParentheses(hash(open))
-        val indent = Num(style.continuationIndentDefnSite)
-        val nextArg: Policy = argumentStarts.get(hash(right)) match {
-          case Some(arg) => penalizeAllNewlines(arg.tokens.last, 3)
-          case _ => NoPolicy
-        }
-
-        Seq(
-            Split(NoSplit, 0).withIndent(indent, close, Left),
-            Split(Newline, 1, ignoreIf = right.isInstanceOf[`)`])
-              .withIndent(indent, close, Left)
-        )
       // DefDef
       case tok @ FormatToken(_: `def`, name: Ident, _) =>
         Seq(
@@ -349,18 +335,13 @@ class Router(formatOps: FormatOps) {
             Split(Newline, 1, ignoreIf = rhsIsJsNative)
               .withIndent(2, expire, Left)
         )
-      case tok @ FormatToken(open: `(`, _, _)
-          if style.binPackParameters && isDefnSite(leftOwner) =>
-        Seq(
-            Split(NoSplit, 0)
-        )
       // Term.Apply and friends
       case FormatToken(_: `(` | _: `[`, _, between)
           if style.configStyleArguments &&
           (isDefnSite(leftOwner) || isCallSite(leftOwner)) &&
           opensConfigStyle(formatToken) =>
         val open = formatToken.left.asInstanceOf[Delim]
-        val indent = getApplyIndent(leftOwner)
+        val indent = getApplyIndent(leftOwner, isConfigStyle = true)
         val close = matchingParentheses(hash(open))
         val oneArgOneLine = OneArgOneLineSplit(open)
         val configStyle = oneArgOneLine.copy(f = oneArgOneLine.f.orElse {
@@ -370,6 +351,20 @@ class Router(formatOps: FormatOps) {
         Seq(
             Split(Newline, 0, policy = configStyle)
               .withIndent(indent, close, Right)
+        )
+      case FormatToken(open: `(`, right, _)
+        if style.binPackParameters && isDefnSite(leftOwner) =>
+        val close = matchingParentheses(hash(open))
+        val indent = Num(style.continuationIndentDefnSite)
+        val nextArg: Policy = argumentStarts.get(hash(right)) match {
+          case Some(arg) => penalizeAllNewlines(arg.tokens.last, 3)
+          case _ => NoPolicy
+        }
+
+        Seq(
+          Split(NoSplit, 0).withIndent(indent, close, Left),
+          Split(Newline, 1, ignoreIf = right.isInstanceOf[`)`])
+              .withIndent(indent, close, Left)
         )
       case FormatToken(_: `(` | _: `[`, _, _)
           if style.binPackArguments && isCallSite(leftOwner) =>

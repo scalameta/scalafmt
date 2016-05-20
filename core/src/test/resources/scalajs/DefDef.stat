@@ -96,3 +96,41 @@ class RTCPeerConnection(
     array.splice(n, 0, elems.toSeq: _*)
   }
 }
+<<< config style #249
+  @inline def apply(
+  body: js.UndefOr[String] = js.undefined,
+      dir: js.UndefOr[String] = js.undefined,
+      icon: js.UndefOr[String] = js.undefined,
+      lang: js.UndefOr[String] = js.undefined,
+      noscreen: js.UndefOr[Boolean] = js.undefined,
+      renotify: js.UndefOr[Boolean] = js.undefined,
+      silent: js.UndefOr[Boolean] = js.undefined,
+      sound: js.UndefOr[String] = js.undefined,
+      sticky: js.UndefOr[Boolean] = js.undefined,
+      tag: js.UndefOr[String] = js.undefined,
+      onclick: js.UndefOr[js.Function0[Any]] = js.undefined,
+      onerror: js.UndefOr[js.Function0[Any]] = js.undefined,
+      vibrate: js.UndefOr[js.Array[Double]] =
+        js.undefined
+        ): NotificationOptions = {
+        ???
+        }
+>>>
+@inline
+def apply(
+    body: js.UndefOr[String] = js.undefined,
+    dir: js.UndefOr[String] = js.undefined,
+    icon: js.UndefOr[String] = js.undefined,
+    lang: js.UndefOr[String] = js.undefined,
+    noscreen: js.UndefOr[Boolean] = js.undefined,
+    renotify: js.UndefOr[Boolean] = js.undefined,
+    silent: js.UndefOr[Boolean] = js.undefined,
+    sound: js.UndefOr[String] = js.undefined,
+    sticky: js.UndefOr[Boolean] = js.undefined,
+    tag: js.UndefOr[String] = js.undefined,
+    onclick: js.UndefOr[js.Function0[Any]] = js.undefined,
+    onerror: js.UndefOr[js.Function0[Any]] = js.undefined,
+    vibrate: js.UndefOr[js.Array[Double]] = js.undefined
+): NotificationOptions = {
+  ???
+}
