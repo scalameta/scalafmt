@@ -169,3 +169,15 @@ final class Using[A] private[js] (val x: A) extends AnyVal
 final class Using[A] protected[js](val x: A) extends AnyVal
 >>>
 final class Using[A] protected[js] (val x: A) extends AnyVal
+<<< comment inside middle of type parameter #264
+final class TypedArrayBufferOps[ // scalastyle:ignore
+    TypedArrayType <: TypedArray[_, TypedArrayType]](
+   val buffer: Buffer) extends AnyVal {
+???
+   }
+>>>
+final class TypedArrayBufferOps[ // scalastyle:ignore
+    TypedArrayType <: TypedArray[_, TypedArrayType]](val buffer: Buffer)
+    extends AnyVal {
+  ???
+}
