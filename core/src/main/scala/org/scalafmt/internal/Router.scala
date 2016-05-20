@@ -1134,6 +1134,11 @@ class Router(formatOps: FormatOps) {
           val newlineSplits = splits.filter(_.modification.isNewline)
           if (newlineSplits.isEmpty) Seq(Split(Newline, 0))
           else newlineSplits
+        case FormatToken(_, c: Comment, between)
+            if newlinesBetween(between) == 0 =>
+          splits.map(x =>
+                if (x.modification.isNewline) x.copy(modification = Space)
+                else x)
         case _ => splits
       }
     })

@@ -248,8 +248,7 @@ callStatement = js.If(genIsInstanceOf(callTrg, rtClass.tpe), {
                      jstpe.AnyType)
     }
   }
-}, {
-  // else
+}, { // else
   callStatement
 })(jstpe.AnyType)
 <<< Infinite recursion?
