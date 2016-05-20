@@ -218,6 +218,16 @@ object TreeOps {
     case _ => false
   }
 
+  def isBinPackDefnSite(tree: Tree): Boolean = tree match {
+    case _: Decl.Def | _: Defn.Def | _: Defn.Macro | _: Defn.Class |
+         _: Defn.Trait | _: Ctor.Secondary |
+         _: Defn.Type | _: Type.Apply | _: Type.Param | _: Type.Tuple =>
+      true
+    case x: Ctor.Primary if x.parent.exists(_.isInstanceOf[Defn.Class]) =>
+      true
+    case _ => false
+  }
+
   /**
     * Returns true if open is "unnecessary".
     *
@@ -244,7 +254,7 @@ object TreeOps {
   }
 
   def isTuple(tree: Tree): Boolean = tree match {
-    case _: Pat.Tuple | _: Term.Tuple => true
+    case _: Pat.Tuple | _: Term.Tuple | _: Type.Tuple => true
     case _ => false
   }
 
@@ -339,7 +349,7 @@ object TreeOps {
   def nestedApplies(tree: Tree): Int = {
     // TODO(olafur) optimize?
     tree.parent.fold(0) {
-      case parent @ (_: Term.Apply | _: Term.ApplyInfix) =>
+      case parent @ (_: Term.Apply | _: Term.ApplyInfix | _: Type.Apply) =>
         1 + nestedApplies(parent)
       case parent => nestedApplies(parent)
     }

@@ -1,0 +1,10 @@
+80 columns                                                                     |
+<<< type refinement
+type ScalaJSPlugin = NscPlugin {
+  def registerModuleExports(sym: ScalaJSJUnitPluginComponent.global.Symbol): Unit
+}
+>>>
+type ScalaJSPlugin = NscPlugin {
+  def registerModuleExports(
+      sym: ScalaJSJUnitPluginComponent.global.Symbol): Unit
+}

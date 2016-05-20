@@ -10,11 +10,12 @@ def uniform4fv(location: WebGLUniformLocation,
 val uniform4fv________________________________________________X: Unit = js.native
 <<< newline before closing parens #162
 {
-def tee(): js.Array[_ <: ReadableStream[T]] = js.native  //TODO js.Tuple2[ReadableStream[T
+def tee(): js.Array[_ <: ReadableStream[T]] = js.native  //TODO js.Tuple2[ReadableStream[T]]
 }
 >>>
 {
-  def tee(): js.Array[_ <: ReadableStream[T]] = js.native //TODO js.Tuple2[ReadableStream[T
+  def tee(): js.Array[
+      _ <: ReadableStream[T]] = js.native //TODO js.Tuple2[ReadableStream[T]]
 }
 <<< newline before closing parens #162 with arg
 {
@@ -22,8 +23,9 @@ def tee(arg: IntAAAAAAAAAAA): js.Array[_ <: ReadableStreamBBBBBBBBBBBBBBBBBBBBB[
 }
 >>>
 {
-  def tee(
-      arg: IntAAAAAAAAAAA): js.Array[_ <: ReadableStreamBBBBBBBBBBBBBBBBBBBBB[T]] = js.native //TODO js.Tuple2[ReadableStream[T
+  def tee(arg: IntAAAAAAAAAAA): js.Array[
+      _ <: ReadableStreamBBBBBBBBBBBBBBBBBBBBB[
+          T]] = js.native //TODO js.Tuple2[ReadableStream[T
 }
 <<< breaking precedence #164
    def getUserMedia(constraints: MediaStreamConstraints,
@@ -133,4 +135,54 @@ def apply(
     vibrate: js.UndefOr[js.Array[Double]] = js.undefined
 ): NotificationOptions = {
   ???
+}
+<<< tuples bin packing #252
+object a {
+  object b {
+    override def iterator: Iterator[(String, Attr)] = new Iterator[(String, Attr)] {
+      ???
+    }
+  }
+}
+>>>
+object a {
+  object b {
+    override def iterator: Iterator[(String, Attr)] =
+      new Iterator[(String, Attr)] {
+        ???
+      }
+  }
+}
+<<< tuples bin packing 2 #252
+object a {
+  object b {
+    override def iterator: Iterator[AAAAAAAAAAAAAAAAAA, BBBBBBBBBBBBBBBBB, GGGGGGGGGGGGGGGGGGG, CDCCCCCCCCCCCCCCCCCC, DDDDDDDDDDDDD, EEEEEEEEEEEE, (StringAAAAAAAAAAAAAAAAAAAAAAAA, Attr)] = new Iterator[(String, Attr)] {
+      ???
+    }
+  }
+}
+>>>
+object a {
+  object b {
+    override def iterator: Iterator[
+        AAAAAAAAAAAAAAAAAA, BBBBBBBBBBBBBBBBB, GGGGGGGGGGGGGGGGGGG,
+        CDCCCCCCCCCCCCCCCCCC, DDDDDDDDDDDDD, EEEEEEEEEEEE,
+        (StringAAAAAAAAAAAAAAAAAAAAAAAA, Attr)] =
+      new Iterator[(String, Attr)] {
+        ???
+      }
+  }
+}
+<<< weird breaking #252
+object a {
+  object b {
+        def applyDynamicNamed(name: String)(fields: (String, Any)*): Object with Dynamic = sys.error("stub")
+  }
+}
+>>>
+object a {
+  object b {
+    def applyDynamicNamed(name: String)(
+        fields: (String, Any)*): Object with Dynamic = sys.error("stub")
+  }
 }

@@ -352,20 +352,37 @@ class Router(formatOps: FormatOps) {
             Split(Newline, 0, policy = configStyle)
               .withIndent(indent, close, Right)
         )
-      case FormatToken(open: `(`, right, _)
-        if style.binPackParameters && isDefnSite(leftOwner) =>
+      case FormatToken(open @ (_: `(` | _: `[`), right, _)
+          if style.binPackParameters && isDefnSite(leftOwner) =>
         val close = matchingParentheses(hash(open))
+        val isBracket = open.isInstanceOf[`[`]
         val indent = Num(style.continuationIndentDefnSite)
-        val nextArg: Policy = argumentStarts.get(hash(right)) match {
-          case Some(arg) => penalizeAllNewlines(arg.tokens.last, 3)
-          case _ => NoPolicy
-        }
+        if (isTuple(leftOwner)) {
+          Seq(
+              Split(NoSplit, 0).withPolicy(
+                  SingleLineBlock(close, disallowInlineComments = false))
+          )
+        } else {
+          def penalizeBrackets(penalty: Int): Policy =
+            if (isBracket)
+              penalizeAllNewlines(close, Constants.BracketPenalty * penalty + 3)
+            else NoPolicy
+          val bracketMultiplier = if (isBracket) Constants.BracketPenalty else 1
+          val bracketPenalty = if (isBracket) 1 else 0
+          val nestingPenalty = nestedApplies(leftOwner)
 
-        Seq(
-          Split(NoSplit, 0).withIndent(indent, close, Left),
-          Split(Newline, 1, ignoreIf = right.isInstanceOf[`)`])
-              .withIndent(indent, close, Left)
-        )
+//          logger.elem(formatToken, nestingPenalty)
+          Seq(
+              Split(NoSplit, 0 + (nestingPenalty * bracketMultiplier))
+                .withPolicy(penalizeBrackets(1 + bracketPenalty))
+                .withIndent(indent, close, Left),
+              Split(Newline,
+                    (1 + nestingPenalty * nestingPenalty)  * bracketMultiplier,
+                    ignoreIf = right.isInstanceOf[`)`])
+                .withPolicy(penalizeBrackets(1))
+                .withIndent(indent, close, Left)
+          )
+        }
       case FormatToken(_: `(` | _: `[`, _, _)
           if style.binPackArguments && isCallSite(leftOwner) =>
         val open = formatToken.left
