@@ -45,10 +45,4 @@ class Promise[+A](
 class Promise[+A](
     executor: js.Function2[
         js.Function1[A | Thenable[A], _], js.Function1[scala.Any, _], _])
-<<< comment inside middle of type parameter #264 2
-   def sourceMapper: js.UndefOr[js.Function1[ // scalastyle:ignore
-    js.Array[JSStackTraceElem], js.Array[JSStackTraceElem]]] = js.native
->>>
-def sourceMapper: js.UndefOr[
-    js.Function1[ // scalastyle:ignore
-        js.Array[JSStackTraceElem], js.Array[JSStackTraceElem]]] = js.native
+

@@ -107,6 +107,7 @@ object ScalafmtStyle {
       scalaDocs = false,
       binPackParentConstructors = true,
       alignByArrowEnumeratorGenerator = false,
+      alignTokens = Set(AlignToken.caseArrow),
       alignByIfWhileOpenParen = false
   )
 

@@ -208,3 +208,20 @@ implicit def toFunction22[
       x18, x19, x20, x21, x22) =>
     f(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16,
         x17, x18, x19, x20, x21, x22)
+<<< comment inside middle of type parameter #264 2
+   def sourceMapper: js.UndefOr[js.Function1[ // scalastyle:ignore
+    js.Array[JSStackTraceElem], js.Array[JSStackTraceElem]]] = js.native
+>>>
+def sourceMapper: js.UndefOr[
+    js.Function1[ // scalastyle:ignore
+        js.Array[JSStackTraceElem], js.Array[JSStackTraceElem]]] = js.native
+<<< align by =>;Case #268
+   def unwrapJavaScriptException(th: Throwable): Any = th match {
+     case js.JavaScriptException(e) => e
+    case _                         => th
+   }
+>>>
+def unwrapJavaScriptException(th: Throwable): Any = th match {
+  case js.JavaScriptException(e) => e
+  case _                         => th
+}

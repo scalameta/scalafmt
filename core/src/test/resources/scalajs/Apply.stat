@@ -88,7 +88,7 @@ p.`then`[Unit](
     defined { (e: scala.Any) =>
       p2.failure(e match {
         case th: Throwable => th
-        case _ => JavaScriptException(e)
+        case _             => JavaScriptException(e)
       })
       (): Unit | Thenable[Unit]
     })

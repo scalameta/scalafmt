@@ -10,15 +10,16 @@ case class AlignToken(code: String, owner: String)
 
 object AlignToken {
   val applyInfix = "Term.ApplyInfix"
+  val caseArrow = AlignToken("=>", "Case")
 
   val default = Set(
+      caseArrow,
       AlignToken("extends", "Defn.(Class|Trait|Object)"),
       AlignToken("//", ".*"),
       AlignToken("{", "Template"),
       AlignToken("}", "Template"),
       AlignToken("%", applyInfix),
       AlignToken("%%", applyInfix),
-      AlignToken("=>", "Case"),
       AlignToken("⇒", "Case"),
       AlignToken("<-", "Enumerator.Generator"),
       AlignToken("←", "Enumerator.Generator"),
