@@ -550,13 +550,13 @@ class Router(formatOps: FormatOps) {
 
       case FormatToken(_: `(`, _: `{`, between) =>
         Seq(
-          Split(NoSplit, 0)
+            Split(NoSplit, 0)
         )
 
       // non-statement starting curly brace
       case FormatToken(_, _: `{`, between) =>
         Seq(
-          Split(Space, 0)
+            Split(Space, 0)
         )
 
       // Delim
@@ -1162,7 +1162,7 @@ class Router(formatOps: FormatOps) {
           if (newlineSplits.isEmpty) Seq(Split(Newline, 0))
           else newlineSplits
         case FormatToken(_, c: Comment, between)
-            if newlinesBetween(between) == 0 =>
+            if newlinesBetween(between) == 0 && c.code.startsWith("//") =>
           splits.map(x =>
                 if (x.modification.isNewline) x.copy(modification = Space)
                 else x)
