@@ -255,16 +255,6 @@ class Router(formatOps: FormatOps) {
             // For some reason, this newline cannot cost 1.
             Split(newline, 0)
         )
-      case FormatToken(_: `(`, _: `{`, between) =>
-        Seq(
-            Split(NoSplit, 0)
-        )
-
-      // non-statement starting curly brace
-      case FormatToken(_, _: `{`, between) =>
-        Seq(
-            Split(Space, 0)
-        )
 
       case FormatToken(_, _: `}`, _) =>
         Seq(
@@ -404,6 +394,7 @@ class Router(formatOps: FormatOps) {
         val open = formatToken.left
         val close = matchingParentheses(hash(open))
         val indent = getApplyIndent(leftOwner)
+        val (lhs, args) = getApplyArgs(formatToken, leftOwner)
         val optimal =
           leftOwner.tokens.find(_.isInstanceOf[`,`]).orElse(Some(close))
         val isBracket = open.isInstanceOf[`[`]
@@ -414,7 +405,9 @@ class Router(formatOps: FormatOps) {
         val excludeRanges = exclude.map(parensRange)
         val unindent = UnindentAtExclude(
             exclude, Num(-style.continuationIndentCallSite))
-        val unindentPolicy = Policy(unindent, close.end)
+        val unindentPolicy =
+          if (args.length == 1) Policy(unindent, close.end)
+          else NoPolicy
         def ignoreBlocks(x: FormatToken): Boolean = {
           excludeRanges.exists(_.contains(x.left.end))
         }
@@ -485,6 +478,7 @@ class Router(formatOps: FormatOps) {
         val newlineModification: Modification =
           if (right.isInstanceOf[Comment] && newlinesBetween(between) == 0)
             Space
+          else if (right.isInstanceOf[`{`]) NoSplit
           else Newline
 
         val charactersInside = (close.start - open.end) - 2
@@ -546,6 +540,17 @@ class Router(formatOps: FormatOps) {
             Split(Newline, Constants.SparkColonNewline)
               .withIndent(2, expire, Left)
               .withPolicy(penalizeNewlines)
+        )
+
+      case FormatToken(_: `(`, _: `{`, between) =>
+        Seq(
+          Split(NoSplit, 0)
+        )
+
+      // non-statement starting curly brace
+      case FormatToken(_, _: `{`, between) =>
+        Seq(
+          Split(Space, 0)
         )
 
       // Delim
@@ -1091,7 +1096,6 @@ class Router(formatOps: FormatOps) {
         Seq(
             Split(NoSplit, 0)
         )
-
       // Fallback
       case FormatToken(_, _: `.` | _: `#`, _) =>
         Seq(

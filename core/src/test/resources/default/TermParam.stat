@@ -43,7 +43,7 @@ def train(points: RDD[LabeledPoint]): CategoricalNaiveBayesModel = {
                  case (m, feature) =>
                    m.updated(feature, m(feature) + 1L)
                })
-          }
+          },
           mergeCombiners = (c1: (Long, Array[Map[String, Long]]), c2: (Long,
             Array[Map[String, Long]])) => {
             val labelCount1 = c1._1
@@ -76,17 +76,18 @@ def train(points: RDD[LabeledPoint]): CategoricalNaiveBayesModel = {
 
             (1L, featureCounts)
           },
-          mergeValue = (c: (Long, Array[Map[String, Long]]),
-                        features: Array[String]) => {
-            (c._1 + 1L,
-             c._2
-               .zip(features)
-               .map {
-                 case (m, feature) =>
-                   m.updated(feature, m(feature) + 1L)
-               })
-          } mergeCombiners = (c1: (Long, Array[Map[String, Long]]),
-                              c2: (Long, Array[Map[String, Long]])) => {
+          mergeValue =
+            (c: (Long, Array[Map[String, Long]]), features: Array[String]) => {
+              (c._1 + 1L,
+               c._2
+                 .zip(features)
+                 .map {
+                   case (m, feature) =>
+                     m.updated(feature, m(feature) + 1L)
+                 })
+            },
+          mergeCombiners = (c1: (Long, Array[Map[String, Long]]),
+                            c2: (Long, Array[Map[String, Long]])) => {
             val labelCount1 = c1._1
             val labelCount2 = c2._1
             val featureCounts1 = c1._2

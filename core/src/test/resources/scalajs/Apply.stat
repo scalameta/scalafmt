@@ -66,3 +66,29 @@ apply(body = js.undefined, dir = js.undefined, icon = js.undefined,
 reject(th match {
   case JavaScriptException(e) => e
 })
+<<< blocks are special #260
+p.`then`[Unit](
+          { (v: A) =>
+            p2.success(v)
+            (): Unit | Thenable[Unit]
+          },
+          defined { (e: scala.Any) =>
+            p2.failure(e match {
+              case th: Throwable => th
+              case _             => JavaScriptException(e)
+            })
+            (): Unit | Thenable[Unit]
+          })
+>>>
+p.`then`[Unit](
+    { (v: A) =>
+      p2.success(v)
+      (): Unit | Thenable[Unit]
+    },
+    defined { (e: scala.Any) =>
+      p2.failure(e match {
+        case th: Throwable => th
+        case _ => JavaScriptException(e)
+      })
+      (): Unit | Thenable[Unit]
+    })
