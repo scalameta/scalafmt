@@ -403,14 +403,31 @@ class Router(formatOps: FormatOps) {
           if style.binPackArguments && isCallSite(leftOwner) =>
         val open = formatToken.left
         val close = matchingParentheses(hash(open))
+        val indent = getApplyIndent(leftOwner)
         val optimal =
           leftOwner.tokens.find(_.isInstanceOf[`,`]).orElse(Some(close))
+        val isBracket = open.isInstanceOf[`[`]
+        // TODO(olafur) DRY. Same logic as in default.
+        val exclude =
+          if (isBracket) insideBlock(formatToken, close, _.isInstanceOf[`[`])
+          else insideBlock(formatToken, close, x => x.isInstanceOf[`{`])
+        val excludeRanges = exclude.map(parensRange)
+        val unindent = UnindentAtExclude(
+            exclude, Num(-style.continuationIndentCallSite))
+        val unindentPolicy = Policy(unindent, close.end)
+        def ignoreBlocks(x: FormatToken): Boolean = {
+          excludeRanges.exists(_.contains(x.left.end))
+        }
+        val noSplitPolicy = penalizeAllNewlines(
+            close, 3, ignore = ignoreBlocks).andThen(unindent)
         Seq(
             Split(NoSplit, 0)
               .withOptimalToken(optimal)
-              .withPolicy(penalizeAllNewlines(close, 3))
-              .withIndent(4, close, Left),
-            Split(Newline, 2).withIndent(4, close, Left)
+              .withPolicy(noSplitPolicy)
+              .withIndent(indent, close, Left),
+            Split(Newline, 2)
+              .withPolicy(unindentPolicy)
+              .withIndent(4, close, Left)
         )
       case tok @ FormatToken(_: `(` | _: `[`, right, between)
           if !isSuperfluousParenthesis(formatToken.left, leftOwner) &&
@@ -438,7 +455,7 @@ class Router(formatOps: FormatOps) {
 
         // It seems acceptable to unindent by the continuation indent inside
         // curly brace wrapped blocks.
-        val unindent = UnindentAtExclude(exclude, Num(-4))
+        val unindent = UnindentAtExclude(exclude, Num(-indent.n))
         val singleArgument = args.length == 1
 
         def singleLine(newlinePenalty: Int): Policy = {

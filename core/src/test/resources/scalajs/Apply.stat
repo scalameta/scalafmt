@@ -58,3 +58,11 @@ apply(body = js.undefined, dir = js.undefined, icon = js.undefined,
     silent = js.undefined, sound = js.undefined, sticky = js.undefined,
     tag = js.undefined, onclick = js.undefined, onerror = js.undefined,
     vibrate = js.undefined)
+<<< unindent in braces #258
+ reject(th match {
+  case JavaScriptException(e) => e
+})
+>>>
+reject(th match {
+  case JavaScriptException(e) => e
+})

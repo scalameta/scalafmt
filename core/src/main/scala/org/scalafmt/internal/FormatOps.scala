@@ -233,7 +233,7 @@ class FormatOps(val tree: Tree,
     Policy({
       case Decision(tok, s)
           if tok.right.end < expire.end &&
-          (penalizeLambdas || !tok.left.isInstanceOf[`=>`]) =>
+          (penalizeLambdas || !tok.left.isInstanceOf[`=>`]) && !ignore(tok) =>
         Decision(tok, s.map {
           case split if split.modification.isNewline =>
             split.withPenalty(penalty)
@@ -386,7 +386,7 @@ class FormatOps(val tree: Tree,
       newlinesBetween(prev(leftTok2tok(close)).between) > 0
     }
   }
-  def getApplyIndent(leftOwner: Tree, isConfigStyle: Boolean = false): Length =
+  def getApplyIndent(leftOwner: Tree, isConfigStyle: Boolean = false): Num =
     leftOwner match {
       case _: Pat => Num(0) // Indentation already provided by case.
       case x if isDefnSite(x) && !x.isInstanceOf[Type.Apply] =>
