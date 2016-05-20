@@ -123,11 +123,6 @@ object TokenOps {
       case _ => false
     }
 
-  def isSingleIdentifierAnnotation(tok: FormatToken): Boolean = tok match {
-    case FormatToken(_: `@`, _: Ident, _) => true
-    case _ => false
-  }
-
   /**
     * Forces allssplits up to including expire to be on a single line.
     */

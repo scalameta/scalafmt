@@ -399,4 +399,18 @@ class FormatOps(val tree: Tree,
     (style.binPackArguments && isCallSite(owner)) ||
     (style.binPackParameters && isDefnSite(owner))
   }
+
+  def isSingleIdentifierAnnotation(tok: FormatToken): Boolean = {
+    val toMatch =
+      if (tok.right.isInstanceOf[`)`]) {
+        // Hack to allow any annotations with arguments like @foo(1)
+        prev(prev(leftTok2tok(matchingParentheses(hash(tok.right)))))
+      } else {
+        tok
+      }
+    toMatch match {
+      case FormatToken(_: `@`, _: Ident, _) => true
+      case _ => false
+    }
+  }
 }

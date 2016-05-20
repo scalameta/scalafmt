@@ -41,3 +41,8 @@ val fill = x match {
 val global: NirCodeGen. this.global.type
 >>>
 val global: NirCodeGen.this.global.type
+<<< annot single line
+@JSName("0") val _1: T1 = native
+>>>
+@JSName("0") val _1: T1 = native
+
