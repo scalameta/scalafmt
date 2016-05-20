@@ -2,6 +2,8 @@ package org.scalafmt.internal
 
 import scala.language.implicitConversions
 
+import scala.meta.Mod
+
 import org.scalafmt.internal.ExpiresOn.Right
 import org.scalafmt.internal.ExpiresOn.Left
 import org.scalafmt.internal.Length.StateColumn
@@ -277,8 +279,12 @@ class Router(formatOps: FormatOps) {
               case parent => true
             }
           } =>
+        val modification: Modification = leftOwner match {
+          case _: Mod => Space
+          case _ => NoSplit
+        }
         Seq(
-            Split(NoSplit, 0)
+            Split(modification, 0)
         )
       // Defn.{Object, Class, Trait}
       case tok @ FormatToken(_: `object` | _: `class ` | _: `trait`, _, _) =>

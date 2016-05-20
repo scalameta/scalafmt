@@ -161,3 +161,11 @@ final case class Manifest(
     name: String,
     schemaVersion: Int = 1
 ) extends SchemaManifest
+<<< space after scope #262
+final class Using[A] private[js](val x: A) extends AnyVal
+>>>
+final class Using[A] private[js] (val x: A) extends AnyVal
+<<< space after protected scope #262
+final class Using[A] protected[js](val x: A) extends AnyVal
+>>>
+final class Using[A] protected[js] (val x: A) extends AnyVal
