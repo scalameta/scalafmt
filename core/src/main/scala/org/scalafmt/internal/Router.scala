@@ -122,7 +122,7 @@ class Router(formatOps: FormatOps) {
 
       // { ... } Blocks
       case tok @ FormatToken(open: `{`, right, between) =>
-        val nl = Newline(shouldGet2xNewlines(tok))
+        val nl = NewlineT(shouldGet2xNewlines(tok))
         val close = matchingParentheses(hash(open))
         val blockSize = close.start - open.end
         val ignore = blockSize > style.maxColumn || isInlineComment(right)
@@ -209,7 +209,7 @@ class Router(formatOps: FormatOps) {
           if leftOwner.isInstanceOf[Case] =>
         Seq(
             Split(Space, 0, ignoreIf = newlines != 0), // Gets killed by `case` policy.
-            Split(Newline(isDouble = false, noIndent = rhsIsCommentedOut(tok)),
+            Split(NewlineT(isDouble = false, noIndent = rhsIsCommentedOut(tok)),
                   1)
         )
       // New statement
@@ -221,12 +221,12 @@ class Router(formatOps: FormatOps) {
               .withOptimalToken(expire)
               .withPolicy(SingleLineBlock(expire)),
             // For some reason, this newline cannot cost 1.
-            Split(Newline(shouldGet2xNewlines(tok)), 0)
+            Split(NewlineT(shouldGet2xNewlines(tok)), 0)
         )
 
       case tok @ FormatToken(left, right, between) if startsStatement(tok) =>
         val oldNewlines = newlinesBetween(between)
-        val newline: Modification = Newline(shouldGet2xNewlines(tok))
+        val newline: Modification = NewlineT(shouldGet2xNewlines(tok))
         val expire = rightOwner.tokens
           .find(_.isInstanceOf[`=`])
           .map { equalsToken =>
@@ -721,7 +721,7 @@ class Router(formatOps: FormatOps) {
             Split(Space, 0)
               .withPolicy(SingleLineBlock(lastToken))
               .withIndent(Num(4), lastToken, Left),
-            Split(Newline, 1)
+            Split(NewlineT(acceptSpace = true), 1)
               .withPolicy(breakOnEveryWith)
               .withIndent(Num(4), lastToken, Left)
         )

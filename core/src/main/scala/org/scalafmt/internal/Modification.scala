@@ -31,6 +31,7 @@ case object NoSplit extends Modification
   */
 case class NewlineT(isDouble: Boolean = false,
                     noIndent: Boolean = false,
+                    acceptSpace: Boolean = false,
                     acceptNoSplit: Boolean = false)
     extends Modification {
   override def toString = {
@@ -42,10 +43,6 @@ case class NewlineT(isDouble: Boolean = false,
 
 object Newline extends NewlineT {
   def apply: NewlineT = NewlineT()
-
-  // TODO(olafur) remove method with NewlineT
-  def apply(isDouble: Boolean, noIndent: Boolean = false): NewlineT =
-    NewlineT(isDouble = isDouble, noIndent = noIndent)
 }
 
 object Newline2x extends NewlineT(isDouble = true)

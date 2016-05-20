@@ -110,6 +110,10 @@ class FormatWriter(formatOps: FormatOps) {
               if nl.acceptNoSplit &&
               state.indentation >= previous.state.column =>
             ""
+          case nl: NewlineT
+            if nl.acceptSpace &&
+                state.indentation >= previous.state.column =>
+            " "
           case nl: NewlineT =>
             val newline =
               if (nl.isDouble) "\n\n"

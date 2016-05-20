@@ -4,6 +4,7 @@ import org.scalafmt.internal.Decision
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.Modification
 import org.scalafmt.internal.Newline
+import org.scalafmt.internal.NewlineT
 import org.scalafmt.internal.NoSplit
 import org.scalafmt.internal.Policy
 import org.scalafmt.internal.Space
@@ -151,7 +152,8 @@ object TokenOps {
   def newlines2Modification(between: Vector[Whitespace]): Modification =
     newlinesBetween(between) match {
       case 0 => Space
-      case x => Newline(x == 2, endsWithNoIndent(between))
+      case x =>
+        NewlineT(isDouble = x == 2, noIndent = endsWithNoIndent(between))
     }
 
   // TODO(olafur) calculate this once inside getSplits.

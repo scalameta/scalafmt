@@ -150,3 +150,14 @@ private[ml] class IterativelyReweightedLeastSquares(
     with Serializable {
   ???
 }
+<<< extends floating #276
+final case class Manifest(
+    name: String,
+    schemaVersion: Int = 1
+)
+    extends SchemaManifest
+>>>
+final case class Manifest(
+    name: String,
+    schemaVersion: Int = 1
+) extends SchemaManifest
