@@ -790,11 +790,15 @@ class Router(formatOps: FormatOps) {
               .withPolicy(SingleLineBlock(expire)),
             Split(Space, 1).withPolicy(breakOnlyBeforeElse)
         )
-      case FormatToken(close: `)`, right, between)
-          if leftOwner.isInstanceOf[Term.If] &&
-          !isFirstOrLastToken(close, leftOwner) =>
-        val owner = leftOwner.asInstanceOf[Term.If]
-        val expire = owner.thenp.tokens.last
+      case FormatToken(close: `)`, right, between) if (leftOwner match {
+            case _: Term.If | _: Term.For | _: Term.ForYield => true
+            case _ => false
+          }) && !isFirstOrLastToken(close, leftOwner) =>
+        val expire = leftOwner match {
+          case t: Term.If => t.thenp.tokens.last
+          case t: Term.For => t.body.tokens.last
+          case t: Term.ForYield => t.body.tokens.last
+        }
         val rightIsOnNewLine = newlines > 0
         // Inline comment attached to closing `)`
         val attachedComment = !rightIsOnNewLine && isInlineComment(right)
@@ -802,10 +806,11 @@ class Router(formatOps: FormatOps) {
           if (attachedComment)
             Space // Inline comment will force newline later.
           else Newline
+        val exclude = insideBlock(formatToken, expire, _.isInstanceOf[`{`])
+          .map(parensRange)
         Seq(
             Split(Space, 0, ignoreIf = attachedComment || newlines > 0)
-              .withIndent(2, expire, Left)
-              .withPolicy(SingleLineBlock(expire)),
+              .withPolicy(SingleLineBlock(expire, exclude = exclude)),
             Split(newlineModification, 1).withIndent(2, expire, Left)
         )
       case tok @ FormatToken(_: `}`, els: `else`, _) =>
@@ -1015,8 +1020,7 @@ class Router(formatOps: FormatOps) {
             Split(Space, 0).withIndent(indent, lastToken, Left)
         )
       case tok @ FormatToken(_: `yield`, right, _)
-          if leftOwner.isInstanceOf[Term.ForYield] &&
-          !right.isInstanceOf[`{`] =>
+          if leftOwner.isInstanceOf[Term.ForYield] =>
         val lastToken = leftOwner.asInstanceOf[Term.ForYield].body.tokens.last
         Seq(
             // Either everything fits in one line or break on =>

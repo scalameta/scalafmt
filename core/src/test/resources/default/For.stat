@@ -12,3 +12,15 @@ val weights: Map[Int, Double] = (for {
   item <- group.items
   index <- model.itemStringIntMap.get(item)
 } yield (index, group.weight)).toMap.withDefaultValue(1.0)
+<<< Keep multiline like if #256
+for ((key, value) <- properties)
+    result(key) = value
+>>>
+for ((key, value) <- properties)
+  result(key) = value
+<<< Keep multiline like if #256 yield
+for ((key, value) <- properties)
+    yield result(key) = value
+>>>
+for ((key, value) <- properties)
+  yield result(key) = value

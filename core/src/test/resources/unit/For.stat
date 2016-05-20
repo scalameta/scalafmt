@@ -23,10 +23,12 @@ row <- table) yield ( for (
 cell <- row) yield if (cell == null) 0
 else cell.toString.length)
 >>>
-val sizes = for (row <- table) yield
-  (for (cell <- row) yield
-    if (cell == null) 0
-    else cell.toString.length)
+val sizes = for (row <- table)
+  yield
+    (for (cell <- row)
+      yield
+        if (cell == null) 0
+        else cell.toString.length)
 <<< if singleline
 val k = for {
     _ <- Future(1) if !onlyOne
@@ -107,4 +109,52 @@ for (result <- results.sortBy(-_.x)
 for (result <- results.sortBy(-_.x)
      if result != "W") {
   println(1)
+}
+<<< scala.js codingstyle 1
+  for (i <- 0 until n)
+  doStuff(i)
+>>>
+for (i <- 0 until n)
+  doStuff(i)
+<<< scala.js codingstyle 2
+ for {
+  i <- 0 until n
+  j <- 0 until i
+} {
+  doStuff(i, j)
+}
+>>>
+for {
+  i <- 0 until n
+  j <- 0 until i
+} {
+  doStuff(i, j)
+}
+<<< scala.js codingstyle 3
+for (x <- xs) yield {
+    x * 2
+}
+>>>
+for (x <- xs) yield {
+  x * 2
+}
+<<< scala.js codingstyle 4
+  for (x <- xs)
+  yield x * 2
+>>>
+for (x <- xs)
+  yield x * 2
+<<< scala.js codingstyle 5
+  for {
+  i <- 0 until n
+  j <- 0 until i
+} yield {
+  thing(i, j)
+}
+>>>
+for {
+  i <- 0 until n
+  j <- 0 until i
+} yield {
+  thing(i, j)
 }
