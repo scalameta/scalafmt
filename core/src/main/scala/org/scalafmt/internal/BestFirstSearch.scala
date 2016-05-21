@@ -260,9 +260,9 @@ class BestFirstSearch(
   }
 
   def getBestPath: SearchResult = {
-    var state = shortestPath(State.start, tree.tokens.last)
-    runner.eventCallback(CompleteFormat(explored, state, tokens))
+    val state = shortestPath(State.start, tree.tokens.last)
     if (state.splits.length == tokens.length) {
+      runner.eventCallback(CompleteFormat(explored, state, tokens))
       SearchResult(state.splits, reachedEOF = true)
     } else {
       val nextSplits = routes(deepestYet.splits.length)
@@ -279,7 +279,7 @@ class BestFirstSearch(
                    |splitsAfterPolicy=$splitsAfterPolicy""".stripMargin
       logger.error(s"""Failed to format
                       |$msg""".stripMargin)
-      state = deepestYet
+      runner.eventCallback(CompleteFormat(explored, deepestYet, tokens))
       SearchResult(deepestYet.splits, reachedEOF = false)
     }
   }

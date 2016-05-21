@@ -413,3 +413,30 @@ foo.fold(err => {
     }
   }
 }
+<<< SKIP freqItems
+{
+def singlePassFreqItems( ): DataFrame = {
+
+    val freqItems = df.select(cols.map(Column(_)) : _*).rdd.aggregate(countMaps)(
+      seqOp = (counts, row) => {
+        var i = 0
+        while (i < numCols) {
+          val key = row.get(i)
+          thisMap.add(key, 1L)
+          i += 1
+        }
+        counts
+      },
+      combOp = (baseCounts, counts) => {
+        var i = 0
+        while (i < numCols) {
+          baseCounts(i).merge(counts(i))
+          i += 1
+        }
+        baseCounts
+      }
+    )
+}
+}
+>>>
+x

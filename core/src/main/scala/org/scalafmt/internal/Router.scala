@@ -129,8 +129,9 @@ class Router(formatOps: FormatOps) {
         val blockSize = close.start - open.end
         val ignore = blockSize > style.maxColumn || isInlineComment(right)
         val newlineBeforeClosingCurly = Policy({
-          case Decision(t @ FormatToken(_, `close`, _), s) =>
+          case d@Decision(t @ FormatToken(_, `close`, _), s) =>
             Decision(t, Seq(Split(Newline, 0)))
+            d.onlyNewlines
         }, close.end)
 
         val (startsLambda, lambdaPolicy, lambdaArrow, lambdaIndent) =
@@ -810,7 +811,7 @@ class Router(formatOps: FormatOps) {
         val breakOnlyBeforeElse = Policy({
           case d @ Decision(t, s)
               if elses.contains(t.right) && !t.left.isInstanceOf[`}`] =>
-            d.safeNoNewlines
+            d.onlyNewlines
         }, expire.end)
         Seq(
             Split(Space, 0)
@@ -1000,7 +1001,7 @@ class Router(formatOps: FormatOps) {
               .withPolicy(SingleLineBlock(expire)),
             Split(Space, 1)
               .withPolicy(Policy({
-                case Decision(t @ FormatToken(`arrow`, right, between), s)
+                case d@Decision(t @ FormatToken(`arrow`, right, between), s)
                     // TODO(olafur) any other corner cases?
                     if !right.isInstanceOf[`{`] &&
                     !isAttachedComment(right, between) =>

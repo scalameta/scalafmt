@@ -39,6 +39,10 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
     Seq(
         // TODO(olafur) include this file after fixing #140
         "project/MimaExcludes.scala",
+        // These works if escapeInPathologicalCases = false
+        "project/SparkBuild.scala",
+        "src/org/jetbrains/plugins/scala/lang/psi/types/ScProjectionType.scala",
+        "sql/core/src/main/scala/org/apache/spark/sql/execution/stat/FrequentItems.scala",
         // These format fine when run individually, but hog when run together with other files.
         "core/src/main/scala/org/apache/spark/deploy/SparkSubmit.scala",
         "sql/hive/src/test/scala/org/apache/spark/sql/hive/execution/WindowQuerySuite.scala",

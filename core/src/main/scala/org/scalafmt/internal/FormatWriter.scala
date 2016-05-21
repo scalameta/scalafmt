@@ -19,7 +19,7 @@ class FormatWriter(formatOps: FormatOps) {
     val sb = new StringBuilder()
     var lastState =
       State.start // used to calculate start of formatToken.right.
-    reconstructPath(tokens, splits, style) {
+    reconstructPath(tokens, splits, style, debug = false) {
       case (state, formatToken, whitespace) =>
         formatToken.left match {
           case c: Comment if c.code.startsWith("/*") =>
@@ -80,7 +80,7 @@ class FormatWriter(formatOps: FormatOps) {
         currState = State.next(currState, style, split, tok)
         statesBuilder += FormatLocation(tok, split, currState)
         // TIP. Use the following line to debug origin of splits.
-        if (debug && toks.length < 1000) {
+        if (debug && tokens.length < 1000) {
           val left = cleanup(tok.left).slice(0, 15)
           logger.debug(
               f"$left%-15s $split ${currState.indentation} ${currState.column}")
@@ -96,7 +96,7 @@ class FormatWriter(formatOps: FormatOps) {
   def reconstructPath(toks: Array[FormatToken],
                       splits: Vector[Split],
                       style: ScalafmtStyle,
-                      debug: Boolean = false)(
+                      debug: Boolean)(
       callback: (State, FormatToken, String) => Unit): Unit = {
     require(toks.length >= splits.length, "splits !=")
     val locations = getFormatLocations(toks, splits, style, debug)
