@@ -68,37 +68,33 @@ def withDedicatedVar: Unit = {
   val end = res withOp Nrt.call(Nrt.end_catch)
   end withValue res.value
 })
-<<< ONLY intellij bug
-
-/**
- * This type means type projection:
- * SomeType#member
- * member can be class or type alias
- */
-class ScProjectionType private (val projected: ScType, val element: PsiNamedElement,
-                            val superReference: Boolean /* todo: find a way to remove it*/) extends ValueType {
-  def copy(superReference: Boolean): ScProjectionType = new ScProjectionType(projected, element, superReference)
-
-  override protected def isAliasTypeInner: Option[AliasType] = {
-    if (actualElement.isInstanceOf[ScTypeAlias]) {
-      actualElement match {
+<<< SKIP intellij bug
+class ScProjectionType private () {
+  def isAliasTypeInner = {
+      x match {
         case ta: ScTypeAlias => //higher kind case
-          val args: ArrayBuffer[ScExistentialArgument] = new ArrayBuffer[ScExistentialArgument]()
-          val genericSubst = ScalaPsiUtil.
-            typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))),
+            typesCallSubstitutor(
+            ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))),
             ta.typeParameters.map(tp => {
-              val name = tp.name + "$$"
-              args += new ScExistentialArgument(name, Nil, types.Nothing, types.Any)
+              args = ScExistentialArgument()
               ScTypeVariable(name)
             }))
-          val s = actualSubst.followed(genericSubst)
-          Some(AliasType(ta, ta.lowerBound.map(scType => ScExistentialType(s.subst(scType), args.toList)),
-            ta.upperBound.map(scType => ScExistentialType(s.subst(scType), args.toList))))
-        case _ => None
       }
     }
   }
-  }
 
 >>>
-x
+class ScProjectionType private () {
+  def isAliasTypeInner = {
+    x match {
+      case ta: ScTypeAlias => //higher kind case
+        typesCallSubstitutor(
+            ta.typeParameters.map(tp =>
+                  (tp.name, ScalaPsiUtil.getPsiElementId(tp))),
+            ta.typeParameters.map(tp => {
+              args += new ScExistentialArgument()
+              ScTypeVariable(name)
+            }))
+    }
+  }
+}
