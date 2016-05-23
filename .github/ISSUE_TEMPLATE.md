@@ -13,5 +13,6 @@ I would like the input to look like this:
 HOW YOU WANT THE OUTPUT TO LOOK LIKE.
 ```
 
-Using
-* 0.1.x
+Using:
+* 0.2.x
+* --style default
