@@ -282,6 +282,7 @@ class Router(formatOps: FormatOps) {
           } =>
         val modification: Modification = leftOwner match {
           case _: Mod => Space
+          case t: Term.Name if style.spaceAfterTripleEquals && t.tokens.map(_.code) == Seq("===") => Space
           case _ => NoSplit
         }
         Seq(

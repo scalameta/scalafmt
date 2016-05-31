@@ -40,6 +40,7 @@ import sourcecode.Text
   *                                  scalafmt will fit as many parent constructors
   *                                  on a single line. If false, each parent
   *                                  constructor gets its own line.
+  * @param spaceAfterTripleEquals If true, formats ===( as === (
   * @param alignByArrowEnumeratorGenerator If true, aligns by <- in for comprehensions.
   * @param alignByIfWhileOpenParen If true, aligns by ( in if/while/for. If false,
   *                                indents by [[continuationIndentCallSite]].
@@ -59,6 +60,7 @@ case class ScalafmtStyle(
     spacesInImportCurlyBrackets: Boolean,
     allowNewlineBeforeColonInMassiveReturnTypes: Boolean,
     binPackParentConstructors: Boolean,
+    spaceAfterTripleEquals: Boolean,
     alignByArrowEnumeratorGenerator: Boolean,
     alignByIfWhileOpenParen: Boolean
 ) {
@@ -86,6 +88,7 @@ object ScalafmtStyle {
       spacesInImportCurlyBrackets = false,
       allowNewlineBeforeColonInMassiveReturnTypes = true,
       binPackParentConstructors = false,
+      spaceAfterTripleEquals = false,
       alignByArrowEnumeratorGenerator = true,
       alignByIfWhileOpenParen = true
   )
