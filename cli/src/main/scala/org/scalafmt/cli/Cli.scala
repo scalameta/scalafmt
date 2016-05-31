@@ -139,6 +139,9 @@ object Cli {
     opt[Boolean]("spacesInImportCurlyBraces") action { (bool, c) =>
       c.copy(style = c.style.copy(spacesInImportCurlyBrackets = bool))
     } text s"See ScalafmtStyle scaladoc."
+    opt[Boolean]("spaceAfterTripleEquals") action { (bool, c) =>
+      c.copy(style = c.style.copy(spaceAfterTripleEquals = bool))
+    } text s"See ScalafmtConfig scaladoc."
     opt[Boolean]("allowNewlineBeforeColonInMassiveReturnTypes") action {
       (bool, c) =>
         c.copy(style =
