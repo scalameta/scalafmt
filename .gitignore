@@ -1,6 +1,8 @@
 *.class
 *.log
 
+repos.tar.gz
+
 # sbt specific
 .cache
 .history
