@@ -266,7 +266,7 @@
             // if indented by 2, for separation from the case body.
             case 1 :: tail if tail.length == 2 => "1 is head"
             // if put on separate line, if condition doesn't fit on single line
-            case lst if lst.length == 2 && lst.head == 1 => "lst has lenght 3"
+            case lst if lst.length == 2 && lst.head == 1 => "lst has length 3"
           }
         }
 
@@ -369,7 +369,7 @@
 
   @sect{FAQ / Troubleshooting}
 
-     @sect{How can I be notified of releases/annoucements?}
+     @sect{How can I be notified of releases/announcements?}
        Join @lnk("the scalafmt mailing list", "https://groups.google.com/forum/#!forum/scalafmt")
        to receive announcements of new releases only. No spam, promise.
 
