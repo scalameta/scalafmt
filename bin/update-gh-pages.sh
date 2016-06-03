@@ -2,7 +2,7 @@
 set -e
 git checkout gh-pages
 git reset --hard master
-sbt "readme/run --validate"
+sbt "readme/run --validate-links"
 cp -r readme/target/scalatex/* .
 git add .
 git commit -m "Update ghpages."

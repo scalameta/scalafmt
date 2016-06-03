@@ -1,6 +1,7 @@
 package org.scalafmt.cli
 
 import java.io.File
+import java.util.Date
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -10,6 +11,7 @@ import org.scalafmt.FormatResult
 import org.scalafmt.Scalafmt
 import org.scalafmt.ScalafmtStyle
 import org.scalafmt.Versions
+import org.scalafmt.macros.Macros
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.LoggerOps
 import scopt.Read
@@ -72,6 +74,10 @@ object Cli {
     })
   }
 
+  def buildInfo =
+    s"""build commit: ${Macros.gitCommit.getOrElse("").take(10)}
+       |build time: ${new Date(Macros.buildTimeMs)}""".stripMargin
+
   lazy val parser = new scopt.OptionParser[Config]("scalafmt") {
 
     def printAndExit(inludeUsage: Boolean)(ignore: Unit, c: Config): Config = {
@@ -97,6 +103,10 @@ object Cli {
       c.copy(testing = true)
     } text "test for mis-formatted code, exits with status 1 on failure."
     opt[Unit]('v', "version") action printAndExit(inludeUsage = false) text "print version "
+    opt[Unit]("build-info") action { case (_, c)=>
+      println( buildInfo)
+        sys.exit
+    } text "prints build information"
     opt[Unit]('h', "help") action printAndExit(inludeUsage = true) text "prints this usage text"
     opt[(Int, Int)]("range").hidden() action {
       case ((from, to), c) =>

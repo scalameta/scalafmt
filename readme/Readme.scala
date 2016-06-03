@@ -3,11 +3,15 @@ package org.scalafmt.readme
 import scalatags.Text.TypedTag
 import scalatags.Text.all._
 
+import java.text.SimpleDateFormat
+import java.util.Date
+
 import com.twitter.util.Eval
 import org.scalafmt.AlignToken
 import org.scalafmt.Scalafmt
 import org.scalafmt.ScalafmtStyle
 import org.scalafmt.cli.Cli
+import org.scalafmt.macros.Macros
 
 object hl extends scalatex.site.Highlighter
 
@@ -86,6 +90,8 @@ object Readme {
 
   def fmt(style: ScalafmtStyle)(code: String): TypedTag[String] =
     example(code, style)
+
+  def lastUpdated = new SimpleDateFormat("MMM d, y").format(new Date(Macros.buildTimeMs))
 
   def example(code: String, style: ScalafmtStyle): TypedTag[String] = {
     val formatted = Scalafmt.format(code, style).get

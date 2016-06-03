@@ -20,7 +20,7 @@
 
   @p
     @lnk("Scalafmt", repo) turns the mess on the left into the (hopefully)
-    readable, idiomatic and consistent Scala code on the right.
+    readable, idiomatic and consistently formatted Scala code on the right.
 
   @demo
     object FormatMe { List(number) match { case head :: Nil if head % 2 == 0 => "number is even"
@@ -30,9 +30,18 @@
 
   @p
     @lnk("Scalafmt", repo) is an opinionated code formatter.
-    The default style should work great out of the box so you can focus on
-    writing correct, maintainable and fast code.
-    Mark the end of dreadful arguments on formatting!
+    I don't subscribe to the notion that an opinionated code formatters should have
+    zero configuration options.
+    Scalafmt is configurable, see @sect.ref{Configuration}.
+    Scalafmt is opinionated because it makes your code look consistent between
+    different authors.
+    If you don't want to fiddle around flags, just go with the default style.
+    It should look great out of the box.
+
+  @p
+    Most importantly, you should focus on writing correct, maintainable
+    and fast code.
+    Leave formatting choices to scalafmt.
 
   @p
     Scalafmt is quite new.
@@ -151,17 +160,25 @@
           java -jar PATH_TO/scalafmt.jar $@@
 
 
-      @sect{Homebrew/OSX}
+      @sect{Homebrew/Mac OSX}
         @hl.scala
-          brew tap olafurpg/scalafmt
-          brew install scalafmt
+          brew install olafurpg/scalafmt/scalafmt
           scalafmt --version // should be @org.scalafmt.Versions.stable
+
+      @sect{Linux/Windows/...}
+
+        Help wanted!
 
       @sect{Usage examples}
 
         Please refer to the @code("--help") page.
+        @note. This help page is generated from the @code{master} branch and
+        may include flags that have not been published yet.
+        @hl.scala()
 
-        @hl.scala(org.scalafmt.cli.Cli.parser.usage)
+        @hl.scala(
+          org.scalafmt.cli.Cli.buildInfo + "\n" +
+          org.scalafmt.cli.Cli.parser.usage)
 
     @sect{Vim}
       @ul
@@ -455,17 +472,19 @@
 
        @ul
          @li
-           Scalariform does not support enforcing column-width limits, which
+           Scalariform does not have a @code{--maxColumn} setting, which
            I personally like and is present in many popular coding styles.
          @li
-           In my experience, Scalariform gives makes it easy to write sloppy
-           looking code after a few rounds of refactoring. Scalafmt is
-           more opinionated, and takes a lot more liberty to add/remove
-           newlines.
+           Scalariform preserves most line breaking decisions, leaving it up to
+           you (or even worse, your colleagues) to choose a formatting layout.
+           Scalafmt is opinionated and takes liberty to add/remove newlines,
+           making your entire codebase look consistent.
          @li
-           Scalariform cannot format @lnk("Dotty", "https://github.com/lampepfl/dotty") code,
-           which has minor syntactic differences to Scala. Being built with scala.meta,
-           scalafmt is ready to support dotty.
+           Scalariform cannot format
+           @lnk("Dotty", "https://github.com/lampepfl/dotty"),
+           which has minor syntactic differences to Scala, or SBT files which
+           allow top-level statement. With scala.meta dialects, scalafmt will
+           be able to format Dotty and SBT.
          @li
            The original Scalariform author stopped maintaining the library a
            few years ago.
@@ -491,19 +510,23 @@
          Performance is still a work in progress and will hopefully
          continue to improve in future releases. Help here is appreciated.
 
-     @sect{code formatters creates unnecessary diffs!}
-       I understand a code formatter like scalafmt may add extra diffs in pull
-       requests. I still believe it's worth it, considering
+     @sect{Code formatters create unnecessary diffs!}
+       That's not a question, but I agree that code formatters like scalafmt do
+       sometimes increase the size of diffs in code reviews.
+       I still believe it's worth it, considering
 
        @ol
          @li
            Proper formatting @lnk("helps you catch bugs", "https://twitter.com/extempore2/status/717716747181096960")!
          @li
            you can enable non-whitespace diffs during code review. For Github,
-           add @code("?w=1") to the URL and ignore whitespace changes.
+           add @code("?w=1") to the URL to ignore whitespace changes.
          @li
-           code is read more often outside of pull requests, for example
-           when you are coding.
+           @code{git blame} has a @code{-w} flag to ignore whitespace changes
+           so you can still blame your colleagues if you reformat your codebase.
+         @li
+           code is read waaay more often outside of code reviews, for example
+           when you are actually coding.
 
      @sect{Is the formatting output stable between releases?}
        No, the formatting rules will evolve even between PATCH releases.
@@ -783,6 +806,9 @@
       @ul
         @li
         The @code("-f") flag in the CLI can be a directory.
+
+    @p
+      This page was last updated on @lastUpdated.
 
 @raw
   <a href="https://github.com/olafurpg/scalafmt"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>

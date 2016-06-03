@@ -103,7 +103,7 @@ lazy val root = project.in(file("."))
         |import org.scalafmt.internal._
         |import org.scalafmt._
       """.stripMargin
-  ).aggregate(core, cli, benchmarks, scalafmtSbt, readme)
+  ).aggregate(core, cli, benchmarks, scalafmtSbt, macros, readme)
   .dependsOn(core)
 
 
@@ -128,6 +128,17 @@ lazy val core = project
   )
 
 
+lazy val macros = project
+  .settings(allSettings)
+  .settings(noPublish)
+  .settings(
+    moduleName := "scalafmt-macros",
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+      "org.scala-lang" % "scala-compiler" % scalaVersion.value
+    )
+  )
+
 lazy val cli = project
     .settings(allSettings)
     .settings(
@@ -137,6 +148,7 @@ lazy val cli = project
         "com.github.scopt" %% "scopt" % "3.3.0"
       )
     ).dependsOn(core % "compile->compile;test->test")
+    .dependsOn(macros)
 
 
 lazy val scalafmtSbt = project
@@ -190,6 +202,7 @@ lazy val readme = scalatex.ScalatexReadme(
     .settings(noPublish)
     .dependsOn(core)
     .dependsOn(cli)
+    .dependsOn(macros)
     .settings(
       libraryDependencies ++= Seq(
         "com.twitter" %% "util-eval" % "6.34.0"
