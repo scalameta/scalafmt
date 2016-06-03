@@ -54,14 +54,14 @@ object Readme {
 
   def issue(id: Int) = a(href := repo + s"/issues/$id", s"#$id")
 
-  def issues(ids: Int*) = span(ids.map(issue):_*)
+  def issues(ids: Int*) = span(ids.map(issue): _*)
 
   def half(frags: Frag*) = div(frags, width := "50%", float.left)
 
   def pairs(frags: Frag*) = div(frags, div(clear := "both"))
 
   def sideBySide(left: String, right: String) =
-    pairs(List(left, right).map(x => half(hl.scala(x))):_*)
+    pairs(List(left, right).map(x => half(hl.scala(x))): _*)
 
   def demo(code: String) = {
     import org.scalafmt._
@@ -81,7 +81,11 @@ object Readme {
     hl.scala(formatted)
   }
 
-  val stripMarginStyle = ScalafmtStyle.default.copy(alignStripMarginStrings = true)
+  val stripMarginStyle =
+    ScalafmtStyle.default.copy(alignStripMarginStrings = true)
+
+  def fmt(style: ScalafmtStyle)(code: String): TypedTag[String] =
+    example(code, style)
 
   def example(code: String, style: ScalafmtStyle): TypedTag[String] = {
     val formatted = Scalafmt.format(code, style).get

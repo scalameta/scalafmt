@@ -33,7 +33,7 @@ object Cli {
       |// read style options from a configuration file
       |$ cat .scalafmt
       |--maxColumn 120
-      |--javaDocs // This is a comment.
+      |--javaDocs # This is a comment.
       |$ scalafmt --config .scalafmt -i -f Code.scala
       |
       |// format all files in current directory, write new contents to each file.
