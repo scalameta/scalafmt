@@ -80,7 +80,7 @@ function( a, b, c )
 [debug] FormatTests.scala:90      Split(line=56, count=1), Split(line=448, count=1), Split(line=514, count=1)
 [debug] FormatTests.scala:91      Total explored: 12
 [info] FormatTests:
-[info] - unit/Hacking.stat: Spaces in paretheses                               | *** FAILED *** (278 milliseconds)
+[info] - unit/Hacking.stat: Spaces in parentheses                               | *** FAILED *** (278 milliseconds)
 [info]   ===========
 [info]   => Obtained
 [info]   ===========
@@ -195,7 +195,7 @@ case class FormatToken(left: Token, right: Token, between: Vector[Whitespace])
 [debug] FormatTests.scala:90      Split(line=56, count=1), Split(line=448, count=1), Split(line=514, count=1)
 [debug] FormatTests.scala:91      Total explored: 12
 [info] FormatTests:
-[info] - unit/Hacking.stat: Spaces in paretheses                               | *** FAILED *** (298 milliseconds)
+[info] - unit/Hacking.stat: Spaces in parentheses                               | *** FAILED *** (298 milliseconds)
 [info]   ===========
 [info]   => Obtained
 [info]   ===========
@@ -227,7 +227,7 @@ case class FormatToken(left: Token, right: Token, between: Vector[Whitespace])
 
 - Save and yay, the test passes now.
 - Open `Hacking.stat` again and remove ONLY from the test name so it looks
-  like this `<<< Spaces in paretheses`.
+  like this `<<< Spaces in parentheses`.
 - Run the tests. Awww, 295 failing tests.
 - Look carefully through the diffs check if the output looks nice.
 - Change spacesInParentheses to false in the default style.
