@@ -55,7 +55,7 @@ function( a, b, c )
 
 ```scala
 40 columns                              |
-<<< SKIP Spaces in paretheses
+<<< SKIP Spaces in parentheses
 function(a, b, c)
 >>>
 function( a, b, c )
