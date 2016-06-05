@@ -298,3 +298,9 @@ Shamelessly stolen from [lihaoyi/ammonite](https://github.com/lihaoyi/Ammonite).
   than 10 were tried without committing.
 - **Feel free to send Proof-Of-Concept PRs** that you don't intend to get merged.
 
+## Acknowledgements
+
+<a href="http://www.ej-technologies.com/products/jprofiler/overview.html">
+  <img src="https://www.ej-technologies.com/images/product_banners/jprofiler_large.png" align="right" />
+ </a>
+[JProfiler](http://www.ej-technologies.com/products/jprofiler/overview.html) generously supports scalafmt with its full-featured Java Profiler.
