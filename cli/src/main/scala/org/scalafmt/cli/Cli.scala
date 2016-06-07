@@ -248,6 +248,7 @@ object Cli {
                 println(formatted)
             }
           case _ =>
+            println(inputMethod.code)
         }
     }
   }
