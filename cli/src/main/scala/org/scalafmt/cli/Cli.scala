@@ -247,8 +247,9 @@ object Cli {
               case _ =>
                 println(formatted)
             }
-          case _ =>
+          case _ if !config.inPlace =>
             println(inputMethod.code)
+          case _ =>
         }
     }
   }
