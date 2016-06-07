@@ -96,8 +96,6 @@ class FormatTests
     val k = for {
       _ <- Future(
               FileOps.writeFile("target/index.html", Report.heatmap(results)))
-      _ <- Future(Speed.submitStats(stats)) if !onlyOne
-      _ <- Future(Speed.writeComparisonReport(stats, "master"))
     } yield ()
     // Travis exits right after running tests.
     if (sys.env.contains("TRAVIS")) Await.ready(k, 20 seconds)
