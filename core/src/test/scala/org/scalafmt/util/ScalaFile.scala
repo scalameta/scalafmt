@@ -1,5 +1,7 @@
 package org.scalafmt.util
 
+import scala.collection.immutable
+
 import java.io.File
 
 case class ScalaFile(filename: String, projectUrl: String, commit: String) {
@@ -65,7 +67,7 @@ object ScalaFile {
     Seq("tar", "xf", "repos.tar.gz").!
   }
 
-  def getAll: Seq[ScalaFile] = {
+  def getAll: immutable.Seq[ScalaFile] = {
     if (!FileOps.getFile("repos.tar.gz").isFile) {
       downloadReposTar()
     }
@@ -82,7 +84,7 @@ object ScalaFile {
              |""".stripMargin)
     }
 
-    files.flatMap { repo =>
+    immutable.Seq(files:_*).flatMap { repo =>
       val repoPrefix = repo.getPath // + File.pathSeparator
       val commit = FileOps.readFile(new File(repo, "COMMIT")).trim
       val url = FileOps.readFile(new File(repo, "URL")).trim

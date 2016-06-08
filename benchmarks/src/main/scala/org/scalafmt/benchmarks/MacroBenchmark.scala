@@ -1,5 +1,8 @@
 package org.scalafmt.benchmarks
 
+import scala.collection.GenIterable
+import scala.util.Try
+
 import java.io.File
 import java.util.concurrent.TimeUnit
 
@@ -12,7 +15,10 @@ import org.openjdk.jmh.annotations.Scope
 import org.openjdk.jmh.annotations.Setup
 import org.openjdk.jmh.annotations.Warmup
 import org.scalafmt.Scalafmt
+import org.scalafmt.ScalafmtOptimizer
+import org.scalafmt.ScalafmtRunner
 import org.scalafmt.ScalafmtStyle
+import org.scalafmt.util.ScalaFile
 import org.scalafmt.util.FileOps
 
 import scala.meta.Source
@@ -21,7 +27,7 @@ import scalariform.formatter.preferences.FormattingPreferences
 import scalariform.formatter.preferences.IndentSpaces
 
 /**
-  * Formats filename at [[path]] with scalafmt and scalariform.
+  * Formats filename at with scalafmt and scalariform.
   *
   * To run benchmark:
   *
@@ -31,54 +37,52 @@ import scalariform.formatter.preferences.IndentSpaces
 @Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @BenchmarkMode(Array(Mode.AverageTime))
-@OutputTimeUnit(TimeUnit.MILLISECONDS)
-abstract class FormatBenchmark(path: String*) {
+@OutputTimeUnit(TimeUnit.SECONDS)
+abstract class MacroBenchmark(parallel: Boolean, maxFiles: Int) {
   val scalariformPreferences =
     FormattingPreferences().setPreference(IndentSpaces, 3)
-  val classLoader = getClass.getClassLoader
-  var code: String = _
+  var files: GenIterable[String] = _
+
+  override def toString = s"${this.getClass.getName}(parallel=$parallel)"
 
   @Setup
   def setup(): Unit = {
-    code = FileOps.readFile(getPath.getAbsolutePath)
-  }
-
-  def getPath: File = {
-    val filename = FileOps.getFile(Seq("src", "resources") ++ path: _*)
-    // jmh runs from benchmarks directory while tests run from from root.
-    // Can't bother to find more generic solution
-    if (filename.isFile) filename
-    else FileOps.getFile(Seq("benchmarks", "src", "resources") ++ path: _*)
-  }
-
-  def scalametaParser(): Unit = {
-    import scala.meta._
-    code.parse[Source]
+    files = {
+      val x = ScalaFile.getAll
+        .filter{ f =>
+          f.projectUrl.contains("scala-js")
+        }
+        .take(maxFiles)
+        .map(_.read)
+      if (parallel) x.par
+      else x
+    }
   }
 
   @Benchmark
-  def scalafmt(): String = {
-    Scalafmt.format(code).get
+  def scalafmt(): Unit = {
+    files.foreach { file =>
+      Try(Scalafmt.format(file))
+    }
   }
 
   // No need to run same benchmark again and again.
-//  @Benchmark
-  def scalariform(): String = {
-    ScalaFormatter.format(code, scalariformPreferences)
+  @Benchmark
+  def scalariform(): Unit = {
+    files.foreach { file =>
+      Try(ScalaFormatter.format(file))
+    }
   }
 }
 
-object run {
+object MacroSmall {
+  val size = 10
+  class Parallel extends MacroBenchmark(parallel = true, size)
+  class Synchronous extends MacroBenchmark(parallel = false, size)
+}
 
-  abstract class ScalaJsFile(filename: String)
-      extends FormatBenchmark("scala-js", filename)
-
-//  class OptimizerCore extends ScalaJsFile("OptimizerCore.scala")
-
-  class GenJsCode extends ScalaJsFile("GenJSCode.scala")
-
-//  class ScalaJSClassEmitter
-//      extends ScalaJsFile("ScalaJSClassEmitter.scala")
-//
-//  class JavaLangString extends ScalaJsFile("JavaLangString.scala")
+object MacroHuge {
+  val size = 10000
+  class Parallel extends MacroBenchmark(parallel = true, size)
+  class Synchronous extends MacroBenchmark(parallel = false, size)
 }

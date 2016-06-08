@@ -459,7 +459,7 @@ class Router(formatOps: FormatOps) {
         val unindent = UnindentAtExclude(exclude, Num(-indent.n))
         val singleArgument = args.length == 1
 
-        def singleLine(newlinePenalty: Int): Policy = {
+        def singleLine(newlinePenalty: Int)(implicit line: sourcecode.Line): Policy = {
           val baseSingleLinePolicy =
             if (isBracket) {
               if (singleArgument)
@@ -506,6 +506,7 @@ class Router(formatOps: FormatOps) {
           case _ => false
         }
 
+        logger.elem()
         Seq(
             Split(modification,
                   0,
