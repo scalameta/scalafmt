@@ -1,3 +1,5 @@
+ONLY core/src/main/scala/org/scalafmt/ScalafmtStyle.scala
+ONLY core/src/main/scala/org/scalafmt/internal/Router.scala
 SKIP core/src/main/scala/org/scalafmt/internal/Router.scala
 SKIP https://raw.githubusercontent.com/scala-eveapi/eveapi/master/xml/src/main/scala/eveapi/xml/char/ContactList/xmlprotocol.scala
 SKIP https://raw.githubusercontent.com/akka/akka/3698928fbdaa8fef8e2037fbc51887ab60addefb/project/AkkaBuild.scala

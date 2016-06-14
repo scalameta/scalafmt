@@ -2,6 +2,9 @@ package org.scalafmt
 
 import scala.language.postfixOps
 
+import scala.meta.internal.semantic.Symbol.Global
+
+import org.scalafmt.Error.SearchStateExploded
 import org.scalafmt.FormatEvent.CompleteFormat
 import org.scalafmt.FormatEvent.Enqueue
 import org.scalafmt.FormatEvent.Explored
@@ -58,8 +61,8 @@ class FormatTests
   def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
     val runner = scalafmtRunner.withParser(parse)
     val obtained = Scalafmt.format(t.original, t.style, runner) match {
-      case FormatResult.Incomplete(code) =>
-        code
+      case FormatResult.Incomplete(code) => code
+      case FormatResult.Failure(e: SearchStateExploded) => e.partialOutput
       case x => x.get
     }
     debugResults += saveResult(t, obtained, onlyOne)

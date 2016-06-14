@@ -55,6 +55,6 @@ object Error {
   case class MisformattedFile(file: File)
       extends Error(s"${file.getPath} is mis-formatted")
 
-  case class SearchStateExploded(deepestState: State)
+  case class SearchStateExploded(deepestState: State, partialOutput: String)
       extends Error(s"Search state exploded")
 }

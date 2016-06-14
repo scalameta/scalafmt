@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 import org.scalafmt.util.ExperimentResult
 import org.scalafmt.util.ExperimentResult.ParseErr
+import org.scalafmt.util.ExperimentResult.SearchStateExploded
 import org.scalafmt.util.ExperimentResult.Skipped
 import org.scalafmt.util.ExperimentResult.Success
 import org.scalafmt.util.ExperimentResult.Timeout
@@ -139,7 +140,8 @@ object LinePerMsBenchmark extends FormatExperiment with App {
 class FormatExperimentTest extends FunSuite with FormatExperiment {
 
   def validate(result: ExperimentResult): Unit = result match {
-    case _: Success | _: Timeout | _: Skipped | _: ParseErr =>
+    case _: Success | _: Timeout | _: Skipped |
+        _: ParseErr | _: SearchStateExploded =>
     case failure => fail(s"""Unexpected failure:
                             |$failure""".stripMargin)
   }

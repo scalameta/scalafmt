@@ -206,7 +206,9 @@ class BestFirstSearch(
           best.clear()
           visits.clear()
           if (!bestEffortEscape) {
-            throw SearchStateExploded(deepestYetSafe)
+            runner.eventCallback(CompleteFormat(explored, deepestYet, tokens))
+            throw SearchStateExploded(
+                deepestYetSafe, formatWriter.mkString(deepestYet.splits))
           } else if (pathologicalEscapes >= MaxEscapes) {
             Q.enqueue(untilNextStatement(curr, Integer.MAX_VALUE))
           } else {
