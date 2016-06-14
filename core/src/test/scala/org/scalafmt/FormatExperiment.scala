@@ -77,18 +77,19 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
 
     if (!ScalacParser.checkParseFails(code)) {
       val startTime = System.nanoTime()
-      val formatted = Scalafmt
-        .format(
-            code, ScalafmtStyle.default.copy(alignStripMarginStrings = false))
-        .get
-      val elapsed = System.nanoTime() - startTime
-      assertFormatPreservesAst[Source](code, formatted)
-      val formattedSecondTime = Scalafmt
-        .format(
-            code, ScalafmtStyle.default.copy(alignStripMarginStrings = false))
-        .get
-      assertNoDiff(formattedSecondTime, formatted, "Idempotency")
-      Success(scalaFile, elapsed)
+      Scalafmt.format(code, ScalafmtStyle.default) match {
+        case FormatResult.Success(formatted) =>
+          val elapsed = System.nanoTime() - startTime
+          assertFormatPreservesAst[Source](code, formatted)
+          val formattedSecondTime = Scalafmt
+            .format(
+                code,
+                ScalafmtStyle.default.copy(alignStripMarginStrings = false))
+            .get
+          assertNoDiff(formattedSecondTime, formatted, "Idempotency")
+          Success(scalaFile, elapsed)
+        case e => e.get; ???
+      }
     } else {
       Skipped(scalaFile)
     }

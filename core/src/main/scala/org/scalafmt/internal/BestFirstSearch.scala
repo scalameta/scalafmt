@@ -2,6 +2,7 @@ package org.scalafmt.internal
 
 import scala.meta.Defn
 
+import org.scalafmt.Error.SearchStateExploded
 import org.scalafmt.FormatResult
 import org.scalafmt.internal.ExpiresOn.Right
 import org.scalafmt.internal.ExpiresOn.Left
@@ -131,10 +132,14 @@ class BestFirstSearch(
     }
   }
 
-  def untilNextStatement(state: State): State = {
+  def untilNextStatement(state: State, maxDepth: Int): State = {
     var curr = state
-    while (!hasReachedEof(curr) &&
-           !statementStarts.contains(hash(tokens(curr.splits.length).left))) {
+    while (!hasReachedEof(curr) && {
+             val token = tokens(curr.splits.length).left
+             !statementStarts.contains(hash(token)) && {
+               parents(owners(token)).length <= maxDepth
+             }
+           }) {
       val tok = tokens(curr.splits.length)
       curr = State.next(curr, style, provided(tok), tok)
     }
@@ -151,6 +156,7 @@ class BestFirstSearch(
       implicit line: sourcecode.Line): State = {
     val Q = new mutable.PriorityQueue[State]()
     var result = start
+    var lastDequeue = start
     Q += start
     // TODO(olafur) this while loop is waaaaaaaaaaaaay tooo big.
     while (Q.nonEmpty) {
@@ -181,6 +187,9 @@ class BestFirstSearch(
             (depth > 0 || !isInsideNoOptZone(splitToken)) &&
             curr.splits.last.modification.isNewline) {
           Q.dequeueAll
+          if (!isInsideNoOptZone(splitToken) && lastDequeue.policy.isSafe) {
+            lastDequeue = curr
+          }
         }
 
         if (shouldRecurseOnBlock(curr, stop)) {
@@ -191,23 +200,23 @@ class BestFirstSearch(
           if (nextToken.left == close) {
             Q.enqueue(nextState)
           }
-        } else {
-          if (escapeInPathologicalCases &&
-              visits(splitToken) > MaxVisitsPerToken) {
-            // Danger zone: escape hatch for pathological cases.
-            Q.dequeueAll
-            best.clear()
-            visits.clear()
-            if (pathologicalEscapes >= MaxEscapes) {
-              // Last resort. No other optimization has worked.
-              Q.enqueue(untilNextStatement(curr))
-            } else {
-              // We are stuck, but try to continue with one cheap/fast and
-              // one expensive/slow state.
-              Q.enqueue(deepestYetSafe)
-              pathologicalEscapes += 1
-            }
+        } else if (escapeInPathologicalCases &&
+                   visits(splitToken) > MaxVisitsPerToken) {
+          Q.dequeueAll
+          best.clear()
+          visits.clear()
+          if (!bestEffortEscape) {
+            throw SearchStateExploded(deepestYetSafe)
+          } else if (pathologicalEscapes >= MaxEscapes) {
+            Q.enqueue(untilNextStatement(curr, Integer.MAX_VALUE))
+          } else {
+            // We are stuck, but try to continue with one cheap/fast and
+            // one expensive/slow state.
+            Q.enqueue(deepestYetSafe)
+            Q.enqueue(curr)
+            pathologicalEscapes += 1
           }
+        } else {
 
           val splits: Seq[Split] =
             if (curr.formatOff) List(provided(splitToken))

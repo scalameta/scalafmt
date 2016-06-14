@@ -2,6 +2,8 @@ package org.scalafmt.util
 
 import scala.meta.parsers.ParseException
 
+import org.scalafmt.internal.State
+
 sealed abstract class ExperimentResult(scalaFile: ScalaFile) {
   def key: String
 
@@ -27,6 +29,13 @@ object ExperimentResult {
       extends ExperimentResult(scalaFile) {
 
     override def key = "Ignored, scalac won't parse"
+  }
+
+  case class SearchStateExploded(scalaFile: ScalaFile, state: State)
+      extends ExperimentResult(scalaFile) {
+
+    override def key =
+      s"Search state exploded at length=${state.splits.length}"
   }
 
   case class UnknownFailure(scalaFile: ScalaFile, e: Throwable)

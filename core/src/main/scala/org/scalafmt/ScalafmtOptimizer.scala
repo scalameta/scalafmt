@@ -53,6 +53,7 @@ package org.scalafmt
   */
 case class ScalafmtOptimizer(dequeueOnNewStatements: Boolean,
                              escapeInPathologicalCases: Boolean,
+                             bestEffortEscape: Boolean,
                              MaxVisitsPerToken: Int,
                              MaxEscapes: Int,
                              MaxDepth: Int,
@@ -65,6 +66,7 @@ object ScalafmtOptimizer {
   val default = ScalafmtOptimizer(
       dequeueOnNewStatements = true,
       escapeInPathologicalCases = true,
+    bestEffortEscape = false,
       MaxVisitsPerToken = 200,
       MaxEscapes = 16,
       MaxDepth = 100,
