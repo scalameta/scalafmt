@@ -6,6 +6,8 @@ package org.scalafmt.util
   */
 object Tabulator {
 
+  def csv(table: Seq[Seq[Any]]) = table.map(_.mkString(",")).mkString("\n")
+
   def format(table: Seq[Seq[Any]]) = table match {
     case Seq() => ""
     case _ =>

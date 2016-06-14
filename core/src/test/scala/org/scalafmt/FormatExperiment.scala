@@ -1,5 +1,15 @@
 package org.scalafmt
 
+import scala.util.Try
+import scalariform.formatter.ScalaFormatter
+import scalariform.formatter.preferences.FormattingPreferences
+import scalariform.formatter.preferences.IndentSpaces
+
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicInteger
+
 import org.scalafmt.util.ExperimentResult
 import org.scalafmt.util.ExperimentResult.ParseErr
 import org.scalafmt.util.ExperimentResult.Skipped
@@ -31,6 +41,7 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
   val badRepos = Set(
       "kafka"
   )
+
   def okScalaFile(scalaFile: ScalaFile): Boolean = {
     okRepos(scalaFile.repo) && !badFile(scalaFile.filename)
   }
@@ -84,6 +95,41 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
   }
 
   def scalaFiles = ScalaFile.getAll.filter(okScalaFile)
+}
+
+object LinePerMsBenchmark extends FormatExperiment with App {
+  case class Result(formatter: String, lineCount: Int, ns: Long) {
+    def toCsv: String = s"$formatter, $lineCount, $ns\n"
+  }
+
+  val csv = new CopyOnWriteArrayList[Result]()
+
+  def time[T](f: => T): Long ={
+    val startTime = System.nanoTime()
+    f
+    System.nanoTime() - startTime
+  }
+  val counter = new AtomicInteger()
+
+  scalaFiles.par.foreach { scalaFile =>
+    val code = scalaFile.read
+    val lineCount = code.lines.length
+    Try(Result("scalafmt", lineCount, time(Scalafmt.format(code)))).foreach(csv.add)
+    Try(Result("scalariform", lineCount, time(ScalaFormatter.format(code)))).foreach(csv.add)
+    val c = counter.incrementAndGet()
+    if (c % 1000 == 0) {
+      println(c)
+    }
+  }
+
+  val csvText = {
+    val sb = new StringBuilder
+    sb.append(s"Formatter, LOC, ns")
+    csv.foreach(x => sb.append(x.toCsv))
+    sb.toString()
+  }
+
+  Files.write(Paths.get("target", "macro.csv"), csvText.getBytes)
 }
 
 // TODO(olafur) integration test?

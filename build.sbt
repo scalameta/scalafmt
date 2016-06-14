@@ -116,6 +116,7 @@ lazy val core = project
       "org.scalameta" %% "scalameta" % Deps.scalameta,
 
       // Test dependencies
+      "org.scalariform" %% "scalariform" % Deps.scalariform ,
       "org.scala-lang" % "scala-reflect" % scalaVersion.value % "test",
       "org.scala-lang" % "scala-compiler" % scalaVersion.value % "test",
       "ch.qos.logback" % "logback-classic" % "1.1.6" % "test",

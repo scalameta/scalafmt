@@ -43,7 +43,7 @@ trait ScalaProjectsExperiment {
   val numberFormat = {
     // I prefer . as thousand separator.
     val format = NumberFormat.getNumberInstance(Locale.GERMAN)
-    format.setMaximumFractionDigits(3)
+    format.setMaximumFractionDigits(0)
     format
   }
 
@@ -109,13 +109,12 @@ trait ScalaProjectsExperiment {
   private def header(msg: String) = s"\n\n## $msg\n"
 
   private def summarize(stats: DescriptiveStatistics): String =
-    Tabulator.format(
+    Tabulator.csv(
         Seq(
             Seq("Total time",
                 "Max",
                 "Min",
                 "Mean",
-                "Q1",
                 "Q2",
                 "Q3",
                 "90th",
@@ -125,7 +124,6 @@ trait ScalaProjectsExperiment {
                 stats.getMax,
                 stats.getMin,
                 stats.getMean,
-                stats.getPercentile(25),
                 stats.getPercentile(50),
                 stats.getPercentile(75),
                 stats.getPercentile(90),
@@ -138,6 +136,7 @@ trait ScalaProjectsExperiment {
       // TODO(olafur) no better lib to do this?
       val ms = d / Math.pow(10, 6)
       numberFormat.format(ms) + " ms"
+      Math.round(ms).toString
     case _ => x.toString
   }
 
