@@ -72,7 +72,6 @@ object ScalafmtOptimizer {
       disableOptimizationsInsideSensitiveAreas = true,
       pruneSlowStates = true,
       recurseOnBlocks = true
-
   )
 
   val noOptimizations = default.copy(

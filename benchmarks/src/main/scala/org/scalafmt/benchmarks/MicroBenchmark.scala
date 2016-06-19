@@ -65,7 +65,11 @@ abstract class MicroBenchmark(path: String*) {
 
   @Benchmark
   def scalafmt_noPruneSlowStates(): String = {
-    Scalafmt.format(code, runner = ScalafmtRunner.default.copy(optimizer = ScalafmtOptimizer.default.copy(pruneSlowStates = false))).get
+    Scalafmt
+      .format(code,
+              runner = ScalafmtRunner.default.copy(optimizer =
+                    ScalafmtOptimizer.default.copy(pruneSlowStates = false)))
+      .get
   }
 
   // No need to run same benchmark again and again.

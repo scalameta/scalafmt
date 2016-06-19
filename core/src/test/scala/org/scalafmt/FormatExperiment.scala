@@ -104,7 +104,7 @@ object LinePerMsBenchmark extends FormatExperiment with App {
 
   val csv = new CopyOnWriteArrayList[Result]()
 
-  def time[T](f: => T): Long ={
+  def time[T](f: => T): Long = {
     val startTime = System.nanoTime()
     f
     System.nanoTime() - startTime
@@ -114,8 +114,10 @@ object LinePerMsBenchmark extends FormatExperiment with App {
   scalaFiles.par.foreach { scalaFile =>
     val code = scalaFile.read
     val lineCount = code.lines.length
-    Try(Result("scalafmt", lineCount, time(Scalafmt.format(code)))).foreach(csv.add)
-    Try(Result("scalariform", lineCount, time(ScalaFormatter.format(code)))).foreach(csv.add)
+    Try(Result("scalafmt", lineCount, time(Scalafmt.format(code))))
+      .foreach(csv.add)
+    Try(Result("scalariform", lineCount, time(ScalaFormatter.format(code))))
+      .foreach(csv.add)
     val c = counter.incrementAndGet()
     if (c % 1000 == 0) {
       println(c)

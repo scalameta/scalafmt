@@ -99,7 +99,9 @@ class ScalafmtAction extends AnAction {
     for {
       project <- Option(event.getData(CommonDataKeys.PROJECT))
       editor <- Option(
-          FileEditorManager.getInstance(project).getSelectedTextEditor)
+                   FileEditorManager
+                     .getInstance(project)
+                     .getSelectedTextEditor)
       document <- Option(editor.getDocument)
       vfile <- Option(FileDocumentManager.getInstance().getFile(document))
     } yield FileDocument(vfile, document)

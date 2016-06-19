@@ -48,12 +48,9 @@ abstract class MacroBenchmark(parallel: Boolean, maxFiles: Int) {
   @Setup
   def setup(): Unit = {
     files = {
-      val x = ScalaFile.getAll
-        .filter{ f =>
-          f.projectUrl.contains("scala-js")
-        }
-        .take(maxFiles)
-        .map(_.read)
+      val x = ScalaFile.getAll.filter { f =>
+        f.projectUrl.contains("scala-js")
+      }.take(maxFiles).map(_.read)
       if (parallel) x.par
       else x
     }

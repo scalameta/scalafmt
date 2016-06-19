@@ -111,8 +111,8 @@ class FormatWriter(formatOps: FormatOps) {
               state.indentation >= previous.state.column =>
             ""
           case nl: NewlineT
-            if nl.acceptSpace &&
-                state.indentation >= previous.state.column =>
+              if nl.acceptSpace &&
+              state.indentation >= previous.state.column =>
             " "
           case nl: NewlineT =>
             val newline =

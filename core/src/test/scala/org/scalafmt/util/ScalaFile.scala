@@ -84,7 +84,7 @@ object ScalaFile {
              |""".stripMargin)
     }
 
-    immutable.Seq(files:_*).flatMap { repo =>
+    immutable.Seq(files: _*).flatMap { repo =>
       val repoPrefix = repo.getPath // + File.pathSeparator
       val commit = FileOps.readFile(new File(repo, "COMMIT")).trim
       val url = FileOps.readFile(new File(repo, "URL")).trim

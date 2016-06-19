@@ -129,7 +129,7 @@ class Router(formatOps: FormatOps) {
         val blockSize = close.start - open.end
         val ignore = blockSize > style.maxColumn || isInlineComment(right)
         val newlineBeforeClosingCurly = Policy({
-          case d@Decision(t @ FormatToken(_, `close`, _), s) =>
+          case d @ Decision(t @ FormatToken(_, `close`, _), s) =>
             Decision(t, Seq(Split(Newline, 0)))
             d.onlyNewlines
         }, close.end)
@@ -282,7 +282,10 @@ class Router(formatOps: FormatOps) {
           } =>
         val modification: Modification = leftOwner match {
           case _: Mod => Space
-          case t: Term.Name if style.spaceAfterTripleEquals && t.tokens.map(_.code) == Seq("===") => Space
+          case t: Term.Name
+              if style.spaceAfterTripleEquals &&
+              t.tokens.map(_.code) == Seq("===") =>
+            Space
           case _ => NoSplit
         }
         Seq(
@@ -459,7 +462,8 @@ class Router(formatOps: FormatOps) {
         val unindent = UnindentAtExclude(exclude, Num(-indent.n))
         val singleArgument = args.length == 1
 
-        def singleLine(newlinePenalty: Int)(implicit line: sourcecode.Line): Policy = {
+        def singleLine(newlinePenalty: Int)(
+            implicit line: sourcecode.Line): Policy = {
           val baseSingleLinePolicy =
             if (isBracket) {
               if (singleArgument)
@@ -1003,7 +1007,7 @@ class Router(formatOps: FormatOps) {
               .withPolicy(SingleLineBlock(expire)),
             Split(Space, 1)
               .withPolicy(Policy({
-                case d@Decision(t @ FormatToken(`arrow`, right, between), s)
+                case d @ Decision(t @ FormatToken(`arrow`, right, between), s)
                     // TODO(olafur) any other corner cases?
                     if !right.isInstanceOf[`{`] &&
                     !isAttachedComment(right, between) =>

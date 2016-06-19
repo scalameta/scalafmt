@@ -103,8 +103,9 @@ object Cli {
       c.copy(testing = true)
     } text "test for mis-formatted code, exits with status 1 on failure."
     opt[Unit]('v', "version") action printAndExit(inludeUsage = false) text "print version "
-    opt[Unit]("build-info") action { case (_, c)=>
-      println( buildInfo)
+    opt[Unit]("build-info") action {
+      case (_, c) =>
+        println(buildInfo)
         sys.exit
     } text "prints build information"
     opt[Unit]('h', "help") action printAndExit(inludeUsage = true) text "prints this usage text"
