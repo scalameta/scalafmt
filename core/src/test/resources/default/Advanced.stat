@@ -129,10 +129,10 @@ private def scalaJSStageSettings = Seq(
 val testFilter: String => Boolean = {
   options.testFilter match {
     case UnknownTests => { absPath =>
-        !blacklistedTestFileNames.contains(absPath) &&
-        !whitelistedTestFileNames.contains(absPath) &&
-        !buglistedTestFileNames.contains(absPath)
-      }
+      !blacklistedTestFileNames.contains(absPath) &&
+      !whitelistedTestFileNames.contains(absPath) &&
+      !buglistedTestFileNames.contains(absPath)
+    }
   }
 }
 <<< testFilter inline comment
