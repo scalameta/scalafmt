@@ -329,14 +329,20 @@ class Router(formatOps: FormatOps) {
         })
 
         val rhsIsJsNative = isJsNative(right)
-        Seq(
-            Split(Space,
-                  0,
-                  ignoreIf = newlines > 0 && !rhsIsJsNative,
-                  policy = SingleLineBlock(expire, exclude = exclude)),
-            Split(Newline, 1, ignoreIf = rhsIsJsNative)
-              .withIndent(2, expire, Left)
-        )
+        right match {
+          case _: `{` =>
+            // The block will take care of indenting by 2.
+            Seq(Split(Space, 0))
+          case _ =>
+            Seq(
+                Split(Space,
+                      0,
+                      ignoreIf = newlines > 0 && !rhsIsJsNative,
+                      policy = SingleLineBlock(expire, exclude = exclude)),
+                Split(Newline, 1, ignoreIf = rhsIsJsNative)
+                  .withIndent(2, expire, Left)
+            )
+        }
       // Term.Apply and friends
       case FormatToken(_: `(` | _: `[`, _, between)
           if style.configStyleArguments &&

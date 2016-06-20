@@ -225,3 +225,31 @@ def unwrapJavaScriptException(th: Throwable): Any = th match {
   case js.JavaScriptException(e) => e
   case _                         => th
 }
+<<< no newline before { #305
+object RTCIceCandidateInit {
+  @inline
+  def apply(
+      candidate: js.UndefOr[String] = js.undefined,
+      sdpMid: js.UndefOr[String] = js.undefined,
+      sdpMLineIndex: js.UndefOr[Double] = js.undefined): RTCIceCandidateInit = {
+    val result = js.Dynamic.literal()
+    candidate.foreach(result.candidate = _)
+    sdpMid.foreach(result.sdpMid = _)
+    sdpMLineIndex.foreach(result.sdpMLineIndex = _)
+    result.asInstanceOf[RTCIceCandidateInit]
+  }
+}
+>>>
+object RTCIceCandidateInit {
+  @inline
+  def apply(candidate: js.UndefOr[String] = js.undefined,
+      sdpMid: js.UndefOr[String] = js.undefined,
+      sdpMLineIndex: js.UndefOr[
+          Double] = js.undefined): RTCIceCandidateInit = {
+    val result = js.Dynamic.literal()
+    candidate.foreach(result.candidate = _)
+    sdpMid.foreach(result.sdpMid = _)
+    sdpMLineIndex.foreach(result.sdpMLineIndex = _)
+    result.asInstanceOf[RTCIceCandidateInit]
+  }
+}
