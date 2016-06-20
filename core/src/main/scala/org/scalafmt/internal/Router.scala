@@ -210,12 +210,19 @@ class Router(formatOps: FormatOps) {
       // Case arrow
       case tok @ FormatToken(arrow: `=>`, right, between)
           if leftOwner.isInstanceOf[Case] =>
-        Seq(
-            Split(Space, 0, ignoreIf = newlines != 0), // Gets killed by `case` policy.
-            Split(
-                NewlineT(isDouble = false, noIndent = rhsIsCommentedOut(tok)),
-                1)
-        )
+        right match {
+          case _: `{` =>
+            // Redundant {} block around case statements.
+            Seq(Split(Space, 0).withIndent(
+                    -2, leftOwner.asInstanceOf[Case].body.tokens.last, Left))
+          case _ =>
+            Seq(
+                Split(Space, 0, ignoreIf = newlines != 0), // Gets killed by `case` policy.
+                Split(NewlineT(isDouble = false,
+                               noIndent = rhsIsCommentedOut(tok)),
+                      1)
+            )
+        }
       // New statement
       case tok @ FormatToken(_: `;`, right, between)
           if startsStatement(tok) && newlines == 0 =>
@@ -329,6 +336,7 @@ class Router(formatOps: FormatOps) {
         })
 
         val rhsIsJsNative = isJsNative(right)
+//        logger.elem(tok)
         right match {
           case _: `{` =>
             // The block will take care of indenting by 2.
