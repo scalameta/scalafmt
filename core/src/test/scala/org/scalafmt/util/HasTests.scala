@@ -107,7 +107,6 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
   def saveResult(t: DiffTest, obtained: String, onlyOne: Boolean): Result = {
     val visitedStates = Debug.exploredInTest
     val output = getFormatOutput(t.style, onlyOne)
-    logger.elem(output)
     val obtainedHtml = Report.mkHtml(output, t.style)
     Result(t,
            obtained,

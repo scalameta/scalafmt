@@ -66,8 +66,8 @@ object ScalafmtOptimizer {
   val default = ScalafmtOptimizer(
       dequeueOnNewStatements = true,
       escapeInPathologicalCases = true,
-    bestEffortEscape = false,
-      MaxVisitsPerToken = 200,
+      bestEffortEscape = false,
+      MaxVisitsPerToken = 513,
       MaxEscapes = 16,
       MaxDepth = 100,
       acceptOptimalAtHints = true,

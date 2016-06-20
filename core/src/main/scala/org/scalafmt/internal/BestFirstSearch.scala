@@ -152,8 +152,7 @@ class BestFirstSearch(
   def shortestPath(start: State,
                    stop: Token,
                    depth: Int = 0,
-                   maxCost: Int = Integer.MAX_VALUE)(
-      implicit line: sourcecode.Line): State = {
+                   maxCost: Int = Integer.MAX_VALUE): State = {
     val Q = new mutable.PriorityQueue[State]()
     var result = start
     var lastDequeue = start
@@ -172,10 +171,10 @@ class BestFirstSearch(
         Q.dequeueAll
       } else if (shouldEnterState(curr)) {
         val splitToken = tokens(curr.splits.length)
-        if (depth == 0 && curr.splits.length > deepestYet.splits.length) {
+        if (curr.splits.length > deepestYet.splits.length) {
           deepestYet = curr
         }
-        if (depth == 0 && curr.policy.isSafe &&
+        if (curr.policy.isSafe &&
             curr.splits.length > deepestYetSafe.splits.length) {
           deepestYetSafe = curr
         }
@@ -208,7 +207,7 @@ class BestFirstSearch(
           if (!bestEffortEscape) {
             runner.eventCallback(CompleteFormat(explored, deepestYet, tokens))
             throw SearchStateExploded(
-                deepestYetSafe, formatWriter.mkString(deepestYet.splits))
+                deepestYet, formatWriter.mkString(deepestYet.splits))
           } else if (pathologicalEscapes >= MaxEscapes) {
             Q.enqueue(untilNextStatement(curr, Integer.MAX_VALUE))
           } else {
@@ -243,10 +242,10 @@ class BestFirstSearch(
             split.optimalAt match {
               case Some(OptimalToken(token, killOnFail))
                   if acceptOptimalAtHints && actualSplit.length > 1 &&
-                  depth < MaxDepth && split.cost == 0 =>
+                  depth < MaxDepth &&
+                  nextState.splits.last.cost == 0 =>
                 val nextNextState =
-                  shortestPath(nextState, token, depth + 1, maxCost = 0)(
-                      sourcecode.Line.generate)
+                  shortestPath(nextState, token, depth + 1, maxCost = 0)
                 if (hasReachedEof(nextNextState) ||
                     (nextNextState.splits.length < tokens.length && tokens(
                             nextNextState.splits.length).left.start >= token.start)) {
@@ -258,8 +257,10 @@ class BestFirstSearch(
                   Q.enqueue(nextState)
                 } // else kill branch
               case _
-                  if optimalNotFound &&
-                  nextState.cost - curr.cost <= maxCost =>
+                  if optimalNotFound
+                      && nextState.cost - curr.cost <= maxCost
+              =>
+
                 Q.enqueue(nextState)
               case _ => // Kill branch.
             }

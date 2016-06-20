@@ -23,8 +23,7 @@ class FidelityTest extends FunSuite with FormatAssertions {
     .listFiles(".")
     .filter(_.endsWith(".scala"))
     .filterNot(_.contains("/target/"))
-      .filterNot(_.contains("/resources/"))
-//    .filterNot(name => Set("Router", "ScalafmtStyle").exists()_.contains("/resources/"))
+    .filterNot(_.contains("/resources/"))
 
   val examples = files.map(Test.apply)
 

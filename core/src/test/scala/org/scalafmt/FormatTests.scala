@@ -62,7 +62,9 @@ class FormatTests
     val runner = scalafmtRunner.withParser(parse)
     val obtained = Scalafmt.format(t.original, t.style, runner) match {
       case FormatResult.Incomplete(code) => code
-      case FormatResult.Failure(e: SearchStateExploded) => e.partialOutput
+      case FormatResult.Failure(e: SearchStateExploded) =>
+        logger.elem(e)
+        e.partialOutput
       case x => x.get
     }
     debugResults += saveResult(t, obtained, onlyOne)
