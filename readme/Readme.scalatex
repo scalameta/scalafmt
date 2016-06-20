@@ -108,9 +108,9 @@
           properly formatted. An exception is thrown in case of failure, no
           files are formatted.
         @li
-          Set @code("scalafmtConfig := Some(file(\".scalafmt\"))") to let the
-          plugin pick up custom style configurations from @code(".scalafmt")
-          in the root directory of your project.
+          Set @code("scalafmtConfig in ThisBuild := Some(file(\".scalafmt\"))")
+          to let the plugin pick up custom style configurations from
+          @code(".scalafmt") in the root directory of your project.
           For details, see @sect.ref{Configuration}.
         @li
           If you use @code("*.scala") build rules you may need to import
