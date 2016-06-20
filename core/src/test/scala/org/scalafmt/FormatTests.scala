@@ -44,7 +44,6 @@ class FormatTests
   lazy val onlyUnit = UnitTests.tests.exists(_.only)
   lazy val onlyManual = !onlyUnit && ManualTests.tests.exists(_.only)
   lazy val onlyOne = tests.exists(_.only)
-  lazy val debugResults = mutable.ArrayBuilder.make[Result]
 
   override def ignore(t: DiffTest): Boolean = false
 

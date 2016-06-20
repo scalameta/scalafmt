@@ -40,6 +40,7 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
         case _ =>
       }
   )
+  lazy val debugResults = mutable.ArrayBuilder.make[Result]
   val testDir = "core/src/test/resources"
 
   def tests: Seq[DiffTest]

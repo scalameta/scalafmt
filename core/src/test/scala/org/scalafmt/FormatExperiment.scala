@@ -136,28 +136,25 @@ object LinePerMsBenchmark extends FormatExperiment with App {
   Files.write(Paths.get("target", "macro.csv"), csvText.getBytes)
 }
 
-// TODO(olafur) integration test?
-class FormatExperimentTest extends FunSuite with FormatExperiment {
-
-  def validate(result: ExperimentResult): Unit = result match {
+object FormatExperimentApp extends FormatExperiment with App {
+  def valid(result: ExperimentResult): Boolean = result match {
     case _: Success | _: Timeout | _: Skipped |
         _: ParseErr | _: SearchStateExploded =>
-    case failure => fail(s"""Unexpected failure:
-                            |$failure""".stripMargin)
+      true
+    case failure => false
   }
 
   // Java 7 times out on Travis.
   if (!sys.env.contains("TRAVIS") ||
       sys.props("java.specification.version") == "1.8") {
-    test(s"scalafmt formats a bunch of OSS projects") {
-      runExperiment(scalaFiles)
-      results.toIterable.foreach(validate)
-      printResults()
+    runExperiment(scalaFiles)
+    printResults()
+    val nonValidResults = results.filterNot(valid)
+    nonValidResults.foreach(println)
+    if (nonValidResults.nonEmpty) {
+      throw new IllegalStateException("Failed test.")
     }
+  } else {
+    println("Skipping test")
   }
-}
-
-object FormatExperimentApp extends FormatExperiment with App {
-  runExperiment(scalaFiles)
-  printResults()
 }

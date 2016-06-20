@@ -34,8 +34,7 @@ object ExperimentResult {
   case class SearchStateExploded(scalaFile: ScalaFile, state: State)
       extends ExperimentResult(scalaFile) {
 
-    override def key =
-      s"Search state exploded at length=${state.splits.length}"
+    override def key = s"Search state exploded"
   }
 
   case class UnknownFailure(scalaFile: ScalaFile, e: Throwable)
