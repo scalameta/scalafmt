@@ -48,30 +48,7 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
   }
 
   def badFile(filename: String): Boolean =
-    Seq(
-        // TODO(olafur) include this file after fixing #140
-        "project/MimaExcludes.scala",
-        // These works if escapeInPathologicalCases = false
-        "project/SparkBuild.scala",
-        "src/org/jetbrains/plugins/scala/lang/psi/types/ScProjectionType.scala",
-        "sql/core/src/main/scala/org/apache/spark/sql/execution/stat/FrequentItems.scala",
-        // These format fine when run individually, but hog when run together with other files.
-        "core/src/main/scala/org/apache/spark/deploy/SparkSubmit.scala",
-        "sql/hive/src/test/scala/org/apache/spark/sql/hive/execution/WindowQuerySuite.scala",
-        "core/src/main/scala/org/apache/spark/SparkConf.scala",
-        // Formats OK, but contains huge function calls which
-        // would definitely be excluded from automatic formatting.
-        "javalanglib/src/main/scala/java/lang/Character.scala",
-        // Duplicate file, both in scala.js and fastparse.
-        "jvm/src/test/resources/scalaparse/GenJSCode.scala",
-        // Auto generated files
-        "scalding-core/src/main/scala/com/twitter/scalding/macros/impl/TypeDescriptorProviderImpl.scala",
-        "scalding/serialization/macros/impl/ordered_serialization/providers/ProductOrderedBuf.scala",
-        "scalding-core/src/main/scala/com/twitter/scalding/typed/GeneratedFlattenGroup.scala",
-        "emitter/JSDesugaring.scala",
-        "js/ThisFunction.scala",
-        "js/Any.scala"
-    ).exists(filename.contains)
+    Seq().exists(filename.contains)
 
   override def runOn(scalaFile: ScalaFile): ExperimentResult = {
     val code = scalaFile.read
