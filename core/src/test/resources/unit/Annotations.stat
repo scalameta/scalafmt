@@ -42,13 +42,13 @@ private trait Iterator {
   var bra: A
 
   @js.native
-  type bra [Meth]
+  type bra[Meth]
 
   @jsnative val bra: A
 
   @jsnative var bra: A
 
-  @jsnative type bra [Meth]
+  @jsnative type bra[Meth]
 }
 <<< SKIP single line trait
 -@typeclass trait Invariant[F[_]] { self =>
