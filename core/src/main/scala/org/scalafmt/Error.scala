@@ -3,6 +3,7 @@ package org.scalafmt
 import java.io.File
 
 import org.scalafmt.internal.Decision
+import org.scalafmt.internal.State
 import org.scalafmt.util.LoggerOps
 import scala.meta.Case
 import scala.meta.Tree
@@ -53,4 +54,7 @@ object Error {
 
   case class MisformattedFile(file: File)
       extends Error(s"${file.getPath} is mis-formatted")
+
+  case class SearchStateExploded(deepestState: State, partialOutput: String)
+      extends Error(s"Search state exploded")
 }

@@ -12,6 +12,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicInteger
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
+import org.scalafmt.Error
 import org.scalafmt.util.ExperimentResult.ParseErr
 import org.scalafmt.util.ExperimentResult.Skipped
 import org.scalafmt.util.ExperimentResult.Success
@@ -69,6 +70,8 @@ trait ScalaProjectsExperiment {
   def recoverError(
       scalaFile: ScalaFile): PartialFunction[Throwable, ExperimentResult] = {
     case e: ParseException => ParseErr(scalaFile, e)
+    case e: Error.SearchStateExploded =>
+      ExperimentResult.SearchStateExploded(scalaFile, e.deepestState)
     case e: java.util.concurrent.TimeoutException =>
       println(s"- $scalaFile")
       Timeout(scalaFile)
@@ -109,7 +112,7 @@ trait ScalaProjectsExperiment {
   private def header(msg: String) = s"\n\n## $msg\n"
 
   private def summarize(stats: DescriptiveStatistics): String =
-    Tabulator.csv(
+    Tabulator.format(
         Seq(
             Seq("Total time",
                 "Max",

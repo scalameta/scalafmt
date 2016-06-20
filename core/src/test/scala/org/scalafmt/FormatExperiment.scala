@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 import org.scalafmt.util.ExperimentResult
 import org.scalafmt.util.ExperimentResult.ParseErr
+import org.scalafmt.util.ExperimentResult.SearchStateExploded
 import org.scalafmt.util.ExperimentResult.Skipped
 import org.scalafmt.util.ExperimentResult.Success
 import org.scalafmt.util.ExperimentResult.Timeout
@@ -77,18 +78,19 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
 
     if (!ScalacParser.checkParseFails(code)) {
       val startTime = System.nanoTime()
-      val formatted = Scalafmt
-        .format(
-            code, ScalafmtStyle.default.copy(alignStripMarginStrings = false))
-        .get
-      val elapsed = System.nanoTime() - startTime
-      assertFormatPreservesAst[Source](code, formatted)
-      val formattedSecondTime = Scalafmt
-        .format(
-            code, ScalafmtStyle.default.copy(alignStripMarginStrings = false))
-        .get
-      assertNoDiff(formattedSecondTime, formatted, "Idempotency")
-      Success(scalaFile, elapsed)
+      Scalafmt.format(code, ScalafmtStyle.default) match {
+        case FormatResult.Success(formatted) =>
+          val elapsed = System.nanoTime() - startTime
+          assertFormatPreservesAst[Source](code, formatted)
+          val formattedSecondTime = Scalafmt
+            .format(
+                code,
+                ScalafmtStyle.default.copy(alignStripMarginStrings = false))
+            .get
+          assertNoDiff(formattedSecondTime, formatted, "Idempotency")
+          Success(scalaFile, elapsed)
+        case e => e.get; ???
+      }
     } else {
       Skipped(scalaFile)
     }
@@ -134,27 +136,25 @@ object LinePerMsBenchmark extends FormatExperiment with App {
   Files.write(Paths.get("target", "macro.csv"), csvText.getBytes)
 }
 
-// TODO(olafur) integration test?
-class FormatExperimentTest extends FunSuite with FormatExperiment {
-
-  def validate(result: ExperimentResult): Unit = result match {
-    case _: Success | _: Timeout | _: Skipped | _: ParseErr =>
-    case failure => fail(s"""Unexpected failure:
-                            |$failure""".stripMargin)
+object FormatExperimentApp extends FormatExperiment with App {
+  def valid(result: ExperimentResult): Boolean = result match {
+    case _: Success | _: Timeout | _: Skipped |
+        _: ParseErr | _: SearchStateExploded =>
+      true
+    case failure => false
   }
 
   // Java 7 times out on Travis.
   if (!sys.env.contains("TRAVIS") ||
       sys.props("java.specification.version") == "1.8") {
-    test(s"scalafmt formats a bunch of OSS projects") {
-      runExperiment(scalaFiles)
-      results.toIterable.foreach(validate)
-      printResults()
+    runExperiment(scalaFiles)
+    printResults()
+    val nonValidResults = results.filterNot(valid)
+    nonValidResults.foreach(println)
+    if (nonValidResults.nonEmpty) {
+      throw new IllegalStateException("Failed test.")
     }
+  } else {
+    println("Skipping test")
   }
-}
-
-object FormatExperimentApp extends FormatExperiment with App {
-  runExperiment(scalaFiles)
-  printResults()
 }

@@ -21,7 +21,7 @@ scrut.branchSwitch(scrut.value,
 +                )
 >>>
 x
-<<< break type
+<<< SKIP break type
 {
 def train(points: RDD[LabeledPoint]): CategoricalNaiveBayesModel = {
     val labelCountFeatureLikelihoods = points.map { p =>

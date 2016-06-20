@@ -1,5 +1,7 @@
 package org.scalafmt.util
 
+import scala.meta.Case
+
 import org.scalafmt.Error
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -57,6 +59,7 @@ object TreeOps {
     case t: Type.Compound => t.refinement
     case t: scala.meta.Source => t.stats
     case t: Template if t.stats.isDefined => t.stats.get
+    case t: Case if t.body.tokens.nonEmpty => Seq(t.body)
     case _ => Seq.empty[Tree]
   }
 

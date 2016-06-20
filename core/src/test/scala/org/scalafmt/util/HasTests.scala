@@ -40,6 +40,7 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
         case _ =>
       }
   )
+  lazy val debugResults = mutable.ArrayBuilder.make[Result]
   val testDir = "core/src/test/resources"
 
   def tests: Seq[DiffTest]
@@ -93,6 +94,7 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
     filename.split("/").reverse(1) match {
       case "unit" => ScalafmtStyle.unitTest40
       case "default" | "standard" | "scala" => ScalafmtStyle.unitTest80
+      case "default140" => ScalafmtStyle.default.copy(maxColumn = 140)
       case "scalajs" => ScalafmtStyle.scalaJs
       case "stripMargin" => ScalafmtStyle.default
       case "spaces" =>

@@ -688,7 +688,8 @@ class Router(formatOps: FormatOps) {
           else Newline
 
         Seq(
-            Split(Space, 0, policy = spacePolicy),
+            Split(Space, 0, policy = spacePolicy)
+              .withOptimalToken(expire, killOnFail = false),
             Split(mod, 1 + penalty, ignoreIf = isJsNative(right))
               .withIndent(2, expire, Left)
         )

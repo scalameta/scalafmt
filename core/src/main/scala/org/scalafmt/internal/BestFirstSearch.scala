@@ -2,6 +2,7 @@ package org.scalafmt.internal
 
 import scala.meta.Defn
 
+import org.scalafmt.Error.SearchStateExploded
 import org.scalafmt.FormatResult
 import org.scalafmt.internal.ExpiresOn.Right
 import org.scalafmt.internal.ExpiresOn.Left
@@ -131,10 +132,14 @@ class BestFirstSearch(
     }
   }
 
-  def untilNextStatement(state: State): State = {
+  def untilNextStatement(state: State, maxDepth: Int): State = {
     var curr = state
-    while (!hasReachedEof(curr) &&
-           !statementStarts.contains(hash(tokens(curr.splits.length).left))) {
+    while (!hasReachedEof(curr) && {
+             val token = tokens(curr.splits.length).left
+             !statementStarts.contains(hash(token)) && {
+               parents(owners(token)).length <= maxDepth
+             }
+           }) {
       val tok = tokens(curr.splits.length)
       curr = State.next(curr, style, provided(tok), tok)
     }
@@ -147,10 +152,10 @@ class BestFirstSearch(
   def shortestPath(start: State,
                    stop: Token,
                    depth: Int = 0,
-                   maxCost: Int = Integer.MAX_VALUE)(
-      implicit line: sourcecode.Line): State = {
+                   maxCost: Int = Integer.MAX_VALUE): State = {
     val Q = new mutable.PriorityQueue[State]()
     var result = start
+    var lastDequeue = start
     Q += start
     // TODO(olafur) this while loop is waaaaaaaaaaaaay tooo big.
     while (Q.nonEmpty) {
@@ -166,10 +171,10 @@ class BestFirstSearch(
         Q.dequeueAll
       } else if (shouldEnterState(curr)) {
         val splitToken = tokens(curr.splits.length)
-        if (depth == 0 && curr.splits.length > deepestYet.splits.length) {
+        if (curr.splits.length > deepestYet.splits.length) {
           deepestYet = curr
         }
-        if (depth == 0 && curr.policy.isSafe &&
+        if (curr.policy.isSafe &&
             curr.splits.length > deepestYetSafe.splits.length) {
           deepestYetSafe = curr
         }
@@ -181,6 +186,9 @@ class BestFirstSearch(
             (depth > 0 || !isInsideNoOptZone(splitToken)) &&
             curr.splits.last.modification.isNewline) {
           Q.dequeueAll
+          if (!isInsideNoOptZone(splitToken) && lastDequeue.policy.isSafe) {
+            lastDequeue = curr
+          }
         }
 
         if (shouldRecurseOnBlock(curr, stop)) {
@@ -191,23 +199,25 @@ class BestFirstSearch(
           if (nextToken.left == close) {
             Q.enqueue(nextState)
           }
-        } else {
-          if (escapeInPathologicalCases &&
-              visits(splitToken) > MaxVisitsPerToken) {
-            // Danger zone: escape hatch for pathological cases.
-            Q.dequeueAll
-            best.clear()
-            visits.clear()
-            if (pathologicalEscapes >= MaxEscapes) {
-              // Last resort. No other optimization has worked.
-              Q.enqueue(untilNextStatement(curr))
-            } else {
-              // We are stuck, but try to continue with one cheap/fast and
-              // one expensive/slow state.
-              Q.enqueue(deepestYetSafe)
-              pathologicalEscapes += 1
-            }
+        } else if (escapeInPathologicalCases &&
+                   visits(splitToken) > MaxVisitsPerToken) {
+          Q.dequeueAll
+          best.clear()
+          visits.clear()
+          if (!bestEffortEscape) {
+            runner.eventCallback(CompleteFormat(explored, deepestYet, tokens))
+            throw SearchStateExploded(
+                deepestYet, formatWriter.mkString(deepestYet.splits))
+          } else if (pathologicalEscapes >= MaxEscapes) {
+            Q.enqueue(untilNextStatement(curr, Integer.MAX_VALUE))
+          } else {
+            // We are stuck, but try to continue with one cheap/fast and
+            // one expensive/slow state.
+            Q.enqueue(deepestYetSafe)
+            Q.enqueue(curr)
+            pathologicalEscapes += 1
           }
+        } else {
 
           val splits: Seq[Split] =
             if (curr.formatOff) List(provided(splitToken))
@@ -232,10 +242,10 @@ class BestFirstSearch(
             split.optimalAt match {
               case Some(OptimalToken(token, killOnFail))
                   if acceptOptimalAtHints && actualSplit.length > 1 &&
-                  depth < MaxDepth && split.cost == 0 =>
+                  depth < MaxDepth &&
+                  nextState.splits.last.cost == 0 =>
                 val nextNextState =
-                  shortestPath(nextState, token, depth + 1, maxCost = 0)(
-                      sourcecode.Line.generate)
+                  shortestPath(nextState, token, depth + 1, maxCost = 0)
                 if (hasReachedEof(nextNextState) ||
                     (nextNextState.splits.length < tokens.length && tokens(
                             nextNextState.splits.length).left.start >= token.start)) {
@@ -247,8 +257,10 @@ class BestFirstSearch(
                   Q.enqueue(nextState)
                 } // else kill branch
               case _
-                  if optimalNotFound &&
-                  nextState.cost - curr.cost <= maxCost =>
+                  if optimalNotFound
+                      && nextState.cost - curr.cost <= maxCost
+              =>
+
                 Q.enqueue(nextState)
               case _ => // Kill branch.
             }
