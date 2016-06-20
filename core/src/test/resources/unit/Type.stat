@@ -55,3 +55,11 @@ def map[T: Class](f: N => T): S[T]
 def orderLaws[A : Eq : Arbitrary] = O
 >>>
 def orderLaws[A: Eq: Arbitrary] = O
+<<< decl.type #288
+trait Foo[F[_]] {
+  type G [A]
+  }
+>>>
+trait Foo[F[_]] {
+  type G[A]
+}
