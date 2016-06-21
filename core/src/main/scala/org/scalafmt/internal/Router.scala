@@ -476,6 +476,9 @@ class Router(formatOps: FormatOps) {
         val unindent = UnindentAtExclude(exclude, Num(-indent.n))
         val singleArgument = args.length == 1
 
+        def insideBraces(t: FormatToken): Boolean =
+          excludeRanges.exists(_.contains(t.left.start))
+
         def singleLine(newlinePenalty: Int)(
             implicit line: sourcecode.Line): Policy = {
           val baseSingleLinePolicy =
@@ -486,8 +489,10 @@ class Router(formatOps: FormatOps) {
               else SingleLineBlock(close)
             } else {
               if (singleArgument) {
-                penalizeAllNewlines(
-                    close, newlinePenalty, penalizeLambdas = false)
+                penalizeAllNewlines(close,
+                                    newlinePenalty,
+                                    ignore = insideBraces,
+                                    penalizeLambdas = false)
               } else SingleLineBlock(close, excludeRanges)
             }
 
