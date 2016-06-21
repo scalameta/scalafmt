@@ -92,3 +92,45 @@ p.`then`[Unit](
       })
       (): Unit | Thenable[Unit]
     })
+<<< ONLY #273
+{
+{
+{
+{
+{
+{
+{
+{
+{
+inline_+(quotLo, quotHi,
+            unsignedSafeDoubleLo(rem_div_bDouble))
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+            }
+>>>
+{
+  {
+    {
+      {
+        {
+          {
+            {
+              {
+                {
+                  inline_+(quotLo, quotHi,
+                      unsignedSafeDoubleLo(rem_div_bDouble))
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
