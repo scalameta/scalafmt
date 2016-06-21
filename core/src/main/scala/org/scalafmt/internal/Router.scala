@@ -742,7 +742,7 @@ class Router(formatOps: FormatOps) {
               .withPolicy(noSplitPolicy),
             Split(Newline.copy(acceptNoSplit = true), 2 + nestedPenalty)
               .withPolicy(newlinePolicy)
-              .withIndent(2, lastToken, Left)
+              .withIndent(2, optimalToken, Left)
         )
       // ApplyUnary
       case tok @ FormatToken(_: Ident, _: Literal, _)

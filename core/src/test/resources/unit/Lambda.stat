@@ -92,6 +92,5 @@ val groupedData = Array(topic1, topic2).flatMap(
 >>>
 val groupedData = Array(topic1, topic2)
   .flatMap(topic =>
-      partitionDataFetchResponseMap
-        .map(foobar))
-
+        partitionDataFetchResponseMap
+          .map(foobar))
