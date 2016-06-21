@@ -647,3 +647,9 @@ Seq(
       .withOptimalToken(expirationToken)
       .withIndent(indent, close, Left)
 )
+<<< qualified super #275
+   def fillInStackTrace(): Throwable =
+    super[Error].fillInStackTrace()
+>>>
+def fillInStackTrace(): Throwable =
+  super[Error].fillInStackTrace()

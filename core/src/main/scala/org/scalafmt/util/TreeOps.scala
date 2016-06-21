@@ -250,7 +250,7 @@ object TreeOps {
   }
 
   def isCallSite(tree: Tree): Boolean = tree match {
-    case _: Term.Apply | _: Pat.Type.Apply | _: Pat.Extract |
+    case _: Term.Apply | _: Pat.Type.Apply | _: Pat.Extract | _: Term.Super |
         _: Pat.Tuple | _: Term.Tuple | _: Term.ApplyType | _: Term.Update =>
       true
     case _ => false
@@ -276,6 +276,7 @@ object TreeOps {
 
   val splitApplyIntoLhsAndArgs: PartialFunction[Tree, (Tree, Seq[Tree])] = {
     case t: Term.Apply => t.fun -> t.args
+    case t: Term.Super => t -> Seq(t.superp)
     case t: Pat.Extract => t.ref -> t.args
     case t: Pat.Tuple => t -> t.elements
     case t: Pat.Type.Apply => t.tpe -> t.args
