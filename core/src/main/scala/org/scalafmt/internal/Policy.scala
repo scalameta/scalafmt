@@ -16,10 +16,14 @@ case class Policy(
     noDequeue: Boolean = false,
     isSingleLine: Boolean = false)(implicit val line: sourcecode.Line) {
 
+  def andThen(other: Policy): Policy = {
+    if (this.f == Policy.emptyPf) other
+    else this.andThen(other.f)
+  }
   /** Similar to PartialFunction.andThen, except applies second pf even if the
     * first pf is not defined at argument.
     */
-  def andThen(otherF: PartialFunction[Decision, Decision]) = {
+  def andThen(otherF: PartialFunction[Decision, Decision]): Policy = {
     // TODO(olafur) optimize?
     val newPf: PartialFunction[Decision, Decision] = {
       case x =>
@@ -36,6 +40,8 @@ object Policy {
   val IdentityPolicy: PartialFunction[Decision, Decision] = {
     case d => throw NoopDefaultPolicyApplied(d)
   }
+
+  val emptyPf = PartialFunction.empty[Decision, Decision]
 
   val empty = new Policy(IdentityPolicy, Integer.MAX_VALUE) {
 

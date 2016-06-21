@@ -448,6 +448,7 @@ class Router(formatOps: FormatOps) {
               .withPolicy(unindentPolicy)
               .withIndent(4, close, Left)
         )
+      case FormatToken(_: `(` , _: `)`, _) => Seq(Split(NoSplit, 0))
       case tok @ FormatToken(_: `(` | _: `[`, right, between)
           if !isSuperfluousParenthesis(formatToken.left, leftOwner) &&
           (!style.binPackArguments && isCallSite(leftOwner)) ||
@@ -526,6 +527,17 @@ class Router(formatOps: FormatOps) {
 
         val tooManyArguments = args.length > 100
 
+        val newlinePolicy: Policy =
+          if (!style.configStyleArguments && style.danglingParentheses) {
+            val breakOnClosing = Policy({
+              case d @ Decision(FormatToken(_, `close`, _), s) =>
+                d.onlyNewlines
+            }, close.end)
+            breakOnClosing
+          } else {
+            Policy(PartialFunction.empty[Decision, Decision], close.end)
+          }
+
         val isTuple = leftOwner match {
           case _: Type.Tuple | _: Term.Tuple => true
           case _ => false
@@ -537,13 +549,13 @@ class Router(formatOps: FormatOps) {
                   policy = singleLine(6),
                   ignoreIf = !fitsOnOneLine)
               .withOptimalToken(expirationToken)
-              .withIndent(indent, close, Left),
+              .withIndent(indent, close, Right),
             Split(newlineModification,
                   (1 + nestedPenalty + lhsPenalty) * bracketMultiplier,
-                  policy = singleLine(5),
+                  policy = newlinePolicy.andThen(singleLine(5)),
                   ignoreIf = args.length > 1 || !fitsOnOneLine || isTuple)
               .withOptimalToken(expirationToken)
-              .withIndent(indent, close, Left),
+              .withIndent(indent, close, Right),
             Split(modification,
                   (2 + lhsPenalty) * bracketMultiplier,
                   policy = oneArgOneLine,
@@ -554,10 +566,10 @@ class Router(formatOps: FormatOps) {
               .withIndent(StateColumn, close, Right),
             Split(Newline,
                   (3 + nestedPenalty + lhsPenalty) * bracketMultiplier,
-                  policy = oneArgOneLine,
+                  policy = newlinePolicy.andThen(oneArgOneLine),
                   ignoreIf = singleArgument || isTuple)
               .withOptimalToken(expirationToken)
-              .withIndent(indent, close, Left)
+              .withIndent(indent, close, Right)
         )
 
       // Closing def site ): ReturnType

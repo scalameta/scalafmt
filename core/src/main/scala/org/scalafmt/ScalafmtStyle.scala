@@ -34,6 +34,21 @@ import sourcecode.Text
   *
   *                                         baab) && // indent 4
   *                                       caab)
+  * @param danglingParentheses If true
+  *                            AND @binPackArguments is true
+  *                            AND @configStyleArguments is false, then this
+  *
+  *                            function(
+  *                                longerArg1,
+  *                                longerArg3)
+  *
+  *                            is formatted like this
+  *
+  *                            function(
+  *                                longerArg1,
+  *                                longerArg3
+  *                            )
+  *
   * @param alignByOpenParenCallSite If true AND bin-packing is true, then call-site
   *                                 arguments won't be aligned by the opening
   *                                 parenthesis. For example, this output
@@ -71,6 +86,7 @@ case class ScalafmtStyle(
     binPackDotChains: Boolean,
     noNewlinesBeforeJsNative: Boolean,
     superfluousParensIndent: Int,
+    danglingParentheses: Boolean,
     alignByOpenParenCallSite: Boolean,
     continuationIndentCallSite: Int,
     continuationIndentDefnSite: Int,
@@ -98,10 +114,11 @@ object ScalafmtStyle {
       binPackArguments = false,
       binPackParameters = false,
       configStyleArguments = true,
+      danglingParentheses = false,
+      alignByOpenParenCallSite = true,
       binPackDotChains = false,
       noNewlinesBeforeJsNative = false,
       superfluousParensIndent = 4,
-      alignByOpenParenCallSite = true,
       continuationIndentCallSite = 4,
       continuationIndentDefnSite = 4,
       alignTokens = Set.empty[AlignToken],
@@ -111,6 +128,15 @@ object ScalafmtStyle {
       spaceAfterTripleEquals = false,
       alignByArrowEnumeratorGenerator = true,
       alignByIfWhileOpenParen = true
+  )
+
+  // TODO(olafur) remove, just to debug #285
+  val lihaoyi = default.copy(
+      continuationIndentCallSite = 2,
+      continuationIndentDefnSite = 2,
+      alignByOpenParenCallSite = false,
+      configStyleArguments = false,
+      danglingParentheses = true
   )
 
   val defaultWithAlign = default.copy(alignTokens = AlignToken.default)
@@ -150,6 +176,8 @@ object ScalafmtStyle {
         default,
         defaultWithAlign
     )
+
+  // TODO(olafur): remove lihaoyi
   val availableStyles = {
     activeStyles ++ name2style(
         scalaJs

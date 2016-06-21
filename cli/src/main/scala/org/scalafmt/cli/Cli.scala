@@ -164,6 +164,10 @@ object Cli {
     opt[Boolean]("spacesInImportCurlyBraces") action { (bool, c) =>
       c.copy(style = c.style.copy(spacesInImportCurlyBraces = bool))
     } text s"See ScalafmtStyle scaladoc."
+    opt[Boolean]("danglingParentheses") action { (bool, c) =>
+      c.copy(style = c.style.copy(configStyleArguments = !bool,
+                                  danglingParentheses = bool))
+    } text s"See ScalafmtConfig scaladoc. --alignByOpenParenCallSite false is recommended."
     opt[Boolean]("spaceAfterTripleEquals") action { (bool, c) =>
       c.copy(style = c.style.copy(spaceAfterTripleEquals = bool))
     } text s"See ScalafmtConfig scaladoc."
