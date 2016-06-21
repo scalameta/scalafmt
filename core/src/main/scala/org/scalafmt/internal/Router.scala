@@ -448,7 +448,7 @@ class Router(formatOps: FormatOps) {
               .withPolicy(unindentPolicy)
               .withIndent(4, close, Left)
         )
-      case FormatToken(_: `(` , _: `)`, _) => Seq(Split(NoSplit, 0))
+      case FormatToken(_: `(`, _: `)`, _) => Seq(Split(NoSplit, 0))
       case tok @ FormatToken(_: `(` | _: `[`, right, between)
           if !isSuperfluousParenthesis(formatToken.left, leftOwner) &&
           (!style.binPackArguments && isCallSite(leftOwner)) ||
@@ -719,11 +719,13 @@ class Router(formatOps: FormatOps) {
         val exclude = insideBlock(formatToken, expire, _.isInstanceOf[`{`])
         rhs match {
           case _: Term.ApplyInfix =>
+            val modification = newlines2Modification(between)
+            val policy: Policy =
+              if (modification.isNewline) NoPolicy
+              else Policy(UnindentAtExclude(exclude, -2), expire.end)
             // Don't try anything smart around infix applications.
             Seq(
-                Split(newlines2Modification(between), 0)
-                  .withPolicy(
-                      Policy(UnindentAtExclude(exclude, -2), expire.end))
+                Split(modification, 0, policy = policy)
                   .withIndent(2, expire, Left)
             )
           case _ =>

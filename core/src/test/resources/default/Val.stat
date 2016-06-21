@@ -156,7 +156,7 @@ val predefinedType = if (clazz.getTypeParameters.length == 1) {
   ScParameterizedType(ScDesignatorType(clazz), undefines)
 } else
   ScDesignatorType(clazz)
-<<< ONLY myRoute
+<<< myRoute
   val myRoute =
     path("") {
     get {
@@ -164,40 +164,73 @@ val predefinedType = if (clazz.getTypeParameters.length == 1) {
         detach() {
           complete {
             html
-              .index(
-                  args,
-                  manifest,
-                  engineInstance,
-                  algorithms.map(_.toString),
-                  algorithmsParams.map(_.toString),
-                  models.map(_.toString),
-                  dataSourceParams.toString,
-                  preparatorParams.toString,
-                  servingParams.toString,
-                  serverStartTime,
-                  feedbackEnabled,
-                  args.eventServerIp,
-                  args.eventServerPort,
-                  requestCount,
-                  avgServingSec,
-                  lastServingSec
-              )
-              .toString
           }
         }
       }
     }
   } ~ path("queries.json") {
-      post {}
       }
 >>>
-x
-<<< ONLY vfile
-      val vfile =
-        options.jar map { jar =>
+val myRoute =
+  path("") {
+    get {
+      respondWithMediaType(`text/html`) {
+        detach() {
+          complete {
+            html
+          }
+        }
+      }
+    }
+  } ~ path("queries.json") {}
+<<< myRoute  2
+  val myRoute = path("") {
+    get {
+      respondWithMediaType(`text/html`) {
+        detach() {
+          complete {
+            html
+          }
+        }
+      }
+    }
+  } ~ path("queries.json") {
+      }
+>>>
+val myRoute = path("") {
+  get {
+    respondWithMediaType(`text/html`) {
+      detach() {
+        complete {
+          html
+        }
+      }
+    }
+  }
+} ~ path("queries.json") {}
+<<< vfile
+      val vfile = options.jar map { jar =>
         readFromJar(jar, fileName)
       } getOrElse {
         readFromFile(fileName)
       }
 >>>
-x
+val vfile = options.jar map { jar =>
+  readFromJar(jar, fileName)
+} getOrElse {
+  readFromFile(fileName)
+}
+<<< vfile 2
+      val vfile =
+       options.jar map { jar =>
+        readFromJar(jar, fileName)
+      } getOrElse {
+        readFromFile(fileName)
+      }
+>>>
+val vfile =
+  options.jar map { jar =>
+    readFromJar(jar, fileName)
+  } getOrElse {
+    readFromFile(fileName)
+  }
