@@ -158,7 +158,6 @@ val ret = new mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](
                   optimalAt = Some(expire_______________a)).withPolicy(SingleLineBlockAAAA(
                 expire))
         )
-
 }}}}
 >>>
 {

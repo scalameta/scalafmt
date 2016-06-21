@@ -87,9 +87,7 @@ class RTCPeerConnection(
    @inline def insertAll(n: Int,
                elems: scala.collection.Traversable[A]): Unit = {
        array.splice(n, 0, elems.toSeq: _*)
-
                }
-
  }
 >>>
 {

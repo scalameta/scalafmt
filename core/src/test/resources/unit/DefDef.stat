@@ -110,3 +110,13 @@ def a =
 >>>
 def a =
   b
+<<< #283
+def heyImCool = {
+    val c = b.foobar
+
+}
+>>>
+def heyImCool = {
+  val c = b.foobar
+
+}

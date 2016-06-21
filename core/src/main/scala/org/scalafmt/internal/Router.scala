@@ -269,7 +269,7 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_, _: `}`, _) =>
         Seq(
             Split(Space, 0),
-            Split(Newline, 0)
+            Split(NewlineT(isDouble = newlines > 1), 0)
         )
       case FormatToken(left: `package `, _, _)
           if leftOwner.isInstanceOf[Pkg] =>
