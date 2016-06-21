@@ -247,3 +247,31 @@ if (other == null) {
     })
   }
 }
+<<< #336
+    object ExternForwarder {
+      def unapply(tree: Tree): Option[Symbol] = tree match {
+        case DefDef()
+            if isExternModule(from.symbol)
+            && params.length == args.length
+            && params.zip(args).forall {
+                case _                     => false
+              } =>
+          Some(sel.symbol)
+        case _ =>
+          None
+      }
+    }
+>>>
+object ExternForwarder {
+  def unapply(tree: Tree): Option[Symbol] = tree match {
+    case DefDef()
+        if isExternModule(from.symbol)
+          && params.length == args.length
+          && params.zip(args).forall {
+            case _ => false
+          } =>
+      Some(sel.symbol)
+    case _ =>
+      None
+  }
+}

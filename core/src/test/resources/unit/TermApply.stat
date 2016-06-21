@@ -16,23 +16,23 @@ function(
         "very long argument string"));
 <<< Prune redundant branches
 new Compiler(
-    primitives.options.has("primitives"),
+    primitives.opti___________ons.has("primitives"),
     minify.options.has("minify"),
     preserve.options.has("preserve"),
     liveAnalysis.check(options.has("live"), options.has("analysis")),
     multi.options.has("multi"),
-    sourceMap.options.has("source-map"));
+    sourceMap.options.hasNot("source-map"));
 >>>
 new Compiler(
-    primitives.options
-      .has("primitives"),
+    primitives.opti___________ons.has(
+        "primitives"),
     minify.options.has("minify"),
     preserve.options.has("preserve"),
     liveAnalysis.check(
         options.has("live"),
         options.has("analysis")),
     multi.options.has("multi"),
-    sourceMap.options.has(
+    sourceMap.options.hasNot(
         "source-map"));
 <<< comment after (
 var list = List( // comment

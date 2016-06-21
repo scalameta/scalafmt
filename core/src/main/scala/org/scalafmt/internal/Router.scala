@@ -338,7 +338,6 @@ class Router(formatOps: FormatOps) {
         })
 
         val rhsIsJsNative = isJsNative(right)
-//        logger.elem(tok)
         right match {
           case _: `{` =>
             // The block will take care of indenting by 2.
@@ -717,7 +716,6 @@ class Router(formatOps: FormatOps) {
             val spacePolicy: Policy = rhs match {
               case _: Term.If =>
                 val excludeRanges = exclude.map(parensRange)
-//                logger.elem(exclude.map(leftTok2tok))
                 penalizeAllNewlines(
                     expire,
                     Constants.ShouldBeSingleLine,
@@ -955,30 +953,13 @@ class Router(formatOps: FormatOps) {
         )
       // Infix operator.
       case tok @ FormatToken(op: Ident, right, between)
-          if leftOwner.parent.exists {
-            case infix: Term.ApplyInfix => infix.op == owners(op)
-            case _ => false
-          } =>
+          if isApplyInfix(op, leftOwner) =>
         val owner = leftOwner.parent.get.asInstanceOf[Term.ApplyInfix]
-        val modification = newlines2Modification(
-            between, rightIsComment = right.isInstanceOf[Comment])
-        val indent = {
-          if (isTopLevelInfixApplication(owner)) 0
-          else if (!modification.isNewline &&
-                   !isAttachedComment(right, between)) 0
-          else 2
-        }
-        val expire = (for {
-          arg <- owner.args.lastOption
-          token <- arg.tokens.lastOption
-        } yield token).getOrElse(owner.tokens.last)
-//        val exclude = insideBlock(formatToken, expire, _.isInstanceOf[`(`])
-//        val unindent = Policy(UnindentAtExclude(exclude, -2), expire.end)
-        Seq(
-            Split(modification, 0)
-//              .withPolicy(unindent)
-              .withIndent(indent, expire, Left)
-        )
+        Seq(infixSplit(owner, formatToken))
+      case FormatToken(left, op: Ident, between)
+          if isApplyInfix(op, rightOwner) =>
+        val owner = rightOwner.parent.get.asInstanceOf[Term.ApplyInfix]
+        Seq(infixSplit(owner, formatToken))
 
       // Pat
       case tok @ FormatToken(or: Ident, _, _)

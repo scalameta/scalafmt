@@ -418,6 +418,12 @@ object TreeOps {
       case _ => first
     }
 
+  final def isApplyInfix(op: Token.Ident, owner: Tree): Boolean =
+    owner.parent.exists {
+      case infix: Term.ApplyInfix => infix.op == owner
+      case _ => false
+    }
+
   @tailrec
   final def isTopLevelInfixApplication(child: Term.ApplyInfix): Boolean =
     child.parent match {

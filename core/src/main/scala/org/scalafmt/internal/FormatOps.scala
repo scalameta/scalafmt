@@ -325,8 +325,25 @@ class FormatOps(val tree: Tree,
       if (lastDotIndex != -1) chain.last.tokens(lastDotIndex).asInstanceOf[`.`]
       else
         throw new IllegalStateException(s"Missing . in select ${chain.last}")
-    rhsOptimalToken(
-        leftTok2tok(lastToken(owners(getSelectsLastToken(lastDot)))))
+    lastToken(owners(getSelectsLastToken(lastDot)))
+  }
+
+  def infixSplit(owner: Term.ApplyInfix, formatToken: FormatToken)(
+      implicit line: sourcecode.Line): Split = {
+    val modification = newlines2Modification(
+        formatToken.between,
+        rightIsComment = formatToken.right.isInstanceOf[Comment])
+    val indent = {
+      if (isTopLevelInfixApplication(owner)) 0
+      else if (!modification.isNewline &&
+               !isAttachedComment(formatToken.right, formatToken.between)) 0
+      else 2
+    }
+    val expire = (for {
+      arg <- owner.args.lastOption
+      token <- arg.tokens.lastOption
+    } yield token).getOrElse(owner.tokens.last)
+    Split(modification, 0).withIndent(Num(indent), expire, ExpiresOn.Left)
   }
 
   /**
