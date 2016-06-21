@@ -272,3 +272,18 @@ x
     }
   }.getOrElse(tree.tokens.last)
 }
+<<< #274
+{
+{
+@inline def rawToInt(x: Double): Int =
+      (x.asInstanceOf[js.Dynamic] | 0.asInstanceOf[js.Dynamic]).asInstanceOf[Int]
+}
+}
+>>>
+{
+  {
+    @inline def rawToInt(x: Double): Int =
+      (x.asInstanceOf[js.Dynamic] | 0.asInstanceOf[js.Dynamic])
+        .asInstanceOf[Int]
+  }
+}
