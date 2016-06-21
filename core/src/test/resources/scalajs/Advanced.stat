@@ -13,7 +13,7 @@ private def genApplyForSym(minArgc: Int, hasRestParam: Boolean,
 private def genApplyForSym(minArgc: Int, hasRestParam: Boolean,
     sym: Symbol): js.Tree = {
   if (isScalaJSDefinedJSClass(currentClassSym) &&
-        sym.owner != currentClassSym.get) {
+      sym.owner != currentClassSym.get) {
     genApplyForSymJSSuperCall(minArgc, hasRestParam, sym)
   } else {
     genApplyForSymNonJSSuperCall(minArgc, sym)

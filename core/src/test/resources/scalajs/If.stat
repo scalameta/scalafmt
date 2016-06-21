@@ -6,6 +6,6 @@
     }
 >>>
 while (!hasReachedEof(curr) &&
-      !statementStarts.contains(hash(tokens(curr.splits.length).left))) {
+    !statementStarts.contains(hash(tokens(curr.splits.length).left))) {
   foo
 }
