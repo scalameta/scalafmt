@@ -175,3 +175,52 @@ def headerText(colBarcodes: Seq[String], compat: Boolean): String = {
   s"Sequence\tTotal\t${colBarcodes.mkString("\t")}\t" +
   (if (compat) "Construct IDs" else "Potential IDs")
 }
+<<< #269 6
+   val _areTypedArraysSupported = {
+     // Here we use `assumingES6` to dce the 4 subsequent tests
+    assumingES6 || js.DynamicImplicits.truthValue(
+        global.ArrayBuffer && global.Int32Array &&
+        global.Float32Array && global.Float64Array)
+   }
+>>>
+val _areTypedArraysSupported = {
+  // Here we use `assumingES6` to dce the 4 subsequent tests
+  assumingES6 || js.DynamicImplicits.truthValue(
+      global.ArrayBuffer && global.Int32Array &&
+        global.Float32Array && global.Float64Array)
+}
+<<< #269 7 will not break after - fix it yourself
+{
+{
+{
+ var shift =
+      inlineNumberOfLeadingZeros(blo, bhi) - inlineNumberOfLeadingZeros(alo, ahi)
+      }
+      }
+      }
+>>>
+{
+  {
+    {
+      var shift =
+        inlineNumberOfLeadingZeros(blo, bhi) - inlineNumberOfLeadingZeros(
+            alo, ahi)
+    }
+  }
+}
+<<< #269 8 will not break fix yourself
+   if (other == null) {
+       throw new NullPointerException()
+    } else if (toffset < 0 || ooffset < 0 || toffset + len > thiz.length || ooffset + len >  other.length) {
+       false
+     } else if (len <= 0) {
+       true
+     }
+>>>
+if (other == null) {
+  throw new NullPointerException()
+} else if (toffset < 0 || ooffset < 0 || toffset + len > thiz.length || ooffset + len > other.length) {
+  false
+} else if (len <= 0) {
+  true
+}
