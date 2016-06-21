@@ -148,7 +148,7 @@ object Cli {
       c.copy(style = c.style.copy(binPackParentConstructors = bool))
     } text s"See ScalafmtStyle scaladoc."
     opt[Boolean]("spacesInImportCurlyBraces") action { (bool, c) =>
-      c.copy(style = c.style.copy(spacesInImportCurlyBrackets = bool))
+      c.copy(style = c.style.copy(spacesInImportCurlyBraces = bool))
     } text s"See ScalafmtStyle scaladoc."
     opt[Boolean]("spaceAfterTripleEquals") action { (bool, c) =>
       c.copy(style = c.style.copy(spaceAfterTripleEquals = bool))

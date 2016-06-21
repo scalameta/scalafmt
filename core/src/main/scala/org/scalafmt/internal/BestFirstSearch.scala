@@ -242,8 +242,7 @@ class BestFirstSearch(
             split.optimalAt match {
               case Some(OptimalToken(token, killOnFail))
                   if acceptOptimalAtHints && actualSplit.length > 1 &&
-                  depth < MaxDepth &&
-                  nextState.splits.last.cost == 0 =>
+                  depth < MaxDepth && nextState.splits.last.cost == 0 =>
                 val nextNextState =
                   shortestPath(nextState, token, depth + 1, maxCost = 0)
                 if (hasReachedEof(nextNextState) ||
@@ -257,10 +256,8 @@ class BestFirstSearch(
                   Q.enqueue(nextState)
                 } // else kill branch
               case _
-                  if optimalNotFound
-                      && nextState.cost - curr.cost <= maxCost
-              =>
-
+                  if optimalNotFound &&
+                  nextState.cost - curr.cost <= maxCost =>
                 Q.enqueue(nextState)
               case _ => // Kill branch.
             }

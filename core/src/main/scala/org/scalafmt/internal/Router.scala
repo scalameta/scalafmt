@@ -107,14 +107,14 @@ class Router(formatOps: FormatOps) {
           if (leftOwner.isInstanceOf[Term.Interpolate]) NoPolicy
           else SingleLineBlock(matchingParentheses(hash(open)))
         Seq(
-            Split(if (style.spacesInImportCurlyBrackets) Space else NoSplit, 0)
+            Split(if (style.spacesInImportCurlyBraces) Space else NoSplit, 0)
               .withPolicy(policy)
         )
       case FormatToken(_, close: `}`, _)
           if parents(rightOwner).exists(_.isInstanceOf[Import]) ||
           rightOwner.isInstanceOf[Term.Interpolate] =>
         Seq(
-            Split(if (style.spacesInImportCurlyBrackets) Space else NoSplit, 0)
+            Split(if (style.spacesInImportCurlyBraces) Space else NoSplit, 0)
         )
       case FormatToken(_: `.`, underscore: `_ `, _)
           if parents(rightOwner).exists(_.isInstanceOf[Import]) =>
