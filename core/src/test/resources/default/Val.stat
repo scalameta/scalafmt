@@ -1,7 +1,8 @@
 80 columns                                                                     |
 <<< Long line
 val newIndents: Vector[Indent[Num]]
-      = nonExpiredIndents ++ split.indents.map(_ .withNum(column, indentation))
+      =
+      nonExpiredIndents ++ split.indents.map(_ .withNum(column, indentation))
 >>>
 val newIndents: Vector[Indent[Num]] =
   nonExpiredIndents ++ split.indents.map(_.withNum(column, indentation))
@@ -25,7 +26,7 @@ val attachedComment = !rightIsOnNewLine && isInlineComment(right)
 >>>
 val longHash: Long =
   (token.privateTag.toLong << (62 - 8)) |
-  (token.start.toLong << (62 - (8 + 28))) | token.end
+    (token.start.toLong << (62 - (8 + 28))) | token.end
 <<< backticks get no space #95
   val `type`: String = js.native
 >>>
@@ -70,3 +71,88 @@ val `type`: String = js.native
             }
 >>>
 x
+<<< #269
+val ps = params map { p =>
+     JSMethodParam(p.info, p.asTerm.isParamWithDefault)
+   }
+>>>
+val ps = params map { p =>
+  JSMethodParam(p.info, p.asTerm.isParamWithDefault)
+}
+<<< #269 2
+val wasBOM = if (endianness == AutoEndian) {
+  // Read BOM
+  if (b1 == 0xfe && b2 == 0xff) {
+    endianness = BigEndian
+    true
+  } else if (b1 == 0xff && b2 == 0xfe) {
+    endianness = LittleEndian
+    true
+  } else {
+    // Not a valid BOM: default to BigEndian and start reading
+    endianness = BigEndian
+    false
+  }
+} else false
+>>>
+val wasBOM = if (endianness == AutoEndian) {
+  // Read BOM
+  if (b1 == 0xfe && b2 == 0xff) {
+    endianness = BigEndian
+    true
+  } else if (b1 == 0xff && b2 == 0xfe) {
+    endianness = LittleEndian
+    true
+  } else {
+    // Not a valid BOM: default to BigEndian and start reading
+    endianness = BigEndian
+    false
+  }
+} else false
+<<< #269 3
+ val route =
+        scheme("https") { completeOk } ~
+          scheme("http") { reject }
+>>>
+val route =
+  scheme("https") { completeOk } ~
+    scheme("http") { reject }
+<<< #269 4
+
+  private val _extractClientIP: Directive1[RemoteAddress] =
+    headerValuePF { case `X-Forwarded-For`(Seq(address, _*)) ⇒ address } |
+      headerValuePF { case `Remote-Address`(address) ⇒ address } |
+      headerValuePF { case `X-Real-Ip`(address) ⇒ address }
+>>>
+private val _extractClientIP: Directive1[RemoteAddress] =
+  headerValuePF { case `X-Forwarded-For`(Seq(address, _ *)) ⇒ address } |
+    headerValuePF { case `Remote-Address`(address) ⇒ address } |
+    headerValuePF { case `X-Real-Ip`(address) ⇒ address }
+<<< #269 5
+//to prevent situation where access modifiers print earlier then throw
+    val sortModifiers = modifiers.collect { case m: Modifier if !modifiersConstruction.accessModifiers.contains(m.modificator) => m } ++
+      modifiers.collect { case m: Modifier if modifiersConstruction.accessModifiers.contains(m.modificator) => m }
+>>>
+//to prevent situation where access modifiers print earlier then throw
+val sortModifiers = modifiers.collect {
+  case m: Modifier
+      if !modifiersConstruction.accessModifiers.contains(m.modificator) =>
+    m
+} ++
+    modifiers.collect {
+    case m: Modifier
+        if modifiersConstruction.accessModifiers.contains(m.modificator) =>
+      m
+  }
+<<< #269 6
+val predefinedType =
+      if (clazz.getTypeParameters.length == 1) {
+        ScParameterizedType(ScDesignatorType(clazz), undefines)
+      }
+      else
+        ScDesignatorType(clazz)
+>>>
+val predefinedType = if (clazz.getTypeParameters.length == 1) {
+  ScParameterizedType(ScDesignatorType(clazz), undefines)
+} else
+  ScDesignatorType(clazz)

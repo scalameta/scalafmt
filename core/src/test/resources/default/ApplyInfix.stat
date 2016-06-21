@@ -19,43 +19,32 @@
     "::"+lelem+"{1,5}"+ipv4+               // ::2:3:4:5:10.0.0.1    ::5:10.0.0.1         ::10.0.0.1
     ")(?:%[0-9a-z]+)?"
 >>>
-"(?:" + lelem + "{7}" + block + "|" + // 1:2:3:4:5:6:7:8
-lelem +
-"{1,7}:|" + // 1::                                        1:2:3:4:5:6:7::
-lelem + "{1,6}" + relem +
-"|" + // 1::8                  1:2:3:4:5:6::8       1:2:3:4:5:6::8
-lelem + "{1,5}" + relem +
-"{1,2}|" + // 1::7:8                1:2:3:4:5::7:8       1:2:3:4:5::8
-lelem + "{1,4}" + relem +
-"{1,3}|" + // 1::6:7:8              1:2:3:4::6:7:8       1:2:3:4::8
-lelem + "{1,3}" + relem +
-"{1,4}|" + // 1::5:6:7:8            1:2:3::5:6:7:8       1:2:3::8
-lelem + "{1,2}" + relem +
-"{1,5}|" + // 1::4:5:6:7:8          1:2::4:5:6:7:8       1:2::8
-lelem + relem + "{1,6}|" + // 1::3:4:5:6:7:8        1::3:4:5:6:7:8       1::8
-":(?:" + relem +
-"{1,7}|:)|" + // ::2:3:4:5:6:7:8       ::2:3:4:5:6:7:8      ::8       ::
-lelem + "{6}" + ipv4 + "|" + // 1:2:3:4:5:6:10.0.0.1
-lelem + "{1,5}:" + ipv4 + "|" + // 1::10.0.0.1           1:2:3:4:5::10.0.0.1
-lelem + "{1,4}" + relem + ":" + ipv4 +
-"|" + // 1::6:10.0.0.1         1:2:3:4::6:10.0.0.1
-lelem + "{1,3}" + relem + "{1,2}:" + ipv4 +
-"|" + // 1::5:6:10.0.0.1       1:2:3::5:6:10.0.0.1  1:2:3::6:10.0.0.1
-lelem + "{1,2}" + relem + "{1,3}:" + ipv4 +
-"|" + // 1::4:5:6:10.0.0.1     1:2::4:5:6:10.0.0.1  1:2::6:10.0.0.1
-lelem + relem + "{1,4}:" + ipv4 +
-"|" + // 1::3:4:5:6:10.0.0.1   1::3:4:5:6:10.0.0.1  1::6:10.0.0.1
-"::" + lelem + "{1,5}" +
-ipv4 + // ::2:3:4:5:10.0.0.1    ::5:10.0.0.1         ::10.0.0.1
-")(?:%[0-9a-z]+)?"
+"(?:" +
+  lelem + "{7}" + block + "|" + // 1:2:3:4:5:6:7:8
+  lelem + "{1,7}:|" + // 1::                                        1:2:3:4:5:6:7::
+  lelem + "{1,6}" + relem + "|" + // 1::8                  1:2:3:4:5:6::8       1:2:3:4:5:6::8
+  lelem + "{1,5}" + relem + "{1,2}|" + // 1::7:8                1:2:3:4:5::7:8       1:2:3:4:5::8
+  lelem + "{1,4}" + relem + "{1,3}|" + // 1::6:7:8              1:2:3:4::6:7:8       1:2:3:4::8
+  lelem + "{1,3}" + relem + "{1,4}|" + // 1::5:6:7:8            1:2:3::5:6:7:8       1:2:3::8
+  lelem + "{1,2}" + relem + "{1,5}|" + // 1::4:5:6:7:8          1:2::4:5:6:7:8       1:2::8
+  lelem + relem + "{1,6}|" + // 1::3:4:5:6:7:8        1::3:4:5:6:7:8       1::8
+  ":(?:" + relem + "{1,7}|:)|" + // ::2:3:4:5:6:7:8       ::2:3:4:5:6:7:8      ::8       ::
+  lelem + "{6}" + ipv4 + "|" + // 1:2:3:4:5:6:10.0.0.1
+  lelem + "{1,5}:" + ipv4 + "|" + // 1::10.0.0.1           1:2:3:4:5::10.0.0.1
+  lelem + "{1,4}" + relem + ":" + ipv4 + "|" + // 1::6:10.0.0.1         1:2:3:4::6:10.0.0.1
+  lelem + "{1,3}" + relem + "{1,2}:" + ipv4 + "|" + // 1::5:6:10.0.0.1       1:2:3::5:6:10.0.0.1  1:2:3::6:10.0.0.1
+  lelem + "{1,2}" + relem + "{1,3}:" + ipv4 + "|" + // 1::4:5:6:10.0.0.1     1:2::4:5:6:10.0.0.1  1:2::6:10.0.0.1
+  lelem + relem + "{1,4}:" + ipv4 + "|" + // 1::3:4:5:6:10.0.0.1   1::3:4:5:6:10.0.0.1  1::6:10.0.0.1
+  "::" + lelem + "{1,5}" + ipv4 + // ::2:3:4:5:10.0.0.1    ::5:10.0.0.1         ::10.0.0.1
+  ")(?:%[0-9a-z]+)?"
 <<< infix should stay #219
       inits.map(materializer.materialize(_).toString) ++
       libs.map(dep => materializer.materialize(dep.lib).toString) :+
       code.path
 >>>
 inits.map(materializer.materialize(_).toString) ++
-libs.map(dep => materializer.materialize(dep.lib).toString) :+
-code.path
+  libs.map(dep => materializer.materialize(dep.lib).toString) :+
+  code.path
 <<< json play parse
 implicit val locationWrites: Writes[Location] = (
   (JsPath \ "lat").write[Double] and
@@ -64,7 +53,7 @@ implicit val locationWrites: Writes[Location] = (
 >>>
 implicit val locationWrites: Writes[Location] = (
     (JsPath \ "lat").write[Double] and
-    (JsPath \ "long").write[Double]
+      (JsPath \ "long").write[Double]
 )(unlift(Location.unapply))
 <<< lila #219
       (granted | isGranted(_.ModerateForum)) fold (
@@ -88,12 +77,12 @@ implicit val locationWrites: Writes[Location] = (
 >>>
 private[controllers] def doClose(user: UserModel) =
   (UserRepo disable user) >>-
-  env.onlineUserIdMemo.remove(user.id) >>
-  relationEnv.api.unfollowAll(user.id) >>
-  Env.team.api.quitAll(user.id) >>-
-  Env.challenge.api.removeByUserId(user.id) >>-
-  Env.tournament.api.withdrawAll(user) >>
-  (Env.security disconnect user.id)
+    env.onlineUserIdMemo.remove(user.id) >>
+    relationEnv.api.unfollowAll(user.id) >>
+    Env.team.api.quitAll(user.id) >>-
+    Env.challenge.api.removeByUserId(user.id) >>-
+    Env.tournament.api.withdrawAll(user) >>
+    (Env.security disconnect user.id)
 <<< space ok
 {{{{{
 val spaceCouldBeOk =
@@ -109,8 +98,8 @@ val spaceCouldBeOk =
         {
           val spaceCouldBeOk =
             oldNewlines == 0 && !left.isInstanceOf[Comment] &&
-            right.isInstanceOf[Keyword] &&
-            isSingleIdentifierAnnotation(prev(tok))
+              right.isInstanceOf[Keyword] &&
+              isSingleIdentifierAnnotation(prev(tok))
         }
       }
     }
@@ -128,8 +117,8 @@ val spaceCouldBeOk =
   {
     def rhsIsCommentedOut(formatToken: FormatToken): Boolean =
       formatToken.right.isInstanceOf[Comment] &&
-      formatToken.right.code.startsWith("//") &&
-      endsWithNoIndent(formatToken.between)
+        formatToken.right.code.startsWith("//") &&
+        endsWithNoIndent(formatToken.between)
   }
 }
 <<< bool weirdness #233
@@ -149,4 +138,40 @@ val spaceCouldBeOk =
       (isDocstring(tok.right) && !tok.left.isInstanceOf[Comment])
     }
   }
+}
+<<< top-level no indent
+val isValidIdent = {
+    ident != "" &&
+  ident.charAt(0).isUnicodeIdentifierStart &&
+  ident.tail.forall(_.isUnicodeIdentifierPart)
+}
+>>>
+val isValidIdent = {
+  ident != "" &&
+  ident.charAt(0).isUnicodeIdentifierStart &&
+  ident.tail.forall(_.isUnicodeIdentifierPart)
+}
+<<< #267
+val x = {
+params.size >= thatParams.size &&
+        resultType <:< thatResultType &&
+        unused.forall(_.isDefault) &&
+        (used zip thatParams).forall { case (x, y) => x.conformsTo(y) }
+        }
+>>>
+val x = {
+  params.size >= thatParams.size &&
+  resultType <:< thatResultType &&
+  unused.forall(_.isDefault) &&
+  (used zip thatParams).forall { case (x, y) => x.conformsTo(y) }
+}
+<<< #284
+  def headerText(colBarcodes: Seq[String], compat: Boolean): String = {
+    s"Sequence\tTotal\t${colBarcodes.mkString("\t")}\t" +
+    (if (compat) "Construct IDs" else "Potential IDs")
+  }
+>>>
+def headerText(colBarcodes: Seq[String], compat: Boolean): String = {
+  s"Sequence\tTotal\t${colBarcodes.mkString("\t")}\t" +
+  (if (compat) "Construct IDs" else "Potential IDs")
 }

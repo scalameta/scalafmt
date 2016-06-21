@@ -177,13 +177,15 @@ class FormatOps(val tree: Tree,
                   end: Token,
                   matches: Token => Boolean): Set[Token] = {
     val result = Set.newBuilder[Token]
+    var prev = start
     var curr = next(start)
-    while (curr.left != end) {
+    while (curr.left.start < end.start && curr != prev) {
       if (matches(curr.left)) {
         val close = matchingParentheses(hash(curr.left))
         result += curr.left
         curr = leftTok2tok(close)
       } else {
+        prev = curr
         curr = next(curr)
       }
     }

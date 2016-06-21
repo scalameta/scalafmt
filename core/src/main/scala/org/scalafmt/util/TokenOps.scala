@@ -144,11 +144,13 @@ object TokenOps {
     case _ => false
   }
 
-  def newlines2Modification(between: Vector[Whitespace]): Modification =
+  def newlines2Modification(between: Vector[Whitespace],
+                            rightIsComment: Boolean = false): Modification =
     newlinesBetween(between) match {
       case 0 => Space
       case x =>
-        NewlineT(isDouble = x == 2, noIndent = endsWithNoIndent(between))
+        NewlineT(isDouble = x == 2,
+                 noIndent = rightIsComment && endsWithNoIndent(between))
     }
 
   // TODO(olafur) calculate this once inside getSplits.

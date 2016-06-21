@@ -40,10 +40,10 @@ def identity[T](t: T): T = t
 >>>
 def hasExplicitJSEncoding =
   sym.hasAnnotation(JSNameAnnotation) ||
-  sym.hasAnnotation(
-      JSBracketAccessAnnotation) ||
-  sym.hasAnnotation(
-      JSBracketCallAnnotation)
+    sym.hasAnnotation(
+        JSBracketAccessAnnotation) ||
+    sym.hasAnnotation(
+        JSBracketCallAnnotation)
 <<< curried functions
 def format_![T <: Tree](code: String)(implicit ev: Parse[T]): String
 >>>

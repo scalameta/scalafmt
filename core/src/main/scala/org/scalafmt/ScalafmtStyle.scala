@@ -28,6 +28,12 @@ import sourcecode.Text
   *                         go on the same line or will have one line each.
   * @param noNewlinesBeforeJsNative If true, a newline will never be placed in
   *                                 front of js.native.
+  * @param superfluousParensIndent    Indent width inside unnecessary parentheses.
+  *                                   For example:
+  *                                   (function(
+  *
+  *                                         baab) && // indent 4
+  *                                       caab)
   * @param continuationIndentCallSite Indent width for line continuation at
   *                                   call site.
   * @param continuationIndentDefnSite Indent width for line continuation at
@@ -54,6 +60,7 @@ case class ScalafmtStyle(
     configStyleArguments: Boolean,
     binPackDotChains: Boolean,
     noNewlinesBeforeJsNative: Boolean,
+    superfluousParensIndent: Int,
     continuationIndentCallSite: Int,
     continuationIndentDefnSite: Int,
     alignTokens: Set[AlignToken],
@@ -82,6 +89,7 @@ object ScalafmtStyle {
       configStyleArguments = true,
       binPackDotChains = false,
       noNewlinesBeforeJsNative = false,
+      superfluousParensIndent = 4,
       continuationIndentCallSite = 4,
       continuationIndentDefnSite = 4,
       alignTokens = Set.empty[AlignToken],
@@ -106,6 +114,7 @@ object ScalafmtStyle {
       noNewlinesBeforeJsNative = true,
       binPackArguments = true,
       binPackParameters = true,
+      superfluousParensIndent = 4,
       allowNewlineBeforeColonInMassiveReturnTypes = false,
       scalaDocs = false,
       binPackParentConstructors = true,

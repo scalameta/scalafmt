@@ -33,7 +33,8 @@ List(Split(Space, 0).withPolicy {
     Decision(t, s.map {
       case nl if nl.modification.isNewline =>
         val result =
-          if (t.right.isInstanceOf[`if`] && owners(t.right) == owner) nl
+          if (t.right.isInstanceOf[`if`] &&
+                owners(t.right) == owner) nl
           else nl.withPenalty(1)
         result.withPolicy(breakOnArrow)
       case x => x
@@ -53,9 +54,9 @@ x match {
   case tok
       if // TODO(olafur) DRY.
       (leftOwner.isInstanceOf[Term.Interpolate] &&
-          rightOwner.isInstanceOf[Term.Interpolate]) ||
-      (leftOwner.isInstanceOf[Pat.Interpolate] &&
-          rightOwner.isInstanceOf[Pat.Interpolate]) =>
+            rightOwner.isInstanceOf[Term.Interpolate]) ||
+        (leftOwner.isInstanceOf[Pat.Interpolate] &&
+              rightOwner.isInstanceOf[Pat.Interpolate]) =>
     Seq(Split(NoSplit, 0))
 }
 <<< PrepJSInterop

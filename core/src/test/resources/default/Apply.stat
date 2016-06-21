@@ -527,7 +527,7 @@ Seq(
       // Force template to be multiline.
       case d @ Decision(FormatToken(open: `{`, right, _), splits)
           if !right.isInstanceOf[`}`] && // corner case, body is {}
-          childOf(template, owners(open)) =>
+            childOf(template, owners(open)) =>
         d.copy(splits = splits.filter(_.modification.isNewline))
     }, expire.end))
 )
@@ -591,3 +591,59 @@ Ok(Json.obj("api" -> Json.obj("current" -> api.currentVersion,
                                  "deprecatedAt" -> old.deprecatedAt,
                                  "unsupportedAt" -> old.unsupportedAt)
                       }))) as JSON
+<<< router explosion
+        Seq(
+            Split(modification,
+                  0,
+                  policy = singleLine(6),
+                  ignoreIf = !fitsOnOneLine)
+              .withOptimalToken(expirationToken)
+              .withIndent(indent, close, Left),
+            Split(newlineModification,
+                  (1 + nestedPenalty + lhsPenalty) * bracketMultiplier,
+                  policy = singleLine(5),
+                  ignoreIf = !fitsOnOneLine || isTuple)
+              .withOptimalToken(expirationToken)
+              .withIndent(indent, close, Left),
+            // TODO(olafur) singleline per argument!
+            Split(modification,
+                  (2 + lhsPenalty) * bracketMultiplier,
+                  policy = oneArgOneLine,
+                  ignoreIf = singleArgument || tooManyArguments)
+              .withOptimalToken(expirationToken)
+              .withIndent(StateColumn, close, Right),
+            Split(Newline,
+                  (3 + nestedPenalty + lhsPenalty) * bracketMultiplier,
+                  policy = oneArgOneLine,
+                  ignoreIf = singleArgument || isTuple)
+              .withOptimalToken(expirationToken)
+              .withIndent(indent, close, Left)
+        )
+>>>
+Seq(
+    Split(modification,
+          0,
+          policy = singleLine(6),
+          ignoreIf = !fitsOnOneLine)
+      .withOptimalToken(expirationToken)
+      .withIndent(indent, close, Left),
+    Split(newlineModification,
+          (1 + nestedPenalty + lhsPenalty) * bracketMultiplier,
+          policy = singleLine(5),
+          ignoreIf = !fitsOnOneLine || isTuple)
+      .withOptimalToken(expirationToken)
+      .withIndent(indent, close, Left),
+    // TODO(olafur) singleline per argument!
+    Split(modification,
+          (2 + lhsPenalty) * bracketMultiplier,
+          policy = oneArgOneLine,
+          ignoreIf = singleArgument || tooManyArguments)
+      .withOptimalToken(expirationToken)
+      .withIndent(StateColumn, close, Right),
+    Split(Newline,
+          (3 + nestedPenalty + lhsPenalty) * bracketMultiplier,
+          policy = oneArgOneLine,
+          ignoreIf = singleArgument || isTuple)
+      .withOptimalToken(expirationToken)
+      .withIndent(indent, close, Left)
+)

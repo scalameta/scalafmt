@@ -416,4 +416,16 @@ object TreeOps {
         lastLambda(block.stats.head.asInstanceOf[Term.Function])
       case _ => first
     }
+
+  @tailrec
+  final def isTopLevelInfixApplication(child: Term.ApplyInfix): Boolean =
+    child.parent match {
+      case Some(parent: Term.ApplyInfix) => isTopLevelInfixApplication(parent)
+      case Some(_: Term.Block) => true
+      case Some(_: Source) => true
+//      case Some(e) =>
+//        logger.elem(log(e))
+//        false
+      case _ => false
+    }
 }

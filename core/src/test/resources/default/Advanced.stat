@@ -13,7 +13,7 @@ private def genApplyForSym(minArgc: Int, hasRestParam: Boolean,
 private def genApplyForSym(
     minArgc: Int, hasRestParam: Boolean, sym: Symbol): js.Tree = {
   if (isScalaJSDefinedJSClass(currentClassSym) &&
-      sym.owner != currentClassSym.get) {
+        sym.owner != currentClassSym.get) {
     genApplyForSymJSSuperCall(minArgc, hasRestParam, sym)
   } else {
     genApplyForSymNonJSSuperCall(minArgc, sym)
@@ -45,33 +45,31 @@ val createAsStat = if (semantics.asInstanceOfs == Unchecked) {
         })))
       }
 >>>
-val createAsStat =
-  if (semantics.asInstanceOfs == Unchecked) {
-    js.Skip()
-  } else {
-    envFieldDef("as",
-                className,
-                js.Function(List(objParam), js.Return(className match {
-                  case Definitions.ObjectClass => obj
-                  case _ =>
-                    val throwError = {
-                      genCallHelper("throwClassCastException",
-                                    obj,
-                                    js.StringLiteral(displayName))
-                    }
-                    if (className == RuntimeNothingClass) {
-                      // Always throw for .asInstanceOf[Nothing], even for null
-                      throwError
-                    } else {
-                      js.If(js.Apply(envField("is", className), List(obj)) ||
-                            (obj === js.Null()), {
-                              obj
-                            }, {
-                              throwError
-                            })
-                    }
-                })))
-  }
+val createAsStat = if (semantics.asInstanceOfs == Unchecked) {
+  js.Skip()
+} else {
+  envFieldDef(
+      "as", className, js.Function(List(objParam), js.Return(className match {
+    case Definitions.ObjectClass => obj
+    case _ =>
+      val throwError = {
+        genCallHelper("throwClassCastException",
+                      obj,
+                      js.StringLiteral(displayName))
+      }
+      if (className == RuntimeNothingClass) {
+        // Always throw for .asInstanceOf[Nothing], even for null
+        throwError
+      } else {
+        js.If(js.Apply(envField("is", className), List(obj)) ||
+                (obj === js.Null()), {
+                obj
+              }, {
+                throwError
+              })
+      }
+  })))
+}
 <<< processOptions
   def processOptions(): Unit = {
       if (option.startsWith("relSourceMap:")) {
@@ -103,7 +101,7 @@ def processOptions(): Unit = {
 
       // Prevent this linker from being used concurrently
       concurrentRestrictions in Global +=
-        Tags.limit((usesScalaJSLinkerTag in key).value, 1)
+     Tags.limit((usesScalaJSLinkerTag in key).value, 1)
 
 )
 >>>
@@ -139,15 +137,15 @@ val testFilter: String => Boolean = {
   options.testFilter match {
     case UnknownTests => // inline comment
         !blacklistedTestFileNames.contains(absPath) &&
-        !whitelistedTestFileNames.contains(absPath) && !buglistedTestFileNames
-          .contains(absPath)
+        !whitelistedTestFileNames.contains(absPath) &&
+        !buglistedTestFileNames.contains(absPath)
   }
 >>>
 options.testFilter match {
   case UnknownTests => // inline comment
     !blacklistedTestFileNames.contains(absPath) &&
-    !whitelistedTestFileNames.contains(absPath) &&
-    !buglistedTestFileNames.contains(absPath)
+      !whitelistedTestFileNames.contains(absPath) &&
+      !buglistedTestFileNames.contains(absPath)
 }
 <<< callStatement genjscode
           callStatement = js.If(genIsInstanceOf(callTrg, rtClass.tpe), {
@@ -228,8 +226,8 @@ callStatement = js.If(genIsInstanceOf(callTrg, rtClass.tpe), {
           case _ => false
         }
         if (rtClass == BoxedDoubleClass &&
-            toTypeKind(implMethodSym.tpe.resultType) == DoubleKind &&
-            isIntOrLongKind(toTypeKind(sym.tpe.resultType))) {
+              toTypeKind(implMethodSym.tpe.resultType) == DoubleKind &&
+              isIntOrLongKind(toTypeKind(sym.tpe.resultType))) {
           // This must be an Int, and not a Double
           IntegerReflectiveCallClass
         } else {
@@ -258,14 +256,13 @@ callStatement = js.If(genIsInstanceOf(callTrg, rtClass.tpe), {
               mutable = false, rest = false)(p.pos)
         }
 >>>
-val ctorParamDefs =
-  usedCtorParams map { p =>
-    // in the apply method's context
-    js.ParamDef(encodeLocalSym(p)(p.pos),
-                toIRType(p.tpe),
-                mutable = false,
-                rest = false)(p.pos)
-  }
+val ctorParamDefs = usedCtorParams map { p =>
+  // in the apply method's context
+  js.ParamDef(encodeLocalSym(p)(p.pos),
+              toIRType(p.tpe),
+              mutable = false,
+              rest = false)(p.pos)
+}
 <<< single arg block
       withNewLocalNameScope {
           if (isThisFunction) {
@@ -373,7 +370,8 @@ private def withNewLocalDefs = {
 
           case _ =>
             js.Return(!(!({
-              genIsScalaJSObject(obj) && ((
+              genIsScalaJSObject(obj) &&
+              ((
                 obj DOT "$classData" DOT "arrayDepth") === depth) &&
               genIsClassNameInAncestors(
                   className,
@@ -456,17 +454,18 @@ js.Function(List(objParam, depthParam), js.Return {
                     })
                   })
 >>>
-js.Function(List(objParam, depthParam), js.Return {
-  js.If(js.Apply(envField("isArrayOf", className), List(obj, depth)) ||
-        (obj === js.Null()), {
-          obj
-        }, {
-          genCallHelper("throwArrayCastException",
-                        obj,
-                        js.StringLiteral("L" + displayName + ";"),
-                        depth)
-        })
-})
+js.Function(List(objParam, depthParam),
+            js.Return {
+              js.If(js.Apply(envField("isArrayOf", className),
+                             List(obj, depth)) || (obj === js.Null()), {
+                      obj
+                    }, {
+                      genCallHelper("throwArrayCastException",
+                                    obj,
+                                    js.StringLiteral("L" + displayName + ";"),
+                                    depth)
+                    })
+            })
 <<< dequeue on new stat (state explosion)
 {
   Array((1, 2), (1, 2), (1, 2), (1, 2), (1, 2), (1, 2), (1, 2), (1, 2), (1, 2), (1, 2), (1, 2))
@@ -530,7 +529,7 @@ js.Function(List(objParam, depthParam), js.Return {
 >>>
 if (uri.isAbsolute() || this.isOpaque()) uri
 else if (uri._scheme.isEmpty && uri._authority.isEmpty &&
-         uri._path.get == "" && uri._query.isEmpty)
+           uri._path.get == "" && uri._query.isEmpty)
   new URI(this.getScheme(),
           this.getRawAuthority(),
           this.getRawPath(),

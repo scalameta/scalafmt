@@ -1,8 +1,8 @@
 40 columns                              |
 <<< no newline after binding (
 js.Return(!(!({
-genIsScalaJSObject(obj) && ((
-  obj DOT "$classData") === depth) &&
+genIsScalaJSObject(obj) &&
+(( obj DOT "$classData") === depth) &&
 genIsClassNameInAncestors(
     className,
     obj DOT "$classData")
@@ -23,30 +23,30 @@ logger.warning("foooooooooooooo" +
 "baaaaaaaaaaaaaar")
 >>>
 logger.warning("foooooooooooooo" +
-    "baaaaaaaaaaaaaar")
+      "baaaaaaaaaaaaaar")
 <<< string concatenation 2
 logger.warning(a, "foooooooooooooo" +
            "baaaaaaaaaaaaaar")
 >>>
 logger.warning(a,
                "foooooooooooooo" +
-               "baaaaaaaaaaaaaar")
+                 "baaaaaaaaaaaaaar")
 <<< bool and
 logger.warning(a, "foooooooooooooo" &&
            "baaaaaaaaaaaaaar")
 >>>
 logger.warning(a,
                "foooooooooooooo" &&
-               "baaaaaaaaaaaaaar")
+                 "baaaaaaaaaaaaaar")
 <<< and single arg
 logger.warning("foooooooooooooo" &&
            "baaaaaaaaaaaaaar")
 >>>
 logger.warning("foooooooooooooo" &&
-    "baaaaaaaaaaaaaar")
+      "baaaaaaaaaaaaaar")
 <<< too many pluses + (state explosion)
-a + b + c + d + e + f + g + h + i + j + j + j + j + j + j + j + j + j + j + j + j
+a + b + c + d + e + f + g + h + i + j +
+j + j + j + j + j + j + j + j   + j + j + j
 >>>
 a + b + c + d + e + f + g + h + i + j +
-j + j + j + j + j + j + j + j + j + j +
-j
+  j + j + j + j + j + j + j + j + j + j + j

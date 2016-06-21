@@ -31,6 +31,7 @@ import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 
 object Constants {
+  val ShouldBeSingleLine = 30
   val BinPackAssignmentPenalty = 10
   val SparkColonNewline = 10
   val BracketPenalty = 20
@@ -689,10 +690,6 @@ class Router(formatOps: FormatOps) {
         }
 
         val expire = rhs.tokens.last
-        val spacePolicy: Policy = rhs match {
-          case _: Term.ApplyInfix | _: Term.If => SingleLineBlock(expire)
-          case _ => NoPolicy
-        }
 
         val penalty = leftOwner match {
           case l: Term.Arg.Named if style.binPackArguments =>
@@ -706,12 +703,35 @@ class Router(formatOps: FormatOps) {
           if (isAttachedComment(right, between)) Space
           else Newline
 
-        Seq(
-            Split(Space, 0, policy = spacePolicy)
-              .withOptimalToken(expire, killOnFail = false),
-            Split(mod, 1 + penalty, ignoreIf = isJsNative(right))
-              .withIndent(2, expire, Left)
-        )
+        val exclude = insideBlock(formatToken, expire, _.isInstanceOf[`{`])
+        rhs match {
+          case _: Term.ApplyInfix =>
+            // Don't try anything smart around infix applications.
+            Seq(
+                Split(newlines2Modification(between), 0)
+                  .withPolicy(
+                      Policy(UnindentAtExclude(exclude, -2), expire.end))
+                  .withIndent(2, expire, Left)
+            )
+          case _ =>
+            val spacePolicy: Policy = rhs match {
+              case _: Term.If =>
+                val excludeRanges = exclude.map(parensRange)
+//                logger.elem(exclude.map(leftTok2tok))
+                penalizeAllNewlines(
+                    expire,
+                    Constants.ShouldBeSingleLine,
+                    ignore =
+                      x => excludeRanges.exists(_.contains(x.left.start)))
+              case _ => NoPolicy
+            }
+            Seq(
+                Split(Space, 0, policy = spacePolicy)
+                  .withOptimalToken(expire, killOnFail = false),
+                Split(mod, 1 + penalty, ignoreIf = isJsNative(right))
+                  .withIndent(2, expire, Left)
+            )
+        }
       case tok @ FormatToken(left, dot: `.`, _)
           if rightOwner.isInstanceOf[Term.Select] &&
           isOpenApply(next(next(tok)).right) && !left.isInstanceOf[`_ `] &&
@@ -921,7 +941,9 @@ class Router(formatOps: FormatOps) {
         }, close.end)
         val indent: Length = right match {
           case _: `if` => StateColumn
-          case _ => Num(4)
+          case _ =>
+            if (style.superfluousParensIndent == -1) StateColumn
+            else Num(style.superfluousParensIndent)
         }
         Seq(
             Split(Newline, 0, ignoreIf = !isConfig)
@@ -938,41 +960,24 @@ class Router(formatOps: FormatOps) {
             case _ => false
           } =>
         val owner = leftOwner.parent.get.asInstanceOf[Term.ApplyInfix]
-        val isAssignment = isAssignmentOperator(op)
-        val isBool = isBoolOperator(op)
-        // TODO(olafur) Document that we only allow newlines for this subset
-        // of infix operators. To force a newline for other operators it's
-        // possible to wrap arguments in parentheses.
-        val weControlSplit =
-          isAssignment || isBool || newlineOkOperators.contains(op.code)
-        val openParenPenalty = if (right.isInstanceOf[`(`]) 0 else 1
-        val newlineCost =
-          if (isAssignment || isBool) 1
-          else if (weControlSplit) 3
-          else 0 // Ignored
-        val indent =
-          if (isAssignment) 2
-          else 0
-        // Optimization, assignment operators make the state space explode in
-        // sbt build files because of := operators everywhere.
-        val optimalToken =
-          if (isAssignment)
-            for {
-              lastArg <- owner.args.lastOption
-              lastToken <- lastArg.tokens.lastOption
-            } yield OptimalToken(lastToken)
-          else None
-        val modification = newlines2Modification(between)
+        val modification = newlines2Modification(
+            between, rightIsComment = right.isInstanceOf[Comment])
+        val indent = {
+          if (isTopLevelInfixApplication(owner)) 0
+          else if (!modification.isNewline &&
+                   !isAttachedComment(right, between)) 0
+          else 2
+        }
+        val expire = (for {
+          arg <- owner.args.lastOption
+          token <- arg.tokens.lastOption
+        } yield token).getOrElse(owner.tokens.last)
+//        val exclude = insideBlock(formatToken, expire, _.isInstanceOf[`(`])
+//        val unindent = Policy(UnindentAtExclude(exclude, -2), expire.end)
         Seq(
-            Split(modification, 0, ignoreIf = weControlSplit),
-            Split(Space,
-                  0,
-                  optimalAt = optimalToken,
-                  ignoreIf = !weControlSplit),
-            Split(Newline,
-                  newlineCost,
-                  ignoreIf = !weControlSplit)
-              .withIndent(indent, formatToken.right, Left)
+            Split(modification, 0)
+//              .withPolicy(unindent)
+              .withIndent(indent, expire, Left)
         )
 
       // Pat

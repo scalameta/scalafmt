@@ -26,8 +26,8 @@ case FormatToken(left, open: `(`, _)
 >>>
 case FormatToken(left, open: `(`, _)
     if owners(open).isInstanceOf[Term.Apply] ||
-    owners(left).parent.exists(_.isInstanceOf[Defn.Def]) ||
-    owners(left).parent.exists(_.isInstanceOf[Defn.Class]) =>
+      owners(left).parent.exists(_.isInstanceOf[Defn.Def]) ||
+      owners(left).parent.exists(_.isInstanceOf[Defn.Class]) =>
   List(
       NoSplit0
   )
@@ -42,8 +42,9 @@ case Decision(t@FormatToken(comma: `,`, right, between), splits)
 >>>
 case Decision(t @ FormatToken(comma: `,`, right, between), splits)
     if owners.get(open) == owners.get(comma) &&
-    // If comment is bound to comma, see unit/Comment.
-    (!right.isInstanceOf[Comment] || between.exists(_.isInstanceOf[`\n`])) =>
+      // If comment is bound to comma, see unit/Comment.
+      (!right.isInstanceOf[Comment] ||
+            between.exists(_.isInstanceOf[`\n`])) =>
   Decision(t, splits.filter(_.modification == Newline))
 <<< Bug
 case FormatToken(open: `(`, right, _) if leftOwner.isInstanceOf[Term.ApplyInfix] =>
@@ -92,10 +93,10 @@ case NullTag | UnitTag | BooleanTag | ByteTag | ShortTag | CharTag | IntTag |
 <<< quirk #233
       case FormatToken(_: `(` | _: `[`, _, between)
           if style.configStyleArguments &&
-          (isDefnSite(leftOwner) || isCallSite(leftOwner)) &&
-          opensConfigStyle(formatToken) =>
+            (isDefnSite(leftOwner) || isCallSite(leftOwner)) &&
+              opensConfigStyle(formatToken) =>
 >>>
 case FormatToken(_: `(` | _: `[`, _, between)
     if style.configStyleArguments &&
-    (isDefnSite(leftOwner) || isCallSite(leftOwner)) &&
-    opensConfigStyle(formatToken) =>
+      (isDefnSite(leftOwner) || isCallSite(leftOwner)) &&
+      opensConfigStyle(formatToken) =>

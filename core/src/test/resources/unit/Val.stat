@@ -22,7 +22,8 @@ object a {
 }
 <<< indent at =
 Split(
-      ignoreIf = !fitsOnOneLine || isConfigStyle
+      ignoreIf =
+      !fitsOnOneLine || isConfigStyle
       )
 >>>
 Split(

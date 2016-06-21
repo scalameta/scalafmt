@@ -8,11 +8,12 @@ if (true) {
   println(aaaaaaaaaaaaaaaaaaaaaaaaaa)
 }
 <<< Long if condition
-if (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa && bbbbbbbbbbbbbbbbbb)
+if (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa &&
+bbbbbbbbbbbbbbbbbb)
   println("a")
 >>>
 if (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa &&
-    bbbbbbbbbbbbbbbbbb)
+      bbbbbbbbbbbbbbbbbb)
   println("a")
 <<< Long if condition with inline comment
 if (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa &&
@@ -20,7 +21,7 @@ if (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa &&
   println("a")
 >>>
 if (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa &&
-    bbbbbbbbbbbbbbbbbb) // comment
+      bbbbbbbbbbbbbbbbbb) // comment
   println("a")
 <<< If assignment
 val newColumn = if(split == Newline) newIndent
@@ -55,8 +56,7 @@ if(split == Newline) newIndent
 else column + split.length
 )
 >>>
-val newColumn =
-  tok.length + (
+val newColumn = tok.length + (
       if (split == Newline) newIndent
       else column + split.length
   )
@@ -70,12 +70,13 @@ val policy =
   else NoPolicy
 <<< bang ! binds to right
 if ((gets2x(tok) ||
-     lines(tok.between) > 1) &&
+lines(tok.between) > 1) &&
      !(isDocstring(left) && between)) 1
 >>>
 if ((gets2x(tok) ||
-        lines(tok.between) > 1) &&
-    !(isDocstring(left) && between)) 1
+          lines(tok.between) > 1) &&
+      !(isDocstring(left) && between))
+  1
 <<< == unary nosplit literal, scalameta/scalameta#344
 if   (firstNewline == -1) tokLength
 >>>

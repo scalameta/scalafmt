@@ -21,8 +21,6 @@
  -this.indentation)
 <<< bang
 (
-          !right.isInstanceOf[Comment] ||
-          exists(_.isInstanceOf[`\n`]))
+          !right.isInstanceOf[Comment])
 >>>
-(!right.isInstanceOf[Comment] ||
-    exists(_.isInstanceOf[`\n`]))
+(!right.isInstanceOf[Comment])
