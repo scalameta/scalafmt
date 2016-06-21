@@ -203,8 +203,8 @@ val _areTypedArraysSupported = {
   {
     {
       var shift =
-        inlineNumberOfLeadingZeros(blo, bhi) - inlineNumberOfLeadingZeros(
-            alo, ahi)
+        inlineNumberOfLeadingZeros(blo, bhi) - inlineNumberOfLeadingZeros(alo,
+                                                                          ahi)
     }
   }
 }
@@ -233,7 +233,6 @@ if (other == null) {
             (node \ "@name").headOption.map( x => DataRecord() )
             ).flatten: _*))
       })
-
 }}
 >>>
 {
@@ -242,8 +241,9 @@ if (other == null) {
       case p1 =>
         Rowset(p1.toSeq map {
           fromXML[eveapi.xml.char.ContactList.Row](_, scalaxb.ElemName(node))
-        }, ListMap(List((node \ "@name").headOption.map(x => DataRecord())).flatten: _*))
+        }, ListMap(List(
+                    (node \ "@name").headOption.map(x => DataRecord())
+                ).flatten: _*))
     })
-
   }
 }

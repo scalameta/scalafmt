@@ -12,7 +12,8 @@ js.Return(!(!({
   genIsScalaJSObject(obj) &&
   ((obj DOT "$classData") === depth) &&
   genIsClassNameInAncestors(
-      className, obj DOT "$classData")
+      className,
+      obj DOT "$classData")
 })))
 <<< force space on infix application arguments
 opt[(Int, Int)]("range") hidden() action {}

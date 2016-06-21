@@ -10,8 +10,9 @@ private def genApplyForSym(minArgc: Int, hasRestParam: Boolean,
   }
 }
 >>>
-private def genApplyForSym(
-    minArgc: Int, hasRestParam: Boolean, sym: Symbol): js.Tree = {
+private def genApplyForSym(minArgc: Int,
+                           hasRestParam: Boolean,
+                           sym: Symbol): js.Tree = {
   if (isScalaJSDefinedJSClass(currentClassSym) &&
       sym.owner != currentClassSym.get) {
     genApplyForSymJSSuperCall(minArgc, hasRestParam, sym)
@@ -48,27 +49,28 @@ val createAsStat = if (semantics.asInstanceOfs == Unchecked) {
 val createAsStat = if (semantics.asInstanceOfs == Unchecked) {
   js.Skip()
 } else {
-  envFieldDef(
-      "as", className, js.Function(List(objParam), js.Return(className match {
-    case Definitions.ObjectClass => obj
-    case _ =>
-      val throwError = {
-        genCallHelper("throwClassCastException",
-                      obj,
-                      js.StringLiteral(displayName))
-      }
-      if (className == RuntimeNothingClass) {
-        // Always throw for .asInstanceOf[Nothing], even for null
-        throwError
-      } else {
-        js.If(js.Apply(envField("is", className), List(obj)) ||
-                (obj === js.Null()), {
-                obj
-              }, {
-                throwError
-              })
-      }
-  })))
+  envFieldDef("as",
+              className,
+              js.Function(List(objParam), js.Return(className match {
+                case Definitions.ObjectClass => obj
+                case _ =>
+                  val throwError = {
+                    genCallHelper("throwClassCastException",
+                                  obj,
+                                  js.StringLiteral(displayName))
+                  }
+                  if (className == RuntimeNothingClass) {
+                    // Always throw for .asInstanceOf[Nothing], even for null
+                    throwError
+                  } else {
+                    js.If(js.Apply(envField("is", className), List(obj)) ||
+                            (obj === js.Null()), {
+                            obj
+                          }, {
+                            throwError
+                          })
+                  }
+              })))
 }
 <<< processOptions
   def processOptions(): Unit = {

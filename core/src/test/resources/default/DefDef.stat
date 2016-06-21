@@ -56,9 +56,9 @@ def zipWith[E2, U2, F, G, T, D[_]](q2: Query[E2, U2, D], f: (E, E2) => F)(
 <<< slick groupBy
   def groupBy[K, T, G, P](f: E => K)(implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G], vshape: Shape[_ <: FlatShapeLevel, E, _, P]): Query[(G, Query[P, U, Seq]), (T, Query[P, U, Seq]), C]
 >>>
-def groupBy[K, T, G, P](
-    f: E => K)(implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G],
-               vshape: Shape[_ <: FlatShapeLevel, E, _, P])
+def groupBy[K, T, G, P](f: E => K)(
+    implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G],
+    vshape: Shape[_ <: FlatShapeLevel, E, _, P])
   : Query[(G, Query[P, U, Seq]), (T, Query[P, U, Seq]), C]
 <<< slick groupBy 2
   def groupBy[K, T, G, P](f: E => K)(implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G], vshape: Shape[_ <: FlatShapeLevel, E, _, P]): Query[(G, Query[P, U, Seq]), (T, Query[P, U, Seq]), CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC, (T, Query[P, U, Seq]), (T, Query[P, U, Seq])]
@@ -75,9 +75,10 @@ def groupBy[K, T, G, P](f: E => K)(
 <<< slick queryShape
   @inline implicit def queryShape[Level >: NestedShapeLevel <: ShapeLevel, T, Q <: QueryBase[_]](implicit ev: Q <:< Rep[T]) = RepShape[Level, Q, T]
 >>>
-@inline implicit def queryShape[
-    Level >: NestedShapeLevel <: ShapeLevel, T, Q <: QueryBase[_]](
-    implicit ev: Q <:< Rep[T]) = RepShape[Level, Q, T]
+@inline implicit def queryShape[Level >: NestedShapeLevel <: ShapeLevel,
+                                T,
+                                Q <: QueryBase[_]](implicit ev: Q <:< Rep[T]) =
+  RepShape[Level, Q, T]
 <<< slick basequery
 final class BaseJoinQuery[+E1, +E2, U1, U2, C[_], +B1, +B2](leftGen: TermSymbol, rightGen: TermSymbol, left: Node, right: Node, jt: JoinType, base: ShapedValue[_ <: (E1, E2), (U1, U2)], b1: B1, b2: B2)
 >>>

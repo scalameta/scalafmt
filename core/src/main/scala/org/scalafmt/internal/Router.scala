@@ -368,8 +368,7 @@ class Router(formatOps: FormatOps) {
         })
         Seq(
             Split(Newline, 0, policy = configStyle)
-              .withIndent(indent, close, Right),
-            Split(NoSplit, Constants.ShouldBeNewline)
+              .withIndent(indent, close, Right)
         )
       case FormatToken(open @ (_: `(` | _: `[`), right, _)
           if style.binPackParameters && isDefnSite(leftOwner) ||
@@ -491,12 +490,13 @@ class Router(formatOps: FormatOps) {
                     close, newlinePenalty, penalizeLambdas = false)
               else SingleLineBlock(close)
             } else {
-              if (singleArgument) {
-                penalizeAllNewlines(close,
-                                    newlinePenalty,
-                                    ignore = insideBraces,
-                                    penalizeLambdas = false)
-              } else SingleLineBlock(close, excludeRanges)
+              val penalty =
+                if (singleArgument) newlinePenalty
+                else Constants.ShouldBeNewline
+              penalizeAllNewlines(close,
+                                  penalty = penalty,
+                                  ignore = insideBraces,
+                                  penalizeLambdas = false)
             }
 
           if (exclude.isEmpty || isBracket) baseSingleLinePolicy
@@ -532,7 +532,6 @@ class Router(formatOps: FormatOps) {
           case _ => false
         }
 
-        logger.elem()
         Seq(
             Split(modification,
                   0,
@@ -543,10 +542,9 @@ class Router(formatOps: FormatOps) {
             Split(newlineModification,
                   (1 + nestedPenalty + lhsPenalty) * bracketMultiplier,
                   policy = singleLine(5),
-                  ignoreIf = !fitsOnOneLine || isTuple)
+                  ignoreIf = args.length > 1 || !fitsOnOneLine || isTuple)
               .withOptimalToken(expirationToken)
               .withIndent(indent, close, Left),
-            // TODO(olafur) singleline per argument!
             Split(modification,
                   (2 + lhsPenalty) * bracketMultiplier,
                   policy = oneArgOneLine,

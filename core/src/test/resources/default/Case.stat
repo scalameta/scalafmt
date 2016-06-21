@@ -8,8 +8,9 @@ val Route: PartialFunction[Decision, Decision] = {
 }
 >>>
 val Route: PartialFunction[Decision, Decision] = {
-  case FormatToken(
-      _: Ident | _: `this` | _: `_ ` | _: `(`, _: `.` | _: `#`, _) =>
+  case FormatToken(_: Ident | _: `this` | _: `_ ` | _: `(`,
+                   _: `.` | _: `#`,
+                   _) =>
     List(
         NoSplit0
     )

@@ -2,8 +2,9 @@
 <<< val type apply formats too #117
 val xxxxxxxxxxxxxxxxxxxxxxxxx:FooBarrrrrr[BaaaaaaaaaaaazBazzzKaaaaaaaaar[ String, Option[ List[Either[ Int, Option[String] ]]] ]]
 >>>
-val xxxxxxxxxxxxxxxxxxxxxxxxx: FooBarrrrrr[BaaaaaaaaaaaazBazzzKaaaaaaaaar[
-        String, Option[List[Either[Int, Option[String]]]]]]
+val xxxxxxxxxxxxxxxxxxxxxxxxx: FooBarrrrrr[
+    BaaaaaaaaaaaazBazzzKaaaaaaaaar[String,
+                                   Option[List[Either[Int, Option[String]]]]]]
 <<< var type apply formats too #117
 var x:FooBarrrrrr[B[AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA, AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]
 >>>

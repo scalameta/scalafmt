@@ -87,8 +87,10 @@ val dp = new DispatchPlan(
 val result = service.something(param1, param2, param3, param4).map(transform)
 >>>
 val result = service
-  .something(
-      param1, param2, param3, param4)
+  .something(param1,
+             param2,
+             param3,
+             param4)
   .map(transform)
 <<< config style
 Seq(

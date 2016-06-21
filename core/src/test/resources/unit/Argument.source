@@ -19,8 +19,8 @@ object a {
 }
 >>>
 object a {
-  function(
-      aaaaaaaaaaaaaa, aaaaaaaaaaaaaa)
+  function(aaaaaaaaaaaaaa,
+           aaaaaaaaaaaaaa)
 }
 <<< One line one arg at 4 indent
 object a {

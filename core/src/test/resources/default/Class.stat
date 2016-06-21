@@ -98,8 +98,8 @@ object RsaHashedImportParams {
 >>>
 object RsaHashedImportParams {
   @inline
-  def apply(
-      name: String, hash: HashAlgorithmIdentifier): RsaHashedImportParams =
+  def apply(name: String,
+            hash: HashAlgorithmIdentifier): RsaHashedImportParams =
     js.Dynamic
       .literal(name = name, hash = hash.asInstanceOf[js.Any])
       .asInstanceOf[RsaHashed]
