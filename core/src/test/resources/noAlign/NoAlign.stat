@@ -1,0 +1,12 @@
+// Column 40                            |
+<<< single line still works
+function(aaaaaaaa, bbbbbbbb)
+>>>
+function(aaaaaaaa, bbbbbbbb)
+<<< no align
+function(aaaaaaaaaaaaaaaaaaa,
+         bbbbbbbbbbbbbbbbbbb)
+>>>
+function(
+    aaaaaaaaaaaaaaaaaaa,
+    bbbbbbbbbbbbbbbbbbb)

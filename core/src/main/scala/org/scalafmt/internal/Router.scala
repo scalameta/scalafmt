@@ -547,7 +547,9 @@ class Router(formatOps: FormatOps) {
             Split(modification,
                   (2 + lhsPenalty) * bracketMultiplier,
                   policy = oneArgOneLine,
-                  ignoreIf = singleArgument || tooManyArguments)
+                  ignoreIf =
+                    singleArgument || tooManyArguments ||
+                    (!isTuple && !style.alignByOpenParenCallSite))
               .withOptimalToken(expirationToken)
               .withIndent(StateColumn, close, Right),
             Split(Newline,

@@ -34,6 +34,16 @@ import sourcecode.Text
   *
   *                                         baab) && // indent 4
   *                                       caab)
+  * @param alignByOpenParenCallSite If true AND bin-packing is true, then call-site
+  *                                 arguments won't be aligned by the opening
+  *                                 parenthesis. For example, this output
+  *                                 will be disallowed
+  *
+  *                                 function(a,
+  *                                          b,
+  *                                          c)
+  *
+  *
   * @param continuationIndentCallSite Indent width for line continuation at
   *                                   call site.
   * @param continuationIndentDefnSite Indent width for line continuation at
@@ -61,6 +71,7 @@ case class ScalafmtStyle(
     binPackDotChains: Boolean,
     noNewlinesBeforeJsNative: Boolean,
     superfluousParensIndent: Int,
+    alignByOpenParenCallSite: Boolean,
     continuationIndentCallSite: Int,
     continuationIndentDefnSite: Int,
     alignTokens: Set[AlignToken],
@@ -90,6 +101,7 @@ object ScalafmtStyle {
       binPackDotChains = false,
       noNewlinesBeforeJsNative = false,
       superfluousParensIndent = 4,
+      alignByOpenParenCallSite = true,
       continuationIndentCallSite = 4,
       continuationIndentDefnSite = 4,
       alignTokens = Set.empty[AlignToken],

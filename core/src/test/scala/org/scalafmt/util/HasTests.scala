@@ -96,7 +96,9 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
       case "default" | "standard" | "scala" => ScalafmtStyle.unitTest80
       case "default140" => ScalafmtStyle.default.copy(maxColumn = 140)
       case "scalajs" => ScalafmtStyle.scalaJs
-      case "stripMargin" => ScalafmtStyle.default
+      case "noAlign" =>
+        ScalafmtStyle.default.copy(
+            maxColumn = 40, alignByOpenParenCallSite = false)
       case "stripMargin" =>
         ScalafmtStyle.default.copy(alignStripMarginStrings = true)
       case "spaces" =>
