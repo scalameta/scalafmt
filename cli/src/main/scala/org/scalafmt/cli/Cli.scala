@@ -9,6 +9,7 @@ import org.scalafmt.AlignToken
 import org.scalafmt.Error.MisformattedFile
 import org.scalafmt.FormatResult
 import org.scalafmt.Scalafmt
+import org.scalafmt.ScalafmtRunner
 import org.scalafmt.ScalafmtStyle
 import org.scalafmt.Versions
 import org.scalafmt.macros.Macros
@@ -49,6 +50,7 @@ object Cli {
                     configFile: Option[File],
                     inPlace: Boolean,
                     testing: Boolean,
+                    debug: Boolean,
                     style: ScalafmtStyle,
                     range: Set[Range]) {
     require(!(inPlace && testing), "inPlace and testing can't both be true")
@@ -58,6 +60,7 @@ object Cli {
                          None,
                          inPlace = false,
                          testing = false,
+                         debug = false,
                          style = ScalafmtStyle.default,
                          Set.empty[Range])
   }
@@ -102,6 +105,9 @@ object Cli {
     opt[Unit]("test") action { (_, c) =>
       c.copy(testing = true)
     } text "test for mis-formatted code, exits with status 1 on failure."
+    opt[Unit]("debug") action { (_, c) =>
+      c.copy(debug = true)
+    } text "print out debug information"
     opt[Unit]('v', "version") action printAndExit(inludeUsage = false) text "print version "
     opt[Unit]("build-info") action {
       case (_, c) =>
@@ -227,9 +233,11 @@ object Cli {
     inputMethods.par.foreach {
       case inputMethod =>
         val start = System.nanoTime()
+        val runner = ScalafmtRunner.default.copy(debug = config.debug)
         Scalafmt.format(inputMethod.code,
                         style = config.style,
-                        range = config.range) match {
+                        range = config.range,
+                        runner = runner) match {
           case FormatResult.Success(formatted) =>
             inputMethod match {
               case FileContents(filename, _) if config.inPlace =>
@@ -250,6 +258,8 @@ object Cli {
             }
           case _ if !config.inPlace =>
             println(inputMethod.code)
+          case FormatResult.Failure(e) if config.debug =>
+            e.printStackTrace()
           case _ =>
         }
     }

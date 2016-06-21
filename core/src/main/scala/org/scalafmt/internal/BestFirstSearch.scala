@@ -288,7 +288,7 @@ class BestFirstSearch(
                    |splitsAfterPolicy=$splitsAfterPolicy""".stripMargin
       if (runner.debug) {
         logger.error(s"""Failed to format
-                         |$msg""".stripMargin)
+                        |$msg""".stripMargin)
       }
       runner.eventCallback(CompleteFormat(explored, deepestYet, tokens))
       SearchResult(deepestYet.splits, reachedEOF = false)
