@@ -57,4 +57,7 @@ object Error {
 
   case class SearchStateExploded(deepestState: State, partialOutput: String)
       extends Error(s"Search state exploded")
+
+  case class InvalidScalafmtConfiguration(file: File)
+      extends Error(s"Unable to parse scalafmt configuration file: $file")
 }

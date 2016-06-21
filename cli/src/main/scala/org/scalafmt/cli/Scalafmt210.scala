@@ -1,5 +1,8 @@
 package org.scalafmt.cli
 
+import java.io.File
+
+import org.scalafmt.Error.InvalidScalafmtConfiguration
 import org.scalafmt.FormatResult
 import org.scalafmt.Scalafmt
 import org.scalafmt.ScalafmtStyle
@@ -12,7 +15,9 @@ class Scalafmt210 {
 
   def format(code: String, configFile: String): String = {
     val style =
-      StyleCache.getStyleForFile(configFile).getOrElse(ScalafmtStyle.default)
+      StyleCache.getStyleForFile(configFile).getOrElse(
+        throw InvalidScalafmtConfiguration(new File(configFile))
+      )
     format(code, style)
   }
 

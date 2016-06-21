@@ -92,7 +92,7 @@ p.`then`[Unit](
       })
       (): Unit | Thenable[Unit]
     })
-<<< ONLY #273
+<<< #273
 {
 {
 {
