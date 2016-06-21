@@ -48,8 +48,9 @@ object ScalaFmtPlugin extends AutoPlugin {
         "Classloaded Scalafmt210 instance to overcome 2.10 incompatibility issues.")
 
     def scalafmtSettings: Seq[Setting[_]] =
-      noConfigScalafmtSettings ++ inConfig(Compile)(configScalafmtSettings) ++ inConfig(
-          Test)(configScalafmtSettings)
+      noConfigScalafmtSettings ++
+      inConfig(Compile)(configScalafmtSettings) ++
+      inConfig(Test)(configScalafmtSettings)
 
     lazy val reformatOnCompileSettings: Seq[Def.Setting[_]] = List(
         compileInputs in (Compile, compile) <<=
@@ -57,6 +58,10 @@ object ScalaFmtPlugin extends AutoPlugin {
         compileInputs in (Test, compile) <<=
           (compileInputs in (Test, compile)) dependsOn (scalafmt in Test)
     )
+
+    lazy val scalafmtSettingsWithIt: Seq[Setting[_]] =
+      scalafmtSettings ++
+      inConfig(IntegrationTest)(configScalafmtSettings)
 
     lazy val reformatOnCompileWithItSettings: Seq[Def.Setting[_]] =
       reformatOnCompileSettings ++ List(
@@ -67,8 +72,7 @@ object ScalaFmtPlugin extends AutoPlugin {
   }
   import autoImport._
 
-  override val projectSettings =
-    scalafmtSettings //  ++ inConfig(Compile)( autoImport.scalafmtSettings) ++ inConfig(Test)( autoImport.scalafmtSettings)
+  override val projectSettings = scalafmtSettings
 
   override def trigger = allRequirements
 
