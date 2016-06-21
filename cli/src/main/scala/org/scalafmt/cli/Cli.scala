@@ -50,6 +50,7 @@ object Cli {
                     configFile: Option[File],
                     inPlace: Boolean,
                     testing: Boolean,
+                    statement: Boolean,
                     debug: Boolean,
                     style: ScalafmtStyle,
                     range: Set[Range]) {
@@ -60,6 +61,7 @@ object Cli {
                          None,
                          inPlace = false,
                          testing = false,
+                         statement = false,
                          debug = false,
                          style = ScalafmtStyle.default,
                          Set.empty[Range])
@@ -108,6 +110,9 @@ object Cli {
     opt[Unit]("debug") action { (_, c) =>
       c.copy(debug = true)
     } text "print out debug information"
+    opt[Unit]("statement") action { (_, c) =>
+      c.copy(statement = true)
+    } text "parse the input as a statement instead of compilation unit"
     opt[Unit]('v', "version") action printAndExit(inludeUsage = false) text "print version "
     opt[Unit]("build-info") action {
       case (_, c) =>
@@ -233,7 +238,12 @@ object Cli {
     inputMethods.par.foreach {
       case inputMethod =>
         val start = System.nanoTime()
-        val runner = ScalafmtRunner.default.copy(debug = config.debug)
+        val runner = ScalafmtRunner.default.copy(
+            debug = config.debug,
+            parser =
+              if (config.statement) scala.meta.parsers.Parse.parseStat
+              else scala.meta.parsers.Parse.parseSource
+        )
         Scalafmt.format(inputMethod.code,
                         style = config.style,
                         range = config.range,
