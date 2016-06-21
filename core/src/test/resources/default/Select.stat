@@ -243,4 +243,16 @@ Seq(
       .withIndent(indent, close, Left)
       .withPolicy(penalizeAllNewlines(close, 1))
 )
-
+<<< #197
+{{{
+      system.actorOf(Props[ThreadNameEcho].withDispatcher("myapp.balancing-dispatcher")) ! "what's the name?"
+      }}}
+>>>
+{
+  {
+    {
+      system.actorOf(Props[ThreadNameEcho].withDispatcher(
+              "myapp.balancing-dispatcher")) ! "what's the name?"
+    }
+  }
+}
