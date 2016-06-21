@@ -31,6 +31,7 @@ import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 
 object Constants {
+  val ShouldBeNewline = 100000
   val ShouldBeSingleLine = 30
   val BinPackAssignmentPenalty = 10
   val SparkColonNewline = 10
@@ -131,7 +132,6 @@ class Router(formatOps: FormatOps) {
         val ignore = blockSize > style.maxColumn || isInlineComment(right)
         val newlineBeforeClosingCurly = Policy({
           case d @ Decision(t @ FormatToken(_, `close`, _), s) =>
-            Decision(t, Seq(Split(Newline, 0)))
             d.onlyNewlines
         }, close.end)
 
@@ -368,7 +368,8 @@ class Router(formatOps: FormatOps) {
         })
         Seq(
             Split(Newline, 0, policy = configStyle)
-              .withIndent(indent, close, Right)
+              .withIndent(indent, close, Right),
+            Split(NoSplit, Constants.ShouldBeNewline)
         )
       case FormatToken(open @ (_: `(` | _: `[`), right, _)
           if style.binPackParameters && isDefnSite(leftOwner) ||

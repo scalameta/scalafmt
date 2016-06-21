@@ -286,8 +286,10 @@ class BestFirstSearch(
                    |policies=${deepestYet.policy.policies}
                    |nextSplits=$nextSplits
                    |splitsAfterPolicy=$splitsAfterPolicy""".stripMargin
-      logger.error(s"""Failed to format
-                      |$msg""".stripMargin)
+      if (runner.debug) {
+        logger.error(s"""Failed to format
+                         |$msg""".stripMargin)
+      }
       runner.eventCallback(CompleteFormat(explored, deepestYet, tokens))
       SearchResult(deepestYet.splits, reachedEOF = false)
     }
