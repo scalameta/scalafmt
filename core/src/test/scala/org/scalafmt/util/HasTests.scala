@@ -102,13 +102,13 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
                                    danglingParentheses = true,
                                    configStyleArguments = false)
       case "noAlign" =>
-        ScalafmtStyle.default.copy(
-            maxColumn = 40, alignByOpenParenCallSite = false)
+        ScalafmtStyle.default
+          .copy(maxColumn = 40, alignByOpenParenCallSite = false)
       case "stripMargin" =>
         ScalafmtStyle.default.copy(alignStripMarginStrings = true)
       case "spaces" =>
-        ScalafmtStyle.default.copy(
-            spacesInImportCurlyBraces = true, spaceAfterTripleEquals = true)
+        ScalafmtStyle.default.copy(spacesInImportCurlyBraces = true,
+                                   spaceAfterTripleEquals = true)
       case "align" =>
         ScalafmtStyle.default.copy(alignTokens = AlignToken.default)
       case "unicode" =>
@@ -152,8 +152,9 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
               run.apply(t, parse)
             } catch {
               case e: ParseException =>
-                fail("test does not parse" +
-                    parseException2Message(e, t.original))
+                fail(
+                    "test does not parse" +
+                      parseException2Message(e, t.original))
             }
           case None => fail(s"Found no parse for filename ${t.filename}")
         }
@@ -172,14 +173,17 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
     assertNoDiff(obtained, t.expected)
   }
 
-  def getFormatOutput(
-      style: ScalafmtStyle, onlyOne: Boolean): Array[FormatOutput] = {
+  def getFormatOutput(style: ScalafmtStyle,
+                      onlyOne: Boolean): Array[FormatOutput] = {
     val builder = mutable.ArrayBuilder.make[FormatOutput]()
-    new FormatWriter(Debug.formatOps).reconstructPath(
-        Debug.tokens, Debug.state.splits, style, debug = onlyOne) {
+    new FormatWriter(Debug.formatOps).reconstructPath(Debug.tokens,
+                                                      Debug.state.splits,
+                                                      style,
+                                                      debug = onlyOne) {
       case (_, token, whitespace) =>
-        builder += FormatOutput(
-            token.left.code, whitespace, Debug.formatTokenExplored(token))
+        builder += FormatOutput(token.left.code,
+                                whitespace,
+                                Debug.formatTokenExplored(token))
     }
     builder.result()
   }

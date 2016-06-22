@@ -46,8 +46,9 @@ class ScalafmtAction extends AnAction {
       Scalafmt.format(source, style = style) match {
         case _: FormatResult.Incomplete =>
         case FormatResult.Failure(e: ParseException) =>
-          displayMessage(
-              event, "Parse error: " + e.getMessage, MessageType.ERROR)
+          displayMessage(event,
+                         "Parse error: " + e.getMessage,
+                         MessageType.ERROR)
         case FormatResult.Failure(e) =>
           displayMessage(event, e.getMessage.take(100), MessageType.ERROR)
         case FormatResult.Success(formatted) =>
@@ -107,8 +108,9 @@ class ScalafmtAction extends AnAction {
     } yield FileDocument(vfile, document)
   }
 
-  def displayMessage(
-      event: AnActionEvent, msg: String, messageType: MessageType): Unit = {
+  def displayMessage(event: AnActionEvent,
+                     msg: String,
+                     messageType: MessageType): Unit = {
     WindowManager.getInstance()
     val statusBar = WindowManager.getInstance().getStatusBar(event.getProject)
     JBPopupFactory

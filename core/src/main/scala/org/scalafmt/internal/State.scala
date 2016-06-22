@@ -106,12 +106,13 @@ object State {
       if (columnOnCurrentLine < style.maxColumn || {
             val commentExceedsLineLength =
               tok.right.isInstanceOf[Comment] &&
-              tok.right.code.length >= (style.maxColumn - newIndent)
+                tok.right.code.length >= (style.maxColumn - newIndent)
             commentExceedsLineLength && split.modification.isNewline
           }) {
         split // fits inside column
       } else {
-        split.withPenalty(Constants.ExceedColumnPenalty + columnOnCurrentLine) // overflow
+        split
+          .withPenalty(Constants.ExceedColumnPenalty + columnOnCurrentLine) // overflow
       }
     }
 

@@ -28,8 +28,14 @@ object ManualTests extends HasTests {
       filename <- listFiles(testDir) if filename.endsWith(".scala")
     } yield {
       val content = readFile(filename)
-      DiffTest(
-          "Scala", filename, filename, content, content, false, false, style)
+      DiffTest("Scala",
+               filename,
+               filename,
+               content,
+               content,
+               false,
+               false,
+               style)
     }
     manualFiles ++ scalaFiles
   }

@@ -44,7 +44,7 @@ object TokenOps {
   def hash(token: Token): TokenHash = {
     val longHash: Long =
       (token.privateTag.toLong << (62 - 8)) |
-      (token.start.toLong << (62 - (8 + 28))) | token.end
+        (token.start.toLong << (62 - (8 + 28))) | token.end
     longHash
   }
 
@@ -74,8 +74,8 @@ object TokenOps {
 
   def rhsIsCommentedOut(formatToken: FormatToken): Boolean =
     formatToken.right.isInstanceOf[Comment] &&
-    formatToken.right.code.startsWith("//") &&
-    endsWithNoIndent(formatToken.between)
+      formatToken.right.code.startsWith("//") &&
+      endsWithNoIndent(formatToken.between)
 
   val booleanOperators = Set("&&", "||")
 
@@ -87,7 +87,7 @@ object TokenOps {
 
   def newlineOkOperator(token: Token): Boolean =
     booleanOperators.contains(token.code) ||
-    newlineOkOperators.contains(token.code)
+      newlineOkOperators.contains(token.code)
 
   // See http://scala-lang.org/files/archive/spec/2.11/06-expressions.html#assignment-operators
   val specialAssignmentOperators = Set("<=", ">=", "!=")
@@ -133,8 +133,8 @@ object TokenOps {
     Policy({
       case Decision(tok, splits)
           if !tok.right.isInstanceOf[EOF] && tok.right.end <= expire.end &&
-          exclude.forall(!_.contains(tok.left.start)) &&
-          (disallowInlineComments || !isInlineComment(tok.left)) =>
+            exclude.forall(!_.contains(tok.left.start)) &&
+            (disallowInlineComments || !isInlineComment(tok.left)) =>
         Decision(tok, splits.filterNot(_.modification.isNewline))
     }, expire.end, noDequeue = exclude.isEmpty, isSingleLine = true)
   }

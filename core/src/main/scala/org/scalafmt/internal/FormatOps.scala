@@ -124,8 +124,8 @@ class FormatOps(val tree: Tree,
   final def rhsOptimalToken(start: FormatToken): Token = start.right match {
     case _: `,` | _: `(` | _: `)` | _: `]` | _: `;` | _: `=>`
         if next(start) != start &&
-        !owners(start.right).tokens.headOption.contains(start.right) &&
-        newlinesBetween(start.between) == 0 =>
+          !owners(start.right).tokens.headOption.contains(start.right) &&
+          newlinesBetween(start.between) == 0 =>
       rhsOptimalToken(next(start))
     case _ => start.left
   }
@@ -167,7 +167,8 @@ class FormatOps(val tree: Tree,
     Range(open.start, matchingParentheses(hash(open)).end)
 
   def getExcludeIf(
-      end: Token, cond: Token => Boolean = _.isInstanceOf[`}`]): Set[Range] = {
+      end: Token,
+      cond: Token => Boolean = _.isInstanceOf[`}`]): Set[Range] = {
     if (cond(end)) // allow newlines in final {} block
       Set(Range(matchingParentheses(hash(end)).start, end.end))
     else Set.empty[Range]
@@ -197,7 +198,7 @@ class FormatOps(val tree: Tree,
       // TODO(olafur) scala.meta should make this easier.
       case procedure: Defn.Def
           if procedure.decltpe.isDefined &&
-          procedure.decltpe.get.tokens.isEmpty =>
+            procedure.decltpe.get.tokens.isEmpty =>
         procedure.body.tokens.find(_.isInstanceOf[`{`])
       case _ => tree.tokens.find(t => t.isInstanceOf[`=`] && owners(t) == tree)
     }
@@ -210,11 +211,11 @@ class FormatOps(val tree: Tree,
       // Newline on every comma.
       case d @ Decision(t @ FormatToken(comma: `,`, right, between), splits)
           if owners(open) == owners(comma) &&
-          // TODO(olafur) what the right { decides to be single line?
-          !right.isInstanceOf[`{`] &&
-          // If comment is bound to comma, see unit/Comment.
-          (!right.isInstanceOf[Comment] ||
-              between.exists(_.isInstanceOf[`\n`])) =>
+            // TODO(olafur) what the right { decides to be single line?
+            !right.isInstanceOf[`{`] &&
+            // If comment is bound to comma, see unit/Comment.
+            (!right.isInstanceOf[Comment] ||
+                  between.exists(_.isInstanceOf[`\n`])) =>
         Decision(t, splits.filter(_.modification.isNewline))
     }, expire.end)
   }
@@ -230,12 +231,13 @@ class FormatOps(val tree: Tree,
   def penalizeAllNewlines(expire: Token,
                           penalty: Int,
                           penalizeLambdas: Boolean = true,
-                          ignore: FormatToken => Boolean = _ =>
-                            false)(implicit line: sourcecode.Line): Policy = {
+                          ignore: FormatToken => Boolean = _ => false)(
+      implicit line: sourcecode.Line): Policy = {
     Policy({
       case Decision(tok, s)
           if tok.right.end < expire.end &&
-          (penalizeLambdas || !tok.left.isInstanceOf[`=>`]) && !ignore(tok) =>
+            (penalizeLambdas || !tok.left.isInstanceOf[`=>`]) && !ignore(
+              tok) =>
         Decision(tok, s.map {
           case split if split.modification.isNewline =>
             split.withPenalty(penalty)
@@ -255,7 +257,7 @@ class FormatOps(val tree: Tree,
 
         val penalty =
           nestedSelect(owners(t.left)) + nestedApplies(owners(t.right)) +
-          nonBoolPenalty
+            nonBoolPenalty
         Decision(t, s.map {
           case split if split.modification.isNewline =>
             split.withPenalty(penalty)
@@ -420,13 +422,12 @@ class FormatOps(val tree: Tree,
   }
 
   def isSingleIdentifierAnnotation(tok: FormatToken): Boolean = {
-    val toMatch =
-      if (tok.right.isInstanceOf[`)`]) {
-        // Hack to allow any annotations with arguments like @foo(1)
-        prev(prev(leftTok2tok(matchingParentheses(hash(tok.right)))))
-      } else {
-        tok
-      }
+    val toMatch = if (tok.right.isInstanceOf[`)`]) {
+      // Hack to allow any annotations with arguments like @foo(1)
+      prev(prev(leftTok2tok(matchingParentheses(hash(tok.right)))))
+    } else {
+      tok
+    }
     toMatch match {
       case FormatToken(_: `@`, _: Ident, _) => true
       case _ => false

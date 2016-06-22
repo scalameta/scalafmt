@@ -35,8 +35,8 @@ def foo(
 }
 """.replace("'''", "\"\"\"")
 
-  override val tests = parseDiffTests(
-      defnSite3callSite5, "default/continuationIndent.stat")
+  override val tests =
+    parseDiffTests(defnSite3callSite5, "default/continuationIndent.stat")
 
   testsToRun.foreach(runTest(run))
 

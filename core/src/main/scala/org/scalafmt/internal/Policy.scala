@@ -20,6 +20,7 @@ case class Policy(
     if (this.f == Policy.emptyPf) other
     else this.andThen(other.f)
   }
+
   /** Similar to PartialFunction.andThen, except applies second pf even if the
     * first pf is not defined at argument.
     */
@@ -27,8 +28,8 @@ case class Policy(
     // TODO(olafur) optimize?
     val newPf: PartialFunction[Decision, Decision] = {
       case x =>
-        otherF.applyOrElse(
-            f.applyOrElse(x, identity[Decision]), identity[Decision])
+        otherF.applyOrElse(f.applyOrElse(x, identity[Decision]),
+                           identity[Decision])
     }
     copy(f = newPf)
   }

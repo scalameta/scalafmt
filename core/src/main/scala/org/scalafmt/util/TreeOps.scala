@@ -185,8 +185,8 @@ object TreeOps {
     childOf(owners(hash(tok)), tree)
 
   @tailrec
-  final def parents(
-      tree: Tree, accum: Seq[Tree] = Seq.empty[Tree]): Seq[Tree] = {
+  final def parents(tree: Tree,
+                    accum: Seq[Tree] = Seq.empty[Tree]): Seq[Tree] = {
     tree.parent match {
       case Some(parent) => parents(parent, parent +: accum)
       case _ => accum
@@ -213,8 +213,8 @@ object TreeOps {
 
   def isDefnSite(tree: Tree): Boolean = tree match {
     case _: Decl.Def | _: Defn.Def | _: Defn.Macro | _: Defn.Class |
-        _: Defn.Trait | _: Ctor.Secondary | _: Decl.Type |
-        _: Defn.Type | _: Type.Apply | _: Type.Param | _: Type.Tuple =>
+        _: Defn.Trait | _: Ctor.Secondary | _: Decl.Type | _: Defn.Type |
+        _: Type.Apply | _: Type.Param | _: Type.Tuple =>
       true
     case x: Ctor.Primary if x.parent.exists(_.isInstanceOf[Defn.Class]) =>
       true
@@ -223,8 +223,8 @@ object TreeOps {
 
   def isBinPackDefnSite(tree: Tree): Boolean = tree match {
     case _: Decl.Def | _: Defn.Def | _: Defn.Macro | _: Defn.Class |
-        _: Defn.Trait | _: Ctor.Secondary |
-        _: Defn.Type | _: Type.Apply | _: Type.Param | _: Type.Tuple =>
+        _: Defn.Trait | _: Ctor.Secondary | _: Defn.Type | _: Type.Apply |
+        _: Type.Param | _: Type.Tuple =>
       true
     case x: Ctor.Primary if x.parent.exists(_.isInstanceOf[Defn.Class]) =>
       true
@@ -301,8 +301,8 @@ object TreeOps {
 
   val splitApplyIntoLhsAndArgsLifted = splitApplyIntoLhsAndArgs.lift
 
-  def getApplyArgs(
-      formatToken: FormatToken, leftOwner: Tree): (Tree, Seq[Tree]) = {
+  def getApplyArgs(formatToken: FormatToken,
+                   leftOwner: Tree): (Tree, Seq[Tree]) = {
     leftOwner match {
       case t: Defn.Def if formatToken.left.isInstanceOf[`[`] =>
         t.name -> t.tparams
@@ -322,8 +322,8 @@ object TreeOps {
   }
 
   @tailrec
-  final def getSelectChain(
-      child: Tree, accum: Vector[Term.Select]): Vector[Term.Select] = {
+  final def getSelectChain(child: Tree,
+                           accum: Vector[Term.Select]): Vector[Term.Select] = {
     child.parent match {
       case Some(parent: Term.Select) =>
         getSelectChain(parent, accum :+ parent)
@@ -337,7 +337,7 @@ object TreeOps {
   def startsSelectChain(tree: Tree): Boolean = tree match {
     case select: Term.Select =>
       !(existsChild(_.isInstanceOf[Term.Select])(select) &&
-          existsChild(splitApplyIntoLhsAndArgs.isDefinedAt)(select))
+            existsChild(splitApplyIntoLhsAndArgs.isDefinedAt)(select))
     case _ => false
   }
 
@@ -374,7 +374,7 @@ object TreeOps {
       generator: Enumerator.Generator): Option[Enumerator.Guard] = {
     for {
       parent <- generator.parent if parent.isInstanceOf[Term.For] ||
-      parent.isInstanceOf[Term.ForYield]
+        parent.isInstanceOf[Term.ForYield]
       sibling <- {
         val enums = parent match {
           case p: Term.For => p.enums

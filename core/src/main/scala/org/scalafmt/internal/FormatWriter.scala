@@ -17,8 +17,7 @@ class FormatWriter(formatOps: FormatOps) {
 
   def mkString(splits: Vector[Split]): String = {
     val sb = new StringBuilder()
-    var lastState =
-      State.start // used to calculate start of formatToken.right.
+    var lastState = State.start // used to calculate start of formatToken.right.
     reconstructPath(tokens, splits, style, debug = false) {
       case (state, formatToken, whitespace) =>
         formatToken.left match {
@@ -96,11 +95,11 @@ class FormatWriter(formatOps: FormatOps) {
     * Reconstructs path for all tokens and invokes callback for each token/split
     * combination.
     */
-  def reconstructPath(toks: Array[FormatToken],
-                      splits: Vector[Split],
-                      style: ScalafmtStyle,
-                      debug: Boolean)(
-      callback: (State, FormatToken, String) => Unit): Unit = {
+  def reconstructPath(
+      toks: Array[FormatToken],
+      splits: Vector[Split],
+      style: ScalafmtStyle,
+      debug: Boolean)(callback: (State, FormatToken, String) => Unit): Unit = {
     require(toks.length >= splits.length, "splits !=")
     val locations = getFormatLocations(toks, splits, style, debug)
     val tokenAligns = alignmentTokens(locations, style).withDefaultValue(0)
@@ -111,11 +110,11 @@ class FormatWriter(formatOps: FormatOps) {
           case Space => " " * (1 + tokenAligns(tok))
           case nl: NewlineT
               if nl.acceptNoSplit && !tok.left.isInstanceOf[Comment] &&
-              state.indentation >= previous.state.column =>
+                state.indentation >= previous.state.column =>
             ""
           case nl: NewlineT
               if nl.acceptSpace &&
-              state.indentation >= previous.state.column =>
+                state.indentation >= previous.state.column =>
             " "
           case nl: NewlineT =>
             val newline =
@@ -135,8 +134,8 @@ class FormatWriter(formatOps: FormatOps) {
     }
   }
 
-  private def isCandidate(
-      location: FormatLocation, style: ScalafmtStyle): Boolean = {
+  private def isCandidate(location: FormatLocation,
+                          style: ScalafmtStyle): Boolean = {
     location.split.modification == Space && {
       val token = location.formatToken.right
       val code = token match {
@@ -214,10 +213,10 @@ class FormatWriter(formatOps: FormatOps) {
           }
         } else {
           val newlines = locations(i).split.modification.newlines
-          val matches = columnsMatch(
-              block.last, candidates, locations(i).formatToken)
-          minMatches = Math.min(
-              minMatches, if (matches > 0) matches else block.head.length)
+          val matches =
+            columnsMatch(block.last, candidates, locations(i).formatToken)
+          minMatches = Math
+            .min(minMatches, if (matches > 0) matches else block.head.length)
           if (matches > 0) {
             block = block :+ candidates
           }
@@ -227,16 +226,15 @@ class FormatWriter(formatOps: FormatOps) {
             while (column < columns) {
               val blockWithWidth = {
                 block.map { line =>
-                  val columnWidth =
-                    if (column == 0) {
-                      line(column).state.column
-                    } else {
-                      val previousLocation = line(column - 1)
-                      val previousColumn =
-                        previousLocation.state.column -
+                  val columnWidth = if (column == 0) {
+                    line(column).state.column
+                  } else {
+                    val previousLocation = line(column - 1)
+                    val previousColumn =
+                      previousLocation.state.column -
                         previousLocation.formatToken.right.code.length
-                      line(column).state.column - previousColumn
-                    }
+                    line(column).state.column - previousColumn
+                  }
                   val key =
                     columnWidth - line(column).formatToken.right.code.length
                   key -> line(column)

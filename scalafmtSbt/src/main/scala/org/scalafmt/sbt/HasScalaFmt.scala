@@ -74,8 +74,9 @@ case class HasScalaFmt(reflective: ScalaFmtLike,
     }
   }
 
-  private case class FormatResult(
-      file: File, originalContents: String, formattedContents: String)
+  private case class FormatResult(file: File,
+                                  originalContents: String,
+                                  formattedContents: String)
 
   private def handleFile(callback: FormatResult => Unit)(file: File): Unit = {
     val contents = IO.read(file)

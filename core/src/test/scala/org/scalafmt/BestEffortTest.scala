@@ -261,8 +261,8 @@ val options = List[OptionAssigner](
 }
     """.replace("'''", "\"\"\"")
 
-  override val tests = parseDiffTests(
-      stateExplosions, "default/StateExplosion.stat")
+  override val tests =
+    parseDiffTests(stateExplosions, "default/StateExplosion.stat")
 
   def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
     val runner = scalafmtRunner.copy(
@@ -279,7 +279,7 @@ val options = List[OptionAssigner](
   testsToRun.foreach(runTest(run))
 
   override def afterAll(configMap: ConfigMap): Unit = {
-    FileOps.writeFile(
-        "target/index.html", Report.heatmap(debugResults.result()))
+    FileOps
+      .writeFile("target/index.html", Report.heatmap(debugResults.result()))
   }
 }

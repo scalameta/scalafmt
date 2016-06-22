@@ -79,8 +79,8 @@ object Report {
         div(
             h1(id := "title",
                s"Compare ${after.gitInfo.branch} and" +
-               s" ${before.gitInfo.branch}" +
-               s" (${before.shortCommit}...${after.shortCommit})"),
+                 s" ${before.gitInfo.branch}" +
+                 s" (${before.shortCommit}...${after.shortCommit})"),
             explanation,
             after
               .intersectResults(before)

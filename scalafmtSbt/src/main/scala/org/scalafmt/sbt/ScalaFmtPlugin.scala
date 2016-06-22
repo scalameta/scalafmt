@@ -39,7 +39,7 @@ object ScalaFmtPlugin extends AutoPlugin {
 
     lazy val scalafmtTest: TaskKey[Unit] = taskKey[Unit](
         "Test for mis-formatted Scala sources, " +
-        "exits with status 1 on failure.")
+          "exits with status 1 on failure.")
 
     lazy val scalafmtConfig: TaskKey[Option[File]] =
       taskKey[Option[File]]("Configuration file for scalafmt.")
@@ -49,8 +49,8 @@ object ScalaFmtPlugin extends AutoPlugin {
 
     def scalafmtSettings: Seq[Setting[_]] =
       noConfigScalafmtSettings ++
-      inConfig(Compile)(configScalafmtSettings) ++
-      inConfig(Test)(configScalafmtSettings)
+        inConfig(Compile)(configScalafmtSettings) ++
+        inConfig(Test)(configScalafmtSettings)
 
     lazy val reformatOnCompileSettings: Seq[Def.Setting[_]] = List(
         compileInputs in (Compile, compile) <<=
@@ -61,13 +61,13 @@ object ScalaFmtPlugin extends AutoPlugin {
 
     lazy val scalafmtSettingsWithIt: Seq[Setting[_]] =
       scalafmtSettings ++
-      inConfig(IntegrationTest)(configScalafmtSettings)
+        inConfig(IntegrationTest)(configScalafmtSettings)
 
     lazy val reformatOnCompileWithItSettings: Seq[Def.Setting[_]] =
       reformatOnCompileSettings ++ List(
           compileInputs in (It, compile) <<=
             (compileInputs in (It, compile)) dependsOn
-          (scalafmt in It)
+              (scalafmt in It)
       )
   }
   import autoImport._
@@ -94,26 +94,27 @@ object ScalaFmtPlugin extends AutoPlugin {
         hasScalafmt := {
           val report = update.value
           val jars = report.select(configurationFilter("scalafmt"))
-          HasScalaFmt(
-              getScalafmtLike(
-                  new URLClassLoader(jars.map(_.toURI.toURL).toArray, null),
-                  streams.value),
-              scalafmtConfig.value,
-              streams.value,
-              (sourceDirectories in hasScalafmt).value.toList,
-              (includeFilter in hasScalafmt).value,
-              (excludeFilter in hasScalafmt).value,
-              thisProjectRef.value)
+          HasScalaFmt(getScalafmtLike(
+                          new URLClassLoader(jars.map(_.toURI.toURL).toArray,
+                                             null),
+                          streams.value),
+                      scalafmtConfig.value,
+                      streams.value,
+                      (sourceDirectories in hasScalafmt).value.toList,
+                      (includeFilter in hasScalafmt).value,
+                      (excludeFilter in hasScalafmt).value,
+                      thisProjectRef.value)
         },
         scalafmt := hasScalafmt.value.writeFormattedContentsToFiles(),
         scalafmtTest := hasScalafmt.value.testProjectIsFormatted()
     )
 
-  private def getScalafmtLike(
-      classLoader: URLClassLoader, streams: TaskStreams): ScalaFmtLike = {
+  private def getScalafmtLike(classLoader: URLClassLoader,
+                              streams: TaskStreams): ScalaFmtLike = {
     val loadedClass =
       new ReflectiveDynamicAccess(classLoader).createInstanceFor[ScalaFmtLike](
-          "org.scalafmt.cli.Scalafmt210", Seq.empty)
+          "org.scalafmt.cli.Scalafmt210",
+          Seq.empty)
 
     loadedClass match {
       case Success(x) => x

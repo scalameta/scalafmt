@@ -22,8 +22,9 @@ import scala.meta.tokens.Token
 /**
   * Implements best first search to find optimal formatting.
   */
-class BestFirstSearch(
-    val formatOps: FormatOps, range: Set[Range], formatWriter: FormatWriter) {
+class BestFirstSearch(val formatOps: FormatOps,
+                      range: Set[Range],
+                      formatWriter: FormatWriter) {
   import LoggerOps._
   import Token._
   import TokenOps._
@@ -100,8 +101,9 @@ class BestFirstSearch(
     val split = Split(Provided(formatToken.between.map(_.code).mkString), 0)
     val result =
       if (formatToken.left.isInstanceOf[`{`])
-        split.withIndent(
-            Num(2), matchingParentheses(hash(formatToken.left)), Right)
+        split.withIndent(Num(2),
+                         matchingParentheses(hash(formatToken.left)),
+                         Right)
       else split
     result
   }
@@ -193,8 +195,8 @@ class BestFirstSearch(
 
         if (shouldRecurseOnBlock(curr, stop)) {
           val close = matchingParentheses(hash(getLeftLeft(curr)))
-          val nextState = shortestPathMemo(
-              curr, close, depth = depth + 1, maxCost = maxCost)
+          val nextState =
+            shortestPathMemo(curr, close, depth = depth + 1, maxCost = maxCost)
           val nextToken = tokens(nextState.splits.length)
           if (nextToken.left == close) {
             Q.enqueue(nextState)
@@ -206,8 +208,8 @@ class BestFirstSearch(
           visits.clear()
           if (!bestEffortEscape) {
             runner.eventCallback(CompleteFormat(explored, deepestYet, tokens))
-            throw SearchStateExploded(
-                deepestYet, formatWriter.mkString(deepestYet.splits))
+            throw SearchStateExploded(deepestYet,
+                                      formatWriter.mkString(deepestYet.splits))
           } else if (pathologicalEscapes >= MaxEscapes) {
             Q.enqueue(untilNextStatement(curr, Integer.MAX_VALUE))
           } else {
@@ -242,8 +244,8 @@ class BestFirstSearch(
             split.optimalAt match {
               case Some(OptimalToken(token, killOnFail))
                   if acceptOptimalAtHints && optimalNotFound &&
-                  actualSplit.length > 1 && depth < MaxDepth &&
-                  nextState.splits.last.cost == 0 =>
+                    actualSplit.length > 1 && depth < MaxDepth &&
+                    nextState.splits.last.cost == 0 =>
                 val nextNextState =
                   shortestPath(nextState, token, depth + 1, maxCost = 0)
                 if (hasReachedEof(nextNextState) ||
@@ -260,7 +262,7 @@ class BestFirstSearch(
                 } // else kill branch
               case _
                   if optimalNotFound &&
-                  nextState.cost - curr.cost <= maxCost =>
+                    nextState.cost - curr.cost <= maxCost =>
                 Q.enqueue(nextState)
               case _ => // Kill branch.
             }

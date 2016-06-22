@@ -16,7 +16,8 @@ trait DiffAssertions extends FunSuiteLike {
                          obtained: String,
                          diff: String)
       extends TestFailedException(
-          title + "\n" + error2message(obtained, expected), 1)
+          title + "\n" + error2message(obtained, expected),
+          1)
 
   def error2message(obtained: String, expected: String): String = {
     val sb = new StringBuilder
@@ -33,8 +34,9 @@ trait DiffAssertions extends FunSuiteLike {
     sb.toString()
   }
 
-  def assertNoDiff(
-      obtained: String, expected: String, title: String = ""): Boolean = {
+  def assertNoDiff(obtained: String,
+                   expected: String,
+                   title: String = ""): Boolean = {
     val result = compareContents(obtained, expected)
     if (result.isEmpty) true
     else {

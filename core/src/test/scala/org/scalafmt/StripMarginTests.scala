@@ -119,7 +119,7 @@ val msg = s'''AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
   override val tests =
     parseDiffTests(rawStrings, "stripMargin/String.stat") ++
-    (parseDiffTests(interpolatedStrings, "stripMargin/Interpolate.stat"))
+      (parseDiffTests(interpolatedStrings, "stripMargin/Interpolate.stat"))
 
   testsToRun.foreach(runTest(run))
 

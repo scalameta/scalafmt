@@ -105,11 +105,11 @@ object Cli {
     opt[Seq[File]]('f', "files") action { (files, c) =>
       c.copy(files = files)
     } text "can be directory, in which case all *.scala files are formatted. " +
-    "If not provided, reads from stdin."
+      "If not provided, reads from stdin."
     opt[File]('c', "config") action { (file, c) =>
       c.copy(configFile = Some(file))
     } text "read style flags, see \"Style configuration option\", from this" +
-    " config file. The file can contain comments starting with //"
+      " config file. The file can contain comments starting with //"
     opt[Unit]('i', "in-place") action { (_, c) =>
       c.copy(inPlace = true)
     } text "write output to file, does nothing if file is not specified"
@@ -270,8 +270,8 @@ object Cli {
           case FormatResult.Success(formatted) =>
             inputMethod match {
               case FileContents(filename, _) if config.inPlace =>
-                val elapsed = TimeUnit.MILLISECONDS.convert(
-                    System.nanoTime() - start, TimeUnit.NANOSECONDS)
+                val elapsed = TimeUnit.MILLISECONDS
+                  .convert(System.nanoTime() - start, TimeUnit.NANOSECONDS)
                 val i = counter.incrementAndGet()
                 logger.info(
                     f"${i + 1}%3s/${inputMethods.length} file:$filename%-50s (${elapsed}ms)")

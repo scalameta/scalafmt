@@ -42,7 +42,8 @@ class ReflectiveDynamicAccess(val classLoader: ClassLoader) {
     })
 
   def createInstanceFor[T: ClassTag](
-      clazz: Class[_], args: immutable.Seq[(Class[_], AnyRef)]): Try[T] =
+      clazz: Class[_],
+      args: immutable.Seq[(Class[_], AnyRef)]): Try[T] =
     Try {
       val types = args.map(_._1).toArray
       val values = args.map(_._2).toArray
@@ -60,7 +61,8 @@ class ReflectiveDynamicAccess(val classLoader: ClassLoader) {
     }
 
   def createInstanceFor[T: ClassTag](
-      fqcn: String, args: immutable.Seq[(Class[_], AnyRef)]): Try[T] =
+      fqcn: String,
+      args: immutable.Seq[(Class[_], AnyRef)]): Try[T] =
     getClassFor(fqcn) flatMap { c ⇒
       createInstanceFor(c, args)
     }

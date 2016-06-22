@@ -14,9 +14,10 @@ import org.scalafmt.ScalafmtStyle
 class Scalafmt210 {
 
   def format(code: String, configFile: String): String = {
-    val style =
-      StyleCache.getStyleForFile(configFile).getOrElse(
-        throw InvalidScalafmtConfiguration(new File(configFile))
+    val style = StyleCache
+      .getStyleForFile(configFile)
+      .getOrElse(
+          throw InvalidScalafmtConfiguration(new File(configFile))
       )
     format(code, style)
   }

@@ -25,15 +25,14 @@ case class OptimalToken(token: Token, killOnFail: Boolean = false)
   *             this split originates.
   *
   */
-case class Split(modification: Modification,
-                 cost: Int,
-                 ignoreIf: Boolean = false,
-                 indents: Vector[Indent[Length]] =
-                   Vector.empty[Indent[Length]],
-                 policy: Policy = NoPolicy,
-                 penalty: Boolean = false,
-                 optimalAt: Option[OptimalToken] = None)(
-    implicit val line: sourcecode.Line) {
+case class Split(
+    modification: Modification,
+    cost: Int,
+    ignoreIf: Boolean = false,
+    indents: Vector[Indent[Length]] = Vector.empty[Indent[Length]],
+    policy: Policy = NoPolicy,
+    penalty: Boolean = false,
+    optimalAt: Option[OptimalToken] = None)(implicit val line: sourcecode.Line) {
   import TokenOps._
 
   def adapt(formatToken: FormatToken): Split = modification match {
@@ -109,7 +108,7 @@ case class Split(modification: Modification,
 
   def sameSplit(other: Split): Boolean =
     this.modification == other.modification &&
-    this.line.value == other.line.value && this.cost == other.cost
+      this.line.value == other.line.value && this.cost == other.cost
 
   override def toString =
     s"""$modification:${line.value}(cost=$cost, indents=$indentation, $policy)"""

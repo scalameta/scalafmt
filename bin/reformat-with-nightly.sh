@@ -9,3 +9,4 @@ scalafmt -i -f cli/src/test/scala
 scalafmt -i -f scalafmtSbt/src/main/scala
 scalafmt -i -f scalafmtSbt/src/test/scala
 scalafmt -i -f intellij/src
+scalafmt -i -f readme

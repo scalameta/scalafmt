@@ -125,8 +125,8 @@ object LinePerMsBenchmark extends FormatExperiment with App {
 
 object FormatExperimentApp extends FormatExperiment with App {
   def valid(result: ExperimentResult): Boolean = result match {
-    case _: Success | _: Timeout | _: Skipped |
-        _: ParseErr | _: SearchStateExploded =>
+    case _: Success | _: Timeout | _: Skipped | _: ParseErr |
+        _: SearchStateExploded =>
       true
     case UnknownFailure(_, _: IdempotencyViolated) =>
       true // TODO(olafur) remove after #339
