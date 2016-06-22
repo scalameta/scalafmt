@@ -55,9 +55,8 @@ new Compiler(
 );
 >>>
 new Compiler(
-    primitives.opti___________ons.has(
-        "primitives"
-    ),
+    primitives.opti___________ons
+      .has("primitives"),
     minify.options.has("minify"),
     preserve.options.has("preserve"),
     liveAnalysis.check(

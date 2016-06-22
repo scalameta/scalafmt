@@ -71,8 +71,8 @@ object ScalafmtOptimizer {
       MaxEscapes = 16,
       MaxDepth = 100,
       acceptOptimalAtHints = true,
-      disableOptimizationsInsideSensitiveAreas = true,
       pruneSlowStates = true,
+      disableOptimizationsInsideSensitiveAreas = true,
       recurseOnBlocks = true
   )
 

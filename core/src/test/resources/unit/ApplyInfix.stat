@@ -23,7 +23,8 @@ opt[(Int, Int)]("range") hidden () action {}
 logger.warning("foooooooooooooo" +
 "baaaaaaaaaaaaaar")
 >>>
-logger.warning("foooooooooooooo" +
+logger.warning(
+    "foooooooooooooo" +
       "baaaaaaaaaaaaaar")
 <<< string concatenation 2
 logger.warning(a, "foooooooooooooo" +
@@ -43,7 +44,8 @@ logger.warning(a,
 logger.warning("foooooooooooooo" &&
            "baaaaaaaaaaaaaar")
 >>>
-logger.warning("foooooooooooooo" &&
+logger.warning(
+    "foooooooooooooo" &&
       "baaaaaaaaaaaaaar")
 <<< too many pluses + (state explosion)
 a + b + c + d + e + f + g + h + i + j +

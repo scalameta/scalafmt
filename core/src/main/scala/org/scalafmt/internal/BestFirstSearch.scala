@@ -241,19 +241,21 @@ class BestFirstSearch(
             runner.eventCallback(Enqueue(split))
             split.optimalAt match {
               case Some(OptimalToken(token, killOnFail))
-                  if acceptOptimalAtHints && actualSplit.length > 1 &&
-                  depth < MaxDepth && nextState.splits.last.cost == 0 =>
+                  if acceptOptimalAtHints && optimalNotFound &&
+                  actualSplit.length > 1 && depth < MaxDepth &&
+                  nextState.splits.last.cost == 0 =>
                 val nextNextState =
                   shortestPath(nextState, token, depth + 1, maxCost = 0)
                 if (hasReachedEof(nextNextState) ||
                     (nextNextState.splits.length < tokens.length && tokens(
                             nextNextState.splits.length).left.start >= token.start)) {
                   optimalNotFound = false
-//                  logger.elem(split)
+//                  logger.trace(split, splitToken, formatWriter.mkString(nextNextState.splits), tokens(nextNextState.splits.length))
                   Q.enqueue(nextNextState)
                 } else if (!killOnFail &&
                            nextState.cost - curr.cost <= maxCost) {
                   // TODO(olafur) DRY. This solution can still be optimal.
+//                  logger.elem(split, splitToken)
                   Q.enqueue(nextState)
                 } // else kill branch
               case _

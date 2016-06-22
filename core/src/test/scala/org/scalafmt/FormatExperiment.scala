@@ -18,6 +18,7 @@ import org.scalafmt.util.ExperimentResult.SearchStateExploded
 import org.scalafmt.util.ExperimentResult.Skipped
 import org.scalafmt.util.ExperimentResult.Success
 import org.scalafmt.util.ExperimentResult.Timeout
+import org.scalafmt.util.ExperimentResult.UnknownFailure
 import org.scalafmt.util.FormatAssertions
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.ScalaFile
@@ -127,6 +128,8 @@ object FormatExperimentApp extends FormatExperiment with App {
     case _: Success | _: Timeout | _: Skipped |
         _: ParseErr | _: SearchStateExploded =>
       true
+    case UnknownFailure(_, _: IdempotencyViolated) =>
+      true // TODO(olafur) remove after #339
     case failure => false
   }
 

@@ -369,7 +369,7 @@ class Router(formatOps: FormatOps) {
             Split(Newline, 0, policy = configStyle)
               .withIndent(indent, close, Right)
         )
-      case FormatToken(open @ (_: `(` | _: `[`), right, _)
+      case FormatToken(open @ (_: `(` | _: `[`), right, between)
           if style.binPackParameters && isDefnSite(leftOwner) ||
           // TODO(olafur) generalize Term.Function
           leftOwner.isInstanceOf[Term.Function] =>
@@ -403,9 +403,13 @@ class Router(formatOps: FormatOps) {
               }
             case _ => noSplitPenalizeNewlines
           }
+          val noSplitModification =
+            if (right.isInstanceOf[Comment]) newlines2Modification(between)
+            else NoSplit
 
           Seq(
-              Split(NoSplit, 0 + (nestingPenalty * bracketMultiplier))
+              Split(noSplitModification,
+                    0 + (nestingPenalty * bracketMultiplier))
                 .withPolicy(noSplitPolicy)
                 .withIndent(indent, close, Left),
               Split(Newline,
@@ -543,12 +547,13 @@ class Router(formatOps: FormatOps) {
           case _ => false
         }
 
+//        logger.elem(leftTok2tok(expirationToken))
         Seq(
             Split(modification,
                   0,
                   policy = singleLine(7),
                   ignoreIf = !fitsOnOneLine)
-              .withOptimalToken(expirationToken)
+              .withOptimalToken(expirationToken, killOnFail = false)
               .withIndent(indent, close, Right),
             Split(newlineModification,
                   (1 + nestedPenalty + lhsPenalty) * bracketMultiplier,
@@ -775,8 +780,7 @@ class Router(formatOps: FormatOps) {
             Split(NoSplit, 0)
 //              .withOptimalToken(optimalToken, killOnFail = false)
               .withPolicy(noSplitPolicy),
-            Split(Newline.copy(acceptNoSplit = true),
-                  2 + nestedPenalty)
+            Split(Newline.copy(acceptNoSplit = true), 2 + nestedPenalty)
               .withPolicy(newlinePolicy)
               .withIndent(2, optimalToken, Left)
         )

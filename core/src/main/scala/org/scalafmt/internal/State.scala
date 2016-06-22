@@ -36,8 +36,8 @@ final case class State(cost: Int,
         var r = 0
         while (i > 0 && r == 0) {
           r = Integer
-            .valueOf(-this.splits(i).line.value)
-            .compareTo(-that.splits(i).line.value)
+            .valueOf(this.splits(i).line.value)
+            .compareTo(that.splits(i).line.value)
           i -= 1
         }
         r
