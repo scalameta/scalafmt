@@ -546,13 +546,13 @@ class Router(formatOps: FormatOps) {
         Seq(
             Split(modification,
                   0,
-                  policy = singleLine(6),
+                  policy = singleLine(7),
                   ignoreIf = !fitsOnOneLine)
               .withOptimalToken(expirationToken)
               .withIndent(indent, close, Right),
             Split(newlineModification,
                   (1 + nestedPenalty + lhsPenalty) * bracketMultiplier,
-                  policy = newlinePolicy.andThen(singleLine(5)),
+                  policy = newlinePolicy.andThen(singleLine(4)),
                   ignoreIf = args.length > 1 || !fitsOnOneLine || isTuple)
               .withOptimalToken(expirationToken)
               .withIndent(indent, close, Right),

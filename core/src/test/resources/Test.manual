@@ -1,3 +1,6 @@
+ONLY https://raw.githubusercontent.com/twitter/scalding/7759d9c399896fc4c54be0f2406e047e030d8586/scalding-commons/src/main/scala/com/twitter/scalding/examples/PageRank.scala
+SKIP https://raw.githubusercontent.com/scala-js/scala-js/8663c8060ca96a51bfc1f87f2f3f30babbeadbc3/tools/shared/src/main/scala/org/scalajs/core/tools/javascript/JSBuilders.scala
+SKIP https://raw.githubusercontent.com/akka/akka/3698928fbdaa8fef8e2037fbc51887ab60addefb/akka-http-core/src/main/scala/akka/http/impl/engine/ws/WebSocketClientBlueprint.scala
 SKIP https://raw.githubusercontent.com/akka/akka/3698928fbdaa8fef8e2037fbc51887ab60addefb/akka-http-core/src/test/scala/akka/http/impl/engine/ws/WebSocketIntegrationSpec.scala
 SKIP target/repos/gitbucket/src/main/scala/gitbucket/core/service/RepositoryCreationService.scala
 SKIP core/src/main/scala/org/scalafmt/ScalafmtStyle.scala

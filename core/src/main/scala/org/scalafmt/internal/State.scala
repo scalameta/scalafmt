@@ -29,7 +29,19 @@ final case class State(cost: Int,
       val splitsCompare =
         Integer.valueOf(this.splits.length).compareTo(that.splits.length)
       if (splitsCompare != 0) splitsCompare
-      else Integer.valueOf(-this.indentation).compareTo(-that.indentation)
+      else {
+        import LoggerOps._
+        // Break ties by the split line origin.
+        var i = this.splits.length - 1
+        var r = 0
+        while (i > 0 && r == 0) {
+          r = Integer
+            .valueOf(-this.splits(i).line.value)
+            .compareTo(-that.splits(i).line.value)
+          i -= 1
+        }
+        r
+      }
     }
   }
 
