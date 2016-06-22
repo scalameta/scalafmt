@@ -26,7 +26,7 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
   import LoggerOps._
   val scalafmtRunner = ScalafmtRunner.default.copy(
       debug = true,
-      maxStateVisits = 100000,
+      maxStateVisits = 120000,
       eventCallback = {
         case CreateFormatOps(ops) => Debug.formatOps = ops
         case VisitToken(tok) => Debug.visit(tok)
@@ -93,7 +93,7 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
   def file2style(filename: String): ScalafmtStyle =
     filename.split("/").reverse(1) match {
       case "unit" => ScalafmtStyle.unitTest40
-      case "default" | "standard" | "scala" => ScalafmtStyle.unitTest80
+      case "default" | "standard" | "scala" => ScalafmtStyle.default
       case "default140" => ScalafmtStyle.default.copy(maxColumn = 140)
       case "scalajs" => ScalafmtStyle.scalaJs
       case "dangling" =>

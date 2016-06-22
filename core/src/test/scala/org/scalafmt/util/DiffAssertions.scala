@@ -11,18 +11,26 @@ import org.scalatest.exceptions.TestFailedException
 trait DiffAssertions extends FunSuiteLike {
   import LoggerOps._
 
+  case class DiffFailure(title: String,
+                         expected: String,
+                         obtained: String,
+                         diff: String)
+      extends TestFailedException(
+          title + "\n" + error2message(obtained, expected), 1)
+
   def error2message(obtained: String, expected: String): String = {
-    if (expected.length > 10000) s"""
-       #${header("Obtained")}
-       #${trailingSpace(obtained)}
-         """.stripMargin('#')
-    else s"""
-       #${header("Obtained")}
-       #${trailingSpace(obtained)}
-       #
+    val sb = new StringBuilder
+    if (obtained.length < 1000) {
+      sb.append(s"""
+         #${header("Obtained")}
+         #${trailingSpace(obtained)}
+         """.stripMargin('#'))
+    }
+    sb.append(s"""
        #${header("Diff")}
        #${trailingSpace(compareContents(obtained, expected))}
-         """.stripMargin('#')
+         """.stripMargin('#'))
+    sb.toString()
   }
 
   def assertNoDiff(
@@ -30,8 +38,7 @@ trait DiffAssertions extends FunSuiteLike {
     val result = compareContents(obtained, expected)
     if (result.isEmpty) true
     else {
-      throw new TestFailedException(
-          title + "\n" + error2message(obtained, expected), 1)
+      throw DiffFailure(title, expected, obtained, result)
     }
   }
 

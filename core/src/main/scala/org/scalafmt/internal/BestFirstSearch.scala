@@ -249,6 +249,7 @@ class BestFirstSearch(
                     (nextNextState.splits.length < tokens.length && tokens(
                             nextNextState.splits.length).left.start >= token.start)) {
                   optimalNotFound = false
+//                  logger.elem(split)
                   Q.enqueue(nextNextState)
                 } else if (!killOnFail &&
                            nextState.cost - curr.cost <= maxCost) {

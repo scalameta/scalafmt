@@ -1,4 +1,4 @@
-ONLY 80 columns                                                                     |
+80 columns                                                                     |
 <<< confusing unicode symbols
 for {
   a   <- List(1)

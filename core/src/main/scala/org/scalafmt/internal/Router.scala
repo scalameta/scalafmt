@@ -770,9 +770,10 @@ class Router(formatOps: FormatOps) {
         val newlinePolicy = breakOnEveryDot
           .andThen(penalizeNewlinesInApply.f)
           .copy(expire = lastToken.end)
+//        logger.elem(prev(leftTok2tok(optimalToken)))
         Seq(
             Split(NoSplit, 0)
-              .withOptimalToken(optimalToken, killOnFail = false)
+//              .withOptimalToken(optimalToken, killOnFail = false)
               .withPolicy(noSplitPolicy),
             Split(Newline.copy(acceptNoSplit = true), 2 + nestedPenalty)
               .withPolicy(newlinePolicy)

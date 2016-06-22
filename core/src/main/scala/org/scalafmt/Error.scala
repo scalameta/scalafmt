@@ -60,4 +60,8 @@ object Error {
 
   case class InvalidScalafmtConfiguration(file: File)
       extends Error(s"Unable to parse scalafmt configuration file: $file")
+
+  case class IdempotencyViolated(msg: String) extends Error(msg)
+
+  case object MegaTestFailed extends Error("Mega test failed.")
 }

@@ -10,6 +10,8 @@ import java.nio.file.Paths
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicInteger
 
+import org.scalafmt.Error.IdempotencyViolated
+import org.scalafmt.Error.MegaTestFailed
 import org.scalafmt.util.ExperimentResult
 import org.scalafmt.util.ExperimentResult.ParseErr
 import org.scalafmt.util.ExperimentResult.SearchStateExploded
@@ -24,6 +26,8 @@ import org.scalafmt.util.ScalacParser
 import org.scalatest.FunSuite
 import scala.collection.JavaConversions._
 import scala.meta._
+
+import org.scalatest.exceptions.TestFailedException
 
 trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
   import LoggerOps._
@@ -61,10 +65,15 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
           assertFormatPreservesAst[Source](code, formatted)
           val formattedSecondTime = Scalafmt
             .format(
-                code,
+                formatted,
                 ScalafmtStyle.default.copy(alignStripMarginStrings = false))
             .get
-          assertNoDiff(formattedSecondTime, formatted, "Idempotency")
+          try {
+            assertNoDiff(formattedSecondTime, formatted, "Idempotency")
+          } catch {
+            case e: DiffFailure =>
+              throw IdempotencyViolated(e.diff)
+          }
           Success(scalaFile, elapsed)
         case e => e.get; ???
       }
@@ -129,7 +138,7 @@ object FormatExperimentApp extends FormatExperiment with App {
     val nonValidResults = results.filterNot(valid)
     nonValidResults.foreach(println)
     if (nonValidResults.nonEmpty) {
-      throw new IllegalStateException("Failed test.")
+      throw MegaTestFailed
     }
   } else {
     println("Skipping test")

@@ -76,7 +76,7 @@ trait ScalaProjectsExperiment {
       println(s"- $scalaFile")
       Timeout(scalaFile)
     case NonFatal(e) =>
-      print(s"X $scalaFile")
+      print(s"X ${e.getClass} $scalaFile")
       UnknownFailure(scalaFile, e)
   }
 
