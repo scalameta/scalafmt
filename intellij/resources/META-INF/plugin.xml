@@ -1,11 +1,11 @@
 <idea-plugin version="2">
   <id>org.scalafmt.ScalaFmt</id>
   <name>Scalafmt</name>
-  <version>0.2.5</version>
+  <version>0.2.6</version>
   <vendor email="olafurpg@gmail.com" url="https://github.com/olafurpg/scalafmt">Olafur Pall Geirsson</vendor>
 
   <description><![CDATA[
-      Opinionated code formatter for Scala.
+      Code formatter for Scala.
     ]]></description>
 
   <change-notes><![CDATA[

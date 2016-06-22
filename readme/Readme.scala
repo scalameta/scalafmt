@@ -55,9 +55,12 @@ object Readme {
   def repo: String = "https://github.com/olafurpg/scalafmt"
 
   def user(name: String) = a(href := s"$github/$name", s"@$name")
+  def users(names: String*) =
+    span(
+        names.dropRight(1).map(x => span(user(x), ", ")) :+ user(names.last): _*
+    )
 
   def issue(id: Int) = a(href := repo + s"/issues/$id", s"#$id")
-
   def issues(ids: Int*) = span(ids.map(issue): _*)
 
   def half(frags: Frag*) = div(frags, width := "50%", float.left)
@@ -91,7 +94,8 @@ object Readme {
   def fmt(style: ScalafmtStyle)(code: String): TypedTag[String] =
     example(code, style)
 
-  def lastUpdated = new SimpleDateFormat("MMM d, y").format(new Date(Macros.buildTimeMs))
+  def lastUpdated =
+    new SimpleDateFormat("MMM d, y").format(new Date(Macros.buildTimeMs))
 
   def example(code: String, style: ScalafmtStyle): TypedTag[String] = {
     val formatted = Scalafmt.format(code, style).get
