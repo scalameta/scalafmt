@@ -75,6 +75,8 @@ import sourcecode.Text
   * @param alignByArrowEnumeratorGenerator If true, aligns by <- in for comprehensions.
   * @param alignByIfWhileOpenParen If true, aligns by ( in if/while/for. If false,
   *                                indents by [[continuationIndentCallSite]].
+  * @param rewriteTokens Map of tokens to rewrite. For example, Map("⇒" -> "=>")
+  *                      will rewrite unicode arrows to regular ascii arrows.
   */
 case class ScalafmtStyle(
     maxColumn: Int,
@@ -95,6 +97,7 @@ case class ScalafmtStyle(
     allowNewlineBeforeColonInMassiveReturnTypes: Boolean,
     binPackParentConstructors: Boolean,
     spaceAfterTripleEquals: Boolean,
+    rewriteTokens: Map[String, String],
     alignByArrowEnumeratorGenerator: Boolean,
     alignByIfWhileOpenParen: Boolean
 ) {
@@ -127,6 +130,7 @@ object ScalafmtStyle {
       binPackParentConstructors = false,
       spaceAfterTripleEquals = false,
       alignByArrowEnumeratorGenerator = true,
+      rewriteTokens = Map.empty[String, String],
       alignByIfWhileOpenParen = true
   )
 

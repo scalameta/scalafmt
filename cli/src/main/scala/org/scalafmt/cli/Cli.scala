@@ -79,6 +79,15 @@ object Cli {
     })
   }
 
+  private def gimmeStrPairs(tokens: Seq[String]): Seq[(String, String)] = {
+    tokens.map { token =>
+      val splitted = token.split(";", 2)
+      if (splitted.length != 2)
+        throw new IllegalArgumentException("pair must contain ;")
+      (splitted(0), splitted(1))
+    }
+  }
+
   def buildInfo =
     s"""build commit: ${Macros.gitCommit.getOrElse("").take(10)}
        |build time: ${new Date(Macros.buildTimeMs)}""".stripMargin
@@ -176,13 +185,16 @@ object Cli {
         c.copy(style =
               c.style.copy(allowNewlineBeforeColonInMassiveReturnTypes = bool))
     } text s"See ScalafmtStyle scaladoc."
+    opt[Seq[String]]("rewriteTokens") action { (str, c) =>
+      val rewriteTokens = Map(gimmeStrPairs(str): _*)
+      c.copy(style = c.style.copy(rewriteTokens = rewriteTokens))
+    } text s"""(experimental) Same syntax as alignTokens. For example,
+              |
+              |        --rewriteTokens ⇒;=>,←;<-
+              |
+              |        will rewrite unicode arrows to their ascii equivalents.""".stripMargin
     opt[Seq[String]]("alignTokens") action { (tokens, c) =>
-      val alignsTokens = tokens.map { token =>
-        val splitted = token.split(";", 2)
-        if (splitted.length != 2)
-          throw new IllegalArgumentException("align token must contain ;")
-        AlignToken(splitted(0), splitted(1))
-      }
+      val alignsTokens = gimmeStrPairs(tokens).map((AlignToken.apply _).tupled)
       c.copy(style = c.style.copy(alignTokens = alignsTokens.toSet))
     } text s"""(experimental). Comma separated sequence of tokens to align by. Each
               |        token is a ; separated pair of strings where the first string

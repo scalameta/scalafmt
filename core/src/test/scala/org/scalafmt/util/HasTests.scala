@@ -111,6 +111,13 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
             spacesInImportCurlyBraces = true, spaceAfterTripleEquals = true)
       case "align" =>
         ScalafmtStyle.default.copy(alignTokens = AlignToken.default)
+      case "unicode" =>
+        ScalafmtStyle.default.copy(
+            rewriteTokens = Map(
+                "=>" -> "⇒",
+                "<-" -> "←"
+            )
+        )
       case style => throw UnknownStyle(style)
     }
 

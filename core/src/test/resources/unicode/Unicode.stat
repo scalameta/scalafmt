@@ -1,0 +1,9 @@
+ONLY 80 columns                                                                     |
+<<< confusing unicode symbols
+for {
+  a   <- List(1)
+} yield (x => 2)
+>>>
+for {
+  a ← List(1)
+} yield (x ⇒ 2)

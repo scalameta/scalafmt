@@ -27,7 +27,10 @@ class FormatWriter(formatOps: FormatOps) {
           case token: Interpolation.Part =>
             sb.append(formatMarginizedString(token, state.indentation))
           case literal: Literal.String => // Ignore, see below.
-          case token => sb.append(token.code)
+          case token =>
+            val rewrittenToken =
+              style.rewriteTokens.getOrElse(token.code, token.code)
+            sb.append(rewrittenToken)
         }
         sb.append(whitespace)
         formatToken.right match {

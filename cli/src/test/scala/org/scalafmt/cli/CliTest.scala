@@ -26,6 +26,10 @@ class CliTest extends FunSuite with DiffAssertions {
                    |}
                  """.stripMargin
   val expectedStyle = ScalafmtStyle.default.copy(
+      rewriteTokens = Map(
+          "=>" -> "⇒",
+          "<-" -> "←"
+      ),
       maxColumn = 99,
       continuationIndentCallSite = 2,
       continuationIndentDefnSite = 3,
@@ -37,6 +41,8 @@ class CliTest extends FunSuite with DiffAssertions {
                                                files = Seq(new File("foo")),
                                                inPlace = true)
   val args = Array(
+      "--rewriteTokens",
+      "=>;⇒,<-;←",
       "--statement",
       "--debug",
       "--maxColumn",
