@@ -459,6 +459,48 @@
         }
 
 
+  @sect{Known issues}
+    @p
+      @lnk("Developing code formatters is notoriously hard",
+           "http://journal.stuffwithstuff.com/2015/09/08/the-hardest-program-ive-ever-written/")
+      and scalafmt has been no exception.
+      Scalafmt stopped being my full-time job after I handed in my thesis in June 2016.
+      I will continue to work on scalafmt but you can expect the pace to slow down.
+      The following are, in my opinion, the most critical issues with scalafmt
+      that I can't guarantee when will be fixed:
+
+    @ul
+      @li
+        Scalafmt is non-idempotent for certain files. See @issue(339).
+        This means you should be careful about enforcing scalafmt in your CI
+        build.
+        At v0.2.6, roughly 1% or 80 files out of ~9.400 source files in the
+        test suite are affected by this issue.
+        I have not experience this issue in my own code.
+      @li
+        Scalafmt is 6x slower than Scalariform.
+        For 98% of source files this won't be a problem if you have a decently
+        modern laptop.
+        However, if you only work in files with 4.000 LOC it might be a problem.
+        I'm quite sure that micro-optimizations can squeeze out at least ~2x
+        performance improvements, maybe even more.
+        Moreover, I think incremental formatting has the possibility to increase
+        the performance by several orders of magnitude in interactive IDE
+        environments where scalafmt is invoked on file save.
+      @li
+        Scalafmt cannot yet format all files with deeply nested functions calls.
+        Deeply nested function are troublesome because the number of possible
+        formatting options grows exponentially with each new layer of nesting.
+        Instead of taking seconds or minutes to complete formatting, scalafmt
+        chooses to bail early and leave the source file unformatted.
+        Some other cool code formatters like ClangFormat, dartfmt and rfmt use
+        more advanced techniques.
+        At v0.2.6, roughly 1% or 56 out of ~9.400 source files in the test suite
+        are affected by this issue.
+        I have not experience this issue in my own code.
+        However, as scalafmt improves, I hop to decrease that number to 0.
+
+
   @sect{FAQ / Troubleshooting}
 
      @sect{How can I be notified of releases/announcements?}
