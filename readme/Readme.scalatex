@@ -30,20 +30,18 @@
 
   @p
     Scalafmt is quite new.
-    Still, it seems to be already useful for some people so it might also be
+    Still, it already seems to be useful for some people so it might also be
     useful for you.
     Scalafmt can format almost all of Spark, Akka, Scala.js and the IntelliJ
     Scala plugin.
     It's quite fast, too.
-    Over 95% of all files format in under under 160ms on my laptop.
+    Over 95% of all files format in under under 160ms on my laptop and less
+    than 1% of all files take more than 1 second.
+    The default style should work great, but if you need more
+    there are some handy @sect.ref{Configuration} options.
 
   @p
-    Don't hesitate to join the
-    @lnk("gitter channel", "https://gitter.im/olafurpg/scalafmt")
-    or post an @lnk("issue", repo + "/issues") in case of problems.
-
-  @p
-    To learn more about scalafmt, check out this talk:
+    Curious to learn more about scalafmt? Check out this talk:
 
   @raw
     <iframe src="https://player.vimeo.com/video/165929294" width="100%" style="height: 28em;" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
@@ -56,7 +54,6 @@
       For example, it cannot format some files with deeply nested function
       applications.
       For other files, scalafmt may be non-idempotent.
-      For really large files, scalafmt may be slow.
       I am working on fixing these issues.
       However, this effort will be based on my volunteer effort so I cannot
       promise when or in what order things will get fixed.
@@ -575,7 +572,8 @@
         @li
           @lnk("See diff between 0.2.5 and 0.2.6 on three million lines of code.",
                "https://github.com/olafurpg/scala-repos/pull/2/files#diff-a308e735c41c50c4f716593ee29625d0R25")
-          That diff is roughly 26mb uncompressed.
+          Getting unicorn? That patch is roughly 26mb uncompressed, download it
+          compressed @lnk("here", "https://github.com/olafurpg/scala-repos/pull/2/files#diff-a308e735c41c50c4f716593ee29625d0R25").
           I recommend you reformat your whole project before upgrading.
         @li
           @note. See @issue(339). My previous claims that scalafmt is
@@ -589,22 +587,22 @@
           breaks the @code{--maxColumn} limit. Why? Because infix operators are
           heavily used in DSLs, which often use special formatting layouts to
           express ideas. Instead of ruining the hard-earned formatting layout
-          in the original source, I prefer to keep the original source.
-          In future releases, I would like to add support to format the most
+          in the original source, I prefer to keep it until scalafmt becomes smarter.
+          In future releases, I would like to add support to format at least the most
           common operators like @code{+ && || -}.
         @li
           Scalafmt will no longer make a best-effort to format files with
           deeply nested function applications that cause search state explosions.
           Instead, scalafmt will fail to format those files. Only 56 out of
           ~9.350 files (from Akka, Spark, IntelliJ Scala plugin and a few other
-          projects) fail because of search state explosions.
-          Hopefully, we can lower that count to 0 in future releases.
+          projects) are affected by this change.
+          Hopefully, we can lower that count to 0 with future releases.
         @li
-          The Scala.js style got numerous improvements and was even used to merge
-          @lnk("a PR with 1.800 LOC diff on scala-js-dom",
+          The Scala.js style got numerous improvements. It was even used to merge a
+          @lnk("PR to scala-js-dom with a 1.800 LOC diff",
                "https://github.com/scala-js/scala-js-dom/pull/233").
-          However, the style still needs further improvements to fully capture
-          the extensive Scala.js coding style.
+          However, the Scala.js style is still experimental and needs further
+          improvements to fully capture the extensive Scala.js coding style.
         @li
           This formatting layout
           @hl.scala
@@ -633,16 +631,18 @@
           parentheses. This comes at the price of not being able to
           force "config-style" arguments. I highly recommend you set
           @code{--alignByOpenParenCallSite false} in combination with this flag.
-          @note. This flag is quite different from the Scalariform dangling
+          Note that this flag is quite different from the Scalariform dangling
           parenthesis option.
         @li
           New flag: @code{--rewriteTokens from1;to1,from2;to2,...} to rewrite
           arbitrary tokens into other tokens. For example,
           @code{--rewriteTokens ⇒;=>,←;<-} will rewrite unicode arrows to their
-          ascii equivalents. Flip the tokens for the opposite behavior.
+          ascii equivalents. Flip the tokens to get the opposite behavior.
         @li
           New flag: @code{--spaceAfterTripleEquals true} to get spaces after
-          triple equals in cases like this @code{x should === (y)}.
+          triple equals in cases like this
+          @hl.scala
+            x should === (y)
         @li
           We merged PRs from 5 contributors:
           @users(
@@ -669,17 +669,21 @@
           ).
           Thank you everyone!
         @li
-          Last but not least, I handed in my Master's thesis!
-          The (pretty boring) 55 page report is
+          I will be traveling and mostly away from the internet in July
+          so I don't expect 0.2.7 will be released until sometime in August.
+          If you are interested in becoming a scalafmt maintainer, contact me
+          and I will be happy to help you get setup before I leave in July.
+        @li
+          Last but not least, I handed in my Master's thesis.
+          The 55 page report is
           @lnk("here",
-               "https://geirsson.com/assets/olafur.geirsson-scalafmt-thesis.pdf").
+               "https://geirsson.com/assets/olafur.geirsson-scalafmt-thesis.pdf"),
+          if you are interested in reading all about code formatting and how scalafmt works.
           I will continue to work on scalafmt.
           However, I expect the development of will slow down considerably since
-          the project is no longer be my full-time job.
-        @li
-          I will be traveling in July so I don't expect 0.2.7 will be released
-          until sometime in August.
-
+          the project will no longer be my full-time job.
+          If you are an organization that wants to accelerate the development
+          of scalafmt, see the new section on becoming a @sect.ref{Sponsor}.
 
     @sect{0.2.5}
       @ul
