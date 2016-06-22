@@ -46,38 +46,6 @@
   @raw
     <iframe src="https://player.vimeo.com/video/165929294" width="100%" style="height: 28em;" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
 
-  @sect{Sponsor}
-    @p
-      @lnk("Code formatting is notoriously hard",
-           "http://journal.stuffwithstuff.com/2015/09/08/the-hardest-program-ive-ever-written/")
-      and scalafmt is far from perfect.
-      For example, it cannot format some files with deeply nested function
-      applications.
-      For other files, scalafmt may be non-idempotent.
-      I am working on fixing these issues.
-      However, this effort will be based on my volunteer effort so I cannot
-      promise when or in what order things will get fixed.
-
-    @p
-      If you want to accelerate the development of scalafmt, I will be available
-      for 35% contract work from August onwards.
-      What I can offer:
-
-      @ul
-        @li
-          address any of your organization's Scala code formatting needs
-        @li
-          add custom formatting layouts to capture your company's coding style
-        @li
-          list your organization with a logo as a "scalafmt sponsor" on this
-          documentation page. The site got ~2k visits in May with an average
-          visit time of 102 seconds.
-
-      I am happy to give an estimate whether your issues can be fixed in
-      10 minutes or require many days to fix.
-      Sounds interesting? Contact me at @lnk("olafur@geirsson.com", "mailto:olafur@geirsson.com").
-
-
   @sect{Installation}
 
     @sect{IntelliJ}
@@ -682,8 +650,6 @@
           I will continue to work on scalafmt.
           However, I expect the development of will slow down considerably since
           the project will no longer be my full-time job.
-          If you are an organization that wants to accelerate the development
-          of scalafmt, see the new section on becoming a @sect.ref{Sponsor}.
 
     @sect{0.2.5}
       @ul
