@@ -110,7 +110,7 @@ class FormatWriter(formatOps: FormatOps) {
         val whitespace = split.modification match {
           case Space => " " * (1 + tokenAligns(tok))
           case nl: NewlineT
-              if nl.acceptNoSplit &&
+              if nl.acceptNoSplit && !tok.left.isInstanceOf[Comment] &&
               state.indentation >= previous.state.column =>
             ""
           case nl: NewlineT

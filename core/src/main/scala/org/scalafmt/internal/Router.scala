@@ -775,7 +775,8 @@ class Router(formatOps: FormatOps) {
             Split(NoSplit, 0)
 //              .withOptimalToken(optimalToken, killOnFail = false)
               .withPolicy(noSplitPolicy),
-            Split(Newline.copy(acceptNoSplit = true), 2 + nestedPenalty)
+            Split(Newline.copy(acceptNoSplit = true),
+                  2 + nestedPenalty)
               .withPolicy(newlinePolicy)
               .withIndent(2, optimalToken, Left)
         )
