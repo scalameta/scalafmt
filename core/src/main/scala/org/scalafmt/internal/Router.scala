@@ -525,10 +525,6 @@ class Router(formatOps: FormatOps) {
 
         val charactersInside = (close.start - open.end) - 2
 
-        val fitsOnOneLine =
-          singleArgument || excludeRanges.nonEmpty ||
-            charactersInside <= style.maxColumn
-
         val expirationToken: Token =
           if (isDefnSite(leftOwner) && !isBracket) defnSiteLastToken(leftOwner)
           else rhsOptimalToken(leftTok2tok(close))
@@ -555,14 +551,13 @@ class Router(formatOps: FormatOps) {
         Seq(
             Split(modification,
                   0,
-                  policy = singleLine(7),
-                  ignoreIf = !fitsOnOneLine)
+                  policy = singleLine(7))
               .withOptimalToken(expirationToken, killOnFail = false)
               .withIndent(indent, close, Right),
             Split(newlineModification,
                   (1 + nestedPenalty + lhsPenalty) * bracketMultiplier,
                   policy = newlinePolicy.andThen(singleLine(4)),
-                  ignoreIf = args.length > 1 || !fitsOnOneLine || isTuple)
+                  ignoreIf = args.length > 1 || isTuple)
               .withOptimalToken(expirationToken)
               .withIndent(indent, close, Right),
             Split(modification,

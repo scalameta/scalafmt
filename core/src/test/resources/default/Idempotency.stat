@@ -40,9 +40,23 @@ val bindingFuture = Http().bindAndHandleSync({
     }
   }
 }
-<<< SKIP raw-request idempotent
+<<< raw-request idempotent
 {{{{{{
           RawRequestURI(new String(uriBytes, HttpCharsets.aaaaaaaaaa.nioCharset)) :: headers
 }}}}}}
 >>>
-x
+{
+  {
+    {
+      {
+        {
+          {
+            RawRequestURI(new String(
+                    uriBytes,
+                    HttpCharsets.aaaaaaaaaa.nioCharset)) :: headers
+          }
+        }
+      }
+    }
+  }
+}

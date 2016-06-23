@@ -575,6 +575,10 @@
        scalafmt update.
 
   @sect{Changelog}
+    @sect{0.2.7}
+      @ul
+        @li
+          Decrease non-idempotent cases in test suite from 56 to 15.
     @sect{0.2.6}
       @ul
         @li

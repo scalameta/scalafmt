@@ -622,10 +622,7 @@ Ok(
         )
 >>>
 Seq(
-    Split(modification,
-          0,
-          policy = singleLine(6),
-          ignoreIf = !fitsOnOneLine)
+    Split(modification, 0, policy = singleLine(6), ignoreIf = !fitsOnOneLine)
       .withOptimalToken(expirationToken)
       .withIndent(indent, close, Left),
     Split(newlineModification,

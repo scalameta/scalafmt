@@ -1,0 +1,19 @@
+// Columns 140                                                                                                                             |
+<<< #343
+{{
+    notFound.fold(HttpResponse(statusCode,
+                               entity = jsonEntity("errors" → failuresList.map(_.description)))) {
+      nf ⇒
+        renderNotFoundFailure(nf)
+    }
+}}
+>>>
+{
+  {
+    notFound.fold(HttpResponse(statusCode,
+                               entity = jsonEntity("errors" → failuresList.map(_.description)))) {
+      nf ⇒
+        renderNotFoundFailure(nf)
+    }
+  }
+}
