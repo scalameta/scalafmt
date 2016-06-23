@@ -654,3 +654,14 @@ Seq(
 >>>
 def fillInStackTrace(): Throwable =
   super[Error].fillInStackTrace()
+<<< #263
+{
+    val safeHasOwnProperty =
+      Dynamic.global.Object.prototype.hasOwnProperty
+        .asInstanceOf[ThisFunction1[Dictionary[_], String, Boolean]]
+        }
+>>>
+{
+  val safeHasOwnProperty = Dynamic.global.Object.prototype.hasOwnProperty
+    .asInstanceOf[ThisFunction1[Dictionary[_], String, Boolean]]
+}
