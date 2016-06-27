@@ -1,5 +1,8 @@
 package org.scalafmt.cli
 
+import scala.util.Try
+import scala.util.control.NonFatal
+
 import java.io.File
 import java.util.Date
 import java.util.concurrent.TimeUnit
@@ -66,6 +69,8 @@ object Cli {
                          style = ScalafmtStyle.default,
                          Set.empty[Range])
   }
+
+  case class DebugError(filename: String, error: Throwable)
 
   sealed abstract class InputMethod(val code: String)
   case class StdinCode(override val code: String) extends InputMethod(code)
@@ -253,6 +258,7 @@ object Cli {
 
   def run(config: Config): Unit = {
     val inputMethods = getCode(config)
+    val errorBuilder = Seq.newBuilder[DebugError]
     val counter = new AtomicInteger()
     inputMethods.par.foreach {
       case inputMethod =>
@@ -282,15 +288,35 @@ object Cli {
                 if (inputMethod.code != formatted) {
                   throw MisformattedFile(new File(filename))
                 }
-              case _ =>
+              case _ if !config.debug =>
                 println(formatted)
+              case _ =>
+            }
+          case e if config.debug =>
+            inputMethod match {
+              case FileContents(filename, _) =>
+                try e.get catch {
+                  case NonFatal(error) =>
+                    errorBuilder += DebugError(filename, error)
+                    logger.error(s"Error in $filename")
+                    error.printStackTrace()
+                }
             }
           case _ if !config.inPlace =>
             println(inputMethod.code)
-          case FormatResult.Failure(e) if config.debug =>
-            e.printStackTrace()
           case _ =>
         }
+    }
+    if (config.debug) {
+      val errors = errorBuilder.result()
+      if (errors.nonEmpty) {
+        val list = errors.map(x => s"${x.filename}: ${x.error}")
+        logger.error(s"""Found ${errors.length} errors:
+             |${list.mkString("\n")}
+             |""".stripMargin)
+
+      }
+
     }
   }
 
