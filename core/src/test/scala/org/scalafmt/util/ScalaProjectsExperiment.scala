@@ -23,7 +23,6 @@ import scala.collection.JavaConversions._
 import scala.concurrent.duration.Duration
 import scala.meta._
 import scala.util.control.NonFatal
-import scalaz.concurrent.Task
 
 /**
   * Mostly borrowed from
