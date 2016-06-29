@@ -101,3 +101,28 @@ function(
 )
 >>>
 function(a, b)
+<<< #285 single arg
+{{{
+      mediator.expectMsg(PubSubMediator.Publish(
+              className[FlowEvent],
+              FlowAdded(FlowDescriptor("akka", "Akka"))
+          ))
+}}}
+>>>
+{
+  {
+    {
+      mediator.expectMsg(
+          PubSubMediator.Publish(
+              className[FlowEvent],
+              FlowAdded(
+                  FlowDescriptor(
+                      "akka",
+                      "Akka"
+                  )
+              )
+          )
+      )
+    }
+  }
+}

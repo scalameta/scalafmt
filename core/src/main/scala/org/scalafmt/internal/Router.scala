@@ -530,16 +530,21 @@ class Router(formatOps: FormatOps) {
 
         val tooManyArguments = args.length > 100
 
-        val newlinePolicy: Policy =
-          if (!style.configStyleArguments && style.danglingParentheses) {
-            val breakOnClosing = Policy({
-              case d @ Decision(FormatToken(_, `close`, _), s) =>
-                d.onlyNewlines
-            }, close.end)
-            breakOnClosing
-          } else {
-            Policy(PartialFunction.empty[Decision, Decision], close.end)
-          }
+        val isDangling =
+          !style.configStyleArguments && style.danglingParentheses
+        val newlinePolicy: Policy = if (isDangling) {
+          val breakOnClosing = Policy({
+            case d @ Decision(FormatToken(_, `close`, _), s) =>
+              d.onlyNewlines
+          }, close.end)
+          breakOnClosing
+        } else {
+          Policy(PartialFunction.empty[Decision, Decision], close.end)
+        }
+
+        val noSplitPolicy =
+          if (isDangling) SingleLineBlock(close)
+          else singleLine(7)
 
         val isTuple = leftOwner match {
           case _: Type.Tuple | _: Term.Tuple => true
@@ -553,7 +558,7 @@ class Router(formatOps: FormatOps) {
         }
 
         Seq(
-            Split(modification, 0, policy = singleLine(7))
+            Split(modification, 0, policy = noSplitPolicy)
               .withOptimalToken(expirationToken, killOnFail = false)
               .withIndent(indent, close, Right),
             Split(newlineModification,
