@@ -662,3 +662,17 @@ def fillInStackTrace(): Throwable =
   val safeHasOwnProperty = Dynamic.global.Object.prototype.hasOwnProperty
     .asInstanceOf[ThisFunction1[Dictionary[_], String, Boolean]]
 }
+<<< weird 0.2.9 fix
+{{
+    handlefiles(files, cache, logfun("formatting %s %s ..."), files =>
+          files.par.foreach(handlefile(writeformatted)))
+}}
+>>>
+{
+  {
+    handlefiles(files,
+                cache,
+                logfun("formatting %s %s ..."),
+                files => files.par.foreach(handlefile(writeformatted)))
+  }
+}

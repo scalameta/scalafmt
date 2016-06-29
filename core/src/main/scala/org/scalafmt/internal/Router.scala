@@ -502,7 +502,7 @@ class Router(formatOps: FormatOps) {
             penalizeAllNewlines(close,
                                 penalty = penalty,
                                 ignore = insideBraces,
-                                penalizeLambdas = false)
+                                penalizeLambdas = !singleArgument)
           }
 
           if (exclude.isEmpty || isBracket) baseSingleLinePolicy
