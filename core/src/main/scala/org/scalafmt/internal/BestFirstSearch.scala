@@ -91,8 +91,7 @@ class BestFirstSearch(val formatOps: FormatOps,
     matchingParentheses(hash(leftLeft)) != stop && {
       // Block must span at least 3 lines to be worth recursing.
       val close = matchingParentheses(hash(leftLeft))
-      // TODO(olafur) magic number
-      close.start - leftLeft.end > style.maxColumn * 3
+      distance(leftLeft, close) > style.maxColumn * 3
     } && extractStatementsIfAny(leftLeftOwner).nonEmpty
   }
 
