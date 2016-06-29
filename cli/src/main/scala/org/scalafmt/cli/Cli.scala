@@ -180,6 +180,9 @@ object Cli {
       opt[Boolean]("alignByOpenParenCallSite") action { (bool, c) =>
         c.copy(style = c.style.copy(alignByOpenParenCallSite = bool))
       } text s"See ScalafmtStyle scaladoc."
+      opt[Boolean]("alignByOpenParenDefnSite") action { (bool, c) =>
+        c.copy(style = c.style.copy(alignByOpenParenDefnSite = bool))
+      } text s"See ScalafmtStyle scaladoc."
       opt[Boolean]("alignByArrowEnumeratorGenerator") action { (bool, c) =>
         c.copy(style = c.style.copy(alignByArrowEnumeratorGenerator = bool))
       } text s"See ScalafmtStyle scaladoc."

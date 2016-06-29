@@ -10,3 +10,10 @@ function(aaaaaaaaaaaaaaaaaaa,
 function(
     aaaaaaaaaaaaaaaaaaa,
     bbbbbbbbbbbbbbbbbbb)
+<<< align defn site
+def function(aaaaaaaaaa: A,
+         bbbbbbbbbbbbbb: B): C = 2
+>>>
+def function(aaaaaaaaaa: A,
+             bbbbbbbbbbbbbb: B): C = 2
+

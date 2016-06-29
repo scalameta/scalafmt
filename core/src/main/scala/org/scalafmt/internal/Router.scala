@@ -523,8 +523,9 @@ class Router(formatOps: FormatOps) {
 
         val charactersInside = (close.start - open.end) - 2
 
+        val defnSite = isDefnSite(leftOwner)
         val expirationToken: Token =
-          if (isDefnSite(leftOwner) && !isBracket) defnSiteLastToken(leftOwner)
+          if (defnSite && !isBracket) defnSiteLastToken(leftOwner)
           else rhsOptimalToken(leftTok2tok(close))
 
         val tooManyArguments = args.length > 100
@@ -544,6 +545,12 @@ class Router(formatOps: FormatOps) {
           case _: Type.Tuple | _: Term.Tuple => true
           case _ => false
         }
+        val skipOpenParenAlign = {
+          !isTuple && {
+            (defnSite && !style.alignByOpenParenDefnSite) ||
+            (!defnSite && !style.alignByOpenParenCallSite)
+          }
+        }
 
         Seq(
             Split(modification, 0, policy = singleLine(7))
@@ -560,7 +567,7 @@ class Router(formatOps: FormatOps) {
                   policy = oneArgOneLine,
                   ignoreIf =
                     singleArgument || tooManyArguments ||
-                      (!isTuple && !style.alignByOpenParenCallSite))
+                      skipOpenParenAlign)
               .withOptimalToken(expirationToken)
               .withIndent(StateColumn, close, Right),
             Split(Newline,

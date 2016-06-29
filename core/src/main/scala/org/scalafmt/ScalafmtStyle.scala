@@ -82,6 +82,7 @@ import sourcecode.Text
   *                      will rewrite unicode arrows to regular ascii arrows.
   */
 case class ScalafmtStyle(
+    // Note: default style is right below
     maxColumn: Int,
     reformatDocstrings: Boolean,
     scalaDocs: Boolean,
@@ -94,6 +95,7 @@ case class ScalafmtStyle(
     superfluousParensIndent: Int,
     danglingParentheses: Boolean,
     alignByOpenParenCallSite: Boolean,
+    alignByOpenParenDefnSite: Boolean,
     continuationIndentCallSite: Int,
     continuationIndentDefnSite: Int,
     alignTokens: Set[AlignToken],
@@ -124,6 +126,7 @@ object ScalafmtStyle {
       configStyleArguments = true,
       danglingParentheses = false,
       alignByOpenParenCallSite = true,
+      alignByOpenParenDefnSite = true,
       binPackDotChains = false,
       noNewlinesBeforeJsNative = false,
       superfluousParensIndent = 4,
