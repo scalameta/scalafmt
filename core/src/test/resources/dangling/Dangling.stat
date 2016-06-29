@@ -126,3 +126,18 @@ function(a, b)
     }
   }
 }
+<<< #325
+mediator.expectMsg(PubSubMediator.Publish(
+  className[MessageEvent],
+  MessageAdded(`flowName`, Message("Akka!", time))
+))
+>>>
+mediator.expectMsg(
+    PubSubMediator.Publish(
+        className[MessageEvent],
+        MessageAdded(
+            `flowName`,
+            Message("Akka!", time)
+        )
+    )
+)
