@@ -239,7 +239,7 @@ class FormatOps(val tree: Tree,
             (penalizeLambdas || !tok.left.isInstanceOf[`=>`]) && !ignore(
               tok) =>
         Decision(tok, s.map {
-          case split if split.modification.isNewline =>
+          case split if split.modification.isNewline  || tok.leftHasNewline =>
             split.withPenalty(penalty)
           case x => x
         })

@@ -28,6 +28,8 @@ case class FormatToken(left: Token,
     else range.exists(_.contains(right.position.end.line))
   }
 
+  val leftHasNewline = left.code.contains('\n')
+
   /**
     * A format token is uniquely identified by its left token.
     */

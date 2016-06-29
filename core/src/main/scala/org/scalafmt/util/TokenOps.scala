@@ -15,6 +15,8 @@ import scala.meta.Template
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 
+import org.scalafmt.internal.Split
+
 /**
   * Stateless helper functions on [[scala.meta.Token]].
   */
@@ -135,7 +137,8 @@ object TokenOps {
           if !tok.right.isInstanceOf[EOF] && tok.right.end <= expire.end &&
             exclude.forall(!_.contains(tok.left.start)) &&
             (disallowInlineComments || !isInlineComment(tok.left)) =>
-        Decision(tok, splits.filterNot(_.modification.isNewline))
+        if (tok.leftHasNewline) Decision(tok, Seq.empty[Split])
+        else Decision(tok, splits.filterNot(_.modification.isNewline))
     }, expire.end, noDequeue = exclude.isEmpty, isSingleLine = true)
   }
 

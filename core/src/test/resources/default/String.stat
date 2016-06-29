@@ -18,3 +18,31 @@ val x =
   """Short line
   |Long line aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
               """
+<<< Single line #285
+object Foo{
+  assert( keywordTokens.length % 2 == 0,
+         s"""Only can come after `--`.
+            |Invalid number of tokens: ${keywordTokens.length}""".stripMargin
+  )
+}
+>>>
+object Foo {
+  assert(keywordTokens.length % 2 == 0,
+         s"""Only can come after `--`.
+            |Invalid number of tokens: ${keywordTokens.length}""".stripMargin)
+}
+<<< @285 2
+object Foo {
+  bar(
+    """
+    Hello
+    """,
+    "world" )
+}
+>>>
+object Foo {
+  bar("""
+    Hello
+    """,
+      "world")
+}
