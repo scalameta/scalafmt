@@ -134,7 +134,7 @@ object Cli {
       opt[Unit]("bestEffortInDeeplyNestedCode") action { (_, c) =>
         c.copy(runner = c.runner.copy(optimizer =
                   ScalafmtOptimizer.default.copy(bestEffortEscape = true)))
-      } text "If set, scalafmt will make a best-effort to format deeply nested code instead of failing with StateSpaceExplodedException."
+      } text "(experimental) If set, scalafmt will make a best-effort to format deeply nested code instead of failing with SearchStateExplodedException."
       opt[Unit]('v', "version") action printAndExit(inludeUsage = false) text "print version "
       opt[Unit]("build-info") action {
         case (_, c) =>

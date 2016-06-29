@@ -771,8 +771,7 @@ class Router(formatOps: FormatOps) {
           .andThen(penalizeNewlinesInApply.f)
           .copy(expire = lastToken.end)
         Seq(
-            Split(NoSplit, 0)
-              .withPolicy(noSplitPolicy),
+            Split(NoSplit, 0).withPolicy(noSplitPolicy),
             Split(Newline.copy(acceptNoSplit = true), 2 + nestedPenalty)
               .withPolicy(newlinePolicy)
               .withIndent(2, optimalToken, Left)
@@ -1145,10 +1144,13 @@ class Router(formatOps: FormatOps) {
         Seq(
             Split(NoSplit, 0)
         )
-      case FormatToken(_, _: Keyword, _) =>
-        Seq(
-            Split(Space, 0)
-        )
+      case FormatToken(left, kw: Keyword, _) =>
+        if (!left.isInstanceOf[`}`] &&
+            Set("finally", "catch").contains(kw.code)) {
+          Seq(Split(Newline, 0))
+        } else {
+          Seq(Split(Space, 0))
+        }
       case FormatToken(_: Keyword | _: Modifier, _, _) =>
         Seq(
             Split(Space, 0)
