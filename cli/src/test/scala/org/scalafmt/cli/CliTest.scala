@@ -5,6 +5,8 @@ import java.nio.file.Files
 
 import org.scalafmt.AlignToken
 import org.scalafmt.Error.MisformattedFile
+import org.scalafmt.ScalafmtOptimizer
+import org.scalafmt.ScalafmtRunner
 import org.scalafmt.ScalafmtStyle
 import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.FileOps
@@ -34,15 +36,18 @@ class CliTest extends FunSuite with DiffAssertions {
       continuationIndentDefnSite = 3,
       scalaDocs = false,
       alignStripMarginStrings = false)
-  val expectedConfig = Cli.Config.default.copy(debug = true,
-                                               statement = true,
-                                               style = expectedStyle,
-                                               files = Seq(new File("foo")),
-                                               inPlace = true)
+  val expectedConfig = Cli.Config.default.copy(
+      debug = true,
+      runner = ScalafmtRunner.statement.copy(
+          optimizer = ScalafmtOptimizer.default.copy(bestEffortEscape = true)),
+      style = expectedStyle,
+      files = Seq(new File("foo")),
+      inPlace = true)
   val args = Array(
       "--rewriteTokens",
       "=>;⇒,<-;←",
       "--statement",
+      "--bestEffortInDeeplyNestedCode",
       "--debug",
       "--maxColumn",
       "99",
@@ -111,7 +116,7 @@ class CliTest extends FunSuite with DiffAssertions {
   }
   test("--style Scala.js is OK") {
     val obtained =
-      Cli.parser.parse(Seq("--style", "Scala.js"), Cli.Config.default)
+      Cli.scoptParser.parse(Seq("--style", "Scala.js"), Cli.Config.default)
     assert(obtained.get.style == ScalafmtStyle.scalaJs)
   }
 }

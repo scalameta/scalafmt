@@ -12,12 +12,14 @@ import org.scalafmt.AlignToken
 import org.scalafmt.Error.MisformattedFile
 import org.scalafmt.FormatResult
 import org.scalafmt.Scalafmt
+import org.scalafmt.ScalafmtOptimizer
 import org.scalafmt.ScalafmtRunner
 import org.scalafmt.ScalafmtStyle
 import org.scalafmt.Versions
 import org.scalafmt.macros.Macros
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.LoggerOps
+import scopt.OptionParser
 import scopt.Read
 
 object Cli {
@@ -53,9 +55,9 @@ object Cli {
                     configFile: Option[File],
                     inPlace: Boolean,
                     testing: Boolean,
-                    statement: Boolean,
                     debug: Boolean,
                     style: ScalafmtStyle,
+                    runner: ScalafmtRunner,
                     range: Set[Range]) {
     require(!(inPlace && testing), "inPlace and testing can't both be true")
   }
@@ -64,10 +66,10 @@ object Cli {
                          None,
                          inPlace = false,
                          testing = false,
-                         statement = false,
                          debug = false,
                          style = ScalafmtStyle.default,
-                         Set.empty[Range])
+                         runner = ScalafmtRunner.default,
+                         range = Set.empty[Range])
   }
 
   case class DebugError(filename: String, error: Throwable)
@@ -97,111 +99,118 @@ object Cli {
     s"""build commit: ${Macros.gitCommit.getOrElse("").take(10)}
        |build time: ${new Date(Macros.buildTimeMs)}""".stripMargin
 
-  lazy val parser = new scopt.OptionParser[Config]("scalafmt") {
+  lazy val scoptParser: OptionParser[Config] =
+    new scopt.OptionParser[Config]("scalafmt") {
 
-    def printAndExit(inludeUsage: Boolean)(ignore: Unit, c: Config): Config = {
-      if (inludeUsage) showUsage
-      else showHeader
-      sys.exit
-      c
-    }
-
-    head("scalafmt", Versions.nightly)
-    opt[Seq[File]]('f', "files") action { (files, c) =>
-      c.copy(files = files)
-    } text "can be directory, in which case all *.scala files are formatted. " +
-      "If not provided, reads from stdin."
-    opt[File]('c', "config") action { (file, c) =>
-      c.copy(configFile = Some(file))
-    } text "read style flags, see \"Style configuration option\", from this" +
-      " config file. The file can contain comments starting with //"
-    opt[Unit]('i', "in-place") action { (_, c) =>
-      c.copy(inPlace = true)
-    } text "write output to file, does nothing if file is not specified"
-    opt[Unit]("test") action { (_, c) =>
-      c.copy(testing = true)
-    } text "test for mis-formatted code, exits with status 1 on failure."
-    opt[Unit]("debug") action { (_, c) =>
-      c.copy(debug = true)
-    } text "print out debug information"
-    opt[Unit]("statement") action { (_, c) =>
-      c.copy(statement = true)
-    } text "parse the input as a statement instead of compilation unit"
-    opt[Unit]('v', "version") action printAndExit(inludeUsage = false) text "print version "
-    opt[Unit]("build-info") action {
-      case (_, c) =>
-        println(buildInfo)
+      def printAndExit(inludeUsage: Boolean)(ignore: Unit, c: Config): Config = {
+        if (inludeUsage) showUsage
+        else showHeader
         sys.exit
-    } text "prints build information"
-    opt[Unit]('h', "help") action printAndExit(inludeUsage = true) text "prints this usage text"
-    opt[(Int, Int)]("range").hidden() action {
-      case ((from, to), c) =>
-        val offset = if (from == to) 0 else -1
-        c.copy(range = c.range + Range(from - 1, to + offset))
-    } text "(experimental) only format line range from=to"
+        c
+      }
 
-    // Style configs
-    note(s"\nStyle configuration options:")
-    opt[ScalafmtStyle]('s', "style") action { (style, c) =>
-      c.copy(style = style)
-    } text s"base style, must be one of: ${ScalafmtStyle.activeStyles.keys}"
-    opt[Int]("maxColumn") action { (col, c) =>
-      c.copy(style = c.style.copy(maxColumn = col))
-    } text s"See ScalafmtStyle scaladoc."
-    opt[Int]("continuationIndentCallSite") action { (n, c) =>
-      c.copy(style = c.style.copy(continuationIndentCallSite = n))
-    } text s"See ScalafmtStyle scaladoc."
-    opt[Int]("continuationIndentDefnSite") action { (n, c) =>
-      c.copy(style = c.style.copy(continuationIndentDefnSite = n))
-    } text s"See ScalafmtStyle scaladoc."
-    opt[Unit]("scalaDocs") action { (_, c) =>
-      c.copy(style = c.style.copy(scalaDocs = true))
-    } text s"See ScalafmtStyle scaladoc."
-    opt[Unit]("javaDocs") action { (_, c) =>
-      c.copy(style = c.style.copy(scalaDocs = false))
-    } text s"Sets scalaDocs to false. See ScalafmtStyle scaladoc."
-    opt[Boolean]("alignStripMarginStrings") action { (bool, c) =>
-      c.copy(style = c.style.copy(alignStripMarginStrings = bool))
-    } text s"(deprecated) Use assumeStandardLibraryStripMargin, will be removed in 0.3."
-    opt[Boolean]("assumeStandardLibraryStripMargin") action { (bool, c) =>
-      c.copy(style = c.style.copy(alignStripMarginStrings = bool))
-    } text s"See ScalafmtStyle scaladoc."
-    opt[Boolean]("alignByOpenParenCallSite") action { (bool, c) =>
-      c.copy(style = c.style.copy(alignByOpenParenCallSite = bool))
-    } text s"See ScalafmtStyle scaladoc."
-    opt[Boolean]("alignByArrowEnumeratorGenerator") action { (bool, c) =>
-      c.copy(style = c.style.copy(alignByArrowEnumeratorGenerator = bool))
-    } text s"See ScalafmtStyle scaladoc."
-    opt[Boolean]("binPackParentConstructors") action { (bool, c) =>
-      c.copy(style = c.style.copy(binPackParentConstructors = bool))
-    } text s"See ScalafmtStyle scaladoc."
-    opt[Boolean]("spacesInImportCurlyBraces") action { (bool, c) =>
-      c.copy(style = c.style.copy(spacesInImportCurlyBraces = bool))
-    } text s"See ScalafmtStyle scaladoc."
-    opt[Boolean]("danglingParentheses") action { (bool, c) =>
-      c.copy(style = c.style.copy(configStyleArguments = !bool,
-                                  danglingParentheses = bool))
-    } text s"See ScalafmtConfig scaladoc. --alignByOpenParenCallSite false is recommended."
-    opt[Boolean]("spaceAfterTripleEquals") action { (bool, c) =>
-      c.copy(style = c.style.copy(spaceAfterTripleEquals = bool))
-    } text s"See ScalafmtConfig scaladoc."
-    opt[Boolean]("allowNewlineBeforeColonInMassiveReturnTypes") action {
-      (bool, c) =>
-        c.copy(style =
-              c.style.copy(allowNewlineBeforeColonInMassiveReturnTypes = bool))
-    } text s"See ScalafmtStyle scaladoc."
-    opt[Seq[String]]("rewriteTokens") action { (str, c) =>
-      val rewriteTokens = Map(gimmeStrPairs(str): _*)
-      c.copy(style = c.style.copy(rewriteTokens = rewriteTokens))
-    } text s"""(experimental) Same syntax as alignTokens. For example,
+      head("scalafmt", Versions.nightly)
+      opt[Seq[File]]('f', "files") action { (files, c) =>
+        c.copy(files = files)
+      } text "can be directory, in which case all *.scala files are formatted. " +
+        "If not provided, reads from stdin."
+      opt[File]('c', "config") action { (file, c) =>
+        c.copy(configFile = Some(file))
+      } text "read style flags, see \"Style configuration option\", from this" +
+        " config file. The file can contain comments starting with //"
+      opt[Unit]('i', "in-place") action { (_, c) =>
+        c.copy(inPlace = true)
+      } text "write output to file, does nothing if file is not specified"
+      opt[Unit]("test") action { (_, c) =>
+        c.copy(testing = true)
+      } text "test for mis-formatted code, exits with status 1 on failure."
+      opt[Unit]("debug") action { (_, c) =>
+        c.copy(debug = true)
+      } text "print out debug information"
+      opt[Unit]("statement") action { (_, c) =>
+        c.copy(runner =
+              c.runner.copy(parser = scala.meta.parsers.Parse.parseStat))
+      } text "parse the input as a statement instead of compilation unit"
+      opt[Unit]("bestEffortInDeeplyNestedCode") action { (_, c) =>
+        c.copy(runner = c.runner.copy(optimizer =
+                  ScalafmtOptimizer.default.copy(bestEffortEscape = true)))
+      } text "If set, scalafmt will make a best-effort to format deeply nested code instead of failing with StateSpaceExplodedException."
+      opt[Unit]('v', "version") action printAndExit(inludeUsage = false) text "print version "
+      opt[Unit]("build-info") action {
+        case (_, c) =>
+          println(buildInfo)
+          sys.exit
+      } text "prints build information"
+      opt[Unit]('h', "help") action printAndExit(inludeUsage = true) text "prints this usage text"
+      opt[(Int, Int)]("range").hidden() action {
+        case ((from, to), c) =>
+          val offset = if (from == to) 0 else -1
+          c.copy(range = c.range + Range(from - 1, to + offset))
+      } text "(experimental) only format line range from=to"
+
+      // Style configs
+      note(s"\nStyle configuration options:")
+      opt[ScalafmtStyle]('s', "style") action { (style, c) =>
+        c.copy(style = style)
+      } text s"base style, must be one of: ${ScalafmtStyle.activeStyles.keys}"
+      opt[Int]("maxColumn") action { (col, c) =>
+        c.copy(style = c.style.copy(maxColumn = col))
+      } text s"See ScalafmtStyle scaladoc."
+      opt[Int]("continuationIndentCallSite") action { (n, c) =>
+        c.copy(style = c.style.copy(continuationIndentCallSite = n))
+      } text s"See ScalafmtStyle scaladoc."
+      opt[Int]("continuationIndentDefnSite") action { (n, c) =>
+        c.copy(style = c.style.copy(continuationIndentDefnSite = n))
+      } text s"See ScalafmtStyle scaladoc."
+      opt[Unit]("scalaDocs") action { (_, c) =>
+        c.copy(style = c.style.copy(scalaDocs = true))
+      } text s"See ScalafmtStyle scaladoc."
+      opt[Unit]("javaDocs") action { (_, c) =>
+        c.copy(style = c.style.copy(scalaDocs = false))
+      } text s"Sets scalaDocs to false. See ScalafmtStyle scaladoc."
+      opt[Boolean]("alignStripMarginStrings") action { (bool, c) =>
+        c.copy(style = c.style.copy(alignStripMarginStrings = bool))
+      } text s"(deprecated) Use assumeStandardLibraryStripMargin, will be removed in 0.3."
+      opt[Boolean]("assumeStandardLibraryStripMargin") action { (bool, c) =>
+        c.copy(style = c.style.copy(alignStripMarginStrings = bool))
+      } text s"See ScalafmtStyle scaladoc."
+      opt[Boolean]("alignByOpenParenCallSite") action { (bool, c) =>
+        c.copy(style = c.style.copy(alignByOpenParenCallSite = bool))
+      } text s"See ScalafmtStyle scaladoc."
+      opt[Boolean]("alignByArrowEnumeratorGenerator") action { (bool, c) =>
+        c.copy(style = c.style.copy(alignByArrowEnumeratorGenerator = bool))
+      } text s"See ScalafmtStyle scaladoc."
+      opt[Boolean]("binPackParentConstructors") action { (bool, c) =>
+        c.copy(style = c.style.copy(binPackParentConstructors = bool))
+      } text s"See ScalafmtStyle scaladoc."
+      opt[Boolean]("spacesInImportCurlyBraces") action { (bool, c) =>
+        c.copy(style = c.style.copy(spacesInImportCurlyBraces = bool))
+      } text s"See ScalafmtStyle scaladoc."
+      opt[Boolean]("danglingParentheses") action { (bool, c) =>
+        c.copy(style = c.style.copy(configStyleArguments = !bool,
+                                    danglingParentheses = bool))
+      } text s"See ScalafmtConfig scaladoc. --alignByOpenParenCallSite false is recommended."
+      opt[Boolean]("spaceAfterTripleEquals") action { (bool, c) =>
+        c.copy(style = c.style.copy(spaceAfterTripleEquals = bool))
+      } text s"See ScalafmtConfig scaladoc."
+      opt[Boolean]("allowNewlineBeforeColonInMassiveReturnTypes") action {
+        (bool, c) =>
+          c.copy(style = c.style.copy(
+                  allowNewlineBeforeColonInMassiveReturnTypes = bool))
+      } text s"See ScalafmtStyle scaladoc."
+      opt[Seq[String]]("rewriteTokens") action { (str, c) =>
+        val rewriteTokens = Map(gimmeStrPairs(str): _*)
+        c.copy(style = c.style.copy(rewriteTokens = rewriteTokens))
+      } text s"""(experimental) Same syntax as alignTokens. For example,
               |
               |        --rewriteTokens ⇒;=>,←;<-
               |
               |        will rewrite unicode arrows to their ascii equivalents.""".stripMargin
-    opt[Seq[String]]("alignTokens") action { (tokens, c) =>
-      val alignsTokens = gimmeStrPairs(tokens).map((AlignToken.apply _).tupled)
-      c.copy(style = c.style.copy(alignTokens = alignsTokens.toSet))
-    } text s"""(experimental). Comma separated sequence of tokens to align by. Each
+      opt[Seq[String]]("alignTokens") action { (tokens, c) =>
+        val alignsTokens =
+          gimmeStrPairs(tokens).map((AlignToken.apply _).tupled)
+        c.copy(style = c.style.copy(alignTokens = alignsTokens.toSet))
+      } text s"""(experimental). Comma separated sequence of tokens to align by. Each
               |        token is a ; separated pair of strings where the first string
               |        is the string literal value of the token to align by and the
               |        second string is a regular expression matching the class
@@ -231,14 +240,15 @@ object Cli {
               |        It's best to play around with scala.meta in a console to
               |        understand which regexp you should use for the owner.
               |""".stripMargin
-    note(s"""
+      note(s"""
             |Examples:
             |
             |$usageExamples
             |
             |Please file bugs to https://github.com/olafurpg/scalafmt/issues
       """.stripMargin)
-  }
+    }
+  lazy val parser = scoptParser
 
   def getCode(config: Config): Seq[InputMethod] = {
     if (config.files.isEmpty) {
@@ -263,16 +273,10 @@ object Cli {
     inputMethods.par.foreach {
       case inputMethod =>
         val start = System.nanoTime()
-        val runner = ScalafmtRunner.default.copy(
-            debug = config.debug,
-            parser =
-              if (config.statement) scala.meta.parsers.Parse.parseStat
-              else scala.meta.parsers.Parse.parseSource
-        )
         Scalafmt.format(inputMethod.code,
                         style = config.style,
                         range = config.range,
-                        runner = runner) match {
+                        runner = config.runner) match {
           case FormatResult.Success(formatted) =>
             inputMethod match {
               case FileContents(filename, _) if config.inPlace =>
@@ -325,11 +329,11 @@ object Cli {
       .replaceAll("#(?!;).*", "") // Comments start with #
       .split("\\s+")
       .filterNot(_.isEmpty)
-    parser.parse(args, Config.default)
+    scoptParser.parse(args, Config.default)
   }
 
   def getConfig(args: Array[String]): Option[Config] = {
-    parser.parse(args, Config.default) match {
+    scoptParser.parse(args, Config.default) match {
       case Some(c) if c.configFile.exists(_.isFile) =>
         parseConfigFile(FileOps.readFile(c.configFile.get)).map(x =>
               c.copy(style = x.style))
