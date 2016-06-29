@@ -31,6 +31,7 @@ class CliTest extends FunSuite with DiffAssertions {
           "=>" -> "⇒",
           "<-" -> "←"
       ),
+      reformatDocstrings = false,
       maxColumn = 99,
       continuationIndentCallSite = 2,
       continuationIndentDefnSite = 3,
@@ -46,6 +47,8 @@ class CliTest extends FunSuite with DiffAssertions {
   val args = Array(
       "--rewriteTokens",
       "=>;⇒,<-;←",
+      "--reformatDocstrings",
+      "false",
       "--statement",
       "--bestEffortInDeeplyNestedCode",
       "--debug",

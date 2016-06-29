@@ -9,7 +9,10 @@ import sourcecode.Text
   *
   * @param maxColumn Column limit, any formatting exceeding this field is
   *                  penalized heavily.
-  * @param scalaDocs Use scaladoc style docstring, otherwise use javadoc style.
+  * @param reformatDocstrings If true, reformats docstrings according to @scalaDocs.
+  * @param scalaDocs Only used if @reformatDocstrings is true. If true,
+  *                  reformats docstrings to use scaladoc style docstring,
+  *                  otherwise use javadoc style.
   * @param alignStripMarginStrings If true, the margin character | is treated
   *                                as the new indentation in multiline strings
   *                                ending with `.stripMargin`.
@@ -80,6 +83,7 @@ import sourcecode.Text
   */
 case class ScalafmtStyle(
     maxColumn: Int,
+    reformatDocstrings: Boolean,
     scalaDocs: Boolean,
     alignStripMarginStrings: Boolean,
     binPackArguments: Boolean,
@@ -112,6 +116,7 @@ case class ScalafmtStyle(
 object ScalafmtStyle {
   val default = ScalafmtStyle(
       maxColumn = 80,
+      reformatDocstrings = true,
       scalaDocs = true,
       alignStripMarginStrings = false,
       binPackArguments = false,

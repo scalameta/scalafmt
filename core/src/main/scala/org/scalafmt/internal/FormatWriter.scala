@@ -47,11 +47,15 @@ class FormatWriter(formatOps: FormatOps) {
   }
 
   private def formatComment(comment: Comment, indent: Int): String = {
-    val isDocstring = comment.code.startsWith("/**")
-    val spaces: String =
-      if (isDocstring && style.scalaDocs) " " * (indent + 2)
-      else " " * (indent + 1)
-    comment.code.replaceAll("\n *\\*", s"\n$spaces\\*")
+    if (style.reformatDocstrings) {
+      val isDocstring = comment.code.startsWith("/**")
+      val spaces: String =
+        if (isDocstring && style.scalaDocs) " " * (indent + 2)
+        else " " * (indent + 1)
+      comment.code.replaceAll("\n *\\*", s"\n$spaces\\*")
+    } else {
+      comment.code
+    }
   }
 
   private def formatMarginizedString(token: Token, indent: Int): String = {

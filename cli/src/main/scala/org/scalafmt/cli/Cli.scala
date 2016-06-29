@@ -162,6 +162,9 @@ object Cli {
       opt[Int]("continuationIndentDefnSite") action { (n, c) =>
         c.copy(style = c.style.copy(continuationIndentDefnSite = n))
       } text s"See ScalafmtStyle scaladoc."
+      opt[Boolean]("reformatDocstrings") action { (b, c) =>
+        c.copy(style = c.style.copy(reformatDocstrings = b))
+      } text s"See ScalafmtStyle scaladoc."
       opt[Unit]("scalaDocs") action { (_, c) =>
         c.copy(style = c.style.copy(scalaDocs = true))
       } text s"See ScalafmtStyle scaladoc."
