@@ -26,6 +26,7 @@ import com.intellij.ui.awt.RelativePoint
 import org.scalafmt.FormatResult
 import org.scalafmt.Scalafmt
 import org.scalafmt.ScalafmtStyle
+import org.scalafmt.cli.Cli.Config
 import org.scalafmt.cli.StyleCache
 import org.scalafmt.util.FileOps
 
@@ -34,16 +35,20 @@ case class FileDocument(file: VirtualFile, document: Document) {
 }
 
 object StyleChangedCache {
-  val styleCache = mutable.Map.empty[String, ScalafmtStyle]
+  val styleCache = mutable.Map.empty[String, Config]
 }
 
 class ScalafmtAction extends AnAction {
 
   override def actionPerformed(event: AnActionEvent): Unit = {
-    val style = getStyle(event)
+    val config = getStyle(event)
     getCurrentFileDocument(event).filter(_.isScala).foreach { fileDoc =>
       val source = fileDoc.document.getText()
-      Scalafmt.format(source, style = style) match {
+      Scalafmt.format(
+          source,
+          style = config.style,
+          runner = config.runner
+      ) match {
         case _: FormatResult.Incomplete =>
         case FormatResult.Failure(e: ParseException) =>
           displayMessage(event,
@@ -76,23 +81,25 @@ class ScalafmtAction extends AnAction {
 
   private val homeDir = System.getProperty("user.home")
 
-  private def getStyle(event: AnActionEvent): ScalafmtStyle = {
-    val customStyle = for {
+  private def getStyle(event: AnActionEvent): Config = {
+    val customStyle: Option[Config] = for {
       project <- Option(event.getData(CommonDataKeys.PROJECT))
       localConfig = getConfigFileInPath(project.getBasePath)
       globalConfig = getConfigFileInPath(homeDir)
       configFile <- localConfig.orElse(globalConfig)
-      style <- StyleCache.getStyleForFile(configFile)
+      config <- StyleCache.getConfigForFile(configFile)
     } yield {
-      if (!StyleChangedCache.styleCache.get(configFile).contains(style)) {
+      if (!StyleChangedCache.styleCache
+            .get(configFile)
+            .exists(_.style == config.style)) {
         displayMessage(event,
                        "scalafmt picked up new style configuration",
                        MessageType.INFO)
-        StyleChangedCache.styleCache.update(configFile, style)
+        StyleChangedCache.styleCache.update(configFile, config)
       }
-      style
+      config
     }
-    customStyle.getOrElse(ScalafmtStyle.default)
+    customStyle.getOrElse(Config.default)
   }
 
   private def getCurrentFileDocument(

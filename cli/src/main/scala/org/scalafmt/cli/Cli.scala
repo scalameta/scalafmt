@@ -311,6 +311,7 @@ object Cli {
                     logger.error(s"Error in $filename")
                     error.printStackTrace()
                 }
+              case _ =>
             }
           case _ if !config.inPlace =>
             println(inputMethod.code)
