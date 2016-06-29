@@ -63,13 +63,14 @@ case class FormatterChangedAST(diff: String, output: String)
     '''.stripMargin)
 >>>
 case class FormatterChangedAST(diff: String, output: String)
-    extends Error(s'''Formatter changed AST
-                     |=====================
-                     |$diff
-                     |=====================
-                     |${output.lines.toVector.mkString("\n")}
-                     |=====================
-                     |Formatter changed AST
+    extends Error(
+        s'''Formatter changed AST
+           |=====================
+           |$diff
+           |=====================
+           |${output.lines.toVector.mkString("\n")}
+           |=====================
+           |Formatter changed AST
     '''.stripMargin)
 <<< break indentation
 val msg =
