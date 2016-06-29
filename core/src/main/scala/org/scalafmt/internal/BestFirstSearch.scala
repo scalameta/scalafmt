@@ -252,7 +252,7 @@ class BestFirstSearch(val formatOps: FormatOps,
                     (nextNextState.splits.length < tokens.length && tokens(
                             nextNextState.splits.length).left.start >= token.start)) {
                   optimalNotFound = false
-//                  logger.trace(split, splitToken, formatWriter.mkString(nextNextState.splits), tokens(nextNextState.splits.length))
+//                  logger.elem(split, splitToken, formatWriter.mkString(nextNextState.splits), tokens(nextNextState.splits.length))
                   Q.enqueue(nextNextState)
                 } else if (!killOnFail &&
                            nextState.cost - curr.cost <= maxCost) {

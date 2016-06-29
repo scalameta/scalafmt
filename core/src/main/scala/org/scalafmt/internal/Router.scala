@@ -549,9 +549,7 @@ class Router(formatOps: FormatOps) {
 
 //        logger.elem(leftTok2tok(expirationToken))
         Seq(
-            Split(modification,
-                  0,
-                  policy = singleLine(7))
+            Split(modification, 0, policy = singleLine(7))
               .withOptimalToken(expirationToken, killOnFail = false)
               .withIndent(indent, close, Right),
             Split(newlineModification,
@@ -872,7 +870,9 @@ class Router(formatOps: FormatOps) {
         )
       case FormatToken(_: `if`, _, _) if leftOwner.isInstanceOf[Term.If] =>
         val owner = leftOwner.asInstanceOf[Term.If]
-        val expire = owner.elsep.tokens.lastOption.getOrElse(owner.tokens.last)
+        val expire = rhsOptimalToken(
+            leftTok2tok(
+                owner.elsep.tokens.lastOption.getOrElse(owner.tokens.last)))
         val elses = getElseChain(owner)
         val breakOnlyBeforeElse = Policy({
           case d @ Decision(t, s)

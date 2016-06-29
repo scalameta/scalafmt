@@ -60,3 +60,47 @@ val bindingFuture = Http().bindAndHandleSync({
     }
   }
 }
+<<< PSI #339
+
+{ {
+
+     {
+      {
+        {
+          {
+            {
+            {
+                tokenError(
+                if (e.getMessage != null) e.getMessage else "malformed URL")
+                }
+            }
+          }
+       }
+      }
+    }
+  }
+
+}
+
+>>>
+{
+  {
+
+    {
+      {
+        {
+          {
+            {
+              {
+                tokenError(
+                    if (e.getMessage != null) e.getMessage
+                    else "malformed URL")
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+}
