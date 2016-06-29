@@ -18,7 +18,6 @@ import org.scalafmt.util.HasTests
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.Report
 import org.scalafmt.util.Result
-import org.scalafmt.util.Speed
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.ConfigMap
 import org.scalatest.FunSuite

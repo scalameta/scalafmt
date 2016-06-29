@@ -128,8 +128,6 @@ class Router(formatOps: FormatOps) {
       case tok @ FormatToken(open: `{`, right, between) =>
         val nl = NewlineT(shouldGet2xNewlines(tok))
         val close = matchingParentheses(hash(open))
-        val blockSize = close.start - open.end
-        val ignore = blockSize > style.maxColumn || isInlineComment(right)
         val newlineBeforeClosingCurly = Policy({
           case d @ Decision(t @ FormatToken(_, `close`, _), s) =>
             d.onlyNewlines
@@ -141,9 +139,9 @@ class Router(formatOps: FormatOps) {
             .collect {
               case owner: Term.Function =>
                 val arrow = lastLambda(owner).tokens.find(_.isInstanceOf[`=>`])
-                val singleLineUntilArrow = newlineBeforeClosingCurly.andThen(
-                    SingleLineBlock(
-                        arrow.getOrElse(owner.params.last.tokens.last)).f)
+                val expire = arrow.getOrElse(owner.params.last.tokens.last)
+                val singleLineUntilArrow =
+                  newlineBeforeClosingCurly.andThen(SingleLineBlock(expire).f)
                 (true, singleLineUntilArrow, arrow, 0)
             }
             .getOrElse {
@@ -160,7 +158,7 @@ class Router(formatOps: FormatOps) {
             }
 
         val skipSingleLineBlock =
-          ignore || startsLambda || newlinesBetween(between) > 0
+          startsLambda || newlines > 0
 
         Seq(
             Split(Space, 0, ignoreIf = skipSingleLineBlock)
@@ -547,11 +545,8 @@ class Router(formatOps: FormatOps) {
           case _ => false
         }
 
-//        logger.elem(leftTok2tok(expirationToken))
         Seq(
-            Split(modification,
-                  0,
-                  policy = singleLine(7))
+            Split(modification, 0, policy = singleLine(7))
               .withOptimalToken(expirationToken, killOnFail = false)
               .withIndent(indent, close, Right),
             Split(newlineModification,
@@ -775,10 +770,8 @@ class Router(formatOps: FormatOps) {
         val newlinePolicy = breakOnEveryDot
           .andThen(penalizeNewlinesInApply.f)
           .copy(expire = lastToken.end)
-//        logger.elem(prev(leftTok2tok(optimalToken)))
         Seq(
             Split(NoSplit, 0)
-//              .withOptimalToken(optimalToken, killOnFail = false)
               .withPolicy(noSplitPolicy),
             Split(Newline.copy(acceptNoSplit = true), 2 + nestedPenalty)
               .withPolicy(newlinePolicy)
@@ -872,7 +865,9 @@ class Router(formatOps: FormatOps) {
         )
       case FormatToken(_: `if`, _, _) if leftOwner.isInstanceOf[Term.If] =>
         val owner = leftOwner.asInstanceOf[Term.If]
-        val expire = owner.elsep.tokens.lastOption.getOrElse(owner.tokens.last)
+        val expire = rhsOptimalToken(
+            leftTok2tok(
+                owner.elsep.tokens.lastOption.getOrElse(owner.tokens.last)))
         val elses = getElseChain(owner)
         val breakOnlyBeforeElse = Policy({
           case d @ Decision(t, s)

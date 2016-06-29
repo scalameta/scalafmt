@@ -91,8 +91,7 @@ class BestFirstSearch(val formatOps: FormatOps,
     matchingParentheses(hash(leftLeft)) != stop && {
       // Block must span at least 3 lines to be worth recursing.
       val close = matchingParentheses(hash(leftLeft))
-      // TODO(olafur) magic number
-      close.start - leftLeft.end > style.maxColumn * 3
+      distance(leftLeft, close) > style.maxColumn * 3
     } && extractStatementsIfAny(leftLeftOwner).nonEmpty
   }
 
@@ -252,7 +251,7 @@ class BestFirstSearch(val formatOps: FormatOps,
                     (nextNextState.splits.length < tokens.length && tokens(
                             nextNextState.splits.length).left.start >= token.start)) {
                   optimalNotFound = false
-//                  logger.trace(split, splitToken, formatWriter.mkString(nextNextState.splits), tokens(nextNextState.splits.length))
+//                  logger.elem(split, splitToken, formatWriter.mkString(nextNextState.splits), tokens(nextNextState.splits.length))
                   Q.enqueue(nextNextState)
                 } else if (!killOnFail &&
                            nextState.cost - curr.cost <= maxCost) {

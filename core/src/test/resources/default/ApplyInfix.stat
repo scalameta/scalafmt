@@ -239,9 +239,13 @@ if (other == null) {
   {
     phrase(a ^^ {
       case p1 =>
-        Rowset(p1.toSeq map {
-          fromXML[eveapi.xml.char.ContactList.Row](_, scalaxb.ElemName(node))
-        }, ListMap(List(
+        Rowset(
+            p1.toSeq map {
+              fromXML[eveapi.xml.char.ContactList.Row](_,
+                                                       scalaxb.ElemName(node))
+            },
+            ListMap(
+                List(
                     (node \ "@name").headOption.map(x => DataRecord())
                 ).flatten: _*))
     })

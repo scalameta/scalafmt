@@ -9,7 +9,6 @@ import org.scalafmt.ScalafmtStyle
 import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.FileOps
 import org.scalatest.FunSuite
-import shapeless.ops.hlist.Align
 
 class CliTest extends FunSuite with DiffAssertions {
   import org.scalafmt.util.LoggerOps._

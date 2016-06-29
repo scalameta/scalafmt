@@ -10,3 +10,6 @@ SKIP core/src/main/scala/org/scalafmt/internal/Router.scala
 SKIP https://raw.githubusercontent.com/scala-eveapi/eveapi/master/xml/src/main/scala/eveapi/xml/char/ContactList/xmlprotocol.scala
 SKIP https://raw.githubusercontent.com/twitter/scalding/7759d9c399896fc4c54be0f2406e047e030d8586/scalding-core/src/main/scala/com/twitter/scalding/typed/LookupJoin.scala
 SKIP https://raw.githubusercontent.com/scala-eveapi/eveapi/master/xml/src/main/scala/eveapi/xml/char/ContactList/xmlprotocol.scala
+SKIP https://raw.githubusercontent.com/akka/akka/3698928fbdaa8fef8e2037fbc51887ab60addefb/akka-http-core/src/main/scala/akka/http/impl/engine/client/OutgoingConnectionBlueprint.scala
+SKIP https://raw.githubusercontent.com/akka/akka/3698928fbdaa8fef8e2037fbc51887ab60addefb/akka-typed/src/main/scala/akka/typed/patterns/Receiver.scala
+SKIP https://raw.githubusercontent.com/JetBrains/intellij-scala/45c86930977278eb445b6aba79ac7011bc418490/src/org/jetbrains/plugins/hocon/parser/HoconPsiParser.scala

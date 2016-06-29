@@ -433,4 +433,23 @@ class FormatOps(val tree: Tree,
       case _ => false
     }
   }
+
+  // Maps token to number of non-whitespace bytes before the token's position.
+  private final val nonWhitespaceOffset: Map[Token, Int] = {
+    val resultB = Map.newBuilder[Token, Int]
+    var curr = 0
+    tree.tokens.foreach {
+      case t =>
+        resultB += (t -> curr)
+        if (!t.isInstanceOf[Whitespace]) {
+          curr += (t.end - t.start)
+        }
+
+    }
+    resultB.result()
+  }
+
+  def distance(left: Token, right: Token): Int = {
+    nonWhitespaceOffset(right) - nonWhitespaceOffset(left)
+  }
 }
