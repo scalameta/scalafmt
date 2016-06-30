@@ -17,9 +17,7 @@ import scala.meta.tokens.Tokens
   * @param right The left non-whitespace token.
   * @param between The whitespace tokens between left and right.
   */
-case class FormatToken(left: Token,
-                       right: Token,
-                       between: Vector[Whitespace]) {
+case class FormatToken(left: Token, right: Token, between: Vector[Whitespace]) {
 
   override def toString = s"${left.code}∙${right.code}"
 

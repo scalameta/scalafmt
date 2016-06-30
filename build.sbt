@@ -111,6 +111,11 @@ lazy val core = project
   .settings(allSettings)
   .settings(
     moduleName := "scalafmt-core",
+    test in assembly := {
+      (test in Test).value
+      // TODO(olafur) This should be an integration test.
+      (runMain in Test).toTask(" org.scalafmt.FormatExperimentApp").value
+    },
     libraryDependencies ++= Seq(
       "com.lihaoyi" %% "sourcecode" % "0.1.1",
       "org.scalameta" %% "scalameta" % Deps.scalameta,

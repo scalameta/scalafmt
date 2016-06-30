@@ -305,7 +305,8 @@ object Cli {
           case e if config.debug =>
             inputMethod match {
               case FileContents(filename, _) =>
-                try e.get catch {
+                try e.get
+                catch {
                   case NonFatal(error) =>
                     errorBuilder += DebugError(filename, error)
                     logger.error(s"Error in $filename")

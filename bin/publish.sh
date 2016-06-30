@@ -37,7 +37,7 @@ function confirm-release() {
 }
 
 function assemble-jar() {
-    sbt clean cli/assembly
+    sbt clean assembly
 }
 
 function push-tag() {
@@ -91,11 +91,11 @@ function update-homebrew-release() {
     git push origin master
 }
 
-#assert-preconditions
-#confirm-release
-##assemble-jar
-#push-tag
-#maven-publish
+assert-preconditions
+confirm-release
+assemble-jar
+push-tag
+maven-publish
 update-github-release
 update-homebrew-release
 echo "Released ${tag}!"
