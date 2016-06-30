@@ -587,6 +587,25 @@
        scalafmt update.
 
   @sect{Changelog}
+    @sect{0.2.10}
+      @ul
+        @li
+          Ignore if you don't use @code{--danglingParentheses true}
+          Fixes single issue reported in @issue(325).
+
+          @hl.scala
+            // 0.2.9
+            Props(
+                new Actor {
+              context.stop(self)
+              override def receive = Actor.emptyBehavior
+            }
+            )
+            // 0.2.10
+            Props(new Actor {
+              context.stop(self)
+              def receive = Actor.emptyBehavior
+            })
     @sect{0.2.9}
       @ul
         @li
