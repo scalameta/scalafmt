@@ -141,3 +141,13 @@ mediator.expectMsg(
         )
     )
 )
+<<< #325 exclude blocks
+    Props(new Actor {
+      context.stop(self)
+      def receive = Actor.emptyBehavior
+    })
+>>>
+Props(new Actor {
+  context.stop(self)
+  def receive = Actor.emptyBehavior
+})

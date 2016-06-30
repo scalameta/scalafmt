@@ -544,7 +544,8 @@ class Router(formatOps: FormatOps) {
         }
 
         val noSplitPolicy =
-          if (isDangling) SingleLineBlock(close)
+          if (isDangling)
+            SingleLineBlock(close, exclude = excludeRanges).andThen(unindent)
           else singleLine(7)
 
         val isTuple = leftOwner match {
