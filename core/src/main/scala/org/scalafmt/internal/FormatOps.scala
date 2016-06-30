@@ -231,7 +231,8 @@ class FormatOps(val tree: Tree,
   def penalizeAllNewlines(expire: Token,
                           penalty: Int,
                           penalizeLambdas: Boolean = true,
-                          ignore: FormatToken => Boolean = _ => false)(
+                          ignore: FormatToken => Boolean = _ => false,
+                          penaliseNewlinesInsideTokens: Boolean = false)(
       implicit line: sourcecode.Line): Policy = {
     Policy({
       case Decision(tok, s)
@@ -239,7 +240,9 @@ class FormatOps(val tree: Tree,
             (penalizeLambdas || !tok.left.isInstanceOf[`=>`]) && !ignore(
               tok) =>
         Decision(tok, s.map {
-          case split if split.modification.isNewline  || tok.leftHasNewline =>
+          case split
+              if split.modification.isNewline ||
+                (penaliseNewlinesInsideTokens && tok.leftHasNewline) =>
             split.withPenalty(penalty)
           case x => x
         })

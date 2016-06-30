@@ -130,15 +130,19 @@ object TokenOps {
     */
   def SingleLineBlock(expire: Token,
                       exclude: Set[Range] = Set.empty,
-                      disallowInlineComments: Boolean = true)(
+                      disallowInlineComments: Boolean = true,
+                      penaliseNewlinesInsideTokens: Boolean = false)(
       implicit line: sourcecode.Line): Policy = {
     Policy({
       case Decision(tok, splits)
           if !tok.right.isInstanceOf[EOF] && tok.right.end <= expire.end &&
             exclude.forall(!_.contains(tok.left.start)) &&
             (disallowInlineComments || !isInlineComment(tok.left)) =>
-        if (tok.leftHasNewline) Decision(tok, Seq.empty[Split])
-        else Decision(tok, splits.filterNot(_.modification.isNewline))
+        if (penaliseNewlinesInsideTokens && tok.leftHasNewline) {
+          Decision(tok, Seq.empty[Split])
+        } else {
+          Decision(tok, splits.filterNot(_.modification.isNewline))
+        }
     }, expire.end, noDequeue = exclude.isEmpty, isSingleLine = true)
   }
 

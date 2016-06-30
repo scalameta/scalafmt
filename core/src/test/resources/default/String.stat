@@ -21,14 +21,13 @@ val x =
 <<< Single line #285
 object Foo{
   assert( keywordTokens.length % 2 == 0,
-         s"""Only can come after `--`.
-            |Invalid number of tokens: ${keywordTokens.length}""".stripMargin
-  )
+         s"""Only can `--`.
+            |Invalid number of tokens: ${keywordTokens.length}""".stripMargin )
 }
 >>>
 object Foo {
   assert(keywordTokens.length % 2 == 0,
-         s"""Only can come after `--`.
+         s"""Only can `--`.
             |Invalid number of tokens: ${keywordTokens.length}""".stripMargin)
 }
 <<< @285 2
@@ -45,4 +44,24 @@ object Foo {
     Hello
     """,
       "world")
+}
+<<< 0.2.9 quirks
+{{
+    def render(wrapped: Boolean): Tree =
+      if (wrapped) q"""
+        val start = cursor
+        try ${renderInner(wrapped)}
+        catch { case e: akka.parboiled2.Parser#TracingBubbleException ⇒ $bubbleUp }"""
+      else renderInner(wrapped)
+}}
+>>>
+{
+  {
+    def render(wrapped: Boolean): Tree =
+      if (wrapped) q"""
+        val start = cursor
+        try ${renderInner(wrapped)}
+        catch { case e: akka.parboiled2.Parser#TracingBubbleException ⇒ $bubbleUp }"""
+      else renderInner(wrapped)
+  }
 }
