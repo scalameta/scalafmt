@@ -469,15 +469,39 @@
       The following are, in my opinion, the most critical issues with scalafmt
       that I can't guarantee when will be fixed:
 
-    @ul
-      @li
+      @sect{Non-idempotent}
         Scalafmt is non-idempotent for certain files. See @issue(339).
         This means you should be careful about enforcing scalafmt in your CI
         build.
-        At v0.2.6, roughly 1% or 80 files out of ~9.400 source files in the
+        At v0.2.9, roughly 0.1% or 11 files out of ~9.400 source files in the
         test suite are affected by this issue.
-        I have not experience this issue in my own code.
-      @li
+        If sources are already formatted by scalafmt, only 1 file out of a sample
+        of ~27.000 files triggers non-idempotent formatting.
+
+      @sect{Deeply nested code}
+        Scalafmt cannot yet format all files with deeply nested functions calls.
+        Deeply nested code is troublesome because the number of possible
+        formatting options grows exponentially with each new layer of nesting.
+        Instead of taking seconds or minutes to complete formatting, scalafmt
+        chooses to bail early and leave the source file unformatted.
+        @p
+          There are two workaround if you are affected by this issue:
+          @ul
+            @li
+              Refactor your code to eliminate deeply nested function calls.
+              Binding large function arguments to variables is a good start.
+            @li
+              Try the experimental @code{--bestEffortInDeeplyNestedCode} flag
+              that will try to produce decent formatting output even for the most
+              pathologically nested code. YMMV.
+        @p
+          Other cool code formatters like ClangFormat, dartfmt and rfmt use
+          better techniques to solve this issue, which scalafmt can hopefully
+          learn from.
+          At v0.2.8, roughly 1% or 64 out of ~9.400 source files in the test suite
+          are affected by this issue.
+
+      @sect{Performance}
         Scalafmt is 6x slower than Scalariform.
         For 98% of source files this won't be a problem if you have a decently
         modern laptop.
@@ -487,18 +511,6 @@
         Moreover, I think incremental formatting has the possibility to increase
         the performance by several orders of magnitude in interactive IDE
         environments where scalafmt is invoked on file save.
-      @li
-        Scalafmt cannot yet format all files with deeply nested functions calls.
-        Deeply nested function are troublesome because the number of possible
-        formatting options grows exponentially with each new layer of nesting.
-        Instead of taking seconds or minutes to complete formatting, scalafmt
-        chooses to bail early and leave the source file unformatted.
-        Some other cool code formatters like ClangFormat, dartfmt and rfmt use
-        more advanced techniques.
-        At v0.2.6, roughly 1% or 56 out of ~9.400 source files in the test suite
-        are affected by this issue.
-        I have not experience this issue in my own code.
-        However, as scalafmt improves, I hop to decrease that number to 0.
 
 
   @sect{FAQ / Troubleshooting}
@@ -575,6 +587,47 @@
        scalafmt update.
 
   @sect{Changelog}
+    @sect{0.2.9}
+      @ul
+        @li
+          Decrease non-idempotent cases in test suite from 15 to 11.
+          I observed that non-idempotent formatting happens far less often on
+          code that is already formatted with scalafmt. In a sample of 3.2
+          million lines of code (~27.000 source files), only a single source
+          file rotates between two formatting layouts with every run of scalafmt.
+          All other files reach a fixpoint after one pass of scalafmt.
+        @li
+          New flag: @code{--reformatDocstrings false} to disable docstring
+          reformatting (on by default).
+        @li
+          New flag: @code{--bestEffortInDeeplyNestedCode} (off by default) to
+          reenable best-effort formatting as was default prior to 0.2.6.
+          If you get a lot of "Search state exploded" errors in IntelliJ,
+          you might want to try this out.
+          The setting was disabled in 0.2.6 because it sometimes produces bad
+          output.
+        @li
+          Small improvements to @code{--danglingParentheses}. I imagine we
+          will soon officially support a style with these settings
+
+          @hl.scala
+            --continuationIndentCallSite 2
+            --danglingParentheses true
+            --alignByOpenParenCallSite false
+            --maxColumn 100
+
+
+          Give it a try see if you like it.
+          It's somewhat inspired by IntelliJ's default formatting settings.
+          I don't know yet what to call the style.
+          Thanks @user{lihaoyi} for helping out.
+        @li
+          Fixed bug in try/catch without curly braces, @issue(350).
+        @li
+          Fixed bug in function applications with lambda arguments.
+        @li
+          Improved multiline strings in function calls with many arguments.
+
     @sect{0.2.8}
       @ul
         @li

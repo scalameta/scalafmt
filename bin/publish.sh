@@ -92,8 +92,8 @@ function update-homebrew-release() {
 }
 
 assert-preconditions
-#confirm-release
-#assemble-jar
+confirm-release
+assemble-jar
 push-tag
 maven-publish
 update-github-release
