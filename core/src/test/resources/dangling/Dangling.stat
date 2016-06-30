@@ -151,7 +151,7 @@ Props(new Actor {
   context.stop(self)
   def receive = Actor.emptyBehavior
 })
-<<< ONLY #325 exclude blocks 2
+<<< #325 exclude blocks 2
     Props(new Actor {
       context.stop(self)
       def receive = Actor.emptyBehavior
