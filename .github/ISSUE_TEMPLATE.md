@@ -1,3 +1,5 @@
+FYI, @olafurpg is on vacation until late July. Please delete this line.
+
 Original:
 ```scala
 ORIGINAL CODE SNIPPET
