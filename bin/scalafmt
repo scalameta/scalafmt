@@ -1,3 +1,50 @@
-#!/bin/sh
-java -jar PATH_TO/scalafmt.jar $@
+#!/bin/bash
 
+CURL=$(which curl)
+TAR=$(which tar)
+JAVA=$(which java)
+GREP=$(which grep)
+
+deps=($CURL $TAR $JAVA $GREP)
+for dep in ${deps[@]}; do
+  if [[ ! -e $dep ]]; then
+    echo "You are missing a dependency, please make sure you have grep, curl, tar, and java installed and on your path."
+    exit 1;
+  fi
+done
+
+current_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+latest_version=$($CURL -s https://api.github.com/repos/olafurpg/scalafmt/releases/latest | $GREP -Po '"tag_name":(\d*?,|.*?[^\\]",)' | $GREP -Po 'v\d+\.\d+\.\d+')
+
+#These are only 2 ifs so they can handle else conditions on their own.
+if [[ ${@:1:1} == --v ]]; then
+  if [[ ${@:2:1} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  	scalafmt_version="v${@:2:1}"
+    echo "Using version: $scalafmt_version"
+    shift 2
+  else
+    echo "You must pass a valid version with --v"
+    exit 1
+  fi
+else
+  scalafmt_version=$latest_version
+fi
+
+scala_version="2.11"
+scalafmt_filename="scalafmt-$scalafmt_version.jar"
+scalafmt_repo="https://github.com/olafurpg/scalafmt/releases/download/$scalafmt_version/scalafmt.tar.gz"
+
+if [[ ! -d $current_dir/jars ]]; then
+  echo "You don't have jars folder, creating it..."
+  mkdir -p $current_dir/jars
+fi
+
+if [[ ! -e $current_dir/jars/scalafmt-$scalafmt_version.jar ]]; then
+  echo "No scalafmt jar for version $scalafmt_version, downloading it..."
+  echo "From: $scalafmt_repo"
+  $CURL --progress -L $scalafmt_repo -o $current_dir/scalafmt.tar.gz
+  $TAR -xzf $current_dir/scalafmt.tar.gz -O cli/target/scala-$scala_version/scalafmt.jar > $current_dir/jars/$scalafmt_filename
+  rm $current_dir/scalafmt.tar.gz
+fi
+
+$JAVA -jar $current_dir/jars/$scalafmt_filename $@
