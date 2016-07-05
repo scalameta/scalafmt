@@ -3,7 +3,7 @@ sudo: false
 git:
   submodules: false
 scala:
-  - 2.11.7
+  - 2.11.8
 before_install:
   - pip install --user codecov
 script:
