@@ -339,7 +339,8 @@ class FormatOps(val tree: Tree,
         formatToken.between,
         rightIsComment = formatToken.right.isInstanceOf[Comment])
     val indent = {
-      if (isTopLevelInfixApplication(owner)) 0
+      if (isTopLevelInfixApplication(owner) &&
+          isBoolOperator(owner.op.tokens.head)) 0
       else if (!modification.isNewline &&
                !isAttachedComment(formatToken.right, formatToken.between)) 0
       else 2

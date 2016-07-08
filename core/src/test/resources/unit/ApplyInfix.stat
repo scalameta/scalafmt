@@ -53,3 +53,23 @@ j + j + j + j + j + j + j + j   + j + j + j
 >>>
 a + b + c + d + e + f + g + h + i + j +
   j + j + j + j + j + j + j + j + j + j + j
+<<< += sh"aa"
+{
+buf +=
+  sh"${foo} aa"
+  }
+>>>
+{
+  buf +=
+    sh"${foo} aa"
+}
+<<< &&
+{
+  buf &&
+bb
+}
+>>>
+{
+  buf &&
+  bb
+}

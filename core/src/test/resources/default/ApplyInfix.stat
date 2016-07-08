@@ -173,7 +173,7 @@ val x = {
 >>>
 def headerText(colBarcodes: Seq[String], compat: Boolean): String = {
   s"Sequence\tTotal\t${colBarcodes.mkString("\t")}\t" +
-  (if (compat) "Construct IDs" else "Potential IDs")
+    (if (compat) "Construct IDs" else "Potential IDs")
 }
 <<< #269 6
    val _areTypedArraysSupported = {
