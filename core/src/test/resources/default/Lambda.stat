@@ -98,3 +98,30 @@ class ScProjectionType private () {
     }
   }
 }
+<<< SKIP #357 single line lambda
+def foo(x: Int) = x match {
+    case 1 => (y: Int) => y
+    case _ => (y: Int) => -y
+  }
+>>>
+def foo(x: Int) = x match {
+  case 1 => (y: Int) => y
+  case _ => (y: Int) => -y
+}
+<<< #357 break lambda
+def foo(x: Int) = x match {
+    case 1 =>
+    (y: Int) => y
+    case _ =>
+    (y: Int) => -y
+  }
+>>>
+def foo(x: Int) = x match {
+  case 1 =>
+    (y: Int) =>
+      y
+  case _ =>
+    (y: Int) =>
+      -y
+}
+

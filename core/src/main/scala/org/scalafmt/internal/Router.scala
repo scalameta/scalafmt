@@ -187,7 +187,8 @@ class Router(formatOps: FormatOps) {
       case FormatToken(arrow: `=>`, right, _)
           if statementStarts.contains(hash(right)) &&
             leftOwner.isInstanceOf[Term.Function] =>
-        val endOfFunction = leftOwner.tokens.last
+        val endOfFunction = lastToken(
+            leftOwner.asInstanceOf[Term.Function].body)
         val canBeSpace =
           statementStarts(hash(right)).isInstanceOf[Term.Function]
         Seq(
