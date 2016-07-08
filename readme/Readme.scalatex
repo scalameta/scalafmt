@@ -587,6 +587,25 @@
        scalafmt update.
 
   @sect{Changelog}
+    @sect{0.2.11}
+      @ul
+        @li
+          Add 2 indentation for non-boolean infix operators in "top-level"
+          statements. For example,
+
+          @hl.scala
+            // 0.2.10
+            {
+              buf +=
+              sh"${foo} aa"
+            }
+            // 0.2.11
+            {
+              buf +=
+                sh"${foo} aa"
+            }
+
+
     @sect{0.2.10}
       @ul
         @li
