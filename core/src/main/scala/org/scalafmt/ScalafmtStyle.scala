@@ -118,6 +118,7 @@ import sourcecode.Text
   *                                indents by [[continuationIndentCallSite]].
   * @param rewriteTokens Map of tokens to rewrite. For example, Map("⇒" -> "=>")
   *                      will rewrite unicode arrows to regular ascii arrows.
+  * @param spaceBeforeContextBoundColon formats [A: T] as [A : T]
   */
 case class ScalafmtStyle(
     // Note: default style is right below
@@ -146,7 +147,8 @@ case class ScalafmtStyle(
     indentOperatorsExcludeFilter: Regex,
     rewriteTokens: Map[String, String],
     alignByArrowEnumeratorGenerator: Boolean,
-    alignByIfWhileOpenParen: Boolean
+    alignByIfWhileOpenParen: Boolean,
+    spaceBeforeContextBoundColon: Boolean
 ) {
   lazy val alignMap: Map[String, Regex] =
     alignTokens.map(x => x.code -> x.owner.r).toMap
@@ -188,7 +190,8 @@ object ScalafmtStyle {
       indentOperatorsExcludeFilter = indentOperatorsExcludeDefault,
       alignByArrowEnumeratorGenerator = true,
       rewriteTokens = Map.empty[String, String],
-      alignByIfWhileOpenParen = true
+      alignByIfWhileOpenParen = true,
+      spaceBeforeContextBoundColon = false
   )
 
   val intellij = default.copy(

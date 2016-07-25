@@ -679,18 +679,18 @@ class Router(formatOps: FormatOps) {
         Seq(
             Split(Space, 0)
         )
-      case FormatToken(left: Ident, _: `:`, _)
-          if rightOwner.isInstanceOf[Type.Param] =>
+      case FormatToken(left, _: `:`, _) =>
+        val mod: Modification = rightOwner match {
+          case _: Type.Param =>
+            if (style.spaceBeforeContextBoundColon) Space else NoSplit
+          case _ =>
+            left match {
+              case ident: Ident => identModification(ident)
+              case _ => NoSplit
+            }
+        }
         Seq(
-            Split(NoSplit, 0)
-        )
-      case FormatToken(left: Ident, _: `:`, _) =>
-        Seq(
-            Split(identModification(left), 0)
-        )
-      case FormatToken(_, _: `:`, _) =>
-        Seq(
-            Split(NoSplit, 0)
+            Split(mod, 0)
         )
       // Only allow space after = in val if rhs is a single line or not
       // an infix application or an if. For example, this is allowed:

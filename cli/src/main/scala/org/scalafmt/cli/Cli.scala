@@ -267,6 +267,12 @@ object Cli {
               |        It's best to play around with scala.meta in a console to
               |        understand which regexp you should use for the owner.
               |""".stripMargin
+
+
+      opt[Unit]("spaceBeforeContextBoundColon") action { (_, c) =>
+        c.copy(style = c.style.copy(spaceBeforeContextBoundColon = true))
+      } text s"See ScalafmtConfig scaladoc."
+
       note(s"""
             |Examples:
             |
