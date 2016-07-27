@@ -204,6 +204,27 @@ object Cli {
           c.copy(style = c.style.copy(
                   allowNewlineBeforeColonInMassiveReturnTypes = bool))
       } text s"See ScalafmtStyle scaladoc."
+      opt[Boolean]("unindentAllOperators") action { (bool, c) =>
+        c.copy(style = c.style.copy(unindentAllOperators = bool))
+      } text s"See ScalafmtConfig scaladoc."
+      opt[String]("indentOperatorsIncludeFilter") action { (str, c) =>
+        c.copy(style = c.style.copy(indentOperatorsIncludeFilter = str.r))
+      } text s"See ScalafmtConfig scaladoc."
+      opt[String]("indentOperatorsExcludeFilter") action { (str, c) =>
+        c.copy(style = c.style.copy(indentOperatorsExcludeFilter = str.r))
+      } text s"See ScalafmtConfig scaladoc."
+      opt[Boolean]("indentOperators") action { (bool, c) =>
+        val (include, exclude) = {
+          if (bool)
+            (ScalafmtStyle.indentOperatorsIncludeDefault,
+             ScalafmtStyle.indentOperatorsExcludeDefault)
+          else
+            (ScalafmtStyle.indentOperatorsIncludeAkka,
+             ScalafmtStyle.indentOperatorsExcludeAkka)
+        }
+        c.copy(style = c.style.copy(indentOperatorsIncludeFilter = include,
+                                    indentOperatorsExcludeFilter = exclude))
+      } text s"See ScalafmtConfig scaladoc."
       opt[Seq[String]]("rewriteTokens") action { (str, c) =>
         val rewriteTokens = Map(gimmeStrPairs(str): _*)
         c.copy(style = c.style.copy(rewriteTokens = rewriteTokens))

@@ -51,7 +51,6 @@ import sourcecode.Text
   *                                longerArg1,
   *                                longerArg3
   *                            )
-  *
   * @param alignByOpenParenCallSite If true AND bin-packing is true, then call-site
   *                                 arguments won't be aligned by the opening
   *                                 parenthesis. For example, this output
@@ -60,8 +59,6 @@ import sourcecode.Text
   *                                 function(a,
   *                                          b,
   *                                          c)
-  *
-  *
   * @param continuationIndentCallSite Indent width for line continuation at
   *                                   call site.
   * @param continuationIndentDefnSite Indent width for line continuation at
@@ -74,6 +71,47 @@ import sourcecode.Text
   *                                  scalafmt will fit as many parent constructors
   *                                  on a single line. If false, each parent
   *                                  constructor gets its own line.
+  * @param unindentAllOperators If true, allows no indentation on infix operators
+  *                             in non-top-level functions. For example,
+  *
+  *                             function(
+  *                                 a &&
+  *                                 b
+  *                             )
+  *
+  *                             If false, only allows 0 space indentation for
+  *                             top-level statements
+  *
+  *                             a &&
+  *                             b
+  *                             function(
+  *                                 a &&
+  *                                   b
+  *                             )
+  *
+  *                             Context: https://github.com/scala-js/scala-js/blob/master/CODINGSTYLE.md#long-expressions-with-binary-operators
+  * @param indentOperatorsIncludeFilter Regexp for which infix operators should
+  *                                     indent by 2 spaces. For example, .*=
+  *                                     produces this output
+  *
+  *                                     a &&
+  *                                     b
+  *
+  *                                     a +=
+  *                                       b
+  * @param indentOperatorsExcludeFilter Regexp for which infix operators should
+  *                                     not indent by 2 spaces. For example, when
+  *                                     [[indentOperatorsIncludeFilter]] is .* and
+  *                                     [[indentOperatorsExcludeFilter]] is &&
+  *
+  *                                     a &&
+  *                                     b
+  *
+  *                                     a ||
+  *                                       b
+  *
+  *                                     a +=
+  *                                       b
   * @param spaceAfterTripleEquals If true, formats ===( as === (
   * @param alignByArrowEnumeratorGenerator If true, aligns by <- in for comprehensions.
   * @param alignByIfWhileOpenParen If true, aligns by ( in if/while/for. If false,
@@ -103,6 +141,9 @@ case class ScalafmtStyle(
     allowNewlineBeforeColonInMassiveReturnTypes: Boolean,
     binPackParentConstructors: Boolean,
     spaceAfterTripleEquals: Boolean,
+    unindentAllOperators: Boolean,
+    indentOperatorsIncludeFilter: Regex,
+    indentOperatorsExcludeFilter: Regex,
     rewriteTokens: Map[String, String],
     alignByArrowEnumeratorGenerator: Boolean,
     alignByIfWhileOpenParen: Boolean
@@ -116,6 +157,11 @@ case class ScalafmtStyle(
 }
 
 object ScalafmtStyle {
+  val indentOperatorsIncludeAkka = "^.*=$".r
+  val indentOperatorsExcludeAkka = "^$".r
+  val indentOperatorsIncludeDefault = ".*".r
+  val indentOperatorsExcludeDefault = "^(&&|\\|\\|)$".r
+
   val default = ScalafmtStyle(
       maxColumn = 80,
       reformatDocstrings = true,
@@ -137,13 +183,15 @@ object ScalafmtStyle {
       allowNewlineBeforeColonInMassiveReturnTypes = true,
       binPackParentConstructors = false,
       spaceAfterTripleEquals = false,
+      unindentAllOperators = false,
+      indentOperatorsIncludeFilter = indentOperatorsIncludeDefault,
+      indentOperatorsExcludeFilter = indentOperatorsExcludeDefault,
       alignByArrowEnumeratorGenerator = true,
       rewriteTokens = Map.empty[String, String],
       alignByIfWhileOpenParen = true
   )
 
-  // TODO(olafur) remove, just to debug #285
-  val lihaoyi = default.copy(
+  val intellij = default.copy(
       continuationIndentCallSite = 2,
       continuationIndentDefnSite = 2,
       alignByOpenParenCallSite = false,
@@ -183,13 +231,13 @@ object ScalafmtStyle {
     */
   val activeStyles =
     Map(
-        "Scala.js" -> scalaJs
+        "Scala.js" -> scalaJs,
+        "IntelliJ" -> intellij
     ) ++ name2style(
         default,
         defaultWithAlign
     )
 
-  // TODO(olafur): remove lihaoyi
   val availableStyles = {
     activeStyles ++ name2style(
         scalaJs
