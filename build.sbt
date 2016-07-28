@@ -2,8 +2,9 @@ import scoverage.ScoverageSbtPlugin.ScoverageKeys.coverageHighlighting
 
 lazy val buildSettings = Seq(
   organization := "com.geirsson",
+  // See core/src/main/scala/org/scalafmt/Versions.scala
   version :=  org.scalafmt.Versions.nightly,
-  scalaVersion :=  "2.11.8",
+  scalaVersion :=  org.scalafmt.Versions.scala,
   updateOptions := updateOptions.value.withCachedResolution(true),
   // Many useful rules are ignored, at least they're explicitly ignored.
   wartremoverWarnings in (Compile, compile) ++=
@@ -135,7 +136,6 @@ lazy val core = project
 
 lazy val macros = project
   .settings(allSettings)
-  .settings(noPublish)
   .settings(
     moduleName := "scalafmt-macros",
     libraryDependencies ++= Seq(
