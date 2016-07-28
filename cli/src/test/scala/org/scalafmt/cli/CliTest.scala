@@ -39,7 +39,8 @@ class CliTest extends FunSuite with DiffAssertions {
       continuationIndentCallSite = 2,
       continuationIndentDefnSite = 3,
       scalaDocs = false,
-      alignStripMarginStrings = false)
+      alignStripMarginStrings = false,
+      spaceBeforeContextBoundColon = true)
   val expectedConfig = Cli.Config.default.copy(
       debug = true,
       runner = ScalafmtRunner.statement.copy(
@@ -61,6 +62,7 @@ class CliTest extends FunSuite with DiffAssertions {
       "--debug",
       "--maxColumn",
       "99",
+      "--spaceBeforeContextBoundColon",
       "--continuationIndentCallSite",
       "2",
       "--continuationIndentDefnSite",
