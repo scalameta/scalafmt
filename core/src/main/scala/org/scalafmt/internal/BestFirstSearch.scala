@@ -208,7 +208,8 @@ class BestFirstSearch(val formatOps: FormatOps,
           if (!bestEffortEscape) {
             runner.eventCallback(CompleteFormat(explored, deepestYet, tokens))
             throw SearchStateExploded(deepestYet,
-                                      formatWriter.mkString(deepestYet.splits))
+                                      formatWriter.mkString(deepestYet.splits),
+                                      tokens(deepestYet.splits.length).left)
           } else if (pathologicalEscapes >= MaxEscapes) {
             Q.enqueue(untilNextStatement(curr, Integer.MAX_VALUE))
           } else {

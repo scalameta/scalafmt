@@ -2,6 +2,8 @@ package org.scalafmt.cli
 
 import java.io.File
 
+import org.scalafmt.Error.SearchStateExploded
+import org.scalafmt.util.LoggerOps._
 import org.scalafmt.Error.InvalidScalafmtConfiguration
 import org.scalafmt.FormatResult
 import org.scalafmt.Scalafmt
@@ -13,21 +15,37 @@ import org.scalafmt.ScalafmtStyle
   */
 class Scalafmt210 {
 
-  def format(code: String, configFile: String): String = {
+  def format(code: String, configFile: String, filename: String): String = {
     val style = StyleCache
       .getStyleForFile(configFile)
       .getOrElse(
           throw InvalidScalafmtConfiguration(new File(configFile))
       )
-    format(code, style)
+    format(code, style, filename)
   }
 
-  def format(code: String): String = format(code, ScalafmtStyle.default)
+  def format(code: String, filename: String): String =
+    format(code, ScalafmtStyle.default, filename)
 
-  private def format(code: String, scalafmtStyle: ScalafmtStyle): String = {
+  private def format(code: String,
+                     scalafmtStyle: ScalafmtStyle,
+                     filename: String): String = {
+    val currentPath = new File("").getAbsolutePath + "/"
+    val relativePath = filename.stripPrefix(currentPath)
     Scalafmt.format(code, style = scalafmtStyle) match {
       case FormatResult.Success(formattedCode) => formattedCode
-      case _ => code
+      case error =>
+        error match {
+          case FormatResult.Failure(e) =>
+            logger.warn(
+                s"Failed to format file. Cause: ${e.getMessage}. Path: $relativePath")
+          // TODO(olafur) move Incomplete to Failure
+          case FormatResult.Incomplete(_) =>
+            logger.warn(
+                s"Failed to format file $relativePath. Cause: scalafmt bug, please report.")
+          case _ =>
+        }
+        code
     }
   }
 }

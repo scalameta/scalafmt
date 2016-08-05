@@ -1,5 +1,7 @@
 package org.scalafmt
 
+import scala.meta.tokens.Token
+
 import java.io.File
 
 import org.scalafmt.internal.Decision
@@ -55,8 +57,11 @@ object Error {
   case class MisformattedFile(file: File)
       extends Error(s"${file.getPath} is mis-formatted")
 
-  case class SearchStateExploded(deepestState: State, partialOutput: String)
-      extends Error(s"Search state exploded")
+  case class SearchStateExploded(deepestState: State,
+                                 partialOutput: String,
+                                 lastToken: Token)
+      extends Error(
+          s"Search state exploded around line ${lastToken.position.point.line}")
 
   case class InvalidScalafmtConfiguration(file: File)
       extends Error(s"Unable to parse scalafmt configuration file: $file")
