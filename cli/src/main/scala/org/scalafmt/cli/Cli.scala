@@ -204,8 +204,8 @@ object Cli {
           c.copy(style = c.style.copy(
                   allowNewlineBeforeColonInMassiveReturnTypes = bool))
       } text s"See ScalafmtStyle scaladoc."
-      opt[Boolean]("unindentAllOperators") action { (bool, c) =>
-        c.copy(style = c.style.copy(unindentAllOperators = bool))
+      opt[Boolean]("unindentTopLevelOperators") action { (bool, c) =>
+        c.copy(style = c.style.copy(unindentTopLevelOperators = bool))
       } text s"See ScalafmtConfig scaladoc."
       opt[String]("indentOperatorsIncludeFilter") action { (str, c) =>
         c.copy(style = c.style.copy(indentOperatorsIncludeFilter = str.r))
