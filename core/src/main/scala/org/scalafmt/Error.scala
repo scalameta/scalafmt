@@ -61,7 +61,7 @@ object Error {
                                  partialOutput: String,
                                  lastToken: Token)
       extends Error(
-          s"Search state exploded around line ${lastToken.position.point.line}")
+          s"Search state exploded around line ${lastToken.pos.end.line}")
 
   case class InvalidScalafmtConfiguration(file: File)
       extends Error(s"Unable to parse scalafmt configuration file: $file")

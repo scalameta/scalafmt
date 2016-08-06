@@ -254,7 +254,7 @@ class Router(formatOps: FormatOps) {
         val oldNewlines = newlinesBetween(between)
         val newline: Modification = NewlineT(shouldGet2xNewlines(tok))
         val expire = rightOwner.tokens
-          .find(_.is[Equals()])
+          .find(_.is[Equals])
           .map { equalsToken =>
             val equalsFormatToken = leftTok2tok(equalsToken)
             if (equalsFormatToken.right.is[LeftBrace]) {
@@ -371,7 +371,7 @@ class Router(formatOps: FormatOps) {
           if style.configStyleArguments &&
             (isDefnSite(leftOwner) || isCallSite(leftOwner)) &&
             opensConfigStyle(formatToken) =>
-        val open = formatToken.left.asInstanceOf[Delim]
+        val open = formatToken.left
         val indent = getApplyIndent(leftOwner, isConfigStyle = true)
         val close = matchingParentheses(hash(open))
         val oneArgOneLine = OneArgOneLineSplit(open)
@@ -383,7 +383,6 @@ class Router(formatOps: FormatOps) {
             Split(Newline, 0, policy = configStyle)
               .withIndent(indent, close, Right)
         )
-<<<<<<< 3cef851a356c2feffdb224bd8fefe5b546595258
       case FormatToken(open @ (LeftParen() | LeftBracket()), right, between)
           if style.binPackParameters && isDefnSite(leftOwner) ||
             // TODO(olafur) generalize Term.Function
@@ -473,7 +472,7 @@ class Router(formatOps: FormatOps) {
           if !isSuperfluousParenthesis(formatToken.left, leftOwner) &&
             (!style.binPackArguments && isCallSite(leftOwner)) ||
             (!style.binPackParameters && isDefnSite(leftOwner)) =>
-        val open = tok.left.as[Delim]
+        val open = tok.left
         val close = matchingParentheses(hash(open))
         val (lhs, args) = getApplyArgs(formatToken, leftOwner)
         // In long sequence of select/apply, we penalize splitting on
@@ -625,7 +624,7 @@ class Router(formatOps: FormatOps) {
         val close = matchingParentheses(hash(open))
         val isComma = left.is[Comma]
         val bodyHasNewlines = if (isComma) {
-          open.position.point.line != close.position.point.line
+          open.pos.end.line != close.pos.start.line
         } else true
         Seq(
             Split(Space, 0),
@@ -645,7 +644,6 @@ class Router(formatOps: FormatOps) {
       case tok @ FormatToken(Comma(), right, _) =>
         // TODO(olafur) DRY, see OneArgOneLine.
         val rhsIsAttachedComment =
-<<<<<<< 3cef851a356c2feffdb224bd8fefe5b546595258
           tok.right.is[Comment] && newlinesBetween(tok.between) == 0
         val binPack = isBinPack(leftOwner)
         val isInfix = leftOwner.isInstanceOf[Term.ApplyInfix]
@@ -920,7 +918,7 @@ class Router(formatOps: FormatOps) {
               .withIndent(indent, close, Left)
               .withPolicy(penalizeNewlines)
         )
-      case FormatToken(_ KwIf(), _, _) if leftOwner.is[Term.If] =>
+      case FormatToken(KwIf(), _, _) if leftOwner.is[Term.If] =>
         val owner = leftOwner.asInstanceOf[Term.If]
         val expire = rhsOptimalToken(
             leftTok2tok(
@@ -1026,11 +1024,11 @@ class Router(formatOps: FormatOps) {
       // Infix operator.
       case tok @ FormatToken(op @ Ident(_), right, between)
           if isApplyInfix(op, leftOwner) =>
-        val owner = leftOwner.parent.get.as[Term.ApplyInfix]
+        val owner = leftOwner.parent.get.asInstanceOf[Term.ApplyInfix]
         Seq(infixSplit(owner, formatToken))
       case FormatToken(left, op @ Ident(_), between)
           if isApplyInfix(op, rightOwner) =>
-        val owner = rightOwner.parent.get.as[Term.ApplyInfix]
+        val owner = rightOwner.parent.get.asInstanceOf[Term.ApplyInfix]
         Seq(infixSplit(owner, formatToken))
 
       // Pat
@@ -1240,7 +1238,7 @@ class Router(formatOps: FormatOps) {
       formatToken match {
         // TODO(olafur) refactor into "global policy"
         // Only newlines after inline comments.
-        case FormatToken(c @ Comment(), _, _) if c.syntax.startsWith("//") =>
+        case FormatToken(c @ Comment(_), _, _) if c.syntax.startsWith("//") =>
           val newlineSplits = splits.filter { x =>
             !x.ignoreIf && x.modification.isNewline
           }

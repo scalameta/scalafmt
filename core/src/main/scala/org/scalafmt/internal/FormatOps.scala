@@ -15,6 +15,7 @@ import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
 import org.scalafmt.util.Delim
+import org.scalafmt.util.Whitespace
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.meta.Tree
@@ -185,6 +186,7 @@ class FormatOps(val tree: Tree,
     val result = Set.newBuilder[Token]
     var prev = start
     var curr = next(start)
+    var lastCurr = curr
     while (curr.left.start < end.start && curr != prev) {
       if (matches(curr.left)) {
         val close = matchingParentheses(hash(curr.left))
@@ -307,21 +309,10 @@ class FormatOps(val tree: Tree,
       case _ => Vector.empty[KwElse]
     }
   }
+
   def lastTokenInChain(chain: Vector[Term.Select]): Token = {
     if (chain.length == 1) lastToken(chain.last)
     else chainOptimalToken(chain)
-  }
-
-  final def getElseChain(term: Term.If): Vector[KwElse] = {
-    term.tokens.find(x => x.isInstanceOf[KwElse] && owners(x) == term) match {
-      case Some(els @ KwElse()) =>
-        val rest = term.elsep match {
-          case t: Term.If => getElseChain(t)
-          case _ => Vector.empty[KwElse]
-        }
-        els +: rest
-      case _ => Vector.empty[KwElse]
-    }
   }
 
   /**
@@ -477,7 +468,7 @@ class FormatOps(val tree: Tree,
     tree.tokens.foreach {
       case t =>
         resultB += (t -> curr)
-        if (!t.isInstanceOf[Whitespace]) {
+        if (!t.is[Whitespace]) {
           curr += (t.end - t.start)
         }
 

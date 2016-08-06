@@ -27,7 +27,7 @@ class FormatWriter(formatOps: FormatOps) {
             sb.append(formatComment(c, state.indentation))
           case token @ Interpolation.Part(_) =>
             sb.append(formatMarginizedString(token, state.indentation))
-          case literal: Literal.String => // Ignore, see below.
+          case literal @ Constant.String(_) => // Ignore, see below.
           case token =>
             val rewrittenToken =
               style.rewriteTokens.getOrElse(token.syntax, token.syntax)
@@ -75,7 +75,7 @@ class FormatWriter(formatOps: FormatOps) {
     else if (token.is[Interpolation.Part] ||
              isMarginizedString(token)) {
       val firstChar: Char = token match {
-        case Interpolation.Part() =>
+        case Interpolation.Part(_) =>
           (for {
             parent <- owners(token).parent
             firstInterpolationPart <- parent.tokens.find(
