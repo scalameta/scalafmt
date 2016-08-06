@@ -52,7 +52,7 @@ class FormatWriter(formatOps: FormatOps) {
       val spaces: String =
         if (isDocstring && style.scalaDocs) " " * (indent + 2)
         else " " * (indent + 1)
-      comment.code.replaceAll("\n *\\*", s"\n$spaces\\*")
+      comment.code.replaceAll("\n *\\*(?!\\*)", s"\n$spaces\\*")
     } else {
       comment.code
     }
