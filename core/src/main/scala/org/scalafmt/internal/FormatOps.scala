@@ -4,6 +4,8 @@ import scala.meta.Import
 import scala.meta.Pat
 import scala.meta.tokens.Tokens
 
+import org.scalafmt.internal.ExpiresOn.Left
+import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.Error.CaseMissingArrow
 import org.scalafmt.ScalafmtStyle
 import org.scalafmt.ScalafmtRunner
@@ -461,5 +463,30 @@ class FormatOps(val tree: Tree,
 
   def distance(left: Token, right: Token): Int = {
     nonWhitespaceOffset(right) - nonWhitespaceOffset(left)
+  }
+
+  def breakOnEveryWith(owner: Option[Tree], lastToken: Token) = {
+    if (style.binPackParentConstructors) NoPolicy
+    else {
+      Policy({
+        case Decision(t @ FormatToken(_, right: `with`, _), splits)
+            if owner == ownersMap.get(hash(right)) =>
+          Decision(t, splits.filter(_.modification.isNewline))
+      }, lastToken.end)
+    }
+  }
+
+  def binPackParentConstructorSplits(
+      owner: Option[Tree],
+      lastToken: Token,
+      indent: Int)(implicit line: sourcecode.Line) = {
+    Seq(
+        Split(Space, 0)
+          .withPolicy(SingleLineBlock(lastToken))
+          .withIndent(Num(indent), lastToken, Left),
+        Split(NewlineT(acceptSpace = true), 1)
+          .withPolicy(breakOnEveryWith(owner, lastToken))
+          .withIndent(Num(indent), lastToken, Left)
+    )
   }
 }

@@ -111,6 +111,11 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
         ScalafmtStyle.default.copy(spacesInImportCurlyBraces = true,
                                    spaceAfterTripleEquals = true)
       case "align" => ScalafmtStyle.defaultWithAlign
+      case "parentConstructors" =>
+        ScalafmtStyle.default.copy(
+            binPackParentConstructors = true,
+            maxColumn = 40
+        )
       case "noIndentOperators" =>
         ScalafmtStyle.default.copy(unindentTopLevelOperators = true,
                                    indentOperatorsIncludeFilter =

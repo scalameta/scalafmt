@@ -1,0 +1,17 @@
+40 columns                              |
+<<< #370
+trait SampleTrait extends A with B with C with D with E{
+  self: LongNameMixin with B with C with D with EEEEEEEEE =>
+
+  def foo: Boolean = true
+}
+>>>
+trait SampleTrait
+    extends A with B with C with D
+    with E {
+  self: LongNameMixin
+    with B with C with D
+    with EEEEEEEEE =>
+
+  def foo: Boolean = true
+}
