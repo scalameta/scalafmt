@@ -158,6 +158,7 @@ lazy val cli = project
 
 lazy val scalafmtSbt = project
   .settings(allSettings)
+  .settings(ScriptedPlugin.scriptedSettings)
   .settings(
     coverageHighlighting := false,
     sbtPlugin := true,
@@ -165,7 +166,13 @@ lazy val scalafmtSbt = project
     // In convention of sbt plugins, the module is sbt-scalafmt instead of scalafmt-sbt.
     moduleName := "sbt-scalafmt",
     sources in Compile +=
-      baseDirectory.value / "../core/src/main/scala/org/scalafmt/Versions.scala"
+      baseDirectory.value / "../core/src/main/scala/org/scalafmt/Versions.scala",
+    scriptedLaunchOpts := Seq(
+      "-Dplugin.version=" + version.value,
+      // .jvmopts is ignored, simulate here
+      "-XX:MaxPermSize=256m", "-Xmx2g", "-Xss2m"
+    ),
+    scriptedBufferLog := false
   )
 
 lazy val benchmarks = project
