@@ -901,13 +901,16 @@ class Router(formatOps: FormatOps) {
             Seq(Split(Space, 0))
         }
       // If/For/While/For with (
-      case FormatToken(open @ LeftParen(), _, _) if (leftOwner match {
-            case _: Term.If | _: Term.While => true
-            case _: Term.For | _: Term.ForYield
-                if !isSuperfluousParenthesis(open, leftOwner) =>
-              true
-            case _ => false
-          }) =>
+      case FormatToken(open @ LeftParen(), _, _) if {
+        val isSuperfluous =
+          isSuperfluousParenthesis(open, leftOwner)
+        leftOwner match {
+          case _: Term.If | _: Term.While | _: Term.For | _: Term.ForYield
+            if !isSuperfluous =>
+            true
+          case _ => false
+        }
+      } =>
         val close = matchingParentheses(hash(open))
         val penalizeNewlines = penalizeNewlineByNesting(open, close)
         val indent: Length =
@@ -999,10 +1002,8 @@ class Router(formatOps: FormatOps) {
         )
 
       // ApplyInfix.
-      case FormatToken(open @ LeftParen(), right, _)
-          if leftOwner.is[Term.ApplyInfix] =>
+      case FormatToken(open @ LeftParen(), right, _) =>
         val isConfig = opensConfigStyle(formatToken)
-//        logger.elem(isConfig)
         val close = matchingParentheses(hash(open))
         val breakOnClose = Policy({
           case Decision(t @ FormatToken(_, `close`, _), s) =>
@@ -1011,8 +1012,12 @@ class Router(formatOps: FormatOps) {
         val indent: Length = right match {
           case KwIf() => StateColumn
           case _ =>
-            if (style.superfluousParensIndent == -1) StateColumn
-            else Num(style.superfluousParensIndent)
+            leftOwner match {
+              case _: Term.ApplyInfix =>
+                if (style.superfluousParensIndent == -1) StateColumn
+                else Num(style.superfluousParensIndent)
+              case _ => Num(0)
+            }
         }
         Seq(
             Split(Newline, 0, ignoreIf = !isConfig)
@@ -1149,11 +1154,6 @@ class Router(formatOps: FormatOps) {
       case FormatToken(KwThrow(), _, _) =>
         Seq(
             Split(Space, 0)
-        )
-      // Open paren generally gets no space.
-      case FormatToken(LeftParen(), _, _) =>
-        Seq(
-            Split(NoSplit, 0)
         )
 
       // Singleton types
