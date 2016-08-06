@@ -85,14 +85,6 @@ libraryDependencies ++= Seq(
     "org.apache.commons"             % "commons-math3"   % "3.6"              % "test",
     "org.scalatest"                  %% "scalatest"      % Deps.scalatest     % "test"
 )
-<<< conflicting columns
-val x = 1 // comment
-val noComment = 2
-def noAlign = 3
->>>
-val x         = 1 // comment
-val noComment = 2
-def noAlign = 3
 <<< slick #138
 def address = column[String]("address", O.PrimaryKey)
 def name = column[String]("name")
@@ -341,3 +333,32 @@ Ok(
                                  "unsupportedAt" -> old.unsupportedAt)
                       })
     )) as JSON
+<<< mixed val/var/def
+{
+  var x = 2 // x
+  val xx = 22 // xx
+  def xxx = 222 // xxx
+
+  def xxxx = 2222 // loner
+}
+>>>
+{
+  var x   = 2   // x
+  val xx  = 22  // xx
+  def xxx = 222 // xxx
+
+  def xxxx = 2222 // loner
+}
+<<< mixed object/class/trait
+object mixed {
+final trait False extends Val
+final case object False extends Val
+  final case class Zero(zeroty: nir.Type)                     extends Val
+}
+>>>
+object mixed {
+  final trait False                       extends Val
+  final case object False                 extends Val
+  final case class Zero(zeroty: nir.Type) extends Val
+}
+

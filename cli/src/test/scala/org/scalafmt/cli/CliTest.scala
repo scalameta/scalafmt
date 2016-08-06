@@ -35,6 +35,7 @@ class CliTest extends FunSuite with DiffAssertions {
       indentOperatorsExcludeFilter = ScalafmtStyle.indentOperatorsExcludeAkka,
       reformatDocstrings = false,
       maxColumn = 99,
+      alignMixedOwners = true,
       unindentTopLevelOperators = true,
       continuationIndentCallSite = 2,
       continuationIndentDefnSite = 3,
@@ -50,6 +51,8 @@ class CliTest extends FunSuite with DiffAssertions {
       inPlace = true)
   val args = Array(
       "--unindentTopLevelOperators",
+      "true",
+      "--alignMixedOwners",
       "true",
       "--indentOperators",
       "false",

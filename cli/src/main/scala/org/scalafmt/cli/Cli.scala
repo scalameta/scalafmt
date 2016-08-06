@@ -233,6 +233,9 @@ object Cli {
               |        --rewriteTokens ⇒;=>,←;<-
               |
               |        will rewrite unicode arrows to their ascii equivalents.""".stripMargin
+      opt[Boolean]("alignMixedOwners") action { (bool, c) =>
+        c.copy(style = c.style.copy(alignMixedOwners = bool))
+      } text s"See ScalafmtConfig scaladoc."
       opt[Seq[String]]("alignTokens") action { (tokens, c) =>
         val alignsTokens =
           gimmeStrPairs(tokens).map((AlignToken.apply _).tupled)

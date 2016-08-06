@@ -119,6 +119,9 @@ import sourcecode.Text
   * @param rewriteTokens Map of tokens to rewrite. For example, Map("⇒" -> "=>")
   *                      will rewrite unicode arrows to regular ascii arrows.
   * @param spaceBeforeContextBoundColon formats [A: T] as [A : T]
+  * @param alignMixedOwners If true, aligns `=` for val/var/def and
+  *                         `extends` for def/trait/object.
+  * @param alignTokens Documented in scalafmt --help page.
   */
 case class ScalafmtStyle(
     // Note: default style is right below
@@ -137,6 +140,7 @@ case class ScalafmtStyle(
     alignByOpenParenDefnSite: Boolean,
     continuationIndentCallSite: Int,
     continuationIndentDefnSite: Int,
+    alignMixedOwners: Boolean,
     alignTokens: Set[AlignToken],
     spacesInImportCurlyBraces: Boolean,
     allowNewlineBeforeColonInMassiveReturnTypes: Boolean,
@@ -180,6 +184,7 @@ object ScalafmtStyle {
       superfluousParensIndent = 4,
       continuationIndentCallSite = 4,
       continuationIndentDefnSite = 4,
+      alignMixedOwners = false,
       alignTokens = Set.empty[AlignToken],
       spacesInImportCurlyBraces = false,
       allowNewlineBeforeColonInMassiveReturnTypes = true,
@@ -202,7 +207,10 @@ object ScalafmtStyle {
       danglingParentheses = true
   )
 
-  val defaultWithAlign = default.copy(alignTokens = AlignToken.default)
+  val defaultWithAlign = default.copy(
+      alignMixedOwners = true,
+      alignTokens = AlignToken.default
+  )
 
   val default40 = default.copy(maxColumn = 40)
   val default120 = default.copy(maxColumn = 120)
