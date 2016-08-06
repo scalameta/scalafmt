@@ -404,6 +404,7 @@ object TreeOps {
 
   def defBody(tree: Tree): Option[Tree] = tree match {
     case t: Defn.Def => Some(t.body)
+    case t: Defn.Macro => Some(t.body)
     case t: Ctor.Secondary => Some(t.body)
     case _ => None
   }
