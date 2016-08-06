@@ -46,6 +46,12 @@ val x =
   '''Short line
     |Long line aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
     |'''.stripMargin
+<<< pipe char on first line #324
+'''|first
+  |second'''.stripMargin
+>>>
+'''|first
+   |second'''.stripMargin
   """.replace("'''", "\"\"\"")
 
   val interpolatedStrings =
@@ -103,6 +109,12 @@ val msg = s'''UNABLE TO FORMAT,
                                                  |${log(formatToken.between: _*)}
                                                  |${log(formatToken.right)}'''.stripMargin
 }
+<<< pipe char on first line #324
+s'''|first
+        |$second'''.stripMargin
+>>>
+s'''|first
+    |$second'''.stripMargin
 <<< don't break if no need
 val msg = s'''AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
   |${mkString(deepestYet.splits)}

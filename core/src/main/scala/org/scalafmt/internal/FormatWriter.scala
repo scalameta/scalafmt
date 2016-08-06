@@ -74,7 +74,19 @@ class FormatWriter(formatOps: FormatOps) {
     if (!style.alignStripMarginStrings) token.code
     else if (token.isInstanceOf[Interpolation.Part] ||
              isMarginizedString(token)) {
-      val spaces = " " * indent
+      val firstChar: Char = token match {
+        case _: Interpolation.Part =>
+          (for {
+            parent <- owners(token).parent
+            firstInterpolationPart <- parent.tokens.find(
+                                         _.isInstanceOf[Interpolation.Part])
+            char <- firstInterpolationPart.code.headOption
+          } yield char).getOrElse(' ')
+        case _ =>
+          token.code.find(_ != '"').getOrElse(' ')
+      }
+      val extraIndent: Int = if (firstChar == '|') 1 else 0
+      val spaces = " " * (indent + extraIndent)
       leadingPipeSpace.matcher(token.code).replaceAll(s"\n$spaces\\|")
     } else {
       token.code
