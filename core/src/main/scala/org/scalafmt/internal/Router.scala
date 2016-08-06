@@ -615,9 +615,19 @@ class Router(formatOps: FormatOps) {
         )
 
       // non-statement starting curly brace
-      case FormatToken(_, _: `{`, between) =>
+      case FormatToken(left, open: `{`, between) =>
+        val close = matchingParentheses(hash(open))
+        val isComma = left.isInstanceOf[`,`]
+        val bodyHasNewlines = if (isComma) {
+          open.position.point.line != close.position.point.line
+        } else true
         Seq(
-            Split(Space, 0)
+            Split(Space, 0),
+            Split(Newline,
+                  0,
+                  ignoreIf = !isComma || newlines == 0 || bodyHasNewlines)
+              .withOptimalToken(close, killOnFail = true)
+              .withPolicy(SingleLineBlock(close))
         )
 
       // Delim
@@ -1229,7 +1239,9 @@ class Router(formatOps: FormatOps) {
         // TODO(olafur) refactor into "global policy"
         // Only newlines after inline comments.
         case FormatToken(c: Comment, _, _) if c.code.startsWith("//") =>
-          val newlineSplits = splits.filter(_.modification.isNewline)
+          val newlineSplits = splits.filter { x =>
+            !x.ignoreIf && x.modification.isNewline
+          }
           if (newlineSplits.isEmpty) Seq(Split(Newline, 0))
           else newlineSplits
         case FormatToken(_, c: Comment, between)

@@ -673,3 +673,21 @@ def fillInStackTrace(): Throwable =
                 files => files.par.foreach(handlefile(writeformatted)))
   }
 }
+<<< #323
+def startSharding(system: ActorSystem, mediator: ActorRef, shardCount: Int): Unit = ClusterSharding(system).start(
+  className[Flow],
+  props(mediator),
+  ClusterShardingSettings(system),
+  { case (name: String, payload) => (name, payload) },
+  { case (name: String, _) => (name.hashCode % shardCount).toString }
+)
+>>>
+def startSharding(system: ActorSystem,
+                  mediator: ActorRef,
+                  shardCount: Int): Unit = ClusterSharding(system).start(
+    className[Flow],
+    props(mediator),
+    ClusterShardingSettings(system),
+    { case (name: String, payload) => (name, payload) },
+    { case (name: String, _) => (name.hashCode % shardCount).toString }
+)
