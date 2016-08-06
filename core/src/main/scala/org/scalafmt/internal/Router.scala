@@ -829,18 +829,24 @@ class Router(formatOps: FormatOps) {
         binPackParentConstructorSplits(template, lastToken, 4)
       case tok @ FormatToken(_, right: `with`, _) =>
         rightOwner match {
-          case _: Template =>
-            val template = rightOwner
+          case template: Template =>
+            val hasSelfAnnotation = template.self.tokens.nonEmpty
             val expire = templateCurly(rightOwner)
-            Seq(
-                Split(Space, 0),
-                Split(Newline, 1).withPolicy(Policy({
+            val policy =
+              if (hasSelfAnnotation) NoPolicy
+              else {
+                Policy({
                   // Force template to be multiline.
                   case d @ Decision(FormatToken(open: `{`, right, _), splits)
-                      if !right.isInstanceOf[`}`] && // corner case, body is {}
+                      if !hasSelfAnnotation &&
+                        !right.isInstanceOf[`}`] && // corner case, body is {}
                         childOf(template, owners(open)) =>
                     d.copy(splits = splits.filter(_.modification.isNewline))
-                }, expire.end))
+                }, expire.end)
+              }
+            Seq(
+                Split(Space, 0),
+                Split(Newline, 1).withPolicy(policy)
             )
           case t: Type.Compound =>
             val selfAnnotation = for {
