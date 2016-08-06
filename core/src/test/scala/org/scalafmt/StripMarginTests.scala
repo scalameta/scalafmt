@@ -13,8 +13,7 @@ class StripMarginTests extends FunSuite with HasTests with DiffAssertions {
   val rawStrings =
     """
 <<< Align | margin 1
-val x =
-'''Formatter changed AST
+val x = '''Formatter changed AST
           |=====================
           |$diff
         '''
@@ -27,7 +26,7 @@ val x = '''Formatter changed AST
 <<< Align | margin 2
 {
   val x = 1
-  '''UNABLE TO FORMAT,
+'''UNABLE TO FORMAT,
     |fooooo baaaaaaaarrrrr
     |'''.stripMargin
 }
@@ -85,9 +84,7 @@ val msg =
          bbb)}
      |'''.stripMargin
 <<< Align | margin 2
-val msg =
-
-  s'''UNABLE TO FORMAT,
+val msg = s'''UNABLE TO FORMAT,
   |${mkString(deepestYet.splits)}
   |'''.stripMargin
 >>>
@@ -107,9 +104,7 @@ val msg = s'''UNABLE TO FORMAT,
                                                  |${log(formatToken.right)}'''.stripMargin
 }
 <<< don't break if no need
-val msg =
-
-  s'''AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+val msg = s'''AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
   |${mkString(deepestYet.splits)}
   |'''.stripMargin
 >>>

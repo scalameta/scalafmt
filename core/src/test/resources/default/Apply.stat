@@ -142,8 +142,7 @@ Seq(
       .withIndent(2, arrow, Left) // cond body indented by 4.
 )
 <<< breaking on ( is cheaper than [
-val ret =
-  new mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](Map[TokenHash, Tree]())
+val ret = new mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](Map[TokenHash, Tree]())
 >>>
 val ret = new mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](
     Map[TokenHash, Tree]())
@@ -178,8 +177,7 @@ val ret = new mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](
   }
 }
 <<< penalize newlines inside apply 1
-val ret =
-       new mutable.MapBuilder[TokenHash, Token, Map[TokenHash, Token]](Map
+val ret = new mutable.MapBuilder[TokenHash, Token, Map[TokenHash, Token]](Map
              .empty[TokenHash, Token])
 >>>
 val ret = new mutable.MapBuilder[TokenHash, Token, Map[TokenHash, Token]](
@@ -653,8 +651,7 @@ def fillInStackTrace(): Throwable =
   super[Error].fillInStackTrace()
 <<< #263
 {
-    val safeHasOwnProperty =
-      Dynamic.global.Object.prototype.hasOwnProperty
+    val safeHasOwnProperty = Dynamic.global.Object.prototype.hasOwnProperty
         .asInstanceOf[ThisFunction1[Dictionary[_], String, Boolean]]
         }
 >>>

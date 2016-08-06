@@ -10,7 +10,8 @@ val newIndents: Vector[Indent[Num]] =
 var inside =
     false
 >>>
-var inside = false
+var inside =
+  false
 <<< underscore assignment
 var inside: Int   = _
 >>>
@@ -145,8 +146,7 @@ val sortModifiers = modifiers.collect {
       m
   }
 <<< #269 6
-val predefinedType =
-      if (clazz.getTypeParameters.length == 1) {
+val predefinedType = if (clazz.getTypeParameters.length == 1) {
         ScParameterizedType(ScDesignatorType(clazz), undefines)
       }
       else

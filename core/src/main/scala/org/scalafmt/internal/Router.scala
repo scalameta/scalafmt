@@ -754,10 +754,15 @@ class Router(formatOps: FormatOps) {
                       x => excludeRanges.exists(_.contains(x.left.start)))
               case _ => NoPolicy
             }
+            val jsNative = isJsNative(right)
+            val isDefn = leftOwner.isInstanceOf[Defn]
             Seq(
-                Split(Space, 0, policy = spacePolicy)
+                Split(Space,
+                      0,
+                      policy = spacePolicy,
+                      ignoreIf = isDefn && !jsNative && newlines > 0)
                   .withOptimalToken(expire, killOnFail = false),
-                Split(mod, 1 + penalty, ignoreIf = isJsNative(right))
+                Split(mod, 1 + penalty, ignoreIf = jsNative)
                   .withIndent(2, expire, Left)
             )
         }
