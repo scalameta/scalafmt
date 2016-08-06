@@ -5,6 +5,8 @@ import scala.meta.Tree
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 
+import java.util.regex.Pattern
+
 import org.scalafmt.ScalafmtStyle
 import org.scalafmt.internal.FormatWriter.FormatLocation
 
@@ -21,7 +23,7 @@ class FormatWriter(formatOps: FormatOps) {
     reconstructPath(tokens, splits, style, debug = false) {
       case (state, formatToken, whitespace) =>
         formatToken.left match {
-          case c: Comment if c.code.startsWith("/*") =>
+          case c: Comment =>
             sb.append(formatComment(c, state.indentation))
           case token: Interpolation.Part =>
             sb.append(formatMarginizedString(token, state.indentation))
@@ -46,24 +48,34 @@ class FormatWriter(formatOps: FormatOps) {
     sb.toString()
   }
 
-  private def formatComment(comment: Comment, indent: Int): String = {
-    if (style.reformatDocstrings) {
-      val isDocstring = comment.code.startsWith("/**")
-      val spaces: String =
-        if (isDocstring && style.scalaDocs) " " * (indent + 2)
-        else " " * (indent + 1)
-      comment.code.replaceAll("\n *\\*(?!\\*)", s"\n$spaces\\*")
-    } else {
-      comment.code
-    }
+  val trailingSpace = Pattern.compile("\\s+$", Pattern.MULTILINE)
+  private def removeTrailingWhiteSpace(str: String): String = {
+    trailingSpace.matcher(str).replaceAll("")
   }
 
+  val leadingAsteriskSpace =
+    Pattern.compile("\n *\\*(?!\\*)", Pattern.MULTILINE)
+  private def formatComment(comment: Comment, indent: Int): String = {
+    val alignedComment =
+      if (comment.code.startsWith("/*") && style.reformatDocstrings) {
+        val isDocstring = comment.code.startsWith("/**")
+        val spaces: String =
+          if (isDocstring && style.scalaDocs) " " * (indent + 2)
+          else " " * (indent + 1)
+        leadingAsteriskSpace.matcher(comment.code).replaceAll(s"\n$spaces\\*")
+      } else {
+        comment.code
+      }
+    removeTrailingWhiteSpace(alignedComment)
+  }
+
+  val leadingPipeSpace = Pattern.compile("\n *\\|", Pattern.MULTILINE)
   private def formatMarginizedString(token: Token, indent: Int): String = {
     if (!style.alignStripMarginStrings) token.code
     else if (token.isInstanceOf[Interpolation.Part] ||
              isMarginizedString(token)) {
       val spaces = " " * indent
-      token.code.replaceAll("\n *\\|", s"\n$spaces\\|")
+      leadingPipeSpace.matcher(token.code).replaceAll(s"\n$spaces\\|")
     } else {
       token.code
     }

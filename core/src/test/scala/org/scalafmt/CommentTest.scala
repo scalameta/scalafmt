@@ -25,4 +25,31 @@ class CommentTest extends FunSuite with DiffAssertions {
     val obtained = Scalafmt.format(original, javadocStyle).get
     assertNoDiff(obtained, expected)
   }
+  test("remove trailing space in comments") {
+    val trailingSpace = "   "
+    val original = s"""object a {
+                     |  // inline comment$trailingSpace
+                     |/**$trailingSpace
+                     |  * Y is cool$trailingSpace
+                     |  */
+                     |/*$trailingSpace
+                     |  * X is cool$trailingSpace
+                     |  */
+                     |val y = 2
+                     |}
+                   """.stripMargin
+    val expected = """object a {
+                     |  // inline comment
+                     |  /**
+                     |   * Y is cool
+                     |   */
+                     |  /*
+                     |   * X is cool
+                     |   */
+                     |  val y = 2
+                     |}
+                   """.stripMargin
+    val obtained = Scalafmt.format(original, javadocStyle).get
+    assertNoDiff(obtained, expected)
+  }
 }
