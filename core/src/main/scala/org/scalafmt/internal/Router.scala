@@ -1194,13 +1194,13 @@ class Router(formatOps: FormatOps) {
             Split(NoSplit, 0)
         )
       case FormatToken(left, kw@Keyword(), _) =>
-        if (!left.is[RightBracket] &&
+        if (!left.is[RightBrace] &&
             Set("finally", "catch").contains(kw.syntax)) {
           Seq(Split(Newline, 0))
         } else {
           Seq(Split(Space, 0))
         }
-      case FormatToken(_: Keyword | _: Modifier, _, _) =>
+      case FormatToken(Keyword() | Modifier(), _, _) =>
         Seq(
             Split(Space, 0)
         )

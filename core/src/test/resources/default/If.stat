@@ -96,14 +96,9 @@ object a {
               {
                 {
                   (if (hasFlag("-")) FormattableFlags.LEFT_JUSTIFY else 0) |
-<<<<<<< 3cef851a356c2feffdb224bd8fefe5b546595258
                     (if (hasFlag("#")) FormattableFlags.ALTERNATE else 0) |
                     (if (isConversionUpperCase) FormattableFlags.UPPERCASE
                      else 0)
-=======
-                  (if (hasFlag("#")) FormattableFlags.ALTERNATE else 0) |
-                  (if (isConversionUpperCase) FormattableFlags.UPPERCASE else 0)
->>>>>>> Upgrade to scalameta 0.22.
                 }
               }
             }

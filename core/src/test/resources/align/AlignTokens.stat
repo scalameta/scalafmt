@@ -316,10 +316,12 @@ val aaaaa = function(1, b)
 val aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = function(1, b, bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb)
 }
 >>>
-val a     = function(1, b)
-val aaaaa = function(1, b)
-val aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa =
-  function(1, b, bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb)
+{
+  val a     = function(1, b)
+  val aaaaa = function(1, b)
+  val aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa =
+    function(1, b, bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb)
+}
 <<< infix owner
    Ok(Json.obj(
        "api" -> Json.obj(

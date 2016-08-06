@@ -186,7 +186,6 @@ class FormatOps(val tree: Tree,
     val result = Set.newBuilder[Token]
     var prev = start
     var curr = next(start)
-    var lastCurr = curr
     while (curr.left.start < end.start && curr != prev) {
       if (matches(curr.left)) {
         val close = matchingParentheses(hash(curr.left))
@@ -196,8 +195,6 @@ class FormatOps(val tree: Tree,
         prev = curr
         curr = next(curr)
       }
-      require(curr != lastCurr)
-      lastCurr = curr
     }
     result.result()
   }

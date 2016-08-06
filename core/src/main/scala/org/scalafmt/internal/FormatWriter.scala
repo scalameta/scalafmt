@@ -300,12 +300,12 @@ class FormatWriter(formatOps: FormatOps) {
 object FormatWriter {
 
   val ownerCategory: Map[String, String] = Map(
-      "scala.meta.Defn$Val$Impl" -> "val/var/def",
-      "scala.meta.Defn$Var$Impl" -> "val/var/def",
-      "scala.meta.Defn$Def$Impl" -> "val/var/def",
-      "scala.meta.Defn$Class$Impl" -> "class/object/trait",
-      "scala.meta.Defn$Object$Impl" -> "class/object/trait",
-      "scala.meta.Defn$Trait$Impl" -> "class/object/trait"
+      "scala.meta.Defn$Val$DefnValImpl" -> "val/var/def",
+      "scala.meta.Defn$Var$DefnVarImpl" -> "val/var/def",
+      "scala.meta.Defn$Def$DefnDefImpl" -> "val/var/def",
+      "scala.meta.Defn$Class$DefnClassImpl" -> "class/object/trait",
+      "scala.meta.Defn$Object$DefnObjectImpl" -> "class/object/trait",
+      "scala.meta.Defn$Trait$DefnTraitImpl" -> "class/object/trait"
   )
 
   case class FormatLocation(formatToken: FormatToken,
