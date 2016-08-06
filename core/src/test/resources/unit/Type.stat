@@ -63,3 +63,7 @@ trait Foo[F[_]] {
 trait Foo[F[_]] {
   type G[A]
 }
+<<< #375
+  trait TransLift[MT[_[_], _]]
+>>>
+trait TransLift[MT[_[_], _]]

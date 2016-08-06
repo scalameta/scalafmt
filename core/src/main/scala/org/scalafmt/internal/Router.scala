@@ -282,7 +282,7 @@ class Router(formatOps: FormatOps) {
       // Opening [ with no leading space.
       // Opening ( with no leading space.
       case FormatToken(_: `super` | _: `this` | _: Ident | _: `]` | _: `}` |
-                       _: `)`,
+                       _: `)` | _: `_ `,
                        _: `(` | _: `[`,
                        _) if noSpaceBeforeOpeningParen(rightOwner) && {
             leftOwner.parent.forall {
