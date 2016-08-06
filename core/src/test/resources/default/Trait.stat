@@ -72,3 +72,4 @@ trait Grouped[K, +V]
                   })#t]
     with WithReducers[Grouped[K, V]]
     with WithDescription[Grouped[K, V]]
+

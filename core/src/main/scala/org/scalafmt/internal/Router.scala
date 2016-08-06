@@ -147,13 +147,13 @@ class Router(formatOps: FormatOps) {
             .getOrElse {
               leftOwner match {
                 // Self type: trait foo { self => ... }
-                case t: Template
-                    if !t.self.name.isInstanceOf[Name.Anonymous] =>
+                case t: Template if t.self.name.tokens.nonEmpty =>
                   val arrow = t.tokens.find(_.isInstanceOf[`=>`])
                   val singleLineUntilArrow = newlineBeforeClosingCurly.andThen(
                       SingleLineBlock(arrow.getOrElse(t.self.tokens.last)).f)
                   (true, singleLineUntilArrow, arrow, 2)
-                case _ => (false, NoPolicy, None, 0)
+                case t =>
+                  (false, NoPolicy, None, 0)
               }
             }
 
@@ -826,39 +826,45 @@ class Router(formatOps: FormatOps) {
           .flatMap(templateCurly)
           .orElse(template.map(_.tokens.last))
           .getOrElse(rightOwner.tokens.last)
-        val breakOnEveryWith =
-          if (style.binPackParentConstructors) NoPolicy
-          else {
-            Policy({
-              case Decision(t @ FormatToken(_, right: `with`, _), splits)
-                  if template == ownersMap.get(hash(right)) =>
-                Decision(t, splits.filter(_.modification.isNewline))
-            }, lastToken.end)
-          }
-        Seq(
-            Split(Space, 0)
-              .withPolicy(SingleLineBlock(lastToken))
-              .withIndent(Num(4), lastToken, Left),
-            Split(NewlineT(acceptSpace = true), 1)
-              .withPolicy(breakOnEveryWith)
-              .withIndent(Num(4), lastToken, Left)
-        )
-      case tok @ FormatToken(_, right: `with`, _) if (rightOwner match {
-            case _: Template => true
-            case _ => false
-          }) =>
-        val template = rightOwner
-        val expire = templateCurly(rightOwner)
-        Seq(
-            Split(Space, 0),
-            Split(Newline, 1).withPolicy(Policy({
-              // Force template to be multiline.
-              case d @ Decision(FormatToken(open: `{`, right, _), splits)
-                  if !right.isInstanceOf[`}`] && // corner case, body is {}
-                    childOf(template, owners(open)) =>
-                d.copy(splits = splits.filter(_.modification.isNewline))
-            }, expire.end))
-        )
+        binPackParentConstructorSplits(template, lastToken, 4)
+      case tok @ FormatToken(_, right: `with`, _) =>
+        rightOwner match {
+          case _: Template =>
+            val template = rightOwner
+            val expire = templateCurly(rightOwner)
+            Seq(
+                Split(Space, 0),
+                Split(Newline, 1).withPolicy(Policy({
+                  // Force template to be multiline.
+                  case d @ Decision(FormatToken(open: `{`, right, _), splits)
+                      if !right.isInstanceOf[`}`] && // corner case, body is {}
+                        childOf(template, owners(open)) =>
+                    d.copy(splits = splits.filter(_.modification.isNewline))
+                }, expire.end))
+            )
+          case t: Type.Compound =>
+            val selfAnnotation = for {
+              parent <- t.parent
+              // self annotations are Term.Param
+              if parent.isInstanceOf[Term.Param]
+              grandParent <- parent.parent
+            } yield grandParent
+            selfAnnotation match {
+              case Some(annot: Template) =>
+                val isFirstWith =
+                  t.tokens.find(_.isInstanceOf[`with`]) == Option(right)
+                val lastToken = annot.self.tokens.last
+                if (isFirstWith) {
+                  binPackParentConstructorSplits(Some(t), lastToken, 2)
+                } else {
+                  Seq(Split(Space, 0), Split(Newline, 1))
+                }
+              case _ =>
+                Seq(Split(Space, 0))
+            }
+          case _ =>
+            Seq(Split(Space, 0))
+        }
       // If/For/While/For with (
       case FormatToken(open: `(`, _, _) if (leftOwner match {
             case _: Term.If | _: Term.While => true
