@@ -7,9 +7,7 @@ scala:
 before_install:
   - pip install --user codecov
 script:
-  - sbt clean coverage test &&
-    sbt "core/test:runMain org.scalafmt.FormatExperimentApp" &&
-    sbt coverageAggregate
+  - ./bin/testAll.sh
 after_success:
   - codecov
 jdk:
