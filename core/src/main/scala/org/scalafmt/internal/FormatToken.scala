@@ -26,7 +26,7 @@ case class FormatToken(left: Token, right: Token, between: Vector[Token]) {
     else range.exists(_.contains(right.pos.end.line))
   }
 
-  val leftHasNewline = left.code.contains('\n')
+  val leftHasNewline = left.syntax.contains('\n')
 
   /**
     * A format token is uniquely identified by its left token.

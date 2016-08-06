@@ -30,7 +30,7 @@ class FormatWriter(formatOps: FormatOps) {
           case literal: Literal.String => // Ignore, see below.
           case token =>
             val rewrittenToken =
-              style.rewriteTokens.getOrElse(token.code, token.code)
+              style.rewriteTokens.getOrElse(token.syntax, token.syntax)
             sb.append(rewrittenToken)
         }
         sb.append(whitespace)
@@ -57,21 +57,21 @@ class FormatWriter(formatOps: FormatOps) {
     Pattern.compile("\n *\\*(?!\\*)", Pattern.MULTILINE)
   private def formatComment(comment: Comment, indent: Int): String = {
     val alignedComment =
-      if (comment.code.startsWith("/*") && style.reformatDocstrings) {
-        val isDocstring = comment.code.startsWith("/**")
+      if (comment.syntax.startsWith("/*") && style.reformatDocstrings) {
+        val isDocstring = comment.syntax.startsWith("/**")
         val spaces: String =
           if (isDocstring && style.scalaDocs) " " * (indent + 2)
           else " " * (indent + 1)
-        leadingAsteriskSpace.matcher(comment.code).replaceAll(s"\n$spaces\\*")
+        leadingAsteriskSpace.matcher(comment.syntax).replaceAll(s"\n$spaces\\*")
       } else {
-        comment.code
+        comment.syntax
       }
     removeTrailingWhiteSpace(alignedComment)
   }
 
   val leadingPipeSpace = Pattern.compile("\n *\\|", Pattern.MULTILINE)
   private def formatMarginizedString(token: Token, indent: Int): String = {
-    if (!style.alignStripMarginStrings) token.code
+    if (!style.alignStripMarginStrings) token.syntax
     else if (token.is[Interpolation.Part] ||
              isMarginizedString(token)) {
       val firstChar: Char = token match {
@@ -80,14 +80,14 @@ class FormatWriter(formatOps: FormatOps) {
             parent <- owners(token).parent
             firstInterpolationPart <- parent.tokens.find(
                                          _.is[Interpolation.Part])
-            char <- firstInterpolationPart.code.headOption
+            char <- firstInterpolationPart.syntax.headOption
           } yield char).getOrElse(' ')
         case _ =>
-          token.code.find(_ != '"').getOrElse(' ')
+          token.syntax.find(_ != '"').getOrElse(' ')
       }
       val extraIndent: Int = if (firstChar == '|') 1 else 0
       val spaces = " " * (indent + extraIndent)
-      leadingPipeSpace.matcher(token.code).replaceAll(s"\n$spaces\\|")
+      leadingPipeSpace.matcher(token.syntax).replaceAll(s"\n$spaces\\|")
     } else {
       token.syntax
     }
@@ -267,7 +267,7 @@ class FormatWriter(formatOps: FormatOps) {
                     val previousLocation = line(column - 1)
                     val previousColumn =
                       previousLocation.state.column -
-                        previousLocation.formatToken.right.code.length
+                        previousLocation.formatToken.right.syntax.length
                     line(column).state.column - previousColumn
                   }
                   val key =

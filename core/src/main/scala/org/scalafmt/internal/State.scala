@@ -105,13 +105,8 @@ object State {
     val splitWithPenalty = {
       if (columnOnCurrentLine < style.maxColumn || {
             val commentExceedsLineLength =
-<<<<<<< 3cef851a356c2feffdb224bd8fefe5b546595258
-              tok.right.isInstanceOf[Comment] &&
-                tok.right.code.length >= (style.maxColumn - newIndent)
-=======
               tok.right.is[Comment] &&
-              tok.right.syntax.length >= (style.maxColumn - newIndent)
->>>>>>> Upgrade to scalameta 0.22.
+                tok.right.syntax.length >= (style.maxColumn - newIndent)
             commentExceedsLineLength && split.modification.isNewline
           }) {
         split // fits inside column

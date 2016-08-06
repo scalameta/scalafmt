@@ -211,7 +211,7 @@ class Router(formatOps: FormatOps) {
           if leftOwner.is[Term.Function] =>
         val endOfFunction = functionExpire(
             leftOwner.asInstanceOf[Term.Function])
-        val hasBlock = nextNonComment(formatToken).right.isInstanceOf[`{`]
+        val hasBlock = nextNonComment(formatToken).right.isInstanceOf[LeftBrace]
         Seq(
             Split(Space, 0, ignoreIf = isInlineComment(right))
               .withPolicy(SingleLineBlock(endOfFunction)),
@@ -296,7 +296,6 @@ class Router(formatOps: FormatOps) {
         KwThis() | Ident(_) | RightBracket() | RightBrace() |
                        RightParen() | Underscore(),
                        LeftParen() | LeftBracket(),
-                       LeftParen() | LeftBracket(),
                        _) if noSpaceBeforeOpeningParen(rightOwner) && {
             leftOwner.parent.forall {
               // infix applications have no space.
@@ -308,7 +307,7 @@ class Router(formatOps: FormatOps) {
           case _: Mod => Space
           case t: Term.Name
               if style.spaceAfterTripleEquals &&
-                t.tokens.map(_.code) == Seq("===") =>
+                t.tokens.map(_.syntax) == Seq("===") =>
             Space
           case _ => NoSplit
         }
@@ -616,15 +615,15 @@ class Router(formatOps: FormatOps) {
               .withPolicy(penalizeNewlines)
         )
 
-      case FormatToken(_: `(`, _: `{`, between) =>
+      case FormatToken(LeftParen(), LeftBrace(), between) =>
         Seq(
             Split(NoSplit, 0)
         )
 
       // non-statement starting curly brace
-      case FormatToken(left, open: `{`, between) =>
+      case FormatToken(left, open @ LeftBrace(), between) =>
         val close = matchingParentheses(hash(open))
-        val isComma = left.isInstanceOf[`,`]
+        val isComma = left.is[Comma]
         val bodyHasNewlines = if (isComma) {
           open.position.point.line != close.position.point.line
         } else true
@@ -929,7 +928,7 @@ class Router(formatOps: FormatOps) {
         val elses = getElseChain(owner)
         val breakOnlyBeforeElse = Policy({
           case d @ Decision(t, s)
-              if elses.contains(t.right) && !t.left.isInstanceOf[`}`] =>
+              if elses.contains(t.right) && !t.left.isInstanceOf[RightBrace] =>
             d.onlyNewlines
         }, expire.end)
         Seq(
@@ -938,7 +937,7 @@ class Router(formatOps: FormatOps) {
               .withPolicy(SingleLineBlock(expire)),
             Split(Space, 1).withPolicy(breakOnlyBeforeElse)
         )
-      case FormatToken(close: `)`, right, between) if (leftOwner match {
+      case FormatToken(close @ RightParen(), right, between) if (leftOwner match {
             case _: Term.If | _: Term.For | _: Term.ForYield => true
             case _ => false
           }) && !isFirstOrLastToken(close, leftOwner) =>
@@ -954,7 +953,7 @@ class Router(formatOps: FormatOps) {
           if (attachedComment)
             Space // Inline comment will force newline later.
           else Newline
-        val exclude = insideBlock(formatToken, expire, _.isInstanceOf[`{`])
+        val exclude = insideBlock(formatToken, expire, _.is[LeftBrace])
           .map(parensRange)
         Seq(
             Split(Space, 0, ignoreIf = attachedComment || newlines > 0)
@@ -1198,7 +1197,7 @@ class Router(formatOps: FormatOps) {
         )
       case FormatToken(left, kw@Keyword(), _) =>
         if (!left.is[RightBracket] &&
-            Set("finally", "catch").contains(kw.code)) {
+            Set("finally", "catch").contains(kw.syntax)) {
           Seq(Split(Newline, 0))
         } else {
           Seq(Split(Space, 0))
@@ -1241,14 +1240,14 @@ class Router(formatOps: FormatOps) {
       formatToken match {
         // TODO(olafur) refactor into "global policy"
         // Only newlines after inline comments.
-        case FormatToken(c @ Comment(), _, _) if c.code.startsWith("//") =>
+        case FormatToken(c @ Comment(), _, _) if c.syntax.startsWith("//") =>
           val newlineSplits = splits.filter { x =>
             !x.ignoreIf && x.modification.isNewline
           }
           if (newlineSplits.isEmpty) Seq(Split(Newline, 0))
           else newlineSplits
         case FormatToken(_, c: Comment, between)
-            if newlinesBetween(between) == 0 && c.code.startsWith("//") =>
+            if newlinesBetween(between) == 0 && c.syntax.startsWith("//") =>
           splits.map(
               x =>
                 if (x.modification.isNewline) x.copy(modification = Space)

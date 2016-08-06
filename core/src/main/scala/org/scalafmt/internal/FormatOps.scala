@@ -244,7 +244,7 @@ class FormatOps(val tree: Tree,
     Policy({
       case Decision(tok, s)
           if tok.right.end < expire.end &&
-            (penalizeLambdas || !tok.left.isInstanceOf[`=>`]) && !ignore(
+            (penalizeLambdas || !tok.left.is[RightArrow]) && !ignore(
               tok) =>
         Decision(tok, s.map {
           case split
@@ -312,15 +312,15 @@ class FormatOps(val tree: Tree,
     else chainOptimalToken(chain)
   }
 
-  final def getElseChain(term: Term.If): Vector[`else`] = {
-    term.tokens.find(x => x.isInstanceOf[`else`] && owners(x) == term) match {
-      case Some(els: `else`) =>
+  final def getElseChain(term: Term.If): Vector[KwElse] = {
+    term.tokens.find(x => x.isInstanceOf[KwElse] && owners(x) == term) match {
+      case Some(els @ KwElse()) =>
         val rest = term.elsep match {
           case t: Term.If => getElseChain(t)
-          case _ => Vector.empty[`else`]
+          case _ => Vector.empty[KwElse]
         }
         els +: rest
-      case _ => Vector.empty[`else`]
+      case _ => Vector.empty[KwElse]
     }
   }
 
@@ -368,10 +368,10 @@ class FormatOps(val tree: Tree,
       if ((style.unindentTopLevelOperators ||
               isTopLevelInfixApplication(owner)) &&
           (style.indentOperatorsIncludeFilter
-                .findFirstIn(owner.op.tokens.head.code)
+                .findFirstIn(owner.op.tokens.head.syntax)
                 .isEmpty ||
               style.indentOperatorsExcludeFilter
-                .findFirstIn(owner.op.tokens.head.code)
+                .findFirstIn(owner.op.tokens.head.syntax)
                 .isDefined)) 0
       else if (!modification.isNewline &&
                !isAttachedComment(formatToken.right, formatToken.between)) 0
@@ -458,14 +458,14 @@ class FormatOps(val tree: Tree,
   }
 
   def isSingleIdentifierAnnotation(tok: FormatToken): Boolean = {
-    val toMatch = if (tok.right.isInstanceOf[`)`]) {
+    val toMatch = if (tok.right.is[RightParen]) {
       // Hack to allow any annotations with arguments like @foo(1)
       prev(prev(leftTok2tok(matchingParentheses(hash(tok.right)))))
     } else {
       tok
     }
     toMatch match {
-      case FormatToken(_: `@`, _: Ident, _) => true
+      case FormatToken(At(), _: Ident, _) => true
       case _ => false
     }
   }
@@ -493,7 +493,7 @@ class FormatOps(val tree: Tree,
     if (style.binPackParentConstructors) NoPolicy
     else {
       Policy({
-        case Decision(t @ FormatToken(_, right: `with`, _), splits)
+        case Decision(t @ FormatToken(_, right @ KwWith(), _), splits)
             if owner == ownersMap.get(hash(right)) =>
           Decision(t, splits.filter(_.modification.isNewline))
       }, lastToken.end)
