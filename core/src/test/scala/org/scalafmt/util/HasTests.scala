@@ -131,6 +131,8 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
         )
       case "spacesBeforeContextBound" =>
         ScalafmtStyle.default.copy(spaceBeforeContextBoundColon = true)
+      case "import" =>
+        ScalafmtStyle.default.copy(breakUpLongImportSelectors = false)
       case style => throw UnknownStyle(style)
     }
 

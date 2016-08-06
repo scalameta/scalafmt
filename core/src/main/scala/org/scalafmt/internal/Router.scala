@@ -105,12 +105,22 @@ class Router(formatOps: FormatOps) {
       case FormatToken(open: `{`, _, _)
           if parents(leftOwner).exists(_.isInstanceOf[Import]) ||
             leftOwner.isInstanceOf[Term.Interpolate] =>
+        val isInterpolate = leftOwner.isInstanceOf[Term.Interpolate]
         val policy =
-          if (leftOwner.isInstanceOf[Term.Interpolate]) NoPolicy
+          if (isInterpolate) NoPolicy
           else SingleLineBlock(matchingParentheses(hash(open)))
+        val close = matchingParentheses(hash(open))
+        val newlineBeforeClosingCurly = newlineBeforeClosingCurlyPolicy(close)
+
         Seq(
             Split(if (style.spacesInImportCurlyBraces) Space else NoSplit, 0)
-              .withPolicy(policy)
+              .withPolicy(policy),
+            Split(
+                Newline,
+                1,
+                ignoreIf = !style.breakUpLongImportSelectors || isInterpolate)
+              .withPolicy(newlineBeforeClosingCurly)
+              .withIndent(2, close, Right)
         )
       case FormatToken(_, close: `}`, _)
           if parents(rightOwner).exists(_.isInstanceOf[Import]) ||
@@ -128,10 +138,7 @@ class Router(formatOps: FormatOps) {
       case tok @ FormatToken(open: `{`, right, between) =>
         val nl = NewlineT(shouldGet2xNewlines(tok))
         val close = matchingParentheses(hash(open))
-        val newlineBeforeClosingCurly = Policy({
-          case d @ Decision(t @ FormatToken(_, `close`, _), s) =>
-            d.onlyNewlines
-        }, close.end)
+        val newlineBeforeClosingCurly = newlineBeforeClosingCurlyPolicy(close)
 
         val (startsLambda, lambdaPolicy, lambdaArrow, lambdaIndent) =
           statementStarts

@@ -40,6 +40,7 @@ class CliTest extends FunSuite with DiffAssertions {
       continuationIndentCallSite = 2,
       continuationIndentDefnSite = 3,
       scalaDocs = false,
+      breakUpLongImportSelectors = false,
       alignStripMarginStrings = false,
       spaceBeforeContextBoundColon = true)
   val expectedConfig = Cli.Config.default.copy(
@@ -50,6 +51,8 @@ class CliTest extends FunSuite with DiffAssertions {
       files = Seq(new File("foo")),
       inPlace = true)
   val args = Array(
+      "--breakUpLongImportSelectors",
+      "false",
       "--unindentTopLevelOperators",
       "true",
       "--alignMixedOwners",

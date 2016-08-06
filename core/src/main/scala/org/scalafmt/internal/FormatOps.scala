@@ -489,4 +489,10 @@ class FormatOps(val tree: Tree,
           .withIndent(Num(indent), lastToken, Left)
     )
   }
+
+  def newlineBeforeClosingCurlyPolicy(close: Token) =
+    Policy({
+      case d @ Decision(t @ FormatToken(_, `close`, _), s) =>
+        d.onlyNewlines
+    }, close.end)
 }

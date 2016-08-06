@@ -122,6 +122,15 @@ import sourcecode.Text
   * @param alignMixedOwners If true, aligns `=` for val/var/def and
   *                         `extends` for def/trait/object.
   * @param alignTokens Documented in scalafmt --help page.
+  * @param spacesInImportCurlyBraces If true, formats `import a.b.{ c, d }`.
+  *                                  If false, formats `import a.b.{c, d}`.
+  * @param breakUpLongImportSelectors If true, breaks up import selectors if
+  *                                   it overflows [[maxColumn]]. For example
+  *                                   import a.b.{
+  *                                     c,
+  *                                     d
+  *                                   }. If false, import selectors stay on a
+  *                                   single line.
   */
 case class ScalafmtStyle(
     // Note: default style is right below
@@ -142,6 +151,7 @@ case class ScalafmtStyle(
     continuationIndentDefnSite: Int,
     alignMixedOwners: Boolean,
     alignTokens: Set[AlignToken],
+    breakUpLongImportSelectors: Boolean,
     spacesInImportCurlyBraces: Boolean,
     allowNewlineBeforeColonInMassiveReturnTypes: Boolean,
     binPackParentConstructors: Boolean,
@@ -186,6 +196,7 @@ object ScalafmtStyle {
       continuationIndentDefnSite = 4,
       alignMixedOwners = false,
       alignTokens = Set.empty[AlignToken],
+      breakUpLongImportSelectors = true,
       spacesInImportCurlyBraces = false,
       allowNewlineBeforeColonInMassiveReturnTypes = true,
       binPackParentConstructors = false,
@@ -224,6 +235,7 @@ object ScalafmtStyle {
       binPackArguments = true,
       binPackParameters = true,
       superfluousParensIndent = 4,
+      breakUpLongImportSelectors = false,
       allowNewlineBeforeColonInMassiveReturnTypes = false,
       scalaDocs = false,
       binPackParentConstructors = true,
