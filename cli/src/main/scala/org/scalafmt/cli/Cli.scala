@@ -164,6 +164,9 @@ object Cli {
       } text s"See ScalafmtStyle scaladoc."
       opt[Boolean]("reformatDocstrings") action { (b, c) =>
         c.copy(style = c.style.copy(reformatDocstrings = b))
+      } text s"deprecated, replaced by reformatComments"
+      opt[Boolean]("reformatComments") action { (b, c) =>
+        c.copy(style = c.style.copy(reformatDocstrings = b))
       } text s"See ScalafmtStyle scaladoc."
       opt[Unit]("scalaDocs") action { (_, c) =>
         c.copy(style = c.style.copy(scalaDocs = true))

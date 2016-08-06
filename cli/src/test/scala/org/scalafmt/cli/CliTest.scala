@@ -51,6 +51,8 @@ class CliTest extends FunSuite with DiffAssertions {
       files = Seq(new File("foo")),
       inPlace = true)
   val args = Array(
+      "--reformatComments",
+      "false",
       "--breakUpLongImportSelectors",
       "false",
       "--unindentTopLevelOperators",
