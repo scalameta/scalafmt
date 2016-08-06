@@ -1002,6 +1002,7 @@ class Router(formatOps: FormatOps) {
       case FormatToken(open @ LeftParen(), right, _)
           if leftOwner.is[Term.ApplyInfix] =>
         val isConfig = opensConfigStyle(formatToken)
+//        logger.elem(isConfig)
         val close = matchingParentheses(hash(open))
         val breakOnClose = Policy({
           case Decision(t @ FormatToken(_, `close`, _), s) =>

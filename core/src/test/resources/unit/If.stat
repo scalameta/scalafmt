@@ -50,7 +50,7 @@ if (result.isEmpty) true else throw new TestFailedException("")
 >>>
 if (result.isEmpty) true
 else throw new TestFailedException("")
-<<< assignment with paren
+<<< ONLY assignment with paren
 val newColumn = tok.length + (
 if(split == Newline) newIndent
 else column + split.length
