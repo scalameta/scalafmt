@@ -6,7 +6,6 @@ cache:
   directories:
     - $HOME/.ivy2/cache
     - $HOME/.sbt/boot/
-    - repos.tar.gz
 git:
   submodules: false
 scala:
