@@ -1,4 +1,4 @@
-import scoverage.ScoverageSbtPlugin.ScoverageKeys.coverageHighlighting
+import scoverage.ScoverageKeys.coverageHighlighting
 
 lazy val buildSettings = Seq(
   organization := "com.geirsson",
@@ -48,7 +48,7 @@ lazy val commonSettings = Seq(
   triggeredMessage in ThisBuild := Watched.clearWhenTriggered,
   scalacOptions in (Compile, console) := compilerOptions :+ "-Yrepl-class-based",
   assemblyJarName in assembly := "scalafmt.jar",
-  ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages :=
+  scoverage.ScoverageKeys.coverageExcludedPackages :=
       ".*Debug;.*ScalaFmtLogger;.*Versions",
   testOptions in Test += Tests.Argument("-oD")
 )
