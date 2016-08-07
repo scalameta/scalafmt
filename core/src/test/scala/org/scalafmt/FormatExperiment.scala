@@ -1,5 +1,6 @@
 package org.scalafmt
 
+import scala.util.Random
 import scala.util.Try
 import scalariform.formatter.ScalaFormatter
 import scalariform.formatter.preferences.FormattingPreferences
@@ -133,10 +134,18 @@ object FormatExperimentApp extends FormatExperiment with App {
     case failure => false
   }
 
+  val onTravis = sys.env.contains("TRAVIS")
+
   // Java 7 times out on Travis.
-  if (!sys.env.contains("TRAVIS") ||
+  if (!onTravis ||
       sys.props("java.specification.version") == "1.8") {
-    runExperiment(scalaFiles)
+    val filesToRun: Seq[ScalaFile] = {
+      // running everything on my machine takes <4 minutes but it can take
+      // over an hour on Travis. We shuffle since all files should work.
+      if (onTravis) Random.shuffle(scalaFiles).take(1000)
+      else scalaFiles
+    }
+    runExperiment(filesToRun)
     printResults()
     val nonValidResults = results.filterNot(valid)
     nonValidResults.foreach(println)
