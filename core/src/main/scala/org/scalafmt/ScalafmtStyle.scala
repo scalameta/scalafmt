@@ -191,7 +191,7 @@ object ScalafmtStyle {
       alignByOpenParenDefnSite = true,
       binPackDotChains = false,
       noNewlinesBeforeJsNative = false,
-      superfluousParensIndent = 4,
+      superfluousParensIndent = -1,
       continuationIndentCallSite = 4,
       continuationIndentDefnSite = 4,
       alignMixedOwners = false,

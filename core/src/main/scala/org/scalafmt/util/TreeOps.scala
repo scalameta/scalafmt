@@ -83,7 +83,7 @@ object TreeOps {
       }
     }
 
-    def addDefn[T : ClassTag](mods: Seq[Mod], tree: Tree): Unit = {
+    def addDefn[T: ClassTag](mods: Seq[Mod], tree: Tree): Unit = {
       // Each @annotation gets a separate line
       val annotations = mods.filter(_.is[Mod.Annot])
       addAll(annotations)
@@ -242,7 +242,8 @@ object TreeOps {
     * `(a(1))` will parse into the same tree as `a(1)`.
     */
   def isSuperfluousParenthesis(open: Token, owner: Tree): Boolean = {
-    open.is[LeftParen] && !isTuple(owner) &&
+    open.is[LeftParen] &&
+    !isTuple(owner) &&
     owner.tokens.headOption.contains(open)
   }
 

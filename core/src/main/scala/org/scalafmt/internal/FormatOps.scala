@@ -173,11 +173,23 @@ class FormatOps(val tree: Tree,
   def parensRange(open: Token): Range =
     Range(open.start, matchingParentheses(hash(open)).end)
 
-  def getExcludeIf(
-      end: Token, cond: Token => Boolean = _.is[RightBrace]): Set[Range] = {
+  def getExcludeIf(end: Token,
+                   cond: Token => Boolean = _.is[RightBrace]): Set[Range] = {
     if (cond(end)) // allow newlines in final {} block
       Set(Range(matchingParentheses(hash(end)).start, end.end))
     else Set.empty[Range]
+  }
+
+  def skipUnindent(token: Token): Boolean = {
+    token.is[LeftParen] && {
+      val owner = owners(token)
+      val isSuperfluous = isSuperfluousParenthesis(token, owner)
+      isSuperfluous && (owner match {
+            case _: Term.ApplyUnary | _: Term.Block => false
+            case _ => true
+          })
+
+    }
   }
 
   def insideBlock(start: FormatToken,
@@ -186,11 +198,16 @@ class FormatOps(val tree: Tree,
     val result = Set.newBuilder[Token]
     var prev = start
     var curr = next(start)
+
+    def goToMatching(): Unit = {
+      val close = matchingParentheses(hash(curr.left))
+      curr = leftTok2tok(close)
+    }
+
     while (curr.left.start < end.start && curr != prev) {
       if (matches(curr.left)) {
-        val close = matchingParentheses(hash(curr.left))
         result += curr.left
-        curr = leftTok2tok(close)
+        goToMatching()
       } else {
         prev = curr
         curr = next(curr)
@@ -215,7 +232,8 @@ class FormatOps(val tree: Tree,
     val expire = matchingParentheses(hash(open))
     Policy({
       // Newline on every comma.
-      case d @ Decision(t @ FormatToken(comma @ Comma(), right, between), splits)
+      case d @ Decision(t @ FormatToken(comma @ Comma(), right, between),
+                        splits)
           if owners(open) == owners(comma) &&
             // TODO(olafur) what the right { decides to be single line?
             !right.is[LeftBrace] &&
@@ -243,8 +261,7 @@ class FormatOps(val tree: Tree,
     Policy({
       case Decision(tok, s)
           if tok.right.end < expire.end &&
-            (penalizeLambdas || !tok.left.is[RightArrow]) && !ignore(
-              tok) =>
+            (penalizeLambdas || !tok.left.is[RightArrow]) && !ignore(tok) =>
         Decision(tok, s.map {
           case split
               if split.modification.isNewline ||

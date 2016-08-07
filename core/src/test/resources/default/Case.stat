@@ -55,9 +55,9 @@ x match {
   case tok
       if // TODO(olafur) DRY.
       (leftOwner.isInstanceOf[Term.Interpolate] &&
-            rightOwner.isInstanceOf[Term.Interpolate]) ||
+         rightOwner.isInstanceOf[Term.Interpolate]) ||
         (leftOwner.isInstanceOf[Pat.Interpolate] &&
-              rightOwner.isInstanceOf[Pat.Interpolate]) =>
+           rightOwner.isInstanceOf[Pat.Interpolate]) =>
     Seq(Split(NoSplit, 0))
 }
 <<< PrepJSInterop

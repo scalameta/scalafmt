@@ -45,7 +45,7 @@ case Decision(t @ FormatToken(comma: `,`, right, between), splits)
     if owners.get(open) == owners.get(comma) &&
       // If comment is bound to comma, see unit/Comment.
       (!right.isInstanceOf[Comment] ||
-            between.exists(_.isInstanceOf[`\n`])) =>
+         between.exists(_.isInstanceOf[`\n`])) =>
   Decision(t, splits.filter(_.modification == Newline))
 <<< Bug
 case FormatToken(open: `(`, right, _) if leftOwner.isInstanceOf[Term.ApplyInfix] =>
@@ -101,3 +101,17 @@ case FormatToken(_: `(` | _: `[`, _, between)
     if style.configStyleArguments &&
       (isDefnSite(leftOwner) || isCallSite(leftOwner)) &&
       opensConfigStyle(formatToken) =>
+<<< gimme space with config style
+      case e @ (
+      _: NoSuchMethodException | _: SecurityException |
+                _: IllegalAccessException | _: IllegalArgumentException |
+                _: InvocationTargetException | _: NullPointerException |
+                _: ClassNotFoundException
+                ) =>
+>>>
+case e @ (
+        _: NoSuchMethodException | _: SecurityException |
+        _: IllegalAccessException | _: IllegalArgumentException |
+        _: InvocationTargetException | _: NullPointerException |
+        _: ClassNotFoundException
+    ) =>

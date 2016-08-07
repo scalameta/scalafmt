@@ -156,6 +156,9 @@ object Cli {
       opt[Int]("maxColumn") action { (col, c) =>
         c.copy(style = c.style.copy(maxColumn = col))
       } text s"See ScalafmtStyle scaladoc."
+      opt[Int]("superfluousParensIndent") action { (n, c) =>
+        c.copy(style = c.style.copy(superfluousParensIndent = n))
+      } text s"See ScalafmtStyle scaladoc."
       opt[Int]("continuationIndentCallSite") action { (n, c) =>
         c.copy(style = c.style.copy(continuationIndentCallSite = n))
       } text s"See ScalafmtStyle scaladoc."
@@ -210,7 +213,7 @@ object Cli {
       opt[Boolean]("unindentTopLevelOperators") action { (bool, c) =>
         c.copy(style = c.style.copy(unindentTopLevelOperators = bool))
       } text s"See ScalafmtConfig scaladoc."
-      opt[Boolean]("breakUpLongImportSelectors") action { (bool, c) =>
+      opt[Boolean]("binPackImportSelectors") action { (bool, c) =>
         c.copy(style = c.style.copy(binPackImportSelectors = bool))
       } text s"See ScalafmtConfig scaladoc."
       opt[String]("indentOperatorsIncludeFilter") action { (str, c) =>
@@ -277,8 +280,8 @@ object Cli {
               |        understand which regexp you should use for the owner.
               |""".stripMargin
 
-      opt[Unit]("spaceBeforeContextBoundColon") action { (_, c) =>
-        c.copy(style = c.style.copy(spaceBeforeContextBoundColon = true))
+      opt[Boolean]("spaceBeforeContextBoundColon") action { (bool, c) =>
+        c.copy(style = c.style.copy(spaceBeforeContextBoundColon = bool))
       } text s"See ScalafmtConfig scaladoc."
 
       note(s"""

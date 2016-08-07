@@ -445,7 +445,8 @@ class Router(formatOps: FormatOps) {
         val exclude =
           if (isBracket)
             insideBlock(formatToken, close, _.isInstanceOf[LeftBracket])
-          else insideBlock(formatToken, close, x => x.isInstanceOf[LeftBrace])
+          else
+            insideBlock(formatToken, close, x => x.isInstanceOf[LeftBrace])
         val excludeRanges = exclude.map(parensRange)
         val unindent =
           UnindentAtExclude(exclude, Num(-style.continuationIndentCallSite))
@@ -487,14 +488,19 @@ class Router(formatOps: FormatOps) {
         val nestedPenalty = nestedApplies(leftOwner)
         val exclude =
           if (isBracket) insideBlock(tok, close, _.is[LeftBracket])
-          else insideBlock(tok, close, x => x.is[LeftBrace])
+          else
+            insideBlock(tok, close, x => x.is[LeftBrace])
         val excludeRanges = exclude.map(parensRange)
 
         val indent = getApplyIndent(leftOwner)
+        val noUnindent = {
+          val toSkip = insideBlock(tok, close, skipUnindent).map(parensRange)
+          exclude.filterNot(x => toSkip.exists(_.contains(x.start)))
+        }
 
         // It seems acceptable to unindent by the continuation indent inside
         // curly brace wrapped blocks.
-        val unindent = UnindentAtExclude(exclude, Num(-indent.n))
+        val unindent = UnindentAtExclude(noUnindent, Num(-indent.n))
         val singleArgument = args.length == 1
 
         def insideBraces(t: FormatToken): Boolean =
@@ -827,7 +833,6 @@ class Router(formatOps: FormatOps) {
         )
       case tok @ FormatToken(op @ Ident(_), _, _) if leftOwner.parent.exists {
             case unary: Term.ApplyUnary =>
-//              logger.elem(unary.op.tokens.head.structure, op.structure, op == unary.op.tokens.head)
               unary.op.tokens.head == op
             case _ => false
           } =>
@@ -1003,24 +1008,19 @@ class Router(formatOps: FormatOps) {
             Split(NoSplit, 0)
         )
 
-      // ApplyInfix.
       case FormatToken(open @ LeftParen(), right, _) =>
+        val owner = owners(open)
         val isConfig = opensConfigStyle(formatToken)
+        val isSuperfluous = isSuperfluousParenthesis(open, owner)
         val close = matchingParentheses(hash(open))
         val breakOnClose = Policy({
           case Decision(t @ FormatToken(_, `close`, _), s) =>
             Decision(t, Seq(Split(Newline, 0)))
         }, close.end)
-        val indent: Length = right match {
-          case KwIf() => StateColumn
-          case _ =>
-            leftOwner match {
-              case _: Term.ApplyInfix =>
-                if (style.superfluousParensIndent == -1) StateColumn
-                else Num(style.superfluousParensIndent)
-              case _ => Num(0)
-            }
-        }
+        val indent: Length = if (isSuperfluous) {
+          if (style.superfluousParensIndent == -1) StateColumn
+          else Num(style.superfluousParensIndent)
+        } else Num(0)
         Seq(
             Split(Newline, 0, ignoreIf = !isConfig)
               .withPolicy(breakOnClose)

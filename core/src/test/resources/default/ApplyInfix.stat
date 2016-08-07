@@ -310,20 +310,3 @@ object ExternForwarder {
 
 >>>
 x
-<<< ONLY indent too low
-{
-  def toChannelBuffer = {
-    RedisCodec.toUnifiedFormat(
-        Seq(CommandBytes.BITCOUNT, key) ++
-          (start match {
-        case Some(i) => Seq(StringToChannelBuffer(i.toString))
-        case None => Seq.empty
-      }) ++
-          (end match {
-        case Some(i) => Seq(StringToChannelBuffer(i.toString))
-        case None => Seq.empty
-      }))
-  }
-}
->>>
-xk

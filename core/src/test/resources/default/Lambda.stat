@@ -124,7 +124,7 @@ def foo(x: Int) = x match {
     (y: Int) =>
       -y
 }
-<<< ONLY break after =>
+<<< ugly but you gotta fix your DSL yourself.
 {
 rule {
     capture((1 to 11).times(DIGIT)) ~>(s =>
@@ -132,4 +132,10 @@ rule {
  }
  }
 >>>
-x
+{
+  rule {
+    capture((1 to 11).times(DIGIT)) ~> (s =>
+                                          math.min(s.toLong, Int.MaxValue)) ~ zeroOrMore(
+        DIGIT) ~ OWS
+  }
+}
