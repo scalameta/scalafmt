@@ -365,16 +365,6 @@ private def withNewLocalDefs = {
                   !genIdentBracketSelect(data DOT "arrayBase", "isPrimitive"))
               })
             }))
-
-          case _ =>
-            js.Return(!(!({
-              genIsScalaJSObject(obj) &&
-              ((
-                obj DOT "$classData" DOT "arrayDepth") === depth) &&
-              genIsClassNameInAncestors(
-                  className,
-                  obj DOT "$classData" DOT "arrayBase" DOT "ancestors")
-            })))
         }))
   }
 >>>
@@ -400,20 +390,11 @@ val createIsArrayOfStat = {
               // Array[A] </: Array[Array[A]]
               !js.BinaryOp(JSBinaryOp.<, arrayDepth, depth) &&
               (// Array[Array[A]] <: Array[Object]
-                  js.BinaryOp(JSBinaryOp.>, arrayDepth, depth) ||
-                  // Array[Int] </: Array[Object]
-                  !genIdentBracketSelect(data DOT "arrayBase", "isPrimitive"))
+               js.BinaryOp(JSBinaryOp.>, arrayDepth, depth) ||
+               // Array[Int] </: Array[Object]
+               !genIdentBracketSelect(data DOT "arrayBase", "isPrimitive"))
             })
           }))
-
-        case _ =>
-          js.Return(!(!({
-            genIsScalaJSObject(obj) &&
-            ((obj DOT "$classData" DOT "arrayDepth") === depth) &&
-            genIsClassNameInAncestors(
-                className,
-                obj DOT "$classData" DOT "arrayBase" DOT "ancestors")
-          })))
       }))
 }
 <<< js.Return

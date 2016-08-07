@@ -130,7 +130,8 @@ lazy val core = project
       "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
       "org.apache.commons" % "commons-math3" % "3.6" % "test",
       "org.scalatest" %% "scalatest" % Deps.scalatest % "test"
-    )
+    ),
+    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
   )
 
 

@@ -2,6 +2,7 @@ package org.scalafmt.internal
 
 import scala.meta.Term
 import scala.meta.Tree
+import scala.meta.prettyprinters.Syntax
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 
@@ -25,18 +26,18 @@ class FormatWriter(formatOps: FormatOps) {
         formatToken.left match {
           case c: Comment =>
             sb.append(formatComment(c, state.indentation))
-          case token: Interpolation.Part =>
+          case token @ Interpolation.Part(_) =>
             sb.append(formatMarginizedString(token, state.indentation))
-          case literal: Literal.String => // Ignore, see below.
+          case literal @ Constant.String(_) => // Ignore, see below.
           case token =>
             val rewrittenToken =
-              style.rewriteTokens.getOrElse(token.code, token.code)
+              style.rewriteTokens.getOrElse(token.syntax, token.syntax)
             sb.append(rewrittenToken)
         }
         sb.append(whitespace)
         formatToken.right match {
           // state.column matches the end of formatToken.right
-          case literal: Literal.String =>
+          case literal: Constant.String =>
             val column =
               if (state.splits.last.modification.isNewline) state.indentation
               else lastState.column + whitespace.length
@@ -48,7 +49,7 @@ class FormatWriter(formatOps: FormatOps) {
     sb.toString()
   }
 
-  val trailingSpace = Pattern.compile("\\s+$", Pattern.MULTILINE)
+  val trailingSpace = Pattern.compile(" +$", Pattern.MULTILINE)
   private def removeTrailingWhiteSpace(str: String): String = {
     trailingSpace.matcher(str).replaceAll("")
   }
@@ -57,39 +58,39 @@ class FormatWriter(formatOps: FormatOps) {
     Pattern.compile("\n *\\*(?!\\*)", Pattern.MULTILINE)
   private def formatComment(comment: Comment, indent: Int): String = {
     val alignedComment =
-      if (comment.code.startsWith("/*") && style.reformatDocstrings) {
-        val isDocstring = comment.code.startsWith("/**")
+      if (comment.syntax.startsWith("/*") && style.reformatDocstrings) {
+        val isDocstring = comment.syntax.startsWith("/**")
         val spaces: String =
           if (isDocstring && style.scalaDocs) " " * (indent + 2)
           else " " * (indent + 1)
-        leadingAsteriskSpace.matcher(comment.code).replaceAll(s"\n$spaces\\*")
+        leadingAsteriskSpace.matcher(comment.syntax).replaceAll(s"\n$spaces\\*")
       } else {
-        comment.code
+        comment.syntax
       }
     removeTrailingWhiteSpace(alignedComment)
   }
 
   val leadingPipeSpace = Pattern.compile("\n *\\|", Pattern.MULTILINE)
   private def formatMarginizedString(token: Token, indent: Int): String = {
-    if (!style.alignStripMarginStrings) token.code
-    else if (token.isInstanceOf[Interpolation.Part] ||
+    if (!style.alignStripMarginStrings) token.syntax
+    else if (token.is[Interpolation.Part] ||
              isMarginizedString(token)) {
       val firstChar: Char = token match {
-        case _: Interpolation.Part =>
+        case Interpolation.Part(_) =>
           (for {
             parent <- owners(token).parent
             firstInterpolationPart <- parent.tokens.find(
-                                         _.isInstanceOf[Interpolation.Part])
-            char <- firstInterpolationPart.code.headOption
+                                         _.is[Interpolation.Part])
+            char <- firstInterpolationPart.syntax.headOption
           } yield char).getOrElse(' ')
         case _ =>
-          token.code.find(_ != '"').getOrElse(' ')
+          token.syntax.find(_ != '"').getOrElse(' ')
       }
       val extraIndent: Int = if (firstChar == '|') 1 else 0
       val spaces = " " * (indent + extraIndent)
-      leadingPipeSpace.matcher(token.code).replaceAll(s"\n$spaces\\|")
+      leadingPipeSpace.matcher(token.syntax).replaceAll(s"\n$spaces\\|")
     } else {
-      token.code
+      token.syntax
     }
   }
 
@@ -168,7 +169,7 @@ class FormatWriter(formatOps: FormatOps) {
       val token = location.formatToken.right
       val code = token match {
         case c: Comment if isInlineComment(c) => "//"
-        case t => t.code
+        case t => t.syntax
       }
       style.alignMap.get(code).map { ownerRegexp =>
         val owner = getAlignOwner(location.formatToken)
@@ -267,11 +268,11 @@ class FormatWriter(formatOps: FormatOps) {
                     val previousLocation = line(column - 1)
                     val previousColumn =
                       previousLocation.state.column -
-                        previousLocation.formatToken.right.code.length
+                        previousLocation.formatToken.right.syntax.length
                     line(column).state.column - previousColumn
                   }
                   val key =
-                    columnWidth - line(column).formatToken.right.code.length
+                    columnWidth - line(column).formatToken.right.syntax.length
                   key -> line(column)
                 }
               }
@@ -300,12 +301,12 @@ class FormatWriter(formatOps: FormatOps) {
 object FormatWriter {
 
   val ownerCategory: Map[String, String] = Map(
-      "scala.meta.Defn$Val$Impl" -> "val/var/def",
-      "scala.meta.Defn$Var$Impl" -> "val/var/def",
-      "scala.meta.Defn$Def$Impl" -> "val/var/def",
-      "scala.meta.Defn$Class$Impl" -> "class/object/trait",
-      "scala.meta.Defn$Object$Impl" -> "class/object/trait",
-      "scala.meta.Defn$Trait$Impl" -> "class/object/trait"
+      "scala.meta.Defn$Val$DefnValImpl" -> "val/var/def",
+      "scala.meta.Defn$Var$DefnVarImpl" -> "val/var/def",
+      "scala.meta.Defn$Def$DefnDefImpl" -> "val/var/def",
+      "scala.meta.Defn$Class$DefnClassImpl" -> "class/object/trait",
+      "scala.meta.Defn$Object$DefnObjectImpl" -> "class/object/trait",
+      "scala.meta.Defn$Trait$DefnTraitImpl" -> "class/object/trait"
   )
 
   case class FormatLocation(formatToken: FormatToken,

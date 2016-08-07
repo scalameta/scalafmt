@@ -587,6 +587,16 @@
        scalafmt update.
 
   @sect{Changelog}
+    @sect{0.2.12}
+      @ul
+        @li
+          New @code{--spaceBeforeContextBoundColon} flag.
+          @hl.scala
+            // false (default)
+            def f[T: Numeric](t: T) = ???
+            // true
+            def f[T : Numeric](t: T) = ???
+
     @sect{0.2.11}
       @ul
         @li

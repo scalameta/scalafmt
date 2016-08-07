@@ -26,19 +26,22 @@ object Scalafmt {
              runner: ScalafmtRunner = ScalafmtRunner.default,
              range: Set[Range] = Set.empty[Range]): FormatResult = {
     try {
-      val tree = new scala.meta.XtensionParseInputLike(code)
-        .parse(stringToInput, runner.parser, scala.meta.dialects.Scala211)
-        .get
-      val formatOps = new FormatOps(tree, style, runner)
-      runner.eventCallback(CreateFormatOps(formatOps))
-      val formatWriter = new FormatWriter(formatOps)
-      val search = new BestFirstSearch(formatOps, range, formatWriter)
-      val partial = search.getBestPath
-      val formattedString = formatWriter.mkString(partial.splits)
-      if (partial.reachedEOF) {
-        FormatResult.Success(formattedString)
-      } else {
-        FormatResult.Incomplete(formattedString)
+      if (code.matches("\\s*")) FormatResult.Success("\n")
+      else {
+        val tree = new scala.meta.XtensionParseInputLike(code)
+          .parse(stringToInput, runner.parser, scala.meta.dialects.Scala211)
+          .get
+        val formatOps = new FormatOps(tree, style, runner)
+        runner.eventCallback(CreateFormatOps(formatOps))
+        val formatWriter = new FormatWriter(formatOps)
+        val search = new BestFirstSearch(formatOps, range, formatWriter)
+        val partial = search.getBestPath
+        val formattedString = formatWriter.mkString(partial.splits)
+        if (partial.reachedEOF) {
+          FormatResult.Success(formattedString)
+        } else {
+          FormatResult.Incomplete(formattedString)
+        }
       }
     } catch {
       // TODO(olafur) add more fine grained errors.

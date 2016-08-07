@@ -124,7 +124,7 @@ import sourcecode.Text
   * @param alignTokens Documented in scalafmt --help page.
   * @param spacesInImportCurlyBraces If true, formats `import a.b.{ c, d }`.
   *                                  If false, formats `import a.b.{c, d}`.
-  * @param breakUpLongImportSelectors If true, breaks up import selectors if
+  * @param binPackImportSelectors If true, breaks up import selectors if
   *                                   it overflows [[maxColumn]]. For example
   *                                   import a.b.{
   *                                     c,
@@ -151,7 +151,7 @@ case class ScalafmtStyle(
     continuationIndentDefnSite: Int,
     alignMixedOwners: Boolean,
     alignTokens: Set[AlignToken],
-    breakUpLongImportSelectors: Boolean,
+    binPackImportSelectors: Boolean,
     spacesInImportCurlyBraces: Boolean,
     allowNewlineBeforeColonInMassiveReturnTypes: Boolean,
     binPackParentConstructors: Boolean,
@@ -191,12 +191,12 @@ object ScalafmtStyle {
       alignByOpenParenDefnSite = true,
       binPackDotChains = false,
       noNewlinesBeforeJsNative = false,
-      superfluousParensIndent = 4,
+      superfluousParensIndent = -1,
       continuationIndentCallSite = 4,
       continuationIndentDefnSite = 4,
       alignMixedOwners = false,
       alignTokens = Set.empty[AlignToken],
-      breakUpLongImportSelectors = true,
+      binPackImportSelectors = false,
       spacesInImportCurlyBraces = false,
       allowNewlineBeforeColonInMassiveReturnTypes = true,
       binPackParentConstructors = false,
@@ -235,7 +235,7 @@ object ScalafmtStyle {
       binPackArguments = true,
       binPackParameters = true,
       superfluousParensIndent = 4,
-      breakUpLongImportSelectors = false,
+      binPackImportSelectors = true,
       allowNewlineBeforeColonInMassiveReturnTypes = false,
       scalaDocs = false,
       binPackParentConstructors = true,

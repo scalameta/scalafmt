@@ -35,6 +35,11 @@ class CommentTest extends FunSuite with DiffAssertions {
                      |/*$trailingSpace
                      |  * X is cool$trailingSpace
                      |  */
+                     |/*
+                     |    I have blank lines.
+                     |
+                     |    Please preserve them.
+                     |  */
                      |val y = 2
                      |}
                    """.stripMargin
@@ -45,6 +50,11 @@ class CommentTest extends FunSuite with DiffAssertions {
                      |   */
                      |  /*
                      |   * X is cool
+                     |   */
+                     |  /*
+                     |    I have blank lines.
+                     |
+                     |    Please preserve them.
                      |   */
                      |  val y = 2
                      |}
