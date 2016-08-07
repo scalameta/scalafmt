@@ -29,7 +29,7 @@ object Scalafmt {
       if (code.matches("\\s*")) FormatResult.Success("\n")
       else {
         val tree = new scala.meta.XtensionParseInputLike(code)
-          .parse(stringToInput, runner.parser, scala.meta.dialects.Scala211)
+          .parse(stringToInput, runner.parser, runner.dialect)
           .get
         val formatOps = new FormatOps(tree, style, runner)
         runner.eventCallback(CreateFormatOps(formatOps))

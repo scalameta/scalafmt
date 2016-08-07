@@ -10,12 +10,13 @@ class A {
 class A {
   def traced(in: A => Unit, out: B => Unit): Fun[A, B] =
     (f.mapIn[A] { x =>
-         in(x); x
-       }
-       .mapOut[B] { x =>
-         out(x); x
-       })
+        in(x); x
+      }
+      .mapOut[B] { x =>
+        out(x); x
+      })
 }
+
 <<< akka 1
 {{{
 val bindingFuture = Http().bindAndHandleSync({
@@ -52,8 +53,8 @@ val bindingFuture = Http().bindAndHandleSync({
         {
           {
             RawRequestURI(new String(
-                    uriBytes,
-                    HttpCharsets.aaaaaaaaaa.nioCharset)) :: headers
+                uriBytes,
+                HttpCharsets.aaaaaaaaaa.nioCharset)) :: headers
           }
         }
       }

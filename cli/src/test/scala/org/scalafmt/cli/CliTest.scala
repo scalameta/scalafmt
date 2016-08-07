@@ -16,14 +16,16 @@ class CliTest extends FunSuite with DiffAssertions {
   import org.scalafmt.util.LoggerOps._
   val unformatted = """
                       |object a    extends   App {
-                      |println("hello world!")
+                      |pr(
+                      |
+                      |"h")
                       |}
                     """.stripMargin
   // Using maxColumn 10 just to see the CLI uses the custom style.
   val expected = """object a
                    |    extends App {
-                   |  println(
-                   |      "hello world!")
+                   |  pr(
+                   |    "h")
                    |}
                  """.stripMargin
   val expectedStyle = ScalafmtStyle.default.copy(
@@ -37,7 +39,6 @@ class CliTest extends FunSuite with DiffAssertions {
       maxColumn = 99,
       alignMixedOwners = true,
       unindentTopLevelOperators = true,
-      superfluousParensIndent = 2,
       continuationIndentCallSite = 2,
       continuationIndentDefnSite = 3,
       scalaDocs = false,
@@ -73,8 +74,6 @@ class CliTest extends FunSuite with DiffAssertions {
       "99",
       "--spaceBeforeContextBoundColon",
       "true",
-      "--superfluousParensIndent",
-      "2",
       "--continuationIndentCallSite",
       "2",
       "--continuationIndentDefnSite",

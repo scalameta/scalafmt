@@ -93,46 +93,47 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
   def file2style(filename: String): ScalafmtStyle =
     filename.split("/").reverse(1) match {
       case "unit" => ScalafmtStyle.unitTest40
-      case "default" | "standard" | "scala" => ScalafmtStyle.default
-      case "default140" => ScalafmtStyle.default.copy(maxColumn = 140)
-      case "default100" => ScalafmtStyle.default.copy(maxColumn = 100)
+      case "default" | "standard" | "scala" =>
+        ScalafmtStyle.unitTest80
+      case "default140" => ScalafmtStyle.unitTest80.copy(maxColumn = 140)
+      case "default100" => ScalafmtStyle.unitTest80.copy(maxColumn = 100)
       case "scalajs" => ScalafmtStyle.scalaJs
       case "dangling" =>
-        ScalafmtStyle.default.copy(maxColumn = 40,
+        ScalafmtStyle.unitTest80.copy(maxColumn = 40,
                                    alignByOpenParenCallSite = false,
                                    danglingParentheses = true,
                                    configStyleArguments = false)
       case "noAlign" =>
-        ScalafmtStyle.default
+        ScalafmtStyle.unitTest80
           .copy(maxColumn = 40, alignByOpenParenCallSite = false)
       case "stripMargin" =>
-        ScalafmtStyle.default.copy(alignStripMarginStrings = true)
+        ScalafmtStyle.unitTest80.copy(alignStripMarginStrings = true)
       case "spaces" =>
-        ScalafmtStyle.default.copy(spacesInImportCurlyBraces = true,
+        ScalafmtStyle.unitTest80.copy(spacesInImportCurlyBraces = true,
                                    spaceAfterTripleEquals = true)
-      case "align" => ScalafmtStyle.defaultWithAlign
+      case "align" => ScalafmtStyle.addAlign(ScalafmtStyle.unitTest80)
       case "parentConstructors" =>
-        ScalafmtStyle.default.copy(
+        ScalafmtStyle.unitTest80.copy(
             binPackParentConstructors = true,
             maxColumn = 40
         )
       case "noIndentOperators" =>
-        ScalafmtStyle.default.copy(unindentTopLevelOperators = true,
+        ScalafmtStyle.unitTest80.copy(unindentTopLevelOperators = true,
                                    indentOperatorsIncludeFilter =
                                      ScalafmtStyle.indentOperatorsIncludeAkka,
                                    indentOperatorsExcludeFilter =
                                      ScalafmtStyle.indentOperatorsExcludeAkka)
       case "unicode" =>
-        ScalafmtStyle.default.copy(
+        ScalafmtStyle.unitTest80.copy(
             rewriteTokens = Map(
                 "=>" -> "⇒",
                 "<-" -> "←"
             )
         )
       case "spacesBeforeContextBound" =>
-        ScalafmtStyle.default.copy(spaceBeforeContextBoundColon = true)
+        ScalafmtStyle.unitTest80.copy(spaceBeforeContextBoundColon = true)
       case "import" =>
-        ScalafmtStyle.default.copy(binPackImportSelectors = false)
+        ScalafmtStyle.unitTest80.copy(binPackImportSelectors = false)
       case style => throw UnknownStyle(style)
     }
 

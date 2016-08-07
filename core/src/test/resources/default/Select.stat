@@ -111,7 +111,7 @@ val files = FilesUtil
 >>>
 private def extractRhino(e: js.Dynamic): js.Array[String] = {
   (e.stack
-     .asInstanceOf[js.UndefOr[String]])
+    .asInstanceOf[js.UndefOr[String]])
     .getOrElse("")
     .jsReplace("""^\s+at\s+""".re("gm"), "") // remove 'at' and indentation
     .jsReplace("""^(.+?)(?: \((.+)\))?$""".re("gm"), "$2@$1")
@@ -224,7 +224,7 @@ class TypedPipeJoinWithDescriptionJob {
 >>>
 {
   (playerStore
-     .updatePlayer(_: String, _: PlayerUpdate))
+    .updatePlayer(_: String, _: PlayerUpdate))
     .expects("123", PlayerUpdate(active = Some(true)))
     .returning(Future.value(Unit))
   (cache.delete _).expects("123")
@@ -250,8 +250,9 @@ Seq(
 {
   {
     {
-      system.actorOf(Props[ThreadNameEcho].withDispatcher(
-              "myapp.balancing-dispatcher")) ! "what's the name?"
+      system.actorOf(
+          Props[ThreadNameEcho]
+            .withDispatcher("myapp.balancing-dispatcher")) ! "what's the name?"
     }
   }
 }

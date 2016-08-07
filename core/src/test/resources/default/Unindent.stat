@@ -12,12 +12,10 @@
 {
   {
     {
-      f(
-          (future, message) ⇒
-            (evaluating {
-               Await.result(future.mapTo[java.lang.Thread], timeout.duration)
-             } should produce[java.lang.Exception]).getMessage should ===(
-                message))
+      f((future, message) ⇒
+        (evaluating {
+          Await.result(future.mapTo[java.lang.Thread], timeout.duration)
+        } should produce[java.lang.Exception]).getMessage should ===(message))
     }
   }
 }
@@ -35,10 +33,11 @@
     assert(
         backoffs.force.toSeq ==
           (0 until 10 map { i =>
-             (1 << i).seconds
-           }))
+            (1 << i).seconds
+          }))
   }
 }
+
 <<< assert 2
 {{
     assert((p1 match {
@@ -50,9 +49,9 @@
 {
   {
     assert((p1 match {
-              case Param.Configured(x) => x()
-              case x => throw new MatchError(x)
-            }) == failureAccrualPolicy)
+      case Param.Configured(x) => x()
+      case x => throw new MatchError(x)
+    }) == failureAccrualPolicy)
   }
 }
 <<< setBox
@@ -73,15 +72,14 @@
   {
     {
       setBox(Full((array.map {
-                     case JsonObjectId(objectId) => objectId
-                     case JsonRegex(regex) => regex
-                     case JsonUUID(uuid) => uuid
-                     case JsonDateTime(dt)
-                         if (mf.toString == "org.joda.time.DateTime") =>
-                       dt
-                     case JsonDate(date) => date
-                     case other => other.values
-                   }).asInstanceOf[MyType]))
+        case JsonObjectId(objectId) => objectId
+        case JsonRegex(regex) => regex
+        case JsonUUID(uuid) => uuid
+        case JsonDateTime(dt) if (mf.toString == "org.joda.time.DateTime") =>
+          dt
+        case JsonDate(date) => date
+        case other => other.values
+      }).asInstanceOf[MyType]))
     }
   }
 }
@@ -97,12 +95,10 @@
 {
   {
     def bindingInfoWithFields(style: BindingStyle) =
-      logger.trace(
-          "Looking for fields with style %s".format(style),
-          (for {
-             field <- fields;
-             bindingInfo <- field.binding if bindingInfo.bindingStyle == style
-           } yield (bindingInfo, field)).toList)
+      logger.trace("Looking for fields with style %s".format(style), (for {
+        field <- fields;
+        bindingInfo <- field.binding if bindingInfo.bindingStyle == style
+      } yield (bindingInfo, field)).toList)
   }
 }
 <<< indent too low
@@ -126,13 +122,13 @@
     RedisCodec.toUnifiedFormat(
         Seq(CommandBytes.BITCOUNT, key) ++
           (start match {
-             case Some(i) => Seq(StringToChannelBuffer(i.toString))
-             case None => Seq.empty
-           }) ++
+            case Some(i) => Seq(StringToChannelBuffer(i.toString))
+            case None => Seq.empty
+          }) ++
           (end match {
-             case Some(i) => Seq(StringToChannelBuffer(i.toString))
-             case None => Seq.empty
-           }))
+            case Some(i) => Seq(StringToChannelBuffer(i.toString))
+            case None => Seq.empty
+          }))
   }
 }
 <<< #394 1
@@ -143,10 +139,10 @@
  }) :: acc)
 >>>
 parse0(tail, (head match {
-                case "[*]" => CPathArray
-                case IndexPattern(index) => CPathIndex(index.toInt)
-                case name => CPathField(name)
-              }) :: acc)
+  case "[*]" => CPathArray
+  case IndexPattern(index) => CPathIndex(index.toInt)
+  case name => CPathField(name)
+}) :: acc)
 <<< #394 this sucks but so does your tuple
 {{
     (ref.copy(selector = (prefix \ ref.selector)),
@@ -162,20 +158,12 @@ parse0(tail, (head match {
 {
   {
     (ref.copy(selector = (prefix \ ref.selector)), (ref.ctype match {
-                                                      case CString =>
-                                                        ArrayStrColumn.empty(
-                                                            sliceSize)
-                                                      case CBoolean =>
-                                                        ArrayBoolColumn.empty()
-                                                      case CArrayType(
-                                                          elemType) =>
-                                                        ArrayHomogeneousArrayColumn
-                                                          .empty(sliceSize)(
-                                                              elemType)
-                                                      case CUndefined =>
-                                                        sys.error(
-                                                            "CUndefined cannot be serialized")
-                                                    }))
+      case CString => ArrayStrColumn.empty(sliceSize)
+      case CBoolean => ArrayBoolColumn.empty()
+      case CArrayType(elemType) =>
+        ArrayHomogeneousArrayColumn.empty(sliceSize)(elemType)
+      case CUndefined => sys.error("CUndefined cannot be serialized")
+    }))
   }
 }
 <<< #394 just use variable, it's fine
@@ -195,12 +183,12 @@ val second =
   {
     val second =
       (ref.ctype match {
-         case CString => ArrayStrColumn.empty(sliceSize)
-         case CBoolean => ArrayBoolColumn.empty()
-         case CArrayType(elemType) =>
-           ArrayHomogeneousArrayColumn.empty(sliceSize)(elemType)
-         case CUndefined => sys.error("CUndefined cannot be serialized")
-       })
+        case CString => ArrayStrColumn.empty(sliceSize)
+        case CBoolean => ArrayBoolColumn.empty()
+        case CArrayType(elemType) =>
+          ArrayHomogeneousArrayColumn.empty(sliceSize)(elemType)
+        case CUndefined => sys.error("CUndefined cannot be serialized")
+      })
     (ref.copy(selector = (prefix \ ref.selector)), second)
   }
 }
@@ -212,10 +200,10 @@ val second =
       }))
 >>>
 assertEquals(1, ((NoContext: Any) match {
-                   case that: AnyRef if this eq that => 0
-                   case NoContext => 1
-                   case _ => 2
-                 }))
+  case that: AnyRef if this eq that => 0
+  case NoContext => 1
+  case _ => 2
+}))
 <<< #394 4
 {{{{
         b sort {
@@ -236,11 +224,11 @@ assertEquals(1, ((NoContext: Any) match {
         b sort {
           BSONDocument(
               (for (sorter ← sorters)
-                 yield
-                   sorter._1 -> BSONInteger(sorter._2 match {
-                     case api.SortOrder.Ascending => 1
-                     case api.SortOrder.Descending => -1
-                   })).toStream)
+                yield
+                  sorter._1 -> BSONInteger(sorter._2 match {
+                    case api.SortOrder.Ascending => 1
+                    case api.SortOrder.Descending => -1
+                  })).toStream)
         }
       }
     }
@@ -269,17 +257,17 @@ assertEquals(1, ((NoContext: Any) match {
     copy(user1 = user1.copy(
              score =
                user1.score + (userId match {
-                                case None => wins * 5
-                                case Some(u) if user1.id == u => wins * 10
-                                case _ => 0
-                              })),
+                 case None => wins * 5
+                 case Some(u) if user1.id == u => wins * 10
+                 case _ => 0
+               })),
          user2 = user2.copy(
              score =
                user2.score + (userId match {
-                                case None => wins * 5
-                                case Some(u) if user2.id == u => wins * 10
-                                case _ => 0
-                              })))
+                 case None => wins * 5
+                 case Some(u) if user2.id == u => wins * 10
+                 case _ => 0
+               })))
   }
 }
 <<< #394 6
@@ -295,10 +283,10 @@ assertEquals(1, ((NoContext: Any) match {
   {
     {
       (new FastPath(_) {
-         val (a, b, c, d) = (next[Int], next[Int], next[Int], next[Int])
-         override def read(r: Reader) =
-           new A(a.read(r), b.read(r), c.read(r), d.read(r))
-       })
+        val (a, b, c, d) = (next[Int], next[Int], next[Int], next[Int])
+        override def read(r: Reader) =
+          new A(a.read(r), b.read(r), c.read(r), d.read(r))
+      })
     }
   }
 }
@@ -318,17 +306,16 @@ assertEquals(1, ((NoContext: Any) match {
       { (e: Either[Int, Int], or: Int) =>
         e.left.getOrElse(or) ==
           (e match {
-             case Left(a) => a
-             case Right(_) => or
-           })
+            case Left(a) => a
+            case Right(_) => or
+          })
       }
     }
   }
 }
 <<< testservice
 {
-  val sourceToBuffer: Map[ScaldingSource, Buffer[Tuple]] =
-  (lasts.map {
+  val sourceToBuffer: Map[ScaldingSource, Buffer[Tuple]] = (lasts.map {
                                                               case (b, it) =>
                                                                 lastMappable(b) -> toBuffer(
                                                                     it)
@@ -341,19 +328,17 @@ assertEquals(1, ((NoContext: Any) match {
 }
 >>>
 {
-  val sourceToBuffer: Map[ScaldingSource, Buffer[Tuple]] =
-    (lasts.map {
-       case (b, it) =>
-         lastMappable(b) -> toBuffer(it)
-     } ++ streams.map {
-       case (b, it) =>
-         streamMappable(b) -> toBuffer(it)
-     }).toMap
+  val sourceToBuffer: Map[ScaldingSource, Buffer[Tuple]] = (lasts.map {
+    case (b, it) =>
+      lastMappable(b) -> toBuffer(it)
+  } ++ streams.map {
+    case (b, it) =>
+      streamMappable(b) -> toBuffer(it)
+  }).toMap
 }
 <<< nullDF
 {
-  @inline val nullDF =
-  (for {
+  @inline val nullDF = (for {
                           i <- 0 to 50
                           s <- Seq(null,
                                    "a",
@@ -368,11 +353,10 @@ assertEquals(1, ((NoContext: Any) match {
 }
 >>>
 {
-  @inline val nullDF =
-    (for {
-       i <- 0 to 50
-       s <- Seq(null, "a", "b", "c", "d", "e", "f", null, "g")
-     } yield (i % 5, s, i % 13)).toDF("i", "j", "k")
+  @inline val nullDF = (for {
+    i <- 0 to 50
+    s <- Seq(null, "a", "b", "c", "d", "e", "f", null, "g")
+  } yield (i % 5, s, i % 13)).toDF("i", "j", "k")
 }
 <<< SKIP config blocked by https://github.com/scalameta/scalameta/issues/461
 {

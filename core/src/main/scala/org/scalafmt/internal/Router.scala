@@ -498,9 +498,6 @@ class Router(formatOps: FormatOps) {
           exclude.filterNot(x => toSkip.exists(_.contains(x.start)))
         }
 
-        // It seems acceptable to unindent by the continuation indent inside
-        // curly brace wrapped blocks.
-        val unindent = UnindentAtExclude(noUnindent, Num(-indent.n))
         val singleArgument = args.length == 1
 
         def insideBraces(t: FormatToken): Boolean =
@@ -525,8 +522,7 @@ class Router(formatOps: FormatOps) {
                                 penaliseNewlinesInsideTokens = !singleArgument)
           }
 
-          if (exclude.isEmpty || isBracket) baseSingleLinePolicy
-          else baseSingleLinePolicy.andThen(unindent)
+          baseSingleLinePolicy
         }
 
         val oneArgOneLine = OneArgOneLineSplit(open)
@@ -564,8 +560,12 @@ class Router(formatOps: FormatOps) {
 
         val noSplitPolicy =
           if (isDangling)
-            SingleLineBlock(close, exclude = excludeRanges).andThen(unindent)
-          else singleLine(7)
+            SingleLineBlock(close, exclude = excludeRanges)
+          else singleLine(10)
+
+        val noSplitIndent =
+          if (isInlineComment(right)) indent
+          else Num(0)
 
         val isTuple = leftOwner match {
           case _: Type.Tuple | _: Term.Tuple => true
@@ -581,7 +581,7 @@ class Router(formatOps: FormatOps) {
         Seq(
             Split(modification, 0, policy = noSplitPolicy)
               .withOptimalToken(expirationToken, killOnFail = false)
-              .withIndent(indent, close, Right),
+              .withIndent(noSplitIndent, close, Right),
             Split(newlineModification,
                   (1 + nestedPenalty + lhsPenalty) * bracketMultiplier,
                   policy = newlinePolicy.andThen(singleLine(4)),
@@ -1017,10 +1017,10 @@ class Router(formatOps: FormatOps) {
           case Decision(t @ FormatToken(_, `close`, _), s) =>
             Decision(t, Seq(Split(Newline, 0)))
         }, close.end)
-        val indent: Length = if (isSuperfluous) {
-          if (style.superfluousParensIndent == -1) StateColumn
-          else Num(style.superfluousParensIndent)
-        } else Num(0)
+        val indent: Length = right match {
+          case KwIf() => StateColumn
+          case _ => Num(0)
+        }
         Seq(
             Split(Newline, 0, ignoreIf = !isConfig)
               .withPolicy(breakOnClose)
