@@ -2,6 +2,7 @@ package org.scalafmt.internal
 
 import scala.meta.Term
 import scala.meta.Tree
+import scala.meta.prettyprinters.Syntax
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 
@@ -48,7 +49,7 @@ class FormatWriter(formatOps: FormatOps) {
     sb.toString()
   }
 
-  val trailingSpace = Pattern.compile("\\s+$", Pattern.MULTILINE)
+  val trailingSpace = Pattern.compile(" +$", Pattern.MULTILINE)
   private def removeTrailingWhiteSpace(str: String): String = {
     trailingSpace.matcher(str).replaceAll("")
   }

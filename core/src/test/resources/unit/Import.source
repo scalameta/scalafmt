@@ -71,4 +71,17 @@ import org.scalajs.dom.experimental.serviceworkers.{
   ServiceWorkerGlobalScope,
   ServiceWorkerRegistration
 }
-
+<<< ONLY break #101 short
+import org.{A, GlobalScope, Registration}
+>>>
+import org.{
+  GlobalScope,
+  Registration
+}
+<<< ONLY break #101 short 2
+import org.{Aaaa, Bbbbb, C, D, E, F, G, H, I, J, K, L}
+>>>
+import org.{
+  GlobalScope,
+  Registration
+}
