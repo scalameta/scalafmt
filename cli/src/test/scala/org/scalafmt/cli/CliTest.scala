@@ -40,7 +40,7 @@ class CliTest extends FunSuite with DiffAssertions {
       continuationIndentCallSite = 2,
       continuationIndentDefnSite = 3,
       scalaDocs = false,
-      breakUpLongImportSelectors = false,
+      binPackImportSelectors = false,
       alignStripMarginStrings = false,
       spaceBeforeContextBoundColon = true)
   val expectedConfig = Cli.Config.default.copy(
@@ -53,7 +53,7 @@ class CliTest extends FunSuite with DiffAssertions {
   val args = Array(
       "--reformatComments",
       "false",
-      "--breakUpLongImportSelectors",
+      "--binPackImportSelectors",
       "false",
       "--unindentTopLevelOperators",
       "true",

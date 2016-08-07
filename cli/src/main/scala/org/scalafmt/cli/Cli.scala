@@ -211,7 +211,7 @@ object Cli {
         c.copy(style = c.style.copy(unindentTopLevelOperators = bool))
       } text s"See ScalafmtConfig scaladoc."
       opt[Boolean]("breakUpLongImportSelectors") action { (bool, c) =>
-        c.copy(style = c.style.copy(breakUpLongImportSelectors = bool))
+        c.copy(style = c.style.copy(binPackImportSelectors = bool))
       } text s"See ScalafmtConfig scaladoc."
       opt[String]("indentOperatorsIncludeFilter") action { (str, c) =>
         c.copy(style = c.style.copy(indentOperatorsIncludeFilter = str.r))
