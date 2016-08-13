@@ -63,7 +63,9 @@ class FormatWriter(formatOps: FormatOps) {
         val spaces: String =
           if (isDocstring && style.scalaDocs) " " * (indent + 2)
           else " " * (indent + 1)
-        leadingAsteriskSpace.matcher(comment.syntax).replaceAll(s"\n$spaces\\*")
+        leadingAsteriskSpace
+          .matcher(comment.syntax)
+          .replaceAll(s"\n$spaces\\*")
       } else {
         comment.syntax
       }
@@ -80,7 +82,7 @@ class FormatWriter(formatOps: FormatOps) {
           (for {
             parent <- owners(token).parent
             firstInterpolationPart <- parent.tokens.find(
-                                         _.is[Interpolation.Part])
+                                       _.is[Interpolation.Part])
             char <- firstInterpolationPart.syntax.headOption
           } yield char).getOrElse(' ')
         case _ =>
@@ -114,7 +116,7 @@ class FormatWriter(formatOps: FormatOps) {
         if (debug && tokens.length < 1000) {
           val left = cleanup(tok.left).slice(0, 15)
           logger.debug(
-              f"$left%-15s $split ${currState.indentation} ${currState.column}")
+            f"$left%-15s $split ${currState.indentation} ${currState.column}")
         }
     }
     statesBuilder.result()
@@ -301,12 +303,12 @@ class FormatWriter(formatOps: FormatOps) {
 object FormatWriter {
 
   val ownerCategory: Map[String, String] = Map(
-      "scala.meta.Defn$Val$DefnValImpl" -> "val/var/def",
-      "scala.meta.Defn$Var$DefnVarImpl" -> "val/var/def",
-      "scala.meta.Defn$Def$DefnDefImpl" -> "val/var/def",
-      "scala.meta.Defn$Class$DefnClassImpl" -> "class/object/trait",
-      "scala.meta.Defn$Object$DefnObjectImpl" -> "class/object/trait",
-      "scala.meta.Defn$Trait$DefnTraitImpl" -> "class/object/trait"
+    "scala.meta.Defn$Val$DefnValImpl" -> "val/var/def",
+    "scala.meta.Defn$Var$DefnVarImpl" -> "val/var/def",
+    "scala.meta.Defn$Def$DefnDefImpl" -> "val/var/def",
+    "scala.meta.Defn$Class$DefnClassImpl" -> "class/object/trait",
+    "scala.meta.Defn$Object$DefnObjectImpl" -> "class/object/trait",
+    "scala.meta.Defn$Trait$DefnTraitImpl" -> "class/object/trait"
   )
 
   case class FormatLocation(formatToken: FormatToken,

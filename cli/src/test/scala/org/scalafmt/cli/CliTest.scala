@@ -29,61 +29,61 @@ class CliTest extends FunSuite with DiffAssertions {
                    |}
                  """.stripMargin
   val expectedStyle = ScalafmtStyle.default.copy(
-      rewriteTokens = Map(
-          "=>" -> "⇒",
-          "<-" -> "←"
-      ),
-      indentOperatorsIncludeFilter = ScalafmtStyle.indentOperatorsIncludeAkka,
-      indentOperatorsExcludeFilter = ScalafmtStyle.indentOperatorsExcludeAkka,
-      reformatDocstrings = false,
-      maxColumn = 99,
-      alignMixedOwners = true,
-      unindentTopLevelOperators = true,
-      continuationIndentCallSite = 2,
-      continuationIndentDefnSite = 3,
-      scalaDocs = false,
-      binPackImportSelectors = false,
-      alignStripMarginStrings = false,
-      spaceBeforeContextBoundColon = true)
+    rewriteTokens = Map(
+      "=>" -> "⇒",
+      "<-" -> "←"
+    ),
+    indentOperatorsIncludeFilter = ScalafmtStyle.indentOperatorsIncludeAkka,
+    indentOperatorsExcludeFilter = ScalafmtStyle.indentOperatorsExcludeAkka,
+    reformatDocstrings = false,
+    maxColumn = 99,
+    alignMixedOwners = true,
+    unindentTopLevelOperators = true,
+    continuationIndentCallSite = 2,
+    continuationIndentDefnSite = 3,
+    scalaDocs = false,
+    binPackImportSelectors = false,
+    alignStripMarginStrings = false,
+    spaceBeforeContextBoundColon = true)
   val expectedConfig = Cli.Config.default.copy(
-      debug = true,
-      runner = ScalafmtRunner.statement.copy(
-          optimizer = ScalafmtOptimizer.default.copy(bestEffortEscape = true)),
-      style = expectedStyle,
-      files = Seq(new File("foo")),
-      inPlace = true)
+    debug = true,
+    runner = ScalafmtRunner.statement.copy(
+      optimizer = ScalafmtOptimizer.default.copy(bestEffortEscape = true)),
+    style = expectedStyle,
+    files = Seq(new File("foo")),
+    inPlace = true)
   val args = Array(
-      "--reformatComments",
-      "false",
-      "--binPackImportSelectors",
-      "false",
-      "--unindentTopLevelOperators",
-      "true",
-      "--alignMixedOwners",
-      "true",
-      "--indentOperators",
-      "false",
-      "--rewriteTokens",
-      "=>;⇒,<-;←",
-      "--reformatDocstrings",
-      "false",
-      "--statement",
-      "--bestEffortInDeeplyNestedCode",
-      "--debug",
-      "--maxColumn",
-      "99",
-      "--spaceBeforeContextBoundColon",
-      "true",
-      "--continuationIndentCallSite",
-      "2",
-      "--continuationIndentDefnSite",
-      "3",
-      "--javaDocs",
-      "--alignStripMarginStrings",
-      "false",
-      "--files",
-      "foo",
-      "-i"
+    "--reformatComments",
+    "false",
+    "--binPackImportSelectors",
+    "false",
+    "--unindentTopLevelOperators",
+    "true",
+    "--alignMixedOwners",
+    "true",
+    "--indentOperators",
+    "false",
+    "--rewriteTokens",
+    "=>;⇒,<-;←",
+    "--reformatDocstrings",
+    "false",
+    "--statement",
+    "--bestEffortInDeeplyNestedCode",
+    "--debug",
+    "--maxColumn",
+    "99",
+    "--spaceBeforeContextBoundColon",
+    "true",
+    "--continuationIndentCallSite",
+    "2",
+    "--continuationIndentDefnSite",
+    "3",
+    "--javaDocs",
+    "--alignStripMarginStrings",
+    "false",
+    "--files",
+    "foo",
+    "-i"
   )
 
   test("cli parses args") {
@@ -101,7 +101,7 @@ class CliTest extends FunSuite with DiffAssertions {
     Files.write(tmpFile, contents.getBytes)
     val externalConfigArgs = Array("--config", tmpFile.toAbsolutePath.toString)
     val expectedCustomStyle = expectedStyle.copy(
-        alignTokens = Set(AlignToken("#", "Template"), AlignToken("//", ".*")))
+      alignTokens = Set(AlignToken("#", "Template"), AlignToken("//", ".*")))
     val obtained = Cli.getConfig(externalConfigArgs)
     assert(obtained.exists(_.style == expectedCustomStyle))
   }
@@ -110,9 +110,9 @@ class CliTest extends FunSuite with DiffAssertions {
     val tmpFile = Files.createTempFile("prefix", ".scala")
     Files.write(tmpFile, unformatted.getBytes)
     val formatInPlace = Cli.Config.default.copy(
-        style = ScalafmtStyle.default.copy(maxColumn = 7),
-        files = Seq(tmpFile.toFile),
-        inPlace = true)
+      style = ScalafmtStyle.default.copy(maxColumn = 7),
+      files = Seq(tmpFile.toFile),
+      inPlace = true)
     Cli.run(formatInPlace)
     val obtained = FileOps.readFile(tmpFile.toString)
     assertNoDiff(obtained, expected)

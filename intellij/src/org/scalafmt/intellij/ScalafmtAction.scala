@@ -58,9 +58,9 @@ class ScalafmtAction extends AnAction {
           config.runner.copy(dialect = scala.meta.dialects.Sbt0137)
         else config.runner
       Scalafmt.format(
-          source,
-          style = config.style,
-          runner = runner
+        source,
+        style = config.style,
+        runner = runner
       ) match {
         case _: FormatResult.Incomplete =>
         case FormatResult.Failure(e: ParseException) =>
@@ -120,9 +120,7 @@ class ScalafmtAction extends AnAction {
     for {
       project <- Option(event.getData(CommonDataKeys.PROJECT))
       editor <- Option(
-                   FileEditorManager
-                     .getInstance(project)
-                     .getSelectedTextEditor)
+                 FileEditorManager.getInstance(project).getSelectedTextEditor)
       document <- Option(editor.getDocument)
       vfile <- Option(FileDocumentManager.getInstance().getFile(document))
     } yield FileDocument(vfile, document)

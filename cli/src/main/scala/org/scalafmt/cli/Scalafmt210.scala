@@ -19,7 +19,7 @@ class Scalafmt210 {
     val style = StyleCache
       .getStyleForFile(configFile)
       .getOrElse(
-          throw InvalidScalafmtConfiguration(new File(configFile))
+        throw InvalidScalafmtConfiguration(new File(configFile))
       )
     format(code, style, filename)
   }
@@ -38,11 +38,11 @@ class Scalafmt210 {
         error match {
           case FormatResult.Failure(e) =>
             logger.warn(
-                s"Failed to format file. Cause: ${e.getMessage}. Path: $relativePath")
+              s"Failed to format file. Cause: ${e.getMessage}. Path: $relativePath")
           // TODO(olafur) move Incomplete to Failure
           case FormatResult.Incomplete(_) =>
             logger.warn(
-                s"Failed to format file $relativePath. Cause: scalafmt bug, please report.")
+              s"Failed to format file $relativePath. Cause: scalafmt bug, please report.")
           case _ =>
         }
         code

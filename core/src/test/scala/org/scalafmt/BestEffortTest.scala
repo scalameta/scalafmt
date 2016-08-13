@@ -266,8 +266,8 @@ val options = List[OptionAssigner](
 
   def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
     val runner = scalafmtRunner.copy(
-        parser = parse,
-        optimizer = ScalafmtOptimizer.default.copy(bestEffortEscape = true))
+      parser = parse,
+      optimizer = ScalafmtOptimizer.default.copy(bestEffortEscape = true))
     val obtained = Scalafmt.format(t.original, t.style, runner).get
     debugResults += saveResult(t, obtained, t.only)
     // Disabled, these tests change too often. This feature will be supported

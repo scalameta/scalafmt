@@ -66,9 +66,10 @@ abstract class MicroBenchmark(path: String*) {
   @Benchmark
   def scalafmt_noPruneSlowStates(): String = {
     Scalafmt
-      .format(code,
-              runner = ScalafmtRunner.default.copy(optimizer =
-                    ScalafmtOptimizer.default.copy(pruneSlowStates = false)))
+      .format(
+        code,
+        runner = ScalafmtRunner.default.copy(
+          optimizer = ScalafmtOptimizer.default.copy(pruneSlowStates = false)))
       .get
   }
 

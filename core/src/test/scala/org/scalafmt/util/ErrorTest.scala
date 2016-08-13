@@ -8,9 +8,9 @@ import org.scalatest.FunSuite
 class ErrorTest extends FunSuite with DiffAssertions {
   test("errors are caught") {
     val nonSourceFile = Seq(
-        "class A {",
-        "val x = 1",
-        "println(1)"
+      "class A {",
+      "val x = 1",
+      "println(1)"
     )
     nonSourceFile.foreach { original =>
       Scalafmt.format(original, ScalafmtStyle.unitTest40) match {

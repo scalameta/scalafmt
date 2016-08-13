@@ -144,7 +144,7 @@ class FormatOps(val tree: Tree,
   def isJsNative(jsToken: Token): Boolean = {
     style.noNewlinesBeforeJsNative && jsToken.syntax == "js" &&
     owners(jsToken).parent.exists(
-        _.show[Structure].trim == """Term.Select(Term.Name("js"), Term.Name("native"))""")
+      _.show[Structure].trim == """Term.Select(Term.Name("js"), Term.Name("native"))""")
   }
 
   def isTripleQuote(token: Token): Boolean = token.syntax.startsWith("\"\"\"")
@@ -167,7 +167,7 @@ class FormatOps(val tree: Tree,
   final def startsStatement(tok: FormatToken): Boolean = {
     statementStarts.contains(hash(tok.right)) ||
     (tok.right.is[Comment] && tok.between.exists(_.is[LF]) &&
-        startsStatement(next(tok)))
+    startsStatement(next(tok)))
   }
 
   def parensRange(open: Token): Range =
@@ -185,9 +185,9 @@ class FormatOps(val tree: Tree,
       val owner = owners(token)
       val isSuperfluous = isSuperfluousParenthesis(token, owner)
       isSuperfluous && (owner match {
-            case _: Term.ApplyUnary | _: Term.Block => false
-            case _ => true
-          })
+        case _: Term.ApplyUnary | _: Term.Block => false
+        case _ => true
+      })
 
     }
   }
@@ -239,7 +239,7 @@ class FormatOps(val tree: Tree,
             !right.is[LeftBrace] &&
             // If comment is bound to comma, see unit/Comment.
             (!right.is[Comment] ||
-                  between.exists(_.is[LF])) =>
+              between.exists(_.is[LF])) =>
         Decision(t, splits.filter(_.modification.isNewline))
     }, expire.end)
   }
@@ -367,17 +367,17 @@ class FormatOps(val tree: Tree,
   def infixSplit(owner: Term.ApplyInfix, formatToken: FormatToken)(
       implicit line: sourcecode.Line): Split = {
     val modification = newlines2Modification(
-        formatToken.between,
-        rightIsComment = formatToken.right.isInstanceOf[Comment])
+      formatToken.between,
+      rightIsComment = formatToken.right.isInstanceOf[Comment])
     val indent = {
       if ((style.unindentTopLevelOperators ||
-              isTopLevelInfixApplication(owner)) &&
+          isTopLevelInfixApplication(owner)) &&
           (style.indentOperatorsIncludeFilter
-                .findFirstIn(owner.op.tokens.head.syntax)
-                .isEmpty ||
-              style.indentOperatorsExcludeFilter
-                .findFirstIn(owner.op.tokens.head.syntax)
-                .isDefined)) 0
+            .findFirstIn(owner.op.tokens.head.syntax)
+            .isEmpty ||
+          style.indentOperatorsExcludeFilter
+            .findFirstIn(owner.op.tokens.head.syntax)
+            .isDefined)) 0
       else if (!modification.isNewline &&
                !isAttachedComment(formatToken.right, formatToken.between)) 0
       else 2
@@ -425,14 +425,14 @@ class FormatOps(val tree: Tree,
     var expire = tree.tokens.head
     tree.tokens.foreach {
       case t if !inside && ((t, ownersMap(hash(t))) match {
-                case (LeftParen(), _: Term.Apply) =>
-                  // TODO(olafur) https://github.com/scalameta/scalameta/issues/345
-                  val x = true
-                  x
-                // Type compounds can be inside defn.defs
-                case (LeftBrace(), _: Type.Compound) => true
-                case _ => false
-              }) =>
+            case (LeftParen(), _: Term.Apply) =>
+              // TODO(olafur) https://github.com/scalameta/scalameta/issues/345
+              val x = true
+              x
+            // Type compounds can be inside defn.defs
+            case (LeftBrace(), _: Type.Compound) => true
+            case _ => false
+          }) =>
         inside = true
         expire = matchingParentheses(hash(t))
       case x if x == expire => inside = false
@@ -510,12 +510,12 @@ class FormatOps(val tree: Tree,
       lastToken: Token,
       indent: Int)(implicit line: sourcecode.Line) = {
     Seq(
-        Split(Space, 0)
-          .withPolicy(SingleLineBlock(lastToken))
-          .withIndent(Num(indent), lastToken, Left),
-        Split(NewlineT(acceptSpace = true), 1)
-          .withPolicy(breakOnEveryWith(owner, lastToken))
-          .withIndent(Num(indent), lastToken, Left)
+      Split(Space, 0)
+        .withPolicy(SingleLineBlock(lastToken))
+        .withIndent(Num(indent), lastToken, Left),
+      Split(NewlineT(acceptSpace = true), 1)
+        .withPolicy(breakOnEveryWith(owner, lastToken))
+        .withIndent(Num(indent), lastToken, Left)
     )
   }
 

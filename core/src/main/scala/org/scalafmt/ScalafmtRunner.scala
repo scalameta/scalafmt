@@ -40,8 +40,7 @@ object ScalafmtRunner {
                                parser = scala.meta.parsers.Parse.parseSource,
                                optimizer = ScalafmtOptimizer.default,
                                maxStateVisits = 1000000,
-    scala.meta.dialects.Scala211
-  )
+                               scala.meta.dialects.Scala211)
 
   /**
     * Same as [[default]], except formats the input as a statement/expression.

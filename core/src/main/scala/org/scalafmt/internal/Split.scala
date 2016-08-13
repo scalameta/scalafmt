@@ -80,7 +80,7 @@ case class Split(
       else
         throw new UnsupportedOperationException("Can't have two policies yet.")
     new Split(modification, cost, ignoreIf, indents, update, true, optimalAt)(
-        line)
+      line)
   }
 
   def withPenalty(penalty: Int): Split =

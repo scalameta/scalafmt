@@ -111,8 +111,7 @@ object State {
           }) {
         split // fits inside column
       } else {
-        split
-          .withPenalty(Constants.ExceedColumnPenalty + columnOnCurrentLine) // overflow
+        split.withPenalty(Constants.ExceedColumnPenalty + columnOnCurrentLine) // overflow
       }
     }
 

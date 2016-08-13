@@ -13,18 +13,18 @@ object AlignToken {
   val caseArrow = AlignToken("=>", "Case")
 
   val default = Set(
-      caseArrow,
-      AlignToken("extends", "Defn.(Class|Trait|Object)"),
-      AlignToken("//", ".*"),
-      AlignToken("{", "Template"),
-      AlignToken("}", "Template"),
-      AlignToken("%", applyInfix),
-      AlignToken("%%", applyInfix),
-      AlignToken("⇒", "Case"),
-      AlignToken("<-", "Enumerator.Generator"),
-      AlignToken("←", "Enumerator.Generator"),
-      AlignToken("->", applyInfix),
-      AlignToken("→", applyInfix),
-      AlignToken("=", "(Enumerator.Val|Defn.(Va(l|r)|Def|Type))")
+    caseArrow,
+    AlignToken("extends", "Defn.(Class|Trait|Object)"),
+    AlignToken("//", ".*"),
+    AlignToken("{", "Template"),
+    AlignToken("}", "Template"),
+    AlignToken("%", applyInfix),
+    AlignToken("%%", applyInfix),
+    AlignToken("⇒", "Case"),
+    AlignToken("<-", "Enumerator.Generator"),
+    AlignToken("←", "Enumerator.Generator"),
+    AlignToken("->", applyInfix),
+    AlignToken("→", applyInfix),
+    AlignToken("=", "(Enumerator.Val|Defn.(Va(l|r)|Def|Type))")
   )
 }

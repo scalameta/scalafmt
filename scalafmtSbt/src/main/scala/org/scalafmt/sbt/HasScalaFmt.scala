@@ -102,6 +102,6 @@ case class HasScalaFmt(reflective: ScalaFmtLike,
     }
 
     FileFunction.cached(cache)(FilesInfo.hash, FilesInfo.exists)(handleUpdate)(
-        files)
+      files)
   }
 }

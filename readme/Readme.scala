@@ -57,9 +57,7 @@ object Readme {
   def user(name: String) = a(href := s"$github/$name", s"@$name")
   def users(names: String*) =
     span(
-        names
-          .dropRight(1)
-          .map(x => span(user(x), ", ")) :+ user(names.last): _*
+      names.dropRight(1).map(x => span(user(x), ", ")) :+ user(names.last): _*
     )
 
   def issue(id: Int) = a(href := repo + s"/issues/$id", s"#$id")

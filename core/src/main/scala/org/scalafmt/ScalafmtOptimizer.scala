@@ -64,24 +64,24 @@ case class ScalafmtOptimizer(dequeueOnNewStatements: Boolean,
 
 object ScalafmtOptimizer {
   val default = ScalafmtOptimizer(
-      dequeueOnNewStatements = true,
-      escapeInPathologicalCases = true,
-      bestEffortEscape = false,
-      MaxVisitsPerToken = 513,
-      MaxEscapes = 16,
-      MaxDepth = 100,
-      acceptOptimalAtHints = true,
-      pruneSlowStates = true,
-      disableOptimizationsInsideSensitiveAreas = true,
-      recurseOnBlocks = true
+    dequeueOnNewStatements = true,
+    escapeInPathologicalCases = true,
+    bestEffortEscape = false,
+    MaxVisitsPerToken = 513,
+    MaxEscapes = 16,
+    MaxDepth = 100,
+    acceptOptimalAtHints = true,
+    pruneSlowStates = true,
+    disableOptimizationsInsideSensitiveAreas = true,
+    recurseOnBlocks = true
   )
 
   val noOptimizations = default.copy(
-      dequeueOnNewStatements = false,
-      escapeInPathologicalCases = false,
-      acceptOptimalAtHints = false,
-      disableOptimizationsInsideSensitiveAreas = false,
-      pruneSlowStates = false,
-      recurseOnBlocks = false
+    dequeueOnNewStatements = false,
+    escapeInPathologicalCases = false,
+    acceptOptimalAtHints = false,
+    disableOptimizationsInsideSensitiveAreas = false,
+    pruneSlowStates = false,
+    recurseOnBlocks = false
   )
 }

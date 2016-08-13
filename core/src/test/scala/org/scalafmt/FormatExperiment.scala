@@ -36,17 +36,17 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
   override val verbose = false
 
   val okRepos = Set(
-      "goose",
-      "scala-js",
-      "fastparse",
-      "scalding",
-      "spark",
-      "akka",
-      "intellij-scala",
-      "I wan't trailing commas!!!"
+    "goose",
+    "scala-js",
+    "fastparse",
+    "scalding",
+    "spark",
+    "akka",
+    "intellij-scala",
+    "I wan't trailing commas!!!"
   )
   val badRepos = Set(
-      "kafka"
+    "kafka"
   )
 
   def okScalaFile(scalaFile: ScalaFile): Boolean = {
@@ -67,8 +67,8 @@ trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
           assertFormatPreservesAst[Source](code, formatted)
           val formattedSecondTime = Scalafmt
             .format(
-                formatted,
-                ScalafmtStyle.default.copy(alignStripMarginStrings = false))
+              formatted,
+              ScalafmtStyle.default.copy(alignStripMarginStrings = false))
             .get
           try {
             assertNoDiff(formattedSecondTime, formatted, "Idempotency")

@@ -48,7 +48,7 @@ object TokenOps {
   def hash(token: Token): TokenHash = {
     val longHash: Long =
       (token.productPrefix.hashCode.toLong << (62 - 8)) |
-      (token.start.toLong << (62 - (8 + 28))) | token.end
+        (token.start.toLong << (62 - (8 + 28))) | token.end
     longHash
   }
 
@@ -207,12 +207,12 @@ object TokenOps {
   }
 
   val formatOffCode = Set(
-      "// @formatter:off", // IntelliJ
-      "// format: off" // scalariform
+    "// @formatter:off", // IntelliJ
+    "// format: off" // scalariform
   )
 
   val formatOnCode = Set(
-      "// @formatter:on", // IntelliJ
-      "// format: on" // scalariform
+    "// @formatter:on", // IntelliJ
+    "// format: on" // scalariform
   )
 }

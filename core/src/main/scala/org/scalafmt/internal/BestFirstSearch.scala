@@ -99,8 +99,9 @@ class BestFirstSearch(val formatOps: FormatOps,
     val split = Split(Provided(formatToken.between.map(_.syntax).mkString), 0)
     val result =
       if (formatToken.left.is[LeftBrace])
-        split.withIndent(
-            Num(2), matchingParentheses(hash(formatToken.left)), Right)
+        split.withIndent(Num(2),
+                         matchingParentheses(hash(formatToken.left)),
+                         Right)
       else split
     result
   }
@@ -248,7 +249,7 @@ class BestFirstSearch(val formatOps: FormatOps,
                   shortestPath(nextState, token, depth + 1, maxCost = 0)
                 if (hasReachedEof(nextNextState) ||
                     (nextNextState.splits.length < tokens.length && tokens(
-                            nextNextState.splits.length).left.start >= token.start)) {
+                      nextNextState.splits.length).left.start >= token.start)) {
                   optimalNotFound = false
 //                  logger.elem(split, splitToken, formatWriter.mkString(nextNextState.splits), tokens(nextNextState.splits.length))
                   Q.enqueue(nextNextState)

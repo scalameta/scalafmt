@@ -30,12 +30,12 @@ trait FormatAssertions extends FunSuiteLike with DiffAssertions {
               // TODO(olafur) Can produce false negatives, see
               // https://github.com/scalameta/scalameta/issues/342
               throw FormatterChangedAST(
-                  diffAsts(originalStructure, obtainedStructure),
-                  obtained)
+                diffAsts(originalStructure, obtainedStructure),
+                obtained)
             }
           case Parsed.Error(pos, message, details: ParseException) =>
             throw FormatterOutputDoesNotParse(
-                parseException2Message(details, obtained))
+              parseException2Message(details, obtained))
           case _ =>
         }
     }

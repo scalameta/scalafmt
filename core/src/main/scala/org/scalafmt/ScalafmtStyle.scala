@@ -161,8 +161,8 @@ case class ScalafmtStyle(
   lazy val alignMap: Map[String, Regex] =
     alignTokens.map(x => x.code -> x.owner.r).toMap
   ValidationOps.assertNonNegative(
-      continuationIndentCallSite,
-      continuationIndentDefnSite
+    continuationIndentCallSite,
+    continuationIndentDefnSite
   )
 }
 
@@ -173,42 +173,42 @@ object ScalafmtStyle {
   val indentOperatorsExcludeDefault = "^(&&|\\|\\|)$".r
 
   val default = ScalafmtStyle(
-      maxColumn = 80,
-      reformatDocstrings = true,
-      scalaDocs = true,
-      alignStripMarginStrings = false,
-      binPackArguments = false,
-      binPackParameters = false,
-      configStyleArguments = true,
-      danglingParentheses = false,
-      alignByOpenParenCallSite = true,
-      alignByOpenParenDefnSite = true,
-      binPackDotChains = false,
-      noNewlinesBeforeJsNative = false,
-      continuationIndentCallSite = 2,
-      continuationIndentDefnSite = 4,
-      alignMixedOwners = false,
-      alignTokens = Set.empty[AlignToken],
-      binPackImportSelectors = false,
-      spacesInImportCurlyBraces = false,
-      allowNewlineBeforeColonInMassiveReturnTypes = true,
-      binPackParentConstructors = false,
-      spaceAfterTripleEquals = false,
-      unindentTopLevelOperators = false,
-      indentOperatorsIncludeFilter = indentOperatorsIncludeDefault,
-      indentOperatorsExcludeFilter = indentOperatorsExcludeDefault,
-      alignByArrowEnumeratorGenerator = true,
-      rewriteTokens = Map.empty[String, String],
-      alignByIfWhileOpenParen = true,
-      spaceBeforeContextBoundColon = false
+    maxColumn = 80,
+    reformatDocstrings = true,
+    scalaDocs = true,
+    alignStripMarginStrings = false,
+    binPackArguments = false,
+    binPackParameters = false,
+    configStyleArguments = true,
+    danglingParentheses = false,
+    alignByOpenParenCallSite = true,
+    alignByOpenParenDefnSite = true,
+    binPackDotChains = false,
+    noNewlinesBeforeJsNative = false,
+    continuationIndentCallSite = 2,
+    continuationIndentDefnSite = 4,
+    alignMixedOwners = false,
+    alignTokens = Set.empty[AlignToken],
+    binPackImportSelectors = false,
+    spacesInImportCurlyBraces = false,
+    allowNewlineBeforeColonInMassiveReturnTypes = true,
+    binPackParentConstructors = false,
+    spaceAfterTripleEquals = false,
+    unindentTopLevelOperators = false,
+    indentOperatorsIncludeFilter = indentOperatorsIncludeDefault,
+    indentOperatorsExcludeFilter = indentOperatorsExcludeDefault,
+    alignByArrowEnumeratorGenerator = true,
+    rewriteTokens = Map.empty[String, String],
+    alignByIfWhileOpenParen = true,
+    spaceBeforeContextBoundColon = false
   )
 
   val intellij = default.copy(
-      continuationIndentCallSite = 2,
-      continuationIndentDefnSite = 2,
-      alignByOpenParenCallSite = false,
-      configStyleArguments = false,
-      danglingParentheses = true
+    continuationIndentCallSite = 2,
+    continuationIndentDefnSite = 2,
+    alignByOpenParenCallSite = false,
+    configStyleArguments = false,
+    danglingParentheses = true
   )
 
   def addAlign(style: ScalafmtStyle) = style.copy(
@@ -226,18 +226,18 @@ object ScalafmtStyle {
     * https://github.com/scala-js/scala-js/blob/master/CODINGSTYLE.md
     */
   val scalaJs = default.copy(
-      noNewlinesBeforeJsNative = true,
-      binPackArguments = true,
-      binPackParameters = true,
-      continuationIndentCallSite = 4,
-      continuationIndentDefnSite = 4,
-      binPackImportSelectors = true,
-      allowNewlineBeforeColonInMassiveReturnTypes = false,
-      scalaDocs = false,
-      binPackParentConstructors = true,
-      alignByArrowEnumeratorGenerator = false,
-      alignTokens = Set(AlignToken.caseArrow),
-      alignByIfWhileOpenParen = false
+    noNewlinesBeforeJsNative = true,
+    binPackArguments = true,
+    binPackParameters = true,
+    continuationIndentCallSite = 4,
+    continuationIndentDefnSite = 4,
+    binPackImportSelectors = true,
+    allowNewlineBeforeColonInMassiveReturnTypes = false,
+    scalaDocs = false,
+    binPackParentConstructors = true,
+    alignByArrowEnumeratorGenerator = false,
+    alignTokens = Set(AlignToken.caseArrow),
+    alignByIfWhileOpenParen = false
   )
 
   /**
@@ -245,25 +245,25 @@ object ScalafmtStyle {
     */
   val activeStyles =
     Map(
-        "Scala.js" -> scalaJs,
-        "IntelliJ" -> intellij
+      "Scala.js" -> scalaJs,
+      "IntelliJ" -> intellij
     ) ++ LoggerOps.name2style(
-        default,
-        defaultWithAlign
+      default,
+      defaultWithAlign
     )
 
   val availableStyles = {
     activeStyles ++ LoggerOps.name2style(
-        scalaJs
+      scalaJs
     )
   }.map { case (k, v) => k.toLowerCase -> v }
 
   // TODO(olafur) move these elsewhere.
   val testing = default.copy(alignStripMarginStrings = false)
   val unitTest80 = testing.copy(
-      maxColumn = 80,
-      continuationIndentCallSite = 4,
-      continuationIndentDefnSite = 4
+    maxColumn = 80,
+    continuationIndentCallSite = 4,
+    continuationIndentDefnSite = 4
   )
   val unitTest40 = unitTest80.copy(maxColumn = 40)
 }

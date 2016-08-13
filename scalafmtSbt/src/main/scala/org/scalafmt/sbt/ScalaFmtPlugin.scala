@@ -38,14 +38,14 @@ object ScalaFmtPlugin extends AutoPlugin {
       taskKey[Unit]("Format Scala sources using scalafmt")
 
     lazy val scalafmtTest: TaskKey[Unit] = taskKey[Unit](
-        "Test for mis-formatted Scala sources, " +
-          "exits with status 1 on failure.")
+      "Test for mis-formatted Scala sources, " +
+        "exits with status 1 on failure.")
 
     lazy val scalafmtConfig: TaskKey[Option[File]] =
       taskKey[Option[File]]("Configuration file for scalafmt.")
 
     lazy val hasScalafmt: TaskKey[HasScalaFmt] = taskKey[HasScalaFmt](
-        "Classloaded Scalafmt210 instance to overcome 2.10 incompatibility issues.")
+      "Classloaded Scalafmt210 instance to overcome 2.10 incompatibility issues.")
 
     def scalafmtSettings: Seq[Setting[_]] =
       noConfigScalafmtSettings ++
@@ -53,10 +53,10 @@ object ScalaFmtPlugin extends AutoPlugin {
         inConfig(Test)(configScalafmtSettings)
 
     lazy val reformatOnCompileSettings: Seq[Def.Setting[_]] = List(
-        compileInputs in (Compile, compile) <<=
-          (compileInputs in (Compile, compile)) dependsOn (scalafmt in Compile),
-        compileInputs in (Test, compile) <<=
-          (compileInputs in (Test, compile)) dependsOn (scalafmt in Test)
+      compileInputs in (Compile, compile) <<=
+        (compileInputs in (Compile, compile)) dependsOn (scalafmt in Compile),
+      compileInputs in (Test, compile) <<=
+        (compileInputs in (Test, compile)) dependsOn (scalafmt in Test)
     )
 
     lazy val scalafmtSettingsWithIt: Seq[Setting[_]] =
@@ -65,9 +65,9 @@ object ScalaFmtPlugin extends AutoPlugin {
 
     lazy val reformatOnCompileWithItSettings: Seq[Def.Setting[_]] =
       reformatOnCompileSettings ++ List(
-          compileInputs in (It, compile) <<=
-            (compileInputs in (It, compile)) dependsOn
-              (scalafmt in It)
+        compileInputs in (It, compile) <<=
+          (compileInputs in (It, compile)) dependsOn
+            (scalafmt in It)
       )
   }
   import autoImport._
@@ -80,50 +80,50 @@ object ScalaFmtPlugin extends AutoPlugin {
 
   def noConfigScalafmtSettings: Seq[Setting[_]] =
     List(
-        ivyConfigurations += config("scalafmt").hide,
-        libraryDependencies ++= Seq(
-            // scala-library needs to be explicitly added to fix
-            // https://github.com/olafurpg/scalafmt/issues/190
-            "org.scala-lang" % "scala-library" % org.scalafmt.Versions.scala % "scalafmt",
-            "com.geirsson" % "scalafmt-cli_2.11" % org.scalafmt.Versions.nightly % "scalafmt"
-        )
+      ivyConfigurations += config("scalafmt").hide,
+      libraryDependencies ++= Seq(
+        // scala-library needs to be explicitly added to fix
+        // https://github.com/olafurpg/scalafmt/issues/190
+        "org.scala-lang" % "scala-library" % org.scalafmt.Versions.scala % "scalafmt",
+        "com.geirsson" % "scalafmt-cli_2.11" % org.scalafmt.Versions.nightly % "scalafmt"
+      )
     )
 
   def configScalafmtSettings: Seq[Setting[_]] =
     List(
-        (sourceDirectories in hasScalafmt) := unmanagedSourceDirectories.value,
-        includeFilter in Global in hasScalafmt := "*.scala",
-        scalafmtConfig in Global := None,
-        hasScalafmt := {
-          val report = update.value
-          val jars = report.select(configurationFilter("scalafmt"))
-          HasScalaFmt(getScalafmtLike(
-                          new URLClassLoader(jars.map(_.toURI.toURL).toArray,
+      (sourceDirectories in hasScalafmt) := unmanagedSourceDirectories.value,
+      includeFilter in Global in hasScalafmt := "*.scala",
+      scalafmtConfig in Global := None,
+      hasScalafmt := {
+        val report = update.value
+        val jars = report.select(configurationFilter("scalafmt"))
+        HasScalaFmt(
+          getScalafmtLike(new URLClassLoader(jars.map(_.toURI.toURL).toArray,
                                              null),
                           streams.value),
-                      scalafmtConfig.value,
-                      streams.value,
-                      (sourceDirectories in hasScalafmt).value.toList,
-                      (includeFilter in hasScalafmt).value,
-                      (excludeFilter in hasScalafmt).value,
-                      thisProjectRef.value)
-        },
-        scalafmt := hasScalafmt.value.writeFormattedContentsToFiles(),
-        scalafmtTest := hasScalafmt.value.testProjectIsFormatted()
+          scalafmtConfig.value,
+          streams.value,
+          (sourceDirectories in hasScalafmt).value.toList,
+          (includeFilter in hasScalafmt).value,
+          (excludeFilter in hasScalafmt).value,
+          thisProjectRef.value)
+      },
+      scalafmt := hasScalafmt.value.writeFormattedContentsToFiles(),
+      scalafmtTest := hasScalafmt.value.testProjectIsFormatted()
     )
 
   private def getScalafmtLike(classLoader: URLClassLoader,
                               streams: TaskStreams): ScalaFmtLike = {
     val loadedClass =
       new ReflectiveDynamicAccess(classLoader).createInstanceFor[ScalaFmtLike](
-          "org.scalafmt.cli.Scalafmt210",
-          Seq.empty)
+        "org.scalafmt.cli.Scalafmt210",
+        Seq.empty)
 
     loadedClass match {
       case Success(x) => x
       case Failure(e) =>
         streams.log.error(
-            s"""Unable to classload ScalaFmt, please file an issue:
+          s"""Unable to classload ScalaFmt, please file an issue:
                |https://github.com/olafurpg/scalafmt/issues
                |
                |URLs: ${classLoader.getURLs.mkString("\n")}

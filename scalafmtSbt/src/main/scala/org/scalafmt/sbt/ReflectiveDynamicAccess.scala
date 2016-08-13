@@ -54,7 +54,7 @@ class ReflectiveDynamicAccess(val classLoader: ClassLoader) {
       if (t.isInstance(obj)) obj.asInstanceOf[T]
       else
         throw new ClassCastException(
-            s"${clazz.getName} is not a subtype of $t")
+          s"${clazz.getName} is not a subtype of $t")
     } recover {
       case i: InvocationTargetException if i.getTargetException ne null ⇒
         throw i.getTargetException

@@ -41,8 +41,8 @@ def foo(
   testsToRun.foreach(runTest(run))
 
   val style = ScalafmtStyle.default.copy(
-      continuationIndentCallSite = 5,
-      continuationIndentDefnSite = 3
+    continuationIndentCallSite = 5,
+    continuationIndentDefnSite = 3
   )
 
   def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {

@@ -85,25 +85,25 @@ object Cli {
   implicit val styleReads: Read[ScalafmtStyle] = Read.reads { styleName =>
     ScalafmtStyle.availableStyles.getOrElse(styleName.toLowerCase, {
       throw new IllegalArgumentException(
-          s"Unknown style name $styleName. Expected one of ${ScalafmtStyle.activeStyles.keys}")
+        s"Unknown style name $styleName. Expected one of ${ScalafmtStyle.activeStyles.keys}")
     })
   }
   val dialectsByName: Map[String, Dialect] = {
     import scala.meta.dialects._
     LoggerOps
       .name2style[Dialect](
-          Sbt0136,
-          Sbt0137,
-          Scala210,
-          Scala211,
-          Dotty
+        Sbt0136,
+        Sbt0137,
+        Scala210,
+        Scala211,
+        Dotty
       )
       .map { case (a, b) => a.toLowerCase -> b }
   }
   implicit val dialectReads: Read[Dialect] = Read.reads { input =>
     dialectsByName.getOrElse(input.toLowerCase, {
       throw new IllegalArgumentException(
-          s"Unknown dialect name $input. Expected one of ${dialectsByName.keys}")
+        s"Unknown dialect name $input. Expected one of ${dialectsByName.keys}")
     })
   }
 
@@ -149,12 +149,12 @@ object Cli {
         c.copy(debug = true)
       } text "print out debug information"
       opt[Unit]("statement") action { (_, c) =>
-        c.copy(runner =
-              c.runner.copy(parser = scala.meta.parsers.Parse.parseStat))
+        c.copy(
+          runner = c.runner.copy(parser = scala.meta.parsers.Parse.parseStat))
       } text "parse the input as a statement instead of compilation unit"
       opt[Unit]("bestEffortInDeeplyNestedCode") action { (_, c) =>
-        c.copy(runner = c.runner.copy(optimizer =
-                  ScalafmtOptimizer.default.copy(bestEffortEscape = true)))
+        c.copy(runner = c.runner.copy(
+          optimizer = ScalafmtOptimizer.default.copy(bestEffortEscape = true)))
       } text "(experimental) If set, scalafmt will make a best-effort to format deeply nested code instead of failing with SearchStateExplodedException."
       opt[Unit]('v', "version") action printAndExit(inludeUsage = false) text "print version "
       opt[Unit]("build-info") action {
@@ -220,16 +220,18 @@ object Cli {
         c.copy(style = c.style.copy(spacesInImportCurlyBraces = bool))
       } text s"See ScalafmtStyle scaladoc."
       opt[Boolean]("danglingParentheses") action { (bool, c) =>
-        c.copy(style = c.style.copy(configStyleArguments = !bool,
-                                    danglingParentheses = bool))
+        c.copy(
+          style = c.style.copy(configStyleArguments = !bool,
+                               danglingParentheses = bool))
       } text s"See ScalafmtConfig scaladoc. --alignByOpenParenCallSite false is recommended."
       opt[Boolean]("spaceAfterTripleEquals") action { (bool, c) =>
         c.copy(style = c.style.copy(spaceAfterTripleEquals = bool))
       } text s"See ScalafmtConfig scaladoc."
       opt[Boolean]("allowNewlineBeforeColonInMassiveReturnTypes") action {
         (bool, c) =>
-          c.copy(style = c.style.copy(
-                  allowNewlineBeforeColonInMassiveReturnTypes = bool))
+          c.copy(
+            style =
+              c.style.copy(allowNewlineBeforeColonInMassiveReturnTypes = bool))
       } text s"See ScalafmtStyle scaladoc."
       opt[Boolean]("unindentTopLevelOperators") action { (bool, c) =>
         c.copy(style = c.style.copy(unindentTopLevelOperators = bool))
@@ -252,8 +254,9 @@ object Cli {
             (ScalafmtStyle.indentOperatorsIncludeAkka,
              ScalafmtStyle.indentOperatorsExcludeAkka)
         }
-        c.copy(style = c.style.copy(indentOperatorsIncludeFilter = include,
-                                    indentOperatorsExcludeFilter = exclude))
+        c.copy(
+          style = c.style.copy(indentOperatorsIncludeFilter = include,
+                               indentOperatorsExcludeFilter = exclude))
       } text s"See ScalafmtConfig scaladoc."
       opt[Seq[String]]("rewriteTokens") action { (str, c) =>
         val rewriteTokens = Map(gimmeStrPairs(str): _*)
@@ -360,7 +363,7 @@ object Cli {
                   .convert(System.nanoTime() - start, TimeUnit.NANOSECONDS)
                 val i = counter.incrementAndGet()
                 logger.info(
-                    f"${i + 1}%3s/${inputMethods.length} file:$filename%-50s (${elapsed}ms)")
+                  f"${i + 1}%3s/${inputMethods.length} file:$filename%-50s (${elapsed}ms)")
                 if (inputMethod.code != formatted) {
                   FileOps.writeFile(filename, formatted)
                 }
@@ -414,7 +417,7 @@ object Cli {
     scoptParser.parse(args, Config.default) match {
       case Some(c) if c.configFile.exists(_.isFile) =>
         parseConfigFile(FileOps.readFile(c.configFile.get)).map(x =>
-              c.copy(style = x.style))
+          c.copy(style = x.style))
       case x => x
     }
   }

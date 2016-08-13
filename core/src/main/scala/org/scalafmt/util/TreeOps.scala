@@ -178,9 +178,9 @@ object TreeOps {
   @tailrec
   final def childOf(child: Tree, tree: Tree): Boolean = {
     child == tree || (child.parent match {
-          case Some(parent) => childOf(parent, tree)
-          case _ => false
-        })
+      case Some(parent) => childOf(parent, tree)
+      case _ => false
+    })
   }
 
   def childOf(tok: Token, tree: Tree, owners: Map[TokenHash, Tree]): Boolean =
@@ -340,7 +340,7 @@ object TreeOps {
   def startsSelectChain(tree: Tree): Boolean = tree match {
     case select: Term.Select =>
       !(existsChild(_.is[Term.Select])(select) &&
-            existsChild(splitApplyIntoLhsAndArgs.isDefinedAt)(select))
+        existsChild(splitApplyIntoLhsAndArgs.isDefinedAt)(select))
     case _ => false
   }
 
@@ -386,7 +386,7 @@ object TreeOps {
         val i = enums.indexOf(generator)
         if (i == -1)
           throw new IllegalStateException(
-              s"Generator $generator is part of parents enums.")
+            s"Generator $generator is part of parents enums.")
         enums
           .drop(i + 1)
           .takeWhile(_.is[Enumerator.Guard])

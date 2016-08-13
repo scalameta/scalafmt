@@ -25,20 +25,20 @@ import scala.meta.parsers.ParseException
 trait HasTests extends FunSuiteLike with FormatAssertions {
   import LoggerOps._
   val scalafmtRunner = ScalafmtRunner.default.copy(
-      debug = true,
-      maxStateVisits = 150000,
-      eventCallback = {
-        case CreateFormatOps(ops) => Debug.formatOps = ops
-        case VisitToken(tok) => Debug.visit(tok)
-        case explored: Explored if explored.n % 10000 == 0 =>
-          logger.elem(explored)
-        case Enqueue(split) => Debug.enqueued(split)
-        case CompleteFormat(explored, state, tokens) =>
-          Debug.explored += explored
-          Debug.state = state
-          Debug.tokens = tokens
-        case _ =>
-      }
+    debug = true,
+    maxStateVisits = 150000,
+    eventCallback = {
+      case CreateFormatOps(ops) => Debug.formatOps = ops
+      case VisitToken(tok) => Debug.visit(tok)
+      case explored: Explored if explored.n % 10000 == 0 =>
+        logger.elem(explored)
+      case Enqueue(split) => Debug.enqueued(split)
+      case CompleteFormat(explored, state, tokens) =>
+        Debug.explored += explored
+        Debug.state = state
+        Debug.tokens = tokens
+      case _ =>
+    }
   )
   lazy val debugResults = mutable.ArrayBuilder.make[Result]
   val testDir = "core/src/test/resources"
@@ -100,9 +100,9 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
       case "scalajs" => ScalafmtStyle.scalaJs
       case "dangling" =>
         ScalafmtStyle.unitTest80.copy(maxColumn = 40,
-                                   alignByOpenParenCallSite = false,
-                                   danglingParentheses = true,
-                                   configStyleArguments = false)
+                                      alignByOpenParenCallSite = false,
+                                      danglingParentheses = true,
+                                      configStyleArguments = false)
       case "noAlign" =>
         ScalafmtStyle.unitTest80
           .copy(maxColumn = 40, alignByOpenParenCallSite = false)
@@ -110,25 +110,26 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
         ScalafmtStyle.unitTest80.copy(alignStripMarginStrings = true)
       case "spaces" =>
         ScalafmtStyle.unitTest80.copy(spacesInImportCurlyBraces = true,
-                                   spaceAfterTripleEquals = true)
+                                      spaceAfterTripleEquals = true)
       case "align" => ScalafmtStyle.addAlign(ScalafmtStyle.unitTest80)
       case "parentConstructors" =>
         ScalafmtStyle.unitTest80.copy(
-            binPackParentConstructors = true,
-            maxColumn = 40
+          binPackParentConstructors = true,
+          maxColumn = 40
         )
       case "noIndentOperators" =>
-        ScalafmtStyle.unitTest80.copy(unindentTopLevelOperators = true,
-                                   indentOperatorsIncludeFilter =
-                                     ScalafmtStyle.indentOperatorsIncludeAkka,
-                                   indentOperatorsExcludeFilter =
-                                     ScalafmtStyle.indentOperatorsExcludeAkka)
+        ScalafmtStyle.unitTest80.copy(
+          unindentTopLevelOperators = true,
+          indentOperatorsIncludeFilter =
+            ScalafmtStyle.indentOperatorsIncludeAkka,
+          indentOperatorsExcludeFilter =
+            ScalafmtStyle.indentOperatorsExcludeAkka)
       case "unicode" =>
         ScalafmtStyle.unitTest80.copy(
-            rewriteTokens = Map(
-                "=>" -> "⇒",
-                "<-" -> "←"
-            )
+          rewriteTokens = Map(
+            "=>" -> "⇒",
+            "<-" -> "←"
+          )
         )
       case "spacesBeforeContextBound" =>
         ScalafmtStyle.unitTest80.copy(spaceBeforeContextBoundColon = true)
@@ -169,8 +170,8 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
             } catch {
               case e: ParseException =>
                 fail(
-                    "test does not parse" +
-                      parseException2Message(e, t.original))
+                  "test does not parse" +
+                    parseException2Message(e, t.original))
             }
           case None => fail(s"Found no parse for filename ${t.filename}")
         }
