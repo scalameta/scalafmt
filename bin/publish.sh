@@ -37,7 +37,7 @@ function confirm-release() {
 }
 
 function assemble-jar() {
-    sbt assembly
+    sbt cli/assembly
 }
 
 function push-tag() {
