@@ -5,7 +5,6 @@
 package org.scalafmt.intellij
 
 import java.io.File
-
 import scala.collection.mutable
 import scala.meta.parsers.ParseException
 
@@ -29,9 +28,19 @@ import org.scalafmt.ScalafmtStyle
 import org.scalafmt.cli.Cli.Config
 import org.scalafmt.cli.StyleCache
 import org.scalafmt.util.FileOps
+import org.scalafmt.util.LoggerOps
 
 case class FileDocument(file: VirtualFile, document: Document) {
+  def isSbt: Boolean = file.getFileType.getName == "SBT"
   def isScala: Boolean = file.getFileType.getName == "Scala"
+  def canFormat: Boolean = {
+    LoggerOps.logger.elem(
+      file.getFileType.getName,
+      file.getPath
+    )
+    isScala || isSbt
+  }
+
 }
 
 object StyleChangedCache {
@@ -42,12 +51,16 @@ class ScalafmtAction extends AnAction {
 
   override def actionPerformed(event: AnActionEvent): Unit = {
     val config = getStyle(event)
-    getCurrentFileDocument(event).filter(_.isScala).foreach { fileDoc =>
+    getCurrentFileDocument(event).filter(_.canFormat).foreach { fileDoc =>
       val source = fileDoc.document.getText()
+      val runner =
+        if (fileDoc.isSbt)
+          config.runner.copy(dialect = scala.meta.dialects.Sbt0137)
+        else config.runner
       Scalafmt.format(
           source,
           style = config.style,
-          runner = config.runner
+          runner = runner
       ) match {
         case _: FormatResult.Incomplete =>
         case FormatResult.Failure(e: ParseException) =>
