@@ -86,8 +86,8 @@ val msg =
 val msg =
   s'''AAAAAAA
      |${mkString(
-         aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,
-         bbb)}
+       aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,
+       bbb)}
      |'''.stripMargin
 <<< Align | margin 2
 val msg = s'''UNABLE TO FORMAT,

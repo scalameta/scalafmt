@@ -156,9 +156,6 @@ object Cli {
       opt[Int]("maxColumn") action { (col, c) =>
         c.copy(style = c.style.copy(maxColumn = col))
       } text s"See ScalafmtStyle scaladoc."
-      opt[Int]("superfluousParensIndent") action { (n, c) =>
-        c.copy(style = c.style.copy(superfluousParensIndent = n))
-      } text s"See ScalafmtStyle scaladoc."
       opt[Int]("continuationIndentCallSite") action { (n, c) =>
         c.copy(style = c.style.copy(continuationIndentCallSite = n))
       } text s"See ScalafmtStyle scaladoc."

@@ -1,19 +1,17 @@
 80 columns                                                                     |
 <<< align by superfluous (
-     val weights: Map[Int, Double] =
-     (for {
+     val weights: Map[Int, Double] = (for {
        group <- groupedWeights
        item <- group.items
        index <- model.itemStringIntMap.get(item)
      } yield (index, group.weight)).toMap.withDefaultValue(1.0)
 
 >>>
-val weights: Map[Int, Double] =
-  (for {
-     group <- groupedWeights
-     item <- group.items
-     index <- model.itemStringIntMap.get(item)
-   } yield (index, group.weight)).toMap.withDefaultValue(1.0)
+val weights: Map[Int, Double] = (for {
+  group <- groupedWeights
+  item <- group.items
+  index <- model.itemStringIntMap.get(item)
+} yield (index, group.weight)).toMap.withDefaultValue(1.0)
 <<< Keep multiline like if #256
 for ((key, value) <- properties)
     result(key) = value

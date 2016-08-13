@@ -126,9 +126,9 @@ while (!hasReachedEof(curr) &&
 >>>
 if (fullInfo)
   return (candidates.toSeq.map(c =>
-                forMap(c, withLocalTypeInference = false, checkFast = false)) ++
-            candidates.toSeq.map(c =>
-                  forMap(c, withLocalTypeInference = true, checkFast = false)))
+    forMap(c, withLocalTypeInference = false, checkFast = false)) ++
+    candidates.toSeq.map(c =>
+      forMap(c, withLocalTypeInference = true, checkFast = false)))
     .flatMap(_.toSeq)
     .map(_._1)
     .toSet

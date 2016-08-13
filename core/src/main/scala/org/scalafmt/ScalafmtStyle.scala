@@ -31,12 +31,6 @@ import sourcecode.Text
   *                         go on the same line or will have one line each.
   * @param noNewlinesBeforeJsNative If true, a newline will never be placed in
   *                                 front of js.native.
-  * @param superfluousParensIndent    Indent width inside unnecessary parentheses.
-  *                                   For example:
-  *                                   (function(
-  *
-  *                                         baab) && // indent 4
-  *                                       caab)
   * @param danglingParentheses If true
   *                            AND @binPackArguments is true
   *                            AND @configStyleArguments is false, then this
@@ -71,25 +65,25 @@ import sourcecode.Text
   *                                  scalafmt will fit as many parent constructors
   *                                  on a single line. If false, each parent
   *                                  constructor gets its own line.
-  * @param unindentAllOperators If true, allows no indentation on infix operators
-  *                             in non-top-level functions. For example,
+  * @param unindentTopLevelOperators If true, allows no indentation on infix operators
+  *                                  in non-top-level functions. For example,
   *
-  *                             function(
-  *                                 a &&
-  *                                 b
-  *                             )
+  *                                  function(
+  *                                      a &&
+  *                                      b
+  *                                  )
   *
-  *                             If false, only allows 0 space indentation for
-  *                             top-level statements
+  *                                  If false, only allows 0 space indentation for
+  *                                  top-level statements
   *
-  *                             a &&
-  *                             b
-  *                             function(
-  *                                 a &&
-  *                                   b
-  *                             )
+  *                                  a &&
+  *                                  b
+  *                                  function(
+  *                                      a &&
+  *                                        b
+  *                                  )
   *
-  *                             Context: https://github.com/scala-js/scala-js/blob/master/CODINGSTYLE.md#long-expressions-with-binary-operators
+  *                                  Context: https://github.com/scala-js/scala-js/blob/master/CODINGSTYLE.md#long-expressions-with-binary-operators
   * @param indentOperatorsIncludeFilter Regexp for which infix operators should
   *                                     indent by 2 spaces. For example, .*=
   *                                     produces this output
@@ -143,7 +137,6 @@ case class ScalafmtStyle(
     configStyleArguments: Boolean,
     binPackDotChains: Boolean,
     noNewlinesBeforeJsNative: Boolean,
-    superfluousParensIndent: Int,
     danglingParentheses: Boolean,
     alignByOpenParenCallSite: Boolean,
     alignByOpenParenDefnSite: Boolean,
@@ -191,8 +184,7 @@ object ScalafmtStyle {
       alignByOpenParenDefnSite = true,
       binPackDotChains = false,
       noNewlinesBeforeJsNative = false,
-      superfluousParensIndent = -1,
-      continuationIndentCallSite = 4,
+      continuationIndentCallSite = 2,
       continuationIndentDefnSite = 4,
       alignMixedOwners = false,
       alignTokens = Set.empty[AlignToken],
@@ -218,10 +210,12 @@ object ScalafmtStyle {
       danglingParentheses = true
   )
 
-  val defaultWithAlign = default.copy(
-      alignMixedOwners = true,
-      alignTokens = AlignToken.default
+  def addAlign(style: ScalafmtStyle) = style.copy(
+    alignMixedOwners = true,
+    alignTokens = AlignToken.default
   )
+
+  val defaultWithAlign = addAlign(default)
 
   val default40 = default.copy(maxColumn = 40)
   val default120 = default.copy(maxColumn = 120)
@@ -234,7 +228,8 @@ object ScalafmtStyle {
       noNewlinesBeforeJsNative = true,
       binPackArguments = true,
       binPackParameters = true,
-      superfluousParensIndent = 4,
+      continuationIndentCallSite = 4,
+      continuationIndentDefnSite = 4,
       binPackImportSelectors = true,
       allowNewlineBeforeColonInMassiveReturnTypes = false,
       scalaDocs = false,
@@ -269,6 +264,10 @@ object ScalafmtStyle {
 
   // TODO(olafur) move these elsewhere.
   val testing = default.copy(alignStripMarginStrings = false)
-  val unitTest80 = testing.copy(maxColumn = 80)
-  val unitTest40 = testing.copy(maxColumn = 40)
+  val unitTest80 = testing.copy(
+      maxColumn = 80,
+      continuationIndentCallSite = 4,
+      continuationIndentDefnSite = 4
+  )
+  val unitTest40 = unitTest80.copy(maxColumn = 40)
 }
