@@ -137,9 +137,46 @@ class CliTest extends FunSuite with DiffAssertions {
     val obtained = FileOps.readFile(tmpFile.toString)
     assertNoDiff(obtained, unformatted)
   }
+
   test("--style Scala.js is OK") {
     val obtained =
       Cli.scoptParser.parse(Seq("--style", "Scala.js"), Cli.Config.default)
     assert(obtained.get.style == ScalafmtStyle.scalaJs)
+  }
+
+  test("handles .scala and .sbt files") {
+    val dir = File.createTempFile("dir", "dir")
+    dir.delete()
+    dir.mkdir()
+    val file1 = File.createTempFile("foo", ".scala", dir)
+    val file2 = File.createTempFile("foo", ".sbt", dir)
+    val original1 = """
+        |object   a {
+        |println(1)
+        |}
+      """.stripMargin
+    val expected1 = """
+        |object a {
+        |  println(1)
+        |}
+      """.stripMargin
+    val original2 = """
+        |lazy val x = project
+        |.dependsOn(core)
+        |
+        |lazy val y =    project.dependsOn(core)
+      """.stripMargin
+    val expected2 = """
+        |lazy val x = project.dependsOn(core)
+        |
+        |lazy val y = project.dependsOn(core)
+      """.stripMargin
+    FileOps.writeFile(file1.getAbsolutePath, original1)
+    FileOps.writeFile(file2.getAbsolutePath, original2)
+    val config = Cli.Config.default.copy(inPlace = true, files = Seq(dir))
+    Cli.run(config)
+    val obtained1 = FileOps.readFile(file1)
+    val obtained2 = FileOps.readFile(file2)
+    assertNoDiff(obtained2, expected2)
   }
 }

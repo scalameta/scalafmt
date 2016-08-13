@@ -2,6 +2,7 @@ package org.scalafmt
 
 import scala.util.matching.Regex
 
+import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.ValidationOps
 import sourcecode.Text
 
@@ -239,11 +240,6 @@ object ScalafmtStyle {
       alignByIfWhileOpenParen = false
   )
 
-  // TODO(olafur) parameterize
-  private def name2style(
-      styles: Text[ScalafmtStyle]*): Map[String, ScalafmtStyle] =
-    styles.map(x => x.source -> x.value).toMap
-
   /**
     * Ready styles provided by scalafmt.
     */
@@ -251,13 +247,13 @@ object ScalafmtStyle {
     Map(
         "Scala.js" -> scalaJs,
         "IntelliJ" -> intellij
-    ) ++ name2style(
+    ) ++ LoggerOps.name2style(
         default,
         defaultWithAlign
     )
 
   val availableStyles = {
-    activeStyles ++ name2style(
+    activeStyles ++ LoggerOps.name2style(
         scalaJs
     )
   }.map { case (k, v) => k.toLowerCase -> v }

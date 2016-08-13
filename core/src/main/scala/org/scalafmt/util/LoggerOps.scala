@@ -8,11 +8,17 @@ import scala.meta.tokens.Token
 import scala.meta.tokens.Token.Interpolation
 import scala.meta.tokens.Tokens
 
+import sourcecode.Text
+
 /**
   * Debugging utility.
   */
 object LoggerOps {
   val logger = PrintlnLogger
+
+  // TODO(olafur) parameterize
+  def name2style[T](styles: Text[T]*): Map[String, T] =
+    styles.map(x => x.source -> x.value).toMap
 
   def log(split: Split): String = s"$split"
 

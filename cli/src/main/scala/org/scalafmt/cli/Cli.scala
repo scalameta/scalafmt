@@ -1,5 +1,6 @@
 package org.scalafmt.cli
 
+import scala.meta.Dialect
 import scala.util.Try
 import scala.util.control.NonFatal
 
@@ -56,6 +57,7 @@ object Cli {
                     inPlace: Boolean,
                     testing: Boolean,
                     debug: Boolean,
+                    sbtFiles: Boolean,
                     style: ScalafmtStyle,
                     runner: ScalafmtRunner,
                     range: Set[Range]) {
@@ -66,6 +68,7 @@ object Cli {
                          None,
                          inPlace = false,
                          testing = false,
+                         sbtFiles = true,
                          debug = false,
                          style = ScalafmtStyle.default,
                          runner = ScalafmtRunner.default,
@@ -83,6 +86,24 @@ object Cli {
     ScalafmtStyle.availableStyles.getOrElse(styleName.toLowerCase, {
       throw new IllegalArgumentException(
           s"Unknown style name $styleName. Expected one of ${ScalafmtStyle.activeStyles.keys}")
+    })
+  }
+  val dialectsByName: Map[String, Dialect] = {
+    import scala.meta.dialects._
+    LoggerOps
+      .name2style[Dialect](
+          Sbt0136,
+          Sbt0137,
+          Scala210,
+          Scala211,
+          Dotty
+      )
+      .map { case (a, b) => a.toLowerCase -> b }
+  }
+  implicit val dialectReads: Read[Dialect] = Read.reads { input =>
+    dialectsByName.getOrElse(input.toLowerCase, {
+      throw new IllegalArgumentException(
+          s"Unknown dialect name $input. Expected one of ${dialectsByName.keys}")
     })
   }
 
@@ -162,6 +183,9 @@ object Cli {
       opt[Int]("continuationIndentDefnSite") action { (n, c) =>
         c.copy(style = c.style.copy(continuationIndentDefnSite = n))
       } text s"See ScalafmtStyle scaladoc."
+      opt[Boolean]("formatSbtFiles") action { (b, c) =>
+        c.copy(sbtFiles = b)
+      } text s"If true, formats .sbt files as well."
       opt[Boolean]("reformatDocstrings") action { (b, c) =>
         c.copy(style = c.style.copy(reformatDocstrings = b))
       } text s"deprecated, replaced by reformatComments"
@@ -298,11 +322,16 @@ object Cli {
       Seq(StdinCode(contents))
     } else {
       config.files.flatMap { file =>
-        FileOps.listFiles(file).withFilter(_.endsWith(".scala")).map {
-          filename =>
+        FileOps
+          .listFiles(file)
+          .withFilter { x =>
+            x.endsWith(".scala") ||
+            (config.sbtFiles && x.endsWith(".sbt"))
+          }
+          .map { filename =>
             val contents = FileOps.readFile(filename)
             FileContents(filename, contents)
-        }
+          }
       }
     }
   }
@@ -314,10 +343,16 @@ object Cli {
     inputMethods.par.foreach {
       case inputMethod =>
         val start = System.nanoTime()
+        val runner = inputMethod match {
+          case FileContents(filename, _)
+              if config.sbtFiles && filename.endsWith(".sbt") =>
+            config.runner.copy(dialect = scala.meta.dialects.Sbt0137)
+          case _ => config.runner
+        }
         Scalafmt.format(inputMethod.code,
                         style = config.style,
                         range = config.range,
-                        runner = config.runner) match {
+                        runner = runner) match {
           case FormatResult.Success(formatted) =>
             inputMethod match {
               case FileContents(filename, _) if config.inPlace =>
