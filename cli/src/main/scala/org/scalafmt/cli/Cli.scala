@@ -186,9 +186,6 @@ object Cli {
       opt[Boolean]("formatSbtFiles") action { (b, c) =>
         c.copy(sbtFiles = b)
       } text s"If true, formats .sbt files as well."
-      opt[Boolean]("reformatDocstrings") action { (b, c) =>
-        c.copy(style = c.style.copy(reformatDocstrings = b))
-      } text s"deprecated, replaced by reformatComments"
       opt[Boolean]("reformatComments") action { (b, c) =>
         c.copy(style = c.style.copy(reformatDocstrings = b))
       } text s"See ScalafmtStyle scaladoc."
@@ -198,9 +195,6 @@ object Cli {
       opt[Unit]("javaDocs") action { (_, c) =>
         c.copy(style = c.style.copy(scalaDocs = false))
       } text s"Sets scalaDocs to false. See ScalafmtStyle scaladoc."
-      opt[Boolean]("alignStripMarginStrings") action { (bool, c) =>
-        c.copy(style = c.style.copy(alignStripMarginStrings = bool))
-      } text s"(deprecated) Use assumeStandardLibraryStripMargin, will be removed in 0.3."
       opt[Boolean]("assumeStandardLibraryStripMargin") action { (bool, c) =>
         c.copy(style = c.style.copy(alignStripMarginStrings = bool))
       } text s"See ScalafmtStyle scaladoc."

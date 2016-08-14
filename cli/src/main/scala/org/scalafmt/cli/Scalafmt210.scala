@@ -39,10 +39,6 @@ class Scalafmt210 {
           case FormatResult.Failure(e) =>
             logger.warn(
               s"Failed to format file. Cause: ${e.getMessage}. Path: $relativePath")
-          // TODO(olafur) move Incomplete to Failure
-          case FormatResult.Incomplete(_) =>
-            logger.warn(
-              s"Failed to format file $relativePath. Cause: scalafmt bug, please report.")
           case _ =>
         }
         code

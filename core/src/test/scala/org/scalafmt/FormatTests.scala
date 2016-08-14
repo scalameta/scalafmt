@@ -30,6 +30,8 @@ import scala.concurrent.Future
 import scala.meta.Tree
 import scala.meta.parsers.Parse
 
+import org.scalafmt.Error.Incomplete
+
 // TODO(olafur) property test: same solution without optimization or timeout.
 
 class FormatTests
@@ -59,7 +61,7 @@ class FormatTests
   def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
     val runner = scalafmtRunner.withParser(parse)
     val obtained = Scalafmt.format(t.original, t.style, runner) match {
-      case FormatResult.Incomplete(code) => code
+      case FormatResult.Failure(e: Incomplete) => e.formattedCode
       case FormatResult.Failure(e: SearchStateExploded) =>
         logger.elem(e)
         e.partialOutput

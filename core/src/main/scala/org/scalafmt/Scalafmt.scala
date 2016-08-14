@@ -7,6 +7,8 @@ import org.scalafmt.internal.FormatWriter
 import scala.util.control.NonFatal
 import scala.meta.Input.stringToInput
 
+import org.scalafmt.Error.Incomplete
+
 object Scalafmt {
 
   /**
@@ -40,7 +42,7 @@ object Scalafmt {
         if (partial.reachedEOF) {
           FormatResult.Success(formattedString)
         } else {
-          FormatResult.Incomplete(formattedString)
+          throw Incomplete(formattedString)
         }
       }
     } catch {

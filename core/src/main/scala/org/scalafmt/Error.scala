@@ -21,6 +21,10 @@ object Error {
   def reportIssue: String =
     "Please file an issue on https://github.com/olafurpg/scalafmt/issues"
 
+  case class Incomplete(formattedCode: String)
+      extends Error("Unable to format file due to bug in scalafmt")
+  // TODO(olafur) more precise info.
+
   case class CantFindDefnToken[T: ClassTag](tree: Tree)
       extends Error(
         s"Expected keyword of type ${classTag[T].getClass} in tree $tree")
