@@ -513,6 +513,16 @@
         environments where scalafmt is invoked on file save.
 
 
+  @sect{Adopters}
+    Are you using scalafmt? Please consider
+    @lnk("opening a pull request", "https://github.com/olafurpg/scalafmt/blob/master/readme/Adopters.scala#L16")
+    to list your organization here:
+
+    @ul
+      @org.scalafmt.readme.Adopters.adopters.map(_.bullet)
+
+
+
   @sect{FAQ / Troubleshooting}
 
      @sect{How can I be notified of releases/announcements?}
