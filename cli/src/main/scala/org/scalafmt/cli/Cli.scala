@@ -117,7 +117,7 @@ object Cli {
   }
 
   def buildInfo =
-    s"""build commit: ${Macros.gitCommit.getOrElse("").take(10)}
+    s"""build commit: ${Macros.gitCommit}
        |build time: ${new Date(Macros.buildTimeMs)}""".stripMargin
 
   lazy val scoptParser: OptionParser[Config] =
