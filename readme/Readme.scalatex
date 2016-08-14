@@ -459,69 +459,25 @@
         }
 
 
-  @sect{Known issues}
-    @p
-      @lnk("Developing code formatters is notoriously hard",
-           "http://journal.stuffwithstuff.com/2015/09/08/the-hardest-program-ive-ever-written/")
-      and scalafmt has been no exception.
-      Scalafmt stopped being my full-time job after I handed in my thesis in June 2016.
-      I will continue to work on scalafmt but you can expect the pace to slow down.
-      The following are, in my opinion, the most critical issues with scalafmt
-      that I can't guarantee when will be fixed:
+  @sect{Community}
+    @sect{Related projects}
+      Have a scalafmt related project? Please consider
+      @lnk("opening a pull request", "https://github.com/olafurpg/scalafmt/blob/master/readme/Readme.scalatex")
+      to list it here:
+      @ul
+        @li
+          @lnk("scalafmt nix package", "https://github.com/NixOS/nixpkgs/tree/master/pkgs/development/tools/scalafmt"):
+          package to install scalafmt on nix.
+        @li
+          @lnk("whatstyle", "https://github.com/mikr/whatstyle"):
+          Find a code format style configuration that fits a given source file.
+    @sect{Adopters}
+      Are you using scalafmt? Please consider
+      @lnk("opening a pull request", "https://github.com/olafurpg/scalafmt/blob/master/readme/Adopters.scala#L16")
+      to list your organization here:
 
-      @sect{Non-idempotent}
-        Scalafmt is non-idempotent for certain files. See @issue(339).
-        This means you should be careful about enforcing scalafmt in your CI
-        build.
-        At v0.2.9, roughly 0.1% or 11 files out of ~9.400 source files in the
-        test suite are affected by this issue.
-        If sources are already formatted by scalafmt, only 1 file out of a sample
-        of ~27.000 files triggers non-idempotent formatting.
-
-      @sect{Deeply nested code}
-        Scalafmt cannot yet format all files with deeply nested functions calls.
-        Deeply nested code is troublesome because the number of possible
-        formatting options grows exponentially with each new layer of nesting.
-        Instead of taking seconds or minutes to complete formatting, scalafmt
-        chooses to bail early and leave the source file unformatted.
-        @p
-          There are two workaround if you are affected by this issue:
-          @ul
-            @li
-              Refactor your code to eliminate deeply nested function calls.
-              Binding large function arguments to variables is a good start.
-            @li
-              Try the experimental @code{--bestEffortInDeeplyNestedCode} flag
-              that will try to produce decent formatting output even for the most
-              pathologically nested code. YMMV.
-        @p
-          Other cool code formatters like ClangFormat, dartfmt and rfmt use
-          better techniques to solve this issue, which scalafmt can hopefully
-          learn from.
-          At v0.2.8, roughly 1% or 64 out of ~9.400 source files in the test suite
-          are affected by this issue.
-
-      @sect{Performance}
-        Scalafmt is 6x slower than Scalariform.
-        For 98% of source files this won't be a problem if you have a decently
-        modern laptop.
-        However, if you only work in files with 4.000 LOC it might be a problem.
-        I'm quite sure that micro-optimizations can squeeze out at least ~2x
-        performance improvements, maybe even more.
-        Moreover, I think incremental formatting has the possibility to increase
-        the performance by several orders of magnitude in interactive IDE
-        environments where scalafmt is invoked on file save.
-
-
-  @sect{Adopters}
-    Are you using scalafmt? Please consider
-    @lnk("opening a pull request", "https://github.com/olafurpg/scalafmt/blob/master/readme/Adopters.scala#L16")
-    to list your organization here:
-
-    @ul
-      @org.scalafmt.readme.Adopters.adopters.map(_.bullet)
-
-
+      @ul
+        @org.scalafmt.readme.Adopters.adopters.map(_.bullet)
 
   @sect{FAQ / Troubleshooting}
 
@@ -595,6 +551,64 @@
        No, the formatting rules will evolve even between PATCH releases.
        I recommend you add a commit formatting your whole project for every time
        scalafmt update.
+
+  @sect{Known issues}
+    @p
+      @lnk("Developing code formatters is notoriously hard",
+           "http://journal.stuffwithstuff.com/2015/09/08/the-hardest-program-ive-ever-written/")
+      and scalafmt has been no exception.
+      Scalafmt stopped being my full-time job after I handed in my thesis in June 2016.
+      I will continue to work on scalafmt but you can expect the pace to slow down.
+      The following are, in my opinion, the most critical issues with scalafmt
+      that I can't guarantee when will be fixed:
+
+      @sect{Non-idempotent}
+        Scalafmt is non-idempotent for certain files. See @issue(339).
+        This means you should be careful about enforcing scalafmt in your CI
+        build.
+        At v0.2.9, roughly 0.1% or 11 files out of ~9.400 source files in the
+        test suite are affected by this issue.
+        If sources are already formatted by scalafmt, only 1 file out of a sample
+        of ~27.000 files triggers non-idempotent formatting.
+
+      @sect{Deeply nested code}
+        Scalafmt cannot yet format all files with deeply nested functions calls.
+        Deeply nested code is troublesome because the number of possible
+        formatting options grows exponentially with each new layer of nesting.
+        Instead of taking seconds or minutes to complete formatting, scalafmt
+        chooses to bail early and leave the source file unformatted.
+        @p
+          There are two workaround if you are affected by this issue:
+          @ul
+            @li
+              Refactor your code to eliminate deeply nested function calls.
+              Binding large function arguments to variables is a good start.
+            @li
+              Try the experimental @code{--bestEffortInDeeplyNestedCode} flag
+              that will try to produce decent formatting output even for the most
+              pathologically nested code. YMMV.
+            @li
+              Try @code{--alignByOpenParenCallSite false} to shrink the search
+              space.
+        @p
+          Other cool code formatters like ClangFormat, dartfmt and rfmt use
+          better techniques to solve this issue, which scalafmt can hopefully
+          learn from.
+          At v0.2.8, roughly 1% or 64 out of ~9.400 source files in the test suite
+          are affected by this issue.
+
+      @sect{Performance}
+        Scalafmt is 6x slower than Scalariform.
+        For 98% of source files this won't be a problem if you have a decently
+        modern laptop.
+        However, if you only work in files with 4.000 LOC it might be a problem.
+        I'm quite sure that micro-optimizations can squeeze out at least ~2x
+        performance improvements, maybe even more.
+        Moreover, I think incremental formatting has the possibility to increase
+        the performance by several orders of magnitude in interactive IDE
+        environments where scalafmt is invoked on file save.
+
+
 
   @scalatex.Changelog()
 

@@ -87,6 +87,13 @@
         """|first
            |second""".stripMargin
     @li
+      New style: @code{--style IntelliJ} that aims to mimic the default
+      formatting settings of IntelliJ.
+    @li
+      Formatting errors are no longer silently ignored in the SBT plugin.
+      @sect.ref{Deeply nested code} is the most common cause of errors,
+      please refer to that section for an explanation and possible workarounds.
+    @li
       New flag: @code{--alignMixedOwners <bool>} to allow vertical alignment
       across val/var/def and object/trait/class. Enabled by default in
       @code{defaultWithAlign}. See @issue(184).
