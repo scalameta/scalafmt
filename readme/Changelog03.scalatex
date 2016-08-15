@@ -50,7 +50,7 @@
       instead of 4 spaces.
       Why? Because it's consistent with many popular coding styles and it
       saves a lot of horizontal space for deeply nested code.
-      @code{--continuationIndentCallSite} is still 4 spaces to prevent
+      @code{--continuationIndentDefnSite} is still 4 spaces to prevent
       method bodies from aligning with parameter lists:
 
       @hl.scala
