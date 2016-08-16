@@ -158,3 +158,17 @@ for {
 } yield {
   thing(i, j)
 }
+<<< alignByArrowEnumeratorGenerator
+for {
+  x <- new Integer {
+  def value = 2
+  }
+  y <- Int(2)
+} yield x + y
+>>>
+for {
+  x <- new Integer {
+    def value = 2
+  }
+  y <- Int(2)
+} yield x + y

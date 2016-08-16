@@ -197,7 +197,7 @@ object ScalafmtStyle {
     unindentTopLevelOperators = false,
     indentOperatorsIncludeFilter = indentOperatorsIncludeDefault,
     indentOperatorsExcludeFilter = indentOperatorsExcludeDefault,
-    alignByArrowEnumeratorGenerator = true,
+    alignByArrowEnumeratorGenerator = false,
     rewriteTokens = Map.empty[String, String],
     alignByIfWhileOpenParen = true,
     spaceBeforeContextBoundColon = false

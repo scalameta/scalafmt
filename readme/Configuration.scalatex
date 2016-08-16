@@ -1,0 +1,269 @@
+@import Main._
+@import org.scalafmt.readme.Readme._
+@import org.scalafmt.ScalafmtStyle
+@import org.scalafmt.ScalafmtStyle.default
+
+@sect{Configuration}
+
+  @p
+    There are two ways to configure @code("scalafmt").
+
+    @ol
+      @li
+        As Scala code via the @code("ScalafmtConfig") case class.
+        This is handy when using scalafmt as a standalone library.
+        For details, refer to the Scaladoc.
+      @li
+        In a plain text file, options are defined as CLI flags.
+        I recommend you create a file named @code(".scalafmt") and keep it in
+        the root directory of your project.
+
+        @p
+          Here is an example @code(".scalafmt").
+
+          @cliFlags
+            # Example .scalafmt, comments are supported.
+            --style defaultWithAlign # For pretty alignment.
+            --maxColumn 100          # For my wide 30" display.
+
+          To experiment with different options, I recommend you use the CLI.
+          For details, read about the @code("--config") flag in the
+          @code("--help") page of the CLI.
+
+    Here are examples of the most common configuration options.
+    For a full list of available flags, consult the @code{--help} page of the
+    CLI or the @lnk("ScalafmtStyle docstring", "https://github.com/olafurpg/scalafmt/blob/master/core/src/main/scala/org/scalafmt/ScalafmtStyle.scala").
+
+  @sect{--style}
+    Option 1: @b{default}
+    @fmt(ScalafmtStyle.default.copy(maxColumn = 40))
+      // Column 40                           |
+      // non bin packed parent constructors
+      object ScalaJsStyle extends Parent with SecondParent with ThirdParent {
+        // non bin packed arguments
+        function(argument1, argument2(argument3, argument4))
+        // No vertical alignment
+        x match {
+          case 1 => 1
+          case 11 => 1
+        }
+      }
+
+    Option 2: @b{defaultWithAlign}
+    @fmt(ScalafmtStyle.defaultWithAlign.copy(maxColumn = 40))
+      // Column 40                           |
+      object ScalaJsStyle extends Parent with SecondParent with ThirdParent {
+        // vertical alignment
+        x match {
+          case 1 => 1 // align me
+          case 11 => 11 // align me too
+
+          case x => // blank line breaks alignment
+        }
+        for {
+          x <- List(1)
+          xx <- List(1, 2)
+        } yield x * xx
+        // A whole bunch of other
+        // alignment goodies.
+        // ...
+      }
+
+    Option 3: @b{Scala.js} (experimental)
+    @fmt(ScalafmtStyle.scalaJs.copy(maxColumn = 40))
+      // Column 40                           |
+      // bin packed parent constructors
+      object ScalaJsStyle extends Parent with SecondParent with ThirdParent {
+        // bin packed arguments
+        function(argument1, argument2, argument3, argument4)
+        // Vertical alignment for only =>
+        x match {
+          case 1 => 1
+          case 11 => 1
+        }
+      }
+
+  @sect{--maxColumn}
+    Default: @b{80}
+
+    @ul
+      @li
+        Keep in mind that 80 characters fit perfectly on a split laptop screen
+        with regular resolution.
+      @li
+        Github mobile view only shows 80 characters and sometimes you need
+        to look at code on your phone.
+      @li
+        Consider refactoring your code instead of choosing a value over 100.
+
+  @sect{--continuationIndentCallSite}
+    Default: @b{default.continuationIndentCallSite}
+
+    @p
+      Example:
+      @hl.scala
+        function(
+          argument1 // indented by 2
+        )
+
+  @sect{--continuationIndentDefnSite}
+    Default: @b{default.continuationIndentDefnSite}
+
+    @p
+      Same as @code{--continuationIndentCallSite} except for definition site.
+      Example:
+      @hl.scala
+        def function(
+            argument1: Type1): ReturnType // Indented by 4
+
+  @sect{--alignTokens}
+    Default: @b{off}
+
+    @p
+      The style @code("defaultWithAlign") has pre-configured a variety of
+      tokens that align together nicely.
+
+      @exampleAlign
+        // 40 columns                          |
+        object TokenAlignment {
+          x match {
+            // Align by => and -> and //
+            case 1 => 1 -> 2 // first
+            case 11 => 11 -> 22 // second
+
+            // A blank line separates alignment blocks.
+            case `ignoreMe` => 111 -> 222
+          }
+
+          // Align assignments of similar type.
+          def name = column[String]("name")
+          def status = column[Int]("status")
+          val x = 1
+          val xx = 22
+
+          // Align sbt module IDs.
+          libraryDependencies ++= Seq(
+            "org.scala-lang" % "scala-compiler" % scalaVersion.value,
+          "com.lihaoyi" %% "sourcecode" % "0.1.1"
+          )
+        }
+
+       If you need more customization, refer to the @code{--help}.
+
+  @sect{// format: off}
+    Disable formatting for specific regions of code by wrapping them in
+    @code("// format: OFF") blocks:
+
+    @example(org.scalafmt.util.FileOps.readFile("readme/matrix.example"))
+
+    To disable formatting for a whole file, put the comment at the top of
+    the file.
+
+    @ul
+      @li
+        the comment string is case insensitive, you can also write
+        @code("// format: OFF").
+      @li
+        The comments @code("// @formatter:off") and @code("// @formatter:off")
+        will also work, for compatibility with the IntelliJ formatter.
+      @li
+        Scalafmt will do it's best to resume formatting at the correct
+        indentation level. It's best to enable formatting at the same level as
+        when it was disabled.
+
+  @sect{--assumeStandardLibraryStripMargin}
+    Default: @default.alignStripMarginStrings
+
+    @p
+      If @b{true}, the margin character @code("|") is aligned with the opening triple
+      quote @code("\"\"\"") in interpolated and raw string literals.
+
+      @example(org.scalafmt.util.FileOps.readFile("readme/stripMargin.example"),
+               stripMarginStyle)
+
+      @note. May cause non-idempotent formatting in rare cases, see @issue(192).
+
+  @sect{--javaDocs vs. --scalaDocs}
+    Default: --scalaDocs
+
+    @hl.scala
+      // --scalaDocs
+      /** Align by second asterisk.
+        *
+        */
+      // --javaDocs
+      /** Align by first asterisk.
+       *
+       */
+
+  @sect{--allowNewlineBeforeColonInMassiveReturnTypes}
+    Default: @default.allowNewlineBeforeColonInMassiveReturnTypes
+
+    @hl.scala
+      // Column limit                                                     |
+      // true
+      implicit def validatedInstances[E](implicit E: Semigroup[E])
+        : Traverse[Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] = 2
+      // false
+      implicit def validatedInstances[E](implicit E: Semigroup[E]): Traverse[
+          Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] = 2
+
+  @sect{--alignByArrowEnumeratorGenerator}
+    Default: @default.alignByArrowEnumeratorGenerator
+
+    @hl.scala
+      // false
+      for {
+        x <- new Integer {
+          def value = 2
+        }
+      } yield x
+
+      // true
+      for {
+        x <- new Integer {
+              def value = 2
+            }
+      } yield x
+
+  @sect{--binPackParentConstructors}
+    Default: @default.binPackParentConstructors
+
+    @hl.scala
+      // false
+      for {
+        x <- new Integer {
+          def value = 2
+        }
+      } yield x
+
+      // true
+      for {
+        x <- new Integer {
+              def value = 2
+            }
+      } yield x
+  @sect{--alignByOpenParenCallSite}
+    Default: @default.alignByOpenParenCallSite
+
+    @hl.scala
+      // Column limit |
+      // true
+      foo(arg1, arg2)
+
+      function(arg1, // align by (
+               arg2,
+               arg3)
+      function(
+        argument1,
+        argument2)
+
+      // false
+      foo(arg1, arg2)
+      function( // no align by (
+        arg1,
+        arg2,
+        arg3)
+      function(
+        argument1,
+        argument2)

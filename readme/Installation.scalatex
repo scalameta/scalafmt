@@ -1,0 +1,158 @@
+@import Main._
+@import org.scalafmt.readme.Readme._
+@import org.scalafmt.ScalafmtStyle
+
+@sect{Installation}
+
+  @sect{IntelliJ}
+    @lnk("Here is the plugin", "https://plugins.jetbrains.com/plugin/8236?pr=").
+    You can install it directly from within IntelliJ,
+    @ul
+      @li
+        open @code("Settings > Plugins")
+      @li
+        open @code("Browse repositories")
+      @li
+        search for @code("scalafmt")
+      @li
+        restart IntelliJ.
+
+    @p
+      The default shortcut is @code("Ctrl + Shift + L").
+      Undo works, but not redo.
+
+    @p
+      The plugin determines which style to use in this order:
+      @ol
+        @li
+          @code(".scalafmt") in the project's root directory, if it exists
+        @li
+          @code("$HOME/.scalafmt"), if it exists
+        @li
+          Otherwise, uses @code("default") style.
+      For details on how @code(".scalafmt") should look like, see
+      @sect.ref{Configuration}.
+
+  @sect{SBT}
+    @hl.scala
+      addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "@org.scalafmt.Versions.stable")
+
+    @ul
+      @li
+        @lnk("Here is an example repository using sbt plugin.",
+             "https://github.com/olafurpg/sbt-scalafmt-example")
+      @li
+        Run @code("sbt scalafmt") to format all files in the project.
+      @li
+        Run @code("sbt scalafmtTest") to test whether all files are are
+        properly formatted. An exception is thrown in case of failure, no
+        files are formatted.
+      @li
+        Set @code("scalafmtConfig in ThisBuild := Some(file(\".scalafmt\"))")
+        to let the plugin pick up custom style configurations from
+        @code(".scalafmt") in the root directory of your project.
+        For details, see @sect.ref{Configuration}.
+      @li
+        If you use @code("*.scala") build rules you may need to import
+        @code("org.scalafmt.sbt.ScalaFmtPlugin.autoImport._").
+      @li
+        Add @code("reformatOnCompileSettings") to you build settings to
+        enable automatically formatting files on compile.
+        @b("WARNING"). This setting is very intrusive on text editors and IDEs.
+        I encourage you to find a better way to incorporate scalafmt into your
+        workflow.
+      @li
+        In case of any trouble, try to run @code("reload") and @code("clean").
+      @li
+        If you have a multi-project build and the custom @code(".scalafmt") configuration is
+        not picked up, make sure that @code("scalafmtConfig") is defined for
+        all of your projects, not only the root project.
+        Use @code("show scalafmtConfig") to verify that
+        @code("scalafmtConfig := Some(file(.scalafmt))")
+        in all of your projects.
+
+  @sect{CLI}
+    There are several ways to install the CLI.
+
+    @sect{Build from source}
+      For the greatest performance and prettiest output.
+
+      @ul
+        @li
+          Clone the @lnk("repo", repo).
+        @li
+          Run @code("sbt assembly"), master branch should pass tests.
+        @li
+          @code("cli/target/scala-2.11/scalafmt.jar") should exist.
+        @li
+          follow instructions in @sect.ref{scalafmt.jar}.
+
+
+    @sect{scalafmt.jar}
+
+      You can also download a pre-compiled jar from the
+      @lnk("releases page", repo + "/releases").
+
+      Next, create a script named @code("scalafmt") somewhere in your
+      @code("PATH") with the command:
+
+      @hl.scala
+        java -jar PATH_TO/scalafmt.jar $@@
+
+
+    @sect{Homebrew/Mac OSX}
+      @hl.scala
+        brew install olafurpg/scalafmt/scalafmt
+        scalafmt --version // should be @org.scalafmt.Versions.stable
+
+    @sect{Linux/Windows/...}
+
+      Help wanted!
+
+    @sect{Usage examples}
+
+      Please refer to the @code("--help") page.
+      @note. This help page is generated from the @code{master} branch and
+      may include flags that have not been published yet.
+      @hl.scala()
+
+      @hl.scala(
+        org.scalafmt.cli.Cli.buildInfo + "\n" +
+        org.scalafmt.cli.Cli.parser.usage)
+
+  @sect{Vim}
+    @ul
+      @li
+        Make sure you have the @sect.ref{CLI} installed and working.
+      @li
+        install @lnk("vim-autoformat", "https://github.com/Chiel92/vim-autoformat")
+      @li
+        add to your @code(".vimrc")
+        @hl.scala
+          noremap <F5> :Autoformat<CR>
+          let g:formatdef_scalafmt = "'scalafmt'"
+          let g:formatters_scala = ['scalafmt']
+
+    @note. You pay the JVM startup penalty on every format.
+
+  @sect{Standalone library}
+    Add to your dependencies
+    @hl.scala
+      libraryDependencies += "com.geirsson" %% "scalafmt" % "@org.scalafmt.Versions.stable"
+    @p
+      Use the API like this
+
+    @repl
+      org.scalafmt.Scalafmt.format("""
+      object FormatMe { List(Split(Space, 0).withPolicy(SingleLineBlock(close)), Split(Newline, 1).withPolicy{ case Decision(t@@FormatToken(_, `close`, _), s) => Decision(t, List(Split(Newline, 0)))}.withIndent(2, close, Right)) }
+       """).get
+
+  @sect{Coming soon...}
+
+    @ul
+      @li
+        Ensime
+      @li
+        Scala IDE (@lnk("help wanted!", "https://github.com/olafurpg/scalafmt/issues/125"))
+      @li
+        Your favorite editor? Join the gitter channel.

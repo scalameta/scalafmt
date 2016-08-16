@@ -117,6 +117,10 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
           binPackParentConstructors = true,
           maxColumn = 40
         )
+      case "alignByArrowEnumeratorGenerator" =>
+        ScalafmtStyle.unitTest40.copy(
+          alignByArrowEnumeratorGenerator = true
+        )
       case "noIndentOperators" =>
         ScalafmtStyle.unitTest80.copy(
           unindentTopLevelOperators = true,

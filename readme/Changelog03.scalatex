@@ -59,6 +59,9 @@
           a + 1
         }
     @li
+      The default @code{--alignByArrowEnumeratorGenerator} is now false
+      instead of true. Refer to @sect.ref{--alignByArrowEnumeratorGenerator}.
+    @li
       Function literals in argument lists can now be single line.
       See @issue(323).
       @hl.scala
