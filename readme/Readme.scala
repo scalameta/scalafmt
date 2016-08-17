@@ -18,7 +18,8 @@ object hl extends scalatex.site.Highlighter
 object Readme {
 
   val eval = new Eval()
-  implicit def bool2frag(boolean: Boolean): StringFrag = stringFrag(boolean.toString)
+  implicit def bool2frag(boolean: Boolean): StringFrag =
+    stringFrag(boolean.toString)
 
   /**
     * repl session, inspired by tut.
