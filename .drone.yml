@@ -1,0 +1,10 @@
+build:
+  image: olafurpg/scalafix:0.0.1
+  commands:
+    - export JVM_OPTS="-Xms4000m -Xmx40000m -XX:MaxPermSize=2000m -Xss4m -XX:ReservedCodeCacheSize=1024m -XX:+TieredCompilation -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC"
+    - pip install --user codecov
+    - ./bin/testAll.sh
+    # I can't be bothered to hide this token.
+    - $HOME/.local/bin/codecov -t 5f2117aa-0a01-4cf1-8bf7-631a62ccb47a
+
+
