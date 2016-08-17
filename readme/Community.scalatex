@@ -15,6 +15,12 @@
       @li
         @lnk("whatstyle", "https://github.com/mikr/whatstyle"):
         Find a code format style configuration that fits a given source file.
+      @li
+        @lnk("cbt scalafmt plugin", "https://github.com/cvogt/cbt/tree/master/examples/scalafmt-example"):
+        Plugin to reformat code in your CBT project.
+      @li
+        @lnk("mvn_scalafmt", "https://github.com/pianista215/mvn_scalafmt"):
+        Wrapper to launch scalafmt through Maven.
   @sect{Adopters}
     Are you using scalafmt? Please consider
     @lnk("opening a pull request", "https://github.com/olafurpg/scalafmt/blob/master/readme/Adopters.scala#L16")
