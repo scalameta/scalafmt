@@ -47,6 +47,9 @@ object ScalaFmtPlugin extends AutoPlugin {
     lazy val hasScalafmt: TaskKey[HasScalaFmt] = taskKey[HasScalaFmt](
       "Classloaded Scalafmt210 instance to overcome 2.10 incompatibility issues.")
 
+    lazy val formatSbtFiles: SettingKey[Boolean] =
+      settingKey[Boolean]("If true, format *.sbt files in this project.")
+
     def scalafmtSettings: Seq[Setting[_]] =
       noConfigScalafmtSettings ++
         inConfig(Compile)(configScalafmtSettings) ++
@@ -93,6 +96,7 @@ object ScalaFmtPlugin extends AutoPlugin {
     List(
       (sourceDirectories in hasScalafmt) := unmanagedSourceDirectories.value,
       includeFilter in Global in hasScalafmt := "*.scala",
+      formatSbtFiles in Global := true,
       scalafmtConfig in Global := None,
       hasScalafmt := {
         val report = update.value

@@ -1,1 +1,0 @@
-sbtPlugin := true
