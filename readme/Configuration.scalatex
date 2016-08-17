@@ -83,6 +83,24 @@
         }
       }
 
+    Option 4: @b{IntelliJ} (experimental)
+    @fmt(ScalafmtStyle.intellij.copy(maxColumn = 40))
+      // Column 40                           |
+      // non bin packed parent constructors
+      object IntelliJStyle extends Parent with SecondParent with ThirdParent {
+
+        function(argument1, argument2)
+
+        // --continuationIndent 2 for call + defn site
+        // --alignByOpenParenCallSite false
+        // --danglingParentheses true
+        function(argument1, argument2, argument3, argument4)
+
+        // --alignByOpenParenCallSite true
+        def foobar(argument1: Type1, argument2: Type2): Int = argument1 + argument2
+
+      }
+
   @sect{--maxColumn}
     Default: @b{80}
 
