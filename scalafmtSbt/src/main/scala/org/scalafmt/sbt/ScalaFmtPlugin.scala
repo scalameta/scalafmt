@@ -92,7 +92,7 @@ object ScalaFmtPlugin extends AutoPlugin {
   def configScalafmtSettings: Seq[Setting[_]] =
     List(
       (sourceDirectories in hasScalafmt) := unmanagedSourceDirectories.value,
-      includeFilter in Global in hasScalafmt := "*.scala",
+      includeFilter in Global in hasScalafmt := "*.scala" || "*.sbt",
       scalafmtConfig in Global := None,
       hasScalafmt := {
         val report = update.value
@@ -103,7 +103,8 @@ object ScalaFmtPlugin extends AutoPlugin {
                           streams.value),
           scalafmtConfig.value,
           streams.value,
-          (sourceDirectories in hasScalafmt).value.toList,
+          (baseDirectory in hasScalafmt).value +:
+            (sourceDirectories in hasScalafmt).value.toList,
           (includeFilter in hasScalafmt).value,
           (excludeFilter in hasScalafmt).value,
           thisProjectRef.value)
