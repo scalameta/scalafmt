@@ -34,10 +34,6 @@ case class FileDocument(file: VirtualFile, document: Document) {
   def isSbt: Boolean = file.getFileType.getName == "SBT"
   def isScala: Boolean = file.getFileType.getName == "Scala"
   def canFormat: Boolean = {
-    LoggerOps.logger.elem(
-      file.getFileType.getName,
-      file.getPath
-    )
     isScala || isSbt
   }
 
@@ -62,7 +58,6 @@ class ScalafmtAction extends AnAction {
         style = config.style,
         runner = runner
       ) match {
-        case _: FormatResult.Incomplete =>
         case FormatResult.Failure(e: ParseException) =>
           displayMessage(event,
                          "Parse error: " + e.getMessage,
