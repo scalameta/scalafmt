@@ -310,3 +310,15 @@ object ExternForwarder {
 
 >>>
 x
+<<< #408
+1 match {
+ case accountIdStr :: userIdStr :: connectorIdStr :: timestampStr :: eventClassStr :: contactIdStr
+        :: contactPointIdStr :: contactPointValue :: remoteContactId :: to :: subject :: remoteId
+        :: remoteGroupId :: timeZoneStr :: rest =>
+}
+>>>
+1 match {
+  case accountIdStr :: userIdStr :: connectorIdStr :: timestampStr :: eventClassStr :: contactIdStr
+        :: contactPointIdStr :: contactPointValue :: remoteContactId :: to :: subject :: remoteId
+          :: remoteGroupId :: timeZoneStr :: rest =>
+}

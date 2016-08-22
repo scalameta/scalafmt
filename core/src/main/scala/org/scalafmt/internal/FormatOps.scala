@@ -364,8 +364,11 @@ class FormatOps(val tree: Tree,
     lastToken(owners(getSelectsLastToken(lastDot)))
   }
 
-  def infixSplit(owner: Term.ApplyInfix, formatToken: FormatToken)(
-      implicit line: sourcecode.Line): Split = {
+  def infixSplit(
+      owner: Tree,
+      op: Term.Name,
+      rhsArgs: Seq[Tree],
+      formatToken: FormatToken)(implicit line: sourcecode.Line): Split = {
     val modification = newlines2Modification(
       formatToken.between,
       rightIsComment = formatToken.right.isInstanceOf[Comment])
@@ -373,17 +376,17 @@ class FormatOps(val tree: Tree,
       if ((style.unindentTopLevelOperators ||
           isTopLevelInfixApplication(owner)) &&
           (style.indentOperatorsIncludeFilter
-            .findFirstIn(owner.op.tokens.head.syntax)
+            .findFirstIn(op.tokens.head.syntax)
             .isEmpty ||
           style.indentOperatorsExcludeFilter
-            .findFirstIn(owner.op.tokens.head.syntax)
+            .findFirstIn(op.tokens.head.syntax)
             .isDefined)) 0
       else if (!modification.isNewline &&
                !isAttachedComment(formatToken.right, formatToken.between)) 0
       else 2
     }
     val expire = (for {
-      arg <- owner.args.lastOption
+      arg <- rhsArgs.lastOption
       token <- arg.tokens.lastOption
     } yield token).getOrElse(owner.tokens.last)
     Split(modification, 0).withIndent(Num(indent), expire, ExpiresOn.Left)

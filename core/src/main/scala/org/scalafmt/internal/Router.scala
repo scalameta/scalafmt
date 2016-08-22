@@ -11,6 +11,7 @@ import org.scalafmt.internal.Length.Num
 import org.scalafmt.Error.UnexpectedTree
 import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util.Delim
+import org.scalafmt.util.InfixApplication
 import org.scalafmt.util.Keyword
 import org.scalafmt.util.Literal
 import org.scalafmt.util.LoggerOps
@@ -1030,12 +1031,13 @@ class Router(formatOps: FormatOps) {
       // Infix operator.
       case tok @ FormatToken(op @ Ident(_), right, between)
           if isApplyInfix(op, leftOwner) =>
-        val owner = leftOwner.parent.get.asInstanceOf[Term.ApplyInfix]
-        Seq(infixSplit(owner, formatToken))
+        // TODO(olafur) move extractor into pattern match.
+        val InfixApplication(_, op, args) = leftOwner.parent.get
+        Seq(infixSplit(leftOwner, op, args, formatToken))
       case FormatToken(left, op @ Ident(_), between)
           if isApplyInfix(op, rightOwner) =>
-        val owner = rightOwner.parent.get.asInstanceOf[Term.ApplyInfix]
-        Seq(infixSplit(owner, formatToken))
+        val InfixApplication(_, op, args) = rightOwner.parent.get
+        Seq(infixSplit(rightOwner, op, args, formatToken))
 
       // Pat
       case tok @ FormatToken(Ident("|"), _, _)
