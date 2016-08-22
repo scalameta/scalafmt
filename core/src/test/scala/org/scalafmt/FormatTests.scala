@@ -100,7 +100,7 @@ class FormatTests
     // I don't want to deal with scalaz's Tasks :'(
     val k = for {
       _ <- Future(
-            FileOps.writeFile("target/index.html", Report.heatmap(results)))
+        FileOps.writeFile("target/index.html", Report.heatmap(results)))
     } yield ()
     // Travis exits right after running tests.
     if (sys.env.contains("TRAVIS")) Await.ready(k, 20 seconds)

@@ -82,7 +82,7 @@ class FormatWriter(formatOps: FormatOps) {
           (for {
             parent <- owners(token).parent
             firstInterpolationPart <- parent.tokens.find(
-                                       _.is[Interpolation.Part])
+              _.is[Interpolation.Part])
             char <- firstInterpolationPart.syntax.headOption
           } yield char).getOrElse(' ')
         case _ =>

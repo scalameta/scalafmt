@@ -412,10 +412,10 @@ class FormatOps(val tree: Tree,
     (for {
       parent <- function.parent
       blockEnd <- parent match {
-                   case b: Term.Block if b.stats.length == 1 =>
-                     Some(b.tokens.last)
-                   case _ => None
-                 }
+        case b: Term.Block if b.stats.length == 1 =>
+          Some(b.tokens.last)
+        case _ => None
+      }
     } yield blockEnd).getOrElse(function.tokens.last)
   }
 
