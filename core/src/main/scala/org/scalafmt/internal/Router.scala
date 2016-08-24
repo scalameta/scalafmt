@@ -368,21 +368,27 @@ class Router(formatOps: FormatOps) {
             )
         }
       // Term.Apply and friends
-      case FormatToken(LeftParen() | LeftBracket(), _, between)
+      case FormatToken(LeftParen() | LeftBracket(), right, between)
           if style.configStyleArguments &&
             (isDefnSite(leftOwner) || isCallSite(leftOwner)) &&
             opensConfigStyle(formatToken) =>
         val open = formatToken.left
         val indent = getApplyIndent(leftOwner, isConfigStyle = true)
         val close = matchingParentheses(hash(open))
-        val oneArgOneLine = OneArgOneLineSplit(open)
+        val oneArgOneLine = OneArgOneLineSplit(
+          open,
+          noTrailingCommas = style.poorMansTrailingCommasInConfigStyle)
         val configStyle = oneArgOneLine.copy(f = oneArgOneLine.f.orElse {
           case Decision(t @ FormatToken(_, `close`, _), splits) =>
             Decision(t, Seq(Split(Newline, 0)))
         })
+        val extraIndent: Length =
+          if (style.poorMansTrailingCommasInConfigStyle) Num(2)
+          else Num(0)
         Seq(
           Split(Newline, 0, policy = configStyle)
             .withIndent(indent, close, Right)
+            .withIndent(extraIndent, right, Right)
         )
       case FormatToken(open @ (LeftParen() | LeftBracket()), right, between)
           if style.binPackParameters && isDefnSite(leftOwner) ||
