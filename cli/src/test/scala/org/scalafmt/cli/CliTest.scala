@@ -43,6 +43,7 @@ class CliTest extends FunSuite with DiffAssertions {
     continuationIndentDefnSite = 3,
     scalaDocs = false,
     binPackImportSelectors = false,
+    poorMansTrailingCommasInConfigStyle = true,
     alignStripMarginStrings = false,
     spaceBeforeContextBoundColon = true)
   val expectedConfig = Cli.Config.default.copy(
@@ -53,6 +54,8 @@ class CliTest extends FunSuite with DiffAssertions {
     files = Seq(new File("foo")),
     inPlace = true)
   val args = Array(
+    "--poorMansTrailingCommasInConfigStyle",
+    "true",
     "--reformatComments",
     "false",
     "--binPackImportSelectors",

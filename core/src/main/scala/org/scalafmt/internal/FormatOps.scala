@@ -227,10 +227,20 @@ class FormatOps(val tree: Tree,
     }
   }.getOrElse(tree.tokens.last)
 
-  def OneArgOneLineSplit(open: Token)(implicit line: sourcecode.Line): Policy = {
+  def OneArgOneLineSplit(open: Token, noTrailingCommas: Boolean = false)(
+      implicit line: sourcecode.Line): Policy = {
     // TODO(olafur) clear queue between arguments, they are independent.
     val expire = matchingParentheses(hash(open))
     Policy({
+      case d @ Decision(t @ FormatToken(left, comma @ Comma(), _), splits)
+          if noTrailingCommas &&
+              !next(t).right.is[Comment] &&
+              owners(open) == owners(comma) =>
+        Decision(t, splits.map {
+          case x if x.modification == NoSplit => x.copy(modification = Newline)
+          case x => x
+        })
+
       // Newline on every comma.
       case d @ Decision(t @ FormatToken(comma @ Comma(), right, between),
                         splits)
@@ -240,7 +250,11 @@ class FormatOps(val tree: Tree,
             // If comment is bound to comma, see unit/Comment.
             (!right.is[Comment] ||
               between.exists(_.is[LF])) =>
-        Decision(t, splits.filter(_.modification.isNewline))
+        Decision(t, splits.filter { x =>
+          val isNewline = x.modification.isNewline
+          if (noTrailingCommas && !right.is[Comment]) !isNewline
+          else isNewline
+        })
     }, expire.end)
   }
 

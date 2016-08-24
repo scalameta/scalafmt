@@ -1,0 +1,13 @@
+// Column 40                            |
+<<< no trailing commas
+function(
+  a,
+  b,
+  c
+)
+>>>
+function(
+      a
+    , b
+    , c
+)

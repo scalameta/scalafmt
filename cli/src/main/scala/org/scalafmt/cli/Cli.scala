@@ -230,6 +230,12 @@ object Cli {
       opt[Boolean]("unindentTopLevelOperators") action { (bool, c) =>
         c.copy(style = c.style.copy(unindentTopLevelOperators = bool))
       } text s"See ScalafmtConfig scaladoc."
+      opt[Boolean]("poorMansTrailingCommasInConfigStyle")
+        .hidden()
+        .action { (bool, c) =>
+          c.copy(style = c.style.copy(poorMansTrailingCommasInConfigStyle = bool))
+        }
+        .text(s"See ScalafmtConfig scaladoc.")
       opt[Boolean]("binPackImportSelectors") action { (bool, c) =>
         c.copy(style = c.style.copy(binPackImportSelectors = bool))
       } text s"See ScalafmtConfig scaladoc."

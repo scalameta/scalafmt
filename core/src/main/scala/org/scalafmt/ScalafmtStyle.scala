@@ -126,6 +126,15 @@ import sourcecode.Text
   *                                     d
   *                                   }. If false, import selectors stay on a
   *                                   single line.
+  * @param poorMansTrailingCommasInConfigStyle (experimental, may be removed)
+  *                                      If true, formats config style like this:
+  *
+  *                                      function(
+  *                                        a
+  *                                        , b
+  *                                        , c
+  *                                      )
+  *
   */
 case class ScalafmtStyle(
     // Note: default style is right below
@@ -147,6 +156,7 @@ case class ScalafmtStyle(
     alignTokens: Set[AlignToken],
     binPackImportSelectors: Boolean,
     spacesInImportCurlyBraces: Boolean,
+    poorMansTrailingCommasInConfigStyle: Boolean,
     allowNewlineBeforeColonInMassiveReturnTypes: Boolean,
     binPackParentConstructors: Boolean,
     spaceAfterTripleEquals: Boolean,
@@ -191,6 +201,7 @@ object ScalafmtStyle {
     alignTokens = Set.empty[AlignToken],
     binPackImportSelectors = false,
     spacesInImportCurlyBraces = false,
+    poorMansTrailingCommasInConfigStyle = false,
     allowNewlineBeforeColonInMassiveReturnTypes = true,
     binPackParentConstructors = false,
     spaceAfterTripleEquals = false,
