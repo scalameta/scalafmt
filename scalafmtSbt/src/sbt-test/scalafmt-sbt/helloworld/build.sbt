@@ -1,5 +1,8 @@
 import java.io.File
+
 sbtPlugin := true
+
+scalafmtConfig := Some(file(".scalafmt"))
 
 def assertContentsEqual(file: File, expected: String): Unit = {
   val obtained =
@@ -28,13 +31,12 @@ TaskKey[Unit]("check") := {
       |}
     """.stripMargin
   )
+  assertContentsEqual(
+    new File("project/plugins.sbt"),
+    """
+      |addSbtPlugin(
+      |  "com.geirsson" % "sbt-scalafmt" % System.getProperty("plugin.version")
+      |)
+    """.stripMargin
+  )
 }
-//  Uncomment when #405 is complete
-//  assertContentsEqual(
-//    new File("project/plugins.sbt"),
-//    """
-//      |addSbtPlugin(
-//      |  "com.geirsson" % "sbt-scalafmt" % System.getProperty("plugin.version"))
-//    """.stripMargin
-//  )
-

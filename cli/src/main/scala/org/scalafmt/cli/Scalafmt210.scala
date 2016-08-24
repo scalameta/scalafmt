@@ -7,6 +7,7 @@ import org.scalafmt.util.LoggerOps._
 import org.scalafmt.Error.InvalidScalafmtConfiguration
 import org.scalafmt.FormatResult
 import org.scalafmt.Scalafmt
+import org.scalafmt.ScalafmtRunner
 import org.scalafmt.ScalafmtStyle
 
 /**
@@ -32,13 +33,16 @@ class Scalafmt210 {
                      filename: String): String = {
     val currentPath = new File("").getAbsolutePath + "/"
     val relativePath = filename.stripPrefix(currentPath)
-    Scalafmt.format(code, style = scalafmtStyle) match {
+    val runner = // DRY please, same login in CLI
+      if (filename.endsWith(".sbt")) ScalafmtRunner.sbt
+      else ScalafmtRunner.default
+    Scalafmt.format(code, style = scalafmtStyle, runner = runner) match {
       case FormatResult.Success(formattedCode) => formattedCode
       case error =>
         error match {
           case FormatResult.Failure(e) =>
             logger.warn(
-              s"Failed to format file. Cause: ${e.getMessage}. Path: $relativePath")
+              s"Failed to format file $relativePath. Cause: ${e.getMessage}.")
           case _ =>
         }
         code
