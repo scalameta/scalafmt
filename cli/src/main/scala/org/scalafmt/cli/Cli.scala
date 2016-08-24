@@ -233,7 +233,8 @@ object Cli {
       opt[Boolean]("poorMansTrailingCommasInConfigStyle")
         .hidden()
         .action { (bool, c) =>
-          c.copy(style = c.style.copy(poorMansTrailingCommasInConfigStyle = bool))
+          c.copy(
+            style = c.style.copy(poorMansTrailingCommasInConfigStyle = bool))
         }
         .text(s"See ScalafmtConfig scaladoc.")
       opt[Boolean]("binPackImportSelectors") action { (bool, c) =>

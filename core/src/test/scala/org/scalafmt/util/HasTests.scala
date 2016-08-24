@@ -138,7 +138,8 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
       case "spacesBeforeContextBound" =>
         ScalafmtStyle.unitTest80.copy(spaceBeforeContextBoundColon = true)
       case "trailing-commas" =>
-        ScalafmtStyle.unitTest40.copy(poorMansTrailingCommasInConfigStyle = true)
+        ScalafmtStyle.unitTest40.copy(
+          poorMansTrailingCommasInConfigStyle = true)
       case "import" =>
         ScalafmtStyle.unitTest80.copy(binPackImportSelectors = false)
       case style => throw UnknownStyle(style)

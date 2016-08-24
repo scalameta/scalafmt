@@ -234,8 +234,8 @@ class FormatOps(val tree: Tree,
     Policy({
       case d @ Decision(t @ FormatToken(left, comma @ Comma(), _), splits)
           if noTrailingCommas &&
-              !next(t).right.is[Comment] &&
-              owners(open) == owners(comma) =>
+            !next(t).right.is[Comment] &&
+            owners(open) == owners(comma) =>
         Decision(t, splits.map {
           case x if x.modification == NoSplit => x.copy(modification = Newline)
           case x => x
