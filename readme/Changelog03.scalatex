@@ -1,6 +1,33 @@
 @import Main._
 @import org.scalafmt.readme.Readme._
 @import org.scalafmt.ScalafmtStyle
+@sect{0.3.1}
+  @ul
+    @li
+      SBT plugin now formats @code{*.sbt} files of your build by default.
+      To disable, configure in your @b{build.sbt} (note, not .scalafmt):
+      @code{formatSbtFiles in ThisBuild := false}.
+    @li
+      Fixed bug with infix operators in extractor, see @issue(408).
+    @li
+      Added new @b{experimental} flag @code{--poorMansTrailingCommasInConfigStyle <bool>}.
+      For context, see @lnk("SIP-27", "https://github.com/scala/scala.github.com/pull/533").
+
+      @hl.scala
+        // false (default)
+        function(
+          a,
+          b,
+          c
+        )
+        // true
+        function(
+              a
+            , b
+            , c
+        )
+
+
 @sect{0.3.0}
   I'm really excited to announce this release with lots of new features and
   improvements.
