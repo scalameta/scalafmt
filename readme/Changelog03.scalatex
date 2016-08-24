@@ -8,7 +8,10 @@
       To disable, configure in your @b{build.sbt} (note, not .scalafmt):
       @code{formatSbtFiles in ThisBuild := false}.
     @li
-      Fixed bug with infix operators in extractor, see @issue(408).
+      Fixed bug with infix operators in extractor patterns, see @issue(408).
+    @li
+      IntelliJ plugin now emits a yellow warning bubble when it fails to read
+      your @code{.scalafmt} configuration.
     @li
       Added new @b{experimental} flag @code{--poorMansTrailingCommasInConfigStyle <bool>}.
       For context, see @lnk("SIP-27", "https://github.com/scala/scala.github.com/pull/533").
