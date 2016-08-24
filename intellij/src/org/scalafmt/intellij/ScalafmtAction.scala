@@ -95,7 +95,15 @@ class ScalafmtAction extends AnAction {
       localConfig = getConfigFileInPath(project.getBasePath)
       globalConfig = getConfigFileInPath(homeDir)
       configFile <- localConfig.orElse(globalConfig)
-      config <- StyleCache.getConfigForFile(configFile)
+      config <- {
+        val x = StyleCache.getConfigForFile(configFile)
+        if (x.isEmpty) {
+          displayMessage(event,
+                         s"Failed to read $configFile",
+                         MessageType.WARNING)
+        }
+        x
+      }
     } yield {
       if (!StyleChangedCache.styleCache
             .get(configFile)

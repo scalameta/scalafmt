@@ -95,7 +95,7 @@ assert-preconditions
 confirm-release
 assemble-jar
 maven-publish
-#push-tag
+push-tag
 update-github-release
 update-homebrew-release
 echo "Released ${tag}!"
