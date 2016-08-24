@@ -94,8 +94,8 @@ function update-homebrew-release() {
 assert-preconditions
 confirm-release
 assemble-jar
-push-tag
 maven-publish
+#push-tag
 update-github-release
 update-homebrew-release
 echo "Released ${tag}!"
