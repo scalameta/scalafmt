@@ -371,4 +371,3 @@ object mixed {
   final case object False                 extends Val
   final case class Zero(zeroty: nir.Type) extends Val
 }
-
