@@ -81,7 +81,9 @@
         @li
           Clone the @lnk("repo", repo).
         @li
-          Run @code("sbt assembly"), master branch should pass tests.
+          Run @code("sbt cli/assembly"), master branch should pass tests.
+          @note. @code{sbt assembly} (note, no cli/ prefix) will run an insane
+          amounts of tests.
         @li
           @code("cli/target/scala-2.11/scalafmt.jar") should exist.
         @li
