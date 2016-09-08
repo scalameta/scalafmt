@@ -16,6 +16,9 @@ object Adopters {
   val adopters = Seq[Adopter](
     Adopter("scalafmt",
             "http://scalafmt.org",
-            Some("Code formatter for Scala"))
+            Some("Code formatter for Scala")),
+    Adopter("HERE",
+            "http://here.com",
+            None)
   )
 }
