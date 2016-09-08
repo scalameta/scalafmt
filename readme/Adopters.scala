@@ -20,4 +20,5 @@ object Adopters {
     Adopter("HERE",
             "http://here.com",
             None)
+  )
 }
