@@ -54,6 +54,12 @@ lazy val commonSettings = Seq(
 )
 
 lazy val publishSettings = Seq(
+  useGpg := true,
+  pgpSecretRing := file("secring.gpg"),
+  pgpPassphrase := Some({
+    val pw = sys.env.getOrElse("SONATYPE_PW", "")
+    pw.toArray
+  }),
   publishMavenStyle := true,
   publishMavenStyle := true,
   publishArtifact := true,
