@@ -6,40 +6,45 @@
 @sect{Configuration}
 
   @p
-    There are two ways to configure @code("scalafmt").
+    Configuration for scalafmt is a bit unorthodox, it is managed with a
+    plain text file @code{.scalafmt} where options are defined as CLI flags.
+    I recommend you create the @code(".scalafmt") in in the root directory
+    of your project.
 
-    @ol
-      @li
-        As Scala code via the @code("ScalafmtConfig") case class.
-        This is handy when using scalafmt as a standalone library.
-        For details, refer to the Scaladoc.
-      @li
-        In a plain text file, options are defined as CLI flags.
-        I recommend you create a file named @code(".scalafmt") and keep it in
-        the root directory of your project.
+  @p
+    Here is an example @code(".scalafmt").
 
-        @p
-          Here is an example @code(".scalafmt").
+    @cliFlags
+      # Example .scalafmt, comments are supported.
+      --style defaultWithAlign # For pretty alignment.
+      --maxColumn 100          # For my wide 30" display.
 
-          @cliFlags
-            # Example .scalafmt, comments are supported.
-            --style defaultWithAlign # For pretty alignment.
-            --maxColumn 100          # For my wide 30" display.
+  @p
+    A note of warning. I personally use the default style which means that the
+    default style is by far the most tested and supported style.
+    Most of the configuration flags are quite benign, while some of them do change
+    the output quite a bit (esp. Scala.js).
+    It is very difficult to guarantee that all configurations options play nicely
+    together so I recommend you try not to go too crazy on this part.
 
-          To experiment with different options, I recommend you use the CLI.
-          For details, read about the @code("--config") flag in the
-          @code("--help") page of the CLI.
+  @p
+    The following sections describe the most common configuration options.
+    Scalafmt does support a wider range of @b{experimental} flags
+    which you can see in @sect.ref{Usage examples}.
+    However, use the experimental flags at your own risk.
 
-    Here are examples of the most common configuration options.
-    For a full list of available flags, consult the @code{--help} page of the
-    CLI or the @lnk("ScalafmtStyle docstring", "https://github.com/olafurpg/scalafmt/blob/master/core/src/main/scala/org/scalafmt/ScalafmtStyle.scala").
+  @p
+    @note. If you are using scalafmt as a @sect.ref{Standalone library}, you can
+    pass in a @code{ScalafmtStyle} instance, which is set to @code{ScalafmtStyle.default}
+    by default.
+
 
   @sect{--style}
     Option 1: @b{default}
     @fmt(ScalafmtStyle.default.copy(maxColumn = 40))
       // Column 40                           |
       // non bin packed parent constructors
-      object ScalaJsStyle extends Parent with SecondParent with ThirdParent {
+      object DefaultStyle extends Parent with SecondParent with ThirdParent {
         // non bin packed arguments
         function(argument1, argument2(argument3, argument4))
         // No vertical alignment
@@ -52,7 +57,7 @@
     Option 2: @b{defaultWithAlign}
     @fmt(ScalafmtStyle.defaultWithAlign.copy(maxColumn = 40))
       // Column 40                           |
-      object ScalaJsStyle extends Parent with SecondParent with ThirdParent {
+      object DefaultWithAlignStyle extends Parent with SecondParent with ThirdParent {
         // vertical alignment
         x match {
           case 1 => 1 // align me
@@ -102,20 +107,20 @@
       }
 
   @sect{--maxColumn}
-    Default: @b{80}
+    Default: @b(default.maxColumn)
 
     @ul
       @li
         Keep in mind that 80 characters fit perfectly on a split laptop screen
         with regular resolution.
       @li
-        Github mobile view only shows 80 characters and sometimes you need
-        to look at code on your phone.
+        Github mobile view only shows 80 characters and sometimes you might
+        review code on your phone.
       @li
-        Consider refactoring your code instead of choosing a value over 100.
+        Consider refactoring your code before of choosing a value above 100.
 
   @sect{--continuationIndentCallSite}
-    Default: @b{default.continuationIndentCallSite}
+    Default: @b(default.continuationIndentCallSite)
 
     @p
       Example:
@@ -125,7 +130,7 @@
         )
 
   @sect{--continuationIndentDefnSite}
-    Default: @b{default.continuationIndentDefnSite}
+    Default: @b(default.continuationIndentDefnSite)
 
     @p
       Same as @code{--continuationIndentCallSite} except for definition site.
@@ -166,7 +171,7 @@
           )
         }
 
-       If you need more customization, refer to the @code{--help}.
+       If you need more customization, refer to @sect.ref{Usage examples}.
 
   @sect{// format: off}
     Disable formatting for specific regions of code by wrapping them in
@@ -190,7 +195,7 @@
         when it was disabled.
 
   @sect{--assumeStandardLibraryStripMargin}
-    Default: @default.alignStripMarginStrings
+    Default: @b(default.alignStripMarginStrings)
 
     @p
       If @b{true}, the margin character @code("|") is aligned with the opening triple
@@ -248,19 +253,22 @@
     Default: @default.binPackParentConstructors
 
     @hl.scala
+      // column limit                        |
       // false
-      for {
-        x <- new Integer {
-          def value = 2
-        }
-      } yield x
+      object DefaultStyle
+          extends Parent
+          with SecondParent
+          with ThirdParent {
+        // body ...
+      }
 
+      // column limit                        |
       // true
-      for {
-        x <- new Integer {
-              def value = 2
-            }
-      } yield x
+      object DefaultStyle
+          extends Parent with SecondParent
+          with ThirdParent {
+        // body ...
+      }
   @sect{--alignByOpenParenCallSite}
     Default: @default.alignByOpenParenCallSite
 
@@ -278,8 +286,8 @@
 
       // false
       foo(arg1, arg2)
-      function( // no align by (
-        arg1,
+      function(
+        arg1, // no align by (
         arg2,
         arg3)
       function(

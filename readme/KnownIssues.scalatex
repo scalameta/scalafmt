@@ -23,24 +23,32 @@
       of ~27.000 files triggers non-idempotent formatting.
 
     @sect{Deeply nested code}
-      Scalafmt cannot yet format all files with deeply nested functions calls.
-      Deeply nested code is troublesome because the number of possible
-      formatting options grows exponentially with each new layer of nesting.
-      Instead of taking seconds or minutes to complete formatting, scalafmt
-      chooses to bail early and leave the source file unformatted.
       @p
-        There are two workaround if you are affected by this issue:
-        @ul
-          @li
-            Refactor your code to eliminate deeply nested function calls.
-            Binding large function arguments to variables is a good start.
-          @li
-            Try the experimental @code{--bestEffortInDeeplyNestedCode} flag
-            that will try to produce decent formatting output even for the most
-            pathologically nested code. YMMV.
-          @li
-            Try @code{--alignByOpenParenCallSite false} to shrink the search
-            space.
+        AKA. "Search state exploded"
+
+      @p
+        Scalafmt cannot yet format all files with deeply nested functions calls.
+        Deeply nested code is troublesome because the number of possible
+        formatting options grows exponentially with each new layer of nesting.
+        Instead of taking seconds or minutes to complete formatting, scalafmt
+        chooses to bail early and leave the source file unformatted.
+        @p
+          There are two workaround if you are affected by this issue:
+          @ul
+            @li
+              Wrap the offending block with @sect.ref{// format: off}.
+              The SBT/IntelliJ/CLI integrations should point you to the
+              line where scalafmt starts to struggle.
+            @li
+              Refactor your code to eliminate deeply nested function calls.
+              Binding large function arguments to variables is a good start.
+            @li
+              Try the experimental @code{--bestEffortInDeeplyNestedCode} flag
+              that will try to produce decent formatting output even for the most
+              pathologically nested code. YMMV.
+            @li
+              Try @code{--alignByOpenParenCallSite false} to shrink the search
+              space.
       @p
         Other cool code formatters like ClangFormat, dartfmt and rfmt use
         better techniques to solve this issue, which scalafmt can hopefully

@@ -50,6 +50,10 @@
        thousands of different formatting solutions.
 
      @p
+       Additionally, I am sure that scalafmt could benefit greatly from
+       micro optimizations. Any help here is appreciated.
+
+     @p
        Performance is still a work in progress and will hopefully
        continue to improve in future releases. Help here is appreciated.
 
@@ -73,5 +77,4 @@
 
    @sect{Is the formatting output stable between releases?}
      No, the formatting rules will evolve even between PATCH releases.
-     I recommend you add a commit formatting your whole project for every time
-     scalafmt update.
+     I recommend you inspect the diff for @b{every} scalafmt update.
