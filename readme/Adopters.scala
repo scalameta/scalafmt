@@ -19,6 +19,9 @@ object Adopters {
             Some("Code formatter for Scala")),
     Adopter("HERE",
             "http://here.com",
+            None),
+    Adopter("Letgo",
+            "http://letgo.com",
             None)
   )
 }
