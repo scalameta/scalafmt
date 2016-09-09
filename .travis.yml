@@ -9,18 +9,14 @@ git:
 scala:
 - 2.11.8
 before_install:
-# FYI, this gpg key is only used for this project.
 - openssl aes-256-cbc -K $encrypted_0b4868dc32b1_key -iv $encrypted_0b4868dc32b1_iv
-  -in secring.gpg.enc -out secring.gpg -d
+  -in bin/travis_deploy.enc -out bin/travis_deploy -d
 - pip install --user codecov
 script:
 - "./bin/testAll.sh"
 after_success:
 - codecov
-- ./bin/sonatypePublish.sh
-jdk:
-- oraclejdk8
-- oraclejdk7
+- "./bin/travisPublish.sh"
 notifications:
   email:
   - olafurpg@gmail.com
@@ -29,4 +25,7 @@ branches:
   - master
 env:
   global:
-    secure: ePTC1wltJTNsG6L4AIm6hBsbY9o5tjNbOAgkqOOcNI9st77rRj4GF3CFPxpBlV+5ok2FEK5P/qTbS17mpycr9Rcznt7WH4A1IHTtbXqSp/zBBgK5+5CGLSJpB6ILhtPw3VF0wS+L2upcrfP9nn3Q1v52LFdmsddjtqjMLIXReVJ1WISkEbTnRegolvf5LoebkDAFDBINY93lSqLrx8YOawI/5to0RcyaSDxdHLdVDAhJOdsoyObkco4fnIQy6irfMc/djOQwC3NbOG5YrYmfVqzfLfoTgu7Irl+8To6b6bIAJQnJxGtrYQoSzo/Z5VacBcC51X1mJXreG83Y3rv1608sew07VNsGWCCYBhWYGvns2+Zg5turDqLClrPX6hb+lURGT+HtcnRQbahTzumoD405tTzDza07aYBx46oZ/QVNuVNLtNNTwf4JybVPqfRfJqkbdT/bS3tDht2HoYxaN81YynJHALRpewAubDd3ioxNzwtZ3xZIwO1aXOBxCxzJ5HJUNY+gfqBMd6WWgAEQXQz1rAFlrQ4BlH+W5UcQgueTH97B4HlfeKWSYMUZfp+QJi+ggvFoyUjpYlYG84D/Dp6lVbjndzY+VtSAyIL0fDL7v5AsmQVx5K4OXw/u/j7s1NNK/KcdtCaX1BrJ7j12pZWEX4TYfoHVG7mGDdI1aAg=
+  -  secure: ePTC1wltJTNsG6L4AIm6hBsbY9o5tjNbOAgkqOOcNI9st77rRj4GF3CFPxpBlV+5ok2FEK5P/qTbS17mpycr9Rcznt7WH4A1IHTtbXqSp/zBBgK5+5CGLSJpB6ILhtPw3VF0wS+L2upcrfP9nn3Q1v52LFdmsddjtqjMLIXReVJ1WISkEbTnRegolvf5LoebkDAFDBINY93lSqLrx8YOawI/5to0RcyaSDxdHLdVDAhJOdsoyObkco4fnIQy6irfMc/djOQwC3NbOG5YrYmfVqzfLfoTgu7Irl+8To6b6bIAJQnJxGtrYQoSzo/Z5VacBcC51X1mJXreG83Y3rv1608sew07VNsGWCCYBhWYGvns2+Zg5turDqLClrPX6hb+lURGT+HtcnRQbahTzumoD405tTzDza07aYBx46oZ/QVNuVNLtNNTwf4JybVPqfRfJqkbdT/bS3tDht2HoYxaN81YynJHALRpewAubDd3ioxNzwtZ3xZIwO1aXOBxCxzJ5HJUNY+gfqBMd6WWgAEQXQz1rAFlrQ4BlH+W5UcQgueTH97B4HlfeKWSYMUZfp+QJi+ggvFoyUjpYlYG84D/Dp6lVbjndzY+VtSAyIL0fDL7v5AsmQVx5K4OXw/u/j7s1NNK/KcdtCaX1BrJ7j12pZWEX4TYfoHVG7mGDdI1aAg=
+  -  COMMIT_AUTHOR_EMAIL: "olafurpg@gmail.com"
+
+

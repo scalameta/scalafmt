@@ -1,6 +1,9 @@
 *.class
 *.log
 
+gh-pages/
+.secrets
+
 repos.tar.gz
 
 # sbt specific
