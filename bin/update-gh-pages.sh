@@ -37,7 +37,7 @@ if [ ${TRAVIS} = "true" ]; then
   ssh-add bin/travis_deploy
 fi
 
-git push origin gh-pages
+git push -f origin gh-pages
 git checkout master
 
 echo "Done!"

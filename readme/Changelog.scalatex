@@ -9,5 +9,3 @@
     @scalatex.Changelog02()
   @sect{0.1.x}
     @scalatex.Changelog01()
-@p
-  This page was last updated on @lastUpdated.

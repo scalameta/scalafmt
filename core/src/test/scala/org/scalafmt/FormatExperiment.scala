@@ -136,23 +136,17 @@ object FormatExperimentApp extends FormatExperiment with App {
 
   val onTravis = sys.env.contains("TRAVIS")
 
-  // Java 7 times out on Travis.
-  if (!onTravis ||
-      sys.props("java.specification.version") == "1.8") {
-    val filesToRun: Seq[ScalaFile] = {
-      // running everything on my machine takes <4 minutes but it can take
-      // over an hour on Travis. We shuffle since all files should work.
-      if (onTravis) Random.shuffle(scalaFiles).take(1000)
-      else scalaFiles
-    }
-    runExperiment(filesToRun)
-    printResults()
-    val nonValidResults = results.filterNot(valid)
-    nonValidResults.foreach(println)
-    if (nonValidResults.nonEmpty) {
-      throw MegaTestFailed
-    }
-  } else {
-    println("Skipping test")
+  val filesToRun: Seq[ScalaFile] = {
+    // running everything on my machine takes <4 minutes but it can take
+    // over an hour on Travis. We shuffle since all files should work.
+    if (onTravis) Random.shuffle(scalaFiles).take(1000)
+    else scalaFiles
+  }
+  runExperiment(filesToRun)
+  printResults()
+  val nonValidResults = results.filterNot(valid)
+  nonValidResults.foreach(println)
+  if (nonValidResults.nonEmpty) {
+    throw MegaTestFailed
   }
 }
