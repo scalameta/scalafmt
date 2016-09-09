@@ -33,8 +33,6 @@ git commit -m "Deploy to GitHub Pages: ${SHA}"
 if [ ${TRAVIS} = "true" ]; then
   git config user.name "Travis CI"
   git config user.email "olafurpg@gmail.com"
-  eval `ssh-agent -s`
-  ssh-add bin/travis_deploy
 fi
 
 git push -f origin gh-pages
