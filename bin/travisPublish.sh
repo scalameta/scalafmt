@@ -4,9 +4,12 @@ set -e
 DEPLOY_KEY="bin/travis_deploy"
 
 function setupDeployKey() {
+  echo "Decrypting deploy key..."
   openssl aes-256-cbc -K ${encrypted_0b4868dc32b1_key} -iv ${encrypted_0b4868dc32b1_iv} -in ${DEPLOY_KEY}.enc -out ${DEPLOY_KEY} -d
+  chmod 600 ${DEPLOY_KEY}
   eval `ssh-agent -s`
   ssh-add ${DEPLOY_KEY}
+  echo "Done!"
 }
 
 if [[ ${TRAVIS_SECURE_ENV_VARS} == "true" && ${TRAVIS_BRANCH} == "master" ]]; then
