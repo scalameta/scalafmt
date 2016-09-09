@@ -39,4 +39,8 @@ TaskKey[Unit]("check") := {
       |)
     """.stripMargin
   )
+  assertContentsEqual(
+    new File("target/src_managed/Generated.scala"),
+    """object      DontFormatMe   {    println(1)    }"""
+  )
 }

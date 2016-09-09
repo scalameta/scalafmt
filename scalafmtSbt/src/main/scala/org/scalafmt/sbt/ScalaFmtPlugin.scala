@@ -44,6 +44,9 @@ object ScalaFmtPlugin extends AutoPlugin {
     lazy val scalafmtConfig: TaskKey[Option[File]] =
       taskKey[Option[File]]("Configuration file for scalafmt.")
 
+    lazy val scalafmtSbtFiles: TaskKey[Seq[File]] =
+      taskKey[Seq[File]]("SBT files that scalafmt should format.")
+
     lazy val hasScalafmt: TaskKey[HasScalaFmt] = taskKey[HasScalaFmt](
       "Classloaded Scalafmt210 instance to overcome 2.10 incompatibility issues.")
 
@@ -87,8 +90,8 @@ object ScalaFmtPlugin extends AutoPlugin {
       libraryDependencies ++= Seq(
         // scala-library needs to be explicitly added to fix
         // https://github.com/olafurpg/scalafmt/issues/190
-        "org.scala-lang" % "scala-library" % org.scalafmt.Versions.scala % "scalafmt",
-        "com.geirsson" % "scalafmt-cli_2.11" % org.scalafmt.Versions.nightly % "scalafmt"
+        "org.scala-lang" % "scala-library"     % org.scalafmt.Versions.scala   % "scalafmt",
+        "com.geirsson"   % "scalafmt-cli_2.11" % org.scalafmt.Versions.nightly % "scalafmt"
       )
     )
 
@@ -100,17 +103,25 @@ object ScalaFmtPlugin extends AutoPlugin {
         else "*.scala"
       },
       formatSbtFiles in Global := true,
+      scalafmtSbtFiles := {
+        scala.collection.immutable.Seq(
+          (baseDirectory in hasScalafmt).value
+            .descendantsExcept("*.sbt", "*.scala")
+            .get: _*
+        )
+      },
       scalafmtConfig in Global := None,
       hasScalafmt := {
         val report = update.value
         val jars = report.select(configurationFilter("scalafmt"))
+
         HasScalaFmt(
           getScalafmtLike(new URLClassLoader(jars.map(_.toURI.toURL).toArray,
                                              null),
                           streams.value),
           scalafmtConfig.value,
           streams.value,
-          (baseDirectory in hasScalafmt).value +:
+          scalafmtSbtFiles.value ++
             (sourceDirectories in hasScalafmt).value.toList,
           (includeFilter in hasScalafmt).value,
           (excludeFilter in hasScalafmt).value,
