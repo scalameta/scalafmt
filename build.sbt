@@ -1,5 +1,13 @@
 import scoverage.ScoverageSbtPlugin.ScoverageKeys.coverageHighlighting
 
+// GPG stuff
+useGpg in ThisBuild := true
+pgpSecretRing in ThisBuild := file("secring.gpg")
+pgpPassphrase in ThisBuild := Some({
+  val pw = sys.env.getOrElse("SONATYPE_PW", "")
+  pw.toArray
+})
+
 lazy val buildSettings = Seq(
   organization := "com.geirsson",
   // See core/src/main/scala/org/scalafmt/Versions.scala
@@ -54,12 +62,6 @@ lazy val commonSettings = Seq(
 )
 
 lazy val publishSettings = Seq(
-  useGpg := true,
-  pgpSecretRing := file("secring.gpg"),
-  pgpPassphrase := Some({
-    val pw = sys.env.getOrElse("SONATYPE_PW", "")
-    pw.toArray
-  }),
   publishMavenStyle := true,
   publishMavenStyle := true,
   publishArtifact := true,
