@@ -11,9 +11,9 @@ scala:
 - 2.11.8
 before_install:
 - openssl aes-256-cbc -K $encrypted_11bd8d7de852_key -iv $encrypted_11bd8d7de852_iv
-  -in deploy_key.enc -out deploy_key -d
-- openssl aes-256-cbc -K $encrypted_11bd8d7de852_key -iv $encrypted_11bd8d7de852_iv
   -in secring.gpg.enc -out secring.gpg -d
+- openssl aes-256-cbc -K $encrypted_11bd8d7de852_key -iv $encrypted_11bd8d7de852_iv
+  -in deploy_key.enc -out deploy_key -d
 - pip install --user codecov
 script:
 - "./bin/testAll.sh"
