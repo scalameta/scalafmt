@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-DEPLOY_KEY="bin/travis_deploy"
+DEPLOY_KEY="bin/deploy_key"
 
 function setupDeployKey() {
   echo "Decrypting deploy key..."
