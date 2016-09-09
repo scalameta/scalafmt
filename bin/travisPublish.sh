@@ -5,7 +5,7 @@ DEPLOY_KEY="bin/deploy_key"
 
 function setupDeployKey() {
   echo "Decrypting deploy key..."
-  openssl aes-256-cbc -K ${encrypted_0b4868dc32b1_key} -iv ${encrypted_0b4868dc32b1_iv} -in ${DEPLOY_KEY}.enc -out ${DEPLOY_KEY} -d
+      openssl aes-256-cbc -K ${encrypted_11bd8d7de852_key} -iv ${encrypted_11bd8d7de852_iv} -in ${DEPLOY_KEY}.enc -out ${DEPLOY_KEY} -d
   chmod 600 ${DEPLOY_KEY}
   eval `ssh-agent -s`
   ssh-add ${DEPLOY_KEY}

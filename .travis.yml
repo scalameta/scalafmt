@@ -10,8 +10,6 @@ git:
 scala:
 - 2.11.8
 before_install:
-- openssl aes-256-cbc -K $encrypted_0b4868dc32b1_key -iv $encrypted_0b4868dc32b1_iv
-  -in bin/travis_deploy.enc -out bin/travis_deploy -d
 - pip install --user codecov
 script:
 - "./bin/testAll.sh"
