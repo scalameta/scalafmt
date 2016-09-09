@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 set -e
 
-DEPLOY_KEY="bin/deploy_key"
+DEPLOY_KEY="deploy_key"
 
 function setupDeployKey() {
-  echo "Decrypting deploy key..."
-      openssl aes-256-cbc -K ${encrypted_11bd8d7de852_key} -iv ${encrypted_11bd8d7de852_iv} -in ${DEPLOY_KEY}.enc -out ${DEPLOY_KEY} -d
+  echo "Setting up deploy key..."
   chmod 600 ${DEPLOY_KEY}
   eval `ssh-agent -s`
   ssh-add ${DEPLOY_KEY}
