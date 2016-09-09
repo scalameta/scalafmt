@@ -5,8 +5,8 @@ DEPLOY_KEY="deploy_key"
 
 function setupDeployKey() {
   echo "Setting up deploy key..."
-  openssl aes-256-cbc -K $encrypted_11bd8d7de852_key -iv $encrypted_11bd8d7de852_iv -in secring.gpg.enc -out secring.gpg -d
   openssl aes-256-cbc -K $encrypted_11bd8d7de852_key -iv $encrypted_11bd8d7de852_iv -in deploy_key.enc -out deploy_key -d
+  openssl aes-256-cbc -K $encrypted_11bd8d7de852_key -iv $encrypted_11bd8d7de852_iv -in secring.gpg.enc -out secring.gpg -d
   chmod 600 ${DEPLOY_KEY}
   eval `ssh-agent -s`
   ssh-add ${DEPLOY_KEY}
