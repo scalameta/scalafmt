@@ -22,6 +22,9 @@ object Adopters {
             None),
     Adopter("Letgo",
             "http://letgo.com",
-            None)
+            None),
+    Adopter("Seventh Sense",
+            "http://7thsense.io",
+            Some("Predictive analytics for sales and marketing"))
   )
 }
