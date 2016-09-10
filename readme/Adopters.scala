@@ -25,6 +25,6 @@ object Adopters {
             None),
     Adopter("Seventh Sense",
             "http://7thsense.io",
-            Some("Predictive analytics for sales and marketing")),
+            Some("Predictive analytics for sales and marketing"))
   )
 }
