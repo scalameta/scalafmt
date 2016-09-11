@@ -175,7 +175,8 @@ case class ScalafmtStyle(
     alignByArrowEnumeratorGenerator: Boolean,
     alignByIfWhileOpenParen: Boolean,
     spaceBeforeContextBoundColon: Boolean,
-    keepSelectChainLineBreaks: Boolean
+    keepSelectChainLineBreaks: Boolean,
+    newlineBeforeLambdaParameters: Boolean
 ) {
   lazy val alignMap: Map[String, Regex] =
     alignTokens.map(x => x.code -> x.owner.r).toMap
@@ -221,7 +222,8 @@ object ScalafmtStyle {
     rewriteTokens = Map.empty[String, String],
     alignByIfWhileOpenParen = true,
     spaceBeforeContextBoundColon = false,
-    keepSelectChainLineBreaks = false
+    keepSelectChainLineBreaks = false,
+    newlineBeforeLambdaParameters = false
   )
 
   val intellij = default.copy(

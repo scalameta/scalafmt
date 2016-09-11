@@ -1,0 +1,12 @@
+40 columns                              |
+<<< newline before lambda params {
+lst.map { x =>
+      println(x)
+  x + 1
+}
+>>>
+lst.map {
+  x =>
+    println(x)
+    x + 1
+}
