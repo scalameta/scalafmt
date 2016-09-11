@@ -142,6 +142,9 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
           poorMansTrailingCommasInConfigStyle = true)
       case "import" =>
         ScalafmtStyle.unitTest80.copy(binPackImportSelectors = false)
+      case "keepLineBreaks" =>
+        ScalafmtStyle.unitTest80.copy(
+          keepSelectChainLineBreaks = true)
       case style => throw UnknownStyle(style)
     }
 

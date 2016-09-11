@@ -825,7 +825,8 @@ class Router(formatOps: FormatOps) {
           .andThen(penalizeNewlinesInApply.f)
           .copy(expire = lastToken.end)
         Seq(
-          Split(NoSplit, 0).withPolicy(noSplitPolicy),
+          Split(NoSplit, 0, ignoreIf = style.keepSelectChainLineBreaks && newlines > 0)
+            .withPolicy(noSplitPolicy),
           Split(Newline.copy(acceptNoSplit = true), 2 + nestedPenalty)
             .withPolicy(newlinePolicy)
             .withIndent(2, optimalToken, Left)

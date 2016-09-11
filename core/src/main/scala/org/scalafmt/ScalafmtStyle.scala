@@ -134,6 +134,14 @@ import sourcecode.Text
   *                                        , b
   *                                        , c
   *                                      )
+  * @param keepSelectChainLineBreaks If true, keep line breaks for chained method calls
+  *                                  If false, format line breaks for chained method calls
+ *                                   For example
+ *                                   example(foo)
+ *                                     .methodCall(bar)
+ *                                   will be kept as it is if this is true, while if false
+ *                                   it will be formatted as
+ *                                   example(foo).methodCall(bar)
   *
   */
 case class ScalafmtStyle(
@@ -166,7 +174,8 @@ case class ScalafmtStyle(
     rewriteTokens: Map[String, String],
     alignByArrowEnumeratorGenerator: Boolean,
     alignByIfWhileOpenParen: Boolean,
-    spaceBeforeContextBoundColon: Boolean
+    spaceBeforeContextBoundColon: Boolean,
+    keepSelectChainLineBreaks: Boolean
 ) {
   lazy val alignMap: Map[String, Regex] =
     alignTokens.map(x => x.code -> x.owner.r).toMap
@@ -211,7 +220,8 @@ object ScalafmtStyle {
     alignByArrowEnumeratorGenerator = false,
     rewriteTokens = Map.empty[String, String],
     alignByIfWhileOpenParen = true,
-    spaceBeforeContextBoundColon = false
+    spaceBeforeContextBoundColon = false,
+    keepSelectChainLineBreaks = false
   )
 
   val intellij = default.copy(
