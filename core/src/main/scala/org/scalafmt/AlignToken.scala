@@ -20,6 +20,7 @@ object AlignToken {
     AlignToken("}", "Template"),
     AlignToken("%", applyInfix),
     AlignToken("%%", applyInfix),
+    AlignToken("%%%", applyInfix),
     AlignToken("⇒", "Case"),
     AlignToken("<-", "Enumerator.Generator"),
     AlignToken("←", "Enumerator.Generator"),
