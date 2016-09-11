@@ -142,6 +142,13 @@ import sourcecode.Text
  *                                   will be kept as it is if this is true, while if false
  *                                   it will be formatted as
  *                                   example(foo).methodCall(bar)
+  * @param newlineBeforeLambdaParameters If true, puts a newline after the open brace
+  *                                      and the parameters list of an anonymous function.
+  *                                      For example
+  *                                      something.map {
+  *                                        n =>
+  *                                          consume(n)
+  *                                      }
   *
   */
 case class ScalafmtStyle(
