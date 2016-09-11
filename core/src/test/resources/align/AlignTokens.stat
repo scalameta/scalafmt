@@ -72,7 +72,7 @@ x match {
       "com.ibm" %% "couchdb-scala" % "0.6.0" % "test",
       "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
       "org.apache.commons" % "commons-math3" % "3.6" % "test",
-      "org.scalatest" %% "scalatest" % Deps.scalatest % "test"
+      "org.scalatest" %%% "scalatest" % Deps.scalatest % "test"
     )
 >>>
 libraryDependencies ++= Seq(
@@ -83,7 +83,7 @@ libraryDependencies ++= Seq(
     "com.ibm"                        %% "couchdb-scala"  % "0.6.0"            % "test",
     "com.lihaoyi"                    %% "scalatags"      % "0.5.4"            % "test",
     "org.apache.commons"             % "commons-math3"   % "3.6"              % "test",
-    "org.scalatest"                  %% "scalatest"      % Deps.scalatest     % "test"
+    "org.scalatest"                  %%% "scalatest"     % Deps.scalatest     % "test"
 )
 <<< slick #138
 {
