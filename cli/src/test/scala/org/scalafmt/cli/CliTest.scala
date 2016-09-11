@@ -180,4 +180,40 @@ class CliTest extends FunSuite with DiffAssertions {
     val obtained2 = FileOps.readFile(file2)
     assertNoDiff(obtained2, expected2)
   }
+
+  test("ignores files if told so by the configuration") {
+    val dir = File.createTempFile("dir", "dir")
+    dir.delete()
+    dir.mkdir()
+    val file1 = File.createTempFile("foo", ".scala", dir)
+    val file2 = File.createTempFile("bar", ".scala", dir)
+    val original1 = """
+                      |object   a {
+                      |println(1)
+                      |}
+                    """.stripMargin
+    val expected1 = """
+                      |object a {
+                      |  println(1)
+                      |}
+                    """.stripMargin
+    val original2 = """
+                      |object   a {
+                      |println(1)
+                      |}
+                    """.stripMargin
+    val expected2 = """
+                      |object   a {
+                      |println(1)
+                      |}
+                    """.stripMargin
+    FileOps.writeFile(file1.getAbsolutePath, original1)
+    FileOps.writeFile(file2.getAbsolutePath, original2)
+    val config = Cli.Config.default.copy(inPlace = true, files = Seq(dir), exclude = Seq(file2))
+    Cli.run(config)
+    val obtained1 = FileOps.readFile(file1)
+    val obtained2 = FileOps.readFile(file2)
+    assertNoDiff(obtained1, expected1)
+    assertNoDiff(obtained2, expected2)
+  }
 }
