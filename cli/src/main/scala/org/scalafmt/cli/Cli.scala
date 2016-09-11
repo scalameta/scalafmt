@@ -53,6 +53,7 @@ object Cli {
     """.stripMargin
 
   case class Config(files: Seq[File],
+                    exclude: Seq[File],
                     configFile: Option[File],
                     inPlace: Boolean,
                     testing: Boolean,
@@ -64,8 +65,9 @@ object Cli {
     require(!(inPlace && testing), "inPlace and testing can't both be true")
   }
   object Config {
-    val default = Config(Seq.empty[File],
-                         None,
+    val default = Config(files = Seq.empty[File],
+                         exclude = Seq.empty[File],
+                         configFile = None,
                          inPlace = false,
                          testing = false,
                          sbtFiles = true,
@@ -135,6 +137,9 @@ object Cli {
         c.copy(files = files)
       } text "can be directory, in which case all *.scala files are formatted. " +
         "If not provided, reads from stdin."
+      opt[Seq[File]]('e', "exclude") action { (exclude, c) =>
+        c.copy(exclude = exclude)
+      } text "can be directory, in which case all *.scala files are ignored when formatting."
       opt[File]('c', "config") action { (file, c) =>
         c.copy(configFile = Some(file))
       } text "read style flags, see \"Style configuration option\", from this" +
@@ -327,7 +332,7 @@ object Cli {
     } else {
       config.files.flatMap { file =>
         FileOps
-          .listFiles(file)
+          .listFiles(file, config.exclude.toSet)
           .withFilter { x =>
             x.endsWith(".scala") ||
             (config.sbtFiles && x.endsWith(".sbt"))
