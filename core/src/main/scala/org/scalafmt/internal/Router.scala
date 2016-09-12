@@ -173,18 +173,14 @@ class Router(formatOps: FormatOps) {
         val skipSingleLineBlock =
           startsLambda || newlines > 0
 
-        val newlineBeforeLambdaParameters =
+        val lambdaParamsNl =
           formatOps.style.newlineBeforeLambdaParameters
 
         Seq(
-          Split(Space, 0, ignoreIf = skipSingleLineBlock)
+          Split(Space, 0, ignoreIf = lambdaParamsNl || skipSingleLineBlock)
             .withOptimalToken(close, killOnFail = true)
             .withPolicy(SingleLineBlock(close)),
-          Split(nl, 0, ignoreIf = !newlineBeforeLambdaParameters)
-            .withOptimalToken(lambdaArrow)
-            .withIndent(2, close, Right)
-            .withPolicy(lambdaPolicy),
-          Split(Space, 0, ignoreIf = !startsLambda)
+          Split(Space, 0, ignoreIf = lambdaParamsNl || !startsLambda)
             .withOptimalToken(lambdaArrow)
             .withIndent(lambdaIndent, close, Right)
             .withPolicy(lambdaPolicy),

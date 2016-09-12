@@ -1,5 +1,5 @@
 40 columns                              |
-<<< newline before lambda params {
+<<< ONLY newline before lambda params {
 lst.map { x =>
       println(x)
   x + 1
@@ -9,4 +9,18 @@ lst.map {
   x =>
     println(x)
     x + 1
+}
+<<< ONLY don't apply to one-liners
+lst.map { x => x }
+>>>
+lst.map { x => x }
+<<< ONLY but preserve newlines if inserted
+lst.map {
+  x =>
+    x
+}
+>>>
+lst.map {
+  x =>
+    x
 }
