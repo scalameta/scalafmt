@@ -75,6 +75,8 @@ class CliTest extends FunSuite with DiffAssertions {
     "99",
     "--spaceBeforeContextBoundColon",
     "true",
+    "--keepSelectChainLineBreaks",
+    "false",
     "--continuationIndentCallSite",
     "2",
     "--continuationIndentDefnSite",
