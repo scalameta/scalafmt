@@ -112,6 +112,13 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
         ScalafmtStyle.unitTest80.copy(spacesInImportCurlyBraces = true,
                                       spaceAfterTripleEquals = true)
       case "align" => ScalafmtStyle.addAlign(ScalafmtStyle.unitTest80)
+      case "alignNoSpace" =>
+        ScalafmtStyle.unitTest80.copy(
+          alignTokens = Set(
+            AlignToken(":", ".*"),
+            AlignToken(",", ".*")
+          )
+        )
       case "parentConstructors" =>
         ScalafmtStyle.unitTest80.copy(
           binPackParentConstructors = true,
@@ -143,8 +150,7 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
       case "import" =>
         ScalafmtStyle.unitTest80.copy(binPackImportSelectors = false)
       case "keepLineBreaks" =>
-        ScalafmtStyle.unitTest80.copy(
-          keepSelectChainLineBreaks = true)
+        ScalafmtStyle.unitTest80.copy(keepSelectChainLineBreaks = true)
       case "newlineBeforeLambdaParams" =>
         ScalafmtStyle.default.copy(alwaysNewlineBeforeLambdaParameters = true)
       case style => throw UnknownStyle(style)

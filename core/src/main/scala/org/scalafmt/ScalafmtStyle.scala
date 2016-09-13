@@ -185,6 +185,7 @@ case class ScalafmtStyle(
     keepSelectChainLineBreaks: Boolean,
     alwaysNewlineBeforeLambdaParameters: Boolean
 ) {
+
   lazy val alignMap: Map[String, Regex] =
     alignTokens.map(x => x.code -> x.owner.r).toMap
   ValidationOps.assertNonNegative(
@@ -297,3 +298,5 @@ object ScalafmtStyle {
   )
   val unitTest40 = unitTest80.copy(maxColumn = 40)
 }
+
+
