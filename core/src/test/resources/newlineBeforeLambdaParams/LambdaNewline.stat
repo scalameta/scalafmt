@@ -19,7 +19,7 @@ lst.map {
   x =>
     x
 }
-<<< don't apply to one-liners
+<<< apply to one-liners as well
 lst.map { x => x }
 >>>
 lst.map {

@@ -146,7 +146,7 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
         ScalafmtStyle.unitTest80.copy(
           keepSelectChainLineBreaks = true)
       case "newlineBeforeLambdaParams" =>
-        ScalafmtStyle.default.copy(newlineBeforeLambdaParameters = true)
+        ScalafmtStyle.default.copy(alwaysNewlineBeforeLambdaParameters = true)
       case style => throw UnknownStyle(style)
     }
 
