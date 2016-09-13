@@ -136,12 +136,19 @@ import sourcecode.Text
   *                                      )
   * @param keepSelectChainLineBreaks If true, keep line breaks for chained method calls
   *                                  If false, format line breaks for chained method calls
- *                                   For example
- *                                   example(foo)
- *                                     .methodCall(bar)
- *                                   will be kept as it is if this is true, while if false
- *                                   it will be formatted as
- *                                   example(foo).methodCall(bar)
+  *                                   For example
+  *                                   example(foo)
+  *                                     .methodCall(bar)
+  *                                   will be kept as it is if this is true, while if false
+  *                                   it will be formatted as
+  *                                   example(foo).methodCall(bar)
+  * @param alwaysNewlineBeforeLambdaParameters If true, puts a newline after the open brace
+  *                                      and the parameters list of an anonymous function.
+  *                                      For example
+  *                                      something.map {
+  *                                        n =>
+  *                                          consume(n)
+  *                                      }
   *
   */
 case class ScalafmtStyle(
@@ -175,7 +182,8 @@ case class ScalafmtStyle(
     alignByArrowEnumeratorGenerator: Boolean,
     alignByIfWhileOpenParen: Boolean,
     spaceBeforeContextBoundColon: Boolean,
-    keepSelectChainLineBreaks: Boolean
+    keepSelectChainLineBreaks: Boolean,
+    alwaysNewlineBeforeLambdaParameters: Boolean
 ) {
   lazy val alignMap: Map[String, Regex] =
     alignTokens.map(x => x.code -> x.owner.r).toMap
@@ -221,7 +229,8 @@ object ScalafmtStyle {
     rewriteTokens = Map.empty[String, String],
     alignByIfWhileOpenParen = true,
     spaceBeforeContextBoundColon = false,
-    keepSelectChainLineBreaks = false
+    keepSelectChainLineBreaks = false,
+    alwaysNewlineBeforeLambdaParameters = false
   )
 
   val intellij = default.copy(

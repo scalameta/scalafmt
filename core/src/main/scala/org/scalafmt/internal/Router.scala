@@ -177,7 +177,10 @@ class Router(formatOps: FormatOps) {
           Split(Space, 0, ignoreIf = skipSingleLineBlock)
             .withOptimalToken(close, killOnFail = true)
             .withPolicy(SingleLineBlock(close)),
-          Split(Space, 0, ignoreIf = !startsLambda)
+          Split(
+            Space,
+            0,
+            ignoreIf = style.alwaysNewlineBeforeLambdaParameters || !startsLambda)
             .withOptimalToken(lambdaArrow)
             .withIndent(lambdaIndent, close, Right)
             .withPolicy(lambdaPolicy),
@@ -825,7 +828,9 @@ class Router(formatOps: FormatOps) {
           .andThen(penalizeNewlinesInApply.f)
           .copy(expire = lastToken.end)
         Seq(
-          Split(NoSplit, 0, ignoreIf = style.keepSelectChainLineBreaks && newlines > 0)
+          Split(NoSplit,
+                0,
+                ignoreIf = style.keepSelectChainLineBreaks && newlines > 0)
             .withPolicy(noSplitPolicy),
           Split(Newline.copy(acceptNoSplit = true), 2 + nestedPenalty)
             .withPolicy(newlinePolicy)
