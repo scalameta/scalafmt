@@ -10,7 +10,7 @@ git:
 scala:
 - 2.11.8
 before_install:
-- apt-get install gnupg
+- sudo apt-get install gnupg
 - pip install --user codecov
 script:
 - "./bin/testAll.sh"
