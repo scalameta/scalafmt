@@ -10,13 +10,11 @@ git:
 scala:
 - 2.11.8
 before_install:
-- sudo apt-get install gnupg
 - pip install --user codecov
 script:
 - "./bin/testAll.sh"
 after_success:
 - codecov
-- "./bin/travisPublish.sh"
 notifications:
   email:
   - olafurpg@gmail.com
@@ -25,6 +23,4 @@ branches:
   - master
 env:
   global:
-  - secure: ePTC1wltJTNsG6L4AIm6hBsbY9o5tjNbOAgkqOOcNI9st77rRj4GF3CFPxpBlV+5ok2FEK5P/qTbS17mpycr9Rcznt7WH4A1IHTtbXqSp/zBBgK5+5CGLSJpB6ILhtPw3VF0wS+L2upcrfP9nn3Q1v52LFdmsddjtqjMLIXReVJ1WISkEbTnRegolvf5LoebkDAFDBINY93lSqLrx8YOawI/5to0RcyaSDxdHLdVDAhJOdsoyObkco4fnIQy6irfMc/djOQwC3NbOG5YrYmfVqzfLfoTgu7Irl+8To6b6bIAJQnJxGtrYQoSzo/Z5VacBcC51X1mJXreG83Y3rv1608sew07VNsGWCCYBhWYGvns2+Zg5turDqLClrPX6hb+lURGT+HtcnRQbahTzumoD405tTzDza07aYBx46oZ/QVNuVNLtNNTwf4JybVPqfRfJqkbdT/bS3tDht2HoYxaN81YynJHALRpewAubDd3ioxNzwtZ3xZIwO1aXOBxCxzJ5HJUNY+gfqBMd6WWgAEQXQz1rAFlrQ4BlH+W5UcQgueTH97B4HlfeKWSYMUZfp+QJi+ggvFoyUjpYlYG84D/Dp6lVbjndzY+VtSAyIL0fDL7v5AsmQVx5K4OXw/u/j7s1NNK/KcdtCaX1BrJ7j12pZWEX4TYfoHVG7mGDdI1aAg=
   - COMMIT_AUTHOR_EMAIL: olafurpg@gmail.com
-  - secure: QsmJ1obIdqZDlwlR/EetZtoV3c66v64uW2eqW8QELqKEhHl0godaRMdr2+d68bxluBtQ05aRA36qk0DJx2gIBUyuY6Ot2j4KKu709ld2/OvMuf/4RpjhYMcO0gGMGF03pYhhQOMxILFVRQcrysBbK0wntty1/vVZe7ZWIgQyF7bERkYw4pIyIjxkbbyouf26nWBX/8aHbZxpdd839P/WTmQIxocXisVV41Ba4V5rMG7sajm2h6X51e3Jrdjlf43FXME6C8FCrk8CY5gDNAZXYgeQgEfH3dCx7y8fxoywEqNdKHm+8gTgQRWNbrBqs0VQFN+nLWnthZFmq2vU5bMlmvnxrH/N14BxanElCT1Rr7dviHqfQPye4XQGYkmkeobw0ltGXmYLU8RTZV/P3jlGg7vapTXKZWkdp0W5ZIN1YnqcKAe0yLUNTok6n8VvLqf+4a86rvN9LLGCN6WyoF9UP+VOAwBBXtTK7QXPif46HZQRJ76OfC5bhrXS+vh4SDqu+GmtIoMAG696EDR+y4ASnmThAQA8TIIQhWBr7ca5Okt1n6b8SMLe0qfUK1nAPt8yHP7dNxxNHDjoQXG63xFoy8i5wangPEPcru+6HhfPR9MFmUbnz/UvcKEs4tyICVoGVigv8p0vHkfUsWZRligz3GdovahFJdmCPvw6mzdXYo8=

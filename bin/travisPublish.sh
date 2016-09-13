@@ -5,8 +5,6 @@ DEPLOY_KEY="deploy_key"
 
 function setupDeployKey() {
   echo "Setting up deploy key..."
-  gpg --passphrase $PASSWORD --no-tty deploy_key.gpg
-  gpg --passphrase $PASSWORD --no-tty secring.gpg.gpg
   chmod 600 ${DEPLOY_KEY}
   eval `ssh-agent -s`
   ssh-add ${DEPLOY_KEY}
