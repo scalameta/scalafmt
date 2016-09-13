@@ -278,6 +278,9 @@ object Cli {
       opt[Boolean]("keepSelectChainLineBreaks") action { (bool, c) =>
         c.copy(style = c.style.copy(keepSelectChainLineBreaks = bool))
       } text s"See ScalafmtConfig scaladoc."
+      opt[Boolean]("alwaysNewlineBeforeLambdaParameters") action { (bool, c) =>
+        c.copy(style = c.style.copy(alwaysNewlineBeforeLambdaParameters = bool))
+      } text s"See ScalafmtConfig scaladoc."
       opt[Seq[String]]("alignTokens") action { (tokens, c) =>
         val alignsTokens =
           gimmeStrPairs(tokens).map((AlignToken.apply _).tupled)

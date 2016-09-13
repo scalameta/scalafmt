@@ -1,6 +1,45 @@
 @import Main._
 @import org.scalafmt.readme.Readme._
 @import org.scalafmt.ScalafmtStyle
+@sect{0.3.2}
+  @ul
+    @li
+      SBT plugin now no longer includes generated sources in @code{target}.
+    @li
+      New CLI flag @code{--exclude} to exclude a set of directories.
+    @li
+      New style flag @code{--keepSelectChainLineBreaks}.
+    @li
+      @code{defaultWithAlign} will now also align @code{%%%}.
+    @li
+      New style flag @code{--alwaysNewlineBeforeLambdaParameters}.
+    @li
+      @code{--alignTokens} can now align on tokens that have no leading space.
+      For example, with settings @code{:;.*}
+
+      @hl.scala
+        // Before
+        def foo(
+          a: Int,
+          aa: Int
+        )
+
+        // After
+        def foo(
+            a:  Int,
+            aa: Int
+        )
+
+      @note. This may play badly in combination with other alignment configuration.
+      For example, if you configure to align @code{extends} and @code{:},
+      the following input will align neither since the rows don't match
+
+      @hl.scala
+        case object A extends Super
+        case class B(b: B) extends Super
+
+      I welcome contributions to improve this.
+
 @sect{0.3.1}
   @ul
     @li
