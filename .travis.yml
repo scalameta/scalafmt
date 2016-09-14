@@ -12,8 +12,9 @@ scala:
 before_install:
 - pip install --user codecov
 script:
-- "./bin/testAll.sh"
+- ./bin/testAll.sh
 after_success:
+- ./bin/travisPublish.sh
 - codecov
 notifications:
   email:
