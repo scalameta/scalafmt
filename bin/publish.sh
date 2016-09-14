@@ -19,7 +19,7 @@ function assert-dependencies-are-installed() {
 }
 
 function assert-preconditions() {
-    if [ "$current_branch" != "master" ]; then
+    if [ "$current_branch" != "master" && "$current_branch" != "HEAD" ]; then
       echo "On branch $current_branch! You should be on master branch."
       exit 1
     fi
