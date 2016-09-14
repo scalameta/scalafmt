@@ -14,7 +14,6 @@ function assert-installed() {
 function assert-dependencies-are-installed() {
   assert-installed sbt
   assert-installed github-release
-  assert-installed sbt
   assert-installed shasum
   assert-installed tar
 }
@@ -92,7 +91,9 @@ function update-homebrew-release() {
 }
 
 assert-preconditions
-confirm-release
+if [[ ! $1 == "-q" ]]; then
+  confirm-release
+fi
 assemble-jar
 maven-publish
 push-tag
