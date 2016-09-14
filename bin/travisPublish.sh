@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 set -e
 
-DEPLOY_KEY="deploy_key"
-
 function setupDeployKey() {
   echo "Setting up deploy key..."
+- echo $SCALAFMT_PASSWORD | gpg --passphrase-fd 0 ${DEPLOY_KEY}.gpg
   chmod 600 ${DEPLOY_KEY}
   eval `ssh-agent -s`
   ssh-add ${DEPLOY_KEY}
+  git config user.name "Travis CI"
+  git config user.email "$COMMIT_AUTHOR_EMAIL"
   echo "Done!"
 }
 
