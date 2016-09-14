@@ -1,7 +1,5 @@
 @import Main._
 
-@p
-  Generated on @(new java.util.Date().toString)
 @raw
   <!-- Stats -->
   <script type="text/javascript">
