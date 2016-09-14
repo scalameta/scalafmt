@@ -1,16 +1,5 @@
 import scoverage.ScoverageSbtPlugin.ScoverageKeys.coverageHighlighting
 
-lazy val sonatypePassword = sys.env.getOrElse("SONATYPE_PW", "")
-
-// GPG stuff
-useGpg in ThisBuild := true
-pgpSecretRing in ThisBuild := file("secring.gpg")
-pgpPassphrase in ThisBuild := Some(sonatypePassword.toArray)
-credentials += Credentials("Sonatype Nexus Repository Manager",
-                           "oss.sonatype.org",
-                           "olafurpg@gmail.com",
-                           sonatypePassword)
-
 lazy val buildSettings = Seq(
   organization := "com.geirsson",
   // See core/src/main/scala/org/scalafmt/Versions.scala
@@ -64,38 +53,48 @@ lazy val commonSettings = Seq(
   testOptions in Test += Tests.Argument("-oD")
 )
 
+lazy val credentialSettings = Seq(
+  useGpg := true,
+  pgpSecretRing := file("secring.gpg"),
+  pgpPassphrase := Some(sonatypePassword.toArray),
+  credentials += Credentials("Sonatype Nexus Repository Manager",
+                             "oss.sonatype.org",
+                             "olafurpg@gmail.com",
+                             sonatypePassword)
+)
+
 lazy val publishSettings = Seq(
-  publishMavenStyle := true,
-  publishMavenStyle := true,
-  publishArtifact := true,
-  publishTo := {
+    publishMavenStyle := true,
+    publishMavenStyle := true,
+    publishArtifact := true,
+    publishTo := {
     val nexus = "https://oss.sonatype.org/"
     if (isSnapshot.value)
       Some("snapshots" at nexus + "content/repositories/snapshots")
     else
       Some("releases" at nexus + "service/local/staging/deploy/maven2")
   },
-  publishArtifact in Test := false,
-  licenses := Seq(
-    "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
-  homepage := Some(url("https://github.com/olafurpg/scalafmt")),
-  autoAPIMappings := true,
-  apiURL := Some(url("https://olafurpg.github.io/scalafmt/docs/")),
-  scmInfo := Some(
-    ScmInfo(
-      url("https://github.com/olafurpg/scalafmt"),
-      "scm:git:git@github.com:olafurpg/scalafmt.git"
-    )
-  ),
-  pomExtra :=
-    <developers>
+    publishArtifact in Test := false,
+    licenses := Seq(
+      "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+    homepage := Some(url("https://github.com/olafurpg/scalafmt")),
+    autoAPIMappings := true,
+    apiURL := Some(url("https://olafurpg.github.io/scalafmt/docs/")),
+    scmInfo := Some(
+      ScmInfo(
+        url("https://github.com/olafurpg/scalafmt"),
+        "scm:git:git@github.com:olafurpg/scalafmt.git"
+      )
+    ),
+    pomExtra :=
+      <developers>
       <developer>
         <id>olafurpg</id>
         <name>Ólafur Páll Geirsson</name>
         <url>https://geirsson.com</url>
       </developer>
     </developers>
-)
+  ) ++ credentialSettings
 
 lazy val noPublish = Seq(
   publish := {},
@@ -236,3 +235,6 @@ lazy val readme = scalatex
     ),
     dependencyOverrides += "com.lihaoyi" %% "scalaparse" % "0.3.1"
   )
+
+lazy val sonatypePassword = sys.env.getOrElse("SONATYPE_PW", "")
+
