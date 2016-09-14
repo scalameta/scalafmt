@@ -238,3 +238,4 @@ lazy val readme = scalatex
 
 lazy val sonatypePassword = sys.env.getOrElse("SONATYPE_PW", "")
 
+credentialSettings
