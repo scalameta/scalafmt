@@ -1,19 +1,21 @@
 import scoverage.ScoverageSbtPlugin.ScoverageKeys.coverageHighlighting
 
+lazy val sonatypePassword = sys.env.getOrElse("SONATYPE_PW", "")
+
 // GPG stuff
 useGpg in ThisBuild := true
 pgpSecretRing in ThisBuild := file("secring.gpg")
-pgpPassphrase in ThisBuild := Some({
-  val pw = sys.env.getOrElse("SONATYPE_PW", "")
-  println("Has key SONATYPE_PW: " + sys.env.contains("SONATYPE_PW"))
-  pw.toArray
-})
+pgpPassphrase in ThisBuild := Some(sonatypePassword.toArray)
+credentials += Credentials("Sonatype Nexus Repository Manager",
+                           "oss.sonatype.org",
+                           "olafurpg@gmail.com",
+                           sonatypePassword)
 
 lazy val buildSettings = Seq(
   organization := "com.geirsson",
   // See core/src/main/scala/org/scalafmt/Versions.scala
-  version :=  org.scalafmt.Versions.nightly,
-  scalaVersion :=  org.scalafmt.Versions.scala,
+  version := org.scalafmt.Versions.nightly,
+  scalaVersion := org.scalafmt.Versions.scala,
   updateOptions := updateOptions.value.withCachedResolution(true),
   // Many useful rules are ignored, at least they're explicitly ignored.
   wartremoverWarnings in (Compile, compile) ++=
@@ -26,7 +28,6 @@ lazy val buildSettings = Seq(
 
       // TODO(olafur) remove after https://github.com/puffnfresh/wartremover/issues/188
       Wart.ExplicitImplicitTypes,
-
       Wart.Throw,
       Wart.NoNeedForMonad,
       Wart.FinalCaseClass,
@@ -40,7 +41,8 @@ lazy val buildSettings = Seq(
 
 lazy val compilerOptions = Seq(
   "-deprecation",
-  "-encoding", "UTF-8",
+  "-encoding",
+  "UTF-8",
   "-feature",
   "-language:existentials",
   "-language:higherKinds",
@@ -58,7 +60,7 @@ lazy val commonSettings = Seq(
   scalacOptions in (Compile, console) := compilerOptions :+ "-Yrepl-class-based",
   assemblyJarName in assembly := "scalafmt.jar",
   ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages :=
-      ".*Debug;.*ScalaFmtLogger;.*Versions",
+    ".*Debug;.*ScalaFmtLogger;.*Versions",
   testOptions in Test += Tests.Argument("-oD")
 )
 
@@ -71,10 +73,11 @@ lazy val publishSettings = Seq(
     if (isSnapshot.value)
       Some("snapshots" at nexus + "content/repositories/snapshots")
     else
-      Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+      Some("releases" at nexus + "service/local/staging/deploy/maven2")
   },
   publishArtifact in Test := false,
-  licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+  licenses := Seq(
+    "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
   homepage := Some(url("https://github.com/olafurpg/scalafmt")),
   autoAPIMappings := true,
   apiURL := Some(url("https://olafurpg.github.io/scalafmt/docs/")),
@@ -101,8 +104,8 @@ lazy val noPublish = Seq(
 
 lazy val allSettings = commonSettings ++ buildSettings ++ publishSettings
 
-
-lazy val root = project.in(file("."))
+lazy val root = project
+  .in(file("."))
   .settings(moduleName := "scalafmt")
   .settings(allSettings)
   .settings(noPublish)
@@ -113,9 +116,9 @@ lazy val root = project.in(file("."))
         |import org.scalafmt.internal._
         |import org.scalafmt._
       """.stripMargin
-  ).aggregate(core, cli, benchmarks, scalafmtSbt, macros, readme)
+  )
+  .aggregate(core, cli, benchmarks, scalafmtSbt, macros, readme)
   .dependsOn(core)
-
 
 lazy val core = project
   .settings(allSettings)
@@ -127,44 +130,43 @@ lazy val core = project
       (runMain in Test).toTask(" org.scalafmt.FormatExperimentApp").value
     },
     libraryDependencies ++= Seq(
-      "com.lihaoyi" %% "sourcecode" % "0.1.1",
-      "org.scalameta" %% "scalameta" % Deps.scalameta,
-
+      "com.lihaoyi"   %% "sourcecode" % "0.1.1",
+      "org.scalameta" %% "scalameta"  % Deps.scalameta,
       // Test dependencies
-      "org.scalariform" %% "scalariform" % Deps.scalariform ,
-      "org.scala-lang" % "scala-reflect" % scalaVersion.value % "test",
-      "org.scala-lang" % "scala-compiler" % scalaVersion.value % "test",
-      "ch.qos.logback" % "logback-classic" % "1.1.6" % "test",
-      "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0" % "test",
-      "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
-      "org.apache.commons" % "commons-math3" % "3.6" % "test",
-      "org.scalatest" %% "scalatest" % Deps.scalatest % "test"
+      "org.scalariform"                %% "scalariform"    % Deps.scalariform,
+      "org.scala-lang"                 % "scala-reflect"   % scalaVersion.value % "test",
+      "org.scala-lang"                 % "scala-compiler"  % scalaVersion.value % "test",
+      "ch.qos.logback"                 % "logback-classic" % "1.1.6" % "test",
+      "com.googlecode.java-diff-utils" % "diffutils"       % "1.3.0" % "test",
+      "com.lihaoyi"                    %% "scalatags"      % "0.5.4" % "test",
+      "org.apache.commons"             % "commons-math3"   % "3.6" % "test",
+      "org.scalatest"                  %% "scalatest"      % Deps.scalatest % "test"
     ),
-    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
+    addCompilerPlugin(
+      "org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
   )
-
 
 lazy val macros = project
   .settings(allSettings)
   .settings(
     moduleName := "scalafmt-macros",
     libraryDependencies ++= Seq(
-      "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+      "org.scala-lang" % "scala-reflect"  % scalaVersion.value,
       "org.scala-lang" % "scala-compiler" % scalaVersion.value
     )
   )
 
 lazy val cli = project
-    .settings(allSettings)
-    .settings(
-      moduleName := "scalafmt-cli",
-      mainClass in assembly := Some("org.scalafmt.cli.Cli"),
-      libraryDependencies ++= Seq(
-        "com.github.scopt" %% "scopt" % "3.3.0"
-      )
-    ).dependsOn(core % "compile->compile;test->test")
-    .dependsOn(macros)
-
+  .settings(allSettings)
+  .settings(
+    moduleName := "scalafmt-cli",
+    mainClass in assembly := Some("org.scalafmt.cli.Cli"),
+    libraryDependencies ++= Seq(
+      "com.github.scopt" %% "scopt" % "3.3.0"
+    )
+  )
+  .dependsOn(core % "compile->compile;test->test")
+  .dependsOn(macros)
 
 lazy val scalafmtSbt = project
   .settings(allSettings)
@@ -180,7 +182,9 @@ lazy val scalafmtSbt = project
     scriptedLaunchOpts := Seq(
       "-Dplugin.version=" + version.value,
       // .jvmopts is ignored, simulate here
-      "-XX:MaxPermSize=256m", "-Xmx2g", "-Xss2m"
+      "-XX:MaxPermSize=256m",
+      "-Xmx2g",
+      "-Xss2m"
     ),
     scriptedBufferLog := false
   )
@@ -192,7 +196,7 @@ lazy val benchmarks = project
   .settings(
     libraryDependencies ++= Seq(
       "org.scalariform" %% "scalariform" % Deps.scalariform,
-      "org.scalatest" %% "scalatest" % Deps.scalatest % "test"
+      "org.scalatest"   %% "scalatest"   % Deps.scalatest % "test"
     ),
     javaOptions in run ++= Seq(
       "-Djava.net.preferIPv4Stack=true",
@@ -212,23 +216,23 @@ lazy val benchmarks = project
       "-Xmx2G",
       "-server"
     )
-  ).dependsOn(core % "compile->test")
+  )
+  .dependsOn(core % "compile->test")
   .enablePlugins(JmhPlugin)
 
-lazy val readme = scalatex.ScalatexReadme(
-  projectId = "readme",
-  wd = file(""),
-  url = "https://github.com/olafurpg/scalafmt/tree/master",
-  source = "Readme")
-    .settings(allSettings)
-    .settings(noPublish)
-    .dependsOn(core)
-    .dependsOn(cli)
-    .dependsOn(macros)
-    .settings(
-      libraryDependencies ++= Seq(
-        "com.twitter" %% "util-eval" % "6.34.0"
-      ),
-      dependencyOverrides += "com.lihaoyi" %% "scalaparse" % "0.3.1"
-    )
-
+lazy val readme = scalatex
+  .ScalatexReadme(projectId = "readme",
+                  wd = file(""),
+                  url = "https://github.com/olafurpg/scalafmt/tree/master",
+                  source = "Readme")
+  .settings(allSettings)
+  .settings(noPublish)
+  .dependsOn(core)
+  .dependsOn(cli)
+  .dependsOn(macros)
+  .settings(
+    libraryDependencies ++= Seq(
+      "com.twitter" %% "util-eval" % "6.34.0"
+    ),
+    dependencyOverrides += "com.lihaoyi" %% "scalaparse" % "0.3.1"
+  )
