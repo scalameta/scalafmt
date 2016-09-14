@@ -5,6 +5,7 @@ useGpg in ThisBuild := true
 pgpSecretRing in ThisBuild := file("secring.gpg")
 pgpPassphrase in ThisBuild := Some({
   val pw = sys.env.getOrElse("SONATYPE_PW", "")
+  println("Has key SONATYPE_PW: " + sys.env.contains("SONATYPE_PW"))
   pw.toArray
 })
 
