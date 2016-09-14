@@ -20,7 +20,7 @@ function setupRelease() {
   echo "Installing github-release"
   wget https://github.com/aktau/github-release/releases/download/v0.6.2/linux-amd64-github-release.tar.bz2
   tar xvf linux-amd64-github-release.tar.bz2
-  cp bin/linux/amd64/github-release .
+  export PATH=$PATH:bin/linux/amd64
   echo "Done!"
 }
 
