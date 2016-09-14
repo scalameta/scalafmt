@@ -8,8 +8,8 @@ function setupDeployKey() {
   chmod 600 ${DEPLOY_KEY}
   eval `ssh-agent -s`
   ssh-add ${DEPLOY_KEY}
-  git config user.name "Travis CI"
-  git config user.email "$COMMIT_AUTHOR_EMAIL"
+  git config --global user.name "Travis CI"
+  git config --global user.email "$COMMIT_AUTHOR_EMAIL"
   echo "Done!"
 }
 

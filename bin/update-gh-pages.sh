@@ -22,7 +22,7 @@ cp -r readme/target/scalatex/* ${SUBDIR}
 
 cd ${SUBDIR}
 # If there are no changes to the compiled out (e.g. this is a README update) then just bail.
-if [ -z `git diff --exit-code` ]; then
+if [[ -z `git diff --exit-code` ]]; then
     echo "No changes to the output on this push; exiting."
     exit 0
 fi
@@ -30,7 +30,7 @@ fi
 git add .
 git commit -m "Deploy to GitHub Pages: ${SHA}"
 
-if [ ${TRAVIS} = "true" ]; then
+if [[ ${TRAVIS} == "true" ]]; then
   git config user.name "Travis CI"
   git config user.email "olafurpg@gmail.com"
 fi
