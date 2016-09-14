@@ -96,7 +96,7 @@ if [[ ! $1 == "-q" ]]; then
 fi
 assemble-jar
 maven-publish
-push-tag
+#push-tag
 update-github-release
 update-homebrew-release
 echo "Released ${tag}!"
