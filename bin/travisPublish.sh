@@ -27,6 +27,7 @@ function setupRelease() {
 if [[ ${TRAVIS_SECURE_ENV_VARS} == "true" && ${TRAVIS_BRANCH} == "master" ]]; then
   echo "Publishing snapshot..."
   setupDeployKey
+  echo "Travis tag ${TRAVIS_TAG}"
   if [[ -n ${TRAVIS_TAG} ]]; then
     echo "Tag ${TRAVIS_TAG} got pushed, skipping.."
     setupRelease
