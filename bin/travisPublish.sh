@@ -27,16 +27,14 @@ function setupRelease() {
 if [[ ${TRAVIS_SECURE_ENV_VARS} == "true" && ${TRAVIS_BRANCH} == "master" ]]; then
   echo "Publishing snapshot..."
   setupDeployKey
-  echo "Travis tag ${TRAVIS_TAG}"
-  if [[ -n ${TRAVIS_TAG} ]]; then
-    echo "Tag ${TRAVIS_TAG} got pushed, skipping.."
+  # Assert that nightly is set to snapshot.
+  if grep "nightly.*SNAPSHOT" core/src/main/scala/org/scalafmt/Versions.scala; then
+    echo "Publishing snapshot"
+    sbt publish # snapshot
+  else
+    echo "Releasing"
     setupRelease
     ./bin/publish.sh -q
-  else
-    # Assert that nightly is set to snapshot.
-    grep "nightly.*SNAPSHOT" core/src/main/scala/org/scalafmt/Versions.scala
-    # Save some useful information
-    sbt publish
   fi
   ./bin/update-gh-pages.sh
 else
