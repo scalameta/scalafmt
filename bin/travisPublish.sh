@@ -9,6 +9,7 @@ function setupDeployKey() {
   chmod 600 ${DEPLOY_KEY}
   chmod 600 homebrew_key
   eval `ssh-agent -s`
+  gpg --default-key ${DEPLOY_KEY}
   ssh-add ${DEPLOY_KEY}
   ssh-add homebrew_key
   git config --global user.name "Travis CI"
