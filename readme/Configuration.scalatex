@@ -177,7 +177,7 @@
     Disable formatting for specific regions of code by wrapping them in
     @code("// format: OFF") blocks:
 
-    @example(org.scalafmt.util.FileOps.readFile("readme/matrix.example"))
+    @example(org.scalafmt.util.FileOps.readFile("readme/Matrix.example"))
 
     To disable formatting for a whole file, put the comment at the top of
     the file.
