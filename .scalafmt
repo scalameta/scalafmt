@@ -1,4 +1,3 @@
 --maxColumn 80
 --alignTokens %;Infix,%%;Infix
 --assumeStandardLibraryStripMargin true
-

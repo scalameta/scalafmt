@@ -8,6 +8,7 @@ import org.scalafmt.FormatEvent.CompleteFormat
 import org.scalafmt.FormatEvent.Enqueue
 import org.scalafmt.FormatEvent.Explored
 import org.scalafmt.FormatEvent.VisitToken
+import org.scalafmt.rewrite.Rewrite
 import org.scalafmt.util.LoggerOps
 
 /**

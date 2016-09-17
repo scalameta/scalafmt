@@ -8,7 +8,7 @@ import java.io.File
   * I rely heavily on logging for debugging and the standard Java logging
   * doesn't work on Scala.js, which I hope to support one day.
   */
-object PrintlnLogger {
+object logger {
 
   private def log[T](t: sourcecode.Text[T],
                      logLevel: LogLevel,

@@ -1,0 +1,14 @@
+rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.includeUnitMethods = false
+<<< unit return type
+object a {
+  def x(): Unit = {
+    println(1)
+  }
+}
+>>>
+object a {
+  def x(): Unit = {
+    println(1)
+  }
+}

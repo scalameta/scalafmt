@@ -164,9 +164,18 @@ lazy val macros = project
     )
   )
 
+lazy val cliJvmOptions = Seq(
+  "-Xss4m"
+)
+
 lazy val cli = project
   .settings(allSettings)
   .settings(
+    packSettings,
+    packMain := Map("scalafmt_pack" -> "org.scalafmt.cli.Cli"),
+    packJvmOpts := Map(
+      "scalafmt_pack" -> cliJvmOptions
+    ),
     moduleName := "scalafmt-cli",
     mainClass in assembly := Some("org.scalafmt.cli.Cli"),
     libraryDependencies ++= Seq(

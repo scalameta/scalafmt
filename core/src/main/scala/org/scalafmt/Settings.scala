@@ -7,7 +7,9 @@ import scala.collection.immutable.Seq
 import metaconfig.ConfigReader
 import metaconfig.Reader
 import metaconfig.String2AnyMap
+import org.scalafmt.rewrite.Rewrite
 import org.scalafmt.util.LoggerOps
+import org.scalafmt.config.RewriteSettings
 
 trait Settings {
 
@@ -36,7 +38,10 @@ trait Settings {
       ifWhileOpenParen = true
     ),
     noNewlinesBeforeJsNative = false,
-    continuationIndent = ContinuationIndent(callSite = 2, defnSite = 4),
+    continuationIndent = ContinuationIndent(
+      callSite = 2,
+      defnSite = 4
+    ),
     binPackImportSelectors = false,
     spaces = Spaces(
       afterTripleEquals = false,
@@ -54,7 +59,8 @@ trait Settings {
     keepSelectChainLineBreaks = false,
     alwaysNewlineBeforeLambdaParameters = false,
     lineEndings = LineEndings.preserve,
-    bestEffortInDeeplyNestedCode = false
+    bestEffortInDeeplyNestedCode = false,
+    rewrite = RewriteSettings()
   )
 
   val intellij = default.copy(

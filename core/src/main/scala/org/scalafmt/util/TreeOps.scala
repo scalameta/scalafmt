@@ -313,8 +313,8 @@ object TreeOps {
       case _ =>
         splitApplyIntoLhsAndArgsLifted(leftOwner).getOrElse {
           logger.error(s"""Unknown tree
-                           |${log(leftOwner.parent.get)}
-                           |${isDefnSite(leftOwner)}""".stripMargin)
+                          |${log(leftOwner.parent.get)}
+                          |${isDefnSite(leftOwner)}""".stripMargin)
           throw UnexpectedTree[Term.Apply](leftOwner)
         }
     }
@@ -436,4 +436,8 @@ object TreeOps {
       case Some(_: Term.Block | _: Term.If | _: Term.While | _: Source) => true
       case _ => false
     }
+
+  // procedure syntax has decltpe: Some("")
+  def isProcedureSyntax(defn: Defn.Def): Boolean =
+    defn.decltpe.exists(_.tokens.isEmpty)
 }

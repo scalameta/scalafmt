@@ -14,7 +14,7 @@ import sourcecode.Text
   * Debugging utility.
   */
 object LoggerOps {
-  val logger = PrintlnLogger
+  val logger = org.scalafmt.util.logger
 
   // TODO(olafur) parameterize
   def name2style[T](styles: Text[T]*): Map[String, T] =
@@ -57,6 +57,8 @@ object LoggerOps {
             |$tokens
             |""".stripMargin
   }
+
+  def stripTrailingSpace(s: String): String = s.replaceAll("\\s+\n", "\n")
 
   def reveal(s: String): String = s.map {
     case '\n' => '¶'

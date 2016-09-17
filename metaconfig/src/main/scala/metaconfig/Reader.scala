@@ -41,7 +41,8 @@ object Reader {
     new Reader[T] {
       override def read(any: Any): Result[T] = {
         try {
-          if (ev.runtimeClass.isInstance(any)) {
+          if (ev.runtimeClass.getTypeParameters.isEmpty && // careful with erasure
+              ev.runtimeClass.isInstance(any)) {
             Right(any.asInstanceOf[T])
           } else {
             f.applyOrElse(any, (x: Any) => fail[T](x))
