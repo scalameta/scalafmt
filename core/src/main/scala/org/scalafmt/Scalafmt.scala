@@ -11,6 +11,9 @@ import org.scalafmt.Error.Incomplete
 
 object Scalafmt {
 
+  private val WindowsLineEnding = "\r\n"
+  private val UnixLineEnding = "\n"
+
   /**
     * Format Scala code using scalafmt.
     *
@@ -28,9 +31,15 @@ object Scalafmt {
              runner: ScalafmtRunner = ScalafmtRunner.default,
              range: Set[Range] = Set.empty[Range]): FormatResult = {
     try {
-      if (code.matches("\\s*")) FormatResult.Success("\n")
+      if (code.matches("\\s*")) FormatResult.Success(System.lineSeparator())
       else {
-        val tree = new scala.meta.XtensionParseInputLike(code)
+        val isWindows = containsWindowsLineEndings(code)
+        val unixCode = if (isWindows) {
+          code.replaceAll(WindowsLineEnding, UnixLineEnding)
+        } else {
+          code
+        }
+        val tree = new scala.meta.XtensionParseInputLike(unixCode)
           .parse(stringToInput, runner.parser, runner.dialect)
           .get
         val formatOps = new FormatOps(tree, style, runner)
@@ -39,10 +48,15 @@ object Scalafmt {
         val search = new BestFirstSearch(formatOps, range, formatWriter)
         val partial = search.getBestPath
         val formattedString = formatWriter.mkString(partial.splits)
-        if (partial.reachedEOF) {
-          FormatResult.Success(formattedString)
+        val correctedFormattedString = if (isWindows) {
+          formattedString.replaceAll(UnixLineEnding, WindowsLineEnding)
         } else {
-          throw Incomplete(formattedString)
+          formattedString
+        }
+        if (partial.reachedEOF) {
+          FormatResult.Success(correctedFormattedString)
+        } else {
+          throw Incomplete(correctedFormattedString)
         }
       }
     } catch {
@@ -50,4 +64,7 @@ object Scalafmt {
       case NonFatal(e) => FormatResult.Failure(e)
     }
   }
+
+  private[this] def containsWindowsLineEndings(code: String): Boolean =
+    code.contains(WindowsLineEnding)
 }
