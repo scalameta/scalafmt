@@ -8,8 +8,12 @@ import scala.util.control.NonFatal
 import scala.meta.Input.stringToInput
 
 import org.scalafmt.Error.Incomplete
+import org.scalafmt.ScalafmtStyle.{PreserveLineEndings, WindowsLineEndings}
 
 object Scalafmt {
+
+  private val WindowsLineEnding = "\r\n"
+  private val UnixLineEnding = "\n"
 
   /**
     * Format Scala code using scalafmt.
@@ -28,9 +32,15 @@ object Scalafmt {
              runner: ScalafmtRunner = ScalafmtRunner.default,
              range: Set[Range] = Set.empty[Range]): FormatResult = {
     try {
-      if (code.matches("\\s*")) FormatResult.Success("\n")
+      if (code.matches("\\s*")) FormatResult.Success(System.lineSeparator())
       else {
-        val tree = new scala.meta.XtensionParseInputLike(code)
+        val isWindows = containsWindowsLineEndings(code)
+        val unixCode = if (isWindows) {
+          code.replaceAll(WindowsLineEnding, UnixLineEnding)
+        } else {
+          code
+        }
+        val tree = new scala.meta.XtensionParseInputLike(unixCode)
           .parse(stringToInput, runner.parser, runner.dialect)
           .get
         val formatOps = new FormatOps(tree, style, runner)
@@ -39,10 +49,17 @@ object Scalafmt {
         val search = new BestFirstSearch(formatOps, range, formatWriter)
         val partial = search.getBestPath
         val formattedString = formatWriter.mkString(partial.splits)
+        val correctedFormattedString =
+          if ((style.lineEndings == PreserveLineEndings && isWindows) ||
+              style.lineEndings == WindowsLineEndings) {
+            formattedString.replaceAll(UnixLineEnding, WindowsLineEnding)
+          } else {
+            formattedString
+          }
         if (partial.reachedEOF) {
-          FormatResult.Success(formattedString)
+          FormatResult.Success(correctedFormattedString)
         } else {
-          throw Incomplete(formattedString)
+          throw Incomplete(correctedFormattedString)
         }
       }
     } catch {
@@ -50,4 +67,7 @@ object Scalafmt {
       case NonFatal(e) => FormatResult.Failure(e)
     }
   }
+
+  private[this] def containsWindowsLineEndings(code: String): Boolean =
+    code.contains(WindowsLineEnding)
 }

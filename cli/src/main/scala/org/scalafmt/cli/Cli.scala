@@ -16,6 +16,7 @@ import org.scalafmt.Scalafmt
 import org.scalafmt.ScalafmtOptimizer
 import org.scalafmt.ScalafmtRunner
 import org.scalafmt.ScalafmtStyle
+import org.scalafmt.ScalafmtStyle.LineEndings
 import org.scalafmt.Versions
 import org.scalafmt.macros.Macros
 import org.scalafmt.util.FileOps
@@ -83,6 +84,15 @@ object Cli {
   case class StdinCode(override val code: String) extends InputMethod(code)
   case class FileContents(filename: String, override val code: String)
       extends InputMethod(code)
+
+  implicit val lineEndingsReads: Read[LineEndings] = Read.reads {
+    lineEndingsType =>
+      ScalafmtStyle.availableLineEndings
+        .getOrElse(lineEndingsType.toLowerCase, {
+          throw new IllegalArgumentException(
+            s"Unknown line endings type $lineEndingsType. Expected one of ${ScalafmtStyle.availableLineEndings.keys}")
+        })
+  }
 
   implicit val styleReads: Read[ScalafmtStyle] = Read.reads { styleName =>
     ScalafmtStyle.availableStyles.getOrElse(styleName.toLowerCase, {
@@ -318,6 +328,10 @@ object Cli {
 
       opt[Boolean]("spaceBeforeContextBoundColon") action { (bool, c) =>
         c.copy(style = c.style.copy(spaceBeforeContextBoundColon = bool))
+      } text s"See ScalafmtConfig scaladoc."
+
+      opt[LineEndings]("lineEndings") action { (lineEndings, c) =>
+        c.copy(style = c.style.copy(lineEndings = lineEndings))
       } text s"See ScalafmtConfig scaladoc."
 
       note(s"""

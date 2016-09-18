@@ -293,3 +293,14 @@
       function(
         argument1,
         argument2)
+  @sect{--lineEndings}
+    Default: @b{preserve}
+
+    @ul
+      @li
+        @code{preserve} output will include endings included in original file (windows if there was at least one windows
+        line ending, unix if there was zero occurrences of windows line endings)
+      @li
+        @code{unix} output will include only unix line endings
+      @li
+        @code{windows} output will include only windows line endings
