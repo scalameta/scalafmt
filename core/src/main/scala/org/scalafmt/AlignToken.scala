@@ -1,12 +1,16 @@
 package org.scalafmt
 
+import metaconfig.ConfigReader
+
 /**
   * Configuration option for aligning tokens.
   *
   * @param code string literal value of the token to align by.
   * @param owner regexp for class name of scala.meta.Tree "owner" of [[code]].
   */
+@ConfigReader
 case class AlignToken(code: String, owner: String)
+
 
 object AlignToken {
   val applyInfix = "Term.ApplyInfix"

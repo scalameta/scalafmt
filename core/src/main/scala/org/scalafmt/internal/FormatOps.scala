@@ -389,10 +389,10 @@ class FormatOps(val tree: Tree,
     val indent = {
       if ((style.unindentTopLevelOperators ||
           isTopLevelInfixApplication(owner)) &&
-          (style.indentOperatorsIncludeFilter
+          (style.indentOperator.includeRegexp
             .findFirstIn(op.tokens.head.syntax)
             .isEmpty ||
-          style.indentOperatorsExcludeFilter
+          style.indentOperator.excludeRegexp
             .findFirstIn(op.tokens.head.syntax)
             .isDefined)) 0
       else if (!modification.isNewline &&

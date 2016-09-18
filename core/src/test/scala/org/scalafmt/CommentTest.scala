@@ -4,7 +4,8 @@ import org.scalafmt.util.DiffAssertions
 import org.scalatest.FunSuite
 
 class CommentTest extends FunSuite with DiffAssertions {
-  val javadocStyle = ScalafmtStyle.default.copy(scalaDocs = false)
+  val javadocStyle =
+    ScalafmtStyle.default.copy(docstrings = Docstrings.JavaDoc)
 
   test("javadoc docstrings are correct") {
     val original = """object a {
@@ -28,20 +29,20 @@ class CommentTest extends FunSuite with DiffAssertions {
   test("remove trailing space in comments") {
     val trailingSpace = "   "
     val original = s"""object a {
-                     |  // inline comment$trailingSpace
-                     |/**$trailingSpace
-                     |  * Y is cool$trailingSpace
-                     |  */
-                     |/*$trailingSpace
-                     |  * X is cool$trailingSpace
-                     |  */
-                     |/*
-                     |    I have blank lines.
-                     |
-                     |    Please preserve them.
-                     |  */
-                     |val y = 2
-                     |}
+                      |  // inline comment$trailingSpace
+                      |/**$trailingSpace
+                      |  * Y is cool$trailingSpace
+                      |  */
+                      |/*$trailingSpace
+                      |  * X is cool$trailingSpace
+                      |  */
+                      |/*
+                      |    I have blank lines.
+                      |
+                      |    Please preserve them.
+                      |  */
+                      |val y = 2
+                      |}
                    """.stripMargin
     val expected = """object a {
                      |  // inline comment

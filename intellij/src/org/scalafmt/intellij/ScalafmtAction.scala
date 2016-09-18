@@ -24,6 +24,7 @@ import com.intellij.openapi.wm.WindowManager
 import com.intellij.ui.awt.RelativePoint
 import org.scalafmt.FormatResult
 import org.scalafmt.Scalafmt
+import org.scalafmt.ScalafmtRunner
 import org.scalafmt.ScalafmtStyle
 import org.scalafmt.cli.Cli.Config
 import org.scalafmt.cli.StyleCache
@@ -40,22 +41,23 @@ case class FileDocument(file: VirtualFile, document: Document) {
 }
 
 object StyleChangedCache {
-  val styleCache = mutable.Map.empty[String, Config]
+  val styleCache = mutable.Map.empty[String, ScalafmtStyle]
 }
 
 class ScalafmtAction extends AnAction {
 
   override def actionPerformed(event: AnActionEvent): Unit = {
-    val config = getStyle(event)
+    val style = getStyle(event)
     getCurrentFileDocument(event).filter(_.canFormat).foreach { fileDoc =>
       val source = fileDoc.document.getText()
-      val runner =
+      val runner = {
         if (fileDoc.isSbt)
-          config.runner.copy(dialect = scala.meta.dialects.Sbt0137)
-        else config.runner
+          ScalafmtRunner.default.copy(dialect = scala.meta.dialects.Sbt0137)
+        else ScalafmtRunner.default
+      }
       Scalafmt.format(
         source,
-        style = config.style,
+        style = style,
         runner = runner
       ) match {
         case FormatResult.Failure(e: ParseException) =>
@@ -82,21 +84,36 @@ class ScalafmtAction extends AnAction {
   }
 
   private def getConfigFileInPath(path: String) = {
-    Option(FileOps.getFile(path, ".scalafmt")).collect {
+    Option(FileOps.getFile(path, ".scalafmt.conf")).collect {
       case file: File if file.isFile => file.getAbsolutePath
+    }
+  }
+
+  def emitMigrateConfigWarning(event: AnActionEvent, configFile: File): Unit = {
+    if (configFile.isFile) {
+      displayMessage(
+        event,
+        "Ignoring configuration file '.scalafmt', please remove it. " +
+          "Configuration is now read from '.scalafmt.conf' using HOCON syntax. " +
+          "Run `scalafmt --migrate2hocon .scalafmt` from the the CLI to migrate your settings. " +
+          "More details in changelog for 0.4  release.",
+        MessageType.WARNING)
     }
   }
 
   private val homeDir = System.getProperty("user.home")
 
-  private def getStyle(event: AnActionEvent): Config = {
-    val customStyle: Option[Config] = for {
+  private def getStyle(event: AnActionEvent): ScalafmtStyle = {
+
+    val customStyle: Option[ScalafmtStyle] = for {
       project <- Option(event.getData(CommonDataKeys.PROJECT))
+      _ = emitMigrateConfigWarning(event,
+                                   new File(project.getBasePath, ".scalafmt"))
       localConfig = getConfigFileInPath(project.getBasePath)
       globalConfig = getConfigFileInPath(homeDir)
       configFile <- localConfig.orElse(globalConfig)
       config <- {
-        val x = StyleCache.getConfigForFile(configFile)
+        val x = StyleCache.getStyleForFile(configFile)
         if (x.isEmpty) {
           displayMessage(event,
                          s"Failed to read $configFile",
@@ -105,9 +122,7 @@ class ScalafmtAction extends AnAction {
         x
       }
     } yield {
-      if (!StyleChangedCache.styleCache
-            .get(configFile)
-            .exists(_.style == config.style)) {
+      if (!StyleChangedCache.styleCache.get(configFile).contains(config)) {
         displayMessage(event,
                        "scalafmt picked up new style configuration",
                        MessageType.INFO)
@@ -115,7 +130,7 @@ class ScalafmtAction extends AnAction {
       }
       config
     }
-    customStyle.getOrElse(Config.default)
+    customStyle.getOrElse(ScalafmtStyle.default)
   }
 
   private def getCurrentFileDocument(

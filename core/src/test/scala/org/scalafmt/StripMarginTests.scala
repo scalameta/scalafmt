@@ -130,7 +130,8 @@ val msg = s'''AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
   testsToRun.foreach(runTest(run))
 
-  val alignStyle = ScalafmtStyle.default.copy(alignStripMarginStrings = true)
+  val alignStyle =
+    ScalafmtStyle.default.copy(assumeStandardLibraryStripMargin = true)
 
   def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
     val runner = scalafmtRunner.withParser(parse)

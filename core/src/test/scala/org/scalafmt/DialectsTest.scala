@@ -4,7 +4,6 @@ import org.scalafmt.util.DiffAssertions
 import org.scalatest.FunSuite
 
 class DialectsTest extends FunSuite with DiffAssertions {
-  val javadocStyle = ScalafmtStyle.default.copy(scalaDocs = false)
 
   test("sbt") {
     val original =

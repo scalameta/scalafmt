@@ -6,18 +6,19 @@
 @sect{Configuration}
 
   @p
-    Configuration for scalafmt is a bit unorthodox, it is managed with a
-    plain text file @code{.scalafmt} where options are defined as CLI flags.
-    I recommend you create the @code(".scalafmt") in in the root directory
-    of your project.
+    Configuration for scalafmt is defined in a
+    plain text file @code{.scalafmt.conf} using
+    @lnk("HOCON", "https://github.com/typesafehub/config") syntax.
+    To reuse your configuration with IntelliJ,
+    @code(".scalafmt.conf") must be placed in the root directory of your project.
 
   @p
-    Here is an example @code(".scalafmt").
+    Here is an example @code(".scalafmt.conf").
 
     @cliFlags
       # Example .scalafmt, comments are supported.
-      --style defaultWithAlign # For pretty alignment.
-      --maxColumn 100          # For my wide 30" display.
+      style = defaultWithAlign # For pretty alignment.
+      maxColumn = 100          # For my wide 30" display.
 
   @p
     A note of warning. I personally use the default style which means that the
@@ -39,7 +40,7 @@
     by default.
 
 
-  @sect{--style}
+  @sect{style}
     Option 1: @b{default}
     @fmt(ScalafmtStyle.default.copy(maxColumn = 40))
       // Column 40                           |
@@ -96,17 +97,17 @@
 
         function(argument1, argument2)
 
-        // --continuationIndent 2 for call + defn site
-        // --alignByOpenParenCallSite false
-        // --danglingParentheses true
+        // continuationIndent = 2  # for call + defn site
+        // align.openParenCallSite = false
+        // danglingParentheses = true
         function(argument1, argument2, argument3, argument4)
 
-        // --alignByOpenParenCallSite true
+        // openParenCallSite = true
         def foobar(argument1: Type1, argument2: Type2): Int = argument1 + argument2
 
       }
 
-  @sect{--maxColumn}
+  @sect{maxColumn}
     Default: @b(default.maxColumn)
 
     @ul
@@ -119,7 +120,7 @@
       @li
         Consider refactoring your code before of choosing a value above 100.
 
-  @sect{--continuationIndentCallSite}
+  @sect{continuationIndent.callSite}
     Default: @b(default.continuationIndentCallSite)
 
     @p
@@ -129,17 +130,17 @@
           argument1 // indented by 2
         )
 
-  @sect{--continuationIndentDefnSite}
+  @sect{continuationIndent.defnSite}
     Default: @b(default.continuationIndentDefnSite)
 
     @p
-      Same as @code{--continuationIndentCallSite} except for definition site.
+      Same as @code{continuationIndent.callSite} except for definition site.
       Example:
       @hl.scala
         def function(
             argument1: Type1): ReturnType // Indented by 4
 
-  @sect{--alignTokens}
+  @sect{align.tokens}
     Default: @b{off}
 
     @p
@@ -194,8 +195,8 @@
         indentation level. It's best to enable formatting at the same level as
         when it was disabled.
 
-  @sect{--assumeStandardLibraryStripMargin}
-    Default: @b(default.alignStripMarginStrings)
+  @sect{assumeStandardLibraryStripMargin}
+    Default: @b(default.assumeStandardLibraryStripMargin)
 
     @p
       If @b{true}, the margin character @code("|") is aligned with the opening triple
@@ -206,15 +207,15 @@
 
       @note. May cause non-idempotent formatting in rare cases, see @issue(192).
 
-  @sect{--javaDocs vs. --scalaDocs}
-    Default: --scalaDocs
+  @sect{docstrings}
+    Default: @b(default.docstrings.toString)
 
     @hl.scala
-      // --scalaDocs
+      // ScalaDoc
       /** Align by second asterisk.
         *
         */
-      // --javaDocs
+      // JavaDoc
       /** Align by first asterisk.
        *
        */
@@ -232,7 +233,7 @@
           Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] = 2
 
   @sect{--alignByArrowEnumeratorGenerator}
-    Default: @default.alignByArrowEnumeratorGenerator
+    Default: @default.align.arrowEnumeratorGenerator
 
     @hl.scala
       // false
@@ -270,7 +271,7 @@
         // body ...
       }
   @sect{--alignByOpenParenCallSite}
-    Default: @default.alignByOpenParenCallSite
+    Default: @default.align.openParenCallSite
 
     @hl.scala
       // Column limit |

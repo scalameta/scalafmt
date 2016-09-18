@@ -13,9 +13,9 @@ before_install:
 - pip install --user codecov
 script:
 - "./bin/testAll.sh"
-after_success:
-- "./bin/travisPublish.sh"
-- codecov
+#after_success:
+#- "./bin/travisPublish.sh"
+#- codecov
 notifications:
   email:
   - olafurpg@gmail.com

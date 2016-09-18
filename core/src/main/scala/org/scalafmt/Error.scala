@@ -20,6 +20,7 @@ object Error {
 
   def reportIssue: String =
     "Please file an issue on https://github.com/olafurpg/scalafmt/issues"
+  case object UnableToParseCliOptions extends Error("Failed to parse CLI options")
 
   case class Incomplete(formattedCode: String)
       extends Error("Unable to format file due to bug in scalafmt")
@@ -69,6 +70,12 @@ object Error {
 
   case class InvalidScalafmtConfiguration(file: File)
       extends Error(s"Unable to parse scalafmt configuration file: $file")
+
+  case class InvalidOption(option: String)
+      extends Error(s"Invalid option $option")
+
+  case class FailedToParseOption(path: String, error: Throwable)
+      extends Error(s"Failed to read option $path, error: $error")
 
   case class IdempotencyViolated(msg: String) extends Error(msg)
 

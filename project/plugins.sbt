@@ -1,4 +1,8 @@
 resolvers += Classpaths.sbtPluginReleases
+resolvers += Resolver.url(
+  "dancingrobot84-bintray",
+  url("http://dl.bintray.com/dancingrobot84/sbt-plugins/")
+)(Resolver.ivyStylePatterns)
 
 libraryDependencies += "org.scala-sbt" % "scripted-plugin" % sbtVersion.value
 
@@ -10,3 +14,5 @@ addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.2.6")
 addSbtPlugin("com.lihaoyi" % "scalatex-sbt-plugin" % "0.3.5")
 addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "1.1")
 addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.0.0")
+addSbtPlugin("com.dancingrobot84" % "sbt-idea-plugin" % "0.4.2")
+//

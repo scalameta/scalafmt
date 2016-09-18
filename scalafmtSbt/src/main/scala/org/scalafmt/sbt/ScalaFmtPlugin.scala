@@ -90,8 +90,8 @@ object ScalaFmtPlugin extends AutoPlugin {
       libraryDependencies ++= Seq(
         // scala-library needs to be explicitly added to fix
         // https://github.com/olafurpg/scalafmt/issues/190
-        "org.scala-lang" % "scala-library"     % org.scalafmt.Versions.scala   % "scalafmt",
-        "com.geirsson"   % "scalafmt-cli_2.11" % org.scalafmt.Versions.nightly % "scalafmt"
+        "org.scala-lang" % "scala-library" % org.scalafmt.Versions.scala % "scalafmt",
+        "com.geirsson" % "scalafmt-cli_2.11" % org.scalafmt.Versions.nightly % "scalafmt"
       )
     )
 
