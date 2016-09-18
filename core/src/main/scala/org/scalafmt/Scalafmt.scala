@@ -8,6 +8,7 @@ import scala.util.control.NonFatal
 import scala.meta.Input.stringToInput
 
 import org.scalafmt.Error.Incomplete
+import org.scalafmt.ScalafmtStyle.{PreserveLineEndings, WindowsLineEndings}
 
 object Scalafmt {
 
@@ -48,11 +49,13 @@ object Scalafmt {
         val search = new BestFirstSearch(formatOps, range, formatWriter)
         val partial = search.getBestPath
         val formattedString = formatWriter.mkString(partial.splits)
-        val correctedFormattedString = if (isWindows) {
-          formattedString.replaceAll(UnixLineEnding, WindowsLineEnding)
-        } else {
-          formattedString
-        }
+        val correctedFormattedString =
+          if ((style.lineEndings == PreserveLineEndings && isWindows) ||
+              style.lineEndings == WindowsLineEndings) {
+            formattedString.replaceAll(UnixLineEnding, WindowsLineEnding)
+          } else {
+            formattedString
+          }
         if (partial.reachedEOF) {
           FormatResult.Success(correctedFormattedString)
         } else {

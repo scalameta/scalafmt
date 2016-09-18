@@ -1,7 +1,8 @@
 package org.scalafmt
 
-import scala.util.matching.Regex
+import org.scalafmt.ScalafmtStyle.LineEndings
 
+import scala.util.matching.Regex
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.ValidationOps
 import sourcecode.Text
@@ -149,6 +150,11 @@ import sourcecode.Text
   *                                        n =>
   *                                          consume(n)
   *                                      }
+  * @param lineEndings If [[org.scalafmt.ScalafmtStyle.UnixLineEndings]], output will include only unix line endings
+  *                    If [[org.scalafmt.ScalafmtStyle.WindowsLineEndings]], output will include only windows line endings
+  *                    If [[org.scalafmt.ScalafmtStyle.PreserveLineEndings]], output will include endings included in original
+  *                    file (windows if there was at least one windows line ending, unix if there
+  *                    was zero occurrences of windows line endings)
   *
   */
 case class ScalafmtStyle(
@@ -183,7 +189,8 @@ case class ScalafmtStyle(
     alignByIfWhileOpenParen: Boolean,
     spaceBeforeContextBoundColon: Boolean,
     keepSelectChainLineBreaks: Boolean,
-    alwaysNewlineBeforeLambdaParameters: Boolean
+    alwaysNewlineBeforeLambdaParameters: Boolean,
+    lineEndings: LineEndings
 ) {
 
   lazy val alignMap: Map[String, Regex] =
@@ -231,7 +238,8 @@ object ScalafmtStyle {
     alignByIfWhileOpenParen = true,
     spaceBeforeContextBoundColon = false,
     keepSelectChainLineBreaks = false,
-    alwaysNewlineBeforeLambdaParameters = false
+    alwaysNewlineBeforeLambdaParameters = false,
+    lineEndings = PreserveLineEndings
   )
 
   val intellij = default.copy(
@@ -289,6 +297,18 @@ object ScalafmtStyle {
     )
   }.map { case (k, v) => k.toLowerCase -> v }
 
+  sealed trait LineEndings
+  case object UnixLineEndings extends LineEndings
+  case object WindowsLineEndings extends LineEndings
+  case object PreserveLineEndings extends LineEndings
+
+  val availableLineEndings: Map[String, LineEndings] =
+    Map(
+      "preserve" -> PreserveLineEndings,
+      "unix" -> UnixLineEndings,
+      "windows" -> WindowsLineEndings
+    )
+
   // TODO(olafur) move these elsewhere.
   val testing = default.copy(alignStripMarginStrings = false)
   val unitTest80 = testing.copy(
@@ -298,5 +318,3 @@ object ScalafmtStyle {
   )
   val unitTest40 = unitTest80.copy(maxColumn = 40)
 }
-
-

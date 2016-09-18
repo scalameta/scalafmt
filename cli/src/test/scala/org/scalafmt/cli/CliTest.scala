@@ -8,6 +8,7 @@ import org.scalafmt.Error.MisformattedFile
 import org.scalafmt.ScalafmtOptimizer
 import org.scalafmt.ScalafmtRunner
 import org.scalafmt.ScalafmtStyle
+import org.scalafmt.ScalafmtStyle.{PreserveLineEndings, UnixLineEndings, WindowsLineEndings}
 import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.FileOps
 import org.scalatest.FunSuite
@@ -217,5 +218,20 @@ class CliTest extends FunSuite with DiffAssertions {
     val obtained2 = FileOps.readFile(file2)
     assertNoDiff(obtained1, expected1)
     assertNoDiff(obtained2, expected2)
+  }
+
+  test("cli parses lineEndings preserve") {
+    val obtained = Cli.getConfig(Array("--lineEndings", "preserve"))
+    assert(obtained.exists(_.style.lineEndings == PreserveLineEndings))
+  }
+
+  test("cli parses lineEndings windows") {
+    val obtained = Cli.getConfig(Array("--lineEndings", "windows"))
+    assert(obtained.exists(_.style.lineEndings == WindowsLineEndings))
+  }
+
+  test("cli parses lineEndings unix") {
+    val obtained = Cli.getConfig(Array("--lineEndings", "unix"))
+    assert(obtained.exists(_.style.lineEndings == UnixLineEndings))
   }
 }
