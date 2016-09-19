@@ -109,31 +109,36 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(NoSplit, 0)
         )
+      // Import left brace
       case FormatToken(open @ LeftBrace(), _, _)
-          if parents(leftOwner).exists(_.is[Import]) ||
-            leftOwner.is[Term.Interpolate] =>
-        val isInterpolate = leftOwner.is[Term.Interpolate]
-        val policy =
-          if (isInterpolate) NoPolicy
-          else SingleLineBlock(matchingParentheses(hash(open)))
+          if parents(leftOwner).exists(_.is[Import]) =>
+        val policy = SingleLineBlock(matchingParentheses(hash(open)))
         val close = matchingParentheses(hash(open))
         val newlineBeforeClosingCurly = newlineBeforeClosingCurlyPolicy(close)
-
         val newlinePolicy =
           if (style.binPackImportSelectors) newlineBeforeClosingCurly
           else newlineBeforeClosingCurly.andThen(OneArgOneLineSplit(open))
         Seq(
           Split(if (style.spaces.inImportCurlyBraces) Space else NoSplit, 0)
             .withPolicy(policy),
-          Split(Newline, 1, ignoreIf = isInterpolate)
+          Split(Newline, 1)
             .withPolicy(newlinePolicy)
             .withIndent(2, close, Right)
+        )
+      // Interpolated string left brace
+      case FormatToken(open @ LeftBrace(), _, _)
+          if leftOwner.is[Term.Interpolate] =>
+        Seq(
+          Split(NoSplit, 0)
         )
       case FormatToken(_, close @ RightBrace(), _)
           if parents(rightOwner).exists(_.is[Import]) ||
             rightOwner.is[Term.Interpolate] =>
+        val isInterpolate = rightOwner.is[Term.Interpolate]
         Seq(
-          Split(if (style.spaces.inImportCurlyBraces) Space else NoSplit, 0)
+          Split(if (style.spaces.inImportCurlyBraces && !isInterpolate) Space
+                else NoSplit,
+                0)
         )
       case FormatToken(Dot(), underscore @ Underscore(), _)
           if parents(rightOwner).exists(_.is[Import]) =>
