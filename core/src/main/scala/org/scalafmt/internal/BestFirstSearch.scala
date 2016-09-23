@@ -204,7 +204,7 @@ class BestFirstSearch(val formatOps: FormatOps,
           Q.dequeueAll
           best.clear()
           visits.clear()
-          if (!bestEffortEscape) {
+          if (!style.bestEffortInDeeplyNestedCode) {
             runner.eventCallback(CompleteFormat(explored, deepestYet, tokens))
             throw SearchStateExploded(deepestYet,
                                       formatWriter.mkString(deepestYet.splits),

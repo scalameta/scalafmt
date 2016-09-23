@@ -120,7 +120,7 @@
 @sect{0.1.4}
   @ul
     @li
-      @sect.ref{--assumeStandardLibraryStripMargin}.
+      @sect.ref{assumeStandardLibraryStripMargin}.
     @li
       @sect.ref{// format: off}.
     @li

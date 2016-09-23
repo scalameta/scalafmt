@@ -1,8 +1,8 @@
 package org.scalafmt
 
-import org.scalafmt.ScalafmtStyle.LineEndings
-
 import scala.util.matching.Regex
+import metaconfig.ConfigReader
+import metaconfig.Reader
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.ValidationOps
 import sourcecode.Text
@@ -15,7 +15,7 @@ import sourcecode.Text
   * @param scalaDocs Only used if @reformatDocstrings is true. If true,
   *                  reformats docstrings to use scaladoc style docstring,
   *                  otherwise use javadoc style.
-  * @param alignStripMarginStrings If true, the margin character | is treated
+  * @param assumeStandardLibraryStripMargin If true, the margin character | is treated
   *                                as the new indentation in multiline strings
   *                                ending with `.stripMargin`.
   * @param binPackArguments If true, will fit as many arguments on each line,
@@ -150,171 +150,61 @@ import sourcecode.Text
   *                                        n =>
   *                                          consume(n)
   *                                      }
-  * @param lineEndings If [[org.scalafmt.ScalafmtStyle.UnixLineEndings]], output will include only unix line endings
-  *                    If [[org.scalafmt.ScalafmtStyle.WindowsLineEndings]], output will include only windows line endings
-  *                    If [[org.scalafmt.ScalafmtStyle.PreserveLineEndings]], output will include endings included in original
+  * @param lineEndings If [[org.scalafmt.LineEndings.unix]], output will include only unix line endings
+  *                    If [[org.scalafmt.LineEndings.windows]], output will include only windows line endings
+  *                    If [[org.scalafmt.LineEndings.preserve]], output will include endings included in original
   *                    file (windows if there was at least one windows line ending, unix if there
   *                    was zero occurrences of windows line endings)
   *
   */
+@ConfigReader
 case class ScalafmtStyle(
     // Note: default style is right below
     maxColumn: Int,
-    reformatDocstrings: Boolean,
-    scalaDocs: Boolean,
-    alignStripMarginStrings: Boolean,
-    binPackArguments: Boolean,
-    binPackParameters: Boolean,
+    docstrings: Docstrings,
+    assumeStandardLibraryStripMargin: Boolean,
     configStyleArguments: Boolean,
-    binPackDotChains: Boolean,
     noNewlinesBeforeJsNative: Boolean,
     danglingParentheses: Boolean,
-    alignByOpenParenCallSite: Boolean,
-    alignByOpenParenDefnSite: Boolean,
-    continuationIndentCallSite: Int,
-    continuationIndentDefnSite: Int,
-    alignMixedOwners: Boolean,
-    alignTokens: Set[AlignToken],
+    binPack: BinPack,
+    continuationIndent: ContinuationIndent,
+    align: Align,
     binPackImportSelectors: Boolean,
-    spacesInImportCurlyBraces: Boolean,
+    spaces: Spaces,
     poorMansTrailingCommasInConfigStyle: Boolean,
     allowNewlineBeforeColonInMassiveReturnTypes: Boolean,
-    binPackParentConstructors: Boolean,
-    spaceAfterTripleEquals: Boolean,
     unindentTopLevelOperators: Boolean,
-    indentOperatorsIncludeFilter: Regex,
-    indentOperatorsExcludeFilter: Regex,
+    indentOperator: IndentOperator,
     rewriteTokens: Map[String, String],
-    alignByArrowEnumeratorGenerator: Boolean,
-    alignByIfWhileOpenParen: Boolean,
-    spaceBeforeContextBoundColon: Boolean,
     keepSelectChainLineBreaks: Boolean,
     alwaysNewlineBeforeLambdaParameters: Boolean,
-    lineEndings: LineEndings
+    lineEndings: LineEndings,
+    bestEffortInDeeplyNestedCode: Boolean
 ) {
 
+  def reformatDocstrings: Boolean = docstrings != Docstrings.preserve
+  def scalaDocs: Boolean = docstrings == Docstrings.ScalaDoc
+  def binPackParentConstructors: Boolean = binPack.parentConstructors
+  def binPackArguments: Boolean = binPack.callSite
+  def binPackParameters: Boolean = binPack.defnSite
+
+  def continuationIndentCallSite: Int = continuationIndent.callSite
+  def continuationIndentDefnSite: Int = continuationIndent.defnSite
+  implicit val contIndentReader: Reader[ContinuationIndent] =
+    continuationIndent.reader
+  implicit val indentReader: Reader[IndentOperator] = indentOperator.reader
+  implicit val binPackReader: Reader[BinPack] = binPack.reader
+  implicit val alignReader: Reader[Align] = align.reader
+  implicit val lineEndingReader: Reader[LineEndings] = LineEndings.reader
+  implicit val spacesReader: Reader[Spaces] = spaces.reader
+  implicit val docstringsReader: Reader[Docstrings] = Docstrings.reader
+
   lazy val alignMap: Map[String, Regex] =
-    alignTokens.map(x => x.code -> x.owner.r).toMap
+    align.tokens.map(x => x.code -> x.owner.r).toMap
   ValidationOps.assertNonNegative(
     continuationIndentCallSite,
     continuationIndentDefnSite
   )
 }
 
-object ScalafmtStyle {
-  val indentOperatorsIncludeAkka = "^.*=$".r
-  val indentOperatorsExcludeAkka = "^$".r
-  val indentOperatorsIncludeDefault = ".*".r
-  val indentOperatorsExcludeDefault = "^(&&|\\|\\|)$".r
-
-  val default = ScalafmtStyle(
-    maxColumn = 80,
-    reformatDocstrings = true,
-    scalaDocs = true,
-    alignStripMarginStrings = false,
-    binPackArguments = false,
-    binPackParameters = false,
-    configStyleArguments = true,
-    danglingParentheses = false,
-    alignByOpenParenCallSite = true,
-    alignByOpenParenDefnSite = true,
-    binPackDotChains = false,
-    noNewlinesBeforeJsNative = false,
-    continuationIndentCallSite = 2,
-    continuationIndentDefnSite = 4,
-    alignMixedOwners = false,
-    alignTokens = Set.empty[AlignToken],
-    binPackImportSelectors = false,
-    spacesInImportCurlyBraces = false,
-    poorMansTrailingCommasInConfigStyle = false,
-    allowNewlineBeforeColonInMassiveReturnTypes = true,
-    binPackParentConstructors = false,
-    spaceAfterTripleEquals = false,
-    unindentTopLevelOperators = false,
-    indentOperatorsIncludeFilter = indentOperatorsIncludeDefault,
-    indentOperatorsExcludeFilter = indentOperatorsExcludeDefault,
-    alignByArrowEnumeratorGenerator = false,
-    rewriteTokens = Map.empty[String, String],
-    alignByIfWhileOpenParen = true,
-    spaceBeforeContextBoundColon = false,
-    keepSelectChainLineBreaks = false,
-    alwaysNewlineBeforeLambdaParameters = false,
-    lineEndings = PreserveLineEndings
-  )
-
-  val intellij = default.copy(
-    continuationIndentCallSite = 2,
-    continuationIndentDefnSite = 2,
-    alignByOpenParenCallSite = false,
-    configStyleArguments = false,
-    danglingParentheses = true
-  )
-
-  def addAlign(style: ScalafmtStyle) = style.copy(
-    alignMixedOwners = true,
-    alignTokens = AlignToken.default
-  )
-
-  val defaultWithAlign = addAlign(default)
-
-  val default40 = default.copy(maxColumn = 40)
-  val default120 = default.copy(maxColumn = 120)
-
-  /**
-    * Experimental implementation of:
-    * https://github.com/scala-js/scala-js/blob/master/CODINGSTYLE.md
-    */
-  val scalaJs = default.copy(
-    noNewlinesBeforeJsNative = true,
-    binPackArguments = true,
-    binPackParameters = true,
-    continuationIndentCallSite = 4,
-    continuationIndentDefnSite = 4,
-    binPackImportSelectors = true,
-    allowNewlineBeforeColonInMassiveReturnTypes = false,
-    scalaDocs = false,
-    binPackParentConstructors = true,
-    alignByArrowEnumeratorGenerator = false,
-    alignTokens = Set(AlignToken.caseArrow),
-    alignByIfWhileOpenParen = false
-  )
-
-  /**
-    * Ready styles provided by scalafmt.
-    */
-  val activeStyles =
-    Map(
-      "Scala.js" -> scalaJs,
-      "IntelliJ" -> intellij
-    ) ++ LoggerOps.name2style(
-      default,
-      defaultWithAlign
-    )
-
-  val availableStyles = {
-    activeStyles ++ LoggerOps.name2style(
-      scalaJs
-    )
-  }.map { case (k, v) => k.toLowerCase -> v }
-
-  sealed trait LineEndings
-  case object UnixLineEndings extends LineEndings
-  case object WindowsLineEndings extends LineEndings
-  case object PreserveLineEndings extends LineEndings
-
-  val availableLineEndings: Map[String, LineEndings] =
-    Map(
-      "preserve" -> PreserveLineEndings,
-      "unix" -> UnixLineEndings,
-      "windows" -> WindowsLineEndings
-    )
-
-  // TODO(olafur) move these elsewhere.
-  val testing = default.copy(alignStripMarginStrings = false)
-  val unitTest80 = testing.copy(
-    maxColumn = 80,
-    continuationIndentCallSite = 4,
-    continuationIndentDefnSite = 4
-  )
-  val unitTest40 = unitTest80.copy(maxColumn = 40)
-}
+object ScalafmtStyle extends Settings

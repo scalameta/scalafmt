@@ -122,7 +122,7 @@ class Router(formatOps: FormatOps) {
           if (style.binPackImportSelectors) newlineBeforeClosingCurly
           else newlineBeforeClosingCurly.andThen(OneArgOneLineSplit(open))
         Seq(
-          Split(if (style.spacesInImportCurlyBraces) Space else NoSplit, 0)
+          Split(if (style.spaces.inImportCurlyBraces) Space else NoSplit, 0)
             .withPolicy(policy),
           Split(Newline, 1, ignoreIf = isInterpolate)
             .withPolicy(newlinePolicy)
@@ -132,7 +132,7 @@ class Router(formatOps: FormatOps) {
           if parents(rightOwner).exists(_.is[Import]) ||
             rightOwner.is[Term.Interpolate] =>
         Seq(
-          Split(if (style.spacesInImportCurlyBraces) Space else NoSplit, 0)
+          Split(if (style.spaces.inImportCurlyBraces) Space else NoSplit, 0)
         )
       case FormatToken(Dot(), underscore @ Underscore(), _)
           if parents(rightOwner).exists(_.is[Import]) =>
@@ -310,7 +310,7 @@ class Router(formatOps: FormatOps) {
         val modification: Modification = leftOwner match {
           case _: Mod => Space
           case t: Term.Name
-              if style.spaceAfterTripleEquals &&
+              if style.spaces.afterTripleEquals &&
                 t.tokens.map(_.syntax) == Seq("===") =>
             Space
           case _ => NoSplit
@@ -583,8 +583,8 @@ class Router(formatOps: FormatOps) {
         }
         val skipOpenParenAlign = {
           !isTuple && {
-            (defnSite && !style.alignByOpenParenDefnSite) ||
-            (!defnSite && !style.alignByOpenParenCallSite)
+            (defnSite && !style.align.openParenDefnSite) ||
+            (!defnSite && !style.align.openParenCallSite)
           }
         }
 
@@ -719,7 +719,7 @@ class Router(formatOps: FormatOps) {
       case FormatToken(left, Colon(), _) =>
         val mod: Modification = rightOwner match {
           case _: Type.Param =>
-            if (style.spaceBeforeContextBoundColon) Space else NoSplit
+            if (style.spaces.beforeContextBoundColon) Space else NoSplit
           case _ =>
             left match {
               case ident: Ident => identModification(ident)
@@ -931,7 +931,7 @@ class Router(formatOps: FormatOps) {
         val close = matchingParentheses(hash(open))
         val penalizeNewlines = penalizeNewlineByNesting(open, close)
         val indent: Length =
-          if (style.alignByIfWhileOpenParen) StateColumn
+          if (style.align.ifWhileOpenParen) StateColumn
           else style.continuationIndentCallSite
         Seq(
           Split(NoSplit, 0)
@@ -1141,7 +1141,7 @@ class Router(formatOps: FormatOps) {
           if leftOwner.is[Enumerator.Generator] =>
         val lastToken = leftOwner.tokens.last
         val indent: Length =
-          if (style.alignByArrowEnumeratorGenerator) StateColumn
+          if (style.align.arrowEnumeratorGenerator) StateColumn
           else Num(0)
         Seq(
           // Either everything fits in one line or break on =>

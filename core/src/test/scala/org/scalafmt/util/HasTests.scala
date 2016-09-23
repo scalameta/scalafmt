@@ -22,8 +22,12 @@ import scala.meta.Tree
 import scala.meta.parsers.Parse
 import scala.meta.parsers.ParseException
 
+import org.scalafmt.BinPack
+import org.scalafmt.IndentOperator
+
 trait HasTests extends FunSuiteLike with FormatAssertions {
   import LoggerOps._
+  import ScalafmtStyle._
   val scalafmtRunner = ScalafmtRunner.default.copy(
     debug = true,
     maxStateVisits = 150000,
@@ -100,41 +104,48 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
       case "scalajs" => ScalafmtStyle.scalaJs
       case "dangling" =>
         ScalafmtStyle.unitTest80.copy(maxColumn = 40,
-                                      alignByOpenParenCallSite = false,
+                                      align = unitTest80.align.copy(
+                                        openParenCallSite = false
+                                      ),
                                       danglingParentheses = true,
                                       configStyleArguments = false)
       case "noAlign" =>
-        ScalafmtStyle.unitTest80
-          .copy(maxColumn = 40, alignByOpenParenCallSite = false)
+        ScalafmtStyle.unitTest80.copy(
+          maxColumn = 40,
+          align = unitTest80.align.copy(
+            openParenCallSite = false
+          )
+        )
       case "stripMargin" =>
-        ScalafmtStyle.unitTest80.copy(alignStripMarginStrings = true)
+        ScalafmtStyle.unitTest80.copy(assumeStandardLibraryStripMargin = true)
       case "spaces" =>
-        ScalafmtStyle.unitTest80.copy(spacesInImportCurlyBraces = true,
-                                      spaceAfterTripleEquals = true)
+        ScalafmtStyle.unitTest80.copy(
+          spaces = unitTest80.spaces
+            .copy(inImportCurlyBraces = true, afterTripleEquals = true)
+        )
       case "align" => ScalafmtStyle.addAlign(ScalafmtStyle.unitTest80)
       case "alignNoSpace" =>
         ScalafmtStyle.unitTest80.copy(
-          alignTokens = Set(
-            AlignToken(":", ".*"),
-            AlignToken(",", ".*")
+          align = ScalafmtStyle.unitTest80.align.copy(
+            tokens = Set(
+              AlignToken(":", ".*"),
+              AlignToken(",", ".*")
+            )
           )
         )
       case "parentConstructors" =>
         ScalafmtStyle.unitTest80.copy(
-          binPackParentConstructors = true,
+          binPack = BinPack(false, false, parentConstructors = true),
           maxColumn = 40
         )
       case "alignByArrowEnumeratorGenerator" =>
         ScalafmtStyle.unitTest40.copy(
-          alignByArrowEnumeratorGenerator = true
+          align = ScalafmtStyle.unitTest40.align
+            .copy(arrowEnumeratorGenerator = true)
         )
       case "noIndentOperators" =>
-        ScalafmtStyle.unitTest80.copy(
-          unindentTopLevelOperators = true,
-          indentOperatorsIncludeFilter =
-            ScalafmtStyle.indentOperatorsIncludeAkka,
-          indentOperatorsExcludeFilter =
-            ScalafmtStyle.indentOperatorsExcludeAkka)
+        ScalafmtStyle.unitTest80.copy(unindentTopLevelOperators = true,
+                                      indentOperator = IndentOperator.akka)
       case "unicode" =>
         ScalafmtStyle.unitTest80.copy(
           rewriteTokens = Map(
@@ -143,7 +154,8 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
           )
         )
       case "spacesBeforeContextBound" =>
-        ScalafmtStyle.unitTest80.copy(spaceBeforeContextBoundColon = true)
+        ScalafmtStyle.unitTest80.copy(
+          spaces = unitTest80.spaces.copy(beforeContextBoundColon = true))
       case "trailing-commas" =>
         ScalafmtStyle.unitTest40.copy(
           poorMansTrailingCommasInConfigStyle = true)

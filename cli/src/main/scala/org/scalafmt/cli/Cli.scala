@@ -10,13 +10,14 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 import org.scalafmt.AlignToken
+import org.scalafmt.ContinuationIndent
 import org.scalafmt.Error.MisformattedFile
 import org.scalafmt.FormatResult
+import org.scalafmt.IndentOperator
 import org.scalafmt.Scalafmt
 import org.scalafmt.ScalafmtOptimizer
 import org.scalafmt.ScalafmtRunner
 import org.scalafmt.ScalafmtStyle
-import org.scalafmt.ScalafmtStyle.LineEndings
 import org.scalafmt.Versions
 import org.scalafmt.macros.Macros
 import org.scalafmt.util.FileOps
@@ -38,12 +39,12 @@ object Cli {
       |scalafmt -i -f Code1.scala,Code2.scala
       |
       |// format with predefined custom style
-      |scalafmt --style defaultWithAlign -f Code.scala
+      |scalafmt --config "style=defaultWithAlign" -f Code.scala
       |
       |// read style options from a configuration file
-      |$ cat .scalafmt
-      |--maxColumn 120
-      |--javaDocs # This is a comment.
+      |$ cat .scalafmt.conf
+      |maxColumn = 120
+      |docstrings = JavaDoc
       |$ scalafmt --config .scalafmt -i -f Code.scala
       |
       |// format all files in current directory, write new contents to each file.
@@ -55,27 +56,30 @@ object Cli {
 
   case class Config(files: Seq[File],
                     exclude: Seq[File],
-                    configFile: Option[File],
+                    config: Option[String],
                     inPlace: Boolean,
                     testing: Boolean,
                     debug: Boolean,
                     sbtFiles: Boolean,
                     style: ScalafmtStyle,
                     runner: ScalafmtRunner,
-                    range: Set[Range]) {
+                    range: Set[Range],
+                    migrate: Option[File]) {
     require(!(inPlace && testing), "inPlace and testing can't both be true")
   }
   object Config {
     val default = Config(files = Seq.empty[File],
                          exclude = Seq.empty[File],
-                         configFile = None,
+                         config = None,
                          inPlace = false,
                          testing = false,
                          sbtFiles = true,
                          debug = false,
                          style = ScalafmtStyle.default,
                          runner = ScalafmtRunner.default,
-                         range = Set.empty[Range])
+                         range = Set.empty[Range],
+                         migrate = None)
+
   }
 
   case class DebugError(filename: String, error: Throwable)
@@ -85,21 +89,6 @@ object Cli {
   case class FileContents(filename: String, override val code: String)
       extends InputMethod(code)
 
-  implicit val lineEndingsReads: Read[LineEndings] = Read.reads {
-    lineEndingsType =>
-      ScalafmtStyle.availableLineEndings
-        .getOrElse(lineEndingsType.toLowerCase, {
-          throw new IllegalArgumentException(
-            s"Unknown line endings type $lineEndingsType. Expected one of ${ScalafmtStyle.availableLineEndings.keys}")
-        })
-  }
-
-  implicit val styleReads: Read[ScalafmtStyle] = Read.reads { styleName =>
-    ScalafmtStyle.availableStyles.getOrElse(styleName.toLowerCase, {
-      throw new IllegalArgumentException(
-        s"Unknown style name $styleName. Expected one of ${ScalafmtStyle.activeStyles.keys}")
-    })
-  }
   val dialectsByName: Map[String, Dialect] = {
     import scala.meta.dialects._
     LoggerOps
@@ -150,10 +139,13 @@ object Cli {
       opt[Seq[File]]('e', "exclude") action { (exclude, c) =>
         c.copy(exclude = exclude)
       } text "can be directory, in which case all *.scala files are ignored when formatting."
-      opt[File]('c', "config") action { (file, c) =>
-        c.copy(configFile = Some(file))
+      opt[String]('c', "config") action { (file, c) =>
+        c.copy(config = Some(file))
       } text "read style flags, see \"Style configuration option\", from this" +
         " config file. The file can contain comments starting with //"
+      opt[File]("migrate2hocon") action { (file, c) =>
+        c.copy(migrate = Some(file))
+      } text """migrate .scalafmt CLI style configuration to hocon style configuration in .scalafmt.conf"""
       opt[Unit]('i', "in-place") action { (_, c) =>
         c.copy(inPlace = true)
       } text "write output to file, does nothing if file is not specified"
@@ -167,10 +159,6 @@ object Cli {
         c.copy(
           runner = c.runner.copy(parser = scala.meta.parsers.Parse.parseStat))
       } text "parse the input as a statement instead of compilation unit"
-      opt[Unit]("bestEffortInDeeplyNestedCode") action { (_, c) =>
-        c.copy(runner = c.runner.copy(
-          optimizer = ScalafmtOptimizer.default.copy(bestEffortEscape = true)))
-      } text "(experimental) If set, scalafmt will make a best-effort to format deeply nested code instead of failing with SearchStateExplodedException."
       opt[Unit]('v', "version") action printAndExit(inludeUsage = false) text "print version "
       opt[Unit]("build-info") action {
         case (_, c) =>
@@ -183,163 +171,16 @@ object Cli {
           val offset = if (from == to) 0 else -1
           c.copy(range = c.range + Range(from - 1, to + offset))
       } text "(experimental) only format line range from=to"
-
-      // Style configs
-      note(s"\nStyle configuration options:")
-      opt[ScalafmtStyle]('s', "style") action { (style, c) =>
-        c.copy(style = style)
-      } text s"base style, must be one of: ${ScalafmtStyle.activeStyles.keys}"
-      opt[Int]("maxColumn") action { (col, c) =>
-        c.copy(style = c.style.copy(maxColumn = col))
-      } text s"See ScalafmtStyle scaladoc."
-      opt[Int]("continuationIndentCallSite") action { (n, c) =>
-        c.copy(style = c.style.copy(continuationIndentCallSite = n))
-      } text s"See ScalafmtStyle scaladoc."
-      opt[Int]("continuationIndentDefnSite") action { (n, c) =>
-        c.copy(style = c.style.copy(continuationIndentDefnSite = n))
-      } text s"See ScalafmtStyle scaladoc."
       opt[Boolean]("formatSbtFiles") action { (b, c) =>
         c.copy(sbtFiles = b)
       } text s"If true, formats .sbt files as well."
-      opt[Boolean]("reformatComments") action { (b, c) =>
-        c.copy(style = c.style.copy(reformatDocstrings = b))
-      } text s"See ScalafmtStyle scaladoc."
-      opt[Unit]("scalaDocs") action { (_, c) =>
-        c.copy(style = c.style.copy(scalaDocs = true))
-      } text s"See ScalafmtStyle scaladoc."
-      opt[Unit]("javaDocs") action { (_, c) =>
-        c.copy(style = c.style.copy(scalaDocs = false))
-      } text s"Sets scalaDocs to false. See ScalafmtStyle scaladoc."
-      opt[Boolean]("assumeStandardLibraryStripMargin") action { (bool, c) =>
-        c.copy(style = c.style.copy(alignStripMarginStrings = bool))
-      } text s"See ScalafmtStyle scaladoc."
-      opt[Boolean]("alignByOpenParenCallSite") action { (bool, c) =>
-        c.copy(style = c.style.copy(alignByOpenParenCallSite = bool))
-      } text s"See ScalafmtStyle scaladoc."
-      opt[Boolean]("alignByOpenParenDefnSite") action { (bool, c) =>
-        c.copy(style = c.style.copy(alignByOpenParenDefnSite = bool))
-      } text s"See ScalafmtStyle scaladoc."
-      opt[Boolean]("alignByArrowEnumeratorGenerator") action { (bool, c) =>
-        c.copy(style = c.style.copy(alignByArrowEnumeratorGenerator = bool))
-      } text s"See ScalafmtStyle scaladoc."
-      opt[Boolean]("binPackParentConstructors") action { (bool, c) =>
-        c.copy(style = c.style.copy(binPackParentConstructors = bool))
-      } text s"See ScalafmtStyle scaladoc."
-      opt[Boolean]("spacesInImportCurlyBraces") action { (bool, c) =>
-        c.copy(style = c.style.copy(spacesInImportCurlyBraces = bool))
-      } text s"See ScalafmtStyle scaladoc."
-      opt[Boolean]("danglingParentheses") action { (bool, c) =>
-        c.copy(
-          style = c.style.copy(configStyleArguments = !bool,
-                               danglingParentheses = bool))
-      } text s"See ScalafmtConfig scaladoc. --alignByOpenParenCallSite false is recommended."
-      opt[Boolean]("spaceAfterTripleEquals") action { (bool, c) =>
-        c.copy(style = c.style.copy(spaceAfterTripleEquals = bool))
-      } text s"See ScalafmtConfig scaladoc."
-      opt[Boolean]("allowNewlineBeforeColonInMassiveReturnTypes") action {
-        (bool, c) =>
-          c.copy(
-            style =
-              c.style.copy(allowNewlineBeforeColonInMassiveReturnTypes = bool))
-      } text s"See ScalafmtStyle scaladoc."
-      opt[Boolean]("unindentTopLevelOperators") action { (bool, c) =>
-        c.copy(style = c.style.copy(unindentTopLevelOperators = bool))
-      } text s"See ScalafmtConfig scaladoc."
-      opt[Boolean]("poorMansTrailingCommasInConfigStyle")
-        .hidden()
-        .action { (bool, c) =>
-          c.copy(
-            style = c.style.copy(poorMansTrailingCommasInConfigStyle = bool))
-        }
-        .text(s"See ScalafmtConfig scaladoc.")
-      opt[Boolean]("binPackImportSelectors") action { (bool, c) =>
-        c.copy(style = c.style.copy(binPackImportSelectors = bool))
-      } text s"See ScalafmtConfig scaladoc."
-      opt[String]("indentOperatorsIncludeFilter") action { (str, c) =>
-        c.copy(style = c.style.copy(indentOperatorsIncludeFilter = str.r))
-      } text s"See ScalafmtConfig scaladoc."
-      opt[String]("indentOperatorsExcludeFilter") action { (str, c) =>
-        c.copy(style = c.style.copy(indentOperatorsExcludeFilter = str.r))
-      } text s"See ScalafmtConfig scaladoc."
-      opt[Boolean]("indentOperators") action { (bool, c) =>
-        val (include, exclude) = {
-          if (bool)
-            (ScalafmtStyle.indentOperatorsIncludeDefault,
-             ScalafmtStyle.indentOperatorsExcludeDefault)
-          else
-            (ScalafmtStyle.indentOperatorsIncludeAkka,
-             ScalafmtStyle.indentOperatorsExcludeAkka)
-        }
-        c.copy(
-          style = c.style.copy(indentOperatorsIncludeFilter = include,
-                               indentOperatorsExcludeFilter = exclude))
-      } text s"See ScalafmtConfig scaladoc."
-      opt[Seq[String]]("rewriteTokens") action { (str, c) =>
-        val rewriteTokens = Map(gimmeStrPairs(str): _*)
-        c.copy(style = c.style.copy(rewriteTokens = rewriteTokens))
-      } text s"""(experimental) Same syntax as alignTokens. For example,
-              |
-              |        --rewriteTokens ⇒;=>,←;<-
-              |
-              |        will rewrite unicode arrows to their ascii equivalents.""".stripMargin
-      opt[Boolean]("alignMixedOwners") action { (bool, c) =>
-        c.copy(style = c.style.copy(alignMixedOwners = bool))
-      } text s"See ScalafmtConfig scaladoc."
-      opt[Boolean]("keepSelectChainLineBreaks") action { (bool, c) =>
-        c.copy(style = c.style.copy(keepSelectChainLineBreaks = bool))
-      } text s"See ScalafmtConfig scaladoc."
-      opt[Boolean]("alwaysNewlineBeforeLambdaParameters") action { (bool, c) =>
-        c.copy(style = c.style.copy(alwaysNewlineBeforeLambdaParameters = bool))
-      } text s"See ScalafmtConfig scaladoc."
-      opt[Seq[String]]("alignTokens") action { (tokens, c) =>
-        val alignsTokens =
-          gimmeStrPairs(tokens).map((AlignToken.apply _).tupled)
-        c.copy(style = c.style.copy(alignTokens = alignsTokens.toSet))
-      } text s"""(experimental). Comma separated sequence of tokens to align by. Each
-              |        token is a ; separated pair of strings where the first string
-              |        is the string literal value of the token to align by and the
-              |        second string is a regular expression matching the class
-              |        name of the scala.meta.Tree that "owns" that token.
-              |
-              |        Examples:
-              |
-              |        1. => in pattern matching
-              |        =>;Case
-              |
-              |        2. Align by -> tuples.
-              |        ->;Term.ApplyInfix
-              |
-              |        NOTE. the closest owner of -> is actually Term.Name,
-              |        but in case Term.Name we match against the parent of Term.Name.
-              |
-              |        3. Assignment of def var/val/def
-              |        =;Defn.(Va(l|r)|Def)
-              |
-              |        4. Comment owned by whatever tree
-              |        //;.*
-              |
-              |        To use all default alignment rules, use --style defaultWithAlign.
-              |        To pick your favirite alignment rules, set --alignTokens <value> to:
-              |        =>;Case,=;Defn.(Va(l|r)|Def),->;Term.ApplyInfix,//;.*
-              |
-              |        It's best to play around with scala.meta in a console to
-              |        understand which regexp you should use for the owner.
-              |""".stripMargin
-
-      opt[Boolean]("spaceBeforeContextBoundColon") action { (bool, c) =>
-        c.copy(style = c.style.copy(spaceBeforeContextBoundColon = bool))
-      } text s"See ScalafmtConfig scaladoc."
-
-      opt[LineEndings]("lineEndings") action { (lineEndings, c) =>
-        c.copy(style = c.style.copy(lineEndings = lineEndings))
-      } text s"See ScalafmtConfig scaladoc."
 
       note(s"""
-            |Examples:
-            |
-            |$usageExamples
-            |
-            |Please file bugs to https://github.com/olafurpg/scalafmt/issues
+              |Examples:
+              |
+              |$usageExamples
+              |
+              |Please file bugs to https://github.com/olafurpg/scalafmt/issues
       """.stripMargin)
     }
   lazy val parser = scoptParser
@@ -423,32 +264,91 @@ object Cli {
       if (errors.nonEmpty) {
         val list = errors.map(x => s"${x.filename}: ${x.error}")
         logger.error(s"""Found ${errors.length} errors:
-             |${list.mkString("\n")}
-             |""".stripMargin)
+                        |${list.mkString("\n")}
+                        |""".stripMargin)
 
       }
-
     }
   }
 
-  def parseConfigFile(contents: String): Option[Config] = {
-    val args = contents
-      .replaceAll("#(?!;).*", "") // Comments start with #
-      .split("\\s+")
-      .filterNot(_.isEmpty)
-    scoptParser.parse(args, Config.default)
+  def migrate(contents: String): String = {
+    val regexp: Seq[String => String] = Seq(
+      "--bestEffortInDeeplyNestedCode" -> "bestEffortInDeeplyNestedCode = true",
+      "--scalaDocs true" -> "docstrings = ScalaDoc",
+      "--scalaDocs false" -> "docstrings = JavaDoc",
+      "--reformatComments true" -> "",
+      "--reformatComments false" -> "docstrings = preserve",
+      "--(\\w+) (.*)" -> "$1 = $2",
+      "alignTokens" -> "align.tokens",
+      "alignStripMarginStrings" -> "assumeStandardLibraryStripMargin",
+      "binPackArguments" -> "binPack.callSite",
+      "binPackParameters" -> "binPack.defnSite",
+      "binPackParentConstructors" -> "binPack.parentConstructors",
+      "alignByOpenParenCallSite" -> "align.openParenCallSite",
+      "alignByOpenParenDefnSite" -> "align.openParenDefnSite",
+      "continuationIndentCallSite" -> "continuationIndent.callSite",
+      "continuationIndentDefnSite" -> "continuationIndent.defnSite",
+      "alignMixedOwners" -> "align.mixedOwners",
+      "spacesInImportCurlyBraces" -> "spaces.inImportCurlyBraces",
+      "spaceAfterTripleEquals" -> "spaces.afterTripleEquals",
+      "spaceBeforeContextBoundColon" -> "spaces.beforeContextBoundColon"
+    ).map {
+      case (from, to) =>
+        (x: String) =>
+          x.replaceAll(from, to)
+    }
+    val alignR = "(align.tokens = )\"?([^#\"]*)\"?(.*)$".r
+    val custom = Seq[String => String](
+      x =>
+        x.lines.map {
+          case alignR(lhs, rhs, comments) =>
+            val arr = gimmeStrPairs(rhs.split(",").toSeq).map {
+              case (l, r) if r == ".*" => s""""$l""""
+              case (l, r) => s"""{ code = "$l", owner = "$r" }"""
+            }.mkString("\n  ")
+            s"""|$lhs[$comments
+                |  $arr
+                |]""".stripMargin
+          case y => y
+        }.mkString("\n")
+    )
+
+    (regexp ++ custom).foldLeft(contents) {
+      case (curr, f) => f(curr)
+    }
   }
 
-  def getConfig(args: Array[String]): Option[Config] = {
+  def getConfig(args: Array[String]): Either[Throwable, Config] = {
     scoptParser.parse(args, Config.default) match {
-      case Some(c) if c.configFile.exists(_.isFile) =>
-        parseConfigFile(FileOps.readFile(c.configFile.get)).map(x =>
-          c.copy(style = x.style))
-      case x => x
+      case Some(c) if c.config.nonEmpty =>
+        val config = c.config.get
+        val configFile = new File(config)
+        val contents =
+          if (configFile.isFile) FileOps.readFile(configFile)
+          else config.stripPrefix("\"").stripSuffix("\"")
+        org.scalafmt.Config
+          .fromHocon(contents)
+          .right
+          .map(x => c.copy(style = x))
+      case x => x.toRight(org.scalafmt.Error.UnableToParseCliOptions)
     }
   }
 
   def main(args: Array[String]): Unit = {
-    getConfig(args).foreach(run)
+    getConfig(args) match {
+      case Right(x) if x.migrate.nonEmpty =>
+        val original = FileOps.readFile(x.migrate.get)
+        val modified = migrate(original)
+        val newFile = new File(x.migrate.get.getAbsolutePath + ".conf")
+        FileOps.writeFile(newFile.getAbsolutePath, modified)
+        println("Wrote migrated config to file: " + newFile.getPath)
+        println(
+          "NOTE. This automatic migration is a best-effort, " +
+            "please file an issue if it does not work as advertised.")
+        println("-------------------------")
+        println(modified)
+      case Right(x) => run(x)
+      case Left(e) => throw e
+    }
   }
 }

@@ -8,6 +8,7 @@ import java.util.Date
 
 import com.twitter.util.Eval
 import org.scalafmt.AlignToken
+import org.scalafmt.Config
 import org.scalafmt.Scalafmt
 import org.scalafmt.ScalafmtStyle
 import org.scalafmt.cli.Cli
@@ -47,7 +48,7 @@ object Readme {
   }
 
   def cliFlags(flags: String) = {
-    require(Cli.parseConfigFile(flags).isDefined)
+    require(Config.fromHocon(flags).isRight)
     hl.scala(flags)
   }
 
@@ -84,14 +85,17 @@ object Readme {
 
   def exampleAlign(code: String): TypedTag[String] = {
     val formatted = Scalafmt
-      .format(code,
-              ScalafmtStyle.default40.copy(alignTokens = AlignToken.default))
+      .format(
+        code,
+        ScalafmtStyle.default40.copy(
+          align =
+            ScalafmtStyle.default40.align.copy(tokens = AlignToken.default)))
       .get
     hl.scala(formatted)
   }
 
   val stripMarginStyle =
-    ScalafmtStyle.default.copy(alignStripMarginStrings = true)
+    ScalafmtStyle.default.copy(assumeStandardLibraryStripMargin = true)
 
   def fmt(style: ScalafmtStyle)(code: String): TypedTag[String] =
     example(code, style)

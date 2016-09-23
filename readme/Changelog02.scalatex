@@ -265,11 +265,11 @@
       The tests now format 1.244.070 LOC @b("twice") to ensure that
       scalafmt is idempotent.
     @li
-      @sect.ref{--assumeStandardLibraryStripMargin} is now disabled by default for two
+      @sect.ref{assumeStandardLibraryStripMargin} is now disabled by default for two
       reasons: 1. it may cause non-idempotent formatting in very rare cases
       and 2. it makes the false assumption that
       @code("stripMargin") comes from the standard library (discussion here @issues(170)).
-      Refer to @sect.ref{--assumeStandardLibraryStripMargin} to enable it at your own risk.
+      Refer to @sect.ref{assumeStandardLibraryStripMargin} to enable it at your own risk.
     @li
       IntelliJ plugin does not require restart when @code(".scalafmt") changes.
       Instead, new changes are picked up automatically and a green info bubble
@@ -316,7 +316,7 @@
     @li
       Custom style configuration, see @sect.ref{Configuration}
     @li
-      Token alignment, see @sect.ref{--alignTokens}
+      Token alignment, see @sect.ref{align.tokens}
     @li
       Closed issues: @issues( 144, 143, 138, 131, 120, 114).
     @li

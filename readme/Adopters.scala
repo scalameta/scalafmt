@@ -17,17 +17,14 @@ object Adopters {
     Adopter("scalafmt",
             "http://scalafmt.org",
             Some("Code formatter for Scala")),
-    Adopter("HERE",
-            "http://here.com",
-            None),
-    Adopter("Letgo",
-            "http://letgo.com",
-            None),
+    Adopter("HERE", "http://here.com", None),
+    Adopter("Letgo", "http://letgo.com", None),
     Adopter("Seventh Sense",
             "http://7thsense.io",
             Some("Predictive analytics for sales and marketing")),
-    Adopter("Teralytics",
-            "http://teralytics.net",
-            Some("We transform raw, human activity data into valuable insights."))
+    Adopter(
+      "Teralytics",
+      "http://teralytics.net",
+      Some("We transform raw, human activity data into valuable insights."))
   )
 }

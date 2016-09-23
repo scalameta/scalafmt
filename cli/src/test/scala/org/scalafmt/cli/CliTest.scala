@@ -3,18 +3,14 @@ package org.scalafmt.cli
 import java.io.File
 import java.nio.file.Files
 
-import org.scalafmt.AlignToken
+import org.scalafmt.LineEndings._
 import org.scalafmt.Error.MisformattedFile
-import org.scalafmt.ScalafmtOptimizer
-import org.scalafmt.ScalafmtRunner
 import org.scalafmt.ScalafmtStyle
-import org.scalafmt.ScalafmtStyle.{PreserveLineEndings, UnixLineEndings, WindowsLineEndings}
 import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.FileOps
 import org.scalatest.FunSuite
 
 class CliTest extends FunSuite with DiffAssertions {
-  import org.scalafmt.util.LoggerOps._
   val unformatted = """
                       |object a    extends   App {
                       |pr(
@@ -29,31 +25,6 @@ class CliTest extends FunSuite with DiffAssertions {
                    |    "h")
                    |}
                  """.stripMargin
-  val expectedStyle = ScalafmtStyle.default.copy(
-    rewriteTokens = Map(
-      "=>" -> "⇒",
-      "<-" -> "←"
-    ),
-    indentOperatorsIncludeFilter = ScalafmtStyle.indentOperatorsIncludeAkka,
-    indentOperatorsExcludeFilter = ScalafmtStyle.indentOperatorsExcludeAkka,
-    reformatDocstrings = false,
-    maxColumn = 99,
-    alignMixedOwners = true,
-    unindentTopLevelOperators = true,
-    continuationIndentCallSite = 2,
-    continuationIndentDefnSite = 3,
-    scalaDocs = false,
-    binPackImportSelectors = false,
-    poorMansTrailingCommasInConfigStyle = true,
-    alignStripMarginStrings = false,
-    spaceBeforeContextBoundColon = true)
-  val expectedConfig = Cli.Config.default.copy(
-    debug = true,
-    runner = ScalafmtRunner.statement.copy(
-      optimizer = ScalafmtOptimizer.default.copy(bestEffortEscape = true)),
-    style = expectedStyle,
-    files = Seq(new File("foo")),
-    inPlace = true)
   val args = Array(
     "--poorMansTrailingCommasInConfigStyle",
     "true",
@@ -90,26 +61,6 @@ class CliTest extends FunSuite with DiffAssertions {
     "-i"
   )
 
-  test("cli parses args") {
-    val obtained = Cli.getConfig(args)
-    assert(obtained.contains(expectedConfig))
-  }
-
-  test("cli parses style from config file") {
-    val tmpFile = Files.createTempFile("prefix", ".scalafmt")
-    val contents = s"""
-                      |# Config files without comments suck.
-                      |${args.mkString("\n").replaceFirst("\n", " ")}
-                      |--alignTokens #;Template,//;.*
-      """.stripMargin
-    Files.write(tmpFile, contents.getBytes)
-    val externalConfigArgs = Array("--config", tmpFile.toAbsolutePath.toString)
-    val expectedCustomStyle = expectedStyle.copy(
-      alignTokens = Set(AlignToken("#", "Template"), AlignToken("//", ".*")))
-    val obtained = Cli.getConfig(externalConfigArgs)
-    assert(obtained.exists(_.style == expectedCustomStyle))
-  }
-
   test("scalafmt -i --file tmpFile") {
     val tmpFile = Files.createTempFile("prefix", ".scala")
     Files.write(tmpFile, unformatted.getBytes)
@@ -142,10 +93,12 @@ class CliTest extends FunSuite with DiffAssertions {
     assertNoDiff(obtained, unformatted)
   }
 
-  test("--style Scala.js is OK") {
-    val obtained =
-      Cli.scoptParser.parse(Seq("--style", "Scala.js"), Cli.Config.default)
-    assert(obtained.get.style == ScalafmtStyle.scalaJs)
+  test("reads .scalafmt.conf") {
+    val expectedStyle = ScalafmtStyle.default40
+    val tmpFile = Files.createTempFile("prefix", ".scalafmt.conf")
+    Files.write(tmpFile, "style=40".getBytes)
+    val args = Array("--config", ".scalafmt.conf")
+
   }
 
   test("handles .scala and .sbt files") {
@@ -155,25 +108,25 @@ class CliTest extends FunSuite with DiffAssertions {
     val file1 = File.createTempFile("foo", ".scala", dir)
     val file2 = File.createTempFile("foo", ".sbt", dir)
     val original1 = """
-        |object   a {
-        |println(1)
-        |}
+                      |object   a {
+                      |println(1)
+                      |}
       """.stripMargin
     val expected1 = """
-        |object a {
-        |  println(1)
-        |}
+                      |object a {
+                      |  println(1)
+                      |}
       """.stripMargin
     val original2 = """
-        |lazy val x = project
-        |.dependsOn(core)
-        |
-        |lazy val y =    project.dependsOn(core)
+                      |lazy val x = project
+                      |.dependsOn(core)
+                      |
+                      |lazy val y =    project.dependsOn(core)
       """.stripMargin
     val expected2 = """
-        |lazy val x = project.dependsOn(core)
-        |
-        |lazy val y = project.dependsOn(core)
+                      |lazy val x = project.dependsOn(core)
+                      |
+                      |lazy val y = project.dependsOn(core)
       """.stripMargin
     FileOps.writeFile(file1.getAbsolutePath, original1)
     FileOps.writeFile(file2.getAbsolutePath, original2)
@@ -212,7 +165,8 @@ class CliTest extends FunSuite with DiffAssertions {
                     """.stripMargin
     FileOps.writeFile(file1.getAbsolutePath, original1)
     FileOps.writeFile(file2.getAbsolutePath, original2)
-    val config = Cli.Config.default.copy(inPlace = true, files = Seq(dir), exclude = Seq(file2))
+    val config = Cli.Config.default
+      .copy(inPlace = true, files = Seq(dir), exclude = Seq(file2))
     Cli.run(config)
     val obtained1 = FileOps.readFile(file1)
     val obtained2 = FileOps.readFile(file2)
@@ -220,18 +174,78 @@ class CliTest extends FunSuite with DiffAssertions {
     assertNoDiff(obtained2, expected2)
   }
 
-  test("cli parses lineEndings preserve") {
-    val obtained = Cli.getConfig(Array("--lineEndings", "preserve"))
-    assert(obtained.exists(_.style.lineEndings == PreserveLineEndings))
+  test("migrate") {
+    val result = Cli.migrate(
+      """
+        |--maxColumn 100 # comment
+        |--alignTokens %;Infix,%%;Infix
+        |--alignTokens "a;b,c;d,e;.*" # comment
+        |--reformatComments false
+        |--scalaDocs false
+        |--scalaDocs true
+        |--alignStripMarginStrings true
+        |--binPackArguments true
+        |--binPackParameters true
+        |--binPackParentConstructors true
+        |--configStyleArguments false
+        |--noNewlinesBeforeJsNative false
+        |--alignByOpenParenCallSite false
+        |--alignByOpenParenDefnSite false
+        |--continuationIndentCallSite 3
+        |--continuationIndentDefnSite 3
+        |--alignMixedOwners false
+        |--binPackImportSelectors true
+        |--spacesInImportCurlyBraces true
+        |--spaceAfterTripleEquals true
+        |--spaceBeforeContextBoundColon true
+        |--unindentTopLevelOperators false
+        |--bestEffortInDeeplyNestedCode
+      """.stripMargin
+    )
+    val expected =
+      """
+        |maxColumn = 100 # comment
+        |align.tokens = [
+        |  { code = "%", owner = "Infix" }
+        |  { code = "%%", owner = "Infix" }
+        |]
+        |align.tokens = [ # comment
+        |  { code = "a", owner = "b" }
+        |  { code = "c", owner = "d" }
+        |  "e"
+        |]
+        |docstrings = preserve
+        |docstrings = JavaDoc
+        |docstrings = ScalaDoc
+        |assumeStandardLibraryStripMargin = true
+        |binPack.callSite = true
+        |binPack.defnSite = true
+        |binPack.parentConstructors = true
+        |configStyleArguments = false
+        |noNewlinesBeforeJsNative = false
+        |align.openParenCallSite = false
+        |align.openParenDefnSite = false
+        |continuationIndent.callSite = 3
+        |continuationIndent.defnSite = 3
+        |align.mixedOwners = false
+        |binPackImportSelectors = true
+        |spaces.inImportCurlyBraces = true
+        |spaces.afterTripleEquals = true
+        |spaces.beforeContextBoundColon = true
+        |unindentTopLevelOperators = false
+        |bestEffortInDeeplyNestedCode = true
+      """.stripMargin
+    println(result)
+    assertNoDiff(result, expected)
   }
 
-  test("cli parses lineEndings windows") {
-    val obtained = Cli.getConfig(Array("--lineEndings", "windows"))
-    assert(obtained.exists(_.style.lineEndings == WindowsLineEndings))
+  test("--config can be string") {
+    val Right(obtained) = Cli.getConfig(
+      Array(
+        "--config",
+        """"maxColumn=10""""
+      ))
+    assert(obtained.style.maxColumn == 10)
   }
 
-  test("cli parses lineEndings unix") {
-    val obtained = Cli.getConfig(Array("--lineEndings", "unix"))
-    assert(obtained.exists(_.style.lineEndings == UnixLineEndings))
-  }
 }
