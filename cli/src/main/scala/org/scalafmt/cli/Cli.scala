@@ -21,6 +21,7 @@ import org.scalafmt.ScalafmtRunner
 import org.scalafmt.ScalafmtStyle
 import org.scalafmt.Versions
 import org.scalafmt.macros.Macros
+import org.scalafmt.rewrite.Rewrite
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.LoggerOps
 import scopt.OptionParser

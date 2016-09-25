@@ -25,6 +25,7 @@ import scala.meta.parsers.ParseException
 import org.scalafmt.BinPack
 import org.scalafmt.IndentOperator
 import org.scalafmt.config.Config
+import org.scalafmt.rewrite.Rewrite
 
 trait HasTests extends FunSuiteLike with FormatAssertions {
   import LoggerOps._
@@ -178,6 +179,10 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
         ScalafmtStyle.unitTest80.copy(keepSelectChainLineBreaks = true)
       case "newlineBeforeLambdaParams" =>
         ScalafmtStyle.default.copy(alwaysNewlineBeforeLambdaParameters = true)
+      case x if Rewrite.name2rewrite.contains(x) =>
+        ScalafmtStyle.default.copy(
+          rewrite = default.rewrite.copy(rules = Seq(Rewrite.name2rewrite(x)))
+        )
       case style => throw UnknownStyle(style)
     }
 
@@ -229,7 +234,9 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
   def defaultRun(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
     val runner = scalafmtRunner.withParser(parse)
     val obtained = Scalafmt.format(t.original, t.style, runner).get
-    assertFormatPreservesAst(t.original, obtained)(parse)
+    if (t.style.rewrite.rules.isEmpty) {
+      assertFormatPreservesAst(t.original, obtained)(parse)
+    }
     assertNoDiff(obtained, t.expected)
   }
 

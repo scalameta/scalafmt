@@ -3,7 +3,7 @@ package org.scalafmt
 import scala.reflect.ClassTag
 
 import metaconfig.Reader
-import org.scalafmt.util.LoggerOps
+import org.scalafmt.util.logger
 
 sealed abstract class Docstrings
 object Docstrings {
@@ -29,7 +29,8 @@ object ReaderUtil {
     Reader.instance[To] {
       case x: String =>
         m.get(x) match {
-          case Some(y) => Right(y)
+          case Some(y) =>
+            Right(y)
           case None =>
             val available = m.keys.mkString(", ")
             val msg =
@@ -39,3 +40,4 @@ object ReaderUtil {
     }
   }
 }
+

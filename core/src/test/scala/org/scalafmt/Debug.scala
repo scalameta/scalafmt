@@ -17,6 +17,7 @@ import org.scalafmt.internal.State
   * Only used during development.
   */
 object Debug {
+
   val treeExplored = mutable.Map.empty[Tree, Int].withDefaultValue(0)
   val tokenExplored = mutable.Map.empty[Token, Int].withDefaultValue(0)
   val formatTokenExplored =

@@ -6,6 +6,7 @@ import java.nio.file.Files
 import org.scalafmt.LineEndings._
 import org.scalafmt.Error.MisformattedFile
 import org.scalafmt.ScalafmtStyle
+import org.scalafmt.rewrite.SortImports
 import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.FileOps
 import org.scalatest.FunSuite
@@ -40,6 +41,8 @@ class CliTest extends FunSuite with DiffAssertions {
     "false",
     "--rewriteTokens",
     "=>;⇒,<-;←",
+    "--rewriteRules",
+    "SortImportSelectors",
     "--statement",
     "--bestEffortInDeeplyNestedCode",
     "--debug",

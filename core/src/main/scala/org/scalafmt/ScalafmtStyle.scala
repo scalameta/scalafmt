@@ -1,8 +1,11 @@
 package org.scalafmt
 
 import scala.util.matching.Regex
+
 import metaconfig.ConfigReader
 import metaconfig.Reader
+import org.scalafmt.config.RewriteSettings
+import org.scalafmt.rewrite.Rewrite
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.ValidationOps
 import sourcecode.Text
@@ -179,7 +182,8 @@ case class ScalafmtStyle(
     keepSelectChainLineBreaks: Boolean,
     alwaysNewlineBeforeLambdaParameters: Boolean,
     lineEndings: LineEndings,
-    bestEffortInDeeplyNestedCode: Boolean
+    bestEffortInDeeplyNestedCode: Boolean,
+    rewrite: RewriteSettings
 ) {
 
   def reformatDocstrings: Boolean = docstrings != Docstrings.preserve
@@ -198,6 +202,7 @@ case class ScalafmtStyle(
   implicit val lineEndingReader: Reader[LineEndings] = LineEndings.reader
   implicit val spacesReader: Reader[Spaces] = spaces.reader
   implicit val docstringsReader: Reader[Docstrings] = Docstrings.reader
+  implicit val rewriteReader: Reader[RewriteSettings] = rewrite.reader
 
   lazy val alignMap: Map[String, Regex] =
     align.tokens.map(x => x.code -> x.owner.r).toMap
