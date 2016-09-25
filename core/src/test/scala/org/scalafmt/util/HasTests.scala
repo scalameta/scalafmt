@@ -24,6 +24,7 @@ import scala.meta.parsers.ParseException
 
 import org.scalafmt.BinPack
 import org.scalafmt.IndentOperator
+import org.scalafmt.config.Config
 
 trait HasTests extends FunSuiteLike with FormatAssertions {
   import LoggerOps._
@@ -78,8 +79,17 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
     val spec = filename.stripPrefix(testDir + File.separator)
     val moduleOnly = isOnly(content)
     val moduleSkip = isSkip(content)
+    val split = content.split("\n<<< ")
 
-    content.split("\n<<< ").tail.map { t =>
+    val style: ScalafmtStyle = {
+      val firstLine = split.head
+      Config.fromHocon(firstLine.stripPrefix("ONLY ")) match {
+        case Right(s) if !firstLine.startsWith("//") => s
+        case _ => spec2style(spec.replaceFirst("/.*", ""))
+      }
+    }
+
+    split.tail.map { t =>
       val before :: expected :: Nil = t.split("\n>>>\n", 2).toList
       val name :: original :: Nil = before.split("\n", 2).toList
       val actualName = stripPrefix(name)
@@ -90,12 +100,12 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
                expected,
                moduleSkip || isSkip(name),
                moduleOnly || isOnly(name),
-               file2style(filename))
+               style)
     }
   }
 
-  def file2style(filename: String): ScalafmtStyle =
-    filename.split("/").reverse(1) match {
+  def spec2style(spec: String): ScalafmtStyle =
+    spec match {
       case "unit" => ScalafmtStyle.unitTest40
       case "default" | "standard" | "scala" =>
         ScalafmtStyle.unitTest80
@@ -223,14 +233,13 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
   def getFormatOutput(style: ScalafmtStyle,
                       onlyOne: Boolean): Array[FormatOutput] = {
     val builder = mutable.ArrayBuilder.make[FormatOutput]()
-    new FormatWriter(Debug.formatOps).reconstructPath(Debug.tokens,
-                                                      Debug.state.splits,
-                                                      debug = onlyOne) {
-      case (_, token, whitespace) =>
-        builder += FormatOutput(token.left.syntax,
-                                whitespace,
-                                Debug.formatTokenExplored(token))
-    }
+    new FormatWriter(Debug.formatOps)
+      .reconstructPath(Debug.tokens, Debug.state.splits, debug = onlyOne) {
+        case (_, token, whitespace) =>
+          builder += FormatOutput(token.left.syntax,
+                                  whitespace,
+                                  Debug.formatTokenExplored(token))
+      }
     builder.result()
   }
 }

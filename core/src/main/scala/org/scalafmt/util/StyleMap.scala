@@ -30,11 +30,11 @@ class StyleMap(tokens: Array[FormatToken], init: ScalafmtStyle) {
         map += (tok -> curr)
       }
     }
-    (empty, map.result().withDefaultValue(init))
+    (empty, map.result())
   }
 
   def at(token: FormatToken): ScalafmtStyle = {
-    tok2style(token)
+    tok2style.getOrElse(token, init)
   }
 
 }

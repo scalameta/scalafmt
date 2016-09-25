@@ -1,12 +1,12 @@
-80 columns                                                                     |
+maxColumn = 100 # comment
 <<< dynamic
 // scalafmt: { maxColumn = 20 }
 function(aaaaaaaaaa, bbbbbbb)
 >>>
 // scalafmt: { maxColumn = 20 }
 function(
-    aaaaaaaaaa,
-    bbbbbbb)
+  aaaaaaaaaa,
+  bbbbbbb)
 <<< multiline
 /*
 scalafmt: {
@@ -21,5 +21,5 @@ scalafmt: {
 }
  */
 function(
-    aaaaaaaaaa,
-    bbbbbbb)
+  aaaaaaaaaa,
+  bbbbbbb)
