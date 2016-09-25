@@ -86,6 +86,7 @@ class BestFirstSearch(val formatOps: FormatOps,
     val leftLeft = getLeftLeft(curr)
     val leftLeftOwner = ownersMap(hash(leftLeft))
     val splitToken = tokens(curr.splits.length)
+    val style = styleMap.at(splitToken)
     recurseOnBlocks && isInsideNoOptZone(splitToken) &&
     leftLeft.is[LeftBrace] && matchingParentheses(hash(leftLeft)) != stop && {
       // Block must span at least 3 lines to be worth recursing.
@@ -141,7 +142,7 @@ class BestFirstSearch(val formatOps: FormatOps,
              }
            }) {
       val tok = tokens(curr.splits.length)
-      curr = State.next(curr, style, provided(tok), tok)
+      curr = State.next(curr, styleMap.at(tok), provided(tok), tok)
     }
     curr
   }
@@ -171,6 +172,7 @@ class BestFirstSearch(val formatOps: FormatOps,
         Q.dequeueAll
       } else if (shouldEnterState(curr)) {
         val splitToken = tokens(curr.splits.length)
+        val style = styleMap.at(splitToken)
         if (curr.splits.length > deepestYet.splits.length) {
           deepestYet = curr
         }
@@ -204,7 +206,7 @@ class BestFirstSearch(val formatOps: FormatOps,
           Q.dequeueAll
           best.clear()
           visits.clear()
-          if (!style.bestEffortInDeeplyNestedCode) {
+          if (!initStyle.bestEffortInDeeplyNestedCode) {
             runner.eventCallback(CompleteFormat(explored, deepestYet, tokens))
             throw SearchStateExploded(deepestYet,
                                       formatWriter.mkString(deepestYet.splits),

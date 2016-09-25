@@ -1,0 +1,25 @@
+80 columns                                                                     |
+<<< dynamic
+// scalafmt: { maxColumn = 20 }
+function(aaaaaaaaaa, bbbbbbb)
+>>>
+// scalafmt: { maxColumn = 20 }
+function(
+    aaaaaaaaaa,
+    bbbbbbb)
+<<< multiline
+/*
+scalafmt: {
+  maxColumn = 20
+}
+*/
+function(aaaaaaaaaa, bbbbbbb)
+>>>
+/*
+scalafmt: {
+  maxColumn = 20
+}
+ */
+function(
+    aaaaaaaaaa,
+    bbbbbbb)

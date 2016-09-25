@@ -138,6 +138,7 @@ lazy val core = project
     libraryDependencies ++= Seq(
       "com.lihaoyi"   %% "sourcecode" % "0.1.2",
       "org.scalameta" %% "scalameta"  % Deps.scalameta,
+      "com.typesafe"     % "config" % "1.2.1",
       // Test dependencies
       "org.scalariform"                %% "scalariform"    % Deps.scalariform,
       "org.scala-lang"                 % "scala-reflect"   % scalaVersion.value % "test",
@@ -169,8 +170,7 @@ lazy val cli = project
     moduleName := "scalafmt-cli",
     mainClass in assembly := Some("org.scalafmt.cli.Cli"),
     libraryDependencies ++= Seq(
-      "com.github.scopt" %% "scopt" % "3.3.0",
-      "com.typesafe"     % "config" % "1.2.1"
+      "com.github.scopt" %% "scopt" % "3.3.0"
     )
   )
   .dependsOn(core % "compile->compile;test->test")
