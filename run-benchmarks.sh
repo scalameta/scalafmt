@@ -10,7 +10,7 @@ if [[ ! -f benchmarks/repos.tar.gz ]]; then
   cd ..
   echo "Done!"
 fi
-prefix=${1-3}
+prefix=${1-Micro}
 iterations=${2-3}
 sbt "benchmarks/jmh:run -rf csv -rff target/jmh-results.csv -i $iterations -wi $iterations -f1 -t1 org.scalafmt.benchmarks.$prefix*"
 # sbt "core/test:runMain  org.scalafmt.FormatExperiment"

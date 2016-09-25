@@ -1,6 +1,6 @@
 package org.scalafmt.benchmarks
 
-import org.scalafmt.benchmarks.run.ScalaJsFile
+import org.scalafmt.benchmarks.Micro.ScalaJsFile
 import org.scalafmt.util.FormatAssertions
 import org.scalatest.FunSuite
 
@@ -17,9 +17,7 @@ class BenchmarkOK extends FunSuite with FormatAssertions {
   ).foreach { benchmark =>
     val name = s"macroBenchmark: $benchmark"
     test(name) {
-      benchmark.setup()
-      benchmark.scalariform()
-      benchmark.scalafmt()
+      benchmark.testMe()
       println(name)
     }
   }
@@ -30,10 +28,7 @@ class BenchmarkOK extends FunSuite with FormatAssertions {
   ).foreach { formatBenchmark =>
     val name = s"microBenchmark: ${formatBenchmark.getClass}"
     test(name) {
-      formatBenchmark.setup()
-      formatBenchmark.scalametaParser()
-      formatBenchmark.scalafmt()
-      formatBenchmark.scalariform()
+      formatBenchmark.testMe()
       println(name)
     }
   }

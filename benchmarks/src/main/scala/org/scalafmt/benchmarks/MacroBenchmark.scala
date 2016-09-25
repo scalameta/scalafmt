@@ -20,11 +20,27 @@ import org.scalafmt.ScalafmtRunner
 import org.scalafmt.ScalafmtStyle
 import org.scalafmt.util.ScalaFile
 import org.scalafmt.util.FileOps
-
 import scala.meta.Source
 import scalariform.formatter.ScalaFormatter
 import scalariform.formatter.preferences.FormattingPreferences
 import scalariform.formatter.preferences.IndentSpaces
+
+import org.scalafmt.config.RewriteSettings
+import org.scalafmt.rewrite.RedundantBraces
+import org.scalafmt.rewrite.SortImports
+
+trait FormatBenchmark {
+  def formatRewrite(code: String) = {
+    Scalafmt
+      .format(code,
+              style = ScalafmtStyle.default.copy(
+                rewrite = RewriteSettings(
+                  rules = Seq(SortImports, RedundantBraces)
+                )
+              ))
+      .get
+  }
+}
 
 /**
   * Formats filename at with scalafmt and scalariform.
@@ -38,7 +54,8 @@ import scalariform.formatter.preferences.IndentSpaces
 @Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @BenchmarkMode(Array(Mode.AverageTime))
 @OutputTimeUnit(TimeUnit.SECONDS)
-abstract class MacroBenchmark(parallel: Boolean, maxFiles: Int) {
+abstract class MacroBenchmark(parallel: Boolean, maxFiles: Int)
+    extends FormatBenchmark {
   val scalariformPreferences =
     FormattingPreferences().setPreference(IndentSpaces, 3)
   var files: GenIterable[String] = _
@@ -56,10 +73,23 @@ abstract class MacroBenchmark(parallel: Boolean, maxFiles: Int) {
     }
   }
 
+  def testMe(): Unit = {
+    setup()
+    scalafmt()
+    scalariform()
+  }
+
   @Benchmark
   def scalafmt(): Unit = {
     files.foreach { file =>
       Try(Scalafmt.format(file))
+    }
+  }
+
+  @Benchmark
+  def scalafmt_rewrite(): Unit = {
+    files.foreach { file =>
+      Try(formatRewrite(file))
     }
   }
 
@@ -75,11 +105,11 @@ abstract class MacroBenchmark(parallel: Boolean, maxFiles: Int) {
 object MacroSmall {
   val size = 10
   class Parallel extends MacroBenchmark(parallel = true, size)
-  class Synchronous extends MacroBenchmark(parallel = false, size)
+//  class Synchronous extends MacroBenchmark(parallel = false, size)
 }
 
 object MacroHuge {
   val size = 10000
   class Parallel extends MacroBenchmark(parallel = true, size)
-  class Synchronous extends MacroBenchmark(parallel = false, size)
+//  class Synchronous extends MacroBenchmark(parallel = false, size)
 }
