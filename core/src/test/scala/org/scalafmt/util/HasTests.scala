@@ -84,7 +84,10 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
     val style: ScalafmtStyle = {
       val firstLine = split.head
       Config.fromHocon(firstLine.stripPrefix("ONLY ")) match {
-        case Right(s) if !firstLine.startsWith("//") => s
+        case Right(s)
+            if !firstLine.replaceAll("\\s+", "").isEmpty &&
+              !firstLine.startsWith("//") =>
+          s
         case _ => spec2style(spec.replaceFirst("/.*", ""))
       }
     }
