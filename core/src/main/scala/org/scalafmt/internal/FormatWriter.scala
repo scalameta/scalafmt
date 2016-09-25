@@ -21,7 +21,7 @@ class FormatWriter(formatOps: FormatOps) {
   def mkString(splits: Vector[Split]): String = {
     val sb = new StringBuilder()
     var lastState = State.start // used to calculate start of formatToken.right.
-    reconstructPath(tokens, splits, style, debug = false) {
+    reconstructPath(tokens, splits, debug = false) {
       case (state, formatToken, whitespace) =>
         formatToken.left match {
           case c: Comment =>
@@ -31,7 +31,8 @@ class FormatWriter(formatOps: FormatOps) {
           case literal @ Constant.String(_) => // Ignore, see below.
           case token =>
             val rewrittenToken =
-              style.rewriteTokens.getOrElse(token.syntax, token.syntax)
+              formatOps.initStyle.rewriteTokens
+                .getOrElse(token.syntax, token.syntax)
             sb.append(rewrittenToken)
         }
         sb.append(whitespace)
@@ -58,10 +59,11 @@ class FormatWriter(formatOps: FormatOps) {
     Pattern.compile("\n *\\*(?!\\*)", Pattern.MULTILINE)
   private def formatComment(comment: Comment, indent: Int): String = {
     val alignedComment =
-      if (comment.syntax.startsWith("/*") && style.reformatDocstrings) {
+      if (comment.syntax.startsWith("/*") &&
+          formatOps.initStyle.reformatDocstrings) {
         val isDocstring = comment.syntax.startsWith("/**")
         val spaces: String =
-          if (isDocstring && style.scalaDocs) " " * (indent + 2)
+          if (isDocstring && initStyle.scalaDocs) " " * (indent + 2)
           else " " * (indent + 1)
         leadingAsteriskSpace
           .matcher(comment.syntax)
@@ -74,7 +76,7 @@ class FormatWriter(formatOps: FormatOps) {
 
   val leadingPipeSpace = Pattern.compile("\n *\\|", Pattern.MULTILINE)
   private def formatMarginizedString(token: Token, indent: Int): String = {
-    if (!style.assumeStandardLibraryStripMargin) token.syntax
+    if (!initStyle.assumeStandardLibraryStripMargin) token.syntax
     else if (token.is[Interpolation.Part] ||
              isMarginizedString(token)) {
       val firstChar: Char = token match {
@@ -101,7 +103,6 @@ class FormatWriter(formatOps: FormatOps) {
 
   def getFormatLocations(toks: Array[FormatToken],
                          splits: Vector[Split],
-                         style: ScalafmtStyle,
                          debug: Boolean): Array[FormatLocation] = {
     require(toks.length >= splits.length, "splits !=")
     val statesBuilder = Array.newBuilder[FormatLocation]
@@ -110,7 +111,7 @@ class FormatWriter(formatOps: FormatOps) {
     splits.zipWithIndex.foreach {
       case (split, i) =>
         val tok = toks(i)
-        currState = State.next(currState, style, split, tok)
+        currState = State.next(currState, styleMap.at(tok), split, tok)
         statesBuilder += FormatLocation(tok, split, currState)
         // TIP. Use the following line to debug origin of splits.
         if (debug && tokens.length < 1000) {
@@ -129,11 +130,10 @@ class FormatWriter(formatOps: FormatOps) {
   def reconstructPath(
       toks: Array[FormatToken],
       splits: Vector[Split],
-      style: ScalafmtStyle,
       debug: Boolean)(callback: (State, FormatToken, String) => Unit): Unit = {
     require(toks.length >= splits.length, "splits !=")
-    val locations = getFormatLocations(toks, splits, style, debug)
-    val tokenAligns = alignmentTokens(locations, style).withDefaultValue(0)
+    val locations = getFormatLocations(toks, splits, debug)
+    val tokenAligns = alignmentTokens(locations).withDefaultValue(0)
     var lastModification = locations.head.split.modification
     locations.zipWithIndex.foreach {
       case (FormatLocation(tok, split, state), i) =>
@@ -171,23 +171,23 @@ class FormatWriter(formatOps: FormatOps) {
     }
   }
 
-  private def isCandidate(location: FormatLocation,
-                          style: ScalafmtStyle): Boolean = {
+  private def isCandidate(location: FormatLocation): Boolean = {
     val token = location.formatToken.right
     val code = token match {
       case c: Comment if isInlineComment(c) => "//"
       case t => t.syntax
     }
-    style.alignMap.get(code).exists { ownerRegexp =>
-      val owner = getAlignOwner(location.formatToken)
-      ownerRegexp.findFirstIn(owner.getClass.getName).isDefined
+    styleMap.at(location.formatToken).alignMap.get(code).exists {
+      ownerRegexp =>
+        val owner = getAlignOwner(location.formatToken)
+        ownerRegexp.findFirstIn(owner.getClass.getName).isDefined
     }
   }
 
   def key(token: Token): Int = {
     val ownerKey = {
       val className = owners(token).getClass.getName
-      if (style.align.mixedOwners)
+      if (initStyle.align.mixedOwners)
         FormatWriter.ownerCategory.getOrElse(className, className)
       else className
     }
@@ -226,13 +226,13 @@ class FormatWriter(formatOps: FormatOps) {
 
   /**
     * Returns how many extra spaces are needed to align tokens, as configured
-    * by [[style.alignTokens]].
+    * by [[initStyle.align.tokens]].
     */
   // TODO(olafur) Refactor implementation to make it maintainable. It's super
   // imperative and error-prone right now.
-  def alignmentTokens(locations: Array[FormatLocation],
-                      style: ScalafmtStyle): Map[FormatToken, Int] = {
-    if (style.align.tokens.isEmpty) Map.empty[FormatToken, Int]
+  def alignmentTokens(
+      locations: Array[FormatLocation]): Map[FormatToken, Int] = {
+    if (initStyle.align.tokens.isEmpty) Map.empty[FormatToken, Int]
     else {
       val finalResult = Map.newBuilder[FormatToken, Int]
       var i = 0
@@ -242,7 +242,7 @@ class FormatWriter(formatOps: FormatOps) {
         val columnCandidates = Array.newBuilder[FormatLocation]
         while (i < locations.length &&
                !locations(i).split.modification.isNewline) {
-          if (isCandidate(locations(i), style)) {
+          if (isCandidate(locations(i))) {
             columnCandidates += locations(i)
           }
           i += 1

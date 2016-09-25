@@ -225,7 +225,6 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
     val builder = mutable.ArrayBuilder.make[FormatOutput]()
     new FormatWriter(Debug.formatOps).reconstructPath(Debug.tokens,
                                                       Debug.state.splits,
-                                                      style,
                                                       debug = onlyOne) {
       case (_, token, whitespace) =>
         builder += FormatOutput(token.left.syntax,

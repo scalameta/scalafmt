@@ -6,6 +6,7 @@ import java.io.File
 
 import org.scalafmt.ScalafmtStyle
 import org.scalafmt.cli.Cli.Config
+import org.scalafmt.config
 import org.scalafmt.util.FileOps
 
 object StyleCache {
@@ -22,7 +23,7 @@ object StyleCache {
     else {
       // Throw an exception if file does not exist. Better to fail fast than
       // continue silently.
-      org.scalafmt.Config
+      config.Config
         .fromHocon(FileOps.readFile(file))
         .right
         .toOption

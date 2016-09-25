@@ -29,11 +29,13 @@ import scala.meta.prettyprinters.Structure
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 
+import org.scalafmt.util.StyleMap
+
 /**
   * Helper functions for generating splits/policies for a given tree.
   */
 class FormatOps(val tree: Tree,
-                val style: ScalafmtStyle,
+                val initStyle: ScalafmtStyle,
                 val runner: ScalafmtRunner) {
   import LoggerOps._
   import TokenOps._
@@ -44,6 +46,7 @@ class FormatOps(val tree: Tree,
   val statementStarts = getStatementStarts(tree)
   val dequeueSpots = getDequeueSpots(tree) ++ statementStarts.keys
   val matchingParentheses = getMatchingParentheses(tree.tokens)
+  val styleMap = new StyleMap(tokens, initStyle)
 
   @inline
   def owners(token: Token): Tree = ownersMap(hash(token))
@@ -142,7 +145,7 @@ class FormatOps(val tree: Tree,
     * Context: https://github.com/olafurpg/scalafmt/issues/108
     */
   def isJsNative(jsToken: Token): Boolean = {
-    style.noNewlinesBeforeJsNative && jsToken.syntax == "js" &&
+    initStyle.noNewlinesBeforeJsNative && jsToken.syntax == "js" &&
     owners(jsToken).parent.exists(
       _.show[Structure].trim == """Term.Select(Term.Name("js"), Term.Name("native"))""")
   }
@@ -383,6 +386,7 @@ class FormatOps(val tree: Tree,
       op: Term.Name,
       rhsArgs: Seq[Tree],
       formatToken: FormatToken)(implicit line: sourcecode.Line): Split = {
+    val style = styleMap.at(formatToken)
     val modification = newlines2Modification(
       formatToken.between,
       rightIsComment = formatToken.right.isInstanceOf[Comment])
@@ -465,7 +469,12 @@ class FormatOps(val tree: Tree,
       newlinesBetween(prev(leftTok2tok(close)).between) > 0
     }
   }
-  def getApplyIndent(leftOwner: Tree, isConfigStyle: Boolean = false): Num =
+
+  def styleAt(tree: Tree): ScalafmtStyle =
+    styleMap.at(leftTok2tok.getOrElse(tree.tokens.head, tokens.head))
+
+  def getApplyIndent(leftOwner: Tree, isConfigStyle: Boolean = false): Num = {
+    val style = styleAt(leftOwner)
     leftOwner match {
       case _: Pat => Num(0) // Indentation already provided by case.
       case x if isDefnSite(x) && !x.isInstanceOf[Type.Apply] =>
@@ -473,8 +482,10 @@ class FormatOps(val tree: Tree,
         else Num(style.continuationIndentDefnSite)
       case _ => Num(style.continuationIndentCallSite)
     }
+  }
 
   def isBinPack(owner: Tree): Boolean = {
+    val style = styleAt(owner)
     (style.binPackArguments && isCallSite(owner)) ||
     (style.binPackParameters && isDefnSite(owner))
   }
@@ -512,7 +523,7 @@ class FormatOps(val tree: Tree,
   }
 
   def breakOnEveryWith(owner: Option[Tree], lastToken: Token) = {
-    if (style.binPackParentConstructors) NoPolicy
+    if (styleMap.at(leftTok2tok(lastToken)).binPackParentConstructors) NoPolicy
     else {
       Policy({
         case Decision(t @ FormatToken(_, right @ KwWith(), _), splits)

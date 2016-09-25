@@ -3,17 +3,18 @@ package org.scalafmt.cli
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigValue
+import org.scalafmt
 import org.scalafmt.AlignToken
 import org.scalafmt.IndentOperator
 import org.scalafmt.ScalafmtStyle
-import org.scalafmt.hocon.Hocon2Class
+import org.scalafmt.config.hocon.Hocon2Class
 import org.scalafmt.util.LoggerOps._
 import org.scalatest.FunSuite
 
 class ConfigTest extends FunSuite {
 
   test("style = ...") {
-    import org.scalafmt.Config
+    import org.scalafmt.config.Config
     val Left(err) = Config.fromHocon("style = foobar")
     assert(
       "Unknown style name foobar. Expected one of: Scala.js, IntelliJ, default, defaultWithAlign" == err.getMessage)
@@ -80,7 +81,7 @@ class ConfigTest extends FunSuite {
         |  exclude = exclude
         |}
       """.stripMargin
-    org.scalafmt.Config.fromHocon(config) match {
+    scalafmt.config.Config.fromHocon(config) match {
       case Left(e) => throw e
       case Right(obtained) =>
         assert(obtained.maxColumn == 4000)

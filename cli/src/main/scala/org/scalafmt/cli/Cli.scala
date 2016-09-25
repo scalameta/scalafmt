@@ -9,6 +9,7 @@ import java.util.Date
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
+import org.scalafmt
 import org.scalafmt.AlignToken
 import org.scalafmt.ContinuationIndent
 import org.scalafmt.Error.MisformattedFile
@@ -326,7 +327,7 @@ object Cli {
         val contents =
           if (configFile.isFile) FileOps.readFile(configFile)
           else config.stripPrefix("\"").stripSuffix("\"")
-        org.scalafmt.Config
+        scalafmt.config.Config
           .fromHocon(contents)
           .right
           .map(x => c.copy(style = x))

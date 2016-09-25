@@ -8,10 +8,10 @@ import java.util.Date
 
 import com.twitter.util.Eval
 import org.scalafmt.AlignToken
-import org.scalafmt.Config
 import org.scalafmt.Scalafmt
 import org.scalafmt.ScalafmtStyle
 import org.scalafmt.cli.Cli
+import org.scalafmt.config.Config
 import org.scalafmt.macros.Macros
 
 object hl extends scalatex.site.Highlighter

@@ -58,6 +58,7 @@ class Router(formatOps: FormatOps) {
   import Constants._
 
   private def getSplits(formatToken: FormatToken): Seq[Split] = {
+    val style = styleMap.at(formatToken)
     val leftOwner = owners(formatToken.left)
     val rightOwner = owners(formatToken.right)
     val newlines = newlinesBetween(formatToken.between)
