@@ -18,7 +18,7 @@
 
      @ul
        @li
-         Scalariform does not have a @code{--maxColumn} setting, which
+         Scalariform does not have a @code{maxColumn} setting, which
          I personally like and is present in many popular coding styles.
        @li
          Scalariform preserves most line breaking decisions, leaving it up to

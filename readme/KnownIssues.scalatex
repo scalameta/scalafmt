@@ -43,11 +43,11 @@
               Refactor your code to eliminate deeply nested function calls.
               Binding large function arguments to variables is a good start.
             @li
-              Try the experimental @code{--bestEffortInDeeplyNestedCode} flag
+              Try the experimental @code{bestEffortInDeeplyNestedCode} flag
               that will try to produce decent formatting output even for the most
               pathologically nested code. YMMV.
             @li
-              Try @code{--alignByOpenParenCallSite false} to shrink the search
+              Try @code{align.openParenCallSite = false} to shrink the search
               space.
       @p
         Other cool code formatters like ClangFormat, dartfmt and rfmt use

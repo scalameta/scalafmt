@@ -1,0 +1,104 @@
+@import Main._
+@import org.scalafmt.readme.Readme._
+@import org.scalafmt.config.ScalafmtConfig
+@sect{0.4.0-RC1}
+  @note. This changelog is incomplete. More details to come!
+
+  @ul
+    @li
+      NEW! HOCON configuration, see @issue(316). Say goodbye to @code{.scalafmt}
+      and hello to @code{.scalafmt.conf}.
+      The old style configuration can me migrated with the CLI by running
+      @code{scalafmt --migrate2hocon .scalafmt}.
+    @li
+      NEW! See @sect.ref{rewrite.rules}.
+    @li
+      NEW! Dynamic style configuration. You can now update the configuration
+      by adding comments to the source code. Example:
+
+      @hl.scala
+        // scalafmt: { maxColumn = 200 }
+
+        // OR
+
+        /*
+        scalafmt: {
+          maxColumn = 200
+          style = defaultWithAlign
+        }
+        */
+
+        object Foo {
+         ... // configuration is applied to remainder of file
+        }
+
+      Why? This can be useful
+
+      @ul
+        @li
+          for generated code where you might prefer vertical alignment or longer max columns
+        @li
+          in long variadic code, see
+          @issue(431),
+          @issue(347) and
+          @issue(348).
+        @li
+          Blocks of code where each line is almost identical to the previous line
+          (@lnk("example", "https://github.com/CommBank/coppersmith/blob/3f752670d3b2212e0c09872df2859d06c47fde89/core/src/main/scala/commbank/coppersmith/Feature.scala#L58-L73")).
+        @li
+          Use your imagination.
+
+      A word of caution.
+      I don't recommend you clutter your codebase with @code{// scalafmt: ...}.
+      This feature does not give you an excuse to change you mind about the configuration on every single line of code.
+      Use this feature for good.
+    @li
+      SBT plugin now no longer includes generated sources in @code{target}.
+    @li
+      New CLI flag @code{--exclude} to exclude a set of directories.
+    @li
+      New option @code{optIn.breakChainOnFirstMethodDot = false}.
+
+      @hl.scala
+        // Original before running scalafmt
+        List(1, 2, 3)
+          .map(_ + 1).filter(_ > 2)
+
+        // false (default)
+        List(1, 2, 3).map(_ + 1).filter(_ > 2)
+
+        // true
+        List(1, 2, 3)
+          .map(_ + 1)
+          .filter(_ > 2)
+        // Note, only the dot before the first method call triggers this option.
+    @li
+      @code{defaultWithAlign} will now also align @code{%%%}.
+    @li
+      New style flag @code{newlines.alwaysBeforeCurlyBraceLambdaParams}.
+    @li
+      @code{align.tokens} can now align on tokens that have no leading space.
+      For example, with settings @code{align.tokens = [ ":" ]}
+
+      @hl.scala
+        // Before
+        def foo(
+          a: Int,
+          aa: Int
+        )
+
+        // After
+        def foo(
+            a:  Int,
+            aa: Int
+        )
+
+      @note. This may play badly in combination with other alignment configuration.
+      For example, if you configure to align @code{extends} and @code{:},
+      the following input will align neither since the rows don't match
+
+      @hl.scala
+        case object A extends Super
+        case class B(b: B) extends Super
+
+      I welcome contributions to improve this.
