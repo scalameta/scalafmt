@@ -5,10 +5,23 @@ object a {
   def x(i: Int): Int = {
     2
   }
+
+  def y(i: Int): Int = {
+    3
+  }
+  def z(i: Int): Int = {
+    4
+  }
 }
 >>>
 object a {
-  def x(i: Int): Int = 2
+  def x(i: Int): Int =
+    2
+
+  def y(i: Int): Int =
+    3
+  def z(i: Int): Int =
+    4
 }
 <<< respect max lines
 object a {
@@ -26,6 +39,36 @@ object a {
     }
   }
 }
+<<< single line block
+object a {
+  def x(i: Int): Int = { 2 }
+  def y(i: Int): Int = { 3 }
+}
+>>>
+object a {
+  def x(i: Int): Int = 2
+  def y(i: Int): Int = 3
+}
+<<< empty expression
+object a {
+  def x: Unit = { }
+}
+>>>
+object a {
+  def x: Unit = {}
+}
+<<< right brace on same line as expression
+object a {
+  def x(i: Int): Int = {
+    2 }
+  def y(i: Int): Int = { 3 }
+}
+>>>
+object a {
+  def x(i: Int): Int =
+    2
+  def y(i: Int): Int = 3
+}
 <<< has comment
 object a {
   def x(i: Int): Int = { // comment
@@ -35,6 +78,19 @@ object a {
 >>>
 object a {
   def x(i: Int): Int = // comment
+    2
+}
+<<< has comment 2
+object a {
+  def x(i: Int): Int = {
+    // comment
+    2
+  }
+}
+>>>
+object a {
+  def x(i: Int): Int =
+    // comment
     2
 }
 <<< multiple stats

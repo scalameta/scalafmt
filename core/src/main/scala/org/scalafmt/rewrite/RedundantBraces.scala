@@ -27,7 +27,7 @@ object RedundantBraces extends Rewrite {
     }
 
     def disqualifiedByUnit =
-      !settings.includeUnitMethods || d.decltpe.exists(_.syntax == "Unit")
+      !settings.includeUnitMethods && d.decltpe.exists(_.syntax == "Unit")
 
     def bodyIsNotTooBig: Boolean =
       d.body match {
@@ -48,24 +48,25 @@ object RedundantBraces extends Rewrite {
 
   override def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch] = {
     import ctx.tokenTraverser._
+    val builder = Seq.newBuilder[Patch]
     code.collect {
       case d: Defn.Def if isCandidate(d, ctx) =>
         val open = d.body.tokens.head
         val close = d.body.tokens.last
-        val firstNewline = d.body.tokens.tail
-          .find(!_.is[Space])
-          .filter(_.is[LF])
-          .getOrElse(open)
+        val bodyStatement = d.body match {
+          case t: Term.Block => t.stats.head
+          case _ => d.body
+        }
         val lastNewline = {
           val next = nextToken(close)
-          if (next.is[LF]) next
+          if (next.is[LF] &&
+              close.pos.start.line != bodyStatement.pos.end.line)
+            next
           else close
         }
-        Seq(
-          Patch(open, firstNewline, ""),
-          Patch(close, lastNewline, "")
-        )
-
-    }.flatten
+        builder += Patch(open, open, "")
+        builder += Patch(close, lastNewline, "")
+    }
+    builder.result()
   }
 }
