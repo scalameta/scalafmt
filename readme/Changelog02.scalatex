@@ -1,6 +1,6 @@
 @import Main._
 @import org.scalafmt.readme.Readme._
-@import org.scalafmt.ScalafmtStyle
+@import org.scalafmt.config.ScalafmtConfig
 
 @sect{0.2.12}
   @ul
@@ -324,7 +324,7 @@
     @li
       The @code("scalafmtFormat") sbt task is now @code("scalafmt").
     @li
-      @code("ScalaStyle") is now @code("ScalafmtStyle").
+      @code("ScalaStyle") is now @code("ScalafmtConfig").
     @li
       @code("ScalaFmt.format") and
       @code("ScalaFmt.format_!") have been replaced by a single

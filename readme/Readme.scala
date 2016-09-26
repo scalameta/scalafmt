@@ -7,12 +7,15 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 import com.twitter.util.Eval
-import org.scalafmt.AlignToken
 import org.scalafmt.Scalafmt
-import org.scalafmt.ScalafmtStyle
 import org.scalafmt.cli.Cli
+import org.scalafmt.config.AlignToken
 import org.scalafmt.config.Config
+import org.scalafmt.config.ScalafmtRunner
+import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.macros.Macros
+import org.scalafmt.rewrite.SortImports
+import org.scalafmt.rewrite.RedundantBraces
 
 object hl extends scalatex.site.Highlighter
 
@@ -74,36 +77,53 @@ object Readme {
     pairs(List(left, right).map(x => half(hl.scala(x))): _*)
 
   def demo(code: String) = {
-    import org.scalafmt._
-    val formatted = Scalafmt.format(code, ScalafmtStyle.default40).get
+    val formatted = Scalafmt.format(code, ScalafmtConfig.default40).get
+    sideBySide(code, formatted)
+  }
+
+  def demoStyle(style: ScalafmtConfig)(code: String) = {
+    val formatted =
+      Scalafmt.format(code, style.copy(runner = ScalafmtRunner.sbt)).get
     sideBySide(code, formatted)
   }
 
   def example(code: String): TypedTag[String] = {
-    example(code, ScalafmtStyle.default40)
+    example(code, ScalafmtConfig.default40)
   }
 
   def exampleAlign(code: String): TypedTag[String] = {
     val formatted = Scalafmt
       .format(
         code,
-        ScalafmtStyle.default40.copy(
+        ScalafmtConfig.default40.copy(
           align =
-            ScalafmtStyle.default40.align.copy(tokens = AlignToken.default)))
+            ScalafmtConfig.default40.align.copy(tokens = AlignToken.default)))
       .get
     hl.scala(formatted)
   }
 
   val stripMarginStyle =
-    ScalafmtStyle.default.copy(assumeStandardLibraryStripMargin = true)
+    ScalafmtConfig.default.copy(assumeStandardLibraryStripMargin = true)
 
-  def fmt(style: ScalafmtStyle)(code: String): TypedTag[String] =
+  val rewriteBraces =
+    ScalafmtConfig.default.copy(
+      rewrite = ScalafmtConfig.default.rewrite.copy(
+        rules = Seq(RedundantBraces)
+      ))
+
+  val rewriteImports =
+    ScalafmtConfig.default.copy(
+      rewrite = ScalafmtConfig.default.rewrite.copy(
+        rules = Seq(SortImports)
+      ))
+
+  def fmt(style: ScalafmtConfig)(code: String): TypedTag[String] =
     example(code, style)
 
   def lastUpdated =
     new SimpleDateFormat("MMM d, y").format(new Date(Macros.buildTimeMs))
 
-  def example(code: String, style: ScalafmtStyle): TypedTag[String] = {
+  def example(code: String, style: ScalafmtConfig): TypedTag[String] = {
     val formatted = Scalafmt.format(code, style).get
     hl.scala(formatted)
   }

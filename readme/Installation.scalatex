@@ -1,6 +1,6 @@
 @import Main._
 @import org.scalafmt.readme.Readme._
-@import org.scalafmt.ScalafmtStyle
+@import org.scalafmt.config.ScalafmtConfig
 
 @sect{Installation}
 
@@ -111,9 +111,8 @@
 
       Help wanted!
 
-    @sect{Usage examples}
+    @sect{--help}
 
-      Please refer to the @code("--help") page.
       @note. This help page is generated from the @code{master} branch and
       may include flags that have not been published yet.
       @hl.scala()

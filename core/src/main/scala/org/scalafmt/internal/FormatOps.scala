@@ -1,43 +1,38 @@
 package org.scalafmt.internal
 
-import scala.meta.Import
-import scala.meta.Pat
-import scala.meta.dialects.Scala211
-import scala.meta.tokens.Tokens
-
-import org.scalafmt.internal.ExpiresOn.Left
-import org.scalafmt.internal.Policy.NoPolicy
-import org.scalafmt.Error.CaseMissingArrow
-import org.scalafmt.ScalafmtStyle
-import org.scalafmt.ScalafmtRunner
-import org.scalafmt.internal.Length.Num
-import org.scalafmt.util.LoggerOps
-import org.scalafmt.util.TokenOps
-import org.scalafmt.util.TreeOps
-import org.scalafmt.util.Delim
-import org.scalafmt.util.Whitespace
 import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.meta.Tree
 import scala.meta.Case
 import scala.meta.Defn
+import scala.meta.Import
+import scala.meta.Pat
 import scala.meta.Pkg
 import scala.meta.Template
 import scala.meta.Term
+import scala.meta.Tree
 import scala.meta.Type
+import scala.meta.dialects.Scala211
 import scala.meta.prettyprinters.Structure
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
+import scala.meta.tokens.Tokens
 
+import org.scalafmt.Error.CaseMissingArrow
+import org.scalafmt.config.ScalafmtRunner
+import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.internal.ExpiresOn.Left
+import org.scalafmt.internal.Length.Num
+import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util.StyleMap
+import org.scalafmt.util.TokenOps
+import org.scalafmt.util.TreeOps
+import org.scalafmt.util.Whitespace
 
 /**
   * Helper functions for generating splits/policies for a given tree.
   */
-class FormatOps(val tree: Tree,
-                val initStyle: ScalafmtStyle,
-                val runner: ScalafmtRunner) {
-  import LoggerOps._
+class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
+  val runner = initStyle.runner
   import TokenOps._
   import TreeOps._
 
@@ -145,7 +140,7 @@ class FormatOps(val tree: Tree,
     * Context: https://github.com/olafurpg/scalafmt/issues/108
     */
   def isJsNative(jsToken: Token): Boolean = {
-    initStyle.noNewlinesBeforeJsNative && jsToken.syntax == "js" &&
+    initStyle.neverBeforeJsNative && jsToken.syntax == "js" &&
     owners(jsToken).parent.exists(
       _.show[Structure].trim == """Term.Select(Term.Name("js"), Term.Name("native"))""")
   }
@@ -470,7 +465,7 @@ class FormatOps(val tree: Tree,
     }
   }
 
-  def styleAt(tree: Tree): ScalafmtStyle =
+  def styleAt(tree: Tree): ScalafmtConfig =
     styleMap.at(leftTok2tok.getOrElse(tree.tokens.head, tokens.head))
 
   def getApplyIndent(leftOwner: Tree, isConfigStyle: Boolean = false): Num = {
@@ -478,16 +473,16 @@ class FormatOps(val tree: Tree,
     leftOwner match {
       case _: Pat => Num(0) // Indentation already provided by case.
       case x if isDefnSite(x) && !x.isInstanceOf[Type.Apply] =>
-        if (style.binPackParameters && !isConfigStyle) Num(0)
-        else Num(style.continuationIndentDefnSite)
-      case _ => Num(style.continuationIndentCallSite)
+        if (style.binPack.defnSite && !isConfigStyle) Num(0)
+        else Num(style.continuationIndent.defnSite)
+      case _ => Num(style.continuationIndent.callSite)
     }
   }
 
   def isBinPack(owner: Tree): Boolean = {
     val style = styleAt(owner)
-    (style.binPackArguments && isCallSite(owner)) ||
-    (style.binPackParameters && isDefnSite(owner))
+    (style.binPack.callSite && isCallSite(owner)) ||
+    (style.binPack.defnSite && isDefnSite(owner))
   }
 
   def isSingleIdentifierAnnotation(tok: FormatToken): Boolean = {

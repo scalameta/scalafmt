@@ -3,10 +3,8 @@ package org.scalafmt.cli
 import java.io.File
 import java.nio.file.Files
 
-import org.scalafmt.LineEndings._
 import org.scalafmt.Error.MisformattedFile
-import org.scalafmt.ScalafmtStyle
-import org.scalafmt.rewrite.SortImports
+import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.FileOps
 import org.scalatest.FunSuite
@@ -68,7 +66,7 @@ class CliTest extends FunSuite with DiffAssertions {
     val tmpFile = Files.createTempFile("prefix", ".scala")
     Files.write(tmpFile, unformatted.getBytes)
     val formatInPlace = Cli.Config.default.copy(
-      style = ScalafmtStyle.default.copy(maxColumn = 7),
+      style = ScalafmtConfig.default.copy(maxColumn = 7),
       files = Seq(tmpFile.toFile),
       inPlace = true)
     Cli.run(formatInPlace)
@@ -97,7 +95,7 @@ class CliTest extends FunSuite with DiffAssertions {
   }
 
   test("reads .scalafmt.conf") {
-    val expectedStyle = ScalafmtStyle.default40
+    val expectedStyle = ScalafmtConfig.default40
     val tmpFile = Files.createTempFile("prefix", ".scalafmt.conf")
     Files.write(tmpFile, "style=40".getBytes)
     val args = Array("--config", ".scalafmt.conf")

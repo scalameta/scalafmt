@@ -11,8 +11,6 @@ import scala.meta.tokens.Token.Space
 
 import org.scalafmt.util.TreeOps._
 
-import org.scalafmt.util.logger
-
 /**
   * Removes/adds curly braces where desired.
   */

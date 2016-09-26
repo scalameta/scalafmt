@@ -2,16 +2,13 @@ package org.scalafmt.rewrite
 
 import scala.meta._
 
-import org.scalafmt.ReaderUtil
-import org.scalafmt.ScalafmtStyle
-import org.scalafmt.internal.FormatToken
-import org.scalafmt.util.LoggerOps._
-import org.scalafmt.util.StyleMap
+import org.scalafmt.config.ReaderUtil
+import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.TokenTraverser
 
 case class RewriteCtx(
-    style: ScalafmtStyle,
-    tokenTraverser: TokenTraverser
+                         style: ScalafmtConfig,
+                         tokenTraverser: TokenTraverser
 )
 
 abstract class Rewrite {
@@ -33,11 +30,12 @@ object Rewrite {
     RedundantBraces,
     SortImports
   )
+  val rewrite2name: Map[Rewrite, String] = name2rewrite.map(_.swap)
   val available = Rewrite.name2rewrite.keys.mkString(", ")
 
   val default: Seq[Rewrite] = name2rewrite.values.toSeq
 
-  def apply(input: Input, style: ScalafmtStyle): String = {
+  def apply(input: Input, style: ScalafmtConfig): String = {
     val rewrites = style.rewrite.rules
     def noop = new String(input.chars)
     if (rewrites.isEmpty) {

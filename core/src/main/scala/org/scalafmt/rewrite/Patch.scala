@@ -2,7 +2,6 @@ package org.scalafmt.rewrite
 
 import scala.meta._
 import scala.meta.tokens.Token
-
 import scala.meta.tokens.Token
 
 /**

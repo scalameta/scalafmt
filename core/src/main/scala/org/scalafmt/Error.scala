@@ -1,17 +1,17 @@
 package org.scalafmt
 
+import scala.meta.Case
+import scala.meta.Tree
 import scala.meta.tokens.Token
+import scala.meta.tokens.Token
+import scala.reflect.ClassTag
+import scala.reflect.classTag
 
 import java.io.File
 
 import org.scalafmt.internal.Decision
 import org.scalafmt.internal.State
 import org.scalafmt.util.LoggerOps
-import scala.meta.Case
-import scala.meta.Tree
-import scala.meta.tokens.Token
-import scala.reflect.ClassTag
-import scala.reflect.classTag
 
 sealed abstract class Error(msg: String) extends Exception(msg)
 

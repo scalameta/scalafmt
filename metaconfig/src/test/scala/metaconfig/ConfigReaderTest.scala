@@ -43,7 +43,7 @@ class ConfigReaderTest extends FunSuite {
   }
   test("unexpected type") {
     val msg =
-      "Error reading field 'i' on class Bar. Expected argument of type Integer. Obtained value 'str' of type String."
+      "Error reading field 'i' on class Bar. Expected argument of type int. Obtained value 'str' of type String."
     assert(b.reader.read(Map("i" -> "str")) == Left(ConfigError(msg)))
   }
 

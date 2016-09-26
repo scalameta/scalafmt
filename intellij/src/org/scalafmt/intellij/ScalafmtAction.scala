@@ -22,12 +22,12 @@ import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.ui.awt.RelativePoint
-import org.scalafmt.FormatResult
+import org.scalafmt.Formatted
 import org.scalafmt.Scalafmt
-import org.scalafmt.ScalafmtRunner
-import org.scalafmt.ScalafmtStyle
 import org.scalafmt.cli.Cli.Config
 import org.scalafmt.cli.StyleCache
+import org.scalafmt.config.ScalafmtRunner
+import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.LoggerOps
 
@@ -41,7 +41,7 @@ case class FileDocument(file: VirtualFile, document: Document) {
 }
 
 object StyleChangedCache {
-  val styleCache = mutable.Map.empty[String, ScalafmtStyle]
+  val styleCache = mutable.Map.empty[String, ScalafmtConfig]
 }
 
 class ScalafmtAction extends AnAction {
@@ -60,13 +60,13 @@ class ScalafmtAction extends AnAction {
         style = style,
         runner = runner
       ) match {
-        case FormatResult.Failure(e: ParseException) =>
+        case Formatted.Failure(e: ParseException) =>
           displayMessage(event,
                          "Parse error: " + e.getMessage,
                          MessageType.ERROR)
-        case FormatResult.Failure(e) =>
+        case Formatted.Failure(e) =>
           displayMessage(event, e.getMessage.take(100), MessageType.ERROR)
-        case FormatResult.Success(formatted) =>
+        case Formatted.Success(formatted) =>
           if (source != formatted) {
             ApplicationManager.getApplication.runWriteAction(new Runnable {
               override def run(): Unit = {
@@ -103,9 +103,9 @@ class ScalafmtAction extends AnAction {
 
   private val homeDir = System.getProperty("user.home")
 
-  private def getStyle(event: AnActionEvent): ScalafmtStyle = {
+  private def getStyle(event: AnActionEvent): ScalafmtConfig = {
 
-    val customStyle: Option[ScalafmtStyle] = for {
+    val customStyle: Option[ScalafmtConfig] = for {
       project <- Option(event.getData(CommonDataKeys.PROJECT))
       _ = emitMigrateConfigWarning(event,
                                    new File(project.getBasePath, ".scalafmt"))
@@ -130,7 +130,7 @@ class ScalafmtAction extends AnAction {
       }
       config
     }
-    customStyle.getOrElse(ScalafmtStyle.default)
+    customStyle.getOrElse(ScalafmtConfig.default)
   }
 
   private def getCurrentFileDocument(

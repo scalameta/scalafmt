@@ -2,7 +2,6 @@ package org.scalafmt.internal
 
 import scala.meta.tokens.Token
 
-import org.scalafmt.internal.ExpiresOn._
 import org.scalafmt.internal.Length._
 
 sealed abstract class ExpiresOn

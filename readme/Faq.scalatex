@@ -1,7 +1,7 @@
 @import Main._
 @import org.scalafmt.readme.Readme._
-@import org.scalafmt.ScalafmtStyle
-@import org.scalafmt.ScalafmtStyle.default
+@import org.scalafmt.config.ScalafmtConfig
+@import org.scalafmt.config.ScalafmtConfig.default
 
 @sect{FAQ / Troubleshooting}
 
@@ -50,17 +50,14 @@
        thousands of different formatting solutions.
 
      @p
-       Additionally, I am sure that scalafmt could benefit greatly from
+       I am sure that scalafmt could benefit greatly from
        micro optimizations. Any help here is appreciated.
 
-     @p
-       Performance is still a work in progress and will hopefully
-       continue to improve in future releases. Help here is appreciated.
-
    @sect{Code formatters create unnecessary diffs!}
-     That's not a question, but I agree that code formatters like scalafmt do
-     sometimes increase the size of diffs in code reviews.
-     I still believe it's worth it, considering
+     @p
+       That's not a question, but I agree that code formatters like scalafmt do
+       sometimes increase the size of diffs in code reviews.
+       I still believe it's worth it, considering
 
      @ol
        @li

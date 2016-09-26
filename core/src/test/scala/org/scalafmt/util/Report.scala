@@ -1,9 +1,10 @@
 package org.scalafmt.util
 
-import org.scalafmt.ScalafmtStyle
-import org.scalafmt.stats.TestStats
 import scalatags.Text
 import scalatags.Text.all._
+
+import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.stats.TestStats
 
 object Report {
   val MaxVisits = 8 // 2 ** 6
@@ -33,7 +34,7 @@ object Report {
       )
     ).render
 
-  def heatmapBar(scalaStyle: ScalafmtStyle): Seq[Text.Modifier] =
+  def heatmapBar(scalaStyle: ScalafmtConfig): Seq[Text.Modifier] =
     (1 to MaxVisits).map { i =>
       val v = Math.pow(2, i).toInt
       val color = red(v)
@@ -133,7 +134,7 @@ object Report {
         FormatOutput(aft.token, aft.whitespace, aft.visits - bef.visits)
     }
 
-  def mkHtml(output: Seq[FormatOutput], scalaStyle: ScalafmtStyle): String = {
+  def mkHtml(output: Seq[FormatOutput], scalaStyle: ScalafmtConfig): String = {
     val sb = new StringBuilder()
     output.foreach { x =>
       import scalatags.Text.all._

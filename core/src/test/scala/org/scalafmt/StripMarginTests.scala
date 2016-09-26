@@ -3,6 +3,7 @@ package org.scalafmt
 import scala.meta.Tree
 import scala.meta.parsers.Parse
 
+import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.DiffTest
 import org.scalafmt.util.HasTests
@@ -131,14 +132,15 @@ val msg = s'''AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
   testsToRun.foreach(runTest(run))
 
   val alignStyle =
-    ScalafmtStyle.default.copy(assumeStandardLibraryStripMargin = true)
+    ScalafmtConfig.default.copy(assumeStandardLibraryStripMargin = true)
 
   def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
-    val runner = scalafmtRunner.withParser(parse)
-    val formatted = Scalafmt.format(t.original, alignStyle, runner).get
+    val runner = scalafmtRunner.copy(parser = parse)
+    val style = alignStyle.copy(runner = runner)
+    val formatted = Scalafmt.format(t.original, style).get
     saveResult(t, formatted, t.only)
     assertNoDiff(formatted, t.expected)
-    assertNoDiff(Scalafmt.format(formatted, alignStyle, runner).get,
+    assertNoDiff(Scalafmt.format(formatted, style).get,
                  formatted,
                  "Idempotency violated")
   }

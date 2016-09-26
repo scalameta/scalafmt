@@ -2,13 +2,12 @@ package org.scalafmt.cli
 
 import java.io.File
 
-import org.scalafmt.Error.SearchStateExploded
-import org.scalafmt.util.LoggerOps._
 import org.scalafmt.Error.InvalidScalafmtConfiguration
-import org.scalafmt.FormatResult
+import org.scalafmt.Formatted
 import org.scalafmt.Scalafmt
-import org.scalafmt.ScalafmtRunner
-import org.scalafmt.ScalafmtStyle
+import org.scalafmt.config.ScalafmtRunner
+import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.util.LoggerOps._
 
 /**
   * Classload ScalaFmt210 to run ScalaFmt from Scala 2.10, for example sbt
@@ -26,21 +25,22 @@ class Scalafmt210 {
   }
 
   def format(code: String, filename: String): String =
-    format(code, ScalafmtStyle.default, filename)
+    format(code, ScalafmtConfig.default, filename)
 
   private def format(code: String,
-                     scalafmtStyle: ScalafmtStyle,
+                     scalafmtStyle: ScalafmtConfig,
                      filename: String): String = {
     val currentPath = new File("").getAbsolutePath + "/"
     val relativePath = filename.stripPrefix(currentPath)
     val runner = // DRY please, same login in CLI
       if (filename.endsWith(".sbt")) ScalafmtRunner.sbt
       else ScalafmtRunner.default
-    Scalafmt.format(code, style = scalafmtStyle, runner = runner) match {
-      case FormatResult.Success(formattedCode) => formattedCode
+    val style =scalafmtStyle.copy(runner = runner)
+    Scalafmt.format(code, style) match {
+      case Formatted.Success(formattedCode) => formattedCode
       case error =>
         error match {
-          case FormatResult.Failure(e) =>
+          case Formatted.Failure(e) =>
             logger.warn(
               s"Failed to format file $relativePath. Cause: ${e.getMessage}.")
           case _ =>

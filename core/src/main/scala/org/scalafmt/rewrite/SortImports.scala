@@ -4,8 +4,6 @@ import scala.meta.Importee
 import scala.meta.Tree
 import scala.meta._
 
-import org.scalafmt.util.LoggerOps._
-
 
 /**
   * Sorts imports inside curly braces.

@@ -1,4 +1,6 @@
-package org.scalafmt
+package org.scalafmt.config
+
+import metaconfig.ConfigReader
 
 /**
   * Configuration for scalafmt optimizations.
@@ -12,12 +14,12 @@ package org.scalafmt
   *                   An optimization that trades off optimal formatting
   *                   output in order to complete in a reasonable time.
   *                   Used as a last resort.
-  * @param MaxVisitsPerToken
-  *                   Visit the same formatToken at most [[MaxVisitsPerToken]]
+  * @param maxVisitsPerToken
+  *                   Visit the same formatToken at most [[maxVisitsPerToken]]
   *                   times.
-  * @param MaxEscapes How often do we try to escape before giving up and
+  * @param maxEscapes How often do we try to escape before giving up and
   *                   use original formatting.
-  * @param MaxDepth   Maximum depth of recursion.
+  * @param maxDepth   Maximum depth of recursion.
   * @param acceptOptimalAtHints
   *                   Whether to listen to optimalAt fields in Splits.
   * @param disableOptimizationsInsideSensitiveAreas
@@ -51,35 +53,29 @@ package org.scalafmt
   *                   By starting a new search queue, we can perform
   *                   aggressive optimizations inside optimizations zones.
   */
-case class ScalafmtOptimizer(dequeueOnNewStatements: Boolean,
-                             escapeInPathologicalCases: Boolean,
-                             MaxVisitsPerToken: Int,
-                             MaxEscapes: Int,
-                             MaxDepth: Int,
-                             acceptOptimalAtHints: Boolean,
-                             disableOptimizationsInsideSensitiveAreas: Boolean,
-                             pruneSlowStates: Boolean,
-                             recurseOnBlocks: Boolean)
+@ConfigReader
+case class ScalafmtOptimizer(
+    dequeueOnNewStatements: Boolean = true,
+    escapeInPathologicalCases: Boolean = true,
+    maxVisitsPerToken: Int = 513,
+    maxEscapes: Int = 16,
+    maxDepth: Int = 100,
+    acceptOptimalAtHints: Boolean = true,
+    disableOptimizationsInsideSensitiveAreas: Boolean = true,
+    pruneSlowStates: Boolean = true,
+    recurseOnBlocks: Boolean = true
+)
 
 object ScalafmtOptimizer {
-  val default = ScalafmtOptimizer(
-    dequeueOnNewStatements = true,
-    escapeInPathologicalCases = true,
-    MaxVisitsPerToken = 513,
-    MaxEscapes = 16,
-    MaxDepth = 100,
-    acceptOptimalAtHints = true,
-    pruneSlowStates = true,
-    disableOptimizationsInsideSensitiveAreas = true,
-    recurseOnBlocks = true
-  )
+  val default = ScalafmtOptimizer()
 
-  val noOptimizations = default.copy(
-    dequeueOnNewStatements = false,
-    escapeInPathologicalCases = false,
-    acceptOptimalAtHints = false,
-    disableOptimizationsInsideSensitiveAreas = false,
-    pruneSlowStates = false,
-    recurseOnBlocks = false
-  )
+  // TODO(olafur) uncomment once scala.meta converter supports default args.
+//  val noOptimizations = default.copy(
+//    dequeueOnNewStatements = false,
+//    escapeInPathologicalCases = false,
+//    acceptOptimalAtHints = false,
+//    disableOptimizationsInsideSensitiveAreas = false,
+//    pruneSlowStates = false,
+//    recurseOnBlocks = false
+//  )
 }
