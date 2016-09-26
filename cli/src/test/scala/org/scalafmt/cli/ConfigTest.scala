@@ -1,13 +1,12 @@
 package org.scalafmt.cli
 
-import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
-import com.typesafe.config.ConfigValue
+import scala.meta.dialects.Paradise211
+import scala.meta.parsers.Parse
+
 import org.scalafmt
-import org.scalafmt.AlignToken
-import org.scalafmt.IndentOperator
-import org.scalafmt.ScalafmtStyle
-import org.scalafmt.config.hocon.Hocon2Class
+import org.scalafmt.config.AlignToken
+import org.scalafmt.config.IndentOperator
+import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.LoggerOps._
 import org.scalatest.FunSuite
 
@@ -23,13 +22,13 @@ class ConfigTest extends FunSuite {
                                           |maxColumn = 100
                                           |""".stripMargin)
     assert(
-      Right(ScalafmtStyle.defaultWithAlign.copy(maxColumn = 100)) == overrideOne)
+      Right(ScalafmtConfig.defaultWithAlign.copy(maxColumn = 100)) == overrideOne)
     assert(
-      Right(ScalafmtStyle.intellij) == Config.fromHocon("style = intellij"))
+      Right(ScalafmtConfig.intellij) == Config.fromHocon("style = intellij"))
     assert(
-      Right(ScalafmtStyle.scalaJs) == Config.fromHocon("style = Scala.js"))
+      Right(ScalafmtConfig.scalaJs) == Config.fromHocon("style = Scala.js"))
     assert(
-      Right(ScalafmtStyle.defaultWithAlign) == Config.fromHocon(
+      Right(ScalafmtConfig.defaultWithAlign) == Config.fromHocon(
         "style = defaultWithAlign"))
   }
 
@@ -37,15 +36,14 @@ class ConfigTest extends FunSuite {
     val config =
       """
         |style = intellij
-        |allowNewlineBeforeColonInMassiveReturnTypes = true
-        |alwaysNewlineBeforeLambdaParameters = true
         |assumeStandardLibraryStripMargin = true
         |binPackImportSelectors = true
-        |configStyleArguments = true
         |danglingParentheses = true
-        |keepSelectChainLineBreaks = true
+        |optIn: {
+        |  configStyleArguments = true
+        |  breakChainOnFirstMethodDot = true
+        |}
         |maxColumn = 4000
-        |noNewlinesBeforeJsNative = true
         |poorMansTrailingCommasInConfigStyle = true
         |unindentTopLevelOperators = true
         |docstrings = JavaDoc
@@ -76,40 +74,55 @@ class ConfigTest extends FunSuite {
         |  openParenDefnSite = true
         |  mixedOwners = true
         |}
+        |newlines: {
+        |  alwaysBeforeCurlyBraceLambdaParams = true
+        |  neverBeforeJsNative = true
+        |  sometimesBeforeColonInMethodReturnType = true
+        |}
         |indentOperator: {
         |  "include" = inc
         |  exclude = exclude
+        |}
+        |
+        |runner: {
+        |  optimizer.acceptOptimalAtHints = false
+        |  parser = parseCase
+        |  dialect = Paradise211
+        |  eventCallback = bar
         |}
       """.stripMargin
     scalafmt.config.Config.fromHocon(config) match {
       case Left(e) => throw e
       case Right(obtained) =>
         assert(obtained.maxColumn == 4000)
+        assert(obtained.runner.parser == Parse.parseCase)
+        assert(obtained.runner.dialect == Paradise211)
+        assert(obtained.runner.optimizer.acceptOptimalAtHints == false)
         assert(obtained.assumeStandardLibraryStripMargin)
         assert(obtained.reformatDocstrings == true)
         assert(obtained.scalaDocs == false)
-        assert(obtained.binPackArguments == true)
-        assert(obtained.binPackParameters == true)
+        assert(obtained.binPack.callSite == true)
+        assert(obtained.binPack.defnSite == true)
         assert(obtained.configStyleArguments == true)
-        assert(obtained.noNewlinesBeforeJsNative == true)
+        assert(obtained.neverBeforeJsNative == true)
         assert(obtained.danglingParentheses == true)
         assert(obtained.align.openParenCallSite == true)
         assert(obtained.align.openParenDefnSite == true)
-        assert(obtained.continuationIndentCallSite == 3)
-        assert(obtained.continuationIndentDefnSite == 5)
+        assert(obtained.continuationIndent.callSite == 3)
+        assert(obtained.continuationIndent.defnSite == 5)
         assert(obtained.align.mixedOwners == true)
         assert(obtained.binPackImportSelectors == true)
         assert(obtained.spaces.inImportCurlyBraces == true)
         assert(obtained.poorMansTrailingCommasInConfigStyle == true)
-        assert(obtained.allowNewlineBeforeColonInMassiveReturnTypes == true)
+        assert(obtained.sometimesBeforeColonInMethodReturnType == true)
         assert(obtained.binPackParentConstructors == true)
         assert(obtained.spaces.afterTripleEquals == true)
         assert(obtained.unindentTopLevelOperators == true)
         assert(obtained.align.arrowEnumeratorGenerator == true)
         assert(obtained.align.ifWhileOpenParen == true)
         assert(obtained.spaces.beforeContextBoundColon == true)
-        assert(obtained.keepSelectChainLineBreaks == true)
-        assert(obtained.alwaysNewlineBeforeLambdaParameters == true)
+        assert(obtained.breakChainOnFirstMethodDot == true)
+        assert(obtained.alwaysBeforeCurlyBraceLambdaParams == true)
         assert(
           obtained.align.tokens ==
             Set(

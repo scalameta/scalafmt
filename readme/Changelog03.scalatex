@@ -1,6 +1,6 @@
 @import Main._
 @import org.scalafmt.readme.Readme._
-@import org.scalafmt.ScalafmtStyle
+@import org.scalafmt.config.ScalafmtConfig
 @sect{0.3.2}
   @ul
     @li
@@ -129,7 +129,7 @@
         }
     @li
       The default @code{--alignByArrowEnumeratorGenerator} is now false
-      instead of true. Refer to @sect.ref{--alignByArrowEnumeratorGenerator}.
+      instead of true. Refer to @sect.ref{align.arrowEnumeratorGenerator}.
     @li
       Function literals in argument lists can now be single line.
       See @issue(323).
@@ -238,11 +238,11 @@
         @li
           (advanced) @code{--indentOperatorsIncludeFilter <str>}.
           See @lnk("docstring",
-                   "https://github.com/olafurpg/scalafmt/blob/master/core/src/main/scala/org/scalafmt/ScalafmtStyle.scala#L88").
+                   "https://github.com/olafurpg/scalafmt/blob/master/core/src/main/scala/org/scalafmt/ScalafmtConfig.scala#L88").
         @li
           (advanced) @code{--indentOperatorsExcludeFilter <str>}
           See @lnk("docstring",
-                   "https://github.com/olafurpg/scalafmt/blob/master/core/src/main/scala/org/scalafmt/ScalafmtStyle.scala#L97").
+                   "https://github.com/olafurpg/scalafmt/blob/master/core/src/main/scala/org/scalafmt/ScalafmtConfig.scala#L97").
     @li
       Backwards incompatible change: @code{FormatResult.Incomplete} is now
       a @code{FormatResult.Failure(e: Incomplete)}.

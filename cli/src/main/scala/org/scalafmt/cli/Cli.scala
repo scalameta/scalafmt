@@ -1,7 +1,6 @@
 package org.scalafmt.cli
 
 import scala.meta.Dialect
-import scala.util.Try
 import scala.util.control.NonFatal
 
 import java.io.File
@@ -10,18 +9,13 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 import org.scalafmt
-import org.scalafmt.AlignToken
-import org.scalafmt.ContinuationIndent
 import org.scalafmt.Error.MisformattedFile
-import org.scalafmt.FormatResult
-import org.scalafmt.IndentOperator
+import org.scalafmt.Formatted
 import org.scalafmt.Scalafmt
-import org.scalafmt.ScalafmtOptimizer
-import org.scalafmt.ScalafmtRunner
-import org.scalafmt.ScalafmtStyle
 import org.scalafmt.Versions
+import org.scalafmt.config.ScalafmtRunner
+import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.macros.Macros
-import org.scalafmt.rewrite.Rewrite
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.LoggerOps
 import scopt.OptionParser
@@ -63,7 +57,7 @@ object Cli {
                     testing: Boolean,
                     debug: Boolean,
                     sbtFiles: Boolean,
-                    style: ScalafmtStyle,
+                    style: ScalafmtConfig,
                     runner: ScalafmtRunner,
                     range: Set[Range],
                     migrate: Option[File]) {
@@ -77,7 +71,7 @@ object Cli {
                          testing = false,
                          sbtFiles = true,
                          debug = false,
-                         style = ScalafmtStyle.default,
+                         style = ScalafmtConfig.default,
                          runner = ScalafmtRunner.default,
                          range = Set.empty[Range],
                          migrate = None)
@@ -222,10 +216,9 @@ object Cli {
           case _ => config.runner
         }
         Scalafmt.format(inputMethod.code,
-                        style = config.style,
-                        range = config.range,
-                        runner = runner) match {
-          case FormatResult.Success(formatted) =>
+                        style = config.style.copy(runner = runner),
+                        range = config.range) match {
+          case Formatted.Success(formatted) =>
             inputMethod match {
               case FileContents(filename, _) if config.inPlace =>
                 val elapsed = TimeUnit.MILLISECONDS

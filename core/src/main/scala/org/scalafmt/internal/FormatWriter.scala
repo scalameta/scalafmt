@@ -8,7 +8,6 @@ import scala.meta.tokens.Token._
 
 import java.util.regex.Pattern
 
-import org.scalafmt.ScalafmtStyle
 import org.scalafmt.internal.FormatWriter.FormatLocation
 
 /**

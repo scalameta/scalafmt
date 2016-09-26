@@ -1,10 +1,10 @@
 package org.scalafmt.internal
 
-import org.scalafmt.util.Whitespace
-import org.scalafmt.util.TokenOps._
-import scala.collection.mutable
 import scala.meta.tokens.Token
 import scala.meta.tokens.Tokens
+
+import org.scalafmt.util.TokenOps._
+import org.scalafmt.util.Whitespace
 
 /**
   * Two adjacent non-whitespace tokens.

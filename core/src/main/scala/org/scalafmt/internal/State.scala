@@ -1,14 +1,12 @@
 package org.scalafmt.internal
 
-import org.scalafmt.internal.ExpiresOn.Right
-import org.scalafmt.internal.ExpiresOn.Left
-import org.scalafmt.internal.Length.StateColumn
-import org.scalafmt.internal.Length.Num
-import org.scalafmt.ScalafmtStyle
-import org.scalafmt.util.LoggerOps
-import org.scalafmt.util.TokenOps
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token.Comment
+
+import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.internal.ExpiresOn.Left
+import org.scalafmt.internal.Length.Num
+import org.scalafmt.util.TokenOps
 
 /**
   * A partial formatting solution up to splits.length number of tokens.
@@ -30,7 +28,6 @@ final case class State(cost: Int,
         Integer.valueOf(this.splits.length).compareTo(that.splits.length)
       if (splitsCompare != 0) splitsCompare
       else {
-        import LoggerOps._
         // Break ties by the split line origin.
         var i = this.splits.length - 1
         var r = 0
@@ -52,7 +49,6 @@ final case class State(cost: Int,
 }
 
 object State {
-  import LoggerOps._
   val start = State(0,
                     PolicySummary.empty,
                     Vector.empty[Split],
@@ -65,7 +61,7 @@ object State {
     * Calculates next State given split at tok.
     */
   def next(curr: State,
-           style: ScalafmtStyle,
+           style: ScalafmtConfig,
            split: Split,
            tok: FormatToken): State = {
     import curr._

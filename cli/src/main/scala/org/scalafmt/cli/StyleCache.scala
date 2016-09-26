@@ -4,16 +4,15 @@ import scala.collection.mutable
 
 import java.io.File
 
-import org.scalafmt.ScalafmtStyle
-import org.scalafmt.cli.Cli.Config
 import org.scalafmt.config
+import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.FileOps
 
 object StyleCache {
-  private val styleCache = mutable.Map.empty[String, ScalafmtStyle]
+  private val styleCache = mutable.Map.empty[String, ScalafmtConfig]
 
   private val timeStamps = mutable.Map.empty[String, Long]
-  def getStyleForFile(filename: String): Option[ScalafmtStyle] = {
+  def getStyleForFile(filename: String): Option[ScalafmtConfig] = {
     val file = new File(filename)
     val lastModified = file.lastModified()
     val configChanged = timeStamps.get(filename).contains(lastModified)

@@ -1,5 +1,7 @@
 package org.scalafmt
 
+import org.scalafmt.config.ScalafmtRunner
+import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.DiffAssertions
 import org.scalatest.FunSuite
 
@@ -25,7 +27,11 @@ class DialectsTest extends FunSuite with DiffAssertions {
         |""".stripMargin
     val expected = original
     val obtained =
-      Scalafmt.format(original, runner = ScalafmtRunner.sbt).get
+      Scalafmt
+        .format(
+          original,
+          style = ScalafmtConfig.default.copy(runner = ScalafmtRunner.sbt))
+        .get
     assertNoDiff(obtained, expected)
   }
 }

@@ -8,15 +8,6 @@ import scala.reflect.ClassTag
 trait Reader[+T] { self =>
   def read(any: Any): Result[T]
 
-//  def orElse(els: Reader[T]): Reader[T] =
-//    new Reader[T] {
-//      override def read(any: Any): Result[T] = self.read(any) match {
-//        case Right(x) => Right(x)
-//        // TODO(olafur) accumulate errors
-//        case Left(_) => els.read(any)
-//      }
-//    }
-
   def map[TT](f: T => TT): Reader[TT] = self.flatMap(x => Right(f(x)))
 
   def flatMap[TT](f: T => Result[TT]): Reader[TT] =
@@ -30,10 +21,9 @@ trait Reader[+T] { self =>
 
 object Reader {
 
-  def fail[T](x: Any): Result[T] = {
-    Left(
-      new IllegalArgumentException(
-        s"value '$x' of type ${x.getClass.getSimpleName}."))
+  def fail[T: ClassTag](x: Any): Result[T] = {
+    val clz = x.getClass.getSimpleName
+    Left(new IllegalArgumentException(s"value '$x' of type $clz."))
   }
 
   def instance[T](f: PartialFunction[Any, Result[T]])(

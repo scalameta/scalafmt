@@ -1,15 +1,11 @@
-package org.scalafmt
+package org.scalafmt.config
 
-import scala.util.matching.Regex
-import scala.collection.immutable.Set
 import scala.collection.immutable.Seq
+import scala.collection.immutable.Set
 
-import metaconfig.ConfigReader
 import metaconfig.Reader
 import metaconfig.String2AnyMap
-import org.scalafmt.rewrite.Rewrite
 import org.scalafmt.util.LoggerOps
-import org.scalafmt.config.RewriteSettings
 
 trait Settings {
 
@@ -18,59 +14,18 @@ trait Settings {
   val indentOperatorsIncludeDefault = ".*"
   val indentOperatorsExcludeDefault = "^(&&|\\|\\|)$"
 
-  val default = ScalafmtStyle(
-    maxColumn = 80,
-    docstrings = Docstrings.ScalaDoc,
-    assumeStandardLibraryStripMargin = false,
-    binPack = BinPack(
-      callSite = false,
-      defnSite = false,
-      parentConstructors = false
-    ),
-    configStyleArguments = true,
-    danglingParentheses = false,
-    align = Align(
-      openParenCallSite = true,
-      openParenDefnSite = true,
-      mixedOwners = false,
-      tokens = Set.empty[AlignToken],
-      arrowEnumeratorGenerator = false,
-      ifWhileOpenParen = true
-    ),
-    noNewlinesBeforeJsNative = false,
-    continuationIndent = ContinuationIndent(
-      callSite = 2,
-      defnSite = 4
-    ),
-    binPackImportSelectors = false,
-    spaces = Spaces(
-      afterTripleEquals = false,
-      beforeContextBoundColon = false,
-      inImportCurlyBraces = false
-    ),
-    poorMansTrailingCommasInConfigStyle = false,
-    allowNewlineBeforeColonInMassiveReturnTypes = true,
-    unindentTopLevelOperators = false,
-    indentOperator = IndentOperator(
-      include = indentOperatorsIncludeDefault,
-      exclude = indentOperatorsExcludeDefault
-    ),
-    rewriteTokens = Map.empty[String, String],
-    keepSelectChainLineBreaks = false,
-    alwaysNewlineBeforeLambdaParameters = false,
-    lineEndings = LineEndings.preserve,
-    bestEffortInDeeplyNestedCode = false,
-    rewrite = RewriteSettings()
-  )
+  val default = ScalafmtConfig()
 
   val intellij = default.copy(
     continuationIndent = ContinuationIndent(2, 2),
     align = default.align.copy(openParenCallSite = false),
-    configStyleArguments = false,
+    optIn = default.optIn.copy(
+      configStyleArguments = false
+    ),
     danglingParentheses = true
   )
 
-  def addAlign(style: ScalafmtStyle) = style.copy(
+  def addAlign(style: ScalafmtConfig) = style.copy(
     align = style.align.copy(
       mixedOwners = true,
       tokens = AlignToken.default
@@ -87,7 +42,6 @@ trait Settings {
     * https://github.com/scala-js/scala-js/blob/master/CODINGSTYLE.md
     */
   val scalaJs = default.copy(
-    noNewlinesBeforeJsNative = true,
     binPack = BinPack(
       defnSite = true,
       callSite = true,
@@ -95,7 +49,10 @@ trait Settings {
     ),
     continuationIndent = ContinuationIndent(4, 4),
     binPackImportSelectors = true,
-    allowNewlineBeforeColonInMassiveReturnTypes = false,
+    newlines = default.newlines.copy(
+      neverBeforeJsNative = true,
+      sometimesBeforeColonInMethodReturnType = false
+    ),
     docstrings = Docstrings.JavaDoc,
     align = default.align.copy(
       arrowEnumeratorGenerator = false,
@@ -142,19 +99,19 @@ trait Settings {
 
     }
 
-  val configReader: Reader[ScalafmtStyle] = Reader.instance[ScalafmtStyle] {
+  val configReader: Reader[ScalafmtConfig] = Reader.instance[ScalafmtConfig] {
     case String2AnyMap(map) =>
       map.get("style") match {
         case Some(baseStyle) =>
           val noStyle = map.-("style")
-          ScalafmtStyle.availableStyles.get(baseStyle.toString.toLowerCase) match {
+          ScalafmtConfig.availableStyles.get(baseStyle.toString.toLowerCase) match {
             case Some(s) => s.reader.read(noStyle)
             case None =>
-              val alternatives = ScalafmtStyle.activeStyles.keys.mkString(", ")
+              val alternatives = ScalafmtConfig.activeStyles.keys.mkString(", ")
               Left(new IllegalArgumentException(
                 s"Unknown style name $baseStyle. Expected one of: $alternatives"))
           }
-        case None => ScalafmtStyle.default.reader.read(map)
+        case None => ScalafmtConfig.default.reader.read(map)
       }
   }
 

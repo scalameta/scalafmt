@@ -1,22 +1,20 @@
 package org.scalafmt.util
 
+import scala.meta.Defn
+import scala.meta.Pkg
+import scala.meta.Template
+import scala.meta.Tree
 import scala.meta.dialects.Scala211
+import scala.meta.tokens.Token
+import scala.meta.tokens.Token._
 
 import org.scalafmt.internal.Decision
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.Modification
-import org.scalafmt.internal.Newline
 import org.scalafmt.internal.NewlineT
 import org.scalafmt.internal.NoSplit
 import org.scalafmt.internal.Policy
 import org.scalafmt.internal.Space
-import scala.meta.Tree
-import scala.meta.Defn
-import scala.meta.Pkg
-import scala.meta.Template
-import scala.meta.tokens.Token
-import scala.meta.tokens.Token._
-
 import org.scalafmt.internal.Split
 
 /**

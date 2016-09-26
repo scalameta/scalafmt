@@ -1,16 +1,14 @@
 package org.scalafmt.util
 
+import scala.meta.Tree
+import scala.meta.parsers.Parse
+import scala.meta.parsers.ParseException
+
 import java.io.ByteArrayInputStream
 
 import org.scalafmt.Error.FormatterChangedAST
 import org.scalafmt.Error.FormatterOutputDoesNotParse
 import org.scalatest.FunSuiteLike
-import scala.meta.Tree
-import scala.meta.parsers.Parse
-import scala.meta.parsers.ParseException
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
 
 trait FormatAssertions extends FunSuiteLike with DiffAssertions {
   import LoggerOps._

@@ -1,4 +1,4 @@
-package org.scalafmt
+package org.scalafmt.config
 
 import metaconfig.ConfigReader
 

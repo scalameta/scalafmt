@@ -1,11 +1,11 @@
-package org.scalafmt
+package org.scalafmt.config
 
 import metaconfig.Reader
 
-case class BaseStyle(style: ScalafmtStyle)
+case class BaseStyle(style: ScalafmtConfig)
 
 object BaseStyle {
-  val default: BaseStyle = BaseStyle(ScalafmtStyle.default)
+  val default: BaseStyle = BaseStyle(ScalafmtConfig.default)
   implicit val styleReader: Reader[BaseStyle] = Reader.instance[BaseStyle] {
     case b: BaseStyle => Right(b) // TODO(olafur) provide this in instance
     case any =>
@@ -13,11 +13,11 @@ object BaseStyle {
       for {
         str <- Reader.stringR.read(any).right
         style <- {
-          ScalafmtStyle.availableStyles.get(str.toLowerCase) match {
+          ScalafmtConfig.availableStyles.get(str.toLowerCase) match {
             case Some(s) => Right(s)
             case None =>
               Left(new IllegalArgumentException(
-                s"Unknown style name $str. Expected one of ${ScalafmtStyle.activeStyles.keys}"))
+                s"Unknown style name $str. Expected one of ${ScalafmtConfig.activeStyles.keys}"))
           }
         }.right
       } yield BaseStyle(style)

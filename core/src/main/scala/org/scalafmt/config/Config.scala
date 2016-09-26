@@ -1,14 +1,13 @@
 package org.scalafmt.config
 
 import metaconfig.Result
-import org.scalafmt.ScalafmtStyle
 import org.scalafmt.config.hocon.Hocon2Class
 
 object Config {
 
   def fromHocon(string: String,
-                path: Option[String] = None): Result[ScalafmtStyle] =
+                path: Option[String] = None): Result[ScalafmtConfig] =
     Hocon2Class
-      .gimmeClass[ScalafmtStyle](string, ScalafmtStyle.configReader, path)
+      .gimmeClass[ScalafmtConfig](string, ScalafmtConfig.configReader, path)
 
 }

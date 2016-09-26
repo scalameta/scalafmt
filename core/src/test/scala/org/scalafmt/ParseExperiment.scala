@@ -1,5 +1,7 @@
 package org.scalafmt
 
+import scala.meta._
+
 import org.scalafmt.util.ExperimentResult
 import org.scalafmt.util.ExperimentResult.Skipped
 import org.scalafmt.util.ExperimentResult.Success
@@ -7,7 +9,6 @@ import org.scalafmt.util.FormatAssertions
 import org.scalafmt.util.ScalaFile
 import org.scalafmt.util.ScalaProjectsExperiment
 import org.scalafmt.util.ScalacParser
-import scala.meta._
 
 object ParseExperiment
     extends App

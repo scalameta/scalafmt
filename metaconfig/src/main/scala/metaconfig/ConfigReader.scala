@@ -33,14 +33,16 @@ class ConfigReader extends scala.annotation.StaticAnnotation {
               case ($patTyped) => Right($bind)
               case _root_.metaconfig.String2AnyMap(map) =>
                 def get[T](path: String, default: T)(implicit
-                    ev: _root_.metaconfig.Reader[T]) = {
+                    ev: _root_.metaconfig.Reader[T],
+                    clazz: _root_.scala.reflect.ClassTag[T]
+                    ) = {
                   ev.read(map.getOrElse(path, default)) match {
                     case Right(e) => e
                     case Left(e: java.lang.IllegalArgumentException) =>
                       val msg =
                         "Error reading field '" + path +
                         "' on class " + $classLit +
-                        ". Expected argument of type " + default.getClass.getSimpleName +
+                        ". Expected argument of type " + clazz.runtimeClass.getSimpleName +
                         ". Obtained " + e.getMessage()
                       throw _root_.metaconfig.ConfigError(msg)
                     case Left(e) => throw e

@@ -1,11 +1,7 @@
 package org.scalafmt.util
 
-import scala.meta.Case
-
-import org.scalafmt.Error
 import scala.annotation.tailrec
-import scala.collection.mutable
-import scala.meta.Tree
+import scala.meta.Case
 import scala.meta.Ctor
 import scala.meta.Decl
 import scala.meta.Defn
@@ -16,6 +12,7 @@ import scala.meta.Pkg
 import scala.meta.Source
 import scala.meta.Template
 import scala.meta.Term
+import scala.meta.Tree
 import scala.meta.Type
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
@@ -23,6 +20,7 @@ import scala.meta.tokens.Tokens
 import scala.reflect.ClassTag
 import scala.reflect.classTag
 
+import org.scalafmt.Error
 import org.scalafmt.Error.UnexpectedTree
 import org.scalafmt.internal.FormatToken
 
@@ -30,8 +28,8 @@ import org.scalafmt.internal.FormatToken
   * Stateless helper functions on [[scala.meta.Tree]].
   */
 object TreeOps {
-  import TokenOps._
   import LoggerOps._
+  import TokenOps._
 
   def getEnumStatements(enums: Seq[Enumerator]): Seq[Enumerator] = {
     val ret = Seq.newBuilder[Enumerator]

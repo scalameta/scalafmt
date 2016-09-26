@@ -3,7 +3,6 @@ package org.scalafmt.config.hocon
 import scala.util.control.NonFatal
 
 import com.typesafe.config.Config
-import com.typesafe.config.ConfigException
 import com.typesafe.config.ConfigFactory
 
 object Hocon2Class {

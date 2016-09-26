@@ -1,23 +1,19 @@
 package org.scalafmt.internal
 
+import scala.collection.mutable
 import scala.meta.Defn
+import scala.meta.tokens.Token
 
 import org.scalafmt.Error.SearchStateExploded
-import org.scalafmt.FormatResult
+import org.scalafmt.config.FormatEvent.CompleteFormat
+import org.scalafmt.config.FormatEvent.Enqueue
+import org.scalafmt.config.FormatEvent.Explored
+import org.scalafmt.config.FormatEvent.VisitToken
 import org.scalafmt.internal.ExpiresOn.Right
-import org.scalafmt.internal.ExpiresOn.Left
-import org.scalafmt.internal.Length.StateColumn
 import org.scalafmt.internal.Length.Num
-import org.scalafmt.Error.CantFormatFile
-import org.scalafmt.FormatEvent.CompleteFormat
-import org.scalafmt.FormatEvent.Enqueue
-import org.scalafmt.FormatEvent.Explored
-import org.scalafmt.FormatEvent.VisitToken
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
-import scala.collection.mutable
-import scala.meta.tokens.Token
 
 /**
   * Implements best first search to find optimal formatting.
@@ -25,8 +21,9 @@ import scala.meta.tokens.Token
 class BestFirstSearch(val formatOps: FormatOps,
                       range: Set[Range],
                       formatWriter: FormatWriter) {
-  import LoggerOps._
   import Token._
+
+  import LoggerOps._
   import TokenOps._
   import TreeOps._
   import formatOps._
@@ -202,7 +199,7 @@ class BestFirstSearch(val formatOps: FormatOps,
             Q.enqueue(nextState)
           }
         } else if (escapeInPathologicalCases &&
-                   visits(splitToken) > MaxVisitsPerToken) {
+                   visits(splitToken) > maxVisitsPerToken) {
           Q.dequeueAll
           best.clear()
           visits.clear()
@@ -211,7 +208,7 @@ class BestFirstSearch(val formatOps: FormatOps,
             throw SearchStateExploded(deepestYet,
                                       formatWriter.mkString(deepestYet.splits),
                                       tokens(deepestYet.splits.length).left)
-          } else if (pathologicalEscapes >= MaxEscapes) {
+          } else if (pathologicalEscapes >= maxEscapes) {
             Q.enqueue(untilNextStatement(curr, Integer.MAX_VALUE))
           } else {
             // We are stuck, but try to continue with one cheap/fast and
@@ -245,7 +242,7 @@ class BestFirstSearch(val formatOps: FormatOps,
             split.optimalAt match {
               case Some(OptimalToken(token, killOnFail))
                   if acceptOptimalAtHints && optimalNotFound &&
-                    actualSplit.length > 1 && depth < MaxDepth &&
+                    actualSplit.length > 1 && depth < maxDepth &&
                     nextState.splits.last.cost == 0 =>
                 val nextNextState =
                   shortestPath(nextState, token, depth + 1, maxCost = 0)

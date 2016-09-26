@@ -15,9 +15,6 @@ import org.openjdk.jmh.annotations.Scope
 import org.openjdk.jmh.annotations.Setup
 import org.openjdk.jmh.annotations.Warmup
 import org.scalafmt.Scalafmt
-import org.scalafmt.ScalafmtOptimizer
-import org.scalafmt.ScalafmtRunner
-import org.scalafmt.ScalafmtStyle
 import org.scalafmt.util.ScalaFile
 import org.scalafmt.util.FileOps
 import scala.meta.Source
@@ -26,6 +23,9 @@ import scalariform.formatter.preferences.FormattingPreferences
 import scalariform.formatter.preferences.IndentSpaces
 
 import org.scalafmt.config.RewriteSettings
+import org.scalafmt.config.ScalafmtOptimizer
+import org.scalafmt.config.ScalafmtRunner
+import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.rewrite.RedundantBraces
 import org.scalafmt.rewrite.SortImports
 
@@ -33,7 +33,7 @@ trait FormatBenchmark {
   def formatRewrite(code: String) = {
     Scalafmt
       .format(code,
-              style = ScalafmtStyle.default.copy(
+              style = ScalafmtConfig.default.copy(
                 rewrite = RewriteSettings(
                   rules = Seq(SortImports, RedundantBraces)
                 )

@@ -2,13 +2,26 @@ package org.scalafmt.internal
 
 import scala.language.implicitConversions
 
+import scala.collection.mutable
+import scala.meta.Case
+import scala.meta.Defn
+import scala.meta.Enumerator
+import scala.meta.Import
 import scala.meta.Mod
+import scala.meta.Name
+import scala.meta.Pat
+import scala.meta.Pkg
+import scala.meta.Template
+import scala.meta.Term
+import scala.meta.Tree
+import scala.meta.Type
+import scala.meta.tokens.Token
 
-import org.scalafmt.internal.ExpiresOn.Right
-import org.scalafmt.internal.ExpiresOn.Left
-import org.scalafmt.internal.Length.StateColumn
-import org.scalafmt.internal.Length.Num
 import org.scalafmt.Error.UnexpectedTree
+import org.scalafmt.internal.ExpiresOn.Left
+import org.scalafmt.internal.ExpiresOn.Right
+import org.scalafmt.internal.Length.Num
+import org.scalafmt.internal.Length.StateColumn
 import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util.Delim
 import org.scalafmt.util.InfixApplication
@@ -19,19 +32,6 @@ import org.scalafmt.util.Modifier
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
 import org.scalafmt.util.Trivia
-import scala.collection.mutable
-import scala.meta.Tree
-import scala.meta.Case
-import scala.meta.Defn
-import scala.meta.Enumerator
-import scala.meta.Import
-import scala.meta.Name
-import scala.meta.Pat
-import scala.meta.Pkg
-import scala.meta.Template
-import scala.meta.Term
-import scala.meta.Type
-import scala.meta.tokens.Token
 
 // Too many to import individually.
 import scala.meta.tokens.Token._
@@ -51,11 +51,11 @@ object Constants {
   * Assigns splits to format tokens.
   */
 class Router(formatOps: FormatOps) {
+  import Constants._
   import LoggerOps._
   import TokenOps._
   import TreeOps._
   import formatOps._
-  import Constants._
 
   private def getSplits(formatToken: FormatToken): Seq[Split] = {
     val style = styleMap.at(formatToken)
@@ -181,7 +181,7 @@ class Router(formatOps: FormatOps) {
           Split(
             Space,
             0,
-            ignoreIf = style.alwaysNewlineBeforeLambdaParameters || !startsLambda)
+            ignoreIf = style.alwaysBeforeCurlyBraceLambdaParams || !startsLambda)
             .withOptimalToken(lambdaArrow)
             .withIndent(lambdaIndent, close, Right)
             .withPolicy(lambdaPolicy),
@@ -193,7 +193,7 @@ class Router(formatOps: FormatOps) {
       // Term.Function
       case FormatToken(open @ LeftParen(), _, _)
           // Argument list for anonymous function
-          if !style.binPackParameters && (leftOwner match {
+          if !style.binPack.defnSite && (leftOwner match {
             case _: Term.Function | _: Type.Function => true
             case _ => false
           }) =>
@@ -395,12 +395,12 @@ class Router(formatOps: FormatOps) {
             .withIndent(extraIndent, right, Right)
         )
       case FormatToken(open @ (LeftParen() | LeftBracket()), right, between)
-          if style.binPackParameters && isDefnSite(leftOwner) ||
+          if style.binPack.defnSite && isDefnSite(leftOwner) ||
             // TODO(olafur) generalize Term.Function
             leftOwner.isInstanceOf[Term.Function] =>
         val close = matchingParentheses(hash(open))
         val isBracket = open.is[LeftBracket]
-        val indent = Num(style.continuationIndentDefnSite)
+        val indent = Num(style.continuationIndent.defnSite)
         if (isTuple(leftOwner)) {
           Seq(
             Split(NoSplit, 0).withPolicy(
@@ -445,7 +445,7 @@ class Router(formatOps: FormatOps) {
           )
         }
       case FormatToken(LeftParen() | LeftBracket(), _, _)
-          if style.binPackArguments && isCallSite(leftOwner) =>
+          if style.binPack.callSite && isCallSite(leftOwner) =>
         val open = formatToken.left
         val close = matchingParentheses(hash(open))
         val indent = getApplyIndent(leftOwner)
@@ -460,7 +460,7 @@ class Router(formatOps: FormatOps) {
             insideBlock(formatToken, close, x => x.isInstanceOf[LeftBrace])
         val excludeRanges = exclude.map(parensRange)
         val unindent =
-          UnindentAtExclude(exclude, Num(-style.continuationIndentCallSite))
+          UnindentAtExclude(exclude, Num(-style.continuationIndent.callSite))
         val unindentPolicy =
           if (args.length == 1) Policy(unindent, close.end)
           else NoPolicy
@@ -482,8 +482,8 @@ class Router(formatOps: FormatOps) {
       case FormatToken(LeftParen(), RightParen(), _) => Seq(Split(NoSplit, 0))
       case tok @ FormatToken(LeftParen() | LeftBracket(), right, between)
           if !isSuperfluousParenthesis(formatToken.left, leftOwner) &&
-            (!style.binPackArguments && isCallSite(leftOwner)) ||
-            (!style.binPackParameters && isDefnSite(leftOwner)) =>
+            (!style.binPack.callSite && isCallSite(leftOwner)) ||
+            (!style.binPack.defnSite && isDefnSite(leftOwner)) =>
         val open = tok.left
         val close = matchingParentheses(hash(open))
         val (lhs, args) = getApplyArgs(formatToken, leftOwner)
@@ -617,7 +617,7 @@ class Router(formatOps: FormatOps) {
 
       // Closing def site ): ReturnType
       case FormatToken(_, colon @ Colon(), _)
-          if style.allowNewlineBeforeColonInMassiveReturnTypes &&
+          if style.sometimesBeforeColonInMethodReturnType &&
             defDefReturnType(leftOwner).isDefined =>
         val expire = lastToken(defDefReturnType(rightOwner).get)
         val penalizeNewlines =
@@ -758,9 +758,9 @@ class Router(formatOps: FormatOps) {
         val expire = rhs.tokens.last
 
         val penalty = leftOwner match {
-          case l: Term.Arg.Named if style.binPackArguments =>
+          case l: Term.Arg.Named if style.binPack.callSite =>
             Constants.BinPackAssignmentPenalty
-          case l: Term.Param if style.binPackParameters =>
+          case l: Term.Param if style.binPack.defnSite =>
             Constants.BinPackAssignmentPenalty
           case _ => 0
         }
@@ -831,7 +831,7 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(NoSplit,
                 0,
-                ignoreIf = style.keepSelectChainLineBreaks && newlines > 0)
+                ignoreIf = style.breakChainOnFirstMethodDot && newlines > 0)
             .withPolicy(noSplitPolicy),
           Split(Newline.copy(acceptNoSplit = true), 2 + nestedPenalty)
             .withPolicy(newlinePolicy)
@@ -933,7 +933,7 @@ class Router(formatOps: FormatOps) {
         val penalizeNewlines = penalizeNewlineByNesting(open, close)
         val indent: Length =
           if (style.align.ifWhileOpenParen) StateColumn
-          else style.continuationIndentCallSite
+          else style.continuationIndent.callSite
         Seq(
           Split(NoSplit, 0)
             .withIndent(indent, close, Left)
@@ -1036,7 +1036,7 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(Newline, 0, ignoreIf = !isConfig)
             .withPolicy(breakOnClose)
-            .withIndent(style.continuationIndentCallSite, close, Right),
+            .withIndent(style.continuationIndent.callSite, close, Right),
           Split(NoSplit, 0, ignoreIf = isConfig)
             .withIndent(indent, close, Left)
             .withPolicy(penalizeAllNewlines(close, 1))

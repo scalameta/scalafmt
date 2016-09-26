@@ -1,7 +1,7 @@
 @import Main._
 @import org.scalafmt.readme.Readme._
-@import org.scalafmt.ScalafmtStyle
-@import org.scalafmt.ScalafmtStyle.default
+@import org.scalafmt.config.ScalafmtConfig
+@import org.scalafmt.config.ScalafmtConfig.default
 
 @sect{Known issues}
   @p
