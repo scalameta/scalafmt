@@ -4,6 +4,7 @@ import java.io.File
 import java.nio.file.Files
 
 import org.scalafmt.Error.MisformattedFile
+import org.scalafmt.config
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.FileOps
@@ -65,10 +66,11 @@ class CliTest extends FunSuite with DiffAssertions {
   test("scalafmt -i --file tmpFile") {
     val tmpFile = Files.createTempFile("prefix", ".scala")
     Files.write(tmpFile, unformatted.getBytes)
-    val formatInPlace = Cli.Config.default.copy(
-      style = ScalafmtConfig.default.copy(maxColumn = 7),
-      files = Seq(tmpFile.toFile),
-      inPlace = true)
+    val formatInPlace =
+      Cli.Config.default.copy(style =
+                                ScalafmtConfig.default.copy(maxColumn = 7),
+                              files = Seq(tmpFile.toFile),
+                              inPlace = true)
     Cli.run(formatInPlace)
     val obtained = FileOps.readFile(tmpFile.toString)
     assertNoDiff(obtained, expected)
@@ -190,6 +192,7 @@ class CliTest extends FunSuite with DiffAssertions {
         |--binPackParentConstructors true
         |--configStyleArguments false
         |--noNewlinesBeforeJsNative false
+        |--allowNewlineBeforeColonInMassiveReturnTypes true
         |--alignByOpenParenCallSite false
         |--alignByOpenParenDefnSite false
         |--continuationIndentCallSite 3
@@ -222,8 +225,9 @@ class CliTest extends FunSuite with DiffAssertions {
         |binPack.callSite = true
         |binPack.defnSite = true
         |binPack.parentConstructors = true
-        |configStyleArguments = false
-        |noNewlinesBeforeJsNative = false
+        |optIn.configStyleArguments = false
+        |newlines.neverBeforeJsNative = false
+        |newlines.sometimesBeforeColonInMethodReturnType = true
         |align.openParenCallSite = false
         |align.openParenDefnSite = false
         |continuationIndent.callSite = 3
@@ -238,6 +242,7 @@ class CliTest extends FunSuite with DiffAssertions {
       """.stripMargin
     println(result)
     assertNoDiff(result, expected)
+    val Right(_) = config.Config.fromHocon(result)
   }
 
   test("--config can be string") {

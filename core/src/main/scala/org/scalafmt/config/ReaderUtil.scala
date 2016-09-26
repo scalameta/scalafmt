@@ -14,8 +14,6 @@ object ReaderUtil {
       case x if implicitly[ClassTag[T]].runtimeClass.isInstance(x) =>
         Right(x.asInstanceOf[T])
       case x: String =>
-        println("XXXXXXX")
-        println(x)
         m.get(x) match {
           case Some(y) =>
             Right(y)
