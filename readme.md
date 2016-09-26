@@ -1,7 +1,7 @@
 # scalafmt [![codecov.io](https://codecov.io/github/olafurpg/scalafmt/coverage.svg?branch=master)](https://codecov.io/github/olafurpg/scalafmt?branch=master) [![Build Status](https://travis-ci.org/olafurpg/scalafmt.svg?branch=master)](https://travis-ci.org/olafurpg/scalafmt) [![Join the chat at https://gitter.im/olafurpg/scalafmt](https://badges.gitter.im/olafurpg/scalafmt.svg)](https://gitter.im/olafurpg/scalafmt?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ### [User documentation][docs]
-Head over to [the user docs][docs] for instructions on how to install scalafmt.
+Head over to [the user docs][docs] for instructions on how to install scalafmt. To build the docs yourself, `sbt readme/run` will produce the docs which you can open with `open readme/target/scalatex/index.html`.
 
 ## Hacking on scalafmt
 
