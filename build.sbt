@@ -30,8 +30,7 @@ lazy val buildSettings = Seq(
 
 lazy val metaMacroSettings: Seq[Def.Setting[_]] = Seq(
   libraryDependencies += "org.scalameta" %% "scalameta" % Deps.scalameta,
-  sources in (Compile,doc) := Seq.empty,
-  publishArtifact in (Compile, packageDoc) := false,
+  sources in (Compile,doc) := Nil,
   addCompilerPlugin(
     "org.scalameta" % "paradise" % "3.0.0-M5" cross CrossVersion.full),
   scalacOptions += "-Xplugin-require:macroparadise"
