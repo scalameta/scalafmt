@@ -5,7 +5,7 @@
 @sect{0.4.1}
   @ul
     @li
-      Added migration for @flag{rewriteTokens: {}}
+      @code{--migrate2hocon} now migrates @code{rewriteTokens}.
 @sect{0.4.0}
   @ul
     @li
