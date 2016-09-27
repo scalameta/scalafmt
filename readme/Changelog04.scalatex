@@ -1,9 +1,8 @@
 @import Main._
 @import org.scalafmt.readme.Readme._
 @import org.scalafmt.config.ScalafmtConfig
-@sect{0.4.0-RC1}
-  @note. This changelog is incomplete. More details to come!
 
+@sect{0.4.0}
   @ul
     @li
       NEW! HOCON configuration, see @issue(316). Say goodbye to @code{.scalafmt}
@@ -53,11 +52,37 @@
       This feature does not give you an excuse to change you mind about the configuration on every single line of code.
       Use this feature for good.
     @li
-      SBT plugin now no longer includes generated sources in @code{target}.
+      This release performed a major internal refactoring so there is a lot
+      of breaking changes if you use scalafmt as a library.
+      @ul
+        @li
+          @code{ScalafmtStyle} is now called @code{ScalafmtConfig} and belongs
+          to the @code{org.scalafmt.config} package (was previously in
+          @code{org.scalafmt}).
+        @li
+          @code{FormatResult} is now called @code{Formatted} and it has a
+          @code{toEither} method.
+        @li
+          @code{Scalafmt.format} no longer accepts a @code{ScalafmtRunner} argument,
+          instead the runner is now a member of @code{ScalafmtConfig}.
+        @li
+          If you customized fields in @code{ScalafmtStyle}, you can consult
+          the @code{--migrate2hocon} implementation
+          @lnk("here", "https://github.com/olafurpg/scalafmt/blob/657c2223a8edcb33400e4a0a5302da7e060d2925/cli/src/main/scala/org/scalafmt/cli/Cli.scala#L269").
+          Don't hesitate to ask questions on gitter if you're unsure what the
+          new settings are called.
+    @li
+      Using the default style, there is no diff between 0.3.1 and 0.4.0 after
+      formatting over 3 million lines of code.
+    @li
+      @note. Unfortunately, I was unable to publish ScalaDocs with this release because of
+      @lnk("this issue", "https://github.com/scalameta/paradise/issues/55").
+    @li
+      SBT plugin now no longer formats generated sources in @code{target}.
     @li
       New CLI flag @code{--exclude} to exclude a set of directories.
     @li
-      New option @code{optIn.breakChainOnFirstMethodDot = false}.
+      New option @code{optIn.breakChainOnFirstMethodDot}.
 
       @hl.scala
         // Original before running scalafmt
@@ -102,3 +127,4 @@
         case class B(b: B) extends Super
 
       I welcome contributions to improve this.
+
