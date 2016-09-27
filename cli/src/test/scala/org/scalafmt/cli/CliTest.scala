@@ -204,6 +204,7 @@ class CliTest extends FunSuite with DiffAssertions {
         |--spaceBeforeContextBoundColon true
         |--unindentTopLevelOperators false
         |--bestEffortInDeeplyNestedCode
+        |--rewriteTokens ⇒;=>,←;<-
       """.stripMargin
     )
     val expected =
@@ -239,6 +240,10 @@ class CliTest extends FunSuite with DiffAssertions {
         |spaces.beforeContextBoundColon = true
         |unindentTopLevelOperators = false
         |bestEffortInDeeplyNestedCode = true
+        |rewriteTokens: {
+        |  "⇒" = "=>"
+        |  "←" = "<-"
+        |}
       """.stripMargin
     println(result)
     assertNoDiff(result, expected)

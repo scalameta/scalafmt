@@ -25,6 +25,13 @@ object Readme {
   implicit def bool2frag(boolean: Boolean): StringFrag =
     stringFrag(boolean.toString)
 
+  def flag(str: String) = {
+    println(str)
+    require(Config.fromHocon(str).isRight)
+    code(str)
+  }
+
+
   /**
     * repl session, inspired by tut.
     *

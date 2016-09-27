@@ -61,6 +61,10 @@ class ConfigTest extends FunSuite {
         |  afterTripleEquals = true
         |  beforeContextBoundColon = true
         |}
+        |rewriteTokens: {
+        |  "⇒" = "=>"
+        |  "true" = "false"
+        |}
         |align: {
         |  tokens = [
         |    {code: "=>", owner: "Function"},
@@ -95,6 +99,11 @@ class ConfigTest extends FunSuite {
       case Left(e) => throw e
       case Right(obtained) =>
         assert(obtained.maxColumn == 4000)
+        assert(
+          obtained.rewriteTokens == Map(
+            "⇒" -> "=>",
+            "true" -> "false"
+          ))
         assert(obtained.runner.parser == Parse.parseCase)
         assert(obtained.runner.dialect == Paradise211)
         assert(obtained.runner.optimizer.acceptOptimalAtHints == false)

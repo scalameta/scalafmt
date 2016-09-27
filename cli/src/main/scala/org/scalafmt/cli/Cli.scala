@@ -296,9 +296,17 @@ object Cli {
           x.replaceAll(from, to)
     }
     val alignR = "(align.tokens = )\"?([^#\"]*)\"?(.*)$".r
+    val rewriteR = "(rewriteTokens = )\"?([^#\"]*)\"?(.*)$".r
     val custom = Seq[String => String](
       x =>
         x.lines.map {
+          case rewriteR(lhs, rhs, comments) =>
+            val arr = gimmeStrPairs(rhs.split(",").toSeq).map {
+              case (l, r) => s"""  "$l" = "$r""""
+            }.mkString("\n")
+            s"""rewriteTokens: {$comments
+               |$arr
+               |}""".stripMargin
           case alignR(lhs, rhs, comments) =>
             val arr = gimmeStrPairs(rhs.split(",").toSeq).map {
               case (l, r) if r == ".*" => s""""$l""""

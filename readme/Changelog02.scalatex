@@ -1,4 +1,5 @@
 @import Main._
+
 @import org.scalafmt.readme.Readme._
 @import org.scalafmt.config.ScalafmtConfig
 
@@ -168,10 +169,10 @@
     @li
       New flag: @code{--rewriteTokens from1;to1,from2;to2,...} to rewrite
       arbitrary tokens into other tokens. For example,
-      @code{--rewriteTokens ⇒;=>,←;<-} will rewrite unicode arrows to their
+      @code{rewrite.tokens = ["⇒;=>,←;<-} will rewrite unicode arrows to their
       ascii equivalents. Flip the tokens to get the opposite behavior.
     @li
-      New flag: @code{--spaceAfterTripleEquals true} to get spaces after
+      New flag: @flag{spaces.afterTripleEquals = false} to get spaces after
       triple equals in cases like this
       @hl.scala
         x should === (y)
