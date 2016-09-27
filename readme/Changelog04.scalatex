@@ -9,10 +9,13 @@
 @sect{0.4.0}
   @ul
     @li
-      NEW! HOCON configuration, see @issue(316). Say goodbye to @code{.scalafmt}
-      and hello to @code{.scalafmt.conf}.
-      The old style configuration can me migrated with the CLI by running
-      @code{scalafmt --migrate2hocon .scalafmt}.
+      NEW! HOCON configuration.
+      To migrate the old style configuration in @code{.scalafmt}
+      to the new style in @code{.scalafmt.conf}, run
+      @code{scalafmt --migrate2hocon .scalafmt} with the CLI.
+      For super easy CLI installation, download the 12 kb bootstrap script
+      from @lnk("here", "https://github.com/olafurpg/scalafmt/raw/master/scalafmt").
+      For alternative ways to install the CLI, refer to @sect.ref{CLI}.
     @li
       NEW! See @sect.ref{rewrite.rules}.
     @li
@@ -79,7 +82,7 @@
       Using the default style, there is no diff between 0.3.1 and 0.4.0 after
       formatting over 3 million lines of code.
     @li
-      @note. Unfortunately, I was unable to publish ScalaDocs with this release because of
+      Unfortunately, I was unable to publish ScalaDocs with this release because of
       @lnk("this issue", "https://github.com/scalameta/paradise/issues/55").
     @li
       SBT plugin now no longer formats generated sources in @code{target}.
@@ -101,6 +104,8 @@
           .map(_ + 1)
           .filter(_ > 2)
         // Note, only the dot before the first method call triggers this option.
+    @li
+      New flag @sect.ref{lineEndings}.
     @li
       @code{defaultWithAlign} will now also align @code{%%%}.
     @li
@@ -130,5 +135,16 @@
         case object A extends Super
         case class B(b: B) extends Super
 
-      I welcome contributions to improve this.
+  Big thanks to everyone who contributed to this release:
+  @user{mmatloka},
+  @user{melrief},
+  @user{stefanobaghino},
+  @user{johnynek},
+  @user{RatanRSur},
+  @user{Gmadorell},
+  @user{Synesso},
+  @user{Lambdista} and
+  @user{easel}
+
+
 
