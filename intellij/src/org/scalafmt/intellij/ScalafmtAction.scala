@@ -57,8 +57,7 @@ class ScalafmtAction extends AnAction {
       }
       Scalafmt.format(
         source,
-        style = style,
-        runner = runner
+        style = style.copy(runner = runner)
       ) match {
         case Formatted.Failure(e: ParseException) =>
           displayMessage(event,
