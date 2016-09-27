@@ -2,6 +2,10 @@
 @import org.scalafmt.readme.Readme._
 @import org.scalafmt.config.ScalafmtConfig
 
+@sect{0.4.1}
+  @ul
+    @li
+      Added migration for @flag{rewriteTokens: {}}
 @sect{0.4.0}
   @ul
     @li
