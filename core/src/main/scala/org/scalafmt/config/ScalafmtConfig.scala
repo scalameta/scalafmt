@@ -197,7 +197,7 @@ case class ScalafmtConfig(
     runner.reader
   implicit val contIndentReader: Reader[ContinuationIndent] =
     continuationIndent.reader
-  implicit val indentReader: Reader[IndentOperator] = indentOperator.reader
+  implicit val indentReader: Reader[IndentOperator] = ScalafmtConfig.indentReader
   implicit val binPackReader: Reader[BinPack] = binPack.reader
   implicit val alignReader: Reader[Align] = align.reader
   implicit val lineEndingReader: Reader[LineEndings] = LineEndings.reader
