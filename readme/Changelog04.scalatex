@@ -2,6 +2,11 @@
 @import org.scalafmt.readme.Readme._
 @import org.scalafmt.config.ScalafmtConfig
 
+@sect{0.4.2}
+  @ul
+    @li
+      @code{--migrate2hocon} now migrates @code{--indentOperators false}
+      to @code{indentOperator = spray}.
 @sect{0.4.1}
   @ul
     @li
