@@ -270,6 +270,8 @@ object Cli {
     val regexp: Seq[String => String] = Seq(
       "--bestEffortInDeeplyNestedCode" -> "bestEffortInDeeplyNestedCode = true",
       "--scalaDocs true" -> "docstrings = ScalaDoc",
+      "--indentOperators false" -> "indentOperator = spray",
+      "--indentOperators true" -> "",
       "--scalaDocs false" -> "docstrings = JavaDoc",
       "--reformatComments true" -> "",
       "--reformatComments false" -> "docstrings = preserve",
