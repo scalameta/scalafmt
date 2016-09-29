@@ -34,6 +34,9 @@
       @sect.ref{Configuration}.
 
   @sect{SBT}
+    @note. I maintain the SBT plugin on a best-effort since I personally use the
+    IntelliJ plugin. If you rely on the SBT plugin, please consider contributing!
+
     @hl.scala
       addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "@org.scalafmt.Versions.stable")
 
