@@ -265,10 +265,16 @@ val options = List[OptionAssigner](
     parseDiffTests(stateExplosions, "default/StateExplosion.stat")
 
   def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
-    val runner = scalafmtRunner.copy(
-        parser = parse,
-        optimizer = ScalafmtOptimizer.default.copy(bestEffortEscape = true))
-    val obtained = Scalafmt.format(t.original, t.style, runner).get
+    val runner = scalafmtRunner.copy(parser = parse)
+    val obtained = Scalafmt
+      .format(
+        t.original,
+        t.style.copy(
+          runner = runner,
+          bestEffortInDeeplyNestedCode = true
+        )
+      )
+      .get
     debugResults += saveResult(t, obtained, t.only)
     // Disabled, these tests change too often. This feature will be supported
     // with a best-effort :)

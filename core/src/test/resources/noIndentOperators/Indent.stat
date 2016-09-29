@@ -1,0 +1,95 @@
+80 columns                                                                     |
+<<< Indent operators
+object TestRoutes {
+  def routes = {
+    pathPrefix("foo") {
+      ???
+    } ~
+      pathPrefix("bar") {
+        ???
+      }
+      1 +
+      2 -
+      2 *
+      3 \
+      4
+
+      a >
+      b
+
+      a &&
+        b
+
+      a &&
+        b
+
+      a <
+      b
+
+      a +=
+      b
+
+      a ++=
+      b
+
+      a >>=
+      b
+  }
+}
+>>>
+object TestRoutes {
+  def routes = {
+    pathPrefix("foo") {
+      ???
+    } ~
+    pathPrefix("bar") {
+      ???
+    }
+    1 +
+    2 -
+    2 *
+    3 \
+    4
+
+    a >
+    b
+
+    a &&
+    b
+
+    a &&
+    b
+
+    a <
+    b
+
+    a +=
+      b
+
+    a ++=
+      b
+
+    a >>=
+      b
+  }
+}
+<<< Without braces
+object TestRoutes {
+  def routes =
+    pathPrefix("foo") {
+      ???
+    } ~
+      pathPrefix("bar") {
+        ???
+      }
+      }
+>>>
+object TestRoutes {
+  def routes =
+    pathPrefix("foo") {
+      ???
+    } ~
+    pathPrefix("bar") {
+      ???
+    }
+}

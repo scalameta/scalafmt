@@ -1,16 +1,14 @@
 package org.scalafmt.util
 
+import scala.meta.Tree
+import scala.meta.parsers.Parse
+import scala.meta.parsers.ParseException
+
 import java.io.ByteArrayInputStream
 
 import org.scalafmt.Error.FormatterChangedAST
 import org.scalafmt.Error.FormatterOutputDoesNotParse
 import org.scalatest.FunSuiteLike
-import scala.meta.Tree
-import scala.meta.parsers.Parse
-import scala.meta.parsers.ParseException
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
 
 trait FormatAssertions extends FunSuiteLike with DiffAssertions {
   import LoggerOps._
@@ -30,12 +28,13 @@ trait FormatAssertions extends FunSuiteLike with DiffAssertions {
               // TODO(olafur) Can produce false negatives, see
               // https://github.com/scalameta/scalameta/issues/342
               throw FormatterChangedAST(
-                  diffAsts(originalStructure, obtainedStructure),
-                  obtained)
+                diffAsts(originalStructure, obtainedStructure),
+                obtained)
             }
-          case Parsed.Error(pos, message, details) =>
+          case Parsed.Error(pos, message, details: ParseException) =>
             throw FormatterOutputDoesNotParse(
-                parseException2Message(details, obtained))
+              parseException2Message(details, obtained))
+          case _ =>
         }
     }
   }

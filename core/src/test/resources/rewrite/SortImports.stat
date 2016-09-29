@@ -1,0 +1,48 @@
+rewrite.rules = [SortImports]
+<<< basic
+import a.b.{
+  c,
+  a,
+  b
+}, k.{
+  g, f
+}
+>>>
+import a.b.{a, b, c}, k.{f, g}
+<<< nested
+object a {
+import a.b.{
+  c,
+  b
+}
+}
+>>>
+object a {
+  import a.b.{b, c}
+}
+<<< sorting
+import a.{
+  ~>,
+  lowercase,
+  Uppercase,
+  `symbol`
+}
+>>>
+import a.{`symbol`, ~>, lowercase, Uppercase}
+<<< caveat: rename/wildcard/unimport
+import a.{
+  zzzz => _,
+  bar
+}
+>>>
+import a.{zzzz => _, bar}
+<<< caveat: comments
+import a.{
+  c, // comment for c
+  b
+}
+>>>
+import a.{
+  b, // comment for c
+  c
+}

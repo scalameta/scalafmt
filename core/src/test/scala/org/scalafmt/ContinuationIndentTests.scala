@@ -1,11 +1,14 @@
 package org.scalafmt
 
+import scala.meta.Tree
+import scala.meta.parsers.Parse
+
+import org.scalafmt.config.ContinuationIndent
+import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.DiffTest
 import org.scalafmt.util.HasTests
 import org.scalatest.FunSuite
-import scala.meta.Tree
-import scala.meta.parsers.Parse
 
 class ContinuationIndentTests
     extends FunSuite
@@ -40,14 +43,14 @@ def foo(
 
   testsToRun.foreach(runTest(run))
 
-  val style = ScalafmtStyle.default.copy(
-      continuationIndentCallSite = 5,
-      continuationIndentDefnSite = 3
+  val style = ScalafmtConfig.default.copy(
+    continuationIndent = ContinuationIndent(5, 3)
   )
 
   def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
-    val runner = scalafmtRunner.withParser(parse)
-    val formatted = Scalafmt.format(t.original, style, runner).get
+    val runner = scalafmtRunner.copy(parser = parse)
+    val formatted =
+      Scalafmt.format(t.original, style.copy(runner = runner)).get
     saveResult(t, formatted, t.only)
     assertNoDiff(formatted, t.expected)
   }

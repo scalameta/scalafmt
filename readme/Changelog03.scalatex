@@ -1,0 +1,225 @@
+@import Main._
+@import org.scalafmt.readme.Readme._
+@import org.scalafmt.config.ScalafmtConfig
+
+@sect{0.3.1}
+  @ul
+    @li
+      SBT plugin now formats @code{*.sbt} files of your build by default.
+      To disable, configure in your @b{build.sbt} (note, not .scalafmt):
+      @code{formatSbtFiles in ThisBuild := false}.
+    @li
+      Fixed bug with infix operators in extractor patterns, see @issue(408).
+    @li
+      IntelliJ plugin now emits a yellow warning bubble when it fails to read
+      your @code{.scalafmt} configuration.
+    @li
+      Added new @b{experimental} flag @code{--poorMansTrailingCommasInConfigStyle <bool>}.
+      For context, see @lnk("SIP-27", "https://github.com/scala/scala.github.com/pull/533").
+
+      @hl.scala
+        // false (default)
+        function(
+          a,
+          b,
+          c
+        )
+        // true
+        function(
+              a
+            , b
+            , c
+        )
+
+
+@sect{0.3.0}
+  I'm really excited to announce this release with lots of new features and
+  improvements.
+  @ul
+    @li
+      @b{NEW}. Scalafmt formats SBT files! Run the CLI or IntelliJ
+      plugin on a @code{*.sbt} file and it should just work automatically.
+      Set @code{--formatSbtFiles false} to disable this.
+    @li
+      Benchmarks reveal that v0.3.0 is roughly 20-30% faster than v0.2.12,
+      thanks to the updated dependency on scala.meta 1.0.
+    @li
+      @lnk("21 issues closed on Github.", "https://github.com/olafurpg/scalafmt/issues?q=milestone%3A0.3.0+is%3Aclosed")
+    @li
+      @lnk("See diff between 0.2.11 and 0.3.0 on three million lines of code.",
+           "https://github.com/olafurpg/scala-repos/pull/6/files").
+    @li
+      Several formatting rules have been polished, highlights:
+      @hl.scala
+        // 1. Indentation for orphan parentheses is no longer 4 spaces.
+        // Before
+        assert((p1 match {
+              case Param.Configured(x) => x()
+              case x => throw new MatchError(x)
+            }) == failureAccrualPolicy)
+        // 0.3.0
+        assert((p1 match {
+          case Param.Configured(x) => x()
+          case x => throw new MatchError(x)
+        }) == failureAccrualPolicy)
+
+        // 2. Line breaks in nested scopes are more heavily penalized.
+        // Before
+        system.actorOf(Props[ThreadNameEcho].withDispatcher(
+            "myapp.balancing-dispatcher")) ! "what's the name?"
+        // 0.3.0
+        system.actorOf(
+            Props[ThreadNameEcho]
+              .withDispatcher("myapp.balancing-dispatcher")) ! "what's the name?"
+
+      Please open an issue if you prefer the previous output. In some cases
+      the new rules may result in worse formatting output but after looking
+      through thousands of lines of diffs I think the new rules provide a more
+      consistent, readable and compact output than before.
+    @li
+      The default @code{--continuationIndentCallSite} is now 2 spaces
+      instead of 4 spaces.
+      Why? Because it's consistent with many popular coding styles and it
+      saves a lot of horizontal space for deeply nested code.
+      @code{--continuationIndentDefnSite} is still 4 spaces to prevent
+      method bodies from aligning with parameter lists:
+
+      @hl.scala
+        def foo(
+            a: Int): Int = {
+          a + 1
+        }
+    @li
+      The default @code{--alignByArrowEnumeratorGenerator} is now false
+      instead of true. Refer to @sect.ref{align.arrowEnumeratorGenerator}.
+    @li
+      Function literals in argument lists can now be single line.
+      See @issue(323).
+      @hl.scala
+        // before
+        ClusterSharding(system).start(
+          className[Flow], {
+            case (name: String, payload) => (name, payload)
+          }, {
+            case (name: String, _) => (name.hashCode % shardCount).toString
+          }
+        )
+        // 0.3.0
+        ClusterSharding(system).start(
+          className[Flow],
+          { case (name: String, payload) => (name, payload) },
+          { case (name: String, _) => (name.hashCode % shardCount).toString }
+        )
+    @li
+      @code{--assumeStandardLibraryStripMargin true} now aligns by a pipe
+      character on the first line if there is one. See @issue(324).
+      @hl.scala
+        // before
+        """|first
+          |second""".stripMargin
+        // 0.3.0
+        """|first
+           |second""".stripMargin
+    @li
+      New style: @code{--style IntelliJ} that aims to mimic the default
+      formatting settings of IntelliJ.
+    @li
+      Formatting errors are no longer silently ignored in the SBT plugin.
+      @sect.ref{Deeply nested code} is the most common cause of errors,
+      please refer to that section for an explanation and possible workarounds.
+    @li
+      New flag: @code{--alignMixedOwners <bool>} to allow vertical alignment
+      across val/var/def and object/trait/class. Enabled by default in
+      @code{defaultWithAlign}. See @issue(184).
+    @li
+      New flag @code{--binPackImportSelectors <bool>} to decide how to format
+      long import selector lines. See @issue(101).
+      @hl.scala
+        // before
+        import org.scalajs.dom.experimental.serviceworkers.{ServiceWorkerGlobalScope, ServiceWorkerRegistration, A}
+        // 0.3.0 --binPackImportSelectors false (default)
+        import org.scalajs.dom.experimental.serviceworkers.{
+          ServiceWorkerGlobalScope,
+          ServiceWorkerRegistration,
+          A
+        }
+        // 0.3.0 --binPackImportSelectors true
+        import org.scalajs.dom.experimental.serviceworkers.{
+          ServiceWorkerGlobalScope, ServiceWorkerRegistration,
+          A
+        }
+    @li
+      Line breaks after the assignment operator @code{=} in vals and vars
+      are now preserved. See @issue(356).
+      @hl.scala
+        // If you force a line break after = like this
+        val x: Int =
+          2
+        // then scalafmt will keep the line break. Before scalafmt
+        // would move the whole statement into a single line.
+    @li
+      Macro formatting is better. See @issue(360).
+      @hl.scala
+        // before
+        implicit def adtSyntax[A](target: A): Any = macro LiftMacros
+          .materializeADTSyntax[A]
+        // 0.3.0
+        implicit def adtSyntax[A](target: A): Any =
+          macro LiftMacros.materializeADTSyntax[A]
+    @li
+      Trailing whitespace is now removed from comments.
+    @li
+      Self-annotation are more consistently formatted. See @issue(376).
+    @li
+      A long standing issue that caused the SBT plugin to crash on
+      2.10 projects has now been fixed. See @issue(190).
+    @li
+      New flags related to infix operator indentation. See @issue(367).
+      @ul
+        @li
+          @code{--indentOperators <bool>}
+          @hl.scala
+            // true (default)
+            def routes = {
+              pathPrefix("foo") {
+                ???
+              } ~
+                pathPrefix("bar") {
+                  ???
+                }
+            }
+            // false (pre 0.2.10 behavior)
+            def routes = {
+              pathPrefix("foo") {
+                ???
+              } ~
+              pathPrefix("bar") {
+                ???
+              }
+            }
+        @li
+          (advanced) @code{--indentOperatorsIncludeFilter <str>}.
+          See @lnk("docstring",
+                   "https://github.com/olafurpg/scalafmt/blob/master/core/src/main/scala/org/scalafmt/ScalafmtConfig.scala#L88").
+        @li
+          (advanced) @code{--indentOperatorsExcludeFilter <str>}
+          See @lnk("docstring",
+                   "https://github.com/olafurpg/scalafmt/blob/master/core/src/main/scala/org/scalafmt/ScalafmtConfig.scala#L97").
+    @li
+      Backwards incompatible change: @code{FormatResult.Incomplete} is now
+      a @code{FormatResult.Failure(e: Incomplete)}.
+    @li
+      Backwards incompatible change: these flags have been removed from the CLI.
+      @ul
+        @li
+          @code{reformatDocstrings} in favor of @code{reformatComments}
+        @li
+          @code{alignStripMarginStrings} in favor of @code{assumeStandardLibraryStripMargin}
+    @li
+      Thanks to everyone who contributed to this release!
+      In particular, @user("triggerNZ") for making a non-trivial PR
+      and @user("xeno-by") for helping me with the scala.meta 1.0 upgrade.
+      Also, everyone who participated in discussions on issues:
+      @users("NicolasRouquette", "hseeberger", "sjrd", "fthomas", "djspiewak",
+             "ceedubs", "sortega", "densh", "anna-zzz", "regadas", "pascoej").
+

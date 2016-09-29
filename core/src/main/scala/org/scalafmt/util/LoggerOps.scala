@@ -1,18 +1,24 @@
 package org.scalafmt.util
 
-import org.scalafmt.internal.FormatToken
-import org.scalafmt.internal.Split
 import scala.meta.Tree
 import scala.meta.prettyprinters.Structure
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token.Interpolation
 import scala.meta.tokens.Tokens
 
+import org.scalafmt.internal.FormatToken
+import org.scalafmt.internal.Split
+import sourcecode.Text
+
 /**
   * Debugging utility.
   */
 object LoggerOps {
-  val logger = PrintlnLogger
+  val logger = org.scalafmt.util.logger
+
+  // TODO(olafur) parameterize
+  def name2style[T](styles: Text[T]*): Map[String, T] =
+    styles.map(x => x.source -> x.value).toMap
 
   def log(split: Split): String = s"$split"
 
@@ -28,9 +34,9 @@ object LoggerOps {
   def log(tokens: Token*): String = tokens.map(log).mkString("\n")
 
   def cleanup(token: Token): String = token match {
-    case _: Token.Literal | _: Interpolation.Part =>
-      escape(token.code).stripPrefix("\"").stripSuffix("\"")
-    case _ => token.code.replace("\n", "")
+    case Literal() | Interpolation.Part(_) =>
+      escape(token.syntax).stripPrefix("\"").stripSuffix("\"")
+    case _ => token.syntax.replace("\n", "")
   }
 
   def log(tokens: Tokens): String = tokens.map(log).mkString("\n")
@@ -42,7 +48,8 @@ object LoggerOps {
     token.getClass.getName.stripPrefix("scala.meta.tokens.Token$")
 
   def log(t: Tree, tokensOnly: Boolean = false): String = {
-    val tokens = s"TOKENS: ${t.tokens.map(x => reveal(x.code)).mkString(",")}"
+    val tokens =
+      s"TOKENS: ${t.tokens.map(x => reveal(x.syntax)).mkString(",")}"
     if (tokensOnly) tokens
     else s"""TYPE: ${t.getClass.getName.stripPrefix("scala.meta.")}
             |SOURCE: $t
@@ -50,6 +57,8 @@ object LoggerOps {
             |$tokens
             |""".stripMargin
   }
+
+  def stripTrailingSpace(s: String): String = s.replaceAll("\\s+\n", "\n")
 
   def reveal(s: String): String = s.map {
     case '\n' => '¶'

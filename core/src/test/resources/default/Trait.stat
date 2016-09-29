@@ -72,3 +72,32 @@ trait Grouped[K, +V]
                   })#t]
     with WithReducers[Grouped[K, V]]
     with WithDescription[Grouped[K, V]]
+<<< #376 OK
+private[cats] trait ComposedInvariant[F[_], G[_]] extends Invariant[λ[α => F[G[α]]]] { outer =>
+println(1)
+}
+>>>
+private[cats] trait ComposedInvariant[F[_], G[_]]
+    extends Invariant[λ[α => F[G[α]]]] { outer =>
+  println(1)
+}
+<<< #376 example 2
+private[cats] trait ComposedFunctor[F[_], G[_]] extends Functor[Taaa] with Compo { outer =>
+println(1)
+}
+>>>
+private[cats] trait ComposedFunctor[F[_], G[_]]
+    extends Functor[Taaa]
+    with Compo { outer =>
+  println(1)
+}
+<<< #386 example 3
+abstract class Quantity[A <: Quantity[A]] extends Serializable with Ordered[A] { self: A ⇒
+println(1)
+}
+>>>
+abstract class Quantity[A <: Quantity[A]]
+    extends Serializable
+    with Ordered[A] { self: A ⇒
+  println(1)
+}

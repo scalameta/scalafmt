@@ -1,13 +1,14 @@
 package org.scalafmt.util
 
-import scala.concurrent.Await
-import scala.concurrent.Future
+import scala.collection.JavaConversions._
+import scala.concurrent.duration.Duration
+import scala.meta._
 import scala.util.Try
+import scala.util.control.NonFatal
 
 import java.io.File
 import java.text.NumberFormat
 import java.util.Locale
-import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -18,11 +19,6 @@ import org.scalafmt.util.ExperimentResult.Skipped
 import org.scalafmt.util.ExperimentResult.Success
 import org.scalafmt.util.ExperimentResult.Timeout
 import org.scalafmt.util.ExperimentResult.UnknownFailure
-import scala.annotation.tailrec
-import scala.collection.JavaConversions._
-import scala.concurrent.duration.Duration
-import scala.meta._
-import scala.util.control.NonFatal
 
 /**
   * Mostly borrowed from
@@ -112,26 +108,26 @@ trait ScalaProjectsExperiment {
 
   private def summarize(stats: DescriptiveStatistics): String =
     Tabulator.format(
-        Seq(
-            Seq("Total time",
-                "Max",
-                "Min",
-                "Mean",
-                "Q2",
-                "Q3",
-                "90th",
-                "95th",
-                "99th"),
-            Seq(totalNanos,
-                stats.getMax,
-                stats.getMin,
-                stats.getMean,
-                stats.getPercentile(50),
-                stats.getPercentile(75),
-                stats.getPercentile(90),
-                stats.getPercentile(95),
-                stats.getPercentile(99)).map(formatNumber)
-        ))
+      Seq(
+        Seq("Total time",
+            "Max",
+            "Min",
+            "Mean",
+            "Q2",
+            "Q3",
+            "90th",
+            "95th",
+            "99th"),
+        Seq(totalNanos,
+            stats.getMax,
+            stats.getMin,
+            stats.getMean,
+            stats.getPercentile(50),
+            stats.getPercentile(75),
+            stats.getPercentile(90),
+            stats.getPercentile(95),
+            stats.getPercentile(99)).map(formatNumber)
+      ))
 
   private def formatNumber(x: Any): String = x match {
     case d: Double =>

@@ -1,0 +1,28 @@
+#!/bin/sh
+
+get_full_path () {
+  local path="$1"
+  [[ -L "$path" ]] && { echo "$path" ; return; }
+
+  if [[ `uname -s` == "Darwin" ]]; then
+      if [[ -n $(which -s greadlink) ]]; then
+      die "On MacOSX, use 'brew install coreutils' to install 'greadlink' for determining full paths"
+      fi
+      local target=$(greadlink -f $1)
+  else
+      local target=$(readlink -f $1)
+  fi
+
+  if [[ "${target:0:1}" == "/" ]]; then
+    echo "$target"
+  else
+    echo "${path%/*}/$target"
+  fi
+}
+
+declare -r script_path="$(get_full_path "$BASH_SOURCE")"
+declare -r script_name="${script_path##*/}"
+declare -r script_dir="$(dirname $(dirname $script_path))"
+declare -r script_lib="${script_dir}/cli/target/scala-2.11/scalafmt.jar"
+
+java -jar $script_lib $@

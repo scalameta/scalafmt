@@ -7,17 +7,30 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 import com.twitter.util.Eval
-import org.scalafmt.AlignToken
 import org.scalafmt.Scalafmt
-import org.scalafmt.ScalafmtStyle
 import org.scalafmt.cli.Cli
+import org.scalafmt.config.AlignToken
+import org.scalafmt.config.Config
+import org.scalafmt.config.ScalafmtRunner
+import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.macros.Macros
+import org.scalafmt.rewrite.SortImports
+import org.scalafmt.rewrite.RedundantBraces
 
 object hl extends scalatex.site.Highlighter
 
 object Readme {
 
   val eval = new Eval()
+  implicit def bool2frag(boolean: Boolean): StringFrag =
+    stringFrag(boolean.toString)
+
+  def flag(str: String) = {
+    println(str)
+    require(Config.fromHocon(str).isRight)
+    code(str)
+  }
+
 
   /**
     * repl session, inspired by tut.
@@ -45,7 +58,7 @@ object Readme {
   }
 
   def cliFlags(flags: String) = {
-    require(Cli.parseConfigFile(flags).isDefined)
+    require(Config.fromHocon(flags).isRight)
     hl.scala(flags)
   }
 
@@ -57,9 +70,7 @@ object Readme {
   def user(name: String) = a(href := s"$github/$name", s"@$name")
   def users(names: String*) =
     span(
-        names
-          .dropRight(1)
-          .map(x => span(user(x), ", ")) :+ user(names.last): _*
+      names.dropRight(1).map(x => span(user(x), ", ")) :+ user(names.last): _*
     )
 
   def issue(id: Int) = a(href := repo + s"/issues/$id", s"#$id")
@@ -73,33 +84,53 @@ object Readme {
     pairs(List(left, right).map(x => half(hl.scala(x))): _*)
 
   def demo(code: String) = {
-    import org.scalafmt._
-    val formatted = Scalafmt.format(code, ScalafmtStyle.default40).get
+    val formatted = Scalafmt.format(code, ScalafmtConfig.default40).get
+    sideBySide(code, formatted)
+  }
+
+  def demoStyle(style: ScalafmtConfig)(code: String) = {
+    val formatted =
+      Scalafmt.format(code, style.copy(runner = ScalafmtRunner.sbt)).get
     sideBySide(code, formatted)
   }
 
   def example(code: String): TypedTag[String] = {
-    example(code, ScalafmtStyle.default40)
+    example(code, ScalafmtConfig.default40)
   }
 
   def exampleAlign(code: String): TypedTag[String] = {
     val formatted = Scalafmt
-      .format(code,
-              ScalafmtStyle.default40.copy(alignTokens = AlignToken.default))
+      .format(
+        code,
+        ScalafmtConfig.default40.copy(
+          align =
+            ScalafmtConfig.default40.align.copy(tokens = AlignToken.default)))
       .get
     hl.scala(formatted)
   }
 
   val stripMarginStyle =
-    ScalafmtStyle.default.copy(alignStripMarginStrings = true)
+    ScalafmtConfig.default.copy(assumeStandardLibraryStripMargin = true)
 
-  def fmt(style: ScalafmtStyle)(code: String): TypedTag[String] =
+  val rewriteBraces =
+    ScalafmtConfig.default.copy(
+      rewrite = ScalafmtConfig.default.rewrite.copy(
+        rules = Seq(RedundantBraces)
+      ))
+
+  val rewriteImports =
+    ScalafmtConfig.default.copy(
+      rewrite = ScalafmtConfig.default.rewrite.copy(
+        rules = Seq(SortImports)
+      ))
+
+  def fmt(style: ScalafmtConfig)(code: String): TypedTag[String] =
     example(code, style)
 
   def lastUpdated =
     new SimpleDateFormat("MMM d, y").format(new Date(Macros.buildTimeMs))
 
-  def example(code: String, style: ScalafmtStyle): TypedTag[String] = {
+  def example(code: String, style: ScalafmtConfig): TypedTag[String] = {
     val formatted = Scalafmt.format(code, style).get
     hl.scala(formatted)
   }

@@ -10,7 +10,8 @@ val newIndents: Vector[Indent[Num]] =
 var inside =
     false
 >>>
-var inside = false
+var inside =
+  false
 <<< underscore assignment
 var inside: Int   = _
 >>>
@@ -48,8 +49,8 @@ val `type`: String = js.native
       }
 >>>
 {
-  implicit val enumeratorTMonadTrans: MonadTrans[λ[(β[_],
-                                                    α) => EnumeratorT[α, β]]] =
+  implicit val enumeratorTMonadTrans: MonadTrans[
+      λ[(β[_], α) => EnumeratorT[α, β]]] =
     new MonadTrans[λ[(β[_], α) => EnumeratorT[α, β]]] {
       def liftM[G[_]: Monad, E](ga: G[E]): EnumeratorT[E, G] =
         new EnumeratorT[E, G] {
@@ -145,8 +146,7 @@ val sortModifiers = modifiers.collect {
       m
   }
 <<< #269 6
-val predefinedType =
-      if (clazz.getTypeParameters.length == 1) {
+val predefinedType = if (clazz.getTypeParameters.length == 1) {
         ScParameterizedType(ScDesignatorType(clazz), undefines)
       }
       else

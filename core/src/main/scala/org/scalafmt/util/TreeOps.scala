@@ -1,11 +1,7 @@
 package org.scalafmt.util
 
-import scala.meta.Case
-
-import org.scalafmt.Error
 import scala.annotation.tailrec
-import scala.collection.mutable
-import scala.meta.Tree
+import scala.meta.Case
 import scala.meta.Ctor
 import scala.meta.Decl
 import scala.meta.Defn
@@ -16,6 +12,7 @@ import scala.meta.Pkg
 import scala.meta.Source
 import scala.meta.Template
 import scala.meta.Term
+import scala.meta.Tree
 import scala.meta.Type
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
@@ -23,6 +20,7 @@ import scala.meta.tokens.Tokens
 import scala.reflect.ClassTag
 import scala.reflect.classTag
 
+import org.scalafmt.Error
 import org.scalafmt.Error.UnexpectedTree
 import org.scalafmt.internal.FormatToken
 
@@ -30,8 +28,8 @@ import org.scalafmt.internal.FormatToken
   * Stateless helper functions on [[scala.meta.Tree]].
   */
 object TreeOps {
-  import TokenOps._
   import LoggerOps._
+  import TokenOps._
 
   def getEnumStatements(enums: Seq[Enumerator]): Seq[Enumerator] = {
     val ret = Seq.newBuilder[Enumerator]
@@ -39,7 +37,7 @@ object TreeOps {
       case (x, 0) => x
       case (enum: Enumerator.Guard, i) =>
         // Only guard that follows another guards starts a statement.
-        if (enums(i - 1).isInstanceOf[Enumerator.Guard]) {
+        if (enums(i - 1).is[Enumerator.Guard]) {
           ret += enum
         }
       case (x, _) => ret += x
@@ -66,7 +64,7 @@ object TreeOps {
   def getDequeueSpots(tree: Tree): Set[TokenHash] = {
     val ret = Set.newBuilder[TokenHash]
     tree.tokens.foreach {
-      case t: `else` =>
+      case t @ KwElse() =>
         ret += hash(t)
       case _ =>
     }
@@ -83,12 +81,12 @@ object TreeOps {
       }
     }
 
-    def addDefn[T <: Keyword: ClassTag](mods: Seq[Mod], tree: Tree): Unit = {
+    def addDefn[T: ClassTag](mods: Seq[Mod], tree: Tree): Unit = {
       // Each @annotation gets a separate line
-      val annotations = mods.filter(_.isInstanceOf[Mod.Annot])
+      val annotations = mods.filter(_.is[Mod.Annot])
       addAll(annotations)
       val firstNonAnnotation: Token = mods.collectFirst {
-        case x if !x.isInstanceOf[Mod.Annot] =>
+        case x if !x.is[Mod.Annot] =>
           // Non-annotation modifier, for example `sealed`/`abstract`
           x.tokens.head
       }.getOrElse {
@@ -103,18 +101,18 @@ object TreeOps {
 
     def loop(x: Tree): Unit = {
       x match {
-        case t: Defn.Class => addDefn[`class `](t.mods, t)
-        case t: Defn.Def => addDefn[`def`](t.mods, t)
-        case t: Decl.Def => addDefn[`def`](t.mods, t)
-        case t: Ctor.Secondary => addDefn[`def`](t.mods, t)
-        case t: Defn.Object => addDefn[`object`](t.mods, t)
-        case t: Defn.Trait => addDefn[`trait`](t.mods, t)
-        case t: Defn.Type => addDefn[`type`](t.mods, t)
-        case t: Decl.Type => addDefn[`type`](t.mods, t)
-        case t: Defn.Val => addDefn[`val`](t.mods, t)
-        case t: Decl.Val => addDefn[`val`](t.mods, t)
-        case t: Defn.Var => addDefn[`var`](t.mods, t)
-        case t: Decl.Var => addDefn[`var`](t.mods, t)
+        case t: Defn.Class => addDefn[KwClass](t.mods, t)
+        case t: Defn.Def => addDefn[KwDef](t.mods, t)
+        case t: Decl.Def => addDefn[KwDef](t.mods, t)
+        case t: Ctor.Secondary => addDefn[KwDef](t.mods, t)
+        case t: Defn.Object => addDefn[KwObject](t.mods, t)
+        case t: Defn.Trait => addDefn[KwTrait](t.mods, t)
+        case t: Defn.Type => addDefn[KwType](t.mods, t)
+        case t: Decl.Type => addDefn[KwType](t.mods, t)
+        case t: Defn.Val => addDefn[KwVal](t.mods, t)
+        case t: Decl.Val => addDefn[KwVal](t.mods, t)
+        case t: Defn.Var => addDefn[KwVar](t.mods, t)
+        case t: Decl.Var => addDefn[KwVar](t.mods, t)
         case t => // Nothing
           addAll(extractStatementsIfAny(t))
       }
@@ -133,9 +131,11 @@ object TreeOps {
     val ret = Map.newBuilder[TokenHash, Token]
     var stack = List.empty[Token]
     tokens.foreach {
-      case open @ (_: `{` | _: `[` | _: `(` | _: Interpolation.Start) =>
+      case open @ (LeftBrace() | LeftBracket() | LeftParen() |
+          Interpolation.Start()) =>
         stack = open :: stack
-      case close @ (_: `}` | _: `]` | _: `)` | _: Interpolation.End) =>
+      case close @ (RightBrace() | RightBracket() | RightParen() |
+          Interpolation.End()) =>
         val open = stack.head
         assertValidParens(open, close)
         ret += hash(open) -> close
@@ -149,10 +149,10 @@ object TreeOps {
 
   def assertValidParens(open: Token, close: Token): Unit = {
     (open, close) match {
-      case (_: Interpolation.Start, _: Interpolation.End) =>
-      case (_: `{`, _: `}`) =>
-      case (_: `[`, _: `]`) =>
-      case (_: `(`, _: `)`) =>
+      case (Interpolation.Start(), Interpolation.End()) =>
+      case (LeftBrace(), RightBrace()) =>
+      case (LeftBracket(), RightBracket()) =>
+      case (LeftParen(), RightParen()) =>
       case (o, c) =>
         throw new IllegalArgumentException(s"Mismatching parens ($o, $c)")
     }
@@ -176,9 +176,9 @@ object TreeOps {
   @tailrec
   final def childOf(child: Tree, tree: Tree): Boolean = {
     child == tree || (child.parent match {
-          case Some(parent) => childOf(parent, tree)
-          case _ => false
-        })
+      case Some(parent) => childOf(parent, tree)
+      case _ => false
+    })
   }
 
   def childOf(tok: Token, tree: Tree, owners: Map[TokenHash, Tree]): Boolean =
@@ -226,7 +226,7 @@ object TreeOps {
         _: Defn.Trait | _: Ctor.Secondary | _: Defn.Type | _: Type.Apply |
         _: Type.Param | _: Type.Tuple =>
       true
-    case x: Ctor.Primary if x.parent.exists(_.isInstanceOf[Defn.Class]) =>
+    case x: Ctor.Primary if x.parent.exists(_.is[Defn.Class]) =>
       true
     case _ => false
   }
@@ -240,7 +240,8 @@ object TreeOps {
     * `(a(1))` will parse into the same tree as `a(1)`.
     */
   def isSuperfluousParenthesis(open: Token, owner: Tree): Boolean = {
-    open.isInstanceOf[`(`] && !isTuple(owner) &&
+    open.is[LeftParen] &&
+    !isTuple(owner) &&
     owner.tokens.headOption.contains(open)
   }
 
@@ -304,14 +305,14 @@ object TreeOps {
   def getApplyArgs(formatToken: FormatToken,
                    leftOwner: Tree): (Tree, Seq[Tree]) = {
     leftOwner match {
-      case t: Defn.Def if formatToken.left.isInstanceOf[`[`] =>
+      case t: Defn.Def if formatToken.left.is[LeftBracket] =>
         t.name -> t.tparams
       // TODO(olafur) missing Defn.Def with `(` case.
       case _ =>
         splitApplyIntoLhsAndArgsLifted(leftOwner).getOrElse {
           logger.error(s"""Unknown tree
-                           |${log(leftOwner.parent.get)}
-                           |${isDefnSite(leftOwner)}""".stripMargin)
+                          |${log(leftOwner.parent.get)}
+                          |${isDefnSite(leftOwner)}""".stripMargin)
           throw UnexpectedTree[Term.Apply](leftOwner)
         }
     }
@@ -336,8 +337,8 @@ object TreeOps {
 
   def startsSelectChain(tree: Tree): Boolean = tree match {
     case select: Term.Select =>
-      !(existsChild(_.isInstanceOf[Term.Select])(select) &&
-            existsChild(splitApplyIntoLhsAndArgs.isDefinedAt)(select))
+      !(existsChild(_.is[Term.Select])(select) &&
+        existsChild(splitApplyIntoLhsAndArgs.isDefinedAt)(select))
     case _ => false
   }
 
@@ -373,8 +374,8 @@ object TreeOps {
   def findSiblingGuard(
       generator: Enumerator.Generator): Option[Enumerator.Guard] = {
     for {
-      parent <- generator.parent if parent.isInstanceOf[Term.For] ||
-        parent.isInstanceOf[Term.ForYield]
+      parent <- generator.parent if parent.is[Term.For] ||
+        parent.is[Term.ForYield]
       sibling <- {
         val enums = parent match {
           case p: Term.For => p.enums
@@ -383,10 +384,10 @@ object TreeOps {
         val i = enums.indexOf(generator)
         if (i == -1)
           throw new IllegalStateException(
-              s"Generator $generator is part of parents enums.")
+            s"Generator $generator is part of parents enums.")
         enums
           .drop(i + 1)
-          .takeWhile(_.isInstanceOf[Enumerator.Guard])
+          .takeWhile(_.is[Enumerator.Guard])
           .lastOption
           .asInstanceOf[Option[Enumerator.Guard]]
       }
@@ -404,6 +405,7 @@ object TreeOps {
 
   def defBody(tree: Tree): Option[Tree] = tree match {
     case t: Defn.Def => Some(t.body)
+    case t: Defn.Macro => Some(t.body)
     case t: Ctor.Secondary => Some(t.body)
     case _ => None
   }
@@ -413,7 +415,7 @@ object TreeOps {
     first.body match {
       case child: Term.Function => lastLambda(child)
       case block: Term.Block
-          if block.stats.headOption.exists(_.isInstanceOf[Term.Function]) =>
+          if block.stats.headOption.exists(_.is[Term.Function]) =>
         lastLambda(block.stats.head.asInstanceOf[Term.Function])
       case _ => first
     }
@@ -421,14 +423,19 @@ object TreeOps {
   final def isApplyInfix(op: Token.Ident, owner: Tree): Boolean =
     owner.parent.exists {
       case infix: Term.ApplyInfix => infix.op == owner
+      case infix: Pat.ExtractInfix => infix.ref == owner
       case _ => false
     }
 
   @tailrec
-  final def isTopLevelInfixApplication(child: Term.ApplyInfix): Boolean =
+  final def isTopLevelInfixApplication(child: Tree): Boolean =
     child.parent match {
       case Some(parent: Term.ApplyInfix) => isTopLevelInfixApplication(parent)
       case Some(_: Term.Block | _: Term.If | _: Term.While | _: Source) => true
       case _ => false
     }
+
+  // procedure syntax has decltpe: Some("")
+  def isProcedureSyntax(defn: Defn.Def): Boolean =
+    defn.decltpe.exists(_.tokens.isEmpty)
 }

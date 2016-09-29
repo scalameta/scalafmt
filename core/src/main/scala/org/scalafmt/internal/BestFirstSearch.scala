@@ -1,23 +1,19 @@
 package org.scalafmt.internal
 
+import scala.collection.mutable
 import scala.meta.Defn
+import scala.meta.tokens.Token
 
 import org.scalafmt.Error.SearchStateExploded
-import org.scalafmt.FormatResult
+import org.scalafmt.config.FormatEvent.CompleteFormat
+import org.scalafmt.config.FormatEvent.Enqueue
+import org.scalafmt.config.FormatEvent.Explored
+import org.scalafmt.config.FormatEvent.VisitToken
 import org.scalafmt.internal.ExpiresOn.Right
-import org.scalafmt.internal.ExpiresOn.Left
-import org.scalafmt.internal.Length.StateColumn
 import org.scalafmt.internal.Length.Num
-import org.scalafmt.Error.CantFormatFile
-import org.scalafmt.FormatEvent.CompleteFormat
-import org.scalafmt.FormatEvent.Enqueue
-import org.scalafmt.FormatEvent.Explored
-import org.scalafmt.FormatEvent.VisitToken
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
-import scala.collection.mutable
-import scala.meta.tokens.Token
 
 /**
   * Implements best first search to find optimal formatting.
@@ -25,8 +21,9 @@ import scala.meta.tokens.Token
 class BestFirstSearch(val formatOps: FormatOps,
                       range: Set[Range],
                       formatWriter: FormatWriter) {
-  import LoggerOps._
   import Token._
+
+  import LoggerOps._
   import TokenOps._
   import TreeOps._
   import formatOps._
@@ -86,9 +83,9 @@ class BestFirstSearch(val formatOps: FormatOps,
     val leftLeft = getLeftLeft(curr)
     val leftLeftOwner = ownersMap(hash(leftLeft))
     val splitToken = tokens(curr.splits.length)
+    val style = styleMap.at(splitToken)
     recurseOnBlocks && isInsideNoOptZone(splitToken) &&
-    leftLeft.isInstanceOf[`{`] &&
-    matchingParentheses(hash(leftLeft)) != stop && {
+    leftLeft.is[LeftBrace] && matchingParentheses(hash(leftLeft)) != stop && {
       // Block must span at least 3 lines to be worth recursing.
       val close = matchingParentheses(hash(leftLeft))
       distance(leftLeft, close) > style.maxColumn * 3
@@ -97,9 +94,9 @@ class BestFirstSearch(val formatOps: FormatOps,
 
   def provided(formatToken: FormatToken): Split = {
     // TODO(olafur) the indentation is not correctly set.
-    val split = Split(Provided(formatToken.between.map(_.code).mkString), 0)
+    val split = Split(Provided(formatToken.between.map(_.syntax).mkString), 0)
     val result =
-      if (formatToken.left.isInstanceOf[`{`])
+      if (formatToken.left.is[LeftBrace])
         split.withIndent(Num(2),
                          matchingParentheses(hash(formatToken.left)),
                          Right)
@@ -142,7 +139,7 @@ class BestFirstSearch(val formatOps: FormatOps,
              }
            }) {
       val tok = tokens(curr.splits.length)
-      curr = State.next(curr, style, provided(tok), tok)
+      curr = State.next(curr, styleMap.at(tok), provided(tok), tok)
     }
     curr
   }
@@ -166,12 +163,13 @@ class BestFirstSearch(val formatOps: FormatOps,
       if (hasReachedEof(curr) || {
             val token = tokens(curr.splits.length)
             // If token is empty we can take one more split before reaching stop.
-            token.left.code.nonEmpty && token.left.start >= stop.start
+            token.left.syntax.nonEmpty && token.left.start >= stop.start
           }) {
         result = curr
         Q.dequeueAll
       } else if (shouldEnterState(curr)) {
         val splitToken = tokens(curr.splits.length)
+        val style = styleMap.at(splitToken)
         if (curr.splits.length > deepestYet.splits.length) {
           deepestYet = curr
         }
@@ -185,7 +183,7 @@ class BestFirstSearch(val formatOps: FormatOps,
         if (dequeueOnNewStatements &&
             dequeueSpots.contains(hash(splitToken.left)) &&
             (depth > 0 || !isInsideNoOptZone(splitToken)) &&
-            curr.splits.last.modification.isNewline) {
+            curr.splits.lastOption.exists(_.modification.isNewline)) {
           Q.dequeueAll
           if (!isInsideNoOptZone(splitToken) && lastDequeue.policy.isSafe) {
             lastDequeue = curr
@@ -201,15 +199,16 @@ class BestFirstSearch(val formatOps: FormatOps,
             Q.enqueue(nextState)
           }
         } else if (escapeInPathologicalCases &&
-                   visits(splitToken) > MaxVisitsPerToken) {
+                   visits(splitToken) > maxVisitsPerToken) {
           Q.dequeueAll
           best.clear()
           visits.clear()
-          if (!bestEffortEscape) {
+          if (!initStyle.bestEffortInDeeplyNestedCode) {
             runner.eventCallback(CompleteFormat(explored, deepestYet, tokens))
             throw SearchStateExploded(deepestYet,
-                                      formatWriter.mkString(deepestYet.splits))
-          } else if (pathologicalEscapes >= MaxEscapes) {
+                                      formatWriter.mkString(deepestYet.splits),
+                                      tokens(deepestYet.splits.length).left)
+          } else if (pathologicalEscapes >= maxEscapes) {
             Q.enqueue(untilNextStatement(curr, Integer.MAX_VALUE))
           } else {
             // We are stuck, but try to continue with one cheap/fast and
@@ -243,13 +242,13 @@ class BestFirstSearch(val formatOps: FormatOps,
             split.optimalAt match {
               case Some(OptimalToken(token, killOnFail))
                   if acceptOptimalAtHints && optimalNotFound &&
-                    actualSplit.length > 1 && depth < MaxDepth &&
+                    actualSplit.length > 1 && depth < maxDepth &&
                     nextState.splits.last.cost == 0 =>
                 val nextNextState =
                   shortestPath(nextState, token, depth + 1, maxCost = 0)
                 if (hasReachedEof(nextNextState) ||
                     (nextNextState.splits.length < tokens.length && tokens(
-                            nextNextState.splits.length).left.start >= token.start)) {
+                      nextNextState.splits.length).left.start >= token.start)) {
                   optimalNotFound = false
 //                  logger.elem(split, splitToken, formatWriter.mkString(nextNextState.splits), tokens(nextNextState.splits.length))
                   Q.enqueue(nextNextState)

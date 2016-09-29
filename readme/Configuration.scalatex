@@ -1,0 +1,328 @@
+@import Main._
+@import org.scalafmt.readme.Readme._
+@import org.scalafmt.config.ScalafmtConfig
+@import org.scalafmt.config.ScalafmtConfig.default
+@import org.scalafmt.rewrite._
+
+@sect{Configuration}
+
+  @p
+    Configuration for scalafmt is defined in a
+    plain text file @code{.scalafmt.conf} using
+    @lnk("HOCON", "https://github.com/typesafehub/config") syntax.
+    To reuse your configuration with IntelliJ,
+    @code(".scalafmt.conf") must be placed in the root directory of your project.
+
+  @p
+    Here is an example @code(".scalafmt.conf").
+
+    @cliFlags
+      style = defaultWithAlign # For pretty alignment.
+      maxColumn = 100          # For my wide 30" display.
+
+  @p
+    A note of warning. I personally use the default style, which means that the
+    default style is by far the most tested and supported style.
+    Most of the configuration flags are quite innocent, while some of them work
+    very differently (esp. Scala.js).
+    It is very difficult to guarantee that all configurations options play nicely
+    together so I recommend you try not to go too crazy on this part.
+
+  @p
+    The following sections describe the most common configuration options.
+
+  @p
+    @note. If you are using scalafmt as a @sect.ref{Standalone library}, you can
+    pass in a @code{ScalafmtConfig} instance, which is set to @code{ScalafmtStyle.default}
+    by default.
+
+
+  @sect{style}
+    Option 1: @b{default}
+    @fmt(ScalafmtConfig.default.copy(maxColumn = 40))
+      // Column 40                           |
+      // non bin packed parent constructors
+      object DefaultStyle extends Parent with SecondParent with ThirdParent {
+        // non bin packed arguments
+        function(argument1, argument2(argument3, argument4))
+        // No vertical alignment
+        x match {
+          case 1 => 1
+          case 11 => 1
+        }
+      }
+
+    Option 2: @b{defaultWithAlign}
+    @fmt(ScalafmtConfig.defaultWithAlign.copy(maxColumn = 40))
+      // Column 40                           |
+      object DefaultWithAlignStyle extends Parent with SecondParent with ThirdParent {
+        // vertical alignment
+        x match {
+          case 1 => 1 // align me
+          case 11 => 11 // align me too
+
+          case x => // blank line breaks alignment
+        }
+        for {
+          x <- List(1)
+          xx <- List(1, 2)
+        } yield x * xx
+        // A whole bunch of other
+        // alignment goodies.
+        // ...
+      }
+
+    Option 3: @b{Scala.js} (experimental)
+    @fmt(ScalafmtConfig.scalaJs.copy(maxColumn = 40))
+      // Column 40                           |
+      // bin packed parent constructors
+      object ScalaJsStyle extends Parent with SecondParent with ThirdParent {
+        // bin packed arguments
+        function(argument1, argument2, argument3, argument4)
+        // Vertical alignment for only =>
+        x match {
+          case 1 => 1
+          case 11 => 1
+        }
+      }
+
+    Option 4: @b{IntelliJ} (experimental)
+    @fmt(ScalafmtConfig.intellij.copy(maxColumn = 40))
+      // Column 40                           |
+      // non bin packed parent constructors
+      object IntelliJStyle extends Parent with SecondParent with ThirdParent {
+
+        function(argument1, argument2)
+
+        // continuationIndent = 2  # for call + defn site
+        // align.openParenCallSite = false
+        // danglingParentheses = true
+        function(argument1, argument2, argument3, argument4)
+
+        // openParenCallSite = true
+        def foobar(argument1: Type1, argument2: Type2): Int = argument1 + argument2
+
+      }
+
+  @sect{maxColumn}
+    Default: @b(default.maxColumn)
+
+    @ul
+      @li
+        Keep in mind that 80 characters fit perfectly on a split laptop screen
+        with regular resolution.
+      @li
+        Github mobile view only shows 80 characters and sometimes you might
+        review code on your phone.
+      @li
+        Consider refactoring your code before of choosing a value above 100.
+
+  @sect{continuationIndent.callSite}
+    Default: @b(default.continuationIndent.callSite)
+
+    @p
+      Example:
+      @hl.scala
+        function(
+          argument1 // indented by 2
+        )
+
+  @sect{continuationIndent.defnSite}
+    Default: @b(default.continuationIndent.defnSite)
+
+    @p
+      Same as @code{continuationIndent.callSite} except for definition site.
+      Example:
+      @hl.scala
+        def function(
+            argument1: Type1): ReturnType // Indented by 4
+
+  @sect{align.tokens}
+    Default: @b{off}
+
+    @p
+      The style @code("defaultWithAlign") has pre-configured a variety of
+      tokens that align together nicely.
+
+      @exampleAlign
+        // 40 columns                          |
+        object TokenAlignment {
+          x match {
+            // Align by => and -> and //
+            case 1 => 1 -> 2 // first
+            case 11 => 11 -> 22 // second
+
+            // A blank line separates alignment blocks.
+            case `ignoreMe` => 111 -> 222
+          }
+
+          // Align assignments of similar type.
+          def name = column[String]("name")
+          def status = column[Int]("status")
+          val x = 1
+          val xx = 22
+
+          // Align sbt module IDs.
+          libraryDependencies ++= Seq(
+            "org.scala-lang" % "scala-compiler" % scalaVersion.value,
+          "com.lihaoyi" %% "sourcecode" % "0.1.1"
+          )
+        }
+
+  @sect{// format: off}
+    Disable formatting for specific regions of code by wrapping them in
+    @code("// format: OFF") blocks:
+
+    @example(org.scalafmt.util.FileOps.readFile("readme/Matrix.example"))
+
+    To disable formatting for a whole file, put the comment at the top of
+    the file.
+
+    @ul
+      @li
+        the comment string is case insensitive, you can also write
+        @code("// format: OFF").
+      @li
+        The comments @code("// @formatter:off") and @code("// @formatter:off")
+        will also work, for compatibility with the IntelliJ formatter.
+      @li
+        Scalafmt will do it's best to resume formatting at the correct
+        indentation level. It's best to enable formatting at the same level as
+        when it was disabled.
+
+  @sect{assumeStandardLibraryStripMargin}
+    Default: @b(default.assumeStandardLibraryStripMargin)
+
+    @p
+      If @b{true}, the margin character @code("|") is aligned with the opening triple
+      quote @code("\"\"\"") in interpolated and raw string literals.
+
+      @example(org.scalafmt.util.FileOps.readFile("readme/stripMargin.example"),
+               stripMarginStyle)
+
+      @note. May cause non-idempotent formatting in rare cases, see @issue(192).
+
+  @sect{docstrings}
+    Default: @b(default.docstrings.toString)
+
+    @hl.scala
+      // ScalaDoc
+      /** Align by second asterisk.
+        *
+        */
+      // JavaDoc
+      /** Align by first asterisk.
+       *
+       */
+
+  @sect{newlines.sometimesBeforeColonInMethodReturnType}
+    Default: @default.newlines.sometimesBeforeColonInMethodReturnType
+
+    @hl.scala
+      // Column limit                                                     |
+      // true
+      implicit def validatedInstances[E](implicit E: Semigroup[E])
+        : Traverse[Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] = 2
+      // false
+      implicit def validatedInstances[E](implicit E: Semigroup[E]): Traverse[
+          Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] = 2
+
+  @sect{align.arrowEnumeratorGenerator}
+    Default: @default.align.arrowEnumeratorGenerator
+
+    @hl.scala
+      // false
+      for {
+        x <- new Integer {
+          def value = 2
+        }
+      } yield x
+
+      // true
+      for {
+        x <- new Integer {
+              def value = 2
+            }
+      } yield x
+
+  @sect{binPackParentConstructors}
+    Default: @default.binPackParentConstructors
+
+    @hl.scala
+      // column limit                        |
+      // false
+      object DefaultStyle
+          extends Parent
+          with SecondParent
+          with ThirdParent {
+        // body ...
+      }
+
+      // column limit                        |
+      // true
+      object DefaultStyle
+          extends Parent with SecondParent
+          with ThirdParent {
+        // body ...
+      }
+  @sect{align.openParenCallSite}
+    Default: @default.align.openParenCallSite
+
+    @hl.scala
+      // Column limit |
+      // true
+      foo(arg1, arg2)
+
+      function(arg1, // align by (
+               arg2,
+               arg3)
+      function(
+        argument1,
+        argument2)
+
+      // false
+      foo(arg1, arg2)
+      function(
+        arg1, // no align by (
+        arg2,
+        arg3)
+      function(
+        argument1,
+        argument2)
+  @sect{lineEndings}
+    Default: @b(default.lineEndings.toString)
+
+    @ul
+      @li
+        @code{preserve} output will include endings included in original file (windows if there was at least one windows
+        line ending, unix if there was zero occurrences of windows line endings)
+      @li
+        @code{unix} output will include only unix line endings
+      @li
+        @code{windows} output will include only windows line endings
+  @sect{rewrite.rules}
+    Default: @b{[]}
+
+    @p
+      @b{NEW}. Semantically preserving rewrites. To enable a
+      rewrite rule, add it to the config like this @b{rewrite.rules = [SortImports]}.
+
+    @sect(Rewrite.rewrite2name(RedundantBraces))
+      @demoStyle(rewriteBraces)
+        object RedundantBraces {
+          def foo = {
+            List(1, 2, 3).sum
+          }
+        }
+      Options with default values:
+      @ul
+        @li
+          @code{rewrite.redundantBraces.maxLines} = @rewriteBraces.rewrite.redundantBraces.maxLines
+        @li
+          @code{rewrite.redundantBraces.includeUnitMethods} = @rewriteBraces.rewrite.redundantBraces.includeUnitMethods
+
+    @sect(Rewrite.rewrite2name(SortImports))
+      @p
+        The imports are sorted by the groups: symbols, lower-case, upper-case.
+      @demoStyle(rewriteImports)
+        import foo.{Zilch, bar, Random, sand}

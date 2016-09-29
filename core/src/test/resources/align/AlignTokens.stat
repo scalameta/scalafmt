@@ -72,7 +72,7 @@ x match {
       "com.ibm" %% "couchdb-scala" % "0.6.0" % "test",
       "com.lihaoyi" %% "scalatags" % "0.5.4" % "test",
       "org.apache.commons" % "commons-math3" % "3.6" % "test",
-      "org.scalatest" %% "scalatest" % Deps.scalatest % "test"
+      "org.scalatest" %%% "scalatest" % Deps.scalatest % "test"
     )
 >>>
 libraryDependencies ++= Seq(
@@ -83,26 +83,20 @@ libraryDependencies ++= Seq(
     "com.ibm"                        %% "couchdb-scala"  % "0.6.0"            % "test",
     "com.lihaoyi"                    %% "scalatags"      % "0.5.4"            % "test",
     "org.apache.commons"             % "commons-math3"   % "3.6"              % "test",
-    "org.scalatest"                  %% "scalatest"      % Deps.scalatest     % "test"
+    "org.scalatest"                  %%% "scalatest"     % Deps.scalatest     % "test"
 )
-<<< conflicting columns
-val x = 1 // comment
-val noComment = 2
-def noAlign = 3
->>>
-val x         = 1 // comment
-val noComment = 2
-def noAlign = 3
 <<< slick #138
+{
 def address = column[String]("address", O.PrimaryKey)
 def name = column[String]("name")
 def status = column[Int]("status")
-// comment
+}
 >>>
-def address = column[String]("address", O.PrimaryKey)
-def name    = column[String]("name")
-def status  = column[Int]("status")
-// comment
+{
+  def address = column[String]("address", O.PrimaryKey)
+  def name    = column[String]("name")
+  def status  = column[Int]("status")
+}
 <<< colors #138
 // tuples
 val colors = Map (
@@ -128,36 +122,39 @@ val colors = Map(
     "magenta" -> magenta
 )
 <<< sbt module ID #138
-addSbtPlugin("com.eed3si9n"   % "sbt-unidoc"            % "0.3.2")
-addSbtPlugin("com.github.gseitz"    % "sbt-release"           % "1.0.0")
-addSbtPlugin("com.jsuereth"  % "sbt-pgp"               % "1.0.0")
-addSbtPlugin("com.typesafe.sbt"     % "sbt-ghpages"           % "0.5.3")
-addSbtPlugin("com.typesafe.sbt"     % "sbt-site"              % "0.8.1")
-addSbtPlugin("org.tpolecat"  % "tut-plugin"            % "0.4.0")
-addSbtPlugin("pl.project13.scala"   % "sbt-jmh"               % "0.2.3")
-addSbtPlugin("org.scalastyle"      %% "scalastyle-sbt-plugin" % "0.8.0")
-addSbtPlugin("org.scoverage" % "sbt-scoverage"         % "1.2.0")
-addSbtPlugin("com.typesafe.sbt"     % "sbt-git"               % "0.8.4")
-addSbtPlugin("org.scala-js" % "sbt-scalajs"           % "0.6.8")
-addSbtPlugin("com.github.tkawachi"  % "sbt-doctest"           % "0.3.5")
-addSbtPlugin("org.xerial.sbt"       % "sbt-sonatype"          %  "1.1")
-// dependencies
+{
+  addSbtPlugin("com.eed3si9n"   % "sbt-unidoc"            % "0.3.2")
+  addSbtPlugin("com.github.gseitz"    % "sbt-release"           % "1.0.0")
+  addSbtPlugin("com.jsuereth"  % "sbt-pgp"               % "1.0.0")
+  addSbtPlugin("com.typesafe.sbt"     % "sbt-ghpages"           % "0.5.3")
+  addSbtPlugin("com.typesafe.sbt"     % "sbt-site"              % "0.8.1")
+  addSbtPlugin("org.tpolecat"  % "tut-plugin"            % "0.4.0")
+  addSbtPlugin("pl.project13.scala"   % "sbt-jmh"               % "0.2.3")
+  addSbtPlugin("org.scalastyle"      %% "scalastyle-sbt-plugin" % "0.8.0")
+  addSbtPlugin("org.scoverage" % "sbt-scoverage"         % "1.2.0")
+  addSbtPlugin("com.typesafe.sbt"     % "sbt-git"               % "0.8.4")
+  addSbtPlugin("org.scala-js" % "sbt-scalajs"           % "0.6.8")
+  addSbtPlugin("com.github.tkawachi"  % "sbt-doctest"           % "0.3.5")
+  addSbtPlugin("org.xerial.sbt"       % "sbt-sonatype"          %  "1.1")
+}
 >>>
-addSbtPlugin("com.eed3si9n"        % "sbt-unidoc"             % "0.3.2")
-addSbtPlugin("com.github.gseitz"   % "sbt-release"            % "1.0.0")
-addSbtPlugin("com.jsuereth"        % "sbt-pgp"                % "1.0.0")
-addSbtPlugin("com.typesafe.sbt"    % "sbt-ghpages"            % "0.5.3")
-addSbtPlugin("com.typesafe.sbt"    % "sbt-site"               % "0.8.1")
-addSbtPlugin("org.tpolecat"        % "tut-plugin"             % "0.4.0")
-addSbtPlugin("pl.project13.scala"  % "sbt-jmh"                % "0.2.3")
-addSbtPlugin("org.scalastyle"      %% "scalastyle-sbt-plugin" % "0.8.0")
-addSbtPlugin("org.scoverage"       % "sbt-scoverage"          % "1.2.0")
-addSbtPlugin("com.typesafe.sbt"    % "sbt-git"                % "0.8.4")
-addSbtPlugin("org.scala-js"        % "sbt-scalajs"            % "0.6.8")
-addSbtPlugin("com.github.tkawachi" % "sbt-doctest"            % "0.3.5")
-addSbtPlugin("org.xerial.sbt"      % "sbt-sonatype"           % "1.1")
-// dependencies
+{
+  addSbtPlugin("com.eed3si9n"        % "sbt-unidoc"             % "0.3.2")
+  addSbtPlugin("com.github.gseitz"   % "sbt-release"            % "1.0.0")
+  addSbtPlugin("com.jsuereth"        % "sbt-pgp"                % "1.0.0")
+  addSbtPlugin("com.typesafe.sbt"    % "sbt-ghpages"            % "0.5.3")
+  addSbtPlugin("com.typesafe.sbt"    % "sbt-site"               % "0.8.1")
+  addSbtPlugin("org.tpolecat"        % "tut-plugin"             % "0.4.0")
+  addSbtPlugin("pl.project13.scala"  % "sbt-jmh"                % "0.2.3")
+  addSbtPlugin("org.scalastyle"      %% "scalastyle-sbt-plugin" % "0.8.0")
+  addSbtPlugin("org.scoverage"       % "sbt-scoverage"          % "1.2.0")
+  addSbtPlugin("com.typesafe.sbt"    % "sbt-git"                % "0.8.4")
+  addSbtPlugin("org.scala-js"        % "sbt-scalajs"            % "0.6.8")
+  addSbtPlugin("com.github.tkawachi" % "sbt-doctest"            % "0.3.5")
+  addSbtPlugin("org.xerial.sbt"      % "sbt-sonatype"           % "1.1")
+}
 <<< final val #138
+object a{
 final val CAPTURED      = 1 << 16       // var
 final val LABEL         = 1 << 17       // meth
 final val INCONSTRUCTOR = 1 << 17       // class
@@ -169,20 +166,21 @@ final val SUPERACCESSOR = 1 << 28       // a su
 final val MODULEVAR     = 1 << 30       // for v
 final val IS_ERROR      = 1L << 32      // symbol
 final val OVERLOADED    = 1L << 33      // symbol
-// comments
+}
 >>>
-final val CAPTURED      = 1 << 16  // var
-final val LABEL         = 1 << 17  // meth
-final val INCONSTRUCTOR = 1 << 17  // class
-final val SYNTHETIC     = 1 << 21  // symbol
-final val STABLE        = 1 << 22  // f
-final val BRIDGE        = 1 << 26  // fu
-final val ACCESSOR      = 1 << 27  // a v
-final val SUPERACCESSOR = 1 << 28  // a su
-final val MODULEVAR     = 1 << 30  // for v
-final val IS_ERROR      = 1L << 32 // symbol
-final val OVERLOADED    = 1L << 33 // symbol
-// comments
+object a {
+  final val CAPTURED      = 1 << 16  // var
+  final val LABEL         = 1 << 17  // meth
+  final val INCONSTRUCTOR = 1 << 17  // class
+  final val SYNTHETIC     = 1 << 21  // symbol
+  final val STABLE        = 1 << 22  // f
+  final val BRIDGE        = 1 << 26  // fu
+  final val ACCESSOR      = 1 << 27  // a v
+  final val SUPERACCESSOR = 1 << 28  // a su
+  final val MODULEVAR     = 1 << 30  // for v
+  final val IS_ERROR      = 1L << 32 // symbol
+  final val OVERLOADED    = 1L << 33 // symbol
+}
 <<< tricky regex #138
 def f[A](x: A)(f: A => Int) = f(x) match {
   case 1 => true
@@ -312,14 +310,18 @@ object Cleaver {
   }
 }
 <<< only align single-line statements
+{
 val a = function(1, b)
 val aaaaa = function(1, b)
 val aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = function(1, b, bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb)
+}
 >>>
-val a     = function(1, b)
-val aaaaa = function(1, b)
-val aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa =
-  function(1, b, bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb)
+{
+  val a     = function(1, b)
+  val aaaaa = function(1, b)
+  val aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa =
+    function(1, b, bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb)
+}
 <<< infix owner
    Ok(Json.obj(
        "api" -> Json.obj(
@@ -336,8 +338,36 @@ Ok(
     Json.obj(
         "api" -> Json.obj("current" -> api.currentVersion,
                           "olds" -> api.oldVersions.map { old =>
-                        Json.obj("version"       -> old.version,
-                                 "deprecatedAt"  -> old.deprecatedAt,
-                                 "unsupportedAt" -> old.unsupportedAt)
-                      })
+                            Json.obj("version"       -> old.version,
+                                     "deprecatedAt"  -> old.deprecatedAt,
+                                     "unsupportedAt" -> old.unsupportedAt)
+                          })
     )) as JSON
+<<< mixed val/var/def
+{
+  var x = 2 // x
+  val xx = 22 // xx
+  def xxx = 222 // xxx
+
+  def xxxx = 2222 // loner
+}
+>>>
+{
+  var x   = 2   // x
+  val xx  = 22  // xx
+  def xxx = 222 // xxx
+
+  def xxxx = 2222 // loner
+}
+<<< mixed object/class/trait
+object mixed {
+final trait False extends Val
+final case object False extends Val
+  final case class Zero(zeroty: nir.Type)                     extends Val
+}
+>>>
+object mixed {
+  final trait False                       extends Val
+  final case object False                 extends Val
+  final case class Zero(zeroty: nir.Type) extends Val
+}

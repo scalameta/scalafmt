@@ -54,8 +54,7 @@ s"""${a.foo[Bar]}
 """.format(
     aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)
 <<< no align if no margin
-val msg =
-  s"""
+val msg = s"""
  ${mkString(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)}
       """
 >>>

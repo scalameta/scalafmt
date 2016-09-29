@@ -5,7 +5,7 @@ object ValidationOps {
     ns.foreach { n =>
       if (n.value < 0)
         throw new IllegalArgumentException(
-            s"${n.source} must be non-negative, was ${n.value}")
+          s"${n.source} must be non-negative, was ${n.value}")
     }
   }
 }

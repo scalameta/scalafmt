@@ -82,8 +82,8 @@ case class HasScalaFmt(reflective: ScalaFmtLike,
     val contents = IO.read(file)
     val formatted = configFile match {
       case Some(configFile) =>
-        reflective.format(contents, configFile.getAbsolutePath)
-      case None => reflective.format(contents)
+        reflective.format(contents, configFile.getAbsolutePath, file.getPath)
+      case None => reflective.format(contents, file.getPath)
     }
     callback(FormatResult(file, contents, formatted))
   }
@@ -102,6 +102,6 @@ case class HasScalaFmt(reflective: ScalaFmtLike,
     }
 
     FileFunction.cached(cache)(FilesInfo.hash, FilesInfo.exists)(handleUpdate)(
-        files)
+      files)
   }
 }

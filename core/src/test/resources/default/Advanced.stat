@@ -156,8 +156,7 @@ options.testFilter match {
               genApplyMethod(callTrg, implMethodSym, arguments)
             } else {
               if (rtClass == StringClass) {
-                val (rtModuleClass, methodIdent) =
-                  encodeRTStringMethodSym(implMethodSym)
+                val (rtModuleClass, methodIdent) = encodeRTStringMethodSym(implMethodSym)
                 val retTpe = implMethodSym.tpe.resultType
                 val castCallTrg = fromAny(callTrg, StringClass.toTypeConstructor)
                 val rawApply = genApplyMethod(
@@ -366,16 +365,6 @@ private def withNewLocalDefs = {
                   !genIdentBracketSelect(data DOT "arrayBase", "isPrimitive"))
               })
             }))
-
-          case _ =>
-            js.Return(!(!({
-              genIsScalaJSObject(obj) &&
-              ((
-                obj DOT "$classData" DOT "arrayDepth") === depth) &&
-              genIsClassNameInAncestors(
-                  className,
-                  obj DOT "$classData" DOT "arrayBase" DOT "ancestors")
-            })))
         }))
   }
 >>>
@@ -401,20 +390,11 @@ val createIsArrayOfStat = {
               // Array[A] </: Array[Array[A]]
               !js.BinaryOp(JSBinaryOp.<, arrayDepth, depth) &&
               (// Array[Array[A]] <: Array[Object]
-                  js.BinaryOp(JSBinaryOp.>, arrayDepth, depth) ||
-                  // Array[Int] </: Array[Object]
-                  !genIdentBracketSelect(data DOT "arrayBase", "isPrimitive"))
+              js.BinaryOp(JSBinaryOp.>, arrayDepth, depth) ||
+              // Array[Int] </: Array[Object]
+              !genIdentBracketSelect(data DOT "arrayBase", "isPrimitive"))
             })
           }))
-
-        case _ =>
-          js.Return(!(!({
-            genIsScalaJSObject(obj) &&
-            ((obj DOT "$classData" DOT "arrayDepth") === depth) &&
-            genIsClassNameInAncestors(
-                className,
-                obj DOT "$classData" DOT "arrayBase" DOT "ancestors")
-          })))
       }))
 }
 <<< js.Return

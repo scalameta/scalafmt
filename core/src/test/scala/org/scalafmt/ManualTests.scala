@@ -1,5 +1,6 @@
 package org.scalafmt
 
+import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.DiffTest
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.HasTests
@@ -39,6 +40,6 @@ object ManualTests extends HasTests {
     }
     manualFiles ++ scalaFiles
   }
-  val style = ScalafmtStyle.unitTest80
+  val style = ScalafmtConfig.unitTest80
   val manual = ".manual"
 }

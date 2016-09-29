@@ -16,8 +16,8 @@ trait DiffAssertions extends FunSuiteLike {
                          obtained: String,
                          diff: String)
       extends TestFailedException(
-          title + "\n" + error2message(obtained, expected),
-          1)
+        title + "\n" + error2message(obtained, expected),
+        1)
 
   def error2message(obtained: String, expected: String): String = {
     val sb = new StringBuilder
@@ -57,11 +57,11 @@ trait DiffAssertions extends FunSuiteLike {
     else
       difflib.DiffUtils
         .generateUnifiedDiff(
-            "original",
-            "revised",
-            original.asJava,
-            diff,
-            1
+          "original",
+          "revised",
+          original.asJava,
+          diff,
+          1
         )
         .asScala
         .drop(3)

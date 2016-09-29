@@ -16,6 +16,7 @@ class A {
         out(x); x
       })
 }
+
 <<< akka 1
 {{{
 val bindingFuture = Http().bindAndHandleSync({
@@ -52,8 +53,8 @@ val bindingFuture = Http().bindAndHandleSync({
         {
           {
             RawRequestURI(new String(
-                    uriBytes,
-                    HttpCharsets.aaaaaaaaaa.nioCharset)) :: headers
+                uriBytes,
+                HttpCharsets.aaaaaaaaaa.nioCharset)) :: headers
           }
         }
       }
@@ -124,8 +125,7 @@ x
     val core = BidiFlow.fromGraph(GraphDSL.create() { implicit b ⇒
       b.add {
         Flow[HttpRequest].map { request ⇒
-          val sendEntityTrigger =
-            request.headers.collectFirst { case headers.Expect.`100-continue` ⇒ Promise[NotUsed]().future }
+          val sendEntityTrigger = request.headers.collectFirst { case headers.Expect.`100-continue` ⇒ Promise[NotUsed]().future }
           RequestRenderingContext(request, hostHeader, sendEntityTrigger)
         }
       }

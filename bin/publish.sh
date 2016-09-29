@@ -14,13 +14,12 @@ function assert-installed() {
 function assert-dependencies-are-installed() {
   assert-installed sbt
   assert-installed github-release
-  assert-installed sbt
   assert-installed shasum
   assert-installed tar
 }
 
 function assert-preconditions() {
-    if [ "$current_branch" != "master" ]; then
+    if [[ "$current_branch" != "master" && "$current_branch" != "HEAD" ]]; then
       echo "On branch $current_branch! You should be on master branch."
       exit 1
     fi
@@ -37,7 +36,7 @@ function confirm-release() {
 }
 
 function assemble-jar() {
-    sbt assembly
+    sbt cli/assembly
 }
 
 function push-tag() {
@@ -52,7 +51,7 @@ function maven-publish() {
 
 function update-github-release() {
     rm -f ${tarfile}
-    tar -cvzf ${tarfile} bin/scalafmt cli/target/scala-2.11/scalafmt.jar bin/configure
+    tar -cvzf ${tarfile} bin/scalafmt bin/scalafmt_auto cli/target/scala-2.11/scalafmt.jar bin/configure
 
     echo "Creating github release..."
     github-release release \
@@ -92,10 +91,12 @@ function update-homebrew-release() {
 }
 
 assert-preconditions
-confirm-release
+if [[ ! $1 == "-q" ]]; then
+  confirm-release
+fi
 assemble-jar
-push-tag
 maven-publish
+push-tag
 update-github-release
 update-homebrew-release
 echo "Released ${tag}!"

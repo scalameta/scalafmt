@@ -1,15 +1,17 @@
 package org.scalafmt
 
+import scala.meta.Case
+import scala.meta.Tree
+import scala.meta.tokens.Token
+import scala.meta.tokens.Token
+import scala.reflect.ClassTag
+import scala.reflect.classTag
+
 import java.io.File
 
 import org.scalafmt.internal.Decision
 import org.scalafmt.internal.State
 import org.scalafmt.util.LoggerOps
-import scala.meta.Case
-import scala.meta.Tree
-import scala.meta.tokens.Token.Keyword
-import scala.reflect.ClassTag
-import scala.reflect.classTag
 
 sealed abstract class Error(msg: String) extends Exception(msg)
 
@@ -18,10 +20,15 @@ object Error {
 
   def reportIssue: String =
     "Please file an issue on https://github.com/olafurpg/scalafmt/issues"
+  case object UnableToParseCliOptions extends Error("Failed to parse CLI options")
 
-  case class CantFindDefnToken[T <: Keyword: ClassTag](tree: Tree)
+  case class Incomplete(formattedCode: String)
+      extends Error("Unable to format file due to bug in scalafmt")
+  // TODO(olafur) more precise info.
+
+  case class CantFindDefnToken[T: ClassTag](tree: Tree)
       extends Error(
-          s"Expected keyword of type ${classTag[T].getClass} in tree $tree")
+        s"Expected keyword of type ${classTag[T].getClass} in tree $tree")
 
   case class CaseMissingArrow(tree: Case)
       extends Error(s"Missing => in case: \n$tree")
@@ -41,7 +48,7 @@ object Error {
 
   case class UnexpectedTree[Expected <: Tree: ClassTag](obtained: Tree)
       extends Error(
-          s"Expected: ${classTag[Expected].getClass}\nObtained: ${log(obtained)}")
+        s"Expected: ${classTag[Expected].getClass}\nObtained: ${log(obtained)}")
 
   case class CantFormatFile(msg: String)
       extends Error("scalafmt cannot format this file:\n" + msg)
@@ -55,11 +62,20 @@ object Error {
   case class MisformattedFile(file: File)
       extends Error(s"${file.getPath} is mis-formatted")
 
-  case class SearchStateExploded(deepestState: State, partialOutput: String)
-      extends Error(s"Search state exploded")
+  case class SearchStateExploded(deepestState: State,
+                                 partialOutput: String,
+                                 lastToken: Token)
+      extends Error(
+        s"Search state exploded around line ${lastToken.pos.end.line}")
 
   case class InvalidScalafmtConfiguration(file: File)
       extends Error(s"Unable to parse scalafmt configuration file: $file")
+
+  case class InvalidOption(option: String)
+      extends Error(s"Invalid option $option")
+
+  case class FailedToParseOption(path: String, error: Throwable)
+      extends Error(s"Failed to read option $path, error: $error")
 
   case class IdempotencyViolated(msg: String) extends Error(msg)
 

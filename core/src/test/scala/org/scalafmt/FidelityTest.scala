@@ -1,5 +1,6 @@
 package org.scalafmt
 
+import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.FormatAssertions
 import org.scalatest.FunSuite
@@ -22,17 +23,23 @@ class FidelityTest extends FunSuite with FormatAssertions {
   val files = FileOps
     .listFiles(".")
     .filter(_.endsWith(".scala"))
-    .filterNot(_.contains("/target/"))
-    .filterNot(_.contains("/resources/"))
+    .filterNot(
+      x =>
+        Set(
+          "ConfigReader.scala",
+          "/target/",
+          "/resources/",
+          "/gh-pages/"
+        ).exists(x.contains))
 
   val examples = files.map(Test.apply)
 
   examples.foreach { example =>
     test(example.filename) {
       val formatted =
-        Scalafmt.format(example.code, ScalafmtStyle.unitTest80).get
+        Scalafmt.format(example.code, ScalafmtConfig.unitTest80).get
       assertFormatPreservesAst(example.code, formatted)(
-          scala.meta.parsers.Parse.parseSource)
+        scala.meta.parsers.Parse.parseSource)
       println(example.filename)
     }
   }

@@ -12,10 +12,10 @@ object ScalacParser {
   val files = collection.mutable.Buffer.empty[java.io.File]
   val settings = new Settings()
   files.appendAll(
-      System
-        .getProperty("sun.boot.class.path")
-        .split(":")
-        .map(new java.io.File(_)))
+    System
+      .getProperty("sun.boot.class.path")
+      .split(":")
+      .map(new java.io.File(_)))
   while (current != null) {
     current match {
       case t: java.net.URLClassLoader =>

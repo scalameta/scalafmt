@@ -8,8 +8,7 @@ val logger = Logger(this .getClass)
 >>>
 val logger = Logger(this.getClass)
 <<< Break on .
-val expire =
-        owner.body.tokens.filterNot(_.isInstanceOf[Whitespace]).lastOption.getOrElse(
+val expire = owner.body.tokens.filterNot(_.isInstanceOf[Whitespace]).lastOption.getOrElse(
             arrow)
 >>>
 val expire = owner.body.tokens
@@ -251,8 +250,9 @@ Seq(
 {
   {
     {
-      system.actorOf(Props[ThreadNameEcho].withDispatcher(
-              "myapp.balancing-dispatcher")) ! "what's the name?"
+      system.actorOf(
+          Props[ThreadNameEcho]
+            .withDispatcher("myapp.balancing-dispatcher")) ! "what's the name?"
     }
   }
 }

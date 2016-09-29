@@ -46,4 +46,9 @@ val global: NirCodeGen.this.global.type
 @JSName("0") val _1: T1 = native
 >>>
 @JSName("0") val _1: T1 = native
-
+<<< #356
+val x: Int =
+    1
+>>>
+val x: Int =
+  1

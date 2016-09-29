@@ -12,15 +12,19 @@ import org.openjdk.jmh.annotations.Scope
 import org.openjdk.jmh.annotations.Setup
 import org.openjdk.jmh.annotations.Warmup
 import org.scalafmt.Scalafmt
-import org.scalafmt.ScalafmtOptimizer
-import org.scalafmt.ScalafmtRunner
-import org.scalafmt.ScalafmtStyle
 import org.scalafmt.util.FileOps
-
 import scala.meta.Source
 import scalariform.formatter.ScalaFormatter
 import scalariform.formatter.preferences.FormattingPreferences
 import scalariform.formatter.preferences.IndentSpaces
+
+import org.scalafmt.config.RedundantBracesSettings
+import org.scalafmt.config.RewriteSettings
+import org.scalafmt.config.ScalafmtOptimizer
+import org.scalafmt.config.ScalafmtRunner
+import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.rewrite.RedundantBraces
+import org.scalafmt.rewrite.SortImports
 
 /**
   * Formats filename at [[path]] with scalafmt and scalariform.
@@ -34,7 +38,7 @@ import scalariform.formatter.preferences.IndentSpaces
 @Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @BenchmarkMode(Array(Mode.AverageTime))
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
-abstract class MicroBenchmark(path: String*) {
+abstract class MicroBenchmark(path: String*) extends FormatBenchmark {
   val scalariformPreferences =
     FormattingPreferences().setPreference(IndentSpaces, 3)
   val classLoader = getClass.getClassLoader
@@ -64,22 +68,34 @@ abstract class MicroBenchmark(path: String*) {
   }
 
   @Benchmark
-  def scalafmt_noPruneSlowStates(): String = {
-    Scalafmt
-      .format(code,
-              runner = ScalafmtRunner.default.copy(optimizer =
-                    ScalafmtOptimizer.default.copy(pruneSlowStates = false)))
-      .get
+  def scalafmt_rewrite(): String = {
+    formatRewrite(code)
   }
+
+  def testMe(): Unit = {
+    setup()
+    scalafmt()
+    scalafmt_rewrite()
+  }
+
+//  @Benchmark
+//  def scalafmt_noPruneSlowStates(): String = {
+//    Scalafmt
+//      .format(
+//        code,
+//        runner = ScalafmtRunner.default.copy(
+//          optimizer = ScalafmtOptimizer.default.copy(pruneSlowStates = false)))
+//      .get
+//  }
 
   // No need to run same benchmark again and again.
-  @Benchmark
-  def scalariform(): String = {
-    ScalaFormatter.format(code)
-  }
+//  @Benchmark
+//  def scalariform(): String = {
+//    ScalaFormatter.format(code)
+//  }
 }
 
-object run {
+object Micro {
 
   abstract class ScalaJsFile(filename: String)
       extends MicroBenchmark("scala-js", filename)

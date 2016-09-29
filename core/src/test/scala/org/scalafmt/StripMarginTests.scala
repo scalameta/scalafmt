@@ -3,6 +3,7 @@ package org.scalafmt
 import scala.meta.Tree
 import scala.meta.parsers.Parse
 
+import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.DiffTest
 import org.scalafmt.util.HasTests
@@ -13,8 +14,7 @@ class StripMarginTests extends FunSuite with HasTests with DiffAssertions {
   val rawStrings =
     """
 <<< Align | margin 1
-val x =
-'''Formatter changed AST
+val x = '''Formatter changed AST
           |=====================
           |$diff
         '''
@@ -27,7 +27,7 @@ val x = '''Formatter changed AST
 <<< Align | margin 2
 {
   val x = 1
-  '''UNABLE TO FORMAT,
+'''UNABLE TO FORMAT,
     |fooooo baaaaaaaarrrrr
     |'''.stripMargin
 }
@@ -47,6 +47,12 @@ val x =
   '''Short line
     |Long line aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
     |'''.stripMargin
+<<< pipe char on first line #324
+'''|first
+  |second'''.stripMargin
+>>>
+'''|first
+   |second'''.stripMargin
   """.replace("'''", "\"\"\"")
 
   val interpolatedStrings =
@@ -81,13 +87,11 @@ val msg =
 val msg =
   s'''AAAAAAA
      |${mkString(
-         aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,
-         bbb)}
+       aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,
+       bbb)}
      |'''.stripMargin
 <<< Align | margin 2
-val msg =
-
-  s'''UNABLE TO FORMAT,
+val msg = s'''UNABLE TO FORMAT,
   |${mkString(deepestYet.splits)}
   |'''.stripMargin
 >>>
@@ -106,10 +110,14 @@ val msg = s'''UNABLE TO FORMAT,
                                                  |${log(formatToken.between: _*)}
                                                  |${log(formatToken.right)}'''.stripMargin
 }
+<<< pipe char on first line #324
+s'''|first
+        |$second'''.stripMargin
+>>>
+s'''|first
+    |$second'''.stripMargin
 <<< don't break if no need
-val msg =
-
-  s'''AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+val msg = s'''AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
   |${mkString(deepestYet.splits)}
   |'''.stripMargin
 >>>
@@ -123,14 +131,16 @@ val msg = s'''AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
   testsToRun.foreach(runTest(run))
 
-  val alignStyle = ScalafmtStyle.default.copy(alignStripMarginStrings = true)
+  val alignStyle =
+    ScalafmtConfig.default.copy(assumeStandardLibraryStripMargin = true)
 
   def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
-    val runner = scalafmtRunner.withParser(parse)
-    val formatted = Scalafmt.format(t.original, alignStyle, runner).get
+    val runner = scalafmtRunner.copy(parser = parse)
+    val style = alignStyle.copy(runner = runner)
+    val formatted = Scalafmt.format(t.original, style).get
     saveResult(t, formatted, t.only)
     assertNoDiff(formatted, t.expected)
-    assertNoDiff(Scalafmt.format(formatted, alignStyle, runner).get,
+    assertNoDiff(Scalafmt.format(formatted, style).get,
                  formatted,
                  "Idempotency violated")
   }

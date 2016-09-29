@@ -1,44 +1,48 @@
 package org.scalafmt.util
 
-import java.io.File
-
-import org.scalafmt.AlignToken
-import org.scalafmt.Debug
-import org.scalafmt.Error.UnknownStyle
-import org.scalafmt.FormatEvent.CompleteFormat
-import org.scalafmt.FormatEvent.CreateFormatOps
-import org.scalafmt.FormatEvent.Enqueue
-import org.scalafmt.FormatEvent.Explored
-import org.scalafmt.FormatEvent.VisitToken
-import org.scalafmt.ScalafmtRunner
-import org.scalafmt.Scalafmt
-import org.scalafmt.ScalafmtStyle
-import org.scalafmt.internal.FormatOps
-import org.scalafmt.internal.FormatWriter
-import org.scalafmt.internal.State
-import org.scalatest.FunSuiteLike
 import scala.collection.mutable
 import scala.meta.Tree
 import scala.meta.parsers.Parse
 import scala.meta.parsers.ParseException
 
+import java.io.File
+
+import org.scalafmt.Debug
+import org.scalafmt.Error.UnknownStyle
+import org.scalafmt.Scalafmt
+import org.scalafmt.config.AlignToken
+import org.scalafmt.config.BinPack
+import org.scalafmt.config.Config
+import org.scalafmt.config.FormatEvent.CompleteFormat
+import org.scalafmt.config.FormatEvent.CreateFormatOps
+import org.scalafmt.config.FormatEvent.Enqueue
+import org.scalafmt.config.FormatEvent.Explored
+import org.scalafmt.config.FormatEvent.VisitToken
+import org.scalafmt.config.IndentOperator
+import org.scalafmt.config.ScalafmtRunner
+import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.internal.FormatWriter
+import org.scalafmt.rewrite.Rewrite
+import org.scalatest.FunSuiteLike
+
 trait HasTests extends FunSuiteLike with FormatAssertions {
   import LoggerOps._
+  import org.scalafmt.config.ScalafmtConfig._
   val scalafmtRunner = ScalafmtRunner.default.copy(
-      debug = true,
-      maxStateVisits = 150000,
-      eventCallback = {
-        case CreateFormatOps(ops) => Debug.formatOps = ops
-        case VisitToken(tok) => Debug.visit(tok)
-        case explored: Explored if explored.n % 10000 == 0 =>
-          logger.elem(explored)
-        case Enqueue(split) => Debug.enqueued(split)
-        case CompleteFormat(explored, state, tokens) =>
-          Debug.explored += explored
-          Debug.state = state
-          Debug.tokens = tokens
-        case _ =>
-      }
+    debug = true,
+    maxStateVisits = 150000,
+    eventCallback = {
+      case CreateFormatOps(ops) => Debug.formatOps = ops
+      case VisitToken(tok) => Debug.visit(tok)
+      case explored: Explored if explored.n % 10000 == 0 =>
+        logger.elem(explored)
+      case Enqueue(split) => Debug.enqueued(split)
+      case CompleteFormat(explored, state, tokens) =>
+        Debug.explored += explored
+        Debug.state = state
+        Debug.tokens = tokens
+      case _ =>
+    }
   )
   lazy val debugResults = mutable.ArrayBuilder.make[Result]
   val testDir = "core/src/test/resources"
@@ -74,8 +78,20 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
     val spec = filename.stripPrefix(testDir + File.separator)
     val moduleOnly = isOnly(content)
     val moduleSkip = isSkip(content)
+    val split = content.split("\n<<< ")
 
-    content.split("\n<<< ").tail.map { t =>
+    val style: ScalafmtConfig = {
+      val firstLine = split.head
+      Config.fromHocon(firstLine.stripPrefix("ONLY ")) match {
+        case Right(s)
+            if !firstLine.replaceAll("\\s+", "").isEmpty &&
+              !firstLine.startsWith("//") =>
+          s
+        case _ => spec2style(spec.replaceFirst("/.*", ""))
+      }
+    }
+
+    split.tail.map { t =>
       val before :: expected :: Nil = t.split("\n>>>\n", 2).toList
       val name :: original :: Nil = before.split("\n", 2).toList
       val actualName = stripPrefix(name)
@@ -86,38 +102,95 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
                expected,
                moduleSkip || isSkip(name),
                moduleOnly || isOnly(name),
-               file2style(filename))
+               style)
     }
   }
 
-  def file2style(filename: String): ScalafmtStyle =
-    filename.split("/").reverse(1) match {
-      case "unit" => ScalafmtStyle.unitTest40
-      case "default" | "standard" | "scala" => ScalafmtStyle.default
-      case "default140" => ScalafmtStyle.default.copy(maxColumn = 140)
-      case "default100" => ScalafmtStyle.default.copy(maxColumn = 100)
-      case "scalajs" => ScalafmtStyle.scalaJs
+  def spec2style(spec: String): ScalafmtConfig =
+    spec match {
+      case "unit" => ScalafmtConfig.unitTest40
+      case "default" | "standard" | "scala" =>
+        ScalafmtConfig.unitTest80
+      case "default140" => ScalafmtConfig.unitTest80.copy(maxColumn = 140)
+      case "default100" => ScalafmtConfig.unitTest80.copy(maxColumn = 100)
+      case "scalajs" => ScalafmtConfig.scalaJs
       case "dangling" =>
-        ScalafmtStyle.default.copy(maxColumn = 40,
-                                   alignByOpenParenCallSite = false,
-                                   danglingParentheses = true,
-                                   configStyleArguments = false)
+        ScalafmtConfig.unitTest80.copy(
+          maxColumn = 40,
+          align = unitTest80.align.copy(
+            openParenCallSite = false
+          ),
+          danglingParentheses = true,
+          optIn = unitTest80.optIn.copy(
+            configStyleArguments = false
+          )
+        )
       case "noAlign" =>
-        ScalafmtStyle.default
-          .copy(maxColumn = 40, alignByOpenParenCallSite = false)
+        ScalafmtConfig.unitTest80.copy(
+          maxColumn = 40,
+          align = unitTest80.align.copy(
+            openParenCallSite = false
+          )
+        )
       case "stripMargin" =>
-        ScalafmtStyle.default.copy(alignStripMarginStrings = true)
+        ScalafmtConfig.unitTest80.copy(assumeStandardLibraryStripMargin = true)
       case "spaces" =>
-        ScalafmtStyle.default.copy(spacesInImportCurlyBraces = true,
-                                   spaceAfterTripleEquals = true)
-      case "align" =>
-        ScalafmtStyle.default.copy(alignTokens = AlignToken.default)
-      case "unicode" =>
-        ScalafmtStyle.default.copy(
-            rewriteTokens = Map(
-                "=>" -> "⇒",
-                "<-" -> "←"
+        ScalafmtConfig.unitTest80.copy(
+          spaces = unitTest80.spaces
+            .copy(inImportCurlyBraces = true, afterTripleEquals = true)
+        )
+      case "align" => ScalafmtConfig.addAlign(ScalafmtConfig.unitTest80)
+      case "alignNoSpace" =>
+        ScalafmtConfig.unitTest80.copy(
+          align = ScalafmtConfig.unitTest80.align.copy(
+            tokens = Set(
+              AlignToken(":", ".*"),
+              AlignToken(",", ".*")
             )
+          )
+        )
+      case "parentConstructors" =>
+        ScalafmtConfig.unitTest80.copy(
+          binPack = BinPack(false, false, parentConstructors = true),
+          maxColumn = 40
+        )
+      case "alignByArrowEnumeratorGenerator" =>
+        ScalafmtConfig.unitTest40.copy(
+          align = ScalafmtConfig.unitTest40.align
+            .copy(arrowEnumeratorGenerator = true)
+        )
+      case "noIndentOperators" =>
+        ScalafmtConfig.unitTest80.copy(unindentTopLevelOperators = true,
+                                      indentOperator = IndentOperator.akka)
+      case "unicode" =>
+        ScalafmtConfig.unitTest80.copy(
+          rewriteTokens = Map(
+            "=>" -> "⇒",
+            "<-" -> "←"
+          )
+        )
+      case "spacesBeforeContextBound" =>
+        ScalafmtConfig.unitTest80.copy(
+          spaces = unitTest80.spaces.copy(beforeContextBoundColon = true))
+      case "trailing-commas" =>
+        ScalafmtConfig.unitTest40.copy(
+          poorMansTrailingCommasInConfigStyle = true)
+      case "import" =>
+        ScalafmtConfig.unitTest80.copy(binPackImportSelectors = false)
+      case "keepLineBreaks" =>
+        ScalafmtConfig.unitTest80.copy(
+          optIn = unitTest80.optIn.copy(
+            breakChainOnFirstMethodDot = true
+          ))
+      case "newlineBeforeLambdaParams" =>
+        ScalafmtConfig.default.copy(
+          newlines = default.newlines.copy(
+            alwaysBeforeCurlyBraceLambdaParams = true
+          )
+        )
+      case x if Rewrite.name2rewrite.contains(x) =>
+        ScalafmtConfig.default.copy(
+          rewrite = default.rewrite.copy(rules = Seq(Rewrite.name2rewrite(x)))
         )
       case style => throw UnknownStyle(style)
     }
@@ -154,8 +227,8 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
             } catch {
               case e: ParseException =>
                 fail(
-                    "test does not parse" +
-                      parseException2Message(e, t.original))
+                  "test does not parse" +
+                    parseException2Message(e, t.original))
             }
           case None => fail(s"Found no parse for filename ${t.filename}")
         }
@@ -168,24 +241,25 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
   }
 
   def defaultRun(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
-    val runner = scalafmtRunner.withParser(parse)
-    val obtained = Scalafmt.format(t.original, t.style, runner).get
-    assertFormatPreservesAst(t.original, obtained)(parse)
+    val runner = scalafmtRunner.copy(parser = parse)
+    val obtained =
+      Scalafmt.format(t.original, t.style.copy(runner = runner)).get
+    if (t.style.rewrite.rules.isEmpty) {
+      assertFormatPreservesAst(t.original, obtained)(parse)
+    }
     assertNoDiff(obtained, t.expected)
   }
 
-  def getFormatOutput(style: ScalafmtStyle,
+  def getFormatOutput(style: ScalafmtConfig,
                       onlyOne: Boolean): Array[FormatOutput] = {
     val builder = mutable.ArrayBuilder.make[FormatOutput]()
-    new FormatWriter(Debug.formatOps).reconstructPath(Debug.tokens,
-                                                      Debug.state.splits,
-                                                      style,
-                                                      debug = onlyOne) {
-      case (_, token, whitespace) =>
-        builder += FormatOutput(token.left.code,
-                                whitespace,
-                                Debug.formatTokenExplored(token))
-    }
+    new FormatWriter(Debug.formatOps)
+      .reconstructPath(Debug.tokens, Debug.state.splits, debug = onlyOne) {
+        case (_, token, whitespace) =>
+          builder += FormatOutput(token.left.syntax,
+                                  whitespace,
+                                  Debug.formatTokenExplored(token))
+      }
     builder.result()
   }
 }

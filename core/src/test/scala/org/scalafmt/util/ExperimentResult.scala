@@ -51,7 +51,7 @@ object ExperimentResult {
     override def key: String =
       e.getClass.getName + ": " + e.getMessage.replaceAll(" at .*", "")
 
-    def lineNumber = e.pos.point.line
+    def lineNumber = e.pos.start.line
 
     def content = s"cols:${e.pos.start.column}-${e.pos.end.column}"
 

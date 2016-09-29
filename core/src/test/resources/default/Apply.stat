@@ -142,8 +142,7 @@ Seq(
       .withIndent(2, arrow, Left) // cond body indented by 4.
 )
 <<< breaking on ( is cheaper than [
-val ret =
-  new mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](Map[TokenHash, Tree]())
+val ret = new mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](Map[TokenHash, Tree]())
 >>>
 val ret = new mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](
     Map[TokenHash, Tree]())
@@ -178,8 +177,7 @@ val ret = new mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](
   }
 }
 <<< penalize newlines inside apply 1
-val ret =
-       new mutable.MapBuilder[TokenHash, Token, Map[TokenHash, Token]](Map
+val ret = new mutable.MapBuilder[TokenHash, Token, Map[TokenHash, Token]](Map
              .empty[TokenHash, Token])
 >>>
 val ret = new mutable.MapBuilder[TokenHash, Token, Map[TokenHash, Token]](
@@ -588,10 +586,10 @@ Ok(
 Ok(
     Json.obj("api" -> Json.obj("current" -> api.currentVersion,
                                "olds" -> api.oldVersions.map { old =>
-                         Json.obj("version" -> old.version,
-                                  "deprecatedAt" -> old.deprecatedAt,
-                                  "unsupportedAt" -> old.unsupportedAt)
-                       }))) as JSON
+                                 Json.obj("version" -> old.version,
+                                          "deprecatedAt" -> old.deprecatedAt,
+                                          "unsupportedAt" -> old.unsupportedAt)
+                               }))) as JSON
 <<< router explosion
         Seq(
             Split(modification,
@@ -653,8 +651,7 @@ def fillInStackTrace(): Throwable =
   super[Error].fillInStackTrace()
 <<< #263
 {
-    val safeHasOwnProperty =
-      Dynamic.global.Object.prototype.hasOwnProperty
+    val safeHasOwnProperty = Dynamic.global.Object.prototype.hasOwnProperty
         .asInstanceOf[ThisFunction1[Dictionary[_], String, Boolean]]
         }
 >>>
@@ -676,3 +673,89 @@ def fillInStackTrace(): Throwable =
                 files => files.par.foreach(handlefile(writeformatted)))
   }
 }
+<<< #323
+def startSharding(system: ActorSystem, mediator: ActorRef, shardCount: Int): Unit = ClusterSharding(system).start(
+  className[Flow],
+  props(mediator),
+  ClusterShardingSettings(system),
+  { case (name: String, payload) => (name, payload) },
+  { case (name: String, _) => (name.hashCode % shardCount).toString }
+)
+>>>
+def startSharding(system: ActorSystem,
+                  mediator: ActorRef,
+                  shardCount: Int): Unit = ClusterSharding(system).start(
+    className[Flow],
+    props(mediator),
+    ClusterShardingSettings(system),
+    { case (name: String, payload) => (name, payload) },
+    { case (name: String, _) => (name.hashCode % shardCount).toString }
+)
+<<< spray shit
+{{{
+      get {
+        respondWithMediaType(MediaTypes.`application/json`) {
+          complete {
+            Map("plugins" -> Map(
+                    "outputblockers" -> pluginContext.outputBlockers.map {
+                  case (n, p) =>
+                    n -> Map(
+                        "name" -> p.pluginName,
+                        "description" -> p.pluginDescription,
+                        "class" -> p.getClass.getName,
+                        "params" -> pluginContext.pluginParams(p.pluginName))
+                },
+                    "outputsniffers" -> pluginContext.outputSniffers.map {
+                  case (n, p) =>
+                    n -> Map(
+                        "name" -> p.pluginName,
+                        "description" -> p.pluginDescription,
+                        "class" -> p.getClass.getName,
+                        "params" -> pluginContext.pluginParams(p.pluginName))
+                }
+                ))
+          }
+        }
+      }
+}}}
+>>>
+{
+  {
+    {
+      get {
+        respondWithMediaType(MediaTypes.`application/json`) {
+          complete {
+            Map(
+                "plugins" -> Map(
+                    "outputblockers" -> pluginContext.outputBlockers.map {
+                      case (n, p) =>
+                        n -> Map("name" -> p.pluginName,
+                                 "description" -> p.pluginDescription,
+                                 "class" -> p.getClass.getName,
+                                 "params" -> pluginContext.pluginParams(
+                                     p.pluginName))
+                    },
+                    "outputsniffers" -> pluginContext.outputSniffers.map {
+                      case (n, p) =>
+                        n -> Map("name" -> p.pluginName,
+                                 "description" -> p.pluginDescription,
+                                 "class" -> p.getClass.getName,
+                                 "params" -> pluginContext.pluginParams(
+                                     p.pluginName))
+                    }
+                ))
+          }
+        }
+      }
+    }
+  }
+}
+<<< SKIP fix with in template
+{{
+      val replier = system.actorOf(Props(new IntReplierActor(10)
+      with EvenHalverInterceptor with OddDoublerInterceptor {
+        override def unhandled(message: Any) = probeRef ! message
+      }))
+}}
+>>>
+x

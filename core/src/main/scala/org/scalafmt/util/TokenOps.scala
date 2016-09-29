@@ -1,20 +1,20 @@
 package org.scalafmt.util
 
+import scala.meta.Defn
+import scala.meta.Pkg
+import scala.meta.Template
+import scala.meta.Tree
+import scala.meta.dialects.Scala211
+import scala.meta.tokens.Token
+import scala.meta.tokens.Token._
+
 import org.scalafmt.internal.Decision
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.Modification
-import org.scalafmt.internal.Newline
 import org.scalafmt.internal.NewlineT
 import org.scalafmt.internal.NoSplit
 import org.scalafmt.internal.Policy
 import org.scalafmt.internal.Space
-import scala.meta.Tree
-import scala.meta.Defn
-import scala.meta.Pkg
-import scala.meta.Template
-import scala.meta.tokens.Token
-import scala.meta.tokens.Token._
-
 import org.scalafmt.internal.Split
 
 /**
@@ -35,7 +35,7 @@ object TokenOps {
     * identifier for the token inside this source file.
     *
     * The hash code works like this this:
-    * Top 8 bits go to privateTag, a unique identifier for the tokens class.
+    * Top 8 bits go to a hashCode of productPrefix, a unique identifier for the tokens class.
     * Next 28 bits go to the tokens **start** offset byte.
     * Final 28 bits go to the tokens **end** offset byte.
     *
@@ -45,7 +45,7 @@ object TokenOps {
   @inline
   def hash(token: Token): TokenHash = {
     val longHash: Long =
-      (token.privateTag.toLong << (62 - 8)) |
+      (token.productPrefix.hashCode.toLong << (62 - 8)) |
         (token.start.toLong << (62 - (8 + 28))) | token.end
     longHash
   }
@@ -53,49 +53,48 @@ object TokenOps {
   def shouldGet2xNewlines(tok: FormatToken): Boolean = {
     !isDocstring(tok.left) && {
       val newlines = newlinesBetween(tok.between)
-      newlines > 1 ||
-      (isDocstring(tok.right) && !tok.left.isInstanceOf[Comment])
+      newlines > 1 || (isDocstring(tok.right) && !tok.left.is[Comment])
     }
   }
 
   def isDocstring(token: Token): Boolean = {
-    token.isInstanceOf[Comment] && token.code.startsWith("/**")
+    token.is[Comment] && token.syntax.startsWith("/**")
   }
 
   def lastToken(tree: Tree): Token = {
     val lastIndex = tree.tokens.lastIndexWhere {
-      case _: Trivia | _: EOF => false
+      case Trivia() | _: EOF => false
       case _ => true
     }
     if (lastIndex == -1) tree.tokens.last
-    else tree.tokens(lastIndex)
+    else tree.tokens(Scala211)(lastIndex)
   }
 
-  def endsWithNoIndent(between: Vector[Whitespace]): Boolean =
-    between.lastOption.exists(_.isInstanceOf[`\n`])
+  def endsWithNoIndent(between: Vector[Token]): Boolean =
+    between.lastOption.exists(_.is[LF])
 
   def rhsIsCommentedOut(formatToken: FormatToken): Boolean =
-    formatToken.right.isInstanceOf[Comment] &&
-      formatToken.right.code.startsWith("//") &&
+    formatToken.right.is[Comment] &&
+      formatToken.right.syntax.startsWith("//") &&
       endsWithNoIndent(formatToken.between)
 
   val booleanOperators = Set("&&", "||")
 
   // TODO(olafur) more general solution?
-  val newlineOkOperators = Set("+", "-")
+  val newlineOkOperators = Set("+", "-", "|")
 
   def isBoolOperator(token: Token): Boolean =
-    booleanOperators.contains(token.code)
+    booleanOperators.contains(token.syntax)
 
   def newlineOkOperator(token: Token): Boolean =
-    booleanOperators.contains(token.code) ||
-      newlineOkOperators.contains(token.code)
+    booleanOperators.contains(token.syntax) ||
+      newlineOkOperators.contains(token.syntax)
 
   // See http://scala-lang.org/files/archive/spec/2.11/06-expressions.html#assignment-operators
   val specialAssignmentOperators = Set("<=", ">=", "!=")
 
   def isAssignmentOperator(token: Token): Boolean = {
-    val code = token.code
+    val code = token.syntax
     code.last == '=' && code.head != '=' &&
     !specialAssignmentOperators.contains(code)
   }
@@ -112,7 +111,7 @@ object TokenOps {
   }
 
   def identModification(ident: Ident): Modification = {
-    val lastCharacter = ident.code.last
+    val lastCharacter = ident.syntax.last
     if (Character.isLetterOrDigit(lastCharacter) || lastCharacter == '`')
       NoSplit
     else Space
@@ -120,8 +119,8 @@ object TokenOps {
 
   def isOpenApply(token: Token, includeCurly: Boolean = false): Boolean =
     token match {
-      case _: `(` | _: `[` => true
-      case _: `{` if includeCurly => true
+      case LeftParen() | LeftBracket() => true
+      case LeftBrace() if includeCurly => true
       case _ => false
     }
 
@@ -135,7 +134,7 @@ object TokenOps {
       implicit line: sourcecode.Line): Policy = {
     Policy({
       case Decision(tok, splits)
-          if !tok.right.isInstanceOf[EOF] && tok.right.end <= expire.end &&
+          if !tok.right.is[EOF] && tok.right.end <= expire.end &&
             exclude.forall(!_.contains(tok.left.start)) &&
             (disallowInlineComments || !isInlineComment(tok.left)) =>
         if (penaliseNewlinesInsideTokens && tok.leftHasNewline) {
@@ -147,11 +146,11 @@ object TokenOps {
   }
 
   def isInlineComment(token: Token): Boolean = token match {
-    case c: Comment => c.code.startsWith("//")
+    case c: Comment => c.syntax.startsWith("//")
     case _ => false
   }
 
-  def newlines2Modification(between: Vector[Whitespace],
+  def newlines2Modification(between: Vector[Token],
                             rightIsComment: Boolean = false): Modification =
     newlinesBetween(between) match {
       case 0 => Space
@@ -162,10 +161,10 @@ object TokenOps {
 
   // TODO(olafur) calculate this once inside getSplits.
 
-  def newlinesBetween(between: Vector[Whitespace]): Int =
-    between.count(_.isInstanceOf[`\n`])
+  def newlinesBetween(between: Vector[Token]): Int =
+    between.count(_.is[LF])
 
-  def isAttachedComment(token: Token, between: Vector[Whitespace]) =
+  def isAttachedComment(token: Token, between: Vector[Token]) =
     isInlineComment(token) && newlinesBetween(between) == 0
 
   def defnTemplate(tree: Tree): Option[Template] = tree match {
@@ -177,7 +176,7 @@ object TokenOps {
   }
 
   def tokenLength(token: Token): Int = token match {
-    case lit: Literal.String =>
+    case lit: Constant.String =>
       // Even if the literal is not strip margined, we use the longest line
       // excluding margins. The will only affect is multiline string literals
       // with a short first line but long lines inside, example:
@@ -188,30 +187,30 @@ object TokenOps {
       //
       // In this case, we would put a newline before """short and indent by
       // two.
-      lit.code.lines.map(_.replaceFirst(" *|", "").length).max
+      lit.syntax.lines.map(_.replaceFirst(" *|", "").length).max
     case _ =>
-      val firstNewline = token.code.indexOf('\n')
-      if (firstNewline == -1) token.code.length
+      val firstNewline = token.syntax.indexOf('\n')
+      if (firstNewline == -1) token.syntax.length
       else firstNewline
   }
 
   def isFormatOn(token: Token): Boolean = token match {
-    case c: Comment if formatOnCode.contains(c.code.toLowerCase) => true
+    case c: Comment if formatOnCode.contains(c.syntax.toLowerCase) => true
     case _ => false
   }
 
   def isFormatOff(token: Token): Boolean = token match {
-    case c: Comment if formatOffCode.contains(c.code.toLowerCase) => true
+    case c: Comment if formatOffCode.contains(c.syntax.toLowerCase) => true
     case _ => false
   }
 
   val formatOffCode = Set(
-      "// @formatter:off", // IntelliJ
-      "// format: off" // scalariform
+    "// @formatter:off", // IntelliJ
+    "// format: off" // scalariform
   )
 
   val formatOnCode = Set(
-      "// @formatter:on", // IntelliJ
-      "// format: on" // scalariform
+    "// @formatter:on", // IntelliJ
+    "// format: on" // scalariform
   )
 }

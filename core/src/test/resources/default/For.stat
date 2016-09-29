@@ -1,5 +1,5 @@
 80 columns                                                                     |
-<<< No align by superfluous (
+<<< align by superfluous (
      val weights: Map[Int, Double] = (for {
        group <- groupedWeights
        item <- group.items

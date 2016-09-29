@@ -1,0 +1,156 @@
+@import Main._
+@import org.scalafmt.readme.Readme._
+@import org.scalafmt.config.ScalafmtConfig
+
+@sect{0.4.2}
+  @ul
+    @li
+      @code{--migrate2hocon} now migrates @code{--indentOperators false}
+      to @code{indentOperator = spray}.
+@sect{0.4.1}
+  @ul
+    @li
+      @code{--migrate2hocon} now migrates @code{rewriteTokens}.
+@sect{0.4.0}
+  @ul
+    @li
+      NEW! HOCON configuration.
+      To migrate the old style configuration in @code{.scalafmt}
+      to the new style in @code{.scalafmt.conf}, run
+      @code{scalafmt --migrate2hocon .scalafmt} with the CLI.
+      For super easy CLI installation, download the 12 kb bootstrap script
+      from @lnk("here", "https://github.com/olafurpg/scalafmt/raw/master/scalafmt").
+      For alternative ways to install the CLI, refer to @sect.ref{CLI}.
+    @li
+      NEW! See @sect.ref{rewrite.rules}.
+    @li
+      NEW! Dynamic style configuration. You can now update the configuration
+      by adding comments to the source code. Example:
+
+      @hl.scala
+        // scalafmt: { maxColumn = 200 }
+
+        // OR
+
+        /*
+        scalafmt: {
+          maxColumn = 200
+          style = defaultWithAlign
+        }
+        */
+
+        object Foo {
+         ... // configuration is applied to remainder of file
+        }
+
+      Why? This can be useful
+
+      @ul
+        @li
+          for generated code where you might prefer vertical alignment or longer max columns
+        @li
+          in long variadic code, see
+          @issue(431),
+          @issue(347) and
+          @issue(348).
+        @li
+          Blocks of code where each line is almost identical to the previous line
+          (@lnk("example", "https://github.com/CommBank/coppersmith/blob/3f752670d3b2212e0c09872df2859d06c47fde89/core/src/main/scala/commbank/coppersmith/Feature.scala#L58-L73")).
+        @li
+          Use your imagination.
+
+      A word of caution.
+      I don't recommend you clutter your codebase with @code{// scalafmt: ...}.
+      This feature does not give you an excuse to change you mind about the configuration on every single line of code.
+      Use this feature for good.
+    @li
+      This release performed a major internal refactoring so there is a lot
+      of breaking changes if you use scalafmt as a library.
+      @ul
+        @li
+          @code{ScalafmtStyle} is now called @code{ScalafmtConfig} and belongs
+          to the @code{org.scalafmt.config} package (was previously in
+          @code{org.scalafmt}).
+        @li
+          @code{FormatResult} is now called @code{Formatted} and it has a
+          @code{toEither} method.
+        @li
+          @code{Scalafmt.format} no longer accepts a @code{ScalafmtRunner} argument,
+          instead the runner is now a member of @code{ScalafmtConfig}.
+        @li
+          If you customized fields in @code{ScalafmtStyle}, you can consult
+          @lnk("this testcase", "https://github.com/olafurpg/scalafmt/blob/0987a046d2cde5222402cd51465fdaf6494cb1b3/cli/src/test/scala/org/scalafmt/cli/CliTest.scala#L180-L246")
+          or the @code{--migrate2hocon} implementation
+          @lnk("here", "https://github.com/olafurpg/scalafmt/blob/657c2223a8edcb33400e4a0a5302da7e060d2925/cli/src/main/scala/org/scalafmt/cli/Cli.scala#L269").
+          Don't hesitate to ask questions on gitter if you're unsure where your old
+          settings have moved.
+    @li
+      Using the default style, there is no diff between 0.3.1 and 0.4.0 after
+      formatting over 3 million lines of code.
+    @li
+      Unfortunately, I was unable to publish ScalaDocs with this release because of
+      @lnk("this issue", "https://github.com/scalameta/paradise/issues/55").
+    @li
+      SBT plugin now no longer formats generated sources in @code{target}.
+    @li
+      New CLI flag @code{--exclude} to exclude a set of directories.
+    @li
+      New option @code{optIn.breakChainOnFirstMethodDot}.
+
+      @hl.scala
+        // Original before running scalafmt
+        List(1, 2, 3)
+          .map(_ + 1).filter(_ > 2)
+
+        // false (default)
+        List(1, 2, 3).map(_ + 1).filter(_ > 2)
+
+        // true
+        List(1, 2, 3)
+          .map(_ + 1)
+          .filter(_ > 2)
+        // Note, only the dot before the first method call triggers this option.
+    @li
+      New flag @sect.ref{lineEndings}.
+    @li
+      @code{defaultWithAlign} will now also align @code{%%%}.
+    @li
+      New style flag @code{newlines.alwaysBeforeCurlyBraceLambdaParams}.
+    @li
+      @code{align.tokens} can now align on tokens that have no leading space.
+      For example, with settings @code{align.tokens = [ ":" ]}
+
+      @hl.scala
+        // Before
+        def foo(
+          a: Int,
+          aa: Int
+        )
+
+        // After
+        def foo(
+            a:  Int,
+            aa: Int
+        )
+
+      @note. This may play badly in combination with other alignment configuration.
+      For example, if you configure to align @code{extends} and @code{:},
+      the following input will align neither since the rows don't match
+
+      @hl.scala
+        case object A extends Super
+        case class B(b: B) extends Super
+
+  Big thanks to everyone who contributed to this release:
+  @user{mmatloka},
+  @user{melrief},
+  @user{stefanobaghino},
+  @user{johnynek},
+  @user{RatanRSur},
+  @user{Gmadorell},
+  @user{Synesso},
+  @user{Lambdista} and
+  @user{easel}
+
+
+

@@ -24,7 +24,7 @@ object Tabulator {
 
   def formatRows(rowSeparator: String, rows: Seq[String]): String =
     (rowSeparator :: rows.head :: rowSeparator :: rows.tail.toList ::: rowSeparator :: List(
-            )).mkString("\n")
+      )).mkString("\n")
 
   def formatRow(row: Seq[Any], colSizes: Seq[Int]) = {
     val cells = (for ((item, size) <- row.zip(colSizes))

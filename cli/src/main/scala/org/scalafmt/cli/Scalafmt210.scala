@@ -3,31 +3,53 @@ package org.scalafmt.cli
 import java.io.File
 
 import org.scalafmt.Error.InvalidScalafmtConfiguration
-import org.scalafmt.FormatResult
+import org.scalafmt.Formatted
 import org.scalafmt.Scalafmt
-import org.scalafmt.ScalafmtStyle
+import org.scalafmt.config.ScalafmtRunner
+import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.util.FileOps
+import org.scalafmt.util.LoggerOps._
 
 /**
   * Classload ScalaFmt210 to run ScalaFmt from Scala 2.10, for example sbt
   * plugin.
   */
 class Scalafmt210 {
+  val oldConfig = "--".r
 
-  def format(code: String, configFile: String): String = {
-    val style = StyleCache
-      .getStyleForFile(configFile)
-      .getOrElse(
-          throw InvalidScalafmtConfiguration(new File(configFile))
-      )
-    format(code, style)
+  def format(code: String, configFile: String, filename: String): String = {
+    val style = StyleCache.getStyleForFile(configFile).getOrElse {
+      if (oldConfig.findFirstIn(FileOps.readFile(configFile)).nonEmpty) {
+        logger.error(
+          "You seem to use the <0.4 configuration, for instructions on how to migrate: https://olafurpg.github.io/scalafmt/#0.4.x")
+      }
+      throw InvalidScalafmtConfiguration(new File(configFile))
+    }
+    format(code, style, filename)
   }
 
-  def format(code: String): String = format(code, ScalafmtStyle.default)
+  def format(code: String, filename: String): String =
+    format(code, ScalafmtConfig.default, filename)
 
-  private def format(code: String, scalafmtStyle: ScalafmtStyle): String = {
-    Scalafmt.format(code, style = scalafmtStyle) match {
-      case FormatResult.Success(formattedCode) => formattedCode
-      case _ => code
+  private def format(code: String,
+                     scalafmtStyle: ScalafmtConfig,
+                     filename: String): String = {
+    val currentPath = new File("").getAbsolutePath + "/"
+    val relativePath = filename.stripPrefix(currentPath)
+    val runner = // DRY please, same login in CLI
+      if (filename.endsWith(".sbt")) ScalafmtRunner.sbt
+      else ScalafmtRunner.default
+    val style = scalafmtStyle.copy(runner = runner)
+    Scalafmt.format(code, style) match {
+      case Formatted.Success(formattedCode) => formattedCode
+      case error =>
+        error match {
+          case Formatted.Failure(e) =>
+            logger.warn(
+              s"Failed to format file $relativePath. Cause: ${e.getMessage}.")
+          case _ =>
+        }
+        code
     }
   }
 }

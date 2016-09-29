@@ -2,13 +2,15 @@ package org.scalafmt
 
 import scala.language.postfixOps
 
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.meta.Tree
 import scala.meta.internal.semantic.Symbol.Global
+import scala.meta.parsers.Parse
 
+import org.scalafmt.Error.Incomplete
 import org.scalafmt.Error.SearchStateExploded
-import org.scalafmt.FormatEvent.CompleteFormat
-import org.scalafmt.FormatEvent.Enqueue
-import org.scalafmt.FormatEvent.Explored
-import org.scalafmt.FormatEvent.VisitToken
 import org.scalafmt.stats.TestStats
 import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.DiffTest
@@ -17,18 +19,11 @@ import org.scalafmt.util.FormatAssertions
 import org.scalafmt.util.HasTests
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.Report
-import org.scalafmt.util.Result
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.ConfigMap
 import org.scalatest.FunSuite
 import org.scalatest.concurrent.Timeouts
 import org.scalatest.time.SpanSugar._
-import scala.collection.mutable
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.meta.Tree
-import scala.meta.parsers.Parse
 
 // TODO(olafur) property test: same solution without optimization or timeout.
 
@@ -57,17 +52,21 @@ class FormatTests
     .foreach(runTest(run))
 
   def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
-    val runner = scalafmtRunner.withParser(parse)
-    val obtained = Scalafmt.format(t.original, t.style, runner) match {
-      case FormatResult.Incomplete(code) => code
-      case FormatResult.Failure(e: SearchStateExploded) =>
-        logger.elem(e)
-        e.partialOutput
-      case x => x.get
-    }
+    val runner = scalafmtRunner.copy(parser = parse)
+    val obtained =
+      Scalafmt.format(t.original, t.style.copy(runner = runner)) match {
+        case Formatted.Failure(e: Incomplete) => e.formattedCode
+        case Formatted.Failure(e: SearchStateExploded) =>
+          logger.elem(e)
+          e.partialOutput
+        case x => x.get
+      }
     debugResults += saveResult(t, obtained, onlyOne)
-    assertFormatPreservesAst(t.original, obtained)(parse)
-    val formattedAgain = Scalafmt.format(obtained, t.style, runner).get
+    if (t.style.rewrite.rules.isEmpty) {
+      assertFormatPreservesAst(t.original, obtained)(parse)
+    }
+    val formattedAgain =
+      Scalafmt.format(obtained, t.style.copy(runner = runner)).get
 //          getFormatOutput(t.style, true) // uncomment to debug
     assertNoDiff(formattedAgain, obtained, "Idempotency violated")
     if (!onlyManual) {
@@ -98,7 +97,7 @@ class FormatTests
     // I don't want to deal with scalaz's Tasks :'(
     val k = for {
       _ <- Future(
-              FileOps.writeFile("target/index.html", Report.heatmap(results)))
+        FileOps.writeFile("target/index.html", Report.heatmap(results)))
     } yield ()
     // Travis exits right after running tests.
     if (sys.env.contains("TRAVIS")) Await.ready(k, 20 seconds)

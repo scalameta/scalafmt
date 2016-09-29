@@ -288,3 +288,17 @@ x
         .asInstanceOf[Int]
   }
 }
+<<< #360 macro
+{
+  implicit def adtSyntax[A](target: A): Any =
+    macro LiftMacros.materializeADTSyntax[A]
+  implicit def adtSyntax[A](target: A): Any =
+    LiftMacros.materializeADTSyntax[A]
+}
+>>>
+{
+  implicit def adtSyntax[A](target: A): Any =
+    macro LiftMacros.materializeADTSyntax[A]
+  implicit def adtSyntax[A](target: A): Any =
+    LiftMacros.materializeADTSyntax[A]
+}
