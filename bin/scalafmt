@@ -1,50 +1,63 @@
 #!/bin/bash
+set -e
+
+check_binary(){
+  command -v "$0" >/dev/null 2>&1 || { echo >&2 "Missing dependency $0, exiting."; exit 1; }
+}
 
 CURL=$(which curl)
 TAR=$(which tar)
 JAVA=$(which java)
 GREP=$(which grep)
 
-deps=($CURL $TAR $JAVA $GREP)
-for dep in ${deps[@]}; do
-  if [[ ! -e $dep ]]; then
-    echo "You are missing a dependency, please make sure you have grep, curl, tar, and java installed and on your path."
-    exit 1;
-  fi
-done
+check_binary "$CURL"
+check_binary "$TAR"
+check_binary "$JAVA"
+check_binary "$GREP"
 
 current_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-latest_version=$($CURL -s https://api.github.com/repos/olafurpg/scalafmt/releases/latest | $GREP -Po '"tag_name":(\d*?,|.*?[^\\]",)' | $GREP -Po 'v\d+\.\d+\.\d+')
+latest_version=$($CURL -s https://api.github.com/repos/olafurpg/scalafmt/releases/latest | $GREP -Eo '"tag_name":(.*)' | $GREP -Eo 'v[0-9\.]+')
+default_dir="$HOME/.scalafmt-bin/releases/$latest_version"
+scalafmt_version=$latest_version
 
-#These are only 2 ifs so they can handle else conditions on their own.
-if [[ ${@:1:1} == --v ]]; then
-  if [[ ${@:2:1} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-  	scalafmt_version="v${@:2:1}"
-    echo "Using version: $scalafmt_version"
-    shift 2
-  else
-    echo "You must pass a valid version with --v"
-    exit 1
-  fi
-else
-  scalafmt_version=$latest_version
-fi
+for arg in "$1" "$3"; do
+	case "$arg" in
+		--v)
+		  if [[ $2 =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+		  	scalafmt_version="v$2"
+		  	default_dir="$HOME/.scalafmt-bin/releases/$scalafmt_version"
+		    echo "Using version: $scalafmt_version"
+		    shift 2
+		  else
+		    echo "You must pass a valid version with --v"
+		    exit 1
+		  fi
+		  ;;
+		--dir)
+			echo "Using dir: $2"
+			default_dir="$2"
+			shift 2
+			;;
+		*)
+		  ;;
+	esac
+done
 
 scala_version="2.11"
 scalafmt_filename="scalafmt-$scalafmt_version.jar"
 scalafmt_repo="https://github.com/olafurpg/scalafmt/releases/download/$scalafmt_version/scalafmt.tar.gz"
 
-if [[ ! -d $current_dir/jars ]]; then
-  echo "You don't have jars folder, creating it..."
-  mkdir -p $current_dir/jars
+if [[ ! -d "$default_dir" ]]; then
+  echo "$default_dir does not exist, creating it..."
+  mkdir -p "$default_dir"
 fi
 
-if [[ ! -e $current_dir/jars/scalafmt-$scalafmt_version.jar ]]; then
+if [[ ! -e "$default_dir/scalafmt-$scalafmt_version.jar" ]]; then
   echo "No scalafmt jar for version $scalafmt_version, downloading it..."
   echo "From: $scalafmt_repo"
-  $CURL --progress -L $scalafmt_repo -o $current_dir/scalafmt.tar.gz
-  $TAR -xzf $current_dir/scalafmt.tar.gz -O cli/target/scala-$scala_version/scalafmt.jar > $current_dir/jars/$scalafmt_filename
-  rm $current_dir/scalafmt.tar.gz
+  $CURL --progress -L "$scalafmt_repo" -o "$default_dir/scalafmt.tar.gz"
+  $TAR -xzf "$default_dir/scalafmt.tar.gz" -O "cli/target/scala-$scala_version/scalafmt.jar" > "$default_dir/$scalafmt_filename"
+  rm "$default_dir/scalafmt.tar.gz"
 fi
 
-$JAVA -jar $current_dir/jars/$scalafmt_filename $@
+$JAVA -jar "$default_dir/$scalafmt_filename" "$@"
