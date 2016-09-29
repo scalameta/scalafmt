@@ -37,7 +37,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   import TreeOps._
 
   val tokens: Array[FormatToken] = FormatToken.formatTokens(tree.tokens)
-  val ownersMap = getOwners(tree)
+  val ownersMap = fastGetOwners(tree)
   val statementStarts = getStatementStarts(tree)
   val dequeueSpots = getDequeueSpots(tree) ++ statementStarts.keys
   val matchingParentheses = getMatchingParentheses(tree.tokens)
@@ -440,6 +440,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     var inside = false
     var expire = tree.tokens.head
     tree.tokens.foreach {
+      case t if t.is[Whitespace] =>
       case t if !inside && ((t, ownersMap(hash(t))) match {
             case (LeftParen(), _: Term.Apply) =>
               // TODO(olafur) https://github.com/scalameta/scalameta/issues/345

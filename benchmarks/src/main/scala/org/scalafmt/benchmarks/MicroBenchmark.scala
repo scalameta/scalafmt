@@ -1,5 +1,7 @@
 package org.scalafmt.benchmarks
 
+import scala.collection.mutable
+
 import java.io.File
 import java.util.concurrent.TimeUnit
 
@@ -14,6 +16,9 @@ import org.openjdk.jmh.annotations.Warmup
 import org.scalafmt.Scalafmt
 import org.scalafmt.util.FileOps
 import scala.meta.Source
+import scala.meta.Tree
+import scala.meta.dialects.Scala211
+import scala.meta.internal.parsers.ScalametaParser
 import scalariform.formatter.ScalaFormatter
 import scalariform.formatter.preferences.FormattingPreferences
 import scalariform.formatter.preferences.IndentSpaces
@@ -25,6 +30,9 @@ import org.scalafmt.config.ScalafmtRunner
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.rewrite.RedundantBraces
 import org.scalafmt.rewrite.SortImports
+import org.scalafmt.util.TokenOps
+import org.scalafmt.util.TokenOps.TokenHash
+import org.scalafmt.util.TreeOps
 
 /**
   * Formats filename at [[path]] with scalafmt and scalariform.
@@ -43,6 +51,7 @@ abstract class MicroBenchmark(path: String*) extends FormatBenchmark {
     FormattingPreferences().setPreference(IndentSpaces, 3)
   val classLoader = getClass.getClassLoader
   var code: String = _
+  var tree: Tree = _
 
   @Setup
   def setup(): Unit = {
@@ -57,6 +66,7 @@ abstract class MicroBenchmark(path: String*) extends FormatBenchmark {
     else FileOps.getFile(Seq("benchmarks", "src", "resources") ++ path: _*)
   }
 
+//  @Benchmark
   def scalametaParser(): Unit = {
     import scala.meta._
     code.parse[Source]
@@ -67,7 +77,7 @@ abstract class MicroBenchmark(path: String*) extends FormatBenchmark {
     Scalafmt.format(code).get
   }
 
-  @Benchmark
+//  @Benchmark
   def scalafmt_rewrite(): String = {
     formatRewrite(code)
   }
@@ -76,23 +86,41 @@ abstract class MicroBenchmark(path: String*) extends FormatBenchmark {
     setup()
     scalafmt()
     scalafmt_rewrite()
+    getOwners()
+    fastGetOwners()
   }
 
 //  @Benchmark
-//  def scalafmt_noPruneSlowStates(): String = {
-//    Scalafmt
-//      .format(
-//        code,
-//        runner = ScalafmtRunner.default.copy(
-//          optimizer = ScalafmtOptimizer.default.copy(pruneSlowStates = false)))
-//      .get
-//  }
+  def getOwners(): String = {
+    import scala.meta._
+    val tree = code.parse[Source].get
+    TreeOps.getOwners(tree).nonEmpty.toString
+  }
+
+//  @Benchmark
+  def fastGetOwners(): String = {
+    import scala.meta._
+    val tree = code.parse[Source].get
+    TreeOps.fastGetOwners(tree).nonEmpty.toString
+  }
+
+//  @Benchmark
+  def scalafmt_noPruneSlowStates(): String = {
+    Scalafmt
+      .format(
+        code,
+        style = ScalafmtConfig.default.copy(
+          runner = ScalafmtRunner.default.copy(optimizer =
+            ScalafmtOptimizer.default.copy(pruneSlowStates = false)))
+      )
+      .get
+  }
 
   // No need to run same benchmark again and again.
 //  @Benchmark
-//  def scalariform(): String = {
-//    ScalaFormatter.format(code)
-//  }
+  def scalariform(): String = {
+    ScalaFormatter.format(code)
+  }
 }
 
 object Micro {

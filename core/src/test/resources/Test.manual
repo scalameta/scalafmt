@@ -1,3 +1,4 @@
+SKIP benchmarks/src/resources/scala-js/GenJSCode.scala
 SKIP https://raw.githubusercontent.com/scala-js/scala-js/8663c8060ca96a51bfc1f87f2f3f30babbeadbc3/scalalib/overrides-2.12/scala/collection/immutable/NumericRange.scala
 SKIP https://raw.githubusercontent.com/apache/spark/2c5b18fb0fdeabd378dd97e91f72d1eac4e21cc7/graphx/src/test/scala/org/apache/spark/graphx/PregelSuite.scala
 SKIP https://raw.githubusercontent.com/akka/akka/3698928fbdaa8fef8e2037fbc51887ab60addefb/akka-http-core/src/main/scala/akka/http/impl/engine/parsing/HttpRequestParser.scala

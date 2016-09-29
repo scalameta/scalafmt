@@ -997,7 +997,9 @@ class Router(formatOps: FormatOps) {
           if !nextNonComment(tok).right.is[KwIf] =>
         val expire = leftOwner match {
           case t: Term.If => t.elsep.tokens.last
-          case x => throw new UnexpectedTree[Term.If](x)
+          case x =>
+            logger.elem(formatToken)
+            throw new UnexpectedTree[Term.If](x)
         }
         Seq(
           Split(Space,

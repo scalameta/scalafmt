@@ -21,10 +21,12 @@ import org.scalafmt.util.ExperimentResult.Skipped
 import org.scalafmt.util.ExperimentResult.Success
 import org.scalafmt.util.ExperimentResult.Timeout
 import org.scalafmt.util.ExperimentResult.UnknownFailure
+import org.scalafmt.util.FileOps
 import org.scalafmt.util.FormatAssertions
 import org.scalafmt.util.ScalaFile
 import org.scalafmt.util.ScalaProjectsExperiment
 import org.scalafmt.util.ScalacParser
+import org.scalafmt.util.TreeOps
 
 trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
   override val verbose = false
@@ -142,5 +144,16 @@ object FormatExperimentApp extends FormatExperiment with App {
   nonValidResults.foreach(println)
   if (nonValidResults.nonEmpty) {
     throw MegaTestFailed
+  }
+}
+
+object Profile {
+  def main(args: Array[String]): Unit = {
+    val code =
+      FileOps.readFile("benchmarks/src/resources/scala-js/GenJSCode.scala")
+    val tree = code.parse[Source].get
+    (0 until 10000).foreach { t =>
+      TreeOps.fastGetOwners(tree)
+    }
   }
 }
