@@ -13,7 +13,12 @@ object StyleCache {
   private val styleCache = mutable.Map.empty[String, ScalafmtConfig]
 
   private val timeStamps = mutable.Map.empty[String, Long]
-  def getStyleForFile(filename: String): Result[ScalafmtConfig] = {
+
+  def getStyleForFile(filename: String): Option[ScalafmtConfig] = {
+    getStyleForFileOrError(filename).right.toOption
+  }
+
+  def getStyleForFileOrError(filename: String): Result[ScalafmtConfig] = {
     val file = new File(filename)
     val lastModified = file.lastModified()
     val configChanged = timeStamps.get(filename).contains(lastModified)

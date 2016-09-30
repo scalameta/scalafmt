@@ -18,7 +18,7 @@ class Scalafmt210 {
   val oldConfig = "--".r
 
   def format(code: String, configFile: String, filename: String): String = {
-    StyleCache.getStyleForFile(configFile) match {
+    StyleCache.getStyleForFileOrError(configFile) match {
       case Left(throwable) => {
         if (oldConfig.findFirstIn(FileOps.readFile(configFile)).nonEmpty) {
           logger.error(
