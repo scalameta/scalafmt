@@ -68,8 +68,8 @@ object Error {
       extends Error(
         s"Search state exploded around line ${lastToken.pos.end.line}")
 
-  case class InvalidScalafmtConfiguration(file: File)
-      extends Error(s"Unable to parse scalafmt configuration file: $file")
+  case class InvalidScalafmtConfiguration(throwable: Throwable)
+      extends Error(s"Failed to read configuration: $throwable")
 
   case class InvalidOption(option: String)
       extends Error(s"Invalid option $option")

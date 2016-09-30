@@ -18,14 +18,17 @@ class Scalafmt210 {
   val oldConfig = "--".r
 
   def format(code: String, configFile: String, filename: String): String = {
-    val style = StyleCache.getStyleForFile(configFile).getOrElse {
-      if (oldConfig.findFirstIn(FileOps.readFile(configFile)).nonEmpty) {
-        logger.error(
-          "You seem to use the <0.4 configuration, for instructions on how to migrate: https://olafurpg.github.io/scalafmt/#0.4.x")
+    StyleCache.getStyleForFile(configFile) match {
+      case Left(throwable) => {
+        if (oldConfig.findFirstIn(FileOps.readFile(configFile)).nonEmpty) {
+          logger.error(
+            "You seem to use the <0.4 configuration, for instructions on how to migrate: https://olafurpg.github.io/scalafmt/#0.4.x")
+        }
+        throw InvalidScalafmtConfiguration(throwable)
       }
-      throw InvalidScalafmtConfiguration(new File(configFile))
+      case Right(style) =>
+        format(code, style, filename)
     }
-    format(code, style, filename)
   }
 
   def format(code: String, filename: String): String =
