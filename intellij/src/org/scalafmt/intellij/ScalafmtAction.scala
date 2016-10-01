@@ -114,12 +114,9 @@ class ScalafmtAction extends AnAction {
       config <- {
         val x = StyleCache.getStyleForFileOrError(configFile)
         x match {
-          case Left(e:Throwable) => {
-            displayMessage(event,
-              s"Failed to read $configFile" + e.getMessage,
-              MessageType.WARNING)
+          case Left(e:Throwable) => displayMessage(event, s"Failed to read $configFile. " +
+            e.getMessage,MessageType.WARNING)
             None
-          }
           case Right(config) => Some(config)
         }
       }
