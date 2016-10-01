@@ -112,13 +112,13 @@ class ScalafmtAction extends AnAction {
       globalConfig = getConfigFileInPath(homeDir)
       configFile <- localConfig.orElse(globalConfig)
       config <- {
-        val x = StyleCache.getStyleForFile(configFile)
-        if (x.isEmpty) {
-          displayMessage(event,
-                         s"Failed to read $configFile",
-                         MessageType.WARNING)
+        val x = StyleCache.getStyleForFileOrError(configFile)
+        x match {
+          case Left(e:Throwable) => displayMessage(event, s"Failed to read $configFile. " +
+            e.getMessage,MessageType.WARNING)
+            None
+          case Right(config) => Some(config)
         }
-        x
       }
     } yield {
       if (!StyleChangedCache.styleCache.get(configFile).contains(config)) {
