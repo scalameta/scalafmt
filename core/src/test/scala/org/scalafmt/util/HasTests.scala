@@ -4,10 +4,12 @@ import scala.collection.mutable
 import scala.meta.Tree
 import scala.meta.parsers.Parse
 import scala.meta.parsers.ParseException
+import scala.util.Try
 
 import java.io.File
 
 import org.scalafmt.Debug
+import org.scalafmt.Error.UnableToFindStyle
 import org.scalafmt.Error.UnknownStyle
 import org.scalafmt.Scalafmt
 import org.scalafmt.config.AlignToken
@@ -82,13 +84,17 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
 
     val style: ScalafmtConfig = {
       val firstLine = split.head
-      Config.fromHocon(firstLine.stripPrefix("ONLY ")) match {
-        case Right(s)
-            if !firstLine.replaceAll("\\s+", "").isEmpty &&
-              !firstLine.startsWith("//") =>
-          s
-        case _ => spec2style(spec.replaceFirst("/.*", ""))
-      }
+      Try(
+        spec2style(spec.replaceFirst("/.*", ""))
+      ).getOrElse(
+        Config.fromHocon(firstLine.stripPrefix("ONLY ")) match {
+          case Right(s)
+              if !firstLine.replaceAll("\\s+", "").isEmpty &&
+                !firstLine.startsWith("//") =>
+            s
+          case Left(e) => throw UnableToFindStyle(spec, e)
+        }
+      )
     }
 
     split.tail.map { t =>
@@ -161,7 +167,7 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
         )
       case "noIndentOperators" =>
         ScalafmtConfig.unitTest80.copy(unindentTopLevelOperators = true,
-                                      indentOperator = IndentOperator.akka)
+                                       indentOperator = IndentOperator.akka)
       case "unicode" =>
         ScalafmtConfig.unitTest80.copy(
           rewriteTokens = Map(

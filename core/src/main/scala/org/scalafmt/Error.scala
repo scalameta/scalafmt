@@ -59,6 +59,9 @@ object Error {
   case class UnknownStyle(style: String)
       extends Error(s"Don't understand style $style")
 
+  case class UnableToFindStyle(filename: String, e: Throwable)
+      extends Error(s"Unable to find style for file $filename. $e")
+
   case class MisformattedFile(file: File)
       extends Error(s"${file.getPath} is mis-formatted")
 
