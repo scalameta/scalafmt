@@ -40,10 +40,7 @@ object PreferCurlyFors extends Rewrite {
       enumerator <- forEnumerators
       token <- enumerator.tokens.headOption.toIterable
       semicolon <- reverseFind(token)(_.isNot[Whitespace]).filter(_.is[Token.Semicolon]).toIterable
-    } yield {
-      println(semicolon)
-      semicolon
-  }
+    } yield semicolon
   }
 
   def rewriteFor(forTokens: Tokens, forEnumerators: Seq[Enumerator], ctx: RewriteCtx): Seq[Patch] = {
