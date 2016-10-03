@@ -1,15 +1,17 @@
 // 40 columns                          |
 object StripMargin {
-  // Space after = because lines fit within column limit.
-  val example1 = s"""Examples:
+  val example1 =
+    s"""Examples:
                |  * one
                |  * two
                |  * $three
                |""".stripMargin
-
-  // Newline after = because lines don't fit within column limit.
-  val example2 = """Examples:
-               |  * one. Really really really really long line
+               
+  // pipe character after opening """
+  val example2 =
+    s"""|Examples:
+               |  * one
                |  * two
-               | End of examples.""".stripMargin
+               |  * $three
+               |""".stripMargin
 }
