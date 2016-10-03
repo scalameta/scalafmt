@@ -1,14 +1,15 @@
 package org.scalafmt.rewrite
 
 import scala.meta._
-
 import org.scalafmt.config.ReaderUtil
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.util.TokenTraverser
+import org.scalafmt.util.TokenOps.TokenHash
+import org.scalafmt.util.{TokenTraverser, TreeOps}
 
 case class RewriteCtx(
                          style: ScalafmtConfig,
-                         tokenTraverser: TokenTraverser
+                         tokenTraverser: TokenTraverser,
+                         matchingParens: Map[TokenHash, Token]
 )
 
 abstract class Rewrite {
@@ -19,7 +20,8 @@ object Rewrite {
   val reader =
     ReaderUtil.oneOf[Rewrite](
       RedundantBraces,
-      SortImports
+      SortImports,
+      PreferCurlyFors
     )
 
   private def nameMap[T](t: sourcecode.Text[T]*): Map[String, T] = {
@@ -28,7 +30,8 @@ object Rewrite {
 
   val name2rewrite: Map[String, Rewrite] = nameMap[Rewrite](
     RedundantBraces,
-    SortImports
+    SortImports,
+    PreferCurlyFors
   )
   val rewrite2name: Map[Rewrite, String] = name2rewrite.map(_.swap)
   val available = Rewrite.name2rewrite.keys.mkString(", ")
@@ -43,9 +46,11 @@ object Rewrite {
     } else {
       input.parse[Source] match {
         case Parsed.Success(ast) =>
+          val tokens = ast.tokens
           val ctx = RewriteCtx(
             style,
-            tokenTraverser = new TokenTraverser(ast.tokens)
+            tokenTraverser = new TokenTraverser(tokens),
+            TreeOps.getMatchingParentheses(tokens)
           )
           val rr = rewrites.map(_.getClass)
           val patches: Seq[Patch] = rewrites.flatMap(_.rewrite(ast, ctx))

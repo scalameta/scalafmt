@@ -1,0 +1,70 @@
+rewrite.rules = [PreferCurlyFors]
+<<< replaces parens with braces and removes semi-colons on single line multi generator for expression
+object a {
+  for(a <- as; b <- bs if b > 2) {
+    println(a + b)
+  }
+}
+>>>
+object a {
+  for {
+    a <- as
+    b <- bs if b > 2
+  } {
+    println(a + b)
+  }
+}
+<<< doesn't change single generator for expression that uses parens
+object a {
+  for (a <- as) {
+    println(a)
+  }
+}
+>>>
+object a {
+  for (a <- as) {
+    println(a)
+  }
+}
+<<< doesn't change single generator for expression with guard that uses parens
+object a {
+  for (a <- as if a < 5) yield a
+}
+>>>
+object a {
+  for (a <- as if a < 5) yield a
+}
+<<< replaces parens with braces and removes semi-colons on multi line multi generator for expression
+object a {
+  for (
+    a <- as;
+    b <- bs
+  ) {
+    println(a + b)
+  }
+}
+>>>
+object a {
+  for {
+    a <- as
+    b <- bs
+  } {
+    println(a + b)
+  }
+}
+<<< doesn't change for expression that already has braces
+object a {
+  for {
+    a <- as
+  } {
+    println(a)
+  }
+}
+>>>
+object a {
+  for {
+    a <- as
+  } {
+    println(a)
+  }
+}

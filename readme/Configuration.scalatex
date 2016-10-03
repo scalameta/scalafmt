@@ -326,3 +326,12 @@
         The imports are sorted by the groups: symbols, lower-case, upper-case.
       @demoStyle(rewriteImports)
         import foo.{Zilch, bar, Random, sand}
+
+    @sect(Rewrite.rewrite2name(PreferCurlyFors))
+      @p
+        For / ForYield Expressions with multiple Generators that use parens are re-formatted to replace the parens with
+        curlys and the semi-colons with new-lines
+      @demoStyle(rewritePreferCurlyFors)
+        object a {
+          for(a <- as; b <- bs if b > 2) yield (a, b)
+        }
