@@ -21,7 +21,7 @@ import scala.meta.{Tree, _}
   *   } yield (a, b)
   *
   */
-object ReplaceForParensWithBraces extends Rewrite {
+object PreferCurlyFors extends Rewrite {
 
   def findForParens(forTokens: Tokens, ctx: RewriteCtx): Option[(Token, Token)] = {
     import ctx.tokenTraverser._

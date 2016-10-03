@@ -21,7 +21,7 @@ object Rewrite {
     ReaderUtil.oneOf[Rewrite](
       RedundantBraces,
       SortImports,
-      ReplaceForParensWithBraces
+      PreferCurlyFors
     )
 
   private def nameMap[T](t: sourcecode.Text[T]*): Map[String, T] = {
@@ -31,7 +31,7 @@ object Rewrite {
   val name2rewrite: Map[String, Rewrite] = nameMap[Rewrite](
     RedundantBraces,
     SortImports,
-    ReplaceForParensWithBraces
+    PreferCurlyFors
   )
   val rewrite2name: Map[Rewrite, String] = name2rewrite.map(_.swap)
   val available = Rewrite.name2rewrite.keys.mkString(", ")
