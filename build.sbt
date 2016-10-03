@@ -170,6 +170,7 @@ lazy val cliJvmOptions = Seq(
 lazy val cli = project
   .settings(allSettings)
   .settings(
+    metaMacroSettings,
     packSettings,
     packMain := Map("scalafmt_pack" -> "org.scalafmt.cli.Cli"),
     packJvmOpts := Map(
