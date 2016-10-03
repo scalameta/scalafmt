@@ -1,4 +1,4 @@
-rewrite.rules = [ReplaceForParensWithBraces]
+rewrite.rules = [PreferCurlyFors]
 <<< replaces parens with braces and removes semi-colons on single line multi generator for expression
 object a {
   def x(as: List[Int], bs: List[Int]): List[(Int, Int)] = {
