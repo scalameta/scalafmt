@@ -121,7 +121,7 @@ lazy val root = project
         |import org.scalafmt._
       """.stripMargin
   )
-  .aggregate(core, cli, benchmarks, scalafmtSbt, macros, readme, metaconfig)
+  .aggregate(core, cli, benchmarks, scalafmtSbt, readme, metaconfig)
   .dependsOn(core)
 
 lazy val core = project
@@ -153,16 +153,6 @@ lazy val core = project
   )
   .dependsOn(metaconfig)
 
-lazy val macros = project
-  .settings(allSettings)
-  .settings(
-    moduleName := "scalafmt-macros",
-    libraryDependencies ++= Seq(
-      "org.scala-lang" % "scala-reflect"  % scalaVersion.value,
-      "org.scala-lang" % "scala-compiler" % scalaVersion.value
-    )
-  )
-
 lazy val cliJvmOptions = Seq(
   "-Xss4m"
 )
@@ -183,7 +173,6 @@ lazy val cli = project
     )
   )
   .dependsOn(core % "compile->compile;test->test")
-  .dependsOn(macros)
 
 lazy val scalafmtIntellij = project
   .settings(
@@ -254,7 +243,6 @@ lazy val readme = scalatex
   .settings(noPublish)
   .dependsOn(core)
   .dependsOn(cli)
-  .dependsOn(macros)
   .settings(
     libraryDependencies ++= Seq(
       "com.twitter" %% "util-eval" % "6.34.0"
