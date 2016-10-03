@@ -14,8 +14,7 @@ import org.scalafmt.config.Config
 import org.scalafmt.config.ScalafmtRunner
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.macros.Macros
-import org.scalafmt.rewrite.SortImports
-import org.scalafmt.rewrite.RedundantBraces
+import org.scalafmt.rewrite._
 
 object hl extends scalatex.site.Highlighter
 
@@ -122,6 +121,12 @@ object Readme {
     ScalafmtConfig.default.copy(
       rewrite = ScalafmtConfig.default.rewrite.copy(
         rules = Seq(SortImports)
+      ))
+
+  val rewritePreferCurlyFors =
+    ScalafmtConfig.default.copy(
+      rewrite = ScalafmtConfig.default.rewrite.copy(
+        rules = Seq(PreferCurlyFors)
       ))
 
   def fmt(style: ScalafmtConfig)(code: String): TypedTag[String] =
