@@ -1,5 +1,5 @@
 rewrite.rules = [ReplaceForParensWithBraces]
-<<< replaces parens with braces and removes semi-colons on single line multi generator for yield expression
+<<< replaces parens with braces and removes semi-colons on single line multi generator for-yield expression
 object a {
   def x(as: List[Int], bs: List[Int]): List[(Int, Int)] = {
     for(a <- as; b <- bs if b > 2) yield (a, b)
@@ -14,7 +14,7 @@ object a {
     } yield (a, b)
   }
 }
-<<< doesn't change single generator for yield expression that uses parens
+<<< doesn't change single generator for-yield expression that uses parens
 object a {
   def x(as: List[Int]): List[Int] = {
     for (a <- as) yield a
@@ -26,7 +26,19 @@ object a {
     for (a <- as) yield a
   }
 }
-<<< replaces parens with braces and removes semi-colons on multi line multi generator for yield expression
+<<< doesn't change single generator for-yield expression with guard that uses parens
+object a {
+  def x(as: List[Int]): List[Int] = {
+    for (a <- as if a < 5) yield a
+  }
+}
+>>>
+object a {
+  def x(as: List[Int]): List[Int] = {
+    for (a <- as if a < 5) yield a
+  }
+}
+<<< replaces parens with braces and removes semi-colons on multi line multi generator for-yield expression
 object a {
   def x(as: List[Int], bs: List[Int]): List[(Int, Int)] = {
     for (
@@ -44,7 +56,7 @@ object a {
     } yield (a, b)
   }
 }
-<<< doesn't change for yield expression that already has braces
+<<< doesn't change for-yield expression that already has braces
 object a {
   def x(as: List[Int]): List[Int] = {
     for {

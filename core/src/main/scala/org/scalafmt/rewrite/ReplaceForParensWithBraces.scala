@@ -2,7 +2,6 @@ package org.scalafmt.rewrite
 
 import org.scalafmt.util.{TokenOps, Whitespace}
 
-import scala.annotation.tailrec
 import scala.meta.tokens.Tokens
 import scala.meta.{Tree, _}
 
@@ -27,18 +26,9 @@ object ReplaceForParensWithBraces extends Rewrite {
   def findForParens(forTokens: Tokens, ctx: RewriteCtx): Option[(Token, Token)] = {
     import ctx.tokenTraverser._
 
-    @tailrec
-    def nextValidLeftParen(token: Token):Option[Token] = {
-      nextToken(token) match {
-        case t if t.is[Token.LeftParen] => Option(t)
-        case t if t.is[Whitespace] => nextValidLeftParen(t)
-        case other => None
-      }
-    }
-
     for {
       forToken <- forTokens.find(_.is[Token.KwFor])
-      leftParen <- nextValidLeftParen(forToken)
+      leftParen <- find(forToken)(_.isNot[Whitespace]).filter(_.is[Token.LeftParen])
       rightParen <- ctx.matchingParens.get(TokenOps.hash(leftParen))
     } yield (leftParen, rightParen)
   }
@@ -46,18 +36,14 @@ object ReplaceForParensWithBraces extends Rewrite {
   def findForSemiColons(forEnumerators: Seq[Enumerator], ctx: RewriteCtx):Seq[Token] = {
     import ctx.tokenTraverser._
 
-    @tailrec
-    def prevSemiColon(token: Token):Option[Token] = {
-      prevToken(token) match {
-        case t if t.is[Token.Semicolon] => Option(t)
-        case t if t.is[Whitespace] => prevSemiColon(t)
-        case other => None
-      }
-    }
-
-    forEnumerators.flatMap { enumerator =>
-      enumerator.tokens.headOption.flatMap(prevSemiColon).toList
-    }
+    for {
+      enumerator <- forEnumerators
+      token <- enumerator.tokens.headOption.toIterable
+      semicolon <- reverseFind(token)(_.isNot[Whitespace]).filter(_.is[Token.Semicolon])
+    } yield {
+      println(semicolon)
+      semicolon
+  }
   }
 
   def rewriteFor(forTokens: Tokens, forEnumerators: Seq[Enumerator], ctx: RewriteCtx): Seq[Patch] = {
@@ -78,13 +64,16 @@ object ReplaceForParensWithBraces extends Rewrite {
     builder.result()
   }
 
+  def hasMoreThanOneGenerator(forEnumerators: Seq[Enumerator]):Boolean =
+    forEnumerators.count(_.is[Enumerator.Generator]) > 1
+
   override def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch] = {
     val builder = Seq.newBuilder[Patch]
 
     code.collect {
-      case fy: Term.ForYield if fy.enums.size > 1 =>
+      case fy: Term.ForYield if hasMoreThanOneGenerator(fy.enums) =>
         builder ++= rewriteFor(fy.tokens, fy.enums, ctx)
-      case f: Term.For if f.enums.size > 1 =>
+      case f: Term.For if hasMoreThanOneGenerator(f.enums) =>
         builder ++= rewriteFor(f.tokens, f.enums, ctx)
     }
     builder.result()

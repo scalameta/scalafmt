@@ -34,6 +34,18 @@ object a {
     }
   }
 }
+<<< doesn't change single generator for expression with guard that uses parens
+object a {
+  def x(as: List[Int]): List[Int] = {
+    for (a <- as if a < 5) yield a
+  }
+}
+>>>
+object a {
+  def x(as: List[Int]): List[Int] = {
+    for (a <- as if a < 5) yield a
+  }
+}
 <<< replaces parens with braces and removes semi-colons on multi line multi generator for expression
 object a {
   def x(as: List[Int], bs: List[Int]): List[(Int, Int)] = {
