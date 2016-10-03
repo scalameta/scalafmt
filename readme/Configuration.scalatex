@@ -333,7 +333,5 @@
         curlys and the semi-colons with new-lines
       @demoStyle(rewritePreferCurlyFors)
         object a {
-          def x(as: List[Int], bs: List[Int]): List[(Int, Int)] = {
-            for(a <- as; b <- bs if b > 2) yield (a, b)
-          }
+          for(a <- as; b <- bs if b > 2) yield (a, b)
         }
