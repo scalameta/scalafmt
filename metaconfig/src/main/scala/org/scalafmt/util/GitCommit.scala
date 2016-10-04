@@ -3,7 +3,7 @@ package org.scalafmt.util
 import scala.annotation.compileTimeOnly
 import scala.meta._
 
-@compileTimeOnly("Gets expanded away")
+@compileTimeOnly("@GitCommit not expanded. Have you enabled the scala.meta paradise compiler plugin?")
 class GitCommit extends scala.annotation.StaticAnnotation {
 
   inline def apply(defn: Any): Any = meta {
