@@ -329,9 +329,10 @@
 
     @sect(Rewrite.rewrite2name(PreferCurlyFors))
       @p
-        For / ForYield Expressions with multiple Generators that use parens are re-formatted to replace the parens with
-        curlys and the semi-colons with new-lines
+        Replaces parentheses into curly braces in for comprehensions that
+        contain multiple enumerator generators.
       @demoStyle(rewritePreferCurlyFors)
         object a {
-          for(a <- as; b <- bs if b > 2) yield (a, b)
+          for(a <- as; b <- bs if b > 2)
+            yield (a, b)
         }

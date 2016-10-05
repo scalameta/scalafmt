@@ -2,6 +2,20 @@
 @import org.scalafmt.readme.Readme._
 @import org.scalafmt.config.ScalafmtConfig
 
+@sect{0.4.3}
+  @ul
+    @li
+      The SBT plugin and IntelliJ plugin now display a helpful error message
+      on failure to read configuration.
+    @li
+      New rewrite rule! See @sect.ref{PreferCurlyFors}.
+
+  Big thanks to
+  @user{cb372},
+  @user{phalodi} and
+  @user{caoilte}
+  for contributing to this release!
+
 @sect{0.4.2}
   @ul
     @li
