@@ -5,6 +5,10 @@ import scala.collection.immutable.Seq
 import scala.collection.immutable.Set
 import scala.reflect.ClassTag
 
+trait HasFields {
+  def fields: Map[String, Any]
+}
+
 trait Reader[+T] { self =>
   def read(any: Any): Result[T]
 

@@ -336,3 +336,12 @@
           for(a <- as; b <- bs if b > 2)
             yield (a, b)
         }
+
+  @sect{Other}
+
+    Scalafmt has a ton of internal configuration options which I
+    really don't recommend you rely on.
+    However, just in case, here they are.
+
+    @hl.scala(org.scalafmt.config.Config.displayAll(default.fields).mkString("\n"))
+

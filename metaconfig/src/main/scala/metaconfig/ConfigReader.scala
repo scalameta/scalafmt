@@ -76,6 +76,10 @@ class ConfigReader extends scala.annotation.StaticAnnotation {
         c
       val template"{ ..$earlyStats } with ..$ctorcalls { $param => ..$stats }" =
         template
+
+      // TODO(olafur) come up with a way to avoid inheritance :/
+      val newCtorCalls: Seq[Ctor.Call] =
+        ctorcalls :+ Ctor.Ref.Name("_root_.metaconfig.HasFields")
       val flatParams = paramss.flatten
       val fields: Seq[Term.Tuple] = flatParams.collect {
         case Term.Param(_, name: Term.Name, _, _) =>
@@ -84,12 +88,12 @@ class ConfigReader extends scala.annotation.StaticAnnotation {
       val fieldsDef: Stat = {
         val body =
           Term.Apply(q"_root_.scala.collection.immutable.Map", fields)
-        q"def fields = $body"
+        q"def fields: Map[String, Any] = $body"
       }
       val typReader = genReader(tname, flatParams)
       val newStats = stats ++ Seq(fieldsDef) ++ Seq(typReader)
       val newTemplate = template"""
-        { ..$earlyStats } with ..$ctorcalls { $param => ..$newStats }
+        { ..$earlyStats } with ..$newCtorCalls { $param => ..$newStats }
                                   """
       val result =
         q"""
