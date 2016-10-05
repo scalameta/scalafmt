@@ -2,7 +2,6 @@ package org.scalafmt.cli
 
 import scala.meta.Dialect
 import scala.util.control.NonFatal
-
 import java.io.File
 import java.util.Date
 import java.util.concurrent.TimeUnit
@@ -15,9 +14,7 @@ import org.scalafmt.Scalafmt
 import org.scalafmt.Versions
 import org.scalafmt.config.ScalafmtRunner
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.macros.Macros
-import org.scalafmt.util.FileOps
-import org.scalafmt.util.LoggerOps
+import org.scalafmt.util.{BuildTime, FileOps, GitCommit, LoggerOps}
 import scopt.OptionParser
 import scopt.Read
 
@@ -113,9 +110,12 @@ object Cli {
     }
   }
 
+  @GitCommit val gitCommit: String = ???
+  @BuildTime val buildTimeMs: Long = ???
+
   def buildInfo =
-    s"""build commit: ${Macros.gitCommit}
-       |build time: ${new Date(Macros.buildTimeMs)}""".stripMargin
+    s"""build commit: $gitCommit
+       |build time: ${new Date(buildTimeMs)}""".stripMargin
 
   lazy val scoptParser: OptionParser[Config] =
     new scopt.OptionParser[Config]("scalafmt") {

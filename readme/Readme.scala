@@ -2,7 +2,6 @@ package org.scalafmt.readme
 
 import scalatags.Text.TypedTag
 import scalatags.Text.all._
-
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -13,7 +12,6 @@ import org.scalafmt.config.AlignToken
 import org.scalafmt.config.Config
 import org.scalafmt.config.ScalafmtRunner
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.macros.Macros
 import org.scalafmt.rewrite._
 
 object hl extends scalatex.site.Highlighter
@@ -133,7 +131,7 @@ object Readme {
     example(code, style)
 
   def lastUpdated =
-    new SimpleDateFormat("MMM d, y").format(new Date(Macros.buildTimeMs))
+    new SimpleDateFormat("MMM d, y").format(new Date(Cli.buildTimeMs))
 
   def example(code: String, style: ScalafmtConfig): TypedTag[String] = {
     val formatted = Scalafmt.format(code, style).get
