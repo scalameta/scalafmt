@@ -6,7 +6,7 @@ import org.scalafmt.config
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.GitOps
 
-case class GitModel(root: File, files: Seq[File]) {
+case class GitModel(root: File, files: Seq[String]) {
   def getConfig: Option[metaconfig.Result[ScalafmtConfig]] = {
     val file = new File(root, ".scalafmt.conf")
     if (file.isFile)
@@ -20,4 +20,3 @@ object GitModel {
     GitModel(new File(dir), GitOps.lsTree)
   }
 }
-

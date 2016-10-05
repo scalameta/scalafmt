@@ -23,7 +23,8 @@ case class ScalafmtRunner(
     parser: MetaParser = Parse.parseSource,
     optimizer: ScalafmtOptimizer = ScalafmtOptimizer.default,
     maxStateVisits: Int = 1000000,
-    dialect: Dialect = Scala211
+    dialect: Dialect = Scala211,
+    fatalWarnings: Boolean = false
 ) {
   implicit val dialectReader: Reader[Dialect] = ScalafmtRunner.dialectReader
   implicit val optimizerReader: Reader[ScalafmtOptimizer] = optimizer.reader

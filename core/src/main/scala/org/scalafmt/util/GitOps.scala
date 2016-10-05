@@ -18,13 +18,10 @@ object FileExists {
 
 object GitOps {
   import sys.process._
-  def lsTree: Seq[File] =
+  def lsTree: Seq[String] =
     Try {
       Seq("git", "ls-tree", "-r", "HEAD", "--name-only").!!
         .split("\n")
-        .collect {
-          case FileExists(f) => f
-        }
         .toSeq
     }.getOrElse(Nil)
 

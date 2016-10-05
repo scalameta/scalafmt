@@ -5,6 +5,7 @@ import scala.collection.immutable.Set
 
 import metaconfig.Reader
 import metaconfig.String2AnyMap
+import org.scalafmt.config.hocon.Hocon2Class
 import org.scalafmt.util.LoggerOps
 
 trait Settings {
