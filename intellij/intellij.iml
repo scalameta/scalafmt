@@ -10,6 +10,7 @@
       <sourceFolder url="file://$MODULE_DIR$/resources" type="java-resource" />
     </content>
     <orderEntry type="jdk" jdkName="IntelliJ IDEA Community Edition IC-162.2032.8" jdkType="IDEA JDK" />
+    <orderEntry type="library" name="scala-sdk-2.11.7" level="application" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
       <library>
@@ -21,5 +22,6 @@
         <jarDirectory url="file://$MODULE_DIR$/lib" recursive="false" />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="scala-sdk-2.11.8" level="project" />
   </component>
 </module>
