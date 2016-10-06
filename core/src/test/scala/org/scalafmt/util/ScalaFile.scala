@@ -17,6 +17,7 @@ case class ScalaFile(filename: String, projectUrl: String, commit: String) {
   }
 
   def githubUrl = s"$projectUrl/blob/$commit$filename"
+  def githubUrlAtLine(line: Int): String = s"$githubUrl#L$line"
   def userRepo = projectUrl.stripPrefix("https://github.com/")
   def repo = userRepo.split("/")(1)
   def user = userRepo.split("/")(0)

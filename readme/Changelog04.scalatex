@@ -32,9 +32,8 @@
       To migrate the old style configuration in @code{.scalafmt}
       to the new style in @code{.scalafmt.conf}, run
       @code{scalafmt --migrate2hocon .scalafmt} with the CLI.
-      For super easy CLI installation, download the 12 kb bootstrap script
-      from @lnk("here", "https://github.com/olafurpg/scalafmt/raw/master/scalafmt").
-      For alternative ways to install the CLI, refer to @sect.ref{CLI}.
+      For super easy CLI installation in OSX and Linux, download the new
+      auto-upgrade script in @sect.ref{Linux/OSX}.
     @li
       NEW! See @sect.ref{rewrite.rules}.
     @li
