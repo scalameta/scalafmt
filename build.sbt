@@ -30,7 +30,7 @@ lazy val buildSettings = Seq(
 
 lazy val metaMacroSettings: Seq[Def.Setting[_]] = Seq(
   libraryDependencies += "org.scalameta" %% "scalameta" % Deps.scalameta,
-  sources in (Compile,doc) := Nil,
+  sources in (Compile, doc) := Nil,
   addCompilerPlugin(
     "org.scalameta" % "paradise" % "3.0.0-M5" cross CrossVersion.full),
   scalacOptions += "-Xplugin-require:macroparadise"
@@ -135,12 +135,12 @@ lazy val core = project
       (runMain in Test).toTask(" org.scalafmt.FormatExperimentApp").value
     },
     libraryDependencies ++= Seq(
-      "com.lihaoyi"   %% "sourcecode" % "0.1.2",
-      "org.scalameta" %% "scalameta"  % Deps.scalameta,
-      "com.typesafe"     % "config" % "1.2.1",
+      "com.lihaoyi"    %% "sourcecode"   % "0.1.2",
+      "org.scalameta"  %% "scalameta"    % Deps.scalameta,
+      "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+      "com.typesafe"   % "config"        % "1.2.1",
       // Test dependencies
       "org.scalariform"                %% "scalariform"    % Deps.scalariform,
-      "org.scala-lang"                 % "scala-reflect"   % scalaVersion.value % "test",
       "org.scala-lang"                 % "scala-compiler"  % scalaVersion.value % "test",
       "ch.qos.logback"                 % "logback-classic" % "1.1.6" % "test",
       "com.googlecode.java-diff-utils" % "diffutils"       % "1.3.0" % "test",
