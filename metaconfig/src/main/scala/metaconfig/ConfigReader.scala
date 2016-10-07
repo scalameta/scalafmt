@@ -11,6 +11,18 @@ case class ConfigErrors(es: Seq[Throwable])
     extends Error(s"Errors: ${es.mkString("\n")}")
 
 @compileTimeOnly("@metaconfig.Config not expanded")
+class DefAnnotation extends scala.annotation.StaticAnnotation {
+  inline def apply(defn: Any): Any = meta {
+    defn match {
+      case d: Defn.Def =>
+        println(d.structure)
+        d
+      case _ => abort("no no no")
+    }
+  }
+}
+
+@compileTimeOnly("@metaconfig.Config not expanded")
 class ConfigReader extends scala.annotation.StaticAnnotation {
 
   inline def apply(defn: Any): Any = meta {

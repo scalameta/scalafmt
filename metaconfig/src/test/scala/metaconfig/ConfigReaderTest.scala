@@ -5,6 +5,11 @@ import org.scalatest.FunSuite
 class ConfigReaderTest extends FunSuite {
   type Result[T] = Either[Throwable, T]
 
+  @DefAnnotation
+  def myDef = 2
+
+  myDef
+
   @ConfigReader
   case class Inner(nest: Int)
 
@@ -87,7 +92,6 @@ class ConfigReaderTest extends FunSuite {
 //      )
 //    )
 //    val o = Outer(2, Inner(3)).reader.read(m)
-
 
   }
 

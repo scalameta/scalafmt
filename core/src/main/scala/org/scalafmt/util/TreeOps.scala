@@ -1,6 +1,7 @@
 package org.scalafmt.util
 
 import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.meta.Case
 import scala.meta.Ctor
 import scala.meta.Decl
@@ -14,6 +15,8 @@ import scala.meta.Template
 import scala.meta.Term
 import scala.meta.Tree
 import scala.meta.Type
+import scala.meta.dialects.Scala211
+import scala.meta.internal.parsers.ScalametaParser
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 import scala.meta.tokens.Tokens
@@ -164,6 +167,9 @@ object TreeOps {
   def getOwners(tree: Tree): Map[TokenHash, Tree] = {
     val result = Map.newBuilder[TokenHash, Tree]
     def loop(x: Tree): Unit = {
+      import LoggerOps._
+      val toks = x.tokens.map(_.structure).mkString(reveal(" "))
+//      logger.elem(x.structure, toks)
       x.tokens.foreach { tok =>
         result += hash(tok) -> x
       }
@@ -171,6 +177,55 @@ object TreeOps {
     }
     loop(tree)
     result.result()
+  }
+
+  // applies f to all tree nodes
+  def treeForeach(tree: Tree)(f: Tree => Unit): Unit = {
+    def loop(tree: Tree): Unit = {
+      f(tree)
+      tree.children.foreach(loop)
+    }
+    loop(tree)
+  }
+
+  def fastGetOwners(tree: Tree): Map[TokenHash, Tree] = {
+    val input = tree.pos.input
+    val dialect = Scala211
+    // parser.TreePos gives index positions for all tokens.
+    val parser = new ScalametaParser(input, dialect)
+    val starts =
+      mutable.Map.empty[Int, Vector[Tree]].withDefaultValue(Vector.empty[Tree])
+    val ends = mutable.Map.empty[Int, Int].withDefaultValue(0)
+    treeForeach(tree) {
+      case t if t.pos.start.offset == t.pos.end.offset =>
+      case t =>
+        val pos = parser.TreePos(t)
+        val start = pos.startTokenPos
+        val end = pos.endTokenPos
+        starts(start) = starts(start) :+ t
+        ends(end) = 1 + ends(end)
+    }
+    var stack = List.empty[Tree]
+    val b = Map.newBuilder[TokenHash, Tree]
+    var i = 0
+    val tokens = tree.tokens.toArray
+    val N = tokens.length
+    while (i < N) {
+      val tok = tokens(i)
+      starts(i).foreach { tree =>
+        stack = tree :: stack
+      }
+      if (!tok.is[Whitespace]) {
+        b += (hash(tok) -> stack.head)
+      }
+      var j = ends(i)
+      while (j > 0) {
+        if (stack.nonEmpty) stack = stack.tail
+        j -= 1
+      }
+      i += 1
+    }
+    b.result()
   }
 
   @tailrec
