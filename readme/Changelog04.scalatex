@@ -2,6 +2,14 @@
 @import org.scalafmt.readme.Readme._
 @import org.scalafmt.config.ScalafmtConfig
 
+@sect{0.4.4}
+  @ul
+    @li
+      Fixed longstanding bug in @code{spacesInImportCurlyBraces}, see @issue(454).
+      Thank you @user{hasumedic}!
+    @li
+      Fixed regression in @code{0.4.3} where a class not found exception was thrown
+      on parse error, see @issue(492).
 @sect{0.4.3}
   @ul
     @li
