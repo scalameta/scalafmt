@@ -29,6 +29,7 @@ class FidelityTest extends FunSuite with FormatAssertions {
           "ConfigReader.scala",
           "BuildTime.scala",
           "GitCommit.scala",
+          "issue492.scala",
           "/target/",
           "/resources/",
           "/gh-pages/"
