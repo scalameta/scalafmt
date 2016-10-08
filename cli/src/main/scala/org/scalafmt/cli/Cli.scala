@@ -11,51 +11,68 @@ import java.util.concurrent.atomic.AtomicInteger
 import org.scalafmt.Error.UnableToParseCliOptions
 import org.scalafmt.Formatted
 import org.scalafmt.Scalafmt
-import org.scalafmt.config.ProjectFiles
+import org.scalafmt.config.Config
+import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.FileOps
-import org.scalafmt.util.GitOps
 import org.scalafmt.util.LogLevel
-import org.scalafmt.util.logger
 
 object Cli {
-  case class DebugError(filename: String, error: Throwable)
+  def run(options: CliOptions): Unit = {
+    if (options.migrate.nonEmpty) runMigrate(options)
+    else runFormat(options)
+  }
 
-  def mkRegexp(filters: Seq[String]): Regex =
+  def getConfig(args: Array[String]): Option[CliOptions] = {
+    val init = CliOptions.auto(CliOptions.default)
+    CliArgParser.scoptParser.parse(args, init)
+  }
+
+  def main(args: Array[String]): Unit = {
+    getConfig(args) match {
+      case Some(x) => run(x)
+      case None => throw UnableToParseCliOptions
+    }
+  }
+
+  private def mkRegexp(filters: Seq[String]): Regex =
     filters match {
       case Nil => "$a".r // will never match anything
       case head :: Nil => head.r
       case _ => filters.mkString("(", "|", ")").r
     }
 
-  def getFilesFromProject(projectFiles: ProjectFiles): Seq[String] = {
-    val include = mkRegexp(projectFiles.includeFilter)
-    val exclude = mkRegexp(projectFiles.excludeFilter)
+  private def getFilesFromProject(options: CliOptions): Seq[String] = {
+    import options.config.project._
+    val include = mkRegexp(includeFilters)
+    val exclude = mkRegexp(excludeFilters)
 
     def matches(path: String): Boolean =
       include.findFirstIn(path).isDefined &&
         exclude.findFirstIn(path).isEmpty
 
-    val gitFiles: Seq[String] = if (projectFiles.git) GitOps.lsTree else Nil
+    val gitFiles: Seq[String] = if (git) options.gitOps.lsTree else Nil
     val otherFiles: Seq[String] =
-      projectFiles.files.flatMap(x => FileOps.listFiles(x))
-    val res = (otherFiles ++ gitFiles).filter(matches)
-//    logger.elem(projectFiles.includeFilter, projectFiles.files, gitFiles, res)
-    res
+      files.flatMap(x => FileOps.listFiles(x))
+    val x = gitFiles.map(x => matches(x) -> x)
+    (otherFiles ++ gitFiles).filter(matches)
   }
 
-  def getInputMethods(options: CliOptions): Seq[InputMethod] = {
+  private def getInputMethods(options: CliOptions): Seq[InputMethod] = {
     if (options.stdIn) {
       Seq(InputMethod.StdinCode(options.assumeFilename, options.common.in))
     } else {
-      getFilesFromProject(options.config.project)
-        .withFilter(
-          x => x.endsWith(".scala") || x.endsWith(".sbt")
-        )
+      val projectFiles = getFilesFromProject(options)
+      val toFormat =
+        if (projectFiles.isEmpty) {
+          FileOps.listFiles(options.common.workingDirectory)
+        } else projectFiles
+      toFormat
+        .withFilter(x => x.endsWith(".scala") || x.endsWith(".sbt"))
         .map(InputMethod.FileContents.apply)
     }
   }
 
-  def handleFile(inputMethod: InputMethod, options: CliOptions): Unit = {
+  private def handleFile(inputMethod: InputMethod, options: CliOptions): Unit = {
     val input = inputMethod.readInput
     val formatResult =
       Scalafmt.format(input, options.config, options.range)
@@ -73,7 +90,7 @@ object Cli {
     }
   }
 
-  def runMigrate(options: CliOptions): Unit = {
+  private def runMigrate(options: CliOptions): Unit = {
     options.migrate.foreach { oldStyleConfigFile =>
       val original = FileOps.readFile(oldStyleConfigFile)
       val modified = LegacyCli.migrate(original)
@@ -88,21 +105,20 @@ object Cli {
     }
   }
 
-  val termDisplayMessage = "Running scalafmt..."
+  private def termDisplayMessage = "Running scalafmt..."
 
-  def newTermDisplay(options: CliOptions,
-                     inputMethods: Seq[InputMethod]): TermDisplay = {
+  private def newTermDisplay(options: CliOptions,
+                             inputMethods: Seq[InputMethod]): TermDisplay = {
     val workingDirectory = new File(options.common.workingDirectory)
     val termDisplay = new TermDisplay(new OutputStreamWriter(System.out))
-    if (options.inPlace) termDisplay.init()
+    if (!options.stdIn && inputMethods.length > 5) termDisplay.init()
     termDisplay.startTask(termDisplayMessage, workingDirectory)
     termDisplay.taskLength(termDisplayMessage, inputMethods.length, 0)
     termDisplay
   }
 
-  def runFormat(options: CliOptions): Unit = {
+  private def runFormat(options: CliOptions): Unit = {
     val inputMethods = getInputMethods(options)
-    logger.elem(inputMethods)
     val counter = new AtomicInteger()
     val sbtConfig = options.copy(
       config = options.config.copy(
@@ -118,21 +134,4 @@ object Cli {
     termDisplay.stop()
   }
 
-  def run(options: CliOptions): Unit = {
-    if (options.migrate.nonEmpty) runMigrate(options)
-    else runFormat(options)
-  }
-
-  def getConfig(args: Array[String]): Option[CliOptions] = {
-    CliArgParser.scoptParser.parse(args, CliOptions.default)
-  }
-
-  def runOn(options: CliOptions): Unit = {}
-
-  def main(args: Array[String]): Unit = {
-    getConfig(args) match {
-      case Some(x) => run(x)
-      case None => throw UnableToParseCliOptions
-    }
-  }
 }

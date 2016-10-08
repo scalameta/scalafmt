@@ -2,12 +2,14 @@ package org.scalafmt.readme
 
 import scalatags.Text.TypedTag
 import scalatags.Text.all._
+
 import java.text.SimpleDateFormat
 import java.util.Date
 
 import com.twitter.util.Eval
 import org.scalafmt.Scalafmt
 import org.scalafmt.cli.Cli
+import org.scalafmt.cli.CliArgParser
 import org.scalafmt.config.AlignToken
 import org.scalafmt.config.Config
 import org.scalafmt.config.ScalafmtRunner
@@ -130,7 +132,7 @@ object Readme {
     example(code, style)
 
   def lastUpdated =
-    new SimpleDateFormat("MMM d, y").format(new Date(Cli.buildTimeMs))
+    new SimpleDateFormat("MMM d, y").format(new Date(CliArgParser.buildTimeMs))
 
   def example(code: String, style: ScalafmtConfig): TypedTag[String] = {
     val formatted = Scalafmt.format(code, style).get

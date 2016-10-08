@@ -11,15 +11,13 @@ object FileOps {
     listFiles(new File(path))
   }
 
-  def listFiles(file: File,
-                exclude: File => Boolean = _ => false): Vector[String] = {
-    if (file.isFile && !exclude(file)) {
+  def listFiles(file: File): Vector[String] = {
+    if (file.isFile) {
       Vector(file.getAbsolutePath)
     } else {
       def listFilesIter(s: File): Iterable[String] = {
         val (dirs, files) = Option(s.listFiles()).toIterable
           .flatMap(_.toIterator)
-          .filterNot(exclude)
           .partition(_.isDirectory)
         files.map(_.getPath) ++ dirs.flatMap(listFilesIter)
       }

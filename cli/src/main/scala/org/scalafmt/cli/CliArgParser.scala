@@ -4,31 +4,40 @@ import java.io.File
 import java.util.Date
 
 import org.scalafmt.Versions
+import org.scalafmt.config.Config
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.config.hocon.Hocon2Class
 import org.scalafmt.util.BuildTime
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.GitCommit
+import org.scalafmt.util.logger
 import scopt.OptionParser
 
 object CliArgParser {
   @GitCommit val gitCommit: String = ???
   @BuildTime val buildTimeMs: Long = ???
   val usageExamples =
-    """|scalafmt        # format all files in current git repo, reads configuration
-       |                # from .scalafmt.conf in the root directory, if the file exists.
-       |scalafmt --test # throw error if any file in current project is mis-formatted.
+    """|scalafmt  # Format all files in the current project, with config determined:
+       |          # 1. .scalafmt.conf inside root directory of current git repo
+       |          #    IF the following setting is enabled: project.git = true
+       |          # 2. .scalafmt.conf file in current directory
+       |          # 3. default style
+       |          # from .scalafmt.conf in the root directory, if the file exists.
+       |scalafmt --test # same as without --test, except
+       |                # 1. throws an exception on the first mis-formatted file
+       |                # 2. does not write to any files.
        |scalafmt --stdin                           # read from stdin and print to stdout
        |scalafmt --stdin --assume-filename foo.sbt # required to format .sbt files
-       |scalafmt -f Code.scala,Code2.scala # print formatted contents to stdout.
-       |scalafmt -i -f Code1.scala         # write formatted contents to file.
+       |
+       |scalafmt -f Code.scala             # print formatted contents to stdout.
+       |scalafmt -i -f Code1.scala,A.scala # write formatted contents to file.
        |scalafmt -i -f . --exclude target  # format all files in directory excluding target
-       |scalafmt --config "style=IntelliJ" # define custom style as a flag
        |scalafmt --config .scalafmt.conf   # read custom style from file
-       |""".stripMargin
+       |scalafmt --config "style=IntelliJ" # define custom style as a flag, must be quoted.""".stripMargin
 
   val scoptParser: OptionParser[CliOptions] =
     new scopt.OptionParser[CliOptions]("scalafmt") {
+      override def showUsageOnError = false
 
       def printAndExit(inludeUsage: Boolean)(ignore: Unit,
                                              c: CliOptions): CliOptions = {
@@ -58,15 +67,15 @@ object CliArgParser {
         .action(printAndExit(inludeUsage = false))
         .text("print version ")
       opt[Seq[File]]('f', "files")
-        .action((files, c) =>
-          c.copy(
-            config = c.config.copy(
-              project = c.config.project.copy(
-                files = c.config.project.files ++ files.map(_.getPath),
-                git = false // if you want to define both, write it in --config
+        .action(
+          (files, c) =>
+            c.copy(
+              config = c.config.copy(
+                project = c.config.project.copy(
+                  files = c.config.project.files ++ files.map(_.getPath)
+                )
               )
-            )
-        ))
+          ))
         .text(
           "file or directory, in which case all *.scala files are formatted.")
       opt[Seq[String]]("exclude")
@@ -75,7 +84,7 @@ object CliArgParser {
             c.copy(
               config = c.config.copy(
                 project = c.config.project.copy(
-                  excludeFilter = files
+                  excludeFilters = files
                 )
               )
           ))
@@ -89,7 +98,7 @@ object CliArgParser {
         .action((_, c) => c.copy(inPlace = true))
         .text("write output to file, does nothing if file is not specified")
       opt[Unit]("test")
-        .action((_, c) => c.copy(testing = true))
+        .action((_, c) => c.copy(inPlace = false, testing = true))
         .text("test for mis-formatted code, exits with status 1 on failure.")
       opt[File]("migrate2hocon")
         .action((file, c) => c.copy(migrate = Some(file)))

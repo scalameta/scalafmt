@@ -141,8 +141,6 @@ class CliOptionsTest extends FunSuite {
               AlignToken("%", ".*")
             ))
         assert(obtained.indentOperator == IndentOperator("inc", "exclude"))
-
-        logger.elem(obtained.indentOperator)
     }
   }
 

@@ -4,15 +4,14 @@ import java.io.File
 import java.nio.file.Files
 
 import org.scalafmt.Error.MisformattedFile
-import org.scalafmt.config
 import org.scalafmt.config.Config
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.FileOps
-import org.scalafmt.util.logger
 import org.scalatest.FunSuite
 
 class CliTest extends FunSuite with DiffAssertions {
+  import FileTestOps._
   val unformatted = """
                       |object a    extends   App {
                       |pr(
@@ -47,13 +46,14 @@ class CliTest extends FunSuite with DiffAssertions {
   test("scalafmt -i --file tmpFile") {
     val tmpFile = Files.createTempFile("prefix", ".scala")
     Files.write(tmpFile, unformatted.getBytes)
-    val formatInPlace =
-      CliOptions.default
-        .copy(
-          config = ScalafmtConfig.default.copy(maxColumn = 7),
-          inPlace = true
-        )
-        .withFiles(Seq(tmpFile.toFile))
+    val args = Array(
+      "--config",
+      "\"maxColumn=7\"",
+      "--in-place",
+      "--files",
+      tmpFile.toFile.getPath
+    )
+    val formatInPlace = Cli.getConfig(args).get
     Cli.run(formatInPlace)
     val obtained = FileOps.readFile(tmpFile.toString)
     assertNoDiff(obtained, expected10)
@@ -62,13 +62,12 @@ class CliTest extends FunSuite with DiffAssertions {
   test("scalafmt --test --file tmpFile") {
     val tmpFile = Files.createTempFile("prefix", ".scala")
     Files.write(tmpFile, unformatted.getBytes)
-    val formatInPlace =
-      CliOptions.default.copy(
-        config = gimmeConfig(
-          s"project.files = [${tmpFile.toFile.getPath}]"
-        ),
-        testing = true
-      )
+    val args = Array(
+      "--files",
+      tmpFile.toFile.getPath,
+      "--test"
+    )
+    val formatInPlace = Cli.getConfig(args).get
     intercept[MisformattedFile] {
       Cli.run(formatInPlace)
     }
@@ -86,43 +85,8 @@ class CliTest extends FunSuite with DiffAssertions {
     assertNoDiff(obtained, unformatted)
   }
 
-  case class FileContents(prefix: String, suffix: String, contents: String)
-
-  def createDir(layout: String): File = {
-    val root = File.createTempFile("root", "root")
-    root.delete()
-    root.mkdir()
-    layout.split("(?=\n/)").foreach { row =>
-      val path :: contents :: Nil =
-        row.stripPrefix("\n").split("\n", 2).toList
-      val file = new File(root, path)
-      file.getParentFile.mkdirs()
-      FileOps.writeFile(file, contents)
-    }
-    root
-  }
-
-  def dir2string(file: File): String = {
-    FileOps
-      .listFiles(file)
-      .map { path =>
-        val contents = FileOps.readFile(path)
-        s"""|${path.stripPrefix(file.getPath)}
-            |$contents""".stripMargin
-      }
-      .mkString("\n")
-  }
-//  val root = createDir(
-//    """/foo/bar
-//      |println(1)
-//      |yea
-//      |/foo/kaz
-//      |whoo
-//    """.stripMargin
-//  )
-
   test("handles .scala and .sbt files") {
-    val input = createDir(
+    val input = string2dir(
       s"""|/foobar.scala
           |object    A {  }
           |/foo.sbt
@@ -150,7 +114,7 @@ class CliTest extends FunSuite with DiffAssertions {
   }
 
   test("excludefilters are respected") {
-    val input = createDir(
+    val input = string2dir(
       s"""|/foo.sbt
           |lazy   val x   = project
           |/target/generated.scala

@@ -38,16 +38,15 @@ object InputMethod {
     override def write(formatted: String,
                        original: String,
                        options: CliOptions): Unit = {
-      {
-        val codeChanged = formatted != original
-        if (options.testing && codeChanged) {
-          throw MisformattedFile(new File(filename))
-        } else if (options.inPlace) {
-          if (codeChanged) FileOps.writeFile(filename, formatted)
-          else Unit
-        } else {
-          options.common.out.println(formatted)
-        }
+      val codeChanged = formatted != original
+      if (options.testing) {
+        if (codeChanged) throw MisformattedFile(new File(filename))
+        else Unit
+      } else if (options.inPlace) {
+        if (codeChanged) FileOps.writeFile(filename, formatted)
+        else Unit
+      } else {
+        options.common.out.println(formatted)
       }
     }
   }

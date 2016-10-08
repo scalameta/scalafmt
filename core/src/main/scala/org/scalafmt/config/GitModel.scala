@@ -5,6 +5,7 @@ import java.io.File
 import org.scalafmt.config
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.GitOps
+import org.scalafmt.util.GitOpsImpl
 
 case class GitModel(root: File, files: Seq[String]) {
   def getConfig: Option[metaconfig.Result[ScalafmtConfig]] = {
@@ -16,7 +17,10 @@ case class GitModel(root: File, files: Seq[String]) {
 }
 
 object GitModel {
-  def get: Option[GitModel] = GitOps.rootDir.map { dir =>
-    GitModel(new File(dir), GitOps.lsTree)
+  def get: Option[GitModel] = {
+    val gitOps = new GitOpsImpl
+    gitOps.rootDir.map { dir =>
+      GitModel(dir, gitOps.lsTree)
+    }
   }
 }

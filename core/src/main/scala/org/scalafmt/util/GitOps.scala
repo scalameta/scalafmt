@@ -8,26 +8,24 @@ import java.io.File
 import org.scalafmt.config
 import org.scalafmt.config.ScalafmtConfig
 
-object FileExists {
-  def unapply(arg: String): Option[File] = {
-    val f = new File(arg)
-    if (f.isFile) Some(f)
-    else None
-  }
+trait GitOps {
+  def lsTree: Seq[String]
+  def rootDir: Option[File]
 }
 
-object GitOps {
+class GitOpsImpl extends GitOps {
   import sys.process._
-  def lsTree: Seq[String] =
+
+  override def lsTree: Seq[String] =
     Try {
-      Seq("git", "ls-tree", "-r", "HEAD", "--name-only").!!
-        .split("\n")
-        .toSeq
+      Seq("git", "ls-tree", "-r", "HEAD", "--name-only").!!.split("\n").toSeq
     }.getOrElse(Nil)
 
-  def rootDir: Option[String] =
+  override def rootDir: Option[File] =
     Try {
-      Seq("git", "rev-parse", "--show-toplevel").!!
+      val result = new File(Seq("git", "rev-parse", "--show-toplevel").!!.trim)
+      require(result.isDirectory)
+      result
     }.toOption
 
 }

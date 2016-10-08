@@ -137,7 +137,7 @@ object TermDisplay {
 
       fraction.fold(" " * 6)(p => f"${100.0 * p}%5.1f%%") +
         " [" + ("#" * decile) + (" " * (10 - decile)) + "] " +
-        downloaded + " source files fixed"
+        downloaded + " source files formatted"
     }
   }
 
@@ -272,7 +272,8 @@ object TermDisplay {
           if (downloadInfo.length.isEmpty && downloadInfo.downloaded == 0L)
             ""
           else {
-            val pctOptStr = pctOpt.map(pct => f"$pct%.2f %%, ").toIterable.mkString
+            val pctOptStr =
+              pctOpt.map(pct => f"$pct%.2f %%, ").toIterable.mkString
             val downloadInfoStr = downloadInfo.length.map(" / " + _).mkString
             s"($pctOptStr${downloadInfo.downloaded}$downloadInfoStr)"
           }

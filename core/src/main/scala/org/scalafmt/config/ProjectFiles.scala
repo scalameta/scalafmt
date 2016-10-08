@@ -9,7 +9,6 @@ import org.scalafmt.util.GitOps
 case class ProjectFiles(
     git: Boolean = false,
     files: Seq[String] = Nil,
-    includeFilter: Seq[String] = Seq(".*"),
-    excludeFilter: Seq[String] = Nil
-) {
-}
+    includeFilters: Seq[String] = Seq(".*"),
+    excludeFilters: Seq[String] = Nil
+)
