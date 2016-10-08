@@ -81,9 +81,9 @@ object ScalaFile {
     val files = Option(repos.listFiles()).getOrElse {
       throw new IllegalStateException(
         s"""${repos.getAbsolutePath} is not a directory, run:
-             |* wget https://github.com/olafurpg/scalafmt/releases/download/v0.1.4/repos.tar.gz
-             |* tar xvf repos.tar.gz
-             |""".stripMargin)
+           |* wget https://github.com/olafurpg/scalafmt/releases/download/v0.1.4/repos.tar.gz
+           |* tar xvf repos.tar.gz
+           |""".stripMargin)
     }
 
     immutable.Seq(files: _*).flatMap { repo =>

@@ -11,7 +11,6 @@ import metaconfig.ConfigReader
 @ConfigReader
 case class AlignToken(code: String, owner: String)
 
-
 object AlignToken {
   val applyInfix = "Term.ApplyInfix"
   val caseArrow = AlignToken("=>", "Case")

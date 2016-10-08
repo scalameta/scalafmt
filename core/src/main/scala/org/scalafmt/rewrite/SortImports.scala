@@ -4,7 +4,6 @@ import scala.meta.Importee
 import scala.meta.Tree
 import scala.meta._
 
-
 /**
   * Sorts imports inside curly braces.
   *

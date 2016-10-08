@@ -23,37 +23,46 @@ import scala.meta.{Tree, _}
   */
 object PreferCurlyFors extends Rewrite {
 
-  def findForParens(forTokens: Tokens, ctx: RewriteCtx): Option[(Token, Token)] = {
+  def findForParens(forTokens: Tokens,
+                    ctx: RewriteCtx): Option[(Token, Token)] = {
     import ctx.tokenTraverser._
 
     for {
       forToken <- forTokens.find(_.is[Token.KwFor])
-      leftParen <- find(forToken)(_.isNot[Whitespace]).filter(_.is[Token.LeftParen])
+      leftParen <- find(forToken)(_.isNot[Whitespace])
+        .filter(_.is[Token.LeftParen])
       rightParen <- ctx.matchingParens.get(TokenOps.hash(leftParen))
     } yield (leftParen, rightParen)
   }
 
-  def findForSemiColons(forEnumerators: Seq[Enumerator], ctx: RewriteCtx):Seq[Token] = {
+  def findForSemiColons(forEnumerators: Seq[Enumerator],
+                        ctx: RewriteCtx): Seq[Token] = {
     import ctx.tokenTraverser._
 
     for {
       enumerator <- forEnumerators
       token <- enumerator.tokens.headOption.toIterable
-      semicolon <- reverseFind(token)(_.isNot[Whitespace]).filter(_.is[Token.Semicolon]).toIterable
+      semicolon <- reverseFind(token)(_.isNot[Whitespace])
+        .filter(_.is[Token.Semicolon])
+        .toIterable
     } yield semicolon
   }
 
-  def rewriteFor(forTokens: Tokens, forEnumerators: Seq[Enumerator], ctx: RewriteCtx): Seq[Patch] = {
+  def rewriteFor(forTokens: Tokens,
+                 forEnumerators: Seq[Enumerator],
+                 ctx: RewriteCtx): Seq[Patch] = {
     import ctx.tokenTraverser._
 
     val builder = Seq.newBuilder[Patch]
 
     findForParens(forTokens, ctx).foreach { parens =>
-      val openBraceTokens = if (nextToken(parens._1).is[Token.LF]) "{" else "{\n"
+      val openBraceTokens =
+        if (nextToken(parens._1).is[Token.LF]) "{" else "{\n"
       builder += Patch(parens._1, parens._1, openBraceTokens)
       builder += Patch(parens._2, parens._2, "}")
       findForSemiColons(forEnumerators, ctx).foreach { semiColon =>
-        val semiColonReplacementTokens = if (nextToken(semiColon).is[Token.LF]) "" else "\n"
+        val semiColonReplacementTokens =
+          if (nextToken(semiColon).is[Token.LF]) "" else "\n"
         builder += Patch(semiColon, semiColon, semiColonReplacementTokens)
       }
     }
@@ -61,7 +70,7 @@ object PreferCurlyFors extends Rewrite {
     builder.result()
   }
 
-  def hasMoreThanOneGenerator(forEnumerators: Seq[Enumerator]):Boolean =
+  def hasMoreThanOneGenerator(forEnumerators: Seq[Enumerator]): Boolean =
     forEnumerators.count(_.is[Enumerator.Generator]) > 1
 
   override def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch] = {

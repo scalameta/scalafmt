@@ -58,9 +58,9 @@ object Report {
   def explanation =
     div(
       p("""Formatting output from scalafmt's test suite.
-            |The formatter uses Dijkstra's shortest path to determine the
-            |formatting with the "cheapest" cost. The red regions are
-            |tokens the formatter visits often.
+          |The formatter uses Dijkstra's shortest path to determine the
+          |formatting with the "cheapest" cost. The red regions are
+          |tokens the formatter visits often.
         """.stripMargin),
       ul(
         li("Declaration arguments: bin packed"),

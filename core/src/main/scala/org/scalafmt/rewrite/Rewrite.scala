@@ -7,9 +7,9 @@ import org.scalafmt.util.TokenOps.TokenHash
 import org.scalafmt.util.{TokenTraverser, TreeOps}
 
 case class RewriteCtx(
-                         style: ScalafmtConfig,
-                         tokenTraverser: TokenTraverser,
-                         matchingParens: Map[TokenHash, Token]
+    style: ScalafmtConfig,
+    tokenTraverser: TokenTraverser,
+    matchingParens: Map[TokenHash, Token]
 )
 
 abstract class Rewrite {

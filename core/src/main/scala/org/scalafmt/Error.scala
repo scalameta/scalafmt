@@ -20,7 +20,8 @@ object Error {
 
   def reportIssue: String =
     "Please file an issue on https://github.com/olafurpg/scalafmt/issues"
-  case object UnableToParseCliOptions extends Error("Failed to parse CLI options")
+  case object UnableToParseCliOptions
+      extends Error("Failed to parse CLI options")
 
   case class Incomplete(formattedCode: String)
       extends Error("Unable to format file due to bug in scalafmt")

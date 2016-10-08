@@ -32,7 +32,7 @@ class TokenTraverser(tokens: Tokens) {
   }
 
   @tailrec
-  final def find(token: Token)(predicate: Token => Boolean):Option[Token] = {
+  final def find(token: Token)(predicate: Token => Boolean): Option[Token] = {
     nextToken(token) match {
       case t if t == token => None
       case t if predicate(t) => Option(t)
@@ -41,7 +41,8 @@ class TokenTraverser(tokens: Tokens) {
   }
 
   @tailrec
-  final def reverseFind(token: Token)(predicate: Token => Boolean):Option[Token] = {
+  final def reverseFind(token: Token)(
+      predicate: Token => Boolean): Option[Token] = {
     prevToken(token) match {
       case t if t == token => None
       case t if predicate(t) => Option(t)

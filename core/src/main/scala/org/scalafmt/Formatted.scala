@@ -6,7 +6,7 @@ sealed abstract class Formatted {
     case Formatted.Success(s) => Right(s)
     case Formatted.Failure(e) => Left(e)
   }
-  
+
   def get: String = this match {
     case Formatted.Success(code) => code
     case Formatted.Failure(e) => throw e

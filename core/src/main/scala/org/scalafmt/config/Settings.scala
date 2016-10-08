@@ -107,7 +107,8 @@ trait Settings {
           ScalafmtConfig.availableStyles.get(baseStyle.toString.toLowerCase) match {
             case Some(s) => s.reader.read(noStyle)
             case None =>
-              val alternatives = ScalafmtConfig.activeStyles.keys.mkString(", ")
+              val alternatives =
+                ScalafmtConfig.activeStyles.keys.mkString(", ")
               Left(new IllegalArgumentException(
                 s"Unknown style name $baseStyle. Expected one of: $alternatives"))
           }
@@ -128,8 +129,9 @@ trait Settings {
     case str: String => Right(AlignToken(str, ".*"))
     case x => fallbackAlign.reader.read(x)
   }
-  lazy val indentReader: Reader[IndentOperator] = Reader.instance[IndentOperator] {
-    case "spray" => Right(IndentOperator.akka)
-    case els => IndentOperator.default.reader.read(els)
-  }
+  lazy val indentReader: Reader[IndentOperator] =
+    Reader.instance[IndentOperator] {
+      case "spray" => Right(IndentOperator.akka)
+      case els => IndentOperator.default.reader.read(els)
+    }
 }

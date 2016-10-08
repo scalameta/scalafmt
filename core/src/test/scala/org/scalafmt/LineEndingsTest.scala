@@ -12,8 +12,7 @@ class LineEndingsTest extends FunSuite with DiffAssertions {
     val original = "@ Singleton\r\nobject a {\r\nval y = 2\r\n}"
     val expected = "@Singleton\r\nobject a {\r\n  val y = 2\r\n}"
     val obtained = Scalafmt
-      .format(original,
-              ScalafmtConfig.default.copy(lineEndings = preserve))
+      .format(original, ScalafmtConfig.default.copy(lineEndings = preserve))
       .get
     assertNoDiff(obtained, expected)
   }
@@ -23,8 +22,7 @@ class LineEndingsTest extends FunSuite with DiffAssertions {
     val original = "@ Singleton\nobject a {\nval y = 2\n}"
     val expected = "@Singleton\nobject a {\n  val y = 2\n}"
     val obtained = Scalafmt
-      .format(original,
-              ScalafmtConfig.default.copy(lineEndings = preserve))
+      .format(original, ScalafmtConfig.default.copy(lineEndings = preserve))
       .get
     assertNoDiff(obtained, expected)
   }
@@ -34,8 +32,7 @@ class LineEndingsTest extends FunSuite with DiffAssertions {
     val original = "@ Singleton\r\nobject a {\r\nval y = 2\r\n}"
     val expected = "@Singleton\r\nobject a {\r\n  val y = 2\r\n}"
     val obtained = Scalafmt
-      .format(original,
-              ScalafmtConfig.default.copy(lineEndings = windows))
+      .format(original, ScalafmtConfig.default.copy(lineEndings = windows))
       .get
     assertNoDiff(obtained, expected)
   }
@@ -45,8 +42,7 @@ class LineEndingsTest extends FunSuite with DiffAssertions {
     val original = "@ Singleton\nobject a {\nval y = 2\n}"
     val expected = "@Singleton\r\nobject a {\r\n  val y = 2\r\n}"
     val obtained = Scalafmt
-      .format(original,
-              ScalafmtConfig.default.copy(lineEndings = windows))
+      .format(original, ScalafmtConfig.default.copy(lineEndings = windows))
       .get
     assertNoDiff(obtained, expected)
   }
@@ -56,8 +52,7 @@ class LineEndingsTest extends FunSuite with DiffAssertions {
     val original = "@ Singleton\r\nobject a {\r\nval y = 2\r\n}"
     val expected = "@Singleton\nobject a {\n  val y = 2\n}"
     val obtained = Scalafmt
-      .format(original,
-              ScalafmtConfig.default.copy(lineEndings = unix))
+      .format(original, ScalafmtConfig.default.copy(lineEndings = unix))
       .get
     assertNoDiff(obtained, expected)
   }
@@ -67,8 +62,7 @@ class LineEndingsTest extends FunSuite with DiffAssertions {
     val original = "@ Singleton\nobject a {\nval y = 2\n}"
     val expected = "@Singleton\nobject a {\n  val y = 2\n}"
     val obtained = Scalafmt
-      .format(original,
-              ScalafmtConfig.default.copy(lineEndings = unix))
+      .format(original, ScalafmtConfig.default.copy(lineEndings = unix))
       .get
     assertNoDiff(obtained, expected)
   }

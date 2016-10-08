@@ -77,8 +77,7 @@ class ConfigReaderTest extends FunSuite {
     val lst = HasMap(Map(1 -> 2))
     assert(
       lst.reader.read(Map("i" -> Map(666 -> 777))) ==
-          Right(
-        HasMap(Map(666 -> 777))))
+        Right(HasMap(Map(666 -> 777))))
   }
 
   test("inner") {
@@ -87,7 +86,6 @@ class ConfigReaderTest extends FunSuite {
 //      )
 //    )
 //    val o = Outer(2, Inner(3)).reader.read(m)
-
 
   }
 

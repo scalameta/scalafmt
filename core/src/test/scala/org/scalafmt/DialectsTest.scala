@@ -28,9 +28,9 @@ class DialectsTest extends FunSuite with DiffAssertions {
     val expected = original
     val obtained =
       Scalafmt
-        .format(
-          original,
-          style = ScalafmtConfig.default.copy(runner = ScalafmtRunner.sbt))
+        .format(original,
+                style =
+                  ScalafmtConfig.default.copy(runner = ScalafmtRunner.sbt))
         .get
     assertNoDiff(obtained, expected)
   }
