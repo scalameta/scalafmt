@@ -141,8 +141,8 @@
       @hl.scala()
 
       @hl.scala(
-        org.scalafmt.cli.Cli.buildInfo + "\n" +
-        org.scalafmt.cli.Cli.parser.usage)
+        org.scalafmt.cli.CliArgParser.buildInfo + "\n" +
+        org.scalafmt.cli.CliArgParser.scoptParser.usage)
 
   @sect{Vim}
     @ul

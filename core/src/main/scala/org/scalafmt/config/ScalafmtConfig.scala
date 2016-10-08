@@ -177,7 +177,8 @@ case class ScalafmtConfig(
     assumeStandardLibraryStripMargin: Boolean = false,
     danglingParentheses: Boolean = false,
     poorMansTrailingCommasInConfigStyle: Boolean = false,
-    bestEffortInDeeplyNestedCode: Boolean = false
+    bestEffortInDeeplyNestedCode: Boolean = false,
+    project: ProjectFiles = ProjectFiles()
 ) {
 
   // TODO(olafur): Remove these when I have time.
@@ -207,6 +208,7 @@ case class ScalafmtConfig(
   implicit val rewriteReader: Reader[RewriteSettings] = rewrite.reader
   implicit val optInReader: Reader[OptIn] = optIn.reader
   implicit val newlinesReader: Reader[Newlines] = newlines.reader
+  implicit val projectReader: Reader[ProjectFiles] = project.reader
 
   lazy val alignMap: Map[String, Regex] =
     align.tokens.map(x => x.code -> x.owner.r).toMap

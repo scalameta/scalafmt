@@ -4,9 +4,12 @@ resolvers += Resolver.url(
   url("http://dl.bintray.com/dancingrobot84/sbt-plugins/")
 )(Resolver.ivyStylePatterns)
 
+// I would love to enable this plugin but it one point I had disabled almost all
+// of the warts.
+// addSbtPlugin("org.wartremover"    % "sbt-wartremover"     % "1.1.1")
+
 addSbtPlugin("io.get-coursier"    % "sbt-coursier"        % "1.0.0-M14")
 addSbtPlugin("com.eed3si9n"       % "sbt-assembly"        % "0.14.3")
-addSbtPlugin("org.brianmckenna"   % "sbt-wartremover"     % "0.14")
 addSbtPlugin("org.scoverage"      % "sbt-scoverage"       % "1.0.1")
 addSbtPlugin("pl.project13.scala" % "sbt-jmh"             % "0.2.15")
 addSbtPlugin("com.lihaoyi"        % "scalatex-sbt-plugin" % "0.3.5")

@@ -34,6 +34,7 @@ object Config {
       Seq(s" = $output")
   }
 
+  /** Read ScalafmtConfig from String contents from an optional HOCON path. */
   def fromHocon(string: String,
                 path: Option[String] = None): Result[ScalafmtConfig] =
     Hocon2Class

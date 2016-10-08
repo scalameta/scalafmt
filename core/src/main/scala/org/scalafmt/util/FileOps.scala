@@ -11,12 +11,13 @@ object FileOps {
     listFiles(new File(path))
   }
 
-  def listFiles(file: File, excludes: Set[File] = Set.empty): Vector[String] = {
-    if (file.isFile && !excludes(file)) { Vector(file.getAbsolutePath) } else {
+  def listFiles(file: File): Vector[String] = {
+    if (file.isFile) {
+      Vector(file.getAbsolutePath)
+    } else {
       def listFilesIter(s: File): Iterable[String] = {
         val (dirs, files) = Option(s.listFiles()).toIterable
           .flatMap(_.toIterator)
-          .filterNot(excludes)
           .partition(_.isDirectory)
         files.map(_.getPath) ++ dirs.flatMap(listFilesIter)
       }
@@ -63,13 +64,17 @@ object FileOps {
     new File(path.mkString(File.separator))
   }
 
-  def writeFile(filename: String, content: String): Unit = {
+  def writeFile(file: File, content: String): Unit = {
     // For java 6 compatibility we don't use java.nio.
-    val pw = new PrintWriter(new File(filename))
+    val pw = new PrintWriter(file)
     try {
       pw.write(content)
     } finally {
       pw.close()
     }
+
+  }
+  def writeFile(filename: String, content: String): Unit = {
+    writeFile(new File(filename), content)
   }
 }

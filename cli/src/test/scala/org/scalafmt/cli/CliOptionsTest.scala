@@ -10,7 +10,7 @@ import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.LoggerOps._
 import org.scalatest.FunSuite
 
-class ConfigTest extends FunSuite {
+class CliOptionsTest extends FunSuite {
 
   test("style = ...") {
     import org.scalafmt.config.Config
@@ -141,8 +141,6 @@ class ConfigTest extends FunSuite {
               AlignToken("%", ".*")
             ))
         assert(obtained.indentOperator == IndentOperator("inc", "exclude"))
-
-        logger.elem(obtained.indentOperator)
     }
   }
 

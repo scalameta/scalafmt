@@ -5,27 +5,7 @@ lazy val buildSettings = Seq(
   // See core/src/main/scala/org/scalafmt/Versions.scala
   version := org.scalafmt.Versions.nightly,
   scalaVersion := org.scalafmt.Versions.scala,
-  updateOptions := updateOptions.value.withCachedResolution(true),
-  // Many useful rules are ignored, at least they're explicitly ignored.
-  wartremoverWarnings in (Compile, compile) ++=
-    Warts.allBut(
-      // TODO(olafur) include these below.
-      Wart.Nothing, // Can't provide explicit type for scala.meta.Tree.collect.
-      Wart.ToString, // Issues in logger, solvable with Loggable typeclass.
-      Wart.Any, // Issues in logger with format strings.
-      Wart.AsInstanceOf, // pops up in pattern matching, why? It's guarded.
-
-      // TODO(olafur) remove after https://github.com/puffnfresh/wartremover/issues/188
-      Wart.ExplicitImplicitTypes,
-      Wart.Throw,
-      Wart.NoNeedForMonad,
-      Wart.FinalCaseClass,
-      Wart.NonUnitStatements,
-      Wart.MutableDataStructures,
-      Wart.IsInstanceOf,
-      Wart.Var,
-      Wart.Null,
-      Wart.DefaultArguments)
+  updateOptions := updateOptions.value.withCachedResolution(true)
 )
 
 lazy val metaMacroSettings: Seq[Def.Setting[_]] = Seq(
@@ -169,7 +149,7 @@ lazy val cli = project
     moduleName := "scalafmt-cli",
     mainClass in assembly := Some("org.scalafmt.cli.Cli"),
     libraryDependencies ++= Seq(
-      "com.github.scopt" %% "scopt" % "3.3.0"
+      "com.github.scopt" %% "scopt" % "3.5.0"
     )
   )
   .dependsOn(core % "compile->compile;test->test")

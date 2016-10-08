@@ -51,6 +51,7 @@ object Reader {
   implicit val boolR = instance[scala.Boolean] {
     case x: Boolean => Right(x)
   }
+
   implicit def seqR[T](implicit ev: Reader[T]): Reader[Seq[T]] =
     instance[Seq[T]] {
       case lst: Seq[_] =>
