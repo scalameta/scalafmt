@@ -36,6 +36,7 @@ object FileTestOps {
   def dir2string(file: File): String = {
     FileOps
       .listFiles(file)
+      .sorted
       .map { path =>
         val contents = FileOps.readFile(path)
         s"""|${path.stripPrefix(file.getPath)}
