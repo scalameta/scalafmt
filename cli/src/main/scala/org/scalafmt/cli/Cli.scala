@@ -120,14 +120,14 @@ object Cli {
   private def runFormat(options: CliOptions): Unit = {
     val inputMethods = getInputMethods(options)
     val counter = new AtomicInteger()
-    val sbtConfig = options.copy(
+    val sbtOptions = options.copy(
       config = options.config.copy(
         runner = options.config.runner.copy(
           dialect = Sbt0137
         )))
     val termDisplay = newTermDisplay(options, inputMethods)
     inputMethods.par.foreach { inputMethod =>
-      val inputConfig = if (inputMethod.isSbt) sbtConfig else options
+      val inputConfig = if (inputMethod.isSbt) sbtOptions else options
       handleFile(inputMethod, inputConfig)
       termDisplay.taskProgress(termDisplayMessage, counter.incrementAndGet())
     }
