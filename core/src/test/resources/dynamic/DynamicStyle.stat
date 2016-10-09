@@ -1,5 +1,7 @@
 maxColumn = 100 # comment
 style = defaultWithAlign
+unindentTopLevelOperators = true
+indentOperator.exclude = ":\\+:"
 align.tokens.add = [foo]
 <<< dynamic
 // scalafmt: { maxColumn = 20 }
@@ -35,3 +37,11 @@ function(
   val x  = 2 +  foo
   val xx = 22 + foo
 }
+<<< infix types #500
+type Row =
+  AlertEvent :+:
+  InteractionEvent
+>>>
+type Row =
+  AlertEvent :+:
+  InteractionEvent

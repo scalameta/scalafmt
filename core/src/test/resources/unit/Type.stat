@@ -67,3 +67,17 @@ trait Foo[F[_]] {
   trait TransLift[MT[_[_], _]]
 >>>
 trait TransLift[MT[_[_], _]]
+<<< infix types #500
+type Row =
+AlertEvent :+:
+  InteractionEvent :+:
+  HistoryEvent :+:
+  PostEvent :+:
+  ImageEvent
+>>>
+type Row =
+  AlertEvent :+:
+    InteractionEvent :+:
+      HistoryEvent :+:
+        PostEvent :+:
+          ImageEvent

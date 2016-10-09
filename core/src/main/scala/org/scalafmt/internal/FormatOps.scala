@@ -5,6 +5,7 @@ import scala.collection.mutable
 import scala.meta.Case
 import scala.meta.Defn
 import scala.meta.Import
+import scala.meta.Name
 import scala.meta.Pat
 import scala.meta.Pkg
 import scala.meta.Template
@@ -378,7 +379,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
   def infixSplit(
       owner: Tree,
-      op: Term.Name,
+      op: Name,
       rhsArgs: Seq[Tree],
       formatToken: FormatToken)(implicit line: sourcecode.Line): Split = {
     val style = styleMap.at(formatToken)
