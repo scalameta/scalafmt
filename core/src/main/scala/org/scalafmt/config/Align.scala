@@ -12,6 +12,5 @@ case class Align(
     arrowEnumeratorGenerator: Boolean = false,
     ifWhileOpenParen: Boolean = true
 ) {
-  implicit val alignReader: Reader[AlignToken] = ScalafmtConfig.alignReader
-
+  implicit val alignReader: Reader[Set[AlignToken]] = ScalafmtConfig.alignReader(tokens)
 }

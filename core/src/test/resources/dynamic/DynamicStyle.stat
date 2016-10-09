@@ -1,4 +1,6 @@
 maxColumn = 100 # comment
+style = defaultWithAlign
+align.tokens.add = [foo]
 <<< dynamic
 // scalafmt: { maxColumn = 20 }
 function(aaaaaaaaaa, bbbbbbb)
@@ -23,3 +25,13 @@ scalafmt: {
 function(
   aaaaaaaaaa,
   bbbbbbb)
+<<< align.tokens.add
+{
+  val x = 2 + foo
+  val xx = 22 + foo
+}
+>>>
+{
+  val x  = 2 +  foo
+  val xx = 22 + foo
+}
