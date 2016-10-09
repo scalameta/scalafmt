@@ -21,7 +21,7 @@ case class FormatToken(left: Token, right: Token, between: Vector[Token]) {
 
   override def toString = s"${left.syntax}∙${right.syntax}"
 
-  def inside(range: Set[Range]): Boolean = {
+  def inside(range: Seq[Range]): Boolean = {
     if (range.isEmpty) true
     else range.exists(_.contains(right.pos.end.line))
   }

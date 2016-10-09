@@ -11,10 +11,13 @@ import org.scalafmt.config.LineEndings.preserve
 import org.scalafmt.config.LineEndings.windows
 import org.scalafmt.config.ScalafmtRunner
 import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.diff.Addition
+import org.scalafmt.diff.FileDiff
 import org.scalafmt.internal.BestFirstSearch
 import org.scalafmt.internal.FormatOps
 import org.scalafmt.internal.FormatWriter
 import org.scalafmt.rewrite.Rewrite
+import org.scalafmt.util.logger
 
 object Scalafmt {
 
@@ -50,10 +53,14 @@ object Scalafmt {
         val tree = new scala.meta.XtensionParseInputLike(toParse)
           .parse(stringToInput, runner.parser, runner.dialect)
           .get
-        val formatOps = new FormatOps(tree, style)
+        val formatOps = new FormatOps(tree, style, range)
         runner.eventCallback(CreateFormatOps(formatOps))
         val formatWriter = new FormatWriter(formatOps)
-        val search = new BestFirstSearch(formatOps, range, formatWriter)
+        val formatTokenRange = FileDiff.getFormatTokenRanges(
+          formatOps.tokens,
+          range.toSeq.map(x => Addition(x.start, x.end - x.end + 1)))
+        val search =
+          new BestFirstSearch(formatOps, range.toSeq, formatWriter)
         val partial = search.getBestPath
         val formattedString = formatWriter.mkString(partial.splits)
         val correctedFormattedString =

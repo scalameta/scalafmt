@@ -16,8 +16,7 @@ final case class State(cost: Int,
                        splits: Vector[Split],
                        indentation: Int,
                        pushes: Vector[Indent[Num]],
-                       column: Int,
-                       formatOff: Boolean)
+                       column: Int)
     extends Ordered[State] {
 
   def compare(that: State): Int = {
@@ -54,8 +53,7 @@ object State {
                     Vector.empty[Split],
                     0,
                     Vector.empty[Indent[Num]],
-                    0,
-                    formatOff = false)
+                    0)
 
   /**
     * Calculates next State given split at tok.
@@ -111,18 +109,12 @@ object State {
       }
     }
 
-    val nextFormatOff =
-      if (TokenOps.isFormatOff(tok.right)) true
-      else if (TokenOps.isFormatOn(tok.right)) false
-      else formatOff
-
     State(cost + splitWithPenalty.cost,
           // TODO(olafur) expire policy, see #18.
           newPolicy,
           splits :+ splitWithPenalty,
           newIndent,
           newIndents,
-          nextStateColumn,
-          nextFormatOff)
+          nextStateColumn)
   }
 }

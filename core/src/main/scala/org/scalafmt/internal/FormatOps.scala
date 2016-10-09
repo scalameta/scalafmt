@@ -21,6 +21,9 @@ import scala.meta.tokens.Tokens
 import org.scalafmt.Error.CaseMissingArrow
 import org.scalafmt.config.ScalafmtRunner
 import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.diff.Addition
+import org.scalafmt.diff.FileDiff
+import org.scalafmt.diff.FormatTokenRange
 import org.scalafmt.internal.ExpiresOn.Left
 import org.scalafmt.internal.Length.Num
 import org.scalafmt.internal.Policy.NoPolicy
@@ -28,22 +31,43 @@ import org.scalafmt.util.StyleMap
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
 import org.scalafmt.util.Whitespace
+import org.scalafmt.util.logger
 
 /**
   * Helper functions for generating splits/policies for a given tree.
   */
-class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
-  val runner = initStyle.runner
+class FormatOps(val tree: Tree,
+                val initStyle: ScalafmtConfig,
+                range: Set[Range] = Set.empty[Range]) {
+  val runner: ScalafmtRunner = initStyle.runner
   import TokenOps._
   import TreeOps._
 
   val tokens: Array[FormatToken] = FormatToken.formatTokens(tree.tokens)
-  val ownersMap = getOwners(tree)
-  val statementStarts = getStatementStarts(tree)
-  val dequeueSpots = getDequeueSpots(tree) ++ statementStarts.keys
-  val matchingParentheses = getMatchingParentheses(tree.tokens)
+  val ownersMap: Map[TokenHash, Tree] = getOwners(tree)
+  val statementStarts: Map[TokenHash, Tree] = getStatementStarts(tree)
+  val dequeueSpots: Set[TokenHash] = getDequeueSpots(tree) ++ statementStarts.keys
+  val matchingParentheses: Map[TokenHash, Token] = getMatchingParentheses(
+    tree.tokens)
   val styleMap = new StyleMap(tokens, initStyle)
   private val vAlignDepthCache = mutable.Map.empty[Tree, Int]
+  val additions: Seq[Addition] =
+    range.map(x => Addition(x.start, x.end - x.start + 1)).toSeq
+  val tokenRanges: Seq[FormatTokenRange] =
+    FileDiff.getFormatTokenRanges(tokens, additions)
+  logger.elem(tokenRanges)
+  val formatOff: Array[Boolean] = {
+    val result = new Array[Boolean](tokens.length)
+    var off = false
+    var i = 0
+    tokens.foreach { tok =>
+      if (isFormatOff(tok.left)) off = true
+      else if (isFormatOn(tok.left)) off = false
+      result(i) = off
+      i += 1
+    }
+    result
+  }
 
   @inline
   def owners(token: Token): Tree = ownersMap(hash(token))
@@ -522,7 +546,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     nonWhitespaceOffset(right) - nonWhitespaceOffset(left)
   }
 
-  def breakOnEveryWith(owner: Option[Tree], lastToken: Token) = {
+  def breakOnEveryWith(owner: Option[Tree], lastToken: Token): Policy = {
     if (styleMap.at(leftTok2tok(lastToken)).binPackParentConstructors) NoPolicy
     else {
       Policy({
@@ -536,7 +560,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   def binPackParentConstructorSplits(
       owner: Option[Tree],
       lastToken: Token,
-      indent: Int)(implicit line: sourcecode.Line) = {
+      indent: Int)(implicit line: sourcecode.Line): Seq[Split] = {
     Seq(
       Split(Space, 0)
         .withPolicy(SingleLineBlock(lastToken))

@@ -9,6 +9,7 @@ import org.scalafmt.config.FormatEvent.CompleteFormat
 import org.scalafmt.config.FormatEvent.Enqueue
 import org.scalafmt.config.FormatEvent.Explored
 import org.scalafmt.config.FormatEvent.VisitToken
+import org.scalafmt.diff.FormatTokenRange
 import org.scalafmt.internal.ExpiresOn.Right
 import org.scalafmt.internal.Length.Num
 import org.scalafmt.util.LoggerOps
@@ -19,7 +20,7 @@ import org.scalafmt.util.TreeOps
   * Implements best first search to find optimal formatting.
   */
 class BestFirstSearch(val formatOps: FormatOps,
-                      range: Set[Range],
+                      range: Seq[Range],
                       formatWriter: FormatWriter) {
   import Token._
 
@@ -168,7 +169,8 @@ class BestFirstSearch(val formatOps: FormatOps,
         result = curr
         Q.dequeueAll
       } else if (shouldEnterState(curr)) {
-        val splitToken = tokens(curr.splits.length)
+        val i = curr.splits.length
+        val splitToken = tokens(i)
         val style = styleMap.at(splitToken)
         if (curr.splits.length > deepestYet.splits.length) {
           deepestYet = curr
@@ -220,9 +222,8 @@ class BestFirstSearch(val formatOps: FormatOps,
         } else {
 
           val splits: Seq[Split] =
-            if (curr.formatOff) List(provided(splitToken))
-            else if (splitToken.inside(range)) routes(curr.splits.length)
-            else List(provided(splitToken))
+            if (formatOff(i)) List(provided(splitToken))
+            else routes(curr.splits.length)
 
           val actualSplit = {
             curr.policy
