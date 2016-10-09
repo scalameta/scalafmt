@@ -126,10 +126,23 @@ trait Settings {
     }
   }
   protected[scalafmt] val fallbackAlign = new AlignToken("<empty>", ".*")
-  lazy val alignReader: Reader[AlignToken] = Reader.instance[AlignToken] {
+  lazy val alignTokenReader: Reader[AlignToken] = Reader.instance[AlignToken] {
     case str: String => Right(AlignToken(str, ".*"))
     case x => fallbackAlign.reader.read(x)
   }
+
+  def alignReader(initTokens: Set[AlignToken]): Reader[Set[AlignToken]] = {
+    val baseSetReader = Reader.setR(alignTokenReader)
+    Reader.instance[Set[AlignToken]] {
+      case String2AnyMap(map) if map.contains("add") =>
+        baseSetReader.read(map("add")) match {
+          case Right(addedTokens) => Right(initTokens ++ addedTokens)
+          case x => x
+        }
+      case els => baseSetReader.read(els)
+    }
+  }
+
   lazy val indentReader: Reader[IndentOperator] =
     Reader.instance[IndentOperator] {
       case "spray" => Right(IndentOperator.akka)
