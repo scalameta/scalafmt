@@ -52,8 +52,8 @@ object CliArgParser {
           if (file.startsWith("\""))
             file.stripPrefix("\"").stripSuffix("\"")
           else FileOps.readFile(file)
-        Hocon2Class
-          .gimmeClass[ScalafmtConfig](contents, c.config.reader, None) match {
+
+        Config.fromHocon(contents) match {
           case Right(style) => c.copy(config = style)
           case Left(e) => throw e
         }

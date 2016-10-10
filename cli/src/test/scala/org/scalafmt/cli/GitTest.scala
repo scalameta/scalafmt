@@ -22,6 +22,7 @@ class GitTest extends FunSuite with DiffAssertions {
            |project.excludeFilters = [target]
            |""".stripMargin
       )
+
     val expected =
       """|/.scalafmt.conf
          |maxColumn = 2

@@ -23,7 +23,8 @@ class CliTest extends FunSuite with DiffAssertions {
   val expected10 = """|object a
                       |    extends App {
                       |  pr(
-                      |    "h")
+                      |    "h"
+                      |  )
                       |}""".stripMargin
   val formatted = """|object a extends App {
                      |  pr("h")
@@ -48,7 +49,7 @@ class CliTest extends FunSuite with DiffAssertions {
     Files.write(tmpFile, unformatted.getBytes)
     val args = Array(
       "--config",
-      "\"maxColumn=7\"",
+      "\"{maxColumn=7,style=IntelliJ}\"",
       "--in-place",
       "--files",
       tmpFile.toFile.getPath
@@ -142,4 +143,5 @@ class CliTest extends FunSuite with DiffAssertions {
     val obtained = dir2string(input)
     assertNoDiff(obtained, expected)
   }
+
 }
