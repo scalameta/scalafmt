@@ -343,5 +343,5 @@
     really don't recommend you rely on.
     However, just in case, here they are.
 
-    @hl.scala(org.scalafmt.config.Config.displayAll(default.fields).mkString("\n"))
+    @hl.scala(org.scalafmt.config.Config.toHocon(default.fields).mkString("\n"))
 

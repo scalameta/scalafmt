@@ -14,18 +14,21 @@ import org.scalafmt.util.logger
 
 object Config {
 
-  def displayAll(any: Any): Seq[String] = any match {
+  def toHocon(any: Any): Seq[String] = any match {
     case String2AnyMap(m) =>
       m.flatMap {
         case (k, v) =>
-          displayAll(v).map { x =>
+          toHocon(v).map { x =>
             if (x.startsWith(" ")) s"$k$x"
             else s"$k.$x"
           }
       }.toSeq
-    case x: HasFields => displayAll(x.fields)
+    case x: HasFields => toHocon(x.fields)
     case x: Traversable[_] =>
-      Seq(x.flatMap(displayAll).mkString(" = [", "\n  ", "]"))
+      Seq(
+        x.flatMap(toHocon)
+          .map(_.stripPrefix(" = "))
+          .mkString(" = [", "\n  ", "]"))
     case x =>
       val str = s"$x"
       val output =

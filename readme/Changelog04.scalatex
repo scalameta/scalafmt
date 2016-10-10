@@ -2,6 +2,62 @@
 @import org.scalafmt.readme.Readme._
 @import org.scalafmt.config.ScalafmtConfig
 
+@sect{0.4.5}
+  @ul
+    @li
+      The CLI has a new experimental feature so that running @code{scalafmt} (without flags)
+      will read configuration from .scalafmt.conf at the root of your git repo or current directory and
+      then format all files in your entire project or current directory.
+      @p
+        You opt into the git integration by setting @cliFlags{project.git = true}.
+      @p
+        You exclude files with @cliFlags{project.excludeFilters = [regex1, regex2]}.
+      @p
+        For more details, refer to the brand new @sect.ref{--help} section.
+
+      @p
+        I hope to make this feature stable by 0.5, all feedback is very welcome.
+        I plan to replace the current logic in the SBT plugin to figure out which
+        files to format with this new feature.
+      @p
+        If you are interested in having this feature work with other VCS like mercurial,
+        don't hesitate to introduce yourself in the Gitter channel.
+      @p
+        @note. I realised after releasing 0.4.5 that I forgot to
+        expose the @code{--stdin} flag that replaces the previous behavior of running
+        @code{scalafmt} (without flags). If you rely on reading from stdin you need to wait
+        until 0.4.6, sorry.
+    @li
+      New @code{scalafmt} bash script that can upgrade itself, see @sect.ref{Linux/OSX}.
+      Thank you @user{hntd187}!
+    @li
+      You can now see @b{all} available configuration options in scalafmt, see @sect.ref{Other}.
+    @li
+      New flag @cliFlags{runner.fatalWarnings = true} (only respected in CLI for now)
+      to throw an exception for warnings like parse errors or "Search state exploded".
+    @li
+      New configuration syntax @cliFlags{align.tokens.add = [foo]} to add align
+      tokens on top of the existing align tokens in your base style.
+    @li
+      The CLI has gone through a long overdue code-health check and should now
+      be easier to extend.
+    @li
+      Fixed indentation for large patterns on the left-hand side of assignments:
+      @hl.scala
+        // before (note lack of indent)
+        val m.Term.New(
+        m.Template(Nil,
+                   Seq(mparent),
+                   m.Term.Param(Nil, m.Name.Anonymous(), None, None),
+                   None)) =
+          lapply.toMtree[m.Term.New]
+        // after (note 2 space indent)
+        val m.Term.New(
+          m.Template(Nil,
+                     Seq(mparent),
+                     m.Term.Param(Nil, m.Name.Anonymous(), None, None),
+                     None)) =
+          lapply.toMtree[m.Term.New]
 @sect{0.4.4}
   @ul
     @li

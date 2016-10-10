@@ -6,7 +6,7 @@ import org.scalatest.FunSuite
 class ConfigTest extends FunSuite {
   test("displayAll") {
     val output =
-      Config.displayAll(ScalafmtConfig.default.fields).mkString("\n")
+      Config.toHocon(ScalafmtConfig.default.fields).mkString("\n")
     logger.elem(output)
   }
 
