@@ -10,6 +10,7 @@ import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.GitOps
 import org.scalafmt.util.GitOpsImpl
+import org.scalafmt.util.logger
 
 object CliOptions {
   val default = CliOptions()

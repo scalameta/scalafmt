@@ -12,6 +12,10 @@ import org.scalatest.FunSuite
 
 class CliTest extends FunSuite with DiffAssertions {
   import FileTestOps._
+
+  def getConfig(args: Array[String]): CliOptions = {
+    CliArgParser.scoptParser.parse(args, CliOptions.default).get
+  }
   val unformatted = """
                       |object a    extends   App {
                       |pr(
@@ -54,7 +58,7 @@ class CliTest extends FunSuite with DiffAssertions {
       "--files",
       tmpFile.toFile.getPath
     )
-    val formatInPlace = CliArgParser.scoptParser.parse(args).get
+    val formatInPlace = getConfig(args)
     Cli.run(formatInPlace)
     val obtained = FileOps.readFile(tmpFile.toString)
     assertNoDiff(obtained, expected10)
@@ -68,7 +72,7 @@ class CliTest extends FunSuite with DiffAssertions {
       tmpFile.toFile.getPath,
       "--test"
     )
-    val formatInPlace = CliArgParser.scoptParser.parse(args).get
+    val formatInPlace = getConfig(args)
     intercept[MisformattedFile] {
       Cli.run(formatInPlace)
     }
@@ -99,15 +103,13 @@ class CliTest extends FunSuite with DiffAssertions {
           |/foobar.scala
           |object A {}
           |""".stripMargin
-    val options = CliArgParser.scoptParser
-      .parse(
-        Array(
-          "--files",
-          input.getAbsolutePath,
-          "-i"
-        )
+    val options = getConfig(
+      Array(
+        "--files",
+        input.getAbsolutePath,
+        "-i"
       )
-      .get
+    )
     Cli.run(options)
     val obtained = dir2string(input)
     assertNoDiff(obtained, expected)
@@ -128,17 +130,14 @@ class CliTest extends FunSuite with DiffAssertions {
           |/target/generated.scala
           |object    AAAAAAIgnoreME   {  }
           |""".stripMargin
-    val options = CliArgParser.scoptParser
-      .parse(
-        Array(
-          "--files",
-          input.getAbsolutePath,
-          "--exclude",
-          "target",
-          "-i"
-        )
-      )
-      .get
+    val options = getConfig(
+      Array(
+        "--files",
+        input.getAbsolutePath,
+        "--exclude",
+        "target",
+        "-i"
+      ))
     Cli.run(options)
     val obtained = dir2string(input)
     assertNoDiff(obtained, expected)
