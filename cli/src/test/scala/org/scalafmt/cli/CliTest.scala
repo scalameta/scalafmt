@@ -54,7 +54,7 @@ class CliTest extends FunSuite with DiffAssertions {
       "--files",
       tmpFile.toFile.getPath
     )
-    val formatInPlace = Cli.getConfig(args).get
+    val formatInPlace = CliArgParser.scoptParser.parse(args).get
     Cli.run(formatInPlace)
     val obtained = FileOps.readFile(tmpFile.toString)
     assertNoDiff(obtained, expected10)
@@ -68,7 +68,7 @@ class CliTest extends FunSuite with DiffAssertions {
       tmpFile.toFile.getPath,
       "--test"
     )
-    val formatInPlace = Cli.getConfig(args).get
+    val formatInPlace = CliArgParser.scoptParser.parse(args).get
     intercept[MisformattedFile] {
       Cli.run(formatInPlace)
     }
@@ -78,9 +78,7 @@ class CliTest extends FunSuite with DiffAssertions {
     val tmpFile = Files.createTempFile("prefix", "suffix")
     Files.write(tmpFile, unformatted.getBytes)
     val formatInPlace =
-      CliOptions.default
-        .copy(inPlace = true)
-        .withFiles(Seq(tmpFile.toFile))
+      CliOptions.default.copy(inPlace = true).withFiles(Seq(tmpFile.toFile))
     Cli.run(formatInPlace)
     val obtained = FileOps.readFile(tmpFile.toString)
     assertNoDiff(obtained, unformatted)
@@ -101,13 +99,14 @@ class CliTest extends FunSuite with DiffAssertions {
           |/foobar.scala
           |object A {}
           |""".stripMargin
-    val options = Cli
-      .getConfig(
+    val options = CliArgParser.scoptParser
+      .parse(
         Array(
           "--files",
           input.getAbsolutePath,
           "-i"
-        ))
+        )
+      )
       .get
     Cli.run(options)
     val obtained = dir2string(input)
@@ -129,15 +128,16 @@ class CliTest extends FunSuite with DiffAssertions {
           |/target/generated.scala
           |object    AAAAAAIgnoreME   {  }
           |""".stripMargin
-    val options = Cli
-      .getConfig(
+    val options = CliArgParser.scoptParser
+      .parse(
         Array(
           "--files",
           input.getAbsolutePath,
           "--exclude",
           "target",
           "-i"
-        ))
+        )
+      )
       .get
     Cli.run(options)
     val obtained = dir2string(input)
