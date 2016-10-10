@@ -52,3 +52,18 @@ val x: Int =
 >>>
 val x: Int =
   1
+<<< #506
+val m.Term.New(
+m.Template(Nil,
+           Seq(mparent, bbbbb, cccccccdddsssssddddd),
+           None)) =
+  lapply.toMtree[m.Term.New]
+>>>
+val m.Term.New(
+    m.Template(
+        Nil,
+        Seq(mparent,
+            bbbbb,
+            cccccccdddsssssddddd),
+        None)) =
+  lapply.toMtree[m.Term.New]

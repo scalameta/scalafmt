@@ -65,3 +65,9 @@ case f @ \/-(a) => f
 case x:Foo [_] => 1
 >>>
 case x: Foo[_] => 1
+<<< #506
+case Foooooooooooooooo(aaaaaaaaaaaaaaaa, bbbbbbbbbbbb) =>
+>>>
+case Foooooooooooooooo(
+    aaaaaaaaaaaaaaaa,
+    bbbbbbbbbbbb) =>
