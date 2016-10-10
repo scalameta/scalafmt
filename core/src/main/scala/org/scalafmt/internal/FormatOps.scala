@@ -472,7 +472,10 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   def getApplyIndent(leftOwner: Tree, isConfigStyle: Boolean = false): Num = {
     val style = styleAt(leftOwner)
     leftOwner match {
-      case _: Pat => Num(0) // Indentation already provided by case.
+      case _: Pat if leftOwner.parent.exists(_.is[Case]) =>
+        // The first layer of indentation is provided by the case ensure
+        // orpan comments and the case cond is indented correctly.
+        Num(0)
       case x if isDefnSite(x) && !x.isInstanceOf[Type.Apply] =>
         if (style.binPack.defnSite && !isConfigStyle) Num(0)
         else Num(style.continuationIndent.defnSite)
