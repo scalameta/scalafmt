@@ -100,22 +100,23 @@ trait Settings {
 
     }
 
-  val configReader: Reader[ScalafmtConfig] = Reader.instance[ScalafmtConfig] {
-    case String2AnyMap(map) =>
-      map.get("style") match {
-        case Some(baseStyle) =>
-          val noStyle = map.-("style")
-          ScalafmtConfig.availableStyles.get(baseStyle.toString.toLowerCase) match {
-            case Some(s) => s.reader.read(noStyle)
-            case None =>
-              val alternatives =
-                ScalafmtConfig.activeStyles.keys.mkString(", ")
-              Left(new IllegalArgumentException(
-                s"Unknown style name $baseStyle. Expected one of: $alternatives"))
-          }
-        case None => ScalafmtConfig.default.reader.read(map)
-      }
-  }
+  def configReader(baseReader: ScalafmtConfig): Reader[ScalafmtConfig] =
+    Reader.instance[ScalafmtConfig] {
+      case String2AnyMap(map) =>
+        map.get("style") match {
+          case Some(baseStyle) =>
+            val noStyle = map.-("style")
+            ScalafmtConfig.availableStyles.get(baseStyle.toString.toLowerCase) match {
+              case Some(s) => s.reader.read(noStyle)
+              case None =>
+                val alternatives =
+                  ScalafmtConfig.activeStyles.keys.mkString(", ")
+                Left(new IllegalArgumentException(
+                  s"Unknown style name $baseStyle. Expected one of: $alternatives"))
+            }
+          case None => baseReader.reader.read(map)
+        }
+    }
 
   def gimmeStrPairs(tokens: Seq[String]): Seq[(String, String)] = {
     tokens.map { token =>
