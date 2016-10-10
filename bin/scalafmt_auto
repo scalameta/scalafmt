@@ -42,7 +42,7 @@ if [[ -e $version_file ]]; then
 fi
 
 print_usage (){
-  echo -e "scalafmt runner verson: ???"
+  echo -e "scalafmt runner verson: 0.1"
   echo -e "Usage: ./scalafmt [RUNNER OPTS] [SCALAFMT OPTS]"
   echo -e "--version [VERSION] \t Version to invoke for scalafmt (fmt: 0.4.2, not v0.4.2)"
   echo -e "--dir [DIR] \t\t Directory to store scalafmt jars, default is $HOME/.scalafmt-bin/"
