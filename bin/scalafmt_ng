@@ -13,6 +13,8 @@ check_version(){
   fi
 }
 
+SCALAFMT_HOME="$HOME/.scalafmt-bin"
+NAILGUN=$(which ng || which ng-nailgun)
 CURL=$(which curl)
 TAR=$(which tar)
 JAVA=$(which java)
@@ -30,10 +32,13 @@ check_latest () {
     echo "The github call failed, either because of an internet connection issue or rate limits..."
     exit 1
   fi
+  if [[ -e "$SCALAFMT_HOME/nailgun" ]]; then
+    $NAILGUN ng-stats &> /dev/null && $NAILGUN ng-stop &> /dev/null
+  fi
 }
 
 current_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-version_file="$HOME/.scalafmt-bin/version"
+version_file="$SCALAFMT_HOME/version"
 upgrade=false
 
 if [[ -e $version_file ]]; then
@@ -42,11 +47,11 @@ if [[ -e $version_file ]]; then
 fi
 
 print_usage (){
-  echo -e "scalafmt runner verson: 0.1"
+  echo -e "scalafmt runner verson: 0.2"
   echo -e "Usage: ./scalafmt [RUNNER OPTS] [SCALAFMT OPTS]"
   echo -e "--version [VERSION] \t Version to invoke for scalafmt (fmt: 0.4.2, not v0.4.2)"
-  echo -e "--dir [DIR] \t\t Directory to store scalafmt jars, default is $HOME/.scalafmt-bin/"
   echo -e "--upgrade \t\t Check GitHub for the latest version of scalafmt and use that"
+  echo -e "--dir [DIR] \t\t Directory to store scalafmt jars, default is $HOME/.scalafmt-bin/"
   echo -e "--h \t\t\t Display this message, this must be the first arguement for this to be invoked"
   echo
   echo -e "This script only checks the first three args for it's options, anything beyond that is ignored"
@@ -61,26 +66,26 @@ if [[ "$1" = "--h" ]]; then
   print_usage
 fi
 for arg in "$1" "$2" "$3"; do
-    case "$arg" in
-        --version)
+	case "$arg" in
+		--version)
       if [[ $upgrade = true || $3 = "--upgrade" ]]; then
         echo "You can't specify a custom version with --upgrade"
         exit 1
       fi
-          if [[ $2 =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+		  if [[ $2 =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
         scalafmt_version="v$2"
         echo "Using version: $scalafmt_version"
-            shift 2
-          else
-            echo "You must pass a valid version with --v"
-            exit 1
-          fi
-          ;;
-        --dir)
-            echo "Using dir: $2"
-            default_dir="$2"
-            shift 2
-            ;;
+		    shift 2
+		  else
+		    echo "You must pass a valid version with --v"
+		    exit 1
+		  fi
+		  ;;
+		--dir)
+			echo "Using dir: $2"
+			default_dir="$2"
+			shift 2
+			;;
     --upgrade)
       if [[ $2 = "--version" ]]; then
         echo "You can't specify a custom version with --upgrade"
@@ -88,12 +93,13 @@ for arg in "$1" "$2" "$3"; do
       fi
       upgrade=true
       check_latest
+      exit 0 # upgrade should not be mixed with formatting.
       scalafmt_version=$latest_version
       shift
       ;;
-        *)
-          ;;
-    esac
+		*)
+		  ;;
+	esac
 done
 
 if [[ ! -e $version_file && $upgrade = false ]]; then
@@ -104,7 +110,7 @@ if [[ ! -e $version_file && $upgrade = false ]]; then
 fi
 
 if [[ ! "$default_dir" ]]; then
-  default_dir="$HOME/.scalafmt-bin/releases/$scalafmt_version"
+  default_dir="$SCALAFMT_HOME/releases/$scalafmt_version"
 fi
 
 if [[ ! -d "$default_dir" ]]; then
@@ -128,4 +134,16 @@ if [[ ! -e "$default_dir/scalafmt-$scalafmt_version.jar" ]]; then
   rm "$default_dir/scalafmt.tar.gz"
 fi
 
-$JAVA -jar "$default_dir/$scalafmt_filename" "$@"
+startNailgun() {
+  echo "Starting nailgun..." >& 2
+  $JAVA -cp "$default_dir/$scalafmt_filename" com.martiansoftware.nailgun.NGServer &
+  sleep 1
+  $NAILGUN ng-alias scalafmt org.scalafmt.cli.Cli
+}
+
+if [[  "$NAILGUN" != "" && -e "$SCALAFMT_HOME/nailgun" ]]; then
+  $NAILGUN ng-stats &> /dev/null || startNailgun
+  $NAILGUN scalafmt "$@"
+else
+  $JAVA -jar "$default_dir/$scalafmt_filename" "$@"
+fi

@@ -490,16 +490,17 @@ class TermDisplay(
   }
   override def taskProgress(url: String, downloaded: Long): Unit = {
     val info = updateThread.infos.get(url)
-    assert(info != null)
-    val newInfo = info match {
-      case info0: DownloadInfo =>
-        info0.copy(downloaded = downloaded)
-      case _ =>
-        throw new Exception(s"Incoherent display state for $url")
-    }
-    updateThread.infos.put(url, newInfo)
+    if (info != null) { // We might not want the progress bar.
+      val newInfo = info match {
+        case info0: DownloadInfo =>
+          info0.copy(downloaded = downloaded)
+        case _ =>
+          throw new Exception(s"Incoherent display state for $url")
+      }
+      updateThread.infos.put(url, newInfo)
 
-    updateThread.update()
+      updateThread.update()
+    }
   }
 
   override def completedTask(url: String, success: Boolean): Unit =

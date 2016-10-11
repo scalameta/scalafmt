@@ -13,17 +13,41 @@ trait GitOps {
   def rootDir: Option[File]
 }
 
-class GitOpsImpl extends GitOps {
+object GitOps {
+  def apply(): GitOps =
+    new GitOpsImpl(new File(System.getProperty("user.dir")))
+}
+
+class GitOpsImpl(workingDirectory: File) extends GitOps {
+  val gitTree = new File(workingDirectory, ".git").getAbsolutePath
+  val workTree = workingDirectory.getAbsolutePath
   import sys.process._
+
+  val baseCommand = Seq("git")
+
+  def exec(cmd: Seq[String]): String = {
+    sys.process.Process(cmd, workingDirectory).!!.trim
+  }
 
   override def lsTree: Seq[String] =
     Try {
-      Seq("git", "ls-tree", "-r", "HEAD", "--name-only").!!.split("\n").toSeq
+      exec(
+        baseCommand ++ Seq(
+          "ls-tree",
+          "-r",
+          "HEAD",
+          "--name-only"
+        )
+      ).split("\n").toSeq.collect {
+        case f if new File(f).isFile =>
+          new File(workingDirectory, f).getAbsolutePath
+      }
     }.getOrElse(Nil)
 
   override def rootDir: Option[File] =
     Try {
-      val result = new File(Seq("git", "rev-parse", "--show-toplevel").!!.trim)
+      val cmd = baseCommand ++ Seq("rev-parse", "--show-toplevel")
+      val result = new File(exec(cmd))
       require(result.isDirectory)
       result
     }.toOption

@@ -66,39 +66,26 @@ object CliArgParser {
       opt[Unit]('v', "version")
         .action(printAndExit(inludeUsage = false))
         .text("print version ")
-      opt[Seq[File]]('f', "files")
-        .action(
-          (files, c) =>
-            c.copy(
-              config = c.config.copy(
-                project = c.config.project.copy(
-                  files = c.config.project.files ++ files.map(_.getPath)
-                )
-              )
-          ))
-        .text(
-          "file or directory, in which case all *.scala files are formatted.")
+      opt[Seq[File]]('f', "files").action { (files, c) =>
+        c.copy(customFiles = files)
+      }.text(
+        "file or directory, in which case all *.scala files are formatted.")
       opt[Seq[String]]("exclude")
-        .action(
-          (files, c) =>
-            c.copy(
-              config = c.config.copy(
-                project = c.config.project.copy(
-                  excludeFilters = files
-                )
-              )
-          ))
+        .action((excludes, c) => c.copy(customExcludes = excludes))
         .text(
           "file or directory, in which case all *.scala files are formatted.")
       opt[String]('c', "config")
         .action(readConfigFromFile)
         .text(
           "either a file or configuration wrapped in quotes \" with no spaces.")
+      opt[Unit]("stdin")
+        .action((_, c) => c.copy(stdIn = true))
+        .text("read from stdin and print to stdout")
       opt[Unit]('i', "in-place")
         .action((_, c) => c.copy(inPlace = true))
         .text("write output to file, does nothing if file is not specified")
       opt[Unit]("test")
-        .action((_, c) => c.copy(inPlace = false, testing = true))
+        .action((_, c) => c.copy(testing = true))
         .text("test for mis-formatted code, exits with status 1 on failure.")
       opt[File]("migrate2hocon")
         .action((file, c) => c.copy(migrate = Some(file)))
