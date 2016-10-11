@@ -10,7 +10,6 @@ import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.GitOps
 import org.scalafmt.util.GitOpsImpl
-import org.scalafmt.util.logger
 
 object CliOptions {
   val default = CliOptions()
@@ -28,12 +27,21 @@ object CliOptions {
     * contains an error. Why? Because this method is only supposed to be
     * called directly from main.
     */
-  def auto(init: CliOptions): CliOptions = {
-    val style =
-      tryGit(init)
-        .orElse(tryCurrentDirectory(init))
-        .getOrElse(init.config)
-    init.copy(config = style)
+  def auto(init: CliOptions)(parsed: CliOptions): CliOptions = {
+    val style: Option[ScalafmtConfig] = if (init.config != parsed.config) {
+      Option(parsed.config)
+    } else {
+      tryGit(parsed).orElse(tryCurrentDirectory(parsed))
+    }
+    val inplace =
+      !parsed.testing && (
+        parsed.inPlace ||
+          (parsed.customFiles.isEmpty && style.isDefined)
+      )
+    parsed.copy(
+      inPlace = inplace,
+      config = style.getOrElse(parsed.config)
+    )
   }
 
   private def getConfigJFile(file: File): File =
@@ -61,41 +69,39 @@ object CliOptions {
 
   private def tryCurrentDirectory(
       options: CliOptions): Option[ScalafmtConfig] = {
-    tryDirectory(options)(new File(options.common.workingDirectory))
+    tryDirectory(options)(options.common.workingDirectory)
   }
 }
 case class CommonOptions(
-    workingDirectory: String = System.getProperty("user.dir"),
+    workingDirectory: File = new File(System.getProperty("user.dir")),
     out: PrintStream = System.out,
     in: InputStream = System.in,
     err: PrintStream = System.err
-)
+) {
+  require(workingDirectory.isAbsolute)
+}
 
 case class CliOptions(
     config: ScalafmtConfig = ScalafmtConfig.default,
     range: Set[Range] = Set.empty[Range],
-    inPlace: Boolean = true,
+    customFiles: Seq[File] = Nil,
+    customExcludes: Seq[String] = Nil,
+    inPlace: Boolean = false,
     testing: Boolean = false,
     stdIn: Boolean = false,
     assumeFilename: String = "foobar.scala", // used when read from stdin
     migrate: Option[File] = None,
     common: CommonOptions = CommonOptions(),
-    gitOps: GitOps = new GitOpsImpl
+    gitOpsConstructor: File => GitOps = x => new GitOpsImpl(x)
 ) {
-
   require(!(inPlace && testing), "inPlace and testing can't both be true")
 
+  val gitOps: GitOps = gitOpsConstructor(common.workingDirectory)
   def withProject(projectFiles: ProjectFiles): CliOptions = {
     this.copy(config = config.copy(project = projectFiles))
   }
 
   def withFiles(files: Seq[File]): CliOptions = {
-    this.copy(
-      config = config.copy(
-        project = config.project.copy(
-          files = files.map(_.getPath)
-        )
-      )
-    )
+    this.copy(customFiles = files)
   }
 }

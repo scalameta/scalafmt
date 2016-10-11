@@ -15,23 +15,42 @@ import org.scalafmt.config.Config
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.LogLevel
+import com.martiansoftware.nailgun.NGContext
 
 object Cli {
+  def nailMain(nGContext: NGContext): Unit = {
+    mainWithOptions(
+      nGContext.getArgs,
+      CliOptions.default.copy(
+        common = CliOptions.default.common.copy(
+          workingDirectory =
+            new File(nGContext.getWorkingDirectory).getAbsoluteFile,
+          out = nGContext.out,
+          in = nGContext.in,
+          err = nGContext.err
+        )
+      )
+    )
+
+  }
+  def main(args: Array[String]): Unit = {
+    mainWithOptions(args, CliOptions.default)
+  }
+
+  def mainWithOptions(args: Array[String], options: CliOptions): Unit = {
+    getConfig(args, options) match {
+      case Some(x) => run(x)
+      case None => throw UnableToParseCliOptions
+    }
+  }
+
   def run(options: CliOptions): Unit = {
     if (options.migrate.nonEmpty) runMigrate(options)
     else runFormat(options)
   }
 
-  def getConfig(args: Array[String]): Option[CliOptions] = {
-    val init = CliOptions.auto(CliOptions.default)
-    CliArgParser.scoptParser.parse(args, init)
-  }
-
-  def main(args: Array[String]): Unit = {
-    getConfig(args) match {
-      case Some(x) => run(x)
-      case None => throw UnableToParseCliOptions
-    }
+  def getConfig(args: Array[String], init: CliOptions): Option[CliOptions] = {
+    CliArgParser.scoptParser.parse(args, init).map(CliOptions.auto(init))
   }
 
   private def mkRegexp(filters: Seq[String]): Regex =
@@ -41,34 +60,62 @@ object Cli {
       case _ => filters.mkString("(", "|", ")").r
     }
 
+  def canFormat(path: String): Boolean =
+    path.endsWith(".scala") || path.endsWith(".sbt")
+
+  def expandCustomFiles(workingDir: File, files: Seq[File]): Seq[String] =
+    files.map(makeAbsolute(workingDir)).flatMap {
+      case f if f.isDirectory =>
+        FileOps.listFiles(f).filter(canFormat)
+      // we don't filter out custom files, even if they don't exist or contain
+      // weird suffixes.
+      case f => Seq(f.getAbsolutePath)
+    }
+
+  def makeAbsolute(workingDir: File)(file: File): File =
+    if (file.isAbsolute) file
+    else new File(workingDir, file.getPath)
+
+  /** Returns file paths defined via options.{customFiles,customExclude} */
+  def getFilesFromCliOptions(options: CliOptions): Seq[String] = {
+    // Ensure all paths are absolute
+    val absolute =
+      options.customFiles.map(makeAbsolute(options.common.workingDirectory))
+    val exclude = mkRegexp(options.customExcludes)
+    expandCustomFiles(options.common.workingDirectory, options.customFiles)
+      .filter(x => exclude.findFirstIn(x).isEmpty)
+  }
+
+  /** Returns file paths defined via options.project */
   private def getFilesFromProject(options: CliOptions): Seq[String] = {
-    import options.config.project._
-    val include = mkRegexp(includeFilters)
-    val exclude = mkRegexp(excludeFilters)
+    val project = options.config.project
+    val include = mkRegexp(project.includeFilters)
+    val exclude = mkRegexp(project.excludeFilters)
 
     def matches(path: String): Boolean =
       include.findFirstIn(path).isDefined &&
         exclude.findFirstIn(path).isEmpty
-
-    val gitFiles: Seq[String] = if (git) options.gitOps.lsTree else Nil
-    val otherFiles: Seq[String] =
-      files.flatMap(x => FileOps.listFiles(x))
-    val x = gitFiles.map(x => matches(x) -> x)
-    (otherFiles ++ gitFiles).filter(matches)
+    val projectFiles: Seq[String] = (
+      if (project.git) {
+        options.gitOps.lsTree
+      } else {
+        FileOps.listFiles(options.common.workingDirectory)
+      }
+    ).filter(canFormat)
+    val customFiles: Seq[String] =
+      expandCustomFiles(options.common.workingDirectory,
+                        project.files.map(new File(_)))
+    (customFiles ++ projectFiles).filter(matches)
   }
 
   private def getInputMethods(options: CliOptions): Seq[InputMethod] = {
     if (options.stdIn) {
       Seq(InputMethod.StdinCode(options.assumeFilename, options.common.in))
     } else {
-      val projectFiles = getFilesFromProject(options)
-      val toFormat =
-        if (projectFiles.isEmpty) {
-          FileOps.listFiles(options.common.workingDirectory)
-        } else projectFiles
-      toFormat
-        .withFilter(x => x.endsWith(".scala") || x.endsWith(".sbt"))
-        .map(InputMethod.FileContents.apply)
+      val projectFiles: Seq[String] =
+        if (options.customFiles.nonEmpty) getFilesFromCliOptions(options)
+        else getFilesFromProject(options)
+      projectFiles.map(InputMethod.FileContents.apply)
     }
   }
 
@@ -105,33 +152,42 @@ object Cli {
     }
   }
 
-  private def termDisplayMessage = "Running scalafmt..."
-
-  private def newTermDisplay(options: CliOptions,
-                             inputMethods: Seq[InputMethod]): TermDisplay = {
-    val workingDirectory = new File(options.common.workingDirectory)
-    val termDisplay = new TermDisplay(new OutputStreamWriter(System.out))
-    if (!options.stdIn && inputMethods.length > 5) termDisplay.init()
-    termDisplay.startTask(termDisplayMessage, workingDirectory)
-    termDisplay.taskLength(termDisplayMessage, inputMethods.length, 0)
+  def newTermDisplay(options: CliOptions,
+                     inputMethods: Seq[InputMethod],
+                     msg: String): TermDisplay = {
+    val termDisplay = new TermDisplay(
+      new OutputStreamWriter(options.common.err))
+    if ((options.inPlace || options.testing) && inputMethods.length > 5) {
+      termDisplay.init()
+      termDisplay.startTask(msg, options.common.workingDirectory)
+      termDisplay.taskLength(msg, inputMethods.length, 0)
+    }
     termDisplay
   }
 
   private def runFormat(options: CliOptions): Unit = {
     val inputMethods = getInputMethods(options)
     val counter = new AtomicInteger()
+    val termDisplayMessage =
+      if (options.testing) "Looking for unformatted files..."
+      else "Reformatting..."
+
     val sbtOptions = options.copy(
       config = options.config.copy(
         runner = options.config.runner.copy(
           dialect = Sbt0137
         )))
-    val termDisplay = newTermDisplay(options, inputMethods)
+    val termDisplay = newTermDisplay(options, inputMethods, termDisplayMessage)
+    val N = inputMethods.length
     inputMethods.par.foreach { inputMethod =>
       val inputConfig = if (inputMethod.isSbt) sbtOptions else options
       handleFile(inputMethod, inputConfig)
       termDisplay.taskProgress(termDisplayMessage, counter.incrementAndGet())
     }
     termDisplay.stop()
+    if (options.testing) {
+      options.common.out.println("All files are formatted with scalafmt :)")
+    }
   }
 
 }

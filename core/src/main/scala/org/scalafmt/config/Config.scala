@@ -40,10 +40,9 @@ object Config {
   /** Read ScalafmtConfig from String contents from an optional HOCON path. */
   def fromHocon(string: String,
                 path: Option[String] = None): Result[ScalafmtConfig] =
-    Hocon2Class
-      .gimmeClass[ScalafmtConfig](
-        string,
-        ScalafmtConfig.configReader(ScalafmtConfig.default),
-        path)
+    Hocon2Class.gimmeClass[ScalafmtConfig](
+      string,
+      ScalafmtConfig.configReader(ScalafmtConfig.default),
+      path)
 
 }

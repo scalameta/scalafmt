@@ -34,6 +34,7 @@ object InputMethod {
     }
   }
   case class FileContents(filename: String) extends InputMethod {
+    require(new File(filename).isAbsolute)
     def readInput: String = FileOps.readFile(filename)
     override def write(formatted: String,
                        original: String,
