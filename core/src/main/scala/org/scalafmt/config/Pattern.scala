@@ -17,7 +17,7 @@ case class Pattern(
 
 object Pattern {
   val neverInfix = Pattern(
-    Seq("\\w+"),
+    Seq("[\\w\\d_]+"),
     Seq(
       "until",
       "to",
@@ -25,6 +25,7 @@ object Pattern {
       "eq",
       "ne",
       "should.*",
+      "contain.*",
       "be",
       "synchronized",
       "have"

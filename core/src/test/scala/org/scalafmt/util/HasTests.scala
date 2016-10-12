@@ -2,6 +2,7 @@ package org.scalafmt.util
 
 import scala.collection.mutable
 import scala.meta.Tree
+import scala.meta.dialects.Scala211
 import scala.meta.parsers.Parse
 import scala.meta.parsers.ParseException
 import scala.util.Try

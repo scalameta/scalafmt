@@ -7,6 +7,12 @@ lst.map(foo)
 lst map (foo)
 >>>
 lst.map(foo)
+<<< has curly
+lst map { x => y }
+>>>
+lst.map { x =>
+  y
+}
 <<< to
 1 to 100
 >>>
@@ -20,3 +26,43 @@ consumerPollers forall
    (poller => poller.isSubscribeRequestProcessed())
 >>>
 consumerPollers.forall(poller => poller.isSubscribeRequestProcessed())
+<<< don't rewrite if comment
+consumerPollers forall // Why write a comment here??
+   (poller => poller.isSubscribeRequestProcessed())
+>>>
+consumerPollers forall // Why write a comment here??
+  (poller => poller.isSubscribeRequestProcessed())
+<<< Dangerous 2
+(consumerPollers forall
+
+
+
+   (poller => poller.isSubscribeRequestProcessed()))
+>>>
+(consumerPollers.forall(poller => poller.isSubscribeRequestProcessed()))
+<<< Dangerous 3
+consumerPollers forall (a, b)
+>>>
+consumerPollers.forall(a, b)
+<<< Dangerous 4
+consumerPollers forall (
+    a, b)
+>>>
+consumerPollers.forall(a, b)
+<<< do nothing if lhs is whitelisted
+an[SparkException] should be thrownBy {
+     // foobar
+}
+>>>
+an[SparkException] should be thrownBy {
+  // foobar
+}
+<<< nested infix
+a banana walked into a green bar
+>>>
+a.banana(walked) into a green bar
+<<< more scalatest
+cp should not contain (jar3.getPath())
+>>>
+cp should not contain (jar3.getPath())
+

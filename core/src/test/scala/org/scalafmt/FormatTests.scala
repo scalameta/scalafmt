@@ -51,6 +51,14 @@ class FormatTests
     .withFilter(testShouldRun)
     .foreach(runTest(run))
 
+  def normalize(tree: Tree): Tree = {
+    import scala.meta._
+    tree.transform {
+      case t: Term.ApplyInfix =>
+        Term.Apply(Term.Select(t.lhs, t.op), t.args)
+    }
+  }
+
   def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
     val runner = scalafmtRunner.copy(parser = parse)
     val obtained =
