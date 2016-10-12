@@ -1,0 +1,22 @@
+rewrite.rules = [AvoidInfix]
+<<< basic
+lst map foo
+>>>
+lst.map(foo)
+<<< has parens
+lst map (foo)
+>>>
+lst.map(foo)
+<<< to
+1 to 100
+>>>
+1 to 100
+<<< until
+1 until 100
+>>>
+1 until 100
+<<< Dangerous
+consumerPollers forall
+   (poller => poller.isSubscribeRequestProcessed())
+>>>
+consumerPollers.forall(poller => poller.isSubscribeRequestProcessed())
