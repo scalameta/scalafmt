@@ -88,10 +88,23 @@ object ScalaFmtPlugin extends AutoPlugin {
     List(
       ivyConfigurations += config("scalafmt").hide,
       libraryDependencies ++= Seq(
-        // scala-library needs to be explicitly added to fix
-        // https://github.com/olafurpg/scalafmt/issues/190
-        "org.scala-lang" % "scala-library"     % org.scalafmt.Versions.scala   % "scalafmt",
-        "com.geirsson"   % "scalafmt-cli_2.11" % org.scalafmt.Versions.nightly % "scalafmt"
+        //  Context: https://github.com/olafurpg/scalafmt/issues/485#issuecomment-253873977
+        //
+        //  - SBT plugins must build against 2.10
+        //  - scalafmt is 2.11 only because scala.meta makes heavy usage of macro
+        //    annotations.
+        //  - To solve this problem, the scalafmt SBT plugin classloads itself with
+        //    scala-library 2.11.8 in a hidden configuration (see
+        //        http://www.scala-sbt.org/0.13/docs/Library-Management.html#ivy-configurations)
+        //  - This solution is problematic because in 2.12 SBT builds the scala-library:2.11.8
+        //    dependency is evicted in favor of 2.12. Why? It appears SBT special handles
+        //    org.scala-lang:scala-library for some reason.
+        //
+        //    This solution may not work on a project that uses
+        //        org.typeleve:scala-library:2.12.  Hopefully everyone will use SBT 1.0
+        //  before that happens.
+        "org.typelevel" % "scala-library"     % org.scalafmt.Versions.scala   % "scalafmt",
+        "com.geirsson"  % "scalafmt-cli_2.11" % org.scalafmt.Versions.nightly % "scalafmt"
       )
     )
 
