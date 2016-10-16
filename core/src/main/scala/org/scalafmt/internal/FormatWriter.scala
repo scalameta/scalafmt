@@ -215,7 +215,10 @@ class FormatWriter(formatOps: FormatOps) {
       case (row1, row2) =>
         val row2Owner = getAlignOwner(row2.formatToken)
         val row1Owner = getAlignOwner(row1.formatToken)
-        key(row1.formatToken.right) == key(row2.formatToken.right) && {
+        def sameLengthToRoot =
+          lengthToRoot(row1Owner) == lengthToRoot(row2Owner)
+        key(row1.formatToken.right) == key(row2.formatToken.right) &&
+        sameLengthToRoot && {
           val eofParents = parents(owners(endOfLine.right))
           !(eofParents.contains(row1Owner) || eofParents.contains(row2Owner))
         }
