@@ -20,7 +20,10 @@ object RedundantBraces extends Rewrite {
     import ctx.style.rewrite.{redundantBraces => settings}
     def isBlock = d.body match {
       case t: Term.Block if t.stats.length == 1 =>
-        !t.stats.head.is[Term.Block] && // Nested blocks are trickier
+        (t.stats.head match {
+          case _: Term.Block | _: Term.Function => false
+          case _ => true
+        }) &&
           d.body.tokens.head.is[LeftBrace] &&
           d.body.tokens.last.is[RightBrace]
       case _ => false

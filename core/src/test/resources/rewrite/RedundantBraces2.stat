@@ -57,3 +57,19 @@ object a {
     // nb: the ruby code doesn't explicitly filter on charge being nonEmpty, but its absence would trigger an error
     pa.`type`.nonEmpty && wantedTypes.contains(pa.`type`.get) && pa.charge.nonEmpty
 }
+<<< function
+object A {
+  def validStringLength(min: Int, max: Int): String => Boolean = { s =>
+    val len: Int = s.length
+      (min <= len) && (len <= max)
+  }
+  def x = { 2 }
+}
+>>>
+object A {
+  def validStringLength(min: Int, max: Int): String => Boolean = { s =>
+    val len: Int = s.length
+    (min <= len) && (len <= max)
+  }
+  def x = 2
+}
