@@ -120,7 +120,7 @@ lazy val core = project
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,
       "com.typesafe"   % "config"        % "1.2.1",
       // Test dependencies
-      "org.scalariform"                %% "scalariform"    % Deps.scalariform,
+      "org.scalariform"                %% "scalariform"    % Deps.scalariform % "test",
       "org.scala-lang"                 % "scala-compiler"  % scalaVersion.value % "test",
       "ch.qos.logback"                 % "logback-classic" % "1.1.6" % "test",
       "com.googlecode.java-diff-utils" % "diffutils"       % "1.3.0" % "test",
