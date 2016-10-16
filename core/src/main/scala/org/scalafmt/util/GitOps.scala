@@ -1,6 +1,7 @@
 package org.scalafmt.util
 
 import scala.collection.breakOut
+import scala.sys.process.ProcessLogger
 import scala.util.Try
 
 import java.io.File
@@ -19,14 +20,14 @@ object GitOps {
 }
 
 class GitOpsImpl(workingDirectory: File) extends GitOps {
-  val gitTree = new File(workingDirectory, ".git").getAbsolutePath
-  val workTree = workingDirectory.getAbsolutePath
-  import sys.process._
-
+  val swallowStderr = ProcessLogger(_ => Unit, _ => Unit)
   val baseCommand = Seq("git")
 
   def exec(cmd: Seq[String]): String = {
-    sys.process.Process(cmd, workingDirectory).!!.trim
+    sys.process
+      .Process(cmd, workingDirectory)
+      .!!(swallowStderr)
+      .trim
   }
 
   override def lsTree: Seq[String] =
