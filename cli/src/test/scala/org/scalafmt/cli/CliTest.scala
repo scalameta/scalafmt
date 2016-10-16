@@ -65,8 +65,10 @@ class CliTest extends FunSuite with DiffAssertions {
        |   """.stripMargin
 
   val sbtExpected =
-    """|lazy val x = project
-       |lazy val y = project""".stripMargin
+    """|lazy val x =
+       |  project
+       |lazy val y =
+       |  project""".stripMargin
 
   def gimmeConfig(string: String): ScalafmtConfig =
     Config.fromHocon(string) match {
@@ -108,14 +110,16 @@ class CliTest extends FunSuite with DiffAssertions {
     assertNoDiff(obtained, formatted)
   }
 
-  test("scalafmt --stdin ") {
+  test("scalafmt --stdin --assume-filename") {
     val args = Array(
       "--stdin",
+      "--assume-filename",
+      "build.sbt",
       "--config",
       "\"{maxColumn=7,style=IntelliJ}\""
     )
     val printToStdout = getConfig(args)
-    val bais = new ByteArrayInputStream(unformatted.getBytes)
+    val bais = new ByteArrayInputStream(sbtOriginal.getBytes)
     val baos = new ByteArrayOutputStream()
     val ps = new PrintStream(baos)
     Cli.run(
@@ -126,7 +130,7 @@ class CliTest extends FunSuite with DiffAssertions {
         )
       ))
     val obtained = new String(baos.toByteArray, StandardCharsets.UTF_8)
-    assertNoDiff(obtained, expected10)
+    assertNoDiff(obtained, sbtExpected)
   }
 
   test("scalafmt --test --file tmpFile") {
