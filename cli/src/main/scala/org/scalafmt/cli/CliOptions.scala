@@ -89,7 +89,7 @@ case class CliOptions(
     inPlace: Boolean = false,
     testing: Boolean = false,
     stdIn: Boolean = false,
-    assumeFilename: String = "foobar.scala", // used when read from stdin
+    assumeFilename: String = "stdin.scala", // used when read from stdin
     migrate: Option[File] = None,
     common: CommonOptions = CommonOptions(),
     gitOpsConstructor: File => GitOps = x => new GitOpsImpl(x)
