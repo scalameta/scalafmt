@@ -64,7 +64,7 @@ object Cli {
     path.endsWith(".scala") || path.endsWith(".sbt")
 
   def expandCustomFiles(workingDir: File, files: Seq[File]): Seq[String] =
-    files.map(makeAbsolute(workingDir)).flatMap {
+    files.map(FileOps.makeAbsolute(workingDir)).flatMap {
       case f if f.isDirectory =>
         FileOps.listFiles(f).filter(canFormat)
       // we don't filter out custom files, even if they don't exist or contain
@@ -72,15 +72,11 @@ object Cli {
       case f => Seq(f.getAbsolutePath)
     }
 
-  def makeAbsolute(workingDir: File)(file: File): File =
-    if (file.isAbsolute) file
-    else new File(workingDir, file.getPath)
-
   /** Returns file paths defined via options.{customFiles,customExclude} */
   def getFilesFromCliOptions(options: CliOptions): Seq[String] = {
     // Ensure all paths are absolute
     val absolute =
-      options.customFiles.map(makeAbsolute(options.common.workingDirectory))
+      options.customFiles.map(FileOps.makeAbsolute(options.common.workingDirectory))
     val exclude = mkRegexp(options.customExcludes)
     expandCustomFiles(options.common.workingDirectory, options.customFiles)
       .filter(x => exclude.findFirstIn(x).isEmpty)

@@ -7,6 +7,10 @@ import java.io.PrintWriter
 
 object FileOps {
 
+  def makeAbsolute(workingDir: File)(file: File): File =
+    if (file.isAbsolute) file
+    else new File(workingDir, file.getPath)
+
   def listFiles(path: String): Vector[String] = {
     listFiles(new File(path))
   }

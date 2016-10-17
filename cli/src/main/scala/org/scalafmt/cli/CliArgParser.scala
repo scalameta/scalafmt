@@ -51,7 +51,9 @@ object CliArgParser {
         val contents =
           if (file.startsWith("\""))
             file.stripPrefix("\"").stripSuffix("\"")
-          else FileOps.readFile(new File(c.common.workingDirectory, file))
+          else
+            FileOps.readFile(
+              FileOps.makeAbsolute(c.common.workingDirectory)(new File(file)))
 
         Config.fromHocon(contents) match {
           case Right(style) => c.copy(config = style)
