@@ -83,6 +83,7 @@
 
       @hl.xml
         sudo curl -L -o /usr/local/bin/scalafmt https://raw.githubusercontent.com/olafurpg/scalafmt/master/bin/scalafmt_auto && chmod +x /usr/local/bin/scalafmt && scalafmt --upgrade --help
+
       @p
         To upgrade to the latest release, run @code{scalafmt --upgrade --help}.
         All downloaded artifacts will go to @code{$HOME/.scalafmt-bin}.
@@ -90,6 +91,25 @@
       @p
         For instructions on how to use the bash script, run @code{scalafmt --h}.
         Once installed, see @sect.ref{--help}.
+
+      @sect{Nailgun}
+        @p
+          For experimental nailgun support (requires @code{ng} client on @code{$PATH}), run instead:
+
+        @hl.xml
+          sudo curl -L -o /usr/local/bin/scalafmt https://raw.githubusercontent.com/olafurpg/scalafmt/master/bin/scalafmt_ng && chmod +x /usr/local/bin/scalafmt && scalafmt --upgrade --help
+
+        @p
+          Nailgun keeps scalafmt running on a local server to avoid the JVM startup penalty
+          and also so scalafmt can benefit from JIT.
+          This makes scalafmt up to 10x faster when formatting a single file from the CLI.
+          The downside to Nailgun is that the setup is complicated and the long-running server
+          needs to be restarted once in awhile.
+        @p
+          @b{Help wanted!}.
+          For 0.5.0, I would like to migrate @code{scalafmt_ng} to python using
+          @lnk("this", "https://github.com/martylamb/nailgun/blob/master/pynailgun/ng.py")
+          python script as a baseline.
 
     @sect{Build from source}
       For the greatest performance and prettiest output.

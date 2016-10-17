@@ -2,6 +2,28 @@
 @import org.scalafmt.readme.Readme._
 @import org.scalafmt.config.ScalafmtConfig
 
+@sect{0.4.7}
+  @ul
+    @li
+      Added the constraint that two tokens can vertically align only if they have
+      the same distance to the root node. This fixed a ton of false positives.
+      If you notice the vertical alignment is "not working" in some cases, please
+      report an issue.
+    @li
+      Fixed bug in @code{RedundantBraces} where scalafmt would fail to format
+      due to parse error.
+    @li
+      Fixed @code{--config} flag when reading relative path using nailgun.
+    @li
+      Fixed @code{--assume-filename} flag in CLI to format .sbt files with @code{--stdin}.
+@sect{0.4.6}
+  @ul
+    @li
+      Experimental support for nailgun, see @sect.ref{Nailgun}.
+
+    @li
+      Fixed --stdin and --files flags in CLI. If you previously used the CLI
+      without flags to read from std, you need to pass in @code{--stdin} now.
 @sect{0.4.5}
   @ul
     @li
