@@ -371,3 +371,25 @@ object mixed {
   final case object False                 extends Val
   final case class Zero(zeroty: nir.Type) extends Val
 }
+<<< #513
+{
+  if (cond) foo
+  else { val chars = s.toCharArray }
+  val prefix       = "sbt.paths." + projectName + "." + uncapitalize(config.name) + "."
+}
+>>>
+{
+  if (cond) foo
+  else { val chars = s.toCharArray }
+  val prefix = "sbt.paths." + projectName + "." + uncapitalize(config.name) + "."
+}
+<<< #521
+x match {
+    case (xs: Seq[_], ys: Seq[_])                               =>
+      xs.length == ys.length && xs.zip(ys).forall { case (x, y) => loop(x, y) }
+  }
+>>>
+x match {
+  case (xs: Seq[_], ys: Seq[_]) =>
+    xs.length == ys.length && xs.zip(ys).forall { case (x, y) => loop(x, y) }
+}
