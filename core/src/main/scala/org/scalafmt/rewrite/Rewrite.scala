@@ -1,9 +1,11 @@
 package org.scalafmt.rewrite
 
 import scala.meta._
+
 import org.scalafmt.config.ReaderUtil
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.TokenOps.TokenHash
+import org.scalafmt.util.logger
 import org.scalafmt.util.{TokenTraverser, TreeOps}
 
 case class RewriteCtx(
@@ -21,7 +23,8 @@ object Rewrite {
     ReaderUtil.oneOf[Rewrite](
       RedundantBraces,
       SortImports,
-      PreferCurlyFors
+      PreferCurlyFors,
+      AvoidInfix
     )
 
   private def nameMap[T](t: sourcecode.Text[T]*): Map[String, T] = {
@@ -29,6 +32,7 @@ object Rewrite {
   }
 
   val name2rewrite: Map[String, Rewrite] = nameMap[Rewrite](
+    AvoidInfix,
     RedundantBraces,
     SortImports,
     PreferCurlyFors
@@ -44,7 +48,7 @@ object Rewrite {
     if (rewrites.isEmpty) {
       noop
     } else {
-      input.parse[Source] match {
+      style.runner.dialect(input).parse(style.runner.parser) match {
         case Parsed.Success(ast) =>
           val tokens = ast.tokens
           val ctx = RewriteCtx(

@@ -16,6 +16,7 @@ import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.LogLevel
 import com.martiansoftware.nailgun.NGContext
+import org.scalafmt.util.RegexOps
 
 object Cli {
   def nailMain(nGContext: NGContext): Unit = {
@@ -53,13 +54,6 @@ object Cli {
     CliArgParser.scoptParser.parse(args, init).map(CliOptions.auto(init))
   }
 
-  private def mkRegexp(filters: Seq[String]): Regex =
-    filters match {
-      case Nil => "$a".r // will never match anything
-      case head :: Nil => head.r
-      case _ => filters.mkString("(", "|", ")").r
-    }
-
   def canFormat(path: String): Boolean =
     path.endsWith(".scala") || path.endsWith(".sbt")
 
@@ -81,7 +75,7 @@ object Cli {
     // Ensure all paths are absolute
     val absolute =
       options.customFiles.map(makeAbsolute(options.common.workingDirectory))
-    val exclude = mkRegexp(options.customExcludes)
+    val exclude = RegexOps.mkRegexp(options.customExcludes)
     expandCustomFiles(options.common.workingDirectory, options.customFiles)
       .filter(x => exclude.findFirstIn(x).isEmpty)
   }
@@ -89,8 +83,8 @@ object Cli {
   /** Returns file paths defined via options.project */
   private def getFilesFromProject(options: CliOptions): Seq[String] = {
     val project = options.config.project
-    val include = mkRegexp(project.includeFilters)
-    val exclude = mkRegexp(project.excludeFilters)
+    val include = RegexOps.mkRegexp(project.includeFilters)
+    val exclude = RegexOps.mkRegexp(project.excludeFilters)
 
     def matches(path: String): Boolean =
       include.findFirstIn(path).isDefined &&
