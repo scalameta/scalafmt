@@ -393,3 +393,11 @@ x match {
   case (xs: Seq[_], ys: Seq[_]) =>
     xs.length == ys.length && xs.zip(ys).forall { case (x, y) => loop(x, y) }
 }
+<<< #505
+object M {
+  implicit class TimestampOps[@specialized(Int, Long) A](val i: A){}
+}
+>>>
+object M {
+  implicit class TimestampOps[@specialized(Int, Long) A](val i: A) {}
+}
