@@ -292,4 +292,26 @@ class CliTest extends FunSuite with DiffAssertions {
     val obtained = FileOps.readFile(new File(workingDir, "foo.scala"))
     assertNoDiff(obtained, expected)
   }
+
+  test("--config accepts absolute paths") {
+    val root = string2dir(
+      """/scalafmt.conf
+        |style = intellij
+        |/foo.scala
+        |object    A
+      """.stripMargin
+    )
+    val config = new File(root, "scalafmt.conf").getAbsolutePath
+    val toFormat = new File(root, "foo.scala").getAbsolutePath
+    val args = Array[String](
+      "--config",
+      config,
+      "-i",
+      "-f",
+      toFormat
+    )
+    Cli.main(args) // runs without errors
+    val obtained = FileOps.readFile(toFormat)
+    assertNoDiff(obtained, "object A\n")
+  }
 }
