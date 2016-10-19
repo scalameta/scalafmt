@@ -174,6 +174,7 @@ case class ScalafmtConfig(
     // Settings which belong to no group
     binPackImportSelectors: Boolean = false, // TODO(olafur) bundle into `importSelectors: oneOf(singleLine, binPack, default)`
     unindentTopLevelOperators: Boolean = false,
+    includeCurlyBraceInSelectChains: Boolean = false,
     assumeStandardLibraryStripMargin: Boolean = false,
     danglingParentheses: Boolean = false,
     poorMansTrailingCommasInConfigStyle: Boolean = false,

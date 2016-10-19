@@ -1,0 +1,19 @@
+includeCurliesInChains = true
+<<< include curly
+  def acceptParticipants =
+    actions[Lottery]
+        .handleCommand {
+          cmd: AddParticipant => ParticipantAdded(cmd.name, id)
+        }
+        .handleEvent {
+          evt: ParticipantAdded => this.addParticipant(evt.name)
+        }
+>>>
+def acceptParticipants =
+  actions[Lottery]
+    .handleCommand { cmd: AddParticipant =>
+      ParticipantAdded(cmd.name, id)
+    }
+    .handleEvent { evt: ParticipantAdded =>
+      this.addParticipant(evt.name)
+    }
