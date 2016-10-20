@@ -30,11 +30,14 @@
   -->
 
   <extensions defaultExtensionNs="com.intellij">
-    <!-- Add your extensions here -->
+    <applicationConfigurable groupId="tools"
+                             displayName="Scalafmt"
+                             id="preferences.Scalafmt"
+                             instance="org.scalafmt.intellij.SettingsGui" />
+    <applicationService serviceImplementation="org.scalafmt.intellij.Settings"/>
   </extensions>
 
   <actions>
-    <!-- Add your actions here -->
     <action id="ScalaFmtFormat" class="org.scalafmt.intellij.ScalafmtAction" text="Reformat with scalafmt"
             description="Reformat current file with scalafmt">
       <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl L"/>
@@ -42,4 +45,9 @@
     </action>
   </actions>
 
+  <application-components>
+    <component>
+      <implementation-class>org.scalafmt.intellij.OnFileSaveComponent</implementation-class>
+    </component>
+  </application-components>
 </idea-plugin>
