@@ -123,7 +123,7 @@ object Cli {
       case Formatted.Success(formatted) =>
         inputMethod.write(formatted, input, options)
       case Formatted.Failure(e) =>
-        if (options.config.runner.fatalWarnings) {
+        if (options.config.runner.fatalWarnings || options.testing) {
           throw e
         } else {
           options.common.err.println(
