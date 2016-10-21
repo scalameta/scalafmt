@@ -1,4 +1,4 @@
-includeCurliesInChains = true
+includeCurlyBraceInSelectChains = true
 <<< include curly
   def acceptParticipants =
     actions[Lottery]
