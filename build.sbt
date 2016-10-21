@@ -242,3 +242,4 @@ lazy val metaconfig = project.settings(
     "org.scalatest" %% "scalatest" % Deps.scalatest % "test"
   )
 )
+
