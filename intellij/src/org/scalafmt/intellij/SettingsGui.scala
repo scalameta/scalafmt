@@ -1,11 +1,12 @@
 package org.scalafmt.intellij
 
 import java.awt.FlowLayout
-import javax.swing.{JCheckBox, JComponent, JPanel}
+import javax.swing._
 
 import com.intellij.openapi.options.SearchableConfigurable
+import com.intellij.openapi.project.Project
 
-class SettingsGui extends SearchableConfigurable {
+class SettingsGui(project: Project) extends SearchableConfigurable {
   override def getDisplayName: String = Utils.PluginName
 
   override def getId: String = "preference." + Utils.PluginName
@@ -23,13 +24,13 @@ class SettingsGui extends SearchableConfigurable {
   }
 
   override def isModified: Boolean =
-    formatOnSaveCheckBox.isSelected != Settings().formatOnSave
+    formatOnSaveCheckBox.isSelected != Settings(project).formatOnSave
 
   override def disposeUIResources(): Unit = ()
 
   override def apply(): Unit =
-    Settings().formatOnSave = formatOnSaveCheckBox.isSelected
+    Settings(project).formatOnSave = formatOnSaveCheckBox.isSelected
 
   override def reset(): Unit =
-    formatOnSaveCheckBox.setSelected(Settings().formatOnSave)
+    formatOnSaveCheckBox.setSelected(Settings(project).formatOnSave)
 }

@@ -17,9 +17,11 @@ class OnFileSaveComponent extends ApplicationComponent {
       .subscribe(
         AppTopics.FILE_DOCUMENT_SYNC,
         new FileDocumentManagerAdapter {
-          override def beforeDocumentSaving(document: Document) =
-            if (Settings().formatOnSave)
-              FileDocument(document).format()
+          override def beforeDocumentSaving(document: Document) = {
+            val fileDoc = FileDocument(document)
+            if (fileDoc.project.exists(Settings(_).formatOnSave))
+              fileDoc.format()
+          }
         }
       )
   }
