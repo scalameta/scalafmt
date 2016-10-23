@@ -71,3 +71,9 @@ case Foooooooooooooooo(aaaaaaaaaaaaaaaa, bbbbbbbbbbbb) =>
 case Foooooooooooooooo(
     aaaaaaaaaaaaaaaa,
     bbbbbbbbbbbb) =>
+<<< #512
+case q"""...${ stats: Seq[Stat] } """ =>
+  s"${foo}"
+>>>
+case q"""...${stats: Seq[Stat]} """ =>
+  s"${foo}"
