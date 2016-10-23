@@ -7,6 +7,7 @@ import java.io.PrintStream
 import org.scalafmt.config.Config
 import org.scalafmt.config.ProjectFiles
 import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.GitOps
 import org.scalafmt.util.GitOpsImpl
@@ -44,14 +45,14 @@ object CliOptions {
     )
   }
 
-  private def getConfigJFile(file: File): File =
-    new File(file, ".scalafmt.conf")
+  private def getConfigJFile(file: AbsoluteFile): AbsoluteFile =
+    file / ".scalafmt.conf"
 
   private def tryDirectory(options: CliOptions)(
-      dir: File): Option[ScalafmtConfig] = {
+      dir: AbsoluteFile): Option[ScalafmtConfig] = {
     for {
       configFile <- Option(getConfigJFile(dir))
-      if configFile.isFile
+      if configFile.jfile.isFile
       parsedConfig <- {
         Config.fromHocon(FileOps.readFile(configFile)) match {
           case Right(e) => Some(e)
@@ -73,26 +74,24 @@ object CliOptions {
   }
 }
 case class CommonOptions(
-    workingDirectory: File = new File(System.getProperty("user.dir")),
+    workingDirectory: AbsoluteFile = AbsoluteFile.userDir,
     out: PrintStream = System.out,
     in: InputStream = System.in,
     err: PrintStream = System.err
-) {
-  require(workingDirectory.isAbsolute)
-}
+)
 
 case class CliOptions(
     config: ScalafmtConfig = ScalafmtConfig.default,
     range: Set[Range] = Set.empty[Range],
-    customFiles: Seq[File] = Nil,
+    customFiles: Seq[AbsoluteFile] = Nil,
     customExcludes: Seq[String] = Nil,
     inPlace: Boolean = false,
     testing: Boolean = false,
     stdIn: Boolean = false,
     assumeFilename: String = "stdin.scala", // used when read from stdin
-    migrate: Option[File] = None,
+    migrate: Option[AbsoluteFile] = None,
     common: CommonOptions = CommonOptions(),
-    gitOpsConstructor: File => GitOps = x => new GitOpsImpl(x)
+    gitOpsConstructor: AbsoluteFile => GitOps = x => new GitOpsImpl(x)
 ) {
   require(!(inPlace && testing), "inPlace and testing can't both be true")
 
@@ -101,7 +100,7 @@ case class CliOptions(
     this.copy(config = config.copy(project = projectFiles))
   }
 
-  def withFiles(files: Seq[File]): CliOptions = {
+  def withFiles(files: Seq[AbsoluteFile]): CliOptions = {
     this.copy(customFiles = files)
   }
 }

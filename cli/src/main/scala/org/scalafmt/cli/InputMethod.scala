@@ -6,6 +6,7 @@ import java.io.File
 import java.io.InputStream
 
 import org.scalafmt.Error.MisformattedFile
+import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.FileOps
 
 sealed abstract class InputMethod {
@@ -33,8 +34,8 @@ object InputMethod {
       options.common.out.println(code)
     }
   }
-  case class FileContents(filename: String) extends InputMethod {
-    require(new File(filename).isAbsolute)
+  case class FileContents(file: AbsoluteFile) extends InputMethod {
+    override def filename = file.path
     def readInput: String = FileOps.readFile(filename)
     override def write(formatted: String,
                        original: String,

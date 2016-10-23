@@ -10,27 +10,26 @@ import org.scalafmt.config
 import org.scalafmt.config.ScalafmtConfig
 
 trait GitOps {
-  def lsTree: Seq[String]
-  def rootDir: Option[File]
+  def lsTree: Seq[AbsoluteFile]
+  def rootDir: Option[AbsoluteFile]
 }
 
 object GitOps {
-  def apply(): GitOps =
-    new GitOpsImpl(new File(System.getProperty("user.dir")))
+  def apply(): GitOps = new GitOpsImpl(AbsoluteFile.userDir)
 }
 
-class GitOpsImpl(workingDirectory: File) extends GitOps {
+class GitOpsImpl(workingDirectory: AbsoluteFile) extends GitOps {
   val swallowStderr = ProcessLogger(_ => Unit, _ => Unit)
   val baseCommand = Seq("git")
 
   def exec(cmd: Seq[String]): String = {
     sys.process
-      .Process(cmd, workingDirectory)
+      .Process(cmd, workingDirectory.jfile)
       .!!(swallowStderr)
       .trim
   }
 
-  override def lsTree: Seq[String] =
+  override def lsTree: Seq[AbsoluteFile] =
     Try {
       exec(
         baseCommand ++ Seq(
@@ -40,16 +39,15 @@ class GitOpsImpl(workingDirectory: File) extends GitOps {
           "--name-only"
         )
       ).split("\n").toSeq.collect {
-        case f if new File(f).isFile =>
-          new File(workingDirectory, f).getAbsolutePath
+        case f if new File(f).isFile => workingDirectory / f
       }
     }.getOrElse(Nil)
 
-  override def rootDir: Option[File] =
+  override def rootDir: Option[AbsoluteFile] =
     Try {
       val cmd = baseCommand ++ Seq("rev-parse", "--show-toplevel")
-      val result = new File(exec(cmd))
-      require(result.isDirectory)
+      val result = AbsoluteFile.fromFile(new File(exec(cmd)), workingDirectory)
+      require(result.jfile.isDirectory)
       result
     }.toOption
 
