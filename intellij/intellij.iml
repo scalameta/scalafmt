@@ -23,5 +23,6 @@
     </orderEntry>
     <orderEntry type="library" name="lib" level="project" />
     <orderEntry type="library" name="scala-sdk-2.11.8" level="project" />
+    <orderEntry type="library" name="org.scala-lang.modules:scala-xml_2.11:1.0.6" level="project" />
   </component>
 </module>

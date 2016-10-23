@@ -30,11 +30,11 @@
   -->
 
   <extensions defaultExtensionNs="com.intellij">
-    <applicationConfigurable groupId="tools"
+    <projectConfigurable groupId="tools"
                              displayName="Scalafmt"
                              id="preferences.Scalafmt"
                              instance="org.scalafmt.intellij.SettingsGui" />
-    <applicationService serviceImplementation="org.scalafmt.intellij.Settings"/>
+    <projectService serviceImplementation="org.scalafmt.intellij.Settings"/>
   </extensions>
 
   <actions>

@@ -3,10 +3,11 @@ package org.scalafmt.intellij
 import scala.beans.BeanProperty
 
 import com.intellij.openapi.components._
+import com.intellij.openapi.project.Project
 import com.intellij.util.xmlb.XmlSerializerUtil
 
 @State(name = "ScalafmtSettings",
-       storages = Array(new Storage("ScalafmtSettings.xml")))
+       storages = Array(new Storage(StoragePathMacros.WORKSPACE_FILE)))
 class Settings extends PersistentStateComponent[Settings] {
   @BeanProperty
   var formatOnSave: Boolean = false
@@ -18,5 +19,6 @@ class Settings extends PersistentStateComponent[Settings] {
 }
 
 object Settings {
-  def apply() = ServiceManager.getService(classOf[Settings])
+  def apply(project: Project) =
+    ServiceManager.getService(project, classOf[Settings])
 }

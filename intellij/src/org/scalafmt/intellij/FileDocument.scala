@@ -9,17 +9,19 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import org.scalafmt.config.ScalafmtRunner
 import org.scalafmt.{Formatted, Scalafmt}
+import Utils._
+import com.intellij.openapi.project.Project
 
 case class FileDocument(document: Document) {
   private val virtualFile = FileDocumentManager.getInstance().getFile(document)
   def isSbt: Boolean = virtualFile.getFileType.getName == "SBT"
   def isScala: Boolean = virtualFile.getFileType.getName == "Scala"
   def canFormat: Boolean = isScala || isSbt
+  def project: Option[Project] = projectForFile(virtualFile.getPath)
 
   def format(): Unit = if (canFormat) {
-    import Utils._
     val source = document.getText()
-    val style = getStyle(projectForFile(virtualFile.getPath))
+    val style = getStyle(project)
     val runner =
       if (isSbt)
         ScalafmtRunner.default.copy(dialect = scala.meta.dialects.Sbt0137)

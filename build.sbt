@@ -109,10 +109,6 @@ lazy val core = project
   .settings(
     metaMacroSettings,
     moduleName := "scalafmt-core",
-    test in assembly := {
-      // TODO(olafur) This should be an integration test.
-      (runMain in Test).toTask(" org.scalafmt.FormatExperimentApp").value
-    },
     libraryDependencies ++= Seq(
       "com.lihaoyi"    %% "sourcecode"   % "0.1.2",
       "org.scalameta"  %% "scalameta"    % Deps.scalameta,
@@ -153,14 +149,6 @@ lazy val cli = project
     )
   )
   .dependsOn(core % "compile->compile;test->test")
-
-lazy val scalafmtIntellij = project
-  .settings(
-    allSettings,
-    noPublish,
-    moduleName := "scalafmt-intellij"
-  )
-  .enablePlugins(SbtIdeaPlugin)
 
 lazy val scalafmtSbt = project
   .settings(allSettings)
