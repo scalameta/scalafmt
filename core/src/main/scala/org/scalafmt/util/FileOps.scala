@@ -15,6 +15,10 @@ object FileOps {
     listFiles(new File(path))
   }
 
+  def listFiles(file: AbsoluteFile): Vector[AbsoluteFile] = {
+    listFiles(file.jfile).map(x => AbsoluteFile.fromFile(new File(x), file))
+  }
+
   def listFiles(file: File): Vector[String] = {
     if (file.isFile) {
       Vector(file.getAbsolutePath)
@@ -42,6 +46,10 @@ object FileOps {
     } else {
       readFile(new File(filename))
     }
+  }
+
+  def readFile(file: AbsoluteFile): String = {
+    readFile(file.jfile)
   }
 
   def readFile(file: File): String = {

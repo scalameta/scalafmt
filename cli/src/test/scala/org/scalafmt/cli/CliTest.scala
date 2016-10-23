@@ -12,6 +12,7 @@ import java.nio.file.Files
 import org.scalafmt.Error.MisformattedFile
 import org.scalafmt.config.Config
 import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.GitOps
@@ -21,10 +22,11 @@ import org.scalatest.FunSuite
 class CliTest extends FunSuite with DiffAssertions {
   import FileTestOps._
 
-  def getMockOptions(baseDir: File): CliOptions =
+  def getMockOptions(baseDir: AbsoluteFile): CliOptions =
     getMockOptions(baseDir, baseDir)
 
-  def getMockOptions(baseDir: File, workingDir: File): CliOptions = {
+  def getMockOptions(baseDir: AbsoluteFile,
+                     workingDir: AbsoluteFile): CliOptions = {
     CliOptions.default.copy(
       gitOpsConstructor = x => new FakeGitOps(baseDir),
       common = CliOptions.default.common.copy(
@@ -34,7 +36,9 @@ class CliTest extends FunSuite with DiffAssertions {
   }
 
   val baseCliOptions: CliOptions = getMockOptions(
-    File.createTempFile("base", "dir"))
+    AbsoluteFile
+      .fromPath(File.createTempFile("base", "dir").getAbsolutePath)
+      .get)
 
   def getConfig(args: Array[String]): CliOptions = {
     Cli.getConfig(args, baseCliOptions).get
@@ -178,7 +182,7 @@ class CliTest extends FunSuite with DiffAssertions {
     val options = getConfig(
       Array(
         "--files",
-        input.getAbsolutePath,
+        input.path,
         "-i"
       )
     )
@@ -205,7 +209,7 @@ class CliTest extends FunSuite with DiffAssertions {
     val options = getConfig(
       Array(
         "--files",
-        input.getAbsolutePath,
+        input.path,
         "--exclude",
         "target",
         "-i"
@@ -281,7 +285,7 @@ class CliTest extends FunSuite with DiffAssertions {
           |project.git = true
           |""".stripMargin
     )
-    val workingDir = new File(input, "nested")
+    val workingDir = input / "nested"
     logger.elem(workingDir, FileOps.listFiles(workingDir))
     val options: CliOptions = {
       val mock = getMockOptions(input, workingDir)
@@ -289,7 +293,7 @@ class CliTest extends FunSuite with DiffAssertions {
     }
     val config = Cli.getConfig(Array("-i", "-f", "foo.scala"), options).get
     Cli.run(config)
-    val obtained = FileOps.readFile(new File(workingDir, "foo.scala"))
+    val obtained = FileOps.readFile(workingDir / "foo.scala")
     assertNoDiff(obtained, expected)
   }
 
@@ -301,8 +305,8 @@ class CliTest extends FunSuite with DiffAssertions {
         |object    A
       """.stripMargin
     )
-    val config = new File(root, "scalafmt.conf").getAbsolutePath
-    val toFormat = new File(root, "foo.scala").getAbsolutePath
+    val config = (root / "scalafmt.conf").path
+    val toFormat = (root / "foo.scala").path
     val args = Array[String](
       "--config",
       config,

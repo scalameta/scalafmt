@@ -7,6 +7,7 @@ import org.scalafmt.Versions
 import org.scalafmt.config.Config
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.config.hocon.Hocon2Class
+import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.BuildTime
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.GitCommit
@@ -16,6 +17,7 @@ import scopt.OptionParser
 object CliArgParser {
   @GitCommit val gitCommit: String = ???
   @BuildTime val buildTimeMs: Long = ???
+
   val usageExamples =
     """|scalafmt  # Format all files in the current project, with config determined:
        |          # 1. .scalafmt.conf inside root directory of current git repo
@@ -53,7 +55,7 @@ object CliArgParser {
             file.stripPrefix("\"").stripSuffix("\"")
           else
             FileOps.readFile(
-              FileOps.makeAbsolute(c.common.workingDirectory)(new File(file)))
+              AbsoluteFile.fromFile(new File(file), c.common.workingDirectory))
 
         Config.fromHocon(contents) match {
           case Right(style) => c.copy(config = style)
@@ -69,7 +71,9 @@ object CliArgParser {
         .action(printAndExit(inludeUsage = false))
         .text("print version ")
       opt[Seq[File]]('f', "files").action { (files, c) =>
-        c.copy(customFiles = files)
+        c.copy(
+          customFiles =
+            AbsoluteFile.fromFiles(files, c.common.workingDirectory))
       }.text(
         "file or directory, in which case all *.scala files are formatted.")
       opt[Seq[String]]("exclude")
@@ -93,7 +97,9 @@ object CliArgParser {
         .action((_, c) => c.copy(testing = true))
         .text("test for mis-formatted code, exits with status 1 on failure.")
       opt[File]("migrate2hocon")
-        .action((file, c) => c.copy(migrate = Some(file)))
+        .action((file, c) =>
+          c.copy(migrate =
+            Some(AbsoluteFile.fromFile(file, c.common.workingDirectory))))
         .text("""migrate .scalafmt CLI style configuration to hocon style configuration in .scalafmt.conf""")
       opt[Unit]("build-info")
         .action({

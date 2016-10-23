@@ -812,8 +812,9 @@ class Router(formatOps: FormatOps) {
         }
       case tok @ FormatToken(left, dot @ Dot(), _)
           if rightOwner.is[Term.Select] &&
-            isOpenApply(next(next(tok)).right,
-                        includeCurly = style.includeCurlyBraceInSelectChains) &&
+            isOpenApply(
+              next(next(tok)).right,
+              includeCurly = style.includeCurlyBraceInSelectChains) &&
             !left.is[Underscore] &&
             !parents(rightOwner).exists(_.is[Import]) =>
         val owner = rightOwner.asInstanceOf[Term.Select]

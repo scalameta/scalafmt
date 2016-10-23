@@ -16,15 +16,20 @@ import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.LogLevel
 import com.martiansoftware.nailgun.NGContext
+import org.scalafmt.util.AbsoluteFile
 
 object Cli {
   def nailMain(nGContext: NGContext): Unit = {
+    val workingDirectory =
+      AbsoluteFile.fromPath(nGContext.getWorkingDirectory).getOrElse {
+        throw new IllegalStateException(s"Expected absolute path, " +
+          s"obtained nGContext.getWorkingDirectory = ${nGContext.getWorkingDirectory}")
+      }
     mainWithOptions(
       nGContext.getArgs,
       CliOptions.default.copy(
         common = CliOptions.default.common.copy(
-          workingDirectory =
-            new File(nGContext.getWorkingDirectory).getAbsoluteFile,
+          workingDirectory = workingDirectory,
           out = nGContext.out,
           in = nGContext.in,
           err = nGContext.err
@@ -60,47 +65,52 @@ object Cli {
       case _ => filters.mkString("(", "|", ")").r
     }
 
+  def canFormat(path: AbsoluteFile): Boolean =
+    canFormat(path.path)
+
   def canFormat(path: String): Boolean =
     path.endsWith(".scala") || path.endsWith(".sbt")
 
-  def expandCustomFiles(workingDir: File, files: Seq[File]): Seq[String] =
-    files.map(FileOps.makeAbsolute(workingDir)).flatMap {
-      case f if f.isDirectory =>
+  def expandCustomFiles(workingDir: AbsoluteFile,
+                        files: Seq[AbsoluteFile]): Seq[AbsoluteFile] =
+    files.flatMap {
+      case f if f.jfile.isDirectory =>
         FileOps.listFiles(f).filter(canFormat)
       // we don't filter out custom files, even if they don't exist or contain
       // weird suffixes.
-      case f => Seq(f.getAbsolutePath)
+      case f => Seq(f)
     }
 
   /** Returns file paths defined via options.{customFiles,customExclude} */
-  def getFilesFromCliOptions(options: CliOptions): Seq[String] = {
-    // Ensure all paths are absolute
-    val absolute =
-      options.customFiles.map(FileOps.makeAbsolute(options.common.workingDirectory))
+  def getFilesFromCliOptions(options: CliOptions): Seq[AbsoluteFile] = {
     val exclude = mkRegexp(options.customExcludes)
     expandCustomFiles(options.common.workingDirectory, options.customFiles)
-      .filter(x => exclude.findFirstIn(x).isEmpty)
+      .filter(x => exclude.findFirstIn(x.path).isEmpty)
   }
 
   /** Returns file paths defined via options.project */
-  private def getFilesFromProject(options: CliOptions): Seq[String] = {
+  private def getFilesFromProject(options: CliOptions): Seq[AbsoluteFile] = {
     val project = options.config.project
     val include = mkRegexp(project.includeFilters)
     val exclude = mkRegexp(project.excludeFilters)
 
-    def matches(path: String): Boolean =
+    def matches(file: AbsoluteFile): Boolean = {
+      val path = file.path
       include.findFirstIn(path).isDefined &&
-        exclude.findFirstIn(path).isEmpty
-    val projectFiles: Seq[String] = (
+      exclude.findFirstIn(path).isEmpty
+    }
+    val projectFiles: Seq[AbsoluteFile] = (
       if (project.git) {
         options.gitOps.lsTree
       } else {
         FileOps.listFiles(options.common.workingDirectory)
       }
     ).filter(canFormat)
-    val customFiles: Seq[String] =
-      expandCustomFiles(options.common.workingDirectory,
-                        project.files.map(new File(_)))
+    val customFiles: Seq[AbsoluteFile] =
+      expandCustomFiles(
+        options.common.workingDirectory,
+        AbsoluteFile.fromFiles(project.files.map(new File(_)),
+                               options.common.workingDirectory))
     (customFiles ++ projectFiles).filter(matches)
   }
 
@@ -108,7 +118,7 @@ object Cli {
     if (options.stdIn) {
       Seq(InputMethod.StdinCode(options.assumeFilename, options.common.in))
     } else {
-      val projectFiles: Seq[String] =
+      val projectFiles: Seq[AbsoluteFile] =
         if (options.customFiles.nonEmpty) getFilesFromCliOptions(options)
         else getFilesFromProject(options)
       projectFiles.map(InputMethod.FileContents.apply)
@@ -137,7 +147,7 @@ object Cli {
     options.migrate.foreach { oldStyleConfigFile =>
       val original = FileOps.readFile(oldStyleConfigFile)
       val modified = LegacyCli.migrate(original)
-      val newFile = new File(oldStyleConfigFile.getAbsolutePath + ".conf")
+      val newFile = new File(oldStyleConfigFile.path + ".conf")
       FileOps.writeFile(newFile.getAbsolutePath, modified)
       println("Wrote migrated config to file: " + newFile.getPath)
       println(
@@ -155,7 +165,7 @@ object Cli {
       new OutputStreamWriter(options.common.err))
     if ((options.inPlace || options.testing) && inputMethods.length > 5) {
       termDisplay.init()
-      termDisplay.startTask(msg, options.common.workingDirectory)
+      termDisplay.startTask(msg, options.common.workingDirectory.jfile)
       termDisplay.taskLength(msg, inputMethods.length, 0)
     }
     termDisplay
