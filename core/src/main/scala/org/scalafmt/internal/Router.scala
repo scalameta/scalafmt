@@ -636,6 +636,14 @@ class Router(formatOps: FormatOps) {
             .withIndent(2, expire, Left)
             .withPolicy(penalizeNewlines)
         )
+      case FormatToken(Colon(), _, _)
+          if style.newlines.neverInResultType &&
+            defDefReturnType(leftOwner).isDefined =>
+        val expire = lastToken(defDefReturnType(leftOwner).get)
+        Seq(
+          Split(Space, 0).withPolicy(
+            SingleLineBlock(expire, disallowInlineComments = false))
+        )
 
       case FormatToken(LeftParen(), LeftBrace(), between) =>
         Seq(

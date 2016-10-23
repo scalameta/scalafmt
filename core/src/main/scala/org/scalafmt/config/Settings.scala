@@ -51,6 +51,7 @@ trait Settings {
     continuationIndent = ContinuationIndent(4, 4),
     binPackImportSelectors = true,
     newlines = default.newlines.copy(
+      neverInResultType = true,
       neverBeforeJsNative = true,
       sometimesBeforeColonInMethodReturnType = false
     ),
