@@ -29,6 +29,7 @@ import org.scalafmt.util.Keyword
 import org.scalafmt.util.Literal
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.Modifier
+import org.scalafmt.util.SomeInterpolate
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
 import org.scalafmt.util.Trivia
@@ -127,13 +128,13 @@ class Router(formatOps: FormatOps) {
         )
       // Interpolated string left brace
       case FormatToken(open @ LeftBrace(), _, _)
-          if leftOwner.is[Term.Interpolate] =>
+          if leftOwner.is[SomeInterpolate] =>
         Seq(
           Split(NoSplit, 0)
         )
       case FormatToken(_, close @ RightBrace(), _)
           if parents(rightOwner).exists(_.is[Import]) ||
-            rightOwner.is[Term.Interpolate] =>
+            rightOwner.is[SomeInterpolate] =>
         val isInterpolate = rightOwner.is[Term.Interpolate]
         Seq(
           Split(if (style.spaces.inImportCurlyBraces && !isInterpolate) Space
