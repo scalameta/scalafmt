@@ -401,3 +401,15 @@ object M {
 object M {
   implicit class TimestampOps[@specialized(Int, Long) A](val i: A) {}
 }
+<<< #531
+Seq(
+"com.github.seratch" %% "awscala"                     % "0.5.7",
+"org.scalatest"      % "scalatest_2.11"               % "3.0.0" % Test,
+"org.scalamock"      %% "scalamock-scalatest-support" % "3.2.2" % Test
+)
+>>>
+Seq(
+    "com.github.seratch" %% "awscala"                     % "0.5.7",
+    "org.scalatest"      % "scalatest_2.11"               % "3.0.0" % Test,
+    "org.scalamock"      %% "scalamock-scalatest-support" % "3.2.2" % Test
+)

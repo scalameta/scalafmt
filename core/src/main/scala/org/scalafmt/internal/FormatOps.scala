@@ -43,6 +43,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   val dequeueSpots = getDequeueSpots(tree) ++ statementStarts.keys
   val matchingParentheses = getMatchingParentheses(tree.tokens)
   val styleMap = new StyleMap(tokens, initStyle)
+  private val vAlignDepthCache = mutable.Map.empty[Tree, Int]
 
   @inline
   def owners(token: Token): Tree = ownersMap(hash(token))
@@ -551,4 +552,21 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       case d @ Decision(t @ FormatToken(_, `close`, _), s) =>
         d.onlyNewlines
     }, close.end)
+
+  // Returns the depth of this node in the AST, used to prevent false positives.
+  final def vAlignDepth(tree: Tree): Int = {
+    vAlignDepthCache.getOrElseUpdate(tree, vAlignDepthUnCached(tree))
+  }
+
+  private final def vAlignDepthUnCached(tree: Tree): Int = {
+    val count: Int = tree match {
+      // infix applications don't count towards the length, context #531
+      case _: Term.ApplyInfix => 0
+      case _ => 1
+    }
+    tree.parent match {
+      case Some(parent) => count + vAlignDepth(parent)
+      case None => count
+    }
+  }
 }
