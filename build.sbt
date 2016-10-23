@@ -110,7 +110,6 @@ lazy val core = project
     metaMacroSettings,
     moduleName := "scalafmt-core",
     test in assembly := {
-      (test in Test).value
       // TODO(olafur) This should be an integration test.
       (runMain in Test).toTask(" org.scalafmt.FormatExperimentApp").value
     },
@@ -120,13 +119,13 @@ lazy val core = project
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,
       "com.typesafe"   % "config"        % "1.2.1",
       // Test dependencies
-      "org.scalariform"                %% "scalariform"    % Deps.scalariform % "test",
-      "org.scala-lang"                 % "scala-compiler"  % scalaVersion.value % "test",
-      "ch.qos.logback"                 % "logback-classic" % "1.1.6" % "test",
-      "com.googlecode.java-diff-utils" % "diffutils"       % "1.3.0" % "test",
-      "com.lihaoyi"                    %% "scalatags"      % "0.5.4" % "test",
-      "org.apache.commons"             % "commons-math3"   % "3.6" % "test",
-      "org.scalatest"                  %% "scalatest"      % Deps.scalatest % "test"
+      "org.scalariform"                %% "scalariform"    % Deps.scalariform   % Test,
+      "org.scala-lang"                 % "scala-compiler"  % scalaVersion.value % Test,
+      "ch.qos.logback"                 % "logback-classic" % "1.1.6"            % Test,
+      "com.googlecode.java-diff-utils" % "diffutils"       % "1.3.0"            % Test,
+      "com.lihaoyi"                    %% "scalatags"      % "0.5.4"            % Test,
+      "org.apache.commons"             % "commons-math3"   % "3.6"              % Test,
+      "org.scalatest"                  %% "scalatest"      % Deps.scalatest     % Test
     ),
     addCompilerPlugin(
       "org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
@@ -191,7 +190,7 @@ lazy val benchmarks = project
   .settings(
     libraryDependencies ++= Seq(
       "org.scalariform" %% "scalariform" % Deps.scalariform,
-      "org.scalatest"   %% "scalatest"   % Deps.scalatest % "test"
+      "org.scalatest" %% "scalatest" % Deps.scalatest % Test
     ),
     javaOptions in run ++= Seq(
       "-Djava.net.preferIPv4Stack=true",
@@ -239,6 +238,6 @@ lazy val metaconfig = project.settings(
   publishSettings,
   moduleName := "metaconfig",
   libraryDependencies ++= Seq(
-    "org.scalatest" %% "scalatest" % Deps.scalatest % "test"
+    "org.scalatest" %% "scalatest" % Deps.scalatest % Test
   )
 )
