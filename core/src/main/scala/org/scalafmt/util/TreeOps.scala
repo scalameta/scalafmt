@@ -31,12 +31,6 @@ object TreeOps {
   import LoggerOps._
   import TokenOps._
 
-  @tailrec
-  final def lengthToRoot(tree: Tree, accum: Int = 0): Int = tree.parent match {
-    case Some(parent) => lengthToRoot(parent, accum + 1)
-    case None => 1 + accum
-  }
-
   def getEnumStatements(enums: Seq[Enumerator]): Seq[Enumerator] = {
     val ret = Seq.newBuilder[Enumerator]
     enums.zipWithIndex.foreach {
