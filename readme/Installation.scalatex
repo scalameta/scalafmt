@@ -25,13 +25,20 @@
       The plugin determines which style to use in this order:
       @ol
         @li
-          @code(".scalafmt") in the project's root directory, if it exists
+          @code(".scalafmt.conf") in the project's root directory, if it exists
         @li
-          @code("$HOME/.scalafmt"), if it exists
+          @code("$HOME/.scalafmt.conf"), if it exists
         @li
           Otherwise, uses @code("default") style.
-      For details on how @code(".scalafmt") should look like, see
+      For details on how @code(".scalafmt.conf") should look like, see
       @sect.ref{Configuration}.
+
+      The scalafmt IntelliJ plugin has a "Format on save" setting.
+      @ul
+        @li
+          To enable for current project: Settings > Tools > Scalafmt
+        @li
+          To enable for all future project: File > Other settings > Default settings > Scalafmt
 
   @sect{SBT}
     @note. I maintain the SBT plugin on a best-effort since I personally use the

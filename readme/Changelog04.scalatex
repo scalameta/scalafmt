@@ -2,6 +2,38 @@
 @import org.scalafmt.readme.Readme._
 @import org.scalafmt.config.ScalafmtConfig
 
+@sect{0.4.8}
+  @ul
+    @li
+      IntelliJ plugin now has a "Format on save" setting.
+      For details, see @sect.ref{IntelliJ}.
+      Thank you @user{joan38} for contributing this awesome addition!
+    @li
+      New flag @flag{includeCurlyBraceInSelectChains = false}.
+      @hl.scala
+        // false (has been default so far, will stay default until 0.5)
+        Repositories.filter { t =>
+          (t.originUserName === userName.bind) &&
+          (t.originRepositoryName === repositoryName.bind)
+        }.sortBy(_.userName asc).map(t => t.userName -> t.repositoryName).list
+        // true (will become default in 0.5.0)
+        Repositories
+          .filter { t =>
+            (t.originUserName === userName.bind) &&
+            (t.originRepositoryName === repositoryName.bind)
+          }
+          .sortBy(_.userName asc)
+          .map(t => t.userName -> t.repositoryName)
+          .list
+
+      Here is a @lnk("huge diff", "https://github.com/olafurpg/scala-repos/pull/12/files")
+      for more examples of how this flag works.
+    @li
+      Fixed regression in 0.4.7 on vertical alignment, see @issue(531).
+    @li
+      New flag @flag{newlines.neverInResultType = false}, which is used in Scala.js style.
+    @li
+      Small CLI improvements and refactorings.
 @sect{0.4.7}
   @ul
     @li
