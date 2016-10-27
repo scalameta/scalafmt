@@ -26,7 +26,7 @@ object IdeaUtils {
       new Notification(PluginName,
                        PluginName,
                        Utility.escape(msg),
-                       NotificationType.INFORMATION))
+                       notificationType))
 
   private def getConfigFileInPath(path: String) =
     Option(FileOps.getFile(path, ".scalafmt.conf")).collect {
