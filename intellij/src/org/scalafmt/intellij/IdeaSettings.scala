@@ -8,17 +8,17 @@ import com.intellij.util.xmlb.XmlSerializerUtil
 
 @State(name = "ScalafmtSettings",
        storages = Array(new Storage(StoragePathMacros.WORKSPACE_FILE)))
-class Settings extends PersistentStateComponent[Settings] {
+class IdeaSettings extends PersistentStateComponent[IdeaSettings] {
   @BeanProperty
   var formatOnSave: Boolean = false
 
-  override def loadState(config: Settings): Unit =
+  override def loadState(config: IdeaSettings): Unit =
     XmlSerializerUtil.copyBean(config, this)
 
-  override def getState: Settings = this
+  override def getState: IdeaSettings = this
 }
 
-object Settings {
+object IdeaSettings {
   def apply(project: Project) =
-    ServiceManager.getService(project, classOf[Settings])
+    ServiceManager.getService(project, classOf[IdeaSettings])
 }

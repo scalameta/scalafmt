@@ -7,11 +7,11 @@ import com.intellij.openapi.options.SearchableConfigurable
 import com.intellij.openapi.project.Project
 
 class SettingsGui(project: Project) extends SearchableConfigurable {
-  override def getDisplayName: String = Utils.PluginName
+  override def getDisplayName: String = IdeaUtils.PluginName
 
-  override def getId: String = "preference." + Utils.PluginName
+  override def getId: String = "preference." + IdeaUtils.PluginName
 
-  override def getHelpTopic: String = "preference." + Utils.PluginName
+  override def getHelpTopic: String = "preference." + IdeaUtils.PluginName
 
   override def enableSearch(s: String): Runnable = null
 
@@ -24,13 +24,13 @@ class SettingsGui(project: Project) extends SearchableConfigurable {
   }
 
   override def isModified: Boolean =
-    formatOnSaveCheckBox.isSelected != Settings(project).formatOnSave
+    formatOnSaveCheckBox.isSelected != IdeaSettings(project).formatOnSave
 
   override def disposeUIResources(): Unit = ()
 
   override def apply(): Unit =
-    Settings(project).formatOnSave = formatOnSaveCheckBox.isSelected
+    IdeaSettings(project).formatOnSave = formatOnSaveCheckBox.isSelected
 
   override def reset(): Unit =
-    formatOnSaveCheckBox.setSelected(Settings(project).formatOnSave)
+    formatOnSaveCheckBox.setSelected(IdeaSettings(project).formatOnSave)
 }

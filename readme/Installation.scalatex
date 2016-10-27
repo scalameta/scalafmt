@@ -40,6 +40,11 @@
         @li
           To enable for all future project: File > Other settings > Default settings > Scalafmt
 
+    @p
+      @note. You may need to enable balloons to get error message:
+      Settings > Appearance & Behavior > Notifications > Scalafmt > Popup "Balloon".
+      You need to first check "Display Balloon Notifications".
+
   @sect{SBT}
     @note. I maintain the SBT plugin on a best-effort since I personally use the
     IntelliJ plugin. If you rely on the SBT plugin, please consider contributing!
