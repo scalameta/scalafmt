@@ -9,7 +9,7 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import org.scalafmt.config.ScalafmtRunner
 import org.scalafmt.{Formatted, Scalafmt}
-import Utils._
+import IdeaUtils._
 import com.intellij.openapi.project.Project
 
 case class FileDocument(document: Document) {

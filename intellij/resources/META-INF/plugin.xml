@@ -34,7 +34,7 @@
                              displayName="Scalafmt"
                              id="preferences.Scalafmt"
                              instance="org.scalafmt.intellij.SettingsGui" />
-    <projectService serviceImplementation="org.scalafmt.intellij.Settings"/>
+    <projectService serviceImplementation="org.scalafmt.intellij.IdeaSettings"/>
   </extensions>
 
   <actions>

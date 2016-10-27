@@ -8,7 +8,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManagerAdapter
 
 class OnFileSaveComponent extends ApplicationComponent {
 
-  def getComponentName = Utils.PluginName
+  def getComponentName = IdeaUtils.PluginName
 
   def initComponent() {
     val bus = ApplicationManager.getApplication.getMessageBus
@@ -19,7 +19,7 @@ class OnFileSaveComponent extends ApplicationComponent {
         new FileDocumentManagerAdapter {
           override def beforeDocumentSaving(document: Document) = {
             val fileDoc = FileDocument(document)
-            if (fileDoc.project.exists(Settings(_).formatOnSave))
+            if (fileDoc.project.exists(IdeaSettings(_).formatOnSave))
               fileDoc.format()
           }
         }

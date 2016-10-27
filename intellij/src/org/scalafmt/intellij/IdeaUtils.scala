@@ -17,7 +17,7 @@ import org.scalafmt.cli.StyleCache
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.FileOps
 
-object Utils {
+object IdeaUtils {
 
   val PluginName = "Scalafmt"
 
@@ -52,7 +52,7 @@ object Utils {
       configFile <- localConfig.orElse(globalConfig)
       config <- StyleCache.getStyleForFileOrError(configFile) match {
         case Left(e) =>
-          Utils.displayMessage(
+          IdeaUtils.displayMessage(
             "Failed to read .scalafmt.conf. " + e.getMessage,
             NotificationType.WARNING)
           None
@@ -60,8 +60,8 @@ object Utils {
       }
     } yield {
       if (!styleCache.get(configFile).contains(config)) {
-        Utils.displayMessage("scalafmt picked up new style configuration",
-                             NotificationType.INFORMATION)
+        IdeaUtils.displayMessage("scalafmt picked up new style configuration",
+                                 NotificationType.INFORMATION)
         styleCache.update(configFile, config)
       }
       config
@@ -71,7 +71,7 @@ object Utils {
 
   private def emitMigrateConfigWarning(configFile: File): Unit =
     if (configFile.isFile) {
-      Utils.displayMessage(
+      IdeaUtils.displayMessage(
         "Ignoring configuration file '.scalafmt', please remove it. " +
           "Configuration is now read from '.scalafmt.conf' using HOCON syntax. " +
           "Run `scalafmt --migrate2hocon .scalafmt` from the the CLI to migrate your settings. " +
