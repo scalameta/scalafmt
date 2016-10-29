@@ -90,11 +90,16 @@
     There are several ways to install the CLI.
 
     @sect{Linux/OSX}
+
       @p
-        The simplest way to install the CLI in Linux and OSX is to run:
+        To install the CLI in Linux or OSX, run:
 
       @hl.xml
         sudo curl -L -o /usr/local/bin/scalafmt https://raw.githubusercontent.com/olafurpg/scalafmt/master/bin/scalafmt_auto && chmod +x /usr/local/bin/scalafmt && scalafmt --upgrade --help
+
+      @sect{Arch Linux}
+        @p
+          Install the @code{scalafmt} package from the Arch User Repository. Voting on the package will also increase the likelyhood that the package will be merged into the community repo.
 
       @p
         To upgrade to the latest release, run @code{scalafmt --upgrade --help}.
