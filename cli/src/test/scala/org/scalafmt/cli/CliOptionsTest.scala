@@ -120,7 +120,7 @@ class CliOptionsTest extends FunSuite {
         assert(obtained.continuationIndent.callSite == 3)
         assert(obtained.continuationIndent.defnSite == 5)
         assert(obtained.align.mixedOwners == true)
-        assert(obtained.binPackImportSelectors == true)
+        assert(obtained.importSelectors == true)
         assert(obtained.spaces.inImportCurlyBraces == true)
         assert(obtained.poorMansTrailingCommasInConfigStyle == true)
         assert(obtained.sometimesBeforeColonInMethodReturnType == true)

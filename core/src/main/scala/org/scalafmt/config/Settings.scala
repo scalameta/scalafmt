@@ -49,7 +49,7 @@ trait Settings {
       parentConstructors = true
     ),
     continuationIndent = ContinuationIndent(4, 4),
-    binPackImportSelectors = true,
+    importSelectors = ImportSelectors.binPack,
     newlines = default.newlines.copy(
       neverInResultType = true,
       neverBeforeJsNative = true,

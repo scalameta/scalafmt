@@ -8,7 +8,6 @@ import scala.meta.Defn
 import scala.meta.Enumerator
 import scala.meta.Import
 import scala.meta.Mod
-import scala.meta.Name
 import scala.meta.Pat
 import scala.meta.Pkg
 import scala.meta.Template
@@ -18,6 +17,7 @@ import scala.meta.Type
 import scala.meta.tokens.Token
 
 import org.scalafmt.Error.UnexpectedTree
+import org.scalafmt.config.ImportSelectors
 import org.scalafmt.internal.ExpiresOn.Left
 import org.scalafmt.internal.ExpiresOn.Right
 import org.scalafmt.internal.Length.Num
@@ -116,13 +116,22 @@ class Router(formatOps: FormatOps) {
         val policy = SingleLineBlock(matchingParentheses(hash(open)))
         val close = matchingParentheses(hash(open))
         val newlineBeforeClosingCurly = newlineBeforeClosingCurlyPolicy(close)
-        val newlinePolicy =
-          if (style.binPackImportSelectors) newlineBeforeClosingCurly
-          else newlineBeforeClosingCurly.andThen(OneArgOneLineSplit(open))
+
+        val newlinePolicy = style.importSelectors match {
+          case ImportSelectors.noBinPack =>
+            newlineBeforeClosingCurly.andThen(OneArgOneLineSplit(open))
+          case ImportSelectors.binPack =>
+            newlineBeforeClosingCurly
+          case ImportSelectors.singleLine =>
+            SingleLineBlock(matchingParentheses(hash(open)))
+        }
+
         Seq(
           Split(if (style.spaces.inImportCurlyBraces) Space else NoSplit, 0)
             .withPolicy(policy),
-          Split(Newline, 1)
+          Split(Newline,
+                1,
+                ignoreIf = style.importSelectors == ImportSelectors.singleLine)
             .withPolicy(newlinePolicy)
             .withIndent(2, close, Right)
         )

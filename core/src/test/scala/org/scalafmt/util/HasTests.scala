@@ -5,24 +5,26 @@ import scala.meta.Tree
 import scala.meta.parsers.Parse
 import scala.meta.parsers.ParseException
 import scala.util.Try
-
 import java.io.File
 
 import org.scalafmt.Debug
 import org.scalafmt.Error.UnableToFindStyle
 import org.scalafmt.Error.UnknownStyle
 import org.scalafmt.Scalafmt
-import org.scalafmt.config.AlignToken
-import org.scalafmt.config.BinPack
-import org.scalafmt.config.Config
+import org.scalafmt.config.{
+  AlignToken,
+  BinPack,
+  Config,
+  ImportSelectors,
+  IndentOperator,
+  ScalafmtConfig,
+  ScalafmtRunner
+}
 import org.scalafmt.config.FormatEvent.CompleteFormat
 import org.scalafmt.config.FormatEvent.CreateFormatOps
 import org.scalafmt.config.FormatEvent.Enqueue
 import org.scalafmt.config.FormatEvent.Explored
 import org.scalafmt.config.FormatEvent.VisitToken
-import org.scalafmt.config.IndentOperator
-import org.scalafmt.config.ScalafmtRunner
-import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.FormatWriter
 import org.scalafmt.rewrite.Rewrite
 import org.scalatest.FunSuiteLike
@@ -182,7 +184,11 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
         ScalafmtConfig.unitTest40.copy(
           poorMansTrailingCommasInConfigStyle = true)
       case "import" =>
-        ScalafmtConfig.unitTest80.copy(binPackImportSelectors = false)
+        ScalafmtConfig.unitTest80.copy(
+          importSelectors = ImportSelectors.noBinPack)
+      case "importSingleLine" =>
+        ScalafmtConfig.unitTest80.copy(
+          importSelectors = ImportSelectors.singleLine)
       case "keepLineBreaks" =>
         ScalafmtConfig.unitTest80.copy(
           optIn = unitTest80.optIn.copy(

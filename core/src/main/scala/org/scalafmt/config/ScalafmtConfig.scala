@@ -119,7 +119,7 @@ import org.scalafmt.util.ValidationOps
   * @param alignTokens Documented in scalafmt --help page.
   * @param spacesInImportCurlyBraces If true, formats `import a.b.{ c, d }`.
   *                                  If false, formats `import a.b.{c, d}`.
-  * @param binPackImportSelectors If true, breaks up import selectors if
+  * @param importSelectors If true, breaks up import selectors if
   *                                   it overflows [[maxColumn]]. For example
   *                                   import a.b.{
   *                                     c,
@@ -172,7 +172,7 @@ case class ScalafmtConfig(
     newlines: Newlines = Newlines(),
     runner: ScalafmtRunner = ScalafmtRunner.default,
     // Settings which belong to no group
-    binPackImportSelectors: Boolean = false, // TODO(olafur) bundle into `importSelectors: oneOf(singleLine, binPack, default)`
+    importSelectors: ImportSelectors = ImportSelectors.noBinPack,
     unindentTopLevelOperators: Boolean = false,
     includeCurlyBraceInSelectChains: Boolean = false,
     assumeStandardLibraryStripMargin: Boolean = false,
@@ -210,6 +210,8 @@ case class ScalafmtConfig(
   implicit val optInReader: Reader[OptIn] = optIn.reader
   implicit val newlinesReader: Reader[Newlines] = newlines.reader
   implicit val projectReader: Reader[ProjectFiles] = project.reader
+  implicit val importSelectorsReader: Reader[ImportSelectors] =
+    ImportSelectors.reader
 
   lazy val alignMap: Map[String, Regex] =
     align.tokens.map(x => x.code -> x.owner.r).toMap
