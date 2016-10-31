@@ -11,15 +11,13 @@ import org.scalafmt.Debug
 import org.scalafmt.Error.UnableToFindStyle
 import org.scalafmt.Error.UnknownStyle
 import org.scalafmt.Scalafmt
-import org.scalafmt.config.{
-  AlignToken,
-  BinPack,
-  Config,
-  ImportSelectors,
-  IndentOperator,
-  ScalafmtConfig,
-  ScalafmtRunner
-}
+import org.scalafmt.config.AlignToken
+import org.scalafmt.config.BinPack
+import org.scalafmt.config.Config
+import org.scalafmt.config.ImportSelectors
+import org.scalafmt.config.IndentOperator
+import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.config.ScalafmtRunner
 import org.scalafmt.config.FormatEvent.CompleteFormat
 import org.scalafmt.config.FormatEvent.CreateFormatOps
 import org.scalafmt.config.FormatEvent.Enqueue
