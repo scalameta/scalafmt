@@ -76,3 +76,12 @@ import org.{Aaaaaa, GlobalScope, Registration}
 import org.{Aaaa, Bbbbb, C, D, E, F, G, H, I, J, K, L}
 >>>
 import org.{Aaaa, Bbbbb, C, D, E, F, G, H, I, J, K, L}
+<<< undo the work of other import formatters
+import org.{
+  Aaaa,
+  Bbbbb,
+  C,
+  D
+}
+>>>
+import org.{Aaaa, Bbbbb, C, D}
