@@ -119,13 +119,15 @@ import org.scalafmt.util.ValidationOps
   * @param alignTokens Documented in scalafmt --help page.
   * @param spacesInImportCurlyBraces If true, formats `import a.b.{ c, d }`.
   *                                  If false, formats `import a.b.{c, d}`.
-  * @param importSelectors If true, breaks up import selectors if
-  *                                   it overflows [[maxColumn]]. For example
-  *                                   import a.b.{
-  *                                     c,
-  *                                     d
-  *                                   }. If false, import selectors stay on a
-  *                                   single line.
+  * @param importSelectors Controls formatting of import selectors with multiple names from the
+  *                        same package;
+  *                        If [[org.scalafmt.config.ImportSelectors.binPack]], import selectors are
+  *                        arranged to fit within the maximum line width
+  *                        If [[org.scalafmt.config.ImportSelectors.noBinPack]], import selectors
+  *                        are broken to one per line
+  *                        If [[org.scalafmt.config.ImportSelectors.singleLine]], import selectors
+  *                        are kept on a single line
+  *                        The default setting is currently `noBinPack`.
   * @param poorMansTrailingCommasInConfigStyle (experimental, may be removed)
   *                                      If true, formats config style like this:
   *
