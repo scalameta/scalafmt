@@ -4,26 +4,50 @@ import scala.annotation.compileTimeOnly
 import scala.collection.immutable.Seq
 import scala.meta._
 import scala.meta.tokens.Token.Constant
+import scala.reflect.ClassTag
 
 class Error(msg: String) extends Exception(msg)
 case class ConfigError(msg: String) extends Error(msg)
 case class ConfigErrors(es: Seq[Throwable])
     extends Error(s"Errors: ${es.mkString("\n")}")
 
+object Metaconfig {
+  def get[T](map: Map[String, Any], className: String)(
+      path: String,
+      default: T)(implicit ev: Reader[T], clazz: ClassTag[T]) = {
+    ev.read(map.getOrElse(path, default)) match {
+      case Right(e) => e
+      case Left(e: java.lang.IllegalArgumentException) =>
+        val simpleName = clazz.runtimeClass.getSimpleName
+        val msg =
+          s"Error reading field '$path' on class $className. " +
+            s"Expected argument of type $simpleName. " +
+            s"Obtained ${e.getMessage}"
+        throw _root_.metaconfig.ConfigError(msg)
+      case Left(e) => throw e
+    }
+  }
+}
+
+class ExtraName(string: String) extends scala.annotation.StaticAnnotation
+
 @compileTimeOnly("@metaconfig.Config not expanded")
 class ConfigReader extends scala.annotation.StaticAnnotation {
 
   inline def apply(defn: Any): Any = meta {
     def genReader(typ: Type, params: Seq[Term.Param] = Seq.empty): Defn.Val = {
+      val mapName = Term.Name("map")
+      val classLit = Lit(typ.syntax)
       def defaultArgs: Seq[Term.Arg] = {
         params.collect {
           case Term.Param(_, pName: Term.Name, Some(pTyp: Type), _) =>
             val nameLit = Lit(pName.syntax)
-            Term.Arg.Named(pName, q"get[$pTyp]($nameLit, $pName)")
+            Term.Arg.Named(
+              pName,
+              q"_root_.metaconfig.Metaconfig.get[$pTyp]($mapName, $classLit)($nameLit, $pName)")
         }
       }
       val argLits = params.map(x => Lit(x.name.syntax))
-      val classLit = Lit(typ.syntax)
       val constructor = Ctor.Ref.Name(typ.syntax)
       val bind = Term.Name("x")
       val patTyped = Pat.Typed(Pat.Var.Term(bind), typ.asInstanceOf[Pat.Type])
@@ -31,25 +55,9 @@ class ConfigReader extends scala.annotation.StaticAnnotation {
           override def read(any: Any): _root_.metaconfig.Result[$typ] = {
             any match {
               case ($patTyped) => Right($bind)
-              case _root_.metaconfig.String2AnyMap(map) =>
-                def get[T](path: String, default: T)(implicit
-                    ev: _root_.metaconfig.Reader[T],
-                    clazz: _root_.scala.reflect.ClassTag[T]
-                    ) = {
-                  ev.read(map.getOrElse(path, default)) match {
-                    case Right(e) => e
-                    case Left(e: java.lang.IllegalArgumentException) =>
-                      val msg =
-                        "Error reading field '" + path +
-                        "' on class " + $classLit +
-                        ". Expected argument of type " + clazz.runtimeClass.getSimpleName +
-                        ". Obtained " + e.getMessage()
-                      throw _root_.metaconfig.ConfigError(msg)
-                    case Left(e) => throw e
-                  }
-                }
+              case _root_.metaconfig.String2AnyMap(${Pat.Var.Term(mapName)}) =>
                 val validFields = _root_.scala.collection.immutable.Set(..$argLits)
-                val invalidFields = map.keys.filterNot(validFields)
+                val invalidFields = $mapName.keys.filterNot(validFields)
                 if (invalidFields.nonEmpty) {
                   val msg = "Invalid fields: " + invalidFields.mkString(", ")
                   Left(_root_.metaconfig.ConfigError(msg))

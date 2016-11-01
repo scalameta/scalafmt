@@ -86,7 +86,6 @@ class ConfigReaderTest extends FunSuite {
 //      )
 //    )
 //    val o = Outer(2, Inner(3)).reader.read(m)
-
   }
 
 }
