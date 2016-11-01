@@ -26,7 +26,7 @@ class ConfigReaderTest extends FunSuite {
   test("invalid field") {
     assert(
       b.reader.read(Map("is" -> 2, "var" -> 3)) ==
-        Left(ConfigError("Invalid fields: is, var")))
+        Left(ConfigError("Error reading class 'Bar'. Invalid fields: is, var")))
   }
 
   test("read OK") {
@@ -63,7 +63,6 @@ class ConfigReaderTest extends FunSuite {
       )
     )
     val o = Outer(2, Inner(3)).reader.read(m)
-    println(o)
   }
 
   test("Seq") {
@@ -80,12 +79,12 @@ class ConfigReaderTest extends FunSuite {
         Right(HasMap(Map(666 -> 777))))
   }
 
-  test("inner") {
-//    val m: Map[String, Any] = Map(
-//      "i" -> 4
-//      )
-//    )
-//    val o = Outer(2, Inner(3)).reader.read(m)
+  @ConfigReader
+  case class HasExtra(@ExtraName("b") @metaconfig.ExtraName("c") a: Int)
+  test("@ExtraName") {
+    val x = HasExtra(1)
+    val Right(HasExtra(2)) = x.reader.read(Map("b" -> 2))
+    val Right(HasExtra(3)) = x.reader.read(Map("c" -> 3))
+    val Left(_) = x.reader.read(Map("d" -> 3))
   }
-
 }
