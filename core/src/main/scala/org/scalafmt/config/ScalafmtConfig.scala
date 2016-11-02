@@ -8,6 +8,7 @@ import org.scalafmt.util.ValidationOps
 
 /** Configuration options for scalafmt.
   *
+  * @param version The version of scalafmt to use for this project.
   * @param maxColumn Column limit, any formatting exceeding this field is
   *                  penalized heavily.
   * @param docstrings If true, reformats docstrings according to @scalaDocs.
@@ -158,6 +159,7 @@ import org.scalafmt.util.ValidationOps
   */
 @ConfigReader
 case class ScalafmtConfig(
+    version: String = org.scalafmt.Versions.stable,
     maxColumn: Int = 80,
     docstrings: Docstrings = Docstrings.ScalaDoc,
     optIn: OptIn = OptIn(),
