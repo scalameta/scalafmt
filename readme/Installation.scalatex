@@ -54,7 +54,9 @@
       @hl.xml
         coursier bootstrap com.geirsson:scalafmt-cli_2.11:@org.scalafmt.Versions.stable --main org.scalafmt.cli.Cli -o scalafmt
 
-      For more details, see @lnk("coursier", "https://github.com/alexarchambault/coursier#generating-bootstrap-launchers").
+      To install coursier, see @lnk("here", "https://github.com/alexarchambault/coursier#command-line").
+      For more details on coursier bootstrap launchers, see @lnk("coursier", "https://github.com/alexarchambault/coursier#generating-bootstrap-launchers").
+
 
       @p
         @b{Recommended in CI}. Put the bootstrap script in your code repository
