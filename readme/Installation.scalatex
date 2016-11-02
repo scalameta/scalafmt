@@ -45,56 +45,35 @@
       Settings > Appearance & Behavior > Notifications > Scalafmt > Popup "Balloon".
       You need to first check "Display Balloon Notifications".
 
-  @sect{SBT}
-    @note. I maintain the SBT plugin on a best-effort since I personally use the
-    IntelliJ plugin. If you rely on the SBT plugin, please consider contributing!
-
-    @hl.scala
-      addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "@org.scalafmt.Versions.stable")
-
-    @ul
-      @li
-        @lnk("Here is an example repository using sbt plugin.",
-             "https://github.com/olafurpg/sbt-scalafmt-example")
-      @li
-        Run @code("sbt scalafmt") to format all files in the project.
-      @li
-        Run @code("sbt scalafmtTest") to test whether all files are are
-        properly formatted. An exception is thrown in case of failure, no
-        files are formatted.
-      @li
-        Set @code("scalafmtConfig in ThisBuild := Some(file(\".scalafmt\"))")
-        to let the plugin pick up custom style configurations from
-        @code(".scalafmt") in the root directory of your project.
-        For details, see @sect.ref{Configuration}.
-      @li
-        If you use @code("*.scala") build rules you may need to import
-        @code("org.scalafmt.sbt.ScalaFmtPlugin.autoImport._").
-      @li
-        Add @code("reformatOnCompileSettings") to you build settings to
-        enable automatically formatting files on compile.
-        @b("WARNING"). This setting is very intrusive on text editors and IDEs.
-        I encourage you to find a better way to incorporate scalafmt into your
-        workflow.
-      @li
-        In case of any trouble, try to run @code("reload") and @code("clean").
-      @li
-        If you have a multi-project build and the custom @code(".scalafmt") configuration is
-        not picked up, make sure that @code("scalafmtConfig") is defined for
-        all of your projects, not only the root project.
-        Use @code("show scalafmtConfig") to verify that
-        @code("scalafmtConfig := Some(file(.scalafmt))")
-        in all of your projects.
-
   @sect{CLI}
     There are several ways to install the CLI.
 
-    @sect{Linux/OSX}
+    @sect{Coursier}
+      Create a tiny (~12kb) bootstrap script with coursier like this:
+
+      @hl.xml
+        coursier bootstrap com.geirsson:scalafmt-cli_2.11:@org.scalafmt.Versions.stable --main org.scalafmt.cli.Cli -o scalafmt
+        ./scalafmt --version # should be @org.scalafmt.Versions.stable
+
+      To install coursier, see @lnk("here", "https://github.com/alexarchambault/coursier#command-line").
+      For more details on coursier bootstrap launchers, see @lnk("here", "https://github.com/alexarchambault/coursier#generating-bootstrap-launchers").
+
       @p
-        The simplest way to install the CLI in Linux and OSX is to run:
+        @b{Recommended in CI}. Put the bootstrap script in your code repository
+        to make sure everyone on your team use the same scalafmt version.
+        To configure which files to format, see @sect.ref{project}.
+
+    @sect{Linux/OSX}
+
+      @p
+        To install the CLI in Linux or OSX, run:
 
       @hl.xml
         sudo curl -L -o /usr/local/bin/scalafmt https://raw.githubusercontent.com/olafurpg/scalafmt/master/bin/scalafmt_auto && chmod +x /usr/local/bin/scalafmt && scalafmt --upgrade --help
+
+      @sect{Arch Linux}
+        @p
+          Install the @code{scalafmt} package from the Arch User Repository. Voting on the package will also increase the likelyhood that the package will be merged into the community repo.
 
       @p
         To upgrade to the latest release, run @code{scalafmt --upgrade --help}.
@@ -175,6 +154,58 @@
       @hl.scala(
         org.scalafmt.cli.CliArgParser.buildInfo + "\n" +
         org.scalafmt.cli.CliArgParser.scoptParser.usage)
+
+  @sect{SBT}
+    @p
+      @note. I maintain the SBT plugin on a best-effort basis, so I may not respond
+      to all SBT plugin related issues. If you rely on the SBT plugin,
+      please consider becoming a maintainer!
+
+    @p
+      @note. The recommended way to enforce scalafmt in CI is to use @sect.ref{Coursier},
+      not the SBT plugin.
+    @p
+      @note. The SBT plugin does not work with SBT 0.13.12 or 0.13.13 because of
+      @lnk("sbt#2786", "https://github.com/sbt/sbt/issues/2786"). Please upvote that
+      bug to help prioritize it.
+
+    @hl.scala
+      addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "@org.scalafmt.Versions.stable")
+
+    @ul
+      @li
+        @lnk("Here is an example repository using sbt plugin.",
+             "https://github.com/olafurpg/sbt-scalafmt-example")
+      @li
+        Run @code("sbt scalafmt") to format all files in the project.
+      @li
+        Run @code("sbt scalafmtTest") to test whether all files are are
+        properly formatted. An exception is thrown in case of failure, no
+        files are formatted.
+      @li
+        Set @code("scalafmtConfig in ThisBuild := Some(file(\".scalafmt\"))")
+        to let the plugin pick up custom style configurations from
+        @code(".scalafmt") in the root directory of your project.
+        For details, see @sect.ref{Configuration}.
+      @li
+        If you use @code("*.scala") build rules you may need to import
+        @code("org.scalafmt.sbt.ScalaFmtPlugin.autoImport._").
+      @li
+        Add @code("reformatOnCompileSettings") to you build settings to
+        enable automatically formatting files on compile.
+        @b("WARNING"). This setting is very intrusive on text editors and IDEs.
+        I encourage you to find a better way to incorporate scalafmt into your
+        workflow.
+      @li
+        In case of any trouble, try to run @code("reload") and @code("clean").
+      @li
+        If you have a multi-project build and the custom @code(".scalafmt") configuration is
+        not picked up, make sure that @code("scalafmtConfig") is defined for
+        all of your projects, not only the root project.
+        Use @code("show scalafmtConfig") to verify that
+        @code("scalafmtConfig := Some(file(.scalafmt))")
+        in all of your projects.
+
 
   @sect{Vim}
     @ul
