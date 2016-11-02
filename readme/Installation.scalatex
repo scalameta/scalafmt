@@ -53,14 +53,15 @@
 
       @hl.xml
         coursier bootstrap com.geirsson:scalafmt-cli_2.11:@org.scalafmt.Versions.stable --main org.scalafmt.cli.Cli -o scalafmt
+        ./scalafmt --version # should be @org.scalafmt.Versions.stable
 
       To install coursier, see @lnk("here", "https://github.com/alexarchambault/coursier#command-line").
-      For more details on coursier bootstrap launchers, see @lnk("coursier", "https://github.com/alexarchambault/coursier#generating-bootstrap-launchers").
-
+      For more details on coursier bootstrap launchers, see @lnk("here", "https://github.com/alexarchambault/coursier#generating-bootstrap-launchers").
 
       @p
         @b{Recommended in CI}. Put the bootstrap script in your code repository
         to make sure everyone on your team use the same scalafmt version.
+        To configure which files to format, see @sect.ref{project}.
 
     @sect{Linux/OSX}
 
