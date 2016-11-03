@@ -66,7 +66,7 @@ class LegacyCliTest extends FunSuite with DiffAssertions {
         |continuationIndent.callSite = 3
         |continuationIndent.defnSite = 3
         |align.mixedOwners = false
-        |importSelectors = binPack
+        |binPackImportSelectors = true
         |spaces.inImportCurlyBraces = true
         |spaces.afterTripleEquals = true
         |spaces.beforeContextBoundColon = true

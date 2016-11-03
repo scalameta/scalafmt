@@ -27,8 +27,6 @@ object LegacyCli {
       "configStyleArguments" -> "optIn.configStyleArguments",
       "alignStripMarginStrings" -> "assumeStandardLibraryStripMargin",
       "binPackArguments" -> "binPack.callSite",
-      "binPackImportSelectors = true" -> "importSelectors = binPack",
-      "binPackImportSelectors = false" -> "importSelectors = noBinPack",
       "binPackParameters" -> "binPack.defnSite",
       "binPackParentConstructors" -> "binPack.parentConstructors",
       "alignByOpenParenCallSite" -> "align.openParenCallSite",

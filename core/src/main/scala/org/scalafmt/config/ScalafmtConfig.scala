@@ -174,7 +174,8 @@ case class ScalafmtConfig(
     newlines: Newlines = Newlines(),
     runner: ScalafmtRunner = ScalafmtRunner.default,
     // Settings which belong to no group
-    importSelectors: ImportSelectors = ImportSelectors.noBinPack,
+    @metaconfig.ExtraName("binPackImportSelectors") importSelectors: ImportSelectors =
+      ImportSelectors.noBinPack,
     unindentTopLevelOperators: Boolean = false,
     includeCurlyBraceInSelectChains: Boolean = false,
     assumeStandardLibraryStripMargin: Boolean = false,
@@ -213,7 +214,7 @@ case class ScalafmtConfig(
   implicit val newlinesReader: Reader[Newlines] = newlines.reader
   implicit val projectReader: Reader[ProjectFiles] = project.reader
   implicit val importSelectorsReader: Reader[ImportSelectors] =
-    ImportSelectors.reader
+    ImportSelectors.backwardsCompatibleReader
 
   lazy val alignMap: Map[String, Regex] =
     align.tokens.map(x => x.code -> x.owner.r).toMap

@@ -52,6 +52,7 @@ object Constants {
   * Assigns splits to format tokens.
   */
 class Router(formatOps: FormatOps) {
+
   import Constants._
   import LoggerOps._
   import TokenOps._
@@ -113,8 +114,11 @@ class Router(formatOps: FormatOps) {
       // Import left brace
       case FormatToken(open @ LeftBrace(), _, _)
           if parents(leftOwner).exists(_.is[Import]) =>
-        val policy = SingleLineBlock(matchingParentheses(hash(open)))
         val close = matchingParentheses(hash(open))
+        val disallowInlineComments = style.importSelectors != ImportSelectors.singleLine
+        val policy = SingleLineBlock(close,
+                                     disallowInlineComments =
+                                       disallowInlineComments)
         val newlineBeforeClosingCurly = newlineBeforeClosingCurlyPolicy(close)
 
         val newlinePolicy = style.importSelectors match {
@@ -123,7 +127,7 @@ class Router(formatOps: FormatOps) {
           case ImportSelectors.binPack =>
             newlineBeforeClosingCurly
           case ImportSelectors.singleLine =>
-            SingleLineBlock(matchingParentheses(hash(open)))
+            SingleLineBlock(close)
         }
 
         Seq(

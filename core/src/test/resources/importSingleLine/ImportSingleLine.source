@@ -20,3 +20,14 @@ import org.{
 }
 >>>
 import org.{Aaaa, Bbbbb, C, D}
+<<< handle inline comments
+import org.{
+// what?
+  Aaaa,
+  Bbbbb,
+  C,
+  D
+}
+>>>
+import org.{// what?
+Aaaa, Bbbbb, C, D}
