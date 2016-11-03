@@ -5,6 +5,7 @@ import scala.meta.parsers.Parse
 
 import org.scalafmt
 import org.scalafmt.config.AlignToken
+import org.scalafmt.config.ImportSelectors
 import org.scalafmt.config.IndentOperator
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.LoggerOps._
@@ -37,7 +38,7 @@ class CliOptionsTest extends FunSuite {
       """
         |style = intellij
         |assumeStandardLibraryStripMargin = true
-        |binPackImportSelectors = true
+        |importSelectors = binPack
         |danglingParentheses = true
         |optIn: {
         |  configStyleArguments = true
@@ -120,7 +121,7 @@ class CliOptionsTest extends FunSuite {
         assert(obtained.continuationIndent.callSite == 3)
         assert(obtained.continuationIndent.defnSite == 5)
         assert(obtained.align.mixedOwners == true)
-        assert(obtained.binPackImportSelectors == true)
+        assert(obtained.importSelectors == ImportSelectors.binPack)
         assert(obtained.spaces.inImportCurlyBraces == true)
         assert(obtained.poorMansTrailingCommasInConfigStyle == true)
         assert(obtained.sometimesBeforeColonInMethodReturnType == true)

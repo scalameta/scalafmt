@@ -178,7 +178,7 @@ lazy val benchmarks = project
   .settings(
     libraryDependencies ++= Seq(
       "org.scalariform" %% "scalariform" % Deps.scalariform,
-      "org.scalatest" %% "scalatest" % Deps.scalatest % Test
+      "org.scalatest"   %% "scalatest"   % Deps.scalatest % Test
     ),
     javaOptions in run ++= Seq(
       "-Djava.net.preferIPv4Stack=true",

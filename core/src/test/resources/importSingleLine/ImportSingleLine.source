@@ -1,0 +1,33 @@
+40 columns                              |
+<<< break #101
+import org.scalajs.dom.experimental.serviceworkers.{ServiceWorkerGlobalScope, ServiceWorkerRegistration}
+>>>
+import org.scalajs.dom.experimental.serviceworkers.{ServiceWorkerGlobalScope, ServiceWorkerRegistration}
+<<< break #101 short
+import org.{Aaaaaa, GlobalScope, Registration}
+>>>
+import org.{Aaaaaa, GlobalScope, Registration}
+<<< break #101 short 2
+import org.{Aaaa, Bbbbb, C, D, E, F, G, H, I, J, K, L}
+>>>
+import org.{Aaaa, Bbbbb, C, D, E, F, G, H, I, J, K, L}
+<<< undo the work of other import formatters
+import org.{
+  Aaaa,
+  Bbbbb,
+  C,
+  D
+}
+>>>
+import org.{Aaaa, Bbbbb, C, D}
+<<< handle inline comments
+import org.{
+// what?
+  Aaaa,
+  Bbbbb,
+  C,
+  D
+}
+>>>
+import org.{// what?
+Aaaa, Bbbbb, C, D}
