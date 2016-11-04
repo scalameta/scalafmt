@@ -5,7 +5,10 @@ import scala.meta.dialects.Sbt0137
 import scala.util.matching.Regex
 
 import java.io.File
+import java.io.InputStream
+import java.io.OutputStream
 import java.io.OutputStreamWriter
+import java.io.PrintStream
 import java.util.concurrent.atomic.AtomicInteger
 
 import org.scalafmt.Error.UnableToParseCliOptions
@@ -36,8 +39,24 @@ object Cli {
         )
       )
     )
-
   }
+
+  def main(args: Array[String],
+           in: InputStream,
+           out: PrintStream,
+           err: PrintStream,
+           workingDirectory: String): Unit = {
+    val options = CliOptions.default.copy(
+      common = CommonOptions(
+        in = in,
+        out = out,
+        err = err,
+        workingDirectory = AbsoluteFile.fromPath(workingDirectory).get
+      )
+    )
+    mainWithOptions(args, options)
+  }
+
   def main(args: Array[String]): Unit = {
     mainWithOptions(args, CliOptions.default)
   }

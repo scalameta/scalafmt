@@ -23,4 +23,5 @@ object AbsoluteFile {
     else None
   }
   def userDir = new AbsoluteFile(new File(System.getProperty("user.dir"))) {}
+  def homeDir = new AbsoluteFile(new File(System.getProperty("user.home"))) {}
 }

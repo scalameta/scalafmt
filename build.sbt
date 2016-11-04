@@ -99,9 +99,18 @@ lazy val root = project
         |import scala.meta._
         |import org.scalafmt.internal._
         |import org.scalafmt._
-      """.stripMargin
+          """.stripMargin
   )
-  .aggregate(core, cli, benchmarks, scalafmtSbt, readme, metaconfig)
+  .aggregate(
+    benchmarks,
+    bootstrap,
+    cli,
+    utils,
+    core,
+    metaconfig,
+    readme,
+    scalafmtSbt
+  )
   .dependsOn(core)
 
 lazy val core = project
@@ -126,7 +135,7 @@ lazy val core = project
     addCompilerPlugin(
       "org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
   )
-  .dependsOn(metaconfig)
+  .dependsOn(metaconfig, utils)
 
 lazy val cliJvmOptions = Seq(
   "-Xss4m"
@@ -149,6 +158,22 @@ lazy val cli = project
     )
   )
   .dependsOn(core % "compile->compile;test->test")
+
+lazy val bootstrap = project
+  .settings(
+    allSettings,
+    //  crossScalaVersions := Seq("2.10.6", "2.11.8"),
+    moduleName := "scalafmt-bootstrap",
+    sources in Compile +=
+      baseDirectory.value / "../core/src/main/scala/org/scalafmt/Versions.scala",
+    libraryDependencies ++= Seq(
+      "com.martiansoftware" % "nailgun-server"  % "0.9.1",
+      "io.get-coursier"     %% "coursier"       % "1.0.0-M14",
+      "io.get-coursier"     %% "coursier-cache" % "1.0.0-M14",
+      "org.scalatest"       %% "scalatest"      % Deps.scalatest % Test
+    )
+  )
+  .dependsOn(utils)
 
 lazy val scalafmtSbt = project
   .settings(allSettings)
@@ -219,6 +244,15 @@ lazy val readme = scalatex
   )
 
 lazy val sonatypePassword = sys.env.getOrElse("SONATYPE_PW", "")
+
+// General utilities that shared between bootstrap and core.
+lazy val utils = project.settings(
+  allSettings,
+  moduleName := "scalafmt-utils",
+  libraryDependencies ++= Seq(
+    "com.typesafe" % "config" % "1.2.1"
+  )
+)
 
 lazy val metaconfig = project.settings(
   allSettings,

@@ -1,13 +1,9 @@
 package org.scalafmt.util
 
-import scala.collection.breakOut
 import scala.sys.process.ProcessLogger
 import scala.util.Try
 
 import java.io.File
-
-import org.scalafmt.config
-import org.scalafmt.config.ScalafmtConfig
 
 trait GitOps {
   def lsTree: Seq[AbsoluteFile]
@@ -50,5 +46,4 @@ class GitOpsImpl(workingDirectory: AbsoluteFile) extends GitOps {
       require(result.jfile.isDirectory)
       result
     }.toOption
-
 }
