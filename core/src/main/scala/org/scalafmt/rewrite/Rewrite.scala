@@ -20,6 +20,7 @@ object Rewrite {
   val reader =
     ReaderUtil.oneOf[Rewrite](
       RedundantBraces,
+      RedundantParens,
       SortImports,
       PreferCurlyFors
     )
@@ -30,6 +31,7 @@ object Rewrite {
 
   val name2rewrite: Map[String, Rewrite] = nameMap[Rewrite](
     RedundantBraces,
+    RedundantParens,
     SortImports,
     PreferCurlyFors
   )

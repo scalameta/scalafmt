@@ -116,6 +116,12 @@ object Readme {
         rules = Seq(RedundantBraces)
       ))
 
+  val rewriteParens =
+    ScalafmtConfig.default.copy(
+      rewrite = ScalafmtConfig.default.rewrite.copy(
+        rules = Seq(RedundantParens)
+      ))
+
   val rewriteImports =
     ScalafmtConfig.default.copy(
       rewrite = ScalafmtConfig.default.rewrite.copy(
