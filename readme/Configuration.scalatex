@@ -321,6 +321,18 @@
         @li
           @code{rewrite.redundantBraces.includeUnitMethods} = @rewriteBraces.rewrite.redundantBraces.includeUnitMethods
 
+    @sect(Rewrite.rewrite2name(RedundantParens))
+      @p
+        Removes redundant parentheses in guard clauses.
+      @demoStyle(rewriteParens)
+        object RedundantParenthesis {
+          def c(b: List[Int]): List[Int] =
+            for {
+              a <- b
+              if ((a))
+            } yield a
+        }
+
     @sect(Rewrite.rewrite2name(SortImports))
       @p
         The imports are sorted by the groups: symbols, lower-case, upper-case.
