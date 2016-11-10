@@ -70,7 +70,7 @@ class DiffTest extends FunSuite with DiffAssertions {
     assert(obtained == expected)
   }
 
-  test("adjust") {
+  ignore("adjust") {
     val fileDiff = FileDiff(
       "Foo.scala",
       Seq(
@@ -97,19 +97,21 @@ class DiffTest extends FunSuite with DiffAssertions {
   }
 
   test("expand") {
-    val ranges: Seq[FormatTokenRange] = Seq(
-      (13, 13),
-      (17, 17),
-      (98, 128),
-      (129, 133)
-    ).map {
-      case (l, r) => FormatTokenRange(formatOps.tokens(l), formatOps.tokens(r))
-    }
+    val code =
+      """|object a {
+         |  function(a,
+         |           b,
+         |           cccccccccccccccc,
+         |           c)
+         |}
+      """.stripMargin
+    val ast = code.parse[Source].get
+    val r = Seq(Range(3, 4))
+    val ops = new FormatOps(ast, ScalafmtConfig.default40, r)
+    val ranges = FileDiff.getFormatTokenRanges(ops.tokens, r)
+    println(ranges)
     ranges.foreach { range =>
-      println(FileDiff.expandToEnclosingStatements(range, formatOps))
+      println(FileDiff.expandToEnclosingStatements(range, ops))
     }
-//    val expanded = FileDiff.expandToEnclosingStatements()
-
   }
-
 }

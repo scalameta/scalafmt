@@ -4,11 +4,16 @@ import scala.meta.Dialect
 import scala.meta.dialects.Sbt0137
 import scala.util.matching.Regex
 
+import java.io.BufferedInputStream
+import java.io.BufferedReader
+import java.io.ByteArrayInputStream
 import java.io.File
+import java.io.FileInputStream
 import java.io.InputStream
 import java.io.OutputStream
 import java.io.OutputStreamWriter
 import java.io.PrintStream
+import java.util.Scanner
 import java.util.concurrent.atomic.AtomicInteger
 
 import org.scalafmt.Error.UnableToParseCliOptions
@@ -19,6 +24,7 @@ import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.LogLevel
 import com.martiansoftware.nailgun.NGContext
+import org.scalafmt.diff.FileDiff
 import org.scalafmt.util.AbsoluteFile
 
 object Cli {
@@ -136,18 +142,33 @@ object Cli {
   private def getInputMethods(options: CliOptions): Seq[InputMethod] = {
     if (options.stdIn) {
       Seq(InputMethod.StdinCode(options.assumeFilename, options.common.in))
+    } else if (options.diff) {
+      val unifiedDiff = scala.io.Source
+        .fromInputStream(options.common.in)
+        .getLines()
+        .mkString(FileOps.lineSeparator)
+      val fileDiffs = FileDiff.fromUnified(unifiedDiff)
+      fileDiffs.map { fd =>
+        val path =
+          AbsoluteFile.fromFile(new File(fd.filename),
+                                options.common.workingDirectory)
+        InputMethod.FileContents(path, fd.additions.map(_.toRange))
+      }
     } else {
       val projectFiles: Seq[AbsoluteFile] =
         if (options.customFiles.nonEmpty) getFilesFromCliOptions(options)
         else getFilesFromProject(options)
-      projectFiles.map(InputMethod.FileContents.apply)
+      projectFiles.map(x => InputMethod.FileContents(x, Nil))
     }
   }
 
   private def handleFile(inputMethod: InputMethod, options: CliOptions): Unit = {
     val input = inputMethod.readInput
+    val range: Set[Range] =
+      if (inputMethod.range.nonEmpty) inputMethod.range.toSet
+      else options.range
     val formatResult =
-      Scalafmt.format(input, options.config, options.range)
+      Scalafmt.format(input, options.config, range)
     formatResult match {
       case Formatted.Success(formatted) =>
         inputMethod.write(formatted, input, options)

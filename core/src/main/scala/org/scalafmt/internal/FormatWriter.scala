@@ -9,6 +9,8 @@ import scala.meta.tokens.Token._
 import java.util.regex.Pattern
 
 import org.scalafmt.internal.FormatWriter.FormatLocation
+import org.scalafmt.util.LoggerOps
+import org.scalafmt.util.logger
 
 /**
   * Produces formatted output from sequence of splits.
@@ -22,6 +24,7 @@ class FormatWriter(formatOps: FormatOps) {
     var lastState = State.start // used to calculate start of formatToken.right.
     reconstructPath(tokens, splits, debug = false) {
       case (state, formatToken, whitespace) =>
+        logger.elem(formatToken, state.splits.last)
         formatToken.left match {
           case c: Comment =>
             sb.append(formatComment(c, state.indentation))
@@ -49,12 +52,12 @@ class FormatWriter(formatOps: FormatOps) {
     sb.toString()
   }
 
-  val trailingSpace = Pattern.compile(" +$", Pattern.MULTILINE)
+  val trailingSpace: Pattern = Pattern.compile(" +$", Pattern.MULTILINE)
   private def removeTrailingWhiteSpace(str: String): String = {
     trailingSpace.matcher(str).replaceAll("")
   }
 
-  val leadingAsteriskSpace =
+  val leadingAsteriskSpace: Pattern =
     Pattern.compile("\n *\\*(?!\\*)", Pattern.MULTILINE)
   private def formatComment(comment: Comment, indent: Int): String = {
     val alignedComment =
@@ -97,7 +100,6 @@ class FormatWriter(formatOps: FormatOps) {
     }
   }
 
-  import org.scalafmt.util.LoggerOps._
   import org.scalafmt.util.TokenOps._
 
   def getFormatLocations(toks: Array[FormatToken],
@@ -114,7 +116,7 @@ class FormatWriter(formatOps: FormatOps) {
         statesBuilder += FormatLocation(tok, split, currState)
         // TIP. Use the following line to debug origin of splits.
         if (debug && tokens.length < 1000) {
-          val left = cleanup(tok.left).slice(0, 15)
+          val left = LoggerOps.cleanup(tok.left).slice(0, 15)
           logger.debug(
             f"$left%-15s $split ${currState.indentation} ${currState.column}")
         }

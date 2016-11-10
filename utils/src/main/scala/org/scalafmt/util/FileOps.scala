@@ -4,6 +4,7 @@ import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
 import java.io.PrintWriter
+import java.io.Reader
 
 object FileOps {
 
@@ -53,10 +54,13 @@ object FileOps {
   }
 
   def readFile(file: File): String = {
+    readFile(new BufferedReader(new FileReader(file)))
+  }
+  val lineSeparator: String = System.getProperty("line.separator")
+
+  def readFile(br: BufferedReader): String = {
     // Prefer this to inefficient Source.fromFile.
     val sb = new StringBuilder
-    val br = new BufferedReader(new FileReader(file))
-    val lineSeparator = System.getProperty("line.separator")
     try {
       var line = ""
       while ({

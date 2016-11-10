@@ -51,16 +51,24 @@ class FormatOps(val tree: Tree,
     tree.tokens)
   val styleMap = new StyleMap(tokens, initStyle)
   private val vAlignDepthCache = mutable.Map.empty[Tree, Int]
+  val formatSubset: Boolean = range.nonEmpty
   val tokenRanges: Seq[FormatTokenRange] =
-    FileDiff.getFormatTokenRanges(tokens, range)
+    FileDiff
+      .getFormatTokenRanges(tokens, range)
+      .map(FileDiff.expandToEnclosingStatements(_, this))
   logger.elem(tokenRanges)
+
   val formatOff: Array[Boolean] = {
     val result = new Array[Boolean](tokens.length)
-    var off = false
+    var off = formatSubset
     var i = 0
+    val enableFormat = tokenRanges.map(_.start).toSet
+    val disableFormat = tokenRanges.map(_.end).toSet
     tokens.foreach { tok =>
-      if (isFormatOff(tok.left)) off = true
-      else if (isFormatOn(tok.left)) off = false
+      if (isFormatOff(tok.left) ||
+          (formatSubset && disableFormat(tok))) off = true
+      else if (isFormatOn(tok.left) ||
+               (formatSubset && enableFormat(tok))) off = false
       result(i) = off
       i += 1
     }
@@ -126,9 +134,21 @@ class FormatOps(val tree: Tree,
   }
 
   @tailrec
-  final def findFirst(start: FormatToken, end: Token)(
+  final def findFirstRev(start: FormatToken, end: Token)(
       f: FormatToken => Boolean): Option[FormatToken] = {
     if (start.left.start < end.start) None
+    else if (f(start)) Some(start)
+    else {
+      val next_ = prev(start)
+      if (next_ == start) None
+      else findFirstRev(next_, end)(f)
+    }
+  }
+
+  @tailrec
+  final def findFirst(start: FormatToken, end: Token)(
+      f: FormatToken => Boolean): Option[FormatToken] = {
+    if (start.left.start > end.start) None
     else if (f(start)) Some(start)
     else {
       val next_ = next(start)

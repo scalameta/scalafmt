@@ -1,17 +1,20 @@
 package org.scalafmt.diff
 
 import scala.meta.Tree
+import scala.meta.tokens.Token.RightBrace
 import scala.util.Try
+import scala.util.matching.Regex
 
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.FormatOps
 import org.scalafmt.internal.FormatToken
+import org.scalafmt.util.TokenOps
 import org.scalafmt.util.logger
 
 case class FormatTokenRange(start: FormatToken, end: FormatToken) {
   def contains(tok: FormatToken): Boolean = {
     val result = tok.left.start >= start.left.start && tok.right.end <= end.right.end
-    logger.elem(tok,result)
+    logger.elem(tok, result)
     result
   }
   override def toString: String = s"$start <-> $end"
@@ -23,8 +26,8 @@ case class Addition(startLine: Int, lineCount: Int) {
 case class FileDiff(filename: String, additions: Seq[Addition])
 
 object FileDiff {
-  val NewFile = "^\\+\\+\\+\\ (.*?/)(\\S*)".r
-  val DiffBlock =
+  val NewFile: Regex = "^\\+\\+\\+\\ (.*?/)(\\S*)".r
+  val DiffBlock: Regex =
     "^@@.*\\+(\\d+)(,(\\d+))?".r("startLine", "skip", "lineCount")
 
   /** Parses a unified diff into FileDiffs.
@@ -94,7 +97,22 @@ object FileDiff {
 
   def expandToEnclosingStatements(formatTokenRange: FormatTokenRange,
                                   formatOps: FormatOps): FormatTokenRange = {
-    import formatTokenRange._
-    formatTokenRange
+    val start =
+      formatOps
+        .findFirstRev(formatTokenRange.start, formatOps.tokens.head.left) {
+          token =>
+            // include the newline before the beginning of this statement.
+            formatOps.dequeueSpots.contains(TokenOps.hash(token.right))
+        }
+        .getOrElse(formatTokenRange.start)
+    val end =
+      formatOps
+        .findFirst(formatTokenRange.end, formatOps.tokens.last.right) {
+          token =>
+            // exclude the newline before the beginning of the next statement.
+            formatOps.dequeueSpots.contains(TokenOps.hash(token.right))
+        }
+        .getOrElse(formatOps.tokens.last)
+    FormatTokenRange(start, end)
   }
 }

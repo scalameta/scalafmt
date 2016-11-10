@@ -16,33 +16,80 @@ import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.GitOps
+import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.logger
 import org.scalatest.FunSuite
 
-class CliTest extends FunSuite with DiffAssertions {
+class CliDiffTest extends AbstractCliTest with DiffAssertions {
   import FileTestOps._
 
-  def getMockOptions(baseDir: AbsoluteFile): CliOptions =
-    getMockOptions(baseDir, baseDir)
-
-  def getMockOptions(baseDir: AbsoluteFile,
-                     workingDir: AbsoluteFile): CliOptions = {
-    CliOptions.default.copy(
-      gitOpsConstructor = x => new FakeGitOps(baseDir),
-      common = CliOptions.default.common.copy(
-        workingDirectory = workingDir
-      )
-    )
+  def check(original: String, expected: String, diff: String): Unit = {
+    test(LoggerOps.reveal(original)) {
+      val root = string2dir(original)
+      val init = getMockOptions(root)
+      val bais = new ByteArrayInputStream(diff.getBytes)
+      val baos = new ByteArrayOutputStream()
+      val config = Cli.getConfig(Array("--diff"), init).get
+      Cli.run(
+        config.copy(
+          common = config.common.copy(
+            in = bais
+          )
+        ))
+      val obtained = dir2string(root)
+      assertNoDiff(obtained, expected)
+    }
   }
 
-  val baseCliOptions: CliOptions = getMockOptions(
-    AbsoluteFile
-      .fromPath(File.createTempFile("base", "dir").getAbsolutePath)
-      .get)
+  check(
+    """|/edited.scala
+       |object   A {
+       |  val x=2
+       |}
+       |""".stripMargin,
+    """|/edited.scala
+       |object   A {
+       |  val x = 2
+       |}
+       |""".stripMargin,
+    """|--- a/edited.scala
+       |+++ b/edited.scala
+       |@@ -2,1 +2,1 @@ foo
+       |-  val a=1
+       |+  val x=1
+      """.stripMargin
+  )
 
-  def getConfig(args: Array[String]): CliOptions = {
-    Cli.getConfig(args, baseCliOptions).get
-  }
+  check( // 2 diffs
+    """|/edited.scala
+       |object   A {
+       |  val x=1
+       |  val y=2
+       |  val z=3
+       |}
+       |""".stripMargin,
+    """|/edited.scala
+       |object   A {
+       |  val x = 1
+       |  val y=2
+       |  val z = 3
+       |}
+       |""".stripMargin,
+    """|--- a/edited.scala
+       |+++ b/edited.scala
+       |@@ -2,1 +2,1 @@ foo
+       |-  val a=1
+       |+  val x = 1
+       |@@ -4,1 +4,1 @@ foo
+       |-  val b=3
+       |+  val z = 3
+    """.stripMargin
+  )
+}
+
+class CliTest extends AbstractCliTest with DiffAssertions {
+  import FileTestOps._
+
   val unformatted = """
                       |object a    extends   App {
                       |pr("h")

@@ -87,6 +87,10 @@ object CliArgParser {
       opt[Unit]("stdin")
         .action((_, c) => c.copy(stdIn = true))
         .text("read from stdin and print to stdout")
+      opt[Unit]("diff")
+        .action((_, c) => c.copy(diff = true, inPlace = true))
+        .text("read diff output from stdin and" +
+          "print to stdout with only diff formatted")
       opt[String]("assume-filename")
         .action((filename, c) => c.copy(assumeFilename = filename))
         .text("required to format .sbt files with --stdin flag.")
