@@ -26,6 +26,7 @@ import org.scalafmt.util.LogLevel
 import com.martiansoftware.nailgun.NGContext
 import org.scalafmt.diff.FileDiff
 import org.scalafmt.util.AbsoluteFile
+import org.scalafmt.util.logger
 
 object Cli {
   def nailMain(nGContext: NGContext): Unit = {
@@ -149,9 +150,12 @@ object Cli {
         .mkString(FileOps.lineSeparator)
       val fileDiffs = FileDiff.fromUnified(unifiedDiff)
       fileDiffs.map { fd =>
+        logger.elem(fd)
         val path =
           AbsoluteFile.fromFile(new File(fd.filename),
                                 options.common.workingDirectory)
+        val ranges = fd.additions.map(_.toRange)
+        logger.elem(ranges)
         InputMethod.FileContents(path, fd.additions.map(_.toRange))
       }
     } else {

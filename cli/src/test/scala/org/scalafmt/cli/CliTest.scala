@@ -62,7 +62,7 @@ class CliDiffTest extends AbstractCliTest with DiffAssertions {
 
   check( // 2 diffs
     """|/edited.scala
-       |object   A {
+       |object A {
        |  val x=1
        |  val y=2
        |  val z=3

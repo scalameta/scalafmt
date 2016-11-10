@@ -24,7 +24,6 @@ class FormatWriter(formatOps: FormatOps) {
     var lastState = State.start // used to calculate start of formatToken.right.
     reconstructPath(tokens, splits, debug = false) {
       case (state, formatToken, whitespace) =>
-        logger.elem(formatToken, state.splits.last)
         formatToken.left match {
           case c: Comment =>
             sb.append(formatComment(c, state.indentation))
