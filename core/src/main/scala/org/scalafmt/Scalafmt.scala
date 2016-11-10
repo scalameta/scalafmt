@@ -53,12 +53,12 @@ object Scalafmt {
         val tree = new scala.meta.XtensionParseInputLike(toParse)
           .parse(stringToInput, runner.parser, runner.dialect)
           .get
-        val formatOps = new FormatOps(tree, style, range)
+        val formatOps = new FormatOps(tree, style, range.toSeq)
         runner.eventCallback(CreateFormatOps(formatOps))
         val formatWriter = new FormatWriter(formatOps)
         val formatTokenRange = FileDiff.getFormatTokenRanges(
           formatOps.tokens,
-          range.toSeq.map(x => Addition(x.start, x.end - x.end + 1)))
+          range.toSeq) // TODO(olafur) replace set with seq
         val search =
           new BestFirstSearch(formatOps, range.toSeq, formatWriter)
         val partial = search.getBestPath

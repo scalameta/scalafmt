@@ -17,7 +17,8 @@ case class FormatTokenRange(start: FormatToken, end: FormatToken) {
   override def toString: String = s"$start <-> $end"
 }
 case class Addition(startLine: Int, lineCount: Int) {
-  def endLine = startLine + lineCount - 1
+  def endLine: Int = startLine + lineCount - 1
+  def toRange: Range = Range(startLine, endLine)
 }
 case class FileDiff(filename: String, additions: Seq[Addition])
 
@@ -69,7 +70,7 @@ object FileDiff {
 
   /** Returns the start and end FormatTokens corresponding to each addition. */
   def getFormatTokenRanges(tokens: Array[FormatToken],
-                           additions: Seq[Addition]): Seq[FormatTokenRange] = {
+                           additions: Seq[Range]): Seq[FormatTokenRange] = {
     val builder = Seq.newBuilder[FormatTokenRange]
     val N = tokens.length
     var curr = 0
@@ -81,10 +82,10 @@ object FileDiff {
       if (curr >= N) curr = N - 1 // edge case, EOF
     }
     additions.foreach { addition =>
-      forwardToLine(addition.startLine)
+      forwardToLine(addition.start)
       val start = curr
       curr -= 1 // end can be same as start in case of multi-line token.
-      forwardToLine(addition.endLine + 1)
+      forwardToLine(addition.end + 1)
       val end = curr
       builder += FormatTokenRange(tokens(start), tokens(end))
     }

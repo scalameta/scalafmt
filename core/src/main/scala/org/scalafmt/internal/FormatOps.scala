@@ -38,7 +38,7 @@ import org.scalafmt.util.logger
   */
 class FormatOps(val tree: Tree,
                 val initStyle: ScalafmtConfig,
-                range: Set[Range] = Set.empty[Range]) {
+                range: Seq[Range] = Seq.empty[Range]) {
   val runner: ScalafmtRunner = initStyle.runner
   import TokenOps._
   import TreeOps._
@@ -51,10 +51,8 @@ class FormatOps(val tree: Tree,
     tree.tokens)
   val styleMap = new StyleMap(tokens, initStyle)
   private val vAlignDepthCache = mutable.Map.empty[Tree, Int]
-  val additions: Seq[Addition] =
-    range.map(x => Addition(x.start, x.end - x.start + 1)).toSeq
   val tokenRanges: Seq[FormatTokenRange] =
-    FileDiff.getFormatTokenRanges(tokens, additions)
+    FileDiff.getFormatTokenRanges(tokens, range)
   logger.elem(tokenRanges)
   val formatOff: Array[Boolean] = {
     val result = new Array[Boolean](tokens.length)
