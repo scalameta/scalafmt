@@ -79,13 +79,15 @@ case class HasScalaFmt(reflective: ScalaFmtLike,
                                   formattedContents: String)
 
   private def handleFile(callback: FormatResult => Unit)(file: File): Unit = {
-    val contents = IO.read(file)
-    val formatted = configFile match {
-      case Some(configFile) =>
-        reflective.format(contents, configFile.getAbsolutePath, file.getPath)
-      case None => reflective.format(contents, file.getPath)
+    if (!file.isDirectory) {
+      val contents = IO.read(file)
+      val formatted = configFile match {
+        case Some(configFile) =>
+          reflective.format(contents, configFile.getAbsolutePath, file.getPath)
+        case None => reflective.format(contents, file.getPath)
+      }
+      callback(FormatResult(file, contents, formatted))
     }
-    callback(FormatResult(file, contents, formatted))
   }
 
   private def handleFiles(files: Set[File],
