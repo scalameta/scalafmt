@@ -2,6 +2,33 @@
 @import org.scalafmt.readme.Readme._
 @import org.scalafmt.config.ScalafmtConfig
 
+@sect{0.4.10}
+  @ul
+    @li
+      New rewrite rule @sect.ref{RedundantParens}! Follow link for details.
+      Thank you @user{ShaneDelmore} for contributing this feature!
+    @li
+      Small fix in SBT plugin for sporadic failures in a jenkins CI server while
+      using the SBT plugin. Thank you @user{andreaTP} for contibuting this fix!
+@sect{0.4.9}
+  @ul
+    @li
+      New flag @flag{importSelectors = noBinPack} that replaces
+      @flag{binPackImportSelectors = false} to support a new third option
+      @flag{importSelectors = singleLine} that keeps all import
+      selectors on a single line.
+      Thank you @user{mtomko} for contributing this feature!
+      @p
+      The flag @code{binPackImportSelectors} is now deprecated and will
+      be removed in 0.5.
+    @li
+      (Experimental) New module @code{scalafmt-bootstrap} that is an experiment to support
+      defining @flag(s"version = ${org.scalafmt.Versions.stable}") in @code{.scalafmt.conf}.
+      The idea is to allow editor integrations (such as IntelliJ plugin)
+      to dynamically use a specific scalafmt version for a specific project.
+
+      @p
+        This might also help solve the SBT plugin issue @issue(485).
 @sect{0.4.8}
   @ul
     @li
