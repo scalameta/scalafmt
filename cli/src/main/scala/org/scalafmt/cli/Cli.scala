@@ -140,21 +140,36 @@ object Cli {
     (customFiles ++ projectFiles).filter(matches)
   }
 
-  private def getInputMethods(options: CliOptions): Seq[InputMethod] = {
-    if (options.stdIn) {
-      Seq(InputMethod.StdinCode(options.assumeFilename, options.common.in))
-    } else if (options.diff) {
-      val unifiedDiff = scala.io.Source
-        .fromInputStream(options.common.in)
-        .getLines()
-        .mkString(FileOps.lineSeparator)
-      val fileDiffs = FileDiff.fromUnified(unifiedDiff)
-      fileDiffs.map { fd =>
-        val path =
-          AbsoluteFile.fromFile(new File(fd.filename),
-                                options.common.workingDirectory)
-        InputMethod.FileContents(path, fd.additions.map(_.toRange))
+  def readInput(in: InputStream): String = {
+    scala.io.Source
+      .fromInputStream(in)
+      .getLines()
+      .mkString(FileOps.lineSeparator)
+  }
+
+  def getFilesFromDiff(options: CliOptions): Seq[InputMethod] = {
+    val unifiedDiff: String =
+      if (options.stdIn) readInput(options.common.in)
+      else if (options.config.project.git)
+        options.gitOps.diff(options.config.project.baseBranch)
+      else {
+        throw new IllegalArgumentException(
+          "Unable to read diff. Specify --stdin enable project.git=true")
       }
+    val fileDiffs = FileDiff.fromUnified(unifiedDiff)
+    fileDiffs.map { fd =>
+      val path =
+        AbsoluteFile.fromFile(new File(fd.filename),
+                              options.common.workingDirectory)
+      InputMethod.FileContents(path, fd.additions.map(_.toRange))
+    }
+  }
+
+  private def getInputMethods(options: CliOptions): Seq[InputMethod] = {
+    if (options.diff) {
+      getFilesFromDiff(options)
+    } else if (options.stdIn) {
+      Seq(InputMethod.StdinCode(options.assumeFilename, options.common.in))
     } else {
       val projectFiles: Seq[AbsoluteFile] =
         if (options.customFiles.nonEmpty) getFilesFromCliOptions(options)

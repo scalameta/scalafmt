@@ -32,7 +32,7 @@ class CliDiffTest extends AbstractCliTest with DiffAssertions {
       val init = getMockOptions(root)
       val bais = new ByteArrayInputStream(diff.getBytes)
       val baos = new ByteArrayOutputStream()
-      val config = Cli.getConfig(Array("--diff"), init).get
+      val config = Cli.getConfig(Array("--diff", "--stdin"), init).get
       Cli.run(
         config.copy(
           common = config.common.copy(
