@@ -165,7 +165,6 @@ object Cli {
 
   private def handleFile(inputMethod: InputMethod, options: CliOptions): Unit = {
     val input = inputMethod.readInput
-    logger.elem(inputMethod.range, inputMethod.range.toSet)
     val range: Seq[Range] =
       if (inputMethod.range.nonEmpty) inputMethod.range
       else options.range

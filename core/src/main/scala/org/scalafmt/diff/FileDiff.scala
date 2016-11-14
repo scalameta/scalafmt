@@ -5,18 +5,14 @@ import scala.meta.tokens.Token.RightBrace
 import scala.util.Try
 import scala.util.matching.Regex
 
-import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.FormatOps
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.util.TokenOps
-import org.scalafmt.util.logger
 
 case class FormatTokenRange(start: FormatToken, end: FormatToken) {
-  def contains(tok: FormatToken): Boolean = {
-    val result = tok.left.start >= start.left.start && tok.right.end <= end.right.end
-    logger.elem(tok, result)
-    result
-  }
+  def contains(tok: FormatToken): Boolean =
+    tok.left.start >= start.left.start &&
+      tok.right.end <= end.right.end
   override def toString: String = s"$start <-> $end"
 }
 case class Addition(startLine: Int, lineCount: Int) {
@@ -50,7 +46,6 @@ object FileDiff {
     val additions = Seq.newBuilder[Addition]
     def addLastFile(): Unit = {
       currentFilename.foreach { lastFilename =>
-        logger.elem(lastFilename)
         fileDiffs += FileDiff(lastFilename, additions.result())
         additions.clear()
       }
@@ -85,14 +80,12 @@ object FileDiff {
       }
       if (curr >= N) curr = N - 1 // edge case, EOF
     }
-    logger.elem(additions)
     additions.foreach { addition =>
       forwardToLine(addition.start)
       val start = curr
       curr -= 1 // end can be same as start in case of multi-line token.
       forwardToLine(addition.end + 1)
       val end = curr
-      logger.elem(end)
       builder += FormatTokenRange(tokens(start), tokens(end))
     }
     builder.result()

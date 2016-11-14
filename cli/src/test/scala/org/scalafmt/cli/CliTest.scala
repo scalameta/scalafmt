@@ -87,6 +87,30 @@ class CliDiffTest extends AbstractCliTest with DiffAssertions {
            |-  val b=3
            |+  val z = 3
     """.stripMargin)
+
+  check( // leave untouched comments alone
+    """|/edited.scala
+       | /*
+       |   * banana
+       |   */
+       |object   A  {
+       |  val x=1
+       |}
+       |""".stripMargin,
+    """|/edited.scala
+       | /*
+       |   * banana
+       |   */
+       |object   A  {
+       |  val x = 1
+       |}
+       |""".stripMargin,
+    """|--- a/edited.scala
+       |+++ b/edited.scala
+       |@@ -5,1 +5,1 @@ foo
+       |-  val a=1
+       |+  val x = 1
+    """.stripMargin)
 }
 
 class CliTest extends AbstractCliTest with DiffAssertions {

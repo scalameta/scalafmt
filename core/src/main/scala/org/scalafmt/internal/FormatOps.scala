@@ -56,8 +56,6 @@ class FormatOps(val tree: Tree,
     FileDiff
       .getFormatTokenRanges(tokens, range)
       .map(FileDiff.expandToEnclosingStatements(_, this))
-  logger.elem(tokenRanges)
-
   val formatOff: Array[Boolean] = {
     val result = new Array[Boolean](tokens.length)
     var off = formatSubset

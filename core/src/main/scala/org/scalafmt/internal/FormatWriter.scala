@@ -22,29 +22,36 @@ class FormatWriter(formatOps: FormatOps) {
   def mkString(splits: Vector[Split]): String = {
     val sb = new StringBuilder()
     var lastState = State.start // used to calculate start of formatToken.right.
+    var i = -1
     reconstructPath(tokens, splits, debug = false) {
       case (state, formatToken, whitespace) =>
-        formatToken.left match {
-          case c: Comment =>
-            sb.append(formatComment(c, state.indentation))
-          case token @ Interpolation.Part(_) =>
-            sb.append(formatMarginizedString(token, state.indentation))
-          case literal @ Constant.String(_) => // Ignore, see below.
-          case token =>
-            val rewrittenToken =
-              formatOps.initStyle.rewriteTokens
-                .getOrElse(token.syntax, token.syntax)
-            sb.append(rewrittenToken)
-        }
-        sb.append(whitespace)
-        formatToken.right match {
-          // state.column matches the end of formatToken.right
-          case literal: Constant.String =>
-            val column =
-              if (state.splits.last.modification.isNewline) state.indentation
-              else lastState.column + whitespace.length
-            sb.append(formatMarginizedString(literal, column + 2))
-          case _ => // Ignore
+        i += 1
+        if (formatOps.formatOff(i)) {
+          sb.append(formatToken.left.syntax)
+          sb.append(whitespace)
+        } else {
+          formatToken.left match {
+            case c: Comment =>
+              sb.append(formatComment(c, state.indentation))
+            case token @ Interpolation.Part(_) =>
+              sb.append(formatMarginizedString(token, state.indentation))
+            case literal @ Constant.String(_) => // Ignore, see below.
+            case token =>
+              val rewrittenToken =
+                formatOps.initStyle.rewriteTokens
+                  .getOrElse(token.syntax, token.syntax)
+              sb.append(rewrittenToken)
+          }
+          sb.append(whitespace)
+          formatToken.right match {
+            // state.column matches the end of formatToken.right
+            case literal: Constant.String =>
+              val column =
+                if (state.splits.last.modification.isNewline) state.indentation
+                else lastState.column + whitespace.length
+              sb.append(formatMarginizedString(literal, column + 2))
+            case _ => // Ignore
+          }
         }
         lastState = state
     }
