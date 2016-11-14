@@ -157,7 +157,7 @@ object Cli {
           "Unable to read diff. Specify --stdin enable project.git=true")
       }
     val fileDiffs = FileDiff.fromUnified(unifiedDiff)
-    fileDiffs.map { fd =>
+    fileDiffs.withFilter(x => canFormat(x.filename)).map { fd =>
       val path =
         AbsoluteFile.fromFile(new File(fd.filename),
                               options.common.workingDirectory)
