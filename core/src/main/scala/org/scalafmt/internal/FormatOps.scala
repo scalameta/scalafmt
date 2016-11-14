@@ -63,11 +63,18 @@ class FormatOps(val tree: Tree,
     val enableFormat = tokenRanges.map(_.start).toSet
     val disableFormat = tokenRanges.map(_.end).toSet
     tokens.foreach { tok =>
-      if (isFormatOff(tok.left) ||
-          (formatSubset && disableFormat(tok))) off = true
-      else if (isFormatOn(tok.left) ||
-               (formatSubset && enableFormat(tok))) off = false
+      val disable =
+        isFormatOff(tok.left) ||
+          (formatSubset && disableFormat(tok))
+      val enable =
+        isFormatOn(tok.left) ||
+          (formatSubset && enableFormat(tok))
+      off =
+        if (enable) false
+        else if (disable) true
+        else off
       result(i) = off
+      if (disable && enable) off = true
       i += 1
     }
     result

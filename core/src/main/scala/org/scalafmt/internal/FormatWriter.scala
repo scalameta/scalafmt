@@ -22,10 +22,9 @@ class FormatWriter(formatOps: FormatOps) {
   def mkString(splits: Vector[Split]): String = {
     val sb = new StringBuilder()
     var lastState = State.start // used to calculate start of formatToken.right.
-    var i = -1
     reconstructPath(tokens, splits, debug = false) {
-      case (state, formatToken, whitespace) =>
-        i += 1
+      case (state, formatToken, whitespace, i) =>
+//        logger.elem(formatOps.formatOff(i), formatToken)
         if (formatOps.formatOff(i)) {
           sb.append(formatToken.left.syntax)
           sb.append(whitespace)
@@ -137,7 +136,7 @@ class FormatWriter(formatOps: FormatOps) {
   def reconstructPath(
       toks: Array[FormatToken],
       splits: Vector[Split],
-      debug: Boolean)(callback: (State, FormatToken, String) => Unit): Unit = {
+      debug: Boolean)(callback: (State, FormatToken, String, Int) => Unit): Unit = {
     require(toks.length >= splits.length, "splits !=")
     val locations = getFormatLocations(toks, splits, debug)
     val tokenAligns = alignmentTokens(locations).withDefaultValue(0)
@@ -171,7 +170,7 @@ class FormatWriter(formatOps: FormatOps) {
           case NoSplit => ""
         }
         lastModification = split.modification
-        callback.apply(state, tok, whitespace)
+        callback.apply(state, tok, whitespace, i)
     }
     locations.lastOption.foreach { location =>
       if (debug) logger.debug(s"Total cost: ${location.state.cost}")

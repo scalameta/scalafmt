@@ -6,7 +6,10 @@ import org.scalafmt.util.LoggerOps
 import org.scalatest.FunSuite
 
 class RangeTest extends FunSuite with DiffAssertions {
-  def check(original: String, expected: String, range: Range): Unit = {
+  def skip(original: String, expected: String, range: Range): Unit =
+    ignore(LoggerOps.reveal(original)) { () }
+
+    def check(original: String, expected: String, range: Range): Unit = {
     test(LoggerOps.reveal(original)) {
       val obtained = Scalafmt
         .format(original, ScalafmtConfig.unitTest40, range = Seq(range))
