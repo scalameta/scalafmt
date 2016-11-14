@@ -50,6 +50,7 @@ object FileDiff {
     val additions = Seq.newBuilder[Addition]
     def addLastFile(): Unit = {
       currentFilename.foreach { lastFilename =>
+        logger.elem(lastFilename)
         fileDiffs += FileDiff(lastFilename, additions.result())
         additions.clear()
       }
@@ -84,12 +85,14 @@ object FileDiff {
       }
       if (curr >= N) curr = N - 1 // edge case, EOF
     }
+    logger.elem(additions)
     additions.foreach { addition =>
       forwardToLine(addition.start)
       val start = curr
       curr -= 1 // end can be same as start in case of multi-line token.
       forwardToLine(addition.end + 1)
       val end = curr
+      logger.elem(end)
       builder += FormatTokenRange(tokens(start), tokens(end))
     }
     builder.result()

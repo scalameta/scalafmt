@@ -38,7 +38,7 @@ object Scalafmt {
     */
   def format(code: String,
              style: ScalafmtConfig = ScalafmtConfig.default,
-             range: Set[Range] = Set.empty[Range]): Formatted = {
+             range: Seq[Range] = Seq.empty[Range]): Formatted = {
     try {
       val runner = style.runner
       if (code.matches("\\s*")) Formatted.Success(System.lineSeparator())
@@ -58,9 +58,9 @@ object Scalafmt {
         val formatWriter = new FormatWriter(formatOps)
         val formatTokenRange = FileDiff.getFormatTokenRanges(
           formatOps.tokens,
-          range.toSeq) // TODO(olafur) replace set with seq
+          range)
         val search =
-          new BestFirstSearch(formatOps, range.toSeq, formatWriter)
+          new BestFirstSearch(formatOps, range, formatWriter)
         val partial = search.getBestPath
         val formattedString = formatWriter.mkString(partial.splits)
         val correctedFormattedString =

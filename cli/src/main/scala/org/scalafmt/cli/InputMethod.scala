@@ -37,7 +37,7 @@ object InputMethod {
   }
   case class FileContents(file: AbsoluteFile, override val range: Seq[Range])
       extends InputMethod {
-    override def filename = file.path
+    override def filename: String = file.path
     def readInput: String = FileOps.readFile(filename)
     override def write(formatted: String,
                        original: String,

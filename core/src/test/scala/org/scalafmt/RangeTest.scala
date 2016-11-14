@@ -9,7 +9,7 @@ class RangeTest extends FunSuite with DiffAssertions {
   def check(original: String, expected: String, range: Range): Unit = {
     test(LoggerOps.reveal(original)) {
       val obtained = Scalafmt
-        .format(original, ScalafmtConfig.unitTest40, range = Set(range))
+        .format(original, ScalafmtConfig.unitTest40, range = Seq(range))
         .get
       assertNoDiff(obtained, expected)
     }

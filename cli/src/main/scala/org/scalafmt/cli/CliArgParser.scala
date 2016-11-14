@@ -117,7 +117,7 @@ object CliArgParser {
         .action({
           case ((from, to), c) =>
             val offset = if (from == to) 0 else -1
-            c.copy(range = c.range + Range(from - 1, to + offset))
+            c.copy(range = c.range :+ Range(from - 1, to + offset))
         })
         .text("(experimental) only format line range from=to")
 

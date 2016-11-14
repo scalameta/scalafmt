@@ -83,7 +83,7 @@ case class CommonOptions(
 
 case class CliOptions(
     config: ScalafmtConfig = ScalafmtConfig.default,
-    range: Set[Range] = Set.empty[Range],
+    range: Seq[Range] = Seq.empty[Range],
     customFiles: Seq[AbsoluteFile] = Nil,
     customExcludes: Seq[String] = Nil,
     inPlace: Boolean = false,

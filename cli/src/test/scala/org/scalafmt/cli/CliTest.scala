@@ -23,6 +23,9 @@ import org.scalatest.FunSuite
 class CliDiffTest extends AbstractCliTest with DiffAssertions {
   import FileTestOps._
 
+  def skip(original: String, expected: String, diff: String): Unit =
+    ignore(LoggerOps.reveal(original)) { () }
+
   def check(original: String, expected: String, diff: String): Unit = {
     test(LoggerOps.reveal(original)) {
       val root = string2dir(original)
@@ -61,30 +64,29 @@ class CliDiffTest extends AbstractCliTest with DiffAssertions {
   )
 
   check( // 2 diffs
-    """|/edited.scala
-       |object A {
-       |  val x=1
-       |  val y=2
-       |  val z=3
-       |}
-       |""".stripMargin,
-    """|/edited.scala
-       |object   A {
-       |  val x = 1
-       |  val y=2
-       |  val z = 3
-       |}
-       |""".stripMargin,
-    """|--- a/edited.scala
-       |+++ b/edited.scala
-       |@@ -2,1 +2,1 @@ foo
-       |-  val a=1
-       |+  val x = 1
-       |@@ -4,1 +4,1 @@ foo
-       |-  val b=3
-       |+  val z = 3
-    """.stripMargin
-  )
+        """|/edited.scala
+           |object   A  {
+           |  val x=1
+           |  val y=2
+           |  val z=3
+           |}
+           |""".stripMargin,
+        """|/edited.scala
+           |object   A  {
+           |  val x = 1
+           |  val y=2
+           |  val z = 3
+           |}
+           |""".stripMargin,
+        """|--- a/edited.scala
+           |+++ b/edited.scala
+           |@@ -2,1 +2,1 @@ foo
+           |-  val a=1
+           |+  val x = 1
+           |@@ -4,1 +4,1 @@ foo
+           |-  val b=3
+           |+  val z = 3
+    """.stripMargin)
 }
 
 class CliTest extends AbstractCliTest with DiffAssertions {
