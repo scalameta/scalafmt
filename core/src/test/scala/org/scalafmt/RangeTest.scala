@@ -5,11 +5,8 @@ import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.LoggerOps
 import org.scalatest.FunSuite
 
-class RangeTest extends FunSuite with DiffAssertions {
-  def skip(original: String, expected: String, range: Range): Unit =
-    ignore(LoggerOps.reveal(original)) { () }
-
-    def check(original: String, expected: String, range: Range): Unit = {
+abstract class AbstractRangeTest extends FunSuite with DiffAssertions {
+  def check(original: String, expected: String, range: Range): Unit = {
     test(LoggerOps.reveal(original)) {
       val obtained = Scalafmt
         .format(original, ScalafmtConfig.unitTest40, range = Seq(range))
@@ -17,6 +14,9 @@ class RangeTest extends FunSuite with DiffAssertions {
       assertNoDiff(obtained, expected)
     }
   }
+}
+
+class RangeTest extends AbstractRangeTest {
   check(
     """object a {
       |val x = 1
@@ -33,6 +33,25 @@ class RangeTest extends FunSuite with DiffAssertions {
       |object   a
       |""".stripMargin,
     Range(3, 3)
+  )
+  check( // no matching line
+    """
+      |
+      |object  a {
+      |val x = 1
+      |val y = 2
+      |val z = 3
+      |}
+      |""".stripMargin,
+    """
+      |
+      |object  a {
+      |val x = 1
+      |val y = 2
+      |val z = 3
+      |}
+      |""".stripMargin,
+    Range(1000, 10000)
   )
   check(
     """object a {

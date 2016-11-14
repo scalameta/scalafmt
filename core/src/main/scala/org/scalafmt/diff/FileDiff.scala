@@ -67,26 +67,41 @@ object FileDiff {
     fileDiffs.result()
   }
 
+  def validateRange(range: Range): Unit = {
+    def nonNegative(num: Int): Unit = {
+      require(num >= 0, s"Line number must be non-negative, was $num")
+    }
+    nonNegative(range.start)
+    nonNegative(range.end)
+  }
+
   /** Returns the start and end FormatTokens corresponding to each addition. */
   def getFormatTokenRanges(tokens: Array[FormatToken],
                            additions: Seq[Range]): Seq[FormatTokenRange] = {
     val builder = Seq.newBuilder[FormatTokenRange]
     val N = tokens.length
     var curr = 0
+    var isEOF = false
     def getLine(tok: FormatToken): Int = tok.right.pos.start.line + 1
     def forwardToLine(line: Int): Unit = {
       while (curr < N && getLine(tokens(curr)) < line) {
         curr += 1
       }
-      if (curr >= N) curr = N - 1 // edge case, EOF
+      if (curr >= N) {
+        isEOF = true
+        curr = N - 1 // edge case, EOF
+      }
     }
     additions.foreach { addition =>
+      validateRange(addition)
       forwardToLine(addition.start)
-      val start = curr
-      curr -= 1 // end can be same as start in case of multi-line token.
-      forwardToLine(addition.end + 1)
-      val end = curr
-      builder += FormatTokenRange(tokens(start), tokens(end))
+      if (!isEOF) {
+        val start = curr
+        curr -= 1 // end can be same as start in case of multi-line token.
+        forwardToLine(addition.end + 1)
+        val end = curr
+        builder += FormatTokenRange(tokens(start), tokens(end))
+      }
     }
     builder.result()
   }
