@@ -192,6 +192,7 @@ object Cli {
         if (options.config.runner.fatalWarnings) {
           throw e
         } else {
+          logger.elem(options.config.runner.fatalWarnings)
           options.common.err.println(
             s"${LogLevel.warn} Error in ${inputMethod.filename}: $e"
           )

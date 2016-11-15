@@ -22,10 +22,15 @@ class FormatWriter(formatOps: FormatOps) {
   def mkString(splits: Vector[Split]): String = {
     val sb = new StringBuilder()
     var lastState = State.start // used to calculate start of formatToken.right.
+    // unfortunate workaround for how we handle indentation around
+    // strip margininzed multiline string literals at intersection where
+    // formatOps.formatOff is enabled.
+    var lastTokenWasSpecialString = false
     reconstructPath(tokens, splits, debug = false) {
       case (state, formatToken, whitespace, i) =>
-//        logger.elem(formatOps.formatOff(i), formatToken)
-        if (formatOps.formatOff(i)) {
+        if (formatOps.formatOff(i) &&
+            !lastTokenWasSpecialString) {
+          lastTokenWasSpecialString = false
           sb.append(formatToken.left.syntax)
           sb.append(whitespace)
         } else {
@@ -48,8 +53,10 @@ class FormatWriter(formatOps: FormatOps) {
               val column =
                 if (state.splits.last.modification.isNewline) state.indentation
                 else lastState.column + whitespace.length
+              lastTokenWasSpecialString = true
               sb.append(formatMarginizedString(literal, column + 2))
             case _ => // Ignore
+              lastTokenWasSpecialString = false
           }
         }
         lastState = state
@@ -133,10 +140,10 @@ class FormatWriter(formatOps: FormatOps) {
     * Reconstructs path for all tokens and invokes callback for each token/split
     * combination.
     */
-  def reconstructPath(
-      toks: Array[FormatToken],
-      splits: Vector[Split],
-      debug: Boolean)(callback: (State, FormatToken, String, Int) => Unit): Unit = {
+  def reconstructPath(toks: Array[FormatToken],
+                      splits: Vector[Split],
+                      debug: Boolean)(callback: (State, FormatToken, String,
+                                                 Int) => Unit): Unit = {
     require(toks.length >= splits.length, "splits !=")
     val locations = getFormatLocations(toks, splits, debug)
     val tokenAligns = alignmentTokens(locations).withDefaultValue(0)

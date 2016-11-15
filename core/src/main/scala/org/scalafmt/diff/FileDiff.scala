@@ -8,6 +8,7 @@ import scala.util.matching.Regex
 import org.scalafmt.internal.FormatOps
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.util.TokenOps
+import org.scalafmt.util.logger
 
 case class FormatTokenRange(start: FormatToken, end: FormatToken) {
   def contains(tok: FormatToken): Boolean =
@@ -89,7 +90,6 @@ object FileDiff {
       }
       if (curr >= N) {
         isEOF = true
-        curr = N - 1 // edge case, EOF
       }
     }
     additions.foreach { addition =>
@@ -97,7 +97,7 @@ object FileDiff {
       forwardToLine(addition.start)
       if (!isEOF) {
         val start = curr
-        curr -= 1 // end can be same as start in case of multi-line token.
+        curr = Math.max(0, curr - 1) // end can be same as start in case of multi-line token.
         forwardToLine(addition.end + 1)
         val end = curr
         builder += FormatTokenRange(tokens(start), tokens(end))

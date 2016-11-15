@@ -84,6 +84,16 @@ object CliArgParser {
         .action(readConfigFromFile)
         .text(
           "either a file or configuration wrapped in quotes \" with no spaces.")
+      opt[Unit]("debug")
+        .action(
+          (_, c) =>
+            c.copy(
+              config = c.config.copy(
+                runner = c.config.runner.copy(
+                  fatalWarnings = true
+                )
+              )))
+        .text("read from stdin and print to stdout")
       opt[Unit]("stdin")
         .action((_, c) => c.copy(stdIn = true))
         .text("read from stdin and print to stdout")

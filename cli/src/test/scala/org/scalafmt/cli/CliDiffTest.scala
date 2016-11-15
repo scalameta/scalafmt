@@ -1,6 +1,30 @@
 package org.scalafmt.cli
 
+class X extends AbstractCliDiffTest {
+}
+
 class CliDiffTest extends AbstractCliDiffTest {
+  check(
+    """|/version.sbt
+       |version in ThisBuild :=  "0.1.5-SNAPSHOT"
+       |/.scalafmt.conf
+       |runner.fatalWarnings = true
+       |project.git = true
+       |""".stripMargin,
+    """|/.scalafmt.conf
+       |runner.fatalWarnings = true
+       |project.git = true
+       |
+       |/version.sbt
+       |version in ThisBuild := "0.1.5-SNAPSHOT"
+       |""".stripMargin,
+    """|--- a/version.sbt
+       |+++ b/version.sbt
+       |@@ -1 +1 @@
+       |-version in ThisBuild := "0.1.5-SNAPSHOT"
+       |+version in ThisBuild := "0.1.6-SNAPSHOT"
+    """.stripMargin
+  )
 
   check(
     """|/edited.scala
