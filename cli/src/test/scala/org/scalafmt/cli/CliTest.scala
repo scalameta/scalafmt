@@ -2,9 +2,7 @@ package org.scalafmt.cli
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.io.File
 import java.io.FileNotFoundException
-import java.io.InputStream
 import java.io.PrintStream
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
@@ -12,123 +10,9 @@ import java.nio.file.Files
 import org.scalafmt.Error.MisformattedFile
 import org.scalafmt.config.Config
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.FileOps
-import org.scalafmt.util.GitOps
-import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.logger
-import org.scalatest.FunSuite
-
-class CliDiffTest extends AbstractCliTest with DiffAssertions {
-  import FileTestOps._
-
-  def skip(original: String, expected: String, diff: String): Unit =
-    ignore(LoggerOps.reveal(original)) { () }
-
-  def check(original: String, expected: String, diff: String): Unit = {
-    test(LoggerOps.reveal(original)) {
-      val root = string2dir(original)
-      val init = getMockOptions(root)
-      val bais = new ByteArrayInputStream(diff.getBytes)
-      val baos = new ByteArrayOutputStream()
-      val config = Cli.getConfig(Array("--diff", "--stdin"), init).get
-      Cli.run(
-        config.copy(
-          common = config.common.copy(
-            in = bais
-          )
-        ))
-      val obtained = dir2string(root)
-      assertNoDiff(obtained, expected)
-    }
-  }
-
-  check(
-    """|/edited.scala
-       |object   A {
-       |  val x=2
-       |}
-       |""".stripMargin,
-    """|/edited.scala
-       |object   A {
-       |  val x = 2
-       |}
-       |""".stripMargin,
-    """|--- a/edited.scala
-       |+++ b/edited.scala
-       |@@ -2,1 +2,1 @@ foo
-       |-  val a=1
-       |+  val x=1
-      """.stripMargin
-  )
-  check(
-    // no diff
-    """|/edited.scala
-       |object   A {
-       |  val x=2  }
-       |""".stripMargin,
-    """|/edited.scala
-       |object   A {
-       |  val x=2  }
-       |""".stripMargin,
-    ""
-  )
-  check(
-    // 2 diffs
-    """|/edited.scala
-       |object   A  {
-       |  val x=1
-       |  val y=2
-       |  val z=3
-       |}
-       |""".stripMargin,
-    """|/edited.scala
-       |object   A  {
-       |  val x = 1
-       |  val y=2
-       |  val z = 3
-       |}
-       |""".stripMargin,
-    """|--- a/edited.scala
-       |+++ b/edited.scala
-       |@@ -2,1 +2,1 @@ foo
-       |-  val a=1
-       |+  val x = 1
-       |@@ -4,1 +4,1 @@ foo
-       |-  val b=3
-       |+  val z = 3
-    """.stripMargin
-  )
-
-  check(
-    // leave untouched comments alone
-    """|/edited.scala
-       | /*
-       |   * banana
-       |   */
-       |object   A  {
-       |  val x=1
-       |}
-       |""".stripMargin,
-    """|/edited.scala
-       | /*
-       |   * banana
-       |   */
-       |object   A  {
-       |  val x = 1
-       |}
-       |""".stripMargin,
-    """|--- a/edited.scala
-       |+++ b/edited.scala
-       |@@ -5,1 +5,1 @@ foo
-       |-  val a=1
-       |+  val x = 1
-    """.stripMargin
-  )
-  // TODO(olafur) argument list
-  // TODO(olafur) argument indentation
-}
 
 class CliTest extends AbstractCliTest with DiffAssertions {
   import FileTestOps._
