@@ -174,10 +174,10 @@ class FormatWriter(formatOps: FormatOps) {
               else " " * state.indentation
             newline + indentation
           case Provided(literal) => literal
-          case NoSplit => ""
-        }
-        lastModification = split.modification
-        callback.apply(state, tok, whitespace, i)
+        case NoSplit => ""
+      }
+      lastModification = split.modification
+      callback.apply(state, tok, whitespace, i)
     }
     locations.lastOption.foreach { location =>
       if (debug) logger.debug(s"Total cost: ${location.state.cost}")

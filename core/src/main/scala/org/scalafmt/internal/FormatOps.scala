@@ -617,4 +617,19 @@ class FormatOps(val tree: Tree,
       case None => count
     }
   }
+
+  def estimateIndent(formatToken: FormatToken): Option[(Int, Token)] =
+    formatToken match {
+      case FormatToken(open @ LeftBrace(), _, _)
+          if nextNonComment(formatToken).hasNewline =>
+        Some((2, matchingParentheses(hash(open))))
+      case FormatToken(arrow @ RightArrow(), _, _)
+          if nextNonComment(formatToken).hasNewline =>
+        owners(arrow) match {
+          case t: Case => Some((2, lastToken(t.body)))
+          case t: Term.Function => Some((2, lastToken(t.body)))
+          case _ => None
+        }
+      case _ => None
+    }
 }

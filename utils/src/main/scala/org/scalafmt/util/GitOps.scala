@@ -19,10 +19,7 @@ class GitOpsImpl(workingDirectory: AbsoluteFile) extends GitOps {
   val swallowStderr = ProcessLogger(_ => Unit, _ => Unit)
 
   def exec(cmd: Seq[String]): String = {
-    sys.process
-      .Process(cmd, workingDirectory.jfile)
-      .!!(swallowStderr)
-      .trim
+    sys.process.Process(cmd, workingDirectory.jfile).!!(swallowStderr).trim
   }
 
   override def lsTree: Seq[AbsoluteFile] =

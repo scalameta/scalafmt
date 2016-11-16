@@ -164,7 +164,7 @@ object TokenOps {
   def newlinesBetween(between: Vector[Token]): Int =
     between.count(_.is[LF])
 
-  def isAttachedComment(token: Token, between: Vector[Token]) =
+  def isAttachedComment(token: Token, between: Vector[Token]): Boolean =
     isInlineComment(token) && newlinesBetween(between) == 0
 
   def defnTemplate(tree: Tree): Option[Template] = tree match {

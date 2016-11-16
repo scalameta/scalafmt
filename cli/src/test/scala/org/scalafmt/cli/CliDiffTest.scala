@@ -1,7 +1,6 @@
 package org.scalafmt.cli
 
-class X extends AbstractCliDiffTest {
-}
+class X extends AbstractCliDiffTest {}
 
 class CliDiffTest extends AbstractCliDiffTest {
   check(
@@ -135,5 +134,92 @@ class CliDiffTest extends AbstractCliDiffTest {
        |+  x+ 2
     """.stripMargin
   )
-  // TODO(olafur) argument indentation
+
+  check(
+    // case
+    """|/edited.scala
+       |object   A {
+       |  x match {
+       |    case 1 =>
+       |      x+1
+       |      y+1
+       |  }
+       |}
+       |""".stripMargin,
+    """|/edited.scala
+       |object   A {
+       |  x match {
+       |    case 1 =>
+       |      x+1
+       |      y + 1
+       |  }
+       |}
+       |""".stripMargin,
+    """|--- a/edited.scala
+       |+++ b/edited.scala
+       |@@ -2,1 +5,1 @@ foo
+       |-  y+2
+       |+  y+1
+    """.stripMargin
+  )
+  check(
+    // lambda
+    """|/edited.scala
+       |object   A {
+       |  lst.map { x =>
+       |    x+1
+       |  }
+       |  lst.map {
+       |    x =>
+       |      x+1
+       |      x+1
+       |  }
+       |  lst.map { x => // comment
+       |    x+1
+       |  }
+       |  lst.map { // comment
+       |    x => // comment
+       |      x+1
+       |      x+1
+       |  }
+       |}
+       |""".stripMargin,
+    """|/edited.scala
+       |object   A {
+       |  lst.map { x =>
+       |    x + 1
+       |  }
+       |  lst.map {
+       |    x =>
+       |      x + 1
+       |      x+1
+       |  }
+       |  lst.map { x => // comment
+       |    x + 1
+       |  }
+       |  lst.map { // comment
+       |    x => // comment
+       |      x + 1
+       |      x+1
+       |  }
+       |}
+       |""".stripMargin,
+    """|--- a/edited.scala
+       |+++ b/edited.scala
+       |@@ -2,1 +3,1 @@ foo
+       |-  x+2
+       |+  x+1
+       |@@ -2,1 +7,1 @@ foo
+       |-    x+2
+       |+    x+1
+       |@@ -2,1 +11,1 @@ foo
+       |-    x+2
+       |+    x+1
+       |@@ -2,1 +15,1 @@ foo
+       |-    x+2
+       |+    x+1
+    """.stripMargin
+  )
+  // TODO(olafur) case
+  // TODO(olafur) lambda
 }

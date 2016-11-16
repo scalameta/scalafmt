@@ -189,14 +189,14 @@ object Cli {
       case Formatted.Success(formatted) =>
         inputMethod.write(formatted, input, options)
       case Formatted.Failure(e) =>
-        if (options.config.runner.fatalWarnings) {
-          throw e
-        } else {
-          logger.elem(options.config.runner.fatalWarnings)
-          options.common.err.println(
-            s"${LogLevel.warn} Error in ${inputMethod.filename}: $e"
-          )
-        }
+      if (options.config.runner.fatalWarnings) {
+        throw e
+      } else {
+        logger.elem(options.config.runner.fatalWarnings)
+        options.common.err.println(
+          s"${LogLevel.warn} Error in ${inputMethod.filename}: $e"
+        )
+      }
     }
   }
 

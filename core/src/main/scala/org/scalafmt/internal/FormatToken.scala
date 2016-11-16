@@ -1,6 +1,7 @@
 package org.scalafmt.internal
 
 import scala.meta.tokens.Token
+import scala.meta.tokens.Token.LF
 import scala.meta.tokens.Tokens
 
 import org.scalafmt.util.TokenOps._
@@ -26,7 +27,11 @@ case class FormatToken(left: Token, right: Token, between: Vector[Token]) {
     else range.exists(_.contains(right.pos.end.line))
   }
 
-  val leftHasNewline = left.syntax.contains('\n')
+  def newlines: Int = between.count(_.is[LF])
+
+  def hasNewline: Boolean = between.exists(_.is[LF])
+
+  val leftHasNewline: Boolean = left.syntax.contains('\n')
 
   /**
     * A format token is uniquely identified by its left token.
