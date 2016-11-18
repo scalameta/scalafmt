@@ -1,18 +1,13 @@
 indentYieldKeyword = false
-<<< 592
-object Bar {
-  for (x <- Nil)
-    yield 2
-}
->>>
-object Bar {
-  for (x <- Nil)
+<<< no curly brace
+for (x <- Nil)
   yield 2
-}
-<<< curly brace
+>>>
+for (x <- Nil)
+yield 2
+<<< left curly brace
 for {
   parent <- sym.info.parents
-  if foo.isBar
 }
 yield {
   genClassName(psym)
@@ -20,11 +15,29 @@ yield {
 >>>
 for {
   parent <- sym.info.parents
-  if foo.isBar
 } yield {
   genClassName(psym)
 }
-<<< nested
+<<< right curly brace
+for (parent <- sym.info.parents)
+  yield {
+  genClassName(psym)
+}
+>>>
+for (parent <- sym.info.parents)
+yield {
+  genClassName(psym)
+}
+<<< both curly brace
+for {parent <- sym.info.parents}
+  yield {
+  genClassName(psym)
+}
+>>>
+for { parent <- sym.info.parents } yield {
+  genClassName(psym)
+}
+<<< break before `for`
 val sizes = for (row <- table)
 yield
   (for (cell <- row)
@@ -39,19 +52,44 @@ val sizes =
      yield
        if (cell == null) 0
        else cell.toString.length)
-<<< nested 2
+<<< normal way #592
 val sizes = for (row <- table) yield {
-  (for (cell <- row)
+    for (cell <- row)
+    yield
+      if (cell == null) 0
+      else cell.toString.length
+  }
+>>>
+val sizes = for (row <- table) yield {
+  for (cell <- row)
   yield
     if (cell == null) 0
-    else cell.toString.length)
+    else cell.toString.length
 }
+<<< normal way column limit 1 #592
+val sizes = for (row <- tableaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaas) yield {
+    body
+    // ...
+  }
 >>>
 val sizes =
-  for (row <- table)
-  yield {
-    (for (cell <- row)
-     yield
-       if (cell == null) 0
-       else cell.toString.length)
+  for (row <- tableaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaas) yield {
+    body
+    // ...
   }
+<<< normal way column limit 2 #592
+val sizes = for (row <- tableaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaasaaaaaaaaaaa) yield {
+    body
+    // ...
+  }
+>>>
+val sizes =
+  for (row <- tableaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaasaaaaaaaaaaa)
+  yield {
+    body
+    // ...
+  }
+<<< single line
+for (x <- Nil) yield { 1 }
+>>>
+for (x <- Nil) yield { 1 }

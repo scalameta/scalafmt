@@ -1021,10 +1021,11 @@ class Router(formatOps: FormatOps) {
         )
       case FormatToken(_, KwElse() | KwYield(), _) =>
         val expire = rhsOptimalToken(leftTok2tok(rightOwner.tokens.last))
+        val exclude =
+          insideBlock(formatToken, expire, _.is[LeftBrace]).map(parensRange)
         Seq(
           Split(Space, 0, ignoreIf = newlines > 0)
-            .withOptimalToken(expire)
-            .withPolicy(SingleLineBlock(expire)),
+            .withPolicy(SingleLineBlock(expire, exclude = exclude)),
           Split(Newline, 1)
         )
       // Last else branch
