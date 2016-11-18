@@ -158,9 +158,9 @@ import org.scalafmt.util.ValidationOps
   *                                        n =>
   *                                          consume(n)
   *                                      }
-  * @param lineEndings If [[org.scalafmt.LineEndings.unix]], output will include only unix line endings
-  *                    If [[org.scalafmt.LineEndings.windows]], output will include only windows line endings
-  *                    If [[org.scalafmt.LineEndings.preserve]], output will include endings included in original
+  * @param lineEndings If [[LineEndings.unix]], output will include only unix line endings
+  *                    If [[LineEndings.windows]], output will include only windows line endings
+  *                    If [[LineEndings.preserve]], output will include endings included in original
   *                    file (windows if there was at least one windows line ending, unix if there
   *                    was zero occurrences of windows line endings)
   *
