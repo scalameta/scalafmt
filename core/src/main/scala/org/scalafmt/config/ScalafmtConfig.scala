@@ -137,6 +137,12 @@ import org.scalafmt.util.ValidationOps
   *                                        , b
   *                                        , c
   *                                      )
+  * @param indentYieldKeyword If true, indents `yield` by two spaces
+  *                           for (i <- j)
+  *                             yield banana
+  *                           If false, treats `yield` like `else`
+  *                           for (i <- j)
+  *                           yield banana
   * @param breakChainOnFirstMethodDot If true, keep line breaks for chained method calls
   *                                  If false, format line breaks for chained method calls
   *                                   For example
@@ -176,6 +182,7 @@ case class ScalafmtConfig(
     newlines: Newlines = Newlines(),
     runner: ScalafmtRunner = ScalafmtRunner.default,
     // Settings which belong to no group
+    indentYieldKeyword: Boolean = true,
     @metaconfig.ExtraName("binPackImportSelectors") importSelectors: ImportSelectors =
       ImportSelectors.noBinPack,
     unindentTopLevelOperators: Boolean = false,
