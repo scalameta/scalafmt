@@ -810,13 +810,16 @@ class Router(formatOps: FormatOps) {
                 .withIndent(2, expire, Left)
             )
           case _ =>
+            def twoBranches: Policy = {
+              val excludeRanges = exclude.map(parensRange)
+              penalizeAllNewlines(
+                expire,
+                Constants.ShouldBeSingleLine,
+                ignore = x => excludeRanges.exists(_.contains(x.left.start)))
+            }
             val spacePolicy: Policy = rhs match {
-              case _: Term.If =>
-                val excludeRanges = exclude.map(parensRange)
-                penalizeAllNewlines(
-                  expire,
-                  Constants.ShouldBeSingleLine,
-                  ignore = x => excludeRanges.exists(_.contains(x.left.start)))
+              case _: Term.If => twoBranches
+              case _: Term.ForYield if !style.indentYieldKeyword => twoBranches
               case _ => NoPolicy
             }
             val jsNative = isJsNative(right)
@@ -988,9 +991,11 @@ class Router(formatOps: FormatOps) {
         )
       case FormatToken(close @ RightParen(), right, between)
           if (leftOwner match {
-            case _: Term.If | _: Term.For | _: Term.ForYield => true
+            case _: Term.If | _: Term.For => true
+            case _: Term.ForYield if style.indentYieldKeyword => true
             case _ => false
-          }) && !isFirstOrLastToken(close, leftOwner) =>
+          }) &&
+            !isFirstOrLastToken(close, leftOwner) =>
         val expire = leftOwner match {
           case t: Term.If => t.thenp.tokens.last
           case t: Term.For => t.body.tokens.last
@@ -1010,11 +1015,11 @@ class Router(formatOps: FormatOps) {
             .withPolicy(SingleLineBlock(expire, exclude = exclude)),
           Split(newlineModification, 1).withIndent(2, expire, Left)
         )
-      case tok @ FormatToken(RightBrace(), els @ KwElse(), _) =>
+      case FormatToken(RightBrace(), KwElse() | KwYield(), _) =>
         Seq(
           Split(Space, 0)
         )
-      case tok @ FormatToken(_, els @ KwElse(), _) =>
+      case FormatToken(_, KwElse() | KwYield(), _) =>
         val expire = rhsOptimalToken(leftTok2tok(rightOwner.tokens.last))
         Seq(
           Split(Space, 0, ignoreIf = newlines > 0)
@@ -1061,6 +1066,7 @@ class Router(formatOps: FormatOps) {
         }, close.end)
         val indent: Length = right match {
           case KwIf() => StateColumn
+          case KwFor() if !style.indentYieldKeyword => StateColumn
           case _ => Num(0)
         }
         Seq(

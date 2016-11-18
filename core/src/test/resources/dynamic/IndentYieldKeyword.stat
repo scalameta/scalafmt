@@ -1,0 +1,57 @@
+indentYieldKeyword = false
+<<< 592
+object Bar {
+  for (x <- Nil)
+    yield 2
+}
+>>>
+object Bar {
+  for (x <- Nil)
+  yield 2
+}
+<<< curly brace
+for {
+  parent <- sym.info.parents
+  if foo.isBar
+}
+yield {
+  genClassName(psym)
+}
+>>>
+for {
+  parent <- sym.info.parents
+  if foo.isBar
+} yield {
+  genClassName(psym)
+}
+<<< nested
+val sizes = for (row <- table)
+yield
+  (for (cell <- row)
+  yield
+    if (cell == null) 0
+    else cell.toString.length)
+>>>
+val sizes =
+  for (row <- table)
+  yield
+    (for (cell <- row)
+     yield
+       if (cell == null) 0
+       else cell.toString.length)
+<<< nested 2
+val sizes = for (row <- table) yield {
+  (for (cell <- row)
+  yield
+    if (cell == null) 0
+    else cell.toString.length)
+}
+>>>
+val sizes =
+  for (row <- table)
+  yield {
+    (for (cell <- row)
+     yield
+       if (cell == null) 0
+       else cell.toString.length)
+  }
