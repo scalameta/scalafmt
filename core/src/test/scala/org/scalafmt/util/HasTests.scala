@@ -120,17 +120,7 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
       case "default140" => ScalafmtConfig.unitTest80.copy(maxColumn = 140)
       case "default100" => ScalafmtConfig.unitTest80.copy(maxColumn = 100)
       case "scalajs" => ScalafmtConfig.scalaJs
-      case "dangling" =>
-        ScalafmtConfig.unitTest80.copy(
-          maxColumn = 40,
-          align = unitTest80.align.copy(
-            openParenCallSite = false
-          ),
-          danglingParentheses = true,
-          optIn = unitTest80.optIn.copy(
-            configStyleArguments = false
-          )
-        )
+      case "intellij" => ScalafmtConfig.intellij
       case "noAlign" =>
         ScalafmtConfig.unitTest80.copy(
           maxColumn = 40,

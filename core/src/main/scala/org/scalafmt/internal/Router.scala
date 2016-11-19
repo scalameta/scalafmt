@@ -589,9 +589,11 @@ class Router(formatOps: FormatOps) {
         }
 
         val noSplitPolicy =
-          if (isDangling)
-            SingleLineBlock(close, exclude = excludeRanges)
-          else singleLine(10)
+          if (isDangling) {
+            if (style.newlines.neverInDanglingParenthesesSingleLineArgList)
+              SingleLineBlock(close)
+            else SingleLineBlock(close, exclude = excludeRanges)
+          } else singleLine(10)
 
         val noSplitIndent =
           if (isInlineComment(right)) indent

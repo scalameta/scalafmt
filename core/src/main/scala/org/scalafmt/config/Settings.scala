@@ -23,7 +23,10 @@ trait Settings {
     optIn = default.optIn.copy(
       configStyleArguments = false
     ),
-    danglingParentheses = true
+    danglingParentheses = true,
+    newlines = default.newlines.copy(
+      neverInDanglingParenthesesSingleLineArgList = false
+    )
   )
 
   def addAlign(style: ScalafmtConfig) = style.copy(
