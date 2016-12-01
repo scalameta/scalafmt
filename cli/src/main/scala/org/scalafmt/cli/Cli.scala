@@ -4,11 +4,16 @@ import scala.meta.Dialect
 import scala.meta.dialects.Sbt0137
 import scala.util.matching.Regex
 
+import java.io.BufferedInputStream
+import java.io.BufferedReader
+import java.io.ByteArrayInputStream
 import java.io.File
+import java.io.FileInputStream
 import java.io.InputStream
 import java.io.OutputStream
 import java.io.OutputStreamWriter
 import java.io.PrintStream
+import java.util.Scanner
 import java.util.concurrent.atomic.AtomicInteger
 
 import org.scalafmt.Error.UnableToParseCliOptions
@@ -19,7 +24,9 @@ import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.LogLevel
 import com.martiansoftware.nailgun.NGContext
+import org.scalafmt.diff.FileDiff
 import org.scalafmt.util.AbsoluteFile
+import org.scalafmt.util.logger
 
 object Cli {
   def nailMain(nGContext: NGContext): Unit = {
@@ -133,32 +140,62 @@ object Cli {
     (customFiles ++ projectFiles).filter(matches)
   }
 
+  def readInput(in: InputStream): String = {
+    scala.io.Source
+      .fromInputStream(in)
+      .getLines()
+      .mkString(FileOps.lineSeparator)
+  }
+
+  def getFilesFromDiff(options: CliOptions): Seq[InputMethod] = {
+    val unifiedDiff: String =
+      if (options.stdIn) readInput(options.common.in)
+      else if (options.config.project.git)
+        options.gitOps.diff(options.config.project.baseBranch)
+      else {
+        throw new IllegalArgumentException(
+          "Unable to read diff. Specify --stdin enable project.git=true")
+      }
+    val fileDiffs = FileDiff.fromUnified(unifiedDiff)
+    fileDiffs.withFilter(x => canFormat(x.filename)).map { fd =>
+      val path =
+        AbsoluteFile.fromFile(new File(fd.filename),
+                              options.common.workingDirectory)
+      InputMethod.FileContents(path, fd.additions.map(_.toRange))
+    }
+  }
+
   private def getInputMethods(options: CliOptions): Seq[InputMethod] = {
-    if (options.stdIn) {
+    if (options.diff) {
+      getFilesFromDiff(options)
+    } else if (options.stdIn) {
       Seq(InputMethod.StdinCode(options.assumeFilename, options.common.in))
     } else {
       val projectFiles: Seq[AbsoluteFile] =
         if (options.customFiles.nonEmpty) getFilesFromCliOptions(options)
         else getFilesFromProject(options)
-      projectFiles.map(InputMethod.FileContents.apply)
+      projectFiles.map(x => InputMethod.FileContents(x, Nil))
     }
   }
 
   private def handleFile(inputMethod: InputMethod, options: CliOptions): Unit = {
     val input = inputMethod.readInput
+    val range: Seq[Range] =
+      if (inputMethod.range.nonEmpty) inputMethod.range
+      else options.range
     val formatResult =
-      Scalafmt.format(input, options.config, options.range)
+      Scalafmt.format(input, options.config, range)
     formatResult match {
       case Formatted.Success(formatted) =>
         inputMethod.write(formatted, input, options)
       case Formatted.Failure(e) =>
-        if (options.config.runner.fatalWarnings) {
-          throw e
-        } else {
-          options.common.err.println(
-            s"${LogLevel.warn} Error in ${inputMethod.filename}: $e"
-          )
-        }
+      if (options.config.runner.fatalWarnings) {
+        throw e
+      } else {
+        options.common.err.println(
+          s"${LogLevel.warn} Error in ${inputMethod.filename}: $e"
+        )
+      }
     }
   }
 

@@ -9,6 +9,7 @@ import org.scalafmt.config.FormatEvent.CompleteFormat
 import org.scalafmt.config.FormatEvent.Enqueue
 import org.scalafmt.config.FormatEvent.Explored
 import org.scalafmt.config.FormatEvent.VisitToken
+import org.scalafmt.diff.FormatTokenRange
 import org.scalafmt.internal.ExpiresOn.Right
 import org.scalafmt.internal.Length.Num
 import org.scalafmt.util.LoggerOps
@@ -19,7 +20,7 @@ import org.scalafmt.util.TreeOps
   * Implements best first search to find optimal formatting.
   */
 class BestFirstSearch(val formatOps: FormatOps,
-                      range: Set[Range],
+                      range: Seq[Range],
                       formatWriter: FormatWriter) {
   import Token._
 
@@ -40,14 +41,15 @@ class BestFirstSearch(val formatOps: FormatOps,
     }
     result.result()
   }
-  val noOptimizations = noOptimizationZones(tree)
+  val noOptimizations: Set[Token] = noOptimizationZones(tree)
   var explored = 0
-  var deepestYet = State.start
-  var deepestYetSafe = State.start
+  var deepestYet: State = State.start
+  var deepestYetSafe: State = State.start
   var statementCount = 0
-  val best = mutable.Map.empty[Token, State]
+  val best: mutable.Map[Token, State] = mutable.Map.empty[Token, State]
   var pathologicalEscapes = 0
-  val visits = mutable.Map.empty[FormatToken, Int].withDefaultValue(0)
+  val visits: mutable.Map[FormatToken, Int] =
+    mutable.Map.empty[FormatToken, Int].withDefaultValue(0)
 
   type StateHash = Long
 
@@ -96,11 +98,11 @@ class BestFirstSearch(val formatOps: FormatOps,
     // TODO(olafur) the indentation is not correctly set.
     val split = Split(Provided(formatToken.between.map(_.syntax).mkString), 0)
     val result =
-      if (formatToken.left.is[LeftBrace])
-        split.withIndent(Num(2),
-                         matchingParentheses(hash(formatToken.left)),
-                         Right)
-      else split
+      formatOps.estimateIndent(formatToken) match {
+        case Some((indent, expire)) =>
+          split.withIndent(Num(indent), expire, Right)
+        case _ => split
+      }
     result
   }
 
@@ -112,7 +114,8 @@ class BestFirstSearch(val formatOps: FormatOps,
     explored > runner.maxStateVisits || state.splits.length == tokens.length
   }
 
-  val memo = mutable.Map.empty[(Int, StateHash), State]
+  val memo: mutable.Map[(Int, StateHash), State] =
+    mutable.Map.empty[(Int, StateHash), State]
 
   def shortestPathMemo(start: State, stop: Token, depth: Int, maxCost: Int)(
       implicit line: sourcecode.Line): State = {
@@ -168,7 +171,8 @@ class BestFirstSearch(val formatOps: FormatOps,
         result = curr
         Q.dequeueAll
       } else if (shouldEnterState(curr)) {
-        val splitToken = tokens(curr.splits.length)
+        val i = curr.splits.length
+        val splitToken = tokens(i)
         val style = styleMap.at(splitToken)
         if (curr.splits.length > deepestYet.splits.length) {
           deepestYet = curr
@@ -220,9 +224,8 @@ class BestFirstSearch(val formatOps: FormatOps,
         } else {
 
           val splits: Seq[Split] =
-            if (curr.formatOff) List(provided(splitToken))
-            else if (splitToken.inside(range)) routes(curr.splits.length)
-            else List(provided(splitToken))
+            if (formatOff(i)) List(provided(splitToken))
+            else routes(curr.splits.length)
 
           val actualSplit = {
             curr.policy

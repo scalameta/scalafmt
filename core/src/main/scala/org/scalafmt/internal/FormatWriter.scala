@@ -9,6 +9,8 @@ import scala.meta.tokens.Token._
 import java.util.regex.Pattern
 
 import org.scalafmt.internal.FormatWriter.FormatLocation
+import org.scalafmt.util.LoggerOps
+import org.scalafmt.util.logger
 
 /**
   * Produces formatted output from sequence of splits.
@@ -20,41 +22,54 @@ class FormatWriter(formatOps: FormatOps) {
   def mkString(splits: Vector[Split]): String = {
     val sb = new StringBuilder()
     var lastState = State.start // used to calculate start of formatToken.right.
+    // unfortunate workaround for how we handle indentation around
+    // strip margininzed multiline string literals at intersection where
+    // formatOps.formatOff is enabled.
+    var lastTokenWasSpecialString = false
     reconstructPath(tokens, splits, debug = false) {
-      case (state, formatToken, whitespace) =>
-        formatToken.left match {
-          case c: Comment =>
-            sb.append(formatComment(c, state.indentation))
-          case token @ Interpolation.Part(_) =>
-            sb.append(formatMarginizedString(token, state.indentation))
-          case literal @ Constant.String(_) => // Ignore, see below.
-          case token =>
-            val rewrittenToken =
-              formatOps.initStyle.rewriteTokens
-                .getOrElse(token.syntax, token.syntax)
-            sb.append(rewrittenToken)
-        }
-        sb.append(whitespace)
-        formatToken.right match {
-          // state.column matches the end of formatToken.right
-          case literal: Constant.String =>
-            val column =
-              if (state.splits.last.modification.isNewline) state.indentation
-              else lastState.column + whitespace.length
-            sb.append(formatMarginizedString(literal, column + 2))
-          case _ => // Ignore
+      case (state, formatToken, whitespace, i) =>
+        if (formatOps.formatOff(i) &&
+            !lastTokenWasSpecialString) {
+          lastTokenWasSpecialString = false
+          sb.append(formatToken.left.syntax)
+          sb.append(whitespace)
+        } else {
+          formatToken.left match {
+            case c: Comment =>
+              sb.append(formatComment(c, state.indentation))
+            case token @ Interpolation.Part(_) =>
+              sb.append(formatMarginizedString(token, state.indentation))
+            case literal @ Constant.String(_) => // Ignore, see below.
+            case token =>
+              val rewrittenToken =
+                formatOps.initStyle.rewriteTokens
+                  .getOrElse(token.syntax, token.syntax)
+              sb.append(rewrittenToken)
+          }
+          sb.append(whitespace)
+          formatToken.right match {
+            // state.column matches the end of formatToken.right
+            case literal: Constant.String =>
+              val column =
+                if (state.splits.last.modification.isNewline) state.indentation
+                else lastState.column + whitespace.length
+              lastTokenWasSpecialString = true
+              sb.append(formatMarginizedString(literal, column + 2))
+            case _ => // Ignore
+              lastTokenWasSpecialString = false
+          }
         }
         lastState = state
     }
     sb.toString()
   }
 
-  val trailingSpace = Pattern.compile(" +$", Pattern.MULTILINE)
+  val trailingSpace: Pattern = Pattern.compile(" +$", Pattern.MULTILINE)
   private def removeTrailingWhiteSpace(str: String): String = {
     trailingSpace.matcher(str).replaceAll("")
   }
 
-  val leadingAsteriskSpace =
+  val leadingAsteriskSpace: Pattern =
     Pattern.compile("\n *\\*(?!\\*)", Pattern.MULTILINE)
   private def formatComment(comment: Comment, indent: Int): String = {
     val alignedComment =
@@ -97,7 +112,6 @@ class FormatWriter(formatOps: FormatOps) {
     }
   }
 
-  import org.scalafmt.util.LoggerOps._
   import org.scalafmt.util.TokenOps._
 
   def getFormatLocations(toks: Array[FormatToken],
@@ -114,7 +128,7 @@ class FormatWriter(formatOps: FormatOps) {
         statesBuilder += FormatLocation(tok, split, currState)
         // TIP. Use the following line to debug origin of splits.
         if (debug && tokens.length < 1000) {
-          val left = cleanup(tok.left).slice(0, 15)
+          val left = LoggerOps.cleanup(tok.left).slice(0, 15)
           logger.debug(
             f"$left%-15s $split ${currState.indentation} ${currState.column}")
         }
@@ -126,10 +140,10 @@ class FormatWriter(formatOps: FormatOps) {
     * Reconstructs path for all tokens and invokes callback for each token/split
     * combination.
     */
-  def reconstructPath(
-      toks: Array[FormatToken],
-      splits: Vector[Split],
-      debug: Boolean)(callback: (State, FormatToken, String) => Unit): Unit = {
+  def reconstructPath(toks: Array[FormatToken],
+                      splits: Vector[Split],
+                      debug: Boolean)(callback: (State, FormatToken, String,
+                                                 Int) => Unit): Unit = {
     require(toks.length >= splits.length, "splits !=")
     val locations = getFormatLocations(toks, splits, debug)
     val tokenAligns = alignmentTokens(locations).withDefaultValue(0)
@@ -160,10 +174,10 @@ class FormatWriter(formatOps: FormatOps) {
               else " " * state.indentation
             newline + indentation
           case Provided(literal) => literal
-          case NoSplit => ""
-        }
-        lastModification = split.modification
-        callback.apply(state, tok, whitespace)
+        case NoSplit => ""
+      }
+      lastModification = split.modification
+      callback.apply(state, tok, whitespace, i)
     }
     locations.lastOption.foreach { location =>
       if (debug) logger.debug(s"Total cost: ${location.state.cost}")

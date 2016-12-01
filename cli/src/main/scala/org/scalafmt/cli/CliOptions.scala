@@ -12,6 +12,7 @@ import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.GitOps
 import org.scalafmt.util.GitOpsImpl
+import org.scalafmt.util.logger
 
 object CliOptions {
   val default = CliOptions()
@@ -83,12 +84,13 @@ case class CommonOptions(
 
 case class CliOptions(
     config: ScalafmtConfig = ScalafmtConfig.default,
-    range: Set[Range] = Set.empty[Range],
+    range: Seq[Range] = Seq.empty[Range],
     customFiles: Seq[AbsoluteFile] = Nil,
     customExcludes: Seq[String] = Nil,
     inPlace: Boolean = false,
     testing: Boolean = false,
     stdIn: Boolean = false,
+    diff: Boolean = false,
     assumeFilename: String = "stdin.scala", // used when read from stdin
     migrate: Option[AbsoluteFile] = None,
     common: CommonOptions = CommonOptions(),

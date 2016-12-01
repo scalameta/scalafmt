@@ -80,13 +80,27 @@ object CliArgParser {
         .action((excludes, c) => c.copy(customExcludes = excludes))
         .text(
           "file or directory, in which case all *.scala files are formatted.")
-      opt[String]('c', "config")
-        .action(readConfigFromFile)
-        .text(
-          "either a file or configuration wrapped in quotes \" with no spaces.")
-      opt[Unit]("stdin")
-        .action((_, c) => c.copy(stdIn = true))
-        .text("read from stdin and print to stdout")
+    opt[String]('c', "config")
+      .action(readConfigFromFile)
+      .text(
+        "either a file or configuration wrapped in quotes \" with no spaces.")
+    opt[Unit]("debug")
+      .action(
+        (_, c) =>
+          c.copy(
+            config = c.config.copy(
+              runner = c.config.runner.copy(
+                fatalWarnings = true
+              )
+            )))
+      .text("read from stdin and print to stdout")
+    opt[Unit]("stdin")
+      .action((_, c) => c.copy(stdIn = true))
+      .text("read from stdin and print to stdout")
+      opt[Unit]("diff")
+        .action((_, c) => c.copy(diff = true, inPlace = true))
+        .text("read diff output from stdin and" +
+          "print to stdout with only diff formatted")
       opt[String]("assume-filename")
         .action((filename, c) => c.copy(assumeFilename = filename))
         .text("required to format .sbt files with --stdin flag.")
@@ -113,7 +127,7 @@ object CliArgParser {
         .action({
           case ((from, to), c) =>
             val offset = if (from == to) 0 else -1
-            c.copy(range = c.range + Range(from - 1, to + offset))
+            c.copy(range = c.range :+ Range(from - 1, to + offset))
         })
         .text("(experimental) only format line range from=to")
 

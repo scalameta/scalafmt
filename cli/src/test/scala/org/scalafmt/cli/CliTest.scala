@@ -2,9 +2,7 @@ package org.scalafmt.cli
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.io.File
 import java.io.FileNotFoundException
-import java.io.InputStream
 import java.io.PrintStream
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
@@ -12,37 +10,13 @@ import java.nio.file.Files
 import org.scalafmt.Error.MisformattedFile
 import org.scalafmt.config.Config
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.FileOps
-import org.scalafmt.util.GitOps
 import org.scalafmt.util.logger
-import org.scalatest.FunSuite
 
-class CliTest extends FunSuite with DiffAssertions {
+class CliTest extends AbstractCliTest with DiffAssertions {
   import FileTestOps._
 
-  def getMockOptions(baseDir: AbsoluteFile): CliOptions =
-    getMockOptions(baseDir, baseDir)
-
-  def getMockOptions(baseDir: AbsoluteFile,
-                     workingDir: AbsoluteFile): CliOptions = {
-    CliOptions.default.copy(
-      gitOpsConstructor = x => new FakeGitOps(baseDir),
-      common = CliOptions.default.common.copy(
-        workingDirectory = workingDir
-      )
-    )
-  }
-
-  val baseCliOptions: CliOptions = getMockOptions(
-    AbsoluteFile
-      .fromPath(File.createTempFile("base", "dir").getAbsolutePath)
-      .get)
-
-  def getConfig(args: Array[String]): CliOptions = {
-    Cli.getConfig(args, baseCliOptions).get
-  }
   val unformatted = """
                       |object a    extends   App {
                       |pr("h")

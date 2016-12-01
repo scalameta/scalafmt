@@ -10,9 +10,10 @@ import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.FileOps
 
 sealed abstract class InputMethod {
-  def isSbt = filename.endsWith(".sbt")
+  def isSbt: Boolean = filename.endsWith(".sbt")
   def readInput: String
   def filename: String
+  def range: Seq[Range] = Nil
   def write(formatted: String, original: String, options: CliOptions): Unit
 }
 
@@ -34,8 +35,9 @@ object InputMethod {
       options.common.out.println(code)
     }
   }
-  case class FileContents(file: AbsoluteFile) extends InputMethod {
-    override def filename = file.path
+  case class FileContents(file: AbsoluteFile, override val range: Seq[Range])
+      extends InputMethod {
+    override def filename: String = file.path
     def readInput: String = FileOps.readFile(filename)
     override def write(formatted: String,
                        original: String,

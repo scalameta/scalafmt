@@ -30,7 +30,7 @@ import org.scalatest.FunSuiteLike
 trait HasTests extends FunSuiteLike with FormatAssertions {
   import LoggerOps._
   import org.scalafmt.config.ScalafmtConfig._
-  val scalafmtRunner = ScalafmtRunner.default.copy(
+  val scalafmtRunner: ScalafmtRunner = ScalafmtRunner.default.copy(
     debug = true,
     maxStateVisits = 150000,
     eventCallback = {
@@ -46,7 +46,8 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
       case _ =>
     }
   )
-  lazy val debugResults = mutable.ArrayBuilder.make[Result]
+  lazy val debugResults: mutable.ArrayBuilder[Result] =
+    mutable.ArrayBuilder.make[Result]
   val testDir = "core/src/test/resources"
 
   def tests: Seq[DiffTest]
@@ -58,11 +59,11 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
     else tests
   }
 
-  def isOnly(name: String) = name.startsWith("ONLY ")
+  def isOnly(name: String): Boolean = name.startsWith("ONLY ")
 
-  def isSkip(name: String) = name.startsWith("SKIP ")
+  def isSkip(name: String): Boolean = name.startsWith("SKIP ")
 
-  def stripPrefix(name: String) =
+  def stripPrefix(name: String): String =
     name.stripPrefix("SKIP ").stripPrefix("ONLY ").trim
 
   def filename2parse(filename: String): Option[Parse[_ <: Tree]] =
@@ -255,7 +256,7 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
     val builder = mutable.ArrayBuilder.make[FormatOutput]()
     new FormatWriter(Debug.formatOps)
       .reconstructPath(Debug.tokens, Debug.state.splits, debug = onlyOne) {
-        case (_, token, whitespace) =>
+        case (_, token, whitespace, _) =>
           builder += FormatOutput(token.left.syntax,
                                   whitespace,
                                   Debug.formatTokenExplored(token))
