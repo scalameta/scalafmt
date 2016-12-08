@@ -51,7 +51,7 @@ function maven-publish() {
 
 function update-github-release() {
     rm -f ${tarfile}
-    tar -cvzf ${tarfile} bin/scalafmt bin/scalafmt_auto cli/target/scala-2.11/scalafmt.jar bin/configure
+    tar -cvzf ${tarfile} bin/scalafmt bin/scalafmt.bat bin/scalafmt_auto cli/target/scala-2.11/scalafmt.jar bin/configure
 
     echo "Creating github release..."
     github-release release \

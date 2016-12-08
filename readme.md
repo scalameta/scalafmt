@@ -22,10 +22,10 @@ For any questions, don't hesitate to ask on gitter.
   this project.
 - `run-benchmarks.sh` script to run jmh benchmarks.
 - `core/test:runMain  org.scalafmt.FormatExperimentApp`:
-  1. Uses `wget` to download a ~20mb tar
+  1. Downloads a ~20mb tar
      ([repos.tar.gz](https://github.com/olafurpg/scalafmt/releases/tag/v0.1.4))
      that contains ~28.000 Scala source files from public Github repos,
-  2. untars with `tar`,
+  2. untars,
   3. runs scalafmt on a subset of the files, specified in `FormatExperiment`.
      Runs various property based checks under timing constraints (around 10s per file),
   4. prints summary report to console.
