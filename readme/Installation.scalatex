@@ -155,6 +155,58 @@
         org.scalafmt.cli.CliArgParser.buildInfo + "\n" +
         org.scalafmt.cli.CliArgParser.scoptParser.usage)
 
+  @sect{SBT}
+    @p
+      @note. I maintain the SBT plugin on a best-effort basis, so I may not respond
+      to all SBT plugin related issues. If you rely on the SBT plugin,
+      please consider becoming a maintainer!
+
+    @p
+      @note. The recommended way to enforce scalafmt in CI is to use @sect.ref{Coursier},
+      not the SBT plugin.
+    @p
+      @note. The SBT plugin does not work with SBT 0.13.12 or 0.13.13 because of
+      @lnk("sbt#2786", "https://github.com/sbt/sbt/issues/2786"). Please upvote that
+      bug to help prioritize it.
+
+    @hl.scala
+      addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "@org.scalafmt.Versions.stable")
+
+    @ul
+      @li
+        @lnk("Here is an example repository using sbt plugin.",
+             "https://github.com/olafurpg/sbt-scalafmt-example")
+      @li
+        Run @code("sbt scalafmt") to format all files in the project.
+      @li
+        Run @code("sbt scalafmtTest") to test whether all files are are
+        properly formatted. An exception is thrown in case of failure, no
+        files are formatted.
+      @li
+        Set @code("scalafmtConfig in ThisBuild := Some(file(\".scalafmt\"))")
+        to let the plugin pick up custom style configurations from
+        @code(".scalafmt") in the root directory of your project.
+        For details, see @sect.ref{Configuration}.
+      @li
+        If you use @code("*.scala") build rules you may need to import
+        @code("org.scalafmt.sbt.ScalaFmtPlugin.autoImport._").
+      @li
+        Add @code("reformatOnCompileSettings") to you build settings to
+        enable automatically formatting files on compile.
+        @b("WARNING"). This setting is very intrusive on text editors and IDEs.
+        I encourage you to find a better way to incorporate scalafmt into your
+        workflow.
+      @li
+        In case of any trouble, try to run @code("reload") and @code("clean").
+      @li
+        If you have a multi-project build and the custom @code(".scalafmt") configuration is
+        not picked up, make sure that @code("scalafmtConfig") is defined for
+        all of your projects, not only the root project.
+        Use @code("show scalafmtConfig") to verify that
+        @code("scalafmtConfig := Some(file(.scalafmt))")
+        in all of your projects.
+
+
   @sect{Vim}
     @ul
       @li
