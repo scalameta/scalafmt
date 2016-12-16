@@ -6,6 +6,7 @@ import scala.util.Try
 import java.io.File
 
 trait GitOps {
+  def diff(branch: String): Seq[AbsoluteFile]
   def lsTree: Seq[AbsoluteFile]
   def rootDir: Option[AbsoluteFile]
 }
@@ -46,4 +47,10 @@ class GitOpsImpl(workingDirectory: AbsoluteFile) extends GitOps {
       require(result.jfile.isDirectory)
       result
     }.toOption
+
+  override def diff(branch: String): Seq[AbsoluteFile] = {
+    exec(baseCommand ++ Seq("diff", "--name-only", branch)).lines.map { x =>
+      AbsoluteFile.fromFile(new File(x), workingDirectory)
+    }.toSeq
+  }
 }

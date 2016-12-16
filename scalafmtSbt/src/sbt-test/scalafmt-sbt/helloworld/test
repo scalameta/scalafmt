@@ -1,3 +1,11 @@
 > scalafmt
+> scalafmtTest
+> check
+> scalafmtDiff
+> scalafmtDiffTest
+> check
+> scalafmt --diff-branch master
+> scalafmt --diff
+> scalafmt --diff --test
 > check
 

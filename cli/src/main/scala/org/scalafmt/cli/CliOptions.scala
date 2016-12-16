@@ -61,7 +61,6 @@ object CliOptions {
           case Left(e) => throw e
         }
       }
-      if parsedConfig.project.git
     } yield parsedConfig
   }
 
@@ -89,6 +88,7 @@ case class CliOptions(
     inPlace: Boolean = false,
     testing: Boolean = false,
     stdIn: Boolean = false,
+    diff: Option[String] = None,
     assumeFilename: String = "stdin.scala", // used when read from stdin
     migrate: Option[AbsoluteFile] = None,
     common: CommonOptions = CommonOptions(),

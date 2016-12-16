@@ -1,8 +1,16 @@
 import java.io.File
 
-sbtPlugin := true
+lazy val root = project
+  .in(file("."))
+  .aggregate(
+    p1,
+    p2,
+    p3
+  )
 
-scalafmtConfig := Some(file(".scalafmt"))
+lazy val p1 = project.settings(scalaVersion := "2.10.5")
+lazy val p2 = project.settings(scalaVersion := "2.11.8")
+lazy val p3 = project.settings(scalaVersion := "2.12.1")
 
 def assertContentsEqual(file: File, expected: String): Unit = {
   val obtained =
@@ -10,27 +18,32 @@ def assertContentsEqual(file: File, expected: String): Unit = {
 
   if (obtained.trim != expected.trim) {
     val msg =
-      s"""Obtained output:
-          |$obtained
-          |Expected:
-          |$expected
-          |""".stripMargin
+      s"""File: $file
+         |Obtained output:
+         |$obtained
+         |Expected:
+         |$expected
+         |""".stripMargin
     System.err.println(msg)
     throw new Exception(msg)
   }
 }
 
 TaskKey[Unit]("check") := {
-  assertContentsEqual(
-    new File("src/main/scala/Test.scala"),
-    """
-      |object Test {
-      |  def main(args: Array[String]) {
-      |    println("hello")
-      |  }
-      |}
-    """.stripMargin
-  )
+  (1 to 3).foreach { i =>
+    val expected =
+      """
+        |object Test {
+        |  foo(
+        |    a, // comment
+        |    b
+        |  )
+        |}
+        """.stripMargin
+    val expected2 = expected.replaceFirst("Test", "MainTest")
+    assertContentsEqual(file(s"p$i/src/main/scala/Test.scala"), expected)
+    assertContentsEqual(file(s"p$i/src/test/scala/MainTest.scala"), expected2)
+  }
   assertContentsEqual(
     new File("project/plugins.sbt"),
     """

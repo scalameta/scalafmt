@@ -1,5 +1,7 @@
 package org.scalafmt.cli
 
+import scala.util.matching.Regex
+
 import java.io.File
 
 import org.scalafmt.Error.InvalidScalafmtConfiguration
@@ -15,8 +17,10 @@ import org.scalafmt.util.LoggerOps._
   * plugin.
   */
 class Scalafmt210 {
-  val oldConfig = "--".r
+  val oldConfig: Regex = "--".r
+  def main(args: Array[String]): Unit = Cli.main(args)
 
+  // The rest is for scalafmtIncremental.
   def format(code: String, configFile: String, filename: String): String = {
     StyleCache.getStyleForFileOrError(configFile) match {
       case Left(throwable) => {

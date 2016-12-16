@@ -176,9 +176,14 @@ lazy val bootstrap = project
   .dependsOn(utils)
 
 lazy val scalafmtSbt = project
-  .settings(allSettings)
-  .settings(ScriptedPlugin.scriptedSettings)
   .settings(
+    allSettings,
+    ScriptedPlugin.scriptedSettings,
+    scripted := scripted.dependsOn(
+      publishLocal in cli,
+      publishLocal in core,
+      publishLocal in utils
+    ).evaluated,
     coverageHighlighting := false,
     sbtPlugin := true,
     scalaVersion := "2.10.5",
