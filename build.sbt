@@ -1,5 +1,7 @@
 import scoverage.ScoverageSbtPlugin.ScoverageKeys.coverageHighlighting
 
+// The version number used in docs.
+def latestStableVersion: String = "0.4.10"
 lazy val buildSettings = Seq(
   organization := "com.geirsson",
   version := "0.4.10-SNAPSHOT",
@@ -90,7 +92,7 @@ lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
     name,
     version,
     "nightly" -> version.value,
-    "stable" -> version.value,
+    "stable" -> latestStableVersion,
     "scala" -> scalaVersion.value,
     scalaVersion,
     sbtVersion
@@ -199,6 +201,7 @@ lazy val scalafmtSbt = project
       .dependsOn(
         publishLocal in cli,
         publishLocal in core,
+        publishLocal in metaconfig,
         publishLocal in utils
       )
       .evaluated,
@@ -285,3 +288,4 @@ lazy val metaconfig = project.settings(
     "org.scalatest" %% "scalatest" % Deps.scalatest % Test
   )
 )
+

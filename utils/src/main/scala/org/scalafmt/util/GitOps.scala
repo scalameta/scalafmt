@@ -2,6 +2,7 @@ package org.scalafmt.util
 
 import scala.sys.process.ProcessLogger
 import scala.util.Try
+import scala.util.control.NonFatal
 
 import java.io.File
 
@@ -49,8 +50,15 @@ class GitOpsImpl(workingDirectory: AbsoluteFile) extends GitOps {
     }.toOption
 
   override def diff(branch: String): Seq[AbsoluteFile] = {
-    exec(baseCommand ++ Seq("diff", "--name-only", branch)).lines.map { x =>
-      AbsoluteFile.fromFile(new File(x), workingDirectory)
-    }.toSeq
+    try {
+      exec(baseCommand ++ Seq("diff", "--name-only", branch)).lines.map { x =>
+        AbsoluteFile.fromFile(new File(x), workingDirectory)
+      }.toSeq
+    } catch {
+      case NonFatal(e) =>
+        throw new IllegalStateException(
+          s"Failed to run git, is git installed?",
+          e)
+    }
   }
 }

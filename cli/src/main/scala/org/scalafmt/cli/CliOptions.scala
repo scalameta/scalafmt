@@ -33,7 +33,7 @@ object CliOptions {
     val style: Option[ScalafmtConfig] = if (init.config != parsed.config) {
       Option(parsed.config)
     } else {
-      tryGit(parsed).orElse(tryCurrentDirectory(parsed))
+      tryCurrentDirectory(parsed).orElse(tryGit(parsed))
     }
     val inplace =
       !parsed.testing && (

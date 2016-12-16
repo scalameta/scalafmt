@@ -18,19 +18,23 @@ object CliArgParser {
   @GitCommit val gitCommit: String = ???
   @BuildTime val buildTimeMs: Long = ???
 
-  val usageExamples =
+  val usageExamples: String =
     """|scalafmt  # Format all files in the current project, with config determined:
        |          # 1. .scalafmt.conf inside root directory of current git repo
-       |          #    IF the following setting is enabled: project.git = true
        |          # 2. .scalafmt.conf file in current directory
        |          # 3. default style
        |          # from .scalafmt.conf in the root directory, if the file exists.
        |scalafmt --test # same as without --test, except
        |                # 1. throws an exception on the first mis-formatted file
        |                # 2. does not write to any files.
+       |scalafmt --diff        # same as without --diff, except only format files
+       |                       # in git diff against master branch.
+       |scalafmt --diff --test # same as --test, except only for edited files
+       |                       # in git diff against master branch.
+       |scalafmt --diff-branch 2.x        # same as --diff, except against branch 2.x
+       |scalafmt --diff-branch 2.x --test # same as --diff
        |scalafmt --stdin                           # read from stdin and print to stdout
        |scalafmt --stdin --assume-filename foo.sbt # required to format .sbt files
-       |
        |scalafmt -f Code.scala             # print formatted contents to stdout.
        |scalafmt -i -f Code1.scala,A.scala # write formatted contents to file.
        |scalafmt -i -f . --exclude target  # format all files in directory excluding target
