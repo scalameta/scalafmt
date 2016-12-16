@@ -16,7 +16,7 @@ if [[ ${TRAVIS_SECURE_ENV_VARS} == "true" && ${TRAVIS_BRANCH} == "master" ]]; th
   echo "Publishing snapshot..."
   setupDeployKey
   # only publish if nightly is a snapshot.
-  if grep "nightly.*SNAPSHOT" core/src/main/scala/org/scalafmt/Versions.scala; then
+  if grep "nightly.*SNAPSHOT" core/target/scala-2.11/src_managed/main/sbt-buildinfo/Versions.scala; then
     echo "Publishing snapshot"
     sbt publish # snapshot
   else
