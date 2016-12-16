@@ -29,6 +29,15 @@ def assertContentsEqual(file: File, expected: String): Unit = {
   }
 }
 
+TaskKey[Unit]("setupGitRepo") := {
+  import sys.process._
+  Seq("git", "init").!!
+  Seq("git", "config", "user.email", "a@a.is").!!
+  Seq("git", "config", "user.name", "a").!!
+  Seq("git", "add", ".").!!
+  Seq("git", "commit", "-m", "wip").!!
+}
+
 TaskKey[Unit]("check") := {
   (1 to 3).foreach { i =>
     val expected =

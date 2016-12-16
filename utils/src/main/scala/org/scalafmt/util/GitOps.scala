@@ -17,20 +17,29 @@ object GitOps {
 }
 
 class GitOpsImpl(workingDirectory: AbsoluteFile) extends GitOps {
-  val swallowStderr = ProcessLogger(_ => Unit, _ => Unit)
-  val baseCommand = Seq("git")
 
   def exec(cmd: Seq[String]): String = {
-    sys.process
-      .Process(cmd, workingDirectory.jfile)
-      .!!(swallowStderr)
-      .trim
+    val lastError = new StringBuilder
+    val swallowStderr = ProcessLogger(_ => Unit, err => lastError.append(err))
+    try {
+      sys.process
+        .Process(cmd, workingDirectory.jfile)
+        .!!(swallowStderr)
+        .trim
+    } catch {
+      case NonFatal(e) =>
+        throw new IllegalStateException(
+          s"Failed to run command ${cmd.mkString(" ")}. " +
+            s"Error: ${lastError.toString()}",
+          e)
+    }
   }
 
   override def lsTree: Seq[AbsoluteFile] =
     Try {
       exec(
-        baseCommand ++ Seq(
+        Seq(
+          "git",
           "ls-tree",
           "-r",
           "HEAD",
@@ -43,22 +52,26 @@ class GitOpsImpl(workingDirectory: AbsoluteFile) extends GitOps {
 
   override def rootDir: Option[AbsoluteFile] =
     Try {
-      val cmd = baseCommand ++ Seq("rev-parse", "--show-toplevel")
+      val cmd = Seq(
+        "git",
+        "rev-parse",
+        "--show-toplevel"
+      )
       val result = AbsoluteFile.fromFile(new File(exec(cmd)), workingDirectory)
       require(result.jfile.isDirectory)
       result
     }.toOption
 
   override def diff(branch: String): Seq[AbsoluteFile] = {
-    try {
-      exec(baseCommand ++ Seq("diff", "--name-only", branch)).lines.map { x =>
-        AbsoluteFile.fromFile(new File(x), workingDirectory)
-      }.toSeq
-    } catch {
-      case NonFatal(e) =>
-        throw new IllegalStateException(
-          s"Failed to run git, is git installed?",
-          e)
-    }
+    exec(
+      Seq(
+        "git",
+        "diff",
+        "--name-only",
+        "HEAD",
+        branch
+      )).lines.map { x =>
+      AbsoluteFile.fromFile(new File(x), workingDirectory)
+    }.toSeq
   }
 }
