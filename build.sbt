@@ -1,10 +1,11 @@
 import scoverage.ScoverageSbtPlugin.ScoverageKeys.coverageHighlighting
 
+// The version number used in docs.
+def latestStableVersion: String = "0.4.10"
 lazy val buildSettings = Seq(
   organization := "com.geirsson",
-  // See core/src/main/scala/org/scalafmt/Versions.scala
-  version := org.scalafmt.Versions.nightly,
-  scalaVersion := org.scalafmt.Versions.scala,
+  version := "0.4.10-SNAPSHOT",
+  scalaVersion := "2.11.8",
   updateOptions := updateOptions.value.withCachedResolution(true)
 )
 
@@ -86,6 +87,20 @@ lazy val noPublish = Seq(
   publishLocal := {}
 )
 
+lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
+  buildInfoKeys := Seq[BuildInfoKey](
+    name,
+    version,
+    "nightly" -> version.value,
+    "stable" -> latestStableVersion,
+    "scala" -> scalaVersion.value,
+    scalaVersion,
+    sbtVersion
+  ),
+  buildInfoPackage := "org.scalafmt",
+  buildInfoObject := "Versions"
+)
+
 lazy val allSettings = commonSettings ++ buildSettings ++ publishSettings
 
 lazy val root = project
@@ -108,14 +123,16 @@ lazy val root = project
     utils,
     core,
     metaconfig,
-    readme
+    readme,
+    scalafmtSbt
   )
   .dependsOn(core)
 
 lazy val core = project
-  .settings(allSettings)
   .settings(
+    allSettings,
     metaMacroSettings,
+    buildInfoSettings,
     moduleName := "scalafmt-core",
     libraryDependencies ++= Seq(
       "com.lihaoyi"    %% "sourcecode"   % "0.1.2",
@@ -135,6 +152,7 @@ lazy val core = project
       "org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
   )
   .dependsOn(metaconfig, utils)
+  .enablePlugins(BuildInfoPlugin)
 
 lazy val cliJvmOptions = Seq(
   "-Xss4m"
@@ -161,10 +179,9 @@ lazy val cli = project
 lazy val bootstrap = project
   .settings(
     allSettings,
+    buildInfoSettings,
     //  crossScalaVersions := Seq("2.10.6", "2.11.8"),
     moduleName := "scalafmt-bootstrap",
-    sources in Compile +=
-      baseDirectory.value / "../core/src/main/scala/org/scalafmt/Versions.scala",
     libraryDependencies ++= Seq(
       "com.martiansoftware" % "nailgun-server"  % "0.9.1",
       "io.get-coursier"     %% "coursier"       % "1.0.0-M14",
@@ -173,6 +190,36 @@ lazy val bootstrap = project
     )
   )
   .dependsOn(utils)
+  .enablePlugins(BuildInfoPlugin)
+
+lazy val scalafmtSbt = project
+  .settings(
+    allSettings,
+    buildInfoSettings,
+    ScriptedPlugin.scriptedSettings,
+    scripted := scripted
+      .dependsOn(
+        publishLocal in cli,
+        publishLocal in core,
+        publishLocal in metaconfig,
+        publishLocal in utils
+      )
+      .evaluated,
+    sbtPlugin := true,
+    coverageHighlighting := false,
+    scalaVersion := "2.10.5",
+    // In convention of sbt plugins, the module is sbt-scalafmt instead of scalafmt-sbt.
+    moduleName := "sbt-scalafmt",
+    scriptedLaunchOpts := Seq(
+      "-Dplugin.version=" + version.value,
+      // .jvmopts is ignored, simulate here
+      "-XX:MaxPermSize=256m",
+      "-Xmx2g",
+      "-Xss2m"
+    ),
+    scriptedBufferLog := false
+  )
+  .enablePlugins(BuildInfoPlugin)
 
 lazy val benchmarks = project
   .settings(moduleName := "scalafmt-benchmarks")

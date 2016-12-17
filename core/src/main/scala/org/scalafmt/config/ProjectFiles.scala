@@ -1,13 +1,14 @@
 package org.scalafmt.config
 
-import scala.util.matching.Regex
-
 import metaconfig.ConfigReader
 
 @ConfigReader
 case class ProjectFiles(
     git: Boolean = false,
     files: Seq[String] = Nil,
-    includeFilters: Seq[String] = Seq(".*"),
+    includeFilters: Seq[String] = Seq(".*\\.scala", ".*\\.sbt"),
     excludeFilters: Seq[String] = Nil
-)
+) {
+  lazy val matcher: FilterMatcher =
+    FilterMatcher(includeFilters, excludeFilters)
+}

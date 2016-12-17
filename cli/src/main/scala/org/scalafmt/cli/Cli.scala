@@ -19,7 +19,9 @@ import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.LogLevel
 import com.martiansoftware.nailgun.NGContext
+import org.scalafmt.config.FilterMatcher
 import org.scalafmt.util.AbsoluteFile
+import org.scalafmt.util.logger
 
 object Cli {
   def nailMain(nGContext: NGContext): Unit = {
@@ -77,13 +79,6 @@ object Cli {
     CliArgParser.scoptParser.parse(args, init).map(CliOptions.auto(init))
   }
 
-  private def mkRegexp(filters: Seq[String]): Regex =
-    filters match {
-      case Nil => "$a".r // will never match anything
-      case head :: Nil => head.r
-      case _ => filters.mkString("(", "|", ")").r
-    }
-
   def canFormat(path: AbsoluteFile): Boolean =
     canFormat(path.path)
 
@@ -102,22 +97,20 @@ object Cli {
 
   /** Returns file paths defined via options.{customFiles,customExclude} */
   def getFilesFromCliOptions(options: CliOptions): Seq[AbsoluteFile] = {
-    val exclude = mkRegexp(options.customExcludes)
+    val exclude = FilterMatcher.mkRegexp(options.customExcludes)
     expandCustomFiles(options.common.workingDirectory, options.customFiles)
       .filter(x => exclude.findFirstIn(x.path).isEmpty)
+  }
+
+  private def getFilesFromDiff(options: CliOptions): Seq[AbsoluteFile] = {
+    val branch = options.diff.get
+    options.gitOps.diff(branch).filter(options.config.project.matcher.matches)
   }
 
   /** Returns file paths defined via options.project */
   private def getFilesFromProject(options: CliOptions): Seq[AbsoluteFile] = {
     val project = options.config.project
-    val include = mkRegexp(project.includeFilters)
-    val exclude = mkRegexp(project.excludeFilters)
-
-    def matches(file: AbsoluteFile): Boolean = {
-      val path = file.path
-      include.findFirstIn(path).isDefined &&
-      exclude.findFirstIn(path).isEmpty
-    }
+    val matcher = project.matcher
     val projectFiles: Seq[AbsoluteFile] = (
       if (project.git) {
         options.gitOps.lsTree
@@ -130,7 +123,7 @@ object Cli {
         options.common.workingDirectory,
         AbsoluteFile.fromFiles(project.files.map(new File(_)),
                                options.common.workingDirectory))
-    (customFiles ++ projectFiles).filter(matches)
+    (customFiles ++ projectFiles).filter(matcher.matches)
   }
 
   private def getInputMethods(options: CliOptions): Seq[InputMethod] = {
@@ -139,6 +132,7 @@ object Cli {
     } else {
       val projectFiles: Seq[AbsoluteFile] =
         if (options.customFiles.nonEmpty) getFilesFromCliOptions(options)
+        else if (options.diff.isDefined) getFilesFromDiff(options)
         else getFilesFromProject(options)
       projectFiles.map(InputMethod.FileContents.apply)
     }

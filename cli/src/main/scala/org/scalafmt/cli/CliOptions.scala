@@ -33,7 +33,7 @@ object CliOptions {
     val style: Option[ScalafmtConfig] = if (init.config != parsed.config) {
       Option(parsed.config)
     } else {
-      tryGit(parsed).orElse(tryCurrentDirectory(parsed))
+      tryCurrentDirectory(parsed).orElse(tryGit(parsed))
     }
     val inplace =
       !parsed.testing && (
@@ -61,7 +61,6 @@ object CliOptions {
           case Left(e) => throw e
         }
       }
-      if parsedConfig.project.git
     } yield parsedConfig
   }
 
@@ -89,6 +88,7 @@ case class CliOptions(
     inPlace: Boolean = false,
     testing: Boolean = false,
     stdIn: Boolean = false,
+    diff: Option[String] = None,
     assumeFilename: String = "stdin.scala", // used when read from stdin
     migrate: Option[AbsoluteFile] = None,
     common: CommonOptions = CommonOptions(),

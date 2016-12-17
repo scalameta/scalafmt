@@ -2,9 +2,24 @@ build:
   image: olafurpg/scalafix:0.0.1
   commands:
     - export JVM_OPTS="-Xms4000m -Xmx55g -XX:MaxPermSize=2000m -Xss4m -XX:ReservedCodeCacheSize=1024m -XX:+TieredCompilation -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC"
-    - pip install --user codecov
-    - ./bin/testAll.sh
-    # I can't be bothered to hide this token.
-#    - $HOME/.local/bin/codecov -t 5f2117aa-0a01-4cf1-8bf7-631a62ccb47a
+    # configuring ivy.home doesn't seem to work. Maybe related:
+    #   https://github.com/sbt/sbt/issues/1894
+    # After 10+ experiments I've given up on trying to use sbt.ivy.yhome and
+    # copy the files myself instead, as recommended here:
+    #   http://readme.drone.io/usage/caching/
+    - test -d /drone/.sbt && cp -a /drone/.sbt /root
+    - rm -rf /drone/.sbt
 
+    - test -d /drone/.ivy2 && cp -a /drone/.ivy2 /root
+    - rm -rf /drone/.ivy2
+
+    - ./bin/testAll.sh
+
+    - cp -a /root/.ivy2 /drone
+    - cp -a /root/.sbt /drone
+cache:
+  mount:
+    - /drone/.sbt
+    - /drone/.ivy2
+    - /drone/cache
 

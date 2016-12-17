@@ -155,6 +155,64 @@
         org.scalafmt.cli.CliArgParser.buildInfo + "\n" +
         org.scalafmt.cli.CliArgParser.scoptParser.usage)
 
+  @sect{SBT}
+    @p
+      @note. If you rely on the SBT plugin, please consider becoming a maintainer!
+    @p
+      The sbt plugin is just a thin wrapper around the command line interface.
+
+    @hl.scala
+      addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "@org.scalafmt.Versions.stable")
+
+    @ul
+      @li
+        @lnk("Here is an example repository using sbt plugin.",
+             "https://github.com/olafurpg/sbt-scalafmt-example")
+      @li
+        Run @code("sbt scalafmt") to format all files in the project.
+        You can add pass any command line flags to @code{scalafmt}.
+        See @sect.ref{--help} for more details.
+        Example,
+        @hl.scala
+          sbt "scalafmt --help"
+          scalafmt x.y.z
+          Usage: ...
+      @li
+        There are three handy aliases for the @code{scalafmt} command.
+        @ul
+          @li
+            @code{scalafmtTest -> scalafmt --test}
+          @li
+            @code{scalafmtDiff -> scalafmt --diff}
+          @li
+            @code{scalafmtDiffTest -> scalafmt --diff --test}
+      @li
+        The plugin will automatically pick up your @sect.ref{Configuration} in
+        @code{.scalafmt.conf}.
+        @p
+          The configuration must be defined in .scalafmt.conf in the root directory
+          of your project. Why? Because integrations like IntelliJ rely on the
+          file existing there.
+        @p
+          If you want to define the configuration somehow differently, you can
+          use some trick like this in @code{build.sbt} or from within an
+          sbt plugin settings
+
+          @hl.scala
+            // define setting key to write configuration to .scalafmt.conf
+            SettingKey[Unit]("scalafmtGenerateConfig") :=
+              IO.write( // writes to file once when build is loaded
+                file(".scalafmt.conf"),
+                """style = IntelliJ
+                  |# Your configuration here
+                  """.stripMargin.getBytes("UTF-8")
+              )
+      @p
+        There is no setting to reformat on compile, please consider contributing it
+        if you would like to use that feature!
+        Until then, I encourage you to find another way to incorporate scalafmt
+        into your workflow.
+
   @sect{Vim}
     @ul
       @li

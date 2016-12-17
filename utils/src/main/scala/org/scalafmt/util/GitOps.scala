@@ -2,10 +2,12 @@ package org.scalafmt.util
 
 import scala.sys.process.ProcessLogger
 import scala.util.Try
+import scala.util.control.NonFatal
 
 import java.io.File
 
 trait GitOps {
+  def diff(branch: String): Seq[AbsoluteFile]
   def lsTree: Seq[AbsoluteFile]
   def rootDir: Option[AbsoluteFile]
 }
@@ -15,20 +17,29 @@ object GitOps {
 }
 
 class GitOpsImpl(workingDirectory: AbsoluteFile) extends GitOps {
-  val swallowStderr = ProcessLogger(_ => Unit, _ => Unit)
-  val baseCommand = Seq("git")
 
   def exec(cmd: Seq[String]): String = {
-    sys.process
-      .Process(cmd, workingDirectory.jfile)
-      .!!(swallowStderr)
-      .trim
+    val lastError = new StringBuilder
+    val swallowStderr = ProcessLogger(_ => Unit, err => lastError.append(err))
+    try {
+      sys.process
+        .Process(cmd, workingDirectory.jfile)
+        .!!(swallowStderr)
+        .trim
+    } catch {
+      case NonFatal(e) =>
+        throw new IllegalStateException(
+          s"Failed to run command ${cmd.mkString(" ")}. " +
+            s"Error: ${lastError.toString()}",
+          e)
+    }
   }
 
   override def lsTree: Seq[AbsoluteFile] =
     Try {
       exec(
-        baseCommand ++ Seq(
+        Seq(
+          "git",
           "ls-tree",
           "-r",
           "HEAD",
@@ -41,9 +52,26 @@ class GitOpsImpl(workingDirectory: AbsoluteFile) extends GitOps {
 
   override def rootDir: Option[AbsoluteFile] =
     Try {
-      val cmd = baseCommand ++ Seq("rev-parse", "--show-toplevel")
+      val cmd = Seq(
+        "git",
+        "rev-parse",
+        "--show-toplevel"
+      )
       val result = AbsoluteFile.fromFile(new File(exec(cmd)), workingDirectory)
       require(result.jfile.isDirectory)
       result
     }.toOption
+
+  override def diff(branch: String): Seq[AbsoluteFile] = {
+    exec(
+      Seq(
+        "git",
+        "diff",
+        "--name-only",
+        "HEAD",
+        branch
+      )).lines.map { x =>
+      AbsoluteFile.fromFile(new File(x), workingDirectory)
+    }.toSeq
+  }
 }

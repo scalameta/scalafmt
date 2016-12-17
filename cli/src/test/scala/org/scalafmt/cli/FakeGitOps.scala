@@ -10,4 +10,5 @@ import org.scalafmt.util.logger
 class FakeGitOps(root: AbsoluteFile) extends GitOps {
   override def lsTree: Vector[AbsoluteFile] = FileOps.listFiles(root)
   override def rootDir: Option[AbsoluteFile] = Some(root)
+  override def diff(branch: String): Seq[AbsoluteFile] = lsTree
 }

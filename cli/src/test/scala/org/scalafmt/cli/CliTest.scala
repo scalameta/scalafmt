@@ -261,13 +261,15 @@ class CliTest extends FunSuite with DiffAssertions {
          |object A   { }
          |""".stripMargin
 
-    val init: CliOptions = getMockOptions(input)
-    val config = Cli.getConfig(Array.empty[String], init).get
-    Cli.run(config)
-    val obtained = dir2string(input)
-    assertNoDiff(obtained, expected)
-    val configTest = Cli.getConfig(Array("--test"), init).get
-    Cli.run(configTest)
+    Seq(Array.empty[String], Array("--diff")).foreach { args =>
+      val init: CliOptions = getMockOptions(input)
+      val config = Cli.getConfig(args, init).get
+      Cli.run(config)
+      val obtained = dir2string(input)
+      assertNoDiff(obtained, expected)
+      val configTest = Cli.getConfig(Array("--test"), init).get
+      Cli.run(configTest)
+    }
   }
 
   test("config is read even from nested dir") {
