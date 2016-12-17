@@ -271,3 +271,22 @@ object a {
       computeOrReadCheckpoint(partition, context)
     })
 }
+<<< #599
+{{
+ logger
+      .elem(threp1, threp2, threp3, tax.total.value, tax.usedPersonalDiscount)
+}}
+>>>
+{
+  {
+    logger.elem(threp1,
+                threp2,
+                threp3,
+                tax.total.value,
+                tax.usedPersonalDiscount)
+  }
+}
+<<< No args #599
+  keys.clear() // we need to remove the selected keys from the set, otherwise they remain selected
+>>>
+keys.clear() // we need to remove the selected keys from the set, otherwise they remain selected
