@@ -1,5 +1,5 @@
 style = IntelliJ
-newlines.neverInDanglingParenthesesSingleLineArgList = true
+optIn.configStyleArguments = true
 <<< single arg with curly
   println(
     for (x <- Nil) yield {
@@ -39,4 +39,14 @@ println(
     2
   },
   234
+)
+<<< #593 stay on line
+foo(  1)
+>>>
+foo(1)
+<<< #593 break line
+foo("12345678901234567890123456789012345678901234567890123456789012345678901234567890")
+>>>
+foo(
+  "12345678901234567890123456789012345678901234567890123456789012345678901234567890"
 )

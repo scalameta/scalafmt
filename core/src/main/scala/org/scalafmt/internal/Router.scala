@@ -576,9 +576,7 @@ class Router(formatOps: FormatOps) {
 
         val tooManyArguments = args.length > 100
 
-        val isDangling =
-          !style.configStyleArguments && style.danglingParentheses
-        val newlinePolicy: Policy = if (isDangling) {
+        val newlinePolicy: Policy = if (style.danglingParentheses) {
           val breakOnClosing = Policy({
             case d @ Decision(FormatToken(_, `close`, _), s) =>
               d.onlyNewlines
@@ -589,10 +587,8 @@ class Router(formatOps: FormatOps) {
         }
 
         val noSplitPolicy =
-          if (isDangling) {
-            if (style.newlines.neverInDanglingParenthesesSingleLineArgList)
-              SingleLineBlock(close)
-            else SingleLineBlock(close, exclude = excludeRanges)
+          if (style.danglingParentheses) {
+            SingleLineBlock(close, exclude = excludeRanges)
           } else singleLine(10)
 
         val noSplitIndent =

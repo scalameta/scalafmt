@@ -3,19 +3,6 @@ package org.scalafmt.config
 import metaconfig.ConfigReader
 
 /**
-  * @param neverInDanglingParenthesesSingleLineArgList
-  *   See https://github.com/olafurpg/scalafmt/issues/593
-  *   If false,
-  *   function(new Actor {
-  *       def foo = 2
-  *   })
-  *   If true,
-  *   function(
-  *     new Actor {
-  *       def foo = 2
-  *     }
-  *   )
-  *
   * @param penalizeSingleSelectMultiArgList
   *   If true, adds a penalty to newlines before a dot starting a select
   *   chain of length one and argument list. The penalty matches the number
@@ -39,7 +26,6 @@ import metaconfig.ConfigReader
   */
 @ConfigReader
 case class Newlines(
-    neverInDanglingParenthesesSingleLineArgList: Boolean = false,
     neverInResultType: Boolean = false,
     neverBeforeJsNative: Boolean = false,
     sometimesBeforeColonInMethodReturnType: Boolean = true,
