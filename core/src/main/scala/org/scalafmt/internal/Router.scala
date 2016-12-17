@@ -863,12 +863,26 @@ class Router(formatOps: FormatOps) {
         val newlinePolicy = breakOnEveryDot
           .andThen(penalizeNewlinesInApply.f)
           .copy(expire = lastToken.end)
+        val ignoreNoSplit = style.breakChainOnFirstMethodDot && newlines > 0
+        val chainLengthPenalty =
+          if (!style.bestEffortInDeeplyNestedCode && // breaks tests.
+              style.newlines.penalizeSingleSelectMultiArgList &&
+              chain.length < 2) {
+            // penalize by the number of arguments in the rhs open apply.
+            // I know, it's a bit arbitrary, but my manual experiments seem
+            // to show that it produces OK output. The key insight is that
+            // many arguments on the same line can be hard to read. By not
+            // putting a newline before the dot, we force the argument list
+            // to break into multiple lines.
+            splitApplyIntoLhsAndArgsLifted(owners(next(next(tok)).right)).map {
+              case (_, lst) => Math.max(0, lst.length - 1)
+            }.getOrElse(0)
+          } else 0
         Seq(
-          Split(NoSplit,
-                0,
-                ignoreIf = style.breakChainOnFirstMethodDot && newlines > 0)
+          Split(NoSplit, 0, ignoreIf = ignoreNoSplit)
             .withPolicy(noSplitPolicy),
-          Split(Newline.copy(acceptNoSplit = true), 2 + nestedPenalty)
+          Split(Newline.copy(acceptNoSplit = true),
+                2 + nestedPenalty + chainLengthPenalty)
             .withPolicy(newlinePolicy)
             .withIndent(2, optimalToken, Left)
         )
