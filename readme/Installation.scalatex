@@ -155,21 +155,17 @@
         org.scalafmt.cli.CliArgParser.buildInfo + "\n" +
         org.scalafmt.cli.CliArgParser.scoptParser.usage)
 
-  @sect{SBT}
-    @p
-      @note. If you rely on the SBT plugin, please consider becoming a maintainer!
+  @sect{sbt}
     @p
       The sbt plugin is just a thin wrapper around the command line interface.
 
     @hl.scala
+      // NOTE. Requires sbt 0.13.13
       addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "@org.scalafmt.Versions.stable")
 
     @ul
       @li
-        @lnk("Here is an example repository using sbt plugin.",
-             "https://github.com/olafurpg/sbt-scalafmt-example")
-      @li
-        Run @code("sbt scalafmt") to format all files in the project.
+        Run @code{sbt scalafmt} to format all files in the project.
         You can add pass any command line flags to @code{scalafmt}.
         See @sect.ref{--help} for more details.
         Example,

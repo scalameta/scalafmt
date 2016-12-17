@@ -186,7 +186,7 @@ case class ScalafmtConfig(
     @metaconfig.ExtraName("binPackImportSelectors") importSelectors: ImportSelectors =
       ImportSelectors.noBinPack,
     unindentTopLevelOperators: Boolean = false,
-    includeCurlyBraceInSelectChains: Boolean = false,
+    includeCurlyBraceInSelectChains: Boolean = true,
     assumeStandardLibraryStripMargin: Boolean = false,
     danglingParentheses: Boolean = false,
     poorMansTrailingCommasInConfigStyle: Boolean = false,

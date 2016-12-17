@@ -1,0 +1,64 @@
+@import Main._
+@import org.scalafmt.readme.Readme._
+@import org.scalafmt.config.ScalafmtConfig
+
+@sect{0.5.0}
+  @ul
+    @li
+      The sbt plugin has been re-implemented as a tiny wrapper around
+      the command line interface.
+      See @sect.ref{sbt} for more details.
+      Breaking changes are
+      @ul
+        @li
+          sbt 0.13.13 is required
+        @li
+          no more configuration via sbt, everything is written to
+          @code{.scalafmt.conf} in the root directory of your repo.
+          In particular, see @sect.ref{project} on how to define which
+          files should be formatted.
+          @cliFlags{project.excludeFilters = ["target/"]} should be enough for
+          most cases.
+          See @sect.ref{sbt} for a tip/workaround on how you can still define
+          configuration via sbt.
+        @li
+          no more @code{reformatOnCompileSettings}, please consider contributing
+          this feature if you miss it AND you are interested in helping
+          maintain the feature.
+    @li
+      Changes to the default style
+      @ul
+        @li
+          @cliFlags{optIn.breakChainOnFirstMethodDot = true} now.
+          Thank you @user{stefanobaghino} for contributing this flag!
+        @li
+          @cliFlags{includeCurlyBraceInSelectChains = true} now. See
+          @lnk("this comment", "https://github.com/olafurpg/scalafmt/issues/444#issuecomment-255215698")
+          for motivation.
+          Thank you @user{rcavalcanti} for suggesting this flag!
+          Also, thank you @user{johnynek} for long disussions in @issue(444)
+          on polishing select chains.
+        @li
+          @cliFlags{newlines.penalizeSingleSelectMultiArgList = true} now. See
+          @lnk("this comment", "https://github.com/olafurpg/scalafmt/pull/611#issue-196230948")
+          for motivation.
+      @note. All of these changes are opt-out if you change the option values.
+      However, I recommend you try to stick to the base styles as much as possible.
+      Any flags outside the base styles may be removed in future releases.
+    @li
+      New @code{--diff} flag to @sect.ref{CLI} to only format files in the git
+      diff against master branch. See @sect.ref{--help} for more details.
+    @li
+      New @code{--diff-branch <branch-name>} flag to @sect.ref{CLI} to only
+      format files in the git diff against branch @code{<branch-name>}.
+    @li
+      The following combination of flags now works together
+      @cliFlags
+        style = IntelliJ
+        optIn.configStyleArguments = true
+      meaning you can force line breaks. See @issue(593) for more details.
+      Thanks @user{lihaoyi} for the discussion/suggestion.
+    @li
+      New flag @cliFlags{indentYieldKeyword = true}. See @issue(592)
+      for motivation. Thanks @user{lihaoyi} for the suggestion.
+
