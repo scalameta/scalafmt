@@ -1,5 +1,6 @@
 package org.scalafmt.util
 
+import scala.collection.immutable.Seq
 import scala.meta.internal.classifiers.classifier
 import scala.meta._
 

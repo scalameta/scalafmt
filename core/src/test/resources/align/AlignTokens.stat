@@ -361,15 +361,15 @@ Ok(
 }
 <<< mixed object/class/trait
 object mixed {
-final trait False extends Val
-final case object False extends Val
-  final case class Zero(zeroty: nir.Type)                     extends Val
+protected trait False extends Val
+protected case object False extends Val
+  protected case class Zero(zeroty: nir.Type)                     extends Val
 }
 >>>
 object mixed {
-  final trait False                       extends Val
-  final case object False                 extends Val
-  final case class Zero(zeroty: nir.Type) extends Val
+  protected trait False                       extends Val
+  protected case object False                 extends Val
+  protected case class Zero(zeroty: nir.Type) extends Val
 }
 <<< #513
 {

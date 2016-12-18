@@ -31,6 +31,17 @@ object TreeOps {
   import LoggerOps._
   import TokenOps._
 
+  @tailrec
+  def topTypeWith(typeWith: Type.With): Type.With = typeWith.parent match {
+    case Some(t: Type.With) => topTypeWith(t)
+    case _ => typeWith
+  }
+
+  def withChain(top: Tree): Seq[Type.With] = top match {
+    case t: Type.With => t +: withChain(t.lhs)
+    case _ => Nil
+  }
+
   def getEnumStatements(enums: Seq[Enumerator]): Seq[Enumerator] = {
     val ret = Seq.newBuilder[Enumerator]
     enums.zipWithIndex.foreach {
@@ -54,7 +65,7 @@ object TreeOps {
     case t: Term.Match => t.cases
     case t: Term.PartialFunction => t.cases
     case t: Term.TryWithCases => t.catchp
-    case t: Type.Compound => t.refinement
+    case t: Type.Refine => t.stats
     case t: scala.meta.Source => t.stats
     case t: Template if t.stats.isDefined => t.stats.get
     case t: Case if t.body.tokens.nonEmpty => Seq(t.body)
@@ -279,13 +290,13 @@ object TreeOps {
     case t: Term.Apply => t.fun -> t.args
     case t: Term.Super => t -> Seq(t.superp)
     case t: Pat.Extract => t.ref -> t.args
-    case t: Pat.Tuple => t -> t.elements
+    case t: Pat.Tuple => t -> t.args
     case t: Pat.Type.Apply => t.tpe -> t.args
     case t: Term.ApplyType => t.fun -> t.targs
     case t: Term.Update => t.fun -> t.argss.flatten
-    case t: Term.Tuple => t -> t.elements
+    case t: Term.Tuple => t -> t.args
     case t: Term.Function => t -> t.params
-    case t: Type.Tuple => t -> t.elements
+    case t: Type.Tuple => t -> t.args
     case t: Type.Apply => t.tpe -> t.args
     case t: Type.Param => t.name -> t.tparams
     case t: Decl.Type => t.name -> t.tparams
@@ -424,7 +435,7 @@ object TreeOps {
     owner.parent.exists {
       case infix: Type.ApplyInfix => infix.op == owner
       case infix: Term.ApplyInfix => infix.op == owner
-      case infix: Pat.ExtractInfix => infix.ref == owner
+      case infix: Pat.ExtractInfix => infix.op == owner
       case _ => false
     }
 
