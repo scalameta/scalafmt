@@ -82,7 +82,13 @@ trait Settings {
   }.map { case (k, v) => k.toLowerCase -> v }
 
   // TODO(olafur) move these elsewhere.
-  val testing = default.copy(assumeStandardLibraryStripMargin = false)
+  val testing = default.copy(
+    assumeStandardLibraryStripMargin = false,
+    includeCurlyBraceInSelectChains = false,
+    optIn = default.optIn.copy(
+      breakChainOnFirstMethodDot = false
+    )
+  )
   val unitTest80 = testing.copy(
     maxColumn = 80,
     continuationIndent = ContinuationIndent(4, 4)
