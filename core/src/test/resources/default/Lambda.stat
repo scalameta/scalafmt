@@ -139,3 +139,26 @@ rule {
         DIGIT) ~ OWS
   }
 }
+<<< SKIP y u break line? Answer: Because optimizer.recurseOnBlocks
+{
+  def foo =
+    T({ a =>
+      valueSort.map {
+        vs =>
+          vs match {
+            case ordser: OrderedSerialization[V1] =>
+              Grouped.getBoxFnAndOrder[V1](ordser, fd)
+              val valueF = new Fields("value")
+              val ts2 = tupleSetter
+                .asInstanceOf[TupleSetter[(K, Boxed[V1])]]
+                .contraMap { kv1: (K, V1) =>
+                  (kv1._1, boxfn(kv1._2))
+                }
+              (Some(valueF), ts2)
+          }
+      }
+    })
+}
+>>>
+{
+}

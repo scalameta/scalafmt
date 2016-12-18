@@ -23,12 +23,14 @@ import org.scalafmt.internal.ExpiresOn.Right
 import org.scalafmt.internal.Length.Num
 import org.scalafmt.internal.Length.StateColumn
 import org.scalafmt.internal.Policy.NoPolicy
+import org.scalafmt.util.`:parent:`
 import org.scalafmt.util.Delim
 import org.scalafmt.util.InfixApplication
 import org.scalafmt.util.Keyword
 import org.scalafmt.util.Literal
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.Modifier
+import org.scalafmt.util.SelfAnnotation
 import org.scalafmt.util.SomeInterpolate
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
@@ -769,7 +771,7 @@ class Router(formatOps: FormatOps) {
         val rhs: Tree = leftOwner match {
           case l: Term.Assign => l.rhs
           case l: Term.Update => l.rhs
-          case l: Term.Arg.Named => l.rhs
+          case l: Term.Arg.Named => l.expr
           case l: Term.Param => l.default.get
           case l: Defn.Type => l.body
           case l: Defn.Val => l.rhs
@@ -918,7 +920,7 @@ class Router(formatOps: FormatOps) {
           .flatMap(templateCurly)
           .orElse(template.map(_.tokens.last))
           .getOrElse(rightOwner.tokens.last)
-        binPackParentConstructorSplits(template, lastToken, 4)
+        binPackParentConstructorSplits(template.toSet, lastToken, 4)
       case tok @ FormatToken(_, right @ KwWith(), _) =>
         rightOwner match {
           case template: Template =>
@@ -941,25 +943,14 @@ class Router(formatOps: FormatOps) {
               Split(Space, 0),
               Split(Newline, 1).withPolicy(policy)
             )
-          case t: Type.Compound =>
-            val selfAnnotation = for {
-              parent <- t.parent
-              // self annotations are Term.Param
-              if parent.is[Term.Param]
-              grandParent <- parent.parent
-            } yield grandParent
-            selfAnnotation match {
-              case Some(annot: Template) =>
-                val isFirstWith =
-                  t.tokens.find(_.is[KwWith]) == Option(right)
-                val lastToken = annot.self.tokens.last
-                if (isFirstWith) {
-                  binPackParentConstructorSplits(Some(t), lastToken, 2)
-                } else {
-                  Seq(Split(Space, 0), Split(Newline, 1))
-                }
-              case _ =>
-                Seq(Split(Space, 0))
+          case t @ SelfAnnotation(top) =>
+            val isFirstWith = !t.lhs.is[Type.With]
+            if (isFirstWith) {
+              val chain = withChain(top)
+              val lastToken = top.tokens.last
+              binPackParentConstructorSplits(chain.toSet, lastToken, 2)
+            } else {
+              Seq(Split(Space, 0), Split(Newline, 1))
             }
           case _ =>
             Seq(Split(Space, 0))

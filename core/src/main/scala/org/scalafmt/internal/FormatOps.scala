@@ -28,6 +28,7 @@ import org.scalafmt.util.StyleMap
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
 import org.scalafmt.util.Whitespace
+import org.scalafmt.util.logger
 
 /**
   * Helper functions for generating splits/policies for a given tree.
@@ -448,7 +449,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
               val x = true
               x
             // Type compounds can be inside defn.defs
-            case (LeftBrace(), _: Type.Compound) => true
+            case (LeftBrace(), Type.Refine(_, _)) => true
             case _ => false
           }) =>
         inside = true
@@ -522,27 +523,27 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     nonWhitespaceOffset(right) - nonWhitespaceOffset(left)
   }
 
-  def breakOnEveryWith(owner: Option[Tree], lastToken: Token) = {
+  def ctorWithChain(owners: Set[Tree], lastToken: Token): Policy = {
     if (styleMap.at(leftTok2tok(lastToken)).binPackParentConstructors) NoPolicy
     else {
       Policy({
         case Decision(t @ FormatToken(_, right @ KwWith(), _), splits)
-            if owner == ownersMap.get(hash(right)) =>
+            if owners.contains(ownersMap(hash(right))) =>
           Decision(t, splits.filter(_.modification.isNewline))
       }, lastToken.end)
     }
   }
 
   def binPackParentConstructorSplits(
-      owner: Option[Tree],
+      owners: Set[Tree],
       lastToken: Token,
-      indent: Int)(implicit line: sourcecode.Line) = {
+      indent: Int)(implicit line: sourcecode.Line): Seq[Split] = {
     Seq(
       Split(Space, 0)
         .withPolicy(SingleLineBlock(lastToken))
         .withIndent(Num(indent), lastToken, Left),
       Split(NewlineT(acceptSpace = true), 1)
-        .withPolicy(breakOnEveryWith(owner, lastToken))
+        .withPolicy(ctorWithChain(owners, lastToken))
         .withIndent(Num(indent), lastToken, Left)
     )
   }
