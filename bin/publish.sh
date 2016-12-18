@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-version=$(sed -n -e 's/.*val nightly = "\(.*\)"/\1/p' core/target/scala-2.11/src_managed/main/sbt-buildinfo/Versions.scala)
+version=$(sed -n -e 's/.*version := "\(.*\)",/\1/p' build.sbt)
 tag="v${version}"
 tarfile="cli/target/scalafmt.tar.gz"
 current_branch=$(git rev-parse --abbrev-ref HEAD)
