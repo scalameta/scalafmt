@@ -85,6 +85,9 @@ trait Settings {
   val testing = default.copy(
     assumeStandardLibraryStripMargin = false,
     includeCurlyBraceInSelectChains = false,
+    align = default.align.copy(
+      openParenCallSite = true
+    ),
     optIn = default.optIn.copy(
       breakChainOnFirstMethodDot = false
     )
