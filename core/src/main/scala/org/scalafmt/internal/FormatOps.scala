@@ -10,6 +10,7 @@ import scala.meta.Pat
 import scala.meta.Pkg
 import scala.meta.Template
 import scala.meta.Term
+import scala.meta.Term.Apply
 import scala.meta.Tree
 import scala.meta.Type
 import scala.meta.dialects.Scala211
@@ -19,7 +20,6 @@ import scala.meta.tokens.Token._
 import scala.meta.tokens.Tokens
 
 import org.scalafmt.Error.CaseMissingArrow
-import org.scalafmt.config.ScalafmtRunner
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.ExpiresOn.Left
 import org.scalafmt.internal.Length.Num
@@ -45,6 +45,24 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   val matchingParentheses = getMatchingParentheses(tree.tokens)
   val styleMap = new StyleMap(tokens, initStyle)
   private val vAlignDepthCache = mutable.Map.empty[Tree, Int]
+  // Maps token to number of non-whitespace bytes before the token's position.
+  private final val nonWhitespaceOffset: Map[Token, Int] = {
+    val resultB = Map.newBuilder[Token, Int]
+    var curr = 0
+    tree.tokens.foreach {
+      case t =>
+        resultB += (t -> curr)
+        if (!t.is[Whitespace]) {
+          curr += (t.end - t.start)
+        }
+
+    }
+    resultB.result()
+  }
+
+  val (forceConfigStyle, emptyQueueSpots) = getForceConfigStyle
+
+  @inline def matching(token: Token): Token = matchingParentheses(hash(token))
 
   @inline
   def owners(token: Token): Tree = ownersMap(hash(token))
@@ -80,6 +98,11 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     }
     iter(tree)
     (packages.result(), imports.result(), b.toMap)
+  }
+
+  object `:owner:` {
+    def unapply(tok: Token): Option[(Token, Tree)] =
+      ownersMap.get(hash(tok)).map(tree => tok -> tree)
   }
 
   lazy val leftTok2tok: Map[Token, FormatToken] = {
@@ -504,21 +527,6 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     }
   }
 
-  // Maps token to number of non-whitespace bytes before the token's position.
-  private final val nonWhitespaceOffset: Map[Token, Int] = {
-    val resultB = Map.newBuilder[Token, Int]
-    var curr = 0
-    tree.tokens.foreach {
-      case t =>
-        resultB += (t -> curr)
-        if (!t.is[Whitespace]) {
-          curr += (t.end - t.start)
-        }
-
-    }
-    resultB.result()
-  }
-
   def distance(left: Token, right: Token): Int = {
     nonWhitespaceOffset(right) - nonWhitespaceOffset(left)
   }
@@ -570,4 +578,27 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       case None => count
     }
   }
+
+  def getForceConfigStyle: (Set[Tree], Set[TokenHash]) = {
+    val maxDistance = runner.optimizer.forceConfigStyleOnOffset
+    if (maxDistance < 0 ||
+        initStyle.bestEffortInDeeplyNestedCode) // breaks test
+      (Set.empty, Set.empty)
+    else {
+      val clearQueues = Set.newBuilder[TokenHash]
+      val forces = Set.newBuilder[Tree]
+      tree.tokens.foreach {
+        case left @ LeftParen() `:owner:` (app: Term.Apply)
+            if app.args.length > runner.optimizer.forceConfigStyleOnArgCount &&
+              distance(left, matching(left)) > maxDistance =>
+          forces += app
+          app.args.foreach { arg =>
+            clearQueues += hash(arg.tokens.head)
+          }
+        case _ =>
+      }
+      (forces.result(), clearQueues.result())
+    }
+  }
+
 }

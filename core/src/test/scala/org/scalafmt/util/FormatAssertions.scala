@@ -11,13 +11,13 @@ import org.scalafmt.Error.FormatterOutputDoesNotParse
 import org.scalatest.FunSuiteLike
 
 trait FormatAssertions extends FunSuiteLike with DiffAssertions {
-  import LoggerOps._
 
   def assertFormatPreservesAst[T <: Tree](original: String, obtained: String)(
       implicit ev: Parse[T]): Unit = {
     import scala.meta._
     original.parse[T] match {
       case Parsed.Error(pos, message, details) =>
+        logger.warn(original)
         logger.warn(s"original does not parse $message")
       case Parsed.Success(originalParsed) =>
         obtained.parse[T] match {

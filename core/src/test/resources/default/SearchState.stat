@@ -1,0 +1,455 @@
+80 columns                                                                     |
+<<< spark
+{
+  {
+    val options = List[OptionAssigner]( // All cluster managers
+        OptionAssigner(args.master,
+                       ALL_CLUSTER_MGRS,
+                       ALL_DEPLOY_MODES,
+                       sysProp = "spark.master"),
+        OptionAssigner(args.deployMode,
+                       ALL_CLUSTER_MGRS,
+                       ALL_DEPLOY_MODES,
+                       sysProp = "spark.submit.deployMode"),
+        OptionAssigner(args.name,
+                       ALL_CLUSTER_MGRS,
+                       ALL_DEPLOY_MODES,
+                       sysProp = "spark.app.name"),
+        OptionAssigner(args.jars,
+                       ALL_CLUSTER_MGRS,
+                       CLIENT,
+                       sysProp = "spark.jars"),
+        OptionAssigner(args.ivyRepoPath,
+                       ALL_CLUSTER_MGRS,
+                       CLIENT,
+                       sysProp = "spark.jars.ivy"),
+        OptionAssigner(args.driverMemory,
+                       ALL_CLUSTER_MGRS,
+                       CLIENT,
+                       sysProp = "spark.driver.memory"),
+        OptionAssigner(args.driverExtraClassPath,
+                       ALL_CLUSTER_MGRS,
+                       ALL_DEPLOY_MODES,
+                       sysProp = "spark.driver.extraClassPath"),
+        OptionAssigner(args.driverExtraJavaOptions,
+                       ALL_CLUSTER_MGRS,
+                       ALL_DEPLOY_MODES,
+                       sysProp = "spark.driver.extraJavaOptions"),
+        OptionAssigner(args.driverExtraLibraryPath,
+                       ALL_CLUSTER_MGRS,
+                       ALL_DEPLOY_MODES,
+                       sysProp = "spark.driver.extraLibraryPath"),
+        // Yarn client only
+        OptionAssigner(args.queue, YARN, CLIENT, sysProp = "spark.yarn.queue"),
+        OptionAssigner(args.numExecutors,
+                       YARN,
+                       ALL_DEPLOY_MODES,
+                       sysProp = "spark.executor.instances"),
+        OptionAssigner(args.files,
+                       YARN,
+                       CLIENT,
+                       sysProp = "spark.yarn.dist.files"),
+        OptionAssigner(args.archives,
+                       YARN,
+                       CLIENT,
+                       sysProp = "spark.yarn.dist.archives"),
+        OptionAssigner(args.principal,
+                       YARN,
+                       CLIENT,
+                       sysProp = "spark.yarn.principal"),
+        OptionAssigner(args.keytab,
+                       YARN,
+                       CLIENT,
+                       sysProp = "spark.yarn.keytab"),
+        // Yarn cluster only
+        OptionAssigner(args.name, YARN, CLUSTER, clOption = "--name"),
+        OptionAssigner(args.driverMemory,
+                       YARN,
+                       CLUSTER,
+                       clOption = "--driver-memory"),
+        OptionAssigner(args.driverCores,
+                       YARN,
+                       CLUSTER,
+                       clOption = "--driver-cores"),
+        OptionAssigner(args.queue, YARN, CLUSTER, clOption = "--queue"),
+        OptionAssigner(args.executorMemory,
+                       YARN,
+                       CLUSTER,
+                       clOption = "--executor-memory"),
+        OptionAssigner(args.executorCores,
+                       YARN,
+                       CLUSTER,
+                       clOption = "--executor-cores"),
+        OptionAssigner(args.files, YARN, CLUSTER, clOption = "--files"),
+        OptionAssigner(args.archives, YARN, CLUSTER, clOption = "--archives"),
+        OptionAssigner(args.jars, YARN, CLUSTER, clOption = "--addJars"),
+        OptionAssigner(args.principal,
+                       YARN,
+                       CLUSTER,
+                       clOption = "--principal"),
+        OptionAssigner(args.keytab, YARN, CLUSTER, clOption = "--keytab"),
+        // Other options
+        OptionAssigner(args.executorCores,
+                       STANDALONE | YARN,
+                       ALL_DEPLOY_MODES,
+                       sysProp = "spark.executor.cores"),
+        OptionAssigner(args.executorMemory,
+                       STANDALONE | MESOS | YARN,
+                       ALL_DEPLOY_MODES,
+                       sysProp = "spark.executor.memory"),
+        OptionAssigner(args.totalExecutorCores,
+                       STANDALONE | MESOS,
+                       ALL_DEPLOY_MODES,
+                       sysProp = "spark.cores.max"),
+        OptionAssigner(args.files,
+                       LOCAL | STANDALONE | MESOS,
+                       ALL_DEPLOY_MODES,
+                       sysProp = "spark.files"),
+        OptionAssigner(args.jars,
+                       STANDALONE | MESOS,
+                       CLUSTER,
+                       sysProp = "spark.jars"),
+        OptionAssigner(args.driverMemory,
+                       STANDALONE | MESOS,
+                       CLUSTER,
+                       sysProp = "spark.driver.memory"),
+        OptionAssigner(args.driverCores,
+                       STANDALONE | MESOS,
+                       CLUSTER,
+                       sysProp = "spark.driver.cores"),
+        OptionAssigner(args.supervise.toString,
+                       STANDALONE | MESOS,
+                       CLUSTER,
+                       sysProp = "spark.driver.supervise"),
+        OptionAssigner(args.ivyRepoPath,
+                       STANDALONE,
+                       CLUSTER,
+                       sysProp = "spark.jars.ivy")
+    ) } }
+>>>
+{
+  {
+    val options = List[OptionAssigner]( // All cluster managers
+        OptionAssigner(args.master,
+                       ALL_CLUSTER_MGRS,
+                       ALL_DEPLOY_MODES,
+                       sysProp = "spark.master"),
+        OptionAssigner(args.deployMode,
+                       ALL_CLUSTER_MGRS,
+                       ALL_DEPLOY_MODES,
+                       sysProp = "spark.submit.deployMode"),
+        OptionAssigner(args.name,
+                       ALL_CLUSTER_MGRS,
+                       ALL_DEPLOY_MODES,
+                       sysProp = "spark.app.name"),
+        OptionAssigner(args.jars,
+                       ALL_CLUSTER_MGRS,
+                       CLIENT,
+                       sysProp = "spark.jars"),
+        OptionAssigner(args.ivyRepoPath,
+                       ALL_CLUSTER_MGRS,
+                       CLIENT,
+                       sysProp = "spark.jars.ivy"),
+        OptionAssigner(args.driverMemory,
+                       ALL_CLUSTER_MGRS,
+                       CLIENT,
+                       sysProp = "spark.driver.memory"),
+        OptionAssigner(args.driverExtraClassPath,
+                       ALL_CLUSTER_MGRS,
+                       ALL_DEPLOY_MODES,
+                       sysProp = "spark.driver.extraClassPath"),
+        OptionAssigner(args.driverExtraJavaOptions,
+                       ALL_CLUSTER_MGRS,
+                       ALL_DEPLOY_MODES,
+                       sysProp = "spark.driver.extraJavaOptions"),
+        OptionAssigner(args.driverExtraLibraryPath,
+                       ALL_CLUSTER_MGRS,
+                       ALL_DEPLOY_MODES,
+                       sysProp = "spark.driver.extraLibraryPath"),
+        // Yarn client only
+        OptionAssigner(args.queue, YARN, CLIENT, sysProp = "spark.yarn.queue"),
+        OptionAssigner(args.numExecutors,
+                       YARN,
+                       ALL_DEPLOY_MODES,
+                       sysProp = "spark.executor.instances"),
+        OptionAssigner(args.files,
+                       YARN,
+                       CLIENT,
+                       sysProp = "spark.yarn.dist.files"),
+        OptionAssigner(args.archives,
+                       YARN,
+                       CLIENT,
+                       sysProp = "spark.yarn.dist.archives"),
+        OptionAssigner(args.principal,
+                       YARN,
+                       CLIENT,
+                       sysProp = "spark.yarn.principal"),
+        OptionAssigner(args.keytab,
+                       YARN,
+                       CLIENT,
+                       sysProp = "spark.yarn.keytab"),
+        // Yarn cluster only
+        OptionAssigner(args.name, YARN, CLUSTER, clOption = "--name"),
+        OptionAssigner(args.driverMemory,
+                       YARN,
+                       CLUSTER,
+                       clOption = "--driver-memory"),
+        OptionAssigner(args.driverCores,
+                       YARN,
+                       CLUSTER,
+                       clOption = "--driver-cores"),
+        OptionAssigner(args.queue, YARN, CLUSTER, clOption = "--queue"),
+        OptionAssigner(args.executorMemory,
+                       YARN,
+                       CLUSTER,
+                       clOption = "--executor-memory"),
+        OptionAssigner(args.executorCores,
+                       YARN,
+                       CLUSTER,
+                       clOption = "--executor-cores"),
+        OptionAssigner(args.files, YARN, CLUSTER, clOption = "--files"),
+        OptionAssigner(args.archives, YARN, CLUSTER, clOption = "--archives"),
+        OptionAssigner(args.jars, YARN, CLUSTER, clOption = "--addJars"),
+        OptionAssigner(args.principal,
+                       YARN,
+                       CLUSTER,
+                       clOption = "--principal"),
+        OptionAssigner(args.keytab, YARN, CLUSTER, clOption = "--keytab"),
+        // Other options
+        OptionAssigner(args.executorCores,
+                       STANDALONE | YARN,
+                       ALL_DEPLOY_MODES,
+                       sysProp = "spark.executor.cores"),
+        OptionAssigner(args.executorMemory,
+                       STANDALONE | MESOS | YARN,
+                       ALL_DEPLOY_MODES,
+                       sysProp = "spark.executor.memory"),
+        OptionAssigner(args.totalExecutorCores,
+                       STANDALONE | MESOS,
+                       ALL_DEPLOY_MODES,
+                       sysProp = "spark.cores.max"),
+        OptionAssigner(args.files,
+                       LOCAL | STANDALONE | MESOS,
+                       ALL_DEPLOY_MODES,
+                       sysProp = "spark.files"),
+        OptionAssigner(args.jars,
+                       STANDALONE | MESOS,
+                       CLUSTER,
+                       sysProp = "spark.jars"),
+        OptionAssigner(args.driverMemory,
+                       STANDALONE | MESOS,
+                       CLUSTER,
+                       sysProp = "spark.driver.memory"),
+        OptionAssigner(args.driverCores,
+                       STANDALONE | MESOS,
+                       CLUSTER,
+                       sysProp = "spark.driver.cores"),
+        OptionAssigner(args.supervise.toString,
+                       STANDALONE | MESOS,
+                       CLUSTER,
+                       sysProp = "spark.driver.supervise"),
+        OptionAssigner(args.ivyRepoPath,
+                       STANDALONE,
+                       CLUSTER,
+                       sysProp = "spark.jars.ivy")
+    )
+  }
+}
+<<< mailgun api client
+
+    EventsResponse.fromJson(json, run).success.value.events should be(Seq(
+      Stored(
+        timestamp = Instant.parse("2016-12-02T16:23:47.412278Z"),
+        id = "OKO0c_F1RiWU44-qLwYYuA",
+        storage = Storage(
+          "https://se.api.mailgun.net/v3/domains/sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org/messages/eyJwIjpmYWxzZSwiayI6ImUzZWQ3YjYyLTI4YmMtNDZiYy04MGQ3LTg0NTUyZDc4YzU4MSIsInMiOiJlZDY3MzYyNWRhIiwiYyI6InRhbmtiIn0=",
+          "eyJwIjpmYWxzZSwiayI6ImUzZWQ3YjYyLTI4YmMtNDZiYy04MGQ3LTg0NTUyZDc4YzU4MSIsInMiOiJlZDY3MzYyNWRhIiwiYyI6InRhbmtiIn0="
+        ),
+        `user-variables` = Map(
+          "custom" -> """{"createdAt":"2016-12-02T16:23:46.637Z","customerId":"canary","traceToken":"22629a34-e5ef-4d2a-bbd4-5193af11e90d","canary":true}"""
+        ),
+        flags = Map(
+          "is-test-mode" -> false
+        ),
+        tags = Nil,
+        `log-level` = "info",
+        message = MessageSummary(
+          Map(
+            "to" -> "canary@sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org",
+            "message-id" -> "20161202162347.92318.58763.6224A6CC@sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org",
+            "from" -> "Ovo Energy <no-reply@ovoenergy.com>",
+            "subject" -> "Canary test email (22629a34-e5ef-4d2a-bbd4-5193af11e90d)"
+          ),
+          Nil,
+          Seq("canary@sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org"),
+          20430
+        )
+      ),
+      Accepted(
+        timestamp = Instant.parse("2016-12-02T16:23:47.124505Z"),
+        id = "N97VBM3jRIGdpHExzz47mg",
+        tags = Nil,
+        envelope = Map(
+          "sender" -> "postmaster@sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org",
+          "transport" -> "smtp",
+          "targets" -> "canary@sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org"
+        ),
+        `user-variables` = Map(
+          "custom" -> """{"createdAt":"2016-12-02T16:23:46.637Z","customerId":"canary","traceToken":"22629a34-e5ef-4d2a-bbd4-5193af11e90d","canary":true}"""
+        ),
+        storage = Some(Storage(
+          "https://se.api.mailgun.net/v3/domains/sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org/messages/eyJwIjpmYWxzZSwiayI6ImUzZWQ3YjYyLTI4YmMtNDZiYy04MGQ3LTg0NTUyZDc4YzU4MSIsInMiOiJlZDY3MzYyNWRhIiwiYyI6InRhbmtiIn0=",
+          "eyJwIjpmYWxzZSwiayI6ImUzZWQ3YjYyLTI4YmMtNDZiYy04MGQ3LTg0NTUyZDc4YzU4MSIsInMiOiJlZDY3MzYyNWRhIiwiYyI6InRhbmtiIn0="
+        )),
+        recipient = "canary@sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org",
+        `recipient-domain` = "sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org",
+        method = "http",
+        flags = Map(
+          "is-routed" -> false,
+          "is-authenticated" -> true,
+          "is-system-test" -> false,
+          "is-test-mode" -> false
+        ),
+        `log-level` = "info",
+        message = MessageSummary(
+          Map(
+            "to" -> "canary@sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org",
+            "message-id" -> "20161202162347.92318.58763.6224A6CC@sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org",
+            "from" -> "Ovo Energy <no-reply@ovoenergy.com>",
+            "subject" -> "Canary test email (22629a34-e5ef-4d2a-bbd4-5193af11e90d)"
+          ),
+          Nil,
+          Seq("canary@sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org"),
+          20430
+        )
+      ),
+      Stored(
+        timestamp = Instant.parse("2016-12-02T15:53:47.045888Z"),
+        id = "-KayH5ZASKm2AaQQ1wizDw",
+        storage = Storage(
+          "https://si.api.mailgun.net/v3/domains/sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org/messages/eyJwIjpmYWxzZSwiayI6IjViNjhkN2QwLWEwZTYtNDU4Yy1hOGJiLTk2ZTY0MWI3MTNhNSIsInMiOiI1ZDY4YWE5M2FmIiwiYyI6InNiaWFkIn0=",
+          "eyJwIjpmYWxzZSwiayI6IjViNjhkN2QwLWEwZTYtNDU4Yy1hOGJiLTk2ZTY0MWI3MTNhNSIsInMiOiI1ZDY4YWE5M2FmIiwiYyI6InNiaWFkIn0="
+        ),
+        `user-variables` = Map(
+          "custom" -> """{"createdAt":"2016-12-02T15:53:45.732Z","customerId":"canary","traceToken":"769b0d0e-0f89-48b6-8a07-5a459bbdc2ab","canary":true}"""
+        ),
+        flags = Map(
+          "is-test-mode" -> false
+        ),
+        tags = Nil,
+        `log-level` = "info",
+        message = MessageSummary(
+          Map(
+            "to" -> "canary@sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org",
+            "message-id" -> "20161202155346.30852.16325.1915382A@sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org",
+            "from" -> "Ovo Energy <no-reply@ovoenergy.com>",
+            "subject" -> "Canary test email (769b0d0e-0f89-48b6-8a07-5a459bbdc2ab)"
+          ),
+          Nil,
+          Seq(
+            "canary@sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org"
+          ),
+          20430
+        )
+      )
+    ))
+>>>
+EventsResponse.fromJson(json, run).success.value.events should be(
+    Seq(
+        Stored(
+            timestamp = Instant.parse("2016-12-02T16:23:47.412278Z"),
+            id = "OKO0c_F1RiWU44-qLwYYuA",
+            storage = Storage(
+                "https://se.api.mailgun.net/v3/domains/sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org/messages/eyJwIjpmYWxzZSwiayI6ImUzZWQ3YjYyLTI4YmMtNDZiYy04MGQ3LTg0NTUyZDc4YzU4MSIsInMiOiJlZDY3MzYyNWRhIiwiYyI6InRhbmtiIn0=",
+                "eyJwIjpmYWxzZSwiayI6ImUzZWQ3YjYyLTI4YmMtNDZiYy04MGQ3LTg0NTUyZDc4YzU4MSIsInMiOiJlZDY3MzYyNWRhIiwiYyI6InRhbmtiIn0="
+            ),
+            `user-variables` = Map(
+                "custom" -> """{"createdAt":"2016-12-02T16:23:46.637Z","customerId":"canary","traceToken":"22629a34-e5ef-4d2a-bbd4-5193af11e90d","canary":true}"""
+            ),
+            flags = Map(
+                "is-test-mode" -> false
+            ),
+            tags = Nil,
+            `log-level` = "info",
+            message = MessageSummary(
+                Map(
+                    "to" -> "canary@sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org",
+                    "message-id" -> "20161202162347.92318.58763.6224A6CC@sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org",
+                    "from" -> "Ovo Energy <no-reply@ovoenergy.com>",
+                    "subject" -> "Canary test email (22629a34-e5ef-4d2a-bbd4-5193af11e90d)"
+                ),
+                Nil,
+                Seq("canary@sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org"),
+                20430
+            )
+        ),
+        Accepted(
+            timestamp = Instant.parse("2016-12-02T16:23:47.124505Z"),
+            id = "N97VBM3jRIGdpHExzz47mg",
+            tags = Nil,
+            envelope = Map(
+                "sender" -> "postmaster@sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org",
+                "transport" -> "smtp",
+                "targets" -> "canary@sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org"
+            ),
+            `user-variables` = Map(
+                "custom" -> """{"createdAt":"2016-12-02T16:23:46.637Z","customerId":"canary","traceToken":"22629a34-e5ef-4d2a-bbd4-5193af11e90d","canary":true}"""
+            ),
+            storage = Some(Storage(
+                "https://se.api.mailgun.net/v3/domains/sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org/messages/eyJwIjpmYWxzZSwiayI6ImUzZWQ3YjYyLTI4YmMtNDZiYy04MGQ3LTg0NTUyZDc4YzU4MSIsInMiOiJlZDY3MzYyNWRhIiwiYyI6InRhbmtiIn0=",
+                "eyJwIjpmYWxzZSwiayI6ImUzZWQ3YjYyLTI4YmMtNDZiYy04MGQ3LTg0NTUyZDc4YzU4MSIsInMiOiJlZDY3MzYyNWRhIiwiYyI6InRhbmtiIn0="
+            )),
+            recipient =
+              "canary@sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org",
+            `recipient-domain` =
+              "sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org",
+            method = "http",
+            flags = Map(
+                "is-routed" -> false,
+                "is-authenticated" -> true,
+                "is-system-test" -> false,
+                "is-test-mode" -> false
+            ),
+            `log-level` = "info",
+            message = MessageSummary(
+                Map(
+                    "to" -> "canary@sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org",
+                    "message-id" -> "20161202162347.92318.58763.6224A6CC@sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org",
+                    "from" -> "Ovo Energy <no-reply@ovoenergy.com>",
+                    "subject" -> "Canary test email (22629a34-e5ef-4d2a-bbd4-5193af11e90d)"
+                ),
+                Nil,
+                Seq("canary@sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org"),
+                20430
+            )
+        ),
+        Stored(
+            timestamp = Instant.parse("2016-12-02T15:53:47.045888Z"),
+            id = "-KayH5ZASKm2AaQQ1wizDw",
+            storage = Storage(
+                "https://si.api.mailgun.net/v3/domains/sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org/messages/eyJwIjpmYWxzZSwiayI6IjViNjhkN2QwLWEwZTYtNDU4Yy1hOGJiLTk2ZTY0MWI3MTNhNSIsInMiOiI1ZDY4YWE5M2FmIiwiYyI6InNiaWFkIn0=",
+                "eyJwIjpmYWxzZSwiayI6IjViNjhkN2QwLWEwZTYtNDU4Yy1hOGJiLTk2ZTY0MWI3MTNhNSIsInMiOiI1ZDY4YWE5M2FmIiwiYyI6InNiaWFkIn0="
+            ),
+            `user-variables` = Map(
+                "custom" -> """{"createdAt":"2016-12-02T15:53:45.732Z","customerId":"canary","traceToken":"769b0d0e-0f89-48b6-8a07-5a459bbdc2ab","canary":true}"""
+            ),
+            flags = Map(
+                "is-test-mode" -> false
+            ),
+            tags = Nil,
+            `log-level` = "info",
+            message = MessageSummary(
+                Map(
+                    "to" -> "canary@sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org",
+                    "message-id" -> "20161202155346.30852.16325.1915382A@sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org",
+                    "from" -> "Ovo Energy <no-reply@ovoenergy.com>",
+                    "subject" -> "Canary test email (769b0d0e-0f89-48b6-8a07-5a459bbdc2ab)"
+                ),
+                Nil,
+                Seq(
+                    "canary@sandbox98d59d0a8d0a4af588f2bb683a4a57cc.mailgun.org"
+                ),
+                20430
+            )
+        )
+    ))
