@@ -19,27 +19,20 @@ object CliArgParser {
   @BuildTime val buildTimeMs: Long = ???
 
   val usageExamples: String =
-    """|scalafmt  # Format all files in the current project, with config determined:
-       |          # 1. .scalafmt.conf inside root directory of current git repo
-       |          # 2. .scalafmt.conf file in current directory
-       |          # 3. default style
-       |          # from .scalafmt.conf in the root directory, if the file exists.
-       |scalafmt --test # same as without --test, except
-       |                # 1. throws an exception on the first mis-formatted file
-       |                # 2. does not write to any files.
-       |scalafmt --diff        # same as without --diff, except only format files
-       |                       # in git diff against master branch.
-       |scalafmt --diff --test # same as --test, except only for edited files
-       |                       # in git diff against master branch.
-       |scalafmt --diff-branch 2.x        # same as --diff, except against branch 2.x
-       |scalafmt --diff-branch 2.x --test # same as --diff
-       |scalafmt --stdin                           # read from stdin and print to stdout
+    """|scalafmt # Format all files in the current project, configuration is determined in this order:
+       |         # 1. .scalafmt.conf file in current directory
+       |         # 2. .scalafmt.conf inside root directory of current git repo
+       |         # 3. no configuration, default style
+       |scalafmt --test # throw exception on mis-formatted files, won't write to files.
+       |scalafmt --diff # Format all files that were edited in git diff against master branch.
+       |scalafmt --diff-branch 2.x # same as --diff, except against branch 2.x
+       |scalafmt --stdin # read from stdin and print to stdout
        |scalafmt --stdin --assume-filename foo.sbt # required to format .sbt files
        |scalafmt -f Code.scala             # print formatted contents to stdout.
        |scalafmt -i -f Code1.scala,A.scala # write formatted contents to file.
        |scalafmt -i -f . --exclude target  # format all files in directory excluding target
        |scalafmt --config .scalafmt.conf   # read custom style from file
-       |scalafmt --config "style=IntelliJ" # define custom style as a flag, must be quoted.""".stripMargin
+       |scalafmt --config-str "style=IntelliJ" # define custom style as a flag, must be quoted.""".stripMargin
 
   val scoptParser: OptionParser[CliOptions] =
     new scopt.OptionParser[CliOptions]("scalafmt") {
@@ -54,13 +47,13 @@ object CliArgParser {
       }
 
       def readConfigFromFile(file: String, c: CliOptions): CliOptions = {
-        val contents =
-          if (file.startsWith("\""))
-            file.stripPrefix("\"").stripSuffix("\"")
-          else
-            FileOps.readFile(
-              AbsoluteFile.fromFile(new File(file), c.common.workingDirectory))
-
+        readConfig(
+          FileOps.readFile(
+            AbsoluteFile.fromFile(new File(file), c.common.workingDirectory)),
+          c
+        )
+      }
+      def readConfig(contents: String, c: CliOptions): CliOptions = {
         Config.fromHocon(contents) match {
           case Right(style) => c.copy(config = style)
           case Left(e) => throw e
@@ -87,7 +80,11 @@ object CliArgParser {
       opt[String]('c', "config")
         .action(readConfigFromFile)
         .text(
-          "either a file or configuration wrapped in quotes \" with no spaces.")
+          "a file path to .scalafmt.conf.")
+      opt[String]("config-str")
+          .action(readConfig)
+          .text(
+            "configuration defined as a string")
       opt[Unit]("stdin")
         .action((_, c) => c.copy(stdIn = true))
         .text("read from stdin and print to stdout")

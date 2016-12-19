@@ -351,10 +351,9 @@
 
   @sect{project}
     @p
-      Controls the behavior of the CLI when run with no arguments, that is just "@code{scalafmt}".
-
+      Configure which source files should be formatted in this project.
     @cliFlags
-      # reformat all .scala and .sbt files in current git repo.
+      # Only format files tracked by git.
       project.git = true
       # manually exclude files to format.
       project.excludeFilters = [

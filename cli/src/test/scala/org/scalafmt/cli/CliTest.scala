@@ -60,7 +60,6 @@ class CliTest extends FunSuite with DiffAssertions {
                      |}""".stripMargin
   val customConfig =
     """
-      |project.git = true
       |maxColumn   = 2
     """.stripMargin
   val sbtOriginal =
@@ -84,8 +83,8 @@ class CliTest extends FunSuite with DiffAssertions {
     val originalTmpFile = Files.createTempFile("prefix", ".scala")
     Files.write(originalTmpFile, unformatted.getBytes)
     val args = Array(
-      "--config",
-      "\"{maxColumn=7,style=IntelliJ}\"",
+      "--config-str",
+      "{maxColumn=7,style=IntelliJ}",
       "--in-place",
       "--files",
       originalTmpFile.toFile.getPath
@@ -119,8 +118,8 @@ class CliTest extends FunSuite with DiffAssertions {
       "--stdin",
       "--assume-filename",
       "build.sbt",
-      "--config",
-      "\"{maxColumn=7,style=IntelliJ}\""
+      "--config-str",
+      "{maxColumn=7,style=IntelliJ}"
     )
     val printToStdout = getConfig(args)
     val bais = new ByteArrayInputStream(sbtOriginal.getBytes)
@@ -240,7 +239,6 @@ class CliTest extends FunSuite with DiffAssertions {
          |object A   { }
          |/.scalafmt.conf
          |maxColumn = 2
-         |project.git = true
          |project.excludeFilters = [target]
          |""".stripMargin
     )
@@ -248,7 +246,6 @@ class CliTest extends FunSuite with DiffAssertions {
     val expected =
       """|/.scalafmt.conf
          |maxColumn = 2
-         |project.git = true
          |project.excludeFilters = [target]
          |
          |/foo.scala
@@ -284,7 +281,6 @@ class CliTest extends FunSuite with DiffAssertions {
           |$original
           |/.scalafmt.conf
           |maxColumn = 2
-          |project.git = true
           |""".stripMargin
     )
     val workingDir = input / "nested"
