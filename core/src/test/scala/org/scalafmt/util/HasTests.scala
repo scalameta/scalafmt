@@ -30,7 +30,7 @@ import org.scalatest.FunSuiteLike
 trait HasTests extends FunSuiteLike with FormatAssertions {
   import LoggerOps._
   import org.scalafmt.config.ScalafmtConfig._
-  val scalafmtRunner = ScalafmtRunner.default.copy(
+  def scalafmtRunner(base: ScalafmtRunner): ScalafmtRunner = base.copy(
     debug = true,
     maxStateVisits = 150000,
     eventCallback = {
@@ -241,7 +241,7 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
   }
 
   def defaultRun(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
-    val runner = scalafmtRunner.copy(parser = parse)
+    val runner = scalafmtRunner(t.style.runner).copy(parser = parse)
     val obtained =
       Scalafmt.format(t.original, t.style.copy(runner = runner)).get
     if (t.style.rewrite.rules.isEmpty) {

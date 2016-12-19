@@ -74,7 +74,7 @@ Defn.Object(
     parseDiffTests(stateExplosions, "default/StateExplosion.stat")
 
   def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
-    val runner = scalafmtRunner.copy(parser = parse)
+    val runner = scalafmtRunner(t.style.runner).copy(parser = parse)
     val obtained = Scalafmt
       .format(
         t.original,

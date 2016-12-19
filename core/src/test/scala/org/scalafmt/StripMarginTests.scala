@@ -135,7 +135,7 @@ val msg = s'''AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
     ScalafmtConfig.default.copy(assumeStandardLibraryStripMargin = true)
 
   def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
-    val runner = scalafmtRunner.copy(parser = parse)
+    val runner = scalafmtRunner(t.style.runner).copy(parser = parse)
     val style = alignStyle.copy(runner = runner)
     val formatted = Scalafmt.format(t.original, style).get
     saveResult(t, formatted, t.only)

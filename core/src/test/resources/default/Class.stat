@@ -127,29 +127,6 @@ class NumberFormat(locales: String | js.Array[String],
     extends Object {
   val x = 1
 }
-<<< tuples in spark
-private[ml] class IterativelyReweightedLeastSquares(
-    val initialModel: WeightedLeastSquaresModel,
-    val reweightFunc: (Instance, WeightedLeastSquaresModel) => (Double, Double),
-    val fitIntercept: Boolean,
-    val regParam: Double,
-    val maxIter: Int,
-    val tol: Double) extends Logging with Serializable {
-    ???
-    }
->>>
-private[ml] class IterativelyReweightedLeastSquares(
-    val initialModel: WeightedLeastSquaresModel,
-    val reweightFunc: (Instance,
-                       WeightedLeastSquaresModel) => (Double, Double),
-    val fitIntercept: Boolean,
-    val regParam: Double,
-    val maxIter: Int,
-    val tol: Double)
-    extends Logging
-    with Serializable {
-  ???
-}
 <<< extends floating #276
 final case class Manifest(
     name: String,

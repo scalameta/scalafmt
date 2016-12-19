@@ -48,7 +48,7 @@ def foo(
   )
 
   def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
-    val runner = scalafmtRunner.copy(parser = parse)
+    val runner = scalafmtRunner(t.style.runner).copy(parser = parse)
     val formatted =
       Scalafmt.format(t.original, style.copy(runner = runner)).get
     saveResult(t, formatted, t.only)

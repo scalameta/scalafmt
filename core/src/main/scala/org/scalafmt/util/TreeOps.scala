@@ -227,6 +227,7 @@ object TreeOps {
         _: Defn.Trait | _: Ctor.Secondary | _: Decl.Type | _: Defn.Type |
         _: Type.Apply | _: Type.Param | _: Type.Tuple =>
       true
+    case _: Term.Function | _: Type.Function => true
     case x: Ctor.Primary if x.parent.exists(_.isInstanceOf[Defn.Class]) =>
       true
     case _ => false
@@ -296,6 +297,7 @@ object TreeOps {
     case t: Term.Update => t.fun -> t.argss.flatten
     case t: Term.Tuple => t -> t.args
     case t: Term.Function => t -> t.params
+    case t: Type.Function => t -> t.params
     case t: Type.Tuple => t -> t.args
     case t: Type.Apply => t.tpe -> t.args
     case t: Type.Param => t.name -> t.tparams

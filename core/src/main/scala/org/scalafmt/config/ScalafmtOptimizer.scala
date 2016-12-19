@@ -71,8 +71,8 @@ case class ScalafmtOptimizer(
     disableOptimizationsInsideSensitiveAreas: Boolean = true,
     pruneSlowStates: Boolean = true,
     recurseOnBlocks: Boolean = true,
-    forceConfigStyleOnOffset: Int = 500,
-    forceConfigStyleOnArgCount: Int = 5
+    forceConfigStyleOnOffset: Int = 150,
+    forceConfigStyleOnArgCount: Int = 1
 )
 
 object ScalafmtOptimizer {

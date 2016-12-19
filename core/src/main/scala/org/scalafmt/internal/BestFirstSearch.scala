@@ -180,15 +180,18 @@ class BestFirstSearch(val formatOps: FormatOps,
         runner.eventCallback(VisitToken(splitToken))
         visits.put(splitToken, visits(splitToken) + 1)
 
+        def lastWasNewline =
+          curr.splits.lastOption.exists(_.modification.isNewline)
         if (dequeueOnNewStatements &&
             dequeueSpots.contains(hash(splitToken.left)) &&
             (depth > 0 || !isInsideNoOptZone(splitToken)) &&
-            curr.splits.lastOption.exists(_.modification.isNewline)) {
+            lastWasNewline) {
           Q.dequeueAll
           if (!isInsideNoOptZone(splitToken) && lastDequeue.policy.isSafe) {
             lastDequeue = curr
           }
-        } else if (emptyQueueSpots(hash(splitToken.left))) {
+        } else if (emptyQueueSpots(hash(splitToken.left)) &&
+                   lastWasNewline) {
           Q.dequeueAll
         }
 
