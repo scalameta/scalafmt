@@ -209,6 +209,11 @@ object TokenOps {
     "// format: off" // scalariform
   )
 
+  def isSymbolicIdent(tok: Token): Boolean = tok match {
+    case Ident(name) => !name.head.isLetter
+    case _ => false
+  }
+
   val formatOnCode = Set(
     "// @formatter:on", // IntelliJ
     "// format: on" // scalariform
