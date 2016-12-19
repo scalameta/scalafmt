@@ -17,6 +17,7 @@ CURL=$(which curl)
 TAR=$(which tar)
 JAVA=$(which java)
 GREP=$(which grep)
+CUT=$(which cut)
 
 check_binary "$CURL"
 check_binary "$TAR"
@@ -25,7 +26,7 @@ check_binary "$GREP"
 
 check_latest () {
   echo "Checking latest version from github..."
-  latest_version=$($CURL -s https://api.github.com/repos/olafurpg/scalafmt/releases/latest | $GREP -Eo '"tag_name":(.*)' | $GREP -Eo 'v[0-9\.]+')
+  latest_version=$($CURL -s https://api.github.com/repos/olafurpg/scalafmt/releases/latest | $GREP -Eo '"tag_name":(.*)' | $CUT -d \" -f 4) 
   if [[ $latest_version = "" ]]; then
     echo "The github call failed, either because of an internet connection issue or rate limits..."
     exit 1
