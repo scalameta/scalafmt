@@ -188,6 +188,8 @@ class BestFirstSearch(val formatOps: FormatOps,
           if (!isInsideNoOptZone(splitToken) && lastDequeue.policy.isSafe) {
             lastDequeue = curr
           }
+        } else if (emptyQueueSpots(hash(splitToken.left))) {
+          Q.dequeueAll
         }
 
         if (shouldRecurseOnBlock(curr, stop)) {

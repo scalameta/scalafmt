@@ -396,7 +396,7 @@ class Router(formatOps: FormatOps) {
       case FormatToken(LeftParen() | LeftBracket(), right, between)
           if style.configStyleArguments &&
             (isDefnSite(leftOwner) || isCallSite(leftOwner)) &&
-            opensConfigStyle(formatToken) =>
+            (opensConfigStyle(formatToken) || forceConfigStyle(leftOwner)) =>
         val open = formatToken.left
         val indent = getApplyIndent(leftOwner, isConfigStyle = true)
         val close = matchingParentheses(hash(open))
