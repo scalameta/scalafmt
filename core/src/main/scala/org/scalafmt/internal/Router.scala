@@ -876,14 +876,17 @@ class Router(formatOps: FormatOps) {
               case (_, lst) => Math.max(0, lst.length - 1)
             }.getOrElse(0)
           } else 0
-        Seq(
-          Split(NoSplit, 0, ignoreIf = ignoreNoSplit)
-            .withPolicy(noSplitPolicy),
-          Split(Newline.copy(acceptNoSplit = true),
-                2 + nestedPenalty + chainLengthPenalty)
-            .withPolicy(newlinePolicy)
-            .withIndent(2, optimalToken, Left)
-        )
+        if (TokenOps.isSymbolicIdent(left))
+          Seq(Split(NoSplit, 0))
+        else
+          Seq(
+            Split(NoSplit, 0, ignoreIf = ignoreNoSplit)
+              .withPolicy(noSplitPolicy),
+            Split(Newline.copy(acceptNoSplit = true),
+                  2 + nestedPenalty + chainLengthPenalty)
+              .withPolicy(newlinePolicy)
+              .withIndent(2, optimalToken, Left)
+          )
       // ApplyUnary
       case tok @ FormatToken(Ident(_), Literal(), _)
           if leftOwner == rightOwner =>
