@@ -42,8 +42,10 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   val ownersMap = getOwners(tree)
   val statementStarts = getStatementStarts(tree)
   val dequeueSpots = getDequeueSpots(tree) ++ statementStarts.keys
-  val matchingParentheses = getMatchingParentheses(tree.tokens)
-  val styleMap = new StyleMap(tokens, initStyle)
+  val matchingParentheses: Map[TokenHash, Token] = getMatchingParentheses(
+    tree.tokens)
+  val styleMap =
+    new StyleMap(tokens, initStyle, ownersMap, matchingParentheses)
   private val vAlignDepthCache = mutable.Map.empty[Tree, Int]
   // Maps token to number of non-whitespace bytes before the token's position.
   private final val nonWhitespaceOffset: Map[Token, Int] = {
@@ -491,8 +493,13 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     }
   }
 
-  def styleAt(tree: Tree): ScalafmtConfig =
-    styleMap.at(leftTok2tok.getOrElse(tree.tokens.head, tokens.head))
+  def styleAt(tree: Tree): ScalafmtConfig = {
+    val style =
+      styleMap.at(leftTok2tok.getOrElse(tree.tokens.head, tokens.head))
+    if (styleMap.forcedBinPack(tree)) // off-by-one
+      styleMap.setBinPack(style, callSite = true)
+    else style
+  }
 
   def getApplyIndent(leftOwner: Tree, isConfigStyle: Boolean = false): Num = {
     val style = styleAt(leftOwner)
