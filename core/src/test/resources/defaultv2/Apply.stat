@@ -1,0 +1,23 @@
+style = default
+<<< cast cast #140
+{{
+    checkEvaluation(cast(cast(cast(cast(cast(cast("5", DecimalType.SYSTEM_DEFAULT),
+      ByteType), TimestampType), LongType), StringType), ShortType),
+      5.toShort)
+}}
+>>>
+{
+  {
+    checkEvaluation(
+      cast(
+        cast(
+          cast(
+            cast(
+              cast(cast("5", DecimalType.SYSTEM_DEFAULT), ByteType),
+              TimestampType),
+            LongType),
+          StringType),
+        ShortType),
+      5.toShort)
+  }
+}
