@@ -49,7 +49,8 @@ object Error {
 
   case class UnexpectedTree[Expected <: Tree: ClassTag](obtained: Tree)
       extends Error(
-        s"Expected: ${classTag[Expected].getClass}\nObtained: ${log(obtained)}")
+        s"""Expected: ${classTag[Expected].runtimeClass.getClass}
+           |Obtained: ${log(obtained)}""".stripMargin)
 
   case class CantFormatFile(msg: String)
       extends Error("scalafmt cannot format this file:\n" + msg)
