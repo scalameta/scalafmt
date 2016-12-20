@@ -1,7 +1,5 @@
 package org.scalafmt.config
 
-import scala.util.matching.Regex
-
 import metaconfig.ConfigReader
 
 /**
@@ -17,6 +15,7 @@ case class BinPack(
     lambdaParameter: Boolean = true,
     parentConstructors: Boolean = false,
     literalArgumentLists: Boolean = true,
+    literalsMinArgCount: Int = 5,
     literalsInclude: Seq[String] = Seq(".*"),
     literalsExclude: Seq[String] = Seq("String")
 ) {

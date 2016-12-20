@@ -1,5 +1,6 @@
 package org.scalafmt
 
+import scala.collection.JavaConverters._
 import scala.collection.JavaConversions._
 import scala.meta._
 import scala.util.Random
@@ -25,6 +26,7 @@ import org.scalafmt.util.FormatAssertions
 import org.scalafmt.util.ScalaFile
 import org.scalafmt.util.ScalaProjectsExperiment
 import org.scalafmt.util.ScalacParser
+import org.scalatest.FunSuiteLike
 
 trait FormatExperiment extends ScalaProjectsExperiment with FormatAssertions {
   override val verbose = false
@@ -118,7 +120,10 @@ object LinePerMsBenchmark extends FormatExperiment with App {
   Files.write(Paths.get("target", "macro.csv"), csvText.getBytes)
 }
 
-object FormatExperimentApp extends FormatExperiment with App {
+object FormatExperimentApp
+    extends FormatExperiment
+    with App
+    with FunSuiteLike {
   def valid(result: ExperimentResult): Boolean = result match {
     case _: Success | _: Timeout | _: Skipped | _: ParseErr |
         _: SearchStateExploded =>
@@ -138,8 +143,15 @@ object FormatExperimentApp extends FormatExperiment with App {
   }
   runExperiment(filesToRun)
   printResults()
+  val scalaResults = results.asScala
+  val idempotency = scalaResults.collect {
+    case UnknownFailure(_, e: IdempotencyViolated) => e
+  }
+  val searchStateExploded =
+    scalaResults.filter(_.isInstanceOf[SearchStateExploded])
+  assert(idempotency.length <= 13)
+  assert(searchStateExploded.length <= 16)
   val nonValidResults = results.filterNot(valid)
-  nonValidResults.foreach(println)
   if (nonValidResults.nonEmpty) {
     throw MegaTestFailed
   }
