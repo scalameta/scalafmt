@@ -4,7 +4,7 @@ import scoverage.ScoverageSbtPlugin.ScoverageKeys.coverageHighlighting
 def latestStableVersion: String = "0.4.10"
 lazy val buildSettings = Seq(
   organization := "com.geirsson",
-  version := "0.5.0-RC2",
+  version := "0.5.0-RC3",
   scalaVersion := "2.11.8",
   updateOptions := updateOptions.value.withCachedResolution(true)
 )
