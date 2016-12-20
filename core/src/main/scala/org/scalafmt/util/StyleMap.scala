@@ -76,7 +76,9 @@ class StyleMap(tokens: Array[FormatToken],
 
   private def isLiteralArgumentList(open: LeftParen): Boolean =
     owners(hash(open)) match {
-      case t: Term.Apply => t.args.forall(isLiteral)
+      case t: Term.Apply =>
+        t.args.length > init.binPack.literalsMinArgCount &&
+          t.args.forall(isLiteral)
       case _ => false
     }
 
