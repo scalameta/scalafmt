@@ -121,6 +121,7 @@ lazy val root = project
     bootstrap,
     cli,
     utils,
+    testUtils,
     core,
     metaconfig,
     readme,
@@ -151,7 +152,7 @@ lazy val core = project
     addCompilerPlugin(
       "org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
   )
-  .dependsOn(metaconfig, utils)
+  .dependsOn(metaconfig, utils, testUtils % "test->compile")
   .enablePlugins(BuildInfoPlugin)
 
 lazy val cliJvmOptions = Seq(
@@ -249,7 +250,8 @@ lazy val benchmarks = project
       "-server"
     )
   )
-  .dependsOn(core % "compile->test")
+  .dependsOn(core % "compile->compile;test->test")
+  .dependsOn(testUtils)
   .enablePlugins(JmhPlugin)
 
 lazy val readme = scalatex
@@ -288,3 +290,15 @@ lazy val metaconfig = project.settings(
     "org.scalatest" %% "scalatest" % Deps.scalatest % Test
   )
 )
+
+lazy val testUtils = project
+  .settings(moduleName := "scalafmt-test-utils")
+  .settings(allSettings)
+  .settings(noPublish)
+  .dependsOn(utils)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.apache.commons" % "commons-io"  % "1.3.2",
+      "org.rauschig"       % "jarchivelib" % "0.7.1"
+    )
+  )

@@ -129,7 +129,11 @@
       @hl.scala
         java -jar PATH_TO/scalafmt.jar $@@
 
-      (experimental) You might be interested in the user contributed
+      or, in case of Windows, a script @code("scalafmt.bat") with the command:
+      @hl.scala
+        java -jar PATH_TO/scalafmt.jar %*
+
+      (both experimental). You might be interested in the user contributed
       @lnk("scalafmt_auto", "https://github.com/olafurpg/scalafmt/blob/master/bin/scalafmt_auto")
       script that automatically figures out @code{PATH_TO/scalafmt.jar}
       as long as the script is placed in the @code{bin/} directory from the

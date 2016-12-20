@@ -23,7 +23,10 @@
         Wrapper to launch scalafmt through Maven.
   @sect{Adopters}
     Are you using scalafmt? Please consider
-    @lnk("opening a pull request", "https://github.com/olafurpg/scalafmt/blob/master/readme/Adopters.scala#L16")
+    @lnk(
+      "opening a pull request",
+      "https://github.com/olafurpg/scalafmt/blob/master/readme/src/main/scala/org/scalafmt/readme/Adopters.scala#L16"
+    )
     to list your organization here:
 
     @ul
