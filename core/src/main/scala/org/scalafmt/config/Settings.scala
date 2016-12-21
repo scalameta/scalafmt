@@ -89,7 +89,7 @@ trait Settings {
     optimizer = default.runner.optimizer.copy(
       // The tests were not written in this style
       forceConfigStyleOnOffset = 500,
-      forceConfigStyleOnArgCount = 5
+      forceConfigStyleMinArgCount = 5
     )
   )
 

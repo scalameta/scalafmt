@@ -163,6 +163,20 @@ import org.scalafmt.util.ValidationOps
   *                    If [[LineEndings.preserve]], output will include endings included in original
   *                    file (windows if there was at least one windows line ending, unix if there
   *                    was zero occurrences of windows line endings)
+  * @param includeCurlyBraceInSelectChains
+  *  If true, includes curly brace applications in select chains/pipelines.
+  *  {{{
+  *    // If true
+  *    List(1)
+  *      .map { x =>
+  *        x + 2
+  *      }
+  *      .filter(_ > 2)
+  *    // If false
+  *    List(1).map { x =>
+  *        x + 2
+  *    }.filter(_ > 2)
+  *  }}}
   *
   */
 @ConfigReader

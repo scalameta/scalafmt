@@ -5,6 +5,30 @@
 @sect{0.5.0}
   @ul
     @li
+      The @code{default} style has been updated for prettier formatting output
+      and greater performance (less "search state exploded")
+      @ul
+        @li
+          @cliFlags{optIn.breakChainOnFirstMethodDot = true}, was false.
+          See @sect.ref{optIn.breakChainOnFirstMethodDot}.
+          Thank you @user{stefanobaghino} for contributing this flag!
+        @li
+          @cliFlags{includeCurlyBraceInSelectChains = true}, was false.
+          See @sect.ref{includeCurlyBraceInSelectChains}.
+          Thank you @user{rcavalcanti} for suggesting this flag!
+        @li
+          @cliFlags{binPack.literalArgumentLists = true}, was false.
+          See @sect.ref{binPack.literalArgumentLists}.
+          Thank you @user{RatanRSur} and @user{densh} for suggesting this feature!
+        @li
+          @cliFlags{newlines.penalizeSingleSelectMultiArgList = true}, was false.
+          See @sect.ref{newlines.penalizeSingleSelectMultiArgList}.
+        @li
+          @cliFlags{runner.optimizer.forceConfigStyleOnOffset = 150}, was -1.
+          See @sect.ref{newlines.penalizeSingleSelectMultiArgList}.
+      You can opt-out of these changes by using the older setting values.
+      v0.5 may still have some minor diffs which are not configurable.
+    @li
       The sbt plugin has been re-implemented as a tiny wrapper around
       the command line interface.
       See @sect.ref{sbt} for more details.
@@ -26,25 +50,9 @@
           this feature if you miss it AND you are interested in helping
           maintain the feature.
     @li
-      Changes to the default style
-      @ul
-        @li
-          @cliFlags{optIn.breakChainOnFirstMethodDot = true} now.
-          Thank you @user{stefanobaghino} for contributing this flag!
-        @li
-          @cliFlags{includeCurlyBraceInSelectChains = true} now. See
-          @lnk("this comment", "https://github.com/olafurpg/scalafmt/issues/444#issuecomment-255215698")
-          for motivation.
-          Thank you @user{rcavalcanti} for suggesting this flag!
-          Also, thank you @user{johnynek} for long disussions in @issue(444)
-          on polishing select chains.
-        @li
-          @cliFlags{newlines.penalizeSingleSelectMultiArgList = true} now. See
-          @lnk("this comment", "https://github.com/olafurpg/scalafmt/pull/611#issue-196230948")
-          for motivation.
-      @note. All of these changes are opt-out if you change the option values.
-      However, I recommend you try to stick to the base styles as much as possible.
-      Any flags outside the base styles may be removed in future releases.
+      You should see fewer "Search state exploded" errors. Only 16 files
+      (down from 49 files) in the test corpus of 27.000 source files now
+      triggers that error.
     @li
       New @code{--diff} flag to @sect.ref{CLI} to only format files in the git
       diff against master branch. See @sect.ref{--help} for more details.
@@ -61,4 +69,11 @@
     @li
       New flag @cliFlags{indentYieldKeyword = true}. See @issue(592)
       for motivation. Thanks @user{lihaoyi} for the suggestion.
-
+    @li
+      The scalafmt project now builds on Windows and IntelliJ. Thank you
+      @user{mpociecha} for refactoring the build to make this happen!
+      @p
+        However, the tests are still failing on Windows. Help to improve
+        this is welcome!
+    @li
+      This version upgrades to scala.meta 1.3 from 1.1.

@@ -595,11 +595,9 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       val clearQueues = Set.newBuilder[TokenHash]
       val forces = Set.newBuilder[Tree]
       tree.tokens.foreach {
-        case left @ LeftParen() `:owner:` (app: Term.Apply) if {
-//              logger.elem(leftTok2tok(left), app.fun, distance(left, matching(left)))
-              app.args.length > runner.optimizer.forceConfigStyleOnArgCount &&
-              distance(left, matching(left)) > maxDistance
-            } =>
+        case left @ LeftParen() `:owner:` (app: Term.Apply)
+            if app.args.length >= runner.optimizer.forceConfigStyleMinArgCount &&
+              distance(left, matching(left)) > maxDistance =>
           forces += app
           app.args.foreach { arg =>
             clearQueues += hash(arg.tokens.head)

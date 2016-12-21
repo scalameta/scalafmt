@@ -300,6 +300,117 @@
         @code{unix} output will include only unix line endings
       @li
         @code{windows} output will include only windows line endings
+
+  @sect{includeCurlyBraceInSelectChains}
+    Default: @default.includeCurlyBraceInSelectChains
+
+    @hl.scala
+      // If true
+      List(1)
+        .map { x =>
+          x + 2
+        }
+        .filter(_ > 2)
+      // If false
+      List(1).map { x =>
+          x + 2
+      }.filter(_ > 2)
+
+  @sect{optIn.breakChainOnFirstMethodDot}
+    Default: @default.optIn.breakChainOnFirstMethodDot
+
+    @p
+      If true, forces a select chain (pipeline) to break if there is a newline
+      at the start of the chain.
+
+    @hl.scala
+      // original
+      foo
+        .map(_ + 1)
+        .filter( > 2)
+      // if true
+      foo
+        .map(_ + 1)
+        .filter( > 2)
+      // if false
+      foo.map(_ + 1).filter( > 2)
+      // note. chain starts at .foo() in a.b.foo()
+
+    @p
+      See
+      @lnk("this comment", "https://github.com/olafurpg/scalafmt/issues/444#issuecomment-255215698")
+      for further motivation.
+
+  @sect{newlines.penalizeSingleSelectMultiArgList}
+    Default: @default.newlines.penalizeSingleSelectMultiArgList
+
+    @hl.scala
+      // If true, favor
+      logger.elem(a,
+                  b,
+                  c)
+      // instead of
+      logger
+        .elem(a, b, c)
+
+    @p
+      See
+      @lnk("this comment", "https://github.com/olafurpg/scalafmt/pull/611#issue-196230948")
+      for further motivation.
+
+  @sect{binPack.literalArgumentLists}
+    Default: @default.binPack.literalArgumentLists
+
+    @hl.scala
+      // if true
+      val secret: List[Bit] = List(0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1,
+        0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1,
+        0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1)
+      // if false. Note browser wraps code block,
+      val secret: List[Bit] = List(
+        0,
+        0,
+        1,
+        1,
+        // really long list...
+        1
+      )
+
+  @sect{runner.optimizer.forceConfigStyleOnOffset}
+    Default: @default.runner.optimizer.forceConfigStyleOnOffset
+
+    @p
+      Set to @code{-1} to disable. Increase number to require bigger argument
+      bodies to trigger flag.
+
+    @hl.scala
+      // when argument body is big
+      HttpResponse(200, headers = resCH.toList,
+        entity = if (resCD) HttpEntity.CloseDelimited(ContentTypes.`text/plain(UTF-8)`,
+          Source.single(ByteString("ENTITY")))
+        else HttpEntity("ENTITY"), protocol = resProto)
+      // force "config style"
+      HttpResponse(
+        200,
+        headers = resCH.toList,
+        entity =
+          if (resCD)
+            HttpEntity.CloseDelimited(ContentTypes.`text/plain(UTF-8)`,
+                                      Source.single(ByteString("ENTITY")))
+          else HttpEntity("ENTITY"),
+        protocol = resProto
+      )
+    @p
+      Set @cliFlags{runner.optimizer.forceConfigStyleMinArgCount = 1} to enable
+      this rule for function calls with only 1 argument
+      (default = @default.runner.optimizer.forceConfigStyleMinArgCount).
+
+    @p
+      By forcing config style, scalafmt is able to greatly optimize performance
+      eliminating a large number of "search state exploded" errors.
+      See @lnk("these flame graphs", "https://github.com/olafurpg/scalafmt/pull/621#issue-196451803").
+
+
   @sect{rewrite.rules}
     Default: @b{[]}
 

@@ -223,7 +223,7 @@
         add to your @code(".vimrc")
         @hl.scala
           noremap <F5> :Autoformat<CR>
-          let g:formatdef_scalafmt = "'scalafmt'"
+          let g:formatdef_scalafmt = "'scalafmt --stdin'"
           let g:formatters_scala = ['scalafmt']
 
     @note. You pay the JVM startup penalty on every format.
