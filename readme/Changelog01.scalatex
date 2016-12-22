@@ -124,8 +124,6 @@
     @li
       @sect.ref{// format: off}.
     @li
-      @sect.ref{Select chains}.
-    @li
       @lnk("Hanging behavior", "https://github.com/olafurpg/scalafmt/issues/127").
     @li
       @lnk("Dozens of other small fixes", "https://github.com/olafurpg/scalafmt/pull/128").

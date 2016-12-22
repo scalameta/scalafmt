@@ -28,16 +28,20 @@
       function(arg1, arg2(arg3(arg4, arg5, "arg6"), arg7 + arg8), arg9.select(1, 2, 3, 4, 5, 6)) }
 
   @p
-    Scalafmt is quite new.
-    Still, it already seems to be useful for some people so it might also be
-    useful for you.
-    Scalafmt can format almost all of Spark, Akka, Scala.js and the IntelliJ
-    Scala plugin.
-    It's quite fast, too.
-    Over 95% of all files format in under under 160ms on my laptop and less
-    than 1% of all files take more than 1 second.
-    The default style should work great, but if you need more
-    there are some handy @sect.ref{Configuration} options.
+    The goal of scalafmt is to produce good enough formatted code so that
+    you can put your attention to programming instead of syntax trivia.
+    Scalafmt can be used in several environments such as the command line, text
+    editors and build tools.
+  @p
+    It is not a goal to format every single Scala source file under the sun.
+    In particular, scalafmt cannot format deeply nested computer generated
+    code.
+
+  @p
+    Scalafmt is maintained by @lnk("@olafurpg", "https://twitter.com/olafurpg")
+    in his free time.
+    Bug reports, feature requests, questions and PRs are welcome.
+    Complaints, unfriendly attitude or entitlement to immediate service is not welcome.
 
   @p
     Curious to learn more about scalafmt? Check out this talk:

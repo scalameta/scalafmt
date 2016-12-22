@@ -9,9 +9,6 @@
      Join @lnk("the scalafmt mailing list", "https://groups.google.com/forum/#!forum/scalafmt")
      to receive announcements of new releases only. No spam, promise.
 
-   @sect{How do I customize scalafmt?}
-     See @sect.ref{Configuration}.
-
    @sect{Why not Scalariform?}
      @lnk("Scalariform", "http://scala-ide.org/scalariform/") does an
      excellent job of tidying up common formatting errors. However,
@@ -67,7 +64,7 @@
          add @code("?w=1") to the URL to ignore whitespace changes.
        @li
          @code{git blame} has a @code{-w} flag to ignore whitespace changes
-         so you can still blame your colleagues if you reformat your codebase.
+         so you can still blame your colleagues for their crappy code.
        @li
          code is read waaay more often outside of code reviews, for example
          when you are actually coding.

@@ -72,21 +72,7 @@
         // ...
       }
 
-    Option 3: @b{Scala.js} (experimental)
-    @fmt(ScalafmtConfig.scalaJs.copy(maxColumn = 40))
-      // Column 40                           |
-      // bin packed parent constructors
-      object ScalaJsStyle extends Parent with SecondParent with ThirdParent {
-        // bin packed arguments
-        function(argument1, argument2, argument3, argument4)
-        // Vertical alignment for only =>
-        x match {
-          case 1 => 1
-          case 11 => 1
-        }
-      }
-
-    Option 4: @b{IntelliJ} (experimental)
+    Option 3: @b{IntelliJ}
     @fmt(ScalafmtConfig.intellij.copy(maxColumn = 40))
       // Column 40                           |
       // non bin packed parent constructors
@@ -103,6 +89,9 @@
         def foobar(argument1: Type1, argument2: Type2): Int = argument1 + argument2
 
       }
+
+    @note. There is a Scala.js style that is super experimental and does not
+    work for complicated code.
 
   @sect{maxColumn}
     Default: @b(default.maxColumn)
@@ -316,6 +305,9 @@
           x + 2
       }.filter(_ > 2)
 
+    For more details, see
+    @lnk("this comment", "https://github.com/olafurpg/scalafmt/issues/444#issuecomment-255215698").
+
   @sect{optIn.breakChainOnFirstMethodDot}
     Default: @default.optIn.breakChainOnFirstMethodDot
 
@@ -366,7 +358,7 @@
       val secret: List[Bit] = List(0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1,
         0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1,
         0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1)
-      // if false. Note browser wraps code block,
+      // if false.
       val secret: List[Bit] = List(
         0,
         0,
@@ -384,22 +376,35 @@
       bodies to trigger flag.
 
     @hl.scala
-      // when argument body is big
-      HttpResponse(200, headers = resCH.toList,
-        entity = if (resCD) HttpEntity.CloseDelimited(ContentTypes.`text/plain(UTF-8)`,
-          Source.single(ByteString("ENTITY")))
-        else HttpEntity("ENTITY"), protocol = resProto)
-      // force "config style"
-      HttpResponse(
-        200,
-        headers = resCH.toList,
-        entity =
-          if (resCD)
-            HttpEntity.CloseDelimited(ContentTypes.`text/plain(UTF-8)`,
-                                      Source.single(ByteString("ENTITY")))
-          else HttpEntity("ENTITY"),
-        protocol = resProto
+      // Before: Argument body is too big
+      Account(userName = "user",
+              fullName = "user@@localhost",
+              mailAddress = "",
+              password = "",
+              isAdmin = false,
+              url = None,
+              registeredDate = new Date(),
+              updatedDate = new Date(),
+              lastLoginDate = None,
+              image = image,
+              isGroupAccount = false,
+              isRemoved = false)
+      // After: "config style"
+      Account(
+        userName = "user",
+        fullName = "user@@localhost",
+        mailAddress = "",
+        password = "",
+        isAdmin = false,
+        url = None,
+        registeredDate = new Date(),
+        updatedDate = new Date(),
+        lastLoginDate = None,
+        image = image,
+        isGroupAccount = false,
+        isRemoved = false
       )
+
     @p
       Set @cliFlags{runner.optimizer.forceConfigStyleMinArgCount = 1} to enable
       this rule for function calls with only 1 argument

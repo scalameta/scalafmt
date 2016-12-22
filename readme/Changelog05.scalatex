@@ -25,7 +25,7 @@
           See @sect.ref{newlines.penalizeSingleSelectMultiArgList}.
         @li
           @cliFlags{runner.optimizer.forceConfigStyleOnOffset = 150}, was -1.
-          See @sect.ref{newlines.penalizeSingleSelectMultiArgList}.
+          See @sect.ref{runner.optimizer.forceConfigStyleOnOffset}.
       You can opt-out of these changes by using the older setting values.
       v0.5 may still have some minor diffs which are not configurable.
     @li

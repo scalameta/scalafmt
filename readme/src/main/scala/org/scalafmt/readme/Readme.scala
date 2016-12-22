@@ -64,6 +64,7 @@ object Readme {
 
   def github: String = "https://github.com"
   def repo: String = "https://github.com/olafurpg/scalafmt"
+  def gitRepo: String = repo + ".git"
 
   def user(name: String) = a(href := s"$github/$name", s"@$name")
   def users(names: String*) =
