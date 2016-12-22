@@ -1,5 +1,7 @@
 package org.scalafmt
 
+import java.io.File
+
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.FormatAssertions
@@ -33,7 +35,7 @@ class FidelityTest extends FunSuite with FormatAssertions {
           "/target/",
           "/resources/",
           "/gh-pages/"
-        ).exists(x.contains))
+        ).map(_.replace("/", File.separator)).exists(x.contains))
 
   val examples = files.map(Test.apply)
 

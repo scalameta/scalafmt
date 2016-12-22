@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileNotFoundException
-import java.io.InputStream
 import java.io.PrintStream
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
@@ -15,7 +14,6 @@ import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.FileOps
-import org.scalafmt.util.GitOps
 import org.scalafmt.util.logger
 import org.scalatest.FunSuite
 

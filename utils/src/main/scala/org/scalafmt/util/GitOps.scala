@@ -45,7 +45,7 @@ class GitOpsImpl(workingDirectory: AbsoluteFile) extends GitOps {
           "HEAD",
           "--name-only"
         )
-      ).split("\n").toSeq.collect {
+      ).split(OsSpecific.lineSeparator).toSeq.collect {
         case f if new File(f).isFile => workingDirectory / f
       }
     }.getOrElse(Nil)

@@ -1,5 +1,7 @@
 package org.scalafmt
 
+import java.io.File
+
 import scala.meta.Tree
 import scala.meta.parsers.Parse
 
@@ -126,8 +128,9 @@ val msg = s'''AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
              |'''.stripMargin""".replace("'''", "\"\"\"")
 
   override val tests =
-    parseDiffTests(rawStrings, "stripMargin/String.stat") ++
-      (parseDiffTests(interpolatedStrings, "stripMargin/Interpolate.stat"))
+    parseDiffTests(rawStrings, s"stripMargin${File.separator}String.stat") ++
+      (parseDiffTests(interpolatedStrings,
+                      s"stripMargin${File.separator}Interpolate.stat"))
 
   testsToRun.foreach(runTest(run))
 

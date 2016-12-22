@@ -47,7 +47,7 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
     }
   )
   lazy val debugResults = mutable.ArrayBuilder.make[Result]
-  val testDir = "core/src/test/resources"
+  val testDir = "core/src/test/resources".replace("/", File.separator)
 
   def tests: Seq[DiffTest]
 
@@ -77,15 +77,20 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
   def extension(filename: String): String = filename.replaceAll(".*\\.", "")
 
   def parseDiffTests(content: String, filename: String): Seq[DiffTest] = {
+    val sep =
+      if (content.contains(OsSpecific.lineSeparator)) OsSpecific.lineSeparator
+      else "\n"
     val spec = filename.stripPrefix(testDir + File.separator)
     val moduleOnly = isOnly(content)
     val moduleSkip = isSkip(content)
-    val split = content.split("\n<<< ")
+    val split = content.split(s"$sep<<< ")
 
     val style: ScalafmtConfig = {
       val firstLine = split.head
+      val pathPatternToReplace =
+        if (OsSpecific.isWindows) s"""\\\\.*""" else "/.*"
       Try(
-        spec2style(spec.replaceFirst("/.*", ""))
+        spec2style(spec.replaceFirst(pathPatternToReplace, ""))
       ).getOrElse(
         Config.fromHocon(firstLine.stripPrefix("ONLY ")) match {
           case Right(s)
@@ -98,8 +103,8 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
     }
 
     split.tail.map { t =>
-      val before :: expected :: Nil = t.split("\n>>>\n", 2).toList
-      val name :: original :: Nil = before.split("\n", 2).toList
+      val before :: expected :: Nil = t.split(s"$sep>>>$sep", 2).toList
+      val name :: original :: Nil = before.split(sep, 2).toList
       val actualName = stripPrefix(name)
       DiffTest(spec,
                actualName,

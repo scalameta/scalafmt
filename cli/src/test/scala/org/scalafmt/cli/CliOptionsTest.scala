@@ -8,7 +8,6 @@ import org.scalafmt.config.AlignToken
 import org.scalafmt.config.ImportSelectors
 import org.scalafmt.config.IndentOperator
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.util.LoggerOps._
 import org.scalatest.FunSuite
 
 class CliOptionsTest extends FunSuite {

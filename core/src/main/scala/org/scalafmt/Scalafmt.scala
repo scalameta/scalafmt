@@ -1,7 +1,6 @@
 package org.scalafmt
 
 import scala.meta.Input.stringToInput
-import scala.meta.Input.stringToInput
 import scala.meta.inputs.Input
 import scala.util.control.NonFatal
 
@@ -9,7 +8,6 @@ import org.scalafmt.Error.Incomplete
 import org.scalafmt.config.FormatEvent.CreateFormatOps
 import org.scalafmt.config.LineEndings.preserve
 import org.scalafmt.config.LineEndings.windows
-import org.scalafmt.config.ScalafmtRunner
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.BestFirstSearch
 import org.scalafmt.internal.FormatOps
@@ -26,7 +24,6 @@ object Scalafmt {
     *
     * @param code Code string to format.
     * @param style Configuration for formatting output.
-    * @param runner Configuration for how the formatting should run.
     * @param range EXPERIMENTAL. Format a subset of lines.
     * @return [[Formatted.Success]] if successful,
     *         [[Formatted.Failure]] otherwise. If you are OK with throwing
