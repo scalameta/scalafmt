@@ -29,7 +29,7 @@
 
   @p
     The goal of scalafmt is to produce good enough formatted code so that
-    you can put your attention to programming instead of syntax trivia.
+    you can focus on programming instead of manipulating syntax trivia.
     Scalafmt can be used in several environments such as the command line, text
     editors and build tools.
   @p
