@@ -337,14 +337,16 @@ object TreeOps {
     select +: getSelectChain(select, Vector.empty[Term.Select])
   }
 
+  def isChainApplyParent(parent: Tree, child: Tree): Boolean =
+    splitApplyIntoLhsAndArgsLifted(parent).exists(_._1 == child)
+
   @tailrec
   final def getSelectChain(child: Tree,
                            accum: Vector[Term.Select]): Vector[Term.Select] = {
     child.parent match {
       case Some(parent: Term.Select) =>
         getSelectChain(parent, accum :+ parent)
-      case Some(parent)
-          if splitApplyIntoLhsAndArgsLifted(parent).exists(_._1 == child) =>
+      case Some(parent) if isChainApplyParent(parent, child) =>
         getSelectChain(parent, accum)
       case els => accum
     }

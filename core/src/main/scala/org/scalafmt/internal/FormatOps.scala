@@ -107,6 +107,33 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       ownersMap.get(hash(tok)).map(tree => tok -> tree)
   }
 
+  object `:chain:` {
+    def unapply(tok: Token): Option[(Token, Vector[Term.Select])] = {
+      val rightOwner = owners(tok)
+      val openApply = next(leftTok2tok(tok)).right
+      def startsOpenApply =
+        isOpenApply(openApply,
+                    includeCurly = initStyle.includeCurlyBraceInSelectChains)
+      def isChildOfImport =
+        parents(rightOwner).exists(_.is[Import])
+      def isShortCurlyChain(chain: Vector[Term.Select]): Boolean =
+        chain.length == 2 && {
+          !(for {
+            child <- chain.lastOption
+            parent <- child.parent
+          } yield isChainApplyParent(parent, child)).getOrElse(false)
+        }
+
+      rightOwner match {
+        case t: Term.Select if startsOpenApply && !isChildOfImport =>
+          val chain = getSelectChain(t)
+          if (openApply.is[LeftBrace] && isShortCurlyChain(chain)) None
+          else Some(tok -> chain)
+        case _ => None
+      }
+    }
+  }
+
   lazy val leftTok2tok: Map[Token, FormatToken] = {
     val result = Map.newBuilder[Token, FormatToken]
     result.sizeHint(tokens.length)
