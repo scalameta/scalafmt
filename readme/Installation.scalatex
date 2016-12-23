@@ -203,7 +203,7 @@
       @li
         @p
           The sbt plugin does not provide reformat on compile settings.
-          @lnk("This gist", "https://github.com/olafurpg/scalafmt/issues/597")
+          @lnk("This gist", "https://gist.github.com/olafurpg/e045ef9d8a4273bae3e2ccf610636d66")
           shows a DIY plugin to enable reformat on compile.
           YMMV.
         @p
