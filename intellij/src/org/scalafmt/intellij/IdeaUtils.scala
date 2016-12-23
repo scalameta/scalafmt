@@ -76,7 +76,8 @@ object IdeaUtils {
           "Configuration is now read from '.scalafmt.conf' using HOCON syntax. " +
           "Run `scalafmt --migrate2hocon .scalafmt` from the the CLI to migrate your settings. " +
           "More details in changelog for 0.4  release.",
-        NotificationType.WARNING)
+        NotificationType.WARNING
+      )
     }
 
   def getCurrentFileDocument(event: AnActionEvent): Option[FileDocument] =

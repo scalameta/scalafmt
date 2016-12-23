@@ -329,16 +329,20 @@ object TermDisplay {
         case Some(Message.Stop) => // poison pill
         case Some(Message.Update) =>
           val (done0, downloads0) = downloads.synchronized {
-            val q = doneQueue.toVector.filter {
-              case (url, _) =>
-                !url.endsWith(".sha1") && !url.endsWith(".md5")
-            }.sortBy { case (url, _) => url }
+            val q = doneQueue.toVector
+              .filter {
+                case (url, _) =>
+                  !url.endsWith(".sha1") && !url.endsWith(".md5")
+              }
+              .sortBy { case (url, _) => url }
 
             doneQueue.clear()
 
-            val dw = downloads.toVector.map { url =>
-              url -> infos.get(url)
-            }.sortBy { case (_, info) => -info.fraction.sum }
+            val dw = downloads.toVector
+              .map { url =>
+                url -> infos.get(url)
+              }
+              .sortBy { case (_, info) => -info.fraction.sum }
 
             (q, dw)
           }
@@ -390,9 +394,11 @@ object TermDisplay {
 
         case Some(Message.Update) =>
           val downloads0 = downloads.synchronized {
-            downloads.toVector.map { url =>
-              url -> infos.get(url)
-            }.sortBy { case (_, info) => -info.fraction.sum }
+            downloads.toVector
+              .map { url =>
+                url -> infos.get(url)
+              }
+              .sortBy { case (_, info) => -info.fraction.sum }
           }
 
           var displayedSomething = false

@@ -70,8 +70,10 @@ class GitOpsImpl(workingDirectory: AbsoluteFile) extends GitOps {
         "--name-only",
         "HEAD",
         branch
-      )).lines.map { x =>
-      AbsoluteFile.fromFile(new File(x), workingDirectory)
-    }.toSeq
+      )).lines
+      .map { x =>
+        AbsoluteFile.fromFile(new File(x), workingDirectory)
+      }
+      .toSeq
   }
 }

@@ -17,10 +17,12 @@ object RedundantParens extends Rewrite {
         val tokens: Tokens = g.cond.tokens
         if (isWrappedInParens(tokens)) {
           val openParensCount = tokens.segmentLength(_.is[LeftParen], 0)
-          val closeParensCount = tokens.reverse.segmentLength(_.is[RightParen], 0)
+          val closeParensCount =
+            tokens.reverse.segmentLength(_.is[RightParen], 0)
           val parensToRemoveCount = Math.min(openParensCount, closeParensCount)
           val leftSegment: Tokens = tokens.slice(0, parensToRemoveCount)
-          val rightSegment: Tokens = tokens.slice(tokens.length - parensToRemoveCount, tokens.length)
+          val rightSegment: Tokens =
+            tokens.slice(tokens.length - parensToRemoveCount, tokens.length)
           builder += Patch(leftSegment.head, leftSegment.last, "")
           builder += Patch(rightSegment.head, rightSegment.last, "")
         }

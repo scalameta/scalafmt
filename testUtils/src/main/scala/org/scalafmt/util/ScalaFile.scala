@@ -110,7 +110,7 @@ object ScalaFile {
       // uses a package called `macro`
       "target/repos/sbt/sbt/src/sbt-test/source-dependencies/inherited-macros",
       "target/repos/sbt/sbt/src/sbt-test/source-dependencies/macro",
-      "target/repos/lila/modules/lobby/src/main/SocketHandler.scala").exists(
-      filename.contains)
+      "target/repos/lila/modules/lobby/src/main/SocketHandler.scala"
+    ).exists(filename.contains)
   }
 }

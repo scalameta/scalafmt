@@ -116,13 +116,15 @@ object State {
       else if (TokenOps.isFormatOn(tok.right)) false
       else formatOff
 
-    State(cost + splitWithPenalty.cost,
-          // TODO(olafur) expire policy, see #18.
-          newPolicy,
-          splits :+ splitWithPenalty,
-          newIndent,
-          newIndents,
-          nextStateColumn,
-          nextFormatOff)
+    State(
+      cost + splitWithPenalty.cost,
+      // TODO(olafur) expire policy, see #18.
+      newPolicy,
+      splits :+ splitWithPenalty,
+      newIndent,
+      newIndents,
+      nextStateColumn,
+      nextFormatOff
+    )
   }
 }

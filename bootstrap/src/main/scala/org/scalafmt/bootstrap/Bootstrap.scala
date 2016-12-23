@@ -62,9 +62,11 @@ object Scalafmt {
   def fromGitOps(gitOps: GitOps): Either[Throwable, Scalafmt] = {
     val version = Seq(Some(AbsoluteFile.userDir),
                       gitOps.rootDir,
-                      Some(AbsoluteFile.homeDir)).collectFirst {
-      case Some(DefinesVersion(v)) => v
-    }.getOrElse(org.scalafmt.Versions.stable)
+                      Some(AbsoluteFile.homeDir))
+      .collectFirst {
+        case Some(DefinesVersion(v)) => v
+      }
+      .getOrElse(org.scalafmt.Versions.stable)
     fromVersion(version)
   }
 

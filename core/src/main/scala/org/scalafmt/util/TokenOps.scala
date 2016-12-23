@@ -132,17 +132,22 @@ object TokenOps {
                       disallowInlineComments: Boolean = true,
                       penaliseNewlinesInsideTokens: Boolean = false)(
       implicit line: sourcecode.Line): Policy = {
-    Policy({
-      case Decision(tok, splits)
-          if !tok.right.is[EOF] && tok.right.end <= expire.end &&
-            exclude.forall(!_.contains(tok.left.start)) &&
-            (disallowInlineComments || !isInlineComment(tok.left)) =>
-        if (penaliseNewlinesInsideTokens && tok.leftHasNewline) {
-          Decision(tok, Seq.empty[Split])
-        } else {
-          Decision(tok, splits.filterNot(_.modification.isNewline))
-        }
-    }, expire.end, noDequeue = exclude.isEmpty, isSingleLine = true)
+    Policy(
+      {
+        case Decision(tok, splits)
+            if !tok.right.is[EOF] && tok.right.end <= expire.end &&
+              exclude.forall(!_.contains(tok.left.start)) &&
+              (disallowInlineComments || !isInlineComment(tok.left)) =>
+          if (penaliseNewlinesInsideTokens && tok.leftHasNewline) {
+            Decision(tok, Seq.empty[Split])
+          } else {
+            Decision(tok, splits.filterNot(_.modification.isNewline))
+          }
+      },
+      expire.end,
+      noDequeue = exclude.isEmpty,
+      isSingleLine = true
+    )
   }
 
   def isInlineComment(token: Token): Boolean = token match {

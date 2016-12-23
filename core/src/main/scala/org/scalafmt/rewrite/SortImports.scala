@@ -36,28 +36,30 @@ object SortImports extends Rewrite {
   }
 
   override def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch] = {
-    code.collect {
-      case q"import ..$imports" =>
-        imports.flatMap { `import` =>
-          if (`import`.importees.exists(!_.is[Importee.Name])) {
-            // Do nothing if an importee has for example rename
-            // import a.{d, b => c}
-            // I think we are safe to sort these, just want to convince myself
-            // it's 100% safe first.
-            Nil
-          } else {
-            val sortedImporteesByIndex: Map[Int, String] =
-              sorted(`import`.importees.map(_.syntax)).zipWithIndex
-                .map(_.swap)
-                .toMap
-            `import`.importees.zipWithIndex.collect {
-              case (importee, i) =>
-                Patch(importee.tokens.head,
-                      importee.tokens.last,
-                      sortedImporteesByIndex(i))
+    code
+      .collect {
+        case q"import ..$imports" =>
+          imports.flatMap { `import` =>
+            if (`import`.importees.exists(!_.is[Importee.Name])) {
+              // Do nothing if an importee has for example rename
+              // import a.{d, b => c}
+              // I think we are safe to sort these, just want to convince myself
+              // it's 100% safe first.
+              Nil
+            } else {
+              val sortedImporteesByIndex: Map[Int, String] =
+                sorted(`import`.importees.map(_.syntax)).zipWithIndex
+                  .map(_.swap)
+                  .toMap
+              `import`.importees.zipWithIndex.collect {
+                case (importee, i) =>
+                  Patch(importee.tokens.head,
+                        importee.tokens.last,
+                        sortedImporteesByIndex(i))
+              }
             }
           }
-        }
-    }.flatten
+      }
+      .flatten
   }
 }

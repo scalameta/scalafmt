@@ -373,18 +373,20 @@ class Router(formatOps: FormatOps) {
       case tok @ FormatToken(e @ Equals(), right, _)
           if defBody(leftOwner).isDefined =>
         val expire = defBody(leftOwner).get.tokens.last
-        val exclude = getExcludeIf(expire, {
-          case RightBrace() => true
-          case close @ RightParen()
-              if opensConfigStyle(
-                leftTok2tok(matchingParentheses(hash(close)))) =>
-            // Example:
-            // def x = foo(
-            //     1
-            // )
-            true
-          case _ => false
-        })
+        val exclude = getExcludeIf(
+          expire, {
+            case RightBrace() => true
+            case close @ RightParen()
+                if opensConfigStyle(
+                  leftTok2tok(matchingParentheses(hash(close)))) =>
+              // Example:
+              // def x = foo(
+              //     1
+              // )
+              true
+            case _ => false
+          }
+        )
 
         val rhsIsJsNative = isJsNative(right)
         right match {
@@ -881,9 +883,11 @@ class Router(formatOps: FormatOps) {
             // many arguments on the same line can be hard to read. By not
             // putting a newline before the dot, we force the argument list
             // to break into multiple lines.
-            splitApplyIntoLhsAndArgsLifted(owners(next(next(tok)).right)).map {
-              case (_, lst) => Math.max(0, lst.length - 1)
-            }.getOrElse(0)
+            splitApplyIntoLhsAndArgsLifted(owners(next(next(tok)).right))
+              .map {
+                case (_, lst) => Math.max(0, lst.length - 1)
+              }
+              .getOrElse(0)
           } else 0
         if (TokenOps.isSymbolicIdent(left))
           Seq(Split(NoSplit, 0))
@@ -941,15 +945,19 @@ class Router(formatOps: FormatOps) {
             val policy =
               if (hasSelfAnnotation) NoPolicy
               else {
-                Policy({
-                  // Force template to be multiline.
-                  case d @ Decision(FormatToken(open @ LeftBrace(), right, _),
-                                    splits)
-                      if !hasSelfAnnotation &&
-                        !right.is[RightBrace] && // corner case, body is {}
-                        childOf(template, owners(open)) =>
-                    d.copy(splits = splits.filter(_.modification.isNewline))
-                }, expire.end)
+                Policy(
+                  {
+                    // Force template to be multiline.
+                    case d @ Decision(
+                          FormatToken(open @ LeftBrace(), right, _),
+                          splits)
+                        if !hasSelfAnnotation &&
+                          !right.is[RightBrace] && // corner case, body is {}
+                          childOf(template, owners(open)) =>
+                      d.copy(splits = splits.filter(_.modification.isNewline))
+                  },
+                  expire.end
+                )
               }
             Seq(
               Split(Space, 0),
@@ -1154,13 +1162,16 @@ class Router(formatOps: FormatOps) {
             .withOptimalToken(expire, killOnFail = true)
             .withPolicy(SingleLineBlock(expire)),
           Split(Space, 1)
-            .withPolicy(Policy({
-              case d @ Decision(t @ FormatToken(`arrow`, right, between), s)
-                  // TODO(olafur) any other corner cases?
-                  if !right.isInstanceOf[LeftBrace] &&
-                    !isAttachedComment(right, between) =>
-                Decision(t, s.filter(_.modification.isNewline))
-            }, expire = expire.end))
+            .withPolicy(Policy(
+              {
+                case d @ Decision(t @ FormatToken(`arrow`, right, between), s)
+                    // TODO(olafur) any other corner cases?
+                    if !right.isInstanceOf[LeftBrace] &&
+                      !isAttachedComment(right, between) =>
+                  Decision(t, s.filter(_.modification.isNewline))
+              },
+              expire = expire.end
+            ))
             .withIndent(2, expire, Left) // case body indented by 2.
             .withIndent(2, arrow, Left) // cond body indented by 4.
         )
@@ -1301,26 +1312,29 @@ class Router(formatOps: FormatOps) {
     * determines which edges lead out from the format token.
     */
   def getSplitsMemo(formatToken: FormatToken): Seq[Split] =
-    cache.getOrElseUpdate(formatToken, {
-      val splits = getSplits(formatToken).map(_.adapt(formatToken))
-      formatToken match {
-        // TODO(olafur) refactor into "global policy"
-        // Only newlines after inline comments.
-        case FormatToken(c @ Comment(_), _, _) if c.syntax.startsWith("//") =>
-          val newlineSplits = splits.filter { x =>
-            !x.ignoreIf && x.modification.isNewline
-          }
-          if (newlineSplits.isEmpty) Seq(Split(Newline, 0))
-          else newlineSplits
-        case FormatToken(_, c: Comment, between)
-            if newlinesBetween(between) == 0 && c.syntax.startsWith("//") =>
-          splits.map(
-            x =>
-              if (x.modification.isNewline) x.copy(modification = Space)
-              else x)
-        case _ => splits
+    cache.getOrElseUpdate(
+      formatToken, {
+        val splits = getSplits(formatToken).map(_.adapt(formatToken))
+        formatToken match {
+          // TODO(olafur) refactor into "global policy"
+          // Only newlines after inline comments.
+          case FormatToken(c @ Comment(_), _, _)
+              if c.syntax.startsWith("//") =>
+            val newlineSplits = splits.filter { x =>
+              !x.ignoreIf && x.modification.isNewline
+            }
+            if (newlineSplits.isEmpty) Seq(Split(Newline, 0))
+            else newlineSplits
+          case FormatToken(_, c: Comment, between)
+              if newlinesBetween(between) == 0 && c.syntax.startsWith("//") =>
+            splits.map(
+              x =>
+                if (x.modification.isNewline) x.copy(modification = Space)
+                else x)
+          case _ => splits
+        }
       }
-    })
+    )
 
   private implicit def int2num(n: Int): Num = Num(n)
 }

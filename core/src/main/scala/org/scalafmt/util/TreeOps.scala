@@ -96,17 +96,19 @@ object TreeOps {
       // Each @annotation gets a separate line
       val annotations = mods.filter(_.is[Mod.Annot])
       addAll(annotations)
-      val firstNonAnnotation: Token = mods.collectFirst {
-        case x if !x.is[Mod.Annot] =>
-          // Non-annotation modifier, for example `sealed`/`abstract`
-          x.tokens.head
-      }.getOrElse {
-        // No non-annotation modifier exists, fallback to keyword like `object`
-        tree.tokens.find(x => classTag[T].runtimeClass.isInstance(x)) match {
-          case Some(x) => x
-          case None => throw Error.CantFindDefnToken[T](tree)
+      val firstNonAnnotation: Token = mods
+        .collectFirst {
+          case x if !x.is[Mod.Annot] =>
+            // Non-annotation modifier, for example `sealed`/`abstract`
+            x.tokens.head
         }
-      }
+        .getOrElse {
+          // No non-annotation modifier exists, fallback to keyword like `object`
+          tree.tokens.find(x => classTag[T].runtimeClass.isInstance(x)) match {
+            case Some(x) => x
+            case None => throw Error.CantFindDefnToken[T](tree)
+          }
+        }
       ret += hash(firstNonAnnotation) -> tree
     }
 

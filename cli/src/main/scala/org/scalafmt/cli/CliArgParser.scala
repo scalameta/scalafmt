@@ -67,24 +67,24 @@ object CliArgParser {
       opt[Unit]('v', "version")
         .action(printAndExit(inludeUsage = false))
         .text("print version ")
-      opt[Seq[File]]('f', "files").action { (files, c) =>
-        c.copy(
-          customFiles =
-            AbsoluteFile.fromFiles(files, c.common.workingDirectory))
-      }.text(
-        "file or directory, in which case all *.scala files are formatted.")
+      opt[Seq[File]]('f', "files")
+        .action { (files, c) =>
+          c.copy(
+            customFiles =
+              AbsoluteFile.fromFiles(files, c.common.workingDirectory))
+        }
+        .text(
+          "file or directory, in which case all *.scala files are formatted.")
       opt[Seq[String]]("exclude")
         .action((excludes, c) => c.copy(customExcludes = excludes))
         .text(
           "file or directory, in which case all *.scala files are formatted.")
       opt[String]('c', "config")
         .action(readConfigFromFile)
-        .text(
-          "a file path to .scalafmt.conf.")
+        .text("a file path to .scalafmt.conf.")
       opt[String]("config-str")
-          .action(readConfig)
-          .text(
-            "configuration defined as a string")
+        .action(readConfig)
+        .text("configuration defined as a string")
       opt[Unit]("stdin")
         .action((_, c) => c.copy(stdIn = true))
         .text("read from stdin and print to stdout")

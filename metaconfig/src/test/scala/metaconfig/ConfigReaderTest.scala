@@ -24,9 +24,8 @@ class ConfigReaderTest extends FunSuite {
 
   val b = Bar(0, true, "str")
   test("invalid field") {
-    assert(
-      b.reader.read(Map("is" -> 2, "var" -> 3)) ==
-        Left(ConfigError("Error reading class 'Bar'. Invalid fields: is, var")))
+    assert(b.reader.read(Map("is" -> 2, "var" -> 3)) ==
+      Left(ConfigError("Error reading class 'Bar'. Invalid fields: is, var")))
   }
 
   test("read OK") {

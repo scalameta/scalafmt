@@ -118,15 +118,17 @@ trait ScalaProjectsExperiment {
             "90th",
             "95th",
             "99th"),
-        Seq(totalNanos,
-            stats.getMax,
-            stats.getMin,
-            stats.getMean,
-            stats.getPercentile(50),
-            stats.getPercentile(75),
-            stats.getPercentile(90),
-            stats.getPercentile(95),
-            stats.getPercentile(99)).map(formatNumber)
+        Seq(
+          totalNanos,
+          stats.getMax,
+          stats.getMin,
+          stats.getMean,
+          stats.getPercentile(50),
+          stats.getPercentile(75),
+          stats.getPercentile(90),
+          stats.getPercentile(95),
+          stats.getPercentile(99)
+        ).map(formatNumber)
       ))
 
   private def formatNumber(x: Any): String = x match {
@@ -139,11 +141,13 @@ trait ScalaProjectsExperiment {
   }
 
   private def col(strings: Any*): String =
-    strings.map { s =>
-      val x = s match {
-        case d: Double => numberFormat.format(d)
-        case _ => s
+    strings
+      .map { s =>
+        val x = s match {
+          case d: Double => numberFormat.format(d)
+          case _ => s
+        }
+        x.toString.slice(0, colLength - 2).padTo(colLength - 1, " ").mkString
       }
-      x.toString.slice(0, colLength - 2).padTo(colLength - 1, " ").mkString
-    }.mkString(" ")
+      .mkString(" ")
 }

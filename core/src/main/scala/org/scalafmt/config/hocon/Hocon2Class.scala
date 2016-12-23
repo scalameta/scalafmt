@@ -10,9 +10,11 @@ object Hocon2Class {
     import scala.collection.JavaConverters._
     def loop(obj: Any): Any = obj match {
       case map: java.util.Map[_, _] =>
-        map.asScala.map {
-          case (key, value) => key -> loop(value)
-        }.toMap
+        map.asScala
+          .map {
+            case (key, value) => key -> loop(value)
+          }
+          .toMap
       case map: java.util.List[_] =>
         map.asScala.map(loop).toList
       case e => e
