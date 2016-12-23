@@ -1,7 +1,7 @@
-# scalafmt [![codecov.io](https://codecov.io/github/olafurpg/scalafmt/coverage.svg?branch=master)](https://codecov.io/github/olafurpg/scalafmt?branch=master) [![Build Status](https://travis-ci.org/olafurpg/scalafmt.svg?branch=master)](https://travis-ci.org/olafurpg/scalafmt) [![Join the chat at https://gitter.im/olafurpg/scalafmt](https://badges.gitter.im/olafurpg/scalafmt.svg)](https://gitter.im/olafurpg/scalafmt?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Latest version](https://index.scala-lang.org/olafurpg/scalafmt/scalafmt/latest.svg?color=orange)](https://index.scala-lang.org/olafurpg/scalafmt/scalafmt-core)
+# scalafmt [![Build Status](https://travis-ci.org/olafurpg/scalafmt.svg?branch=master)](https://travis-ci.org/olafurpg/scalafmt) [![Join the chat at https://gitter.im/olafurpg/scalafmt](https://badges.gitter.im/olafurpg/scalafmt.svg)](https://gitter.im/olafurpg/scalafmt?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Latest version](https://index.scala-lang.org/olafurpg/scalafmt/scalafmt/latest.svg?color=orange)](https://index.scala-lang.org/olafurpg/scalafmt/scalafmt-core)
 
 ### [User documentation][docs]
-Head over to [the user docs][docs] for instructions on how to install scalafmt. To build the docs yourself, `sbt readme/run` will produce the docs which you can open with `open readme/target/scalatex/index.html`.
+Head over to [the user docs][docs] for instructions on how to install scalafmt.
 
 ## Hacking on scalafmt
 
@@ -10,26 +10,22 @@ I hope to make scalafmt a community effort so that the project has a
 I've tried to do my best to concisely summarise how I work on scalafmt.
 For any questions, don't hesitate to ask on gitter.
 
-### Tips
+### Quick help
 
-- `core/testOnly org.scalafmt.FormatTests`: runs the fast, most relevant, unit tests.
-    * After each run, a performance report is generated in `target/index.html`. 
-    I usually keep a browser tab open at `localhost:3000/target/index.html`
-    along with this background process:
-    `browser-sync start --server --files "target/*.html"`.
-    See [Browsersync](https://www.browsersync.io/).
-- `core/testOnly org.scalafmt.FidelityTest`: runs the formatter on all files in
-  this project.
-- `run-benchmarks.sh` script to run jmh benchmarks.
-- `core/test:runMain  org.scalafmt.FormatExperimentApp`:
-  1. Downloads a ~20mb tar
-     ([repos.tar.gz](https://github.com/olafurpg/scalafmt/releases/tag/v0.1.4))
-     that contains ~28.000 Scala source files from public Github repos,
-  2. untars,
-  3. runs scalafmt on a subset of the files, specified in `FormatExperiment`.
-     Runs various property based checks under timing constraints (around 10s per file),
-  4. prints summary report to console.
-- instructions for the tests [are here](core/src/test/resources).
+- Run formatting tests: `core/testOnly org.scalafmt.FormatTests`.
+- Write new formatting test: read [this doc](core/src/test/resources/readme.md).
+- Build docs: `sbt readme/run` will produce the docs, which you can open with
+  `open readme/target/scalatex/index.html`. Docs are built with [Scalatex](http://www.lihaoyi.com/Scalatex/).
+- Run jmh benchmarks: `run-benchmarks.sh`.
+- Run formatter on millions of lines of code: `core/test:runMain  org.scalafmt.FormatExperimentApp`:
+- Hack on IntelliJ plugin: see [this doc](intellij/readme.md).
+- Debug performance: after each test run in `FormatTests`, a flamegraph report
+  like [this one](https://github.com/olafurpg/scalafmt/issues/140)
+  is generated in `target/index.html`. 
+  I usually keep a browser tab open at `localhost:3000/target/index.html`
+  along with this background process:
+  `browser-sync start --server --files "target/*.html"`.
+  See [Browsersync](https://www.browsersync.io/).
 
 [docs]: http://scalafmt.org
 
