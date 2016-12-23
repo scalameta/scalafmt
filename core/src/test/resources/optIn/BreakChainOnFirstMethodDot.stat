@@ -1,4 +1,4 @@
-80 columns                                                                     |
+optIn.breakChainOnFirstMethodDot = true
 <<< keep the new line on method call if it's already there
 execute(request)
   .map(success => Xor.Right(success))

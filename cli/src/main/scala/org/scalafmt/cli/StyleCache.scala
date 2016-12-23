@@ -8,7 +8,6 @@ import metaconfig.Result
 import org.scalafmt.config
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.FileOps
-import org.scalafmt.util.logger
 
 object StyleCache {
   private val styleCache = mutable.Map.empty[String, ScalafmtConfig]

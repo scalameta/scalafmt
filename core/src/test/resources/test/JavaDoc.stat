@@ -1,0 +1,17 @@
+docstrings = JavaDoc
+<<< test 1
+object a {
+/**
+   * Y is cool
+   */
+val y = 2
+}
+>>>
+object a {
+
+  /**
+   * Y is cool
+   */
+  val y = 2
+}
+

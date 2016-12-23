@@ -1,0 +1,31 @@
+runner.dialect = Sbt0137
+<<< sbt
+lazy val noPublish = Seq(
+  publish := {},
+  publishLocal := {}
+)
+
+lazy val allSettings = commonSettings ++ buildSettings ++ publishSettings
+
+lazy val root = project
+  .in(file("."))
+  .settings(moduleName := "scalafmt")
+  .settings(allSettings)
+    .settings(noPublish)
+  .aggregate(core, cli, benchmarks, scalafmtSbt, macros, readme)
+  .dependsOn(core)
+>>>
+lazy val noPublish = Seq(
+  publish := {},
+  publishLocal := {}
+)
+
+lazy val allSettings = commonSettings ++ buildSettings ++ publishSettings
+
+lazy val root = project
+  .in(file("."))
+  .settings(moduleName := "scalafmt")
+  .settings(allSettings)
+  .settings(noPublish)
+  .aggregate(core, cli, benchmarks, scalafmtSbt, macros, readme)
+  .dependsOn(core)

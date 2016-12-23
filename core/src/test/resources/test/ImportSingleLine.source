@@ -1,4 +1,4 @@
-40 columns                              |
+importSelectors = singleLine
 <<< break #101
 import org.scalajs.dom.experimental.serviceworkers.{ServiceWorkerGlobalScope, ServiceWorkerRegistration}
 >>>

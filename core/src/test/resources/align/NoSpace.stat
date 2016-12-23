@@ -1,4 +1,4 @@
-80 columns                                                                     |
+align.tokens = [":", ","]
 <<< align colons
 def foo(
   a: Int,

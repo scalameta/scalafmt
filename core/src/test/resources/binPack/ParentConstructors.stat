@@ -1,4 +1,5 @@
-40 columns                              |
+binPack.parentConstructors = true
+maxColumn = 40
 <<< #370
 trait SampleTrait extends A with B with C with D with E{
   self: LongNameMixin with B with C with D with EEEEEEEEE =>

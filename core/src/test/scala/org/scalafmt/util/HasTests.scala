@@ -120,83 +120,8 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
   def spec2style(spec: String): ScalafmtConfig =
     spec match {
       case "unit" => ScalafmtConfig.unitTest40
-      case "default" | "standard" | "scala" =>
-        ScalafmtConfig.unitTest80
-      case "default140" => ScalafmtConfig.unitTest80.copy(maxColumn = 140)
-      case "default100" => ScalafmtConfig.unitTest80.copy(maxColumn = 100)
+      case "default" | "standard" | "scala" => ScalafmtConfig.unitTest80
       case "scalajs" => ScalafmtConfig.scalaJs
-      case "intellij" => ScalafmtConfig.intellij
-      case "noAlign" =>
-        ScalafmtConfig.unitTest80.copy(
-          maxColumn = 40,
-          align = unitTest80.align.copy(
-            openParenCallSite = false
-          )
-        )
-      case "stripMargin" =>
-        ScalafmtConfig.unitTest80.copy(assumeStandardLibraryStripMargin = true)
-      case "spaces" =>
-        ScalafmtConfig.unitTest80.copy(
-          spaces = unitTest80.spaces
-            .copy(inImportCurlyBraces = true, afterTripleEquals = true)
-        )
-      case "align" => ScalafmtConfig.addAlign(ScalafmtConfig.unitTest80)
-      case "alignNoSpace" =>
-        ScalafmtConfig.unitTest80.copy(
-          align = ScalafmtConfig.unitTest80.align.copy(
-            tokens = Set(
-              AlignToken(":", ".*"),
-              AlignToken(",", ".*")
-            )
-          )
-        )
-      case "parentConstructors" =>
-        ScalafmtConfig.unitTest80.copy(
-          binPack = BinPack(false, false, parentConstructors = true),
-          maxColumn = 40
-        )
-      case "alignByArrowEnumeratorGenerator" =>
-        ScalafmtConfig.unitTest40.copy(
-          align = ScalafmtConfig.unitTest40.align
-            .copy(arrowEnumeratorGenerator = true)
-        )
-      case "noIndentOperators" =>
-        ScalafmtConfig.unitTest80.copy(unindentTopLevelOperators = true,
-                                       indentOperator = IndentOperator.akka)
-      case "unicode" =>
-        ScalafmtConfig.unitTest80.copy(
-          rewriteTokens = Map(
-            "=>" -> "⇒",
-            "<-" -> "←"
-          )
-        )
-      case "spacesBeforeContextBound" =>
-        ScalafmtConfig.unitTest80.copy(
-          spaces = unitTest80.spaces.copy(beforeContextBoundColon = true))
-      case "trailing-commas" =>
-        ScalafmtConfig.unitTest40.copy(
-          poorMansTrailingCommasInConfigStyle = true)
-      case "import" =>
-        ScalafmtConfig.unitTest80.copy(
-          importSelectors = ImportSelectors.noBinPack)
-      case "importSingleLine" =>
-        ScalafmtConfig.unitTest80.copy(
-          importSelectors = ImportSelectors.singleLine)
-      case "keepLineBreaks" =>
-        ScalafmtConfig.unitTest80.copy(
-          optIn = unitTest80.optIn.copy(
-            breakChainOnFirstMethodDot = true
-          ))
-      case "newlineBeforeLambdaParams" =>
-        ScalafmtConfig.default.copy(
-          newlines = default.newlines.copy(
-            alwaysBeforeCurlyBraceLambdaParams = true
-          )
-        )
-      case x if Rewrite.name2rewrite.contains(x) =>
-        ScalafmtConfig.default.copy(
-          rewrite = default.rewrite.copy(rules = Seq(Rewrite.name2rewrite(x)))
-        )
       case style => throw UnknownStyle(style)
     }
 
@@ -250,7 +175,8 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
     val obtained =
       Scalafmt.format(t.original, t.style.copy(runner = runner)).get
     if (t.style.rewrite.rules.isEmpty) {
-      assertFormatPreservesAst(t.original, obtained)(parse)
+      assertFormatPreservesAst(t.original, obtained)(parse,
+                                                     t.style.runner.dialect)
     }
     assertNoDiff(obtained, t.expected)
   }

@@ -1,4 +1,4 @@
-40 columns                              |
+spaces.beforeContextBoundColon = true
 <<<  space before colon #180
 def map[T: Class](f: N => T): S[T]
 >>>

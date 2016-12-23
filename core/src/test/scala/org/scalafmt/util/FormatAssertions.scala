@@ -1,5 +1,6 @@
 package org.scalafmt.util
 
+import scala.meta.Dialect
 import scala.meta.Tree
 import scala.meta.parsers.Parse
 import scala.meta.parsers.ParseException
@@ -13,14 +14,14 @@ import org.scalatest.FunSuiteLike
 trait FormatAssertions extends FunSuiteLike with DiffAssertions {
 
   def assertFormatPreservesAst[T <: Tree](original: String, obtained: String)(
-      implicit ev: Parse[T]): Unit = {
+      implicit ev: Parse[T], dialect: Dialect): Unit = {
     import scala.meta._
     original.parse[T] match {
       case Parsed.Error(pos, message, details) =>
         logger.warn(original)
         logger.warn(s"original does not parse $message")
       case Parsed.Success(originalParsed) =>
-        obtained.parse[T] match {
+        dialect(obtained).parse[T] match {
           case Parsed.Success(obtainedParsed) =>
             val originalStructure = originalParsed.show[Structure]
             val obtainedStructure = obtainedParsed.show[Structure]

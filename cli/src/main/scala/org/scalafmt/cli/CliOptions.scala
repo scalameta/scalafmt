@@ -1,11 +1,9 @@
 package org.scalafmt.cli
 
-import java.io.File
 import java.io.InputStream
 import java.io.PrintStream
 
 import org.scalafmt.config.Config
-import org.scalafmt.util.GitOpsImpl
 import org.scalafmt.config.ProjectFiles
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.AbsoluteFile

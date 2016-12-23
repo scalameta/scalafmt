@@ -2,15 +2,12 @@ package org.scalafmt.config
 
 import scala.language.reflectiveCalls
 
-import scala.collection.IterableLike
 import scala.meta.internal.parsers.ScalametaParser
-import scala.util.Try
 
 import metaconfig.HasFields
 import metaconfig.Result
 import metaconfig.String2AnyMap
 import org.scalafmt.config.hocon.Hocon2Class
-import org.scalafmt.util.logger
 
 object Config {
 

@@ -1,0 +1,22 @@
+continuationIndent.callSite = 5
+continuationIndent.defnSite = 3
+<<< #143
+def foo(
+a: Int,
+b: Int
+): Int = {
+  function(
+2,
+3
+)
+}
+>>>
+def foo(
+   a: Int,
+   b: Int
+): Int = {
+  function(
+       2,
+       3
+  )
+}

@@ -7,8 +7,8 @@ import java.io.File
 import org.scalafmt.Error.InvalidScalafmtConfiguration
 import org.scalafmt.Formatted
 import org.scalafmt.Scalafmt
-import org.scalafmt.config.ScalafmtRunner
 import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.config.ScalafmtRunner
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.LoggerOps._
 

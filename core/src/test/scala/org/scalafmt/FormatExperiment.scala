@@ -1,7 +1,7 @@
 package org.scalafmt
 
-import scala.collection.JavaConverters._
 import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.meta._
 import scala.util.Random
 import scala.util.Try

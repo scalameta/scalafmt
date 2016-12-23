@@ -1,4 +1,4 @@
-80 columns                                                                     |
+spaces.inImportCurlyBraces = true
 <<< #424
 import play.api.libs.json.{JsObject, JsString, Json}
 
@@ -19,3 +19,7 @@ object Hase {
   }
 
 }
+<<< import
+import a.b.{c => d}
+>>>
+import a.b.{ c => d }
