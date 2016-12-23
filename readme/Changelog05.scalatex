@@ -6,7 +6,8 @@
   @ul
     @li
       The @code{default} style has been updated for prettier formatting output
-      and greater performance (less "search state exploded")
+      and greater performance (less "search state exploded").
+      Highlights:
       @ul
         @li
           @cliFlags{optIn.breakChainOnFirstMethodDot = true}, was false.
@@ -26,8 +27,13 @@
         @li
           @cliFlags{runner.optimizer.forceConfigStyleOnOffset = 150}, was -1.
           See @sect.ref{runner.optimizer.forceConfigStyleOnOffset}.
-      You can opt-out of these changes by using the older setting values.
-      v0.5 may still have some minor diffs which are not configurable.
+      @p
+        For a more detailed overview of the new style differences, see
+        @lnk("this issue", "https://github.com/olafurpg/scalafmt/issues/636").
+
+      @p
+        I did my best to make it possible to opt-out of the most dramatic changes.
+        Still, v0.5 may have some minor diffs which are not configurable.
     @li
       The sbt plugin has been re-implemented as a tiny wrapper around
       the command line interface.
@@ -46,9 +52,8 @@
           See @sect.ref{sbt} for a tip/workaround on how you can still define
           configuration via sbt.
         @li
-          no more @code{reformatOnCompileSettings}, please consider contributing
-          this feature if you miss it AND you are interested in helping
-          maintain the feature.
+          @code{reformatOnCompileSettings} is no longer provided as part of the
+          sbt plugin. See @sect.ref{sbt} for a DIY workaround.
     @li
       You should see fewer "Search state exploded" errors. Only 16 files
       (down from 49 files) in the test corpus of 27.000 source files now
