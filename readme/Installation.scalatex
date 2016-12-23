@@ -161,6 +161,8 @@
     @ul
       @li
         Run @code{sbt scalafmt} to format all files in the project.
+        Configure @sect.ref{project} in @code{.scalafmt.conf} to
+        define which files to format.
         You can add pass any command line flags to @code{scalafmt}.
         See @sect.ref{--help} for more details.
         Example,
