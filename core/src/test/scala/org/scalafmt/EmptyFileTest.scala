@@ -1,12 +1,13 @@
 package org.scalafmt
 
 import org.scalafmt.util.DiffAssertions
+import org.scalafmt.util.OsSpecific.lineSeparator
 import org.scalatest.FunSuite
 
 class EmptyFileTest extends FunSuite with DiffAssertions {
   test("empty tree formats to newline") {
-    Seq("", "\n", "", "   \n  ").foreach { original =>
-      val expected = "\n"
+    Seq("", lineSeparator, "", s"   $lineSeparator  ").foreach { original =>
+      val expected = lineSeparator
       val obtained = Scalafmt.format(original).get
       assert(obtained == expected)
     }

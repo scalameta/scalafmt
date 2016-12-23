@@ -56,7 +56,6 @@ object FileOps {
     // Prefer this to inefficient Source.fromFile.
     val sb = new StringBuilder
     val br = new BufferedReader(new FileReader(file))
-    val lineSeparator = System.getProperty("line.separator")
     try {
       var line = ""
       while ({
@@ -64,7 +63,7 @@ object FileOps {
         line != null
       }) {
         sb.append(line)
-        sb.append(lineSeparator)
+        sb.append("\n")
       }
     } finally {
       br.close()

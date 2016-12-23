@@ -1,5 +1,7 @@
 package org.scalafmt
 
+import java.io.File
+
 import scala.meta.Tree
 import scala.meta.parsers.Parse
 
@@ -39,7 +41,8 @@ def foo(
 """.replace("'''", "\"\"\"")
 
   override val tests =
-    parseDiffTests(defnSite3callSite5, "default/continuationIndent.stat")
+    parseDiffTests(defnSite3callSite5,
+                   s"default${File.separator}continuationIndent.stat")
 
   testsToRun.foreach(runTest(run))
 

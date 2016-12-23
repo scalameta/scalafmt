@@ -1,1 +1,1 @@
-java -jar PATH_TO/scalafmt.jar %*
+java -jar PATH_TO\scalafmt.jar %*

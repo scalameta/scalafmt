@@ -8,7 +8,7 @@ import org.scalafmt.util.FileOps
 object FileTestOps {
 
   /**
-    * The inverse of [[dir2string]]. Given a string represenatation creates the
+    * The inverse of [[dir2string]]. Given a string representation creates the
     * necessary files/directories with respective file contents.
     */
   def string2dir(layout: String): AbsoluteFile = {
@@ -25,7 +25,7 @@ object FileTestOps {
     AbsoluteFile.fromPath(root.getAbsolutePath).get
   }
 
-  /** Gives a string represenatation of a directory. For example
+  /** Gives a string representation of a directory. For example
     *
     * /build.sbt
     * val x = project
@@ -44,6 +44,7 @@ object FileTestOps {
             |$contents""".stripMargin
       }
       .mkString("\n")
+      .replace(File.separator, "/") // ensure original separators
   }
 
 }

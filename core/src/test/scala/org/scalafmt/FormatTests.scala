@@ -1,14 +1,14 @@
 package org.scalafmt
 
-import scala.language.postfixOps
+import java.io.File
 
+import scala.language.postfixOps
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.meta.Tree
 import scala.meta.internal.semantic.Symbol.Global
 import scala.meta.parsers.Parse
-
 import org.scalafmt.Error.Incomplete
 import org.scalafmt.Error.SearchStateExploded
 import org.scalafmt.stats.TestStats
@@ -97,7 +97,8 @@ class FormatTests
     // I don't want to deal with scalaz's Tasks :'(
     val k = for {
       _ <- Future(
-        FileOps.writeFile("target/index.html", Report.heatmap(results)))
+        FileOps.writeFile(s"target${File.separator}index.html",
+                          Report.heatmap(results)))
     } yield ()
     // Travis exits right after running tests.
     if (sys.env.contains("TRAVIS")) Await.ready(k, 20 seconds)

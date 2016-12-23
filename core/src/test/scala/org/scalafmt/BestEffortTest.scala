@@ -1,5 +1,7 @@
 package org.scalafmt
 
+import java.io.File
+
 import scala.meta.Tree
 import scala.meta.parsers.Parse
 
@@ -71,7 +73,8 @@ Defn.Object(
     """.replace("'''", "\"\"\"")
 
   override val tests =
-    parseDiffTests(stateExplosions, "default/StateExplosion.stat")
+    parseDiffTests(stateExplosions,
+                   s"default${File.separator}StateExplosion.stat")
 
   def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
     val runner = scalafmtRunner(t.style.runner).copy(parser = parse)
@@ -94,7 +97,7 @@ Defn.Object(
   testsToRun.foreach(runTest(run))
 
   override def afterAll(configMap: ConfigMap): Unit = {
-    FileOps
-      .writeFile("target/index.html", Report.heatmap(debugResults.result()))
+    FileOps.writeFile(s"target${File.separator}index.html",
+                      Report.heatmap(debugResults.result()))
   }
 }
