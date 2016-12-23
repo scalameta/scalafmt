@@ -17,3 +17,11 @@ def acceptParticipants =
     .handleEvent { evt: ParticipantAdded =>
       this.addParticipant(evt.name)
     }
+<<< .value #639
+val x = Def.taskDyn {
+    println(1)
+}.value
+>>>
+val x = Def.taskDyn {
+  println(1)
+}.value
