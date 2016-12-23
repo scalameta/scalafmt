@@ -12,7 +12,6 @@ import scala.collection.mutable.ArrayBuffer
 import scala.util.Try
 
 import java.io.File
-import java.io.OutputStreamWriter
 import java.io.Writer
 import java.sql.Timestamp
 import java.util.concurrent._

@@ -9,7 +9,6 @@ import scala.meta.tokens.Token.Comment
 import scala.meta.tokens.Token.LeftParen
 import scala.meta.tokens.Token.RightParen
 import scala.meta.tokens.Tokens
-import scala.util.matching.Regex
 
 import org.scalafmt.config.Config
 import org.scalafmt.config.FilterMatcher

@@ -1,0 +1,13 @@
+poorMansTrailingCommasInConfigStyle = true
+<<< no trailing commas
+function(
+  a,
+  b,
+  c
+)
+>>>
+function(
+    a
+  , b
+  , c
+)

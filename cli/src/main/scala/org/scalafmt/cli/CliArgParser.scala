@@ -5,13 +5,10 @@ import java.util.Date
 
 import org.scalafmt.Versions
 import org.scalafmt.config.Config
-import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.config.hocon.Hocon2Class
 import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.BuildTime
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.GitCommit
-import org.scalafmt.util.logger
 import scopt.OptionParser
 
 object CliArgParser {

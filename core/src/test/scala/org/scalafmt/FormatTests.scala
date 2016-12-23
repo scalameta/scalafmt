@@ -1,14 +1,16 @@
 package org.scalafmt
 
-import java.io.File
-
 import scala.language.postfixOps
+
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.meta.Tree
 import scala.meta.internal.semantic.Symbol.Global
 import scala.meta.parsers.Parse
+
+import java.io.File
+
 import org.scalafmt.Error.Incomplete
 import org.scalafmt.Error.SearchStateExploded
 import org.scalafmt.stats.TestStats
@@ -62,8 +64,10 @@ class FormatTests
         case x => x.get
       }
     debugResults += saveResult(t, obtained, onlyOne)
-    if (t.style.rewrite.rules.isEmpty) {
-      assertFormatPreservesAst(t.original, obtained)(parse)
+    if (t.style.rewrite.rules.isEmpty &&
+        !t.style.assumeStandardLibraryStripMargin) {
+      assertFormatPreservesAst(t.original, obtained)(parse,
+                                                     t.style.runner.dialect)
     }
     val formattedAgain =
       Scalafmt.format(obtained, t.style.copy(runner = runner)).get

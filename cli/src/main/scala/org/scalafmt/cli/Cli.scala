@@ -2,26 +2,21 @@ package org.scalafmt.cli
 
 import scala.meta.Dialect
 import scala.meta.dialects.Sbt0137
-import scala.util.matching.Regex
 
 import java.io.File
 import java.io.InputStream
-import java.io.OutputStream
 import java.io.OutputStreamWriter
 import java.io.PrintStream
 import java.util.concurrent.atomic.AtomicInteger
 
+import com.martiansoftware.nailgun.NGContext
 import org.scalafmt.Error.UnableToParseCliOptions
 import org.scalafmt.Formatted
 import org.scalafmt.Scalafmt
-import org.scalafmt.config.Config
-import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.util.FileOps
-import org.scalafmt.util.LogLevel
-import com.martiansoftware.nailgun.NGContext
 import org.scalafmt.config.FilterMatcher
 import org.scalafmt.util.AbsoluteFile
-import org.scalafmt.util.logger
+import org.scalafmt.util.FileOps
+import org.scalafmt.util.LogLevel
 
 object Cli {
   def nailMain(nGContext: NGContext): Unit = {

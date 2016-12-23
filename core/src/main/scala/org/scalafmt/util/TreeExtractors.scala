@@ -1,9 +1,9 @@
 package org.scalafmt.util
 
 import scala.collection.immutable.Seq
-import scala.meta.Template
 import scala.meta.Name
 import scala.meta.Pat
+import scala.meta.Template
 import scala.meta.Term
 import scala.meta.Tree
 import scala.meta.Type

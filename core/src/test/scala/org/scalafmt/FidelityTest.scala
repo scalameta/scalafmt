@@ -1,5 +1,7 @@
 package org.scalafmt
 
+import scala.meta.dialects.Scala211
+
 import java.io.File
 
 import org.scalafmt.config.ScalafmtConfig
@@ -44,7 +46,8 @@ class FidelityTest extends FunSuite with FormatAssertions {
       val formatted =
         Scalafmt.format(example.code, ScalafmtConfig.default).get
       assertFormatPreservesAst(example.code, formatted)(
-        scala.meta.parsers.Parse.parseSource)
+        scala.meta.parsers.Parse.parseSource,
+        Scala211)
       println(example.filename)
     }
   }

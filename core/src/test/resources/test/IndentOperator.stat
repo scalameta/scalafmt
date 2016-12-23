@@ -1,4 +1,5 @@
-80 columns                                                                     |
+unindentTopLevelOperators = true
+indentOperator = spray
 <<< Indent operators
 object TestRoutes {
   def routes = {

@@ -1,4 +1,7 @@
-80 columns                                                                     |
+rewriteTokens {
+  "=>": "⇒"
+  "<-": "←"
+}
 <<< confusing unicode symbols
 for {
   a   <- List(1)

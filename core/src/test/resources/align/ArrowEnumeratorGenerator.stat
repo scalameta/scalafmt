@@ -1,4 +1,4 @@
-40 columns                              |
+align.arrowEnumeratorGenerator = true
 <<< alignByArrowEnumeratorGenerator
 for {
   x <- new Integer {

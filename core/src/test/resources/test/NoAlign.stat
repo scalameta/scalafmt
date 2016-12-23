@@ -1,4 +1,5 @@
-// Column 40                            |
+maxColumn = 40
+align.openParenCallSite = false
 <<< single line still works
 function(aaaaaaaa, bbbbbbbb)
 >>>
@@ -8,8 +9,8 @@ function(aaaaaaaaaaaaaaaaaaa,
          bbbbbbbbbbbbbbbbbbb)
 >>>
 function(
-    aaaaaaaaaaaaaaaaaaa,
-    bbbbbbbbbbbbbbbbbbb)
+  aaaaaaaaaaaaaaaaaaa,
+  bbbbbbbbbbbbbbbbbbb)
 <<< align defn site
 def function(aaaaaaaaaa: A,
          bbbbbbbbbbbbbb: B): C = 2

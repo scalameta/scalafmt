@@ -1,4 +1,4 @@
-40 columns                              |
+newlines.alwaysBeforeCurlyBraceLambdaParams = true
 <<< newline before lambda params
 lst.map { x =>
       println(x)
