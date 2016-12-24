@@ -5,6 +5,7 @@ Head over to [the user docs][docs] for instructions on how to install scalafmt.
 
 ### Quick help
 
+- On Windows add -Dfile.encoding=UTF8 to SBT_OPTS.
 - Run formatting tests: `core/testOnly org.scalafmt.FormatTests`.
 - Write new formatting test: read [this doc](core/src/test/resources/readme.md).
 - Build docs: `sbt readme/run` will create the docs, which you can open with

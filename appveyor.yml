@@ -20,7 +20,7 @@ install:
 build_script:
   - sbt clean compile
 test_script:
-  - sbt test readme/run
+  - sbt test readme/run scripted
 cache:
   - C:\sbt\
   - C:\Users\appveyor\.m2
