@@ -192,23 +192,36 @@ class CliTest extends FunSuite with DiffAssertions {
     val input = string2dir(
       s"""|/foo.sbt
           |lazy   val x   = project
-          |/target/generated.scala
+          |
+          |/target/FormatMe.scala
+          |object    PleaseFormatMeOtherwiseIWillBeReallySad   {  }
+          |
+          |/target/nested/DoNotFormatMe.scala
           |object    AAAAAAIgnoreME   {  }
+          |
+          |/target/nested/nested2/DoNotFormatMeToo.scala
+          |object    BBBBBBIgnoreME   {  }
           |""".stripMargin
     )
     val expected =
       s"""|/foo.sbt
           |lazy val x = project
           |
-          |/target/generated.scala
+          |/target/FormatMe.scala
+          |object PleaseFormatMeOtherwiseIWillBeReallySad {}
+          |
+          |/target/nested/DoNotFormatMe.scala
           |object    AAAAAAIgnoreME   {  }
+          |
+          |/target/nested/nested2/DoNotFormatMeToo.scala
+          |object    BBBBBBIgnoreME   {  }
           |""".stripMargin
     val options = getConfig(
       Array(
         "--files",
         input.path,
         "--exclude",
-        "target",
+        "target/nested",
         "-i"
       ))
     Cli.run(options)
@@ -216,7 +229,7 @@ class CliTest extends FunSuite with DiffAssertions {
     assertNoDiff(obtained, expected)
   }
 
-  test("--file doesnotexists.scala throws error") {
+  test("--file doesnotexist.scala throws error") {
     def check(filename: String): Unit = {
       val args = Array("-f", s"$filename.scala")
       intercept[FileNotFoundException] {
