@@ -42,6 +42,7 @@ class CliOptionsTest extends FunSuite {
         |optIn: {
         |  configStyleArguments = true
         |  breakChainOnFirstMethodDot = true
+        |  noNewlineAfterAnnotation = true
         |}
         |maxColumn = 4000
         |poorMansTrailingCommasInConfigStyle = true
@@ -106,32 +107,33 @@ class CliOptionsTest extends FunSuite {
           ))
         assert(obtained.runner.parser == Parse.parseCase)
         assert(obtained.runner.dialect == Paradise211)
-        assert(obtained.runner.optimizer.acceptOptimalAtHints == false)
+        assert(!obtained.runner.optimizer.acceptOptimalAtHints)
         assert(obtained.assumeStandardLibraryStripMargin)
-        assert(obtained.reformatDocstrings == true)
-        assert(obtained.scalaDocs == false)
-        assert(obtained.binPack.callSite == true)
-        assert(obtained.binPack.defnSite == true)
-        assert(obtained.configStyleArguments == true)
-        assert(obtained.neverBeforeJsNative == true)
-        assert(obtained.danglingParentheses == true)
-        assert(obtained.align.openParenCallSite == true)
-        assert(obtained.align.openParenDefnSite == true)
+        assert(obtained.reformatDocstrings)
+        assert(!obtained.scalaDocs)
+        assert(obtained.binPack.callSite)
+        assert(obtained.binPack.defnSite)
+        assert(obtained.configStyleArguments)
+        assert(obtained.neverBeforeJsNative)
+        assert(obtained.danglingParentheses)
+        assert(obtained.align.openParenCallSite)
+        assert(obtained.align.openParenDefnSite)
         assert(obtained.continuationIndent.callSite == 3)
         assert(obtained.continuationIndent.defnSite == 5)
-        assert(obtained.align.mixedOwners == true)
+        assert(obtained.align.mixedOwners)
         assert(obtained.importSelectors == ImportSelectors.binPack)
-        assert(obtained.spaces.inImportCurlyBraces == true)
-        assert(obtained.poorMansTrailingCommasInConfigStyle == true)
-        assert(obtained.sometimesBeforeColonInMethodReturnType == true)
-        assert(obtained.binPackParentConstructors == true)
-        assert(obtained.spaces.afterTripleEquals == true)
-        assert(obtained.unindentTopLevelOperators == true)
-        assert(obtained.align.arrowEnumeratorGenerator == true)
-        assert(obtained.align.ifWhileOpenParen == true)
-        assert(obtained.spaces.beforeContextBoundColon == true)
-        assert(obtained.breakChainOnFirstMethodDot == true)
-        assert(obtained.alwaysBeforeCurlyBraceLambdaParams == true)
+        assert(obtained.spaces.inImportCurlyBraces)
+        assert(obtained.poorMansTrailingCommasInConfigStyle)
+        assert(obtained.sometimesBeforeColonInMethodReturnType)
+        assert(obtained.binPackParentConstructors)
+        assert(obtained.spaces.afterTripleEquals)
+        assert(obtained.unindentTopLevelOperators)
+        assert(obtained.align.arrowEnumeratorGenerator)
+        assert(obtained.align.ifWhileOpenParen)
+        assert(obtained.spaces.beforeContextBoundColon)
+        assert(obtained.breakChainOnFirstMethodDot)
+        assert(obtained.noNewlineAfterAnnotation)
+        assert(obtained.alwaysBeforeCurlyBraceLambdaParams)
         assert(
           obtained.align.tokens ==
             Set(
