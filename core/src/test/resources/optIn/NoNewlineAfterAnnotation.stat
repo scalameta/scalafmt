@@ -1,0 +1,53 @@
+optIn.noNewlineAfterAnnotation = true
+maxColumn = 70
+<<< keep lines of annotations unchanged
+object WrapperToHaveStatTestCaseParserWorking {
+  @annot   @deprecated   class B(@annot @deprecated x: Int) extends A {
+    @annot override def foo = 1
+
+    @annot
+    override def bar = {   1 }
+
+    @annot @annot2 @annot3 @annot4 @annot5 @deprecated def foo2(@annot @deprecated x: Int) = 1
+
+    // in case of annotations with params located in many lines
+    // let's live with changed lines of params
+    @annot @annot2(value =
+    "foo", someInt = 5) @annot3
+    @deprecated(value =
+    "bar") def bar2  =  1
+  }
+
+  @annot @annot2
+  @annot3
+  @annot4 @deprecated class C
+
+  @annot
+  @deprecated
+  class D
+}
+>>>
+object WrapperToHaveStatTestCaseParserWorking {
+  @annot @deprecated class B(@annot @deprecated x: Int) extends A {
+    @annot override def foo = 1
+
+    @annot
+    override def bar = { 1 }
+
+    @annot @annot2 @annot3 @annot4 @annot5 @deprecated def foo2(
+        @annot @deprecated x: Int) = 1
+
+    // in case of annotations with params located in many lines
+    // let's live with changed lines of params
+    @annot @annot2(value = "foo", someInt = 5) @annot3
+    @deprecated(value = "bar") def bar2 = 1
+  }
+
+  @annot @annot2
+  @annot3
+  @annot4 @deprecated class C
+
+  @annot
+  @deprecated
+  class D
+}

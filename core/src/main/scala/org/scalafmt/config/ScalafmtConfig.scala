@@ -217,6 +217,7 @@ case class ScalafmtConfig(
 
   def configStyleArguments: Boolean = optIn.configStyleArguments
   def breakChainOnFirstMethodDot: Boolean = optIn.breakChainOnFirstMethodDot
+  def noNewlineAfterAnnotation: Boolean = optIn.noNewlineAfterAnnotation
   def reformatDocstrings: Boolean = docstrings != Docstrings.preserve
   def scalaDocs: Boolean = docstrings == Docstrings.ScalaDoc
   def binPackParentConstructors: Boolean = binPack.parentConstructors

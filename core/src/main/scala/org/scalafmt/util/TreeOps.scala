@@ -22,6 +22,7 @@ import scala.reflect.classTag
 
 import org.scalafmt.Error
 import org.scalafmt.Error.UnexpectedTree
+import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.FormatToken
 
 /**
@@ -82,8 +83,10 @@ object TreeOps {
     ret.result()
   }
 
-  def getStatementStarts(tree: Tree): Map[TokenHash, Tree] = {
+  def getStatementStarts(tree: Tree,
+                         config: ScalafmtConfig): Map[TokenHash, Tree] = {
     val ret = Map.newBuilder[TokenHash, Tree]
+    val noNewlineAfterAnnotation = config.optIn.noNewlineAfterAnnotation
     ret.sizeHint(tree.tokens.length)
 
     def addAll(trees: Seq[Tree]): Unit = {
@@ -93,9 +96,8 @@ object TreeOps {
     }
 
     def addDefn[T: ClassTag](mods: Seq[Mod], tree: Tree): Unit = {
-      // Each @annotation gets a separate line
       val annotations = mods.filter(_.is[Mod.Annot])
-      addAll(annotations)
+      if (!noNewlineAfterAnnotation) addAll(annotations)
       val firstNonAnnotation: Token = mods
         .collectFirst {
           case x if !x.is[Mod.Annot] =>
@@ -109,7 +111,50 @@ object TreeOps {
             case None => throw Error.CantFindDefnToken[T](tree)
           }
         }
-      ret += hash(firstNonAnnotation) -> tree
+      if (noNewlineAfterAnnotation && annotations.nonEmpty)
+        addDefnWithPreservedAnnotationsLines(annotations,
+                                             firstNonAnnotation,
+                                             tree)
+      else
+        ret += hash(firstNonAnnotation) -> tree
+    }
+
+    def addDefnWithPreservedAnnotationsLines[T: ClassTag](
+        annotations: Seq[Mod],
+        firstNonAnnotation: Token,
+        tree: Tree): Unit = {
+      def firstToken(m: Mod): Token = m.tokens.head
+      def startLineOfToken(t: Token): Int = t.pos.start.line
+      def startLine(m: Mod): Int = startLineOfToken(firstToken(m))
+      def endLine(m: Mod): Int = {
+        val lastToken = m.tokens.last
+        lastToken.pos.end.line
+      }
+
+      val firstNonAnnotationStartLine = startLineOfToken(firstNonAnnotation)
+      def addAnnotsBasedOnLineNumbers(prevLine: Int,
+                                      firstAnnotWithoutLineBreak: Mod,
+                                      annotsToCheck: List[Mod]): Unit =
+        annotsToCheck match {
+          case Nil if prevLine == firstNonAnnotationStartLine =>
+            ret += hash(firstToken(firstAnnotWithoutLineBreak)) -> tree
+          case Nil =>
+            ret += hash(firstToken(firstAnnotWithoutLineBreak)) -> firstAnnotWithoutLineBreak
+            ret += hash(firstNonAnnotation) -> tree
+          case annot :: tail if prevLine == startLine(annot) =>
+            addAnnotsBasedOnLineNumbers(endLine(annot),
+                                        firstAnnotWithoutLineBreak,
+                                        tail)
+          case annot :: tail =>
+            ret += hash(firstToken(firstAnnotWithoutLineBreak)) -> firstAnnotWithoutLineBreak
+            addAnnotsBasedOnLineNumbers(endLine(annot), annot, tail)
+        }
+
+      val firstAnnotation = annotations.head
+      val firstAnnotationEndLine = endLine(firstAnnotation)
+      addAnnotsBasedOnLineNumbers(firstAnnotationEndLine,
+                                  firstAnnotation,
+                                  annotations.tail.toList)
     }
 
     def loop(x: Tree): Unit = {
