@@ -22,5 +22,6 @@ import metaconfig.ConfigReader
 @ConfigReader
 case class OptIn(
     configStyleArguments: Boolean = true,
-    breakChainOnFirstMethodDot: Boolean = true
+    breakChainOnFirstMethodDot: Boolean = true,
+    annotationNewlines: Boolean = false
 )

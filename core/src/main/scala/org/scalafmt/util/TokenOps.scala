@@ -11,6 +11,8 @@ import scala.meta.tokens.Token._
 import org.scalafmt.internal.Decision
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.Modification
+import org.scalafmt.internal.Newline
+import org.scalafmt.internal.Newline2x
 import org.scalafmt.internal.NewlineT
 import org.scalafmt.internal.NoSplit
 import org.scalafmt.internal.Policy
@@ -154,6 +156,9 @@ object TokenOps {
     case c: Comment => c.syntax.startsWith("//")
     case _ => false
   }
+
+  def newlines2Modification(formatToken: FormatToken): Modification =
+    newlines2Modification(formatToken.between, formatToken.right.is[Comment])
 
   def newlines2Modification(between: Vector[Token],
                             rightIsComment: Boolean = false): Modification =

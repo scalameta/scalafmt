@@ -79,27 +79,33 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
    * ...
    *
    */
-  val (packageTokens, importTokens, argumentStarts) = {
+  val (packageTokens, importTokens, argumentStarts, optionalNewlines) = {
     val packages = Set.newBuilder[Token]
     val imports = Set.newBuilder[Token]
-    val b = mutable.Map.empty[TokenHash, Tree]
+    val arguments = mutable.Map.empty[TokenHash, Tree]
+    val optional = mutable.Set.empty[TokenHash]
     def add(tree: Tree): Unit = {
-      if (tree.tokens.nonEmpty && !b.contains(hash(tree.tokens.head))) {
-        b += hash(tree.tokens.head) -> tree
+      if (tree.tokens.nonEmpty && !arguments.contains(hash(tree.tokens.head))) {
+        arguments += hash(tree.tokens.head) -> tree
       }
     }
+    def addOptional(tree: Tree): Unit =
+      tree.tokens.headOption.foreach(x => optional += hash(x))
     def iter(tree: Tree): Unit = {
       tree match {
         case p: Pkg => packages ++= p.ref.tokens
         case i: Import => imports ++= i.tokens
         case t: Term.Arg => add(t)
-        case t: Term.Param => add(t)
+        case t: Term.Param =>
+          add(t)
+          t.mods.foreach(addOptional)
+          addOptional(t.name)
         case _ =>
       }
       tree.children.foreach(iter)
     }
     iter(tree)
-    (packages.result(), imports.result(), b.toMap)
+    (packages.result(), imports.result(), arguments.toMap, optional)
   }
 
   object `:owner:` {
