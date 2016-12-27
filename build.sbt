@@ -125,7 +125,8 @@ lazy val root = project
     core,
     metaconfig,
     readme,
-    scalafmtSbt
+    scalafmtSbt,
+    intellij
   )
   .dependsOn(core)
 
@@ -221,6 +222,16 @@ lazy val scalafmtSbt = project
     scriptedBufferLog := false
   )
   .enablePlugins(BuildInfoPlugin)
+
+lazy val intellij = project
+  .settings(
+    allSettings,
+    buildInfoSettings,
+    ideaDownloadDirectory in ThisBuild := baseDirectory.value / "idea",
+    cleanFiles += ideaDownloadDirectory.value
+  )
+  .dependsOn(core, cli)
+  .enablePlugins(SbtIdeaPlugin)
 
 lazy val benchmarks = project
   .settings(moduleName := "scalafmt-benchmarks")
