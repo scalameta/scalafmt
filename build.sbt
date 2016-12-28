@@ -2,6 +2,7 @@ import scoverage.ScoverageSbtPlugin.ScoverageKeys.coverageHighlighting
 
 // The version number used in docs.
 def latestStableVersion: String = "0.5.1"
+
 lazy val buildSettings = Seq(
   organization := "com.geirsson",
   version := "0.5.2-RC1",
@@ -83,6 +84,7 @@ lazy val credentialSettings = Seq(
 )
 
 lazy val noPublish = Seq(
+  publishArtifact := false,
   publish := {},
   publishLocal := {}
 )
