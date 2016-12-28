@@ -4,7 +4,7 @@ import scoverage.ScoverageSbtPlugin.ScoverageKeys.coverageHighlighting
 def latestStableVersion: String = "0.5.1"
 lazy val buildSettings = Seq(
   organization := "com.geirsson",
-  version := "0.5.1",
+  version := "0.5.2-SNAPSHOT",
   scalaVersion := "2.11.8",
   updateOptions := updateOptions.value.withCachedResolution(true)
 )
@@ -94,6 +94,7 @@ lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
     "nightly" -> version.value,
     "stable" -> latestStableVersion,
     "scala" -> scalaVersion.value,
+    "coursier" -> Deps.coursier,
     scalaVersion,
     sbtVersion
   ),
@@ -182,28 +183,27 @@ lazy val bootstrap = project
   .settings(
     allSettings,
     buildInfoSettings,
-    //  crossScalaVersions := Seq("2.10.6", "2.11.8"),
+    scalaVersion := "2.10.6",
     moduleName := "scalafmt-bootstrap",
     libraryDependencies ++= Seq(
       "com.martiansoftware" % "nailgun-server"  % "0.9.1",
-      "io.get-coursier"     %% "coursier"       % "1.0.0-M14",
-      "io.get-coursier"     %% "coursier-cache" % "1.0.0-M14",
+      "io.get-coursier"     %% "coursier"       % Deps.coursier,
+      "io.get-coursier"     %% "coursier-cache" % Deps.coursier,
       "org.scalatest"       %% "scalatest"      % Deps.scalatest % Test
     )
   )
-  .dependsOn(utils)
   .enablePlugins(BuildInfoPlugin)
 
 lazy val scalafmtSbt = project
   .settings(
     allSettings,
-    buildInfoSettings,
     ScriptedPlugin.scriptedSettings,
     scripted := scripted
       .dependsOn(
         publishLocal in cli,
         publishLocal in core,
         publishLocal in metaconfig,
+        publishLocal in bootstrap,
         publishLocal in utils
       )
       .evaluated,
@@ -221,7 +221,7 @@ lazy val scalafmtSbt = project
     ),
     scriptedBufferLog := false
   )
-  .enablePlugins(BuildInfoPlugin)
+  .dependsOn(bootstrap)
 
 lazy val intellij = project
   .settings(

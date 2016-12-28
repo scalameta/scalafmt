@@ -2,7 +2,6 @@ package org.scalafmt.cli
 
 import scala.meta.Dialect
 import scala.meta.dialects.Sbt0137
-
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStreamWriter
@@ -13,7 +12,7 @@ import com.martiansoftware.nailgun.NGContext
 import org.scalafmt.Error.UnableToParseCliOptions
 import org.scalafmt.Formatted
 import org.scalafmt.Scalafmt
-import org.scalafmt.config.FilterMatcher
+import org.scalafmt.config.{Config, FilterMatcher}
 import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.LogLevel
@@ -174,7 +173,9 @@ object Cli {
                      msg: String): TermDisplay = {
     val termDisplay = new TermDisplay(
       new OutputStreamWriter(options.common.err))
-    if ((options.inPlace || options.testing) && inputMethods.length > 5) {
+    if (!options.quiet &&
+        (options.inPlace || options.testing) &&
+        inputMethods.length > 5) {
       termDisplay.init()
       termDisplay.startTask(msg, options.common.workingDirectory.jfile)
       termDisplay.taskLength(msg, inputMethods.length, 0)
@@ -188,6 +189,15 @@ object Cli {
     val termDisplayMessage =
       if (options.testing) "Looking for unformatted files..."
       else "Reformatting..."
+    if (options.debug) {
+      val pwd = options.common.workingDirectory.jfile.getPath
+      options.common.err.println("Working directory: " + pwd)
+      options.common.err.println("Formatting files: " + inputMethods.toList)
+      options.common.err.println(
+        "Configuration: \n" + Config
+          .toHocon(options.config.fields)
+          .mkString("\n"))
+    }
 
     val sbtOptions = options.copy(
       config = options.config.copy(

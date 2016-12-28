@@ -1,5 +1,7 @@
 import java.io.File
 
+fork in ThisBuild := true
+
 lazy val root = project
   .in(file("."))
   .aggregate(
