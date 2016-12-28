@@ -21,7 +21,7 @@ object IdeaUtils {
 
   val PluginName = "Scalafmt"
 
-  def displayMessage(msg: String, notificationType: NotificationType): Unit =
+  def displayMessage(msg: String,       notificationType: NotificationType): Unit =
     Notifications.Bus.notify(
       new Notification(PluginName,
                        PluginName,
