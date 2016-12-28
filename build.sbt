@@ -227,7 +227,10 @@ lazy val intellij = project
   .settings(
     allSettings,
     buildInfoSettings,
+    ideaBuild := "2016.1.3",
+    ideaEdition := IdeaEdition.Community,
     ideaDownloadDirectory in ThisBuild := baseDirectory.value / "idea",
+    libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.0.6",
     cleanFiles += ideaDownloadDirectory.value
   )
   .dependsOn(core, cli)
