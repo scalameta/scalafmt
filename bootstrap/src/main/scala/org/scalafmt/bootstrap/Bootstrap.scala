@@ -1,34 +1,25 @@
 package org.scalafmt.bootstrap
 
-import scala.language.reflectiveCalls
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream, File, PrintStream}
+import java.net.URLClassLoader
+
+import coursier._
+import org.scalafmt.Versions
 
 import scala.collection.immutable.Nil
 import scala.collection.mutable
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
-import scalaz.\/
-import scalaz.\/-
+import scala.language.reflectiveCalls
+import scala.util.{Failure, Success}
+import scalaz.{\/, \/-}
 import scalaz.concurrent.Task
-
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.PrintStream
-import java.net.URLClassLoader
-
-import com.typesafe.config.ConfigFactory
-import coursier._
-import org.scalafmt.util.AbsoluteFile
-import org.scalafmt.util.GitOps
 
 class FetchError(errors: Seq[(Dependency, Seq[String])])
     extends Exception(errors.toString())
 
-sealed abstract class Scalafmt(val cli: ScalafmtCli) {
+sealed abstract class ScalafmtBootstrap(val cli: ScalafmtCli) {
 
-  def main(array: Array[String]): Unit = {
-    cli.main(array)
+  def main(array: Seq[String]): Unit = {
+    cli.main(array.to[Array])
   }
 
   def format(code: String): String = {
@@ -45,39 +36,15 @@ sealed abstract class Scalafmt(val cli: ScalafmtCli) {
   }
 }
 
-object DefinesVersion {
-  def unapply(arg: AbsoluteFile): Option[String] =
-    Scalafmt.getVersion(arg / ".scalafmt.conf")
-}
+object ScalafmtBootstrap {
+  private val cliCache =
+    mutable.Map.empty[String, Either[Throwable, ScalafmtBootstrap]]
 
-object Scalafmt {
-  private val cliCache = mutable.Map.empty[String, Either[Throwable, Scalafmt]]
-
-  def getVersion(file: AbsoluteFile): Option[String] =
-    Try {
-      val config = ConfigFactory.parseFile(file.jfile)
-      config.getString("version")
-    }.toOption
-
-  def fromGitOps(gitOps: GitOps): Either[Throwable, Scalafmt] = {
-    val version = Seq(Some(AbsoluteFile.userDir),
-                      gitOps.rootDir,
-                      Some(AbsoluteFile.homeDir))
-      .collectFirst {
-        case Some(DefinesVersion(v)) => v
-      }
-      .getOrElse(org.scalafmt.Versions.stable)
-    fromVersion(version)
-  }
-
-  def fromAuto: Either[Throwable, Scalafmt] = {
-    fromGitOps(GitOps())
-  }
-
-  def fromVersion(version: String): Either[Throwable, Scalafmt] =
+  def fromVersion(version: String): Either[Throwable, ScalafmtBootstrap] =
     cliCache.getOrElseUpdate(version, fromVersionUncached(version))
 
-  def fromVersionUncached(version: String): Either[Throwable, Scalafmt] = {
+  def fromVersionUncached(
+      version: String): Either[Throwable, ScalafmtBootstrap] = {
     val start =
       Resolution(
         Set(
@@ -109,16 +76,14 @@ object Scalafmt {
         reflectiveDynamicAccess
           .createInstanceFor[ScalafmtCli]("org.scalafmt.cli.Cli$", Nil)
       loadedClass match {
-        case Success(cli) => Right(new Scalafmt(cli) {})
+        case Success(cli) => Right(new ScalafmtBootstrap(cli) {})
         case Failure(e) => Left(e)
       }
     }
   }
-}
 
-object Bootstrap {
-  def main(args: Array[String]): Unit = {
-    Scalafmt.fromAuto match {
+  def main(args: Seq[String]): Unit = {
+    fromVersion(Versions.nightly) match {
       case Right(cli) => cli.main(args)
       case Left(e) => throw e
     }

@@ -7,7 +7,7 @@ class BootstrapTest extends FunSuite {
   ignore("bootstrap works") {
     val original = "object   A     {    }"
     val expected = "object A {}\n\n"
-    val Right(cli) = Scalafmt.fromVersion("0.4.9-RC3")
+    val Right(cli) = ScalafmtBootstrap.fromVersion("0.4.9-RC3")
     val obtained = cli.format(original)
     assert(obtained === expected)
   }

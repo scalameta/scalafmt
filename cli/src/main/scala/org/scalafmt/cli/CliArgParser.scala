@@ -112,6 +112,12 @@ object CliArgParser {
             sys.exit
         })
         .text("prints build information")
+      opt[Unit]("quiet")
+        .action((_, c) => c.copy(quiet = true))
+        .text("don't print out stuff to console.")
+      opt[Unit]("debug")
+        .action((_, c) => c.copy(debug = true))
+        .text("print out diagnostics to console.")
       opt[(Int, Int)]("range")
         .hidden()
         .action({

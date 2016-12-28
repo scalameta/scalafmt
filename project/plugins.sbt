@@ -1,8 +1,10 @@
-resolvers ++= Seq(Classpaths.sbtPluginReleases, Resolver.url("dancingrobot84-bintray",
-  url("http://dl.bintray.com/dancingrobot84/sbt-plugins/"))(Resolver.ivyStylePatterns))
+resolvers ++= Seq(
+  Classpaths.sbtPluginReleases,
+  Resolver.bintrayIvyRepo("dancingrobot84","sbt-plugins")
+)
 
 addSbtPlugin("com.eed3si9n"       % "sbt-buildinfo"       % "0.6.1")
-addSbtPlugin("io.get-coursier"    % "sbt-coursier"        % "1.0.0-M14")
+addSbtPlugin("io.get-coursier"    % "sbt-coursier"        % "1.0.0-M15-1")
 addSbtPlugin("com.eed3si9n"       % "sbt-assembly"        % "0.14.3")
 addSbtPlugin("pl.project13.scala" % "sbt-jmh"             % "0.2.15")
 addSbtPlugin("com.lihaoyi"        % "scalatex-sbt-plugin" % "0.3.5")
