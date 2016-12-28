@@ -72,6 +72,7 @@ object Readme {
       names.dropRight(1).map(x => span(user(x), ", ")) :+ user(names.last): _*
     )
 
+  def pr(id: Int) = a(href := repo + s"/pulls/$id", s"#$id")
   def issue(id: Int) = a(href := repo + s"/issues/$id", s"#$id")
   def issues(ids: Int*) = span(ids.map(issue): _*)
 

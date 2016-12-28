@@ -2,6 +2,21 @@
 @import org.scalafmt.readme.Readme._
 @import org.scalafmt.config.ScalafmtConfig
 
+@sect{0.5.2}
+  @ul
+    @li
+      sbt plugin now uses coursier instead of synthetic projects. See @pr(658).
+    @li
+      New flag @cliFlags{optIn.annotationNewlines}. Thank you @user{mpociecha}
+      for suggesting this flag!
+    @li
+      The scalafmt repo now builds and tests pass on Windows and IntelliJ! Thank
+      you @user{mpociecha} for making this work!
+    @li
+      The IntelliJ plugin is now part of the main sbt build, greatly simplifying
+      the setup to hack on the IntelliJ plugin. If you were previously discouraged
+      to contribute to the IntelliJ plugin, I encourage you to give it another
+      chance now! Thank you @user{rbellamy} for this contribution!
 @sect{0.5.1}
   @ul
     @li
