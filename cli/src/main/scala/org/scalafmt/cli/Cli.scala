@@ -17,6 +17,7 @@ import org.scalafmt.config.FilterMatcher
 import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.LogLevel
+import org.scalafmt.util.OsSpecific
 
 object Cli {
   def nailMain(nGContext: NGContext): Unit = {
@@ -92,7 +93,9 @@ object Cli {
 
   /** Returns file paths defined via options.{customFiles,customExclude} */
   def getFilesFromCliOptions(options: CliOptions): Seq[AbsoluteFile] = {
-    val exclude = FilterMatcher.mkRegexp(options.customExcludes)
+    val excludePaths =
+      options.customExcludes.map(OsSpecific.fixSeparatorsInPathPattern)
+    val exclude = FilterMatcher.mkRegexp(excludePaths)
     expandCustomFiles(options.common.workingDirectory, options.customFiles)
       .filter(x => exclude.findFirstIn(x.path).isEmpty)
   }

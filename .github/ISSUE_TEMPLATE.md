@@ -8,12 +8,12 @@ maxColumn = 100
 
 ## Unexpected formatting output
 
-Obtained, scalafmt format code like this:
+Obtained, scalafmt formats code like this:
 ```scala
 OUTPUT FROM SCALAFMT
 ```
 
-Expected, I would like the input to look like this:
+Expected, I would like the formatted output to look like this:
 ```scala
 EXPECTED FORMATTING OUTPUT
 ```

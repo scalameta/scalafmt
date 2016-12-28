@@ -287,7 +287,6 @@ class Router(formatOps: FormatOps) {
         )
 
       case tok @ FormatToken(left, right, between) if startsStatement(tok) =>
-        val oldNewlines = newlinesBetween(between)
         val newline: Modification = NewlineT(shouldGet2xNewlines(tok))
         val expire = rightOwner.tokens
           .find(_.is[Equals])
@@ -301,21 +300,28 @@ class Router(formatOps: FormatOps) {
           }
           .getOrElse(rightOwner.tokens.last)
 
-        val spaceCouldBeOk =
-          oldNewlines == 0 && !left.is[Comment] &&
-            right.is[Keyword] &&
-            isSingleIdentifierAnnotation(prev(tok))
-        Seq(
-          Split(
-                // This split needs to have an optimalAt field.
-                Space,
-                0,
-                ignoreIf = !spaceCouldBeOk)
-            .withOptimalToken(expire)
-            .withPolicy(SingleLineBlock(expire)),
-          // For some reason, this newline cannot cost 1.
-          Split(newline, 0)
-        )
+        val isAnnotation =
+          right.is[At] || isSingleIdentifierAnnotation(prev(tok))
+        if (isAnnotation && style.optIn.annotationNewlines)
+          Seq(Split(newlines2Modification(formatToken), 0))
+        else {
+          val spaceCouldBeOk =
+            newlines == 0 &&
+              !left.is[Comment] &&
+              right.is[Keyword] &&
+              isSingleIdentifierAnnotation(prev(tok))
+          Seq(
+            Split(
+                  // This split needs to have an optimalAt field.
+                  Space,
+                  0,
+                  ignoreIf = !spaceCouldBeOk)
+              .withOptimalToken(expire)
+              .withPolicy(SingleLineBlock(expire)),
+            // For some reason, this newline cannot cost 1.
+            Split(newline, 0)
+          )
+        }
 
       case FormatToken(_, RightBrace(), _) =>
         Seq(
@@ -1105,7 +1111,10 @@ class Router(formatOps: FormatOps) {
           if isApplyInfix(op, rightOwner) =>
         val InfixApplication(_, op, args) = rightOwner.parent.get
         Seq(infixSplit(rightOwner, op, args, formatToken))
-
+      case opt
+          if style.optIn.annotationNewlines &&
+            optionalNewlines(hash(opt.right)) =>
+        Seq(Split(newlines2Modification(opt), 0))
       // Pat
       case tok @ FormatToken(Ident("|"), _, _)
           if leftOwner.is[Pat.Alternative] =>
@@ -1113,16 +1122,15 @@ class Router(formatOps: FormatOps) {
           Split(Space, 0),
           Split(Newline, 1)
         )
-      case tok @ FormatToken(Ident(_) | Literal() | Interpolation.End() |
-                             Xml.End(),
-                             Ident(_) | Literal() | Xml.Start(),
-                             _) =>
+      case FormatToken(Ident(_) | Literal() | Interpolation.End() | Xml.End(),
+                       Ident(_) | Literal() | Xml.Start(),
+                       _) =>
         Seq(
           Split(Space, 0)
         )
 
       // Case
-      case tok @ FormatToken(_, KwMatch(), _) =>
+      case FormatToken(_, KwMatch(), _) =>
         Seq(
           Split(Space, 0)
         )
