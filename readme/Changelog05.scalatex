@@ -7,7 +7,7 @@
     @li
       sbt plugin now uses coursier instead of synthetic projects. See @pr(658).
     @li
-      New flag @cliFlags{optIn.annotationNewlines}. Thank you @user{mpociecha}
+      New flag @cliFlags{optIn.annotationNewlines = false}. Thank you @user{mpociecha}
       for suggesting this flag!
     @li
       The scalafmt repo now builds and tests pass on Windows and IntelliJ! Thank
