@@ -172,7 +172,11 @@ object Cli {
                      inputMethods: Seq[InputMethod],
                      msg: String): TermDisplay = {
     val termDisplay = new TermDisplay(
-      new OutputStreamWriter(options.common.err))
+      new OutputStreamWriter(options.common.err),
+      fallbackMode =
+        options.nonInteractive ||
+          TermDisplay.defaultFallbackMode
+    )
     if (!options.quiet &&
         (options.inPlace || options.testing) &&
         inputMethods.length > 5) {

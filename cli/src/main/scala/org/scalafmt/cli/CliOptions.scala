@@ -88,6 +88,7 @@ case class CliOptions(
     stdIn: Boolean = false,
     quiet: Boolean = false,
     debug: Boolean = false,
+    nonInteractive: Boolean = false,
     diff: Option[String] = None,
     assumeFilename: String = "stdin.scala", // used when read from stdin
     migrate: Option[AbsoluteFile] = None,
