@@ -118,6 +118,9 @@ object CliArgParser {
       opt[Unit]("debug")
         .action((_, c) => c.copy(debug = true))
         .text("print out diagnostics to console.")
+      opt[Unit]("non-interactive")
+        .action((_, c) => c.copy(nonInteractive = true))
+        .text("disable fancy progress bar, useful in ci or sbt plugin.")
       opt[(Int, Int)]("range")
         .hidden()
         .action({

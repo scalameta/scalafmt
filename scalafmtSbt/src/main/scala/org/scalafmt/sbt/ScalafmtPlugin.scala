@@ -12,7 +12,7 @@ object ScalafmtPlugin extends AutoPlugin {
       Command.args("scalafmt", "run the scalafmt command line interface.") {
         case (s, args) =>
           try {
-            ScalafmtBootstrap.main(args)
+            ScalafmtBootstrap.main("--non-interactive" +: args)
           } catch {
             case e: java.lang.NoSuchMethodError
                 if e.getMessage.startsWith("coursier") =>

@@ -1,5 +1,6 @@
 package org.scalafmt.bootstrap
 
+import java.io.OutputStreamWriter
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, File, PrintStream}
 import java.net.URLClassLoader
 
@@ -57,7 +58,12 @@ object ScalafmtBootstrap {
       MavenRepository("https://repo1.maven.org/maven2")
     )
 
-    val fetch = Fetch.from(repositories, Cache.fetch())
+    System.err.println("Downloading scalafmt artifacts...")
+    val fetch = Fetch.from(
+      repositories,
+      Cache.fetch(
+        logger = Some(new TermDisplay(new OutputStreamWriter(System.err)))
+      ))
     val resolution = start.process.run(fetch).unsafePerformSync
     val errors: Seq[(Dependency, Seq[String])] = resolution.errors
     if (errors.nonEmpty) Left(new FetchError(errors))
@@ -70,6 +76,7 @@ object ScalafmtBootstrap {
       val urls = localArtifacts.collect {
         case \/-(file) => file.toURI.toURL
       }
+      System.err.println("Done")
       val classLoader = new URLClassLoader(urls.toArray, null)
       val reflectiveDynamicAccess = new ReflectiveDynamicAccess(classLoader)
       val loadedClass =
