@@ -55,7 +55,8 @@ class CliTest extends FunSuite with DiffAssertions {
                       |}""".stripMargin
   val formatted = """|object a extends App {
                      |  pr("h")
-                     |}""".stripMargin
+                     |}
+                     |""".stripMargin
   val customConfig =
     """
       |maxColumn   = 2
@@ -69,7 +70,8 @@ class CliTest extends FunSuite with DiffAssertions {
     """|lazy val x =
        |  project
        |lazy val y =
-       |  project""".stripMargin
+       |  project
+       |""".stripMargin
 
   def gimmeConfig(string: String): ScalafmtConfig =
     Config.fromHocon(string) match {
@@ -109,6 +111,7 @@ class CliTest extends FunSuite with DiffAssertions {
     Cli.run(auto)
     val obtained = new String(baos.toByteArray, StandardCharsets.UTF_8)
     assertNoDiff(obtained, formatted)
+    assert(obtained.size == formatted.size)
   }
 
   test("scalafmt --stdin --assume-filename") {
@@ -132,6 +135,7 @@ class CliTest extends FunSuite with DiffAssertions {
       ))
     val obtained = new String(baos.toByteArray, StandardCharsets.UTF_8)
     assertNoDiff(obtained, sbtExpected)
+    assert(obtained.size == sbtExpected.size)
   }
 
   test("scalafmt --test --file tmpFile") {
@@ -326,5 +330,14 @@ class CliTest extends FunSuite with DiffAssertions {
     Cli.main(args) // runs without errors
     val obtained = FileOps.readFile(toFormat)
     assertNoDiff(obtained, "object A\n")
+  }
+
+  private def trimNonNewline(str: String): String = {
+    def isWhitespaceAndNotNewline(ch: Char): Boolean = {
+      ch.isWhitespace && ch != '\n'
+    }
+
+    str.dropWhile(isWhitespaceAndNotNewline)
+      .take(str.lastIndexWhere(ch => !isWhitespaceAndNotNewline(ch)) + 1)
   }
 }

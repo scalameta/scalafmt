@@ -31,7 +31,7 @@ object InputMethod {
     override def write(code: String,
                        original: String,
                        options: CliOptions): Unit = {
-      options.common.out.println(code)
+      options.common.out.print(code)
     }
   }
   case class FileContents(file: AbsoluteFile) extends InputMethod {
@@ -48,7 +48,7 @@ object InputMethod {
         if (codeChanged) FileOps.writeFile(filename, formatted)
         else Unit
       } else {
-        options.common.out.println(formatted)
+        options.common.out.print(formatted)
       }
     }
   }
