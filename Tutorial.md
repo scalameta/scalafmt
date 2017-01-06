@@ -7,7 +7,7 @@ For any questions, don't hesitate to ask on gitter.
 
 ## Tutorial: add spacesInParentheses flag
 
-**Last updated: December 23 2016.**
+**Last updated: January 6 2016.**
 
 After completing the tutorial, you should have a diff looking like
 [this commit](https://github.com/olafurpg/scalafmt/commit/d12acecfb374da6059be252e1703f274ea0eed74).
