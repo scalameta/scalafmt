@@ -38,8 +38,11 @@ trait DiffAssertions extends FunSuiteLike {
                    expected: String,
                    title: String = ""): Boolean = {
     val result = compareContents(obtained, expected)
-    if (result.isEmpty) true
-    else {
+    if (result.isEmpty) {
+      assert(obtained.length == expected.length,
+             ". Is there a redundant/missing trailing newline?")
+      true
+    } else {
       throw DiffFailure(title, expected, obtained, result)
     }
   }

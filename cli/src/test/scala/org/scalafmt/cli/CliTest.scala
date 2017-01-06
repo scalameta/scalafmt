@@ -52,7 +52,8 @@ class CliTest extends FunSuite with DiffAssertions {
                       |  pr(
                       |    "h"
                       |  )
-                      |}""".stripMargin
+                      |}
+                      |""".stripMargin
   val formatted = """|object a extends App {
                      |  pr("h")
                      |}
@@ -290,7 +291,8 @@ class CliTest extends FunSuite with DiffAssertions {
       """|object a {
          |  val x =
          |    1
-         |}""".stripMargin
+         |}
+         |""".stripMargin
     val input = string2dir(
       s"""|/nested/foo.scala
           |$original
