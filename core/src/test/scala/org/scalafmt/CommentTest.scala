@@ -41,7 +41,7 @@ class CommentTest extends FunSuite with DiffAssertions {
                      |   */
                      |  val y = 2
                      |}
-                   """.stripMargin
+                     |""".stripMargin
     val obtained = Scalafmt.format(original, javadocStyle).get
     assertNoDiff(obtained, expected)
   }
