@@ -52,10 +52,12 @@ class CliTest extends FunSuite with DiffAssertions {
                       |  pr(
                       |    "h"
                       |  )
-                      |}""".stripMargin
+                      |}
+                      |""".stripMargin
   val formatted = """|object a extends App {
                      |  pr("h")
-                     |}""".stripMargin
+                     |}
+                     |""".stripMargin
   val customConfig =
     """
       |maxColumn   = 2
@@ -69,7 +71,8 @@ class CliTest extends FunSuite with DiffAssertions {
     """|lazy val x =
        |  project
        |lazy val y =
-       |  project""".stripMargin
+       |  project
+       |""".stripMargin
 
   def gimmeConfig(string: String): ScalafmtConfig =
     Config.fromHocon(string) match {
@@ -286,7 +289,8 @@ class CliTest extends FunSuite with DiffAssertions {
       """|object a {
          |  val x =
          |    1
-         |}""".stripMargin
+         |}
+         |""".stripMargin
     val input = string2dir(
       s"""|/nested/foo.scala
           |$original

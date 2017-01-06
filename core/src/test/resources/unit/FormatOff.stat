@@ -23,6 +23,7 @@ object A {
                              0, 0, 1)
                              function("I don't care about formatting at all")
              }
+
 >>>
 // format: OFF
     object A   {

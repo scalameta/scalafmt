@@ -110,7 +110,7 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
                actualName,
                filename,
                original,
-               expected,
+               trimmed(expected),
                moduleSkip || isSkip(name),
                moduleOnly || isOnly(name),
                style)
@@ -193,4 +193,6 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
       }
     builder.result()
   }
+
+  private def trimmed(arg: String): String = arg.trim + "\n"
 }
