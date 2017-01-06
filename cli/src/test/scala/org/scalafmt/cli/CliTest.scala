@@ -112,6 +112,7 @@ class CliTest extends FunSuite with DiffAssertions {
     Cli.run(auto)
     val obtained = new String(baos.toByteArray, StandardCharsets.UTF_8)
     assertNoDiff(obtained, formatted)
+    assert(obtained.size == formatted.size)
   }
 
   test("scalafmt --stdin --assume-filename") {
@@ -135,6 +136,7 @@ class CliTest extends FunSuite with DiffAssertions {
       ))
     val obtained = new String(baos.toByteArray, StandardCharsets.UTF_8)
     assertNoDiff(obtained, sbtExpected)
+    assert(obtained.size == sbtExpected.size)
   }
 
   test("scalafmt --test --file tmpFile") {
