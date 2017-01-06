@@ -331,13 +331,4 @@ class CliTest extends FunSuite with DiffAssertions {
     val obtained = FileOps.readFile(toFormat)
     assertNoDiff(obtained, "object A\n")
   }
-
-  private def trimNonNewline(str: String): String = {
-    def isWhitespaceAndNotNewline(ch: Char): Boolean = {
-      ch.isWhitespace && ch != '\n'
-    }
-
-    str.dropWhile(isWhitespaceAndNotNewline)
-      .take(str.lastIndexWhere(ch => !isWhitespaceAndNotNewline(ch)) + 1)
-  }
 }
