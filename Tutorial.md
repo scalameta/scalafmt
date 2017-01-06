@@ -48,17 +48,17 @@ function( a, b, c )
 ```scala
 [debug] FormatWriter.scala:118                    NoSplit:72(cost=0, indents=[], NoPolicy) 0 0
 [debug] FormatWriter.scala:118                    NoSplit:72(cost=0, indents=[], NoPolicy) 0 8
-[debug] FormatWriter.scala:118    function        NoSplit:350(cost=0, indents=[], NoPolicy) 0 9
-[debug] FormatWriter.scala:118    (               NoSplit:623(cost=0, indents=[], P:605(D=false)) 0 10
-[debug] FormatWriter.scala:118    a               NoSplit:696(cost=0, indents=[], NoPolicy) 0 11
-[debug] FormatWriter.scala:118    ,               Space:745(cost=0, indents=[], NoPolicy) 0 13
-[debug] FormatWriter.scala:118    b               NoSplit:696(cost=0, indents=[], NoPolicy) 0 14
-[debug] FormatWriter.scala:118    ,               Space:745(cost=0, indents=[], NoPolicy) 0 16
-[debug] FormatWriter.scala:118    c               NoSplit:1267(cost=0, indents=[], NoPolicy) 0 17
+[debug] FormatWriter.scala:118    function        NoSplit:356(cost=0, indents=[], NoPolicy) 0 9
+[debug] FormatWriter.scala:118    (               NoSplit:630(cost=0, indents=[], P:612(D=false)) 0 10
+[debug] FormatWriter.scala:118    a               NoSplit:703(cost=0, indents=[], NoPolicy) 0 11
+[debug] FormatWriter.scala:118    ,               Space:752(cost=0, indents=[], NoPolicy) 0 13
+[debug] FormatWriter.scala:118    b               NoSplit:703(cost=0, indents=[], NoPolicy) 0 14
+[debug] FormatWriter.scala:118    ,               Space:752(cost=0, indents=[], NoPolicy) 0 16
+[debug] FormatWriter.scala:118    c               NoSplit:1276(cost=0, indents=[], NoPolicy) 0 17
 [debug] FormatWriter.scala:118    )               Newline:76(cost=0, indents=[], NoPolicy) 0 0
 [debug] FormatWriter.scala:169    Total cost: 0
-[debug] FormatTests.scala:92      Split(line=623, count=2), Split(line=640, count=2), Split(line=632, count=2)
-[debug] FormatTests.scala:93      Total explored: 24
+[debug] FormatTests.scala:96      Split(line=630, count=2), Split(line=647, count=2), Split(line=639, count=2)
+[debug] FormatTests.scala:97      Total explored: 24
 [info] FormatTests:
 [info] - spaces/Hacking.stat: Spaces in paretheses                             | *** FAILED *** (275 milliseconds)
 [info]   ===========
@@ -92,11 +92,11 @@ function( a, b, c )
 
 - BOF stands for "beginning of file".
 - We want a space after the opening parentheses, so let's take a look at
-  [line 623](core/src/main/scala/org/scalafmt/internal/Router.scala#L623).
+  [line 630](core/src/main/scala/org/scalafmt/internal/Router.scala#L630).
 
 ```scala
 Seq(
-  Split(modification, 0, policy = noSplitPolicy) // <- line 623
+  Split(modification, 0, policy = noSplitPolicy) // <- line 630
     .withOptimalToken(expirationToken, killOnFail = false)
     .withIndent(noSplitIndent, close, Right),
 ```
@@ -128,10 +128,10 @@ val modification =
 ```
 
 - Neat, there's a space after the opening `(`! Only missing space before closing parenthesis.
-- Look at line 1267.
+- Look at line 1276.
 
 ```scala
-Split(NoSplit, 0)  // <- line 1267
+Split(NoSplit, 0)  // <- line 1276
 ```
 
 - Change the line to this
