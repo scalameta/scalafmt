@@ -476,7 +476,6 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
     if (style.spaces.neverAroundInfixTypes.contains((op.value)))
       Split(NoSplit, 0)
-
     else
       Split(modification, 0).withIndent(Num(indent), expire, ExpiresOn.Left)
   }
