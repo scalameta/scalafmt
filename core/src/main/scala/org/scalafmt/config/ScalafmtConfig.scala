@@ -120,6 +120,8 @@ import org.scalafmt.util.ValidationOps
   * @param alignTokens Documented in scalafmt --help page.
   * @param spacesInImportCurlyBraces If true, formats `import a.b.{ c, d }`.
   *                                  If false, formats `import a.b.{c, d}`.
+  * @param spaceNeverAroundInfixTypes If ["##"] is specified as operator then
+  *                                   formats `Generic[Foo] ## Repr` as `Generic[Foo]##Repr`.
   * @param importSelectors Controls formatting of import selectors with multiple names from the
   *                        same package;
   *                        If [[org.scalafmt.config.ImportSelectors.binPack]], import selectors are

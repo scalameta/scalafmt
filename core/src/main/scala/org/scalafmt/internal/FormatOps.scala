@@ -474,10 +474,14 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       token <- arg.tokens.lastOption
     } yield token).getOrElse(owner.tokens.last)
 
-    if (style.spaces.neverAroundInfixTypes.contains((op.value)))
-      Split(NoSplit, 0)
-    else
-      Split(modification, 0).withIndent(Num(indent), expire, ExpiresOn.Left)
+    owner.parent match {
+      case Some(_: Type.ApplyInfix)
+          if style.spaces.neverAroundInfixTypes.contains((op.value)) =>
+        Split(NoSplit, 0)
+      case _ =>
+        Split(modification, 0).withIndent(Num(indent), expire, ExpiresOn.Left)
+    }
+
   }
 
   /**

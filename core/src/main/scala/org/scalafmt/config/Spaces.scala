@@ -7,5 +7,5 @@ case class Spaces(
     beforeContextBoundColon: Boolean = false,
     afterTripleEquals: Boolean = false,
     inImportCurlyBraces: Boolean = false,
-    neverAroundInfixTypes: Seq[String] = Seq("##")
+    neverAroundInfixTypes: Seq[String] = Nil
 )
