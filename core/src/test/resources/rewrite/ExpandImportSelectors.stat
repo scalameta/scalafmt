@@ -1,0 +1,34 @@
+rewrite.rules = [ExpandImportSelectors]
+<<< basic
+object e {
+  import a.{
+    b,
+    c
+  }, h.{
+    k, l
+  }
+  import d.e.{f, g}
+}
+>>>
+object e {
+  import a.b
+  import a.c
+  import h.k
+  import h.l
+  import d.e.f
+  import d.e.g
+}
+<<< rename/wildcard/unimport
+object blah {
+  import a.{
+    foo => bar,
+    zzzz => _,
+    baz
+  }
+}
+>>>
+object blah {
+  import a.{foo => bar}
+  import a.{zzzz => _}
+  import a.baz
+}
