@@ -59,6 +59,8 @@ import org.scalafmt.util.ValidationOps
   *                                   call site.
   * @param continuationIndentDefnSite Indent width for line continuation at
   *                                   definition/declaration site.
+  * @param continuationIndentExtendSite Indent width for line continuation at
+  *                                     extends or with site.
   * @param sometimesBeforeColonInMethodReturnType If true, scalafmt
   *                                                    may choose to put a newline
   *                                                    before colon : at defs.
