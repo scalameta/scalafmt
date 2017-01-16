@@ -936,7 +936,11 @@ class Router(formatOps: FormatOps) {
           .flatMap(templateCurly)
           .orElse(template.map(_.tokens.last))
           .getOrElse(rightOwner.tokens.last)
-        binPackParentConstructorSplits(template.toSet, lastToken, 4)
+        binPackParentConstructorSplits(
+          template.toSet,
+          lastToken,
+          style.continuationIndent.extendSite
+        )
       case tok @ FormatToken(_, right @ KwWith(), _) =>
         rightOwner match {
           case template: Template =>

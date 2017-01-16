@@ -1,5 +1,7 @@
 continuationIndent.callSite = 5
 continuationIndent.defnSite = 3
+continuationIndent.extendSite = 2
+maxColumn = 40
 <<< #143
 def foo(
 a: Int,
@@ -19,4 +21,19 @@ def foo(
        2,
        3
   )
+}
+<<< Extend site
+class ExtendTest extends A with B with C with D { self: A with B with C with D with E =>
+}
+>>>
+class ExtendTest
+  extends A
+  with B
+  with C
+  with D {
+  self: A
+    with B
+    with C
+    with D
+    with E =>
 }
