@@ -1,0 +1,35 @@
+continuationIndent.defnSite = 4
+straightCurried = true
+maxColumn = 40
+<<< curried functions
+def format_![T <: Tree](code: String, foo: Int)(implicit ev: Parse[T], ev2: EC): String
+>>>
+def format_![T <: Tree](
+    code: String,
+    foo: Int
+  )(implicit ev: Parse[T],
+    ev2: EC
+  ): String
+<<< curried functions defn.def
+def format_![T <: Tree](
+    code: String
+  )(implicit ev: Parse[T]): String = 1
+>>>
+def format_![T <: Tree](
+    code: String
+  )(implicit ev: Parse[T]
+  ): String = 1
+<<< idempotent
+def format_![T <: Tree](
+    code: String,
+    foo: Int
+  )(implicit ev: Parse[T],
+    ev2: EC
+  ): String
+>>>
+def format_![T <: Tree](
+    code: String,
+    foo: Int
+  )(implicit ev: Parse[T],
+    ev2: EC
+  ): String

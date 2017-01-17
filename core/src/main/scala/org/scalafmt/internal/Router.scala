@@ -409,6 +409,45 @@ class Router(formatOps: FormatOps) {
                 .withIndent(2, expire, Left)
             )
         }
+
+      case FormatToken(open @ LeftParen(), right, between)
+          if style.straightCurried && isDefnSite(leftOwner) =>
+        val close = matchingParentheses(hash(open))
+        val indentParam = Num(4)
+        val indentSep = Num(2)
+        if (isTuple(leftOwner)) {
+          Seq(
+            Split(NoSplit, 0).withPolicy(
+              SingleLineBlock(close, disallowInlineComments = false))
+          )
+        } else {
+          val firstParamGroupPolicy =
+            OneArgOneLineSplit(
+              open,
+              noTrailingCommas = style.poorMansTrailingCommasInConfigStyle)
+
+          val noNewLineOnParamSep: PartialFunction[Decision, Decision] = {
+            case Decision(t @ FormatToken(_, `close`, between), splits) =>
+              Decision(t,
+                Seq(Split(Newline, 0)
+                  .withIndent(indentSep, close, Right)
+                )
+              )
+          }
+          val configStyle = firstParamGroupPolicy.andThen(noNewLineOnParamSep)
+          val isFirstGroup =
+            leftOwner.tokens.find {
+              case LeftParen() => true
+              case _ => false
+            }.filter(_ == open).isDefined
+          val mod = if (isFirstGroup) Newline else NoSplit
+          Seq(
+            Split(mod, 0)
+              .withIndent(indentParam, close, Right)
+              .withPolicy(configStyle)
+          )
+        }
+
       // Term.Apply and friends
       case FormatToken(LeftParen() | LeftBracket(), right, between)
           if style.configStyleArguments &&
@@ -434,6 +473,7 @@ class Router(formatOps: FormatOps) {
             .withIndent(indent, close, Right)
             .withIndent(extraIndent, right, Right)
         )
+
       case FormatToken(open @ (LeftParen() | LeftBracket()), right, between)
           if style.binPack.defnSite && isDefnSite(leftOwner) =>
         val close = matchingParentheses(hash(open))

@@ -209,6 +209,7 @@ case class ScalafmtConfig(
     danglingParentheses: Boolean = false,
     poorMansTrailingCommasInConfigStyle: Boolean = false,
     bestEffortInDeeplyNestedCode: Boolean = false,
+    straightCurried: Boolean = false,
     project: ProjectFiles = ProjectFiles()
 ) {
 
