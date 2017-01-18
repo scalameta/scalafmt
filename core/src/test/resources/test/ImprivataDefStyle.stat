@@ -1,16 +1,23 @@
 continuationIndent.defnSite = 4
 straightCurried = true
-maxColumn = 40
-<<< curried functions
-def format_![T <: Tree](code: String, foo: Int)(implicit ev: Parse[T], ev2: EC): String
+maxColumn = 80
+<<< curried function over maxColumn
+def format_![T <: Tree](code: String, foo: Int)(f: A => B)(implicit ev: Parse[T], ev2: EC): String
 >>>
 def format_![T <: Tree](
     code: String,
     foo: Int
+  )(f: A => B
   )(implicit ev: Parse[T],
     ev2: EC
   ): String
-<<< curried functions defn.def
+
+<<< ONLY curried functions under maxColumn
+def format_![T <: Tree](code: String)(f: A => B)(implicit ev: Parse[T]): String
+>>>
+def format_![T <: Tree](code: String)(f: A => B)(implicit ev: Parse[T]): String
+
+<<< curried function mixed style 1
 def format_![T <: Tree](
     code: String
   )(implicit ev: Parse[T]): String = 1
@@ -19,17 +26,18 @@ def format_![T <: Tree](
     code: String
   )(implicit ev: Parse[T]
   ): String = 1
-<<< idempotent
-def format_![T <: Tree](
-    code: String,
-    foo: Int
+
+<<< curried function mixed style 2
+def format_![T <: Tree](code: String, foo: Int)(
+  f: A => B
   )(implicit ev: Parse[T],
-    ev2: EC
-  ): String
+  ev2: EC)
+  : String
 >>>
 def format_![T <: Tree](
     code: String,
     foo: Int
+  )(f: A => B
   )(implicit ev: Parse[T],
     ev2: EC
   ): String

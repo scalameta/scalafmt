@@ -410,6 +410,8 @@ class Router(formatOps: FormatOps) {
             )
         }
 
+      // Parameter opening for one parameter group. This format works
+      // on a group-by-group basis.
       case FormatToken(open @ LeftParen(), right, between)
           if style.straightCurried && isDefnSite(leftOwner) =>
         val close = matchingParentheses(hash(open))
@@ -421,11 +423,13 @@ class Router(formatOps: FormatOps) {
               SingleLineBlock(close, disallowInlineComments = false))
           )
         } else {
-          val firstParamGroupPolicy =
+          val oneLinePerArgPolicy =
             OneArgOneLineSplit(
               open,
               noTrailingCommas = style.poorMansTrailingCommasInConfigStyle)
 
+          // A `paramSep` is a `)(`, aka the seperator between two parameter
+          // groups. Prepend a newline to these.
           val noNewLineOnParamSep: PartialFunction[Decision, Decision] = {
             case Decision(t @ FormatToken(_, `close`, between), splits) =>
               Decision(t,
@@ -434,7 +438,10 @@ class Router(formatOps: FormatOps) {
                 )
               )
           }
-          val configStyle = firstParamGroupPolicy.andThen(noNewLineOnParamSep)
+          val configStyleLike =
+            oneLinePerArgPolicy.andThen(noNewLineOnParamSep)
+          // Find the very first leftParen in the `def`. This will tell us
+          // if we are in the first group or not.
           val isFirstGroup =
             leftOwner.tokens.find {
               case LeftParen() => true
@@ -444,7 +451,7 @@ class Router(formatOps: FormatOps) {
           Seq(
             Split(mod, 0)
               .withIndent(indentParam, close, Right)
-              .withPolicy(configStyle)
+              .withPolicy(configStyleLike)
           )
         }
 
