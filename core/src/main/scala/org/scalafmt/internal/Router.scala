@@ -417,43 +417,36 @@ class Router(formatOps: FormatOps) {
         val close = matchingParentheses(hash(open))
         val indentParam = Num(4)
         val indentSep = Num(2)
-        if (isTuple(leftOwner)) {
-          Seq(
-            Split(NoSplit, 0).withPolicy(
-              SingleLineBlock(close, disallowInlineComments = false))
-          )
-        } else {
-          val oneLinePerArgPolicy =
-            OneArgOneLineSplit(
-              open,
-              noTrailingCommas = style.poorMansTrailingCommasInConfigStyle)
+        val oneLinePerArgPolicy =
+          OneArgOneLineSplit(
+            open,
+            noTrailingCommas = style.poorMansTrailingCommasInConfigStyle)
 
-          // A `paramSep` is a `)(`, aka the seperator between two parameter
-          // groups. Prepend a newline to these.
-          val noNewLineOnParamSep: PartialFunction[Decision, Decision] = {
-            case Decision(t @ FormatToken(_, `close`, _), _) =>
-              Decision(t,
-                Seq(Split(Newline, 0)
-                  .withIndent(indentSep, close, Right)
-                )
+        // A `paramSep` is a `)(`, aka the seperator between two parameter
+        // groups. Prepend a newline to these.
+        val noNewLineOnParamSep: PartialFunction[Decision, Decision] = {
+          case Decision(t @ FormatToken(_, `close`, _), _) =>
+            Decision(t,
+              Seq(
+                Split(Newline, 0).withIndent(indentSep, close, Right)
               )
-          }
-          val configStyleLike =
-            oneLinePerArgPolicy.andThen(noNewLineOnParamSep)
-          // Find the very first leftParen in the `def`. This will tell us
-          // if we are in the first group or not.
-          val isFirstGroup =
-            leftOwner.tokens.find {
-              case LeftParen() => true
-              case _ => false
-            }.filter(_ == open).isDefined
-          val mod = if (isFirstGroup) Newline else NoSplit
-          Seq(
-            Split(mod, 0)
-              .withIndent(indentParam, close, Right)
-              .withPolicy(configStyleLike)
-          )
+            )
         }
+        val configStyleLike =
+          oneLinePerArgPolicy.andThen(noNewLineOnParamSep)
+        // Find the very first leftParen in the `def`. This will tell us
+        // if we are in the first group or not.
+        val isFirstGroup =
+          leftOwner.tokens.find {
+            case LeftParen() => true
+            case _ => false
+          }.filter(_ == open).isDefined
+        val mod = if (isFirstGroup) Newline else NoSplit
+        Seq(
+          Split(mod, 0)
+            .withIndent(indentParam, close, Right)
+            .withPolicy(configStyleLike)
+        )
 
       // Term.Apply and friends
       case FormatToken(LeftParen() | LeftBracket(), right, between)
