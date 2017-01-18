@@ -413,7 +413,7 @@ class Router(formatOps: FormatOps) {
       // Parameter opening for one parameter group. This format works
       // on a group-by-group basis.
       case FormatToken(open @ LeftParen(), right, between)
-          if style.straightCurried && isDefnSite(leftOwner) =>
+          if style.verticalMultiline && isDefnSite(leftOwner) =>
         val close = matchingParentheses(hash(open))
         val indentParam = Num(4)
         val indentSep = Num(2)
@@ -431,7 +431,7 @@ class Router(formatOps: FormatOps) {
           // A `paramSep` is a `)(`, aka the seperator between two parameter
           // groups. Prepend a newline to these.
           val noNewLineOnParamSep: PartialFunction[Decision, Decision] = {
-            case Decision(t @ FormatToken(_, `close`, between), splits) =>
+            case Decision(t @ FormatToken(_, `close`, _), _) =>
               Decision(t,
                 Seq(Split(Newline, 0)
                   .withIndent(indentSep, close, Right)
