@@ -77,6 +77,7 @@ object Readme {
   def issues(ids: Int*) = span(ids.map(issue): _*)
 
   def half(frags: Frag*) = div(frags, width := "50%", float.left)
+  def ignore(frags: Frag*) = span("")
 
   def pairs(frags: Frag*) = div(frags, div(clear := "both"))
 
