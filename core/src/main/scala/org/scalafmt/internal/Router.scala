@@ -1270,7 +1270,7 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(NoSplit, 0)
         )
-      case FormatToken(Dot() | Hash(), Ident(_) | KwThis(), _) =>
+      case FormatToken(Dot() | Hash(), Ident(_) | KwThis() | KwSuper(), _) =>
         Seq(
           Split(NoSplit, 0)
         )

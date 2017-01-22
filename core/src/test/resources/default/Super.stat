@@ -1,0 +1,5 @@
+80 columns                                                                     |
+<<< #661 super space
+foo. super.x()
+>>>
+foo.super.x()
