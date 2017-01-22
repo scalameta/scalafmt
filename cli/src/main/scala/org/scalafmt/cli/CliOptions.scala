@@ -27,17 +27,20 @@ object CliOptions {
     * contains an error. Why? Because this method is only supposed to be
     * called directly from main.
     */
-  def auto(init: CliOptions)(parsed: CliOptions): CliOptions = {
+  def auto(args: Array[String], init: CliOptions)(
+      parsed: CliOptions): CliOptions = {
     val style: Option[ScalafmtConfig] = if (init.config != parsed.config) {
       Option(parsed.config)
     } else {
       tryCurrentDirectory(parsed).orElse(tryGit(parsed))
     }
     val inplace =
-      !parsed.testing && (
-        parsed.inPlace ||
+      args.isEmpty || {
+        !parsed.testing && (
+          parsed.inPlace ||
           (parsed.customFiles.isEmpty && style.isDefined)
-      )
+        )
+      }
     parsed.copy(
       inPlace = inplace,
       config = style.getOrElse(parsed.config)
