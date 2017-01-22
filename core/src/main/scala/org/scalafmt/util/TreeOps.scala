@@ -116,6 +116,7 @@ object TreeOps {
       x match {
         case t: Defn.Class => addDefn[KwClass](t.mods, t)
         case t: Defn.Def => addDefn[KwDef](t.mods, t)
+        case t: Defn.Macro => addDefn[KwDef](t.mods, t)
         case t: Decl.Def => addDefn[KwDef](t.mods, t)
         case t: Ctor.Secondary => addDefn[KwDef](t.mods, t)
         case t: Defn.Object => addDefn[KwObject](t.mods, t)
