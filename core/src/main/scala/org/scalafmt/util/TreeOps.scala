@@ -88,7 +88,9 @@ object TreeOps {
 
     def addAll(trees: Seq[Tree]): Unit = {
       trees.foreach { t =>
-        ret += hash(t.tokens.head) -> t
+        t.tokens.headOption.foreach { tok =>
+          ret += hash(tok) -> t
+        }
       }
     }
 
