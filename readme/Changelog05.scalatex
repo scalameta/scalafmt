@@ -3,9 +3,20 @@
 @import org.scalafmt.config.ScalafmtConfig
 
 @sect{0.5.2}
+  This release was made possible with contributions from 7 new contributors.
+  Big thanks to
+  @user{avdv},
+  @user{pjrt},
+  @user{MasseGuillaume},
+  @user{mpociecha},
+  @user{rbellamy},
+  @user{ysusuk} and
+  @user{dguo-coursera}!
+  Also thanks to everyone who reported issues.
   @ul
     @li
       sbt plugin now uses coursier instead of synthetic projects. See @pr(658).
+      If you use sbt-coursier, make sure you're on version @org.scalafmt.Versions.coursier.
     @li
       New flag @cliFlags{optIn.annotationNewlines = false}. Thank you @user{mpociecha}
       for suggesting this flag!
@@ -17,6 +28,8 @@
       the setup to hack on the IntelliJ plugin. If you were previously discouraged
       to contribute to the IntelliJ plugin, I encourage you to give it another
       chance now! Thank you @user{rbellamy} for this contribution!
+    @li
+      @lnk("Ton of fixed issues and new features", "https://github.com/olafurpg/scalafmt/milestone/9?closed=1").
 @sect{0.5.1}
   @ul
     @li
