@@ -5,7 +5,7 @@ def latestStableVersion: String = "0.5.2"
 
 lazy val buildSettings = Seq(
   organization := "com.geirsson",
-  version := "0.5.2",
+  version := "0.5.3-RC1",
   scalaVersion := "2.11.8",
   updateOptions := updateOptions.value.withCachedResolution(true)
 )
