@@ -3,10 +3,14 @@
 @import org.scalafmt.config.ScalafmtConfig
 
 @ignore
-  @sect{0.5.3}
+  @sect{0.5.4}
     @ul
       @li
         Please document your contribution here.
+@sect{0.5.3}
+  @ul
+    @li
+      Fixed "Unitialized TermDisplay" error in sbt plugin, see @issue(691).
 @sect{0.5.2}
   This release was made possible with contributions from 7 new contributors.
   Big thanks to
