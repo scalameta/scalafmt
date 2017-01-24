@@ -245,6 +245,21 @@ class CliTest extends FunSuite with DiffAssertions {
     check("target/notfound")
   }
 
+  def noArgTest(input: AbsoluteFile,
+                expected: String,
+                cmds: Seq[Array[String]]): Unit = {
+    cmds.foreach { args =>
+      val init: CliOptions = getMockOptions(input)
+      val config = Cli.getConfig(args, init).get
+      Cli.run(config)
+      val obtained = dir2string(input)
+      assertNoDiff(obtained, expected)
+      val configTest = Cli.getConfig(Array("--test"), init).get
+      Cli.run(configTest)
+    }
+
+  }
+
   test("scalafmt (no arg) read config from git repo") {
     val input = string2dir(
       """|/foo.scala
@@ -273,16 +288,24 @@ class CliTest extends FunSuite with DiffAssertions {
          |/target/foo.scala
          |object A   { }
          |""".stripMargin
-
-    Seq(Array.empty[String], Array("--diff")).foreach { args =>
-      val init: CliOptions = getMockOptions(input)
-      val config = Cli.getConfig(args, init).get
-      Cli.run(config)
-      val obtained = dir2string(input)
-      assertNoDiff(obtained, expected)
-      val configTest = Cli.getConfig(Array("--test"), init).get
-      Cli.run(configTest)
-    }
+    noArgTest(
+      input,
+      expected,
+      Seq(Array.empty[String], Array("--diff"))
+    )
+  }
+  test("scalafmt (no arg, no config)") {
+    noArgTest(
+      string2dir(
+        """|/foo.scala
+           |object    FormatMe
+           |""".stripMargin
+      ),
+      """|/foo.scala
+         |object FormatMe
+         |""".stripMargin,
+      Seq(Array.empty[String])
+    )
   }
 
   test("config is read even from nested dir") {

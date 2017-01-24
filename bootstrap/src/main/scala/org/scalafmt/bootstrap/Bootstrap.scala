@@ -58,12 +58,14 @@ object ScalafmtBootstrap {
       MavenRepository("https://repo1.maven.org/maven2")
     )
 
-    System.err.println("Downloading scalafmt artifacts...")
+    val logger = new TermDisplay(new OutputStreamWriter(System.err))
+    logger.init(System.err.println("Downloading scalafmt artifacts..."))
     val fetch = Fetch.from(
       repositories,
       Cache.fetch(
-        logger = Some(new TermDisplay(new OutputStreamWriter(System.err)))
-      ))
+        logger = Some(logger)
+      )
+    )
     val resolution = start.process.run(fetch).unsafePerformSync
     val errors: Seq[(Dependency, Seq[String])] = resolution.errors
     if (errors.nonEmpty) Left(new FetchError(errors))

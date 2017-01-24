@@ -11,7 +11,7 @@ Head over to [the user docs][docs] for instructions on how to install scalafmt.
 - Build docs: `sbt readme/run` will create the docs, which you can open with
   `open readme/target/scalatex/index.html`. Docs are built with [Scalatex](http://www.lihaoyi.com/Scalatex/).
 - Hack on IntelliJ plugin: see [this doc](intellij/readme.md).
-- Hack on scalafmt: see [tutorial](tutorial.md).
+- Hack on scalafmt: see [tutorial](Tutorial.md).
 - Hack on SBT plugin: run `sbt scripted`.
 - Run jmh benchmarks: `run-benchmarks.sh`.
 - Run formatter on millions of lines of code: `core/test:runMain  org.scalafmt.FormatExperimentApp`:

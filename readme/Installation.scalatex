@@ -155,7 +155,7 @@
       The sbt plugin is a tiny wrapper around the command line interface.
 
     @hl.scala
-      // NOTE. Requires sbt 0.13.13
+      // NOTE. If you use sbt-coursier, make sure you're on version @org.scalafmt.Versions.coursier.
       addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "@org.scalafmt.Versions.stable")
 
     @ul

@@ -72,11 +72,12 @@ object Readme {
       names.dropRight(1).map(x => span(user(x), ", ")) :+ user(names.last): _*
     )
 
-  def pr(id: Int) = a(href := repo + s"/pulls/$id", s"#$id")
+  def pr(id: Int) = a(href := repo + s"/pull/$id", s"#$id")
   def issue(id: Int) = a(href := repo + s"/issues/$id", s"#$id")
   def issues(ids: Int*) = span(ids.map(issue): _*)
 
   def half(frags: Frag*) = div(frags, width := "50%", float.left)
+  def ignore(frags: Frag*) = span("")
 
   def pairs(frags: Frag*) = div(frags, div(clear := "both"))
 

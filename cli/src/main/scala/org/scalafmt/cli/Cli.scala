@@ -71,7 +71,7 @@ object Cli {
   }
 
   def getConfig(args: Array[String], init: CliOptions): Option[CliOptions] = {
-    CliArgParser.scoptParser.parse(args, init).map(CliOptions.auto(init))
+    CliArgParser.scoptParser.parse(args, init).map(CliOptions.auto(args, init))
   }
 
   def canFormat(path: AbsoluteFile): Boolean =
