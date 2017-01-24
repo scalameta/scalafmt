@@ -181,21 +181,24 @@ import org.scalafmt.util.ValidationOps
   *        x + 2
   *    }.filter(_ > 2)
   *  }}}
-  * @param verticalMultiline If true, reformat multi-line function definitions in
+  * @param verticalMultilineAtDefinitionSite If true, reformat multi-line function definitions in
   *  the following way
   * {{{
   *   def format(
   *       code: String,
   *       age: Int
-  *     )(implicit ev: Parser
+  *     )(implicit ev: Parser,
+  *       c: Context
   *     ): String
   * )
   * }}}
   *
   *  All parameters are on their on line indented by four (4), seperation between
   *  parament groups are indented by two (2). ReturnType is on its own line at
-  *  then end. This will only trigger if the function is already multi-line
-  *  or if a single-line function goes over [[maxColumn]].
+  *  then end. This will only trigger if the function would go over
+  *  [[maxColumn]]. If a multi-line funcion can fit in a single line, it will
+  *  make it so. Note that this setting ignores [[continuation.defnSite]],
+  *  [[binPack.defnSite]], and [[align.openParenDefnSite]].
   */
 @ConfigReader
 case class ScalafmtConfig(
@@ -223,7 +226,7 @@ case class ScalafmtConfig(
     danglingParentheses: Boolean = false,
     poorMansTrailingCommasInConfigStyle: Boolean = false,
     bestEffortInDeeplyNestedCode: Boolean = false,
-    verticalMultiline: Boolean = false,
+    verticalMultilineAtDefinitionSite: Boolean = false,
     project: ProjectFiles = ProjectFiles()
 ) {
 

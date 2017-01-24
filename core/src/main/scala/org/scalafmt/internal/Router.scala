@@ -2,6 +2,7 @@ package org.scalafmt.internal
 
 import scala.language.implicitConversions
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.meta.Case
 import scala.meta.Defn
@@ -412,40 +413,56 @@ class Router(formatOps: FormatOps) {
 
       // Parameter opening for one parameter group. This format works
       // on a group-by-group basis.
-      case FormatToken(open @ LeftParen(), right, between)
-          if style.verticalMultiline && isDefnSite(leftOwner) =>
+      case FormatToken(open @ LeftParen(), _, between)
+          if style.verticalMultilineAtDefinitionSite && isDefnSite(leftOwner) =>
         val close = matchingParentheses(hash(open))
         val indentParam = Num(4)
         val indentSep = Num(2)
-        val oneLinePerArgPolicy =
-          OneArgOneLineSplit(
-            open,
-            noTrailingCommas = style.poorMansTrailingCommasInConfigStyle)
 
-        // A `paramSep` is a `)(`, aka the seperator between two parameter
-        // groups. Prepend a newline to these.
-        val noNewLineOnParamSep: PartialFunction[Decision, Decision] = {
-          case Decision(t @ FormatToken(_, `close`, _), _) =>
+        @tailrec
+        def loop(token: Token): Option[Token] =
+          leftTok2tok(matchingParentheses(hash(token))) match {
+            case FormatToken(RightParen(), l @ LeftParen(), _) => loop(l)
+            case FormatToken(r @ RightParen(), _, _) => Some(r)
+            case _ => None
+          }
+        val lastParen = loop(open).get // find the last param on the def
+                                       // so that we can apply our `policy` till
+                                       // the end.
+
+        // Our policy is a combination of OneArgLineSplit and a custom splitter
+        // for parameter groups.
+        val oneLinePerArg = OneArgOneLineSplit(open).f
+        val paramGroupSplitter: PartialFunction[Decision, Decision] = {
+          // Indent seperators `)(` by `indentSep`
+          case Decision(t @ FormatToken(_, rp @ RightParen(), _), _) =>
             Decision(t,
               Seq(
-                Split(Newline, 0).withIndent(indentSep, close, Right)
+                Split(Newline, 0)
+                  .withIndent(indentSep, rp, Left)
+              )
+            )
+          // Do NOT Newline the first param after the split `)(`. But let
+          // following ones get newlined by the oneLinePerArg policy.
+          case Decision(t @ FormatToken(open2 @ LeftParen(), _, _), _) =>
+            val close2 = matchingParentheses(hash(open2))
+            Decision(t,
+              Seq(
+                Split(NoSplit, 0)
+                  .withIndent(indentParam, close2, Right)
               )
             )
         }
-        val configStyleLike =
-          oneLinePerArgPolicy.andThen(noNewLineOnParamSep)
-        // Find the very first leftParen in the `def`. This will tell us
-        // if we are in the first group or not.
-        val isFirstGroup =
-          leftOwner.tokens.find {
-            case LeftParen() => true
-            case _ => false
-          }.filter(_ == open).isDefined
-        val mod = if (isFirstGroup) Newline else NoSplit
+
+        val policy =
+          Policy(oneLinePerArg.orElse(paramGroupSplitter), lastParen.end)
+
         Seq(
-          Split(mod, 0)
+          Split(NoSplit, 0) // If it fits in one block, make it so
+            .withPolicy(SingleLineBlock(lastParen)),
+          Split(Newline, 1) // Otherwise split vertically
             .withIndent(indentParam, close, Right)
-            .withPolicy(configStyleLike)
+            .withPolicy(policy)
         )
 
       // Term.Apply and friends

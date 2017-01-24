@@ -1,23 +1,23 @@
-continuationIndent.defnSite = 4
-verticalMultiline = true
+verticalMultilineAtDefinitionSite = true
 maxColumn = 80
 <<< curried function over maxColumn
-def format_![T <: Tree](code: String, foo: Int)(f: A => B)(implicit ev: Parse[T], ev2: EC): String
+def format_![T <: Tree](code: String, foo: Int)(f: A => B, k: D)(implicit ev: Parse[T], ev2: EC): String
 >>>
 def format_![T <: Tree](
     code: String,
     foo: Int
-  )(f: A => B
+  )(f: A => B,
+    k: D
   )(implicit ev: Parse[T],
     ev2: EC
   ): String
 
-<<< SKIP curried function under maxColumn
+<<< curried function under maxColumn
 def format_![T <: Tree](code: String)(f: A => B)(implicit ev: Parse[T]): String
 >>>
 def format_![T <: Tree](code: String)(f: A => B)(implicit ev: Parse[T]): String
 
-<<< SKIP small curried functions should fit in one line
+<<< small multi-line functions should fit in one line
 def format_![T <: Tree](
     code: String)(
     f: A => B)
@@ -27,12 +27,15 @@ def format_![T <: Tree](code: String)(f: A => B)(implicit ev: Parse[T]): String
 
 <<< curried function mixed style 1
 def format_![T <: Tree](
-    code: String
-  )(implicit ev: Parse[T]): String = 1
+    code: String,
+    code2: String
+  )(implicit ev: Parse[T], ex: D): String = 1
 >>>
 def format_![T <: Tree](
-    code: String
-  )(implicit ev: Parse[T]
+    code: String,
+    code2: String
+  )(implicit ev: Parse[T],
+    ex: D
   ): String = 1
 
 <<< curried function mixed style 2
