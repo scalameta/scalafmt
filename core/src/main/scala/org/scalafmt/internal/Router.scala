@@ -2,6 +2,7 @@ package org.scalafmt.internal
 
 import scala.language.implicitConversions
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.meta.Case
 import scala.meta.Defn
@@ -409,6 +410,61 @@ class Router(formatOps: FormatOps) {
                 .withIndent(2, expire, Left)
             )
         }
+
+      // Parameter opening for one parameter group. This format works
+      // on a group-by-group basis.
+      case FormatToken(open @ LeftParen(), _, between)
+          if style.verticalMultilineAtDefinitionSite && isDefnSite(leftOwner) =>
+        val close = matchingParentheses(hash(open))
+        val indentParam = Num(4)
+        val indentSep = Num(2)
+
+        @tailrec
+        def loop(token: Token): Option[Token] =
+          leftTok2tok(matchingParentheses(hash(token))) match {
+            case FormatToken(RightParen(), l @ LeftParen(), _) => loop(l)
+            case FormatToken(r @ RightParen(), _, _) => Some(r)
+            case _ => None
+          }
+        val lastParen = loop(open).get // find the last param on the def
+                                       // so that we can apply our `policy` till
+                                       // the end.
+
+        // Our policy is a combination of OneArgLineSplit and a custom splitter
+        // for parameter groups.
+        val oneLinePerArg = OneArgOneLineSplit(open).f
+        val paramGroupSplitter: PartialFunction[Decision, Decision] = {
+          // Indent seperators `)(` by `indentSep`
+          case Decision(t @ FormatToken(_, rp @ RightParen(), _), _) =>
+            Decision(t,
+              Seq(
+                Split(Newline, 0)
+                  .withIndent(indentSep, rp, Left)
+              )
+            )
+          // Do NOT Newline the first param after the split `)(`. But let
+          // following ones get newlined by the oneLinePerArg policy.
+          case Decision(t @ FormatToken(open2 @ LeftParen(), _, _), _) =>
+            val close2 = matchingParentheses(hash(open2))
+            Decision(t,
+              Seq(
+                Split(NoSplit, 0)
+                  .withIndent(indentParam, close2, Right)
+              )
+            )
+        }
+
+        val policy =
+          Policy(oneLinePerArg.orElse(paramGroupSplitter), lastParen.end)
+
+        Seq(
+          Split(NoSplit, 0) // If it fits in one block, make it so
+            .withPolicy(SingleLineBlock(lastParen)),
+          Split(Newline, 1) // Otherwise split vertically
+            .withIndent(indentParam, close, Right)
+            .withPolicy(policy)
+        )
+
       // Term.Apply and friends
       case FormatToken(LeftParen() | LeftBracket(), right, between)
           if style.configStyleArguments &&
@@ -434,6 +490,7 @@ class Router(formatOps: FormatOps) {
             .withIndent(indent, close, Right)
             .withIndent(extraIndent, right, Right)
         )
+
       case FormatToken(open @ (LeftParen() | LeftBracket()), right, between)
           if style.binPack.defnSite && isDefnSite(leftOwner) =>
         val close = matchingParentheses(hash(open))

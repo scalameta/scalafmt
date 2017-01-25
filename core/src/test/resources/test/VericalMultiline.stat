@@ -1,0 +1,54 @@
+verticalMultilineAtDefinitionSite = true
+maxColumn = 80
+<<< curried function over maxColumn
+def format_![T <: Tree](code: String, foo: Int)(f: A => B, k: D)(implicit ev: Parse[T], ev2: EC): String
+>>>
+def format_![T <: Tree](
+    code: String,
+    foo: Int
+  )(f: A => B,
+    k: D
+  )(implicit ev: Parse[T],
+    ev2: EC
+  ): String
+
+<<< curried function under maxColumn
+def format_![T <: Tree](code: String)(f: A => B)(implicit ev: Parse[T]): String
+>>>
+def format_![T <: Tree](code: String)(f: A => B)(implicit ev: Parse[T]): String
+
+<<< small multi-line functions should fit in one line
+def format_![T <: Tree](
+    code: String)(
+    f: A => B)
+    (implicit ev: Parse[T]): String
+>>>
+def format_![T <: Tree](code: String)(f: A => B)(implicit ev: Parse[T]): String
+
+<<< curried function mixed style 1
+def format_![T <: Tree](
+    code: String,
+    code2: String
+  )(implicit ev: Parse[T], ex: D): String = 1
+>>>
+def format_![T <: Tree](
+    code: String,
+    code2: String
+  )(implicit ev: Parse[T],
+    ex: D
+  ): String = 1
+
+<<< curried function mixed style 2
+def format_![T <: Tree](code: String, foo: Int)(
+  f: A => B
+  )(implicit ev: Parse[T],
+  ev2: EC)
+  : String
+>>>
+def format_![T <: Tree](
+    code: String,
+    foo: Int
+  )(f: A => B
+  )(implicit ev: Parse[T],
+    ev2: EC
+  ): String
