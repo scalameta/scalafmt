@@ -3,10 +3,32 @@
 @import org.scalafmt.config.ScalafmtConfig
 
 @ignore
-  @sect{0.5.4}
+  @sect{0.5.5}
     @ul
       @li
         Please document your contribution here.
+@sect{0.5.4}
+  @ul
+    @li
+      New flag @cliFlags{verticalMultilineAtDefinitionSite = false}.
+      @hl.scala
+        // if false (default)
+        def format_![T <: Tree](
+            code: String,
+            code2: String
+          )(implicit ev: Parse[T], ex: D): String = 1
+        // if true
+        def format_![T <: Tree](
+            code: String,
+            code2: String
+          )(implicit ev: Parse[T],
+            ex: D
+          ): String = 1
+      Thank you @user{pjrt} for contributing this feature!
+    @li
+      Fixed critical bug where scalafmt would change the AST for
+      unary operators combined with symbolic identifiers, see @issue(697).
+      Thank you @user{ochrons} for reporting!
 @sect{0.5.3}
   @ul
     @li
