@@ -37,5 +37,6 @@ fi
 
 git push -f origin gh-pages
 git checkout master
+rm -rf gh-pages
 
 echo "Done!"
