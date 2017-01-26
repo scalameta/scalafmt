@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>org.scalafmt.ScalaFmt</id>
   <name>Scalafmt</name>
-  <version>0.5.2</version>
+  <version>0.5.4</version>
   <vendor email="olafurpg@gmail.com" url="https://github.com/olafurpg/scalafmt">Olafur Pall Geirsson</vendor>
 
   <description><![CDATA[
@@ -10,7 +10,7 @@
 
   <change-notes><![CDATA[
       <ul>
-        <li>See full changelog at <a href="https://olafurpg.github.io/scalafmt/#Changelog">scalafmt.org</a>.</li>
+        <li>See full changelog at <a href="http<!---->s://olafurpg.github.io/scalafmt/#Changelog">scalafmt.org</a>.</li>
         <li>Please report any bugs <a href="http://github.com/olafurpg/scalafmt/issues">on Github</a>.</li>
         <li>Default shortcut is now shift+ctrl+L.
             Customize the shortcut under Settings > Keymap.
