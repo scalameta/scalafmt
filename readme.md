@@ -26,7 +26,15 @@ Head over to [the user docs][docs] for instructions on how to install scalafmt.
 ### Tutorial
 If you'd like to find out how to work on scalafmt, see this [tutorial](Tutorial.md).
 
-[docs]: http://scalafmt.org
+### Team
+The current maintainers (people who can merge pull requests) are:
+
+* Ólafur Páll Geirsson - [`@olafurpg`](https://github.com/olafurpg)
+* Pedro J Rodriguez Tavarez - [`@pjrt`](https://github.com/pjrt)
+
+An up-to-date list of contributors is available here: https://github.com/olafurpg/scalafmt/graphs/contributors
+
+We strive to offer a welcoming environment to learn, teach and contribute.
 
 ## Acknowledgements
 
@@ -34,3 +42,6 @@ If you'd like to find out how to work on scalafmt, see this [tutorial](Tutorial.
   <img src="https://www.ej-technologies.com/images/product_banners/jprofiler_large.png" align="right" />
  </a>
 [JProfiler](http://www.ej-technologies.com/products/jprofiler/overview.html) generously supports scalafmt with its full-featured Java Profiler.
+
+[docs]: http://scalafmt.org
+
