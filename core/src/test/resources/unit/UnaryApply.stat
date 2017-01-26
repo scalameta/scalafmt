@@ -24,3 +24,7 @@
           !right.isInstanceOf[Comment])
 >>>
 (!right.isInstanceOf[Comment])
+<<< #697 you shall not change AST!!
+  def =!=(that: S): Boolean = ! ===(that)
+>>>
+def =!=(that: S): Boolean = ! ===(that)

@@ -963,13 +963,13 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(NoSplit, 0)
         )
-      case tok @ FormatToken(op @ Ident(_), _, _) if leftOwner.parent.exists {
+      case FormatToken(op @ Ident(_), right, _) if leftOwner.parent.exists {
             case unary: Term.ApplyUnary =>
               unary.op.tokens.head == op
             case _ => false
           } =>
         Seq(
-          Split(NoSplit, 0)
+          Split(if (isSymbolicIdent(right)) Space else NoSplit, 0)
         )
       // Annotations, see #183 for discussion on this.
       case FormatToken(_, bind @ At(), _) if rightOwner.is[Pat.Bind] =>
