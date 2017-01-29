@@ -5,5 +5,6 @@ import metaconfig.ConfigReader
 @ConfigReader
 case class RedundantBracesSettings(
     includeUnitMethods: Boolean = true,
-    maxLines: Int = 100
+    maxLines: Int = 100,
+    stringInterpolation: Boolean = false
 )

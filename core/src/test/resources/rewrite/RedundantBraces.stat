@@ -1,5 +1,6 @@
 rewrite.rules = [RedundantBraces]
 rewrite.redundantBraces.maxLines = 1
+rewrite.redundantBraces.stringInterpolation = true
 <<< basic
 object a {
   def x(i: Int): Int = {
@@ -158,4 +159,20 @@ object a {
       2
     } // end
   }
+}
+<<< redundant enclosing braces in str interpolation
+object a {
+  def b(value: String) = s"Hello ${value}"
+}
+>>>
+object a {
+  def b(value: String) = s"Hello $value"
+}
+<<< enclosing braces in str interpolation
+object a {
+  def b(d: Int) = s"Hello ${d.toString}"
+}
+>>>
+object a {
+  def b(d: Int) = s"Hello ${d.toString}"
 }
