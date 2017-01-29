@@ -51,13 +51,13 @@ object RedundantBraces extends Rewrite {
     import ctx.style.rewrite.{redundantBraces => settings}
     val builder = Seq.newBuilder[Patch]
     code.collect {
-      case Term.Interpolate(x: Term.Name, lits: Seq[Lit], terms: Seq[Term]) if settings.stringInterpolation =>
-        terms.collect {
-          case t @ Term.Name(name) =>
-            val openBrace = prevToken(t.tokens.head)
-            val closeBrace = nextToken(t.tokens.head)
-            (openBrace, closeBrace) match {
-              case (LeftBrace(), RightBrace()) =>
+      case t: Term.Interpolate if settings.stringInterpolation =>
+        t.parts.tail.zip(t.args).collect {
+          case (Lit(value), arg @ Term.Name(name)) =>
+            val openBrace = prevToken(arg.tokens.head)
+            val closeBrace = nextToken(arg.tokens.head)
+            (openBrace, closeBrace, value) match {
+              case (LeftBrace(), RightBrace(), "") =>
                 builder += Patch(openBrace, closeBrace, name)
               case _ =>
             }

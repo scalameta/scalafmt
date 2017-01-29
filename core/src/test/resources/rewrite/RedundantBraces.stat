@@ -168,6 +168,14 @@ object a {
 object a {
   def b(value: String) = s"Hello $value"
 }
+<<< not redundant enclosing braces in str interpolation
+object a {
+  def b(foo: Int) = s"Hello ${foo}bar"
+}
+>>>
+object a {
+  def b(foo: Int) = s"Hello ${foo}bar"
+}
 <<< enclosing braces in str interpolation
 object a {
   def b(d: Int) = s"Hello ${d.toString}"
