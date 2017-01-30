@@ -46,6 +46,9 @@ object RedundantBraces extends Rewrite {
     bodyIsNotTooBig
   }
 
+  val ALPHA_NUMERIC_AND_UNDERSCORE = ((('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9')) :+ '_').toSet
+  def isAlphaNumericOrUnderscore(c: Char): Boolean = ALPHA_NUMERIC_AND_UNDERSCORE.contains(c)
+
   override def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch] = {
     import ctx.tokenTraverser._
     import ctx.style.rewrite.{redundantBraces => settings}
@@ -53,11 +56,13 @@ object RedundantBraces extends Rewrite {
     code.collect {
       case t: Term.Interpolate if settings.stringInterpolation =>
         t.parts.tail.zip(t.args).collect {
-          case (Lit(value), arg @ Term.Name(name)) =>
+          case (Lit(value: String), arg @ Term.Name(name)) =>
             val openBrace = prevToken(arg.tokens.head)
             val closeBrace = nextToken(arg.tokens.head)
-            (openBrace, closeBrace, value) match {
-              case (LeftBrace(), RightBrace(), "") =>
+            (openBrace, closeBrace, value.headOption) match {
+              case (LeftBrace(), RightBrace(), Some(c)) if !isAlphaNumericOrUnderscore(c) =>
+                builder += Patch(openBrace, closeBrace, name)
+              case (LeftBrace(), RightBrace(), None) =>
                 builder += Patch(openBrace, closeBrace, name)
               case _ =>
             }

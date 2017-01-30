@@ -168,13 +168,45 @@ object a {
 object a {
   s"Hello $value"
 }
-<<< not redundant enclosing braces in str interpolation
+<<< not redundant enclosing braces in str interpolation (right part starts with a letter)
 object a {
   s"Hello ${foo}bar"
 }
 >>>
 object a {
   s"Hello ${foo}bar"
+}
+<<< not redundant enclosing braces in str interpolation (right part starts with a number)
+object a {
+  s"Hello ${foo}5"
+}
+>>>
+object a {
+  s"Hello ${foo}5"
+}
+<<< not redundant enclosing braces in str interpolation (right part starts with underscore)
+object a {
+  s"Hello ${foo}_bar"
+}
+>>>
+object a {
+  s"Hello ${foo}_bar"
+}
+<<< redundant enclosing braces in str interpolation (right part starts operand)
+object a {
+  s"Hello ${foo}+bar"
+}
+>>>
+object a {
+  s"Hello $foo+bar"
+}
+<<< redundant enclosing braces in str interpolation (right part starts with back space)
+object a {
+  s"Hello ${foo} ${bar}"
+}
+>>>
+object a {
+  s"Hello $foo $bar"
 }
 <<< enclosing braces in str interpolation
 object a {
@@ -183,60 +215,4 @@ object a {
 >>>
 object a {
   s"Hello ${d.toString}"
-}
-<<< empty str interpolation
-object a {
-  s""
-}
->>>
-object a {
-  s""
-}
-<<< no braces in str interpolation
-object c {
-  s"${a}"
-}
->>>
-object c {
-  s"$a"
-}
-<<< two args in str interpolation
-object c {
-  s"${a}${b}"
-}
->>>
-object c {
-  s"$a$b"
-}
-<<< spaces before and after arg in str interpolation
-object c {
-  s" ${a} "
-}
->>>
-object c {
-  s" ${a} "
-}
-<<< special symbol after arg no braces in str interpolation
-object c {
-  s"${a}-"
-}
->>>
-object c {
-  s"${a}-"
-}
-<<< number after arg in str interpolation
-object c {
-  s"${a}1"
-}
->>>
-object c {
-  s"${a}1"
-}
-<<< underscore and number after arg in str interpolation
-object c {
-  s"${a}_2"
-}
->>>
-object c {
-  s"${a}_2"
 }
