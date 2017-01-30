@@ -162,25 +162,49 @@ object a {
 }
 <<< redundant enclosing braces in str interpolation
 object a {
-  def b(value: String) = s"Hello ${value}"
+  s"Hello ${value}"
 }
 >>>
 object a {
-  def b(value: String) = s"Hello $value"
+  s"Hello $value"
 }
 <<< not redundant enclosing braces in str interpolation
-object a {
-  def b(foo: Int) = s"Hello ${foo}bar"
-}
+s"Hello ${foo}bar"
 >>>
-object a {
-  def b(foo: Int) = s"Hello ${foo}bar"
-}
+s"Hello ${foo}bar"
 <<< enclosing braces in str interpolation
-object a {
-  def b(d: Int) = s"Hello ${d.toString}"
+s"Hello ${d.toString}"
+>>>
+s"Hello ${d.toString}"
+<<< empty str interpolation
+s""
+>>>
+s""
+<<< no braces in str interpolation
+s"$a"
+>>>
+s"$a"
+<<< two args no braces in str interpolation
+s"$a$b"
+>>>
+s"$a$b"
+<<< spaces before and after arg no braces in str interpolation
+s" $a "
+>>>
+s" $a "
+<<< special symbol after arg no braces in str interpolation
+s"$a-"
+>>>
+s"$a-"
+<<< number after arg in str interpolation
+{
+  s"${a} 1"
 }
 >>>
-object a {
-  def b(d: Int) = s"Hello ${d.toString}"
+{
+  s"${a} 1"
 }
+<<< underscore and number after arg in str interpolation
+s"${a}_2"
+>>>
+s"${a}_2"
