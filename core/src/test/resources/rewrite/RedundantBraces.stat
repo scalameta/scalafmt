@@ -192,6 +192,14 @@ object a {
 object a {
   s"Hello ${foo}_bar"
 }
+<<< not redundant enclosing braces in str interpolation (right part starts with special symbol)
+object a {
+  s"Hello ${foo}æ"
+}
+>>>
+object a {
+  s"Hello ${foo}æ"
+}
 <<< redundant enclosing braces in str interpolation (right part starts operand)
 object a {
   s"Hello ${foo}+bar"
