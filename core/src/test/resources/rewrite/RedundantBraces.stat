@@ -200,7 +200,7 @@ object a {
 object a {
   s"Hello $foo+bar"
 }
-<<< redundant enclosing braces in str interpolation (right part starts with back space)
+<<< redundant enclosing braces in str interpolation (right part starts with space)
 object a {
   s"Hello ${foo} ${bar}"
 }
