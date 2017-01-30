@@ -169,42 +169,74 @@ object a {
   s"Hello $value"
 }
 <<< not redundant enclosing braces in str interpolation
-s"Hello ${foo}bar"
->>>
-s"Hello ${foo}bar"
-<<< enclosing braces in str interpolation
-s"Hello ${d.toString}"
->>>
-s"Hello ${d.toString}"
-<<< empty str interpolation
-s""
->>>
-s""
-<<< no braces in str interpolation
-s"$a"
->>>
-s"$a"
-<<< two args no braces in str interpolation
-s"$a$b"
->>>
-s"$a$b"
-<<< spaces before and after arg no braces in str interpolation
-s" $a "
->>>
-s" $a "
-<<< special symbol after arg no braces in str interpolation
-s"$a-"
->>>
-s"$a-"
-<<< number after arg in str interpolation
-{
-  s"${a} 1"
+object a {
+  s"Hello ${foo}bar"
 }
 >>>
-{
-  s"${a} 1"
+object a {
+  s"Hello ${foo}bar"
+}
+<<< enclosing braces in str interpolation
+object a {
+  s"Hello ${d.toString}"
+}
+>>>
+object a {
+  s"Hello ${d.toString}"
+}
+<<< empty str interpolation
+object a {
+  s""
+}
+>>>
+object a {
+  s""
+}
+<<< no braces in str interpolation
+object c {
+  s"$a"
+}
+>>>
+object c {
+  s"$a"
+}
+<<< two args no braces in str interpolation
+object c {
+  s"$a$b"
+}
+>>>
+object c {
+  s"$a$b"
+}
+<<< spaces before and after arg no braces in str interpolation
+object c {
+  s" $a "
+}
+>>>
+object c {
+  s" $a "
+}
+<<< special symbol after arg no braces in str interpolation
+object c {
+  s"$a-"
+}
+>>>
+object c {
+  s"$a-"
+}
+<<< number after arg in str interpolation
+object c {
+  s"${a}1"
+}
+>>>
+object c {
+  s"${a}1"
 }
 <<< underscore and number after arg in str interpolation
-s"${a}_2"
+object c {
+  s"${a}_2"
+}
 >>>
-s"${a}_2"
+object c {
+  s"${a}_2"
+}
