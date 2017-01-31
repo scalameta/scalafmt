@@ -55,11 +55,11 @@ object RedundantBraces extends Rewrite {
     code.collect {
       case t: Term.Interpolate if settings.stringInterpolation =>
         t.parts.tail.zip(t.args).collect {
-          case (Lit(value: String), arg @ Term.Name(name)) =>
+          case (Lit(value: String), arg @ Term.Name(name)) if !isIdentifierAtStart(value) =>
             val openBrace = prevToken(arg.tokens.head)
             val closeBrace = nextToken(arg.tokens.head)
             (openBrace, closeBrace) match {
-              case (LeftBrace(), RightBrace()) if !isIdentifierAtStart(value) =>
+              case (LeftBrace(), RightBrace()) =>
                 builder += Patch(openBrace, closeBrace, name)
               case _ =>
             }

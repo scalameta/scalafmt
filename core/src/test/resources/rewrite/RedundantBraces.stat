@@ -1,6 +1,5 @@
 rewrite.rules = [RedundantBraces]
 rewrite.redundantBraces.maxLines = 1
-rewrite.redundantBraces.stringInterpolation = true
 <<< basic
 object a {
   def x(i: Int): Int = {
@@ -159,68 +158,4 @@ object a {
       2
     } // end
   }
-}
-<<< redundant enclosing braces in str interpolation
-object a {
-  s"Hello ${value}"
-}
->>>
-object a {
-  s"Hello $value"
-}
-<<< not redundant enclosing braces in str interpolation (right part starts with a letter)
-object a {
-  s"Hello ${foo}bar"
-}
->>>
-object a {
-  s"Hello ${foo}bar"
-}
-<<< not redundant enclosing braces in str interpolation (right part starts with a number)
-object a {
-  s"Hello ${foo}5"
-}
->>>
-object a {
-  s"Hello ${foo}5"
-}
-<<< not redundant enclosing braces in str interpolation (right part starts with underscore)
-object a {
-  s"Hello ${foo}_bar"
-}
->>>
-object a {
-  s"Hello ${foo}_bar"
-}
-<<< not redundant enclosing braces in str interpolation (right part starts with special symbol)
-object a {
-  s"Hello ${foo}æ"
-}
->>>
-object a {
-  s"Hello ${foo}æ"
-}
-<<< redundant enclosing braces in str interpolation (right part starts operand)
-object a {
-  s"Hello ${foo}+bar"
-}
->>>
-object a {
-  s"Hello $foo+bar"
-}
-<<< redundant enclosing braces in str interpolation (right part starts with space)
-object a {
-  s"Hello ${foo} ${bar}"
-}
->>>
-object a {
-  s"Hello $foo $bar"
-}
-<<< enclosing braces in str interpolation
-object a {
-  s"Hello ${d.toString}"
-}
->>>
-object a {
-  s"Hello ${d.toString}"
 }
