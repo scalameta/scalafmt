@@ -1,13 +1,10 @@
 package org.scalafmt.rewrite
 
-import scala.meta.Importee
 import scala.meta.Tree
 import scala.meta._
-import scala.meta.tokens.Token.Equals
 import scala.meta.tokens.Token.LF
 import scala.meta.tokens.Token.LeftBrace
 import scala.meta.tokens.Token.RightBrace
-import scala.meta.tokens.Token.Space
 
 import org.scalafmt.util.TreeOps._
 
@@ -49,10 +46,24 @@ object RedundantBraces extends Rewrite {
     bodyIsNotTooBig
   }
 
+  def isIdentifierAtStart(value: String) = value.nonEmpty && (Character.isLetterOrDigit(value.head) || value.head == '_')
+
   override def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch] = {
     import ctx.tokenTraverser._
+    import ctx.style.rewrite.{redundantBraces => settings}
     val builder = Seq.newBuilder[Patch]
     code.collect {
+      case t: Term.Interpolate if settings.stringInterpolation =>
+        t.parts.tail.zip(t.args).collect {
+          case (Lit(value: String), arg @ Term.Name(name)) if !isIdentifierAtStart(value) =>
+            val openBrace = prevToken(arg.tokens.head)
+            val closeBrace = nextToken(arg.tokens.head)
+            (openBrace, closeBrace) match {
+              case (LeftBrace(), RightBrace()) =>
+                builder += Patch(openBrace, closeBrace, name)
+              case _ =>
+            }
+        }
       case d: Defn.Def if isCandidate(d, ctx) =>
         val open = d.body.tokens.head
         val close = d.body.tokens.last
