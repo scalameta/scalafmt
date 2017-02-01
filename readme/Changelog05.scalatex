@@ -1,12 +1,22 @@
 @import Main._
+@import org.scalafmt.rewrite._
 @import org.scalafmt.readme.Readme._
 @import org.scalafmt.config.ScalafmtConfig
 
 @ignore
-  @sect{0.5.5}
+  @sect{0.5.6}
     @ul
       @li
         Please document your contribution here.
+@sect{0.5.5}
+  @ul
+    @li
+      New setting to RedundantBraces rewrite
+      @code{rewrite.redundantBraces.stringInterpolation = false}.
+      See @sect.ref(Rewrite.rewrite2name(RedundantBraces)).
+      Thank you @user{ysusuk} for contributing this feature!
+    @li
+      Bugfix for flag @cliFlags{verticalMultilineAtDefinitionSite = true} (disabled by default).
 @sect{0.5.4}
   @ul
     @li

@@ -116,6 +116,9 @@ object Readme {
   val rewriteBraces =
     ScalafmtConfig.default.copy(
       rewrite = ScalafmtConfig.default.rewrite.copy(
+        redundantBraces = ScalafmtConfig.default.rewrite.redundantBraces.copy(
+          stringInterpolation = true
+        ),
         rules = Seq(RedundantBraces)
       ))
 

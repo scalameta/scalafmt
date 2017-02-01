@@ -429,13 +429,18 @@
           def foo = {
             List(1, 2, 3).sum
           }
+
+          // stringInterpolation = true
+          q"Hello ${name}"
         }
-      Options with default values:
+      Configuration options and default values:
       @ul
         @li
           @code{rewrite.redundantBraces.maxLines} = @rewriteBraces.rewrite.redundantBraces.maxLines
         @li
           @code{rewrite.redundantBraces.includeUnitMethods} = @rewriteBraces.rewrite.redundantBraces.includeUnitMethods
+        @li
+          @code{rewrite.redundantBraces.stringInterpolation} = @rewriteBraces.rewrite.redundantBraces.stringInterpolation
 
     @sect(Rewrite.rewrite2name(RedundantParens))
       @p
