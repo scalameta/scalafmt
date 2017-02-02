@@ -1013,7 +1013,7 @@ class Router(formatOps: FormatOps) {
                         if !hasSelfAnnotation &&
                           !right.is[RightBrace] && // corner case, body is {}
                           childOf(template, owners(open)) =>
-                      d.copy(splits = splits.filter(_.modification.isNewline))
+                      d.forceNewline
                   },
                   expire.end
                 )
