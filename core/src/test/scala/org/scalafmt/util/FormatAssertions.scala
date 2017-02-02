@@ -14,7 +14,8 @@ import org.scalatest.FunSuiteLike
 trait FormatAssertions extends FunSuiteLike with DiffAssertions {
 
   def assertFormatPreservesAst[T <: Tree](original: String, obtained: String)(
-      implicit ev: Parse[T], dialect: Dialect): Unit = {
+      implicit ev: Parse[T],
+      dialect: Dialect): Unit = {
     import scala.meta._
     original.parse[T] match {
       case Parsed.Error(pos, message, details) =>

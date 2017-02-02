@@ -46,7 +46,8 @@ object RedundantBraces extends Rewrite {
     bodyIsNotTooBig
   }
 
-  def isIdentifierAtStart(value: String) = value.nonEmpty && (Character.isLetterOrDigit(value.head) || value.head == '_')
+  def isIdentifierAtStart(value: String) =
+    value.nonEmpty && (Character.isLetterOrDigit(value.head) || value.head == '_')
 
   override def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch] = {
     import ctx.tokenTraverser._
@@ -55,7 +56,8 @@ object RedundantBraces extends Rewrite {
     code.collect {
       case t: Term.Interpolate if settings.stringInterpolation =>
         t.parts.tail.zip(t.args).collect {
-          case (Lit(value: String), arg @ Term.Name(name)) if !isIdentifierAtStart(value) =>
+          case (Lit(value: String), arg @ Term.Name(name))
+              if !isIdentifierAtStart(value) =>
             val openBrace = prevToken(arg.tokens.head)
             val closeBrace = nextToken(arg.tokens.head)
             (openBrace, closeBrace) match {

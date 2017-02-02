@@ -12,7 +12,7 @@ case class Patch(from: Token, to: Token, replace: String) {
     token.input.eq(from.input) &&
       token.end <= to.end &&
       token.start >= from.start
- 
+
   val tokens = replace.tokenize.get.tokens.toSeq
   def runOn(str: Seq[Token]): Seq[Token] = {
     str.flatMap {

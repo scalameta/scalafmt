@@ -427,8 +427,8 @@ class Router(formatOps: FormatOps) {
             case _ => None
           }
         val lastParen = loop(open).get // find the last param on the def
-                                       // so that we can apply our `policy` till
-                                       // the end.
+        // so that we can apply our `policy` till
+        // the end.
 
         // Our policy is a combination of OneArgLineSplit and a custom splitter
         // for parameter groups.
@@ -437,21 +437,19 @@ class Router(formatOps: FormatOps) {
           // Indent seperators `)(` by `indentSep`
           case Decision(t @ FormatToken(_, rp @ RightParen(), _), _) =>
             Decision(t,
-              Seq(
-                Split(Newline, 0)
-                  .withIndent(indentSep, rp, Left)
-              )
-            )
+                     Seq(
+                       Split(Newline, 0)
+                         .withIndent(indentSep, rp, Left)
+                     ))
           // Do NOT Newline the first param after the split `)(`. But let
           // following ones get newlined by the oneLinePerArg policy.
           case Decision(t @ FormatToken(open2 @ LeftParen(), _, _), _) =>
             val close2 = matchingParentheses(hash(open2))
             Decision(t,
-              Seq(
-                Split(NoSplit, 0)
-                  .withIndent(indentParam, close2, Right)
-              )
-            )
+                     Seq(
+                       Split(NoSplit, 0)
+                         .withIndent(indentParam, close2, Right)
+                     ))
         }
 
         val policy =

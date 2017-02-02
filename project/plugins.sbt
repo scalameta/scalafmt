@@ -1,6 +1,6 @@
 resolvers ++= Seq(
   Classpaths.sbtPluginReleases,
-  Resolver.bintrayIvyRepo("dancingrobot84","sbt-plugins")
+  Resolver.bintrayIvyRepo("dancingrobot84", "sbt-plugins")
 )
 
 addSbtPlugin("com.eed3si9n"       % "sbt-buildinfo"       % "0.6.1")

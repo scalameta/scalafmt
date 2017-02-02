@@ -14,13 +14,12 @@ object Config {
   def toHocon(any: Any): Seq[String] = any match {
     case String2AnyMap(m) =>
       m.flatMap {
-          case (k, v) =>
-            toHocon(v).map { x =>
-              if (x.startsWith(" ")) s"$k$x"
-              else s"$k.$x"
-            }
-        }
-        .toSeq
+        case (k, v) =>
+          toHocon(v).map { x =>
+            if (x.startsWith(" ")) s"$k$x"
+            else s"$k.$x"
+          }
+      }.toSeq
     case x: HasFields => toHocon(x.fields)
     case x: Traversable[_] =>
       Seq(
