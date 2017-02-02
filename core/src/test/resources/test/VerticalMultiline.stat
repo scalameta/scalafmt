@@ -53,6 +53,24 @@ def format_![T <: Tree](
     ev2: EC
   ): String
 
+<<< should work with defaulted method
+def format_![T <: Tree](
+  name: Name,
+  code: String = Defaults.code, updatedAt: Instant = Instant.now(),
+  createdAt: Instant = Instant.now())
+  (implicit ev: Parse[T],
+  ev2: EC)
+  : String
+>>>
+def format_![T <: Tree](
+    name: Name,
+    code: String = Defaults.code,
+    updatedAt: Instant = Instant.now(),
+    createdAt: Instant = Instant.now()
+  )(implicit ev: Parse[T],
+    ev2: EC
+  ): String
+
 <<< should not affect classes
 final class UserProfile(name: String, age: Int, address: Address, profession: Profesion, school: School)
   extends Profile with UserSettings

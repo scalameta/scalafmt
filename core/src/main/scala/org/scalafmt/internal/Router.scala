@@ -435,7 +435,8 @@ class Router(formatOps: FormatOps) {
         val oneLinePerArg = OneArgOneLineSplit(open).f
         val paramGroupSplitter: PartialFunction[Decision, Decision] = {
           // Indent seperators `)(` by `indentSep`
-          case Decision(t @ FormatToken(_, rp @ RightParen(), _), _) =>
+          case Decision(t @ FormatToken(_, rp @ RightParen(), _), _)
+            if rp == lastParen || next(t).right.is[LeftParen] =>
             Decision(t,
                      Seq(
                        Split(Newline, 0)
