@@ -1,0 +1,9 @@
+maxColumn = 10
+<<< Comment after extends with #672
+class A extends B with C{ // this is an additional comment
+}
+>>>
+class A
+    extends B
+    with C { // this is an additional comment
+}

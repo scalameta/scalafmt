@@ -182,6 +182,7 @@ object TokenOps {
     case t: Defn.Class => Some(t.templ)
     case t: Defn.Trait => Some(t.templ)
     case t: Pkg.Object => Some(t.templ)
+    case t: Template => Some(t)
     case _ => None
   }
 
