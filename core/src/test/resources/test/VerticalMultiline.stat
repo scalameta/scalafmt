@@ -53,6 +53,51 @@ def format_![T <: Tree](
     ev2: EC
   ): String
 
+<<< should work with comments
+def format_![T <: Tree](
+    code: String, // The code!
+    code2: String
+  )(implicit ev: Parse[T], // The Parser!!! Some very long comment that goes over limit
+  ex: D): String = 1
+>>>
+def format_![T <: Tree](
+    code: String, // The code!
+    code2: String
+  )(implicit ev: Parse[T], // The Parser!!! Some very long comment that goes over limit
+    ex: D
+  ): String = 1
+
+<<< should not modify into single line if it has comments
+def format_!(
+    code: String, // The code!
+    code2: String
+  ): String = 1
+>>>
+def format_!(
+    code: String, // The code!
+    code2: String
+  ): String = 1
+
+<<< should work with defaulted method
+def format_![T <: Tree](
+  name: Name,
+  code: String = Defaults.code, updatedAt: Instant = Instant.now(),
+  user: User = new User { def someFunc(): RT = () },
+  createdAt: Instant = Default.getInstant(a)(b))
+  (implicit ev: Parse[T],
+  ev2: EC)
+  : String
+>>>
+def format_![T <: Tree](
+    name: Name,
+    code: String = Defaults.code,
+    updatedAt: Instant = Instant.now(),
+    user: User = new User { def someFunc(): RT = () },
+    createdAt: Instant = Default.getInstant(a)(b)
+  )(implicit ev: Parse[T],
+    ev2: EC
+  ): String
+
 <<< should not affect classes
 final class UserProfile(name: String, age: Int, address: Address, profession: Profesion, school: School)
   extends Profile with UserSettings
