@@ -436,7 +436,7 @@ class Router(formatOps: FormatOps) {
         val paramGroupSplitter: PartialFunction[Decision, Decision] = {
           // Indent seperators `)(` by `indentSep`
           case Decision(t @ FormatToken(_, rp @ RightParen(), _), _)
-            if rp == lastParen || owners(rp) == leftOwner =>
+            if owners(rp) == leftOwner =>
             Decision(t,
                      Seq(
                        Split(Newline, 0)
