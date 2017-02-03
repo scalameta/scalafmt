@@ -58,7 +58,7 @@ object Rewrite {
           )
           val rr = rewrites.map(_.getClass)
           val patches: Seq[Patch] = rewrites.flatMap(_.rewrite(ast, ctx))
-          Patch(ast.tokens, patches)
+          Patch(ast, patches)(ctx)
         case _ => noop
       }
     }

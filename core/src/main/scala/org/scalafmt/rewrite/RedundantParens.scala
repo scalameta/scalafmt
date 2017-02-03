@@ -23,8 +23,8 @@ object RedundantParens extends Rewrite {
           val leftSegment: Tokens = tokens.slice(0, parensToRemoveCount)
           val rightSegment: Tokens =
             tokens.slice(tokens.length - parensToRemoveCount, tokens.length)
-          builder += Patch(leftSegment.head, leftSegment.last, "")
-          builder += Patch(rightSegment.head, rightSegment.last, "")
+          leftSegment.foreach(tok => builder += TokenPatch.Remove(tok))
+          rightSegment.foreach(tok => builder += TokenPatch.Remove(tok))
         }
     }
 

@@ -62,7 +62,8 @@ object RedundantBraces extends Rewrite {
             val closeBrace = nextToken(arg.tokens.head)
             (openBrace, closeBrace) match {
               case (LeftBrace(), RightBrace()) =>
-                builder += Patch(openBrace, closeBrace, name)
+                builder += TokenPatch.Remove(openBrace)
+                builder += TokenPatch.Remove(closeBrace)
               case _ =>
             }
         }
@@ -73,15 +74,13 @@ object RedundantBraces extends Rewrite {
           case t: Term.Block => t.stats.head
           case _ => d.body
         }
-        val lastNewline = {
-          val next = nextToken(close)
-          if (next.is[LF] &&
-              close.pos.start.line != bodyStatement.pos.end.line)
-            next
-          else close
-        }
-        builder += Patch(open, open, "")
-        builder += Patch(close, lastNewline, "")
+        val next = nextToken(close)
+        if (next.is[LF] &&
+            close.pos.start.line != bodyStatement.pos.end.line)
+          builder += TokenPatch.Remove(next)
+
+        builder += TokenPatch.Remove(open)
+        builder += TokenPatch.Remove(close)
     }
     builder.result()
   }

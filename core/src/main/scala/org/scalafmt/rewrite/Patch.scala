@@ -1,40 +1,52 @@
 package org.scalafmt.rewrite
 
+import org.scalafmt.rewrite.TokenPatch.{Add, Remove}
+
 import scala.meta._
 import scala.meta.tokens.Token
-import scala.meta.tokens.Token
 
-/**
-  * A patch replaces all tokens between [[from]] and [[to]] with [[replace]].
-  */
-case class Patch(from: Token, to: Token, replace: String) {
-  def insideRange(token: Token): Boolean =
-    token.input.eq(from.input) &&
-      token.end <= to.end &&
-      token.start >= from.start
+sealed abstract class Patch
+abstract class TreePatch extends Patch
+abstract class TokenPatch(val tok: Token, val newTok: String) extends TreePatch
 
-  val tokens = replace.tokenize.get.tokens.toSeq
-  def runOn(str: Seq[Token]): Seq[Token] = {
-    str.flatMap {
-      case `from` => tokens
-      case x if insideRange(x) => Nil
-      case x => Seq(x)
-    }
-  }
+object TokenPatch {
+  case class Remove(override val tok: Token) extends TokenPatch(tok, "")
+  def AddRight(tok: Token, toAdd: String): TokenPatch = Add(tok, "", toAdd)
+  def AddLeft(tok: Token, toAdd: String): TokenPatch = Add(tok, toAdd, "")
+  case class Add(override val tok: Token,
+                 addLeft: String,
+                 addRight: String,
+                 keepTok: Boolean = false)
+      extends TokenPatch(tok,
+                         s"""$addLeft${if (keepTok) tok else ""}$addRight""")
+
 }
 
 object Patch {
-  def verifyPatches(patches: Seq[Patch]): Unit = {
-    // TODO(olafur) assert there's no conflicts.
+  def merge(a: TokenPatch, b: TokenPatch): TokenPatch = (a, b) match {
+    case (add1: Add, add2: Add) =>
+      Add(add1.tok,
+          add1.addLeft + add2.addLeft,
+          add1.addRight + add2.addRight,
+          add1.keepTok && add2.keepTok)
+    case (_: Remove, add: Add) => add.copy(keepTok = false)
+    case (add: Add, _: Remove) => add.copy(keepTok = false)
+    case (rem: Remove, _: Remove) => rem
+    case _ =>
+      sys.error(s"""Can't merge token patches:
+                   |1. $a
+                   |2. $b""".stripMargin)
   }
-  def apply(input: Seq[Token], patches: Seq[Patch]): String = {
-    verifyPatches(patches)
-    // TODO(olafur) optimize, this is SUPER inefficient
-    patches
-      .foldLeft(input) {
-        case (s, p) => p.runOn(s)
-      }
-      .map(_.syntax)
-      .mkString("")
+
+  def apply(ast: Tree, patches: Seq[Patch])(implicit ctx: RewriteCtx): String = {
+    val input = ast.tokens
+    val tokenPatches = patches.collect { case e: TokenPatch => e }
+    val patchMap: Map[(Int, Int), String] =
+      (tokenPatches)
+        .groupBy(t => t.tok.start -> t.tok.end)
+        .mapValues(_.reduce(merge).newTok)
+    input.toIterator
+      .map(x => patchMap.getOrElse(x.start -> x.end, x.syntax))
+      .mkString
   }
 }
