@@ -31,6 +31,7 @@ The current maintainers (people who can merge pull requests) are:
 
 * Ólafur Páll Geirsson - [`@olafurpg`](https://github.com/olafurpg)
 * Pedro J Rodriguez Tavarez - [`@pjrt`](https://github.com/pjrt)
+* Iurii Susuk - [`@ysusuk`](https://github.com/ysusuk)
 
 An up-to-date list of contributors is available here: https://github.com/olafurpg/scalafmt/graphs/contributors
 
