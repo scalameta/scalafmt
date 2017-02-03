@@ -78,11 +78,11 @@ def format_!(
     code2: String
   ): String = 1
 
-<<< should work with defaulted method
+<<< ONLY should work with defaulted method
 def format_![T <: Tree](
   name: Name,
   code: String = Defaults.code, updatedAt: Instant = Instant.now(),
-  createdAt: Instant = Instant.now())
+  createdAt: Instant = Default.getInstant(a)(b))
   (implicit ev: Parse[T],
   ev2: EC)
   : String
@@ -91,7 +91,7 @@ def format_![T <: Tree](
     name: Name,
     code: String = Defaults.code,
     updatedAt: Instant = Instant.now(),
-    createdAt: Instant = Instant.now()
+    createdAt: Instant = Default.getInstant(a)(b)
   )(implicit ev: Parse[T],
     ev2: EC
   ): String
