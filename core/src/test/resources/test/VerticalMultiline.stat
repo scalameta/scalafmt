@@ -78,7 +78,7 @@ def format_!(
     code2: String
   ): String = 1
 
-<<< ONLY should work with defaulted method
+<<< should work with defaulted method
 def format_![T <: Tree](
   name: Name,
   code: String = Defaults.code, updatedAt: Instant = Instant.now(),
