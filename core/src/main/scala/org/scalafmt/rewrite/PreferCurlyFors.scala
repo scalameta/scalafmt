@@ -58,12 +58,12 @@ object PreferCurlyFors extends Rewrite {
     findForParens(forTokens, ctx).foreach { parens =>
       val openBraceTokens =
         if (nextToken(parens._1).is[Token.LF]) "{" else "{\n"
-      builder += Patch(parens._1, parens._1, openBraceTokens)
-      builder += Patch(parens._2, parens._2, "}")
+      builder += TokenPatch.AddRight(parens._1, openBraceTokens)
+      builder += TokenPatch.AddRight(parens._2, "}")
       findForSemiColons(forEnumerators, ctx).foreach { semiColon =>
         val semiColonReplacementTokens =
           if (nextToken(semiColon).is[Token.LF]) "" else "\n"
-        builder += Patch(semiColon, semiColon, semiColonReplacementTokens)
+        builder += TokenPatch.AddRight(semiColon, semiColonReplacementTokens)
       }
     }
 

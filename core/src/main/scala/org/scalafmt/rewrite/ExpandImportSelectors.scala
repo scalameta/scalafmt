@@ -5,9 +5,11 @@ import scala.meta.{Importee, Tree, _}
 object ExpandImportSelectors extends Rewrite {
 
   override def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch] = {
+    val builder = Seq.newBuilder[Patch]
+
     code.collect {
       case q"import ..$imports" =>
-        val groupedPatches: Map[String, Seq[Patch]] = imports
+        val groupedPatches: Map[Token, Seq[TokenPatch]] = imports
           .map { `import` =>
             val expandedImport = `import`.collect {
               case Importer(path, importees) =>
@@ -20,18 +22,24 @@ object ExpandImportSelectors extends Rewrite {
                 }
             }.flatten
             val patchStr = expandedImport.mkString("\n")
-            Patch(`import`.parent.get.tokens.head,
-                  `import`.parent.get.tokens.last,
-                  patchStr)
+
+            //TODO move up this side effect
+            `import`.parent.get.tokens.tail.foreach { tok =>
+              builder += TokenPatch.Remove(tok)
+            }
+
+            TokenPatch.AddRight(`import`.parent.get.tokens.head, patchStr)
           }
-          .groupBy(p => p.from.toString + p.to.toString)
+          .groupBy(_.tok)
 
         val mergedPatches: Seq[Patch] = groupedPatches.values.map { patches =>
-          patches.reduce((p1: Patch, p2: Patch) =>
-            Patch(p1.from, p1.to, p1.replace + "\n" + p2.replace))
+          patches.reduce((p1: TokenPatch, p2: TokenPatch) =>
+            TokenPatch.Add(p1.tok, "", p1.newTok + "\n" + p2.newTok))
         }.toSeq
 
-        mergedPatches
-    }.flatten
+        builder ++= mergedPatches
+    }
+
+    builder.result()
   }
 }
