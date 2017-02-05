@@ -1,0 +1,102 @@
+rewrite.rules = [AvoidInfix]
+<<< basic
+lst map foo
+>>>
+lst.map(foo)
+<<< has parens
+lst map (foo)
+>>>
+lst.map(foo)
+<<< has curly
+lst map { x => y }
+>>>
+lst.map { x =>
+  y
+}
+<<< to
+1 to 100
+>>>
+1 to 100
+<<< until
+1 until 100
+>>>
+1 until 100
+<<< Dangerous
+consumerPollers forall
+   (poller => poller.isSubscribeRequestProcessed())
+>>>
+consumerPollers.forall(poller => poller.isSubscribeRequestProcessed())
+<<< don't rewrite if comment
+consumerPollers forall // Why write a comment here??
+    (poller => poller.isSubscribeRequestProcessed())
+>>>
+consumerPollers forall // Why write a comment here??
+  (poller => poller.isSubscribeRequestProcessed())
+<<< Dangerous 2
+(consumerPollers forall
+
+
+
+   (poller => poller.isSubscribeRequestProcessed()))
+>>>
+(consumerPollers.forall(poller => poller.isSubscribeRequestProcessed()))
+<<< Dangerous 3
+consumerPollers forall (a, b)
+>>>
+consumerPollers.forall(a, b)
+<<< Dangerous 4
+consumerPollers forall (
+    a, b)
+>>>
+consumerPollers.forall(a, b)
+<<< do nothing if lhs is whitelisted
+an[SparkException] should be thrownBy {
+     // foobar
+}
+>>>
+an[SparkException] should be thrownBy {
+  // foobar
+}
+<<< nested infix
+a banana walked and orders a martini
+>>>
+a.banana(walked).and(orders).a(martini)
+<<< more scalatest
+cp should not contain (jar3.getPath())
+>>>
+cp should not contain (jar3.getPath())
+<<< in lambda
+_ compareTo _
+>>>
+_.compareTo(_)
+<<< akka.ActivatorDist 1
+PathFinder(dir) descendantsExcept ("*", gitignoreFileFilter) filter (_.isFile)
+>>>
+PathFinder(dir).descendantsExcept("*", gitignoreFileFilter).filter(_.isFile)
+<<< akka.ActivatorDist 2
+filteredPathFinder pair Path.rebase(dir, activatorDistDirectory) map {
+  case (source, target) =>
+    s.log.info(s"copying: $source -> $target")
+    println("blah")
+}
+>>>
+filteredPathFinder.pair(Path.rebase(dir, activatorDistDirectory)).map {
+  case (source, target) =>
+    s.log.info(s"copying: $source -> $target")
+    println("blah")
+}
+<<< akka.typed.StubbedActorContext
+Iterator from 1 map (Helpers.base64(_))
+>>>
+Iterator.from(1).map(Helpers.base64(_))
+<<< akka.actor.dispatch.ActorModelSpec
+Iterator.continually(mq.dequeue) takeWhile (_ ne null) foreach System.err.println
+>>>
+Iterator
+  .continually(mq.dequeue)
+  .takeWhile(_ ne null)
+  .foreach(System.err.println)
+<<< SKIP type
+a map (_.asInstanceOf[AnyRef]): _*
+>>>
+a.map(_.asInstanceOf[AnyRef]): _*
