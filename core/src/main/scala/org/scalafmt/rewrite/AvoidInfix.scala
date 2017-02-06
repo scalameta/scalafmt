@@ -20,7 +20,7 @@ case object AvoidInfix extends Rewrite {
         val fstOpToken = op.tokens.head
 
         val selectorToBeAdded = Seq(
-          TokenPatch.Add(fstOpToken, ".", "", true)
+          TokenPatch.AddLeft(fstOpToken, ".", keepTok = true)
         )
 
         val fstArgsToken = args.head.tokens.head
@@ -30,16 +30,16 @@ case object AvoidInfix extends Rewrite {
           if (isSingleArg
               && fstArgsToken.isNot[LeftParen]
               && fstArgsToken.isNot[LeftBrace])
-            Seq(TokenPatch.Add(fstArgsToken, "(", "", true),
-                TokenPatch.Add(lastArgsToken, "", ")", true))
+            Seq(TokenPatch.AddLeft(fstArgsToken, "(", keepTok = true),
+                TokenPatch.AddRight(lastArgsToken, ")", keepTok = true))
           else
             Nil
 
         val lhsParensToBeAdded = lhs match {
           case Term.ApplyInfix(lhs1, op1, _, _)
               if !matcher.matches(op1.value) =>
-            Seq(TokenPatch.Add(lhs.tokens.head, "(", "", true),
-                TokenPatch.Add(lhs.tokens.last, "", ")", true))
+            Seq(TokenPatch.AddLeft(lhs.tokens.head, "(", keepTok = true),
+                TokenPatch.AddRight(lhs.tokens.last, ")", keepTok = true))
           case _ => Nil
         }
 
