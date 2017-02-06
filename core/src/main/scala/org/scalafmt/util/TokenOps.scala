@@ -221,7 +221,11 @@ object TokenOps {
   )
 
   def isSymbolicIdent(tok: Token): Boolean = tok match {
-    case Ident(name) => !name.head.isLetter
+    case Ident(name) =>
+      val head = name.head
+      // DESNOTE(2017-02-03, pjrt) Variable names can start with a letter or
+      // an `_`, operators cannot. This check should suffice.
+      !head.isLetter && head != '_'
     case _ => false
   }
 
