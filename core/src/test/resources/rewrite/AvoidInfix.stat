@@ -61,6 +61,10 @@ an[SparkException] should be thrownBy {
 a banana walked and orders a martini
 >>>
 a.banana(walked).and(orders).a(martini)
+<<< nested infix with excluded combinator
+a banana walked have ordered a martini
+>>>
+(a.banana(walked) have ordered).a(martini)
 <<< more scalatest
 cp should not contain (jar3.getPath())
 >>>
@@ -96,7 +100,35 @@ Iterator
   .continually(mq.dequeue)
   .takeWhile(_ ne null)
   .foreach(System.err.println)
-<<< SKIP type
-a map (_.asInstanceOf[AnyRef]): _*
+<<< operator
+foo + 1 bar 2
 >>>
-a.map(_.asInstanceOf[AnyRef]): _*
+(foo + 1).bar(2)
+<<< operator 2
+val future = actor1 ? "Hello" flatMap { case i: Int ⇒ actor2 ? i }
+>>>
+val future = (actor1 ? "Hello").flatMap { case i: Int ⇒ actor2 ? i }
+<<< excluded combinators in lhs
+terminated should be theSameInstanceAs Await.result(f, 10 seconds)
+>>>
+(terminated should be).theSameInstanceAs(Await.result(f, 10 seconds))
+<<< excluded combinators in lhs 2
+seq should have length 5
+>>>
+(seq should have).length(5)
+<<< excluded combinators in lhs 3
+1 to total foreach { _ =>
+  perform(_ + 1)
+}
+>>>
+(1 to total).foreach { _ =>
+  perform(_ + 1)
+}
+<<< excluded combinators in lhs 4
+seq should have length 5 and true
+>>>
+(seq should have).length(5).and(true)
+<<< sbt
+"org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full
+>>>
+("org.scalamacros" % "paradise" % "2.1.0").cross(CrossVersion.full)

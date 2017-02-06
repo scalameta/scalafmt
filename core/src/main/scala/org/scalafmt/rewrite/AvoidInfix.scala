@@ -16,8 +16,7 @@ case object AvoidInfix extends Rewrite {
   override def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch] = {
     val matcher = ctx.style.rewrite.neverInfix.toMatcher
     code.collect {
-      case Term.ApplyInfix(lhs, op, targs, args)
-          if matcher.matches(op.value) =>
+      case Term.ApplyInfix(lhs, op, _, args) if matcher.matches(op.value) =>
         val fstOpToken = op.tokens.head
 
         val selectorToBeAdded = Seq(
@@ -27,7 +26,7 @@ case object AvoidInfix extends Rewrite {
         val fstArgsToken = args.head.tokens.head
         val lastArgsToken = args.last.tokens.last
         val isSingleArg = args.size == 1
-        val parensToBeAdded =
+        val selectorParensToBeAdded =
           if (isSingleArg
               && fstArgsToken.isNot[LeftParen]
               && fstArgsToken.isNot[LeftBrace])
@@ -35,6 +34,14 @@ case object AvoidInfix extends Rewrite {
                 TokenPatch.Add(lastArgsToken, "", ")", true))
           else
             Nil
+
+        val lhsParensToBeAdded = lhs match {
+          case Term.ApplyInfix(lhs1, op1, _, _)
+              if !matcher.matches(op1.value) =>
+            Seq(TokenPatch.Add(lhs.tokens.head, "(", "", true),
+                TokenPatch.Add(lhs.tokens.last, "", ")", true))
+          case _ => Nil
+        }
 
         val toBeRemoved = ctx.tokenTraverser
           .filter(fstOpToken, fstArgsToken)(_.is[LF])
@@ -47,7 +54,7 @@ case object AvoidInfix extends Rewrite {
         if (hasInlineComment)
           Nil
         else
-          selectorToBeAdded ++ parensToBeAdded ++ toBeRemoved
+          lhsParensToBeAdded ++ selectorToBeAdded ++ selectorParensToBeAdded ++ toBeRemoved
     }.flatten
   }
 }
