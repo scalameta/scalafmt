@@ -78,7 +78,6 @@ object ScalafmtBootstrap {
       val urls = localArtifacts.collect {
         case \/-(file) => file.toURI.toURL
       }
-      System.err.println("Done")
       val classLoader = new URLClassLoader(urls.toArray, null)
       val reflectiveDynamicAccess = new ReflectiveDynamicAccess(classLoader)
       val loadedClass =
