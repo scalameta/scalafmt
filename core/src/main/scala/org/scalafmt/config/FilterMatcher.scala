@@ -14,10 +14,11 @@ case class FilterMatcher(include: Regex, exclude: Regex) {
 object FilterMatcher {
   val matchEverything = new FilterMatcher(".*".r, mkRegexp(Nil))
 
-  def mkRegexp(filters: Seq[String]): Regex =
+  def mkRegexp(filters: Seq[String], strict: Boolean = false): Regex =
     filters match {
       case Nil => "$a".r // will never match anything
       case head :: Nil => head.r
+      case _ if strict => filters.mkString("^(", "|", ")$").r
       case _ => filters.mkString("(", "|", ")").r
     }
 

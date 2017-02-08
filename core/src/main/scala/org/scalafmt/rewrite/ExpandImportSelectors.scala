@@ -34,7 +34,7 @@ object ExpandImportSelectors extends Rewrite {
 
         val mergedPatches: Seq[Patch] = groupedPatches.values.map { patches =>
           patches.reduce((p1: TokenPatch, p2: TokenPatch) =>
-            TokenPatch.Add(p1.tok, "", p1.newTok + "\n" + p2.newTok))
+            TokenPatch.AddRight(p1.tok, p1.newTok + "\n" + p2.newTok))
         }.toSeq
 
         builder ++= mergedPatches

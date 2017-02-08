@@ -50,4 +50,14 @@ class TokenTraverser(tokens: Tokens) {
     }
   }
 
+  final def filter(start: Token, end: Token)(
+      predicate: Token => Boolean): Seq[Token] = {
+    if (start == end || nextToken(start) == start) Nil
+    else {
+      val tail = filter(nextToken(start), end)(predicate)
+      if (predicate(start)) start +: tail
+      else tail
+    }
+  }
+
 }
