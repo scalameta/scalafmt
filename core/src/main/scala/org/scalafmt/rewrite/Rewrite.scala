@@ -23,7 +23,8 @@ object Rewrite {
       RedundantParens,
       SortImports,
       PreferCurlyFors,
-      ExpandImportSelectors
+      ExpandImportSelectors,
+      AvoidInfix
     )
 
   private def nameMap[T](t: sourcecode.Text[T]*): Map[String, T] = {
@@ -35,7 +36,8 @@ object Rewrite {
     RedundantParens,
     SortImports,
     PreferCurlyFors,
-    ExpandImportSelectors
+    ExpandImportSelectors,
+    AvoidInfix
   )
   val rewrite2name: Map[Rewrite, String] = name2rewrite.map(_.swap)
   val available = Rewrite.name2rewrite.keys.mkString(", ")
@@ -48,7 +50,7 @@ object Rewrite {
     if (rewrites.isEmpty) {
       noop
     } else {
-      input.parse[Source] match {
+      style.runner.dialect(input).parse(style.runner.parser) match {
         case Parsed.Success(ast) =>
           val tokens = ast.tokens
           val ctx = RewriteCtx(
