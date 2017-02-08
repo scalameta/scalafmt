@@ -1,0 +1,13 @@
+rewrite.rules = [AvoidInfix]
+<<< already in parens
+(NotQuoted ~ any.*) map { x =>
+  x
+}
+>>>
+(NotQuoted ~ any.*).map { x =>
+  x
+}
+<<< settings
+Project("sub", file("sub")) delegateTo (root) settings (check <<= checkTask)
+>>>
+Project("sub", file("sub")).delegateTo(root).settings(check <<= checkTask)

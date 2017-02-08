@@ -37,7 +37,8 @@ case object AvoidInfix extends Rewrite {
 
         val lhsParensToBeAdded = lhs match {
           case Term.ApplyInfix(lhs1, op1, _, _)
-              if !matcher.matches(op1.value) =>
+              if !matcher.matches(op1.value)
+                && lhs.tokens.head.isNot[LeftParen] =>
             Seq(TokenPatch.AddLeft(lhs.tokens.head, "(", keepTok = true),
                 TokenPatch.AddRight(lhs.tokens.last, ")", keepTok = true))
           case _ => Nil
