@@ -113,6 +113,12 @@ object Readme {
   val stripMarginStyle =
     ScalafmtConfig.default.copy(assumeStandardLibraryStripMargin = true)
 
+  val rewriteInfix =
+    ScalafmtConfig.default.copy(
+      rewrite = ScalafmtConfig.default.rewrite.copy(
+        rules = Seq(AvoidInfix)
+      ))
+
   val rewriteBraces =
     ScalafmtConfig.default.copy(
       rewrite = ScalafmtConfig.default.rewrite.copy(

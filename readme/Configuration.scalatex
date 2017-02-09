@@ -423,6 +423,12 @@
       @b{NEW}. Semantically preserving rewrites. To enable a
       rewrite rule, add it to the config like this @b{rewrite.rules = [SortImports]}.
 
+    @sect(Rewrite.rewrite2name(AvoidInfix))
+      @demoStyle(rewriteInfix)
+        future recover {
+          case e: ArithmeticException ⇒ 0
+        } map (_.toString)
+
     @sect(Rewrite.rewrite2name(RedundantBraces))
       @demoStyle(rewriteBraces)
         object RedundantBraces {
