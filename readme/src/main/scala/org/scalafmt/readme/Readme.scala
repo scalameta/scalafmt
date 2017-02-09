@@ -119,6 +119,12 @@ object Readme {
         rules = Seq(AvoidInfix)
       ))
 
+  val rewriteImportSelectors =
+    ScalafmtConfig.default.copy(
+      rewrite = ScalafmtConfig.default.rewrite.copy(
+        rules = Seq(ExpandImportSelectors)
+      ))
+
   val rewriteBraces =
     ScalafmtConfig.default.copy(
       rewrite = ScalafmtConfig.default.rewrite.copy(

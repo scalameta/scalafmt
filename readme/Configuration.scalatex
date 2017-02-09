@@ -429,6 +429,21 @@
           case e: ArithmeticException ⇒ 0
         } map (_.toString)
 
+    @sect(Rewrite.rewrite2name(ExpandImportSelectors))
+      @demoStyle(rewriteImportSelectors)
+        import a.{
+            b,
+            c
+          }, h.{
+            k, l
+          }
+          import d.e.{f, g}
+          import a.{
+              foo => bar,
+              zzzz => _
+            }
+
+
     @sect(Rewrite.rewrite2name(RedundantBraces))
       @demoStyle(rewriteBraces)
         object RedundantBraces {
