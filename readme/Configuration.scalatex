@@ -420,8 +420,51 @@
     Default: @b{[]}
 
     @p
-      @b{NEW}. Semantically preserving rewrites. To enable a
+      Semantically preserving rewrites. To enable a
       rewrite rule, add it to the config like this @b{rewrite.rules = [SortImports]}.
+
+    @sect(Rewrite.rewrite2name(AvoidInfix))
+      @demoStyle(rewriteInfix)
+        future recover {
+          case e: ArithmeticException ⇒ 0
+        } map (_.toString)
+    Configuration contains include/exclude operator filters (those values are build in, and can't be configured outside)
+    @ul
+      @li
+        Default include filter matches on alpha-num operator name (means that rewrite will be applied, if it's not excluded).
+      @li
+        Default exclude filter matches on (means that rewrite won't be applied):
+          "until",
+          "to",
+          "by",
+          "eq",
+          "ne",
+          "should.*",
+          "contain.*",
+          "must.*",
+          "in",
+          "be",
+          "taggedAs",
+          "thrownBy",
+          "synchronized",
+          "have",
+          "when".
+
+    @sect(Rewrite.rewrite2name(ExpandImportSelectors))
+      @demoStyle(rewriteImportSelectors)
+        import a.{
+            b,
+            c
+          }, h.{
+            k, l
+          }
+          import d.e.{f, g}
+          import a.{
+              foo => bar,
+              zzzz => _,
+              _
+            }
+
 
     @sect(Rewrite.rewrite2name(RedundantBraces))
       @demoStyle(rewriteBraces)
