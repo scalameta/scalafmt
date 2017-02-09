@@ -28,14 +28,14 @@ if [[ -z `git diff --exit-code` ]]; then
 fi
 
 git add .
-git commit -m "Deploy to GitHub Pages: ${SHA}"
+git commit --no-verify  -m "Deploy to GitHub Pages: ${SHA}"
 
 if [[ ${TRAVIS} == "true" ]]; then
   git config user.name "Travis CI"
   git config user.email "olafurpg@gmail.com"
 fi
 
-git push -f origin gh-pages
+git push --no-verify -f origin gh-pages
 git checkout master
 rm -rf gh-pages
 
