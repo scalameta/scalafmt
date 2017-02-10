@@ -18,7 +18,7 @@ object e {
   import d.e.f
   import d.e.g
 }
-<<< rename/wildcard/unimport
+<<< rename/unimport
 object blah {
   import a.{
     foo => bar,
@@ -31,4 +31,12 @@ object blah {
   import a.{foo => bar}
   import a.{zzzz => _}
   import a.baz
+}
+<<< rename/unimport and wildcard
+object blah {
+  import a.{foo => bar, zzzz => _,  _}
+}
+>>>
+object blah {
+  import a.{foo => bar, zzzz => _, _}
 }
