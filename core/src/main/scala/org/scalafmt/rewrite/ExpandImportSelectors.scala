@@ -16,7 +16,7 @@ object ExpandImportSelectors extends Rewrite {
                 val hasRenames = importees.collect {
                   case importee: Importee.Rename =>
                     importee
-                }.isEmpty
+                }.nonEmpty
 
                 val hasUnimports = importees.collect {
                   case importee: Importee.Unimport =>
