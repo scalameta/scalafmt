@@ -7,19 +7,29 @@ object ExpandImportSelectors extends Rewrite {
   override def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch] = {
     val builder = Seq.newBuilder[Patch]
 
-    code.collect {
+    code.traverse {
       case q"import ..$imports" =>
         val groupedPatches: Map[Token, Seq[TokenPatch]] = imports
           .map { `import` =>
             val expandedImport = `import`.collect {
-              case Importer(path, importees) =>
-                importees.collect {
-                  case importee: Importee =>
-                    if (importee.toString.contains("=>"))
-                      s"import $path.{$importee}"
-                    else
-                      s"import $path.$importee"
-                }
+              case importer @ Importer(path, importees) =>
+                val hasRenamesOrUnimports = importees.exists(importee =>
+                  importee.is[Importee.Rename] || importee
+                    .is[Importee.Unimport])
+
+                val hasWildcards = importees.exists(_.is[Importee.Wildcard])
+
+                if (hasWildcards && hasRenamesOrUnimports)
+                  Seq(s"import ${importer.syntax}")
+                else
+                  importees.collect {
+                    case importee: Importee =>
+                      if (importee.toString.contains("=>"))
+                        s"import $path.{$importee}"
+                      else
+                        s"import $path.$importee"
+                    case importee @ _ => importee
+                  }
             }.flatten
             val patchStr = expandedImport.mkString("\n")
 
