@@ -13,22 +13,13 @@ object ExpandImportSelectors extends Rewrite {
           .map { `import` =>
             val expandedImport = `import`.collect {
               case importer @ Importer(path, importees) =>
-                val hasRenames = importees.collect {
-                  case importee: Importee.Rename =>
-                    importee
-                }.nonEmpty
+                val hasRenamesOrUnimports = importees.exists(importee =>
+                  importee.is[Importee.Rename] || importee
+                    .is[Importee.Unimport])
 
-                val hasUnimports = importees.collect {
-                  case importee: Importee.Unimport =>
-                    importee
-                }.nonEmpty
+                val hasWildcards = importees.exists(_.is[Importee.Wildcard])
 
-                val hasWildcards = importees.collect {
-                  case importee: Importee.Wildcard =>
-                    importee
-                }.nonEmpty
-
-                if (hasWildcards && (hasRenames || hasUnimports))
+                if (hasWildcards && hasRenamesOrUnimports)
                   Seq(s"import ${importer.syntax}")
                 else
                   importees.collect {
