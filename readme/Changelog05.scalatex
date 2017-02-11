@@ -4,10 +4,16 @@
 @import org.scalafmt.config.ScalafmtConfig
 
 @ignore
-  @sect{0.5.6}
+  @sect{0.5.7}
     @ul
       @li
         Please document your contribution here.
+@sect{0.5.6}
+  Merged PRs: @lnk{https://github.com/olafurpg/scalafmt/milestone/11?closed=1}.
+  @ul
+    @li
+      New @sect.ref{AvoidInfix} rewrite! Thank you @user{ysusuk} for contributing
+      this exciting yet challenging feature.
 @sect{0.5.5}
   @ul
     @li

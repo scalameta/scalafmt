@@ -417,38 +417,27 @@
 
 
   @sect{rewrite.rules}
-    Default: @b{[]}
+    Default: @b{disabled}
 
     @p
-      Semantically preserving rewrites. To enable a
-      rewrite rule, add it to the config like this @b{rewrite.rules = [SortImports]}.
+      To enable a rewrite rule, add it to the config like this @config{rewrite.rules = [SortImports]}.
 
     @sect(Rewrite.rewrite2name(AvoidInfix))
       @demoStyle(rewriteInfix)
+        a success b
+        a error (b, c)
+        a map { x =>
+          x + 2
+        }
+        "o" % "a" % "v" c(D)
         future recover {
-          case e: ArithmeticException ⇒ 0
+          case e: Err => 0
         } map (_.toString)
+    For more examples, see @lnk("this diff", "https://github.com/olafurpg/scala-repos/pull/18/files#diff-f4f9daffe8f0a4aee6505c4eea8493ccL120").
     Configuration contains include/exclude operator filters (those values are build in, and can't be configured outside)
     @ul
       @li
-        Default include filter matches on alpha-num operator name (means that rewrite will be applied, if it's not excluded).
-      @li
-        Default exclude filter matches on (means that rewrite won't be applied):
-          "until",
-          "to",
-          "by",
-          "eq",
-          "ne",
-          "should.*",
-          "contain.*",
-          "must.*",
-          "in",
-          "be",
-          "taggedAs",
-          "thrownBy",
-          "synchronized",
-          "have",
-          "when".
+        Configure under @code{rewrite.neverInfix}, default values are in @sect.ref{Other}
 
     @sect(Rewrite.rewrite2name(ExpandImportSelectors))
       @demoStyle(rewriteImportSelectors)
