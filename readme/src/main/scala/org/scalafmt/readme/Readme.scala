@@ -55,6 +55,9 @@ object Readme {
     hl.scala(result)
   }
 
+  def config(frags: Frag*) = {
+    cliFlags(frags.render)
+  }
   def cliFlags(flags: String) = {
     require(Config.fromHocon(flags).isRight, s"Invalid configuration: $flags")
     hl.scala(flags)
