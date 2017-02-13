@@ -165,7 +165,7 @@ class Router(formatOps: FormatOps) {
 
       // { ... } Blocks
       case tok @ FormatToken(open @ LeftBrace(), right, between) =>
-        val nl = NewlineT(shouldGet2xNewlines(tok, style))
+        val nl = NewlineT(shouldGet2xNewlines(tok, style, owners))
         val close = matchingParentheses(hash(open))
         val newlineBeforeClosingCurly = newlineBeforeClosingCurlyPolicy(close)
 
@@ -284,11 +284,11 @@ class Router(formatOps: FormatOps) {
             .withOptimalToken(expire)
             .withPolicy(SingleLineBlock(expire)),
           // For some reason, this newline cannot cost 1.
-          Split(NewlineT(shouldGet2xNewlines(tok, style)), 0)
+          Split(NewlineT(shouldGet2xNewlines(tok, style, owners)), 0)
         )
 
       case tok @ FormatToken(left, right, between) if startsStatement(tok) =>
-        val newline: Modification = NewlineT(shouldGet2xNewlines(tok, style))
+        val newline: Modification = NewlineT(shouldGet2xNewlines(tok, style, owners))
         val expire = rightOwner.tokens
           .find(_.is[Equals])
           .map { equalsToken =>

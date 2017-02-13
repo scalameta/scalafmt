@@ -10,6 +10,8 @@ package a {
       val v1 = 1
       val v2 = 2
       case class C1
+      sealed trait T1
+      final class FC1
       def a = v1
       def b = v2
     }
@@ -27,6 +29,10 @@ package a {
       val v2 = 2
 
       case class C1
+
+      sealed trait T1
+
+      final class FC1
 
       def a = v1
 

@@ -1,5 +1,7 @@
 package org.scalafmt.util
 
+import org.scalafmt.config.FormatEvent.CreateFormatOps
+
 import scala.meta.Defn
 import scala.meta.Pkg
 import scala.meta.Template
@@ -7,7 +9,6 @@ import scala.meta.Tree
 import scala.meta.dialects.Scala211
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
-
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.Decision
 import org.scalafmt.internal.FormatToken
@@ -53,15 +54,18 @@ object TokenOps {
     longHash
   }
 
-  def shouldGet2xNewlines(tok: FormatToken, style: ScalafmtConfig): Boolean = {
+  def shouldGet2xNewlines(tok: FormatToken, style: ScalafmtConfig, owners: Token => Tree): Boolean = {
     !isDocstring(tok.left) && {
       val newlines = newlinesBetween(tok.between)
       newlines > 1 || (isDocstring(tok.right) && !tok.left.is[Comment])
     } || {
       style.newlines.alwaysBeforeTopLevelStatements &&
-        tok.between.count(_.is[KwNew]) < 2 &&
-        (tok.right.is[KwObject] || tok.right.is[KwDef] || tok.right.is[KwDef] || tok.right.is[KwCase] || tok.right.is[KwPackage])
+        tok.between.count(_.is[KwNew]) < 2 && isTopLevelStatment(tok.right, owners)
     }
+  }
+
+  def isTopLevelStatment(tok: Token, owners: Token => Tree): Boolean = {
+      tok.is[KwObject] || tok.is[KwDef] || tok.is[KwCase] || tok.is[KwPackage] || tok.is[KwClass]
   }
 
   def isDocstring(token: Token): Boolean = {
