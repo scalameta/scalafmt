@@ -228,7 +228,7 @@
   @sect{Standalone library}
     Add to your dependencies
     @hl.scala
-      libraryDependencies += "com.geirsson" %% "scalafmt" % "@org.scalafmt.Versions.stable"
+      libraryDependencies += "com.geirsson" %% "scalafmt-core" % "@org.scalafmt.Versions.stable"
     @p
       Use the API like this
 
