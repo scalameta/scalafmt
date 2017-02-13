@@ -60,17 +60,17 @@ object TokenOps {
       newlines > 1 || (isDocstring(tok.right) && !tok.left.is[Comment])
     } || {
       style.newlines.alwaysBeforeTopLevelStatements &&
-        tok.between.count(_.is[KwNew]) < 2 && isTopLevelStatment(tok.right, owners)
+        tok.between.count(_.is[KwNew]) < 2 && isTopLevelStatment(tok.right, owners(tok.right))
     }
   }
 
-  def isTopLevelStatment(tok: Token, owners: Token => Tree): Boolean = {
+  def isTopLevelStatment(tok: Token, owner: Tree): Boolean = {
       tok.is[KwObject] ||
         tok.is[KwDef] ||
         tok.is[KwCase] ||
         tok.is[KwPackage] ||
-        owners(tok).parent.exists(_.is[Defn.Class]) ||
-        owners(tok).parent.exists(_.is[Defn.Trait])
+        owner.parent.exists(_.is[Defn.Class]) ||
+        owner.parent.exists(_.is[Defn.Trait])
   }
 
   def isDocstring(token: Token): Boolean = {
