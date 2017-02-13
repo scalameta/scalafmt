@@ -69,7 +69,6 @@ object TokenOps {
         tok.is[KwDef] ||
         tok.is[KwCase] ||
         tok.is[KwPackage] ||
-        tok.is[KwClass] ||
         owners(tok).parent.exists(_.is[Defn.Class]) ||
         owners(tok).parent.exists(_.is[Defn.Trait])
   }
