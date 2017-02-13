@@ -8,6 +8,7 @@ import scala.meta.dialects.Scala211
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 
+import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.Decision
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.Modification
@@ -52,10 +53,14 @@ object TokenOps {
     longHash
   }
 
-  def shouldGet2xNewlines(tok: FormatToken): Boolean = {
+  def shouldGet2xNewlines(tok: FormatToken, style: ScalafmtConfig): Boolean = {
     !isDocstring(tok.left) && {
       val newlines = newlinesBetween(tok.between)
       newlines > 1 || (isDocstring(tok.right) && !tok.left.is[Comment])
+    } || {
+      style.newlines.beforeTopLevelStatements &&
+        tok.between.count(_.is[KwNew]) < 2 &&
+        (tok.right.is[KwObject] || tok.right.is[KwDef] || tok.right.is[KwDef] || tok.right.is[KwCase] || tok.right.is[KwPackage])
     }
   }
 
