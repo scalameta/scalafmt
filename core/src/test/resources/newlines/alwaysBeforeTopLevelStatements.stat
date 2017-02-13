@@ -1,5 +1,5 @@
 maxColumn = 60
-newlines.beforeTopLevelStatements = true
+newlines.alwaysBeforeTopLevelStatements = true
 
 <<< Create newlines where necessary
 package a {

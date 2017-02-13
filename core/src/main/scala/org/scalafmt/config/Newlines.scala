@@ -31,5 +31,5 @@ case class Newlines(
     sometimesBeforeColonInMethodReturnType: Boolean = true,
     penalizeSingleSelectMultiArgList: Boolean = true,
     alwaysBeforeCurlyBraceLambdaParams: Boolean = false,
-    beforeTopLevelStatements: Boolean = false
+    alwaysBeforeTopLevelStatements: Boolean = false
 )
