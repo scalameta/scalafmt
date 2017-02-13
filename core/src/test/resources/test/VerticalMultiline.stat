@@ -109,3 +109,25 @@ final class UserProfile(name: String,
                         school: School)
     extends Profile
     with UserSettings
+
+<<< should work with an empty first param group
+override def load()(implicit taskCtx: Context,
+      ec: ExecutionContext
+    ): Future[Seq[A] Or B]
+>>>
+override def load(
+  )(implicit taskCtx: Context,
+    ec: ExecutionContext
+  ): Future[Seq[A] Or B]
+
+<<< should work with an empty non-first param group
+override def load(code: String)()(implicit taskCtx: Context,
+      ec: ExecutionContext
+    ): Future[Seq[A] Or B]
+>>>
+override def load(
+    code: String
+  )(
+  )(implicit taskCtx: Context,
+    ec: ExecutionContext
+  ): Future[Seq[A] Or B]

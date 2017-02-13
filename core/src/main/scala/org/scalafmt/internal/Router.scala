@@ -413,7 +413,7 @@ class Router(formatOps: FormatOps) {
 
       // Parameter opening for one parameter group. This format works
       // on a group-by-group basis.
-      case FormatToken(open @ LeftParen(), _, between)
+      case FormatToken(open @ LeftParen(), r, between)
           if style.verticalMultilineAtDefinitionSite && isDefDef(leftOwner) =>
         val close = matchingParentheses(hash(open))
         val indentParam = Num(4)
@@ -456,11 +456,17 @@ class Router(formatOps: FormatOps) {
         val policy =
           Policy(oneLinePerArg.orElse(paramGroupSplitter), lastParen.end)
 
+        val firstIndent =
+          if (r.is[RightParen]) // An empty param group
+            indentSep
+          else
+            indentParam
+
         Seq(
           Split(NoSplit, 0) // If it fits in one block, make it so
             .withPolicy(SingleLineBlock(lastParen)),
           Split(Newline, 1) // Otherwise split vertically
-            .withIndent(indentParam, close, Right)
+            .withIndent(firstIndent, close, Right)
             .withPolicy(policy)
         )
 
