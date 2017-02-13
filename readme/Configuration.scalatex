@@ -204,6 +204,31 @@
        *
        */
 
+  @sect{newlines.alwaysBeforeTopLevelStatements}
+    Default: default.newlines.alwaysBeforeTopLevelStatements
+
+    @h1.scala
+        // false
+        import org.scalafmt
+        package P {
+          object O {
+            def A = "A"
+            def B = "B"
+          }
+        }
+        // true
+        import org.scalafmt
+
+        package P {
+
+          object O {
+
+            def A = "A"
+
+            def B = "B"
+          }
+        }
+
   @sect{newlines.sometimesBeforeColonInMethodReturnType}
     Default: @default.newlines.sometimesBeforeColonInMethodReturnType
 
