@@ -460,4 +460,24 @@ object TreeOps {
   // procedure syntax has decltpe: Some("")
   def isProcedureSyntax(defn: Defn.Def): Boolean =
     defn.decltpe.exists(_.tokens.isEmpty)
+
+  def isCaseClass(tree: Tree): Boolean = {
+    tree.is[Defn.Class] && tree.children.exists(_.is[Mod.Case]) ||
+      tree.parent.exists(_.is[Defn.Class]) && tree.parent.exists(_.children.exists(_.is[Mod.Case]))
+  }
+
+  def isCaseObject(tree: Tree): Boolean = {
+    tree.is[Defn.Object] && tree.children.exists(_.is[Mod.Case]) ||
+      tree.parent.exists(_.is[Defn.Object]) && tree.parent.exists(_.children.exists(_.is[Mod.Case]))
+  }
+
+  def isFinalClass(tree: Tree): Boolean = {
+    tree.is[Defn.Class] && tree.children.exists(_.is[Mod.Final]) ||
+      tree.parent.exists(_.is[Defn.Class]) && tree.parent.exists(_.children.exists(_.is[Mod.Final]))
+  }
+
+  def isBasicClass(tree: Tree): Boolean = {
+    tree.is[Defn.Class] && !tree.children.exists(e => e.is[Mod.Final] || e.is[Mod.Case]) ||
+      tree.parent.exists(_.is[Defn.Class]) && !tree.parent.exists(_.children.exists(e => e.is[Mod.Final] || e.is[Mod.Case]))
+  }
 }
