@@ -30,5 +30,6 @@ case class Newlines(
     neverBeforeJsNative: Boolean = false,
     sometimesBeforeColonInMethodReturnType: Boolean = true,
     penalizeSingleSelectMultiArgList: Boolean = true,
-    alwaysBeforeCurlyBraceLambdaParams: Boolean = false
+    alwaysBeforeCurlyBraceLambdaParams: Boolean = false,
+    alwaysBeforeTopLevelStatements: Boolean = false
 )
