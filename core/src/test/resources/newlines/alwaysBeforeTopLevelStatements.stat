@@ -1,0 +1,104 @@
+maxColumn = 60
+newlines.alwaysBeforeTopLevelStatements = true
+
+<<< Create newlines where necessary
+package a {
+  import x1.b
+  import x2.b
+  package b {
+  object a {
+      val v1 = 1
+      val v2 = 2
+      case class C1
+      sealed trait T1
+      final class FC1
+      def a = v1
+      def b = v2
+      def c: Int
+      def d: Int = 2
+    }
+  }
+}
+>>>
+package a {
+  import x1.b
+  import x2.b
+
+  package b {
+
+    object a {
+      val v1 = 1
+      val v2 = 2
+
+      case class C1
+
+      sealed trait T1
+
+      final class FC1
+
+      def a = v1
+
+      def b = v2
+
+      def c: Int
+
+      def d: Int = 2
+    }
+  }
+}
+
+
+<<< Don't touch preformated code which is fine
+package a {
+  import x1.b
+  import x2.b
+
+  package b {
+
+    object a {
+      val v1 = 1
+      val v2 = 2
+
+      case class C1
+
+      sealed trait T1
+
+      final class FC1
+
+      def a = v1
+
+      def b = v2
+
+      def c: Int
+
+      def d: Int = 2
+    }
+  }
+}
+>>>
+package a {
+  import x1.b
+  import x2.b
+
+  package b {
+
+    object a {
+      val v1 = 1
+      val v2 = 2
+
+      case class C1
+
+      sealed trait T1
+
+      final class FC1
+
+      def a = v1
+
+      def b = v2
+
+      def c: Int
+
+      def d: Int = 2
+    }
+  }
+}
