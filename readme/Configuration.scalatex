@@ -207,7 +207,7 @@
   @sect{newlines.alwaysBeforeTopLevelStatements}
     Default: default.newlines.alwaysBeforeTopLevelStatements
 
-    @h1.scala
+    @hl.scala
         // false
         import org.scalafmt
         package P {
