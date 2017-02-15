@@ -77,13 +77,11 @@ object TokenOps {
   }
 
   def isTopLevelStatment(tok: Token, owner: Tree): Boolean = {
-      tok.is[KwObject] ||
-        tok.is[KwDef] ||
-        tok.is[KwPackage] ||
-        tok.is[KwClass] ||
-        tok.is[KwTrait] ||
-        owner.parent.exists(_.is[Defn.Class]) ||
-        owner.parent.exists(_.is[Defn.Trait])
+      tok.is[KwObject] || owner.parent.exists(_.is[Defn.Object]) ||
+        tok.is[KwClass] || owner.parent.exists(_.is[Defn.Class]) ||
+        tok.is[KwDef] || owner.parent.exists(_.is[Defn.Def]) ||
+        tok.is[KwTrait] || owner.parent.exists(_.is[Defn.Trait]) ||
+        tok.is[KwPackage] || (tok.is[KwProtected] && owner.parent.exists(_.is[Pkg]))
   }
 
   def isDocstring(token: Token): Boolean = {

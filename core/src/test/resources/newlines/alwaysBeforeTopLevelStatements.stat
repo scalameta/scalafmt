@@ -12,6 +12,7 @@ package a {
       case class C1
       sealed trait T1
       final class FC1
+      override def od = 1
       def a = v1
       def b = v2
       def c: Int
@@ -39,6 +40,8 @@ package a {
       sealed trait T1
 
       final class FC1
+
+      override def od = 1
 
       def a = v1
 
