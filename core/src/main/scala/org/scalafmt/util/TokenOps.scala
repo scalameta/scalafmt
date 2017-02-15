@@ -60,11 +60,9 @@ object TokenOps {
       val rightOwner = owners(tok.right)
 
       style.newlines.alwaysBeforeTopLevelStatements &&
-        tok.between.count(_.is[KwNew]) < 2 &&
         isTopLevelStatment(tok.right, rightOwner) &&
         !{
           // keep groups of case class/objects with no body in a block
-          
           def hasBody(tree: Tree) = tree.parent.map(_.children).getOrElse(Seq.empty).exists {
             case Template(_, _, _, Some(_)) => true
             case _ => false
