@@ -132,6 +132,7 @@ package a {
       case class C3
       case class C4 {}
       case class C5 {}
+      case class C6
 
       sealed trait T1
 
@@ -166,6 +167,8 @@ package a {
       case class C4 {}
 
       case class C5 {}
+
+      case class C6
 
       sealed trait T1
 

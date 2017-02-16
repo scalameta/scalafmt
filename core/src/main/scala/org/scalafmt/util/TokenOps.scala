@@ -68,8 +68,8 @@ object TokenOps {
             case _ => false
           }
 
-          (TreeOps.isCaseClass(leftOwner) || TreeOps.isCaseObject(leftOwner)) &&
-            (TreeOps.isCaseClass(rightOwner) || TreeOps.isCaseObject(rightOwner)) &&
+          (TreeOps.isCaseClass(leftOwner, matchOnParent = true) || TreeOps.isCaseObject(leftOwner, matchOnParent = true)) &&
+            (TreeOps.isCaseClass(rightOwner, matchOnParent = true) || TreeOps.isCaseObject(rightOwner, matchOnParent = true)) &&
             !hasBody(leftOwner) &&
             !hasBody(rightOwner)
         }
@@ -77,11 +77,11 @@ object TokenOps {
   }
 
   def isTopLevelStatment(tok: Token, owner: Tree): Boolean = {
-      tok.is[KwObject] || owner.parent.exists(_.is[Defn.Object]) ||
-        tok.is[KwClass] || owner.parent.exists(_.is[Defn.Class]) ||
-        tok.is[KwDef] || owner.parent.exists(_.is[Defn.Def]) ||
-        tok.is[KwTrait] || owner.parent.exists(_.is[Defn.Trait]) ||
-        tok.is[KwPackage] || (tok.is[KwProtected] && owner.parent.exists(_.is[Pkg]))
+    tok.is[KwObject] || owner.parent.exists(_.is[Defn.Object]) ||
+      tok.is[KwClass] || owner.parent.exists(_.is[Defn.Class]) ||
+      tok.is[KwDef] || owner.parent.exists(_.is[Defn.Def]) ||
+      tok.is[KwTrait] || owner.parent.exists(_.is[Defn.Trait]) ||
+      tok.is[KwPackage] || (tok.is[KwProtected] && owner.parent.exists(_.is[Pkg]))
   }
 
   def isDocstring(token: Token): Boolean = {

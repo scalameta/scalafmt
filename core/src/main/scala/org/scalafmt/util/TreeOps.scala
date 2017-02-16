@@ -461,23 +461,28 @@ object TreeOps {
   def isProcedureSyntax(defn: Defn.Def): Boolean =
     defn.decltpe.exists(_.tokens.isEmpty)
 
-  def isCaseClass(tree: Tree): Boolean = {
-    tree.is[Defn.Class] && tree.children.exists(_.is[Mod.Case]) ||
-      tree.parent.exists(_.is[Defn.Class]) && tree.parent.exists(_.children.exists(_.is[Mod.Case]))
+  def isCaseClass(tree: Tree, matchOnParent: Boolean = false): Boolean = tree match {
+    case defn: Defn.Class => defn.mods.exists(_.is[Mod.Case])
+    case _ if matchOnParent => tree.parent.exists(isCaseClass(_))
+    case _ => false
   }
 
-  def isCaseObject(tree: Tree): Boolean = {
-    tree.is[Defn.Object] && tree.children.exists(_.is[Mod.Case]) ||
-      tree.parent.exists(_.is[Defn.Object]) && tree.parent.exists(_.children.exists(_.is[Mod.Case]))
+  def isFinalClass(tree: Tree, matchOnParent: Boolean = false): Boolean = tree match {
+    case defn: Defn.Class => defn.mods.exists(_.is[Mod.Final])
+    case _ if matchOnParent => tree.parent.exists(isFinalClass(_))
+    case _ => false
   }
 
-  def isFinalClass(tree: Tree): Boolean = {
-    tree.is[Defn.Class] && tree.children.exists(_.is[Mod.Final]) ||
-      tree.parent.exists(_.is[Defn.Class]) && tree.parent.exists(_.children.exists(_.is[Mod.Final]))
+  def isCaseObject(tree: Tree, matchOnParent: Boolean = false): Boolean = tree match {
+    case defn: Defn.Object => defn.mods.exists(_.is[Mod.Case])
+    case _ if matchOnParent => tree.parent.exists(isCaseObject(_))
+    case _ => false
   }
 
-  def isBasicClass(tree: Tree): Boolean = {
-    tree.is[Defn.Class] && !tree.children.exists(e => e.is[Mod.Final] || e.is[Mod.Case]) ||
-      tree.parent.exists(_.is[Defn.Class]) && !tree.parent.exists(_.children.exists(e => e.is[Mod.Final] || e.is[Mod.Case]))
+  def isSealedTrait(tree: Tree, matchOnParent: Boolean = false): Boolean = tree match {
+    case defn: Defn.Trait => defn.mods.exists(_.is[Mod.Sealed])
+    case _ if matchOnParent => tree.parent.exists(isSealedTrait(_))
+    case _ => false
   }
+
 }
