@@ -73,3 +73,24 @@ bb
   buf &&
   bb
 }
+<<< #701 infix indent
+val x = project(
+  version = 2
+) settings (
+  sharedSettings,
+  foo := {
+    bar.value
+  },
+  base
+
+)
+>>>
+val x = project(
+    version = 2
+) settings (
+    sharedSettings,
+    foo := {
+      bar.value
+    },
+    base
+)

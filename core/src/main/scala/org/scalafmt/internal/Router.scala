@@ -879,15 +879,10 @@ class Router(formatOps: FormatOps) {
         val exclude =
           insideBlock(formatToken, expire, _.isInstanceOf[LeftBrace])
         rhs match {
-          case _: Term.ApplyInfix =>
+          case t: Term.ApplyInfix =>
             val modification = newlines2Modification(between)
-            val policy: Policy =
-              if (modification.isNewline) NoPolicy
-              else Policy(UnindentAtExclude(exclude, -2), expire.end)
-            // Don't try anything smart around infix applications.
             Seq(
-              Split(modification, 0, policy = policy)
-                .withIndent(2, expire, Left)
+              infixSplit(t, formatToken)
             )
           case _ =>
             def twoBranches: Policy = {
