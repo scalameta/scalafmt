@@ -68,7 +68,6 @@ class GitOpsImpl(workingDirectory: AbsoluteFile) extends GitOps {
         "git",
         "diff",
         "--name-only",
-        "HEAD",
         branch
       )).lines.map { x =>
       AbsoluteFile.fromFile(new File(x), workingDirectory)
