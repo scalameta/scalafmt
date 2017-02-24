@@ -14,7 +14,7 @@ lazy val metaMacroSettings: Seq[Def.Setting[_]] = Seq(
   libraryDependencies += "org.scalameta" %% "scalameta" % Deps.scalameta,
   sources in (Compile, doc) := Nil,
   addCompilerPlugin(
-    "org.scalameta" % "paradise" % "3.0.0-M5" cross CrossVersion.full),
+    "org.scalameta" % "paradise" % "3.0.0-M7" cross CrossVersion.full),
   scalacOptions += "-Xplugin-require:macroparadise"
 )
 
@@ -282,8 +282,7 @@ lazy val readme = scalatex
   .settings(
     libraryDependencies ++= Seq(
       "com.twitter" %% "util-eval" % "6.34.0"
-    ),
-    dependencyOverrides += "com.lihaoyi" %% "scalaparse" % "0.3.1"
+    )
   )
 
 lazy val sonatypePassword = sys.env.getOrElse("SONATYPE_PW", "")
