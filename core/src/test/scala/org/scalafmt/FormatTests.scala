@@ -6,7 +6,6 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.meta.Tree
-import scala.meta.internal.semantic.Symbol.Global
 import scala.meta.parsers.Parse
 
 import java.io.File
