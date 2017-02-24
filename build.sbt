@@ -1,11 +1,11 @@
 import scoverage.ScoverageSbtPlugin.ScoverageKeys.coverageHighlighting
 
 // The version number used in docs.
-def latestStableVersion: String = "0.5.6"
+def latestStableVersion: String = "0.5.7"
 
 lazy val buildSettings = Seq(
   organization := "com.geirsson",
-  version := "0.5.6",
+  version := "0.5.7",
   scalaVersion := "2.11.8",
   updateOptions := updateOptions.value.withCachedResolution(true)
 )
