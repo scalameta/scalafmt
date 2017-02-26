@@ -2,7 +2,13 @@ package org.scalafmt.rewrite
 
 import org.scalafmt.util.TokenOps
 
-import scala.meta.tokens.Token.{LF, LeftBrace, LeftParen}
+import scala.meta.tokens.Token.{
+  LF,
+  LeftBrace,
+  LeftParen,
+  RightBrace,
+  RightParen
+}
 import scala.meta.{Tree, _}
 
 case object AvoidInfix extends Rewrite {
@@ -25,11 +31,15 @@ case object AvoidInfix extends Rewrite {
 
         val fstArgsToken = args.head.tokens.head
         val lastArgsToken = args.last.tokens.last
+        val fstIsNotLeftParenAndBrace = fstArgsToken
+            .isNot[LeftParen] && fstArgsToken
+            .isNot[LeftBrace]
+        val lastIsNotRightParenAndBrace = lastArgsToken
+            .isNot[RightParen] && lastArgsToken
+            .isNot[RightBrace]
         val isSingleArg = args.size == 1
         val selectorParensToBeAdded =
-          if (isSingleArg
-              && fstArgsToken.isNot[LeftParen]
-              && fstArgsToken.isNot[LeftBrace])
+          if (isSingleArg && (fstIsNotLeftParenAndBrace || lastIsNotRightParenAndBrace))
             Seq(TokenPatch.AddLeft(fstArgsToken, "(", keepTok = true),
                 TokenPatch.AddRight(lastArgsToken, ")", keepTok = true))
           else
