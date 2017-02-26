@@ -16,6 +16,10 @@ package a {
       def b = v2
       def c: Int
       def d: Int = 2
+      def e = a match {
+        case 1 => true
+        case 2 => false
+      }
     }
   }
 }
@@ -43,6 +47,11 @@ package a {
       def c: Int
 
       def d: Int = 2
+
+      def e = a match {
+        case 1 => true
+        case 2 => false
+      }
     }
   }
 }
