@@ -768,7 +768,7 @@ class Router(formatOps: FormatOps) {
       case tok @ FormatToken(Comma(), right, _) =>
         // TODO(olafur) DRY, see OneArgOneLine.
         val rhsIsAttachedComment =
-          tok.right.is[Comment] && newlinesBetween(tok.between) == 0
+          isSingleLineComment(tok.right) && newlinesBetween(tok.between) == 0
         val binPack = isBinPack(leftOwner)
         val isInfix = leftOwner.isInstanceOf[Term.ApplyInfix]
         argumentStarts.get(hash(right)) match {

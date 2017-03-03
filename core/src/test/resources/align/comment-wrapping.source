@@ -1,0 +1,15 @@
+style = defaultWithAlign
+runner.dialect = Sbt0137
+<<< wrap with inline comment
+lazy val ivyProj = (project in file("ivy"))
+  .dependsOn(interfaceProj,
+             crossProj,
+             logProj % "compile;test->test",
+             ioProj  % "compile;test->test", /*launchProj % "test->test",*/ collectionProj)
+>>>
+lazy val ivyProj = (project in file("ivy"))
+  .dependsOn(interfaceProj,
+             crossProj,
+             logProj % "compile;test->test",
+             ioProj  % "compile;test->test",
+             /*launchProj % "test->test",*/ collectionProj)
