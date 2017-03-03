@@ -1,0 +1,10 @@
+maxColumn = 100
+spaces.beforeSeqWildcard = true
+<<< Before Seq Wildcard
+{
+  case PathList(ps @ _ *) => MergeStrategy.first
+}
+>>>
+{
+  case PathList(ps @ _*) => MergeStrategy.first
+}
