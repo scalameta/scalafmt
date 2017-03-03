@@ -7,7 +7,7 @@ import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigResolveOptions
 
 object Hocon2Class {
-  private def config2map(config: Config): Map[String, Any] = {
+  private def config2map(config0: Config): Map[String, Any] = {
     import scala.collection.JavaConverters._
     def loop(obj: Any): Any = obj match {
       case map: java.util.Map[_, _] =>
@@ -18,6 +18,7 @@ object Hocon2Class {
         map.asScala.map(loop).toList
       case e => e
     }
+    val config = config0.resolve(ConfigResolveOptions.noSystem)
     loop(config.root().unwrapped()).asInstanceOf[Map[String, Any]]
   }
 
@@ -27,8 +28,7 @@ object Hocon2Class {
     try {
       val config = ConfigFactory.parseString(str)
       val extracted = path match {
-        case Some(p) =>
-          config.getConfig(p).resolve(ConfigResolveOptions.noSystem)
+        case Some(p) => config.getConfig(p)
         case _ => config
       }
       Right(config2map(extracted))

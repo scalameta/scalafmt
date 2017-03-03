@@ -70,8 +70,8 @@ class CliOptionsTest extends FunSuite {
         |    {code: "=>", owner: "Function"},
         |    {code: "//"},
         |    "%%",
-        |    "%"
         |  ]
+        |  tokens += "%"
         |  arrowEnumeratorGenerator = true
         |  ifWhileOpenParen = true
         |  openParenCallSite = true
