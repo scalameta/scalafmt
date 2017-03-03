@@ -195,11 +195,12 @@
     Default: @b(default.docstrings.toString)
 
     @hl.scala
-      // ScalaDoc
+      // docstrings = ScalaDoc
       /** Align by second asterisk.
         *
         */
-      // JavaDoc
+
+      // docstrings = JavaDoc
       /** Align by first asterisk.
        *
        */
@@ -208,7 +209,7 @@
     Default: default.newlines.alwaysBeforeTopLevelStatements
 
     @hl.scala
-        // false
+        // newlines.alwaysBeforeTopLevelStatements = false
         import org.scalafmt
         package P {
           object O {
@@ -218,7 +219,8 @@
             def B = "B"
           }
         }
-        // true
+
+        // newlines.alwaysBeforeTopLevelStatements = true
         import org.scalafmt
 
         package P {
@@ -238,10 +240,11 @@
 
     @hl.scala
       // Column limit                                                     |
-      // true
+      // newlines.sometimesBeforeColonInMethodReturnType = true
       implicit def validatedInstances[E](implicit E: Semigroup[E])
         : Traverse[Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] = 2
-      // false
+
+      // newlines.sometimesBeforeColonInMethodReturnType = false
       implicit def validatedInstances[E](implicit E: Semigroup[E]): Traverse[
           Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] = 2
 
@@ -249,14 +252,14 @@
     Default: @default.align.arrowEnumeratorGenerator
 
     @hl.scala
-      // false
+      // align.arrowEnumeratorGenerator = false
       for {
         x <- new Integer {
           def value = 2
         }
       } yield x
 
-      // true
+      // align.arrowEnumeratorGenerator = true
       for {
         x <- new Integer {
               def value = 2
@@ -268,7 +271,7 @@
 
     @hl.scala
       // column limit                        |
-      // false
+      // binPackParentConstructors = false
       object DefaultStyle
           extends Parent
           with SecondParent
@@ -277,18 +280,19 @@
       }
 
       // column limit                        |
-      // true
+      // binPackParentConstructors = true
       object DefaultStyle
           extends Parent with SecondParent
           with ThirdParent {
         // body ...
       }
+
   @sect{align.openParenCallSite}
     Default: @default.align.openParenCallSite
 
     @hl.scala
       // Column limit |
-      // true
+      // align.openParenCallSite = true
       foo(arg1, arg2)
 
       function(arg1, // align by (
@@ -298,7 +302,7 @@
         argument1,
         argument2)
 
-      // false
+      // align.openParenCallSite = false
       foo(arg1, arg2)
       function(
         arg1, // no align by (
@@ -307,6 +311,7 @@
       function(
         argument1,
         argument2)
+
   @sect{lineEndings}
     Default: @b(default.lineEndings.toString)
 
@@ -323,13 +328,14 @@
     Default: @default.includeCurlyBraceInSelectChains
 
     @hl.scala
-      // If true
+      // includeCurlyBraceInSelectChains = true
       List(1)
         .map { x =>
           x + 2
         }
         .filter(_ > 2)
-      // If false
+
+      // includeCurlyBraceInSelectChains = false
       List(1).map { x =>
           x + 2
       }.filter(_ > 2)
@@ -349,11 +355,13 @@
       foo
         .map(_ + 1)
         .filter( > 2)
-      // if true
+
+      // optIn.breakChainOnFirstMethodDot = true
       foo
         .map(_ + 1)
         .filter( > 2)
-      // if false
+
+      // optIn.breakChainOnFirstMethodDot = false
       foo.map(_ + 1).filter( > 2)
       // note. chain starts at .foo() in a.b.foo()
 
@@ -366,11 +374,12 @@
     Default: @default.newlines.penalizeSingleSelectMultiArgList
 
     @hl.scala
-      // If true, favor
+      // newlines.penalizeSingleSelectMultiArgList = true
       logger.elem(a,
                   b,
                   c)
-      // instead of
+
+      // newlines.penalizeSingleSelectMultiArgList = false
       logger
         .elem(a, b, c)
 
@@ -383,11 +392,12 @@
     Default: @default.binPack.literalArgumentLists
 
     @hl.scala
-      // if true
+      // binPack.literalArgumentLists = true
       val secret: List[Bit] = List(0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1,
         0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1,
         0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1)
-      // if false.
+
+      // binPack.literalArgumentLists = false
       val secret: List[Bit] = List(
         0,
         0,
@@ -555,4 +565,3 @@
     However, just in case, here they are.
 
     @hl.scala(org.scalafmt.config.Config.toHocon(default.fields).mkString("\n"))
-
