@@ -3,6 +3,8 @@ import scoverage.ScoverageSbtPlugin.ScoverageKeys.coverageHighlighting
 // The version number used in docs.
 def latestStableVersion: String = "0.5.8"
 
+addCommandAlias("downloadIdea", "intellij/updateIdea")
+
 lazy val buildSettings = Seq(
   organization := "com.geirsson",
   version := "0.5.8",
@@ -10,13 +12,16 @@ lazy val buildSettings = Seq(
   updateOptions := updateOptions.value.withCachedResolution(true)
 )
 
+lazy val noDocs = Seq(
+  sources in (Compile, doc) := Nil
+)
+
 lazy val metaMacroSettings: Seq[Def.Setting[_]] = Seq(
   libraryDependencies += "org.scalameta" %% "scalameta" % Deps.scalameta,
-  sources in (Compile, doc) := Nil,
   addCompilerPlugin(
     "org.scalameta" % "paradise" % "3.0.0-M7" cross CrossVersion.full),
   scalacOptions += "-Xplugin-require:macroparadise"
-)
+) ++ noDocs
 
 lazy val compilerOptions = Seq(
   "-deprecation",
@@ -229,7 +234,10 @@ lazy val intellij = project
   .settings(
     allSettings,
     buildInfoSettings,
+    noPublish,
+    noDocs,
     ideaBuild := "2016.1.3",
+    test := {}, // no need to download IDEA to run all tests.
     ideaEdition := IdeaEdition.Community,
     ideaDownloadDirectory in ThisBuild := baseDirectory.value / "idea",
     libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.0.6",
