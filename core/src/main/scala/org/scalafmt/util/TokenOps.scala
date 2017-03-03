@@ -144,7 +144,7 @@ object TokenOps {
     */
   def SingleLineBlock(expire: Token,
                       exclude: Set[Range] = Set.empty,
-                      disallowInlineComments: Boolean = true,
+                      disallowSingleLineComments: Boolean = true,
                       penaliseNewlinesInsideTokens: Boolean = false)(
       implicit line: sourcecode.Line): Policy = {
     Policy(
@@ -152,7 +152,7 @@ object TokenOps {
         case Decision(tok, splits)
             if !tok.right.is[EOF] && tok.right.end <= expire.end &&
               exclude.forall(!_.contains(tok.left.start)) &&
-              (disallowInlineComments || !isInlineComment(tok.left)) =>
+              (disallowSingleLineComments || !isSingleLineComment(tok.left)) =>
           if (penaliseNewlinesInsideTokens && tok.leftHasNewline) {
             Decision(tok, Seq.empty[Split])
           } else {
@@ -165,7 +165,7 @@ object TokenOps {
     )
   }
 
-  def isInlineComment(token: Token): Boolean = token match {
+  def isSingleLineComment(token: Token): Boolean = token match {
     case c: Comment => c.syntax.startsWith("//")
     case _ => false
   }
@@ -187,8 +187,8 @@ object TokenOps {
   def newlinesBetween(between: Vector[Token]): Int =
     between.count(_.is[LF])
 
-  def isAttachedComment(token: Token, between: Vector[Token]) =
-    isInlineComment(token) && newlinesBetween(between) == 0
+  def isAttachedSingleLineComment(token: Token, between: Vector[Token]) =
+    isSingleLineComment(token) && newlinesBetween(between) == 0
 
   def defnTemplate(tree: Tree): Option[Template] = tree match {
     case t: Defn.Object => Some(t.templ)

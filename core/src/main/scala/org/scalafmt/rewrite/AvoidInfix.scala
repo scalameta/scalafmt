@@ -58,11 +58,11 @@ case object AvoidInfix extends Rewrite {
           .filter(fstOpToken, fstArgsToken)(_.is[LF])
           .map(TokenPatch.Remove)
 
-        val hasInlineComment = ctx.tokenTraverser
-          .filter(fstOpToken, fstArgsToken)(TokenOps.isInlineComment)
+        val hasSingleLineComment = ctx.tokenTraverser
+          .filter(fstOpToken, fstArgsToken)(TokenOps.isSingleLineComment)
           .nonEmpty
 
-        if (hasInlineComment)
+        if (hasSingleLineComment)
           Nil
         else
           lhsParensToBeAdded ++ selectorToBeAdded ++ selectorParensToBeAdded ++ toBeRemoved

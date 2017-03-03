@@ -432,7 +432,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
   def getRightAttachedComment(token: Token): Token = {
     val formatToken = leftTok2tok(token)
-    if (isAttachedComment(formatToken.right, formatToken.between))
+    if (isAttachedSingleLineComment(formatToken.right, formatToken.between))
       formatToken.right
     else token
   }
@@ -466,7 +466,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
             .findFirstIn(op.tokens.head.syntax)
             .isDefined)) 0
       else if (!modification.isNewline &&
-               !isAttachedComment(formatToken.right, formatToken.between)) 0
+               !isAttachedSingleLineComment(formatToken.right, formatToken.between)) 0
       else 2
     }
     val expire = (for {

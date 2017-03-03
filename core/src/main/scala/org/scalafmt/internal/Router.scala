@@ -118,10 +118,10 @@ class Router(formatOps: FormatOps) {
       case FormatToken(open @ LeftBrace(), _, _)
           if parents(leftOwner).exists(_.is[Import]) =>
         val close = matchingParentheses(hash(open))
-        val disallowInlineComments = style.importSelectors != ImportSelectors.singleLine
+        val disallowSingleLineComments = style.importSelectors != ImportSelectors.singleLine
         val policy = SingleLineBlock(close,
-                                     disallowInlineComments =
-                                       disallowInlineComments)
+                                     disallowSingleLineComments =
+                                       disallowSingleLineComments)
         val newlineBeforeClosingCurly = newlineBeforeClosingCurlyPolicy(close)
 
         val newlinePolicy = style.importSelectors match {
@@ -250,7 +250,7 @@ class Router(formatOps: FormatOps) {
         val hasBlock =
           nextNonComment(formatToken).right.isInstanceOf[LeftBrace]
         Seq(
-          Split(Space, 0, ignoreIf = isInlineComment(right))
+          Split(Space, 0, ignoreIf = isSingleLineComment(right))
             .withPolicy(SingleLineBlock(endOfFunction)),
           Split(Space, 0, ignoreIf = !hasBlock),
           Split(Newline, 1 + nestedApplies(leftOwner), ignoreIf = hasBlock)
@@ -288,7 +288,8 @@ class Router(formatOps: FormatOps) {
         )
 
       case tok @ FormatToken(left, right, between) if startsStatement(tok) =>
-        val newline: Modification = NewlineT(shouldGet2xNewlines(tok, style, owners))
+        val newline: Modification = NewlineT(
+          shouldGet2xNewlines(tok, style, owners))
         val expire = rightOwner.tokens
           .find(_.is[Equals])
           .map { equalsToken =>
@@ -436,7 +437,7 @@ class Router(formatOps: FormatOps) {
         val paramGroupSplitter: PartialFunction[Decision, Decision] = {
           // Indent seperators `)(` by `indentSep`
           case Decision(t @ FormatToken(_, rp @ RightParen(), _), _)
-            if owners(rp) == leftOwner =>
+              if owners(rp) == leftOwner =>
             Decision(t,
                      Seq(
                        Split(Newline, 0)
@@ -504,7 +505,7 @@ class Router(formatOps: FormatOps) {
         if (isTuple(leftOwner)) {
           Seq(
             Split(NoSplit, 0).withPolicy(
-              SingleLineBlock(close, disallowInlineComments = false))
+              SingleLineBlock(close, disallowSingleLineComments = false))
           )
         } else {
           def penalizeBrackets(penalty: Int): Policy =
@@ -673,7 +674,7 @@ class Router(formatOps: FormatOps) {
           } else singleLine(10)
 
         val noSplitIndent =
-          if (isInlineComment(right)) indent
+          if (isSingleLineComment(right)) indent
           else Num(0)
 
         val isTuple = leftOwner match {
@@ -734,7 +735,7 @@ class Router(formatOps: FormatOps) {
         val expire = lastToken(defDefReturnType(leftOwner).get)
         Seq(
           Split(Space, 0).withPolicy(
-            SingleLineBlock(expire, disallowInlineComments = false))
+            SingleLineBlock(expire, disallowSingleLineComments = false))
         )
 
       case FormatToken(LeftParen(), LeftBrace(), between) =>
@@ -767,7 +768,7 @@ class Router(formatOps: FormatOps) {
       case tok @ FormatToken(Comma(), right, _) =>
         // TODO(olafur) DRY, see OneArgOneLine.
         val rhsIsAttachedComment =
-          tok.right.is[Comment] && newlinesBetween(tok.between) == 0
+          isSingleLineComment(tok.right) && newlinesBetween(tok.between) == 0
         val binPack = isBinPack(leftOwner)
         val isInfix = leftOwner.isInstanceOf[Term.ApplyInfix]
         argumentStarts.get(hash(right)) match {
@@ -872,7 +873,7 @@ class Router(formatOps: FormatOps) {
         }
 
         val mod: Modification =
-          if (isAttachedComment(right, between)) Space
+          if (isAttachedSingleLineComment(right, between)) Space
           else Newline
 
         val exclude =
@@ -1092,7 +1093,7 @@ class Router(formatOps: FormatOps) {
         }
         val rightIsOnNewLine = newlines > 0
         // Inline comment attached to closing RightParen
-        val attachedComment = !rightIsOnNewLine && isInlineComment(right)
+        val attachedComment = !rightIsOnNewLine && isSingleLineComment(right)
         val newlineModification: Modification =
           if (attachedComment)
             Space // Inline comment will force newline later.
@@ -1235,7 +1236,7 @@ class Router(formatOps: FormatOps) {
                 case d @ Decision(t @ FormatToken(`arrow`, right, between), s)
                     // TODO(olafur) any other corner cases?
                     if !right.isInstanceOf[LeftBrace] &&
-                      !isAttachedComment(right, between) =>
+                      !isAttachedSingleLineComment(right, between) =>
                   Decision(t, s.filter(_.modification.isNewline))
               },
               expire = expire.end
