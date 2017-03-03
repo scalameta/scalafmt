@@ -4,10 +4,19 @@
 @import org.scalafmt.config.ScalafmtConfig
 
 @ignore
-  @sect{0.5.7}
+  @sect{0.5.8}
     @ul
       @li
         Please document your contribution here.
+@sect{0.5.8}
+  Merged PRs: @lnk{https://github.com/olafurpg/scalafmt/milestone/10?closed=1}.
+  @ul
+    @li
+      Scalafmt now uses scala.meta 1.6, was 1.4 before.
+    @li
+      @code{scalafmt --diff} should now handle better removed and unstaged files.
+      You should be able to put @code{scalafmt --diff} into your @code{.git/hooks/precommit}.
+  Big thanks to @user{dwijnand} and @user{tgodzik} for contributing 5 and 2 pull requests each, respectively!
 @sect{0.5.6}
   Merged PRs: @lnk{https://github.com/olafurpg/scalafmt/milestone/11?closed=1}.
   @ul
