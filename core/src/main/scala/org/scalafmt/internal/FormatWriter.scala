@@ -264,7 +264,8 @@ class FormatWriter(formatOps: FormatOps) {
           if (matches > 0) {
             block = block :+ candidates
           }
-          if (matches == 0 || newlines > 1) {
+          def isEndOfFile = i == locations.length - 1
+          if (matches == 0 || newlines > 1 || isEndOfFile) {
             var column = 0
             val columns = minMatches
             while (column < columns) {
