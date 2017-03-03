@@ -18,7 +18,7 @@ case class Decision(formatToken: FormatToken, splits: Seq[Split]) {
   }
 
   def forceNewline(implicit line: sourcecode.Line): Decision = {
-    if (isAttachedComment(formatToken.right, formatToken.between)) this
+    if (isAttachedSingleLineComment(formatToken.right, formatToken.between)) this
     else {
       Decision(formatToken, splits.filter(_.modification.isNewline))
     }

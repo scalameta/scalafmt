@@ -173,7 +173,7 @@ class FormatWriter(formatOps: FormatOps) {
   private def isCandidate(location: FormatLocation): Boolean = {
     val token = location.formatToken.right
     val code = token match {
-      case c: Comment if isInlineComment(c) => "//"
+      case c: Comment if isSingleLineComment(c) => "//"
       case t => t.syntax
     }
     styleMap.at(location.formatToken).alignMap.get(code).exists {
@@ -197,7 +197,7 @@ class FormatWriter(formatOps: FormatOps) {
     formatToken match {
       // Corner case when line ends with comment
       // TODO(olafur) should this be part of owners?
-      case FormatToken(x, c: Comment, _) if isInlineComment(c) =>
+      case FormatToken(x, c: Comment, _) if isSingleLineComment(c) =>
         owners(x)
       case FormatToken(_, r, _) =>
         owners(r) match {
