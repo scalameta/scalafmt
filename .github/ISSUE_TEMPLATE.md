@@ -6,14 +6,32 @@ This template is a guideline, not a strict requirement.
 maxColumn = 100
 ```
 
-## Unexpected formatting output
+## Steps
 
-Obtained, scalafmt formats code like this:
+I ran scalafmt like this:
+
+```bash
+scalafmt
+```
+
+## Problem
+
+Scalafmt formats code like this:
 ```scala
 OUTPUT FROM SCALAFMT
 ```
 
-Expected, I would like the formatted output to look like this:
+## Expectation
+
+I would like the formatted output to look like this:
 ```scala
 EXPECTED FORMATTING OUTPUT
 ```
+
+## Workaround
+
+I've found that by...
+
+## Notes
+
+See also..
