@@ -213,8 +213,9 @@ object TokenOps {
       // two.
       lit.syntax.lines.map(_.replaceFirst(" *|", "").length).max
     case _ =>
-      val firstNewline = token.syntax.indexOf('\n')
-      if (firstNewline == -1) token.syntax.length
+      val tokenSyntax = token.syntax
+      val firstNewline = tokenSyntax.indexOf('\n')
+      if (firstNewline == -1) tokenSyntax.length
       else firstNewline
   }
 

@@ -75,8 +75,9 @@ object State {
       nonExpiredIndents ++ split.indents.map(_.withNum(column, indentation))
     val newIndent = newIndents.foldLeft(0)(_ + _.length.n)
 
+    val tokRightSyntax = tok.right.syntax
     // Always account for the cost of the right token.
-    val tokLength = tok.right.syntax.length
+    val tokLength = tokRightSyntax.length
 
     // Some tokens contain newline, like multiline strings/comments.
     val lengthOnFirstLine = TokenOps.tokenLength(tok.right)
@@ -86,14 +87,14 @@ object State {
         else column + split.length
       }
     val lengthOnLastLine = {
-      val lastNewline = tok.right.syntax.lastIndexOf('\n')
+      val lastNewline = tokRightSyntax.lastIndexOf('\n')
       if (lastNewline == -1) tokLength
       else tokLength - lastNewline - 1
     }
     val nextStateColumn =
       lengthOnLastLine + {
         // Tokens with newlines get no indentation.
-        if (tok.right.syntax.contains('\n')) 0
+        if (tokRightSyntax.contains('\n')) 0
         else if (split.modification.isNewline) newIndent
         else column + split.length
       }
@@ -102,7 +103,7 @@ object State {
       if (columnOnCurrentLine < style.maxColumn || {
             val commentExceedsLineLength =
               tok.right.is[Comment] &&
-                tok.right.syntax.length >= (style.maxColumn - newIndent)
+                tokRightSyntax.length >= (style.maxColumn - newIndent)
             commentExceedsLineLength && split.modification.isNewline
           }) {
         split // fits inside column
