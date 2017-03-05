@@ -1,5 +1,7 @@
 package org.scalafmt.config
 
+import scala.io.Codec
+import scala.util.control.NonFatal
 import scala.util.matching.Regex
 
 import metaconfig.ConfigReader
@@ -228,6 +230,7 @@ case class ScalafmtConfig(
     bestEffortInDeeplyNestedCode: Boolean = false,
     verticalMultilineAtDefinitionSite: Boolean = false,
     onTestFailure: String = "",
+    encoding: Codec = "UTF-8",
     project: ProjectFiles = ProjectFiles()
 ) {
 
@@ -261,6 +264,7 @@ case class ScalafmtConfig(
   implicit val projectReader: Reader[ProjectFiles] = project.reader
   implicit val importSelectorsReader: Reader[ImportSelectors] =
     ImportSelectors.backwardsCompatibleReader
+  implicit val codecReader: Reader[Codec] = ScalafmtConfig.codecReader
 
   lazy val alignMap: Map[String, Regex] =
     align.tokens.map(x => x.code -> x.owner.r).toMap

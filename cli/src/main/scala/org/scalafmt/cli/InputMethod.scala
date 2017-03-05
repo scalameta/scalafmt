@@ -1,5 +1,6 @@
 package org.scalafmt.cli
 
+import scala.io.Codec
 import scala.io.Source
 
 import java.io.File
@@ -11,7 +12,7 @@ import org.scalafmt.util.FileOps
 
 sealed abstract class InputMethod {
   def isSbt = filename.endsWith(".sbt")
-  def readInput: String
+  def readInput(implicit codec: Codec): String
   def filename: String
   def write(formatted: String, original: String, options: CliOptions): Unit
 }
@@ -26,8 +27,9 @@ object InputMethod {
       )
     }
   }
-  case class StdinCode(filename: String, readInput: String)
+  case class StdinCode(filename: String, input: String)
       extends InputMethod {
+    def readInput(implicit codec: Codec): String = input
     override def write(code: String,
                        original: String,
                        options: CliOptions): Unit = {
@@ -36,7 +38,7 @@ object InputMethod {
   }
   case class FileContents(file: AbsoluteFile) extends InputMethod {
     override def filename = file.path
-    def readInput: String = FileOps.readFile(filename)
+    def readInput(implicit codec: Codec): String = FileOps.readFile(filename)
     override def write(formatted: String,
                        original: String,
                        options: CliOptions): Unit = {
