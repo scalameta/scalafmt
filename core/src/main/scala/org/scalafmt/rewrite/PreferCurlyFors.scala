@@ -21,7 +21,7 @@ import scala.meta.{Tree, _}
   *   } yield (a, b)
   *
   */
-object PreferCurlyFors extends Rewrite {
+case object PreferCurlyFors extends Rewrite {
 
   def findForParens(forTokens: Tokens,
                     ctx: RewriteCtx): Option[(Token, Token)] = {

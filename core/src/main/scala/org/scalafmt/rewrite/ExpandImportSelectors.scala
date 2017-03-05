@@ -2,7 +2,7 @@ package org.scalafmt.rewrite
 
 import scala.meta.{Importee, Tree, _}
 
-object ExpandImportSelectors extends Rewrite {
+case object ExpandImportSelectors extends Rewrite {
 
   override def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch] = {
     val builder = Seq.newBuilder[Patch]
