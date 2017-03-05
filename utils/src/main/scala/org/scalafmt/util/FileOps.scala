@@ -1,8 +1,12 @@
 package org.scalafmt.util
 
+import scala.io.Codec
+
 import java.io.BufferedReader
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileReader
+import java.io.InputStreamReader
 import java.io.PrintWriter
 
 object FileOps {
@@ -40,7 +44,7 @@ object FileOps {
   /**
     * Reads file from file system or from http url.
     */
-  def readFile(filename: String): String = {
+  def readFile(filename: String)(implicit codec: Codec): String = {
     if (filename matches "https?://.*") {
       scala.io.Source.fromURL(filename)("UTF-8").getLines().mkString("\n")
     } else {
@@ -48,14 +52,15 @@ object FileOps {
     }
   }
 
-  def readFile(file: AbsoluteFile): String = {
+  def readFile(file: AbsoluteFile)(implicit codec: Codec): String = {
     readFile(file.jfile)
   }
 
-  def readFile(file: File): String = {
+  def readFile(file: File)(implicit codec: Codec): String = {
     // Prefer this to inefficient Source.fromFile.
     val sb = new StringBuilder
-    val br = new BufferedReader(new FileReader(file))
+    val br = new BufferedReader(
+      new InputStreamReader(new FileInputStream(file), codec.charSet))
     try {
       var line = ""
       while ({
