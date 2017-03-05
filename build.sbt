@@ -236,7 +236,7 @@ lazy val intellij = project
     buildInfoSettings,
     noPublish,
     noDocs,
-    ideaBuild := "2016.1.3",
+    ideaBuild := "2016.3.2",
     test := {}, // no need to download IDEA to run all tests.
     ideaEdition := IdeaEdition.Community,
     ideaDownloadDirectory in ThisBuild := baseDirectory.value / "idea",
