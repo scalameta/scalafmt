@@ -10,6 +10,9 @@ class OnFileSaveComponent extends ApplicationComponent {
 
   def getComponentName = IdeaUtils.PluginName
 
+  def isIncludedInSettings(doc: FileDocument): Boolean =
+    IdeaUtils.getStyle(doc.project).project.matcher.matches(doc.path)
+
   def initComponent() {
     val bus = ApplicationManager.getApplication.getMessageBus
     bus
@@ -17,9 +20,10 @@ class OnFileSaveComponent extends ApplicationComponent {
       .subscribe(
         AppTopics.FILE_DOCUMENT_SYNC,
         new FileDocumentManagerAdapter {
-          override def beforeDocumentSaving(document: Document) = {
+          override def beforeDocumentSaving(document: Document): Unit = {
             val fileDoc = FileDocument(document)
-            if (fileDoc.project.exists(IdeaSettings(_).formatOnSave))
+            if (fileDoc.project.exists(IdeaSettings(_).formatOnSave) &&
+                isIncludedInSettings(fileDoc))
               fileDoc.format()
           }
         }

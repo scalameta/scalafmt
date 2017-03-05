@@ -14,19 +14,20 @@ import com.intellij.openapi.project.Project
 
 case class FileDocument(document: Document) {
   private val virtualFile = FileDocumentManager.getInstance().getFile(document)
+  def path = virtualFile.getPath
   def isSbt: Boolean = virtualFile.getFileType.getName == "SBT"
   def isScala: Boolean = virtualFile.getFileType.getName == "Scala"
   def canFormat: Boolean = isScala || isSbt
   def project: Option[Project] = projectForFile(virtualFile.getPath)
 
   def format(): Unit = if (canFormat) {
-    val source = document.getText()
     val style = getStyle(project)
     val runner =
       if (isSbt)
         style.runner.copy(dialect = scala.meta.dialects.Sbt0137)
       else style.runner
 
+    val source = document.getText()
     Scalafmt.format(
       source,
       style = style.copy(runner = runner)
