@@ -224,6 +224,8 @@ object TreeOps {
     case d: Defn.Def => d.decltpe
     case d: Defn.Val => d.decltpe
     case d: Defn.Var => d.decltpe
+    case pat: Pat.Var.Term => pat.parent.flatMap(defDefReturnType)
+    case name: Term.Name => name.parent.flatMap(defDefReturnType)
     case _ => None
   }
 

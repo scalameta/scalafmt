@@ -49,8 +49,8 @@ val `type`: String = js.native
       }
 >>>
 {
-  implicit val enumeratorTMonadTrans: MonadTrans[
-      λ[(β[_], α) => EnumeratorT[α, β]]] =
+  implicit val enumeratorTMonadTrans
+    : MonadTrans[λ[(β[_], α) => EnumeratorT[α, β]]] =
     new MonadTrans[λ[(β[_], α) => EnumeratorT[α, β]]] {
       def liftM[G[_]: Monad, E](ga: G[E]): EnumeratorT[E, G] =
         new EnumeratorT[E, G] {
@@ -244,3 +244,27 @@ val component = // ← look, you can even use fancy names!
   <div>
     <button onclick={ () => count.update(_ + 1) }>Click Me!</button>
   </div>
+<<< #741 def and val are the same
+{
+  val ScalafixRewrite: ((RewriteCtx[ScalafixMirror]) => Seq[Patch]) => Rewrite[
+    ScalafixMirror] =
+    Rewrite.apply[ScalafixMirror]
+  def ScalafixRewrite: ((RewriteCtx[ScalafixMirror]) => Seq[Patch]) => Rewrite[
+    ScalafixMirror] =
+    Rewrite.apply[ScalafixMirror]
+  def ScalafixRewrite(): ((RewriteCtx[ScalafixMirror]) => Seq[Patch]) => Rewrite[
+    ScalafixMirror] =
+    Rewrite.apply[ScalafixMirror]
+}
+>>>
+{
+  val ScalafixRewrite
+    : ((RewriteCtx[ScalafixMirror]) => Seq[Patch]) => Rewrite[ScalafixMirror] =
+    Rewrite.apply[ScalafixMirror]
+  def ScalafixRewrite
+    : ((RewriteCtx[ScalafixMirror]) => Seq[Patch]) => Rewrite[ScalafixMirror] =
+    Rewrite.apply[ScalafixMirror]
+  def ScalafixRewrite()
+    : ((RewriteCtx[ScalafixMirror]) => Seq[Patch]) => Rewrite[ScalafixMirror] =
+    Rewrite.apply[ScalafixMirror]
+}
