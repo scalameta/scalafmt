@@ -4,7 +4,7 @@ import scala.meta.Tree
 import scala.meta._
 import scala.meta.tokens.Token.{LeftParen, RightParen}
 
-object RedundantParens extends Rewrite {
+case object RedundantParens extends Rewrite {
 
   def isWrappedInParens(tokens: Tokens): Boolean =
     tokens.nonEmpty && tokens.head.is[LeftParen] && tokens.last.is[RightParen]
