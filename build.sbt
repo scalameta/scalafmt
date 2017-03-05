@@ -1,4 +1,3 @@
-
 // The version number used in docs.
 def latestStableVersion: String = "0.5.8"
 
@@ -129,7 +128,6 @@ lazy val root = project
     utils,
     testUtils,
     core,
-    metaconfig,
     readme,
     scalafmtSbt,
     intellij
@@ -143,12 +141,12 @@ lazy val core = project
     buildInfoSettings,
     moduleName := "scalafmt-core",
     libraryDependencies ++= Seq(
-      "com.lihaoyi"    %% "sourcecode"   % "0.1.2",
-      "org.scalameta"  %% "scalameta"    % Deps.scalameta,
-      "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-      "com.typesafe"   % "config"        % "1.2.1",
+      "com.geirsson"   %% "metaconfig-core" % "0.1.2",
+      "com.lihaoyi"    %% "sourcecode"      % "0.1.2",
+      "org.scalameta"  %% "scalameta"       % Deps.scalameta,
+      "org.scala-lang" % "scala-reflect"    % scalaVersion.value,
+      "com.typesafe"   % "config"           % "1.2.1",
       // Test dependencies
-      "org.scalariform"                %% "scalariform"    % Deps.scalariform   % Test,
       "org.scala-lang"                 % "scala-compiler"  % scalaVersion.value % Test,
       "ch.qos.logback"                 % "logback-classic" % "1.1.6"            % Test,
       "com.googlecode.java-diff-utils" % "diffutils"       % "1.3.0"            % Test,
@@ -159,7 +157,7 @@ lazy val core = project
     addCompilerPlugin(
       "org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
   )
-  .dependsOn(metaconfig, utils, testUtils % "test->compile")
+  .dependsOn(utils, testUtils % "test->compile")
   .enablePlugins(BuildInfoPlugin)
 
 lazy val cliJvmOptions = Seq(
@@ -184,11 +182,16 @@ lazy val cli = project
   )
   .dependsOn(core % "compile->compile;test->test")
 
+lazy val is210 = Seq(
+  scalaVersion := "2.10.6",
+  crossScalaVersions := Seq("2.10.6")
+)
+
 lazy val bootstrap = project
   .settings(
     allSettings,
     buildInfoSettings,
-    scalaVersion := "2.10.6",
+    is210,
     moduleName := "scalafmt-bootstrap",
     libraryDependencies ++= Seq(
       "com.martiansoftware" % "nailgun-server"  % "0.9.1",
@@ -207,14 +210,12 @@ lazy val scalafmtSbt = project
       .dependsOn(
         publishLocal in cli,
         publishLocal in core,
-        publishLocal in metaconfig,
         publishLocal in bootstrap,
         publishLocal in utils
       )
       .evaluated,
     sbtPlugin := true,
-    scalaVersion := "2.10.5",
-    crossScalaVersions := Seq("2.10.5"),
+    is210,
     // In convention of sbt plugins, the module is sbt-scalafmt instead of scalafmt-sbt.
     moduleName := "sbt-scalafmt",
     scriptedLaunchOpts := Seq(
@@ -248,6 +249,7 @@ lazy val benchmarks = project
   .settings(
     allSettings,
     noPublish,
+    crossScalaVersions := Seq("2.11.8"),
     moduleName := "scalafmt-benchmarks",
     libraryDependencies ++= Seq(
       "org.scalariform" %% "scalariform" % Deps.scalariform,
@@ -285,7 +287,7 @@ lazy val readme = scalatex
     allSettings,
     noPublish,
     libraryDependencies ++= Seq(
-      "com.twitter" %% "util-eval" % "6.34.0"
+      "com.twitter" %% "util-eval" % "6.41.0"
     )
   )
   .dependsOn(
@@ -301,16 +303,6 @@ lazy val utils = project.settings(
   moduleName := "scalafmt-utils",
   libraryDependencies ++= Seq(
     "com.typesafe" % "config" % "1.2.1"
-  )
-)
-
-lazy val metaconfig = project.settings(
-  allSettings,
-  metaMacroSettings,
-  publishSettings,
-  moduleName := "metaconfig",
-  libraryDependencies ++= Seq(
-    "org.scalatest" %% "scalatest" % Deps.scalatest % Test
   )
 )
 

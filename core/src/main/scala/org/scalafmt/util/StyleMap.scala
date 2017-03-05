@@ -66,8 +66,9 @@ class StyleMap(tokens: Array[FormatToken],
 
   private def isLiteral(tree: Tree): Boolean = tree match {
     case lit @ Lit(value: Any) =>
+      val syntax = lit.tokens.mkString
       val strName =
-        if (lit.syntax.startsWith("0x")) "Byte"
+        if (syntax.startsWith("0x")) "Byte"
         else value.getClass.getName
       literalR.matches(strName)
     case _ => false

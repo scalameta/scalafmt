@@ -47,7 +47,7 @@ case object SortImports extends Rewrite {
             Nil
           } else {
             val sortedImporteesByIndex: Map[Int, String] =
-              sorted(`import`.importees.map(_.syntax)).zipWithIndex
+              sorted(`import`.importees.map(_.tokens.mkString)).zipWithIndex
                 .map(_.swap)
                 .toMap
             `import`.importees.zipWithIndex.collect {
