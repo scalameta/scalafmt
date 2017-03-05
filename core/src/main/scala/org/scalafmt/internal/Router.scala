@@ -722,14 +722,15 @@ class Router(formatOps: FormatOps) {
         )
 
       // Closing def site ): ReturnType
-      case FormatToken(_, colon @ Colon(), _)
+      case FormatToken(left, colon @ Colon(), _)
           if style.sometimesBeforeColonInMethodReturnType &&
             defDefReturnType(leftOwner).isDefined =>
         val expire = lastToken(defDefReturnType(rightOwner).get)
         val penalizeNewlines =
           penalizeAllNewlines(expire, Constants.BracketPenalty)
+        val sameLineSplit = if (endsWithSymbolIdent(left)) Space else NoSplit
         Seq(
-          Split(NoSplit, 0).withPolicy(penalizeNewlines),
+          Split(sameLineSplit, 0).withPolicy(penalizeNewlines),
           // Spark style guide allows this:
           // https://github.com/databricks/scala-style-guide#indent
           Split(Newline, Constants.SparkColonNewline)
