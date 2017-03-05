@@ -462,4 +462,29 @@ object TreeOps {
   // procedure syntax has decltpe: Some("")
   def isProcedureSyntax(defn: Defn.Def): Boolean =
     defn.decltpe.exists(_.tokens.isEmpty)
+
+  def isCaseClass(tree: Tree, matchOnParent: Boolean = false): Boolean = tree match {
+    case defn: Defn.Class => defn.mods.exists(_.is[Mod.Case])
+    case _ if matchOnParent => tree.parent.exists(isCaseClass(_))
+    case _ => false
+  }
+
+  def isFinalClass(tree: Tree, matchOnParent: Boolean = false): Boolean = tree match {
+    case defn: Defn.Class => defn.mods.exists(_.is[Mod.Final])
+    case _ if matchOnParent => tree.parent.exists(isFinalClass(_))
+    case _ => false
+  }
+
+  def isCaseObject(tree: Tree, matchOnParent: Boolean = false): Boolean = tree match {
+    case defn: Defn.Object => defn.mods.exists(_.is[Mod.Case])
+    case _ if matchOnParent => tree.parent.exists(isCaseObject(_))
+    case _ => false
+  }
+
+  def isSealedTrait(tree: Tree, matchOnParent: Boolean = false): Boolean = tree match {
+    case defn: Defn.Trait => defn.mods.exists(_.is[Mod.Sealed])
+    case _ if matchOnParent => tree.parent.exists(isSealedTrait(_))
+    case _ => false
+  }
+
 }

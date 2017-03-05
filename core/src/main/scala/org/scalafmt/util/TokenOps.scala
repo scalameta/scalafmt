@@ -2,10 +2,7 @@ package org.scalafmt.util
 
 import org.scalafmt.config.FormatEvent.CreateFormatOps
 
-import scala.meta.Defn
-import scala.meta.Pkg
-import scala.meta.Template
-import scala.meta.Tree
+import scala.meta.{Defn, Mod, Pkg, Template, Term, Tree}
 import scala.meta.dialects.Scala211
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
@@ -59,8 +56,23 @@ object TokenOps {
       val newlines = newlinesBetween(tok.between)
       newlines > 1 || (isDocstring(tok.right) && !tok.left.is[Comment])
     } || {
+      val leftOwner = owners(tok.left)
+      val rightOwner = owners(tok.right)
+
       style.newlines.alwaysBeforeTopLevelStatements &&
-        tok.between.count(_.is[KwNew]) < 2 && isTopLevelStatment(tok.right, owners(tok.right))
+        isTopLevelStatment(tok.right, rightOwner) &&
+        !{
+          // keep groups of case class/objects with no body in a block
+          def hasBody(tree: Tree) = tree.parent.map(_.children).getOrElse(Seq.empty).exists {
+            case Template(_, _, _, Some(_)) => true
+            case _ => false
+          }
+
+          (TreeOps.isCaseClass(leftOwner, matchOnParent = true) || TreeOps.isCaseObject(leftOwner, matchOnParent = true)) &&
+            (TreeOps.isCaseClass(rightOwner, matchOnParent = true) || TreeOps.isCaseObject(rightOwner, matchOnParent = true)) &&
+            !hasBody(leftOwner) &&
+            !hasBody(rightOwner)
+        }
     }
   }
 
