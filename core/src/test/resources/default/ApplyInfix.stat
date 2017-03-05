@@ -322,7 +322,7 @@ x
         :: contactPointIdStr :: contactPointValue :: remoteContactId :: to :: subject :: remoteId
           :: remoteGroupId :: timeZoneStr :: rest =>
 }
-<<< ONLY unfortunate side-effect of #740
+<<< unfortunate side-effect of #740
 { lazy val propertyName =
      ("""[a-zA-Z_][a-zA-Z_0-9]*""".r | """`([^`\\]|\\.)+`""".r ^^ canonicalizePropertyName | """"([^"\\]|\\.)+"""".r ^^ canonicalizeStr //"
      )

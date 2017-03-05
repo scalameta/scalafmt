@@ -25,6 +25,12 @@ object UnitTests extends HasTests {
         parseDiffTests(content, filename)
       }
     } yield {
+      if (sys.env.contains("CI") && test.only) {
+        sys.error(
+          s"""Please remove ONLY from test '${test.name}' in file '$filename'.
+             |Tests with ONLY will not be merged, this feature is only meant to be used for local development.
+           """.stripMargin)
+      }
       test
     }
   }
