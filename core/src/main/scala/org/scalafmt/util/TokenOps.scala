@@ -248,6 +248,11 @@ object TokenOps {
     case _ => false
   }
 
+  // According to spec:
+  // "Operators ending in a colon `:' are right-associative. All other operators are left-associative."
+  // See https://www.scala-lang.org/files/archive/spec/2.11/06-expressions.html
+  def isRightAssociativeOperator(op: String): Boolean = op.endsWith(":")
+
   val formatOnCode = Set(
     "// @formatter:on", // IntelliJ
     "// format: on" // scalariform

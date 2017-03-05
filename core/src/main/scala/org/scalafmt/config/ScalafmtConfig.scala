@@ -216,6 +216,7 @@ case class ScalafmtConfig(
     indentOperator: IndentOperator = IndentOperator(),
     newlines: Newlines = Newlines(),
     runner: ScalafmtRunner = ScalafmtRunner.default,
+    indent: IndentConfig = IndentConfig(),
     // Settings which belong to no group
     indentYieldKeyword: Boolean = true,
     @metaconfig.ExtraName("binPackImportSelectors") importSelectors: ImportSelectors =
@@ -246,6 +247,8 @@ case class ScalafmtConfig(
 
   implicit val runnerReader: Reader[ScalafmtRunner] =
     runner.reader
+  implicit val indentConfigReader: Reader[IndentConfig] =
+    indent.reader
   implicit val contIndentReader: Reader[ContinuationIndent] =
     continuationIndent.reader
   implicit val indentReader: Reader[IndentOperator] =
