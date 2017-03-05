@@ -227,6 +227,7 @@ case class ScalafmtConfig(
     poorMansTrailingCommasInConfigStyle: Boolean = false,
     bestEffortInDeeplyNestedCode: Boolean = false,
     verticalMultilineAtDefinitionSite: Boolean = false,
+    onTestFailure: String = "",
     project: ProjectFiles = ProjectFiles()
 ) {
 
