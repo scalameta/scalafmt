@@ -3,7 +3,7 @@
 ## How to build project
 1. Clone this project;
 1. Go to root of project and start sbt;
-1. Run task `intellij/updateIdea` from the sbt console;
+1. Run task `downloadIdea` from the sbt console;
 1. Run task `intellij/compile` from the sbt console;
 1. Import this project as an sbt project in IntelliJ;
 1. Select `Build`/`Build Project`;
