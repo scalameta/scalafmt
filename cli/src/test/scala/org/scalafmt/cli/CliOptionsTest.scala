@@ -123,7 +123,8 @@ class CliOptionsTest extends FunSuite {
         assert(obtained.importSelectors == ImportSelectors.binPack)
         assert(obtained.spaces.inImportCurlyBraces == true)
         assert(obtained.poorMansTrailingCommasInConfigStyle == true)
-        assert(obtained.newlines.sometimesBeforeColonInMethodReturnType == true)
+        assert(
+          obtained.newlines.sometimesBeforeColonInMethodReturnType == true)
         assert(obtained.binPack.parentConstructors == true)
         assert(obtained.spaces.afterTripleEquals == true)
         assert(obtained.unindentTopLevelOperators == true)

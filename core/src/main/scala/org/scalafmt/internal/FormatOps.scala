@@ -604,7 +604,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   }
 
   def ctorWithChain(owners: Set[Tree], lastToken: Token): Policy = {
-    if (styleMap.at(leftTok2tok(lastToken)).binPack.parentConstructors) NoPolicy
+    if (styleMap.at(leftTok2tok(lastToken)).binPack.parentConstructors)
+      NoPolicy
     else {
       Policy(
         {

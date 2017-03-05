@@ -147,8 +147,7 @@ object Cli {
           throw e
         } else if (options.config.runner.ignoreWarnings) {
           // do nothing
-        }
-        else {
+        } else {
           options.common.err.println(
             s"${LogLevel.warn} Error in ${inputMethod.filename}: $e"
           )

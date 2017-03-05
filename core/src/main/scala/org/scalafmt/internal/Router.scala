@@ -1370,10 +1370,10 @@ class Router(formatOps: FormatOps) {
           Split(Space, 0)
         )
       case FormatToken(Underscore(), Ident("*"), _)
-        if style.spaces.beforeSeqWildcard =>
-          Seq(
-            Split(NoSplit, 0)
-          )
+          if style.spaces.beforeSeqWildcard =>
+        Seq(
+          Split(NoSplit, 0)
+        )
       case FormatToken(Delim(), _, _) =>
         Seq(
           Split(Space, 0)
