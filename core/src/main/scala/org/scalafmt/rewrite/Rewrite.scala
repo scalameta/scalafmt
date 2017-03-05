@@ -44,6 +44,21 @@ object Rewrite {
 
   val default: Seq[Rewrite] = name2rewrite.values.toSeq
 
+  private def incompatibleRewrites: List[(Rewrite, Rewrite)] = List(
+    SortImports -> ExpandImportSelectors
+  )
+
+  def validateRewrites(rewrites: Seq[Rewrite]): Seq[String] = {
+    incompatibleRewrites.flatMap {
+      case (a, b) =>
+        if (rewrites.contains(a) && rewrites.contains(b))
+          List(
+            s"Incompatible rewrites: $a and $b"
+          )
+        else Nil
+    }
+  }
+
   def apply(input: Input, style: ScalafmtConfig): String = {
     val rewrites = style.rewrite.rules
     def noop = new String(input.chars)

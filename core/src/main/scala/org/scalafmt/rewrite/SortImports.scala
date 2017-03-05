@@ -15,7 +15,7 @@ import scala.meta._
   *
   * import a.{b, c}
   */
-object SortImports extends Rewrite {
+case object SortImports extends Rewrite {
   // sort contributed by @djspiewak: https://gist.github.com/djspiewak/127776c2b6a9d6cd3c21a228afd4580f
   private val LCase = """([a-z].*)""".r
   private val UCase = """([A-Z].*)""".r

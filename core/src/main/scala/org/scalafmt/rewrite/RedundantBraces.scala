@@ -11,7 +11,7 @@ import org.scalafmt.util.TreeOps._
 /**
   * Removes/adds curly braces where desired.
   */
-object RedundantBraces extends Rewrite {
+case object RedundantBraces extends Rewrite {
 
   def isCandidate(d: Defn.Def, ctx: RewriteCtx): Boolean = {
     import ctx.style.rewrite.{redundantBraces => settings}
