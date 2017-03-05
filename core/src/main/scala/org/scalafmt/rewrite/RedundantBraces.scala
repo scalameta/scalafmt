@@ -16,9 +16,9 @@ object RedundantBraces extends Rewrite {
   def isCandidate(d: Defn.Def, ctx: RewriteCtx): Boolean = {
     import ctx.style.rewrite.{redundantBraces => settings}
     def isBlock = d.body match {
-      case t: Term.Block if t.stats.length == 1 =>
-        (t.stats.head match {
-          case _: Term.Block | _: Term.Function => false
+      case Term.Block(Seq(stat))  =>
+        (stat match {
+          case _: Term.Block | _: Term.Function | _: Defn => false
           case _ => true
         }) &&
           d.body.tokens.head.is[LeftBrace] &&
