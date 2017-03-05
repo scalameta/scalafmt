@@ -122,8 +122,6 @@ import org.scalafmt.util.ValidationOps
   * @param alignMixedOwners If true, aligns `=` for val/var/def and
   *                         `extends` for def/trait/object.
   * @param alignTokens Documented in scalafmt --help page.
-  * @param spacesInImportCurlyBraces If true, formats `import a.b.{ c, d }`.
-  *                                  If false, formats `import a.b.{c, d}`.
   * @param spaceNeverAroundInfixTypes If ["##"] is specified as operator then
   *                                   formats `Generic[Foo] ## Repr` as `Generic[Foo]##Repr`.
   * @param importSelectors Controls formatting of import selectors with multiple names from the
