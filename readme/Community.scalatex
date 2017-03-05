@@ -21,6 +21,10 @@
       @li
         @lnk("mvn_scalafmt", "https://github.com/pianista215/mvn_scalafmt"):
         Wrapper to launch scalafmt through Maven.
+      @li
+        @lnk("Spotless", "https://github.com/diffplug/spotless/tree/master/plugin-gradle#applying-scalafmt-to-scala-files")
+      @li
+        @lnk("gradle-scalafmt", "https://github.com/alenkacz/gradle-scalafmt")
   @sect{Adopters}
     Are you using scalafmt? Please consider
     @lnk(
