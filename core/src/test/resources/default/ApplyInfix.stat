@@ -320,7 +320,7 @@ x
 1 match {
   case accountIdStr :: userIdStr :: connectorIdStr :: timestampStr :: eventClassStr :: contactIdStr
         :: contactPointIdStr :: contactPointValue :: remoteContactId :: to :: subject :: remoteId
-          :: remoteGroupId :: timeZoneStr :: rest =>
+        :: remoteGroupId :: timeZoneStr :: rest =>
 }
 <<< unfortunate side-effect of #740
 { lazy val propertyName =
@@ -332,4 +332,26 @@ x
   lazy val propertyName =
     ("""[a-zA-Z_][a-zA-Z_0-9]*""".r | """`([^`\\]|\\.)+`""".r ^^ canonicalizePropertyName | """"([^"\\]|\\.)+"""".r ^^ canonicalizeStr //"
   )
+}
+<<< #728
+lazy val ReleaseCmd = Command.command("release") { state =>
+  "set elideOptions in client := Seq(\"-Xelide-below\", \"WARNING\")" ::
+    "client/clean" ::
+      "client/test" ::
+        "server/clean" ::
+          "server/test" ::
+            "server/dist" ::
+              "set elideOptions in client := Seq()" ::
+                state
+}
+>>>
+lazy val ReleaseCmd = Command.command("release") { state =>
+  "set elideOptions in client := Seq(\"-Xelide-below\", \"WARNING\")" ::
+    "client/clean" ::
+    "client/test" ::
+    "server/clean" ::
+    "server/test" ::
+    "server/dist" ::
+    "set elideOptions in client := Seq()" ::
+    state
 }

@@ -470,12 +470,22 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
             .findFirstIn(op.tokens.head.syntax)
             .isDefined)) 0
       else if (!modification.isNewline &&
-               !isAttachedSingleLineComment(formatToken.right, formatToken.between)) 0
+               !isAttachedSingleLineComment(formatToken.right,
+                                            formatToken.between)) 0
       else 2
     }
+    val isRightAssociative =
+      style.indent.rightAssociativeInfixOperatorsLikeLeftAssociative &&
+        isRightAssociativeOperator(op.value)
     val expire = (for {
-      arg <- rhsArgs.lastOption
-      token <- arg.tokens.lastOption
+      arg <- {
+        if (isRightAssociative) rhsArgs.headOption
+        else rhsArgs.lastOption
+      }
+      token <- {
+        if (isRightAssociative) arg.tokens.headOption
+        else arg.tokens.lastOption
+      }
     } yield token).getOrElse(owner.tokens.last)
 
     owner.parent match {

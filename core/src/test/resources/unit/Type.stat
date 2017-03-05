@@ -78,9 +78,9 @@ AlertEvent :+:
 type Row =
   AlertEvent :+:
     InteractionEvent :+:
-      HistoryEvent :+:
-        PostEvent :+:
-          ImageEvent
+    HistoryEvent :+:
+    PostEvent :+:
+    ImageEvent
 <<< #756
 type a = b_! # D
 >>>
