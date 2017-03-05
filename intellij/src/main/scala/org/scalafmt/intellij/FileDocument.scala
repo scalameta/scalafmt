@@ -24,8 +24,8 @@ case class FileDocument(document: Document) {
     val style = getStyle(project)
     val runner =
       if (isSbt)
-        ScalafmtRunner.default.copy(dialect = scala.meta.dialects.Sbt0137)
-      else ScalafmtRunner.default
+        style.runner.copy(dialect = scala.meta.dialects.Sbt0137)
+      else style.runner
 
     Scalafmt.format(
       source,
