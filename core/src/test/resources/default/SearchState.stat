@@ -480,3 +480,19 @@ val TodoApp = ReactComponentB[Unit]("TodoApp")
                       ^.value := s.text),
                   <.button("Add #", s.items.length + 1))))
   .build
+<<< #745
+object SharedPolicyAmounts {
+  val limits: Seq[Int] = Seq(
+      2500, 3000, 4000, 5000, 7500, 10000, 15000,
+      20000, 30000, 40000, 50000, 75000, 100000,
+      150000, 200000, 300000, 400000, 500000, 750000,
+      1000000
+  )
+}
+>>>
+object SharedPolicyAmounts {
+  val limits: Seq[Int] = Seq(
+      2500, 3000, 4000, 5000, 7500, 10000, 15000, 20000, 30000, 40000, 50000,
+      75000, 100000, 150000, 200000, 300000, 400000, 500000, 750000, 1000000
+  )
+}
