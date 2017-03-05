@@ -684,7 +684,8 @@ class Router(formatOps: FormatOps) {
           else Num(0)
 
         val isTuple = leftOwner match {
-          case _: Type.Tuple | _: Term.Tuple => true
+          case _: Type.Tuple => style.align.openParenDefnSite
+          case _: Term.Tuple => style.align.openParenCallSite
           case _ => false
         }
         val skipOpenParenAlign = {
