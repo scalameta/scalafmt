@@ -1329,9 +1329,13 @@ class Router(formatOps: FormatOps) {
           Split(NoSplit, 0)
         )
       // Fallback
-      case FormatToken(_, Dot() | Hash(), _) =>
+      case FormatToken(_, Dot(), _) =>
         Seq(
           Split(NoSplit, 0)
+        )
+      case FormatToken(left, Hash(), _) =>
+        Seq(
+          Split(if (endsWithSymbolIdent(left)) Space else NoSplit, 0)
         )
       case FormatToken(Dot() | Hash(), Ident(_) | KwThis() | KwSuper(), _) =>
         Seq(
