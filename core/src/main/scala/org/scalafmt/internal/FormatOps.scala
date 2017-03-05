@@ -447,6 +447,10 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     lastToken(owners(getSelectsLastToken(lastDot)))
   }
 
+  def infixSplit(owner: Term.ApplyInfix, formatToken: FormatToken)(
+      implicit line: sourcecode.Line): Split =
+    infixSplit(owner, owner.op, owner.args, formatToken)
+
   def infixSplit(
       owner: Tree,
       op: Name,
