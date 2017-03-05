@@ -140,7 +140,7 @@ val sortModifiers = modifiers.collect {
       if !modifiersConstruction.accessModifiers.contains(m.modificator) =>
     m
 } ++
-    modifiers.collect {
+  modifiers.collect {
     case m: Modifier
         if modifiersConstruction.accessModifiers.contains(m.modificator) =>
       m

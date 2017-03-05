@@ -57,9 +57,9 @@ else column + split.length
 )
 >>>
 val newColumn = tok.length + (
-      if (split == Newline) newIndent
-      else column + split.length
-  )
+    if (split == Newline) newIndent
+    else column + split.length
+)
 <<< no newline
 val policy =
  if (right) SingleLineBlock(close)
