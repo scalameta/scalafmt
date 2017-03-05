@@ -145,7 +145,10 @@ object Cli {
       case Formatted.Failure(e) =>
         if (options.config.runner.fatalWarnings) {
           throw e
-        } else {
+        } else if (options.config.runner.ignoreWarnings) {
+          // do nothing
+        }
+        else {
           options.common.err.println(
             s"${LogLevel.warn} Error in ${inputMethod.filename}: $e"
           )
