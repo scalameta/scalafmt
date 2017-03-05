@@ -9,6 +9,7 @@ lazy val buildSettings = Seq(
   organization := "com.geirsson",
   version := "0.5.8",
   scalaVersion := "2.11.8",
+  crossScalaVersions := Seq("2.11.8", "2.12.1"),
   updateOptions := updateOptions.value.withCachedResolution(true)
 )
 
@@ -169,8 +170,8 @@ lazy val cliJvmOptions = Seq(
 )
 
 lazy val cli = project
-  .settings(allSettings)
   .settings(
+    allSettings,
     metaMacroSettings,
     packSettings,
     packMain := Map("scalafmt_pack" -> "org.scalafmt.cli.Cli"),
@@ -247,10 +248,10 @@ lazy val intellij = project
   .enablePlugins(SbtIdeaPlugin)
 
 lazy val benchmarks = project
-  .settings(moduleName := "scalafmt-benchmarks")
-  .settings(allSettings)
-  .settings(noPublish)
   .settings(
+    allSettings,
+    noPublish,
+    moduleName := "scalafmt-benchmarks",
     libraryDependencies ++= Seq(
       "org.scalariform" %% "scalariform" % Deps.scalariform,
       "org.scalatest"   %% "scalatest"   % Deps.scalatest % Test
@@ -283,14 +284,16 @@ lazy val readme = scalatex
                   wd = file(""),
                   url = "https://github.com/olafurpg/scalafmt/tree/master",
                   source = "Readme")
-  .settings(allSettings)
-  .settings(noPublish)
-  .dependsOn(core)
-  .dependsOn(cli)
   .settings(
+    allSettings,
+    noPublish,
     libraryDependencies ++= Seq(
       "com.twitter" %% "util-eval" % "6.34.0"
     )
+  )
+  .dependsOn(
+    core,
+    cli
   )
 
 lazy val sonatypePassword = sys.env.getOrElse("SONATYPE_PW", "")
@@ -315,13 +318,13 @@ lazy val metaconfig = project.settings(
 )
 
 lazy val testUtils = project
-  .settings(moduleName := "scalafmt-test-utils")
-  .settings(allSettings)
-  .settings(noPublish)
-  .dependsOn(utils)
   .settings(
+    allSettings,
+    noPublish,
+    moduleName := "scalafmt-test-utils",
     libraryDependencies ++= Seq(
       "org.apache.commons" % "commons-io"  % "1.3.2",
       "org.rauschig"       % "jarchivelib" % "0.7.1"
     )
   )
+  .dependsOn(utils)
