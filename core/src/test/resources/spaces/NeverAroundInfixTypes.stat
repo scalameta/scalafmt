@@ -3,7 +3,8 @@ maxColumn = 40
 <<< never around infix types
 val hlistForFoo: Generic[Foo] ## Repr = 1 :: "xxx" :: HNil
 >>>
-val hlistForFoo: Generic[Foo]##Repr = 1 :: "xxx" :: HNil
+val hlistForFoo
+  : Generic[Foo]##Repr = 1 :: "xxx" :: HNil
 <<< never around infix types (not an infix term)
 val x: F[X] ## B = f##b
 >>>
