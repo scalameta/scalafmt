@@ -3,6 +3,12 @@ package org.scalafmt.config
 import metaconfig.ConfigReader
 
 /**
+  *
+  * @param callSite if true If true, will fit as many arguments on each line,
+  *                         only breaking at commas. If false, a function
+  *                         call's arguments will either be all on the same
+  *                         line or will have one line each.
+  * @param defnSite Same as [[callSite]], except for definition site.
   * @param lambdaParameter
   *   If true, vertically aligns by the opening parens of lambda. See
   *   file OpenParenLambda{True,False}.stat.
@@ -15,6 +21,11 @@ import metaconfig.ConfigReader
   * @param literalsInclude Regexes for literal type names. For example, "Int"
   *                        or "Byte".
   * @param literalsExclude Regexes for literal to exclude from [[literalArgumentLists]].
+  * @param parentConstructors Parent constructors are C and D in
+  *                           "class A extends B with C and D". If true,
+  *                           scalafmt will fit as many parent constructors
+  *                           on a single line. If false, each parent
+  *                           constructor gets its own line.
   *
   */
 @ConfigReader

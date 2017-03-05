@@ -267,7 +267,7 @@
       } yield x
 
   @sect{binPackParentConstructors}
-    Default: @default.binPackParentConstructors
+    Default: @default.binPack.parentConstructors
 
     @hl.scala
       // column limit                        |
