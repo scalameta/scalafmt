@@ -481,18 +481,24 @@ class Router(formatOps: FormatOps) {
         val open = formatToken.left
         val indent = getApplyIndent(leftOwner, isConfigStyle = true)
         val close = matchingParentheses(hash(open))
-        val oneArgOneLine = OneArgOneLineSplit(
-          open,
-          noTrailingCommas = style.poorMansTrailingCommasInConfigStyle)
-        val configStyle = oneArgOneLine.copy(f = oneArgOneLine.f.orElse {
+        val newlineBeforeClose: PartialFunction[Decision, Decision] = {
           case Decision(t @ FormatToken(_, `close`, _), splits) =>
             Decision(t, Seq(Split(Newline, 0)))
-        })
+        }
         val extraIndent: Length =
           if (style.poorMansTrailingCommasInConfigStyle) Num(2)
           else Num(0)
+        val isForcedBinPack = styleMap.forcedBinPack.contains(leftOwner)
+        val policy =
+          if (isForcedBinPack) Policy(newlineBeforeClose, close.end)
+          else {
+            val oneArgOneLine = OneArgOneLineSplit(
+              open,
+              noTrailingCommas = style.poorMansTrailingCommasInConfigStyle)
+            oneArgOneLine.copy(f = oneArgOneLine.f.orElse(newlineBeforeClose))
+          }
         Seq(
-          Split(Newline, 0, policy = configStyle)
+          Split(Newline, 0, policy = policy)
             .withIndent(indent, close, Right)
             .withIndent(extraIndent, right, Right)
         )
