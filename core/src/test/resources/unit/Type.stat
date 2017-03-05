@@ -81,3 +81,7 @@ type Row =
       HistoryEvent :+:
         PostEvent :+:
           ImageEvent
+<<< #756
+type a = b_! # D
+>>>
+type a = b_! #D

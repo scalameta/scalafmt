@@ -234,6 +234,11 @@ object TokenOps {
     "// format: off" // scalariform
   )
 
+  def endsWithSymbolIdent(tok: Token): Boolean = tok match {
+    case Ident(name) => !name.last.isLetter
+    case _ => false
+  }
+
   def isSymbolicIdent(tok: Token): Boolean = tok match {
     case Ident(name) =>
       val head = name.head
