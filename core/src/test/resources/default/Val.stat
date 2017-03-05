@@ -234,3 +234,13 @@ val vfile =
   } getOrElse {
     readFromFile(fileName)
   }
+<<< #590
+val component = // ← look, you can even use fancy names!
+<div>
+    <button onclick={ () => count.update(_ + 1) }>Click Me!</button>
+  </div>
+>>>
+val component = // ← look, you can even use fancy names!
+  <div>
+    <button onclick={ () => count.update(_ + 1) }>Click Me!</button>
+  </div>

@@ -905,12 +905,14 @@ class Router(formatOps: FormatOps) {
             }
             val jsNative = isJsNative(right)
             val isDefn = leftOwner.isInstanceOf[Defn]
+            val spaceIndent = if (isSingleLineComment(right)) 2 else 0
             Seq(
               Split(Space,
                     0,
                     policy = spacePolicy,
                     ignoreIf = isDefn && !jsNative && newlines > 0)
-                .withOptimalToken(expire, killOnFail = false),
+                .withOptimalToken(expire, killOnFail = false)
+                .withIndent(spaceIndent, expire, Left),
               Split(mod, 1 + penalty, ignoreIf = jsNative)
                 .withIndent(2, expire, Left)
             )
