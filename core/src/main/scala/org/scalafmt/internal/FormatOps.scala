@@ -201,7 +201,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     * Context: https://github.com/olafurpg/scalafmt/issues/108
     */
   def isJsNative(jsToken: Token): Boolean = {
-    initStyle.neverBeforeJsNative && jsToken.syntax == "js" &&
+    initStyle.newlines.neverBeforeJsNative && jsToken.syntax == "js" &&
     owners(jsToken).parent.exists(
       _.show[Structure].trim == """Term.Select(Term.Name("js"), Term.Name("native"))""")
   }
@@ -604,7 +604,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   }
 
   def ctorWithChain(owners: Set[Tree], lastToken: Token): Policy = {
-    if (styleMap.at(leftTok2tok(lastToken)).binPackParentConstructors) NoPolicy
+    if (styleMap.at(leftTok2tok(lastToken)).binPack.parentConstructors) NoPolicy
     else {
       Policy(
         {
