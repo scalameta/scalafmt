@@ -23,6 +23,19 @@ import metaconfig.ConfigReader
   *
   *   If false, matches pre-v0.5 behavior. Note. this option may be
   *   removed in a future release.
+  * @param neverBeforeJsNative If true, a newline will never be placed in
+  *                                 front of js.native.
+  * @param sometimesBeforeColonInMethodReturnType If true, scalafmt
+  *                                               may choose to put a newline
+  *                                               before colon : at defs.
+  * @param alwaysBeforeCurlyBraceLambdaParams
+  *   If true, puts a newline after the open brace
+  *   and the parameters list of an anonymous function.
+  *   For example
+  *   something.map {
+  *     n =>
+  *       consume(n)
+  *   }
   */
 @ConfigReader
 case class Newlines(

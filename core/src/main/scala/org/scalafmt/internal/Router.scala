@@ -203,7 +203,7 @@ class Router(formatOps: FormatOps) {
           Split(
             Space,
             0,
-            ignoreIf = style.alwaysBeforeCurlyBraceLambdaParams || !startsLambda)
+            ignoreIf = style.newlines.alwaysBeforeCurlyBraceLambdaParams || !startsLambda)
             .withOptimalToken(lambdaArrow)
             .withIndent(lambdaIndent, close, Right)
             .withPolicy(lambdaPolicy),
@@ -473,7 +473,7 @@ class Router(formatOps: FormatOps) {
 
       // Term.Apply and friends
       case FormatToken(LeftParen() | LeftBracket(), right, between)
-          if style.configStyleArguments &&
+          if style.optIn.configStyleArguments &&
             (isDefnSite(leftOwner) || isCallSite(leftOwner)) &&
             (opensConfigStyle(formatToken) || {
               forceConfigStyle(leftOwner) && !styleMap.forcedBinPack(leftOwner)
@@ -723,7 +723,7 @@ class Router(formatOps: FormatOps) {
 
       // Closing def site ): ReturnType
       case FormatToken(left, colon @ Colon(), _)
-          if style.sometimesBeforeColonInMethodReturnType &&
+          if style.newlines.sometimesBeforeColonInMethodReturnType &&
             defDefReturnType(leftOwner).isDefined =>
         val expire = lastToken(defDefReturnType(rightOwner).get)
         val penalizeNewlines =
@@ -940,7 +940,7 @@ class Router(formatOps: FormatOps) {
         val newlinePolicy = breakOnEveryDot
           .andThen(penalizeNewlinesInApply.f)
           .copy(expire = lastToken.end)
-        val ignoreNoSplit = style.breakChainOnFirstMethodDot && newlines > 0
+        val ignoreNoSplit = style.optIn.breakChainOnFirstMethodDot && newlines > 0
         val chainLengthPenalty =
           if (!style.bestEffortInDeeplyNestedCode && // breaks tests.
               style.newlines.penalizeSingleSelectMultiArgList &&

@@ -3,6 +3,11 @@ package org.scalafmt.config
 import metaconfig.ConfigReader
 
 /**
+  *
+  * @param configStyleArguments Call-sites where there is a newline after
+  *                             opening ( and newline before closing ).
+  *                             If true, preserves the newlines and keeps one
+  *                             line per argument.
   * @param breakChainOnFirstMethodDot
   *   If true, keeps the line break before a dot if it already exists.
   *   {{{
