@@ -27,8 +27,7 @@ object InputMethod {
       )
     }
   }
-  case class StdinCode(filename: String, input: String)
-      extends InputMethod {
+  case class StdinCode(filename: String, input: String) extends InputMethod {
     def readInput(implicit codec: Codec): String = input
     override def write(code: String,
                        original: String,
@@ -44,7 +43,9 @@ object InputMethod {
                        options: CliOptions): Unit = {
       val codeChanged = formatted != original
       if (options.testing) {
-        if (codeChanged) throw MisformattedFile(new File(filename), options.config.onTestFailure)
+        if (codeChanged)
+          throw MisformattedFile(new File(filename),
+                                 options.config.onTestFailure)
         else Unit
       } else if (options.inPlace) {
         if (codeChanged) FileOps.writeFile(filename, formatted)

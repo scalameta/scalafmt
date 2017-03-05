@@ -54,22 +54,27 @@ object TokenOps {
     longHash
   }
 
-  def shouldGet2xNewlines(tok: FormatToken, style: ScalafmtConfig, owners: Token => Tree): Boolean = {
+  def shouldGet2xNewlines(tok: FormatToken,
+                          style: ScalafmtConfig,
+                          owners: Token => Tree): Boolean = {
     !isDocstring(tok.left) && {
       val newlines = newlinesBetween(tok.between)
       newlines > 1 || (isDocstring(tok.right) && !tok.left.is[Comment])
     } || {
       style.newlines.alwaysBeforeTopLevelStatements &&
-        tok.between.count(_.is[KwNew]) < 2 && isTopLevelStatment(tok.right, owners(tok.right))
+      tok.between.count(_.is[KwNew]) < 2 && isTopLevelStatment(
+        tok.right,
+        owners(tok.right))
     }
   }
 
   def isTopLevelStatment(tok: Token, owner: Tree): Boolean = {
     tok.is[KwObject] || owner.parent.exists(_.is[Defn.Object]) ||
-      tok.is[KwClass] || owner.parent.exists(_.is[Defn.Class]) ||
-      tok.is[KwDef] || owner.parent.exists(_.is[Defn.Def]) ||
-      tok.is[KwTrait] || owner.parent.exists(_.is[Defn.Trait]) ||
-      tok.is[KwPackage] || (tok.is[KwProtected] && owner.parent.exists(_.is[Pkg]))
+    tok.is[KwClass] || owner.parent.exists(_.is[Defn.Class]) ||
+    tok.is[KwDef] || owner.parent.exists(_.is[Defn.Def]) ||
+    tok.is[KwTrait] || owner.parent.exists(_.is[Defn.Trait]) ||
+    tok
+      .is[KwPackage] || (tok.is[KwProtected] && owner.parent.exists(_.is[Pkg]))
   }
 
   def isDocstring(token: Token): Boolean = {
