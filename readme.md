@@ -5,8 +5,8 @@ Head over to [the user docs][docs] for instructions on how to install scalafmt.
 
 ### Quick help
 
-- On Windows add -Dfile.encoding=UTF8 to SBT_OPTS.
-- Run formatting tests: `core/testOnly org.scalafmt.FormatTests`.
+- Run all unit tests: `sbt test`
+- Run only formatting tests: `core/testOnly org.scalafmt.FormatTests`.
 - Write new formatting test: read [this doc](core/src/test/resources/readme.md).
 - Build docs: `sbt readme/run` will create the docs, which you can open with
   `open readme/target/scalatex/index.html`. Docs are built with [Scalatex](http://www.lihaoyi.com/Scalatex/).
@@ -22,6 +22,8 @@ Head over to [the user docs][docs] for instructions on how to install scalafmt.
   along with this background process:
   `browser-sync start --server --files "target/*.html"`.
   See [Browsersync](https://www.browsersync.io/).
+- `intellij/compile:compileIncremental` failed? Run `downloadIdea` to download custom IntelliJ plugin.
+  The download may take a while.
 
 ### Tutorial
 If you'd like to find out how to work on scalafmt, see this [tutorial](Tutorial.md).
