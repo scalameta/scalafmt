@@ -1,0 +1,21 @@
+rewrite.rules = [
+  RedundantBraces
+]
+<<< #748
+object a {
+def init() = {
+    val task = new TimerTask {
+      override def run(): Unit = println("Test")
+    }
+}
+}
+
+
+>>>
+object a {
+  def init() = {
+    val task = new TimerTask {
+      override def run(): Unit = println("Test")
+    }
+  }
+}
