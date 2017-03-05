@@ -45,7 +45,7 @@ function push-tag() {
 }
 
 function maven-publish() {
-    sbt publishSigned sonatypeRelease
+    sbt "very publishSigned" sonatypeRelease
 }
 
 

@@ -1,4 +1,3 @@
-import scoverage.ScoverageSbtPlugin.ScoverageKeys.coverageHighlighting
 
 // The version number used in docs.
 def latestStableVersion: String = "0.5.8"
@@ -44,8 +43,6 @@ lazy val commonSettings = Seq(
   triggeredMessage in ThisBuild := Watched.clearWhenTriggered,
   scalacOptions in (Compile, console) := compilerOptions :+ "-Yrepl-class-based",
   assemblyJarName in assembly := "scalafmt.jar",
-  ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages :=
-    ".*Debug;.*ScalaFmtLogger;.*Versions",
   testOptions in Test += Tests.Argument("-oD")
 )
 
@@ -155,7 +152,7 @@ lazy val core = project
       "org.scala-lang"                 % "scala-compiler"  % scalaVersion.value % Test,
       "ch.qos.logback"                 % "logback-classic" % "1.1.6"            % Test,
       "com.googlecode.java-diff-utils" % "diffutils"       % "1.3.0"            % Test,
-      "com.lihaoyi"                    %% "scalatags"      % "0.5.4"            % Test,
+      "com.lihaoyi"                    %% "scalatags"      % "0.6.3"            % Test,
       "org.apache.commons"             % "commons-math3"   % "3.6"              % Test,
       "org.scalatest"                  %% "scalatest"      % Deps.scalatest     % Test
     ),
@@ -216,8 +213,8 @@ lazy val scalafmtSbt = project
       )
       .evaluated,
     sbtPlugin := true,
-    coverageHighlighting := false,
     scalaVersion := "2.10.5",
+    crossScalaVersions := Seq("2.10.5"),
     // In convention of sbt plugins, the module is sbt-scalafmt instead of scalafmt-sbt.
     moduleName := "sbt-scalafmt",
     scriptedLaunchOpts := Seq(
