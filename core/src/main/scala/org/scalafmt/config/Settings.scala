@@ -2,6 +2,8 @@ package org.scalafmt.config
 
 import scala.collection.immutable.Seq
 import scala.collection.immutable.Set
+import scala.io.Codec
+import scala.util.control.NonFatal
 
 import metaconfig.Reader
 import metaconfig.String2AnyMap
@@ -172,5 +174,12 @@ trait Settings {
     Reader.instance[IndentOperator] {
       case "spray" => Right(IndentOperator.akka)
       case els => IndentOperator.default.reader.read(els)
+    }
+
+  lazy val codecReader: Reader[Codec] =
+    Reader.instance[Codec] {
+      case s: String =>
+        try Right(Codec(s))
+        catch { case NonFatal(e) => Left(e) }
     }
 }

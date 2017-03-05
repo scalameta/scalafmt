@@ -1,5 +1,6 @@
 package org.scalafmt
 
+import scala.collection.GenSeq
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import scala.meta._
@@ -96,8 +97,11 @@ object LinePerMsBenchmark extends FormatExperiment with App {
     System.nanoTime() - startTime
   }
   val counter = new AtomicInteger()
+  val lst: GenSeq[ScalaFile] =
+    if (sys.env.contains("TRAVIS")) scalaFiles
+    else scalaFiles.par
 
-  scalaFiles.par.foreach { scalaFile =>
+  lst.foreach { scalaFile =>
     val code = scalaFile.read
     val lineCount = code.lines.length
     Try(Result("scalafmt", lineCount, time(Scalafmt.format(code))))
@@ -138,7 +142,7 @@ object FormatExperimentApp
   val filesToRun: Seq[ScalaFile] = {
     // running everything on my machine takes <4 minutes but it can take
     // over an hour on Travis. We shuffle since all files should work.
-    if (onTravis) Random.shuffle(scalaFiles).take(1000)
+    if (onTravis) Random.shuffle(scalaFiles).take(100)
     else scalaFiles
   }
   runExperiment(filesToRun)
