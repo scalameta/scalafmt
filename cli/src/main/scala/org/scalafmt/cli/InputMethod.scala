@@ -42,7 +42,7 @@ object InputMethod {
                        options: CliOptions): Unit = {
       val codeChanged = formatted != original
       if (options.testing) {
-        if (codeChanged) throw MisformattedFile(new File(filename))
+        if (codeChanged) throw MisformattedFile(new File(filename), options.config.onTestFailure)
         else Unit
       } else if (options.inPlace) {
         if (codeChanged) FileOps.writeFile(filename, formatted)
