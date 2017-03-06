@@ -4,24 +4,28 @@
 @import org.scalafmt.config.ScalafmtConfig
 
 @ignore
-  @sect{0.6.1}
+  @code{0.6.1}
     @ul
       @li
         Please document your contribution here.
 @sect{0.6.1}
   @ul
     @li
-      Set @code{binPack.lambdaParameters = false} by default. This fixes 
-      like @issue(719) and @issue(716).
+      Set @code{binPack.lambdaParameters = false} by default. This fixes
+      issues like @issue(719) and @issue(716). The option will be removed in
+      v1.0
 @sect{0.6.0}
   Merged PRs: @lnk{https://github.com/olafurpg/scalafmt/milestone/14?closed=1}.
   @ul
     @li
       Scalafmt is now cross-released to 2.12 and 2.11.
-      Some formatting issues surfaced in the test suite for this upgrade,
-      which have been fixed. These changed were related to byte literals and
-      non-symbolic identifiers. If you notice unexpected changes with
-      using scalafmt on 2.12, please report an issue.
+
+      @p
+        Some formatting issues surfaced in the test suite when running on
+        2.12. These changed were related to byte literals and backtick identifiers.
+        The issues in the test-suite were fixed, but I suspect other issues
+        may appear in the wild when running on 2.12.  If you notice unexpected
+        changes with using scalafmt on 2.12, please report an issue.
     @li
       You can now ignore warnings from scalafmt with @code{ignoreWarnings = true}.
     @li
@@ -36,7 +40,7 @@
       To change, edit @code{encoding = "latin1"}.
     @li
      Right-associative infix operators are now indented the same as
-     left-associtive infix operators.
+     left-associative infix operators.
 
      @hl.scala
        // indent.rightAssociativeInfixOperatorsLikeLeftAssociative = true (default)
@@ -50,3 +54,12 @@
          b ::
            c ::
              d
+    @li
+      IntelliJ plugin "format on save" now honors @code{project.excludeFilters}.
+    @li
+      IntelliJ plugin now honors @code{runner.dialect}
+    @li
+      @code{newlines.sometimesBeforeColonInMethodReturnType} now works the
+      same for vals, parameterless defs and def with regular parameters.
+    @li
+      IntelliJ plugin now honors @code{runner.dialect}
