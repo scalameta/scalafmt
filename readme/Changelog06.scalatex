@@ -8,7 +8,12 @@
     @ul
       @li
         Please document your contribution here.
-@sect{0.5.8}
+@sect{0.6.1}
+  @ul
+    @li
+      Set @code{binPack.lambdaParameters = false} by default. This fixes 
+      like @issue(719) and @issue(716).
+@sect{0.6.0}
   Merged PRs: @lnk{https://github.com/olafurpg/scalafmt/milestone/14?closed=1}.
   @ul
     @li
