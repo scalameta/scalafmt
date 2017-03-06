@@ -32,7 +32,7 @@ import metaconfig.ConfigReader
 case class BinPack(
     callSite: Boolean = false,
     defnSite: Boolean = false,
-    lambdaParameter: Boolean = true,
+    lambdaParameter: Boolean = false,
     parentConstructors: Boolean = false,
     literalArgumentLists: Boolean = true,
     literalsMinArgCount: Int = 5,

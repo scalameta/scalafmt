@@ -3,6 +3,8 @@
 @import org.scalafmt.config.ScalafmtConfig
 
 @sect{Changelog}
+  @sect{0.6.x}
+    @scalatex.Changelog06()
   @sect{0.5.x}
     @scalatex.Changelog05()
   @sect{0.4.x}
