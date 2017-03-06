@@ -6,7 +6,6 @@ import scala.collection.JavaConverters._
 import scala.meta._
 import scala.util.Random
 import scala.util.Try
-import scalariform.formatter.ScalaFormatter
 
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -105,8 +104,6 @@ object LinePerMsBenchmark extends FormatExperiment with App {
     val code = scalaFile.read
     val lineCount = code.lines.length
     Try(Result("scalafmt", lineCount, time(Scalafmt.format(code))))
-      .foreach(csv.add)
-    Try(Result("scalariform", lineCount, time(ScalaFormatter.format(code))))
       .foreach(csv.add)
     val c = counter.incrementAndGet()
     if (c % 1000 == 0) {

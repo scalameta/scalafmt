@@ -20,7 +20,7 @@ import org.scalafmt.util.FormatAssertions
 import org.scalafmt.util.HasTests
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.Report
-import org.scalatest.BeforeAndAfterAll
+import org.scalatest.BeforeAndAfterAllConfigMap
 import org.scalatest.ConfigMap
 import org.scalatest.FunSuite
 import org.scalatest.concurrent.Timeouts
@@ -31,7 +31,7 @@ import org.scalatest.time.SpanSugar._
 class FormatTests
     extends FunSuite
     with Timeouts
-    with BeforeAndAfterAll
+    with BeforeAndAfterAllConfigMap
     with HasTests
     with FormatAssertions
     with DiffAssertions {
