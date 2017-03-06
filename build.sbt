@@ -1,5 +1,3 @@
-import scoverage.ScoverageSbtPlugin.ScoverageKeys.coverageHighlighting
-
 // The version number used in docs.
 def latestStableVersion: String = "0.5.8"
 
@@ -9,6 +7,7 @@ lazy val buildSettings = Seq(
   organization := "com.geirsson",
   version := "0.5.8",
   scalaVersion := "2.11.8",
+  crossScalaVersions := Seq("2.11.8", "2.12.1"),
   updateOptions := updateOptions.value.withCachedResolution(true)
 )
 
@@ -43,8 +42,6 @@ lazy val commonSettings = Seq(
   triggeredMessage in ThisBuild := Watched.clearWhenTriggered,
   scalacOptions in (Compile, console) := compilerOptions :+ "-Yrepl-class-based",
   assemblyJarName in assembly := "scalafmt.jar",
-  ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages :=
-    ".*Debug;.*ScalaFmtLogger;.*Versions",
   testOptions in Test += Tests.Argument("-oD")
 )
 
@@ -131,7 +128,6 @@ lazy val root = project
     utils,
     testUtils,
     core,
-    metaconfig,
     readme,
     scalafmtSbt,
     intellij
@@ -145,23 +141,23 @@ lazy val core = project
     buildInfoSettings,
     moduleName := "scalafmt-core",
     libraryDependencies ++= Seq(
-      "com.lihaoyi"    %% "sourcecode"   % "0.1.2",
-      "org.scalameta"  %% "scalameta"    % Deps.scalameta,
-      "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-      "com.typesafe"   % "config"        % "1.2.1",
+      "com.geirsson"   %% "metaconfig-core" % "0.1.2",
+      "com.lihaoyi"    %% "sourcecode"      % "0.1.2",
+      "org.scalameta"  %% "scalameta"       % Deps.scalameta,
+      "org.scala-lang" % "scala-reflect"    % scalaVersion.value,
+      "com.typesafe"   % "config"           % "1.2.1",
       // Test dependencies
-      "org.scalariform"                %% "scalariform"    % Deps.scalariform   % Test,
       "org.scala-lang"                 % "scala-compiler"  % scalaVersion.value % Test,
       "ch.qos.logback"                 % "logback-classic" % "1.1.6"            % Test,
       "com.googlecode.java-diff-utils" % "diffutils"       % "1.3.0"            % Test,
-      "com.lihaoyi"                    %% "scalatags"      % "0.5.4"            % Test,
+      "com.lihaoyi"                    %% "scalatags"      % "0.6.3"            % Test,
       "org.apache.commons"             % "commons-math3"   % "3.6"              % Test,
       "org.scalatest"                  %% "scalatest"      % Deps.scalatest     % Test
     ),
     addCompilerPlugin(
       "org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
   )
-  .dependsOn(metaconfig, utils, testUtils % "test->compile")
+  .dependsOn(utils, testUtils % "test->compile")
   .enablePlugins(BuildInfoPlugin)
 
 lazy val cliJvmOptions = Seq(
@@ -169,8 +165,8 @@ lazy val cliJvmOptions = Seq(
 )
 
 lazy val cli = project
-  .settings(allSettings)
   .settings(
+    allSettings,
     metaMacroSettings,
     packSettings,
     packMain := Map("scalafmt_pack" -> "org.scalafmt.cli.Cli"),
@@ -186,11 +182,16 @@ lazy val cli = project
   )
   .dependsOn(core % "compile->compile;test->test")
 
+lazy val is210 = Seq(
+  scalaVersion := "2.10.6",
+  crossScalaVersions := Seq("2.10.6")
+)
+
 lazy val bootstrap = project
   .settings(
     allSettings,
     buildInfoSettings,
-    scalaVersion := "2.10.6",
+    is210,
     moduleName := "scalafmt-bootstrap",
     libraryDependencies ++= Seq(
       "com.martiansoftware" % "nailgun-server"  % "0.9.1",
@@ -209,14 +210,12 @@ lazy val scalafmtSbt = project
       .dependsOn(
         publishLocal in cli,
         publishLocal in core,
-        publishLocal in metaconfig,
         publishLocal in bootstrap,
         publishLocal in utils
       )
       .evaluated,
     sbtPlugin := true,
-    coverageHighlighting := false,
-    scalaVersion := "2.10.5",
+    is210,
     // In convention of sbt plugins, the module is sbt-scalafmt instead of scalafmt-sbt.
     moduleName := "sbt-scalafmt",
     scriptedLaunchOpts := Seq(
@@ -247,10 +246,11 @@ lazy val intellij = project
   .enablePlugins(SbtIdeaPlugin)
 
 lazy val benchmarks = project
-  .settings(moduleName := "scalafmt-benchmarks")
-  .settings(allSettings)
-  .settings(noPublish)
   .settings(
+    allSettings,
+    noPublish,
+    crossScalaVersions := Seq("2.11.8"),
+    moduleName := "scalafmt-benchmarks",
     libraryDependencies ++= Seq(
       "org.scalariform" %% "scalariform" % Deps.scalariform,
       "org.scalatest"   %% "scalatest"   % Deps.scalatest % Test
@@ -283,14 +283,16 @@ lazy val readme = scalatex
                   wd = file(""),
                   url = "https://github.com/olafurpg/scalafmt/tree/master",
                   source = "Readme")
-  .settings(allSettings)
-  .settings(noPublish)
-  .dependsOn(core)
-  .dependsOn(cli)
   .settings(
+    allSettings,
+    noPublish,
     libraryDependencies ++= Seq(
-      "com.twitter" %% "util-eval" % "6.34.0"
+      "com.twitter" %% "util-eval" % "6.41.0"
     )
+  )
+  .dependsOn(
+    core,
+    cli
   )
 
 lazy val sonatypePassword = sys.env.getOrElse("SONATYPE_PW", "")
@@ -304,24 +306,14 @@ lazy val utils = project.settings(
   )
 )
 
-lazy val metaconfig = project.settings(
-  allSettings,
-  metaMacroSettings,
-  publishSettings,
-  moduleName := "metaconfig",
-  libraryDependencies ++= Seq(
-    "org.scalatest" %% "scalatest" % Deps.scalatest % Test
-  )
-)
-
 lazy val testUtils = project
-  .settings(moduleName := "scalafmt-test-utils")
-  .settings(allSettings)
-  .settings(noPublish)
-  .dependsOn(utils)
   .settings(
+    allSettings,
+    noPublish,
+    moduleName := "scalafmt-test-utils",
     libraryDependencies ++= Seq(
       "org.apache.commons" % "commons-io"  % "1.3.2",
       "org.rauschig"       % "jarchivelib" % "0.7.1"
     )
   )
+  .dependsOn(utils)

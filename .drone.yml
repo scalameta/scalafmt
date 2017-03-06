@@ -1,5 +1,5 @@
 build:
-  image: olafurpg/scalafix:0.0.1
+  image: olafurpg/scalafix:0.3.0
   commands:
     # This machine has lots of ram and the tests on this need it.
     - echo "-Xmx55g" >> .jvmopts
