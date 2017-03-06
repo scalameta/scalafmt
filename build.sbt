@@ -16,11 +16,11 @@ lazy val noDocs = Seq(
 )
 
 lazy val metaMacroSettings: Seq[Def.Setting[_]] = Seq(
-    libraryDependencies += "org.scalameta" %% "scalameta" % Deps.scalameta,
-    addCompilerPlugin(
-      "org.scalameta" % "paradise" % "3.0.0-M7" cross CrossVersion.full),
-    scalacOptions += "-Xplugin-require:macroparadise"
-  ) ++ noDocs
+  libraryDependencies += "org.scalameta" %% "scalameta" % Deps.scalameta,
+  addCompilerPlugin(
+    "org.scalameta" % "paradise" % "3.0.0-M7" cross CrossVersion.full),
+  scalacOptions += "-Xplugin-require:macroparadise"
+) ++ noDocs
 
 lazy val compilerOptions = Seq(
   "-deprecation",

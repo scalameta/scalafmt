@@ -32,11 +32,11 @@ case object AvoidInfix extends Rewrite {
         val fstArgsToken = args.head.tokens.head
         val lastArgsToken = args.last.tokens.last
         val fstIsNotLeftParenAndBrace = fstArgsToken
-            .isNot[LeftParen] && fstArgsToken
-            .isNot[LeftBrace]
+          .isNot[LeftParen] && fstArgsToken
+          .isNot[LeftBrace]
         val lastIsNotRightParenAndBrace = lastArgsToken
-            .isNot[RightParen] && lastArgsToken
-            .isNot[RightBrace]
+          .isNot[RightParen] && lastArgsToken
+          .isNot[RightBrace]
         val isSingleArg = args.size == 1
         val selectorParensToBeAdded =
           if (isSingleArg && (fstIsNotLeftParenAndBrace || lastIsNotRightParenAndBrace))
