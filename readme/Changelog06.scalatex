@@ -1,0 +1,47 @@
+@import Main._
+@import org.scalafmt.rewrite._
+@import org.scalafmt.readme.Readme._
+@import org.scalafmt.config.ScalafmtConfig
+
+@ignore
+  @sect{0.6.1}
+    @ul
+      @li
+        Please document your contribution here.
+@sect{0.5.8}
+  Merged PRs: @lnk{https://github.com/olafurpg/scalafmt/milestone/14?closed=1}.
+  @ul
+    @li
+      Scalafmt is now cross-released to 2.12 and 2.11.
+      Some formatting issues surfaced in the test suite for this upgrade,
+      which have been fixed. These changed were related to byte literals and
+      non-symbolic identifiers. If you notice unexpected changes with
+      using scalafmt on 2.12, please report an issue.
+    @li
+      You can now ignore warnings from scalafmt with @code{ignoreWarnings = true}.
+    @li
+      You can now add a custom error message when @code{scalafmt --test}
+      fails. This can be helpful to explain to contributors on how to run
+      scalafmt for your project, for example "Run ./bin/scalafmt to fix this
+      issue.
+      To add a custom message, add @code{onTestFailure = "To fix this error, run XXX"}.
+    @li
+      Scalafmt will now read text files with UTF-8 encoding as default instead
+      of the system @code{-Dfile.encoding}.
+      To change, edit @code{encoding = "latin1"}.
+    @li
+     Right-associative infix operators are now indented the same as
+     left-associtive infix operators.
+
+     @hl.scala
+       // indent.rightAssociativeInfixOperatorsLikeLeftAssociative = true (default)
+       a ::
+         b ::
+         c ::
+         d
+
+       // indent.rightAssociativeInfixOperatorsLikeLeftAssociative = false (old default)
+       a ::
+         b ::
+           c ::
+             d
