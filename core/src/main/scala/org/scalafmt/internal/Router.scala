@@ -888,7 +888,6 @@ class Router(formatOps: FormatOps) {
           insideBlock(formatToken, expire, _.isInstanceOf[LeftBrace])
         rhs match {
           case t: Term.ApplyInfix =>
-            val modification = newlines2Modification(between)
             Seq(
               infixSplit(t, formatToken)
             )
