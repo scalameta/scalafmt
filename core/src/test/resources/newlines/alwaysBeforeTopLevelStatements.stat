@@ -121,8 +121,10 @@ object A {
 }
 >>>
 object A {
+
     /** test */
     def foo(): Int = 0
+
     // bar
     def foo(): Int = 0
 }
