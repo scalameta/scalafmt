@@ -61,6 +61,7 @@ object TokenOps {
       val newlines = newlinesBetween(tok.between)
       newlines > 1 || (isDocstring(tok.right) && !tok.left.is[Comment])
     } || {
+      !tok.left.is[Comment] &&
       style.newlines.alwaysBeforeTopLevelStatements &&
       tok.between.count(_.is[KwNew]) < 2 && isTopLevelStatment(
         tok.right,
