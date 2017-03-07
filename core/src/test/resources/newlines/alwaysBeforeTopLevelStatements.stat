@@ -111,3 +111,20 @@ package a {
     }
   }
 }
+
+<<< Don't add whitespace after comments
+object A {
+  /** test */
+  def foo(): Int = 0
+  // bar
+  def foo(): Int = 0
+}
+>>>
+object A {
+
+  /** test */
+  def foo(): Int = 0
+
+  // bar
+  def foo(): Int = 0
+}
