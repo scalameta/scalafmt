@@ -355,3 +355,18 @@ lazy val ReleaseCmd = Command.command("release") { state =>
     "set elideOptions in client := Seq()" ::
     state
 }
+<<< With tuples
+val overrides =
+      "logconfigonstart" ::
+      "quorumsize" ::
+        "hostname" ::
+        "port" ::
+        Nil
+
+>>>
+val overrides =
+  "logconfigonstart" ::
+    "quorumsize" ::
+    "hostname" ::
+    "port" ::
+    Nil

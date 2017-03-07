@@ -476,6 +476,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     }
     val isRightAssociative =
       style.indent.rightAssociativeInfixOperatorsLikeLeftAssociative &&
+        // NOTE. Silly workaround because we call infixSplit from assignment =, see #798
+        formatToken.left.syntax != "=" &&
         isRightAssociativeOperator(op.value)
     val expire = (for {
       arg <- {
