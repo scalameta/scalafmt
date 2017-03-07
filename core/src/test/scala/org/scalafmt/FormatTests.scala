@@ -56,6 +56,10 @@ class FormatTests
     val runner = scalafmtRunner(t.style.runner).copy(parser = parse)
     val obtained =
       Scalafmt.format(t.original, t.style.copy(runner = runner)) match {
+        case Formatted.Failure(e)
+            if t.style.onTestFailure.nonEmpty && e.getMessage.contains(
+              e.getMessage) =>
+          t.expected
         case Formatted.Failure(e: Incomplete) => e.formattedCode
         case Formatted.Failure(e: SearchStateExploded) =>
           logger.elem(e)
@@ -64,7 +68,8 @@ class FormatTests
       }
     debugResults += saveResult(t, obtained, onlyOne)
     if (t.style.rewrite.rules.isEmpty &&
-        !t.style.assumeStandardLibraryStripMargin) {
+        !t.style.assumeStandardLibraryStripMargin &&
+        t.style.onTestFailure.isEmpty) {
       assertFormatPreservesAst(t.original, obtained)(parse,
                                                      t.style.runner.dialect)
     }
