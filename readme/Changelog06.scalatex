@@ -4,10 +4,14 @@
 @import org.scalafmt.config.ScalafmtConfig
 
 @ignore
-  @code{0.6.1}
+  @code{0.6.3}
     @ul
       @li
         Please document your contribution here.
+@sect{0.6.1}
+  @ul
+    @li
+      Fixed @issue(798).
 @sect{0.6.1}
   @ul
     @li
