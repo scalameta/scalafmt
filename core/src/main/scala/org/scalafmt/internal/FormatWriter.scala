@@ -234,7 +234,8 @@ class FormatWriter(formatOps: FormatOps) {
   // imperative and error-prone right now.
   def alignmentTokens(
       locations: Array[FormatLocation]): Map[FormatToken, Int] = {
-    if (initStyle.align.tokens.isEmpty) Map.empty[FormatToken, Int]
+    if (initStyle.align.tokens.isEmpty || locations.length != tokens.length)
+      Map.empty[FormatToken, Int]
     else {
       val finalResult = Map.newBuilder[FormatToken, Int]
       var i = 0
