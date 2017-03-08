@@ -206,7 +206,7 @@
        */
 
   @sect{newlines.alwaysBeforeTopLevelStatements}
-    Default: default.newlines.alwaysBeforeTopLevelStatements
+    Default: @b(default.newlines.alwaysBeforeTopLevelStatements)
 
     @hl.scala
         // newlines.alwaysBeforeTopLevelStatements = false
@@ -236,7 +236,7 @@
         }
 
   @sect{newlines.sometimesBeforeColonInMethodReturnType}
-    Default: @default.newlines.sometimesBeforeColonInMethodReturnType
+    Default: @b(default.newlines.sometimesBeforeColonInMethodReturnType)
 
     @hl.scala
       // Column limit                                                     |
@@ -249,7 +249,7 @@
           Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] = 2
 
   @sect{align.arrowEnumeratorGenerator}
-    Default: @default.align.arrowEnumeratorGenerator
+    Default: @b(default.align.arrowEnumeratorGenerator)
 
     @hl.scala
       // align.arrowEnumeratorGenerator = false
@@ -267,7 +267,7 @@
       } yield x
 
   @sect{binPackParentConstructors}
-    Default: @default.binPack.parentConstructors
+    Default: @b(default.binPack.parentConstructors)
 
     @hl.scala
       // column limit                        |
@@ -288,7 +288,7 @@
       }
 
   @sect{align.openParenCallSite}
-    Default: @default.align.openParenCallSite
+    Default: @b(default.align.openParenCallSite)
 
     @hl.scala
       // Column limit |
@@ -325,7 +325,7 @@
         @code{windows} output will include only windows line endings
 
   @sect{includeCurlyBraceInSelectChains}
-    Default: @default.includeCurlyBraceInSelectChains
+    Default: @b(default.includeCurlyBraceInSelectChains)
 
     @hl.scala
       // includeCurlyBraceInSelectChains = true
@@ -344,7 +344,7 @@
     @lnk("this comment", "https://github.com/olafurpg/scalafmt/issues/444#issuecomment-255215698").
 
   @sect{optIn.breakChainOnFirstMethodDot}
-    Default: @default.optIn.breakChainOnFirstMethodDot
+    Default: @b(default.optIn.breakChainOnFirstMethodDot)
 
     @p
       If true, forces a select chain (pipeline) to break if there is a newline
@@ -371,7 +371,7 @@
       for further motivation.
 
   @sect{newlines.penalizeSingleSelectMultiArgList}
-    Default: @default.newlines.penalizeSingleSelectMultiArgList
+    Default: @b(default.newlines.penalizeSingleSelectMultiArgList)
 
     @hl.scala
       // newlines.penalizeSingleSelectMultiArgList = true
@@ -389,7 +389,7 @@
       for further motivation.
 
   @sect{binPack.literalArgumentLists}
-    Default: @default.binPack.literalArgumentLists
+    Default: @b(default.binPack.literalArgumentLists)
 
     @hl.scala
       // binPack.literalArgumentLists = true
@@ -408,7 +408,7 @@
       )
 
   @sect{runner.optimizer.forceConfigStyleOnOffset}
-    Default: @default.runner.optimizer.forceConfigStyleOnOffset
+    Default: @b(default.runner.optimizer.forceConfigStyleOnOffset)
 
     @p
       Set to @code{-1} to disable. Increase number to require bigger argument
