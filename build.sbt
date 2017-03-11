@@ -220,6 +220,7 @@ lazy val scalafmtSbt = project
     moduleName := "sbt-scalafmt",
     scriptedLaunchOpts := Seq(
       "-Dplugin.version=" + version.value,
+      "-Dscalafmt.scripted=true",
       // .jvmopts is ignored, simulate here
       "-XX:MaxPermSize=256m",
       "-Xmx2g",
