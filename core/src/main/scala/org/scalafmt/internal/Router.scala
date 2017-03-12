@@ -692,7 +692,8 @@ class Router(formatOps: FormatOps) {
         }
 
         val noSplitModification: Modification =
-          if (style.spaces.inParentheses) Space
+          if (formatToken.left.is[LeftParen] &&
+              style.spaces.inParentheses) Space
           else if (right.is[Comment]) newlines2Modification(between)
           else NoSplit
 

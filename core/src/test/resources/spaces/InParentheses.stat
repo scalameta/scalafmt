@@ -38,3 +38,7 @@ def foo =
     aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,
     bbbbbbbbbbbbbb,
     cccccccccc )
+<<< brackets
+function[A](a, b, c)
+>>>
+function[A]( a, b, c )
