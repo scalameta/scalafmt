@@ -19,7 +19,7 @@
       issues like @issue(719) and @issue(716). The option will be removed in
       v1.0
 @sect{0.6.0}
-  Merged PRs: @lnk{https://github.com/olafurpg/scalafmt/milestone/14?closed=1}.
+  Merged PRs: @lnk{https://github.com/scalameta/scalafmt/milestone/14?closed=1}.
   @p
     3 million lines reformatted with 0.6.1 compared to 0.5.8:
     @lnk("scala-repos#20", "https://github.com/olafurpg/scala-repos/pull/20")

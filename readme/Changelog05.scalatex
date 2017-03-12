@@ -9,7 +9,7 @@
       @li
         Please document your contribution here.
 @sect{0.5.8}
-  Merged PRs: @lnk{https://github.com/olafurpg/scalafmt/milestone/10?closed=1}.
+  Merged PRs: @lnk{https://github.com/scalameta/scalafmt/milestone/10?closed=1}.
   @ul
     @li
       Scalafmt now uses scala.meta 1.6, was 1.4 before.
@@ -18,7 +18,7 @@
       You should be able to put @code{scalafmt --diff} into your @code{.git/hooks/pre-commit}.
   Big thanks to @user{dwijnand} and @user{tgodzik} for contributing 5 and 2 pull requests each, respectively!
 @sect{0.5.6}
-  Merged PRs: @lnk{https://github.com/olafurpg/scalafmt/milestone/11?closed=1}.
+  Merged PRs: @lnk{https://github.com/scalameta/scalafmt/milestone/11?closed=1}.
   @ul
     @li
       New @sect.ref{AvoidInfix} rewrite! Thank you @user{ysusuk} for contributing
@@ -85,7 +85,7 @@
       to contribute to the IntelliJ plugin, I encourage you to give it another
       chance now! Thank you @user{rbellamy} for this contribution!
     @li
-      @lnk("Ton of fixed issues and new features", "https://github.com/olafurpg/scalafmt/milestone/9?closed=1").
+      @lnk("Ton of fixed issues and new features", "https://github.com/scalameta/scalafmt/milestone/9?closed=1").
     @li
       Custom options for users of the
       @lnk("implicit-dependent-types", "https://github.com/ThoughtWorksInc/implicit-dependent-type")
@@ -121,7 +121,7 @@
           See @sect.ref{runner.optimizer.forceConfigStyleOnOffset}.
       @p
         For a more detailed overview of the new style differences, see
-        @lnk("this issue", "https://github.com/olafurpg/scalafmt/issues/636").
+        @lnk("this issue", "https://github.com/scalameta/scalafmt/issues/636").
 
       @p
         I did my best to make it possible to opt-out of the most dramatic changes.

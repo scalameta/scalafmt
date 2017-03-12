@@ -10,7 +10,7 @@ For any questions, don't hesitate to ask on gitter.
 **Last updated: January 6 2016.**
 
 After completing the tutorial, you should have a diff looking like
-[this commit](https://github.com/olafurpg/scalafmt/commit/d12acecfb374da6059be252e1703f274ea0eed74).
+[this commit](https://github.com/scalameta/scalafmt/commit/d12acecfb374da6059be252e1703f274ea0eed74).
 
 I want to add a new configuration flag `spacesInParentheses` so that function
 applications look like this
@@ -21,7 +21,7 @@ function(a, b, c)
 // After
 function( a, b, c )
 ```
-- `git clone https://github.com/olafurpg/scalafmt.git`
+- `git clone https://github.com/scalameta/scalafmt.git`
 - `cd scalafmt`
 - `sbt ~core/testOnly org.scalafmt.FormatTests`.
   The unit tests should pass. Keep this process running.

@@ -19,7 +19,7 @@ Head over to [the user docs][docs] for instructions on how to install scalafmt.
 - Run jmh benchmarks: `./bin/run-benchmarks.sh`.
 - Run formatter on millions of lines of code: `core/test:runMain  org.scalafmt.FormatExperimentApp`:
 - Debug performance: after each test run in `FormatTests`, a flamegraph report
-  like [this one](https://github.com/olafurpg/scalafmt/issues/140)
+  like [this one](https://github.com/scalameta/scalafmt/issues/140)
   is generated in `target/index.html`. 
   I usually keep a browser tab open at `localhost:3000/target/index.html`
   along with this background process:
@@ -38,7 +38,7 @@ The current maintainers (people who can merge pull requests) are:
 * Pedro J Rodriguez Tavarez - [`@pjrt`](https://github.com/pjrt)
 * Iurii Susuk - [`@ysusuk`](https://github.com/ysusuk)
 
-An up-to-date list of contributors is available here: https://github.com/olafurpg/scalafmt/graphs/contributors
+An up-to-date list of contributors is available here: https://github.com/scalameta/scalafmt/graphs/contributors
 
 We strive to offer a welcoming environment to learn, teach and contribute.
 

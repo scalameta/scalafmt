@@ -44,7 +44,7 @@
       Benchmarks reveal that v0.3.0 is roughly 20-30% faster than v0.2.12,
       thanks to the updated dependency on scala.meta 1.0.
     @li
-      @lnk("21 issues closed on Github.", "https://github.com/olafurpg/scalafmt/issues?q=milestone%3A0.3.0+is%3Aclosed")
+      @lnk("21 issues closed on Github.", "https://github.com/scalameta/scalafmt/issues?q=milestone%3A0.3.0+is%3Aclosed")
     @li
       @lnk("See diff between 0.2.11 and 0.3.0 on three million lines of code.",
            "https://github.com/olafurpg/scala-repos/pull/6/files").
@@ -200,11 +200,11 @@
         @li
           (advanced) @code{--indentOperatorsIncludeFilter <str>}.
           See @lnk("docstring",
-                   "https://github.com/olafurpg/scalafmt/blob/master/core/src/main/scala/org/scalafmt/ScalafmtConfig.scala#L88").
+                   "https://github.com/scalameta/scalafmt/blob/master/core/src/main/scala/org/scalafmt/ScalafmtConfig.scala#L88").
         @li
           (advanced) @code{--indentOperatorsExcludeFilter <str>}
           See @lnk("docstring",
-                   "https://github.com/olafurpg/scalafmt/blob/master/core/src/main/scala/org/scalafmt/ScalafmtConfig.scala#L97").
+                   "https://github.com/scalameta/scalafmt/blob/master/core/src/main/scala/org/scalafmt/ScalafmtConfig.scala#L97").
     @li
       Backwards incompatible change: @code{FormatResult.Incomplete} is now
       a @code{FormatResult.Failure(e: Incomplete)}.

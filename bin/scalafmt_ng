@@ -122,7 +122,7 @@ echo $(check_version "$scalafmt_version" "$latest_version") > $version_file
 
 scala_version="2.11"
 scalafmt_filename="scalafmt-$scalafmt_version.jar"
-scalafmt_repo="https://github.com/olafurpg/scalafmt/releases/download/$scalafmt_version/scalafmt.tar.gz"
+scalafmt_repo="https://github.com/scalameta/scalafmt/releases/download/$scalafmt_version/scalafmt.tar.gz"
 
 set -e
 

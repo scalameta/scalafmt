@@ -198,7 +198,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   /**
     * js.native is very special in Scala.js.
     *
-    * Context: https://github.com/olafurpg/scalafmt/issues/108
+    * Context: https://github.com/scalameta/scalafmt/issues/108
     */
   def isJsNative(jsToken: Token): Boolean = {
     initStyle.newlines.neverBeforeJsNative && jsToken.syntax == "js" &&

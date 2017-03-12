@@ -19,7 +19,7 @@ object Error {
   import LoggerOps._
 
   def reportIssue: String =
-    "Please file an issue on https://github.com/olafurpg/scalafmt/issues"
+    "Please file an issue on https://github.com/scalameta/scalafmt/issues"
   case object UnableToParseCliOptions
       extends Error("Failed to parse CLI options")
 

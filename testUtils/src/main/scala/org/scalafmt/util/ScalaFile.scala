@@ -35,7 +35,7 @@ object ScalaFile {
   private val tarballName = "repos"
   private val tarballNameWithExt = s"$tarballName.tar.gz"
   private val reposTarballUrl =
-    s"https://github.com/olafurpg/scalafmt/releases/download/v0.1.4/$tarballNameWithExt"
+    s"https://github.com/scalameta/scalafmt/releases/download/v0.1.4/$tarballNameWithExt"
 
   def getAll: Seq[ScalaFile] = {
     val repos = FileOps.getFile("target", tarballName)

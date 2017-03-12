@@ -59,12 +59,12 @@ lazy val publishSettings = Seq(
   publishArtifact in Test := false,
   licenses := Seq(
     "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
-  homepage := Some(url("https://github.com/olafurpg/scalafmt")),
+  homepage := Some(url("https://github.com/scalameta/scalafmt")),
   autoAPIMappings := true,
   apiURL := Some(url("https://olafurpg.github.io/scalafmt/docs/")),
   scmInfo := Some(
     ScmInfo(
-      url("https://github.com/olafurpg/scalafmt"),
+      url("https://github.com/scalameta/scalafmt"),
       "scm:git:git@github.com:olafurpg/scalafmt.git"
     )
   ),
@@ -283,7 +283,7 @@ lazy val benchmarks = project
 lazy val readme = scalatex
   .ScalatexReadme(projectId = "readme",
                   wd = file(""),
-                  url = "https://github.com/olafurpg/scalafmt/tree/master",
+                  url = "https://github.com/scalameta/scalafmt/tree/master",
                   source = "Readme")
   .settings(
     allSettings,

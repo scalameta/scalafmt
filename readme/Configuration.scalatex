@@ -341,7 +341,7 @@
       }.filter(_ > 2)
 
     For more details, see
-    @lnk("this comment", "https://github.com/olafurpg/scalafmt/issues/444#issuecomment-255215698").
+    @lnk("this comment", "https://github.com/scalameta/scalafmt/issues/444#issuecomment-255215698").
 
   @sect{optIn.breakChainOnFirstMethodDot}
     Default: @b(default.optIn.breakChainOnFirstMethodDot)
@@ -367,7 +367,7 @@
 
     @p
       See
-      @lnk("this comment", "https://github.com/olafurpg/scalafmt/issues/444#issuecomment-255215698")
+      @lnk("this comment", "https://github.com/scalameta/scalafmt/issues/444#issuecomment-255215698")
       for further motivation.
 
   @sect{newlines.penalizeSingleSelectMultiArgList}
@@ -385,7 +385,7 @@
 
     @p
       See
-      @lnk("this comment", "https://github.com/olafurpg/scalafmt/pull/611#issue-196230948")
+      @lnk("this comment", "https://github.com/scalameta/scalafmt/pull/611#issue-196230948")
       for further motivation.
 
   @sect{binPack.literalArgumentLists}
@@ -452,7 +452,7 @@
     @p
       By forcing config style, scalafmt is able to greatly optimize performance
       eliminating a large number of "search state exploded" errors.
-      See @lnk("these flame graphs", "https://github.com/olafurpg/scalafmt/pull/621#issue-196451803").
+      See @lnk("these flame graphs", "https://github.com/scalameta/scalafmt/pull/621#issue-196451803").
 
 
   @sect{rewrite.rules}
