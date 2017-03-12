@@ -281,8 +281,11 @@ object TreeOps {
     case _ => false
   }
 
+  def isDefnOrCallSite(tree: Tree): Boolean =
+    isDefnSite(tree) || isCallSite(tree)
+
   def noSpaceBeforeOpeningParen(tree: Tree): Boolean =
-    !isTuple(tree) && (isDefnSite(tree) || isCallSite(tree))
+    !isTuple(tree) && isDefnOrCallSite(tree)
 
   def isModPrivateProtected(tree: Tree): Boolean = tree match {
     case _: Mod.Private | _: Mod.Protected => true

@@ -645,10 +645,6 @@ class Router(formatOps: FormatOps) {
 
         val oneArgOneLine = OneArgOneLineSplit(open)
 
-        val modification =
-          if (right.is[Comment]) newlines2Modification(between)
-          else NoSplit
-
         val newlineModification: Modification =
           if (right.is[Comment] && newlinesBetween(between) == 0)
             Space
@@ -695,8 +691,13 @@ class Router(formatOps: FormatOps) {
           }
         }
 
+        val noSplitModification: Modification =
+          if (style.spaces.inParentheses) Space
+          else if (right.is[Comment]) newlines2Modification(between)
+          else NoSplit
+
         Seq(
-          Split(modification, 0, policy = noSplitPolicy)
+          Split(noSplitModification, 0, policy = noSplitPolicy)
             .withOptimalToken(expirationToken, killOnFail = false)
             .withIndent(noSplitIndent, close, Right),
           Split(newlineModification,
@@ -705,7 +706,7 @@ class Router(formatOps: FormatOps) {
                 ignoreIf = args.length > 1 || isTuple)
             .withOptimalToken(expirationToken)
             .withIndent(indent, close, Right),
-          Split(modification,
+          Split(noSplitModification,
                 (2 + lhsPenalty) * bracketMultiplier,
                 policy = oneArgOneLine,
                 ignoreIf =
@@ -1345,9 +1346,17 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(NoSplit, 0)
         )
-      case FormatToken(_, RightBracket() | RightParen(), _) =>
+      case FormatToken(_, RightBracket(), _) =>
         Seq(
           Split(NoSplit, 0)
+        )
+      case FormatToken(_, RightParen(), _) =>
+        val mod =
+          if (style.spaces.inParentheses &&
+              isDefnOrCallSite(rightOwner)) Space
+          else NoSplit
+        Seq(
+          Split(mod, 0)
         )
       case FormatToken(left, kw @ Keyword(), _) =>
         if (!left.is[RightBrace] &&

@@ -9,6 +9,7 @@ import metaconfig.ConfigReader
   * @param inImportCurlyBraces
   *   If true, formats `import a.b.{ c, d }`.
   *   If false, formats `import a.b.{c, d}`.
+  * @param inParentheses If true, formats `foo(a, b)` as `foo( a, b )`.
   * @param beforeSeqWildcard
   * @param neverAroundInfixTypes
   *   If ["##"] is specified as operator then
@@ -19,6 +20,7 @@ case class Spaces(
     beforeContextBoundColon: Boolean = false,
     afterTripleEquals: Boolean = false,
     inImportCurlyBraces: Boolean = false,
+    inParentheses: Boolean = false,
     beforeSeqWildcard: Boolean = false,
     neverAroundInfixTypes: Seq[String] = Nil
 )
