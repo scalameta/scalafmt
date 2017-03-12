@@ -101,7 +101,7 @@
 @sect{0.2.6}
   @ul
     @li
-      @lnk("43 issues closed on Github.", "https://github.com/olafurpg/scalafmt/issues?q=milestone%3A0.2.6+is%3Aclosed")
+      @lnk("43 issues closed on Github.", "https://github.com/scalameta/scalafmt/issues?q=milestone%3A0.2.6+is%3Aclosed")
     @li
       @lnk("See diff between 0.2.5 and 0.2.6 on three million lines of code.",
            "https://github.com/olafurpg/scala-repos/pull/2/files#diff-a308e735c41c50c4f716593ee29625d0R25")
@@ -229,7 +229,7 @@
 @sect{0.2.4}
   @ul
     @li
-      @lnk("17 issues closed on Github.", "https://github.com/olafurpg/scalafmt/issues?utf8=%E2%9C%93&q=is%3Aissue+milestone%3A0.2.4")
+      @lnk("17 issues closed on Github.", "https://github.com/scalameta/scalafmt/issues?utf8=%E2%9C%93&q=is%3Aissue+milestone%3A0.2.4")
     @li
       @lnk("See diff between 0.2.3 and 0.2.4 on three million lines of code.",
            "https://github.com/olafurpg/scala-repos/pull/1/files#diff-34de65dbb43d071baaf87f34e40e123cL44")
@@ -260,7 +260,7 @@
   @p
   @ul
     @li
-      @lnk("5 issues closed on Github.", "https://github.com/olafurpg/scalafmt/issues?utf8=%E2%9C%93&q=is%3Aissue+milestone%3A0.2.3")
+      @lnk("5 issues closed on Github.", "https://github.com/scalameta/scalafmt/issues?utf8=%E2%9C%93&q=is%3Aissue+milestone%3A0.2.3")
     @li
       Fixes 3 issues that caused non-idempotent formatting.
       The tests now format 1.244.070 LOC @b("twice") to ensure that
@@ -299,8 +299,8 @@
       @code("defaultWithAlign") will not jump scope @issue(152).
     @li
       @code("defaultWithAlign") now includes a lot more alignment rules,
-      see the @lnk("diff against 0.2.0", "https://github.com/olafurpg/scalafmt/commit/9b14be99510f4763b8ea59be91b99af4ea4f8ad7").
-      and @lnk("updated test suite", "https://github.com/olafurpg/scalafmt/blob/555e87cabb3caf313a5915ac6506f9a79a84457c/core/src/test/resources/align/AlignTokens.stat").
+      see the @lnk("diff against 0.2.0", "https://github.com/scalameta/scalafmt/commit/9b14be99510f4763b8ea59be91b99af4ea4f8ad7").
+      and @lnk("updated test suite", "https://github.com/scalameta/scalafmt/blob/555e87cabb3caf313a5915ac6506f9a79a84457c/core/src/test/resources/align/AlignTokens.stat").
     @li
       If you had troubles with @code("--alignTokens") please try again,
       it may have been caused by @issue(151).
@@ -330,5 +330,5 @@
       @code("ScalaFmt.format") and
       @code("ScalaFmt.format_!") have been replaced by a single
       @code("Scalafmt.format"). The new methods supports more flexibility
-      via the @lnk("ScalafmtRunner", "https://github.com/olafurpg/scalafmt/blob/555e87cabb3caf313a5915ac6506f9a79a84457c/core/src/main/scala/org/scalafmt/ScalafmtRunner.scala")
+      via the @lnk("ScalafmtRunner", "https://github.com/scalameta/scalafmt/blob/555e87cabb3caf313a5915ac6506f9a79a84457c/core/src/main/scala/org/scalafmt/ScalafmtRunner.scala")
       argument.

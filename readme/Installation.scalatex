@@ -69,7 +69,7 @@
         To install the CLI in Linux or OSX, run:
 
       @hl.xml
-        sudo curl -L -o /usr/local/bin/scalafmt https://raw.githubusercontent.com/olafurpg/scalafmt/master/bin/scalafmt_auto && sudo chmod +x /usr/local/bin/scalafmt && scalafmt --upgrade --help
+        sudo curl -L -o /usr/local/bin/scalafmt https://raw.githubusercontent.com/scalameta/scalafmt/master/bin/scalafmt_auto && sudo chmod +x /usr/local/bin/scalafmt && scalafmt --upgrade --help
 
       @sect{Arch Linux}
         @p
@@ -88,7 +88,7 @@
           For experimental nailgun support (requires @code{ng} client on @code{$PATH}), run instead:
 
         @hl.xml
-          sudo curl -L -o /usr/local/bin/scalafmt https://raw.githubusercontent.com/olafurpg/scalafmt/master/bin/scalafmt_ng && chmod +x /usr/local/bin/scalafmt && scalafmt --upgrade --help
+          sudo curl -L -o /usr/local/bin/scalafmt https://raw.githubusercontent.com/scalameta/scalafmt/master/bin/scalafmt_ng && chmod +x /usr/local/bin/scalafmt && scalafmt --upgrade --help
 
         @p
           Nailgun keeps scalafmt running on a local server to avoid the JVM startup penalty
@@ -258,6 +258,6 @@
       @li
         Ensime
       @li
-        Scala IDE (@lnk("help wanted!", "https://github.com/olafurpg/scalafmt/issues/125"))
+        Scala IDE (@lnk("help wanted!", "https://github.com/scalameta/scalafmt/issues/125"))
       @li
         Your favorite editor? Join the gitter channel.
