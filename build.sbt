@@ -78,13 +78,6 @@ lazy val publishSettings = Seq(
     </developers>
 )
 
-lazy val credentialSettings = Seq(
-  credentials += Credentials("Sonatype Nexus Repository Manager",
-                             "oss.sonatype.org",
-                             "olafurpg@gmail.com",
-                             sonatypePassword)
-)
-
 lazy val noPublish = Seq(
   publishArtifact := false,
   publish := {},
@@ -110,14 +103,22 @@ lazy val allSettings = commonSettings ++ buildSettings ++ publishSettings
 
 lazy val root = project
   .in(file("."))
-  .settings(moduleName := "scalafmt")
-  .settings(allSettings)
-  .settings(noPublish)
   .settings(
+    commands += Command.command("ci-fast") { s =>
+      "clean" ::
+        "very test" ::
+        s
+    },
+    commands += Command.command("ci-slow") { s =>
+      "core/test:runMain org.scalafmt.FormatExperimentApp" ::
+        "; publishLocal ; scripted" ::
+        s
+    },
+    allSettings,
+    noPublish,
     initialCommands in console :=
       """
         |import scala.meta._
-        |import org.scalafmt.internal._
         |import org.scalafmt._
           """.stripMargin
   )
@@ -287,6 +288,9 @@ lazy val readme = scalatex
   .settings(
     allSettings,
     noPublish,
+    test := {
+      run.in(Compile).toTask(" --validate-links").value
+    },
     libraryDependencies ++= Seq(
       "com.twitter" %% "util-eval" % "6.41.0"
     )
@@ -295,8 +299,6 @@ lazy val readme = scalatex
     core,
     cli
   )
-
-lazy val sonatypePassword = sys.env.getOrElse("SONATYPE_PW", "")
 
 // General utilities that shared between bootstrap and core.
 lazy val utils = project.settings(
