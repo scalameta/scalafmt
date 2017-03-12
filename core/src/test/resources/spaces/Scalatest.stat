@@ -1,5 +1,0 @@
-spaces.afterTripleEquals = true
-<<< Space before triple equals
-foo must ===(123)
->>>
-foo must === (123)

@@ -1,6 +1,0 @@
-rewrite.rules = [AvoidInfix]
-rewrite.neverInfix.includeFilters = [".*"]
-<<< basic
-lst :: foo
->>>
-lst.::(foo)

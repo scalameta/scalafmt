@@ -1,5 +1,0 @@
-maxColumn = 40
-<<< SKIP Spaces in paretheses
-function(a, b, c)
->>>
-function( a, b, c )

@@ -1,8 +1,0 @@
-40 columns                              |
-<<< Split on =
-def better(other: State): Boolean = this.cost <= other.cost &&
-  this.indentation <= other.indentation
->>>
-def better(other: State): Boolean =
-  this.cost <= other.cost &&
-    this.indentation <= other.indentation

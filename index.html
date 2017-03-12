@@ -1,0 +1,2616 @@
+<!DOCTYPE html><html><head><link href="META-INF/resources/webjars/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" /><link href="styles.css" rel="stylesheet" /><link rel="shortcut icon" type="image/png" href="favicon.png" /><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><style>
+.scalatex-site-Styles-headerLink{
+  color: #777;
+  opacity: 0.05;
+  text-decoration: none;
+}
+
+
+.scalatex-site-Styles-hoverContainer:hover .scalatex-site-Styles-headerLink{
+  color: #777;
+  opacity: 0.5;
+  text-decoration: none;
+}
+.scalatex-site-Styles-hoverContainer:hover .scalatex-site-Styles-headerLink:hover{
+  opacity: 1.0;
+}
+.scalatex-site-Styles-hoverContainer:hover .scalatex-site-Styles-headerLink:active{
+  opacity: 0.75;
+}
+
+.scalatex-site-Styles-content{
+  color: #777;
+  line-height: 1.6em;
+  margin: 0 auto;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 800px;
+  padding: 0 1em;
+  padding-bottom: 50px;
+}
+.scalatex-site-Styles-content *{
+  position: relative;
+}
+.scalatex-site-Styles-content p{
+  text-align: justify;
+}
+.scalatex-site-Styles-content a:link{
+  color: #37a;
+  text-decoration: none;
+}
+.scalatex-site-Styles-content a:visited{
+  color: #949;
+  text-decoration: none;
+}
+.scalatex-site-Styles-content a:hover{
+  text-decoration: underline;
+}
+.scalatex-site-Styles-content a:active{
+  color: #000;
+  text-decoration: underline;
+}
+.scalatex-site-Styles-content code{
+  color: #000;
+}
+
+/*Workaround for bug in highlight.js IDEA theme*/
+span.hljs-tag, span.hljs-symbol{
+    background: none;
+}
+    </style><title>Scalafmt - code formatter for Scala</title><script src="scripts.js"></script></head><body><div>
+
+<div style="margin: 0px;color: #333;text-align: center;padding: 2.5em 2em 0;border-bottom: 1px solid #eee;display: block;" id="Scalafmt-codeformatterforScala" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><h1 style="margin: 0.2em 0;font-size: 3em;font-weight: 300;">Scalafmt - code formatter for Scala<a class=" scalatex-site-Styles-headerLink" href="#Scalafmt-codeformatterforScala" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a></h1><br /><h2 style="font-weight: 300;color: #ccc;padding: 0px;margin-top: 0px;">0.6.2</h2></div><div class=" scalatex-site-Styles-content">
+
+  
+<div>
+  <p>
+    
+      <a href="https://codecov.io/github/olafurpg/scalafmt?branch=master"><img src="https://camo.githubusercontent.com/75d300982e3330c6b8eaaba63adad94fecd71287/68747470733a2f2f636f6465636f762e696f2f6769746875622f6f6c6166757270672f7363616c61666d742f636f7665726167652e7376673f6272616e63683d6d6173746572" alt="codecov.io" data-canonical-src="https://codecov.io/github/olafurpg/scalafmt/coverage.svg?branch=master" style="max-width:100%;"></a>
+      <a href="https://travis-ci.org/olafurpg/scalafmt"><img src="https://camo.githubusercontent.com/6b6e23e24c648ccd29152db1fbee32bf88eccb46/68747470733a2f2f7472617669732d63692e6f72672f6f6c6166757270672f7363616c61666d742e7376673f6272616e63683d6d6173746572" alt="Build Status" data-canonical-src="https://travis-ci.org/olafurpg/scalafmt.svg?branch=master" style="max-width:100%;"></a>
+      <a href="https://gitter.im/olafurpg/scalafmt?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge"><img src="https://camo.githubusercontent.com/382ebf95f5b4df9275ac203229928db8c8fd5c50/68747470733a2f2f6261646765732e6769747465722e696d2f6f6c6166757270672f7363616c61666d742e737667" alt="Join the chat at https://gitter.im/olafurpg/scalafmt" data-canonical-src="https://badges.gitter.im/olafurpg/scalafmt.svg" style="max-width:100%;"></a>
+</p>
+  <blockquote>
+    Any style guide written in English is either so brief that it’s ambiguous,
+    or so long that no one reads it.
+</blockquote>
+  <blockquote>
+    -- Bob Nystrom, <a href="http://journal.stuffwithstuff.com/2015/09/08/the-hardest-program-ive-ever-written/">&quot;Hardest Program I've Ever Written&quot;</a>,
+    Dart, Google.
+</blockquote>
+  <p>
+    <a href="https://github.com/olafurpg/scalafmt">Scalafmt</a> turns the mess on the left into the (hopefully)
+    readable, idiomatic and consistently formatted Scala code on the right.
+</p>
+  <div><div style="width: 50%;float: left;"><pre><code class="scala scalatex-site-Styles-highlightMe">object FormatMe { List(number) match { case head :: Nil if head % 2 == 0 =&gt; &quot;number is even&quot;
+  case head :: Nil =&gt; &quot;number is not even&quot;
+  case Nil =&gt; &quot;List is empty&quot; }
+  function(arg1, arg2(arg3(arg4, arg5, &quot;arg6&quot;), arg7 + arg8), arg9.select(1, 2, 3, 4, 5, 6)) }
+</code></pre></div><div style="width: 50%;float: left;"><pre><code class="scala scalatex-site-Styles-highlightMe">object FormatMe {
+  List(number) match {
+    case head :: Nil
+        if head % 2 == 0 =&gt;
+      &quot;number is even&quot;
+    case head :: Nil =&gt;
+      &quot;number is not even&quot;
+    case Nil =&gt; &quot;List is empty&quot;
+  }
+  function(
+    arg1,
+    arg2(arg3(arg4, arg5, &quot;arg6&quot;),
+         arg7 + arg8),
+    arg9.select(1, 2, 3, 4, 5, 6))
+}
+</code></pre></div><div style="clear: both;"></div></div>
+  <p>
+    The goal of scalafmt is to produce good enough formatted code so that
+    you can focus on programming instead of manipulating syntax trivia.
+    Scalafmt can be used in several environments such as the command line, text
+    editors and build tools.</p>
+  <p>
+    It is not a goal to format every single Scala source file under the sun.
+    In particular, scalafmt cannot format deeply nested computer generated
+    code.
+</p>
+  <p>
+    Scalafmt is maintained by <a href="https://twitter.com/olafurpg">@olafurpg</a>
+    in his free time.
+    Bug reports, feature requests, questions and PRs are welcome.
+    Complaints and unfriendly attitude is not welcome.
+</p>
+  <p>
+    Curious to learn more about scalafmt? Check out this talk:
+</p>
+  
+    <iframe src="https://player.vimeo.com/video/165929294" width="100%" style="height: 28em;" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+</div>
+
+  
+
+<div style="margin: 0px;color: #333;text-align: center;padding: 2.5em 2em 0;border-bottom: 1px solid #eee;display: block;" id="Installation" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><h1 style="margin: 0.2em 0;font-size: 3em;font-weight: 300;">Installation<a class=" scalatex-site-Styles-headerLink" href="#Installation" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a></h1><br /></div>
+
+  <h1 id="IntelliJ" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#IntelliJ" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>IntelliJ</h1>
+    <a href="https://plugins.jetbrains.com/plugin/8236?pr=">Here is the plugin</a>.
+    You can install it directly from within IntelliJ,
+    <ul>
+      <li>
+        open <code>Settings &gt; Plugins</code></li>
+      <li>
+        open <code>Browse repositories</code></li>
+      <li>
+        search for <code>scalafmt</code></li>
+      <li>
+        restart IntelliJ.
+</li></ul>
+    <p>
+      The default shortcut is <code>Ctrl + Shift + L</code>.
+      Undo works, but not redo.
+</p>
+    <p>
+      The plugin determines which style to use in this order:
+      <ol>
+        <li>
+          <code>.scalafmt.conf</code> in the project's root directory, if it exists</li>
+        <li>
+          <code>$HOME/.scalafmt.conf</code>, if it exists</li>
+        <li>
+          Otherwise, uses <code>default</code> style.</li></ol>
+      For details on how <code>.scalafmt.conf</code> should look like, see
+      <a href="#Configuration">Configuration</a>.
+
+      The scalafmt IntelliJ plugin has a &quot;Format on save&quot; setting.
+      <ul>
+        <li>
+          To enable for current project: Settings &gt; Tools &gt; Scalafmt</li>
+        <li>
+          To enable for all future project: File &gt; Other settings &gt; Default settings &gt; Scalafmt
+</li></ul></p>
+    <p>
+      <b>NOTE</b>. You may need to enable balloons to get error message:
+      Settings &gt; Appearance &amp; Behavior &gt; Notifications &gt; Scalafmt &gt; Popup &quot;Balloon&quot;.
+      You need to first check &quot;Display Balloon Notifications&quot;.
+</p>
+  <h1 id="CLI" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#CLI" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>CLI</h1>
+    There are several ways to install the CLI.
+
+    <h2 id="Coursier" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Coursier" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Coursier</h2>
+      Create a tiny (~12kb) bootstrap script with coursier like this:
+
+      <pre><code class="xml scalatex-site-Styles-highlightMe">coursier bootstrap com.geirsson:scalafmt-cli_2.11:0.6.2 --main org.scalafmt.cli.Cli -o scalafmt
+./scalafmt --version # should be 0.6.2
+</code></pre>
+      To install coursier, see <a href="https://github.com/alexarchambault/coursier#command-line">here</a>.
+      For more details on coursier bootstrap launchers, see <a href="https://github.com/alexarchambault/coursier#generating-bootstrap-launchers">here</a>.
+
+      <p>
+        <b>Recommended in CI</b>. Put the bootstrap script in your code repository
+        to make sure everyone on your team use the same scalafmt version.
+        To configure which files to format, see <a href="#project">project</a>.
+</p>
+    <h2 id="Linux/OSX" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Linux/OSX" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Linux/OSX</h2>
+
+      <p>
+        To install the CLI in Linux or OSX, run:
+</p>
+      <pre><code class="xml scalatex-site-Styles-highlightMe">sudo curl -L -o /usr/local/bin/scalafmt https://raw.githubusercontent.com/olafurpg/scalafmt/master/bin/scalafmt_auto &amp;&amp; sudo chmod +x /usr/local/bin/scalafmt &amp;&amp; scalafmt --upgrade --help
+</code></pre>
+      <h3 id="ArchLinux" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#ArchLinux" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Arch Linux</h3>
+        <p>
+          Install the <code>scalafmt</code> package from the Arch User Repository. Voting on the package will also increase the likelyhood that the package will be merged into the community repo.
+</p>
+      <p>
+        To upgrade to the latest release, run <code>scalafmt --upgrade --help</code>.
+        All downloaded artifacts will go to <code>$HOME/.scalafmt-bin</code>.
+</p>
+      <p>
+        For instructions on how to use the bash script, run <code>scalafmt --h</code>.
+        Once installed, see <a href="#--help">--help</a>.
+</p>
+      <h3 id="Nailgun" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Nailgun" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Nailgun</h3>
+        <p>
+          For experimental nailgun support (requires <code>ng</code> client on <code>$PATH</code>), run instead:
+</p>
+        <pre><code class="xml scalatex-site-Styles-highlightMe">sudo curl -L -o /usr/local/bin/scalafmt https://raw.githubusercontent.com/olafurpg/scalafmt/master/bin/scalafmt_ng &amp;&amp; chmod +x /usr/local/bin/scalafmt &amp;&amp; scalafmt --upgrade --help
+</code></pre>
+        <p>
+          Nailgun keeps scalafmt running on a local server to avoid the JVM startup penalty
+          and also so scalafmt can benefit from JIT.
+          This makes scalafmt up to 10x faster when formatting a single file from the CLI.
+          The downside to Nailgun is that the setup is complicated and the long-running server
+          needs to be restarted once in awhile.</p>
+        <p>
+          <b>Help wanted!</b>.
+          For 0.5.0, I would like to migrate <code>scalafmt_ng</code> to python using
+          <a href="https://github.com/martylamb/nailgun/blob/master/pynailgun/ng.py">this</a>
+          python script as a baseline.
+</p>
+    <h2 id="Buildfromsource" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Buildfromsource" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Build from source</h2>
+      For the greatest performance and prettiest output.
+
+      <ul>
+        <li>
+          <code>git clone https://github.com/olafurpg/scalafmt.git</code>.</li>
+        <li>
+          <code>sbt cli/assembly</code></li>
+        <li>
+          <code>java -jar cli/target/scala-2.11/scalafmt.jar --version</code></li>
+        <li>
+          follow instructions in <a href="#scalafmt.jar">scalafmt.jar</a>.
+
+</li></ul>
+    <h2 id="scalafmt.jar" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#scalafmt.jar" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>scalafmt.jar</h2>
+
+      You can download a pre-compiled jar from the
+      <a href="https://github.com/olafurpg/scalafmt/releases">releases page</a>.
+
+      Next, create a script named <code>scalafmt</code> somewhere in your
+      <code>PATH</code> with the command:
+
+      <pre><code class="scala scalatex-site-Styles-highlightMe">java -jar PATH_TO/scalafmt.jar $@
+</code></pre>
+      or, in case of Windows, a script <code>scalafmt.bat</code> with the command:
+      <pre><code class="scala scalatex-site-Styles-highlightMe">java -jar PATH_TO/scalafmt.jar %*
+</code></pre>
+    <h2 id="Homebrew/MacOSX" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Homebrew/MacOSX" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Homebrew/Mac OSX</h2>
+      <pre><code class="scala scalatex-site-Styles-highlightMe">brew install olafurpg/scalafmt/scalafmt
+scalafmt --version // should be 0.6.2
+</code></pre>
+    <h2 id="Windows" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Windows" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Windows</h2>
+
+      Help wanted!
+
+    <h2 id="--help" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#--help" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>--help</h2>
+
+      <b>NOTE</b>. This help page is generated from the <code>master</code> branch and
+      may include flags that have not been published yet.
+      <code class="scala scalatex-site-Styles-highlightMe" style="display: inline;padding: 0px;margin: 0px;"></code>
+
+      <pre><code class="scala scalatex-site-Styles-highlightMe">build commit: 21fa5d5826
+build time: Sun Mar 12 18:21:01 CET 2017
+scalafmt 0.6.2
+Usage: scalafmt [options]
+
+  -h, --help               prints this usage text
+  -v, --version            print version 
+  -f, --files &lt;value&gt;      file or directory, in which case all *.scala files are formatted.
+  --exclude &lt;value&gt;        file or directory, in which case all *.scala files are formatted.
+  -c, --config &lt;value&gt;     a file path to .scalafmt.conf.
+  --config-str &lt;value&gt;     configuration defined as a string
+  --stdin                  read from stdin and print to stdout
+  --assume-filename &lt;value&gt;
+                           required to format .sbt files with --stdin flag.
+  -i, --in-place           write output to file, does nothing if file is not specified
+  --test                   test for mis-formatted code, exits with status 1 on failure.
+  --migrate2hocon &lt;value&gt;  migrate .scalafmt CLI style configuration to hocon style configuration in .scalafmt.conf
+  --diff                   If set, only format edited files in git diff against master.
+  --diff-branch &lt;value&gt;    If set, only format edited files in git diff against provided branch.
+  --build-info             prints build information
+  --quiet                  don't print out stuff to console.
+  --debug                  print out diagnostics to console.
+  --non-interactive        disable fancy progress bar, useful in ci or sbt plugin.
+Examples:
+scalafmt # Format all files in the current project, configuration is determined in this order:
+         # 1. .scalafmt.conf file in current directory
+         # 2. .scalafmt.conf inside root directory of current git repo
+         # 3. no configuration, default style
+scalafmt --test # throw exception on mis-formatted files, won't write to files.
+scalafmt --diff # Format all files that were edited in git diff against master branch.
+scalafmt --diff-branch 2.x # same as --diff, except against branch 2.x
+scalafmt --stdin # read from stdin and print to stdout
+scalafmt --stdin --assume-filename foo.sbt # required to format .sbt files
+scalafmt -f Code.scala             # print formatted contents to stdout.
+scalafmt -i -f Code1.scala,A.scala # write formatted contents to file.
+scalafmt -i -f . --exclude target  # format all files in directory excluding target
+scalafmt --config .scalafmt.conf   # read custom style from file
+scalafmt --config-str &quot;style=IntelliJ&quot; # define custom style as a flag, must be quoted.
+Please file bugs to https://github.com/olafurpg/scalafmt/issues
+      </code></pre>
+
+  <h1 id="sbt" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#sbt" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>sbt</h1>
+    <p>
+      The sbt plugin is a tiny wrapper around the command line interface.
+</p>
+    <pre><code class="scala scalatex-site-Styles-highlightMe">// NOTE. If you use sbt-coursier, make sure you're on version 1.0.0-M15-1.
+addSbtPlugin(&quot;com.geirsson&quot; % &quot;sbt-scalafmt&quot; % &quot;0.6.2&quot;)
+</code></pre>
+    <ul>
+      <li>
+        Run <code>sbt scalafmt</code> to format all files in the project.
+        Configure <a href="#project">project</a> in <code>.scalafmt.conf</code> to
+        define which files to format.
+        You can add pass any command line flags to <code>scalafmt</code>.
+        See <a href="#--help">--help</a> for more details.
+        Example,
+        <pre><code class="scala scalatex-site-Styles-highlightMe">sbt &quot;scalafmt --help&quot;
+scalafmt x.y.z
+Usage: ...</code></pre></li>
+      <li>
+        There are three handy aliases for the <code>scalafmt</code> command.
+        <ul>
+          <li>
+            <code>scalafmtTest -&gt; scalafmt --test</code></li>
+          <li>
+            <code>scalafmtDiff -&gt; scalafmt --diff</code></li>
+          <li>
+            <code>scalafmtDiffTest -&gt; scalafmt --diff --test</code></li></ul></li>
+      <li>
+        The plugin will automatically pick up your <a href="#Configuration">Configuration</a> in
+        <code>.scalafmt.conf</code>.
+        <p>
+          The configuration must be defined in .scalafmt.conf in the root directory
+          of your project. Why? Because integrations like IntelliJ rely on the
+          file existing there.</p>
+        <p>
+          If you want to define the configuration somehow differently, you can
+          use some trick like this in <code>build.sbt</code> or from within an
+          sbt plugin settings
+
+          <pre><code class="scala scalatex-site-Styles-highlightMe">// define setting key to write configuration to .scalafmt.conf
+SettingKey[Unit](&quot;scalafmtGenerateConfig&quot;) :=
+  IO.write( // writes to file once when build is loaded
+    file(&quot;.scalafmt.conf&quot;),
+    &quot;&quot;&quot;style = IntelliJ
+      |# Your configuration here
+      &quot;&quot;&quot;.stripMargin.getBytes(&quot;UTF-8&quot;)
+  )</code></pre></p></li>
+      <li>
+        <p>
+          The sbt plugin does not provide reformat on compile settings.
+          <a href="https://gist.github.com/olafurpg/e045ef9d8a4273bae3e2ccf610636d66">This gist</a>
+          shows a DIY plugin to enable reformat on compile.
+          YMMV.</p>
+        <p>
+          Why isn't that gist included in the sbt plugin? See <a href="https://github.com/olafurpg/scalafmt/issues/597">#597</a>.
+</p></li></ul>
+  <h1 id="Gradle" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Gradle" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Gradle</h1>
+    It is possible to use scalafmt in gradle with the following externally maintained plugins:
+
+    <ul>
+      <li>
+        <a href="https://github.com/diffplug/spotless/tree/master/plugin-gradle#applying-scalafmt-to-scala-files">Spotless</a></li>
+      <li>
+        <a href="https://github.com/alenkacz/gradle-scalafmt">gradle-scalafmt</a>
+</li></ul>
+  <h1 id="Maven" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Maven" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Maven</h1>
+    It is possible to use scalafmt in Maven with the following externally maintained plugin:
+    <ul>
+      <li>
+        <a href="https://github.com/pianista215/mvn_scalafmt">mvn_scalafmt</a>
+</li></ul>
+  <h1 id="Vim" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Vim" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Vim</h1>
+    <ul>
+      <li>
+        Make sure you have the <a href="#CLI">CLI</a> installed and working.</li>
+      <li>
+        install <a href="https://github.com/Chiel92/vim-autoformat">vim-autoformat</a></li>
+      <li>
+        add to your <code>.vimrc</code>
+        <pre><code class="scala scalatex-site-Styles-highlightMe">noremap &lt;F5&gt; :Autoformat&lt;CR&gt;
+let g:formatdef_scalafmt = &quot;'scalafmt --stdin'&quot;
+let g:formatters_scala = ['scalafmt']
+</code></pre></li></ul>
+    <b>NOTE</b>. You pay the JVM startup penalty on every format unless you're using
+    <a href="#Nailgun">Nailgun</a>.
+
+  <h1 id="Standalonelibrary" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Standalonelibrary" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Standalone library</h1>
+    Add to your dependencies
+    <pre><code class="scala scalatex-site-Styles-highlightMe">libraryDependencies += &quot;com.geirsson&quot; %% &quot;scalafmt-core&quot; % &quot;0.6.2&quot;</code></pre>
+    <p>
+      Use the API like this
+</p>
+    <pre><code class="scala scalatex-site-Styles-highlightMe">scala&gt; org.scalafmt.Scalafmt.format(&quot;&quot;&quot;
+      object FormatMe { List(Split(Space, 0).withPolicy(SingleLineBlock(close)), Split(Newline, 1).withPolicy{ case Decision(t@FormatToken(_, `close`, _), s) =&gt; Decision(t, List(Split(Newline, 0)))}.withIndent(2, close, Right)) }
+       &quot;&quot;&quot;).get
+res0: java.lang.String = 
+&quot;object FormatMe {
+  List(
+    Split(Space, 0).withPolicy(SingleLineBlock(close)),
+    Split(Newline, 1)
+      .withPolicy {
+        case Decision(t @ FormatToken(_, `close`, _), s) =&gt;
+          Decision(t, List(Split(Newline, 0)))
+      }
+      .withIndent(2, close, Right)
+  )
+}
+&quot;
+</code></pre>
+  <h1 id="Helpwanted!" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Helpwanted!" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Help wanted!</h1>
+
+    <ul>
+      <li>
+        Ensime</li>
+      <li>
+        Scala IDE (<a href="https://github.com/olafurpg/scalafmt/issues/125">help wanted!</a>)</li>
+      <li>
+        Your favorite editor? Join the gitter channel.</li></ul>
+
+  
+
+<div style="margin: 0px;color: #333;text-align: center;padding: 2.5em 2em 0;border-bottom: 1px solid #eee;display: block;" id="Configuration" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><h1 style="margin: 0.2em 0;font-size: 3em;font-weight: 300;">Configuration<a class=" scalatex-site-Styles-headerLink" href="#Configuration" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a></h1><br /></div>
+
+  <p>
+    Configuration for scalafmt is defined in a
+    plain text file <code>.scalafmt.conf</code> using
+    <a href="https://github.com/typesafehub/config">HOCON</a> syntax.
+    To reuse your configuration with IntelliJ,
+    <code>.scalafmt.conf</code> must be placed in the root directory of your project.
+</p>
+  <p>
+    Here is an example <code>.scalafmt.conf</code>.
+
+    <pre><code class="scala scalatex-site-Styles-highlightMe">style = defaultWithAlign # For pretty alignment.
+maxColumn = 100          # For my wide 30&quot; display.
+</code></pre></p>
+  <p>
+    A note of warning. I personally use the default style, which means that the
+    default style is by far the most tested and supported style.
+    Most of the configuration flags are quite innocent, while some of them work
+    very differently (esp. Scala.js).
+    It is very difficult to guarantee that all configurations options play nicely
+    together so I recommend you try not to go too crazy on this part.
+</p>
+  <p>
+    The following sections describe the most common configuration options.
+</p>
+  <p>
+    <b>NOTE</b>. If you are using scalafmt as a <a href="#Standalonelibrary">Standalone library</a>, you can
+    pass in a <code>ScalafmtConfig</code> instance, which is set to <code>ScalafmtStyle.default</code>
+    by default.
+
+</p>
+  <h1 id="style" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#style" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>style</h1>
+    Option 1: <b>default</b>
+    <pre><code class="scala scalatex-site-Styles-highlightMe">// Column 40                           |
+// non bin packed parent constructors
+object DefaultStyle
+    extends Parent
+    with SecondParent
+    with ThirdParent {
+  // non bin packed arguments
+  function(
+    argument1,
+    argument2(argument3, argument4))
+  // No vertical alignment
+  x match {
+    case 1 =&gt; 1
+    case 11 =&gt; 1
+  }
+}
+</code></pre>
+    Option 2: <b>defaultWithAlign</b>
+    <pre><code class="scala scalatex-site-Styles-highlightMe">// Column 40                           |
+object DefaultWithAlignStyle
+    extends Parent
+    with SecondParent
+    with ThirdParent {
+  // vertical alignment
+  x match {
+    case 1  =&gt; 1  // align me
+    case 11 =&gt; 11 // align me too
+
+    case x =&gt; // blank line breaks alignment
+  }
+  for {
+    x  &lt;- List(1)
+    xx &lt;- List(1, 2)
+  } yield x * xx
+  // A whole bunch of other
+  // alignment goodies.
+  // ...
+}
+</code></pre>
+    Option 3: <b>IntelliJ</b>
+    <pre><code class="scala scalatex-site-Styles-highlightMe">// Column 40                           |
+// non bin packed parent constructors
+object IntelliJStyle
+    extends Parent
+    with SecondParent
+    with ThirdParent {
+
+  function(argument1, argument2)
+
+  // continuationIndent = 2  # for call + defn site
+  // align.openParenCallSite = false
+  // danglingParentheses = true
+  function(
+    argument1,
+    argument2,
+    argument3,
+    argument4
+  )
+
+  // openParenCallSite = true
+  def foobar(argument1: Type1,
+             argument2: Type2): Int =
+    argument1 + argument2
+
+}
+</code></pre>
+    <b>NOTE</b>. There is a Scala.js style that is super experimental and does not
+    work for complicated code.
+
+  <h1 id="maxColumn" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#maxColumn" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>maxColumn</h1>
+    Default: <b>80</b>
+
+    <ul>
+      <li>
+        Keep in mind that 80 characters fit perfectly on a split laptop screen
+        with regular resolution.</li>
+      <li>
+        Github mobile view only shows 80 characters and sometimes you might
+        review code on your phone.</li>
+      <li>
+        Consider refactoring your code before of choosing a value above 100.
+</li></ul>
+  <h1 id="continuationIndent.callSite" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#continuationIndent.callSite" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>continuationIndent.callSite</h1>
+    Default: <b>2</b>
+
+    <p>
+      Example:
+      <pre><code class="scala scalatex-site-Styles-highlightMe">function(
+  argument1 // indented by 2
+)
+</code></pre></p>
+  <h1 id="continuationIndent.defnSite" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#continuationIndent.defnSite" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>continuationIndent.defnSite</h1>
+    Default: <b>4</b>
+
+    <p>
+      Same as <code>continuationIndent.callSite</code> except for definition site.
+      Example:
+      <pre><code class="scala scalatex-site-Styles-highlightMe">def function(
+    argument1: Type1): ReturnType // Indented by 4
+</code></pre></p>
+  <h1 id="align.tokens" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#align.tokens" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>align.tokens</h1>
+    Default: <b>off</b>
+
+    <p>
+      The style <code>defaultWithAlign</code> has pre-configured a variety of
+      tokens that align together nicely.
+
+      <pre><code class="scala scalatex-site-Styles-highlightMe">// 40 columns                          |
+object TokenAlignment {
+  x match {
+    // Align by =&gt; and -&gt; and //
+    case 1  =&gt; 1  -&gt; 2  // first
+    case 11 =&gt; 11 -&gt; 22 // second
+
+    // A blank line separates alignment blocks.
+    case `ignoreMe` =&gt; 111 -&gt; 222
+  }
+
+  // Align assignments of similar type.
+  def name   = column[String](&quot;name&quot;)
+  def status = column[Int](&quot;status&quot;)
+  val x  = 1
+  val xx = 22
+
+  // Align sbt module IDs.
+  libraryDependencies ++= Seq(
+    &quot;org.scala-lang&quot; % &quot;scala-compiler&quot; % scalaVersion.value,
+    &quot;com.lihaoyi&quot;    %% &quot;sourcecode&quot;    % &quot;0.1.1&quot;
+  )
+}
+</code></pre></p>
+  <h1 id="//format:off" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#//format:off" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>// format: off</h1>
+    Disable formatting for specific regions of code by wrapping them in
+    <code>// format: OFF</code> blocks:
+
+    <pre><code class="scala scalatex-site-Styles-highlightMe">object PrettyMatrix {
+  // format: off
+  val identity = Array(1, 0, 0,
+                       0, 1, 0,
+                       0, 0, 1)
+  // format: on
+}
+</code></pre>
+
+    To disable formatting for a whole file, put the comment at the top of
+    the file.
+
+    <ul>
+      <li>
+        the comment string is case insensitive, you can also write
+        <code>// format: OFF</code>.</li>
+      <li>
+        The comments <code>// @formatter:off</code> and <code>// @formatter:off</code>
+        will also work, for compatibility with the IntelliJ formatter.</li>
+      <li>
+        Scalafmt will do it's best to resume formatting at the correct
+        indentation level. It's best to enable formatting at the same level as
+        when it was disabled.
+</li></ul>
+  <h1 id="assumeStandardLibraryStripMargin" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#assumeStandardLibraryStripMargin" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>assumeStandardLibraryStripMargin</h1>
+    Default: <b>false</b>
+
+    <p>
+      If <b>true</b>, the margin character <code>|</code> is aligned with the opening triple
+      quote <code>&quot;&quot;&quot;</code> in interpolated and raw string literals.
+
+      <pre><code class="scala scalatex-site-Styles-highlightMe">// 40 columns                          |
+object StripMargin {
+  val example1 =
+    s&quot;&quot;&quot;Examples:
+       |  * one
+       |  * two
+       |  * $three
+       |&quot;&quot;&quot;.stripMargin
+
+  // pipe character after opening &quot;&quot;&quot;
+  val example2 =
+    s&quot;&quot;&quot;|Examples:
+        |  * one
+        |  * two
+        |  * $three
+        |&quot;&quot;&quot;.stripMargin
+}
+</code></pre>
+
+      <b>NOTE</b>. May cause non-idempotent formatting in rare cases, see <a href="https://github.com/olafurpg/scalafmt/issues/192">#192</a>.
+</p>
+  <h1 id="docstrings" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#docstrings" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>docstrings</h1>
+    Default: <b>ScalaDoc</b>
+
+    <pre><code class="scala scalatex-site-Styles-highlightMe">// docstrings = ScalaDoc
+/** Align by second asterisk.
+  *
+  */
+
+// docstrings = JavaDoc
+/** Align by first asterisk.
+ *
+ */
+</code></pre>
+  <h1 id="newlines.alwaysBeforeTopLevelStatements" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#newlines.alwaysBeforeTopLevelStatements" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>newlines.alwaysBeforeTopLevelStatements</h1>
+    Default: <b>false</b>
+
+    <pre><code class="scala scalatex-site-Styles-highlightMe">// newlines.alwaysBeforeTopLevelStatements = false
+import org.scalafmt
+package P {
+  object O {
+    val x1 = 1
+    val x2 = 2
+    def A = &quot;A&quot;
+    def B = &quot;B&quot;
+  }
+}
+
+// newlines.alwaysBeforeTopLevelStatements = true
+import org.scalafmt
+
+package P {
+
+  object O {
+    val x1 = 1
+    val x2 = 2
+
+    def A = &quot;A&quot;
+
+    def B = &quot;B&quot;
+  }
+}
+</code></pre>
+  <h1 id="newlines.sometimesBeforeColonInMethodReturnType" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#newlines.sometimesBeforeColonInMethodReturnType" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>newlines.sometimesBeforeColonInMethodReturnType</h1>
+    Default: <b>true</b>
+
+    <pre><code class="scala scalatex-site-Styles-highlightMe">// Column limit                                                     |
+// newlines.sometimesBeforeColonInMethodReturnType = true
+implicit def validatedInstances[E](implicit E: Semigroup[E])
+  : Traverse[Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] = 2
+
+// newlines.sometimesBeforeColonInMethodReturnType = false
+implicit def validatedInstances[E](implicit E: Semigroup[E]): Traverse[
+    Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] = 2
+</code></pre>
+  <h1 id="align.arrowEnumeratorGenerator" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#align.arrowEnumeratorGenerator" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>align.arrowEnumeratorGenerator</h1>
+    Default: <b>false</b>
+
+    <pre><code class="scala scalatex-site-Styles-highlightMe">// align.arrowEnumeratorGenerator = false
+for {
+  x &lt;- new Integer {
+    def value = 2
+  }
+} yield x
+
+// align.arrowEnumeratorGenerator = true
+for {
+  x &lt;- new Integer {
+        def value = 2
+      }
+} yield x
+</code></pre>
+  <h1 id="binPackParentConstructors" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#binPackParentConstructors" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>binPackParentConstructors</h1>
+    Default: <b>false</b>
+
+    <pre><code class="scala scalatex-site-Styles-highlightMe">// column limit                        |
+// binPackParentConstructors = false
+object DefaultStyle
+    extends Parent
+    with SecondParent
+    with ThirdParent {
+  // body ...
+}
+
+// column limit                        |
+// binPackParentConstructors = true
+object DefaultStyle
+    extends Parent with SecondParent
+    with ThirdParent {
+  // body ...
+}
+</code></pre>
+  <h1 id="align.openParenCallSite" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#align.openParenCallSite" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>align.openParenCallSite</h1>
+    Default: <b>true</b>
+
+    <pre><code class="scala scalatex-site-Styles-highlightMe">// Column limit |
+// align.openParenCallSite = true
+foo(arg1, arg2)
+
+function(arg1, // align by (
+         arg2,
+         arg3)
+function(
+  argument1,
+  argument2)
+
+// align.openParenCallSite = false
+foo(arg1, arg2)
+function(
+  arg1, // no align by (
+  arg2,
+  arg3)
+function(
+  argument1,
+  argument2)
+</code></pre>
+  <h1 id="lineEndings" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#lineEndings" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>lineEndings</h1>
+    Default: <b>unix</b>
+
+    <ul>
+      <li>
+        <code>preserve</code> output will include endings included in original file (windows if there was at least one windows
+        line ending, unix if there was zero occurrences of windows line endings)</li>
+      <li>
+        <code>unix</code> output will include only unix line endings</li>
+      <li>
+        <code>windows</code> output will include only windows line endings
+</li></ul>
+  <h1 id="includeCurlyBraceInSelectChains" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#includeCurlyBraceInSelectChains" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>includeCurlyBraceInSelectChains</h1>
+    Default: <b>true</b>
+
+    <pre><code class="scala scalatex-site-Styles-highlightMe">// includeCurlyBraceInSelectChains = true
+List(1)
+  .map { x =&gt;
+    x + 2
+  }
+  .filter(_ &gt; 2)
+
+// includeCurlyBraceInSelectChains = false
+List(1).map { x =&gt;
+    x + 2
+}.filter(_ &gt; 2)
+</code></pre>
+    For more details, see
+    <a href="https://github.com/olafurpg/scalafmt/issues/444#issuecomment-255215698">this comment</a>.
+
+  <h1 id="optIn.breakChainOnFirstMethodDot" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#optIn.breakChainOnFirstMethodDot" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>optIn.breakChainOnFirstMethodDot</h1>
+    Default: <b>true</b>
+
+    <p>
+      If true, forces a select chain (pipeline) to break if there is a newline
+      at the start of the chain.
+</p>
+    <pre><code class="scala scalatex-site-Styles-highlightMe">// original
+foo
+  .map(_ + 1)
+  .filter( &gt; 2)
+
+// optIn.breakChainOnFirstMethodDot = true
+foo
+  .map(_ + 1)
+  .filter( &gt; 2)
+
+// optIn.breakChainOnFirstMethodDot = false
+foo.map(_ + 1).filter( &gt; 2)
+// note. chain starts at .foo() in a.b.foo()
+</code></pre>
+    <p>
+      See
+      <a href="https://github.com/olafurpg/scalafmt/issues/444#issuecomment-255215698">this comment</a>
+      for further motivation.
+</p>
+  <h1 id="newlines.penalizeSingleSelectMultiArgList" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#newlines.penalizeSingleSelectMultiArgList" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>newlines.penalizeSingleSelectMultiArgList</h1>
+    Default: <b>true</b>
+
+    <pre><code class="scala scalatex-site-Styles-highlightMe">// newlines.penalizeSingleSelectMultiArgList = true
+logger.elem(a,
+            b,
+            c)
+
+// newlines.penalizeSingleSelectMultiArgList = false
+logger
+  .elem(a, b, c)
+</code></pre>
+    <p>
+      See
+      <a href="https://github.com/olafurpg/scalafmt/pull/611#issue-196230948">this comment</a>
+      for further motivation.
+</p>
+  <h1 id="binPack.literalArgumentLists" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#binPack.literalArgumentLists" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>binPack.literalArgumentLists</h1>
+    Default: <b>true</b>
+
+    <pre><code class="scala scalatex-site-Styles-highlightMe">// binPack.literalArgumentLists = true
+val secret: List[Bit] = List(0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1,
+  0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1,
+  0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1)
+
+// binPack.literalArgumentLists = false
+val secret: List[Bit] = List(
+  0,
+  0,
+  1,
+  1,
+  // really long list...
+  1
+)
+</code></pre>
+  <h1 id="runner.optimizer.forceConfigStyleOnOffset" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#runner.optimizer.forceConfigStyleOnOffset" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>runner.optimizer.forceConfigStyleOnOffset</h1>
+    Default: <b>150</b>
+
+    <p>
+      Set to <code>-1</code> to disable. Increase number to require bigger argument
+      bodies to trigger flag.
+</p>
+    <pre><code class="scala scalatex-site-Styles-highlightMe">// Before: Argument body is too big
+Account(userName = &quot;user&quot;,
+        fullName = &quot;user@localhost&quot;,
+        mailAddress = &quot;&quot;,
+        password = &quot;&quot;,
+        isAdmin = false,
+        url = None,
+        registeredDate = new Date(),
+        updatedDate = new Date(),
+        lastLoginDate = None,
+        image = image,
+        isGroupAccount = false,
+        isRemoved = false)
+// After: &quot;config style&quot;
+Account(
+  userName = &quot;user&quot;,
+  fullName = &quot;user@localhost&quot;,
+  mailAddress = &quot;&quot;,
+  password = &quot;&quot;,
+  isAdmin = false,
+  url = None,
+  registeredDate = new Date(),
+  updatedDate = new Date(),
+  lastLoginDate = None,
+  image = image,
+  isGroupAccount = false,
+  isRemoved = false
+)
+</code></pre>
+    <p>
+      Set <code class="scala scalatex-site-Styles-highlightMe" style="display: inline;padding: 0px;margin: 0px;">runner.optimizer.forceConfigStyleMinArgCount = 1</code> to enable
+      this rule for function calls with only 1 argument
+      (default = 2).
+</p>
+    <p>
+      By forcing config style, scalafmt is able to greatly optimize performance
+      eliminating a large number of &quot;search state exploded&quot; errors.
+      See <a href="https://github.com/olafurpg/scalafmt/pull/621#issue-196451803">these flame graphs</a>.
+
+</p>
+  <h1 id="rewrite.rules" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#rewrite.rules" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>rewrite.rules</h1>
+    Default: <b>disabled</b>
+
+    <p>
+      To enable a rewrite rule, add it to the config like this <code class="scala scalatex-site-Styles-highlightMe" style="display: inline;padding: 0px;margin: 0px;">rewrite.rules = [SortImports]</code>.
+</p>
+    <h2 id="AvoidInfix" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#AvoidInfix" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>AvoidInfix</h2>
+      <div><div style="width: 50%;float: left;"><pre><code class="scala scalatex-site-Styles-highlightMe">a success b
+a error (b, c)
+a map { x =&gt;
+  x + 2
+}
+&quot;o&quot; % &quot;a&quot; % &quot;v&quot; c(D)
+future recover {
+  case e: Err =&gt; 0
+} map (_.toString)</code></pre></div><div style="width: 50%;float: left;"><pre><code class="scala scalatex-site-Styles-highlightMe">a.success(b)
+a.error(b, c)
+a.map { x =&gt;
+  x + 2
+}
+(&quot;o&quot; % &quot;a&quot; % &quot;v&quot;).c(D)
+future
+  .recover {
+    case e: Err =&gt; 0
+  }
+  .map(_.toString)
+</code></pre></div><div style="clear: both;"></div></div>
+    For more examples, see <a href="https://github.com/olafurpg/scala-repos/pull/18/files#diff-f4f9daffe8f0a4aee6505c4eea8493ccL120">this diff</a>.
+    Configuration contains include/exclude operator filters (those values are build in, and can't be configured outside)
+    <ul>
+      <li>
+        Configure under <code>rewrite.neverInfix</code>, default values are in <a href="#Other">Other</a>
+</li></ul>
+    <h2 id="ExpandImportSelectors" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#ExpandImportSelectors" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>ExpandImportSelectors</h2>
+      <div><div style="width: 50%;float: left;"><pre><code class="scala scalatex-site-Styles-highlightMe">import a.{
+    b,
+    c
+  }, h.{
+    k, l
+  }
+  import d.e.{f, g}
+  import a.{
+      foo =&gt; bar,
+      zzzz =&gt; _,
+      _
+    }
+
+</code></pre></div><div style="width: 50%;float: left;"><pre><code class="scala scalatex-site-Styles-highlightMe">import a.b
+import a.c
+import h.k
+import h.l
+import d.e.f
+import d.e.g
+import a.{foo =&gt; bar, zzzz =&gt; _, _}
+</code></pre></div><div style="clear: both;"></div></div>
+    <h2 id="RedundantBraces" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#RedundantBraces" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>RedundantBraces</h2>
+      <div><div style="width: 50%;float: left;"><pre><code class="scala scalatex-site-Styles-highlightMe">object RedundantBraces {
+  def foo = {
+    List(1, 2, 3).sum
+  }
+
+  // stringInterpolation = true
+  q&quot;Hello ${name}&quot;
+}</code></pre></div><div style="width: 50%;float: left;"><pre><code class="scala scalatex-site-Styles-highlightMe">object RedundantBraces {
+  def foo =
+    List(1, 2, 3).sum
+
+  // stringInterpolation = true
+  q&quot;Hello $name&quot;
+}
+</code></pre></div><div style="clear: both;"></div></div>
+      Configuration options and default values:
+      <ul>
+        <li>
+          <code>rewrite.redundantBraces.maxLines</code> = 100</li>
+        <li>
+          <code>rewrite.redundantBraces.includeUnitMethods</code> = true</li>
+        <li>
+          <code>rewrite.redundantBraces.stringInterpolation</code> = true
+</li></ul>
+    <h2 id="RedundantParens" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#RedundantParens" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>RedundantParens</h2>
+      <p>
+        Removes redundant parentheses in guard clauses.</p>
+      <div><div style="width: 50%;float: left;"><pre><code class="scala scalatex-site-Styles-highlightMe">object RedundantParenthesis {
+  def c(b: List[Int]): List[Int] =
+    for {
+      a &lt;- b
+      if (a.nonEmpty)
+    } yield a
+}
+</code></pre></div><div style="width: 50%;float: left;"><pre><code class="scala scalatex-site-Styles-highlightMe">object RedundantParenthesis {
+  def c(b: List[Int]): List[Int] =
+    for {
+      a &lt;- b
+      if a.nonEmpty
+    } yield a
+}
+</code></pre></div><div style="clear: both;"></div></div>
+    <h2 id="SortImports" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#SortImports" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>SortImports</h2>
+      <p>
+        The imports are sorted by the groups: symbols, lower-case, upper-case.</p>
+      <div><div style="width: 50%;float: left;"><pre><code class="scala scalatex-site-Styles-highlightMe">import foo.{Zilch, bar, Random, sand}
+</code></pre></div><div style="width: 50%;float: left;"><pre><code class="scala scalatex-site-Styles-highlightMe">import foo.{bar, sand, Random, Zilch}
+</code></pre></div><div style="clear: both;"></div></div>
+    <h2 id="PreferCurlyFors" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#PreferCurlyFors" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>PreferCurlyFors</h2>
+      <p>
+        Replaces parentheses into curly braces in for comprehensions that
+        contain multiple enumerator generators.</p>
+      <div><div style="width: 50%;float: left;"><pre><code class="scala scalatex-site-Styles-highlightMe">object a {
+  for(a &lt;- as; b &lt;- bs if b &gt; 2)
+    yield (a, b)
+}
+</code></pre></div><div style="width: 50%;float: left;"><pre><code class="scala scalatex-site-Styles-highlightMe">object a {
+  for {
+    a &lt;- as
+    b &lt;- bs if b &gt; 2
+  } yield (a, b)
+}
+</code></pre></div><div style="clear: both;"></div></div>
+  <h1 id="project" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#project" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>project</h1>
+    <p>
+      Configure which source files should be formatted in this project.</p>
+    <pre><code class="scala scalatex-site-Styles-highlightMe"># Only format files tracked by git.
+project.git = true
+# manually exclude files to format.
+project.excludeFilters = [
+   regex1
+   regex2
+]
+# manually include files to format.
+project.includeFilters = [
+  regex1
+  regex2
+]
+</code></pre>
+  <h1 id="Other" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Other" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Other</h1>
+
+    Scalafmt has a ton of internal configuration options which I
+    really don't recommend you rely on.
+    However, just in case, here they are.
+
+    <pre><code class="scala scalatex-site-Styles-highlightMe">maxColumn = 80
+onTestFailure = 
+indent.rightAssociativeInfixOperatorsLikeLeftAssociative = true
+bestEffortInDeeplyNestedCode = false
+project.git = false
+project.files = []
+project.includeFilters = [&quot;.*\.scala&quot;
+  &quot;.*\.sbt&quot;]
+project.excludeFilters = []
+align.openParenCallSite = true
+align.openParenDefnSite = true
+align.ifWhileOpenParen = true
+align.arrowEnumeratorGenerator = false
+align.tokens = []
+align.mixedOwners = false
+continuationIndent.callSite = 2
+continuationIndent.defnSite = 4
+continuationIndent.extendSite = 4
+optIn.configStyleArguments = true
+optIn.breakChainOnFirstMethodDot = true
+optIn.annotationNewlines = false
+assumeStandardLibraryStripMargin = false
+runner.optimizer.maxEscapes = 16
+runner.optimizer.dequeueOnNewStatements = true
+runner.optimizer.maxVisitsPerToken = 513
+runner.optimizer.acceptOptimalAtHints = true
+runner.optimizer.maxDepth = 100
+runner.optimizer.forceConfigStyleMinArgCount = 2
+runner.optimizer.disableOptimizationsInsideSensitiveAreas = true
+runner.optimizer.forceConfigStyleOnOffset = 150
+runner.optimizer.recurseOnBlocks = true
+runner.optimizer.escapeInPathologicalCases = true
+runner.optimizer.pruneSlowStates = true
+runner.eventCallback = &quot;&lt;function1&gt;&quot;
+runner.parser = scala.meta.internal.parsers.ScalametaParser$$anon$202@68944db9
+runner.debug = false
+runner.fatalWarnings = false
+runner.maxStateVisits = 1000000
+runner.ignoreWarnings = false
+runner.dialect = Scala211
+encoding = UTF-8
+newlines.neverInResultType = false
+newlines.sometimesBeforeColonInMethodReturnType = true
+newlines.alwaysBeforeTopLevelStatements = false
+newlines.penalizeSingleSelectMultiArgList = true
+newlines.neverBeforeJsNative = false
+newlines.alwaysBeforeCurlyBraceLambdaParams = false
+version = 0.6.2
+unindentTopLevelOperators = false
+poorMansTrailingCommasInConfigStyle = false
+indentOperator.include = &quot;.*&quot;
+indentOperator.exclude = &quot;^(&amp;&amp;|\|\|)$&quot;
+docstrings = ScalaDoc
+lineEndings = unix
+rewrite.rules = []
+rewrite.redundantBraces.includeUnitMethods = true
+rewrite.redundantBraces.maxLines = 100
+rewrite.redundantBraces.stringInterpolation = false
+rewrite.neverInfix.includeFilters = [&quot;[\w\d_]+&quot;]
+rewrite.neverInfix.excludeFilters = [until
+  to
+  by
+  eq
+  ne
+  should.*
+  contain.*
+  must.*
+  in
+  be
+  taggedAs
+  thrownBy
+  synchronized
+  have
+  when]
+danglingParentheses = false
+includeCurlyBraceInSelectChains = true
+binPack.literalsInclude = [&quot;.*&quot;]
+binPack.literalsExclude = [String]
+binPack.literalsMinArgCount = 5
+binPack.lambdaParameter = false
+binPack.literalArgumentLists = true
+binPack.defnSite = false
+binPack.callSite = false
+binPack.parentConstructors = false
+indentYieldKeyword = true
+importSelectors = noBinPack
+verticalMultilineAtDefinitionSite = false
+spaces.neverAroundInfixTypes = []
+spaces.beforeContextBoundColon = false
+spaces.beforeSeqWildcard = false
+spaces.afterTripleEquals = false
+spaces.inImportCurlyBraces = false
+spaces.inParentheses = false</code></pre>
+
+  
+
+<div style="margin: 0px;color: #333;text-align: center;padding: 2.5em 2em 0;border-bottom: 1px solid #eee;display: block;" id="Gotchas" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><h1 style="margin: 0.2em 0;font-size: 3em;font-weight: 300;">Gotchas<a class=" scalatex-site-Styles-headerLink" href="#Gotchas" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a></h1><br /></div>
+
+  <p>
+    Scalafmt tries to automatically reformat as much as possible.
+    However, sometimes you need to help scalafmt decide how to format your code.
+</p>
+  <h1 id="Infixapplications" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Infixapplications" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Infix applications</h1>
+    Infix applications are methods calls that use the syntax like <code>a + b</code>
+    instead of <code>a.+(b)</code>.
+    Scalafmt preserves your line breaks in infix applications, even if this
+    means the <code>maxColumn</code> setting is not respected.
+
+    <pre><code class="scala scalatex-site-Styles-highlightMe">// column limit |
+// if you have long infix appplications
+a.b(c) &amp;&amp; d.e(f, g, h)
+// then scalafmt may format like this
+a.b(c) &amp;&amp; d.e(
+  f, g, h)
+// which is ugly. You can fix it by inserting
+// a newline after &amp;&amp; and it will look like this
+a.b(c) &amp;&amp;
+  d.e(f, g, h)
+</code></pre>
+  <h1 id="Configstyle" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Configstyle" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Config style</h1>
+    You can use &quot;config style&quot; to tell scalafmt to break a function application.
+
+    <pre><code class="scala scalatex-site-Styles-highlightMe">// Put newline after opening (
+// and newline before closing )
+// to force one argument on each line.
+
+// OK: Config style
+function(
+  longerArg1 = defaultValue1,
+  longerArg2 = defaultValue2,
+  longerArg3 = defaultValue3
+)
+// NOT Config style
+function(longerArg1 = defaultValue1,
+         longerArg2 = defaultValue2,
+         longerArg3 = defaultValue3)
+</code></pre>
+
+  
+
+<div style="margin: 0px;color: #333;text-align: center;padding: 2.5em 2em 0;border-bottom: 1px solid #eee;display: block;" id="Community" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><h1 style="margin: 0.2em 0;font-size: 3em;font-weight: 300;">Community<a class=" scalatex-site-Styles-headerLink" href="#Community" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a></h1><br /></div>
+  <h1 id="Relatedprojects" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Relatedprojects" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Related projects</h1>
+    Have a scalafmt related project? Please consider
+    <a href="https://github.com/olafurpg/scalafmt/blob/master/readme/Readme.scalatex">opening a pull request</a>
+    to list it here:
+    <ul>
+      <li>
+        <a href="https://github.com/NixOS/nixpkgs/tree/master/pkgs/development/tools/scalafmt">scalafmt nix package</a>:
+        package to install scalafmt on nix.</li>
+      <li>
+        <a href="https://github.com/mikr/whatstyle">whatstyle</a>:
+        Find a code format style configuration that fits a given source file.</li>
+      <li>
+        <a href="https://github.com/cvogt/cbt/tree/master/examples/scalafmt-example">cbt scalafmt plugin</a>:
+        Plugin to reformat code in your CBT project.</li>
+      <li>
+        <a href="https://github.com/pianista215/mvn_scalafmt">mvn_scalafmt</a>:
+        Wrapper to launch scalafmt through Maven.</li>
+      <li>
+        <a href="https://github.com/diffplug/spotless/tree/master/plugin-gradle#applying-scalafmt-to-scala-files">Spotless</a></li>
+      <li>
+        <a href="https://github.com/alenkacz/gradle-scalafmt">gradle-scalafmt</a></li></ul>
+  <h1 id="Adopters" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Adopters" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Adopters</h1>
+    Are you using scalafmt? Please consider
+    <a href="https://github.com/olafurpg/scalafmt/blob/master/readme/src/main/scala/org/scalafmt/readme/Adopters.scala#L16">opening a pull request</a>
+    to list your organization here:
+
+    <ul>
+      <li><a href="http://scalafmt.org">scalafmt</a>: Code formatter for Scala</li><li><a href="http://here.com">HERE</a></li><li><a href="http://letgo.com">Letgo</a></li><li><a href="http://7thsense.io">Seventh Sense</a>: Predictive analytics for sales and marketing</li><li><a href="http://teralytics.net">Teralytics</a>: We transform raw, human activity data into valuable insights.</li>
+</ul>
+    Scalafmt was downloaded &gt;10.000 times in November 2016.
+
+
+  
+
+<div style="margin: 0px;color: #333;text-align: center;padding: 2.5em 2em 0;border-bottom: 1px solid #eee;display: block;" id="FAQ/Troubleshooting" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><h1 style="margin: 0.2em 0;font-size: 3em;font-weight: 300;">FAQ / Troubleshooting<a class=" scalatex-site-Styles-headerLink" href="#FAQ/Troubleshooting" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a></h1><br /></div>
+
+   <h1 id="HowcanIbenotifiedofreleases/announcements?" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#HowcanIbenotifiedofreleases/announcements?" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>How can I be notified of releases/announcements?</h1>
+     Join <a href="https://groups.google.com/forum/#!forum/scalafmt">the scalafmt mailing list</a>
+     to receive announcements of new releases only. No spam, promise.
+
+   <h1 id="WhynotScalariform?" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#WhynotScalariform?" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Why not Scalariform?</h1>
+     <a href="http://scala-ide.org/scalariform/">Scalariform</a> does an
+     excellent job of tidying up common formatting errors. However,
+
+     <ul>
+       <li>
+         Scalariform does not have a <code>maxColumn</code> setting, which
+         I personally like and is present in many popular coding styles.</li>
+       <li>
+         Scalariform preserves most line breaking decisions, leaving it up to
+         you (or even worse, your colleagues) to choose a formatting layout.
+         Scalafmt takes liberty to add/remove newlines, making your entire
+         codebase look consistent.</li>
+       <li>
+         Scalariform cannot format
+         <a href="https://github.com/lampepfl/dotty">Dotty</a>,
+         which has minor syntactic differences to Scala, or SBT files which
+         allow top-level statement. With scala.meta dialects, scalafmt will
+         be able to format Dotty and SBT.
+</li></ul>
+     Finally, scalafmt is my Master's thesis project. I thought it would
+     be a fun challenge to write a code formatter :)
+
+   <h1 id="Whyisscalafmtsoslow?" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Whyisscalafmtsoslow?" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Why is scalafmt so slow?</h1>
+     <p>
+       My benchmarks show that scalafmt is for most common cases around 4-6x
+       slower than scalariform (btw, scalariform is already impressively fast).
+       This means that formatting your average 1.000 LOC file on modern
+       hardware will take around 200ms, which should still feel close enough
+       to instant.
+</p>
+     <p>
+       The main feature that makes scalafmt slower than scalariform is the
+       column-width limit.
+       To figure the &quot;best&quot; way to break a long line, Scalafmt may try
+       thousands of different formatting solutions.
+</p>
+     <p>
+       I am sure that scalafmt could benefit greatly from
+       micro optimizations. Any help here is appreciated.
+</p>
+   <h1 id="Codeformatterscreateunnecessarydiffs!" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Codeformatterscreateunnecessarydiffs!" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Code formatters create unnecessary diffs!</h1>
+     <p>
+       That's not a question, but I agree that code formatters like scalafmt do
+       sometimes increase the size of diffs in code reviews.
+       I still believe it's worth it, considering
+</p>
+     <ol>
+       <li>
+         Proper formatting <a href="https://twitter.com/extempore2/status/717716747181096960">helps you catch bugs</a>!</li>
+       <li>
+         you can enable non-whitespace diffs during code review. For Github,
+         add <code>?w=1</code> to the URL to ignore whitespace changes.</li>
+       <li>
+         <code>git blame</code> has a <code>-w</code> flag to ignore whitespace changes
+         so you can still blame your colleagues for their crappy code.</li>
+       <li>
+         code is read waaay more often outside of code reviews, for example
+         when you are actually coding.
+</li></ol>
+   <h1 id="Istheformattingoutputstablebetweenreleases?" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Istheformattingoutputstablebetweenreleases?" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Is the formatting output stable between releases?</h1>
+     No, the formatting rules will evolve even between PATCH releases.
+     I recommend you inspect the diff for <b>every</b> scalafmt update.
+
+  
+
+<div style="margin: 0px;color: #333;text-align: center;padding: 2.5em 2em 0;border-bottom: 1px solid #eee;display: block;" id="Knownissues" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><h1 style="margin: 0.2em 0;font-size: 3em;font-weight: 300;">Known issues<a class=" scalatex-site-Styles-headerLink" href="#Knownissues" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a></h1><br /></div>
+  <p>
+    <a href="http://journal.stuffwithstuff.com/2015/09/08/the-hardest-program-ive-ever-written/">Developing code formatters is notoriously hard</a>
+    and scalafmt has been no exception.
+    The following are the biggest known issues with scalafmt:
+
+    <h1 id="Deeplynestedcode" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Deeplynestedcode" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Deeply nested code</h1>
+      <p>
+        AKA. &quot;Search state exploded&quot;
+</p>
+      <p>
+        0.5.0 made big improvements on this issue. In my test corpus,
+        only 13 out of 27.000 source files trigger this error now.</p>
+      <p>
+        Scalafmt cannot yet format all files with deeply nested functions calls.
+        Deeply nested code is troublesome because the number of possible
+        formatting options grows exponentially with each new layer of nesting.
+        Instead of taking seconds or minutes to complete formatting, scalafmt
+        chooses to bail early and leave the source file unformatted.
+        <p>
+          There are two workaround if you are affected by this issue:
+          <ul>
+            <li>
+              Wrap the offending block with <a href="#//format:off">// format: off</a>.
+              The SBT/IntelliJ/CLI integrations should point you to the
+              line where scalafmt starts to struggle.</li>
+            <li>
+              Try <code class="scala scalatex-site-Styles-highlightMe" style="display: inline;padding: 0px;margin: 0px;">align.openParenCallSite = false</code> to shrink the search
+              space.</li>
+            <li>
+              Refactor your code to eliminate deeply nested function calls.
+              Binding large function arguments to variables is a good start.</li>
+            <li>
+              Try the semi-broken <code class="scala scalatex-site-Styles-highlightMe" style="display: inline;padding: 0px;margin: 0px;">bestEffortInDeeplyNestedCode = true</code>
+              flag that will try to produce decent formatting output even for the
+              most pathologically nested code. YMMV.</li></ul></p></p>
+      <p>
+        Other cool code formatters like ClangFormat, dartfmt and rfmt use
+        better techniques to solve this issue, which scalafmt can maybe
+        learn from.
+</p>
+    <h1 id="Non-idempotent" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Non-idempotent" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Non-idempotent</h1>
+      Scalafmt is non-idempotent for certain files. See <a href="https://github.com/olafurpg/scalafmt/issues/339">#339</a>.
+      This means you should be careful about enforcing scalafmt in your CI
+      build.
+      <p>
+        In my test corpus, as of v0.5.0, only 12 files out of 27.000 source files
+        are affected by this issue.
+        If sources are already formatted by scalafmt, no source file in the test
+        corpus triggers non-idempotent formatting.</p>
+      <p>
+        <b>Pro tip</b>. As awkward as I feel recommending this, you may want to run
+        scalafmt twice on your codebase for the first time you reformat it.
+</p>
+    <h1 id="Performance" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Performance" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Performance</h1>
+      Scalafmt is 6x slower than Scalariform.
+      For 98% of source files this won't be a problem if you have a decently
+      modern laptop.
+      However, if you only work in files with 4.000 LOC it might be a problem.
+      I'm quite sure that micro-optimizations can squeeze out at least ~2x
+      performance improvements, maybe even more.
+      Moreover, I think incremental formatting has the possibility to increase
+      the performance by several orders of magnitude in interactive IDE
+      environments where scalafmt is invoked on file save.</p>
+
+  
+
+<div style="margin: 0px;color: #333;text-align: center;padding: 2.5em 2em 0;border-bottom: 1px solid #eee;display: block;" id="Changelog" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><h1 style="margin: 0.2em 0;font-size: 3em;font-weight: 300;">Changelog<a class=" scalatex-site-Styles-headerLink" href="#Changelog" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a></h1><br /></div>
+  <h1 id="0.6.x" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.6.x" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.6.x</h1>
+    
+
+<span></span>
+<h2 id="0.6.1" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.6.1" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.6.1</h2>
+  <ul>
+    <li>
+      Fixed <a href="https://github.com/olafurpg/scalafmt/issues/798">#798</a>.</li></ul>
+<h2 id="0.6.1" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.6.1" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.6.1</h2>
+  <ul>
+    <li>
+      Set <code>binPack.lambdaParameters = false</code> by default. This fixes
+      issues like <a href="https://github.com/olafurpg/scalafmt/issues/719">#719</a> and <a href="https://github.com/olafurpg/scalafmt/issues/716">#716</a>. The option will be removed in
+      v1.0</li></ul>
+<h2 id="0.6.0" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.6.0" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.6.0</h2>
+  Merged PRs: <a href="https://github.com/olafurpg/scalafmt/milestone/14?closed=1">https://github.com/olafurpg/scalafmt/milestone/14?closed=1</a>.
+  <p>
+    3 million lines reformatted with 0.6.1 compared to 0.5.8:
+    <a href="https://github.com/olafurpg/scala-repos/pull/20">scala-repos#20</a></p>
+  <ul>
+    <li>
+      Scalafmt is now cross-released to 2.12 and 2.11.
+
+      <p>
+        Some formatting issues surfaced in the test suite when running on
+        2.12. These changed were related to byte literals and backtick identifiers.
+        The issues in the test-suite were fixed, but I suspect other issues
+        may appear in the wild when running on 2.12.  If you notice unexpected
+        changes with using scalafmt on 2.12, please report an issue.</p></li>
+    <li>
+      You can now ignore warnings from scalafmt with <code class="scala scalatex-site-Styles-highlightMe" style="display: inline;padding: 0px;margin: 0px;">runner.ignoreWarnings = true</code>.</li>
+    <li>
+      You can now add a custom error message when <code>scalafmt --test</code>
+      fails. This can be helpful to explain to contributors on how to run
+      scalafmt for your project, for example &quot;Run ./bin/scalafmt to fix this
+      issue.
+      To add a custom message, add <code>onTestFailure = &quot;To fix this error, run XXX&quot;</code>.</li>
+    <li>
+      Scalafmt will now read text files with UTF-8 encoding as default instead
+      of the system <code>-Dfile.encoding</code>.
+      To change, edit <code class="scala scalatex-site-Styles-highlightMe" style="display: inline;padding: 0px;margin: 0px;">encoding = latin1</code>.</li>
+    <li>
+     Right-associative infix operators are now indented the same as
+     left-associative infix operators.
+
+     <pre><code class="scala scalatex-site-Styles-highlightMe">// indent.rightAssociativeInfixOperatorsLikeLeftAssociative = true (default)
+a ::
+  b ::
+  c ::
+  d
+
+// indent.rightAssociativeInfixOperatorsLikeLeftAssociative = false (old default)
+a ::
+  b ::
+    c ::
+      d</code></pre></li>
+    <li>
+      IntelliJ plugin &quot;format on save&quot; now honors <code>project.excludeFilters</code>.</li>
+    <li>
+      IntelliJ plugin now honors <code>runner.dialect</code></li>
+    <li>
+      <code>newlines.sometimesBeforeColonInMethodReturnType</code> now works the
+      same for vals, parameterless defs and def with regular parameters.</li>
+    <li>
+      IntelliJ plugin now honors <code>runner.dialect</code></li></ul>
+
+  <h1 id="0.5.x" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.5.x" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.5.x</h1>
+    
+
+<span></span>
+<h2 id="0.5.8" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.5.8" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.5.8</h2>
+  Merged PRs: <a href="https://github.com/olafurpg/scalafmt/milestone/10?closed=1">https://github.com/olafurpg/scalafmt/milestone/10?closed=1</a>.
+  <ul>
+    <li>
+      Scalafmt now uses scala.meta 1.6, was 1.4 before.</li>
+    <li>
+      <code>scalafmt --diff</code> should now handle better removed and unstaged files.
+      You should be able to put <code>scalafmt --diff</code> into your <code>.git/hooks/pre-commit</code>.</li></ul>
+  Big thanks to <a href="https://github.com/dwijnand">@dwijnand</a> and <a href="https://github.com/tgodzik">@tgodzik</a> for contributing 5 and 2 pull requests each, respectively!
+<h2 id="0.5.6" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.5.6" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.5.6</h2>
+  Merged PRs: <a href="https://github.com/olafurpg/scalafmt/milestone/11?closed=1">https://github.com/olafurpg/scalafmt/milestone/11?closed=1</a>.
+  <ul>
+    <li>
+      New <a href="#AvoidInfix">AvoidInfix</a> rewrite! Thank you <a href="https://github.com/ysusuk">@ysusuk</a> for contributing
+      this exciting yet challenging feature.</li></ul>
+<h2 id="0.5.5" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.5.5" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.5.5</h2>
+  <ul>
+    <li>
+      New setting to RedundantBraces rewrite
+      <code>rewrite.redundantBraces.stringInterpolation = false</code>.
+      See <a href="#RedundantBraces">RedundantBraces</a>.
+      Thank you <a href="https://github.com/ysusuk">@ysusuk</a> for contributing this feature!</li>
+    <li>
+      Bugfix for flag <code class="scala scalatex-site-Styles-highlightMe" style="display: inline;padding: 0px;margin: 0px;">verticalMultilineAtDefinitionSite = true</code> (disabled by default).</li></ul>
+<h2 id="0.5.4" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.5.4" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.5.4</h2>
+  <ul>
+    <li>
+      New flag <code class="scala scalatex-site-Styles-highlightMe" style="display: inline;padding: 0px;margin: 0px;">verticalMultilineAtDefinitionSite = false</code>.
+      <pre><code class="scala scalatex-site-Styles-highlightMe">// if false (default)
+def format_![T &lt;: Tree](
+    code: String,
+    code2: String
+  )(implicit ev: Parse[T], ex: D): String = 1
+// if true
+def format_![T &lt;: Tree](
+    code: String,
+    code2: String
+  )(implicit ev: Parse[T],
+    ex: D
+  ): String = 1</code></pre>
+      Thank you <a href="https://github.com/pjrt">@pjrt</a> for contributing this feature!</li>
+    <li>
+      Fixed critical bug where scalafmt would change the AST for
+      unary operators combined with symbolic identifiers, see <a href="https://github.com/olafurpg/scalafmt/issues/697">#697</a>.
+      Thank you <a href="https://github.com/ochrons">@ochrons</a> for reporting!</li></ul>
+<h2 id="0.5.3" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.5.3" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.5.3</h2>
+  <ul>
+    <li>
+      Fixed &quot;Unitialized TermDisplay&quot; error in sbt plugin, see <a href="https://github.com/olafurpg/scalafmt/issues/691">#691</a>.</li></ul>
+<h2 id="0.5.2" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.5.2" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.5.2</h2>
+  This release was made possible with contributions from 7 new contributors.
+  Big thanks to
+  <a href="https://github.com/avdv">@avdv</a>,
+  <a href="https://github.com/pjrt">@pjrt</a>,
+  <a href="https://github.com/MasseGuillaume">@MasseGuillaume</a>,
+  <a href="https://github.com/mpociecha">@mpociecha</a>,
+  <a href="https://github.com/rbellamy">@rbellamy</a>,
+  <a href="https://github.com/ysusuk">@ysusuk</a> and
+  <a href="https://github.com/dguo-coursera">@dguo-coursera</a>!
+  Also thanks to everyone who reported issues.
+  <ul>
+    <li>
+      sbt plugin now uses coursier instead of synthetic projects. See <a href="https://github.com/olafurpg/scalafmt/pull/658">#658</a>.
+      If you use sbt-coursier, make sure you're on version 1.0.0-M15-1.</li>
+    <li>
+      New flag <code class="scala scalatex-site-Styles-highlightMe" style="display: inline;padding: 0px;margin: 0px;">optIn.annotationNewlines = false</code>. Thank you <a href="https://github.com/mpociecha">@mpociecha</a>
+      for suggesting this flag!</li>
+    <li>
+      The scalafmt repo now builds and tests pass on Windows and IntelliJ! Thank
+      you <a href="https://github.com/mpociecha">@mpociecha</a> for making this work!</li>
+    <li>
+      The IntelliJ plugin is now part of the main sbt build, greatly simplifying
+      the setup to hack on the IntelliJ plugin. If you were previously discouraged
+      to contribute to the IntelliJ plugin, I encourage you to give it another
+      chance now! Thank you <a href="https://github.com/rbellamy">@rbellamy</a> for this contribution!</li>
+    <li>
+      <a href="https://github.com/olafurpg/scalafmt/milestone/9?closed=1">Ton of fixed issues and new features</a>.</li>
+    <li>
+      Custom options for users of the
+      <a href="https://github.com/ThoughtWorksInc/implicit-dependent-type">implicit-dependent-types</a>
+      compiler plugin. See <span><a href="https://github.com/olafurpg/scalafmt/issues/660">#660</a></span>.</li></ul>
+<h2 id="0.5.1" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.5.1" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.5.1</h2>
+  <ul>
+    <li>
+      Fixed <a href="https://github.com/olafurpg/scalafmt/issues/639">#639</a>.</li></ul>
+<h2 id="0.5.0" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.5.0" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.5.0</h2>
+  <ul>
+    <li>
+      The <code>default</code> style has been updated for prettier formatting output
+      and greater performance (less &quot;search state exploded&quot;).
+      Highlights:
+      <ul>
+        <li>
+          <code class="scala scalatex-site-Styles-highlightMe" style="display: inline;padding: 0px;margin: 0px;">optIn.breakChainOnFirstMethodDot = true</code>, was false.
+          See <a href="#optIn.breakChainOnFirstMethodDot">optIn.breakChainOnFirstMethodDot</a>.
+          Thank you <a href="https://github.com/stefanobaghino">@stefanobaghino</a> for contributing this flag!</li>
+        <li>
+          <code class="scala scalatex-site-Styles-highlightMe" style="display: inline;padding: 0px;margin: 0px;">includeCurlyBraceInSelectChains = true</code>, was false.
+          See <a href="#includeCurlyBraceInSelectChains">includeCurlyBraceInSelectChains</a>.
+          Thank you <a href="https://github.com/rcavalcanti">@rcavalcanti</a> for suggesting this flag!</li>
+        <li>
+          <code class="scala scalatex-site-Styles-highlightMe" style="display: inline;padding: 0px;margin: 0px;">binPack.literalArgumentLists = true</code>, was false.
+          See <a href="#binPack.literalArgumentLists">binPack.literalArgumentLists</a>.
+          Thank you <a href="https://github.com/RatanRSur">@RatanRSur</a> and <a href="https://github.com/densh">@densh</a> for suggesting this feature!</li>
+        <li>
+          <code class="scala scalatex-site-Styles-highlightMe" style="display: inline;padding: 0px;margin: 0px;">newlines.penalizeSingleSelectMultiArgList = true</code>, was false.
+          See <a href="#newlines.penalizeSingleSelectMultiArgList">newlines.penalizeSingleSelectMultiArgList</a>.</li>
+        <li>
+          <code class="scala scalatex-site-Styles-highlightMe" style="display: inline;padding: 0px;margin: 0px;">runner.optimizer.forceConfigStyleOnOffset = 150</code>, was -1.
+          See <a href="#runner.optimizer.forceConfigStyleOnOffset">runner.optimizer.forceConfigStyleOnOffset</a>.</li></ul>
+      <p>
+        For a more detailed overview of the new style differences, see
+        <a href="https://github.com/olafurpg/scalafmt/issues/636">this issue</a>.
+</p>
+      <p>
+        I did my best to make it possible to opt-out of the most dramatic changes.
+        Still, v0.5 may have some minor diffs which are not configurable.</p></li>
+    <li>
+      The sbt plugin has been re-implemented as a tiny wrapper around
+      the command line interface.
+      See <a href="#sbt">sbt</a> for more details.
+      Breaking changes are
+      <ul>
+        <li>
+          sbt 0.13.13 is required</li>
+        <li>
+          no more configuration via sbt, everything is written to
+          <code>.scalafmt.conf</code> in the root directory of your repo.
+          In particular, see <a href="#project">project</a> on how to define which
+          files should be formatted.
+          <code class="scala scalatex-site-Styles-highlightMe" style="display: inline;padding: 0px;margin: 0px;">project.excludeFilters = [&quot;target/&quot;]</code> should be enough for
+          most cases.
+          See <a href="#sbt">sbt</a> for a tip/workaround on how you can still define
+          configuration via sbt.</li>
+        <li>
+          <code>reformatOnCompileSettings</code> is no longer provided as part of the
+          sbt plugin. See <a href="#sbt">sbt</a> for a DIY workaround.</li></ul></li>
+    <li>
+      You should see fewer &quot;Search state exploded&quot; errors. Only 16 files
+      (down from 49 files) in the test corpus of 27.000 source files now
+      triggers that error.</li>
+    <li>
+      New <code>--diff</code> flag to <a href="#CLI">CLI</a> to only format files in the git
+      diff against master branch. See <a href="#--help">--help</a> for more details.</li>
+    <li>
+      New <code>--diff-branch &lt;branch-name&gt;</code> flag to <a href="#CLI">CLI</a> to only
+      format files in the git diff against branch <code>&lt;branch-name&gt;</code>.</li>
+    <li>
+      The following combination of flags now works together
+      <pre><code class="scala scalatex-site-Styles-highlightMe">style = IntelliJ
+optIn.configStyleArguments = true</code></pre>
+      meaning you can force line breaks. See <a href="https://github.com/olafurpg/scalafmt/issues/593">#593</a> for more details.
+      Thanks <a href="https://github.com/lihaoyi">@lihaoyi</a> for the discussion/suggestion.</li>
+    <li>
+      New flag <code class="scala scalatex-site-Styles-highlightMe" style="display: inline;padding: 0px;margin: 0px;">indentYieldKeyword = true</code>. See <a href="https://github.com/olafurpg/scalafmt/issues/592">#592</a>
+      for motivation. Thanks <a href="https://github.com/lihaoyi">@lihaoyi</a> for the suggestion.</li>
+    <li>
+      The scalafmt project now builds on Windows and IntelliJ. Thank you
+      <a href="https://github.com/mpociecha">@mpociecha</a> for refactoring the build to make this happen!
+      <p>
+        However, the tests are still failing on Windows. Help to improve
+        this is welcome!</p></li>
+    <li>
+      This version upgrades to scala.meta 1.3 from 1.1.</li></ul>
+
+  <h1 id="0.4.x" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.4.x" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.4.x</h1>
+    
+
+<h2 id="0.4.10" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.4.10" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.4.10</h2>
+  <ul>
+    <li>
+      New rewrite rule <a href="#RedundantParens">RedundantParens</a>! Follow link for details.
+      Thank you <a href="https://github.com/ShaneDelmore">@ShaneDelmore</a> for contributing this feature!</li>
+    <li>
+      Small fix in SBT plugin for sporadic failures in a jenkins CI server while
+      using the SBT plugin. Thank you <a href="https://github.com/andreaTP">@andreaTP</a> for contibuting this fix!</li></ul>
+<h2 id="0.4.9" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.4.9" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.4.9</h2>
+  <ul>
+    <li>
+      New flag <code>importSelectors = noBinPack</code> that replaces
+      <code>binPackImportSelectors = false</code> to support a new third option
+      <code>importSelectors = singleLine</code> that keeps all import
+      selectors on a single line.
+      Thank you <a href="https://github.com/mtomko">@mtomko</a> for contributing this feature!
+      <p></p>
+      The flag <code>binPackImportSelectors</code> is now deprecated and will
+      be removed in 0.5.</li>
+    <li>
+      (Experimental) New module <code>scalafmt-bootstrap</code> that is an experiment to support
+      defining <code>version = 0.6.2</code> in <code>.scalafmt.conf</code>.
+      The idea is to allow editor integrations (such as IntelliJ plugin)
+      to dynamically use a specific scalafmt version for a specific project.
+
+      <p>
+        This might also help solve the SBT plugin issue <a href="https://github.com/olafurpg/scalafmt/issues/485">#485</a>.</p></li></ul>
+<h2 id="0.4.8" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.4.8" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.4.8</h2>
+  <ul>
+    <li>
+      IntelliJ plugin now has a &quot;Format on save&quot; setting.
+      For details, see <a href="#IntelliJ">IntelliJ</a>.
+      Thank you <a href="https://github.com/joan38">@joan38</a> for contributing this awesome addition!</li>
+    <li>
+      New flag <code>includeCurlyBraceInSelectChains = false</code>.
+      <pre><code class="scala scalatex-site-Styles-highlightMe">// false (has been default so far, will stay default until 0.5)
+Repositories.filter { t =&gt;
+  (t.originUserName === userName.bind) &amp;&amp;
+  (t.originRepositoryName === repositoryName.bind)
+}.sortBy(_.userName asc).map(t =&gt; t.userName -&gt; t.repositoryName).list
+// true (will become default in 0.5.0)
+Repositories
+  .filter { t =&gt;
+    (t.originUserName === userName.bind) &amp;&amp;
+    (t.originRepositoryName === repositoryName.bind)
+  }
+  .sortBy(_.userName asc)
+  .map(t =&gt; t.userName -&gt; t.repositoryName)
+  .list
+</code></pre>
+      Here is a <a href="https://github.com/olafurpg/scala-repos/pull/12/files">huge diff</a>
+      for more examples of how this flag works.</li>
+    <li>
+      Fixed regression in 0.4.7 on vertical alignment, see <a href="https://github.com/olafurpg/scalafmt/issues/531">#531</a>.</li>
+    <li>
+      New flag <code>newlines.neverInResultType = false</code>, which is used in Scala.js style.</li>
+    <li>
+      Small CLI improvements and refactorings.</li></ul>
+<h2 id="0.4.7" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.4.7" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.4.7</h2>
+  <ul>
+    <li>
+      Added the constraint that two tokens can vertically align only if they have
+      the same distance to the root node. This fixed a ton of false positives.
+      If you notice the vertical alignment is &quot;not working&quot; in some cases, please
+      report an issue.</li>
+    <li>
+      Fixed bug in <code>RedundantBraces</code> where scalafmt would fail to format
+      due to parse error.</li>
+    <li>
+      Fixed <code>--config</code> flag when reading relative path using nailgun.</li>
+    <li>
+      Fixed <code>--assume-filename</code> flag in CLI to format .sbt files with <code>--stdin</code>.</li></ul>
+<h2 id="0.4.6" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.4.6" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.4.6</h2>
+  <ul>
+    <li>
+      Experimental support for nailgun, see <a href="#Nailgun">Nailgun</a>.
+</li>
+    <li>
+      Fixed --stdin and --files flags in CLI. If you previously used the CLI
+      without flags to read from std, you need to pass in <code>--stdin</code> now.</li></ul>
+<h2 id="0.4.5" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.4.5" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.4.5</h2>
+  <ul>
+    <li>
+      The CLI has a new experimental feature so that running <code>scalafmt</code> (without flags)
+      will read configuration from .scalafmt.conf at the root of your git repo or current directory and
+      then format all files in your entire project or current directory.
+      <p>
+        You opt into the git integration by setting <code class="scala scalatex-site-Styles-highlightMe" style="display: inline;padding: 0px;margin: 0px;">project.git = true</code>.</p>
+      <p>
+        You exclude files with <code class="scala scalatex-site-Styles-highlightMe" style="display: inline;padding: 0px;margin: 0px;">project.excludeFilters = [regex1, regex2]</code>.</p>
+      <p>
+        For more details, refer to the brand new <a href="#--help">--help</a> section.
+</p>
+      <p>
+        I hope to make this feature stable by 0.5, all feedback is very welcome.
+        I plan to replace the current logic in the SBT plugin to figure out which
+        files to format with this new feature.</p>
+      <p>
+        If you are interested in having this feature work with other VCS like mercurial,
+        don't hesitate to introduce yourself in the Gitter channel.</p>
+      <p>
+        <b>NOTE</b>. I realised after releasing 0.4.5 that I forgot to
+        expose the <code>--stdin</code> flag that replaces the previous behavior of running
+        <code>scalafmt</code> (without flags). If you rely on reading from stdin you need to wait
+        until 0.4.6, sorry.</p></li>
+    <li>
+      New <code>scalafmt</code> bash script that can upgrade itself, see <a href="#Linux/OSX">Linux/OSX</a>.
+      Thank you <a href="https://github.com/hntd187">@hntd187</a>!</li>
+    <li>
+      You can now see <b>all</b> available configuration options in scalafmt, see <a href="#Other">Other</a>.</li>
+    <li>
+      New flag <code class="scala scalatex-site-Styles-highlightMe" style="display: inline;padding: 0px;margin: 0px;">runner.fatalWarnings = true</code> (only respected in CLI for now)
+      to throw an exception for warnings like parse errors or &quot;Search state exploded&quot;.</li>
+    <li>
+      New configuration syntax <code class="scala scalatex-site-Styles-highlightMe" style="display: inline;padding: 0px;margin: 0px;">align.tokens.add = [foo]</code> to add align
+      tokens on top of the existing align tokens in your base style.</li>
+    <li>
+      The CLI has gone through a long overdue code-health check and should now
+      be easier to extend.</li>
+    <li>
+      Fixed indentation for large patterns on the left-hand side of assignments:
+      <pre><code class="scala scalatex-site-Styles-highlightMe">// before (note lack of indent)
+val m.Term.New(
+m.Template(Nil,
+           Seq(mparent),
+           m.Term.Param(Nil, m.Name.Anonymous(), None, None),
+           None)) =
+  lapply.toMtree[m.Term.New]
+// after (note 2 space indent)
+val m.Term.New(
+  m.Template(Nil,
+             Seq(mparent),
+             m.Term.Param(Nil, m.Name.Anonymous(), None, None),
+             None)) =
+  lapply.toMtree[m.Term.New]</code></pre></li></ul>
+<h2 id="0.4.4" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.4.4" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.4.4</h2>
+  <ul>
+    <li>
+      Fixed longstanding bug in <code>spacesInImportCurlyBraces</code>, see <a href="https://github.com/olafurpg/scalafmt/issues/454">#454</a>.
+      Thank you <a href="https://github.com/hasumedic">@hasumedic</a>!</li>
+    <li>
+      Fixed regression in <code>0.4.3</code> where a class not found exception was thrown
+      on parse error, see <a href="https://github.com/olafurpg/scalafmt/issues/492">#492</a>.</li></ul>
+<h2 id="0.4.3" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.4.3" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.4.3</h2>
+  <ul>
+    <li>
+      The SBT plugin and IntelliJ plugin now display a helpful error message
+      on failure to read configuration.</li>
+    <li>
+      New rewrite rule! See <a href="#PreferCurlyFors">PreferCurlyFors</a>.
+</li></ul>
+  Big thanks to
+  <a href="https://github.com/cb372">@cb372</a>,
+  <a href="https://github.com/phalodi">@phalodi</a> and
+  <a href="https://github.com/caoilte">@caoilte</a>
+  for contributing to this release!
+
+<h2 id="0.4.2" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.4.2" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.4.2</h2>
+  <ul>
+    <li>
+      <code>--migrate2hocon</code> now migrates <code>--indentOperators false</code>
+      to <code>indentOperator = spray</code>.</li></ul>
+<h2 id="0.4.1" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.4.1" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.4.1</h2>
+  <ul>
+    <li>
+      <code>--migrate2hocon</code> now migrates <code>rewriteTokens</code>.</li></ul>
+<h2 id="0.4.0" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.4.0" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.4.0</h2>
+  <ul>
+    <li>
+      NEW! HOCON configuration.
+      To migrate the old style configuration in <code>.scalafmt</code>
+      to the new style in <code>.scalafmt.conf</code>, run
+      <code>scalafmt --migrate2hocon .scalafmt</code> with the CLI.
+      For super easy CLI installation in OSX and Linux, download the new
+      auto-upgrade script in <a href="#Linux/OSX">Linux/OSX</a>.</li>
+    <li>
+      NEW! See <a href="#rewrite.rules">rewrite.rules</a>.</li>
+    <li>
+      NEW! Dynamic style configuration. You can now update the configuration
+      by adding comments to the source code. Example:
+
+      <pre><code class="scala scalatex-site-Styles-highlightMe">// scalafmt: { maxColumn = 200 }
+
+// OR
+
+/*
+scalafmt: {
+  maxColumn = 200
+  style = defaultWithAlign
+}
+*/
+
+object Foo {
+ ... // configuration is applied to remainder of file
+}
+</code></pre>
+      Why? This can be useful
+
+      <ul>
+        <li>
+          for generated code where you might prefer vertical alignment or longer max columns</li>
+        <li>
+          in long variadic code, see
+          <a href="https://github.com/olafurpg/scalafmt/issues/431">#431</a>,
+          <a href="https://github.com/olafurpg/scalafmt/issues/347">#347</a> and
+          <a href="https://github.com/olafurpg/scalafmt/issues/348">#348</a>.</li>
+        <li>
+          Blocks of code where each line is almost identical to the previous line
+          (<a href="https://github.com/CommBank/coppersmith/blob/3f752670d3b2212e0c09872df2859d06c47fde89/core/src/main/scala/commbank/coppersmith/Feature.scala#L58-L73">example</a>).</li>
+        <li>
+          Use your imagination.
+</li></ul>
+      A word of caution.
+      I don't recommend you clutter your codebase with <code>// scalafmt: ...</code>.
+      This feature does not give you an excuse to change you mind about the configuration on every single line of code.
+      Use this feature for good.</li>
+    <li>
+      This release performed a major internal refactoring so there is a lot
+      of breaking changes if you use scalafmt as a library.
+      <ul>
+        <li>
+          <code>ScalafmtStyle</code> is now called <code>ScalafmtConfig</code> and belongs
+          to the <code>org.scalafmt.config</code> package (was previously in
+          <code>org.scalafmt</code>).</li>
+        <li>
+          <code>FormatResult</code> is now called <code>Formatted</code> and it has a
+          <code>toEither</code> method.</li>
+        <li>
+          <code>Scalafmt.format</code> no longer accepts a <code>ScalafmtRunner</code> argument,
+          instead the runner is now a member of <code>ScalafmtConfig</code>.</li>
+        <li>
+          If you customized fields in <code>ScalafmtStyle</code>, you can consult
+          <a href="https://github.com/olafurpg/scalafmt/blob/0987a046d2cde5222402cd51465fdaf6494cb1b3/cli/src/test/scala/org/scalafmt/cli/CliTest.scala#L180-L246">this testcase</a>
+          or the <code>--migrate2hocon</code> implementation
+          <a href="https://github.com/olafurpg/scalafmt/blob/657c2223a8edcb33400e4a0a5302da7e060d2925/cli/src/main/scala/org/scalafmt/cli/Cli.scala#L269">here</a>.
+          Don't hesitate to ask questions on gitter if you're unsure where your old
+          settings have moved.</li></ul></li>
+    <li>
+      Using the default style, there is no diff between 0.3.1 and 0.4.0 after
+      formatting over 3 million lines of code.</li>
+    <li>
+      Unfortunately, I was unable to publish ScalaDocs with this release because of
+      <a href="https://github.com/scalameta/paradise/issues/55">this issue</a>.</li>
+    <li>
+      SBT plugin now no longer formats generated sources in <code>target</code>.</li>
+    <li>
+      New CLI flag <code>--exclude</code> to exclude a set of directories.</li>
+    <li>
+      New option <code>optIn.breakChainOnFirstMethodDot</code>.
+
+      <pre><code class="scala scalatex-site-Styles-highlightMe">// Original before running scalafmt
+List(1, 2, 3)
+  .map(_ + 1).filter(_ &gt; 2)
+
+// false (default)
+List(1, 2, 3).map(_ + 1).filter(_ &gt; 2)
+
+// true
+List(1, 2, 3)
+  .map(_ + 1)
+  .filter(_ &gt; 2)
+// Note, only the dot before the first method call triggers this option.</code></pre></li>
+    <li>
+      New flag <a href="#lineEndings">lineEndings</a>.</li>
+    <li>
+      <code>defaultWithAlign</code> will now also align <code>%%%</code>.</li>
+    <li>
+      New style flag <code>newlines.alwaysBeforeCurlyBraceLambdaParams</code>.</li>
+    <li>
+      <code>align.tokens</code> can now align on tokens that have no leading space.
+      For example, with settings <code>align.tokens = [ &quot;:&quot; ]</code>
+
+      <pre><code class="scala scalatex-site-Styles-highlightMe">// Before
+def foo(
+  a: Int,
+  aa: Int
+)
+
+// After
+def foo(
+    a:  Int,
+    aa: Int
+)
+</code></pre>
+      <b>NOTE</b>. This may play badly in combination with other alignment configuration.
+      For example, if you configure to align <code>extends</code> and <code>:</code>,
+      the following input will align neither since the rows don't match
+
+      <pre><code class="scala scalatex-site-Styles-highlightMe">case object A extends Super
+case class B(b: B) extends Super
+</code></pre></li></ul>
+  Big thanks to everyone who contributed to this release:
+  <a href="https://github.com/mmatloka">@mmatloka</a>,
+  <a href="https://github.com/melrief">@melrief</a>,
+  <a href="https://github.com/stefanobaghino">@stefanobaghino</a>,
+  <a href="https://github.com/johnynek">@johnynek</a>,
+  <a href="https://github.com/RatanRSur">@RatanRSur</a>,
+  <a href="https://github.com/Gmadorell">@Gmadorell</a>,
+  <a href="https://github.com/Synesso">@Synesso</a>,
+  <a href="https://github.com/Lambdista">@Lambdista</a> and
+  <a href="https://github.com/easel">@easel</a>
+
+
+
+
+  <h1 id="0.3.x" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.3.x" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.3.x</h1>
+    
+
+<h2 id="0.3.1" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.3.1" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.3.1</h2>
+  <ul>
+    <li>
+      SBT plugin now formats <code>*.sbt</code> files of your build by default.
+      To disable, configure in your <b>build.sbt</b> (note, not .scalafmt):
+      <code>formatSbtFiles in ThisBuild := false</code>.</li>
+    <li>
+      Fixed bug with infix operators in extractor patterns, see <a href="https://github.com/olafurpg/scalafmt/issues/408">#408</a>.</li>
+    <li>
+      IntelliJ plugin now emits a yellow warning bubble when it fails to read
+      your <code>.scalafmt</code> configuration.</li>
+    <li>
+      Added new <b>experimental</b> flag <code>--poorMansTrailingCommasInConfigStyle &lt;bool&gt;</code>.
+      For context, see <a href="https://github.com/scala/scala.github.com/pull/533">SIP-27</a>.
+
+      <pre><code class="scala scalatex-site-Styles-highlightMe">// false (default)
+function(
+  a,
+  b,
+  c
+)
+// true
+function(
+      a
+    , b
+    , c
+)
+
+</code></pre></li></ul>
+<h2 id="0.3.0" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.3.0" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.3.0</h2>
+  I'm really excited to announce this release with lots of new features and
+  improvements.
+  <ul>
+    <li>
+      <b>NEW</b>. Scalafmt formats SBT files! Run the CLI or IntelliJ
+      plugin on a <code>*.sbt</code> file and it should just work automatically.
+      Set <code>--formatSbtFiles false</code> to disable this.</li>
+    <li>
+      Benchmarks reveal that v0.3.0 is roughly 20-30% faster than v0.2.12,
+      thanks to the updated dependency on scala.meta 1.0.</li>
+    <li>
+      <a href="https://github.com/olafurpg/scalafmt/issues?q=milestone%3A0.3.0+is%3Aclosed">21 issues closed on Github.</a></li>
+    <li>
+      <a href="https://github.com/olafurpg/scala-repos/pull/6/files">See diff between 0.2.11 and 0.3.0 on three million lines of code.</a>.</li>
+    <li>
+      Several formatting rules have been polished, highlights:
+      <pre><code class="scala scalatex-site-Styles-highlightMe">// 1. Indentation for orphan parentheses is no longer 4 spaces.
+// Before
+assert((p1 match {
+      case Param.Configured(x) =&gt; x()
+      case x =&gt; throw new MatchError(x)
+    }) == failureAccrualPolicy)
+// 0.3.0
+assert((p1 match {
+  case Param.Configured(x) =&gt; x()
+  case x =&gt; throw new MatchError(x)
+}) == failureAccrualPolicy)
+
+// 2. Line breaks in nested scopes are more heavily penalized.
+// Before
+system.actorOf(Props[ThreadNameEcho].withDispatcher(
+    &quot;myapp.balancing-dispatcher&quot;)) ! &quot;what's the name?&quot;
+// 0.3.0
+system.actorOf(
+    Props[ThreadNameEcho]
+      .withDispatcher(&quot;myapp.balancing-dispatcher&quot;)) ! &quot;what's the name?&quot;
+</code></pre>
+      Please open an issue if you prefer the previous output. In some cases
+      the new rules may result in worse formatting output but after looking
+      through thousands of lines of diffs I think the new rules provide a more
+      consistent, readable and compact output than before.</li>
+    <li>
+      The default <code>--continuationIndentCallSite</code> is now 2 spaces
+      instead of 4 spaces.
+      Why? Because it's consistent with many popular coding styles and it
+      saves a lot of horizontal space for deeply nested code.
+      <code>--continuationIndentDefnSite</code> is still 4 spaces to prevent
+      method bodies from aligning with parameter lists:
+
+      <pre><code class="scala scalatex-site-Styles-highlightMe">def foo(
+    a: Int): Int = {
+  a + 1
+}</code></pre></li>
+    <li>
+      The default <code>--alignByArrowEnumeratorGenerator</code> is now false
+      instead of true. Refer to <a href="#align.arrowEnumeratorGenerator">align.arrowEnumeratorGenerator</a>.</li>
+    <li>
+      Function literals in argument lists can now be single line.
+      See <a href="https://github.com/olafurpg/scalafmt/issues/323">#323</a>.
+      <pre><code class="scala scalatex-site-Styles-highlightMe">// before
+ClusterSharding(system).start(
+  className[Flow], {
+    case (name: String, payload) =&gt; (name, payload)
+  }, {
+    case (name: String, _) =&gt; (name.hashCode % shardCount).toString
+  }
+)
+// 0.3.0
+ClusterSharding(system).start(
+  className[Flow],
+  { case (name: String, payload) =&gt; (name, payload) },
+  { case (name: String, _) =&gt; (name.hashCode % shardCount).toString }
+)</code></pre></li>
+    <li>
+      <code>--assumeStandardLibraryStripMargin true</code> now aligns by a pipe
+      character on the first line if there is one. See <a href="https://github.com/olafurpg/scalafmt/issues/324">#324</a>.
+      <pre><code class="scala scalatex-site-Styles-highlightMe">// before
+&quot;&quot;&quot;|first
+  |second&quot;&quot;&quot;.stripMargin
+// 0.3.0
+&quot;&quot;&quot;|first
+   |second&quot;&quot;&quot;.stripMargin</code></pre></li>
+    <li>
+      New style: <code>--style IntelliJ</code> that aims to mimic the default
+      formatting settings of IntelliJ.</li>
+    <li>
+      Formatting errors are no longer silently ignored in the SBT plugin.
+      <a href="#Deeplynestedcode">Deeply nested code</a> is the most common cause of errors,
+      please refer to that section for an explanation and possible workarounds.</li>
+    <li>
+      New flag: <code>--alignMixedOwners &lt;bool&gt;</code> to allow vertical alignment
+      across val/var/def and object/trait/class. Enabled by default in
+      <code>defaultWithAlign</code>. See <a href="https://github.com/olafurpg/scalafmt/issues/184">#184</a>.</li>
+    <li>
+      New flag <code>--binPackImportSelectors &lt;bool&gt;</code> to decide how to format
+      long import selector lines. See <a href="https://github.com/olafurpg/scalafmt/issues/101">#101</a>.
+      <pre><code class="scala scalatex-site-Styles-highlightMe">// before
+import org.scalajs.dom.experimental.serviceworkers.{ServiceWorkerGlobalScope, ServiceWorkerRegistration, A}
+// 0.3.0 --binPackImportSelectors false (default)
+import org.scalajs.dom.experimental.serviceworkers.{
+  ServiceWorkerGlobalScope,
+  ServiceWorkerRegistration,
+  A
+}
+// 0.3.0 --binPackImportSelectors true
+import org.scalajs.dom.experimental.serviceworkers.{
+  ServiceWorkerGlobalScope, ServiceWorkerRegistration,
+  A
+}</code></pre></li>
+    <li>
+      Line breaks after the assignment operator <code>=</code> in vals and vars
+      are now preserved. See <a href="https://github.com/olafurpg/scalafmt/issues/356">#356</a>.
+      <pre><code class="scala scalatex-site-Styles-highlightMe">// If you force a line break after = like this
+val x: Int =
+  2
+// then scalafmt will keep the line break. Before scalafmt
+// would move the whole statement into a single line.</code></pre></li>
+    <li>
+      Macro formatting is better. See <a href="https://github.com/olafurpg/scalafmt/issues/360">#360</a>.
+      <pre><code class="scala scalatex-site-Styles-highlightMe">// before
+implicit def adtSyntax[A](target: A): Any = macro LiftMacros
+  .materializeADTSyntax[A]
+// 0.3.0
+implicit def adtSyntax[A](target: A): Any =
+  macro LiftMacros.materializeADTSyntax[A]</code></pre></li>
+    <li>
+      Trailing whitespace is now removed from comments.</li>
+    <li>
+      Self-annotation are more consistently formatted. See <a href="https://github.com/olafurpg/scalafmt/issues/376">#376</a>.</li>
+    <li>
+      A long standing issue that caused the SBT plugin to crash on
+      2.10 projects has now been fixed. See <a href="https://github.com/olafurpg/scalafmt/issues/190">#190</a>.</li>
+    <li>
+      New flags related to infix operator indentation. See <a href="https://github.com/olafurpg/scalafmt/issues/367">#367</a>.
+      <ul>
+        <li>
+          <code>--indentOperators &lt;bool&gt;</code>
+          <pre><code class="scala scalatex-site-Styles-highlightMe">// true (default)
+def routes = {
+  pathPrefix(&quot;foo&quot;) {
+    ???
+  } ~
+    pathPrefix(&quot;bar&quot;) {
+      ???
+    }
+}
+// false (pre 0.2.10 behavior)
+def routes = {
+  pathPrefix(&quot;foo&quot;) {
+    ???
+  } ~
+  pathPrefix(&quot;bar&quot;) {
+    ???
+  }
+}</code></pre></li>
+        <li>
+          (advanced) <code>--indentOperatorsIncludeFilter &lt;str&gt;</code>.
+          See <a href="https://github.com/olafurpg/scalafmt/blob/master/core/src/main/scala/org/scalafmt/ScalafmtConfig.scala#L88">docstring</a>.</li>
+        <li>
+          (advanced) <code>--indentOperatorsExcludeFilter &lt;str&gt;</code>
+          See <a href="https://github.com/olafurpg/scalafmt/blob/master/core/src/main/scala/org/scalafmt/ScalafmtConfig.scala#L97">docstring</a>.</li></ul></li>
+    <li>
+      Backwards incompatible change: <code>FormatResult.Incomplete</code> is now
+      a <code>FormatResult.Failure(e: Incomplete)</code>.</li>
+    <li>
+      Backwards incompatible change: these flags have been removed from the CLI.
+      <ul>
+        <li>
+          <code>reformatDocstrings</code> in favor of <code>reformatComments</code></li>
+        <li>
+          <code>alignStripMarginStrings</code> in favor of <code>assumeStandardLibraryStripMargin</code></li></ul></li>
+    <li>
+      Thanks to everyone who contributed to this release!
+      In particular, <a href="https://github.com/triggerNZ">@triggerNZ</a> for making a non-trivial PR
+      and <a href="https://github.com/xeno-by">@xeno-by</a> for helping me with the scala.meta 1.0 upgrade.
+      Also, everyone who participated in discussions on issues:
+      <span><span><a href="https://github.com/NicolasRouquette">@NicolasRouquette</a>, </span><span><a href="https://github.com/hseeberger">@hseeberger</a>, </span><span><a href="https://github.com/sjrd">@sjrd</a>, </span><span><a href="https://github.com/fthomas">@fthomas</a>, </span><span><a href="https://github.com/djspiewak">@djspiewak</a>, </span><span><a href="https://github.com/ceedubs">@ceedubs</a>, </span><span><a href="https://github.com/sortega">@sortega</a>, </span><span><a href="https://github.com/densh">@densh</a>, </span><span><a href="https://github.com/anna-zzz">@anna-zzz</a>, </span><span><a href="https://github.com/regadas">@regadas</a>, </span><a href="https://github.com/pascoej">@pascoej</a></span>.
+</li></ul>
+
+  <h1 id="0.2.x" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.2.x" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.2.x</h1>
+    
+
+<h2 id="0.2.12" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.2.12" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.2.12</h2>
+  <ul>
+    <li>
+      New <code>--spaceBeforeContextBoundColon</code> flag.
+      <pre><code class="scala scalatex-site-Styles-highlightMe">// false (default)
+def f[T: Numeric](t: T) = ???
+// true
+def f[T : Numeric](t: T) = ???
+</code></pre></li></ul>
+<h2 id="0.2.11" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.2.11" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.2.11</h2>
+  <ul>
+    <li>
+      Add 2 indentation for non-boolean infix operators in &quot;top-level&quot;
+      statements. For example,
+
+      <pre><code class="scala scalatex-site-Styles-highlightMe">// 0.2.10
+{
+  buf +=
+  sh&quot;${foo} aa&quot;
+}
+// 0.2.11
+{
+  buf +=
+    sh&quot;${foo} aa&quot;
+}
+
+</code></pre></li></ul>
+<h2 id="0.2.10" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.2.10" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.2.10</h2>
+  <ul>
+    <li>
+      Ignore if you don't use <code>--danglingParentheses true</code>
+      Fixes single issue reported in <a href="https://github.com/olafurpg/scalafmt/issues/325">#325</a>.
+
+      <pre><code class="scala scalatex-site-Styles-highlightMe">// 0.2.9
+Props(
+    new Actor {
+  context.stop(self)
+  override def receive = Actor.emptyBehavior
+}
+)
+// 0.2.10
+Props(new Actor {
+  context.stop(self)
+  def receive = Actor.emptyBehavior
+})</code></pre></li></ul>
+<h2 id="0.2.9" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.2.9" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.2.9</h2>
+  <ul>
+    <li>
+      Decrease non-idempotent cases in test suite from 15 to 11.
+      I observed that non-idempotent formatting happens far less often on
+      code that is already formatted with scalafmt. In a sample of 3.2
+      million lines of code (~27.000 source files), only a single source
+      file rotates between two formatting layouts with every run of scalafmt.
+      All other files reach a fixpoint after one pass of scalafmt.</li>
+    <li>
+      New flag: <code>--reformatDocstrings false</code> to disable docstring
+      reformatting (on by default).</li>
+    <li>
+      New flag: <code>--bestEffortInDeeplyNestedCode</code> (off by default) to
+      reenable best-effort formatting as was default prior to 0.2.6.
+      If you get a lot of &quot;Search state exploded&quot; errors in IntelliJ,
+      you might want to try this out.
+      The setting was disabled in 0.2.6 because it sometimes produces bad
+      output.</li>
+    <li>
+      Small improvements to <code>--danglingParentheses</code>. I imagine we
+      will soon officially support a style with these settings
+
+      <pre><code class="scala scalatex-site-Styles-highlightMe">--continuationIndentCallSite 2
+--danglingParentheses true
+--alignByOpenParenCallSite false
+--maxColumn 100
+
+</code></pre>
+      Give it a try see if you like it.
+      It's somewhat inspired by IntelliJ's default formatting settings.
+      I don't know yet what to call the style.
+      Thanks <a href="https://github.com/lihaoyi">@lihaoyi</a> for helping out.</li>
+    <li>
+      Fixed bug in try/catch without curly braces, <a href="https://github.com/olafurpg/scalafmt/issues/350">#350</a>.</li>
+    <li>
+      Fixed bug in function applications with lambda arguments.</li>
+    <li>
+      Improved multiline strings in function calls with many arguments.
+</li></ul>
+<h2 id="0.2.8" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.2.8" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.2.8</h2>
+  <ul>
+    <li>
+      Decrease non-idempotent cases in test suite from 56 to 15.</li></ul>
+<h2 id="0.2.7" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.2.7" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.2.7</h2>
+  Skipping, messed up Sonatype release.
+<h2 id="0.2.6" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.2.6" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.2.6</h2>
+  <ul>
+    <li>
+      <a href="https://github.com/olafurpg/scalafmt/issues?q=milestone%3A0.2.6+is%3Aclosed">43 issues closed on Github.</a></li>
+    <li>
+      <a href="https://github.com/olafurpg/scala-repos/pull/2/files#diff-a308e735c41c50c4f716593ee29625d0R25">See diff between 0.2.5 and 0.2.6 on three million lines of code.</a>
+      Getting unicorn? That patch is roughly 26mb uncompressed, download it
+      compressed <a href="https://github.com/olafurpg/scala-repos/pull/2/files#diff-a308e735c41c50c4f716593ee29625d0R25">here</a>.
+      I recommend you reformat your whole project before upgrading.</li>
+    <li>
+      <b>NOTE</b>. See <a href="https://github.com/olafurpg/scalafmt/issues/339">#339</a>. My previous claims that scalafmt is
+      idempotent were false.
+      Still, 0.2.6 fixes a bunch of idempotency issues so I definitely
+      recommend you upgrade. However, I don't recommend
+      you enforce that all files are formatted with scalafmt in your CI build.</li>
+    <li>
+      Line breaks around infix operators like <code>+ - / += &gt;&gt;= ^^ || &amp;&amp;</code>
+      are preserved from the original input, even if that means the output
+      breaks the <code>--maxColumn</code> limit. Why? Because infix operators are
+      heavily used in DSLs, which often use special formatting layouts to
+      express ideas. Instead of ruining the hard-earned formatting layout
+      in the original source, I prefer to keep it until scalafmt becomes smarter.
+      In future releases, I would like to add support to format at least the most
+      common operators like <code>+ &amp;&amp; || -</code>.</li>
+    <li>
+      Scalafmt will no longer make a best-effort to format files with
+      deeply nested function applications that cause search state explosions.
+      Instead, scalafmt will fail to format those files. Only 56 out of
+      ~9.350 files (from Akka, Spark, IntelliJ Scala plugin and a few other
+      projects) are affected by this change.
+      Hopefully, we can lower that count to 0 with future releases.</li>
+    <li>
+      The Scala.js style got numerous improvements. It was even used to merge a
+      <a href="https://github.com/scala-js/scala-js-dom/pull/233">PR to scala-js-dom with a 1.800 LOC diff</a>.
+      However, the Scala.js style is still experimental and needs further
+      improvements to fully capture the extensive Scala.js coding style.</li>
+    <li>
+      This formatting layout
+      <pre><code class="scala scalatex-site-Styles-highlightMe">function(
+    argument1, argument2)
+</code></pre>
+      has been removed in favor of either of these
+
+      <pre><code class="scala scalatex-site-Styles-highlightMe">function(argument1,
+         argument2)
+// OR
+function(
+    argument1,
+    argument2)</code></pre></li>
+    <li>
+      New flag: <code>--alignByOpenParenCallSite false</code> to disable the following
+      formatting layout for argument lists.
+      <pre><code class="scala scalatex-site-Styles-highlightMe">function(argument1,
+         argument2)
+</code></pre>
+      Tuples will still be aligned by the opening parenthesis.</li>
+    <li>
+      New flag: <code>--danglingParentheses true</code> for users who want dangling
+      parentheses. This comes at the price of not being able to
+      force &quot;config-style&quot; arguments. I highly recommend you set
+      <code>--alignByOpenParenCallSite false</code> in combination with this flag.
+      Note that this flag is quite different from the Scalariform dangling
+      parenthesis option.</li>
+    <li>
+      New flag: <code>--rewriteTokens from1;to1,from2;to2,...</code> to rewrite
+      arbitrary tokens into other tokens. For example,
+      <code>rewrite.tokens = [&quot;⇒;=&gt;,←;&lt;-</code> will rewrite unicode arrows to their
+      ascii equivalents. Flip the tokens to get the opposite behavior.</li>
+    <li>
+      New flag: <code>spaces.afterTripleEquals = false</code> to get spaces after
+      triple equals in cases like this
+      <pre><code class="scala scalatex-site-Styles-highlightMe">x should === (y)</code></pre></li>
+    <li>
+      We merged PRs from 5 contributors:
+      <span><span><a href="https://github.com/i-am-the-slime">@i-am-the-slime</a>, </span><span><a href="https://github.com/williamho">@williamho</a>, </span><span><a href="https://github.com/anna-zzz">@anna-zzz</a>, </span><span><a href="https://github.com/djspiewak">@djspiewak</a>, </span><a href="https://github.com/maximn">@maximn</a></span>.
+      We received issues from 12 contributors:
+      <span><span><a href="https://github.com/TimothyKlim">@TimothyKlim</a>, </span><span><a href="https://github.com/anna-zzz">@anna-zzz</a>, </span><span><a href="https://github.com/dabd">@dabd</a>, </span><span><a href="https://github.com/densh">@densh</a>, </span><span><a href="https://github.com/djspiewak">@djspiewak</a>, </span><span><a href="https://github.com/easel">@easel</a>, </span><span><a href="https://github.com/jvican">@jvican</a>, </span><span><a href="https://github.com/mtomko">@mtomko</a>, </span><span><a href="https://github.com/nicolasstucki">@nicolasstucki</a>, </span><span><a href="https://github.com/reactormonk">@reactormonk</a>, </span><span><a href="https://github.com/sjrd">@sjrd</a>, </span><a href="https://github.com/windfansy">@windfansy</a></span>.
+      Thank you everyone!</li>
+    <li>
+      I will be traveling and mostly away from the internet in July
+      so I don't expect 0.2.7 will be released until sometime in August.
+      If you are interested in becoming a scalafmt maintainer, contact me
+      and I will be happy to help you get setup before I leave in July.</li>
+    <li>
+      Last but not least, I handed in my Master's thesis.
+      The 55 page report is
+      <a href="https://geirsson.com/assets/olafur.geirsson-scalafmt-thesis.pdf">here</a>,
+      if you are interested in reading all about code formatting and how scalafmt works.
+      I will continue to work on scalafmt.
+      However, I expect the development of will slow down considerably since
+      the project will no longer be my full-time job.
+</li></ul>
+<h2 id="0.2.5" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.2.5" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.2.5</h2>
+  <ul>
+    <li>
+      SBT plugin now formats files in parallel like the CLI.
+      If you don't use the SBT plugin, you don't need to upgrade to 0.2.5.</li>
+    <li>
+      IntelliJ plugin now picks up configuration from <code>$HOME/.scalafmt</code>
+      if there is no <code>.scalafmt</code> in a project's root directory.
+      See <a href="https://github.com/olafurpg/scalafmt/issues/239">#239</a>.
+</li></ul>
+<h2 id="0.2.4" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.2.4" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.2.4</h2>
+  <ul>
+    <li>
+      <a href="https://github.com/olafurpg/scalafmt/issues?utf8=%E2%9C%93&amp;q=is%3Aissue+milestone%3A0.2.4">17 issues closed on Github.</a></li>
+    <li>
+      <a href="https://github.com/olafurpg/scala-repos/pull/1/files#diff-34de65dbb43d071baaf87f34e40e123cL44">See diff between 0.2.3 and 0.2.4 on three million lines of code.</a>
+      There are many new changes.
+      I recommend you reformat your whole project before upgrading.
+      The plan from now on is to release a diff like this for each new release.</li>
+    <li>
+      CLI now formats files in parallel. Formatting a large repo is around 6x
+      faster on my machine with 8 virtual cores.</li>
+    <li>
+      Line breaking is now preserved in infix applications. Your pretty DSLs
+      should not be ruined by scalafmt anymore.</li>
+    <li>
+      By default, scalafmt now puts a newline before every <code>with</code> if a class/trait/object
+      definition doesn't fit in a single line. Set <code>--binPackParentConstructors true</code>
+      to get the old behavior where scalafmt would fit as many parent constructors
+      on a line as possible.</li>
+    <li>
+      For comprehensions, anonymous functions, tuples, var re-assignment,
+      default parameter values and named arguments received a lot of
+      attention and should look nicer now.</li>
+    <li>
+      Thanks to <a href="https://github.com/fthomas">@fthomas</a>,
+      the SBT plugin now uses <code>unmanagedSourceDirectories</code> instead of
+      <code>scalaSource</code> to decide which files to format.
+      This should improve your experience in Scala.js and cross-built projects.</li></ul>
+<h2 id="0.2.3" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.2.3" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.2.3</h2>
+  <p></p>
+  <ul>
+    <li>
+      <a href="https://github.com/olafurpg/scalafmt/issues?utf8=%E2%9C%93&amp;q=is%3Aissue+milestone%3A0.2.3">5 issues closed on Github.</a></li>
+    <li>
+      Fixes 3 issues that caused non-idempotent formatting.
+      The tests now format 1.244.070 LOC <b>twice</b> to ensure that
+      scalafmt is idempotent.</li>
+    <li>
+      <a href="#assumeStandardLibraryStripMargin">assumeStandardLibraryStripMargin</a> is now disabled by default for two
+      reasons: 1. it may cause non-idempotent formatting in very rare cases
+      and 2. it makes the false assumption that
+      <code>stripMargin</code> comes from the standard library (discussion here <span><a href="https://github.com/olafurpg/scalafmt/issues/170">#170</a></span>).
+      Refer to <a href="#assumeStandardLibraryStripMargin">assumeStandardLibraryStripMargin</a> to enable it at your own risk.</li>
+    <li>
+      IntelliJ plugin does not require restart when <code>.scalafmt</code> changes.
+      Instead, new changes are picked up automatically and a green info bubble
+      pops up.</li></ul>
+<h2 id="0.2.2" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.2.2" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.2.2</h2>
+
+  <p>
+    <b>NOTE</b>. This release contains a bug, see <a href="https://github.com/olafurpg/scalafmt/issues/192">#192</a>.
+    Please hold off from upgrading.
+</p>
+  <p>
+    This release changes the formatting rules for many small cases.
+    I recommend you reformat your whole project in one commit.
+</p>
+  <ul>
+    <li>
+      Issues closed: <span><a href="https://github.com/olafurpg/scalafmt/issues/171">#171</a><a href="https://github.com/olafurpg/scalafmt/issues/177">#177</a><a href="https://github.com/olafurpg/scalafmt/issues/175">#175</a><a href="https://github.com/olafurpg/scalafmt/issues/183">#183</a><a href="https://github.com/olafurpg/scalafmt/issues/178">#178</a><a href="https://github.com/olafurpg/scalafmt/issues/116">#116</a><a href="https://github.com/olafurpg/scalafmt/issues/186">#186</a><a href="https://github.com/olafurpg/scalafmt/issues/168">#168</a><a href="https://github.com/olafurpg/scalafmt/issues/165">#165</a><a href="https://github.com/olafurpg/scalafmt/issues/164">#164</a><a href="https://github.com/olafurpg/scalafmt/issues/163">#163</a><a href="https://github.com/olafurpg/scalafmt/issues/162">#162</a><a href="https://github.com/olafurpg/scalafmt/issues/161">#161</a><a href="https://github.com/olafurpg/scalafmt/issues/160">#160</a><a href="https://github.com/olafurpg/scalafmt/issues/159">#159</a><a href="https://github.com/olafurpg/scalafmt/issues/158">#158</a><a href="https://github.com/olafurpg/scalafmt/issues/157">#157</a><a href="https://github.com/olafurpg/scalafmt/issues/169">#169</a><a href="https://github.com/olafurpg/scalafmt/issues/114">#114</a></span>.
+      Thank you everyone who reported bugs via Github and Gitter.</li>
+    <li>
+      New <code>--spacesInImportCurlyBraces</code> flag.
+</li></ul>
+<h2 id="0.2.1" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.2.1" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.2.1</h2>
+  <ul>
+    <li>
+      <code>defaultWithAlign</code> will not jump scope <a href="https://github.com/olafurpg/scalafmt/issues/152">#152</a>.</li>
+    <li>
+      <code>defaultWithAlign</code> now includes a lot more alignment rules,
+      see the <a href="https://github.com/olafurpg/scalafmt/commit/9b14be99510f4763b8ea59be91b99af4ea4f8ad7">diff against 0.2.0</a>.
+      and <a href="https://github.com/olafurpg/scalafmt/blob/555e87cabb3caf313a5915ac6506f9a79a84457c/core/src/test/resources/align/AlignTokens.stat">updated test suite</a>.</li>
+    <li>
+      If you had troubles with <code>--alignTokens</code> please try again,
+      it may have been caused by <a href="https://github.com/olafurpg/scalafmt/issues/151">#151</a>.</li>
+    <li>
+      <code>.scalafmt</code> now supports comments starting with <code>#</code>.</li>
+    <li>
+      Other closed issues: <span><a href="https://github.com/olafurpg/scalafmt/issues/148">#148</a><a href="https://github.com/olafurpg/scalafmt/issues/147">#147</a><a href="https://github.com/olafurpg/scalafmt/issues/149">#149</a><a href="https://github.com/olafurpg/scalafmt/issues/155">#155</a><a href="https://github.com/olafurpg/scalafmt/issues/153">#153</a></span>.
+      Thanks for everyone who contributed bug reports via Github, Gitter
+      and Reddit.
+</li></ul>
+<h2 id="0.2.0" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.2.0" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.2.0</h2>
+
+  <ul>
+    <li>
+      Custom style configuration, see <a href="#Configuration">Configuration</a></li>
+    <li>
+      Token alignment, see <a href="#align.tokens">align.tokens</a></li>
+    <li>
+      Closed issues: <span><a href="https://github.com/olafurpg/scalafmt/issues/144">#144</a><a href="https://github.com/olafurpg/scalafmt/issues/143">#143</a><a href="https://github.com/olafurpg/scalafmt/issues/138">#138</a><a href="https://github.com/olafurpg/scalafmt/issues/131">#131</a><a href="https://github.com/olafurpg/scalafmt/issues/120">#120</a><a href="https://github.com/olafurpg/scalafmt/issues/114">#114</a></span>.</li>
+    <li>
+      <code>ScalaFmt</code> was renamed to <code>Scalafmt</code>.</li>
+    <li>
+      The <code>scalafmtFormat</code> sbt task is now <code>scalafmt</code>.</li>
+    <li>
+      <code>ScalaStyle</code> is now <code>ScalafmtConfig</code>.</li>
+    <li>
+      <code>ScalaFmt.format</code> and
+      <code>ScalaFmt.format_!</code> have been replaced by a single
+      <code>Scalafmt.format</code>. The new methods supports more flexibility
+      via the <a href="https://github.com/olafurpg/scalafmt/blob/555e87cabb3caf313a5915ac6506f9a79a84457c/core/src/main/scala/org/scalafmt/ScalafmtRunner.scala">ScalafmtRunner</a>
+      argument.</li></ul>
+
+  <h1 id="0.1.x" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.1.x" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.1.x</h1>
+    
+
+<h2 id="0.1.6" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.1.6" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.1.6</h2>
+  <ul>
+    <li>
+      scalafmt will not hang anymore, not even for
+      <a href="https://github.com/olafurpg/scalafmt/blob/124134dcd6a6c45d398d713ade266e071f4dc73c/core/src/test/scala/org/scalafmt/pathologicalcasestest.scala#l13">deeply nested computer generated code</a>.
+      when scalafmt detects it's struggling to format a statement,
+      it falls back to heuristics that return decent, but suboptimal, formatting
+      output. if the heuristics still fail, scalafmt falls back to the
+      original formatting of the code up until the next statement.</li>
+    <li>
+      spark, akka and the intellij scala plugin have been added to the
+      test suite, which now runs on a total of 9.398 files from external
+      projects. that's almost 8.000 more files than in 0.1.5! some key
+      statistics from formatting all 9.398 files:
+
+      <table>
+        <thead>
+          <tr>
+            <th>
+              computer</th>
+            <th>
+              75th percentile</th>
+            <th>
+              average</th>
+            <th>
+              max</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>
+              2.5 ghz i7 macbook pro</td>
+            <td>
+              119ms</td>
+            <td>
+              112ms</td>
+            <td>
+              7.1s</td></tr>
+          <tr>
+            <td>
+              travis ci (for fun)</td>
+            <td>
+              3.7s</td>
+            <td>
+              2.8s</td>
+            <td>
+              45.2s
+</td></tr></tbody></table>
+      <p>
+        there is still a lot of work to do. the plan is to investigate
+        the 90+ percentile cases in future releases as well as run
+        more jmh benchmarks.
+</p></li>
+    <li>
+      for loops can now have multiple if guards in a row. for example:
+      <pre><code class="scala scalatex-site-Styles-highlightMe">object forloopguards {
+  for {
+    x &lt;- list(1, 2, 3)
+    if (x != 1)
+    if (x != 3)
+  } yield x
+}
+</code></pre></li>
+    <li>
+      fixed bugs where a newline would come after return keyword.</li>
+    <li>
+      fixed bugs where scalafmt would crash on the following if it exceeded
+      the column limit.
+
+      <pre><code class="scala scalatex-site-Styles-highlightMe">new foo with bar with kaz {}</code></pre></li>
+    <li>
+      scalafmt no longer crashes when xml literal are used in infix
+      applications.</li>
+    <li>
+      minor changes to select statement formatting.
+</li></ul>
+<h2 id="0.1.5" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.1.5" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.1.5</h2>
+  <ul>
+    <li>
+      select chains are kept on a single line if they fit up to the last
+      opening curly brace.
+
+      <pre><code class="scala scalatex-site-Styles-highlightMe">// column          |
+// before
+List(1)
+  .map { x =&gt;
+    x + 1
+  }
+// after
+List(1).map { x =&gt;
+  x + 1
+}</code></pre></li>
+    <li>
+      Really long sequences of infix applications (for example, string
+      concatenations) don't hog anymore.</li>
+    <li>
+      Various small bug and speed improvements.
+      For example, all files in
+      <a href="https://github.com/lihaoyi/fastparse/">Fastparse</a>,
+      <a href="https://github.com/twitter/scalding">Scalding</a> and
+      <a href="https://github.com/GravityLabs/goose">Goose</a> that had
+      problems with 0.1.4 format without issues on 0.1.5.</li>
+    <li>
+      Ramped up testing.
+      Fastparse, Scalding and Goose
+      have been added to the test suite, which now runs on 1405 files
+      from external projects.
+      The plan is to reach around 28.000 files in the coming 0.1.x releases,
+      by including projects like
+      <a href="https://github.com/olafurpg/scalafmt/issues/133">spark</a>,
+      <a href="https://github.com/olafurpg/scalafmt/issues/134">akka</a> and
+      <a href="https://github.com/olafurpg/scalafmt/issues/135">intellij-scala</a>.</li>
+    <li>
+      Made rather large internal refactorings, which shouldn't affect
+      you as a user.</li></ul>
+<h2 id="0.1.4" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.1.4" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.1.4</h2>
+  <ul>
+    <li>
+      <a href="#assumeStandardLibraryStripMargin">assumeStandardLibraryStripMargin</a>.</li>
+    <li>
+      <a href="#//format:off">// format: off</a>.</li>
+    <li>
+      <a href="https://github.com/olafurpg/scalafmt/issues/127">Hanging behavior</a>.</li>
+    <li>
+      <a href="https://github.com/olafurpg/scalafmt/pull/128">Dozens of other small fixes</a>.
+</li></ul>
+<h2 id="0.1.3" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.1.3" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.1.3</h2>
+  <ul>
+    <li>
+      <a href="https://github.com/olafurpg/scalafmt/issues/117">Better handling of type parameters</a>.
+      Try it on your <a href="https://github.com/olafurpg/scalafmt/blob/6c4e5165bcbfa3a932cc112d7e87a1e919fcaf99/core/src/test/resources/default/DefDef.stat#L63">craziest type signatures</a>.</li>
+    <li>
+      <a href="https://github.com/olafurpg/scalafmt/issues/122">Array assignments are treated like regular call-site applications</a>.</li>
+    <li>
+      Commented out code remains un-indented (lines that start with
+      <code>//</code> stay at indentation 0).</li>
+    <li>
+      Blank lines are only forced before top-level definitions and methods
+      with docstrings.
+</li></ul>
+<h2 id="0.1.2" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.1.2" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.1.2</h2>
+
+  <ul>
+    <li>
+      Closed <a href="https://github.com/olafurpg/scalafmt/issues?utf8=%E2%9C%93&amp;q=author%3Asjrd+created%3A%3C2016-03-10">17 formatting issues</a>.
+      Thank you Sebastian!</li>
+    <li>
+      Added Java 6+7 compatibility, was Java 8 before.
+</li></ul>
+<h2 id="0.1.1" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#0.1.1" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>0.1.1</h2>
+  <ul>
+    <li></li>
+    The <code>-f</code> flag in the CLI can be a directory.
+</ul>
+<p>
+  This page was last updated on Mar 12, 2017.</p>
+
+
+  
+
+
+  <!-- Stats -->
+  <script type="text/javascript">
+    var _paq = _paq || [];
+    _paq.push(["setDomains", ["*.olafurpg.github.io/scalafmt"]]);
+    _paq.push(['trackPageView']);
+    _paq.push(['enableLinkTracking']);
+    (function() {
+      var u="https://stats.geirsson.com/hello/";
+      _paq.push(['setTrackerUrl', u+'hello.php']);
+      _paq.push(['setSiteId', 3]);
+      var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+      g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'hello.js'; s.parentNode.insertBefore(g,s);
+    })();
+  </script>
+  <noscript><p><img src="https://stats.geirsson.com/hello/hello.php?idsite=3" style="border:0;" alt="" /></p></noscript>
+  <!-- End Stats Code -->
+  <script>
+
+    function closeSidebar() {
+      document.getElementsByClassName("scalatex-scrollspy-Styles-menu")[0].children[1].click()
+    }
+    window.onload = closeSidebar
+  </script>
+
+</div>
+
+  <a href="https://github.com/olafurpg/scalafmt"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+</div><script>
+    scalatex.scrollspy.Controller().main(
+      [{"value":"Scalafmt - code formatter for Scala","children":[{"value":"Installation","children":[{"value":"IntelliJ","children":[]},{"value":"CLI","children":[{"value":"Coursier","children":[]},{"value":"Linux/OSX","children":[{"value":"Arch Linux","children":[]},{"value":"Nailgun","children":[]}]},{"value":"Build from source","children":[]},{"value":"scalafmt.jar","children":[]},{"value":"Homebrew/Mac OSX","children":[]},{"value":"Windows","children":[]},{"value":"--help","children":[]}]},{"value":"sbt","children":[]},{"value":"Gradle","children":[]},{"value":"Maven","children":[]},{"value":"Vim","children":[]},{"value":"Standalone library","children":[]},{"value":"Help wanted!","children":[]}]},{"value":"Configuration","children":[{"value":"style","children":[]},{"value":"maxColumn","children":[]},{"value":"continuationIndent.callSite","children":[]},{"value":"continuationIndent.defnSite","children":[]},{"value":"align.tokens","children":[]},{"value":"// format: off","children":[]},{"value":"assumeStandardLibraryStripMargin","children":[]},{"value":"docstrings","children":[]},{"value":"newlines.alwaysBeforeTopLevelStatements","children":[]},{"value":"newlines.sometimesBeforeColonInMethodReturnType","children":[]},{"value":"align.arrowEnumeratorGenerator","children":[]},{"value":"binPackParentConstructors","children":[]},{"value":"align.openParenCallSite","children":[]},{"value":"lineEndings","children":[]},{"value":"includeCurlyBraceInSelectChains","children":[]},{"value":"optIn.breakChainOnFirstMethodDot","children":[]},{"value":"newlines.penalizeSingleSelectMultiArgList","children":[]},{"value":"binPack.literalArgumentLists","children":[]},{"value":"runner.optimizer.forceConfigStyleOnOffset","children":[]},{"value":"rewrite.rules","children":[{"value":"AvoidInfix","children":[]},{"value":"ExpandImportSelectors","children":[]},{"value":"RedundantBraces","children":[]},{"value":"RedundantParens","children":[]},{"value":"SortImports","children":[]},{"value":"PreferCurlyFors","children":[]}]},{"value":"project","children":[]},{"value":"Other","children":[]}]},{"value":"Gotchas","children":[{"value":"Infix applications","children":[]},{"value":"Config style","children":[]}]},{"value":"Community","children":[{"value":"Related projects","children":[]},{"value":"Adopters","children":[]}]},{"value":"FAQ / Troubleshooting","children":[{"value":"How can I be notified of releases/announcements?","children":[]},{"value":"Why not Scalariform?","children":[]},{"value":"Why is scalafmt so slow?","children":[]},{"value":"Code formatters create unnecessary diffs!","children":[]},{"value":"Is the formatting output stable between releases?","children":[]}]},{"value":"Known issues","children":[{"value":"Deeply nested code","children":[]},{"value":"Non-idempotent","children":[]},{"value":"Performance","children":[]}]},{"value":"Changelog","children":[{"value":"0.6.x","children":[{"value":"0.6.1","children":[]},{"value":"0.6.1","children":[]},{"value":"0.6.0","children":[]}]},{"value":"0.5.x","children":[{"value":"0.5.8","children":[]},{"value":"0.5.8","children":[]},{"value":"0.5.6","children":[]},{"value":"0.5.5","children":[]},{"value":"0.5.4","children":[]},{"value":"0.5.3","children":[]},{"value":"0.5.2","children":[]},{"value":"0.5.1","children":[]},{"value":"0.5.0","children":[]}]},{"value":"0.4.x","children":[{"value":"0.4.10","children":[]},{"value":"0.4.9","children":[]},{"value":"0.4.8","children":[]},{"value":"0.4.7","children":[]},{"value":"0.4.6","children":[]},{"value":"0.4.5","children":[]},{"value":"0.4.4","children":[]},{"value":"0.4.3","children":[]},{"value":"0.4.2","children":[]},{"value":"0.4.1","children":[]},{"value":"0.4.0","children":[]}]},{"value":"0.3.x","children":[{"value":"0.3.1","children":[]},{"value":"0.3.0","children":[]}]},{"value":"0.2.x","children":[{"value":"0.2.12","children":[]},{"value":"0.2.11","children":[]},{"value":"0.2.10","children":[]},{"value":"0.2.9","children":[]},{"value":"0.2.8","children":[]},{"value":"0.2.7","children":[]},{"value":"0.2.6","children":[]},{"value":"0.2.5","children":[]},{"value":"0.2.4","children":[]},{"value":"0.2.3","children":[]},{"value":"0.2.2","children":[]},{"value":"0.2.1","children":[]},{"value":"0.2.0","children":[]}]},{"value":"0.1.x","children":[{"value":"0.1.6","children":[]},{"value":"0.1.5","children":[]},{"value":"0.1.4","children":[]},{"value":"0.1.3","children":[]},{"value":"0.1.2","children":[]},{"value":"0.1.1","children":[]}]}]}]}]
+  )</script><script>
+    ['DOMContentLoaded', 'load'].forEach(function(ev){
+      addEventListener(ev, function(){
+        Array.prototype.forEach.call(
+          document.getElementsByClassName('scalatex-site-Styles-highlightMe'),
+          hljs.highlightBlock
+        );
+      })
+    })
+  </script></body></html>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            

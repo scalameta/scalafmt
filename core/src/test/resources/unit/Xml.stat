@@ -1,9 +1,0 @@
-40 columns                              |
-<<< xml end indent
- <span>1</span> ++ <span>2</span> + 1
->>>
-<span>1</span> ++ <span>2</span> + 1
-<<< xml.end eof
- <span>1</span>
->>>
-<span>1</span>
