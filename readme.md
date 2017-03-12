@@ -1,5 +1,6 @@
 # scalafmt
 [![Build Status](https://platform-ci.scala-lang.org/api/badges/scalameta/scalafmt/status.svg)](https://platform-ci.scala-lang.org/scalameta/scalafmt)
+[![Build status](https://ci.appveyor.com/api/projects/status/ek7iwlgmbw0c5n3d?svg=true)](https://ci.appveyor.com/project/olafurpg/scalafmt-wocrd)
 [![Join the chat at https://gitter.im/olafurpg/scalafmt](https://badges.gitter.im/olafurpg/scalafmt.svg)](https://gitter.im/olafurpg/scalafmt?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Latest version](https://index.scala-lang.org/olafurpg/scalafmt/scalafmt-core/latest.svg?color=orange)](https://index.scala-lang.org/olafurpg/scalafmt/scalafmt-core)
 
