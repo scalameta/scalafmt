@@ -2,10 +2,7 @@ package org.scalafmt.util
 
 import org.scalafmt.config.FormatEvent.CreateFormatOps
 
-import scala.meta.Defn
-import scala.meta.Pkg
-import scala.meta.Template
-import scala.meta.Tree
+import scala.meta.{Defn, Mod, Pkg, Template, Tree}
 import scala.meta.dialects.Scala211
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
@@ -62,6 +59,7 @@ object TokenOps {
       newlines > 1 || (isDocstring(tok.right) && !tok.left.is[Comment])
     } || {
       !tok.left.is[Comment] &&
+      !owners(tok.left).parent.exists(_.is[Mod.Annot]) &&
       style.newlines.alwaysBeforeTopLevelStatements &&
       tok.between.count(_.is[KwNew]) < 2 && isTopLevelStatment(
         tok.right,
