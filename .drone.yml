@@ -9,14 +9,25 @@ pipeline:
       - /drone/.sbt
       - /drone/.git
 
-  tests:
+  tests_pr:
     image: scalaplatform/scala:0.6
-    pull: true
     volumes:
       - /platform:/keys
     commands:
-      - ./scalafmt --test
+      - ./bin/scalafmt --test
       - sbt $TEST
+    when:
+      event: pull_request
+
+  tests_merge:
+    image: scalaplatform/scala:0.6
+    volumes:
+      - /platform:/keys
+    commands:
+      - sbt $TEST
+    when:
+      event: push
+      branch: [master]
 
   notify:
     image: drillster/drone-email

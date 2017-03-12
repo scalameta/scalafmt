@@ -13,7 +13,7 @@ Head over to [the user docs][docs] for instructions on how to install scalafmt.
 - Hack on IntelliJ plugin: see [this doc](intellij/readme.md).
 - Hack on scalafmt: see [tutorial](Tutorial.md).
 - Hack on SBT plugin: run `sbt scripted`.
-- Run jmh benchmarks: `run-benchmarks.sh`.
+- Run jmh benchmarks: `./bin/run-benchmarks.sh`.
 - Run formatter on millions of lines of code: `core/test:runMain  org.scalafmt.FormatExperimentApp`:
 - Debug performance: after each test run in `FormatTests`, a flamegraph report
   like [this one](https://github.com/olafurpg/scalafmt/issues/140)
