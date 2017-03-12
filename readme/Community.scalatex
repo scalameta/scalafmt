@@ -6,7 +6,7 @@
 @sect{Community}
   @sect{Related projects}
     Have a scalafmt related project? Please consider
-    @lnk("opening a pull request", "https://github.com/olafurpg/scalafmt/blob/master/readme/Readme.scalatex")
+    @lnk("opening a pull request", "https://github.com/scalameta/scalafmt/blob/master/readme/Readme.scalatex")
     to list it here:
     @ul
       @li
@@ -29,7 +29,7 @@
     Are you using scalafmt? Please consider
     @lnk(
       "opening a pull request",
-      "https://github.com/olafurpg/scalafmt/blob/master/readme/src/main/scala/org/scalafmt/readme/Adopters.scala#L16"
+      "https://github.com/scalameta/scalafmt/blob/master/readme/src/main/scala/org/scalafmt/readme/Adopters.scala#L16"
     )
     to list your organization here:
 

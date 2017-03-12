@@ -237,9 +237,9 @@
           instead the runner is now a member of @code{ScalafmtConfig}.
         @li
           If you customized fields in @code{ScalafmtStyle}, you can consult
-          @lnk("this testcase", "https://github.com/olafurpg/scalafmt/blob/0987a046d2cde5222402cd51465fdaf6494cb1b3/cli/src/test/scala/org/scalafmt/cli/CliTest.scala#L180-L246")
+          @lnk("this testcase", "https://github.com/scalameta/scalafmt/blob/0987a046d2cde5222402cd51465fdaf6494cb1b3/cli/src/test/scala/org/scalafmt/cli/CliTest.scala#L180-L246")
           or the @code{--migrate2hocon} implementation
-          @lnk("here", "https://github.com/olafurpg/scalafmt/blob/657c2223a8edcb33400e4a0a5302da7e060d2925/cli/src/main/scala/org/scalafmt/cli/Cli.scala#L269").
+          @lnk("here", "https://github.com/scalameta/scalafmt/blob/657c2223a8edcb33400e4a0a5302da7e060d2925/cli/src/main/scala/org/scalafmt/cli/Cli.scala#L269").
           Don't hesitate to ask questions on gitter if you're unsure where your old
           settings have moved.
     @li

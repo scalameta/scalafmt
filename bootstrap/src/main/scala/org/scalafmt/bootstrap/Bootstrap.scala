@@ -56,7 +56,7 @@ object ScalafmtBootstrap {
     val repositories =
       MavenRepository("https://repo1.maven.org/maven2") :: {
       // ivy2 local is only necessary when testing the sbt plugin on a locally
-      // published version of scalafmt. See https://github.com/olafurpg/scalafmt/issues/807
+      // published version of scalafmt. See https://github.com/scalameta/scalafmt/issues/807
       // for a potential error caused by resolving fron ivy2 local (I can't reproduce the
       // error so this is a wild guess).
       if (sys.props.contains("scalafmt.scripted")) Cache.ivy2Local :: Nil

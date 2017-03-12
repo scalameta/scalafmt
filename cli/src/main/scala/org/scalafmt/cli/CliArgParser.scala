@@ -132,7 +132,7 @@ object CliArgParser {
 
       note(s"""|Examples:
                |$usageExamples
-               |Please file bugs to https://github.com/olafurpg/scalafmt/issues
+               |Please file bugs to https://github.com/scalameta/scalafmt/issues
       """.stripMargin)
     }
   def buildInfo =
