@@ -128,3 +128,20 @@ object A {
   // bar
   def foo(): Int = 0
 }
+
+<<< Don't pull annotations away from classes
+object A {
+  @Annotation
+  class B
+  @Singleton
+  class B @Inject()(val x: Int)
+}
+>>>
+object A {
+
+  @Annotation
+  class B
+
+  @Singleton
+  class B @Inject()(val x: Int)
+}
