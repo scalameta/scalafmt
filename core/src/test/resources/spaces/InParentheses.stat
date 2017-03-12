@@ -1,0 +1,40 @@
+spaces.inParentheses = true
+maxColumn = 40
+<<< Spaces in parentheses
+function(a, b, c)
+>>>
+function( a, b, c )
+<<< no arg
+function()
+>>>
+function()
+<<< def
+def x(foo: Int) = 2
+>>>
+def x( foo: Int ) = 2
+<<< tuple
+def x = (1, 2)
+>>>
+def x = ( 1, 2 )
+<<< maxColumn (looks weird, but scalariform does the same)
+def x = (1, 2, aaaaaaaaaaaaaawwwwsssssssssswa)
+>>>
+def x =
+  ( 1,
+   2,
+   aaaaaaaaaaaaaawwwwsssssssssswa )
+<<< maxColumn apply
+def foo = bar(aaaaaaaaaaaaa, bbbbbbbbbbbbbb, cccccccccc)
+>>>
+def foo =
+  bar( aaaaaaaaaaaaa,
+      bbbbbbbbbbbbbb,
+      cccccccccc )
+<<< maxColumn apply 2
+def foo = bar(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, bbbbbbbbbbbbbb, cccccccccc)
+>>>
+def foo =
+  bar(
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,
+    bbbbbbbbbbbbbb,
+    cccccccccc )
