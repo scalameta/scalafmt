@@ -7,7 +7,6 @@ import org.scalatest.FunSuite
 class GitOpsTest extends FunSuite {
   test("lsTree") {
     val files = GitOps().lsTree
-    assert(files.exists(x =>
-      x.path.endsWith(s"scalafmt${File.separator}.gitignore")))
+    assert(files.exists(x => x.path.endsWith(s".gitignore")))
   }
 }
