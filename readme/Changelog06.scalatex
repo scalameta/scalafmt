@@ -4,11 +4,21 @@
 @import org.scalafmt.config.ScalafmtConfig
 
 @ignore
-  @code{0.6.3}
+  @code{0.6.x}
     @ul
       @li
         Please document your contribution here.
-@sect{0.6.1}
+@sect{0.6.3}
+  @ul
+    @li
+      Minor bug fixes, see @lnk("merged PRs", "https://github.com/scalameta/scalafmt/milestone/15?closed=1").
+    @li
+     The repository has now been moved to the scalameta organization!
+     This is one step towards preparing for a
+     @lnk("v1.0 release", "https://github.com/scalameta/scalafmt/issues/730").
+     If you have ideas of what should go into the v1.0 release, please pitch
+     in on that issue.
+@sect{0.6.2}
   @ul
     @li
       Fixed @issue(798).
