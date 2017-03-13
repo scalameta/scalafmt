@@ -417,8 +417,8 @@ class Router(formatOps: FormatOps) {
       case FormatToken(open @ LeftParen(), r, between)
           if style.verticalMultilineAtDefinitionSite && isDefDef(leftOwner) =>
         val close = matchingParentheses(hash(open))
-        val indentParam = Num(4)
-        val indentSep = Num(2)
+        val indentParam = Num(style.continuationIndent.defnSite)
+        val indentSep = Num((indentParam.n - 2).max(0))
 
         @tailrec
         def loop(token: Token): Option[Token] =
