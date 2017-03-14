@@ -1,5 +1,5 @@
 maxColumn = 150
-<<< ONLY Spaces in after close braces
+<<<Spaces in after close braces
 class Foo @Inject()(conf: Configuration)
 >>>
 class Foo @Inject() ( conf: Configuration )
