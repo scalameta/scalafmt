@@ -352,7 +352,9 @@ class Router(formatOps: FormatOps) {
               if style.spaces.afterTripleEquals &&
                 t.tokens.map(_.syntax) == Seq("===") =>
             Space
-          case _ => NoSplit
+          case _ =>
+          logger.elem(leftOwner.syntax, leftOwner.structure)
+          NoSplit
         }
         Seq(
           Split(modification, 0)
