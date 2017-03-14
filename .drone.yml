@@ -14,7 +14,7 @@ pipeline:
     volumes:
       - /platform:/keys
     commands:
-      - ./bin/scalafmt --test
+      - ./scalafmt --test
       - sbt $TEST
     when:
       event: pull_request

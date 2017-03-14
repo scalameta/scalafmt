@@ -65,9 +65,15 @@ object ScalafmtBootstrap {
 
     val logger = new TermDisplay(new OutputStreamWriter(System.err))
     logger.init(System.err.println("Downloading scalafmt artifacts..."))
+
+    val cacheFile =
+      sys.env.getOrElse("SCALAFMT_CACHE",
+                        new File(new File(sys.props("user.home"), ".cache"),
+                                 "sbt-scalafmt").getAbsolutePath)
     val fetch = Fetch.from(
       repositories,
       Cache.fetch(
+        cache = new File(cacheFile),
         logger = Some(logger)
       )
     )
