@@ -55,19 +55,25 @@ object ScalafmtBootstrap {
 
     val repositories =
       MavenRepository("https://repo1.maven.org/maven2") :: {
-      // ivy2 local is only necessary when testing the sbt plugin on a locally
-      // published version of scalafmt. See https://github.com/scalameta/scalafmt/issues/807
-      // for a potential error caused by resolving fron ivy2 local (I can't reproduce the
-      // error so this is a wild guess).
-      if (sys.props.contains("scalafmt.scripted")) Cache.ivy2Local :: Nil
-      else Nil
-    }
+        // ivy2 local is only necessary when testing the sbt plugin on a locally
+        // published version of scalafmt. See https://github.com/scalameta/scalafmt/issues/807
+        // for a potential error caused by resolving fron ivy2 local (I can't reproduce the
+        // error so this is a wild guess).
+        if (sys.props.contains("scalafmt.scripted")) Cache.ivy2Local :: Nil
+        else Nil
+      }
 
     val logger = new TermDisplay(new OutputStreamWriter(System.err))
     logger.init(System.err.println("Downloading scalafmt artifacts..."))
+
+    val cacheFile =
+      sys.env.getOrElse("SCALAFMT_CACHE",
+                        new File(new File(sys.props("user.dir"), ".cache"),
+                                 "sbt-scalafmt").getAbsolutePath)
     val fetch = Fetch.from(
       repositories,
       Cache.fetch(
+        cache = new File(cacheFile),
         logger = Some(logger)
       )
     )
