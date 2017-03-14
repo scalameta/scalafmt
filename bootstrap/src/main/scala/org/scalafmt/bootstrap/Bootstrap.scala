@@ -68,8 +68,9 @@ object ScalafmtBootstrap {
 
     val cacheFile =
       sys.env.getOrElse("SCALAFMT_CACHE",
-                        new File(new File(sys.props("user.home"), ".cache"),
+                        new File(new File(sys.props("user.dir"), ".cache"),
                                  "sbt-scalafmt").getAbsolutePath)
+
     val fetch = Fetch.from(
       repositories,
       Cache.fetch(
