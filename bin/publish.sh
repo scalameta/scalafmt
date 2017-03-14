@@ -55,7 +55,7 @@ function update-github-release() {
 
     echo "Creating github release..."
     github-release release \
-        --user olafurpg \
+        --user scalameta \
         --repo scalafmt \
         --tag ${tag} \
         --name "${tag}" \
