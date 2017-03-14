@@ -1,5 +1,4 @@
-maxColumn = 150
-<<<Spaces in after close braces
+<<<SKIP Spaces in after close braces
 class Foo @Inject()(conf: Configuration)
 >>>
 class Foo @Inject() ( conf: Configuration )
