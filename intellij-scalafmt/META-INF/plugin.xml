@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>org.scalafmt.ScalaFmt</id>
   <name>Scalafmt</name>
-  <version>0.6.2</version>
+  <version>0.6.3</version>
   <vendor email="olafurpg@gmail.com" url="https://github.com/scalameta/scalafmt">Olafur Pall Geirsson</vendor>
 
   <description><![CDATA[
