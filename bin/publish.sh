@@ -55,15 +55,15 @@ function update-github-release() {
 
     echo "Creating github release..."
     github-release release \
-        --user olafurpg \
+        --user scalameta \
         --repo scalafmt \
         --tag ${tag} \
         --name "${tag}" \
-        --description "Changelog: https://olafurpg.github.io/scalafmt/#${version}"
+        --description "Changelog: http://scalameta.org/scalafmt/#${version}"
 
     echo "Uploading tar..."
     github-release upload \
-        --user olafurpg \
+        --user scalameta \
         --repo scalafmt \
         --tag ${tag} \
         --name "scalafmt.tar.gz" \
