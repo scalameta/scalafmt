@@ -77,7 +77,7 @@ object ScalafmtBootstrap {
         logger = Some(logger)
       )
     )
-    val resolution = start.process.run(fetch).unsafePerformSync
+    val resolution = runResolutionWithLockRetry(start, fetch, 50)
     val errors: Seq[(Dependency, Seq[String])] = resolution.errors
     if (errors.nonEmpty) Left(new FetchError(errors))
     else {
@@ -98,6 +98,21 @@ object ScalafmtBootstrap {
         case Success(cli) => Right(new ScalafmtBootstrap(cli) {})
         case Failure(e) => Left(e)
       }
+    }
+  }
+
+  private def runResolutionWithLockRetry(
+      start: Resolution,
+      fetch: Fetch.Metadata[Task],
+      remainingAttempts: Int): Resolution = {
+    val resolution = start.process.run(fetch).unsafePerformSync
+    val errors = resolution.errors
+    val allErrorsAreLock = errors.forall(_._2.forall(_.startsWith("locked")))
+    if (errors.nonEmpty && remainingAttempts >= 0 && allErrorsAreLock) {
+      Thread.sleep(50)
+      runResolutionWithLockRetry(start, fetch, remainingAttempts - 1)
+    } else {
+      resolution
     }
   }
 
