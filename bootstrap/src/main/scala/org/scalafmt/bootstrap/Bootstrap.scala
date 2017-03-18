@@ -41,11 +41,14 @@ object ScalafmtBootstrap {
   private val cliCache =
     mutable.Map.empty[String, Either[Throwable, ScalafmtBootstrap]]
 
-  def fromVersion(version: String): Either[Throwable, ScalafmtBootstrap] =
-    cliCache.getOrElseUpdate(version, fromVersionUncached(version))
+  def fromVersion(version: String): Either[Throwable, ScalafmtBootstrap] = {
+    synchronized {
+      cliCache.getOrElseUpdate(version, fromVersionUncached(version))
+    }
+  }
 
   def fromVersionUncached(
-      version: String): Either[Throwable, ScalafmtBootstrap] = {
+      version: String): Either[Throwable, ScalafmtBootstrap] = synchronized {
     val start =
       Resolution(
         Set(
