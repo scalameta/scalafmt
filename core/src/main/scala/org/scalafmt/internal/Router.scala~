@@ -822,9 +822,7 @@ class Router(formatOps: FormatOps) {
           case _ =>
             Seq(
               Split(Space, 0),
-              Split(if (newlines > 0) Newline2x else Newline,
-                    2,
-                    ignoreIf = rhsIsAttachedComment)
+              Split(Newline, 2, ignoreIf = rhsIsAttachedComment)
             )
         }
       case FormatToken(_, Semicolon(), _) =>
