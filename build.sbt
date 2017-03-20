@@ -1,11 +1,11 @@
 // The version number used in docs.
-def latestStableVersion: String = "0.6.5"
+def latestStableVersion: String = "0.6.6"
 
 addCommandAlias("downloadIdea", "intellij/updateIdea")
 
 lazy val buildSettings = Seq(
   organization := "com.geirsson",
-  version := "0.6.5",
+  version := "0.6.6",
   scalaVersion := "2.11.8",
   crossScalaVersions := Seq("2.11.8", "2.12.1"),
   updateOptions := updateOptions.value.withCachedResolution(true)
