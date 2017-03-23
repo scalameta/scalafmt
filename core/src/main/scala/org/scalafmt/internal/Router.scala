@@ -415,7 +415,7 @@ class Router(formatOps: FormatOps) {
       // Parameter opening for one parameter group. This format works
       // on a group-by-group basis.
       case FormatToken(open @ LeftParen(), r, between)
-          if style.verticalMultilineAtDefinitionSite && isDefDef(leftOwner) =>
+          if style.verticalMultilineAtDefinitionSite && isDefnSite(leftOwner) =>
         val close = matchingParentheses(hash(open))
         val indentParam = Num(style.continuationIndent.defnSite)
         val indentSep = Num((indentParam.n - 2).max(0))
@@ -427,22 +427,29 @@ class Router(formatOps: FormatOps) {
             case FormatToken(r @ RightParen(), _, _) => Some(r)
             case _ => None
           }
-        val lastParen = loop(open).get // find the last param on the def
+        // find the last param on the def
         // so that we can apply our `policy` till
         // the end.
+        val lastParen = loop(open).get
+
+        // If this is a class, we need to do some different things
+        // We only care about the Primary Ctor since other Ctors will
+        // be picked up by the `def` definition
+        val isCtor = leftOwner.is[meta.Ctor.Primary]
 
         // Our policy is a combination of OneArgLineSplit and a custom splitter
         // for parameter groups.
         val oneLinePerArg = OneArgOneLineSplit(open).f
         val paramGroupSplitter: PartialFunction[Decision, Decision] = {
+          case Decision(t @ FormatToken(_, rp @ RightParen(), _), _)
+              if rp == lastParen && isCtor =>
+            val split = Split(NoSplit, 0)
+            Decision(t, Seq(split))
           // Indent seperators `)(` by `indentSep`
           case Decision(t @ FormatToken(_, rp @ RightParen(), _), _)
               if owners(rp) == leftOwner =>
-            Decision(t,
-                     Seq(
-                       Split(Newline, 0)
-                         .withIndent(indentSep, rp, Left)
-                     ))
+            val split = Split(Newline, 0).withIndent(indentSep, rp, Left)
+            Decision(t, Seq(split))
           // Do NOT Newline the first param after the split `)(`. But let
           // following ones get newlined by the oneLinePerArg policy.
           case Decision(t @ FormatToken(open2 @ LeftParen(), _, _), _) =>
