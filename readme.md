@@ -48,6 +48,7 @@ We strive to offer a welcoming environment to learn, teach and contribute.
 <a href="http://www.ej-technologies.com/products/jprofiler/overview.html">
   <img src="https://www.ej-technologies.com/images/product_banners/jprofiler_large.png" align="right" />
  </a>
+ 
 [JProfiler](http://www.ej-technologies.com/products/jprofiler/overview.html) generously supports scalafmt with its full-featured Java Profiler.
 
 [docs]: http://scalafmt.org
