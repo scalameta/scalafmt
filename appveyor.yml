@@ -15,14 +15,15 @@ install:
         )
         [System.IO.Compression.ZipFile]::ExtractToDirectory("C:\sbt-bin.zip", "C:\sbt")
       }
-  - cmd: SET PATH=C:\sbt\sbt\bin;%JAVA_HOME%\bin;%PATH%
+  - cmd: SET PATH=C:\sbt\sbt-launcher-packaging-0.13.13\bin;%JAVA_HOME%\bin;%PATH%
   - cmd: SET SBT_OPTS=-XX:MaxPermSize=2g -Xmx4g
 build_script:
-  - sbt clean intellij/updateIdea compile
+  - sbt clean downloadIdea compile
 test_script:
   - sbt test readme/run scripted
 cache:
   - C:\sbt\ -> appveyor.yml
+  - intellij\ideaIC-2016.3.2.zip
   - C:\Users\appveyor\.m2
   - C:\Users\appveyor\.ivy2
   - C:\Users\appveyor\.coursier

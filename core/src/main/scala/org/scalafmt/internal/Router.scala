@@ -415,7 +415,8 @@ class Router(formatOps: FormatOps) {
       // Parameter opening for one parameter group. This format works
       // on a group-by-group basis.
       case FormatToken(open @ LeftParen(), r, between)
-          if style.verticalMultilineAtDefinitionSite && isDefnSite(leftOwner) =>
+          if style.verticalMultilineAtDefinitionSite &&
+            isDefnSite(leftOwner) =>
         val close = matchingParentheses(hash(open))
         val indentParam = Num(style.continuationIndent.defnSite)
         val indentSep = Num((indentParam.n - 2).max(0))
