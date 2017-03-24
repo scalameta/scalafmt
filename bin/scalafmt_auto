@@ -26,7 +26,7 @@ check_binary "$GREP"
 
 check_latest () {
   echo "Checking latest version from github..."
-  latest_version=$($CURL -s https://api.github.com/repos/olafurpg/scalafmt/releases/latest | $GREP -Eo '"tag_name":(.*)' | $CUT -d \" -f 4) 
+  latest_version=$($CURL -s https://api.github.com/repos/scalameta/scalafmt/releases/latest | $GREP -Eo '"tag_name":(.*)' | $CUT -d \" -f 4) 
   if [[ $latest_version = "" ]]; then
     echo "The github call failed, either because of an internet connection issue or rate limits..."
     exit 1
