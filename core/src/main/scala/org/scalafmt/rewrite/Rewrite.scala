@@ -73,7 +73,6 @@ object Rewrite {
             tokenTraverser = new TokenTraverser(tokens),
             TreeOps.getMatchingParentheses(tokens)
           )
-          val rr = rewrites.map(_.getClass)
           val patches: Seq[Patch] = rewrites.flatMap(_.rewrite(ast, ctx))
           Patch(ast, patches)(ctx)
         case _ => noop
