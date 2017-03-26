@@ -1,21 +1,8 @@
 version: '{build}'
 os: Windows Server 2012
-#  To make the extended ascii characters work on Windows
-#  we need to set string encoding for jvm to utf-8 on windows
-environment:
-  SBT_OPTS: -Dfile.encoding=UTF8
-  JAVA_OPTS: -Dfile.encoding=UTF8
 install:
-  - ps: |
-      Add-Type -AssemblyName System.IO.Compression.FileSystem
-      if (!(Test-Path -Path "C:\sbt" )) {
-        (new-object System.Net.WebClient).DownloadFile(
-          'https://dl.bintray.com/sbt/native-packages/sbt/0.13.13/sbt-0.13.13.zip',
-          'C:\sbt-bin.zip'
-        )
-        [System.IO.Compression.ZipFile]::ExtractToDirectory("C:\sbt-bin.zip", "C:\sbt")
-      }
-  - cmd: SET PATH=C:\sbt\sbt-launcher-packaging-0.13.13\bin;%JAVA_HOME%\bin;%PATH%
+  - cmd: choco install sbt -ia "INSTALLDIR=""C:\sbt"""
+  - cmd: SET PATH=C:\sbt\bin;%JAVA_HOME%\bin;%PATH%
   - cmd: SET SBT_OPTS=-XX:MaxPermSize=2g -Xmx4g
 build_script:
   - sbt clean downloadIdea compile
@@ -23,7 +10,7 @@ test_script:
   - sbt test readme/run scripted
 cache:
   - C:\sbt\ -> appveyor.yml
-  - intellij\ideaIC-2016.3.2.zip
+  - intellij\LATEST-EAP-SNAPSHOT
   - C:\Users\appveyor\.m2
   - C:\Users\appveyor\.ivy2
   - C:\Users\appveyor\.coursier
