@@ -1,6 +1,6 @@
 package org.scalafmt.config
 
-import metaconfig.ConfigReader
+import metaconfig.{ConfigReader, Reader}
 
 /**
   * @param penalizeSingleSelectMultiArgList
@@ -36,6 +36,24 @@ import metaconfig.ConfigReader
   *     n =>
   *       consume(n)
   *   }
+  * @param afterCurlyLambda
+  *   If `never` (default), it will remove any extra lines below curly lambdas
+  *   {{{
+  *   something.map { x =>
+  *
+  *     f(x)
+  *   }
+  *   }}}
+  *   will become
+  *   {{{
+  *   something.map { x =>
+  *     f(x)
+  *   }
+  *   }}}
+  *
+  *   If `always`, it will always add one empty line (opposite of `never`).
+  *   If `preserve`, and there isn't an empty line, it will keep it as it is.
+  *   If there is one or more empty lines, it will place a single empty line.
   */
 @ConfigReader
 case class Newlines(
@@ -44,5 +62,18 @@ case class Newlines(
     sometimesBeforeColonInMethodReturnType: Boolean = true,
     penalizeSingleSelectMultiArgList: Boolean = true,
     alwaysBeforeCurlyBraceLambdaParams: Boolean = false,
-    alwaysBeforeTopLevelStatements: Boolean = false
+    alwaysBeforeTopLevelStatements: Boolean = false,
+    afterCurlyLambda: NewlineCurlyLambda = NewlineCurlyLambda.never
 )
+
+sealed abstract class NewlineCurlyLambda
+
+object NewlineCurlyLambda {
+
+  case object preserve extends NewlineCurlyLambda
+  case object always extends NewlineCurlyLambda
+  case object never extends NewlineCurlyLambda
+
+  implicit val newlineCurlyLambdaReader: Reader[NewlineCurlyLambda] =
+    ReaderUtil.oneOf[NewlineCurlyLambda](preserve, always, never)
+}

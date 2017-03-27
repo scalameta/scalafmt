@@ -1,0 +1,46 @@
+style = default
+newlines.afterCurlyLambda = preserve
+
+<<< Preserve newline in lambda call
+def f = {
+  something.call { x =>
+
+    g(x)
+  }
+}
+>>>
+def f = {
+  something.call { x =>
+
+    g(x)
+  }
+}
+
+<<< Preserve no-newline in lambda call
+def f = {
+  something.call { x =>
+    g(x)
+  }
+}
+>>>
+def f = {
+  something.call { x =>
+    g(x)
+  }
+}
+
+<<< Replace multiple newlines with a single newline when preseving
+def f = {
+  something.call { x =>
+
+
+    g(x)
+  }
+}
+>>>
+def f = {
+  something.call { x =>
+
+    g(x)
+  }
+}

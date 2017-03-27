@@ -18,7 +18,7 @@ import scala.meta.Type
 import scala.meta.tokens.Token
 
 import org.scalafmt.Error.UnexpectedTree
-import org.scalafmt.config.ImportSelectors
+import org.scalafmt.config.{ImportSelectors, NewlineCurlyLambda}
 import org.scalafmt.internal.ExpiresOn.Left
 import org.scalafmt.internal.ExpiresOn.Right
 import org.scalafmt.internal.Length.Num
@@ -239,9 +239,16 @@ class Router(formatOps: FormatOps) {
           leftOwner.asInstanceOf[Term.Function].body)
         val canBeSpace =
           statementStarts(hash(right)).isInstanceOf[Term.Function]
+        val afterCurlyNewlines =
+          style.newlines.afterCurlyLambda match {
+            case NewlineCurlyLambda.never => Newline
+            case NewlineCurlyLambda.always => Newline2x
+            case NewlineCurlyLambda.preserve =>
+              if (newlines >= 2) Newline2x else Newline
+          }
         Seq(
           Split(Space, 0, ignoreIf = !canBeSpace),
-          Split(Newline, 1).withIndent(2, endOfFunction, Left)
+          Split(afterCurlyNewlines, 1).withIndent(2, endOfFunction, Left)
         )
       case FormatToken(arrow @ RightArrow(), right, _)
           if leftOwner.is[Term.Function] =>
