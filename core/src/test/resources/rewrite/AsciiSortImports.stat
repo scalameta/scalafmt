@@ -1,0 +1,11 @@
+rewrite.rules = [AsciiSortImports]
+
+<<< ascii sorting
+import a.{
+  ~>,
+  lowercase,
+  Uppercase,
+  `symbol`
+}
+>>>
+import a.{Uppercase, `symbol`, lowercase, ~>}

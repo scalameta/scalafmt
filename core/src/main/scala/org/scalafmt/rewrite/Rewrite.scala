@@ -22,6 +22,7 @@ object Rewrite {
       RedundantBraces,
       RedundantParens,
       SortImports,
+      AsciiSortImports,
       PreferCurlyFors,
       ExpandImportSelectors,
       AvoidInfix
@@ -45,7 +46,8 @@ object Rewrite {
   val default: Seq[Rewrite] = name2rewrite.values.toSeq
 
   private def incompatibleRewrites: List[(Rewrite, Rewrite)] = List(
-    SortImports -> ExpandImportSelectors
+    SortImports -> ExpandImportSelectors,
+    SortImports -> AsciiSortImports
   )
 
   def validateRewrites(rewrites: Seq[Rewrite]): Seq[String] = {
