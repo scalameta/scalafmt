@@ -36,6 +36,7 @@ object Rewrite {
     RedundantBraces,
     RedundantParens,
     SortImports,
+    AsciiSortImports,
     PreferCurlyFors,
     ExpandImportSelectors,
     AvoidInfix

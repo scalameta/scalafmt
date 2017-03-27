@@ -531,6 +531,12 @@
       @demoStyle(rewriteImports)
         import foo.{Zilch, bar, Random, sand}
 
+    @sect(Rewrite.rewrite2name(AsciiSortImports))
+      @p
+        The imports are sorted by their Ascii codes
+      @demoStyle(rewriteAsciiImports)
+        import foo.{~>, `symbol`, bar, Random}
+
     @sect(Rewrite.rewrite2name(PreferCurlyFors))
       @p
         Replaces parentheses into curly braces in for comprehensions that
