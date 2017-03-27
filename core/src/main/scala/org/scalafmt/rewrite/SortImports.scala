@@ -18,8 +18,8 @@ import scala.meta._
 sealed trait SortImports extends Rewrite {
 
   /**
-   * The sorting scheme to use when sorting the imports
-   */
+    * The sorting scheme to use when sorting the imports
+    */
   def sorted(str: Seq[String]): Seq[String]
 
   override def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch] = {
@@ -49,9 +49,9 @@ sealed trait SortImports extends Rewrite {
 }
 
 /**
- * Sort imports with symbols at the beginning, followed by lowercase and
- * finally uppercase
- */
+  * Sort imports with symbols at the beginning, followed by lowercase and
+  * finally uppercase
+  */
 case object SortImports extends SortImports {
 
   // sort contributed by @djspiewak: https://gist.github.com/djspiewak/127776c2b6a9d6cd3c21a228afd4580f
@@ -75,10 +75,10 @@ case object SortImports extends SortImports {
 }
 
 /**
- * Sort imports using the traditional ASCII sorting
- *
- * See: http://support.ecisolutions.com/doc-ddms/help/reportsmenu/ascii_sort_order_chart.htm
- */
+  * Sort imports using the traditional ASCII sorting
+  *
+  * See: http://support.ecisolutions.com/doc-ddms/help/reportsmenu/ascii_sort_order_chart.htm
+  */
 case object AsciiSortImports extends SortImports {
 
   override def sorted(strs: Seq[String]): Seq[String] = strs.sorted
