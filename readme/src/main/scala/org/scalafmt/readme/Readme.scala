@@ -149,6 +149,12 @@ object Readme {
         rules = Seq(SortImports)
       ))
 
+  val rewriteAsciiImports =
+    ScalafmtConfig.default.copy(
+      rewrite = ScalafmtConfig.default.rewrite.copy(
+        rules = Seq(AsciiSortImports)
+      ))
+
   val rewritePreferCurlyFors =
     ScalafmtConfig.default.copy(
       rewrite = ScalafmtConfig.default.rewrite.copy(
