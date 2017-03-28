@@ -420,45 +420,70 @@ class Router(formatOps: FormatOps) {
         }
 
       // Parameter opening for one parameter group. This format works
-      // on a group-by-group basis.
-      case FormatToken(open @ LeftParen(), r, between)
+      // on the WHOLE defnSite (via policies)
+      case FormatToken(open @ (LeftParen() | LeftBracket()), r, between)
           if style.verticalMultilineAtDefinitionSite &&
-            isDefnSite(leftOwner) =>
+            isClassOrDef(leftOwner) =>
+
         val close = matchingParentheses(hash(open))
         val indentParam = Num(style.continuationIndent.defnSite)
         val indentSep = Num((indentParam.n - 2).max(0))
+        val isBracket = open.is[LeftBracket]
 
         @tailrec
-        def loop(token: Token): Option[Token] =
+        def loop(token: Token): Option[Token] = {
           leftTok2tok(matchingParentheses(hash(token))) match {
-            case FormatToken(RightParen(), l @ LeftParen(), _) => loop(l)
-            case FormatToken(r @ RightParen(), _, _) => Some(r)
+            case FormatToken(RightParen() | RightBracket(), l @ LeftParen(), _) => loop(l)
+            case FormatToken(r @ (RightParen() | RightBracket()), _, _) => Some(r)
             case _ => None
           }
-        // find the last param on the def
-        // so that we can apply our `policy` till
-        // the end.
+        }
+        // find the last param on the defn so that we can apply our `policy`
+        // till the end.
         val lastParen = loop(open).get
 
-        // If this is a class, we need to do some different things
+        // If this is a class, we need to do some things differently.
         // We only care about the Primary Ctor since other Ctors will
         // be picked up by the `def` definition
-        val isCtor = leftOwner.is[meta.Ctor.Primary]
+        val isCtor =
+          leftOwner.is[meta.Ctor.Primary] || leftOwner.is[meta.Defn.Class]
 
-        // Our policy is a combination of OneArgLineSplit and a custom splitter
-        // for parameter groups.
-        val oneLinePerArg = OneArgOneLineSplit(open).f
+        // Since classes and defs aren't the same (see above), we need to
+        // create two (2) OneArgOneLineSplit when dealing with classes. One
+        // deals with the type params and the other with the data params.
+        val oneLinePerArg = {
+          val base = OneArgOneLineSplit(open)
+          if (isCtor && isBracket) {
+            val firstParen = leftTok2tok(matchingParentheses(hash(open))).right
+            base.merge(OneArgOneLineSplit(firstParen))
+          }
+          else base
+        }
+
+        // DESNOTE(2017-03-28, pjrt) Classes and defs aren't the same.
+        // For defs, type params and data param have the same `owners`. However
+        // this is not the case for classes. Type params have the class itself
+        // as the owner, but data params have the Ctor as the owner. So a
+        // simple check isn't enough. Instead we check against the owner of the
+        // `lastParen`, which will be the same as the data param's owner.
+        val dataParamsOwner = owners(lastParen)
+        @inline def ownerCheck(rp: Token): Boolean = {
+          val owner = owners(rp)
+          owner == leftOwner || owner == dataParamsOwner
+        }
+
         val paramGroupSplitter: PartialFunction[Decision, Decision] = {
-          case Decision(t @ FormatToken(_, rp @ RightParen(), _), _)
+          // If this is a class, then don't dangle the last paren
+          case Decision(t @ FormatToken(_, rp @ (RightParen() | RightBracket()), _), _)
               if rp == lastParen && isCtor =>
             val split = Split(NoSplit, 0)
             Decision(t, Seq(split))
-          // Indent seperators `)(` by `indentSep`
-          case Decision(t @ FormatToken(_, rp @ RightParen(), _), _)
-              if owners(rp) == leftOwner =>
+          // Indent seperators `)(` and `](` by `indentSep`
+          case Decision(t @ FormatToken(_, rp @ (RightParen() | RightBracket()), _), _)
+              if ownerCheck(rp) =>
             val split = Split(Newline, 0).withIndent(indentSep, rp, Left)
             Decision(t, Seq(split))
-          // Do NOT Newline the first param after the split `)(`. But let
+          // Do NOT Newline the first param after the split. But let
           // following ones get newlined by the oneLinePerArg policy.
           case Decision(t @ FormatToken(open2 @ LeftParen(), _, _), _) =>
             val close2 = matchingParentheses(hash(open2))
@@ -469,8 +494,9 @@ class Router(formatOps: FormatOps) {
                      ))
         }
 
-        val policy =
-          Policy(oneLinePerArg.orElse(paramGroupSplitter), lastParen.end)
+        // Our policy is a combination of OneArgLineSplit and a custom splitter
+        // for parameter groups.
+        val policy = oneLinePerArg.merge(paramGroupSplitter, lastParen.end)
 
         val firstIndent =
           if (r.is[RightParen]) // An empty param group
@@ -478,9 +504,16 @@ class Router(formatOps: FormatOps) {
           else
             indentParam
 
+        val singleLineSplit =
+          if (isBracket)
+            Split(NoSplit, 0) // If we can fit the type params, make it so
+              .withPolicy(SingleLineBlock(close))
+          else
+            Split(NoSplit, 0) // If we can fit all in one block, make it so
+              .withPolicy(SingleLineBlock(lastParen))
+
         Seq(
-          Split(NoSplit, 0) // If it fits in one block, make it so
-            .withPolicy(SingleLineBlock(lastParen)),
+          singleLineSplit,
           Split(Newline, 1) // Otherwise split vertically
             .withIndent(firstIndent, close, Right)
             .withPolicy(policy)
