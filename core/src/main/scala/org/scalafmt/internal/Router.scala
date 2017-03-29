@@ -446,10 +446,15 @@ class Router(formatOps: FormatOps) {
         // till the end.
         val lastParen = loop(open).get
 
-        // If this is a class/trait, we need to do some things differently.
-        // We only care about the Primary Ctor since other Ctors will
-        // be picked up by the `def` definition
-        val isClassTrait =
+        val mixedParams = {
+          leftOwner match {
+            case cls: meta.Defn.Class =>
+              cls.tparams.nonEmpty && cls.ctor.paramss.nonEmpty
+            case _ => false
+          }
+        }
+
+        val shouldNotDangle =
           leftOwner.is[meta.Ctor.Primary] ||
           leftOwner.is[meta.Defn.Class] ||
           leftOwner.is[meta.Defn.Trait]
@@ -459,7 +464,7 @@ class Router(formatOps: FormatOps) {
         // deals with the type params and the other with the data params.
         val oneLinePerArg = {
           val base = OneArgOneLineSplit(open)
-          if (isClassTrait && isBracket) {
+          if (mixedParams) {
             val afterTypes = leftTok2tok(matchingParentheses(hash(open)))
             // Try to find the first paren. If found, then we are dealing with
             // a class with type AND data params. Otherwise it is a class with
@@ -473,9 +478,10 @@ class Router(formatOps: FormatOps) {
         // DESNOTE(2017-03-28, pjrt) Classes and defs aren't the same.
         // For defs, type params and data param have the same `owners`. However
         // this is not the case for classes. Type params have the class itself
-        // as the owner, but data params have the Ctor as the owner. So a
+        // as the owner, but data params have the Ctor as the owner, so a
         // simple check isn't enough. Instead we check against the owner of the
-        // `lastParen`, which will be the same as the data param's owner.
+        // `lastParen` as well, which will be the same as the data param's
+        // owner.
         val dataParamsOwner = owners(lastParen)
         @inline def ownerCheck(rp: Token): Boolean = {
           val owner = owners(rp)
@@ -485,7 +491,7 @@ class Router(formatOps: FormatOps) {
         val paramGroupSplitter: PartialFunction[Decision, Decision] = {
           // If this is a class, then don't dangle the last paren
           case Decision(t @ FormatToken(_, rp @ RightParenOrBracket(), _), _)
-              if rp == lastParen && isClassTrait =>
+              if shouldNotDangle && rp == lastParen =>
             val split = Split(NoSplit, 0)
             Decision(t, Seq(split))
           // Indent seperators `)(` and `](` by `indentSep`
@@ -493,13 +499,14 @@ class Router(formatOps: FormatOps) {
               if ownerCheck(rp) =>
             val split = Split(Newline, 0).withIndent(indentSep, rp, Left)
             Decision(t, Seq(split))
-          // Do NOT Newline the first param after the split. But let
-          // following ones get newlined by the oneLinePerArg policy.
+          // Do NOT Newline the first param after the split, unless we have a
+          // mixed-params case with a Ctor modifier.
+          // `] private (`
           case Decision(t @ FormatToken(open2 @ LeftParen(), _, _), _) =>
             val close2 = matchingParentheses(hash(open2))
             val prevT = prev(t).left
             val mod =
-              if (isClassTrait && CtorModifier.is(owners(prevT))) Newline
+              if (mixedParams && CtorModifier.is(owners(prevT))) Newline
               else NoSplit
             Decision(t,
                      Seq(
