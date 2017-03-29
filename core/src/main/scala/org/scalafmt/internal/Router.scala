@@ -433,8 +433,12 @@ class Router(formatOps: FormatOps) {
         @tailrec
         def loop(token: Token): Option[Token] = {
           leftTok2tok(matchingParentheses(hash(token))) match {
-            case FormatToken(RightParen() | RightBracket(), l @ LeftParen(), _) => loop(l)
-            case FormatToken(r @ (RightParen() | RightBracket()), _, _) => Some(r)
+            case FormatToken(RightParenOrBracket(), l @ LeftParen(), _) =>
+              loop(l)
+            // This case only applies to classes
+            case f @ FormatToken(RightBracket(), CtorModifier(), _) =>
+              loop(next(f).right)
+            case FormatToken(r @ RightParenOrBracket(), _, _) => Some(r)
             case _ => None
           }
         }
@@ -448,14 +452,18 @@ class Router(formatOps: FormatOps) {
         val isCtor =
           leftOwner.is[meta.Ctor.Primary] || leftOwner.is[meta.Defn.Class]
 
-        // Since classes and defs aren't the same (see above), we need to
+        // Since classes and defs aren't the same (see below), we need to
         // create two (2) OneArgOneLineSplit when dealing with classes. One
         // deals with the type params and the other with the data params.
         val oneLinePerArg = {
           val base = OneArgOneLineSplit(open)
           if (isCtor && isBracket) {
-            val firstParen = leftTok2tok(matchingParentheses(hash(open))).right
-            base.merge(OneArgOneLineSplit(firstParen))
+            val afterTypes = leftTok2tok(matchingParentheses(hash(open)))
+            // Try to find the first paren. If found, then we are dealing with
+            // a class with type AND data params. Otherwise it is a class with
+            // just type params.
+            findFirst(afterTypes, lastParen)(t => t.left.is[LeftParen])
+              .fold(base)(t => base.merge(OneArgOneLineSplit(t.left)))
           }
           else base
         }
@@ -474,12 +482,12 @@ class Router(formatOps: FormatOps) {
 
         val paramGroupSplitter: PartialFunction[Decision, Decision] = {
           // If this is a class, then don't dangle the last paren
-          case Decision(t @ FormatToken(_, rp @ (RightParen() | RightBracket()), _), _)
+          case Decision(t @ FormatToken(_, rp @ RightParenOrBracket(), _), _)
               if rp == lastParen && isCtor =>
             val split = Split(NoSplit, 0)
             Decision(t, Seq(split))
           // Indent seperators `)(` and `](` by `indentSep`
-          case Decision(t @ FormatToken(_, rp @ (RightParen() | RightBracket()), _), _)
+          case Decision(t @ FormatToken(_, rp @ RightParenOrBracket(), _), _)
               if ownerCheck(rp) =>
             val split = Split(Newline, 0).withIndent(indentSep, rp, Left)
             Decision(t, Seq(split))
@@ -487,9 +495,13 @@ class Router(formatOps: FormatOps) {
           // following ones get newlined by the oneLinePerArg policy.
           case Decision(t @ FormatToken(open2 @ LeftParen(), _, _), _) =>
             val close2 = matchingParentheses(hash(open2))
+            val prevT = prev(t).left
+            val mod =
+              if (isCtor && CtorModifier.is(owners(prevT))) Newline
+              else NoSplit
             Decision(t,
                      Seq(
-                       Split(NoSplit, 0)
+                       Split(mod, 0)
                          .withIndent(indentParam, close2, Right)
                      ))
         }

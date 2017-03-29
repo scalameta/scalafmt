@@ -190,10 +190,13 @@ final case class SomeCaseClass[N](
   )(implicit ex: Context)
 
 <<< class: if the type params fit in one line, make it so (multiple type param)
-final case class SomeCaseClass[N, TC[_], T <: SomeBoundUnderLimit: TC](projectOrdering: N => R, someOtherString: String)(implicit ex: Context)
+final case class SomeCaseClass[N <: NodeUpperBound, TC[_], T <: SomeBoundUnderLimit: TC](projectOrdering: N => R, someOtherString: String)(implicit ex: Context)
 >>>
-final case class SomeCaseClass[N, TC[_], T <: SomeBoundUnderLimit: TC](
-    projectOrdering: N => R,
+final case class SomeCaseClass[
+    N <: NodeUpperBound,
+    TC[_],
+    T <: SomeBoundUnderLimit: TC
+  ](projectOrdering: N => R,
     someOtherString: String
   )(implicit ex: Context)
 
@@ -220,3 +223,36 @@ private sealed trait SomeTrait[
     ThisIsSomeVeryLongTypeParam <: SomeLongUpperBound,
     AndAnother
   ]
+
+<<< Work with modifiers for the constructor
+final case class TypedId[A] private (value: Long)
+>>>
+final case class TypedId[A] private (value: Long)
+
+<<< Work with modifiers for the constructor (single line types)
+final case class SomeVeryLongName[SomeLongTypeName <: UpperBounds] private (value: Long, name: String)(implicit ex: Executor)
+>>>
+final case class SomeVeryLongName[SomeLongTypeName <: UpperBounds] private (
+    value: Long,
+    name: String
+  )(implicit ex: Executor)
+
+<<< Work with modifiers for the constructor (full multi-line)
+final case class SomeVeryLongName[SomeLongTypeName <: UpperBounds, SomeOtherTypeName] private[this](value: Long, name: String)(implicit ex: Executor)
+>>>
+final case class SomeVeryLongName[
+    SomeLongTypeName <: UpperBounds,
+    SomeOtherTypeName
+  ] private[this] (
+    value: Long,
+    name: String
+  )(implicit ex: Executor)
+
+<<< Work with long type params and no parens in class
+class SomeVeryLongName[SomeLongTypeName <: UpperBounds, SomeOtherTypeName, YetAnotherType] extends Something
+>>>
+class SomeVeryLongName[
+    SomeLongTypeName <: UpperBounds,
+    SomeOtherTypeName,
+    YetAnotherType]
+  extends Something
