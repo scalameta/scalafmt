@@ -446,18 +446,20 @@ class Router(formatOps: FormatOps) {
         // till the end.
         val lastParen = loop(open).get
 
-        // If this is a class, we need to do some things differently.
+        // If this is a class/trait, we need to do some things differently.
         // We only care about the Primary Ctor since other Ctors will
         // be picked up by the `def` definition
-        val isCtor =
-          leftOwner.is[meta.Ctor.Primary] || leftOwner.is[meta.Defn.Class]
+        val isClassTrait =
+          leftOwner.is[meta.Ctor.Primary] ||
+          leftOwner.is[meta.Defn.Class] ||
+          leftOwner.is[meta.Defn.Trait]
 
         // Since classes and defs aren't the same (see below), we need to
         // create two (2) OneArgOneLineSplit when dealing with classes. One
         // deals with the type params and the other with the data params.
         val oneLinePerArg = {
           val base = OneArgOneLineSplit(open)
-          if (isCtor && isBracket) {
+          if (isClassTrait && isBracket) {
             val afterTypes = leftTok2tok(matchingParentheses(hash(open)))
             // Try to find the first paren. If found, then we are dealing with
             // a class with type AND data params. Otherwise it is a class with
@@ -483,7 +485,7 @@ class Router(formatOps: FormatOps) {
         val paramGroupSplitter: PartialFunction[Decision, Decision] = {
           // If this is a class, then don't dangle the last paren
           case Decision(t @ FormatToken(_, rp @ RightParenOrBracket(), _), _)
-              if rp == lastParen && isCtor =>
+              if rp == lastParen && isClassTrait =>
             val split = Split(NoSplit, 0)
             Decision(t, Seq(split))
           // Indent seperators `)(` and `](` by `indentSep`
@@ -497,7 +499,7 @@ class Router(formatOps: FormatOps) {
             val close2 = matchingParentheses(hash(open2))
             val prevT = prev(t).left
             val mod =
-              if (isCtor && CtorModifier.is(owners(prevT))) Newline
+              if (isClassTrait && CtorModifier.is(owners(prevT))) Newline
               else NoSplit
             Decision(t,
                      Seq(

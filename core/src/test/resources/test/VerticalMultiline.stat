@@ -210,19 +210,19 @@ private sealed trait SomeTrait[N, TC[_], T <: SomeBoundUnderLimit]
 private sealed trait SomeTrait[N, TC[_], T <: SomeBoundUnderLimit]
 
 <<< trait: multi-line for a single type param
-private sealed trait SomeTrait[ThisIsSomeVeryLongTypeParam <: SomeLongUpperBound]
+private sealed trait SomeTrait[ThisIsSomeVeryLongTypeParam <: SomeLongUpperBound] extends Something
 >>>
 private sealed trait SomeTrait[
-    ThisIsSomeVeryLongTypeParam <: SomeLongUpperBound
-  ]
+    ThisIsSomeVeryLongTypeParam <: SomeLongUpperBound]
+  extends Something
 
 <<< trait: multi-line for multiple params
-private sealed trait SomeTrait[ThisIsSomeVeryLongTypeParam <: SomeLongUpperBound, AndAnother]
+private sealed trait SomeTrait[ThisIsSomeVeryLongTypeParam <: SomeLongUpperBound, AndAnother] extends Something
 >>>
 private sealed trait SomeTrait[
     ThisIsSomeVeryLongTypeParam <: SomeLongUpperBound,
-    AndAnother
-  ]
+    AndAnother]
+  extends Something
 
 <<< Work with modifiers for the constructor
 final case class TypedId[A] private (value: Long)
@@ -237,13 +237,24 @@ final case class SomeVeryLongName[SomeLongTypeName <: UpperBounds] private (
     name: String
   )(implicit ex: Executor)
 
-<<< Work with modifiers for the constructor (full multi-line)
+<<< Work with modifiers (private[this]) for the constructor (full multi-line)
 final case class SomeVeryLongName[SomeLongTypeName <: UpperBounds, SomeOtherTypeName] private[this](value: Long, name: String)(implicit ex: Executor)
 >>>
 final case class SomeVeryLongName[
     SomeLongTypeName <: UpperBounds,
     SomeOtherTypeName
   ] private[this] (
+    value: Long,
+    name: String
+  )(implicit ex: Executor)
+
+<<< Work with modifiers (protected) for the constructor (full multi-line)
+final case class SomeVeryLongName[SomeLongTypeName <: UpperBounds, SomeOtherTypeName] protected(value: Long, name: String)(implicit ex: Executor)
+>>>
+final case class SomeVeryLongName[
+    SomeLongTypeName <: UpperBounds,
+    SomeOtherTypeName
+  ] protected (
     value: Long,
     name: String
   )(implicit ex: Executor)
