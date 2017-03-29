@@ -196,3 +196,27 @@ final case class SomeCaseClass[N, TC[_], T <: SomeBoundUnderLimit: TC](
     projectOrdering: N => R,
     someOtherString: String
   )(implicit ex: Context)
+
+<<< trait: if the type params fit in one line, make it so (single type param)
+private sealed trait SomeTrait[N]
+>>>
+private sealed trait SomeTrait[N]
+<<< trait: if the type params fit in one line, make it so (multiple type param)
+private sealed trait SomeTrait[N, TC[_], T <: SomeBoundUnderLimit]
+>>>
+private sealed trait SomeTrait[N, TC[_], T <: SomeBoundUnderLimit]
+
+<<< trait: multi-line for a single type param
+private sealed trait SomeTrait[ThisIsSomeVeryLongTypeParam <: SomeLongUpperBound]
+>>>
+private sealed trait SomeTrait[
+    ThisIsSomeVeryLongTypeParam <: SomeLongUpperBound
+  ]
+
+<<< trait: multi-line for multiple params
+private sealed trait SomeTrait[ThisIsSomeVeryLongTypeParam <: SomeLongUpperBound, AndAnother]
+>>>
+private sealed trait SomeTrait[
+    ThisIsSomeVeryLongTypeParam <: SomeLongUpperBound,
+    AndAnother
+  ]
