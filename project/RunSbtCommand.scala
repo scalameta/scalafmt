@@ -14,12 +14,13 @@ object RunSbtCommand {
       }
       nextState.remainingCommands.toList match {
         case Nil => nextState
-        case head :: tail => runCommand(head, nextState.copy(remainingCommands = tail))
+        case head :: tail =>
+          runCommand(head, nextState.copy(remainingCommands = tail))
       }
     }
     runCommand(command,
-               st.copy(remainingCommands = Nil, onFailure = Some(s"Failed to run $command")))
+               st.copy(remainingCommands = Nil,
+                       onFailure = Some(s"Failed to run $command")))
       .copy(remainingCommands = st.remainingCommands)
   }
 }
-
