@@ -14,7 +14,6 @@ import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.FileOps
-import org.scalafmt.util.logger
 import org.scalatest.FunSuite
 
 class CliTest extends FunSuite with DiffAssertions {
@@ -324,7 +323,6 @@ class CliTest extends FunSuite with DiffAssertions {
           |""".stripMargin
     )
     val workingDir = input / "nested"
-    logger.elem(workingDir, FileOps.listFiles(workingDir))
     val options: CliOptions = {
       val mock = getMockOptions(input, workingDir)
       mock.copy(common = mock.common.copy(workingDirectory = workingDir))

@@ -25,8 +25,9 @@ class Scalafmt210 {
     StyleCache.getStyleForFileOrError(configFile) match {
       case Left(throwable) => {
         if (oldConfig.findFirstIn(FileOps.readFile(configFile)).nonEmpty) {
-          logger.error(
-            "You seem to use the <0.4 configuration, for instructions on how to migrate: https://olafurpg.github.io/scalafmt/#0.4.x")
+          logger.debug(
+            "You seem to use the <0.4 configuration, for instructions on how to migrate: https://olafurpg.github.io/scalafmt/#0.4.x"
+          )
         }
         throw InvalidScalafmtConfiguration(throwable)
       }
@@ -52,8 +53,9 @@ class Scalafmt210 {
       case error =>
         error match {
           case Formatted.Failure(e) =>
-            logger.warn(
-              s"Failed to format file $relativePath. Cause: ${e.getMessage}.")
+            logger.debug(
+              s"Failed to format file $relativePath. Cause: ${e.getMessage}."
+            )
           case _ =>
         }
         code

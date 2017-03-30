@@ -354,7 +354,7 @@ object TreeOps {
       // TODO(olafur) missing Defn.Def with `(` case.
       case _ =>
         splitApplyIntoLhsAndArgsLifted(leftOwner).getOrElse {
-          logger.error(s"""Unknown tree
+          logger.debug(s"""Unknown tree
                           |${log(leftOwner.parent.get)}
                           |${isDefnSite(leftOwner)}""".stripMargin)
           throw UnexpectedTree[Term.Apply](leftOwner)

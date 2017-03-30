@@ -14,7 +14,7 @@ import sourcecode.Text
   * Debugging utility.
   */
 object LoggerOps {
-  val logger = org.scalafmt.util.logger
+  val logger = org.scalameta.logger
 
   // TODO(olafur) parameterize
   def name2style[T](styles: Text[T]*): Map[String, T] =

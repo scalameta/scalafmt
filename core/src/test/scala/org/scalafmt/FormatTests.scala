@@ -12,7 +12,6 @@ import java.io.File
 
 import org.scalafmt.Error.Incomplete
 import org.scalafmt.Error.SearchStateExploded
-import org.scalafmt.stats.TestStats
 import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.DiffTest
 import org.scalafmt.util.FileOps
@@ -100,7 +99,6 @@ class FormatTests
     logger.debug(splits.mkString(", "))
     logger.debug(s"Total explored: ${Debug.explored}")
     val results = debugResults.result()
-    val stats = TestStats(results)
     // TODO(olafur) don't block printing out test results.
     // I don't want to deal with scalaz's Tasks :'(
     val k = for {
