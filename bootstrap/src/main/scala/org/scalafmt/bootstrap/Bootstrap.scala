@@ -58,11 +58,17 @@ object ScalafmtBootstrap {
         )
       )
 
+    val droneHome =
+      IvyRepository.fromPattern(
+        "/drone/.ivy2/local/" +: coursier.ivy.Pattern.default)
+    val testingRepos =
+      if (sys.props.contains("scalafmt.scripted"))
+        Cache.ivy2Local :: droneHome :: Nil
+      else Nil
     val repositories =
       MavenRepository(s"https://dl.bintray.com/scalameta/maven/") ::
         MavenRepository("https://repo1.maven.org/maven2") ::
-        Cache.ivy2Local ::
-        Nil
+        testingRepos
 
     val logger = new TermDisplay(new OutputStreamWriter(System.err))
     logger.init(System.err.println("Downloading scalafmt artifacts..."))
