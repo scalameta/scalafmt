@@ -7,8 +7,8 @@ addCommandAlias("downloadIdea", "intellij/updateIdea")
 lazy val buildSettings = Seq(
   organization := "com.geirsson",
   version := sys.props.getOrElse("scalafmt.version", version.value),
-  scalaVersion := "2.11.8",
-  crossScalaVersions := Seq("2.11.8", "2.12.1"),
+  scalaVersion := scala211,
+  crossScalaVersions := Seq(scala211, "2.12.1"),
   updateOptions := updateOptions.value.withCachedResolution(true)
 )
 
@@ -25,7 +25,7 @@ commands += CiCommand("ci-slow")(
 )
 commands += Command.command("ci-sbt-scalafmt") { s =>
   "very publishLocal" ::
-    "very scripted" ::
+    s"plz $scala210 scalafmtSbt/scripted" ::
     s
 }
 commands += CiCommand("ci-publish")(
@@ -102,14 +102,14 @@ lazy val scalafmtSbt = project
   .settings(
     allSettings,
     ScriptedPlugin.scriptedSettings,
-    scripted := scripted
-      .dependsOn(
-        publishLocal in cli,
-        publishLocal in core,
-        publishLocal in bootstrap
-      )
-      .evaluated,
     sbtPlugin := true,
+    test := {
+      RunSbtCommand(
+        s"; plz $scala211 publishLocal " +
+          s"; plz $scala210 publishLocal " +
+          s"; such scalafmtSbt/scripted"
+      )(state.value)
+    },
     is210,
     // In convention of sbt plugins, the module is sbt-scalafmt instead of scalafmt-sbt.
     moduleName := "sbt-scalafmt",
@@ -145,7 +145,7 @@ lazy val benchmarks = project
   .settings(
     allSettings,
     noPublish,
-    crossScalaVersions := Seq("2.11.8"),
+    crossScalaVersions := Seq(scala211),
     moduleName := "scalafmt-benchmarks",
     libraryDependencies ++= Seq(
       "org.scalariform" %% "scalariform" % scalariform,
@@ -305,5 +305,6 @@ lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
 )
 
 def scala210 = "2.10.6"
+def scala211 = "2.11.8"
 
 lazy val allSettings = commonSettings ++ buildSettings ++ publishSettings
