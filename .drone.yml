@@ -4,7 +4,7 @@ pipeline:
     image: plugins/sftp-cache
     restore: true
     mount:
-      - /drone/.ivy2
+      - /drone/.ivy2/cache
       - /drone/.coursier-cache
       - /drone/.sbt
       - /drone/.git
@@ -16,6 +16,7 @@ pipeline:
     volumes:
       - /platform:/keys
     commands:
+      - ./bin/cleanup_cache.sh
       - ./scalafmt --test
       - sbt $CI_TEST
 
@@ -48,7 +49,7 @@ pipeline:
     image: plugins/sftp-cache
     rebuild: true
     mount:
-      - /drone/.ivy2
+      - /drone/.ivy2/cache
       - /drone/.coursier-cache
       - /drone/.sbt
       - /drone/.git
