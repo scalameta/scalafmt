@@ -32,7 +32,6 @@ import org.scalafmt.util.TreeOps
 import org.scalafmt.util.Whitespace
 import org.scalafmt.util.Modifier
 import org.scalafmt.util.RightParenOrBracket
-import org.scalafmt.util.logger
 
 /**
   * Helper functions for generating splits/policies for a given tree.

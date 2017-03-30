@@ -71,9 +71,6 @@ class BestFirstSearch(val formatOps: FormatOps,
       val splitToken = tokens(curr.splits.length)
       // TODO(olafur) document why/how this optimization works.
       val result = !best.get(splitToken.left).exists(_.alwaysBetter(curr))
-      if (!result) {
-        logger.trace(s"Eliminated $curr ${curr.splits.last}")
-      }
       result
     }
     hasBestSolution
@@ -295,7 +292,7 @@ class BestFirstSearch(val formatOps: FormatOps,
                    |nextSplits=$nextSplits
                    |splitsAfterPolicy=$splitsAfterPolicy""".stripMargin
       if (runner.debug) {
-        logger.error(s"""Failed to format
+        logger.debug(s"""Failed to format
                         |$msg""".stripMargin)
       }
       runner.eventCallback(CompleteFormat(explored, deepestYet, tokens))

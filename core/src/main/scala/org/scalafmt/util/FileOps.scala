@@ -80,6 +80,9 @@ object FileOps {
     new File(path.mkString(File.separator))
   }
 
+  def writeFile(file: AbsoluteFile, content: String): Unit =
+    writeFile(file.jfile, content)
+
   def writeFile(file: File, content: String): Unit = {
     // For java 6 compatibility we don't use java.nio.
     val pw = new PrintWriter(file)

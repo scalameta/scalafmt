@@ -1,10 +1,11 @@
 package org.scalafmt.util
 
 import scala.meta.parsers.ParseException
+import scala.meta.testkit._
 
 import org.scalafmt.internal.State
 
-sealed abstract class ExperimentResult(scalaFile: ScalaFile) {
+sealed abstract class ExperimentResult(scalaFile: CorpusFile) {
   def key: String
 
   override def toString: String =
@@ -13,31 +14,31 @@ sealed abstract class ExperimentResult(scalaFile: ScalaFile) {
 
 object ExperimentResult {
 
-  case class Success(scalaFile: ScalaFile, nanos: Long)
+  case class Success(scalaFile: CorpusFile, nanos: Long)
       extends ExperimentResult(scalaFile) {
 
     override def key = "Success"
   }
 
-  case class Timeout(scalaFile: ScalaFile)
+  case class Timeout(scalaFile: CorpusFile)
       extends ExperimentResult(scalaFile) {
 
     override def key = "Formatter timed out"
   }
 
-  case class Skipped(scalaFile: ScalaFile)
+  case class Skipped(scalaFile: CorpusFile)
       extends ExperimentResult(scalaFile) {
 
     override def key = "Ignored, scalac won't parse"
   }
 
-  case class SearchStateExploded(scalaFile: ScalaFile, state: State)
+  case class SearchStateExploded(scalaFile: CorpusFile, state: State)
       extends ExperimentResult(scalaFile) {
 
     override def key = s"Search state exploded"
   }
 
-  case class UnknownFailure(scalaFile: ScalaFile, e: Throwable)
+  case class UnknownFailure(scalaFile: CorpusFile, e: Throwable)
       extends ExperimentResult(scalaFile) {
 
     override def key: String = e.getClass.getName
@@ -45,7 +46,7 @@ object ExperimentResult {
     override def toString: String = s"$scalaFile $e"
   }
 
-  case class ParseErr(scalaFile: ScalaFile, e: ParseException)
+  case class ParseErr(scalaFile: CorpusFile, e: ParseException)
       extends ExperimentResult(scalaFile) {
 
     override def key: String =

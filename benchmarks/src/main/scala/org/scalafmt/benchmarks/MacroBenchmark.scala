@@ -1,9 +1,14 @@
 package org.scalafmt.benchmarks
 
 import scala.collection.GenIterable
+import scala.meta.Source
+import scala.meta.testkit.Corpus
+import scala.meta.testkit.CorpusFile
 import scala.util.Try
+import scalariform.formatter.ScalaFormatter
+import scalariform.formatter.preferences.FormattingPreferences
+import scalariform.formatter.preferences.IndentSpaces
 
-import java.io.File
 import java.util.concurrent.TimeUnit
 
 import org.openjdk.jmh.annotations.Benchmark
@@ -15,16 +20,7 @@ import org.openjdk.jmh.annotations.Scope
 import org.openjdk.jmh.annotations.Setup
 import org.openjdk.jmh.annotations.Warmup
 import org.scalafmt.Scalafmt
-import org.scalafmt.util.ScalaFile
-import org.scalafmt.util.FileOps
-import scala.meta.Source
-import scalariform.formatter.ScalaFormatter
-import scalariform.formatter.preferences.FormattingPreferences
-import scalariform.formatter.preferences.IndentSpaces
-
 import org.scalafmt.config.RewriteSettings
-import org.scalafmt.config.ScalafmtOptimizer
-import org.scalafmt.config.ScalafmtRunner
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.rewrite.RedundantBraces
 import org.scalafmt.rewrite.SortImports
@@ -65,12 +61,17 @@ abstract class MacroBenchmark(parallel: Boolean, maxFiles: Int)
   @Setup
   def setup(): Unit = {
     files = {
-      val x = ScalaFile.getAll
+      val x = Corpus
+        .files(
+          Corpus.fastparse.copy(
+            // TODO(olafur) remove once testkit 1.7 is out
+            url = Corpus.fastparse.url.replace("olafurpg", "scalameta")))
         .filter { f =>
           f.projectUrl.contains("scala-js")
         }
         .take(maxFiles)
         .map(_.read)
+        .toBuffer
       if (parallel) x.par
       else x
     }

@@ -18,7 +18,7 @@ Head over to [the user docs][docs] for instructions on how to install scalafmt.
 - Hack on scalafmt: see [tutorial](Tutorial.md).
 - Hack on SBT plugin: run `sbt scripted`.
 - Run jmh benchmarks: `./bin/run-benchmarks.sh`.
-- Run formatter on millions of lines of code: `core/test:runMain  org.scalafmt.FormatExperimentApp`:
+- Run formatter on millions of lines of code: `core/test:runMain  org.scalafmt.ScalafmtProps` (slow, and requires a lot of memory/cpu)
 - Debug performance: after each test run in `FormatTests`, a flamegraph report
   like [this one](https://github.com/scalameta/scalafmt/issues/140)
   is generated in `target/index.html`. 

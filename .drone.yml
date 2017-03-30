@@ -8,23 +8,24 @@ pipeline:
       - /drone/.coursier-cache
       - /drone/.sbt
       - /drone/.git
+    when:
+      event: [push, pull_request, tag, deployment]
 
-  tests_pr:
+  tests:
     image: scalaplatform/scala:0.6
     volumes:
       - /platform:/keys
     commands:
       - ./scalafmt --test
       - sbt $TEST
-    when:
-      event: pull_request
 
-  tests_merge:
-    image: scalaplatform/scala:0.6
+  publish:
+    image: olafurpg/scalafix:0.3.0
+    pull: true
     volumes:
       - /platform:/keys
     commands:
-      - sbt $TEST
+      - ./bin/bintray.sh
     when:
       event: push
       branch: [master]
@@ -53,7 +54,18 @@ pipeline:
       - /drone/.git
 
 matrix:
-  TEST:
-    - ci-fast
-    - ci-slow
+  include:
+    - CI_TEST: ci-fast
+      CI_SCALA_VERSION: 2.11.8
+      CI_PUBLISH: true
+    - CI_TEST: ci-fast
+      CI_SCALA_VERSION: 2.12.1
+      CI_PUBLISH: true
+    - CI_TEST: ci-sbt-scalafmt
+      CI_SCALA_VERSION: 2.10.6
+      CI_PUBLISH: true
+    - CI_TEST: ci-slow
+      CI_SCALA_VERSION: 2.11.8
+    - CI_TEST: ci-slow
+      CI_SCALA_VERSION: 2.12.1
 

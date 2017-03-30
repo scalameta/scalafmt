@@ -11,8 +11,6 @@ case class TestStats(createdAt: Long,
                      runtimeInfo: RuntimeInfo,
                      gitInfo: GitInfo) {
 
-  // TODO: remove machineStats
-
   def shortInfo: String =
     s"TestStats(created=${new Date(createdAt)}," + s"commit=${gitInfo.commit})"
 

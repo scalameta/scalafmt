@@ -1,3 +1,4 @@
+import Dependencies._
 // The version number used in docs.
 def latestStableVersion: String = "0.6.6"
 
@@ -16,7 +17,7 @@ lazy val noDocs = Seq(
 )
 
 lazy val metaMacroSettings: Seq[Def.Setting[_]] = Seq(
-  libraryDependencies += "org.scalameta" %% "scalameta" % Deps.scalameta,
+  libraryDependencies += scalameta,
   addCompilerPlugin(
     "org.scalameta" % "paradise" % "3.0.0-M7" cross CrossVersion.full),
   scalacOptions += "-Xplugin-require:macroparadise"
@@ -91,7 +92,7 @@ lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
     "nightly" -> version.value,
     "stable" -> latestStableVersion,
     "scala" -> scalaVersion.value,
-    "coursier" -> Deps.coursier,
+    "coursier" -> coursier,
     scalaVersion,
     sbtVersion
   ),
@@ -104,16 +105,23 @@ lazy val allSettings = commonSettings ++ buildSettings ++ publishSettings
 lazy val root = project
   .in(file("."))
   .settings(
-    commands += Command.command("ci-fast") { s =>
-      "clean" ::
-        "very test" ::
+    commands += CiCommand("ci-fast")(
+      "test" ::
+        Nil
+    ),
+    commands += CiCommand("ci-slow")(
+      "core/test:runMain org.scalafmt.ScalafmtProps" ::
+        Nil
+    ),
+    commands += Command.command("ci-sbt-scalafmt") { s =>
+      "very publishLocal" +
+        "scripted" ::
         s
     },
-    commands += Command.command("ci-slow") { s =>
-      "core/test:runMain org.scalafmt.FormatExperimentApp" ::
-        "; publishLocal ; scripted" ::
-        s
-    },
+    commands += CiCommand("ci-publish")(
+      if (sys.env.contains("CI_PUBLISH")) s"publish" :: Nil
+      else Nil
+    ),
     allSettings,
     noPublish,
     initialCommands in console :=
@@ -126,8 +134,6 @@ lazy val root = project
     benchmarks,
     bootstrap,
     cli,
-    utils,
-    testUtils,
     core,
     readme,
     scalafmtSbt,
@@ -140,25 +146,22 @@ lazy val core = project
     allSettings,
     metaMacroSettings,
     buildInfoSettings,
+    fork.in(run).in(Test) := true,
     moduleName := "scalafmt-core",
     libraryDependencies ++= Seq(
-      "com.geirsson"   %% "metaconfig-core" % "0.1.2",
-      "com.lihaoyi"    %% "sourcecode"      % "0.1.2",
-      "org.scalameta"  %% "scalameta"       % Deps.scalameta,
-      "org.scala-lang" % "scala-reflect"    % scalaVersion.value,
-      "com.typesafe"   % "config"           % "1.2.1",
+      "com.geirsson" %% "metaconfig-core" % "0.1.2",
+      scalameta,
+      "com.typesafe" % "config" % "1.2.1",
       // Test dependencies
-      "org.scala-lang"                 % "scala-compiler"  % scalaVersion.value % Test,
-      "ch.qos.logback"                 % "logback-classic" % "1.1.6"            % Test,
-      "com.googlecode.java-diff-utils" % "diffutils"       % "1.3.0"            % Test,
-      "com.lihaoyi"                    %% "scalatags"      % "0.6.3"            % Test,
-      "org.apache.commons"             % "commons-math3"   % "3.6"              % Test,
-      "org.scalatest"                  %% "scalatest"      % Deps.scalatest     % Test
+      scalametaTestkit,
+      "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0" % Test,
+      "com.lihaoyi"                    %% "scalatags" % "0.6.3" % Test,
+      scalametaTestkit                 % Test,
+      scalatest                        % Test
     ),
     addCompilerPlugin(
       "org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
   )
-  .dependsOn(utils, testUtils % "test->compile")
   .enablePlugins(BuildInfoPlugin)
 
 lazy val cliJvmOptions = Seq(
@@ -195,10 +198,10 @@ lazy val bootstrap = project
     is210,
     moduleName := "scalafmt-bootstrap",
     libraryDependencies ++= Seq(
-      "com.martiansoftware" % "nailgun-server"  % "0.9.1",
-      "io.get-coursier"     %% "coursier"       % Deps.coursier,
-      "io.get-coursier"     %% "coursier-cache" % Deps.coursier,
-      "org.scalatest"       %% "scalatest"      % Deps.scalatest % Test
+      "com.martiansoftware" % "nailgun-server" % "0.9.1",
+      "io.get-coursier"     %% "coursier" % coursier,
+      "io.get-coursier"     %% "coursier-cache" % coursier,
+      scalatest             % Test
     )
   )
   .enablePlugins(BuildInfoPlugin)
@@ -211,8 +214,7 @@ lazy val scalafmtSbt = project
       .dependsOn(
         publishLocal in cli,
         publishLocal in core,
-        publishLocal in bootstrap,
-        publishLocal in utils
+        publishLocal in bootstrap
       )
       .evaluated,
     sbtPlugin := true,
@@ -254,8 +256,9 @@ lazy val benchmarks = project
     crossScalaVersions := Seq("2.11.8"),
     moduleName := "scalafmt-benchmarks",
     libraryDependencies ++= Seq(
-      "org.scalariform" %% "scalariform" % Deps.scalariform,
-      "org.scalatest"   %% "scalatest"   % Deps.scalatest % Test
+      "org.scalariform" %% "scalariform" % scalariform,
+      scalatest         % Test,
+      scalametaTestkit  % Test
     ),
     javaOptions in run ++= Seq(
       "-Djava.net.preferIPv4Stack=true",
@@ -276,8 +279,7 @@ lazy val benchmarks = project
       "-server"
     )
   )
-  .dependsOn(core % "compile->compile;test->test")
-  .dependsOn(testUtils)
+  .dependsOn(core)
   .enablePlugins(JmhPlugin)
 
 lazy val readme = scalatex
@@ -300,23 +302,11 @@ lazy val readme = scalatex
     cli
   )
 
-// General utilities that shared between bootstrap and core.
-lazy val utils = project.settings(
-  allSettings,
-  moduleName := "scalafmt-utils",
-  libraryDependencies ++= Seq(
-    "com.typesafe" % "config" % "1.2.1"
-  )
-)
-
-lazy val testUtils = project
-  .settings(
-    allSettings,
-    noPublish,
-    moduleName := "scalafmt-test-utils",
-    libraryDependencies ++= Seq(
-      "org.apache.commons" % "commons-io"  % "1.3.2",
-      "org.rauschig"       % "jarchivelib" % "0.7.1"
-    )
-  )
-  .dependsOn(utils)
+lazy val ciScalaVersion = sys.env("CI_SCALA_VERSION")
+def CiCommand(name: String)(commands: List[String]): Command =
+  Command.command(name) { initState =>
+    commands.foldLeft(initState) {
+      case (state, command) => ci(command) :: state
+    }
+  }
+def ci(command: String) = s"plz ${sys.env("CI_SCALA_VERSION")} $command"

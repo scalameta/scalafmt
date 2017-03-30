@@ -44,7 +44,7 @@ object Error {
                        |Formatter changed AST
       """.stripMargin)
 
-  case class FormatterOutputDoesNotParse(msg: String)
+  case class FormatterOutputDoesNotParse(msg: String, line: Int)
       extends Error("Formatter output does not parse:\n" + msg)
 
   case class UnexpectedTree[Expected <: Tree: ClassTag](obtained: Tree)
@@ -70,7 +70,9 @@ object Error {
                                  partialOutput: String,
                                  lastToken: Token)
       extends Error(
-        s"Search state exploded around line ${lastToken.pos.end.line}")
+        s"Search state exploded around line ${lastToken.pos.end.line}") {
+    def line: Int = lastToken.pos.end.line
+  }
 
   case class InvalidScalafmtConfiguration(throwable: Throwable)
       extends Error(s"Failed to read configuration: $throwable")
