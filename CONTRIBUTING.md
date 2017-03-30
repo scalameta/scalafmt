@@ -28,3 +28,16 @@ Shamelessly stolen from [lihaoyi/ammonite](https://github.com/lihaoyi/Ammonite).
 * Make it reproducible
 * No complaining
 
+## Random stuff
+
+* Try to keep complex logic out of Router.scala, instead move it into a
+  utility function like `OneArgOneLine` or `infixSplit`.
+
+Where do utility functions go?
+
+* `FormatOps`: anything that requires access to fields in `FormatOps` (for
+  example `prev/next/owners`), which is custom for each source file.
+* `Token/TreeOps`: anything that does not require fields in `FormatOps`,
+  agnostic to the source file being formatted.
+* `Token/TreeClasses`: groups of trees/tokens that belong together and support
+  the `Tree/Token.is[T]` syntax.
