@@ -77,3 +77,17 @@ object Trivia {
     token.is[Whitespace] || token.is[Comment]
   }
 }
+
+@classifier
+trait LeftParenOrBracket
+object LeftParenOrBracket {
+  def unapply(tok: Token): Boolean =
+    tok.is[LeftParen] || tok.is[LeftBracket]
+}
+
+@classifier
+trait RightParenOrBracket
+object RightParenOrBracket {
+  def unapply(tok: Token): Boolean =
+    tok.is[RightParen] || tok.is[RightBracket]
+}

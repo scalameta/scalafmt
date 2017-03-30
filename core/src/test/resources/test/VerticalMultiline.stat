@@ -55,14 +55,17 @@ def format_![T <: Tree](
   ): String
 
 <<< should work with comments
-def format_![T <: Tree](
+def format_![
+  T <: Tree // Some type comment
+  ](
     code: String, // The code!
     code2: String
   )(implicit ev: Parse[T], // The Parser!!! Some very long comment that goes over limit
   ex: D): String = 1
 >>>
-def format_![T <: Tree](
-    code: String, // The code!
+def format_![
+    T <: Tree // Some type comment
+  ](code: String, // The code!
     code2: String
   )(implicit ev: Parse[T], // The Parser!!! Some very long comment that goes over limit
     ex: D
@@ -137,3 +140,130 @@ override def load(
   )(implicit taskCtx: Context,
     ec: ExecutionContext
   ): Future[Seq[A] Or B]
+
+<<< should work with very long type params
+final case class SomeCaseClass[N <: Node, R <: SomeLongUpperBound: Ordering: Parser](
+  projectOrdering: N => R, someOtherString: String)(implicit ex: Context)
+>>>
+final case class SomeCaseClass[
+    N <: Node,
+    R <: SomeLongUpperBound: Ordering: Parser
+  ](projectOrdering: N => R,
+    someOtherString: String
+  )(implicit ex: Context)
+
+<<< should work with very long type params in Defs
+override protected def SomeDefinition[N <: Node, R <: SomeLongUpperBound: Ordering: Parser](
+  projectOrdering: N => R, someOtherString: String)(implicit ex: Context)
+>>>
+override protected def SomeDefinition[
+    N <: Node,
+    R <: SomeLongUpperBound: Ordering: Parser
+  ](projectOrdering: N => R,
+    someOtherString: String
+  )(implicit ex: Context
+  )
+
+<<< defs: if the type params fit in one line, make it so (single type param)
+override protected def SomeDefinition[N](projectOrdering: N => R, someOtherString: String)(implicit ex: Context)
+>>>
+override protected def SomeDefinition[N](
+    projectOrdering: N => R,
+    someOtherString: String
+  )(implicit ex: Context
+  )
+<<< defs: if the type params fit in one line, make it so (multiple type params)
+override protected def SomeDefinition[N, TC[_], T <: SomeBoundUnderLimit: TC](projectOrdering: N => R, someOtherString: String)(implicit ex: Context)
+>>>
+override protected def SomeDefinition[N, TC[_], T <: SomeBoundUnderLimit: TC](
+    projectOrdering: N => R,
+    someOtherString: String
+  )(implicit ex: Context
+  )
+
+<<< class: if the type params fit in one line, make it so (single type param)
+final case class SomeCaseClass[N](projectOrdering: N => R, someOtherString: String)(implicit ex: Context)
+>>>
+final case class SomeCaseClass[N](
+    projectOrdering: N => R,
+    someOtherString: String
+  )(implicit ex: Context)
+
+<<< class: if the type params fit in one line, make it so (multiple type param)
+final case class SomeCaseClass[N <: NodeUpperBound, TC[_], T <: SomeBoundUnderLimit: TC](projectOrdering: N => R, someOtherString: String)(implicit ex: Context)
+>>>
+final case class SomeCaseClass[
+    N <: NodeUpperBound,
+    TC[_],
+    T <: SomeBoundUnderLimit: TC
+  ](projectOrdering: N => R,
+    someOtherString: String
+  )(implicit ex: Context)
+
+<<< trait: if the type params fit in one line, make it so (single type param)
+private sealed trait SomeTrait[N]
+>>>
+private sealed trait SomeTrait[N]
+<<< trait: if the type params fit in one line, make it so (multiple type param)
+private sealed trait SomeTrait[N, TC[_], T <: SomeBoundUnderLimit]
+>>>
+private sealed trait SomeTrait[N, TC[_], T <: SomeBoundUnderLimit]
+
+<<< trait: multi-line for a single type param
+private sealed trait SomeTrait[ThisIsSomeVeryLongTypeParam <: SomeLongUpperBound] extends Something
+>>>
+private sealed trait SomeTrait[
+    ThisIsSomeVeryLongTypeParam <: SomeLongUpperBound]
+  extends Something
+
+<<< trait: multi-line for multiple params
+private sealed trait SomeTrait[ThisIsSomeVeryLongTypeParam <: SomeLongUpperBound, AndAnother] extends Something
+>>>
+private sealed trait SomeTrait[
+    ThisIsSomeVeryLongTypeParam <: SomeLongUpperBound,
+    AndAnother]
+  extends Something
+
+<<< Work with modifiers for the constructor
+final case class TypedId[A] private (value: Long)
+>>>
+final case class TypedId[A] private (value: Long)
+
+<<< Work with modifiers for the constructor (single line types)
+final case class SomeVeryLongName[SomeLongTypeName <: UpperBounds] private (value: Long, name: String)(implicit ex: Executor)
+>>>
+final case class SomeVeryLongName[SomeLongTypeName <: UpperBounds] private (
+    value: Long,
+    name: String
+  )(implicit ex: Executor)
+
+<<< Work with modifiers (private[this]) for the constructor (full multi-line)
+final case class SomeVeryLongName[SomeLongTypeName <: UpperBounds, SomeOtherTypeName] private[this](value: Long, name: String)(implicit ex: Executor)
+>>>
+final case class SomeVeryLongName[
+    SomeLongTypeName <: UpperBounds,
+    SomeOtherTypeName
+  ] private[this] (
+    value: Long,
+    name: String
+  )(implicit ex: Executor)
+
+<<< Work with modifiers (protected) for the constructor (full multi-line)
+final case class SomeVeryLongName[SomeLongTypeName <: UpperBounds, SomeOtherTypeName] protected(value: Long, name: String)(implicit ex: Executor)
+>>>
+final case class SomeVeryLongName[
+    SomeLongTypeName <: UpperBounds,
+    SomeOtherTypeName
+  ] protected (
+    value: Long,
+    name: String
+  )(implicit ex: Executor)
+
+<<< Work with long type params and no parens in class
+class SomeVeryLongName[SomeLongTypeName <: UpperBounds, SomeOtherTypeName, YetAnotherType] extends Something
+>>>
+class SomeVeryLongName[
+    SomeLongTypeName <: UpperBounds,
+    SomeOtherTypeName,
+    YetAnotherType]
+  extends Something

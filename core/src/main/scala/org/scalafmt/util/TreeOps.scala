@@ -229,6 +229,27 @@ object TreeOps {
     case _ => None
   }
 
+  /**
+    * Returns `true` if the [[Tree]] is a class, trait or def
+    *
+    * For classes this includes primary and secondary Ctors.
+    */
+  def isDefnSiteWithParams(tree: Tree): Boolean = tree match {
+    case _: Decl.Def | _: Defn.Def | _: Defn.Macro | _: Defn.Class |
+        _: Defn.Trait | _: Ctor.Secondary =>
+      true
+    case x: Ctor.Primary if x.parent.exists(_.isInstanceOf[Defn.Class]) =>
+      true
+    case _ => false
+  }
+
+  /**
+    * Returns `true` if the [[Tree]] is a defintion site
+    *
+    * Currently, this includes everything from classes and defs to type
+    * applications
+    * TODO (#867) Type applications shouldn't be here
+    */
   def isDefnSite(tree: Tree): Boolean = tree match {
     case _: Decl.Def | _: Defn.Def | _: Defn.Macro | _: Defn.Class |
         _: Defn.Trait | _: Ctor.Secondary | _: Decl.Type | _: Defn.Type |

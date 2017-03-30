@@ -26,11 +26,13 @@ import org.scalafmt.internal.Length.StateColumn
 import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util.`:parent:`
 import org.scalafmt.util.Delim
+import org.scalafmt.util.CtorModifier
 import org.scalafmt.util.InfixApplication
 import org.scalafmt.util.Keyword
 import org.scalafmt.util.Literal
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.Modifier
+import org.scalafmt.util.RightParenOrBracket
 import org.scalafmt.util.SelfAnnotation
 import org.scalafmt.util.SomeInterpolate
 import org.scalafmt.util.TokenOps
@@ -420,71 +422,11 @@ class Router(formatOps: FormatOps) {
         }
 
       // Parameter opening for one parameter group. This format works
-      // on a group-by-group basis.
-      case FormatToken(open @ LeftParen(), r, between)
+      // on the WHOLE defnSite (via policies)
+      case ft @ FormatToken((LeftParen() | LeftBracket()), _, _)
           if style.verticalMultilineAtDefinitionSite &&
-            isDefnSite(leftOwner) =>
-        val close = matchingParentheses(hash(open))
-        val indentParam = Num(style.continuationIndent.defnSite)
-        val indentSep = Num((indentParam.n - 2).max(0))
-
-        @tailrec
-        def loop(token: Token): Option[Token] =
-          leftTok2tok(matchingParentheses(hash(token))) match {
-            case FormatToken(RightParen(), l @ LeftParen(), _) => loop(l)
-            case FormatToken(r @ RightParen(), _, _) => Some(r)
-            case _ => None
-          }
-        // find the last param on the def
-        // so that we can apply our `policy` till
-        // the end.
-        val lastParen = loop(open).get
-
-        // If this is a class, we need to do some different things
-        // We only care about the Primary Ctor since other Ctors will
-        // be picked up by the `def` definition
-        val isCtor = leftOwner.is[meta.Ctor.Primary]
-
-        // Our policy is a combination of OneArgLineSplit and a custom splitter
-        // for parameter groups.
-        val oneLinePerArg = OneArgOneLineSplit(open).f
-        val paramGroupSplitter: PartialFunction[Decision, Decision] = {
-          case Decision(t @ FormatToken(_, rp @ RightParen(), _), _)
-              if rp == lastParen && isCtor =>
-            val split = Split(NoSplit, 0)
-            Decision(t, Seq(split))
-          // Indent seperators `)(` by `indentSep`
-          case Decision(t @ FormatToken(_, rp @ RightParen(), _), _)
-              if owners(rp) == leftOwner =>
-            val split = Split(Newline, 0).withIndent(indentSep, rp, Left)
-            Decision(t, Seq(split))
-          // Do NOT Newline the first param after the split `)(`. But let
-          // following ones get newlined by the oneLinePerArg policy.
-          case Decision(t @ FormatToken(open2 @ LeftParen(), _, _), _) =>
-            val close2 = matchingParentheses(hash(open2))
-            Decision(t,
-                     Seq(
-                       Split(NoSplit, 0)
-                         .withIndent(indentParam, close2, Right)
-                     ))
-        }
-
-        val policy =
-          Policy(oneLinePerArg.orElse(paramGroupSplitter), lastParen.end)
-
-        val firstIndent =
-          if (r.is[RightParen]) // An empty param group
-            indentSep
-          else
-            indentParam
-
-        Seq(
-          Split(NoSplit, 0) // If it fits in one block, make it so
-            .withPolicy(SingleLineBlock(lastParen)),
-          Split(Newline, 1) // Otherwise split vertically
-            .withIndent(firstIndent, close, Right)
-            .withPolicy(policy)
-        )
+            isDefnSiteWithParams(leftOwner) =>
+        verticalMultiline(leftOwner, ft)(style)
 
       // Term.Apply and friends
       case FormatToken(LeftParen() | LeftBracket(), right, between)

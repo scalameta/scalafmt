@@ -11,3 +11,9 @@ object SomeInterpolate {
     tree.is[Term.Interpolate] || tree.is[Pat.Interpolate]
   }
 }
+@classifier
+trait CtorModifier
+object CtorModifier {
+  def unapply(tree: Tree): Boolean =
+    tree.is[Mod.Private] || tree.is[Mod.Protected]
+}
