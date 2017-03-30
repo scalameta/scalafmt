@@ -785,21 +785,16 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     val policy = oneLinePerArg.merge(paramGroupSplitter, lastParen.end)
 
     val firstIndent =
-      if (r.is[RightParen]) // An empty param group
-        indentSep
-      else
-        indentParam
+      if (r.is[RightParen]) indentSep // An empty param group
+      else indentParam
 
-    val singleLineSplit =
-      if (isBracket)
-        Split(NoSplit, 0) // If we can fit the type params, make it so
-          .withPolicy(SingleLineBlock(close))
-      else
-        Split(NoSplit, 0) // If we can fit all in one block, make it so
-          .withPolicy(SingleLineBlock(lastParen))
+    val singleLineExpire =
+      if (isBracket) close // If we can fit the type params, make it so
+      else lastParen // If we can fit all in one block, make it so
 
     Seq(
-      singleLineSplit,
+      Split(NoSplit, 0)
+        .withPolicy(SingleLineBlock(singleLineExpire)),
       Split(Newline, 1) // Otherwise split vertically
         .withIndent(firstIndent, close, Right)
         .withPolicy(policy)

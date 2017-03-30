@@ -425,7 +425,7 @@ class Router(formatOps: FormatOps) {
       // on the WHOLE defnSite (via policies)
       case ft @ FormatToken((LeftParen() | LeftBracket()), _, _)
           if style.verticalMultilineAtDefinitionSite &&
-            isClassOrDef(leftOwner) =>
+            isDefnSiteWithParams(leftOwner) =>
         verticalMultiline(leftOwner, ft)(style)
 
       // Term.Apply and friends
