@@ -230,10 +230,10 @@ object TreeOps {
   }
 
   /**
-   * Whether the [[tree]] is a class, trait or def
-   *
-   * For classes this includes primary and secondary Ctors.
-   */
+    * Whether the [[tree]] is a class, trait or def
+    *
+    * For classes this includes primary and secondary Ctors.
+    */
   def isClassOrDef(tree: Tree): Boolean = tree match {
     case _: Decl.Def | _: Defn.Def | _: Defn.Macro | _: Defn.Class |
         _: Defn.Trait | _: Ctor.Secondary =>
@@ -244,10 +244,10 @@ object TreeOps {
   }
 
   /**
-   * Whether [[tree]] is a defintion site
-   *
-   * This includes everything from classes and defs to type applications
-   */
+    * Whether [[tree]] is a defintion site
+    *
+    * This includes everything from classes and defs to type applications
+    */
   def isDefnSite(tree: Tree): Boolean = tree match {
     case _: Decl.Def | _: Defn.Def | _: Defn.Macro | _: Defn.Class |
         _: Defn.Trait | _: Ctor.Secondary | _: Decl.Type | _: Defn.Type |

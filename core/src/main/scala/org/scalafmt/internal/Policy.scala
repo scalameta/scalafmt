@@ -16,7 +16,8 @@ case class Policy(
     noDequeue: Boolean = false,
     isSingleLine: Boolean = false)(implicit val line: sourcecode.Line) {
 
-  def merge(other: PartialFunction[Decision, Decision], newExpire: Int): Policy =
+  def merge(other: PartialFunction[Decision, Decision],
+            newExpire: Int): Policy =
     Policy(f.orElse(other), newExpire)
 
   def merge(other: Policy, newExpire: Int): Policy =
@@ -26,7 +27,6 @@ case class Policy(
     val newExpire = expire.max(other.expire)
     merge(other, newExpire)
   }
-
 
   def andThen(other: Policy): Policy = {
     if (this.f == Policy.emptyPf) other

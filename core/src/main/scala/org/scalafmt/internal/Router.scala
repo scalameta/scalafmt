@@ -426,8 +426,7 @@ class Router(formatOps: FormatOps) {
       case ft @ FormatToken((LeftParen() | LeftBracket()), _, _)
           if style.verticalMultilineAtDefinitionSite &&
             isClassOrDef(leftOwner) =>
-
-          verticalMultiline(leftOwner, ft)(style)
+        verticalMultiline(leftOwner, ft)(style)
 
       // Term.Apply and friends
       case FormatToken(LeftParen() | LeftBracket(), right, between)

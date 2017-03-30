@@ -684,9 +684,10 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   }
 
   /**
-   * Implementation for `verticalMultilineAtDefinitionSite`
-   */
-  def verticalMultiline(owner: Tree, ft: FormatToken)(implicit style: ScalafmtConfig): Seq[Split] = {
+    * Implementation for `verticalMultilineAtDefinitionSite`
+    */
+  def verticalMultiline(owner: Tree, ft: FormatToken)(
+      implicit style: ScalafmtConfig): Seq[Split] = {
 
     val FormatToken(open, r, _) = ft
     val close = matching(open)
@@ -700,8 +701,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
         case FormatToken(RightParenOrBracket(), l @ LeftParen(), _) =>
           loop(l)
         // This case only applies to classes
-        case f @ FormatToken(RightBracket(), mod, _)
-          if mod.is[Modifier] =>
+        case f @ FormatToken(RightBracket(), mod, _) if mod.is[Modifier] =>
           loop(next(f).right)
         case FormatToken(r @ RightParenOrBracket(), _, _) => Some(r)
         case _ => None
@@ -722,8 +722,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
     val shouldNotDangle =
       owner.is[meta.Ctor.Primary] ||
-      owner.is[meta.Defn.Class] ||
-      owner.is[meta.Defn.Trait]
+        owner.is[meta.Defn.Class] ||
+        owner.is[meta.Defn.Trait]
 
     // Since classes and defs aren't the same (see below), we need to
     // create two (2) OneArgOneLineSplit when dealing with classes. One
@@ -737,8 +737,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
         // just type params.
         findFirst(afterTypes, lastParen)(t => t.left.is[LeftParen])
           .fold(base)(t => base.merge(OneArgOneLineSplit(t.left)))
-      }
-      else base
+      } else base
     }
 
     // DESNOTE(2017-03-28, pjrt) Classes and defs aren't the same.
@@ -775,10 +774,10 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
           if (mixedParams && owners(prevT).is[CtorModifier]) Newline
           else NoSplit
         Decision(t,
-                  Seq(
-                    Split(mod, 0)
-                      .withIndent(indentParam, close2, Right)
-                  ))
+                 Seq(
+                   Split(mod, 0)
+                     .withIndent(indentParam, close2, Right)
+                 ))
     }
 
     // Our policy is a combination of OneArgLineSplit and a custom splitter

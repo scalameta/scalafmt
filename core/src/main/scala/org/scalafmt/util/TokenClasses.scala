@@ -91,4 +91,3 @@ object RightParenOrBracket {
   def unapply(tok: Token): Boolean =
     tok.is[RightParen] || tok.is[RightBracket]
 }
-
