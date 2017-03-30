@@ -35,7 +35,7 @@ Shamelessly stolen from [lihaoyi/ammonite](https://github.com/lihaoyi/Ammonite).
 
 Where do utility functions go?
 
-* `FormatOps`: anything that requires access to the fields in `FormatOps` (for
+* `FormatOps`: anything that requires access to fields in `FormatOps` (for
   example `prev/next/owners`), which is custom for each source file.
 * `Token/TreeOps`: anything that does not require fields in `FormatOps`,
   agnostic to the source file being formatted.
