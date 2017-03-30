@@ -3,6 +3,7 @@ resolvers ++= Seq(
   Resolver.bintrayIvyRepo("dancingrobot84", "sbt-plugins")
 )
 
+addSbtPlugin("com.dwijnand"       % "sbt-dynver"          % "1.2.0")
 addSbtPlugin("com.eed3si9n"       % "sbt-buildinfo"       % "0.6.1")
 addSbtPlugin("io.get-coursier"    % "sbt-coursier"        % "1.0.0-M15-5")
 addSbtPlugin("com.eed3si9n"       % "sbt-doge"            % "0.1.5")
