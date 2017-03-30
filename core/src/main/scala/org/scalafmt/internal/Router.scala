@@ -26,11 +26,13 @@ import org.scalafmt.internal.Length.StateColumn
 import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util.`:parent:`
 import org.scalafmt.util.Delim
+import org.scalafmt.util.CtorModifier
 import org.scalafmt.util.InfixApplication
 import org.scalafmt.util.Keyword
 import org.scalafmt.util.Literal
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.Modifier
+import org.scalafmt.util.RightParenOrBracket
 import org.scalafmt.util.SelfAnnotation
 import org.scalafmt.util.SomeInterpolate
 import org.scalafmt.util.TokenOps
@@ -436,7 +438,8 @@ class Router(formatOps: FormatOps) {
             case FormatToken(RightParenOrBracket(), l @ LeftParen(), _) =>
               loop(l)
             // This case only applies to classes
-            case f @ FormatToken(RightBracket(), CtorModifier(), _) =>
+            case f @ FormatToken(RightBracket(), mod, _)
+              if mod.is[Modifier] =>
               loop(next(f).right)
             case FormatToken(r @ RightParenOrBracket(), _, _) => Some(r)
             case _ => None
@@ -461,13 +464,13 @@ class Router(formatOps: FormatOps) {
 
         // Since classes and defs aren't the same (see below), we need to
         // create two (2) OneArgOneLineSplit when dealing with classes. One
-        // deals with the type params and the other with the data params.
+        // deals with the type params and the other with the value params.
         val oneLinePerArg = {
           val base = OneArgOneLineSplit(open)
           if (mixedParams) {
             val afterTypes = leftTok2tok(matchingParentheses(hash(open)))
             // Try to find the first paren. If found, then we are dealing with
-            // a class with type AND data params. Otherwise it is a class with
+            // a class with type AND value params. Otherwise it is a class with
             // just type params.
             findFirst(afterTypes, lastParen)(t => t.left.is[LeftParen])
               .fold(base)(t => base.merge(OneArgOneLineSplit(t.left)))
@@ -476,16 +479,16 @@ class Router(formatOps: FormatOps) {
         }
 
         // DESNOTE(2017-03-28, pjrt) Classes and defs aren't the same.
-        // For defs, type params and data param have the same `owners`. However
+        // For defs, type params and value param have the same `owners`. However
         // this is not the case for classes. Type params have the class itself
-        // as the owner, but data params have the Ctor as the owner, so a
+        // as the owner, but value params have the Ctor as the owner, so a
         // simple check isn't enough. Instead we check against the owner of the
-        // `lastParen` as well, which will be the same as the data param's
+        // `lastParen` as well, which will be the same as the value param's
         // owner.
-        val dataParamsOwner = owners(lastParen)
+        val valueParamsOwner = owners(lastParen)
         @inline def ownerCheck(rp: Token): Boolean = {
           val owner = owners(rp)
-          owner == leftOwner || owner == dataParamsOwner
+          owner == leftOwner || owner == valueParamsOwner
         }
 
         val paramGroupSplitter: PartialFunction[Decision, Decision] = {
@@ -506,7 +509,7 @@ class Router(formatOps: FormatOps) {
             val close2 = matchingParentheses(hash(open2))
             val prevT = prev(t).left
             val mod =
-              if (mixedParams && CtorModifier.is(owners(prevT))) Newline
+              if (mixedParams && owners(prevT).is[CtorModifier]) Newline
               else NoSplit
             Decision(t,
                      Seq(

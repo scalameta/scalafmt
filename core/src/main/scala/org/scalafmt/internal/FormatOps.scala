@@ -108,23 +108,6 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     (packages.result(), imports.result(), arguments.toMap, optional)
   }
 
-  object CtorModifier {
-    def is(tree: Tree): Boolean =
-      tree.is[meta.Mod.Private] || tree.is[meta.Mod.Protected]
-    def is(tok: Token): Boolean = tok.is[KwPrivate] || tok.is[KwProtected]
-    def unapply(tok: Token): Boolean = is(tok)
-  }
-
-  object LeftParenOrBracket {
-    def is(tok: Token): Boolean = tok.is[LeftParen] || tok.is[LeftBracket]
-    def unapply(tok: Token): Boolean = is(tok)
-  }
-
-  object RightParenOrBracket {
-    def is(tok: Token): Boolean = tok.is[RightParen] || tok.is[RightBracket]
-    def unapply(tok: Token): Boolean = is(tok)
-  }
-
   object `:owner:` {
     def unapply(tok: Token): Option[(Token, Tree)] =
       ownersMap.get(hash(tok)).map(tree => tok -> tree)
