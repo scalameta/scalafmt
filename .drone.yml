@@ -16,6 +16,7 @@ pipeline:
     volumes:
       - /platform:/keys
     commands:
+      - git fetch --tags && git log | head -n 20
       - ./bin/cleanup_cache.sh
       - ./scalafmt --test
       - sbt $CI_TEST
