@@ -22,12 +22,16 @@ import scala.meta.tokens.Tokens
 import org.scalafmt.Error.CaseMissingArrow
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.ExpiresOn.Left
+import org.scalafmt.internal.ExpiresOn.Right
 import org.scalafmt.internal.Length.Num
 import org.scalafmt.internal.Policy.NoPolicy
+import org.scalafmt.util.CtorModifier
 import org.scalafmt.util.StyleMap
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
 import org.scalafmt.util.Whitespace
+import org.scalafmt.util.Modifier
+import org.scalafmt.util.RightParenOrBracket
 import org.scalafmt.util.logger
 
 /**
@@ -677,6 +681,131 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       }
       (forces.result(), clearQueues.result())
     }
+  }
+
+  /**
+   * Implementation for `verticalMultilineAtDefinitionSite`
+   */
+  def verticalMultiline(owner: Tree, ft: FormatToken)(implicit style: ScalafmtConfig): Seq[Split] = {
+
+    val FormatToken(open, r, _) = ft
+    val close = matching(open)
+    val indentParam = Num(style.continuationIndent.defnSite)
+    val indentSep = Num((indentParam.n - 2).max(0))
+    val isBracket = open.is[LeftBracket]
+
+    @tailrec
+    def loop(token: Token): Option[Token] = {
+      leftTok2tok(matching(token)) match {
+        case FormatToken(RightParenOrBracket(), l @ LeftParen(), _) =>
+          loop(l)
+        // This case only applies to classes
+        case f @ FormatToken(RightBracket(), mod, _)
+          if mod.is[Modifier] =>
+          loop(next(f).right)
+        case FormatToken(r @ RightParenOrBracket(), _, _) => Some(r)
+        case _ => None
+      }
+    }
+
+    // find the last param on the defn so that we can apply our `policy`
+    // till the end.
+    val lastParen = loop(open).get
+
+    val mixedParams = {
+      owner match {
+        case cls: meta.Defn.Class =>
+          cls.tparams.nonEmpty && cls.ctor.paramss.nonEmpty
+        case _ => false
+      }
+    }
+
+    val shouldNotDangle =
+      owner.is[meta.Ctor.Primary] ||
+      owner.is[meta.Defn.Class] ||
+      owner.is[meta.Defn.Trait]
+
+    // Since classes and defs aren't the same (see below), we need to
+    // create two (2) OneArgOneLineSplit when dealing with classes. One
+    // deals with the type params and the other with the value params.
+    val oneLinePerArg = {
+      val base = OneArgOneLineSplit(open)
+      if (mixedParams) {
+        val afterTypes = leftTok2tok(matchingParentheses(hash(open)))
+        // Try to find the first paren. If found, then we are dealing with
+        // a class with type AND value params. Otherwise it is a class with
+        // just type params.
+        findFirst(afterTypes, lastParen)(t => t.left.is[LeftParen])
+          .fold(base)(t => base.merge(OneArgOneLineSplit(t.left)))
+      }
+      else base
+    }
+
+    // DESNOTE(2017-03-28, pjrt) Classes and defs aren't the same.
+    // For defs, type params and value param have the same `owners`. However
+    // this is not the case for classes. Type params have the class itself
+    // as the owner, but value params have the Ctor as the owner, so a
+    // simple check isn't enough. Instead we check against the owner of the
+    // `lastParen` as well, which will be the same as the value param's
+    // owner.
+    val valueParamsOwner = owners(lastParen)
+    @inline def ownerCheck(rp: Token): Boolean = {
+      val rpOwner = owners(rp)
+      rpOwner == owner || rpOwner == valueParamsOwner
+    }
+
+    val paramGroupSplitter: PartialFunction[Decision, Decision] = {
+      // If this is a class, then don't dangle the last paren
+      case Decision(t @ FormatToken(_, rp @ RightParenOrBracket(), _), _)
+          if shouldNotDangle && rp == lastParen =>
+        val split = Split(NoSplit, 0)
+        Decision(t, Seq(split))
+      // Indent seperators `)(` and `](` by `indentSep`
+      case Decision(t @ FormatToken(_, rp @ RightParenOrBracket(), _), _)
+          if ownerCheck(rp) =>
+        val split = Split(Newline, 0).withIndent(indentSep, rp, Left)
+        Decision(t, Seq(split))
+      // Do NOT Newline the first param after the split, unless we have a
+      // mixed-params case with a Ctor modifier.
+      // `] private (`
+      case Decision(t @ FormatToken(open2 @ LeftParen(), _, _), _) =>
+        val close2 = matchingParentheses(hash(open2))
+        val prevT = prev(t).left
+        val mod =
+          if (mixedParams && owners(prevT).is[CtorModifier]) Newline
+          else NoSplit
+        Decision(t,
+                  Seq(
+                    Split(mod, 0)
+                      .withIndent(indentParam, close2, Right)
+                  ))
+    }
+
+    // Our policy is a combination of OneArgLineSplit and a custom splitter
+    // for parameter groups.
+    val policy = oneLinePerArg.merge(paramGroupSplitter, lastParen.end)
+
+    val firstIndent =
+      if (r.is[RightParen]) // An empty param group
+        indentSep
+      else
+        indentParam
+
+    val singleLineSplit =
+      if (isBracket)
+        Split(NoSplit, 0) // If we can fit the type params, make it so
+          .withPolicy(SingleLineBlock(close))
+      else
+        Split(NoSplit, 0) // If we can fit all in one block, make it so
+          .withPolicy(SingleLineBlock(lastParen))
+
+    Seq(
+      singleLineSplit,
+      Split(Newline, 1) // Otherwise split vertically
+        .withIndent(firstIndent, close, Right)
+        .withPolicy(policy)
+    )
+
   }
 
 }
