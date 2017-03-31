@@ -4,7 +4,7 @@ pipeline:
     image: plugins/sftp-cache
     restore: true
     mount:
-      - /drone/.ivy2
+      - /drone/.ivy2/cache
       - /drone/.coursier-cache
       - /drone/.sbt
       - /drone/.git
@@ -16,8 +16,10 @@ pipeline:
     volumes:
       - /platform:/keys
     commands:
+      - git fetch --tags && git log | head -n 20
+      - ./bin/cleanup_cache.sh
       - ./scalafmt --test
-      - sbt $TEST
+      - sbt $CI_TEST
 
   publish:
     image: olafurpg/scalafix:0.3.0
@@ -27,7 +29,7 @@ pipeline:
     commands:
       - ./bin/bintray.sh
     when:
-      event: push
+      event: [push, tag]
       branch: [master]
 
   notify:
@@ -48,7 +50,7 @@ pipeline:
     image: plugins/sftp-cache
     rebuild: true
     mount:
-      - /drone/.ivy2
+      - /drone/.ivy2/cache
       - /drone/.coursier-cache
       - /drone/.sbt
       - /drone/.git

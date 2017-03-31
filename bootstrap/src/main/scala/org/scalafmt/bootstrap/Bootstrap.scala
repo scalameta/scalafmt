@@ -6,13 +6,15 @@ import java.net.URLClassLoader
 
 import coursier._
 import org.scalafmt.Versions
-
 import scala.collection.immutable.Nil
 import scala.collection.mutable
 import scala.language.reflectiveCalls
+
 import scala.util.{Failure, Success}
 import scalaz.{\/, \/-}
 import scalaz.concurrent.Task
+
+import coursier.ivy.IvyRepository
 
 class FetchError(errors: Seq[(Dependency, Seq[String])])
     extends Exception(errors.toString())
@@ -56,15 +58,16 @@ object ScalafmtBootstrap {
         )
       )
 
+    val droneHome = IvyRepository.fromPattern(
+      new File("/drone/.ivy2/local/").toURI.toString +: coursier.ivy.Pattern.default)
+    val testingRepos =
+      if (sys.props.contains("scalafmt.scripted"))
+        Cache.ivy2Local :: droneHome :: Nil
+      else Nil
     val repositories =
-      MavenRepository("https://repo1.maven.org/maven2") :: {
-        // ivy2 local is only necessary when testing the sbt plugin on a locally
-        // published version of scalafmt. See https://github.com/scalameta/scalafmt/issues/807
-        // for a potential error caused by resolving fron ivy2 local (I can't reproduce the
-        // error so this is a wild guess).
-        if (sys.props.contains("scalafmt.scripted")) Cache.ivy2Local :: Nil
-        else Nil
-      }
+      MavenRepository(s"https://dl.bintray.com/scalameta/maven/") ::
+        MavenRepository("https://repo1.maven.org/maven2") ::
+        testingRepos
 
     val logger = new TermDisplay(new OutputStreamWriter(System.err))
     logger.init(System.err.println("Downloading scalafmt artifacts..."))

@@ -7,139 +7,31 @@ addCommandAlias("downloadIdea", "intellij/updateIdea")
 lazy val buildSettings = Seq(
   organization := "com.geirsson",
   version := sys.props.getOrElse("scalafmt.version", version.value),
-  scalaVersion := "2.11.8",
-  crossScalaVersions := Seq("2.11.8", "2.12.1"),
+  scalaVersion := scala211,
+  crossScalaVersions := Seq(scala211, "2.12.1"),
   updateOptions := updateOptions.value.withCachedResolution(true)
 )
 
-lazy val noDocs = Seq(
-  sources in (Compile, doc) := Nil
+name := "scalafmtRoot"
+allSettings
+noPublish
+commands += CiCommand("ci-fast")(
+  "test" ::
+    Nil
 )
-
-lazy val metaMacroSettings: Seq[Def.Setting[_]] = Seq(
-  libraryDependencies += scalameta,
-  addCompilerPlugin(
-    "org.scalameta" % "paradise" % "3.0.0-M7" cross CrossVersion.full),
-  scalacOptions += "-Xplugin-require:macroparadise"
-) ++ noDocs
-
-lazy val compilerOptions = Seq(
-  "-deprecation",
-  "-encoding",
-  "UTF-8",
-  "-feature",
-  "-language:existentials",
-  "-language:higherKinds",
-  "-language:implicitConversions",
-  "-unchecked",
-  "-Yno-adapted-args",
-  "-Ywarn-dead-code",
-  "-Ywarn-numeric-widen",
-  "-Xfuture",
-  "-Xlint"
+commands += CiCommand("ci-slow")(
+  "core/test:runMain org.scalafmt.ScalafmtProps" ::
+    Nil
 )
-
-lazy val commonSettings = Seq(
-  triggeredMessage in ThisBuild := Watched.clearWhenTriggered,
-  scalacOptions in (Compile, console) := compilerOptions :+ "-Yrepl-class-based",
-  assemblyJarName in assembly := "scalafmt.jar",
-  testOptions in Test += Tests.Argument("-oD")
+commands += Command.command("ci-sbt-scalafmt") { s =>
+  "very publishLocal" ::
+    s"plz $scala210 scalafmtSbt/scripted" ::
+    s
+}
+commands += CiCommand("ci-publish")(
+  if (sys.env.contains("CI_PUBLISH")) s"publish" :: Nil
+  else Nil
 )
-
-lazy val publishSettings = Seq(
-  publishMavenStyle := true,
-  publishMavenStyle := true,
-  publishArtifact := true,
-  publishTo := {
-    val nexus = "https://oss.sonatype.org/"
-    if (isSnapshot.value)
-      Some("snapshots" at nexus + "content/repositories/snapshots")
-    else
-      Some("releases" at nexus + "service/local/staging/deploy/maven2")
-  },
-  publishArtifact in Test := false,
-  licenses := Seq(
-    "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
-  homepage := Some(url("https://github.com/scalameta/scalafmt")),
-  autoAPIMappings := true,
-  apiURL := Some(url("https://olafurpg.github.io/scalafmt/docs/")),
-  scmInfo := Some(
-    ScmInfo(
-      url("https://github.com/scalameta/scalafmt"),
-      "scm:git:git@github.com:olafurpg/scalafmt.git"
-    )
-  ),
-  pomExtra :=
-    <developers>
-      <developer>
-        <id>olafurpg</id>
-        <name>Ólafur Páll Geirsson</name>
-        <url>https://geirsson.com</url>
-      </developer>
-    </developers>
-)
-
-lazy val noPublish = Seq(
-  publishArtifact := false,
-  publish := {},
-  publishLocal := {}
-)
-
-lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
-  buildInfoKeys := Seq[BuildInfoKey](
-    name,
-    version,
-    "nightly" -> version.value,
-    "stable" -> latestStableVersion,
-    "scala" -> scalaVersion.value,
-    "coursier" -> coursier,
-    scalaVersion,
-    sbtVersion
-  ),
-  buildInfoPackage := "org.scalafmt",
-  buildInfoObject := "Versions"
-)
-
-lazy val allSettings = commonSettings ++ buildSettings ++ publishSettings
-
-lazy val root = project
-  .in(file("."))
-  .settings(
-    commands += CiCommand("ci-fast")(
-      "test" ::
-        Nil
-    ),
-    commands += CiCommand("ci-slow")(
-      "core/test:runMain org.scalafmt.ScalafmtProps" ::
-        Nil
-    ),
-    commands += Command.command("ci-sbt-scalafmt") { s =>
-      "very publishLocal" +
-        "scripted" ::
-        s
-    },
-    commands += CiCommand("ci-publish")(
-      if (sys.env.contains("CI_PUBLISH")) s"publish" :: Nil
-      else Nil
-    ),
-    allSettings,
-    noPublish,
-    initialCommands in console :=
-      """
-        |import scala.meta._
-        |import org.scalafmt._
-          """.stripMargin
-  )
-  .aggregate(
-    benchmarks,
-    bootstrap,
-    cli,
-    core,
-    readme,
-    scalafmtSbt,
-    intellij
-  )
-  .dependsOn(core)
 
 lazy val core = project
   .settings(
@@ -187,8 +79,9 @@ lazy val cli = project
   .dependsOn(core % "compile->compile;test->test")
 
 lazy val is210 = Seq(
-  scalaVersion := "2.10.6",
-  crossScalaVersions := Seq("2.10.6")
+  publishMavenStyle := false, // necessary for sbt community repo.
+  scalaVersion := scala210,
+  crossScalaVersions := Seq(scala210)
 )
 
 lazy val bootstrap = project
@@ -210,14 +103,14 @@ lazy val scalafmtSbt = project
   .settings(
     allSettings,
     ScriptedPlugin.scriptedSettings,
-    scripted := scripted
-      .dependsOn(
-        publishLocal in cli,
-        publishLocal in core,
-        publishLocal in bootstrap
-      )
-      .evaluated,
     sbtPlugin := true,
+    test := {
+      RunSbtCommand(
+        s"; plz $scala211 publishLocal " +
+          s"; plz $scala210 publishLocal " +
+          s"; such scalafmtSbt/scripted"
+      )(state.value)
+    },
     is210,
     // In convention of sbt plugins, the module is sbt-scalafmt instead of scalafmt-sbt.
     moduleName := "sbt-scalafmt",
@@ -228,7 +121,11 @@ lazy val scalafmtSbt = project
       "-XX:MaxPermSize=256m",
       "-Xmx2g",
       "-Xss2m"
-    ),
+    ) ++ {
+      // pass along custom boot properties if specified
+      val bootProps = "sbt.boot.properties"
+      sys.props.get(bootProps).map(x => s"-D$bootProps=$x").toList
+    },
     scriptedBufferLog := false
   )
   .dependsOn(bootstrap)
@@ -253,7 +150,7 @@ lazy val benchmarks = project
   .settings(
     allSettings,
     noPublish,
-    crossScalaVersions := Seq("2.11.8"),
+    crossScalaVersions := Seq(scala211),
     moduleName := "scalafmt-benchmarks",
     libraryDependencies ++= Seq(
       "org.scalariform" %% "scalariform" % scalariform,
@@ -310,3 +207,109 @@ def CiCommand(name: String)(commands: List[String]): Command =
     }
   }
 def ci(command: String) = s"plz ${sys.env("CI_SCALA_VERSION")} $command"
+
+def shouldPublishToBintray: Boolean = {
+  if (!new File(sys.props("user.home") + "/.bintray/.credentials").exists)
+    false
+  else if (sys.props("sbt.prohibit.publish") != null) false
+  else if (sys.env.contains("CI_PULL_REQUEST")) false
+  else true
+}
+
+lazy val noDocs = Seq(
+  sources in (Compile, doc) := Nil
+)
+
+lazy val metaMacroSettings: Seq[Def.Setting[_]] = Seq(
+  libraryDependencies += scalameta,
+  addCompilerPlugin(
+    "org.scalameta" % "paradise" % "3.0.0-M7" cross CrossVersion.full),
+  scalacOptions += "-Xplugin-require:macroparadise"
+) ++ noDocs
+
+lazy val compilerOptions = Seq(
+  "-deprecation",
+  "-encoding",
+  "UTF-8",
+  "-feature",
+  "-language:existentials",
+  "-language:higherKinds",
+  "-language:implicitConversions",
+  "-unchecked",
+  "-Yno-adapted-args",
+  "-Ywarn-dead-code",
+  "-Ywarn-numeric-widen",
+  "-Xfuture",
+  "-Xlint"
+)
+
+lazy val commonSettings = Seq(
+  triggeredMessage in ThisBuild := Watched.clearWhenTriggered,
+  scalacOptions in (Compile, console) := compilerOptions :+ "-Yrepl-class-based",
+  assemblyJarName in assembly := "scalafmt.jar",
+  testOptions in Test += Tests.Argument("-oD")
+)
+
+lazy val publishSettings = Seq(
+  publishMavenStyle := true,
+  publishMavenStyle := true,
+  publishArtifact := true,
+  bintrayRepository := "maven",
+  bintrayOrganization := Some("scalameta"),
+  publishTo := {
+    if (shouldPublishToBintray) publishTo.in(bintray).value
+    else {
+      val nexus = "https://oss.sonatype.org/"
+      if (isSnapshot.value)
+        Some("snapshots" at nexus + "content/repositories/snapshots")
+      else
+        Some("releases" at nexus + "service/local/staging/deploy/maven2")
+    }
+  },
+  publishArtifact in Test := false,
+  licenses := Seq(
+    "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+  homepage := Some(url("https://github.com/scalameta/scalafmt")),
+  autoAPIMappings := true,
+  apiURL := Some(url("https://olafurpg.github.io/scalafmt/docs/")),
+  scmInfo := Some(
+    ScmInfo(
+      url("https://github.com/scalameta/scalafmt"),
+      "scm:git:git@github.com:olafurpg/scalafmt.git"
+    )
+  ),
+  pomExtra :=
+    <developers>
+        <developer>
+          <id>olafurpg</id>
+          <name>Ólafur Páll Geirsson</name>
+          <url>https://geirsson.com</url>
+        </developer>
+      </developers>
+)
+
+lazy val noPublish = Seq(
+  publishArtifact := false,
+  publish := {},
+  publishLocal := {}
+)
+
+lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
+  buildInfoKeys := Seq[BuildInfoKey](
+    name,
+    version,
+    "nightly" -> version.value,
+    "stable" -> latestStableVersion,
+    "scala" -> scalaVersion.value,
+    "coursier" -> coursier,
+    scalaVersion,
+    sbtVersion
+  ),
+  buildInfoPackage := "org.scalafmt",
+  buildInfoObject := "Versions"
+)
+
+def scala210 = "2.10.6"
+def scala211 = "2.11.8"
+
+lazy val allSettings = commonSettings ++ buildSettings ++ publishSettings
