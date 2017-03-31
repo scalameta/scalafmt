@@ -58,9 +58,8 @@ object ScalafmtBootstrap {
         )
       )
 
-    val droneHome =
-      IvyRepository.fromPattern(
-        "/drone/.ivy2/local/" +: coursier.ivy.Pattern.default)
+    val droneHome = IvyRepository.fromPattern(
+      new File("/drone/.ivy2/local/").toURI.toString +: coursier.ivy.Pattern.default)
     val testingRepos =
       if (sys.props.contains("scalafmt.scripted"))
         Cache.ivy2Local :: droneHome :: Nil
