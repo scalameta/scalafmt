@@ -1,20 +1,23 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -eu
 
 echo "Updating gh-pages..."
 
 SUBDIR="gh-pages"
 SOURCE_BRANCH="master"
 TARGET_BRANCH="gh-pages"
+AUTH=${GITHUB_AUTH:-}
+SETUP_GIT=${DRONE:-false}
 
 git checkout master
 REPO=`git config remote.origin.url`
 SSH_REPO=${REPO/https:\/\/github.com\//git@github.com:}
+HTTP_REPO=${REPO/github.com/${AUTH}github.com}
 SHA=`git rev-parse --verify HEAD`
 sbt "readme/run --validate-links"
 
 rm -rf ${SUBDIR}
-git clone ${SSH_REPO} ${SUBDIR}
+git clone ${REPO} ${SUBDIR}
 cd ${SUBDIR}
 git checkout ${TARGET_BRANCH} || git checkout --orphan ${TARGET_BRANCH}
 cd ..
@@ -27,17 +30,18 @@ if [[ -z `git diff --exit-code` ]]; then
     exit 0
 fi
 
-git add .
-git commit --no-verify  -m "Deploy to GitHub Pages: ${SHA}"
-
-if [[ ${TRAVIS} == "true" ]]; then
-  git config user.name "Travis CI"
-  git config user.email "olafurpg@gmail.com"
+if [[ ${SETUP_GIT} == "true" ]]; then
+  git config user.name "scalametabot"
+  git config user.email "scalametabot@gmail.com"
 fi
 
-git push --no-verify -f origin gh-pages
+git add .
+git commit -m "Deploy to GitHub Pages: ${SHA}"
+
+git push -f $HTTP_REPO gh-pages
 git checkout master
 cd ..
 rm -rf gh-pages
 
 echo "Done!"
+
