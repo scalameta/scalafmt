@@ -1,6 +1,4 @@
 import Dependencies._
-// The version number used in docs.
-def latestStableVersion: String = "0.6.6"
 
 addCommandAlias("downloadIdea", "intellij/updateIdea")
 
@@ -211,7 +209,7 @@ def ci(command: String) = s"plz ${sys.env("CI_SCALA_VERSION")} $command"
 def shouldPublishToBintray: Boolean = {
   if (!new File(sys.props("user.home") + "/.bintray/.credentials").exists)
     false
-  else if (sys.props("sbt.prohibit.publish") != null) false
+  else if (sys.props("publish.sonatype") != null) false
   else if (sys.env.contains("CI_PULL_REQUEST")) false
   else true
 }
@@ -299,7 +297,7 @@ lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
     name,
     version,
     "nightly" -> version.value,
-    "stable" -> latestStableVersion,
+    "stable" -> version.value.replaceAll("\\+.*", ""),
     "scala" -> scalaVersion.value,
     "coursier" -> coursier,
     scalaVersion,

@@ -1,7 +1,8 @@
 #!/bin/bash
-set -e
+set -eux
 
-version=$(sed -n -e 's/.*version := "\(.*\)",/\1/p' build.sbt)
+version=$1
+test -n $version
 tag="v${version}"
 tarfile="cli/target/scalafmt.tar.gz"
 current_branch=$(git rev-parse --abbrev-ref HEAD)
@@ -36,7 +37,7 @@ function confirm-release() {
 }
 
 function assemble-jar() {
-    sbt cli/assembly
+    sbt -Dpublish.sonatype=true cli/assembly
 }
 
 function push-tag() {
@@ -45,7 +46,7 @@ function push-tag() {
 }
 
 function maven-publish() {
-    sbt "very publishSigned" sonatypeRelease
+    sbt -Dpublish.sonatype=true "very publishSigned" sonatypeRelease
 }
 
 
@@ -94,9 +95,9 @@ assert-preconditions
 if [[ ! $1 == "-q" ]]; then
   confirm-release
 fi
+push-tag
 assemble-jar
 maven-publish
-push-tag
 update-github-release
 update-homebrew-release
 echo "Released ${tag}!"
