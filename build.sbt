@@ -77,7 +77,7 @@ lazy val cli = project
   .dependsOn(core % "compile->compile;test->test")
 
 lazy val is210 = Seq(
-  publishMavenStyle := false, // necessary for sbt community repo.
+  // publishMavenStyle := false, // necessary for sbt community repo.
   scalaVersion := scala210,
   crossScalaVersions := Seq(scala210)
 )
@@ -249,7 +249,6 @@ lazy val commonSettings = Seq(
 )
 
 lazy val publishSettings = Seq(
-  publishMavenStyle := true,
   publishMavenStyle := true,
   publishArtifact := true,
   bintrayRepository := "maven",

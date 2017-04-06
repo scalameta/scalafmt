@@ -8,6 +8,28 @@
     @ul
       @li
         Please document your contribution here.
+@sect{0.6.8}
+  @ul
+    @li
+      Publish sbt-scalafmt "maven-style" to Maven Central (like it's been
+      published in all releases until 0.6.7) instead of "ivy-style" (how it was
+      released in 0.6.7)
+
+@sect{0.6.7}
+  All of the fixes in this release are contributed by @user{pjrt}, awesome work!
+  @ul
+    @li
+      Implement vertical-multiline for type params, @issue(864).
+    @li
+      New rewrite, @sect.ref{AsciiSortImports}.
+    @li
+      New configuration options for line breaks after lambda arrows, @issue(859).
+@sect{0.6.6}
+  Fix concurrency bug in sbt-scalafmt.
+@sect{0.6.5}
+  Try to fix concurrency bug in sbt-scalafmt.
+@sect{0.6.4}
+  Try to fix concurrency bug in sbt-scalafmt.
 @sect{0.6.3}
   @ul
     @li
