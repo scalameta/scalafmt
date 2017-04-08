@@ -101,7 +101,10 @@ object Cli {
 
   private def getFilesFromDiff(options: CliOptions): Seq[AbsoluteFile] = {
     val branch = options.diff.get
-    options.gitOps.diff(branch).filter(options.config.project.matcher.matches)
+    options.gitOps
+      .diff(branch)
+      .filter(options.config.project.matcher.matches)
+      .filter(canFormat)
   }
 
   /** Returns file paths defined via options.project */
