@@ -1,6 +1,7 @@
 package org.scalafmt.config
 
-import metaconfig.Reader
+import metaconfig.Configured.Ok
+import metaconfig._
 
 /**
   * ADT representing import selectors settings, specifically pertaining to the
@@ -50,14 +51,14 @@ object ImportSelectors {
   // This reader is backwards compatible with the old import selector
   // configuration, which used the boolean flag binPackImportSelectors to
   // decide between (what are now) the `binPack` and `noBinPack` strategies.
-  // It is defined here to keep the `Reader.instance[T} {}` lambda in a
-  // separate file from the @ConfigReader macro annotation; this is due to
+  // It is defined here to keep the `ConfDecoder.instance[T} {}` lambda in a
+  // separate file from the @DeriveConfDecoder macro annotation; this is due to
   // limitations in the current version of scalameta/paradise, but these will
   // likely be fixed in the future, at which point this reader could be moved
   // to ScalafmtConfig
-  val backwardsCompatibleReader = Reader.instance[ImportSelectors] {
-    case true => Right(ImportSelectors.binPack)
-    case false => Right(ImportSelectors.noBinPack)
+  val backwardsCompatibleReader = ConfDecoder.instance[ImportSelectors] {
+    case Conf.Bool(true) => Ok(ImportSelectors.binPack)
+    case Conf.Bool(false) => Ok(ImportSelectors.noBinPack)
     case els => reader.read(els)
   }
 

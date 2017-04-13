@@ -7,7 +7,7 @@ import scala.meta.dialects.Sbt0137
 import scala.meta.dialects.Scala211
 import scala.meta.parsers.Parse
 
-import metaconfig.Reader
+import metaconfig._
 
 trait ScalafmtRunnerT {
 
@@ -32,16 +32,16 @@ trait ScalafmtRunnerT {
 
   val sbt = default.copy(dialect = scala.meta.dialects.Sbt0137)
 
-  lazy val eventReader: Reader[FormatEvent => Unit] =
-    Reader.instance[FormatEvent => Unit] {
+  lazy val eventReader: ConfDecoder[FormatEvent => Unit] =
+    ConfDecoder.instance[FormatEvent => Unit] {
       case _ =>
-        Right((_: FormatEvent) => Unit)
+        Configured.Ok((_: FormatEvent) => Unit)
     }
-  lazy val parseReader: Reader[MetaParser] = {
+  lazy val parseReader: ConfDecoder[MetaParser] = {
     import Parse._
     ReaderUtil.oneOf[MetaParser](parseSource, parseStat, parseCase)
   }
 
-  lazy val dialectReader: Reader[Dialect] =
+  lazy val dialectReader: ConfDecoder[Dialect] =
     ReaderUtil.oneOf[Dialect](Scala211, Sbt0137, Dotty, Paradise211)
 }

@@ -92,13 +92,7 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
       Try(
         spec2style(spec.replaceFirst(pathPatternToReplace, ""))
       ).getOrElse(
-        Config.fromHocon(firstLine.stripPrefix("ONLY ")) match {
-          case Right(s)
-              if !firstLine.replaceAll("\\s+", "").isEmpty &&
-                !firstLine.startsWith("//") =>
-            s
-          case Left(e) => throw UnableToFindStyle(spec, e)
-        }
+        Config.fromHocon(firstLine.stripPrefix("ONLY ")).get
       )
     }
 

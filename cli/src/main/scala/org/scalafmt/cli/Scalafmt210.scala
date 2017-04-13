@@ -4,6 +4,7 @@ import scala.util.matching.Regex
 
 import java.io.File
 
+import metaconfig._, Configured._
 import org.scalafmt.Error.InvalidScalafmtConfiguration
 import org.scalafmt.Formatted
 import org.scalafmt.Scalafmt
@@ -23,15 +24,15 @@ class Scalafmt210 {
   // The rest is for scalafmtIncremental.
   def format(code: String, configFile: String, filename: String): String = {
     StyleCache.getStyleForFileOrError(configFile) match {
-      case Left(throwable) => {
+      case NotOk(throwable) => {
         if (oldConfig.findFirstIn(FileOps.readFile(configFile)).nonEmpty) {
           logger.debug(
             "You seem to use the <0.4 configuration, for instructions on how to migrate: https://olafurpg.github.io/scalafmt/#0.4.x"
           )
         }
-        throw InvalidScalafmtConfiguration(throwable)
+        throw new IllegalArgumentException(throwable.toString())
       }
-      case Right(style) =>
+      case Ok(style) =>
         format(code, style, filename)
     }
   }

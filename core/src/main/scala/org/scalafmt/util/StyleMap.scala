@@ -10,6 +10,7 @@ import scala.meta.tokens.Token.LeftParen
 import scala.meta.tokens.Token.RightParen
 import scala.meta.tokens.Tokens
 
+import metaconfig.Configured
 import org.scalafmt.config.Config
 import org.scalafmt.config.FilterMatcher
 import org.scalafmt.config.ScalafmtConfig
@@ -33,10 +34,10 @@ class StyleMap(tokens: Array[FormatToken],
       tok.left match {
         case Comment(c) if prefix.findFirstIn(c).isDefined =>
           Config.fromHocon(c, Some("scalafmt")) match {
-            case Right(style) =>
+            case Configured.Ok(style) =>
               empty = false
               curr = style
-            case Left(e) => // TODO(olafur) report error via callback
+            case Configured.NotOk(e) => // TODO(olafur) report error via callback
           }
         case open @ LeftParen()
             if init.binPack.literalArgumentLists &&

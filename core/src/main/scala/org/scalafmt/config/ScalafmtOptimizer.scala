@@ -1,6 +1,6 @@
 package org.scalafmt.config
 
-import metaconfig.ConfigReader
+import metaconfig._
 
 /**
   * Configuration for scalafmt optimizations.
@@ -60,7 +60,7 @@ import metaconfig.ConfigReader
   *   By forcing config style on such applications, the search space is greatly
   *   reduced.
   */
-@ConfigReader
+@DeriveConfDecoder
 case class ScalafmtOptimizer(
     dequeueOnNewStatements: Boolean = true,
     escapeInPathologicalCases: Boolean = true,

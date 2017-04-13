@@ -1,5 +1,6 @@
 package org.scalafmt.cli
 
+import metaconfig.Configured.Ok
 import org.scalafmt.config
 import org.scalafmt.util.DiffAssertions
 import org.scalatest.FunSuite
@@ -78,7 +79,7 @@ class LegacyCliTest extends FunSuite with DiffAssertions {
         |}
       """.stripMargin
     assertNoDiff(result, expected)
-    val Right(_) = config.Config.fromHocon(result)
+    val Ok(_) = config.Config.fromHocon(result)
   }
 
 }

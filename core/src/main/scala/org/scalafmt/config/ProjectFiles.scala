@@ -1,9 +1,9 @@
 package org.scalafmt.config
 
-import metaconfig.ConfigReader
+import metaconfig._
 import org.scalafmt.util.OsSpecific
 
-@ConfigReader
+@DeriveConfDecoder
 case class ProjectFiles(
     git: Boolean = false,
     files: Seq[String] = Nil,

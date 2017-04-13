@@ -1,6 +1,6 @@
 package org.scalafmt.config
 
-import metaconfig.{ConfigReader, Reader}
+import metaconfig._
 
 /**
   * @param penalizeSingleSelectMultiArgList
@@ -55,7 +55,7 @@ import metaconfig.{ConfigReader, Reader}
   *   If `preserve`, and there isn't an empty line, it will keep it as it is.
   *   If there is one or more empty lines, it will place a single empty line.
   */
-@ConfigReader
+@DeriveConfDecoder
 case class Newlines(
     neverInResultType: Boolean = false,
     neverBeforeJsNative: Boolean = false,
@@ -74,6 +74,6 @@ object NewlineCurlyLambda {
   case object always extends NewlineCurlyLambda
   case object never extends NewlineCurlyLambda
 
-  implicit val newlineCurlyLambdaReader: Reader[NewlineCurlyLambda] =
+  implicit val newlineCurlyLambdaReader: ConfDecoder[NewlineCurlyLambda] =
     ReaderUtil.oneOf[NewlineCurlyLambda](preserve, always, never)
 }

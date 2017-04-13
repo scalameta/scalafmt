@@ -5,8 +5,7 @@ import scala.meta.Tree
 import scala.meta.dialects.Scala211
 import scala.meta.parsers.Parse
 
-import metaconfig.ConfigReader
-import metaconfig.Reader
+import metaconfig._
 
 /**
   * A FormatRunner configures how formatting should behave.
@@ -16,7 +15,7 @@ import metaconfig.Reader
   * @param parser        Are we formatting a scala.meta.{Source,Stat,Case,...}? For
   *                      more details, see members of [[scala.meta.parsers]].
   */
-@ConfigReader
+@DeriveConfDecoder
 case class ScalafmtRunner(
     debug: Boolean = false,
     eventCallback: FormatEvent => Unit = _ => Unit,
@@ -27,10 +26,13 @@ case class ScalafmtRunner(
     ignoreWarnings: Boolean = false,
     fatalWarnings: Boolean = false
 ) {
-  implicit val dialectReader: Reader[Dialect] = ScalafmtRunner.dialectReader
-  implicit val optimizerReader: Reader[ScalafmtOptimizer] = optimizer.reader
-  implicit val parseReader: Reader[MetaParser] = ScalafmtRunner.parseReader
-  implicit val eventReader: Reader[FormatEvent => Unit] =
+  implicit val dialectReader: ConfDecoder[Dialect] =
+    ScalafmtRunner.dialectReader
+  implicit val optimizerReader: ConfDecoder[ScalafmtOptimizer] =
+    optimizer.reader
+  implicit val parseReader: ConfDecoder[MetaParser] =
+    ScalafmtRunner.parseReader
+  implicit val eventReader: ConfDecoder[FormatEvent => Unit] =
     ScalafmtRunner.eventReader
 
 }

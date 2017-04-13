@@ -5,9 +5,9 @@ import scala.collection.immutable.Set
 import scala.io.Codec
 import scala.util.control.NonFatal
 
-import metaconfig.Reader
+import metaconfig._
+import metaconfig.Configured._
 import metaconfig.String2AnyMap
-import org.scalafmt.config.hocon.Hocon2Class
 import org.scalafmt.util.LoggerOps
 
 trait Settings {
@@ -115,32 +115,35 @@ trait Settings {
 
   val unitTest40 = unitTest80.copy(maxColumn = 40)
 
-  def oneOf[T](m: Map[String, T])(input: String): metaconfig.Result[T] =
+  def oneOf[T](m: Map[String, T])(input: String): Configured[T] =
     m.get(input.toLowerCase()) match {
-      case Some(x) => Right(x)
+      case Some(x) => Ok(x)
       case None =>
         val available = m.keys.mkString(", ")
         val msg =
           s"Unknown line endings type $input. Expected one of $available"
-        Left(new IllegalArgumentException(msg))
+        ConfError.msg(msg).notOk
 
     }
 
-  def configReader(baseReader: ScalafmtConfig): Reader[ScalafmtConfig] =
-    Reader.instance[ScalafmtConfig] {
-      case String2AnyMap(map) =>
+  def configReader(baseReader: ScalafmtConfig): ConfDecoder[ScalafmtConfig] =
+    ConfDecoder.instance[ScalafmtConfig] {
+      case conf @ Conf.Obj(values) =>
+        val map = values.toMap
         map.get("style") match {
-          case Some(baseStyle) =>
-            val noStyle = map.-("style")
-            ScalafmtConfig.availableStyles.get(baseStyle.toString.toLowerCase) match {
+          case Some(Conf.Str(baseStyle)) =>
+            val noStyle = Conf.Obj(values.filterNot(_._1 == "style"))
+            ScalafmtConfig.availableStyles.get(baseStyle.toLowerCase) match {
               case Some(s) => s.reader.read(noStyle)
               case None =>
                 val alternatives =
                   ScalafmtConfig.activeStyles.keys.mkString(", ")
-                Left(new IllegalArgumentException(
-                  s"Unknown style name $baseStyle. Expected one of: $alternatives"))
+                ConfError
+                  .msg(
+                    s"Unknown style name $baseStyle. Expected one of: $alternatives")
+                  .notOk
             }
-          case None => baseReader.reader.read(map)
+          case None => baseReader.reader.read(conf)
         }
     }
 
@@ -152,34 +155,25 @@ trait Settings {
       (splitted(0), splitted(1))
     }
   }
-  protected[scalafmt] val fallbackAlign = new AlignToken("<empty>", ".*")
-  lazy val alignTokenReader: Reader[AlignToken] = Reader.instance[AlignToken] {
-    case str: String => Right(AlignToken(str, ".*"))
-    case x => fallbackAlign.reader.read(x)
-  }
-
-  def alignReader(initTokens: Set[AlignToken]): Reader[Set[AlignToken]] = {
-    val baseSetReader = Reader.setR(alignTokenReader)
-    Reader.instance[Set[AlignToken]] {
-      case String2AnyMap(map) if map.contains("add") =>
-        baseSetReader.read(map("add")) match {
-          case Right(addedTokens) => Right(initTokens ++ addedTokens)
-          case x => x
-        }
-      case els => baseSetReader.read(els)
+  def alignReader(initTokens: Set[AlignToken]): ConfDecoder[Set[AlignToken]] = {
+    val baseReader = implicitly[ConfDecoder[Set[AlignToken]]]
+    ConfDecoder.instance[Set[AlignToken]] {
+      case Conf.Obj(("add", conf) :: Nil) =>
+        baseReader.read(conf).map(initTokens ++ _)
+      case els => baseReader.read(els)
     }
   }
 
-  lazy val indentReader: Reader[IndentOperator] =
-    Reader.instance[IndentOperator] {
-      case "spray" => Right(IndentOperator.akka)
+  lazy val indentReader: ConfDecoder[IndentOperator] =
+    ConfDecoder.instance[IndentOperator] {
+      case Conf.Str("spray") => Ok(IndentOperator.akka)
       case els => IndentOperator.default.reader.read(els)
     }
 
-  lazy val codecReader: Reader[Codec] =
-    Reader.instance[Codec] {
-      case s: String =>
-        try Right(Codec(s))
-        catch { case NonFatal(e) => Left(e) }
+  lazy val codecReader: ConfDecoder[Codec] =
+    ConfDecoder.instance[Codec] {
+      case Conf.Str(s) =>
+        try Ok(Codec(s))
+        catch { case NonFatal(e) => ConfError.msg(e.getMessage).notOk }
     }
 }

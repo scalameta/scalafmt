@@ -4,8 +4,7 @@ import scala.io.Codec
 import scala.util.control.NonFatal
 import scala.util.matching.Regex
 
-import metaconfig.ConfigReader
-import metaconfig.Reader
+import metaconfig._
 import org.scalafmt.util.ValidationOps
 
 /** Configuration options for scalafmt.
@@ -117,7 +116,7 @@ import org.scalafmt.util.ValidationOps
   *  make it so. Note that this setting ignores continuation.defnSite,
   *  [[binPack.defnSite]], and [[align.openParenDefnSite]].
   */
-@ConfigReader
+@DeriveConfDecoder
 case class ScalafmtConfig(
     version: String = org.scalafmt.Versions.stable,
     maxColumn: Int = 80,
@@ -153,26 +152,26 @@ case class ScalafmtConfig(
   def reformatDocstrings: Boolean = docstrings != Docstrings.preserve
   def scalaDocs: Boolean = docstrings == Docstrings.ScalaDoc
 
-  implicit val runnerReader: Reader[ScalafmtRunner] =
+  implicit val runnerReader: ConfDecoder[ScalafmtRunner] =
     runner.reader
-  implicit val indentConfigReader: Reader[IndentConfig] =
+  implicit val indentConfigReader: ConfDecoder[IndentConfig] =
     indent.reader
-  implicit val contIndentReader: Reader[ContinuationIndent] =
+  implicit val contIndentReader: ConfDecoder[ContinuationIndent] =
     continuationIndent.reader
-  implicit val indentReader: Reader[IndentOperator] =
+  implicit val indentReader: ConfDecoder[IndentOperator] =
     ScalafmtConfig.indentReader
-  implicit val binPackReader: Reader[BinPack] = binPack.reader
-  implicit val alignReader: Reader[Align] = align.reader
-  implicit val lineEndingReader: Reader[LineEndings] = LineEndings.reader
-  implicit val spacesReader: Reader[Spaces] = spaces.reader
-  implicit val docstringsReader: Reader[Docstrings] = Docstrings.reader
-  implicit val rewriteReader: Reader[RewriteSettings] = rewrite.reader
-  implicit val optInReader: Reader[OptIn] = optIn.reader
-  implicit val newlinesReader: Reader[Newlines] = newlines.reader
-  implicit val projectReader: Reader[ProjectFiles] = project.reader
-  implicit val importSelectorsReader: Reader[ImportSelectors] =
+  implicit val binPackReader: ConfDecoder[BinPack] = binPack.reader
+  implicit val alignReader: ConfDecoder[Align] = align.reader
+  implicit val lineEndingReader: ConfDecoder[LineEndings] = LineEndings.reader
+  implicit val spacesReader: ConfDecoder[Spaces] = spaces.reader
+  implicit val docstringsReader: ConfDecoder[Docstrings] = Docstrings.reader
+  implicit val rewriteReader: ConfDecoder[RewriteSettings] = rewrite.reader
+  implicit val optInReader: ConfDecoder[OptIn] = optIn.reader
+  implicit val newlinesReader: ConfDecoder[Newlines] = newlines.reader
+  implicit val projectReader: ConfDecoder[ProjectFiles] = project.reader
+  implicit val importSelectorsReader: ConfDecoder[ImportSelectors] =
     ImportSelectors.backwardsCompatibleReader
-  implicit val codecReader: Reader[Codec] = ScalafmtConfig.codecReader
+  implicit val codecReader: ConfDecoder[Codec] = ScalafmtConfig.codecReader
 
   lazy val alignMap: Map[String, Regex] =
     align.tokens.map(x => x.code -> x.owner.r).toMap

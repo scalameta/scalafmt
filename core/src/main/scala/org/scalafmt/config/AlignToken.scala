@@ -1,6 +1,7 @@
 package org.scalafmt.config
 
-import metaconfig.ConfigReader
+import metaconfig.Configured.Ok
+import metaconfig._
 
 /**
   * Configuration option for aligning tokens.
@@ -8,10 +9,16 @@ import metaconfig.ConfigReader
   * @param code string literal value of the token to align by.
   * @param owner regexp for class name of scala.meta.Tree "owner" of [[code]].
   */
-@ConfigReader
+@DeriveConfDecoder
 case class AlignToken(code: String, owner: String)
 
 object AlignToken {
+  protected[scalafmt] val fallbackAlign = new AlignToken("<empty>", ".*")
+  implicit val DefaultAlignTokenDecoder =
+    ConfDecoder.instanceExpect("Regex") {
+      case Conf.Str(regex) => Ok(AlignToken(regex, ".*"))
+      case els => fallbackAlign.reader.read(els)
+    }
   val applyInfix = "Term.ApplyInfix"
   val caseArrow = AlignToken("=>", "Case")
 

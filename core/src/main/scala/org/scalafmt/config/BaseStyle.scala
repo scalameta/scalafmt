@@ -1,25 +1,26 @@
 package org.scalafmt.config
 
-import metaconfig.Reader
+import metaconfig._, Configured._
 
 case class BaseStyle(style: ScalafmtConfig)
 
 object BaseStyle {
   val default: BaseStyle = BaseStyle(ScalafmtConfig.default)
-  implicit val styleReader: Reader[BaseStyle] = Reader.instance[BaseStyle] {
-    case b: BaseStyle => Right(b) // TODO(olafur) provide this in instance
-    case any =>
-      println(any)
-      for {
-        str <- Reader.stringR.read(any).right
-        style <- {
-          ScalafmtConfig.availableStyles.get(str.toLowerCase) match {
-            case Some(s) => Right(s)
-            case None =>
-              Left(new IllegalArgumentException(
-                s"Unknown style name $str. Expected one of ${ScalafmtConfig.activeStyles.keys}"))
+  implicit val styleReader: ConfDecoder[BaseStyle] =
+    ConfDecoder.instance[BaseStyle] {
+      case any =>
+        for {
+          str <- ConfDecoder.stringConfDecoder.read(any)
+          style <- {
+            ScalafmtConfig.availableStyles.get(str.toLowerCase) match {
+              case Some(s) => Ok(s)
+              case None =>
+                ConfError
+                  .msg(
+                    s"Unknown style name $str. Expected one of ${ScalafmtConfig.activeStyles.keys}")
+                  .notOk
+            }
           }
-        }.right
-      } yield BaseStyle(style)
-  }
+        } yield BaseStyle(style)
+    }
 }

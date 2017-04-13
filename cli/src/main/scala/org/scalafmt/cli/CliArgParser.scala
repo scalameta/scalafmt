@@ -51,10 +51,7 @@ object CliArgParser {
         )
       }
       def readConfig(contents: String, c: CliOptions): CliOptions = {
-        Config.fromHocon(contents) match {
-          case Right(style) => c.copy(config = style)
-          case Left(e) => throw e
-        }
+        c.copy(config = Config.fromHocon(contents).get)
       }
 
       head("scalafmt", Versions.nightly)

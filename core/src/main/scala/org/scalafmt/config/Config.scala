@@ -4,10 +4,14 @@ import scala.language.reflectiveCalls
 
 import scala.meta.internal.parsers.ScalametaParser
 
+import metaconfig.Conf
+import metaconfig.ConfError
+import metaconfig.Configured
+import metaconfig.Configured.NotOk
+import metaconfig.Configured.Ok
 import metaconfig.HasFields
-import metaconfig.Result
 import metaconfig.String2AnyMap
-import org.scalafmt.config.hocon.Hocon2Class
+import metaconfig.typesafeconfig.TypesafeConfig2Class
 
 object Config {
 
@@ -36,10 +40,27 @@ object Config {
 
   /** Read ScalafmtConfig from String contents from an optional HOCON path. */
   def fromHocon(string: String,
-                path: Option[String] = None): Result[ScalafmtConfig] =
-    Hocon2Class.gimmeClass[ScalafmtConfig](
-      string,
-      ScalafmtConfig.configReader(ScalafmtConfig.default),
-      path)
+                path: Option[String] = None): Configured[ScalafmtConfig] =
+    for {
+      baseConf <- TypesafeConfig2Class.gimmeConfFromString(string)
+      conf <- {
+        path match {
+          case None => Ok(baseConf)
+          case Some(p) =>
+            baseConf match {
+              case Conf.Obj(values) =>
+                values
+                  .collectFirst { case (`p`, value) => Ok(value) }
+                  .getOrElse(
+                    ConfError.msg(s"Config $baseConf has no field $p").notOk)
+              case x =>
+                ConfError.typeMismatch("Conf.Obj", x).notOk
+            }
+        }
+      }
+      scalafmtConfig <- ScalafmtConfig
+        .configReader(ScalafmtConfig.default)
+        .read(conf)
+    } yield scalafmtConfig
 
 }

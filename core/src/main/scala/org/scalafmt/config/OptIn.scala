@@ -1,6 +1,6 @@
 package org.scalafmt.config
 
-import metaconfig.ConfigReader
+import metaconfig._
 
 /**
   *
@@ -24,7 +24,7 @@ import metaconfig.ConfigReader
   *   }}}
   *
   */
-@ConfigReader
+@DeriveConfDecoder
 case class OptIn(
     configStyleArguments: Boolean = true,
     breakChainOnFirstMethodDot: Boolean = true,
