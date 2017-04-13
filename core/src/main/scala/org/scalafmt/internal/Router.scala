@@ -364,7 +364,8 @@ class Router(formatOps: FormatOps) {
           case _ => NoSplit
         }
         Seq(
-          Split(modification, 0)
+          Split(modification, 0),
+          Split(if (leftOwner.parent.exists(_.is[Mod])) Space else NoSplit, 0)
         )
       // Defn.{Object, Class, Trait}
       case tok @ FormatToken(KwObject() | KwClass() | KwTrait(), _, _) =>
