@@ -7,8 +7,9 @@ import org.scalafmt.rewrite.{AvoidInfix, Rewrite}
 @DeriveConfDecoder
 case class RewriteSettings(
     rules: Seq[Rewrite] = Nil,
-    redundantBraces: RedundantBracesSettings = RedundantBracesSettings(),
-    neverInfix: Pattern = Pattern.neverInfix
+    @Recurse redundantBraces: RedundantBracesSettings =
+      RedundantBracesSettings(),
+    @Recurse neverInfix: Pattern = Pattern.neverInfix
 ) {
   Rewrite.validateRewrites(rules) match {
     case Nil => // OK
@@ -19,10 +20,5 @@ case class RewriteSettings(
         )
       )
   }
-  implicit val rewriteReader: ConfDecoder[Rewrite] = Rewrite.reader
 
-  implicit val patternReader: ConfDecoder[Pattern] = neverInfix.reader
-
-  implicit val curlyReader: ConfDecoder[RedundantBracesSettings] =
-    redundantBraces.reader
 }

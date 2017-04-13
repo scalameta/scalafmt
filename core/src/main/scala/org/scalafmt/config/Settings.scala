@@ -2,12 +2,9 @@ package org.scalafmt.config
 
 import scala.collection.immutable.Seq
 import scala.collection.immutable.Set
-import scala.io.Codec
-import scala.util.control.NonFatal
 
-import metaconfig._
 import metaconfig.Configured._
-import metaconfig.String2AnyMap
+import metaconfig._
 import org.scalafmt.util.LoggerOps
 
 trait Settings {
@@ -19,7 +16,7 @@ trait Settings {
 
   val default = ScalafmtConfig()
 
-  val intellij = default.copy(
+  val intellij: ScalafmtConfig = default.copy(
     continuationIndent = ContinuationIndent(2, 2),
     align = default.align.copy(openParenCallSite = false),
     optIn = default.optIn.copy(
@@ -28,23 +25,23 @@ trait Settings {
     danglingParentheses = true
   )
 
-  def addAlign(style: ScalafmtConfig) = style.copy(
+  def addAlign(style: ScalafmtConfig): ScalafmtConfig = style.copy(
     align = style.align.copy(
       mixedOwners = true,
       tokens = AlignToken.default
     )
   )
 
-  val defaultWithAlign = addAlign(default)
+  val defaultWithAlign: ScalafmtConfig = addAlign(default)
 
-  val default40 = default.copy(maxColumn = 40)
-  val default120 = default.copy(maxColumn = 120)
+  val default40: ScalafmtConfig = default.copy(maxColumn = 40)
+  val default120: ScalafmtConfig = default.copy(maxColumn = 120)
 
   /**
     * Experimental implementation of:
     * https://github.com/scala-js/scala-js/blob/master/CODINGSTYLE.md
     */
-  val scalaJs = default.copy(
+  val scalaJs: ScalafmtConfig = default.copy(
     binPack = BinPack(
       defnSite = true,
       callSite = true,
@@ -72,7 +69,7 @@ trait Settings {
   /**
     * Ready styles provided by scalafmt.
     */
-  val activeStyles =
+  val activeStyles: Map[String, ScalafmtConfig] =
     Map(
       "Scala.js" -> scalaJs,
       "IntelliJ" -> intellij
@@ -81,13 +78,13 @@ trait Settings {
       defaultWithAlign
     )
 
-  val availableStyles = {
+  val availableStyles: Map[String, ScalafmtConfig] = {
     activeStyles ++ LoggerOps.name2style(
       scalaJs
     )
   }.map { case (k, v) => k.toLowerCase -> v }
 
-  def conservativeRunner = default.runner.copy(
+  def conservativeRunner: ScalafmtRunner = default.runner.copy(
     optimizer = default.runner.optimizer.copy(
       // The tests were not written in this style
       forceConfigStyleOnOffset = 500,
@@ -143,7 +140,7 @@ trait Settings {
                     s"Unknown style name $baseStyle. Expected one of: $alternatives")
                   .notOk
             }
-          case None => baseReader.reader.read(conf)
+          case _ => baseReader.reader.read(conf)
         }
     }
 
@@ -164,16 +161,4 @@ trait Settings {
     }
   }
 
-  lazy val indentReader: ConfDecoder[IndentOperator] =
-    ConfDecoder.instance[IndentOperator] {
-      case Conf.Str("spray") => Ok(IndentOperator.akka)
-      case els => IndentOperator.default.reader.read(els)
-    }
-
-  lazy val codecReader: ConfDecoder[Codec] =
-    ConfDecoder.instance[Codec] {
-      case Conf.Str(s) =>
-        try Ok(Codec(s))
-        catch { case NonFatal(e) => ConfError.msg(e.getMessage).notOk }
-    }
 }

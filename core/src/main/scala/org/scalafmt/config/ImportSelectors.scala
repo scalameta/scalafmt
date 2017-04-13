@@ -45,7 +45,7 @@ sealed abstract class ImportSelectors
 
 object ImportSelectors {
 
-  val reader =
+  val reader: ConfDecoder[ImportSelectors] =
     ReaderUtil.oneOf[ImportSelectors](noBinPack, binPack, singleLine)
 
   // This reader is backwards compatible with the old import selector
@@ -56,11 +56,12 @@ object ImportSelectors {
   // limitations in the current version of scalameta/paradise, but these will
   // likely be fixed in the future, at which point this reader could be moved
   // to ScalafmtConfig
-  val backwardsCompatibleReader = ConfDecoder.instance[ImportSelectors] {
-    case Conf.Bool(true) => Ok(ImportSelectors.binPack)
-    case Conf.Bool(false) => Ok(ImportSelectors.noBinPack)
-    case els => reader.read(els)
-  }
+  implicit val backwardsCompatibleReader =
+    ConfDecoder.instance[ImportSelectors] {
+      case Conf.Bool(true) => Ok(ImportSelectors.binPack)
+      case Conf.Bool(false) => Ok(ImportSelectors.noBinPack)
+      case els => reader.read(els)
+    }
 
   case object noBinPack extends ImportSelectors
   case object binPack extends ImportSelectors

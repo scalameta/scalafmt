@@ -1,6 +1,8 @@
 package org.scalafmt.rewrite
 
 import scala.meta._
+
+import metaconfig.ConfDecoder
 import org.scalafmt.config.ReaderUtil
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.TokenOps.TokenHash
@@ -17,7 +19,7 @@ abstract class Rewrite {
 }
 
 object Rewrite {
-  val reader =
+  implicit val reader: ConfDecoder[Rewrite] =
     ReaderUtil.oneOf[Rewrite](
       RedundantBraces,
       RedundantParens,

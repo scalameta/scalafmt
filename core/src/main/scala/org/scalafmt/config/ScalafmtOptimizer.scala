@@ -79,12 +79,12 @@ object ScalafmtOptimizer {
   val default = ScalafmtOptimizer()
 
   // TODO(olafur) uncomment once scala.meta converter supports default args.
-//  val noOptimizations = default.copy(
-//    dequeueOnNewStatements = false,
-//    escapeInPathologicalCases = false,
-//    acceptOptimalAtHints = false,
-//    disableOptimizationsInsideSensitiveAreas = false,
-//    pruneSlowStates = false,
-//    recurseOnBlocks = false
-//  )
+  val noOptimizations: ScalafmtOptimizer = default.copy(
+    dequeueOnNewStatements = false,
+    escapeInPathologicalCases = false,
+    acceptOptimalAtHints = false,
+    disableOptimizationsInsideSensitiveAreas = false,
+    pruneSlowStates = false,
+    recurseOnBlocks = false
+  )
 }
