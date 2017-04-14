@@ -316,7 +316,9 @@ object FormatWriter {
     "scala.meta.Defn$Def$DefnDefImpl" -> "val/var/def",
     "scala.meta.Defn$Class$DefnClassImpl" -> "class/object/trait",
     "scala.meta.Defn$Object$DefnObjectImpl" -> "class/object/trait",
-    "scala.meta.Defn$Trait$DefnTraitImpl" -> "class/object/trait"
+    "scala.meta.Defn$Trait$DefnTraitImpl" -> "class/object/trait",
+    "scala.meta.Enumerator$Generator$EnumeratorGeneratorImpl" -> " =/<-",
+    "scala.meta.Enumerator$Val$EnumeratorValImpl" -> " =/<-"
   )
 
   case class FormatLocation(formatToken: FormatToken,
