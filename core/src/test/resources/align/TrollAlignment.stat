@@ -1,0 +1,20 @@
+style = defaultWithAlign
+align.mixedTokens = true
+align.treeCategory {
+  Case: Assign
+  "Enumerator.Generator": Assign
+}
+align.tokenCategory {
+  LeftArrow = Assign
+  RightArrow = Assign
+}
+<<< troll
+{
+  x match { case 1 => 2 }
+  for { a <- b } yield b
+}
+>>>
+{
+  x match { case 1 => 2 }
+  for { a          <- b } yield b
+}

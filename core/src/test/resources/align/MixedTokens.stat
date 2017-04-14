@@ -1,0 +1,12 @@
+style = defaultWithAlign
+align.mixedTokens = true
+<<< #883
+for {
+  a <- b
+  cc = d
+} yield cc
+>>>
+for {
+  a  <- b
+  cc = d
+} yield cc

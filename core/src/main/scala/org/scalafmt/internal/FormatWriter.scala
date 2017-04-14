@@ -185,12 +185,18 @@ class FormatWriter(formatOps: FormatOps) {
 
   def key(token: Token): Int = {
     val ownerKey = {
-      val className = owners(token).getClass.getName
+      val treeKind = owners(token).productPrefix
       if (initStyle.align.mixedOwners)
-        FormatWriter.ownerCategory.getOrElse(className, className)
-      else className
+        initStyle.align.treeCategory.getOrElse(treeKind, treeKind)
+      else treeKind
     }
-    (token.getClass.getName, ownerKey).hashCode()
+    val tokenKey = {
+      val syntax = token.productPrefix
+      if (initStyle.align.mixedTokens)
+        initStyle.align.tokenCategory.getOrElse(syntax, syntax)
+      else syntax
+    }
+    (tokenKey, ownerKey).hashCode()
   }
 
   private def getAlignOwner(formatToken: FormatToken): Tree =
@@ -309,15 +315,6 @@ class FormatWriter(formatOps: FormatOps) {
 }
 
 object FormatWriter {
-
-  val ownerCategory: Map[String, String] = Map(
-    "scala.meta.Defn$Val$DefnValImpl" -> "val/var/def",
-    "scala.meta.Defn$Var$DefnVarImpl" -> "val/var/def",
-    "scala.meta.Defn$Def$DefnDefImpl" -> "val/var/def",
-    "scala.meta.Defn$Class$DefnClassImpl" -> "class/object/trait",
-    "scala.meta.Defn$Object$DefnObjectImpl" -> "class/object/trait",
-    "scala.meta.Defn$Trait$DefnTraitImpl" -> "class/object/trait"
-  )
 
   case class FormatLocation(formatToken: FormatToken,
                             split: Split,
