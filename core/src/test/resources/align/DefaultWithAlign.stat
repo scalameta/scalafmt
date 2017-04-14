@@ -415,3 +415,19 @@ Seq(
   "org.scalatest"      % "scalatest_2.11"               % "3.0.0" % Test,
   "org.scalamock"      %% "scalamock-scalatest-support" % "3.2.2" % Test
 )
+<<< ONLY Align <- and = in for comprehensions
+for {
+  strt <- Option(99)
+  n1 <- Option(3)
+  number2 = 7
+  num3 = 4
+  nmbr4 <- 249848
+} yield n1 + number2 - num3 + nmbr4
+>>>
+for {
+  strt    <- Option(99)
+  n1      <- Option(3)
+  number2  = 7
+  num3     = 4
+  nmbr4   <- 249848
+} yield n1 + number2 - num3 + nmbr4
