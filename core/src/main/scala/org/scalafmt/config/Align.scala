@@ -44,15 +44,43 @@ import metaconfig._
   * @param ifWhileOpenParen
   *   If true, aligns by ( in if/while/for. If false,
   *   indents by continuation indent at call site.
+  * @param tokenCategory
+  *   Customize which token kinds can align together. By default, only tokens with
+  *   the same `Token.productPrefix` align. To for example align = and <-,
+  *   set the values to:
+  *     Map("Equals" -> "Assign", "LeftArrow" -> "Assign")
+  *   Note. Requires mixedTokens to be true.
+  * @param treeCategory
+  *   Customize which tree kinds can align together. By default, only trees with
+  *   the same `Tree.productPrefix` align. To for example align Defn.Val and
+  *   Defn.Var, set the values to:
+  *     Map("Defn.Var" -> "Assign", "Defn.Val" -> "Assign")
+  *   Note. Requires mixedOwners to be true.
   */
 @DeriveConfDecoder
 case class Align(
     openParenCallSite: Boolean = true,
     openParenDefnSite: Boolean = true,
+    // TODO(olafur) deprecate these in favor of tokenCategory/treeCategory
     mixedOwners: Boolean = false,
+    mixedTokens: Boolean = false,
     tokens: Set[AlignToken] = Set.empty[AlignToken],
     arrowEnumeratorGenerator: Boolean = false,
-    ifWhileOpenParen: Boolean = true
+    ifWhileOpenParen: Boolean = true,
+    tokenCategory: Map[String, String] = Map(
+      "Equals" -> "Assign",
+      "LeftArrow" -> "Assign"
+    ),
+    treeCategory: Map[String, String] = Map(
+      "Defn.Val" -> "val/var/def",
+      "Defn.Var" -> "val/var/def",
+      "Defn.Def" -> "val/var/def",
+      "Defn.Class" -> "class/object/trait",
+      "Defn.Object" -> "class/object/trait",
+      "Defn.Trait" -> "class/object/trait",
+      "Enumerator.Generator" -> "for",
+      "Enumerator.Val" -> "for"
+    )
 ) {
   implicit val alignReader: ConfDecoder[Set[AlignToken]] =
     ScalafmtConfig.alignReader(tokens)
