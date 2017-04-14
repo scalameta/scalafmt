@@ -51,7 +51,7 @@ object CliArgParser {
         )
       }
       def readConfig(contents: String, c: CliOptions): CliOptions = {
-        c.copy(config = Config.fromHocon(contents).get)
+        c.copy(config = Config.fromHoconString(contents).get)
       }
 
       head("scalafmt", Versions.nightly)

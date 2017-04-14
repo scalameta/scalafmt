@@ -74,7 +74,7 @@ class CliTest extends FunSuite with DiffAssertions {
        |""".stripMargin
 
   def gimmeConfig(string: String): ScalafmtConfig =
-    Config.fromHocon(string).get
+    Config.fromHoconString(string).get
 
   test("scalafmt -i --file tmpFile") {
     val originalTmpFile = Files.createTempFile("prefix", ".scala")

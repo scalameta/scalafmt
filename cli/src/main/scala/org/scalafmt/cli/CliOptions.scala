@@ -56,7 +56,11 @@ object CliOptions {
       configFile <- Option(getConfigJFile(dir))
       if configFile.jfile.isFile
       parsedConfig <- {
-        Config.fromHocon(FileOps.readFile(configFile)).toEither.right.toOption
+        Config
+          .fromHoconString(FileOps.readFile(configFile))
+          .toEither
+          .right
+          .toOption
       }
     } yield parsedConfig
   }

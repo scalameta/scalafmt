@@ -16,6 +16,7 @@ import org.scalafmt.config.FilterMatcher
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.util.TokenOps.TokenHash
+import org.scalameta.logger
 
 class StyleMap(tokens: Array[FormatToken],
                init: ScalafmtConfig,
@@ -33,11 +34,12 @@ class StyleMap(tokens: Array[FormatToken],
     tokens.foreach { tok =>
       tok.left match {
         case Comment(c) if prefix.findFirstIn(c).isDefined =>
-          Config.fromHocon(c, Some("scalafmt")) match {
+          Config.fromHoconString(c, Some("scalafmt")) match {
             case Configured.Ok(style) =>
               empty = false
               curr = style
             case Configured.NotOk(e) => // TODO(olafur) report error via callback
+              logger.elem(e)
           }
         case open @ LeftParen()
             if init.binPack.literalArgumentLists &&

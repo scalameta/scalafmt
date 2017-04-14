@@ -129,7 +129,7 @@ case class ScalafmtConfig(
     lineEndings: LineEndings = LineEndings.unix,
     rewriteTokens: Map[String, String] = Map.empty[String, String],
     @Recurse rewrite: RewriteSettings = RewriteSettings(),
-    @Recurse indentOperator: IndentOperator = IndentOperator(),
+    indentOperator: IndentOperator = IndentOperator(),
     @Recurse newlines: Newlines = Newlines(),
     @Recurse runner: ScalafmtRunner = ScalafmtRunner.default,
     @Recurse indent: IndentConfig = IndentConfig(),

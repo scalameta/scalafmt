@@ -79,7 +79,7 @@ class LegacyCliTest extends FunSuite with DiffAssertions {
         |}
       """.stripMargin
     assertNoDiff(result, expected)
-    val Ok(_) = config.Config.fromHocon(result)
+    val Ok(_) = config.Config.fromHoconString(result)
   }
 
 }

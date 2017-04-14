@@ -4,14 +4,16 @@ import scala.language.reflectiveCalls
 
 import scala.meta.internal.parsers.ScalametaParser
 
+import java.io.File
+
 import metaconfig.Conf
 import metaconfig.ConfError
 import metaconfig.Configured
-import metaconfig.Configured.NotOk
 import metaconfig.Configured.Ok
 import metaconfig.HasFields
 import metaconfig.String2AnyMap
 import metaconfig.typesafeconfig.TypesafeConfig2Class
+import org.scalameta.logger
 
 object Config {
 
@@ -39,10 +41,20 @@ object Config {
   }
 
   /** Read ScalafmtConfig from String contents from an optional HOCON path. */
-  def fromHocon(string: String,
-                path: Option[String] = None): Configured[ScalafmtConfig] =
+  def fromHoconString(
+      string: String,
+      path: Option[String] = None): Configured[ScalafmtConfig] =
+    fromConf(TypesafeConfig2Class.gimmeConfFromString(string), path)
+
+  /** Read ScalafmtConfig from String contents from an optional HOCON path. */
+  def fromHoconFile(file: File,
+                    path: Option[String] = None): Configured[ScalafmtConfig] =
+    fromConf(TypesafeConfig2Class.gimmeConfFromFile(file), path)
+
+  def fromConf(conf: Configured[Conf],
+               path: Option[String] = None): Configured[ScalafmtConfig] =
     for {
-      baseConf <- TypesafeConfig2Class.gimmeConfFromString(string)
+      baseConf <- conf
       conf <- {
         path match {
           case None => Ok(baseConf)

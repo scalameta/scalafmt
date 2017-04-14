@@ -26,7 +26,7 @@ object Readme {
 
   def flag(str: String) = {
     println(str)
-    Config.fromHocon(str).get
+    Config.fromHoconString(str).get
     code(str)
   }
 
@@ -59,7 +59,7 @@ object Readme {
     cliFlags(frags.render)
   }
   def cliFlags(flags: String) = {
-    Config.fromHocon(flags).get
+    Config.fromHoconString(flags).get
     hl.scala(flags)
   }
 
