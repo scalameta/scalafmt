@@ -1,6 +1,6 @@
 package org.scalafmt.config
 
-import metaconfig.ConfigReader
+import metaconfig._
 
 /**
   * Configuration for scalafmt optimizations.
@@ -60,7 +60,7 @@ import metaconfig.ConfigReader
   *   By forcing config style on such applications, the search space is greatly
   *   reduced.
   */
-@ConfigReader
+@DeriveConfDecoder
 case class ScalafmtOptimizer(
     dequeueOnNewStatements: Boolean = true,
     escapeInPathologicalCases: Boolean = true,
@@ -79,12 +79,12 @@ object ScalafmtOptimizer {
   val default = ScalafmtOptimizer()
 
   // TODO(olafur) uncomment once scala.meta converter supports default args.
-//  val noOptimizations = default.copy(
-//    dequeueOnNewStatements = false,
-//    escapeInPathologicalCases = false,
-//    acceptOptimalAtHints = false,
-//    disableOptimizationsInsideSensitiveAreas = false,
-//    pruneSlowStates = false,
-//    recurseOnBlocks = false
-//  )
+  val noOptimizations: ScalafmtOptimizer = default.copy(
+    dequeueOnNewStatements = false,
+    escapeInPathologicalCases = false,
+    acceptOptimalAtHints = false,
+    disableOptimizationsInsideSensitiveAreas = false,
+    pruneSlowStates = false,
+    recurseOnBlocks = false
+  )
 }

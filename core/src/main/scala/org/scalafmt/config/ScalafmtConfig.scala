@@ -4,8 +4,7 @@ import scala.io.Codec
 import scala.util.control.NonFatal
 import scala.util.matching.Regex
 
-import metaconfig.ConfigReader
-import metaconfig.Reader
+import metaconfig._
 import org.scalafmt.util.ValidationOps
 
 /** Configuration options for scalafmt.
@@ -117,23 +116,23 @@ import org.scalafmt.util.ValidationOps
   *  make it so. Note that this setting ignores continuation.defnSite,
   *  [[binPack.defnSite]], and [[align.openParenDefnSite]].
   */
-@ConfigReader
+@DeriveConfDecoder
 case class ScalafmtConfig(
     version: String = org.scalafmt.Versions.stable,
     maxColumn: Int = 80,
     docstrings: Docstrings = Docstrings.ScalaDoc,
-    optIn: OptIn = OptIn(),
-    binPack: BinPack = BinPack(),
-    continuationIndent: ContinuationIndent = ContinuationIndent(),
-    align: Align = Align(),
-    spaces: Spaces = Spaces(),
+    @Recurse optIn: OptIn = OptIn(),
+    @Recurse binPack: BinPack = BinPack(),
+    @Recurse continuationIndent: ContinuationIndent = ContinuationIndent(),
+    @Recurse align: Align = Align(),
+    @Recurse spaces: Spaces = Spaces(),
     lineEndings: LineEndings = LineEndings.unix,
     rewriteTokens: Map[String, String] = Map.empty[String, String],
-    rewrite: RewriteSettings = RewriteSettings(),
+    @Recurse rewrite: RewriteSettings = RewriteSettings(),
     indentOperator: IndentOperator = IndentOperator(),
-    newlines: Newlines = Newlines(),
-    runner: ScalafmtRunner = ScalafmtRunner.default,
-    indent: IndentConfig = IndentConfig(),
+    @Recurse newlines: Newlines = Newlines(),
+    @Recurse runner: ScalafmtRunner = ScalafmtRunner.default,
+    @Recurse indent: IndentConfig = IndentConfig(),
     // Settings which belong to no group
     indentYieldKeyword: Boolean = true,
     @metaconfig.ExtraName("binPackImportSelectors") importSelectors: ImportSelectors =
@@ -147,33 +146,11 @@ case class ScalafmtConfig(
     verticalMultilineAtDefinitionSite: Boolean = false,
     onTestFailure: String = "",
     encoding: Codec = "UTF-8",
-    project: ProjectFiles = ProjectFiles()
+    @Recurse project: ProjectFiles = ProjectFiles()
 ) {
 
   def reformatDocstrings: Boolean = docstrings != Docstrings.preserve
   def scalaDocs: Boolean = docstrings == Docstrings.ScalaDoc
-
-  implicit val runnerReader: Reader[ScalafmtRunner] =
-    runner.reader
-  implicit val indentConfigReader: Reader[IndentConfig] =
-    indent.reader
-  implicit val contIndentReader: Reader[ContinuationIndent] =
-    continuationIndent.reader
-  implicit val indentReader: Reader[IndentOperator] =
-    ScalafmtConfig.indentReader
-  implicit val binPackReader: Reader[BinPack] = binPack.reader
-  implicit val alignReader: Reader[Align] = align.reader
-  implicit val lineEndingReader: Reader[LineEndings] = LineEndings.reader
-  implicit val spacesReader: Reader[Spaces] = spaces.reader
-  implicit val docstringsReader: Reader[Docstrings] = Docstrings.reader
-  implicit val rewriteReader: Reader[RewriteSettings] = rewrite.reader
-  implicit val optInReader: Reader[OptIn] = optIn.reader
-  implicit val newlinesReader: Reader[Newlines] = newlines.reader
-  implicit val projectReader: Reader[ProjectFiles] = project.reader
-  implicit val importSelectorsReader: Reader[ImportSelectors] =
-    ImportSelectors.backwardsCompatibleReader
-  implicit val codecReader: Reader[Codec] = ScalafmtConfig.codecReader
-
   lazy val alignMap: Map[String, Regex] =
     align.tokens.map(x => x.code -> x.owner.r).toMap
   ValidationOps.assertNonNegative(

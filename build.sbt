@@ -39,7 +39,7 @@ lazy val core = project
     fork.in(run).in(Test) := true,
     moduleName := "scalafmt-core",
     libraryDependencies ++= Seq(
-      "com.geirsson" %% "metaconfig-core" % "0.1.2",
+      metaconfig,
       scalameta,
       "com.typesafe" % "config" % "1.2.1",
       // Test dependencies
@@ -49,8 +49,7 @@ lazy val core = project
       scalametaTestkit                 % Test,
       scalatest                        % Test
     ),
-    addCompilerPlugin(
-      "org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
+    addCompilerPlugin(paradise)
   )
   .enablePlugins(BuildInfoPlugin)
 
@@ -98,11 +97,13 @@ lazy val bootstrap = project
   .enablePlugins(BuildInfoPlugin)
 
 lazy val scalafmtSbt = project
+  .configs(IntegrationTest)
   .settings(
     allSettings,
+    Defaults.itSettings,
     ScriptedPlugin.scriptedSettings,
     sbtPlugin := true,
-    test := {
+    test.in(IntegrationTest) := {
       RunSbtCommand(
         s"; plz $scala211 publishLocal " +
           s"; plz $scala210 publishLocal " +
@@ -220,8 +221,7 @@ lazy val noDocs = Seq(
 
 lazy val metaMacroSettings: Seq[Def.Setting[_]] = Seq(
   libraryDependencies += scalameta,
-  addCompilerPlugin(
-    "org.scalameta" % "paradise" % "3.0.0-M7" cross CrossVersion.full),
+  addCompilerPlugin(paradise),
   scalacOptions += "-Xplugin-require:macroparadise"
 ) ++ noDocs
 
@@ -307,6 +307,6 @@ lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
 )
 
 def scala210 = "2.10.6"
-def scala211 = "2.11.8"
+def scala211 = "2.11.10"
 
 lazy val allSettings = commonSettings ++ buildSettings ++ publishSettings

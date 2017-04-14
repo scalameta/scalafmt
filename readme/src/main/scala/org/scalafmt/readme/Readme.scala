@@ -26,7 +26,7 @@ object Readme {
 
   def flag(str: String) = {
     println(str)
-    require(Config.fromHocon(str).isRight)
+    Config.fromHoconString(str).get
     code(str)
   }
 
@@ -59,7 +59,7 @@ object Readme {
     cliFlags(frags.render)
   }
   def cliFlags(flags: String) = {
-    require(Config.fromHocon(flags).isRight, s"Invalid configuration: $flags")
+    Config.fromHoconString(flags).get
     hl.scala(flags)
   }
 

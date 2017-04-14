@@ -1,8 +1,8 @@
 package org.scalafmt.config
 
-import metaconfig.ConfigReader
+import metaconfig._
 
-@ConfigReader
+@DeriveConfDecoder
 case class Pattern(
     includeFilters: Seq[String],
     excludeFilters: Seq[String]

@@ -5,8 +5,12 @@ import scala.meta.Tree
 import scala.meta.parsers.Parse
 import scala.meta.parsers.ParseException
 import scala.util.Try
-import java.io.File
 
+import java.io.File
+import java.nio.file.Files
+import java.nio.file.Paths
+
+import metaconfig.Configured
 import org.scalafmt.Debug
 import org.scalafmt.Error.UnableToFindStyle
 import org.scalafmt.Error.UnknownStyle
@@ -92,12 +96,12 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
       Try(
         spec2style(spec.replaceFirst(pathPatternToReplace, ""))
       ).getOrElse(
-        Config.fromHocon(firstLine.stripPrefix("ONLY ")) match {
-          case Right(s)
-              if !firstLine.replaceAll("\\s+", "").isEmpty &&
-                !firstLine.startsWith("//") =>
-            s
-          case Left(e) => throw UnableToFindStyle(spec, e)
+        Config.fromHoconString(firstLine.stripPrefix("ONLY ")) match {
+          case Configured.Ok(c) => c
+          case Configured.NotOk(c) =>
+            throw new IllegalArgumentException(
+              s"""Failed to parse filename $filename:
+                 |$c""".stripMargin)
         }
       )
     }

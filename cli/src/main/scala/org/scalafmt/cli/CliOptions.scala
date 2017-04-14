@@ -56,11 +56,11 @@ object CliOptions {
       configFile <- Option(getConfigJFile(dir))
       if configFile.jfile.isFile
       parsedConfig <- {
-        Config.fromHocon(FileOps.readFile(configFile)) match {
-          case Right(e) => Some(e)
-          // fail fast, if .scalafmt.conf exists it should not contain errors.
-          case Left(e) => throw e
-        }
+        Config
+          .fromHoconString(FileOps.readFile(configFile))
+          .toEither
+          .right
+          .toOption
       }
     } yield parsedConfig
   }

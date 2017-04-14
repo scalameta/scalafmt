@@ -1,7 +1,6 @@
 package org.scalafmt.config
 
-import metaconfig.ConfigReader
-import metaconfig.Reader
+import metaconfig._
 
 /**
   *
@@ -46,7 +45,7 @@ import metaconfig.Reader
   *   If true, aligns by ( in if/while/for. If false,
   *   indents by continuation indent at call site.
   */
-@ConfigReader
+@DeriveConfDecoder
 case class Align(
     openParenCallSite: Boolean = true,
     openParenDefnSite: Boolean = true,
@@ -55,6 +54,6 @@ case class Align(
     arrowEnumeratorGenerator: Boolean = false,
     ifWhileOpenParen: Boolean = true
 ) {
-  implicit val alignReader: Reader[Set[AlignToken]] =
+  implicit val alignReader: ConfDecoder[Set[AlignToken]] =
     ScalafmtConfig.alignReader(tokens)
 }

@@ -1,6 +1,6 @@
 package org.scalafmt.config
 
-import metaconfig.ConfigReader
+import metaconfig._
 
 /**
   *
@@ -15,7 +15,7 @@ import metaconfig.ConfigReader
   *   If ["##"] is specified as operator then
   *   formats `Generic[Foo] ## Repr` as `Generic[Foo]##Repr`.
   */
-@ConfigReader
+@DeriveConfDecoder
 case class Spaces(
     beforeContextBoundColon: Boolean = false,
     afterTripleEquals: Boolean = false,

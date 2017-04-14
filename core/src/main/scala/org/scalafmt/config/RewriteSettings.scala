@@ -1,15 +1,15 @@
 package org.scalafmt.config
 
-import metaconfig.ConfigReader
-import metaconfig.Reader
+import metaconfig._
 import org.scalafmt.Error.InvalidScalafmtConfiguration
 import org.scalafmt.rewrite.{AvoidInfix, Rewrite}
 
-@ConfigReader
+@DeriveConfDecoder
 case class RewriteSettings(
     rules: Seq[Rewrite] = Nil,
-    redundantBraces: RedundantBracesSettings = RedundantBracesSettings(),
-    neverInfix: Pattern = Pattern.neverInfix
+    @Recurse redundantBraces: RedundantBracesSettings =
+      RedundantBracesSettings(),
+    @Recurse neverInfix: Pattern = Pattern.neverInfix
 ) {
   Rewrite.validateRewrites(rules) match {
     case Nil => // OK
@@ -20,10 +20,5 @@ case class RewriteSettings(
         )
       )
   }
-  implicit val rewriteReader: Reader[Rewrite] = Rewrite.reader
 
-  implicit val patternReader: Reader[Pattern] = neverInfix.reader
-
-  implicit val curlyReader: Reader[RedundantBracesSettings] =
-    redundantBraces.reader
 }

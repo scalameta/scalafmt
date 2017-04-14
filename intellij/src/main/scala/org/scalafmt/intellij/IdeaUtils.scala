@@ -1,7 +1,6 @@
 package org.scalafmt.intellij
 
 import java.io.File
-
 import scala.collection.mutable
 import scala.xml.Utility
 
@@ -13,6 +12,8 @@ import com.intellij.notification.{
 import com.intellij.openapi.actionSystem.{AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.{Project, ProjectManager}
+import metaconfig.Configured.NotOk
+import metaconfig.Configured.Ok
 import org.scalafmt.cli.StyleCache
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.FileOps
@@ -51,12 +52,12 @@ object IdeaUtils {
     val customStyle: Option[ScalafmtConfig] = for {
       configFile <- localConfig.orElse(globalConfig)
       config <- StyleCache.getStyleForFileOrError(configFile) match {
-        case Left(e) =>
+        case NotOk(e) =>
           IdeaUtils.displayMessage(
-            "Failed to read .scalafmt.conf. " + e.getMessage,
+            "Failed to read .scalafmt.conf. \n" + e.toString(),
             NotificationType.WARNING)
           None
-        case Right(config) => Some(config)
+        case Ok(config) => Some(config)
       }
     } yield {
       if (!styleCache.get(configFile).contains(config)) {

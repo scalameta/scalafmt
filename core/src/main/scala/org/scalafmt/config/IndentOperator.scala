@@ -1,6 +1,7 @@
 package org.scalafmt.config
 
-import metaconfig.ConfigReader
+import metaconfig.Configured.Ok
+import metaconfig._
 
 /**
   *
@@ -29,7 +30,7 @@ import metaconfig.ConfigReader
   *   a +=
   *     b
   */
-@ConfigReader
+@DeriveConfDecoder
 case class IndentOperator(
     include: String = ".*",
     exclude: String = "^(&&|\\|\\|)$"
@@ -42,4 +43,9 @@ object IndentOperator {
   val default = IndentOperator()
   val akka = IndentOperator(ScalafmtConfig.indentOperatorsIncludeAkka,
                             ScalafmtConfig.indentOperatorsExcludeAkka)
+  implicit val IndentOperatorDecoder: ConfDecoder[IndentOperator] =
+    ConfDecoder.instance[IndentOperator] {
+      case Conf.Str("spray") => Ok(IndentOperator.akka)
+      case els => default.reader.read(els)
+    }
 }

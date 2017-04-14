@@ -1,6 +1,6 @@
 package org.scalafmt.config
 
-import metaconfig.ConfigReader
+import metaconfig._
 
 /**
   *
@@ -28,7 +28,7 @@ import metaconfig.ConfigReader
   *                           constructor gets its own line.
   *
   */
-@ConfigReader
+@DeriveConfDecoder
 case class BinPack(
     callSite: Boolean = false,
     defnSite: Boolean = false,

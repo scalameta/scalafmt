@@ -1,13 +1,13 @@
 package org.scalafmt.config
 
-import metaconfig.ConfigReader
+import metaconfig._
 
 /**
   * @param defnSite indentation around class/def
   * @param callSite indentation around function calls, etc.
   * @param extendSite indentation before `extends`
   */
-@ConfigReader
+@DeriveConfDecoder
 case class ContinuationIndent(
     callSite: Int = 2,
     defnSite: Int = 4,
