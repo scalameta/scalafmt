@@ -9,4 +9,3 @@
 > scalafmt --diff
 > scalafmt --diff --test
 > check
-

@@ -45,9 +45,9 @@ TaskKey[Unit]("check") := {
     val expected =
       """
         |object Test {
-        |  foo(
-        |    a, // comment
-        |    b
+        |  List(
+        |    1, // comment
+        |    2
         |  )
         |}
         """.stripMargin
