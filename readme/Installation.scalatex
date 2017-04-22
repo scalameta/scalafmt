@@ -230,6 +230,8 @@
       }
       // run: sbt scalafmt013
 
+    Here is an example repo that uses this workaround:
+    @lnk("https://github.com/olafurpg/sbt-scalafmt-0.13/blob/master/build.sbt")
 
   @sect{Gradle}
     It is possible to use scalafmt in gradle with the following externally maintained plugins:
