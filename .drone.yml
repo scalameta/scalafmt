@@ -64,7 +64,7 @@ matrix:
       CI_SCALA_VERSION: 2.12.2
       CI_PUBLISH: true
     - CI_TEST: ci-sbt-scalafmt
-      CI_SCALA_VERSION: 2.10.6
+      CI_SCALA_VERSION: 2.12.2
       CI_PUBLISH: true
     - CI_TEST: ci-slow
       CI_SCALA_VERSION: 2.11.11

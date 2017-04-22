@@ -5,7 +5,7 @@ addCommandAlias("downloadIdea", "intellij/updateIdea")
 lazy val buildSettings = Seq(
   organization := "com.geirsson",
   version := sys.props.getOrElse("scalafmt.version", version.value),
-  scalaVersion := scala212,
+  scalaVersion := scala211,
   crossScalaVersions := Seq(scala211, scala212),
   scalaCompilerBridgeSource :=
     ("org.scala-sbt" % "compiler-interface" % "0.13.15" % "component").sources,
@@ -23,10 +23,10 @@ commands += CiCommand("ci-slow")(
   "core/test:runMain org.scalafmt.ScalafmtProps" ::
     Nil
 )
-commands += Command.command("ci-sbt-scalafmt") { s =>
+commands += CiCommand("ci-sbt-scalafmt")(
   "scalafmtSbt/it:test" ::
-    s
-}
+    Nil
+)
 commands += CiCommand("ci-publish")(
   if (sys.env.contains("CI_PUBLISH")) s"publish" :: Nil
   else Nil
@@ -92,10 +92,12 @@ lazy val scalafmtSbt = project
     scalaVersion := scala212,
     test.in(IntegrationTest) := RunSbtCommand(
       Seq(
+        s"wow $scala212",
         "publishLocal",
         """set sbtVersion in Global := "0.13.15" """,
-        "scalafmtSbtTest/scripted",
-        """set sbtVersion in Global := "1.0.0-M5" """
+        "such scalafmtSbtTest/scripted",
+        """set sbtVersion in Global := "1.0.0-M5" """,
+        s"wow $scala211"
       ).mkString("; ", "; ", "")
     )(state.value)
   )
@@ -148,9 +150,9 @@ lazy val benchmarks = project
     crossScalaVersions := Seq(scala211),
     moduleName := "scalafmt-benchmarks",
     libraryDependencies ++= Seq(
-      "org.scalariform" %% "scalariform" % scalariform,
-      scalatest         % Test,
-      scalametaTestkit  % Test
+      scalariform,
+      scalametaTestkit,
+      scalatest % Test
     ),
     javaOptions in run ++= Seq(
       "-Djava.net.preferIPv4Stack=true",
@@ -194,7 +196,6 @@ lazy val readme = scalatex
     cli
   )
 
-lazy val ciScalaVersion = sys.env("CI_SCALA_VERSION")
 def CiCommand(name: String)(commands: List[String]): Command =
   Command.command(name) { initState =>
     commands.foldLeft(initState) {
@@ -303,7 +304,7 @@ lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
 )
 
 def scala210 = "2.10.6"
-def scala211 = "2.11.12"
+def scala211 = "2.11.11"
 def scala212 = "2.12.2"
 def extraSbtBootOptions: Seq[String] = {
   // pass along custom boot properties if specified
