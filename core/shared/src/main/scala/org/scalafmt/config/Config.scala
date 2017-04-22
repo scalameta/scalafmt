@@ -2,6 +2,8 @@ package org.scalafmt.config
 
 import scala.language.reflectiveCalls
 
+import metaconfig._
+import scala.meta.inputs.Input
 import scala.meta.internal.parsers.ScalametaParser
 
 import java.io.File
@@ -12,8 +14,7 @@ import metaconfig.Configured
 import metaconfig.Configured.Ok
 import metaconfig.HasFields
 import metaconfig.String2AnyMap
-import metaconfig.typesafeconfig.TypesafeConfig2Class
-import org.scalameta.logger
+import org.scalafmt.config.PlatformConfig._
 
 object Config {
 
@@ -40,16 +41,23 @@ object Config {
       Seq(s" = $output")
   }
 
-  /** Read ScalafmtConfig from String contents from an optional HOCON path. */
+  def fromInput(input: Input, path: Option[String]): Configured[Conf] = {
+    val configured = implicitly[MetaconfigParser].fromInput(input)
+    path match {
+      case Some(x) => ConfDynamic(configured).selectDynamic(x).asConf
+      case None => configured
+    }
+  }
+
   def fromHoconString(
       string: String,
       path: Option[String] = None): Configured[ScalafmtConfig] =
-    fromConf(TypesafeConfig2Class.gimmeConfFromString(string), path)
+    fromConf(fromInput(Input.String(string), path))
 
   /** Read ScalafmtConfig from String contents from an optional HOCON path. */
   def fromHoconFile(file: File,
                     path: Option[String] = None): Configured[ScalafmtConfig] =
-    fromConf(TypesafeConfig2Class.gimmeConfFromFile(file), path)
+    fromConf(fromInput(Input.File(file), path))
 
   def fromConf(conf: Configured[Conf],
                path: Option[String] = None): Configured[ScalafmtConfig] =

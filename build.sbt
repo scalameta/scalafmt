@@ -8,7 +8,8 @@ lazy val buildSettings = Seq(
   scalaCompilerBridgeSource :=
     ("org.scala-sbt" % "compiler-interface" % "0.13.15" % "component").sources,
   updateOptions := updateOptions.value.withCachedResolution(true),
-  libraryDependencies += scalatest % Test,
+  resolvers += Resolver.sonatypeRepo("releases"),
+  libraryDependencies += scalatest.value % Test,
   triggeredMessage in ThisBuild := Watched.clearWhenTriggered,
   scalacOptions in (Compile, console) := compilerOptions :+ "-Yrepl-class-based",
   assemblyJarName in assembly := "scalafmt.jar",
@@ -34,6 +35,12 @@ lazy val core = crossProject
       scalameta.value
     ),
     addCompilerPlugin(paradise)
+  )
+  .jsSettings(
+    libraryDependencies += metaconfigHocon.value
+  )
+  .jvmSettings(
+    libraryDependencies += metaconfigTypesafe.value
   )
   .enablePlugins(BuildInfoPlugin)
 lazy val coreJVM = core.jvm
@@ -127,8 +134,7 @@ lazy val tests = project
       // Test dependencies
       "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0" % Test,
       "com.lihaoyi"                    %% "scalatags" % "0.6.3" % Test,
-      scalametaTestkit                 % Test,
-      scalatest                        % Test
+      scalametaTestkit                 % Test
     )
   )
   .dependsOn(
