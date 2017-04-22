@@ -1,7 +1,5 @@
 import Dependencies._
 
-addCommandAlias("downloadIdea", "intellij/updateIdea")
-
 lazy val buildSettings = Seq(
   organization := "com.geirsson",
   version := sys.props.getOrElse("scalafmt.version", version.value),
@@ -21,22 +19,8 @@ lazy val allSettings = buildSettings ++ publishSettings
 name := "scalafmtRoot"
 allSettings
 noPublish
-commands += CiCommand("ci-fast")(
-  "test" ::
-    Nil
-)
-commands += CiCommand("ci-slow")(
-  "core/test:runMain org.scalafmt.ScalafmtProps" ::
-    Nil
-)
-commands += CiCommand("ci-sbt-scalafmt")(
-  "scalafmtSbt/it:test" ::
-    Nil
-)
-commands += CiCommand("ci-publish")(
-  if (sys.env.contains("CI_PUBLISH")) s"publish" :: Nil
-  else Nil
-)
+commands ++= ciCommands
+addCommandAlias("downloadIdea", "intellij/updateIdea")
 
 lazy val core = project
   .settings(
@@ -52,10 +36,6 @@ lazy val core = project
     addCompilerPlugin(paradise)
   )
   .enablePlugins(BuildInfoPlugin)
-
-lazy val cliJvmOptions = Seq(
-  "-Xss4m"
-)
 
 lazy val cli = project
   .settings(
@@ -313,3 +293,22 @@ def extraSbtBootOptions: Seq[String] = {
   val bootProps = "sbt.boot.properties"
   sys.props.get(bootProps).map(x => s"-D$bootProps=$x").toList
 }
+
+def ciCommands = Seq(
+  CiCommand("ci-fast")(
+    "test" ::
+      Nil
+  ),
+  CiCommand("ci-slow")(
+    "core/test:runMain org.scalafmt.ScalafmtProps" ::
+      Nil
+  ),
+  CiCommand("ci-sbt-scalafmt")(
+    "scalafmtSbt/it:test" ::
+      Nil
+  ),
+  CiCommand("ci-publish")(
+    if (sys.env.contains("CI_PUBLISH")) s"publish" :: Nil
+    else Nil
+  )
+)
