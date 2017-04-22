@@ -9,8 +9,14 @@ lazy val buildSettings = Seq(
   crossScalaVersions := Seq(scala211, scala212),
   scalaCompilerBridgeSource :=
     ("org.scala-sbt" % "compiler-interface" % "0.13.15" % "component").sources,
-  updateOptions := updateOptions.value.withCachedResolution(true)
+  updateOptions := updateOptions.value.withCachedResolution(true),
+  libraryDependencies += scalatest % Test,
+  triggeredMessage in ThisBuild := Watched.clearWhenTriggered,
+  scalacOptions in (Compile, console) := compilerOptions :+ "-Yrepl-class-based",
+  assemblyJarName in assembly := "scalafmt.jar",
+  testOptions in Test += Tests.Argument("-oD")
 )
+lazy val allSettings = buildSettings ++ publishSettings
 
 name := "scalafmtRoot"
 allSettings
@@ -41,13 +47,7 @@ lazy val core = project
     moduleName := "scalafmt-core",
     libraryDependencies ++= Seq(
       metaconfig,
-      scalameta,
-      "com.typesafe" % "config" % "1.2.1",
-      // Test dependencies
-      "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0" % Test,
-      "com.lihaoyi"                    %% "scalatags" % "0.6.3" % Test,
-      scalametaTestkit                 % Test,
-      scalatest                        % Test
+      scalameta
     ),
     addCompilerPlugin(paradise)
   )
@@ -125,6 +125,7 @@ lazy val scalafmtSbtTest = project
     },
     scriptedBufferLog := false
   )
+
 lazy val intellij = project
   .settings(
     allSettings,
@@ -140,6 +141,22 @@ lazy val intellij = project
   )
   .dependsOn(core, cli)
   .enablePlugins(SbtIdeaPlugin)
+
+lazy val tests = project
+  .settings(
+    allSettings,
+    noPublish,
+    libraryDependencies ++= Seq(
+// Test dependencies
+      "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0" % Test,
+      "com.lihaoyi"                    %% "scalatags" % "0.6.3" % Test,
+      scalametaTestkit                 % Test,
+      scalatest                        % Test
+    )
+  )
+  .dependsOn(
+    cli
+  )
 
 lazy val benchmarks = project
   .settings(
@@ -235,13 +252,6 @@ lazy val compilerOptions = Seq(
   "-Xlint"
 )
 
-lazy val commonSettings = Seq(
-  triggeredMessage in ThisBuild := Watched.clearWhenTriggered,
-  scalacOptions in (Compile, console) := compilerOptions :+ "-Yrepl-class-based",
-  assemblyJarName in assembly := "scalafmt.jar",
-  testOptions in Test += Tests.Argument("-oD")
-)
-
 lazy val publishSettings = Seq(
   publishMavenStyle := true,
   publishArtifact := true,
@@ -308,5 +318,3 @@ def extraSbtBootOptions: Seq[String] = {
   val bootProps = "sbt.boot.properties"
   sys.props.get(bootProps).map(x => s"-D$bootProps=$x").toList
 }
-
-lazy val allSettings = commonSettings ++ buildSettings ++ publishSettings
