@@ -75,10 +75,9 @@ lazy val cli = project
   )
   .dependsOn(core % "compile->compile;test->test")
 
-lazy val is210 = Seq(
-  // publishMavenStyle := false, // necessary for sbt community repo.
-  scalaVersion := scala210,
-  crossScalaVersions := Seq(scala210)
+def isOnly(scalaV: String) = Seq(
+  scalaVersion := scalaV,
+  crossScalaVersions := Seq(scalaV)
 )
 
 lazy val scalafmtSbt = project
@@ -87,9 +86,9 @@ lazy val scalafmtSbt = project
     allSettings,
     Defaults.itSettings,
     moduleName := "sbt-scalafmt",
+    isOnly(scala212),
     sbtPlugin := true,
     sbtVersion in Global := "1.0.0-M5",
-    scalaVersion := scala212,
     test.in(IntegrationTest) := RunSbtCommand(
       Seq(
         s"wow $scala212",
@@ -107,7 +106,7 @@ lazy val scalafmtSbtTest = project
   .settings(
     allSettings,
     noPublish,
-    is210,
+    isOnly(scala210),
     sbtPlugin := true,
     ScriptedPlugin.scriptedSettings,
     sbtVersion := "0.13.15",

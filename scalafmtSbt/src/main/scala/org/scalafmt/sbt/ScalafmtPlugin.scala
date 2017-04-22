@@ -4,7 +4,7 @@ import sbt._, Keys._
 object ScalafmtPlugin extends AutoPlugin {
   override def trigger: PluginTrigger = allRequirements
   object autoImport {
-    lazy val scalafmt: Command =
+    val scalafmt: Command =
       Command.args("scalafmt", "run the scalafmt command line interface.") {
         case (state, args) =>
           org.scalafmt.cli.Cli.main("--non-interactive" +: args.toArray)

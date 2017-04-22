@@ -1,6 +1,7 @@
 @import Main._
 @import org.scalafmt.readme.Readme._
 @import org.scalafmt.config.ScalafmtConfig
+@import org.scalafmt.{Versions => V}
 
 @sect{Installation}
 
@@ -152,6 +153,9 @@
 
   @sect{sbt}
     @p
+      NOTE. Only sbt 1.0 is supported. See @sect.ref{sbt 0.13} on how to use
+      the latest scalafmt version with sbt 0.13.
+    @p
       The sbt plugin is a tiny wrapper around the command line interface.
 
     @hl.scala
@@ -208,6 +212,24 @@
           YMMV.
         @p
           Why isn't that gist included in the sbt plugin? See @issue(597).
+
+  @sect{sbt 0.13}
+    It is possible to use sbt-scalafmt 0.6.6 with the latest scalafmt versions
+
+    @hl.scala
+      // project/plugins.sbt
+      addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "0.6.6")
+      // build.sbt
+      def latestScalafmt = "@V.stable"
+      commands += Command.args("scalafmt013", "Run scalafmt cli.") {
+        case (state, args) =>
+          val Right(scalafmt) =
+            org.scalafmt.bootstrap.ScalafmtBootstrap.fromVersion(latestScalafmt)
+          scalafmt.main("--non-interactive" +: args.toArray)
+          state
+      }
+      // run: sbt scalafmt013
+
 
   @sect{Gradle}
     It is possible to use scalafmt in gradle with the following externally maintained plugins:
