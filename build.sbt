@@ -61,11 +61,6 @@ lazy val cli = project
   .settings(
     allSettings,
     metaMacroSettings,
-    packSettings,
-    packMain := Map("scalafmt_pack" -> "org.scalafmt.cli.Cli"),
-    packJvmOpts := Map(
-      "scalafmt_pack" -> cliJvmOptions
-    ),
     moduleName := "scalafmt-cli",
     mainClass in assembly := Some("org.scalafmt.cli.Cli"),
     libraryDependencies ++= Seq(
@@ -73,7 +68,7 @@ lazy val cli = project
       "com.github.scopt"    %% "scopt"         % "3.5.0"
     )
   )
-  .dependsOn(core % "compile->compile;test->test")
+  .dependsOn(core)
 
 def isOnly(scalaV: String) = Seq(
   scalaVersion := scalaV,
@@ -147,7 +142,7 @@ lazy val tests = project
     allSettings,
     noPublish,
     libraryDependencies ++= Seq(
-// Test dependencies
+      // Test dependencies
       "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0" % Test,
       "com.lihaoyi"                    %% "scalatags" % "0.6.3" % Test,
       scalametaTestkit                 % Test,
