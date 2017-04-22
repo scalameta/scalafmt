@@ -308,7 +308,7 @@ def ciCommands = Seq(
       Nil
   ),
   CiCommand("ci-slow")(
-    "core/test:runMain org.scalafmt.ScalafmtProps" ::
+    "tests/test:runMain org.scalafmt.ScalafmtProps" ::
       Nil
   ),
   CiCommand("ci-sbt-scalafmt")(
