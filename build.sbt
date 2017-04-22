@@ -22,7 +22,7 @@ noPublish
 commands ++= ciCommands
 addCommandAlias("downloadIdea", "intellij/updateIdea")
 
-lazy val core = project
+lazy val core = crossProject
   .settings(
     allSettings,
     metaMacroSettings,
@@ -30,12 +30,14 @@ lazy val core = project
     fork.in(run).in(Test) := true,
     moduleName := "scalafmt-core",
     libraryDependencies ++= Seq(
-      metaconfig,
-      scalameta
+      metaconfig.value,
+      scalameta.value
     ),
     addCompilerPlugin(paradise)
   )
   .enablePlugins(BuildInfoPlugin)
+lazy val coreJVM = core.jvm
+lazy val coreJS = core.js
 
 lazy val cli = project
   .settings(
@@ -48,7 +50,7 @@ lazy val cli = project
       "com.github.scopt"    %% "scopt"         % "3.5.0"
     )
   )
-  .dependsOn(core)
+  .dependsOn(coreJVM)
 
 def isOnly(scalaV: String) = Seq(
   scalaVersion := scalaV,
@@ -114,7 +116,7 @@ lazy val intellij = project
     libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.0.6",
     cleanFiles += ideaDownloadDirectory.value
   )
-  .dependsOn(core, cli)
+  .dependsOn(coreJVM, cli)
   .enablePlugins(SbtIdeaPlugin)
 
 lazy val tests = project
@@ -162,7 +164,7 @@ lazy val benchmarks = project
       "-server"
     )
   )
-  .dependsOn(core)
+  .dependsOn(coreJVM)
   .enablePlugins(JmhPlugin)
 
 lazy val readme = scalatex
@@ -181,7 +183,7 @@ lazy val readme = scalatex
     )
   )
   .dependsOn(
-    core,
+    coreJVM,
     cli
   )
 
@@ -206,7 +208,7 @@ lazy val noDocs = Seq(
 )
 
 lazy val metaMacroSettings: Seq[Def.Setting[_]] = Seq(
-  libraryDependencies += scalameta,
+  libraryDependencies += scalameta.value,
   addCompilerPlugin(paradise),
   scalacOptions += "-Xplugin-require:macroparadise"
 ) ++ noDocs
