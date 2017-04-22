@@ -9,6 +9,9 @@ package a {
   object a {
       val v1 = 1
       val v2 = 2
+      val v3 = {
+        3
+      }
       case class C1
       sealed trait T1
       final class FC1
@@ -16,6 +19,9 @@ package a {
       def b = v2
       def c: Int
       def d: Int = 2
+      def e: Int = {
+        3
+      }
       def e = a match {
         case 1 => true
         case 2 => false
@@ -29,10 +35,13 @@ package a {
   import x2.b
 
   package b {
-
     object a {
       val v1 = 1
       val v2 = 2
+
+      val v3 = {
+        3
+      }
 
       case class C1
 
@@ -41,12 +50,13 @@ package a {
       final class FC1
 
       def a = v1
-
       def b = v2
-
       def c: Int
-
       def d: Int = 2
+
+      def e: Int = {
+        3
+      }
 
       def e = a match {
         case 1 => true
@@ -135,13 +145,77 @@ object A {
   class B
   @Singleton
   class B @Inject()(val x: Int)
+  @js.native
+  class C() {
+    def c = 5
+  }
 }
 >>>
 object A {
-
   @Annotation
   class B
 
   @Singleton
   class B @Inject()(val x: Int)
+
+  @js.native
+  class C() {
+    def c = 5
+  }
+}
+
+<<< Don't add NL before single-line defs
+object Main {
+  def x = 1
+  def y = 2
+  def z = 3
+
+  def foo = {
+    println("foo")
+  }
+
+  def bar = {
+    println("bar")
+  }
+}
+>>>
+object Main {
+  def x = 1
+  def y = 2
+  def z = 3
+
+  def foo = {
+    println("foo")
+  }
+
+  def bar = {
+    println("bar")
+  }
+}
+
+<<< Add NL before multi-line statements
+object Main {
+  def x = 1
+  def y = 2
+  def z = 3
+  def foo = {
+    println("foo")
+  }
+  def bar = {
+    println("bar")
+  }
+}
+>>>
+object Main {
+  def x = 1
+  def y = 2
+  def z = 3
+
+  def foo = {
+    println("foo")
+  }
+
+  def bar = {
+    println("bar")
+  }
 }
