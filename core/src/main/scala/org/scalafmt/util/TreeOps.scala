@@ -465,4 +465,12 @@ object TreeOps {
   // procedure syntax has decltpe: Some("")
   def isProcedureSyntax(defn: Defn.Def): Boolean =
     defn.decltpe.exists(_.tokens.isEmpty)
+
+  def isMultiline(tree: Tree): Boolean = tree.tokens.exists(_.is[LF])
+
+  def isAnnotation(tree: Tree): Boolean = tree.parent match {
+    case None => false
+    case Some(e) if e.is[Mod.Annot] => true
+    case Some(e) => isAnnotation(e)
+  }
 }
