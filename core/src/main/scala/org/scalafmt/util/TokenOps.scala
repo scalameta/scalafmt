@@ -63,17 +63,16 @@ object TokenOps {
       newlines > 1 || (isDocstring(tok.right) && !tok.left.is[Comment])
     } || {
       // alwaysBeforeTopLevelStatements logic
+      style.newlines.alwaysBeforeTopLevelStatements &&
       !tok.left.is[Comment] &&
       !TreeOps.isAnnotation(leftOwner) &&
-      style.newlines.alwaysBeforeTopLevelStatements &&
-      (isTopLevelStatment(tok.right, rightOwner) || TreeOps
-        .isMultiline( // Either top level definition or multiline statement on the right
-          rightOwner)) &&
+      (isTopLevelStatment(tok.right, rightOwner) || TreeOps.isMultiline(
+        rightOwner)) &&
       // left side must be part of a multiline statement or right, if not then statements must start with a different keyword (e.g. block of case objects / case classes sticks together)
-      (leftOwner.parent.exists(TreeOps.isMultiline) || TreeOps.isMultiline(
-        rightOwner) || leftOwner.parent.exists(
-        _.tokens.head.syntax != tok.right.syntax)) &&
-      !leftOwner.tokens.contains(tok.right) // right token may not be child of left tokens parent
+      (leftOwner.parent.exists(TreeOps.isMultiline)
+      || TreeOps.isMultiline(rightOwner)
+      || leftOwner.parent.exists(_.tokens.head.syntax != tok.right.syntax)) && !leftOwner.tokens
+        .contains(tok.right) // right token may not be child of left tokens parent
     }
   }
 
