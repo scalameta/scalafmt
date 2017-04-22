@@ -1,5 +1,9 @@
-maxColumn = 40
-<<< SKIP Spaces in paretheses
+maxColumn = 150
+<<< spaces in paretheses
 function(a, b, c)
 >>>
 function( a, b, c )
+<<< spaces after close brackets
+class Foo @Inject()( conf: Configuration )
+>>>
+class Foo @Inject() ( conf: Configuration )
