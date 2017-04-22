@@ -6,7 +6,9 @@ lazy val buildSettings = Seq(
   organization := "com.geirsson",
   version := sys.props.getOrElse("scalafmt.version", version.value),
   scalaVersion := scala211,
-  crossScalaVersions := Seq(scala211, "2.12.1"),
+  crossScalaVersions := Seq(scala211, scala212),
+  scalaCompilerBridgeSource :=
+    ("org.scala-sbt" % "compiler-interface" % "0.13.15" % "component").sources,
   updateOptions := updateOptions.value.withCachedResolution(true)
 )
 
@@ -21,11 +23,10 @@ commands += CiCommand("ci-slow")(
   "core/test:runMain org.scalafmt.ScalafmtProps" ::
     Nil
 )
-commands += Command.command("ci-sbt-scalafmt") { s =>
-  "very publishLocal" ::
-    s"plz $scala210 scalafmtSbt/scripted" ::
-    s
-}
+commands += CiCommand("ci-sbt-scalafmt")(
+  "scalafmtSbt/it:test" ::
+    Nil
+)
 commands += CiCommand("ci-publish")(
   if (sys.env.contains("CI_PUBLISH")) s"publish" :: Nil
   else Nil
@@ -43,7 +44,6 @@ lazy val core = project
       scalameta,
       "com.typesafe" % "config" % "1.2.1",
       // Test dependencies
-      scalametaTestkit,
       "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0" % Test,
       "com.lihaoyi"                    %% "scalatags" % "0.6.3" % Test,
       scalametaTestkit                 % Test,
@@ -75,44 +75,42 @@ lazy val cli = project
   )
   .dependsOn(core % "compile->compile;test->test")
 
-lazy val is210 = Seq(
-  // publishMavenStyle := false, // necessary for sbt community repo.
-  scalaVersion := scala210,
-  crossScalaVersions := Seq(scala210)
+def isOnly(scalaV: String) = Seq(
+  scalaVersion := scalaV,
+  crossScalaVersions := Seq(scalaV)
 )
-
-lazy val bootstrap = project
-  .settings(
-    allSettings,
-    buildInfoSettings,
-    is210,
-    moduleName := "scalafmt-bootstrap",
-    libraryDependencies ++= Seq(
-      "com.martiansoftware" % "nailgun-server" % "0.9.1",
-      "io.get-coursier"     %% "coursier" % coursier,
-      "io.get-coursier"     %% "coursier-cache" % coursier,
-      scalatest             % Test
-    )
-  )
-  .enablePlugins(BuildInfoPlugin)
 
 lazy val scalafmtSbt = project
   .configs(IntegrationTest)
   .settings(
     allSettings,
     Defaults.itSettings,
-    ScriptedPlugin.scriptedSettings,
-    sbtPlugin := true,
-    test.in(IntegrationTest) := {
-      RunSbtCommand(
-        s"; plz $scala211 publishLocal " +
-          s"; plz $scala210 publishLocal " +
-          s"; such scalafmtSbt/scripted"
-      )(state.value)
-    },
-    is210,
-    // In convention of sbt plugins, the module is sbt-scalafmt instead of scalafmt-sbt.
     moduleName := "sbt-scalafmt",
+    isOnly(scala212),
+    sbtPlugin := true,
+    sbtVersion in Global := "1.0.0-M5",
+    test.in(IntegrationTest) := RunSbtCommand(
+      Seq(
+        s"wow $scala212",
+        "publishLocal",
+        """set sbtVersion in Global := "0.13.15" """,
+        "such scalafmtSbtTest/scripted",
+        """set sbtVersion in Global := "1.0.0-M5" """,
+        s"wow $scala211"
+      ).mkString("; ", "; ", "")
+    )(state.value)
+  )
+  .dependsOn(cli)
+
+lazy val scalafmtSbtTest = project
+  .settings(
+    allSettings,
+    noPublish,
+    isOnly(scala210),
+    sbtPlugin := true,
+    ScriptedPlugin.scriptedSettings,
+    sbtVersion := "0.13.15",
+    scriptedSbt := "0.13.15",
     scriptedLaunchOpts := Seq(
       "-Dplugin.version=" + version.value,
       "-Dscalafmt.scripted=true",
@@ -127,8 +125,6 @@ lazy val scalafmtSbt = project
     },
     scriptedBufferLog := false
   )
-  .dependsOn(bootstrap)
-
 lazy val intellij = project
   .settings(
     allSettings,
@@ -149,12 +145,13 @@ lazy val benchmarks = project
   .settings(
     allSettings,
     noPublish,
+    scalaVersion := scala211, // scalariform is 2.11 only
     crossScalaVersions := Seq(scala211),
     moduleName := "scalafmt-benchmarks",
     libraryDependencies ++= Seq(
-      "org.scalariform" %% "scalariform" % scalariform,
-      scalatest         % Test,
-      scalametaTestkit  % Test
+      scalariform,
+      scalametaTestkit,
+      scalatest % Test
     ),
     javaOptions in run ++= Seq(
       "-Djava.net.preferIPv4Stack=true",
@@ -198,7 +195,6 @@ lazy val readme = scalatex
     cli
   )
 
-lazy val ciScalaVersion = sys.env("CI_SCALA_VERSION")
 def CiCommand(name: String)(commands: List[String]): Command =
   Command.command(name) { initState =>
     commands.foldLeft(initState) {
@@ -307,6 +303,12 @@ lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
 )
 
 def scala210 = "2.10.6"
-def scala211 = "2.11.10"
+def scala211 = "2.11.11"
+def scala212 = "2.12.2"
+def extraSbtBootOptions: Seq[String] = {
+  // pass along custom boot properties if specified
+  val bootProps = "sbt.boot.properties"
+  sys.props.get(bootProps).map(x => s"-D$bootProps=$x").toList
+}
 
 lazy val allSettings = commonSettings ++ buildSettings ++ publishSettings

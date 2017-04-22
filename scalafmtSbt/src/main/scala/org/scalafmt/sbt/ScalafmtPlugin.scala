@@ -1,26 +1,14 @@
 package org.scalafmt.sbt
-
-import org.scalafmt.Versions
-import org.scalafmt.bootstrap.ScalafmtBootstrap
-import sbt.Keys._
-import sbt._
-import sbt.plugins.JvmPlugin
+import sbt._, Keys._
 
 object ScalafmtPlugin extends AutoPlugin {
+  override def trigger: PluginTrigger = allRequirements
   object autoImport {
-    lazy val scalafmt: Command =
+    val scalafmt: Command =
       Command.args("scalafmt", "run the scalafmt command line interface.") {
-        case (s, args) =>
-          try {
-            ScalafmtBootstrap.main("--non-interactive" +: args)
-          } catch {
-            case e: java.lang.NoSuchMethodError
-                if e.getMessage.startsWith("coursier") =>
-              System.err.println(
-                "Error. Found conflicting version of coursier, sbt-scalafmt requires" +
-                  s" coursier version ${Versions.coursier}.")
-          }
-          s
+        case (state, args) =>
+          org.scalafmt.cli.Cli.main("--non-interactive" +: args.toArray)
+          state
       }
   }
   override def globalSettings: Seq[Def.Setting[_]] =
@@ -31,6 +19,4 @@ object ScalafmtPlugin extends AutoPlugin {
       addCommandAlias("scalafmtDiffTest", "scalafmt --diff --test") ++
       addCommandAlias("scalafmtDiff", "scalafmt --diff")
 
-  override def trigger: PluginTrigger = allRequirements
-  override def requires = JvmPlugin
 }
