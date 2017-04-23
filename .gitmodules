@@ -1,3 +1,0 @@
-[submodule "homebrew"]
-	path = homebrew
-	url = https://github.com/olafurpg/homebrew-scalafmt.git

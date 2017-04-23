@@ -4,7 +4,6 @@ set -eux
 version=$1
 test -n $version
 tag="v${version}"
-tarfile="scalafmt-cli/target/scalafmt.tar.gz"
 current_branch=$(git rev-parse --abbrev-ref HEAD)
 
 function assert-installed() {
@@ -14,9 +13,6 @@ function assert-installed() {
 
 function assert-dependencies-are-installed() {
   assert-installed sbt
-  assert-installed github-release
-  assert-installed shasum
-  assert-installed tar
 }
 
 function assert-preconditions() {
@@ -36,10 +32,6 @@ function confirm-release() {
     fi
 }
 
-function assemble-jar() {
-    sbt -Dpublish.sonatype=true cli/assembly
-}
-
 function tag-create() {
     git tag ${tag} -m "See changelog."
 }
@@ -52,57 +44,11 @@ function maven-publish() {
 }
 
 
-function update-github-release() {
-    rm -f ${tarfile}
-    tar -cvzf ${tarfile} bin/scalafmt bin/scalafmt.bat bin/scalafmt_auto scalafmt-cli/target/scala-2.12/scalafmt.jar bin/configure
-
-    echo "Creating github release..."
-    github-release release \
-        --user scalameta \
-        --repo scalafmt \
-        --tag ${tag} \
-        --name "${tag}" \
-        --description "Changelog: http://scalameta.org/scalafmt/#${version}"
-
-    echo "Uploading tar..."
-    github-release upload \
-        --user scalameta \
-        --repo scalafmt \
-        --tag ${tag} \
-        --name "scalafmt.tar.gz" \
-        --file ${tarfile}
-}
-
-function update-homebrew-release() {
-    # Update version
-    brew_file="homebrew/scalafmt.rb"
-    sed -i '' -e "s/\(version \"\).*\"/\1${version}\"/" ${brew_file}
-    # Update url
-    tar_url=$(sed -n -e "s/  url \"\(.*\)\"/\1/p" ${brew_file})
-    curl -L -o target/sha.tar.gz ${tar_url}
-    sed -i '' -e "s/\(download\/\)[^\\]*\(\/scalafmt.tar.gz\)/\1${tag}\2/" homebrew/scalafmt.rb
-    # Update sha
-    tar_sha256=$(shasum -a 256 ${tarfile} | cut -f1 -d" ")
-    sed -i '' -e "s/\(sha256 \"\).*\"/\1${tar_sha256}\"/" ${brew_file}
-    cd homebrew
-    git add .
-    git commit -m "Update to ${tag}"
-    git push origin master
-    cd ..
-    git commit -am "Update homebrew submodule."
-    git push origin master
-}
-
 assert-preconditions
 if [[ ! $1 == "-q" ]]; then
   confirm-release
 fi
 tag-create
-assemble-jar
 maven-publish
-update-github-release
-update-homebrew-release
 tag-push
 echo "Released ${tag}!"
-#./update-gh-pages.sh
-# TODO(olafur) update-intellij-plugin
