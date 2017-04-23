@@ -772,7 +772,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
         val close2 = matchingParentheses(hash(open2))
         val prevT = prev(t).left
         val mod =
-          if ((mixedParams && owners(prevT).is[CtorModifier]) || newlinewBeforeImplicit) Newline
+          if ((mixedParams && owners(prevT)
+                .is[CtorModifier]) || newlinewBeforeImplicit) Newline
           else NoSplit
         Decision(t,
                  Seq(
