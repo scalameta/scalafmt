@@ -132,3 +132,7 @@ seq should have length 5 and true
 "org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full
 >>>
 ("org.scalamacros" % "paradise" % "2.1.0").cross(CrossVersion.full)
+<<< empty parameter list
+"org.scalamacros" % "paradise" % "2.1.0" intransitive()
+>>>
+("org.scalamacros" % "paradise" % "2.1.0").intransitive()
