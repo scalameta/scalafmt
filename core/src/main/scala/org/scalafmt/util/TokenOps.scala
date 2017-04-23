@@ -54,35 +54,10 @@ object TokenOps {
   def shouldGet2xNewlines(tok: FormatToken,
                           style: ScalafmtConfig,
                           owners: Token => Tree): Boolean = {
-    val leftOwner = owners(tok.left)
-    val rightOwner = owners(tok.right)
-
-    // Docstring logic
     !isDocstring(tok.left) && {
       val newlines = newlinesBetween(tok.between)
       newlines > 1 || (isDocstring(tok.right) && !tok.left.is[Comment])
-    } || {
-      // alwaysBeforeTopLevelStatements logic
-      style.newlines.alwaysBeforeTopLevelStatements &&
-      !tok.left.is[Comment] &&
-      !TreeOps.isAnnotation(leftOwner) &&
-      (isTopLevelStatment(tok.right, rightOwner) || TreeOps.isMultiline(
-        rightOwner)) &&
-      // left side must be part of a multiline statement or right, if not then statements must start with a different keyword (e.g. block of case objects / case classes sticks together)
-      (leftOwner.parent.exists(TreeOps.isMultiline)
-      || TreeOps.isMultiline(rightOwner)
-      || leftOwner.parent.exists(_.tokens.head.syntax != tok.right.syntax)) && !leftOwner.tokens
-        .contains(tok.right) // right token may not be child of left tokens parent
     }
-  }
-
-  def isTopLevelStatment(tok: Token, owner: Tree): Boolean = {
-    tok.is[KwObject] || owner.parent.exists(_.is[Defn.Object]) ||
-    tok.is[KwClass] || owner.parent.exists(_.is[Defn.Class]) ||
-    tok.is[KwDef] || owner.parent.exists(_.is[Defn.Def]) ||
-    tok.is[KwTrait] || owner.parent.exists(_.is[Defn.Trait]) ||
-    tok
-      .is[KwPackage] || (tok.is[KwProtected] && owner.parent.exists(_.is[Pkg]))
   }
 
   def isDocstring(token: Token): Boolean = {

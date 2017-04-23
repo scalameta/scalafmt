@@ -1,5 +1,12 @@
 package org.scalafmt.internal
 
+import scala.annotation.tailrec
+import scala.collection.mutable
+import scala.meta.Decl
+import scala.meta.Defn
+import scala.meta.Mod
+import scala.meta.Import
+import scala.meta.Pkg
 import scala.meta.Term
 import scala.meta.Tree
 import scala.meta.prettyprinters.Syntax
@@ -9,6 +16,7 @@ import scala.meta.tokens.Token._
 import java.util.regex.Pattern
 
 import org.scalafmt.internal.FormatWriter.FormatLocation
+import org.scalafmt.util.TreeOps
 
 /**
   * Produces formatted output from sequence of splits.
@@ -153,7 +161,8 @@ class FormatWriter(formatOps: FormatOps) {
             " "
           case nl: NewlineT =>
             val newline =
-              if (nl.isDouble) "\n\n"
+              if (nl.isDouble || isMultilineTopLevelStatement(locations, i))
+                "\n\n"
               else "\n"
             val indentation =
               if (nl.noIndent) ""
@@ -170,6 +179,27 @@ class FormatWriter(formatOps: FormatOps) {
     }
   }
 
+  lazy val topLevelTokens = tree.collect {
+    case TreeOps.MaybeTopLevelStat(t) => hash(t.tokens.head)
+  }
+
+  private def isMultilineTopLevelStatement(toks: Array[FormatLocation],
+                                           i: Int): Boolean = {
+    @tailrec def isMultiline(end: Token, i: Int): Boolean = {
+      if (i >= toks.length || toks(i).formatToken.left == end) false
+      else if (toks(i).split.modification.isNewline) true
+      else isMultiline(end, i + 1)
+    }
+    def actualOwner(token: Token): Tree = owners(token) match {
+      case annot: Mod.Annot => annot.parent.get
+      case x => x
+    }
+    initStyle.newlines.alwaysBeforeTopLevelStatements && {
+      val tok = toks(i).formatToken.right
+      topLevelTokens.contains(hash(tok)) &&
+      isMultiline(actualOwner(tok).tokens.last, i + 1)
+    }
+  }
   private def isCandidate(location: FormatLocation): Boolean = {
     val token = location.formatToken.right
     val code = token match {

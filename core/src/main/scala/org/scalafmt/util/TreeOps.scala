@@ -487,11 +487,12 @@ object TreeOps {
   def isProcedureSyntax(defn: Defn.Def): Boolean =
     defn.decltpe.exists(_.tokens.isEmpty)
 
-  def isMultiline(tree: Tree): Boolean = tree.tokens.exists(_.is[LF])
-
-  def isAnnotation(tree: Tree): Boolean = tree.parent match {
-    case None => false
-    case Some(e) if e.is[Mod.Annot] => true
-    case Some(e) => isAnnotation(e)
+  // matches tree nodes that can be considered "top-level statement": package/object/trait/def/val
+  object MaybeTopLevelStat {
+    def unapply(tree: Tree): Option[Tree] = tree match {
+      case _: Pkg | _: Defn | _: Decl => Some(tree)
+      case _ => None
+    }
   }
+
 }
