@@ -49,7 +49,9 @@ abstract class MicroBenchmark(path: String*) extends FormatBenchmark {
     // jmh runs from benchmarks directory while tests run from from root.
     // Can't bother to find more generic solution
     if (filename.isFile) filename
-    else FileOps.getFile(Seq("scalafmt-benchmarks", "src", "resources") ++ path: _*)
+    else
+      FileOps.getFile(
+        Seq("scalafmt-benchmarks", "src", "resources") ++ path: _*)
   }
 
   def scalametaParser(): Unit = {
