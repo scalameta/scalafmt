@@ -4,13 +4,15 @@ install:
   - cmd: choco install sbt -ia "INSTALLDIR=""C:\sbt"""
   - cmd: SET PATH=C:\sbt\bin;%JAVA_HOME%\bin;%PATH%
   - cmd: SET SBT_OPTS=-XX:MaxPermSize=2g -Xmx4g
+environment:
+  CI_SCALA_VERSION: 2.12.2
 build_script:
-  - sbt clean downloadIdea compile
+  - sbt downloadIdea
 test_script:
-  - sbt test readme/run scripted
+  - sbt ci-fast ci-sbt-scalafmt
 cache:
   - C:\sbt\ -> appveyor.yml
-  - intellij\LATEST-EAP-SNAPSHOT
+  - intellij\idea
   - C:\Users\appveyor\.m2
   - C:\Users\appveyor\.ivy2
   - C:\Users\appveyor\.coursier
