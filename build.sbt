@@ -180,7 +180,6 @@ lazy val benchmarks = project
   .enablePlugins(JmhPlugin)
 
 lazy val readme = scalatex
-  .in(file("scalafmt-readme"))
   .ScalatexReadme(projectId = "readme",
                   wd = file(""),
                   url = "https://github.com/scalameta/scalafmt/tree/master",
