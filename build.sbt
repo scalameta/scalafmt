@@ -78,12 +78,10 @@ lazy val `scalafmt-sbt` = project
     sbtVersion in Global := "1.0.0-M5",
     test.in(IntegrationTest) := RunSbtCommand(
       Seq(
-        s"wow $scala212",
-        "publishLocal",
+        s"plz $scala212 publishLocal",
         """set sbtVersion in Global := "0.13.15" """,
-        "such scalafmtSbtTest/scripted",
-        """set sbtVersion in Global := "1.0.0-M5" """,
-        s"wow $scala211"
+        "such scalafmt-sbt-tests/scripted",
+        """set sbtVersion in Global := "1.0.0-M5" """
       ).mkString("; ", "; ", "")
     )(state.value)
   )
@@ -317,10 +315,10 @@ def ciCommands = Seq(
     "tests/test:runMain org.scalafmt.ScalafmtProps" ::
       Nil
   ),
-  CiCommand("ci-sbt-scalafmt")(
-    "scalafmt-sbt-tests/it:test" ::
-      Nil
-  ),
+  Command.command("ci-sbt-scalafmt") { s =>
+    "scalafmt-sbt/it:test" ::
+      s
+  },
   CiCommand("ci-publish")(
     if (sys.env.contains("CI_PUBLISH")) s"publish" :: Nil
     else Nil
