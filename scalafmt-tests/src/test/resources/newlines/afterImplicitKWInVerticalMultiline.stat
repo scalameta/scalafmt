@@ -34,7 +34,7 @@ final class UserProfile(
 extends Profile
 with UserSettings
 with SomethingElse
-  
+
 <<< should work with an empty first param group
 override def load()(implicit taskCtx: Context,
       ec: ExecutionContext
