@@ -54,7 +54,7 @@ function maven-publish() {
 
 function update-github-release() {
     rm -f ${tarfile}
-    tar -cvzf ${tarfile} bin/scalafmt bin/scalafmt.bat bin/scalafmt_auto scalafmt-cli/target/scala-2.11/scalafmt.jar bin/configure
+    tar -cvzf ${tarfile} bin/scalafmt bin/scalafmt.bat bin/scalafmt_auto scalafmt-cli/target/scala-2.12/scalafmt.jar bin/configure
 
     echo "Creating github release..."
     github-release release \
@@ -97,9 +97,9 @@ assert-preconditions
 if [[ ! $1 == "-q" ]]; then
   confirm-release
 fi
-tag-create
-assemble-jar
-maven-publish
+# tag-create
+# assemble-jar
+# maven-publish
 update-github-release
 update-homebrew-release
 tag-push
