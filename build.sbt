@@ -5,7 +5,7 @@ addCommandAlias("downloadIdea", "intellij/updateIdea")
 lazy val buildSettings = Seq(
   organization := "com.geirsson",
   version := sys.props.getOrElse("scalafmt.version", version.value),
-  scalaVersion := scala211,
+  scalaVersion := scala212,
   crossScalaVersions := Seq(scala211, scala212),
   scalaCompilerBridgeSource :=
     ("org.scala-sbt" % "compiler-interface" % "0.13.15" % "component").sources,
