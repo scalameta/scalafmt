@@ -1,5 +1,0 @@
--Dfile.encoding=UTF8
--Xms1G
--Xmx4G
--XX:MaxPermSize=512M
--XX:ReservedCodeCacheSize=250M
