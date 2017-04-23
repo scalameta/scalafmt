@@ -29,20 +29,25 @@ case object AvoidInfix extends Rewrite {
           TokenPatch.AddLeft(fstOpToken, ".", keepTok = true)
         )
 
-        val fstArgsToken = args.head.tokens.head
-        val lastArgsToken = args.last.tokens.last
+        val fstArgsToken = args.headOption.flatMap(_.tokens.headOption)
+        val lastArgsToken = args.lastOption.flatMap(_.tokens.lastOption)
         val fstIsNotLeftParenAndBrace = fstArgsToken
-          .isNot[LeftParen] && fstArgsToken
-          .isNot[LeftBrace]
+          .exists(_.isNot[LeftParen]) && fstArgsToken
+          .exists(_.isNot[LeftBrace])
         val lastIsNotRightParenAndBrace = lastArgsToken
-          .isNot[RightParen] && lastArgsToken
-          .isNot[RightBrace]
+          .exists(_.isNot[RightParen]) && lastArgsToken
+          .exists(_.isNot[RightBrace])
         val isSingleArg = args.size == 1
         val selectorParensToBeAdded =
-          if (isSingleArg && (fstIsNotLeftParenAndBrace || lastIsNotRightParenAndBrace))
-            Seq(TokenPatch.AddLeft(fstArgsToken, "(", keepTok = true),
-                TokenPatch.AddRight(lastArgsToken, ")", keepTok = true))
-          else
+          if (isSingleArg && (fstIsNotLeftParenAndBrace || lastIsNotRightParenAndBrace)) {
+            val selectorParens = for {
+              fstToken <- fstArgsToken
+              lastToken <- lastArgsToken
+            } yield
+              Seq(TokenPatch.AddLeft(fstToken, "(", keepTok = true),
+                  TokenPatch.AddRight(lastToken, ")", keepTok = true))
+            selectorParens.getOrElse(Seq.empty)
+          } else
             Nil
 
         val lhsParensToBeAdded = lhs match {
@@ -54,13 +59,17 @@ case object AvoidInfix extends Rewrite {
           case _ => Nil
         }
 
-        val toBeRemoved = ctx.tokenTraverser
-          .filter(fstOpToken, fstArgsToken)(_.is[LF])
-          .map(TokenPatch.Remove)
+        val toBeRemoved = fstArgsToken.fold(Seq.empty[TokenPatch])(
+          token =>
+            ctx.tokenTraverser
+              .filter(fstOpToken, token)(_.is[LF])
+              .map(TokenPatch.Remove))
 
-        val hasSingleLineComment = ctx.tokenTraverser
-          .filter(fstOpToken, fstArgsToken)(TokenOps.isSingleLineComment)
-          .nonEmpty
+        val hasSingleLineComment = fstArgsToken.exists(
+          token =>
+            ctx.tokenTraverser
+              .filter(fstOpToken, token)(TokenOps.isSingleLineComment)
+              .nonEmpty)
 
         if (hasSingleLineComment)
           Nil
