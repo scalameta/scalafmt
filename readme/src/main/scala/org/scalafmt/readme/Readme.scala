@@ -171,4 +171,9 @@ object Readme {
     val formatted = Scalafmt.format(code, style).get
     hl.scala(formatted)
   }
+  def image(url: String) = img(
+    src := url,
+    width := "100%",
+    textAlign := "center"
+  )
 }

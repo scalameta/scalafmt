@@ -109,7 +109,8 @@
         @code{scalafmt} (without flags). If you rely on reading from stdin you need to wait
         until 0.4.6, sorry.
     @li
-      New @code{scalafmt} bash script that can upgrade itself, see @sect.ref{Linux/OSX}.
+      New @code{scalafmt} bash script that can upgrade itself, see (EDIT: removed)
+      Linux/OSX section.
       Thank you @user{hntd187}!
     @li
       You can now see @b{all} available configuration options in scalafmt, see @sect.ref{Other}.
@@ -178,7 +179,7 @@
       to the new style in @code{.scalafmt.conf}, run
       @code{scalafmt --migrate2hocon .scalafmt} with the CLI.
       For super easy CLI installation in OSX and Linux, download the new
-      auto-upgrade script in @sect.ref{Linux/OSX}.
+      auto-upgrade script in (EDIT: removed) Linux/OSX section.
     @li
       NEW! See @sect.ref{rewrite.rules}.
     @li
