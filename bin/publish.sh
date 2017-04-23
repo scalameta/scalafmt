@@ -97,9 +97,9 @@ assert-preconditions
 if [[ ! $1 == "-q" ]]; then
   confirm-release
 fi
-# tag-create
-# assemble-jar
-# maven-publish
+tag-create
+assemble-jar
+maven-publish
 update-github-release
 update-homebrew-release
 tag-push
