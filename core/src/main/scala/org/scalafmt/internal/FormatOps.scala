@@ -766,17 +766,24 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       // Do NOT Newline the first param after the split, unless we have a
       // mixed-params case with a Ctor modifier.
       // `] private (`
-      case Decision(t @ FormatToken(open2 @ LeftParen(), _, _), _) =>
+      case Decision(t @ FormatToken(open2 @ LeftParen(), right, _), _) =>
+        val newlinewBeforeImplicit = right
+          .is[KwImplicit] && style.newlines.beforeImplicitKWInVerticalMultiline
         val close2 = matchingParentheses(hash(open2))
         val prevT = prev(t).left
         val mod =
-          if (mixedParams && owners(prevT).is[CtorModifier]) Newline
+          if ((mixedParams && owners(prevT)
+                .is[CtorModifier]) || newlinewBeforeImplicit) Newline
           else NoSplit
         Decision(t,
                  Seq(
                    Split(mod, 0)
                      .withIndent(indentParam, close2, Right)
                  ))
+      case Decision(t @ FormatToken(KwImplicit(), _, _), _)
+          if style.newlines.afterImplicitKWInVerticalMultiline =>
+        val split = Split(Newline, 0)
+        Decision(t, Seq(split))
     }
 
     // Our policy is a combination of OneArgLineSplit and a custom splitter
