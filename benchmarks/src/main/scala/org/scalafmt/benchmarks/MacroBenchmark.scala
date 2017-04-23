@@ -5,9 +5,6 @@ import scala.meta.Source
 import scala.meta.testkit.Corpus
 import scala.meta.testkit.CorpusFile
 import scala.util.Try
-import scalariform.formatter.ScalaFormatter
-import scalariform.formatter.preferences.FormattingPreferences
-import scalariform.formatter.preferences.IndentSpaces
 
 import java.util.concurrent.TimeUnit
 
@@ -39,7 +36,7 @@ trait FormatBenchmark {
 }
 
 /**
-  * Formats filename at with scalafmt and scalariform.
+  * Formats filename at with scalafmt.
   *
   * To run benchmark:
   *
@@ -52,8 +49,6 @@ trait FormatBenchmark {
 @OutputTimeUnit(TimeUnit.SECONDS)
 abstract class MacroBenchmark(parallel: Boolean, maxFiles: Int)
     extends FormatBenchmark {
-  val scalariformPreferences =
-    FormattingPreferences().setPreference(IndentSpaces, 3)
   var files: GenIterable[String] = _
 
   override def toString = s"${this.getClass.getName}(parallel=$parallel)"
@@ -80,7 +75,6 @@ abstract class MacroBenchmark(parallel: Boolean, maxFiles: Int)
   def testMe(): Unit = {
     setup()
     scalafmt()
-    scalariform()
   }
 
   @Benchmark
@@ -97,13 +91,6 @@ abstract class MacroBenchmark(parallel: Boolean, maxFiles: Int)
     }
   }
 
-  // No need to run same benchmark again and again.
-  @Benchmark
-  def scalariform(): Unit = {
-    files.foreach { file =>
-      Try(ScalaFormatter.format(file))
-    }
-  }
 }
 
 object MacroSmall {

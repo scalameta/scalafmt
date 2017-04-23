@@ -14,9 +14,6 @@ import org.openjdk.jmh.annotations.Warmup
 import org.scalafmt.Scalafmt
 import org.scalafmt.util.FileOps
 import scala.meta.Source
-import scalariform.formatter.ScalaFormatter
-import scalariform.formatter.preferences.FormattingPreferences
-import scalariform.formatter.preferences.IndentSpaces
 
 import org.scalafmt.config.RedundantBracesSettings
 import org.scalafmt.config.RewriteSettings
@@ -27,7 +24,7 @@ import org.scalafmt.rewrite.RedundantBraces
 import org.scalafmt.rewrite.SortImports
 
 /**
-  * Formats filename at [[path]] with scalafmt and scalariform.
+  * Formats filename at [[path]] with scalafmt.
   *
   * To run benchmark:
   *
@@ -39,8 +36,6 @@ import org.scalafmt.rewrite.SortImports
 @BenchmarkMode(Array(Mode.AverageTime))
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 abstract class MicroBenchmark(path: String*) extends FormatBenchmark {
-  val scalariformPreferences =
-    FormattingPreferences().setPreference(IndentSpaces, 3)
   val classLoader = getClass.getClassLoader
   var code: String = _
 
@@ -78,21 +73,6 @@ abstract class MicroBenchmark(path: String*) extends FormatBenchmark {
     scalafmt_rewrite()
   }
 
-//  @Benchmark
-//  def scalafmt_noPruneSlowStates(): String = {
-//    Scalafmt
-//      .format(
-//        code,
-//        runner = ScalafmtRunner.default.copy(
-//          optimizer = ScalafmtOptimizer.default.copy(pruneSlowStates = false)))
-//      .get
-//  }
-
-  // No need to run same benchmark again and again.
-//  @Benchmark
-//  def scalariform(): String = {
-//    ScalaFormatter.format(code)
-//  }
 }
 
 object Micro {
