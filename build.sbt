@@ -145,11 +145,9 @@ lazy val benchmarks = project
   .settings(
     allSettings,
     noPublish,
-    scalaVersion := scala211, // scalariform is 2.11 only
-    crossScalaVersions := Seq(scala211),
+    isOnly(scala212),
     moduleName := "scalafmt-benchmarks",
     libraryDependencies ++= Seq(
-      scalariform,
       scalametaTestkit,
       scalatest % Test
     ),
