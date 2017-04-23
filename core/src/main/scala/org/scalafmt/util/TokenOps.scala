@@ -54,16 +54,25 @@ object TokenOps {
   def shouldGet2xNewlines(tok: FormatToken,
                           style: ScalafmtConfig,
                           owners: Token => Tree): Boolean = {
+    val leftOwner = owners(tok.left)
+    val rightOwner = owners(tok.right)
+
+    // Docstring logic
     !isDocstring(tok.left) && {
       val newlines = newlinesBetween(tok.between)
       newlines > 1 || (isDocstring(tok.right) && !tok.left.is[Comment])
     } || {
-      !tok.left.is[Comment] &&
-      !owners(tok.left).parent.exists(_.is[Mod.Annot]) &&
+      // alwaysBeforeTopLevelStatements logic
       style.newlines.alwaysBeforeTopLevelStatements &&
-      tok.between.count(_.is[KwNew]) < 2 && isTopLevelStatment(
-        tok.right,
-        owners(tok.right))
+      !tok.left.is[Comment] &&
+      !TreeOps.isAnnotation(leftOwner) &&
+      (isTopLevelStatment(tok.right, rightOwner) || TreeOps.isMultiline(
+        rightOwner)) &&
+      // left side must be part of a multiline statement or right, if not then statements must start with a different keyword (e.g. block of case objects / case classes sticks together)
+      (leftOwner.parent.exists(TreeOps.isMultiline)
+      || TreeOps.isMultiline(rightOwner)
+      || leftOwner.parent.exists(_.tokens.head.syntax != tok.right.syntax)) && !leftOwner.tokens
+        .contains(tok.right) // right token may not be child of left tokens parent
     }
   }
 
