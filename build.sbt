@@ -183,8 +183,13 @@ lazy val readme = scalatex
                   url = "https://github.com/scalameta/scalafmt/tree/master",
                   source = "Readme")
   .settings(
+    git.remoteRepo := "git@github.com:scalameta/scalafmt.git",
+    siteSourceDirectory := target.value / "scalatex",
     allSettings,
     noPublish,
+    publish := {
+      ghpagesPushSite.dependsOn(run.in(Compile).toTask("")).value
+    },
     test := {
       run.in(Compile).toTask(" --validate-links").value
     },
@@ -192,6 +197,7 @@ lazy val readme = scalatex
       "com.twitter" %% "util-eval" % "6.41.0"
     )
   )
+  .enablePlugins(GhpagesPlugin)
   .dependsOn(
     coreJVM,
     cli
