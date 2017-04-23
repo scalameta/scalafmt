@@ -9,21 +9,65 @@
       @li
         Please document your contribution here.
 @sect{0.7.0}
+  Coming soon.
+@sect{0.7.0-RC1}
   @ul
     @li
-      @b{NEW}. scalafmt-core now support Scala.js!
+      @b{NEW}. scalafmt-core now has experimental/lightly-tested support for
+      Scala.js!
+      I believe this opens up exciting opportunities to build applications such
+      as browser extension for formatting code on github.com or
+      VSCode/Atom plugin development.
     @li
-      @b{Breaking}. Homebrew and Github releases are no longer supported
-      for releases. See @sect.ref{Coursier} for the recommended way to install
-      the command-line tool.
-    @li
-      @b{Breaking}. sbt-scalafmt no longer supports 0.13. sbt-scalafmt is
-      only published against sbt 1.0 from now on. See @sect.ref{sbt 0.13} for
-      how to use the latest scalafmt versions on sbt 0.13.
+      @b{Breaking}.
+       Homebrew, the scalafmt_auto bash script and Github releases are no
+       longer supported for installing the command line application.
+       The motivation for this change is to simplify the release step,
+       making it possible to automatically publish a @sect.ref{Pre-release} on
+       every merge into master.
+       More boring details are explained @lnk("here",
+       "https://github.com/scalameta/scalafmt/commit/0cf3b79be32ed084875e167a52af31272c577570").
 
       @p
-        Note, sbt 1.0 brings incredible new opportunities for Scala tooling.
-        Scala.meta, which scalafmt uses for parsing, doesn't support Scala 2.10,
+        @sect.ref{Coursier} is now the only recommended way to install
+        the command-line application for Linux, Mac and Windows.
+        With coursier can benefit from
+        @ul
+          @li
+            cached downloads of shared dependencies between version upgrades (saving 5-10mb per upgrade)
+          @li
+            custom JVM options for generated exectuable
+          @li
+            ability to generate slim 16kb bootstrap script by removing `--standalone`,
+            which can be committed to git/VCS
+
+      @p
+        I admit that the long coursier command is harder to remember than
+        @code{homebrew upgrade scalafmt}.
+        Please pitch your ideas @lnk("here",
+        "https://github.com/coursier/coursier/issues/324#issuecomment-296481788")
+        on how to make installing command line apps with coursier as easy as
+        @code{coursier install/upgrade scalafmt}!
+    @li
+      @b{Breaking}. sbt-scalafmt no longer supports 0.13.
+      sbt-scalafmt will only be published against sbt 1.0 from now on.
+      The motivation for this change is to take full advantage of sbt on
+      Scala 2.12. There is no longer a need for classloading hacks to run
+      scalafmt from 2.10.
+
+      @p
+        This change brings new opportunities to add new features to the
+        sbt plugin, for example @code{reformatOnCompile} if someone is motivated
+        to contribute that feature.
+
+      @p
+        It will still be possible (and quite simple) to use the latest
+        scalafmt versions on sbt 0.13, see @sect.ref{sbt 0.13} for more
+        details.
+
+      @p
+        Note, I want to stress that sbt 1.0 brings incredible new opportunities for Scala tooling.
+        Scala.meta, which scalafmt uses for parsing, does not support Scala 2.10,
         which sbt 0.13 plugins are required to run on.
         I highly recommend you try to upgrade your build to sbt 1.0 as soon as
         possible.

@@ -32,19 +32,6 @@ pipeline:
       event: [push, tag]
       branch: [master]
 
-  notify:
-    image: drillster/drone-email
-    host: smtp.mailgun.org
-    username: noreply@drone.geirsson.com
-    password: ${MAILGUN_PASSWORD}
-    from: noreply@drone.geirsson.com
-    recipients:
-      - olafurpg@gmail.com
-    when:
-      event: push
-      branch: [master]
-      status: [changed, failure]
-
   # Save folders in distributed cache
   sftp_cache_rebuild:
     image: plugins/sftp-cache
