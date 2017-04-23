@@ -486,4 +486,13 @@ object TreeOps {
   // procedure syntax has decltpe: Some("")
   def isProcedureSyntax(defn: Defn.Def): Boolean =
     defn.decltpe.exists(_.tokens.isEmpty)
+
+  // matches tree nodes that can be considered "top-level statement": package/object/trait/def/val
+  object MaybeTopLevelStat {
+    def unapply(tree: Tree): Option[Tree] = tree match {
+      case _: Pkg | _: Defn | _: Decl => Some(tree)
+      case _ => None
+    }
+  }
+
 }

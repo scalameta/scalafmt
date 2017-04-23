@@ -9,13 +9,16 @@ package a {
   object a {
       val v1 = 1
       val v2 = 2
-      case class C1
-      sealed trait T1
-      final class FC1
+      val v3 = {
+        3
+      }
       def a = v1
       def b = v2
       def c: Int
       def d: Int = 2
+      def e: Int = {
+        3
+      }
       def e = a match {
         case 1 => true
         case 2 => false
@@ -34,19 +37,17 @@ package a {
       val v1 = 1
       val v2 = 2
 
-      case class C1
-
-      sealed trait T1
-
-      final class FC1
-
+      val v3 = {
+        3
+      }
       def a = v1
-
       def b = v2
-
       def c: Int
-
       def d: Int = 2
+
+      def e: Int = {
+        3
+      }
 
       def e = a match {
         case 1 => true
@@ -55,8 +56,18 @@ package a {
     }
   }
 }
-
-
+<<< single line
+object a {
+case class C1
+sealed trait T1
+final class FC1
+}
+>>>
+object a {
+  case class C1
+  sealed trait T1
+  final class FC1
+}
 <<< Don't touch preformated code which is fine
 package a {
   import x1.b
@@ -124,7 +135,6 @@ object A {
 
   /** test */
   def foo(): Int = 0
-
   // bar
   def foo(): Int = 0
 }
@@ -135,6 +145,10 @@ object A {
   class B
   @Singleton
   class B @Inject()(val x: Int)
+  @js.native
+  class C() {
+    def c = 5
+  }
 }
 >>>
 object A {
@@ -144,4 +158,117 @@ object A {
 
   @Singleton
   class B @Inject()(val x: Int)
+
+  @js.native
+  class C() {
+    def c = 5
+  }
+}
+<<< Double annotation
+object a {
+  @annot
+  @bannot
+  class A
+}
+>>>
+object a {
+
+  @annot
+  @bannot
+  class A
+}
+<<< Don't add NL before single-line defs
+object Main {
+  def x = 1
+  def y = 2
+  def z = 3
+
+  def foo = {
+    println("foo")
+  }
+
+  def bar = {
+    println("bar")
+  }
+}
+>>>
+object Main {
+  def x = 1
+  def y = 2
+  def z = 3
+
+  def foo = {
+    println("foo")
+  }
+
+  def bar = {
+    println("bar")
+  }
+}
+
+<<< Add NL before multi-line statements
+object Main {
+  def x = 1
+  def y = 2
+  def z = 3
+  def foo = {
+    println("foo")
+  }
+  def bar = {
+    println("bar")
+  }
+}
+>>>
+object Main {
+  def x = 1
+  def y = 2
+  def z = 3
+
+  def foo = {
+    println("foo")
+  }
+
+  def bar = {
+    println("bar")
+  }
+}
+<<< nested defs (up for debate)
+object a {
+  def foo = {
+    def b = {
+      3
+    }
+    def c = {
+      4
+    }
+  }
+}
+>>>
+object a {
+
+  def foo = {
+
+    def b = {
+      3
+    }
+
+    def c = {
+      4
+    }
+  }
+}
+<<< single line following multiline (up for debate)
+object a {
+  def foo = {
+    2
+  }
+  def bar = 2
+}
+>>>
+object a {
+
+  def foo = {
+    2
+  }
+  def bar = 2
 }
