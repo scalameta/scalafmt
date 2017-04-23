@@ -1,4 +1,5 @@
 import Dependencies._
+import org.scalajs.sbtplugin.cross.CrossProject
 
 lazy val buildSettings = Seq(
   organization := "com.geirsson",
@@ -24,12 +25,13 @@ commands ++= ciCommands
 addCommandAlias("downloadIdea", "intellij/updateIdea")
 
 lazy val core = crossProject
+  .in(file("scalafmt-core"))
   .settings(
+    moduleName := "scalafmt-core",
     allSettings,
     metaMacroSettings,
     buildInfoSettings,
     fork.in(run).in(Test) := true,
-    moduleName := "scalafmt-core",
     libraryDependencies ++= Seq(
       metaconfig.value,
       scalameta.value
@@ -47,10 +49,11 @@ lazy val coreJVM = core.jvm
 lazy val coreJS = core.js
 
 lazy val cli = project
+  .in(file("scalafmt-cli"))
   .settings(
+    moduleName := "scalafmt-cli",
     allSettings,
     metaMacroSettings,
-    moduleName := "scalafmt-cli",
     mainClass in assembly := Some("org.scalafmt.cli.Cli"),
     libraryDependencies ++= Seq(
       "com.martiansoftware" % "nailgun-server" % "0.9.1",
@@ -64,7 +67,7 @@ def isOnly(scalaV: String) = Seq(
   crossScalaVersions := Seq(scalaV)
 )
 
-lazy val scalafmtSbt = project
+lazy val `scalafmt-sbt` = project
   .configs(IntegrationTest)
   .settings(
     allSettings,
@@ -86,7 +89,7 @@ lazy val scalafmtSbt = project
   )
   .dependsOn(cli)
 
-lazy val scalafmtSbtTest = project
+lazy val `scalafmt-sbt-tests` = project
   .settings(
     allSettings,
     noPublish,
@@ -111,6 +114,7 @@ lazy val scalafmtSbtTest = project
   )
 
 lazy val intellij = project
+  .in(file("scalafmt-intellij"))
   .settings(
     allSettings,
     buildInfoSettings,
@@ -127,14 +131,15 @@ lazy val intellij = project
   .enablePlugins(SbtIdeaPlugin)
 
 lazy val tests = project
+  .in(file("scalafmt-tests"))
   .settings(
     allSettings,
     noPublish,
     libraryDependencies ++= Seq(
       // Test dependencies
-      "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0" % Test,
-      "com.lihaoyi"                    %% "scalatags" % "0.6.3" % Test,
-      scalametaTestkit                 % Test
+      "com.googlecode.java-diff-utils" % "diffutils"  % "1.3.0",
+      "com.lihaoyi"                    %% "scalatags" % "0.6.3",
+      scalametaTestkit
     )
   )
   .dependsOn(
@@ -142,6 +147,7 @@ lazy val tests = project
   )
 
 lazy val benchmarks = project
+  .in(file("scalafmt-benchmarks"))
   .settings(
     allSettings,
     noPublish,
@@ -149,7 +155,7 @@ lazy val benchmarks = project
     moduleName := "scalafmt-benchmarks",
     libraryDependencies ++= Seq(
       scalametaTestkit,
-      scalatest % Test
+      scalatest.value % Test
     ),
     javaOptions in run ++= Seq(
       "-Djava.net.preferIPv4Stack=true",
@@ -174,6 +180,7 @@ lazy val benchmarks = project
   .enablePlugins(JmhPlugin)
 
 lazy val readme = scalatex
+  .in(file("scalafmt-readme"))
   .ScalatexReadme(projectId = "readme",
                   wd = file(""),
                   url = "https://github.com/scalameta/scalafmt/tree/master",
@@ -312,7 +319,7 @@ def ciCommands = Seq(
       Nil
   ),
   CiCommand("ci-sbt-scalafmt")(
-    "scalafmtSbt/it:test" ::
+    "scalafmt-sbt-tests/it:test" ::
       Nil
   ),
   CiCommand("ci-publish")(
