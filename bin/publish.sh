@@ -4,7 +4,7 @@ set -eux
 version=$1
 test -n $version
 tag="v${version}"
-tarfile="cli/target/scalafmt.tar.gz"
+tarfile="scalafmt-cli/target/scalafmt.tar.gz"
 current_branch=$(git rev-parse --abbrev-ref HEAD)
 
 function assert-installed() {
@@ -40,8 +40,10 @@ function assemble-jar() {
     sbt -Dpublish.sonatype=true cli/assembly
 }
 
-function push-tag() {
+function tag-create() {
     git tag ${tag} -m "See changelog."
+}
+function tag-push() {
     git push --tags
 }
 
@@ -52,7 +54,7 @@ function maven-publish() {
 
 function update-github-release() {
     rm -f ${tarfile}
-    tar -cvzf ${tarfile} bin/scalafmt bin/scalafmt.bat bin/scalafmt_auto cli/target/scala-2.11/scalafmt.jar bin/configure
+    tar -cvzf ${tarfile} bin/scalafmt bin/scalafmt.bat bin/scalafmt_auto scalafmt-cli/target/scala-2.11/scalafmt.jar bin/configure
 
     echo "Creating github release..."
     github-release release \
@@ -95,11 +97,12 @@ assert-preconditions
 if [[ ! $1 == "-q" ]]; then
   confirm-release
 fi
-push-tag
+tag-create
 assemble-jar
 maven-publish
 update-github-release
 update-homebrew-release
+tag-push
 echo "Released ${tag}!"
 #./update-gh-pages.sh
 # TODO(olafur) update-intellij-plugin
