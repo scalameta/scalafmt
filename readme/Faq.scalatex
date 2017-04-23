@@ -5,10 +5,6 @@
 
 @sect{FAQ / Troubleshooting}
 
-   @sect{How can I be notified of releases/announcements?}
-     Join @lnk("the scalafmt mailing list", "https://groups.google.com/forum/#!forum/scalafmt")
-     to receive announcements of new releases only. No spam, promise.
-
    @sect{Why not Scalariform?}
      @lnk("Scalariform", "http://scala-ide.org/scalariform/") does an
      excellent job of tidying up common formatting errors. However,

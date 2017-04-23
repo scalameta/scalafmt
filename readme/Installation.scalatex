@@ -5,6 +5,63 @@
 
 @sect{Installation}
 
+  @sect{CLI}
+    The recommended way to install the @code{scalafmt} command line tool is with
+    @sect.ref{Coursier}.
+
+    @sect{Coursier}
+      @ul
+        @li
+          To install coursier see @lnk("here", "https://github.com/coursier/coursier#command-line")
+        @li
+          Create a standalone executable in @code{/usr/local/bin/scalafmt}
+          @hl.scala
+            sudo coursier bootstrap --standalone com.geirsson:scalafmt-cli_2.12:@V.stable -o /usr/local/bin/scalafmt -f --main org.scalafmt.cli.Cli
+            ./scalafmt --version # should be @org.scalafmt.Versions.stable
+        @li
+          Create a slim 16kb bootstrap script with
+          @hl.xml
+            coursier bootstrap com.geirsson:scalafmt-cli_2.11:@V.stable --main org.scalafmt.cli.Cli -o scalafmt
+            ./scalafmt --version # should be @org.scalafmt.Versions.stable
+
+        @p
+          @b{Recommended in CI/Continuous Integration Server}. Put the bootstrap
+          script in your code repository to make sure everyone on your team use
+          the same scalafmt version. To configure which files to format,
+          see @sect.ref{project}.
+
+    @sect{Nailgun}
+
+      Nailgun is recommended if you want to integrate @code{scalafmt} with a
+      text editor like vim/Emacs/Atom/Sublime/VS Code.
+      @ul
+        @li
+          Make sure you have a nailgun client installed. For example with @code{brew install nailgun}.
+        @li
+          Create a standalone executable in @code{/usr/local/bin/scalafmt_ng}
+          @hl.xml
+            sudo coursier bootstrap --standalone com.geirsson:scalafmt-cli_2.12:@V.stable -o /usr/local/bin/scalafmt_ng -f --main com.martiansoftware.nailgun.NGServer
+            scalafmt_ng & // start nailgun in background
+            ng ng-alias scalafmt org.scalafmt.cli.Cli
+            ng scalafmt --version # should be @org.scalafmt.Versions.stable
+
+      @p
+        Nailgun keeps scalafmt running on a local server to avoid the JVM startup penalty
+        and also so scalafmt can benefit from JIT.
+        This makes scalafmt up to 10x faster when formatting a single file from the CLI.
+        The downside to Nailgun is that the setup is complicated and the long-running server
+        needs to be restarted once in awhile.
+
+    @sect{--help}
+
+      @note. This help page is generated from the @code{master} branch and
+      may include flags that have not been published yet.
+      @hl.scala()
+
+      @hl.scala(
+        org.scalafmt.cli.CliArgParser.buildInfo + "\n" +
+        org.scalafmt.cli.CliArgParser.scoptParser.usage)
+
   @sect{IntelliJ}
     @lnk("Here is the plugin", "https://plugins.jetbrains.com/plugin/8236?pr=").
     You can install it directly from within IntelliJ,
@@ -45,111 +102,6 @@
       @note. You may need to enable balloons to get error message:
       Settings > Appearance & Behavior > Notifications > Scalafmt > Popup "Balloon".
       You need to first check "Display Balloon Notifications".
-
-  @sect{CLI}
-    There are several ways to install the CLI.
-
-    @sect{Coursier}
-      Create a tiny (~12kb) bootstrap script with coursier like this:
-
-      @hl.xml
-        coursier bootstrap com.geirsson:scalafmt-cli_2.11:@org.scalafmt.Versions.stable --main org.scalafmt.cli.Cli -o scalafmt
-        ./scalafmt --version # should be @org.scalafmt.Versions.stable
-
-      To install coursier, see @lnk("here", "https://github.com/alexarchambault/coursier#command-line").
-      For more details on coursier bootstrap launchers, see @lnk("here", "https://github.com/alexarchambault/coursier#generating-bootstrap-launchers").
-
-      @p
-        @b{Recommended in CI}. Put the bootstrap script in your code repository
-        to make sure everyone on your team use the same scalafmt version.
-        To configure which files to format, see @sect.ref{project}.
-
-    @sect{Linux/OSX}
-
-      @p
-        To install the CLI in Linux or OSX, run:
-
-      @hl.xml
-        sudo curl -L -o /usr/local/bin/scalafmt https://raw.githubusercontent.com/scalameta/scalafmt/master/bin/scalafmt_auto && sudo chmod +x /usr/local/bin/scalafmt && scalafmt --upgrade --help
-
-      @sect{Arch Linux}
-        @p
-          Install the @code{scalafmt} package from the Arch User Repository. Voting on the package will also increase the likelyhood that the package will be merged into the community repo.
-
-      @p
-        To upgrade to the latest release, run @code{scalafmt --upgrade --help}.
-        All downloaded artifacts will go to @code{$HOME/.scalafmt-bin}.
-
-      @p
-        For instructions on how to use the bash script, run @code{scalafmt --h}.
-        Once installed, see @sect.ref{--help}.
-
-      @sect{Nailgun}
-        @p
-          For experimental nailgun support (requires @code{ng} client on @code{$PATH}), run instead:
-
-        @hl.xml
-          sudo curl -L -o /usr/local/bin/scalafmt https://raw.githubusercontent.com/scalameta/scalafmt/master/bin/scalafmt_ng && chmod +x /usr/local/bin/scalafmt && scalafmt --upgrade --help
-
-        @p
-          Nailgun keeps scalafmt running on a local server to avoid the JVM startup penalty
-          and also so scalafmt can benefit from JIT.
-          This makes scalafmt up to 10x faster when formatting a single file from the CLI.
-          The downside to Nailgun is that the setup is complicated and the long-running server
-          needs to be restarted once in awhile.
-        @p
-          @b{Help wanted!}.
-          For 0.5.0, I would like to migrate @code{scalafmt_ng} to python using
-          @lnk("this", "https://github.com/martylamb/nailgun/blob/master/pynailgun/ng.py")
-          python script as a baseline.
-
-    @sect{Build from source}
-      For the greatest performance and prettiest output.
-
-      @ul
-        @li
-          @code{git clone @gitRepo}.
-        @li
-          @code{sbt cli/assembly}
-        @li
-          @code{java -jar cli/target/scala-2.11/scalafmt.jar --version}
-        @li
-          follow instructions in @sect.ref{scalafmt.jar}.
-
-
-    @sect{scalafmt.jar}
-
-      You can download a pre-compiled jar from the
-      @lnk("releases page", repo + "/releases").
-
-      Next, create a script named @code("scalafmt") somewhere in your
-      @code("PATH") with the command:
-
-      @hl.scala
-        java -jar PATH_TO/scalafmt.jar $@@
-
-      or, in case of Windows, a script @code("scalafmt.bat") with the command:
-      @hl.scala
-        java -jar PATH_TO/scalafmt.jar %*
-
-    @sect{Homebrew/Mac OSX}
-      @hl.scala
-        brew install olafurpg/scalafmt/scalafmt
-        scalafmt --version // should be @org.scalafmt.Versions.stable
-
-    @sect{Windows}
-
-      Help wanted!
-
-    @sect{--help}
-
-      @note. This help page is generated from the @code{master} branch and
-      may include flags that have not been published yet.
-      @hl.scala()
-
-      @hl.scala(
-        org.scalafmt.cli.CliArgParser.buildInfo + "\n" +
-        org.scalafmt.cli.CliArgParser.scoptParser.usage)
 
   @sect{sbt}
     @p
@@ -214,21 +166,23 @@
           Why isn't that gist included in the sbt plugin? See @issue(597).
 
   @sect{sbt 0.13}
-    It is possible to use sbt-scalafmt 0.6.6 with the latest scalafmt versions
+    I recommend you try to upgrade to sbt 1.0 as soon as possible.
+    However, if you are stuck on sbt 0.13, you can still the latest versions
+    of scalafmt with this workaround (thanks to coursier!).
 
     @hl.scala
       // project/plugins.sbt
-      addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "0.6.6")
+      libraryDependencies += "com.geirsson" % "scalafmt-bootstrap" % "0.6.6"
       // build.sbt
       def latestScalafmt = "@V.stable"
-      commands += Command.args("scalafmt013", "Run scalafmt cli.") {
+      commands += Command.args("scalafmt", "Run scalafmt cli.") {
         case (state, args) =>
           val Right(scalafmt) =
             org.scalafmt.bootstrap.ScalafmtBootstrap.fromVersion(latestScalafmt)
           scalafmt.main("--non-interactive" +: args.toArray)
           state
       }
-      // run: sbt scalafmt013
+      // run: sbt scalafmt
 
     Here is an example repo that uses this workaround:
     @lnk("https://github.com/olafurpg/sbt-scalafmt-0.13/blob/master/build.sbt")
@@ -268,6 +222,8 @@
     Add to your dependencies
     @hl.scala
       libraryDependencies += "com.geirsson" %% "scalafmt-core" % "@org.scalafmt.Versions.stable"
+      // Scala.js
+      libraryDependencies += "com.geirsson" %%% "scalafmt-core" % "@org.scalafmt.Versions.stable"
     @p
       Use the API like this
 

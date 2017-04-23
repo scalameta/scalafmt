@@ -1,0 +1,58 @@
+@import Main._
+@import org.scalafmt.rewrite._
+@import org.scalafmt.readme.Readme._
+@import org.scalafmt.config.ScalafmtConfig
+
+@ignore
+  @code{0.7.x}
+    @ul
+      @li
+        Please document your contribution here.
+@sect{0.7.0}
+  @ul
+    @li
+      @b{NEW}. scalafmt-core now support Scala.js!
+    @li
+      @b{Breaking}. Homebrew and Github releases are no longer supported
+      for releases. See @sect.ref{Coursier} for the recommended way to install
+      the command-line tool.
+    @li
+      @b{Breaking}. sbt-scalafmt no longer supports 0.13. sbt-scalafmt is
+      only published against sbt 1.0 from now on. See @sect.ref{sbt 0.13} for
+      how to use the latest scalafmt versions on sbt 0.13.
+
+      @p
+        Note, sbt 1.0 brings incredible new opportunities for Scala tooling.
+        Scala.meta, which scalafmt uses for parsing, doesn't support Scala 2.10,
+        which sbt 0.13 plugins are required to run on.
+        I highly recommend you try to upgrade your build to sbt 1.0 as soon as
+        possible.
+
+    @li
+      @b{NEW} Two settings
+      @config{newlines.beforeImplicitKWInVerticalMultiline=false}
+      and
+      @config{newlines.afterImplicitKWInVerticalMultiline=false}.
+
+      @hl.scala
+        // newlines.afterImplicitKWInVerticalMultiline = true
+        // newlines.beforeImplicitKWInVerticalMultiline = true
+        def format(
+          code: String,
+          age: Int
+        )(
+          implicit
+          ev: Parser,
+          c: Context
+        ): String
+        // newlines.afterImplicitAtDefnSite = true
+        // newlines.beforeImplicitKWInVerticalMultiline = false
+        def format(
+          code: String,
+          age: Int
+        )(implicit
+          ev: Parser,
+          c: Context
+        ): String
+
+      Thank you @user{sugakandrey} for contributing this new feature!
