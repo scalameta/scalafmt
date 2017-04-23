@@ -1,6 +1,5 @@
 import Dependencies._
-
-addCommandAlias("downloadIdea", "intellij/updateIdea")
+import org.scalajs.sbtplugin.cross.CrossProject
 
 lazy val buildSettings = Seq(
   organization := "com.geirsson",
@@ -9,78 +8,66 @@ lazy val buildSettings = Seq(
   crossScalaVersions := Seq(scala211, scala212),
   scalaCompilerBridgeSource :=
     ("org.scala-sbt" % "compiler-interface" % "0.13.15" % "component").sources,
-  updateOptions := updateOptions.value.withCachedResolution(true)
+  updateOptions := updateOptions.value.withCachedResolution(true),
+  resolvers += Resolver.sonatypeRepo("releases"),
+  libraryDependencies += scalatest.value % Test,
+  triggeredMessage in ThisBuild := Watched.clearWhenTriggered,
+  scalacOptions in (Compile, console) := compilerOptions :+ "-Yrepl-class-based",
+  assemblyJarName in assembly := "scalafmt.jar",
+  testOptions in Test += Tests.Argument("-oD")
 )
+lazy val allSettings = buildSettings ++ publishSettings
 
 name := "scalafmtRoot"
 allSettings
 noPublish
-commands += CiCommand("ci-fast")(
-  "test" ::
-    Nil
-)
-commands += CiCommand("ci-slow")(
-  "core/test:runMain org.scalafmt.ScalafmtProps" ::
-    Nil
-)
-commands += CiCommand("ci-sbt-scalafmt")(
-  "scalafmtSbt/it:test" ::
-    Nil
-)
-commands += CiCommand("ci-publish")(
-  if (sys.env.contains("CI_PUBLISH")) s"publish" :: Nil
-  else Nil
-)
+commands ++= ciCommands
+addCommandAlias("downloadIdea", "intellij/updateIdea")
 
-lazy val core = project
+lazy val core = crossProject
+  .in(file("scalafmt-core"))
   .settings(
+    moduleName := "scalafmt-core",
     allSettings,
     metaMacroSettings,
     buildInfoSettings,
     fork.in(run).in(Test) := true,
-    moduleName := "scalafmt-core",
     libraryDependencies ++= Seq(
-      metaconfig,
-      scalameta,
-      "com.typesafe" % "config" % "1.2.1",
-      // Test dependencies
-      "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0" % Test,
-      "com.lihaoyi"                    %% "scalatags" % "0.6.3" % Test,
-      scalametaTestkit                 % Test,
-      scalatest                        % Test
+      metaconfig.value,
+      scalameta.value
     ),
     addCompilerPlugin(paradise)
   )
+  .jsSettings(
+    libraryDependencies += metaconfigHocon.value
+  )
+  .jvmSettings(
+    libraryDependencies += metaconfigTypesafe.value
+  )
   .enablePlugins(BuildInfoPlugin)
-
-lazy val cliJvmOptions = Seq(
-  "-Xss4m"
-)
+lazy val coreJVM = core.jvm
+lazy val coreJS = core.js
 
 lazy val cli = project
+  .in(file("scalafmt-cli"))
   .settings(
+    moduleName := "scalafmt-cli",
     allSettings,
     metaMacroSettings,
-    packSettings,
-    packMain := Map("scalafmt_pack" -> "org.scalafmt.cli.Cli"),
-    packJvmOpts := Map(
-      "scalafmt_pack" -> cliJvmOptions
-    ),
-    moduleName := "scalafmt-cli",
     mainClass in assembly := Some("org.scalafmt.cli.Cli"),
     libraryDependencies ++= Seq(
       "com.martiansoftware" % "nailgun-server" % "0.9.1",
       "com.github.scopt"    %% "scopt"         % "3.5.0"
     )
   )
-  .dependsOn(core % "compile->compile;test->test")
+  .dependsOn(coreJVM)
 
 def isOnly(scalaV: String) = Seq(
   scalaVersion := scalaV,
   crossScalaVersions := Seq(scalaV)
 )
 
-lazy val scalafmtSbt = project
+lazy val `scalafmt-sbt` = project
   .configs(IntegrationTest)
   .settings(
     allSettings,
@@ -91,18 +78,16 @@ lazy val scalafmtSbt = project
     sbtVersion in Global := "1.0.0-M5",
     test.in(IntegrationTest) := RunSbtCommand(
       Seq(
-        s"wow $scala212",
-        "publishLocal",
+        s"plz $scala212 publishLocal",
         """set sbtVersion in Global := "0.13.15" """,
-        "such scalafmtSbtTest/scripted",
-        """set sbtVersion in Global := "1.0.0-M5" """,
-        s"wow $scala211"
+        "such scalafmt-sbt-tests/scripted",
+        """set sbtVersion in Global := "1.0.0-M5" """
       ).mkString("; ", "; ", "")
     )(state.value)
   )
   .dependsOn(cli)
 
-lazy val scalafmtSbtTest = project
+lazy val `scalafmt-sbt-tests` = project
   .settings(
     allSettings,
     noPublish,
@@ -125,7 +110,9 @@ lazy val scalafmtSbtTest = project
     },
     scriptedBufferLog := false
   )
+
 lazy val intellij = project
+  .in(file("scalafmt-intellij"))
   .settings(
     allSettings,
     buildInfoSettings,
@@ -138,10 +125,27 @@ lazy val intellij = project
     libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.0.6",
     cleanFiles += ideaDownloadDirectory.value
   )
-  .dependsOn(core, cli)
+  .dependsOn(coreJVM, cli)
   .enablePlugins(SbtIdeaPlugin)
 
+lazy val tests = project
+  .in(file("scalafmt-tests"))
+  .settings(
+    allSettings,
+    noPublish,
+    libraryDependencies ++= Seq(
+      // Test dependencies
+      "com.googlecode.java-diff-utils" % "diffutils"  % "1.3.0",
+      "com.lihaoyi"                    %% "scalatags" % "0.6.3",
+      scalametaTestkit
+    )
+  )
+  .dependsOn(
+    cli
+  )
+
 lazy val benchmarks = project
+  .in(file("scalafmt-benchmarks"))
   .settings(
     allSettings,
     noPublish,
@@ -149,7 +153,7 @@ lazy val benchmarks = project
     moduleName := "scalafmt-benchmarks",
     libraryDependencies ++= Seq(
       scalametaTestkit,
-      scalatest % Test
+      scalatest.value % Test
     ),
     javaOptions in run ++= Seq(
       "-Djava.net.preferIPv4Stack=true",
@@ -170,7 +174,7 @@ lazy val benchmarks = project
       "-server"
     )
   )
-  .dependsOn(core)
+  .dependsOn(coreJVM)
   .enablePlugins(JmhPlugin)
 
 lazy val readme = scalatex
@@ -189,7 +193,7 @@ lazy val readme = scalatex
     )
   )
   .dependsOn(
-    core,
+    coreJVM,
     cli
   )
 
@@ -214,7 +218,7 @@ lazy val noDocs = Seq(
 )
 
 lazy val metaMacroSettings: Seq[Def.Setting[_]] = Seq(
-  libraryDependencies += scalameta,
+  libraryDependencies += scalameta.value,
   addCompilerPlugin(paradise),
   scalacOptions += "-Xplugin-require:macroparadise"
 ) ++ noDocs
@@ -233,13 +237,6 @@ lazy val compilerOptions = Seq(
   "-Ywarn-numeric-widen",
   "-Xfuture",
   "-Xlint"
-)
-
-lazy val commonSettings = Seq(
-  triggeredMessage in ThisBuild := Watched.clearWhenTriggered,
-  scalacOptions in (Compile, console) := compilerOptions :+ "-Yrepl-class-based",
-  assemblyJarName in assembly := "scalafmt.jar",
-  testOptions in Test += Tests.Argument("-oD")
 )
 
 lazy val publishSettings = Seq(
@@ -309,4 +306,21 @@ def extraSbtBootOptions: Seq[String] = {
   sys.props.get(bootProps).map(x => s"-D$bootProps=$x").toList
 }
 
-lazy val allSettings = commonSettings ++ buildSettings ++ publishSettings
+def ciCommands = Seq(
+  CiCommand("ci-fast")(
+    "test" ::
+      Nil
+  ),
+  CiCommand("ci-slow")(
+    "tests/test:runMain org.scalafmt.ScalafmtProps" ::
+      Nil
+  ),
+  Command.command("ci-sbt-scalafmt") { s =>
+    "scalafmt-sbt/it:test" ::
+      s
+  },
+  CiCommand("ci-publish")(
+    if (sys.env.contains("CI_PUBLISH")) s"publish" :: Nil
+    else Nil
+  )
+)
