@@ -37,7 +37,7 @@ case class BinPack(
     literalArgumentLists: Boolean = true,
     literalsMinArgCount: Int = 5,
     literalsInclude: Seq[String] = Seq(".*"),
-    literalsExclude: Seq[String] = Seq("String")
+    literalsExclude: Seq[String] = Seq("String", "Term.Name")
 ) {
   def literalsRegex: FilterMatcher =
     FilterMatcher(literalsInclude, literalsExclude)

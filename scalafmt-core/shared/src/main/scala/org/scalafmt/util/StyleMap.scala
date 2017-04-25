@@ -6,6 +6,7 @@ import scala.meta.Term
 import scala.meta.Tree
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token.Comment
+import scala.meta.tokens.Token.Ident
 import scala.meta.tokens.Token.LeftParen
 import scala.meta.tokens.Token.RightParen
 import scala.meta.tokens.Tokens
@@ -74,6 +75,7 @@ class StyleMap(tokens: Array[FormatToken],
         if (syntax.startsWith("0x")) "Byte"
         else value.getClass.getName
       literalR.matches(strName)
+    case x @ Term.Name(_) => literalR.matches(x.productPrefix)
     case _ => false
   }
 

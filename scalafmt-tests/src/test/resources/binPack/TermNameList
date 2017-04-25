@@ -1,0 +1,8 @@
+binPack.literalArgumentLists = true
+binPack.literalsExclude = ["String"]
+<<< ONLY basic
+val secret: List[Bit] = List(aaaaa, aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa, bbbbbbb, aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa, aaaaa, bbbbbbb, bbbbbbb, aaaaa, bbbbbbb,
+  aaaaa, aaaaa, bbbbbbb, bbbbbbb, aaaaa, bbbbbbb, aaaaa, bbbbbbb, bbbbbbb, aaaaa, aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa, bbbbbbb, aaaaa, bbbbbbb, bbbbbbb, aaaaa, aaaaa, aaaaa, aaaaa, bbbbbbb,
+  aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa, aaaaa, bbbbbbb, aaaaa, aaaaa, bbbbbbb, aaaaa, aaaaa, aaaaa, bbbbbbb, aaaaa, aaaaa, aaaaa, bbbbbbb, aaaaa, bbbbbbb)
+>>>
+x
