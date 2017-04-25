@@ -1,4 +1,8 @@
 rewrite.rules = [AvoidInfix]
+<<< too many parenthesis
+(test fubar compile).value
+>>>
+test.fubar(compile).value
 <<< basic
 lst map foo
 >>>

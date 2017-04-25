@@ -22,9 +22,9 @@ case object AvoidInfix extends Rewrite {
   override def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch] = {
     val matcher = ctx.style.rewrite.neverInfix.toMatcher
     code.collect {
-      case Term.ApplyInfix(lhs, op, _, args) if matcher.matches(op.value) =>
+      case infix @ Term.ApplyInfix(lhs, op, _, args)
+          if matcher.matches(op.value) =>
         val fstOpToken = op.tokens.head
-
         val selectorToBeAdded = Seq(
           TokenPatch.AddLeft(fstOpToken, ".", keepTok = true)
         )
@@ -71,10 +71,25 @@ case object AvoidInfix extends Rewrite {
               .filter(fstOpToken, token)(TokenOps.isSingleLineComment)
               .nonEmpty)
 
+        val infixTokens = infix.tokens
+        val enclosingParens = for {
+          first <- infixTokens.headOption
+          if first.is[LeftParen]
+          last <- infixTokens.lastOption
+          if last.is[RightParen]
+          if ctx.isMatching(first, last)
+        } yield {
+          List(TokenPatch.Remove(first), TokenPatch.Remove(last))
+        }
+
         if (hasSingleLineComment)
           Nil
         else
-          lhsParensToBeAdded ++ selectorToBeAdded ++ selectorParensToBeAdded ++ toBeRemoved
+          lhsParensToBeAdded ++
+            selectorToBeAdded ++
+            selectorParensToBeAdded ++
+            toBeRemoved ++
+            enclosingParens.getOrElse(List())
     }.flatten
   }
 }
