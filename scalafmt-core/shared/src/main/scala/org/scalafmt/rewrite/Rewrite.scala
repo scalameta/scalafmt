@@ -6,13 +6,16 @@ import metaconfig.ConfDecoder
 import org.scalafmt.config.ReaderUtil
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.TokenOps.TokenHash
-import org.scalafmt.util.{TokenTraverser, TreeOps}
+import org.scalafmt.util.{TokenOps, TokenTraverser, TreeOps}
 
 case class RewriteCtx(
     style: ScalafmtConfig,
     tokenTraverser: TokenTraverser,
     matchingParens: Map[TokenHash, Token]
-)
+) {
+  def isMatching(a: Token, b: Token) =
+    matchingParens.get(TokenOps.hash(a)).contains(b)
+}
 
 abstract class Rewrite {
   def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch]
