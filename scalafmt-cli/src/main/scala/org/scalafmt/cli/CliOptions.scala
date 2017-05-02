@@ -34,15 +34,9 @@ object CliOptions {
     } else {
       tryCurrentDirectory(parsed).orElse(tryGit(parsed))
     }
-    val inplace =
-      args.isEmpty || {
-        !parsed.testing && (
-          parsed.inPlace ||
-          (parsed.customFiles.isEmpty && style.isDefined)
-        )
-      }
+    val newMode = if (parsed.testing) Stdout else parsed.writeMode
     parsed.copy(
-      inPlace = inplace,
+      writeMode = newMode,
       config = style.getOrElse(parsed.config)
     )
   }
@@ -86,7 +80,7 @@ case class CliOptions(
     range: Set[Range] = Set.empty[Range],
     customFiles: Seq[AbsoluteFile] = Nil,
     customExcludes: Seq[String] = Nil,
-    inPlace: Boolean = false,
+    writeMode: WriteMode = Override,
     testing: Boolean = false,
     stdIn: Boolean = false,
     quiet: Boolean = false,
@@ -98,7 +92,8 @@ case class CliOptions(
     common: CommonOptions = CommonOptions(),
     gitOpsConstructor: AbsoluteFile => GitOps = x => new GitOpsImpl(x)
 ) {
-  require(!(inPlace && testing), "inPlace and testing can't both be true")
+
+  val inPlace: Boolean = writeMode == Override
 
   val gitOps: GitOps = gitOpsConstructor(common.workingDirectory)
   def withProject(projectFiles: ProjectFiles): CliOptions = {

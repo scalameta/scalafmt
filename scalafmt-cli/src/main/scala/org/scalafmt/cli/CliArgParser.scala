@@ -35,7 +35,7 @@ object CliArgParser {
     new scopt.OptionParser[CliOptions]("scalafmt") {
       override def showUsageOnError = false
 
-      def printAndExit(inludeUsage: Boolean)(ignore: Unit,
+      private def printAndExit(inludeUsage: Boolean)(ignore: Unit,
                                              c: CliOptions): CliOptions = {
         if (inludeUsage) showUsage
         else showHeader
@@ -43,15 +43,20 @@ object CliArgParser {
         c
       }
 
-      def readConfigFromFile(file: String, c: CliOptions): CliOptions = {
+      private def readConfigFromFile(file: String, c: CliOptions): CliOptions = {
         readConfig(
           FileOps.readFile(
             AbsoluteFile.fromFile(new File(file), c.common.workingDirectory)),
           c
         )
       }
-      def readConfig(contents: String, c: CliOptions): CliOptions = {
+      private def readConfig(contents: String, c: CliOptions): CliOptions = {
         c.copy(config = Config.fromHoconString(contents).get)
+      }
+
+      private def addFile(file: File, c: CliOptions): CliOptions = {
+        val absFile = AbsoluteFile.fromFile(file, c.common.workingDirectory)
+        c.copy(customFiles = c.customFiles :+ absFile)
       }
 
       head("scalafmt", Versions.nightly)
@@ -61,14 +66,24 @@ object CliArgParser {
       opt[Unit]('v', "version")
         .action(printAndExit(inludeUsage = false))
         .text("print version ")
-      opt[Seq[File]]('f', "files")
-        .action { (files, c) =>
-          c.copy(
-            customFiles =
-              AbsoluteFile.fromFiles(files, c.common.workingDirectory))
-        }
-        .text(
-          "file or directory, in which case all *.scala files are formatted.")
+
+      arg[File]("<file>...")
+        .optional()
+        .unbounded()
+        .action((file, c) => addFile(file, c))
+        .text("file or directory, in which case all *.scala files are formatted.")
+
+      opt[WriteMode]('w', "write-mode")
+        .action((opt, c) => c.copy(writeMode = opt))
+        .text("write mode. Can be stdout or override (default).")
+
+      opt[Unit]('i', "in-place")
+        .action((opt, c) => c.copy(writeMode = Override))
+        .text("alias for --write-mode=override")
+      opt[Unit]("stdout")
+        .action((opt, c) => c.copy(writeMode = Stdout))
+        .text("alias for --write-mode=stdout")
+
       opt[Seq[String]]("exclude")
         .action((excludes, c) => c.copy(customExcludes = excludes))
         .text(
@@ -85,9 +100,6 @@ object CliArgParser {
       opt[String]("assume-filename")
         .action((filename, c) => c.copy(assumeFilename = filename))
         .text("required to format .sbt files with --stdin flag.")
-      opt[Unit]('i', "in-place")
-        .action((_, c) => c.copy(inPlace = true))
-        .text("write output to file, does nothing if file is not specified")
       opt[Unit]("test")
         .action((_, c) => c.copy(testing = true))
         .text("test for mis-formatted code, exits with status 1 on failure.")

@@ -76,14 +76,12 @@ class CliTest extends FunSuite with DiffAssertions {
   def gimmeConfig(string: String): ScalafmtConfig =
     Config.fromHoconString(string).get
 
-  test("scalafmt -i --file tmpFile") {
+  test("scalafmt tmpFile") {
     val originalTmpFile = Files.createTempFile("prefix", ".scala")
     Files.write(originalTmpFile, unformatted.getBytes)
     val args = Array(
       "--config-str",
       "{maxColumn=7,style=IntelliJ}",
-      "--in-place",
-      "--files",
       originalTmpFile.toFile.getPath
     )
     val formatInPlace = getConfig(args)
@@ -92,11 +90,11 @@ class CliTest extends FunSuite with DiffAssertions {
     assertNoDiff(obtained, expected10)
   }
 
-  test("scalafmt --file tmpFile prints to stdout") {
+  test("scalafmt --stdout tmpFile prints to stdout") {
     val originalTmpFile = Files.createTempFile("prefix", ".scala")
     Files.write(originalTmpFile, unformatted.getBytes)
     val args = Array(
-      "-f",
+      "--stdout",
       originalTmpFile.toFile.getPath
     )
     val baos = new ByteArrayOutputStream()
@@ -135,11 +133,10 @@ class CliTest extends FunSuite with DiffAssertions {
     assert(obtained.size == sbtExpected.size)
   }
 
-  test("scalafmt --test --file tmpFile") {
+  test("scalafmt --test tmpFile is left unformmated") {
     val tmpFile = Files.createTempFile("prefix", ".scala")
     Files.write(tmpFile, unformatted.getBytes)
     val args = Array(
-      "--files",
       tmpFile.toFile.getPath,
       "--test"
     )
@@ -147,14 +144,27 @@ class CliTest extends FunSuite with DiffAssertions {
     intercept[MisformattedFile] {
       Cli.run(formatInPlace)
     }
+    val str = new String(Files.readAllBytes(tmpFile))
+    assert(str == unformatted)
   }
 
-  test("scalafmt -i -f foo.randomsuffix is formatted") {
+  test("scalafmt --write-mode=override foo.randomsuffix is formatted") {
+    val tmpFile = Files.createTempFile("prefix", "randomsuffix")
+    Files.write(tmpFile, unformatted.getBytes)
+    val args = Array(
+      "--write-mode=override",
+      tmpFile.toFile.getAbsolutePath
+    )
+    Cli.main(args)
+    val obtained = FileOps.readFile(tmpFile.toString)
+    assertNoDiff(obtained, formatted)
+  }
+
+  test("scalafmt -i is an alias for --write-mode=override") {
     val tmpFile = Files.createTempFile("prefix", "randomsuffix")
     Files.write(tmpFile, unformatted.getBytes)
     val args = Array(
       "-i",
-      "-f",
       tmpFile.toFile.getAbsolutePath
     )
     Cli.main(args)
@@ -179,7 +189,6 @@ class CliTest extends FunSuite with DiffAssertions {
           |""".stripMargin
     val options = getConfig(
       Array(
-        "--files",
         input.path,
         "-i"
       )
@@ -219,7 +228,6 @@ class CliTest extends FunSuite with DiffAssertions {
           |""".stripMargin
     val options = getConfig(
       Array(
-        "--files",
         input.path,
         "--exclude",
         "target/nested",
@@ -230,9 +238,9 @@ class CliTest extends FunSuite with DiffAssertions {
     assertNoDiff(obtained, expected)
   }
 
-  test("--file doesnotexist.scala throws error") {
+  test("scalafmt doesnotexist.scala throws error") {
     def check(filename: String): Unit = {
-      val args = Array("-f", s"$filename.scala")
+      val args = Array(s"$filename.scala")
       intercept[FileNotFoundException] {
         Cli.main(args)
       }
@@ -324,7 +332,7 @@ class CliTest extends FunSuite with DiffAssertions {
       val mock = getMockOptions(input, workingDir)
       mock.copy(common = mock.common.copy(workingDirectory = workingDir))
     }
-    val config = Cli.getConfig(Array("-i", "-f", "foo.scala"), options).get
+    val config = Cli.getConfig(Array("-i","foo.scala"), options).get
     Cli.run(config)
     val obtained = FileOps.readFile(workingDir / "foo.scala")
     assertNoDiff(obtained, expected)
@@ -344,7 +352,6 @@ class CliTest extends FunSuite with DiffAssertions {
       "--config",
       config,
       "-i",
-      "-f",
       toFormat
     )
     Cli.main(args) // runs without errors
