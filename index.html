@@ -187,9 +187,9 @@ ng scalafmt --version # should be 0.7.0-RC1
       may include flags that have not been published yet.
       <code class="scala scalatex-site-Styles-highlightMe" style="display: inline;padding: 0px;margin: 0px;"></code>
 
-      <pre><code class="scala scalatex-site-Styles-highlightMe">build commit: 46c6efaf9e
-build time: Mon May 01 14:37:28 UTC 2017
-scalafmt 0.7.0-RC1+14-46c6efaf
+      <pre><code class="scala scalatex-site-Styles-highlightMe">build commit: 93969e10d1
+build time: Sun May 07 08:28:50 UTC 2017
+scalafmt 0.7.0-RC1+15-93969e10
 Usage: scalafmt [options]
 
   -h, --help               prints this usage text
@@ -412,14 +412,14 @@ res0: java.lang.String =
 
 
     <pre><code class="scala scalatex-site-Styles-highlightMe">// cli
-sudo coursier bootstrap -r bintray:scalameta/maven --standalone com.geirsson:scalafmt-cli_2.12:0.7.0-RC1+14-46c6efaf -o /usr/local/bin/scalafmt -f --main org.scalafmt.cli.Cli
-./scalafmt --version # should be 0.7.0-RC1+14-46c6efaf
+sudo coursier bootstrap -r bintray:scalameta/maven --standalone com.geirsson:scalafmt-cli_2.12:0.7.0-RC1+15-93969e10 -o /usr/local/bin/scalafmt -f --main org.scalafmt.cli.Cli
+./scalafmt --version # should be 0.7.0-RC1+15-93969e10
 // library
 resolvers += Resolver.bintrayRepo(&quot;scalameta&quot;, &quot;maven&quot;)
-libraryDependencies += &quot;com.geirsson&quot; %% &quot;scalafmt-core&quot; % &quot;0.7.0-RC1+14-46c6efaf&quot;
-libraryDependencies += &quot;com.geirsson&quot; %% &quot;scalafmt-cli&quot; % &quot;0.7.0-RC1+14-46c6efaf&quot;
+libraryDependencies += &quot;com.geirsson&quot; %% &quot;scalafmt-core&quot; % &quot;0.7.0-RC1+15-93969e10&quot;
+libraryDependencies += &quot;com.geirsson&quot; %% &quot;scalafmt-cli&quot; % &quot;0.7.0-RC1+15-93969e10&quot;
 // Scala.js
-libraryDependencies += &quot;com.geirsson&quot; %%% &quot;scalafmt-core&quot; % &quot;0.7.0-RC1+14-46c6efaf&quot;
+libraryDependencies += &quot;com.geirsson&quot; %%% &quot;scalafmt-core&quot; % &quot;0.7.0-RC1+15-93969e10&quot;
 </code></pre>
   <h1 id="Helpwanted!" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Helpwanted!" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Help wanted!</h1>
 
@@ -1099,7 +1099,7 @@ runner.optimizer.recurseOnBlocks = true
 runner.optimizer.escapeInPathologicalCases = true
 runner.optimizer.pruneSlowStates = true
 runner.eventCallback = &quot;&lt;function1&gt;&quot;
-runner.parser = scala.meta.internal.parsers.ScalametaParser$$anon$202@56d425b
+runner.parser = scala.meta.internal.parsers.ScalametaParser$$anon$202@16d40b01
 runner.debug = false
 runner.fatalWarnings = false
 runner.maxStateVisits = 1000000
@@ -2719,7 +2719,7 @@ List(1).map { x =&gt;
     The <code>-f</code> flag in the CLI can be a directory.
 </ul>
 <p>
-  This page was last updated on May 1, 2017.</p>
+  This page was last updated on May 7, 2017.</p>
 
 
   
