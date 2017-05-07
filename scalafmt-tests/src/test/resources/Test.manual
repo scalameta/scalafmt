@@ -1,2 +1,1 @@
 SKIP https://raw.githubusercontent.com/akka/akka/3698928fbdaa8fef8e2037fbc51887ab60addefb/akka-http-core/src/test/scala/akka/http/impl/engine/rendering/ResponseRendererSpec.scala
-SKIP ./cli/src/main/scala/org/scalafmt/cli/CliArgParser.scala

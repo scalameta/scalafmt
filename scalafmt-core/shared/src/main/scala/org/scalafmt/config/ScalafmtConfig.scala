@@ -98,23 +98,23 @@ import org.scalafmt.util.ValidationOps
   *    }.filter(_ > 2)
   *  }}}
   * @param verticalMultilineAtDefinitionSite If true, reformat multi-line function definitions in
-  *  the following way
-  * {{{
-  *   def format(
-  *       code: String,
-  *       age: Int
-  *     )(implicit ev: Parser,
-  *       c: Context
-  *     ): String
-  * )
-  * }}}
+  *                                          the following way
+  *                                          {{{
+  *                                             def format(
+  *                                                 code: String,
+  *                                                 age: Int
+  *                                               )(implicit ev: Parser,
+  *                                                 c: Context
+  *                                               ): String
+  *                                           )
+  *                                          }}}
   *
-  *  All parameters are on their on line indented by four (4), seperation between
-  *  parament groups are indented by two (2). ReturnType is on its own line at
-  *  then end. This will only trigger if the function would go over
-  *  [[maxColumn]]. If a multi-line funcion can fit in a single line, it will
-  *  make it so. Note that this setting ignores continuation.defnSite,
-  *  [[binPack.defnSite]], and [[align.openParenDefnSite]].
+  *                                          All parameters are on their on line indented by four (4), seperation between
+  *                                          parament groups are indented by two (2). ReturnType is on its own line at
+  *                                          then end. This will only trigger if the function would go over
+  *                                          [[maxColumn]]. If a multi-line funcion can fit in a single line, it will
+  *                                          make it so. Note that this setting ignores continuation.defnSite,
+  *                                          [[binPack.unsafeDefnSite]], and [[align.openParenDefnSite]].
   */
 @DeriveConfDecoder
 case class ScalafmtConfig(
@@ -132,7 +132,6 @@ case class ScalafmtConfig(
     indentOperator: IndentOperator = IndentOperator(),
     @Recurse newlines: Newlines = Newlines(),
     @Recurse runner: ScalafmtRunner = ScalafmtRunner.default,
-    @Recurse indent: IndentConfig = IndentConfig(),
     // Settings which belong to no group
     indentYieldKeyword: Boolean = true,
     @metaconfig.ExtraName("binPackImportSelectors") importSelectors: ImportSelectors =
@@ -142,7 +141,6 @@ case class ScalafmtConfig(
     assumeStandardLibraryStripMargin: Boolean = false,
     danglingParentheses: Boolean = false,
     poorMansTrailingCommasInConfigStyle: Boolean = false,
-    bestEffortInDeeplyNestedCode: Boolean = false,
     verticalMultilineAtDefinitionSite: Boolean = false,
     onTestFailure: String = "",
     encoding: Codec = "UTF-8",

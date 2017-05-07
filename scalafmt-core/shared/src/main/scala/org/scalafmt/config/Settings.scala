@@ -27,7 +27,6 @@ trait Settings {
 
   def addAlign(style: ScalafmtConfig): ScalafmtConfig = style.copy(
     align = style.align.copy(
-      mixedOwners = true,
       tokens = AlignToken.default
     )
   )
@@ -43,8 +42,8 @@ trait Settings {
     */
   val scalaJs: ScalafmtConfig = default.copy(
     binPack = BinPack(
-      defnSite = true,
-      callSite = true,
+      unsafeDefnSite = true,
+      unsafeCallSite = true,
       parentConstructors = true
     ),
     continuationIndent = ContinuationIndent(4, 4),

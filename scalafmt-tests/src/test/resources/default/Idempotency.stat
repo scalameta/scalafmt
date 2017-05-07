@@ -105,21 +105,6 @@ val bindingFuture = Http().bindAndHandleSync({
   }
 
 }
-<<< SKIP synch #339
-{
-  def behavior =
-    ContextAware { ctx ⇒
-      SynchronousSelf { syncself ⇒
-        Or(
-          empty(ctx).widen { case c: Command[t] ⇒ c.asInstanceOf[Command[T]] },
-          Static[Any] {
-            case msg ⇒ syncself ! Enqueue(msg)
-          })
-      }
-    }.narrow
-    }
->>>
-x
 <<< rendering #339
 {{
     val core = BidiFlow.fromGraph(GraphDSL.create() { implicit b ⇒

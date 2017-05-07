@@ -566,8 +566,8 @@
 
   @sect{Other}
 
-    Scalafmt has a ton of internal configuration options which I
-    really don't recommend you rely on.
-    However, just in case, here they are.
+    Scalafmt has a ton of internal configuration options which may be removed
+    without notice.
+    However, just in case you want to try them out, here they are.
 
     @hl.scala(org.scalafmt.config.Config.toHocon(default.fields).mkString("\n"))

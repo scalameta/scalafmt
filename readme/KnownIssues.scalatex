@@ -36,10 +36,6 @@
             @li
               Refactor your code to eliminate deeply nested function calls.
               Binding large function arguments to variables is a good start.
-            @li
-              Try the semi-broken @cliFlags{bestEffortInDeeplyNestedCode = true}
-              flag that will try to produce decent formatting output even for the
-              most pathologically nested code. YMMV.
       @p
         Other cool code formatters like ClangFormat, dartfmt and rfmt use
         better techniques to solve this issue, which scalafmt can maybe

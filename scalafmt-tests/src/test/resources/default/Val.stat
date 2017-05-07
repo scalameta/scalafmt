@@ -62,16 +62,6 @@ val `type`: String = js.native
         }
     }
 }
-<<< SKIP unfortunate = space
-            val nextComma: Option[FormatToken] = next(
-                leftTok2tok(nextArg.tokens.last)) match {
-              case t @ FormatToken(left: `,`, _, _)
-                  if owners(left) == leftOwner =>
-                Some(t)
-              case _ => None
-            }
->>>
-x
 <<< #269
 val ps = params map { p =>
      JSMethodParam(p.info, p.asTerm.isParamWithDefault)

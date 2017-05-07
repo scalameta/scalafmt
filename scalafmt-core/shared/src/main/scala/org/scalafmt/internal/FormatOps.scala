@@ -483,9 +483,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       else 2
     }
     val isRightAssociative =
-      style.indent.rightAssociativeInfixOperatorsLikeLeftAssociative &&
-        // NOTE. Silly workaround because we call infixSplit from assignment =, see #798
-        formatToken.left.syntax != "=" &&
+      // NOTE. Silly workaround because we call infixSplit from assignment =, see #798
+      formatToken.left.syntax != "=" &&
         isRightAssociativeOperator(op.value)
     val expire = (for {
       arg <- {
@@ -584,7 +583,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
         // orpan comments and the case cond is indented correctly.
         Num(0)
       case x if isDefnSite(x) && !x.isInstanceOf[Type.Apply] =>
-        if (style.binPack.defnSite && !isConfigStyle) Num(0)
+        if (style.binPack.unsafeDefnSite && !isConfigStyle) Num(0)
         else Num(style.continuationIndent.defnSite)
       case _ => Num(style.continuationIndent.callSite)
     }
@@ -592,8 +591,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
   def isBinPack(owner: Tree): Boolean = {
     val style = styleAt(owner)
-    (style.binPack.callSite && isCallSite(owner)) ||
-    (style.binPack.defnSite && isDefnSite(owner))
+    (style.binPack.unsafeCallSite && isCallSite(owner)) ||
+    (style.binPack.unsafeDefnSite && isDefnSite(owner))
   }
 
   def isSingleIdentifierAnnotation(tok: FormatToken): Boolean = {
@@ -667,8 +666,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
   def getForceConfigStyle: (Set[Tree], Set[TokenHash]) = {
     val maxDistance = runner.optimizer.forceConfigStyleOnOffset
-    if (maxDistance < 0 ||
-        initStyle.bestEffortInDeeplyNestedCode) // breaks test
+    if (maxDistance < 0)
       (Set.empty, Set.empty)
     else {
       val clearQueues = Set.newBuilder[TokenHash]

@@ -78,8 +78,3 @@ val msg =
 s"Succ(${if (s.cut) ", cut" else ""})"
 >>>
 s"Succ(${if (s.cut) ", cut" else ""})"
-<<< SKIP if else indent at if
- s"Success(${s.index}${if (s.cut) ", cut" else ""})"
->>>
-s"Success(${s.index}${if (s.cut) ", cut"
-                      else ""})"

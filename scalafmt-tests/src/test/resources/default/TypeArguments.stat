@@ -56,12 +56,6 @@ new BaseJoinQuery[E, Rep[Long], U, Long, C, E, Rep[Long]](
   val `origin-when-cross-origin` =
     "origin-when-cross-origin".asInstanceOf[ReferrerPolicy]
 }
-<<< SKIP cats
-  implicit val optionInstance: Traverse[Option] with MonadCombine[Option] with CoflatMap[Option] with Alternative[
-    Option] = new Traverse[Option] with MonadCombine[Option] with CoflatMap[Option]
-  with Alternative[Option]
->>>
-x
 <<< type.tuple
   def processTypeForUpdateOrApply(tp: ScType, call: MethodInvocation, isShape: Boolean):
       Option[(ScType, collection.Set[ImportUsed], Option[PsiNamedElement], Option[ScalaResolveResult])] = {

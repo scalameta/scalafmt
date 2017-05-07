@@ -224,15 +224,11 @@ class FormatWriter(formatOps: FormatOps) {
   def key(token: Token): Int = {
     val ownerKey = {
       val treeKind = owners(token).productPrefix
-      if (initStyle.align.mixedOwners)
-        initStyle.align.treeCategory.getOrElse(treeKind, treeKind)
-      else treeKind
+      initStyle.align.treeCategory.getOrElse(treeKind, treeKind)
     }
     val tokenKey = {
       val syntax = token.productPrefix
-      if (initStyle.align.mixedTokens)
-        initStyle.align.tokenCategory.getOrElse(syntax, syntax)
-      else syntax
+      initStyle.align.tokenCategory.getOrElse(syntax, syntax)
     }
     (tokenKey, ownerKey).hashCode()
   }

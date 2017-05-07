@@ -64,7 +64,7 @@ class StyleMap(tokens: Array[FormatToken],
   def setBinPack(curr: ScalafmtConfig, callSite: Boolean): ScalafmtConfig =
     curr.copy(
       binPack = curr.binPack.copy(
-        callSite = callSite
+        unsafeCallSite = callSite
       )
     )
 

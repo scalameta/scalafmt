@@ -1,5 +1,8 @@
 style = defaultWithAlign
-align.mixedTokens = true
+align.tokenCategory {
+  Equals = Assign
+  LeftArrow = Assign
+}
 <<< #883
 for {
   a <- b

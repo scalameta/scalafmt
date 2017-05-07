@@ -212,78 +212,6 @@ writeRead(
             is.readFully(bytes)
             bytes.toList
           })
-<<< SKIP spark configsWithAlternatives
-{
-val configsWithAlternatives = Map[String, Seq[AlternateConfig]](
-    "spark.executor.userClassPathFirst" -> Seq(
-      AlternateConfig("spark.files.userClassPathFirst", "1.3")),
-    "spark.history.fs.cleaner.interval" -> Seq(
-
-      AlternateConfig("spark.history.fs.cleaner.interval.seconds", "1.4")),
-    "spark.history.fs.cleaner.maxAge" -> Seq(
-      AlternateConfig("spark.history.fs.cleaner.maxAge.seconds", "1.4")),
-    "spark.yarn.am.waitTime" -> Seq(
-      AlternateConfig("spark.yarn.applicationMaster.waitTries", "1.3",
-        // Translate old value to a duration, with 10s wait time per try.
-        translation = s => s"${s.toLong * 10}s")),
-    "spark.reducer.maxSizeInFlight" -> Seq(
-      AlternateConfig("spark.reducer.maxMbInFlight", "1.4")),
-    "spark.kryoserializer.buffer" -> Seq(AlternateConfig("spark.kryoserializer.buffer.mb", "1.4",
-          translation = s => s"${(s.toDouble * 1000).toInt}k")),
-    "spark.yarn.jars" -> Seq(
-      AlternateConfig("spark.yarn.jar", "2.0"))
-    )
-    val  x = 1
-    }
->>>
-{
-  val configsWithAlternatives = Map[String, Seq[AlternateConfig]](
-    "spark.executor.userClassPathFirst" -> Seq(
-      AlternateConfig("spark.files.userClassPathFirst", "1.3")),
-    "spark.history.fs.cleaner.interval" -> Seq(
-
-      AlternateConfig("spark.history.fs.cleaner.interval.seconds", "1.4")),
-    "spark.history.fs.cleaner.maxAge" -> Seq(
-      AlternateConfig("spark.history.fs.cleaner.maxAge.seconds", "1.4")),
-    "spark.yarn.am.waitTime" -> Seq(
-      AlternateConfig("spark.yarn.applicationMaster.waitTries", "1.3",
-        // Translate old value to a duration, with 10s wait time per try.
-        translation = s => s"${s.toLong * 10}s")),
-    "spark.reducer.maxSizeInFlight" -> Seq(
-      AlternateConfig("spark.reducer.maxMbInFlight", "1.4")),
-    "spark.kryoserializer.buffer" -> Seq(AlternateConfig("spark.kryoserializer.buffer.mb", "1.4",
-          translation = s => s"${(s.toDouble * 1000).toInt}k")),
-    "spark.yarn.jars" -> Seq(
-      AlternateConfig("spark.yarn.jar", "2.0"))
-    )
-    val x = 1
-}
-<<< SKIP spark comment explodes matrix
-{
-  test("add") {
-    val blocks: Seq[((Int, Int), Matrix)] = Seq(
-      ((0, 0), new DenseMatrix(2, 2, Array(1.0, 0.0, 0.0, 2.0))),
-      ((0, 1), new DenseMatrix(2, 2, Array(0.0, 1.0, 0.0, 0.0))),
-      ((1, 0), new DenseMatrix(2, 2, Array(3.0, 0.0, 1.0, 1.0))),
-      ((1, 1), new DenseMatrix(2, 2, Array(1.0, 2.0, 0.0, 1.0))),
-
-      ((2, 0), new DenseMatrix(1, 2, Array(1.0, 0.0))), // This comment will make scalafmt go crazy
-      ((2, 1), new DenseMatrix(1, 2, Array(1.0, 5.0))))
-  }
-}
->>>
-{
-  test("add") {
-    val blocks: Seq[((Int, Int), Matrix)] = Seq(
-      ((0, 0), new DenseMatrix(2, 2, Array(1.0, 0.0, 0.0, 2.0))),
-      ((0, 1), new DenseMatrix(2, 2, Array(0.0, 1.0, 0.0, 0.0))),
-      ((1, 0), new DenseMatrix(2, 2, Array(3.0, 0.0, 1.0, 1.0))),
-      ((1, 1), new DenseMatrix(2, 2, Array(1.0, 2.0, 0.0, 1.0))),
-
-      ((2, 0), new DenseMatrix(1, 2, Array(1.0, 0.0))), // This comment will make scalafmt go crazy
-      ((2, 1), new DenseMatrix(1, 2, Array(1.0, 5.0))))
-  }
-}
 <<< resolution copier
 class ResolutionCopier(x: Int) {
 
@@ -386,17 +314,6 @@ foo.fold(err => {
   logger.warn(s"Malformed request: $err\n${req.body}")
   BadRequest(jsonError(JsError toJson err)).fuccess
 }, data => data)
-<<< SKIP indent cats
-    XorT(F.flatMap(fea.value) {
-      case Xor.Left(e) => f(e).value
-      case r @ Xor.Right(_) => F.pure(r)
-    })
->>>
-+    XorT(
-+      F.flatMap(fea.value) {
-+    case Xor.Left(e) => f(e).value
-+    case r @ Xor.Right(_) => F.pure(r)
-+  })
 <<< quirk in 0.2.4-RC1, #233
 {{{{{
           compileInputs in (It, compile) <<= (compileInputs in (It, compile)) dependsOn
@@ -413,100 +330,6 @@ foo.fold(err => {
     }
   }
 }
-<<< SKIP freqItems
-{
-def singlePassFreqItems( ): DataFrame = {
-
-    val freqItems = df.select(cols.map(Column(_)) : _*).rdd.aggregate(countMaps)(
-      seqOp = (counts, row) => {
-        var i = 0
-        while (i < numCols) {
-          val key = row.get(i)
-          thisMap.add(key, 1L)
-          i += 1
-        }
-        counts
-      },
-      combOp = (baseCounts, counts) => {
-        var i = 0
-        while (i < numCols) {
-          baseCounts(i).merge(counts(i))
-          i += 1
-        }
-        baseCounts
-      }
-    )
-}
-}
->>>
-x
-Defn
-  .Object(Nil,
-          Term.Name("State"),
-          Template(Nil,
-                   Seq(Ctor.Ref.Name("ScalaFmtLogger")),
-                   Term.Param(Nil, Name.Anonymous(), None, None),
-                   Some(
-                       Seq(
-                           Defn.Val(Nil,
-                                    Seq(Pat.Var.Term(Term.Name("start"))),
-                                    None,
-                                    Term
-                                      .Apply(Term.Name("State"),
-                                             Seq(Lit(0),
-                                                 Term.Name("identity"),
-                                                 Term.ApplyType(
-                                                     Term.Select(
-                                                         Term.Name("Vector"),
-                                                         Term.Name("empty")),
-                                                     Seq(Type.Name("Split"))),
-                                                 Term.ApplyType(
-                                                     Term.Select(
-                                                         Term.Name("Vector"),
-                                                         Term.Name("empty")),
-                                                     Seq(Type.Name("State"))),
-                                                 Lit(0),
-                                                 Term.ApplyType(
-                                                     Term.Select(
-                                                         Term.Name("Vector"),
-                                                         Term.Name("empty")),
-                                                     Seq(Type.Apply(
-                                                             Type.Name(
-                                                                 "Indent"),
-                                                             Seq(Type.Name(
-                                                                     "Num"))))),
-                                                 Lit(0)))),
-                           Defn.Def(
-                               Nil,
-                               Term.Name("reconstructPath"),
-                               Nil,
-                               Seq(Seq(Term.Param(
-                                           Nil,
-                                           Term.Name("toks"),
-                                           Some(Type.Apply(Type.Name("Array"),
-                                                           Seq(Type.Name(
-                                                                   "FormatToken")))),
-                                           None),
-                                       Term.Param(
-                                           Nil,
-                                           Term.Name("splits"),
-                                           Some(Type.Apply(Type.Name("Vector"),
-                                                           Seq(Type.Name(
-                                                                   "Split")))),
-                                           None),
-                                       Term.Param(
-                                           Nil,
-                                           Term.Name("style"),
-                                           Some(Type.Name("ScalaStyle")),
-                                           None),
-                                       Term
-                                         .Param(Nil,
-                                                Term.Name("debug"),
-                                                Some(Type.Name("Boolean")),
-                                                Some(Lit(false))))),
-                               Some(Type.Apply(
-                                       Type.Name("Seq"),
-                                       Seq(Type.Tuple(Seq(Type.Name("FormatToken"), Type.Name("String")))))), Term.Block(Seq(Defn.Var(Nil, Seq(Pat.Var.Term(Term.Name("state"))), None, Some(Term.Select(Term.Name("State"), Term.Name("start")))), Defn.Val(Nil, Seq(Pat.Var.Term(Term.Name("result"))), None, Term.Apply(Term.Select(Term.Apply(Term.Select(Term.Name("toks"), Term.Name("zip")), Seq(Term.Name("splits"))), Term.Name("map")), Seq(Term.PartialFunction(Seq(Case(Pat.Tuple(Seq(Pat.Var.Term(Term.Name("tok")), Pat.Var.Term(Term.Name("split")))), None, Term.Block(Seq(Term.If(Term.Name("debug"), Term.Block(Seq(Defn.Val(Nil, Seq(Pat.Var.Term(Term.Name("left"))), None, Term.Apply(Term.Name("small"), Seq(Term.Select(Term.Name("tok"), Term.Name("left"))))), Term.Apply(Term.Select(Term.Name("logger"), Term.Name("debug")), Seq(Term.Interpolate(Term.Name("f"), Seq(Lit(""), Lit("%-10s "), Lit("")), Seq(Term.Name("left"), Term.Name("split"))))))), Lit()), Term.Assign(Term.Name("state"), Term.Apply(Term.Select(Term.Name("state"), Term.Name("next")), Seq(Term.Name("style"), Term.Name("split"), Term.Name("tok")))), Defn.Val(Nil, Seq(Pat.Var.Term(Term.Name("whitespace"))), None, Term.Match(Term.Select(Term.Name("split"), Term.Name("modification")), Seq(Case(Term.Name("Space"), None, Lit(" ")), Case(Pat.Typed(Pat.Var.Term(Term.Name("nl")), Type.Name("NewlineT")), None, Term.Block(Seq(Defn.Val(Nil, Seq(Pat.Var.Term(Term.Name("newline"))), None, Term.If(Term.Select(Term.Name("nl"), Term.Name("isDouble")), Lit("\n\n"), Lit("\n"))), Defn.Val(Nil, Seq(Pat.Var.Term(Term.Name("indentation"))), None, Term.If(Term.Select(Term.Name("nl"), Term.Name("noIndent")), Lit(""), Term.ApplyInfix(Lit(" "), Term.Name("*"), Nil, Seq(Term.Select(Term.Name("state"), Term.Name("indentation")))))), Term.ApplyInfix(Term.Name("newline"), Term.Name("+"), Nil, Seq(Term.Name("indentation")))))), Case(Pat.Extract(Term.Name("Provided"), Nil, Seq(Pat.Var.Term(Term.Name("literal")))), None, Term.Name("literal")), Case(Term.Name("NoSplit"), None, Lit(""))))), Term.ApplyInfix(Term.Name("tok"), Term.Name("->"), Nil, Seq(Term.Name("whitespace"))))))))))), Term.If(Term.Name("debug"), Term.Apply(Term.Select(Term.Name("logger"), Term.Name("debug")), Seq(Term.Interpolate(Term.Name("s"), Seq(Lit("Total cost: "), Lit("")), Seq(Term.Select(Term.Name("state"), Term.Name("cost")))))), Lit()), Term.Name("result"))))))))
 <<< dequeue on Case.body, prevent state explosion
         Seq(
             Split(Space, 0),
@@ -750,12 +573,3 @@ def startSharding(system: ActorSystem,
     }
   }
 }
-<<< SKIP fix with in template
-{{
-      val replier = system.actorOf(Props(new IntReplierActor(10)
-      with EvenHalverInterceptor with OddDoublerInterceptor {
-        override def unhandled(message: Any) = probeRef ! message
-      }))
-}}
->>>
-x

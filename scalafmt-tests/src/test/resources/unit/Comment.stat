@@ -193,16 +193,6 @@ object a {
    */
   val x = 1
 }
-<<< SKIP no newline!
-           List(1).filter(_ > 0)
-             .map { x =>
-               // complicated stuff
-             }
->>>
-List(1).filter(_ > 0)
- .map { x =>
-   // complicated stuff
- }
 <<< preserve line #257
 object literal extends scala.Dynamic { // scalastyle:ignore
     ???

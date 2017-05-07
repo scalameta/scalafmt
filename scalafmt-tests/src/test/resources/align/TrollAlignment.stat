@@ -1,5 +1,4 @@
 style = defaultWithAlign
-align.mixedTokens = true
 align.treeCategory {
   Case: Assign
   "Enumerator.Generator": Assign
