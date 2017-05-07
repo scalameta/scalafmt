@@ -767,13 +767,15 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       // mixed-params case with a Ctor modifier.
       // `] private (`
       case Decision(t @ FormatToken(open2 @ LeftParen(), right, _), _) =>
-        val newlinewBeforeImplicit = right
-          .is[KwImplicit] && style.newlines.beforeImplicitKWInVerticalMultiline
+        val newlinewBeforeImplicit =
+          right.is[KwImplicit] &&
+            style.newlines.beforeImplicitKWInVerticalMultiline
         val close2 = matchingParentheses(hash(open2))
         val prevT = prev(t).left
         val mod =
-          if ((mixedParams && owners(prevT)
-                .is[CtorModifier]) || newlinewBeforeImplicit) Newline
+          if ((mixedParams &&
+              owners(prevT).is[CtorModifier]) ||
+              newlinewBeforeImplicit) Newline
           else NoSplit
         Decision(t,
                  Seq(
