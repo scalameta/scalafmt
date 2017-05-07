@@ -174,11 +174,13 @@ class FormatWriter(formatOps: FormatOps) {
         lastModification = split.modification
         callback.apply(state, tok, whitespace)
     }
-    locations.lastOption.foreach { location =>
-      if (debug) logger.debug(s"Total cost: ${location.state.cost}")
+    if (debug) {
+
+      locations.lastOption.foreach { location =>
+        logger.debug(s"Total cost: ${location.state.cost}")
+      }
     }
   }
-
 
   lazy val topLevelTokens: List[TokenHash] = tree.collect {
     case TreeOps.MaybeTopLevelStat(t) =>
@@ -199,9 +201,11 @@ class FormatWriter(formatOps: FormatOps) {
       case x => x
     }
     initStyle.newlines.alwaysBeforeTopLevelStatements && {
-      val tok = toks(i).formatToken.right
-      topLevelTokens.contains(hash(tok)) &&
-      isMultiline(actualOwner(tok).tokens.last, i + 1)
+      topLevelTokens.contains(hash(toks(i).formatToken.right)) && {
+        val (distance, FormatToken(_, nextNonComment, _)) =
+          nextNonCommentWithCount(toks(i).formatToken)
+        isMultiline(actualOwner(nextNonComment).tokens.last, i + distance + 1)
+      }
     }
   }
   private def isCandidate(location: FormatLocation): Boolean = {
