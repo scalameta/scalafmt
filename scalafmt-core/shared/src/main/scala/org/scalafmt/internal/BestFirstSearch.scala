@@ -205,20 +205,10 @@ class BestFirstSearch(val formatOps: FormatOps,
           Q.dequeueAll
           best.clear()
           visits.clear()
-          if (!initStyle.bestEffortInDeeplyNestedCode) {
-            runner.eventCallback(CompleteFormat(explored, deepestYet, tokens))
-            throw SearchStateExploded(deepestYet,
-                                      formatWriter.mkString(deepestYet.splits),
-                                      tokens(deepestYet.splits.length).left)
-          } else if (pathologicalEscapes >= maxEscapes) {
-            Q.enqueue(untilNextStatement(curr, Integer.MAX_VALUE))
-          } else {
-            // We are stuck, but try to continue with one cheap/fast and
-            // one expensive/slow state.
-            Q.enqueue(deepestYetSafe)
-            Q.enqueue(curr)
-            pathologicalEscapes += 1
-          }
+          runner.eventCallback(CompleteFormat(explored, deepestYet, tokens))
+          throw SearchStateExploded(deepestYet,
+                                    formatWriter.mkString(deepestYet.splits),
+                                    tokens(deepestYet.splits.length).left)
         } else {
 
           val splits: Seq[Split] =

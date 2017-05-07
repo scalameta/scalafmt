@@ -65,11 +65,6 @@ object Cli {
     }
   }
 
-  def run(options: CliOptions): Unit = {
-    if (options.migrate.nonEmpty) runMigrate(options)
-    else runFormat(options)
-  }
-
   def getConfig(args: Array[String], init: CliOptions): Option[CliOptions] = {
     CliArgParser.scoptParser.parse(args, init).map(CliOptions.auto(args, init))
   }
@@ -158,21 +153,6 @@ object Cli {
     }
   }
 
-  private def runMigrate(options: CliOptions): Unit = {
-    options.migrate.foreach { oldStyleConfigFile =>
-      val original = FileOps.readFile(oldStyleConfigFile)
-      val modified = LegacyCli.migrate(original)
-      val newFile = new File(oldStyleConfigFile.path + ".conf")
-      FileOps.writeFile(newFile.getAbsolutePath, modified)
-      println("Wrote migrated config to file: " + newFile.getPath)
-      println(
-        "NOTE. This automatic migration is a best-effort, " +
-          "please file an issue if it does not work as advertised.")
-      println("-------------------------")
-      println(modified)
-    }
-  }
-
   def newTermDisplay(options: CliOptions,
                      inputMethods: Seq[InputMethod],
                      msg: String): TermDisplay = {
@@ -192,7 +172,7 @@ object Cli {
     termDisplay
   }
 
-  private def runFormat(options: CliOptions): Unit = {
+  def run(options: CliOptions): Unit = {
     val inputMethods = getInputMethods(options)
     val counter = new AtomicInteger()
     val termDisplayMessage =

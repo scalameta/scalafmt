@@ -1,9 +1,0 @@
-40 columns                              |
-<<< SKIP tried but it didn't give pretty results.
-object Aaaaaaaaaaaaaaaa extends Bbbbbbb{
-  val x = 1
-}
->>>
-object Aaaaaaaaaaaaaaaa extends Bbbbbbb {
-  val x = 1
-}

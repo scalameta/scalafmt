@@ -358,18 +358,3 @@ assertEquals(1, ((NoContext: Any) match {
     s <- Seq(null, "a", "b", "c", "d", "e", "f", null, "g")
   } yield (i % 5, s, i % 13)).toDF("i", "j", "k")
 }
-<<< SKIP config blocked by https://github.com/scalameta/scalameta/issues/461
-{
-Seq(
-      "parquet" ->
-        ("org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat",
-        "org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat",
-        "org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe"),
-      "orc" ->
-        ("org.apache.hadoop.hive.ql.io.orc.OrcInputFormat",
-        "org.apache.hadoop.hive.ql.io.orc.OrcOutputFormat",
-        "org.apache.hadoop.hive.ql.io.orc.OrcSerde")
-  )
-}
->>>
-x

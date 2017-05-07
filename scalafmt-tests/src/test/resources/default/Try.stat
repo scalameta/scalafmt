@@ -45,11 +45,3 @@ object Foo {
   try proc.waitFor()
   catch { case e: Throwable => run() }
 }
-<<< SKIP single line curly, finally on separate line
-object Foo {
-  try loop(blocks, startingImports, Imports(), wrapperIndex = 1 )
-  catch { case x => ??? }
-  finally scriptImportCallback = outerScriptImportCallback
-}
->>>
-x

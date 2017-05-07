@@ -1,4 +1,4 @@
-binPack.lambdaParameter = false
+style=default
 <<< weird line break
 class A {{{{
         def streamRequestEntity(creator: (Source[ParserOutput.RequestOutput,

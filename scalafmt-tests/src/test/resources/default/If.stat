@@ -132,18 +132,3 @@ if (fullInfo)
     .flatMap(_.toSeq)
     .map(_._1)
     .toSet
-<<< SKIP lila madness if/else
-+          if (HTTPRequest isXhr ctx.req)
-+            finishedPaginator map { pag =>
-+              Ok(html.tournament.finishedPaginator(pag))
-+            } else
-+            env.api.fetchVisibleTournaments zip repo.scheduledDedup zip finishedPaginator zip UserRepo
-+              .allSortToints(10) map {
-+              case (((visible, scheduled), finished), leaderboard) =>
-+                Ok(html.tournament.home(scheduled,
-+                                        finished,
-+                                        leaderboard,
-+                                        env scheduleJsonView visible))
-+            } map NoCache
->>>
-x

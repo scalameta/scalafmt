@@ -213,27 +213,6 @@ class Router(formatOps: FormatOps) {
             .withPolicy(newlineBeforeClosingCurly)
             .withIndent(2, close, Right)
         )
-
-      // Term.Function
-      case FormatToken(open @ LeftParen(), _, _)
-          // Argument list for anonymous function
-          if !style.binPack.defnSite &&
-            style.binPack.lambdaParameter &&
-            (leftOwner match {
-              case _: Term.Function | _: Type.Function => true
-              case _ => false
-            }) =>
-        val close = matchingParentheses(hash(open))
-        Seq(
-          Split(NoSplit, 0)
-            .withOptimalToken(close)
-            .withPolicy(SingleLineBlock(close))
-            .withIndent(StateColumn, close, Left),
-          // fallback, bin pack parameters, opening a new search branch on
-          // each argument.
-          Split(NoSplit, 1)
-            .withIndent(StateColumn, close, Left)
-        )
       case FormatToken(arrow @ RightArrow(), right, _)
           if statementStarts.contains(hash(right)) &&
             leftOwner.isInstanceOf[Term.Function] =>
@@ -461,7 +440,7 @@ class Router(formatOps: FormatOps) {
         )
 
       case FormatToken(open @ (LeftParen() | LeftBracket()), right, between)
-          if style.binPack.defnSite && isDefnSite(leftOwner) =>
+          if style.binPack.unsafeDefnSite && isDefnSite(leftOwner) =>
         val close = matchingParentheses(hash(open))
         val isBracket = open.is[LeftBracket]
         val indent = Num(style.continuationIndent.defnSite)
@@ -509,7 +488,7 @@ class Router(formatOps: FormatOps) {
           )
         }
       case FormatToken(LeftParen() | LeftBracket(), _, _)
-          if style.binPack.callSite && isCallSite(leftOwner) =>
+          if style.binPack.unsafeCallSite && isCallSite(leftOwner) =>
         val open = formatToken.left
         val close = matchingParentheses(hash(open))
         val indent = getApplyIndent(leftOwner)
@@ -546,8 +525,8 @@ class Router(formatOps: FormatOps) {
       case FormatToken(LeftParen(), RightParen(), _) => Seq(Split(NoSplit, 0))
       case tok @ FormatToken(LeftParen() | LeftBracket(), right, between)
           if !isSuperfluousParenthesis(formatToken.left, leftOwner) &&
-            (!style.binPack.callSite && isCallSite(leftOwner)) ||
-            (!style.binPack.defnSite && isDefnSite(leftOwner)) =>
+            (!style.binPack.unsafeCallSite && isCallSite(leftOwner)) ||
+            (!style.binPack.unsafeDefnSite && isDefnSite(leftOwner)) =>
         val open = tok.left
         val close = matchingParentheses(hash(open))
         val (lhs, args) = getApplyArgs(formatToken, leftOwner)
@@ -832,9 +811,9 @@ class Router(formatOps: FormatOps) {
         val expire = rhs.tokens.last
 
         val penalty = leftOwner match {
-          case l: Term.Arg.Named if style.binPack.callSite =>
+          case l: Term.Arg.Named if style.binPack.unsafeCallSite =>
             Constants.BinPackAssignmentPenalty
-          case l: Term.Param if style.binPack.defnSite =>
+          case l: Term.Param if style.binPack.unsafeDefnSite =>
             Constants.BinPackAssignmentPenalty
           case _ => 0
         }
@@ -900,8 +879,7 @@ class Router(formatOps: FormatOps) {
           .copy(expire = lastToken.end)
         val ignoreNoSplit = style.optIn.breakChainOnFirstMethodDot && newlines > 0
         val chainLengthPenalty =
-          if (!style.bestEffortInDeeplyNestedCode && // breaks tests.
-              style.newlines.penalizeSingleSelectMultiArgList &&
+          if (style.newlines.penalizeSingleSelectMultiArgList &&
               chain.length < 2) {
             // penalize by the number of arguments in the rhs open apply.
             // I know, it's a bit arbitrary, but my manual experiments seem
@@ -1334,11 +1312,6 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_, Delim(), _) =>
         Seq(
           Split(Space, 0)
-        )
-      case FormatToken(Underscore(), Ident("*"), _)
-          if style.spaces.beforeSeqWildcard =>
-        Seq(
-          Split(NoSplit, 0)
         )
       case FormatToken(Delim(), _, _) =>
         Seq(

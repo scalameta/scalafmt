@@ -14,9 +14,6 @@ import metaconfig._
   *            b,
   *            c)
   * @param openParenDefnSite Same as [[openParenCallSite]], except definition site.
-  * @param mixedOwners
-  *  If true, aligns `=` for val/var/def and
-  *  `extends` for def/trait/object.
   * @param tokens The tokens to vertically align by. The "owner" is the
   *               scala.meta.Tree.getClass.getName of the deepest tree node
   *               that "owns" the token to align by.
@@ -61,15 +58,13 @@ import metaconfig._
 case class Align(
     openParenCallSite: Boolean = true,
     openParenDefnSite: Boolean = true,
-    // TODO(olafur) deprecate these in favor of tokenCategory/treeCategory
-    mixedOwners: Boolean = false,
-    mixedTokens: Boolean = false,
     tokens: Set[AlignToken] = Set.empty[AlignToken],
     arrowEnumeratorGenerator: Boolean = false,
     ifWhileOpenParen: Boolean = true,
     tokenCategory: Map[String, String] = Map(
-      "Equals" -> "Assign",
-      "LeftArrow" -> "Assign"
+      // Enable this to align = and <- in for comprehension
+      //   "Equals" -> "Assign"
+      //   "LeftArrow" -> "Assign"
     ),
     treeCategory: Map[String, String] = Map(
       "Defn.Val" -> "val/var/def",
