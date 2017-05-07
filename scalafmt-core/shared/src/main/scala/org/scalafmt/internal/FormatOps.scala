@@ -153,12 +153,14 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
   lazy val tok2idx: Map[FormatToken, Int] = tokens.zipWithIndex.toMap
 
+  def prev(tok: Token): Token = prev(leftTok2tok(tok)).right
   def prev(tok: FormatToken): FormatToken = {
     val i = tok2idx(tok)
     if (i == 0) tok
     else tokens(i - 1)
   }
 
+  def next(tok: Token): Token = leftTok2tok(tok).right
   def next(tok: FormatToken): FormatToken = {
     val i = tok2idx(tok)
     if (i == tokens.length - 1) tok
@@ -178,14 +180,17 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   }
 
   @tailrec
-  final def nextNonComment(curr: FormatToken): FormatToken = {
-    if (!curr.right.is[Comment]) curr
+  final def nextNonCommentWithCount(curr: FormatToken,
+                                    accum: Int = 0): (Int, FormatToken) = {
+    if (!curr.right.is[Comment]) accum -> curr
     else {
       val tok = next(curr)
-      if (tok == curr) curr
-      else nextNonComment(tok)
+      if (tok == curr) accum -> curr
+      else nextNonCommentWithCount(tok, accum + 1)
     }
   }
+  def nextNonComment(curr: FormatToken): FormatToken =
+    nextNonCommentWithCount(curr)._2
 
   @tailrec
   final def rhsOptimalToken(start: FormatToken): Token = start.right match {
@@ -767,13 +772,15 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       // mixed-params case with a Ctor modifier.
       // `] private (`
       case Decision(t @ FormatToken(open2 @ LeftParen(), right, _), _) =>
-        val newlinewBeforeImplicit = right
-          .is[KwImplicit] && style.newlines.beforeImplicitKWInVerticalMultiline
+        val newlinewBeforeImplicit =
+          right.is[KwImplicit] &&
+            style.newlines.beforeImplicitKWInVerticalMultiline
         val close2 = matchingParentheses(hash(open2))
         val prevT = prev(t).left
         val mod =
-          if ((mixedParams && owners(prevT)
-                .is[CtorModifier]) || newlinewBeforeImplicit) Newline
+          if ((mixedParams &&
+              owners(prevT).is[CtorModifier]) ||
+              newlinewBeforeImplicit) Newline
           else NoSplit
         Decision(t,
                  Seq(
@@ -806,6 +813,14 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
         .withPolicy(policy)
     )
 
+  }
+
+  // Returns leading comment, if there exists one, otherwise formatToken.right
+  @tailrec
+  final def leadingComment(formatToken: FormatToken): Token = {
+    if (formatToken.newlinesBetween <= 1 && formatToken.left.is[Comment])
+      leadingComment(prev(formatToken))
+    else formatToken.right
   }
 
 }
