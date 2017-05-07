@@ -272,3 +272,36 @@ object a {
   }
   def bar = 2
 }
+<<< #911
+object a {
+  // Comment
+  class b {
+    val x = 2
+  }
+  /** Implements the ..... /status/about, etc */
+  class Status @Inject()(ws: WSClient) {
+    ???
+  }
+  // scalastyle:off magic.number
+  trait TestConfigs extends PatienceConfiguration {
+   ???
+  }
+}
+>>>
+object a {
+
+  // Comment
+  class b {
+    val x = 2
+  }
+
+  /** Implements the ..... /status/about, etc */
+  class Status @Inject()(ws: WSClient) {
+    ???
+  }
+
+  // scalastyle:off magic.number
+  trait TestConfigs extends PatienceConfiguration {
+    ???
+  }
+}

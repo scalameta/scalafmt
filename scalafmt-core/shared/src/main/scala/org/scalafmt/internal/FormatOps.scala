@@ -810,4 +810,12 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
   }
 
+  // Returns leading comment, if there exists one, otherwise formatToken.right
+  @tailrec
+  final def leadingComment(formatToken: FormatToken): Token = {
+    if (formatToken.newlinesBetween <= 1 && formatToken.left.is[Comment])
+      leadingComment(prev(formatToken))
+    else formatToken.right
+  }
+
 }

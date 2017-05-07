@@ -179,8 +179,12 @@ class FormatWriter(formatOps: FormatOps) {
     }
   }
 
-  lazy val topLevelTokens = tree.collect {
-    case TreeOps.MaybeTopLevelStat(t) => hash(t.tokens.head)
+
+  lazy val topLevelTokens: List[TokenHash] = tree.collect {
+    case TreeOps.MaybeTopLevelStat(t) =>
+      val tok = leftTok2tok(t.tokens.head)
+      val result = leadingComment(prev(tok))
+      hash(result)
   }
 
   private def isMultilineTopLevelStatement(toks: Array[FormatLocation],
