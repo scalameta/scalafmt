@@ -173,7 +173,7 @@
 
     @hl.scala
       // project/plugins.sbt
-      libraryDependencies += "com.geirsson" %% "scalafmt-bootstrap" % "0.6.8"
+      libraryDependencies += "com.geirsson" %% "scalafmt-bootstrap" % "0.6.6"
       // build.sbt
       def latestScalafmt = "@V.stable"
       commands += Command.args("scalafmt", "Run scalafmt cli.") {
