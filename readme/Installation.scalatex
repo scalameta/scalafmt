@@ -104,15 +104,22 @@
       Settings > Appearance & Behavior > Notifications > Scalafmt > Popup "Balloon".
       You need to first check "Display Balloon Notifications".
 
+
   @sect{sbt}
+    You can choose between
+    @ul
+      @li
+        @sect.ref{sbt-scalafmt}
+      @li
+        @sect.ref{neo-sbt-scalafmt}
+
+  @sect{sbt-scalafmt}
     @p
-      NOTE. Only sbt 1.0 is supported. See @sect.ref{sbt 0.13} on how to use
-      the latest scalafmt version with sbt 0.13.
-    @p
-      The sbt plugin is a tiny wrapper around the command line interface.
+      The @code{com.geirsson/sbt-scalafmt} plugin is a tiny wrapper around the
+      command line interface, and provides no custom sbt functionality beyond
+      what the command line interface offers.
 
     @hl.scala
-      // NOTE. If you use sbt-coursier, make sure you're on version @org.scalafmt.Versions.coursier.
       addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "@org.scalafmt.Versions.stable")
 
     @ul
@@ -166,10 +173,32 @@
         @p
           Why isn't that gist included in the sbt plugin? See @issue(597).
 
+  @sect{neo-sbt-scalafmt}
+    @p
+      @lnk("lucidsoftware/neo-sbt-scalafmt", "https://github.com/lucidsoftware/neo-sbt-scalafmt") is
+      an sbt plugins that
+      @ul
+        @li
+          supports both sbt 0.13 and 1.0.0-M5
+        @li
+          supports any version of scalafmt
+        @li
+          runs in-process
+        @li
+          uses SBT's @code{update} resolutions mechanism
+    @p
+      Please report back if you find neo-sbt-scalafmt useful.
+      We might want to promote it to become the official sbt plugin for scalafmt.
+
+
   @sect{sbt 0.13}
-    I recommend you try to upgrade to sbt 1.0 as soon as possible.
-    However, if you are stuck on sbt 0.13, you can still the latest versions
-    of scalafmt with this workaround (thanks to coursier!).
+    @p
+      @note. You might want to try out @sect.ref{neo-sbt-scalafmt}.
+
+    @p
+      I recommend you try to upgrade to sbt 1.0 as soon as possible.
+      However, if you are stuck on sbt 0.13, you can still the latest versions
+      of scalafmt with this workaround (thanks to coursier!).
 
     @hl.scala
       // project/plugins.sbt
