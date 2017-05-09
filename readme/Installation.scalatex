@@ -127,7 +127,7 @@
         Run @code{sbt scalafmt} to format all files in the project.
         Configure @sect.ref{project} in @code{.scalafmt.conf} to
         define which files to format.
-        You can add pass any command line flags to @code{scalafmt}.
+        You can pass any regular command line flags to the @code{scalafmt} command in sbt.
         See @sect.ref{--help} for more details.
         Example,
         @hl.scala
@@ -176,7 +176,7 @@
   @sect{neo-sbt-scalafmt}
     @p
       @lnk("lucidsoftware/neo-sbt-scalafmt", "https://github.com/lucidsoftware/neo-sbt-scalafmt") is
-      an sbt plugins that
+      an sbt plugin that
       @ul
         @li
           supports both sbt 0.13 and 1.0.0-M5
@@ -197,8 +197,8 @@
 
     @p
       I recommend you try to upgrade to sbt 1.0 as soon as possible.
-      However, if you are stuck on sbt 0.13, you can still the latest versions
-      of scalafmt with this workaround (thanks to coursier!).
+      However, if you are stuck on sbt 0.13, you can still use the latest versions
+      of scalafmt with this workaround.
 
     @hl.scala
       // project/plugins.sbt
