@@ -332,7 +332,7 @@ class CliTest extends FunSuite with DiffAssertions {
       val mock = getMockOptions(input, workingDir)
       mock.copy(common = mock.common.copy(workingDirectory = workingDir))
     }
-    val config = Cli.getConfig(Array("-i","foo.scala"), options).get
+    val config = Cli.getConfig(Array("-i", "foo.scala"), options).get
     Cli.run(config)
     val obtained = FileOps.readFile(workingDir / "foo.scala")
     assertNoDiff(obtained, expected)

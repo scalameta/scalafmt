@@ -2,18 +2,13 @@ package org.scalafmt.cli
 
 import scopt.Read
 
+/**
+ * Determines the mode in which Scalafmt will behave
+ *
+ * Override = Replace the file with its formatted form
+ * Stdout = Print the formatted file to Stdout (leaving the original file untouched)
+ */
 sealed trait WriteMode
-
-object WriteMode {
-  implicit val readInst: Read[WriteMode] =
-    Read.reads { _.toLowerCase match {
-      case "override" => Override
-      case "stdout" => Stdout
-      case otherwise =>
-        throw new IllegalArgumentException(
-          s"`$otherwise` is not allowed. Expected `override` or `stdout`")
-    }}
-}
 
 case object Override extends WriteMode
 case object Stdout extends WriteMode

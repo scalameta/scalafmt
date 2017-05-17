@@ -71,19 +71,20 @@ object CliArgParser {
         .optional()
         .unbounded()
         .action((file, c) => addFile(file, c))
-        .text("file or directory, in which case all *.scala files are formatted.")
-
-      opt[WriteMode]('w', "write-mode")
-        .action((opt, c) => c.copy(writeMode = opt))
-        .text("write mode. Can be stdout or override (default).")
+        .text(
+          "file or directory, in which case all *.scala files are formatted.")
 
       opt[Unit]('i', "in-place")
         .action((opt, c) => c.copy(writeMode = Override))
-        .text("alias for --write-mode=override")
+        .text("format files in-place (default)")
       opt[Unit]("stdout")
         .action((opt, c) => c.copy(writeMode = Stdout))
-        .text("alias for --write-mode=stdout")
+        .text("write formatted files to stdout")
 
+
+      opt[Boolean]("git")
+        .action((opt, c) => c.copy(inputGit = opt))
+        .text("if true, ignore files in .gitignore (default false)")
       opt[Seq[String]]("exclude")
         .action((excludes, c) => c.copy(customExcludes = excludes))
         .text(

@@ -85,6 +85,7 @@ case class CliOptions(
     stdIn: Boolean = false,
     quiet: Boolean = false,
     debug: Boolean = false,
+    inputGit: Boolean = false,
     nonInteractive: Boolean = false,
     diff: Option[String] = None,
     assumeFilename: String = "stdin.scala", // used when read from stdin
@@ -94,6 +95,9 @@ case class CliOptions(
 ) {
 
   val inPlace: Boolean = writeMode == Override
+
+  val git: Boolean =
+    config.project.git || inputGit
 
   val gitOps: GitOps = gitOpsConstructor(common.workingDirectory)
   def withProject(projectFiles: ProjectFiles): CliOptions = {

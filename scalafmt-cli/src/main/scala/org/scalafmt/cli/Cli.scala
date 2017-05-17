@@ -15,6 +15,7 @@ import org.scalafmt.Scalafmt
 import org.scalafmt.config.{Config, FilterMatcher}
 import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.FileOps
+import org.scalafmt.util.GitOps
 import org.scalafmt.util.LogLevel
 import org.scalafmt.util.OsSpecific
 
@@ -76,8 +77,13 @@ object Cli {
     path.endsWith(".scala") || path.endsWith(".sbt")
 
   def expandCustomFiles(workingDir: AbsoluteFile,
-                        files: Seq[AbsoluteFile]): Seq[AbsoluteFile] =
+                        files: Seq[AbsoluteFile],
+                        git: Boolean): Seq[AbsoluteFile] =
     files.flatMap {
+      case f if f.jfile.isDirectory && git =>
+        // TODO NOW GitOps is kind of confusing, specially its interaction with
+        // CLIOptions
+        GitOps().lsFiles(f).filter(canFormat)
       case f if f.jfile.isDirectory =>
         FileOps.listFiles(f).filter(canFormat)
       // we don't filter out custom files, even if they don't exist or contain
@@ -90,7 +96,7 @@ object Cli {
     val excludePaths =
       options.customExcludes.map(OsSpecific.fixSeparatorsInPathPattern)
     val exclude = FilterMatcher.mkRegexp(excludePaths)
-    expandCustomFiles(options.common.workingDirectory, options.customFiles)
+    expandCustomFiles(options.common.workingDirectory, options.customFiles, options.git)
       .filter(x => exclude.findFirstIn(x.path).isEmpty)
   }
 
@@ -102,33 +108,13 @@ object Cli {
       .filter(canFormat)
   }
 
-  /** Returns file paths defined via options.project */
-  private def getFilesFromProject(options: CliOptions): Seq[AbsoluteFile] = {
-    val project = options.config.project
-    val matcher = project.matcher
-    val projectFiles: Seq[AbsoluteFile] = (
-      if (project.git) {
-        options.gitOps.lsTree
-      } else {
-        FileOps.listFiles(options.common.workingDirectory)
-      }
-    ).filter(canFormat)
-    val customFiles: Seq[AbsoluteFile] =
-      expandCustomFiles(
-        options.common.workingDirectory,
-        AbsoluteFile.fromFiles(project.files.map(new File(_)),
-                               options.common.workingDirectory))
-    (customFiles ++ projectFiles).filter(matcher.matches)
-  }
-
   private def getInputMethods(options: CliOptions): Seq[InputMethod] = {
     if (options.stdIn) {
       Seq(InputMethod.StdinCode(options.assumeFilename, options.common.in))
     } else {
       val projectFiles: Seq[AbsoluteFile] =
-        if (options.customFiles.nonEmpty) getFilesFromCliOptions(options)
-        else if (options.diff.isDefined) getFilesFromDiff(options)
-        else getFilesFromProject(options)
+        if (options.diff.isDefined) getFilesFromDiff(options)
+        else getFilesFromCliOptions(options)
       projectFiles.map(InputMethod.FileContents.apply)
     }
   }
