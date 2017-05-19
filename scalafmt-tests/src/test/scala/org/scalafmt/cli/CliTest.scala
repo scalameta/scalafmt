@@ -148,19 +148,7 @@ class CliTest extends FunSuite with DiffAssertions {
     assert(str == unformatted)
   }
 
-  test("scalafmt --write-mode=override foo.randomsuffix is formatted") {
-    val tmpFile = Files.createTempFile("prefix", "randomsuffix")
-    Files.write(tmpFile, unformatted.getBytes)
-    val args = Array(
-      "--write-mode=override",
-      tmpFile.toFile.getAbsolutePath
-    )
-    Cli.main(args)
-    val obtained = FileOps.readFile(tmpFile.toString)
-    assertNoDiff(obtained, formatted)
-  }
-
-  test("scalafmt -i is an alias for --write-mode=override") {
+  test("scalafmt -i foo.randomsuffix is formatted") {
     val tmpFile = Files.createTempFile("prefix", "randomsuffix")
     Files.write(tmpFile, unformatted.getBytes)
     val args = Array(

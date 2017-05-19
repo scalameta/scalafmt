@@ -35,8 +35,8 @@ object CliArgParser {
     new scopt.OptionParser[CliOptions]("scalafmt") {
       override def showUsageOnError = false
 
-      private def printAndExit(inludeUsage: Boolean)(ignore: Unit,
-                                             c: CliOptions): CliOptions = {
+      private def printAndExit(
+          inludeUsage: Boolean)(ignore: Unit, c: CliOptions): CliOptions = {
         if (inludeUsage) showUsage
         else showHeader
         sys.exit
@@ -81,9 +81,8 @@ object CliArgParser {
         .action((opt, c) => c.copy(writeMode = Stdout))
         .text("write formatted files to stdout")
 
-
       opt[Boolean]("git")
-        .action((opt, c) => c.copy(inputGit = opt))
+        .action((opt, c) => c.copy(git = Some(opt)))
         .text("if true, ignore files in .gitignore (default false)")
       opt[Seq[String]]("exclude")
         .action((excludes, c) => c.copy(customExcludes = excludes))
