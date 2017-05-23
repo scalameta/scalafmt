@@ -84,7 +84,7 @@ object Cli {
     options.fileFetchMode match {
       case m @ (GitFiles | RecursiveSearch) =>
         val fetchFiles: AbsoluteFile => Seq[AbsoluteFile] =
-          if (m == GitFiles) options.gitOps.lsFiles(_)
+          if (m == GitFiles) options.gitOps.lsTree(_)
           else FileOps.listFiles(_)
 
         options.files.flatMap {
