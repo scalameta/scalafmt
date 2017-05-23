@@ -8,6 +8,7 @@ import java.util.TimeZone
 
 import org.scalactic.source.Position
 import org.scalatest.FunSuiteLike
+import org.scalatest.exceptions.StackDepthException
 import org.scalatest.exceptions.TestFailedException
 
 trait DiffAssertions extends FunSuiteLike {
@@ -18,7 +19,7 @@ trait DiffAssertions extends FunSuiteLike {
                          obtained: String,
                          diff: String)(implicit pos: Position)
       extends TestFailedException(
-        _ => Some(title + "\n" + error2message(obtained, expected)),
+        (_: StackDepthException) => Some(title + "\n" + error2message(obtained, expected)),
         None: Option[Throwable],
         pos)
 
