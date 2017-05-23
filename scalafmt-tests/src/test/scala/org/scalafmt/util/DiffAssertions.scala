@@ -19,7 +19,8 @@ trait DiffAssertions extends FunSuiteLike {
                          obtained: String,
                          diff: String)(implicit pos: Position)
       extends TestFailedException(
-        (_: StackDepthException) => Some(title + "\n" + error2message(obtained, expected)),
+        (_: StackDepthException) =>
+          Some(title + "\n" + error2message(obtained, expected)),
         None: Option[Throwable],
         pos)
 
