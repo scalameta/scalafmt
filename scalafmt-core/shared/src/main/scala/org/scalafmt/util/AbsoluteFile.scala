@@ -6,6 +6,8 @@ import java.io.File
 sealed abstract case class AbsoluteFile(jfile: File) {
   def path: String = jfile.getAbsolutePath
   def /(other: String) = new AbsoluteFile(new File(jfile, other)) {}
+
+  override def toString(): String = path
 }
 
 object AbsoluteFile {

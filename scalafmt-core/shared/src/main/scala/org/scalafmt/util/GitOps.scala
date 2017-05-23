@@ -36,7 +36,7 @@ class GitOpsImpl(workingDirectory: AbsoluteFile) extends GitOps {
   }
 
   override def lsTree(dir: AbsoluteFile): Seq[AbsoluteFile] =
-    rootDir.fold(Seq.empty[AbsoluteFile]) { rtDir => 
+    rootDir.fold(Seq.empty[AbsoluteFile]) { rtDir =>
       Try {
         exec(
           Seq(

@@ -7,6 +7,7 @@ import java.io.FileNotFoundException
 import java.io.PrintStream
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
+import java.nio.file.Path
 
 import org.scalafmt.Error.MisformattedFile
 import org.scalafmt.config.Config
@@ -18,6 +19,17 @@ import org.scalatest.FunSuite
 
 class CliTest extends FunSuite with DiffAssertions {
   import FileTestOps._
+
+  private def mkArgs(str: String): Array[String] =
+    str.split(' ').toArray
+
+  private def runWith(root: AbsoluteFile, argStr: String) = {
+    val args = mkArgs(argStr)
+    val opts = getMockOptions(root)
+
+    val conf = Cli.getConfig(args, opts)
+    Cli.run(conf.get)
+  }
 
   def getMockOptions(baseDir: AbsoluteFile): CliOptions =
     getMockOptions(baseDir, baseDir)
@@ -76,18 +88,23 @@ class CliTest extends FunSuite with DiffAssertions {
   def gimmeConfig(string: String): ScalafmtConfig =
     Config.fromHoconString(string).get
 
-  test("scalafmt tmpFile") {
+  test("scalafmt tmpFile tmpFile2") {
     val originalTmpFile = Files.createTempFile("prefix", ".scala")
+    val originalTmpFile2 = Files.createTempFile("prefix2", ".scala")
     Files.write(originalTmpFile, unformatted.getBytes)
+    Files.write(originalTmpFile2, unformatted.getBytes)
     val args = Array(
       "--config-str",
       "{maxColumn=7,style=IntelliJ}",
-      originalTmpFile.toFile.getPath
+      originalTmpFile.toFile.getPath,
+      originalTmpFile2.toFile.getPath
     )
     val formatInPlace = getConfig(args)
     Cli.run(formatInPlace)
     val obtained = FileOps.readFile(originalTmpFile.toString)
+    val obtained2 = FileOps.readFile(originalTmpFile2.toString)
     assertNoDiff(obtained, expected10)
+    assertNoDiff(obtained2, expected10)
   }
 
   test("scalafmt --stdout tmpFile prints to stdout") {
@@ -144,15 +161,14 @@ class CliTest extends FunSuite with DiffAssertions {
     intercept[MisformattedFile] {
       Cli.run(formatInPlace)
     }
-    val str = new String(Files.readAllBytes(tmpFile))
-    assert(str == unformatted)
+    val str = FileOps.readFile(tmpFile.toString)
+    assertNoDiff(str, unformatted + '\n')
   }
 
-  test("scalafmt -i foo.randomsuffix is formatted") {
+  test("scalafmt foo.randomsuffix is formatted") {
     val tmpFile = Files.createTempFile("prefix", "randomsuffix")
     Files.write(tmpFile, unformatted.getBytes)
     val args = Array(
-      "-i",
       tmpFile.toFile.getAbsolutePath
     )
     Cli.main(args)
@@ -177,8 +193,7 @@ class CliTest extends FunSuite with DiffAssertions {
           |""".stripMargin
     val options = getConfig(
       Array(
-        input.path,
-        "-i"
+        input.path
       )
     )
     Cli.run(options)
@@ -218,8 +233,7 @@ class CliTest extends FunSuite with DiffAssertions {
       Array(
         input.path,
         "--exclude",
-        "target/nested",
-        "-i"
+        "target/nested"
       ))
     Cli.run(options)
     val obtained = dir2string(input)
@@ -320,10 +334,70 @@ class CliTest extends FunSuite with DiffAssertions {
       val mock = getMockOptions(input, workingDir)
       mock.copy(common = mock.common.copy(workingDirectory = workingDir))
     }
-    val config = Cli.getConfig(Array("-i", "foo.scala"), options).get
+    val config = Cli.getConfig(Array("foo.scala"), options).get
     Cli.run(config)
     val obtained = FileOps.readFile(workingDir / "foo.scala")
     assertNoDiff(obtained, expected)
+  }
+
+  test(
+    "if project.includeFilters isn't modified (and files aren't passed manually), it should ONLY accept scala and sbt files") {
+
+    val root =
+      string2dir(
+        s"""
+           |/scalafmt.conf
+           |style = default
+           |/scalafile.scala
+           |$unformatted
+           |/scalatex.scalatex
+           |$unformatted
+           |/sbt.sbt
+           |$sbtOriginal
+           |/sbt.sbtfile
+           |$sbtOriginal""".stripMargin
+      )
+
+    val config = root / "scalafmt.conf"
+    val args = mkArgs(s"--config $config")
+    val opts = getMockOptions(root)
+
+    val conf = Cli.getConfig(args, opts)
+    Cli.run(conf.get)
+
+    assertNoDiff(root / "scalatex.scalatex", unformatted + '\n')
+    assertNoDiff(root / "sbt.sbtfile", sbtOriginal + '\n')
+
+    assertNoDiff(root / "scalafile.scala", formatted)
+    val sbtFormatted =
+      """|lazy val x = project
+         |lazy val y = project
+         |""".stripMargin
+    assertNoDiff(root / "sbt.sbt", sbtFormatted)
+  }
+
+  test(
+    "includeFilters are ignored for full paths but NOT ignore for passed directories") {
+
+    val root =
+      string2dir(
+        s"""
+           |/inner/file1.scala
+           |$unformatted
+           |/inner2/file2.scalahala
+           |$unformatted
+           |/inner2/file3.scalahala
+           |$unformatted""".stripMargin
+      )
+    val inner1 = root / "inner"
+    val inner2 = root / "inner2"
+    val full = inner2 / "file3.scalahala"
+
+    runWith(root, s"$inner1 $inner2 $full")
+
+    assertNoDiff(inner1 / "file1.scala", formatted)
+    assertNoDiff(inner2 / "file2.scalahala", unformatted + '\n')
+    assertNoDiff(full, formatted)
   }
 
   test("--config accepts absolute paths") {
@@ -339,11 +413,35 @@ class CliTest extends FunSuite with DiffAssertions {
     val args = Array[String](
       "--config",
       config,
-      "-i",
       toFormat
     )
     Cli.main(args) // runs without errors
     val obtained = FileOps.readFile(toFormat)
     assertNoDiff(obtained, "object A\n")
+  }
+
+  // These are tests for deprecated flags
+  test("scalafmt -i -f file1,file2,file3 should still work") {
+
+    val file1 = Files.createTempFile("prefix", ".scala")
+    val file2 = Files.createTempFile("prefix2", ".scala")
+    val file3 = Files.createTempFile("prefix3", ".scala")
+    Files.write(file1, unformatted.getBytes)
+    Files.write(file2, unformatted.getBytes)
+    Files.write(file3, unformatted.getBytes)
+    def fileStr(fs: Path*) = fs.map(_.toFile.getPath).mkString(",")
+    val args = Array(
+      "-i",
+      "-f",
+      fileStr(file1, file2, file3)
+    )
+    val formatInPlace = getConfig(args)
+    Cli.run(formatInPlace)
+    val obtained = FileOps.readFile(file1.toString)
+    val obtained2 = FileOps.readFile(file2.toString)
+    val obtained3 = FileOps.readFile(file3.toString)
+    assertNoDiff(obtained, formatted)
+    assertNoDiff(obtained2, formatted)
+    assertNoDiff(obtained3, formatted)
   }
 }

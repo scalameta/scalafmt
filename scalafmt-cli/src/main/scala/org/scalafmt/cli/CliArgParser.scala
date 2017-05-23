@@ -25,9 +25,9 @@ object CliArgParser {
        |scalafmt --diff-branch 2.x # same as --diff, except against branch 2.x
        |scalafmt --stdin # read from stdin and print to stdout
        |scalafmt --stdin --assume-filename foo.sbt # required to format .sbt files
-       |scalafmt -f Code.scala             # print formatted contents to stdout.
-       |scalafmt -i -f Code1.scala,A.scala # write formatted contents to file.
-       |scalafmt -i -f . --exclude target  # format all files in directory excluding target
+       |scalafmt Code1.scala A.scala       # write formatted contents to file.
+       |scalafmt --stdout Code.scala       # print formatted contents to stdout.
+       |scalafmt --exclude target          # format all files in directory excluding target
        |scalafmt --config .scalafmt.conf   # read custom style from file
        |scalafmt --config-str "style=IntelliJ" # define custom style as a flag, must be quoted.""".stripMargin
 
@@ -74,9 +74,21 @@ object CliArgParser {
         .text(
           "file or directory, in which case all *.scala files are formatted.")
 
+      opt[Seq[File]]('f', "files")
+        .action { (files, c) =>
+          c.copy(customFiles =
+            AbsoluteFile.fromFiles(files, c.common.workingDirectory))
+        }
+        .hidden() // this option isn't needed anymore. Simply pass the files as
+        // arguments. Keeping for backwards compatability
+        .text("file or directory, in which case all *.scala files are formatted. Deprecated: pass files as arguments")
+
       opt[Unit]('i', "in-place")
         .action((opt, c) => c.copy(writeMode = Override))
+        .hidden() // this option isn't needed anymore. Simply don't pass
+        // --stdout. Keeping for backwards compatability
         .text("format files in-place (default)")
+
       opt[Unit]("stdout")
         .action((opt, c) => c.copy(writeMode = Stdout))
         .text("write formatted files to stdout")

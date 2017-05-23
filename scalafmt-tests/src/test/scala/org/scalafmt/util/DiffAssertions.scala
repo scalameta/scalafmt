@@ -1,10 +1,12 @@
 package org.scalafmt.util
 
 import java.io.File
+import java.nio.file.Path
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.TimeZone
 
+import org.scalactic.source.Position
 import org.scalatest.FunSuiteLike
 import org.scalatest.exceptions.TestFailedException
 
@@ -14,10 +16,11 @@ trait DiffAssertions extends FunSuiteLike {
   case class DiffFailure(title: String,
                          expected: String,
                          obtained: String,
-                         diff: String)
+                         diff: String)(implicit pos: Position)
       extends TestFailedException(
-        title + "\n" + error2message(obtained, expected),
-        1)
+        _ => Some(title + "\n" + error2message(obtained, expected)),
+        None: Option[Throwable],
+        pos)
 
   def error2message(obtained: String, expected: String): String = {
     val sb = new StringBuilder
@@ -34,9 +37,8 @@ trait DiffAssertions extends FunSuiteLike {
     sb.toString()
   }
 
-  def assertNoDiff(obtained: String,
-                   expected: String,
-                   title: String = ""): Boolean = {
+  def assertNoDiff(obtained: String, expected: String, title: String = "")(
+      implicit pos: Position): Boolean = {
     val result = compareContents(obtained, expected)
     if (result.isEmpty) {
       assert(obtained.length == expected.length,
@@ -45,6 +47,11 @@ trait DiffAssertions extends FunSuiteLike {
     } else {
       throw DiffFailure(title, expected, obtained, result)
     }
+  }
+
+  def assertNoDiff(file: AbsoluteFile, expected: String)(
+      implicit pos: Position): Boolean = {
+    assertNoDiff(FileOps.readFile(file.jfile), expected)
   }
 
   def trailingSpace(str: String): String = str.replaceAll(" \n", "∙\n")
