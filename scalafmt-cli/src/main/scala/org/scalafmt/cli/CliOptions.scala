@@ -4,6 +4,7 @@ import java.io.InputStream
 import java.io.PrintStream
 
 import org.scalafmt.config.Config
+import org.scalafmt.config.FilterMatcher
 import org.scalafmt.config.ProjectFiles
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.AbsoluteFile
@@ -34,15 +35,9 @@ object CliOptions {
     } else {
       tryCurrentDirectory(parsed).orElse(tryGit(parsed))
     }
-    val inplace =
-      args.isEmpty || {
-        !parsed.testing && (
-          parsed.inPlace ||
-          (parsed.customFiles.isEmpty && style.isDefined)
-        )
-      }
+    val newMode = if (parsed.testing) Stdout else parsed.writeMode
     parsed.copy(
-      inPlace = inplace,
+      writeMode = newMode,
       config = style.getOrElse(parsed.config)
     )
   }
@@ -86,11 +81,12 @@ case class CliOptions(
     range: Set[Range] = Set.empty[Range],
     customFiles: Seq[AbsoluteFile] = Nil,
     customExcludes: Seq[String] = Nil,
-    inPlace: Boolean = false,
+    writeMode: WriteMode = Override,
     testing: Boolean = false,
     stdIn: Boolean = false,
     quiet: Boolean = false,
     debug: Boolean = false,
+    git: Option[Boolean] = None,
     nonInteractive: Boolean = false,
     diff: Option[String] = None,
     assumeFilename: String = "stdin.scala", // used when read from stdin
@@ -98,7 +94,22 @@ case class CliOptions(
     common: CommonOptions = CommonOptions(),
     gitOpsConstructor: AbsoluteFile => GitOps = x => new GitOpsImpl(x)
 ) {
-  require(!(inPlace && testing), "inPlace and testing can't both be true")
+
+  val inPlace: Boolean = writeMode == Override
+
+  val fileFetchMode: FileFetchMode = {
+
+    diff.map(DiffFiles(_)).getOrElse {
+      val isGit: Boolean = git.getOrElse(config.project.git)
+      if (isGit) GitFiles else RecursiveSearch
+    }
+  }
+
+  val files: Seq[AbsoluteFile] =
+    if (customFiles.isEmpty)
+      Seq(common.workingDirectory)
+    else
+      customFiles
 
   val gitOps: GitOps = gitOpsConstructor(common.workingDirectory)
   def withProject(projectFiles: ProjectFiles): CliOptions = {
@@ -108,4 +119,10 @@ case class CliOptions(
   def withFiles(files: Seq[AbsoluteFile]): CliOptions = {
     this.copy(customFiles = files)
   }
+
+  lazy val filterMatcher: FilterMatcher =
+    FilterMatcher(
+      config.project.includeFilters,
+      config.project.excludeFilters ++ customExcludes
+    )
 }

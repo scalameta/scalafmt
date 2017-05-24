@@ -15,6 +15,7 @@ import org.scalafmt.Scalafmt
 import org.scalafmt.config.{Config, FilterMatcher}
 import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.FileOps
+import org.scalafmt.util.GitOps
 import org.scalafmt.util.LogLevel
 import org.scalafmt.util.OsSpecific
 
@@ -69,66 +70,40 @@ object Cli {
     CliArgParser.scoptParser.parse(args, init).map(CliOptions.auto(args, init))
   }
 
-  def canFormat(path: AbsoluteFile): Boolean =
+  private def canFormat(path: AbsoluteFile): Boolean =
     canFormat(path.path)
 
-  def canFormat(path: String): Boolean =
+  private def canFormat(path: String): Boolean =
     path.endsWith(".scala") || path.endsWith(".sbt")
 
-  def expandCustomFiles(workingDir: AbsoluteFile,
-                        files: Seq[AbsoluteFile]): Seq[AbsoluteFile] =
-    files.flatMap {
-      case f if f.jfile.isDirectory =>
-        FileOps.listFiles(f).filter(canFormat)
-      // we don't filter out custom files, even if they don't exist or contain
-      // weird suffixes.
-      case f => Seq(f)
+  /** Returns file paths defined via options.{customFiles,customExclude} */
+  private def getFilesFromCliOptions(options: CliOptions): Seq[AbsoluteFile] = {
+
+    def canFormat(f: AbsoluteFile) = options.filterMatcher.matches(f)
+
+    options.fileFetchMode match {
+      case m @ (GitFiles | RecursiveSearch) =>
+        val fetchFiles: AbsoluteFile => Seq[AbsoluteFile] =
+          if (m == GitFiles) options.gitOps.lsTree(_)
+          else FileOps.listFiles(_)
+
+        options.files.flatMap {
+          case d if d.jfile.isDirectory => fetchFiles(d).filter(canFormat)
+          // DESNOTE(2017-05-19, pjrt): A plain, fully passed file will (try to) be
+          // formatted regardless of what it is or where it is.
+          case f => Seq(f)
+        }
+      case DiffFiles(branch) =>
+        options.gitOps.diff(branch).filter(canFormat)
     }
 
-  /** Returns file paths defined via options.{customFiles,customExclude} */
-  def getFilesFromCliOptions(options: CliOptions): Seq[AbsoluteFile] = {
-    val excludePaths =
-      options.customExcludes.map(OsSpecific.fixSeparatorsInPathPattern)
-    val exclude = FilterMatcher.mkRegexp(excludePaths)
-    expandCustomFiles(options.common.workingDirectory, options.customFiles)
-      .filter(x => exclude.findFirstIn(x.path).isEmpty)
-  }
-
-  private def getFilesFromDiff(options: CliOptions): Seq[AbsoluteFile] = {
-    val branch = options.diff.get
-    options.gitOps
-      .diff(branch)
-      .filter(options.config.project.matcher.matches)
-      .filter(canFormat)
-  }
-
-  /** Returns file paths defined via options.project */
-  private def getFilesFromProject(options: CliOptions): Seq[AbsoluteFile] = {
-    val project = options.config.project
-    val matcher = project.matcher
-    val projectFiles: Seq[AbsoluteFile] = (
-      if (project.git) {
-        options.gitOps.lsTree
-      } else {
-        FileOps.listFiles(options.common.workingDirectory)
-      }
-    ).filter(canFormat)
-    val customFiles: Seq[AbsoluteFile] =
-      expandCustomFiles(
-        options.common.workingDirectory,
-        AbsoluteFile.fromFiles(project.files.map(new File(_)),
-                               options.common.workingDirectory))
-    (customFiles ++ projectFiles).filter(matcher.matches)
   }
 
   private def getInputMethods(options: CliOptions): Seq[InputMethod] = {
     if (options.stdIn) {
       Seq(InputMethod.StdinCode(options.assumeFilename, options.common.in))
     } else {
-      val projectFiles: Seq[AbsoluteFile] =
-        if (options.customFiles.nonEmpty) getFilesFromCliOptions(options)
-        else if (options.diff.isDefined) getFilesFromDiff(options)
-        else getFilesFromProject(options)
+      val projectFiles: Seq[AbsoluteFile] = getFilesFromCliOptions(options)
       projectFiles.map(InputMethod.FileContents.apply)
     }
   }

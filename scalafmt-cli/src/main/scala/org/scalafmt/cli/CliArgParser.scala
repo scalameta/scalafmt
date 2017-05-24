@@ -25,9 +25,9 @@ object CliArgParser {
        |scalafmt --diff-branch 2.x # same as --diff, except against branch 2.x
        |scalafmt --stdin # read from stdin and print to stdout
        |scalafmt --stdin --assume-filename foo.sbt # required to format .sbt files
-       |scalafmt -f Code.scala             # print formatted contents to stdout.
-       |scalafmt -i -f Code1.scala,A.scala # write formatted contents to file.
-       |scalafmt -i -f . --exclude target  # format all files in directory excluding target
+       |scalafmt Code1.scala A.scala       # write formatted contents to file.
+       |scalafmt --stdout Code.scala       # print formatted contents to stdout.
+       |scalafmt --exclude target          # format all files in directory excluding target
        |scalafmt --config .scalafmt.conf   # read custom style from file
        |scalafmt --config-str "style=IntelliJ" # define custom style as a flag, must be quoted.""".stripMargin
 
@@ -35,23 +35,28 @@ object CliArgParser {
     new scopt.OptionParser[CliOptions]("scalafmt") {
       override def showUsageOnError = false
 
-      def printAndExit(inludeUsage: Boolean)(ignore: Unit,
-                                             c: CliOptions): CliOptions = {
+      private def printAndExit(
+          inludeUsage: Boolean)(ignore: Unit, c: CliOptions): CliOptions = {
         if (inludeUsage) showUsage
         else showHeader
         sys.exit
         c
       }
 
-      def readConfigFromFile(file: String, c: CliOptions): CliOptions = {
+      private def readConfigFromFile(file: String, c: CliOptions): CliOptions = {
         readConfig(
           FileOps.readFile(
             AbsoluteFile.fromFile(new File(file), c.common.workingDirectory)),
           c
         )
       }
-      def readConfig(contents: String, c: CliOptions): CliOptions = {
+      private def readConfig(contents: String, c: CliOptions): CliOptions = {
         c.copy(config = Config.fromHoconString(contents).get)
+      }
+
+      private def addFile(file: File, c: CliOptions): CliOptions = {
+        val absFile = AbsoluteFile.fromFile(file, c.common.workingDirectory)
+        c.copy(customFiles = c.customFiles :+ absFile)
       }
 
       head("scalafmt", Versions.nightly)
@@ -61,14 +66,36 @@ object CliArgParser {
       opt[Unit]('v', "version")
         .action(printAndExit(inludeUsage = false))
         .text("print version ")
-      opt[Seq[File]]('f', "files")
-        .action { (files, c) =>
-          c.copy(
-            customFiles =
-              AbsoluteFile.fromFiles(files, c.common.workingDirectory))
-        }
+
+      arg[File]("<file>...")
+        .optional()
+        .unbounded()
+        .action((file, c) => addFile(file, c))
         .text(
           "file or directory, in which case all *.scala files are formatted.")
+
+      opt[Seq[File]]('f', "files")
+        .action { (files, c) =>
+          c.copy(customFiles =
+            AbsoluteFile.fromFiles(files, c.common.workingDirectory))
+        }
+        .hidden() // this option isn't needed anymore. Simply pass the files as
+        // arguments. Keeping for backwards compatability
+        .text("file or directory, in which case all *.scala files are formatted. Deprecated: pass files as arguments")
+
+      opt[Unit]('i', "in-place")
+        .action((opt, c) => c.copy(writeMode = Override))
+        .hidden() // this option isn't needed anymore. Simply don't pass
+        // --stdout. Keeping for backwards compatability
+        .text("format files in-place (default)")
+
+      opt[Unit]("stdout")
+        .action((opt, c) => c.copy(writeMode = Stdout))
+        .text("write formatted files to stdout")
+
+      opt[Boolean]("git")
+        .action((opt, c) => c.copy(git = Some(opt)))
+        .text("if true, ignore files in .gitignore (default false)")
       opt[Seq[String]]("exclude")
         .action((excludes, c) => c.copy(customExcludes = excludes))
         .text(
@@ -85,9 +112,6 @@ object CliArgParser {
       opt[String]("assume-filename")
         .action((filename, c) => c.copy(assumeFilename = filename))
         .text("required to format .sbt files with --stdin flag.")
-      opt[Unit]('i', "in-place")
-        .action((_, c) => c.copy(inPlace = true))
-        .text("write output to file, does nothing if file is not specified")
       opt[Unit]("test")
         .action((_, c) => c.copy(testing = true))
         .text("test for mis-formatted code, exits with status 1 on failure.")

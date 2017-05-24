@@ -8,7 +8,7 @@ import java.io.File
 
 trait GitOps {
   def diff(branch: String): Seq[AbsoluteFile]
-  def lsTree: Seq[AbsoluteFile]
+  def lsTree(dir: AbsoluteFile): Seq[AbsoluteFile]
   def rootDir: Option[AbsoluteFile]
 }
 
@@ -35,20 +35,23 @@ class GitOpsImpl(workingDirectory: AbsoluteFile) extends GitOps {
     }
   }
 
-  override def lsTree: Seq[AbsoluteFile] =
-    Try {
-      exec(
-        Seq(
-          "git",
-          "ls-tree",
-          "-r",
-          "HEAD",
-          "--name-only"
-        )
-      ).split(OsSpecific.lineSeparator).toSeq.collect {
-        case f if new File(f).isFile => workingDirectory / f
-      }
-    }.getOrElse(Nil)
+  override def lsTree(dir: AbsoluteFile): Seq[AbsoluteFile] =
+    rootDir.fold(Seq.empty[AbsoluteFile]) { rtDir =>
+      Try {
+        exec(
+          Seq(
+            "git",
+            "ls-tree",
+            "-r",
+            "HEAD",
+            "--name-only",
+            dir.path
+          )
+        ).split(OsSpecific.lineSeparator).toSeq.collect {
+          case f if new File(f).isFile => rtDir / f
+        }
+      }.getOrElse(Nil)
+    }
 
   override def rootDir: Option[AbsoluteFile] =
     Try {
