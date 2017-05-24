@@ -53,6 +53,16 @@
         The downside to Nailgun is that the setup is complicated and the long-running server
         needs to be restarted once in awhile.
 
+    @sect{Homebrew}
+      You can install scalafmt via homebrew using a custom cask
+        @hl.scala
+          brew install --HEAD olafurpg/scalafmt/scalafmt
+          scalafmt --version // should be @V.stable
+
+          // to upgrade between releases
+          brew upgrade scalafmt
+
+
     @sect{--help}
 
       @note. This help page is generated from the @code{master} branch and
