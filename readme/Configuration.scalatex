@@ -266,12 +266,12 @@
             }
       } yield x
 
-  @sect{binPackParentConstructors}
+  @sect{binPack.parentConstructors}
     Default: @b(default.binPack.parentConstructors)
 
     @hl.scala
       // column limit                        |
-      // binPackParentConstructors = false
+      // binPack.parentConstructors = false
       object DefaultStyle
           extends Parent
           with SecondParent
@@ -280,7 +280,7 @@
       }
 
       // column limit                        |
-      // binPackParentConstructors = true
+      // bin.packParentConstructors = true
       object DefaultStyle
           extends Parent with SecondParent
           with ThirdParent {
