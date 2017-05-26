@@ -5,6 +5,7 @@ jdk:
   - oraclejdk8
 env:
   matrix:
+    - CI_TEST: scalafmt
     - CI_TEST: ci-fast
       CI_SCALA_VERSION: 2.11.11
       CI_PUBLISH: true
@@ -13,11 +14,6 @@ env:
       CI_PUBLISH: true
     - CI_TEST: ci-sbt-scalafmt
       CI_SCALA_VERSION: 2.12.2
-    - CI_TEST: ci-slow
-      CI_SCALA_VERSION: 2.11.11
-    - CI_TEST: ci-slow
-      CI_SCALA_VERSION: 2.12.2
-    - CI_TEST: scalafmt
 
 cache:
   directories:
