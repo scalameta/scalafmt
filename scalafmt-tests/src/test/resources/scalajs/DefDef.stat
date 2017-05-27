@@ -82,20 +82,19 @@ class RTCPeerConnection(
 }
 <<< column limit is holy
  {
-   @inline def insertAll(n: Int,
+   def insertAll(n: Int,
                elems: scala.collection.Traversable[A]): Unit = {
        array.splice(n, 0, elems.toSeq: _*)
                }
  }
 >>>
 {
-  @inline
   def insertAll(n: Int, elems: scala.collection.Traversable[A]): Unit = {
     array.splice(n, 0, elems.toSeq: _*)
   }
 }
 <<< config style #249
-  @inline def apply(
+def apply(
   body: js.UndefOr[String] = js.undefined,
       dir: js.UndefOr[String] = js.undefined,
       icon: js.UndefOr[String] = js.undefined,
@@ -114,7 +113,6 @@ class RTCPeerConnection(
         ???
         }
 >>>
-@inline
 def apply(
     body: js.UndefOr[String] = js.undefined,
     dir: js.UndefOr[String] = js.undefined,

@@ -28,5 +28,5 @@ import metaconfig._
 case class OptIn(
     configStyleArguments: Boolean = true,
     breakChainOnFirstMethodDot: Boolean = true,
-    annotationNewlines: Boolean = false
+    annotationNewlines: Boolean = true
 )
