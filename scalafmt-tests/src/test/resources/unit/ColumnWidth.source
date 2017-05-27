@@ -23,8 +23,7 @@ object aaaaaaaaaaaaaaaaaaaaaaaaaaaaa {
 <<< Multiline object definition
 @foobar object LoooooooooooongNaaame { val x: Int = 1 }
 >>>
-@foobar
-object LoooooooooooongNaaame {
+@foobar object LoooooooooooongNaaame {
   val x: Int = 1
 }
 <<< One-liner object contains no newlines
