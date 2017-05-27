@@ -22,10 +22,7 @@
       @b{Breaking}.
        Homebrew, the scalafmt_auto bash script and Github releases are no
        longer supported for installing the command line application.
-       The motivation for this change is to simplify the release step,
-       making it possible to automatically publish a @sect.ref{Pre-release} on
-       every merge into master.
-       More boring details are explained @lnk("here",
+       Motivation for this change is explained @lnk("here",
        "https://github.com/scalameta/scalafmt/commit/0cf3b79be32ed084875e167a52af31272c577570").
 
       @p

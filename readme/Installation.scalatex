@@ -273,23 +273,6 @@
       object FormatMe { List(Split(Space, 0).withPolicy(SingleLineBlock(close)), Split(Newline, 1).withPolicy{ case Decision(t@@FormatToken(_, `close`, _), s) => Decision(t, List(Split(Newline, 0)))}.withIndent(2, close, Right)) }
        """).get
 
-  @sect{Pre-release}
-    Our CI infrastructure publishes pre-release on every merge into master.
-    This allows you to test bleeding edge versions of scalafmt before they
-    are officially released
-
-
-    @hl.scala
-      // cli
-      sudo coursier bootstrap -r bintray:scalameta/maven --standalone com.geirsson:scalafmt-cli_2.12:@V.nightly -o /usr/local/bin/scalafmt -f --main org.scalafmt.cli.Cli
-      ./scalafmt --version # should be @V.nightly
-      // library
-      resolvers += Resolver.bintrayRepo("scalameta", "maven")
-      libraryDependencies += "com.geirsson" %% "scalafmt-core" % "@V.nightly"
-      libraryDependencies += "com.geirsson" %% "scalafmt-cli" % "@V.nightly"
-      // Scala.js
-      libraryDependencies += "com.geirsson" %%% "scalafmt-core" % "@V.nightly"
-
   @sect{Help wanted!}
 
     @ul
