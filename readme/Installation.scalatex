@@ -17,7 +17,7 @@
           Create a standalone executable in @code{/usr/local/bin/scalafmt}
           @hl.scala
             sudo coursier bootstrap --standalone com.geirsson:scalafmt-cli_2.12:@V.stable -o /usr/local/bin/scalafmt -f --main org.scalafmt.cli.Cli
-            ./scalafmt --version # should be @org.scalafmt.Versions.stable
+            scalafmt --version # should be @org.scalafmt.Versions.stable
         @li
           Create a slim 16kb bootstrap script with
           @hl.xml
