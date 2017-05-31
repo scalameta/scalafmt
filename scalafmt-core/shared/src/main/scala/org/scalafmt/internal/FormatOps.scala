@@ -195,13 +195,16 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   @tailrec
   final def rhsOptimalToken(start: FormatToken): Token = start.right match {
     case Comma() | LeftParen() | RightParen() | RightBracket() | Semicolon() |
-        RightArrow()
+        RightArrow() | Equals()
         if next(start) != start &&
-          !owners(start.right).tokens.headOption.contains(start.right) &&
+          !startsNewBlock(start.right) &&
           newlinesBetween(start.between) == 0 =>
       rhsOptimalToken(next(start))
     case _ => start.left
   }
+
+  final def startsNewBlock(t: Token): Boolean =
+    owners(t).tokens.headOption.contains(t)
 
   /**
     * js.native is very special in Scala.js.
