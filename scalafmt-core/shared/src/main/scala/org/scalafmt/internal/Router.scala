@@ -774,7 +774,9 @@ class Router(formatOps: FormatOps) {
         val mod: Modification = rightOwner match {
           case tp: Type.Param =>
             val contextOption = style.spaces.beforeContextBoundColon
-            if (contextOption.isIfMultipleBounds && tp.cbounds.size > 1 || contextOption.isAlways) Space else NoSplit
+            if (contextOption.isIfMultipleBounds && tp.cbounds.size > 1 || contextOption.isAlways)
+              Space
+            else NoSplit
 
           case _ =>
             left match {
