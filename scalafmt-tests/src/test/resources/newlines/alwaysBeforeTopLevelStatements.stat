@@ -307,61 +307,23 @@ object a {
 
 <<< ONLY #933
 object hello {
-
-  def world: Future[_] = {
-    for {
-      _ <- {
-        val testObject = Constructor(
-          fieldOne = valueOne,
-          fieldTwo = None
-        )
-        returnFuture(testObject)
-      }
-    } yield ()
-  }
-
-  def worldTwo: Unit = {
-    something match {
-      case (first, second, third) =>
-        val someObject = Constructor(hello,
-                                     world,
-                                     other,
-                                     other,
-                                     asdfjasdf,
-                                     adfasdfasdfasdf,
-                                     asdfasdfasdf,
-                                     asdfasdf)
-        someObject.doSomething()
+  def x = for {
+    _ <- {
+      val testObject = Constructor(
+        fieldOne = valueOne,
+        fieldTwo = None
+      )
     }
-  }
+  } yield ()
 }
 >>>
 object hello {
-
-  def world: Future[_] = {
     for {
       _ <- {
         val testObject = Constructor(
           fieldOne = valueOne,
           fieldTwo = None
         )
-        returnFuture(testObject)
       }
-    } yield ()
-  }
-
-  def worldTwo: Unit = {
-    something match {
-      case (first, second, third) =>
-        val someObject = Constructor(hello,
-                                     world,
-                                     other,
-                                     other,
-                                     asdfjasdf,
-                                     adfasdfasdfasdf,
-                                     asdfasdfasdf,
-                                     asdfasdf)
-        someObject.doSomething()
     }
-  }
 }
