@@ -318,6 +318,8 @@ object hello {
 }
 >>>
 object hello {
+
+  def x =
     for {
       _ <- {
         val testObject = Constructor(
@@ -325,5 +327,5 @@ object hello {
           fieldTwo = None
         )
       }
-    }
+    } yield ()
 }
