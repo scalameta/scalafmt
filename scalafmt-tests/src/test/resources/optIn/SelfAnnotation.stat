@@ -1,0 +1,29 @@
+optIn.selfAnnotationNewline = true
+maxColumn = 20
+<<< #938
+trait a { self =>
+    blah
+}
+>>>
+trait a { self =>
+  blah
+}
+<<< #938 2
+trait a {
+  self =>
+    blah
+}
+>>>
+trait a {
+  self =>
+  blah
+}
+<<< #938 maxColumn is still respected
+trait a { selfaaaaaaaaaaaaaaaa =>
+    blah
+}
+>>>
+trait a {
+  selfaaaaaaaaaaaaaaaa =>
+  blah
+}
