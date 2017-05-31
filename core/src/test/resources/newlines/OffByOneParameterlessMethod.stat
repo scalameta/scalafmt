@@ -1,0 +1,30 @@
+style = defaultWithAlign
+newlines.sometimesBeforeColonInMethodReturnType = false
+maxColumn = 32
+<<< equals is at column + 1
+object Test {
+//-----------------------------|
+  def test: Either[String, Int] = Right(0)
+}
+>>>
+object Test {
+//-----------------------------|
+  def test: Either[String,
+                   Int] =
+    Right(0)
+}
+<<< SKIP left brace is at column + 1
+object Test {
+//-----------------------------|
+  def ab: Either[String, Int] = {
+    Right(0)
+  }
+}
+>>>
+object Test {
+//-----------------------------|
+  def ab: Either[String,
+                 Int] = {
+    Right(0)
+  }
+}
