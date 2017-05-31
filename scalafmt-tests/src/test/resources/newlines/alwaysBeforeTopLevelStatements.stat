@@ -1,4 +1,4 @@
-maxColumn = 60
+ONLY maxColumn = 60
 newlines.alwaysBeforeTopLevelStatements = true
 
 <<< Create newlines where necessary
@@ -247,11 +247,9 @@ object a {
 object a {
 
   def foo = {
-
     def b = {
       3
     }
-
     def c = {
       4
     }
@@ -303,5 +301,67 @@ object a {
   // scalastyle:off magic.number
   trait TestConfigs extends PatienceConfiguration {
     ???
+  }
+}
+
+
+<<< ONLY #933
+object hello {
+
+  def world: Future[_] = {
+    for {
+      _ <- {
+        val testObject = Constructor(
+          fieldOne = valueOne,
+          fieldTwo = None
+        )
+        returnFuture(testObject)
+      }
+    } yield ()
+  }
+
+  def worldTwo: Unit = {
+    something match {
+      case (first, second, third) =>
+        val someObject = Constructor(hello,
+                                     world,
+                                     other,
+                                     other,
+                                     asdfjasdf,
+                                     adfasdfasdfasdf,
+                                     asdfasdfasdf,
+                                     asdfasdf)
+        someObject.doSomething()
+    }
+  }
+}
+>>>
+object hello {
+
+  def world: Future[_] = {
+    for {
+      _ <- {
+        val testObject = Constructor(
+          fieldOne = valueOne,
+          fieldTwo = None
+        )
+        returnFuture(testObject)
+      }
+    } yield ()
+  }
+
+  def worldTwo: Unit = {
+    something match {
+      case (first, second, third) =>
+        val someObject = Constructor(hello,
+                                     world,
+                                     other,
+                                     other,
+                                     asdfjasdf,
+                                     adfasdfasdfasdf,
+                                     asdfasdfasdf,
+                                     asdfasdf)
+        someObject.doSomething()
+    }
   }
 }
