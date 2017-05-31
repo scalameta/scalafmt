@@ -772,8 +772,12 @@ class Router(formatOps: FormatOps) {
         )
       case FormatToken(left, Colon(), _) =>
         val mod: Modification = rightOwner match {
-          case _: Type.Param =>
-            if (style.spaces.beforeContextBoundColon) Space else NoSplit
+          case tp: Type.Param =>
+            val contextOption = style.spaces.beforeContextBoundColon
+            if (contextOption.isIfMultipleBounds && tp.cbounds.size > 1 || contextOption.isAlways)
+              Space
+            else NoSplit
+
           case _ =>
             left match {
               case ident: Ident => identModification(ident)
