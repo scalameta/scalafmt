@@ -1,6 +1,7 @@
 package org.scalafmt.config
 
 import metaconfig._
+import org.scalafmt.config.SpaceBeforeContextBound.Never
 
 /**
   *
@@ -16,9 +17,9 @@ import metaconfig._
   */
 @DeriveConfDecoder
 case class Spaces(
-    beforeContextBoundColon: Boolean = false,
-    afterTripleEquals: Boolean = false,
-    inImportCurlyBraces: Boolean = false,
-    inParentheses: Boolean = false,
-    neverAroundInfixTypes: Seq[String] = Nil
+                   beforeContextBoundColon: SpaceBeforeContextBound = Never,
+                   afterTripleEquals: Boolean = false,
+                   inImportCurlyBraces: Boolean = false,
+                   inParentheses: Boolean = false,
+                   neverAroundInfixTypes: Seq[String] = Nil
 )

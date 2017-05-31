@@ -1,8 +1,8 @@
-spaces.beforeContextBoundColon = true
-<<<  space before colon #180
+spaces.beforeContextBoundColon = ifMultipleBounds
+<<< space before colon #180
 def map[T: Class](f: N => T): S[T]
 >>>
-def map[T : Class](f: N => T): S[T]
+def map[T: Class](f: N => T): S[T]
 <<< space before colon 2 #180
 def orderLaws[A:Eq:Arbitrary] = O
 >>>
@@ -10,4 +10,4 @@ def orderLaws[A : Eq : Arbitrary] = O
 <<< non-ident before colon
 def myMethod[F[_]:Functor](): Foo
 >>>
-def myMethod[F[_] : Functor](): Foo
+def myMethod[F[_]: Functor](): Foo
