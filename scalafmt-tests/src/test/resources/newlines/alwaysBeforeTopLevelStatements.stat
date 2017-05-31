@@ -1,4 +1,4 @@
-ONLY maxColumn = 60
+maxColumn = 60
 newlines.alwaysBeforeTopLevelStatements = true
 
 <<< Create newlines where necessary
@@ -305,7 +305,7 @@ object a {
 }
 
 
-<<< ONLY #933
+<<< #933
 object hello {
   def x = for {
     _ <- {
