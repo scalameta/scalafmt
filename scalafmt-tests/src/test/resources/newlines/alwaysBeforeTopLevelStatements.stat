@@ -247,11 +247,9 @@ object a {
 object a {
 
   def foo = {
-
     def b = {
       3
     }
-
     def c = {
       4
     }
@@ -304,4 +302,30 @@ object a {
   trait TestConfigs extends PatienceConfiguration {
     ???
   }
+}
+
+
+<<< #933
+object hello {
+  def x = for {
+    _ <- {
+      val testObject = Constructor(
+        fieldOne = valueOne,
+        fieldTwo = None
+      )
+    }
+  } yield ()
+}
+>>>
+object hello {
+
+  def x =
+    for {
+      _ <- {
+        val testObject = Constructor(
+          fieldOne = valueOne,
+          fieldTwo = None
+        )
+      }
+    } yield ()
 }

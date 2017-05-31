@@ -12,11 +12,12 @@ import scala.meta.Tree
 import scala.meta.prettyprinters.Syntax
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
-
 import java.util.regex.Pattern
 
 import org.scalafmt.internal.FormatWriter.FormatLocation
 import org.scalafmt.util.TreeOps
+
+import scala.meta.transversers.Traverser
 
 /**
   * Produces formatted output from sequence of splits.
@@ -182,11 +183,25 @@ class FormatWriter(formatOps: FormatOps) {
     }
   }
 
-  lazy val topLevelTokens: List[TokenHash] = tree.collect {
-    case TreeOps.MaybeTopLevelStat(t) =>
-      val tok = leftTok2tok(t.tokens.head)
-      val result = leadingComment(prev(tok))
-      hash(result)
+  lazy val topLevelTokens: List[TokenHash] = {
+    val buffer = List.newBuilder[TokenHash]
+    val trav = new Traverser {
+      override def apply(tree: Tree): Unit = tree match {
+        case Term.Block(_) =>
+          ()
+        case TreeOps.MaybeTopLevelStat(t) =>
+          val tok = leftTok2tok(t.tokens.head)
+          val result = leadingComment(prev(tok))
+          val hashed = hash(result)
+          buffer += hashed
+          super.apply(tree)
+        case _ =>
+          super.apply(tree)
+      }
+    }
+
+    trav(tree)
+    buffer.result()
   }
 
   private def isMultilineTopLevelStatement(toks: Array[FormatLocation],
