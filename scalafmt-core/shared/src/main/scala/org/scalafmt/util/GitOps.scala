@@ -45,36 +45,41 @@ class GitOpsImpl(workingDirectory: AbsoluteFile) extends GitOps {
             "-r",
             "HEAD",
             "--name-only",
+            "--full-name",
             dir.path
           )
-        ).split(OsSpecific.lineSeparator).toSeq.collect {
-          case f if new File(f).isFile => rtDir / f
-        }
+          // DESNOTE(2017-06-02, pjrt): Since the git command above only returns
+          // files, no need to check if they are files
+        ).split(OsSpecific.lineSeparator).toSeq.map(f => rtDir / f)
       }.getOrElse(Nil)
     }
 
-  override def rootDir: Option[AbsoluteFile] =
-    Try {
-      val cmd = Seq(
-        "git",
-        "rev-parse",
-        "--show-toplevel"
-      )
-      val result = AbsoluteFile.fromFile(new File(exec(cmd)), workingDirectory)
-      require(result.jfile.isDirectory)
-      result
-    }.toOption
+  override def rootDir: Option[AbsoluteFile] = {
+    val cmd = Seq(
+      "git",
+      "rev-parse",
+      "--show-toplevel"
+    )
+    for {
+      rootPath <- Try(exec(cmd)).toOption
+      file <- AbsoluteFile.fromPath(rootPath)
+      if file.jfile.isDirectory
+    } yield file
+  }
 
   override def diff(branch: String): Seq[AbsoluteFile] = {
-    exec(
-      Seq(
-        "git",
-        "diff",
-        "--name-only",
-        "--diff-filter=d",
-        branch
-      )).lines.map { x =>
-      AbsoluteFile.fromFile(new File(x), workingDirectory)
-    }.toSeq
+    val cmd = Seq(
+      "git",
+      "diff",
+      "--name-only",
+      "--diff-filter=d",
+      branch
+    )
+    // DESNOTE(2017-06-02, pjrt): Since the git command above only returns
+    // files, no need to check if they are files
+    for {
+      root <- rootDir.toSeq
+      path <- Try(exec(cmd)).toOption.toSeq.flatMap(_.lines)
+    } yield AbsoluteFile.fromFile(new File(path), root)
   }
 }
