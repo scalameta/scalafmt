@@ -13,14 +13,15 @@ import metaconfig._
 case class AlignToken(code: String, owner: String)
 
 object AlignToken {
+  val applyInfix = "Term.ApplyInfix"
+  val caseArrow = AlignToken("=>", "Case")
   protected[scalafmt] val fallbackAlign = new AlignToken("<empty>", ".*")
-  implicit val DefaultAlignTokenDecoder =
-    ConfDecoder.instanceExpect("Regex") {
+  implicit val DefaultAlignTokenDecoder: ConfDecoder[AlignToken] =
+    ConfDecoder.instance[AlignToken] {
+      case Conf.Str("caseArrow") => Ok(caseArrow)
       case Conf.Str(regex) => Ok(AlignToken(regex, ".*"))
       case els => fallbackAlign.reader.read(els)
     }
-  val applyInfix = "Term.ApplyInfix"
-  val caseArrow = AlignToken("=>", "Case")
 
   val default = Set(
     caseArrow,

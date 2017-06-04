@@ -124,7 +124,7 @@ case class ScalafmtConfig(
     @Recurse optIn: OptIn = OptIn(),
     @Recurse binPack: BinPack = BinPack(),
     @Recurse continuationIndent: ContinuationIndent = ContinuationIndent(),
-    @Recurse align: Align = Align(),
+    align: Align = Align(),
     @Recurse spaces: Spaces = Spaces(),
     lineEndings: LineEndings = LineEndings.unix,
     rewriteTokens: Map[String, String] = Map.empty[String, String],
@@ -146,6 +146,8 @@ case class ScalafmtConfig(
     encoding: Codec = "UTF-8",
     @Recurse project: ProjectFiles = ProjectFiles()
 ) {
+  implicit val alignDecoder: ConfDecoder[Align] =
+    ScalafmtConfig.alignReader(align.reader)
 
   def reformatDocstrings: Boolean = docstrings != Docstrings.preserve
   def scalaDocs: Boolean = docstrings == Docstrings.ScalaDoc
