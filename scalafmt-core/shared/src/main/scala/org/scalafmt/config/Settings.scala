@@ -156,6 +156,7 @@ trait Settings {
     ConfDecoder.instance[Align] {
       case Conf.Bool(true) => Ok(Align.on)
       case Conf.Bool(false) => Ok(Align.off)
+      case Conf.Str("default") => Ok(Align.default)
       case els => base.read(els)
     }
   def alignTokenReader(

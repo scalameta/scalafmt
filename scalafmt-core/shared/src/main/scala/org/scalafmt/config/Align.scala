@@ -82,6 +82,9 @@ case class Align(
 }
 
 object Align {
+  val default = Align()
+  // no vertical alignment whatsoever, if you find any vertical alignment with
+  // this settings, please report an issue.
   val off: Align = Align(
     openParenCallSite = false,
     openParenDefnSite = false,
@@ -90,6 +93,16 @@ object Align {
     tokenCategory = Map.empty,
     treeCategory = Map.empty
   )
-  val default = Align()
+  // stable set of alignment operators, the previous defaultWithAlign.
   val on: Align = default.copy(tokens = AlignToken.default)
+
+  // only for the truest vertical aligners, this setting is open for changes,
+  // please open PR addding more stuff to it if you like.
+  val everything: Align = on.copy(
+    tokenCategory = Map(
+      "Equals" -> "Assign",
+      "LeftArrow" -> "Assign"
+    )
+  )
+  val allValues = List(default, off, on, everything)
 }
