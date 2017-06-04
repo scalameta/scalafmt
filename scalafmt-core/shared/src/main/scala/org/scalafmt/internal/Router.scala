@@ -55,6 +55,11 @@ object Constants {
 
 /**
   * Assigns splits to format tokens.
+  *
+  * NOTE(olafurpg). The pattern match in this file has gotten out of hand. It's
+  * difficult even for myself to keep track of what's going on in some cases,
+  * especially around applications and lambdas. I'm hoping to sunset this file
+  * along with BestFirstSearch in favor of https://github.com/scalameta/scalafmt/issues/917
   */
 class Router(formatOps: FormatOps) {
 
