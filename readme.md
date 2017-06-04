@@ -10,15 +10,14 @@ Head over to [the user docs][docs] for instructions on how to install scalafmt.
 ### Quick help
 
 - Run all unit tests: `sbt test`
-- Run only formatting tests: `core/testOnly org.scalafmt.FormatTests`.
-- Write new formatting test: read [this doc](core/src/test/resources/readme.md).
+- Run only formatting tests: `tests/testOnly *FormatTests`.
+- Write new formatting test: read [this doc](scalafmt-tests/src/test/resources/readme.md).
 - Build docs: `sbt readme/run` will create the docs, which you can open with
   `open readme/target/scalatex/index.html`. Docs are built with [Scalatex](http://www.lihaoyi.com/Scalatex/).
-- Hack on IntelliJ plugin: see [this doc](intellij/readme.md).
-- Hack on scalafmt: see [tutorial](Tutorial.md).
+- Hack on IntelliJ plugin: see [this doc](scalafmt-intellij/readme.md).
 - Hack on SBT plugin: run `sbt scripted`.
 - Run jmh benchmarks: `./bin/run-benchmarks.sh`.
-- Run formatter on millions of lines of code: `core/test:runMain  org.scalafmt.ScalafmtProps` (slow, and requires a lot of memory/cpu)
+- Run formatter on millions of lines of code: `tests/test:runMain  org.scalafmt.ScalafmtProps` (slow, and requires a lot of memory/cpu)
 - Debug performance: after each test run in `FormatTests`, a flamegraph report
   like [this one](https://github.com/scalameta/scalafmt/issues/140)
   is generated in `target/index.html`. 
