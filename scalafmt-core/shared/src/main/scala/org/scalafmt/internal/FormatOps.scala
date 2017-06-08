@@ -96,8 +96,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       tree.tokens.headOption.foreach(x => optional += hash(x))
     def iter(tree: Tree): Unit = {
       tree match {
-        case p: Pkg => packages ++= p.ref.tokens
-        case i: Import => imports ++= i.tokens
+        case p: Pkg      => packages ++= p.ref.tokens
+        case i: Import   => imports ++= i.tokens
         case t: Term.Arg => add(t)
         case t: Term.Param =>
           add(t)
@@ -256,7 +256,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       val isSuperfluous = isSuperfluousParenthesis(token, owner)
       isSuperfluous && (owner match {
         case _: Term.ApplyUnary | _: Term.Block => false
-        case _ => true
+        case _                                  => true
       })
 
     }
@@ -411,7 +411,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       case Some(els @ KwElse()) =>
         val rest = term.elsep match {
           case t: Term.If => getElseChain(t)
-          case _ => Vector.empty[KwElse]
+          case _          => Vector.empty[KwElse]
         }
         els +: rest
       case _ => Vector.empty[KwElse]
@@ -552,13 +552,13 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
               x
             // Type compounds can be inside defn.defs
             case (LeftBrace(), Type.Refine(_, _)) => true
-            case _ => false
+            case _                                => false
           }) =>
         inside = true
         expire = matchingParentheses(hash(t))
       case x if x == expire => inside = false
-      case x if inside => result += x
-      case _ =>
+      case x if inside      => result += x
+      case _                =>
     }
     result.result()
   }
@@ -607,7 +607,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     }
     toMatch match {
       case FormatToken(At(), _: Ident, _) => true
-      case _ => false
+      case _                              => false
     }
   }
 
@@ -659,11 +659,11 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     val count: Int = tree match {
       // infix applications don't count towards the length, context #531
       case _: Term.ApplyInfix => 0
-      case _ => 1
+      case _                  => 1
     }
     tree.parent match {
       case Some(parent) => count + vAlignDepth(parent)
-      case None => count
+      case None         => count
     }
   }
 
@@ -709,7 +709,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
         case f @ FormatToken(RightBracket(), mod, _) if mod.is[Modifier] =>
           loop(next(f).right)
         case FormatToken(r @ RightParenOrBracket(), _, _) => Some(r)
-        case _ => None
+        case _                                            => None
       }
     }
 

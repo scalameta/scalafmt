@@ -46,6 +46,6 @@ object IndentOperator {
   implicit val IndentOperatorDecoder: ConfDecoder[IndentOperator] =
     ConfDecoder.instance[IndentOperator] {
       case Conf.Str("spray") => Ok(IndentOperator.akka)
-      case els => default.reader.read(els)
+      case els               => default.reader.read(els)
     }
 }

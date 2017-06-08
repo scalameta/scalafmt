@@ -155,10 +155,10 @@ trait Settings {
   def alignReader(base: ConfDecoder[Align]): ConfDecoder[Align] =
     ConfDecoder.instance[Align] {
       case Conf.Str("none") | Conf.Bool(false) => Ok(Align.none)
-      case Conf.Str("some" | "default") => Ok(Align.some)
-      case Conf.Str("more") | Conf.Bool(true) => Ok(Align.more)
-      case Conf.Str("most") => Ok(Align.most)
-      case els => base.read(els)
+      case Conf.Str("some" | "default")        => Ok(Align.some)
+      case Conf.Str("more") | Conf.Bool(true)  => Ok(Align.more)
+      case Conf.Str("most")                    => Ok(Align.most)
+      case els                                 => base.read(els)
     }
   def alignTokenReader(
       initTokens: Set[AlignToken]): ConfDecoder[Set[AlignToken]] = {

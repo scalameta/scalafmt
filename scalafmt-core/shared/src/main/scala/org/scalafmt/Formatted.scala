@@ -9,7 +9,7 @@ sealed abstract class Formatted {
 
   def get: String = this match {
     case Formatted.Success(code) => code
-    case Formatted.Failure(e) => throw e
+    case Formatted.Failure(e)    => throw e
   }
 }
 

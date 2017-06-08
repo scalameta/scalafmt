@@ -34,18 +34,18 @@ object TreeOps {
   @tailrec
   def topTypeWith(typeWith: Type.With): Type.With = typeWith.parent match {
     case Some(t: Type.With) => topTypeWith(t)
-    case _ => typeWith
+    case _                  => typeWith
   }
 
   def withChain(top: Tree): Seq[Type.With] = top match {
     case t: Type.With => t +: withChain(t.lhs)
-    case _ => Nil
+    case _            => Nil
   }
 
   def getEnumStatements(enums: Seq[Enumerator]): Seq[Enumerator] = {
     val ret = Seq.newBuilder[Enumerator]
     enums.zipWithIndex.foreach {
-      case (x, 0) => x
+      case (x, 0)                      => x
       case (enum: Enumerator.Guard, i) =>
         // Only guard that follows another guards starts a statement.
         if (enums(i - 1).is[Enumerator.Guard]) {
@@ -58,18 +58,18 @@ object TreeOps {
 
   def extractStatementsIfAny(tree: Tree): Seq[Tree] = tree match {
     case b: Term.Block => b.stats
-    case t: Pkg => t.stats
+    case t: Pkg        => t.stats
     // TODO(olafur) would be nice to have an abstract "For" superclass.
-    case t: Term.For => getEnumStatements(t.enums)
-    case t: Term.ForYield => getEnumStatements(t.enums)
-    case t: Term.Match => t.cases
-    case t: Term.PartialFunction => t.cases
-    case t: Term.TryWithCases => t.catchp
-    case t: Type.Refine => t.stats
-    case t: scala.meta.Source => t.stats
-    case t: Template if t.stats.isDefined => t.stats.get
+    case t: Term.For                       => getEnumStatements(t.enums)
+    case t: Term.ForYield                  => getEnumStatements(t.enums)
+    case t: Term.Match                     => t.cases
+    case t: Term.PartialFunction           => t.cases
+    case t: Term.TryWithCases              => t.catchp
+    case t: Type.Refine                    => t.stats
+    case t: scala.meta.Source              => t.stats
+    case t: Template if t.stats.isDefined  => t.stats.get
     case t: Case if t.body.tokens.nonEmpty => Seq(t.body)
-    case _ => Seq.empty[Tree]
+    case _                                 => Seq.empty[Tree]
   }
 
   def getDequeueSpots(tree: Tree): Set[TokenHash] = {
@@ -108,7 +108,7 @@ object TreeOps {
           // No non-annotation modifier exists, fallback to keyword like `object`
           tree.tokens.find(x => classTag[T].runtimeClass.isInstance(x)) match {
             case Some(x) => x
-            case None => throw Error.CantFindDefnToken[T](tree)
+            case None    => throw Error.CantFindDefnToken[T](tree)
           }
         }
       ret += hash(firstNonAnnotation) -> tree
@@ -116,19 +116,19 @@ object TreeOps {
 
     def loop(x: Tree): Unit = {
       x match {
-        case t: Defn.Class => addDefn[KwClass](t.mods, t)
-        case t: Defn.Def => addDefn[KwDef](t.mods, t)
-        case t: Defn.Macro => addDefn[KwDef](t.mods, t)
-        case t: Decl.Def => addDefn[KwDef](t.mods, t)
+        case t: Defn.Class     => addDefn[KwClass](t.mods, t)
+        case t: Defn.Def       => addDefn[KwDef](t.mods, t)
+        case t: Defn.Macro     => addDefn[KwDef](t.mods, t)
+        case t: Decl.Def       => addDefn[KwDef](t.mods, t)
         case t: Ctor.Secondary => addDefn[KwDef](t.mods, t)
-        case t: Defn.Object => addDefn[KwObject](t.mods, t)
-        case t: Defn.Trait => addDefn[KwTrait](t.mods, t)
-        case t: Defn.Type => addDefn[KwType](t.mods, t)
-        case t: Decl.Type => addDefn[KwType](t.mods, t)
-        case t: Defn.Val => addDefn[KwVal](t.mods, t)
-        case t: Decl.Val => addDefn[KwVal](t.mods, t)
-        case t: Defn.Var => addDefn[KwVar](t.mods, t)
-        case t: Decl.Var => addDefn[KwVar](t.mods, t)
+        case t: Defn.Object    => addDefn[KwObject](t.mods, t)
+        case t: Defn.Trait     => addDefn[KwTrait](t.mods, t)
+        case t: Defn.Type      => addDefn[KwType](t.mods, t)
+        case t: Decl.Type      => addDefn[KwType](t.mods, t)
+        case t: Defn.Val       => addDefn[KwVal](t.mods, t)
+        case t: Decl.Val       => addDefn[KwVal](t.mods, t)
+        case t: Defn.Var       => addDefn[KwVar](t.mods, t)
+        case t: Decl.Var       => addDefn[KwVar](t.mods, t)
         case t => // Nothing
           addAll(extractStatementsIfAny(t))
       }
@@ -166,9 +166,9 @@ object TreeOps {
   def assertValidParens(open: Token, close: Token): Unit = {
     (open, close) match {
       case (Interpolation.Start(), Interpolation.End()) =>
-      case (LeftBrace(), RightBrace()) =>
-      case (LeftBracket(), RightBracket()) =>
-      case (LeftParen(), RightParen()) =>
+      case (LeftBrace(), RightBrace())                  =>
+      case (LeftBracket(), RightBracket())              =>
+      case (LeftParen(), RightParen())                  =>
       case (o, c) =>
         throw new IllegalArgumentException(s"Mismatching parens ($o, $c)")
     }
@@ -193,7 +193,7 @@ object TreeOps {
   final def childOf(child: Tree, tree: Tree): Boolean = {
     child == tree || (child.parent match {
       case Some(parent) => childOf(parent, tree)
-      case _ => false
+      case _            => false
     })
   }
 
@@ -205,28 +205,28 @@ object TreeOps {
                     accum: Seq[Tree] = Seq.empty[Tree]): Seq[Tree] = {
     tree.parent match {
       case Some(parent) => parents(parent, parent +: accum)
-      case _ => accum
+      case _            => accum
     }
   }
 
   def isTopLevel(tree: Tree): Boolean = tree match {
     case _: Pkg | _: Source => true
-    case _ => false
+    case _                  => false
   }
 
   def isDefDef(tree: Tree): Boolean = tree match {
     case _: Decl.Def | _: Defn.Def => true
-    case _ => false
+    case _                         => false
   }
 
   def defDefReturnType(tree: Tree): Option[Type] = tree match {
-    case d: Decl.Def => Some(d.decltpe)
-    case d: Defn.Def => d.decltpe
-    case d: Defn.Val => d.decltpe
-    case d: Defn.Var => d.decltpe
+    case d: Decl.Def       => Some(d.decltpe)
+    case d: Defn.Def       => d.decltpe
+    case d: Defn.Val       => d.decltpe
+    case d: Defn.Var       => d.decltpe
     case pat: Pat.Var.Term => pat.parent.flatMap(defDefReturnType)
-    case name: Term.Name => name.parent.flatMap(defDefReturnType)
-    case _ => None
+    case name: Term.Name   => name.parent.flatMap(defDefReturnType)
+    case _                 => None
   }
 
   /**
@@ -299,7 +299,7 @@ object TreeOps {
 
   def isTuple(tree: Tree): Boolean = tree match {
     case _: Pat.Tuple | _: Term.Tuple | _: Type.Tuple => true
-    case _ => false
+    case _                                            => false
   }
 
   def isDefnOrCallSite(tree: Tree): Boolean =
@@ -310,37 +310,37 @@ object TreeOps {
 
   def isModPrivateProtected(tree: Tree): Boolean = tree match {
     case _: Mod.Private | _: Mod.Protected => true
-    case _ => false
+    case _                                 => false
   }
 
   def isTypeVariant(tree: Tree): Boolean = tree match {
     case _: Mod.Contravariant | _: Mod.Covariant => true
-    case _ => false
+    case _                                       => false
   }
 
   val splitApplyIntoLhsAndArgs: PartialFunction[Tree, (Tree, Seq[Tree])] = {
-    case t: Term.Apply => t.fun -> t.args
-    case t: Term.Super => t -> Seq(t.superp)
-    case t: Pat.Extract => t.ref -> t.args
-    case t: Pat.Tuple => t -> t.args
+    case t: Term.Apply     => t.fun -> t.args
+    case t: Term.Super     => t -> Seq(t.superp)
+    case t: Pat.Extract    => t.ref -> t.args
+    case t: Pat.Tuple      => t -> t.args
     case t: Pat.Type.Apply => t.tpe -> t.args
     case t: Term.ApplyType => t.fun -> t.targs
-    case t: Term.Update => t.fun -> t.argss.flatten
-    case t: Term.Tuple => t -> t.args
-    case t: Term.Function => t -> t.params
-    case t: Type.Function => t -> t.params
-    case t: Type.Tuple => t -> t.args
-    case t: Type.Apply => t.tpe -> t.args
-    case t: Type.Param => t.name -> t.tparams
-    case t: Decl.Type => t.name -> t.tparams
-    case t: Defn.Type => t.name -> t.tparams
+    case t: Term.Update    => t.fun -> t.argss.flatten
+    case t: Term.Tuple     => t -> t.args
+    case t: Term.Function  => t -> t.params
+    case t: Type.Function  => t -> t.params
+    case t: Type.Tuple     => t -> t.args
+    case t: Type.Apply     => t.tpe -> t.args
+    case t: Type.Param     => t.name -> t.tparams
+    case t: Decl.Type      => t.name -> t.tparams
+    case t: Defn.Type      => t.name -> t.tparams
     // TODO(olafur) flatten correct? Filter by this () section?
-    case t: Defn.Def => t.name -> t.paramss.flatten
-    case t: Defn.Macro => t.name -> t.paramss.flatten
-    case t: Decl.Def => t.name -> t.paramss.flatten
-    case t: Defn.Class => t.name -> t.ctor.paramss.flatten
-    case t: Defn.Trait => t.name -> t.ctor.paramss.flatten
-    case t: Ctor.Primary => t.name -> t.paramss.flatten
+    case t: Defn.Def       => t.name -> t.paramss.flatten
+    case t: Defn.Macro     => t.name -> t.paramss.flatten
+    case t: Decl.Def       => t.name -> t.paramss.flatten
+    case t: Defn.Class     => t.name -> t.ctor.paramss.flatten
+    case t: Defn.Trait     => t.name -> t.ctor.paramss.flatten
+    case t: Ctor.Primary   => t.name -> t.paramss.flatten
     case t: Ctor.Secondary => t.name -> t.paramss.flatten
   }
 
@@ -412,7 +412,7 @@ object TreeOps {
   def nestedSelect(tree: Tree): Int = {
     tree.parent.fold(0) {
       case parent: Term.Select => 1 + nestedSelect(parent)
-      case parent => nestedSelect(parent)
+      case parent              => nestedSelect(parent)
     }
   }
 
@@ -424,7 +424,7 @@ object TreeOps {
         parent.is[Term.ForYield]
       sibling <- {
         val enums = parent match {
-          case p: Term.For => p.enums
+          case p: Term.For      => p.enums
           case p: Term.ForYield => p.enums
         }
         val i = enums.indexOf(generator)
@@ -450,10 +450,10 @@ object TreeOps {
     else 1 + tree.children.map(treeDepth).max
 
   def defBody(tree: Tree): Option[Tree] = tree match {
-    case t: Defn.Def => Some(t.body)
-    case t: Defn.Macro => Some(t.body)
+    case t: Defn.Def       => Some(t.body)
+    case t: Defn.Macro     => Some(t.body)
     case t: Ctor.Secondary => Some(t.body)
-    case _ => None
+    case _                 => None
   }
 
   @tailrec
@@ -468,19 +468,19 @@ object TreeOps {
 
   final def isApplyInfix(op: Token.Ident, owner: Tree): Boolean =
     owner.parent.exists {
-      case infix: Type.ApplyInfix => infix.op == owner
-      case infix: Term.ApplyInfix => infix.op == owner
+      case infix: Type.ApplyInfix  => infix.op == owner
+      case infix: Term.ApplyInfix  => infix.op == owner
       case infix: Pat.ExtractInfix => infix.op == owner
-      case _ => false
+      case _                       => false
     }
 
   @tailrec
   final def isTopLevelInfixApplication(child: Tree): Boolean =
     child.parent match {
-      case Some(parent: Type.ApplyInfix) => isTopLevelInfixApplication(parent)
-      case Some(parent: Term.ApplyInfix) => isTopLevelInfixApplication(parent)
+      case Some(parent: Type.ApplyInfix)                                => isTopLevelInfixApplication(parent)
+      case Some(parent: Term.ApplyInfix)                                => isTopLevelInfixApplication(parent)
       case Some(_: Term.Block | _: Term.If | _: Term.While | _: Source) => true
-      case _ => false
+      case _                                                            => false
     }
 
   // procedure syntax has decltpe: Some("")
@@ -491,7 +491,7 @@ object TreeOps {
   object MaybeTopLevelStat {
     def unapply(tree: Tree): Option[Tree] = tree match {
       case _: Pkg | _: Defn | _: Decl => Some(tree)
-      case _ => None
+      case _                          => None
     }
   }
 

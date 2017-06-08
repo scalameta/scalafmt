@@ -39,7 +39,7 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
     maxStateVisits = 150000,
     eventCallback = {
       case CreateFormatOps(ops) => Debug.formatOps = ops
-      case VisitToken(tok) => Debug.visit(tok)
+      case VisitToken(tok)      => Debug.visit(tok)
       case explored: Explored if explored.n % 10000 == 0 =>
         logger.elem(explored)
       case Enqueue(split) => Debug.enqueued(split)
@@ -76,7 +76,7 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
         Some(scala.meta.parsers.Parse.parseSource)
       case "stat" => Some(scala.meta.parsers.Parse.parseStat)
       case "case" => Some(scala.meta.parsers.Parse.parseCase)
-      case _ => None
+      case _      => None
     }
 
   def extension(filename: String): String = filename.replaceAll(".*\\.", "")
@@ -124,10 +124,10 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
 
   def spec2style(spec: String): ScalafmtConfig =
     spec match {
-      case "unit" => ScalafmtConfig.unitTest40
+      case "unit"                           => ScalafmtConfig.unitTest40
       case "default" | "standard" | "scala" => ScalafmtConfig.unitTest80
-      case "scalajs" => ScalafmtConfig.scalaJs
-      case style => throw UnknownStyle(style)
+      case "scalajs"                        => ScalafmtConfig.scalaJs
+      case style                            => throw UnknownStyle(style)
     }
 
   def saveResult(t: DiffTest, obtained: String, onlyOne: Boolean): Result = {

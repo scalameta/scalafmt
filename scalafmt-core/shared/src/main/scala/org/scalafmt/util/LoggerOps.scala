@@ -62,8 +62,8 @@ object LoggerOps {
 
   def reveal(s: String): String = s.map {
     case '\n' => '¶'
-    case ' ' => '∙'
-    case ch => ch
+    case ' '  => '∙'
+    case ch   => ch
   }
 
   def header[T](t: T): String = {

@@ -67,7 +67,7 @@ object TokenOps {
   def lastToken(tree: Tree): Token = {
     val lastIndex = tree.tokens.lastIndexWhere {
       case Trivia() | _: EOF => false
-      case _ => true
+      case _                 => true
     }
     if (lastIndex == -1) tree.tokens.last
     else tree.tokens(Scala211)(lastIndex)
@@ -103,13 +103,13 @@ object TokenOps {
   }
 
   val symbolOperatorPrecendence: PartialFunction[Char, Int] = {
-    case '|' => 2
-    case '^' => 3
-    case '&' => 4
-    case '=' | '!' => 5
-    case '<' | '>' => 6
-    case ':' => 7
-    case '+' | '-' => 8
+    case '|'             => 2
+    case '^'             => 3
+    case '&'             => 4
+    case '=' | '!'       => 5
+    case '<' | '>'       => 6
+    case ':'             => 7
+    case '+' | '-'       => 8
     case '*' | '/' | '%' => 9
   }
 
@@ -124,7 +124,7 @@ object TokenOps {
     token match {
       case LeftParen() | LeftBracket() => true
       case LeftBrace() if includeCurly => true
-      case _ => false
+      case _                           => false
     }
 
   /**
@@ -155,7 +155,7 @@ object TokenOps {
 
   def isSingleLineComment(token: Token): Boolean = token match {
     case c: Comment => c.syntax.startsWith("//")
-    case _ => false
+    case _          => false
   }
 
   def newlines2Modification(formatToken: FormatToken): Modification =
@@ -180,11 +180,11 @@ object TokenOps {
 
   def defnTemplate(tree: Tree): Option[Template] = tree match {
     case t: Defn.Object => Some(t.templ)
-    case t: Defn.Class => Some(t.templ)
-    case t: Defn.Trait => Some(t.templ)
-    case t: Pkg.Object => Some(t.templ)
-    case t: Template => Some(t)
-    case _ => None
+    case t: Defn.Class  => Some(t.templ)
+    case t: Defn.Trait  => Some(t.templ)
+    case t: Pkg.Object  => Some(t.templ)
+    case t: Template    => Some(t)
+    case _              => None
   }
 
   def tokenLength(token: Token): Int = token match {
@@ -209,12 +209,12 @@ object TokenOps {
 
   def isFormatOn(token: Token): Boolean = token match {
     case c: Comment if formatOnCode.contains(c.syntax.toLowerCase) => true
-    case _ => false
+    case _                                                         => false
   }
 
   def isFormatOff(token: Token): Boolean = token match {
     case c: Comment if formatOffCode.contains(c.syntax.toLowerCase) => true
-    case _ => false
+    case _                                                          => false
   }
 
   val formatOffCode = Set(
@@ -224,7 +224,7 @@ object TokenOps {
 
   def endsWithSymbolIdent(tok: Token): Boolean = tok match {
     case Ident(name) => !name.last.isLetterOrDigit
-    case _ => false
+    case _           => false
   }
 
   def isSymbolicIdent(tok: Token): Boolean = tok match {

@@ -45,7 +45,7 @@ object Config {
     val configured = implicitly[MetaconfigParser].fromInput(input)
     path match {
       case Some(x) => ConfDynamic(configured).selectDynamic(x).asConf
-      case None => configured
+      case None    => configured
     }
   }
 

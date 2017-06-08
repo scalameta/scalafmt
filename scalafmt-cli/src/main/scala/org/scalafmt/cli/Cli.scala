@@ -62,7 +62,7 @@ object Cli {
   def mainWithOptions(args: Array[String], options: CliOptions): Unit = {
     getConfig(args, options) match {
       case Some(x) => run(x)
-      case None => throw UnableToParseCliOptions
+      case None    => throw UnableToParseCliOptions
     }
   }
 

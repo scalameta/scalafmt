@@ -71,7 +71,7 @@ object TermDisplay {
 
   def defaultFallbackMode: Boolean = {
     val env0 = sys.env.get("COURSIER_PROGRESS").map(_.toLowerCase).collect {
-      case "true" | "enable" | "1" => true
+      case "true" | "enable" | "1"   => true
       case "false" | "disable" | "0" => false
     }
     def compatibilityEnv = sys.env.get("COURSIER_NO_TERM").nonEmpty
@@ -324,7 +324,7 @@ object TermDisplay {
       currentHeight = lineCount
 
       Option(q.poll(100L, TimeUnit.MILLISECONDS)) match {
-        case None => updateDisplayLoop(lineCount)
+        case None               => updateDisplayLoop(lineCount)
         case Some(Message.Stop) => // poison pill
         case Some(Message.Update) =>
           val (done0, downloads0) = downloads.synchronized {
@@ -379,7 +379,7 @@ object TermDisplay {
 
     @tailrec private def fallbackDisplayLoop(previous: Set[String]): Unit =
       Option(q.poll(100L, TimeUnit.MILLISECONDS)) match {
-        case None => fallbackDisplayLoop(previous)
+        case None               => fallbackDisplayLoop(previous)
         case Some(Message.Stop) => // poison pill
 
           // clean up display

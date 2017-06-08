@@ -76,7 +76,7 @@ class StyleMap(tokens: Array[FormatToken],
         else value.getClass.getName
       literalR.matches(strName)
     case x @ Term.Name(_) => literalR.matches(x.productPrefix)
-    case _ => false
+    case _                => false
   }
 
   private def isLiteralArgumentList(open: LeftParen): Boolean =

@@ -170,7 +170,7 @@ class FormatWriter(formatOps: FormatOps) {
               else " " * state.indentation
             newline + indentation
           case Provided(literal) => literal
-          case NoSplit => ""
+          case NoSplit           => ""
         }
         lastModification = split.modification
         callback.apply(state, tok, whitespace)
@@ -213,7 +213,7 @@ class FormatWriter(formatOps: FormatOps) {
     }
     def actualOwner(token: Token): Tree = owners(token) match {
       case annot: Mod.Annot => annot.parent.get
-      case x => x
+      case x                => x
     }
     initStyle.newlines.alwaysBeforeTopLevelStatements && {
       topLevelTokens.contains(hash(toks(i).formatToken.right)) && {
@@ -227,7 +227,7 @@ class FormatWriter(formatOps: FormatOps) {
     val token = location.formatToken.right
     val code = token match {
       case c: Comment if isSingleLineComment(c) => "//"
-      case t => t.syntax
+      case t                                    => t.syntax
     }
     styleMap.at(location.formatToken).alignMap.get(code).exists {
       ownerRegexp =>

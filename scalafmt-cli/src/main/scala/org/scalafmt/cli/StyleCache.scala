@@ -26,7 +26,7 @@ object StyleCache {
     timeStamps.update(filename, lastModified)
     styleCache.get(filename) match {
       case Some(config) if configUnchanged => Ok(config)
-      case _ =>
+      case _                               =>
         // Throw an exception if file does not exist. Better to fail fast than
         // continue silently.
         val result = config.Config.fromHoconString(FileOps.readFile(file))

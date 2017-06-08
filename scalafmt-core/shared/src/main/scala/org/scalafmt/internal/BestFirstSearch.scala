@@ -117,7 +117,7 @@ class BestFirstSearch(val formatOps: FormatOps,
     val cachedState = memo.get(key)
     cachedState match {
       case Some(state) => state
-      case None =>
+      case None        =>
         // Only update state if it reached stop.
         val nextState = shortestPath(start, stop, depth, maxCost)
         if (tokens(nextState.splits.length).left == stop) {

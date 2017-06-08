@@ -3,15 +3,15 @@ package org.scalafmt.internal
 sealed abstract class Modification {
 
   def isNewline: Boolean = this match {
-    case _: NewlineT => true
+    case _: NewlineT                           => true
     case Provided(code) if code.contains('\n') => true
-    case _ => false
+    case _                                     => false
   }
 
   def newlines: Int = this match {
-    case n: NewlineT => if (n.isDouble) 2 else 1
+    case n: NewlineT    => if (n.isDouble) 2 else 1
     case Provided(code) => code.count(_ == '\n')
-    case _ => 0
+    case _              => 0
   }
 }
 

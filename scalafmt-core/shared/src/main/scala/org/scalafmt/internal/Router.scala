@@ -227,7 +227,7 @@ class Router(formatOps: FormatOps) {
           statementStarts(hash(right)).isInstanceOf[Term.Function]
         val afterCurlyNewlines =
           style.newlines.afterCurlyLambda match {
-            case NewlineCurlyLambda.never => Newline
+            case NewlineCurlyLambda.never  => Newline
             case NewlineCurlyLambda.always => Newline2x
             case NewlineCurlyLambda.preserve =>
               if (newlines >= 2) Newline2x else Newline
@@ -336,7 +336,7 @@ class Router(formatOps: FormatOps) {
             leftOwner.parent.forall {
               // infix applications have no space.
               case _: Type.ApplyInfix | _: Term.ApplyInfix => false
-              case parent => true
+              case parent                                  => true
             }
           } =>
         val modification: Modification = leftOwner match {
@@ -623,7 +623,7 @@ class Router(formatOps: FormatOps) {
         val isTuple = leftOwner match {
           case _: Type.Tuple => style.align.openParenDefnSite
           case _: Term.Tuple => style.align.openParenCallSite
-          case _ => false
+          case _             => false
         }
         val skipOpenParenAlign = {
           !isTuple && {
@@ -786,7 +786,7 @@ class Router(formatOps: FormatOps) {
           case _ =>
             left match {
               case ident: Ident => identModification(ident)
-              case _ => NoSplit
+              case _            => NoSplit
             }
         }
         Seq(
@@ -801,19 +801,19 @@ class Router(formatOps: FormatOps) {
                 _: Term.Assign | _: Term.Arg.Named =>
               true
             case t: Term.Param => t.default.isDefined
-            case _ => false
+            case _             => false
           }) =>
         val rhs: Tree = leftOwner match {
-          case l: Term.Assign => l.rhs
-          case l: Term.Update => l.rhs
+          case l: Term.Assign    => l.rhs
+          case l: Term.Update    => l.rhs
           case l: Term.Arg.Named => l.expr
-          case l: Term.Param => l.default.get
-          case l: Defn.Type => l.body
-          case l: Defn.Val => l.rhs
+          case l: Term.Param     => l.default.get
+          case l: Defn.Type      => l.body
+          case l: Defn.Val       => l.rhs
           case r: Defn.Var =>
             r.rhs match {
               case Some(x) => x
-              case None => r // var x: Int = _, no policy
+              case None    => r // var x: Int = _, no policy
             }
         }
 
@@ -847,9 +847,9 @@ class Router(formatOps: FormatOps) {
                 ignore = x => excludeRanges.exists(_.contains(x.left.start)))
             }
             val spacePolicy: Policy = rhs match {
-              case _: Term.If => twoBranches
+              case _: Term.If                                    => twoBranches
               case _: Term.ForYield if !style.indentYieldKeyword => twoBranches
-              case _ => NoPolicy
+              case _                                             => NoPolicy
             }
             val jsNative = isJsNative(right)
             val isDefn = leftOwner.isInstanceOf[Defn]
@@ -1031,14 +1031,14 @@ class Router(formatOps: FormatOps) {
         )
       case FormatToken(close @ RightParen(), right, between)
           if (leftOwner match {
-            case _: Term.If | _: Term.For => true
+            case _: Term.If | _: Term.For                     => true
             case _: Term.ForYield if style.indentYieldKeyword => true
-            case _ => false
+            case _                                            => false
           }) &&
             !isFirstOrLastToken(close, leftOwner) =>
         val expire = leftOwner match {
-          case t: Term.If => t.thenp.tokens.last
-          case t: Term.For => t.body.tokens.last
+          case t: Term.If       => t.thenp.tokens.last
+          case t: Term.For      => t.body.tokens.last
           case t: Term.ForYield => t.body.tokens.last
         }
         val rightIsOnNewLine = newlines > 0
@@ -1073,7 +1073,7 @@ class Router(formatOps: FormatOps) {
           if !nextNonComment(tok).right.is[KwIf] =>
         val expire = leftOwner match {
           case t: Term.If => t.elsep.tokens.last
-          case x => throw new UnexpectedTree[Term.If](x)
+          case x          => throw new UnexpectedTree[Term.If](x)
         }
         Seq(
           Split(Space,
@@ -1106,9 +1106,9 @@ class Router(formatOps: FormatOps) {
             Decision(t, Seq(Split(Newline, 0)))
         }, close.end)
         val indent: Length = right match {
-          case KwIf() => StateColumn
+          case KwIf()                               => StateColumn
           case KwFor() if !style.indentYieldKeyword => StateColumn
-          case _ => Num(0)
+          case _                                    => Num(0)
         }
         Seq(
           Split(Newline, 0, ignoreIf = !isConfig)

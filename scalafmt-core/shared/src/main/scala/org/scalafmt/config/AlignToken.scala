@@ -19,8 +19,8 @@ object AlignToken {
   implicit val DefaultAlignTokenDecoder: ConfDecoder[AlignToken] =
     ConfDecoder.instance[AlignToken] {
       case Conf.Str("caseArrow") => Ok(caseArrow)
-      case Conf.Str(regex) => Ok(AlignToken(regex, ".*"))
-      case els => fallbackAlign.reader.read(els)
+      case Conf.Str(regex)       => Ok(AlignToken(regex, ".*"))
+      case els                   => fallbackAlign.reader.read(els)
     }
 
   val default = Set(

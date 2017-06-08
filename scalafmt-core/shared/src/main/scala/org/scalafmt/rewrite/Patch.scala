@@ -35,8 +35,8 @@ object Patch {
           add1.addLeft + add2.addLeft,
           add1.addRight + add2.addRight,
           add1.keepTok && add2.keepTok)
-    case (_: Remove, add: Add) => add.copy(keepTok = false)
-    case (add: Add, _: Remove) => add.copy(keepTok = false)
+    case (_: Remove, add: Add)    => add.copy(keepTok = false)
+    case (add: Add, _: Remove)    => add.copy(keepTok = false)
     case (rem: Remove, _: Remove) => rem
     case _ =>
       sys.error(s"""Can't merge token patches:
