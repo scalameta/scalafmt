@@ -188,7 +188,9 @@ lazy val readme = scalatex
     allSettings,
     noPublish,
     publish := {
-      ghpagesPushSite.dependsOn(run.in(Compile).toTask("")).value
+      ghpagesPushSite
+        .dependsOn(run.in(Compile).toTask(" --validate-links"))
+        .value
     },
     test := {
       run.in(Compile).toTask(" --validate-links").value
@@ -326,8 +328,7 @@ def ciCommands = Seq(
     "scalafmt-sbt/it:test" ::
       s
   },
-  CiCommand("ci-publish")(
-    if (sys.env.contains("CI_PUBLISH")) s"publish" :: Nil
-    else Nil
-  )
+  Command.command("ci-publish") { s =>
+    s"very publish" :: s
+  }
 )

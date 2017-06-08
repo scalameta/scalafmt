@@ -11,7 +11,6 @@ env:
       CI_PUBLISH: true
     - CI_TEST: ci-fast
       CI_SCALA_VERSION: 2.12.2
-      CI_PUBLISH: true
     - CI_TEST: ci-sbt-scalafmt
       CI_SCALA_VERSION: 2.12.2
 
@@ -31,3 +30,5 @@ before_cache:
   - find $HOME/.ivy2/cache -name "ivydata-*.properties" -type f -delete
   - find $HOME/.ivy2/cache -name "*scalafix*.xml" -type f -delete
   - rm -rf $HOME/.ivy2/local
+after_success:
+- "./bin/ci-publish.sh"
