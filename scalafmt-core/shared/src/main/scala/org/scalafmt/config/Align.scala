@@ -58,14 +58,10 @@ import metaconfig._
 case class Align(
     openParenCallSite: Boolean = true,
     openParenDefnSite: Boolean = true,
-    tokens: Set[AlignToken] = Set.empty[AlignToken],
+    tokens: Set[AlignToken] = Set(AlignToken.caseArrow),
     arrowEnumeratorGenerator: Boolean = false,
     ifWhileOpenParen: Boolean = true,
-    tokenCategory: Map[String, String] = Map(
-      // Enable this to align = and <- in for comprehension
-      //   "Equals" -> "Assign"
-      //   "LeftArrow" -> "Assign"
-    ),
+    tokenCategory: Map[String, String] = Map(),
     treeCategory: Map[String, String] = Map(
       "Defn.Val" -> "val/var/def",
       "Defn.Var" -> "val/var/def",
@@ -78,5 +74,33 @@ case class Align(
     )
 ) {
   implicit val alignReader: ConfDecoder[Set[AlignToken]] =
-    ScalafmtConfig.alignReader(tokens)
+    ScalafmtConfig.alignTokenReader(tokens)
+}
+
+object Align {
+  // no vertical alignment whatsoever, if you find any vertical alignment with
+  // this settings, please report an issue.
+  val none: Align = Align(
+    openParenCallSite = false,
+    openParenDefnSite = false,
+    tokens = Set.empty,
+    ifWhileOpenParen = false,
+    tokenCategory = Map.empty,
+    treeCategory = Map.empty
+  )
+  // stable set of alignment operators, the previous defaultWithAlign.
+  val some = Align()
+  val default = some
+  val more: Align = some.copy(tokens = AlignToken.default)
+
+  // only for the truest vertical aligners, this setting is open for changes,
+  // please open PR addding more stuff to it if you like.
+  val most: Align = more.copy(
+    arrowEnumeratorGenerator = true,
+    tokenCategory = Map(
+      "Equals" -> "Assign",
+      "LeftArrow" -> "Assign"
+    )
+  )
+  val allValues = List(default, none, some, most)
 }

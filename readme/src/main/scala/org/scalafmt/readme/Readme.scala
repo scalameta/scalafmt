@@ -2,18 +2,13 @@ package org.scalafmt.readme
 
 import scalatags.Text.TypedTag
 import scalatags.Text.all._
-
 import java.text.SimpleDateFormat
 import java.util.Date
-
 import com.twitter.util.Eval
 import org.scalafmt.Scalafmt
 import org.scalafmt.cli.Cli
 import org.scalafmt.cli.CliArgParser
-import org.scalafmt.config.AlignToken
-import org.scalafmt.config.Config
-import org.scalafmt.config.ScalafmtRunner
-import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.config._
 import org.scalafmt.rewrite._
 
 object hl extends scalatex.site.Highlighter
@@ -166,6 +161,23 @@ object Readme {
 
   def lastUpdated =
     new SimpleDateFormat("MMM d, y").format(new Date(CliArgParser.buildTimeMs))
+
+  def format(code: String): TypedTag[String] = {
+    format(ScalafmtConfig.default)(code)
+  }
+
+  val alignNone = ScalafmtConfig.default.copy(align = Align.none)
+  val alignSome = ScalafmtConfig.default.copy(align = Align.some)
+  val alignMore = ScalafmtConfig.default.copy(align = Align.more)
+  val alignMost = ScalafmtConfig.default.copy(align = Align.most)
+  val alignCaseArrow = ScalafmtConfig.default
+  val alignArrowEnum = ScalafmtConfig.defaultWithAlign.copy(
+    align = Align.default.copy(arrowEnumeratorGenerator = true))
+  val alignModuleId = ScalafmtConfig.defaultWithAlign
+
+  def format(style: ScalafmtConfig)(code: String): TypedTag[String] = {
+    example(code, style.copy(runner = ScalafmtRunner.sbt))
+  }
 
   def example(code: String, style: ScalafmtConfig): TypedTag[String] = {
     val formatted = Scalafmt.format(code, style).get

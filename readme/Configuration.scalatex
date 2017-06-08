@@ -3,6 +3,7 @@
 @import org.scalafmt.config.ScalafmtConfig
 @import org.scalafmt.config.ScalafmtConfig.default
 @import org.scalafmt.rewrite._
+@import org.scalafmt.{Versions => V}
 
 @sect{Configuration}
 
@@ -17,8 +18,8 @@
     Here is an example @code(".scalafmt.conf").
 
     @cliFlags
-      style = defaultWithAlign # For pretty alignment.
-      maxColumn = 100          # For my wide 30" display.
+      align = true    # For pretty alignment.
+      maxColumn = 100 # For my wide 30" display.
 
   @p
     A note of warning. I personally use the default style, which means that the
@@ -45,34 +46,14 @@
       object DefaultStyle extends Parent with SecondParent with ThirdParent {
         // non bin packed arguments
         function(argument1, argument2(argument3, argument4))
-        // No vertical alignment
+        // Vertical alignment only for case arrows
         x match {
           case 1 => 1
           case 11 => 1
         }
       }
 
-    Option 2: @b{defaultWithAlign}
-    @fmt(ScalafmtConfig.defaultWithAlign.copy(maxColumn = 40))
-      // Column 40                           |
-      object DefaultWithAlignStyle extends Parent with SecondParent with ThirdParent {
-        // vertical alignment
-        x match {
-          case 1 => 1 // align me
-          case 11 => 11 // align me too
-
-          case x => // blank line breaks alignment
-        }
-        for {
-          x <- List(1)
-          xx <- List(1, 2)
-        } yield x * xx
-        // A whole bunch of other
-        // alignment goodies.
-        // ...
-      }
-
-    Option 3: @b{IntelliJ}
+    Option 2: @b{IntelliJ}
     @fmt(ScalafmtConfig.intellij.copy(maxColumn = 40))
       // Column 40                           |
       // non bin packed parent constructors
@@ -126,37 +107,187 @@
         def function(
             argument1: Type1): ReturnType // Indented by 4
 
+  @sect{align}
+    Default: @b{some}
+    Align has several nested fields, which you can customize.
+    However, it comes with four possible defaults: none, some, more most.
+
+    @sect{align=some}
+      @format(alignSome)
+        x match { // true for case arrows
+          case 2  => 22
+          case 22 => 222
+        }
+
+        def foo(a: Int, // true for defn site open paren
+                b: String): Int
+        foo(a: Int, // true for call site open paren
+            b: String): Int
+
+        val x = 2 // false for assignment
+        val xx = 22
+
+        case object B extends A // false for `extends`
+        case object BB extends A
+
+    @sect{align=none}
+      @format(alignNone)
+        x match { // false for case arrows
+          case 2  => 22 // also comments!
+          case 22 => 222 // don't align me!
+        }
+
+        def foo(a: Int, // false for defn site
+                b: String): Int
+        foo(a: Int, // false for call site
+            b: String): Int
+
+    @sect{align=more}
+      @format(alignMore)
+        val x = 2 // true for assignment
+        val xx = 22
+
+        case object B extends A // false for `extends`
+        case object BB extends A
+
+        q -> 22 // true for various infix operators
+        qq -> 3 // and also comments!
+
+        for {
+          x <- List(1) // true for alignment enumerator
+          yy <- List(2)
+        } yield x ** xx
+
+        x match { // true for multiple tokens across multiple lines
+          case 1 => 1 -> 2 // first
+          case 11 => 11 -> 22 // second
+
+          // A blank line separates alignment blocks.
+          case `ignoreMe` => 111 -> 222
+        }
+
+        // Align assignments of similar type.
+        def name = column[String]("name")
+        def status = column[Int]("status")
+        val x = 1
+        val xx = 22
+
+        // Align sbt module IDs.
+        libraryDependencies ++= Seq(
+          "org.scala-lang" % "scala-compiler" % scalaVersion.value,
+          "com.lihaoyi" %% "sourcecode" % "0.1.1"
+        )
+
+    @sect{align=most}
+      @format(alignMost)
+        for {
+          // align <- with =
+          x <- List()
+          yy = 2
+          // aligns body by arrow
+          zzz <- new Integer {
+            def value = 3
+          }
+        } yield x
+        // Note. Only for the truest vertical aligners. This is a new option,
+        // feel free to open PR enabling more crazy vertical alignment here.
+        // Expect changes.
+
   @sect{align.tokens}
-    Default: @b{off}
+    Default: @b{[caseArrow]}
 
     @p
-      The style @code("defaultWithAlign") has pre-configured a variety of
-      tokens that align together nicely.
+      An align token is a pair of @code{code}, which is the string literal
+      of an operator of token, and @code{owner}, which is the kind of
+      the closest tree node that owns that token.
+      If no @code{owner} is provided, then all tree kinds will be matched.
 
-      @exampleAlign
-        // 40 columns                          |
-        object TokenAlignment {
-          x match {
-            // Align by => and -> and //
-            case 1 => 1 -> 2 // first
-            case 11 => 11 -> 22 // second
 
-            // A blank line separates alignment blocks.
-            case `ignoreMe` => 111 -> 222
-          }
+    @format(alignCaseArrow)
+      // =======================================================
+      // scalafmt: {align.tokens = [{code = "=>", owner = "Case"}]}
+      // =======================================================
+      x match {
+        case 1 => 1 -> 2
+        case 11 => 11 -> 22
+      }
 
-          // Align assignments of similar type.
-          def name = column[String]("name")
-          def status = column[Int]("status")
-          val x = 1
-          val xx = 22
+    @format(alignModuleId)
+      // =======================================================
+      // scalafmt: {align.tokens = ["%", "%%"]}
+      // =======================================================
+      val x = List(
+      "org.scala-lang" % "scala-compiler" % scalaVersion.value,
+      "com.lihaoyi" %% "sourcecode" % "0.1.1"
+      )
 
-          // Align sbt module IDs.
-          libraryDependencies ++= Seq(
-            "org.scala-lang" % "scala-compiler" % scalaVersion.value,
-          "com.lihaoyi" %% "sourcecode" % "0.1.1"
-          )
+
+    To find the @code{owner} part for a custom tree, depend on Scalameta and
+    use @code{scala.meta.Tree.productPrefix} from the the (for example, Ammonite)
+    repl
+
+    @hl.scala
+      @@ import $ivy.`org.scalameta:scalameta_2.12:@(V.scalameta)`, scala.meta._
+      @@ val termMatch = q"x match { case 2 => foo(bar) }"
+      termMatch: Term.Match = x match {
+        case 2 =>
+          foo(bar)
+      }
+      @@ termMatch.structure
+      res0: String = """
+      Term.Match(Term.Name("x"), Seq(Case(Lit.Int(2), None, Term.Apply(Term.Name("foo"), Seq(Term.Name("bar"))))))
+      """
+      @@ termMatch.productPrefix
+      res1: String = "Term.Match"
+
+    To learn more about Scalameta, see this @lnk("tutorial", "http://scalameta.org/tutorial/").
+
+  @sect{align.arrowEnumeratorGenerator}
+    Default: @b(default.align.arrowEnumeratorGenerator)
+
+    @format
+      // align.arrowEnumeratorGenerator = false
+      for {
+        x <- new Integer {
+          def value = 2
         }
+      } yield x
+
+    @format(alignArrowEnum)
+      // align.arrowEnumeratorGenerator = true
+      for {
+        x <- new Integer {
+              def value = 2
+            }
+      } yield x
+
+
+  @sect{align.openParenCallSite}
+    Default: @b(default.align.openParenCallSite)
+
+    @hl.scala
+      // Column limit |
+      // align.openParenCallSite = true
+      foo(arg1, arg2)
+
+      function(arg1, // align by (
+               arg2,
+               arg3)
+      function(
+        argument1,
+        argument2)
+
+      // align.openParenCallSite = false
+      foo(arg1, arg2)
+      function(
+        arg1, // no align by (
+        arg2,
+        arg3)
+      function(
+        argument1,
+        argument2)
+
+
 
   @sect{// format: off}
     Disable formatting for specific regions of code by wrapping them in
@@ -248,24 +379,6 @@
       implicit def validatedInstances[E](implicit E: Semigroup[E]): Traverse[
           Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] = 2
 
-  @sect{align.arrowEnumeratorGenerator}
-    Default: @b(default.align.arrowEnumeratorGenerator)
-
-    @hl.scala
-      // align.arrowEnumeratorGenerator = false
-      for {
-        x <- new Integer {
-          def value = 2
-        }
-      } yield x
-
-      // align.arrowEnumeratorGenerator = true
-      for {
-        x <- new Integer {
-              def value = 2
-            }
-      } yield x
-
   @sect{binPack.parentConstructors}
     Default: @b(default.binPack.parentConstructors)
 
@@ -286,31 +399,6 @@
           with ThirdParent {
         // body ...
       }
-
-  @sect{align.openParenCallSite}
-    Default: @b(default.align.openParenCallSite)
-
-    @hl.scala
-      // Column limit |
-      // align.openParenCallSite = true
-      foo(arg1, arg2)
-
-      function(arg1, // align by (
-               arg2,
-               arg3)
-      function(
-        argument1,
-        argument2)
-
-      // align.openParenCallSite = false
-      foo(arg1, arg2)
-      function(
-        arg1, // no align by (
-        arg2,
-        arg3)
-      function(
-        argument1,
-        argument2)
 
   @sect{lineEndings}
     Default: @b(default.lineEndings.toString)

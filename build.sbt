@@ -292,6 +292,7 @@ lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
   buildInfoKeys := Seq[BuildInfoKey](
     name,
     version,
+    "scalameta" -> scalametaV,
     "nightly" -> version.value,
     "stable" -> version.value.replaceAll("\\+.*", ""),
     "scala" -> scalaVersion.value,

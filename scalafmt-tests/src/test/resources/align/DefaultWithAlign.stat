@@ -1,4 +1,4 @@
-style = defaultWithAlign
+align = true
 <<< => with comment
 x match {
   case 1 => 2 // this is a comment

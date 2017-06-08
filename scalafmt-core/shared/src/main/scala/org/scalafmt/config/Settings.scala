@@ -95,6 +95,7 @@ trait Settings {
   val testing = default.copy(
     assumeStandardLibraryStripMargin = false,
     includeCurlyBraceInSelectChains = false,
+    align = default.align.copy(tokens = Set.empty),
     optIn = default.optIn.copy(
       breakChainOnFirstMethodDot = false
     ),
@@ -151,7 +152,16 @@ trait Settings {
       (splitted(0), splitted(1))
     }
   }
-  def alignReader(initTokens: Set[AlignToken]): ConfDecoder[Set[AlignToken]] = {
+  def alignReader(base: ConfDecoder[Align]): ConfDecoder[Align] =
+    ConfDecoder.instance[Align] {
+      case Conf.Str("none") | Conf.Bool(false) => Ok(Align.none)
+      case Conf.Str("some" | "default") => Ok(Align.some)
+      case Conf.Str("more") | Conf.Bool(true) => Ok(Align.more)
+      case Conf.Str("most") => Ok(Align.most)
+      case els => base.read(els)
+    }
+  def alignTokenReader(
+      initTokens: Set[AlignToken]): ConfDecoder[Set[AlignToken]] = {
     val baseReader = implicitly[ConfDecoder[Set[AlignToken]]]
     ConfDecoder.instance[Set[AlignToken]] {
       case Conf.Obj(("add", conf) :: Nil) =>
@@ -159,5 +169,4 @@ trait Settings {
       case els => baseReader.read(els)
     }
   }
-
 }
