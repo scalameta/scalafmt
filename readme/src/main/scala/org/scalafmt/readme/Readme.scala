@@ -166,8 +166,10 @@ object Readme {
     format(ScalafmtConfig.default)(code)
   }
 
-  val alignOff = ScalafmtConfig.default.copy(align = Align.off)
-  val alignOn = ScalafmtConfig.default.copy(align = Align.on)
+  val alignNone = ScalafmtConfig.default.copy(align = Align.none)
+  val alignSome = ScalafmtConfig.default.copy(align = Align.some)
+  val alignMore = ScalafmtConfig.default.copy(align = Align.more)
+  val alignMost = ScalafmtConfig.default.copy(align = Align.most)
   val alignCaseArrow = ScalafmtConfig.default
   val alignArrowEnum = ScalafmtConfig.defaultWithAlign.copy(
     align = Align.default.copy(arrowEnumeratorGenerator = true))

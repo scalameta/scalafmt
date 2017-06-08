@@ -108,79 +108,90 @@
             argument1: Type1): ReturnType // Indented by 4
 
   @sect{align}
-    Default: @b{default}
+    Default: @b{some}
+    Align has several nested fields, which you can customize.
+    However, it comes with four possible defaults: none, some, more most.
 
-    @format
-      // ===========================
-      // scalafmt: {align = default}
-      // ===========================
-      x match { // true for case arrows
-        case 2  => 22
-        case 22 => 222
-      }
+    @sect{align=some}
+      @format(alignSome)
+        x match { // true for case arrows
+          case 2  => 22
+          case 22 => 222
+        }
 
-      def foo(a: Int, // true for defn site open paren
-              b: String): Int
-      foo(a: Int, // true for call site open paren
-          b: String): Int
+        def foo(a: Int, // true for defn site open paren
+                b: String): Int
+        foo(a: Int, // true for call site open paren
+            b: String): Int
 
-      val x = 2 // false for assignment
-      val xx = 22
+        val x = 2 // false for assignment
+        val xx = 22
 
-      case object B extends A // false for `extends`
-      case object BB extends A
+        case object B extends A // false for `extends`
+        case object BB extends A
 
-    @format(alignOff)
-      // ===========================
-      // scalafmt: {align = false}
-      // ===========================
-      x match { // false for case arrows
-        case 2  => 22 // also comments!
-        case 22 => 222 // align me!
-      }
+    @sect{align=none}
+      @format(alignNone)
+        x match { // false for case arrows
+          case 2  => 22 // also comments!
+          case 22 => 222 // don't align me!
+        }
 
-      def foo(a: Int, // false for defn site
-              b: String): Int
-      foo(a: Int, // false for call site
-          b: String): Int
+        def foo(a: Int, // false for defn site
+                b: String): Int
+        foo(a: Int, // false for call site
+            b: String): Int
 
-    @format(alignOn)
-      // ===========================
-      // scalafmt: {align = true}
-      // ===========================
-      val x = 2 // true for assignment
-      val xx = 22
+    @sect{align=more}
+      @format(alignMore)
+        val x = 2 // true for assignment
+        val xx = 22
 
-      case object B extends A // false for `extends`
-      case object BB extends A
+        case object B extends A // false for `extends`
+        case object BB extends A
 
-      q -> 22 // true for various infix operators
-      qq -> 3 // and also comments!
+        q -> 22 // true for various infix operators
+        qq -> 3 // and also comments!
 
-      for {
-        x <- List(1) // true for alignment enumerator
-        yy <- List(2)
-      } yield x ** xx
+        for {
+          x <- List(1) // true for alignment enumerator
+          yy <- List(2)
+        } yield x ** xx
 
-      x match { // true for multiple tokens across multiple lines
-        case 1 => 1 -> 2 // first
-        case 11 => 11 -> 22 // second
+        x match { // true for multiple tokens across multiple lines
+          case 1 => 1 -> 2 // first
+          case 11 => 11 -> 22 // second
 
-        // A blank line separates alignment blocks.
-        case `ignoreMe` => 111 -> 222
-      }
+          // A blank line separates alignment blocks.
+          case `ignoreMe` => 111 -> 222
+        }
 
-      // Align assignments of similar type.
-      def name = column[String]("name")
-      def status = column[Int]("status")
-      val x = 1
-      val xx = 22
+        // Align assignments of similar type.
+        def name = column[String]("name")
+        def status = column[Int]("status")
+        val x = 1
+        val xx = 22
 
-      // Align sbt module IDs.
-      libraryDependencies ++= Seq(
-        "org.scala-lang" % "scala-compiler" % scalaVersion.value,
-        "com.lihaoyi" %% "sourcecode" % "0.1.1"
-      )
+        // Align sbt module IDs.
+        libraryDependencies ++= Seq(
+          "org.scala-lang" % "scala-compiler" % scalaVersion.value,
+          "com.lihaoyi" %% "sourcecode" % "0.1.1"
+        )
+
+    @sect{align=most}
+      @format(alignMost)
+        for {
+          // align <- with =
+          x <- List()
+          yy = 2
+          // aligns body by arrow
+          zzz <- new Integer {
+            def value = 3
+          }
+        } yield x
+        // Note. Only for the truest vertical aligners. This is a new option,
+        // feel free to open PR enabling more crazy vertical alignment here.
+        // Expect changes.
 
   @sect{align.tokens}
     Default: @b{[caseArrow]}

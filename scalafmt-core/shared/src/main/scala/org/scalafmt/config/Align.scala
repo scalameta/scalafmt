@@ -61,11 +61,7 @@ case class Align(
     tokens: Set[AlignToken] = Set(AlignToken.caseArrow),
     arrowEnumeratorGenerator: Boolean = false,
     ifWhileOpenParen: Boolean = true,
-    tokenCategory: Map[String, String] = Map(
-      // Enable this to align = and <- in for comprehension
-      //   "Equals" -> "Assign"
-      //   "LeftArrow" -> "Assign"
-    ),
+    tokenCategory: Map[String, String] = Map(),
     treeCategory: Map[String, String] = Map(
       "Defn.Val" -> "val/var/def",
       "Defn.Var" -> "val/var/def",
@@ -82,10 +78,9 @@ case class Align(
 }
 
 object Align {
-  val default = Align()
   // no vertical alignment whatsoever, if you find any vertical alignment with
   // this settings, please report an issue.
-  val off: Align = Align(
+  val none: Align = Align(
     openParenCallSite = false,
     openParenDefnSite = false,
     tokens = Set.empty,
@@ -94,15 +89,18 @@ object Align {
     treeCategory = Map.empty
   )
   // stable set of alignment operators, the previous defaultWithAlign.
-  val on: Align = default.copy(tokens = AlignToken.default)
+  val some = Align()
+  val default = some
+  val more: Align = some.copy(tokens = AlignToken.default)
 
   // only for the truest vertical aligners, this setting is open for changes,
   // please open PR addding more stuff to it if you like.
-  val everything: Align = on.copy(
+  val most: Align = more.copy(
+    arrowEnumeratorGenerator = true,
     tokenCategory = Map(
       "Equals" -> "Assign",
       "LeftArrow" -> "Assign"
     )
   )
-  val allValues = List(default, off, on, everything)
+  val allValues = List(default, none, some, most)
 }
