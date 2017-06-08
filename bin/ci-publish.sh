@@ -16,7 +16,7 @@ set-up-ssh() {
   ssh-add ${DEPLOY_KEY_FILE}
 }
 
-if [[ "$TRAVIS_BRANCH" == "master" && "$PUBLISH" == "true" ]]; then
+if [[ "$TRAVIS_BRANCH" == "master" && "$TRAVIS_PULL_REQUEST" = "false" && "$PUBLISH" == "true" ]]; then
   git log | head -n 20
   echo "Running publish from $(pwd)"
   set-up-ssh
