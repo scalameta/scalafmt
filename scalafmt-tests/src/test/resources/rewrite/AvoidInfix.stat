@@ -140,3 +140,12 @@ seq should have length 5 and true
 "org.scalamacros" % "paradise" % "2.1.0" intransitive()
 >>>
 ("org.scalamacros" % "paradise" % "2.1.0").intransitive()
+<<< double nest
+    def contains(ip: String) = apply map (_ blah strToIp(ip))
+>>>
+def contains(ip: String) = apply.map(_.blah(strToIp(ip)))
+<<< crazy
+ val makeVersion = nodots _ compose stripVersion _
+
+>>>
+val makeVersion = (nodots _).compose(stripVersion _)
