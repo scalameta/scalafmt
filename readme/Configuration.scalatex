@@ -18,8 +18,8 @@
     Here is an example @code(".scalafmt.conf").
 
     @cliFlags
-      align = true    # For pretty alignment.
-      maxColumn = 100 # For my wide 30" display.
+      style = defaultWithAlign # For pretty alignment.
+      maxColumn = 100          # For my wide 30" display.
 
   @p
     A note of warning. I personally use the default style, which means that the
