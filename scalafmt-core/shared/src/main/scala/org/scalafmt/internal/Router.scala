@@ -1322,6 +1322,10 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(Space, 0)
         )
+      case FormatToken(Underscore(), Ident("*"), _) =>
+        Seq(
+          Split(NoSplit, 0)
+        )
       case FormatToken(Delim(), _, _) =>
         Seq(
           Split(Space, 0)

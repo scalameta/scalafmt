@@ -116,7 +116,7 @@ val route =
       headerValuePF { case `X-Real-Ip`(address) ⇒ address }
 >>>
 private val _extractClientIP: Directive1[RemoteAddress] =
-  headerValuePF { case `X-Forwarded-For`(Seq(address, _ *)) ⇒ address } |
+  headerValuePF { case `X-Forwarded-For`(Seq(address, _*)) ⇒ address } |
     headerValuePF { case `Remote-Address`(address) ⇒ address } |
     headerValuePF { case `X-Real-Ip`(address) ⇒ address }
 <<< #269 5
