@@ -50,12 +50,16 @@ case object AvoidInfix extends Rewrite {
           } else
             Nil
 
+        def wrapLhsInParens =
+          Seq(TokenPatch.AddLeft(lhs.tokens.head, "(", keepTok = true),
+              TokenPatch.AddRight(lhs.tokens.last, ")", keepTok = true))
         val lhsParensToBeAdded = lhs match {
           case Term.ApplyInfix(lhs1, op1, _, _)
               if !matcher.matches(op1.value)
                 && lhs.tokens.head.isNot[LeftParen] =>
-            Seq(TokenPatch.AddLeft(lhs.tokens.head, "(", keepTok = true),
-                TokenPatch.AddRight(lhs.tokens.last, ")", keepTok = true))
+            wrapLhsInParens
+          case Term.Eta(_) => // foo _ compose bar => (foo _).compose(bar)
+            wrapLhsInParens
           case _ => Nil
         }
 
@@ -73,6 +77,8 @@ case object AvoidInfix extends Rewrite {
 
         val infixTokens = infix.tokens
         val enclosingParens = for {
+          parent <- infix.parent
+          if !parent.is[Term.ApplyInfix]
           first <- infixTokens.headOption
           if first.is[LeftParen]
           last <- infixTokens.lastOption
