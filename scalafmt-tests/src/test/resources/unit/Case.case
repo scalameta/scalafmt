@@ -77,3 +77,7 @@ case q"""...${ stats: Seq[Stat] } """ =>
 >>>
 case q"""...${stats: Seq[Stat]} """ =>
   s"${foo}"
+<<< #973
+case  List(xs @ _*) => a
+>>>
+case List(xs @ _*) => a
