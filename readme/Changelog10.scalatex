@@ -15,12 +15,17 @@
     @li
       Fix regression in RC2 @issue(973).
     @li
-      @config{align.tokens = [caseArrow]} now, it was @config{align.tokens = []} before.
+      Arrows in @code{case} pattern matching are now vertically aligned.
+      Concretely,
+      @config{align.tokens = [caseArrow]} by default now, it was @config{align.tokens = []} before.
       This decision was voted upon on in @issue(890) with 23 votes in favor and
       9 votes against.
     @li
       The cli now enables @code{-i} by default, to get the old behavior
       pass in the flag @code{--stdout}, by @user{pjrt}.
+    @li
+      The cli @code{--files} flag is now optional, this means @code{scalafmt Foo.scala}
+      will write the formatted output into that file, by @user{pjrt}.
     @li
       @config{optIn.annotationNewlines = true} by default now, it was @code{false}.
       See @issue(942) for motivation.
