@@ -3,14 +3,9 @@
 @import org.scalafmt.readme.Readme._
 @import org.scalafmt.config.ScalafmtConfig
 
-@ignore
-  @code{0.7.x}
-    @ul
-      @li
-        Please document your contribution here.
-@sect{0.7.0}
-  Coming soon.
 @sect{0.7.0-RC1}
+  @note. BROKEN RELEASE, use @sect.ref{1.0.0-RC1} instead.
+  See @issue(943) and @lnk{https://issues.sonatype.org/browse/OSSRH-31815}.
   @ul
     @li
       @b{NEW}. scalafmt-core now has experimental/lightly-tested support for
