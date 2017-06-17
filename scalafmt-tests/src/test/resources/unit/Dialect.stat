@@ -1,0 +1,35 @@
+40 columns                              |
+<<< trailing comma
+foo(
+  1,
+  2,
+)
+>>>
+foo(
+    1,
+    2,
+)
+<<< literal types
+val x : 42 = 42
+>>>
+val x: 42 = 42
+<<< intersection types
+val x : A   &  B = 42
+>>>
+val x: A & B = 42
+<<< extractor
+val List(a : _ *) = 2
+>>>
+val List(a: _*) = 2
+<<< inline kw
+inline   def x = 32
+>>>
+inline def x = 32
+<<< trait parameters
+trait T(a : Int)
+>>>
+trait T(a: Int)
+<<< class param
+class T(a : Int)
+>>>
+class T(a: Int)

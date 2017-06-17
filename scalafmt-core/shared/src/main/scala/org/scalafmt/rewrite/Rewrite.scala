@@ -1,18 +1,19 @@
 package org.scalafmt.rewrite
 
 import scala.meta._
-
 import metaconfig.ConfDecoder
 import org.scalafmt.config.ReaderUtil
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.TokenOps.TokenHash
 import org.scalafmt.util.{TokenOps, TokenTraverser, TreeOps}
+import org.scalameta.logger
 
 case class RewriteCtx(
     style: ScalafmtConfig,
     tokenTraverser: TokenTraverser,
     matchingParens: Map[TokenHash, Token]
 ) {
+  implicit val dialect = style.runner.dialect
   def isMatching(a: Token, b: Token) =
     matchingParens.get(TokenOps.hash(a)).contains(b)
 }
@@ -67,23 +68,28 @@ object Rewrite {
     }
   }
 
-  def apply(input: Input, style: ScalafmtConfig): String = {
+  def apply(input: Input, style: ScalafmtConfig): Input = {
     val rewrites = style.rewrite.rules
-    def noop = new String(input.chars)
     if (rewrites.isEmpty) {
-      noop
+      input
     } else {
       style.runner.dialect(input).parse(style.runner.parser) match {
         case Parsed.Success(ast) =>
-          val tokens = ast.tokens
+          val tokens = ast.tokens(style.runner.dialect)
           val ctx = RewriteCtx(
             style,
             tokenTraverser = new TokenTraverser(tokens),
             TreeOps.getMatchingParentheses(tokens)
           )
           val patches: Seq[Patch] = rewrites.flatMap(_.rewrite(ast, ctx))
-          Patch(ast, patches)(ctx)
-        case _ => noop
+          val out = Patch(ast, patches)(ctx)
+          input match {
+            case Input.File(path, _) =>
+              Input.LabeledString(path.toString(), out)
+            case Input.LabeledString(path, _) => Input.LabeledString(path, out)
+            case _                            => Input.String(out)
+          }
+        case _ => input
       }
     }
   }

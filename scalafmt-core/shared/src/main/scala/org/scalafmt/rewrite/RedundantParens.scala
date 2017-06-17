@@ -11,7 +11,7 @@ case object RedundantParens extends Rewrite {
 
   override def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch] = {
     val builder = Seq.newBuilder[Patch]
-
+    import ctx.dialect
     code.collect {
       case g: Enumerator.Guard =>
         val tokens: Tokens = g.cond.tokens
@@ -27,7 +27,6 @@ case object RedundantParens extends Rewrite {
           rightSegment.foreach(tok => builder += TokenPatch.Remove(tok))
         }
     }
-
     builder.result()
   }
 }

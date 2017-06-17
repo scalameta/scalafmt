@@ -238,8 +238,8 @@ object TreeOps {
     case _: Decl.Def | _: Defn.Def | _: Defn.Macro | _: Defn.Class |
         _: Defn.Trait | _: Ctor.Secondary =>
       true
-    case x: Ctor.Primary if x.parent.exists(_.isInstanceOf[Defn.Class]) =>
-      true
+    case x: Ctor.Primary =>
+      x.parent.exists(isDefnSiteWithParams)
     case _ => false
   }
 
@@ -256,9 +256,8 @@ object TreeOps {
         _: Type.Apply | _: Type.Param | _: Type.Tuple =>
       true
     case _: Term.Function | _: Type.Function => true
-    case x: Ctor.Primary if x.parent.exists(_.isInstanceOf[Defn.Class]) =>
-      true
-    case _ => false
+    case x: Ctor.Primary                     => x.parent.exists(isDefnSite)
+    case _                                   => false
   }
 
   def isBinPackDefnSite(tree: Tree): Boolean = tree match {
@@ -266,9 +265,8 @@ object TreeOps {
         _: Defn.Trait | _: Ctor.Secondary | _: Defn.Type | _: Type.Apply |
         _: Type.Param | _: Type.Tuple =>
       true
-    case x: Ctor.Primary if x.parent.exists(_.is[Defn.Class]) =>
-      true
-    case _ => false
+    case x: Ctor.Primary => x.parent.exists(isBinPackDefnSite)
+    case _               => false
   }
 
   /**

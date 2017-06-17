@@ -23,8 +23,9 @@ sealed trait SortImports extends Rewrite {
   def sorted(str: Seq[String]): Seq[String]
 
   override def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch] = {
+    import ctx.dialect
     code.collect {
-      case q"import ..$imports" =>
+      case Import(imports) =>
         imports.flatMap { `import` =>
           if (`import`.importees.exists(!_.is[Importee.Name])) {
             // Do nothing if an importee has for example rename

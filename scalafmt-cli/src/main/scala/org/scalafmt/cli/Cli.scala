@@ -164,10 +164,7 @@ object Cli {
     }
 
     val sbtOptions = options.copy(
-      config = options.config.copy(
-        runner = options.config.runner.copy(
-          dialect = Sbt0137
-        )))
+      config = options.config.copy(runner = options.config.runner.forSbt))
     val termDisplay = newTermDisplay(options, inputMethods, termDisplayMessage)
     val N = inputMethods.length
     inputMethods.par.foreach { inputMethod =>

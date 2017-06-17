@@ -13,7 +13,6 @@ import scala.meta.Term
 import scala.meta.Term.Apply
 import scala.meta.Tree
 import scala.meta.Type
-import scala.meta.dialects.Scala211
 import scala.meta.prettyprinters.Structure
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
@@ -40,7 +39,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   val runner = initStyle.runner
   import TokenOps._
   import TreeOps._
-
+  implicit val dialect = initStyle.runner.dialect
   val tokens: Array[FormatToken] = FormatToken.formatTokens(tree.tokens)
   val ownersMap = getOwners(tree)
   val statementStarts = getStatementStarts(tree)
@@ -452,7 +451,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     val lastDotIndex = chain.last.tokens.lastIndexWhere(_.is[Dot])
     val lastDot =
       if (lastDotIndex != -1)
-        chain.last.tokens(Scala211)(lastDotIndex).asInstanceOf[Dot]
+        chain.last.tokens(dialect)(lastDotIndex).asInstanceOf[Dot]
       else
         throw new IllegalStateException(s"Missing . in select ${chain.last}")
     lastToken(owners(getSelectsLastToken(lastDot)))

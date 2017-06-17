@@ -41,7 +41,10 @@ case object PreferCurlyFors extends Rewrite {
 
     for {
       enumerator <- forEnumerators
-      token <- enumerator.tokens.headOption.toIterable
+      token <- enumerator
+        .tokens(ctx.style.runner.dialect)
+        .headOption
+        .toIterable
       semicolon <- reverseFind(token)(_.isNot[Whitespace])
         .filter(_.is[Token.Semicolon])
         .toIterable
@@ -75,7 +78,7 @@ case object PreferCurlyFors extends Rewrite {
 
   override def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch] = {
     val builder = Seq.newBuilder[Patch]
-
+    import ctx.dialect
     code.collect {
       case fy: Term.ForYield if hasMoreThanOneGenerator(fy.enums) =>
         builder ++= rewriteFor(fy.tokens, fy.enums, ctx)
