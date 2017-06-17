@@ -8,6 +8,11 @@
     @ul
       @li
         Please document your contribution here.
+@sect{1.0.0-RC4}
+  @ul
+    @li
+      Include the commit for the regression fix that was supposed to be
+      included in RC3, see @issue(973).
 @sect{1.0.0-RC3}
   If no major issues are reported within one week of this release, then it
   will be promoted to v1.0.
