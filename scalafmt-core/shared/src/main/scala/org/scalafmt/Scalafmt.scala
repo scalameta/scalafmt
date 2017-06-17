@@ -44,9 +44,7 @@ object Scalafmt {
           code
         }
         val toParse = Rewrite(Input.String(unixCode), style)
-        val tree = new scala.meta.XtensionParseInputLike(toParse)
-          .parse(stringToInput, runner.parser, runner.dialect)
-          .get
+        val tree = runner.dialect(toParse).parse(runner.parser).get
         val formatOps = new FormatOps(tree, style)
         runner.eventCallback(CreateFormatOps(formatOps))
         val formatWriter = new FormatWriter(formatOps)

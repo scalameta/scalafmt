@@ -45,7 +45,7 @@ object Patch {
   }
 
   def apply(ast: Tree, patches: Seq[Patch])(implicit ctx: RewriteCtx): String = {
-    val input = ast.tokens
+    val input = ast.tokens(ctx.style.runner.dialect)
     val tokenPatches = patches.collect { case e: TokenPatch => e }
     val patchMap: Map[(Int, Int), String] =
       (tokenPatches)
