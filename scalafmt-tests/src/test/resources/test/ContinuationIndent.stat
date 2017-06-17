@@ -1,7 +1,7 @@
 continuationIndent.callSite = 5
 continuationIndent.defnSite = 3
 continuationIndent.extendSite = 2
-maxColumn = 40
+maxColumn = 39
 <<< #143
 def foo(
 a: Int,

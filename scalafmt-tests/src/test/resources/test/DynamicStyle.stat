@@ -5,11 +5,11 @@ indentOperator.exclude = ":\\+:"
 align.tokens.add = [foo]
 <<< dynamic
 // scalafmt: { maxColumn = 20 }
-function(aaaaaaaaaa, bbbbbbb)
+function(aaaaaaaaaaa, bbbbbbb)
 >>>
 // scalafmt: { maxColumn = 20 }
 function(
-  aaaaaaaaaa,
+  aaaaaaaaaaa,
   bbbbbbb)
 <<< multiline
 /*
@@ -17,7 +17,7 @@ scalafmt: {
   maxColumn = 20
 }
 */
-function(aaaaaaaaaa, bbbbbbb)
+function(aaaaaaaaaaa, bbbbbbb)
 >>>
 /*
 scalafmt: {
@@ -25,7 +25,7 @@ scalafmt: {
 }
  */
 function(
-  aaaaaaaaaa,
+  aaaaaaaaaaa,
   bbbbbbb)
 <<< align.tokens.add
 {
