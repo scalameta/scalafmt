@@ -44,6 +44,9 @@
       Fixed off-by-one error with line wrapping around assignments, see @issue(600),
       by @user{aeons}.
     @li
+      @code{bestEffortInDeeplyNestedCode} has been removed. This option was unsafe
+      and a maintenance burden. See @sect.ref{Deeply nested code} for possible workarounds.
+    @li
       Fixed issues with file not found errors when running the cli
       outside the git root directory, @issue(960) and @issue(927).
 
