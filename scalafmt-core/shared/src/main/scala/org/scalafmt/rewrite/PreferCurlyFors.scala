@@ -41,7 +41,10 @@ case object PreferCurlyFors extends Rewrite {
 
     for {
       enumerator <- forEnumerators
-      token <- enumerator.tokens(ctx.style.runner.dialect).headOption.toIterable
+      token <- enumerator
+        .tokens(ctx.style.runner.dialect)
+        .headOption
+        .toIterable
       semicolon <- reverseFind(token)(_.isNot[Whitespace])
         .filter(_.is[Token.Semicolon])
         .toIterable

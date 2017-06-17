@@ -238,8 +238,8 @@ object TreeOps {
     case _: Decl.Def | _: Defn.Def | _: Defn.Macro | _: Defn.Class |
         _: Defn.Trait | _: Ctor.Secondary =>
       true
-    case x: Ctor.Primary => x.parent.exists(isDefnSiteWithParams)
-      true
+    case x: Ctor.Primary =>
+      x.parent.exists(isDefnSiteWithParams)
     case _ => false
   }
 
@@ -266,7 +266,7 @@ object TreeOps {
         _: Type.Param | _: Type.Tuple =>
       true
     case x: Ctor.Primary => x.parent.exists(isBinPackDefnSite)
-    case _ => false
+    case _               => false
   }
 
   /**
