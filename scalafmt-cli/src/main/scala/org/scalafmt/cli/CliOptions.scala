@@ -121,7 +121,7 @@ case class CliOptions(
     this.copy(customFiles = files)
   }
 
-  def info: OutputStream = if (noStdErr) common.out else common.err
+  def info: PrintStream = if (noStdErr) common.out else common.err
 
   lazy val filterMatcher: FilterMatcher =
     FilterMatcher(
