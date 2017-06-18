@@ -531,8 +531,7 @@ private[scalajs] final class ScalaJSClassEmitter(
                 js.BinaryOp(JSBinaryOp.!==, obj, js.Null())
 
               case Definitions.StringClass =>
-                js.UnaryOp(JSUnaryOp.typeof, obj) === js.StringLiteral(
-                  "string")
+                js.UnaryOp(JSUnaryOp.typeof, obj) === js.StringLiteral("string")
 
               case Definitions.RuntimeNothingClass =>
                 // Even null is not an instance of Nothing

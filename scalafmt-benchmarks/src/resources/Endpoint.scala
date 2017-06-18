@@ -277,8 +277,7 @@ private[remote] class ReliableDeliverySupervisor(
       uidConfirmed = false // Need confirmation of UID again
       if (bufferWasInUse) {
         if ((resendBuffer.nacked.nonEmpty || resendBuffer.nonAcked.nonEmpty) && bailoutAt.isEmpty)
-          bailoutAt =
-            Some(Deadline.now + settings.InitialSysMsgDeliveryTimeout)
+          bailoutAt = Some(Deadline.now + settings.InitialSysMsgDeliveryTimeout)
         context.become(
           gated(writerTerminated = false, earlyUngateRequested = false))
         currentHandle = None
@@ -390,8 +389,7 @@ private[remote] class ReliableDeliverySupervisor(
       writer forward s
   }
 
-  def gated(writerTerminated: Boolean,
-            earlyUngateRequested: Boolean): Receive = {
+  def gated(writerTerminated: Boolean, earlyUngateRequested: Boolean): Receive = {
     case Terminated(_) if !writerTerminated ⇒
       if (earlyUngateRequested)
         self ! Ungate
@@ -1234,7 +1232,6 @@ private[remote] class EndpointReader(
       codec.decodeMessage(pdu, provider, localAddress)
     } catch {
       case NonFatal(e) ⇒
-        throw new EndpointException("Error while decoding incoming Akka PDU",
-                                    e)
+        throw new EndpointException("Error while decoding incoming Akka PDU", e)
     }
 }

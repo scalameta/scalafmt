@@ -469,8 +469,7 @@ class Router(formatOps: FormatOps) {
         } else {
           def penalizeBrackets(penalty: Int): Policy =
             if (isBracket)
-              penalizeAllNewlines(close,
-                                  Constants.BracketPenalty * penalty + 3)
+              penalizeAllNewlines(close, Constants.BracketPenalty * penalty + 3)
             else NoPolicy
           val bracketMultiplier =
             if (isBracket) Constants.BracketPenalty else 1
@@ -493,8 +492,7 @@ class Router(formatOps: FormatOps) {
             else NoSplit
 
           Seq(
-            Split(noSplitModification,
-                  0 + (nestingPenalty * bracketMultiplier))
+            Split(noSplitModification, 0 + (nestingPenalty * bracketMultiplier))
               .withPolicy(noSplitPolicy)
               .withIndent(indent, close, Left),
             Split(Newline,
@@ -977,9 +975,8 @@ class Router(formatOps: FormatOps) {
                 Policy(
                   {
                     // Force template to be multiline.
-                    case d @ Decision(
-                          FormatToken(open @ LeftBrace(), right, _),
-                          splits)
+                    case d @ Decision(FormatToken(open @ LeftBrace(), right, _),
+                                      splits)
                         if !hasSelfAnnotation &&
                           !right.is[RightBrace] && // corner case, body is {}
                           childOf(template, owners(open)) =>
@@ -1365,8 +1362,7 @@ class Router(formatOps: FormatOps) {
         formatToken match {
           // TODO(olafur) refactor into "global policy"
           // Only newlines after inline comments.
-          case FormatToken(c @ Comment(_), _, _)
-              if c.syntax.startsWith("//") =>
+          case FormatToken(c @ Comment(_), _, _) if c.syntax.startsWith("//") =>
             val newlineSplits = splits.filter { x =>
               !x.ignoreIf && x.modification.isNewline
             }

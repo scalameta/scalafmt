@@ -132,8 +132,7 @@ private[math] object Division {
 
             // rightHand can overflow. In this case the loop condition will be
             // true in the next step of the loop
-            val rightHand
-              : Long = (rem.toLong << 32) + (normA(j - 2) & UINT_MAX)
+            val rightHand: Long = (rem.toLong << 32) + (normA(j - 2) & UINT_MAX)
             val longR: Long = (rem & UINT_MAX) + (firstDivisorDigit & UINT_MAX)
             // checks that longR does not fit in an unsigned int.
             // this ensures that rightHand will overflow unsigned long in the next step
@@ -425,8 +424,8 @@ private[math] object Division {
       // Optimization for small operands
       // (op2.bitLength() < 32) implies by INV (op1.bitLength() < 32)
       if ((op2.numberLength == 1) && (op2.digits(0) > 0)) {
-        op2 = BigInteger.valueOf(
-          Division.gcdBinary(op1.intValue(), op2.intValue()))
+        op2 =
+          BigInteger.valueOf(Division.gcdBinary(op1.intValue(), op2.intValue()))
       } else {
         // Implements one step of the Euclidean algorithm
         // To reduce one operand if it's much smaller than the other one
@@ -983,10 +982,8 @@ private[math] object Division {
       var innnerCarry: Long = 0
       val m = Multiplication.unsignedMultAddAdd(res(i), n2, 0, 0).toInt
       for (j <- 0 until modulusLen) {
-        innnerCarry = unsignedMultAddAdd(m,
-                                         modulusDigits(j),
-                                         res(i + j),
-                                         innnerCarry.toInt)
+        innnerCarry =
+          unsignedMultAddAdd(m, modulusDigits(j), res(i + j), innnerCarry.toInt)
         res(i + j) = innnerCarry.toInt
         innnerCarry >>>= 32
       }

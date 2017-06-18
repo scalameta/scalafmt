@@ -11,8 +11,7 @@ sealed abstract case class AbsoluteFile(jfile: File) {
 }
 
 object AbsoluteFile {
-  def fromFiles(files: Seq[File],
-                workingDir: AbsoluteFile): Seq[AbsoluteFile] = {
+  def fromFiles(files: Seq[File], workingDir: AbsoluteFile): Seq[AbsoluteFile] = {
     files.map(x => fromFile(x, workingDir))
   }
   // If file is already absolute, then workingDir is not used.

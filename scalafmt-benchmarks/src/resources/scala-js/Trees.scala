@@ -157,8 +157,7 @@ object Trees {
   case class New(ctor: Tree, args: List[Tree])(implicit val pos: Position)
       extends Tree
 
-  case class DotSelect(qualifier: Tree, item: Ident)(
-      implicit val pos: Position)
+  case class DotSelect(qualifier: Tree, item: Ident)(implicit val pos: Position)
       extends Tree
 
   case class BracketSelect(qualifier: Tree, item: Tree)(

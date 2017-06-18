@@ -64,8 +64,7 @@ object CliOptions {
     options.gitOps.rootDir.flatMap(tryDirectory(options))
   }
 
-  private def tryCurrentDirectory(
-      options: CliOptions): Option[ScalafmtConfig] = {
+  private def tryCurrentDirectory(options: CliOptions): Option[ScalafmtConfig] = {
     tryDirectory(options)(options.common.workingDirectory)
   }
 }

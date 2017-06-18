@@ -430,11 +430,9 @@ final class BaseLinker(semantics: Semantics,
                                targetIdent,
                                params.map(_.ref))(targetMDef.resultType)
 
-    MethodDef(static = false,
-              bridgeIdent,
-              params,
-              targetMDef.resultType,
-              body)(OptimizerHints.empty, targetMDef.hash)
+    MethodDef(static = false, bridgeIdent, params, targetMDef.resultType, body)(
+      OptimizerHints.empty,
+      targetMDef.hash)
   }
 
   private def findInheritedMethodDef(classInfo: Analysis.ClassInfo,
@@ -444,9 +442,8 @@ final class BaseLinker(semantics: Semantics,
                                        true): MethodDef = {
     @tailrec
     def loop(ancestorInfo: Analysis.ClassInfo): MethodDef = {
-      assert(
-        ancestorInfo != null,
-        s"Could not find $methodName anywhere in ${classInfo.encodedName}")
+      assert(ancestorInfo != null,
+             s"Could not find $methodName anywhere in ${classInfo.encodedName}")
 
       val inherited = ancestorInfo.methodInfos.get(methodName)
       if (inherited.exists(p)) {

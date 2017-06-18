@@ -49,9 +49,8 @@ object Config {
     }
   }
 
-  def fromHoconString(
-      string: String,
-      path: Option[String] = None): Configured[ScalafmtConfig] =
+  def fromHoconString(string: String,
+                      path: Option[String] = None): Configured[ScalafmtConfig] =
     fromConf(fromInput(Input.String(string), path))
 
   /** Read ScalafmtConfig from String contents from an optional HOCON path. */

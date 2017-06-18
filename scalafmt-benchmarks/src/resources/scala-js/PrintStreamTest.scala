@@ -119,10 +119,9 @@ class PrintStreamTest {
 
     test(_.print('é'), Array(0xc3, 0xa9))
     test(_.print("こんにちは"),
-         Array(0xe3, 0x81, 0x93, 0xe3, 0x82, 0x93, 0xe3, 0x81, 0xab, 0xe3,
-           0x81, 0xa1, 0xe3, 0x81, 0xaf))
-    test(_.print("ημέρ"),
-         Array(0xce, 0xb7, 0xce, 0xbc, 0xce, 0xad, 0xcf, 0x81))
+         Array(0xe3, 0x81, 0x93, 0xe3, 0x82, 0x93, 0xe3, 0x81, 0xab, 0xe3, 0x81,
+           0xa1, 0xe3, 0x81, 0xaf))
+    test(_.print("ημέρ"), Array(0xce, 0xb7, 0xce, 0xbc, 0xce, 0xad, 0xcf, 0x81))
 
     test(_.print("\ud83d\udca9"), Array(0xf0, 0x9f, 0x92, 0xa9))
     test(_.print("b\ud83d\udca9c"), Array('b', 0xf0, 0x9f, 0x92, 0xa9, 'c'))
@@ -194,9 +193,7 @@ class PrintStreamTest {
     testPrintlnForwards(_.println(Math.PI),
                         "3.141592653589793\n",
                         autoFlush = false)
-    testPrintlnForwards(_.println(Array('A', '\n')),
-                        "A\n\n",
-                        autoFlush = false)
+    testPrintlnForwards(_.println(Array('A', '\n')), "A\n\n", autoFlush = false)
     testPrintlnForwards(_.println("hello\n"), "hello\n\n", autoFlush = false)
     testPrintlnForwards(_.println(null: String), "null\n", autoFlush = false)
     testPrintlnForwards(_.println((1, 2)), "(1,2)\n", autoFlush = false)

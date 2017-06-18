@@ -90,8 +90,7 @@ trait TypeKinds extends SubComponent { this: GenJSCode =>
   }
 
   /** Integer number (Byte, Short, Char or Int). */
-  case class INT private[TypeKinds] (typeSymbol: Symbol)
-      extends ValueTypeKind {
+  case class INT private[TypeKinds] (typeSymbol: Symbol) extends ValueTypeKind {
     def toIRType: Types.IntType.type = Types.IntType
   }
 

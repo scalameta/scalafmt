@@ -4,11 +4,7 @@ import java.io.File
 import scala.collection.mutable
 import scala.xml.Utility
 
-import com.intellij.notification.{
-  Notification,
-  NotificationType,
-  Notifications
-}
+import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.actionSystem.{AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.{Project, ProjectManager}

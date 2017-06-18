@@ -229,10 +229,9 @@ class FormatWriter(formatOps: FormatOps) {
       case c: Comment if isSingleLineComment(c) => "//"
       case t                                    => t.syntax
     }
-    styleMap.at(location.formatToken).alignMap.get(code).exists {
-      ownerRegexp =>
-        val owner = getAlignOwner(location.formatToken)
-        ownerRegexp.findFirstIn(owner.getClass.getName).isDefined
+    styleMap.at(location.formatToken).alignMap.get(code).exists { ownerRegexp =>
+      val owner = getAlignOwner(location.formatToken)
+      ownerRegexp.findFirstIn(owner.getClass.getName).isDefined
     }
   }
 
@@ -287,8 +286,7 @@ class FormatWriter(formatOps: FormatOps) {
     */
   // TODO(olafur) Refactor implementation to make it maintainable. It's super
   // imperative and error-prone right now.
-  def alignmentTokens(
-      locations: Array[FormatLocation]): Map[FormatToken, Int] = {
+  def alignmentTokens(locations: Array[FormatLocation]): Map[FormatToken, Int] = {
     if (initStyle.align.tokens.isEmpty || locations.length != tokens.length)
       Map.empty[FormatToken, Int]
     else {
