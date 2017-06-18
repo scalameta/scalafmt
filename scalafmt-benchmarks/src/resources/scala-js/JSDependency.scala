@@ -99,7 +99,8 @@ object JSDependency {
     }
   }
 
-  implicit object JSDepJSONDeserializer extends JSONDeserializer[JSDependency] {
+  implicit object JSDepJSONDeserializer
+      extends JSONDeserializer[JSDependency] {
     def deserialize(x: JSON): JSDependency = {
       val obj = new JSONObjExtractor(x)
       new JSDependency(

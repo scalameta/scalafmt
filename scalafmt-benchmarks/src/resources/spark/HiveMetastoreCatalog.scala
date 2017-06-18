@@ -78,7 +78,8 @@ private[hive] object HiveSerDe {
                     "org.apache.hadoop.mapred.SequenceFileOutputFormat")),
       "rcfile" ->
         HiveSerDe(
-          inputFormat = Option("org.apache.hadoop.hive.ql.io.RCFileInputFormat"),
+          inputFormat =
+            Option("org.apache.hadoop.hive.ql.io.RCFileInputFormat"),
           outputFormat =
             Option("org.apache.hadoop.hive.ql.io.RCFileOutputFormat"),
           serde =
@@ -200,10 +201,11 @@ private[hive] class HiveMetastoreCatalog(val client: HiveClient,
         val partitionColumns = getColumnNames("part")
 
         val bucketSpec =
-          table.properties.get("spark.sql.sources.schema.numBuckets").map { n =>
-            BucketSpec(n.toInt,
-                       getColumnNames("bucket"),
-                       getColumnNames("sort"))
+          table.properties.get("spark.sql.sources.schema.numBuckets").map {
+            n =>
+              BucketSpec(n.toInt,
+                         getColumnNames("bucket"),
+                         getColumnNames("sort"))
           }
 
         val options = table.storage.serdeProperties
@@ -357,7 +359,8 @@ private[hive] class HiveMetastoreCatalog(val client: HiveClient,
         name = TableIdentifier(tblName, Option(dbName)),
         tableType = tableType,
         storage = CatalogStorageFormat(
-          locationUri = Some(relation.location.paths.map(_.toUri.toString).head),
+          locationUri =
+            Some(relation.location.paths.map(_.toUri.toString).head),
           inputFormat = serde.inputFormat,
           outputFormat = serde.outputFormat,
           serde = serde.serde,
@@ -622,7 +625,8 @@ private[hive] class HiveMetastoreCatalog(val client: HiveClient,
     result.copy(expectedOutputAttributes = Some(metastoreRelation.output))
   }
 
-  override def getTables(databaseName: Option[String]): Seq[(String, Boolean)] = {
+  override def getTables(
+      databaseName: Option[String]): Seq[(String, Boolean)] = {
     val db = databaseName.getOrElse(client.currentDatabase)
 
     client.listTables(db).map(tableName => (tableName, false))
@@ -748,8 +752,9 @@ private[hive] class HiveMetastoreCatalog(val client: HiveClient,
         } else {
           val desc = if (table.storage.serde.isEmpty) {
             // add default serde
-            table.withNewStorage(serde =
-              Some("org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe"))
+            table.withNewStorage(
+              serde =
+                Some("org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe"))
           } else {
             table
           }
@@ -1094,7 +1099,9 @@ private[hive] case class MetastoreRelation(databaseName: String,
   }
 
   override def newInstance(): MetastoreRelation = {
-    MetastoreRelation(databaseName, tableName, alias)(table, client, sqlContext)
+    MetastoreRelation(databaseName, tableName, alias)(table,
+                                                      client,
+                                                      sqlContext)
   }
 }
 

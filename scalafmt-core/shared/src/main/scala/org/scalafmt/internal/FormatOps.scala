@@ -331,8 +331,9 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     )
   }
 
-  def UnindentAtExclude(exclude: Set[Token],
-                        indent: Length): PartialFunction[Decision, Decision] = {
+  def UnindentAtExclude(
+      exclude: Set[Token],
+      indent: Length): PartialFunction[Decision, Decision] = {
     case Decision(t, s) if exclude.contains(t.left) =>
       val close = matchingParentheses(hash(t.left))
       Decision(t, s.map(_.withIndent(indent, close, ExpiresOn.Left)))

@@ -132,7 +132,8 @@ abstract class GenJSCode
     val thisLocalVarIdent = new ScopedVar[Option[js.Ident]](None)
     val fakeTailJumpParamRepl =
       new ScopedVar[(Symbol, Symbol)]((NoSymbol, NoSymbol))
-    val enclosingLabelDefParams = new ScopedVar(Map.empty[Symbol, List[Symbol]])
+    val enclosingLabelDefParams = new ScopedVar(
+      Map.empty[Symbol, List[Symbol]])
     val mutableLocalVars = new ScopedVar[mutable.Set[Symbol]]
     val mutatedLocalVars = new ScopedVar[mutable.Set[Symbol]]
     val unexpectedMutatedFields = new ScopedVar[mutable.Set[Symbol]]
@@ -607,8 +608,9 @@ abstract class GenJSCode
       */
     def genClassFields(cd: ClassDef): List[js.FieldDef] = {
       val classSym = cd.symbol
-      assert(currentClassSym.get == classSym,
-             "genClassFields called with a ClassDef other than the current one")
+      assert(
+        currentClassSym.get == classSym,
+        "genClassFields called with a ClassDef other than the current one")
 
       // Non-method term members are fields, except for module members.
       (for {
@@ -1199,7 +1201,8 @@ abstract class GenJSCode
                 methodDef
               } else {
                 val patches = (
-                  unmutatedMutableLocalVars.map(encodeLocalSym(_).name -> false) :::
+                  unmutatedMutableLocalVars.map(
+                    encodeLocalSym(_).name -> false) :::
                     mutatedImmutableLocalVals.map(
                     encodeLocalSym(_).name -> true)
                 ).toMap
@@ -1606,7 +1609,8 @@ abstract class GenJSCode
               if (isScalaJSDefinedJSClass(sym.owner)) {
                 val genLhs =
                   if (isExposed(sym))
-                    js.JSBracketSelect(genQual, js.StringLiteral(jsNameOf(sym)))
+                    js.JSBracketSelect(genQual,
+                                       js.StringLiteral(jsNameOf(sym)))
                   else
                     js.JSDotSelect(genQual, encodeFieldSym(sym))
                 val boxedRhs =
@@ -1753,7 +1757,8 @@ abstract class GenJSCode
                   js.BooleanLiteral(true), {
                     if (bodyType == jstpe.NoType)
                       js.Block(genStat(rhs),
-                               js.Return(js.Undefined(), Some(blockLabelIdent)))
+                               js.Return(js.Undefined(),
+                                         Some(blockLabelIdent)))
                     else
                       js.Return(genExpr(rhs), Some(blockLabelIdent))
                   },
@@ -2546,8 +2551,8 @@ abstract class GenJSCode
           translateMatch(expr)
 
         // Sometimes the pattern matcher casts its final result
-        case Apply(TypeApply(Select(expr: LabelDef, nme.asInstanceOf_Ob), _), _)
-            if isCaseLabelDef(expr) =>
+        case Apply(TypeApply(Select(expr: LabelDef, nme.asInstanceOf_Ob), _),
+                   _) if isCaseLabelDef(expr) =>
           translateMatch(expr)
 
         case _ =>
@@ -2724,7 +2729,9 @@ abstract class GenJSCode
     }
 
     /** Gen JS code for a simple operation (arithmetic, logical, or comparison) */
-    private def genSimpleOp(tree: Apply, args: List[Tree], code: Int): js.Tree = {
+    private def genSimpleOp(tree: Apply,
+                            args: List[Tree],
+                            code: Int): js.Tree = {
       import scalaPrimitives._
 
       implicit val pos = tree.pos
@@ -2756,7 +2763,9 @@ abstract class GenJSCode
                               js.FloatLiteral(0.0f),
                               source)
                 case jstpe.DoubleType =>
-                  js.BinaryOp(js.BinaryOp.Double_-, js.DoubleLiteral(0), source)
+                  js.BinaryOp(js.BinaryOp.Double_-,
+                              js.DoubleLiteral(0),
+                              source)
               }
             case NOT =>
               (resultType: @unchecked) match {
@@ -2840,9 +2849,10 @@ abstract class GenJSCode
           def genEquality(eqeq: Boolean, not: Boolean) = {
             opType match {
               case jstpe.IntType | jstpe.DoubleType | jstpe.FloatType =>
-                js.BinaryOp(if (not) js.BinaryOp.Num_!= else js.BinaryOp.Num_==,
-                            lsrc,
-                            rsrc)
+                js.BinaryOp(
+                  if (not) js.BinaryOp.Num_!= else js.BinaryOp.Num_==,
+                  lsrc,
+                  rsrc)
               case jstpe.BooleanType =>
                 js.BinaryOp(
                   if (not) js.BinaryOp.Boolean_!= else js.BinaryOp.Boolean_==,
@@ -2942,8 +2952,8 @@ abstract class GenJSCode
        * Number or Character, not using the rich equality is possible (their
        * own equals method will do ok.)
        */
-      val mustUseAnyComparator
-        : Boolean = isRawJSType(ltpe) || isRawJSType(rtpe) || {
+      val mustUseAnyComparator: Boolean = isRawJSType(ltpe) || isRawJSType(
+        rtpe) || {
         val areSameFinals = ltpe.isFinalType && rtpe.isFinalType && (ltpe =:= rtpe)
         !areSameFinals && isMaybeBoxed(ltpe.typeSymbol) && isMaybeBoxed(
           rtpe.typeSymbol)
@@ -2952,8 +2962,8 @@ abstract class GenJSCode
       if (mustUseAnyComparator) {
         val equalsMethod: Symbol = {
           // scalastyle:off line.size.limit
-          val ptfm = platform
-            .asInstanceOf[backend.JavaPlatform with ThisPlatform] // 2.10 compat
+          val ptfm = platform.asInstanceOf[
+            backend.JavaPlatform with ThisPlatform] // 2.10 compat
           if (ltpe <:< BoxedNumberClass.tpe) {
             if (rtpe <:< BoxedNumberClass.tpe) ptfm.externalEqualsNumNum
             else if (rtpe <:< BoxedCharacterClass.tpe)
@@ -3004,7 +3014,8 @@ abstract class GenJSCode
        * Otherwise, both lhs and rhs are already reference types (Any of String)
        * so boxing is not necessary (in particular, rhs is never a primitive).
        */
-      assert(!isPrimitiveValueType(receiver.tpe) || isStringType(args.head.tpe))
+      assert(
+        !isPrimitiveValueType(receiver.tpe) || isStringType(args.head.tpe))
       assert(!isPrimitiveValueType(args.head.tpe))
 
       val rhs = genExpr(args.head)
@@ -3053,8 +3064,9 @@ abstract class GenJSCode
         genSelect()
       } else if (scalaPrimitives.isArraySet(code)) {
         // set an item of the array
-        assert(args.length == 2,
-               s"Array set requires 2 arguments, found ${args.length} in $tree")
+        assert(
+          args.length == 2,
+          s"Array set requires 2 arguments, found ${args.length} in $tree")
         js.Assign(genSelect(), arguments(1))
       } else {
         // length of the array
@@ -3665,12 +3677,13 @@ abstract class GenJSCode
               js.Closure(
                 List(fCaptureParam),
                 jsParams,
-                genApplyMethod(fCaptureParam.ref,
-                               applyMeth,
-                               if (isThisFunction)
-                                 js.This()(jstpe.AnyType) :: jsParams.map(_.ref)
-                               else
-                                 jsParams.map(_.ref)),
+                genApplyMethod(
+                  fCaptureParam.ref,
+                  applyMeth,
+                  if (isThisFunction)
+                    js.This()(jstpe.AnyType) :: jsParams.map(_.ref)
+                  else
+                    jsParams.map(_.ref)),
                 List(arg)
               )
             }
@@ -3722,11 +3735,12 @@ abstract class GenJSCode
                  * simply always evaluate arg1 in a temp before doing the `in`.
                  */
                 val temp = freshLocalIdent()
-                js.Block(js.VarDef(temp, jstpe.AnyType, mutable = false, arg1),
-                         js.Unbox(js.JSBinaryOp(js.JSBinaryOp.in,
-                                                arg2,
-                                                js.VarRef(temp)(jstpe.AnyType)),
-                                  'Z'))
+                js.Block(
+                  js.VarDef(temp, jstpe.AnyType, mutable = false, arg1),
+                  js.Unbox(js.JSBinaryOp(js.JSBinaryOp.in,
+                                         arg2,
+                                         js.VarRef(temp)(jstpe.AnyType)),
+                           'Z'))
             }
         })
     }
@@ -3793,7 +3807,8 @@ abstract class GenJSCode
 
       def requireNotSuper(): Unit = {
         if (superIn.isDefined) {
-          reporter.error(pos, "Illegal super call in Scala.js-defined JS class")
+          reporter.error(pos,
+                         "Illegal super call in Scala.js-defined JS class")
         }
       }
 
@@ -3928,7 +3943,8 @@ abstract class GenJSCode
       *  This is nothing else than decomposing into head and tail, except that
       *  we assert that the first element is not a JSSpread.
       */
-    private def extractFirstArg(args: List[js.Tree]): (js.Tree, List[js.Tree]) = {
+    private def extractFirstArg(
+        args: List[js.Tree]): (js.Tree, List[js.Tree]) = {
       assert(args.nonEmpty,
              "Trying to extract the first argument of an empty argument list")
       val firstArg = args.head
@@ -4402,7 +4418,8 @@ abstract class GenJSCode
         fail(s"Cannot rewrite PartialFunction $cd")
       if (instantiatedAnonFunctions contains sym) {
         // when the ordering we're given is evil (it happens!)
-        fail(s"Abort function rewrite because it was already instantiated: $cd")
+        fail(
+          s"Abort function rewrite because it was already instantiated: $cd")
       }
 
       // First step: find the apply method def, and collect param accessors
@@ -4636,11 +4653,11 @@ abstract class GenJSCode
       JSFunctionToScala(closure, params.size)
     }
 
-    private def patchFunBodyWithBoxes(
-        methodSym: Symbol,
-        params: List[js.ParamDef],
-        body: js.Tree,
-        useParamsBeforeLambdaLift: Boolean = false)(
+    private def patchFunBodyWithBoxes(methodSym: Symbol,
+                                      params: List[js.ParamDef],
+                                      body: js.Tree,
+                                      useParamsBeforeLambdaLift: Boolean =
+                                        false)(
         implicit pos: Position): (List[js.ParamDef], js.Tree) = {
       val methodType =
         enteringPhase(currentRun.posterasurePhase)(methodSym.tpe)

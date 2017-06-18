@@ -15,7 +15,9 @@ object TokenPatch {
                toAdd: String,
                keepTok: Boolean = false): TokenPatch =
     Add(tok, "", toAdd, keepTok)
-  def AddLeft(tok: Token, toAdd: String, keepTok: Boolean = false): TokenPatch =
+  def AddLeft(tok: Token,
+              toAdd: String,
+              keepTok: Boolean = false): TokenPatch =
     Add(tok, toAdd, "", keepTok)
   case class Add(override val tok: Token,
                  addLeft: String,
