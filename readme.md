@@ -9,6 +9,9 @@ Head over to [the user docs][docs] for instructions on how to install scalafmt.
 
 ### Quick help
 
+- `sbt compile` on a clean machine will fail to compile the `scalafmt-intellij` project.
+  - if you plan to develop the intellij plugin, run `downloadIdea` first to fetch the IntelliJ SDK (~600mb).
+  - or, run `sbt test` or `sbt core/compile` (specific project).
 - Run all unit tests: `sbt test`
 - Run only formatting tests: `tests/testOnly *FormatTests`.
 - Write new formatting test: read [this doc](scalafmt-tests/src/test/resources/readme.md).

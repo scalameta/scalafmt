@@ -14,6 +14,7 @@ import org.scalafmt.config.Config
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.DiffAssertions
+import org.scalafmt.util.OsSpecific._
 import org.scalafmt.util.FileOps
 import org.scalatest.FunSuite
 
@@ -233,7 +234,7 @@ class CliTest extends FunSuite with DiffAssertions {
       Array(
         input.path,
         "--exclude",
-        "target/nested"
+        "target/nested".asFilename
       ))
     Cli.run(options)
     val obtained = dir2string(input)
@@ -242,7 +243,7 @@ class CliTest extends FunSuite with DiffAssertions {
 
   test("scalafmt doesnotexist.scala throws error") {
     def check(filename: String): Unit = {
-      val args = Array(s"$filename.scala")
+      val args = Array(s"$filename.scala".asFilename)
       intercept[FileNotFoundException] {
         Cli.main(args)
       }
