@@ -1,1 +1,1 @@
-&java -jar .\scalafmt $args
+&java -jar "$pwd\scalafmt" $args
