@@ -23,10 +23,14 @@ import metaconfig._
   *     foo.map(_ + 1).filter( > 2)
   *   }}}
   *
+  * @param selfAnnotationNewline See https://github.com/scalameta/scalafmt/issues/938
+  *                              If true, will force a line break before a self annotation
+  *                              if there was a line break there before.
   */
 @DeriveConfDecoder
 case class OptIn(
     configStyleArguments: Boolean = true,
     breakChainOnFirstMethodDot: Boolean = true,
+    selfAnnotationNewline: Boolean = true,
     annotationNewlines: Boolean = true
 )

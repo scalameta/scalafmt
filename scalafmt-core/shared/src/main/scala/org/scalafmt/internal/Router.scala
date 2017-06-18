@@ -16,7 +16,7 @@ import scala.meta.Term
 import scala.meta.Tree
 import scala.meta.Type
 import scala.meta.tokens.Token
-
+import scala.meta.tokens.Tokens
 import org.scalafmt.Error.UnexpectedTree
 import org.scalafmt.config.{ImportSelectors, NewlineCurlyLambda}
 import org.scalafmt.internal.ExpiresOn.Left
@@ -172,9 +172,20 @@ class Router(formatOps: FormatOps) {
 
       // { ... } Blocks
       case tok @ FormatToken(open @ LeftBrace(), right, between) =>
-        val nl = NewlineT(shouldGet2xNewlines(tok, style, owners))
         val close = matchingParentheses(hash(open))
         val newlineBeforeClosingCurly = newlineBeforeClosingCurlyPolicy(close)
+        val selfAnnotation: Option[Tokens] = leftOwner match {
+          // Self type: trait foo { self => ... }
+          case t: Template => Some(t.self.name.tokens).filter(_.nonEmpty)
+          case _           => None
+        }
+        val isSelfAnnotation =
+          style.optIn.selfAnnotationNewline &&
+            newlines > 0 &&
+            selfAnnotation.nonEmpty
+        val nl: Modification =
+          if (isSelfAnnotation) newlines2Modification(formatToken)
+          else NewlineT(shouldGet2xNewlines(tok, style, owners))
 
         val (startsLambda, lambdaPolicy, lambdaArrow, lambdaIndent) =
           statementStarts
@@ -188,14 +199,13 @@ class Router(formatOps: FormatOps) {
                 (true, singleLineUntilArrow, arrow, 0)
             }
             .getOrElse {
-              leftOwner match {
-                // Self type: trait foo { self => ... }
-                case t: Template if t.self.name.tokens.nonEmpty =>
-                  val arrow = t.tokens.find(_.is[RightArrow])
+              selfAnnotation match {
+                case Some(tokens) =>
+                  val arrow = leftOwner.tokens.find(_.is[RightArrow])
                   val singleLineUntilArrow = newlineBeforeClosingCurly.andThen(
-                    SingleLineBlock(arrow.getOrElse(t.self.tokens.last)).f)
+                    SingleLineBlock(arrow.getOrElse(tokens.last)).f)
                   (true, singleLineUntilArrow, arrow, 2)
-                case t =>
+                case _ =>
                   (false, NoPolicy, None, 0)
               }
             }
@@ -207,10 +217,12 @@ class Router(formatOps: FormatOps) {
           Split(Space, 0, ignoreIf = skipSingleLineBlock)
             .withOptimalToken(close, killOnFail = true)
             .withPolicy(SingleLineBlock(close)),
-          Split(
-            Space,
-            0,
-            ignoreIf = style.newlines.alwaysBeforeCurlyBraceLambdaParams || !startsLambda)
+          Split(Space,
+                0,
+                ignoreIf =
+                  style.newlines.alwaysBeforeCurlyBraceLambdaParams ||
+                    isSelfAnnotation ||
+                    !startsLambda)
             .withOptimalToken(lambdaArrow)
             .withIndent(lambdaIndent, close, Right)
             .withPolicy(lambdaPolicy),
