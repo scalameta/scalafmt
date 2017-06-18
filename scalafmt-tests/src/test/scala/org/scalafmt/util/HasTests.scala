@@ -126,7 +126,7 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
     spec match {
       case "unit"                           => ScalafmtConfig.unitTest40
       case "default" | "standard" | "scala" => ScalafmtConfig.unitTest80
-      case "scalajs"                        => ScalafmtConfig.scalaJs
+      case "scalajs"                        => ScalafmtConfig.scalaJs.copy(maxColumn = 79)
       case style                            => throw UnknownStyle(style)
     }
 

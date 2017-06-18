@@ -93,6 +93,7 @@ trait Settings {
 
   // TODO(olafur) move these elsewhere.
   val testing = default.copy(
+    maxColumn = 79,
     assumeStandardLibraryStripMargin = false,
     includeCurlyBraceInSelectChains = false,
     align = default.align.copy(tokens = Set.empty),
@@ -106,11 +107,10 @@ trait Settings {
     runner = conservativeRunner
   )
   val unitTest80 = testing.copy(
-    maxColumn = 80,
     continuationIndent = ContinuationIndent(4, 4)
   )
 
-  val unitTest40 = unitTest80.copy(maxColumn = 40)
+  val unitTest40 = unitTest80.copy(maxColumn = 39)
 
   def oneOf[T](m: Map[String, T])(input: String): Configured[T] =
     m.get(input.toLowerCase()) match {

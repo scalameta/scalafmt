@@ -100,7 +100,7 @@ object State {
       }
     val newPolicy: PolicySummary = policy.combine(split.policy, tok.left.end)
     val splitWithPenalty = {
-      if (columnOnCurrentLine < style.maxColumn || {
+      if (columnOnCurrentLine <= style.maxColumn || {
             val commentExceedsLineLength =
               tok.right.is[Comment] &&
                 tokRightSyntax.length >= (style.maxColumn - newIndent)
