@@ -6,9 +6,9 @@ install:
 environment:
   CI_SCALA_VERSION: 2.12.2
 build_script:
-  - sbt downloadIdea update
+  - sbt downloadIdea tests/compile
 test_script:
-  - sbt ci-fast ci-sbt-scalafmt
+  - sbt tests/test
 cache:
   - C:\Users\appveyor\.m2
   - C:\Users\appveyor\.ivy2
