@@ -45,40 +45,44 @@ import scala.annotation.tailrec
 import BigInteger.QuotAndRem
 
 /** Provides BigInteger division and modular arithmetic.
- *
- *  Object that provides all operations related with division and modular
- *  arithmetic to {@link BigInteger}. Some methods are provided in both mutable
- *  and immutable way. There are several variants provided listed below:
- *
- *  <ul type="circle"> <li><b>Division</b> <ul type="circle"> <li>
- *  {@link BigInteger} division and remainder by {@link BigInteger}.</li> <li>
- *  {@link BigInteger} division and remainder by {@code int}.</li> <li><i>gcd</i>
- *  between {@link BigInteger} numbers.</li> </ul> </li> <li><b>Modular
- *  arithmetic </b> <ul type="circle"> <li>Modular exponentiation between
- *  {@link BigInteger} numbers.</li> <li>Modular inverse of a {@link BigInteger}
- *  numbers.</li> </ul> </li> </ul>
- */
+  *
+  *  Object that provides all operations related with division and modular
+  *  arithmetic to {@link BigInteger}. Some methods are provided in both mutable
+  *  and immutable way. There are several variants provided listed below:
+  *
+  *  <ul type="circle"> <li><b>Division</b> <ul type="circle"> <li>
+  *  {@link BigInteger} division and remainder by {@link BigInteger}.</li> <li>
+  *  {@link BigInteger} division and remainder by {@code int}.</li> <li><i>gcd</i>
+  *  between {@link BigInteger} numbers.</li> </ul> </li> <li><b>Modular
+  *  arithmetic </b> <ul type="circle"> <li>Modular exponentiation between
+  *  {@link BigInteger} numbers.</li> <li>Modular inverse of a {@link BigInteger}
+  *  numbers.</li> </ul> </li> </ul>
+  */
 private[math] object Division {
 
   private final val UINT_MAX = 0xffffffffL
 
   /** Divides an array by another array.
-   *
-   *  Divides the array 'a' by the array 'b' and gets the quotient and the
-   *  remainder. Implements the Knuth's division algorithm. See D. Knuth, The Art
-   *  of Computer Programming, vol. 2. Steps D1-D8 correspond the steps in the
-   *  algorithm description.
-   *
-   *  @param quot the quotient
-   *  @param quotLength the quotient's length
-   *  @param a the dividend
-   *  @param aLength the dividend's length
-   *  @param b the divisor
-   *  @param bLength the divisor's length
-   *  @return the remainder
-   */
-  def divide(quot: Array[Int], quotLength: Int, a: Array[Int], aLength: Int,
-      b: Array[Int], bLength: Int): Array[Int] = {
+    *
+    *  Divides the array 'a' by the array 'b' and gets the quotient and the
+    *  remainder. Implements the Knuth's division algorithm. See D. Knuth, The Art
+    *  of Computer Programming, vol. 2. Steps D1-D8 correspond the steps in the
+    *  algorithm description.
+    *
+    *  @param quot the quotient
+    *  @param quotLength the quotient's length
+    *  @param a the dividend
+    *  @param aLength the dividend's length
+    *  @param b the divisor
+    *  @param bLength the divisor's length
+    *  @return the remainder
+    */
+  def divide(quot: Array[Int],
+             quotLength: Int,
+             a: Array[Int],
+             aLength: Int,
+             b: Array[Int],
+             bLength: Int): Array[Int] = {
     val normA = new Array[Int](aLength + 1) // the normalized dividend an extra byte is needed for correct shift
     val normB = new Array[Int](bLength + 1) // the normalized divisor
     val normBLength = bLength
@@ -115,7 +119,7 @@ private[math] object Division {
         if (guessDigit != 0) {
           //var leftHand: Long = 0
           //var rightHand: Long = 0
-         // var rOverflowed = false
+          // var rOverflowed = false
           guessDigit += 1 // to have the proper value in the loop below
 
           @inline
@@ -128,7 +132,8 @@ private[math] object Division {
 
             // rightHand can overflow. In this case the loop condition will be
             // true in the next step of the loop
-            val rightHand: Long = (rem.toLong << 32) + (normA(j - 2) & UINT_MAX)
+            val rightHand
+              : Long = (rem.toLong << 32) + (normA(j - 2) & UINT_MAX)
             val longR: Long = (rem & UINT_MAX) + (firstDivisorDigit & UINT_MAX)
             // checks that longR does not fit in an unsigned int.
             // this ensures that rightHand will overflow unsigned long in the next step
@@ -146,7 +151,11 @@ private[math] object Division {
       // Step D4: multiply normB by guessDigit and subtract the production
       // from normA.
       if (guessDigit != 0) {
-        val borrow = Division.multiplyAndSubtract(normA, j - normBLength, normB, normBLength, guessDigit)
+        val borrow = Division.multiplyAndSubtract(normA,
+                                                  j - normBLength,
+                                                  normB,
+                                                  normBLength,
+                                                  guessDigit)
         // Step D5: check the borrow
         if (borrow != 0) {
           // Step D6: compensating addition
@@ -180,11 +189,12 @@ private[math] object Division {
   }
 
   /** Computes the quotient and the remainder after a division by an {@code Int}.
-   *
-   *  @return an array of the form {@code [quotient, remainder]}.
-   */
-  def divideAndRemainderByInteger(bi: BigInteger, divisor: Int,
-      divisorSign: Int): QuotAndRem = {
+    *
+    *  @return an array of the form {@code [quotient, remainder]}.
+    */
+  def divideAndRemainderByInteger(bi: BigInteger,
+                                  divisor: Int,
+                                  divisorSign: Int): QuotAndRem = {
     val valDigits = bi.digits
     val valLen = bi.numberLength
     val valSign = bi.sign
@@ -205,7 +215,8 @@ private[math] object Division {
       var remainderDigits: Array[Int] = Array()
       val div = divideArrayByInt(quotientDigits, valDigits, valLen, divisor)
       remainderDigits = Array(div)
-      val result0 = new BigInteger(quotientSign, quotientLength, quotientDigits)
+      val result0 =
+        new BigInteger(quotientSign, quotientLength, quotientDigits)
       val result1 = new BigInteger(valSign, 1, remainderDigits)
       result0.cutOffLeadingZeroes()
       result1.cutOffLeadingZeroes()
@@ -214,18 +225,20 @@ private[math] object Division {
   }
 
   /** Divides an array by an integer value.
-   *
-   *  Implements the Knuth's division algorithm.
-   *  See D. Knuth, The Art of Computer Programming, vol. 2.
-   *
-   *  @param dest the quotient
-   *  @param src the dividend
-   *  @param srcLength the length of the dividend
-   *  @param divisor the divisor
-   *  @return remainder
-   */
-  def divideArrayByInt(dest: Array[Int], src: Array[Int], srcLength: Int,
-      divisor: Int): Int = {
+    *
+    *  Implements the Knuth's division algorithm.
+    *  See D. Knuth, The Art of Computer Programming, vol. 2.
+    *
+    *  @param dest the quotient
+    *  @param src the dividend
+    *  @param srcLength the length of the dividend
+    *  @param divisor the divisor
+    *  @return remainder
+    */
+  def divideArrayByInt(dest: Array[Int],
+                       src: Array[Int],
+                       srcLength: Int,
+                       divisor: Int): Int = {
     var rem: Long = 0
     val bLong: Long = divisor & UINT_MAX
     var i = srcLength - 1
@@ -268,14 +281,14 @@ private[math] object Division {
   }
 
   /** Divides an unsigned long a by an unsigned int b.
-   *
-   *  It is supposed that the most significant bit of b is set to 1, i.e. b < 0
-   *
-   *  @param a the dividend
-   *  @param b the divisor
-   *  @return the long value containing the unsigned integer remainder in the
-   *          left half and the unsigned integer quotient in the right half
-   */
+    *
+    *  It is supposed that the most significant bit of b is set to 1, i.e. b < 0
+    *
+    *  @param a the dividend
+    *  @param b the divisor
+    *  @return the long value containing the unsigned integer remainder in the
+    *          left half and the unsigned integer quotient in the right half
+    */
   def divideLongByInt(a: Long, b: Int): Long = {
     var quot: Long = 0L
     var rem: Long = 0L
@@ -312,17 +325,18 @@ private[math] object Division {
   }
 
   /** Performs modular exponentiation using the Montgomery Reduction.
-   *
-   *  It requires that all parameters be positive and the modulus be even.
-   *  Based <i>The square and multiply algorithm and the Montgomery Reduction C. K. Koc -
-   *  Montgomery Reduction with Even Modulus</i>. The square and multiply
-   *  algorithm and the Montgomery Reduction.
-   *
-   *  @ar.org.fitc.ref "C. K. Koc - Montgomery Reduction with Even Modulus"
-   *  @see BigInteger#modPow(BigInteger, BigInteger)
-   */
-  def evenModPow(base: BigInteger, exponent: BigInteger,
-      modulus: BigInteger): BigInteger = {
+    *
+    *  It requires that all parameters be positive and the modulus be even.
+    *  Based <i>The square and multiply algorithm and the Montgomery Reduction C. K. Koc -
+    *  Montgomery Reduction with Even Modulus</i>. The square and multiply
+    *  algorithm and the Montgomery Reduction.
+    *
+    *  @ar.org.fitc.ref "C. K. Koc - Montgomery Reduction with Even Modulus"
+    *  @see BigInteger#modPow(BigInteger, BigInteger)
+    */
+  def evenModPow(base: BigInteger,
+                 exponent: BigInteger,
+                 modulus: BigInteger): BigInteger = {
     // STEP 1: Obtain the factorization 'modulus'= q * 2^j.
     val j = modulus.getLowestSetBit
     val q = modulus.shiftRight(j)
@@ -345,10 +359,10 @@ private[math] object Division {
   }
 
   /** Performs the final reduction of the Montgomery algorithm.
-   *
-   *  @see #monPro(BigInteger, BigInteger, BigInteger, long)
-   *  @see #monSquare(BigInteger, BigInteger, long)
-   */
+    *
+    *  @see #monPro(BigInteger, BigInteger, BigInteger, long)
+    *  @see #monSquare(BigInteger, BigInteger, long)
+    */
   def finalSubtraction(res: Array[Int], modulus: BigInteger): BigInteger = {
     // skipping leading zeros
     val modulusLen = modulus.numberLength
@@ -376,12 +390,12 @@ private[math] object Division {
   }
 
   /** Return the greatest common divisor of two BigIntegers
-   *
-   *  @param val1 must be greater than zero
-   *  @param val2 must be greater than zero
-   *  @see BigInteger#gcd(BigInteger)
-   *  @return {@code GCD(val1, val2)}
-   */
+    *
+    *  @param val1 must be greater than zero
+    *  @param val2 must be greater than zero
+    *  @see BigInteger#gcd(BigInteger)
+    *  @return {@code GCD(val1, val2)}
+    */
   def gcdBinary(val1: BigInteger, val2: BigInteger): BigInteger = {
     var op1 = val1
     var op2 = val2
@@ -411,7 +425,8 @@ private[math] object Division {
       // Optimization for small operands
       // (op2.bitLength() < 32) implies by INV (op1.bitLength() < 32)
       if ((op2.numberLength == 1) && (op2.digits(0) > 0)) {
-        op2 = BigInteger.valueOf(Division.gcdBinary(op1.intValue(), op2.intValue()))
+        op2 = BigInteger.valueOf(
+          Division.gcdBinary(op1.intValue(), op2.intValue()))
       } else {
         // Implements one step of the Euclidean algorithm
         // To reduce one operand if it's much smaller than the other one
@@ -441,15 +456,15 @@ private[math] object Division {
   }
 
   /** Return the greatest common divisor of two, positive BigIntegers.
-   *
-   *  Performs the same as {@link #gcdBinary(BigInteger, BigInteger)}, but with
-   *  numbers of 31 bits, represented in positives values of {@code Int} type.
-   *
-   *  @param val1 a positive number
-   *  @param val2 a positive number
-   *  @see #gcdBinary(BigInteger, BigInteger)
-   *  @return <code>GCD(val1, val2)</code>
-   */
+    *
+    *  Performs the same as {@link #gcdBinary(BigInteger, BigInteger)}, but with
+    *  numbers of 31 bits, represented in positives values of {@code Int} type.
+    *
+    *  @param val1 a positive number
+    *  @param val2 a positive number
+    *  @see #gcdBinary(BigInteger, BigInteger)
+    *  @return <code>GCD(val1, val2)</code>
+    */
   def gcdBinary(val1: Int, val2: Int): Int = {
     var op1 = val1
     var op2 = val2
@@ -475,10 +490,10 @@ private[math] object Division {
   }
 
   /** Performs {@code x = x mod (2<sup>n</sup>)}.
-   *
-   *  @param x a positive number, it will store the result.
-   *  @param n a positive exponent of {@code 2}.
-   */
+    *
+    *  @param x a positive number, it will store the result.
+    *  @param n a positive exponent of {@code 2}.
+    */
   def inplaceModPow2(x: BigInteger, n: Int): Unit = {
     val fd = n >> 5
     var leadingZeros: Int = 0
@@ -494,12 +509,12 @@ private[math] object Division {
   }
 
   /** Calculates a modInverse based on the Lórencz algorithm.
-   *
-   *  Based on "New Algorithm for Classical Modular Inverse" Róbert Lórencz. LNCS
-   *  2523 (2002)
-   *
-   *  @return a^(-1) mod m
-   */
+    *
+    *  Based on "New Algorithm for Classical Modular Inverse" Róbert Lórencz. LNCS
+    *  2523 (2002)
+    *
+    *  @return a^(-1) mod m
+    */
   def modInverseLorencz(a: BigInteger, modulo: BigInteger): BigInteger = {
     val max = Math.max(a.numberLength, modulo.numberLength)
     val uDigits = new Array[Int](max + 1) // enough place to make all the inplace operation
@@ -579,10 +594,10 @@ private[math] object Division {
   }
 
   /** Calculates modInverse based on Savas algorithm
-   *
-   *  Calculates a.modInverse(p) Based on: Savas, E; Koc, C "The Montgomery
-   *  Modular Inverse - Revised".
-   */
+    *
+    *  Calculates a.modInverse(p) Based on: Savas, E; Koc, C "The Montgomery
+    *  Modular Inverse - Revised".
+    */
   def modInverseMontgomery(a: BigInteger, p: BigInteger): BigInteger = {
     if (a.sign == 0) // ZERO hasn't inverse
       throw new ArithmeticException("BigInteger not invertible.")
@@ -651,18 +666,18 @@ private[math] object Division {
     val n1 = calcN(p)
     if (k > m) {
       val r2 = monPro(p.subtract(r), BigInteger.ONE, p, n1)
-      monPro(r2, BigInteger.getPowerOfTwo(2*m - k), p, n1)
+      monPro(r2, BigInteger.getPowerOfTwo(2 * m - k), p, n1)
     } else {
       monPro(p.subtract(r), BigInteger.getPowerOfTwo(m - k), p, n1)
     }
   }
 
   /** Calculates a modInverse raised to the power of two.
-   *
-   *  @param x an odd positive number.
-   *  @param n the exponent by which 2 is raised.
-   *  @return {@code x<sup>-1</sup> (mod 2<sup>n</sup>)}.
-   */
+    *
+    *  @param x an odd positive number.
+    *  @param n the exponent by which 2 is raised.
+    *  @return {@code x<sup>-1</sup> (mod 2<sup>n</sup>)}.
+    */
   def modPow2Inverse(x: BigInteger, n: Int): BigInteger = {
     val y = new BigInteger(1, new Array[Int](1 << n))
     y.numberLength = 1
@@ -677,20 +692,22 @@ private[math] object Division {
   }
 
   /** The Montgomery Product of two integers.
-   *
-   *  Implements the Montgomery Product of two integers represented by {@code
-   *  int} arrays. The arrays are supposed in <i>little endian</i> notation.
-   *
-   *  @param a The first factor of the product.
-   *  @param b The second factor of the product.
-   *  @param modulus The modulus of the operations. Z<sub>modulus</sub>.
-   *  @param n2 The digit modulus'[0].
-   *  @ar.org.fitc.ref "C. K. Koc - Analyzing and Comparing Montgomery
-   *                   Multiplication Algorithms"
-   *  @see #modPowOdd(BigInteger, BigInteger, BigInteger)
-   */
-  def monPro(a: BigInteger, b: BigInteger, modulus: BigInteger,
-      n2: Int): BigInteger = {
+    *
+    *  Implements the Montgomery Product of two integers represented by {@code
+    *  int} arrays. The arrays are supposed in <i>little endian</i> notation.
+    *
+    *  @param a The first factor of the product.
+    *  @param b The second factor of the product.
+    *  @param modulus The modulus of the operations. Z<sub>modulus</sub>.
+    *  @param n2 The digit modulus'[0].
+    *  @ar.org.fitc.ref "C. K. Koc - Analyzing and Comparing Montgomery
+    *                   Multiplication Algorithms"
+    *  @see #modPowOdd(BigInteger, BigInteger, BigInteger)
+    */
+  def monPro(a: BigInteger,
+             b: BigInteger,
+             modulus: BigInteger,
+             n2: Int): BigInteger = {
     val modulusLen = modulus.numberLength
     val res = new Array[Int]((modulusLen << 1) + 1)
 
@@ -703,18 +720,21 @@ private[math] object Division {
   }
 
   /** Multiplies an array and subtracts it from a subarray of another array.
-   *
-   *  @param a the array to subtract from
-   *  @param start the start element of the subarray of a
-   *  @param b the array to be multiplied and subtracted
-   *  @param bLen the length of b
-   *  @param c the multiplier of b
-   *  @return the carry element of subtraction
-   */
-  def multiplyAndSubtract(a: Array[Int], start: Int, b: Array[Int],
-      bLen: Int, c: Int): Int = {
-    var carry0:Long = 0
-    var carry1:Long = 0
+    *
+    *  @param a the array to subtract from
+    *  @param start the start element of the subarray of a
+    *  @param b the array to be multiplied and subtracted
+    *  @param bLen the length of b
+    *  @param c the multiplier of b
+    *  @return the carry element of subtraction
+    */
+  def multiplyAndSubtract(a: Array[Int],
+                          start: Int,
+                          b: Array[Int],
+                          bLen: Int,
+                          c: Int): Int = {
+    var carry0: Long = 0
+    var carry1: Long = 0
     for (i <- 0 until bLen) {
       carry0 = Multiplication.unsignedMultAddAdd(b(i), c, carry0.toInt, 0)
       carry1 = (a(start + i) & UINT_MAX) - (carry0 & UINT_MAX) + carry1
@@ -729,17 +749,18 @@ private[math] object Division {
   }
 
   /** Performs modular exponentiation using the Montgomery Reduction.
-   *
-   *  It requires that all parameters be positive and the modulus be odd.
-   *
-   *  @see BigInteger#modPow(BigInteger, BigInteger)
-   *  @see #monPro(BigInteger, BigInteger, BigInteger, int)
-   *  @see #slidingWindow(BigInteger, BigInteger, BigInteger, BigInteger, int)
-   *  @see #squareAndMultiply(BigInteger, BigInteger, BigInteger, BigInteger,
-   *       int)
-   */
-  def oddModPow(base: BigInteger, exponent: BigInteger,
-      modulus: BigInteger): BigInteger = {
+    *
+    *  It requires that all parameters be positive and the modulus be odd.
+    *
+    *  @see BigInteger#modPow(BigInteger, BigInteger)
+    *  @see #monPro(BigInteger, BigInteger, BigInteger, int)
+    *  @see #slidingWindow(BigInteger, BigInteger, BigInteger, BigInteger, int)
+    *  @see #squareAndMultiply(BigInteger, BigInteger, BigInteger, BigInteger,
+    *       int)
+    */
+  def oddModPow(base: BigInteger,
+                exponent: BigInteger,
+                modulus: BigInteger): BigInteger = {
     val k = modulus.numberLength << 5
     // n-residue of base [base * r (mod modulus)]
     val a2 = base.shiftLeft(k).mod(modulus)
@@ -749,18 +770,19 @@ private[math] object Division {
     // Compute (modulus[0]^(-1)) (mod 2^32) for odd modulus
     val n2 = calcN(modulus)
     val res =
-      if (modulus.numberLength == 1) squareAndMultiply(x2, a2, exponent, modulus, n2)
+      if (modulus.numberLength == 1)
+        squareAndMultiply(x2, a2, exponent, modulus, n2)
       else slidingWindow(x2, a2, exponent, modulus, n2)
     monPro(res, BigInteger.ONE, modulus, n2)
   }
 
   /** Performs {@code base<sup>exponent</sup> mod (2<sup>j</sup>)}.
-   *
-   *  It requires that all parameters be positive.
-   *
-   *  @return {@code base<sup>exponent</sup> mod (2<sup>j</sup>)}.
-   *  @see BigInteger#modPow(BigInteger, BigInteger)
-   */
+    *
+    *  It requires that all parameters be positive.
+    *
+    *  @return {@code base<sup>exponent</sup> mod (2<sup>j</sup>)}.
+    *  @see BigInteger#modPow(BigInteger, BigInteger)
+    */
   def pow2ModPow(base: BigInteger, exponent: BigInteger, j: Int): BigInteger = {
     var res = BigInteger.ONE
     val e = exponent.copy()
@@ -789,26 +811,26 @@ private[math] object Division {
   }
 
   /** Divides a <code>BigInteger</code> by a signed <code>Int</code>.
-   *
-   *  Returns the remainder.
-   *
-   *  @param dividend the BigInteger to be divided. Must be non-negative.
-   *  @param divisor a signed int
-   *  @return divide % divisor
-   */
+    *
+    *  Returns the remainder.
+    *
+    *  @param dividend the BigInteger to be divided. Must be non-negative.
+    *  @param divisor a signed int
+    *  @return divide % divisor
+    */
   def remainder(dividend: BigInteger, divisor: Int): Int =
     remainderArrayByInt(dividend.digits, dividend.numberLength, divisor)
 
   /** Divides an array by an integer value.
-   *
-   *  Implements the Knuth's division algorithm.
-   *  See D. Knuth, The Art of Computer Programming, vol. 2.
-   *
-   *  @param src the dividend
-   *  @param srcLength the length of the dividend
-   *  @param divisor the divisor
-   *  @return remainder
-   */
+    *
+    *  Implements the Knuth's division algorithm.
+    *  See D. Knuth, The Art of Computer Programming, vol. 2.
+    *
+    *  @param src the dividend
+    *  @param srcLength the length of the dividend
+    *  @param divisor the divisor
+    *  @return remainder
+    */
   def remainderArrayByInt(src: Array[Int], srcLength: Int, divisor: Int): Int = {
     var result: Long = 0
     var i = srcLength - 1
@@ -822,18 +844,21 @@ private[math] object Division {
   }
 
   /** The Montgomery modular exponentiation.
-   *
-   *  Implements the Montgomery modular exponentiation based in <i>The sliding
-   *  windows algorithm and the MongomeryReduction</i>.
-   *
-   *  @ar.org.fitc.ref
-   *  "A. Menezes,P. van Oorschot, S. Vanstone - Handbook of Applied Cryptography"
-   *  ;
-   *
-   *  @see #oddModPow(BigInteger, BigInteger, BigInteger)
-   */
-  def slidingWindow(x2: BigInteger, a2: BigInteger, exponent: BigInteger,
-      modulus: BigInteger, n2: Int): BigInteger = {
+    *
+    *  Implements the Montgomery modular exponentiation based in <i>The sliding
+    *  windows algorithm and the MongomeryReduction</i>.
+    *
+    *  @ar.org.fitc.ref
+    *  "A. Menezes,P. van Oorschot, S. Vanstone - Handbook of Applied Cryptography"
+    *  ;
+    *
+    *  @see #oddModPow(BigInteger, BigInteger, BigInteger)
+    */
+  def slidingWindow(x2: BigInteger,
+                    a2: BigInteger,
+                    exponent: BigInteger,
+                    modulus: BigInteger,
+                    n2: Int): BigInteger = {
     // fill odd low pows of a2
     val pows = new Array[BigInteger](8)
     var res: BigInteger = x2
@@ -879,8 +904,11 @@ private[math] object Division {
     res
   }
 
-  def squareAndMultiply(x2: BigInteger, a2: BigInteger, exponent: BigInteger,
-      modulus: BigInteger, n2: Int): BigInteger = {
+  def squareAndMultiply(x2: BigInteger,
+                        a2: BigInteger,
+                        exponent: BigInteger,
+                        modulus: BigInteger,
+                        n2: Int): BigInteger = {
     var res = x2
     var i = exponent.bitLength() - 1
     while (i >= 0) {
@@ -907,11 +935,11 @@ private[math] object Division {
   }
 
   /** How many iteration of Lorencz's algorithm would perform the same operation.
-   *
-   *  @param bi
-   *  @param n
-   *  @return
-   */
+    *
+    *  @param bi
+    *  @param n
+    *  @return
+    */
   private def howManyIterations(bi: BigInteger, n: Int): Int = {
     var i = n - 1
     if (bi.sign > 0) {
@@ -926,7 +954,6 @@ private[math] object Division {
       n - 1 - Math.max(i, bi.getLowestSetBit)
     }
   }
-
 
   /** Returns {@code bi == abs(2^exp)}. */
   private def isPowerOfTwo(bi: BigInteger, exp: Int): Boolean = {
@@ -944,7 +971,9 @@ private[math] object Division {
     result
   }
 
-  private def monReduction(res: Array[Int], modulus: BigInteger, n2: Int): Unit = {
+  private def monReduction(res: Array[Int],
+                           modulus: BigInteger,
+                           n2: Int): Unit = {
     import Multiplication._
 
     val modulusDigits = modulus.digits
@@ -954,7 +983,10 @@ private[math] object Division {
       var innnerCarry: Long = 0
       val m = Multiplication.unsignedMultAddAdd(res(i), n2, 0, 0).toInt
       for (j <- 0 until modulusLen) {
-        innnerCarry = unsignedMultAddAdd(m, modulusDigits(j), res(i + j), innnerCarry.toInt)
+        innnerCarry = unsignedMultAddAdd(m,
+                                         modulusDigits(j),
+                                         res(i + j),
+                                         innnerCarry.toInt)
         res(i + j) = innnerCarry.toInt
         innnerCarry >>>= 32
       }
@@ -968,4 +1000,3 @@ private[math] object Division {
     }
   }
 }
-

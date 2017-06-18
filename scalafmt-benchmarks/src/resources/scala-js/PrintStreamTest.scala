@@ -14,8 +14,8 @@ import org.junit.Assert._
 import org.scalajs.testsuite.utils.Platform.executingInJVM
 
 class PrintStreamTest {
-  private def newPrintStream(
-      autoFlush: Boolean = false): (MockPrintStream, MockByteArrayOutputStream) = {
+  private def newPrintStream(autoFlush: Boolean = false)
+    : (MockPrintStream, MockByteArrayOutputStream) = {
     val bos = new MockByteArrayOutputStream
     val ps = new MockPrintStream(bos, autoFlush)
     (ps, bos)
@@ -61,8 +61,9 @@ class PrintStreamTest {
   }
 
   @Test def write_pass_the_bytes_through(): Unit = {
-    def test(body: PrintStream => Unit, expected: Array[Int],
-        testFlushed: Boolean = false): Unit = {
+    def test(body: PrintStream => Unit,
+             expected: Array[Int],
+             testFlushed: Boolean = false): Unit = {
       val (ps, bos) = newPrintStream(autoFlush = true)
       body(ps)
       if (testFlushed)
@@ -75,15 +76,17 @@ class PrintStreamTest {
     test(_.write('\n'), Array('\n'), testFlushed = true)
     test(_.write(Array[Byte]('A', '\n')), Array('A', '\n'), testFlushed = true)
     test(_.write(Array[Byte]('A', 'B', '\n', 'C'), 1, 2),
-        Array('B', '\n'), testFlushed = true)
+         Array('B', '\n'),
+         testFlushed = true)
 
     test(_.write('é'.toByte), Array('é'))
     test(_.write(Array[Byte]('é'.toByte, 'à'.toByte)), Array('é', 'à'))
   }
 
   @Test def print(): Unit = {
-    def test(body: PrintStream => Unit, expected: String,
-        testFlushed: Boolean = false): Unit = {
+    def test(body: PrintStream => Unit,
+             expected: String,
+             testFlushed: Boolean = false): Unit = {
       val (ps, bos) = newPrintStream(autoFlush = true)
       body(ps)
       if (testFlushed)
@@ -115,35 +118,47 @@ class PrintStreamTest {
     }
 
     test(_.print('é'), Array(0xc3, 0xa9))
-    test(_.print("こんにちは"), Array(
-        0xe3, 0x81, 0x93, 0xe3, 0x82, 0x93, 0xe3, 0x81, 0xab, 0xe3, 0x81, 0xa1, 0xe3, 0x81, 0xaf))
-    test(_.print("ημέρ"), Array(0xce, 0xb7, 0xce, 0xbc, 0xce, 0xad, 0xcf, 0x81))
+    test(_.print("こんにちは"),
+         Array(0xe3, 0x81, 0x93, 0xe3, 0x82, 0x93, 0xe3, 0x81, 0xab, 0xe3,
+           0x81, 0xa1, 0xe3, 0x81, 0xaf))
+    test(_.print("ημέρ"),
+         Array(0xce, 0xb7, 0xce, 0xbc, 0xce, 0xad, 0xcf, 0x81))
 
     test(_.print("\ud83d\udca9"), Array(0xf0, 0x9f, 0x92, 0xa9))
     test(_.print("b\ud83d\udca9c"), Array('b', 0xf0, 0x9f, 0x92, 0xa9, 'c'))
 
-    test({ osw => osw.print("ab\ud83d"); osw.print('\udca9') },
-        Array('a', 'b', 0xf0, 0x9f, 0x92, 0xa9))
+    test({ osw =>
+      osw.print("ab\ud83d"); osw.print('\udca9')
+    }, Array('a', 'b', 0xf0, 0x9f, 0x92, 0xa9))
 
-    test({ osw => osw.print("ab\ud83d"); osw.print("\udca9cd") },
-        Array('a', 'b', 0xf0, 0x9f, 0x92, 0xa9, 'c', 'd'))
+    test({ osw =>
+      osw.print("ab\ud83d"); osw.print("\udca9cd")
+    }, Array('a', 'b', 0xf0, 0x9f, 0x92, 0xa9, 'c', 'd'))
 
     // Start of malformed sequences
 
     test(_.print("\ud83da"), Array('?', 'a'))
     test(_.print("\udca9"), Array('?'))
 
-    test({ osw => osw.print('\ud83d'); osw.print('a') }, Array('?', 'a'))
+    test({ osw =>
+      osw.print('\ud83d'); osw.print('a')
+    }, Array('?', 'a'))
 
-    test({ osw => osw.print("ab\ud83d"); osw.print("\ud83d") },
-        Array('a', 'b', '?'))
+    test({ osw =>
+      osw.print("ab\ud83d"); osw.print("\ud83d")
+    }, Array('a', 'b', '?'))
 
-    test({ osw => osw.print("ab\ud83d"); osw.print("\ud83dc") },
-        Array('a', 'b', '?', '?', 'c'))
+    test({ osw =>
+      osw.print("ab\ud83d"); osw.print("\ud83dc")
+    }, Array('a', 'b', '?', '?', 'c'))
 
-    test({ osw => osw.print('\ud83d'); osw.close() }, Array('?'))
+    test({ osw =>
+      osw.print('\ud83d'); osw.close()
+    }, Array('?'))
 
-    test({ osw => osw.print("ab\ud83d"); osw.close() }, Array('a', 'b', '?'))
+    test({ osw =>
+      osw.print("ab\ud83d"); osw.close()
+    }, Array('a', 'b', '?'))
   }
 
   @Test def println_forwards_and_flushes_when_autoFlush_is_true(): Unit = {
@@ -152,9 +167,13 @@ class PrintStreamTest {
     testPrintlnForwards(_.println('Z'), "Z\n", autoFlush = true)
     testPrintlnForwards(_.println('\n'), "\n\n", autoFlush = true)
     testPrintlnForwards(_.println(5), "5\n", autoFlush = true)
-    testPrintlnForwards(_.println(1234567891011L), "1234567891011\n", autoFlush = true)
+    testPrintlnForwards(_.println(1234567891011L),
+                        "1234567891011\n",
+                        autoFlush = true)
     testPrintlnForwards(_.println(1.5f), "1.5\n", autoFlush = true)
-    testPrintlnForwards(_.println(Math.PI), "3.141592653589793\n", autoFlush = true)
+    testPrintlnForwards(_.println(Math.PI),
+                        "3.141592653589793\n",
+                        autoFlush = true)
     testPrintlnForwards(_.println(Array('A', '\n')), "A\n\n", autoFlush = true)
     testPrintlnForwards(_.println("hello\n"), "hello\n\n", autoFlush = true)
     testPrintlnForwards(_.println(null: String), "null\n", autoFlush = true)
@@ -168,47 +187,61 @@ class PrintStreamTest {
     testPrintlnForwards(_.println('Z'), "Z\n", autoFlush = false)
     testPrintlnForwards(_.println('\n'), "\n\n", autoFlush = false)
     testPrintlnForwards(_.println(5), "5\n", autoFlush = false)
-    testPrintlnForwards(_.println(1234567891011L), "1234567891011\n", autoFlush = false)
+    testPrintlnForwards(_.println(1234567891011L),
+                        "1234567891011\n",
+                        autoFlush = false)
     testPrintlnForwards(_.println(1.5f), "1.5\n", autoFlush = false)
-    testPrintlnForwards(_.println(Math.PI), "3.141592653589793\n", autoFlush = false)
-    testPrintlnForwards(_.println(Array('A', '\n')), "A\n\n", autoFlush = false)
+    testPrintlnForwards(_.println(Math.PI),
+                        "3.141592653589793\n",
+                        autoFlush = false)
+    testPrintlnForwards(_.println(Array('A', '\n')),
+                        "A\n\n",
+                        autoFlush = false)
     testPrintlnForwards(_.println("hello\n"), "hello\n\n", autoFlush = false)
     testPrintlnForwards(_.println(null: String), "null\n", autoFlush = false)
     testPrintlnForwards(_.println((1, 2)), "(1,2)\n", autoFlush = false)
     testPrintlnForwards(_.println(null: AnyRef), "null\n", autoFlush = false)
   }
 
-  private def testPrintlnForwards(body: PrintStream => Unit, expected: String, autoFlush: Boolean): Unit = {
+  private def testPrintlnForwards(body: PrintStream => Unit,
+                                  expected: String,
+                                  autoFlush: Boolean): Unit = {
     val (ps, bos) = newPrintStream(autoFlush = autoFlush)
     body(ps)
     if (autoFlush) assertTrue(bos.flushed)
-    else           assertFalse(bos.flushed)
+    else assertFalse(bos.flushed)
     assertFalse(ps.checkError())
     assertEquals(expected, bos.toString())
   }
 
   @Test def printf_format_which_flushes_when_autoFlush_is_true(): Unit = {
     testPrintfFormat(_.printf("%04d", Int.box(5)), "0005", autoFlush = true)
-    testPrintfFormat(_.format("%.5f", Double.box(Math.PI)), "3.14159", autoFlush = true)
+    testPrintfFormat(_.format("%.5f", Double.box(Math.PI)),
+                     "3.14159",
+                     autoFlush = true)
   }
   @Test def printf_format_which_flushes_when_autoFlush_is_false(): Unit = {
     testPrintfFormat(_.printf("%04d", Int.box(5)), "0005", autoFlush = false)
-    testPrintfFormat(_.format("%.5f", Double.box(Math.PI)), "3.14159", autoFlush = false)
+    testPrintfFormat(_.format("%.5f", Double.box(Math.PI)),
+                     "3.14159",
+                     autoFlush = false)
   }
 
-  private def testPrintfFormat(body: PrintStream => Unit, expected: String,
-      autoFlush: Boolean): Unit = {
+  private def testPrintfFormat(body: PrintStream => Unit,
+                               expected: String,
+                               autoFlush: Boolean): Unit = {
     val (ps, bos) = newPrintStream(autoFlush = autoFlush)
     body(ps)
     if (autoFlush) assertTrue(bos.flushed)
-    else           assertFalse(bos.flushed)
+    else assertFalse(bos.flushed)
     assertFalse(ps.checkError())
     assertEquals(expected, bos.toString())
   }
 
   @Test def append(): Unit = {
-    def test(body: PrintStream => Unit, expected: String,
-        testFlushed: Boolean = false): Unit = {
+    def test(body: PrintStream => Unit,
+             expected: String,
+             testFlushed: Boolean = false): Unit = {
       val (ps, bos) = newPrintStream(autoFlush = true)
       body(ps)
       if (testFlushed)
@@ -286,12 +319,13 @@ class PrintStreamTest {
     ps.write('Z')
     assertArrayEquals(Array[Byte]('A', 'Z'), bos.toByteArray)
     ps.print('\udca9')
-    assertArrayEquals(Array[Byte]('A', 'Z', -16, -97, -110, -87), bos.toByteArray)
+    assertArrayEquals(Array[Byte]('A', 'Z', -16, -97, -110, -87),
+                      bos.toByteArray)
   }
 
   /** A PrintStream that exposes various hooks for testing purposes. */
-  private class MockPrintStream(out: OutputStream,
-      autoFlush: Boolean) extends PrintStream(out, autoFlush) {
+  private class MockPrintStream(out: OutputStream, autoFlush: Boolean)
+      extends PrintStream(out, autoFlush) {
     def this(out: OutputStream) = this(out, false)
 
     override def clearError(): Unit = super.clearError()

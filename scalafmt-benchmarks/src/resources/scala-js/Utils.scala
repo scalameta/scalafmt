@@ -6,7 +6,6 @@
 **                          |/____/                                     **
 \*                                                                      */
 
-
 package org.scalajs.core.ir
 
 import java.io.StringWriter
@@ -25,7 +24,7 @@ object Utils {
 
     if (base.isOpaque || !base.isAbsolute || base.getRawPath == null ||
         trgt.isOpaque || !trgt.isAbsolute || trgt.getRawPath == null ||
-        base.getScheme != trgt.getScheme  ||
+        base.getScheme != trgt.getScheme ||
         base.getRawAuthority != trgt.getRawAuthority)
       trgt
     else {
@@ -45,8 +44,8 @@ object Utils {
   }
 
   /** Adds an empty authority to URIs with the "file" scheme without authority.
-   *  Some browsers don't fetch URIs without authority correctly.
-   */
+    *  Some browsers don't fetch URIs without authority correctly.
+    */
   def fixFileURI(uri: URI): URI =
     if (uri.getScheme() != "file" || uri.getAuthority() != null) uri
     else new URI("file", "", uri.getPath(), uri.getQuery(), uri.getFragment())
@@ -116,12 +115,12 @@ object Utils {
   }
 
   /** A ByteArrayOutput stream that allows to jump back to a given
-   *  position and complete some bytes. Methods must be called in the
-   *  following order only:
-   *  - [[markJump]]
-   *  - [[jumpBack]]
-   *  - [[continue]]
-   */
+    *  position and complete some bytes. Methods must be called in the
+    *  following order only:
+    *  - [[markJump]]
+    *  - [[jumpBack]]
+    *  - [[continue]]
+    */
   private[ir] class JumpBackByteArrayOutputStream
       extends java.io.ByteArrayOutputStream {
     protected var jumpBackPos: Int = -1
