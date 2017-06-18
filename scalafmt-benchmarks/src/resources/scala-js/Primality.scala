@@ -45,54 +45,48 @@ import java.util.Random
 
 /** Provides primality probabilistic methods. */
 private[math] object Primality {
-  private val Bits = Array(0, 0, 1854, 1233, 927, 747, 627, 543, 480, 431, 393,
-    361, 335, 314, 295, 279, 265, 253, 242, 232, 223, 216, 181, 169, 158, 150,
-    145, 140, 136, 132, 127, 123, 119, 114, 110, 105, 101, 96, 92, 87, 83, 78,
-    73, 69, 64, 59, 54, 49, 44, 38, 32, 26, 1)
+  private val Bits = Array(
+      0, 0, 1854, 1233, 927, 747, 627, 543, 480, 431, 393, 361, 335, 314, 295,
+      279, 265, 253, 242, 232, 223, 216, 181, 169, 158, 150, 145, 140, 136,
+      132, 127, 123, 119, 114, 110, 105, 101, 96, 92, 87, 83, 78, 73, 69, 64,
+      59, 54, 49, 44, 38, 32, 26, 1)
 
   /** All prime numbers with bit length lesser than 10 bits. */
-  private val Primes = Array[Int](2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37,
-    41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109,
-    113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193,
-    197, 199, 211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277,
-    281, 283, 293, 307, 311, 313, 317, 331, 337, 347, 349, 353, 359, 367, 373,
-    379, 383, 389, 397, 401, 409, 419, 421, 431, 433, 439, 443, 449, 457, 461,
-    463, 467, 479, 487, 491, 499, 503, 509, 521, 523, 541, 547, 557, 563, 569,
-    571, 577, 587, 593, 599, 601, 607, 613, 617, 619, 631, 641, 643, 647, 653,
-    659, 661, 673, 677, 683, 691, 701, 709, 719, 727, 733, 739, 743, 751, 757,
-    761, 769, 773, 787, 797, 809, 811, 821, 823, 827, 829, 839, 853, 857, 859,
-    863, 877, 881, 883, 887, 907, 911, 919, 929, 937, 941, 947, 953, 967, 971,
-    977, 983, 991, 997, 1009, 1013, 1019, 1021)
+  private val Primes = Array[Int](2, 3, 5, 7, 11, 13, 17, 19, 23, 29,
+      31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101,
+      103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167,
+      173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239,
+      241, 251, 257, 263, 269, 271, 277, 281, 283, 293, 307, 311, 313,
+      317, 331, 337, 347, 349, 353, 359, 367, 373, 379, 383, 389, 397,
+      401, 409, 419, 421, 431, 433, 439, 443, 449, 457, 461, 463, 467,
+      479, 487, 491, 499, 503, 509, 521, 523, 541, 547, 557, 563, 569,
+      571, 577, 587, 593, 599, 601, 607, 613, 617, 619, 631, 641, 643,
+      647, 653, 659, 661, 673, 677, 683, 691, 701, 709, 719, 727, 733,
+      739, 743, 751, 757, 761, 769, 773, 787, 797, 809, 811, 821, 823,
+      827, 829, 839, 853, 857, 859, 863, 877, 881, 883, 887, 907, 911,
+      919, 929, 937, 941, 947, 953, 967, 971, 977, 983, 991, 997, 1009,
+      1013, 1019, 1021)
 
   /** Encodes how many i-bit primes there are in the table for {@code i=2,...,10}.
-    *
-    *  For example {@code offsetPrimes[6]} says that from index
-    *  {@code 11} exists {@code 7} consecutive {@code 6}-bit prime numbers in the
-    *  array.
-    */
-  private val OffsetPrimes = Array(null,
-                                   null,
-                                   (0, 2),
-                                   (2, 2),
-                                   (4, 2),
-                                   (6, 5),
-                                   (11, 7),
-                                   (18, 13),
-                                   (31, 23),
-                                   (54, 43),
-                                   (97, 75))
+   *
+   *  For example {@code offsetPrimes[6]} says that from index
+   *  {@code 11} exists {@code 7} consecutive {@code 6}-bit prime numbers in the
+   *  array.
+   */
+  private val OffsetPrimes = Array(
+      null, null, (0, 2), (2, 2), (4, 2), (6, 5), (11, 7),
+      (18, 13), (31, 23), (54, 43), (97, 75))
 
   /** All {@code BigInteger} prime numbers with bit length lesser than 8 bits. */
   private val BiPrimes =
-    Array.tabulate[BigInteger](Primes.length)(i =>
-      BigInteger.valueOf(Primes(i)))
+    Array.tabulate[BigInteger](Primes.length)(i => BigInteger.valueOf(Primes(i)))
 
   /** A random number is generated until a probable prime number is found.
-    *
-    *  @see BigInteger#BigInteger(int,int,Random)
-    *  @see BigInteger#probablePrime(int,Random)
-    *  @see #isProbablePrime(BigInteger, int)
-    */
+   *
+   *  @see BigInteger#BigInteger(int,int,Random)
+   *  @see BigInteger#probablePrime(int,Random)
+   *  @see #isProbablePrime(BigInteger, int)
+   */
   def consBigInteger(bitLength: Int, certainty: Int, rnd: Random): BigInteger = {
     // PRE: bitLength >= 2
     // For small numbers get a random prime from the prime table
@@ -120,12 +114,12 @@ private[math] object Primality {
   }
 
   /** Returns true if this is a prime, within the provided certainty.
-    *
-    *  @see BigInteger#isProbablePrime(int)
-    *  @see #millerRabin(BigInteger, int)
-    *  @ar.org.fitc.ref Optimizations: "A. Menezes - Handbook of applied
-    *                   Cryptography, Chapter 4".
-    */
+   *
+   *  @see BigInteger#isProbablePrime(int)
+   *  @see #millerRabin(BigInteger, int)
+   *  @ar.org.fitc.ref Optimizations: "A. Menezes - Handbook of applied
+   *                   Cryptography, Chapter 4".
+   */
   def isProbablePrime(n: BigInteger, certainty: Int): Boolean = {
     // scalastyle:off return
     // PRE: n >= 0
@@ -158,15 +152,15 @@ private[math] object Primality {
   }
 
   /** Returns the next, probable prime number.
-    *
-    *  It uses the sieve of Eratosthenes to discard several composite numbers in
-    *  some appropriate range (at the moment {@code [this, this + 1024]}). After
-    *  this process it applies the Miller-Rabin test to the numbers that were not
-    *  discarded in the sieve.
-    *
-    *  @see BigInteger#nextProbablePrime()
-    *  @see #millerRabin(BigInteger, int)
-    */
+   *
+   *  It uses the sieve of Eratosthenes to discard several composite numbers in
+   *  some appropriate range (at the moment {@code [this, this + 1024]}). After
+   *  this process it applies the Miller-Rabin test to the numbers that were not
+   *  discarded in the sieve.
+   *
+   *  @see BigInteger#nextProbablePrime()
+   *  @see #millerRabin(BigInteger, int)
+   */
   def nextProbablePrime(n: BigInteger): BigInteger = {
     // scalastyle:off return
     // PRE: n >= 0
@@ -212,7 +206,7 @@ private[math] object Primality {
       // At this point, all numbers in the gap are initialized as probably primes
       Arrays.fill(isDivisible, false)
       // To discard multiples of first primes
-      for (i <- 0 until Primes.length) {
+      for (i <-0 until Primes.length) {
         modules(i) = (modules(i) + gapSize) % Primes(i)
         var j =
           if (modules(i) == 0) 0
@@ -233,20 +227,19 @@ private[math] object Primality {
       }
       Elementary.inplaceAdd(startPoint, gapSize)
     }
-    throw new AssertionError(
-      "Primality.nextProbablePrime: Should not get here")
+    throw new AssertionError("Primality.nextProbablePrime: Should not get here")
     // scalastyle:on return
   }
 
   /** The Miller-Rabin primality test.
-    *
-    *  @param n the input number to be tested.
-    *  @param t the number of trials.
-    *  @return {@code false} if the number is definitely compose, otherwise
-    *          {@code true} with probability {@code 1 - 4<sup>(-t)</sup>}.
-    *  @ar.org.fitc.ref "D. Knuth, The Art of Computer Programming Vo.2, Section
-    *                   4.5.4., Algorithm P"
-    */
+   *
+   *  @param n the input number to be tested.
+   *  @param t the number of trials.
+   *  @return {@code false} if the number is definitely compose, otherwise
+   *          {@code true} with probability {@code 1 - 4<sup>(-t)</sup>}.
+   *  @ar.org.fitc.ref "D. Knuth, The Art of Computer Programming Vo.2, Section
+   *                   4.5.4., Algorithm P"
+   */
   private def millerRabin(n: BigInteger, t: Int): Boolean = {
     // scalastyle:off return
     // PRE: n >= 0, t >= 0

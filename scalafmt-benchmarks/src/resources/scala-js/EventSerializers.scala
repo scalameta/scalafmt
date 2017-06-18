@@ -6,6 +6,7 @@
 **                          |/____/                                     **
 \*                                                                      */
 
+
 package org.scalajs.testadapter
 
 import sbt.testing._
@@ -27,14 +28,13 @@ private[testadapter] object EventSerializers {
       val obj = new JSONObjExtractor(x)
 
       new DeserializedEvent(
-        obj.fld[String]("fullyQualifiedName"),
-        obj.fld[Fingerprint]("fingerprint"),
-        obj.fld[Selector]("selector"),
-        Status.valueOf(obj.fld[String]("status")),
-        obj.opt[RemoteException]("throwable"),
-        (obj.fld[Int]("durationMS").toLong << 32) |
-          (obj.fld[Int]("durationLS").toLong & 0xffffffffL)
-      )
+          obj.fld[String]("fullyQualifiedName"),
+          obj.fld[Fingerprint]("fingerprint"),
+          obj.fld[Selector]("selector"),
+          Status.valueOf(obj.fld[String]("status")),
+          obj.opt[RemoteException]("throwable"),
+          (obj.fld[Int]("durationMS").toLong << 32) |
+          (obj.fld[Int]("durationLS").toLong & 0xffffffffL))
     }
   }
 

@@ -6,13 +6,14 @@
 **                          |/____/                                     **
 \*                                                                      */
 
+
 package org.scalajs.core.tools.javascript
 
 import java.io.Writer
 import java.net.URI
 import java.{util => ju}
 
-import scala.collection.mutable.{ListBuffer, HashMap, Stack, StringBuilder}
+import scala.collection.mutable.{ ListBuffer, HashMap, Stack, StringBuilder }
 
 import org.scalajs.core.ir
 import ir.Position
@@ -21,7 +22,7 @@ import ir.Utils
 
 private object SourceMapWriter {
   private val Base64Map =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
       "abcdefghijklmnopqrstuvwxyz" +
       "0123456789+/"
 
@@ -69,9 +70,10 @@ private object SourceMapWriter {
   }
 }
 
-class SourceMapWriter(val out: Writer,
-                      val generatedFile: String,
-                      val relativizeBaseURI: Option[URI] = None) {
+class SourceMapWriter(
+    val out: Writer,
+    val generatedFile: String,
+    val relativizeBaseURI: Option[URI] = None) {
 
   import SourceMapWriter._
 
@@ -153,9 +155,8 @@ class SourceMapWriter(val out: Writer,
     startSegment(column, originalPos, null)
   }
 
-  def startNode(column: Int,
-                originalPos: Position,
-                optOriginalName: Option[String]): Unit = {
+  def startNode(column: Int, originalPos: Position,
+      optOriginalName: Option[String]): Unit = {
     val originalName =
       if (optOriginalName.isDefined) optOriginalName.get
       else null
@@ -168,9 +169,8 @@ class SourceMapWriter(val out: Writer,
     startSegment(column, nodePosStack.topPos, nodePosStack.topName)
   }
 
-  private def startSegment(startColumn: Int,
-                           originalPos: Position,
-                           originalName: String): Unit = {
+  private def startSegment(startColumn: Int, originalPos: Position,
+      originalName: String): Unit = {
     // There is no point in outputting a segment with the same information
     if ((originalPos == pendingPos) && (originalName == pendingName))
       return
@@ -194,7 +194,7 @@ class SourceMapWriter(val out: Writer,
     else out.write(',')
 
     // Generated column field
-    writeBase64VLQ(pendingColumnInGenerated - lastColumnInGenerated)
+    writeBase64VLQ(pendingColumnInGenerated-lastColumnInGenerated)
     lastColumnInGenerated = pendingColumnInGenerated
 
     // If the position is NoPosition, stop here
@@ -212,7 +212,7 @@ class SourceMapWriter(val out: Writer,
       writeBase64VLQ0()
     } else {
       val sourceIndex = sourceToIndex(source)
-      writeBase64VLQ(sourceIndex - lastSourceIndex)
+      writeBase64VLQ(sourceIndex-lastSourceIndex)
       lastSource = source
       lastSourceIndex = sourceIndex
     }
@@ -228,7 +228,7 @@ class SourceMapWriter(val out: Writer,
     // Name field
     if (pendingName != null) {
       val nameIndex = nameToIndex(pendingName)
-      writeBase64VLQ(nameIndex - lastNameIndex)
+      writeBase64VLQ(nameIndex-lastNameIndex)
       lastNameIndex = nameIndex
     }
   }
@@ -259,9 +259,9 @@ class SourceMapWriter(val out: Writer,
   }
 
   /** Write the Base 64 VLQ of an integer to the mappings
-    *  Inspired by the implementation in Closure Compiler:
-    *  http://code.google.com/p/closure-compiler/source/browse/src/com/google/debugging/sourcemap/Base64VLQ.java
-    */
+   *  Inspired by the implementation in Closure Compiler:
+   *  http://code.google.com/p/closure-compiler/source/browse/src/com/google/debugging/sourcemap/Base64VLQ.java
+   */
   private def writeBase64VLQ(value0: Int): Unit = {
     /* The sign is encoded in the least significant bit, while the
      * absolute value is shifted one bit to the left.
