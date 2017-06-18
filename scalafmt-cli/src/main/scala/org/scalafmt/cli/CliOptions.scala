@@ -7,10 +7,7 @@ import org.scalafmt.config.Config
 import org.scalafmt.config.FilterMatcher
 import org.scalafmt.config.ProjectFiles
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.util.AbsoluteFile
-import org.scalafmt.util.FileOps
-import org.scalafmt.util.GitOps
-import org.scalafmt.util.GitOpsImpl
+import org.scalafmt.util._
 
 object CliOptions {
   val default = CliOptions()
@@ -127,7 +124,8 @@ case class CliOptions(
 
   lazy val filterMatcher: FilterMatcher =
     FilterMatcher(
-      config.project.includeFilters,
-      config.project.excludeFilters ++ customExcludes
+      config.project.includeFilters.map(OsSpecific.fixSeparatorsInPathPattern),
+      (config.project.excludeFilters ++ customExcludes)
+        .map(OsSpecific.fixSeparatorsInPathPattern)
     )
 }
