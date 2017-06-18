@@ -155,8 +155,7 @@ object Cli {
       else "Reformatting..."
     if (options.debug) {
       val pwd = options.common.workingDirectory.jfile.getPath
-      val out =
-        if (options.noStdErr) options.common.out else options.common.err
+      val out = options.info
       out.println("Working directory: " + pwd)
       out.println("Formatting files: " + inputMethods.toList)
       out.println(
