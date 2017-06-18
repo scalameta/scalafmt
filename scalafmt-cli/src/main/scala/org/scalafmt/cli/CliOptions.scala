@@ -92,7 +92,8 @@ case class CliOptions(
     assumeFilename: String = "stdin.scala", // used when read from stdin
     migrate: Option[AbsoluteFile] = None,
     common: CommonOptions = CommonOptions(),
-    gitOpsConstructor: AbsoluteFile => GitOps = x => new GitOpsImpl(x)
+    gitOpsConstructor: AbsoluteFile => GitOps = x => new GitOpsImpl(x),
+    noStdErr: Boolean = false
 ) {
 
   val inPlace: Boolean = writeMode == Override
