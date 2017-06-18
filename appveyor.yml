@@ -6,7 +6,7 @@ install:
 environment:
   CI_SCALA_VERSION: 2.12.2
 build_script:
-  - sbt update
+  - sbt downloadIdea update
 test_script:
   - sbt ci-fast ci-sbt-scalafmt
 cache:
@@ -14,3 +14,4 @@ cache:
   - C:\Users\appveyor\.ivy2
   - C:\Users\appveyor\.coursier
   - C:\Users\appveyor\scoop\cache
+  - scalafmt-intellij\idea
