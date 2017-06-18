@@ -92,7 +92,8 @@ case class CliOptions(
     assumeFilename: String = "stdin.scala", // used when read from stdin
     migrate: Option[AbsoluteFile] = None,
     common: CommonOptions = CommonOptions(),
-    gitOpsConstructor: AbsoluteFile => GitOps = x => new GitOpsImpl(x)
+    gitOpsConstructor: AbsoluteFile => GitOps = x => new GitOpsImpl(x),
+    noStdErr: Boolean = false
 ) {
 
   val inPlace: Boolean = writeMode == Override
@@ -119,6 +120,8 @@ case class CliOptions(
   def withFiles(files: Seq[AbsoluteFile]): CliOptions = {
     this.copy(customFiles = files)
   }
+
+  def info: PrintStream = if (noStdErr) common.out else common.err
 
   lazy val filterMatcher: FilterMatcher =
     FilterMatcher(

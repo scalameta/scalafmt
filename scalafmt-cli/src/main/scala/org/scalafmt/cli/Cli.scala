@@ -132,7 +132,7 @@ object Cli {
                      inputMethods: Seq[InputMethod],
                      msg: String): TermDisplay = {
     val termDisplay = new TermDisplay(
-      new OutputStreamWriter(options.common.err),
+      new OutputStreamWriter(options.info),
       fallbackMode =
         options.nonInteractive ||
           TermDisplay.defaultFallbackMode
@@ -155,9 +155,10 @@ object Cli {
       else "Reformatting..."
     if (options.debug) {
       val pwd = options.common.workingDirectory.jfile.getPath
-      options.common.err.println("Working directory: " + pwd)
-      options.common.err.println("Formatting files: " + inputMethods.toList)
-      options.common.err.println(
+      val out = options.info
+      out.println("Working directory: " + pwd)
+      out.println("Formatting files: " + inputMethods.toList)
+      out.println(
         "Configuration: \n" + Config
           .toHocon(options.config.fields)
           .mkString("\n"))
