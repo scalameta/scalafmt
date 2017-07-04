@@ -35,6 +35,7 @@ object Adopters {
     Adopter(
       "Venatus Media",
       "https://venatusmedia.com",
-      Some("We represent some of the largest entertainment publishers and monetize billions of ads."))
+      Some(
+        "We represent some of the largest entertainment publishers and monetize billions of ads."))
   )
 }
