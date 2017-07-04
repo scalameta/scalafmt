@@ -31,6 +31,11 @@ object Adopters {
     Adopter(
       "Teralytics",
       "http://teralytics.net",
-      Some("We transform raw, human activity data into valuable insights."))
+      Some("We transform raw, human activity data into valuable insights.")),
+    Adopter(
+      "Venatus Media",
+      "https://venatusmedia.com",
+      Some(
+        "We represent some of the largest entertainment publishers and monetize billions of ads."))
   )
 }
