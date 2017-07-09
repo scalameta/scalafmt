@@ -476,6 +476,28 @@
       @lnk("this comment", "https://github.com/scalameta/scalafmt/pull/611#issue-196230948")
       for further motivation.
 
+
+  @sect{newlines.alwaysBeforeElseAfterCurlyIf}
+    Default: @b(default.newlines.alwaysBeforeElseAfterCurlyIf)
+
+    @hl.scala
+      // newlines.alwaysBeforeElseAfterCurlyIf = true
+      if(someCond) {
+        foo()
+      }
+      else {
+        bar()
+      }
+
+      // newlines.alwaysBeforeElseAfterCurlyIf = false
+      if(someCond) {
+        foo()
+      } else {
+        bar()
+      }
+
+
+
   @sect{binPack.literalArgumentLists}
     Default: @b(default.binPack.literalArgumentLists)
 
