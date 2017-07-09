@@ -5,7 +5,8 @@ Shamelessly stolen from [lihaoyi/ammonite](https://github.com/lihaoyi/Ammonite).
 - **All code PRs should come with**: a meaningful description, inline-comments
   for important things, unit tests (positive and negative), and a green build
   in [CI](https://travis-ci.org/olafurpg/scalafmt).
-- **Format your code with the lastest release of scalafmt, default style.**.
+- **Format your code with scalafmt**. Run `./scalafmt` from the project
+  root directory.
 - **PRs for features should generally come with *something* added to the
   [Documentation](https://olafurpg.github.io/scalafmt)**, so people can discover
   that it exists. The docs are written in `readme/Readme.scalatex`.
