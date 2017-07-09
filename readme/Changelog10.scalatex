@@ -4,10 +4,24 @@
 @import org.scalafmt.config.ScalafmtConfig
 
 @ignore
-  @code{1.0.x}
-    @ul
-      @li
-        Please document your contribution here.
+  @ul
+    @li
+      Please document your contribution here.
+@sect{1.1.0}
+  @ul
+    @li
+      Scalafmt now uses a lenient 'dialect' by default.
+      This means that it's no longer necessary to configure
+      @code{runner.dialect} to format files using new Scala syntax such as
+      trailing commas, @code{inline} keyword, literal types, trait parameters.
+    @li
+      An off-by-one error in @code{maxColumn} has now been fixed, @issue(976).
+      This means that the @code{maxColumn=80} previously is now @code{maxColumn=79}.
+    @li
+      scalafmt-cli reports errors to stdout by default unless --stdin or --stdout
+      are specified. This help fix issues on Windows.
+@sect{1.0.0}
+  This release was identical to @sect.ref{1.0.0-RC4}.
 @sect{1.0.0-RC4}
   @ul
     @li
