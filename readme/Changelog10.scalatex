@@ -10,13 +10,15 @@
 @sect{1.1.0}
   @ul
     @li
+      An off-by-one error in @code{maxColumn} has now been fixed, @issue(976).
+      Expect significant diffs from upgrading to this version.
+      To get the previous behavior, set @code{maxColumn=n-1} if you previously
+      enabled @code{maxColumn=n}.
+    @li
       Scalafmt now uses a lenient 'dialect' by default.
       This means that it's no longer necessary to configure
       @code{runner.dialect} to format files using new Scala syntax such as
       trailing commas, @code{inline} keyword, literal types, trait parameters.
-    @li
-      An off-by-one error in @code{maxColumn} has now been fixed, @issue(976).
-      This means that the @code{maxColumn=80} previously is now @code{maxColumn=79}.
     @li
       scalafmt-cli reports errors to stdout by default unless --stdin or --stdout
       are specified. This help fix issues on Windows.
