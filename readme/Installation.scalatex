@@ -23,6 +23,10 @@
           @hl.xml
             coursier bootstrap com.geirsson:scalafmt-cli_2.11:@V.stable --main org.scalafmt.cli.Cli -o scalafmt
             ./scalafmt --version # should be @org.scalafmt.Versions.stable
+        @li
+          To customize the JVM options, use the Coursier option @code{--java-opt}, more info with
+          @hl.xml
+            coursier bootstrap --help | grep -A 1 "\-\-java-opt"
 
         @p
           @b{Recommended in CI/Continuous Integration Server}. Put the bootstrap
