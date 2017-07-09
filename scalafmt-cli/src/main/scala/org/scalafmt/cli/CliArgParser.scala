@@ -24,7 +24,7 @@ object CliArgParser {
        |scalafmt --diff # Format all files that were edited in git diff against master branch.
        |scalafmt --diff-branch 2.x # same as --diff, except against branch 2.x
        |scalafmt --stdin # read from stdin and print to stdout
-       |scalafmt --stdin --assume-filename foo.sbt # required to format .sbt files
+       |scalafmt --stdin --assume-filename foo.sbt < foo.sbt # required when using --stdin to format .sbt files.
        |scalafmt Code1.scala A.scala       # write formatted contents to file.
        |scalafmt --stdout Code.scala       # print formatted contents to stdout.
        |scalafmt --exclude target          # format all files in directory excluding target
@@ -114,7 +114,7 @@ object CliArgParser {
         .text("don't use strerr for messages, output to stdout")
       opt[String]("assume-filename")
         .action((filename, c) => c.copy(assumeFilename = filename))
-        .text("required to format .sbt files with --stdin flag.")
+        .text("when using --stdin, use --assume-filename to hint to scalafmt that the input is an .sbt file.")
       opt[Unit]("test")
         .action((_, c) => c.copy(testing = true))
         .text("test for mis-formatted code, exits with status 1 on failure.")
