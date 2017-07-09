@@ -1067,7 +1067,10 @@ class Router(formatOps: FormatOps) {
             .withPolicy(SingleLineBlock(expire, exclude = exclude)),
           Split(newlineModification, 1).withIndent(2, expire, Left)
         )
-      case FormatToken(RightBrace(), KwElse() | KwYield(), _) =>
+      case FormatToken(RightBrace(), KwElse(), _) =>
+        if (style.newlines.alwaysBeforeElseAfterCurlyIf) Seq(Split(Newline, 0))
+        else Seq(Split(Space, 0))
+      case FormatToken(RightBrace(), KwYield(), _) =>
         Seq(
           Split(Space, 0)
         )

@@ -1,0 +1,12 @@
+style = default
+newlines.alwaysBeforeElseAfterCurlyIf = true
+
+<<< Insert line break between curly if and else
+if (someCond) {
+  something()
+} else somethingElse()
+>>>
+if (someCond) {
+  something()
+}
+else somethingElse()
