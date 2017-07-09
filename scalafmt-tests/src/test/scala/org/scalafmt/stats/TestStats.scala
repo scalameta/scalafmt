@@ -4,12 +4,13 @@ import java.util.Date
 
 import org.scalafmt.util.Result
 
-case class TestStats(createdAt: Long,
-                     results: Seq[Result],
-                     javaInfo: JavaInfo,
-                     osInfo: OsInfo,
-                     runtimeInfo: RuntimeInfo,
-                     gitInfo: GitInfo) {
+case class TestStats(
+    createdAt: Long,
+    results: Seq[Result],
+    javaInfo: JavaInfo,
+    osInfo: OsInfo,
+    runtimeInfo: RuntimeInfo,
+    gitInfo: GitInfo) {
 
   def shortInfo: String =
     s"TestStats(created=${new Date(createdAt)}," + s"commit=${gitInfo.commit})"
@@ -28,10 +29,11 @@ case class TestStats(createdAt: Long,
 object TestStats {
 
   def apply(results: Seq[Result]): TestStats =
-    TestStats(System.currentTimeMillis(),
-              results,
-              JavaInfo(),
-              OsInfo(),
-              RuntimeInfo(),
-              GitInfo())
+    TestStats(
+      System.currentTimeMillis(),
+      results,
+      JavaInfo(),
+      OsInfo(),
+      RuntimeInfo(),
+      GitInfo())
 }

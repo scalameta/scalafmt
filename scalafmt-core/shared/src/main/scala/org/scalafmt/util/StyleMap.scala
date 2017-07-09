@@ -19,10 +19,11 @@ import org.scalafmt.internal.FormatToken
 import org.scalafmt.util.TokenOps.TokenHash
 import org.scalameta.logger
 
-class StyleMap(tokens: Array[FormatToken],
-               init: ScalafmtConfig,
-               owners: Map[TokenHash, Tree],
-               matching: Map[TokenHash, Token]) {
+class StyleMap(
+    tokens: Array[FormatToken],
+    init: ScalafmtConfig,
+    owners: Map[TokenHash, Tree],
+    matching: Map[TokenHash, Token]) {
   import TokenOps.hash
   val literalR: FilterMatcher = init.binPack.literalsRegex
   private val prefix = "\\s*scalafmt: ".r
@@ -76,7 +77,7 @@ class StyleMap(tokens: Array[FormatToken],
         else value.getClass.getName
       literalR.matches(strName)
     case x @ Term.Name(_) => literalR.matches(x.productPrefix)
-    case _                => false
+    case _ => false
   }
 
   private def isLiteralArgumentList(open: LeftParen): Boolean =

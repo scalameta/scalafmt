@@ -14,14 +14,15 @@ object ManualTests extends HasTests {
         val spec = filename.stripPrefix(testDir + "/").stripSuffix(manual)
         readFile(filename).lines.withFilter(_.startsWith("ONLY")).map { name =>
           val original = readFile(stripPrefix(name))
-          DiffTest(spec,
-                   stripPrefix(name),
-                   name,
-                   original,
-                   original,
-                   isSkip(name),
-                   isOnly(name),
-                   style)
+          DiffTest(
+            spec,
+            stripPrefix(name),
+            name,
+            original,
+            original,
+            isSkip(name),
+            isOnly(name),
+            style)
         }
       }
     } yield test
@@ -29,14 +30,15 @@ object ManualTests extends HasTests {
       filename <- listFiles(testDir) if filename.endsWith(".scala")
     } yield {
       val content = readFile(filename)
-      DiffTest("Scala",
-               filename,
-               filename,
-               content,
-               content,
-               false,
-               false,
-               style)
+      DiffTest(
+        "Scala",
+        filename,
+        filename,
+        content,
+        content,
+        false,
+        false,
+        style)
     }
     manualFiles ++ scalaFiles
   }

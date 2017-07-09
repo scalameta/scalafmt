@@ -57,7 +57,7 @@ lazy val cli = project
     mainClass in assembly := Some("org.scalafmt.cli.Cli"),
     libraryDependencies ++= Seq(
       "com.martiansoftware" % "nailgun-server" % "0.9.1",
-      "com.github.scopt"    %% "scopt"         % "3.5.0"
+      "com.github.scopt" %% "scopt" % "3.5.0"
     )
   )
   .dependsOn(coreJVM)
@@ -135,8 +135,8 @@ lazy val tests = project
     noPublish,
     libraryDependencies ++= Seq(
       // Test dependencies
-      "com.googlecode.java-diff-utils" % "diffutils"  % "1.3.0",
-      "com.lihaoyi"                    %% "scalatags" % "0.6.3",
+      "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0",
+      "com.lihaoyi" %% "scalatags" % "0.6.3",
       scalametaTestkit
     )
   )
@@ -178,10 +178,11 @@ lazy val benchmarks = project
   .enablePlugins(JmhPlugin)
 
 lazy val readme = scalatex
-  .ScalatexReadme(projectId = "readme",
-                  wd = file(""),
-                  url = "https://github.com/scalameta/scalafmt/tree/master",
-                  source = "Readme")
+  .ScalatexReadme(
+    projectId = "readme",
+    wd = file(""),
+    url = "https://github.com/scalameta/scalafmt/tree/master",
+    source = "Readme")
   .settings(
     git.remoteRepo := "git@github.com:scalameta/scalafmt.git",
     siteSourceDirectory := target.value / "scalatex",

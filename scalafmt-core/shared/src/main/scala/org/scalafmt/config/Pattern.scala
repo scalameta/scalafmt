@@ -8,8 +8,9 @@ case class Pattern(
     excludeFilters: Seq[String]
 ) {
   def toMatcher: FilterMatcher =
-    new FilterMatcher(FilterMatcher.mkRegexp(includeFilters),
-                      FilterMatcher.mkRegexp(excludeFilters, true))
+    new FilterMatcher(
+      FilterMatcher.mkRegexp(includeFilters),
+      FilterMatcher.mkRegexp(excludeFilters, true))
 }
 
 object Pattern {

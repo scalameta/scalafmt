@@ -58,9 +58,9 @@ object ImportSelectors {
   // to ScalafmtConfig
   implicit val backwardsCompatibleReader =
     ConfDecoder.instance[ImportSelectors] {
-      case Conf.Bool(true)  => Ok(ImportSelectors.binPack)
+      case Conf.Bool(true) => Ok(ImportSelectors.binPack)
       case Conf.Bool(false) => Ok(ImportSelectors.noBinPack)
-      case els              => reader.read(els)
+      case els => reader.read(els)
     }
 
   case object noBinPack extends ImportSelectors

@@ -11,13 +11,14 @@ import org.scalafmt.util.TokenOps
 /**
   * A partial formatting solution up to splits.length number of tokens.
   */
-final case class State(cost: Int,
-                       policy: PolicySummary,
-                       splits: Vector[Split],
-                       indentation: Int,
-                       pushes: Vector[Indent[Num]],
-                       column: Int,
-                       formatOff: Boolean)
+final case class State(
+    cost: Int,
+    policy: PolicySummary,
+    splits: Vector[Split],
+    indentation: Int,
+    pushes: Vector[Indent[Num]],
+    column: Int,
+    formatOff: Boolean)
     extends Ordered[State] {
 
   def compare(that: State): Int = {
@@ -49,21 +50,23 @@ final case class State(cost: Int,
 }
 
 object State {
-  val start = State(0,
-                    PolicySummary.empty,
-                    Vector.empty[Split],
-                    0,
-                    Vector.empty[Indent[Num]],
-                    0,
-                    formatOff = false)
+  val start = State(
+    0,
+    PolicySummary.empty,
+    Vector.empty[Split],
+    0,
+    Vector.empty[Indent[Num]],
+    0,
+    formatOff = false)
 
   /**
     * Calculates next State given split at tok.
     */
-  def next(curr: State,
-           style: ScalafmtConfig,
-           split: Split,
-           tok: FormatToken): State = {
+  def next(
+      curr: State,
+      style: ScalafmtConfig,
+      split: Split,
+      tok: FormatToken): State = {
     import curr._
     val nonExpiredIndents = pushes.filterNot { push =>
       val expireToken: Token =
@@ -101,11 +104,11 @@ object State {
     val newPolicy: PolicySummary = policy.combine(split.policy, tok.left.end)
     val splitWithPenalty = {
       if (columnOnCurrentLine <= style.maxColumn || {
-            val commentExceedsLineLength =
-              tok.right.is[Comment] &&
-                tokRightSyntax.length >= (style.maxColumn - newIndent)
-            commentExceedsLineLength && split.modification.isNewline
-          }) {
+          val commentExceedsLineLength =
+            tok.right.is[Comment] &&
+              tokRightSyntax.length >= (style.maxColumn - newIndent)
+          commentExceedsLineLength && split.modification.isNewline
+        }) {
         split // fits inside column
       } else {
         split.withPenalty(Constants.ExceedColumnPenalty + columnOnCurrentLine) // overflow

@@ -114,7 +114,8 @@ object CliArgParser {
         .text("don't use strerr for messages, output to stdout")
       opt[String]("assume-filename")
         .action((filename, c) => c.copy(assumeFilename = filename))
-        .text("when using --stdin, use --assume-filename to hint to scalafmt that the input is an .sbt file.")
+        .text(
+          "when using --stdin, use --assume-filename to hint to scalafmt that the input is an .sbt file.")
       opt[Unit]("test")
         .action((_, c) => c.copy(testing = true))
         .text("test for mis-formatted code, exits with status 1 on failure.")

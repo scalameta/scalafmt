@@ -66,9 +66,10 @@ object Error {
   case class MisformattedFile(file: File, customMessage: String)
       extends Error(s"${file.getPath} is mis-formatted. $customMessage")
 
-  case class SearchStateExploded(deepestState: State,
-                                 partialOutput: String,
-                                 lastToken: Token)
+  case class SearchStateExploded(
+      deepestState: State,
+      partialOutput: String,
+      lastToken: Token)
       extends Error(
         s"Search state exploded around line ${lastToken.pos.end.line}") {
     def line: Int = lastToken.pos.end.line

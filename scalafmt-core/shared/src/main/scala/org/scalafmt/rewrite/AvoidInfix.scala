@@ -44,15 +44,17 @@ case object AvoidInfix extends Rewrite {
               fstToken <- fstArgsToken
               lastToken <- lastArgsToken
             } yield
-              Seq(TokenPatch.AddLeft(fstToken, "(", keepTok = true),
-                  TokenPatch.AddRight(lastToken, ")", keepTok = true))
+              Seq(
+                TokenPatch.AddLeft(fstToken, "(", keepTok = true),
+                TokenPatch.AddRight(lastToken, ")", keepTok = true))
             selectorParens.getOrElse(Seq.empty)
           } else
             Nil
 
         def wrapLhsInParens =
-          Seq(TokenPatch.AddLeft(lhs.tokens.head, "(", keepTok = true),
-              TokenPatch.AddRight(lhs.tokens.last, ")", keepTok = true))
+          Seq(
+            TokenPatch.AddLeft(lhs.tokens.head, "(", keepTok = true),
+            TokenPatch.AddRight(lhs.tokens.last, ")", keepTok = true))
         val lhsParensToBeAdded = lhs match {
           case Term.ApplyInfix(lhs1, op1, _, _)
               if !matcher.matches(op1.value)

@@ -45,7 +45,7 @@ object Config {
     val configured = implicitly[MetaconfigParser].fromInput(input)
     path match {
       case Some(x) => ConfDynamic(configured).selectDynamic(x).asConf
-      case None    => configured
+      case None => configured
     }
   }
 
@@ -55,12 +55,14 @@ object Config {
     fromConf(fromInput(Input.String(string), path))
 
   /** Read ScalafmtConfig from String contents from an optional HOCON path. */
-  def fromHoconFile(file: File,
-                    path: Option[String] = None): Configured[ScalafmtConfig] =
+  def fromHoconFile(
+      file: File,
+      path: Option[String] = None): Configured[ScalafmtConfig] =
     fromConf(fromInput(Input.File(file), path))
 
-  def fromConf(conf: Configured[Conf],
-               path: Option[String] = None): Configured[ScalafmtConfig] =
+  def fromConf(
+      conf: Configured[Conf],
+      path: Option[String] = None): Configured[ScalafmtConfig] =
     for {
       baseConf <- conf
       conf <- {

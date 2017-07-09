@@ -16,10 +16,10 @@ object FilterMatcher {
 
   def mkRegexp(filters: Seq[String], strict: Boolean = false): Regex =
     filters match {
-      case Nil         => "$a".r // will never match anything
+      case Nil => "$a".r // will never match anything
       case head :: Nil => head.r
       case _ if strict => filters.mkString("^(", "|", ")$").r
-      case _           => filters.mkString("(", "|", ")").r
+      case _ => filters.mkString("(", "|", ")").r
     }
 
   def apply(includes: Seq[String], excludes: Seq[String]): FilterMatcher =

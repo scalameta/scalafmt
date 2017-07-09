@@ -67,10 +67,11 @@ class FormatTests
       }
     debugResults += saveResult(t, obtained, onlyOne)
     if (t.style.rewrite.rules.isEmpty &&
-        !t.style.assumeStandardLibraryStripMargin &&
-        t.style.onTestFailure.isEmpty) {
-      assertFormatPreservesAst(t.original, obtained)(parse,
-                                                     t.style.runner.dialect)
+      !t.style.assumeStandardLibraryStripMargin &&
+      t.style.onTestFailure.isEmpty) {
+      assertFormatPreservesAst(t.original, obtained)(
+        parse,
+        t.style.runner.dialect)
     }
     val formattedAgain =
       Scalafmt.format(obtained, t.style.copy(runner = runner)).get
@@ -103,8 +104,9 @@ class FormatTests
     // I don't want to deal with scalaz's Tasks :'(
     val k = for {
       _ <- Future(
-        FileOps.writeFile(s"target${File.separator}index.html",
-                          Report.heatmap(results)))
+        FileOps.writeFile(
+          s"target${File.separator}index.html",
+          Report.heatmap(results)))
     } yield ()
     // Travis exits right after running tests.
     if (sys.env.contains("TRAVIS")) Await.ready(k, 20 seconds)

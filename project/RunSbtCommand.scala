@@ -10,7 +10,7 @@ object RunSbtCommand {
     def runCommand(command: String, state: State): State = {
       val nextState = Parser.parse(command, state.combinedParser) match {
         case Right(cmd) => cmd()
-        case Left(msg)  => throw sys.error(s"Invalid programmatic input:\n$msg")
+        case Left(msg) => throw sys.error(s"Invalid programmatic input:\n$msg")
       }
       nextState.remainingCommands.toList match {
         case Nil => nextState
@@ -18,9 +18,11 @@ object RunSbtCommand {
           runCommand(head, nextState.copy(remainingCommands = tail))
       }
     }
-    runCommand(command,
-               st.copy(remainingCommands = Nil,
-                       onFailure = Some(s"Failed to run $command")))
+    runCommand(
+      command,
+      st.copy(
+        remainingCommands = Nil,
+        onFailure = Some(s"Failed to run $command")))
       .copy(remainingCommands = st.remainingCommands)
   }
 }

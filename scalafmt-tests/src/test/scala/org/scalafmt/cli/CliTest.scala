@@ -35,8 +35,9 @@ class CliTest extends FunSuite with DiffAssertions {
   def getMockOptions(baseDir: AbsoluteFile): CliOptions =
     getMockOptions(baseDir, baseDir)
 
-  def getMockOptions(baseDir: AbsoluteFile,
-                     workingDir: AbsoluteFile): CliOptions = {
+  def getMockOptions(
+      baseDir: AbsoluteFile,
+      workingDir: AbsoluteFile): CliOptions = {
     CliOptions.default.copy(
       gitOpsConstructor = x => new FakeGitOps(baseDir),
       common = CliOptions.default.common.copy(
@@ -252,9 +253,10 @@ class CliTest extends FunSuite with DiffAssertions {
     check("target/notfound")
   }
 
-  def noArgTest(input: AbsoluteFile,
-                expected: String,
-                cmds: Seq[Array[String]]): Unit = {
+  def noArgTest(
+      input: AbsoluteFile,
+      expected: String,
+      cmds: Seq[Array[String]]): Unit = {
     cmds.foreach { args =>
       val init: CliOptions = getMockOptions(input)
       val config = Cli.getConfig(args, init).get

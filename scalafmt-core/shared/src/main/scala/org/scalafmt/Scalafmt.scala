@@ -30,9 +30,10 @@ object Scalafmt {
     *         exceptions, use [[Formatted.Success.get]] to get back a
     *         string.
     */
-  def format(code: String,
-             style: ScalafmtConfig = ScalafmtConfig.default,
-             range: Set[Range] = Set.empty[Range]): Formatted = {
+  def format(
+      code: String,
+      style: ScalafmtConfig = ScalafmtConfig.default,
+      range: Set[Range] = Set.empty[Range]): Formatted = {
     try {
       val runner = style.runner
       if (code.matches("\\s*")) Formatted.Success(System.lineSeparator())
@@ -53,7 +54,7 @@ object Scalafmt {
         val formattedString = formatWriter.mkString(partial.splits)
         val correctedFormattedString =
           if ((style.lineEndings == preserve && isWindows) ||
-              style.lineEndings == windows) {
+            style.lineEndings == windows) {
             formattedString.replaceAll(UnixLineEnding, WindowsLineEnding)
           } else {
             formattedString

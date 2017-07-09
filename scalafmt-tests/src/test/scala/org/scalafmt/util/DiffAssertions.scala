@@ -14,10 +14,11 @@ import org.scalatest.exceptions.TestFailedException
 trait DiffAssertions extends FunSuiteLike {
   import LoggerOps._
 
-  case class DiffFailure(title: String,
-                         expected: String,
-                         obtained: String,
-                         diff: String)(implicit pos: Position)
+  case class DiffFailure(
+      title: String,
+      expected: String,
+      obtained: String,
+      diff: String)(implicit pos: Position)
       extends TestFailedException(
         (_: StackDepthException) =>
           Some(title + "\n" + error2message(obtained, expected)),
@@ -43,8 +44,9 @@ trait DiffAssertions extends FunSuiteLike {
       implicit pos: Position): Boolean = {
     val result = compareContents(obtained, expected)
     if (result.isEmpty) {
-      assert(obtained.length == expected.length,
-             ". Is there a redundant/missing trailing newline?")
+      assert(
+        obtained.length == expected.length,
+        ". Is there a redundant/missing trailing newline?")
       true
     } else {
       throw DiffFailure(title, expected, obtained, result)

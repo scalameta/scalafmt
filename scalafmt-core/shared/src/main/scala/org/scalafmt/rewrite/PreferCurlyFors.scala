@@ -23,8 +23,9 @@ import scala.meta.{Tree, _}
   */
 case object PreferCurlyFors extends Rewrite {
 
-  def findForParens(forTokens: Tokens,
-                    ctx: RewriteCtx): Option[(Token, Token)] = {
+  def findForParens(
+      forTokens: Tokens,
+      ctx: RewriteCtx): Option[(Token, Token)] = {
     import ctx.tokenTraverser._
 
     for {
@@ -35,8 +36,9 @@ case object PreferCurlyFors extends Rewrite {
     } yield (leftParen, rightParen)
   }
 
-  def findForSemiColons(forEnumerators: Seq[Enumerator],
-                        ctx: RewriteCtx): Seq[Token] = {
+  def findForSemiColons(
+      forEnumerators: Seq[Enumerator],
+      ctx: RewriteCtx): Seq[Token] = {
     import ctx.tokenTraverser._
 
     for {
@@ -51,9 +53,10 @@ case object PreferCurlyFors extends Rewrite {
     } yield semicolon
   }
 
-  def rewriteFor(forTokens: Tokens,
-                 forEnumerators: Seq[Enumerator],
-                 ctx: RewriteCtx): Seq[Patch] = {
+  def rewriteFor(
+      forTokens: Tokens,
+      forEnumerators: Seq[Enumerator],
+      ctx: RewriteCtx): Seq[Patch] = {
     import ctx.tokenTraverser._
 
     val builder = Seq.newBuilder[Patch]

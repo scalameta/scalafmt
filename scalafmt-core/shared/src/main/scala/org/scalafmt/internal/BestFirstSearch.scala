@@ -18,9 +18,10 @@ import org.scalafmt.util.TreeOps
 /**
   * Implements best first search to find optimal formatting.
   */
-class BestFirstSearch(val formatOps: FormatOps,
-                      range: Set[Range],
-                      formatWriter: FormatWriter) {
+class BestFirstSearch(
+    val formatOps: FormatOps,
+    range: Set[Range],
+    formatWriter: FormatWriter) {
   import Token._
 
   import LoggerOps._
@@ -94,9 +95,10 @@ class BestFirstSearch(val formatOps: FormatOps,
     val split = Split(Provided(formatToken.between.map(_.syntax).mkString), 0)
     val result =
       if (formatToken.left.is[LeftBrace])
-        split.withIndent(Num(2),
-                         matchingParentheses(hash(formatToken.left)),
-                         Right)
+        split.withIndent(
+          Num(2),
+          matchingParentheses(hash(formatToken.left)),
+          Right)
       else split
     result
   }
@@ -117,7 +119,7 @@ class BestFirstSearch(val formatOps: FormatOps,
     val cachedState = memo.get(key)
     cachedState match {
       case Some(state) => state
-      case None        =>
+      case None =>
         // Only update state if it reached stop.
         val nextState = shortestPath(start, stop, depth, maxCost)
         if (tokens(nextState.splits.length).left == stop) {
@@ -130,11 +132,11 @@ class BestFirstSearch(val formatOps: FormatOps,
   def untilNextStatement(state: State, maxDepth: Int): State = {
     var curr = state
     while (!hasReachedEof(curr) && {
-             val token = tokens(curr.splits.length).left
-             !statementStarts.contains(hash(token)) && {
-               parents(owners(token)).length <= maxDepth
-             }
-           }) {
+        val token = tokens(curr.splits.length).left
+        !statementStarts.contains(hash(token)) && {
+          parents(owners(token)).length <= maxDepth
+        }
+      }) {
       val tok = tokens(curr.splits.length)
       curr = State.next(curr, styleMap.at(tok), provided(tok), tok)
     }
@@ -144,10 +146,11 @@ class BestFirstSearch(val formatOps: FormatOps,
   /**
     * Runs best first search to find lowest penalty split.
     */
-  def shortestPath(start: State,
-                   stop: Token,
-                   depth: Int = 0,
-                   maxCost: Int = Integer.MAX_VALUE): State = {
+  def shortestPath(
+      start: State,
+      stop: Token,
+      depth: Int = 0,
+      maxCost: Int = Integer.MAX_VALUE): State = {
     val Q = new mutable.PriorityQueue[State]()
     var result = start
     var lastDequeue = start
@@ -158,10 +161,10 @@ class BestFirstSearch(val formatOps: FormatOps,
       explored += 1
       runner.eventCallback(Explored(explored, depth, Q.size))
       if (hasReachedEof(curr) || {
-            val token = tokens(curr.splits.length)
-            // If token is empty we can take one more split before reaching stop.
-            token.left.syntax.nonEmpty && token.left.start >= stop.start
-          }) {
+          val token = tokens(curr.splits.length)
+          // If token is empty we can take one more split before reaching stop.
+          token.left.syntax.nonEmpty && token.left.start >= stop.start
+        }) {
         result = curr
         Q.dequeueAll
       } else if (shouldEnterState(curr)) {
@@ -171,7 +174,7 @@ class BestFirstSearch(val formatOps: FormatOps,
           deepestYet = curr
         }
         if (curr.policy.isSafe &&
-            curr.splits.length > deepestYetSafe.splits.length) {
+          curr.splits.length > deepestYetSafe.splits.length) {
           deepestYetSafe = curr
         }
         runner.eventCallback(VisitToken(splitToken))
@@ -180,15 +183,15 @@ class BestFirstSearch(val formatOps: FormatOps,
         def lastWasNewline =
           curr.splits.lastOption.exists(_.modification.isNewline)
         if (dequeueOnNewStatements &&
-            dequeueSpots.contains(hash(splitToken.left)) &&
-            (depth > 0 || !isInsideNoOptZone(splitToken)) &&
-            lastWasNewline) {
+          dequeueSpots.contains(hash(splitToken.left)) &&
+          (depth > 0 || !isInsideNoOptZone(splitToken)) &&
+          lastWasNewline) {
           Q.dequeueAll
           if (!isInsideNoOptZone(splitToken) && lastDequeue.policy.isSafe) {
             lastDequeue = curr
           }
         } else if (emptyQueueSpots(hash(splitToken.left)) &&
-                   lastWasNewline) {
+          lastWasNewline) {
           Q.dequeueAll
         }
 
@@ -201,14 +204,15 @@ class BestFirstSearch(val formatOps: FormatOps,
             Q.enqueue(nextState)
           }
         } else if (escapeInPathologicalCases &&
-                   visits(splitToken) > maxVisitsPerToken) {
+          visits(splitToken) > maxVisitsPerToken) {
           Q.dequeueAll
           best.clear()
           visits.clear()
           runner.eventCallback(CompleteFormat(explored, deepestYet, tokens))
-          throw SearchStateExploded(deepestYet,
-                                    formatWriter.mkString(deepestYet.splits),
-                                    tokens(deepestYet.splits.length).left)
+          throw SearchStateExploded(
+            deepestYet,
+            formatWriter.mkString(deepestYet.splits),
+            tokens(deepestYet.splits.length).left)
         } else {
 
           val splits: Seq[Split] =
@@ -227,7 +231,7 @@ class BestFirstSearch(val formatOps: FormatOps,
           actualSplit.foreach { split =>
             val nextState = State.next(curr, style, split, splitToken)
             if (depth == 0 && split.modification.isNewline &&
-                !best.contains(splitToken.left)) {
+              !best.contains(splitToken.left)) {
               best.update(splitToken.left, nextState)
             }
             runner.eventCallback(Enqueue(split))
@@ -239,13 +243,13 @@ class BestFirstSearch(val formatOps: FormatOps,
                 val nextNextState =
                   shortestPath(nextState, token, depth + 1, maxCost = 0)
                 if (hasReachedEof(nextNextState) ||
-                    (nextNextState.splits.length < tokens.length && tokens(
-                      nextNextState.splits.length).left.start >= token.start)) {
+                  (nextNextState.splits.length < tokens.length && tokens(
+                    nextNextState.splits.length).left.start >= token.start)) {
                   optimalNotFound = false
 //                  logger.elem(split, splitToken, formatWriter.mkString(nextNextState.splits), tokens(nextNextState.splits.length))
                   Q.enqueue(nextNextState)
                 } else if (!killOnFail &&
-                           nextState.cost - curr.cost <= maxCost) {
+                  nextState.cost - curr.cost <= maxCost) {
                   // TODO(olafur) DRY. This solution can still be optimal.
 //                  logger.elem(split, splitToken)
                   Q.enqueue(nextState)

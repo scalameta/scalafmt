@@ -26,8 +26,7 @@ class CliOptionsTest extends FunSuite {
     assert(
       Ok(ScalafmtConfig.defaultWithAlign.copy(maxColumn = 100)) == overrideOne)
     assert(
-      Ok(ScalafmtConfig.intellij) == Config.fromHoconString(
-        "style = intellij"))
+      Ok(ScalafmtConfig.intellij) == Config.fromHoconString("style = intellij"))
     assert(
       Ok(ScalafmtConfig.scalaJs) == Config.fromHoconString("style = Scala.js"))
     assert(

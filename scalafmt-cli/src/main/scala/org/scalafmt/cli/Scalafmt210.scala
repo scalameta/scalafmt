@@ -40,9 +40,10 @@ class Scalafmt210 {
   def format(code: String, filename: String): String =
     format(code, ScalafmtConfig.default, filename)
 
-  private def format(code: String,
-                     scalafmtStyle: ScalafmtConfig,
-                     filename: String): String = {
+  private def format(
+      code: String,
+      scalafmtStyle: ScalafmtConfig,
+      filename: String): String = {
     val currentPath = new File("").getAbsolutePath + "/"
     val relativePath = filename.stripPrefix(currentPath)
     val runner = // DRY please, same login in CLI

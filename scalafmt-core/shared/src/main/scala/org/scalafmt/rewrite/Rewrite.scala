@@ -87,7 +87,7 @@ object Rewrite {
             case Input.File(path, _) =>
               Input.LabeledString(path.toString(), out)
             case Input.LabeledString(path, _) => Input.LabeledString(path, out)
-            case _                            => Input.String(out)
+            case _ => Input.String(out)
           }
         case _ => input
       }

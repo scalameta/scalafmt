@@ -29,23 +29,26 @@ object InputMethod {
   }
   case class StdinCode(filename: String, input: String) extends InputMethod {
     def readInput(implicit codec: Codec): String = input
-    override def write(code: String,
-                       original: String,
-                       options: CliOptions): Unit = {
+    override def write(
+        code: String,
+        original: String,
+        options: CliOptions): Unit = {
       options.common.out.print(code)
     }
   }
   case class FileContents(file: AbsoluteFile) extends InputMethod {
     override def filename = file.path
     def readInput(implicit codec: Codec): String = FileOps.readFile(filename)
-    override def write(formatted: String,
-                       original: String,
-                       options: CliOptions): Unit = {
+    override def write(
+        formatted: String,
+        original: String,
+        options: CliOptions): Unit = {
       val codeChanged = formatted != original
       if (options.testing) {
         if (codeChanged)
-          throw MisformattedFile(new File(filename),
-                                 options.config.onTestFailure)
+          throw MisformattedFile(
+            new File(filename),
+            options.config.onTestFailure)
         else Unit
       } else if (options.inPlace) {
         if (codeChanged) FileOps.writeFile(filename, formatted)

@@ -40,8 +40,9 @@ sealed trait SortImports extends Rewrite {
                 .toMap
             `import`.importees.zipWithIndex.collect {
               case (importee, i) =>
-                TokenPatch.AddRight(importee.tokens.head,
-                                    sortedImporteesByIndex(i))
+                TokenPatch.AddRight(
+                  importee.tokens.head,
+                  sortedImporteesByIndex(i))
             }
           }
         }

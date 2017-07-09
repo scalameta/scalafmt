@@ -39,11 +39,12 @@ object Cli {
     )
   }
 
-  def main(args: Array[String],
-           in: InputStream,
-           out: PrintStream,
-           err: PrintStream,
-           workingDirectory: String): Unit = {
+  def main(
+      args: Array[String],
+      in: InputStream,
+      out: PrintStream,
+      err: PrintStream,
+      workingDirectory: String): Unit = {
     val options = CliOptions.default.copy(
       common = CommonOptions(
         in = in,
@@ -62,7 +63,7 @@ object Cli {
   def mainWithOptions(args: Array[String], options: CliOptions): Unit = {
     getConfig(args, options) match {
       case Some(x) => run(x)
-      case None    => throw UnableToParseCliOptions
+      case None => throw UnableToParseCliOptions
     }
   }
 
@@ -128,9 +129,10 @@ object Cli {
     }
   }
 
-  def newTermDisplay(options: CliOptions,
-                     inputMethods: Seq[InputMethod],
-                     msg: String): TermDisplay = {
+  def newTermDisplay(
+      options: CliOptions,
+      inputMethods: Seq[InputMethod],
+      msg: String): TermDisplay = {
     val termDisplay = new TermDisplay(
       new OutputStreamWriter(options.info),
       fallbackMode =
@@ -138,8 +140,8 @@ object Cli {
           TermDisplay.defaultFallbackMode
     )
     if (!options.quiet &&
-        (options.inPlace || options.testing) &&
-        inputMethods.length > 5) {
+      (options.inPlace || options.testing) &&
+      inputMethods.length > 5) {
       termDisplay.init()
       termDisplay.startTask(msg, options.common.workingDirectory.jfile)
       termDisplay.taskLength(msg, inputMethods.length, 0)

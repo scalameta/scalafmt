@@ -11,6 +11,7 @@ case class ProjectFiles(
     excludeFilters: Seq[String] = Nil
 ) {
   lazy val matcher: FilterMatcher =
-    FilterMatcher(includeFilters.map(OsSpecific.fixSeparatorsInPathPattern),
-                  excludeFilters.map(OsSpecific.fixSeparatorsInPathPattern))
+    FilterMatcher(
+      includeFilters.map(OsSpecific.fixSeparatorsInPathPattern),
+      excludeFilters.map(OsSpecific.fixSeparatorsInPathPattern))
 }

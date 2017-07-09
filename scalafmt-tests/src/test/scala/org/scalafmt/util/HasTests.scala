@@ -39,7 +39,7 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
     maxStateVisits = 150000,
     eventCallback = {
       case CreateFormatOps(ops) => Debug.formatOps = ops
-      case VisitToken(tok)      => Debug.visit(tok)
+      case VisitToken(tok) => Debug.visit(tok)
       case explored: Explored if explored.n % 10000 == 0 =>
         logger.elem(explored)
       case Enqueue(split) => Debug.enqueued(split)
@@ -76,7 +76,7 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
         Some(scala.meta.parsers.Parse.parseSource)
       case "stat" => Some(scala.meta.parsers.Parse.parseStat)
       case "case" => Some(scala.meta.parsers.Parse.parseCase)
-      case _      => None
+      case _ => None
     }
 
   def extension(filename: String): String = filename.replaceAll(".*\\.", "")
@@ -111,36 +111,38 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
       val before :: expected :: Nil = t.split(s"$sep>>>$sep", 2).toList
       val name :: original :: Nil = before.split(sep, 2).toList
       val actualName = stripPrefix(name)
-      DiffTest(spec,
-               actualName,
-               filename,
-               original,
-               trimmed(expected),
-               moduleSkip || isSkip(name),
-               moduleOnly || isOnly(name),
-               style)
+      DiffTest(
+        spec,
+        actualName,
+        filename,
+        original,
+        trimmed(expected),
+        moduleSkip || isSkip(name),
+        moduleOnly || isOnly(name),
+        style)
     }
   }
 
   def spec2style(spec: String): ScalafmtConfig =
     spec match {
-      case "unit"                           => ScalafmtConfig.unitTest40
+      case "unit" => ScalafmtConfig.unitTest40
       case "default" | "standard" | "scala" => ScalafmtConfig.unitTest80
-      case "scalajs"                        => ScalafmtConfig.scalaJs.copy(maxColumn = 79)
-      case style                            => throw UnknownStyle(style)
+      case "scalajs" => ScalafmtConfig.scalaJs.copy(maxColumn = 79)
+      case style => throw UnknownStyle(style)
     }
 
   def saveResult(t: DiffTest, obtained: String, onlyOne: Boolean): Result = {
     val visitedStates = Debug.exploredInTest
     val output = getFormatOutput(t.style, onlyOne)
     val obtainedHtml = Report.mkHtml(output, t.style)
-    Result(t,
-           obtained,
-           obtainedHtml,
-           output,
-           Debug.maxVisitedToken,
-           visitedStates,
-           Debug.elapsedNs)
+    Result(
+      t,
+      obtained,
+      obtainedHtml,
+      output,
+      Debug.maxVisitedToken,
+      visitedStates,
+      Debug.elapsedNs)
   }
 
   def ignore(t: DiffTest): Boolean = false
@@ -180,21 +182,24 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
     val obtained =
       Scalafmt.format(t.original, t.style.copy(runner = runner)).get
     if (t.style.rewrite.rules.isEmpty) {
-      assertFormatPreservesAst(t.original, obtained)(parse,
-                                                     t.style.runner.dialect)
+      assertFormatPreservesAst(t.original, obtained)(
+        parse,
+        t.style.runner.dialect)
     }
     assertNoDiff(obtained, t.expected)
   }
 
-  def getFormatOutput(style: ScalafmtConfig,
-                      onlyOne: Boolean): Array[FormatOutput] = {
+  def getFormatOutput(
+      style: ScalafmtConfig,
+      onlyOne: Boolean): Array[FormatOutput] = {
     val builder = mutable.ArrayBuilder.make[FormatOutput]()
     new FormatWriter(Debug.formatOps)
       .reconstructPath(Debug.tokens, Debug.state.splits, debug = onlyOne) {
         case (_, token, whitespace) =>
-          builder += FormatOutput(token.left.syntax,
-                                  whitespace,
-                                  Debug.formatTokenExplored(token))
+          builder += FormatOutput(
+            token.left.syntax,
+            whitespace,
+            Debug.formatTokenExplored(token))
       }
     builder.result()
   }

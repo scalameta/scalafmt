@@ -6,8 +6,9 @@ import com.intellij.openapi.components._
 import com.intellij.openapi.project.Project
 import com.intellij.util.xmlb.XmlSerializerUtil
 
-@State(name = "ScalafmtSettings",
-       storages = Array(new Storage(StoragePathMacros.WORKSPACE_FILE)))
+@State(
+  name = "ScalafmtSettings",
+  storages = Array(new Storage(StoragePathMacros.WORKSPACE_FILE)))
 class IdeaSettings extends PersistentStateComponent[IdeaSettings] {
   @BeanProperty
   var formatOnSave: Boolean = false

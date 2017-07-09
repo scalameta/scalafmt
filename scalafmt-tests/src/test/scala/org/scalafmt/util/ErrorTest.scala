@@ -15,7 +15,7 @@ class ErrorTest extends FunSuite with DiffAssertions {
     nonSourceFile.foreach { original =>
       Scalafmt.format(original, ScalafmtConfig.unitTest40) match {
         case _: Formatted.Success => fail("expected failure, got success")
-        case _                    =>
+        case _ =>
       }
     }
   }

@@ -19,7 +19,7 @@ case object RedundantBraces extends Rewrite {
       case Term.Block(Seq(stat)) =>
         (stat match {
           case _: Term.Block | _: Term.Function | _: Defn => false
-          case _                                          => true
+          case _ => true
         }) &&
           d.body.tokens.head.is[LeftBrace] &&
           d.body.tokens.last.is[RightBrace]
@@ -72,11 +72,11 @@ case object RedundantBraces extends Rewrite {
         val close = d.body.tokens.last
         val bodyStatement = d.body match {
           case t: Term.Block => t.stats.head
-          case _             => d.body
+          case _ => d.body
         }
         val next = nextToken(close)
         if (next.is[LF] &&
-            close.pos.start.line != bodyStatement.pos.end.line)
+          close.pos.start.line != bodyStatement.pos.end.line)
           builder += TokenPatch.Remove(next)
 
         builder += TokenPatch.Remove(open)

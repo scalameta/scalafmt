@@ -4,11 +4,7 @@ import java.io.File
 import scala.collection.mutable
 import scala.xml.Utility
 
-import com.intellij.notification.{
-  Notification,
-  NotificationType,
-  Notifications
-}
+import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.actionSystem.{AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.{Project, ProjectManager}
@@ -24,10 +20,11 @@ object IdeaUtils {
 
   def displayMessage(msg: String, notificationType: NotificationType): Unit =
     Notifications.Bus.notify(
-      new Notification(PluginName,
-                       PluginName,
-                       Utility.escape(msg),
-                       notificationType))
+      new Notification(
+        PluginName,
+        PluginName,
+        Utility.escape(msg),
+        notificationType))
 
   private def getConfigFileInPath(path: String) =
     Option(FileOps.getFile(path, ".scalafmt.conf")).collect {
@@ -61,8 +58,9 @@ object IdeaUtils {
       }
     } yield {
       if (!styleCache.get(configFile).contains(config)) {
-        IdeaUtils.displayMessage("scalafmt picked up new style configuration",
-                                 NotificationType.INFORMATION)
+        IdeaUtils.displayMessage(
+          "scalafmt picked up new style configuration",
+          NotificationType.INFORMATION)
         styleCache.update(configFile, config)
       }
       config

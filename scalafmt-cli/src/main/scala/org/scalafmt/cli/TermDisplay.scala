@@ -71,7 +71,7 @@ object TermDisplay {
 
   def defaultFallbackMode: Boolean = {
     val env0 = sys.env.get("COURSIER_PROGRESS").map(_.toLowerCase).collect {
-      case "true" | "enable" | "1"   => true
+      case "true" | "enable" | "1" => true
       case "false" | "disable" | "0" => false
     }
     def compatibilityEnv = sys.env.get("COURSIER_NO_TERM").nonEmpty
@@ -324,7 +324,7 @@ object TermDisplay {
       currentHeight = lineCount
 
       Option(q.poll(100L, TimeUnit.MILLISECONDS)) match {
-        case None               => updateDisplayLoop(lineCount)
+        case None => updateDisplayLoop(lineCount)
         case Some(Message.Stop) => // poison pill
         case Some(Message.Update) =>
           val (done0, downloads0) = downloads.synchronized {
@@ -379,7 +379,7 @@ object TermDisplay {
 
     @tailrec private def fallbackDisplayLoop(previous: Set[String]): Unit =
       Option(q.poll(100L, TimeUnit.MILLISECONDS)) match {
-        case None               => fallbackDisplayLoop(previous)
+        case None => fallbackDisplayLoop(previous)
         case Some(Message.Stop) => // poison pill
 
           // clean up display
@@ -469,23 +469,26 @@ class TermDisplay(
   override def startTask(msg: String, file: File): Unit =
     updateThread.newEntry(
       msg,
-      DownloadInfo(0L,
-                   0L,
-                   None,
-                   System.currentTimeMillis(),
-                   updateCheck = false),
+      DownloadInfo(
+        0L,
+        0L,
+        None,
+        System.currentTimeMillis(),
+        updateCheck = false),
       s"$msg\n"
     )
 
-  def taskLength(url: String,
-                 totalLength: Long,
-                 alreadyDownloaded: Long): Unit = {
+  def taskLength(
+      url: String,
+      totalLength: Long,
+      alreadyDownloaded: Long): Unit = {
     val info = updateThread.infos.get(url)
     assert(info != null)
     val newInfo = info match {
       case info0: DownloadInfo =>
-        info0.copy(length = Some(totalLength),
-                   previouslyDownloaded = alreadyDownloaded)
+        info0.copy(
+          length = Some(totalLength),
+          previouslyDownloaded = alreadyDownloaded)
       case _ =>
         throw new Exception(s"Incoherent display state for $url")
     }
@@ -511,8 +514,9 @@ class TermDisplay(
   override def completedTask(url: String, success: Boolean): Unit =
     updateThread.removeEntry(url, success, s"Downloaded $url\n")(x => x)
 
-  override def checkingUpdates(url: String,
-                               currentTimeOpt: Option[Long]): Unit =
+  override def checkingUpdates(
+      url: String,
+      currentTimeOpt: Option[Long]): Unit =
     updateThread.newEntry(
       url,
       CheckUpdateInfo(currentTimeOpt, None, isDone = false),

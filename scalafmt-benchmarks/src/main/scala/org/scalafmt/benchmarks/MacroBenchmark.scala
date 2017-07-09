@@ -25,12 +25,13 @@ import org.scalafmt.rewrite.SortImports
 trait FormatBenchmark {
   def formatRewrite(code: String) = {
     Scalafmt
-      .format(code,
-              style = ScalafmtConfig.default.copy(
-                rewrite = RewriteSettings(
-                  rules = Seq(SortImports, RedundantBraces)
-                )
-              ))
+      .format(
+        code,
+        style = ScalafmtConfig.default.copy(
+          rewrite = RewriteSettings(
+            rules = Seq(SortImports, RedundantBraces)
+          )
+        ))
       .get
   }
 }

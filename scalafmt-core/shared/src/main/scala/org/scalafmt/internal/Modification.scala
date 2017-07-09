@@ -3,15 +3,15 @@ package org.scalafmt.internal
 sealed abstract class Modification {
 
   def isNewline: Boolean = this match {
-    case _: NewlineT                           => true
+    case _: NewlineT => true
     case Provided(code) if code.contains('\n') => true
-    case _                                     => false
+    case _ => false
   }
 
   def newlines: Int = this match {
-    case n: NewlineT    => if (n.isDouble) 2 else 1
+    case n: NewlineT => if (n.isDouble) 2 else 1
     case Provided(code) => code.count(_ == '\n')
-    case _              => 0
+    case _ => 0
   }
 }
 
@@ -29,10 +29,11 @@ case object NoSplit extends Modification
   *                      if the newline will indent beyond the current column?
   *                      For example, used by select chains in [[Router]].
   */
-case class NewlineT(isDouble: Boolean = false,
-                    noIndent: Boolean = false,
-                    acceptSpace: Boolean = false,
-                    acceptNoSplit: Boolean = false)
+case class NewlineT(
+    isDouble: Boolean = false,
+    noIndent: Boolean = false,
+    acceptSpace: Boolean = false,
+    acceptNoSplit: Boolean = false)
     extends Modification {
   override def toString = {
     val double = if (isDouble) "Double" else ""
