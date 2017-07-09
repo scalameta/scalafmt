@@ -31,9 +31,6 @@ Head over to [the user docs][docs] for instructions on how to install scalafmt.
 - `intellij/compile:compileIncremental` failed? Run `downloadIdea` to download custom IntelliJ plugin.
   The download may take a while.
 
-### Tutorial
-If you'd like to find out how to work on scalafmt, see this [tutorial](Tutorial.md).
-
 ### Team
 The current maintainers (people who can merge pull requests) are:
 
