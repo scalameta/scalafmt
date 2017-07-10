@@ -96,6 +96,12 @@ import metaconfig._
   *     c: Context
   *   ): String
   * }}}
+  * @param alwaysBeforeElseAfterCurlyIf if true, add a new line between the end of a curly if and the following else.
+  *   For example
+  *   if(someCond) {
+  *     // ...
+  *   }
+  *   else //...
   */
 @DeriveConfDecoder
 case class Newlines(
@@ -107,7 +113,8 @@ case class Newlines(
     alwaysBeforeTopLevelStatements: Boolean = false,
     afterCurlyLambda: NewlineCurlyLambda = NewlineCurlyLambda.never,
     afterImplicitKWInVerticalMultiline: Boolean = false,
-    beforeImplicitKWInVerticalMultiline: Boolean = false
+    beforeImplicitKWInVerticalMultiline: Boolean = false,
+    alwaysBeforeElseAfterCurlyIf: Boolean = false
 )
 
 sealed abstract class NewlineCurlyLambda
