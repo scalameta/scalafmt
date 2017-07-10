@@ -1,4 +1,4 @@
-spaces.afterKeywordBeforeParen = true
+spaces.afterKeywordBeforeParen = false
 <<< reformats if
 if (a) println("HELLO!")
 >>>

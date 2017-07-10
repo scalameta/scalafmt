@@ -550,7 +550,7 @@ class Router(formatOps: FormatOps) {
 
       // If configured to skip the trailing space after `if` and other keywords, do so.
       case FormatToken(KwIf() | KwFor() | KwWhile(), LeftParen(), _)
-          if style.spaces.afterKeywordBeforeParen =>
+          if !style.spaces.afterKeywordBeforeParen =>
         Seq(Split(NoSplit, 0))
 
       case tok @ FormatToken(LeftParen() | LeftBracket(), right, between)

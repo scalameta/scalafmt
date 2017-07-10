@@ -384,14 +384,14 @@
 
     @hl.scala
       // spaces.afterKeywordBeforeParen = true
-      if(a) foo()
-      while(a) foo()
-      for(a <- as) foo()
-
-      // spaces.afterKeywordBeforeParen = false
       if (a) foo()
       while (a) foo()
       for (a <- as) foo()
+
+      // spaces.afterKeywordBeforeParen = false
+      if(a) foo()
+      while(a) foo()
+      for(a <- as) foo()
 
 
   @sect{binPack.parentConstructors}

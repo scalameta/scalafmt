@@ -14,7 +14,7 @@ import org.scalafmt.config.SpaceBeforeContextBound.Never
   * @param neverAroundInfixTypes
   *   If ["##"] is specified as operator then
   *   formats `Generic[Foo] ## Repr` as `Generic[Foo]##Repr`.
-  * @param afterKeywordBeforeParen if true, adds a space betwen a keyword and a parenthesis.
+  * @param afterKeywordBeforeParen if false, does not add a space betwen a keyword and a parenthesis.
   *   For example:
   *   if(a) println("HELLO!")
   *   while(a) println("HELLO!")
@@ -26,5 +26,5 @@ case class Spaces(
     inImportCurlyBraces: Boolean = false,
     inParentheses: Boolean = false,
     neverAroundInfixTypes: Seq[String] = Nil,
-    afterKeywordBeforeParen: Boolean = false
+    afterKeywordBeforeParen: Boolean = true
 )
