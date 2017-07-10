@@ -379,6 +379,21 @@
       implicit def validatedInstances[E](implicit E: Semigroup[E]): Traverse[
           Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] = 2
 
+  @sect{spaces.afterKeywordBeforeParen}
+    Default: @b(default.spaces.afterKeywordBeforeParen)
+
+    @hl.scala
+      // spaces.afterKeywordBeforeParen = true
+      if(a) foo()
+      while(a) foo()
+      for(a <- as) foo()
+
+      // spaces.afterKeywordBeforeParen = false
+      if (a) foo()
+      while (a) foo()
+      for (a <- as) foo()
+
+
   @sect{binPack.parentConstructors}
     Default: @b(default.binPack.parentConstructors)
 
