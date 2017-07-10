@@ -545,7 +545,14 @@ class Router(formatOps: FormatOps) {
             .withPolicy(unindentPolicy)
             .withIndent(4, close, Left)
         )
-      case FormatToken(LeftParen(), RightParen(), _) => Seq(Split(NoSplit, 0))
+      case FormatToken(LeftParen(), RightParen(), _) =>
+        Seq(Split(NoSplit, 0))
+
+      // If configured to skip the trailing space after `if` and other keywords, do so.
+      case FormatToken(KwIf() | KwFor() | KwWhile(), LeftParen(), _)
+          if !style.spaces.afterKeywordBeforeParen =>
+        Seq(Split(NoSplit, 0))
+
       case tok @ FormatToken(LeftParen() | LeftBracket(), right, between)
           if !isSuperfluousParenthesis(formatToken.left, leftOwner) &&
             (!style.binPack.unsafeCallSite && isCallSite(leftOwner)) ||

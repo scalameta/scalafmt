@@ -1,0 +1,13 @@
+spaces.afterKeywordBeforeParen = false
+<<< reformats if
+if (a) println("HELLO!")
+>>>
+if(a) println("HELLO!")
+<<< reformats while
+while (a) println("HELLO!")
+>>>
+while(a) println("HELLO!")
+<<< reformats for
+for (a <- as) println("HELLO!")
+>>>
+for(a <- as) println("HELLO!")
