@@ -13,7 +13,8 @@
 1. Select `Import module`;
 1. Be sure the `unmanaged-jars` dependency in the `intellij` module is set to `provided`
    inside `Project structure`/`Project settings`/`Modules`/`Dependencies` (btw, setting `provided` inside sbt file gives error);
-   Without this setting, the generated zip file will be >100mb instead of ~20mb.
+   Without this setting you'll get a classpath collision at runtime (and the generated zip file
+   will be >100mb instead of ~20mb).
 1. Right click on top of `intellij-scalafmt` plugin module and select `Prepare Plugin Module 'intellij-scalafmt' for deployment`;
 
 If everything went smoothly, you should have a `intellij-scalafmt/intellij-scalafmt.zip` file
