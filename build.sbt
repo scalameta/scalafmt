@@ -177,6 +177,17 @@ lazy val benchmarks = project
   .dependsOn(coreJVM)
   .enablePlugins(JmhPlugin)
 
+lazy val jsfacade = project
+  .in(file("scalafmt-jsfacade"))
+  .settings(
+    allSettings,
+    noPublish,
+    moduleName := "scalafmt-jsfacade",
+    scalaJSModuleKind := ModuleKind.CommonJSModule
+  )
+  .enablePlugins(ScalaJSPlugin)
+  .dependsOn(coreJS)
+
 lazy val readme = scalatex
   .ScalatexReadme(
     projectId = "readme",
