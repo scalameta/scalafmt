@@ -13,6 +13,9 @@ class IdeaSettings extends PersistentStateComponent[IdeaSettings] {
   @BeanProperty
   var formatOnSave: Boolean = false
 
+  @BeanProperty
+  var relativePathToConfig: String = IdeaUtils.DefaultConfigPath
+
   override def loadState(config: IdeaSettings): Unit =
     XmlSerializerUtil.copyBean(config, this)
 

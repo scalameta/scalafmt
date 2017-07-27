@@ -18,6 +18,8 @@ object IdeaUtils {
 
   val PluginName = "Scalafmt"
 
+  val DefaultConfigPath = ".scalafmt.conf"
+
   def displayMessage(msg: String, notificationType: NotificationType): Unit =
     Notifications.Bus.notify(
       new Notification(
@@ -26,8 +28,8 @@ object IdeaUtils {
         Utility.escape(msg),
         notificationType))
 
-  private def getConfigFileInPath(path: String) =
-    Option(FileOps.getFile(path, ".scalafmt.conf")).collect {
+  private def getConfigFileInPath(path: String, configRelativePath: String) =
+    Option(FileOps.getFile(path, configRelativePath)).collect {
       case file: File if file.isFile => file.getAbsolutePath
     }
 
@@ -39,19 +41,28 @@ object IdeaUtils {
   private val homeDir = System.getProperty("user.home")
   private val styleCache = mutable.Map.empty[String, ScalafmtConfig]
 
-  def getStyle(project: Option[Project]): ScalafmtConfig = {
-    val localConfig = project.map(_.getBasePath).flatMap { basePath =>
-      emitMigrateConfigWarning(new File(basePath, ".scalafmt"))
-      getConfigFileInPath(basePath)
+  def searchForConfig(project: Option[Project]): Option[String] = {
+    val files = for {
+      proj <- project.toList
+      basePath = proj.getBasePath
+      _ = emitMigrateConfigWarning(new File(basePath, ".scalafmt"))
+      ideaSettings = IdeaSettings(proj)
+      path <- Seq(basePath, homeDir)
+      relPath <- Seq(ideaSettings.relativePathToConfig, DefaultConfigPath)
+    } yield {
+      getConfigFileInPath(path, relPath)
     }
-    val globalConfig = getConfigFileInPath(homeDir)
 
+    files.flatten.headOption
+  }
+
+  def getStyle(project: Option[Project]): ScalafmtConfig = {
     val customStyle: Option[ScalafmtConfig] = for {
-      configFile <- localConfig.orElse(globalConfig)
+      configFile <- searchForConfig(project)
       config <- StyleCache.getStyleForFileOrError(configFile) match {
         case NotOk(e) =>
           IdeaUtils.displayMessage(
-            "Failed to read .scalafmt.conf. \n" + e.toString(),
+            s"Failed to read $configFile. \n" + e.toString(),
             NotificationType.WARNING)
           None
         case Ok(config) => Some(config)
