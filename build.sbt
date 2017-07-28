@@ -182,6 +182,7 @@ lazy val jsfacade = project
   .settings(
     allSettings,
     noPublish,
+    isOnly(scala212),
     moduleName := "scalafmt-jsfacade",
     scalaJSModuleKind := ModuleKind.CommonJSModule
   )
