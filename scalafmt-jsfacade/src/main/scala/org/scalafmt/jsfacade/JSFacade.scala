@@ -7,8 +7,6 @@ import scala.scalajs.js
 import js.JSConverters._
 import js.annotation._
 
-import config.{ScalafmtConfig, Config}
-
 object JSFacade {
 
   private[this] type Ranges = js.Array[js.Dictionary[Int]]
@@ -29,9 +27,6 @@ object JSFacade {
     (for {
       config <- Config
         .fromHoconString(hoconConfig.getOrElse(""))
-        .toEither
-        .left
-        .map(_.toString)
       rr <- toRanges(ranges)
       formattedInput <- Scalafmt
         .format(input, config, rr)

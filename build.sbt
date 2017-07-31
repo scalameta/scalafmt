@@ -184,7 +184,8 @@ lazy val jsfacade = project
     noPublish,
     isOnly(scala212),
     moduleName := "scalafmt-jsfacade",
-    scalaJSModuleKind := ModuleKind.CommonJSModule
+    scalaJSModuleKind := ModuleKind.CommonJSModule,
+    libraryDependencies += "eu.unicredit" %%% "shocon" % "0.1.8"
   )
   .enablePlugins(ScalaJSPlugin)
   .dependsOn(coreJS)
