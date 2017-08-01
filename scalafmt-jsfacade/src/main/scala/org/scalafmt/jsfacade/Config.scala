@@ -47,12 +47,12 @@ object Config {
           defnSite = get(config)("continuationIndent.defnSite", default.continuationIndent.defnSite),
           extendSite = get(config)("continuationIndent.extendSite", default.continuationIndent.extendSite)
         ),
-        align = config.get("align").flatMap(_.as[String]) match {
-          case Some("none") => Align.none
-          case Some("some") => Align.some
-          case Some("default") => Align.default
-          case Some("most") => Align.most
-          case Some("more") => Align.more
+        align = config.get("align") match {
+          case Some(shocon.Config.StringLiteral("none")) => Align.none
+          case Some(shocon.Config.StringLiteral("some")) => Align.some
+          case Some(shocon.Config.StringLiteral("default")) => Align.default
+          case Some(shocon.Config.StringLiteral("most")) => Align.most
+          case Some(shocon.Config.StringLiteral("more")) => Align.more
           case _ => Align(
             openParenCallSite = get(config)("align.openParenCallSite", default.align.openParenCallSite),
             openParenDefnSite = get(config)("align.openParenDefnSite", default.align.openParenDefnSite),
@@ -119,17 +119,17 @@ object Config {
               )
             case _ => default.rewrite.redundantBraces
           },
-          neverInfix = config.get("rewrite.neverInfix").flatMap(_.as[String]) match {
-            case Some("neverInfix") => Pattern.neverInfix
+          neverInfix = config.get("rewrite.neverInfix") match {
+            case Some(shocon.Config.StringLiteral("neverInfix")) => Pattern.neverInfix
             case _ => Pattern(
               includeFilters = get(config)("rewrite.neverInfix.includeFilters", default.rewrite.neverInfix.includeFilters),
               excludeFilters = get(config)("rewrite.neverInfix.excludeFilters", default.rewrite.neverInfix.excludeFilters)
             )
           }
         ),
-        indentOperator = config.get("indentOperator").flatMap(_.as[String]) match {
-          case Some("default") => IndentOperator.default
-          case Some("akka") => IndentOperator.akka
+        indentOperator = config.get("indentOperator") match {
+          case Some(shocon.Config.StringLiteral("default")) => IndentOperator.default
+          case Some(shocon.Config.StringLiteral("akka")) => IndentOperator.akka
           case _ => IndentOperator(
             include = get(config)("indentOperator.include", default.indentOperator.include),
             exclude = get(config)("indentOperator.exclude", default.indentOperator.exclude)
