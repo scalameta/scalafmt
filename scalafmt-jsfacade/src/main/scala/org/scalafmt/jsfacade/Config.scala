@@ -52,6 +52,7 @@ object Config {
           case Some("some") => Align.some
           case Some("default") => Align.default
           case Some("most") => Align.most
+          case Some("more") => Align.more
           case _ => Align(
             openParenCallSite = get(config)("align.openParenCallSite", default.align.openParenCallSite),
             openParenDefnSite = get(config)("align.openParenDefnSite", default.align.openParenDefnSite),
