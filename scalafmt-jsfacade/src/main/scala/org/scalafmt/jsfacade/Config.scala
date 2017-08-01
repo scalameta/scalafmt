@@ -4,6 +4,7 @@ package jsfacade
 import scala.util.Try
 
 import config._
+import rewrite._
 
 object Config {
   import eu.unicredit.shocon
@@ -94,8 +95,19 @@ object Config {
         }, 
         rewriteTokens = get(config)("rewriteTokens", default.rewriteTokens),
         rewrite = RewriteSettings(
-          // TODO(gabro)
-          // rules = config.get("rewrite")
+          rules = config.get("rewrite.rules") match {
+            case Some(shocon.Config.Array(rewrites)) =>
+              rewrites.collect {
+                case shocon.Config.StringLiteral("RedundantBraces") => RedundantBraces
+                case shocon.Config.StringLiteral("RedundantParens") => RedundantParens
+                case shocon.Config.StringLiteral("SortImports") => SortImports
+                case shocon.Config.StringLiteral("AsciiSortImports") => AsciiSortImports
+                case shocon.Config.StringLiteral("PreferCurlyFors") => PreferCurlyFors
+                case shocon.Config.StringLiteral("ExpandImportSelectors") => ExpandImportSelectors
+                case shocon.Config.StringLiteral("AvoidInfix") => AvoidInfix
+              }
+            case _ => Nil
+          },
           redundantBraces = config.get("rewrite.redundantBraces") match {
             case Some(c: shocon.Config.Object) =>
               val defaultBraces = RedundantBracesSettings()
@@ -139,11 +151,18 @@ object Config {
             case _ => default.newlines.afterCurlyLambda
           }
         ),
-        // TODO(gabro)
-        // runner =
+        runner = config.get("runner").flatMap(_.as[String]) match {
+          case Some("statement") => ScalafmtRunner.statement
+          case Some("sbt") => ScalafmtRunner.sbt
+          case _ => ScalafmtRunner.default
+        },
         indentYieldKeyword = get(config)("indentYieldKeyword", default.indentYieldKeyword),
-        // TODO(gabro)
-        // importSelectors =
+        importSelectors = config.get("importSelectors").flatMap(_.as[String]) match {
+          case Some("noBinPack") => ImportSelectors.noBinPack
+          case Some("binPack") => ImportSelectors.binPack
+          case Some("singleLine") => ImportSelectors.singleLine
+          case _ => ImportSelectors.noBinPack
+        },
         unindentTopLevelOperators = get(config)("unindentTopLevelOperators", default.unindentTopLevelOperators),
         includeCurlyBraceInSelectChains = get(config)("includeCurlyBraceInSelectChains", default.includeCurlyBraceInSelectChains),
         assumeStandardLibraryStripMargin = get(config)("assumeStandardLibraryStripMargin", default.assumeStandardLibraryStripMargin),
