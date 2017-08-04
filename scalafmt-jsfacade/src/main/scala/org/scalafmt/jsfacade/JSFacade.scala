@@ -22,11 +22,13 @@ object JSFacade {
   @JSExportTopLevel("format")
   def format(
       input: String,
+      isSbt: Boolean,
       hoconConfig: js.UndefOr[String],
       ranges: js.UndefOr[Ranges]): String = {
     (for {
       config <- Config
         .fromHoconString(hoconConfig.getOrElse(""))
+        .map(c => if (isSbt) c.copy(runner = c.runner.forSbt) else c)
       rr <- toRanges(ranges)
       formattedInput <- Scalafmt
         .format(input, config, rr)
