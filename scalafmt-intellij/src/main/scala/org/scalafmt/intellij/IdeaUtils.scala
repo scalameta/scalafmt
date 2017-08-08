@@ -31,7 +31,6 @@ object IdeaUtils {
         notificationType))
 
   private def getConfigFileInPath(path: String, configRelativePath: String) = {
-    emitMigrateConfigWarning(new File(path, ".scalafmt"))
     Option(FileOps.getFile(path, configRelativePath)).collect {
       case file: File if file.isFile => file.getAbsolutePath
     }
@@ -84,17 +83,6 @@ object IdeaUtils {
     }
     customStyle.getOrElse(ScalafmtConfig.default)
   }
-
-  private def emitMigrateConfigWarning(configFile: File): Unit =
-    if (configFile.isFile) {
-      IdeaUtils.displayMessage(
-        "Ignoring configuration file '.scalafmt', please remove it. " +
-          "Configuration is now read from '.scalafmt.conf' using HOCON syntax. " +
-          "Run `scalafmt --migrate2hocon .scalafmt` from the the CLI to migrate your settings. " +
-          "More details in changelog for 0.4  release.",
-        NotificationType.WARNING
-      )
-    }
 
   def getCurrentFileDocument(event: AnActionEvent): Option[FileDocument] =
     for {
