@@ -3,14 +3,16 @@ package org.scalafmt.intellij
 import java.io.File
 import scala.collection.mutable
 import scala.xml.Utility
-
 import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.actionSystem.{AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.{Project, ProjectManager}
+import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.vfs.VirtualFile
 import metaconfig.Configured.NotOk
 import metaconfig.Configured.Ok
 import org.scalafmt.cli.StyleCache
+import com.intellij.vcsUtil.VcsUtil
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.FileOps
 
@@ -28,37 +30,41 @@ object IdeaUtils {
         Utility.escape(msg),
         notificationType))
 
-  private def getConfigFileInPath(path: String, configRelativePath: String) =
+  private def getConfigFileInPath(path: String, configRelativePath: String) = {
+    emitMigrateConfigWarning(new File(path, ".scalafmt"))
     Option(FileOps.getFile(path, configRelativePath)).collect {
       case file: File if file.isFile => file.getAbsolutePath
     }
+  }
 
-  def projectForFile(file: String) = {
-    val projects = ProjectManager.getInstance().getOpenProjects
-    projects.find(bp => file.startsWith(bp.getBasePath))
+  def projectForFile(file: VirtualFile) = {
+    ProjectManager.getInstance().getOpenProjects.find { project =>
+      ProjectRootManager.getInstance(project).getFileIndex().isInSource(file)
+    }
   }
 
   private val homeDir = System.getProperty("user.home")
   private val styleCache = mutable.Map.empty[String, ScalafmtConfig]
 
-  def searchForConfig(project: Option[Project]): Option[String] = {
+  def searchForConfig(
+      project: Option[Project],
+      file: VirtualFile): Option[String] = {
     val files = for {
       proj <- project.toList
       basePath = proj.getBasePath
-      _ = emitMigrateConfigWarning(new File(basePath, ".scalafmt"))
       ideaSettings = IdeaSettings(proj)
-      path <- Seq(basePath, homeDir)
+      vscPath = Option(VcsUtil.getVcsRootFor(proj, file)).map(_.getPath)
+      path <- Seq(Some(basePath), vscPath, Some(homeDir)).flatten
       relPath <- Seq(ideaSettings.relativePathToConfig, DefaultConfigPath)
     } yield {
       getConfigFileInPath(path, relPath)
     }
-
     files.flatten.headOption
   }
 
-  def getStyle(project: Option[Project]): ScalafmtConfig = {
+  def getStyle(project: Option[Project], file: VirtualFile): ScalafmtConfig = {
     val customStyle: Option[ScalafmtConfig] = for {
-      configFile <- searchForConfig(project)
+      configFile <- searchForConfig(project, file)
       config <- StyleCache.getStyleForFileOrError(configFile) match {
         case NotOk(e) =>
           IdeaUtils.displayMessage(
@@ -96,5 +102,5 @@ object IdeaUtils {
       editor <- Option(
         FileEditorManager.getInstance(project).getSelectedTextEditor)
       document <- Option(editor.getDocument)
-    } yield FileDocument(document)
+    } yield FileDocument(Some(project), document)
 }

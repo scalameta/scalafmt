@@ -408,7 +408,7 @@
       }
 
       // column limit                        |
-      // bin.packParentConstructors = true
+      // binPack.parentConstructors = true
       object DefaultStyle
           extends Parent with SecondParent
           with ThirdParent {
