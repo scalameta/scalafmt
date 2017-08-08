@@ -10,30 +10,31 @@
     @sect.ref{Coursier}.
 
     @sect{Coursier}
-      @ul
-        @li
-          To install coursier see @lnk("here", "https://github.com/coursier/coursier#command-line")
-        @li
-          Create a standalone executable in @code{/usr/local/bin/scalafmt}
-          @hl.scala
-            sudo coursier bootstrap --standalone com.geirsson:scalafmt-cli_2.12:@V.stable -o /usr/local/bin/scalafmt -f --main org.scalafmt.cli.Cli
-            scalafmt --version # should be @org.scalafmt.Versions.stable
-        @li
-          Create a slim 16kb bootstrap script with
-          @hl.xml
-            coursier bootstrap com.geirsson:scalafmt-cli_2.11:@V.stable --main org.scalafmt.cli.Cli -o scalafmt
-            ./scalafmt --version # should be @org.scalafmt.Versions.stable
-        @li
-          To customize the JVM options, use the Coursier option @code{--java-opt}, more info with
-          @hl.xml
-            coursier bootstrap --help | grep -A 1 "\-\-java-opt"
+      @p
+        @note To install Coursier see @lnk("here", "https://github.com/coursier/coursier#command-line")
 
-        @p
-          @b{Recommended in CI/Continuous Integration Server}. Put the bootstrap
-          script in your code repository to make sure everyone on your team use
-          the same scalafmt version. To configure which files to format,
-          see @sect.ref{project}.
+      @p
+        Create a standalone executable in @code{/usr/local/bin/scalafmt} with (sudo if necessary):
+        @hl.xml
+          coursier bootstrap com.geirsson:scalafmt-cli_2.12:@V.stable \
+            -o /usr/local/bin/scalafmt --standalone
+          scalafmt --version # should be @org.scalafmt.Versions.stable
 
+      @p
+        Alternatively you can create a slim 15 KiB bootstrap script with:
+        @hl.xml
+          coursier bootstrap com.geirsson:scalafmt-cli_2.12:@V.stable \
+            -o scalafmt
+          ./scalafmt --version # should be @org.scalafmt.Versions.stable
+
+        It is @b{recommended} to put this bootstrap script in your code repository
+        to make sure everyone on your team, as well as CI, uses the same scalafmt
+        version. To configure which files to format, see @sect.ref{project}.
+
+      @p
+        To customize the JVM options, use the Coursier option @code{--java-opt}, more info with
+        @hl.xml
+          coursier bootstrap --help | grep -A 1 "\-\-java-opt"
 
     @sect{Nailgun}
 
