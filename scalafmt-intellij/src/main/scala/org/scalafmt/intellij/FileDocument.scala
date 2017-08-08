@@ -12,16 +12,15 @@ import org.scalafmt.{Formatted, Scalafmt}
 import IdeaUtils._
 import com.intellij.openapi.project.Project
 
-case class FileDocument(document: Document) {
-  private val virtualFile = FileDocumentManager.getInstance().getFile(document)
+case class FileDocument(project: Option[Project], document: Document) {
+  val virtualFile = FileDocumentManager.getInstance().getFile(document)
   def path = virtualFile.getPath
   def isSbt: Boolean = virtualFile.getFileType.getName == "SBT"
   def isScala: Boolean = virtualFile.getFileType.getName == "Scala"
   def canFormat: Boolean = isScala || isSbt
-  def project: Option[Project] = projectForFile(virtualFile.getPath)
 
   def format(): Unit = if (canFormat) {
-    val style = getStyle(project)
+    val style = getStyle(project, virtualFile)
     val runner =
       if (isSbt)
         style.runner.copy(dialect = scala.meta.dialects.Sbt0137)
@@ -49,5 +48,13 @@ case class FileDocument(document: Document) {
           })
         }
     }
+  }
+}
+
+object FileDocument {
+  def apply(document: Document): FileDocument = {
+    val project = projectForFile(
+      FileDocumentManager.getInstance().getFile(document))
+    FileDocument(project, document)
   }
 }

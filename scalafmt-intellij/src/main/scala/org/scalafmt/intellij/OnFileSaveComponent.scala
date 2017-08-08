@@ -11,7 +11,11 @@ class OnFileSaveComponent extends ApplicationComponent {
   def getComponentName = IdeaUtils.PluginName
 
   def isIncludedInSettings(doc: FileDocument): Boolean =
-    IdeaUtils.getStyle(doc.project).project.matcher.matches(doc.path)
+    IdeaUtils
+      .getStyle(doc.project, doc.virtualFile)
+      .project
+      .matcher
+      .matches(doc.path)
 
   def initComponent() {
     val bus = ApplicationManager.getApplication.getMessageBus
