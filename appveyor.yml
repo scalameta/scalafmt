@@ -2,7 +2,8 @@ version: '{build}'
 os: Windows Server 2012
 install:
   - ps: iex (new-object net.webclient).downloadstring('https://get.scoop.sh')
-  - ps: scoop install sbt
+  - ps: scoop bucket add versions
+  - ps: scoop install sbt0.13
 environment:
   CI_SCALA_VERSION: 2.12.2
 build_script:
