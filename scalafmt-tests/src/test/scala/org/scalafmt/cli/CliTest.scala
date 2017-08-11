@@ -18,13 +18,14 @@ import org.scalafmt.util.OsSpecific._
 import org.scalafmt.util.FileOps
 import org.scalatest.FunSuite
 
-class CliTest extends FunSuite with DiffAssertions {
-  import FileTestOps._
+import FileTestOps._
 
-  private def mkArgs(str: String): Array[String] =
+abstract class AbstractCliTest extends FunSuite with DiffAssertions {
+
+  def mkArgs(str: String): Array[String] =
     str.split(' ').toArray
 
-  private def runWith(root: AbsoluteFile, argStr: String) = {
+  def runWith(root: AbsoluteFile, argStr: String): Unit = {
     val args = mkArgs(argStr)
     val opts = getMockOptions(root)
 
@@ -54,6 +55,7 @@ class CliTest extends FunSuite with DiffAssertions {
   def getConfig(args: Array[String]): CliOptions = {
     Cli.getConfig(args, baseCliOptions).get
   }
+
   val unformatted = """
                       |object a    extends   App {
                       |pr("h")
@@ -74,7 +76,7 @@ class CliTest extends FunSuite with DiffAssertions {
   val customConfig =
     """
       |maxColumn   = 2
-    """.stripMargin
+      """.stripMargin
   val sbtOriginal =
     """|lazy val x = project
        |   lazy val y    = project
@@ -89,7 +91,25 @@ class CliTest extends FunSuite with DiffAssertions {
 
   def gimmeConfig(string: String): ScalafmtConfig =
     Config.fromHoconString(string).get
+  def noArgTest(
+      input: AbsoluteFile,
+      expected: String,
+      cmds: Seq[Array[String]]): Unit = {
+    cmds.foreach { args =>
+      val init: CliOptions = getMockOptions(input)
+      val config = Cli.getConfig(args, init).get
+      Cli.run(config)
+      val obtained = dir2string(input)
+      assertNoDiff(obtained, expected)
+      val configTest = Cli.getConfig(Array("--test"), init).get
+      Cli.run(configTest)
+    }
 
+  }
+
+}
+
+class CliTest extends AbstractCliTest {
   test("scalafmt tmpFile tmpFile2") {
     val originalTmpFile = Files.createTempFile("prefix", ".scala")
     val originalTmpFile2 = Files.createTempFile("prefix2", ".scala")
@@ -251,22 +271,6 @@ class CliTest extends FunSuite with DiffAssertions {
     }
     check("notfound")
     check("target/notfound")
-  }
-
-  def noArgTest(
-      input: AbsoluteFile,
-      expected: String,
-      cmds: Seq[Array[String]]): Unit = {
-    cmds.foreach { args =>
-      val init: CliOptions = getMockOptions(input)
-      val config = Cli.getConfig(args, init).get
-      Cli.run(config)
-      val obtained = dir2string(input)
-      assertNoDiff(obtained, expected)
-      val configTest = Cli.getConfig(Array("--test"), init).get
-      Cli.run(configTest)
-    }
-
   }
 
   test("scalafmt (no arg) read config from git repo") {
@@ -446,5 +450,18 @@ class CliTest extends FunSuite with DiffAssertions {
     assertNoDiff(obtained, formatted)
     assertNoDiff(obtained2, formatted)
     assertNoDiff(obtained3, formatted)
+  }
+
+  test("exception is thrown on invalid .scalafmt.conf") {
+    val root = string2dir(
+      """/.scalafmt.conf
+        |blah = intellij
+        |/foo.scala
+        |object    A
+      """.stripMargin
+    )
+    intercept[IllegalArgumentException] {
+      noArgTest(root, "", Seq(Array.empty))
+    }
   }
 }
