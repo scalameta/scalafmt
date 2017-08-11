@@ -6,8 +6,6 @@ lazy val buildSettings = Seq(
   version := sys.props.getOrElse("scalafmt.version", version.value),
   scalaVersion := scala212,
   crossScalaVersions := Seq(scala211, scala212),
-  scalaCompilerBridgeSource :=
-    ("org.scala-sbt" % "compiler-interface" % "0.13.15" % "component").sources,
   updateOptions := updateOptions.value.withCachedResolution(true),
   resolvers += Resolver.sonatypeRepo("releases"),
   libraryDependencies += scalatest.value % Test,
@@ -16,6 +14,7 @@ lazy val buildSettings = Seq(
   assemblyJarName in assembly := "scalafmt.jar",
   testOptions in Test += Tests.Argument("-oD")
 )
+
 lazy val allSettings = buildSettings ++ publishSettings
 
 name := "scalafmtRoot"
@@ -75,13 +74,13 @@ lazy val `scalafmt-sbt` = project
     moduleName := "sbt-scalafmt",
     isOnly(scala212),
     sbtPlugin := true,
-    sbtVersion in Global := "1.0.0-M5",
+    sbtVersion in Global := "1.0.0",
     test.in(IntegrationTest) := RunSbtCommand(
       Seq(
         s"plz $scala212 publishLocal",
-        """set sbtVersion in Global := "0.13.15" """,
+        """set sbtVersion in Global := "0.13.16" """,
         "such scalafmt-sbt-tests/scripted",
-        """set sbtVersion in Global := "1.0.0-M5" """
+        """set sbtVersion in Global := "1.0.0" """
       ).mkString("; ", "; ", "")
     )(state.value)
   )
