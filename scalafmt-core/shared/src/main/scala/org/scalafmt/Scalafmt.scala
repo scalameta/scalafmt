@@ -1,9 +1,9 @@
 package org.scalafmt
 
+import scala.meta.Dialect
 import scala.meta.Input.stringToInput
 import scala.meta.inputs.Input
 import scala.util.control.NonFatal
-
 import org.scalafmt.Error.Incomplete
 import org.scalafmt.config.FormatEvent.CreateFormatOps
 import org.scalafmt.config.LineEndings.preserve
@@ -73,4 +73,14 @@ object Scalafmt {
 
   private[this] def containsWindowsLineEndings(code: String): Boolean =
     code.contains(WindowsLineEnding)
+
+  /** Utility method to change dialect on ScalafmtConfig.
+    *
+    * Binary compatibility is guaranteed between releases, unlike with ScalafmtConfig.copy.
+    **/
+  def configWithDialect(
+      config: ScalafmtConfig,
+      dialect: Dialect
+  ): ScalafmtConfig =
+    config.withDialect(dialect)
 }

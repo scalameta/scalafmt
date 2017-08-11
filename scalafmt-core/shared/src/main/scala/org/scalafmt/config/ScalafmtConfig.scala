@@ -1,9 +1,9 @@
 package org.scalafmt.config
 
 import scala.io.Codec
+import scala.meta.Dialect
 import scala.util.control.NonFatal
 import scala.util.matching.Regex
-
 import metaconfig._
 import org.scalafmt.util.ValidationOps
 
@@ -148,6 +148,9 @@ case class ScalafmtConfig(
 ) {
   implicit val alignDecoder: ConfDecoder[Align] =
     ScalafmtConfig.alignReader(align.reader)
+
+  def withDialect(dialect: Dialect): ScalafmtConfig =
+    copy(runner = runner.copy(dialect = dialect))
 
   def reformatDocstrings: Boolean = docstrings != Docstrings.preserve
   def scalaDocs: Boolean = docstrings == Docstrings.ScalaDoc
