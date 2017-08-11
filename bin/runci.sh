@@ -6,6 +6,9 @@ case "$TEST" in
   "scalafmt" )
     ./scalafmt --test
     ;;
+  "mima" )
+    sbt "very mimaReportBinaryIssues"
+    ;;
   * )
     sbt $TEST
     ;;
