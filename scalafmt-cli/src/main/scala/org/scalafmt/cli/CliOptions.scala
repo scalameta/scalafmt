@@ -2,7 +2,8 @@ package org.scalafmt.cli
 
 import java.io.InputStream
 import java.io.PrintStream
-
+import metaconfig.Configured.NotOk
+import metaconfig.Configured.Ok
 import org.scalafmt.config.Config
 import org.scalafmt.config.FilterMatcher
 import org.scalafmt.config.ProjectFiles
@@ -47,14 +48,12 @@ object CliOptions {
     for {
       configFile <- Option(getConfigJFile(dir))
       if configFile.jfile.isFile
-      parsedConfig <- {
-        Config
-          .fromHoconString(FileOps.readFile(configFile))
-          .toEither
-          .right
-          .toOption
+    } yield
+      Config.fromHoconString(FileOps.readFile(configFile)) match {
+        case Ok(value) => value
+        // Fail fast on invalid configuration.
+        case NotOk(error) => throw new IllegalArgumentException(error.msg)
       }
-    } yield parsedConfig
   }
 
   private def tryGit(options: CliOptions): Option[ScalafmtConfig] = {
