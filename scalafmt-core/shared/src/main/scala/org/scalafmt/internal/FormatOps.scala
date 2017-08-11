@@ -3,6 +3,7 @@ package org.scalafmt.internal
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.meta.Case
+import scala.meta.Ctor
 import scala.meta.Defn
 import scala.meta.Import
 import scala.meta.Name
@@ -17,7 +18,6 @@ import scala.meta.prettyprinters.Structure
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 import scala.meta.tokens.Tokens
-
 import org.scalafmt.Error.CaseMissingArrow
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.ExpiresOn.Left
@@ -31,6 +31,7 @@ import org.scalafmt.util.TreeOps
 import org.scalafmt.util.Whitespace
 import org.scalafmt.util.Modifier
 import org.scalafmt.util.RightParenOrBracket
+import org.scalameta.logger
 
 /**
   * Helper functions for generating splits/policies for a given tree.
@@ -289,14 +290,25 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     result.result()
   }
 
-  def defnSiteLastToken(tree: Tree): Token = {
+  def defnSiteLastToken(open: Token, tree: Tree): Token = {
     tree match {
       // TODO(olafur) scala.meta should make this easier.
       case procedure: Defn.Def
           if procedure.decltpe.isDefined &&
             procedure.decltpe.get.tokens.isEmpty =>
         procedure.body.tokens.find(_.is[LeftBrace])
-      case _ => tree.tokens.find(t => t.is[Equals] && owners(t) == tree)
+      case Defn.Def(_, _, _, _, _, b @ Term.Block(_)) =>
+        b.tokens.headOption
+      case _: Ctor.Primary =>
+        leftTok2tok(matchingParentheses(hash(open))) match {
+          // This is a terrible terrible hack. Please consider removing this.
+          // The RightParen() LeftBrace() pair is presumably a ") {" combination
+          // at a class definition
+          case FormatToken(RightParen(), b @ LeftBrace(), _) => Some(b)
+          case _ => Some(matchingParentheses(hash(open)))
+        }
+      case _ =>
+        tree.tokens.find(t => t.is[Equals] && owners(t) == tree)
     }
   }.getOrElse(tree.tokens.last)
 

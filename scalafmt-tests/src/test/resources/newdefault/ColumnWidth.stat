@@ -7,3 +7,18 @@ object Wat {
 object Wat {
   val a = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 }
+<<< native 82
+class Motion(val callsign: CallSign, val posOne: Vector3D, val posTwo: Vector3D) {
+  def renderScene(scene: Scene, canvasContext: CanvasRenderingContext2D): Unit = {
+    blah
+  }
+}
+>>>
+class Motion(val callsign: CallSign,
+             val posOne: Vector3D,
+             val posTwo: Vector3D) {
+  def renderScene(scene: Scene,
+                  canvasContext: CanvasRenderingContext2D): Unit = {
+    blah
+  }
+}
