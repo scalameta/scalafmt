@@ -623,7 +623,7 @@ class Router(formatOps: FormatOps) {
 
         val defnSite = isDefnSite(leftOwner)
         val expirationToken: Token =
-          if (defnSite && !isBracket) defnSiteLastToken(leftOwner)
+          if (defnSite && !isBracket) defnSiteLastToken(open, leftOwner)
           else rhsOptimalToken(leftTok2tok(close))
 
         val tooManyArguments = args.length > 100
