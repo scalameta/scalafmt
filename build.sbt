@@ -118,6 +118,7 @@ lazy val intellij = project
     buildInfoSettings,
     noPublish,
     noDocs,
+    mimaReportBinaryIssues := {},
     ideaBuild := "2016.3.2",
     test := {}, // no need to download IDEA to run all tests.
     ideaEdition := IdeaEdition.Community,
