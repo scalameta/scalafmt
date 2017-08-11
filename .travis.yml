@@ -13,6 +13,7 @@ env:
       CI_SCALA_VERSION: 2.12.2
     - CI_TEST: ci-sbt-scalafmt
       CI_SCALA_VERSION: 2.12.2
+    - CI_TEST: mima
 
 cache:
   directories:
