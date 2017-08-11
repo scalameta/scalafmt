@@ -7,6 +7,36 @@
   @ul
     @li
       Please document your contribution here.
+@sect{1.2.0}
+  @p
+    See @lnk("merged PRs", "https://github.com/scalameta/scalafmt/milestone/17?closed=1").
+
+  @ul
+    @li
+      IntelliJ plugin now supports a custom path for .scalafmt.conf, by
+      @user{vovapolu}. See Tools > Scalafmt > Relative path to scalafmt config.
+    @li
+      IntelliJ plugin now also tries to read .scalafmt.conf from the project's
+      VCS root, by @user{stuhood}.
+    @li
+      New option @sect.ref{spaces.afterKeywordBeforeParen}, by @user{nrinaudo}.
+    @li
+      New option @sect.ref{newlines.alwaysBeforeElseAfterCurlyIf},
+      by @user{nrinaudo}.
+    @li
+      sbt-scalafmt now supports sbt 1.0!
+    @li
+      scalafmt-cli now fails fast on invalid .scalafmt.conf when invoked with
+      no cli args, @issue(1012).
+    @li
+      Off-by-one error for def and class definitions fixed, thanks @user{densh} for
+      reporting. Expect diffs when upgrading.
+    @li
+      Our CI now checks for binary compatibility issues on every PR.
+      Binary compatibility is not guaranteed for the packages
+      @code{org.scalafmt.internal} and
+      @code{org.scalafmt.config}.
+
 @sect{1.1.0}
   @ul
     @li
