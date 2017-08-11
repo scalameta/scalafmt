@@ -71,6 +71,7 @@ lazy val `scalafmt-sbt` = project
   .settings(
     allSettings,
     Defaults.itSettings,
+    mimaPreviousArtifacts := Set.empty,
     moduleName := "sbt-scalafmt",
     isOnly(scala212),
     sbtPlugin := true,
@@ -263,6 +264,12 @@ lazy val publishSettings = Seq(
     }
   },
   publishArtifact in Test := false,
+  mimaPreviousArtifacts := Set(
+    organization.value %
+      s"${moduleName.value}_${scalaBinaryVersion.value}" %
+      sys.props.getOrElse("scalafmt.stable.version", stableVersion.value)
+  ),
+  mimaBinaryIssueFilters ++= Mima.ignoredABIProblems,
   licenses := Seq(
     "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
   homepage := Some(url("https://github.com/scalameta/scalafmt")),
@@ -285,18 +292,20 @@ lazy val publishSettings = Seq(
 )
 
 lazy val noPublish = Seq(
+  mimaPreviousArtifacts := Set.empty,
   publishArtifact := false,
   publish := {},
   publishLocal := {}
 )
 
+lazy val stableVersion = Def.setting(version.value.replaceAll("\\+.*", ""))
 lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
   buildInfoKeys := Seq[BuildInfoKey](
     name,
     version,
     "scalameta" -> scalametaV,
     "nightly" -> version.value,
-    "stable" -> version.value.replaceAll("\\+.*", ""),
+    "stable" -> stableVersion.value,
     "scala" -> scalaVersion.value,
     "coursier" -> coursier,
     scalaVersion,
