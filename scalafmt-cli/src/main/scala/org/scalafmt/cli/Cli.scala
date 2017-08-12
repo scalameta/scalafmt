@@ -109,7 +109,9 @@ object Cli {
     }
   }
 
-  private def handleFile(inputMethod: InputMethod, options: CliOptions): Unit = {
+  private def handleFile(
+      inputMethod: InputMethod,
+      options: CliOptions): Unit = {
     val input = inputMethod.readInput(options.config.encoding)
     val formatResult =
       Scalafmt.format(input, options.config, options.range)

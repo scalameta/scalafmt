@@ -30,7 +30,8 @@ case class Split(
     indents: Vector[Indent[Length]] = Vector.empty[Indent[Length]],
     policy: Policy = NoPolicy,
     penalty: Boolean = false,
-    optimalAt: Option[OptimalToken] = None)(implicit val line: sourcecode.Line) {
+    optimalAt: Option[OptimalToken] = None)(
+    implicit val line: sourcecode.Line) {
   import TokenOps._
 
   def adapt(formatToken: FormatToken): Split = modification match {

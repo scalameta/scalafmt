@@ -43,7 +43,9 @@ object CliArgParser {
         c
       }
 
-      private def readConfigFromFile(file: String, c: CliOptions): CliOptions = {
+      private def readConfigFromFile(
+          file: String,
+          c: CliOptions): CliOptions = {
         readConfig(
           FileOps.readFile(
             AbsoluteFile.fromFile(new File(file), c.common.workingDirectory)),

@@ -289,7 +289,8 @@ class FormatWriter(formatOps: FormatOps) {
     */
   // TODO(olafur) Refactor implementation to make it maintainable. It's super
   // imperative and error-prone right now.
-  def alignmentTokens(locations: Array[FormatLocation]): Map[FormatToken, Int] = {
+  def alignmentTokens(
+      locations: Array[FormatLocation]): Map[FormatToken, Int] = {
     if (initStyle.align.tokens.isEmpty || locations.length != tokens.length)
       Map.empty[FormatToken, Int]
     else {
