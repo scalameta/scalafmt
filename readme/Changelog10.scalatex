@@ -16,7 +16,7 @@
       IntelliJ plugin now supports a custom path for .scalafmt.conf, by
       @user{vovapolu}. See Tools > Scalafmt > Relative path to scalafmt config.
     @li
-      IntelliJ plugin now also tries to read .scalafmt.conf from the project's
+      IntelliJ plugin now also tries to read .scalafmt.conf from the projects
       VCS root, by @user{stuhood}.
     @li
       New option @sect.ref{spaces.afterKeywordBeforeParen}, by @user{nrinaudo}.
@@ -27,13 +27,14 @@
       sbt-scalafmt now supports sbt 1.0!
     @li
       scalafmt-cli now fails fast on invalid .scalafmt.conf when invoked with
-      no cli args, @issue(1012).
+      no cli args, @issue(1012). Thanks @user{xeno-by} for reporting.
     @li
-      Off-by-one error for def and class definitions fixed, thanks @user{densh} for
-      reporting. Expect diffs when upgrading.
+      Off-by-two error for def and class definitions fixed, thanks @user{densh} for
+      reporting. Expect diffs when upgrading, see @pr(1016).
     @li
       Our CI now checks for binary compatibility issues on every PR.
-      Binary compatibility is not guaranteed for the packages
+      Binary compatibility between 1.x releases is guaranteed for all modules
+      except those inside the packages
       @code{org.scalafmt.internal} and
       @code{org.scalafmt.config}.
 
