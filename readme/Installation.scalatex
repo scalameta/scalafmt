@@ -17,14 +17,14 @@
         Create a standalone executable in @code{/usr/local/bin/scalafmt} with (sudo if necessary):
         @hl.xml
           coursier bootstrap com.geirsson:scalafmt-cli_2.12:@V.stable \
-            -o /usr/local/bin/scalafmt --standalone
+            -o /usr/local/bin/scalafmt --standalone --main org.scalafmt.cli.Cli
           scalafmt --version # should be @org.scalafmt.Versions.stable
 
       @p
         Alternatively you can create a slim 15 KiB bootstrap script with:
         @hl.xml
           coursier bootstrap com.geirsson:scalafmt-cli_2.12:@V.stable \
-            -o scalafmt
+            -o scalafmt --main org.scalafmt.cli.Cli
           ./scalafmt --version # should be @org.scalafmt.Versions.stable
 
         It is @b{recommended} to put this bootstrap script in your code repository
@@ -44,9 +44,10 @@
         @li
           Make sure you have a nailgun client installed. For example with @code{brew install nailgun}.
         @li
-          Create a standalone executable in @code{/usr/local/bin/scalafmt_ng}
+          Create a standalone executable in @code{/usr/local/bin/scalafmt_ng} with (sudo if necessary)
           @hl.xml
-            sudo coursier bootstrap --standalone com.geirsson:scalafmt-cli_2.12:@V.stable -o /usr/local/bin/scalafmt_ng -f --main com.martiansoftware.nailgun.NGServer
+            coursier bootstrap --standalone com.geirsson:scalafmt-cli_2.12:@V.stable \
+              -o /usr/local/bin/scalafmt_ng -f --main com.martiansoftware.nailgun.NGServer
             scalafmt_ng & // start nailgun in background
             ng ng-alias scalafmt org.scalafmt.cli.Cli
             ng scalafmt --version # should be @org.scalafmt.Versions.stable
