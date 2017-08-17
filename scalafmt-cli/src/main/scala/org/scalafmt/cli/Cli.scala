@@ -9,6 +9,7 @@ import java.io.PrintStream
 import java.util.concurrent.atomic.AtomicInteger
 
 import com.martiansoftware.nailgun.NGContext
+import org.scalafmt.Error.NoMatchingFiles
 import org.scalafmt.Error.UnableToParseCliOptions
 import org.scalafmt.Formatted
 import org.scalafmt.Scalafmt
@@ -153,6 +154,7 @@ object Cli {
 
   def run(options: CliOptions): Unit = {
     val inputMethods = getInputMethods(options)
+    if (inputMethods.isEmpty) throw NoMatchingFiles
     val counter = new AtomicInteger()
     val termDisplayMessage =
       if (options.testing) "Looking for unformatted files..."
@@ -171,7 +173,6 @@ object Cli {
     val sbtOptions = options.copy(
       config = options.config.copy(runner = options.config.runner.forSbt))
     val termDisplay = newTermDisplay(options, inputMethods, termDisplayMessage)
-    val N = inputMethods.length
     inputMethods.par.foreach { inputMethod =>
       val inputConfig = if (inputMethod.isSbt) sbtOptions else options
       handleFile(inputMethod, inputConfig)

@@ -78,6 +78,12 @@ object Error {
   case class InvalidScalafmtConfiguration(throwable: Throwable)
       extends Error(s"Failed to read configuration: $throwable")
 
+  case object NoMatchingFiles
+      extends Error(
+        "No files formatted/tested. " +
+          "Verify your configured include/exclude filters and " +
+          "supplied command line arguments.")
+
   case class InvalidOption(option: String)
       extends Error(s"Invalid option $option")
 

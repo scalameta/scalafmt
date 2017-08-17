@@ -10,6 +10,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 import org.scalafmt.Error.MisformattedFile
+import org.scalafmt.Error.NoMatchingFiles
 import org.scalafmt.config.Config
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.AbsoluteFile
@@ -49,7 +50,7 @@ abstract class AbstractCliTest extends FunSuite with DiffAssertions {
 
   val baseCliOptions: CliOptions = getMockOptions(
     AbsoluteFile
-      .fromPath(File.createTempFile("base", "dir").getAbsolutePath)
+      .fromPath(Files.createTempDirectory("base-dir").toString)
       .get)
 
   def getConfig(args: Array[String]): CliOptions = {
@@ -271,6 +272,12 @@ class CliTest extends AbstractCliTest {
     }
     check("notfound")
     check("target/notfound")
+  }
+
+  test("scalafmt (no matching files) throws error") {
+    intercept[NoMatchingFiles.type] {
+      Cli.run(baseCliOptions)
+    }
   }
 
   test("scalafmt (no arg) read config from git repo") {
