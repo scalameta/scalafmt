@@ -48,8 +48,6 @@ class GitOpsImpl(private[util] val workingDirectory: AbsoluteFile)
           "ls-files",
           dir.path
         )
-        // DESNOTE(2017-06-02, pjrt): Since the git command above only returns
-        // files, no need to check if they are files
       ).toOption.toSeq.flatten.map(f => rtDir / f)
     }
 
@@ -74,8 +72,6 @@ class GitOpsImpl(private[util] val workingDirectory: AbsoluteFile)
       "--diff-filter=d",
       branch
     )
-    // DESNOTE(2017-06-02, pjrt): Since the git command above only returns
-    // files, no need to check if they are files
     for {
       root <- rootDir.toSeq
       path <- exec(cmd).toOption.toSeq.flatten
