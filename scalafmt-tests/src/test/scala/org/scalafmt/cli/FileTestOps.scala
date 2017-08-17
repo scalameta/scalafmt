@@ -1,6 +1,7 @@
 package org.scalafmt.cli
 
 import java.io.File
+import java.nio.file.Files
 
 import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.FileOps
@@ -12,9 +13,7 @@ object FileTestOps {
     * necessary files/directories with respective file contents.
     */
   def string2dir(layout: String): AbsoluteFile = {
-    val root = File.createTempFile("root", "root")
-    root.delete()
-    root.mkdir()
+    val root = Files.createTempDirectory("root").toFile
     layout.split("(?=\n/)").foreach { row =>
       val path :: contents :: Nil =
         row.stripPrefix("\n").split("\n", 2).toList
