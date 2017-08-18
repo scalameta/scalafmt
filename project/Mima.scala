@@ -6,7 +6,8 @@ object Mima {
     // See https://github.com/typesafehub/migration-manager/wiki/sbt-plugin#basic-usage
     Seq(
       ProblemFilters.exclude[Problem]("org.scalafmt.config.*"),
-      ProblemFilters.exclude[Problem]("org.scalafmt.internal.*")
+      ProblemFilters.exclude[Problem]("org.scalafmt.internal.*"),
+      ProblemFilters.exclude[Problem]("org.scalafmt.util.GitOpsImpl.*")
     )
   }
 }
