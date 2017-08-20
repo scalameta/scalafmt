@@ -37,7 +37,7 @@ class GitOpsTest extends fixture.FunSuite {
 
   def touch(name: String = Random.alphanumeric.take(10).mkString)(
       implicit ops: GitOpsImpl): AbsoluteFile = {
-    val f = File.createTempFile(name, ".ext", ops.workingDirectory.jfile)
+    val f = File.createTempFile(name, ".ext", ops.rootDir.get.jfile)
     AbsoluteFile.fromPath(f.toString).get
   }
 
