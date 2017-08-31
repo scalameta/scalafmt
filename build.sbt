@@ -279,7 +279,7 @@ lazy val publishSettings = Seq(
   scmInfo := Some(
     ScmInfo(
       url("https://github.com/scalameta/scalafmt"),
-      "scm:git:git@github.com:olafurpg/scalafmt.git"
+      "scm:git:git@github.com:scalameta/scalafmt.git"
     )
   ),
   pomExtra :=
