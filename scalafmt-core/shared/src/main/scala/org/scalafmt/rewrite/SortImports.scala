@@ -34,15 +34,11 @@ sealed trait SortImports extends Rewrite {
             // it's 100% safe first.
             Nil
           } else {
-            val sortedImporteesByIndex: Map[Int, String] =
-              sorted(`import`.importees.map(_.tokens.mkString)).zipWithIndex
-                .map(_.swap)
-                .toMap
-            `import`.importees.zipWithIndex.collect {
-              case (importee, i) =>
-                TokenPatch.AddRight(
-                  importee.tokens.head,
-                  sortedImporteesByIndex(i))
+            val sortedImportees: Seq[String] =
+              sorted(`import`.importees.map(_.tokens.mkString))
+            `import`.importees.zip(sortedImportees).map {
+              case (oldImp, newImp) =>
+                TokenPatch.AddRight(oldImp.tokens.head, newImp)
             }
           }
         }
