@@ -41,6 +41,10 @@ object Adopters {
       "Venatus Media",
       "https://venatusmedia.com",
       Some(
-        "We represent some of the largest entertainment publishers and monetize billions of ads."))
+        "We represent some of the largest entertainment publishers and monetize billions of ads.")),
+    Adopter(
+      "http4s",
+      "http://http4s.org",
+      Some("A minimal, idiomatic Scala interface for HTTP"))
   )
 }
