@@ -8,6 +8,7 @@ import scala.meta.Case
 import scala.meta.Defn
 import scala.meta.Enumerator
 import scala.meta.Import
+import scala.meta.Importer
 import scala.meta.Mod
 import scala.meta.Pat
 import scala.meta.Pkg
@@ -118,6 +119,18 @@ class Router(formatOps: FormatOps) {
           Split(NoSplit, 0)
         )
       // Import
+      case FormatToken(left, KwImport(), _) if leftOwner.is[Pkg] =>
+        val baseSplit = Split(Newline2x, 0)
+        val split =
+          if (left.is[LeftBrace]) {
+            val rightBrace = matchingParentheses(hash(left))
+            baseSplit.withIndent(2, rightBrace, Right)
+          } else baseSplit
+        Seq(split)
+      case FormatToken(_, _, _)
+          if parents(leftOwner).exists(_.is[Import]) && isDefnSite(
+            rightOwner) =>
+        Seq(Split(Newline2x, 0))
       case FormatToken(Dot(), open @ LeftBrace(), _)
           if parents(rightOwner).exists(_.is[Import]) =>
         Seq(

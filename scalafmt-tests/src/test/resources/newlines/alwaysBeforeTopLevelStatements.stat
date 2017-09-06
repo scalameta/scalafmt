@@ -3,8 +3,10 @@ newlines.alwaysBeforeTopLevelStatements = true
 
 <<< Create newlines where necessary
 package a {
+
   import x1.b
   import x2.b
+
   package b {
   object a {
       val v1 = 1
@@ -28,6 +30,7 @@ package a {
 }
 >>>
 package a {
+
   import x1.b
   import x2.b
 
@@ -70,6 +73,7 @@ object a {
 }
 <<< Don't touch preformated code which is fine
 package a {
+
   import x1.b
   import x2.b
 
@@ -97,6 +101,7 @@ package a {
 }
 >>>
 package a {
+
   import x1.b
   import x2.b
 
