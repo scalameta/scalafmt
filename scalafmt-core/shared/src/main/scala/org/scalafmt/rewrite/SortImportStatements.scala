@@ -2,6 +2,7 @@ package org.scalafmt.rewrite
 
 import scala.util.matching.Regex
 import scala.meta._
+import scala.meta.tokens.Token._
 
 object SortImportStatements extends Rewrite {
 
@@ -14,47 +15,47 @@ object SortImportStatements extends Rewrite {
   override def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch] = {
 
     import ctx.dialect
-    val base: (Seq[Importer], Seq[Remove], Option[Token]) =
-      (Seq.empty, Seq.empty, None)
-    val (decopImps, rms, fstOpt) = code.children.foldLeft(base) {
-      case ((acc, racc, None), stat @ Import(imports)) =>
-        (
-          acc ++ imports,
-          racc ++ stat.tokens.map(Remove(_)),
-          Some(stat.tokens.head))
-      case ((acc, racc, fst), stat @ Import(imports)) =>
-        (acc ++ imports, racc ++ stat.tokens.map(Remove(_)), fst)
-      case (a, _) => a
-    }
-    def startsWith(imp: Importer, p: String) =
-      imp.toString.startsWith(p)
-    val sorted: Seq[Importer] = decopImps
-      .map { imp =>
-        val group = patterns.zipWithIndex.foldLeft(None: Option[Matcher]) {
-          case (None, (p, i)) =>
-            if (p == "*")
-              Some(GeneralFind(i))
-            else if (startsWith(imp, p)) {
-              Some(ExactFind(i))
-            } else {
-              None
-            }
-          case (keep @ Some(GeneralFind(_)), (p, i)) =>
-            if (startsWith(imp, p)) Some(ExactFind(i))
-            else keep
-          case (acc, _) => acc
-
-        }
-        imp -> group.fold(patterns.length)(_.index)
+    val base: (Seq[Importer], Seq[Remove]) =
+      (Seq.empty, Seq.empty)
+    val (decopImps, rms) =
+      code match {
+        case Pkg(_, stats) =>
+          stats.takeWhile(_.is[Import]).foldLeft(base) {
+            case ((acc, racc), stat @ Import(imports)) =>
+              (acc ++ imports, racc ++ stat.tokens.map(Remove(_)))
+            case (a, _) => a
+          }
       }
-      .groupBy(_._2)
-      .map { case (i, imps) => i -> imps.map(_._1) }
-      .toSeq
-      .sortBy(_._1)
-      .flatMap(_._2)
+    if (decopImps.isEmpty)
+      Nil
+    else {
+      def startsWith(imp: Importer, p: String) = imp.toString.startsWith(p)
+      val sorted: Seq[Seq[Importer]] = decopImps
+        .map { imp =>
+          val group = patterns.zipWithIndex.foldLeft(None: Option[Matcher]) {
+            case (None, ("*", i)) => Some(GeneralFind(i))
+            case (None, (p, i)) if (startsWith(imp, p)) => Some(ExactFind(i))
+            case (Some(GeneralFind(_)), (p, i)) if (startsWith(imp, p)) =>
+              Some(ExactFind(i))
+            case (acc, _) => acc
+          }
+          // DESNOTE(2017-09-06, pjrt): If we don't find any pattern that
+          // matches, just place it at the end. Only way this can happen is
+          // if the user doesn't place a `*` anywhere in the pattern list.
+          imp -> group.fold(patterns.length)(_.index)
+        }
+        .groupBy(_._2)
+        .map { case (i, imps) => i -> imps.map(_._1) }
+        .toSeq
+        .sortBy(_._1)
+        .map(_._2)
 
-    val sortedStr = sorted.map(i => s"import $i").mkString("\n")
-    rms :+ AddRight(fstOpt.get, sortedStr)
+      val sortedStr =
+        sorted
+          .map(is => is.map(i => s"import $i").sorted.mkString("\n"))
+          .mkString("\n\n")
+      rms :+ AddRight(rms.head.tok, sortedStr)
+    }
   }
 }
 
