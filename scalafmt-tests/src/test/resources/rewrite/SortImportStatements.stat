@@ -1,0 +1,19 @@
+rewrite.rules = [SortImportStatements]
+<<< ONLY should sort imports stats
+package a {
+  import com.example
+  import akka.util
+  import scala.util
+  import java.net
+
+  class X
+}
+>>>
+package a {
+  import java.net
+  import scala.util
+  import akka.util
+  import com.example
+
+  class X
+}
