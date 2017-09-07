@@ -15,12 +15,7 @@ import scala.meta._
   *
   * import a.{b, c}
   */
-sealed trait SortImports extends Rewrite {
-
-  /**
-    * The sorting scheme to use when sorting the imports
-    */
-  def sorted(str: Seq[String]): Seq[String]
+sealed trait SortImports extends Rewrite with SortImportees {
 
   override def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch] = {
     import ctx.dialect
@@ -35,7 +30,7 @@ sealed trait SortImports extends Rewrite {
             Nil
           } else {
             val sortedImportees: Seq[String] =
-              sorted(`import`.importees.map(_.tokens.mkString))
+              sortImportees(`import`.importees).map(_.tokens.mkString)
             `import`.importees.zip(sortedImportees).map {
               case (oldImp, newImp) =>
                 TokenPatch.AddRight(oldImp.tokens.head, newImp)
@@ -46,38 +41,55 @@ sealed trait SortImports extends Rewrite {
   }
 }
 
-/**
-  * Sort imports with symbols at the beginning, followed by lowercase and
-  * finally uppercase
-  */
-case object SortImports extends SortImports {
+trait SortImportees {
+
+  /**
+    * The sorting scheme to use when sorting importees
+    */
+  def sortImportees(imps: Seq[Importee]): Seq[Importee]
+}
+
+trait LowercaseSortImportees extends SortImportees {
 
   // sort contributed by @djspiewak: https://gist.github.com/djspiewak/127776c2b6a9d6cd3c21a228afd4580f
   private val LCase = """([a-z].*)""".r
   private val UCase = """([A-Z].*)""".r
   private val Other = """(.+)""".r
 
-  override def sorted(strs: Seq[String]): Seq[String] = {
+  override def sortImportees(strs: Seq[Importee]): Seq[Importee] = {
     // we really want partition, but there is no ternary version of it
-    val (syms, lcs, ucs) = strs.foldLeft(
-      (Vector.empty[String], Vector.empty[String], Vector.empty[String])) {
-      case ((syms, lcs, ucs), str) =>
-        str match {
-          case LCase(s) => (syms, lcs :+ s, ucs)
-          case UCase(s) => (syms, lcs, ucs :+ s)
-          case Other(s) => (syms :+ s, lcs, ucs)
-        }
-    }
+    val (syms, lcs, ucs) =
+      strs.foldLeft(
+        (
+          Vector.empty[Importee],
+          Vector.empty[Importee],
+          Vector.empty[Importee])) {
+        case ((syms, lcs, ucs), imp) =>
+          val str = imp.tokens.mkString
+          str match {
+            case LCase(_) => (syms, lcs :+ imp, ucs)
+            case UCase(_) => (syms, lcs, ucs :+ imp)
+            case Other(_) => (syms :+ imp, lcs, ucs)
+          }
+      }
     syms.sorted ++ lcs.sorted ++ ucs.sorted
   }
 }
+
+trait AsciiSortImportees extends SortImportees {
+
+  override def sortImportees(strs: Seq[Importee]): Seq[Importee] = strs.sorted
+}
+
+/**
+  * Sort imports with symbols at the beginning, followed by lowercase and
+  * finally uppercase
+  */
+case object SortImports extends SortImports with LowercaseSortImportees
 
 /**
   * Sort imports using the traditional ASCII sorting
   *
   * See: http://support.ecisolutions.com/doc-ddms/help/reportsmenu/ascii_sort_order_chart.htm
   */
-case object AsciiSortImports extends SortImports {
-
-  override def sorted(strs: Seq[String]): Seq[String] = strs.sorted
-}
+case object AsciiSortImports extends SortImports with AsciiSortImportees

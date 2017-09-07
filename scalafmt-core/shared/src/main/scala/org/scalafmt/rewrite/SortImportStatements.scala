@@ -4,13 +4,10 @@ import scala.util.matching.Regex
 import scala.meta._
 import scala.meta.tokens.Token._
 
-object SortImportStatements extends Rewrite {
+object SortImportStatements extends Rewrite with LowercaseSortImportees {
 
   import TokenPatch._
   import Matcher._
-
-  private val patterns: List[String] =
-    List("java", "scala", "*", "com.example")
 
   override def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch] = {
 
@@ -30,7 +27,8 @@ object SortImportStatements extends Rewrite {
       Nil
     else {
       def startsWith(imp: Importer, p: String) = imp.toString.startsWith(p)
-      val sorted: Seq[Seq[Importer]] = decopImps
+      val patterns = ctx.style.rewrite.importGroups
+      val groups: Seq[Seq[Importer]] = decopImps
         .map { imp =>
           val group = patterns.zipWithIndex.foldLeft(None: Option[Matcher]) {
             case (None, ("*", i)) => Some(GeneralFind(i))
@@ -42,7 +40,11 @@ object SortImportStatements extends Rewrite {
           // DESNOTE(2017-09-06, pjrt): If we don't find any pattern that
           // matches, just place it at the end. Only way this can happen is
           // if the user doesn't place a `*` anywhere in the pattern list.
-          imp -> group.fold(patterns.length)(_.index)
+          // If no patterns are given in the setting, they are all sorted into
+          // the same group.
+          val sortedImps =
+            imp.copy(importees = sortImportees(imp.importees).toList)
+          sortedImps -> group.fold(patterns.length)(_.index)
         }
         .groupBy(_._2)
         .map { case (i, imps) => i -> imps.map(_._1) }
@@ -51,7 +53,7 @@ object SortImportStatements extends Rewrite {
         .map(_._2)
 
       val sortedStr =
-        sorted
+        groups
           .map(is => is.map(i => s"import $i").sorted.mkString("\n"))
           .mkString("\n\n")
       rms :+ AddRight(rms.head.tok, sortedStr)

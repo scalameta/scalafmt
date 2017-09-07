@@ -1,8 +1,9 @@
 rewrite.rules = [SortImportStatements]
+rewrite.importGroups = ["java", "scala", "*", "com.example"]
 <<< should sort imports stats
 package a {
 
-  import com.example
+  import com.example.{b, a}
   import com.third.party
   import com.example.hello
   import akka.util
@@ -27,8 +28,8 @@ package a {
   import akka.util
   import com.third.party
 
-  import com.example
   import com.example.hello
+  import com.example.{a, b}
 
   class X
 }
