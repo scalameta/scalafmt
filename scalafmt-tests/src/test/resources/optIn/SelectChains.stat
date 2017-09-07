@@ -1,0 +1,26 @@
+optIn.breaksInsideChains = true
+<<< airframe
+val design: Design =
+  newDesign                      // Create an empty design
+  .bind[A].to[AImpl]             // Bind a concrete class AImpl to A
+  .bind[B].toInstance(new B(1))  // Bind a concrete instance to B (This instance will be a singleton)
+  .bind[S].toSingleton           // S will be a singleton within the session
+  .bind[ES].toEagerSingleton     // ES will be initialized as a singleton at session start time
+  .bind[D1]
+  .toInstance(D1(1))    // Bind D1 to a concrete instance D1(1)
+  .bind[D2].toInstance(D2(2))    // Bind D2 to a concrete instance D2(2)
+  .bind[D3].toInstance(D3(3))    // Bind D3 to a cocreete instance D3(3)
+  .bind[D3].toInstance(D3(3)) .bind[D3].toInstance(D3(3)) .bind[D3].toInstance(D3(3)) .bind[D3].toInstance(D3(3)) .bind[D3].toInstance(D3(3))
+>>>
+val design: Design =
+  newDesign // Create an empty design
+    .bind[A].to[AImpl] // Bind a concrete class AImpl to A
+    .bind[B].toInstance(new B(1)) // Bind a concrete instance to B (This instance will be a singleton)
+    .bind[S].toSingleton // S will be a singleton within the session
+    .bind[ES].toEagerSingleton // ES will be initialized as a singleton at session start time
+    .bind[D1]
+    .toInstance(D1(1)) // Bind D1 to a concrete instance D1(1)
+    .bind[D2].toInstance(D2(2)) // Bind D2 to a concrete instance D2(2)
+    .bind[D3].toInstance(D3(3)) // Bind D3 to a cocreete instance D3(3)
+    .bind[D3].toInstance(D3(3)).bind[D3].toInstance(D3(3)).bind[D3].toInstance(
+      D3(3)).bind[D3].toInstance(D3(3)).bind[D3].toInstance(D3(3))
