@@ -119,23 +119,7 @@ class Router(formatOps: FormatOps) {
           Split(NoSplit, 0)
         )
       // Import
-      case FormatToken(left, KwImport(), _) if leftOwner.is[Pkg] =>
-        val baseSplit = Split(Newline2x, 0)
-        val split =
-          if (left.is[LeftBrace]) {
-            val rightBrace = matchingParentheses(hash(left))
-            baseSplit.withIndent(2, rightBrace, Right)
-          } else baseSplit
-        Seq(split)
-      case FormatToken(_, _, _)
-          if parents(leftOwner).exists(_.is[Import]) && isDefnSite(
-            rightOwner) =>
-        Seq(Split(Newline2x, 0))
-      case FormatToken(Dot(), open @ LeftBrace(), _)
-          if parents(rightOwner).exists(_.is[Import]) =>
-        Seq(
-          Split(NoSplit, 0)
-        )
+
       // Import left brace
       case FormatToken(open @ LeftBrace(), _, _)
           if parents(leftOwner).exists(_.is[Import]) =>
@@ -164,6 +148,23 @@ class Router(formatOps: FormatOps) {
             ignoreIf = style.importSelectors == ImportSelectors.singleLine)
             .withPolicy(newlinePolicy)
             .withIndent(2, close, Right)
+        )
+      // For all import groups, there should be an empty line before and after
+      // them.
+      case FormatToken(left, _, _)
+          if (isPartOfImport(leftOwner) && !isPartOfImport(rightOwner))
+            || (isPartOfImport(rightOwner) && !isPartOfImport(leftOwner)) =>
+        val baseSplit = Split(Newline2x, 0)
+        val split =
+          if (left.is[LeftBrace]) {
+            val rightBrace = matchingParentheses(hash(left))
+            baseSplit.withIndent(2, rightBrace, Right)
+          } else baseSplit
+        Seq(split)
+      case FormatToken(Dot(), open @ LeftBrace(), _)
+          if parents(rightOwner).exists(_.is[Import]) =>
+        Seq(
+          Split(NoSplit, 0)
         )
       // Interpolated string left brace
       case FormatToken(open @ LeftBrace(), _, _)

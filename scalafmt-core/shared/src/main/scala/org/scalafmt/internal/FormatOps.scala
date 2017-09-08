@@ -704,6 +704,9 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     }
   }
 
+  def isPartOfImport(tree: Tree): Boolean =
+    tree.is[Import] || parents(tree).exists(_.is[Import])
+
   /**
     * Implementation for `verticalMultilineAtDefinitionSite`
     */

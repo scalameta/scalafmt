@@ -31,8 +31,7 @@ object Rewrite {
       AsciiSortImports,
       PreferCurlyFors,
       ExpandImportSelectors,
-      AvoidInfix,
-      SortImportStatements
+      AvoidInfix
     )
 
   private def nameMap[T](t: sourcecode.Text[T]*): Map[String, T] = {
@@ -46,8 +45,7 @@ object Rewrite {
     AsciiSortImports,
     PreferCurlyFors,
     ExpandImportSelectors,
-    AvoidInfix,
-    SortImportStatements
+    AvoidInfix
   )
   val rewrite2name: Map[Rewrite, String] = name2rewrite.map(_.swap)
   val available = Rewrite.name2rewrite.keys.mkString(", ")

@@ -1,5 +1,6 @@
 rewrite.rules = [SortImports]
 <<< basic
+package a {
 import a.b.{
   c,
   a,
@@ -7,8 +8,14 @@ import a.b.{
 }, k.{
   g, f
 }
+}
 >>>
-import a.b.{a, b, c}, k.{f, g}
+package a {
+
+  import a.b.{a, b, c}
+  import k.{f, g}
+
+}
 <<< nested
 object a {
 import a.b.{

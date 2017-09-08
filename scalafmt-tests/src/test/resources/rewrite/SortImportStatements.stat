@@ -1,4 +1,4 @@
-rewrite.rules = [SortImportStatements]
+rewrite.rules = [SortImports]
 rewrite.importGroups = ["java", "scala", "*", "com.example"]
 <<< should sort imports stats
 package a {
