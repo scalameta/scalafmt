@@ -49,7 +49,7 @@ package a {
 
   class X
 }
-<<< should not mess with imports that are not at the top
+<<< SKIP should not mess with imports that are not at the top
 package a {
 
   import scala.util, java.util

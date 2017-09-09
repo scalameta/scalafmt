@@ -11,6 +11,7 @@ object e {
 }
 >>>
 object e {
+
   import a.b
   import a.c
   import h.k

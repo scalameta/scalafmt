@@ -25,7 +25,9 @@ import a.b.{
 }
 >>>
 object a {
+
   import a.b.{b, c}
+
 }
 <<< sorting
 import a.{
@@ -42,8 +44,8 @@ import a.{
   bar
 }
 >>>
-import a.{zzzz => _, bar}
-<<< caveat: comments
+import a.{bar, zzzz => _}
+<<< SKIP caveat: comments
 import a.{
   c, // comment for c
   b

@@ -1,19 +1,42 @@
 package org.scalafmt.rewrite
 
-import scala.util.matching.Regex
+import scala.collection.mutable
 import scala.meta._
 import scala.meta.tokens.Token._
+import scala.util.matching.Regex
+
+import org.scalafmt.util.TreeOps._
 
 /**
-  * Sorts imports inside curly braces.
+  * Sort importees with symbols at the beginning, followed by lowercase and
+  * finally uppercase
+  */
+case object SortImports extends SortImports with LowercaseSortImportees
+
+/**
+  * Sort importees using traditional ASCII sorting
   *
-  * For example
+  * See: http://support.ecisolutions.com/doc-ddms/help/reportsmenu/ascii_sort_order_chart.htm
+  */
+case object AsciiSortImports extends SortImports with AsciiSortImportees
+
+/**
+  * Sorts imports into groups using RewriteSettings.importGroups
   *
+  * Also sort importees inside curly braces
+  *
+  * For example, with an importGroups of `[a, b]`:
+  *
+  * import b.d
   * import a.{c, b}
+  * import b.f
   *
   * into
   *
   * import a.{b, c}
+  *
+  * import b.d
+  * import b.f
   */
 sealed trait SortImports extends Rewrite with SortImportees {
 
@@ -23,26 +46,36 @@ sealed trait SortImports extends Rewrite with SortImportees {
   override def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch] = {
 
     import ctx.dialect
-    type Acc = Seq[(Import, Importer)]
-    val base: (Seq[Acc], Acc) = (Seq.empty, Seq.empty)
-    val (rest, lastOne) =
-      code match {
-        // DESNOTE(2017-09-07, pjrt): Special case where the only statement is
-        // an import statement. Very odd and likely never found in real Scala
-        // code.
-        case imp @ Import(imports) =>
-          (Nil, imports.map(imp -> _))
-        case otherwise =>
-          otherwise.children.foldLeft(base) {
-            case ((fAcc, acc), stat @ Import(imports)) =>
-              (fAcc, acc ++ imports.map(stat -> _))
-            case ((fAcc, curr), d) =>
-              (fAcc :+ curr, Nil)
+    type Acc[F[_]] = F[(Import, Importer)]
+    val (fAcc, acc): (mutable.ListBuffer[Acc[List]], Acc[mutable.ListBuffer]) =
+      (mutable.ListBuffer(), mutable.ListBuffer())
 
-          }
+    def addIfNotEmpty =
+      if (acc.isEmpty) ()
+      else {
+        fAcc += acc.toList
+        acc.clear
       }
 
-    (rest :+ lastOne).flatMap { d =>
+    // DESNOTE(2017-09-09, pjrt): Boy, mutability is complex
+    // This is essentially trying to replicate a foldLeft but due to the
+    // mutable Apis of scalameta, we can't currently just use a foldLeft.
+    // The idea here is to collect all the import groups along with their
+    // location.
+    code.traverse {
+      case stat @ Import(imports) =>
+        acc ++= imports.map(stat -> _)
+      case stat if isPartOfImport(stat) =>
+        ()
+      case _ =>
+        addIfNotEmpty
+    }
+
+    // We need to make another call to addIfNotEmpty since the last stat
+    // may be an import (which would mean we never ad the last group to fAcc.
+    addIfNotEmpty
+
+    fAcc.toList.flatMap { d =>
       val (toRemove, decopImps) = d.unzip
       if (decopImps.isEmpty) Nil
       else {
@@ -99,9 +132,12 @@ sealed trait SortImports extends Rewrite with SortImportees {
   // ` (back tick) character isn't printed if you just do `Impoter.toString`
   // or `.syntax`. So we get around it by printing importees directly.
   private def importerToString(imp: Importer): String = {
+    val importees = imp.importees
     val importeesStr =
-      if (imp.importees.isEmpty) ""
-      else s".{ ${imp.importees.mkString(", ")} }"
+      if (importees.isEmpty) ""
+      else if (importees.length == 1)
+        s".${importees.head.toString}"
+      else s".{ ${importees.mkString(", ")} }"
 
     s"import ${imp.ref}$importeesStr"
   }
@@ -146,19 +182,6 @@ trait AsciiSortImportees extends SortImportees {
 
   override def sortImportees(strs: Seq[Importee]): Seq[Importee] = strs.sorted
 }
-
-/**
-  * Sort imports with symbols at the beginning, followed by lowercase and
-  * finally uppercase
-  */
-case object SortImports extends SortImports with LowercaseSortImportees
-
-/**
-  * Sort imports using the traditional ASCII sorting
-  *
-  * See: http://support.ecisolutions.com/doc-ddms/help/reportsmenu/ascii_sort_order_chart.htm
-  */
-case object AsciiSortImports extends SortImports with AsciiSortImportees
 
 private sealed trait Matcher {
 

@@ -6,6 +6,7 @@ import scala.meta.Ctor
 import scala.meta.Decl
 import scala.meta.Defn
 import scala.meta.Enumerator
+import scala.meta.Import
 import scala.meta.Mod
 import scala.meta.Pat
 import scala.meta.Pkg
@@ -209,6 +210,9 @@ object TreeOps {
       case _ => accum
     }
   }
+
+  def isPartOfImport(tree: Tree): Boolean =
+    tree.is[Import] || parents(tree).exists(_.is[Import])
 
   def isTopLevel(tree: Tree): Boolean = tree match {
     case _: Pkg | _: Source => true
