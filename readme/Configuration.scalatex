@@ -652,15 +652,20 @@
 
     @sect(Rewrite.rewrite2name(SortImports))
       @p
-        The imports are sorted by the groups: symbols, lower-case, upper-case.
+        The imports are sorted into groups using `rewrite.importGroups`.
+        Importees are also sorting as: symbols, lower-case, upper-case.
       @demoStyle(rewriteImports)
         import foo.{Zilch, bar, Random, sand}
+        import baz.bar.bat.{c, A, b}
+        import foo.bar.a
 
     @sect(Rewrite.rewrite2name(AsciiSortImports))
       @p
-        The imports are sorted by their Ascii codes
+        Same as `SortImports`, but importees are sorted via their Ascii code
       @demoStyle(rewriteAsciiImports)
         import foo.{~>, `symbol`, bar, Random}
+        import baz.bar.bat.{c, A, b}
+        import foo.bar.a
 
     @sect(Rewrite.rewrite2name(PreferCurlyFors))
       @p

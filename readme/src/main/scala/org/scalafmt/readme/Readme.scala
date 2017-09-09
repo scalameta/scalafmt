@@ -150,13 +150,15 @@ object Readme {
   val rewriteImports =
     ScalafmtConfig.default.copy(
       rewrite = ScalafmtConfig.default.rewrite.copy(
-        rules = Seq(SortImports)
+        rules = Seq(SortImports),
+        importGroups = List("foo", "baz")
       ))
 
   val rewriteAsciiImports =
     ScalafmtConfig.default.copy(
       rewrite = ScalafmtConfig.default.rewrite.copy(
-        rules = Seq(AsciiSortImports)
+        rules = Seq(AsciiSortImports),
+        importGroups = List("foo", "baz")
       ))
 
   val rewritePreferCurlyFors =

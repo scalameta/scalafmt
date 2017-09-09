@@ -1,0 +1,121 @@
+rewrite.rules = [SortImports]
+rewrite.importGroups = ["java", "scala", "*", "com.example,co.ex.pi"]
+<<< should sort imports stats
+package a {
+
+  import com.example.{b, a}
+  import com.third.party
+  import com.example.hello
+  import akka.util
+  import akka.actor
+  import co.ex.pi.foo
+  import scala.util
+  import scala.meta._
+  import java.net
+  import java.nio
+
+  class X
+}
+>>>
+package a {
+
+  import java.net
+  import java.nio
+
+  import scala.meta._
+  import scala.util
+
+  import akka.actor
+  import akka.util
+  import com.third.party
+
+  import co.ex.pi.foo
+  import com.example.hello
+  import com.example.{a, b}
+
+  class X
+}
+<<< should expand single-line multi-imports
+package a {
+
+
+  import scala.util, java.util
+  class X
+}
+>>>
+package a {
+
+  import java.util
+
+  import scala.util
+
+  class X
+}
+<<< SKIP should not mess with imports that are not at the top
+package a {
+
+  import scala.util, java.util
+
+  package object b {
+    import com.example.hello
+    import java.ja
+  }
+
+  class X {
+
+    import scala.io
+    import java.io
+
+    def f = {
+      import scalaz._
+      import scala.hello._
+      1
+    }
+  }
+
+  trait Y {
+
+    import scala.io
+    import java.io
+  }
+}
+>>>
+package a {
+
+  import java.util
+
+  import scala.util
+
+  package object b {
+    import com.example.hello
+    import java.ja
+  }
+
+  class X {
+
+    import scala.io
+    import java.io
+
+    def f = {
+      import scalaz._
+      import scala.hello._
+      1
+    }
+  }
+
+  trait Y {
+
+    import scala.io
+    import java.io
+  }
+}
+<<< should do nothing if there are no imports
+package a {
+
+  class X
+}
+>>>
+package a {
+
+  class X
+}

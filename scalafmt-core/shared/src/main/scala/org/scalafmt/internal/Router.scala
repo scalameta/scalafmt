@@ -8,6 +8,7 @@ import scala.meta.Case
 import scala.meta.Defn
 import scala.meta.Enumerator
 import scala.meta.Import
+import scala.meta.Importer
 import scala.meta.Mod
 import scala.meta.Pat
 import scala.meta.Pkg
@@ -118,11 +119,7 @@ class Router(formatOps: FormatOps) {
           Split(NoSplit, 0)
         )
       // Import
-      case FormatToken(Dot(), open @ LeftBrace(), _)
-          if parents(rightOwner).exists(_.is[Import]) =>
-        Seq(
-          Split(NoSplit, 0)
-        )
+
       // Import left brace
       case FormatToken(open @ LeftBrace(), _, _)
           if parents(leftOwner).exists(_.is[Import]) =>
@@ -151,6 +148,23 @@ class Router(formatOps: FormatOps) {
             ignoreIf = style.importSelectors == ImportSelectors.singleLine)
             .withPolicy(newlinePolicy)
             .withIndent(2, close, Right)
+        )
+      // For all import groups, there should be an empty line before and after
+      // them.
+      case FormatToken(left, _, _)
+          if (isPartOfImport(leftOwner) && !isPartOfImport(rightOwner))
+            || (isPartOfImport(rightOwner) && !isPartOfImport(leftOwner)) =>
+        val baseSplit = Split(Newline2x, 0)
+        val split =
+          if (left.is[LeftBrace]) {
+            val rightBrace = matchingParentheses(hash(left))
+            baseSplit.withIndent(2, rightBrace, Right)
+          } else baseSplit
+        Seq(split)
+      case FormatToken(Dot(), open @ LeftBrace(), _)
+          if parents(rightOwner).exists(_.is[Import]) =>
+        Seq(
+          Split(NoSplit, 0)
         )
       // Interpolated string left brace
       case FormatToken(open @ LeftBrace(), _, _)

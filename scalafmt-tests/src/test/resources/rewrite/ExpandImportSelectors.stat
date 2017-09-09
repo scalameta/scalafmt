@@ -11,12 +11,14 @@ object e {
 }
 >>>
 object e {
+
   import a.b
   import a.c
   import h.k
   import h.l
   import d.e.f
   import d.e.g
+
 }
 <<< rename/unimport
 object blah {
@@ -28,9 +30,11 @@ object blah {
 }
 >>>
 object blah {
+
   import a.{foo => bar}
   import a.{zzzz => _}
   import a.baz
+
 }
 <<< rename and unimport and wildcard
 object blah {
@@ -38,7 +42,9 @@ object blah {
 }
 >>>
 object blah {
+
   import a.{foo => bar, zzzz => _, _}
+
 }
 <<< rename and wildcard
 object blah {
@@ -46,7 +52,9 @@ object blah {
 }
 >>>
 object blah {
+
   import a.{foo => bar, _}
+
 }
 <<< unimport and wildcard
 object blah {
@@ -54,5 +62,7 @@ object blah {
 }
 >>>
 object blah {
+
   import a.{zzzz => _, _}
+
 }

@@ -31,7 +31,9 @@ import a.b
 object a
 >>>
 package foo
+
 import a.b
+
 object a
 <<< 2x packages
 package foo
