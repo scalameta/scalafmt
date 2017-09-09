@@ -1,5 +1,5 @@
 rewrite.rules = [SortImports]
-rewrite.importGroups = ["java", "scala", "*", "com.example"]
+rewrite.importGroups = ["java", "scala", "*", "com.example,co.ex.pi"]
 <<< should sort imports stats
 package a {
 
@@ -8,6 +8,7 @@ package a {
   import com.example.hello
   import akka.util
   import akka.actor
+  import co.ex.pi.foo
   import scala.util
   import scala.meta._
   import java.net
@@ -28,6 +29,7 @@ package a {
   import akka.util
   import com.third.party
 
+  import co.ex.pi.foo
   import com.example.hello
   import com.example.{a, b}
 
