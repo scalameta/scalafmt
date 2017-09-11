@@ -901,15 +901,21 @@ class Router(formatOps: FormatOps) {
         }
       case tok @ FormatToken(left, dot @ Dot() `:chain:` chain, _)
           if !left.is[Underscore] =>
-        val owner = rightOwner.asInstanceOf[Term.Select]
         val nestedPenalty = nestedSelect(rightOwner) + nestedApplies(leftOwner)
         val lastToken = lastTokenInChain(chain)
         val optimalToken = chainOptimalToken(chain)
-        val breakOnEveryDot = Policy({
-          case Decision(t @ FormatToken(left, dot2 @ Dot(), _), s)
-              if chain.contains(owners(dot2)) =>
-            Decision(t, Seq(Split(Newline, 1)))
-        }, lastToken.end)
+        val breakOnEveryDot = Policy(
+          {
+            case Decision(t @ FormatToken(_, dot2 @ Dot(), _), s)
+                if chain.contains(owners(dot2)) =>
+              val mod =
+                if (style.optIn.breaksInsideChains && t.newlinesBetween == 0)
+                  NoSplit
+                else Newline
+              Decision(t, Seq(Split(mod, 1)))
+          },
+          lastToken.end
+        )
         val exclude = getExcludeIf(lastToken)
         // This policy will apply to both the space and newline splits, otherwise
         // the newline is too cheap even it doesn't actually prevent other newlines.
