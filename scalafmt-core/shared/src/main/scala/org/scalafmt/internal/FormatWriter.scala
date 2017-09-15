@@ -78,6 +78,7 @@ class FormatWriter(formatOps: FormatOps) {
           .replaceAll(s"\n$spaces\\*")
 
         if (isDocstring && initStyle.scalaDocs) {
+          // TODO: use proper Pattern and improve regex
           str
             .replaceFirst("/\\*\\*\\s+", "/** ") // move second line up if first line just contains /** and spaces
             .replaceFirst("\\*\\*\\s\\*", "\\*\\*") // replace result /** * to /**

@@ -20,8 +20,7 @@ object a
 import foo.bar
 import kaz.bar
 
-/**
-  * Docstring
+/** Docstring
   */
 object a
 <<< Rename
