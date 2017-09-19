@@ -457,15 +457,15 @@
       // original
       foo
         .map(_ + 1)
-        .filter( > 2)
+        .filter(_ > 2)
 
       // optIn.breakChainOnFirstMethodDot = true
       foo
         .map(_ + 1)
-        .filter( > 2)
+        .filter(_ > 2)
 
       // optIn.breakChainOnFirstMethodDot = false
-      foo.map(_ + 1).filter( > 2)
+      foo.map(_ + 1).filter(_ > 2)
       // note. chain starts at .foo() in a.b.foo()
 
     @p
