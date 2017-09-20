@@ -54,7 +54,8 @@ object Rewrite {
 
   private def incompatibleRewrites: List[(Rewrite, Rewrite)] = List(
     SortImports -> ExpandImportSelectors,
-    SortImports -> AsciiSortImports
+    SortImports -> AsciiSortImports,
+    AsciiSortImports -> ExpandImportSelectors
   )
 
   def validateRewrites(rewrites: Seq[Rewrite]): Seq[String] = {
