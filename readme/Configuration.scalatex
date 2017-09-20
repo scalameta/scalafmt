@@ -142,6 +142,8 @@
         foo(a: Int, // false for call site
             b: String): Int
 
+      Pro tip: Enable this setting to minimize git diffs/conflicts from renamings and other refactorings.
+
     @sect{align=more}
       @format(alignMore)
         val x = 2 // true for assignment
