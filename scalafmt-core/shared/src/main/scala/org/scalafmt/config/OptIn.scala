@@ -16,16 +16,16 @@ import metaconfig._
   *     // original
   *     foo
   *       .map(_ + 1).map(_ + 1)
-  *       .filter( > 2)
+  *       .filter(_ > 2)
   *     // if true
   *     foo
   *       .map(_ + 1).map(_ + 1)
-  *       .filter( > 2)
+  *       .filter(_ > 2)
   *     // if false
   *     foo
   *       .map(_ + 1)
   *       .map(_ + 1)
-  *       .filter( > 2)
+  *       .filter(_ > 2)
   * }}}
   *
   * @param breakChainOnFirstMethodDot
