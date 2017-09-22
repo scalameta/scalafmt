@@ -1,0 +1,44 @@
+verticalMultilineAtDefinitionSite = true
+newlines.beforeCaseClassParameterDefn = true
+
+<<< Force newline before parameter list
+case class A(a: Int)
+>>>
+case class A(
+    a: Int)
+
+<<< Force newline before multi-argument parameter list
+case class A(a: Int, b: Double)
+>>>
+case class A(
+    a: Int,
+    b: Double)
+
+<<< Force newline before parameter list with ctor modifier
+case class A private (a: Int)
+>>>
+case class A private (
+    a: Int)
+
+<<< Preserve regular class parameter definitions
+class A(a: Int)
+>>>
+class A(a: Int)
+
+<<< Preserve method parameters in case class definitions
+case class A {
+  def fn(a: Int): Int = 0
+}
+>>>
+case class A {
+  def fn(a: Int): Int = 0
+}
+
+<<< Preserve method parameters in class definitions
+class A {
+  def fn(a: Int): Int = 0
+}
+>>>
+class A {
+  def fn(a: Int): Int = 0
+}

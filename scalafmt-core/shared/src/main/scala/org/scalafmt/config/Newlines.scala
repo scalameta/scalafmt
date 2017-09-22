@@ -114,6 +114,7 @@ case class Newlines(
     afterCurlyLambda: NewlineCurlyLambda = NewlineCurlyLambda.never,
     afterImplicitKWInVerticalMultiline: Boolean = false,
     beforeImplicitKWInVerticalMultiline: Boolean = false,
+    beforeCaseClassParameterDefn: Boolean = false,
     alwaysBeforeElseAfterCurlyIf: Boolean = false
 )
 
