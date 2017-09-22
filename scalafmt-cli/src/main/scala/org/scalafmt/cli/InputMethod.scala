@@ -12,7 +12,7 @@ import org.scalafmt.util.FileOps
 
 sealed abstract class InputMethod {
   def isSbt = filename.endsWith(".sbt")
-  def readInput(implicit codec: Codec): String
+  def readInput(options: CliOptions): String
   def filename: String
   def write(formatted: String, original: String, options: CliOptions): Unit
 }
@@ -28,7 +28,7 @@ object InputMethod {
     }
   }
   case class StdinCode(filename: String, input: String) extends InputMethod {
-    def readInput(implicit codec: Codec): String = input
+    def readInput(options: CliOptions): String = input
     override def write(
         code: String,
         original: String,
@@ -38,7 +38,8 @@ object InputMethod {
   }
   case class FileContents(file: AbsoluteFile) extends InputMethod {
     override def filename = file.path
-    def readInput(implicit codec: Codec): String = FileOps.readFile(filename)
+    def readInput(options: CliOptions): String =
+      FileOps.readFile(filename)(options.config.encoding)
     override def write(
         formatted: String,
         original: String,
@@ -51,7 +52,8 @@ object InputMethod {
             options.config.onTestFailure)
         else Unit
       } else if (options.inPlace) {
-        if (codeChanged) FileOps.writeFile(filename, formatted)
+        if (codeChanged)
+          FileOps.writeFile(filename, formatted)(options.config.encoding)
         else Unit
       } else {
         options.common.out.print(formatted)
