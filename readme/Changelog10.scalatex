@@ -7,6 +7,17 @@
   @ul
     @li
       Please document your contribution here.
+@sect{1.3.0}
+  @ul
+    @li
+      @pr(1053) Respect @code{encoding} option when writing files, by @user{alexdupre}
+    @li
+      @pr(1048) Using AsciiSortImports and ExpandImportSelectors together will
+      now fail fast instead of producing broken code, by @user{Lasering}
+    @li
+      @pr(1037) New @code{optIn.breaksInsideChains = true} option, by @user{olafurpg}
+    @li
+      @pr(1025) Return non-zero exit code in cli if no files match filter, by @user{yln}
 @sect{1.2.0}
   @p
     See @lnk("merged PRs", "https://github.com/scalameta/scalafmt/milestone/17?closed=1").
