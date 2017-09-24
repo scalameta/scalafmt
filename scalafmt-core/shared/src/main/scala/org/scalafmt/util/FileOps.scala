@@ -1,13 +1,7 @@
 package org.scalafmt.util
 
 import scala.io.Codec
-
-import java.io.BufferedReader
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileReader
-import java.io.InputStreamReader
-import java.io.PrintWriter
+import java.io._
 
 object FileOps {
 
@@ -80,20 +74,23 @@ object FileOps {
     new File(path.mkString(File.separator))
   }
 
-  def writeFile(file: AbsoluteFile, content: String): Unit =
+  def writeFile(file: AbsoluteFile, content: String)(
+      implicit codec: Codec): Unit =
     writeFile(file.jfile, content)
 
-  def writeFile(file: File, content: String): Unit = {
+  def writeFile(file: File, content: String)(implicit codec: Codec): Unit = {
     // For java 6 compatibility we don't use java.nio.
-    val pw = new PrintWriter(file)
+    val bw = new BufferedWriter(
+      new OutputStreamWriter(new FileOutputStream(file), codec.charSet))
     try {
-      pw.write(content)
+      bw.write(content)
     } finally {
-      pw.close()
+      bw.close()
     }
 
   }
-  def writeFile(filename: String, content: String): Unit = {
+  def writeFile(filename: String, content: String)(
+      implicit codec: Codec): Unit = {
     writeFile(new File(filename), content)
   }
 }

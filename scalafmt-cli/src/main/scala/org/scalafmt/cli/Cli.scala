@@ -113,7 +113,7 @@ object Cli {
   private def handleFile(
       inputMethod: InputMethod,
       options: CliOptions): Unit = {
-    val input = inputMethod.readInput(options.config.encoding)
+    val input = inputMethod.readInput(options)
     val formatResult =
       Scalafmt.format(input, options.config, options.range)
     formatResult match {
