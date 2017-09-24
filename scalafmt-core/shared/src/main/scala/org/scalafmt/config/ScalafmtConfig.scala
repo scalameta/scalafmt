@@ -144,6 +144,7 @@ case class ScalafmtConfig(
     verticalMultilineAtDefinitionSite: Boolean = false,
     onTestFailure: String = "",
     encoding: Codec = "UTF-8",
+    @Recurse includeFixesFrom: IncludeFixesFrom = IncludeFixesFrom.default,
     @Recurse project: ProjectFiles = ProjectFiles()
 ) {
   implicit val alignDecoder: ConfDecoder[Align] =

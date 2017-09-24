@@ -297,9 +297,10 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
           if procedure.decltpe.isDefined &&
             procedure.decltpe.get.tokens.isEmpty =>
         procedure.body.tokens.find(_.is[LeftBrace])
-      case Defn.Def(_, _, _, _, _, b @ Term.Block(_)) =>
+      case Defn.Def(_, _, _, _, _, b @ Term.Block(_))
+          if initStyle.includeFixesFrom.v1_2_0 =>
         b.tokens.headOption
-      case _: Ctor.Primary =>
+      case _: Ctor.Primary if initStyle.includeFixesFrom.v1_2_0 =>
         leftTok2tok(matchingParentheses(hash(open))) match {
           // This is a terrible terrible hack. Please consider removing this.
           // The RightParen() LeftBrace() pair is presumably a ") {" combination

@@ -1,0 +1,14 @@
+style = default
+includeFixesFrom.v1_2_0 = false
+<<< native 82
+class Motion(val callsign: CallSign, val posOne: Vector3D, val posTwo: Vector3D) {
+  def renderScene(scene: Scene, canvasContext: CanvasRenderingContext2D): Unit = {
+    blah
+  }
+}
+>>>
+class Motion(val callsign: CallSign, val posOne: Vector3D, val posTwo: Vector3D) {
+  def renderScene(scene: Scene, canvasContext: CanvasRenderingContext2D): Unit = {
+    blah
+  }
+}
