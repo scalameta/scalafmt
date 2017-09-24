@@ -266,9 +266,7 @@ lazy val publishSettings = Seq(
   },
   publishArtifact in Test := false,
   mimaPreviousArtifacts := Set(
-    organization.value %
-      s"${moduleName.value}_${scalaBinaryVersion.value}" %
-      sys.props.getOrElse("scalafmt.stable.version", stableVersion.value)
+    organization.value % s"${moduleName.value}_${scalaBinaryVersion.value}" % "1.0.0"
   ),
   mimaBinaryIssueFilters ++= Mima.ignoredABIProblems,
   licenses := Seq(
