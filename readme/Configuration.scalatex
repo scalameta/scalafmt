@@ -622,6 +622,7 @@
 
 
     @sect(Rewrite.rewrite2name(RedundantBraces))
+      @b{Warning}. This rewrite can cause @sect.ref{Non-idempotent} formatting, see @issue(1055).
       @demoStyle(rewriteBraces)
         object RedundantBraces {
           def foo = {
