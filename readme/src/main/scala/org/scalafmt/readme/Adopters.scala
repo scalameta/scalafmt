@@ -45,6 +45,10 @@ object Adopters {
     Adopter(
       "http4s",
       "http://http4s.org",
-      Some("A minimal, idiomatic Scala interface for HTTP"))
+      Some("A minimal, idiomatic Scala interface for HTTP")),
+    Adopter(
+      "Mendix",
+      "https://mendix.com",
+      Some("The fastest and easiest platform to create and continuously improve mobile and web apps at scale."))
   )
 }
