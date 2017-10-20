@@ -381,6 +381,26 @@
       implicit def validatedInstances[E](implicit E: Semigroup[E]): Traverse[
           Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] = 2
 
+  @sect{newlines.beforeCaseClassParameterDefn}
+    Together with @b{verticalMultilineAtDefinitionSite}, this will
+    align parameter definitions vertically, with a line for each, and
+    not attempt to fit the case class definition on a single line.
+
+    Default @b(default.newlines.beforeCaseClassParameterDefn)
+
+    Requires @b{verticalMultilineAtDefinitionSite} set to @b(true).
+
+    @hl.scala
+      // verticalMultilineAtDefinitionSite = true
+      // newlines.beforeCaseClassParameterDefn = false
+      case class A(b: Int, c: Int)
+
+      // verticalMultilineAtDefinitionSite = true
+      // newlines.beforeCaseClassParameterDefn = true
+      case class A(
+          b: Int,
+          c: Int)
+
   @sect{spaces.afterKeywordBeforeParen}
     Default: @b(default.spaces.afterKeywordBeforeParen)
 

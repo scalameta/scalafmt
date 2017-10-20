@@ -1,0 +1,8 @@
+verticalMultilineAtDefinitionSite = true
+newlines.beforeCaseClassParameterDefn = false
+
+<<< Fit to single line (when false)
+case class A(
+  a: Int)
+>>>
+case class A(a: Int)
