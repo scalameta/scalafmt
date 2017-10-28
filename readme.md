@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.org/scalameta/scalafmt.svg?branch=master)](https://travis-ci.org/scalameta/scalafmt)
 [![Build status](https://ci.appveyor.com/api/projects/status/7gha7cxm5lw8fsc3)](https://ci.appveyor.com/project/olafurpg/scalafmt/branch/master)
 [![Join the chat at https://gitter.im/olafurpg/scalafmt](https://badges.gitter.im/olafurpg/scalafmt.svg)](https://gitter.im/olafurpg/scalafmt?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Latest version](https://index.scala-lang.org/olafurpg/scalafmt/scalafmt-core/latest.svg?color=orange)](https://index.scala-lang.org/olafurpg/scalafmt/scalafmt-core)
+[![Latest version](https://index.scala-lang.org/scalameta/scalafmt/scalafmt-core/latest.svg?color=orange)](https://index.scala-lang.org/scalameta/scalafmt/scalafmt-core)
 
 ### [User documentation][docs]
 Head over to [the user docs][docs] for instructions on how to install scalafmt.
