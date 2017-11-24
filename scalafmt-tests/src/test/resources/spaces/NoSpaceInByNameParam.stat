@@ -1,0 +1,21 @@
+spaces.noSpaceInByNameParam = true
+<<< No space in by-name parameter
+def foo(a: => A) = ???
+>>>
+def foo(a: =>A) = ???
+<<< Space in function parameter
+def foo(a: B => A) = ???
+>>>
+def foo(a: B => A) = ???
+<<< More complex by-name parameter
+def foo(a: => Option[Set[A]] :: HNill) = ???
+>>>
+def foo(a: =>Option[Set[A]] :: HNill) = ???
+<<< More complex function parameter
+def foo(a: List[B] => Option[Set[A]] :: HNill) = ???
+>>>
+def foo(a: List[B] => Option[Set[A]] :: HNill) = ???
+<<< One space between parameter name and by-name type
+def foo(a:    =>A) = ???
+>>>
+def foo(a: =>A) = ???

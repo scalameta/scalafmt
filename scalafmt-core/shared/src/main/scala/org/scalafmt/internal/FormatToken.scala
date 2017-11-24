@@ -15,7 +15,7 @@ import org.scalafmt.util.Whitespace
   * while the splits are changed.
   *
   * @param left The left non-whitespace token.
-  * @param right The left non-whitespace token.
+  * @param right The right non-whitespace token.
   * @param between The whitespace tokens between left and right.
   */
 case class FormatToken(left: Token, right: Token, between: Vector[Token]) {
