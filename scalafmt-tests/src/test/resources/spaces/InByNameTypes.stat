@@ -1,4 +1,4 @@
-spaces.noSpaceInByNameParam = true
+spaces.inByNameTypes = false
 <<< No space in by-name parameter
 def foo(a: => A) = ???
 >>>

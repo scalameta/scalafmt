@@ -18,8 +18,8 @@ import org.scalafmt.config.SpaceBeforeContextBound.Never
   *   For example:
   *   if(a) println("HELLO!")
   *   while(a) println("HELLO!")
-  * @param noSpaceInByNameParam
-  *   If true, removes space in by-name parameter.
+  * @param inByNameTypes
+  *   If false, removes space in by-name parameter.
   *   `def foo(a: =>A)`
   */
 @DeriveConfDecoder
@@ -30,5 +30,5 @@ case class Spaces(
     inParentheses: Boolean = false,
     neverAroundInfixTypes: Seq[String] = Nil,
     afterKeywordBeforeParen: Boolean = true,
-    noSpaceInByNameParam: Boolean = false
+    inByNameTypes: Boolean = true
 )

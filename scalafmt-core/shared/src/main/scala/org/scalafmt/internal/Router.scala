@@ -1372,9 +1372,8 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(NoSplit, 0)
         )
-      case FormatToken(RightArrow(), _, _)
-          if leftOwner.is[Type.Arg.ByName] =>
-        val mod = if (style.spaces.noSpaceInByNameParam) NoSplit else Space
+      case FormatToken(RightArrow(), _, _) if leftOwner.is[Type.Arg.ByName] =>
+        val mod = if (!style.spaces.inByNameTypes) NoSplit else Space
         Seq(
           Split(mod, 0)
         )
