@@ -1,9 +1,12 @@
 import Dependencies._
 import org.scalajs.sbtplugin.cross.CrossProject
 
+version.in(ThisBuild) ~= { old =>
+  sys.props.getOrElse("scalafmt.version", old.replace('+', '-'))
+}
+
 lazy val buildSettings = Seq(
   organization := "com.geirsson",
-  version := sys.props.getOrElse("scalafmt.version", version.value),
   scalaVersion := scala212,
   crossScalaVersions := Seq(scala211, scala212),
   updateOptions := updateOptions.value.withCachedResolution(true),
