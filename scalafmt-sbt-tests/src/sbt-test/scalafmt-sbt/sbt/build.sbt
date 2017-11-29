@@ -10,9 +10,15 @@ lazy val root = project
     p3
   )
 
-lazy val p1 = project.settings(scalaVersion := "2.10.5")
-lazy val p2 = project.settings(scalaVersion := "2.11.8")
-lazy val p3 = project.settings(scalaVersion := "2.12.1")
+lazy val p1 = project.settings(
+  scalaVersion := "2.10.5"
+)
+lazy val p2 = project.settings(
+  scalaVersion := "2.11.8"
+)
+lazy val p3 = project.settings(
+  scalaVersion := "2.12.1"
+)
 
 def assertContentsEqual(file: File, expected: String): Unit = {
   val obtained =
@@ -29,15 +35,6 @@ def assertContentsEqual(file: File, expected: String): Unit = {
     System.err.println(msg)
     throw new Exception(msg)
   }
-}
-
-TaskKey[Unit]("setupGitRepo") := {
-  import sys.process._
-  Seq("git", "init").!!
-  Seq("git", "config", "user.email", "a@a.is").!!
-  Seq("git", "config", "user.name", "a").!!
-  Seq("git", "add", ".").!!
-  Seq("git", "commit", "-m", "wip").!!
 }
 
 TaskKey[Unit]("check") := {

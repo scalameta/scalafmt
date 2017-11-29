@@ -1,0 +1,7 @@
+> root/compile:scalafmt
+> root/test:scalafmt
+> root/compile:scalafmtCheck
+> root/test:scalafmtCheck
+> root/scalafmtSbt
+> root/scalafmtSbtCheck
+> check

@@ -3,7 +3,7 @@ package org.scalafmt.sbt
 import org.scalafmt.{Formatted, Scalafmt}
 import org.scalafmt.config.{Config, ScalafmtConfig, ScalafmtRunner}
 import sbt.Keys._
-import sbt._
+import sbt.{Def, _}
 import complete.DefaultParsers._
 import sbt.util.Logger
 
@@ -20,13 +20,7 @@ object ScalafmtPlugin extends AutoPlugin {
     lazy val scalafmtOnCompile =
       SettingKey[Boolean]("scalafmt-on-compile", "Format source when compiling")
     lazy val scalafmtConfig =
-      TaskKey[Option[File]](
-        "scalafmt-config",
-        "Scalafmtter config file for *.scala files")
-    lazy val scalafmtSbtConfig =
-      TaskKey[Option[File]](
-        "scalafmt-sbt-config",
-        "Scalafmtter config file for *.sbt files")
+      TaskKey[File]("scalafmt-config", "Scalafmtter config file")
     lazy val scalafmtSbt = TaskKey[Unit]("scalafmt-sbt", "Format SBT sources")
     lazy val scalafmtSbtCheck = TaskKey[Boolean](
       "scalafmtSbtCheck",
@@ -36,21 +30,10 @@ object ScalafmtPlugin extends AutoPlugin {
   }
   import autoImport._
 
-  private def configFromFileOrElse(
-      file: Option[File],
-      elseConfig: ScalafmtConfig) =
-    file
-      .map(Config.fromHoconFile(_).getOrElse(elseConfig))
-      .getOrElse(elseConfig)
-
-  private val scalaConfig =
-    scalafmtConfig.map(configFromFileOrElse(_, ScalafmtConfig.default))
-  private val sbtConfig =
-    scalafmtSbtConfig.map(
-      configFromFileOrElse(
-        _,
-        ScalafmtConfig.default.copy(runner = ScalafmtRunner.sbt))
-    )
+  private lazy val scalaConfig =
+    scalafmtConfig.map(Config.fromHoconFile(_).get)
+  private lazy val sbtConfig =
+    scalaConfig.map(conf => conf.copy(runner = conf.runner.forSbt))
 
   private type Input = String
   private type Output = String
@@ -114,18 +97,21 @@ object ScalafmtPlugin extends AutoPlugin {
     ).flatten.forall(x => x)
   }
 
-  private val sbtSources = thisProject.map(
-    proj =>
-      BuildPaths
-        .configurationSources(proj.base)
-        .filterNot(_.isHidden)
+  private lazy val sbtSources = thisProject.map(
+    proj => {
+      val rootSbt =
+        BuildPaths.configurationSources(proj.base).filterNot(_.isHidden)
+      val projectSbt =
+        (BuildPaths.projectStandard(proj.base) * GlobFilter("*.sbt")).get
+          .filterNot(_.isHidden)
+      rootSbt ++ projectSbt
+    }
   )
   private lazy val projectSources = thisProject.map(proj =>
     (BuildPaths.projectStandard(proj.base) * GlobFilter("*.scala")).get)
 
   lazy val scalafmtSettings: Seq[Def.Setting[_]] = Seq(
-    scalafmtConfig := None,
-    scalafmtSbtConfig := None,
+    scalafmtOnCompile := false,
     scalafmt := formatSources(
       unmanagedSources.value,
       scalaConfig.value,
@@ -168,6 +154,10 @@ object ScalafmtPlugin extends AutoPlugin {
     }
   )
 
-  override def globalSettings: Seq[Def.Setting[_]] = ???
+  override def projectSettings: Seq[Def.Setting[_]] =
+    Seq(Compile, Test).flatMap(inConfig(_)(scalafmtSettings))
 
+  override def buildSettings: Seq[Def.Setting[_]] = Seq(
+    scalafmtConfig := (baseDirectory in ThisBuild).value / ".scalafmt.conf"
+  )
 }
