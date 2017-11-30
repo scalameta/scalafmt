@@ -1,7 +1,24 @@
-> root/compile:scalafmt
-> root/test:scalafmt
-> root/compile:scalafmtCheck
-> root/test:scalafmtCheck
-> root/scalafmtSbt
-> root/scalafmtSbtCheck
+> p123/compile:scalafmt
+> p123/test:scalafmt
+> p123/compile:scalafmtCheck
+> p123/test:scalafmtCheck
+
+> scalafmtSbt
+> scalafmtSbtCheck
+
+> p4/scalafmtOnly src/main/scala/Test.scala src/test/scala/MainTest.scala p4.sbt
+> p4/compile:scalafmtCheck
+> p4/test:scalafmtCheck
+> p4/scalafmtSbtCheck
+
+> p5/compile
+> p5/test:compile
+> p5/compile:scalafmtCheck
+> p5/test:scalafmtCheck
+
+> p6/compile:scalafmt
+> p6/test:scalafmt
+> p6/compile:scalafmtCheck
+> p6/test:scalafmtCheck
+
 > check

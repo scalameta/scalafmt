@@ -93,7 +93,13 @@ object ScalafmtPlugin extends AutoPlugin {
         log.error(s"Error in ${file.toString}: $e")
         false
       },
-      (_, input, output) => input != output
+      (file, input, output) => {
+        val diff = input != output
+        if (diff) {
+          log.error(s"${file.toString} isn't formatted properly!")
+        }
+        diff
+      }
     ).flatten.forall(x => x)
   }
 
@@ -130,15 +136,16 @@ object ScalafmtPlugin extends AutoPlugin {
       checkSources(projectSources.value, scalaConfig.value, streams.value.log)
     },
     compile := Def.taskDyn {
+      val defaultCompile = compile.taskValue
       if (scalafmtOnCompile.value) {
-        scalafmt in resolvedScoped.value.scope
+        scalafmt.value
       }
-      compile
+      Def.task(defaultCompile.value)
     }.value,
     scalafmtOnly := {
       val files = spaceDelimited("<files>").parsed
       val absFiles = files.flatMap(fileS => {
-        Try { new File(fileS) } match {
+        Try { IO.resolve(baseDirectory.value, new File(fileS)) } match {
           case Failure(e) =>
             streams.value.log.error(s"Error with $fileS file: $e")
             None
@@ -146,10 +153,9 @@ object ScalafmtPlugin extends AutoPlugin {
         }
       })
 
-      val scalaFiles = absFiles.filter(f =>
-        unmanagedSources.value.contains(f) || projectSources.value.contains(f))
+      val scalaFiles = absFiles.filter(_.toString.endsWith(".scala"))
       formatSources(scalaFiles, scalaConfig.value, streams.value.log)
-      val sbtFiles = absFiles.filter(sbtSources.value.contains)
+      val sbtFiles = absFiles.filter(_.toString.endsWith(".sbt"))
       formatSources(sbtFiles, sbtConfig.value, streams.value.log)
     }
   )

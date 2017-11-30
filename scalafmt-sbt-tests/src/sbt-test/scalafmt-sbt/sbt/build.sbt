@@ -2,7 +2,7 @@ import java.io.File
 
 fork in ThisBuild := true
 
-lazy val root = project
+lazy val p123 = project
   .in(file("."))
   .aggregate(
     p1,
@@ -18,6 +18,17 @@ lazy val p2 = project.settings(
 )
 lazy val p3 = project.settings(
   scalaVersion := "2.12.1"
+)
+lazy val p4 = project.settings(
+  scalaVersion := "2.12.1"
+)
+lazy val p5 = project.settings(
+  scalaVersion := "2.12.1",
+  scalafmtOnCompile := true
+)
+lazy val p6 = project.settings(
+  scalaVersion := "2.12.1",
+  scalafmtConfig := file(".scalafmt6.conf")
 )
 
 def assertContentsEqual(file: File, expected: String): Unit = {
@@ -38,8 +49,8 @@ def assertContentsEqual(file: File, expected: String): Unit = {
 }
 
 TaskKey[Unit]("check") := {
-  (1 to 3).foreach { i =>
-    val expected =
+  (1 to 4).foreach { i =>
+    val expectedTest =
       """
         |object Test {
         |  foo(
@@ -48,12 +59,55 @@ TaskKey[Unit]("check") := {
         |  )
         |}
         """.stripMargin
-    val expected2 = expected.replaceFirst("Test", "MainTest")
-    assertContentsEqual(file(s"p$i/src/main/scala/Test.scala"), expected)
-    assertContentsEqual(file(s"p$i/src/test/scala/MainTest.scala"), expected2)
+    val expectedMainTest = expectedTest.replaceFirst("Test", "MainTest")
+    assertContentsEqual(
+      file(s"p$i/src/main/scala/Test.scala"),
+      expectedTest
+    )
+    assertContentsEqual(
+      file(s"p$i/src/test/scala/MainTest.scala"),
+      expectedMainTest
+    )
   }
   assertContentsEqual(
-    new File("project/plugins.sbt"),
+    file(s"p5/src/main/scala/Test.scala"),
+    """
+      |object Test {
+      |  def foo(a: Int, // comment
+      |          b: Double) = ???
+      |}
+    """.stripMargin
+  )
+  assertContentsEqual(
+    file(s"p5/src/test/scala/MainTest.scala"),
+    """
+      |object MainTest {
+      |  def foo(a: Int, // comment
+      |          b: Double) = ???
+      |}
+    """.stripMargin
+  )
+  assertContentsEqual(
+    file(s"p6/src/main/scala/Test.scala"),
+    """
+      |object Test {
+      |  foo(a, // comment
+      |      b)
+      |}
+    """.stripMargin
+  )
+  assertContentsEqual(
+    file(s"p6/src/test/scala/MainTest.scala"),
+    """
+      |object MainTest {
+      |  foo(a, // comment
+      |      b)
+      |}
+    """.stripMargin
+  )
+
+  assertContentsEqual(
+    file("project/plugins.sbt"),
     """
       |addSbtPlugin(
       |  "com.geirsson" % "sbt-scalafmt" % System.getProperty("plugin.version")
