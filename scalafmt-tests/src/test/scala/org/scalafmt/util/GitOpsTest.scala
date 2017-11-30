@@ -100,9 +100,9 @@ class GitOpsTest extends fixture.FunSuite {
 
       {
         val innerGitOps = new GitOpsImpl(newDir)
-        ls(innerGitOps) should contain (f)
+        ls(innerGitOps) should contain(f)
       }
-    }
+  }
 
   test("lsTree should return commited files that have been modified") {
     implicit ops =>
