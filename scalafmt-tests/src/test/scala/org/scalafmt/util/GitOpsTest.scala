@@ -93,14 +93,16 @@ class GitOpsTest extends fixture.FunSuite {
   test(
     "lsTree should return files properly when the working directory is under the git root directory") {
     implicit ops =>
+      val f1 = touch()
+      add(f1)
+
       val newDir = mkDir()
-      println(s"new dir $newDir")
-      val f = touch(dir = Some(newDir))
-      add(f)
+      val f2 = touch(dir = Some(newDir))
+      add(f2)
 
       {
         val innerGitOps = new GitOpsImpl(newDir)
-        ls(innerGitOps) should contain(f)
+        ls(innerGitOps) should contain only f2
       }
   }
 
