@@ -1,39 +1,38 @@
 package org.scalafmt.sbt
 
+import org.scalafmt.config.{Config, ScalafmtConfig}
 import org.scalafmt.{Formatted, Scalafmt}
-import org.scalafmt.config.{Config, ScalafmtConfig, ScalafmtRunner}
 import sbt.Keys._
 import sbt.{Def, _}
 import complete.DefaultParsers._
+import metaconfig.Configured
 import sbt.util.Logger
 
+import scala.meta.internal.tokenizers.PlatformTokenizerCache
 import scala.util.{Failure, Success, Try}
 
 object ScalafmtPlugin extends AutoPlugin {
   override def trigger: PluginTrigger = allRequirements
 
   object autoImport {
-    lazy val scalafmt = TaskKey[Unit]("scalafmt", "Format Scala sources")
-    lazy val scalafmtCheck = TaskKey[Boolean](
-      "scalafmt-check",
-      "Check that Scala sources is formatted properly")
-    lazy val scalafmtOnCompile =
-      SettingKey[Boolean]("scalafmt-on-compile", "Format source when compiling")
-    lazy val scalafmtConfig =
-      TaskKey[File]("scalafmt-config", "Scalafmtter config file")
-    lazy val scalafmtSbt = TaskKey[Unit]("scalafmt-sbt", "Format SBT sources")
-    lazy val scalafmtSbtCheck = TaskKey[Boolean](
-      "scalafmtSbtCheck",
-      "Check that SBT sources is formatted properly")
-    lazy val scalafmtOnly =
-      InputKey[Unit]("scalafmt-only", "Format only given file")
+    val scalafmt = taskKey[Unit]("Format Scala sources")
+    val scalafmtCheck =
+      taskKey[Boolean]("Check that Scala sources is formatted properly")
+    val scalafmtOnCompile =
+      settingKey[Boolean]("Format source when compiling")
+    val scalafmtConfig = taskKey[File]("Scalafmt config file")
+    val scalafmtSbt = taskKey[Unit]("Format SBT sources")
+    val scalafmtSbtCheck =
+      taskKey[Boolean]("Check that SBT sources is formatted properly")
+    val scalafmtOnly = inputKey[Unit]("Format only given file")
   }
   import autoImport._
 
-  private lazy val scalaConfig =
-    scalafmtConfig.map(Config.fromHoconFile(_).get)
-  private lazy val sbtConfig =
-    scalaConfig.map(conf => conf.copy(runner = conf.runner.forSbt))
+  private val scalaConfig = scalafmtConfig.map(Config.fromHoconFile(_) match {
+    case Configured.Ok(conf) => conf
+    case Configured.NotOk(e) => throw new MessageOnlyException(e.msg)
+  })
+  private val sbtConfig = scalaConfig.map(_.forSbt)
 
   private type Input = String
   private type Output = String
@@ -79,6 +78,7 @@ object ScalafmtPlugin extends AutoPlugin {
           log.info(s"Successfully formatted ${file.toString}.")
           IO.write(file, output)
         }
+        PlatformTokenizerCache.megaCache.clear()
       }
     )
   }
@@ -96,8 +96,10 @@ object ScalafmtPlugin extends AutoPlugin {
       (file, input, output) => {
         val diff = input != output
         if (diff) {
-          log.error(s"${file.toString} isn't formatted properly!")
+          throw new MessageOnlyException(
+            s"${file.toString} isn't formatted properly!")
         }
+        PlatformTokenizerCache.megaCache.clear()
         diff
       }
     ).flatten.forall(x => x)
@@ -116,10 +118,9 @@ object ScalafmtPlugin extends AutoPlugin {
   private lazy val projectSources = thisProject.map(proj =>
     (BuildPaths.projectStandard(proj.base) * GlobFilter("*.scala")).get)
 
-  lazy val scalafmtSettings: Seq[Def.Setting[_]] = Seq(
-    scalafmtOnCompile := false,
+  lazy val scalafmtConfigSettings: Seq[Def.Setting[_]] = Seq(
     scalafmt := formatSources(
-      unmanagedSources.value,
+      (unmanagedSources in scalafmt).value,
       scalaConfig.value,
       streams.value.log),
     scalafmtSbt := {
@@ -128,19 +129,19 @@ object ScalafmtPlugin extends AutoPlugin {
     },
     scalafmtCheck :=
       checkSources(
-        unmanagedSources.value,
+        (unmanagedSources in scalafmt).value,
         scalaConfig.value,
         streams.value.log),
     scalafmtSbtCheck := {
       checkSources(sbtSources.value, sbtConfig.value, streams.value.log)
       checkSources(projectSources.value, scalaConfig.value, streams.value.log)
     },
-    compile := Def.taskDyn {
-      val defaultCompile = compile.taskValue
-      if (scalafmtOnCompile.value) {
-        scalafmt.value
-      }
-      Def.task(defaultCompile.value)
+    compileInputs in compile := Def.taskDyn {
+      val task =
+        if (scalafmtOnCompile.value) scalafmt in resolvedScoped.value.scope
+        else Def.task(())
+      val previousInputs = (compileInputs in compile).value
+      task.map(_ => previousInputs)
     }.value,
     scalafmtOnly := {
       val files = spaceDelimited("<files>").parsed
@@ -161,9 +162,13 @@ object ScalafmtPlugin extends AutoPlugin {
   )
 
   override def projectSettings: Seq[Def.Setting[_]] =
-    Seq(Compile, Test).flatMap(inConfig(_)(scalafmtSettings))
+    Seq(Compile, Test).flatMap(inConfig(_)(scalafmtConfigSettings))
 
   override def buildSettings: Seq[Def.Setting[_]] = Seq(
     scalafmtConfig := (baseDirectory in ThisBuild).value / ".scalafmt.conf"
+  )
+
+  override def globalSettings: Seq[Def.Setting[_]] = Seq(
+    scalafmtOnCompile := false
   )
 }

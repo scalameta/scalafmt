@@ -344,7 +344,7 @@ def ciCommands = Seq(
       Nil
   ),
   Command.command("ci-sbt-scalafmt") { s =>
-    "scalafmt-sbt/it:test" ::
+    "scalafmt-cli-sbt/it:test" ::
       s
   },
   Command.command("ci-publish") { s =>

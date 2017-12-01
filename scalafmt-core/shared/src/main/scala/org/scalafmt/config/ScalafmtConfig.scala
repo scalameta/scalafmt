@@ -152,6 +152,8 @@ case class ScalafmtConfig(
   def withDialect(dialect: Dialect): ScalafmtConfig =
     copy(runner = runner.copy(dialect = dialect))
 
+  def forSbt: ScalafmtConfig = copy(runner = runner.forSbt)
+
   def reformatDocstrings: Boolean = docstrings != Docstrings.preserve
   def scalaDocs: Boolean = docstrings == Docstrings.ScalaDoc
   lazy val alignMap: Map[String, Regex] =
