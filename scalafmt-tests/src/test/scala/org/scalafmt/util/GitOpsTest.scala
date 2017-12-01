@@ -96,14 +96,12 @@ class GitOpsTest extends fixture.FunSuite {
       val f1 = touch()
       add(f1)
 
-      val newDir = mkDir()
-      val f2 = touch(dir = Some(newDir))
+      val innerDir = mkDir()
+      val f2 = touch(dir = Some(innerDir))
       add(f2)
 
-      {
-        val innerGitOps = new GitOpsImpl(newDir)
-        ls(innerGitOps) should contain only f2
-      }
+      val innerGitOps = new GitOpsImpl(innerDir)
+      ls(innerGitOps) should contain only f2
   }
 
   test("lsTree should return commited files that have been modified") {
