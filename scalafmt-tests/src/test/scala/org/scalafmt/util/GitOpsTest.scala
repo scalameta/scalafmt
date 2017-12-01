@@ -35,14 +35,15 @@ class GitOpsTest extends fixture.FunSuite {
     withFixture(t)
   }
 
-  def touch(name: String = Random.alphanumeric.take(10).mkString)(
+  def touch(
+      name: String = Random.alphanumeric.take(10).mkString,
+      dir: Option[AbsoluteFile] = None)(
       implicit ops: GitOpsImpl): AbsoluteFile = {
-    val f = File.createTempFile(name, ".ext", ops.rootDir.get.jfile)
+    val f = File.createTempFile(name, ".ext", dir.orElse(ops.rootDir).get.jfile)
     AbsoluteFile.fromPath(f.toString).get
   }
 
   def modify(f: AbsoluteFile): Unit = {
-
     val text = Random.alphanumeric.take(10).mkString
     Files.write(Paths.get(f.path), text.getBytes(StandardCharsets.UTF_8))
   }
@@ -53,6 +54,13 @@ class GitOpsTest extends fixture.FunSuite {
     ops
       .lsTree(ops.workingDirectory)
       .filterNot(_.jfile.getName().contains("initialfile"))
+
+  def mkDir(dirName: String = Random.alphanumeric.take(10).mkString)(
+      implicit ops: GitOpsImpl): AbsoluteFile = {
+    val file = new File(ops.rootDir.get.jfile, dirName)
+    file.mkdir()
+    AbsoluteFile.fromFile(file, ops.workingDirectory)
+  }
 
   test("lsTree should not return files not added to the index") {
     implicit ops =>
@@ -80,6 +88,20 @@ class GitOpsTest extends fixture.FunSuite {
       commit
       rm(f)
       ls shouldBe empty
+  }
+
+  test(
+    "lsTree should return files properly when the working directory is under the git root directory") {
+    implicit ops =>
+      val f1 = touch()
+      add(f1)
+
+      val innerDir = mkDir()
+      val f2 = touch(dir = Some(innerDir))
+      add(f2)
+
+      val innerGitOps = new GitOpsImpl(innerDir)
+      ls(innerGitOps) should contain only f2
   }
 
   test("lsTree should return commited files that have been modified") {
