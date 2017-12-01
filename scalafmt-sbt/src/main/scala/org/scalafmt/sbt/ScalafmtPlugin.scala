@@ -78,9 +78,9 @@ object ScalafmtPlugin extends AutoPlugin {
           log.info(s"Successfully formatted ${file.toString}.")
           IO.write(file, output)
         }
-        PlatformTokenizerCache.megaCache.clear()
       }
     )
+    PlatformTokenizerCache.megaCache.clear()
   }
 
   private def checkSources(
@@ -88,7 +88,7 @@ object ScalafmtPlugin extends AutoPlugin {
       config: ScalafmtConfig,
       log: Logger
   ): Boolean = {
-    withFormattedSources(sources, config)(
+    val res = withFormattedSources(sources, config)(
       (file, e) => {
         log.error(s"Error in ${file.toString}: $e")
         false
@@ -99,10 +99,11 @@ object ScalafmtPlugin extends AutoPlugin {
           throw new MessageOnlyException(
             s"${file.toString} isn't formatted properly!")
         }
-        PlatformTokenizerCache.megaCache.clear()
         diff
       }
     ).flatten.forall(x => x)
+    PlatformTokenizerCache.megaCache.clear()
+    res
   }
 
   private lazy val sbtSources = thisProject.map(
