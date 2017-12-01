@@ -300,7 +300,7 @@ lazy val noPublish = Seq(
   publishLocal := {}
 )
 
-lazy val stableVersion = Def.setting(version.value.replaceAll("\\+.*", ""))
+lazy val stableVersion = Def.setting(version.value.replaceAll("\\-.*", ""))
 lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
   buildInfoKeys := Seq[BuildInfoKey](
     name,
