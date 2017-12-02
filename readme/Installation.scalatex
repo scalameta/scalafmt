@@ -38,6 +38,21 @@
         @hl.xml
           coursier bootstrap --help | grep -A 1 "\-\-java-opt"
 
+    @sect{Pre-release}
+      Our CI publishes a pre-release version of scalafmt to Bintray on every merge into master.
+      To use a pre-release, replace @V.stable with the version here:
+
+      @raw
+        <a href='https://bintray.com/scalameta/maven/scalafmt-cli/_latestVersion'><img src='https://api.bintray.com/packages/scalameta/maven/scalafmt-cli/images/download.svg'></a>
+
+      @p
+        If you use coursier to install a pre-release, be sure to include the flag @code{-r bintray:scalameta/maven}
+        so that the artifact can be resolved.
+      @p
+        If you use sbt to install a pre-release, be sure to add the following setting
+        @hl.scala
+          resolvers += Resolver.bintray("scalameta", "maven")
+
     @sect{Nailgun}
 
       Nailgun is recommended if you want to integrate @code{scalafmt} with a
