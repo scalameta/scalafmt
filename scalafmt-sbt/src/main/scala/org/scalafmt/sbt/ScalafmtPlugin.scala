@@ -146,7 +146,7 @@ object ScalafmtPlugin extends AutoPlugin {
       checkSources(sbtSources.value, sbtConfig.value, streams.value.log)
       checkSources(projectSources.value, scalaConfig.value, streams.value.log)
     },
-    scalafmtDoFormatOnCompile := Def.taskDyn {
+    scalafmtDoFormatOnCompile := Def.settingDyn {
       if (scalafmtOnCompile.value) {
         scalafmt in resolvedScoped.value.scope
       } else {
