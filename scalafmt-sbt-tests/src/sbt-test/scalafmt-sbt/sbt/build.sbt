@@ -28,7 +28,11 @@ lazy val p5 = project.settings(
 )
 lazy val p6 = project.settings(
   scalaVersion := "2.12.1",
-  scalafmtConfig := file(".scalafmt6.conf")
+  scalafmtConfig := Some(file(".scalafmt6.conf"))
+)
+lazy val p7 = project.settings(
+  scalaVersion := "2.12.1",
+  scalafmtConfig := None
 )
 
 def assertContentsEqual(file: File, expected: String): Unit = {
@@ -69,6 +73,8 @@ TaskKey[Unit]("check") := {
       expectedMainTest
     )
   }
+
+
   assertContentsEqual(
     file(s"p5/src/main/scala/Test.scala"),
     """
@@ -87,6 +93,8 @@ TaskKey[Unit]("check") := {
       |}
     """.stripMargin
   )
+
+
   assertContentsEqual(
     file(s"p6/src/main/scala/Test.scala"),
     """
@@ -98,6 +106,26 @@ TaskKey[Unit]("check") := {
   )
   assertContentsEqual(
     file(s"p6/src/test/scala/MainTest.scala"),
+    """
+      |object MainTest {
+      |  foo(a, // comment
+      |      b)
+      |}
+    """.stripMargin
+  )
+
+
+  assertContentsEqual(
+    file(s"p7/src/main/scala/Test.scala"),
+    """
+      |object Test {
+      |  foo(a, // comment
+      |      b)
+      |}
+    """.stripMargin
+  )
+  assertContentsEqual(
+    file(s"p7/src/test/scala/MainTest.scala"),
     """
       |object MainTest {
       |  foo(a, // comment

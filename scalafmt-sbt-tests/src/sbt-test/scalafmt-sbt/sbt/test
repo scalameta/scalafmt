@@ -1,3 +1,5 @@
+-> p123/compile:scalafmtCheck
+-> p123/test:scalafmtCheck
 > p123/compile:scalafmt
 > p123/test:scalafmt
 > p123/compile:scalafmtCheck
@@ -20,5 +22,10 @@
 > p6/test:scalafmt
 > p6/compile:scalafmtCheck
 > p6/test:scalafmtCheck
+
+> p7/compile:scalafmt
+> p7/test:scalafmt
+> p7/compile:scalafmtCheck
+> p7/test:scalafmtCheck
 
 > check
