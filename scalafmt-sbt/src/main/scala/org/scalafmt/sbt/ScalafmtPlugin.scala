@@ -21,7 +21,7 @@ object ScalafmtPlugin extends AutoPlugin {
         "Fails if a Scala source is mis-formatted. Does not write to files.")
     val scalafmtOnCompile =
       settingKey[Boolean](
-        "Format Scala source files on compile, off by default. Warning: It formats all project sources.")
+        "Format Scala source files on compile, off by default.")
     val scalafmtConfig = taskKey[Option[File]](
       "Optional location of .scalafmt.conf file. If None the default config is used.")
     val scalafmtSbt = taskKey[Unit](
@@ -103,8 +103,8 @@ object ScalafmtPlugin extends AutoPlugin {
         }
       }
     ).flatten.sum
-    if (cnt > 0) {
-      log.info(s"Successfully formatted $cnt scala files.")
+    if (cnt > 1) {
+      log.info(s"Reformatted $cnt Scala sources")
     }
     PlatformTokenizerCache.megaCache.clear()
   }
