@@ -21,7 +21,7 @@ object ScalafmtPlugin extends AutoPlugin {
         "Fails if a Scala source is mis-formatted. Does not write to files.")
     val scalafmtOnCompile =
       settingKey[Boolean](
-        "Format Scala source files on compile, off by default.")
+        "Format Scala source files on compile, off by default. Warning: It formats all project sources.")
     val scalafmtConfig = taskKey[Option[File]](
       "Optional location of .scalafmt.conf file. If None the default config is used.")
     val scalafmtSbt = taskKey[Unit](
@@ -43,6 +43,13 @@ object ScalafmtPlugin extends AutoPlugin {
     }).getOrElse(ScalafmtConfig.default))
   private val sbtConfig = scalaConfig.map(_.forSbt)
 
+  private def filterSource(source: File, config: ScalafmtConfig): Boolean =
+    config.project.matcher.matches(source.toString)
+  private def filterScala(source: File): Boolean =
+    source.toString.endsWith(".scala")
+  private def filterSbt(source: File): Boolean =
+    source.toString.endsWith(".sbt")
+
   private type Input = String
   private type Output = String
 
@@ -53,26 +60,28 @@ object ScalafmtPlugin extends AutoPlugin {
       onError: (File, Throwable) => T,
       onFormat: (File, Input, Output) => T
   ): Seq[Option[T]] = {
-    sources.map(
-      file => {
-        val input = IO.read(file)
-        val output = Scalafmt.format(input, config)
+    sources
+      .withFilter(filterSource(_, config))
+      .map(
+        file => {
+          val input = IO.read(file)
+          val output = Scalafmt.format(input, config)
 
-        output match {
-          case Formatted.Failure(e) =>
-            if (config.runner.fatalWarnings) {
-              throw e
-            } else if (config.runner.ignoreWarnings) {
-              // do nothing
-              None
-            } else {
-              Some(onError(file, e))
-            }
-          case Formatted.Success(code) =>
-            Some(onFormat(file, input, code))
+          output match {
+            case Formatted.Failure(e) =>
+              if (config.runner.fatalWarnings) {
+                throw e
+              } else if (config.runner.ignoreWarnings) {
+                // do nothing
+                None
+              } else {
+                Some(onError(file, e))
+              }
+            case Formatted.Success(code) =>
+              Some(onFormat(file, input, code))
+          }
         }
-      }
-    )
+      )
   }
 
   private def formatSources(
@@ -80,15 +89,23 @@ object ScalafmtPlugin extends AutoPlugin {
       config: ScalafmtConfig,
       log: Logger
   ): Unit = {
-    withFormattedSources(sources, config)(
-      (file, e) => log.error(s"Error in ${file.toString}: $e"),
+    val cnt = withFormattedSources(sources, config)(
+      (file, e) => {
+        log.error(s"Error in ${file.toString}: $e")
+        0
+      },
       (file, input, output) => {
         if (input != output) {
-          log.info(s"Successfully formatted ${file.toString}.")
           IO.write(file, output)
+          1
+        } else {
+          0
         }
       }
-    )
+    ).flatten.sum
+    if (cnt > 0) {
+      log.info(s"Successfully formatted $cnt scala files.")
+    }
     PlatformTokenizerCache.megaCache.clear()
   }
 
@@ -130,7 +147,7 @@ object ScalafmtPlugin extends AutoPlugin {
 
   lazy val scalafmtConfigSettings: Seq[Def.Setting[_]] = Seq(
     scalafmt := formatSources(
-      (unmanagedSources in scalafmt).value,
+      (unmanagedSources in scalafmt).value.filter(filterScala),
       scalaConfig.value,
       streams.value.log),
     scalafmtSbt := {
@@ -139,7 +156,7 @@ object ScalafmtPlugin extends AutoPlugin {
     },
     scalafmtCheck :=
       checkSources(
-        (unmanagedSources in scalafmt).value,
+        (unmanagedSources in scalafmt).value.filter(filterScala),
         scalaConfig.value,
         streams.value.log),
     scalafmtSbtCheck := {
@@ -167,9 +184,9 @@ object ScalafmtPlugin extends AutoPlugin {
         }
       })
 
-      val scalaFiles = absFiles.filter(_.toString.endsWith(".scala"))
+      val scalaFiles = absFiles.filter(filterScala)
       formatSources(scalaFiles, scalaConfig.value, streams.value.log)
-      val sbtFiles = absFiles.filter(_.toString.endsWith(".sbt"))
+      val sbtFiles = absFiles.filter(filterSbt)
       formatSources(sbtFiles, sbtConfig.value, streams.value.log)
     }
   )

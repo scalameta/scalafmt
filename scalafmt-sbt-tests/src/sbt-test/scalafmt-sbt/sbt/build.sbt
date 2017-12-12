@@ -107,10 +107,13 @@ TaskKey[Unit]("check") := {
   assertContentsEqual(
     file(s"p6/src/test/scala/MainTest.scala"),
     """
-      |object MainTest {
+      |object
+      |MainTest
+      |{
       |  foo(a, // comment
-      |      b)
+      |    b)
       |}
+      |
     """.stripMargin
   )
 
