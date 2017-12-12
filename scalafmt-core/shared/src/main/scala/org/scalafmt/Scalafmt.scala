@@ -80,7 +80,11 @@ object Scalafmt {
     **/
   def configWithDialect(
       config: ScalafmtConfig,
-      dialect: Dialect
-  ): ScalafmtConfig =
+      dialect: Dialect): ScalafmtConfig =
     config.withDialect(dialect)
+
+  def configForSbt(
+      config: ScalafmtConfig
+  ): ScalafmtConfig =
+    config.forSbt
 }

@@ -69,13 +69,13 @@ def isOnly(scalaV: String) = Seq(
   crossScalaVersions := Seq(scalaV)
 )
 
-lazy val `scalafmt-sbt` = project
+lazy val `scalafmt-cli-sbt` = project
   .configs(IntegrationTest)
   .settings(
     allSettings,
     Defaults.itSettings,
     mimaPreviousArtifacts := Set.empty,
-    moduleName := "sbt-scalafmt",
+    moduleName := "sbt-cli-scalafmt",
     isOnly(scala212),
     sbtPlugin := true,
     sbtVersion in Global := "1.0.0",
@@ -89,6 +89,17 @@ lazy val `scalafmt-sbt` = project
     )(state.value)
   )
   .dependsOn(cli)
+
+lazy val `scalafmt-sbt` = project
+  .settings(
+    allSettings,
+    mimaPreviousArtifacts := Set.empty,
+    moduleName := "sbt-scalafmt",
+    isOnly(scala212),
+    sbtPlugin := true,
+    sbtVersion in Global := "1.0.0"
+  )
+  .dependsOn(coreJVM)
 
 lazy val `scalafmt-sbt-tests` = project
   .settings(
@@ -336,7 +347,7 @@ def ciCommands = Seq(
       Nil
   ),
   Command.command("ci-sbt-scalafmt") { s =>
-    "scalafmt-sbt/it:test" ::
+    "scalafmt-cli-sbt/it:test" ::
       s
   },
   Command.command("ci-publish") { s =>

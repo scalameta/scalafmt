@@ -59,7 +59,7 @@ TaskKey[Unit]("check") := {
     new File("project/plugins.sbt"),
     """
       |addSbtPlugin(
-      |  "com.geirsson" % "sbt-scalafmt" % System.getProperty("plugin.version")
+      |  "com.geirsson" % "sbt-cli-scalafmt" % System.getProperty("plugin.version")
       |)
     """.stripMargin
   )
