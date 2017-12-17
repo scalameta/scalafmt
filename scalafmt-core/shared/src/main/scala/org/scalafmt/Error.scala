@@ -3,7 +3,6 @@ package org.scalafmt
 import scala.meta.Case
 import scala.meta.Tree
 import scala.meta.tokens.Token
-import scala.meta.tokens.Token
 import scala.reflect.ClassTag
 import scala.reflect.classTag
 

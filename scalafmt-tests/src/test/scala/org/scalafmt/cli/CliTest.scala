@@ -2,7 +2,6 @@ package org.scalafmt.cli
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.io.File
 import java.io.FileNotFoundException
 import java.io.PrintStream
 import java.nio.charset.StandardCharsets
@@ -24,7 +23,7 @@ import FileTestOps._
 abstract class AbstractCliTest extends FunSuite with DiffAssertions {
 
   def mkArgs(str: String): Array[String] =
-    str.split(' ').toArray
+    str.split(' ')
 
   def runWith(root: AbsoluteFile, argStr: String): Unit = {
     val args = mkArgs(argStr)
