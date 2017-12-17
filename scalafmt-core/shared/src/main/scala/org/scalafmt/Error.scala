@@ -81,8 +81,7 @@ object Error {
   case object NoMatchingFiles
       extends Error(
         "No files formatted/tested. " +
-          "Verify your configured include/exclude filters and " +
-          "supplied command line arguments.")
+          "Verify include/exclude filters and command line arguments.")
 
   case class InvalidOption(option: String)
       extends Error(s"Invalid option $option")
