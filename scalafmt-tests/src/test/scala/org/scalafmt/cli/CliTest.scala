@@ -280,6 +280,15 @@ class CliTest extends AbstractCliTest {
     }
   }
 
+  test("scalafmt (no matching files) is okay with --diff and --stdin") {
+    val diff = getConfig(Array("--diff"))
+    val stdin = getConfig(Array("--stdin")).copy(
+      common = CommonOptions(in = new ByteArrayInputStream("".getBytes))
+    )
+    Cli.run(diff)
+    Cli.run(stdin)
+  }
+
   test("scalafmt (no arg) read config from git repo") {
     val input = string2dir(
       """|/foo.scala

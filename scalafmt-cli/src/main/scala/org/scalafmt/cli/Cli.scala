@@ -154,7 +154,8 @@ object Cli {
 
   def run(options: CliOptions): Unit = {
     val inputMethods = getInputMethods(options)
-    if (inputMethods.isEmpty) throw NoMatchingFiles
+    if (inputMethods.isEmpty && options.diff.isEmpty && !options.stdIn)
+      throw NoMatchingFiles
     val counter = new AtomicInteger()
     val termDisplayMessage =
       if (options.testing) "Looking for unformatted files..."
