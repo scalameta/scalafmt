@@ -3,7 +3,6 @@ package org.scalafmt
 import scala.meta.Case
 import scala.meta.Tree
 import scala.meta.tokens.Token
-import scala.meta.tokens.Token
 import scala.reflect.ClassTag
 import scala.reflect.classTag
 
@@ -81,8 +80,7 @@ object Error {
   case object NoMatchingFiles
       extends Error(
         "No files formatted/tested. " +
-          "Verify your configured include/exclude filters and " +
-          "supplied command line arguments.")
+          "Verify include/exclude filters and command line arguments.")
 
   case class InvalidOption(option: String)
       extends Error(s"Invalid option $option")
