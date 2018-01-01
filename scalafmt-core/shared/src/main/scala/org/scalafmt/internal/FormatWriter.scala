@@ -73,9 +73,19 @@ class FormatWriter(formatOps: FormatOps) {
         val spaces: String =
           if (isDocstring && initStyle.scalaDocs) " " * (indent + 2)
           else " " * (indent + 1)
-        leadingAsteriskSpace
+        val str = leadingAsteriskSpace
           .matcher(comment.syntax)
           .replaceAll(s"\n$spaces\\*")
+
+        if (isDocstring && initStyle.scalaDocs) {
+          // TODO: use proper Pattern and improve regex
+          str
+            .replaceFirst("/\\*\\*\\s+", "/** ") // move second line up if first line just contains /** and spaces
+            .replaceFirst("\\*\\*\\s\\*", "\\*\\*") // replace result /** * to /**
+        } else {
+          str
+        }
+
       } else {
         comment.syntax
       }

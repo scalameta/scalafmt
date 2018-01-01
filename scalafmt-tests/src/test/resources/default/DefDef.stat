@@ -10,8 +10,7 @@ object a {
 >>>
 object a {
 
-  /**
-    * Returns True is this state will always return better formatting than other.
+  /** Returns True is this state will always return better formatting than other.
     */
   def alwaysBetter(other: State): Boolean =
     this.cost <= other.cost &&
@@ -109,8 +108,7 @@ final def getSelectChain(
       TypedPipe.from[U](pipe, fields)(flowDef, mode, conv)
     })
 >>>
-/**
-  * If any errors happen below this line, but before a groupBy, write to a TypedSink
+/** If any errors happen below this line, but before a groupBy, write to a TypedSink
   */
 def addTrap[U >: T](trapSink: Source with TypedSink[T])(
     implicit conv: TupleConverter[U]): TypedPipe[U] =
