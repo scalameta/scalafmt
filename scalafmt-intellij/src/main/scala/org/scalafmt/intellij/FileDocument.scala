@@ -1,7 +1,6 @@
 package org.scalafmt.intellij
 
 import scala.meta.parsers.ParseException
-
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
@@ -11,11 +10,12 @@ import org.scalafmt.config.ScalafmtRunner
 import org.scalafmt.{Formatted, Scalafmt}
 import IdeaUtils._
 import com.intellij.openapi.project.Project
+import org.scalameta.logger
 
 case class FileDocument(project: Option[Project], document: Document) {
   val virtualFile = FileDocumentManager.getInstance().getFile(document)
   def path = virtualFile.getPath
-  def isSbt: Boolean = virtualFile.getFileType.getName == "SBT"
+  def isSbt: Boolean = virtualFile.getFileType.getName.compareToIgnoreCase("SBT") == 0
   def isScala: Boolean = virtualFile.getFileType.getName == "Scala"
   def canFormat: Boolean = isScala || isSbt
 
