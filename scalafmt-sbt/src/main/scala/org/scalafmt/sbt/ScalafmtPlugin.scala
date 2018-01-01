@@ -15,21 +15,26 @@ object ScalafmtPlugin extends AutoPlugin {
   override def trigger: PluginTrigger = allRequirements
 
   object autoImport {
-    val scalafmt = taskKey[Unit]("Format Scala sources.")
+    val scalafmt = taskKey[Unit]("Format Scala sources with scalafmt.")
     val scalafmtCheck =
       taskKey[Boolean](
         "Fails if a Scala source is mis-formatted. Does not write to files.")
     val scalafmtOnCompile =
       settingKey[Boolean](
-        "Format Scala source files on compile, off by default.")
+        "Format Scala source files on compile, off by default. " +
+          "BEWARE. This task is not incremental, every file in the " +
+          "project is re-formatted on every compile. " +
+          "See https://github.com/scalameta/scalafmt/issues/1091")
     val scalafmtConfig = taskKey[Option[File]](
-      "Optional location of .scalafmt.conf file. If None the default config is used.")
+      "Optional location of .scalafmt.conf file. " +
+        "If None the default config is used.")
     val scalafmtSbt = taskKey[Unit](
       "Format *.sbt and project/*.scala files for this sbt build.")
     val scalafmtSbtCheck =
       taskKey[Boolean](
-        "Fails if a *.sbt or project/*.scala source is mis-formatted. Does not write to files.")
-    val scalafmtOnly = inputKey[Unit]("Format only given file.")
+        "Fails if a *.sbt or project/*.scala source is mis-formatted. " +
+          "Does not write to files.")
+    val scalafmtOnly = inputKey[Unit]("Format a single given file.")
   }
   import autoImport._
 

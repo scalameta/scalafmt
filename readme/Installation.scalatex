@@ -143,113 +143,52 @@
     You can choose between
     @ul
       @li
-        @sect.ref{sbt-scalafmt}
+        @sect.ref{sbt-scalafmt} (sbt 1.0 only)
       @li
-        @sect.ref{neo-sbt-scalafmt}
+        @sect.ref{neo-sbt-scalafmt} (sbt 0.13 and sbt 1.0)
 
-  @sect{sbt-scalafmt}
-    @p
-      The @code{com.geirsson/sbt-scalafmt} plugin is a tiny wrapper around the
-      command line interface, and provides no custom sbt functionality beyond
-      what the command line interface offers.
+    @sect{sbt-scalafmt}
 
-    @hl.scala
-      addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "@org.scalafmt.Versions.stable")
+      @hl.scala
+        // In project/plugins.sbt. Note, does not support sbt 0.13, only sbt 1.0.
+        addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "@org.scalafmt.Versions.stable")
 
-    @ul
-      @li
-        Run @code{sbt scalafmt} to format all files in the project.
-        Configure @sect.ref{project} in @code{.scalafmt.conf} to
-        define which files to format.
-        You can pass any regular command line flags to the @code{scalafmt} command in sbt.
-        See @sect.ref{--help} for more details.
-        Example,
+      The plugin provides several tasks and settings.
+
+      @hl.ref(
+        wd / "scalafmt-sbt" / "src" / "main" / "scala" / "org" / "scalafmt" / "sbt" / "ScalafmtPlugin.scala",
+        start = "autoImport",
+        end = "import autoImport"
+      )
+
+      @p
+        Pro tip. To share configuration across projects, you can define a setting
+        in @code{build.sbt} to generate .scalafmt.conf programmatically on sbt load.
+
         @hl.scala
-          sbt "scalafmt --help"
-          scalafmt x.y.z
-          Usage: ...
-      @li
-        There are three handy aliases for the @code{scalafmt} command.
+          // define setting key to write configuration to .scalafmt.conf
+          SettingKey[Unit]("scalafmtGenerateConfig") :=
+            IO.write( // writes to file once when build is loaded
+              file(".scalafmt.conf"),
+              """style = IntelliJ
+                |# Your configuration here
+                """.stripMargin.getBytes("UTF-8")
+            )
+
+    @sect{neo-sbt-scalafmt}
+      @p
+        @lnk("lucidsoftware/neo-sbt-scalafmt", "https://github.com/lucidsoftware/neo-sbt-scalafmt") is
+        an sbt plugin that
         @ul
           @li
-            @code{scalafmtTest -> scalafmt --test}
+            supports both sbt 0.13 and 1.0.0
           @li
-            @code{scalafmtDiff -> scalafmt --diff}
+            supports any version of scalafmt
           @li
-            @code{scalafmtDiffTest -> scalafmt --diff --test}
-      @li
-        The plugin will automatically pick up your @sect.ref{Configuration} in
-        @code{.scalafmt.conf}.
-        @p
-          The configuration must be defined in .scalafmt.conf in the root directory
-          of your project. Why? Because integrations like IntelliJ rely on the
-          file existing there.
-        @p
-          If you want to define the configuration somehow differently, you can
-          use some trick like this in @code{build.sbt} or from within an
-          sbt plugin settings
-
-          @hl.scala
-            // define setting key to write configuration to .scalafmt.conf
-            SettingKey[Unit]("scalafmtGenerateConfig") :=
-              IO.write( // writes to file once when build is loaded
-                file(".scalafmt.conf"),
-                """style = IntelliJ
-                  |# Your configuration here
-                  """.stripMargin.getBytes("UTF-8")
-              )
-      @li
-        @p
-          The sbt plugin does not provide reformat on compile settings.
-          @lnk("This gist", "https://gist.github.com/olafurpg/e045ef9d8a4273bae3e2ccf610636d66")
-          shows a DIY plugin to enable reformat on compile.
-          YMMV.
-        @p
-          Why isn't that gist included in the sbt plugin? See @issue(597).
-
-  @sect{neo-sbt-scalafmt}
-    @p
-      @lnk("lucidsoftware/neo-sbt-scalafmt", "https://github.com/lucidsoftware/neo-sbt-scalafmt") is
-      an sbt plugin that
-      @ul
-        @li
-          supports both sbt 0.13 and 1.0.0-M5
-        @li
-          supports any version of scalafmt
-        @li
-          runs in-process
-        @li
-          uses SBT's @code{update} resolutions mechanism
-    @p
-      Please report back if you find neo-sbt-scalafmt useful.
-      We might want to promote it to become the official sbt plugin for scalafmt.
-
-
-  @sect{sbt 0.13}
-    @p
-      @note. You might want to try out @sect.ref{neo-sbt-scalafmt}.
-
-    @p
-      I recommend you try to upgrade to sbt 1.0 as soon as possible.
-      However, if you are stuck on sbt 0.13, you can still use the latest versions
-      of scalafmt with this workaround.
-
-    @hl.scala
-      // project/plugins.sbt
-      libraryDependencies += "com.geirsson" %% "scalafmt-bootstrap" % "0.6.6"
-      // build.sbt
-      def latestScalafmt = "@V.stable"
-      commands += Command.args("scalafmt", "Run scalafmt cli.") {
-        case (state, args) =>
-          val Right(scalafmt) =
-            org.scalafmt.bootstrap.ScalafmtBootstrap.fromVersion(latestScalafmt)
-          scalafmt.main("--non-interactive" +: args.toArray)
-          state
-      }
-      // run: sbt scalafmt
-
-    Here is an example repo that uses this workaround:
-    @lnk("https://github.com/olafurpg/sbt-scalafmt-0.13/blob/master/build.sbt")
+            runs in-process
+          @li
+            uses SBT's @code{update} resolutions mechanism, which tends to be
+            slow for large multi-module builds.
 
   @sect{Gradle}
     It is possible to use scalafmt in gradle with the following externally maintained plugins:
