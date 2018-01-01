@@ -15,7 +15,8 @@ import org.scalameta.logger
 case class FileDocument(project: Option[Project], document: Document) {
   val virtualFile = FileDocumentManager.getInstance().getFile(document)
   def path = virtualFile.getPath
-  def isSbt: Boolean = virtualFile.getFileType.getName.compareToIgnoreCase("SBT") == 0
+  def isSbt: Boolean =
+    virtualFile.getFileType.getName.compareToIgnoreCase("SBT") == 0
   def isScala: Boolean = virtualFile.getFileType.getName == "Scala"
   def canFormat: Boolean = isScala || isSbt
 
