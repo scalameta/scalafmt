@@ -242,16 +242,22 @@ class Router(formatOps: FormatOps) {
           leftOwner.asInstanceOf[Term.Function].body)
         val canBeSpace =
           statementStarts(hash(right)).isInstanceOf[Term.Function]
-        val afterCurlyNewlines =
+
+        val (afterCurlyModification, afterCurlyCost) =
           style.newlines.afterCurlyLambda match {
-            case NewlineCurlyLambda.never => Newline
-            case NewlineCurlyLambda.always => Newline2x
+            case NewlineCurlyLambda.never if right.is[LeftBrace] => (Space, 0)
+            case NewlineCurlyLambda.never => (Newline, 1)
+            case NewlineCurlyLambda.always => (Newline2x, 1)
             case NewlineCurlyLambda.preserve =>
-              if (newlines >= 2) Newline2x else Newline
+              if(newlines == 0) (Space, 0)
+              else if(newlines == 1) (Newline, 1)
+              else (Newline2x, 2)
           }
+
         Seq(
           Split(Space, 0, ignoreIf = !canBeSpace),
-          Split(afterCurlyNewlines, 1).withIndent(2, endOfFunction, Left)
+          Split(afterCurlyModification, afterCurlyCost)
+            .withIndent(2, endOfFunction, Left)
         )
       case FormatToken(arrow @ RightArrow(), right, _)
           if leftOwner.is[Term.Function] =>
