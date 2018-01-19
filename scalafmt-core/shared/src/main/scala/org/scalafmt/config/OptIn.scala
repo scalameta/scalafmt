@@ -46,6 +46,28 @@ import metaconfig._
   * @param selfAnnotationNewline See https://github.com/scalameta/scalafmt/issues/938
   *                              If true, will force a line break before a self annotation
   *                              if there was a line break there before.
+  * @param blankLineBeforeDocstring
+  *  If true, always insert a blank line before docstrings,
+  *  If false, preserves blank line only if one exists before.
+  *  Example:
+  *  {{{
+  *    // before
+  *    object Foo {
+  *      /** Docstring */
+  *      def foo = 2
+  *    }
+  *    // after, if blankLineBeforeDocstring=true
+  *    object Foo {
+  *      /** Docstring */
+  *      def foo = 2
+  *    }
+  *    // after, if blankLineBeforeDocstring=false
+  *    object Foo {
+  *
+  *      /** Docstring */
+  *      def foo = 2
+  *    }
+  *  }}}
   */
 @DeriveConfDecoder
 case class OptIn(
@@ -53,5 +75,7 @@ case class OptIn(
     breaksInsideChains: Boolean = false,
     breakChainOnFirstMethodDot: Boolean = true,
     selfAnnotationNewline: Boolean = true,
-    annotationNewlines: Boolean = true
+    annotationNewlines: Boolean = true,
+    // Candidate to become default true at some point.
+    blankLineBeforeDocstring: Boolean = false
 )
