@@ -47,8 +47,8 @@ import metaconfig._
   *                              If true, will force a line break before a self annotation
   *                              if there was a line break there before.
   * @param blankLineBeforeDocstring
-  *  If true, always insert a blank line before docstrings,
-  *  If false, preserves blank line only if one exists before.
+  *  If false, always insert a blank line before docstrings,
+  *  If true, preserves blank line only if one exists before.
   *  Example:
   *  {{{
   *    // before
