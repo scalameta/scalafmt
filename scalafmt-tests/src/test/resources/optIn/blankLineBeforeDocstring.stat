@@ -1,0 +1,12 @@
+style = default
+optIn.blankLineBeforeDocstring = true
+<<< docstring does not force line break
+object Stuff {
+  /** Some function */
+  def hello = ()
+}
+>>>
+object Stuff {
+  /** Some function */
+  def hello = ()
+}
