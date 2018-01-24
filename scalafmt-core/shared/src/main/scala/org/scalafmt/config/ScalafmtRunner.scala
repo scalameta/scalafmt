@@ -89,6 +89,6 @@ object ScalafmtRunner {
     */
   val statement = default.copy(parser = scala.meta.parsers.Parse.parseStat)
 
-  val sbt = default.copy(dialect = scala.meta.dialects.Sbt0137)
+  val sbt = default.forSbt
 
 }
