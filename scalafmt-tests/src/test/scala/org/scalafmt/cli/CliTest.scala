@@ -198,16 +198,21 @@ class CliTest extends AbstractCliTest {
     assertNoDiff(obtained, formatted)
   }
 
-  test("handles .scala and .sbt files") {
+  test("handles .scala, .sbt, and .sc files") {
     val input = string2dir(
       s"""|/foobar.scala
           |object    A {  }
           |/foo.sbt
           |lazy   val x   = project
+          |/foo.sc
+          |lazy   val x   = project
           |""".stripMargin
     )
     val expected =
       s"""|/foo.sbt
+          |lazy val x = project
+          |
+          |/foo.sc
           |lazy val x = project
           |
           |/foobar.scala
@@ -327,9 +332,14 @@ class CliTest extends AbstractCliTest {
       string2dir(
         """|/foo.scala
            |object    FormatMe
+           |/foo.sc
+           |object    FormatMe
            |""".stripMargin
       ),
-      """|/foo.scala
+      """|/foo.sc
+         |object FormatMe
+         |
+         |/foo.scala
          |object FormatMe
          |""".stripMargin,
       Seq(Array.empty[String])
