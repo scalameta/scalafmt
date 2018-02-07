@@ -54,6 +54,8 @@ object ScalafmtPlugin extends AutoPlugin {
     source.toString.endsWith(".scala")
   private def filterSbt(source: File): Boolean =
     source.toString.endsWith(".sbt")
+  private def filterSc(source: File): Boolean =
+    source.toString.endsWith(".sc")
 
   private type Input = String
   private type Output = String
@@ -193,6 +195,8 @@ object ScalafmtPlugin extends AutoPlugin {
       formatSources(scalaFiles, scalaConfig.value, streams.value.log)
       val sbtFiles = absFiles.filter(filterSbt)
       formatSources(sbtFiles, sbtConfig.value, streams.value.log)
+      val scFiles = absFiles.filter(filterSc)
+      formatSources(scFiles, sbtConfig.value, streams.value.log)
     }
   )
 

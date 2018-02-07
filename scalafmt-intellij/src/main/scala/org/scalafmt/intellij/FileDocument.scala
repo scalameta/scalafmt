@@ -17,13 +17,15 @@ case class FileDocument(project: Option[Project], document: Document) {
   def path = virtualFile.getPath
   def isSbt: Boolean =
     virtualFile.getFileType.getName.compareToIgnoreCase("SBT") == 0
+  def isSc: Boolean =
+    virtualFile.getFileType.getName.compareToIgnoreCase("SC") == 0
   def isScala: Boolean = virtualFile.getFileType.getName == "Scala"
   def canFormat: Boolean = isScala || isSbt
 
   def format(): Unit = if (canFormat) {
     val style = getStyle(project, virtualFile)
     val runner =
-      if (isSbt)
+      if (isSbt || isSc)
         style.runner.copy(dialect = scala.meta.dialects.Sbt0137)
       else style.runner
 
