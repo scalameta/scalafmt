@@ -289,26 +289,26 @@
         argument1,
         argument2)
 
-@sect{align.openParenDefnSite}
-  Default: @b(default.align.openParenDefnSite)
+  @sect{align.openParenDefnSite}
+    Default: @b(default.align.openParenDefnSite)
 
-  @hl.scala
-    // align.openParenDefnSite = true
-    // Column limit                          |
-    class IntString(int: Int, string: String)
+    @hl.scala
+      // align.openParenDefnSite = true
+      // Column limit                          |
+      class IntString(int: Int, string: String)
 
-    class IntStringLong(int: Int,
-                        string: String,
-                        long: Long)
+      class IntStringLong(int: Int,
+                          string: String,
+                          long: Long)
 
-    // align.openParenDefnSite = false
-    // Column limit                          |
-    class IntString(int: Int, string: String)
-    class IntStringLong(
-      int: Int,
-      string: String,
-      long: Long
-    )
+      // align.openParenDefnSite = false
+      // Column limit                          |
+      class IntString(int: Int, string: String)
+      class IntStringLong(
+        int: Int,
+        string: String,
+        long: Long
+      )
 
   @sect{// format: off}
     Disable formatting for specific regions of code by wrapping them in
