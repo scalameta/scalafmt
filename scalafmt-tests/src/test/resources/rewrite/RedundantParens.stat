@@ -31,3 +31,35 @@ object a {
       if (b ++ b).length >= 2
     } yield a
 }
+<<< compound statement
+object a {
+  def c(b: List[Int]): List[Int] =
+    for {
+      a <- b
+      if (a) || (a)
+    } yield a
+}
+>>>
+object a {
+  def c(b: List[Int]): List[Int] =
+    for {
+      a <- b
+      if (a) || (a)
+    } yield a
+}
+<<< recursive compound statement
+object a {
+  def c(b: List[Int]): List[Int] =
+    for {
+      a <- b
+      if ((a)) || ((a))
+    } yield a
+}
+>>>
+object a {
+  def c(b: List[Int]): List[Int] =
+    for {
+      a <- b
+      if ((a)) || ((a))
+    } yield a
+}
