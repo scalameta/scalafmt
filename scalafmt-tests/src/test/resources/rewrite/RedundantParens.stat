@@ -47,7 +47,7 @@ object a {
       if (a) || (a)
     } yield a
 }
-<<< recursive compound statement
+<<< nested compound statement
 object a {
   def c(b: List[Int]): List[Int] =
     for {
@@ -62,4 +62,28 @@ object a {
       a <- b
       if ((a)) || ((a))
     } yield a
+}
+<<< basic match
+object a {
+  def c(b: Int): Int = b match { case _ if (a) => b }
+}
+>>>
+object a {
+  def c(b: Int): Int = b match { case _ if (a) => b }
+}
+<<< compound match
+object a {
+  def c(b: Int): Int = b match { case _ if (a) || (a) => b }
+}
+>>>
+object a {
+  def c(b: Int): Int = b match { case _ if (a) || (a) => b }
+}
+<<< nested compound match
+object a {
+  def c(b: Int): Int = b match { case _ if ((a) || (a)) => b }
+}
+>>>
+object a {
+  def c(b: Int): Int = b match { case _ if ((a) || (a)) => b }
 }
