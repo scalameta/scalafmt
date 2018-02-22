@@ -23,8 +23,12 @@ case object RedundantParens extends Rewrite {
           val leftSegment: Tokens = tokens.slice(0, parensToRemoveCount)
           val rightSegment: Tokens =
             tokens.slice(tokens.length - parensToRemoveCount, tokens.length)
-          leftSegment.foreach(tok => builder += TokenPatch.Remove(tok))
-          rightSegment.foreach(tok => builder += TokenPatch.Remove(tok))
+          leftSegment.zip(rightSegment.reverse).foreach {
+            case (left, right) if ctx.isMatching(left, right) =>
+              builder += TokenPatch.Remove(left)
+              builder += TokenPatch.Remove(right)
+            case _ =>
+          }
         }
     }
     builder.result()

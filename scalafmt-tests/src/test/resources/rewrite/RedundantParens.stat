@@ -31,3 +31,59 @@ object a {
       if (b ++ b).length >= 2
     } yield a
 }
+<<< compound statement
+object a {
+  def c(b: List[Int]): List[Int] =
+    for {
+      a <- b
+      if (a) || (a)
+    } yield a
+}
+>>>
+object a {
+  def c(b: List[Int]): List[Int] =
+    for {
+      a <- b
+      if (a) || (a)
+    } yield a
+}
+<<< nested compound statement
+object a {
+  def c(b: List[Int]): List[Int] =
+    for {
+      a <- b
+      if ((a)) || ((a))
+    } yield a
+}
+>>>
+object a {
+  def c(b: List[Int]): List[Int] =
+    for {
+      a <- b
+      if ((a)) || ((a))
+    } yield a
+}
+<<< basic match
+object a {
+  b match { case _ if (a) => b }
+}
+>>>
+object a {
+  b match { case _ if (a) => b }
+}
+<<< compound match
+object a {
+  b match { case _ if (a) || (a) => b }
+}
+>>>
+object a {
+  b match { case _ if (a) || (a) => b }
+}
+<<< nested compound match
+object a {
+  b match { case _ if ((a) || (a)) => b }
+}
+>>>
+object a {
+  b match { case _ if ((a) || (a)) => b }
+}
