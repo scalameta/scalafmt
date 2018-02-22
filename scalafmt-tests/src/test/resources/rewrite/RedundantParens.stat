@@ -65,25 +65,25 @@ object a {
 }
 <<< basic match
 object a {
-  def c(b: Int): Int = b match { case _ if (a) => b }
+  b match { case _ if (a) => b }
 }
 >>>
 object a {
-  def c(b: Int): Int = b match { case _ if (a) => b }
+  b match { case _ if (a) => b }
 }
 <<< compound match
 object a {
-  def c(b: Int): Int = b match { case _ if (a) || (a) => b }
+  b match { case _ if (a) || (a) => b }
 }
 >>>
 object a {
-  def c(b: Int): Int = b match { case _ if (a) || (a) => b }
+  b match { case _ if (a) || (a) => b }
 }
 <<< nested compound match
 object a {
-  def c(b: Int): Int = b match { case _ if ((a) || (a)) => b }
+  b match { case _ if ((a) || (a)) => b }
 }
 >>>
 object a {
-  def c(b: Int): Int = b match { case _ if ((a) || (a)) => b }
+  b match { case _ if ((a) || (a)) => b }
 }
