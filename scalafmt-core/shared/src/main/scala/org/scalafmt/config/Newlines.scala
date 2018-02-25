@@ -86,7 +86,7 @@ import metaconfig._
   *     ev: Parser,
   *     c: Context
   *   ): String
-  *   // newlines.afterImplicitAtDefnSite = true
+  *   // newlines.afterImplicitKWInVerticalMultiline = true
   *   // newlines.beforeImplicitKWInVerticalMultiline = false
   *   def format(
   *     code: String,
