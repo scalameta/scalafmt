@@ -1,0 +1,13 @@
+style = default
+<<< #1116
+val x: A#   !
+>>>
+val x: A# !
+<<< #1116 underscore
+val x: A# _a
+>>>
+val x: A#_a
+<<< #1116 letter
+val x: A# a
+>>>
+val x: A#a
