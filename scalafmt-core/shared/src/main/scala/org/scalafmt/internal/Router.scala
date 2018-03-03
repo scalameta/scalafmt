@@ -1333,7 +1333,12 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(if (endsWithSymbolIdent(left)) Space else NoSplit, 0)
         )
-      case FormatToken(Dot() | Hash(), Ident(_) | KwThis() | KwSuper(), _) =>
+      case FormatToken(Hash(), ident: Ident, _) =>
+        val mod = if (TokenOps.isSymbolicIdent(ident)) Space else NoSplit
+        Seq(
+          Split(mod, 0)
+        )
+      case FormatToken(Dot(), Ident(_) | KwThis() | KwSuper(), _) =>
         Seq(
           Split(NoSplit, 0)
         )
