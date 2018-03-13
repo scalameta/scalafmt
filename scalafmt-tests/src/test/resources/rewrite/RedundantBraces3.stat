@@ -1,0 +1,71 @@
+rewrite.rules = [RedundantBraces]
+<<< if-else simple
+object a {
+
+  def x(i: Int): String =
+    if (i == 0) {
+      "zero"
+    } else if (i < 0) {
+      "sub-zero"
+    } else {
+      "other"
+    }
+
+}
+>>>
+object a {
+
+  def x(i: Int): String =
+    if (i == 0)
+      "zero"
+    else if (i < 0)
+      "sub-zero"
+    else
+      "other"
+
+}
+<<< if-else with stuff
+object a {
+
+  def x(i: Int): String =
+    if (i == 0) {
+      /* what */
+      "zero"
+    } else if (i < 0) {
+      // Ahh
+      // Ahh2
+      "sub-zero"
+    } else if (i > 9000) {
+      println("i = " + i)
+      "over 9000"
+    } else if (i > 90000) {
+      { println("i = " + i) }
+      "over 90000!"
+    } else if (i == 1) {
+      {{ "one" }}
+    } else {
+      "other"
+    }
+}
+>>>
+object a {
+
+  def x(i: Int): String =
+    if (i == 0)
+      /* what */
+      "zero"
+    else if (i < 0)
+      // Ahh
+      // Ahh2
+      "sub-zero"
+    else if (i > 9000) {
+      println("i = " + i)
+      "over 9000"
+    } else if (i > 90000) {
+      { println("i = " + i) }
+      "over 90000!"
+    } else if (i == 1)
+      "one"
+    else
+      "other"
+}

@@ -57,6 +57,7 @@ case object RedundantBraces extends Rewrite {
     implicit val builder = Seq.newBuilder[Patch]
 
     code.traverse {
+
       case t: Term.Interpolate if settings.stringInterpolation =>
         t.parts.tail.zip(t.args).foreach {
           case (Lit(value: String), arg @ Term.Name(name))
@@ -71,6 +72,7 @@ case object RedundantBraces extends Rewrite {
             }
           case _ =>
         }
+
       case d: Defn.Def if isDefnCandidate(d) =>
         val open = d.body.tokens.head
         val close = d.body.tokens.last
@@ -81,6 +83,14 @@ case object RedundantBraces extends Rewrite {
         removeTrailingLF(bodyStatement.pos, close)
         builder += TokenPatch.Remove(open)
         builder += TokenPatch.Remove(close)
+
+      case x: Term.If if settings.ifElseClauses =>
+        patchExpr(x.thenp, false)
+        patchExpr(x.elsep, false)
+
+      case x: Case if settings.caseClauses =>
+        patchExpr(x.body, true)
+
     }
     builder.result()
   }
@@ -91,5 +101,40 @@ case object RedundantBraces extends Rewrite {
     val next = nextToken(close)
     if (next.is[LF] && close.pos.start.line != bodyEnd.end.line)
       builder += TokenPatch.Remove(next)
+  }
+
+  private def patchExpr(term: Term, inBlock: Boolean)
+                       (implicit builder: PatchBuilder, ctx: RewriteCtx): Unit = {
+    val open = term.tokens.head
+    val close = term.tokens.last
+    if (open.is[LeftBrace] && close.is[RightBrace]) {
+
+      val targets: Seq[Stat] = term match {
+        case t: Term.Block =>
+          if (inBlock)
+            t.stats
+          else if (t.stats.isEmpty)
+            term :: Nil
+          else if (t.stats.lengthCompare(1) == 0)
+            t.stats
+          else
+            Nil
+        case _ => term :: Nil
+      }
+
+      if (targets.nonEmpty) {
+        removeTrailingLF(targets.last.pos, close)
+        builder += TokenPatch.Remove(open)
+        builder += TokenPatch.Remove(close)
+
+        targets.foreach { target =>
+          if (target ne term)
+            target match {
+              case t: Term.Block => patchExpr(t, inBlock)
+              case _             =>
+            }
+        }
+      }
+    }
   }
 }

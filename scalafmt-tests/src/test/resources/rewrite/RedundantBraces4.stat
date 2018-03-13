@@ -1,0 +1,53 @@
+rewrite.rules = [RedundantBraces]
+<<< case clauses
+object a {
+
+  val x: Int => String = {
+    case 2 => {
+      "two"
+    }
+    case _ => {
+      "other"
+    }
+  }
+
+}
+>>>
+object a {
+
+  val x: Int => String = {
+    case 2 =>
+      "two"
+    case _ =>
+      "other"
+  }
+
+}
+<<< case clauses with stuff
+object a {
+
+  val x: Int => String = {
+    case 2 => {
+      println("TWO")
+      "two"
+    }
+    case _ => {
+      // Nice
+      "other"
+    }
+  }
+
+}
+>>>
+object a {
+
+  val x: Int => String = {
+    case 2 =>
+      println("TWO")
+      "two"
+    case _ =>
+      // Nice
+      "other"
+  }
+
+}
