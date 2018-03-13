@@ -5,7 +5,6 @@ import scala.meta._
 import scala.meta.tokens.Token.LF
 import scala.meta.tokens.Token.LeftBrace
 import scala.meta.tokens.Token.RightBrace
-
 import org.scalafmt.util.TreeOps._
 
 /**
@@ -13,7 +12,9 @@ import org.scalafmt.util.TreeOps._
   */
 case object RedundantBraces extends Rewrite {
 
-  def isCandidate(d: Defn.Def, ctx: RewriteCtx): Boolean = {
+  private type PatchBuilder = scala.collection.mutable.Builder[Patch, Seq[Patch]]
+
+  private def isDefnCandidate(d: Defn.Def)(implicit ctx: RewriteCtx): Boolean = {
     import ctx.style.rewrite.{redundantBraces => settings}
     def isBlock = d.body match {
       case Term.Block(Seq(stat)) =>
@@ -46,16 +47,18 @@ case object RedundantBraces extends Rewrite {
     bodyIsNotTooBig
   }
 
-  def isIdentifierAtStart(value: String) =
+  private def isIdentifierAtStart(value: String) =
     value.nonEmpty && (Character.isLetterOrDigit(value.head) || value.head == '_')
 
   override def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch] = {
+    implicit def _ctx = ctx
     import ctx.tokenTraverser._
     import ctx.style.rewrite.{redundantBraces => settings}
-    val builder = Seq.newBuilder[Patch]
-    code.collect {
+    implicit val builder = Seq.newBuilder[Patch]
+
+    code.traverse {
       case t: Term.Interpolate if settings.stringInterpolation =>
-        t.parts.tail.zip(t.args).collect {
+        t.parts.tail.zip(t.args).foreach {
           case (Lit(value: String), arg @ Term.Name(name))
               if !isIdentifierAtStart(value) =>
             val openBrace = prevToken(arg.tokens.head)
@@ -66,22 +69,27 @@ case object RedundantBraces extends Rewrite {
                 builder += TokenPatch.Remove(closeBrace)
               case _ =>
             }
+          case _ =>
         }
-      case d: Defn.Def if isCandidate(d, ctx) =>
+      case d: Defn.Def if isDefnCandidate(d) =>
         val open = d.body.tokens.head
         val close = d.body.tokens.last
         val bodyStatement = d.body match {
           case t: Term.Block => t.stats.head
           case _ => d.body
         }
-        val next = nextToken(close)
-        if (next.is[LF] &&
-          close.pos.start.line != bodyStatement.pos.end.line)
-          builder += TokenPatch.Remove(next)
-
+        removeTrailingLF(bodyStatement.pos, close)
         builder += TokenPatch.Remove(open)
         builder += TokenPatch.Remove(close)
     }
     builder.result()
+  }
+
+  private def removeTrailingLF(bodyEnd: Position, close: Token)
+                              (implicit builder: PatchBuilder, ctx: RewriteCtx): Unit = {
+    import ctx.tokenTraverser._
+    val next = nextToken(close)
+    if (next.is[LF] && close.pos.start.line != bodyEnd.end.line)
+      builder += TokenPatch.Remove(next)
   }
 }
