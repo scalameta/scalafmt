@@ -15,6 +15,9 @@ case object RedundantBraces extends Rewrite {
 
   private type PatchBuilder = scala.collection.mutable.Builder[Patch, Seq[Patch]]
 
+  @inline private def settings(implicit ctx: RewriteCtx): RedundantBracesSettings =
+    ctx.style.rewrite.redundantBraces
+
   private def processInterpolation(t: Term.Interpolate)(implicit builder: PatchBuilder, ctx: RewriteCtx): Unit = {
     import ctx.tokenTraverser._
 
@@ -38,7 +41,6 @@ case object RedundantBraces extends Rewrite {
 
   override def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch] = {
     implicit def _ctx = ctx
-    implicit def settings = ctx.style.rewrite.redundantBraces
 
     implicit val builder = Seq.newBuilder[Patch]
 
@@ -64,7 +66,7 @@ case object RedundantBraces extends Rewrite {
     }
 
   private def processBlock(b: Term.Block)
-                          (implicit builder: PatchBuilder, ctx: RewriteCtx, settings: RedundantBracesSettings): Unit =
+                          (implicit builder: PatchBuilder, ctx: RewriteCtx): Unit =
     if (b.tokens.nonEmpty) {
       val open = b.tokens.head
       if (open.is[LeftBrace]) {
@@ -77,7 +79,7 @@ case object RedundantBraces extends Rewrite {
       }
     }
 
-  private def removeBlock(b: Term.Block)(implicit settings: RedundantBracesSettings): Boolean = {
+  private def removeBlock(b: Term.Block)(implicit ctx: RewriteCtx): Boolean = {
     def exactlyOneStatement = b.stats.lengthCompare(1) == 0
     b.parent.exists {
 
@@ -121,7 +123,7 @@ case object RedundantBraces extends Rewrite {
         false
     }
 
-  private def blockSizeIsOk(b: Term.Block)(implicit settings: RedundantBracesSettings): Boolean =
+  private def blockSizeIsOk(b: Term.Block)(implicit ctx: RewriteCtx): Boolean =
     b.tokens.isEmpty || {
       val diff = if (b.stats.isEmpty)
         b.tokens.last.pos.end.line - b.tokens.head.pos.start.line
