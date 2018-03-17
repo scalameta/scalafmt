@@ -1,0 +1,17 @@
+rewrite.rules = [RedundantBraces]
+<<< infix operator precedence
+{1 + 2} * 3
+>>>
+{ 1 + 2 } * 3
+<<< infix operator precedence negative
+1 + { 2 * 3 }
+>>>
+1 + 2 * 3
+<<< infix operator associativity
+{a :: b} :: c
+>>>
+{ a :: b } :: c
+<<< infix operator associativity negative
+a :: {b :: c}
+>>>
+a :: b :: c

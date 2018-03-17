@@ -1,6 +1,9 @@
 package org.scalafmt.rewrite
 
 import org.scalafmt.config.RedundantBracesSettings
+import org.scalafmt.internal.Side
+import org.scalafmt.internal.SyntacticGroupOps
+import org.scalafmt.internal.TreeSyntacticGroup
 import scala.meta.Tree
 import scala.meta._
 import scala.meta.tokens.Token.LF
@@ -126,9 +129,16 @@ case object RedundantBraces extends Rewrite {
         }
         insideIfThen && parentIfHasAnElse && blockIsIfWithoutElse
 
-      case _ =>
-        // No other (known) special cases
-        false
+      case parent =>
+        val side = parent match {
+          case Term.ApplyInfix(_, _, _, arg :: Nil) if arg eq b => Side.Right
+          case _ => Side.Left
+        }
+        SyntacticGroupOps.groupNeedsParenthesis(
+          TreeSyntacticGroup(parent),
+          TreeSyntacticGroup(b.stats.head),
+          side
+        )
     }
 
   private def blockSizeIsOk(b: Term.Block)(implicit ctx: RewriteCtx): Boolean =
