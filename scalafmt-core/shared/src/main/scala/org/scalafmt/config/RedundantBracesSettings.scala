@@ -6,7 +6,4 @@ import metaconfig._
 case class RedundantBracesSettings(
     includeUnitMethods: Boolean = true,
     maxLines: Int = 100,
-    stringInterpolation: Boolean = false,
-    ifElseClauses: Boolean = true,
-    caseClauses: Boolean = true
-)
+    stringInterpolation: Boolean = false)
