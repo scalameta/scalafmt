@@ -1,5 +1,6 @@
 package org.scalafmt.rewrite
 
+import org.scalafmt.config.RedundantBracesSettings
 import scala.meta.Tree
 import scala.meta._
 import scala.meta.tokens.Token.LF
@@ -14,127 +15,118 @@ case object RedundantBraces extends Rewrite {
 
   private type PatchBuilder = scala.collection.mutable.Builder[Patch, Seq[Patch]]
 
-  private def isDefnCandidate(d: Defn.Def)(implicit ctx: RewriteCtx): Boolean = {
-    import ctx.style.rewrite.{redundantBraces => settings}
-    def isBlock = d.body match {
-      case Term.Block(Seq(stat)) =>
-        (stat match {
-          case _: Term.Block | _: Term.Function | _: Defn => false
-          case _ => true
-        }) &&
-          d.body.tokens.head.is[LeftBrace] &&
-          d.body.tokens.last.is[RightBrace]
-      case _ => false
+  private def processInterpolation(t: Term.Interpolate)(implicit builder: PatchBuilder, ctx: RewriteCtx): Unit = {
+    import ctx.tokenTraverser._
+
+    def isIdentifierAtStart(value: String) =
+      value.nonEmpty && (Character.isLetterOrDigit(value.head) || value.head == '_')
+
+    t.parts.tail.zip(t.args).foreach {
+      case (Lit(value: String), arg @ Term.Name(_))
+        if !isIdentifierAtStart(value) =>
+        val openBrace = prevToken(arg.tokens.head)
+        val closeBrace = nextToken(arg.tokens.head)
+        (openBrace, closeBrace) match {
+          case (LeftBrace(), RightBrace()) =>
+            builder += TokenPatch.Remove(openBrace)
+            builder += TokenPatch.Remove(closeBrace)
+          case _ =>
+        }
+      case _ =>
     }
-
-    def disqualifiedByUnit =
-      !settings.includeUnitMethods && d.decltpe.exists(_.syntax == "Unit")
-
-    def bodyIsNotTooBig: Boolean =
-      d.body match {
-        case t: Term.Block =>
-          val stat = t.stats.head
-          val diff =
-            stat.tokens.last.pos.end.line -
-              stat.tokens.head.pos.start.line
-          diff < settings.maxLines
-        case _ => false
-      }
-
-    !isProcedureSyntax(d) &&
-    isBlock &&
-    !disqualifiedByUnit &&
-    bodyIsNotTooBig
   }
-
-  private def isIdentifierAtStart(value: String) =
-    value.nonEmpty && (Character.isLetterOrDigit(value.head) || value.head == '_')
 
   override def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch] = {
     implicit def _ctx = ctx
-    import ctx.tokenTraverser._
-    import ctx.style.rewrite.{redundantBraces => settings}
+    implicit def settings = ctx.style.rewrite.redundantBraces
+
     implicit val builder = Seq.newBuilder[Patch]
 
     code.traverse {
 
+      case b: Term.Block =>
+        processBlock(b)
+
       case t: Term.Interpolate if settings.stringInterpolation =>
-        t.parts.tail.zip(t.args).foreach {
-          case (Lit(value: String), arg @ Term.Name(name))
-              if !isIdentifierAtStart(value) =>
-            val openBrace = prevToken(arg.tokens.head)
-            val closeBrace = nextToken(arg.tokens.head)
-            (openBrace, closeBrace) match {
-              case (LeftBrace(), RightBrace()) =>
-                builder += TokenPatch.Remove(openBrace)
-                builder += TokenPatch.Remove(closeBrace)
-              case _ =>
-            }
-          case _ =>
-        }
-
-      case d: Defn.Def if isDefnCandidate(d) =>
-        val open = d.body.tokens.head
-        val close = d.body.tokens.last
-        val bodyStatement = d.body match {
-          case t: Term.Block => t.stats.head
-          case _ => d.body
-        }
-        removeTrailingLF(bodyStatement.pos, close)
-        builder += TokenPatch.Remove(open)
-        builder += TokenPatch.Remove(close)
-
-      case x: Term.If if settings.ifElseClauses =>
-        patchExpr(x.thenp, false)
-        patchExpr(x.elsep, false)
-
-      case x: Case if settings.caseClauses =>
-        patchExpr(x.body, true)
-
+        processInterpolation(t)
     }
+
     builder.result()
   }
 
   private def removeTrailingLF(bodyEnd: Position, close: Token)
-                              (implicit builder: PatchBuilder, ctx: RewriteCtx): Unit = {
-    import ctx.tokenTraverser._
-    val next = nextToken(close)
-    if (next.is[LF] && close.pos.start.line != bodyEnd.end.line)
-      builder += TokenPatch.Remove(next)
-  }
+                              (implicit builder: PatchBuilder, ctx: RewriteCtx): Unit =
+    if (close.pos.start.line != bodyEnd.end.line) {
+      import ctx.tokenTraverser._
+      val next = nextToken(close)
+      if (next.is[LF])
+        builder += TokenPatch.Remove(next)
+    }
 
-  private def patchExpr(term: Term, inBlock: Boolean)
-                       (implicit builder: PatchBuilder, ctx: RewriteCtx): Unit = {
-    val open = term.tokens.head
-    val close = term.tokens.last
-    if (open.is[LeftBrace] && close.is[RightBrace]) {
-
-      val targets: Seq[Stat] = term match {
-        case t: Term.Block =>
-          if (inBlock)
-            t.stats
-          else if (t.stats.isEmpty)
-            term :: Nil
-          else if (t.stats.lengthCompare(1) == 0)
-            t.stats
-          else
-            Nil
-        case _ => term :: Nil
-      }
-
-      if (targets.nonEmpty) {
-        removeTrailingLF(targets.last.pos, close)
-        builder += TokenPatch.Remove(open)
-        builder += TokenPatch.Remove(close)
-
-        targets.foreach { target =>
-          if (target ne term)
-            target match {
-              case t: Term.Block => patchExpr(t, inBlock)
-              case _             =>
-            }
+  private def processBlock(b: Term.Block)
+                          (implicit builder: PatchBuilder, ctx: RewriteCtx, settings: RedundantBracesSettings): Unit =
+    if (b.tokens.nonEmpty) {
+      val open = b.tokens.head
+      if (open.is[LeftBrace]) {
+        val close = b.tokens.last
+        if (removeBlock(b) && close.is[RightBrace]) {
+          removeTrailingLF(if (b.stats.isEmpty) b.pos else b.stats.last.pos, close)
+          builder += TokenPatch.Remove(open)
+          builder += TokenPatch.Remove(close)
         }
       }
     }
+
+  private def removeBlock(b: Term.Block)(implicit settings: RedundantBracesSettings): Boolean = {
+    def exactlyOneStatement = b.stats.lengthCompare(1) == 0
+    b.parent.exists {
+
+      case _: Case => true
+
+      case _: Term.Apply => false // Leave this alone (for now...)
+
+      case d: Defn.Def =>
+        def disqualifiedByUnit = !settings.includeUnitMethods && d.decltpe.exists(_.syntax == "Unit")
+        def innerOk =
+          b.stats.head match {
+            case _: Term.Function | _: Defn => false
+            case _ => true
+          }
+        exactlyOneStatement && blockSizeIsOk(b) && innerOk && !isProcedureSyntax(d) && !disqualifiedByUnit
+
+      case _ =>
+        exactlyOneStatement && blockSizeIsOk(b) && !retainSingleStatementBlock(b)
+    }
   }
+
+  /** Some blocks look redundant but aren't */
+  private def retainSingleStatementBlock(b: Term.Block): Boolean =
+    b.parent.exists {
+      case parentIf: Term.If =>
+        // if (a) { if (b) c } else d
+        //   ↑ cannot be replaced by ↓
+        // if (a) if (b) c else d
+        //   which would be equivalent to
+        // if (a) { if (b) c else d }
+        def insideIfThen = parentIf.thenp eq b
+        def parentIfHasAnElse = parentIf.elsep.tokens.nonEmpty
+        def blockIsIfWithoutElse = b.stats.head match {
+          case childIf: Term.If => childIf.elsep.tokens.isEmpty
+          case _ => false
+        }
+        insideIfThen && parentIfHasAnElse && blockIsIfWithoutElse
+
+      case _ =>
+        // No other (known) special cases
+        false
+    }
+
+  private def blockSizeIsOk(b: Term.Block)(implicit settings: RedundantBracesSettings): Boolean =
+    b.tokens.isEmpty || {
+      val diff = if (b.stats.isEmpty)
+        b.tokens.last.pos.end.line - b.tokens.head.pos.start.line
+      else
+        b.stats.last.pos.end.line - b.stats.head.pos.start.line
+      diff <= settings.maxLines
+    }
 }

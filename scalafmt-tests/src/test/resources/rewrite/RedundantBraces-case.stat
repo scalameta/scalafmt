@@ -51,3 +51,26 @@ object a {
   }
 
 }
+<<< case clauses to unit
+object a {
+
+  val x: Int => Unit = {
+    case 0 =>
+    case 1 => {}
+    case 2 => {
+    }
+    case _ => {println("?")}
+  }
+
+}
+>>>
+object a {
+
+  val x: Int => Unit = {
+    case 0 =>
+    case 1 =>
+    case 2 =>
+    case _ => println("?")
+  }
+
+}

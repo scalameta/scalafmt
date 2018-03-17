@@ -14,6 +14,7 @@ lazy val buildSettings = Seq(
   libraryDependencies += scalatest.value % Test,
   triggeredMessage in ThisBuild := Watched.clearWhenTriggered,
   scalacOptions in (Compile, console) := compilerOptions :+ "-Yrepl-class-based",
+  scalacOptions in (Compile, console) --= Seq("-Xlint", "-Ywarn-dead-code"),
   assemblyJarName in assembly := "scalafmt.jar",
   testOptions in Test += Tests.Argument("-oD")
 )
