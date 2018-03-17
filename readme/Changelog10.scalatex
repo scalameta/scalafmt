@@ -8,9 +8,9 @@
     @li
       Please document your contribution here.
     @li
-      @pr(1122) Update @code{RedundantBraces} to remove redundant braces from if-else clauses
-      and @code{case} clauses. Both features can be selectively disabled by new settings:
-      @code{rewrite.redundantBraces.ifElseClauses} and @code{rewrite.redundantBraces.caseClauses}.
+      @pr(1122) Update @code{RedundantBraces} to remove redundant braces from
+			all expressions (instead of just method declarations and string
+			interpolation).
       By @user{japgolly}.
 @sect{1.4.0}
   @p
