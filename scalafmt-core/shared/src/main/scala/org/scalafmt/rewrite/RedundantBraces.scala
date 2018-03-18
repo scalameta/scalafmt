@@ -92,9 +92,14 @@ case object RedundantBraces extends Rewrite {
     def exactlyOneStatement = b.stats.lengthCompare(1) == 0
     b.parent.exists {
 
-      case _: Case => true
+      case _: Case =>
+        settings.generalExpressions
 
-      case _: Term.Apply => false // Leave this alone (for now...)
+      case _: Term.Apply =>
+        // Example: as.map { _.toString }
+        // Leave this alone for now.
+        // In future there should be an option to surround such expressions with parens instead of braces
+        false
 
       case d: Defn.Def =>
         def disqualifiedByUnit =
@@ -104,11 +109,18 @@ case object RedundantBraces extends Rewrite {
             case _: Term.Function | _: Defn => false
             case _ => true
           }
-        exactlyOneStatement && blockSizeIsOk(b) && innerOk && !isProcedureSyntax(
-          d) && !disqualifiedByUnit
+        settings.methodBodies &&
+        exactlyOneStatement &&
+        blockSizeIsOk(b) &&
+        innerOk &&
+        !isProcedureSyntax(d) &&
+        !disqualifiedByUnit
 
       case _ =>
-        exactlyOneStatement && blockSizeIsOk(b) && !retainSingleStatBlock(b)
+        settings.generalExpressions &&
+          exactlyOneStatement &&
+          blockSizeIsOk(b) &&
+          !retainSingleStatBlock(b)
     }
   }
 
@@ -131,7 +143,9 @@ case object RedundantBraces extends Rewrite {
 
       case parent =>
         val side = parent match {
-          case Term.ApplyInfix(_, _, _, arg :: Nil) if arg eq b => Side.Right
+          case t: Term.ApplyInfix
+              if t.args.lengthCompare(1) == 0 && (t.args.head eq b) =>
+            Side.Right
           case _ => Side.Left
         }
         SyntacticGroupOps.groupNeedsParenthesis(
