@@ -1,0 +1,13 @@
+{
+  "name": "scalafmt",
+  "version": "1.1.0-beta.5",
+  "main": "index.js",
+  "files": [
+    "index.js"
+  ],
+  "scripts": {
+    "prepublish": "export current=$PWD && cd ../.. && sbt jsfacade/fullOptJS && cd $current && cp ../target/scala-2.12/scalafmt-jsfacade-opt.js index.js"
+  },
+  "author": "scalafmt",
+  "license": "Apache-2.0"
+}
