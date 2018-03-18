@@ -1,0 +1,64 @@
+rewrite.rules = [PreferBlockApplication]
+<<< ONLY basic
+phases.foreach(phase => {
+  g.phase = phase
+  g.globalPhase = phase
+})
+>>>
+phases.foreach { phase =>
+  g.phase = phase
+  g.globalPhase = phase
+}
+<<< ONLY empty
+phases.foreach()
+>>>
+phases.foreach()
+<<< ONLY multiple1
+phases.multiple{phase =>
+  g.phase1 = phase
+  g.globalPhase = phase
+}(phase => {
+  g.phase2 = phase
+  g.localPhase = phase
+})
+>>>
+phases.multiple { phase =>
+  g.phase1 = phase
+  g.globalPhase = phase
+} { phase =>
+  g.phase2 = phase
+  g.localPhase = phase
+}
+<<< ONLY multiple2
+phases.multiple(phase => {
+  g.phase1 = phase
+  g.globalPhase = phase
+}){phase =>
+  g.phase2 = phase
+  g.localPhase = phase
+}
+>>>
+phases.multiple { phase =>
+  g.phase1 = phase
+  g.globalPhase = phase
+} { phase =>
+  g.phase2 = phase
+  g.localPhase = phase
+}
+<<< ONLY multiple
+phases.multiple(phase => {
+  g.phase1 = phase
+  g.globalPhase = phase
+})(phase => {
+  g.phase2 = phase
+  g.localPhase = phase
+  }
+)
+>>>
+phases.multiple { phase =>
+  g.phase1 = phase
+  g.globalPhase = phase
+} { phase =>
+  g.phase2 = phase
+  g.localPhase = phase
+}
