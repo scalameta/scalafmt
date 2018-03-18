@@ -143,19 +143,13 @@ object a {
     2
   }
 }
-<<< fix your own nested blox
+<<< fixes your nested blocks
 object a {
-  def x: Int = {
-    { // comment
-      2
-    } // end
-  }
+  def x: Int = {{ // comment
+      2 } }
 }
 >>>
 object a {
-  def x: Int = {
-    { // comment
-      2
-    } // end
-  }
+  def x: Int = // comment
+    2
 }

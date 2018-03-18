@@ -1,0 +1,155 @@
+rewrite.rules = [RedundantBraces]
+<<< if-else simple
+object a {
+
+  def x(i: Int): String =
+    if (i == 0) {
+      "zero"
+    } else if (i < 0) {
+      "sub-zero"
+    } else {
+      "other"
+    }
+
+}
+>>>
+object a {
+
+  def x(i: Int): String =
+    if (i == 0)
+      "zero"
+    else if (i < 0)
+      "sub-zero"
+    else
+      "other"
+
+}
+<<< if-else with stuff
+object a {
+
+  def x(i: Int): String =
+    if (i == 0) {
+      /* what */
+      "zero"
+    } else if (i < 0) {
+      // Ahh
+      // Ahh2
+      "sub-zero"
+    } else if (i > 9000) {
+      println("i = " + i)
+      "over 9000"
+    } else if (i > 90000) {
+      println("i = " + i)
+      "over 90000!"
+    } else if (i == 1) {
+      {{ "one" }}
+    } else {
+      "other"
+    }
+}
+>>>
+object a {
+
+  def x(i: Int): String =
+    if (i == 0)
+      /* what */
+      "zero"
+    else if (i < 0)
+      // Ahh
+      // Ahh2
+      "sub-zero"
+    else if (i > 9000) {
+      println("i = " + i)
+      "over 9000"
+    } else if (i > 90000) {
+      println("i = " + i)
+      "over 90000!"
+    } else if (i == 1)
+      "one"
+    else
+      "other"
+}
+<<< if without else
+object a {
+
+  val x: Int => Unit =
+    if (i == 0) {
+      println("zero")
+    } else if (i < 0) {
+      println("sub-zero")
+    }
+
+  def y(i: Int) =
+    if (i > 0) {
+      println("yes!")
+    }
+
+}
+>>>
+object a {
+
+  val x: Int => Unit =
+    if (i == 0)
+      println("zero")
+    else if (i < 0)
+      println("sub-zero")
+
+  def y(i: Int) =
+    if (i > 0)
+      println("yes!")
+
+}
+<<< nested if
+object a {
+  def y(i: Int) =
+    if (i > 0) {
+      if (i < 100) {
+        println("yes!")
+      }
+    } else if (i < 0) {
+      if (i >= -100) {
+        println("NO!")
+      }
+    }
+}
+>>>
+object a {
+  def y(i: Int) =
+    if (i > 0) {
+      if (i < 100)
+        println("yes!")
+    } else if (i < 0)
+      if (i >= -100)
+        println("NO!")
+}
+<<< nested if-else
+object a {
+  def y(i: Int) =
+    if (i > 0) {
+      if (i < 100) {
+        println("yes!")
+      } else {
+        println("yes??")
+      }
+    } else if (i < 0) {
+      if (i >= -100) {
+        println("NO!")
+      } else {
+        println("no??")
+      }
+    }
+}
+>>>
+object a {
+  def y(i: Int) =
+    if (i > 0)
+      if (i < 100)
+        println("yes!")
+      else
+        println("yes??")
+    else if (i < 0)
+      if (i >= -100)
+        println("NO!")
+      else
+        println("no??")
+}
