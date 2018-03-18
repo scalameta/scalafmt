@@ -1,0 +1,27 @@
+#compdef scalafmt
+
+_scalafmt() {
+  local -a cmds
+  
+  _arguments -C \
+    {-h,--help}'[prints usage text]' \
+    {-v,--version}'[print version]' \
+    '--stdout[write formatted files to stdout]' \
+    '--git[if true, ignore files in .gitignore (default false)]:value:' \
+    '--exclude[file or directory, in which case all *.scala files are formatted]:value:_files' \
+    {-c,--config}'[a file path to .scalafmt.conf]:value:_files' \
+    '--config-str[configuration defined as a string]:value:' \
+    '--stdin[read from stdin and print to stdout]' \
+    '--no-stderr[do not use strerr for messages, output to stdout]' \
+    '--assume-filename[when using --stdin, use --assume-filename to hint to scalafmt that the input is an .sbt file]:value:' \
+    '--test[test for mis-formatted code, exits with status 1 on failure]' \
+    '--migrate2hocon[migrate .scalafmt CLI style configuration to hocon style configuration in .scalafmt.conf]:value:' \
+    '--diff[if set, only format edited files in git diff against master]' \
+    '--diff-branch[if set, only format edited files in git diff against provided branch]:value:' \
+    '--build-info[prints build information]' \
+    '--quiet[do not print out stuff to console]' \
+    '--debug[print out diagnostics to console]' \
+    '--non-interactive[disable fancy progress bar, useful in ci or sbt plugin]'
+}
+
+_scalafmt
