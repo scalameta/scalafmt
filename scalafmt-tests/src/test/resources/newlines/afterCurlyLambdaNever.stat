@@ -43,3 +43,26 @@ def f = {
     g(x)
   }
 }
+
+<<< Don't put newlines around functions blocks
+foo { c =>
+  {
+    println("Foo")
+  }
+}
+>>>
+foo { c => {
+    println("Foo")
+  }
+}
+
+<<< Preserve no newlines around function blocks
+foo { c => {
+    println("Foo")
+  }
+}
+>>>
+foo { c => {
+    println("Foo")
+  }
+}
