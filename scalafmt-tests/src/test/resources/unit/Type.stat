@@ -85,3 +85,19 @@ type Row =
 type a = b_! # D
 >>>
 type a = b_! #D
+<<< ONLY #1125
+type RequiredServices = Bag
+  with HasClockService
+  with HasDynamicConfig
+  with HasFSLogger
+  with HasFutureService
+  with HasThrottles
+  with HasThrowableNotifier
+>>>
+type RequiredServices = Bag
+  with HasClockService
+  with HasDynamicConfig
+  with HasFSLogger
+  with HasFutureService
+  with HasThrottles
+  with HasThrowableNotifier
