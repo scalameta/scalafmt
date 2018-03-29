@@ -403,6 +403,8 @@ class Router(formatOps: FormatOps) {
               //     1
               // )
               true
+            case RightParen() if !style.optIn.breakBeforeFunctionCallBody =>
+              true
             case _ => false
           }
         )
