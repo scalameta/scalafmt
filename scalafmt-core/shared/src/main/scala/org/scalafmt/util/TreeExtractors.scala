@@ -1,6 +1,7 @@
 package org.scalafmt.util
 
 import scala.collection.immutable.Seq
+import scala.meta.Decl
 import scala.meta.Defn
 import scala.meta.Name
 import scala.meta.Pat
@@ -38,12 +39,17 @@ object `:parent:` {
   }
 }
 
-object SelfAnnotation {
+object WithChain {
   def unapply(t: Type.With): Option[Type.With] =
     TreeOps.topTypeWith(t) match {
+      // self types
       case (top: Type.With) `:parent:` (_: Term.Param) `:parent:` (_: Template) =>
         Some(top)
+      // type definitions
       case (top: Type.With) `:parent:` (_: Defn.Type) =>
+        Some(top)
+      // function return types
+      case (top: Type.With) `:parent:` (_: Decl.Def) =>
         Some(top)
       case _ => None
     }

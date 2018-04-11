@@ -85,21 +85,29 @@ type Row =
 type a = b_! # D
 >>>
 type a = b_! #D
-<<< #1125
-type RequiredServices = Bag with SomeOtherService.RequiredServices with HasClockService
-  with HasDynamicConfig with HasFSLogger with HasFutureService
-  with HasThrottles
-  with HasThrowableNotifier
+<<< with-chain types #1125
+type RequiredServices = Bag with
+  SomeOtherService.RequiredServices
+    with HasDynamicConfig with HasThrottles
+    with HasThrowableNotifier
 >>>
 type RequiredServices = Bag
   with SomeOtherService.RequiredServices
-  with HasClockService
   with HasDynamicConfig
-  with HasFSLogger
-  with HasFutureService
   with HasThrottles
   with HasThrowableNotifier
-<<< short line #1125
-type RequiredServices = Bag with SomeOtherService.RequiredServices with HasClockService
+<<< abstract def #1125
+trait NeedsServices {
+  def services:  Bag with
+    SomeOtherService.RequiredServices
+      with HasDynamicConfig with HasThrottles
+      with HasThrowableNotifier
+}
 >>>
-type RequiredServices = Bag with SomeOtherService.RequiredServices with HasClockService
+trait NeedsServices {
+  def services: Bag
+    with SomeOtherService.RequiredServices
+    with HasDynamicConfig
+    with HasThrottles
+    with HasThrowableNotifier
+}
