@@ -77,6 +77,5 @@ case class OptIn(
     selfAnnotationNewline: Boolean = true,
     annotationNewlines: Boolean = true,
     // Candidate to become default true at some point.
-    blankLineBeforeDocstring: Boolean = false,
-    breakBeforeFunctionCallBody: Boolean = true
+    blankLineBeforeDocstring: Boolean = false
 )

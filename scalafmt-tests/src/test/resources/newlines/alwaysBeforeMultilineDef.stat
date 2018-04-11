@@ -1,0 +1,19 @@
+maxColumn = 40
+newlines.alwaysBeforeMultilineDef = false
+
+<<< Wrap long line but don't add newline
+def foo = bar.flatMap(x => f(x)).map(x => g(x))
+>>>
+def foo = bar
+  .flatMap(x => f(x))
+  .map(x => g(x))
+<<< Don't touch multiline function call
+def foo = Future({
+  val bar = fetchBar()
+  bar.map(_ + 10)
+})
+>>>
+def foo = Future({
+  val bar = fetchBar()
+  bar.map(_ + 10)
+})

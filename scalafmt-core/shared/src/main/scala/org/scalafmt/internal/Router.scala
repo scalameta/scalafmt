@@ -403,7 +403,7 @@ class Router(formatOps: FormatOps) {
               //     1
               // )
               true
-            case RightParen() if !style.optIn.breakBeforeFunctionCallBody =>
+            case RightParen() =>
               true
             case _ => false
           }
@@ -420,7 +420,7 @@ class Router(formatOps: FormatOps) {
                 Space,
                 0,
                 ignoreIf = newlines > 0 && !rhsIsJsNative,
-//                policy = SingleLineBlock(expire, exclude = exclude)
+                policy = SingleLineBlock(expire, exclude = exclude)
               ),
               Split(Newline, 1, ignoreIf = rhsIsJsNative)
                 .withIndent(2, expire, Left)

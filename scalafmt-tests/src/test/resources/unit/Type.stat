@@ -85,13 +85,3 @@ type Row =
 type a = b_! # D
 >>>
 type a = b_! #D
-<<< #1126
-{
-def foo = Bar({aaaaaaaaaaaaaaaaaaaaa; bbbbbbbbbbbbbbbbbbbbbb})
-val foo = Bar({aaaaaaaaaaaaaaaaaaaaa; bbbbbbbbbbbbbbbbbbbbbb})
-}
->>>
-{
-def foo = Bar({aaaaaaaaaaaaaaaaaaaaa; bbbbbbbbbbbbbbbbbbbbbb})
-val foo = Bar({aaaaaaaaaaaaaaaaaaaaa; bbbbbbbbbbbbbbbbbbbbbb})
-}

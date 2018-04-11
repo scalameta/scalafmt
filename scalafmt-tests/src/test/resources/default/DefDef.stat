@@ -283,3 +283,21 @@ def zip[C](x: A =>? C): A =>? (B, C) = 2
   implicit def adtSyntax[A](target: A): Any =
     LiftMacros.materializeADTSyntax[A]
 }
+<<< #1126 Wrap long line but don't add newline
+def foo = bar.flatMap(x => f(x)).map(x => g(x))
+>>>
+def foo =
+  bar
+    .flatMap(x => f(x))
+    .map(x => g(x))
+<<< Don't touch multiline function call
+def foo = Future({
+  val bar = fetchBar()
+  bar.map(_ + 10)
+})
+>>>
+def foo =
+  Future({
+    val bar = fetchBar()
+    bar.map(_ + 10)
+  })
