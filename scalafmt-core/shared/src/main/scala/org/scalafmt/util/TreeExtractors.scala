@@ -45,11 +45,8 @@ object WithChain {
       // self types
       case (top: Type.With) `:parent:` (_: Term.Param) `:parent:` (_: Template) =>
         Some(top)
-      // type definitions
-      case (top: Type.With) `:parent:` (_: Defn.Type) =>
-        Some(top)
-      // function return types
-      case (top: Type.With) `:parent:` (_: Decl.Def) =>
+      // val/def/var/type definitions or declarations
+      case (top: Type.With) `:parent:` (_: Defn | _: Decl) =>
         Some(top)
       case _ => None
     }

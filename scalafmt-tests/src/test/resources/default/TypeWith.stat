@@ -9,3 +9,13 @@
       annotationOwnerLookUp: ScLiteral => Option[
           PsiAnnotationOwner with PsiElement]): Option[PsiAnnotationOwner] = 1
 }
+<<< #1133
+implicit val catsStdInstancesForOption
+   : Traverse[Option] with MonadError[Option, Unit] with Alternative[Option]
+       with CommutativeMonad[Option] with CoflatMap[Option] = ???
+>>>
+implicit val catsStdInstancesForOption: Traverse[Option]
+  with MonadError[Option, Unit]
+  with Alternative[Option]
+  with CommutativeMonad[Option]
+  with CoflatMap[Option] = ???
