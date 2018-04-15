@@ -46,7 +46,11 @@ object IndentOperator {
     ScalafmtConfig.indentOperatorsExcludeAkka)
   implicit val IndentOperatorDecoder: ConfDecoder[IndentOperator] =
     ConfDecoder.instance[IndentOperator] {
-      case Conf.Str("spray") => Ok(IndentOperator.akka)
-      case els => default.reader.read(els)
+      case Conf.Str("spray" | "akka" | "akka-http") =>
+        Ok(IndentOperator.akka)
+      case Conf.Str("default") =>
+        Ok(IndentOperator.default)
+      case els =>
+        default.reader.read(els)
     }
 }

@@ -86,7 +86,7 @@ import metaconfig._
   *     ev: Parser,
   *     c: Context
   *   ): String
-  *   // newlines.afterImplicitAtDefnSite = true
+  *   // newlines.afterImplicitKWInVerticalMultiline = true
   *   // newlines.beforeImplicitKWInVerticalMultiline = false
   *   def format(
   *     code: String,
@@ -102,6 +102,22 @@ import metaconfig._
   *     // ...
   *   }
   *   else //...
+  * @param alwaysBeforeMultilineDef
+  *   If true, add a newline before the body of a multiline def without
+  *   curly braces. See #1126 for discussion.
+  *   For example,
+  *   {{{
+  *     // newlines.alwaysBeforeMultilineDef = false
+  *     def foo(bar: Bar): Foo = bar
+  *       .flatMap(f)
+  *       .map(g)
+  *
+  *     // newlines.alwaysBeforeMultilineDef = true
+  *     def foo(bar: Bar): Foo =
+  *       bar
+  *         .flatMap(f)
+  *         .map(g)
+  *   }}}
   */
 @DeriveConfDecoder
 case class Newlines(
@@ -114,7 +130,8 @@ case class Newlines(
     afterCurlyLambda: NewlineCurlyLambda = NewlineCurlyLambda.never,
     afterImplicitKWInVerticalMultiline: Boolean = false,
     beforeImplicitKWInVerticalMultiline: Boolean = false,
-    alwaysBeforeElseAfterCurlyIf: Boolean = false
+    alwaysBeforeElseAfterCurlyIf: Boolean = false,
+    alwaysBeforeMultilineDef: Boolean = true
 )
 
 sealed abstract class NewlineCurlyLambda

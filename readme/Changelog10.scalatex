@@ -7,6 +7,38 @@
   @ul
     @li
       Please document your contribution here.
+    @li
+      @pr(1122) Update @code{RedundantBraces} to remove redundant braces from
+      all expressions. If you'd like to restrict @code{RedundantBraces} behaviour
+      to just method bodies and/or string interpolation as it was before this
+      change, you can do so via new setting:
+      @code{rewrite.redundantBraces.generalExpressions = false}
+      By @user{japgolly}.
+@sect{1.4.0}
+  @p
+    See @lnk("merged PRs", "https://github.com/scalameta/scalafmt/milestone/19?closed=1").
+  @ul
+    @li
+      @pr(1085) New @sect.ref{sbt-scalafmt} plugin for sbt 1.0.
+      By @user{vovapolu}, thanks to ENSIME sponsorship fund.
+    @li
+      @pr(1093) Empty input with `--diff` and `--stdin` is okay, by
+      @user{yln}.
+    @li
+      @pr(1090) Introduce "default", "akka" and "akka-http" as
+      valid values for @code{indentOperator} config,
+      by @user{daddykotex}.
+    @li
+      @pr(1087) Fix file not found errors when running from a subdirectory w/
+      @code{project.git = true}, by @user{lloydmeta}.
+    @li
+      @pr(1079) Add @code{spaces.inByNameTypes=false} option to format
+      @code{def foo(a: => A)} as @code{def foo(a: =>A)}.
+      By @user{vovapolu}, thanks to ENSIME sponsorship fund.
+    @li
+      @pr(1076) Format .sbt files in latest IntelliJ Scala 2017.3 release.
+      By @user{olafurpg}.
+    @li
 @sect{1.3.0}
   @ul
     @li

@@ -55,14 +55,16 @@ object TokenOps {
       tok: FormatToken,
       style: ScalafmtConfig,
       owners: Token => Tree): Boolean = {
-    !isDocstring(tok.left) && {
+    !forceDocstringBlankLine(tok.left, style) && {
       val newlines = newlinesBetween(tok.between)
-      newlines > 1 || (isDocstring(tok.right) && !tok.left.is[Comment])
+      newlines > 1 ||
+      (forceDocstringBlankLine(tok.right, style) && !tok.left.is[Comment])
     }
   }
 
-  def isDocstring(token: Token): Boolean = {
-    token.is[Comment] && token.syntax.startsWith("/**")
+  def forceDocstringBlankLine(token: Token, style: ScalafmtConfig): Boolean = {
+    if (style.optIn.blankLineBeforeDocstring) false
+    else token.is[Comment] && token.syntax.startsWith("/**")
   }
 
   def lastToken(tree: Tree): Token = {

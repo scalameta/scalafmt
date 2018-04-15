@@ -76,7 +76,7 @@ object Cli {
     canFormat(path.path)
 
   private def canFormat(path: String): Boolean =
-    path.endsWith(".scala") || path.endsWith(".sbt")
+    path.endsWith(".scala") || path.endsWith(".sbt") || path.endsWith(".sc")
 
   /** Returns file paths defined via options.{customFiles,customExclude} */
   private def getFilesFromCliOptions(options: CliOptions): Seq[AbsoluteFile] = {
@@ -154,7 +154,8 @@ object Cli {
 
   def run(options: CliOptions): Unit = {
     val inputMethods = getInputMethods(options)
-    if (inputMethods.isEmpty) throw NoMatchingFiles
+    if (inputMethods.isEmpty && options.diff.isEmpty && !options.stdIn)
+      throw NoMatchingFiles
     val counter = new AtomicInteger()
     val termDisplayMessage =
       if (options.testing) "Looking for unformatted files..."
@@ -174,7 +175,8 @@ object Cli {
       config = options.config.copy(runner = options.config.runner.forSbt))
     val termDisplay = newTermDisplay(options, inputMethods, termDisplayMessage)
     inputMethods.par.foreach { inputMethod =>
-      val inputConfig = if (inputMethod.isSbt) sbtOptions else options
+      val inputConfig =
+        if (inputMethod.isSbt || inputMethod.isSc) sbtOptions else options
       handleFile(inputMethod, inputConfig)
       termDisplay.taskProgress(termDisplayMessage, counter.incrementAndGet())
     }

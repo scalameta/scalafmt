@@ -46,6 +46,7 @@ class GitOpsImpl(private[util] val workingDirectory: AbsoluteFile)
         Seq(
           "git",
           "ls-files",
+          "--full-name",
           dir.path
         )
       ).toOption.toSeq.flatten.map(f => rtDir / f)

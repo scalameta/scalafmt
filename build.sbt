@@ -1,9 +1,12 @@
 import Dependencies._
 import org.scalajs.sbtplugin.cross.CrossProject
 
+version.in(ThisBuild) ~= { old =>
+  sys.props.getOrElse("scalafmt.version", old.replace('+', '-'))
+}
+
 lazy val buildSettings = Seq(
   organization := "com.geirsson",
-  version := sys.props.getOrElse("scalafmt.version", version.value),
   scalaVersion := scala212,
   crossScalaVersions := Seq(scala211, scala212),
   updateOptions := updateOptions.value.withCachedResolution(true),
@@ -11,6 +14,7 @@ lazy val buildSettings = Seq(
   libraryDependencies += scalatest.value % Test,
   triggeredMessage in ThisBuild := Watched.clearWhenTriggered,
   scalacOptions in (Compile, console) := compilerOptions :+ "-Yrepl-class-based",
+  scalacOptions in (Compile, console) --= Seq("-Xlint", "-Ywarn-dead-code"),
   assemblyJarName in assembly := "scalafmt.jar",
   testOptions in Test += Tests.Argument("-oD")
 )
@@ -308,7 +312,7 @@ lazy val noPublish = Seq(
   publishLocal := {}
 )
 
-lazy val stableVersion = Def.setting(version.value.replaceAll("\\+.*", ""))
+lazy val stableVersion = Def.setting(version.value.replaceAll("\\-.*", ""))
 lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
   buildInfoKeys := Seq[BuildInfoKey](
     name,

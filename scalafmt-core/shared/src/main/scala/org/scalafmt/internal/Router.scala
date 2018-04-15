@@ -24,7 +24,6 @@ import org.scalafmt.internal.ExpiresOn.Right
 import org.scalafmt.internal.Length.Num
 import org.scalafmt.internal.Length.StateColumn
 import org.scalafmt.internal.Policy.NoPolicy
-import org.scalafmt.util.`:parent:`
 import org.scalafmt.util.Delim
 import org.scalafmt.util.CtorModifier
 import org.scalafmt.util.InfixApplication
@@ -33,7 +32,7 @@ import org.scalafmt.util.Literal
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.Modifier
 import org.scalafmt.util.RightParenOrBracket
-import org.scalafmt.util.SelfAnnotation
+import org.scalafmt.util.WithChain
 import org.scalafmt.util.SomeInterpolate
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
@@ -403,6 +402,8 @@ class Router(formatOps: FormatOps) {
               //     1
               // )
               true
+            case RightParen() if !style.newlines.alwaysBeforeMultilineDef =>
+              true
             case _ => false
           }
         )
@@ -418,7 +419,10 @@ class Router(formatOps: FormatOps) {
                 Space,
                 0,
                 ignoreIf = newlines > 0 && !rhsIsJsNative,
-                policy = SingleLineBlock(expire, exclude = exclude)),
+                policy =
+                  if (!style.newlines.alwaysBeforeMultilineDef) NoPolicy
+                  else SingleLineBlock(expire, exclude = exclude)
+              ),
               Split(Newline, 1, ignoreIf = rhsIsJsNative)
                 .withIndent(2, expire, Left)
             )
@@ -1021,7 +1025,7 @@ class Router(formatOps: FormatOps) {
               Split(Space, 0),
               Split(Newline, 1).withPolicy(policy)
             )
-          case t @ SelfAnnotation(top) =>
+          case t @ WithChain(top) =>
             val isFirstWith = !t.lhs.is[Type.With]
             if (isFirstWith) {
               val chain = withChain(top)
@@ -1333,7 +1337,12 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(if (endsWithSymbolIdent(left)) Space else NoSplit, 0)
         )
-      case FormatToken(Dot() | Hash(), Ident(_) | KwThis() | KwSuper(), _) =>
+      case FormatToken(Hash(), ident: Ident, _) =>
+        val mod = if (TokenOps.isSymbolicIdent(ident)) Space else NoSplit
+        Seq(
+          Split(mod, 0)
+        )
+      case FormatToken(Dot(), Ident(_) | KwThis() | KwSuper(), _) =>
         Seq(
           Split(NoSplit, 0)
         )

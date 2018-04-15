@@ -2,7 +2,6 @@ package org.scalafmt.cli
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.io.File
 import java.io.FileNotFoundException
 import java.io.PrintStream
 import java.nio.charset.StandardCharsets
@@ -24,7 +23,7 @@ import FileTestOps._
 abstract class AbstractCliTest extends FunSuite with DiffAssertions {
 
   def mkArgs(str: String): Array[String] =
-    str.split(' ').toArray
+    str.split(' ')
 
   def runWith(root: AbsoluteFile, argStr: String): Unit = {
     val args = mkArgs(argStr)
@@ -199,16 +198,21 @@ class CliTest extends AbstractCliTest {
     assertNoDiff(obtained, formatted)
   }
 
-  test("handles .scala and .sbt files") {
+  test("handles .scala, .sbt, and .sc files") {
     val input = string2dir(
       s"""|/foobar.scala
           |object    A {  }
           |/foo.sbt
           |lazy   val x   = project
+          |/foo.sc
+          |lazy   val x   = project
           |""".stripMargin
     )
     val expected =
       s"""|/foo.sbt
+          |lazy val x = project
+          |
+          |/foo.sc
           |lazy val x = project
           |
           |/foobar.scala
@@ -280,6 +284,15 @@ class CliTest extends AbstractCliTest {
     }
   }
 
+  test("scalafmt (no matching files) is okay with --diff and --stdin") {
+    val diff = getConfig(Array("--diff"))
+    val stdin = getConfig(Array("--stdin")).copy(
+      common = CommonOptions(in = new ByteArrayInputStream("".getBytes))
+    )
+    Cli.run(diff)
+    Cli.run(stdin)
+  }
+
   test("scalafmt (no arg) read config from git repo") {
     val input = string2dir(
       """|/foo.scala
@@ -319,9 +332,14 @@ class CliTest extends AbstractCliTest {
       string2dir(
         """|/foo.scala
            |object    FormatMe
+           |/foo.sc
+           |object    FormatMe
            |""".stripMargin
       ),
-      """|/foo.scala
+      """|/foo.sc
+         |object FormatMe
+         |
+         |/foo.scala
          |object FormatMe
          |""".stripMargin,
       Seq(Array.empty[String])

@@ -8,7 +8,12 @@ maxColumn = 100
 
 ## Steps
 
-I ran scalafmt like this:
+Given code like this:
+```scala
+ORIGINAL CODE
+```
+
+When I run scalafmt like this:
 
 ```bash
 scalafmt

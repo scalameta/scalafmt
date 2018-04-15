@@ -9,3 +9,39 @@
       annotationOwnerLookUp: ScLiteral => Option[
           PsiAnnotationOwner with PsiElement]): Option[PsiAnnotationOwner] = 1
 }
+<<< #1133
+implicit val catsStdInstancesForOption
+   : Traverse[Option] with MonadError[Option, Unit] with Alternative[Option]
+       with CommutativeMonad[Option] with CoflatMap[Option] = ???
+>>>
+implicit val catsStdInstancesForOption: Traverse[Option]
+  with MonadError[Option, Unit]
+  with Alternative[Option]
+  with CommutativeMonad[Option]
+  with CoflatMap[Option] = ???
+<<< with-chain types #1125
+type RequiredServices = Bag with
+  SomeOtherService.RequiredServices
+    with HasDynamicConfig with HasThrottles
+    with HasThrowableNotifier
+>>>
+type RequiredServices = Bag
+  with SomeOtherService.RequiredServices
+  with HasDynamicConfig
+  with HasThrottles
+  with HasThrowableNotifier
+<<< abstract def #1125
+trait NeedsServices {
+  def services:  Bag with
+    SomeOtherService.RequiredServices
+      with HasDynamicConfig with HasThrottles
+      with HasThrowableNotifier
+}
+>>>
+trait NeedsServices {
+  def services: Bag
+    with SomeOtherService.RequiredServices
+    with HasDynamicConfig
+    with HasThrottles
+    with HasThrowableNotifier
+}
