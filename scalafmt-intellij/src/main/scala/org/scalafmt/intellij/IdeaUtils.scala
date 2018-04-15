@@ -1,6 +1,7 @@
 package org.scalafmt.intellij
 
 import java.io.File
+
 import scala.collection.mutable
 import scala.xml.Utility
 import com.intellij.notification.{Notification, NotificationType, Notifications}
@@ -11,10 +12,9 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.vfs.VirtualFile
 import metaconfig.Configured.NotOk
 import metaconfig.Configured.Ok
-import org.scalafmt.cli.StyleCache
 import com.intellij.vcsUtil.VcsUtil
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.util.FileOps
+import org.scalafmt.util.{FileOps, StyleCache}
 
 object IdeaUtils {
 

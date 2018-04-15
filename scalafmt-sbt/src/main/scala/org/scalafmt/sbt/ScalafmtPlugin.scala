@@ -10,8 +10,7 @@ import sbt.util.Logger
 
 import scala.meta.internal.tokenizers.PlatformTokenizerCache
 import scala.util.{Failure, Success, Try}
-
-import org.scalafmt.cli.StyleCache
+import org.scalafmt.util.{FormattingCache, StyleCache}
 
 object ScalafmtPlugin extends AutoPlugin {
   override def trigger: PluginTrigger = allRequirements
@@ -45,8 +44,9 @@ object ScalafmtPlugin extends AutoPlugin {
 
   private val scalaConfig =
     scalafmtConfig
-      .map(_.flatMap(f => StyleCache.getStyleForFile(f.toString)))
-      .getOrElse(ScalafmtConfig.default)
+      .map(
+        _.flatMap(f => StyleCache.getStyleForFile(f.toString))
+          .getOrElse(ScalafmtConfig.default))
   private val sbtConfig = scalaConfig.map(_.forSbt)
 
   private def filterSource(source: File, config: ScalafmtConfig): Boolean =
@@ -95,36 +95,29 @@ object ScalafmtPlugin extends AutoPlugin {
   private def formatSources(
       sources: Seq[File],
       config: ScalafmtConfig,
-      log: Logger,
-      cache: File
+      log: Logger
   ): Unit = {
-
-    def handleUpdate(
-        in: ChangeReport[File],
-        out: ChangeReport[File]): Set[File] = {
-      val files = in.modified -- in.removed
-      val cnt = withFormattedSources(files.toSeq, config)(
-        (file, e) => {
-          log.error(s"Error in ${file.toString}: $e")
+    val cnt = withFormattedSources(
+      sources.filter(FormattingCache.outdatedFormatting), config
+    )(
+      (file, e) => {
+        log.error(s"Error in ${file.toString}: $e")
+        0
+      },
+      (file, input, output) => {
+        if (input != output) {
+          IO.write(file, output)
+          FormattingCache.updateFormatting(file, System.currentTimeMillis())
+          1
+        } else {
           0
-        },
-        (file, input, output) => {
-          if (input != output) {
-            IO.write(file, output)
-            1
-          } else {
-            0
-          }
         }
-      ).flatten.sum
-      if (cnt > 1) {
-        log.info(s"Reformatted $cnt Scala sources")
       }
-      files
-    }
+    ).flatten.sum
 
-    FileFunction.cached(cache)(FilesInfo.hash, FilesInfo.exists)(handleUpdate)(
-      sources.toSet)
+    if (cnt > 1) {
+      log.info(s"Reformatted $cnt Scala sources")
+    }
 
     PlatformTokenizerCache.megaCache.clear()
   }
@@ -169,19 +162,19 @@ object ScalafmtPlugin extends AutoPlugin {
     scalafmt := formatSources(
       (unmanagedSources in scalafmt).value.filter(filterScala),
       scalaConfig.value,
-      streams.value.log,
-      streams.value.cacheDirectory / "scalafmt"),
+      streams.value.log
+    ),
     scalafmtSbt := {
       formatSources(
         sbtSources.value,
         sbtConfig.value,
-        streams.value.log,
-        streams.value.cacheDirectory / "scalafmt")
+        streams.value.log
+      )
       formatSources(
         projectSources.value,
         scalaConfig.value,
-        streams.value.log,
-        streams.value.cacheDirectory / "scalafmt")
+        streams.value.log
+      )
     },
     scalafmtCheck :=
       checkSources(

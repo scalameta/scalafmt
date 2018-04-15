@@ -28,4 +28,14 @@
 > p7/compile:scalafmtCheck
 > p7/test:scalafmtCheck
 
+> p8/compile:scalafmt
+> check
+$ sleep 1000
+$ touch timestamp
+$ sleep 1000
+> changeTest2
+> p8/compile:scalafmt
+$ newer timestamp p8/src/main/scala/Test.scala
+$ newer p8/src/main/scala/Test2.scala timestamp
+
 > check
