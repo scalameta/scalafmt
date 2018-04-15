@@ -98,7 +98,8 @@ object ScalafmtPlugin extends AutoPlugin {
       log: Logger
   ): Unit = {
     val cnt = withFormattedSources(
-      sources.filter(FormattingCache.outdatedFormatting), config
+      sources.filter(FormattingCache.outdatedFormatting),
+      config
     )(
       (file, e) => {
         log.error(s"Error in ${file.toString}: $e")
