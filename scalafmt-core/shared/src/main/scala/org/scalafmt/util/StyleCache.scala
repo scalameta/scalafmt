@@ -1,13 +1,13 @@
 package org.scalafmt.util
 
+import scala.collection.mutable
+
 import java.io.File
 
 import metaconfig.Configured
 import metaconfig.Configured.Ok
 import org.scalafmt.config
 import org.scalafmt.config.ScalafmtConfig
-
-import scala.collection.mutable
 
 object StyleCache {
   private val styleCache = mutable.Map.empty[String, ScalafmtConfig]
