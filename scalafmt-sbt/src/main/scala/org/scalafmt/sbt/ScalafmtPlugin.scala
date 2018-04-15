@@ -10,6 +10,7 @@ import sbt.util.Logger
 
 import scala.meta.internal.tokenizers.PlatformTokenizerCache
 import scala.util.{Failure, Success, Try}
+import org.scalafmt.util.{FormattingCache, StyleCache}
 
 object ScalafmtPlugin extends AutoPlugin {
   override def trigger: PluginTrigger = allRequirements
@@ -42,10 +43,10 @@ object ScalafmtPlugin extends AutoPlugin {
     taskKey[Unit]("Format Scala source files if scalafmtOnCompile is on.")
 
   private val scalaConfig =
-    scalafmtConfig.map(_.map(Config.fromHoconFile(_) match {
-      case Configured.Ok(conf) => conf
-      case Configured.NotOk(e) => throw new MessageOnlyException(e.msg)
-    }).getOrElse(ScalafmtConfig.default))
+    scalafmtConfig
+      .map(
+        _.flatMap(f => StyleCache.getStyleForFile(f.toString))
+          .getOrElse(ScalafmtConfig.default))
   private val sbtConfig = scalaConfig.map(_.forSbt)
 
   private def filterSource(source: File, config: ScalafmtConfig): Boolean =
@@ -96,7 +97,10 @@ object ScalafmtPlugin extends AutoPlugin {
       config: ScalafmtConfig,
       log: Logger
   ): Unit = {
-    val cnt = withFormattedSources(sources, config)(
+    val cnt = withFormattedSources(
+      sources.filter(FormattingCache.outdatedFormatting),
+      config
+    )(
       (file, e) => {
         log.error(s"Error in ${file.toString}: $e")
         0
@@ -104,15 +108,18 @@ object ScalafmtPlugin extends AutoPlugin {
       (file, input, output) => {
         if (input != output) {
           IO.write(file, output)
+          FormattingCache.updateFormatting(file, System.currentTimeMillis())
           1
         } else {
           0
         }
       }
     ).flatten.sum
+
     if (cnt > 1) {
       log.info(s"Reformatted $cnt Scala sources")
     }
+
     PlatformTokenizerCache.megaCache.clear()
   }
 
@@ -156,10 +163,19 @@ object ScalafmtPlugin extends AutoPlugin {
     scalafmt := formatSources(
       (unmanagedSources in scalafmt).value.filter(filterScala),
       scalaConfig.value,
-      streams.value.log),
+      streams.value.log
+    ),
     scalafmtSbt := {
-      formatSources(sbtSources.value, sbtConfig.value, streams.value.log)
-      formatSources(projectSources.value, scalaConfig.value, streams.value.log)
+      formatSources(
+        sbtSources.value,
+        sbtConfig.value,
+        streams.value.log
+      )
+      formatSources(
+        projectSources.value,
+        scalaConfig.value,
+        streams.value.log
+      )
     },
     scalafmtCheck :=
       checkSources(

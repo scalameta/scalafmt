@@ -35,6 +35,10 @@ lazy val p7 = project.settings(
   scalafmtConfig := None
 )
 
+lazy val p8 = project.settings(
+  scalaVersion := "2.12.1"
+)
+
 def assertContentsEqual(file: File, expected: String): Unit = {
   val obtained =
     scala.io.Source.fromFile(file).getLines().mkString("\n")
@@ -50,6 +54,20 @@ def assertContentsEqual(file: File, expected: String): Unit = {
     System.err.println(msg)
     throw new Exception(msg)
   }
+}
+
+TaskKey[Unit]("changeTest2") := {
+  IO.write(file(s"p8/src/main/scala/Test2.scala"),
+    """
+      |object
+      |Test2
+      |{
+      |  def foo2(a: Int, // comment
+      |    b: Double) = ???
+      |}
+      |
+    """.stripMargin
+  )
 }
 
 TaskKey[Unit]("check") := {
@@ -133,6 +151,26 @@ TaskKey[Unit]("check") := {
       |object MainTest {
       |  foo(a, // comment
       |      b)
+      |}
+    """.stripMargin
+  )
+
+  assertContentsEqual(
+    file(s"p8/src/main/scala/Test.scala"),
+    """
+      |object Test {
+      |  def foo(a: Int, // comment
+      |          b: Double) = ???
+      |}
+    """.stripMargin
+  )
+
+  assertContentsEqual(
+    file(s"p8/src/main/scala/Test2.scala"),
+    """
+      |object Test2 {
+      |  def foo2(a: Int, // comment
+      |           b: Double) = ???
       |}
     """.stripMargin
   )

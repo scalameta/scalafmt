@@ -10,7 +10,7 @@ import org.scalafmt.Formatted
 import org.scalafmt.Scalafmt
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.config.ScalafmtRunner
-import org.scalafmt.util.FileOps
+import org.scalafmt.util.{FileOps, StyleCache}
 import org.scalafmt.util.LoggerOps._
 
 /**

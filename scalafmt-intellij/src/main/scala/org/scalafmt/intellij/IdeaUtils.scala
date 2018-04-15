@@ -11,10 +11,9 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.vfs.VirtualFile
 import metaconfig.Configured.NotOk
 import metaconfig.Configured.Ok
-import org.scalafmt.cli.StyleCache
 import com.intellij.vcsUtil.VcsUtil
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.util.FileOps
+import org.scalafmt.util.{FileOps, StyleCache}
 
 object IdeaUtils {
 

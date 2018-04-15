@@ -1,4 +1,4 @@
-package org.scalafmt.cli
+package org.scalafmt.util
 
 import scala.collection.mutable
 
@@ -8,7 +8,6 @@ import metaconfig.Configured
 import metaconfig.Configured.Ok
 import org.scalafmt.config
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.util.FileOps
 
 object StyleCache {
   private val styleCache = mutable.Map.empty[String, ScalafmtConfig]
