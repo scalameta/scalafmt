@@ -161,6 +161,12 @@
         end = "import autoImport"
       )
 
+      The sbt plugin is enabled by default for the @code{Test} and @code{Compile} configurations.
+      To enable the plugin for integration tests
+      @hl.scala
+        inConfig(IntegrationTest)(scalafmtConfigSettings)
+      and then use @code{it:scalafmt} to format.
+
       @p
         Pro tip. To share configuration across projects, you can define a setting
         in @code{build.sbt} to generate .scalafmt.conf programmatically on sbt load.

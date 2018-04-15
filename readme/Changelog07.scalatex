@@ -53,13 +53,8 @@
         to contribute that feature.
 
       @p
-        It will still be possible (and quite simple) to use the latest
-        scalafmt versions on sbt 0.13, see @sect.ref{sbt 0.13} for more
-        details.
-
-      @p
         Note, I want to stress that sbt 1.0 brings incredible new opportunities for Scala tooling.
-        Scala.meta, which scalafmt uses for parsing, does not support Scala 2.10,
+        Scalameta, which scalafmt uses for parsing, does not support Scala 2.10,
         which sbt 0.13 plugins are required to run on.
         I highly recommend you try to upgrade your build to sbt 1.0 as soon as
         possible.
