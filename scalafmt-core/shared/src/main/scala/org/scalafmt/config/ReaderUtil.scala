@@ -7,16 +7,29 @@ import metaconfig.Configured._
 
 object ReaderUtil {
   // Poor mans coproduct reader
-  def oneOf[T: ClassTag](options: sourcecode.Text[T]*): ConfDecoder[T] = {
-    val m = options.map(x => x.source.toLowerCase() -> x.value).toMap
+  def oneOf[T: ClassTag](options: sourcecode.Text[T]*): ConfDecoder[T] =
+    oneOfImpl(lowerCase, options)
+
+  def oneOfIgnoreBackticks[T: ClassTag](
+      options: sourcecode.Text[T]*): ConfDecoder[T] =
+    oneOfImpl(lowerCaseNoBackticks, options)
+
+  private val lowerCase: String => String = s => s.toLowerCase
+  private val lowerCaseNoBackticks: String => String = s =>
+    s.toLowerCase().replace("`", "")
+
+  private def oneOfImpl[T: ClassTag](
+      sanitize: String => String,
+      options: Seq[sourcecode.Text[T]]): ConfDecoder[T] = {
+    val m = options.map(x => sanitize(x.source) -> x.value).toMap
     ConfDecoder.instance[T] {
       case Conf.Str(x) =>
-        m.get(x.toLowerCase()) match {
+        m.get(sanitize(x)) match {
           case Some(y) =>
             Ok(y)
           case None =>
-            val available = options.map(_.source).mkString(", ")
-            val msg = s"Unknown input '$x'. Expected one of $available"
+            val available = m.keys.mkString(", ")
+            val msg = s"Unknown input '$x'. Expected one of: $available"
             ConfError.msg(msg).notOk
         }
     }
