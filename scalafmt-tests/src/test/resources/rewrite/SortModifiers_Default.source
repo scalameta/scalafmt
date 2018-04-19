@@ -48,3 +48,47 @@ final private[test] object Tests {
     implicit final override protected lazy val name: String = impl
   }
 }
+<<< default formatting of ADT — no changes
+package test
+
+sealed private[test] trait Test {
+  protected def name: String
+}
+
+final private[test] object Tests {
+
+  final private type T1 = Int
+  final private type T2 = String
+
+  implicit final private case object Test1 extends Test { def name: String = "Test1" }
+  implicit final private case object Test2 extends Test { def name: String = "Test2" }
+  implicit final private case object Test3 extends Test { def name: String = "Test3" }
+
+  sealed abstract class TestSup(override protected val name: String) extends Test
+
+  final class Test4(implicit final private val impl: String) extends Test {
+    implicit final override protected lazy val name: String = impl
+  }
+}
+>>>
+package test
+
+sealed private[test] trait Test {
+  protected def name: String
+}
+
+final private[test] object Tests {
+
+  final private type T1 = Int
+  final private type T2 = String
+
+  implicit final private case object Test1 extends Test { def name: String = "Test1" }
+  implicit final private case object Test2 extends Test { def name: String = "Test2" }
+  implicit final private case object Test3 extends Test { def name: String = "Test3" }
+
+  sealed abstract class TestSup(override protected val name: String) extends Test
+
+  final class Test4(implicit final private val impl: String) extends Test {
+    implicit final override protected lazy val name: String = impl
+  }
+}
