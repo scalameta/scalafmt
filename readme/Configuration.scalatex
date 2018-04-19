@@ -110,7 +110,7 @@
   @sect{align}
     Default: @b{some}
     Align has several nested fields, which you can customize.
-    However, it comes with four possible defaults: none, some, more most.
+    However, it comes with four possible defaults: none, some, more, & most.
 
     @sect{align=some}
       @format(alignSome)
