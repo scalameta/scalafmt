@@ -18,7 +18,7 @@ object SortSettings {
       `override`,
       `private`,
       `protected`,
-      `lazy`,
+      `lazy`
     )
 
   val defaultOrder: Vector[ModKey] =
@@ -34,7 +34,7 @@ object SortSettings {
       `private`,
       `protected`,
       //
-      `lazy`,
+      `lazy`
     )
 
   def default: SortSettings =
