@@ -5,14 +5,6 @@ import org.scalafmt.config.SortSettings._
 import scala.meta.Tree
 import scala.meta._
 
-/**
-  * Sorts the modifiers on a field/def/param.
-  *
-  * WIP:
-  * should this include the rule to sort
-  * class, object, trait definitions? Or should
-  * that be a separate one?
-  */
 object SortModifiers extends Rewrite {
 
   override def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch] = {
