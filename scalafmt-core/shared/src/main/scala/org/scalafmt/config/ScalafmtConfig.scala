@@ -115,6 +115,9 @@ import org.scalafmt.util.ValidationOps
   *                                          [[maxColumn]]. If a multi-line funcion can fit in a single line, it will
   *                                          make it so. Note that this setting ignores continuation.defnSite,
   *                                          [[binPack.unsafeDefnSite]], and [[align.openParenDefnSite]].
+  * @param verticalMultilineAtDefinitionSiteArityThreshold If set, this will trigger a vertical multi-line formatting as
+  *                                                        described above even thoug the definition falls below the
+  *                                                        [[maxColumn]] width.
   */
 @DeriveConfDecoder
 case class ScalafmtConfig(
@@ -142,6 +145,7 @@ case class ScalafmtConfig(
     danglingParentheses: Boolean = false,
     poorMansTrailingCommasInConfigStyle: Boolean = false,
     verticalMultilineAtDefinitionSite: Boolean = false,
+    verticalMultilineAtDefinitionSiteArityThreshold: Int = 100,
     onTestFailure: String = "",
     encoding: Codec = "UTF-8",
     @Recurse project: ProjectFiles = ProjectFiles()

@@ -4,6 +4,7 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.meta.Case
 import scala.meta.Ctor
+import scala.meta.Decl
 import scala.meta.Defn
 import scala.meta.Import
 import scala.meta.Name
@@ -820,8 +821,16 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       if (isBracket) close // If we can fit the type params, make it so
       else lastParen // If we can fit all in one block, make it so
 
+    val arity = valueParamsOwner match {
+      case d: Decl.Def => d.paramss.foldLeft(0)(_ + _.size)
+      case c: Ctor.Primary => c.paramss.foldLeft(0)(_ + _.size)
+      case _ => 0
+    }
+
+    val aboveArityThreshold = arity >= style.verticalMultilineAtDefinitionSiteArityThreshold
+
     Seq(
-      Split(NoSplit, 0)
+      Split(NoSplit, 0, ignoreIf = !isBracket && aboveArityThreshold)
         .withPolicy(SingleLineBlock(singleLineExpire)),
       Split(Newline, 1) // Otherwise split vertically
         .withIndent(firstIndent, close, Right)
