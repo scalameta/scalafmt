@@ -11,13 +11,11 @@ import scala.meta.Pat
 import scala.meta.Pkg
 import scala.meta.Template
 import scala.meta.Term
-import scala.meta.Term.Apply
 import scala.meta.Tree
 import scala.meta.Type
 import scala.meta.prettyprinters.Structure
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
-import scala.meta.tokens.Tokens
 import org.scalafmt.Error.CaseMissingArrow
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.ExpiresOn.Left
@@ -31,7 +29,6 @@ import org.scalafmt.util.TreeOps
 import org.scalafmt.util.Whitespace
 import org.scalafmt.util.Modifier
 import org.scalafmt.util.RightParenOrBracket
-import org.scalameta.logger
 
 /**
   * Helper functions for generating splits/policies for a given tree.
