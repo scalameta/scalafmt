@@ -1,0 +1,16 @@
+maxColumn = 80
+verticalMultilineAtDefinitionSite = true
+verticalMultilineAtDefinitionSiteArityThreshold = 2
+danglingParentheses = true
+continuationIndent.defnSite = 2
+<<< ONLY Work with continuationIndent.defnSite = 2
+case class Foo(x: String)
+case class Bar(x: String, y: String)
+case class VeryLongNames(xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx: String)
+>>>
+case class Foo(x: String)
+case class Bar(
+  x: String,
+  y: String)
+case class VeryLongNames(
+  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx: String)
