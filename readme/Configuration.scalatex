@@ -688,7 +688,7 @@
       @p
         Replaces parentheses into curly braces in for comprehensions that
         contain multiple enumerator generators.
-      @demo
+      @demoStyle(rewritePreferCurlyFors)
         object a {
           for(a <- as; b <- bs if b > 2)
             yield (a, b)
