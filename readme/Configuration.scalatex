@@ -688,11 +688,50 @@
       @p
         Replaces parentheses into curly braces in for comprehensions that
         contain multiple enumerator generators.
-      @demoStyle(rewritePreferCurlyFors)
+      @demo
         object a {
           for(a <- as; b <- bs if b > 2)
             yield (a, b)
         }
+
+  @sect{verticalMultilineAtDefinitionSite}
+    Default: @b{false}
+
+    @p
+      If true, reformat multi-line function definitions in the following way
+    @fullWidthDemo(verticalAlign)
+      object a {
+        def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
+      }
+    @p
+      All parameters are on their own line indented by four (4), separation between
+      parameter groups are indented by two (2). ReturnType is on its own line at
+      then end. This will only trigger if the function would go over
+      maxColumn. If a multi-line function can fit in a single line, it will
+      make it so. Note that this setting ignores continuation.defnSite,
+      binPack.unsafeDefnSite, and align.openParenDefnSite.
+
+    @p
+      To enable this add it to the config like this @config{verticalMultilineAtDefinitionSite = true}.
+
+  @sect{verticalMultilineAtDefinitionSiteArityThreshold}
+    Default: @b{100}
+
+    @p
+      If set, this will trigger a vertical multi-line formatting as described above even though the
+      definition falls below the maxColumn width.
+
+    @p
+      To enable a rewrite rule, add it to the config like this @config{verticalMultilineAtDefinitionSiteArityThreshold = 2}.
+
+    @fullWidthDemo(arityThreshold)
+      case class Foo(x: String)
+      case class Bar(x: String, y: String)
+      case class VeryLongNames(xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx: String)
+      object A {
+        def foo(x: String, y: String)
+        def hello(how: String)(are: String)(you: String) = how + are + you
+      }
 
   @sect{project}
     @p

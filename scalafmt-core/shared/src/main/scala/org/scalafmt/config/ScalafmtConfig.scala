@@ -109,14 +109,14 @@ import org.scalafmt.util.ValidationOps
   *                                           )
   *                                          }}}
   *
-  *                                          All parameters are on their on line indented by four (4), seperation between
-  *                                          parament groups are indented by two (2). ReturnType is on its own line at
-  *                                          then end. This will only trigger if the function would go over
-  *                                          [[maxColumn]]. If a multi-line funcion can fit in a single line, it will
+  *                                          All parameters are on their own line indented by four (4), separation between
+  *                                          parameter groups are indented by two (2). ReturnType is on its own line at
+  *                                          the end. This will only be triggered if the function would go over
+  *                                          [[maxColumn]]. If a multi-line function can fit in a single line, it will
   *                                          make it so. Note that this setting ignores continuation.defnSite,
   *                                          [[binPack.unsafeDefnSite]], and [[align.openParenDefnSite]].
   * @param verticalMultilineAtDefinitionSiteArityThreshold If set, this will trigger a vertical multi-line formatting as
-  *                                                        described above even thoug the definition falls below the
+  *                                                        described above even though the definition falls below the
   *                                                        [[maxColumn]] width.
   */
 @DeriveConfDecoder
