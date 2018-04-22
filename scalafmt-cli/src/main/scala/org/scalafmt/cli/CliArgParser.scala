@@ -6,14 +6,10 @@ import java.util.Date
 import org.scalafmt.Versions
 import org.scalafmt.config.Config
 import org.scalafmt.util.AbsoluteFile
-import org.scalafmt.util.BuildTime
 import org.scalafmt.util.FileOps
-import org.scalafmt.util.GitCommit
 import scopt.OptionParser
 
 object CliArgParser {
-  @GitCommit val gitCommit: String = ???
-  @BuildTime val buildTimeMs: Long = ???
 
   val usageExamples: String =
     """|scalafmt # Format all files in the current project, configuration is determined in this order:
@@ -135,8 +131,8 @@ object CliArgParser {
       opt[Unit]("build-info")
         .action({
           case (_, c) =>
-            println(buildInfo)
-            sys.exit
+            println("This option is no longer supported")
+            sys.exit(1)
         })
         .text("prints build information")
       opt[Unit]("quiet")
@@ -162,7 +158,4 @@ object CliArgParser {
                |Please file bugs to https://github.com/scalameta/scalafmt/issues
       """.stripMargin)
     }
-  def buildInfo =
-    s"""build commit: $gitCommit
-       |build time: ${new Date(buildTimeMs)}""".stripMargin
 }

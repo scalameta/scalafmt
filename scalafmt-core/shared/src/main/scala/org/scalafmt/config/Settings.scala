@@ -140,7 +140,8 @@ trait Settings {
                     s"Unknown style name $baseStyle. Expected one of: $alternatives")
                   .notOk
             }
-          case _ => baseReader.reader.read(conf)
+          case _ =>
+            baseReader.reader.read(conf)
         }
     }
 

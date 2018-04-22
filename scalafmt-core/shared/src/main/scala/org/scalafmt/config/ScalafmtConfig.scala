@@ -139,9 +139,11 @@ case class ScalafmtConfig(
   private implicit val binpackReader = binPack.reader
   private implicit val newlinesReader = newlines.reader
   private implicit val optInReader = optIn.reader
-  val reader: ConfDecoder[ScalafmtConfig] = generic.deriveDecoder(this)
   implicit val alignDecoder: ConfDecoder[Align] =
     ScalafmtConfig.alignReader(align.reader)
+  lazy val alignMap: Map[String, Regex] =
+    align.tokens.map(x => x.code -> x.owner.r).toMap
+  val reader: ConfDecoder[ScalafmtConfig] = generic.deriveDecoder(this).noTypos
 
   def withDialect(dialect: Dialect): ScalafmtConfig =
     copy(runner = runner.copy(dialect = dialect))
@@ -150,8 +152,6 @@ case class ScalafmtConfig(
 
   def reformatDocstrings: Boolean = docstrings != Docstrings.preserve
   def scalaDocs: Boolean = docstrings == Docstrings.ScalaDoc
-  lazy val alignMap: Map[String, Regex] =
-    align.tokens.map(x => x.code -> x.owner.r).toMap
   ValidationOps.assertNonNegative(
     continuationIndent.callSite,
     continuationIndent.defnSite
@@ -159,5 +159,6 @@ case class ScalafmtConfig(
 }
 
 object ScalafmtConfig extends Settings {
-  implicit val surface: generic.Surface[ScalafmtConfig] = generic.deriveSurface
+  // NOTE(olafur) I don't know why, but this surface needs to be lazy :/
+  implicit lazy val surface: generic.Surface[ScalafmtConfig] = generic.deriveSurface
 }

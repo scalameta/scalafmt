@@ -37,7 +37,7 @@ object Config {
       conf: Configured[Conf],
       path: Option[String] = None): Configured[ScalafmtConfig] =
     conf.andThen { baseConf =>
-      val conf = path match {
+      val next = path match {
         case None => Ok(baseConf)
         case Some(p) =>
           baseConf match {
@@ -50,11 +50,9 @@ object Config {
               ConfError.typeMismatch("Conf.Obj", x).notOk
           }
       }
-      conf.andThen { conf =>
-        ScalafmtConfig
-          .configReader(ScalafmtConfig.default)
-          .read(conf)
-      }
+      ScalafmtConfig
+        .configReader(ScalafmtConfig.default)
+        .read(next)
     }
 
 }

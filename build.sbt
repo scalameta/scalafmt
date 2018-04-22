@@ -31,6 +31,7 @@ lazy val core = crossProject
   .in(file("scalafmt-core"))
   .settings(
     moduleName := "scalafmt-core",
+    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
     allSettings,
     buildInfoSettings,
     fork.in(run).in(Test) := true,
