@@ -119,7 +119,7 @@ trait Settings {
         val available = m.keys.mkString(", ")
         val msg =
           s"Unknown line endings type $input. Expected one of $available"
-        ConfError.msg(msg).notOk
+        ConfError.message(msg).notOk
 
     }
 
@@ -136,7 +136,7 @@ trait Settings {
                 val alternatives =
                   ScalafmtConfig.activeStyles.keys.mkString(", ")
                 ConfError
-                  .msg(
+                  .message(
                     s"Unknown style name $baseStyle. Expected one of: $alternatives")
                   .notOk
             }

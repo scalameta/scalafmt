@@ -11,4 +11,11 @@ case class ContinuationIndent(
     callSite: Int = 2,
     defnSite: Int = 4,
     extendSite: Int = 4
-)
+) {
+  implicit val reader: ConfDecoder[ContinuationIndent] = generic.deriveDecoder(this)
+}
+
+object ContinuationIndent {
+  implicit val surface: generic.Surface[ContinuationIndent] =
+    generic.deriveSurface
+}

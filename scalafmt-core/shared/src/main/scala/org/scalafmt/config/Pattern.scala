@@ -1,11 +1,13 @@
 package org.scalafmt.config
 
 import metaconfig._
+import metaconfig.generic.Surface
 
 case class Pattern(
     includeFilters: Seq[String],
     excludeFilters: Seq[String]
 ) {
+  val reader: ConfDecoder[Pattern] = generic.deriveDecoder(this)
   def toMatcher: FilterMatcher =
     new FilterMatcher(
       FilterMatcher.mkRegexp(includeFilters),
@@ -13,6 +15,7 @@ case class Pattern(
 }
 
 object Pattern {
+  implicit val surface: Surface[Pattern] = generic.deriveSurface
   val neverInfix = Pattern(
     Seq("[\\w\\d_]+"),
     Seq(

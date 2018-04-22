@@ -1,6 +1,7 @@
 package org.scalafmt.config
 
 import metaconfig._
+import metaconfig.generic.Surface
 
 /**
   * @param penalizeSingleSelectMultiArgList
@@ -91,11 +92,20 @@ case class Newlines(
     beforeImplicitKWInVerticalMultiline: Boolean = false,
     alwaysBeforeElseAfterCurlyIf: Boolean = false,
     alwaysBeforeMultilineDef: Boolean = true
-)
+) {
+  val reader: ConfDecoder[Newlines] = generic.deriveDecoder(this)
+}
+
+object Newlines {
+  implicit val surface: Surface[Newlines] = generic.deriveSurface
+}
 
 sealed abstract class NewlineCurlyLambda
 
 object NewlineCurlyLambda {
+
+  implicit val surface: generic.Surface[Newlines] =
+    generic.deriveSurface
 
   case object preserve extends NewlineCurlyLambda
   case object always extends NewlineCurlyLambda

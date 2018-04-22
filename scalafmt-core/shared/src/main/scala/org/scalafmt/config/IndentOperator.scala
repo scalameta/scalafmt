@@ -34,20 +34,15 @@ case class IndentOperator(
     include: String = ".*",
     exclude: String = "^(&&|\\|\\|)$"
 ) {
-  val reader: ConfDecoder[IndentOperator] =
-    ConfDecoder.instanceF[IndentOperator] { conf =>
-      (
-        conf.getOrElse[String]("include")(include) |@|
-          conf.getOrElse[String]("exclude")(exclude)
-      ).map { case (a, b) => IndentOperator(a, b) }
-
-    }
+  val reader: ConfDecoder[IndentOperator] = generic.deriveDecoder(this)
 
   val includeRegexp = include.r
   val excludeRegexp = exclude.r
 }
 
 object IndentOperator {
+  implicit val surface: generic.Surface[IndentOperator] =
+    generic.deriveSurface
   val default = IndentOperator()
   val akka = IndentOperator(
     ScalafmtConfig.indentOperatorsIncludeAkka,

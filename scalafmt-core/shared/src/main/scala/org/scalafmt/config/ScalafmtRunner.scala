@@ -30,6 +30,8 @@ case class ScalafmtRunner(
     ignoreWarnings: Boolean = false,
     fatalWarnings: Boolean = false
 ) {
+  implicit val optimizeDecoder = optimizer.reader
+  val reader: ConfDecoder[ScalafmtRunner] = generic.deriveDecoder(this)
   def forSbt: ScalafmtRunner =
     copy(
       dialect = dialect.copy(
@@ -39,6 +41,7 @@ case class ScalafmtRunner(
 }
 
 object ScalafmtRunner {
+  implicit val surface: generic.Surface[ScalafmtRunner] = generic.deriveSurface
   val defaultDialect = Scala211.copy(
     // Are `&` intersection types supported by this dialect?
     allowAndTypes = true,

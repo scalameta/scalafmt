@@ -1,6 +1,7 @@
 package org.scalafmt.config
 
 import metaconfig._
+import metaconfig.generic.Surface
 
 /**
   *
@@ -77,4 +78,10 @@ case class OptIn(
     annotationNewlines: Boolean = true,
     // Candidate to become default true at some point.
     blankLineBeforeDocstring: Boolean = false
-)
+) {
+  implicit val reader: ConfDecoder[OptIn] = generic.deriveDecoder(this)
+}
+
+object OptIn {
+  implicit val surface: Surface[OptIn] = generic.deriveSurface
+}

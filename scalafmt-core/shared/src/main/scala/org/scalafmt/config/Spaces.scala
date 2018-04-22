@@ -30,4 +30,9 @@ case class Spaces(
     neverAroundInfixTypes: Seq[String] = Nil,
     afterKeywordBeforeParen: Boolean = true,
     inByNameTypes: Boolean = true
-)
+) {
+  implicit val reader: ConfDecoder[Spaces] = generic.deriveDecoder(this)
+}
+object Spaces {
+  implicit val surface: generic.Surface[Spaces] = generic.deriveSurface
+}

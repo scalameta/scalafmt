@@ -131,6 +131,15 @@ case class ScalafmtConfig(
     encoding: Codec = "UTF-8",
     project: ProjectFiles = ProjectFiles()
 ) {
+  private implicit val runnerReader = runner.reader
+  private implicit val projectReader = project.reader
+  private implicit val rewriteReader = rewrite.reader
+  private implicit val spacesReader = spaces.reader
+  private implicit val continuationIndentReader = continuationIndent.reader
+  private implicit val binpackReader = binPack.reader
+  private implicit val newlinesReader = newlines.reader
+  private implicit val optInReader = optIn.reader
+  val reader: ConfDecoder[ScalafmtConfig] = generic.deriveDecoder(this)
   implicit val alignDecoder: ConfDecoder[Align] =
     ScalafmtConfig.alignReader(align.reader)
 
@@ -149,4 +158,6 @@ case class ScalafmtConfig(
   )
 }
 
-object ScalafmtConfig extends Settings
+object ScalafmtConfig extends Settings {
+  implicit val surface: generic.Surface[ScalafmtConfig] = generic.deriveSurface
+}

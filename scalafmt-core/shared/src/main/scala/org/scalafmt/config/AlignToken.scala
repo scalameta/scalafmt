@@ -2,6 +2,7 @@ package org.scalafmt.config
 
 import metaconfig.Configured.Ok
 import metaconfig._
+import metaconfig.generic.Surface
 
 /**
   * Configuration option for aligning tokens.
@@ -11,16 +12,11 @@ import metaconfig._
   */
 case class AlignToken(code: String, owner: String) {
   val reader: ConfDecoder[AlignToken] =
-    ConfDecoder.instanceF[AlignToken] { conf =>
-      (
-        conf.getOrElse[String]("code")(code) |@|
-          conf.getOrElse[String]("owner")(owner)
-      ).map { case (a, b) => AlignToken(a, b) }
-
-    }
+    generic.deriveDecoder(this)
 }
 
 object AlignToken {
+  implicit val surface: Surface[AlignToken] = generic.deriveSurface[AlignToken]
   val applyInfix = "Term.ApplyInfix"
   val caseArrow = AlignToken("=>", "Case")
   protected[scalafmt] val fallbackAlign = new AlignToken("<empty>", ".*")

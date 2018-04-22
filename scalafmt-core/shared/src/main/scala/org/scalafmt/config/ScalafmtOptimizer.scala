@@ -72,9 +72,14 @@ case class ScalafmtOptimizer(
     recurseOnBlocks: Boolean = true,
     forceConfigStyleOnOffset: Int = 150,
     forceConfigStyleMinArgCount: Int = 2
-)
+) {
+
+  val reader: ConfDecoder[ScalafmtOptimizer] = generic.deriveDecoder(this)
+}
 
 object ScalafmtOptimizer {
+  implicit val surface: generic.Surface[ScalafmtOptimizer] =
+    generic.deriveSurface
   val default = ScalafmtOptimizer()
 
   // TODO(olafur) uncomment once scala.meta converter supports default args.

@@ -10,6 +10,10 @@ case class RewriteSettings(
     sortModifiers: SortSettings = SortSettings.default,
     neverInfix: Pattern = Pattern.neverInfix
 ) {
+  private implicit val sortModifiersReader = sortModifiers.reader
+  private implicit val redundantBracesReader = redundantBraces.reader
+  private implicit val patternReader = neverInfix.reader
+  val reader: ConfDecoder[RewriteSettings] = generic.deriveDecoder(this)
   Rewrite.validateRewrites(rules) match {
     case Nil => // OK
     case errs =>
@@ -20,12 +24,9 @@ case class RewriteSettings(
       )
   }
 
-  if (sortModifiers.order.distinct.length != 8)
-    throw InvalidScalafmtConfiguration(
-      new IllegalArgumentException(
-        "'sortModifiers.order', if specified, it has to contain all of the following values in the order you wish them sorted:" +
-          """["private", "protected" , "abstract", "final", "sealed", "implicit", "override", "lazy"]"""
-      )
-    )
+}
 
+object RewriteSettings {
+  implicit val surface: generic.Surface[RewriteSettings] =
+    generic.deriveSurface
 }

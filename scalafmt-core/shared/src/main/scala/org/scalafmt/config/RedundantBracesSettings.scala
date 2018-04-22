@@ -10,4 +10,11 @@ case class RedundantBracesSettings(
     // Re-enable generalExpressions once
     // https://github.com/scalameta/scalafmt/issues/1147 is fixed
     generalExpressions: Boolean = false
-)
+) {
+  val reader: ConfDecoder[RedundantBracesSettings] = generic.deriveDecoder(this)
+}
+
+object RedundantBracesSettings {
+  implicit val surface: generic.Surface[RedundantBracesSettings] =
+    generic.deriveSurface
+}

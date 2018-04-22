@@ -1,6 +1,7 @@
 package org.scalafmt.config
 
 import metaconfig._
+import metaconfig.generic.Surface
 
 /**
   *
@@ -72,6 +73,7 @@ case class Align(
       "Enumerator.Val" -> "for"
     )
 ) {
+  implicit val reader: ConfDecoder[Align] = generic.deriveDecoder[Align](this)
   implicit val alignReader: ConfDecoder[Set[AlignToken]] =
     ScalafmtConfig.alignTokenReader(tokens)
 }
@@ -91,6 +93,7 @@ object Align {
   val some = Align()
   val default = some
   val more: Align = some.copy(tokens = AlignToken.default)
+  implicit val surface: Surface[Align] = generic.deriveSurface[Align]
 
   // only for the truest vertical aligners, this setting is open for changes,
   // please open PR addding more stuff to it if you like.
