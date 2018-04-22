@@ -34,7 +34,7 @@ case class IndentOperator(
     include: String = ".*",
     exclude: String = "^(&&|\\|\\|)$"
 ) {
-  val reader: ConfDecoder[IndentOperator] = generic.deriveDecoder(this)
+  val reader: ConfDecoder[IndentOperator] = generic.deriveDecoder(this).noTypos
 
   val includeRegexp = include.r
   val excludeRegexp = exclude.r

@@ -79,7 +79,7 @@ case class OptIn(
     // Candidate to become default true at some point.
     blankLineBeforeDocstring: Boolean = false
 ) {
-  implicit val reader: ConfDecoder[OptIn] = generic.deriveDecoder(this)
+  implicit val reader: ConfDecoder[OptIn] = generic.deriveDecoder(this).noTypos
 }
 
 object OptIn {

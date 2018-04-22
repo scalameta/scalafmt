@@ -73,7 +73,7 @@ case class Align(
       "Enumerator.Val" -> "for"
     )
 ) {
-  implicit val reader: ConfDecoder[Align] = generic.deriveDecoder[Align](this)
+  implicit val reader: ConfDecoder[Align] = generic.deriveDecoder(this).noTypos
   implicit val alignReader: ConfDecoder[Set[AlignToken]] =
     ScalafmtConfig.alignTokenReader(tokens)
 }

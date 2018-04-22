@@ -38,7 +38,7 @@ case class BinPack(
     literalsInclude: Seq[String] = Seq(".*"),
     literalsExclude: Seq[String] = Seq("String", "Term.Name")
 ) {
-  val reader: ConfDecoder[BinPack] = generic.deriveDecoder(this)
+  val reader: ConfDecoder[BinPack] = generic.deriveDecoder(this).noTypos
   def literalsRegex: FilterMatcher =
     FilterMatcher(literalsInclude, literalsExclude)
 }

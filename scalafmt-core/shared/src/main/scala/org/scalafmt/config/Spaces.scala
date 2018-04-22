@@ -31,7 +31,7 @@ case class Spaces(
     afterKeywordBeforeParen: Boolean = true,
     inByNameTypes: Boolean = true
 ) {
-  implicit val reader: ConfDecoder[Spaces] = generic.deriveDecoder(this)
+  implicit val reader: ConfDecoder[Spaces] = generic.deriveDecoder(this).noTypos
 }
 object Spaces {
   implicit val surface: generic.Surface[Spaces] = generic.deriveSurface

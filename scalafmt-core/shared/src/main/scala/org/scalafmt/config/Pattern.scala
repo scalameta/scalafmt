@@ -7,7 +7,7 @@ case class Pattern(
     includeFilters: Seq[String],
     excludeFilters: Seq[String]
 ) {
-  val reader: ConfDecoder[Pattern] = generic.deriveDecoder(this)
+  val reader: ConfDecoder[Pattern] = generic.deriveDecoder(this).noTypos
   def toMatcher: FilterMatcher =
     new FilterMatcher(
       FilterMatcher.mkRegexp(includeFilters),

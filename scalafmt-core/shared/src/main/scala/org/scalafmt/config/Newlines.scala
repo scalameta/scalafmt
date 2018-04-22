@@ -93,7 +93,7 @@ case class Newlines(
     alwaysBeforeElseAfterCurlyIf: Boolean = false,
     alwaysBeforeMultilineDef: Boolean = true
 ) {
-  val reader: ConfDecoder[Newlines] = generic.deriveDecoder(this)
+  val reader: ConfDecoder[Newlines] = generic.deriveDecoder(this).noTypos
 }
 
 object Newlines {

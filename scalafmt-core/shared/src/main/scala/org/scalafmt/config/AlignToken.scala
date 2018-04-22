@@ -12,7 +12,7 @@ import metaconfig.generic.Surface
   */
 case class AlignToken(code: String, owner: String) {
   val reader: ConfDecoder[AlignToken] =
-    generic.deriveDecoder(this)
+    generic.deriveDecoder(this).noTypos
 }
 
 object AlignToken {

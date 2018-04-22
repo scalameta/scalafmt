@@ -74,7 +74,7 @@ case class ScalafmtOptimizer(
     forceConfigStyleMinArgCount: Int = 2
 ) {
 
-  val reader: ConfDecoder[ScalafmtOptimizer] = generic.deriveDecoder(this)
+  val reader: ConfDecoder[ScalafmtOptimizer] = generic.deriveDecoder(this).noTypos
 }
 
 object ScalafmtOptimizer {

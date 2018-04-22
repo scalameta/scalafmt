@@ -11,7 +11,8 @@ case class RedundantBracesSettings(
     // https://github.com/scalameta/scalafmt/issues/1147 is fixed
     generalExpressions: Boolean = false
 ) {
-  val reader: ConfDecoder[RedundantBracesSettings] = generic.deriveDecoder(this)
+  val reader: ConfDecoder[RedundantBracesSettings] =
+    generic.deriveDecoder(this).noTypos
 }
 
 object RedundantBracesSettings {

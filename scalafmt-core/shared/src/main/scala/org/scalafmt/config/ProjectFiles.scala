@@ -9,7 +9,7 @@ case class ProjectFiles(
     includeFilters: Seq[String] = Seq(".*\\.scala$", ".*\\.sbt$", ".*\\.sc$"),
     excludeFilters: Seq[String] = Nil
 ) {
-  val reader: ConfDecoder[ProjectFiles] = generic.deriveDecoder(this)
+  val reader: ConfDecoder[ProjectFiles] = generic.deriveDecoder(this).noTypos
   lazy val matcher: FilterMatcher =
     FilterMatcher(
       includeFilters.map(OsSpecific.fixSeparatorsInPathPattern),

@@ -31,7 +31,7 @@ case class ScalafmtRunner(
     fatalWarnings: Boolean = false
 ) {
   implicit val optimizeDecoder = optimizer.reader
-  val reader: ConfDecoder[ScalafmtRunner] = generic.deriveDecoder(this)
+  val reader: ConfDecoder[ScalafmtRunner] = generic.deriveDecoder(this).noTypos
   def forSbt: ScalafmtRunner =
     copy(
       dialect = dialect.copy(

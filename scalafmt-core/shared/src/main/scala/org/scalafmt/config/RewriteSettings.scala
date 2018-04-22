@@ -13,7 +13,7 @@ case class RewriteSettings(
   private implicit val sortModifiersReader = sortModifiers.reader
   private implicit val redundantBracesReader = redundantBraces.reader
   private implicit val patternReader = neverInfix.reader
-  val reader: ConfDecoder[RewriteSettings] = generic.deriveDecoder(this)
+  val reader: ConfDecoder[RewriteSettings] = generic.deriveDecoder(this).noTypos
   Rewrite.validateRewrites(rules) match {
     case Nil => // OK
     case errs =>
