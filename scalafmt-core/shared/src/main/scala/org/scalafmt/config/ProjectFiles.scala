@@ -16,5 +16,6 @@ case class ProjectFiles(
       excludeFilters.map(OsSpecific.fixSeparatorsInPathPattern))
 }
 object ProjectFiles {
-  implicit lazy val surface: generic.Surface[ProjectFiles] = generic.deriveSurface
+  implicit lazy val surface: generic.Surface[ProjectFiles] =
+    generic.deriveSurface
 }

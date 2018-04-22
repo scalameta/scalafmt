@@ -145,7 +145,8 @@ case class ScalafmtConfig(
     ScalafmtConfig.alignReader(align.reader)
   lazy val alignMap: Map[String, Regex] =
     align.tokens.map(x => x.code -> x.owner.r).toMap
-  def reader: ConfDecoder[ScalafmtConfig] = generic.deriveDecoder(this).noTypos.noTypos
+  def reader: ConfDecoder[ScalafmtConfig] =
+    generic.deriveDecoder(this).noTypos.noTypos
 
   def withDialect(dialect: Dialect): ScalafmtConfig =
     copy(runner = runner.copy(dialect = dialect))
@@ -317,7 +318,7 @@ object ScalafmtConfig extends Settings {
       case els => base.read(els)
     }
   def alignTokenReader(
-                        initTokens: Set[AlignToken]): ConfDecoder[Set[AlignToken]] = {
+      initTokens: Set[AlignToken]): ConfDecoder[Set[AlignToken]] = {
     val baseReader = implicitly[ConfDecoder[Set[AlignToken]]]
     ConfDecoder.instance[Set[AlignToken]] {
       case Conf.Obj(("add", conf) :: Nil) =>

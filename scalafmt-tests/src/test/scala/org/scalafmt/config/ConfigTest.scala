@@ -10,5 +10,4 @@ class ConfigTest extends FunSuite {
 //    logger.elem(output)
 //  }
 
-
 }

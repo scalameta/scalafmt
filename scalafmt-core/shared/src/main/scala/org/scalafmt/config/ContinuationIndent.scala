@@ -12,7 +12,8 @@ case class ContinuationIndent(
     defnSite: Int = 4,
     extendSite: Int = 4
 ) {
-  implicit val reader: ConfDecoder[ContinuationIndent] = generic.deriveDecoder(this).noTypos
+  implicit val reader: ConfDecoder[ContinuationIndent] =
+    generic.deriveDecoder(this).noTypos
 }
 
 object ContinuationIndent {
