@@ -4,6 +4,7 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.meta.Case
 import scala.meta.Ctor
+import scala.meta.Decl
 import scala.meta.Defn
 import scala.meta.Import
 import scala.meta.Name
@@ -11,13 +12,11 @@ import scala.meta.Pat
 import scala.meta.Pkg
 import scala.meta.Template
 import scala.meta.Term
-import scala.meta.Term.Apply
 import scala.meta.Tree
 import scala.meta.Type
 import scala.meta.prettyprinters.Structure
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
-import scala.meta.tokens.Tokens
 import org.scalafmt.Error.CaseMissingArrow
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.ExpiresOn.Left
@@ -31,7 +30,6 @@ import org.scalafmt.util.TreeOps
 import org.scalafmt.util.Whitespace
 import org.scalafmt.util.Modifier
 import org.scalafmt.util.RightParenOrBracket
-import org.scalameta.logger
 
 /**
   * Helper functions for generating splits/policies for a given tree.
@@ -823,8 +821,19 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       if (isBracket) close // If we can fit the type params, make it so
       else lastParen // If we can fit all in one block, make it so
 
+    val maxArity = valueParamsOwner match {
+      case d: Decl.Def if d.paramss.nonEmpty => d.paramss.map(_.size).max
+      case d: Defn.Def if d.paramss.nonEmpty => d.paramss.map(_.size).max
+      case m: Defn.Macro if m.paramss.nonEmpty => m.paramss.map(_.size).max
+      case c: Ctor.Primary if c.paramss.nonEmpty => c.paramss.map(_.size).max
+      case c: Ctor.Secondary if c.paramss.nonEmpty => c.paramss.map(_.size).max
+      case _ => 0
+    }
+
+    val aboveArityThreshold = maxArity >= style.verticalMultilineAtDefinitionSiteArityThreshold
+
     Seq(
-      Split(NoSplit, 0)
+      Split(NoSplit, 0, ignoreIf = !isBracket && aboveArityThreshold)
         .withPolicy(SingleLineBlock(singleLineExpire)),
       Split(Newline, 1) // Otherwise split vertically
         .withIndent(firstIndent, close, Right)

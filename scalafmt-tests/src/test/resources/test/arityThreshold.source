@@ -1,0 +1,27 @@
+maxColumn = 80
+verticalMultilineAtDefinitionSite = true
+verticalMultilineAtDefinitionSiteArityThreshold = 2
+danglingParentheses = true
+continuationIndent.defnSite = 2
+<<< Verify that verticalMultilineAtDefinitionSiteArityThreshold works as expected
+case class Foo(x: String)
+case class Bar(x: String, y: String)
+case class VeryLongNames(xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx: String)
+object A {
+  def foo(x: String, y: String)
+  def hello(how: String)(are: String)(you: String) = how + are + you
+}
+>>>
+case class Foo(x: String)
+case class Bar(
+  x: String,
+  y: String)
+case class VeryLongNames(
+  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx: String)
+object A {
+  def foo(
+    x: String,
+    y: String
+  )
+  def hello(how: String)(are: String)(you: String) = how + are + you
+}

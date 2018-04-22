@@ -96,6 +96,11 @@ object Readme {
     sideBySide(code, formatted)
   }
 
+  def fullWidthDemo(style: ScalafmtConfig)(code: String) = {
+    val formatted = Scalafmt.format(code, style).get
+    pairs(List(code, formatted).map(x => hl.scala(x)): _*)
+  }
+
   def demoStyle(style: ScalafmtConfig)(code: String) = {
     val formatted =
       Scalafmt.format(code, style.copy(runner = ScalafmtRunner.sbt)).get
@@ -164,6 +169,17 @@ object Readme {
       rewrite = ScalafmtConfig.default.rewrite.copy(
         rules = Seq(PreferCurlyFors)
       ))
+
+  val verticalAlign = ScalafmtConfig.default.copy(
+    maxColumn = 60,
+    verticalMultilineAtDefinitionSite = true
+  )
+
+  val arityThreshold =
+    ScalafmtConfig.default.copy(
+      verticalMultilineAtDefinitionSite = true,
+      verticalMultilineAtDefinitionSiteArityThreshold = 2
+    )
 
   def fmt(style: ScalafmtConfig)(code: String): TypedTag[String] =
     example(code, style)
