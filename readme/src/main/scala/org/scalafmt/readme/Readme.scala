@@ -167,10 +167,10 @@ object Readme {
 
   /**
     * This looks way too hacky. But can't seem to find a typeclass
-    * that "encodes" the ``ModKey`` enum.
+    * that ought to "encode" the ``ModKey`` enum.
     *
-    * Adittionally, a Vector of Strings is simply concatenated, hence
-    * the artificial .mkString.
+    * Additionally, a Vector of Strings is simply concatenated, hence
+    * the extra .mkString.
     * {{{
     *    [error]  found   : Vector[org.scalafmt.config.SortSettings.ModKey]
     *    [error]  required: scalatags.Text.Modifier
