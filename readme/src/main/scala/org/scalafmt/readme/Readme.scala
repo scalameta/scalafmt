@@ -300,9 +300,9 @@ object Readme {
     example(code, style)
 
   def other = {
-    raw(
-      metaconfig.docs.Docs.html(ScalafmtConfig.default)
-    )
+    // val settings = Settings[ScalafmtConfig].flat(ScalafmtConfig.default)
+    // TODO(olafur): do something useful with settings
+    raw("")
   }
 
   def lastUpdated =

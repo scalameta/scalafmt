@@ -416,7 +416,7 @@
     Configuration contains include/exclude operator filters (those values are build in, and can't be configured outside)
     @ul
       @li
-        Configure under @code{rewrite.neverInfix}, default values are in @sect.ref{Other}
+        Configure under @code{rewrite.neverInfix}.
 
     @sect(Rewrite.rewrite2name(ExpandImportSelectors))
       @demoStyle(rewriteImportSelectors)
@@ -902,9 +902,16 @@
       work for complicated code.
 
   @sect{Other}
+    @p
+      To find all available configuration options, it's best to browse the
+      source code of Scalafmt.
+      A good place to start is @code{ScalafmtConfig}.
+      Observe that this listing below is the top-level,
+      there are more configuration options if you visited nested fields
+      like @code{spaces} and @code{newlines}.
 
-    Scalafmt has a ton of internal configuration options which may be removed
-    without notice.
-    However, just in case you want to try them out, here they are.
-
-    @org.scalafmt.readme.Readme.other
+      @hl.ref(
+        wd / "scalafmt-core" / "shared" / "src" / "main" / "scala" / "org" / "scalafmt" / "config" / "ScalafmtConfig.scala",
+        start = "case class",
+        end = ") {"
+      )

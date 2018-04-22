@@ -162,7 +162,8 @@ case class ScalafmtConfig(
 }
 
 object ScalafmtConfig {
-  implicit lazy val surface: generic.Surface[ScalafmtConfig] = generic.deriveSurface
+  implicit lazy val surface: generic.Surface[ScalafmtConfig] =
+    generic.deriveSurface
 
   val indentOperatorsIncludeAkka = "^.*=$"
   val indentOperatorsExcludeAkka = "^$"
