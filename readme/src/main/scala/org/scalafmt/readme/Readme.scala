@@ -299,12 +299,6 @@ object Readme {
   def fmt(style: ScalafmtConfig)(code: String): TypedTag[String] =
     example(code, style)
 
-  def other = {
-    // val settings = Settings[ScalafmtConfig].flat(ScalafmtConfig.default)
-    // TODO(olafur): do something useful with settings
-    raw("")
-  }
-
   def lastUpdated =
     new SimpleDateFormat("MMM d, y").format(new Date(Versions.timestamp.toLong))
 

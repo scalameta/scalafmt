@@ -324,7 +324,6 @@ lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
   buildInfoObject := "Versions"
 )
 
-def currentCommit = {}
 def scala210 = "2.10.6"
 def scala211 = "2.11.11"
 def scala212 = "2.12.2"
