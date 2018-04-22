@@ -16,6 +16,6 @@ case class ContinuationIndent(
 }
 
 object ContinuationIndent {
-  implicit val surface: generic.Surface[ContinuationIndent] =
+  implicit lazy val surface: generic.Surface[ContinuationIndent] =
     generic.deriveSurface
 }

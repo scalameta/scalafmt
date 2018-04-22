@@ -78,7 +78,7 @@ case class ScalafmtOptimizer(
 }
 
 object ScalafmtOptimizer {
-  implicit val surface: generic.Surface[ScalafmtOptimizer] =
+  implicit lazy val surface: generic.Surface[ScalafmtOptimizer] =
     generic.deriveSurface
   val default = ScalafmtOptimizer()
 

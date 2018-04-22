@@ -83,5 +83,5 @@ case class OptIn(
 }
 
 object OptIn {
-  implicit val surface: Surface[OptIn] = generic.deriveSurface
+  implicit lazy val surface: Surface[OptIn] = generic.deriveSurface
 }

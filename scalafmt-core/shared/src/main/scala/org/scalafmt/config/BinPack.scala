@@ -43,6 +43,6 @@ case class BinPack(
     FilterMatcher(literalsInclude, literalsExclude)
 }
 object BinPack {
-  implicit val surface: generic.Surface[BinPack] =
+  implicit lazy val surface: generic.Surface[BinPack] =
     generic.deriveSurface[BinPack]
 }

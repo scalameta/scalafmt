@@ -27,6 +27,6 @@ case class RewriteSettings(
 }
 
 object RewriteSettings {
-  implicit val surface: generic.Surface[RewriteSettings] =
+  implicit lazy val surface: generic.Surface[RewriteSettings] =
     generic.deriveSurface
 }

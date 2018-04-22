@@ -41,7 +41,7 @@ case class ScalafmtRunner(
 }
 
 object ScalafmtRunner {
-  implicit val surface: generic.Surface[ScalafmtRunner] = generic.deriveSurface
+  implicit lazy val surface: generic.Surface[ScalafmtRunner] = generic.deriveSurface
   val defaultDialect = Scala211.copy(
     // Are `&` intersection types supported by this dialect?
     allowAndTypes = true,

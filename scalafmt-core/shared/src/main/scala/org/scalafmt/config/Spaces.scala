@@ -34,5 +34,5 @@ case class Spaces(
   implicit val reader: ConfDecoder[Spaces] = generic.deriveDecoder(this).noTypos
 }
 object Spaces {
-  implicit val surface: generic.Surface[Spaces] = generic.deriveSurface
+  implicit lazy val surface: generic.Surface[Spaces] = generic.deriveSurface
 }

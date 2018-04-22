@@ -16,6 +16,6 @@ case class RedundantBracesSettings(
 }
 
 object RedundantBracesSettings {
-  implicit val surface: generic.Surface[RedundantBracesSettings] =
+  implicit lazy val surface: generic.Surface[RedundantBracesSettings] =
     generic.deriveSurface
 }

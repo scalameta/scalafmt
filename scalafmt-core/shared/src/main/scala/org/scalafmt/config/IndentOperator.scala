@@ -41,7 +41,7 @@ case class IndentOperator(
 }
 
 object IndentOperator {
-  implicit val surface: generic.Surface[IndentOperator] =
+  implicit lazy val surface: generic.Surface[IndentOperator] =
     generic.deriveSurface
   val default = IndentOperator()
   val akka = IndentOperator(

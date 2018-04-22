@@ -97,14 +97,14 @@ case class Newlines(
 }
 
 object Newlines {
-  implicit val surface: Surface[Newlines] = generic.deriveSurface
+  implicit lazy val surface: Surface[Newlines] = generic.deriveSurface
 }
 
 sealed abstract class NewlineCurlyLambda
 
 object NewlineCurlyLambda {
 
-  implicit val surface: generic.Surface[Newlines] =
+  implicit lazy val surface: generic.Surface[Newlines] =
     generic.deriveSurface
 
   case object preserve extends NewlineCurlyLambda
