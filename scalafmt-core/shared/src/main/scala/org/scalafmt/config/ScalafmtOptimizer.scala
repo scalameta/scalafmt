@@ -60,7 +60,6 @@ import metaconfig._
   *   By forcing config style on such applications, the search space is greatly
   *   reduced.
   */
-@DeriveConfDecoder
 case class ScalafmtOptimizer(
     dequeueOnNewStatements: Boolean = true,
     escapeInPathologicalCases: Boolean = true,

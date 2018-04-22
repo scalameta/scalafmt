@@ -2,8 +2,8 @@ package org.scalafmt.config
 
 import scala.io.Codec
 import scala.meta.Dialect
-import scala.util.control.NonFatal
 import scala.util.matching.Regex
+import metaconfig.annotation._
 import metaconfig._
 import org.scalafmt.util.ValidationOps
 
@@ -98,25 +98,24 @@ import org.scalafmt.util.ValidationOps
   *    }.filter(_ > 2)
   *  }}}
   */
-@DeriveConfDecoder
 case class ScalafmtConfig(
     version: String = org.scalafmt.Versions.stable,
     maxColumn: Int = 80,
     docstrings: Docstrings = Docstrings.ScalaDoc,
-    @Recurse optIn: OptIn = OptIn(),
-    @Recurse binPack: BinPack = BinPack(),
-    @Recurse continuationIndent: ContinuationIndent = ContinuationIndent(),
+    optIn: OptIn = OptIn(),
+    binPack: BinPack = BinPack(),
+    continuationIndent: ContinuationIndent = ContinuationIndent(),
     align: Align = Align(),
-    @Recurse spaces: Spaces = Spaces(),
+    spaces: Spaces = Spaces(),
     lineEndings: LineEndings = LineEndings.unix,
     rewriteTokens: Map[String, String] = Map.empty[String, String],
-    @Recurse rewrite: RewriteSettings = RewriteSettings(),
+    rewrite: RewriteSettings = RewriteSettings(),
     indentOperator: IndentOperator = IndentOperator(),
-    @Recurse newlines: Newlines = Newlines(),
-    @Recurse runner: ScalafmtRunner = ScalafmtRunner.default,
+    newlines: Newlines = Newlines(),
+    runner: ScalafmtRunner = ScalafmtRunner.default,
     // Settings which belong to no group
     indentYieldKeyword: Boolean = true,
-    @metaconfig.ExtraName("binPackImportSelectors") importSelectors: ImportSelectors =
+    @ExtraName("binPackImportSelectors") importSelectors: ImportSelectors =
       ImportSelectors.noBinPack,
     unindentTopLevelOperators: Boolean = false,
     includeCurlyBraceInSelectChains: Boolean = true,
@@ -130,7 +129,7 @@ case class ScalafmtConfig(
     @Recurse verticalMultiline: VerticalMultiline = VerticalMultiline(),
     onTestFailure: String = "",
     encoding: Codec = "UTF-8",
-    @Recurse project: ProjectFiles = ProjectFiles()
+    project: ProjectFiles = ProjectFiles()
 ) {
   implicit val alignDecoder: ConfDecoder[Align] =
     ScalafmtConfig.alignReader(align.reader)

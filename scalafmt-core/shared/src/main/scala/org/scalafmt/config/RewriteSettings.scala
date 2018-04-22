@@ -4,13 +4,11 @@ import metaconfig._
 import org.scalafmt.Error.InvalidScalafmtConfiguration
 import org.scalafmt.rewrite.{AvoidInfix, Rewrite}
 
-@DeriveConfDecoder
 case class RewriteSettings(
     rules: Seq[Rewrite] = Nil,
-    @Recurse redundantBraces: RedundantBracesSettings =
-      RedundantBracesSettings(),
-    @Recurse neverInfix: Pattern = Pattern.neverInfix,
-    @Recurse sortModifiers: SortSettings = SortSettings.default
+    redundantBraces: RedundantBracesSettings = RedundantBracesSettings(),
+    sortModifiers: SortSettings = SortSettings.default,
+    neverInfix: Pattern = Pattern.neverInfix
 ) {
   Rewrite.validateRewrites(rules) match {
     case Nil => // OK

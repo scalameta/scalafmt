@@ -54,7 +54,6 @@ import metaconfig._
   *     Map("Defn.Var" -> "Assign", "Defn.Val" -> "Assign")
   *   Note. Requires mixedOwners to be true.
   */
-@DeriveConfDecoder
 case class Align(
     openParenCallSite: Boolean = true,
     openParenDefnSite: Boolean = true,

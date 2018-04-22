@@ -30,11 +30,19 @@ import metaconfig._
   *   a +=
   *     b
   */
-@DeriveConfDecoder
 case class IndentOperator(
     include: String = ".*",
     exclude: String = "^(&&|\\|\\|)$"
 ) {
+  val reader: ConfDecoder[IndentOperator] =
+    ConfDecoder.instanceF[IndentOperator] { conf =>
+      (
+        conf.getOrElse[String]("include")(include) |@|
+          conf.getOrElse[String]("exclude")(exclude)
+      ).map { case (a, b) => IndentOperator(a, b) }
+
+    }
+
   val includeRegexp = include.r
   val excludeRegexp = exclude.r
 }

@@ -32,14 +32,12 @@ lazy val core = crossProject
   .settings(
     moduleName := "scalafmt-core",
     allSettings,
-    metaMacroSettings,
     buildInfoSettings,
     fork.in(run).in(Test) := true,
     libraryDependencies ++= Seq(
       metaconfig.value,
       scalameta.value
-    ),
-    addCompilerPlugin(paradise)
+    )
   )
   .jsSettings(
     libraryDependencies += metaconfigHocon.value
@@ -56,7 +54,6 @@ lazy val cli = project
   .settings(
     moduleName := "scalafmt-cli",
     allSettings,
-    metaMacroSettings,
     mainClass in assembly := Some("org.scalafmt.cli.Cli"),
     libraryDependencies ++= Seq(
       "com.martiansoftware" % "nailgun-server" % "0.9.1",
@@ -241,12 +238,6 @@ def shouldPublishToBintray: Boolean = {
 lazy val noDocs = Seq(
   sources in (Compile, doc) := Nil
 )
-
-lazy val metaMacroSettings: Seq[Def.Setting[_]] = Seq(
-  libraryDependencies += scalameta.value,
-  addCompilerPlugin(paradise),
-  scalacOptions += "-Xplugin-require:macroparadise"
-) ++ noDocs
 
 lazy val compilerOptions = Seq(
   "-deprecation",

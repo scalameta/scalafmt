@@ -30,7 +30,7 @@ object ReaderUtil {
           case None =>
             val available = m.keys.mkString(", ")
             val msg = s"Unknown input '$x'. Expected one of: $available"
-            ConfError.msg(msg).notOk
+            ConfError.message(msg).notOk
         }
     }
   }

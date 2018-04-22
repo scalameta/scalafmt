@@ -77,7 +77,6 @@ import metaconfig._
   *         .map(g)
   *   }}}
   */
-@DeriveConfDecoder
 case class Newlines(
     neverInResultType: Boolean = false,
     neverBeforeJsNative: Boolean = false,

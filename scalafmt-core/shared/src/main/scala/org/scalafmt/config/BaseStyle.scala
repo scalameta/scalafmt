@@ -9,18 +9,17 @@ object BaseStyle {
   implicit val styleReader: ConfDecoder[BaseStyle] =
     ConfDecoder.instance[BaseStyle] {
       case any =>
-        for {
-          str <- ConfDecoder.stringConfDecoder.read(any)
-          style <- {
+        ConfDecoder.stringConfDecoder.read(any).andThen { str =>
+          val style =
             ScalafmtConfig.availableStyles.get(str.toLowerCase) match {
               case Some(s) => Ok(s)
               case None =>
                 ConfError
-                  .msg(
+                  .message(
                     s"Unknown style name $str. Expected one of ${ScalafmtConfig.activeStyles.keys}")
                   .notOk
             }
-          }
-        } yield BaseStyle(style)
+          style.map(BaseStyle.apply)
+        }
     }
 }

@@ -22,7 +22,6 @@ import org.scalafmt.config.SpaceBeforeContextBound.Never
   *   If false, removes space in by-name parameter.
   *   `def foo(a: =>A)`
   */
-@DeriveConfDecoder
 case class Spaces(
     beforeContextBoundColon: SpaceBeforeContextBound = Never,
     afterTripleEquals: Boolean = false,

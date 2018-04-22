@@ -29,7 +29,6 @@ import metaconfig._
   *                            constructor gets its own line.
   *
   */
-@DeriveConfDecoder
 case class BinPack(
     unsafeCallSite: Boolean = false,
     unsafeDefnSite: Boolean = false,

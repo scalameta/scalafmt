@@ -9,8 +9,16 @@ import metaconfig._
   * @param code string literal value of the token to align by.
   * @param owner regexp for class name of scala.meta.Tree "owner" of [[code]].
   */
-@DeriveConfDecoder
-case class AlignToken(code: String, owner: String)
+case class AlignToken(code: String, owner: String) {
+  val reader: ConfDecoder[AlignToken] =
+    ConfDecoder.instanceF[AlignToken] { conf =>
+      (
+        conf.getOrElse[String]("code")(code) |@|
+          conf.getOrElse[String]("owner")(owner)
+      ).map { case (a, b) => AlignToken(a, b) }
+
+    }
+}
 
 object AlignToken {
   val applyInfix = "Term.ApplyInfix"

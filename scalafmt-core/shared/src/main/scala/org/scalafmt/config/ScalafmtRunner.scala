@@ -20,12 +20,11 @@ import scala.meta.dialects.Scala211
   * @param parser        Are we formatting a scala.meta.{Source,Stat,Case,...}? For
   *                      more details, see members of [[scala.meta.parsers]].
   */
-@DeriveConfDecoder
 case class ScalafmtRunner(
     debug: Boolean = false,
     eventCallback: FormatEvent => Unit = _ => Unit,
     parser: MetaParser = Parse.parseSource,
-    @Recurse optimizer: ScalafmtOptimizer = ScalafmtOptimizer.default,
+    optimizer: ScalafmtOptimizer = ScalafmtOptimizer.default,
     maxStateVisits: Int = 1000000,
     dialect: Dialect = ScalafmtRunner.defaultDialect,
     ignoreWarnings: Boolean = false,

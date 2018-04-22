@@ -69,7 +69,6 @@ import metaconfig._
   *    }
   *  }}}
   */
-@DeriveConfDecoder
 case class OptIn(
     configStyleArguments: Boolean = true,
     breaksInsideChains: Boolean = false,

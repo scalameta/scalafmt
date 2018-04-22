@@ -3,7 +3,6 @@ package org.scalafmt.config
 import metaconfig._
 import org.scalafmt.util.OsSpecific
 
-@DeriveConfDecoder
 case class ProjectFiles(
     git: Boolean = false,
     files: Seq[String] = Nil,
