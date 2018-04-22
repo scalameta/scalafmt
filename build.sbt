@@ -212,7 +212,8 @@ lazy val readme = scalatex
       run.in(Compile).toTask(" --validate-links").value
     },
     libraryDependencies ++= Seq(
-      "com.twitter" %% "util-eval" % "6.41.0"
+      "com.twitter" %% "util-eval" % "6.41.0",
+      "com.geirsson" %% "metaconfig-docs" % metaconfigV
     )
   )
   .enablePlugins(GhpagesPlugin)
@@ -315,6 +316,8 @@ lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
     "stable" -> stableVersion.value,
     "scala" -> scalaVersion.value,
     "coursier" -> coursier,
+    "commit" -> Seq("git", "rev-parse", "HEAD").!!.trim,
+    "timestamp" -> System.currentTimeMillis().toString,
     scalaVersion,
     sbtVersion
   ),
@@ -322,6 +325,9 @@ lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
   buildInfoObject := "Versions"
 )
 
+def currentCommit = {
+
+}
 def scala210 = "2.10.6"
 def scala211 = "2.11.11"
 def scala212 = "2.12.2"

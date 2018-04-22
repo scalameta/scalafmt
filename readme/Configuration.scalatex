@@ -907,4 +907,4 @@
     without notice.
     However, just in case you want to try them out, here they are.
 
-    @hl.scala(org.scalafmt.config.Config.toHocon(default.fields).mkString("\n"))
+    @org.scalafmt.readme.Readme.other

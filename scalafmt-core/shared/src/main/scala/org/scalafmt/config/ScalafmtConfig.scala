@@ -161,9 +161,8 @@ case class ScalafmtConfig(
   )
 }
 
-object ScalafmtConfig extends Settings {
-  // NOTE(olafur) I don't know why, but this surface needs to be lazy :/
-  implicit def surface: generic.Surface[ScalafmtConfig] = generic.deriveSurface
+object ScalafmtConfig {
+  implicit lazy val surface: generic.Surface[ScalafmtConfig] = generic.deriveSurface
 
   val indentOperatorsIncludeAkka = "^.*=$"
   val indentOperatorsExcludeAkka = "^$"

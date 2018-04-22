@@ -155,10 +155,6 @@ object Cli {
       val out = options.info
       out.println("Working directory: " + pwd)
       out.println("Formatting files: " + inputMethods.toList)
-//      out.println(
-//        "Configuration: \n" + Config
-//          .toHocon(options.config.fields)
-//          .mkString("\n"))
     }
 
     val sbtOptions = options.copy(

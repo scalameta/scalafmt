@@ -131,8 +131,8 @@ object CliArgParser {
       opt[Unit]("build-info")
         .action({
           case (_, c) =>
-            println("This option is no longer supported")
-            sys.exit(1)
+            println(buildInfo)
+            sys.exit
         })
         .text("prints build information")
       opt[Unit]("quiet")
@@ -158,4 +158,7 @@ object CliArgParser {
                |Please file bugs to https://github.com/scalameta/scalafmt/issues
       """.stripMargin)
     }
+  def buildInfo =
+    s"""build commit: ${Versions.commit}
+       |build time: ${new Date(Versions.timestamp.toLong)}""".stripMargin
 }

@@ -5,7 +5,10 @@ import scalatags.Text.all._
 import java.text.SimpleDateFormat
 import java.util.Date
 import com.twitter.util.Eval
+import metaconfig.generic.Settings
+import metaconfig.generic.Surface
 import org.scalafmt.Scalafmt
+import org.scalafmt.Versions
 import org.scalafmt.cli.Cli
 import org.scalafmt.cli.CliArgParser
 import org.scalafmt.config._
@@ -296,8 +299,14 @@ object Readme {
   def fmt(style: ScalafmtConfig)(code: String): TypedTag[String] =
     example(code, style)
 
+  def other = {
+    raw(
+      metaconfig.docs.Docs.html(ScalafmtConfig.default)
+    )
+  }
+
   def lastUpdated =
-    new SimpleDateFormat("MMM d, y").format(new Date(CliArgParser.buildTimeMs))
+    new SimpleDateFormat("MMM d, y").format(new Date(Versions.timestamp.toLong))
 
   def format(code: String): TypedTag[String] = {
     format(ScalafmtConfig.default)(code)
