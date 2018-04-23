@@ -10,7 +10,7 @@
 }
 
 .scalatex-scrollspy-Styles-selected {
-  background: #eb4d54;
+  background: #af2442;
 }
 
 .scalatex-scrollspy-Styles-closed {
@@ -18,43 +18,44 @@
 }
 
 .scalatex-scrollspy-Styles-selected {
-  background: #af2442;
+  background: #eb4d54;
 }
 .scalatex-scrollspy-Styles-pathed {
-  border-left: 2px solid #af2442;
+  border-left: none;
 }
 
 .scalatex-scrollspy-Styles-menuLink,
 .scalatex-scrollspy-Styles-menuLink:hover {
-  background: #af2442;
+  background: #eb4d54;
 }
 
 .scalatex-scrollspy-Styles-menu {
-  background: #af2442;
+  background: #eb4d54;
 }
 
 .scalatex-scrollspy-Styles-note {
   color: white;
+  font-weight: 300;
 }
 
 .scalatex-scrollspy-Styles-noteBox {
-  background: #af2442;
+  background: #eb4d54;
   padding-bottom: 10px;
   text-align: center;
 }
 
 .scalatex-scrollspy-Styles-menuItem {
-  border-bottom: #af2442 solid 2px;
+  border-bottom: none;
 }
 
 .scalatex-scrollspy-Styles-menuItem:hover {
-  background: #af2442;
+  background: #eb4d54;
   color: white;
 }
 
 ul.menu-item-list {
-    background: #eb4d54;
-    border-right: 2px solid #af2442;
+    background: #af2442;
+    border-right: 2px solid #eb4d54;
 }
 
 /**
@@ -80,7 +81,7 @@ ul.menu-item-list {
 
 .scalatex-site-Styles-content a:visited,
 .scalatex-site-Styles-content a:link {
-  color: #af2442;
+  color: #eb4d54;
 }
 
 .scalatex-site-Styles-content pre code {
@@ -113,7 +114,7 @@ blockquote {
 }
 
 blockquote:before {
-  color: #af2442;
+  color: #eb4d54;
   content: open-quote;
   font-size: 4em;
   line-height: 0.1em;
