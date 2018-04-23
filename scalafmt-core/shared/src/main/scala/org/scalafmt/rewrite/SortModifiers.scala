@@ -22,6 +22,10 @@ object SortModifiers extends Rewrite {
      * are considered Mods, instead of being similar to `Defn.Val`, or `Defn.Var`.
      */
     val patchesOfPatches = code.collect {
+      case d: Decl.Def => sortMods(d.mods)
+      case v: Decl.Val => sortMods(v.mods)
+      case v: Decl.Var => sortMods(v.mods)
+      case t: Decl.Type => sortMods(t.mods)
       case d: Defn.Def => sortMods(d.mods)
       case v: Defn.Val => sortMods(v.mods)
       case v: Defn.Var => sortMods(v.mods)

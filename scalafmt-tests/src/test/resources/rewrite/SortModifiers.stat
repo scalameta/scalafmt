@@ -190,3 +190,17 @@ private abstract sealed class Test(private[Test] final implicit override val x: 
 abstract sealed private case class Test(override implicit final private[Test] val x: Int)
 >>>
 private abstract sealed case class Test(private[Test] final implicit override val x: Int)
+<<< abstract declarations
+trait test {
+  override final private[test] type Foo
+  override implicit final private[test] val foo: Int
+  override implicit final private[test] var bad: Int
+  override implicit final private def bar: Int
+}
+>>>
+trait test {
+  private[test] final override type Foo
+  private[test] final implicit override val foo: Int
+  private[test] final implicit override var bad: Int
+  private final implicit override def bar: Int
+}
