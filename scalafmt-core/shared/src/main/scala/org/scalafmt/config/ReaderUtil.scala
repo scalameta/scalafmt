@@ -14,8 +14,8 @@ object ReaderUtil {
       options: sourcecode.Text[T]*): ConfDecoder[T] =
     oneOfImpl(lowerCaseNoBackticks, options)
 
-  private val lowerCase: String => String = s => s.toLowerCase
-  private val lowerCaseNoBackticks: String => String = s =>
+  private def lowerCase(s: String): String = s.toLowerCase
+  private def lowerCaseNoBackticks(s: String): String =
     s.toLowerCase().replace("`", "")
 
   private def oneOfImpl[T: ClassTag](
