@@ -8,17 +8,13 @@ import scala.meta._
 object SortModifiers extends Rewrite {
 
   override def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch] = {
-    val order = ctx.style.rewrite.sortModifiers.order
-
-    val sortMods: Seq[Mod] => Seq[Mod] = { mods =>
-      mods.sortWith(orderModsBy(order))
-    }
+    implicit val order = ctx.style.rewrite.sortModifiers.order
 
     /*
      * in the case of Class, Object, and of class constructor parameters
-     * some Mods are immovable, e.g. "case class X".
+     * some Mods are immovable, e.g. 'case' in "case class X".
      *
-     * The case of parameters is a bit more curious, because there the
+     * The case of parameters is a bit more curious because there the
      * "val" or "var" in, say:
      * {{{
      *   class Test(private final val x: Int)
@@ -26,38 +22,30 @@ object SortModifiers extends Rewrite {
      * are considered Mods, instead of being similar to `Defn.Val`, or `Defn.Var`.
      */
     val patchesOfPatches = code.collect {
-      case d: Defn.Def => patchMods(sortMods, d.mods)
-      case v: Defn.Val => patchMods(sortMods, v.mods)
-      case v: Defn.Var => patchMods(sortMods, v.mods)
-      case t: Defn.Type => patchMods(sortMods, t.mods)
-      case c: Defn.Class => patchMods(sortMods, c.mods.filterNot(isCase))
-      case o: Defn.Object => patchMods(sortMods, o.mods.filterNot(isCase))
-      case t: Defn.Trait => patchMods(sortMods, t.mods)
-      case p: Term.Param => patchMods(sortMods, p.mods.filterNot(isValOrVar))
+      case d: Defn.Def => sortMods(d.mods)
+      case v: Defn.Val => sortMods(v.mods)
+      case v: Defn.Var => sortMods(v.mods)
+      case t: Defn.Type => sortMods(t.mods)
+      case c: Defn.Class => sortMods(c.mods.filterNot(_.is[Mod.Case]))
+      case o: Defn.Object => sortMods(o.mods.filterNot(_.is[Mod.Case]))
+      case t: Defn.Trait => sortMods(t.mods)
+      case p: Term.Param =>
+        sortMods(
+          p.mods.filterNot(m => m.is[Mod.ValParam] || m.is[Mod.VarParam]))
     }
     patchesOfPatches.flatten
   }
 
-  private val isValOrVar: Mod => Boolean = m =>
-    m.is[Mod.ValParam] || m.is[Mod.VarParam]
-
-  private val isCase: Mod => Boolean = m => m.is[Mod.Case]
-
-  private def patchMods(
-      sortMods: Seq[Mod] => Seq[Mod],
-      oldMods: Seq[Mod]): Seq[Patch] = {
+  private def sortMods(
+      oldMods: Seq[Mod]
+  )(implicit order: Vector[ModKey]): Seq[Patch] = {
     if (oldMods.isEmpty) Nil
     else {
-      val sortedMods: Seq[Mod] = sortMods(oldMods)
+      val sortedMods: Seq[Mod] = oldMods.sortWith(orderModsBy(order))
       sortedMods.zip(oldMods).flatMap {
         case (next, old) =>
           if (old.tokens.isEmpty) {
-            //Not sure why this happens, how can you have a mod with no tokens?
-            //but see the `SortModifiers_Mod_With_No_Token.source` test for an example.
-            //The weirdest part is that it actually formats the file correctly...
-            //
-            //so it's better to not do anything than crash `scalafmt`
-            //P.S. can I emmit a warning?
+            //required for cases like: def foo(implicit x: Int)
             Nil
           } else {
             val removeOld = old.tokens.map(t => TokenPatch.Remove(t))

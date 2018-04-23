@@ -180,7 +180,7 @@ object Readme {
     */
   val rewriteSortModifiersDefaultString =
     SortSettings.defaultOrder
-      .map(_.getClass.getSimpleName.replace("`", "").stripSuffix("$"))
+      .map(_.productPrefix)
       .mkString("[\"", "\", \"", "\"]")
 
   val rewritePreferCurlyFors =

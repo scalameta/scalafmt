@@ -40,7 +40,7 @@ object SortSettings {
   def default: SortSettings =
     SortSettings(defaultOrder)
 
-  sealed trait ModKey
+  sealed trait ModKey extends Product
 
   case object `private` extends ModKey
   case object `protected` extends ModKey
