@@ -7,13 +7,64 @@
   @ul
     @li
       Please document your contribution here.
+@sect{1.5.0}
+  @ul
     @li
-      @pr(1122) Update @code{RedundantBraces} to remove redundant braces from
+      @pr(1122) by @user{japgolly}.
+      Update @code{RedundantBraces} to remove redundant braces from
       all expressions. If you'd like to restrict @code{RedundantBraces} behaviour
       to just method bodies and/or string interpolation as it was before this
       change, you can do so via new setting:
       @code{rewrite.redundantBraces.generalExpressions = false}
-      By @user{japgolly}.
+    @li
+      @pr(1132) by @user{iantabolt}.
+      Fix an issue where long "with chains" would exceed @code{maxColumn}.
+      @hl.scala
+        // maxColumn |
+        // before
+        Foo with Bar with Baz
+        // after
+        Foo
+          with Bar
+          with Baz
+    @li
+      @pr(1134) by @user{iantabolt}.
+      Add @code{Newlines.alwaysBeforeMultilineDef=true}.
+      If true, add a newline before the body of a multiline def without
+      curly braces. For example,
+      @hl.scala
+        // before
+        def foo(bar: Bar): Foo = bar
+            .flatMap(f)
+            .map(g)
+
+        // newlines.alwaysBeforeMultilineDef = false
+        def foo(bar: Bar): Foo = bar
+          .flatMap(f)
+          .map(g)
+
+        // newlines.alwaysBeforeMultilineDef = true (default, unchanged from 1.4)
+        def foo(bar: Bar): Foo =
+          bar
+            .flatMap(f)
+            .map(g)
+    @li
+      @pr(1136) by @user{vovapolu}.
+      Makes sbt-scalafmt incremental so only files that have been changed since last
+      format are re-formatted.
+    @li
+      @pr(1143) by @user{mads-hartmann}.
+      Add @sect.ref{verticalMultilineAtDefinitionSiteArityThreshold} setting.
+    @li
+      @pr(1140) by @user{lorandszakacs}.
+      Add @sect.ref{SortModifiers} rewrite rule.
+    @li
+      @pr(1144) by @user{mads-hartmann}.
+      Style the website with colors from the Scalameta logo.
+
+  @p
+    Big thanks to all contributors!
+
 @sect{1.4.0}
   @p
     See @lnk("merged PRs", "https://github.com/scalameta/scalafmt/milestone/19?closed=1").
