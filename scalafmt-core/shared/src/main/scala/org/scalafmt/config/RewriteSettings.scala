@@ -9,7 +9,8 @@ case class RewriteSettings(
     rules: Seq[Rewrite] = Nil,
     @Recurse redundantBraces: RedundantBracesSettings =
       RedundantBracesSettings(),
-    @Recurse neverInfix: Pattern = Pattern.neverInfix
+    @Recurse neverInfix: Pattern = Pattern.neverInfix,
+    @Recurse sortModifiers: SortSettings = SortSettings.default
 ) {
   Rewrite.validateRewrites(rules) match {
     case Nil => // OK
@@ -20,5 +21,13 @@ case class RewriteSettings(
         )
       )
   }
+
+  if (sortModifiers.order.distinct.length != 8)
+    throw InvalidScalafmtConfiguration(
+      new IllegalArgumentException(
+        "'sortModifiers.order', if specified, it has to contain all of the following values in the order you wish them sorted:" +
+          """["private", "protected" , "abstract", "final", "sealed", "implicit", "override", "lazy"]"""
+      )
+    )
 
 }

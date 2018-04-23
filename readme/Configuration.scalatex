@@ -684,6 +684,53 @@
       @demoStyle(rewriteAsciiImports)
         import foo.{~>, `symbol`, bar, Random}
 
+    @sect(Rewrite.rewrite2name(SortModifiers))
+      @p
+        Modifiers are sorted based on the given order. Affects modifiers of the following
+        definitions: trait, class, object, type, and val+var, both as fields and class parameters.
+
+      Demo run. On the left you have the code before sorting, on the right after.
+      @demoStyle(rewriteSortModifiers)
+        sealed trait ADT
+        final private object ADTs {
+
+          private final type T1 = Int
+          final private[ADTs] type T2 = String
+
+          final private implicit object ADT1 extends ADT
+          implicit private final object ADT2 extends ADT
+          final implicit private object ADT3 extends ADT
+
+          abstract sealed class ADTA(val name: T1) extends ADT {
+            def test: T1
+          }
+
+          final class ADT4(private[ADTs] final implicit var impl: T2) extends ADT {
+            lazy private[ADT4] implicit override val test: T1 = 42
+          }
+        }
+
+      If you choose the non-default sort order then you have to specify all eight modifiers in the order you wish to see
+      them. Hint: since some modifiers are mutually exclusive, you might want to order them next to each other.
+
+
+      @p
+        Example config:
+        @cliFlags
+          rewrite {
+            rules = [SortModifiers]
+            #optional, see default values below
+            sortModifiers {
+              order = ["implicit", "final", "sealed", "abstract",
+                       "override", "private", "protected", "lazy"]
+            }
+          }
+
+      Default values:
+      @ul
+        @li
+          @code{rewrite.sortModifiers.order} = @rewriteSortModifiersDefaultString
+
     @sect(Rewrite.rewrite2name(PreferCurlyFors))
       @p
         Replaces parentheses into curly braces in for comprehensions that

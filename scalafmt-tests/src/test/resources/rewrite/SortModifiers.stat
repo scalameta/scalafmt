@@ -1,0 +1,206 @@
+maxColumn = 200 #to not disturb the output too much
+rewrite {
+  rules = [SortModifiers]
+  sortModifiers {
+    order = ["private", "protected" , "abstract", "final", "sealed", "implicit", "override", "lazy"]
+  }
+}
+<<< def — no mods
+object test {
+  def foo: Int = ???
+}
+>>>
+object test {
+  def foo: Int = ???
+}
+<<< def — private
+object test {
+  private def foo: Int = ???
+}
+>>>
+object test {
+  private def foo: Int = ???
+}
+<<< def — final private
+object test {
+  final private def foo: Int = ???
+}
+>>>
+object test {
+  private final def foo: Int = ???
+}
+<<< def — final private — scoped
+object test {
+  final private[test] def foo: Int = ???
+}
+>>>
+object test {
+  private[test] final def foo: Int = ???
+}
+<<< def — override implicit final private
+object test {
+  override implicit final private def foo: Int = ???
+}
+>>>
+object test {
+  private final implicit override def foo: Int = ???
+}
+<<< def — override implicit final private — scoped
+object test {
+  override implicit final private[test] def foo: Int = ???
+}
+>>>
+object test {
+  private[test] final implicit override def foo: Int = ???
+}
+<<< val — no mods
+object test {
+  val foo: Int = ???
+}
+>>>
+object test {
+  val foo: Int = ???
+}
+<<< val — private
+object test {
+  private val foo: Int = ???
+}
+>>>
+object test {
+  private val foo: Int = ???
+}
+<<< val — final private
+object test {
+  final private val foo: Int = ???
+}
+>>>
+object test {
+  private final val foo: Int = ???
+}
+<<< val — final private — scoped
+object test {
+  final private[test] val foo: Int = ???
+}
+>>>
+object test {
+  private[test] final val foo: Int = ???
+}
+<<< val — override implicit final private
+object test {
+  override implicit final private val foo: Int = ???
+}
+>>>
+object test {
+  private final implicit override val foo: Int = ???
+}
+<<< val — override implicit final private — scoped
+object test {
+  override implicit final private[test] val foo: Int = ???
+}
+>>>
+object test {
+  private[test] final implicit override val foo: Int = ???
+}
+<<< val — lazy override implicit final private[test] — scoped
+object test {
+  lazy override implicit final private[test] val foo: Int = ???
+}
+>>>
+object test {
+  private[test] final implicit override lazy val foo: Int = ???
+}
+<<< type — no mods
+object test {
+  type foo = Int
+}
+>>>
+object test {
+  type foo = Int
+}
+<<< type — private
+object test {
+  private type foo = Int
+}
+>>>
+object test {
+  private type foo = Int
+}
+<<< type — final private
+object test {
+  final private type foo = Int
+}
+>>>
+object test {
+  private final type foo = Int
+}
+<<< type — final private — scoped
+object test {
+  final private[test] type foo = Int
+}
+>>>
+object test {
+  private[test] final type foo = Int
+}
+<<< type — override final private
+object test {
+  override final private type foo = Int
+}
+>>>
+object test {
+  private final override type foo = Int
+}
+<<< type — override final private — scoped
+object test {
+  override final private[test] type foo = Int
+}
+>>>
+object test {
+  private[test] final override type foo = Int
+}
+
+<<< type — override final private higher kind — scoped
+object test {
+  override final private[test] type foo[+A] = List[A]
+}
+>>>
+object test {
+  private[test] final override type foo[+A] = List[A]
+}
+<<< class param mod — none
+class Test(x: Int)
+>>>
+class Test(x: Int)
+<<< class param mod — private
+class Test(private val x: Int)
+>>>
+class Test(private val x: Int)
+<<< class param val — final private
+class Test(final private val x: Int)
+>>>
+class Test(private final val x: Int)
+<<< class param val — override implicit final private[Test]
+class Test(override implicit final private[Test] val x: Int)
+>>>
+class Test(private[Test] final implicit override val x: Int)
+<<< class defn + param — abstract final private
+abstract sealed private class Test(override implicit final private[Test] val x: Int)
+>>>
+private abstract sealed class Test(private[Test] final implicit override val x: Int)
+<<< case class defn + param — abstract final private
+abstract sealed private case class Test(override implicit final private[Test] val x: Int)
+>>>
+private abstract sealed case class Test(private[Test] final implicit override val x: Int)
+<<< abstract declarations
+trait test {
+  override final private[test] type Foo
+  override implicit final private[test] val foo: Int
+  override implicit final private[test] var bad: Int
+  override implicit final private def bar: Int
+}
+>>>
+trait test {
+  private[test] final override type Foo
+  private[test] final implicit override val foo: Int
+  private[test] final implicit override var bad: Int
+  private final implicit override def bar: Int
+}

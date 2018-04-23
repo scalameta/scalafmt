@@ -1,0 +1,43 @@
+maxColumn = 200 #to not disturb the output too much
+rewrite {
+  rules = [SortModifiers]
+  sortModifiers {
+    order = ["private", "protected" , "abstract", "final", "sealed", "implicit", "override", "lazy"]
+  }
+}
+
+
+<<< Almost bug in convoluted modifiers
+package test
+
+sealed private[test] trait Test {
+  def name: String
+}
+
+final private[test] object Tests {
+
+  final protected[Tests] case object Test1 extends Test {
+    override final lazy implicit val name: String = "foo"
+  }
+
+  final case class Test2(override implicit val name: String) extends Test
+
+  private[test] final class Test3(override val name: String = "42", final private[this] implicit val foo: Int) extends Test
+}
+>>>
+package test
+
+private[test] sealed trait Test {
+  def name: String
+}
+
+private[test] final object Tests {
+
+  protected[Tests] final case object Test1 extends Test {
+    final implicit override lazy val name: String = "foo"
+  }
+
+  final case class Test2(implicit override val name: String) extends Test
+
+  private[test] final class Test3(override val name: String = "42", private[this] final implicit val foo: Int) extends Test
+}

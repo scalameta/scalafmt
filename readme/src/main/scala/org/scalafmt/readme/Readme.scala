@@ -164,6 +164,30 @@ object Readme {
         rules = Seq(AsciiSortImports)
       ))
 
+  val rewriteSortModifiers =
+    ScalafmtConfig.default120.copy(
+      rewrite = ScalafmtConfig.default.rewrite.copy(
+        rules = Seq(SortModifiers)
+      ))
+
+  /**
+    * This looks way too hacky. But can't seem to find a typeclass
+    * that ought to "encode" the ``ModKey`` enum.
+    *
+    * Additionally, a Vector of Strings is simply concatenated, hence
+    * the extra .mkString.
+    * {{{
+    *    [error]  found   : Vector[org.scalafmt.config.SortSettings.ModKey]
+    *    [error]  required: scalatags.Text.Modifier
+    *    [error]     (which expands to)  scalatags.generic.Modifier[scalatags.text.Builder]
+    *    [error]           @code{rewrite.sortModifiers.order} = @rewriteSortModifiers.rewrite.sortModifiers.order
+    * }}}
+    */
+  val rewriteSortModifiersDefaultString =
+    SortSettings.defaultOrder
+      .map(_.productPrefix)
+      .mkString("[\"", "\", \"", "\"]")
+
   val rewritePreferCurlyFors =
     ScalafmtConfig.default.copy(
       rewrite = ScalafmtConfig.default.rewrite.copy(
