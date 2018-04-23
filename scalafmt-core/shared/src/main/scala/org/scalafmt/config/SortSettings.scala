@@ -7,23 +7,6 @@ case class SortSettings(
 )
 
 object SortSettings {
-  implicit val reader: ConfDecoder[SortSettings] = ConfDecoder.instance {
-    case Conf.Lst(values) =>
-      Configured.traverse(values.map(_.as[ModKey])).andThen { mods =>
-        if (mods.distinct.length != 8) {
-          val diff = defaultOrder.diff(mods.distinct)
-          ConfError
-            .message(
-              s"'sortModifiers.order' if missing values ${diff.mkString(", ")}. " +
-                s"If specified, it has to contain all of the following values in the order you wish them sorted:" +
-                """["private", "protected" , "abstract", "final", "sealed", "implicit", "override", "lazy"]"""
-            )
-            .notOk
-        } else {
-          Configured.ok(SortSettings(mods))
-        }
-      }
-  }
 
   implicit val SortSettingsModKeyReader: ConfDecoder[ModKey] =
     ReaderUtil.oneOfIgnoreBackticks[ModKey](
@@ -37,21 +20,37 @@ object SortSettings {
       `lazy`
     )
 
-  val defaultOrder: Vector[ModKey] =
-    Vector(
-      `implicit`,
-      //
-      `final`,
-      `sealed`,
-      `abstract`,
-      //
-      `override`,
-      //
-      `private`,
-      `protected`,
-      //
-      `lazy`
-    )
+  val defaultOrder: List[ModKey] = List(
+    `implicit`,
+    //
+    `final`,
+    `sealed`,
+    `abstract`,
+    //
+    `override`,
+    //
+    `private`,
+    `protected`,
+    //
+    `lazy`
+  )
+
+  implicit val surface: generic.Surface[SortSettings] = generic.deriveSurface
+  implicit val reader: ConfDecoder[SortSettings] =
+    generic.deriveDecoder(SortSettings(defaultOrder)).flatMap { result =>
+      if (result.order.distinct.length != 8) {
+        val diff = defaultOrder.diff(result.order.distinct)
+        ConfError
+          .message(
+            s"Incomplete 'sortModifiers.order', missing values: ${diff.mkString(", ")}. " +
+              s"If specified, it has to contain all of the following values in the order you wish them sorted:" +
+              """["private", "protected" , "abstract", "final", "sealed", "implicit", "override", "lazy"]"""
+          )
+          .notOk
+      } else {
+        Configured.ok(result)
+      }
+    }
 
   def default: SortSettings =
     SortSettings(defaultOrder)

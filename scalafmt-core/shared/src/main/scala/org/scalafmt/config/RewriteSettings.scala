@@ -10,7 +10,6 @@ case class RewriteSettings(
     sortModifiers: SortSettings = SortSettings.default,
     neverInfix: Pattern = Pattern.neverInfix
 ) {
-  private implicit val sortModifiersReader = sortModifiers.reader
   private implicit val redundantBracesReader = redundantBraces.reader
   private implicit val patternReader = neverInfix.reader
   val reader: ConfDecoder[RewriteSettings] = generic.deriveDecoder(this).noTypos
