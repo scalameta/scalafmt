@@ -95,3 +95,11 @@ val groupedData =
       topic =>
         partitionDataFetchResponseMap
           .map(foobar))
+<<< 1.8 upgrade
+val x: Int => Int =  { y =>
+  y + 1
+}
+>>>
+val x: Int => Int = { y =>
+  y + 1
+}

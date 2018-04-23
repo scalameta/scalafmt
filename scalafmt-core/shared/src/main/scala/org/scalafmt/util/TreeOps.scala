@@ -58,6 +58,7 @@ object TreeOps {
 
   def extractStatementsIfAny(tree: Tree): Seq[Tree] = tree match {
     case b: Term.Block => b.stats
+    case b: Term.Function if b.parent.exists(_.is[Term.Block]) => b.body :: Nil
     case t: Pkg => t.stats
     // TODO(olafur) would be nice to have an abstract "For" superclass.
     case t: Term.For => getEnumStatements(t.enums)
