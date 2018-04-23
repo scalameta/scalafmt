@@ -1,0 +1,128 @@
+
+/**
+ * Menu
+ */
+
+.scalatex-scrollspy-Styles-menu {
+  /* Can't override the width in CSS as it's manipulated in JS when the menu is
+     collapsed. */
+  /* width: 350px !important; */
+}
+
+.scalatex-scrollspy-Styles-selected {
+  background: #af2442;
+}
+
+.scalatex-scrollspy-Styles-closed {
+  color: white;
+}
+
+.scalatex-scrollspy-Styles-selected {
+  background: #eb4d54;
+}
+.scalatex-scrollspy-Styles-pathed {
+  border-left: none;
+}
+
+.scalatex-scrollspy-Styles-menuLink,
+.scalatex-scrollspy-Styles-menuLink:hover {
+  background: #eb4d54;
+}
+
+.scalatex-scrollspy-Styles-menu {
+  background: #eb4d54;
+}
+
+.scalatex-scrollspy-Styles-note {
+  color: white;
+  font-weight: 300;
+}
+
+.scalatex-scrollspy-Styles-noteBox {
+  background: #eb4d54;
+  padding-bottom: 10px;
+  text-align: center;
+}
+
+.scalatex-scrollspy-Styles-menuItem {
+  border-bottom: none;
+}
+
+.scalatex-scrollspy-Styles-menuItem:hover {
+  background: #eb4d54;
+  color: white;
+}
+
+ul.menu-item-list {
+    background: #af2442;
+    border-right: 2px solid #eb4d54;
+}
+
+/**
+ * Content
+ */
+
+
+.scalatex-site-Styles-hoverContainer.scalatex-site-Styles-headerTag {
+  border-bottom: none !important;
+  line-height: 2em;
+  margin: 0;
+}
+
+.scalatex-site-Styles-content {
+  max-width: 1000px;
+  color: black;
+
+  color: rgba(46,48,58,0.96);
+}
+
+.scalatex-site-Styles-content p {
+  font-size: 1.2rem;
+  line-height: 1.7rem;
+}
+
+.scalatex-site-Styles-content a:visited,
+.scalatex-site-Styles-content a:link {
+  color: #eb4d54;
+}
+
+.scalatex-site-Styles-content pre code {
+  padding: 1em 20px;
+  background: transparent;
+  background: #f9f9f9;
+  border-left: 10px solid #ccc;
+}
+
+.scalafmt-pair {
+  background: #f9f9f9;
+  border-left: 10px solid #ccc;
+  display: flex;
+  justify-content: space-around;
+}
+
+/** Ovrride pre code styling in case of pair split as it's taken caore of by
+ * .scalafmt-pair*/
+.scalatex-site-Styles-content .scalafmt-pair pre code {
+  background: transparent;
+  border-left: none;
+}
+
+blockquote {
+  background: #f9f9f9;
+  border-left: 10px solid #ccc;
+  margin: 1.5em 0px;
+  padding: 1em 20px;
+  quotes: "“" "”" "‘" "’";
+}
+
+blockquote:before {
+  color: #eb4d54;
+  content: open-quote;
+  font-size: 4em;
+  line-height: 0.1em;
+  vertical-align: -0.4em;
+}
+
+blockquote small {
+  display: block;
+}

@@ -83,10 +83,10 @@ object Readme {
   def issue(id: Int) = a(href := repo + s"/issues/$id", s"#$id")
   def issues(ids: Int*) = span(ids.map(issue): _*)
 
-  def half(frags: Frag*) = div(frags, width := "50%", float.left)
+  def half(frags: Frag*) = div(frags)
   def ignore(frags: Frag*) = span("")
 
-  def pairs(frags: Frag*) = div(frags, div(clear := "both"))
+  def pairs(frags: Frag*) = div(frags, `class` := "scalafmt-pair")
 
   def sideBySide(left: String, right: String) =
     pairs(List(left, right).map(x => half(hl.scala(x))): _*)
