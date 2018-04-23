@@ -65,6 +65,8 @@ ul.menu-item-list {
 
 .scalatex-site-Styles-hoverContainer.scalatex-site-Styles-headerTag {
   border-bottom: none !important;
+  line-height: 2em;
+  margin: 0;
 }
 
 .scalatex-site-Styles-content {
