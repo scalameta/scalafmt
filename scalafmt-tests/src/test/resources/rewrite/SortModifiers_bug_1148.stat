@@ -44,20 +44,20 @@ class X(private final val x: Int)(
 <<< 1148 — implicit val with duplicate implicit mod
 class X(private final val x: Int)(
     implicit val i1: Int,
-    implicit val i2: Int
+    implicit var i2: Int
 )
 >>>
 class X(private final val x: Int)(
     implicit val i1: Int,
     implicit var i2: Int
 )
-<<< 1148 — implicit val with duplicate implicit, final, private mod
+<<< 1148 — implicit val with duplicate implicit, final, private mod — slight inconsistency
 class X(private final val x: Int)(
     implicit final private val i1: Int,
     implicit final private var i2: Int
 )
 >>>
 class X(private final val x: Int)(
-    private final implicit val i1: Int,
-    private final implicit val i2: Int
+    implicit private final val i1: Int,
+    private final implicit var i2: Int
 )
