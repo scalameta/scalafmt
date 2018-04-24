@@ -35,15 +35,14 @@ object SortModifiers extends Rewrite {
       case t: Defn.Trait => sortMods(t.mods)
       case p: Term.Param =>
         sortMods(
-          p.mods.filterNot(m => m.is[Mod.ValParam] || m.is[Mod.VarParam]),
-          code = code)
+          p.mods.filterNot(m => m.is[Mod.ValParam] || m.is[Mod.VarParam])
+        )
     }
     patchesOfPatches.flatten
   }
 
   private def sortMods(
-      oldMods: Seq[Mod],
-      code: Tree = null
+      oldMods: Seq[Mod]
   )(implicit order: Vector[ModKey]): Seq[Patch] = {
     if (oldMods.isEmpty) Nil
     else {
