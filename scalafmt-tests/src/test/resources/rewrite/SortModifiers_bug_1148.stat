@@ -6,7 +6,10 @@ rewrite {
   }
 }
 
-
+<<< 1148 — only implicit param
+def foo(implicit x: Int)
+>>>
+def foo(implicit x: Int)
 <<< 1148 — implicit class param negative test
 class X(private final val x: Int)(
     implicit
