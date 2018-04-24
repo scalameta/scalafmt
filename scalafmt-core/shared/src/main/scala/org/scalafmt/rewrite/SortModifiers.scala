@@ -69,7 +69,7 @@ object SortModifiers extends Rewrite {
     * )
     * }}}
     *
-    * `val i1`, and `var i2` have an ``Mod.Implicit`` with empty tokens.
+    * `val i1`, and `var i2` have a ``Mod.Implicit`` with empty tokens.
     * Therefore we want to completely ignore this "mod" whenever we sort,
     * and apply patches
     */
