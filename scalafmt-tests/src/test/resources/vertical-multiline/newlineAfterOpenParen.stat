@@ -1,0 +1,17 @@
+maxColumn = 80
+continuationIndent.defnSite = 2
+verticalMultiline = {
+    atDefinitionSite = true
+    arityThreshold = 2 // Used here to force reformatting.
+    excludeDanglingParens = []
+    newlineAfterOpenParen = true
+}
+<<< It should force a newline after open paren.
+def other(a: String, b: String)(c: String) = a + b + c
+>>>
+def other(
+  a: String,
+  b: String
+)(
+  c: String
+) = a + b + c

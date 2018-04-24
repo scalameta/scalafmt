@@ -106,6 +106,7 @@ ul.menu-item-list {
   display: flex;
   justify-content: space-around;
   flex-direction: column;
+  margin: 15px 0;
 }
 
 .scalafmt-rows .before:before,
@@ -167,10 +168,22 @@ blockquote small {
   background-color: #fff3cd;
   border-left: 10px solid #ffd97a;
   padding: .75rem 1.25rem;
-
 }
 
 .scalatex-site-Styles-content .warning a:link,
 .scalatex-site-Styles-content .warning a:visited {
   color: #bd8805;
+}
+
+.sidenote {
+  margin: 1em 0;
+  color: #0c5460;
+  background-color: #d1ecf1;
+  border-left: 10px solid #bee5eb;
+  padding: .75rem 1.25rem;
+}
+
+.scalatex-site-Styles-content .sidenote a:link,
+.scalatex-site-Styles-content .sidenote a:visited {
+  color: #37a;
 }

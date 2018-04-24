@@ -97,27 +97,6 @@ import org.scalafmt.util.ValidationOps
   *        x + 2
   *    }.filter(_ > 2)
   *  }}}
-  * @param verticalMultilineAtDefinitionSite If true, reformat multi-line function definitions in
-  *                                          the following way
-  *                                          {{{
-  *                                             def format(
-  *                                                 code: String,
-  *                                                 age: Int
-  *                                               )(implicit ev: Parser,
-  *                                                 c: Context
-  *                                               ): String
-  *                                           )
-  *                                          }}}
-  *
-  *                                          All parameters are on their own line indented by four (4), separation between
-  *                                          parameter groups are indented by two (2). ReturnType is on its own line at
-  *                                          the end. This will only be triggered if the function would go over
-  *                                          [[maxColumn]]. If a multi-line function can fit in a single line, it will
-  *                                          make it so. Note that this setting ignores continuation.defnSite,
-  *                                          [[binPack.unsafeDefnSite]], and [[align.openParenDefnSite]].
-  * @param verticalMultilineAtDefinitionSiteArityThreshold If set, this will trigger a vertical multi-line formatting as
-  *                                                        described above even though the definition falls below the
-  *                                                        [[maxColumn]] width.
   */
 @DeriveConfDecoder
 case class ScalafmtConfig(
@@ -144,8 +123,7 @@ case class ScalafmtConfig(
     assumeStandardLibraryStripMargin: Boolean = false,
     danglingParentheses: Boolean = false,
     poorMansTrailingCommasInConfigStyle: Boolean = false,
-    verticalMultilineAtDefinitionSite: Boolean = false,
-    verticalMultilineAtDefinitionSiteArityThreshold: Int = 100,
+    @Recurse verticalMultiline: VerticalMultiline = VerticalMultiline(),
     onTestFailure: String = "",
     encoding: Codec = "UTF-8",
     @Recurse project: ProjectFiles = ProjectFiles()

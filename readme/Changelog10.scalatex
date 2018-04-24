@@ -67,7 +67,7 @@
       format are re-formatted.
     @li
       @pr(1143) by @user{mads-hartmann}.
-      Add @sect.ref{verticalMultilineAtDefinitionSiteArityThreshold} setting.
+      Add @sect.ref{verticalMultiline.arityThreshold} setting.
     @li
       @pr(1140) by @user{lorandszakacs}.
       Add @sect.ref{SortModifiers} rewrite rule.

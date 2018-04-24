@@ -10,6 +10,7 @@ import org.scalafmt.cli.Cli
 import org.scalafmt.cli.CliArgParser
 import org.scalafmt.config._
 import org.scalafmt.rewrite._
+import org.scalafmt.config.Config
 
 object hl extends scalatex.site.Highlighter
 
@@ -70,6 +71,8 @@ object Readme {
   def note = b("NOTE")
 
   def warning(frags: Frag*) = div(frags, `class` := "warning")
+
+  def sidenote(frags: Frag*) = div(frags, `class` := "sidenote")
 
   def github: String = "https://github.com"
   def repo: String = "https://github.com/scalameta/scalafmt"
@@ -204,29 +207,54 @@ object Readme {
 
   val verticalAlign = ScalafmtConfig.default.copy(
     maxColumn = 60,
-    verticalMultilineAtDefinitionSite = true
+    verticalMultiline = VerticalMultiline(atDefinitionSite = true)
   )
+
+  val VerticalMultilineDefultConfigStr = "verticalmultiline = {\n" + Config
+    .toHocon(ScalafmtConfig.default.verticalMultiline)
+    .map("  " + _)
+    .mkString("\n") + "\n}"
 
   val verticalAlignImplicitBefore = ScalafmtConfig.default.copy(
     maxColumn = 60,
-    verticalMultilineAtDefinitionSite = true,
-    newlines = ScalafmtConfig.default.newlines.copy(
-      beforeImplicitKWInVerticalMultiline = true
+    verticalMultiline = VerticalMultiline(
+      atDefinitionSite = true,
+      newlineBeforeImplicitKW = true
     )
   )
 
   val verticalAlignImplicitAfter = ScalafmtConfig.default.copy(
     maxColumn = 60,
-    verticalMultilineAtDefinitionSite = true,
-    newlines = ScalafmtConfig.default.newlines.copy(
-      afterImplicitKWInVerticalMultiline = true
+    verticalMultiline = VerticalMultiline(
+      atDefinitionSite = true,
+      newlineAfterImplicitKW = true
+    )
+  )
+
+  val multilineNewlineAfterParen = ScalafmtConfig.default.copy(
+    continuationIndent =
+      ScalafmtConfig.default.continuationIndent.copy(defnSite = 2),
+    verticalMultiline = VerticalMultiline(
+      atDefinitionSite = true,
+      arityThreshold = 2,
+      newlineAfterOpenParen = true
+    )
+  )
+
+  val multilineDanglingParens = ScalafmtConfig.default.copy(
+    continuationIndent =
+      ScalafmtConfig.default.continuationIndent.copy(defnSite = 2),
+    verticalMultiline = VerticalMultiline(
+      atDefinitionSite = true,
+      arityThreshold = 2,
+      excludeDanglingParens = Nil
     )
   )
 
   val arityThreshold =
     ScalafmtConfig.default.copy(
-      verticalMultilineAtDefinitionSite = true,
-      verticalMultilineAtDefinitionSiteArityThreshold = 2
+      verticalMultiline =
+        VerticalMultiline(atDefinitionSite = true, arityThreshold = 2)
     )
 
   def fmt(style: ScalafmtConfig)(code: String): TypedTag[String] =

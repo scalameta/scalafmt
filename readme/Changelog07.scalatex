@@ -61,9 +61,9 @@
 
     @li
       @b{NEW} Two settings
-      @config{newlines.beforeImplicitKWInVerticalMultiline=false}
+      newlines.beforeImplicitKWInVerticalMultiline=false
       and
-      @config{newlines.afterImplicitKWInVerticalMultiline=false}.
+      newlines.afterImplicitKWInVerticalMultiline=false
 
       @hl.scala
         // newlines.afterImplicitKWInVerticalMultiline = true

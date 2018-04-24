@@ -1,0 +1,29 @@
+maxColumn = 80
+continuationIndent.defnSite = 2
+verticalMultiline = {
+    atDefinitionSite = true
+    arityThreshold = 2
+    excludeDanglingParens = []
+}
+<<< Verify that it respects dangling parens options
+sealed trait Foobar
+case class Foo(x: String) extends Foobar
+case class Bar(x: String, y: String) extends Foobar
+case class VeryLongNames(xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx: String)
+case class X1()
+case class X2(x: Int, y: Int) { def hello: String = "Hello" }
+>>>
+sealed trait Foobar
+case class Foo(x: String) extends Foobar
+case class Bar(
+  x: String,
+  y: String
+) extends Foobar
+case class VeryLongNames(
+  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx: String
+)
+case class X1()
+case class X2(
+  x: Int,
+  y: Int
+) { def hello: String = "Hello" }
