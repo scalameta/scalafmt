@@ -142,7 +142,7 @@ case class ScalafmtConfig(
     unindentTopLevelOperators: Boolean = false,
     includeCurlyBraceInSelectChains: Boolean = true,
     assumeStandardLibraryStripMargin: Boolean = false,
-    danglingParentheses: Boolean = false,
+    danglingParentheses: Boolean = true,
     poorMansTrailingCommasInConfigStyle: Boolean = false,
     verticalMultilineAtDefinitionSite: Boolean = false,
     verticalMultilineAtDefinitionSiteArityThreshold: Int = 100,
