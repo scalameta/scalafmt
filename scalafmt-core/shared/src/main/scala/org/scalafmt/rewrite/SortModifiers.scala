@@ -35,7 +35,8 @@ object SortModifiers extends Rewrite {
       case t: Defn.Trait => sortMods(t.mods)
       case p: Term.Param =>
         sortMods(
-          p.mods.filterNot(m => m.is[Mod.ValParam] || m.is[Mod.VarParam]))
+          p.mods.filterNot(m => m.is[Mod.ValParam] || m.is[Mod.VarParam])
+        )
     }
     patchesOfPatches.flatten
   }
@@ -45,19 +46,34 @@ object SortModifiers extends Rewrite {
   )(implicit order: Vector[ModKey]): Seq[Patch] = {
     if (oldMods.isEmpty) Nil
     else {
-      val sortedMods: Seq[Mod] = oldMods.sortWith(orderModsBy(order))
-      sortedMods.zip(oldMods).flatMap {
+      val sanitized = oldMods.filterNot(isHiddenImplicit)
+      val sortedMods: Seq[Mod] = sanitized.sortWith(orderModsBy(order))
+
+      sortedMods.zip(sanitized).flatMap {
         case (next, old) =>
-          if (old.tokens.isEmpty) {
-            //required for cases like: def foo(implicit x: Int)
-            Nil
-          } else {
-            val removeOld = old.tokens.map(t => TokenPatch.Remove(t))
-            val addNext = TokenPatch.AddRight(old.tokens.head, next.syntax)
-            removeOld :+ addNext
-          }
+          val removeOld = old.tokens.map(t => TokenPatch.Remove(t))
+          val addNext = TokenPatch.AddRight(old.tokens.head, next.syntax)
+          removeOld :+ addNext
       }
     }
+  }
+
+  /**
+    * In cases like:
+    * {{{
+    *   class X(
+    *     implicit
+    *     private[this] val i1: Int,
+    *     private[this] var i2: String
+    * )
+    * }}}
+    *
+    * `val i1`, and `var i2` have a ``Mod.Implicit`` with empty tokens.
+    * Therefore we want to completely ignore this "mod" whenever we sort,
+    * and apply patches
+    */
+  private def isHiddenImplicit(m: Mod): Boolean = {
+    m.tokens.isEmpty && m.is[Mod.Implicit]
   }
 
   /**

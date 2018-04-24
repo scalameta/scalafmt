@@ -1,0 +1,66 @@
+maxColumn = 200 #to not disturb the output too much
+rewrite {
+  rules = [SortModifiers]
+  sortModifiers {
+    order = ["private", "protected" , "abstract", "final", "sealed", "implicit", "override", "lazy"]
+  }
+}
+
+<<< 1148 — only implicit param
+def foo(implicit x: Int)
+>>>
+def foo(implicit x: Int)
+<<< 1148 — implicit class param negative test
+class X(private final val x: Int)(
+    implicit
+    val i1: Int
+)
+>>>
+class X(private final val x: Int)(
+    implicit
+    val i1: Int
+)
+<<< 1148 — implicit val with only private
+class X(private final val x: Int)(
+    implicit
+    private[this] val i1: Int,
+    private[this] var i2: String
+)
+>>>
+class X(private final val x: Int)(
+    implicit
+    private[this] val i1: Int,
+    private[this] var i2: String
+)
+<<< 1148 — implicit val with private and final
+class X(private final val x: Int)(
+    implicit
+    final private[this] val i1: Int,
+    private[this] final var i2: String
+)
+>>>
+class X(private final val x: Int)(
+    implicit
+    private[this] final val i1: Int,
+    private[this] final var i2: String
+)
+<<< 1148 — implicit val with duplicate implicit mod
+class X(private final val x: Int)(
+    implicit val i1: Int,
+    implicit var i2: Int
+)
+>>>
+class X(private final val x: Int)(
+    implicit val i1: Int,
+    implicit var i2: Int
+)
+<<< 1148 — implicit val with duplicate implicit, final, private mod — slight inconsistency
+class X(private final val x: Int)(
+    implicit final private val i1: Int,
+    implicit final private var i2: Int
+)
+>>>
+class X(private final val x: Int)(
+    implicit private final val i1: Int,
+    private final implicit var i2: Int
+)
