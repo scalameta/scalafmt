@@ -689,30 +689,47 @@
         Modifiers are sorted based on the given order. Affects modifiers of the following
         definitions: trait, class, object, type, and val+var, both as fields and class parameters.
 
-      Demo run. On the left you have the code before sorting, on the right after.
-      @demoStyle(rewriteSortModifiers)
-        sealed trait ADT
-        final private object ADTs {
+      @hl.scala
+        //before
+        final lazy private implicit val x = 42
+        lazy final implicit private val y = 42
 
-          private final type T1 = Int
-          final private[ADTs] type T2 = String
+        //after
+        private final implicit lazy val x = 42
+        private final implicit lazy val y = 42
 
-          final private implicit object ADT1 extends ADT
-          implicit private final object ADT2 extends ADT
-          final implicit private object ADT3 extends ADT
+      @hl.scala
+        //before
+        class Test(
+          implicit
+          final private val i1: Int,
+          private final val i2: String
+        )
 
-          abstract sealed class ADTA(val name: T1) extends ADT {
-            def test: T1
-          }
+        //after
+        class Test(
+            implicit
+            private final val i1: Int,
+            private final val i2: String
+        )
 
-          final class ADT4(private[ADTs] final implicit var impl: T2) extends ADT {
-            lazy private[ADT4] implicit override val test: T1 = 42
-          }
+      @hl.scala
+        //before
+        object X {
+          sealed protected[X] trait ADT
+          final private case object A1 extends ADT
+          private final case class A2(x: Int) extends ADT
+        }
+
+        //after
+        object X {
+          protected[X] sealed trait ADT
+          private final case object A1 extends ADT
+          private final case class A2(x: Int) extends ADT
         }
 
       If you choose the non-default sort order then you have to specify all eight modifiers in the order you wish to see
       them. Hint: since some modifiers are mutually exclusive, you might want to order them next to each other.
-
 
       @p
         Example config:
