@@ -87,521 +87,317 @@
       @li
         Consider refactoring your code before of choosing a value above 100.
 
-  @sect{continuationIndent.callSite}
-    Default: @b(default.continuationIndent.callSite)
+  @sect{Indentation}
 
-    @p
-      Example:
-      @hl.scala
-        function(
-          argument1 // indented by 2
+    @sect{continuationIndent.callSite}
+      Default: @b(default.continuationIndent.callSite)
+
+      @p
+        Example:
+        @hl.scala
+          function(
+            argument1 // indented by 2
+          )
+
+    @sect{continuationIndent.defnSite}
+      Default: @b(default.continuationIndent.defnSite)
+
+      @p
+        Same as @code{continuationIndent.callSite} except for definition site.
+        Example:
+        @hl.scala
+          def function(
+              argument1: Type1): ReturnType // Indented by 4
+
+  @sect{Alignment}
+
+    @sect{align}
+      Default: @b{some}
+      Align has several nested fields, which you can customize.
+      However, it comes with four possible defaults: none, some, more, & most.
+
+      @sect{align=some}
+        @format(alignSome)
+          x match { // true for case arrows
+            case 2  => 22
+            case 22 => 222
+          }
+
+          def foo(a: Int, // true for defn site open paren
+                  b: String): Int
+          foo(a: Int, // true for call site open paren
+              b: String): Int
+
+          val x = 2 // false for assignment
+          val xx = 22
+
+          case object B extends A // false for `extends`
+          case object BB extends A
+
+      @sect{align=none}
+        @format(alignNone)
+          x match { // false for case arrows
+            case 2  => 22 // also comments!
+            case 22 => 222 // don't align me!
+          }
+
+          def foo(a: Int, // false for defn site
+                  b: String): Int
+          foo(a: Int, // false for call site
+              b: String): Int
+
+        Pro tip: Enable this setting to minimize git diffs/conflicts from renamings and other refactorings.
+
+      @sect{align=more}
+        @format(alignMore)
+          val x = 2 // true for assignment
+          val xx = 22
+
+          case object B extends A // false for `extends`
+          case object BB extends A
+
+          q -> 22 // true for various infix operators
+          qq -> 3 // and also comments!
+
+          for {
+            x <- List(1) // true for alignment enumerator
+            yy <- List(2)
+          } yield x ** xx
+
+          x match { // true for multiple tokens across multiple lines
+            case 1 => 1 -> 2 // first
+            case 11 => 11 -> 22 // second
+
+            // A blank line separates alignment blocks.
+            case `ignoreMe` => 111 -> 222
+          }
+
+          // Align assignments of similar type.
+          def name = column[String]("name")
+          def status = column[Int]("status")
+          val x = 1
+          val xx = 22
+
+          // Align sbt module IDs.
+          libraryDependencies ++= Seq(
+            "org.scala-lang" % "scala-compiler" % scalaVersion.value,
+            "com.lihaoyi" %% "sourcecode" % "0.1.1"
+          )
+
+      @sect{align=most}
+        @format(alignMost)
+          for {
+            // align <- with =
+            x <- List()
+            yy = 2
+            // aligns body by arrow
+            zzz <- new Integer {
+              def value = 3
+            }
+          } yield x
+          // Note. Only for the truest vertical aligners. This is a new option,
+          // feel free to open PR enabling more crazy vertical alignment here.
+          // Expect changes.
+
+    @sect{align.tokens}
+      Default: @b{[caseArrow]}
+
+      @p
+        An align token is a pair of @code{code}, which is the string literal
+        of an operator of token, and @code{owner}, which is the kind of
+        the closest tree node that owns that token.
+        If no @code{owner} is provided, then all tree kinds will be matched.
+
+
+      @format(alignCaseArrow)
+        // =======================================================
+        // scalafmt: {align.tokens = [{code = "=>", owner = "Case"}]}
+        // =======================================================
+        x match {
+          case 1 => 1 -> 2
+          case 11 => 11 -> 22
+        }
+
+      @format(alignModuleId)
+        // =======================================================
+        // scalafmt: {align.tokens = ["%", "%%"]}
+        // =======================================================
+        val x = List(
+        "org.scala-lang" % "scala-compiler" % scalaVersion.value,
+        "com.lihaoyi" %% "sourcecode" % "0.1.1"
         )
 
-  @sect{continuationIndent.defnSite}
-    Default: @b(default.continuationIndent.defnSite)
 
-    @p
-      Same as @code{continuationIndent.callSite} except for definition site.
-      Example:
+      To find the @code{owner} part for a custom tree, depend on Scalameta and
+      use @code{scala.meta.Tree.productPrefix} from the the (for example, Ammonite)
+      repl
+
       @hl.scala
-        def function(
-            argument1: Type1): ReturnType // Indented by 4
-
-  @sect{align}
-    Default: @b{some}
-    Align has several nested fields, which you can customize.
-    However, it comes with four possible defaults: none, some, more, & most.
-
-    @sect{align=some}
-      @format(alignSome)
-        x match { // true for case arrows
-          case 2  => 22
-          case 22 => 222
+        @@ import $ivy.`org.scalameta:scalameta_2.12:@(V.scalameta)`, scala.meta._
+        @@ val termMatch = q"x match { case 2 => foo(bar) }"
+        termMatch: Term.Match = x match {
+          case 2 =>
+            foo(bar)
         }
+        @@ termMatch.structure
+        res0: String = """
+        Term.Match(Term.Name("x"), Seq(Case(Lit.Int(2), None, Term.Apply(Term.Name("foo"), Seq(Term.Name("bar"))))))
+        """
+        @@ termMatch.productPrefix
+        res1: String = "Term.Match"
 
-        def foo(a: Int, // true for defn site open paren
-                b: String): Int
-        foo(a: Int, // true for call site open paren
-            b: String): Int
+      To learn more about Scalameta, see this @lnk("tutorial", "http://scalameta.org/tutorial/").
 
-        val x = 2 // false for assignment
-        val xx = 22
+    @sect{align.arrowEnumeratorGenerator}
+      Default: @b(default.align.arrowEnumeratorGenerator)
 
-        case object B extends A // false for `extends`
-        case object BB extends A
-
-    @sect{align=none}
-      @format(alignNone)
-        x match { // false for case arrows
-          case 2  => 22 // also comments!
-          case 22 => 222 // don't align me!
-        }
-
-        def foo(a: Int, // false for defn site
-                b: String): Int
-        foo(a: Int, // false for call site
-            b: String): Int
-
-      Pro tip: Enable this setting to minimize git diffs/conflicts from renamings and other refactorings.
-
-    @sect{align=more}
-      @format(alignMore)
-        val x = 2 // true for assignment
-        val xx = 22
-
-        case object B extends A // false for `extends`
-        case object BB extends A
-
-        q -> 22 // true for various infix operators
-        qq -> 3 // and also comments!
-
+      @format
+        // align.arrowEnumeratorGenerator = false
         for {
-          x <- List(1) // true for alignment enumerator
-          yy <- List(2)
-        } yield x ** xx
-
-        x match { // true for multiple tokens across multiple lines
-          case 1 => 1 -> 2 // first
-          case 11 => 11 -> 22 // second
-
-          // A blank line separates alignment blocks.
-          case `ignoreMe` => 111 -> 222
-        }
-
-        // Align assignments of similar type.
-        def name = column[String]("name")
-        def status = column[Int]("status")
-        val x = 1
-        val xx = 22
-
-        // Align sbt module IDs.
-        libraryDependencies ++= Seq(
-          "org.scala-lang" % "scala-compiler" % scalaVersion.value,
-          "com.lihaoyi" %% "sourcecode" % "0.1.1"
-        )
-
-    @sect{align=most}
-      @format(alignMost)
-        for {
-          // align <- with =
-          x <- List()
-          yy = 2
-          // aligns body by arrow
-          zzz <- new Integer {
-            def value = 3
+          x <- new Integer {
+            def value = 2
           }
         } yield x
-        // Note. Only for the truest vertical aligners. This is a new option,
-        // feel free to open PR enabling more crazy vertical alignment here.
-        // Expect changes.
 
-  @sect{align.tokens}
-    Default: @b{[caseArrow]}
-
-    @p
-      An align token is a pair of @code{code}, which is the string literal
-      of an operator of token, and @code{owner}, which is the kind of
-      the closest tree node that owns that token.
-      If no @code{owner} is provided, then all tree kinds will be matched.
+      @format(alignArrowEnum)
+        // align.arrowEnumeratorGenerator = true
+        for {
+          x <- new Integer {
+                def value = 2
+              }
+        } yield x
 
 
-    @format(alignCaseArrow)
-      // =======================================================
-      // scalafmt: {align.tokens = [{code = "=>", owner = "Case"}]}
-      // =======================================================
-      x match {
-        case 1 => 1 -> 2
-        case 11 => 11 -> 22
-      }
+    @sect{align.openParenCallSite}
+      Default: @b(default.align.openParenCallSite)
 
-    @format(alignModuleId)
-      // =======================================================
-      // scalafmt: {align.tokens = ["%", "%%"]}
-      // =======================================================
-      val x = List(
-      "org.scala-lang" % "scala-compiler" % scalaVersion.value,
-      "com.lihaoyi" %% "sourcecode" % "0.1.1"
-      )
+      @hl.scala
+        // Column limit |
+        // align.openParenCallSite = true
+        foo(arg1, arg2)
 
+        function(arg1, // align by (
+                 arg2,
+                 arg3)
+        function(
+          argument1,
+          argument2)
 
-    To find the @code{owner} part for a custom tree, depend on Scalameta and
-    use @code{scala.meta.Tree.productPrefix} from the the (for example, Ammonite)
-    repl
+        // align.openParenCallSite = false
+        foo(arg1, arg2)
+        function(
+          arg1, // no align by (
+          arg2,
+          arg3)
+        function(
+          argument1,
+          argument2)
 
-    @hl.scala
-      @@ import $ivy.`org.scalameta:scalameta_2.12:@(V.scalameta)`, scala.meta._
-      @@ val termMatch = q"x match { case 2 => foo(bar) }"
-      termMatch: Term.Match = x match {
-        case 2 =>
-          foo(bar)
-      }
-      @@ termMatch.structure
-      res0: String = """
-      Term.Match(Term.Name("x"), Seq(Case(Lit.Int(2), None, Term.Apply(Term.Name("foo"), Seq(Term.Name("bar"))))))
-      """
-      @@ termMatch.productPrefix
-      res1: String = "Term.Match"
+    @sect{align.openParenDefnSite}
+      Default: @b(default.align.openParenDefnSite)
 
-    To learn more about Scalameta, see this @lnk("tutorial", "http://scalameta.org/tutorial/").
+      @hl.scala
+        // align.openParenDefnSite = true
+        // Column limit                          |
+        class IntString(int: Int, string: String)
 
-  @sect{align.arrowEnumeratorGenerator}
-    Default: @b(default.align.arrowEnumeratorGenerator)
+        class IntStringLong(int: Int,
+                            string: String,
+                            long: Long)
 
-    @format
-      // align.arrowEnumeratorGenerator = false
-      for {
-        x <- new Integer {
-          def value = 2
-        }
-      } yield x
+        // align.openParenDefnSite = false
+        // Column limit                          |
+        class IntString(int: Int, string: String)
+        class IntStringLong(
+          int: Int,
+          string: String,
+          long: Long
+        )
 
-    @format(alignArrowEnum)
-      // align.arrowEnumeratorGenerator = true
-      for {
-        x <- new Integer {
-              def value = 2
+  @sect{Newlines}
+
+    @sect{newlines.alwaysBeforeTopLevelStatements}
+      Default: @b(default.newlines.alwaysBeforeTopLevelStatements)
+
+      @hl.scala
+          // newlines.alwaysBeforeTopLevelStatements = false
+          import org.scalafmt
+          package P {
+            object O {
+              val x1 = 1
+              val x2 = 2
+              def A = "A"
+              def B = "B"
             }
-      } yield x
-
-
-  @sect{align.openParenCallSite}
-    Default: @b(default.align.openParenCallSite)
-
-    @hl.scala
-      // Column limit |
-      // align.openParenCallSite = true
-      foo(arg1, arg2)
-
-      function(arg1, // align by (
-               arg2,
-               arg3)
-      function(
-        argument1,
-        argument2)
-
-      // align.openParenCallSite = false
-      foo(arg1, arg2)
-      function(
-        arg1, // no align by (
-        arg2,
-        arg3)
-      function(
-        argument1,
-        argument2)
-
-  @sect{align.openParenDefnSite}
-    Default: @b(default.align.openParenDefnSite)
-
-    @hl.scala
-      // align.openParenDefnSite = true
-      // Column limit                          |
-      class IntString(int: Int, string: String)
-
-      class IntStringLong(int: Int,
-                          string: String,
-                          long: Long)
-
-      // align.openParenDefnSite = false
-      // Column limit                          |
-      class IntString(int: Int, string: String)
-      class IntStringLong(
-        int: Int,
-        string: String,
-        long: Long
-      )
-
-  @sect{// format: off}
-    Disable formatting for specific regions of code by wrapping them in
-    @code("// format: OFF") blocks:
-
-    @example(org.scalafmt.util.FileOps.readFile("readme/Matrix.example"))
-
-    To disable formatting for a whole file, put the comment at the top of
-    the file.
-
-    @ul
-      @li
-        the comment string is case insensitive, you can also write
-        @code("// format: OFF").
-      @li
-        The comments @code("// @formatter:off") and @code("// @formatter:off")
-        will also work, for compatibility with the IntelliJ formatter.
-      @li
-        Scalafmt will do it's best to resume formatting at the correct
-        indentation level. It's best to enable formatting at the same level as
-        when it was disabled.
-
-  @sect{assumeStandardLibraryStripMargin}
-    Default: @b(default.assumeStandardLibraryStripMargin)
-
-    @p
-      If @b{true}, the margin character @code("|") is aligned with the opening triple
-      quote @code("\"\"\"") in interpolated and raw string literals.
-
-      @example(org.scalafmt.util.FileOps.readFile("readme/stripMargin.example"),
-               stripMarginStyle)
-
-      @note. May cause non-idempotent formatting in rare cases, see @issue(192).
-
-  @sect{docstrings}
-    Default: @b(default.docstrings.toString)
-
-    @hl.scala
-      // docstrings = ScalaDoc
-      /** Align by second asterisk.
-        *
-        */
-
-      // docstrings = JavaDoc
-      /** Align by first asterisk.
-       *
-       */
-
-  @sect{newlines.alwaysBeforeTopLevelStatements}
-    Default: @b(default.newlines.alwaysBeforeTopLevelStatements)
-
-    @hl.scala
-        // newlines.alwaysBeforeTopLevelStatements = false
-        import org.scalafmt
-        package P {
-          object O {
-            val x1 = 1
-            val x2 = 2
-            def A = "A"
-            def B = "B"
           }
-        }
 
-        // newlines.alwaysBeforeTopLevelStatements = true
-        import org.scalafmt
+          // newlines.alwaysBeforeTopLevelStatements = true
+          import org.scalafmt
 
-        package P {
+          package P {
 
-          object O {
-            val x1 = 1
-            val x2 = 2
+            object O {
+              val x1 = 1
+              val x2 = 2
 
-            def A = "A"
+              def A = "A"
 
-            def B = "B"
+              def B = "B"
+            }
           }
+
+    @sect{newlines.sometimesBeforeColonInMethodReturnType}
+      Default: @b(default.newlines.sometimesBeforeColonInMethodReturnType)
+
+      @hl.scala
+        // Column limit                                                     |
+        // newlines.sometimesBeforeColonInMethodReturnType = true
+        implicit def validatedInstances[E](implicit E: Semigroup[E])
+          : Traverse[Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] = 2
+
+        // newlines.sometimesBeforeColonInMethodReturnType = false
+        implicit def validatedInstances[E](implicit E: Semigroup[E]): Traverse[
+            Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] = 2
+
+    @sect{newlines.penalizeSingleSelectMultiArgList}
+      Default: @b(default.newlines.penalizeSingleSelectMultiArgList)
+
+      @hl.scala
+        // newlines.penalizeSingleSelectMultiArgList = true
+        logger.elem(a,
+                    b,
+                    c)
+
+        // newlines.penalizeSingleSelectMultiArgList = false
+        logger
+          .elem(a, b, c)
+
+      @p
+        See
+        @lnk("this comment", "https://github.com/scalameta/scalafmt/pull/611#issue-196230948")
+        for further motivation.
+
+
+    @sect{newlines.alwaysBeforeElseAfterCurlyIf}
+      Default: @b(default.newlines.alwaysBeforeElseAfterCurlyIf)
+
+      @hl.scala
+        // newlines.alwaysBeforeElseAfterCurlyIf = true
+        if(someCond) {
+          foo()
+        }
+        else {
+          bar()
         }
 
-  @sect{newlines.sometimesBeforeColonInMethodReturnType}
-    Default: @b(default.newlines.sometimesBeforeColonInMethodReturnType)
-
-    @hl.scala
-      // Column limit                                                     |
-      // newlines.sometimesBeforeColonInMethodReturnType = true
-      implicit def validatedInstances[E](implicit E: Semigroup[E])
-        : Traverse[Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] = 2
-
-      // newlines.sometimesBeforeColonInMethodReturnType = false
-      implicit def validatedInstances[E](implicit E: Semigroup[E]): Traverse[
-          Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] = 2
-
-  @sect{spaces.afterKeywordBeforeParen}
-    Default: @b(default.spaces.afterKeywordBeforeParen)
-
-    @hl.scala
-      // spaces.afterKeywordBeforeParen = true
-      if (a) foo()
-      while (a) foo()
-      for (a <- as) foo()
-
-      // spaces.afterKeywordBeforeParen = false
-      if(a) foo()
-      while(a) foo()
-      for(a <- as) foo()
-
-
-  @sect{binPack.parentConstructors}
-    Default: @b(default.binPack.parentConstructors)
-
-    @hl.scala
-      // column limit                        |
-      // binPack.parentConstructors = false
-      object DefaultStyle
-          extends Parent
-          with SecondParent
-          with ThirdParent {
-        // body ...
-      }
-
-      // column limit                        |
-      // binPack.parentConstructors = true
-      object DefaultStyle
-          extends Parent with SecondParent
-          with ThirdParent {
-        // body ...
-      }
-
-  @sect{lineEndings}
-    Default: @b(default.lineEndings.toString)
-
-    @ul
-      @li
-        @code{preserve} output will include endings included in original file (windows if there was at least one windows
-        line ending, unix if there was zero occurrences of windows line endings)
-      @li
-        @code{unix} output will include only unix line endings
-      @li
-        @code{windows} output will include only windows line endings
-
-  @sect{includeCurlyBraceInSelectChains}
-    Default: @b(default.includeCurlyBraceInSelectChains)
-
-    @hl.scala
-      // includeCurlyBraceInSelectChains = true
-      List(1)
-        .map { x =>
-          x + 2
+        // newlines.alwaysBeforeElseAfterCurlyIf = false
+        if(someCond) {
+          foo()
+        } else {
+          bar()
         }
-        .filter(_ > 2)
 
-      // includeCurlyBraceInSelectChains = false
-      List(1).map { x =>
-          x + 2
-      }.filter(_ > 2)
-
-    For more details, see
-    @lnk("this comment", "https://github.com/scalameta/scalafmt/issues/444#issuecomment-255215698").
-
-  @sect{optIn.breakChainOnFirstMethodDot}
-    Default: @b(default.optIn.breakChainOnFirstMethodDot)
-
-    @p
-      If true, forces a select chain (pipeline) to break if there is a newline
-      at the start of the chain.
-
-    @hl.scala
-      // original
-      foo
-        .map(_ + 1)
-        .filter(_ > 2)
-
-      // optIn.breakChainOnFirstMethodDot = true
-      foo
-        .map(_ + 1)
-        .filter(_ > 2)
-
-      // optIn.breakChainOnFirstMethodDot = false
-      foo.map(_ + 1).filter(_ > 2)
-      // note. chain starts at .foo() in a.b.foo()
-
-    @p
-      See
-      @lnk("this comment", "https://github.com/scalameta/scalafmt/issues/444#issuecomment-255215698")
-      for further motivation.
-
-  @sect{newlines.penalizeSingleSelectMultiArgList}
-    Default: @b(default.newlines.penalizeSingleSelectMultiArgList)
-
-    @hl.scala
-      // newlines.penalizeSingleSelectMultiArgList = true
-      logger.elem(a,
-                  b,
-                  c)
-
-      // newlines.penalizeSingleSelectMultiArgList = false
-      logger
-        .elem(a, b, c)
-
-    @p
-      See
-      @lnk("this comment", "https://github.com/scalameta/scalafmt/pull/611#issue-196230948")
-      for further motivation.
-
-
-  @sect{newlines.alwaysBeforeElseAfterCurlyIf}
-    Default: @b(default.newlines.alwaysBeforeElseAfterCurlyIf)
-
-    @hl.scala
-      // newlines.alwaysBeforeElseAfterCurlyIf = true
-      if(someCond) {
-        foo()
-      }
-      else {
-        bar()
-      }
-
-      // newlines.alwaysBeforeElseAfterCurlyIf = false
-      if(someCond) {
-        foo()
-      } else {
-        bar()
-      }
-
-
-
-  @sect{binPack.literalArgumentLists}
-    Default: @b(default.binPack.literalArgumentLists)
-
-    @hl.scala
-      // binPack.literalArgumentLists = true
-      val secret: List[Bit] = List(0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1,
-        0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1,
-        0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1)
-
-      // binPack.literalArgumentLists = false
-      val secret: List[Bit] = List(
-        0,
-        0,
-        1,
-        1,
-        // really long list...
-        1
-      )
-
-  @sect{runner.optimizer.forceConfigStyleOnOffset}
-    Default: @b(default.runner.optimizer.forceConfigStyleOnOffset)
-
-    @p
-      Set to @code{-1} to disable. Increase number to require bigger argument
-      bodies to trigger flag.
-
-    @hl.scala
-      // Before: Argument body is too big
-      Account(userName = "user",
-              fullName = "user@@localhost",
-              mailAddress = "",
-              password = "",
-              isAdmin = false,
-              url = None,
-              registeredDate = new Date(),
-              updatedDate = new Date(),
-              lastLoginDate = None,
-              image = image,
-              isGroupAccount = false,
-              isRemoved = false)
-      // After: "config style"
-      Account(
-        userName = "user",
-        fullName = "user@@localhost",
-        mailAddress = "",
-        password = "",
-        isAdmin = false,
-        url = None,
-        registeredDate = new Date(),
-        updatedDate = new Date(),
-        lastLoginDate = None,
-        image = image,
-        isGroupAccount = false,
-        isRemoved = false
-      )
-
-    @p
-      Set @cliFlags{runner.optimizer.forceConfigStyleMinArgCount = 1} to enable
-      this rule for function calls with only 1 argument
-      (default = @default.runner.optimizer.forceConfigStyleMinArgCount).
-
-    @p
-      By forcing config style, scalafmt is able to greatly optimize performance
-      eliminating a large number of "search state exploded" errors.
-      See @lnk("these flame graphs", "https://github.com/scalameta/scalafmt/pull/621#issue-196451803").
-
-
-  @sect{rewrite.rules}
+  @sect{Rewrite Rules}
     Default: @b{disabled}
 
     @p
@@ -758,61 +554,274 @@
             yield (a, b)
         }
 
-  @sect{verticalMultilineAtDefinitionSite}
-    Default: @b{false}
+  @sect{Vertical Multiline}
 
-    @p
-      If true, reformat multi-line function definitions in the following way
-    @fullWidthDemo(verticalAlign)
-      object a {
-        def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
-      }
-    @p
-      All parameters are on their own line indented by four (4), separation between
-      parameter groups are indented by two (2). ReturnType is on its own line at
-      then end. This will only trigger if the function would go over
-      maxColumn. If a multi-line function can fit in a single line, it will
-      make it so. Note that this setting ignores continuation.defnSite,
-      binPack.unsafeDefnSite, and align.openParenDefnSite.
+    @sect{verticalMultilineAtDefinitionSite}
+      Default: @b{false}
 
-    @p
-      To enable this add it to the config like this @config{verticalMultilineAtDefinitionSite = true}.
+      @p
+        If true, reformat multi-line function definitions in the following way
+      @fullWidthDemo(verticalAlign)
+        object a {
+          def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
+        }
+      @p
+        All parameters are on their own line indented by four (4), separation between
+        parameter groups are indented by two (2). ReturnType is on its own line at
+        then end. This will only trigger if the function would go over
+        maxColumn. If a multi-line function can fit in a single line, it will
+        make it so. Note that this setting ignores continuation.defnSite,
+        binPack.unsafeDefnSite, and align.openParenDefnSite.
 
-  @sect{verticalMultilineAtDefinitionSiteArityThreshold}
-    Default: @b{100}
+      @p
+        To enable this add it to the config like this @config{verticalMultilineAtDefinitionSite = true}.
 
-    @p
-      If set, this will trigger a vertical multi-line formatting as described above even though the
-      definition falls below the maxColumn width.
+    @sect{verticalMultilineAtDefinitionSiteArityThreshold}
+      Default: @b{100}
 
-    @p
-      To enable a rewrite rule, add it to the config like this @config{verticalMultilineAtDefinitionSiteArityThreshold = 2}.
+      @p
+        If set, this will trigger a vertical multi-line formatting as described above even though the
+        definition falls below the maxColumn width.
 
-    @fullWidthDemo(arityThreshold)
-      case class Foo(x: String)
-      case class Bar(x: String, y: String)
-      case class VeryLongNames(xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx: String)
-      object A {
-        def foo(x: String, y: String)
-        def hello(how: String)(are: String)(you: String) = how + are + you
-      }
+      @p
+        To enable a rewrite rule, add it to the config like this @config{verticalMultilineAtDefinitionSiteArityThreshold = 2}.
 
-  @sect{project}
-    @p
-      Configure which source files should be formatted in this project.
-    @cliFlags
-      # Only format files tracked by git.
-      project.git = true
-      # manually exclude files to format.
-      project.excludeFilters = [
-         regex1
-         regex2
-      ]
-      # manually include files to format.
-      project.includeFilters = [
-        regex1
-        regex2
-      ]
+      @fullWidthDemo(arityThreshold)
+        case class Foo(x: String)
+        case class Bar(x: String, y: String)
+        case class VeryLongNames(xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx: String)
+        object A {
+          def foo(x: String, y: String)
+          def hello(how: String)(are: String)(you: String) = how + are + you
+        }
+
+  @sect{Miscellaneous}
+
+    @sect{docstrings}
+      Default: @b(default.docstrings.toString)
+
+      @hl.scala
+        // docstrings = ScalaDoc
+        /** Align by second asterisk.
+          *
+          */
+
+        // docstrings = JavaDoc
+        /** Align by first asterisk.
+         *
+         */
+
+      @sect{lineEndings}
+        Default: @b(default.lineEndings.toString)
+
+        @ul
+          @li
+            @code{preserve} output will include endings included in original file (windows if there was at least one windows
+            line ending, unix if there was zero occurrences of windows line endings)
+          @li
+            @code{unix} output will include only unix line endings
+          @li
+            @code{windows} output will include only windows line endings
+
+
+    @sect{binPack.literalArgumentLists}
+      Default: @b(default.binPack.literalArgumentLists)
+
+      @hl.scala
+        // binPack.literalArgumentLists = true
+        val secret: List[Bit] = List(0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1,
+          0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1,
+          0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1)
+
+        // binPack.literalArgumentLists = false
+        val secret: List[Bit] = List(
+          0,
+          0,
+          1,
+          1,
+          // really long list...
+          1
+        )
+
+    @sect{binPack.parentConstructors}
+      Default: @b(default.binPack.parentConstructors)
+
+      @hl.scala
+        // column limit                        |
+        // binPack.parentConstructors = false
+        object DefaultStyle
+            extends Parent
+            with SecondParent
+            with ThirdParent {
+          // body ...
+        }
+
+        // column limit                        |
+        // binPack.parentConstructors = true
+        object DefaultStyle
+            extends Parent with SecondParent
+            with ThirdParent {
+          // body ...
+        }
+
+    @sect{spaces.afterKeywordBeforeParen}
+      Default: @b(default.spaces.afterKeywordBeforeParen)
+
+      @hl.scala
+        // spaces.afterKeywordBeforeParen = true
+        if (a) foo()
+        while (a) foo()
+        for (a <- as) foo()
+
+        // spaces.afterKeywordBeforeParen = false
+        if(a) foo()
+        while(a) foo()
+        for(a <- as) foo()
+
+    @sect{includeCurlyBraceInSelectChains}
+      Default: @b(default.includeCurlyBraceInSelectChains)
+
+      @hl.scala
+        // includeCurlyBraceInSelectChains = true
+        List(1)
+          .map { x =>
+            x + 2
+          }
+          .filter(_ > 2)
+
+        // includeCurlyBraceInSelectChains = false
+        List(1).map { x =>
+            x + 2
+        }.filter(_ > 2)
+
+      For more details, see
+      @lnk("this comment", "https://github.com/scalameta/scalafmt/issues/444#issuecomment-255215698").
+
+    @sect{optIn.breakChainOnFirstMethodDot}
+      Default: @b(default.optIn.breakChainOnFirstMethodDot)
+
+      @p
+        If true, forces a select chain (pipeline) to break if there is a newline
+        at the start of the chain.
+
+      @hl.scala
+        // original
+        foo
+          .map(_ + 1)
+          .filter(_ > 2)
+
+        // optIn.breakChainOnFirstMethodDot = true
+        foo
+          .map(_ + 1)
+          .filter(_ > 2)
+
+        // optIn.breakChainOnFirstMethodDot = false
+        foo.map(_ + 1).filter(_ > 2)
+        // note. chain starts at .foo() in a.b.foo()
+
+      @p
+        See
+        @lnk("this comment", "https://github.com/scalameta/scalafmt/issues/444#issuecomment-255215698")
+        for further motivation.
+
+    @sect{assumeStandardLibraryStripMargin}
+      Default: @b(default.assumeStandardLibraryStripMargin)
+
+      @p
+        If @b{true}, the margin character @code("|") is aligned with the opening triple
+        quote @code("\"\"\"") in interpolated and raw string literals.
+
+        @example(org.scalafmt.util.FileOps.readFile("readme/stripMargin.example"),
+                 stripMarginStyle)
+
+        @note. May cause non-idempotent formatting in rare cases, see @issue(192).
+
+    @sect{runner.optimizer.forceConfigStyleOnOffset}
+      Default: @b(default.runner.optimizer.forceConfigStyleOnOffset)
+
+      @p
+        Set to @code{-1} to disable. Increase number to require bigger argument
+        bodies to trigger flag.
+
+      @hl.scala
+        // Before: Argument body is too big
+        Account(userName = "user",
+                fullName = "user@@localhost",
+                mailAddress = "",
+                password = "",
+                isAdmin = false,
+                url = None,
+                registeredDate = new Date(),
+                updatedDate = new Date(),
+                lastLoginDate = None,
+                image = image,
+                isGroupAccount = false,
+                isRemoved = false)
+        // After: "config style"
+        Account(
+          userName = "user",
+          fullName = "user@@localhost",
+          mailAddress = "",
+          password = "",
+          isAdmin = false,
+          url = None,
+          registeredDate = new Date(),
+          updatedDate = new Date(),
+          lastLoginDate = None,
+          image = image,
+          isGroupAccount = false,
+          isRemoved = false
+        )
+
+      @p
+        Set @cliFlags{runner.optimizer.forceConfigStyleMinArgCount = 1} to enable
+        this rule for function calls with only 1 argument
+        (default = @default.runner.optimizer.forceConfigStyleMinArgCount).
+
+      @p
+        By forcing config style, scalafmt is able to greatly optimize performance
+        eliminating a large number of "search state exploded" errors.
+        See @lnk("these flame graphs", "https://github.com/scalameta/scalafmt/pull/621#issue-196451803").
+
+  @sect{Disabling Formatting}
+
+    @sect{// format: off}
+      Disable formatting for specific regions of code by wrapping them in
+      @code("// format: OFF") blocks:
+
+      @example(org.scalafmt.util.FileOps.readFile("readme/Matrix.example"))
+
+      To disable formatting for a whole file, put the comment at the top of
+      the file.
+
+      @ul
+        @li
+          the comment string is case insensitive, you can also write
+          @code("// format: OFF").
+        @li
+          The comments @code("// @formatter:off") and @code("// @formatter:off")
+          will also work, for compatibility with the IntelliJ formatter.
+        @li
+          Scalafmt will do it's best to resume formatting at the correct
+          indentation level. It's best to enable formatting at the same level as
+          when it was disabled.
+
+    @sect{project}
+      @p
+        Configure which source files should be formatted in this project.
+      @cliFlags
+        # Only format files tracked by git.
+        project.git = true
+        # manually exclude files to format.
+        project.excludeFilters = [
+           regex1
+           regex2
+        ]
+        # manually include files to format.
+        project.includeFilters = [
+          regex1
+          regex2
+        ]
 
   @sect{Other}
 
