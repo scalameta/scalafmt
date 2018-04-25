@@ -319,10 +319,11 @@
     @p The @code{newlines.*} options are used to configure when and where @code{scalafmt} should
     insert newlines.
 
-    @p @note There are three options that are covered in the @sect.ref{Vertical Multiline} section
-    as they are only relevant if that feature is enabled. The options are are
-    @sect.ref{newlines.alwaysBeforeMultilineDef}, @sect.ref{newlines.afterImplicitKWInVerticalMultiline}
-    and @sect.ref{newlines.alwaysBeforeMultilineDef}.
+    @warning
+      There are three options that are covered in the @sect.ref{Vertical Multiline} section
+      as they are only relevant if that feature is enabled. The options are are
+      @sect.ref{newlines.alwaysBeforeMultilineDef}, @sect.ref{newlines.afterImplicitKWInVerticalMultiline}
+      and @sect.ref{newlines.alwaysBeforeMultilineDef}.
 
     @sect{newlines.alwaysBeforeTopLevelStatements}
       Default: @b(default.newlines.alwaysBeforeTopLevelStatements)

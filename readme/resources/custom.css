@@ -126,3 +126,17 @@ blockquote:before {
 blockquote small {
   display: block;
 }
+
+.warning {
+  margin: 1em 0;
+  color: #856404;
+  background-color: #fff3cd;
+  border-left: 10px solid #ffd97a;
+  padding: .75rem 1.25rem;
+
+}
+
+.scalatex-site-Styles-content .warning a:link,
+.scalatex-site-Styles-content .warning a:visited {
+  color: #bd8805;
+}

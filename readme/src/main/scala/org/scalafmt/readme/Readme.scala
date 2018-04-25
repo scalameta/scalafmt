@@ -69,6 +69,8 @@ object Readme {
 
   def note = b("NOTE")
 
+  def warning(frags: Frag*) = div(frags, `class` := "warning")
+
   def github: String = "https://github.com"
   def repo: String = "https://github.com/scalameta/scalafmt"
   def gitRepo: String = repo + ".git"
