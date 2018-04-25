@@ -316,6 +316,14 @@
 
   @sect{Newlines}
 
+    @p The @code{newlines.*} options are used to configure when and where @code{scalafmt} should
+    insert newlines.
+
+    @p @note There are three options that are covered in the @sect.ref{Vertical Multiline} section
+    as they are only relevant if that feature is enabled. The options are are
+    @sect.ref{newlines.alwaysBeforeMultilineDef}, @sect.ref{newlines.afterImplicitKWInVerticalMultiline}
+    and @sect.ref{newlines.alwaysBeforeMultilineDef}.
+
     @sect{newlines.alwaysBeforeTopLevelStatements}
       Default: @b(default.newlines.alwaysBeforeTopLevelStatements)
 
@@ -593,6 +601,35 @@
         object A {
           def foo(x: String, y: String)
           def hello(how: String)(are: String)(you: String) = how + are + you
+        }
+
+    @sect{newlines.beforeImplicitKWInVerticalMultiline}
+      Default: @b(default.newlines.beforeImplicitKWInVerticalMultiline)
+      @p If true, add a newline before an implicit keyword in function and class definitions.
+
+      @fullWidthDemo(verticalAlignImplicitBefore)
+        object a {
+          def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
+        }
+
+    @sect{newlines.afterImplicitKWInVerticalMultiline}
+      Default: @b(default.newlines.afterImplicitKWInVerticalMultiline)
+      @p If true, add a newline after an implicit keyword in function and class definitions.
+
+      @fullWidthDemo(verticalAlignImplicitAfter)
+        object a {
+          def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
+        }
+
+    @sect{newlines.alwaysBeforeMultilineDef}
+      Default: @b(default.newlines.alwaysBeforeMultilineDef)
+      @p If true, add a newline before the body of a multiline def without curly braces.
+
+      @fullWidthDemo(verticalAlign)
+        object a {
+          def foo(bar: Bar): Foo = bar
+            .flatMap(f)
+            .map(g)
         }
 
   @sect{Miscellaneous}

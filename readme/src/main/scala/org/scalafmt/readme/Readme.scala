@@ -199,6 +199,22 @@ object Readme {
     verticalMultilineAtDefinitionSite = true
   )
 
+  val verticalAlignImplicitBefore = ScalafmtConfig.default.copy(
+    maxColumn = 60,
+    verticalMultilineAtDefinitionSite = true,
+    newlines = ScalafmtConfig.default.newlines.copy(
+      beforeImplicitKWInVerticalMultiline = true
+    )
+  )
+
+  val verticalAlignImplicitAfter = ScalafmtConfig.default.copy(
+    maxColumn = 60,
+    verticalMultilineAtDefinitionSite = true,
+    newlines = ScalafmtConfig.default.newlines.copy(
+      afterImplicitKWInVerticalMultiline = true
+    )
+  )
+
   val arityThreshold =
     ScalafmtConfig.default.copy(
       verticalMultilineAtDefinitionSite = true,
