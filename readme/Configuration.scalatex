@@ -37,28 +37,6 @@
     pass in a @code{ScalafmtConfig} instance, which is set to @code{ScalafmtStyle.default}
     by default.
 
-    Option 2: @b{IntelliJ}
-    @fmt(ScalafmtConfig.intellij.copy(maxColumn = 40))
-      // Column 40                           |
-      // non bin packed parent constructors
-      object IntelliJStyle extends Parent with SecondParent with ThirdParent {
-
-        function(argument1, argument2)
-
-        // continuationIndent = 2  # for call + defn site
-        // align.openParenCallSite = false
-        // danglingParentheses = true
-        function(argument1, argument2, argument3, argument4)
-
-        // openParenCallSite = true
-        def foobar(argument1: Type1, argument2: Type2): Int = argument1 + argument2
-
-      }
-
-    @warning
-      There is a Scala.js style that is super experimental and does not
-      work for complicated code.
-
   @sect{Most Popular}
 
     @sect{maxColumn}
@@ -862,6 +840,29 @@
             case 11 => 1
           }
         }
+
+      Option 2: @b{IntelliJ}
+      @fmt(ScalafmtConfig.intellij.copy(maxColumn = 40))
+        // Column 40                           |
+        // non bin packed parent constructors
+        object IntelliJStyle extends Parent with SecondParent with ThirdParent {
+
+          function(argument1, argument2)
+
+          // continuationIndent = 2  # for call + defn site
+          // align.openParenCallSite = false
+          // danglingParentheses = true
+          function(argument1, argument2, argument3, argument4)
+
+          // openParenCallSite = true
+          def foobar(argument1: Type1, argument2: Type2): Int = argument1 + argument2
+
+        }
+
+    @warning
+      There is a Scala.js style that is super experimental and does not
+      work for complicated code.
+
 
   @sect{Other}
 
