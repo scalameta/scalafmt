@@ -1,5 +1,6 @@
 rewrite.rules = [RedundantBraces]
 rewrite.redundantBraces.maxLines = 1
+rewrite.redundantBraces.generalExpressions = true
 <<< basic
 object a {
   def x(i: Int): Int = {

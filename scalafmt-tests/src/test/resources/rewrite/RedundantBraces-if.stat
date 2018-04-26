@@ -1,4 +1,5 @@
 rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.generalExpressions = true
 <<< if-else simple
 object a {
 

@@ -659,6 +659,9 @@
           @code{rewrite.redundantBraces.includeUnitMethods} = @rewriteBraces.rewrite.redundantBraces.includeUnitMethods
         @li
           @code{rewrite.redundantBraces.stringInterpolation} = @rewriteBraces.rewrite.redundantBraces.stringInterpolation
+        @li
+          @code{rewrite.redundantBraces.generalExpressions} = @rewriteBraces.rewrite.redundantBraces.generalExpressions
+          (disabled by default due to @issue(1147))
 
     @sect(Rewrite.rewrite2name(RedundantParens))
       @p

@@ -1,4 +1,5 @@
 rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.generalExpressions = true
 <<< case clauses
 object a {
 
