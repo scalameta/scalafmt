@@ -32,8 +32,8 @@
   @p
     The following sections describe the most common configuration options.
 
-  @p
-    @note. If you are using scalafmt as a @sect.ref{Standalone library}, you can
+  @warning
+    If you are using scalafmt as a @sect.ref{Standalone library}, you can
     pass in a @code{ScalafmtConfig} instance, which is set to @code{ScalafmtStyle.default}
     by default.
 
@@ -71,8 +71,9 @@
 
       }
 
-    @note. There is a Scala.js style that is super experimental and does not
-    work for complicated code.
+    @warning
+      There is a Scala.js style that is super experimental and does not
+      work for complicated code.
 
   @sect{Most Popular}
 
