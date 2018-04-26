@@ -100,10 +100,11 @@ object Readme {
 
   def fullWidthDemo(style: ScalafmtConfig)(code: String) = {
     val formatted = Scalafmt.format(code, style).get
-    rows(List(
-      div(hl.scala(code), `class` := "before"),
-      div(hl.scala(formatted), `class` := "after")
-    ))
+    rows(
+      List(
+        div(hl.scala(code), `class` := "before"),
+        div(hl.scala(formatted), `class` := "after")
+      ))
   }
 
   def demoStyle(style: ScalafmtConfig)(code: String) = {
