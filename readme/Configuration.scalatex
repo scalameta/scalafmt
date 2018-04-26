@@ -647,6 +647,46 @@
             .map(g)
         }
 
+  @sect{Disabling Formatting}
+
+    @sect{// format: off}
+      Disable formatting for specific regions of code by wrapping them in
+      @code("// format: OFF") blocks:
+
+      @example(org.scalafmt.util.FileOps.readFile("readme/Matrix.example"))
+
+      To disable formatting for a whole file, put the comment at the top of
+      the file.
+
+      @ul
+        @li
+          the comment string is case insensitive, you can also write
+          @code("// format: OFF").
+        @li
+          The comments @code("// @formatter:off") and @code("// @formatter:off")
+          will also work, for compatibility with the IntelliJ formatter.
+        @li
+          Scalafmt will do it's best to resume formatting at the correct
+          indentation level. It's best to enable formatting at the same level as
+          when it was disabled.
+
+    @sect{project}
+      @p
+        Configure which source files should be formatted in this project.
+      @cliFlags
+        # Only format files tracked by git.
+        project.git = true
+        # manually exclude files to format.
+        project.excludeFilters = [
+           regex1
+           regex2
+        ]
+        # manually include files to format.
+        project.includeFilters = [
+          regex1
+          regex2
+        ]
+
   @sect{Miscellaneous}
 
     @sect{lineEndings}
@@ -822,46 +862,6 @@
             case 11 => 1
           }
         }
-
-  @sect{Disabling Formatting}
-
-    @sect{// format: off}
-      Disable formatting for specific regions of code by wrapping them in
-      @code("// format: OFF") blocks:
-
-      @example(org.scalafmt.util.FileOps.readFile("readme/Matrix.example"))
-
-      To disable formatting for a whole file, put the comment at the top of
-      the file.
-
-      @ul
-        @li
-          the comment string is case insensitive, you can also write
-          @code("// format: OFF").
-        @li
-          The comments @code("// @formatter:off") and @code("// @formatter:off")
-          will also work, for compatibility with the IntelliJ formatter.
-        @li
-          Scalafmt will do it's best to resume formatting at the correct
-          indentation level. It's best to enable formatting at the same level as
-          when it was disabled.
-
-    @sect{project}
-      @p
-        Configure which source files should be formatted in this project.
-      @cliFlags
-        # Only format files tracked by git.
-        project.git = true
-        # manually exclude files to format.
-        project.excludeFilters = [
-           regex1
-           regex2
-        ]
-        # manually include files to format.
-        project.includeFilters = [
-          regex1
-          regex2
-        ]
 
   @sect{Other}
 
