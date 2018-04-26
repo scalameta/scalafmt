@@ -31,7 +31,8 @@ object Pattern {
       "thrownBy",
       "synchronized",
       "have",
-      "when"
+      "when",
+      "size"
     )
   )
 }
