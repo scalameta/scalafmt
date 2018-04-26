@@ -37,22 +37,6 @@
     pass in a @code{ScalafmtConfig} instance, which is set to @code{ScalafmtStyle.default}
     by default.
 
-
-  @sect{style}
-    Option 1: @b{default}
-    @fmt(ScalafmtConfig.default.copy(maxColumn = 40))
-      // Column 40                           |
-      // non bin packed parent constructors
-      object DefaultStyle extends Parent with SecondParent with ThirdParent {
-        // non bin packed arguments
-        function(argument1, argument2(argument3, argument4))
-        // Vertical alignment only for case arrows
-        x match {
-          case 1 => 1
-          case 11 => 1
-        }
-      }
-
     Option 2: @b{IntelliJ}
     @fmt(ScalafmtConfig.intellij.copy(maxColumn = 40))
       // Column 40                           |
@@ -823,6 +807,21 @@
         By forcing config style, scalafmt is able to greatly optimize performance
         eliminating a large number of "search state exploded" errors.
         See @lnk("these flame graphs", "https://github.com/scalameta/scalafmt/pull/621#issue-196451803").
+
+    @sect{style}
+      Option 1: @b{default}
+      @fmt(ScalafmtConfig.default.copy(maxColumn = 40))
+        // Column 40                           |
+        // non bin packed parent constructors
+        object DefaultStyle extends Parent with SecondParent with ThirdParent {
+          // non bin packed arguments
+          function(argument1, argument2(argument3, argument4))
+          // Vertical alignment only for case arrows
+          x match {
+            case 1 => 1
+            case 11 => 1
+          }
+        }
 
   @sect{Disabling Formatting}
 
