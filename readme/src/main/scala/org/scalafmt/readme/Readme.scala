@@ -88,6 +88,8 @@ object Readme {
 
   def pairs(frags: Frag*) = div(frags, `class` := "scalafmt-pair")
 
+  def rows(frags: Frag*) = div(frags, `class` := "scalafmt-rows")
+
   def sideBySide(left: String, right: String) =
     pairs(List(left, right).map(x => half(hl.scala(x))): _*)
 
@@ -98,7 +100,11 @@ object Readme {
 
   def fullWidthDemo(style: ScalafmtConfig)(code: String) = {
     val formatted = Scalafmt.format(code, style).get
-    pairs(List(code, formatted).map(x => hl.scala(x)): _*)
+    rows(
+      List(
+        div(hl.scala(code), `class` := "before"),
+        div(hl.scala(formatted), `class` := "after")
+      ))
   }
 
   def demoStyle(style: ScalafmtConfig)(code: String) = {

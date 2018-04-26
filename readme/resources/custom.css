@@ -100,9 +100,43 @@ ul.menu-item-list {
   justify-content: space-around;
 }
 
+.scalafmt-rows {
+  background: #f9f9f9;
+  border-left: 10px solid #ccc;
+  display: flex;
+  justify-content: space-around;
+  flex-direction: column;
+}
+
+.scalafmt-rows .before:before,
+.scalafmt-rows .after:before {
+  color: #808080;
+  font-family: monospace;
+  content: "// Before";
+  font-size: 1em;
+  line-height: 1em;
+  vertical-align: -0.4em;
+  font-weight: bold;
+  font-style: italic;
+  padding-left: 20px;
+}
+
+.scalafmt-rows .after:before {
+  content: "// After";
+}
+
+.scalafmt-rows pre {
+  margin: 0;
+}
+
+.scalafmt-rows pre code {
+  padding: 0.5em 20px;
+}
+
 /** Ovrride pre code styling in case of pair split as it's taken caore of by
- * .scalafmt-pair*/
-.scalatex-site-Styles-content .scalafmt-pair pre code {
+ * .scalafmt-pair and .scalafmt-rows*/
+.scalatex-site-Styles-content .scalafmt-pair pre code,
+.scalatex-site-Styles-content .scalafmt-rows pre code {
   background: transparent;
   border-left: none;
 }
