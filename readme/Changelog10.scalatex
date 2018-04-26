@@ -7,8 +7,21 @@
   @ul
     @li
       Please document your contribution here.
+@sect{1.5.1}
+  @ul
+    @li
+      @pr(1153) by @user{lorandszakacs}. Fix SortModifiers handling of implicit parameters.
+    @li
+      @pr(1157) by @user{olafurpg}. Disable
+      @code{rewrite.redundantBraces.generalExpressions = false} by default until @issue(1143) is fixed.
 @sect{1.5.0}
   @ul
+    @li
+      @pr(1101) by @user{olafurpg}. Add @code{optIn.blankLineBeforeDocstring} setting.
+    @li
+      @pr(1103) by @user{dwijnand}. Support trailing commas in sbt files.
+    @li
+      @pr(1107) by @user{lloydmeta}. Add support for formatting Ammonite script files with extension @code{.sc}.
     @li
       @pr(1122) by @user{japgolly}.
       Update @code{RedundantBraces} to remove redundant braces from
