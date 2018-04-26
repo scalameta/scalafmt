@@ -74,18 +74,47 @@
     @note. There is a Scala.js style that is super experimental and does not
     work for complicated code.
 
-  @sect{maxColumn}
-    Default: @b(default.maxColumn)
+  @sect{Most Popular}
 
-    @ul
-      @li
-        Keep in mind that 80 characters fit perfectly on a split laptop screen
-        with regular resolution.
-      @li
-        Github mobile view only shows 80 characters and sometimes you might
-        review code on your phone.
-      @li
-        Consider refactoring your code before of choosing a value above 100.
+    @sect{maxColumn}
+      Default: @b(default.maxColumn)
+
+      @ul
+        @li
+          Keep in mind that 80 characters fit perfectly on a split laptop screen
+          with regular resolution.
+        @li
+          Github mobile view only shows 80 characters and sometimes you might
+          review code on your phone.
+        @li
+          Consider refactoring your code before of choosing a value above 100.
+
+    @sect{docstrings}
+      Default: @b(default.docstrings.toString)
+
+      @hl.scala
+        // docstrings = ScalaDoc
+        /** Align by second asterisk.
+          *
+          */
+
+        // docstrings = JavaDoc
+        /** Align by first asterisk.
+         *
+         */
+
+    @sect{assumeStandardLibraryStripMargin}
+      Default: @b(default.assumeStandardLibraryStripMargin)
+
+      @warning
+        May cause non-idempotent formatting in rare cases, see @issue(192).
+
+      @p
+        If @b{true}, the margin character @code("|") is aligned with the opening triple
+        quote @code("\"\"\"") in interpolated and raw string literals.
+
+        @example(org.scalafmt.util.FileOps.readFile("readme/stripMargin.example"),
+                 stripMarginStyle)
 
   @sect{Indentation}
 
@@ -635,32 +664,17 @@
 
   @sect{Miscellaneous}
 
-    @sect{docstrings}
-      Default: @b(default.docstrings.toString)
+    @sect{lineEndings}
+      Default: @b(default.lineEndings.toString)
 
-      @hl.scala
-        // docstrings = ScalaDoc
-        /** Align by second asterisk.
-          *
-          */
-
-        // docstrings = JavaDoc
-        /** Align by first asterisk.
-         *
-         */
-
-      @sect{lineEndings}
-        Default: @b(default.lineEndings.toString)
-
-        @ul
-          @li
-            @code{preserve} output will include endings included in original file (windows if there was at least one windows
-            line ending, unix if there was zero occurrences of windows line endings)
-          @li
-            @code{unix} output will include only unix line endings
-          @li
-            @code{windows} output will include only windows line endings
-
+      @ul
+        @li
+          @code{preserve} output will include endings included in original file (windows if there was at least one windows
+          line ending, unix if there was zero occurrences of windows line endings)
+        @li
+          @code{unix} output will include only unix line endings
+        @li
+          @code{windows} output will include only windows line endings
 
     @sect{binPack.literalArgumentLists}
       Default: @b(default.binPack.literalArgumentLists)
@@ -761,18 +775,6 @@
         See
         @lnk("this comment", "https://github.com/scalameta/scalafmt/issues/444#issuecomment-255215698")
         for further motivation.
-
-    @sect{assumeStandardLibraryStripMargin}
-      Default: @b(default.assumeStandardLibraryStripMargin)
-
-      @p
-        If @b{true}, the margin character @code("|") is aligned with the opening triple
-        quote @code("\"\"\"") in interpolated and raw string literals.
-
-        @example(org.scalafmt.util.FileOps.readFile("readme/stripMargin.example"),
-                 stripMarginStyle)
-
-        @note. May cause non-idempotent formatting in rare cases, see @issue(192).
 
     @sect{runner.optimizer.forceConfigStyleOnOffset}
       Default: @b(default.runner.optimizer.forceConfigStyleOnOffset)
