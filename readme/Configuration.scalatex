@@ -311,7 +311,7 @@
     @p The @code{newlines.*} options are used to configure when and where @code{scalafmt} should
     insert newlines.
 
-    @warning
+    @sidenote
       You might be interested in the @sect.ref{Vertical Multiline} section.
 
     @sect{newlines.alwaysBeforeTopLevelStatements}
@@ -560,7 +560,7 @@
     @p
       If enabled this formats methods such that parameters are on
       their own line indented by
-      @sect.ref{continuationIndent.defnSite} separation between
+      @sect.ref{continuationIndent.defnSite}. Separation between
       parameter groups are indented by two spaces less than
       @sect.ref{continuationIndent.defnSite}. The return type is on
       its own line at then end.
@@ -577,8 +577,7 @@
         }
 
     @warning
-      This setting ignores continuation.defnSite,
-      binPack.unsafeDefnSite, and @sect.ref{align.openParenDefnSite}.
+      This setting ignores binPack.unsafeDefnSite, and @sect.ref{align.openParenDefnSite}.
 
     @p
       The default configuration options are
@@ -611,8 +610,8 @@
       Default: @b(default.verticalMultiline.newlineAfterOpenParen)
 
       @p
-        If true, add a newline aften the opening paren of a parameter
-        list. This can be used to control for formatting of methods that
+        If true, add a newline after the opening paren of a parameter
+        list. This can be used to control the formatting of methods that
         have multiple parameter lists.
 
       @fullWidthDemo(multilineNewlineAfterParen)
