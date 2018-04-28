@@ -69,6 +69,8 @@ object Readme {
 
   def note = b("NOTE")
 
+  def warning(frags: Frag*) = div(frags, `class` := "warning")
+
   def github: String = "https://github.com"
   def repo: String = "https://github.com/scalameta/scalafmt"
   def gitRepo: String = repo + ".git"
@@ -203,6 +205,22 @@ object Readme {
   val verticalAlign = ScalafmtConfig.default.copy(
     maxColumn = 60,
     verticalMultilineAtDefinitionSite = true
+  )
+
+  val verticalAlignImplicitBefore = ScalafmtConfig.default.copy(
+    maxColumn = 60,
+    verticalMultilineAtDefinitionSite = true,
+    newlines = ScalafmtConfig.default.newlines.copy(
+      beforeImplicitKWInVerticalMultiline = true
+    )
+  )
+
+  val verticalAlignImplicitAfter = ScalafmtConfig.default.copy(
+    maxColumn = 60,
+    verticalMultilineAtDefinitionSite = true,
+    newlines = ScalafmtConfig.default.newlines.copy(
+      afterImplicitKWInVerticalMultiline = true
+    )
   )
 
   val arityThreshold =

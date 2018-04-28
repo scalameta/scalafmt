@@ -181,7 +181,7 @@
       For super easy CLI installation in OSX and Linux, download the new
       auto-upgrade script in (EDIT: removed) Linux/OSX section.
     @li
-      NEW! See @sect.ref{rewrite.rules}.
+      NEW! See @sect.ref{Rewrite Rules}.
     @li
       NEW! Dynamic style configuration. You can now update the configuration
       by adding comments to the source code. Example:
