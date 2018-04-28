@@ -10,6 +10,7 @@ case class VeryLongNames(xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx: Str
 object A {
   def foo(x: String, y: String)
   def hello(how: String)(are: String)(you: String) = how + are + you
+  def other(a: String, b: String)(c: String) = a + b + c
 }
 >>>
 case class Foo(x: String)
@@ -24,4 +25,10 @@ object A {
     y: String
   )
   def hello(how: String)(are: String)(you: String) = how + are + you
+  def other(
+    a: String,
+    b: String
+  )(
+    c: String
+  ) = a + b + c + d
 }
