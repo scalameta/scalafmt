@@ -902,35 +902,6 @@
       There is a Scala.js style that is super experimental and does not
       work for complicated code.
 
-    @p
-      To enable a rewrite rule, add it to the config like this @config{verticalMultiline.arityThreshold = 2}.
-
-    @fullWidthDemo(arityThreshold)
-      case class Foo(x: String)
-      case class Bar(x: String, y: String)
-      case class VeryLongNames(xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx: String)
-      object A {
-        def foo(x: String, y: String)
-        def hello(how: String)(are: String)(you: String) = how + are + you
-      }
-
-  @sect{project}
-    @p
-      Configure which source files should be formatted in this project.
-    @cliFlags
-      # Only format files tracked by git.
-      project.git = true
-      # manually exclude files to format.
-      project.excludeFilters = [
-         regex1
-         regex2
-      ]
-      # manually include files to format.
-      project.includeFilters = [
-        regex1
-        regex2
-      ]
-
   @sect{Other}
 
     Scalafmt has a ton of internal configuration options which may be removed
