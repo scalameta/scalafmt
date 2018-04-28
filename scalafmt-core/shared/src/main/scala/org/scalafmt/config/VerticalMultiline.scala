@@ -3,7 +3,7 @@ package org.scalafmt.config
 import metaconfig._
 
 /**
-  * Configuration related ot multi-line formatting.
+  * Configuration related to multi-line formatting.
   */
 @DeriveConfDecoder
 case class VerticalMultiline(
