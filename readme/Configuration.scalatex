@@ -644,7 +644,7 @@
           the comment string is case insensitive, you can also write
           @code("// format: OFF").
         @li
-          The comments @code("// @formatter:off") and @code("// @formatter:off")
+          The comments @code("// @formatter:off") and @code("// @formatter:on")
           will also work, for compatibility with the IntelliJ formatter.
         @li
           Scalafmt will do it's best to resume formatting at the correct
