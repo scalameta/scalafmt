@@ -5,6 +5,8 @@ verticalMultiline = {
     arityThreshold = 2 // Used here to force reformatting.
     excludeDanglingParens = []
     newlineAfterOpenParen = true
+    newlineBeforeImplicitKW = false // make sure this is respected
+    newlineAfterImplicitKW = true
 }
 <<< It should force a newline after open paren.
 def other(a: String, b: String)(c: String) = a + b + c
@@ -14,4 +16,14 @@ def other(
   b: String
 )(
   c: String
+) = a + b + c
+
+<<< It should still respect newlineBeforeImplicitKW
+def other[T](a: String, b: String)(implicit c: Parse[T]) = a + b + c
+>>>
+def other[T](
+  a: String,
+  b: String
+)(implicit
+  c: Parse[T]
 ) = a + b + c
