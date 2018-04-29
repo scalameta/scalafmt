@@ -123,6 +123,10 @@ case class ScalafmtConfig(
     assumeStandardLibraryStripMargin: Boolean = false,
     danglingParentheses: Boolean = false,
     poorMansTrailingCommasInConfigStyle: Boolean = false,
+    @deprecated("Use VerticalMultiline.atDefinitionSite instead")
+    verticalMultilineAtDefinitionSite: Boolean = false,
+    @deprecated("Use VerticalMultiline.arityThreshold instead")
+    verticalMultilineAtDefinitionSiteArityThreshold: Int = 100,
     @Recurse verticalMultiline: VerticalMultiline = VerticalMultiline(),
     onTestFailure: String = "",
     encoding: Codec = "UTF-8",

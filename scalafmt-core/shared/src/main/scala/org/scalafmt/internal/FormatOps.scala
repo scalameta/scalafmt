@@ -796,7 +796,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       case Decision(t @ FormatToken(open2 @ LeftParen(), right, _), _) =>
         val newlinewBeforeImplicit =
           right.is[KwImplicit] &&
-            style.verticalMultiline.newlineBeforeImplicitKW
+            (style.verticalMultiline.newlineBeforeImplicitKW || style.newlines.beforeImplicitKWInVerticalMultiline)
         val close2 = matchingParentheses(hash(open2))
         val prevT = prev(t).left
         val mixedParamsWithCtorModifier = mixedParams && owners(prevT)
@@ -812,7 +812,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
               .withIndent(indentParam, close2, Right)
           ))
       case Decision(t @ FormatToken(KwImplicit(), _, _), _)
-          if style.verticalMultiline.newlineAfterImplicitKW =>
+          if (style.verticalMultiline.newlineAfterImplicitKW || style.newlines.afterImplicitKWInVerticalMultiline) =>
         val split = Split(Newline, 0)
         Decision(t, Seq(split))
     }
@@ -838,7 +838,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       case _ => 0
     }
 
-    val aboveArityThreshold = maxArity >= style.verticalMultiline.arityThreshold
+    val aboveArityThreshold = (maxArity >= style.verticalMultiline.arityThreshold) || (maxArity >= style.verticalMultilineAtDefinitionSiteArityThreshold)
 
     Seq(
       Split(NoSplit, 0, ignoreIf = !isBracket && aboveArityThreshold)

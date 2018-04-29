@@ -86,6 +86,10 @@ case class Newlines(
     alwaysBeforeCurlyBraceLambdaParams: Boolean = false,
     alwaysBeforeTopLevelStatements: Boolean = false,
     afterCurlyLambda: NewlineCurlyLambda = NewlineCurlyLambda.never,
+    @deprecated("Use VerticalMultiline.newlineAfterImplicitKW instead")
+    afterImplicitKWInVerticalMultiline: Boolean = false,
+    @deprecated("Use VerticalMultiline.newlineBeforeImplicitKW instead")
+    beforeImplicitKWInVerticalMultiline: Boolean = false,
     alwaysBeforeElseAfterCurlyIf: Boolean = false,
     alwaysBeforeMultilineDef: Boolean = true
 )
