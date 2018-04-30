@@ -18,12 +18,6 @@
          you (or even worse, your colleagues) to choose a formatting layout.
          Scalafmt takes liberty to add/remove newlines, making your entire
          codebase look consistent.
-       @li
-         Scalariform cannot format
-         @lnk("Dotty", "https://github.com/lampepfl/dotty"),
-         which has minor syntactic differences to Scala, or SBT files which
-         allow top-level statement. With scala.meta dialects, scalafmt will
-         be able to format Dotty and SBT.
 
      Finally, scalafmt is my Master's thesis project. I thought it would
      be a fun challenge to write a code formatter :)
