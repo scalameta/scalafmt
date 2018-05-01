@@ -807,9 +807,12 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
         val mixedParamsWithCtorModifier =
           mixedParams && owners(prevT).is[CtorModifier]
 
+        // We don't want to create newlines for default values.
+        val isDefinition = ownerCheck(close2)
+
         val shouldAddNewline =
           (isImplicitArgList && newlineBeforeImplicitEnabled) ||
-          (style.verticalMultiline.newlineAfterOpenParen && !isImplicitArgList) ||
+          (style.verticalMultiline.newlineAfterOpenParen && !isImplicitArgList && isDefinition) ||
           mixedParamsWithCtorModifier
 
         val mod =
