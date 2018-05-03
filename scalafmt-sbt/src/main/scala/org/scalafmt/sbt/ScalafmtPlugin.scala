@@ -22,10 +22,7 @@ object ScalafmtPlugin extends AutoPlugin {
         "Fails if a Scala source is mis-formatted. Does not write to files.")
     val scalafmtOnCompile =
       settingKey[Boolean](
-        "Format Scala source files on compile, off by default. " +
-          "BEWARE. This task is not incremental, every file in the " +
-          "project is re-formatted on every compile. " +
-          "See https://github.com/scalameta/scalafmt/issues/1091")
+        "Format Scala source files on compile, off by default.")
     val scalafmtConfig = taskKey[Option[File]](
       "Optional location of .scalafmt.conf file. " +
         "If None the default config is used.")
