@@ -133,6 +133,25 @@ ul.menu-item-list {
   padding: 0.5em 20px;
 }
 
+.scalafmt-configuration {
+  background: #ececec;
+  border-left: 10px solid #ccc;
+  padding: 1em 20px;
+  margin-bottom: 20px;
+}
+
+.scalafmt-configuration span {
+    font-style: italic;
+}
+
+.scalafmt-configuration-toggle:hover {
+  cursor: pointer;
+}
+
+.scalafmt-configuration.collapsed pre {
+  display: none;
+}
+
 /** Ovrride pre code styling in case of pair split as it's taken caore of by
  * .scalafmt-pair and .scalafmt-rows*/
 .scalatex-site-Styles-content .scalafmt-pair pre code,
