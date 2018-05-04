@@ -1,6 +1,6 @@
 maxColumn = 80
 verticalMultiline = {
-    atDefinitionSite = true
+    atDefnSite = true
     arityThreshold = 2
 }
 continuationIndent.defnSite = 2

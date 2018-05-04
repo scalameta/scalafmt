@@ -1,5 +1,5 @@
 verticalMultiline = {
-    atDefinitionSite = true
+    atDefnSite = true
 }
 maxColumn = 80
 continuationIndent.extendSite = 2

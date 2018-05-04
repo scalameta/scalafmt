@@ -1,6 +1,6 @@
 maxColumn = 80
 verticalMultiline = {
-    atDefinitionSite = true
+    atDefnSite = true
     newlineAfterImplicitKW = true
     newlineBeforeImplicitKW = true
 }

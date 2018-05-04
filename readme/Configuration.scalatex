@@ -584,7 +584,7 @@
 
     @hl.scala(VerticalMultilineDefultConfigStr)
 
-    @sect{verticalMultiline.atDefinitionSite}
+    @sect{verticalMultiline.atDefnSite}
       Default: @b{false}
 
       @p

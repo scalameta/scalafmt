@@ -1,7 +1,7 @@
 maxColumn = 80
 continuationIndent.defnSite = 2
 verticalMultiline = {
-    atDefinitionSite = true
+    atDefnSite = true
     arityThreshold = 2
     excludeDanglingParens = []
 }

@@ -7,7 +7,7 @@ import metaconfig._
   */
 @DeriveConfDecoder
 case class VerticalMultiline(
-    atDefinitionSite: Boolean = false,
+    atDefnSite: Boolean = false,
     arityThreshold: Int = 100,
     newlineBeforeImplicitKW: Boolean = false,
     newlineAfterImplicitKW: Boolean = false,

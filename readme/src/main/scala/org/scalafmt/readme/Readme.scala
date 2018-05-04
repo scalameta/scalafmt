@@ -207,7 +207,7 @@ object Readme {
 
   val verticalAlign = ScalafmtConfig.default.copy(
     maxColumn = 60,
-    verticalMultiline = VerticalMultiline(atDefinitionSite = true)
+    verticalMultiline = VerticalMultiline(atDefnSite = true)
   )
 
   val VerticalMultilineDefultConfigStr = "verticalmultiline = {\n" + Config
@@ -218,7 +218,7 @@ object Readme {
   val verticalAlignImplicitBefore = ScalafmtConfig.default.copy(
     maxColumn = 60,
     verticalMultiline = VerticalMultiline(
-      atDefinitionSite = true,
+      atDefnSite = true,
       newlineBeforeImplicitKW = true
     )
   )
@@ -226,7 +226,7 @@ object Readme {
   val verticalAlignImplicitAfter = ScalafmtConfig.default.copy(
     maxColumn = 60,
     verticalMultiline = VerticalMultiline(
-      atDefinitionSite = true,
+      atDefnSite = true,
       newlineAfterImplicitKW = true
     )
   )
@@ -235,7 +235,7 @@ object Readme {
     continuationIndent =
       ScalafmtConfig.default.continuationIndent.copy(defnSite = 2),
     verticalMultiline = VerticalMultiline(
-      atDefinitionSite = true,
+      atDefnSite = true,
       arityThreshold = 2,
       newlineAfterOpenParen = true
     )
@@ -245,7 +245,7 @@ object Readme {
     continuationIndent =
       ScalafmtConfig.default.continuationIndent.copy(defnSite = 2),
     verticalMultiline = VerticalMultiline(
-      atDefinitionSite = true,
+      atDefnSite = true,
       arityThreshold = 2,
       excludeDanglingParens = Nil
     )
@@ -254,7 +254,7 @@ object Readme {
   val arityThreshold =
     ScalafmtConfig.default.copy(
       verticalMultiline =
-        VerticalMultiline(atDefinitionSite = true, arityThreshold = 2)
+        VerticalMultiline(atDefnSite = true, arityThreshold = 2)
     )
 
   def fmt(style: ScalafmtConfig)(code: String): TypedTag[String] =
