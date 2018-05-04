@@ -123,7 +123,7 @@ object Readme {
         "Show/hide configuration used for this example",
         `class` := "scalafmt-configuration-toggle"),
       pre(changedConfig(style)),
-      `class` := "scalafmt-configuration collapsed"
+      `class` := "scalafmt-configuration"
     )
   }
 
