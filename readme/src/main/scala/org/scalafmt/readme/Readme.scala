@@ -10,6 +10,7 @@ import org.scalafmt.cli.Cli
 import org.scalafmt.cli.CliArgParser
 import org.scalafmt.config._
 import org.scalafmt.rewrite._
+import org.scalafmt.config.Config
 
 object hl extends scalatex.site.Highlighter
 
@@ -100,19 +101,50 @@ object Readme {
     sideBySide(code, formatted)
   }
 
+  def changedConfig(style: ScalafmtConfig): String = {
+    // Quite a hacky implementation for now.
+    // This only works as we're flattening the HOCON configuration so
+    //   a = [
+    //    b = 1
+    //    c = 2
+    //   ]
+    // turns into
+    //   a.b = 1
+    //   a.c = 2
+    // which means a simple line-by-line string diffing is sufficient for now.
+    val defaultStrs = Config.toHocon(ScalafmtConfig.default).toSet
+    val configStrs = Config.toHocon(style).toSet
+    configStrs.diff(defaultStrs).mkString("\n")
+  }
+
+  def configurationBlock(style: ScalafmtConfig) = {
+    div(
+      span(
+        "Show/hide configuration used for this example",
+        `class` := "scalafmt-configuration-toggle"),
+      pre(changedConfig(style)),
+      `class` := "scalafmt-configuration"
+    )
+  }
+
   def fullWidthDemo(style: ScalafmtConfig)(code: String) = {
     val formatted = Scalafmt.format(code, style).get
-    rows(
-      List(
-        div(hl.scala(code), `class` := "before"),
-        div(hl.scala(formatted), `class` := "after")
-      ))
+    div(
+      rows(
+        List(
+          div(hl.scala(code), `class` := "before"),
+          div(hl.scala(formatted), `class` := "after")
+        )),
+      configurationBlock(style))
   }
 
   def demoStyle(style: ScalafmtConfig)(code: String) = {
     val formatted =
       Scalafmt.format(code, style.copy(runner = ScalafmtRunner.sbt)).get
-    sideBySide(code, formatted)
+    div(
+      sideBySide(code, formatted),
+      configurationBlock(style)
+    )
   }
 
   def example(code: String): TypedTag[String] = {
@@ -221,6 +253,11 @@ object Readme {
     newlines = ScalafmtConfig.default.newlines.copy(
       afterImplicitKWInVerticalMultiline = true
     )
+  )
+
+  val newlineAlwaysBeforeTopLevelStatements = ScalafmtConfig.default.copy(
+    newlines = ScalafmtConfig.default.newlines
+      .copy(alwaysBeforeTopLevelStatements = true)
   )
 
   val arityThreshold =
