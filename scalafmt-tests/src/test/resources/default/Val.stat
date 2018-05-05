@@ -232,7 +232,7 @@ val component = // ← look, you can even use fancy names!
 >>>
 val component = // ← look, you can even use fancy names!
   <div>
-    <button onclick={ () => count.update(_ + 1) }>Click Me!</button>
+    <button onclick={() => count.update(_ + 1)}>Click Me!</button>
   </div>
 <<< #741 def and val are the same
 {
