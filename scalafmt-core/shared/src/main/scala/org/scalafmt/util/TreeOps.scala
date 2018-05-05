@@ -56,9 +56,19 @@ object TreeOps {
     ret.result()
   }
 
+  def isBlockFunction(fun: Term.Function): Boolean =
+    fun.parent.exists {
+      case b: Term.Block =>
+        b.stats.lengthCompare(1) == 0 && b.stats.head.eq(fun)
+      case next: Term.Function =>
+        isBlockFunction(next)
+      case _ =>
+        false
+    }
+
   def extractStatementsIfAny(tree: Tree): Seq[Tree] = tree match {
     case b: Term.Block => b.stats
-    case b: Term.Function if b.parent.exists(_.is[Term.Block]) => b.body :: Nil
+    case b: Term.Function if isBlockFunction(b) => b.body :: Nil
     case t: Pkg => t.stats
     // TODO(olafur) would be nice to have an abstract "For" superclass.
     case t: Term.For => getEnumStatements(t.enums)
