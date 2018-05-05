@@ -489,9 +489,14 @@ object TreeOps {
   @tailrec
   final def isTopLevelInfixApplication(child: Tree): Boolean =
     child.parent match {
-      case Some(parent: Type.ApplyInfix) => isTopLevelInfixApplication(parent)
-      case Some(parent: Term.ApplyInfix) => isTopLevelInfixApplication(parent)
-      case Some(_: Term.Block | _: Term.If | _: Term.While | _: Source) => true
+      case Some(parent) =>
+        parent match {
+          case _: Term.ApplyInfix | _: Type.ApplyInfix =>
+            isTopLevelInfixApplication(parent)
+          case _: Term.Block | _: Term.If | _: Term.While | _: Source => true
+          case fun: Term.Function => isBlockFunction(fun)
+          case _ => false
+        }
       case _ => false
     }
 
