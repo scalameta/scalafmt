@@ -103,3 +103,17 @@ val x: Int => Int =  { y =>
 val x: Int => Int = { y =>
   y + 1
 }
+<<< indent
+map(() => {
+  x =>
+    x match {
+      case e =>
+  }
+})
+>>>
+map(() => {
+  x =>
+    x match {
+      case e =>
+    }
+})

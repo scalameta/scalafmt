@@ -256,7 +256,7 @@ class Router(formatOps: FormatOps) {
         )
       case FormatToken(arrow @ RightArrow(), right, _)
           if leftOwner.is[Term.Function] =>
-        val endOfFunction = functionExpire(
+        val (endOfFunction, expiresOn) = functionExpire(
           leftOwner.asInstanceOf[Term.Function])
         val hasBlock =
           nextNonComment(formatToken).right.isInstanceOf[LeftBrace]
@@ -265,7 +265,7 @@ class Router(formatOps: FormatOps) {
             .withPolicy(SingleLineBlock(endOfFunction)),
           Split(Space, 0, ignoreIf = !hasBlock),
           Split(Newline, 1 + nestedApplies(leftOwner), ignoreIf = hasBlock)
-            .withIndent(2, endOfFunction, Right)
+            .withIndent(2, endOfFunction, expiresOn)
         )
       // Case arrow
       case tok @ FormatToken(arrow @ RightArrow(), right, between)

@@ -30,6 +30,7 @@ import org.scalafmt.util.TreeOps
 import org.scalafmt.util.Whitespace
 import org.scalafmt.util.Modifier
 import org.scalafmt.util.RightParenOrBracket
+import org.scalameta.logger
 
 /**
   * Helper functions for generating splits/policies for a given tree.
@@ -543,15 +544,17 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     }).getOrElse(owner.tokens.last)
   }
 
-  def functionExpire(function: Term.Function): Token = {
+  def functionExpire(function: Term.Function): (Token, ExpiresOn) = {
     (for {
       parent <- function.parent
       blockEnd <- parent match {
         case b: Term.Block if b.stats.length == 1 =>
-          Some(b.tokens.last)
+          Some(b.tokens.last -> Right)
         case _ => None
       }
-    } yield blockEnd).getOrElse(function.tokens.last)
+    } yield blockEnd).getOrElse {
+      function.tokens.last -> Left
+    }
   }
 
   def noOptimizationZones(tree: Tree): Set[Token] = {
