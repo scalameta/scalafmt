@@ -311,11 +311,8 @@
     @p The @code{newlines.*} options are used to configure when and where @code{scalafmt} should
     insert newlines.
 
-    @warning
-      There are three options that are covered in the @sect.ref{Vertical Multiline} section
-      as they are only relevant if that feature is enabled. The options are are
-      @sect.ref{newlines.alwaysBeforeMultilineDef}, @sect.ref{newlines.afterImplicitKWInVerticalMultiline}
-      and @sect.ref{newlines.alwaysBeforeMultilineDef}.
+    @sidenote
+      You might be interested in the @sect.ref{Vertical Multiline} section.
 
     @sect{newlines.alwaysBeforeTopLevelStatements}
       Default: @b(default.newlines.alwaysBeforeTopLevelStatements)
@@ -560,47 +557,71 @@
 
   @sect{Vertical Multiline}
 
-    @sect{verticalMultilineAtDefinitionSite}
-      Default: @b{false}
+    @p
+      If enabled this formats methods such that parameters are on
+      their own line indented by
+      @sect.ref{continuationIndent.defnSite}. Separation between
+      parameter groups are indented by two spaces less than
+      @sect.ref{continuationIndent.defnSite}. The return type is on
+      its own line at then end.
 
-      @p
-        If true, reformat multi-line function definitions in the following way
-      @fullWidthDemo(verticalAlign)
+    @sidenote
+      This formatting is only triggered if the method definition
+      exceeds the @sect.ref{maxColumn} value in width or if the number
+      of arguments to the method exceeds the
+      @sect.ref{verticalMultiline.arityThreshold}.
+
+    @fullWidthDemo(verticalAlign)
         object a {
           def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
         }
-      @p
-        All parameters are on their own line indented by four (4), separation between
-        parameter groups are indented by two (2). ReturnType is on its own line at
-        then end. This will only trigger if the function would go over
-        maxColumn. If a multi-line function can fit in a single line, it will
-        make it so. Note that this setting ignores continuation.defnSite,
-        binPack.unsafeDefnSite, and align.openParenDefnSite.
+
+    @warning
+      This setting ignores binPack.unsafeDefnSite, and @sect.ref{align.openParenDefnSite}.
+
+    @p
+      The default configuration options are
+
+    @hl.scala(VerticalMultilineDefultConfigStr)
+
+    @sect{verticalMultiline.atDefnSite}
+      Default: @b{false}
 
       @p
-        To enable this add it to the config like this @config{verticalMultilineAtDefinitionSite = true}.
+        If true, enable vertical multiline formatting as described above.
 
-    @sect{verticalMultilineAtDefinitionSiteArityThreshold}
+    @sect{verticalMultiline.arityThreshold}
       Default: @b{100}
 
       @p
-        If set, this will trigger a vertical multi-line formatting as described above even though the
-        definition falls below the maxColumn width.
-
-      @p
-        To enable a rewrite rule, add it to the config like this @config{verticalMultilineAtDefinitionSiteArityThreshold = 2}.
+        If set, this will trigger a vertical multi-line formatting
+        even though the definition falls below the
+        @sect.ref{maxColumn} width.
 
       @fullWidthDemo(arityThreshold)
         case class Foo(x: String)
         case class Bar(x: String, y: String)
-        case class VeryLongNames(xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx: String)
         object A {
           def foo(x: String, y: String)
           def hello(how: String)(are: String)(you: String) = how + are + you
         }
 
-    @sect{newlines.beforeImplicitKWInVerticalMultiline}
-      Default: @b(default.newlines.beforeImplicitKWInVerticalMultiline)
+    @sect{verticalMultiline.newlineAfterOpenParen}
+      Default: @b(default.verticalMultiline.newlineAfterOpenParen)
+
+      @p
+        If true, add a newline after the opening paren of a parameter
+        list. This can be used to control the formatting of methods that
+        have multiple parameter lists.
+
+      @fullWidthDemo(multilineNewlineAfterParen)
+        object a {
+          def other(a: String, b: String)(c: String) = a + b + c
+        }
+
+    @sect{verticalMultiline.newlineBeforeImplicitKW}
+      Default: @b(default.verticalMultiline.newlineBeforeImplicitKW)
+
       @p If true, add a newline before an implicit keyword in function and class definitions.
 
       @fullWidthDemo(verticalAlignImplicitBefore)
@@ -608,8 +629,9 @@
           def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
         }
 
-    @sect{newlines.afterImplicitKWInVerticalMultiline}
-      Default: @b(default.newlines.afterImplicitKWInVerticalMultiline)
+    @sect{verticalMultiline.newlineAfterImplicitKW}
+      Default: @b(default.verticalMultiline.newlineAfterImplicitKW)
+
       @p If true, add a newline after an implicit keyword in function and class definitions.
 
       @fullWidthDemo(verticalAlignImplicitAfter)
@@ -617,9 +639,22 @@
           def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
         }
 
+    @sect{verticalMultiline.excludeDanglingParens}
+      Default: @b(default.verticalMultiline.excludeDanglingParens.mkString(","))
+
+      @p
+        This setting defines which cases should be allowed to have
+        dangling parens.
+
+      @fullWidthDemo(multilineDanglingParens)
+        case class Bar(x: String, y: String)
+
     @sect{newlines.alwaysBeforeMultilineDef}
       Default: @b(default.newlines.alwaysBeforeMultilineDef)
-      @p If true, add a newline before the body of a multiline def without curly braces.
+
+      @p
+        If true, add a newline before the body of a multiline def
+        without curly braces.
 
       @fullWidthDemo(verticalAlign)
         object a {
@@ -865,7 +900,6 @@
     @warning
       There is a Scala.js style that is super experimental and does not
       work for complicated code.
-
 
   @sect{Other}
 

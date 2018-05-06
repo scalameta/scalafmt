@@ -1,5 +1,7 @@
 maxColumn = 80
-verticalMultilineAtDefinitionSite = true
+verticalMultiline = {
+    atDefnSite = true
+}
 continuationIndent.defnSite = 2
 <<< Work with continuationIndent.defnSite = 2
 def format_![T <: Tree](code: String, foo: Int)(f: A => B, k: D)(implicit ev: Parse[T], ev2: EC): String

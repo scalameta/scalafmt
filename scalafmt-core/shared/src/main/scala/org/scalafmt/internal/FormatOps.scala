@@ -18,7 +18,7 @@ import scala.meta.prettyprinters.Structure
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 import org.scalafmt.Error.CaseMissingArrow
-import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.config.{DanglingExclude, ScalafmtConfig, VerticalMultiline}
 import org.scalafmt.internal.ExpiresOn.Left
 import org.scalafmt.internal.ExpiresOn.Right
 import org.scalafmt.internal.Length.Num
@@ -703,7 +703,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   }
 
   /**
-    * Implementation for `verticalMultilineAtDefinitionSite`
+    * Implementation for `verticalMultiline`
     */
   def verticalMultiline(owner: Tree, ft: FormatToken)(
       implicit style: ScalafmtConfig): Seq[Split] = {
@@ -739,10 +739,16 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       }
     }
 
+    val isClassLike = owner.is[meta.Ctor.Primary] || owner.is[meta.Defn.Class]
+    val isTrait = owner.is[meta.Defn.Trait]
+    val excludeClass = style.verticalMultiline.excludeDanglingParens
+      .contains(DanglingExclude.`class`)
+    val excludeTrait = style.verticalMultiline.excludeDanglingParens
+      .contains(DanglingExclude.`trait`)
+
     val shouldNotDangle =
-      owner.is[meta.Ctor.Primary] ||
-        owner.is[meta.Defn.Class] ||
-        owner.is[meta.Defn.Trait]
+      (isClassLike && excludeClass) ||
+        (isTrait && excludeTrait)
 
     // Since classes and defs aren't the same (see below), we need to
     // create two (2) OneArgOneLineSplit when dealing with classes. One
@@ -783,20 +789,35 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
           if ownerCheck(rp) =>
         val split = Split(Newline, 0).withIndent(indentSep, rp, Left)
         Decision(t, Seq(split))
-      // Do NOT Newline the first param after the split, unless we have a
-      // mixed-params case with a Ctor modifier.
-      // `] private (`
+      // Add a newline after left paren if:
+      // - There's an implicit keyword and newlineBeforeImplicitKW is enabled
+      // - newlineAfterOpenParen is enabled
+      // - Mixed-params case with constructor modifier `] private (`
       case Decision(t @ FormatToken(open2 @ LeftParen(), right, _), _) =>
-        val newlinewBeforeImplicit =
-          right.is[KwImplicit] &&
-            style.newlines.beforeImplicitKWInVerticalMultiline
         val close2 = matchingParentheses(hash(open2))
         val prevT = prev(t).left
+
+        val isImplicitArgList = right.is[KwImplicit]
+
+        val newlineBeforeImplicitEnabled =
+          style.verticalMultiline.newlineBeforeImplicitKW ||
+            style.newlines.beforeImplicitKWInVerticalMultiline
+
+        val mixedParamsWithCtorModifier =
+          mixedParams && owners(prevT).is[CtorModifier]
+
+        // We don't want to create newlines for default values.
+        val isDefinition = ownerCheck(close2)
+
+        val shouldAddNewline =
+          (isImplicitArgList && newlineBeforeImplicitEnabled) ||
+            (style.verticalMultiline.newlineAfterOpenParen && !isImplicitArgList && isDefinition) ||
+            mixedParamsWithCtorModifier
+
         val mod =
-          if ((mixedParams &&
-            owners(prevT).is[CtorModifier]) ||
-            newlinewBeforeImplicit) Newline
+          if (shouldAddNewline) Newline
           else NoSplit
+
         Decision(
           t,
           Seq(
@@ -804,7 +825,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
               .withIndent(indentParam, close2, Right)
           ))
       case Decision(t @ FormatToken(KwImplicit(), _, _), _)
-          if style.newlines.afterImplicitKWInVerticalMultiline =>
+          if (style.verticalMultiline.newlineAfterImplicitKW || style.newlines.afterImplicitKWInVerticalMultiline) =>
         val split = Split(Newline, 0)
         Decision(t, Seq(split))
     }
@@ -830,7 +851,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       case _ => 0
     }
 
-    val aboveArityThreshold = maxArity >= style.verticalMultilineAtDefinitionSiteArityThreshold
+    val aboveArityThreshold = (maxArity >= style.verticalMultiline.arityThreshold) || (maxArity >= style.verticalMultilineAtDefinitionSiteArityThreshold)
 
     Seq(
       Split(NoSplit, 0, ignoreIf = !isBracket && aboveArityThreshold)

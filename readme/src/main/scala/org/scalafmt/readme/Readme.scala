@@ -72,6 +72,8 @@ object Readme {
 
   def warning(frags: Frag*) = div(frags, `class` := "warning")
 
+  def sidenote(frags: Frag*) = div(frags, `class` := "sidenote")
+
   def github: String = "https://github.com"
   def repo: String = "https://github.com/scalameta/scalafmt"
   def gitRepo: String = repo + ".git"
@@ -236,22 +238,47 @@ object Readme {
 
   val verticalAlign = ScalafmtConfig.default.copy(
     maxColumn = 60,
-    verticalMultilineAtDefinitionSite = true
+    verticalMultiline = VerticalMultiline(atDefnSite = true)
   )
+
+  val VerticalMultilineDefultConfigStr = "verticalmultiline = {\n" + Config
+    .toHocon(ScalafmtConfig.default.verticalMultiline)
+    .map("  " + _)
+    .mkString("\n") + "\n}"
 
   val verticalAlignImplicitBefore = ScalafmtConfig.default.copy(
     maxColumn = 60,
-    verticalMultilineAtDefinitionSite = true,
-    newlines = ScalafmtConfig.default.newlines.copy(
-      beforeImplicitKWInVerticalMultiline = true
+    verticalMultiline = VerticalMultiline(
+      atDefnSite = true,
+      newlineBeforeImplicitKW = true
     )
   )
 
   val verticalAlignImplicitAfter = ScalafmtConfig.default.copy(
     maxColumn = 60,
-    verticalMultilineAtDefinitionSite = true,
-    newlines = ScalafmtConfig.default.newlines.copy(
-      afterImplicitKWInVerticalMultiline = true
+    verticalMultiline = VerticalMultiline(
+      atDefnSite = true,
+      newlineAfterImplicitKW = true
+    )
+  )
+
+  val multilineNewlineAfterParen = ScalafmtConfig.default.copy(
+    continuationIndent =
+      ScalafmtConfig.default.continuationIndent.copy(defnSite = 2),
+    verticalMultiline = VerticalMultiline(
+      atDefnSite = true,
+      arityThreshold = 2,
+      newlineAfterOpenParen = true
+    )
+  )
+
+  val multilineDanglingParens = ScalafmtConfig.default.copy(
+    continuationIndent =
+      ScalafmtConfig.default.continuationIndent.copy(defnSite = 2),
+    verticalMultiline = VerticalMultiline(
+      atDefnSite = true,
+      arityThreshold = 2,
+      excludeDanglingParens = Nil
     )
   )
 
@@ -262,8 +289,8 @@ object Readme {
 
   val arityThreshold =
     ScalafmtConfig.default.copy(
-      verticalMultilineAtDefinitionSite = true,
-      verticalMultilineAtDefinitionSiteArityThreshold = 2
+      verticalMultiline =
+        VerticalMultiline(atDefnSite = true, arityThreshold = 2)
     )
 
   def fmt(style: ScalafmtConfig)(code: String): TypedTag[String] =

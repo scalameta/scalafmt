@@ -1,8 +1,11 @@
 maxColumn = 80
-verticalMultilineAtDefinitionSite = true
+verticalMultiline = {
+    atDefnSite = true
+    newlineAfterImplicitKW = true
+    newlineBeforeImplicitKW = true
+}
 continuationIndent.defnSite = 2
 continuationIndent.extendSite = 0
-newlines.afterImplicitKWInVerticalMultiline = true
 
 <<< should add a newline after implicit keyword in function definitions
 def format_![T <: Tree](code: String, foo: Int)(f: A => B, k: D)(implicit ev: Parse[T], ev2: EC): String
@@ -12,7 +15,8 @@ def format_![T <: Tree](
   foo: Int
 )(f: A => B,
   k: D
-)(implicit
+)(
+  implicit
   ev: Parse[T],
   ev2: EC
 ): String
@@ -28,20 +32,22 @@ final class UserProfile(
   address: Address,
   profession: Profesion,
   school: School
-)(implicit
+)(
+  implicit
   ctx: Context,
   ec: Executor)
 extends Profile
 with UserSettings
 with SomethingElse
-
+  
 <<< should work with an empty first param group
 override def load()(implicit taskCtx: Context,
       ec: ExecutionContext
     ): Future[Seq[A] Or B]
 >>>
 override def load(
-)(implicit
+)(
+  implicit
   taskCtx: Context,
   ec: ExecutionContext
 ): Future[Seq[A] Or B]
@@ -54,14 +60,14 @@ override def load(code: String)()(implicit taskCtx: Context,
 override def load(
   code: String
 )(
-)(implicit
+)(
+  implicit
   taskCtx: Context,
   ec: ExecutionContext
 ): Future[Seq[A] Or B]
 
 <<< should work without explicit parameter groups
-implicit def pairEncoder[A, B](
-    implicit aEncoder: CsvEncoder[A],
+implicit def pairEncoder[A, B](implicit aEncoder: CsvEncoder[A],
     bEncoder: CsvEncoder[B]
 ): CsvEncoder[(A, B)]
 >>>

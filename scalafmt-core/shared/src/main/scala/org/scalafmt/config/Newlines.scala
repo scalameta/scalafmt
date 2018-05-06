@@ -54,48 +54,6 @@ import metaconfig._
   *   If `always`, it will always add one empty line (opposite of `never`).
   *   If `preserve`, and there isn't an empty line, it will keep it as it is.
   *   If there is one or more empty lines, it will place a single empty line.
-  * @param afterImplicitKWInVerticalMultiline  If true, add a newline after an implicit keyword in function and
-  *                                   class definitions (only for verticalMultiline style)
-  * {{{
-  *   // newlines.afterImplicitKWInVerticalMultiline = true
-  *   def format(
-  *     code: String,
-  *     age: Int
-  *   )(implicit
-  *     ev: Parser,
-  *     c: Context
-  *   ): String
-  *   // newlines.afterImplicitKWInVerticalMultiline = false
-  *   def format(
-  *     code: String,
-  *     age: Int
-  *   )(implicit ev: Parser,
-  *     c: Context
-  *   ): String
-  * }}}
-  * @param beforeImplicitKWInVerticalMultiline If true, add a newline before an implicit keyword in function and
-  *                                   class definitions (only for verticalMultiline style)
-  * {{{
-  *   // newlines.afterImplicitKWInVerticalMultiline = true
-  *   // newlines.beforeImplicitKWInVerticalMultiline = true
-  *   def format(
-  *     code: String,
-  *     age: Int
-  *   )(
-  *     implicit
-  *     ev: Parser,
-  *     c: Context
-  *   ): String
-  *   // newlines.afterImplicitKWInVerticalMultiline = true
-  *   // newlines.beforeImplicitKWInVerticalMultiline = false
-  *   def format(
-  *     code: String,
-  *     age: Int
-  *   )(implicit
-  *     ev: Parser,
-  *     c: Context
-  *   ): String
-  * }}}
   * @param alwaysBeforeElseAfterCurlyIf if true, add a new line between the end of a curly if and the following else.
   *   For example
   *   if(someCond) {
@@ -128,7 +86,9 @@ case class Newlines(
     alwaysBeforeCurlyBraceLambdaParams: Boolean = false,
     alwaysBeforeTopLevelStatements: Boolean = false,
     afterCurlyLambda: NewlineCurlyLambda = NewlineCurlyLambda.never,
+    @deprecated("Use VerticalMultiline.newlineAfterImplicitKW instead")
     afterImplicitKWInVerticalMultiline: Boolean = false,
+    @deprecated("Use VerticalMultiline.newlineBeforeImplicitKW instead")
     beforeImplicitKWInVerticalMultiline: Boolean = false,
     alwaysBeforeElseAfterCurlyIf: Boolean = false,
     alwaysBeforeMultilineDef: Boolean = true

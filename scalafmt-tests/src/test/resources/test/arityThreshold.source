@@ -1,9 +1,10 @@
 maxColumn = 80
-verticalMultilineAtDefinitionSite = true
-verticalMultilineAtDefinitionSiteArityThreshold = 2
-danglingParentheses = true
+verticalMultiline = {
+    atDefnSite = true
+    arityThreshold = 2
+}
 continuationIndent.defnSite = 2
-<<< Verify that verticalMultilineAtDefinitionSiteArityThreshold works as expected
+<<< Verify that verticalMultiline.arityThreshold works as expected
 case class Foo(x: String)
 case class Bar(x: String, y: String)
 case class VeryLongNames(xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx: String)

@@ -1,4 +1,6 @@
-verticalMultilineAtDefinitionSite = true
+verticalMultiline = {
+    atDefnSite = true
+}
 maxColumn = 80
 continuationIndent.extendSite = 2
 <<< curried function over maxColumn
