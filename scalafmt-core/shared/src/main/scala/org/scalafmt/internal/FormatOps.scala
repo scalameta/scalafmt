@@ -874,8 +874,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     else formatToken.right
   }
 
-  def xmlSpace(owner: Tree): Modification =
-    if (owner.isInstanceOf[Term.Xml]) NoSplit
-    else Space
-
+  def xmlSpace(owner: Tree): Modification = owner match {
+    case _: Term.Xml | _: Pat.Xml => NoSplit
+    case _ => Space
+  }
 }

@@ -513,7 +513,7 @@ object TreeOps {
   }
 
   def isXmlBrace(owner: Tree): Boolean = owner match {
-    case _: Term.Xml => true
+    case _: Term.Xml | _: Pat.Xml => true
     case b: Term.Block => b.parent.exists(_.isInstanceOf[Term.Xml])
     case _ => false
   }

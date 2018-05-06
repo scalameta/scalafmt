@@ -25,3 +25,7 @@
   val x = 1
   List(x, x)
 }</span>
+<<< pattern
+x match { case <lift>{ _* }</lift> => }
+>>>
+x match { case <lift>{_*}</lift> => }
