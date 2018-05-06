@@ -211,6 +211,13 @@
       @li
         @lnk("mvn_scalafmt", "https://github.com/pianista215/mvn_scalafmt")
 
+  @sect{Mill}
+    Mill have scalafmt support built-in:
+    
+    @ul
+      @li
+        @lnk("scalafmt module", "http://www.lihaoyi.com/mill/page/configuring-mill.html#reformatting-your-code")
+
   @sect{Vim}
     @ul
       @li
