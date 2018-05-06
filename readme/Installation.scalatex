@@ -209,7 +209,7 @@
     It is possible to use scalafmt in Maven with the following externally maintained plugin:
     @ul
       @li
-        @lnk("mvn_scalafmt", "https://github.com/pianista215/mvn_scalafmt")
+        @lnk("mvn_scalafmt", "https://github.com/SimonJPegg/mvn_scalafmt")
 
   @sect{Vim}
     @ul
