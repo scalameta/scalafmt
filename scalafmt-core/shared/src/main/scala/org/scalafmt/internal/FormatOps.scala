@@ -553,7 +553,10 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
         case _ => None
       }
     } yield blockEnd).getOrElse {
-      function.tokens.last -> Left
+      function.tokens.last match {
+        case tok @ Whitespace() => tok -> Right
+        case tok => tok -> Left
+      }
     }
   }
 

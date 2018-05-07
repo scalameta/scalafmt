@@ -117,3 +117,22 @@ map(() => {
       case e =>
     }
 })
+<<< case
+classTag[K] match {
+  case ClassTag.Float =>
+    (l, x) =>
+      util.Arrays(aaaaaaaaaaaaaaaaaaaaa, bbbbbbbbbbbbbbbbb)
+    case ClassTag.Double =>
+    (l, x) =>
+      util.Arrays
+}
+>>>
+classTag[K] match {
+  case ClassTag.Float =>
+    (l, x) =>
+      util.Arrays(
+          aaaaaaaaaaaaaaaaaaaaa,
+          bbbbbbbbbbbbbbbbb)
+  case ClassTag.Double =>
+    (l, x) => util.Arrays
+}
