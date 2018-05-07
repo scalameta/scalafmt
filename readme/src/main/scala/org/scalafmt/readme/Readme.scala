@@ -245,12 +245,8 @@ object Readme {
     verticalMultiline = VerticalMultiline(atDefnSite = true)
   )
 
-  val VerticalMultilineDefultConfigStr =
-    "???"
-//    "verticalmultiline = {\n" + Config
-//    .toHocon(ScalafmtConfig.default.verticalMultiline)
-//    .map("  " + _)
-//    .mkString("\n") + "\n}"
+  val VerticalMultilineDefultConfigStr = "verticalMultiline = {\n" +
+    Config.toHocon(ScalafmtConfig.default.verticalMultiline) + "}"
 
   val verticalAlignImplicitBefore = ScalafmtConfig.default.copy(
     maxColumn = 60,

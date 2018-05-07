@@ -22,6 +22,47 @@ object Config {
     }
   }
 
+  def toHocon[T: ConfEncoder](value: T): String = {
+    val conf = ConfEncoder[T].write(value)
+    val out = new StringBuilder
+    def loop(c: Conf): Unit = c match {
+      case Conf.Null() => out.append("null").append("\n")
+      case Conf.Num(num) => out.append(num).append("\n")
+      case Conf.Str(str) => out.append('"').append(str).append('"').append("\n")
+      case Conf.Bool(bool) => out.append(bool).append("\n")
+      case Conf.Lst(lst) =>
+        out.append("[\n")
+        lst.foreach { elem =>
+          out.append("  ")
+          loop(elem)
+        }
+        out.append("]\n")
+      case Conf.Obj(obj) =>
+        obj.foreach {
+          case (key, value) =>
+            out.append(key).append(" = ")
+            loop(value)
+        }
+    }
+
+    def flatten(c: Conf): Conf = c match {
+      case Conf.Obj(obj) =>
+        val flattened = obj.flatMap {
+          case (key, Conf.Obj(nested)) =>
+            nested.map {
+              case (k, v) =>
+                s"$key.$k" -> flatten(v)
+            }
+          case x => x :: Nil
+        }
+        Conf.Obj(flattened)
+      case x => x
+    }
+    loop(flatten(conf))
+
+    out.toString()
+  }
+
   def fromHoconString(
       string: String,
       path: Option[String] = None): Configured[ScalafmtConfig] =

@@ -7,8 +7,8 @@ import metaconfig.Configured._
 
 object ReaderUtil {
   // Poor mans coproduct reader
-  def oneOf[T: ClassTag](options: sourcecode.Text[T]*): ConfDecoder[T] =
-    oneOfImpl(lowerCase, options)
+  def oneOf[T: ClassTag](options: sourcecode.Text[T]*): ConfCodec[T] =
+    oneOfImpl((lowerCase _).compose(lowerCaseNoBackticks), options)
 
   def oneOfIgnoreBackticks[T: ClassTag](
       options: sourcecode.Text[T]*): ConfDecoder[T] =
@@ -20,9 +20,9 @@ object ReaderUtil {
 
   private def oneOfImpl[T: ClassTag](
       sanitize: String => String,
-      options: Seq[sourcecode.Text[T]]): ConfDecoder[T] = {
+      options: Seq[sourcecode.Text[T]]): ConfCodec[T] = {
     val m = options.map(x => sanitize(x.source) -> x.value).toMap
-    ConfDecoder.instance[T] {
+    val decoder = ConfDecoder.instance[T] {
       case Conf.Str(x) =>
         m.get(sanitize(x)) match {
           case Some(y) =>
@@ -33,5 +33,13 @@ object ReaderUtil {
             ConfError.message(msg).notOk
         }
     }
+    val encoder = ConfEncoder.instance[T] { value =>
+      options
+        .collectFirst {
+          case sourcecode.Text(`value`, source) => Conf.Str(sanitize(source))
+        }
+        .getOrElse(Conf.Null())
+    }
+    ConfCodec.EncoderDecoderToCodec(encoder, decoder)
   }
 }
