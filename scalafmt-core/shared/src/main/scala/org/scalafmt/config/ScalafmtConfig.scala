@@ -117,18 +117,18 @@ case class ScalafmtConfig(
     runner: ScalafmtRunner = ScalafmtRunner.default,
     // Settings which belong to no group
     indentYieldKeyword: Boolean = true,
-    @ExtraName("binPackImportSelectors") importSelectors: ImportSelectors =
-      ImportSelectors.noBinPack,
+    @ExtraName("binPackImportSelectors")
+    importSelectors: ImportSelectors = ImportSelectors.noBinPack,
     unindentTopLevelOperators: Boolean = false,
     includeCurlyBraceInSelectChains: Boolean = true,
     assumeStandardLibraryStripMargin: Boolean = false,
     danglingParentheses: Boolean = false,
     poorMansTrailingCommasInConfigStyle: Boolean = false,
-    @deprecated("Use VerticalMultiline.atDefnSite instead")
+    @deprecated("Use VerticalMultiline.atDefnSite instead", "1.6.0")
     verticalMultilineAtDefinitionSite: Boolean = false,
-    @deprecated("Use VerticalMultiline.arityThreshold instead")
+    @deprecated("Use VerticalMultiline.arityThreshold instead", "1.6.0")
     verticalMultilineAtDefinitionSiteArityThreshold: Int = 100,
-    @Recurse verticalMultiline: VerticalMultiline = VerticalMultiline(),
+    verticalMultiline: VerticalMultiline = VerticalMultiline(),
     onTestFailure: String = "",
     encoding: Codec = "UTF-8",
     project: ProjectFiles = ProjectFiles()
@@ -141,6 +141,7 @@ case class ScalafmtConfig(
   private implicit val binpackReader = binPack.reader
   private implicit val newlinesReader = newlines.reader
   private implicit val optInReader = optIn.reader
+  private implicit val verticalMultilineReader = verticalMultiline.reader
   implicit val alignDecoder: ConfDecoder[Align] =
     ScalafmtConfig.alignReader(align.reader)
   lazy val alignMap: Map[String, Regex] =

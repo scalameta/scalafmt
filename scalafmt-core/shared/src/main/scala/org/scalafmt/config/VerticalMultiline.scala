@@ -5,7 +5,6 @@ import metaconfig._
 /**
   * Configuration related to multi-line formatting.
   */
-@DeriveConfDecoder
 case class VerticalMultiline(
     atDefnSite: Boolean = false,
     arityThreshold: Int = 100,
@@ -16,7 +15,15 @@ case class VerticalMultiline(
       DanglingExclude.`class`,
       DanglingExclude.`trait`
     )
-)
+) {
+  val reader: ConfDecoder[VerticalMultiline] =
+    generic.deriveDecoder(this).noTypos
+}
+
+object VerticalMultiline {
+  implicit lazy val surface: generic.Surface[VerticalMultiline] =
+    generic.deriveSurface
+}
 
 sealed abstract class DanglingExclude
 
