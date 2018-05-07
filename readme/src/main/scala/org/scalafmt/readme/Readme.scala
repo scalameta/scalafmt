@@ -117,9 +117,10 @@ object Readme {
     //   a.b = 1
     //   a.c = 2
     // which means a simple line-by-line string diffing is sufficient for now.
-    val defaultStrs = Config.toHocon(ScalafmtConfig.default).toSet
-    val configStrs = Config.toHocon(style).toSet
-    configStrs.diff(defaultStrs).mkString("\n")
+//    val defaultStrs = Config.toHocon(ScalafmtConfig.default).toSet
+//    val configStrs = Config.toHocon(style).toSet
+//    configStrs.diff(defaultStrs).mkString("\n")
+    "???"
   }
 
   def configurationBlock(style: ScalafmtConfig) = {
@@ -244,10 +245,12 @@ object Readme {
     verticalMultiline = VerticalMultiline(atDefnSite = true)
   )
 
-  val VerticalMultilineDefultConfigStr = "verticalmultiline = {\n" + Config
-    .toHocon(ScalafmtConfig.default.verticalMultiline)
-    .map("  " + _)
-    .mkString("\n") + "\n}"
+  val VerticalMultilineDefultConfigStr =
+    "???"
+//    "verticalmultiline = {\n" + Config
+//    .toHocon(ScalafmtConfig.default.verticalMultiline)
+//    .map("  " + _)
+//    .mkString("\n") + "\n}"
 
   val verticalAlignImplicitBefore = ScalafmtConfig.default.copy(
     maxColumn = 60,
