@@ -12,9 +12,9 @@ or so long that no one reads it.*
 
 ---
 
-Scalafmt turns this mess into the (hopefully) readable, idiomatic and consistently formatted Scala code below
+Scalafmt turns the mess on left into the (hopefully) readable, idiomatic and consistently formatted Scala code on the right
 
-```tut:passthrough:silent
+```tut:invisible
 val code =
   s"""|object FormatMe { List(number) match
       |{ case head :: Nil
@@ -31,13 +31,31 @@ val code =
       |  3, 4, 5, 6)) }""".stripMargin
 ```
 
-```tut:evaluated
+<table width="100%">
+<tbody>
+<tr>
+<td style="border: none">
+
+```tut:passthrough
+println("```scala")
 println(code)
+println("```")
 ```
 
-```tut:evaluated
+</td>
+<td style="border: none">
+
+```tut:passthrough
+println("```scala")
 println(org.scalafmt.Scalafmt.format(code, org.scalafmt.config.ScalafmtConfig.default40).get)
+println("```")
 ```
+
+</td>
+</tr>
+</tbody>
+</table>
+
 
 The goal of scalafmt is to produce good enough formatted code so that
 you can focus on programming instead of manipulating syntax trivia.
