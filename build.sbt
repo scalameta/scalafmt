@@ -229,6 +229,21 @@ lazy val readme = scalatex
     cli
   )
 
+lazy val website = project
+  .enablePlugins(PreprocessPlugin, TutPlugin)
+  .settings(
+    allSettings,
+    noPublish,
+    tutSourceDirectory := baseDirectory.value / ".." / "docs",
+    sourceDirectory in Preprocess := tutTargetDirectory.value,
+    target in Preprocess := target.value / "docs",
+    preprocess in Preprocess := (preprocess in Preprocess).dependsOn(tut).value,
+    preprocessVars in Preprocess := Map(
+      "VERSION" -> version.value
+    )
+  )
+  .dependsOn(coreJVM, cli)
+
 def CiCommand(name: String)(commands: List[String]): Command =
   Command.command(name) { initState =>
     commands.foldLeft(initState) {

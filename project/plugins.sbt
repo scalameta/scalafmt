@@ -18,5 +18,7 @@ addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.1.0")
 addSbtPlugin("com.dancingrobot84" % "sbt-idea-plugin" % "0.4.2")
 addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % "0.6.2")
 addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "0.1.18")
+addSbtPlugin("com.typesafe.sbt" % "sbt-site" % "1.3.2")
+addSbtPlugin("org.tpolecat" % "tut-plugin" % "0.5.6")
 
 libraryDependencies += "org.scala-sbt" % "scripted-plugin" % sbtVersion.value
