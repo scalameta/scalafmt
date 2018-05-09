@@ -1,34 +1,72 @@
 import org.scalafmt.Scalafmt
+import org.scalafmt.config.ScalafmtRunner
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.config.ScalafmtConfig.default40
 import org.scalafmt.config.Config
+import scala.meta.Dialect
 
 package object website {
-  def exampleBlock(code: String, config: String): Unit =
-    exampleBlock(code, Config.fromHoconString(config).get.copy(maxColumn = 40))
 
-  def exampleBlock(code: String, config: ScalafmtConfig = default40): Unit =
+  private[this] def scalaCode(code: String): String =
+    s"""|```scala
+        |$code
+        |```""".stripMargin
+
+  /** Prints a formatted Scala code block one using the provided configuration,
+    * which is added as a comment on top
+    *
+    * @param code the unformatted code
+    * @param config the config as an HOCON string
+    */
+  def exampleBlock(code: String, config: String): Unit = {
+    val parsedConfig = Config
+      .fromHoconString(config)
+      .get
+      .copy(maxColumn = 40, runner = ScalafmtRunner.sbt)
+    val formattedCode = Scalafmt.format(code, parsedConfig).get
+    println(
+      scalaCode(
+        s"""|${config.split("\n").mkString("// ", "\n//", "")}
+            |
+            |${formattedCode}""".stripMargin,
+      ))
+  }
+
+  /** Prints two Scala code block next to each other, one with the original code,
+    * the other one formatted using the provided configuration
+    *
+    * @param code the unformatted code
+    * @param config the config to format the code (defaults to `default40`)
+    */
+  def compareExampleBlock(
+      code: String,
+      config: ScalafmtConfig = default40): Unit =
     println(
       s"""|<table width='100%'>
           |<tbody>
           |<tr>
           |<td style='border: none'>
           |
-          |```scala
-          |$code
-          |```
+          |${scalaCode(code)}
           |
           |</td>
           |<td style='border: none'>
           |
-          |```scala
-          |${Scalafmt.format(code, config).get}
-          |```
+          |${scalaCode(Scalafmt.format(code, config).get)}
           |
           |</td>
           |</tr>
           |</tbody>
           |</table>""".stripMargin
     )
+
+  /** Prints the default value of a property
+    *
+    * @param selector a function to select the default from the config
+    */
+  def default[A](selector: ScalafmtConfig => A) = {
+    val defaultValue = selector(ScalafmtConfig.default)
+    println(s"Default: **$defaultValue**")
+  }
 
 }

@@ -1,7 +1,11 @@
 {
   "docs": {
-    "Overview": [
-      "introduction"
+    "Documentation": [
+      "introduction",
+      "configuration",
+      "gotchas",
+      "faq",
+      "known-issues"
     ]
   }
 }

@@ -4,10 +4,14 @@
     "next": "Next",
     "previous": "Previous",
     "tagline": "A code formatter for Scala",
+    "configuration": "Configuration",
+    "faq": "FAQ / Troubleshooting",
+    "gotchas": "Gotchas",
     "introduction": "Introduction",
+    "known-issues": "Known Issues",
     "Docs": "Docs",
     "GitHub": "GitHub",
-    "Overview": "Overview"
+    "Documentation": "Documentation"
   },
   "pages-strings": {
     "Help Translate|recruit community translators for your project": "Help Translate",
