@@ -15,7 +15,10 @@ case class Pattern(
 }
 
 object Pattern {
-  implicit lazy val surface: Surface[Pattern] = generic.deriveSurface
+  implicit lazy val surface: Surface[Pattern] =
+    generic.deriveSurface
+  implicit lazy val encoder: ConfEncoder[Pattern] =
+    generic.deriveEncoder
   val neverInfix = Pattern(
     Seq("[\\w\\d_]+"),
     Seq(

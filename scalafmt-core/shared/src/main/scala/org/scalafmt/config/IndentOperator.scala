@@ -43,6 +43,8 @@ case class IndentOperator(
 object IndentOperator {
   implicit lazy val surface: generic.Surface[IndentOperator] =
     generic.deriveSurface
+  implicit lazy val encoder: ConfEncoder[IndentOperator] =
+    generic.deriveEncoder
   val default = IndentOperator()
   val akka = IndentOperator(
     ScalafmtConfig.indentOperatorsIncludeAkka,

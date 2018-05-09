@@ -910,8 +910,5 @@
       there are more configuration options if you visited nested fields
       like @code{spaces} and @code{newlines}.
 
-      @hl.ref(
-        wd / "scalafmt-core" / "shared" / "src" / "main" / "scala" / "org" / "scalafmt" / "config" / "ScalafmtConfig.scala",
-        start = "case class",
-        end = ") {"
-      )
+      @org.scalafmt.readme.Readme.allOptions
+

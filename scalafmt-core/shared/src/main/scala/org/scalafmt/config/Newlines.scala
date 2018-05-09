@@ -98,19 +98,17 @@ case class Newlines(
 
 object Newlines {
   implicit lazy val surface: Surface[Newlines] = generic.deriveSurface
+  implicit lazy val encoder: ConfEncoder[Newlines] = generic.deriveEncoder
 }
 
 sealed abstract class NewlineCurlyLambda
 
 object NewlineCurlyLambda {
 
-  implicit lazy val surface: generic.Surface[Newlines] =
-    generic.deriveSurface
-
   case object preserve extends NewlineCurlyLambda
   case object always extends NewlineCurlyLambda
   case object never extends NewlineCurlyLambda
 
-  implicit val newlineCurlyLambdaReader: ConfDecoder[NewlineCurlyLambda] =
+  implicit val newlineCurlyLambdaReader: ConfCodec[NewlineCurlyLambda] =
     ReaderUtil.oneOf[NewlineCurlyLambda](preserve, always, never)
 }

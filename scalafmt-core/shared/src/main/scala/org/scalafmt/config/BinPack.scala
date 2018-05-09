@@ -45,4 +45,5 @@ case class BinPack(
 object BinPack {
   implicit lazy val surface: generic.Surface[BinPack] =
     generic.deriveSurface[BinPack]
+  implicit lazy val encoder: ConfEncoder[BinPack] = generic.deriveEncoder
 }

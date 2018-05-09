@@ -84,4 +84,5 @@ case class OptIn(
 
 object OptIn {
   implicit lazy val surface: Surface[OptIn] = generic.deriveSurface
+  implicit lazy val encoder: ConfEncoder[OptIn] = generic.deriveEncoder
 }

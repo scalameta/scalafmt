@@ -28,4 +28,7 @@ case class RewriteSettings(
 object RewriteSettings {
   implicit lazy val surface: generic.Surface[RewriteSettings] =
     generic.deriveSurface
+  implicit lazy val encoder: ConfEncoder[RewriteSettings] =
+    generic.deriveEncoder
+
 }

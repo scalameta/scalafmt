@@ -11,7 +11,7 @@ object ReaderUtil {
     oneOfImpl((lowerCase _).compose(lowerCaseNoBackticks), options)
 
   def oneOfIgnoreBackticks[T: ClassTag](
-      options: sourcecode.Text[T]*): ConfDecoder[T] =
+      options: sourcecode.Text[T]*): ConfCodec[T] =
     oneOfImpl(lowerCaseNoBackticks, options)
 
   private def lowerCase(s: String): String = s.toLowerCase

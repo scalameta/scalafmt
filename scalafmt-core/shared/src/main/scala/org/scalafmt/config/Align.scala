@@ -94,6 +94,9 @@ object Align {
   val default = some
   val more: Align = some.copy(tokens = AlignToken.default)
   implicit lazy val surface: Surface[Align] = generic.deriveSurface[Align]
+  implicit lazy val encoder: ConfEncoder[Align] = generic.deriveEncoder
+  // TODO: metaconfig should handle iterables
+  implicit def encoderSet[T:ConfEncoder]: ConfEncoder[Set[T]] = implicitly[ConfEncoder[Seq[T]]].contramap(_.toSeq)
 
   // only for the truest vertical aligners, this setting is open for changes,
   // please open PR addding more stuff to it if you like.

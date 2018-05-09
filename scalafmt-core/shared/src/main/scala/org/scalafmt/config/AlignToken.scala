@@ -18,6 +18,7 @@ case class AlignToken(code: String, owner: String) {
 object AlignToken {
   implicit lazy val surface: Surface[AlignToken] =
     generic.deriveSurface[AlignToken]
+  implicit lazy val encoder: ConfEncoder[AlignToken] = generic.deriveEncoder
   val applyInfix = "Term.ApplyInfix"
   val caseArrow = AlignToken("=>", "Case")
   protected[scalafmt] val fallbackAlign = new AlignToken("<empty>", ".*")

@@ -18,4 +18,6 @@ case class RedundantBracesSettings(
 object RedundantBracesSettings {
   implicit lazy val surface: generic.Surface[RedundantBracesSettings] =
     generic.deriveSurface
+  implicit lazy val encoder: ConfEncoder[RedundantBracesSettings] =
+    generic.deriveEncoder
 }

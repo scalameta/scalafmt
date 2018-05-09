@@ -165,6 +165,11 @@ case class ScalafmtConfig(
 object ScalafmtConfig {
   implicit lazy val surface: generic.Surface[ScalafmtConfig] =
     generic.deriveSurface
+  implicit lazy val encoder: ConfEncoder[ScalafmtConfig] =
+    generic.deriveEncoder[ScalafmtConfig]
+
+  implicit lazy val codecEncoder: ConfEncoder[Codec] =
+    ConfEncoder.StringEncoder.contramap(_.name)
 
   val indentOperatorsIncludeAkka = "^.*=$"
   val indentOperatorsExcludeAkka = "^$"

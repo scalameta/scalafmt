@@ -81,6 +81,8 @@ case class ScalafmtOptimizer(
 object ScalafmtOptimizer {
   implicit lazy val surface: generic.Surface[ScalafmtOptimizer] =
     generic.deriveSurface
+  implicit lazy val encoder: ConfEncoder[ScalafmtOptimizer] =
+    generic.deriveEncoder
   val default = ScalafmtOptimizer()
 
   // TODO(olafur) uncomment once scala.meta converter supports default args.

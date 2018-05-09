@@ -18,4 +18,6 @@ case class ProjectFiles(
 object ProjectFiles {
   implicit lazy val surface: generic.Surface[ProjectFiles] =
     generic.deriveSurface
+  implicit lazy val encoder: ConfEncoder[ProjectFiles] =
+    generic.deriveEncoder
 }

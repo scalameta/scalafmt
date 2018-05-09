@@ -23,7 +23,7 @@ import scala.meta.dialects.Scala211
 case class ScalafmtRunner(
     debug: Boolean = false,
     eventCallback: FormatEvent => Unit = _ => Unit,
-    parser: MetaParser = Parse.parseSource,
+    parser: Parse[_ <: Tree] = Parse.parseSource,
     optimizer: ScalafmtOptimizer = ScalafmtOptimizer.default,
     maxStateVisits: Int = 1000000,
     dialect: Dialect = ScalafmtRunner.defaultDialect,
@@ -43,6 +43,14 @@ case class ScalafmtRunner(
 object ScalafmtRunner {
   implicit lazy val surface: generic.Surface[ScalafmtRunner] =
     generic.deriveSurface
+  implicit lazy val encoder: ConfEncoder[ScalafmtRunner] =
+    generic.deriveEncoder
+  implicit lazy val formatEventEncoder: ConfEncoder[FormatEvent => Unit] =
+    ConfEncoder.StringEncoder.contramap(_ => "FormatEvent => Unit")
+  implicit lazy val parseEncoder: ConfEncoder[Parse[_ <: Tree]] =
+    ConfEncoder.StringEncoder.contramap(_ => "Parse[Tree]")
+  implicit lazy val dialectEncoder: ConfEncoder[Dialect] =
+    ConfEncoder.StringEncoder.contramap(_.toString())
   val defaultDialect = Scala211.copy(
     // Are `&` intersection types supported by this dialect?
     allowAndTypes = true,

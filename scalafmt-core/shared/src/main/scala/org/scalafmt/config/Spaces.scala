@@ -35,4 +35,5 @@ case class Spaces(
 }
 object Spaces {
   implicit lazy val surface: generic.Surface[Spaces] = generic.deriveSurface
+  implicit lazy val encoder: ConfEncoder[Spaces] = generic.deriveEncoder
 }

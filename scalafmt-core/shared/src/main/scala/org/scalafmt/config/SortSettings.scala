@@ -8,7 +8,7 @@ case class SortSettings(
 
 object SortSettings {
 
-  implicit val SortSettingsModKeyReader: ConfDecoder[ModKey] =
+  implicit val SortSettingsModKeyReader: ConfCodec[ModKey] =
     ReaderUtil.oneOfIgnoreBackticks[ModKey](
       `implicit`,
       `final`,
@@ -36,6 +36,8 @@ object SortSettings {
   )
 
   implicit val surface: generic.Surface[SortSettings] = generic.deriveSurface
+  implicit lazy val encoder: ConfEncoder[SortSettings] =
+    generic.deriveEncoder
   implicit val reader: ConfDecoder[SortSettings] =
     generic.deriveDecoder(SortSettings(defaultOrder)).flatMap { result =>
       if (result.order.distinct.length != 8) {

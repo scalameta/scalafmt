@@ -117,11 +117,12 @@ object Readme {
     //   a.b = 1
     //   a.c = 2
     // which means a simple line-by-line string diffing is sufficient for now.
-//    val defaultStrs = Config.toHocon(ScalafmtConfig.default).toSet
-//    val configStrs = Config.toHocon(style).toSet
-//    configStrs.diff(defaultStrs).mkString("\n")
-    "???"
+    val defaultStrs = Config.toHocon(ScalafmtConfig.default).toSet
+    val configStrs = Config.toHocon(style).toSet
+    configStrs.diff(defaultStrs).mkString("\n")
   }
+
+  def allOptions = hl.scala.apply(Config.toHocon(ScalafmtConfig.default))
 
   def configurationBlock(style: ScalafmtConfig) = {
     div(
