@@ -45,3 +45,34 @@ trait NeedsServices {
     with HasThrottles
     with HasThrowableNotifier
 }
+<<< class param #1125
+class NeedsServices(
+   services:  Bag with
+    SomeOtherService.RequiredServices
+      with HasDynamicConfig with HasThrottles
+      with HasThrowableNotifier
+)
+>>>
+class NeedsServices(
+    services: Bag
+      with SomeOtherService.RequiredServices
+      with HasDynamicConfig
+      with HasThrottles
+      with HasThrowableNotifier
+)
+<<< def param #1125
+def sendRequest(services:  Bag with
+    SomeOtherService.RequiredServices
+      with HasDynamicConfig with HasHttpService, request: Request
+): Future[Response] = ???
+>>>
+def sendRequest(services: Bag
+                  with SomeOtherService.RequiredServices
+                  with HasDynamicConfig
+                  with HasHttpService,
+                request: Request): Future[Response] = ???
+<<< def param negative #1125
+def sendRequest(services:  Bag with Foo with Bar, request: Request): Future[Response] = ???
+>>>
+def sendRequest(services: Bag with Foo with Bar,
+                request: Request): Future[Response] = ???
