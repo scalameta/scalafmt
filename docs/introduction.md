@@ -14,8 +14,8 @@ or so long that no one reads it.*
 
 Scalafmt turns the mess on left into the (hopefully) readable, idiomatic and consistently formatted Scala code on the right
 
-```tut:invisible
-val code =
+```tut:passthrough
+website.exampleBlock(
   s"""|object FormatMe { List(number) match
       |{ case head :: Nil
       |if head % 2 == 0 => "number is even"
@@ -29,33 +29,29 @@ val code =
       |  , arg7 + arg8),
       |  arg9.select(1, 2,
       |  3, 4, 5, 6)) }""".stripMargin
+)
 ```
 
-<table width="100%">
-<tbody>
-<tr>
-<td style="border: none">
+Another example
 
 ```tut:passthrough
-println("```scala")
-println(code)
-println("```")
+website.exampleBlock(
+  s"""|object FormatMe { List(number) match
+      |{ case head :: Nil
+      |if head % 2 == 0 => "number is even"
+      |  case head :: Nil =>
+      |  "number is not even"
+      |  case Nil =>
+      |  "List is empty" }
+      |  function(arg1,
+      |  arg2(arg3(arg4,
+      |  arg5, "arg6")
+      |  , arg7 + arg8),
+      |  arg9.select(1, 2,
+      |  3, 4, 5, 6)) }""".stripMargin,
+  "align = none"
+)
 ```
-
-</td>
-<td style="border: none">
-
-```tut:passthrough
-println("```scala")
-println(org.scalafmt.Scalafmt.format(code, org.scalafmt.config.ScalafmtConfig.default40).get)
-println("```")
-```
-
-</td>
-</tr>
-</tbody>
-</table>
-
 
 The goal of scalafmt is to produce good enough formatted code so that
 you can focus on programming instead of manipulating syntax trivia.
