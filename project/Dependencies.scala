@@ -4,7 +4,7 @@ import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 // scalafmt: { maxColumn = 120, style = defaultWithAlign }
 
 object Dependencies {
-  val metaconfigV = "0.7.1"
+  val metaconfigV = "0.7.2"
   val scalametaV = "1.8.0"
   val scalatestV = "3.0.4"
   val coursier = "1.0.0-RC12"

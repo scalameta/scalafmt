@@ -5,6 +5,8 @@ import scalatags.Text.all._
 import java.text.SimpleDateFormat
 import java.util.Date
 import com.twitter.util.Eval
+import metaconfig.Conf
+import metaconfig.ConfEncoder
 import metaconfig.generic.Settings
 import metaconfig.generic.Surface
 import org.scalafmt.Scalafmt
@@ -107,22 +109,15 @@ object Readme {
   }
 
   def changedConfig(style: ScalafmtConfig): String = {
-    // Quite a hacky implementation for now.
-    // This only works as we're flattening the HOCON configuration so
-    //   a = [
-    //    b = 1
-    //    c = 2
-    //   ]
-    // turns into
-    //   a.b = 1
-    //   a.c = 2
-    // which means a simple line-by-line string diffing is sufficient for now.
-    val defaultStrs = Config.toHocon(ScalafmtConfig.default).render(40).lines.toSet
-    val configStrs = Config.toHocon(style).render(40).lines.toSet
-    configStrs.diff(defaultStrs).mkString("\n")
+    val diff = Conf.patch(
+      ConfEncoder[ScalafmtConfig].write(ScalafmtConfig.default),
+      ConfEncoder[ScalafmtConfig].write(style)
+    )
+    Conf.printHocon(diff)
   }
 
-  def allOptions = hl.scala.apply(Config.toHocon(ScalafmtConfig.default).render(40))
+  def allOptions =
+    hl.scala.apply(Conf.printHocon(ScalafmtConfig.default))
 
   def configurationBlock(style: ScalafmtConfig) = {
     div(
@@ -246,8 +241,11 @@ object Readme {
     verticalMultiline = VerticalMultiline(atDefnSite = true)
   )
 
-  val VerticalMultilineDefultConfigStr = "verticalMultiline = {\n" +
-    Config.toHocon(ScalafmtConfig.default.verticalMultiline).render(40) + "}"
+  val VerticalMultilineDefultConfigStr = Conf.printHocon(
+    Conf.Obj(
+      "verticalMultiline" -> ConfEncoder[VerticalMultiline].write(
+        ScalafmtConfig.default.verticalMultiline)
+    ))
 
   val verticalAlignImplicitBefore = ScalafmtConfig.default.copy(
     maxColumn = 60,
