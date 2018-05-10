@@ -673,7 +673,7 @@ class Router(formatOps: FormatOps) {
 
         Seq(
           Split(noSplitModification, 0, policy = noSplitPolicy)
-            .withOptimalToken(expirationToken, killOnFail = false)
+            .withOptimalToken(expirationToken)
             .withIndent(noSplitIndent, close, Right),
           Split(
             newlineModification,

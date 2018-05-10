@@ -58,13 +58,13 @@ package a {
 }
 <<< single line
 object a {
-case class C1
+case class C1()
 sealed trait T1
 final class FC1
 }
 >>>
 object a {
-  case class C1
+  case class C1()
   sealed trait T1
   final class FC1
 }
@@ -79,7 +79,7 @@ package a {
       val v1 = 1
       val v2 = 2
 
-      case class C1
+      case class C1()
 
       sealed trait T1
 
@@ -106,7 +106,7 @@ package a {
       val v1 = 1
       val v2 = 2
 
-      case class C1
+      case class C1()
 
       sealed trait T1
 

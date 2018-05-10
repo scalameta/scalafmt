@@ -131,7 +131,6 @@ object TreeOps {
         case t: Defn.Def => addDefn[KwDef](t.mods, t)
         case t: Defn.Macro => addDefn[KwDef](t.mods, t)
         case t: Decl.Def => addDefn[KwDef](t.mods, t)
-        case t: Ctor.Secondary => addDefn[KwDef](t.mods, t)
         case t: Defn.Object => addDefn[KwObject](t.mods, t)
         case t: Defn.Trait => addDefn[KwTrait](t.mods, t)
         case t: Defn.Type => addDefn[KwType](t.mods, t)
@@ -140,6 +139,9 @@ object TreeOps {
         case t: Decl.Val => addDefn[KwVal](t.mods, t)
         case t: Defn.Var => addDefn[KwVar](t.mods, t)
         case t: Decl.Var => addDefn[KwVar](t.mods, t)
+        case t: Ctor.Secondary =>
+          addDefn[KwDef](t.mods, t)
+          addAll(t.stats)
         case t => // Nothing
           addAll(extractStatementsIfAny(t))
       }
@@ -339,7 +341,6 @@ object TreeOps {
     case t: Term.Function => t -> t.params
     case t: Type.Function => t -> t.params
     case t: Type.Tuple => t -> t.args
-    case t: Type.Apply => t.tpe -> t.args
     case t: Type.Param => t.name -> t.tparams
     case t: Decl.Type => t.name -> t.tparams
     case t: Defn.Type => t.name -> t.tparams
