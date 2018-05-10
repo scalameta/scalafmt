@@ -45,7 +45,8 @@ object WithChain {
   def unapply(t: Type.With): Option[Type.With] =
     TreeOps.topTypeWith(t) match {
       // self types, params, val/def/var/type definitions or declarations
-      case (top: Type.With) `:parent:` (_: Defn | _: Decl | _: Term.Param | _: Self) =>
+      case (top: Type.With) `:parent:`
+            (_: Defn | _: Decl | _: Term.Param | _: Self) =>
         Some(top)
       case _ =>
         None

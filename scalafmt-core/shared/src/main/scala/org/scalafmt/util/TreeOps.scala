@@ -304,7 +304,8 @@ object TreeOps {
 
   def isCallSite(tree: Tree): Boolean = tree match {
     case _: Term.Apply | _: Type.Apply | _: Pat.Extract | _: Term.Super |
-        _: Pat.Tuple | _: Term.Tuple | _: Term.ApplyType | _: Term.Assign | _: Init =>
+        _: Pat.Tuple | _: Term.Tuple | _: Term.ApplyType | _: Term.Assign |
+        _: Init =>
       true
     case _ => false
   }

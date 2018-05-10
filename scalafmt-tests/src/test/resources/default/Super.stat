@@ -7,9 +7,10 @@ foo.super.x()
       @enableIf(c => !c.compilerSettings.exists(_.matches("""^-Xplugin:.*scalajs-compiler_[0-9\.\-]*\.jar$""")))
       def javafxTyper[A]: PropertyTyper[A] = macro Macros.javafxTyper[A]
 >>>
-@enableIf(c =>
-  !c.compilerSettings.exists(
-      _.matches("""^-Xplugin:.*scalajs-compiler_[0-9\.\-]*\.jar$""")))
+@enableIf(
+    c =>
+      !c.compilerSettings.exists(
+          _.matches("""^-Xplugin:.*scalajs-compiler_[0-9\.\-]*\.jar$""")))
 def javafxTyper[A]: PropertyTyper[A] = macro Macros.javafxTyper[A]
 <<< #671
 def this(a: Int) = {
