@@ -97,7 +97,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       tree match {
         case p: Pkg => packages ++= p.ref.tokens
         case i: Import => imports ++= i.tokens
-        case t: Term.Arg => add(t)
+        case t: Term => add(t) // ???
         case t: Term.Param =>
           add(t)
           t.mods.foreach(addOptional)

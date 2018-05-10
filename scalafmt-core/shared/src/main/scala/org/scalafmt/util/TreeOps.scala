@@ -19,10 +19,10 @@ import scala.meta.tokens.Token._
 import scala.meta.tokens.Tokens
 import scala.reflect.ClassTag
 import scala.reflect.classTag
-
 import org.scalafmt.Error
 import org.scalafmt.Error.UnexpectedTree
 import org.scalafmt.internal.FormatToken
+import scala.meta.Init
 
 /**
   * Stateless helper functions on [[scala.meta.Tree]].
@@ -75,10 +75,10 @@ object TreeOps {
     case t: Term.ForYield => getEnumStatements(t.enums)
     case t: Term.Match => t.cases
     case t: Term.PartialFunction => t.cases
-    case t: Term.TryWithCases => t.catchp
+    case t: Term.Try => t.catchp
     case t: Type.Refine => t.stats
     case t: scala.meta.Source => t.stats
-    case t: Template if t.stats.isDefined => t.stats.get
+    case t: Template => t.stats
     case t: Case if t.body.tokens.nonEmpty => Seq(t.body)
     case _ => Seq.empty[Tree]
   }
@@ -236,7 +236,7 @@ object TreeOps {
     case d: Defn.Def => d.decltpe
     case d: Defn.Val => d.decltpe
     case d: Defn.Var => d.decltpe
-    case pat: Pat.Var.Term => pat.parent.flatMap(defDefReturnType)
+    case pat: Pat.Var => pat.parent.flatMap(defDefReturnType)
     case name: Term.Name => name.parent.flatMap(defDefReturnType)
     case _ => None
   }
@@ -301,8 +301,8 @@ object TreeOps {
   }
 
   def isCallSite(tree: Tree): Boolean = tree match {
-    case _: Term.Apply | _: Pat.Type.Apply | _: Pat.Extract | _: Term.Super |
-        _: Pat.Tuple | _: Term.Tuple | _: Term.ApplyType | _: Term.Update =>
+    case _: Term.Apply | _: Type.Apply | _: Pat.Extract | _: Term.Super |
+        _: Pat.Tuple | _: Term.Tuple | _: Term.ApplyType | _: Term.Assign | _: Init =>
       true
     case _ => false
   }
@@ -331,11 +331,10 @@ object TreeOps {
   val splitApplyIntoLhsAndArgs: PartialFunction[Tree, (Tree, Seq[Tree])] = {
     case t: Term.Apply => t.fun -> t.args
     case t: Term.Super => t -> Seq(t.superp)
-    case t: Pat.Extract => t.ref -> t.args
+    case t: Pat.Extract => t.fun -> t.args
     case t: Pat.Tuple => t -> t.args
-    case t: Pat.Type.Apply => t.tpe -> t.args
+    case t: Type.Apply => t.tpe -> t.args
     case t: Term.ApplyType => t.fun -> t.targs
-    case t: Term.Update => t.fun -> t.argss.flatten
     case t: Term.Tuple => t -> t.args
     case t: Term.Function => t -> t.params
     case t: Type.Function => t -> t.params
@@ -345,6 +344,7 @@ object TreeOps {
     case t: Decl.Type => t.name -> t.tparams
     case t: Defn.Type => t.name -> t.tparams
     // TODO(olafur) flatten correct? Filter by this () section?
+    case t: Init => t.tpe -> t.argss.flatten
     case t: Defn.Def => t.name -> t.paramss.flatten
     case t: Defn.Macro => t.name -> t.paramss.flatten
     case t: Decl.Def => t.name -> t.paramss.flatten
@@ -464,7 +464,7 @@ object TreeOps {
   def defBody(tree: Tree): Option[Tree] = tree match {
     case t: Defn.Def => Some(t.body)
     case t: Defn.Macro => Some(t.body)
-    case t: Ctor.Secondary => Some(t.body)
+    case t: Ctor.Secondary => Some(t.init)
     case _ => None
   }
 

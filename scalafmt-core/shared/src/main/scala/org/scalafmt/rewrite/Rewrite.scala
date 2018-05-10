@@ -87,8 +87,8 @@ object Rewrite {
           val out = Patch(ast, patches)(ctx)
           input match {
             case Input.File(path, _) =>
-              Input.LabeledString(path.toString(), out)
-            case Input.LabeledString(path, _) => Input.LabeledString(path, out)
+              Input.VirtualFile(path.toString(), out)
+            case Input.VirtualFile(path, _) => Input.VirtualFile(path, out)
             case _ => Input.String(out)
           }
         case _ => input

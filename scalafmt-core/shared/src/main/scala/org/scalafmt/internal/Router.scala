@@ -743,7 +743,7 @@ class Router(formatOps: FormatOps) {
         val close = matchingParentheses(hash(open))
         val isComma = left.is[Comma]
         val bodyHasNewlines = if (isComma) {
-          open.pos.end.line != close.pos.start.line
+          open.pos.endLine != close.pos.startLine
         } else {
           true
         }
@@ -846,16 +846,16 @@ class Router(formatOps: FormatOps) {
       // val x = function(a,
       //                  b)
       case FormatToken(tok @ Equals(), right, between) if (leftOwner match {
-            case _: Defn.Type | _: Defn.Val | _: Defn.Var | _: Term.Update |
-                _: Term.Assign | _: Term.Arg.Named =>
+            case _: Defn.Type | _: Defn.Val | _: Defn.Var | _: Term.Assign |
+                _: Term.Assign | _: Term.Assign =>
               true
             case t: Term.Param => t.default.isDefined
             case _ => false
           }) =>
         val rhs: Tree = leftOwner match {
           case l: Term.Assign => l.rhs
-          case l: Term.Update => l.rhs
-          case l: Term.Arg.Named => l.expr
+          case l: Term.Assign => l.rhs
+          case l: Term.Assign => l.lhs
           case l: Term.Param => l.default.get
           case l: Defn.Type => l.body
           case l: Defn.Val => l.rhs
@@ -869,7 +869,7 @@ class Router(formatOps: FormatOps) {
         val expire = rhs.tokens.last
 
         val penalty = leftOwner match {
-          case l: Term.Arg.Named if style.binPack.unsafeCallSite =>
+          case l: Term.Assign if style.binPack.unsafeCallSite =>
             Constants.BinPackAssignmentPenalty
           case l: Term.Param if style.binPack.unsafeDefnSite =>
             Constants.BinPackAssignmentPenalty
@@ -1152,7 +1152,7 @@ class Router(formatOps: FormatOps) {
         )
 
       // Var args
-      case FormatToken(_, Ident("*"), _) if rightOwner.is[Type.Arg.Repeated] =>
+      case FormatToken(_, Ident("*"), _) if rightOwner.is[Type.Repeated] =>
         Seq(
           Split(NoSplit, 0)
         )
@@ -1393,7 +1393,7 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(NoSplit, 0)
         )
-      case FormatToken(RightArrow(), _, _) if leftOwner.is[Type.Arg.ByName] =>
+      case FormatToken(RightArrow(), _, _) if leftOwner.is[Type.ByName] =>
         val mod = if (!style.spaces.inByNameTypes) NoSplit else Space
         Seq(
           Split(mod, 0)

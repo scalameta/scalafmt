@@ -37,15 +37,15 @@ class ScalafmtProps extends FormatAssertions {
           case Formatted.Failure(_: ParseException | _: TokenizeException) =>
             Nil
           case Formatted.Failure(e: Error.SearchStateExploded) =>
-            Seq(Observation("", e.line, SearchStateExploded))
+            List(Observation("", e.line, SearchStateExploded))
           case Formatted.Failure(e) =>
-            Seq(Observation(e.getMessage, 0, Unknown(e)))
+            List(Observation(e.getMessage, 0, Unknown(e)))
         }
       } catch {
         case e: Error.FormatterChangedAST =>
-          Seq(Observation(e.getMessage, -1, AstChanged))
+          List(Observation(e.getMessage, -1, AstChanged))
         case e: Error.FormatterOutputDoesNotParse =>
-          Seq(
+          List(
             Observation(
               e.getMessage.lines.slice(1, 2).mkString(""),
               e.line,
@@ -53,14 +53,14 @@ class ScalafmtProps extends FormatAssertions {
             )
           )
         case e: Error =>
-          Seq(Observation(e.getMessage, -1, Unknown(e)))
+          List(Observation(e.getMessage, -1, Unknown(e)))
         case e: DiffFailure =>
           val line =
             e.obtained.lines
               .zip(e.expected.lines)
               .takeWhile { case (a, b) => a == b }
               .length
-          Seq(
+          List(
             Observation(
               e.diff.lines.take(3).mkString("\n"),
               line,
@@ -71,7 +71,7 @@ class ScalafmtProps extends FormatAssertions {
     }
   }
 
-  def printReport(bugs: Seq[(CorpusFile, Observation[Bug])]): Unit = {
+  def printReport(bugs: List[(CorpusFile, Observation[Bug])]): Unit = {
     val table = Observation.markdownTable(bugs)
     val summary =
       bugs

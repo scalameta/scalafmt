@@ -29,8 +29,8 @@ object TreeSyntacticGroup {
 //    case _: Term.Tuple => g.Term.Expr1 // ??? Was SimpleExpr1, which is buggy for `a op ((b, c))
     case _: Term.If => g.Term.Expr1
     case _: Term.Match => g.Term.Expr1
-    case _: Term.TryWithCases => g.Term.Expr1
-    case _: Term.TryWithTerm => g.Term.Expr1
+    case _: Term.Try => g.Term.Expr1
+    case _: Term.TryWithHandler => g.Term.Expr1
     case _: Term.Function => g.Term.Expr
     case _: Term.PartialFunction => g.Term.SimpleExpr
     case _: Term.While => g.Term.Expr1
@@ -40,7 +40,7 @@ object TreeSyntacticGroup {
     case _: Term.New => g.Term.SimpleExpr
     case _: Term.Placeholder => g.Term.SimpleExpr1
     case _: Term.Eta => g.Term.SimpleExpr
-    case _: Term.Arg.Repeated => g.Term.PostfixExpr
+    case _: Term.Repeated => g.Term.PostfixExpr
     case _: Term.Param => g.Path // ???
     // Type
     case _: Type.Name => g.Path
@@ -57,15 +57,18 @@ object TreeSyntacticGroup {
     case _: Type.Refine => g.Type.RefineTyp
     case _: Type.Existential => g.Type.Typ
     case _: Type.Annotate => g.Type.AnnotTyp
+    case _: Type.Lambda => g.Type.Typ
+    case _: Type.Method => g.Type.Typ
     case _: Type.Placeholder => g.Type.SimpleTyp
     case _: Type.Bounds => g.Path // ???
-    case _: Type.Arg.Repeated => g.Type.ParamTyp
-    case _: Type.Arg.ByName => g.Type.ParamTyp
-    case _: Pat.Var.Type => g.Type.ParamTyp
+    case _: Type.Repeated => g.Type.ParamTyp
+    case _: Type.ByName => g.Type.ParamTyp
+    case _: Type.Var => g.Type.ParamTyp
     case _: Type.Param => g.Path // ???
     // Pat
     case _: Pat.Var => g.Pat.SimplePattern
     case _: Pat.Wildcard => g.Pat.SimplePattern
+    case _: Pat.SeqWildcard => g.Pat.SimplePattern
     case _: Pat.Bind => g.Pat.Pattern2
     case _: Pat.Alternative => g.Pat.Pattern
     case _: Pat.Tuple => g.Pat.SimplePattern

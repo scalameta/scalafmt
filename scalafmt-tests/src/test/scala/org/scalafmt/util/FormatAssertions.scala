@@ -35,7 +35,7 @@ trait FormatAssertions extends FunSuiteLike with DiffAssertions {
           case Parsed.Error(pos, message, details: ParseException) =>
             throw FormatterOutputDoesNotParse(
               parseException2Message(details, obtained),
-              pos.start.line
+              pos.startLine
             )
           case _ =>
         }
@@ -66,9 +66,9 @@ trait FormatAssertions extends FunSuiteLike with DiffAssertions {
 
   def parseException2Message(e: ParseException, obtained: String): String = {
     val range = 3
-    val i = e.pos.start.line
+    val i = e.pos.startLine
     val lines = obtained.lines.toVector
-    val arrow = (" " * (e.pos.start.column - 2)) + "^"
+    val arrow = (" " * (e.pos.startColumn - 2)) + "^"
     s"""${lines.slice(i - range, i + 1).mkString("\n")}
        |$arrow
        |${e.getMessage}
