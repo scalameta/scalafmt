@@ -152,6 +152,7 @@ lazy val tests = project
       // Test dependencies
       "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0",
       "com.lihaoyi" %% "scalatags" % "0.6.3",
+      "org.typelevel" %% "paiges-core" % "0.2.0",
       scalametaTestkit
     )
   )

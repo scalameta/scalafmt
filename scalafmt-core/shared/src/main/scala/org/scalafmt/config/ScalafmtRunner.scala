@@ -46,11 +46,11 @@ object ScalafmtRunner {
   implicit lazy val encoder: ConfEncoder[ScalafmtRunner] =
     generic.deriveEncoder
   implicit lazy val formatEventEncoder: ConfEncoder[FormatEvent => Unit] =
-    ConfEncoder.StringEncoder.contramap(_ => "FormatEvent => Unit")
+    ConfEncoder.StringEncoder.contramap(_ => "<FormatEvent => Unit>")
   implicit lazy val parseEncoder: ConfEncoder[Parse[_ <: Tree]] =
-    ConfEncoder.StringEncoder.contramap(_ => "Parse[Tree]")
+    ConfEncoder.StringEncoder.contramap(_ => "<Parse[Tree]>")
   implicit lazy val dialectEncoder: ConfEncoder[Dialect] =
-    ConfEncoder.StringEncoder.contramap(_.toString())
+    ConfEncoder.StringEncoder.contramap(_ => "<Dialect>")
   val defaultDialect = Scala211.copy(
     // Are `&` intersection types supported by this dialect?
     allowAndTypes = true,
