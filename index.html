@@ -219,9 +219,9 @@ brew upgrade scalafmt
       may include flags that have not been published yet.
       <code class="scala scalatex-site-Styles-highlightMe" style="display: inline;padding: 0px;margin: 0px;"></code>
 
-      <pre><code class="scala scalatex-site-Styles-highlightMe">build commit: 0bb92a2c80
-build time: Wed May 09 08:30:35 UTC 2018
-scalafmt 1.5.1-38-0bb92a2c
+      <pre><code class="scala scalatex-site-Styles-highlightMe">build commit: 295cee602b9bd6fb1fd6a2aa4aef5a808f272848
+build time: Thu May 10 14:24:23 UTC 2018
+scalafmt 1.5.1-62-295cee60
 Usage: scalafmt [options] [&lt;file&gt;...]
 
   -h, --help               prints this usage text
@@ -673,7 +673,7 @@ val x = List(
       use <code>scala.meta.Tree.productPrefix</code> from the the (for example, Ammonite)
       repl
 
-      <pre><code class="scala scalatex-site-Styles-highlightMe">@ import $ivy.`org.scalameta:scalameta_2.12:1.7.0`, scala.meta._
+      <pre><code class="scala scalatex-site-Styles-highlightMe">@ import $ivy.`org.scalameta:scalameta_2.12:1.8.0`, scala.meta._
 @ val termMatch = q&quot;x match { case 2 =&gt; foo(bar) }&quot;
 termMatch: Term.Match = x match {
   case 2 =&gt;
@@ -860,12 +860,14 @@ future
     case e: Err =&gt; 0
   }
   .map(_.toString)
-</code></pre></div></div><div class="scalafmt-configuration"><span class="scalafmt-configuration-toggle">Show/hide configuration used for this example</span><pre>rewrite.rules = [AvoidInfix]</pre></div></div>
+</code></pre></div></div><div class="scalafmt-configuration"><span class="scalafmt-configuration-toggle">Show/hide configuration used for this example</span><pre>rewrite.rules = [
+  avoidinfix
+]</pre></div></div>
     For more examples, see <a href="https://github.com/olafurpg/scala-repos/pull/18/files#diff-f4f9daffe8f0a4aee6505c4eea8493ccL120">this diff</a>.
     Configuration contains include/exclude operator filters (those values are build in, and can't be configured outside)
     <ul>
       <li>
-        Configure under <code>rewrite.neverInfix</code>, default values are in <a href="#Other">Other</a>
+        Configure under <code>rewrite.neverInfix</code>.
 </li></ul>
     <h2 id="ExpandImportSelectors" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#ExpandImportSelectors" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>ExpandImportSelectors</h2>
       <div><div class="scalafmt-pair"><div><pre><code class="scala scalatex-site-Styles-highlightMe">import a.{
@@ -888,7 +890,9 @@ import h.l
 import d.e.f
 import d.e.g
 import a.{foo =&gt; bar, zzzz =&gt; _, _}
-</code></pre></div></div><div class="scalafmt-configuration"><span class="scalafmt-configuration-toggle">Show/hide configuration used for this example</span><pre>rewrite.rules = [ExpandImportSelectors]</pre></div></div>
+</code></pre></div></div><div class="scalafmt-configuration"><span class="scalafmt-configuration-toggle">Show/hide configuration used for this example</span><pre>rewrite.rules = [
+  expandimportselectors
+]</pre></div></div>
     <h2 id="RedundantBraces" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#RedundantBraces" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>RedundantBraces</h2>
       <b>Warning</b>. This rewrite can cause <a href="#Non-idempotent">Non-idempotent</a> formatting, see <a href="https://github.com/scalameta/scalafmt/issues/1055">#1055</a>.
       <div><div class="scalafmt-pair"><div><pre><code class="scala scalatex-site-Styles-highlightMe">object RedundantBraces {
@@ -905,8 +909,10 @@ import a.{foo =&gt; bar, zzzz =&gt; _, _}
   // stringInterpolation = true
   q&quot;Hello $name&quot;
 }
-</code></pre></div></div><div class="scalafmt-configuration"><span class="scalafmt-configuration-toggle">Show/hide configuration used for this example</span><pre>rewrite.redundantBraces.stringInterpolation = true
-rewrite.rules = [RedundantBraces]</pre></div></div>
+</code></pre></div></div><div class="scalafmt-configuration"><span class="scalafmt-configuration-toggle">Show/hide configuration used for this example</span><pre>rewrite.rules = [
+  redundantbraces
+]
+rewrite.redundantBraces.stringInterpolation = true</pre></div></div>
       Configuration options and default values:
       <ul>
         <li>
@@ -936,19 +942,25 @@ rewrite.rules = [RedundantBraces]</pre></div></div>
       if a.nonEmpty
     } yield a
 }
-</code></pre></div></div><div class="scalafmt-configuration"><span class="scalafmt-configuration-toggle">Show/hide configuration used for this example</span><pre>rewrite.rules = [RedundantParens]</pre></div></div>
+</code></pre></div></div><div class="scalafmt-configuration"><span class="scalafmt-configuration-toggle">Show/hide configuration used for this example</span><pre>rewrite.rules = [
+  redundantparens
+]</pre></div></div>
     <h2 id="SortImports" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#SortImports" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>SortImports</h2>
       <p>
         The imports are sorted by the groups: symbols, lower-case, upper-case.</p>
       <div><div class="scalafmt-pair"><div><pre><code class="scala scalatex-site-Styles-highlightMe">import foo.{Zilch, bar, Random, sand}
 </code></pre></div><div><pre><code class="scala scalatex-site-Styles-highlightMe">import foo.{bar, sand, Random, Zilch}
-</code></pre></div></div><div class="scalafmt-configuration"><span class="scalafmt-configuration-toggle">Show/hide configuration used for this example</span><pre>rewrite.rules = [SortImports]</pre></div></div>
+</code></pre></div></div><div class="scalafmt-configuration"><span class="scalafmt-configuration-toggle">Show/hide configuration used for this example</span><pre>rewrite.rules = [
+  sortimports
+]</pre></div></div>
     <h2 id="AsciiSortImports" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#AsciiSortImports" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>AsciiSortImports</h2>
       <p>
         The imports are sorted by their Ascii codes</p>
       <div><div class="scalafmt-pair"><div><pre><code class="scala scalatex-site-Styles-highlightMe">import foo.{~&gt;, `symbol`, bar, Random}
 </code></pre></div><div><pre><code class="scala scalatex-site-Styles-highlightMe">import foo.{Random, `symbol`, bar, ~&gt;}
-</code></pre></div></div><div class="scalafmt-configuration"><span class="scalafmt-configuration-toggle">Show/hide configuration used for this example</span><pre>rewrite.rules = [AsciiSortImports]</pre></div></div>
+</code></pre></div></div><div class="scalafmt-configuration"><span class="scalafmt-configuration-toggle">Show/hide configuration used for this example</span><pre>rewrite.rules = [
+  asciisortimports
+]</pre></div></div>
     <h2 id="SortModifiers" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#SortModifiers" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>SortModifiers</h2>
       <p>
         Modifiers are sorted based on the given order. Affects modifiers of the following
@@ -1023,7 +1035,9 @@ object X {
     b &lt;- bs if b &gt; 2
   } yield (a, b)
 }
-</code></pre></div></div><div class="scalafmt-configuration"><span class="scalafmt-configuration-toggle">Show/hide configuration used for this example</span><pre>rewrite.rules = [PreferCurlyFors]</pre></div></div>
+</code></pre></div></div><div class="scalafmt-configuration"><span class="scalafmt-configuration-toggle">Show/hide configuration used for this example</span><pre>rewrite.rules = [
+  prefercurlyfors
+]</pre></div></div>
   <h1 id="VerticalMultiline" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#VerticalMultiline" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Vertical Multiline</h1>
 
     <p>
@@ -1059,15 +1073,15 @@ verticalMultiline.atDefnSite = true</pre></div></div>
     <p>
       The default configuration options are
 </p>
-    <pre><code class="scala scalatex-site-Styles-highlightMe">verticalmultiline = {
-  atDefnSite = false
-  excludeDanglingParens = [class
-  trait]
-  arityThreshold = 100
-  newlineAfterOpenParen = false
-  newlineBeforeImplicitKW = false
-  newlineAfterImplicitKW = false
-}</code></pre>
+    <pre><code class="scala scalatex-site-Styles-highlightMe">verticalMultiline.atDefnSite = false
+verticalMultiline.arityThreshold = 100
+verticalMultiline.newlineBeforeImplicitKW = false
+verticalMultiline.newlineAfterImplicitKW = false
+verticalMultiline.newlineAfterOpenParen = false
+verticalMultiline.excludeDanglingParens = [
+  class
+  trait
+]</code></pre>
 
     <h2 id="verticalMultiline.atDefnSite" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#verticalMultiline.atDefnSite" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>verticalMultiline.atDefnSite</h2>
       Default: <b>false</b>
@@ -1123,8 +1137,8 @@ verticalMultiline.arityThreshold = 2</pre></div></div>
 }
 </code></pre></div></div><div class="scalafmt-configuration"><span class="scalafmt-configuration-toggle">Show/hide configuration used for this example</span><pre>continuationIndent.defnSite = 2
 verticalMultiline.atDefnSite = true
-verticalMultiline.newlineAfterOpenParen = true
-verticalMultiline.arityThreshold = 2</pre></div></div>
+verticalMultiline.arityThreshold = 2
+verticalMultiline.newlineAfterOpenParen = true</pre></div></div>
     <h2 id="verticalMultiline.newlineBeforeImplicitKW" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#verticalMultiline.newlineBeforeImplicitKW" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>verticalMultiline.newlineBeforeImplicitKW</h2>
       Default: <b>false</b>
 
@@ -1142,9 +1156,9 @@ verticalMultiline.arityThreshold = 2</pre></div></div>
       c: Context
     ): String
 }
-</code></pre></div></div><div class="scalafmt-configuration"><span class="scalafmt-configuration-toggle">Show/hide configuration used for this example</span><pre>verticalMultiline.newlineBeforeImplicitKW = true
-maxColumn = 60
-verticalMultiline.atDefnSite = true</pre></div></div>
+</code></pre></div></div><div class="scalafmt-configuration"><span class="scalafmt-configuration-toggle">Show/hide configuration used for this example</span><pre>maxColumn = 60
+verticalMultiline.atDefnSite = true
+verticalMultiline.newlineBeforeImplicitKW = true</pre></div></div>
     <h2 id="verticalMultiline.newlineAfterImplicitKW" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#verticalMultiline.newlineAfterImplicitKW" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>verticalMultiline.newlineAfterImplicitKW</h2>
       Default: <b>false</b>
 
@@ -1177,10 +1191,10 @@ verticalMultiline.newlineAfterImplicitKW = true</pre></div></div>
   x: String,
   y: String
 )
-</code></pre></div></div><div class="scalafmt-configuration"><span class="scalafmt-configuration-toggle">Show/hide configuration used for this example</span><pre>verticalMultiline.excludeDanglingParens = []
-continuationIndent.defnSite = 2
+</code></pre></div></div><div class="scalafmt-configuration"><span class="scalafmt-configuration-toggle">Show/hide configuration used for this example</span><pre>continuationIndent.defnSite = 2
 verticalMultiline.atDefnSite = true
-verticalMultiline.arityThreshold = 2</pre></div></div>
+verticalMultiline.arityThreshold = 2
+verticalMultiline.excludeDanglingParens = []</pre></div></div>
     <h2 id="newlines.alwaysBeforeMultilineDef" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#newlines.alwaysBeforeMultilineDef" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>newlines.alwaysBeforeMultilineDef</h2>
       Default: <b>true</b>
 
@@ -1453,96 +1467,92 @@ object IntelliJStyle
       work for complicated code.
 </div>
   <h1 id="Other" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Other" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Other</h1>
+    <p>
+      To find all available configuration options, it's best to browse the
+      source code of Scalafmt.
+      A good place to start is <code>ScalafmtConfig</code>.
+      Observe that this listing below is the top-level,
+      there are more configuration options if you visited nested fields
+      like <code>spaces</code> and <code>newlines</code>.
 
-    Scalafmt has a ton of internal configuration options which may be removed
-    without notice.
-    However, just in case you want to try them out, here they are.
-
-    <pre><code class="scala scalatex-site-Styles-highlightMe">maxColumn = 80
-onTestFailure = 
-project.git = false
-project.files = []
-project.includeFilters = [&quot;.*\.scala$&quot;
-  &quot;.*\.sbt$&quot;
-  &quot;.*\.sc$&quot;]
-project.excludeFilters = []
-align.openParenCallSite = true
-align.openParenDefnSite = true
-align.ifWhileOpenParen = true
-align.treeCategory.Defn.Trait = class/object/trait
-align.treeCategory.Enumerator.Val = for
-align.treeCategory.Defn.Class = class/object/trait
-align.treeCategory.Defn.Object = class/object/trait
-align.treeCategory.Defn.Val = val/var/def
-align.treeCategory.Defn.Def = val/var/def
-align.treeCategory.Defn.Var = val/var/def
-align.treeCategory.Enumerator.Generator = for
-align.arrowEnumeratorGenerator = false
-align.tokens = [code = &quot;=&gt;&quot;
-  owner = Case]
+      <pre><code class="scala scalatex-site-Styles-highlightMe">version = &quot;1.5.1&quot;
+maxColumn = 80
+docstrings = scaladoc
+optIn.configStyleArguments = true
+optIn.breaksInsideChains = false
+optIn.breakChainOnFirstMethodDot = true
+optIn.selfAnnotationNewline = true
+optIn.annotationNewlines = true
+optIn.blankLineBeforeDocstring = false
+binPack.unsafeCallSite = false
+binPack.unsafeDefnSite = false
+binPack.parentConstructors = false
+binPack.literalArgumentLists = true
+binPack.literalsMinArgCount = 5
+binPack.literalsInclude = [
+  &quot;.*&quot;
+]
+binPack.literalsExclude = [
+  String
+  &quot;Term.Name&quot;
+]
 continuationIndent.callSite = 2
 continuationIndent.defnSite = 4
 continuationIndent.extendSite = 4
-optIn.breaksInsideChains = false
-optIn.blankLineBeforeDocstring = false
-optIn.selfAnnotationNewline = true
-optIn.annotationNewlines = true
-optIn.breakChainOnFirstMethodDot = true
-optIn.configStyleArguments = true
-assumeStandardLibraryStripMargin = false
-runner.optimizer.maxEscapes = 16
-runner.optimizer.dequeueOnNewStatements = true
-runner.optimizer.maxVisitsPerToken = 513
-runner.optimizer.acceptOptimalAtHints = true
-runner.optimizer.maxDepth = 100
-runner.optimizer.forceConfigStyleMinArgCount = 2
-runner.optimizer.disableOptimizationsInsideSensitiveAreas = true
-runner.optimizer.forceConfigStyleOnOffset = 150
-runner.optimizer.recurseOnBlocks = true
-runner.optimizer.escapeInPathologicalCases = true
-runner.optimizer.pruneSlowStates = true
-runner.eventCallback = org.scalafmt.config.ScalafmtRunner$$$Lambda$4101/1936286024@4757a529
-runner.parser = scala.meta.internal.parsers.ScalametaParser$$anon$202@19e832ff
-runner.debug = false
-runner.fatalWarnings = false
-runner.maxStateVisits = 1000000
-runner.ignoreWarnings = false
-runner.dialect = Dialect(true, true, true, true, true, true, true, true, false, true, false, false, true, true, true, true, true, )
-encoding = UTF-8
-verticalMultilineAtDefinitionSiteArityThreshold = 100
-newlines.alwaysBeforeMultilineDef = true
-newlines.afterImplicitKWInVerticalMultiline = false
-newlines.alwaysBeforeElseAfterCurlyIf = false
-newlines.neverInResultType = false
-newlines.sometimesBeforeColonInMethodReturnType = true
-newlines.alwaysBeforeTopLevelStatements = false
-newlines.afterCurlyLambda = never
-newlines.penalizeSingleSelectMultiArgList = true
-newlines.neverBeforeJsNative = false
-newlines.alwaysBeforeCurlyBraceLambdaParams = false
-newlines.beforeImplicitKWInVerticalMultiline = false
-version = 1.5.1
-unindentTopLevelOperators = false
-poorMansTrailingCommasInConfigStyle = false
-indentOperator.include = &quot;.*&quot;
-indentOperator.exclude = &quot;^(&amp;&amp;|\|\|)$&quot;
-docstrings = ScalaDoc
+align.openParenCallSite = true
+align.openParenDefnSite = true
+align.tokens = [
+  {
+    code = &quot;=&gt;&quot;
+    owner = Case
+  }
+]
+align.arrowEnumeratorGenerator = false
+align.ifWhileOpenParen = true
+align.treeCategory.&quot;Defn.Trait&quot; = &quot;class/object/trait&quot;
+align.treeCategory.&quot;Enumerator.Val&quot; = for
+align.treeCategory.&quot;Defn.Class&quot; = &quot;class/object/trait&quot;
+align.treeCategory.&quot;Defn.Object&quot; = &quot;class/object/trait&quot;
+align.treeCategory.&quot;Defn.Val&quot; = &quot;val/var/def&quot;
+align.treeCategory.&quot;Defn.Def&quot; = &quot;val/var/def&quot;
+align.treeCategory.&quot;Defn.Var&quot; = &quot;val/var/def&quot;
+align.treeCategory.&quot;Enumerator.Generator&quot; = for
+spaces.beforeContextBoundColon = never
+spaces.afterTripleEquals = false
+spaces.inImportCurlyBraces = false
+spaces.inParentheses = false
+spaces.neverAroundInfixTypes = []
+spaces.afterKeywordBeforeParen = true
+spaces.inByNameTypes = true
 lineEndings = unix
 rewrite.rules = []
 rewrite.redundantBraces.methodBodies = true
+rewrite.redundantBraces.includeUnitMethods = true
 rewrite.redundantBraces.maxLines = 100
 rewrite.redundantBraces.stringInterpolation = false
 rewrite.redundantBraces.generalExpressions = false
-rewrite.redundantBraces.includeUnitMethods = true
-rewrite.neverInfix.includeFilters = [&quot;[\w\d_]+&quot;]
-rewrite.neverInfix.excludeFilters = [until
+rewrite.sortModifiers.order = [
+  implicit
+  final
+  sealed
+  abstract
+  override
+  private
+  protected
+  lazy
+]
+rewrite.neverInfix.includeFilters = [
+  &quot;[\w\d_]+&quot;
+]
+rewrite.neverInfix.excludeFilters = [
+  until
   to
   by
   eq
   ne
-  should.*
-  contain.*
-  must.*
+  &quot;should.*&quot;
+  &quot;contain.*&quot;
+  &quot;must.*&quot;
   in
   be
   taggedAs
@@ -1550,42 +1560,68 @@ rewrite.neverInfix.excludeFilters = [until
   synchronized
   have
   when
-  size]
-rewrite.sortModifiers.order = [implicit
-  final
-  sealed
-  abstract
-  override
-  private
-  protected
-  lazy]
-danglingParentheses = false
+  size
+]
+indentOperator.include = &quot;.*&quot;
+indentOperator.exclude = &quot;^(&amp;&amp;|\|\|)$&quot;
+newlines.neverInResultType = false
+newlines.neverBeforeJsNative = false
+newlines.sometimesBeforeColonInMethodReturnType = true
+newlines.penalizeSingleSelectMultiArgList = true
+newlines.alwaysBeforeCurlyBraceLambdaParams = false
+newlines.alwaysBeforeTopLevelStatements = false
+newlines.afterCurlyLambda = never
+newlines.afterImplicitKWInVerticalMultiline = false
+newlines.beforeImplicitKWInVerticalMultiline = false
+newlines.alwaysBeforeElseAfterCurlyIf = false
+newlines.alwaysBeforeMultilineDef = true
+runner.debug = false
+runner.eventCallback = &quot;&lt;FormatEvent =&gt; Unit&gt;&quot;
+runner.parser = &quot;&lt;Parse[Tree]&gt;&quot;
+runner.optimizer.dequeueOnNewStatements = true
+runner.optimizer.escapeInPathologicalCases = true
+runner.optimizer.maxVisitsPerToken = 513
+runner.optimizer.maxEscapes = 16
+runner.optimizer.maxDepth = 100
+runner.optimizer.acceptOptimalAtHints = true
+runner.optimizer.disableOptimizationsInsideSensitiveAreas = true
+runner.optimizer.pruneSlowStates = true
+runner.optimizer.recurseOnBlocks = true
+runner.optimizer.forceConfigStyleOnOffset = 150
+runner.optimizer.forceConfigStyleMinArgCount = 2
+runner.maxStateVisits = 1000000
+runner.dialect = &quot;&lt;Dialect&gt;&quot;
+runner.ignoreWarnings = false
+runner.fatalWarnings = false
+indentYieldKeyword = true
+importSelectors = nobinpack
+unindentTopLevelOperators = false
 includeCurlyBraceInSelectChains = true
-binPack.literalsInclude = [&quot;.*&quot;]
-binPack.literalsExclude = [String
-  Term.Name]
-binPack.literalsMinArgCount = 5
-binPack.unsafeCallSite = false
-binPack.unsafeDefnSite = false
-binPack.literalArgumentLists = true
-binPack.parentConstructors = false
+assumeStandardLibraryStripMargin = false
+danglingParentheses = false
+poorMansTrailingCommasInConfigStyle = false
+verticalMultilineAtDefinitionSite = false
+verticalMultilineAtDefinitionSiteArityThreshold = 100
 verticalMultiline.atDefnSite = false
-verticalMultiline.excludeDanglingParens = [class
-  trait]
 verticalMultiline.arityThreshold = 100
-verticalMultiline.newlineAfterOpenParen = false
 verticalMultiline.newlineBeforeImplicitKW = false
 verticalMultiline.newlineAfterImplicitKW = false
-indentYieldKeyword = true
-importSelectors = noBinPack
-verticalMultilineAtDefinitionSite = false
-spaces.neverAroundInfixTypes = []
-spaces.beforeContextBoundColon = Never
-spaces.inByNameTypes = true
-spaces.afterTripleEquals = false
-spaces.inImportCurlyBraces = false
-spaces.inParentheses = false
-spaces.afterKeywordBeforeParen = true</code></pre>
+verticalMultiline.newlineAfterOpenParen = false
+verticalMultiline.excludeDanglingParens = [
+  class
+  trait
+]
+onTestFailure = &quot;&quot;
+encoding = &quot;UTF-8&quot;
+project.git = false
+project.files = []
+project.includeFilters = [
+  &quot;.*\.scala$&quot;
+  &quot;.*\.sbt$&quot;
+  &quot;.*\.sc$&quot;
+]
+project.excludeFilters = []</code></pre>
+</p>
 
   
 
@@ -3342,7 +3378,7 @@ List(1).map { x =&gt;
     The <code>-f</code> flag in the CLI can be a directory.
 </ul>
 <p>
-  This page was last updated on May 9, 2018.</p>
+  This page was last updated on May 10, 2018.</p>
 
 
   
@@ -3365,4 +3401,4 @@ List(1).map { x =&gt;
         );
       })
     })
-  </script></body></html>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+  </script></body></html>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
