@@ -5,7 +5,12 @@ import scalatags.Text.all._
 import java.text.SimpleDateFormat
 import java.util.Date
 import com.twitter.util.Eval
+import metaconfig.Conf
+import metaconfig.ConfEncoder
+import metaconfig.generic.Settings
+import metaconfig.generic.Surface
 import org.scalafmt.Scalafmt
+import org.scalafmt.Versions
 import org.scalafmt.cli.Cli
 import org.scalafmt.cli.CliArgParser
 import org.scalafmt.config._
@@ -104,20 +109,15 @@ object Readme {
   }
 
   def changedConfig(style: ScalafmtConfig): String = {
-    // Quite a hacky implementation for now.
-    // This only works as we're flattening the HOCON configuration so
-    //   a = [
-    //    b = 1
-    //    c = 2
-    //   ]
-    // turns into
-    //   a.b = 1
-    //   a.c = 2
-    // which means a simple line-by-line string diffing is sufficient for now.
-    val defaultStrs = Config.toHocon(ScalafmtConfig.default).toSet
-    val configStrs = Config.toHocon(style).toSet
-    configStrs.diff(defaultStrs).mkString("\n")
+    val diff = Conf.patch(
+      ConfEncoder[ScalafmtConfig].write(ScalafmtConfig.default),
+      ConfEncoder[ScalafmtConfig].write(style)
+    )
+    Conf.printHocon(diff)
   }
+
+  def allOptions =
+    hl.scala.apply(Conf.printHocon(ScalafmtConfig.default))
 
   def configurationBlock(style: ScalafmtConfig) = {
     div(
@@ -241,10 +241,11 @@ object Readme {
     verticalMultiline = VerticalMultiline(atDefnSite = true)
   )
 
-  val VerticalMultilineDefultConfigStr = "verticalmultiline = {\n" + Config
-    .toHocon(ScalafmtConfig.default.verticalMultiline)
-    .map("  " + _)
-    .mkString("\n") + "\n}"
+  val VerticalMultilineDefultConfigStr = Conf.printHocon(
+    Conf.Obj(
+      "verticalMultiline" -> ConfEncoder[VerticalMultiline].write(
+        ScalafmtConfig.default.verticalMultiline)
+    ))
 
   val verticalAlignImplicitBefore = ScalafmtConfig.default.copy(
     maxColumn = 60,
@@ -297,7 +298,7 @@ object Readme {
     example(code, style)
 
   def lastUpdated =
-    new SimpleDateFormat("MMM d, y").format(new Date(CliArgParser.buildTimeMs))
+    new SimpleDateFormat("MMM d, y").format(new Date(Versions.timestamp.toLong))
 
   def format(code: String): TypedTag[String] = {
     format(ScalafmtConfig.default)(code)

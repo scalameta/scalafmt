@@ -2,14 +2,13 @@ package org.scalafmt.config
 
 import metaconfig._
 
-@DeriveConfDecoder
 case class SortSettings(
-    order: Vector[SortSettings.ModKey]
+    order: List[SortSettings.ModKey]
 )
 
 object SortSettings {
 
-  implicit val SortSettingsModKeyReader: ConfDecoder[ModKey] =
+  implicit val SortSettingsModKeyReader: ConfCodec[ModKey] =
     ReaderUtil.oneOfIgnoreBackticks[ModKey](
       `implicit`,
       `final`,
@@ -21,21 +20,39 @@ object SortSettings {
       `lazy`
     )
 
-  val defaultOrder: Vector[ModKey] =
-    Vector(
-      `implicit`,
-      //
-      `final`,
-      `sealed`,
-      `abstract`,
-      //
-      `override`,
-      //
-      `private`,
-      `protected`,
-      //
-      `lazy`
-    )
+  val defaultOrder: List[ModKey] = List(
+    `implicit`,
+    //
+    `final`,
+    `sealed`,
+    `abstract`,
+    //
+    `override`,
+    //
+    `private`,
+    `protected`,
+    //
+    `lazy`
+  )
+
+  implicit val surface: generic.Surface[SortSettings] = generic.deriveSurface
+  implicit lazy val encoder: ConfEncoder[SortSettings] =
+    generic.deriveEncoder
+  implicit val reader: ConfDecoder[SortSettings] =
+    generic.deriveDecoder(SortSettings(defaultOrder)).flatMap { result =>
+      if (result.order.distinct.length != 8) {
+        val diff = defaultOrder.diff(result.order.distinct)
+        ConfError
+          .message(
+            s"Incomplete 'sortModifiers.order', missing values: ${diff.mkString(", ")}. " +
+              s"If specified, it has to contain all of the following values in the order you wish them sorted:" +
+              """["private", "protected" , "abstract", "final", "sealed", "implicit", "override", "lazy"]"""
+          )
+          .notOk
+      } else {
+        Configured.ok(result)
+      }
+    }
 
   def default: SortSettings =
     SortSettings(defaultOrder)

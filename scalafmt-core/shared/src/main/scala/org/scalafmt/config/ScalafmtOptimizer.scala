@@ -60,7 +60,6 @@ import metaconfig._
   *   By forcing config style on such applications, the search space is greatly
   *   reduced.
   */
-@DeriveConfDecoder
 case class ScalafmtOptimizer(
     dequeueOnNewStatements: Boolean = true,
     escapeInPathologicalCases: Boolean = true,
@@ -73,9 +72,17 @@ case class ScalafmtOptimizer(
     recurseOnBlocks: Boolean = true,
     forceConfigStyleOnOffset: Int = 150,
     forceConfigStyleMinArgCount: Int = 2
-)
+) {
+
+  val reader: ConfDecoder[ScalafmtOptimizer] =
+    generic.deriveDecoder(this).noTypos
+}
 
 object ScalafmtOptimizer {
+  implicit lazy val surface: generic.Surface[ScalafmtOptimizer] =
+    generic.deriveSurface
+  implicit lazy val encoder: ConfEncoder[ScalafmtOptimizer] =
+    generic.deriveEncoder
   val default = ScalafmtOptimizer()
 
   // TODO(olafur) uncomment once scala.meta converter supports default args.

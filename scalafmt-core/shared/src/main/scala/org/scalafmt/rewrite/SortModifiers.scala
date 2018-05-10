@@ -43,7 +43,7 @@ object SortModifiers extends Rewrite {
 
   private def sortMods(
       oldMods: Seq[Mod]
-  )(implicit order: Vector[ModKey]): Seq[Patch] = {
+  )(implicit order: List[ModKey]): Seq[Patch] = {
     if (oldMods.isEmpty) Nil
     else {
       val sanitized = oldMods.filterNot(isHiddenImplicit)
@@ -78,9 +78,9 @@ object SortModifiers extends Rewrite {
 
   /**
     * @return
-    *   m1 < m2; according to the order given by the Vector
+    *   m1 < m2; according to the order given by the List
     */
-  private def orderModsBy(order: Vector[ModKey])(m1: Mod, m2: Mod): Boolean = {
+  private def orderModsBy(order: List[ModKey])(m1: Mod, m2: Mod): Boolean = {
     val idx1 = order.indexWhere(modCorrespondsToSettingKey(m1))
     val idx2 = order.indexWhere(modCorrespondsToSettingKey(m2))
     idx1 < idx2

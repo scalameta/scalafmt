@@ -45,8 +45,10 @@ sealed abstract class ImportSelectors
 
 object ImportSelectors {
 
-  val reader: ConfDecoder[ImportSelectors] =
+  val reader: ConfCodec[ImportSelectors] =
     ReaderUtil.oneOf[ImportSelectors](noBinPack, binPack, singleLine)
+
+  implicit val encoder: ConfEncoder[ImportSelectors] = reader
 
   // This reader is backwards compatible with the old import selector
   // configuration, which used the boolean flag binPackImportSelectors to
@@ -56,7 +58,7 @@ object ImportSelectors {
   // limitations in the current version of scalameta/paradise, but these will
   // likely be fixed in the future, at which point this reader could be moved
   // to ScalafmtConfig
-  implicit val backwardsCompatibleReader =
+  implicit val backwardsCompatibleReader: ConfDecoder[ImportSelectors] =
     ConfDecoder.instance[ImportSelectors] {
       case Conf.Bool(true) => Ok(ImportSelectors.binPack)
       case Conf.Bool(false) => Ok(ImportSelectors.noBinPack)

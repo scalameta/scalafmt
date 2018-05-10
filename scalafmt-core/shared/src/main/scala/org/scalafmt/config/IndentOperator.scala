@@ -30,16 +30,21 @@ import metaconfig._
   *   a +=
   *     b
   */
-@DeriveConfDecoder
 case class IndentOperator(
     include: String = ".*",
     exclude: String = "^(&&|\\|\\|)$"
 ) {
+  val reader: ConfDecoder[IndentOperator] = generic.deriveDecoder(this).noTypos
+
   val includeRegexp = include.r
   val excludeRegexp = exclude.r
 }
 
 object IndentOperator {
+  implicit lazy val surface: generic.Surface[IndentOperator] =
+    generic.deriveSurface
+  implicit lazy val encoder: ConfEncoder[IndentOperator] =
+    generic.deriveEncoder
   val default = IndentOperator()
   val akka = IndentOperator(
     ScalafmtConfig.indentOperatorsIncludeAkka,

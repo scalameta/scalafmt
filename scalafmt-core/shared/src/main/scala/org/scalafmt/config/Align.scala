@@ -1,6 +1,7 @@
 package org.scalafmt.config
 
 import metaconfig._
+import metaconfig.generic.Surface
 
 /**
   *
@@ -54,7 +55,6 @@ import metaconfig._
   *     Map("Defn.Var" -> "Assign", "Defn.Val" -> "Assign")
   *   Note. Requires mixedOwners to be true.
   */
-@DeriveConfDecoder
 case class Align(
     openParenCallSite: Boolean = true,
     openParenDefnSite: Boolean = true,
@@ -73,6 +73,7 @@ case class Align(
       "Enumerator.Val" -> "for"
     )
 ) {
+  implicit val reader: ConfDecoder[Align] = generic.deriveDecoder(this).noTypos
   implicit val alignReader: ConfDecoder[Set[AlignToken]] =
     ScalafmtConfig.alignTokenReader(tokens)
 }
@@ -92,6 +93,17 @@ object Align {
   val some = Align()
   val default = some
   val more: Align = some.copy(tokens = AlignToken.default)
+  implicit lazy val surface: Surface[Align] = generic.deriveSurface[Align]
+  implicit lazy val encoder: ConfEncoder[Align] = generic.deriveEncoder
+  // TODO: metaconfig should handle iterables
+  implicit def encoderSet[T: ConfEncoder]: ConfEncoder[Set[T]] =
+    implicitly[ConfEncoder[Seq[T]]].contramap(_.toSeq)
+  implicit val mapEncoder: ConfEncoder[Map[String, String]] =
+    ConfEncoder.instance[Map[String, String]] { m =>
+      Conf.Obj(m.iterator.map {
+        case (k, v) => k -> Conf.fromString(v)
+      }.toList)
+    }
 
   // only for the truest vertical aligners, this setting is open for changes,
   // please open PR addding more stuff to it if you like.

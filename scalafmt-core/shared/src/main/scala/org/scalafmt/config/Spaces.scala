@@ -22,7 +22,6 @@ import org.scalafmt.config.SpaceBeforeContextBound.Never
   *   If false, removes space in by-name parameter.
   *   `def foo(a: =>A)`
   */
-@DeriveConfDecoder
 case class Spaces(
     beforeContextBoundColon: SpaceBeforeContextBound = Never,
     afterTripleEquals: Boolean = false,
@@ -31,4 +30,10 @@ case class Spaces(
     neverAroundInfixTypes: Seq[String] = Nil,
     afterKeywordBeforeParen: Boolean = true,
     inByNameTypes: Boolean = true
-)
+) {
+  implicit val reader: ConfDecoder[Spaces] = generic.deriveDecoder(this).noTypos
+}
+object Spaces {
+  implicit lazy val surface: generic.Surface[Spaces] = generic.deriveSurface
+  implicit lazy val encoder: ConfEncoder[Spaces] = generic.deriveEncoder
+}

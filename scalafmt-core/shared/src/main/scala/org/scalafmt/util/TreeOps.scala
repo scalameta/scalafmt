@@ -56,8 +56,19 @@ object TreeOps {
     ret.result()
   }
 
+  def isBlockFunction(fun: Term.Function): Boolean =
+    fun.parent.exists {
+      case b: Term.Block =>
+        b.stats.lengthCompare(1) == 0 && b.stats.head.eq(fun)
+      case next: Term.Function =>
+        isBlockFunction(next)
+      case _ =>
+        false
+    }
+
   def extractStatementsIfAny(tree: Tree): Seq[Tree] = tree match {
     case b: Term.Block => b.stats
+    case b: Term.Function if isBlockFunction(b) => b.body :: Nil
     case t: Pkg => t.stats
     // TODO(olafur) would be nice to have an abstract "For" superclass.
     case t: Term.For => getEnumStatements(t.enums)
@@ -478,9 +489,14 @@ object TreeOps {
   @tailrec
   final def isTopLevelInfixApplication(child: Tree): Boolean =
     child.parent match {
-      case Some(parent: Type.ApplyInfix) => isTopLevelInfixApplication(parent)
-      case Some(parent: Term.ApplyInfix) => isTopLevelInfixApplication(parent)
-      case Some(_: Term.Block | _: Term.If | _: Term.While | _: Source) => true
+      case Some(parent) =>
+        parent match {
+          case _: Term.ApplyInfix | _: Type.ApplyInfix =>
+            isTopLevelInfixApplication(parent)
+          case _: Term.Block | _: Term.If | _: Term.While | _: Source => true
+          case fun: Term.Function => isBlockFunction(fun)
+          case _ => false
+        }
       case _ => false
     }
 
@@ -494,6 +510,12 @@ object TreeOps {
       case _: Pkg | _: Defn | _: Decl => Some(tree)
       case _ => None
     }
+  }
+
+  def isXmlBrace(owner: Tree): Boolean = owner match {
+    case _: Term.Xml | _: Pat.Xml => true
+    case b: Term.Block => b.parent.exists(_.isInstanceOf[Term.Xml])
+    case _ => false
   }
 
 }

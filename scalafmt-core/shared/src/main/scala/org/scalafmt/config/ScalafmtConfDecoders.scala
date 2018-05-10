@@ -31,7 +31,7 @@ trait ScalafmtConfDecoders {
     ConfDecoder.instance[Codec] {
       case Conf.Str(s) =>
         try Ok(Codec(s))
-        catch { case NonFatal(e) => ConfError.msg(e.getMessage).notOk }
+        catch { case NonFatal(e) => ConfError.message(e.getMessage).notOk }
     }
 
 }

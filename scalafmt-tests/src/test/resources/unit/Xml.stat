@@ -7,3 +7,25 @@
  <span>1</span>
 >>>
 <span>1</span>
+<<< splice
+ <span>{x}</span>
+>>>
+<span>{x}</span>
+<<< lambda
+ <span>{fun:   Int =>   fun + 1}</span>
+>>>
+<span>{fun: Int => fun + 1}</span>
+<<< multiline
+ <span>{
+   val x = 1
+   List(x, x)
+ }</span>
+>>>
+<span>{
+  val x = 1
+  List(x, x)
+}</span>
+<<< pattern
+x match { case <lift>{ _* }</lift> => }
+>>>
+x match { case <lift>{_*}</lift> => }

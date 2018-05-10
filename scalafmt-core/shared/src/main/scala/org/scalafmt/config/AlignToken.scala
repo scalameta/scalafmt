@@ -2,6 +2,7 @@ package org.scalafmt.config
 
 import metaconfig.Configured.Ok
 import metaconfig._
+import metaconfig.generic.Surface
 
 /**
   * Configuration option for aligning tokens.
@@ -9,10 +10,15 @@ import metaconfig._
   * @param code string literal value of the token to align by.
   * @param owner regexp for class name of scala.meta.Tree "owner" of [[code]].
   */
-@DeriveConfDecoder
-case class AlignToken(code: String, owner: String)
+case class AlignToken(code: String, owner: String) {
+  val reader: ConfDecoder[AlignToken] =
+    generic.deriveDecoder(this).noTypos
+}
 
 object AlignToken {
+  implicit lazy val surface: Surface[AlignToken] =
+    generic.deriveSurface[AlignToken]
+  implicit lazy val encoder: ConfEncoder[AlignToken] = generic.deriveEncoder
   val applyInfix = "Term.ApplyInfix"
   val caseArrow = AlignToken("=>", "Case")
   protected[scalafmt] val fallbackAlign = new AlignToken("<empty>", ".*")

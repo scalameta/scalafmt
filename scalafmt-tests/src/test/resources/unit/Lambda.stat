@@ -95,3 +95,44 @@ val groupedData =
       topic =>
         partitionDataFetchResponseMap
           .map(foobar))
+<<< 1.8 upgrade
+val x: Int => Int =  { y =>
+  y + 1
+}
+>>>
+val x: Int => Int = { y =>
+  y + 1
+}
+<<< indent
+map(() => {
+  x =>
+    x match {
+      case e =>
+  }
+})
+>>>
+map(() => {
+  x =>
+    x match {
+      case e =>
+    }
+})
+<<< case
+classTag[K] match {
+  case ClassTag.Float =>
+    (l, x) =>
+      util.Arrays(aaaaaaaaaaaaaaaaaaaaa, bbbbbbbbbbbbbbbbb)
+    case ClassTag.Double =>
+    (l, x) =>
+      util.Arrays
+}
+>>>
+classTag[K] match {
+  case ClassTag.Float =>
+    (l, x) =>
+      util.Arrays(
+          aaaaaaaaaaaaaaaaaaaaa,
+          bbbbbbbbbbbbbbbbb)
+  case ClassTag.Double =>
+    (l, x) => util.Arrays
+}

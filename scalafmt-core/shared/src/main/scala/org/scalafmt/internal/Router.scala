@@ -216,8 +216,10 @@ class Router(formatOps: FormatOps) {
         val skipSingleLineBlock =
           startsLambda || newlines > 0
 
+        val spaceMod = xmlSpace(leftOwner)
+
         Seq(
-          Split(Space, 0, ignoreIf = skipSingleLineBlock)
+          Split(spaceMod, 0, ignoreIf = skipSingleLineBlock)
             .withOptimalToken(close, killOnFail = true)
             .withPolicy(SingleLineBlock(close)),
           Split(
@@ -254,7 +256,7 @@ class Router(formatOps: FormatOps) {
         )
       case FormatToken(arrow @ RightArrow(), right, _)
           if leftOwner.is[Term.Function] =>
-        val endOfFunction = functionExpire(
+        val (endOfFunction, expiresOn) = functionExpire(
           leftOwner.asInstanceOf[Term.Function])
         val hasBlock =
           nextNonComment(formatToken).right.isInstanceOf[LeftBrace]
@@ -263,7 +265,7 @@ class Router(formatOps: FormatOps) {
             .withPolicy(SingleLineBlock(endOfFunction)),
           Split(Space, 0, ignoreIf = !hasBlock),
           Split(Newline, 1 + nestedApplies(leftOwner), ignoreIf = hasBlock)
-            .withIndent(2, endOfFunction, Right)
+            .withIndent(2, endOfFunction, expiresOn)
         )
       // Case arrow
       case tok @ FormatToken(arrow @ RightArrow(), right, between)
@@ -336,7 +338,7 @@ class Router(formatOps: FormatOps) {
 
       case FormatToken(_, RightBrace(), _) =>
         Seq(
-          Split(Space, 0),
+          Split(xmlSpace(rightOwner), 0),
           Split(NewlineT(isDouble = newlines > 1), 0)
         )
       case FormatToken(left @ KwPackage(), _, _) if leftOwner.is[Pkg] =>
@@ -728,13 +730,23 @@ class Router(formatOps: FormatOps) {
           Split(NoSplit, 0)
         )
 
+      case FormatToken(_, LeftBrace(), _) if isXmlBrace(rightOwner) =>
+        Seq(
+          Split(NoSplit, 0)
+        )
+      case FormatToken(RightBrace(), _, _) if isXmlBrace(leftOwner) =>
+        Seq(
+          Split(NoSplit, 0)
+        )
       // non-statement starting curly brace
-      case FormatToken(left, open @ LeftBrace(), between) =>
+      case FormatToken(left, open @ LeftBrace(), _) =>
         val close = matchingParentheses(hash(open))
         val isComma = left.is[Comma]
         val bodyHasNewlines = if (isComma) {
           open.pos.end.line != close.pos.start.line
-        } else true
+        } else {
+          true
+        }
         Seq(
           Split(Space, 0),
           Split(

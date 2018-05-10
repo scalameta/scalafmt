@@ -6,14 +6,10 @@ import java.util.Date
 import org.scalafmt.Versions
 import org.scalafmt.config.Config
 import org.scalafmt.util.AbsoluteFile
-import org.scalafmt.util.BuildTime
 import org.scalafmt.util.FileOps
-import org.scalafmt.util.GitCommit
 import scopt.OptionParser
 
 object CliArgParser {
-  @GitCommit val gitCommit: String = ???
-  @BuildTime val buildTimeMs: Long = ???
 
   val usageExamples: String =
     """|scalafmt # Format all files in the current project, configuration is determined in this order:
@@ -163,6 +159,6 @@ object CliArgParser {
       """.stripMargin)
     }
   def buildInfo =
-    s"""build commit: $gitCommit
-       |build time: ${new Date(buildTimeMs)}""".stripMargin
+    s"""build commit: ${Versions.commit}
+       |build time: ${new Date(Versions.timestamp.toLong)}""".stripMargin
 }

@@ -1,6 +1,7 @@
 package org.scalafmt.config
 
 import metaconfig._
+import metaconfig.generic.Surface
 
 /**
   *
@@ -69,7 +70,6 @@ import metaconfig._
   *    }
   *  }}}
   */
-@DeriveConfDecoder
 case class OptIn(
     configStyleArguments: Boolean = true,
     breaksInsideChains: Boolean = false,
@@ -78,4 +78,11 @@ case class OptIn(
     annotationNewlines: Boolean = true,
     // Candidate to become default true at some point.
     blankLineBeforeDocstring: Boolean = false
-)
+) {
+  implicit val reader: ConfDecoder[OptIn] = generic.deriveDecoder(this).noTypos
+}
+
+object OptIn {
+  implicit lazy val surface: Surface[OptIn] = generic.deriveSurface
+  implicit lazy val encoder: ConfEncoder[OptIn] = generic.deriveEncoder
+}

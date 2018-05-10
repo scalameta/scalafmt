@@ -20,17 +20,18 @@ import scala.meta.dialects.Scala211
   * @param parser        Are we formatting a scala.meta.{Source,Stat,Case,...}? For
   *                      more details, see members of [[scala.meta.parsers]].
   */
-@DeriveConfDecoder
 case class ScalafmtRunner(
     debug: Boolean = false,
     eventCallback: FormatEvent => Unit = _ => Unit,
-    parser: MetaParser = Parse.parseSource,
-    @Recurse optimizer: ScalafmtOptimizer = ScalafmtOptimizer.default,
+    parser: Parse[_ <: Tree] = Parse.parseSource,
+    optimizer: ScalafmtOptimizer = ScalafmtOptimizer.default,
     maxStateVisits: Int = 1000000,
     dialect: Dialect = ScalafmtRunner.defaultDialect,
     ignoreWarnings: Boolean = false,
     fatalWarnings: Boolean = false
 ) {
+  implicit val optimizeDecoder = optimizer.reader
+  val reader: ConfDecoder[ScalafmtRunner] = generic.deriveDecoder(this).noTypos
   def forSbt: ScalafmtRunner =
     copy(
       dialect = dialect.copy(
@@ -40,6 +41,16 @@ case class ScalafmtRunner(
 }
 
 object ScalafmtRunner {
+  implicit lazy val surface: generic.Surface[ScalafmtRunner] =
+    generic.deriveSurface
+  implicit lazy val encoder: ConfEncoder[ScalafmtRunner] =
+    generic.deriveEncoder
+  implicit lazy val formatEventEncoder: ConfEncoder[FormatEvent => Unit] =
+    ConfEncoder.StringEncoder.contramap(_ => "<FormatEvent => Unit>")
+  implicit lazy val parseEncoder: ConfEncoder[Parse[_ <: Tree]] =
+    ConfEncoder.StringEncoder.contramap(_ => "<Parse[Tree]>")
+  implicit lazy val dialectEncoder: ConfEncoder[Dialect] =
+    ConfEncoder.StringEncoder.contramap(_ => "<Dialect>")
   val defaultDialect = Scala211.copy(
     // Are `&` intersection types supported by this dialect?
     allowAndTypes = true,

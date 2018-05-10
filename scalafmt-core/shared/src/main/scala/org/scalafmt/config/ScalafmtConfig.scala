@@ -2,9 +2,11 @@ package org.scalafmt.config
 
 import scala.io.Codec
 import scala.meta.Dialect
-import scala.util.control.NonFatal
 import scala.util.matching.Regex
+import metaconfig.annotation._
 import metaconfig._
+import metaconfig.Configured._
+import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.ValidationOps
 
 /** Configuration options for scalafmt.
@@ -98,42 +100,54 @@ import org.scalafmt.util.ValidationOps
   *    }.filter(_ > 2)
   *  }}}
   */
-@DeriveConfDecoder
 case class ScalafmtConfig(
     version: String = org.scalafmt.Versions.stable,
     maxColumn: Int = 80,
     docstrings: Docstrings = Docstrings.ScalaDoc,
-    @Recurse optIn: OptIn = OptIn(),
-    @Recurse binPack: BinPack = BinPack(),
-    @Recurse continuationIndent: ContinuationIndent = ContinuationIndent(),
+    optIn: OptIn = OptIn(),
+    binPack: BinPack = BinPack(),
+    continuationIndent: ContinuationIndent = ContinuationIndent(),
     align: Align = Align(),
-    @Recurse spaces: Spaces = Spaces(),
+    spaces: Spaces = Spaces(),
     lineEndings: LineEndings = LineEndings.unix,
     rewriteTokens: Map[String, String] = Map.empty[String, String],
-    @Recurse rewrite: RewriteSettings = RewriteSettings(),
+    rewrite: RewriteSettings = RewriteSettings(),
     indentOperator: IndentOperator = IndentOperator(),
-    @Recurse newlines: Newlines = Newlines(),
-    @Recurse runner: ScalafmtRunner = ScalafmtRunner.default,
+    newlines: Newlines = Newlines(),
+    runner: ScalafmtRunner = ScalafmtRunner.default,
     // Settings which belong to no group
     indentYieldKeyword: Boolean = true,
-    @metaconfig.ExtraName("binPackImportSelectors") importSelectors: ImportSelectors =
-      ImportSelectors.noBinPack,
+    @ExtraName("binPackImportSelectors")
+    importSelectors: ImportSelectors = ImportSelectors.noBinPack,
     unindentTopLevelOperators: Boolean = false,
     includeCurlyBraceInSelectChains: Boolean = true,
     assumeStandardLibraryStripMargin: Boolean = false,
     danglingParentheses: Boolean = false,
     poorMansTrailingCommasInConfigStyle: Boolean = false,
-    @deprecated("Use VerticalMultiline.atDefnSite instead")
+    @deprecated("Use VerticalMultiline.atDefnSite instead", "1.6.0")
     verticalMultilineAtDefinitionSite: Boolean = false,
-    @deprecated("Use VerticalMultiline.arityThreshold instead")
+    @deprecated("Use VerticalMultiline.arityThreshold instead", "1.6.0")
     verticalMultilineAtDefinitionSiteArityThreshold: Int = 100,
-    @Recurse verticalMultiline: VerticalMultiline = VerticalMultiline(),
+    verticalMultiline: VerticalMultiline = VerticalMultiline(),
     onTestFailure: String = "",
     encoding: Codec = "UTF-8",
-    @Recurse project: ProjectFiles = ProjectFiles()
+    project: ProjectFiles = ProjectFiles()
 ) {
+  private implicit val runnerReader = runner.reader
+  private implicit val projectReader = project.reader
+  private implicit val rewriteReader = rewrite.reader
+  private implicit val spacesReader = spaces.reader
+  private implicit val continuationIndentReader = continuationIndent.reader
+  private implicit val binpackReader = binPack.reader
+  private implicit val newlinesReader = newlines.reader
+  private implicit val optInReader = optIn.reader
+  private implicit val verticalMultilineReader = verticalMultiline.reader
   implicit val alignDecoder: ConfDecoder[Align] =
     ScalafmtConfig.alignReader(align.reader)
+  lazy val alignMap: Map[String, Regex] =
+    align.tokens.map(x => x.code -> x.owner.r).toMap
+  def reader: ConfDecoder[ScalafmtConfig] =
+    generic.deriveDecoder(this).noTypos.noTypos
 
   def withDialect(dialect: Dialect): ScalafmtConfig =
     copy(runner = runner.copy(dialect = dialect))
@@ -142,12 +156,180 @@ case class ScalafmtConfig(
 
   def reformatDocstrings: Boolean = docstrings != Docstrings.preserve
   def scalaDocs: Boolean = docstrings == Docstrings.ScalaDoc
-  lazy val alignMap: Map[String, Regex] =
-    align.tokens.map(x => x.code -> x.owner.r).toMap
   ValidationOps.assertNonNegative(
     continuationIndent.callSite,
     continuationIndent.defnSite
   )
 }
 
-object ScalafmtConfig extends Settings
+object ScalafmtConfig {
+  implicit lazy val surface: generic.Surface[ScalafmtConfig] =
+    generic.deriveSurface
+  implicit lazy val encoder: ConfEncoder[ScalafmtConfig] =
+    generic.deriveEncoder[ScalafmtConfig]
+
+  implicit lazy val codecEncoder: ConfEncoder[Codec] =
+    ConfEncoder.StringEncoder.contramap(_.name)
+
+  val indentOperatorsIncludeAkka = "^.*=$"
+  val indentOperatorsExcludeAkka = "^$"
+  val indentOperatorsIncludeDefault = ".*"
+  val indentOperatorsExcludeDefault = "^(&&|\\|\\|)$"
+
+  val default = ScalafmtConfig()
+
+  val intellij: ScalafmtConfig = default.copy(
+    continuationIndent = ContinuationIndent(2, 2),
+    align = default.align.copy(openParenCallSite = false),
+    optIn = default.optIn.copy(
+      configStyleArguments = false
+    ),
+    danglingParentheses = true
+  )
+
+  def addAlign(style: ScalafmtConfig): ScalafmtConfig = style.copy(
+    align = style.align.copy(
+      tokens = AlignToken.default
+    )
+  )
+
+  val defaultWithAlign: ScalafmtConfig = addAlign(default)
+
+  val default40: ScalafmtConfig = default.copy(maxColumn = 40)
+  val default120: ScalafmtConfig = default.copy(maxColumn = 120)
+
+  /**
+    * Experimental implementation of:
+    * https://github.com/scala-js/scala-js/blob/master/CODINGSTYLE.md
+    */
+  val scalaJs: ScalafmtConfig = default.copy(
+    binPack = BinPack(
+      unsafeDefnSite = true,
+      unsafeCallSite = true,
+      parentConstructors = true
+    ),
+    continuationIndent = ContinuationIndent(4, 4),
+    importSelectors = ImportSelectors.binPack,
+    newlines = default.newlines.copy(
+      neverInResultType = true,
+      neverBeforeJsNative = true,
+      sometimesBeforeColonInMethodReturnType = false
+    ),
+    // For some reason, the bin packing does not play nicely with forced
+    // config style. It's fixable, but I don't want to spend time on it
+    // right now.
+    runner = conservativeRunner,
+    docstrings = Docstrings.JavaDoc,
+    align = default.align.copy(
+      arrowEnumeratorGenerator = false,
+      tokens = Set(AlignToken.caseArrow),
+      ifWhileOpenParen = false
+    )
+  )
+
+  /**
+    * Ready styles provided by scalafmt.
+    */
+  val activeStyles: Map[String, ScalafmtConfig] =
+    Map(
+      "Scala.js" -> scalaJs,
+      "IntelliJ" -> intellij
+    ) ++ LoggerOps.name2style(
+      default,
+      defaultWithAlign
+    )
+
+  val availableStyles: Map[String, ScalafmtConfig] = {
+    activeStyles ++ LoggerOps.name2style(
+      scalaJs
+    )
+  }.map { case (k, v) => k.toLowerCase -> v }
+
+  def conservativeRunner: ScalafmtRunner = default.runner.copy(
+    optimizer = default.runner.optimizer.copy(
+      // The tests were not written in this style
+      forceConfigStyleOnOffset = 500,
+      forceConfigStyleMinArgCount = 5
+    )
+  )
+
+  // TODO(olafur) move these elsewhere.
+  val testing = default.copy(
+    maxColumn = 79,
+    assumeStandardLibraryStripMargin = false,
+    includeCurlyBraceInSelectChains = false,
+    align = default.align.copy(tokens = Set.empty),
+    optIn = default.optIn.copy(
+      breakChainOnFirstMethodDot = false
+    ),
+    // The new agressive config style breaks ~40 unit tests. The diff output
+    // looks nice, but updating the unit tests would take too much time.
+    // I can imagine that I will throw away most of the tests and replace them
+    // with autogenerated tests from scala-repos.
+    runner = conservativeRunner
+  )
+  val unitTest80 = testing.copy(
+    continuationIndent = ContinuationIndent(4, 4)
+  )
+
+  val unitTest40 = unitTest80.copy(maxColumn = 39)
+
+  def oneOf[T](m: Map[String, T])(input: String): Configured[T] =
+    m.get(input.toLowerCase()) match {
+      case Some(x) => Ok(x)
+      case None =>
+        val available = m.keys.mkString(", ")
+        val msg =
+          s"Unknown line endings type $input. Expected one of $available"
+        ConfError.message(msg).notOk
+
+    }
+
+  def configReader(baseReader: ScalafmtConfig): ConfDecoder[ScalafmtConfig] =
+    ConfDecoder.instance[ScalafmtConfig] {
+      case conf @ Conf.Obj(values) =>
+        val map = values.toMap
+        map.get("style") match {
+          case Some(Conf.Str(baseStyle)) =>
+            val noStyle = Conf.Obj(values.filterNot(_._1 == "style"))
+            ScalafmtConfig.availableStyles.get(baseStyle.toLowerCase) match {
+              case Some(s) => s.reader.read(noStyle)
+              case None =>
+                val alternatives =
+                  ScalafmtConfig.activeStyles.keys.mkString(", ")
+                ConfError
+                  .message(
+                    s"Unknown style name $baseStyle. Expected one of: $alternatives")
+                  .notOk
+            }
+          case _ =>
+            baseReader.reader.read(conf)
+        }
+    }
+
+  def gimmeStrPairs(tokens: Seq[String]): Seq[(String, String)] = {
+    tokens.map { token =>
+      val splitted = token.split(";", 2)
+      if (splitted.length != 2)
+        throw new IllegalArgumentException("pair must contain ;")
+      (splitted(0), splitted(1))
+    }
+  }
+  def alignReader(base: ConfDecoder[Align]): ConfDecoder[Align] =
+    ConfDecoder.instance[Align] {
+      case Conf.Str("none") | Conf.Bool(false) => Ok(Align.none)
+      case Conf.Str("some" | "default") => Ok(Align.some)
+      case Conf.Str("more") | Conf.Bool(true) => Ok(Align.more)
+      case Conf.Str("most") => Ok(Align.most)
+      case els => base.read(els)
+    }
+  def alignTokenReader(
+      initTokens: Set[AlignToken]): ConfDecoder[Set[AlignToken]] = {
+    val baseReader = implicitly[ConfDecoder[Set[AlignToken]]]
+    ConfDecoder.instance[Set[AlignToken]] {
+      case Conf.Obj(("add", conf) :: Nil) =>
+        baseReader.read(conf).map(initTokens ++ _)
+      case els => baseReader.read(els)
+    }
+  }
+}

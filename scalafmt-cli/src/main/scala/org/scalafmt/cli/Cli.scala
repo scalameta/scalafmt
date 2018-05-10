@@ -1,24 +1,17 @@
 package org.scalafmt.cli
 
-import scala.meta.Dialect
-import scala.meta.dialects.Sbt0137
-import java.io.File
+import com.martiansoftware.nailgun.NGContext
 import java.io.InputStream
 import java.io.OutputStreamWriter
 import java.io.PrintStream
 import java.util.concurrent.atomic.AtomicInteger
-
-import com.martiansoftware.nailgun.NGContext
 import org.scalafmt.Error.NoMatchingFiles
 import org.scalafmt.Error.UnableToParseCliOptions
 import org.scalafmt.Formatted
 import org.scalafmt.Scalafmt
-import org.scalafmt.config.{Config, FilterMatcher}
 import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.FileOps
-import org.scalafmt.util.GitOps
 import org.scalafmt.util.LogLevel
-import org.scalafmt.util.OsSpecific
 
 object Cli {
   def nailMain(nGContext: NGContext): Unit = {
@@ -71,9 +64,6 @@ object Cli {
   def getConfig(args: Array[String], init: CliOptions): Option[CliOptions] = {
     CliArgParser.scoptParser.parse(args, init).map(CliOptions.auto(args, init))
   }
-
-  private def canFormat(path: AbsoluteFile): Boolean =
-    canFormat(path.path)
 
   private def canFormat(path: String): Boolean =
     path.endsWith(".scala") || path.endsWith(".sbt") || path.endsWith(".sc")
@@ -165,10 +155,6 @@ object Cli {
       val out = options.info
       out.println("Working directory: " + pwd)
       out.println("Formatting files: " + inputMethods.toList)
-      out.println(
-        "Configuration: \n" + Config
-          .toHocon(options.config.fields)
-          .mkString("\n"))
     }
 
     val sbtOptions = options.copy(

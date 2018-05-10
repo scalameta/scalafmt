@@ -1,6 +1,7 @@
 package org.scalafmt.config
 
 import metaconfig._
+import metaconfig.generic.Surface
 
 /**
   * @param penalizeSingleSelectMultiArgList
@@ -77,7 +78,6 @@ import metaconfig._
   *         .map(g)
   *   }}}
   */
-@DeriveConfDecoder
 case class Newlines(
     neverInResultType: Boolean = false,
     neverBeforeJsNative: Boolean = false,
@@ -92,7 +92,14 @@ case class Newlines(
     beforeImplicitKWInVerticalMultiline: Boolean = false,
     alwaysBeforeElseAfterCurlyIf: Boolean = false,
     alwaysBeforeMultilineDef: Boolean = true
-)
+) {
+  val reader: ConfDecoder[Newlines] = generic.deriveDecoder(this).noTypos
+}
+
+object Newlines {
+  implicit lazy val surface: Surface[Newlines] = generic.deriveSurface
+  implicit lazy val encoder: ConfEncoder[Newlines] = generic.deriveEncoder
+}
 
 sealed abstract class NewlineCurlyLambda
 
@@ -102,6 +109,6 @@ object NewlineCurlyLambda {
   case object always extends NewlineCurlyLambda
   case object never extends NewlineCurlyLambda
 
-  implicit val newlineCurlyLambdaReader: ConfDecoder[NewlineCurlyLambda] =
+  implicit val newlineCurlyLambdaReader: ConfCodec[NewlineCurlyLambda] =
     ReaderUtil.oneOf[NewlineCurlyLambda](preserve, always, never)
 }

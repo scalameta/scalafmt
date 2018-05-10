@@ -31,15 +31,15 @@ lazy val core = crossProject
   .in(file("scalafmt-core"))
   .settings(
     moduleName := "scalafmt-core",
+    addCompilerPlugin(
+      "org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
     allSettings,
-    metaMacroSettings,
     buildInfoSettings,
     fork.in(run).in(Test) := true,
     libraryDependencies ++= Seq(
       metaconfig.value,
       scalameta.value
-    ),
-    addCompilerPlugin(paradise)
+    )
   )
   .jsSettings(
     libraryDependencies += metaconfigHocon.value
@@ -56,7 +56,6 @@ lazy val cli = project
   .settings(
     moduleName := "scalafmt-cli",
     allSettings,
-    metaMacroSettings,
     mainClass in assembly := Some("org.scalafmt.cli.Cli"),
     libraryDependencies ++= Seq(
       "com.martiansoftware" % "nailgun-server" % "0.9.1",
@@ -153,6 +152,7 @@ lazy val tests = project
       // Test dependencies
       "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0",
       "com.lihaoyi" %% "scalatags" % "0.6.3",
+      "org.typelevel" %% "paiges-core" % "0.2.0",
       scalametaTestkit
     )
   )
@@ -242,12 +242,6 @@ lazy val noDocs = Seq(
   sources in (Compile, doc) := Nil
 )
 
-lazy val metaMacroSettings: Seq[Def.Setting[_]] = Seq(
-  libraryDependencies += scalameta.value,
-  addCompilerPlugin(paradise),
-  scalacOptions += "-Xplugin-require:macroparadise"
-) ++ noDocs
-
 lazy val compilerOptions = Seq(
   "-deprecation",
   "-encoding",
@@ -322,6 +316,8 @@ lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
     "stable" -> stableVersion.value,
     "scala" -> scalaVersion.value,
     "coursier" -> coursier,
+    "commit" -> Seq("git", "rev-parse", "HEAD").!!.trim,
+    "timestamp" -> System.currentTimeMillis().toString,
     scalaVersion,
     sbtVersion
   ),
@@ -330,8 +326,8 @@ lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
 )
 
 def scala210 = "2.10.6"
-def scala211 = "2.11.11"
-def scala212 = "2.12.2"
+def scala211 = "2.11.12"
+def scala212 = "2.12.4"
 def extraSbtBootOptions: Seq[String] = {
   // pass along custom boot properties if specified
   val bootProps = "sbt.boot.properties"

@@ -1,12 +1,11 @@
 package org.scalafmt.rewrite
 
+import metaconfig.ConfCodec
 import scala.meta._
-import metaconfig.ConfDecoder
 import org.scalafmt.config.ReaderUtil
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.TokenOps.TokenHash
 import org.scalafmt.util.{TokenOps, TokenTraverser, TreeOps}
-import org.scalameta.logger
 
 case class RewriteCtx(
     style: ScalafmtConfig,
@@ -23,7 +22,7 @@ abstract class Rewrite {
 }
 
 object Rewrite {
-  implicit val reader: ConfDecoder[Rewrite] =
+  implicit val reader: ConfCodec[Rewrite] =
     ReaderUtil.oneOf[Rewrite](
       RedundantBraces,
       RedundantParens,

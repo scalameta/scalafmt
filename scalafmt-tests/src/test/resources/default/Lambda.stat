@@ -118,11 +118,9 @@ def foo(x: Int) = x match {
 >>>
 def foo(x: Int) = x match {
   case 1 =>
-    (y: Int) =>
-      y
+    (y: Int) => y
   case _ =>
-    (y: Int) =>
-      -y
+    (y: Int) => -y
 }
 <<< SKIP y u break line? Answer: Because optimizer.recurseOnBlocks
 {
@@ -191,3 +189,7 @@ pairList.map(pair => {
     .filter(pair => pair._1 != pair._2) // a
     .map(pair => (pair, delta))
 })
+<<< lambda break
+val add = (x: Int) => x + 2
+>>>
+val add = (x: Int) => x + 2
