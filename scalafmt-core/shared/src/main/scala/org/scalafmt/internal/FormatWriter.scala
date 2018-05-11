@@ -43,13 +43,21 @@ class FormatWriter(formatOps: FormatOps) {
                 .getOrElse(token.syntax, token.syntax)
             sb.append(rewrittenToken)
         }
-        // add trailing comma
-        if (formatOps.initStyle.trailingCommas &&
-          !formatToken.left.is[Token.Comma] &&
-          state.splits.last.modification.isNewline &&
+
+        if (state.splits.last.modification.isNewline &&
           formatToken.right.is[Token.RightParen]) {
-          sb.append(",")
+          // add trailing comma
+          if (formatOps.initStyle.trailingCommas &&
+            !formatToken.left.is[Token.Comma]) {
+            sb.append(",")
+          }
+          // remove trailing comma
+          if (!formatOps.initStyle.trailingCommas &&
+            formatToken.left.is[Token.Comma]) {
+            sb.deleteCharAt(sb.length - 1);
+          }
         }
+
         sb.append(whitespace)
         formatToken.right match {
           // state.column matches the end of formatToken.right

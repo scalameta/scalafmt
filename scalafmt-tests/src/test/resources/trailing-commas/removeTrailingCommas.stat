@@ -1,0 +1,13 @@
+maxColumn = 30
+trailingCommas = false
+
+<<< should remove a trailing comma on the last argument
+def method(
+    a: String,
+    b: String,
+)
+>>>
+def method(
+    a: String,
+    b: String
+)
