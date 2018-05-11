@@ -74,6 +74,8 @@ import org.scalafmt.util.ValidationOps
   *                                        , b
   *                                        , c
   *                                      )
+  * @param trailingCommas If true, always inserts trailing commas when argument lists span over
+  *                       multiple lines
   * @param indentYieldKeyword If true, indents `yield` by two spaces
   *                           for (i <- j)
   *                             yield banana
@@ -124,6 +126,7 @@ case class ScalafmtConfig(
     assumeStandardLibraryStripMargin: Boolean = false,
     danglingParentheses: Boolean = false,
     poorMansTrailingCommasInConfigStyle: Boolean = false,
+    trailingCommas: Boolean = false,
     @deprecated("Use VerticalMultiline.atDefnSite instead", "1.6.0")
     verticalMultilineAtDefinitionSite: Boolean = false,
     @deprecated("Use VerticalMultiline.arityThreshold instead", "1.6.0")
