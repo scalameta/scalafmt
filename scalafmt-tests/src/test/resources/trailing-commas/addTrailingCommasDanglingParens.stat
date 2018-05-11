@@ -74,10 +74,3 @@ import somepackage.someobject.{
   memberA,
   memberB,
 }
-
-<<< SKIP should remove a trailing comma when joining into a single line
-(a,
-b,
-)
->>>
-(a, b)

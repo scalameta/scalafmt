@@ -1,0 +1,17 @@
+maxColumn = 30
+trailingCommas = always
+optIn.configStyleArguments = false
+
+<<< should remove a trailing comma when joining into a single line
+foo(a,
+b,
+)
+>>>
+foo(a, b)
+
+<<< should remove a trailing comma when removing config style
+foo(
+  a,
+)
+>>>
+foo(a)

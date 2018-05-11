@@ -43,8 +43,9 @@ class FormatWriter(formatOps: FormatOps) {
                 .getOrElse(token.syntax, token.syntax)
             sb.append(rewrittenToken)
         }
-        handleTrailingCommas(formatToken, state, sb)
-        sb.append(whitespace)
+
+        handleTrailingCommasAndWhitespace(formatToken, state, sb, whitespace)
+
         formatToken.right match {
           // state.column matches the end of formatToken.right
           case literal: Constant.String =>
@@ -365,27 +366,46 @@ class FormatWriter(formatOps: FormatOps) {
     }
   }
 
-  private def handleTrailingCommas(formatToken: FormatToken, state: State, sb: StringBuilder) = {
+  import scala.meta.internal.classifiers.classifier
+
+  @classifier
+  trait ClosingBracket
+  object ClosingBracket {
+    def unapply(token: Token): Boolean =
+      token.is[RightParen] || token.is[RightBracket] || token.is[RightBrace]
+  }
+
+  private def handleTrailingCommasAndWhitespace(
+      formatToken: FormatToken,
+      state: State,
+      sb: StringBuilder,
+      whitespace: String): Unit = {
+
     import org.scalafmt.config.TrailingCommas
 
-    if (runner.dialect.allowTrailingCommas &&
-      state.splits.last.modification.isNewline &&
-      (formatToken.right.is[Token.RightParen] ||
-      formatToken.right.is[Token.RightBracket] ||
-      formatToken.right.is[RightBrace])) {
+    if (!runner.dialect.allowTrailingCommas) {
+      sb.append(whitespace)
+      return
+    }
 
-      // add trailing comma
-      if (initStyle.trailingCommas == TrailingCommas.always &&
-        !formatToken.left.is[Token.Comma]) {
+    val FormatToken(left, right, _) = formatToken
+    val isNewline = state.splits.last.modification.isNewline
+
+    initStyle.trailingCommas match {
+      case TrailingCommas.always
+          if !left.is[Comma] && right.is[ClosingBracket] && isNewline =>
         sb.append(",")
-      }
+        sb.append(whitespace)
 
-      // remove trailing comma
-      if (initStyle.trailingCommas == TrailingCommas.never &&
-        formatToken.left.is[Token.Comma]) {
-        sb.deleteCharAt(sb.length - 1);
-      }
+      case TrailingCommas.never
+          if left.is[Comma] && right.is[ClosingBracket] && isNewline =>
+        sb.deleteCharAt(sb.length - 1)
+        sb.append(whitespace)
 
+      case _ if left.is[Comma] && right.is[ClosingBracket] && !isNewline =>
+        sb.deleteCharAt(sb.length - 1)
+
+      case _ => sb.append(whitespace)
     }
 
   }
