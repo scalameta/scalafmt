@@ -7,7 +7,7 @@ foo(
 >>>
 foo(
     1,
-    2,
+    2
 )
 <<< literal types
 val x : 42 = 42
