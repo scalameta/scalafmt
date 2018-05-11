@@ -1,5 +1,5 @@
 maxColumn = 30
-trailingCommas = false
+trailingCommas = never
 
 <<< should remove a trailing comma on the last argument
 def method(

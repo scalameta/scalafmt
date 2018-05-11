@@ -43,24 +43,7 @@ class FormatWriter(formatOps: FormatOps) {
                 .getOrElse(token.syntax, token.syntax)
             sb.append(rewrittenToken)
         }
-
-        if (runner.dialect.allowTrailingCommas &&
-          state.splits.last.modification.isNewline &&
-          (formatToken.right.is[Token.RightParen] ||
-          formatToken.right.is[Token.RightBracket] ||
-          formatToken.right.is[RightBrace])) {
-          // add trailing comma
-          if (formatOps.initStyle.trailingCommas &&
-            !formatToken.left.is[Token.Comma]) {
-            sb.append(",")
-          }
-          // remove trailing comma
-          if (!formatOps.initStyle.trailingCommas &&
-            formatToken.left.is[Token.Comma]) {
-            sb.deleteCharAt(sb.length - 1);
-          }
-        }
-
+        handleTrailingCommas(formatToken, state, sb)
         sb.append(whitespace)
         formatToken.right match {
           // state.column matches the end of formatToken.right
@@ -380,6 +363,31 @@ class FormatWriter(formatOps: FormatOps) {
       }
       finalResult.result()
     }
+  }
+
+  private def handleTrailingCommas(formatToken: FormatToken, state: State, sb: StringBuilder) = {
+    import org.scalafmt.config.TrailingCommas
+
+    if (runner.dialect.allowTrailingCommas &&
+      state.splits.last.modification.isNewline &&
+      (formatToken.right.is[Token.RightParen] ||
+      formatToken.right.is[Token.RightBracket] ||
+      formatToken.right.is[RightBrace])) {
+
+      // add trailing comma
+      if (initStyle.trailingCommas == TrailingCommas.always &&
+        !formatToken.left.is[Token.Comma]) {
+        sb.append(",")
+      }
+
+      // remove trailing comma
+      if (initStyle.trailingCommas == TrailingCommas.never &&
+        formatToken.left.is[Token.Comma]) {
+        sb.deleteCharAt(sb.length - 1);
+      }
+
+    }
+
   }
 }
 
