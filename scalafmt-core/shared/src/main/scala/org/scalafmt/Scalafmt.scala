@@ -1,7 +1,6 @@
 package org.scalafmt
 
 import scala.meta.Dialect
-import scala.meta.Input.stringToInput
 import scala.meta.inputs.Input
 import scala.util.control.NonFatal
 import org.scalafmt.Error.Incomplete

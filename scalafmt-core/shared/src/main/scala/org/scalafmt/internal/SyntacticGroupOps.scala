@@ -2,7 +2,7 @@ package org.scalafmt.internal
 
 import scala.meta.{Term, Tree, Lit}
 import org.scalafmt.internal.{SyntacticGroup => g}
-import scala.meta.internal.ast.Helpers._
+import scala.meta.internal.trees._
 
 object SyntacticGroupOps {
 

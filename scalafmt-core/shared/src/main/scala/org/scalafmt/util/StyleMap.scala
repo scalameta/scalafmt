@@ -10,7 +10,6 @@ import scala.meta.tokens.Token.Ident
 import scala.meta.tokens.Token.LeftParen
 import scala.meta.tokens.Token.RightParen
 import scala.meta.tokens.Tokens
-
 import metaconfig.Configured
 import org.scalafmt.config.Config
 import org.scalafmt.config.FilterMatcher
@@ -18,6 +17,7 @@ import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.util.TokenOps.TokenHash
 import org.scalameta.logger
+import scala.meta.Init
 
 class StyleMap(
     tokens: Array[FormatToken],
@@ -85,6 +85,9 @@ class StyleMap(
       case t: Term.Apply =>
         t.args.length > init.binPack.literalsMinArgCount &&
           t.args.forall(isLiteral)
+      case Init(_, _, args :: Nil) =>
+        args.length > init.binPack.literalsMinArgCount &&
+          args.forall(isLiteral)
       case _ => false
     }
 

@@ -24,7 +24,7 @@ case class FormatToken(left: Token, right: Token, between: Vector[Token]) {
 
   def inside(range: Set[Range]): Boolean = {
     if (range.isEmpty) true
-    else range.exists(_.contains(right.pos.end.line))
+    else range.exists(_.contains(right.pos.endLine))
   }
 
   def newlinesBetween: Int = TokenOps.newlinesBetween(between)

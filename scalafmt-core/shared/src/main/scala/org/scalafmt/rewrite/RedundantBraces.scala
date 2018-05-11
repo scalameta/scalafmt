@@ -66,7 +66,7 @@ case object RedundantBraces extends Rewrite {
   private def removeTrailingLF(bodyEnd: Position, close: Token)(
       implicit builder: PatchBuilder,
       ctx: RewriteCtx): Unit =
-    if (close.pos.start.line != bodyEnd.end.line) {
+    if (close.pos.startLine != bodyEnd.endLine) {
       import ctx.tokenTraverser._
       val next = nextToken(close)
       if (next.is[LF])
@@ -159,9 +159,9 @@ case object RedundantBraces extends Rewrite {
     b.tokens.isEmpty || {
       val diff =
         if (b.stats.isEmpty)
-          b.tokens.last.pos.end.line - b.tokens.head.pos.start.line
+          b.tokens.last.pos.endLine - b.tokens.head.pos.startLine
         else
-          b.stats.last.pos.end.line - b.stats.head.pos.start.line
+          b.stats.last.pos.endLine - b.stats.head.pos.startLine
       diff <= settings.maxLines
     }
 }

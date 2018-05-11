@@ -1,10 +1,12 @@
 package org.scalafmt.util
 
+import org.scalameta.logger
 import scala.collection.immutable.Seq
 import scala.meta.Decl
 import scala.meta.Defn
 import scala.meta.Name
 import scala.meta.Pat
+import scala.meta.Self
 import scala.meta.Template
 import scala.meta.Term
 import scala.meta.Tree
@@ -43,8 +45,10 @@ object WithChain {
   def unapply(t: Type.With): Option[Type.With] =
     TreeOps.topTypeWith(t) match {
       // self types, params, val/def/var/type definitions or declarations
-      case (top: Type.With) `:parent:` (_: Defn | _: Decl | _: Term.Param) =>
+      case (top: Type.With) `:parent:`
+            (_: Defn | _: Decl | _: Term.Param | _: Self) =>
         Some(top)
-      case _ => None
+      case _ =>
+        None
     }
 }

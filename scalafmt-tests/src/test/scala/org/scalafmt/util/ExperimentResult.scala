@@ -52,13 +52,13 @@ object ExperimentResult {
     override def key: String =
       e.getClass.getName + ": " + e.getMessage.replaceAll(" at .*", "")
 
-    def lineNumber = e.pos.start.line
+    def lineNumber = e.pos.startLine
 
-    def content = s"cols:${e.pos.start.column}-${e.pos.end.column}"
+    def content = s"cols:${e.pos.startColumn}-${e.pos.endColumn}"
 
     def urlWithLineHighlighted: String =
-      s"${scalaFile.githubUrl}#L${e.pos.start.line + 1} $cols"
+      s"${scalaFile.githubUrl}#L${e.pos.startLine + 1} $cols"
 
-    def cols = s"cols:${e.pos.start.column}-${e.pos.end.column}"
+    def cols = s"cols:${e.pos.startColumn}-${e.pos.endColumn}"
   }
 }

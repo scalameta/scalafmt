@@ -31,6 +31,7 @@ import org.scalafmt.util.Whitespace
 import org.scalafmt.util.Modifier
 import org.scalafmt.util.RightParenOrBracket
 import org.scalameta.logger
+import scala.meta.Init
 
 /**
   * Helper functions for generating splits/policies for a given tree.
@@ -97,7 +98,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       tree match {
         case p: Pkg => packages ++= p.ref.tokens
         case i: Import => imports ++= i.tokens
-        case t: Term.Arg => add(t)
+        case t: Term => add(t)
         case t: Term.Param =>
           add(t)
           t.mods.foreach(addOptional)
@@ -566,7 +567,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     var expire = tree.tokens.head
     tree.tokens.foreach {
       case t if !inside && ((t, ownersMap(hash(t))) match {
-            case (LeftParen(), _: Term.Apply) =>
+            case (LeftParen(), _: Term.Apply | _: Init) =>
               // TODO(olafur) https://github.com/scalameta/scalameta/issues/345
               val x = true
               x

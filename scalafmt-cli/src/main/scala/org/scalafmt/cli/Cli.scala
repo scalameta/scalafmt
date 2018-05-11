@@ -12,6 +12,7 @@ import org.scalafmt.Scalafmt
 import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.LogLevel
+import scala.meta.internal.tokenizers.PlatformTokenizerCache
 
 object Cli {
   def nailMain(nGContext: NGContext): Unit = {
@@ -164,6 +165,7 @@ object Cli {
       val inputConfig =
         if (inputMethod.isSbt || inputMethod.isSc) sbtOptions else options
       handleFile(inputMethod, inputConfig)
+      PlatformTokenizerCache.megaCache.clear()
       termDisplay.taskProgress(termDisplayMessage, counter.incrementAndGet())
     }
     termDisplay.stop()
