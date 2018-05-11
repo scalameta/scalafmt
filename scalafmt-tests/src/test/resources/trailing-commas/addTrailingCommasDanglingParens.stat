@@ -26,3 +26,58 @@ def method(
 def m(a: Int, b: Int)
 >>>
 def m(a: Int, b: Int)
+
+<<< add trailing commas in type parameters lists
+def method[
+    ParameterA,
+    ParameterB
+](
+    a: String,
+    b: String
+)
+>>>
+def method[
+    ParameterA,
+    ParameterB,
+](
+    a: String,
+    b: String,
+)
+
+<<< add trailing commas in type parameters lists when breaking over multiple lines
+def method[ParameterA, ParameterB](a: String, b: String, c: String)
+>>>
+def method[
+    ParameterA,
+    ParameterB,
+](
+    a: String,
+    b: String,
+    c: String,
+)
+
+<<< add trailing commas in bin-packed imports
+import somepackage.someobject.{
+  memberA,
+  memberB
+}
+>>>
+import somepackage.someobject.{
+  memberA,
+  memberB,
+}
+
+<<< add trailing commas in bin-packed imports when breaking over multiple lines
+import somepackage.someobject.{memberA, memberB}
+>>>
+import somepackage.someobject.{
+  memberA,
+  memberB,
+}
+
+<<< SKIP should remove a trailing comma when joining into a single line
+(a,
+b,
+)
+>>>
+(a, b)

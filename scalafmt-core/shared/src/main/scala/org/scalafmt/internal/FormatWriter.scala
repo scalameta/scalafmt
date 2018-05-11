@@ -44,8 +44,11 @@ class FormatWriter(formatOps: FormatOps) {
             sb.append(rewrittenToken)
         }
 
-        if (state.splits.last.modification.isNewline &&
-          formatToken.right.is[Token.RightParen]) {
+        if (runner.dialect.allowTrailingCommas &&
+          state.splits.last.modification.isNewline &&
+          (formatToken.right.is[Token.RightParen] ||
+          formatToken.right.is[Token.RightBracket] ||
+          formatToken.right.is[RightBrace])) {
           // add trailing comma
           if (formatOps.initStyle.trailingCommas &&
             !formatToken.left.is[Token.Comma]) {
