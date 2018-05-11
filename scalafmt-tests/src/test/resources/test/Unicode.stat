@@ -10,3 +10,7 @@ for {
 for {
   a ← List(1)
 } yield (x ⇒ 2)
+<<< #1033
+println(s"\u001b[1;${color}m${message}\u001b[m")
+>>>
+println(s"\u001b[1;${color}m${message}\u001b[m")
