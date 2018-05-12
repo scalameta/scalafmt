@@ -388,20 +388,59 @@ class FormatWriter(formatOps: FormatOps) {
       return
     }
 
-    val FormatToken(left, right, _) = formatToken
+    val left = formatToken.left
+    val right = nextNonComment(formatToken).right
     val isNewline = state.splits.last.modification.isNewline
 
     initStyle.trailingCommas match {
+      // foo(
+      //   a,
+      //   b
+      // )
+      //
+      // Insert a comma after b
       case TrailingCommas.always
-          if !left.is[Comma] && right.is[ClosingBracket] && isNewline =>
+          if !left.is[Comma] && !left.is[Comment] &&
+            right.is[ClosingBracket] && isNewline =>
         sb.append(",")
         sb.append(whitespace)
 
+      // foo(
+      //   a,
+      //   b // comment
+      // )
+      //
+      // Insert a comma after b (before comment)
+      case TrailingCommas.always
+          if left.is[Comment] && !prev(left).is[Comma] && right.is[ClosingBracket] && isNewline =>
+        sb.insert(sb.length - left.syntax.length - 1, ",")
+        sb.append(whitespace)
+
+      // foo(
+      //   a,
+      //   b,
+      // )
+      //
+      // Remove the comma after b
       case TrailingCommas.never
           if left.is[Comma] && right.is[ClosingBracket] && isNewline =>
         sb.deleteCharAt(sb.length - 1)
         sb.append(whitespace)
 
+      // foo(
+      //   a,
+      //   b, // comment
+      // )
+      //
+      // Remove the comma after b (before comment)
+      case TrailingCommas.never
+          if left.is[Comment] && prev(left).is[Comma] && right.is[ClosingBracket] && isNewline =>
+        sb.deleteCharAt(sb.length - left.syntax.length - 1)
+        sb.append(whitespace)
+
+      // foo(a, b,)
+      //
+      // Remove the comma after b
       case _ if left.is[Comma] && right.is[ClosingBracket] && !isNewline =>
         sb.deleteCharAt(sb.length - 1)
 
