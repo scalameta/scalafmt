@@ -1,9 +1,11 @@
 package org.scalafmt
 
+import metaconfig.Configured
 import scala.meta.Dialect
 import scala.meta.inputs.Input
 import scala.util.control.NonFatal
 import org.scalafmt.Error.Incomplete
+import org.scalafmt.config.Config
 import org.scalafmt.config.FormatEvent.CreateFormatOps
 import org.scalafmt.config.LineEndings.preserve
 import org.scalafmt.config.LineEndings.windows
@@ -69,6 +71,9 @@ object Scalafmt {
       case NonFatal(e) => Formatted.Failure(e)
     }
   }
+
+  def parseHoconConfig(configString: String): Configured[ScalafmtConfig] =
+    Config.fromHoconString(configString, None)
 
   private[this] def containsWindowsLineEndings(code: String): Boolean =
     code.contains(WindowsLineEnding)
