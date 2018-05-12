@@ -369,8 +369,8 @@ class FormatWriter(formatOps: FormatOps) {
   import scala.meta.internal.classifiers.classifier
 
   @classifier
-  trait ClosingBracket
-  object ClosingBracket {
+  trait CloseDelim
+  object CloseDelim {
     def unapply(token: Token): Boolean =
       token.is[RightParen] || token.is[RightBracket] || token.is[RightBrace]
   }
@@ -401,7 +401,7 @@ class FormatWriter(formatOps: FormatOps) {
       // Insert a comma after b
       case TrailingCommas.always
           if !left.is[Comma] && !left.is[Comment] &&
-            right.is[ClosingBracket] && isNewline =>
+            right.is[CloseDelim] && isNewline =>
         sb.append(",")
         sb.append(whitespace)
 
@@ -412,7 +412,8 @@ class FormatWriter(formatOps: FormatOps) {
       //
       // Insert a comma after b (before comment)
       case TrailingCommas.always
-          if left.is[Comment] && !prev(left).is[Comma] && right.is[ClosingBracket] && isNewline =>
+          if left.is[Comment] && !prev(left).is[Comma] &&
+            right.is[CloseDelim] && isNewline =>
         sb.insert(sb.length - left.syntax.length - 1, ",")
         sb.append(whitespace)
 
@@ -423,7 +424,7 @@ class FormatWriter(formatOps: FormatOps) {
       //
       // Remove the comma after b
       case TrailingCommas.never
-          if left.is[Comma] && right.is[ClosingBracket] && isNewline =>
+          if left.is[Comma] && right.is[CloseDelim] && isNewline =>
         sb.deleteCharAt(sb.length - 1)
         sb.append(whitespace)
 
@@ -434,14 +435,15 @@ class FormatWriter(formatOps: FormatOps) {
       //
       // Remove the comma after b (before comment)
       case TrailingCommas.never
-          if left.is[Comment] && prev(left).is[Comma] && right.is[ClosingBracket] && isNewline =>
+          if left.is[Comment] && prev(left).is[Comma] &&
+            right.is[CloseDelim] && isNewline =>
         sb.deleteCharAt(sb.length - left.syntax.length - 1)
         sb.append(whitespace)
 
       // foo(a, b,)
       //
       // Remove the comma after b
-      case _ if left.is[Comma] && right.is[ClosingBracket] && !isNewline =>
+      case _ if left.is[Comma] && right.is[CloseDelim] && !isNewline =>
         sb.deleteCharAt(sb.length - 1)
 
       case _ => sb.append(whitespace)
