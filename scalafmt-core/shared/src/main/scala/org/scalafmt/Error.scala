@@ -5,12 +5,12 @@ import scala.meta.Tree
 import scala.meta.tokens.Token
 import scala.reflect.ClassTag
 import scala.reflect.classTag
-
 import java.io.File
-
+import scala.meta.inputs.Position
 import org.scalafmt.internal.Decision
 import org.scalafmt.internal.State
 import org.scalafmt.util.LoggerOps
+import scala.meta.internal.inputs._
 
 sealed abstract class Error(msg: String) extends Exception(msg)
 
@@ -24,8 +24,12 @@ object Error {
 
   case class Incomplete(formattedCode: String)
       extends Error("Unable to format file due to bug in scalafmt")
-  // TODO(olafur) more precise info.
 
+  case class PreciseIncomplete(pos: Position, formattedCode: String)
+      extends Error(
+        pos.formatMessage(
+          "error",
+          "Unable to format file due to bug in scalafmt"))
   case class CantFindDefnToken[T: ClassTag](tree: Tree)
       extends Error(
         s"Expected keyword of type ${classTag[T].getClass} in tree $tree")
@@ -91,4 +95,5 @@ object Error {
   case class IdempotencyViolated(msg: String) extends Error(msg)
 
   case object MegaTestFailed extends Error("Mega test failed.")
+
 }

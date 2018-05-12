@@ -4,8 +4,8 @@ import metaconfig.Configured
 import scala.meta.Dialect
 import scala.meta.inputs.Input
 import scala.util.control.NonFatal
-import org.scalafmt.Error.Incomplete
 import org.scalafmt.config.Config
+import org.scalafmt.Error.PreciseIncomplete
 import org.scalafmt.config.FormatEvent.CreateFormatOps
 import org.scalafmt.config.LineEndings.preserve
 import org.scalafmt.config.LineEndings.windows
@@ -63,7 +63,8 @@ object Scalafmt {
         if (partial.reachedEOF) {
           Formatted.Success(correctedFormattedString)
         } else {
-          throw Incomplete(correctedFormattedString)
+          val pos = formatOps.tokens(partial.splits.length).left.pos
+          throw PreciseIncomplete(pos, correctedFormattedString)
         }
       }
     } catch {
