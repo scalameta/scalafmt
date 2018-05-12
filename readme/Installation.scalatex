@@ -98,6 +98,11 @@
         org.scalafmt.cli.CliArgParser.scoptParser.usage)
 
   @sect{IntelliJ}
+
+    @sidenote
+      Please upvote @lnk("this Jetbrains ticket", "https://youtrack.jetbrains.com/issue/SCL-13658")
+      about adding built-in support for Scalafmt in the IntelliJ Scala plugin.
+
     @lnk("Here is the plugin", "https://plugins.jetbrains.com/plugin/8236?pr=").
     You can install it directly from within IntelliJ,
     @ul
@@ -238,7 +243,6 @@
     Add to your dependencies
     @hl.scala
       libraryDependencies += "com.geirsson" %% "scalafmt-core" % "@V.stable"
-      libraryDependencies += "com.geirsson" %% "scalafmt-cli" % "@V.stable"
       // Scala.js
       libraryDependencies += "com.geirsson" %%% "scalafmt-core" % "@V.stable"
     @p
@@ -248,6 +252,32 @@
       org.scalafmt.Scalafmt.format("""
       object FormatMe { List(Split(Space, 0).withPolicy(SingleLineBlock(close)), Split(Newline, 1).withPolicy{ case Decision(t@@FormatToken(_, `close`, _), s) => Decision(t, List(Split(Newline, 0)))}.withIndent(2, close, Right)) }
        """).get
+
+    @p
+      Obtain a configuration object with @code{parseHoconConfig}
+
+    @repl
+      val config = org.scalafmt.Scalafmt.parseHoconConfig("align=most").get
+      org.scalafmt.Scalafmt.format("""
+       object Align {
+         val x = 1
+         val xx = 2
+      }""", config).get
+
+    @p
+      To format code with top-level statements like @code{*.sbt} files
+    @repl
+      val base = org.scalafmt.Scalafmt.parseHoconConfig("align=most").get
+      val config = org.scalafmt.Scalafmt.configForSbt(base)
+      org.scalafmt.Scalafmt.format("""
+         val x = 1
+         val xx = 2
+      """, config).get
+
+    @warning
+      The Scalafmt public API consists only of methods in @code{org.scalafmt.Scalafmt}.
+      In particular, case classes in @code{org.scalafmt.config} are subject to binary and
+      source breaking changes on any release.
 
   @sect{Help wanted!}
 
