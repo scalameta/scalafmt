@@ -262,7 +262,6 @@ object TreeOps {
     *
     * Currently, this includes everything from classes and defs to type
     * applications
-    * TODO (#867) Type applications shouldn't be here
     */
   def isDefnSite(tree: Tree): Boolean = tree match {
     case _: Decl.Def | _: Defn.Def | _: Defn.Macro | _: Defn.Class |

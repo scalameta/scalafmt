@@ -1,16 +1,10 @@
 package org.scalafmt.config
 
+import metaconfig._
 import scala.meta.Dialect
 import scala.meta.Tree
 import scala.meta.dialects.Scala211
 import scala.meta.parsers.Parse
-
-import metaconfig._
-
-import scala.meta.dialects.Dotty
-import scala.meta.dialects.Paradise211
-import scala.meta.dialects.Sbt0137
-import scala.meta.dialects.Scala211
 
 /**
   * A FormatRunner configures how formatting should behave.
@@ -61,7 +55,7 @@ object ScalafmtRunner {
     // Are `inline` identifiers supported by this dialect?
     allowInlineIdents = true,
     // Are inline vals and defs supported by this dialect?
-    allowInlineMods = true,
+    allowInlineMods = false,
     // Are literal types allowed, i.e. is `val a : 42 = 42` legal or not?
     allowLiteralTypes = true,
     // Are `|` (union types) supported by this dialect?

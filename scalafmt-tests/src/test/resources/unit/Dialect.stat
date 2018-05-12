@@ -21,10 +21,6 @@ val x: A & B = 42
 val List(a : _ *) = 2
 >>>
 val List(a: _*) = 2
-<<< inline kw
-inline   def x = 32
->>>
-inline def x = 32
 <<< trait parameters
 trait T(a : Int)
 >>>
