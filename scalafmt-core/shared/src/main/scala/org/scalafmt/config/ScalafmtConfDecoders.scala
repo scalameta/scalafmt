@@ -25,7 +25,15 @@ trait ScalafmtConfDecoders {
   }
 
   implicit lazy val dialectReader: ConfDecoder[Dialect] =
-    ReaderUtil.oneOf[Dialect](Scala211, Sbt0137, Dotty, Paradise211)
+    ReaderUtil.oneOf[Dialect](
+      Scala211,
+      Scala212,
+      Sbt0137,
+      Sbt1,
+      Dotty,
+      Paradise211,
+      Paradise212
+    )
 
   implicit lazy val codecReader: ConfDecoder[Codec] =
     ConfDecoder.instance[Codec] {
