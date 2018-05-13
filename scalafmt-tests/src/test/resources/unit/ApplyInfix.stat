@@ -94,3 +94,91 @@ val x = project(
     },
     base
 )
+<<< #990 if/else indent
+ctx.replace(
+  additionalImports =
+    "" ::
+      (if (true) x
+     else y)
+)
+>>>
+ctx.replace(
+    additionalImports =
+      "" ::
+        (if (true) x
+         else y)
+)
+<<< #990 if/else indent 2
+ctx.replace(
+  additionalImports =
+    "" ::
+      foo.map { x =>
+      x + 1
+      }
+)
+>>>
+ctx.replace(
+    additionalImports =
+      "" ::
+        foo.map { x =>
+          x + 1
+        }
+)
+<<< right assoc
+x ::
+  y.map {x =>
+  x + 1
+   } ::
+  z
+>>>
+x ::
+  y.map { x =>
+    x + 1
+  } ::
+  z
+<<< simple expr
+x ::
+  y ::
+  z
+>>>
+x ::
+  y ::
+  z
+<<< start line
+(x
+ :: y
+ :: z
+)
+>>>
+(x
+  :: y
+  :: z)
+<<< start line 2
+(x :: x
+ :: y :: y
+ :: z
+)
+>>>
+(x :: x
+  :: y :: y
+  :: z)
+<<< pattern start line
+1 match {
+case x :: x
+ :: y :: y
+ :: z :: z =>
+}
+>>>
+1 match {
+  case x :: x
+        :: y :: y
+        :: z :: z =>
+}
+<<< type.apply start line
+type x = (X
+  :: Y
+  :: Z)
+>>>
+type x = (X
+  :: Y
+  :: Z)
