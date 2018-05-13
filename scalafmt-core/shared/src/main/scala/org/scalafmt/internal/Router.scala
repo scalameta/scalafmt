@@ -214,7 +214,9 @@ class Router(formatOps: FormatOps) {
             }
 
         val skipSingleLineBlock =
-          startsLambda || newlines > 0
+          startsLambda ||
+            newlines > 0 ||
+            leftOwner.parent.exists(_.is[Term.If])
 
         val spaceMod = xmlSpace(leftOwner)
 

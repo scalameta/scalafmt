@@ -116,3 +116,12 @@ object Bar {
     // body
   }
 }
+<<< #271 curly
+if (true) { a }
+else { 2 }
+>>>
+if (true) {
+  a
+} else {
+  2
+}
