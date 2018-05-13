@@ -9,5 +9,5 @@ def method(
 >>>
 def method(
     a: String,
-    b: String // a comment
+    b: String, // a comment
 ) = ???

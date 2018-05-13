@@ -412,7 +412,7 @@ class FormatWriter(formatOps: FormatOps) {
       //
       // Insert a comma after b (before comment)
       case TrailingCommas.always
-          if left.is[Comment] && !prev(left).is[Comma] &&
+          if left.is[Comment] && !prev(formatToken).left.is[Comma] &&
             right.is[CloseDelim] && isNewline =>
         sb.insert(sb.length - left.syntax.length - 1, ",")
         sb.append(whitespace)
@@ -435,15 +435,17 @@ class FormatWriter(formatOps: FormatOps) {
       //
       // Remove the comma after b (before comment)
       case TrailingCommas.never
-          if left.is[Comment] && prev(left).is[Comma] &&
+          if left.is[Comment] && prev(formatToken).left.is[Comma] &&
             right.is[CloseDelim] && isNewline =>
-        sb.deleteCharAt(sb.length - left.syntax.length - 1)
+        sb.deleteCharAt(sb.length - left.syntax.length - 2)
         sb.append(whitespace)
 
       // foo(a, b,)
       //
       // Remove the comma after b
-      case _ if left.is[Comma] && right.is[CloseDelim] && !isNewline =>
+      case _
+          if left.is[Comma] && right.is[CloseDelim] &&
+            !next(formatToken).left.is[Comment] && !isNewline =>
         sb.deleteCharAt(sb.length - 1)
 
       case _ => sb.append(whitespace)
