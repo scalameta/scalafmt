@@ -545,6 +545,15 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     }).getOrElse(owner.tokens.last)
   }
 
+  def isEmptyFunctionBody(tree: Tree): Boolean = tree match {
+    case function: Term.Function =>
+      function.body match {
+        case b: Term.Block => b.stats.isEmpty
+        case _ => false
+      }
+    case _ => false
+  }
+
   def functionExpire(function: Term.Function): (Token, ExpiresOn) = {
     (for {
       parent <- function.parent

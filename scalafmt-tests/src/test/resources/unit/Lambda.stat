@@ -136,3 +136,15 @@ classTag[K] match {
   case ClassTag.Double =>
     (l, x) => util.Arrays
 }
+<<< #1171
+call(1) { x =>
+}
+>>>
+call(1) { x =>
+}
+<<< #1171 comment
+call(1) { x => // nothing
+}
+>>>
+call(1) { x => // nothing
+}

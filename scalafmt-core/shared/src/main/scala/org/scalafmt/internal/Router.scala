@@ -1,7 +1,6 @@
 package org.scalafmt.internal
 
 import scala.language.implicitConversions
-
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.meta.Case
@@ -37,6 +36,7 @@ import org.scalafmt.util.SomeInterpolate
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
 import org.scalafmt.util.Trivia
+import scala.meta.Lit
 
 // Too many to import individually.
 import scala.meta.tokens.Token._
@@ -214,7 +214,9 @@ class Router(formatOps: FormatOps) {
             }
 
         val skipSingleLineBlock =
-          startsLambda || newlines > 0
+          startsLambda ||
+            newlines > 0 ||
+            leftOwner.parent.exists(_.is[Term.If])
 
         val spaceMod = xmlSpace(leftOwner)
 
@@ -254,18 +256,20 @@ class Router(formatOps: FormatOps) {
           Split(Space, 0, ignoreIf = !canBeSpace),
           Split(afterCurlyNewlines, 1).withIndent(2, endOfFunction, Left)
         )
-      case FormatToken(arrow @ RightArrow(), right, _)
-          if leftOwner.is[Term.Function] =>
+      case FormatToken(RightArrow(), right, _) if leftOwner.is[Term.Function] =>
         val (endOfFunction, expiresOn) = functionExpire(
           leftOwner.asInstanceOf[Term.Function])
         val hasBlock =
           nextNonComment(formatToken).right.isInstanceOf[LeftBrace]
+        val indent = // don't indent if the body is empty `{ x => }`
+          if (isEmptyFunctionBody(leftOwner) && !right.is[Comment]) 0
+          else 2
         Seq(
           Split(Space, 0, ignoreIf = isSingleLineComment(right))
             .withPolicy(SingleLineBlock(endOfFunction)),
           Split(Space, 0, ignoreIf = !hasBlock),
           Split(Newline, 1 + nestedApplies(leftOwner), ignoreIf = hasBlock)
-            .withIndent(2, endOfFunction, expiresOn)
+            .withIndent(indent, endOfFunction, expiresOn)
         )
       // Case arrow
       case tok @ FormatToken(arrow @ RightArrow(), right, between)
@@ -819,10 +823,16 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(NoSplit, 0)
         )
-      // Return always gets space
       case FormatToken(KwReturn(), _, _) =>
+        val mod = leftOwner match {
+          case Term.Return(unit @ Lit.Unit()) if unit.tokens.isEmpty =>
+            // Always force blank line for Unit "return".
+            Newline
+          case _ =>
+            Space
+        }
         Seq(
-          Split(Space, 0)
+          Split(mod, 0)
         )
       case FormatToken(left, Colon(), _) =>
         val mod: Modification = rightOwner match {
