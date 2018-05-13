@@ -511,8 +511,18 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
         else rhsArgs.lastOption
       }
       token <- {
-        if (isRightAssociative) arg.tokens.headOption
-        else arg.tokens.lastOption
+        if (isRightAssociative) {
+          arg match {
+            case Term.ApplyInfix(lhs, _, _, _) =>
+              lhs.tokens.lastOption
+            case Pat.ExtractInfix(lhs, _, _) =>
+              lhs.tokens.lastOption
+            case _ =>
+              arg.tokens.lastOption
+          }
+        } else {
+          arg.tokens.lastOption
+        }
       }
     } yield token).getOrElse(owner.tokens.last)
 
