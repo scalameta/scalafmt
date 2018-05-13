@@ -1,7 +1,6 @@
 package org.scalafmt.internal
 
 import scala.language.implicitConversions
-
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.meta.Case
@@ -37,6 +36,7 @@ import org.scalafmt.util.SomeInterpolate
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
 import org.scalafmt.util.Trivia
+import scala.meta.Lit
 
 // Too many to import individually.
 import scala.meta.tokens.Token._
@@ -821,10 +821,16 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(NoSplit, 0)
         )
-      // Return always gets space
       case FormatToken(KwReturn(), _, _) =>
+        val mod = leftOwner match {
+          case Term.Return(unit @ Lit.Unit()) if unit.tokens.isEmpty =>
+            // Always force blank line for Unit "return".
+            Newline
+          case _ =>
+            Space
+        }
         Seq(
-          Split(Space, 0)
+          Split(mod, 0)
         )
       case FormatToken(left, Colon(), _) =>
         val mod: Modification = rightOwner match {

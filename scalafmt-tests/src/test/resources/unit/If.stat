@@ -125,3 +125,9 @@ if (true) {
 } else {
   2
 }
+<<< #930 return
+if (true) return
+else println(1)
+>>>
+if (true) return
+else println(1)
