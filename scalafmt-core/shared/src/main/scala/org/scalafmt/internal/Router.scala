@@ -256,18 +256,20 @@ class Router(formatOps: FormatOps) {
           Split(Space, 0, ignoreIf = !canBeSpace),
           Split(afterCurlyNewlines, 1).withIndent(2, endOfFunction, Left)
         )
-      case FormatToken(arrow @ RightArrow(), right, _)
-          if leftOwner.is[Term.Function] =>
+      case FormatToken(RightArrow(), right, _) if leftOwner.is[Term.Function] =>
         val (endOfFunction, expiresOn) = functionExpire(
           leftOwner.asInstanceOf[Term.Function])
         val hasBlock =
           nextNonComment(formatToken).right.isInstanceOf[LeftBrace]
+        val indent = // don't indent if the body is empty `{ x => }`
+          if (isEmptyFunctionBody(leftOwner) && !right.is[Comment]) 0
+          else 2
         Seq(
           Split(Space, 0, ignoreIf = isSingleLineComment(right))
             .withPolicy(SingleLineBlock(endOfFunction)),
           Split(Space, 0, ignoreIf = !hasBlock),
           Split(Newline, 1 + nestedApplies(leftOwner), ignoreIf = hasBlock)
-            .withIndent(2, endOfFunction, expiresOn)
+            .withIndent(indent, endOfFunction, expiresOn)
         )
       // Case arrow
       case tok @ FormatToken(arrow @ RightArrow(), right, between)
