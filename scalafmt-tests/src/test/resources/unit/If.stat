@@ -131,3 +131,18 @@ else println(1)
 >>>
 if (true) return
 else println(1)
+<<< #1043
+      if ('0' <= ch && ch <= '9') { ch - '0' }
+      else if ('A' <= ch && ch <= 'F') { ch - 'A' + 10 }
+      else if ('a' <= ch && ch <= 'f') { ch - 'a' + 10 }
+      else { -1 }
+>>>
+if ('0' <= ch && ch <= '9') {
+  ch - '0'
+} else if ('A' <= ch && ch <= 'F') {
+  ch - 'A' + 10
+} else if ('a' <= ch && ch <= 'f') {
+  ch - 'a' + 10
+} else {
+  -1
+}
