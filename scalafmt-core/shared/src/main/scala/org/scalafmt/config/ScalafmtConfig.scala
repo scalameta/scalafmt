@@ -109,6 +109,7 @@ case class ScalafmtConfig(
     continuationIndent: ContinuationIndent = ContinuationIndent(),
     align: Align = Align(),
     spaces: Spaces = Spaces(),
+    literals: Literals = Literals(),
     lineEndings: LineEndings = LineEndings.unix,
     rewriteTokens: Map[String, String] = Map.empty[String, String],
     rewrite: RewriteSettings = RewriteSettings(),
@@ -137,6 +138,7 @@ case class ScalafmtConfig(
   private implicit val projectReader = project.reader
   private implicit val rewriteReader = rewrite.reader
   private implicit val spacesReader = spaces.reader
+  private implicit val literalsReader = literals.reader
   private implicit val continuationIndentReader = continuationIndent.reader
   private implicit val binpackReader = binPack.reader
   private implicit val newlinesReader = newlines.reader
