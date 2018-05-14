@@ -1,7 +1,7 @@
 maxColumn = 30
 trailingCommas = always
 
-<<< should consider comments when adding trailing commas
+<<< SKIP should consider comments when adding trailing commas
 def method(
     a: String,
     b: String // a comment

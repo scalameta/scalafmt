@@ -6,9 +6,11 @@ import scala.meta.Decl
 import scala.meta.Defn
 import scala.meta.Mod
 import scala.meta.Import
+import scala.meta.Importer
 import scala.meta.Pkg
 import scala.meta.Term
 import scala.meta.Tree
+import scala.meta.Type
 import scala.meta.prettyprinters.Syntax
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
@@ -383,7 +385,13 @@ class FormatWriter(formatOps: FormatOps) {
 
     import org.scalafmt.config.TrailingCommas
 
-    if (!runner.dialect.allowTrailingCommas) {
+    val owner = owners(formatToken.right)
+    val hasValidOwner =
+      owner.is[Term.Apply] || owner.is[Term.Tuple] ||
+        owner.is[Type.Apply] || owner.is[Importer] ||
+        owner.is[Defn.Def] || owner.is[Decl.Def]
+
+    if (!runner.dialect.allowTrailingCommas || !hasValidOwner) {
       sb.append(whitespace)
       return
     }
