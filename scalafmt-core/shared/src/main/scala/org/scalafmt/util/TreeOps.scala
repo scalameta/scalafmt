@@ -6,6 +6,7 @@ import scala.meta.Ctor
 import scala.meta.Decl
 import scala.meta.Defn
 import scala.meta.Enumerator
+import scala.meta.Importer
 import scala.meta.Mod
 import scala.meta.Pat
 import scala.meta.Pkg
@@ -317,6 +318,11 @@ object TreeOps {
 
   def isDefnOrCallSite(tree: Tree): Boolean =
     isDefnSite(tree) || isCallSite(tree)
+
+  def isImporterOrDefnOrCallSite(tree: Tree): Boolean = tree match {
+    case _: Importer => true
+    case _ => isDefnOrCallSite(tree)
+  }
 
   def noSpaceBeforeOpeningParen(tree: Tree): Boolean =
     !isTuple(tree) && isDefnOrCallSite(tree)

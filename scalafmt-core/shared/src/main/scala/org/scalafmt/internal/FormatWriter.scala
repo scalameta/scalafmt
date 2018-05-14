@@ -386,12 +386,7 @@ class FormatWriter(formatOps: FormatOps) {
     import org.scalafmt.config.TrailingCommas
 
     val owner = owners(formatToken.right)
-    val hasValidOwner =
-      owner.is[Term.Apply] || owner.is[Term.Tuple] ||
-        owner.is[Type.Apply] || owner.is[Importer] ||
-        owner.is[Defn.Def] || owner.is[Decl.Def]
-
-    if (!runner.dialect.allowTrailingCommas || !hasValidOwner) {
+    if (!runner.dialect.allowTrailingCommas || !isImporterOrDefnOrCallSite(owner)) {
       sb.append(whitespace)
       return
     }

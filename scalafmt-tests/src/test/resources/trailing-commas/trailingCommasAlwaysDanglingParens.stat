@@ -74,3 +74,70 @@ import somepackage.someobject.{
   memberA,
   memberB,
 }
+
+<<< add trailing commas in class constructors
+class SomeClass(a: String, b: String)
+>>>
+class SomeClass(
+    a: String,
+    b: String,
+)
+
+<<< add trailingCommas in this
+object B {
+  class A(a: String, b: String)
+  new A("longstring", "anotherlongstring")
+}
+>>>
+object B {
+  class A(
+      a: String,
+      b: String,
+  )
+  new A(
+    "longstring",
+    "anotherlongstring",
+  )
+}
+
+<<< add trailing commas in Term.This
+class SomeClass(a: String, b: String) {
+  def SomeClass(a: Int) = this(a.toString, a.toString)
+}
+>>>
+class SomeClass(
+    a: String,
+    b: String,
+) {
+  def SomeClass(a: Int) =
+    this(
+      a.toString,
+      a.toString,
+    )
+}
+
+<<< add trailing commas in Pat.Extract
+val (
+  value1,
+  value2
+) = someMethod
+>>>
+val (
+  value1,
+  value2,
+) = someMethod
+
+
+<<< add trailing commas in Pat.Tuple
+lst.map { case (
+  value1,
+  value2
+) => value1 }
+>>>
+lst.map {
+  case (
+      value1,
+      value2,
+      ) =>
+    value1
+}
