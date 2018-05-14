@@ -36,7 +36,13 @@ class FormatWriter(formatOps: FormatOps) {
             sb.append(formatComment(c, state.indentation))
           case token @ Interpolation.Part(_) =>
             sb.append(formatMarginizedString(token, state.indentation))
-          case literal @ Constant.String(_) => // Ignore, see below.
+          case Constant.String(_) => // Ignore, see below.
+          case c: Constant.Long =>
+            sb.append(initStyle.literals.long.process(c.syntax))
+          case c: Constant.Float =>
+            sb.append(initStyle.literals.float.process(c.syntax))
+          case c: Constant.Double =>
+            sb.append(initStyle.literals.double.process(c.syntax))
           case token =>
             val rewrittenToken =
               formatOps.initStyle.rewriteTokens

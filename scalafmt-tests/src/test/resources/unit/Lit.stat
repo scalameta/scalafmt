@@ -1,0 +1,25 @@
+40 columns                              |
+<<< long
+1l
+>>>
+1L
+<<< long ok
+ 1L
+>>>
+1L
+<<< float
+1F
+>>>
+1f
+<<< float ok
+ 1f
+>>>
+1f
+<<< double
+1D
+>>>
+1d
+<<< double ok
+ 1d
+>>>
+1d

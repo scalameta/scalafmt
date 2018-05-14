@@ -1,0 +1,27 @@
+literals.long = unchanged
+literals.float = unchanged
+literals.double = unchanged
+<<< long
+1l
+>>>
+1l
+<<< long ok
+ 1L
+>>>
+1L
+<<< float
+1F
+>>>
+1F
+<<< float ok
+ 1f
+>>>
+1f
+<<< double
+1D
+>>>
+1D
+<<< double ok
+ 1d
+>>>
+1d
