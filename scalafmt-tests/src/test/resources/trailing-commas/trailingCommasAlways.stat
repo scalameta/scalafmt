@@ -22,3 +22,14 @@ def method(a: String,
 def m(a: Int, b: Int)
 >>>
 def m(a: Int, b: Int)
+
+<<< should add trailing commas to tuples
+val t = (
+  a,
+  b
+)
+>>>
+val t = (
+  a,
+  b,
+)
