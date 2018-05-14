@@ -33,8 +33,10 @@ object Scalafmt {
     */
   def format(
       code: String,
-      style: ScalafmtConfig = ScalafmtConfig.default,
-      range: Set[Range] = Set.empty[Range]): Formatted = {
+      style: ScalafmtConfig,
+      range: Set[Range],
+      filename: String
+  ): Formatted = {
     try {
       val runner = style.runner
       if (code.matches("\\s*")) Formatted.Success(System.lineSeparator())
@@ -45,7 +47,7 @@ object Scalafmt {
         } else {
           code
         }
-        val toParse = Rewrite(Input.String(unixCode), style)
+        val toParse = Rewrite(Input.VirtualFile(filename, unixCode), style)
         val tree = runner.dialect(toParse).parse(runner.parser).get
         val formatOps = new FormatOps(tree, style)
         runner.eventCallback(CreateFormatOps(formatOps))
@@ -71,6 +73,13 @@ object Scalafmt {
       // TODO(olafur) add more fine grained errors.
       case NonFatal(e) => Formatted.Failure(e)
     }
+  }
+
+  def format(
+      code: String,
+      style: ScalafmtConfig = ScalafmtConfig.default,
+      range: Set[Range] = Set.empty[Range]): Formatted = {
+    format(code, style, range, "<input>")
   }
 
   def parseHoconConfig(configString: String): Configured[ScalafmtConfig] =
