@@ -5,6 +5,9 @@ import java.io.InputStream
 import java.io.OutputStreamWriter
 import java.io.PrintStream
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
+import java.util.function.UnaryOperator
+import org.scalafmt.Error.MisformattedFile
 import org.scalafmt.Error.NoMatchingFiles
 import org.scalafmt.Error.UnableToParseCliOptions
 import org.scalafmt.Formatted
@@ -14,6 +17,7 @@ import org.scalafmt.util.FileOps
 import org.scalafmt.util.LogLevel
 import scala.meta.internal.tokenizers.PlatformTokenizerCache
 import scala.meta.parsers.ParseException
+import scala.util.control.NoStackTrace
 
 object Cli {
   def nailMain(nGContext: NGContext): Unit = {
@@ -22,7 +26,7 @@ object Cli {
         throw new IllegalStateException(s"Expected absolute path, " +
           s"obtained nGContext.getWorkingDirectory = ${nGContext.getWorkingDirectory}")
       }
-    mainWithOptions(
+    val exit = mainWithOptions(
       nGContext.getArgs,
       CliOptions.default.copy(
         common = CliOptions.default.common.copy(
@@ -33,6 +37,7 @@ object Cli {
         )
       )
     )
+    nGContext.exit(exit.code)
   }
 
   def main(
@@ -52,14 +57,26 @@ object Cli {
     mainWithOptions(args, options)
   }
 
-  def main(args: Array[String]): Unit = {
-    mainWithOptions(args, CliOptions.default)
+  private def throwIfError(exit: ExitCode): Unit = {
+    if (exit != ExitCode.Ok) {
+      throw new RuntimeException(exit.toString) with NoStackTrace
+    }
   }
 
-  def mainWithOptions(args: Array[String], options: CliOptions): Unit = {
+  def main(args: Array[String]): Unit = {
+    val exit = mainWithOptions(args, CliOptions.default)
+    sys.exit(exit.code)
+  }
+
+  def exceptionThrowingMain(args: Array[String]): Unit = {
+    val exit = mainWithOptions(args, CliOptions.default)
+    throwIfError(exit)
+  }
+
+  def mainWithOptions(args: Array[String], options: CliOptions): ExitCode = {
     getConfig(args, options) match {
       case Some(x) => run(x)
-      case None => throw UnableToParseCliOptions
+      case None => ExitCode.CommandLineArgumentError
     }
   }
 
@@ -104,7 +121,18 @@ object Cli {
 
   private def handleFile(
       inputMethod: InputMethod,
-      options: CliOptions): Unit = {
+      options: CliOptions): ExitCode = {
+    try unsafeHandleFile(inputMethod, options)
+    catch {
+      case MisformattedFile(_, diff) =>
+        options.common.err.println(diff)
+        ExitCode.TestError
+    }
+  }
+
+  private def unsafeHandleFile(
+      inputMethod: InputMethod,
+      options: CliOptions): ExitCode = {
     val input = inputMethod.readInput(options)
     val formatResult = Scalafmt.format(
       input,
@@ -115,19 +143,22 @@ object Cli {
     formatResult match {
       case Formatted.Success(formatted) =>
         inputMethod.write(formatted, input, options)
+        ExitCode.Ok
       case Formatted.Failure(e) =>
         if (options.config.runner.fatalWarnings) {
           throw e
         } else if (options.config.runner.ignoreWarnings) {
-          // do nothing
+          ExitCode.Ok // do nothing
         } else {
           e match {
             case e: ParseException =>
               options.common.err.println(e.toString())
+              ExitCode.ParseError
             case _ =>
               options.common.err.println(
                 s"${LogLevel.warn} Error in ${inputMethod.filename}: $e"
               )
+              ExitCode.UnexpectedError
           }
         }
     }
@@ -153,7 +184,7 @@ object Cli {
     termDisplay
   }
 
-  def run(options: CliOptions): Unit = {
+  def run(options: CliOptions): ExitCode = {
     val inputMethods = getInputMethods(options)
     if (inputMethods.isEmpty && options.diff.isEmpty && !options.stdIn)
       throw NoMatchingFiles
@@ -171,17 +202,30 @@ object Cli {
     val sbtOptions = options.copy(
       config = options.config.copy(runner = options.config.runner.forSbt))
     val termDisplay = newTermDisplay(options, inputMethods, termDisplayMessage)
+    val exitCode = new AtomicReference(ExitCode.Ok)
     inputMethods.par.foreach { inputMethod =>
       val inputConfig =
         if (inputMethod.isSbt || inputMethod.isSc) sbtOptions else options
-      handleFile(inputMethod, inputConfig)
+      val code = handleFile(inputMethod, inputConfig)
+      exitCode.getAndUpdate(new UnaryOperator[ExitCode] {
+        override def apply(t: ExitCode): ExitCode =
+          ExitCode.merge(code, t)
+      })
       PlatformTokenizerCache.megaCache.clear()
       termDisplay.taskProgress(termDisplayMessage, counter.incrementAndGet())
     }
     termDisplay.stop()
     if (options.testing) {
-      options.common.out.println("All files are formatted with scalafmt :)")
+      if (exitCode.get.is(ExitCode.TestError)) {
+        options.common.out.println("\nerror: --test failed")
+        if (options.config.onTestFailure.nonEmpty) {
+          options.common.out.println(options.config.onTestFailure)
+        }
+      } else {
+        options.common.out.println("All files are formatted with scalafmt :)")
+      }
     }
+    exitCode.get
   }
 
 }

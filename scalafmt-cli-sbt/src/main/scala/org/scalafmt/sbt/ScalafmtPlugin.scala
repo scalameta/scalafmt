@@ -1,5 +1,4 @@
 package org.scalafmt.sbt
-import scala.meta.internal.tokenizers.PlatformTokenizerCache
 import sbt._
 import Keys._
 
@@ -8,10 +7,11 @@ object ScalafmtPlugin extends AutoPlugin {
   object autoImport {
     val scalafmt: Command =
       Command.args("scalafmt", "run the scalafmt command line interface.") {
-        case (state, args) =>
-          org.scalafmt.cli.Cli.main("--non-interactive" +: args.toArray)
-          PlatformTokenizerCache.megaCache.clear()
-          state
+        case (s, args) =>
+          org.scalafmt.cli.Cli.exceptionThrowingMain(
+            "--non-interactive" +: args.toArray
+          )
+          s
       }
   }
   override def globalSettings: Seq[Def.Setting[_]] =

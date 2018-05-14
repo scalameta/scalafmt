@@ -65,6 +65,7 @@ object CliOptions {
     tryDirectory(options)(options.common.workingDirectory)
   }
 }
+
 case class CommonOptions(
     workingDirectory: AbsoluteFile = AbsoluteFile.userDir,
     out: PrintStream = System.out,
