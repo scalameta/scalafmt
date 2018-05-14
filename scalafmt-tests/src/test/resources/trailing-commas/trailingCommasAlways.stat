@@ -1,0 +1,35 @@
+maxColumn = 30
+trailingCommas = always
+
+<<< should add a trailing comma on the last argument
+def method(
+    a: String,
+    b: String
+)
+>>>
+def method(
+    a: String,
+    b: String,
+)
+
+<<< should not add a trailing comma when breaking into multiple lines
+def method(a: String, b: String)
+>>>
+def method(a: String,
+           b: String)
+
+<<< should not add a trailing comma when not breaking into multiple lines
+def m(a: Int, b: Int)
+>>>
+def m(a: Int, b: Int)
+
+<<< should add trailing commas to tuples
+val t = (
+  a,
+  b
+)
+>>>
+val t = (
+  a,
+  b,
+)

@@ -6,9 +6,11 @@ import scala.meta.Decl
 import scala.meta.Defn
 import scala.meta.Mod
 import scala.meta.Import
+import scala.meta.Importer
 import scala.meta.Pkg
 import scala.meta.Term
 import scala.meta.Tree
+import scala.meta.Type
 import scala.meta.prettyprinters.Syntax
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
@@ -49,7 +51,9 @@ class FormatWriter(formatOps: FormatOps) {
                 .getOrElse(token.syntax, token.syntax)
             sb.append(rewrittenToken)
         }
-        sb.append(whitespace)
+
+        handleTrailingCommasAndWhitespace(formatToken, state, sb, whitespace)
+
         formatToken.right match {
           // state.column matches the end of formatToken.right
           case literal: Constant.String =>
@@ -368,6 +372,95 @@ class FormatWriter(formatOps: FormatOps) {
       }
       finalResult.result()
     }
+  }
+
+  import scala.meta.internal.classifiers.classifier
+
+  @classifier
+  trait CloseDelim
+  object CloseDelim {
+    def unapply(token: Token): Boolean =
+      token.is[RightParen] || token.is[RightBracket] || token.is[RightBrace]
+  }
+
+  private def handleTrailingCommasAndWhitespace(
+      formatToken: FormatToken,
+      state: State,
+      sb: StringBuilder,
+      whitespace: String): Unit = {
+
+    import org.scalafmt.config.TrailingCommas
+
+    val owner = owners(formatToken.right)
+    if (!runner.dialect.allowTrailingCommas ||
+      !isImporterOrDefnOrCallSite(owner)) {
+      sb.append(whitespace)
+      return
+    }
+
+    val left = formatToken.left
+    val right = nextNonComment(formatToken).right
+    val isNewline = state.splits.last.modification.isNewline
+
+    initStyle.trailingCommas match {
+      // foo(
+      //   a,
+      //   b
+      // )
+      //
+      // Insert a comma after b
+      case TrailingCommas.always
+          if !left.is[Comma] && !left.is[Comment] &&
+            right.is[CloseDelim] && isNewline =>
+        sb.append(",")
+        sb.append(whitespace)
+
+      // foo(
+      //   a,
+      //   b // comment
+      // )
+      //
+      // Insert a comma after b (before comment)
+      case TrailingCommas.always
+          if left.is[Comment] && !prev(formatToken).left.is[Comma] &&
+            right.is[CloseDelim] && isNewline =>
+        sb.insert(sb.length - left.syntax.length - 1, ",")
+        sb.append(whitespace)
+
+      // foo(
+      //   a,
+      //   b,
+      // )
+      //
+      // Remove the comma after b
+      case TrailingCommas.never
+          if left.is[Comma] && right.is[CloseDelim] && isNewline =>
+        sb.deleteCharAt(sb.length - 1)
+        sb.append(whitespace)
+
+      // foo(
+      //   a,
+      //   b, // comment
+      // )
+      //
+      // Remove the comma after b (before comment)
+      case TrailingCommas.never
+          if left.is[Comment] && prev(formatToken).left.is[Comma] &&
+            right.is[CloseDelim] && isNewline =>
+        sb.deleteCharAt(sb.length - left.syntax.length - 2)
+        sb.append(whitespace)
+
+      // foo(a, b,)
+      //
+      // Remove the comma after b
+      case _
+          if left.is[Comma] && right.is[CloseDelim] &&
+            !next(formatToken).left.is[Comment] && !isNewline =>
+        sb.deleteCharAt(sb.length - 1)
+
+      case _ => sb.append(whitespace)
+    }
+
   }
 }
 

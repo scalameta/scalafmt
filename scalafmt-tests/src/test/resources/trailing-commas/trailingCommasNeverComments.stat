@@ -1,0 +1,13 @@
+maxColumn = 30
+trailingCommas = never
+
+<<< SKIP should consider comments when removing trailing commas
+def method(
+    a: String,
+    b: String, // a comment
+)
+>>>
+def method(
+    a: String,
+    b: String // a comment
+)

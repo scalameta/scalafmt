@@ -1,0 +1,143 @@
+maxColumn = 30
+danglingParentheses = true
+align = none
+trailingCommas = always
+
+<<< should add a trailing comma on the last argument
+def method(
+    a: String,
+    b: String
+)
+>>>
+def method(
+    a: String,
+    b: String,
+)
+
+<<< should add a trailing comma when breaking into multiple lines
+def method(a: String, b: String)
+>>>
+def method(
+    a: String,
+    b: String,
+)
+
+<<< should not add a trailing comma when not breaking into multiple lines
+def m(a: Int, b: Int)
+>>>
+def m(a: Int, b: Int)
+
+<<< add trailing commas in type parameters lists
+def method[
+    ParameterA,
+    ParameterB
+](
+    a: String,
+    b: String
+)
+>>>
+def method[
+    ParameterA,
+    ParameterB,
+](
+    a: String,
+    b: String,
+)
+
+<<< add trailing commas in type parameters lists when breaking over multiple lines
+def method[ParameterA, ParameterB](a: String, b: String, c: String)
+>>>
+def method[
+    ParameterA,
+    ParameterB,
+](
+    a: String,
+    b: String,
+    c: String,
+)
+
+<<< add trailing commas in bin-packed imports
+import somepackage.someobject.{
+  memberA,
+  memberB
+}
+>>>
+import somepackage.someobject.{
+  memberA,
+  memberB,
+}
+
+<<< add trailing commas in bin-packed imports when breaking over multiple lines
+import somepackage.someobject.{memberA, memberB}
+>>>
+import somepackage.someobject.{
+  memberA,
+  memberB,
+}
+
+<<< add trailing commas in class constructors
+class SomeClass(a: String, b: String)
+>>>
+class SomeClass(
+    a: String,
+    b: String,
+)
+
+<<< add trailingCommas in this
+object B {
+  class A(a: String, b: String)
+  new A("longstring", "anotherlongstring")
+}
+>>>
+object B {
+  class A(
+      a: String,
+      b: String,
+  )
+  new A(
+    "longstring",
+    "anotherlongstring",
+  )
+}
+
+<<< add trailing commas in Term.This
+class SomeClass(a: String, b: String) {
+  def SomeClass(a: Int) = this(a.toString, a.toString)
+}
+>>>
+class SomeClass(
+    a: String,
+    b: String,
+) {
+  def SomeClass(a: Int) =
+    this(
+      a.toString,
+      a.toString,
+    )
+}
+
+<<< add trailing commas in Pat.Extract
+val (
+  value1,
+  value2
+) = someMethod
+>>>
+val (
+  value1,
+  value2,
+) = someMethod
+
+
+<<< add trailing commas in Pat.Tuple
+lst.map { case (
+  value1,
+  value2
+) => value1 }
+>>>
+lst.map {
+  case (
+      value1,
+      value2,
+      ) =>
+    value1
+}

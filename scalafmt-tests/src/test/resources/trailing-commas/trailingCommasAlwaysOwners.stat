@@ -1,0 +1,10 @@
+trailingCommas = always
+
+<<< should not add trailing commas when owner is not valid
+lst.map { x =>
+  x + 1
+}
+>>>
+lst.map { x =>
+  x + 1
+}

@@ -1,0 +1,34 @@
+maxColumn = 30
+align = none
+danglingParentheses = true
+trailingCommas = preserve
+
+<<< should preserve the lack of trailing commas
+def method(
+    a: String,
+    b: String
+)
+>>>
+def method(
+    a: String,
+    b: String
+)
+
+<<< should preserve the presence of trailing commas
+def method(
+    a: String,
+    b: String,
+)
+>>>
+def method(
+    a: String,
+    b: String,
+)
+
+<<< should not add a trailing comma when breaking into multiple lines
+def method(a: String, b: String)
+>>>
+def method(
+    a: String,
+    b: String
+)
