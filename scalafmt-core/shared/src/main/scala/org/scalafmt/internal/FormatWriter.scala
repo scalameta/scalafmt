@@ -386,7 +386,8 @@ class FormatWriter(formatOps: FormatOps) {
     import org.scalafmt.config.TrailingCommas
 
     val owner = owners(formatToken.right)
-    if (!runner.dialect.allowTrailingCommas || !isImporterOrDefnOrCallSite(owner)) {
+    if (!runner.dialect.allowTrailingCommas ||
+      !isImporterOrDefnOrCallSite(owner)) {
       sb.append(whitespace)
       return
     }
