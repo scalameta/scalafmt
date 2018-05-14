@@ -58,6 +58,7 @@ lazy val cli = project
     allSettings,
     mainClass in assembly := Some("org.scalafmt.cli.Cli"),
     libraryDependencies ++= Seq(
+      "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0",
       "com.martiansoftware" % "nailgun-server" % "0.9.1",
       "com.github.scopt" %% "scopt" % "3.5.0"
     )
@@ -150,7 +151,6 @@ lazy val tests = project
     noPublish,
     libraryDependencies ++= Seq(
       // Test dependencies
-      "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0",
       "com.lihaoyi" %% "scalatags" % "0.6.3",
       "org.typelevel" %% "paiges-core" % "0.2.0",
       scalametaTestkit

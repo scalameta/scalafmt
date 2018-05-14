@@ -47,18 +47,49 @@ object InputMethod {
         options: CliOptions): Unit = {
       val codeChanged = formatted != original
       if (options.testing) {
-        if (codeChanged)
+        if (codeChanged) {
           throw MisformattedFile(
             new File(filename),
-            options.config.onTestFailure)
-        else Unit
+            unifiedDiff(
+              filename,
+              original,
+              formatted
+            )
+          )
+        }
       } else if (options.inPlace) {
-        if (codeChanged)
+        if (codeChanged) {
           FileOps.writeFile(filename, formatted)(options.config.encoding)
-        else Unit
+        }
       } else {
         options.common.out.print(formatted)
       }
+    }
+  }
+
+  def unifiedDiff(
+      filename: String,
+      original: String,
+      revised: String): String = {
+    import collection.JavaConverters._
+    def jList(string: String) =
+      java.util.Collections.list(string.lines.asJavaEnumeration)
+    val a = jList(original)
+    val b = jList(revised)
+    val diff = difflib.DiffUtils.diff(a, b)
+    if (diff.getDeltas.isEmpty) ""
+    else {
+      difflib.DiffUtils
+        .generateUnifiedDiff(
+          filename,
+          s"$filename-formatted",
+          a,
+          diff,
+          1
+        )
+        .iterator()
+        .asScala
+        .mkString("\n")
     }
   }
 }

@@ -99,13 +99,19 @@ abstract class AbstractCliTest extends FunSuite with DiffAssertions {
       input: AbsoluteFile,
       expected: String,
       cmds: Seq[Array[String]],
-      assertOut: String => Unit = println
+      assertExit: ExitCode => Unit = { exit =>
+        assert(exit.isOk, exit)
+      },
+      assertOut: String => Unit = { out =>
+        println(out)
+      }
   ): Unit = {
     cmds.foreach { args =>
       val out = new ByteArrayOutputStream()
       val init: CliOptions = getMockOptions(input, input, new PrintStream(out))
       val config = Cli.getConfig(args, init).get
-      Cli.run(config)
+      val exit = Cli.run(config)
+      assertExit(exit)
       val obtained = dir2string(input)
       assertNoDiff(obtained, expected)
       val configTest = Cli.getConfig(Array("--test"), init).get
@@ -188,9 +194,8 @@ class CliTest extends AbstractCliTest {
       "--test"
     )
     val formatInPlace = getConfig(args)
-    intercept[MisformattedFile] {
-      Cli.run(formatInPlace)
-    }
+    val exit = Cli.run(formatInPlace)
+    assert(exit.is(ExitCode.TestError))
     val str = FileOps.readFile(tmpFile.toString)
     assertNoDiff(str, unformatted + '\n')
   }
@@ -201,7 +206,7 @@ class CliTest extends AbstractCliTest {
     val args = Array(
       tmpFile.toFile.getAbsolutePath
     )
-    Cli.main(args)
+    Cli.exceptionThrowingMain(args)
     val obtained = FileOps.readFile(tmpFile.toString)
     assertNoDiff(obtained, formatted)
   }
@@ -279,7 +284,7 @@ class CliTest extends AbstractCliTest {
     def check(filename: String): Unit = {
       val args = Array(s"$filename.scala".asFilename)
       intercept[FileNotFoundException] {
-        Cli.main(args)
+        Cli.exceptionThrowingMain(args)
       }
     }
     check("notfound")
@@ -455,7 +460,7 @@ class CliTest extends AbstractCliTest {
       config,
       toFormat
     )
-    Cli.main(args) // runs without errors
+    Cli.exceptionThrowingMain(args) // runs without errors
     val obtained = FileOps.readFile(toFormat)
     assertNoDiff(obtained, "object A\n")
   }
@@ -494,6 +499,9 @@ class CliTest extends AbstractCliTest {
       string2dir(input),
       input,
       Seq(Array.empty),
+      assertExit = { exit =>
+        assert(exit.is(ExitCode.ParseError))
+      },
       assertOut = out => {
         assert(
           out.contains(
@@ -505,6 +513,46 @@ class CliTest extends AbstractCliTest {
       }
     )
   }
+
+  test("command line argument error") {
+    val exit = Cli.mainWithOptions(
+      Array("--foobar"),
+      getMockOptions(AbsoluteFile.userDir)
+    )
+    assert(exit.is(ExitCode.CommandLineArgumentError), exit)
+  }
+
+  test("--test failure prints out unified diff") {
+    val input =
+      """|/.scalafmt.conf
+         |onTestFailure = "To fix this ..."
+         |
+         |/foo.scala
+         |object    A { }
+         |""".stripMargin
+    noArgTest(
+      string2dir(input),
+      input,
+      Seq(Array("--test")),
+      assertExit = { exit =>
+        assert(exit.is(ExitCode.TestError))
+      },
+      assertOut = out => {
+        assert(
+          out.contains(
+            """|foo.scala-formatted
+               |@@ -1,1 +1,1 @@
+               |-object    A { }
+               |+object A {}
+               |
+               |error: --test failed
+               |To fix this ...""".stripMargin
+          )
+        )
+      }
+    )
+  }
+
   test("exception is thrown on invalid .scalafmt.conf") {
     val root = string2dir(
       """/.scalafmt.conf
