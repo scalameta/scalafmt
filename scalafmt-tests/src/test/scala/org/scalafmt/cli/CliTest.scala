@@ -38,11 +38,15 @@ abstract class AbstractCliTest extends FunSuite with DiffAssertions {
 
   def getMockOptions(
       baseDir: AbsoluteFile,
-      workingDir: AbsoluteFile): CliOptions = {
+      workingDir: AbsoluteFile,
+      out: PrintStream = System.out
+  ): CliOptions = {
     CliOptions.default.copy(
-      gitOpsConstructor = x => new FakeGitOps(baseDir),
+      gitOpsConstructor = _ => new FakeGitOps(baseDir),
       common = CliOptions.default.common.copy(
-        workingDirectory = workingDir
+        workingDirectory = workingDir,
+        out = out,
+        err = out
       )
     )
   }
@@ -94,15 +98,19 @@ abstract class AbstractCliTest extends FunSuite with DiffAssertions {
   def noArgTest(
       input: AbsoluteFile,
       expected: String,
-      cmds: Seq[Array[String]]): Unit = {
+      cmds: Seq[Array[String]],
+      assertOut: String => Unit = println
+  ): Unit = {
     cmds.foreach { args =>
-      val init: CliOptions = getMockOptions(input)
+      val out = new ByteArrayOutputStream()
+      val init: CliOptions = getMockOptions(input, input, new PrintStream(out))
       val config = Cli.getConfig(args, init).get
       Cli.run(config)
       val obtained = dir2string(input)
       assertNoDiff(obtained, expected)
       val configTest = Cli.getConfig(Array("--test"), init).get
       Cli.run(configTest)
+      assertOut(out.toString())
     }
 
   }
@@ -477,6 +485,26 @@ class CliTest extends AbstractCliTest {
     assertNoDiff(obtained3, formatted)
   }
 
+  test("parse error is formatted nicely") {
+    val input =
+      """|/foo.scala
+         |object    A { foo( }
+         |""".stripMargin
+    noArgTest(
+      string2dir(input),
+      input,
+      Seq(Array.empty),
+      assertOut = out => {
+        assert(
+          out.contains(
+            """foo.scala:1: error: illegal start of simple expression
+              |object    A { foo( }
+              |                   ^""".stripMargin
+          )
+        )
+      }
+    )
+  }
   test("exception is thrown on invalid .scalafmt.conf") {
     val root = string2dir(
       """/.scalafmt.conf

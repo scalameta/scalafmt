@@ -13,6 +13,7 @@ import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.LogLevel
 import scala.meta.internal.tokenizers.PlatformTokenizerCache
+import scala.meta.parsers.ParseException
 
 object Cli {
   def nailMain(nGContext: NGContext): Unit = {
@@ -105,8 +106,12 @@ object Cli {
       inputMethod: InputMethod,
       options: CliOptions): Unit = {
     val input = inputMethod.readInput(options)
-    val formatResult =
-      Scalafmt.format(input, options.config, options.range)
+    val formatResult = Scalafmt.format(
+      input,
+      options.config,
+      options.range,
+      inputMethod.filename
+    )
     formatResult match {
       case Formatted.Success(formatted) =>
         inputMethod.write(formatted, input, options)
@@ -116,9 +121,14 @@ object Cli {
         } else if (options.config.runner.ignoreWarnings) {
           // do nothing
         } else {
-          options.common.err.println(
-            s"${LogLevel.warn} Error in ${inputMethod.filename}: $e"
-          )
+          e match {
+            case e: ParseException =>
+              options.common.err.println(e.toString())
+            case _ =>
+              options.common.err.println(
+                s"${LogLevel.warn} Error in ${inputMethod.filename}: $e"
+              )
+          }
         }
     }
   }
