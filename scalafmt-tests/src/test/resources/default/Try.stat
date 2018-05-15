@@ -58,3 +58,9 @@ object Foo {
     bar()
   }
 }
+<<< try/catch with handler
+try { foo()  } catch handler
+>>>
+try {
+  foo()
+} catch handler
