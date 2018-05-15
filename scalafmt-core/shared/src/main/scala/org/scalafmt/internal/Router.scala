@@ -216,7 +216,10 @@ class Router(formatOps: FormatOps) {
         val skipSingleLineBlock =
           startsLambda ||
             newlines > 0 ||
-            leftOwner.parent.exists(_.is[Term.If])
+            leftOwner.parent.exists {
+              case _: Term.If | _: Term.Try | _: Term.TryWithHandler => true
+              case _ => false
+            }
 
         val spaceMod = xmlSpace(leftOwner)
 
@@ -864,8 +867,6 @@ class Router(formatOps: FormatOps) {
           }) =>
         val rhs: Tree = leftOwner match {
           case l: Term.Assign => l.rhs
-          case l: Term.Assign => l.rhs
-          case l: Term.Assign => l.lhs
           case l: Term.Param => l.default.get
           case l: Defn.Type => l.body
           case l: Defn.Val => l.rhs

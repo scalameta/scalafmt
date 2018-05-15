@@ -45,3 +45,22 @@ object Foo {
   try proc.waitFor()
   catch { case e: Throwable => run() }
 }
+<<< try/finally curly no single line blocks
+object Foo {
+  try { foo()  }
+  finally {  bar()  }
+}
+>>>
+object Foo {
+  try {
+    foo()
+  } finally {
+    bar()
+  }
+}
+<<< try/catch with handler
+try { foo()  } catch handler
+>>>
+try {
+  foo()
+} catch handler
