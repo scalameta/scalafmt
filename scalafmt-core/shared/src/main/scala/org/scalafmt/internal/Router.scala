@@ -36,6 +36,8 @@ import org.scalafmt.util.SomeInterpolate
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
 import org.scalafmt.util.Trivia
+
+import scala.meta.Decl.Def
 import scala.meta.Lit
 
 // Too many to import individually.
@@ -73,6 +75,8 @@ class Router(formatOps: FormatOps) {
     val leftOwner = owners(formatToken.left)
     val rightOwner = owners(formatToken.right)
     val newlines = newlinesBetween(formatToken.between)
+    val isDef = rightOwner.tokens.headOption.exists(_.is[KwDef])
+
     formatToken match {
       case FormatToken(_: BOF, _, _) =>
         Seq(
@@ -370,6 +374,8 @@ class Router(formatOps: FormatOps) {
           case t: Term.Name
               if style.spaces.afterTripleEquals &&
                 t.tokens.map(_.syntax) == Seq("===") =>
+            Space
+          case name: Term.Name if isDef && isSymbolicName(name.value) =>
             Space
           case _ => NoSplit
         }

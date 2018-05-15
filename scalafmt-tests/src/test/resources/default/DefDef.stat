@@ -303,3 +303,19 @@ def foo =
     val bar = fetchBar()
     bar.map(_ + 10)
   })
+<<< #915 Space on both sides of operator method definition (positive)
+trait Test[A] {
+  def <=>[B](that: Test[B]): Int
+}
+>>>
+trait Test[A] {
+  def <=> [B](that: Test[B]): Int
+}
+<<< #915 Space on both sides of operator method definition (negative)
+trait Test[A] {
+  def A_~>[B](that: Test[B]): Int
+}
+>>>
+trait Test[A] {
+  def A_~>[B](that: Test[B]): Int
+}
