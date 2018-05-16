@@ -248,7 +248,6 @@ object TermDisplay {
         downloads -= url
 
         val info = infos.remove(url)
-        assert(info != null)
 
         if (success)
           doneQueue += (url -> update0(info))

@@ -544,9 +544,63 @@ class CliTest extends AbstractCliTest {
                |@@ -1,1 +1,1 @@
                |-object    A { }
                |+object A {}
-               |
                |error: --test failed
                |To fix this ...""".stripMargin
+          )
+        )
+      }
+    )
+  }
+
+  test("--test succeeds even with parse error") {
+    val input =
+      """|/foo.scala
+         |object A {
+         |""".stripMargin
+    noArgTest(
+      string2dir(input),
+      input,
+      Seq(Array("--test")),
+      assertExit = { exit =>
+        assert(exit.isOk)
+      },
+      assertOut = out => {
+        println(out)
+        assert(
+          out.contains(
+            """|foo.scala:2: error: } expected but end of file found
+               |
+               |^
+               |error: ParseError=2""".stripMargin
+          )
+        )
+      }
+    )
+  }
+
+  test("--test fails with parse error if fatalWarnings=true") {
+    val input =
+      """|/.scalafmt.conf
+         |runner.fatalWarnings = true
+         |
+         |/foo.scala
+         |object A {
+         |""".stripMargin
+    noArgTest(
+      string2dir(input),
+      input,
+      Seq(Array("--test")),
+      assertExit = { exit =>
+        assert(exit == ExitCode.ParseError)
+      },
+      assertOut = out => {
+        println(out)
+        assert(
+          out.contains(
+            """|foo.scala:2: error: } expected but end of file found
+               |
+               |^
+               |error: ParseError=2""".stripMargin
           )
         )
       }
