@@ -359,6 +359,96 @@ class CliTest extends AbstractCliTest {
     )
   }
 
+  test("Regression test for verticalMultiline.atDefnSite") {
+    val input = string2dir(
+      """
+        |/.scalafmt.conf
+        |verticalMultiline.atDefnSite = true
+        |newlines.alwaysBeforeTopLevelStatements = true
+        |align.openParenCallSite = false
+        |align.openParenDefnSite = false
+        |spaces.afterKeywordBeforeParen = true
+        |rewrite.rules = [SortImports]
+        |danglingParentheses = true
+        |lineEndings = unix
+        |maxColumn = 160
+        |align = none
+        |includeCurlyBraceInSelectChains = false
+        |binPack.literalArgumentLists = false
+        |runner.optimizer.forceConfigStyleOnOffset = 2
+        |
+        |/src/main/scala/com.example
+        |package com.example
+        |
+        |import com.google.common.base.Strings
+        |import io.swagger.annotations.{ApiModel, ApiModelProperty}
+        |
+        |import scala.annotation.meta.field
+        |
+        |@ApiModel(description = "Metrics for a specific item")
+        |case class ItemMetric(
+        |    @(ApiModelProperty @field)(
+        |      value = "The id being summarized",
+        |      required = true
+        |    )
+        |    id: String,
+        |    @(ApiModelProperty @field)(
+        |      name = "sources",
+        |      value = "The data sources these metrics have been aggregate from",
+        |      required = true
+        |    )
+        |    sources: Seq[String]
+        |) {
+        |  require(
+        |    !Strings.isNullOrEmpty(id),
+        |    "id cannot be null or empty"
+        |  )
+        |  require(
+        |    sources != null && !sources.isEmpty,
+        |    "sources cannot be null or empty"
+        |  )
+        |}
+      """.stripMargin
+    )
+    val expected =
+      """|/.scalafmt.conf
+         |verticalMultiline.atDefnSite = true
+         |newlines.alwaysBeforeTopLevelStatements = true
+         |align.openParenCallSite = false
+         |align.openParenDefnSite = false
+         |spaces.afterKeywordBeforeParen = true
+         |rewrite.rules = [SortImports]
+         |danglingParentheses = true
+         |lineEndings = unix
+         |maxColumn = 160
+         |align = none
+         |includeCurlyBraceInSelectChains = false
+         |binPack.literalArgumentLists = false
+         |runner.optimizer.forceConfigStyleOnOffset = 2
+         |
+         |/src/main/scala/com.example
+         |package com.example
+         |
+         |import com.google.common.base.Strings
+         |import io.swagger.annotations.{ApiModel, ApiModelProperty}
+         |
+         |import scala.annotation.meta.field
+         |
+         |@ApiModel(description = "Metrics for a specific item")
+         |case class ItemMetric(
+         |    @(ApiModelProperty @field)(value = "The id being summarized", required = true)
+         |    id: String,
+         |    @(ApiModelProperty @field)(name = "sources", value = "The data sources these metrics have been aggregate from", required = true)
+         |    sources: Seq[String])
+         |""".stripMargin
+
+    noArgTest(
+      input,
+      expected,
+      Nil
+    )
+  }
+
   test("config is read even from nested dir") {
     val original = "object a { val x = 1 }"
     val expected =

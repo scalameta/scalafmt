@@ -1,0 +1,58 @@
+newlines.alwaysBeforeTopLevelStatements = true
+align.openParenCallSite = false
+align.openParenDefnSite = false
+spaces.afterKeywordBeforeParen = true
+rewrite.rules = [SortImports]
+danglingParentheses = true
+lineEndings = unix
+maxColumn = 160
+align = none
+includeCurlyBraceInSelectChains = false
+binPack.literalArgumentLists = false
+runner.optimizer.forceConfigStyleOnOffset = 2
+verticalMultilineAtDefinitionSite = true
+<<< ONLY Work with continuationIndent.defnSite = 2
+package com.example
+
+import com.google.common.base.Strings
+import io.swagger.annotations.{ApiModel, ApiModelProperty}
+
+import scala.annotation.meta.field
+
+@ApiModel(description = "Metrics for a specific item")
+case class ItemMetric(
+    @(ApiModelProperty @field)(
+      value = "The id being summarized",
+      required = true
+    )
+    id: String,
+    @(ApiModelProperty @field)(
+      name = "sources",
+      value = "The data sources these metrics have been aggregate from",
+      required = true
+    )
+    sources: Seq[String]
+) {
+  require(
+    !Strings.isNullOrEmpty(id),
+    "id cannot be null or empty"
+  )
+  require(
+    sources != null && !sources.isEmpty,
+    "sources cannot be null or empty"
+  )
+}
+>>>
+package com.example
+
+import com.google.common.base.Strings
+import io.swagger.annotations.{ApiModel, ApiModelProperty}
+
+import scala.annotation.meta.field
+
+@ApiModel(description = "Metrics for a specific item")
+case class ItemMetric(
+    @(ApiModelProperty @field)(value = "The id being summarized", required = true)
+    id: String,
+    @(ApiModelProperty @field)(name = "sources", value = "The data sources these metrics have been aggregate from", required = true)
+    sources: Seq[String])
