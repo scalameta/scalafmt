@@ -9,14 +9,13 @@ import java.util.concurrent.atomic.AtomicReference
 import java.util.function.UnaryOperator
 import org.scalafmt.Error.MisformattedFile
 import org.scalafmt.Error.NoMatchingFiles
-import org.scalafmt.Error.UnableToParseCliOptions
 import org.scalafmt.Formatted
 import org.scalafmt.Scalafmt
 import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.FileOps
-import org.scalafmt.util.LogLevel
 import scala.meta.internal.tokenizers.PlatformTokenizerCache
 import scala.meta.parsers.ParseException
+import scala.meta.tokenizers.TokenizeException
 import scala.util.control.NoStackTrace
 
 object Cli {
@@ -145,19 +144,16 @@ object Cli {
         inputMethod.write(formatted, input, options)
         ExitCode.Ok
       case Formatted.Failure(e) =>
-        if (options.config.runner.fatalWarnings) {
-          throw e
-        } else if (options.config.runner.ignoreWarnings) {
+        if (options.config.runner.ignoreWarnings) {
           ExitCode.Ok // do nothing
         } else {
           e match {
-            case e: ParseException =>
-              options.common.err.println(e.toString())
+            case e @ (_: ParseException | _: TokenizeException) =>
+              options.common.err.println(e.toString)
               ExitCode.ParseError
             case _ =>
-              options.common.err.println(
-                s"${LogLevel.warn} Error in ${inputMethod.filename}: $e"
-              )
+              new FailedToFormat(inputMethod.filename, e)
+                .printStackTrace(options.common.out)
               ExitCode.UnexpectedError
           }
         }
@@ -214,18 +210,35 @@ object Cli {
       PlatformTokenizerCache.megaCache.clear()
       termDisplay.taskProgress(termDisplayMessage, counter.incrementAndGet())
     }
+    termDisplay.completedTask(termDisplayMessage, exitCode.get.isOk)
     termDisplay.stop()
+    val exit = exitCode.get()
     if (options.testing) {
-      if (exitCode.get.is(ExitCode.TestError)) {
-        options.common.out.println("\nerror: --test failed")
+      if (exit.isOk) {
+        options.common.out.println("All files are formatted with scalafmt :)")
+      } else if (exit.is(ExitCode.TestError)) {
+        options.common.out.println(
+          "error: --test failed"
+        )
         if (options.config.onTestFailure.nonEmpty) {
           options.common.out.println(options.config.onTestFailure)
         }
       } else {
-        options.common.out.println("All files are formatted with scalafmt :)")
+        options.common.out.println(s"error: $exit")
       }
     }
-    exitCode.get
+    if (options.testing &&
+      !options.config.runner.fatalWarnings &&
+      !exit.is(ExitCode.TestError)) {
+      // Ignore parse errors etc.
+      ExitCode.Ok
+    } else {
+      exit
+    }
   }
+
+  private class FailedToFormat(filename: String, cause: Throwable)
+      extends Exception(filename, cause)
+      with NoStackTrace
 
 }
