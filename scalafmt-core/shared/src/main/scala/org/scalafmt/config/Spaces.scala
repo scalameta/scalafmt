@@ -33,7 +33,7 @@ case class Spaces(
     neverAroundInfixTypes: Seq[String] = Nil,
     afterKeywordBeforeParen: Boolean = true,
     inByNameTypes: Boolean = true,
-    afterSymbolicDefs: Boolean = true
+    afterSymbolicDefs: Boolean = false
 ) {
   implicit val reader: ConfDecoder[Spaces] = generic.deriveDecoder(this).noTypos
 }
