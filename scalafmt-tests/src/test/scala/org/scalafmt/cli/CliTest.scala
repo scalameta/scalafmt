@@ -594,7 +594,6 @@ class CliTest extends AbstractCliTest {
         assert(exit == ExitCode.ParseError)
       },
       assertOut = out => {
-        println(out)
         assert(
           out.contains(
             """|foo.scala:2: error: } expected but end of file found
