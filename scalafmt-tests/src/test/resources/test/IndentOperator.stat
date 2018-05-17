@@ -94,3 +94,21 @@ object TestRoutes {
       ???
     }
 }
+<<< #848
+  val x =
+  1 +
+  2 +
+  3
+>>>
+val x =
+  1 +
+  2 +
+  3
+<<< #848 same line
+  val x = 1 +
+  2 +
+  3
+>>>
+val x = 1 +
+  2 +
+  3

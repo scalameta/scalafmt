@@ -488,8 +488,14 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     val modification = newlines2Modification(
       formatToken.between,
       rightIsComment = formatToken.right.isInstanceOf[Comment])
-    val indent = {
-      if ((style.unindentTopLevelOperators ||
+    def isAssignment =
+      formatToken.left.is[Token.Equals] &&
+        owners(formatToken.left).is[Defn]
+    val indent: Int = {
+      if (style.unindentTopLevelOperators && isAssignment) {
+        // see https://github.com/scalameta/scalafmt/issues/848
+        2
+      } else if ((style.unindentTopLevelOperators ||
         isTopLevelInfixApplication(owner)) &&
         (style.indentOperator.includeRegexp
           .findFirstIn(op.tokens.head.syntax)
@@ -528,7 +534,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
     owner.parent match {
       case Some(_: Type.ApplyInfix)
-          if style.spaces.neverAroundInfixTypes.contains((op.value)) =>
+          if style.spaces.neverAroundInfixTypes.contains(op.value) =>
         Split(NoSplit, 0)
       case _ =>
         Split(modification, 0).withIndent(Num(indent), expire, ExpiresOn.Left)
