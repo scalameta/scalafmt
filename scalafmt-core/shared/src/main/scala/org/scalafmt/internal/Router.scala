@@ -37,7 +37,6 @@ import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
 import org.scalafmt.util.Trivia
 
-import scala.meta.Decl.Def
 import scala.meta.Lit
 
 // Too many to import individually.
@@ -75,7 +74,6 @@ class Router(formatOps: FormatOps) {
     val leftOwner = owners(formatToken.left)
     val rightOwner = owners(formatToken.right)
     val newlines = newlinesBetween(formatToken.between)
-    val isDef = rightOwner.tokens.headOption.exists(_.is[KwDef])
 
     formatToken match {
       case FormatToken(_: BOF, _, _) =>
@@ -359,10 +357,10 @@ class Router(formatOps: FormatOps) {
       // Opening [ with no leading space.
       // Opening ( with no leading space.
       case FormatToken(
-          KwSuper() | KwThis() | Ident(_) | RightBracket() | RightBrace() |
-          RightParen() | Underscore(),
-          LeftParen() | LeftBracket(),
-          _) if noSpaceBeforeOpeningParen(rightOwner) && {
+            KwSuper() | KwThis() | Ident(_) | RightBracket() | RightBrace() |
+            RightParen() | Underscore(),
+            LeftParen() | LeftBracket(),
+            _) if noSpaceBeforeOpeningParen(rightOwner) && {
             leftOwner.parent.forall {
               // infix applications have no space.
               case _: Type.ApplyInfix | _: Term.ApplyInfix => false
@@ -375,7 +373,8 @@ class Router(formatOps: FormatOps) {
               if style.spaces.afterTripleEquals &&
                 t.tokens.map(_.syntax) == Seq("===") =>
             Space
-          case name: Term.Name if isDef && isSymbolicName(name.value) =>
+          case name: Term.Name
+              if isSymbolicName(name.value) && name.parent.exists(isDefDef) =>
             Space
           case _ => NoSplit
         }
