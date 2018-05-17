@@ -817,9 +817,19 @@ class Router(formatOps: FormatOps) {
                 0)
             )
           case _ =>
+            val indent = leftOwner match {
+              case _: Defn.Val | _: Defn.Var =>
+                style.continuationIndent.defnSite
+              case _ =>
+                0
+            }
             Seq(
               Split(Space, 0),
-              Split(Newline, 1, ignoreIf = rhsIsAttachedComment)
+              Split(Newline, 1, ignoreIf = rhsIsAttachedComment).withIndent(
+                Num(indent),
+                right,
+                ExpiresOn.Right
+              )
             )
         }
       case FormatToken(_, Semicolon(), _) =>

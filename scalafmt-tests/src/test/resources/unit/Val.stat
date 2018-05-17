@@ -73,5 +73,23 @@ val q"${t22: (Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, I
 >>>
 val q"${t22: (Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int, Int)}" =
   q"(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22)"
-
-
+<<< #941
+val aaaaaaa, bbbbbbbb, cccccc, dddddddd, eeeeeeeee =
+  1
+>>>
+val aaaaaaa, bbbbbbbb, cccccc,
+    dddddddd, eeeeeeeee =
+  1
+<<< #941 you deserve bad indent
+val aaaaaaa, bbbbbbbb, cccccc(
+  1, 2, 3
+  ), dddddddd(aaaaaa, bbbbbbb), eeeeeeeee =
+  1
+>>>
+val aaaaaaa, bbbbbbbb, cccccc(
+    1,
+    2,
+    3
+), dddddddd(aaaaaa, bbbbbbb),
+    eeeeeeeee =
+  1
