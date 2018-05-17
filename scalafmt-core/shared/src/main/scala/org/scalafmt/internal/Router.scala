@@ -357,10 +357,10 @@ class Router(formatOps: FormatOps) {
       // Opening [ with no leading space.
       // Opening ( with no leading space.
       case FormatToken(
-            KwSuper() | KwThis() | Ident(_) | RightBracket() | RightBrace() |
-            RightParen() | Underscore(),
-            LeftParen() | LeftBracket(),
-            _) if noSpaceBeforeOpeningParen(rightOwner) && {
+          KwSuper() | KwThis() | Ident(_) | RightBracket() | RightBrace() |
+          RightParen() | Underscore(),
+          LeftParen() | LeftBracket(),
+          _) if noSpaceBeforeOpeningParen(rightOwner) && {
             leftOwner.parent.forall {
               // infix applications have no space.
               case _: Type.ApplyInfix | _: Term.ApplyInfix => false
