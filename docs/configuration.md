@@ -105,8 +105,7 @@ website.exampleBlock(
 website.default(_.continuationIndent.defnSite)
 ```
 
-Same as `continuationIndent.callSite` except for definition site.
-Example:
+Same as `continuationIndent.callSite` except for definition site. Example:
 
 ```tut:passthrough
 website.exampleBlock(
@@ -118,10 +117,10 @@ website.exampleBlock(
 
 ## Alignment
 
-Default: __some__
+Default: **some**
 
-Align has several nested fields, which you can customize.
-However, it comes with four possible defaults: none, some, more, & most.
+Align has several nested fields, which you can customize. However, it comes with
+four possible defaults: none, some, more, & most.
 
 ### `align`
 
@@ -165,7 +164,8 @@ website.exampleBlock(
 )
 ```
 
->__Pro tip__: Enable this setting to minimize git diffs/conflicts from renamings and other refactorings.
+> **Pro tip**: Enable this setting to minimize git diffs/conflicts from
+> renamings and other refactorings.
 
 #### `align=more`
 
@@ -225,17 +225,16 @@ website.exampleBlock(
 )
 ```
 
-> __Note__. Only for the truest vertical aligners. This is a new option,
-> feel free to open PR enabling more crazy vertical alignment here.
-> Expect changes.
+> **Note**. Only for the truest vertical aligners. This is a new option, feel
+> free to open PR enabling more crazy vertical alignment here. Expect changes.
 
 ### `align.tokens`
 
-Default: __[caseArrow]__
+Default: **[caseArrow]**
 
-An align token is a pair of `code`, which is the string literal of an operator of token, and `owner`, which is the kind of the closest tree node that owns that token.
-If no `owner` is provided, then all tree kinds will be matched.
-
+An align token is a pair of `code`, which is the string literal of an operator
+of token, and `owner`, which is the kind of the closest tree node that owns that
+token. If no `owner` is provided, then all tree kinds will be matched.
 
 ```tut:passthrough
 website.exampleBlock(
@@ -257,8 +256,8 @@ website.exampleBlock(
 )
 ```
 
-To find the `owner` part for a custom tree, depend on Scalameta and
-use `scala.meta.Tree.productPrefix` from the the (for example, Ammonite) REPL.
+To find the `owner` part for a custom tree, depend on Scalameta and use
+`scala.meta.Tree.productPrefix` from the the (for example, Ammonite) REPL.
 
 ```scala
 @ import $ivy.`org.scalameta:scalameta_2.12:@(V.scalameta)`, scala.meta._
@@ -367,5 +366,128 @@ website.exampleBlock(
       |  long: Long
       |)""".stripMargin,
   "align.openParenDefnSite = false"
+)
+```
+
+## Newlines
+
+The `newlines.*` options are used to configure when and where `scalafmt` should
+insert newlines.
+
+// TODO(gabro): link to Vertical Multiline section
+
+> You might be interested in the Vertical Multiline section.
+
+### `newlines.alwaysBeforeTopLevelStatements`
+
+```tut:passthrough
+website.default(_.newlines.alwaysBeforeTopLevelStatements)
+```
+
+// TODO(gabro): examples, thes won't compile
+<!-- ```tut:passthrough
+website.exampleBlock(
+  s"""|import org.scalafmt
+      |
+      |package P {
+      |  object O {
+      |    val x1 = 1
+      |    val x2 = 2
+      |    def A = "A"
+      |    def B = "B"
+      |  }
+      |}""".stripMargin,
+  "newlines.alwaysBeforeTopLevelStatements = false"
+)
+``` -->
+
+<!-- ```tut:passthrough
+website.exampleBlock(
+  s"""|import org.scalafmt
+      |
+      |package P {
+      |  object O {
+      |    val x1 = 1
+      |    val x2 = 2
+      |    def A = "A"
+      |    def B = "B"
+      |  }
+      |}""".stripMargin,
+  "newlines.alwaysBeforeTopLevelStatements = true"
+)
+``` -->
+
+### `newlines.sometimesBeforeColonInMethodReturnType`
+
+```tut:passthrough
+website.default(_.newlines.sometimesBeforeColonInMethodReturnType)
+```
+
+```tut:passthrough
+website.exampleBlock(
+  """implicit def validatedInstances[E](implicit E: Semigroup[E]) : Traverse[Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] = 2""",
+  "maxColumn = 70",
+  "newlines.sometimesBeforeColonInMethodReturnType = true"
+)
+```
+
+```tut:passthrough
+website.exampleBlock(
+  """implicit def validatedInstances[E](implicit E: Semigroup[E]) : Traverse[Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] = 2""",
+  "maxColumn = 70",
+  "newlines.sometimesBeforeColonInMethodReturnType = false"
+)
+```
+
+### `newlines.penalizeSingleSelectMultiArgList`
+
+```tut:passthrough
+website.default(_.newlines.penalizeSingleSelectMultiArgList)
+```
+
+```tut:passthrough
+website.exampleBlock(
+  """|logger.elem(a,
+     |  b,
+     |  c)""".stripMargin,
+  "newlines.penalizeSingleSelectMultiArgList = true"
+)
+```
+
+```tut:passthrough
+website.exampleBlock(
+  "logger.elem(a, b, c)",
+  "newlines.penalizeSingleSelectMultiArgList = true"
+)
+```
+
+See [this comment](https://github.com/scalameta/scalafmt/pull/611#issue-196230948) for further motivation.
+
+
+### `newlines.alwaysBeforeElseAfterCurlyIf`
+
+```tut:passthrough
+website.default(_.newlines.alwaysBeforeElseAfterCurlyIf)
+```
+
+```tut:passthrough
+website.exampleBlock(
+  """|if(someCond) {
+     |  foo()
+     |} else {
+     |  bar()
+     |}""".stripMargin,
+  "newlines.alwaysBeforeElseAfterCurlyIf = true"
+)
+```
+
+```tut:passthrough
+website.exampleBlock(
+  """|if(someCond) {
+     |  foo()
+     |} else {
+     |  bar()
+     |}""".stripMargin,
+  "newlines.alwaysBeforeElseAfterCurlyIf = false"
 )
 ```

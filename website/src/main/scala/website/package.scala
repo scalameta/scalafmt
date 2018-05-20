@@ -18,15 +18,15 @@ package object website {
     * @param code the unformatted code
     * @param config the config as an HOCON string
     */
-  def exampleBlock(code: String, config: String): Unit = {
+  def exampleBlock(code: String, config: String*): Unit = {
     val parsedConfig = Config
-      .fromHoconString(config)
+      .fromHoconString(config.mkString("\n"))
       .get
       .copy(maxColumn = 40, runner = ScalafmtRunner.sbt)
     val formattedCode = Scalafmt.format(code, parsedConfig).get
     println(
       scalaCode(
-        s"""|${config.split("\n").mkString("// ", "\n//", "")}
+        s"""|${config.mkString("// ", "\n//", "")}
             |
             |${formattedCode}""".stripMargin,
       ))
