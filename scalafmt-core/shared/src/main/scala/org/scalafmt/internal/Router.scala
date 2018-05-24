@@ -374,7 +374,7 @@ class Router(formatOps: FormatOps) {
                 t.tokens.map(_.syntax) == Seq("===") =>
             Space
           case name: Term.Name
-              if isSymbolicName(name.value) && name.parent.exists(isDefDef) =>
+              if style.spaces.afterSymbolicDefs && isSymbolicName(name.value) && name.parent.exists(isDefDef) =>
             Space
           case _ => NoSplit
         }

@@ -27,8 +27,7 @@
 <<< #697 you shall not change AST!!
   def =!=(that: S): Boolean = ! ===(that)
 >>>
-def =!= (that: S): Boolean =
-  ! ===(that)
+def =!=(that: S): Boolean = ! ===(that)
 <<< #710 you shall not add unneeded space!!
   if (!_member) Some(x) else None
 >>>
