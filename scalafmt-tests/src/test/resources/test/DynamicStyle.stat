@@ -3,6 +3,7 @@ style = defaultWithAlign
 unindentTopLevelOperators = true
 indentOperator.exclude = ":\\+:"
 align.tokens.add = [foo]
+danglingParentheses = false
 <<< dynamic
 // scalafmt: { maxColumn = 20 }
 function(aaaaaaaaaaa, bbbbbbb)

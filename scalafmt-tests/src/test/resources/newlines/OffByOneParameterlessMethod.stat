@@ -1,6 +1,7 @@
 style = defaultWithAlign
 newlines.sometimesBeforeColonInMethodReturnType = false
 maxColumn = 32
+danglingParentheses = false
 <<< equals is at column + 1
 object Test {
 //-----------------------------|
@@ -9,9 +10,9 @@ object Test {
 >>>
 object Test {
 //-----------------------------|
-  def test: Either[String,
-                   Int] =
-    Right(0)
+  def test: Either[
+    String,
+    Int] = Right(0)
 }
 <<< SKIP left brace is at column + 1
 object Test {

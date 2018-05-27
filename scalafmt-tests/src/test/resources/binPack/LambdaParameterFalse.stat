@@ -9,9 +9,11 @@ class A {
   {
     {
       {
-        def streamRequestEntity(creator: (
-            Source[ParserOutput.RequestOutput, NotUsed]) => RequestEntity): R =
-          1
+        def streamRequestEntity(
+            creator: (
+                Source[ParserOutput.RequestOutput, NotUsed]
+            ) => RequestEntity
+        ): R = 1
       }
     }
   }

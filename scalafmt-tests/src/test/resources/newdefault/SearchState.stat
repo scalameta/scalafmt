@@ -24,8 +24,10 @@ forAll(table)(
         headers = resCH.toList,
         entity =
           if (resCD)
-            HttpEntity.CloseDelimited(ContentTypes.`text/plain(UTF-8)`,
-                                      Source.single(ByteString("ENTITY")))
+            HttpEntity.CloseDelimited(
+              ContentTypes.`text/plain(UTF-8)`,
+              Source.single(ByteString("ENTITY"))
+            )
           else HttpEntity("ENTITY"),
         protocol = resProto
       ),
@@ -40,7 +42,8 @@ forAll(table)(
            |${if (resCD) "" else "Content-Length: 6\n"}
            |${if (headReq) "" else "ENTITY"}""",
       close
-    ))
+    )
+)
 <<< don't force me
 val boss = system.actorOf(Props(new Actor {
   override val supervisorStrategy = OneForOneStrategy() {
@@ -94,12 +97,11 @@ val boss = system.actorOf(Props(new Actor {
     "to a HEAD request setting a custom Content-Type and Content-Length (default response entity)" in new TestSetup() {
       ResponseRenderingContext(
         requestMethod = HttpMethods.HEAD,
-        response =
-          HttpResponse(headers = List(Age(30)),
-                       entity =
-                         HttpEntity.Default(ContentTypes.`text/plain(UTF-8)`,
-                                            100,
-                                            Source.empty))
+        response = HttpResponse(
+          headers = List(Age(30)),
+          entity = HttpEntity
+            .Default(ContentTypes.`text/plain(UTF-8)`, 100, Source.empty)
+        )
       ) should renderTo(
         """HTTP/1.1 200 OK
               |Age: 30

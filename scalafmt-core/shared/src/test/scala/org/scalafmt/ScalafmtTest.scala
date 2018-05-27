@@ -41,11 +41,11 @@ class ScalafmtTest extends org.scalatest.FunSuite {
     """|object A { function(aaaaaaaa, bbbbbbbbbb, ddddd(eeeeeeeeee, fffffff, gggggggg)) }
     """.stripMargin,
     """|object A {
-       |  function(aaaaaaaa,
-       |           bbbbbbbbbb,
-       |           ddddd(eeeeeeeeee,
-       |                 fffffff,
-       |                 gggggggg))
+       |  function(
+       |    aaaaaaaa,
+       |    bbbbbbbbbb,
+       |    ddddd(eeeeeeeeee, fffffff, gggggggg)
+       |  )
        |}
        |""".stripMargin,
     config.ScalafmtConfig.default40

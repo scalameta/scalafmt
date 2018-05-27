@@ -56,8 +56,8 @@ import metaconfig.generic.Surface
   *   Note. Requires mixedOwners to be true.
   */
 case class Align(
-    openParenCallSite: Boolean = true,
-    openParenDefnSite: Boolean = true,
+    openParenCallSite: Boolean = false,
+    openParenDefnSite: Boolean = false,
     tokens: Set[AlignToken] = Set(AlignToken.caseArrow),
     arrowEnumeratorGenerator: Boolean = false,
     ifWhileOpenParen: Boolean = true,

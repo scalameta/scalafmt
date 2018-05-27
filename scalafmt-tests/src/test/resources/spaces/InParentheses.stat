@@ -1,5 +1,6 @@
 spaces.inParentheses = true
 maxColumn = 40
+danglingParentheses = false
 <<< Spaces in parentheses
 function(a, b, c)
 >>>
@@ -16,20 +17,22 @@ def x( foo: Int ) = 2
 def x = (1, 2)
 >>>
 def x = ( 1, 2 )
-<<< maxColumn (looks weird, but scalariform does the same)
+<<< maxColumn
 def x = (1, 2, aaaaaaaaaaaaaawwwwsssssssssswa)
 >>>
 def x =
-  ( 1,
-   2,
-   aaaaaaaaaaaaaawwwwsssssssssswa )
+  (
+    1,
+    2,
+    aaaaaaaaaaaaaawwwwsssssssssswa )
 <<< maxColumn apply
 def foo = bar(aaaaaaaaaaaaa, bbbbbbbbbbbbbb, cccccccccc)
 >>>
 def foo =
-  bar( aaaaaaaaaaaaa,
-      bbbbbbbbbbbbbb,
-      cccccccccc )
+  bar(
+    aaaaaaaaaaaaa,
+    bbbbbbbbbbbbbb,
+    cccccccccc )
 <<< maxColumn apply 2
 def foo = bar(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, bbbbbbbbbbbbbb, cccccccccc)
 >>>
