@@ -60,7 +60,8 @@ lazy val cli = project
     libraryDependencies ++= Seq(
       "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0",
       "com.martiansoftware" % "nailgun-server" % "0.9.1",
-      "com.github.scopt" %% "scopt" % "3.5.0"
+      "com.github.scopt" %% "scopt" % "3.5.0",
+      scalacheck % Test
     )
   )
   .dependsOn(coreJVM)
