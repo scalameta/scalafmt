@@ -42,7 +42,7 @@ package object website {
       code: String,
       config: ScalafmtConfig = default40): Unit =
     println(
-      s"""|<table width='100%'>
+      s"""|<table width='100%' style='table-layout: fixed'>
           |<tbody>
           |<tr>
           |<td style='border: none'>
