@@ -5,8 +5,9 @@ import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 
 object Dependencies {
   val metaconfigV = "0.7.2"
-  val scalametaV = "3.7.4"
-  val scalatestV = "3.0.4"
+  val scalametaV = "4.0.0-M1"
+  val scalatestV = "3.2.0-SNAP10"
+  val scalacheckV = "1.13.5"
   val coursier = "1.0.0-RC12"
 
   val scalapb = Def.setting {
@@ -19,6 +20,7 @@ object Dependencies {
   val scalametaTestkit = "org.scalameta" %% "testkit" % scalametaV
   val scalariform = "org.scalariform" %% "scalariform" % "0.1.8"
 
+  val scalacheck = "org.scalacheck" %% "scalacheck" % scalacheckV
   val scalatest = Def.setting("org.scalatest" %%% "scalatest" % scalatestV)
   val scalameta = Def.setting("org.scalameta" %%% "scalameta" % scalametaV excludeAll scalapb.value)
   val metaconfig = Def.setting("com.geirsson" %%% "metaconfig-core" % metaconfigV)

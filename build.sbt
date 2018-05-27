@@ -1,3 +1,10 @@
+inThisBuild(
+  List(
+    libraryDependencies ++= List(
+      scalacheck % Test
+    )
+  )
+)
 import Dependencies._
 import org.scalajs.sbtplugin.cross.CrossProject
 
