@@ -1,3 +1,10 @@
+inThisBuild(
+  List(
+    libraryDependencies ++= List(
+      scalacheck % Test
+    )
+  )
+)
 import Dependencies._
 import org.scalajs.sbtplugin.cross.CrossProject
 
@@ -60,8 +67,7 @@ lazy val cli = project
     libraryDependencies ++= Seq(
       "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0",
       "com.martiansoftware" % "nailgun-server" % "0.9.1",
-      "com.github.scopt" %% "scopt" % "3.5.0",
-      scalacheck % Test
+      "com.github.scopt" %% "scopt" % "3.5.0"
     )
   )
   .dependsOn(coreJVM)
@@ -152,7 +158,6 @@ lazy val tests = project
     noPublish,
     libraryDependencies ++= Seq(
       // Test dependencies
-      scalacheck,
       "com.lihaoyi" %% "scalatags" % "0.6.3",
       "org.typelevel" %% "paiges-core" % "0.2.0",
       scalametaTestkit
@@ -171,7 +176,6 @@ lazy val benchmarks = project
     moduleName := "scalafmt-benchmarks",
     libraryDependencies ++= Seq(
       scalametaTestkit,
-      scalacheck % Test,
       scalatest.value % Test
     ),
     javaOptions in run ++= Seq(
