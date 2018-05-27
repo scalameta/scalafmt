@@ -21,6 +21,9 @@ import org.scalafmt.config.SpaceBeforeContextBound.Never
   * @param inByNameTypes
   *   If false, removes space in by-name parameter.
   *   `def foo(a: =>A)`
+  * @param afterSymbolicDefs If true, adds a single space after an operator method
+  *   For example:
+  *   def <=> [T](that: T): Boolean
   */
 case class Spaces(
     beforeContextBoundColon: SpaceBeforeContextBound = Never,
@@ -29,7 +32,8 @@ case class Spaces(
     inParentheses: Boolean = false,
     neverAroundInfixTypes: Seq[String] = Nil,
     afterKeywordBeforeParen: Boolean = true,
-    inByNameTypes: Boolean = true
+    inByNameTypes: Boolean = true,
+    afterSymbolicDefs: Boolean = false
 ) {
   implicit val reader: ConfDecoder[Spaces] = generic.deriveDecoder(this).noTypos
 }

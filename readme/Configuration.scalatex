@@ -771,6 +771,20 @@
         while(a) foo()
         for(a <- as) foo()
 
+    @sect{spaces.afterSymbolicDefs}
+      Default: @b(default.spaces.afterSymbolicDefs)
+
+      @hl.scala
+        // spaces.afterSymbolicDefs = true
+        trait Test[A] {
+          def <=> [B](that: Test[B]): Int
+        }
+
+        // spaces.afterSymbolicDefs = false
+        trait Test[A] {
+          def <=>[B](that: Test[B]): Int
+        }
+
     @sect{includeCurlyBraceInSelectChains}
       Default: @b(default.includeCurlyBraceInSelectChains)
 
