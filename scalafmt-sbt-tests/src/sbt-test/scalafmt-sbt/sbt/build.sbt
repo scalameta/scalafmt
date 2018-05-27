@@ -97,8 +97,10 @@ TaskKey[Unit]("check") := {
     file(s"p5/src/main/scala/Test.scala"),
     """
       |object Test {
-      |  def foo(a: Int, // comment
-      |          b: Double) = ???
+      |  def foo(
+      |    a: Int, // comment
+      |    b: Double
+      |  ) = ???
       |}
     """.stripMargin
   )
@@ -106,8 +108,10 @@ TaskKey[Unit]("check") := {
     file(s"p5/src/test/scala/MainTest.scala"),
     """
       |object MainTest {
-      |  def foo(a: Int, // comment
-      |          b: Double) = ???
+      |  def foo(
+      |    a: Int, // comment
+      |    b: Double
+      |  ) = ???
       |}
     """.stripMargin
   )
@@ -117,8 +121,10 @@ TaskKey[Unit]("check") := {
     file(s"p6/src/main/scala/Test.scala"),
     """
       |object Test {
-      |  foo(a, // comment
-      |      b)
+      |  foo(
+      |    a, // comment
+      |    b
+      |  )
       |}
     """.stripMargin
   )
@@ -140,8 +146,10 @@ TaskKey[Unit]("check") := {
     file(s"p7/src/main/scala/Test.scala"),
     """
       |object Test {
-      |  foo(a, // comment
-      |      b)
+      |  foo(
+      |    a, // comment
+      |    b
+      |  )
       |}
     """.stripMargin
   )
@@ -149,8 +157,10 @@ TaskKey[Unit]("check") := {
     file(s"p7/src/test/scala/MainTest.scala"),
     """
       |object MainTest {
-      |  foo(a, // comment
-      |      b)
+      |  foo(
+      |    a, // comment
+      |    b
+      |  )
       |}
     """.stripMargin
   )
@@ -159,8 +169,10 @@ TaskKey[Unit]("check") := {
     file(s"p8/src/main/scala/Test.scala"),
     """
       |object Test {
-      |  def foo(a: Int, // comment
-      |          b: Double) = ???
+      |  def foo(
+      |    a: Int, // comment
+      |    b: Double
+      |  ) = ???
       |}
     """.stripMargin
   )
@@ -169,8 +181,10 @@ TaskKey[Unit]("check") := {
     file(s"p8/src/main/scala/Test2.scala"),
     """
       |object Test2 {
-      |  def foo2(a: Int, // comment
-      |           b: Double) = ???
+      |  def foo2(
+      |    a: Int, // comment
+      |    b: Double
+      |  ) = ???
       |}
     """.stripMargin
   )
