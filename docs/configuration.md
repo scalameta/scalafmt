@@ -110,7 +110,8 @@ Same as `continuationIndent.callSite` except for definition site. Example:
 ```tut:passthrough
 website.exampleBlock(
   s"""|def function(
-      |    argument1: Type1): ReturnType // indented by 4""".stripMargin,
+      |argument1: Type1 // indented by 4
+      |): ReturnType""".stripMargin,
   "continuationIndent.defnSite = 4"
 )
 ```
@@ -260,7 +261,7 @@ To find the `owner` part for a custom tree, depend on Scalameta and use
 `scala.meta.Tree.productPrefix` from the the (for example, Ammonite) REPL.
 
 ```scala
-@ import $ivy.`org.scalameta:scalameta_2.12:@(V.scalameta)`, scala.meta._
+@ import $ivy.`org.scalameta:scalameta_2.12:@SCALAMETA_VERSION@`, scala.meta._
 
 @ val termMatch = q"x match { case 2 => foo(bar) }"
 termMatch: Term.Match = x match {
