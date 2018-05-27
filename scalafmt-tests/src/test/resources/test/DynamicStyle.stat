@@ -45,3 +45,15 @@ type Row =
 type Row =
   AlertEvent :+:
   InteractionEvent
+<<< base config is preseverd
+{
+  // scalafmt: { maxColumn = 40 }
+  val x = 2 + foo
+  val xx = 22 + foo
+}
+>>>
+{
+  // scalafmt: { maxColumn = 40 }
+  val x  = 2 +  foo
+  val xx = 22 + foo
+}
