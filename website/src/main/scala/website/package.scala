@@ -28,7 +28,7 @@ package object website {
       scalaCode(
         s"""|${config.mkString("// ", "\n//", "")}
             |
-            |${formattedCode}""".stripMargin,
+            |${formattedCode}""".stripMargin
       ))
   }
 

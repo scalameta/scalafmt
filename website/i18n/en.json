@@ -5,13 +5,16 @@
     "previous": "Previous",
     "tagline": "A code formatter for Scala",
     "configuration": "Configuration",
+    "contributing-scalafmt": "Contributing",
+    "contributing-website": "Contributing to the website",
     "faq": "FAQ / Troubleshooting",
     "gotchas": "Gotchas",
     "introduction": "Introduction",
     "known-issues": "Known Issues",
     "Docs": "Docs",
     "GitHub": "GitHub",
-    "Documentation": "Documentation"
+    "Documentation": "Documentation",
+    "Contributing": "Contributing"
   },
   "pages-strings": {
     "Help Translate|recruit community translators for your project": "Help Translate",

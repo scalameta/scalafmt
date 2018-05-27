@@ -6,6 +6,10 @@
       "gotchas",
       "faq",
       "known-issues"
+    ],
+    "Contributing": [
+      "contributing-scalafmt",
+      "contributing-website"
     ]
   }
 }
