@@ -31,9 +31,11 @@ object a {
 }
 >>>
 object a {
-  def buildMerchantDna(subsDna: Option[SubsDna],
-                       cu: Option[String],
-                       iv: Option[String]): dim.MerchantDna =
+  def buildMerchantDna(
+      subsDna: Option[SubsDna],
+      cu: Option[String],
+      iv: Option[String]
+  ): dim.MerchantDna =
     dim.MerchantDna(
       primaryRecurPeriod = subsDna.flatMap { _.primary },
       weekly = subsDna.map { _.weekly }.getOrElse(false),

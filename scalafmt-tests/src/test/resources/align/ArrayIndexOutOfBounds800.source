@@ -1,5 +1,7 @@
 style = defaultWithAlign
 onTestFailure = "Search state"
+align = most
+danglingParentheses = false
 <<< #800
 object Test {
   Some(Files.newInputStream(inFile)) match {

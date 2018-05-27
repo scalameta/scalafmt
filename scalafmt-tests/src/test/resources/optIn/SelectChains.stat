@@ -1,4 +1,5 @@
 optIn.breaksInsideChains = true
+danglingParentheses = false
 <<< airframe
 val design: Design =
   newDesign                      // Create an empty design

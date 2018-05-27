@@ -133,7 +133,7 @@ case class ScalafmtConfig(
     unindentTopLevelOperators: Boolean = false,
     includeCurlyBraceInSelectChains: Boolean = true,
     assumeStandardLibraryStripMargin: Boolean = false,
-    danglingParentheses: Boolean = false,
+    danglingParentheses: Boolean = true,
     poorMansTrailingCommasInConfigStyle: Boolean = false,
     trailingCommas: TrailingCommas = TrailingCommas.preserve,
     @deprecated("Use VerticalMultiline.atDefnSite instead", "1.6.0")
@@ -271,7 +271,12 @@ object ScalafmtConfig {
     maxColumn = 79,
     assumeStandardLibraryStripMargin = false,
     includeCurlyBraceInSelectChains = false,
-    align = default.align.copy(tokens = Set.empty),
+    danglingParentheses = false,
+    align = default.align.copy(
+      tokens = Set.empty,
+      openParenCallSite = true,
+      openParenDefnSite = true
+    ),
     optIn = default.optIn.copy(
       breakChainOnFirstMethodDot = false
     ),

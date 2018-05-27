@@ -21,18 +21,24 @@ object Config {
 
   def fromHoconString(
       string: String,
-      path: Option[String] = None): Configured[ScalafmtConfig] =
-    fromConf(fromInput(Input.String(string), path))
+      path: Option[String] = None,
+      default: ScalafmtConfig = ScalafmtConfig.default
+  ): Configured[ScalafmtConfig] =
+    fromConf(fromInput(Input.String(string), path), default = default)
 
   /** Read ScalafmtConfig from String contents from an optional HOCON path. */
   def fromHoconFile(
       file: File,
-      path: Option[String] = None): Configured[ScalafmtConfig] =
-    fromConf(fromInput(Input.File(file), path))
+      path: Option[String] = None,
+      default: ScalafmtConfig = ScalafmtConfig.default
+  ): Configured[ScalafmtConfig] =
+    fromConf(fromInput(Input.File(file), path), default = default)
 
   def fromConf(
       conf: Configured[Conf],
-      path: Option[String] = None): Configured[ScalafmtConfig] =
+      path: Option[String] = None,
+      default: ScalafmtConfig = ScalafmtConfig.default
+  ): Configured[ScalafmtConfig] =
     conf.andThen { baseConf =>
       val next = path match {
         case None => Ok(baseConf)
@@ -47,9 +53,7 @@ object Config {
               ConfError.typeMismatch("Conf.Obj", x).notOk
           }
       }
-      ScalafmtConfig
-        .configReader(ScalafmtConfig.default)
-        .read(next)
+      ScalafmtConfig.configReader(default).read(next)
     }
 
 }

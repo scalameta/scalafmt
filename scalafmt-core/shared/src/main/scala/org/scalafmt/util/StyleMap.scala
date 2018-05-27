@@ -36,7 +36,7 @@ class StyleMap(
     tokens.foreach { tok =>
       tok.left match {
         case Comment(c) if prefix.findFirstIn(c).isDefined =>
-          Config.fromHoconString(c, Some("scalafmt")) match {
+          Config.fromHoconString(c, Some("scalafmt"), init) match {
             case Configured.Ok(style) =>
               empty = false
               curr = style
