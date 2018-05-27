@@ -151,7 +151,7 @@ lazy val tests = project
     noPublish,
     libraryDependencies ++= Seq(
       // Test dependencies
-      "org.scalacheck" %% "scalacheck" % "1.14.0",
+      scalacheck,
       "com.lihaoyi" %% "scalatags" % "0.6.3",
       "org.typelevel" %% "paiges-core" % "0.2.0",
       scalametaTestkit
@@ -170,6 +170,7 @@ lazy val benchmarks = project
     moduleName := "scalafmt-benchmarks",
     libraryDependencies ++= Seq(
       scalametaTestkit,
+      scalacheck % Test,
       scalatest.value % Test
     ),
     javaOptions in run ++= Seq(
