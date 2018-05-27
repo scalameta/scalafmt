@@ -62,7 +62,7 @@ span.hljs-tag, span.hljs-symbol{
 
   <link rel="stylesheet" href="custom.css" />
 
-<div style="margin: 0px;color: #333;text-align: center;padding: 2.5em 2em 0;border-bottom: 1px solid #eee;display: block;" id="Scalafmt" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><h1 style="margin: 0.2em 0;font-size: 3em;font-weight: 300;">Scalafmt<a class=" scalatex-site-Styles-headerLink" href="#Scalafmt" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a></h1><br /><h2 style="font-weight: 300;color: #ccc;padding: 0px;margin-top: 0px;">1.5.1</h2></div><div class=" scalatex-site-Styles-content">
+<div style="margin: 0px;color: #333;text-align: center;padding: 2.5em 2em 0;border-bottom: 1px solid #eee;display: block;" id="Scalafmt" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><h1 style="margin: 0.2em 0;font-size: 3em;font-weight: 300;">Scalafmt<a class=" scalatex-site-Styles-headerLink" href="#Scalafmt" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a></h1><br /><h2 style="font-weight: 300;color: #ccc;padding: 0px;margin-top: 0px;">1.6.0</h2></div><div class=" scalatex-site-Styles-content">
 
   
 <div>
@@ -150,17 +150,17 @@ if head % 2 == 0 =&gt; &quot;number is even&quot;
 </p>
       <p>
         Create a standalone executable in <code>/usr/local/bin/scalafmt</code> with (sudo if necessary):
-        <pre><code class="xml scalatex-site-Styles-highlightMe">coursier bootstrap com.geirsson:scalafmt-cli_2.12:1.5.1 \
+        <pre><code class="xml scalatex-site-Styles-highlightMe">coursier bootstrap com.geirsson:scalafmt-cli_2.12:1.6.0 \
   -r bintray:scalameta/maven \
   -o /usr/local/bin/scalafmt --standalone --main org.scalafmt.cli.Cli
-scalafmt --version # should be 1.5.1
+scalafmt --version # should be 1.6.0
 </code></pre></p>
       <p>
         Alternatively you can create a slim 15 KiB bootstrap script with:
-        <pre><code class="xml scalatex-site-Styles-highlightMe">coursier bootstrap com.geirsson:scalafmt-cli_2.12:1.5.1 \
+        <pre><code class="xml scalatex-site-Styles-highlightMe">coursier bootstrap com.geirsson:scalafmt-cli_2.12:1.6.0 \
   -r bintray:scalameta/maven \
   -o scalafmt --main org.scalafmt.cli.Cli
-./scalafmt --version # should be 1.5.1
+./scalafmt --version # should be 1.6.0
 </code></pre>
         It is <b>recommended</b> to put this bootstrap script in your code repository
         to make sure everyone on your team, as well as CI, uses the same scalafmt
@@ -172,7 +172,7 @@ scalafmt --version # should be 1.5.1
 </code></pre></p>
     <h2 id="Pre-release" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Pre-release" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Pre-release</h2>
       Our CI publishes a pre-release version of scalafmt to Bintray on every merge into master.
-      To use a pre-release, replace 1.5.1 with the version here:
+      To use a pre-release, replace 1.6.0 with the version here:
 
       
         <a href='https://bintray.com/scalameta/maven/scalafmt-cli/_latestVersion'><img src='https://api.bintray.com/packages/scalameta/maven/scalafmt-cli/images/download.svg'></a>
@@ -193,12 +193,12 @@ scalafmt --version # should be 1.5.1
           Make sure you have a nailgun client installed. For example with <code>brew install nailgun</code>.</li>
         <li>
           Create a standalone executable in <code>/usr/local/bin/scalafmt_ng</code> with (sudo if necessary)
-          <pre><code class="xml scalatex-site-Styles-highlightMe">coursier bootstrap --standalone com.geirsson:scalafmt-cli_2.12:1.5.1 \
+          <pre><code class="xml scalatex-site-Styles-highlightMe">coursier bootstrap --standalone com.geirsson:scalafmt-cli_2.12:1.6.0 \
   -r bintray:scalameta/maven \
   -o /usr/local/bin/scalafmt_ng -f --main com.martiansoftware.nailgun.NGServer
 scalafmt_ng &amp; // start nailgun in background
 ng ng-alias scalafmt org.scalafmt.cli.Cli
-ng scalafmt --version # should be 1.5.1
+ng scalafmt --version # should be 1.6.0
 </code></pre></li></ul>
       <p>
         Nailgun keeps scalafmt running on a local server to avoid the JVM startup penalty
@@ -210,7 +210,7 @@ ng scalafmt --version # should be 1.5.1
     <h2 id="Homebrew" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Homebrew" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Homebrew</h2>
       You can install scalafmt via Homebrew using a custom formula
         <pre><code class="scala scalatex-site-Styles-highlightMe">brew install --HEAD olafurpg/scalafmt/scalafmt
-scalafmt --version // should be 1.5.1
+scalafmt --version // should be 1.6.0
 
 // to upgrade between releases
 brew upgrade scalafmt
@@ -222,9 +222,9 @@ brew upgrade scalafmt
       may include flags that have not been published yet.
       <code class="scala scalatex-site-Styles-highlightMe" style="display: inline;padding: 0px;margin: 0px;"></code>
 
-      <pre><code class="scala scalatex-site-Styles-highlightMe">build commit: c2e04bea974efab59e985300145cab0308288973
-build time: Sun May 27 11:23:21 UTC 2018
-scalafmt 1.5.1-127-c2e04bea
+      <pre><code class="scala scalatex-site-Styles-highlightMe">build commit: d9af5edf9ec82c884458b896a4d29670f430bd2a
+build time: Sun May 27 11:38:03 UTC 2018
+scalafmt 1.6.0-RC1-1-d9af5edf
 Usage: scalafmt [options] [&lt;file&gt;...]
 
   -h, --help               prints this usage text
@@ -323,7 +323,7 @@ Please file bugs to https://github.com/scalameta/scalafmt/issues
     <h2 id="sbt-scalafmt" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#sbt-scalafmt" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>sbt-scalafmt</h2>
 
       <pre><code class="scala scalatex-site-Styles-highlightMe">// In project/plugins.sbt. Note, does not support sbt 0.13, only sbt 1.0.
-addSbtPlugin(&quot;com.geirsson&quot; % &quot;sbt-scalafmt&quot; % &quot;1.5.1&quot;)
+addSbtPlugin(&quot;com.geirsson&quot; % &quot;sbt-scalafmt&quot; % &quot;1.6.0&quot;)
 </code></pre>
       The plugin provides several tasks and settings.
 
@@ -419,9 +419,9 @@ let g:formatters_scala = ['scalafmt']
 
   <h1 id="Standalonelibrary" style="display: block;" class=" scalatex-site-Styles-hoverContainer scalatex-site-Styles-headerTag"><a class=" scalatex-site-Styles-headerLink" href="#Standalonelibrary" style="position: absolute;right: 0px;"><i class="fa fa-link"></i></a>Standalone library</h1>
     Add to your dependencies
-    <pre><code class="scala scalatex-site-Styles-highlightMe">libraryDependencies += &quot;com.geirsson&quot; %% &quot;scalafmt-core&quot; % &quot;1.5.1&quot;
+    <pre><code class="scala scalatex-site-Styles-highlightMe">libraryDependencies += &quot;com.geirsson&quot; %% &quot;scalafmt-core&quot; % &quot;1.6.0&quot;
 // Scala.js
-libraryDependencies += &quot;com.geirsson&quot; %%% &quot;scalafmt-core&quot; % &quot;1.5.1&quot;</code></pre>
+libraryDependencies += &quot;com.geirsson&quot; %%% &quot;scalafmt-core&quot; % &quot;1.6.0&quot;</code></pre>
     <p>
       Use the API like this
 </p>
@@ -1537,7 +1537,7 @@ object IntelliJStyle
       there are more configuration options if you visited nested fields
       like <code>spaces</code> and <code>newlines</code>.
 
-      <pre><code class="scala scalatex-site-Styles-highlightMe">version = &quot;1.5.1&quot;
+      <pre><code class="scala scalatex-site-Styles-highlightMe">version = &quot;1.6.0&quot;
 maxColumn = 80
 docstrings = scaladoc
 optIn.configStyleArguments = true
@@ -2491,7 +2491,7 @@ optIn.configStyleArguments = true</code></pre>
       be removed in 0.5.</li>
     <li>
       (Experimental) New module <code>scalafmt-bootstrap</code> that is an experiment to support
-      defining <code>version = 1.5.1</code> in <code>.scalafmt.conf</code>.
+      defining <code>version = 1.6.0</code> in <code>.scalafmt.conf</code>.
       The idea is to allow editor integrations (such as IntelliJ plugin)
       to dynamically use a specific scalafmt version for a specific project.
 
