@@ -313,7 +313,17 @@ lazy val noPublish = Seq(
   publishLocal := {}
 )
 
-lazy val stableVersion = Def.setting(version.value.replaceAll("\\-.*", ""))
+val V = "\\d+\\.\\d+\\.\\d+"
+val ReleaseCandidate = s"($V-RC\\d+).*".r
+val Milestone = s"($V-M\\d+).*".r
+
+lazy val stableVersion = Def.setting {
+  version.value match {
+    case ReleaseCandidate(v) => v
+    case Milestone(v) => v
+    case v => v.replaceAll("\\-.*", "")
+  }
+}
 lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
   buildInfoKeys := Seq[BuildInfoKey](
     name,
