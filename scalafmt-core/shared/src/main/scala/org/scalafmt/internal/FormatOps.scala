@@ -751,10 +751,19 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       leftTok2tok(matching(token)) match {
         case FormatToken(RightParenOrBracket(), l @ LeftParen(), _) =>
           loop(l)
-        // This case only applies to classes
-        case f @ FormatToken(RightBracket(), mod, _) if mod.is[Modifier] =>
-          loop(next(f).right)
-        case FormatToken(r @ RightParenOrBracket(), _, _) => Some(r)
+        case f @ FormatToken(left @ RightParenOrBracket(), right, _) =>
+          right match {
+            case Modifier() =>
+              // This case only applies to classes
+              next(f).right match {
+                case x @ (_: Token.LeftParen | _: Token.LeftBracket) =>
+                  loop(x)
+                case _ =>
+                  Some(left)
+              }
+            case _ =>
+              Some(left)
+          }
         case _ => None
       }
     }
