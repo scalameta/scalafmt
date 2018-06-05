@@ -135,7 +135,7 @@ case class ScalafmtConfig(
     assumeStandardLibraryStripMargin: Boolean = false,
     danglingParentheses: Boolean = true,
     poorMansTrailingCommasInConfigStyle: Boolean = false,
-    trailingCommas: TrailingCommas = TrailingCommas.preserve,
+    trailingCommas: TrailingCommas = TrailingCommas.never,
     @deprecated("Use VerticalMultiline.atDefnSite instead", "1.6.0")
     verticalMultilineAtDefinitionSite: Boolean = false,
     @deprecated("Use VerticalMultiline.arityThreshold instead", "1.6.0")
