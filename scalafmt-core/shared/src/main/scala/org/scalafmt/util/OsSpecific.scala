@@ -8,8 +8,7 @@ object OsSpecific {
     java.io.File.separatorChar == '\\'
 
   def fixSeparatorsInPathPattern(unixSpecificPattern: String): String =
-    if (isWindows) unixSpecificPattern.replace("/", """\\""")
-    else unixSpecificPattern
+    unixSpecificPattern.replace('/', java.io.File.separatorChar)
 
   implicit class XtensionStringAsFilename(string: String) {
     def asFilename: String = fixSeparatorsInPathPattern(string)
