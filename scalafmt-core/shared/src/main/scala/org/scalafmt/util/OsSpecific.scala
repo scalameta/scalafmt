@@ -2,8 +2,10 @@ package org.scalafmt.util
 
 /** Utils related to differences between various operating systems. */
 object OsSpecific {
-  val isWindows: Boolean =
-    System.getProperty("os.name", "unknown").toLowerCase().startsWith("windows")
+  def isWindows: Boolean =
+    // NOTE: org.scalameta:io implements java.io.File for Node.js so this will work correctly
+    // on Node.js + Window and also in the browser.
+    java.io.File.separatorChar == '\\'
 
   def fixSeparatorsInPathPattern(unixSpecificPattern: String): String =
     if (isWindows) unixSpecificPattern.replace("/", """\\""")

@@ -50,4 +50,5 @@ class ScalafmtTest extends org.scalatest.FunSuite {
        |""".stripMargin,
     config.ScalafmtConfig.default40
   )
+
 }
