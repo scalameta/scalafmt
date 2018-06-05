@@ -1,7 +1,7 @@
 package org.scalafmt
 
 import org.scalafmt.util.DiffAssertions
-import org.scalafmt.util.OsSpecific.lineSeparator
+import java.lang.System.lineSeparator
 import org.scalatest.FunSuite
 
 class EmptyFileTest extends FunSuite with DiffAssertions {
