@@ -140,6 +140,8 @@
 
         Pro tip: Enable this setting to minimize git diffs/conflicts from renamings and other refactorings.
 
+        @configurationBlock(alignNone, true)
+
       @sect{align=more}
         @format(alignMore)
           val x = 2 // true for assignment
@@ -176,6 +178,8 @@
             "com.lihaoyi" %% "sourcecode" % "0.1.1"
           )
 
+        @configurationBlock(alignMore, true)
+
       @sect{align=most}
         @format(alignMost)
           for {
@@ -191,6 +195,9 @@
           // feel free to open PR enabling more crazy vertical alignment here.
           // Expect changes.
 
+        @configurationBlock(alignMost, true)
+
+
     @sect{align.tokens}
       Default: @b{[caseArrow]}
 
@@ -199,6 +206,10 @@
         of an operator of token, and @code{owner}, which is the kind of
         the closest tree node that owns that token.
         If no @code{owner} is provided, then all tree kinds will be matched.
+
+      @p
+        @note. It is valid to set @code{align.tokens = more} to re-use settings
+        from @sect.ref{align=more}. Same applies for @code{none/some/most}.
 
 
       @format(alignCaseArrow)
