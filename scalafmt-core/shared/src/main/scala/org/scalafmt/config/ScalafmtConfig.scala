@@ -335,18 +335,16 @@ object ScalafmtConfig {
   }
   def alignReader(base: ConfDecoder[Align]): ConfDecoder[Align] =
     ConfDecoder.instance[Align] {
-      case Conf.Str("none") | Conf.Bool(false) => Ok(Align.none)
-      case Conf.Str("some" | "default") => Ok(Align.some)
-      case Conf.Str("more") | Conf.Bool(true) => Ok(Align.more)
-      case Conf.Str("most") => Ok(Align.most)
+      case Align.Builtin(a) => Ok(a)
       case els => base.read(els)
     }
   def alignTokenReader(
       initTokens: Set[AlignToken]): ConfDecoder[Set[AlignToken]] = {
-    val baseReader = implicitly[ConfDecoder[Set[AlignToken]]]
+    val baseReader = ConfDecoder[Set[AlignToken]]
     ConfDecoder.instance[Set[AlignToken]] {
       case Conf.Obj(("add", conf) :: Nil) =>
         baseReader.read(conf).map(initTokens ++ _)
+      case Align.Builtin(a) => Ok(a.tokens)
       case els => baseReader.read(els)
     }
   }
