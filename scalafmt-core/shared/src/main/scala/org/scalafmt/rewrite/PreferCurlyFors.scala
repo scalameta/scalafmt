@@ -25,7 +25,8 @@ case object PreferCurlyFors extends Rewrite {
 
   def findForParens(
       forTokens: Tokens,
-      ctx: RewriteCtx): Option[(Token, Token)] = {
+      ctx: RewriteCtx
+  ): Option[(Token, Token)] = {
     import ctx.tokenTraverser._
 
     for {
@@ -38,7 +39,8 @@ case object PreferCurlyFors extends Rewrite {
 
   def findForSemiColons(
       forEnumerators: Seq[Enumerator],
-      ctx: RewriteCtx): Seq[Token] = {
+      ctx: RewriteCtx
+  ): Seq[Token] = {
     import ctx.tokenTraverser._
 
     for {
@@ -56,7 +58,8 @@ case object PreferCurlyFors extends Rewrite {
   def rewriteFor(
       forTokens: Tokens,
       forEnumerators: Seq[Enumerator],
-      ctx: RewriteCtx): Seq[Patch] = {
+      ctx: RewriteCtx
+  ): Seq[Patch] = {
     import ctx.tokenTraverser._
 
     val builder = Seq.newBuilder[Patch]

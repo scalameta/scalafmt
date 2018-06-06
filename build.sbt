@@ -39,7 +39,8 @@ lazy val core = crossProject
   .settings(
     moduleName := "scalafmt-core",
     addCompilerPlugin(
-      "org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
+      "org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full
+    ),
     allSettings,
     buildInfoSettings,
     fork.in(run).in(Test) := true,
@@ -205,7 +206,8 @@ lazy val readme = scalatex
     projectId = "readme",
     wd = file(""),
     url = "https://github.com/scalameta/scalafmt/tree/master",
-    source = "Readme")
+    source = "Readme"
+  )
   .settings(
     git.remoteRepo := "git@github.com:scalameta/scalafmt.git",
     siteSourceDirectory := target.value / "scalatex",
@@ -286,7 +288,8 @@ lazy val publishSettings = Seq(
   ),
   mimaBinaryIssueFilters ++= Mima.ignoredABIProblems,
   licenses := Seq(
-    "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+    "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")
+  ),
   homepage := Some(url("https://github.com/scalameta/scalafmt")),
   autoAPIMappings := true,
   apiURL := Some(url("https://olafurpg.github.io/scalafmt/docs/")),

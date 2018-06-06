@@ -18,20 +18,25 @@ class CliOptionsTest extends FunSuite {
     import org.scalafmt.config.Config
     val NotOk(err) = Config.fromHoconString("style = foobar")
     assert(
-      "Unknown style name foobar. Expected one of: Scala.js, IntelliJ, default, defaultWithAlign" == err.msg)
+      "Unknown style name foobar. Expected one of: Scala.js, IntelliJ, default, defaultWithAlign" == err.msg
+    )
 
     val overrideOne = Config.fromHoconString("""|style = defaultWithAlign
                                                 |maxColumn = 100
                                                 |""".stripMargin)
     assert(
-      Ok(ScalafmtConfig.defaultWithAlign.copy(maxColumn = 100)) == overrideOne)
+      Ok(ScalafmtConfig.defaultWithAlign.copy(maxColumn = 100)) == overrideOne
+    )
     assert(
-      Ok(ScalafmtConfig.intellij) == Config.fromHoconString("style = intellij"))
+      Ok(ScalafmtConfig.intellij) == Config.fromHoconString("style = intellij")
+    )
     assert(
-      Ok(ScalafmtConfig.scalaJs) == Config.fromHoconString("style = Scala.js"))
+      Ok(ScalafmtConfig.scalaJs) == Config.fromHoconString("style = Scala.js")
+    )
     assert(
-      Ok(ScalafmtConfig.defaultWithAlign) == Config.fromHoconString(
-        "style = defaultWithAlign"))
+      Ok(ScalafmtConfig.defaultWithAlign) == Config
+        .fromHoconString("style = defaultWithAlign")
+    )
   }
 
 }

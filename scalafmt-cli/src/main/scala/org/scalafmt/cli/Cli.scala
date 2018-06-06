@@ -22,8 +22,10 @@ object Cli {
   def nailMain(nGContext: NGContext): Unit = {
     val workingDirectory =
       AbsoluteFile.fromPath(nGContext.getWorkingDirectory).getOrElse {
-        throw new IllegalStateException(s"Expected absolute path, " +
-          s"obtained nGContext.getWorkingDirectory = ${nGContext.getWorkingDirectory}")
+        throw new IllegalStateException(
+          s"Expected absolute path, " +
+            s"obtained nGContext.getWorkingDirectory = ${nGContext.getWorkingDirectory}"
+        )
       }
     val exit = mainWithOptions(
       nGContext.getArgs,
@@ -44,7 +46,8 @@ object Cli {
       in: InputStream,
       out: PrintStream,
       err: PrintStream,
-      workingDirectory: String): Unit = {
+      workingDirectory: String
+  ): Unit = {
     val options = CliOptions.default.copy(
       common = CommonOptions(
         in = in,
@@ -120,7 +123,8 @@ object Cli {
 
   private def handleFile(
       inputMethod: InputMethod,
-      options: CliOptions): ExitCode = {
+      options: CliOptions
+  ): ExitCode = {
     try unsafeHandleFile(inputMethod, options)
     catch {
       case MisformattedFile(_, diff) =>
@@ -131,7 +135,8 @@ object Cli {
 
   private def unsafeHandleFile(
       inputMethod: InputMethod,
-      options: CliOptions): ExitCode = {
+      options: CliOptions
+  ): ExitCode = {
     val input = inputMethod.readInput(options)
     val formatResult = Scalafmt.format(
       input,
@@ -163,7 +168,8 @@ object Cli {
   def newTermDisplay(
       options: CliOptions,
       inputMethods: Seq[InputMethod],
-      msg: String): TermDisplay = {
+      msg: String
+  ): TermDisplay = {
     val termDisplay = new TermDisplay(
       new OutputStreamWriter(options.info),
       fallbackMode =
@@ -171,8 +177,8 @@ object Cli {
           TermDisplay.defaultFallbackMode
     )
     if (!options.quiet &&
-      (options.inPlace || options.testing) &&
-      inputMethods.length > 5) {
+        (options.inPlace || options.testing) &&
+        inputMethods.length > 5) {
       termDisplay.init()
       termDisplay.startTask(msg, options.common.workingDirectory.jfile)
       termDisplay.taskLength(msg, inputMethods.length, 0)
@@ -196,7 +202,8 @@ object Cli {
     }
 
     val sbtOptions = options.copy(
-      config = options.config.copy(runner = options.config.runner.forSbt))
+      config = options.config.copy(runner = options.config.runner.forSbt)
+    )
     val termDisplay = newTermDisplay(options, inputMethods, termDisplayMessage)
     val exitCode = new AtomicReference(ExitCode.Ok)
     inputMethods.par.foreach { inputMethod =>
@@ -228,8 +235,8 @@ object Cli {
       }
     }
     if (options.testing &&
-      !options.config.runner.fatalWarnings &&
-      !exit.is(ExitCode.TestError)) {
+        !options.config.runner.fatalWarnings &&
+        !exit.is(ExitCode.TestError)) {
       // Ignore parse errors etc.
       ExitCode.Ok
     } else {

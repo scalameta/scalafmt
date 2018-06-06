@@ -57,7 +57,8 @@ case class FileDocument(project: Option[Project], document: Document) {
 object FileDocument {
   def apply(document: Document): FileDocument = {
     val project = projectForFile(
-      FileDocumentManager.getInstance().getFile(document))
+      FileDocumentManager.getInstance().getFile(document)
+    )
     FileDocument(project, document)
   }
 }

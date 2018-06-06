@@ -22,7 +22,8 @@ object RunSbtCommand {
       command,
       st.copy(
         remainingCommands = Nil,
-        onFailure = Some(s"Failed to run $command")))
-      .copy(remainingCommands = st.remainingCommands)
+        onFailure = Some(s"Failed to run $command")
+      )
+    ).copy(remainingCommands = st.remainingCommands)
   }
 }

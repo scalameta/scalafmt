@@ -13,7 +13,8 @@ case class ProjectFiles(
   lazy val matcher: FilterMatcher =
     FilterMatcher(
       includeFilters.map(OsSpecific.fixSeparatorsInPathPattern),
-      excludeFilters.map(OsSpecific.fixSeparatorsInPathPattern))
+      excludeFilters.map(OsSpecific.fixSeparatorsInPathPattern)
+    )
 }
 object ProjectFiles {
   implicit lazy val surface: generic.Surface[ProjectFiles] =

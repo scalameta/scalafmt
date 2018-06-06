@@ -31,7 +31,8 @@ case class ScalafmtRunner(
       dialect = dialect.copy(
         allowToplevelTerms = true,
         toplevelSeparator = ""
-      ))
+      )
+    )
 }
 
 object ScalafmtRunner {

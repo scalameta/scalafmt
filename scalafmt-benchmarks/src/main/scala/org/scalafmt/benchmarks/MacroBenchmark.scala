@@ -31,7 +31,8 @@ trait FormatBenchmark {
           rewrite = RewriteSettings(
             rules = Seq(SortImports, RedundantBraces)
           )
-        ))
+        )
+      )
       .get
   }
 }
@@ -61,7 +62,9 @@ abstract class MacroBenchmark(parallel: Boolean, maxFiles: Int)
         .files(
           Corpus.fastparse.copy(
             // TODO(olafur) remove once testkit 1.7 is out
-            url = Corpus.fastparse.url.replace("olafurpg", "scalameta")))
+            url = Corpus.fastparse.url.replace("olafurpg", "scalameta")
+          )
+        )
         .filter { f =>
           f.projectUrl.contains("scala-js")
         }

@@ -16,7 +16,8 @@ object BaseStyle {
               case None =>
                 ConfError
                   .message(
-                    s"Unknown style name $str. Expected one of ${ScalafmtConfig.activeStyles.keys}")
+                    s"Unknown style name $str. Expected one of ${ScalafmtConfig.activeStyles.keys}"
+                  )
                   .notOk
             }
           style.map(BaseStyle.apply)

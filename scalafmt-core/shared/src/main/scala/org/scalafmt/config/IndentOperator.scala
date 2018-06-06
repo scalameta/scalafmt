@@ -48,7 +48,8 @@ object IndentOperator {
   val default = IndentOperator()
   val akka = IndentOperator(
     ScalafmtConfig.indentOperatorsIncludeAkka,
-    ScalafmtConfig.indentOperatorsExcludeAkka)
+    ScalafmtConfig.indentOperatorsExcludeAkka
+  )
   implicit val IndentOperatorDecoder: ConfDecoder[IndentOperator] =
     ConfDecoder.instance[IndentOperator] {
       case Conf.Str("spray" | "akka" | "akka-http") =>
