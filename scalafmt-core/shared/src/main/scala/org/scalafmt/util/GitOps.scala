@@ -33,7 +33,8 @@ class GitOpsImpl(private[util] val workingDirectory: AbsoluteFile)
           throw new IllegalStateException(
             s"Failed to run command ${cmd.mkString(" ")}. " +
               s"Error: ${lastError.toString()}",
-            e)
+            e
+          )
       }
     }
 

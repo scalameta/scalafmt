@@ -57,7 +57,7 @@ object Scalafmt {
         val formattedString = formatWriter.mkString(partial.splits)
         val correctedFormattedString =
           if ((style.lineEndings == preserve && isWindows) ||
-            style.lineEndings == windows) {
+              style.lineEndings == windows) {
             formattedString.replaceAll(UnixLineEnding, WindowsLineEnding)
           } else {
             formattedString
@@ -78,7 +78,8 @@ object Scalafmt {
   def format(
       code: String,
       style: ScalafmtConfig = ScalafmtConfig.default,
-      range: Set[Range] = Set.empty[Range]): Formatted = {
+      range: Set[Range] = Set.empty[Range]
+  ): Formatted = {
     format(code, style, range, "<input>")
   }
 
@@ -94,7 +95,8 @@ object Scalafmt {
     **/
   def configWithDialect(
       config: ScalafmtConfig,
-      dialect: Dialect): ScalafmtConfig =
+      dialect: Dialect
+  ): ScalafmtConfig =
     config.withDialect(dialect)
 
   def configForSbt(

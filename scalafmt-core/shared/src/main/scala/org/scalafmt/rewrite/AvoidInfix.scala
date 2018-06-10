@@ -46,7 +46,8 @@ case object AvoidInfix extends Rewrite {
             } yield
               Seq(
                 TokenPatch.AddLeft(fstToken, "(", keepTok = true),
-                TokenPatch.AddRight(lastToken, ")", keepTok = true))
+                TokenPatch.AddRight(lastToken, ")", keepTok = true)
+              )
             selectorParens.getOrElse(Seq.empty)
           } else
             Nil
@@ -54,7 +55,8 @@ case object AvoidInfix extends Rewrite {
         def wrapLhsInParens =
           Seq(
             TokenPatch.AddLeft(lhs.tokens.head, "(", keepTok = true),
-            TokenPatch.AddRight(lhs.tokens.last, ")", keepTok = true))
+            TokenPatch.AddRight(lhs.tokens.last, ")", keepTok = true)
+          )
         val lhsParensToBeAdded = lhs match {
           case Term.ApplyInfix(lhs1, op1, _, _)
               if !matcher.matches(op1.value)
@@ -69,13 +71,15 @@ case object AvoidInfix extends Rewrite {
           token =>
             ctx.tokenTraverser
               .filter(fstOpToken, token)(_.is[LF])
-              .map(TokenPatch.Remove))
+              .map(TokenPatch.Remove)
+        )
 
         val hasSingleLineComment = fstArgsToken.exists(
           token =>
             ctx.tokenTraverser
               .filter(fstOpToken, token)(TokenOps.isSingleLineComment)
-              .nonEmpty)
+              .nonEmpty
+        )
 
         val infixTokens = infix.tokens
         val enclosingParens = for {

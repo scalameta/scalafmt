@@ -9,7 +9,8 @@ case class Result(
     tokens: Seq[FormatOutput],
     maxVisitsOnSingleToken: Int,
     visitedStates: Int,
-    timeNs: Long) {
+    timeNs: Long
+) {
 
   def title = f"${test.name} (${timeMs}ms, $visitedStates states)"
 

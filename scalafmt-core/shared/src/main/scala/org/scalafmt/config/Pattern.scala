@@ -11,7 +11,8 @@ case class Pattern(
   def toMatcher: FilterMatcher =
     new FilterMatcher(
       FilterMatcher.mkRegexp(includeFilters),
-      FilterMatcher.mkRegexp(excludeFilters, true))
+      FilterMatcher.mkRegexp(excludeFilters, true)
+    )
 }
 
 object Pattern {

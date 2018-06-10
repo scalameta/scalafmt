@@ -42,7 +42,8 @@ sealed trait SortImports extends Rewrite {
               case (importee, i) =>
                 TokenPatch.AddRight(
                   importee.tokens.head,
-                  sortedImporteesByIndex(i))
+                  sortedImporteesByIndex(i)
+                )
             }
           }
         }
@@ -64,7 +65,8 @@ case object SortImports extends SortImports {
   override def sorted(strs: Seq[String]): Seq[String] = {
     // we really want partition, but there is no ternary version of it
     val (syms, lcs, ucs) = strs.foldLeft(
-      (Vector.empty[String], Vector.empty[String], Vector.empty[String])) {
+      (Vector.empty[String], Vector.empty[String], Vector.empty[String])
+    ) {
       case ((syms, lcs, ucs), str) =>
         str match {
           case LCase(s) => (syms, lcs :+ s, ucs)

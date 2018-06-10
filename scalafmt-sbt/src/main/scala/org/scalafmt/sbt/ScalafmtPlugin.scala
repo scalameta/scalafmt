@@ -19,19 +19,24 @@ object ScalafmtPlugin extends AutoPlugin {
     val scalafmt = taskKey[Unit]("Format Scala sources with scalafmt.")
     val scalafmtCheck =
       taskKey[Boolean](
-        "Fails if a Scala source is mis-formatted. Does not write to files.")
+        "Fails if a Scala source is mis-formatted. Does not write to files."
+      )
     val scalafmtOnCompile =
       settingKey[Boolean](
-        "Format Scala source files on compile, off by default.")
+        "Format Scala source files on compile, off by default."
+      )
     val scalafmtConfig = taskKey[Option[File]](
       "Optional location of .scalafmt.conf file. " +
-        "If None the default config is used.")
+        "If None the default config is used."
+    )
     val scalafmtSbt = taskKey[Unit](
-      "Format *.sbt and project/*.scala files for this sbt build.")
+      "Format *.sbt and project/*.scala files for this sbt build."
+    )
     val scalafmtSbtCheck =
       taskKey[Boolean](
         "Fails if a *.sbt or project/*.scala source is mis-formatted. " +
-          "Does not write to files.")
+          "Does not write to files."
+      )
     val scalafmtOnly = inputKey[Unit]("Format a single given file.")
   }
   import autoImport._
@@ -43,7 +48,8 @@ object ScalafmtPlugin extends AutoPlugin {
     scalafmtConfig
       .map(
         _.flatMap(f => StyleCache.getStyleForFile(f.toString))
-          .getOrElse(ScalafmtConfig.default))
+          .getOrElse(ScalafmtConfig.default)
+      )
   private val sbtConfig = scalaConfig.map(_.forSbt)
 
   private def filterSource(source: File, config: ScalafmtConfig): Boolean =
@@ -134,7 +140,8 @@ object ScalafmtPlugin extends AutoPlugin {
         val diff = input != output
         if (diff) {
           throw new MessageOnlyException(
-            s"${file.toString} isn't formatted properly!")
+            s"${file.toString} isn't formatted properly!"
+          )
         }
         diff
       }
@@ -153,8 +160,9 @@ object ScalafmtPlugin extends AutoPlugin {
       rootSbt ++ projectSbt
     }
   )
-  private lazy val projectSources = thisProject.map(proj =>
-    (BuildPaths.projectStandard(proj.base) * GlobFilter("*.scala")).get)
+  private lazy val projectSources = thisProject.map(
+    proj => (BuildPaths.projectStandard(proj.base) * GlobFilter("*.scala")).get
+  )
 
   lazy val scalafmtConfigSettings: Seq[Def.Setting[_]] = Seq(
     scalafmt := formatSources(
@@ -178,7 +186,8 @@ object ScalafmtPlugin extends AutoPlugin {
       checkSources(
         (unmanagedSources in scalafmt).value.filter(filterScala),
         scalaConfig.value,
-        streams.value.log),
+        streams.value.log
+      ),
     scalafmtSbtCheck := {
       checkSources(sbtSources.value, sbtConfig.value, streams.value.log)
       checkSources(projectSources.value, scalaConfig.value, streams.value.log)

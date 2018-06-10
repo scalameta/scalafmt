@@ -33,7 +33,8 @@ object InputMethod {
     override def write(
         code: String,
         original: String,
-        options: CliOptions): Unit = {
+        options: CliOptions
+    ): Unit = {
       options.common.out.print(code)
     }
   }
@@ -44,7 +45,8 @@ object InputMethod {
     override def write(
         formatted: String,
         original: String,
-        options: CliOptions): Unit = {
+        options: CliOptions
+    ): Unit = {
       val codeChanged = formatted != original
       if (options.testing) {
         if (codeChanged) {
@@ -70,7 +72,8 @@ object InputMethod {
   def unifiedDiff(
       filename: String,
       original: String,
-      revised: String): String = {
+      revised: String
+  ): String = {
     import collection.JavaConverters._
     def jList(string: String) =
       java.util.Collections.list(string.lines.asJavaEnumeration)

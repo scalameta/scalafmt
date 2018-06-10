@@ -15,7 +15,7 @@ object Report {
         h1(id := "title", "Heatmap"),
         explanation,
         for (result <- results.sortBy(-_.maxVisitsOnSingleToken)
-          if result.test.name != "Warmup") yield {
+             if result.test.name != "Warmup") yield {
           div(
             h2(result.title),
             pre(
@@ -82,7 +82,8 @@ object Report {
           id := "title",
           s"Compare ${after.gitInfo.branch} and" +
             s" ${before.gitInfo.branch}" +
-            s" (${before.shortCommit}...${after.shortCommit})"),
+            s" (${before.shortCommit}...${after.shortCommit})"
+        ),
         explanation,
         after
           .intersectResults(before)

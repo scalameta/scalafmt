@@ -18,12 +18,14 @@ trait DiffAssertions extends FunSuiteLike {
       title: String,
       expected: String,
       obtained: String,
-      diff: String)(implicit pos: Position)
+      diff: String
+  )(implicit pos: Position)
       extends TestFailedException(
         (_: StackDepthException) =>
           Some(title + "\n" + error2message(obtained, expected)),
         None: Option[Throwable],
-        pos)
+        pos
+      )
 
   def error2message(obtained: String, expected: String): String = {
     val sb = new StringBuilder
@@ -41,12 +43,14 @@ trait DiffAssertions extends FunSuiteLike {
   }
 
   def assertNoDiff(obtained: String, expected: String, title: String = "")(
-      implicit pos: Position): Boolean = {
+      implicit pos: Position
+  ): Boolean = {
     val result = compareContents(obtained, expected)
     if (result.isEmpty) {
       assert(
         obtained.length == expected.length,
-        ". Is there a redundant/missing trailing newline?")
+        ". Is there a redundant/missing trailing newline?"
+      )
       true
     } else {
       throw DiffFailure(title, expected, obtained, result)
@@ -54,7 +58,8 @@ trait DiffAssertions extends FunSuiteLike {
   }
 
   def assertNoDiff(file: AbsoluteFile, expected: String)(
-      implicit pos: Position): Boolean = {
+      implicit pos: Position
+  ): Boolean = {
     assertNoDiff(FileOps.readFile(file.jfile), expected)
   }
 

@@ -27,7 +27,7 @@ class OnFileSaveComponent extends ApplicationComponent {
           override def beforeDocumentSaving(document: Document): Unit = {
             val fileDoc = FileDocument(document)
             if (fileDoc.project.exists(IdeaSettings(_).formatOnSave) &&
-              isIncludedInSettings(fileDoc))
+                isIncludedInSettings(fileDoc))
               fileDoc.format()
           }
         }

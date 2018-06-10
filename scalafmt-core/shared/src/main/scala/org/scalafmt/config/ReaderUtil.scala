@@ -11,7 +11,8 @@ object ReaderUtil {
     oneOfImpl((lowerCase _).compose(lowerCaseNoBackticks), options)
 
   def oneOfIgnoreBackticks[T: ClassTag](
-      options: sourcecode.Text[T]*): ConfCodec[T] =
+      options: sourcecode.Text[T]*
+  ): ConfCodec[T] =
     oneOfImpl(lowerCaseNoBackticks, options)
 
   private def lowerCase(s: String): String = s.toLowerCase
@@ -20,7 +21,8 @@ object ReaderUtil {
 
   private def oneOfImpl[T: ClassTag](
       sanitize: String => String,
-      options: Seq[sourcecode.Text[T]]): ConfCodec[T] = {
+      options: Seq[sourcecode.Text[T]]
+  ): ConfCodec[T] = {
     val m = options.map(x => sanitize(x.source) -> x.value).toMap
     val decoder = ConfDecoder.instance[T] {
       case Conf.Str(x) =>

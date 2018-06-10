@@ -36,7 +36,8 @@ class FidelityTest extends FunSuite with FormatAssertions {
           "/target/",
           "/resources/",
           "/gh-pages/"
-        ).map(_.replace("/", File.separator)).exists(x.contains))
+        ).map(_.replace("/", File.separator)).exists(x.contains)
+    )
 
   val examples = files.map(Test.apply)
 
@@ -46,7 +47,8 @@ class FidelityTest extends FunSuite with FormatAssertions {
         Scalafmt.format(example.code, ScalafmtConfig.default).get
       assertFormatPreservesAst(example.code, formatted)(
         scala.meta.parsers.Parse.parseSource,
-        Scala211)
+        Scala211
+      )
       println(example.filename)
     }
   }

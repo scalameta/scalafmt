@@ -27,7 +27,8 @@ object CliOptions {
     * called directly from main.
     */
   def auto(args: Array[String], init: CliOptions)(
-      parsed: CliOptions): CliOptions = {
+      parsed: CliOptions
+  ): CliOptions = {
     val style: Option[ScalafmtConfig] = if (init.config != parsed.config) {
       Option(parsed.config)
     } else {
@@ -43,8 +44,9 @@ object CliOptions {
   private def getConfigJFile(file: AbsoluteFile): AbsoluteFile =
     file / ".scalafmt.conf"
 
-  private def tryDirectory(options: CliOptions)(
-      dir: AbsoluteFile): Option[ScalafmtConfig] = {
+  private def tryDirectory(
+      options: CliOptions
+  )(dir: AbsoluteFile): Option[ScalafmtConfig] = {
     for {
       configFile <- Option(getConfigJFile(dir))
       if configFile.jfile.isFile
@@ -61,7 +63,8 @@ object CliOptions {
   }
 
   private def tryCurrentDirectory(
-      options: CliOptions): Option[ScalafmtConfig] = {
+      options: CliOptions
+  ): Option[ScalafmtConfig] = {
     tryDirectory(options)(options.common.workingDirectory)
   }
 }

@@ -3,7 +3,8 @@ package org.scalafmt.stats
 case class RuntimeInfo(
     availableProcessor: Int,
     maxMemory: Long,
-    totalMemory: Long)
+    totalMemory: Long
+)
 
 object RuntimeInfo {
 

@@ -54,7 +54,8 @@ abstract class AbstractCliTest extends FunSuite with DiffAssertions {
   val baseCliOptions: CliOptions = getMockOptions(
     AbsoluteFile
       .fromPath(Files.createTempDirectory("base-dir").toString)
-      .get)
+      .get
+  )
 
   def getConfig(args: Array[String]): CliOptions = {
     Cli.getConfig(args, baseCliOptions).get
@@ -180,7 +181,8 @@ class CliTest extends AbstractCliTest {
           out = ps,
           in = bais
         )
-      ))
+      )
+    )
     val obtained = new String(baos.toByteArray, StandardCharsets.UTF_8)
     assertNoDiff(obtained, sbtExpected)
     assert(obtained.size == sbtExpected.size)
@@ -274,7 +276,8 @@ class CliTest extends AbstractCliTest {
         input.path,
         "--exclude",
         "target/nested".asFilename
-      ))
+      )
+    )
     Cli.run(options)
     val obtained = dir2string(input)
     assertNoDiff(obtained, expected)
@@ -386,7 +389,8 @@ class CliTest extends AbstractCliTest {
   }
 
   test(
-    "if project.includeFilters isn't modified (and files aren't passed manually), it should ONLY accept scala and sbt files") {
+    "if project.includeFilters isn't modified (and files aren't passed manually), it should ONLY accept scala and sbt files"
+  ) {
 
     val root =
       string2dir(
@@ -422,7 +426,8 @@ class CliTest extends AbstractCliTest {
   }
 
   test(
-    "includeFilters are ignored for full paths but NOT ignore for passed directories") {
+    "includeFilters are ignored for full paths but NOT ignore for passed directories"
+  ) {
 
     val root =
       string2dir(

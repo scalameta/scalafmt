@@ -317,7 +317,8 @@ object ScalafmtConfig {
                   ScalafmtConfig.activeStyles.keys.mkString(", ")
                 ConfError
                   .message(
-                    s"Unknown style name $baseStyle. Expected one of: $alternatives")
+                    s"Unknown style name $baseStyle. Expected one of: $alternatives"
+                  )
                   .notOk
             }
           case _ =>
@@ -339,7 +340,8 @@ object ScalafmtConfig {
       case els => base.read(els)
     }
   def alignTokenReader(
-      initTokens: Set[AlignToken]): ConfDecoder[Set[AlignToken]] = {
+      initTokens: Set[AlignToken]
+  ): ConfDecoder[Set[AlignToken]] = {
     val baseReader = ConfDecoder[Set[AlignToken]]
     ConfDecoder.instance[Set[AlignToken]] {
       case Conf.Obj(("add", conf) :: Nil) =>

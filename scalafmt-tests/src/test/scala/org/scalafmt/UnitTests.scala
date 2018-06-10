@@ -29,7 +29,8 @@ object UnitTests extends HasTests {
         sys.error(
           s"""Please remove ONLY from test '${test.name}' in file '$filename'.
              |Tests with ONLY will not be merged, this feature is only meant to be used for local development.
-           """.stripMargin)
+           """.stripMargin
+        )
       }
       test
     }
