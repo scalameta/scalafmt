@@ -79,6 +79,7 @@ lazy val big = project
     allSettings,
     moduleName := "scalafmt-big",
     crossScalaVersions := List(scala212),
+    mimaReportBinaryIssues := {},
     shadeSettings
   )
   .dependsOn(cli)
@@ -94,7 +95,6 @@ lazy val shadeSettings: List[Setting[_]] = List(
     ShadeRule
       .rename(
         "scala.meta.**" -> "org.scalafmt.shaded.meta.@1",
-        "metaconfig.**" -> "org.scalafmt.shaded.metaconfig.@1",
         "fastparse.**" -> "org.scalafmt.shaded.fastparse.@1"
       )
       .inAll,
