@@ -511,7 +511,7 @@ class TermDisplay(
   }
 
   override def completedTask(url: String, success: Boolean): Unit =
-    updateThread.removeEntry(url, success, s"Downloaded $url\n")(x => x)
+    updateThread.removeEntry(url, success, s"$url\n")(x => x)
 
   override def checkingUpdates(
       url: String,
@@ -519,7 +519,7 @@ class TermDisplay(
     updateThread.newEntry(
       url,
       CheckUpdateInfo(currentTimeOpt, None, isDone = false),
-      s"Checking $url\n"
+      s"$url\n"
     )
 
 }
