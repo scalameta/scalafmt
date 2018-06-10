@@ -39,7 +39,8 @@ lazy val core = crossProject
   .settings(
     moduleName := "scalafmt-core",
     addCompilerPlugin(
-      "org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
+      "org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full
+    ),
     allSettings,
     buildInfoSettings,
     fork.in(run).in(Test) := true,
@@ -72,66 +73,57 @@ lazy val cli = project
   )
   .dependsOn(coreJVM)
 
+lazy val big = project
+  .in(file("scalafmt-big"))
+  .settings(
+    allSettings,
+    moduleName := "scalafmt-big",
+    crossScalaVersions := List(scala212),
+    mimaReportBinaryIssues := {},
+    shadeSettings
+  )
+  .dependsOn(cli)
+
 def isOnly(scalaV: String) = Seq(
   scalaVersion := scalaV,
   crossScalaVersions := Seq(scalaV)
 )
 
-lazy val `scalafmt-cli-sbt` = project
-  .configs(IntegrationTest)
-  .settings(
-    allSettings,
-    Defaults.itSettings,
-    mimaPreviousArtifacts := Set.empty,
-    moduleName := "sbt-cli-scalafmt",
-    isOnly(scala212),
-    sbtPlugin := true,
-    sbtVersion in Global := "1.0.0",
-    test.in(IntegrationTest) := RunSbtCommand(
-      Seq(
-        s"plz $scala212 publishLocal",
-        """set sbtVersion in Global := "0.13.16" """,
-        "such scalafmt-sbt-tests/scripted",
-        """set sbtVersion in Global := "1.0.0" """
-      ).mkString("; ", "; ", "")
-    )(state.value)
-  )
-  .dependsOn(cli)
-
-lazy val `scalafmt-sbt` = project
-  .settings(
-    allSettings,
-    mimaPreviousArtifacts := Set.empty,
-    moduleName := "sbt-scalafmt",
-    isOnly(scala212),
-    sbtPlugin := true,
-    sbtVersion in Global := "1.0.0"
-  )
-  .dependsOn(coreJVM)
-
-lazy val `scalafmt-sbt-tests` = project
-  .settings(
-    allSettings,
-    noPublish,
-    isOnly(scala210),
-    sbtPlugin := true,
-    ScriptedPlugin.scriptedSettings,
-    sbtVersion := "0.13.15",
-    scriptedSbt := "0.13.15",
-    scriptedLaunchOpts := Seq(
-      "-Dplugin.version=" + version.value,
-      "-Dscalafmt.scripted=true",
-      // .jvmopts is ignored, simulate here
-      "-XX:MaxPermSize=256m",
-      "-Xmx2g",
-      "-Xss2m"
-    ) ++ {
-      // pass along custom boot properties if specified
-      val bootProps = "sbt.boot.properties"
-      sys.props.get(bootProps).map(x => s"-D$bootProps=$x").toList
-    },
-    scriptedBufferLog := false
-  )
+lazy val shadeSettings: List[Setting[_]] = List(
+  assemblyOption.in(assembly) ~= { _.copy(includeScala = false) },
+  assemblyShadeRules.in(assembly) := Seq(
+    ShadeRule
+      .rename(
+        "scala.meta.**" -> "org.scalafmt.shaded.meta.@1",
+        "fastparse.**" -> "org.scalafmt.shaded.fastparse.@1"
+      )
+      .inAll,
+    ShadeRule
+      .zap(
+        "scalapb.**",
+        "com.trueaccord.**"
+      )
+      .inAll
+  ),
+  artifact.in(Compile, packageBin) := artifact.in(Compile, assembly).value,
+  pomPostProcess := { (node: scala.xml.Node) =>
+    new scala.xml.transform.RuleTransformer(
+      new scala.xml.transform.RewriteRule {
+        override def transform(node: scala.xml.Node): scala.xml.NodeSeq =
+          node match {
+            case e: scala.xml.Elem
+                if e.label == "dependency" &&
+                  e.child.exists { child =>
+                    child.label == "artifactId" &&
+                    child.text.startsWith("scalafmt")
+                  } =>
+              scala.xml.Comment(s"shaded scalafmt-cli dependency.")
+            case _ => node
+          }
+      }
+    ).transform(node).head
+  }
+) ++ addArtifact(artifact.in(Compile, packageBin), assembly).settings
 
 lazy val intellij = project
   .in(file("scalafmt-intellij"))
@@ -205,7 +197,8 @@ lazy val readme = scalatex
     projectId = "readme",
     wd = file(""),
     url = "https://github.com/scalameta/scalafmt/tree/master",
-    source = "Readme")
+    source = "Readme"
+  )
   .settings(
     git.remoteRepo := "git@github.com:scalameta/scalafmt.git",
     siteSourceDirectory := target.value / "scalatex",
@@ -286,7 +279,8 @@ lazy val publishSettings = Seq(
   ),
   mimaBinaryIssueFilters ++= Mima.ignoredABIProblems,
   licenses := Seq(
-    "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+    "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")
+  ),
   homepage := Some(url("https://github.com/scalameta/scalafmt")),
   autoAPIMappings := true,
   apiURL := Some(url("https://olafurpg.github.io/scalafmt/docs/")),
@@ -356,14 +350,6 @@ def ciCommands = Seq(
     "test" ::
       Nil
   ),
-  CiCommand("ci-slow")(
-    "tests/test:runMain org.scalafmt.ScalafmtProps" ::
-      Nil
-  ),
-  Command.command("ci-sbt-scalafmt") { s =>
-    "scalafmt-cli-sbt/it:test" ::
-      s
-  },
   Command.command("ci-publish") { s =>
     s"very publish" :: s
   }
