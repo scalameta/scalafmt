@@ -73,11 +73,11 @@ lazy val cli = project
   )
   .dependsOn(coreJVM)
 
-lazy val cliShaded = project
-  .in(file("scalafmt-cli-shaded"))
+lazy val big = project
+  .in(file("scalafmt-big"))
   .settings(
     allSettings,
-    moduleName := "scalafmt-cli-shaded",
+    moduleName := "scalafmt-big",
     crossScalaVersions := List(scala212),
     shadeSettings
   )
@@ -89,10 +89,12 @@ def isOnly(scalaV: String) = Seq(
 )
 
 lazy val shadeSettings: List[Setting[_]] = List(
-  assemblyShadeRules in assembly := Seq(
+  assemblyOption.in(assembly) ~= { _.copy(includeScala = false) },
+  assemblyShadeRules.in(assembly) := Seq(
     ShadeRule
       .rename(
         "scala.meta.**" -> "org.scalafmt.shaded.meta.@1",
+        "metaconfig.**" -> "org.scalafmt.shaded.metaconfig.@1",
         "fastparse.**" -> "org.scalafmt.shaded.fastparse.@1"
       )
       .inAll,
@@ -103,7 +105,7 @@ lazy val shadeSettings: List[Setting[_]] = List(
       )
       .inAll
   ),
-  artifact in (Compile, packageBin) := (artifact in (Compile, assembly)).value,
+  artifact.in(Compile, packageBin) := artifact.in(Compile, assembly).value,
   pomPostProcess := { (node: scala.xml.Node) =>
     new scala.xml.transform.RuleTransformer(
       new scala.xml.transform.RewriteRule {
@@ -121,7 +123,7 @@ lazy val shadeSettings: List[Setting[_]] = List(
       }
     ).transform(node).head
   }
-) ++ addArtifact(artifact in (Compile, packageBin), assembly).settings
+) ++ addArtifact(artifact.in(Compile, packageBin), assembly).settings
 
 lazy val intellij = project
   .in(file("scalafmt-intellij"))
@@ -348,14 +350,6 @@ def ciCommands = Seq(
     "test" ::
       Nil
   ),
-  CiCommand("ci-slow")(
-    "tests/test:runMain org.scalafmt.ScalafmtProps" ::
-      Nil
-  ),
-  Command.command("ci-sbt-scalafmt") { s =>
-    "scalafmt-cli-sbt/it:test" ::
-      s
-  },
   Command.command("ci-publish") { s =>
     s"very publish" :: s
   }
