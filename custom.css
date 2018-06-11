@@ -1,0 +1,208 @@
+
+/**
+ * Menu
+ */
+
+.scalatex-scrollspy-Styles-menu {
+  /* Can't override the width in CSS as it's manipulated in JS when the menu is
+     collapsed. */
+  /* width: 350px !important; */
+}
+
+.scalatex-scrollspy-Styles-selected {
+  background: #af2442;
+}
+
+.scalatex-scrollspy-Styles-closed {
+  color: white;
+}
+
+.scalatex-scrollspy-Styles-selected {
+  background: #eb4d54;
+}
+.scalatex-scrollspy-Styles-pathed {
+  border-left: none;
+}
+
+.scalatex-scrollspy-Styles-menuLink,
+.scalatex-scrollspy-Styles-menuLink:hover {
+  background: #eb4d54;
+}
+
+.scalatex-scrollspy-Styles-menu {
+  background: #eb4d54;
+}
+
+.scalatex-scrollspy-Styles-note {
+  color: white;
+  font-weight: 300;
+}
+
+.scalatex-scrollspy-Styles-noteBox {
+  background: #eb4d54;
+  padding-bottom: 10px;
+  text-align: center;
+}
+
+.scalatex-scrollspy-Styles-menuItem {
+  border-bottom: none;
+}
+
+.scalatex-scrollspy-Styles-menuItem:hover {
+  background: #eb4d54;
+  color: white;
+}
+
+ul.menu-item-list {
+    background: #af2442;
+    border-right: 2px solid #eb4d54;
+}
+
+/**
+ * Content
+ */
+
+
+.scalatex-site-Styles-hoverContainer.scalatex-site-Styles-headerTag {
+  border-bottom: none !important;
+  line-height: 2em;
+  margin: 0;
+}
+
+.scalatex-site-Styles-content {
+  max-width: 1000px;
+  color: black;
+
+  color: rgba(46,48,58,0.96);
+}
+
+.scalatex-site-Styles-content p {
+  font-size: 1.2rem;
+  line-height: 1.7rem;
+}
+
+.scalatex-site-Styles-content a:visited,
+.scalatex-site-Styles-content a:link {
+  color: #eb4d54;
+}
+
+.scalatex-site-Styles-content pre code {
+  padding: 1em 20px;
+  background: transparent;
+  background: #f9f9f9;
+  border-left: 10px solid #ccc;
+}
+
+.scalafmt-pair {
+  background: #f9f9f9;
+  border-left: 10px solid #ccc;
+  display: flex;
+  justify-content: space-around;
+}
+
+.scalafmt-rows {
+  background: #f9f9f9;
+  border-left: 10px solid #ccc;
+  display: flex;
+  justify-content: space-around;
+  flex-direction: column;
+  margin: 15px 0;
+}
+
+.scalafmt-rows .before:before,
+.scalafmt-rows .after:before {
+  color: #808080;
+  font-family: monospace;
+  content: "// Before";
+  font-size: 1em;
+  line-height: 1em;
+  vertical-align: -0.4em;
+  font-weight: bold;
+  font-style: italic;
+  padding-left: 20px;
+}
+
+.scalafmt-rows .after:before {
+  content: "// After";
+}
+
+.scalafmt-rows pre {
+  margin: 0;
+}
+
+.scalafmt-rows pre code {
+  padding: 0.5em 20px;
+}
+
+.scalafmt-configuration {
+  background: #ececec;
+  border-left: 10px solid #ccc;
+  padding: 1em 20px;
+  margin-bottom: 20px;
+}
+
+.scalafmt-configuration span {
+    font-style: italic;
+}
+
+.scalafmt-configuration-toggle:hover {
+  cursor: pointer;
+}
+
+.scalafmt-configuration.collapsed pre {
+  display: none;
+}
+
+/** Ovrride pre code styling in case of pair split as it's taken caore of by
+ * .scalafmt-pair and .scalafmt-rows*/
+.scalatex-site-Styles-content .scalafmt-pair pre code,
+.scalatex-site-Styles-content .scalafmt-rows pre code {
+  background: transparent;
+  border-left: none;
+}
+
+blockquote {
+  background: #f9f9f9;
+  border-left: 10px solid #ccc;
+  margin: 1.5em 0px;
+  padding: 1em 20px;
+  quotes: "“" "”" "‘" "’";
+}
+
+blockquote:before {
+  color: #eb4d54;
+  content: open-quote;
+  font-size: 4em;
+  line-height: 0.1em;
+  vertical-align: -0.4em;
+}
+
+blockquote small {
+  display: block;
+}
+
+.warning {
+  margin: 1em 0;
+  color: #856404;
+  background-color: #fff3cd;
+  border-left: 10px solid #ffd97a;
+  padding: .75rem 1.25rem;
+}
+
+.scalatex-site-Styles-content .warning a:link,
+.scalatex-site-Styles-content .warning a:visited {
+  color: #bd8805;
+}
+
+.sidenote {
+  margin: 1em 0;
+  color: #0c5460;
+  background-color: #d1ecf1;
+  border-left: 10px solid #bee5eb;
+  padding: .75rem 1.25rem;
+}
+
+.scalatex-site-Styles-content .sidenote a:link,
+.scalatex-site-Styles-content .sidenote a:visited {
+  color: #37a;
+}
