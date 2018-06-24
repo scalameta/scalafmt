@@ -10,6 +10,7 @@ import scala.meta.tokens.Token.LF
 import scala.meta.tokens.Token.LeftBrace
 import scala.meta.tokens.Token.RightBrace
 import org.scalafmt.util.TreeOps._
+import org.scalafmt.util.Whitespace
 
 /**
   * Removes/adds curly braces where desired.
@@ -58,9 +59,23 @@ case object RedundantBraces extends Rewrite {
 
       case t: Term.Interpolate if settings.stringInterpolation =>
         processInterpolation(t)
+
+      case Term.Function(_, body) if settings.alwaysAroundMultilineLambda =>
+        processLambdaBody(body)
     }
 
     builder.result()
+  }
+
+  private def processLambdaBody(
+      body: Term)(implicit ctx: RewriteCtx, builder: PatchBuilder) = {
+    val isMultilineBody = body.tokens.head.pos.startLine < body.tokens.last.pos.endLine
+    def rightToken: Option[Token] =
+      ctx.tokenTraverser.find(body.tokens.last)(_.isNot[Whitespace])
+    if (isMultilineBody && rightToken.exists(!_.is[RightBrace])) {
+      builder += TokenPatch.AddLeft(body.tokens.head, "{\n", keepTok = true)
+      builder += TokenPatch.AddRight(body.tokens.last, "\n}", keepTok = true)
+    }
   }
 
   private def removeTrailingLF(bodyEnd: Position, close: Token)(

@@ -1,0 +1,68 @@
+maxColumn = 40 #                       |
+rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.alwaysAroundMultilineLambda = true
+<<< #1222 add curly braces around body
+xs.map(foo =>
+  foo
+    .withBar(bar)
+    .toList)
+>>>
+xs.map(foo => {
+  foo
+    .withBar(bar)
+    .toList
+})
+<<< BAD? #1222 add curly braces around body with two args
+twoArgs(
+  foo => foo
+    .withBar(bar)
+    .toList,
+  15
+)
+>>>
+twoArgs(
+  foo => {
+    foo
+      .withBar(bar)
+      .toList
+  },
+  15
+)
+<<< #1222 braces already exist (negative)
+xs.map(foo => {
+  foo
+  .withBar(bar)
+    .toList})
+>>>
+xs.map(foo => {
+  foo
+    .withBar(bar)
+    .toList
+})
+<<< #1222 braces-only format (negative)
+xs.map { foo =>
+  foo
+  .withBar(bar)
+    .toList}
+>>>
+xs.map { foo =>
+  foo
+    .withBar(bar)
+    .toList
+}
+<<< #1222 single line param (negative)
+xs.map(foo => foo.withBar(bar)).filter(_.isBar)
+>>>
+xs.map(foo => foo.withBar(bar))
+  .filter(_.isBar)
+<<< #1222 ignore if anonymous param (negative)
+xs.map(_
+    .withBar(bar)
+    .filter(_.hasBar)
+    .toList)
+>>>
+xs.map(
+  _.withBar(bar)
+    .filter(_.hasBar)
+    .toList
+)
