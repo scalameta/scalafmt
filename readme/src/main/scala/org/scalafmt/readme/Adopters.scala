@@ -50,6 +50,12 @@ object Adopters {
       "Mendix",
       "https://mendix.com",
       Some(
-        "The fastest and easiest platform to create and continuously improve mobile and web apps at scale."))
+        "The fastest and easiest platform to create and continuously improve mobile and web apps at scale.")),
+    Adopter(
+      "Foursquare",
+      "https://enterprise.foursquare.com",
+      Some(
+        "We use location intelligence to build meaningful consumer experiences and business solutions.")
+    )
   )
 }
