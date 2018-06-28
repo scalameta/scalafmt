@@ -66,3 +66,13 @@ xs.map(
     .filter(_.hasBar)
     .toList
 )
+<<< #1222 multiple lines with existing braces (negative)
+xs.map(foo => {
+  val fwb = foo.withBar(bar)
+  fwb.toList
+  })
+>>>
+xs.map(foo => {
+  val fwb = foo.withBar(bar)
+  fwb.toList
+})

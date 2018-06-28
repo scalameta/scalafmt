@@ -69,10 +69,11 @@ case object RedundantBraces extends Rewrite {
 
   private def processLambdaBody(
       body: Term)(implicit ctx: RewriteCtx, builder: PatchBuilder) = {
-    val isMultilineBody = body.tokens.head.pos.startLine < body.tokens.last.pos.endLine
+    val isSingleStatement = body.isNot[Term.Block]
+    def isMultilineBody = body.tokens.head.pos.startLine < body.tokens.last.pos.endLine
     def rightToken: Option[Token] =
       ctx.tokenTraverser.find(body.tokens.last)(_.isNot[Whitespace])
-    if (isMultilineBody && rightToken.exists(!_.is[RightBrace])) {
+    if (isSingleStatement && isMultilineBody && rightToken.exists(!_.is[RightBrace])) {
       builder += TokenPatch.AddLeft(body.tokens.head, "{\n", keepTok = true)
       builder += TokenPatch.AddRight(body.tokens.last, "\n}", keepTok = true)
     }
