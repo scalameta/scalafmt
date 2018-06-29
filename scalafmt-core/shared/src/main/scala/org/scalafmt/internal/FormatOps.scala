@@ -194,6 +194,15 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   def nextNonComment(curr: FormatToken): FormatToken =
     nextNonCommentWithCount(curr)._2
 
+  def nextNonBlank(curr: FormatToken): FormatToken = {
+    if (!(curr.right.is[Space] || curr.right.is[Tab])) curr
+    else {
+      val tok = next(curr)
+      if (tok == curr) curr
+      else nextNonBlank(tok)
+    }
+  }
+
   @tailrec
   final def rhsOptimalToken(start: FormatToken): Token = start.right match {
     case Comma() | LeftParen() | RightParen() | RightBracket() | Semicolon() |

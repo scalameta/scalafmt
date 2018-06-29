@@ -434,7 +434,8 @@ class FormatWriter(formatOps: FormatOps) {
       //
       // Remove the comma after b
       case TrailingCommas.never
-          if left.is[Comma] && right.is[CloseDelim] && isNewline =>
+          if left.is[Comma] && right.is[CloseDelim] &&
+            !nextNonBlank(formatToken).right.is[Comment] && isNewline =>
         sb.deleteCharAt(sb.length - 1)
         sb.append(whitespace)
 
@@ -445,7 +446,7 @@ class FormatWriter(formatOps: FormatOps) {
       //
       // Remove the comma after b (before comment)
       case TrailingCommas.never
-          if left.is[Comment] && prev(formatToken).left.is[Comma] &&
+          if left.is[Comment] && prevNonBlank(formatToken).left.is[Comma] &&
             right.is[CloseDelim] && isNewline =>
         sb.deleteCharAt(sb.length - left.syntax.length - 2)
         sb.append(whitespace)
