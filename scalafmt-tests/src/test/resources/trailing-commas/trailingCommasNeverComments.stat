@@ -12,7 +12,7 @@ def method(
     b: String // a comment
 )
 
-<<< should consider indented comments on the next line when remoing trailing commas
+<<< should consider indented comments on the next line when removing trailing commas
 def method(
     a: String,
     b: String,
@@ -25,7 +25,7 @@ def method(
     // a comment
 )
 
-<<< should consider unindented comments on the next line when remoing trailing commas
+<<< should consider unindented comments on the next line when removing trailing commas
 def method(
     a: String,
     b: String,
