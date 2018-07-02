@@ -10,7 +10,7 @@ import scala.meta.tokens.Token.LF
 import scala.meta.tokens.Token.LeftBrace
 import scala.meta.tokens.Token.RightBrace
 import org.scalafmt.util.TreeOps._
-import org.scalafmt.util.Whitespace
+import org.scalafmt.util.Trivia
 
 /**
   * Removes/adds curly braces where desired.
@@ -72,7 +72,7 @@ case object RedundantBraces extends Rewrite {
     val isSingleStatement = body.isNot[Term.Block]
     def isMultilineBody = body.tokens.head.pos.startLine < body.tokens.last.pos.endLine
     def rightToken: Option[Token] =
-      ctx.tokenTraverser.find(body.tokens.last)(_.isNot[Whitespace])
+      ctx.tokenTraverser.find(body.tokens.last)(_.isNot[Trivia])
     if (isSingleStatement && isMultilineBody && rightToken.exists(!_.is[RightBrace])) {
       builder += TokenPatch.AddLeft(body.tokens.head, "{\n", keepTok = true)
       builder += TokenPatch.AddRight(body.tokens.last, "\n}", keepTok = true)

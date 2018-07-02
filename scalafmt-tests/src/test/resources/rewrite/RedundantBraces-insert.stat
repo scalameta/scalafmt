@@ -76,3 +76,17 @@ xs.map(foo => {
   val fwb = foo.withBar(bar)
   fwb.toList
 })
+<<< #1222 with a comment between the closing paren (negative)
+xs.map(foo => {
+  foo
+    .withBar(bar)
+    .toList
+  // Add the bar and make it a list
+})
+>>>
+xs.map(foo => {
+  foo
+    .withBar(bar)
+    .toList
+  // Add the bar and make it a list
+})
