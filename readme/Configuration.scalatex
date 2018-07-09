@@ -567,6 +567,8 @@
         }
 
   @sect{Vertical Multiline}
+    @p
+      Since: v1.6.0
 
     @p
       If enabled this formats methods such that parameters are on
@@ -597,8 +599,6 @@
 
     @sect{verticalMultiline.atDefnSite}
       Default: @b{false}
-      @p
-        Since: v1.6.0 (was @code{verticalMultilineAtDefinitionSite=true} before)
 
       @p
         If true, enable vertical multiline formatting as described above.
