@@ -312,9 +312,10 @@ val ReleaseCandidate = s"($V-RC\\d+).*".r
 val Milestone = s"($V-M\\d+).*".r
 
 lazy val stableVersion = Def.setting {
+  val latestStable = "1.5.1"
   version.value match {
-    case ReleaseCandidate(v) => v
-    case Milestone(v) => v
+    case ReleaseCandidate(_) => latestStable
+    case Milestone(_) => latestStable
     case v => v.replaceAll("\\-.*", "")
   }
 }
