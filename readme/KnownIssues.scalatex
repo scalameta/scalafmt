@@ -55,12 +55,21 @@
         scalafmt twice on your codebase for the first time you reformat it.
 
     @sect{Performance}
-      Scalafmt is 6x slower than Scalariform.
-      For 98% of source files this won't be a problem if you have a decently
-      modern laptop.
-      However, if you only work in files with 4.000 LOC it might be a problem.
-      I'm quite sure that micro-optimizations can squeeze out at least ~2x
-      performance improvements, maybe even more.
-      Moreover, I think incremental formatting has the possibility to increase
-      the performance by several orders of magnitude in interactive IDE
-      environments where scalafmt is invoked on file save.
+      @p
+        Scalafmt is 6x slower than Scalariform.
+        For 98% of source files this won't be a problem if you have a decently
+        modern laptop.
+        However, if you only work in files with 4.000 LOC it might be a problem.
+        I'm quite sure that micro-optimizations can squeeze out at least ~2x
+        performance improvements, maybe even more.
+        Moreover, I think incremental formatting has the possibility to increase
+        the performance by several orders of magnitude in interactive IDE
+        environments where scalafmt is invoked on file save.
+
+    @sect{Comments are not line-wrapped}
+      @p
+        Line-wrapping is not yet implemented for comments.
+        The tricky part is how to handle markup that you expect to be verbatim,
+        like code examples.
+        A first step toward implementing this feature is under discussion at
+        @lnk("https://github.com/scalameta/scalafmt/issues/1234").
