@@ -15,8 +15,7 @@ Head over to [the user docs][docs] for instructions on how to install scalafmt.
 - Run all unit tests: `sbt test`
 - Run only formatting tests: `tests/testOnly *FormatTests`.
 - Write new formatting test: read [this doc](scalafmt-tests/src/test/resources/readme.md).
-- Build docs: `sbt readme/run` will create the docs, which you can open with
-  `open readme/target/scalatex/index.html`. Docs are built with [Scalatex](http://www.lihaoyi.com/Scalatex/).
+- Build docs: See instructions on the [site][docs-guide] or locally at `./docs/contributing-website.md`.
 - Hack on IntelliJ plugin: see [this doc](scalafmt-intellij/readme.md).
 - Hack on SBT plugin: run `sbt scripted`.
 - Run jmh benchmarks: `./bin/run-benchmarks.sh`.
@@ -48,8 +47,9 @@ We strive to offer a welcoming environment to learn, teach and contribute.
 <a href="http://www.ej-technologies.com/products/jprofiler/overview.html">
   <img src="https://www.ej-technologies.com/images/product_banners/jprofiler_large.png" align="right" />
  </a>
- 
+
 [JProfiler](http://www.ej-technologies.com/products/jprofiler/overview.html) generously supports scalafmt with its full-featured Java Profiler.
 
 [docs]: http://scalafmt.org
+[docs-guide]: http://scalafmt.org/
 
