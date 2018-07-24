@@ -60,6 +60,27 @@ package object website {
           |</table>""".stripMargin
     )
 
+  def demo(code: String): Unit = {
+    val formatted = Scalafmt.format(code, ScalafmtConfig.default40).get
+    println(
+      s"""
+         |<div class='scalafmt-pair'>
+         |  <div>
+         |
+         |${scalaCode(code)}
+         |
+         |  </div>
+         |
+         |  <div>
+         |
+         |${scalaCode(formatted)}
+         |
+         |  </div>
+         |</div>
+      """.stripMargin
+    )
+  }
+
   /** Prints the default value of a property
     *
     * @param selector a function to select the default from the config

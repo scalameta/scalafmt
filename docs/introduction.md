@@ -3,22 +3,15 @@ id: introduction
 title: Introduction
 ---
 
----
+> Any style guide written in English is either so brief that it’s ambiguous, or
+> so long that no one reads it.
+> <cite>- Bob Nystrom, [Hardest Program I've Ever Written][bob], Dart, Google.</cite>
 
-_Any style guide written in English is either so brief that it’s ambiguous, or
-so long that no one reads it._
-
--- Bob Nystrom,
-[Hardest Program I've Ever Written](http://journal.stuffwithstuff.com/2015/09/08/the-hardest-program-ive-ever-written/),
-Dart, Google.
-
----
-
-Scalafmt turns the mess on left into the (hopefully) readable, idiomatic and
+`scalafmt` turns the mess on left into the (hopefully) readable, idiomatic and
 consistently formatted Scala code on the right
 
 ```tut:passthrough
-website.compareExampleBlock(
+website.demo(
   s"""|object FormatMe { List(number) match
       |{ case head :: Nil
       |if head % 2 == 0 => "number is even"
@@ -49,3 +42,5 @@ and unfriendly attitude is not welcome.
 Curious to learn more about scalafmt? Check out this talk:
 
 <iframe src="https://player.vimeo.com/video/165929294" width="100%" style="height: 28em;" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+
+[bob]: http://journal.stuffwithstuff.com/2015/09/08/the-hardest-program-ive-ever-written/

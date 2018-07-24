@@ -1,16 +1,40 @@
 /* your custom css */
 
-@media only screen and (min-device-width: 360px) and (max-device-width: 736px) {
+blockquote {
+    background: #f9f9f9;
+    border-left: 10px solid #ccc;
+    margin: 1.5em 0px;
+    padding: 1em 20px;
+    quotes: "“" "”" "‘" "’";
 }
 
-@media only screen and (min-width: 1024px) {
+blockquote:before {
+    color: #eb4d54;
+    content: open-quote;
+    font-size: 4em;
+    line-height: 0.1em;
+    vertical-align: -0.4em;
 }
 
-@media only screen and (max-width: 1023px) {
+.scalafmt-pair {
+    background: #f9f9f9;
+    border-left: 10px solid #ccc;
+    display: flex;
+    justify-content: space-around;
+    margin: 1.5em 0px;
 }
 
-@media only screen and (min-width: 1400px) {
+.scalafmt-pair pre code {
+    background: transparent;
+    border-left: none;
 }
 
-@media only screen and (min-width: 1500px) {
-}
+@media only screen and (min-device-width: 360px) and (max-device-width: 736px) {}
+
+@media only screen and (min-width: 1024px) {}
+
+@media only screen and (max-width: 1023px) {}
+
+@media only screen and (min-width: 1400px) {}
+
+@media only screen and (min-width: 1500px) {}
