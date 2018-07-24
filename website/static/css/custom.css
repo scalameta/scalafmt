@@ -16,6 +16,10 @@ blockquote:before {
     vertical-align: -0.4em;
 }
 
+pre {
+    overflow-x: scroll;
+}
+
 .scalafmt-pair {
     background: #f9f9f9;
     border-left: 10px solid #ccc;
@@ -29,7 +33,11 @@ blockquote:before {
     border-left: none;
 }
 
-@media only screen and (min-device-width: 360px) and (max-device-width: 736px) {}
+@media only screen and (min-device-width: 360px) and (max-device-width: 736px) {
+    .scalafmt-pair {
+        flex-direction: column;
+    }
+}
 
 @media only screen and (min-width: 1024px) {}
 
