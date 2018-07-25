@@ -65,13 +65,13 @@ package object website {
     println(
       s"""
          |<div class='scalafmt-pair'>
-         |  <div>
+         |  <div class='before'>
          |
          |${scalaCode(code)}
          |
          |  </div>
          |
-         |  <div>
+         |  <div class='after'>
          |
          |${scalaCode(formatted)}
          |

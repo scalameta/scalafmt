@@ -25,6 +25,7 @@ pre {
     border-left: 10px solid #ccc;
     display: flex;
     justify-content: space-around;
+    flex-direction: column;
     margin: 1.5em 0px;
 }
 
@@ -33,16 +34,33 @@ pre {
     border-left: none;
 }
 
-@media only screen and (min-device-width: 360px) and (max-device-width: 736px) {
-    .scalafmt-pair {
-        flex-direction: column;
-    }
+.scalafmt-pair .before:before,
+.scalafmt-pair .after:before {
+    color: #808080;
+    font-family: monospace;
+    content: "// Before";
+    font-size: 1em;
+    line-height: 1em;
+    vertical-align: -0.8em;
+    font-weight: bold;
+    font-style: italic;
+    padding-left: 20px;
 }
+
+.scalafmt-pair .after:before {
+    content: "// After";
+}
+
+@media only screen and (min-device-width: 360px) and (max-device-width: 736px) {}
 
 @media only screen and (min-width: 1024px) {}
 
 @media only screen and (max-width: 1023px) {}
 
-@media only screen and (min-width: 1400px) {}
+@media only screen and (min-width: 1400px) {
+    .scalafmt-pair {
+        flex-direction: row;
+    }
+}
 
 @media only screen and (min-width: 1500px) {}
