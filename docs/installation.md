@@ -96,12 +96,12 @@ brew upgrade scalafmt
 
 ### --help
 
-```tut
-org.scalafmt.cli.CliArgParser.buildInfo
+```tut:passthrough
+println(website.plaintext(org.scalafmt.cli.CliArgParser.buildInfo))
 ```
 
-```tut
-org.scalafmt.cli.CliArgParser.scoptParser.usage
+```tut:passthrough
+println(website.plaintext(org.scalafmt.cli.CliArgParser.scoptParser.usage))
 ```
 
 ## IntelliJ

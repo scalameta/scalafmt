@@ -7,6 +7,11 @@ import scala.meta.Dialect
 
 package object website {
 
+  def plaintext(code: String): String =
+    s"""|```
+        |$code
+        |```""".stripMargin
+
   private[this] def scalaCode(code: String): String =
     s"""|```scala
         |$code
