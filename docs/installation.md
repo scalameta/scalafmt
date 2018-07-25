@@ -15,19 +15,19 @@ The recommended way to install the scalafmt command line tool is with
 Create a standalone executable in `/usr/local/bin/scalafmt` with (sudo if necessary):
 
 ```sh
-coursier bootstrap com.geirsson:scalafmt-cli_2.12:@VERSION@ \
+coursier bootstrap com.geirsson:scalafmt-cli_2.12:@STABLE_VERSION@ \
   -r bintray:scalameta/maven \
   -o /usr/local/bin/scalafmt --standalone --main org.scalafmt.cli.Cli
-scalafmt --version # should be @VERSION@
+scalafmt --version # should be @STABLE_VERSION@
 ```
 
 Alternatively you can create a slim 15 KiB bootstrap script with:
 
 ```sh
-coursier bootstrap com.geirsson:scalafmt-cli_2.12:@VERSION@ \
+coursier bootstrap com.geirsson:scalafmt-cli_2.12:@STABLE_VERSION@ \
   -r bintray:scalameta/maven \
   -o scalafmt --main org.scalafmt.cli.Cli
-./scalafmt --version # should be @VERSION@
+./scalafmt --version # should be @STABLE_VERSION@
 ```
 
 It is **recommended** to put this bootstrap script in your code repository to make sure
@@ -44,7 +44,7 @@ coursier bootstrap --help | grep -A 1 "\-\-java-opt"
 ### Pre-release
 
 Our CI publishes a pre-release version of scalafmt to Bintray on every merge
-into master. To use a pre-release, replace @VERSION@ with the version here:
+into master. To use a pre-release, replace @STABLE_VERSION@ with the version here:
 
 <a href='https://bintray.com/scalameta/maven/scalafmt-cli/_latestVersion'>
     <img src='https://api.bintray.com/packages/scalameta/maven/scalafmt-cli/images/download.svg'>
@@ -68,12 +68,12 @@ vim/Emacs/Atom/Sublime/VS Code.
 - Create a standalone executable in `/usr/local/bin/scalafmt_ng` with (sudo if necessary)
 
 ```sh
-coursier bootstrap --standalone com.geirsson:scalafmt-cli_2.12:@VERSION@ \
+coursier bootstrap --standalone com.geirsson:scalafmt-cli_2.12:@STABLE_VERSION@ \
   -r bintray:scalameta/maven \
   -o /usr/local/bin/scalafmt_ng -f --main com.martiansoftware.nailgun.NGServer
 scalafmt_ng & // start nailgun in background
 ng ng-alias scalafmt org.scalafmt.cli.Cli
-ng scalafmt --version # should be @VERSION@
+ng scalafmt --version # should be @STABLE_VERSION@
 ```
 
 Nailgun keeps scalafmt running on a local server to avoid the JVM startup
@@ -88,7 +88,7 @@ You can install scalafmt via Homebrew using a custom formula
 
 ```sh
 brew install --HEAD olafurpg/scalafmt/scalafmt
-scalafmt --version // should be @VERSION@
+scalafmt --version // should be @STABLE_VERSION@
 
 // to upgrade between releases
 brew upgrade scalafmt
@@ -197,9 +197,9 @@ let g:formatters_scala = ['scalafmt']
 Add to your dependencies
 
 ```scala
-libraryDependencies += "com.geirsson" %% "scalafmt-core" % "@VERSION@"
+libraryDependencies += "com.geirsson" %% "scalafmt-core" % "@STABLE_VERSION@"
 // Scala.js
-libraryDependencies += "com.geirsson" %%% "scalafmt-core" % "@VERSION@"
+libraryDependencies += "com.geirsson" %%% "scalafmt-core" % "@STABLE_VERSION@"
 ```
 
 Use the API like this:
