@@ -24,13 +24,13 @@ class Footer extends React.Component {
             <h5>Docs</h5>
             <a
               href={`
-                ${this.props.config.baseUrl}docs/overview.html`}
+                ${this.props.config.baseUrl}docs/introduction.html`}
             >
               Overview
             </a>
             <a
               href={`
-                ${this.props.config.baseUrl}docs/getting-started-contributors.html`}
+                ${this.props.config.baseUrl}docs/contributing-scalafmt.html`}
             >
               Contributors
             </a>
