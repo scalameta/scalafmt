@@ -11,7 +11,7 @@ title: Introduction
 consistently formatted Scala code on the right
 
 ```tut:passthrough
-website.demo(
+website.formatExample(
   s"""|object FormatMe { List(number) match
       |{ case head :: Nil
       |if head % 2 == 0 => "number is even"

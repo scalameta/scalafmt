@@ -38,29 +38,10 @@ package object website {
     * @param code the unformatted code
     * @param config the config to format the code (defaults to `default40`)
     */
-  def compareExampleBlock(
+  def formatExample(
       code: String,
-      config: ScalafmtConfig = default40): Unit =
-    println(
-      s"""|<table width='100%' style='table-layout: fixed'>
-          |<tbody>
-          |<tr>
-          |<td style='border: none'>
-          |
-          |${scalaCode(code)}
-          |
-          |</td>
-          |<td style='border: none'>
-          |
-          |${scalaCode(Scalafmt.format(code, config).get)}
-          |
-          |</td>
-          |</tr>
-          |</tbody>
-          |</table>""".stripMargin
-    )
-
-  def demo(code: String): Unit = {
+      config: ScalafmtConfig = default40
+  ): Unit = {
     val formatted = Scalafmt.format(code, ScalafmtConfig.default40).get
     println(
       s"""
