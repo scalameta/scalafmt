@@ -7,8 +7,11 @@ title: Introduction
 > so long that no one reads it.
 > <cite>- Bob Nystrom, [Hardest Program I've Ever Written][bob], Dart, Google.</cite>
 
-`scalafmt` turns the mess on left into the (hopefully) readable, idiomatic and
-consistently formatted Scala code on the right
+`scalafmt` turns the mess <span class='widescreen-only'>on left</span>
+<span class='non-widescreen-only'>on the top</span> into the (hopefully)
+readable, idiomatic and consistently formatted Scala code
+<span class='widescreen-only'> on the right</span>
+<span class='non-widescreen-only'>at the bottom</span>.
 
 ```tut:passthrough
 website.formatExample(
