@@ -106,7 +106,33 @@ println(website.plaintext(org.scalafmt.cli.CliArgParser.scoptParser.usage))
 
 ## IntelliJ
 
-TODO
+<div class="sidenote">
+  Please upvote <a href="https://youtrack.jetbrains.com/issue/SCL-13658">this Jetbrains ticket</a>
+  about adding built-in support for Scalafmt in the IntelliJ Scala plugin.
+</div>
+
+[Here is the plugin](https://plugins.jetbrains.com/plugin/8236?pr=). You can
+install it directly from within IntelliJ:
+
+- open `Settings > Plugins`
+- open `Browse repositories`
+- search for `scalafmt`
+- restart IntelliJ.
+
+The default shortcut is `Ctrl + Shift + L`. Undo works, but not redo.
+
+The plugin determines which style to use in this order:
+
+1. `.scalafmt.conf` in the project's root directory, if it exists
+1. `$HOME/.scalafmt.conf`, if it exists
+1. Otherwise, uses `default` style.
+
+For details on how `.scalafmt.conf` should look like, see
+[Configuration](configuration.md). The scalafmt IntelliJ
+plugin has a "Format on save" setting.
+
+- To enable for current project: `Settings > Tools > Scalafmt`
+- To enable for all future project: `File > Other settings > Default settings > Scalafmt`
 
 ## sbt
 
@@ -242,3 +268,5 @@ source breaking changes on any release.
 - Ensime
 - Scala IDE ([help wanted!](https://github.com/scalameta/scalafmt/issues/125))
 - Your favorite editor? Join the gitter channel.
+
+[intellij-ticket]: https://youtrack.jetbrains.com/issue/SCL-13658
