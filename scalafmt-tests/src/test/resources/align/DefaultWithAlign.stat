@@ -420,3 +420,13 @@ Seq(
   "org.scalatest"      % "scalatest_2.11"               % "3.0.0" % Test,
   "org.scalamock"      %% "scalamock-scalatest-support" % "3.2.2" % Test
 )
+<<< align coments in method chain
+foo
+  .x() // comment1
+  .xx() // comment2
+  .xxx() // comment3
+>>>
+foo
+  .x()   // comment1
+  .xx()  // comment2
+  .xxx() // comment3

@@ -69,6 +69,8 @@ case class Align(
       "Defn.Class" -> "class/object/trait",
       "Defn.Object" -> "class/object/trait",
       "Defn.Trait" -> "class/object/trait",
+      "Term.Apply" -> "term.apply/term.select",
+      "Term.Select" -> "term.apply/term.select",
       "Enumerator.Generator" -> "for",
       "Enumerator.Val" -> "for"
     )
