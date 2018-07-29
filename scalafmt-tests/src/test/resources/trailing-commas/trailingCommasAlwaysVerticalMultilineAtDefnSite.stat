@@ -1,0 +1,26 @@
+maxColumn = 30
+trailingCommas = always
+verticalMultilineAtDefinitionSite = true
+
+<<< shouldn't put comma in empty parentheses
+case class Test()(a1: Int, a2: Int, a3: Int, a4: Int, a5: Int)
+>>>
+case class Test(
+  )(a1: Int,
+    a2: Int,
+    a3: Int,
+    a4: Int,
+    a5: Int)
+
+<<< shouldn't put comma in parentheses that contains only comment
+case class Test(
+// comment
+)(a1: Int, a2: Int, a3: Int, a4: Int, a5: Int)
+>>>
+case class Test(
+// comment
+  )(a1: Int,
+    a2: Int,
+    a3: Int,
+    a4: Int,
+    a5: Int)

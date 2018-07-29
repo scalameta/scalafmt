@@ -412,6 +412,8 @@ class FormatWriter(formatOps: FormatOps) {
       // Insert a comma after b
       case TrailingCommas.always
           if !left.is[Comma] && !left.is[Comment] &&
+            !(left.is[LeftParen] &&
+              right.is[RightParen]) && // isn't empty parentheses
             !formatToken.right.is[Comment] &&
             right.is[CloseDelim] && isNewline =>
         sb.append(",")
@@ -426,6 +428,8 @@ class FormatWriter(formatOps: FormatOps) {
       case TrailingCommas.always
           if left.is[Comment] && !prevFormatToken.left.is[Comma] &&
             !prevFormatToken.left.is[Comment] &&
+            !(prevNonComment(formatToken).left.is[LeftParen] &&
+              right.is[RightParen]) && // isn't empty parentheses
             right.is[CloseDelim] && isNewline =>
         sb.insert(
           sb.length - left.syntax.length - prevFormatToken.between.length,
