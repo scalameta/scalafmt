@@ -10,7 +10,9 @@ The recommended way to install the scalafmt command line tool is with
 
 ### Coursier
 
-**NOTE** To install Coursier see [here](https://github.com/coursier/coursier#command-line).
+<div class="sidenote">
+To install Coursier see <a href="https://github.com/coursier/coursier#command-line" target="_blank">here</a>
+</div>
 
 Create a standalone executable in `/usr/local/bin/scalafmt` with (sudo if necessary):
 
@@ -215,8 +217,10 @@ let g:formatdef_scalafmt = "'scalafmt --stdin'"
 let g:formatters_scala = ['scalafmt']
 ```
 
-**NOTE**. You pay the JVM startup penalty on every format unless you're using
-[Nailgun](#nailgun).
+<div class="sidenote">
+You pay the JVM startup penalty on every format unless you're using
+<a href="#nailgun">Nailgun</a>.
+</div>
 
 ## Standalone library
 
