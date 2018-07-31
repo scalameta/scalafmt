@@ -425,6 +425,7 @@ class FormatWriter(formatOps: FormatOps) {
       // Insert a comma after b (before comment)
       case TrailingCommas.always
           if left.is[Comment] && !prevFormatToken.left.is[Comma] &&
+            !prevFormatToken.left.is[Comment] &&
             right.is[CloseDelim] && isNewline =>
         sb.insert(
           sb.length - left.syntax.length - prevFormatToken.between.length,
