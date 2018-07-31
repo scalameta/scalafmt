@@ -78,15 +78,15 @@ lazy val big = project
   .settings(
     allSettings,
     moduleName := "scalafmt-big",
-    crossScalaVersions := List(scala212),
+    ThisBuild / crossScalaVersions := List(scala212),
     mimaReportBinaryIssues := {},
     shadeSettings
   )
   .dependsOn(cli)
 
 def isOnly(scalaV: String) = Seq(
-  scalaVersion := scalaV,
-  crossScalaVersions := Seq(scalaV)
+  ThisBuild / scalaVersion := scalaV,
+  ThisBuild / crossScalaVersions := Seq(scalaV)
 )
 
 lazy val shadeSettings: List[Setting[_]] = List(
@@ -228,7 +228,7 @@ def CiCommand(name: String)(commands: List[String]): Command =
       case (state, command) => ci(command) :: state
     }
   }
-def ci(command: String) = s"plz ${sys.env("CI_SCALA_VERSION")} $command"
+def ci(command: String) = s"++ ${sys.env("CI_SCALA_VERSION")} $command"
 
 def shouldPublishToBintray: Boolean = {
   if (!new File(sys.props("user.home") + "/.bintray/.credentials").exists)
@@ -264,7 +264,8 @@ lazy val publishSettings = Seq(
   bintrayRepository := "maven",
   bintrayOrganization := Some("scalameta"),
   publishTo := {
-    if (shouldPublishToBintray) publishTo.in(bintray).value
+    val bintrayDestination = publishTo.in(bintray).value
+    if (shouldPublishToBintray) bintrayDestination
     else {
       val nexus = "https://oss.sonatype.org/"
       if (isSnapshot.value)
@@ -328,7 +329,7 @@ lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
     "stable" -> stableVersion.value,
     "scala" -> scalaVersion.value,
     "coursier" -> coursier,
-    "commit" -> Seq("git", "rev-parse", "HEAD").!!.trim,
+    "commit" -> sys.process.Process("git rev-parse HEAD").lineStream_!.head,
     "timestamp" -> System.currentTimeMillis().toString,
     scalaVersion,
     sbtVersion
@@ -352,6 +353,6 @@ def ciCommands = Seq(
       Nil
   ),
   Command.command("ci-publish") { s =>
-    s"very publish" :: s
+    s"+ publish" :: s
   }
 )
