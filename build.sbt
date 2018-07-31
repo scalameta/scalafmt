@@ -240,6 +240,7 @@ lazy val website = project
     preprocess in Preprocess := (preprocess in Preprocess).dependsOn(tut).value,
     preprocessVars in Preprocess := Map(
       "VERSION" -> version.value,
+      "STABLE_VERSION" -> "1.5.1",
       "SCALAMETA_VERSION" -> scalametaV
     )
   )

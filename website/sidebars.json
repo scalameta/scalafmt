@@ -2,6 +2,7 @@
   "docs": {
     "Documentation": [
       "introduction",
+      "installation",
       "configuration",
       "gotchas",
       "faq",
