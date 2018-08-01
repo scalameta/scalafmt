@@ -181,6 +181,20 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   }
 
   @tailrec
+  final def prevNonCommentWithCount(
+      curr: FormatToken,
+      accum: Int = 0): (Int, FormatToken) = {
+    if (!curr.left.is[Comment]) accum -> curr
+    else {
+      val tok = prev(curr)
+      if (tok == curr) accum -> curr
+      else prevNonCommentWithCount(tok, accum + 1)
+    }
+  }
+  def prevNonComment(curr: FormatToken): FormatToken =
+    prevNonCommentWithCount(curr)._2
+
+  @tailrec
   final def nextNonCommentWithCount(
       curr: FormatToken,
       accum: Int = 0): (Int, FormatToken) = {
