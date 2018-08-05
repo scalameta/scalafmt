@@ -9,6 +9,10 @@ import metaconfig.Configured
 import metaconfig.Configured.Ok
 import org.scalafmt.config.PlatformConfig._
 
+// NOTE: these methods are intended for internal usage and are subject to
+// binary and source breaking changes between any release. For a stable API
+// use org.scalafmt.Scalafmt. Documentation on using scalafmt as a library
+// can be seen here https://scalameta.org/scalafmt/#Standalonelibrary
 object Config {
 
   def fromInput(input: Input, path: Option[String]): Configured[Conf] = {
@@ -19,10 +23,18 @@ object Config {
     }
   }
 
+  def fromHoconString(string: String): Configured[ScalafmtConfig] =
+    fromHoconString(string, None)
+
   def fromHoconString(
       string: String,
-      path: Option[String] = None,
-      default: ScalafmtConfig = ScalafmtConfig.default
+      path: Option[String]): Configured[ScalafmtConfig] =
+    fromHoconString(string, path, ScalafmtConfig.default)
+
+  def fromHoconString(
+      string: String,
+      path: Option[String],
+      default: ScalafmtConfig
   ): Configured[ScalafmtConfig] =
     fromConf(fromInput(Input.String(string), path), default = default)
 

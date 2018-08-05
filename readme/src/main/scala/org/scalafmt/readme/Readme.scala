@@ -100,7 +100,7 @@ object Readme {
 
   def rows(frags: Frag*) = div(frags, `class` := "scalafmt-rows")
 
-  def sideBySide(left: String, right: String) =
+  def sideBySide(left: String, right: String): TypedTag[String] =
     pairs(List(left, right).map(x => half(hl.scala(x))): _*)
 
   def demo(code: String) = {
@@ -119,17 +119,24 @@ object Readme {
   def allOptions =
     hl.scala.apply(Conf.printHocon(ScalafmtConfig.default))
 
-  def configurationBlock(style: ScalafmtConfig) = {
+  def configurationBlock(
+      style: ScalafmtConfig,
+      collapsed: Boolean = false): TypedTag[String] = {
     div(
       span(
         "Show/hide configuration used for this example",
         `class` := "scalafmt-configuration-toggle"),
       pre(changedConfig(style)),
-      `class` := "scalafmt-configuration"
+      `class` := {
+        "scalafmt-configuration" + (
+          if (collapsed) " collapsed"
+          else ""
+        )
+      }
     )
   }
 
-  def fullWidthDemo(style: ScalafmtConfig)(code: String) = {
+  def fullWidthDemo(style: ScalafmtConfig)(code: String): TypedTag[String] = {
     val formatted = Scalafmt.format(code, style).get
     div(
       rows(
@@ -140,7 +147,7 @@ object Readme {
       configurationBlock(style))
   }
 
-  def demoStyle(style: ScalafmtConfig)(code: String) = {
+  def demoStyle(style: ScalafmtConfig)(code: String): TypedTag[String] = {
     val formatted =
       Scalafmt.format(code, style.copy(runner = ScalafmtRunner.sbt)).get
     div(

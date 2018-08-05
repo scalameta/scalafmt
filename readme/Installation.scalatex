@@ -158,14 +158,6 @@
         // In project/plugins.sbt. Note, does not support sbt 0.13, only sbt 1.0.
         addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "@org.scalafmt.Versions.stable")
 
-      The plugin provides several tasks and settings.
-
-      @hl.ref(
-        wd / "scalafmt-sbt" / "src" / "main" / "scala" / "org" / "scalafmt" / "sbt" / "ScalafmtPlugin.scala",
-        start = "autoImport",
-        end = "import autoImport"
-      )
-
       The sbt plugin is enabled by default for the @code{Test} and @code{Compile} configurations.
       To enable the plugin for integration tests
       @hl.scala

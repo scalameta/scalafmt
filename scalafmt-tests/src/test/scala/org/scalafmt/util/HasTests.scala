@@ -83,7 +83,7 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
 
   def parseDiffTests(content: String, filename: String): Seq[DiffTest] = {
     val sep =
-      if (content.contains(OsSpecific.lineSeparator)) OsSpecific.lineSeparator
+      if (content.contains(System.lineSeparator)) System.lineSeparator
       else "\n"
     val spec = filename.stripPrefix(testDir + File.separator)
     val moduleOnly = isOnly(content)

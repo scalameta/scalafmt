@@ -181,6 +181,20 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   }
 
   @tailrec
+  final def prevNonCommentWithCount(
+      curr: FormatToken,
+      accum: Int = 0): (Int, FormatToken) = {
+    if (!curr.left.is[Comment]) accum -> curr
+    else {
+      val tok = prev(curr)
+      if (tok == curr) accum -> curr
+      else prevNonCommentWithCount(tok, accum + 1)
+    }
+  }
+  def prevNonComment(curr: FormatToken): FormatToken =
+    prevNonCommentWithCount(curr)._2
+
+  @tailrec
   final def nextNonCommentWithCount(
       curr: FormatToken,
       accum: Int = 0): (Int, FormatToken) = {
@@ -751,10 +765,19 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       leftTok2tok(matching(token)) match {
         case FormatToken(RightParenOrBracket(), l @ LeftParen(), _) =>
           loop(l)
-        // This case only applies to classes
-        case f @ FormatToken(RightBracket(), mod, _) if mod.is[Modifier] =>
-          loop(next(f).right)
-        case FormatToken(r @ RightParenOrBracket(), _, _) => Some(r)
+        case f @ FormatToken(left @ RightParenOrBracket(), right, _) =>
+          right match {
+            case Modifier() =>
+              // This case only applies to classes
+              next(f).right match {
+                case x @ (_: Token.LeftParen | _: Token.LeftBracket) =>
+                  loop(x)
+                case _ =>
+                  Some(left)
+              }
+            case _ =>
+              Some(left)
+          }
         case _ => None
       }
     }

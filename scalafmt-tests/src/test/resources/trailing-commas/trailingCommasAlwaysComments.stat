@@ -11,3 +11,45 @@ def method(
     a: String,
     b: String, // a comment
 ) = ???
+
+<<< should consider indented comments on the next line when adding trailing commas
+def method(
+    a: String,
+    b: String
+    // a comment
+) = ???
+>>>
+def method(
+    a: String,
+    b: String,
+    // a comment
+) = ???
+
+<<< should consider indented multiple lines of comments next line when adding trailing commas
+def method(
+    a: String,
+    b: String
+    // a comment
+    // a comment
+) = ???
+>>>
+def method(
+    a: String,
+    b: String,
+    // a comment
+    // a comment
+) = ???
+
+<<< should consider unindented comments on the next line when adding trailing commas
+def method(
+    a: String,
+    b: String
+// a comment
+) = ???
+>>>
+def method(
+    a: String,
+    b: String,
+// a comment
+) = ???
+

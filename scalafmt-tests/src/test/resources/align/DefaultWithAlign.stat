@@ -1,4 +1,4 @@
-align = true
+align = more
 <<< => with comment
 x match {
   case 1 => 2 // this is a comment

@@ -269,3 +269,13 @@ class SomeVeryLongName[
     SomeOtherTypeName,
     YetAnotherType]
   extends Something
+<<< #1203
+object Recorder {
+  sealed abstract class Ast[A]
+  final case class Record()
+}
+>>>
+object Recorder {
+  sealed abstract class Ast[A]
+  final case class Record()
+}

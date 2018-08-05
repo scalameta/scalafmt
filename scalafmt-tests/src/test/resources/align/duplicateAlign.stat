@@ -1,0 +1,17 @@
+maxColumn = 20
+align.tokens = most
+<<< #1202
+{
+  foo(aaaaaaaa, bbbbb)
+  val x = 2
+  val xx = 2
+}
+>>>
+{
+  foo(
+    aaaaaaaa,
+    bbbbb
+  )
+  val x  = 2
+  val xx = 2
+}

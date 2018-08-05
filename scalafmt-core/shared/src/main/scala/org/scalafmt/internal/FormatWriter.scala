@@ -401,6 +401,7 @@ class FormatWriter(formatOps: FormatOps) {
     val left = formatToken.left
     val right = nextNonComment(formatToken).right
     val isNewline = state.splits.last.modification.isNewline
+    val prevFormatToken = prev(formatToken)
 
     initStyle.trailingCommas match {
       // foo(
@@ -411,6 +412,9 @@ class FormatWriter(formatOps: FormatOps) {
       // Insert a comma after b
       case TrailingCommas.always
           if !left.is[Comma] && !left.is[Comment] &&
+            !(left.is[LeftParen] &&
+              right.is[RightParen]) && // isn't empty parentheses
+            !formatToken.right.is[Comment] &&
             right.is[CloseDelim] && isNewline =>
         sb.append(",")
         sb.append(whitespace)
@@ -422,9 +426,14 @@ class FormatWriter(formatOps: FormatOps) {
       //
       // Insert a comma after b (before comment)
       case TrailingCommas.always
-          if left.is[Comment] && !prev(formatToken).left.is[Comma] &&
+          if left.is[Comment] && !prevFormatToken.left.is[Comma] &&
+            !prevFormatToken.left.is[Comment] &&
+            !(prevNonComment(formatToken).left.is[LeftParen] &&
+              right.is[RightParen]) && // isn't empty parentheses
             right.is[CloseDelim] && isNewline =>
-        sb.insert(sb.length - left.syntax.length - 1, ",")
+        sb.insert(
+          sb.length - left.syntax.length - prevFormatToken.between.length,
+          ",")
         sb.append(whitespace)
 
       // foo(
@@ -434,7 +443,8 @@ class FormatWriter(formatOps: FormatOps) {
       //
       // Remove the comma after b
       case TrailingCommas.never
-          if left.is[Comma] && right.is[CloseDelim] && isNewline =>
+          if left.is[Comma] && right.is[CloseDelim] &&
+            !formatToken.right.is[Comment] && isNewline =>
         sb.deleteCharAt(sb.length - 1)
         sb.append(whitespace)
 
@@ -445,9 +455,10 @@ class FormatWriter(formatOps: FormatOps) {
       //
       // Remove the comma after b (before comment)
       case TrailingCommas.never
-          if left.is[Comment] && prev(formatToken).left.is[Comma] &&
+          if left.is[Comment] && prevFormatToken.left.is[Comma] &&
             right.is[CloseDelim] && isNewline =>
-        sb.deleteCharAt(sb.length - left.syntax.length - 2)
+        sb.deleteCharAt(
+          sb.length - left.syntax.length - prevFormatToken.between.length - 1)
         sb.append(whitespace)
 
       // foo(a, b,)

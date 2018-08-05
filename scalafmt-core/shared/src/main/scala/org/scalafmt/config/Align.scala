@@ -115,4 +115,13 @@ object Align {
     )
   )
   val allValues = List(default, none, some, most)
+
+  object Builtin {
+    def unapply(conf: Conf): Option[Align] = Option(conf).collect {
+      case Conf.Str("none") | Conf.Bool(false) => Align.none
+      case Conf.Str("some" | "default") => Align.some
+      case Conf.Str("more") | Conf.Bool(true) => Align.more
+      case Conf.Str("most") => Align.most
+    }
+  }
 }

@@ -1,58 +1,73 @@
+import Dependencies._
+import sbtcrossproject.CrossPlugin.autoImport.crossProject
+
+def scala211 = "2.11.12"
+def scala212 = "2.12.6"
+
 inThisBuild(
   List(
+    organization := "com.geirsson", // not org.scalameta because that's a breaking change
+    homepage := Some(url("https://github.com/scalameta/scalafmt")),
+    licenses := List(
+      "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")
+    ),
+    developers := List(
+      Developer(
+        "olafurpg",
+        "Ólafur Páll Geirsson",
+        "olafurpg@gmail.com",
+        url("https://geirsson.com")
+      )
+    ),
+    scalaVersion := scala212,
+    crossScalaVersions := List(scala212, scala211),
+    resolvers += Resolver.sonatypeRepo("releases"),
     libraryDependencies ++= List(
+      scalatest.value % Test,
       scalacheck % Test
     )
   )
 )
-import Dependencies._
-import org.scalajs.sbtplugin.cross.CrossProject
-
-version.in(ThisBuild) ~= { old =>
-  sys.props.getOrElse("scalafmt.version", old.replace('+', '-'))
-}
-
-lazy val buildSettings = Seq(
-  organization := "com.geirsson",
-  scalaVersion := scala212,
-  crossScalaVersions := Seq(scala211, scala212),
-  updateOptions := updateOptions.value.withCachedResolution(true),
-  resolvers += Resolver.sonatypeRepo("releases"),
-  libraryDependencies += scalatest.value % Test,
-  triggeredMessage in ThisBuild := Watched.clearWhenTriggered,
-  scalacOptions in (Compile, console) := compilerOptions :+ "-Yrepl-class-based",
-  scalacOptions in (Compile, console) --= Seq("-Xlint", "-Ywarn-dead-code"),
-  assemblyJarName in assembly := "scalafmt.jar",
-  testOptions in Test += Tests.Argument("-oD")
-)
-
-lazy val allSettings = buildSettings ++ publishSettings
 
 name := "scalafmtRoot"
-allSettings
-noPublish
-commands ++= ciCommands
+skip in publish := true
 addCommandAlias("downloadIdea", "intellij/updateIdea")
 
-lazy val core = crossProject
+commands += Command.command("ci-test") { s =>
+  val scalaVersion = sys.env.get("TEST") match {
+    case Some("2.11") => scala211
+    case _ => scala212
+  }
+  s"++$scalaVersion" ::
+    s"tests/test" ::
+    s"coreJS/test" ::
+    s
+}
+
+lazy val core = crossProject(JVMPlatform, JSPlatform)
   .in(file("scalafmt-core"))
   .settings(
     moduleName := "scalafmt-core",
     addCompilerPlugin(
-      "org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
-    allSettings,
+      "org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full
+    ),
     buildInfoSettings,
-    fork.in(run).in(Test) := true,
     libraryDependencies ++= Seq(
       metaconfig.value,
       scalameta.value
     )
   )
   .jsSettings(
-    libraryDependencies += metaconfigHocon.value
+    libraryDependencies ++= List(
+      metaconfigHocon.value,
+      scalatest.value % Test // must be here for coreJS/test to run anything
+    )
   )
   .jvmSettings(
-    libraryDependencies += metaconfigTypesafe.value
+    fork.in(run).in(Test) := true,
+    libraryDependencies ++= List(
+      metaconfigTypesafe.value
+    )
   )
   .enablePlugins(BuildInfoPlugin)
 lazy val coreJVM = core.jvm
@@ -62,8 +77,8 @@ lazy val cli = project
   .in(file("scalafmt-cli"))
   .settings(
     moduleName := "scalafmt-cli",
-    allSettings,
     mainClass in assembly := Some("org.scalafmt.cli.Cli"),
+    assemblyJarName.in(assembly) := "scalafmt.jar",
     libraryDependencies ++= Seq(
       "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0",
       "com.martiansoftware" % "nailgun-server" % "0.9.1",
@@ -72,74 +87,59 @@ lazy val cli = project
   )
   .dependsOn(coreJVM)
 
-def isOnly(scalaV: String) = Seq(
-  scalaVersion := scalaV,
-  crossScalaVersions := Seq(scalaV)
-)
-
-lazy val `scalafmt-cli-sbt` = project
-  .configs(IntegrationTest)
+lazy val big = project
+  .in(file("scalafmt-big"))
   .settings(
-    allSettings,
-    Defaults.itSettings,
-    mimaPreviousArtifacts := Set.empty,
-    moduleName := "sbt-cli-scalafmt",
-    isOnly(scala212),
-    sbtPlugin := true,
-    sbtVersion in Global := "1.0.0",
-    test.in(IntegrationTest) := RunSbtCommand(
-      Seq(
-        s"plz $scala212 publishLocal",
-        """set sbtVersion in Global := "0.13.16" """,
-        "such scalafmt-sbt-tests/scripted",
-        """set sbtVersion in Global := "1.0.0" """
-      ).mkString("; ", "; ", "")
-    )(state.value)
+    moduleName := "scalafmt-big",
+    crossScalaVersions := List(scala212),
+    mimaReportBinaryIssues := {},
+    shadeSettings
   )
   .dependsOn(cli)
 
-lazy val `scalafmt-sbt` = project
-  .settings(
-    allSettings,
-    mimaPreviousArtifacts := Set.empty,
-    moduleName := "sbt-scalafmt",
-    isOnly(scala212),
-    sbtPlugin := true,
-    sbtVersion in Global := "1.0.0"
-  )
-  .dependsOn(coreJVM)
-
-lazy val `scalafmt-sbt-tests` = project
-  .settings(
-    allSettings,
-    noPublish,
-    isOnly(scala210),
-    sbtPlugin := true,
-    ScriptedPlugin.scriptedSettings,
-    sbtVersion := "0.13.15",
-    scriptedSbt := "0.13.15",
-    scriptedLaunchOpts := Seq(
-      "-Dplugin.version=" + version.value,
-      "-Dscalafmt.scripted=true",
-      // .jvmopts is ignored, simulate here
-      "-XX:MaxPermSize=256m",
-      "-Xmx2g",
-      "-Xss2m"
-    ) ++ {
-      // pass along custom boot properties if specified
-      val bootProps = "sbt.boot.properties"
-      sys.props.get(bootProps).map(x => s"-D$bootProps=$x").toList
-    },
-    scriptedBufferLog := false
-  )
+lazy val shadeSettings: List[Setting[_]] = List(
+  assemblyOption.in(assembly) ~= { _.copy(includeScala = false) },
+  assemblyShadeRules.in(assembly) := Seq(
+    ShadeRule
+      .rename(
+        "scala.meta.**" -> "org.scalafmt.shaded.meta.@1",
+        "fastparse.**" -> "org.scalafmt.shaded.fastparse.@1"
+      )
+      .inAll,
+    ShadeRule
+      .zap(
+        "scalapb.**",
+        "com.trueaccord.**"
+      )
+      .inAll
+  ),
+  artifact.in(Compile, packageBin) := artifact.in(Compile, assembly).value,
+  pomPostProcess := { (node: scala.xml.Node) =>
+    new scala.xml.transform.RuleTransformer(
+      new scala.xml.transform.RewriteRule {
+        override def transform(node: scala.xml.Node): scala.xml.NodeSeq =
+          node match {
+            case e: scala.xml.Elem
+                if e.label == "dependency" &&
+                  e.child.exists { child =>
+                    child.label == "artifactId" &&
+                    child.text.startsWith("scalafmt")
+                  } =>
+              scala.xml.Comment(s"shaded scalafmt-cli dependency.")
+            case _ => node
+          }
+      }
+    ).transform(node).head
+  }
+) ++ addArtifact(artifact.in(Compile, packageBin), assembly).settings
 
 lazy val intellij = project
   .in(file("scalafmt-intellij"))
   .settings(
-    allSettings,
     buildInfoSettings,
-    noPublish,
-    noDocs,
+    crossScalaVersions := List(scala211),
+    skip in publish := true,
+    sources in (Compile, doc) := Nil,
     mimaReportBinaryIssues := {},
     ideaBuild := "2016.3.2",
     test := {}, // no need to download IDEA to run all tests.
@@ -149,13 +149,11 @@ lazy val intellij = project
     cleanFiles += ideaDownloadDirectory.value
   )
   .dependsOn(coreJVM, cli)
-  .enablePlugins(SbtIdeaPlugin)
 
 lazy val tests = project
   .in(file("scalafmt-tests"))
   .settings(
-    allSettings,
-    noPublish,
+    skip in publish := true,
     libraryDependencies ++= Seq(
       // Test dependencies
       "com.lihaoyi" %% "scalatags" % "0.6.3",
@@ -170,13 +168,10 @@ lazy val tests = project
 lazy val benchmarks = project
   .in(file("scalafmt-benchmarks"))
   .settings(
-    allSettings,
-    noPublish,
-    isOnly(scala212),
+    skip in publish := true,
     moduleName := "scalafmt-benchmarks",
     libraryDependencies ++= Seq(
-      scalametaTestkit,
-      scalatest.value % Test
+      scalametaTestkit
     ),
     javaOptions in run ++= Seq(
       "-Djava.net.preferIPv4Stack=true",
@@ -200,40 +195,12 @@ lazy val benchmarks = project
   .dependsOn(coreJVM)
   .enablePlugins(JmhPlugin)
 
-lazy val readme = scalatex
-  .ScalatexReadme(
-    projectId = "readme",
-    wd = file(""),
-    url = "https://github.com/scalameta/scalafmt/tree/master",
-    source = "Readme")
-  .settings(
-    git.remoteRepo := "git@github.com:scalameta/scalafmt.git",
-    siteSourceDirectory := target.value / "scalatex",
-    allSettings,
-    noPublish,
-    publish := {
-      ghpagesPushSite
-        .dependsOn(run.in(Compile).toTask(" --validate-links"))
-        .value
-    },
-    test := {
-      run.in(Compile).toTask(" --validate-links").value
-    },
-    libraryDependencies ++= Seq(
-      "com.twitter" %% "util-eval" % "6.41.0"
-    )
-  )
-  .enablePlugins(GhpagesPlugin)
-  .dependsOn(
-    coreJVM,
-    cli
-  )
 
 lazy val website = project
   .enablePlugins(PreprocessPlugin, TutPlugin)
   .settings(
-    allSettings,
-    noPublish,
+    crossScalaVersions := List(scala212),
+    skip in publish := true,
     tutSourceDirectory := baseDirectory.value / ".." / "docs",
     sourceDirectory in Preprocess := tutTargetDirectory.value,
     target in Preprocess := target.value / "docs",
@@ -245,102 +212,19 @@ lazy val website = project
     )
   )
   .dependsOn(coreJVM, cli)
-
-def CiCommand(name: String)(commands: List[String]): Command =
-  Command.command(name) { initState =>
-    commands.foldLeft(initState) {
-      case (state, command) => ci(command) :: state
-    }
-  }
-def ci(command: String) = s"plz ${sys.env("CI_SCALA_VERSION")} $command"
-
-def shouldPublishToBintray: Boolean = {
-  if (!new File(sys.props("user.home") + "/.bintray/.credentials").exists)
-    false
-  else if (sys.props("publish.sonatype") != null) false
-  else if (sys.env.contains("CI_PULL_REQUEST")) false
-  else true
-}
-
-lazy val noDocs = Seq(
-  sources in (Compile, doc) := Nil
-)
-
-lazy val compilerOptions = Seq(
-  "-deprecation",
-  "-encoding",
-  "UTF-8",
-  "-feature",
-  "-language:existentials",
-  "-language:higherKinds",
-  "-language:implicitConversions",
-  "-unchecked",
-  "-Yno-adapted-args",
-  "-Ywarn-dead-code",
-  "-Ywarn-numeric-widen",
-  "-Xfuture",
-  "-Xlint"
-)
-
-lazy val publishSettings = Seq(
-  publishMavenStyle := true,
-  publishArtifact := true,
-  bintrayRepository := "maven",
-  bintrayOrganization := Some("scalameta"),
-  publishTo := {
-    if (shouldPublishToBintray) publishTo.in(bintray).value
-    else {
-      val nexus = "https://oss.sonatype.org/"
-      if (isSnapshot.value)
-        Some("snapshots" at nexus + "content/repositories/snapshots")
-      else
-        Some("releases" at nexus + "service/local/staging/deploy/maven2")
-    }
-  },
-  publishArtifact in Test := false,
-  mimaPreviousArtifacts := Set(
-    organization.value % s"${moduleName.value}_${scalaBinaryVersion.value}" % "1.0.0"
-  ),
-  mimaBinaryIssueFilters ++= Mima.ignoredABIProblems,
-  licenses := Seq(
-    "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
-  homepage := Some(url("https://github.com/scalameta/scalafmt")),
-  autoAPIMappings := true,
-  apiURL := Some(url("https://olafurpg.github.io/scalafmt/docs/")),
-  scmInfo := Some(
-    ScmInfo(
-      url("https://github.com/scalameta/scalafmt"),
-      "scm:git:git@github.com:scalameta/scalafmt.git"
-    )
-  ),
-  pomExtra :=
-    <developers>
-        <developer>
-          <id>olafurpg</id>
-          <name>Ólafur Páll Geirsson</name>
-          <url>https://geirsson.com</url>
-        </developer>
-      </developers>
-)
-
-lazy val noPublish = Seq(
-  mimaPreviousArtifacts := Set.empty,
-  publishArtifact := false,
-  publish := {},
-  publishLocal := {}
-)
-
 val V = "\\d+\\.\\d+\\.\\d+"
 val ReleaseCandidate = s"($V-RC\\d+).*".r
 val Milestone = s"($V-M\\d+).*".r
 
 lazy val stableVersion = Def.setting {
+  val latestStable = "1.5.1"
   version.value match {
-    case ReleaseCandidate(v) => v
-    case Milestone(v) => v
+    case ReleaseCandidate(_) => latestStable
+    case Milestone(_) => latestStable
     case v => v.replaceAll("\\-.*", "")
   }
 }
+
 lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
   buildInfoKeys := Seq[BuildInfoKey](
     name,
@@ -350,38 +234,11 @@ lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
     "stable" -> stableVersion.value,
     "scala" -> scalaVersion.value,
     "coursier" -> coursier,
-    "commit" -> Seq("git", "rev-parse", "HEAD").!!.trim,
+    "commit" -> sys.process.Process("git rev-parse HEAD").lineStream_!.head,
     "timestamp" -> System.currentTimeMillis().toString,
     scalaVersion,
     sbtVersion
   ),
   buildInfoPackage := "org.scalafmt",
   buildInfoObject := "Versions"
-)
-
-def scala210 = "2.10.6"
-def scala211 = "2.11.12"
-def scala212 = "2.12.4"
-def extraSbtBootOptions: Seq[String] = {
-  // pass along custom boot properties if specified
-  val bootProps = "sbt.boot.properties"
-  sys.props.get(bootProps).map(x => s"-D$bootProps=$x").toList
-}
-
-def ciCommands = Seq(
-  CiCommand("ci-fast")(
-    "test" ::
-      Nil
-  ),
-  CiCommand("ci-slow")(
-    "tests/test:runMain org.scalafmt.ScalafmtProps" ::
-      Nil
-  ),
-  Command.command("ci-sbt-scalafmt") { s =>
-    "scalafmt-cli-sbt/it:test" ::
-      s
-  },
-  Command.command("ci-publish") { s =>
-    s"very publish" :: s
-  }
 )

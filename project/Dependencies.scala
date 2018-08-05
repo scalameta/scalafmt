@@ -1,10 +1,11 @@
 import sbt._
 import sbt.Keys._
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
+import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
 // scalafmt: { maxColumn = 120, style = defaultWithAlign }
 
 object Dependencies {
-  val metaconfigV = "0.7.2"
+  val metaconfigV = "0.8.3"
   val scalametaV = "4.0.0-M1"
   val scalatestV = "3.2.0-SNAP10"
   val scalacheckV = "1.13.5"
@@ -13,7 +14,7 @@ object Dependencies {
   val scalapb = Def.setting {
     ExclusionRule(
       organization = "com.thesamet.scalapb",
-      artifact = s"scalapb-runtime_${scalaBinaryVersion.value}"
+      name = s"scalapb-runtime_${scalaBinaryVersion.value}"
     )
   }
 

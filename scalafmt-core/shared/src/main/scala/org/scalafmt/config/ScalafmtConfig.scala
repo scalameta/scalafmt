@@ -135,7 +135,7 @@ case class ScalafmtConfig(
     assumeStandardLibraryStripMargin: Boolean = false,
     danglingParentheses: Boolean = true,
     poorMansTrailingCommasInConfigStyle: Boolean = false,
-    trailingCommas: TrailingCommas = TrailingCommas.preserve,
+    trailingCommas: TrailingCommas = TrailingCommas.never,
     @deprecated("Use VerticalMultiline.atDefnSite instead", "1.6.0")
     verticalMultilineAtDefinitionSite: Boolean = false,
     @deprecated("Use VerticalMultiline.arityThreshold instead", "1.6.0")
@@ -335,18 +335,16 @@ object ScalafmtConfig {
   }
   def alignReader(base: ConfDecoder[Align]): ConfDecoder[Align] =
     ConfDecoder.instance[Align] {
-      case Conf.Str("none") | Conf.Bool(false) => Ok(Align.none)
-      case Conf.Str("some" | "default") => Ok(Align.some)
-      case Conf.Str("more") | Conf.Bool(true) => Ok(Align.more)
-      case Conf.Str("most") => Ok(Align.most)
+      case Align.Builtin(a) => Ok(a)
       case els => base.read(els)
     }
   def alignTokenReader(
       initTokens: Set[AlignToken]): ConfDecoder[Set[AlignToken]] = {
-    val baseReader = implicitly[ConfDecoder[Set[AlignToken]]]
+    val baseReader = ConfDecoder[Set[AlignToken]]
     ConfDecoder.instance[Set[AlignToken]] {
       case Conf.Obj(("add", conf) :: Nil) =>
         baseReader.read(conf).map(initTokens ++ _)
+      case Align.Builtin(a) => Ok(a.tokens)
       case els => baseReader.read(els)
     }
   }
