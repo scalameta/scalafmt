@@ -198,6 +198,7 @@ lazy val benchmarks = project
 
 lazy val website = project
   .enablePlugins(PreprocessPlugin, TutPlugin)
+  .configs(Tut, Preprocess)
   .settings(
     crossScalaVersions := List(scala212),
     skip in publish := true,

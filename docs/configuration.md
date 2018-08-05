@@ -79,6 +79,18 @@ If `true`, the margin character `|` is aligned with the opening triple quote
 `"""` in interpolated and raw string literals.
 
 // TODO(gabro): add example
+```tut:passthrough
+website.exampleBlock("""
+  val example1 =
+    s'''Examples:
+       |  * one
+       |  * two
+       |  * $three
+       |'''.stripMargin
+""",
+  "assumeStandardLibraryStripMargin = true"
+)
+```
 
 ## Indentation
 

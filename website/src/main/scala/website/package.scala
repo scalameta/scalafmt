@@ -8,14 +8,18 @@ import scala.meta.Dialect
 package object website {
 
   def plaintext(code: String): String =
-    s"""|```
-        |$code
-        |```""".stripMargin
+    new StringBuilder()
+      .append("```\n")
+      .append(code)
+      .append("\n```")
+      .toString()
 
   private[this] def scalaCode(code: String): String =
-    s"""|```scala
-        |$code
-        |```""".stripMargin
+    new StringBuilder()
+      .append("```scala\n")
+      .append(code)
+      .append("\n```")
+      .toString()
 
   /** Prints a formatted Scala code block one using the provided configuration,
     * which is added as a comment on top
@@ -28,13 +32,15 @@ package object website {
       .fromHoconString(config.mkString("\n"))
       .get
       .copy(maxColumn = 40, runner = ScalafmtRunner.sbt)
-    val formattedCode = Scalafmt.format(code, parsedConfig).get
-    println(
-      scalaCode(
-        s"""|${config.mkString("// ", "\n//", "")}
-            |
-            |${formattedCode}""".stripMargin
-      ))
+    val processedCode = code.replaceAllLiterally("'''", "\"\"\"")
+    val formattedCode = Scalafmt.format(processedCode, parsedConfig).get
+    val result = new StringBuilder()
+      .append(config.mkString("// ", "\n//", ""))
+      .append("\n\n")
+      .append(formattedCode)
+      .toString()
+
+    println(scalaCode(result))
   }
 
   /** Prints two Scala code block next to each other, one with the original code,
@@ -50,20 +56,20 @@ package object website {
     val formatted = Scalafmt.format(code, ScalafmtConfig.default40).get
     println(
       s"""
-         |<div class='scalafmt-pair'>
-         |  <div class='before'>
-         |
-         |${scalaCode(code)}
-         |
-         |  </div>
-         |
-         |  <div class='after'>
-         |
-         |${scalaCode(formatted)}
-         |
-         |  </div>
-         |</div>
-      """.stripMargin
+<div class='scalafmt-pair'>
+  <div class='before'>
+
+${scalaCode(code)}
+
+  </div>
+
+  <div class='after'>
+
+${scalaCode(formatted)}
+
+  </div>
+</div>
+"""
     )
   }
 
