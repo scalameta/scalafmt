@@ -40,7 +40,7 @@ function tag-push() {
 }
 
 function maven-publish() {
-    sbt -Dpublish.sonatype=true clean "very publishSigned" sonatypeRelease
+    sbt -Dpublish.sonatype=true clean "+ publishSigned" sonatypeRelease
 }
 
 
