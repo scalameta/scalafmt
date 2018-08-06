@@ -1,33 +1,34 @@
 language: scala
-script:
-  - ./bin/runci.sh $CI_TEST
+
 jdk:
   - oraclejdk8
-env:
-  matrix:
-    - CI_TEST: scalafmt
-    - CI_TEST: ci-fast
-      CI_SCALA_VERSION: 2.11.11
-      CI_PUBLISH: true
-    - CI_TEST: ci-fast
-      CI_SCALA_VERSION: 2.12.2
-    - CI_TEST: mima
+
+stages:
+  - name: test
+  - name: release
+    if: (branch = master AND type = push) OR (tag IS present)
+
+jobs:
+  include:
+    - env: TEST="scalafmt"
+      script: ./scalafmt --test
+    - env: TEST="2.11"
+      script: sbt ci-test
+    - env: TEST="2.12"
+      script: sbt ci-test
+    - stage: release
+      script: sbt ci-release
 
 cache:
   directories:
-  - $HOME/.sbt/0.13/dependency
-  - $HOME/.sbt/boot/scala*
-  - $HOME/.sbt/launchers
-  - $HOME/.ivy2/cache
-  - $HOME/.coursier
-  - target/repos
+    - $HOME/.sbt
+    - $HOME/.ivy2/cache
+    - $HOME/.coursier
+    - target/repos
 
 before_cache:
   - du -h -d 1 $HOME/.ivy2/cache
   - du -h -d 2 $HOME/.sbt/
   - find $HOME/.sbt -name "*.lock" -type f -delete
   - find $HOME/.ivy2/cache -name "ivydata-*.properties" -type f -delete
-  - find $HOME/.ivy2/cache -name "*scalafix*.xml" -type f -delete
   - rm -rf $HOME/.ivy2/local
-after_success:
-- "./bin/ci-publish.sh"
