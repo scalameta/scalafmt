@@ -718,7 +718,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   private final def vAlignDepthUnCached(tree: Tree): Int = {
     val count: Int = tree match {
       // infix applications don't count towards the length, context #531
-      case _: Term.ApplyInfix => 0
+      case _ @(_: Term.Apply | _: Term.ApplyInfix | _: Term.Select) => 0
       case _ => 1
     }
     tree.parent match {

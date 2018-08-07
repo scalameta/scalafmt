@@ -420,3 +420,57 @@ Seq(
   "org.scalatest"      % "scalatest_2.11"               % "3.0.0" % Test,
   "org.scalamock"      %% "scalamock-scalatest-support" % "3.2.2" % Test
 )
+<<< align comments in method chain
+foo
+  .x() // comment1
+  .xx() // comment2
+  .xxx() // comment3
+>>>
+foo
+  .x()   // comment1
+  .xx()  // comment2
+  .xxx() // comment3
+<<< should not align comments on separate statements
+object test {
+  val ys = xs
+    .filter(_ > 2) // comment1
+    .map(x => x + 1) // comment2
+  ys.map(y => y + 111) // comment3
+}
+>>>
+object test {
+  val ys = xs
+    .filter(_ > 2)   // comment1
+    .map(x => x + 1) // comment2
+  ys.map(y => y + 111) // comment3
+}
+<<< align type infix
+foo
+  .x[T]() // comment1
+  .xx[T]() // comment2
+>>>
+foo
+  .x[T]()  // comment1
+  .xx[T]() // comment2
+<<< align on params
+a.b(
+  1, // comment1
+  1  // comment2
+)
+>>>
+a.b(
+  1, // comment1
+  1  // comment2
+)
+<<< should not align arrow in separate maps
+object a {
+  Map(xx -> yy)
+  Map(x -> y)
+  Map(xxx -> yyy)
+}
+>>>
+object a {
+  Map(xx -> yy)
+  Map(x -> y)
+  Map(xxx -> yyy)
+}
