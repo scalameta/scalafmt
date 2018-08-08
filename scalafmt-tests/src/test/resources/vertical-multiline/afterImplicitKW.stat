@@ -20,7 +20,7 @@ def format_![T <: Tree](
 ): String
 
 <<< should add a newline after implicit keyword in class definitions
-final class UserProfile(name: String, age: Int, address: Address, profession: Profesion, school: School)(
+final class UserProfile(name: String, age: Int, address: Address, profession: Profession, school: School)(
   implicit ctx: Context, ec: Executor)
   extends Profile with UserSettings with SomethingElse
 >>>
@@ -28,7 +28,7 @@ final class UserProfile(
   name: String,
   age: Int,
   address: Address,
-  profession: Profesion,
+  profession: Profession,
   school: School
 )(implicit
   ctx: Context,

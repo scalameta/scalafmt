@@ -28,7 +28,7 @@
           @li
             cached downloads of shared dependencies between version upgrades (saving 5-10mb per upgrade)
           @li
-            custom JVM options for generated exectuable
+            custom JVM options for generated executable
           @li
             ability to generate slim 16kb bootstrap script by removing `--standalone`,
             which can be committed to git/VCS
