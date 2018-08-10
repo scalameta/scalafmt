@@ -62,6 +62,12 @@ object Adopters {
       "https://codacy.com",
       Some(
         "Codacy is an Automated Code Review Tool that monitors your technical debt, helps you improve your code quality, teaches best practices to your developers, and helps you save time in Code Reviews.")
+    ),
+    Adopter(
+      "ZyseMe",
+      "https://www.zyse.me/",
+      Some(
+        "We use ML to predict body measurements and automate pattern creation to integrate with production, allowing companies to produce and/or sell made-to-measure garments at scale.")
     )
   )
 }
