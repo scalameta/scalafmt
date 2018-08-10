@@ -81,7 +81,7 @@ final class Semantics private (
   }
 
   /** Retrieve a list of semantics which are set to compliant */
-  def compliants: List[String] = {
+  def complaints: List[String] = {
     def cl(name: String, cond: Boolean) = if (cond) List(name) else Nil
 
     cl("asInstanceOfs", asInstanceOfs == CheckedBehavior.Compliant) ++

@@ -259,7 +259,7 @@ object TreeOps {
   }
 
   /**
-    * Returns `true` if the [[Tree]] is a defintion site
+    * Returns `true` if the [[Tree]] is a definition site
     *
     * Currently, this includes everything from classes and defs to type
     * applications

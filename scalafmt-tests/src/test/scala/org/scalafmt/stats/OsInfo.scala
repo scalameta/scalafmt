@@ -1,6 +1,6 @@
 package org.scalafmt.stats
 
-case class OsInfo(name: String, architechture: String, version: String)
+case class OsInfo(name: String, architecture: String, version: String)
 
 object OsInfo {
 
