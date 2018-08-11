@@ -83,10 +83,10 @@ If `true`, the margin character `|` is aligned with the opening triple quote
 website.exampleBlock("""
   val example1 =
     s'''Examples:
-       |  * one
-       |  * two
-       |  * $three
-       |'''.stripMargin
+       #  * one
+       #  * two
+       #  * $three
+       #'''.stripMargin
 """,
   "assumeStandardLibraryStripMargin = true"
 )

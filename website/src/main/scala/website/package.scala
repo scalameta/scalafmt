@@ -3,9 +3,32 @@ import org.scalafmt.config.ScalafmtRunner
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.config.ScalafmtConfig.default40
 import org.scalafmt.config.Config
-import scala.meta.Dialect
 
 package object website {
+  def replaceMargin(s: String): String = {
+    val buf = new StringBuilder
+
+    for (line <- s.lines) {
+      val len = line.length
+      var index = 0
+      while (index < len && line.charAt(index) <= ' ') {
+        index += 1
+        buf.append(' ')
+      }
+      if (index < len) {
+        line.charAt(index) match {
+          case '#' => buf.append('|')
+          case ch => buf.append(ch)
+        }
+        index += 1
+      }
+      if (index < len) {
+        buf.append(line.substring(index))
+      }
+      buf.append('\n')
+    }
+    buf.toString
+  }
 
   def plaintext(code: String): String =
     new StringBuilder()
@@ -28,11 +51,11 @@ package object website {
     * @param config the config as an HOCON string
     */
   def exampleBlock(code: String, config: String*): Unit = {
+    val processedCode = replaceMargin(code).replaceAllLiterally("'''", "\"\"\"")
     val parsedConfig = Config
       .fromHoconString(config.mkString("\n"))
       .get
       .copy(maxColumn = 40, runner = ScalafmtRunner.sbt)
-    val processedCode = code.replaceAllLiterally("'''", "\"\"\"")
     val formattedCode = Scalafmt.format(processedCode, parsedConfig).get
     val result = new StringBuilder()
       .append(config.mkString("// ", "\n//", ""))
