@@ -9,7 +9,7 @@ object Dependencies {
   val scalametaV = "4.0.0-M1"
   val scalatestV = "3.2.0-SNAP10"
   val scalacheckV = "1.13.5"
-  val coursier = "1.0.0-RC12"
+  val coursier = "1.0.3"
 
   val scalapb = Def.setting {
     ExclusionRule(
