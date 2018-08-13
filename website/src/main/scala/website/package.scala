@@ -1,3 +1,7 @@
+import java.io.PrintStream
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardOpenOption
 import org.scalafmt.Scalafmt
 import org.scalafmt.config.ScalafmtRunner
 import org.scalafmt.config.ScalafmtConfig
@@ -31,31 +35,50 @@ package object website {
   }
 
   def plaintext(code: String): String =
-    new StringBuilder()
-      .append("```\n")
-      .append(code)
-      .append("\n```")
-      .toString()
+    "```\n" + code + "\n```"
 
   private[this] def scalaCode(code: String): String =
-    new StringBuilder()
-      .append("```scala\n")
-      .append(code)
-      .append("\n```")
-      .toString()
+    "```scala\n" + code + "\n```"
+
+  def preProcess(code: String): String =
+    replaceMargin(code.trim).replaceAllLiterally("'''", "\"\"\"")
+
+  val logger: PrintStream = {
+    val out = Files.newOutputStream(
+      Paths.get("target", "website.log"),
+      StandardOpenOption.CREATE,
+      StandardOpenOption.APPEND
+    )
+    new PrintStream(out)
+  }
 
   /** Prints a formatted Scala code block one using the provided configuration,
     * which is added as a comment on top
     *
-    * @param code the unformatted code
-    * @param config the config as an HOCON string
+    * @param code the unformatted code * @param config the config as an HOCON string
     */
   def exampleBlock(code: String, config: String*): Unit = {
-    val processedCode = replaceMargin(code).replaceAllLiterally("'''", "\"\"\"")
+    example(code, config, ScalafmtRunner.sbt)
+  }
+  def exampleSource(code: String, config: String*): Unit = {
+    example(code, config, ScalafmtRunner.default)
+  }
+  def example(
+      code: String,
+      config: Seq[String],
+      runner: ScalafmtRunner
+  ): Unit = {
+    val processedCode = preProcess(code)
+    if (code.contains("example2")) {
+      logger.println("=======")
+      logger.println(code)
+      logger.println()
+      logger.println(processedCode)
+    }
     val parsedConfig = Config
       .fromHoconString(config.mkString("\n"))
       .get
-      .copy(maxColumn = 40, runner = ScalafmtRunner.sbt)
+      .copy(maxColumn = 40, runner = runner)
     val formattedCode = Scalafmt.format(processedCode, parsedConfig).get
     val result = new StringBuilder()
       .append(config.mkString("// ", "\n//", ""))
@@ -72,17 +95,29 @@ package object website {
     * @param code the unformatted code
     * @param config the config to format the code (defaults to `default40`)
     */
-  def formatExample(
-      code: String,
-      config: ScalafmtConfig = default40
-  ): Unit = {
-    val formatted = Scalafmt.format(code, ScalafmtConfig.default40).get
+  def formatExample(code: String, config: String*): Unit = {
+    val parsedConfig = Config
+      .fromHoconString(config.mkString("\n"))
+      .get
+      .copy(maxColumn = 40, runner = ScalafmtRunner.sbt)
+    val processedCode = preProcess(code)
+    val formatted = Scalafmt.format(processedCode, parsedConfig).get
+    val configString =
+      if (config.isEmpty) ""
+      else {
+        // TODO: make this pretty
+        s"""
+<div class="scalafmt-configuration">
+<pre><code>${config.mkString("\n")}</pre></code>
+</div>
+""".trim
+      }
     println(
       s"""
 <div class='scalafmt-pair'>
   <div class='before'>
 
-${scalaCode(code)}
+${scalaCode(processedCode)}
 
   </div>
 
@@ -92,6 +127,7 @@ ${scalaCode(formatted)}
 
   </div>
 </div>
+$configString
 """
     )
   }

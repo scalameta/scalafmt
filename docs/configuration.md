@@ -50,19 +50,21 @@ website.default(_.docstrings)
 
 ```tut:passthrough
 website.exampleBlock(
-  s"""|/** Align by second asterisk.
-      |  *
-      |  */
-      |""".stripMargin,
+  s"""
+/** Align by second asterisk.
+  *
+  */
+""",
   "docstrings = ScalaDoc")
 ```
 
 ```tut:passthrough
 website.exampleBlock(
-  s"""|/** Align by first asterisk.
-      | *
-      | */
-      |""".stripMargin,
+  s"""
+/** Align by first asterisk.
+ *
+ */
+""",
   "docstrings = JavaDoc")
 ```
 
@@ -78,7 +80,6 @@ website.default(_.assumeStandardLibraryStripMargin)
 If `true`, the margin character `|` is aligned with the opening triple quote
 `"""` in interpolated and raw string literals.
 
-// TODO(gabro): add example
 ```tut:passthrough
 website.exampleBlock("""
   val example1 =
@@ -87,6 +88,21 @@ website.exampleBlock("""
        #  * two
        #  * $three
        #'''.stripMargin
+""",
+  "assumeStandardLibraryStripMargin = true"
+)
+```
+
+The pipe character can immediately follow the opening `"""`
+
+```tut:passthrough
+website.exampleBlock("""
+  val example2 =
+    s'''|Examples:
+        #  * one
+        #  * two
+        #  * $three
+        #'''.stripMargin
 """,
   "assumeStandardLibraryStripMargin = true"
 )
@@ -104,9 +120,10 @@ Example:
 
 ```tut:passthrough
 website.exampleBlock(
-  s"""|function(
-      |  argument1 // indented by 2
-      |)""".stripMargin,
+  s"""
+function(
+  argument1 // indented by 2
+)""",
   "continuationIndent.defnSite = 2"
 )
 ```
@@ -121,9 +138,10 @@ Same as `continuationIndent.callSite` except for definition site. Example:
 
 ```tut:passthrough
 website.exampleBlock(
-  s"""|def function(
-      |argument1: Type1 // indented by 4
-      |): ReturnType""".stripMargin,
+  s"""
+def function(
+argument1: Type1 // indented by 4
+): ReturnType""",
   "continuationIndent.defnSite = 4"
 )
 ```
@@ -141,21 +159,23 @@ four possible defaults: none, some, more, & most.
 
 ```tut:passthrough
 website.exampleBlock(
-  s"""|x match { // true for case arrows
-      |  case 2  => 22
-      |  case 22 => 222
-      |}
+  s"""
+x match { // true for case arrows
+  case 2  => 22
+  case 22 => 222
+}
 
-      |def foo(a: Int, // true for defn site open paren
-      |        b: String): Int
-      |foo(a: Int, // true for call site open paren
-      |    b: String): Int
+def foo(a: Int, // true for defn site open paren
+        b: String): Int
+foo(a: Int, // true for call site open paren
+    b: String): Int
 
-      |val x = 2 // false for assignment
-      |val xx = 22
+val x = 2 // false for assignment
+val xx = 22
 
-      |case object B extends A // false for `extends`
-      |case object BB extends A""".stripMargin,
+case object B extends A // false for `extends`
+case object BB extends A
+""",
   "align=some"
 )
 ```
@@ -164,15 +184,17 @@ website.exampleBlock(
 
 ```tut:passthrough
 website.exampleBlock(
-  s"""|x match { // false for case arrows
-      |  case 2  => 22 // also comments!
-      |  case 22 => 222 // don't align me!
-      |}
+  s"""
+x match { // false for case arrows
+  case 2  => 22 // also comments!
+  case 22 => 222 // don't align me!
+}
 
-      |def foo(a: Int, // false for defn site
-      |        b: String): Int
-      |foo(a: Int, // false for call site
-      |    b: String): Int""".stripMargin,
+def foo(a: Int, // false for defn site
+        b: String): Int
+foo(a: Int, // false for call site
+    b: String): Int
+""",
   "align=none"
 )
 ```
@@ -184,39 +206,41 @@ website.exampleBlock(
 
 ```tut:passthrough
 website.exampleBlock(
-  s"""|val x = 2 // true for assignment
-      |val xx = 22
+  s"""
+val x = 2 // true for assignment
+val xx = 22
 
-      |case object B extends A // false for `extends`
-      |case object BB extends A
+case object B extends A // false for `extends`
+case object BB extends A
 
-      |q -> 22 // true for various infix operators
-      |qq -> 3 // and also comments!
+q -> 22 // true for various infix operators
+qq -> 3 // and also comments!
 
-      |for {
-      |  x <- List(1) // true for alignment enumerator
-      |  yy <- List(2)
-      |} yield x ** xx
+for {
+  x <- List(1) // true for alignment enumerator
+  yy <- List(2)
+} yield x ** xx
 
-      |x match { // true for multiple tokens across multiple lines
-      |  case 1 => 1 -> 2 // first
-      |  case 11 => 11 -> 22 // second
+x match { // true for multiple tokens across multiple lines
+  case 1 => 1 -> 2 // first
+  case 11 => 11 -> 22 // second
 
-      |  // A blank line separates alignment blocks.
-      |  case `ignoreMe` => 111 -> 222
-      |}
+  // A blank line separates alignment blocks.
+  case `ignoreMe` => 111 -> 222
+}
 
-      |// Align assignments of similar type.
-      |def name = column[String]("name")
-      |def status = column[Int]("status")
-      |val x = 1
-      |val xx = 22
+// Align assignments of similar type.
+def name = column[String]("name")
+def status = column[Int]("status")
+val x = 1
+val xx = 22
 
-      |// Align sbt module IDs.
-      |libraryDependencies ++= Seq(
-      |  "org.scala-lang" % "scala-compiler" % scalaVersion.value,
-      |  "com.lihaoyi" %% "sourcecode" % "0.1.1"
-      |)""".stripMargin,
+// Align sbt module IDs.
+libraryDependencies ++= Seq(
+  "org.scala-lang" % "scala-compiler" % scalaVersion.value,
+  "com.lihaoyi" %% "sourcecode" % "0.1.1"
+)
+""",
   "align=more"
 )
 ```
@@ -225,15 +249,17 @@ website.exampleBlock(
 
 ```tut:passthrough
 website.exampleBlock(
-  s"""|for {
-      |  // align <- with =
-      |  x <- List()
-      |  yy = 2
-      |  // aligns body by arrow
-      |  zzz <- new Integer {
-      |    def value = 3
-      |  }
-      |} yield x""".stripMargin,
+  s"""
+for {
+  // align <- with =
+  x <- List()
+  yy = 2
+  // aligns body by arrow
+  zzz <- new Integer {
+    def value = 3
+  }
+} yield x
+""",
   "align=most"
 )
 ```
@@ -251,20 +277,24 @@ token. If no `owner` is provided, then all tree kinds will be matched.
 
 ```tut:passthrough
 website.exampleBlock(
-  s"""|x match {
-      |  case 1 => 1 -> 2
-      |  case 11 => 11 -> 22
-      |}""".stripMargin,
+  s"""
+x match {
+  case 1 => 1 -> 2
+  case 11 => 11 -> 22
+}
+""",
   """align.tokens = [{code = "=>", owner = "Case"}]"""
 )
 ```
 
 ```tut:passthrough
 website.exampleBlock(
-  s"""|val x = List(
-      |"org.scala-lang" %% "scala-compiler" % scalaVersion.value,
-      |"com.lihaoyi" %% "sourcecode" % "0.1.1"
-      |)""".stripMargin,
+  s"""
+val x = List(
+"org.scala-lang" %% "scala-compiler" % scalaVersion.value,
+"com.lihaoyi" %% "sourcecode" % "0.1.1"
+)
+""",
   """align.tokens = [{code = "%", owner = "Term.ApplyInfix"}, {code = "%%", owner = "Term.ApplyInfix"}]"""
 )
 ```
@@ -298,22 +328,26 @@ website.default(_.align.arrowEnumeratorGenerator)
 
 ```tut:passthrough
 website.exampleBlock(
-  s"""|for {
-      |  x <- new Integer {
-      |    def value = 2
-      |  }
-      |} yield x""".stripMargin,
+  s"""
+for {
+  x <- new Integer {
+    def value = 2
+  }
+} yield x
+""",
   "align.arrowEnumeratorGenerator = false"
 )
 ```
 
 ```tut:passthrough
 website.exampleBlock(
-  s"""|for {
-      |  x <- new Integer {
-      |    def value = 2
-      |  }
-      |} yield x""".stripMargin,
+  s"""
+for {
+  x <- new Integer {
+    def value = 2
+  }
+} yield x
+""",
   "align.arrowEnumeratorGenerator = true"
 )
 ```
@@ -326,28 +360,32 @@ website.default(_.align.openParenCallSite)
 
 ```tut:passthrough
 website.exampleBlock(
-  s"""|foo(arg1, arg2)
+  s"""
+foo(arg1, arg2)
 
-      |function(arg1, // align by (
-      |          arg2,
-      |          arg3)
-      |function(
-      |  argument1,
-      |  argument2)""".stripMargin,
+function(arg1, // align by (
+          arg2,
+          arg3)
+function(
+  argument1,
+  argument2)
+""",
   "align.openParenCallSite = true"
 )
 ```
 
 ```tut:passthrough
 website.exampleBlock(
-  s"""|foo(arg1, arg2)
-      |function(
-      |  arg1, // no align by (
-      |  arg2,
-      |  arg3)
-      |function(
-      |  argument1,
-      |  argument2)""".stripMargin,
+  s"""
+foo(arg1, arg2)
+function(
+  arg1, // no align by (
+  arg2,
+  arg3)
+function(
+  argument1,
+  argument2)
+""".stripMargin,
   "align.openParenCallSite = false"
 )
 ```
@@ -360,24 +398,28 @@ website.default(_.align.openParenDefnSite)
 
 ```tut:passthrough
 website.exampleBlock(
-  s"""|class IntString(int: Int, string: String)
-      |
-      |class IntStringLong(int: Int,
-      |                    string: String,
-      |                    long: Long)""".stripMargin,
+  s"""
+class IntString(int: Int, string: String)
+
+class IntStringLong(int: Int,
+                    string: String,
+                    long: Long)
+""",
   "align.openParenDefnSite = true"
 )
 ```
 
 ```tut:passthrough
 website.exampleBlock(
-  s"""|class IntString(int: Int, string: String)
-      |
-      |class IntStringLong(
-      |  int: Int,
-      |  string: String,
-      |  long: Long
-      |)""".stripMargin,
+  s"""
+class IntString(int: Int, string: String)
+
+class IntStringLong(
+  int: Int,
+  string: String,
+  long: Long
+)
+""",
   "align.openParenDefnSite = false"
 )
 ```
@@ -397,38 +439,41 @@ insert newlines.
 website.default(_.newlines.alwaysBeforeTopLevelStatements)
 ```
 
-// TODO(gabro): examples, thes won't compile
-<!-- ```tut:passthrough
-website.exampleBlock(
-  s"""|import org.scalafmt
-      |
-      |package P {
-      |  object O {
-      |    val x1 = 1
-      |    val x2 = 2
-      |    def A = "A"
-      |    def B = "B"
-      |  }
-      |}""".stripMargin,
+```tut:passthrough
+website.exampleSource(
+  s"""
+import org.scalafmt
+      
+package core {
+  object O {
+    val x1 = 1
+    val x2 = 2
+    def A = "A"
+    def B = "B"
+  }
+}
+""",
   "newlines.alwaysBeforeTopLevelStatements = false"
 )
-``` -->
+```
 
-<!-- ```tut:passthrough
-website.exampleBlock(
-  s"""|import org.scalafmt
-      |
-      |package P {
-      |  object O {
-      |    val x1 = 1
-      |    val x2 = 2
-      |    def A = "A"
-      |    def B = "B"
-      |  }
-      |}""".stripMargin,
+```tut:passthrough
+website.exampleSource(
+  s"""
+import org.scalafmt
+
+package core {
+  object O {
+    val x1 = 1
+    val x2 = 2
+    def A = "A"
+    def B = "B"
+  }
+}
+""",
   "newlines.alwaysBeforeTopLevelStatements = true"
 )
-``` -->
+```
 
 ### `newlines.sometimesBeforeColonInMethodReturnType`
 
@@ -460,9 +505,10 @@ website.default(_.newlines.penalizeSingleSelectMultiArgList)
 
 ```tut:passthrough
 website.exampleBlock(
-  """|logger.elem(a,
-     |  b,
-     |  c)""".stripMargin,
+  """
+logger.elem(a,
+  b,
+  c)""",
   "newlines.penalizeSingleSelectMultiArgList = true"
 )
 ```
@@ -485,22 +531,206 @@ website.default(_.newlines.alwaysBeforeElseAfterCurlyIf)
 
 ```tut:passthrough
 website.exampleBlock(
-  """|if(someCond) {
-     |  foo()
-     |} else {
-     |  bar()
-     |}""".stripMargin,
+  """
+if(someCond) {
+  foo()
+} else {
+  bar()
+}""",
   "newlines.alwaysBeforeElseAfterCurlyIf = true"
 )
 ```
 
 ```tut:passthrough
 website.exampleBlock(
-  """|if(someCond) {
-     |  foo()
-     |} else {
-     |  bar()
-     |}""".stripMargin,
+  """
+if(someCond) {
+  foo()
+} else {
+  bar()
+}
+""",
   "newlines.alwaysBeforeElseAfterCurlyIf = false"
+)
+```
+
+## Rewrite Rules
+
+To enable a rewrite rule, add it to the config like this `rewrite.rules = [SortImports]`.
+ 
+### `AvoidInfix`
+
+```tut:passthrough
+website.formatExample(
+  """
+a success b
+a error (b, c)
+a map { x =>
+  x + 2
+}
+"o" % "a" % "v" c(D)
+future recover {
+  case e: Err => 0
+} map (_.toString)
+""",
+  "rewrite.rules = [AvoidInfix]"
+)
+```
+
+### `ExpandImportSelectors`
+
+```tut:passthrough
+website.formatExample(
+  """
+import a.{
+    b,
+    c
+  }, h.{
+    k, l
+  }
+  import d.e.{f, g}
+  import a.{
+      foo => bar,
+      zzzz => _,
+      _
+    }
+""",
+  "rewrite.rules = [ExpandImportSelectors]"
+)
+```
+
+### `RedundantBraces`
+
+> Warning. This rewrite can cause non-idempotent formatting,
+see [#1055](https://github.com/scalameta/scalafmt/issues/1055). 
+
+```tut:passthrough
+website.formatExample(
+  """
+def foo = {
+  List(1, 2, 3).sum
+}
+""",
+  "rewrite.rules = [RedundantBraces]"
+)
+```
+
+```tut:passthrough
+website.formatExample(
+  """
+q"Hello ${name}"
+""",
+  "rewrite.rules = [RedundantBraces]",
+  "rewrite.redundantBraces.stringInterpolation = true"
+)
+```
+
+Configuration options and default values: 
+
+- `rewrite.redundantBraces.maxLines = 100`
+- `rewrite.redundantBraces.includeUnitMethods = true`
+- `rewrite.redundantBraces.stringInterpolation = true`
+- `rewrite.redundantBraces.generalExpressions = false` (disabled by default due to #1147)
+
+### `RedundantParens`
+
+```tut:passthrough
+website.formatExample(
+  """
+for {
+  a <- b
+  if (a.nonEmpty)
+} yield a
+""",
+  "rewrite.rules = [RedundantParens]"
+)
+```
+
+### `SortModifiers`
+Modifiers are sorted based on the given order. Affects modifiers of the following definitions: trait, class, object, type, and val+var, both as fields and class parameters. 
+
+```tut:passthrough
+website.formatExample(
+  """
+final lazy private implicit val x = 42
+lazy final implicit private val y = 42
+""",
+  "rewrite.rules = [SortModifiers]"
+)
+```
+```tut:passthrough
+website.formatExample(
+  """
+ class Test(
+  implicit
+  final private val i1: Int,
+  private final val i2: String
+)
+""",
+  "rewrite.rules = [SortModifiers]"
+)
+```
+
+```tut:passthrough
+website.formatExample(
+  """
+sealed protected[X] trait ADT
+final private case object A1 extends ADT
+private final case class A2(x: Int) extends ADT
+""",
+  "rewrite.rules = [SortModifiers]"
+)
+```
+
+If you choose the non-default sort order then you have to specify all eight
+modifiers in the order you wish to see them. Hint: since some modifiers are
+mutually exclusive, you might want to order them next to each other.
+
+Example config: 
+```scala
+rewrite.rules = [SortModifiers]
+rewrite.sortModifiers.order = [
+  "implicit", "final", "sealed", "abstract",
+  "override", "private", "protected", "lazy"
+]
+```
+
+### `PreferCurlyFors`
+
+Replaces parentheses into curly braces in for comprehensions that contain multiple enumerator generators.
+
+```tut:passthrough
+website.formatExample(
+  """
+for(a <- as; b <- bs if b > 2)
+ yield (a, b)
+""",
+  "rewrite.rules = [PreferCurlyFors]"
+)
+```
+
+### `SortImports`
+
+The imports are sorted by the groups: symbols, lower-case, upper-case.
+
+```tut:passthrough
+website.formatExample(
+  """
+import foo.{Zilch, bar, Random, sand}
+""",
+  "rewrite.rules = [SortImports]"
+)
+```
+
+### `AsciiSortImports`
+
+The imports are sorted by their Ascii codes
+
+```tut:passthrough
+website.formatExample(
+  """
+import foo.{~>, `symbol`, bar, Random}
+""",
+  "rewrite.rules = [AsciiSortImports]"
 )
 ```

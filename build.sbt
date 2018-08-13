@@ -24,7 +24,8 @@ inThisBuild(
     resolvers += Resolver.sonatypeRepo("releases"),
     libraryDependencies ++= List(
       scalatest.value % Test,
-      scalacheck % Test
+      scalacheck % Test,
+      scalametaTestkit % Test
     )
   )
 )
@@ -195,14 +196,13 @@ lazy val benchmarks = project
   .dependsOn(coreJVM)
   .enablePlugins(JmhPlugin)
 
-
 lazy val website = project
   .enablePlugins(PreprocessPlugin, TutPlugin)
   .configs(Tut, Preprocess)
   .settings(
     crossScalaVersions := List(scala212),
     skip in publish := true,
-    tutSourceDirectory := baseDirectory.value / ".." / "docs",
+    tutSourceDirectory := baseDirectory.in(ThisBuild).value / "docs",
     sourceDirectory in Preprocess := tutTargetDirectory.value,
     target in Preprocess := target.value / "docs",
     preprocess in Preprocess := (preprocess in Preprocess).dependsOn(tut).value,
