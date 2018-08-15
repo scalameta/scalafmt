@@ -4,12 +4,24 @@ trailingCommas = always
 <<< should consider comments when adding trailing commas
 def method(
     a: String,
-    b: String // a comment
+    b: String // b comment
 ) = ???
 >>>
 def method(
     a: String,
-    b: String, // a comment
+    b: String, // b comment
+) = ???
+
+
+<<< should consider comments with extra whitespace when adding trailing commas
+def method(
+    abc: String, // abc comment
+    d: String    // d comment
+) = ???
+>>>
+def method(
+    abc: String, // abc comment
+    d: String, // d comment
 ) = ???
 
 <<< should consider indented comments on the next line when adding trailing commas
