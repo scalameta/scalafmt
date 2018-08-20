@@ -69,19 +69,22 @@ package object website {
       runner: ScalafmtRunner
   ): Unit = {
     val processedCode = preProcess(code)
-    if (code.contains("example2")) {
+    val parsedConfig1 =
+      Config.fromHoconString(config.mkString("\n")).get.copy(runner = runner)
+    val isCustomMaxColumn = config.exists(_.contains("maxColumn"))
+    val parsedConfig =
+      if (isCustomMaxColumn) parsedConfig1
+      else parsedConfig1.copy(maxColumn = 40)
+    if (code.contains("validatedInstances")) {
       logger.println("=======")
-      logger.println(code)
+      logger.println(parsedConfig.newlines.sometimesBeforeColonInMethodReturnType)
+      logger.println(parsedConfig.maxColumn)
       logger.println()
-      logger.println(processedCode)
+      logger.println(config.mkString("\n"))
     }
-    val parsedConfig = Config
-      .fromHoconString(config.mkString("\n"))
-      .get
-      .copy(maxColumn = 40, runner = runner)
     val formattedCode = Scalafmt.format(processedCode, parsedConfig).get
     val result = new StringBuilder()
-      .append(config.mkString("// ", "\n//", ""))
+      .append(config.mkString("// ", "\n// ", ""))
       .append("\n\n")
       .append(formattedCode)
       .toString()
@@ -108,7 +111,7 @@ package object website {
         // TODO: make this pretty
         s"""
 <div class="scalafmt-configuration">
-<pre><code>${config.mkString("\n")}</pre></code>
+<pre><code>${config.mkString("\n").trim}</pre></code>
 </div>
 """.trim
       }

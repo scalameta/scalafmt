@@ -714,7 +714,7 @@ class Router(formatOps: FormatOps) {
         )
 
       // Closing def site ): ReturnType
-      case FormatToken(left, colon @ Colon(), _)
+      case FormatToken(left, Colon(), _)
           if style.newlines.sometimesBeforeColonInMethodReturnType &&
             defDefReturnType(leftOwner).isDefined =>
         val expire = lastToken(defDefReturnType(rightOwner).get)

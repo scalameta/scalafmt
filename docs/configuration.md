@@ -475,28 +475,6 @@ package core {
 )
 ```
 
-### `newlines.sometimesBeforeColonInMethodReturnType`
-
-```tut:passthrough
-website.default(_.newlines.sometimesBeforeColonInMethodReturnType)
-```
-
-```tut:passthrough
-website.exampleBlock(
-  """implicit def validatedInstances[E](implicit E: Semigroup[E]) : Traverse[Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] = 2""",
-  "maxColumn = 70",
-  "newlines.sometimesBeforeColonInMethodReturnType = true"
-)
-```
-
-```tut:passthrough
-website.exampleBlock(
-  """implicit def validatedInstances[E](implicit E: Semigroup[E]) : Traverse[Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] = 2""",
-  "maxColumn = 70",
-  "newlines.sometimesBeforeColonInMethodReturnType = false"
-)
-```
-
 ### `newlines.penalizeSingleSelectMultiArgList`
 
 ```tut:passthrough
@@ -732,5 +710,84 @@ website.formatExample(
 import foo.{~>, `symbol`, bar, Random}
 """,
   "rewrite.rules = [AsciiSortImports]"
+)
+```
+
+## Vertical Multiline
+
+Since: v1.6.0
+
+If enabled this formats methods such that parameters are on their own line
+indented by [`continuationIndent.defnSite`](#continuationindentdefnsite).
+Separation between parameter groups are indented by two spaces less than
+`continuationIndent.defnSite`. The return type is on its own line at then
+end.
+
+> This formatting is only triggered if the method definition exceeds the
+> maxColumn value in width or if the number of arguments to the method exceeds
+> the [`verticalMultiline.arityThreshold`](#verticalmultilinearitythreshold).
+
+### `verticalMultiline.arityThreshold`
+
+
+```tut:passthrough
+website.default(_.verticalMultiline.arityThreshold)
+```
+
+```tut:passthrough
+website.formatExample(
+  """
+case class Foo(x: String)
+case class Bar(x: String, y: String)
+object A {
+  def foo(x: String, y: String)
+  def hello(how: String)(are: String)(you: String) = how + are + you
+}
+""",
+  """
+verticalMultiline.atDefnSite = true
+verticalMultiline.arityThreshold = 2
+"""
+)
+```
+
+### `verticalMultiline.newlineAfterOpenParen`
+
+
+```tut:passthrough
+website.default(_.verticalMultiline.newlineAfterOpenParen)
+```
+
+```tut:passthrough
+website.exampleBlock(
+  """
+def other(a: String, b: String)(c: String) = a + b + c
+""",
+  """
+continuationIndent.defnSite = 2
+verticalMultiline.atDefnSite = true
+verticalMultiline.arityThreshold = 2
+verticalMultiline.newlineAfterOpenParen = true
+"""
+)
+```
+
+### `verticalMultiline.newlineAfterOpenParen`
+
+
+```tut:passthrough
+website.default(_.verticalMultiline.newlineAfterOpenParen)
+```
+
+```tut:passthrough
+website.exampleBlock(
+  """
+def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
+""",
+  """
+maxColumn = 60
+verticalMultiline.atDefnSite = true
+verticalMultiline.newlineBeforeImplicitKW = true
+"""
 )
 ```
