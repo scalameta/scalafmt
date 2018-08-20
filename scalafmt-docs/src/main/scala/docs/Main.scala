@@ -1,6 +1,5 @@
 package docs
 
-import java.nio.file.FileSystems
 import java.nio.file.Paths
 import org.scalafmt.Versions
 
@@ -15,7 +14,11 @@ object Main {
       .withOut(Paths.get("website", "target", "docs"))
       .withIncludePath(
         List(
-          FileSystems.getDefault.getPathMatcher("glob:configuration.md")
+          // Uncomment if you want to generate only a single file,
+          // useful for getting rapid feedback while iterating on a
+          // custom modifier.
+          // FIXME: https://github.com/olafurpg/vork/issues/50
+          // FileSystems.getDefault.getPathMatcher("glob:configuration.md")
         )
       )
       .withSiteVariables(
