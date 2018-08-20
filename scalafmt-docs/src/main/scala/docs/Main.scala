@@ -1,5 +1,6 @@
 package docs
 
+import java.nio.file.FileSystems
 import java.nio.file.Paths
 import org.scalafmt.Versions
 
@@ -9,14 +10,25 @@ object Main {
 //    val docusaurus = Docusaurus.start()
     val settings = vork
       .MainSettings()
-      .withCleanTarget(true)
+//      .withCleanTarget(true)
       .withWatch(args.contains("-w"))
       .withOut(Paths.get("website", "target", "docs"))
+      .withIncludePath(
+        List(
+//          FileSystems.getDefault.getPathMatcher("glob:example.md")
+        )
+      )
       .withSiteVariables(
         Map(
           "VERSION" -> Versions.version,
           "STABLE_VERSION" -> Versions.stable,
           "SCALAMETA_VERSION" -> Versions.scalameta
+        )
+      )
+      .withStringModifiers(
+        List(
+          new ScalafmtModifier,
+          new DefaultsModifier
         )
       )
     val exit = vork.Main.process(settings)
