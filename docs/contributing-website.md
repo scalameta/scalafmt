@@ -12,8 +12,8 @@ of each page and submit those changes directly on GitHub.
 
 For running the website locally, you'll need:
 
-* `yarn` (https://yarnpkg.com/lang/en/docs/install-ci/)
-* `sbt` (https://www.scala-sbt.org/1.0/docs/Setup.html)
+- `yarn` (https://yarnpkg.com/lang/en/docs/install-ci/)
+- `sbt` (https://www.scala-sbt.org/1.0/docs/Setup.html)
 
 > In case you want to contribute substantial structural changes to the website,
 > we suggest to read
@@ -22,19 +22,18 @@ For running the website locally, you'll need:
 
 In addition to Docusaurus, we preprocess the markdown files using:
 
-* [sbt-site](https://www.scala-sbt.org/sbt-site/), to inject dynamic variables
-  from the sbt build (for instance, the current version number)
-* [scala vork](http://tpolecat.github.io/scala vork/), to execute Scala snippets (for
-  instance, to retrieve the default configuration options)
+- [vork](https://github.com/olafurpg/vork), to format Scala code fences by
+  different configuration and retrieve default values.
 
 The first step is then to preprocess the markdown files. You can do it with:
 
 ```sh
 sbt
-website/preprocess:preprocess
+> ~docs/run -w
 ```
 
-You can now build and launch the website using these commands:
+In a separate terminal window, you can now build and launch the website using
+these commands:
 
 ```sh
 cd website
@@ -42,8 +41,8 @@ yarn install # only the first time, to install the dependencies
 yarn start
 ```
 
-Now visit http://localhost:3000/scalafmt/ and you should see a local version of the
-website.
+Now visit http://localhost:3000/scalafmt/ and you should see a local version of
+the website.
 
 ## Adding a new page
 
