@@ -280,14 +280,21 @@ class FormatWriter(formatOps: FormatOps) {
       endOfLine: FormatToken): Int = {
     val result = a.zip(b).takeWhile {
       case (row1, row2) =>
-        val row2Owner = getAlignOwner(row2.formatToken)
-        val row1Owner = getAlignOwner(row1.formatToken)
-        def sameLengthToRoot =
-          vAlignDepth(row1Owner) == vAlignDepth(row2Owner)
-        key(row1.formatToken.right) == key(row2.formatToken.right) &&
-        sameLengthToRoot && {
-          val eofParents = parents(owners(endOfLine.right))
-          !(eofParents.contains(row1Owner) || eofParents.contains(row2Owner))
+        // skip checking if row1 and row2 matches if both of them continues to a single line of comment
+        // in order to vertical align adjacent single lines of comment.
+        // see: https://github.com/scalameta/scalafmt/issues/1242
+        if (isSingleLineComment(row1.formatToken.right) &&
+          isSingleLineComment(row2.formatToken.right)) true
+        else {
+          val row2Owner = getAlignOwner(row2.formatToken)
+          val row1Owner = getAlignOwner(row1.formatToken)
+          def sameLengthToRoot =
+            vAlignDepth(row1Owner) == vAlignDepth(row2Owner)
+          key(row1.formatToken.right) == key(row2.formatToken.right) &&
+          sameLengthToRoot && {
+            val eofParents = parents(owners(endOfLine.right))
+            !(eofParents.contains(row1Owner) || eofParents.contains(row2Owner))
+          }
         }
     }
     result.length
