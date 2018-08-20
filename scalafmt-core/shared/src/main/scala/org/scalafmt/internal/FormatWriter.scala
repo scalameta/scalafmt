@@ -31,6 +31,7 @@ class FormatWriter(formatOps: FormatOps) {
   def mkString(splits: Vector[Split]): String = {
     val sb = new StringBuilder()
     var lastState = State.start // used to calculate start of formatToken.right.
+    var previousLeftWhitespace = ""
     reconstructPath(tokens, splits, debug = false) {
       case (state, formatToken, whitespace) =>
         formatToken.left match {
@@ -52,7 +53,16 @@ class FormatWriter(formatOps: FormatOps) {
             sb.append(rewrittenToken)
         }
 
-        handleTrailingCommasAndWhitespace(formatToken, state, sb, whitespace)
+        handleTrailingCommasAndWhitespace(
+          formatToken,
+          state,
+          sb,
+          whitespace,
+          previousLeftWhitespace)
+
+        // Need to keep track of the actual previous left token whitespace,
+        // Since prevFormatToken.between.length is the original length
+        previousLeftWhitespace = whitespace
 
         formatToken.right match {
           // state.column matches the end of formatToken.right
@@ -387,7 +397,8 @@ class FormatWriter(formatOps: FormatOps) {
       formatToken: FormatToken,
       state: State,
       sb: StringBuilder,
-      whitespace: String): Unit = {
+      whitespace: String,
+      previousLeftWhitespace: String): Unit = {
 
     import org.scalafmt.config.TrailingCommas
 
@@ -432,7 +443,7 @@ class FormatWriter(formatOps: FormatOps) {
               .is[LeftParen] && // skip empty parentheses
             right.is[CloseDelim] && isNewline =>
         sb.insert(
-          sb.length - left.syntax.length - prevFormatToken.between.length,
+          sb.length - left.syntax.length - previousLeftWhitespace.size,
           ",")
         sb.append(whitespace)
 
@@ -458,7 +469,7 @@ class FormatWriter(formatOps: FormatOps) {
           if left.is[Comment] && prevFormatToken.left.is[Comma] &&
             right.is[CloseDelim] && isNewline =>
         sb.deleteCharAt(
-          sb.length - left.syntax.length - prevFormatToken.between.length - 1)
+          sb.length - left.syntax.length - previousLeftWhitespace.size - 1)
         sb.append(whitespace)
 
       // foo(a, b,)
