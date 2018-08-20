@@ -35,8 +35,14 @@ class ScalafmtModifier extends StringModifier {
           val parsedConfig = c.copy(runner = runner)
           Scalafmt.format(program.text, parsedConfig).toEither match {
             case Right(formatted) =>
+              val trimmed = config.text.trim
+              val configText = if (trimmed.isEmpty) {
+                ""
+              } else {
+                "/*\n" + trimmed + "\n*/\n"
+              }
               val result =
-                "```scala\n/*\n" + config.text.trim + "\n*/\n" +
+                "```scala\n" + configText +
                   formatted.trim + "\n```"
               result
             case Left(e: ParseException) =>

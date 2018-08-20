@@ -32,8 +32,8 @@ The following sections describe the most common configuration options.
 
 ### `maxColumn`
 
-```scala vork:passthrough
-website.default(_.maxColumn)
+```scala vork:defaults
+maxColumn
 ```
 
 - Keep in mind that 80 characters fit perfectly on a split laptop screen with
@@ -44,34 +44,30 @@ website.default(_.maxColumn)
 
 ### `docstrings`
 
-```scala vork:passthrough
-website.default(_.docstrings)
+```scala vork:defaults
+docstrings
 ```
 
-```scala vork:passthrough
-website.exampleBlock(
-  s"""
+```scala vork:scalafmt
+docstrings = ScalaDoc
+---
 /** Align by second asterisk.
   *
   */
-""",
-  "docstrings = ScalaDoc")
 ```
 
-```scala vork:passthrough
-website.exampleBlock(
-  s"""
+```scala vork:scalafmt
+docstrings = JavaDoc
+---
 /** Align by first asterisk.
  *
  */
-""",
-  "docstrings = JavaDoc")
 ```
 
 ### `assumeStandardLibraryStripMargin`
 
-```scala vork:passthrough
-website.default(_.assumeStandardLibraryStripMargin)
+```scala vork:defaults
+assumeStandardLibraryStripMargin
 ```
 
 > May cause non-idempotent formatting in rare cases, see
@@ -80,70 +76,63 @@ website.default(_.assumeStandardLibraryStripMargin)
 If `true`, the margin character `|` is aligned with the opening triple quote
 `"""` in interpolated and raw string literals.
 
-```scala vork:passthrough
-website.exampleBlock("""
-  val example1 =
-    s'''Examples:
-       #  * one
-       #  * two
-       #  * $three
-       #'''.stripMargin
-""",
-  "assumeStandardLibraryStripMargin = true"
-)
+```scala vork:scalafmt
+assumeStandardLibraryStripMargin = true
+---
+val example1 =
+  s"""Examples:
+     |  * one
+     |  * two
+     |  * $three
+     |""".stripMargin
 ```
 
 The pipe character can immediately follow the opening `"""`
 
-```scala vork:passthrough
-website.exampleBlock("""
-  val example2 =
-    s'''|Examples:
-        #  * one
-        #  * two
-        #  * $three
-        #'''.stripMargin
-""",
-  "assumeStandardLibraryStripMargin = true"
-)
+```scala vork:scalafmt
+assumeStandardLibraryStripMargin = true
+---
+val example2 =
+  s"""|Examples:
+      |  * one
+      |  * two
+      |  * $three
+      |""".stripMargin
 ```
 
 ## Indentation
 
 ### `continuationIndent.callSite`
 
-```scala vork:passthrough
-website.default(_.continuationIndent.callSite)
+```scala vork:defaults
+continuationIndent.callSite
 ```
 
 Example:
 
-```scala vork:passthrough
-website.exampleBlock(
-  s"""
+```scala vork:scalafmt
+continuationIndent.defnSite = 2
+---
 function(
-  argument1 // indented by 2
-)""",
-  "continuationIndent.defnSite = 2"
+  argument1, // indented by 2
+  ""
 )
 ```
 
 ### `continuationIndent.defnSite`
 
-```scala vork:passthrough
-website.default(_.continuationIndent.defnSite)
+```scala vork:defaults
+continuationIndent.defnSite
 ```
 
 Same as `continuationIndent.callSite` except for definition site. Example:
 
-```scala vork:passthrough
-website.exampleBlock(
-  s"""
+```scala vork:scalafmt
+continuationIndent.defnSite = 4
+---
 def function(
 argument1: Type1 // indented by 4
-): ReturnType""",
-  "continuationIndent.defnSite = 4"
-)
+): ReturnType
 ```
 
 ## Alignment
@@ -157,9 +146,9 @@ four possible defaults: none, some, more, & most.
 
 #### `align=some`
 
-```scala vork:passthrough
-website.exampleBlock(
-  s"""
+```scala vork:scalafmt
+align = some
+---
 x match { // true for case arrows
   case 2  => 22
   case 22 => 222
@@ -175,16 +164,13 @@ val xx = 22
 
 case object B extends A // false for `extends`
 case object BB extends A
-""",
-  "align=some"
-)
 ```
 
 #### `align=none`
 
-```scala vork:passthrough
-website.exampleBlock(
-  s"""
+```scala vork:scalafmt
+align = none
+---
 x match { // false for case arrows
   case 2  => 22 // also comments!
   case 22 => 222 // don't align me!
@@ -194,9 +180,6 @@ def foo(a: Int, // false for defn site
         b: String): Int
 foo(a: Int, // false for call site
     b: String): Int
-""",
-  "align=none"
-)
 ```
 
 > **Pro tip**: Enable this setting to minimize git diffs/conflicts from
@@ -204,9 +187,9 @@ foo(a: Int, // false for call site
 
 #### `align=more`
 
-```scala vork:passthrough
-website.exampleBlock(
-  s"""
+```scala vork:scalafmt
+align = more
+---
 val x = 2 // true for assignment
 val xx = 22
 
@@ -240,16 +223,13 @@ libraryDependencies ++= Seq(
   "org.scala-lang" % "scala-compiler" % scalaVersion.value,
   "com.lihaoyi" %% "sourcecode" % "0.1.1"
 )
-""",
-  "align=more"
-)
 ```
 
 #### `align=most`
 
-```scala vork:passthrough
-website.exampleBlock(
-  s"""
+```scala vork:scalafmt
+align = most
+---
 for {
   // align <- with =
   x <- List()
@@ -259,9 +239,6 @@ for {
     def value = 3
   }
 } yield x
-""",
-  "align=most"
-)
 ```
 
 > **Note**. Only for the truest vertical aligners. This is a new option, feel
@@ -275,27 +252,24 @@ An align token is a pair of `code`, which is the string literal of an operator
 of token, and `owner`, which is the kind of the closest tree node that owns that
 token. If no `owner` is provided, then all tree kinds will be matched.
 
-```scala vork:passthrough
-website.exampleBlock(
-  s"""
+```scala vork:scalafmt
+align.tokens = [{code = "=>", owner = "Case"}]
+---
 x match {
   case 1 => 1 -> 2
   case 11 => 11 -> 22
 }
-""",
-  """align.tokens = [{code = "=>", owner = "Case"}]"""
-)
 ```
 
-```scala vork:passthrough
-website.exampleBlock(
-  s"""
+```scala vork:scalafmt
+align.tokens = [
+  {code = "%", owner = "Term.ApplyInfix"},
+  {code = "%%", owner = "Term.ApplyInfix"}
+]
+---
 val x = List(
 "org.scala-lang" %% "scala-compiler" % scalaVersion.value,
 "com.lihaoyi" %% "sourcecode" % "0.1.1"
-)
-""",
-  """align.tokens = [{code = "%", owner = "Term.ApplyInfix"}, {code = "%%", owner = "Term.ApplyInfix"}]"""
 )
 ```
 
@@ -322,45 +296,39 @@ res1: String = "Term.Match"
 
 ### `align.arrowEnumeratorGenerator`
 
-```scala vork:passthrough
-website.default(_.align.arrowEnumeratorGenerator)
+```scala vork:defaults
+align.arrowEnumeratorGenerator
 ```
 
-```scala vork:passthrough
-website.exampleBlock(
-  s"""
+```scala vork:scalafmt
+align.arrowEnumeratorGenerator = false
+---
 for {
   x <- new Integer {
     def value = 2
   }
 } yield x
-""",
-  "align.arrowEnumeratorGenerator = false"
-)
 ```
 
-```scala vork:passthrough
-website.exampleBlock(
-  s"""
+```scala vork:scalafmt
+align.arrowEnumeratorGenerator = true
+---
 for {
   x <- new Integer {
     def value = 2
   }
 } yield x
-""",
-  "align.arrowEnumeratorGenerator = true"
-)
 ```
 
 ### `align.openParenCallSite`
 
-```scala vork:passthrough
-website.default(_.align.openParenCallSite)
+```scala vork:defaults
+align.openParenCallSite
 ```
 
-```scala vork:passthrough
-website.exampleBlock(
-  s"""
+```scala vork:scalafmt
+align.openParenCallSite = true
+---
 foo(arg1, arg2)
 
 function(arg1, // align by (
@@ -369,14 +337,11 @@ function(arg1, // align by (
 function(
   argument1,
   argument2)
-""",
-  "align.openParenCallSite = true"
-)
 ```
 
-```scala vork:passthrough
-website.exampleBlock(
-  s"""
+```scala vork:scalafmt
+align.openParenCallSite = false
+---
 foo(arg1, arg2)
 function(
   arg1, // no align by (
@@ -385,42 +350,33 @@ function(
 function(
   argument1,
   argument2)
-""".stripMargin,
-  "align.openParenCallSite = false"
-)
 ```
 
 ### `align.openParenDefnSite`
 
-```scala vork:passthrough
-website.default(_.align.openParenDefnSite)
+```scala vork:defaults
+align.openParenDefnSite
 ```
 
-```scala vork:passthrough
-website.exampleBlock(
-  s"""
+```scala vork:scalafmt
+align.openParenDefnSite = true
+---
 class IntString(int: Int, string: String)
 
 class IntStringLong(int: Int,
                     string: String,
                     long: Long)
-""",
-  "align.openParenDefnSite = true"
-)
 ```
 
-```scala vork:passthrough
-website.exampleBlock(
-  s"""
+```scala vork:scalafmt
+align.openParenDefnSite = false
+---
 class IntString(int: Int, string: String)
 
 class IntStringLong(
   int: Int,
   string: String,
   long: Long
-)
-""",
-  "align.openParenDefnSite = false"
 )
 ```
 
@@ -435,13 +391,13 @@ insert newlines.
 
 ### `newlines.alwaysBeforeTopLevelStatements`
 
-```scala vork:passthrough
-website.default(_.newlines.alwaysBeforeTopLevelStatements)
+```scala vork:defaults
+newlines.alwaysBeforeTopLevelStatements
 ```
 
-```scala vork:passthrough
-website.exampleSource(
-  s"""
+```scala vork:scalafmt
+newlines.alwaysBeforeTopLevelStatements = false
+---
 import org.scalafmt
 
 package core {
@@ -452,14 +408,11 @@ package core {
     def B = "B"
   }
 }
-""",
-  "newlines.alwaysBeforeTopLevelStatements = false"
-)
 ```
 
-```scala vork:passthrough
-website.exampleSource(
-  s"""
+```scala vork:scalafmt
+newlines.alwaysBeforeTopLevelStatements = true
+---
 import org.scalafmt
 
 package core {
@@ -470,67 +423,32 @@ package core {
     def B = "B"
   }
 }
-""",
-  "newlines.alwaysBeforeTopLevelStatements = true"
-)
 ```
-
-### `newlines.penalizeSingleSelectMultiArgList`
-
-```scala vork:passthrough
-website.default(_.newlines.penalizeSingleSelectMultiArgList)
-```
-
-```scala vork:passthrough
-website.exampleBlock(
-  """
-logger.elem(a,
-  b,
-  c)""",
-  "newlines.penalizeSingleSelectMultiArgList = true"
-)
-```
-
-```scala vork:passthrough
-website.exampleBlock(
-  "logger.elem(a, b, c)",
-  "newlines.penalizeSingleSelectMultiArgList = true"
-)
-```
-
-See
-[this comment](https://github.com/scalameta/scalafmt/pull/611#issue-196230948)
-for further motivation.
 
 ### `newlines.alwaysBeforeElseAfterCurlyIf`
 
-```scala vork:passthrough
-website.default(_.newlines.alwaysBeforeElseAfterCurlyIf)
+```scala vork:defaults
+newlines.alwaysBeforeElseAfterCurlyIf
 ```
 
-```scala vork:passthrough
-website.exampleBlock(
-  """
-if(someCond) {
-  foo()
-} else {
-  bar()
-}""",
-  "newlines.alwaysBeforeElseAfterCurlyIf = true"
-)
-```
-
-```scala vork:passthrough
-website.exampleBlock(
-  """
+```scala vork:scalafmt
+newlines.alwaysBeforeElseAfterCurlyIf = true
+---
 if(someCond) {
   foo()
 } else {
   bar()
 }
-""",
-  "newlines.alwaysBeforeElseAfterCurlyIf = false"
-)
+```
+
+```scala vork:scalafmt
+newlines.alwaysBeforeElseAfterCurlyIf = false
+---
+if(someCond) {
+  foo()
+} else {
+  bar()
+}
 ```
 
 ## Rewrite Rules
@@ -540,9 +458,9 @@ To enable a rewrite rule, add it to the config like this
 
 ### `AvoidInfix`
 
-```scala vork:passthrough
-website.formatExample(
-  """
+```scala vork:scalafmt
+rewrite.rules = [AvoidInfix]
+---
 a success b
 a error (b, c)
 a map { x =>
@@ -552,31 +470,25 @@ a map { x =>
 future recover {
   case e: Err => 0
 } map (_.toString)
-""",
-  "rewrite.rules = [AvoidInfix]"
-)
 ```
 
 ### `ExpandImportSelectors`
 
-```scala vork:passthrough
-website.formatExample(
-  """
+```scala vork:scalafmt
+rewrite.rules = [ExpandImportSelectors]
+---
 import a.{
     b,
     c
   }, h.{
     k, l
   }
-  import d.e.{f, g}
-  import a.{
-      foo => bar,
-      zzzz => _,
-      _
-    }
-""",
-  "rewrite.rules = [ExpandImportSelectors]"
-)
+import d.e.{f, g}
+import a.{
+    foo => bar,
+    zzzz => _,
+    _
+  }
 ```
 
 ### `RedundantBraces`
@@ -584,28 +496,24 @@ import a.{
 > Warning. This rewrite can cause non-idempotent formatting, see
 > [#1055](https://github.com/scalameta/scalafmt/issues/1055).
 
-```scala vork:passthrough
-website.formatExample(
-  """
+```scala vork:scalafmt
+rewrite.rules = [RedundantBraces]
+---
 def foo = {
   List(1, 2, 3).sum
 }
-""",
-  "rewrite.rules = [RedundantBraces]"
-)
 ```
 
-```scala vork:passthrough
-website.formatExample(
-  """
+```scala vork:scalafmt
+rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.stringInterpolation = true
+---
 q"Hello ${name}"
-""",
-  "rewrite.rules = [RedundantBraces]",
-  "rewrite.redundantBraces.stringInterpolation = true"
-)
 ```
 
 Configuration options and default values:
+
+// TODO(olafur): multiline defaults
 
 - `rewrite.redundantBraces.maxLines = 100`
 - `rewrite.redundantBraces.includeUnitMethods = true`
@@ -615,16 +523,13 @@ Configuration options and default values:
 
 ### `RedundantParens`
 
-```scala vork:passthrough
-website.formatExample(
-  """
+```scala vork:scalafmt
+rewrite.rules = [RedundantParens]
+---
 for {
   a <- b
   if (a.nonEmpty)
 } yield a
-""",
-  "rewrite.rules = [RedundantParens]"
-)
 ```
 
 ### `SortModifiers`
@@ -633,38 +538,29 @@ Modifiers are sorted based on the given order. Affects modifiers of the
 following definitions: trait, class, object, type, and val+var, both as fields
 and class parameters.
 
-```scala vork:passthrough
-website.formatExample(
-  """
+```scala vork:scalafmt
+rewrite.rules = [SortModifiers]
+---
 final lazy private implicit val x = 42
 lazy final implicit private val y = 42
-""",
-  "rewrite.rules = [SortModifiers]"
-)
 ```
 
-```scala vork:passthrough
-website.formatExample(
-  """
- class Test(
+```scala vork:scalafmt
+rewrite.rules = [SortModifiers]
+---
+class Test(
   implicit
   final private val i1: Int,
   private final val i2: String
 )
-""",
-  "rewrite.rules = [SortModifiers]"
-)
 ```
 
-```scala vork:passthrough
-website.formatExample(
-  """
+```scala vork:scalafmt
+rewrite.rules = [SortModifiers]
+---
 sealed protected[X] trait ADT
 final private case object A1 extends ADT
 private final case class A2(x: Int) extends ADT
-""",
-  "rewrite.rules = [SortModifiers]"
-)
 ```
 
 If you choose the non-default sort order then you have to specify all eight
@@ -686,40 +582,31 @@ rewrite.sortModifiers.order = [
 Replaces parentheses into curly braces in for comprehensions that contain
 multiple enumerator generators.
 
-```scala vork:passthrough
-website.formatExample(
-  """
+```scala vork:scalafmt
+rewrite.rules = [PreferCurlyFors]
+---
 for(a <- as; b <- bs if b > 2)
  yield (a, b)
-""",
-  "rewrite.rules = [PreferCurlyFors]"
-)
 ```
 
 ### `SortImports`
 
 The imports are sorted by the groups: symbols, lower-case, upper-case.
 
-```scala vork:passthrough
-website.formatExample(
-  """
+```scala vork:scalafmt
+rewrite.rules = [SortImports]
+---
 import foo.{Zilch, bar, Random, sand}
-""",
-  "rewrite.rules = [SortImports]"
-)
 ```
 
 ### `AsciiSortImports`
 
 The imports are sorted by their Ascii codes
 
-```scala vork:passthrough
-website.formatExample(
-  """
+```scala vork:scalafmt
+rewrite.rules = [AsciiSortImports]
+---
 import foo.{~>, `symbol`, bar, Random}
-""",
-  "rewrite.rules = [AsciiSortImports]"
-)
 ```
 
 ## Vertical Multiline
@@ -737,64 +624,169 @@ Separation between parameter groups are indented by two spaces less than
 
 ### `verticalMultiline.arityThreshold`
 
-```scala vork:passthrough
-website.default(_.verticalMultiline.arityThreshold)
+```scala vork:defaults
+verticalMultiline.arityThreshold
 ```
 
-```scala vork:passthrough
-website.formatExample(
-  """
+```scala vork:scalafmt
+verticalMultiline.atDefnSite = true
+verticalMultiline.arityThreshold = 2
+---
 case class Foo(x: String)
 case class Bar(x: String, y: String)
 object A {
   def foo(x: String, y: String)
   def hello(how: String)(are: String)(you: String) = how + are + you
 }
-""",
-  """
-verticalMultiline.atDefnSite = true
-verticalMultiline.arityThreshold = 2
-"""
-)
 ```
 
 ### `verticalMultiline.newlineAfterOpenParen`
 
-```scala vork:passthrough
-website.default(_.verticalMultiline.newlineAfterOpenParen)
+```scala vork:defaults
+verticalMultiline.newlineAfterOpenParen
 ```
 
-```scala vork:passthrough
-website.exampleBlock(
-  """
-def other(a: String, b: String)(c: String, d: String) = a + b + c
-""",
-  """
+```scala vork:scalafmt
 continuationIndent.defnSite = 2
 verticalMultiline.atDefnSite = true
 verticalMultiline.arityThreshold = 2
 verticalMultiline.newlineAfterOpenParen = true
-"""
-)
+---
+def other(a: String, b: String)(c: String, d: String) = a + b + c
 ```
 
 ### `verticalMultiline.newlineAfterOpenParen`
 
-```scala vork:passthrough
-website.default(_.verticalMultiline.newlineAfterOpenParen)
+```scala vork:defaults
+verticalMultiline.newlineAfterOpenParen
 ```
 
-```scala vork:passthrough
-website.exampleBlock(
-  """
-def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
-""",
-  """
+```scala vork:scalafmt
 maxColumn = 60
 verticalMultiline.atDefnSite = true
 verticalMultiline.newlineBeforeImplicitKW = true
-"""
-)
+---
+def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```
 
-## Project
+## Disabling Formatting
+
+### // format: off
+
+Disable formatting for specific regions of code by wrapping them in
+`// format: off` blocks:
+
+```scala vork:scalafmt
+---
+// format: off
+val identity = Array(1, 0, 0,
+                     0, 1, 0,
+                     0, 0, 1)
+// format: on
+```
+
+### Project
+
+Configure which source files should be formatted in this project.
+
+```conf
+# Only format files tracked by git.
+project.git = true
+# manually exclude files to format.
+project.excludeFilters = [
+   regex1
+   regex2
+]
+# manually include files to format.
+project.includeFilters = [
+  regex1
+  regex2
+]
+```
+
+## Miscellaneous
+
+### `binPack.literalArgumentLists`
+
+```scala vork:defaults
+binPack.literalArgumentLists
+```
+
+```scala vork:scalafmt
+binPack.literalArgumentLists = true
+---
+val secret: List[Bit] = List(0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1,
+  0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1)
+```
+
+```scala vork:scalafmt
+binPack.literalArgumentLists = false
+---
+val secret: List[Bit] = List(0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1)
+```
+
+### `includeCurlyBraceInSelectChains`
+
+```scala vork:defaults
+includeCurlyBraceInSelectChains
+```
+
+```scala vork:scalafmt
+includeCurlyBraceInSelectChains = true
+---
+List(1)
+  .map { x =>
+    x + 2
+  }
+  .filter(_ > 2)
+```
+
+```scala vork:scalafmt
+includeCurlyBraceInSelectChains = false
+---
+List(1)
+  .map { x =>
+    x + 2
+  }
+  .filter(_ > 2)
+```
+
+### `optIn.breakChainOnFirstMethodDot`
+
+```scala vork:defaults
+optIn.breakChainOnFirstMethodDot
+```
+
+```scala
+// original
+foo
+  .map(_ + 1)
+  .filter(_ > 2)
+```
+
+```scala vork:scalafmt
+optIn.breakChainOnFirstMethodDot = true
+---
+foo
+  .map(_ + 1)
+  .filter(_ > 2)
+```
+
+```scala vork:scalafmt
+optIn.breakChainOnFirstMethodDot = false
+---
+foo
+  .map(_ + 1)
+  .filter(_ > 2)
+```
+
+## Other
+
+To find all available configuration options, it's best to browse the source code
+of Scalafmt. A good place to start is `ScalafmtConfig`. Observe that this
+listing below is the top-level, there are more configuration options if you
+visited nested fields like `spaces` and `newlines`.
+
+```scala vork:defaults:all
+
+```

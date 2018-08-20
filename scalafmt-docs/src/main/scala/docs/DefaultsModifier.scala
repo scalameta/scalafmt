@@ -5,6 +5,7 @@ import metaconfig.ConfEncoder
 import metaconfig.Configured
 import org.scalafmt.config.ScalafmtConfig
 import scala.meta.inputs.Input
+import scala.meta.inputs.Position
 import vork.Reporter
 import vork.StringModifier
 
@@ -18,13 +19,20 @@ class DefaultsModifier extends StringModifier {
       code: Input,
       reporter: Reporter
   ): String = {
-    val head :: rest = code.text.split("\\.").toList
-    default.get[Conf](head, rest: _*) match {
-      case Configured.Ok(value) =>
-        "Default: `" + code.text.trim + " = " + value.toString + "`\n"
-      case Configured.NotOk(e) =>
-        reporter.error(e.toString())
-        "fail"
+    if (info == "all") {
+      val result =
+        Conf.printHocon(ScalafmtConfig.default)
+      "```\n" + result + "\n```"
+    } else {
+      val path = code.text.split("\\.").toList
+      val down = path.foldLeft(default.dynamic)(_ selectDynamic _)
+      down.asConf match {
+        case Configured.Ok(value) =>
+          "Default: `" + code.text.trim + " = " + value.toString + "`\n"
+        case Configured.NotOk(e) =>
+          reporter.error(Position.Range(code, 0, 0), e.toString())
+          "fail"
+      }
     }
   }
 }

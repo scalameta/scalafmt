@@ -36,7 +36,7 @@ object ReaderUtil {
     val encoder = ConfEncoder.instance[T] { value =>
       options
         .collectFirst {
-          case sourcecode.Text(`value`, source) => Conf.Str(sanitize(source))
+          case sourcecode.Text(`value`, source) => Conf.Str(source)
         }
         .getOrElse(Conf.Null())
     }

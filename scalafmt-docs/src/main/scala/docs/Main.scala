@@ -15,7 +15,7 @@ object Main {
       .withOut(Paths.get("website", "target", "docs"))
       .withIncludePath(
         List(
-//          FileSystems.getDefault.getPathMatcher("glob:example.md")
+          FileSystems.getDefault.getPathMatcher("glob:configuration.md")
         )
       )
       .withSiteVariables(
