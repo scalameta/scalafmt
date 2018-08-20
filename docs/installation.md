@@ -6,7 +6,7 @@ title: Installation
 ## CLI
 
 The recommended way to install the scalafmt command line tool is with
-[Coursier](#Coursier).
+[Coursier](#coursier).
 
 ### Coursier
 
@@ -14,7 +14,8 @@ The recommended way to install the scalafmt command line tool is with
 To install Coursier see <a href="https://github.com/coursier/coursier#command-line" target="_blank">here</a>
 </div>
 
-Create a standalone executable in `/usr/local/bin/scalafmt` with (sudo if necessary):
+Create a standalone executable in `/usr/local/bin/scalafmt` with (sudo if
+necessary):
 
 ```sh
 coursier bootstrap com.geirsson:scalafmt-cli_2.12:@STABLE_VERSION@ \
@@ -32,9 +33,9 @@ coursier bootstrap com.geirsson:scalafmt-cli_2.12:@STABLE_VERSION@ \
 ./scalafmt --version # should be @STABLE_VERSION@
 ```
 
-It is **recommended** to put this bootstrap script in your code repository to make sure
-everyone on your team, as well as CI, uses the same scalafmt version. To
-configure which files to format, see [project](#project).
+It is **recommended** to put this bootstrap script in your code repository to
+make sure everyone on your team, as well as CI, uses the same scalafmt version.
+To configure which files to format, see [project](configuration.md#project).
 
 To customize the JVM options, use the Coursier option `--java-opt`, more info
 with
@@ -46,7 +47,8 @@ coursier bootstrap --help | grep -A 1 "\-\-java-opt"
 ### Pre-release
 
 Our CI publishes a pre-release version of scalafmt to Bintray on every merge
-into master. To use a pre-release, replace @STABLE_VERSION@ with the version here:
+into master. To use a pre-release, replace @STABLE_VERSION@ with the version
+here:
 
 <a href='https://bintray.com/scalameta/maven/scalafmt-cli/_latestVersion'>
     <img src='https://api.bintray.com/packages/scalameta/maven/scalafmt-cli/images/download.svg'>
@@ -66,8 +68,10 @@ resolvers += Resolver.bintray("scalameta", "maven")
 Nailgun is recommended if you want to integrate scalafmt with a text editor like
 vim/Emacs/Atom/Sublime/VS Code.
 
-- Make sure you have a nailgun client installed. For example with `brew install nailgun`.
-- Create a standalone executable in `/usr/local/bin/scalafmt_ng` with (sudo if necessary)
+- Make sure you have a nailgun client installed. For example with
+  `brew install nailgun`.
+- Create a standalone executable in `/usr/local/bin/scalafmt_ng` with (sudo if
+  necessary)
 
 ```sh
 coursier bootstrap --standalone com.geirsson:scalafmt-cli_2.12:@STABLE_VERSION@ \
@@ -98,11 +102,11 @@ brew upgrade scalafmt
 
 ### --help
 
-```tut:passthrough
+```scala vork:passthrough
 println(website.plaintext(org.scalafmt.cli.CliArgParser.buildInfo))
 ```
 
-```tut:passthrough
+```scala vork:passthrough
 println(website.plaintext(org.scalafmt.cli.CliArgParser.scoptParser.usage))
 ```
 
@@ -130,11 +134,12 @@ The plugin determines which style to use in this order:
 1. Otherwise, uses `default` style.
 
 For details on how `.scalafmt.conf` should look like, see
-[Configuration](configuration.md). The scalafmt IntelliJ
-plugin has a "Format on save" setting.
+[Configuration](configuration.md). The scalafmt IntelliJ plugin has a "Format on
+save" setting.
 
 - To enable for current project: `Settings > Tools > Scalafmt`
-- To enable for all future project: `File > Other settings > Default settings > Scalafmt`
+- To enable for all future project:
+  `File > Other settings > Default settings > Scalafmt`
 
 ## sbt
 
@@ -207,7 +212,7 @@ Mill have scalafmt support built-in:
 
 ## Vim
 
-- Make sure you have the [CLI](#CLI) installed and working.
+- Make sure you have the [CLI](#cli) installed and working.
 - install [vim-autoformat](https://github.com/Chiel92/vim-autoformat)
 - add to your `.vimrc`
 
@@ -234,7 +239,7 @@ libraryDependencies += "com.geirsson" %%% "scalafmt-core" % "@STABLE_VERSION@"
 
 Use the API like this:
 
-```tut
+```scala vork
 org.scalafmt.Scalafmt.format("""
       object FormatMe { List(Split(Space, 0).withPolicy(SingleLineBlock(close)), Split(Newline, 1).withPolicy{ case Decision(t@FormatToken(_, `close`, _), s) => Decision(t, List(Split(Newline, 0)))}.withIndent(2, close, Right)) }
 """).get
@@ -242,7 +247,7 @@ org.scalafmt.Scalafmt.format("""
 
 Obtain a configuration object with `parseHoconConfig`
 
-```tut
+```scala vork
 val config = org.scalafmt.Scalafmt.parseHoconConfig("align=most").get
 org.scalafmt.Scalafmt.format("""
     object Align {
@@ -254,13 +259,12 @@ org.scalafmt.Scalafmt.format("""
 
 To format code with top-level statements like `*.sbt` files
 
-```tut
-val base = org.scalafmt.Scalafmt.parseHoconConfig("align=most").get
-val config = org.scalafmt.Scalafmt.configForSbt(base)
+```scala vork
+val configForSbt = org.scalafmt.Scalafmt.configForSbt(config)
 org.scalafmt.Scalafmt.format("""
     val x = 1
     val xx = 2
-""", config).get
+""", configForSbt).get
 ```
 
 The Scalafmt public API consists only of methods in`org.scalafmt.Scalafmt`. In

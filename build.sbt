@@ -196,23 +196,16 @@ lazy val benchmarks = project
   .dependsOn(coreJVM)
   .enablePlugins(JmhPlugin)
 
-lazy val website = project
-  .enablePlugins(PreprocessPlugin, TutPlugin)
-  .configs(Tut, Preprocess)
+lazy val docs = project
+  .in(file("scalafmt-docs"))
   .settings(
     crossScalaVersions := List(scala212),
     skip in publish := true,
-    tutSourceDirectory := baseDirectory.in(ThisBuild).value / "docs",
-    sourceDirectory in Preprocess := tutTargetDirectory.value,
-    target in Preprocess := target.value / "docs",
-    preprocess in Preprocess := (preprocess in Preprocess).dependsOn(tut).value,
-    preprocessVars in Preprocess := Map(
-      "VERSION" -> version.value,
-      "STABLE_VERSION" -> "1.5.1",
-      "SCALAMETA_VERSION" -> scalametaV
+    libraryDependencies ++= List(
+      "com.geirsson" % "vork" % "0.3.2" cross CrossVersion.full
     )
   )
-  .dependsOn(coreJVM, cli)
+  .dependsOn(cli)
 val V = "\\d+\\.\\d+\\.\\d+"
 val ReleaseCandidate = s"($V-RC\\d+).*".r
 val Milestone = s"($V-M\\d+).*".r

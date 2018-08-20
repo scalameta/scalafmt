@@ -24,7 +24,7 @@ In addition to Docusaurus, we preprocess the markdown files using:
 
 * [sbt-site](https://www.scala-sbt.org/sbt-site/), to inject dynamic variables
   from the sbt build (for instance, the current version number)
-* [tut](http://tpolecat.github.io/tut/), to execute Scala snippets (for
+* [scala vork](http://tpolecat.github.io/scala vork/), to execute Scala snippets (for
   instance, to retrieve the default configuration options)
 
 The first step is then to preprocess the markdown files. You can do it with:

@@ -32,23 +32,23 @@ The following sections describe the most common configuration options.
 
 ### `maxColumn`
 
-```tut:passthrough
+```scala vork:passthrough
 website.default(_.maxColumn)
 ```
 
-* Keep in mind that 80 characters fit perfectly on a split laptop screen with
+- Keep in mind that 80 characters fit perfectly on a split laptop screen with
   regular resolution.
-* Github mobile view only shows 80 characters and sometimes you might review
+- Github mobile view only shows 80 characters and sometimes you might review
   code on your phone.
-* Consider refactoring your code before of choosing a value above 100.
+- Consider refactoring your code before of choosing a value above 100.
 
 ### `docstrings`
 
-```tut:passthrough
+```scala vork:passthrough
 website.default(_.docstrings)
 ```
 
-```tut:passthrough
+```scala vork:passthrough
 website.exampleBlock(
   s"""
 /** Align by second asterisk.
@@ -58,7 +58,7 @@ website.exampleBlock(
   "docstrings = ScalaDoc")
 ```
 
-```tut:passthrough
+```scala vork:passthrough
 website.exampleBlock(
   s"""
 /** Align by first asterisk.
@@ -70,7 +70,7 @@ website.exampleBlock(
 
 ### `assumeStandardLibraryStripMargin`
 
-```tut:passthrough
+```scala vork:passthrough
 website.default(_.assumeStandardLibraryStripMargin)
 ```
 
@@ -80,7 +80,7 @@ website.default(_.assumeStandardLibraryStripMargin)
 If `true`, the margin character `|` is aligned with the opening triple quote
 `"""` in interpolated and raw string literals.
 
-```tut:passthrough
+```scala vork:passthrough
 website.exampleBlock("""
   val example1 =
     s'''Examples:
@@ -95,7 +95,7 @@ website.exampleBlock("""
 
 The pipe character can immediately follow the opening `"""`
 
-```tut:passthrough
+```scala vork:passthrough
 website.exampleBlock("""
   val example2 =
     s'''|Examples:
@@ -112,13 +112,13 @@ website.exampleBlock("""
 
 ### `continuationIndent.callSite`
 
-```tut:passthrough
+```scala vork:passthrough
 website.default(_.continuationIndent.callSite)
 ```
 
 Example:
 
-```tut:passthrough
+```scala vork:passthrough
 website.exampleBlock(
   s"""
 function(
@@ -130,13 +130,13 @@ function(
 
 ### `continuationIndent.defnSite`
 
-```tut:passthrough
+```scala vork:passthrough
 website.default(_.continuationIndent.defnSite)
 ```
 
 Same as `continuationIndent.callSite` except for definition site. Example:
 
-```tut:passthrough
+```scala vork:passthrough
 website.exampleBlock(
   s"""
 def function(
@@ -157,7 +157,7 @@ four possible defaults: none, some, more, & most.
 
 #### `align=some`
 
-```tut:passthrough
+```scala vork:passthrough
 website.exampleBlock(
   s"""
 x match { // true for case arrows
@@ -182,7 +182,7 @@ case object BB extends A
 
 #### `align=none`
 
-```tut:passthrough
+```scala vork:passthrough
 website.exampleBlock(
   s"""
 x match { // false for case arrows
@@ -204,7 +204,7 @@ foo(a: Int, // false for call site
 
 #### `align=more`
 
-```tut:passthrough
+```scala vork:passthrough
 website.exampleBlock(
   s"""
 val x = 2 // true for assignment
@@ -247,7 +247,7 @@ libraryDependencies ++= Seq(
 
 #### `align=most`
 
-```tut:passthrough
+```scala vork:passthrough
 website.exampleBlock(
   s"""
 for {
@@ -275,7 +275,7 @@ An align token is a pair of `code`, which is the string literal of an operator
 of token, and `owner`, which is the kind of the closest tree node that owns that
 token. If no `owner` is provided, then all tree kinds will be matched.
 
-```tut:passthrough
+```scala vork:passthrough
 website.exampleBlock(
   s"""
 x match {
@@ -287,7 +287,7 @@ x match {
 )
 ```
 
-```tut:passthrough
+```scala vork:passthrough
 website.exampleBlock(
   s"""
 val x = List(
@@ -322,11 +322,11 @@ res1: String = "Term.Match"
 
 ### `align.arrowEnumeratorGenerator`
 
-```tut:passthrough
+```scala vork:passthrough
 website.default(_.align.arrowEnumeratorGenerator)
 ```
 
-```tut:passthrough
+```scala vork:passthrough
 website.exampleBlock(
   s"""
 for {
@@ -339,7 +339,7 @@ for {
 )
 ```
 
-```tut:passthrough
+```scala vork:passthrough
 website.exampleBlock(
   s"""
 for {
@@ -354,11 +354,11 @@ for {
 
 ### `align.openParenCallSite`
 
-```tut:passthrough
+```scala vork:passthrough
 website.default(_.align.openParenCallSite)
 ```
 
-```tut:passthrough
+```scala vork:passthrough
 website.exampleBlock(
   s"""
 foo(arg1, arg2)
@@ -374,7 +374,7 @@ function(
 )
 ```
 
-```tut:passthrough
+```scala vork:passthrough
 website.exampleBlock(
   s"""
 foo(arg1, arg2)
@@ -392,11 +392,11 @@ function(
 
 ### `align.openParenDefnSite`
 
-```tut:passthrough
+```scala vork:passthrough
 website.default(_.align.openParenDefnSite)
 ```
 
-```tut:passthrough
+```scala vork:passthrough
 website.exampleBlock(
   s"""
 class IntString(int: Int, string: String)
@@ -409,7 +409,7 @@ class IntStringLong(int: Int,
 )
 ```
 
-```tut:passthrough
+```scala vork:passthrough
 website.exampleBlock(
   s"""
 class IntString(int: Int, string: String)
@@ -435,15 +435,15 @@ insert newlines.
 
 ### `newlines.alwaysBeforeTopLevelStatements`
 
-```tut:passthrough
+```scala vork:passthrough
 website.default(_.newlines.alwaysBeforeTopLevelStatements)
 ```
 
-```tut:passthrough
+```scala vork:passthrough
 website.exampleSource(
   s"""
 import org.scalafmt
-      
+
 package core {
   object O {
     val x1 = 1
@@ -457,7 +457,7 @@ package core {
 )
 ```
 
-```tut:passthrough
+```scala vork:passthrough
 website.exampleSource(
   s"""
 import org.scalafmt
@@ -477,11 +477,11 @@ package core {
 
 ### `newlines.penalizeSingleSelectMultiArgList`
 
-```tut:passthrough
+```scala vork:passthrough
 website.default(_.newlines.penalizeSingleSelectMultiArgList)
 ```
 
-```tut:passthrough
+```scala vork:passthrough
 website.exampleBlock(
   """
 logger.elem(a,
@@ -491,23 +491,24 @@ logger.elem(a,
 )
 ```
 
-```tut:passthrough
+```scala vork:passthrough
 website.exampleBlock(
   "logger.elem(a, b, c)",
   "newlines.penalizeSingleSelectMultiArgList = true"
 )
 ```
 
-See [this comment](https://github.com/scalameta/scalafmt/pull/611#issue-196230948) for further motivation.
-
+See
+[this comment](https://github.com/scalameta/scalafmt/pull/611#issue-196230948)
+for further motivation.
 
 ### `newlines.alwaysBeforeElseAfterCurlyIf`
 
-```tut:passthrough
+```scala vork:passthrough
 website.default(_.newlines.alwaysBeforeElseAfterCurlyIf)
 ```
 
-```tut:passthrough
+```scala vork:passthrough
 website.exampleBlock(
   """
 if(someCond) {
@@ -519,7 +520,7 @@ if(someCond) {
 )
 ```
 
-```tut:passthrough
+```scala vork:passthrough
 website.exampleBlock(
   """
 if(someCond) {
@@ -534,11 +535,12 @@ if(someCond) {
 
 ## Rewrite Rules
 
-To enable a rewrite rule, add it to the config like this `rewrite.rules = [SortImports]`.
- 
+To enable a rewrite rule, add it to the config like this
+`rewrite.rules = [SortImports]`.
+
 ### `AvoidInfix`
 
-```tut:passthrough
+```scala vork:passthrough
 website.formatExample(
   """
 a success b
@@ -557,7 +559,7 @@ future recover {
 
 ### `ExpandImportSelectors`
 
-```tut:passthrough
+```scala vork:passthrough
 website.formatExample(
   """
 import a.{
@@ -579,10 +581,10 @@ import a.{
 
 ### `RedundantBraces`
 
-> Warning. This rewrite can cause non-idempotent formatting,
-see [#1055](https://github.com/scalameta/scalafmt/issues/1055). 
+> Warning. This rewrite can cause non-idempotent formatting, see
+> [#1055](https://github.com/scalameta/scalafmt/issues/1055).
 
-```tut:passthrough
+```scala vork:passthrough
 website.formatExample(
   """
 def foo = {
@@ -593,7 +595,7 @@ def foo = {
 )
 ```
 
-```tut:passthrough
+```scala vork:passthrough
 website.formatExample(
   """
 q"Hello ${name}"
@@ -603,16 +605,17 @@ q"Hello ${name}"
 )
 ```
 
-Configuration options and default values: 
+Configuration options and default values:
 
 - `rewrite.redundantBraces.maxLines = 100`
 - `rewrite.redundantBraces.includeUnitMethods = true`
 - `rewrite.redundantBraces.stringInterpolation = true`
-- `rewrite.redundantBraces.generalExpressions = false` (disabled by default due to #1147)
+- `rewrite.redundantBraces.generalExpressions = false` (disabled by default due
+  to #1147)
 
 ### `RedundantParens`
 
-```tut:passthrough
+```scala vork:passthrough
 website.formatExample(
   """
 for {
@@ -625,9 +628,12 @@ for {
 ```
 
 ### `SortModifiers`
-Modifiers are sorted based on the given order. Affects modifiers of the following definitions: trait, class, object, type, and val+var, both as fields and class parameters. 
 
-```tut:passthrough
+Modifiers are sorted based on the given order. Affects modifiers of the
+following definitions: trait, class, object, type, and val+var, both as fields
+and class parameters.
+
+```scala vork:passthrough
 website.formatExample(
   """
 final lazy private implicit val x = 42
@@ -636,7 +642,8 @@ lazy final implicit private val y = 42
   "rewrite.rules = [SortModifiers]"
 )
 ```
-```tut:passthrough
+
+```scala vork:passthrough
 website.formatExample(
   """
  class Test(
@@ -649,7 +656,7 @@ website.formatExample(
 )
 ```
 
-```tut:passthrough
+```scala vork:passthrough
 website.formatExample(
   """
 sealed protected[X] trait ADT
@@ -664,7 +671,8 @@ If you choose the non-default sort order then you have to specify all eight
 modifiers in the order you wish to see them. Hint: since some modifiers are
 mutually exclusive, you might want to order them next to each other.
 
-Example config: 
+Example config:
+
 ```scala
 rewrite.rules = [SortModifiers]
 rewrite.sortModifiers.order = [
@@ -675,9 +683,10 @@ rewrite.sortModifiers.order = [
 
 ### `PreferCurlyFors`
 
-Replaces parentheses into curly braces in for comprehensions that contain multiple enumerator generators.
+Replaces parentheses into curly braces in for comprehensions that contain
+multiple enumerator generators.
 
-```tut:passthrough
+```scala vork:passthrough
 website.formatExample(
   """
 for(a <- as; b <- bs if b > 2)
@@ -691,7 +700,7 @@ for(a <- as; b <- bs if b > 2)
 
 The imports are sorted by the groups: symbols, lower-case, upper-case.
 
-```tut:passthrough
+```scala vork:passthrough
 website.formatExample(
   """
 import foo.{Zilch, bar, Random, sand}
@@ -704,7 +713,7 @@ import foo.{Zilch, bar, Random, sand}
 
 The imports are sorted by their Ascii codes
 
-```tut:passthrough
+```scala vork:passthrough
 website.formatExample(
   """
 import foo.{~>, `symbol`, bar, Random}
@@ -720,8 +729,7 @@ Since: v1.6.0
 If enabled this formats methods such that parameters are on their own line
 indented by [`continuationIndent.defnSite`](#continuationindentdefnsite).
 Separation between parameter groups are indented by two spaces less than
-`continuationIndent.defnSite`. The return type is on its own line at then
-end.
+`continuationIndent.defnSite`. The return type is on its own line at then end.
 
 > This formatting is only triggered if the method definition exceeds the
 > maxColumn value in width or if the number of arguments to the method exceeds
@@ -729,12 +737,11 @@ end.
 
 ### `verticalMultiline.arityThreshold`
 
-
-```tut:passthrough
+```scala vork:passthrough
 website.default(_.verticalMultiline.arityThreshold)
 ```
 
-```tut:passthrough
+```scala vork:passthrough
 website.formatExample(
   """
 case class Foo(x: String)
@@ -753,15 +760,14 @@ verticalMultiline.arityThreshold = 2
 
 ### `verticalMultiline.newlineAfterOpenParen`
 
-
-```tut:passthrough
+```scala vork:passthrough
 website.default(_.verticalMultiline.newlineAfterOpenParen)
 ```
 
-```tut:passthrough
+```scala vork:passthrough
 website.exampleBlock(
   """
-def other(a: String, b: String)(c: String) = a + b + c
+def other(a: String, b: String)(c: String, d: String) = a + b + c
 """,
   """
 continuationIndent.defnSite = 2
@@ -774,12 +780,11 @@ verticalMultiline.newlineAfterOpenParen = true
 
 ### `verticalMultiline.newlineAfterOpenParen`
 
-
-```tut:passthrough
+```scala vork:passthrough
 website.default(_.verticalMultiline.newlineAfterOpenParen)
 ```
 
-```tut:passthrough
+```scala vork:passthrough
 website.exampleBlock(
   """
 def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
@@ -791,3 +796,5 @@ verticalMultiline.newlineBeforeImplicitKW = true
 """
 )
 ```
+
+## Project
