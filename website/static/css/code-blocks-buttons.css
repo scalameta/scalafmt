@@ -3,7 +3,8 @@ pre {
   position: relative;
 }
 
-pre .btnIcon {
+pre .btnIcon,
+pre .btnCompare {
   position: absolute;
   top: 4px;
   z-index: 2;
@@ -16,11 +17,13 @@ pre .btnIcon {
   transition: all .25s ease-out;
 }
 
-pre .btnIcon:hover {
+pre .btnIcon:hover,
+pre .btnCompare:hover {
   text-decoration: none;
 }
 
-.btnIcon__body {
+.btnIcon__body,
+.btnCompare__body {
   align-items: center;
   display: flex;
 }
@@ -30,10 +33,15 @@ pre .btnIcon:hover {
   margin-right: .4em;
 }
 
-.btnIcon__label {
+.btnIcon__label,
+.btnCompare__label {
   font-size: 11px;
 }
 
 .btnClipboard {
   right: 10px;
+}
+
+.btnCompare {
+  right: 70px;
 }

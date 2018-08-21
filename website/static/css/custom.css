@@ -124,3 +124,7 @@ summary:after {
 details[open] summary:after {
   content: "";
 }
+
+.hidden {
+  display: none;
+}

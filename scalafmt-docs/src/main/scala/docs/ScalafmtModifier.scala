@@ -42,8 +42,15 @@ class ScalafmtModifier extends StringModifier {
                   mdConfigSection(
                     "Config for this example",
                     mdCodeBlock("yaml", configText))
-              val codeBlock = mdCodeBlock("scala", formatted.trim)
-              codeBlock + "\n" + configBlock
+              val formattedCodeBlock =
+                mdCodeBlock("scala formatted", formatted.trim)
+              val originalCodeBlock =
+                mdCodeBlock("scala original", program.text.trim)
+              List(
+                formattedCodeBlock,
+                originalCodeBlock,
+                configBlock
+              ).mkString("\n")
             case Left(e: ParseException) =>
               reporter.error(pos, e.toString())
               "parse error"
