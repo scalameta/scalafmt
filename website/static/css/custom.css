@@ -108,13 +108,9 @@ details.config {
 }
 
 summary {
-    display: flex;
     height: 30px;
-    flex-direction: row-reverse;
-    align-items: center;
-    justify-content: flex-end;
     outline: none;
-    cursor: pointer;
+    pointer-events: none;
 }
 
 summary::-webkit-details-marker {
@@ -122,15 +118,9 @@ summary::-webkit-details-marker {
 }
 
 summary:after {
-  content: "+";
-  float: left;
-  font-size: 1.5em;
-  margin: -5px 5px 0 5px;
-  padding: 0;
-  text-align: center;
-  width: 20px;
+  content: "";
 }
 
 details[open] summary:after {
-  content: "-";
+  content: "";
 }

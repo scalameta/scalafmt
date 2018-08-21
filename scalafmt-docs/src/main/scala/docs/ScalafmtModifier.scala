@@ -37,7 +37,7 @@ class ScalafmtModifier extends StringModifier {
             case Right(formatted) =>
               val configText = config.text.trim
               val configBlock = if (configText == "") "" else
-                mdCollapsibleSection("Config for this example", mdCodeBlock("yaml", configText))
+                mdConfigSection("Config for this example", mdCodeBlock("yaml", configText))
               val codeBlock = mdCodeBlock("scala", formatted.trim)
               codeBlock + "\n" + configBlock
             case Left(e: ParseException) =>
@@ -57,7 +57,7 @@ class ScalafmtModifier extends StringModifier {
   private def mdCodeBlock(language: String, content: String): String =
     s"```$language\n$content\n```"
 
-  private def mdCollapsibleSection(title: String, content: String): String =
-    s"<details class='config'><summary>$title</summary><p>\n$content\n</p></details>\n"
+  private def mdConfigSection(title: String, content: String): String =
+    s"<details class='config' open><summary>$title</summary><p>\n$content\n</p></details>\n"
 
 }
