@@ -2,12 +2,13 @@
 // site configuration options.
 
 const repoUrl = 'https://github.com/scalameta/scalafmt';
+const baseUrl = '/scalafmt/';
 
 const siteConfig = {
   title: 'Scalafmt',
   tagline: 'A code formatter for Scala',
   url: 'http://scalameta.org',
-  baseUrl: '/scalafmt/',
+  baseUrl,
 
   // Used for publishing and more
   projectName: 'Scalafmt',
@@ -42,6 +43,16 @@ const siteConfig = {
     // Highlight.js theme to use for syntax highlighting in code blocks
     theme: "github"
   },
+
+  scripts: [
+    'https://buttons.github.io/buttons.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js',
+    `${baseUrl}js/code-blocks-buttons.js`,
+  ],
+
+  stylesheets: [
+    `${baseUrl}css/code-blocks-buttons.css`,
+  ],
 
   /* On page navigation for the current documentation page */
   onPageNav: 'separate',
