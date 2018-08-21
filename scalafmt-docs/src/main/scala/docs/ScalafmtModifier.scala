@@ -36,8 +36,12 @@ class ScalafmtModifier extends StringModifier {
           Scalafmt.format(program.text, parsedConfig).toEither match {
             case Right(formatted) =>
               val configText = config.text.trim
-              val configBlock = if (configText == "") "" else
-                mdConfigSection("Config for this example", mdCodeBlock("yaml", configText))
+              val configBlock =
+                if (configText == "") ""
+                else
+                  mdConfigSection(
+                    "Config for this example",
+                    mdCodeBlock("yaml", configText))
               val codeBlock = mdCodeBlock("scala", formatted.trim)
               codeBlock + "\n" + configBlock
             case Left(e: ParseException) =>
