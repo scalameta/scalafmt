@@ -202,7 +202,7 @@ lazy val docs = project
     crossScalaVersions := List(scala212),
     skip in publish := true,
     libraryDependencies ++= List(
-      "com.geirsson" % "vork" % "0.3.2" cross CrossVersion.full
+      "com.geirsson" % "mdoc" % "0.4.0" cross CrossVersion.full
     )
   )
   .dependsOn(cli)

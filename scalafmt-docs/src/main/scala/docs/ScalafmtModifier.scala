@@ -8,8 +8,8 @@ import org.scalafmt.config.ScalafmtRunner
 import scala.meta.inputs.Input
 import scala.meta.inputs.Position
 import scala.meta.parsers.ParseException
-import vork.Reporter
-import vork.StringModifier
+import mdoc.Reporter
+import mdoc.StringModifier
 
 class ScalafmtModifier extends StringModifier {
   override val name: String = "scalafmt"

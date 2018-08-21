@@ -7,7 +7,7 @@ object Main {
 
   def main(args: Array[String]): Unit = {
 //    val docusaurus = Docusaurus.start()
-    val settings = vork
+    val settings = mdoc
       .MainSettings()
 //      .withCleanTarget(true)
       .withWatch(args.contains("-w"))
@@ -34,7 +34,7 @@ object Main {
           new DefaultsModifier
         )
       )
-    val exit = vork.Main.process(settings)
+    val exit = mdoc.Main.process(settings)
 //    docusaurus.kill()
     sys.exit(exit)
   }

@@ -6,8 +6,8 @@ import metaconfig.Configured
 import org.scalafmt.config.ScalafmtConfig
 import scala.meta.inputs.Input
 import scala.meta.inputs.Position
-import vork.Reporter
-import vork.StringModifier
+import mdoc.Reporter
+import mdoc.StringModifier
 
 class DefaultsModifier extends StringModifier {
   override val name: String = "defaults"
