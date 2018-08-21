@@ -36,11 +36,10 @@ class ScalafmtModifier extends StringModifier {
           Scalafmt.format(program.text, parsedConfig).toEither match {
             case Right(formatted) =>
               val configText = config.text.trim
-              val configBlock =
-                s"<details class='config'><summary>Config for this example</summary><p>\n```yaml\n${configText}\n```\n</p></details>\n"
-              val codeBlock = s"```scala\n${formatted.trim}\n```"
-              val result = codeBlock + "\n" + configBlock
-              result
+              val configBlock = if (configText == "") "" else
+                mdCollapsibleSection("Config for this example", mdCodeBlock("yaml", configText))
+              val codeBlock = mdCodeBlock("scala", formatted.trim)
+              codeBlock + "\n" + configBlock
             case Left(e: ParseException) =>
               reporter.error(pos, e.toString())
               "parse error"
@@ -54,4 +53,11 @@ class ScalafmtModifier extends StringModifier {
       }
     }
   }
+
+  private def mdCodeBlock(language: String, content: String): String =
+    s"```$language\n$content\n```"
+
+  private def mdCollapsibleSection(title: String, content: String): String =
+    s"<details class='config'><summary>$title</summary><p>\n$content\n</p></details>\n"
+
 }
