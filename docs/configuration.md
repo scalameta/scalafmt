@@ -32,7 +32,7 @@ The following sections describe the most common configuration options.
 
 ### `maxColumn`
 
-```scala vork:defaults
+```scala mdoc:defaults
 maxColumn
 ```
 
@@ -44,11 +44,11 @@ maxColumn
 
 ### `docstrings`
 
-```scala vork:defaults
+```scala mdoc:defaults
 docstrings
 ```
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 docstrings = ScalaDoc
 ---
 /** Align by second asterisk.
@@ -56,7 +56,7 @@ docstrings = ScalaDoc
   */
 ```
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 docstrings = JavaDoc
 ---
 /** Align by first asterisk.
@@ -66,7 +66,7 @@ docstrings = JavaDoc
 
 ### `assumeStandardLibraryStripMargin`
 
-```scala vork:defaults
+```scala mdoc:defaults
 assumeStandardLibraryStripMargin
 ```
 
@@ -76,7 +76,7 @@ assumeStandardLibraryStripMargin
 If `true`, the margin character `|` is aligned with the opening triple quote
 `"""` in interpolated and raw string literals.
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 assumeStandardLibraryStripMargin = true
 ---
 val example1 =
@@ -89,7 +89,7 @@ val example1 =
 
 The pipe character can immediately follow the opening `"""`
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 assumeStandardLibraryStripMargin = true
 ---
 val example2 =
@@ -104,13 +104,13 @@ val example2 =
 
 ### `continuationIndent.callSite`
 
-```scala vork:defaults
+```scala mdoc:defaults
 continuationIndent.callSite
 ```
 
 Example:
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 continuationIndent.defnSite = 2
 ---
 function(
@@ -121,13 +121,13 @@ function(
 
 ### `continuationIndent.defnSite`
 
-```scala vork:defaults
+```scala mdoc:defaults
 continuationIndent.defnSite
 ```
 
 Same as `continuationIndent.callSite` except for definition site. Example:
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 continuationIndent.defnSite = 4
 ---
 def function(
@@ -146,7 +146,7 @@ four possible defaults: none, some, more, & most.
 
 #### `align=some`
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 align = some
 ---
 x match { // true for case arrows
@@ -168,7 +168,7 @@ case object BB extends A
 
 #### `align=none`
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 align = none
 ---
 x match { // false for case arrows
@@ -187,7 +187,7 @@ foo(a: Int, // false for call site
 
 #### `align=more`
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 align = more
 ---
 val x = 2 // true for assignment
@@ -227,7 +227,7 @@ libraryDependencies ++= Seq(
 
 #### `align=most`
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 align = most
 ---
 for {
@@ -252,7 +252,7 @@ An align token is a pair of `code`, which is the string literal of an operator
 of token, and `owner`, which is the kind of the closest tree node that owns that
 token. If no `owner` is provided, then all tree kinds will be matched.
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 align.tokens = [{code = "=>", owner = "Case"}]
 ---
 x match {
@@ -261,7 +261,7 @@ x match {
 }
 ```
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 align.tokens = [
   {code = "%", owner = "Term.ApplyInfix"},
   {code = "%%", owner = "Term.ApplyInfix"}
@@ -296,11 +296,11 @@ res1: String = "Term.Match"
 
 ### `align.arrowEnumeratorGenerator`
 
-```scala vork:defaults
+```scala mdoc:defaults
 align.arrowEnumeratorGenerator
 ```
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 align.arrowEnumeratorGenerator = false
 ---
 for {
@@ -310,7 +310,7 @@ for {
 } yield x
 ```
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 align.arrowEnumeratorGenerator = true
 ---
 for {
@@ -322,11 +322,11 @@ for {
 
 ### `align.openParenCallSite`
 
-```scala vork:defaults
+```scala mdoc:defaults
 align.openParenCallSite
 ```
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 align.openParenCallSite = true
 ---
 foo(arg1, arg2)
@@ -339,7 +339,7 @@ function(
   argument2)
 ```
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 align.openParenCallSite = false
 ---
 foo(arg1, arg2)
@@ -354,11 +354,11 @@ function(
 
 ### `align.openParenDefnSite`
 
-```scala vork:defaults
+```scala mdoc:defaults
 align.openParenDefnSite
 ```
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 align.openParenDefnSite = true
 ---
 class IntString(int: Int, string: String)
@@ -368,7 +368,7 @@ class IntStringLong(int: Int,
                     long: Long)
 ```
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 align.openParenDefnSite = false
 ---
 class IntString(int: Int, string: String)
@@ -391,11 +391,11 @@ insert newlines.
 
 ### `newlines.alwaysBeforeTopLevelStatements`
 
-```scala vork:defaults
+```scala mdoc:defaults
 newlines.alwaysBeforeTopLevelStatements
 ```
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 newlines.alwaysBeforeTopLevelStatements = false
 ---
 import org.scalafmt
@@ -410,7 +410,7 @@ package core {
 }
 ```
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 newlines.alwaysBeforeTopLevelStatements = true
 ---
 import org.scalafmt
@@ -427,11 +427,11 @@ package core {
 
 ### `newlines.alwaysBeforeElseAfterCurlyIf`
 
-```scala vork:defaults
+```scala mdoc:defaults
 newlines.alwaysBeforeElseAfterCurlyIf
 ```
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 newlines.alwaysBeforeElseAfterCurlyIf = true
 ---
 if(someCond) {
@@ -441,7 +441,7 @@ if(someCond) {
 }
 ```
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 newlines.alwaysBeforeElseAfterCurlyIf = false
 ---
 if(someCond) {
@@ -458,7 +458,7 @@ To enable a rewrite rule, add it to the config like this
 
 ### `AvoidInfix`
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 rewrite.rules = [AvoidInfix]
 ---
 a success b
@@ -474,7 +474,7 @@ future recover {
 
 ### `ExpandImportSelectors`
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 rewrite.rules = [ExpandImportSelectors]
 ---
 import a.{
@@ -496,7 +496,7 @@ import a.{
 > Warning. This rewrite can cause non-idempotent formatting, see
 > [#1055](https://github.com/scalameta/scalafmt/issues/1055).
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 rewrite.rules = [RedundantBraces]
 ---
 def foo = {
@@ -504,7 +504,7 @@ def foo = {
 }
 ```
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 rewrite.rules = [RedundantBraces]
 rewrite.redundantBraces.stringInterpolation = true
 ---
@@ -523,7 +523,7 @@ Configuration options and default values:
 
 ### `RedundantParens`
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 rewrite.rules = [RedundantParens]
 ---
 for {
@@ -538,14 +538,14 @@ Modifiers are sorted based on the given order. Affects modifiers of the
 following definitions: trait, class, object, type, and val+var, both as fields
 and class parameters.
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 rewrite.rules = [SortModifiers]
 ---
 final lazy private implicit val x = 42
 lazy final implicit private val y = 42
 ```
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 rewrite.rules = [SortModifiers]
 ---
 class Test(
@@ -555,7 +555,7 @@ class Test(
 )
 ```
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 rewrite.rules = [SortModifiers]
 ---
 sealed protected[X] trait ADT
@@ -582,7 +582,7 @@ rewrite.sortModifiers.order = [
 Replaces parentheses into curly braces in for comprehensions that contain
 multiple enumerator generators.
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 rewrite.rules = [PreferCurlyFors]
 ---
 for(a <- as; b <- bs if b > 2)
@@ -593,7 +593,7 @@ for(a <- as; b <- bs if b > 2)
 
 The imports are sorted by the groups: symbols, lower-case, upper-case.
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 rewrite.rules = [SortImports]
 ---
 import foo.{Zilch, bar, Random, sand}
@@ -603,7 +603,7 @@ import foo.{Zilch, bar, Random, sand}
 
 The imports are sorted by their Ascii codes
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 rewrite.rules = [AsciiSortImports]
 ---
 import foo.{~>, `symbol`, bar, Random}
@@ -624,11 +624,11 @@ Separation between parameter groups are indented by two spaces less than
 
 ### `verticalMultiline.arityThreshold`
 
-```scala vork:defaults
+```scala mdoc:defaults
 verticalMultiline.arityThreshold
 ```
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 verticalMultiline.atDefnSite = true
 verticalMultiline.arityThreshold = 2
 ---
@@ -642,11 +642,11 @@ object A {
 
 ### `verticalMultiline.newlineAfterOpenParen`
 
-```scala vork:defaults
+```scala mdoc:defaults
 verticalMultiline.newlineAfterOpenParen
 ```
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 continuationIndent.defnSite = 2
 verticalMultiline.atDefnSite = true
 verticalMultiline.arityThreshold = 2
@@ -657,11 +657,11 @@ def other(a: String, b: String)(c: String, d: String) = a + b + c
 
 ### `verticalMultiline.newlineAfterOpenParen`
 
-```scala vork:defaults
+```scala mdoc:defaults
 verticalMultiline.newlineAfterOpenParen
 ```
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 maxColumn = 60
 verticalMultiline.atDefnSite = true
 verticalMultiline.newlineBeforeImplicitKW = true
@@ -676,7 +676,7 @@ def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 Disable formatting for specific regions of code by wrapping them in
 `// format: off` blocks:
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 ---
 // format: off
 val identity = Array(1, 0, 0,
@@ -708,18 +708,18 @@ project.includeFilters = [
 
 ### `binPack.literalArgumentLists`
 
-```scala vork:defaults
+```scala mdoc:defaults
 binPack.literalArgumentLists
 ```
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 binPack.literalArgumentLists = true
 ---
 val secret: List[Bit] = List(0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1,
   0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1)
 ```
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 binPack.literalArgumentLists = false
 ---
 val secret: List[Bit] = List(0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1)
@@ -727,11 +727,11 @@ val secret: List[Bit] = List(0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1)
 
 ### `includeCurlyBraceInSelectChains`
 
-```scala vork:defaults
+```scala mdoc:defaults
 includeCurlyBraceInSelectChains
 ```
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 includeCurlyBraceInSelectChains = true
 ---
 List(1)
@@ -741,7 +741,7 @@ List(1)
   .filter(_ > 2)
 ```
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 includeCurlyBraceInSelectChains = false
 ---
 List(1)
@@ -753,7 +753,7 @@ List(1)
 
 ### `optIn.breakChainOnFirstMethodDot`
 
-```scala vork:defaults
+```scala mdoc:defaults
 optIn.breakChainOnFirstMethodDot
 ```
 
@@ -764,7 +764,7 @@ foo
   .filter(_ > 2)
 ```
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 optIn.breakChainOnFirstMethodDot = true
 ---
 foo
@@ -772,7 +772,7 @@ foo
   .filter(_ > 2)
 ```
 
-```scala vork:scalafmt
+```scala mdoc:scalafmt
 optIn.breakChainOnFirstMethodDot = false
 ---
 foo
@@ -787,6 +787,6 @@ of Scalafmt. A good place to start is `ScalafmtConfig`. Observe that this
 listing below is the top-level, there are more configuration options if you
 visited nested fields like `spaces` and `newlines`.
 
-```scala vork:defaults:all
+```scala mdoc:defaults:all
 
 ```
