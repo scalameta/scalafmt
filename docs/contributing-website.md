@@ -22,7 +22,7 @@ For running the website locally, you'll need:
 
 In addition to Docusaurus, we preprocess the markdown files using:
 
-- [vork](https://github.com/olafurpg/vork), to format Scala code fences by
+- [mdoc](https://github.com/olafurpg/mdoc), to format Scala code fences by
   different configuration and retrieve default values.
 
 The first step is then to preprocess the markdown files. You can do it with:

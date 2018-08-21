@@ -102,11 +102,11 @@ brew upgrade scalafmt
 
 ### --help
 
-```scala vork:passthrough
+```scala mdoc:passthrough
 println(website.plaintext(org.scalafmt.cli.CliArgParser.buildInfo))
 ```
 
-```scala vork:passthrough
+```scala mdoc:passthrough
 println(website.plaintext(org.scalafmt.cli.CliArgParser.scoptParser.usage))
 ```
 
@@ -239,7 +239,7 @@ libraryDependencies += "com.geirsson" %%% "scalafmt-core" % "@STABLE_VERSION@"
 
 Use the API like this:
 
-```scala vork
+```scala mdoc
 org.scalafmt.Scalafmt.format("""
       object FormatMe { List(Split(Space, 0).withPolicy(SingleLineBlock(close)), Split(Newline, 1).withPolicy{ case Decision(t@FormatToken(_, `close`, _), s) => Decision(t, List(Split(Newline, 0)))}.withIndent(2, close, Right)) }
 """).get
@@ -247,7 +247,7 @@ org.scalafmt.Scalafmt.format("""
 
 Obtain a configuration object with `parseHoconConfig`
 
-```scala vork
+```scala mdoc
 val config = org.scalafmt.Scalafmt.parseHoconConfig("align=most").get
 org.scalafmt.Scalafmt.format("""
     object Align {
@@ -259,7 +259,7 @@ org.scalafmt.Scalafmt.format("""
 
 To format code with top-level statements like `*.sbt` files
 
-```scala vork
+```scala mdoc
 val configForSbt = org.scalafmt.Scalafmt.configForSbt(config)
 org.scalafmt.Scalafmt.format("""
     val x = 1

@@ -13,7 +13,7 @@ readable, idiomatic and consistently formatted Scala code
 <span class='widescreen-only'> on the right</span>
 <span class='non-widescreen-only'>at the bottom</span>.
 
-```scala vork:passthrough
+```scala mdoc:passthrough
 website.formatExample(
   s"""
 object FormatMe { List(number) match
