@@ -17,7 +17,7 @@ blockquote:before {
 }
 
 pre {
-    overflow-x: scroll;
+    overflow-x: auto;
 }
 
 .scalafmt-pair {
@@ -97,3 +97,40 @@ pre {
 }
 
 @media only screen and (min-width: 1500px) {}
+
+details.config {
+    border-left: 10px solid #DB5859;
+    margin-bottom: 20px;
+    margin-top: -16px;
+    outline: none;
+    background:#eee;
+    padding: 10px;
+}
+
+summary {
+    display: flex;
+    height: 30px;
+    flex-direction: row-reverse;
+    align-items: center;
+    justify-content: flex-end;
+    outline: none;
+    cursor: pointer;
+}
+
+summary::-webkit-details-marker {
+  display: none
+}
+
+summary:after {
+  content: "+";
+  float: left;
+  font-size: 1.5em;
+  margin: -5px 5px 0 5px;
+  padding: 0;
+  text-align: center;
+  width: 20px;
+}
+
+details[open] summary:after {
+  content: "-";
+}

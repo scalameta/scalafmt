@@ -35,15 +35,10 @@ class ScalafmtModifier extends StringModifier {
           val parsedConfig = c.copy(runner = runner)
           Scalafmt.format(program.text, parsedConfig).toEither match {
             case Right(formatted) =>
-              val trimmed = config.text.trim
-              val configText = if (trimmed.isEmpty) {
-                ""
-              } else {
-                "/*\n" + trimmed + "\n*/\n"
-              }
-              val result =
-                "```scala\n" + configText +
-                  formatted.trim + "\n```"
+              val configText = config.text.trim
+              val configBlock = s"<details class='config'><summary>Config for this example</summary><p>\n```yaml\n${configText}\n```\n</p></details>\n"
+              val codeBlock = s"```scala\n${formatted.trim}\n```"
+              val result = codeBlock + "\n" + configBlock
               result
             case Left(e: ParseException) =>
               reporter.error(pos, e.toString())
