@@ -1,0 +1,24 @@
+maxColumn = 30
+trailingCommas = always
+align = more
+<<< should consider comments with extra whitespace when adding trailing commas align more
+def method(
+    abc: String, // abc comment
+    d: String // d comment
+) = ???
+>>>
+def method(
+    abc: String, // abc comment
+    d: String,   // d comment
+) = ???
+<<< should consider comments when adding trailing comments align more
+def method(
+    a: String,  // a comment
+    b: String // b comment
+) = ???
+>>>
+def method(
+    a: String, // a comment
+    b: String, // b comment
+) = ???
+

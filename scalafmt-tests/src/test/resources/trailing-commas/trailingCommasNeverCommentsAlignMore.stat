@@ -1,0 +1,14 @@
+maxColumn = 30
+trailingCommas = never
+align = more
+
+<<< should consider comments when removing trailing commas while align comment
+def method(
+    abc: String, // abc comment
+    d: String,  // d comment
+)
+>>>
+def method(
+    abc: String, // abc comment
+    d: String    // d comment
+)
