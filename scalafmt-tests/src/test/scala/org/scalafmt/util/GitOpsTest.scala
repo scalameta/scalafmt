@@ -81,7 +81,7 @@ class GitOpsTest extends fixture.FunSuite {
     ls should contain only (f)
   }
 
-  test("lsTree should not return commited files that have been deleted") {
+  test("lsTree should not return committed files that have been deleted") {
     implicit ops =>
       val f = touch()
       add(f)
@@ -104,7 +104,7 @@ class GitOpsTest extends fixture.FunSuite {
       ls(innerGitOps) should contain only f2
   }
 
-  test("lsTree should return commited files that have been modified") {
+  test("lsTree should return committed files that have been modified") {
     implicit ops =>
       val f = touch()
       add(f)
@@ -117,7 +117,7 @@ class GitOpsTest extends fixture.FunSuite {
     ops.diff(br)
 
   // diff
-  test("diff should return modified commited files") { implicit o =>
+  test("diff should return modified committed files") { implicit o =>
     val f = touch()
     add(f)
     commit

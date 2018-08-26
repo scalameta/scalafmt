@@ -78,13 +78,13 @@ object CliArgParser {
             AbsoluteFile.fromFiles(files, c.common.workingDirectory))
         }
         .hidden() // this option isn't needed anymore. Simply pass the files as
-        // arguments. Keeping for backwards compatability
+        // arguments. Keeping for backwards compatibility
         .text("file or directory, in which case all *.scala files are formatted. Deprecated: pass files as arguments")
 
       opt[Unit]('i', "in-place")
         .action((opt, c) => c.copy(writeMode = Override))
         .hidden() // this option isn't needed anymore. Simply don't pass
-        // --stdout. Keeping for backwards compatability
+        // --stdout. Keeping for backwards compatibility
         .text("format files in-place (default)")
 
       opt[Unit]("stdout")

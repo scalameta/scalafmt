@@ -31,13 +31,23 @@ object Pattern {
       "contain.*",
       "must.*",
       "in",
+      "ignore",
       "be",
       "taggedAs",
       "thrownBy",
       "synchronized",
       "have",
       "when",
-      "size"
+      "size",
+      "only",
+      "noneOf",
+      "oneElementOf",
+      "noElementsOf",
+      "atLeastOneElementOf",
+      "atMostOneElementOf",
+      "allElementsOf",
+      "inOrderElementsOf",
+      "theSameElementsAs"
     )
   )
 }
