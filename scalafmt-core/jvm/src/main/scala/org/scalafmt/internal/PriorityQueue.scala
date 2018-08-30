@@ -1,7 +1,5 @@
 package org.scalafmt.internal
 
-import java.util.Comparator
-
 /**
   * Minimal implementation of the PriorityQueue's functions needed.
   *
@@ -11,11 +9,8 @@ import java.util.Comparator
   *
   * @tparam T the values inside the queue
   */
-class PriorityQueue[T <: Ordered[T]] {
-  private[this] val q =
-    new java.util.PriorityQueue[T](11, new Comparator[T] {
-      override def compare(t: T, t1: T): Int = t1.compare(t)
-    })
+class PriorityQueue[T](implicit ord: Ordering[T]) {
+  private[this] val q = new java.util.PriorityQueue[T](11, ord.reversed())
 
   def dequeueAll: Unit = q.clear()
 
