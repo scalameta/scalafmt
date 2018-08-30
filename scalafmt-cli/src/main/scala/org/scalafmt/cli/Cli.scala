@@ -63,7 +63,7 @@ object Cli {
   }
 
   def main(args: Array[String]): Unit = {
-    val exit = mainWithOptions(args, CliOptions.default)
+    val exit = mainWithOptions(args, CliOptions())
     sys.exit(exit.code)
   }
 
