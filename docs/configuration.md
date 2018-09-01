@@ -374,9 +374,7 @@ class IntStringLong(
 The `newlines.*` options are used to configure when and where `scalafmt` should
 insert newlines.
 
-// TODO(gabro): link to Vertical Multiline section
-
-> You might be interested in the Vertical Multiline section.
+> You might be interested in the [Vertical Multiline](#vertical-multiline) section.
 
 ### `newlines.alwaysBeforeTopLevelStatements`
 
