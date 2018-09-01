@@ -52,16 +52,16 @@ docstrings
 docstrings = ScalaDoc
 ---
 /** Align by second asterisk.
-  *
-  */
+ *
+ */
 ```
 
 ```scala mdoc:scalafmt
 docstrings = JavaDoc
 ---
 /** Align by first asterisk.
- *
- */
+  *
+  */
 ```
 
 ### `assumeStandardLibraryStripMargin`
@@ -81,10 +81,10 @@ assumeStandardLibraryStripMargin = true
 ---
 val example1 =
   s"""Examples:
-     |  * one
-     |  * two
-     |  * $three
-     |""".stripMargin
+  |  * one
+  |  * two
+  |  * $three
+  |""".stripMargin
 ```
 
 The pipe character can immediately follow the opening `"""`
@@ -94,10 +94,10 @@ assumeStandardLibraryStripMargin = true
 ---
 val example2 =
   s"""|Examples:
-      |  * one
-      |  * two
-      |  * $three
-      |""".stripMargin
+  |  * one
+  |  * two
+  |  * $three
+  |""".stripMargin
 ```
 
 ## Indentation
@@ -114,8 +114,8 @@ Example:
 continuationIndent.defnSite = 2
 ---
 function(
-  argument1, // indented by 2
-  ""
+argument1, // indented by 2
+""
 )
 ```
 
@@ -144,28 +144,6 @@ four possible defaults: none, some, more, & most.
 
 ### `align`
 
-#### `align=some`
-
-```scala mdoc:scalafmt
-align = some
----
-x match { // true for case arrows
-  case 2  => 22
-  case 22 => 222
-}
-
-def foo(a: Int, // true for defn site open paren
-        b: String): Int
-foo(a: Int, // true for call site open paren
-    b: String): Int
-
-val x = 2 // false for assignment
-val xx = 22
-
-case object B extends A // false for `extends`
-case object BB extends A
-```
-
 #### `align=none`
 
 ```scala mdoc:scalafmt
@@ -175,15 +153,27 @@ x match { // false for case arrows
   case 2  => 22 // also comments!
   case 22 => 222 // don't align me!
 }
-
-def foo(a: Int, // false for defn site
-        b: String): Int
-foo(a: Int, // false for call site
-    b: String): Int
 ```
 
 > **Pro tip**: Enable this setting to minimize git diffs/conflicts from
 > renamings and other refactorings.
+
+#### `align=some`
+
+```scala mdoc:scalafmt
+align = some
+---
+x match { // true for case arrows
+  case 2 => 22
+  case 22 => 222
+}
+
+val x = 2 // false for assignment
+val xx = 22
+
+case object B extends A // false for `extends`
+case object BB extends A
+```
 
 #### `align=more`
 
@@ -193,16 +183,16 @@ align = more
 val x = 2 // true for assignment
 val xx = 22
 
-case object B extends A // false for `extends`
+case object B extends A // true for `extends`
 case object BB extends A
 
 q -> 22 // true for various infix operators
-qq -> 3 // and also comments!
+qq -> 3   // and also comments!
 
 for {
   x <- List(1) // true for alignment enumerator
-  yy <- List(2)
-} yield x ** xx
+  yyy <- List(2)
+} yield x ** yyy
 
 x match { // true for multiple tokens across multiple lines
   case 1 => 1 -> 2 // first
@@ -233,7 +223,7 @@ align = most
 for {
   // align <- with =
   x <- List()
-  yy = 2
+  yyy = 2
   // aligns body by arrow
   zzz <- new Integer {
     def value = 3
@@ -241,8 +231,8 @@ for {
 } yield x
 ```
 
-> **Note**. Only for the truest vertical aligners. This is a new option, feel
-> free to open PR enabling more crazy vertical alignment here. Expect changes.
+> **Note**. Only for the truest vertical aligners. Feel free to open PR enabling
+> more crazy vertical alignment here. Expect changes.
 
 ### `align.tokens`
 
@@ -275,16 +265,13 @@ val x = List(
 
 To find the `owner` part for a custom tree, depend on Scalameta and use
 `scala.meta.Tree.productPrefix` from the the (for example, Ammonite) REPL.
-
 ```scala
 @ import $ivy.`org.scalameta:scalameta_2.12:@SCALAMETA_VERSION@`, scala.meta._
-
 @ val termMatch = q"x match { case 2 => foo(bar) }"
 termMatch: Term.Match = x match {
-  case 2 =>
-    foo(bar)
+ case 2 =>
+   foo(bar)
 }
-
 @ termMatch.structure
 res0: String = """
 Term.Match(Term.Name("x"), Seq(Case(Lit.Int(2), None, Term.Apply(Term.Name("foo"), Seq(Term.Name("bar"))))))
@@ -305,8 +292,8 @@ align.arrowEnumeratorGenerator = false
 ---
 for {
   x <- new Integer {
-    def value = 2
-  }
+     def value = 2
+     }
 } yield x
 ```
 
@@ -315,8 +302,8 @@ align.arrowEnumeratorGenerator = true
 ---
 for {
   x <- new Integer {
-    def value = 2
-  }
+     def value = 2
+     }
 } yield x
 ```
 
@@ -332,8 +319,9 @@ align.openParenCallSite = true
 foo(arg1, arg2)
 
 function(arg1, // align by (
-          arg2,
-          arg3)
+    arg2,
+ arg3)
+
 function(
   argument1,
   argument2)
@@ -343,10 +331,11 @@ function(
 align.openParenCallSite = false
 ---
 foo(arg1, arg2)
-function(
-  arg1, // no align by (
-  arg2,
-  arg3)
+
+function(arg1, // no align by (
+    arg2,
+ arg3)
+
 function(
   argument1,
   argument2)
@@ -364,8 +353,8 @@ align.openParenDefnSite = true
 class IntString(int: Int, string: String)
 
 class IntStringLong(int: Int,
-                    string: String,
-                    long: Long)
+    string: String,
+  long: Long)
 ```
 
 ```scala mdoc:scalafmt
@@ -374,8 +363,8 @@ align.openParenDefnSite = false
 class IntString(int: Int, string: String)
 
 class IntStringLong(
-  int: Int,
-  string: String,
+      int: Int,
+    string: String,
   long: Long
 )
 ```
@@ -399,9 +388,8 @@ newlines.alwaysBeforeTopLevelStatements
 newlines.alwaysBeforeTopLevelStatements = false
 ---
 import org.scalafmt
-
-package core {
-  object O {
+package core { // no newline added here
+  object O { // nor here
     val x1 = 1
     val x2 = 2
     def A = "A"
@@ -414,7 +402,6 @@ package core {
 newlines.alwaysBeforeTopLevelStatements = true
 ---
 import org.scalafmt
-
 package core {
   object O {
     val x1 = 1
@@ -434,7 +421,7 @@ newlines.alwaysBeforeElseAfterCurlyIf
 ```scala mdoc:scalafmt
 newlines.alwaysBeforeElseAfterCurlyIf = true
 ---
-if(someCond) {
+if (someCond) {
   foo()
 } else {
   bar()
@@ -444,9 +431,10 @@ if(someCond) {
 ```scala mdoc:scalafmt
 newlines.alwaysBeforeElseAfterCurlyIf = false
 ---
-if(someCond) {
+if (someCond) {
   foo()
-} else {
+}
+else {
   bar()
 }
 ```
@@ -549,9 +537,9 @@ lazy final implicit private val y = 42
 rewrite.rules = [SortModifiers]
 ---
 class Test(
-  implicit
-  final private val i1: Int,
-  private final val i2: String
+    implicit
+    final private val i1: Int,
+    private final val i2: String
 )
 ```
 
@@ -560,21 +548,22 @@ rewrite.rules = [SortModifiers]
 ---
 sealed protected[X] trait ADT
 final private case object A1 extends ADT
-private final case class A2(x: Int) extends ADT
+private final case class A2(a: Int)
+    extends ADT
 ```
 
 If you choose the non-default sort order then you have to specify all eight
 modifiers in the order you wish to see them. Hint: since some modifiers are
 mutually exclusive, you might want to order them next to each other.
 
-Example config:
-
-```scala
+```scala mdoc:scalafmt
 rewrite.rules = [SortModifiers]
 rewrite.sortModifiers.order = [
   "implicit", "final", "sealed", "abstract",
   "override", "private", "protected", "lazy"
 ]
+---
+override implicit final val x = 2
 ```
 
 ### `PreferCurlyFors`
@@ -734,8 +723,7 @@ includeCurlyBraceInSelectChains
 ```scala mdoc:scalafmt
 includeCurlyBraceInSelectChains = true
 ---
-List(1)
-  .map { x =>
+List(1).map { x =>
     x + 2
   }
   .filter(_ > 2)
@@ -757,8 +745,10 @@ List(1)
 optIn.breakChainOnFirstMethodDot
 ```
 
-```scala
-// original
+```scala mdoc:scalafmt
+optIn.breakChainOnFirstMethodDot = false
+---
+// collapse into a single line
 foo
   .map(_ + 1)
   .filter(_ > 2)
@@ -768,15 +758,7 @@ foo
 optIn.breakChainOnFirstMethodDot = true
 ---
 foo
-  .map(_ + 1)
-  .filter(_ > 2)
-```
-
-```scala mdoc:scalafmt
-optIn.breakChainOnFirstMethodDot = false
----
-foo
-  .map(_ + 1)
+  .map(_ + 1) // preserve existing newlines
   .filter(_ > 2)
 ```
 
