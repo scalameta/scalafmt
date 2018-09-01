@@ -41,7 +41,8 @@ class ScalafmtModifier extends StringModifier {
                 else
                   mdConfigSection(
                     "Config for this example",
-                    mdCodeBlock("yaml", configText))
+                    mdCodeBlock("scala", configText))
+
               val formattedCodeBlock =
                 mdCodeBlock("scala formatted", formatted.trim)
               val originalCodeBlock =
