@@ -1,0 +1,130 @@
+/* your custom css */
+
+blockquote {
+    background: #f9f9f9;
+    border-left: 10px solid #ccc;
+    margin: 1.5em 0px;
+    padding: 1em 20px;
+    quotes: "“" "”" "‘" "’";
+}
+
+blockquote:before {
+    color: #eb4d54;
+    content: open-quote;
+    font-size: 4em;
+    line-height: 0.1em;
+    vertical-align: -0.4em;
+}
+
+pre {
+    overflow-x: auto;
+}
+
+.scalafmt-pair {
+    background: #f9f9f9;
+    border-left: 10px solid #ccc;
+    display: flex;
+    justify-content: space-around;
+    flex-direction: column;
+    margin: 1.5em 0px;
+}
+
+.scalafmt-pair pre code {
+    background: transparent;
+    border-left: none;
+}
+
+.scalafmt-pair .before:before,
+.scalafmt-pair .after:before {
+    color: #808080;
+    font-family: monospace;
+    content: "// Before";
+    font-size: 1em;
+    line-height: 1em;
+    vertical-align: -0.8em;
+    font-weight: bold;
+    font-style: italic;
+    padding-left: 20px;
+}
+
+.scalafmt-pair .after:before {
+    content: "// After";
+}
+
+.sidenote {
+    margin: 1em 0;
+    color: #0c5460;
+    background-color: #d1ecf1;
+    border-left: 10px solid #bee5eb;
+    padding: .75rem 1.25rem;
+}
+
+.sidenote a {
+    color: #37a;
+}
+
+/* Helper classes to toggling content for specific devices */
+.widescreen-only {
+    display: none;
+}
+
+.non-widescreen-only {
+    display: none;
+}
+
+@media only screen and (min-device-width: 360px) and (max-device-width: 736px) {}
+
+@media only screen and (min-width: 1024px) {}
+
+@media only screen and (max-width: 1023px) {}
+
+/* Widescreen */
+@media only screen and (min-width: 1400px) {
+    .scalafmt-pair {
+        flex-direction: row;
+    }
+
+    span.widescreen-only {
+        display: inline;
+    }
+}
+
+/* Non-widescreen */
+@media only screen and (max-width: 1400px) {
+    span.non-widescreen-only {
+        display: inline;
+    }
+}
+
+@media only screen and (min-width: 1500px) {}
+
+details.config {
+    border-left: 10px solid #DB5859;
+    margin-bottom: 20px;
+    margin-top: -16px;
+    outline: none;
+    background:#eee;
+    padding: 10px;
+}
+
+summary {
+    height: 30px;
+    outline: none;
+    pointer-events: none;
+}
+
+summary::-webkit-details-marker {
+  display: none
+}
+
+summary:after {
+  content: "";
+}
+
+details[open] summary:after {
+  content: "";
+}
+
+.hidden {
+  display: none;
+}

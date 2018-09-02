@@ -1,0 +1,44 @@
+/* "Copy" code block button */
+pre {
+  position: relative;
+}
+
+pre .btnIcon,
+pre .btnCompare {
+  position: absolute;
+  top: 4px;
+  z-index: 2;
+  cursor: pointer;
+  border: 1px solid transparent;
+  padding: 0;
+  color: #000;
+  background-color: transparent;
+  height: 30px;
+  transition: all .25s ease-out;
+}
+
+pre .btnIcon:hover,
+pre .btnCompare:hover {
+  text-decoration: none;
+}
+
+.btnIcon__body,
+.btnCompare__body {
+  align-items: center;
+  display: flex;
+}
+
+.btnIcon svg {
+  fill: currentColor;
+  margin-right: .4em;
+}
+
+.btnIcon__label,
+.btnCompare__label {
+  font-size: 11px;
+}
+
+.btnClipboard,
+.btnCompare {
+  right: 10px;
+}

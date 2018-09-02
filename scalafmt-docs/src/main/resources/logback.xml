@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <!-- Silence noise from logback on startup -->
+  <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <layout class="ch.qos.logback.classic.PatternLayout">
+      <Pattern>
+        %d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n
+      </Pattern>
+    </layout>
+  </appender>
+
+  <!-- Silence noise from directory watcher on startup/file events -->
+  <logger name="io.methvin.watcher" level="warn" additivity="false">
+    <appender-ref ref="STDOUT" />
+  </logger>
+
+  <logger name="ch.qos.logback" level="debug" additivity="false">
+    <appender-ref ref="STDOUT" />
+  </logger>
+
+  <root level="info">
+    <appender-ref ref="STDOUT" />
+  </root>
+
+</configuration>

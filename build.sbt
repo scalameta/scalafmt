@@ -24,7 +24,8 @@ inThisBuild(
     resolvers += Resolver.sonatypeRepo("releases"),
     libraryDependencies ++= List(
       scalatest.value % Test,
-      scalacheck % Test
+      scalacheck % Test,
+      scalametaTestkit % Test
     )
   )
 )
@@ -193,36 +194,16 @@ lazy val benchmarks = project
   .dependsOn(coreJVM)
   .enablePlugins(JmhPlugin)
 
-lazy val readme = scalatex
-  .ScalatexReadme(
-    projectId = "readme",
-    wd = file(""),
-    url = "https://github.com/scalameta/scalafmt/tree/master",
-    source = "Readme"
-  )
+lazy val docs = project
+  .in(file("scalafmt-docs"))
   .settings(
     crossScalaVersions := List(scala212),
-    git.remoteRepo := "git@github.com:scalameta/scalafmt.git",
-    siteSourceDirectory := target.value / "scalatex",
     skip in publish := true,
-    publish := {
-      ghpagesPushSite
-        .dependsOn(run.in(Compile).toTask(" --validate-links"))
-        .value
-    },
-    test := {
-      run.in(Compile).toTask(" --validate-links").value
-    },
-    libraryDependencies ++= Seq(
-      "com.twitter" %% "util-eval" % "6.41.0"
+    libraryDependencies ++= List(
+      "com.geirsson" % "mdoc" % "0.4.0" cross CrossVersion.full
     )
   )
-  .enablePlugins(GhpagesPlugin)
-  .dependsOn(
-    coreJVM,
-    cli
-  )
-
+  .dependsOn(cli)
 val V = "\\d+\\.\\d+\\.\\d+"
 val ReleaseCandidate = s"($V-RC\\d+).*".r
 val Milestone = s"($V-M\\d+).*".r
