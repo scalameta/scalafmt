@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:mobile="http://www.google.com/schemas/sitemap-mobile/1.0" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+<url> <loc>http://scalameta.org/docs/configuration.html</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="http://scalameta.org/docs/configuration.html" /> </url>
+<url> <loc>http://scalameta.org/docs/contributing-scalafmt.html</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="http://scalameta.org/docs/contributing-scalafmt.html" /> </url>
+<url> <loc>http://scalameta.org/docs/contributing-website.html</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="http://scalameta.org/docs/contributing-website.html" /> </url>
+<url> <loc>http://scalameta.org/docs/faq.html</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="http://scalameta.org/docs/faq.html" /> </url>
+<url> <loc>http://scalameta.org/docs/gotchas.html</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="http://scalameta.org/docs/gotchas.html" /> </url>
+<url> <loc>http://scalameta.org/docs/installation.html</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="http://scalameta.org/docs/installation.html" /> </url>
+<url> <loc>http://scalameta.org/docs/introduction.html</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="http://scalameta.org/docs/introduction.html" /> </url>
+<url> <loc>http://scalameta.org/docs/known-issues.html</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="http://scalameta.org/docs/known-issues.html" /> </url>
+</urlset>

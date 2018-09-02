@@ -1,0 +1,74 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>FAQ / Troubleshooting · Scalafmt</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="## Why not Scalariform?"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="FAQ / Troubleshooting · Scalafmt"/><meta property="og:type" content="website"/><meta property="og:url" content="http://scalameta.org/scalafmt/index.html"/><meta property="og:description" content="## Why not Scalariform?"/><meta property="og:image" content="http://scalameta.org/scalafmt/img/scalameta-logo.png"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="http://scalameta.org/scalafmt/img/scalameta-logo.png"/><link rel="shortcut icon" href="/scalafmt/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css"/><link rel="stylesheet" href="/scalafmt/css/code-blocks-buttons.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/scalafmt/js/code-blocks-buttons.js"></script><script type="text/javascript" src="/scalafmt/js/code-blocks-compare.js"></script><link rel="stylesheet" href="/scalafmt/css/main.css"/></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/scalafmt/"><h2 class="headerTitle">Scalafmt</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/scalafmt/docs/introduction.html" target="_self">Docs</a></li><li class=""><a href="https://github.com/scalameta/scalafmt" target="_blank">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><i></i></div><h2><i>›</i><span>Documentation</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Documentation</h3><ul><li class="navListItem"><a class="navItem" href="/scalafmt/docs/introduction.html">Introduction</a></li><li class="navListItem"><a class="navItem" href="/scalafmt/docs/installation.html">Installation</a></li><li class="navListItem"><a class="navItem" href="/scalafmt/docs/configuration.html">Configuration</a></li><li class="navListItem"><a class="navItem" href="/scalafmt/docs/gotchas.html">Gotchas</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/scalafmt/docs/faq.html">FAQ / Troubleshooting</a></li><li class="navListItem"><a class="navItem" href="/scalafmt/docs/known-issues.html">Known Issues</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Contributing</h3><ul><li class="navListItem"><a class="navItem" href="/scalafmt/docs/contributing-scalafmt.html">Contributing</a></li><li class="navListItem"><a class="navItem" href="/scalafmt/docs/contributing-website.html">Contributing to the website</a></li></ul></div></div></section></div><script>
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              const headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                if (event.target.tagName === 'A') {
+                  document.body.classList.remove('tocActive');
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/scalameta/scalafmt/edit/master/docs/faq.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">FAQ / Troubleshooting</h1></header><article><div><span><h2><a class="anchor" aria-hidden="true" id="why-not-scalariform"></a><a href="#why-not-scalariform" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Why not Scalariform?</h2>
+<p><a href="http://scala-ide.org/scalariform/">Scalariform</a> does an excellent job of
+tidying up common formatting errors. However,</p>
+<ul>
+<li><p>Scalariform does not have a <code>maxColumn</code> setting, which I personally like and
+is present in many popular coding styles.</p></li>
+<li><p>Scalariform preserves most line breaking decisions, leaving it up to you (or
+even worse, your colleagues) to choose a formatting layout. Scalafmt takes
+liberty to add/remove newlines, making your entire codebase look consistent.</p></li>
+</ul>
+<p>Finally, scalafmt is my Master's thesis project. I thought it would be a fun
+challenge to write a code formatter :)</p>
+<h2><a class="anchor" aria-hidden="true" id="why-is-scalafmt-so-slow"></a><a href="#why-is-scalafmt-so-slow" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Why is scalafmt so slow?</h2>
+<p>My benchmarks show that scalafmt is for most common cases around 4-6x slower
+than scalariform (btw, scalariform is already impressively fast). This means
+that formatting your average 1.000 LOC file on modern hardware will take around
+200ms, which should still feel close enough to instant.</p>
+<p>The main feature that makes scalafmt slower than scalariform is the column-width
+limit. To figure the &quot;best&quot; way to break a long line, Scalafmt may try thousands
+of different formatting solutions.</p>
+<p>I am sure that scalafmt could benefit greatly from micro optimizations. Any help
+here is appreciated.</p>
+<h2><a class="anchor" aria-hidden="true" id="code-formatters-create-unnecessary-diffs"></a><a href="#code-formatters-create-unnecessary-diffs" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Code formatters create unnecessary diffs!</h2>
+<p>That's not a question, but I agree that code formatters like scalafmt do
+sometimes increase the size of diffs in code reviews. I still believe it's worth
+it, considering</p>
+<ol>
+<li><p>Proper formatting
+<a href="https://twitter.com/extempore2/status/717716747181096960">helps you catch bugs</a>!</p></li>
+<li><p>You can enable non-whitespace diffs during code review. For Github, add
+<code>?w=1</code> to the URL to ignore whitespace changes.</p></li>
+<li><p><code>git blame</code> has a <code>-w</code> flag to ignore whitespace changes so you can still
+blame your colleagues for their crappy code.</p></li>
+<li><p>code is read waaay more often outside of code reviews, for example when you
+are actually coding.</p></li>
+</ol>
+<h2><a class="anchor" aria-hidden="true" id="which-configuration-options-minimize-diffs-conflicts-in-version-control"></a><a href="#which-configuration-options-minimize-diffs-conflicts-in-version-control" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Which configuration options minimize diffs/conflicts in version control?}</h2>
+<ul>
+<li><p><code>align=none</code> If alignment is enabled a renaming of one entity can impact the
+indentation of other entities.</p></li>
+<li><p><code>danglingParenthesis=true</code> Having the closing parenthesis on the same line as
+the last argument makes the diff line include the parenthesis and everything
+following it in case that argument is renamed. So, technically this does not
+reduce the number of diff lines, but the length of them.</p></li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="is-the-formatting-output-stable-between-releases"></a><a href="#is-the-formatting-output-stable-between-releases" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Is the formatting output stable between releases?</h2>
+<p>No, the formatting rules will evolve even between PATCH releases. I recommend
+you inspect the diff for <strong>every</strong> scalafmt update.</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/scalafmt/docs/gotchas.html">← Gotchas</a><a class="docs-next button" href="/scalafmt/docs/known-issues.html">Known Issues →</a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#why-not-scalariform">Why not Scalariform?</a></li><li><a href="#why-is-scalafmt-so-slow">Why is scalafmt so slow?</a></li><li><a href="#code-formatters-create-unnecessary-diffs">Code formatters create unnecessary diffs!</a></li><li><a href="#which-configuration-options-minimize-diffs-conflicts-in-version-control">Which configuration options minimize diffs/conflicts in version control?}</a></li><li><a href="#is-the-formatting-output-stable-between-releases">Is the formatting output stable between releases?</a></li></ul></nav></div><footer class="nav-footer" id="footer" style="background-color:#A23244"><section class="sitemap"><div><h5>Docs</h5><a href="
+                /scalafmt/docs/introduction.html">Overview</a><a href="
+                /scalafmt/docs/contributing-scalafmt.html">Contributors</a></div><div><h5>Community</h5><a href="https://gitter.im/scalameta/scalafmt" target="_blank">Chat on Gitter</a></div><div><h5>More</h5><a href="https://github.com/scalameta/scalafmt" target="_blank">GitHub</a></div></section><section class="copyright">Copyright © 2018 Scalafmt</section></footer></div></body></html>

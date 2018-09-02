@@ -1,0 +1,63 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Gotchas · Scalafmt</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="Scalafmt tries to automatically reformat as much as possible. However, sometimes"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Gotchas · Scalafmt"/><meta property="og:type" content="website"/><meta property="og:url" content="http://scalameta.org/scalafmt/index.html"/><meta property="og:description" content="Scalafmt tries to automatically reformat as much as possible. However, sometimes"/><meta property="og:image" content="http://scalameta.org/scalafmt/img/scalameta-logo.png"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="http://scalameta.org/scalafmt/img/scalameta-logo.png"/><link rel="shortcut icon" href="/scalafmt/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css"/><link rel="stylesheet" href="/scalafmt/css/code-blocks-buttons.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/scalafmt/js/code-blocks-buttons.js"></script><script type="text/javascript" src="/scalafmt/js/code-blocks-compare.js"></script><link rel="stylesheet" href="/scalafmt/css/main.css"/></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/scalafmt/"><h2 class="headerTitle">Scalafmt</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/scalafmt/docs/introduction.html" target="_self">Docs</a></li><li class=""><a href="https://github.com/scalameta/scalafmt" target="_blank">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><i></i></div><h2><i>›</i><span>Documentation</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Documentation</h3><ul><li class="navListItem"><a class="navItem" href="/scalafmt/docs/introduction.html">Introduction</a></li><li class="navListItem"><a class="navItem" href="/scalafmt/docs/installation.html">Installation</a></li><li class="navListItem"><a class="navItem" href="/scalafmt/docs/configuration.html">Configuration</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/scalafmt/docs/gotchas.html">Gotchas</a></li><li class="navListItem"><a class="navItem" href="/scalafmt/docs/faq.html">FAQ / Troubleshooting</a></li><li class="navListItem"><a class="navItem" href="/scalafmt/docs/known-issues.html">Known Issues</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Contributing</h3><ul><li class="navListItem"><a class="navItem" href="/scalafmt/docs/contributing-scalafmt.html">Contributing</a></li><li class="navListItem"><a class="navItem" href="/scalafmt/docs/contributing-website.html">Contributing to the website</a></li></ul></div></div></section></div><script>
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              const headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                if (event.target.tagName === 'A') {
+                  document.body.classList.remove('tocActive');
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/scalameta/scalafmt/edit/master/docs/gotchas.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">Gotchas</h1></header><article><div><span><p>Scalafmt tries to automatically reformat as much as possible. However, sometimes
+you need to help scalafmt decide how to format your code.</p>
+<h2><a class="anchor" aria-hidden="true" id="infix-applications"></a><a href="#infix-applications" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Infix applications</h2>
+<p>Infix applications are methods calls that use the syntax like <code>a + b</code> instead of
+<code>a.+(b)</code>.</p>
+<p>Scalafmt preserves your line breaks in infix applications, even if this means
+the <code>maxColumn</code> setting is not respected.</p>
+<pre><code class="hljs css languages- scala"><span class="hljs-comment">// column limit |</span>
+<span class="hljs-comment">// if you have long infix appplications</span>
+a.b(c) &amp;&amp; d.e(f, g, h)
+
+<span class="hljs-comment">// then scalafmt may format like this</span>
+a.b(c) &amp;&amp; d.e(
+  f, g, h)
+
+<span class="hljs-comment">// which is ugly. You can fix it by inserting</span>
+<span class="hljs-comment">// a newline after &amp;&amp; and it will look like this</span>
+a.b(c) &amp;&amp;
+  d.e(f, g, h)
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="config-style"></a><a href="#config-style" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Config style</h2>
+<p>You can use &quot;config style&quot; to tell scalafmt to break a function application.</p>
+<pre><code class="hljs css languages- scala"><span class="hljs-comment">// Put newline after opening (</span>
+<span class="hljs-comment">// and newline before closing )</span>
+<span class="hljs-comment">// to force one argument on each line.</span>
+
+<span class="hljs-comment">// OK: Config style</span>
+function(
+  longerArg1 = defaultValue1,
+  longerArg2 = defaultValue2,
+  longerArg3 = defaultValue3
+)
+<span class="hljs-comment">// NOT Config style</span>
+function(longerArg1 = defaultValue1,
+          longerArg2 = defaultValue2,
+          longerArg3 = defaultValue3)
+</code></pre>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/scalafmt/docs/configuration.html">← Configuration</a><a class="docs-next button" href="/scalafmt/docs/faq.html">FAQ / Troubleshooting →</a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#infix-applications">Infix applications</a></li><li><a href="#config-style">Config style</a></li></ul></nav></div><footer class="nav-footer" id="footer" style="background-color:#A23244"><section class="sitemap"><div><h5>Docs</h5><a href="
+                /scalafmt/docs/introduction.html">Overview</a><a href="
+                /scalafmt/docs/contributing-scalafmt.html">Contributors</a></div><div><h5>Community</h5><a href="https://gitter.im/scalameta/scalafmt" target="_blank">Chat on Gitter</a></div><div><h5>More</h5><a href="https://github.com/scalameta/scalafmt" target="_blank">GitHub</a></div></section><section class="copyright">Copyright © 2018 Scalafmt</section></footer></div></body></html>

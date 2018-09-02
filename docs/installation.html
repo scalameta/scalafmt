@@ -1,0 +1,295 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Installation · Scalafmt</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="## CLI"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Installation · Scalafmt"/><meta property="og:type" content="website"/><meta property="og:url" content="http://scalameta.org/scalafmt/index.html"/><meta property="og:description" content="## CLI"/><meta property="og:image" content="http://scalameta.org/scalafmt/img/scalameta-logo.png"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="http://scalameta.org/scalafmt/img/scalameta-logo.png"/><link rel="shortcut icon" href="/scalafmt/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css"/><link rel="stylesheet" href="/scalafmt/css/code-blocks-buttons.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/scalafmt/js/code-blocks-buttons.js"></script><script type="text/javascript" src="/scalafmt/js/code-blocks-compare.js"></script><link rel="stylesheet" href="/scalafmt/css/main.css"/></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/scalafmt/"><h2 class="headerTitle">Scalafmt</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/scalafmt/docs/introduction.html" target="_self">Docs</a></li><li class=""><a href="https://github.com/scalameta/scalafmt" target="_blank">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><i></i></div><h2><i>›</i><span>Documentation</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Documentation</h3><ul><li class="navListItem"><a class="navItem" href="/scalafmt/docs/introduction.html">Introduction</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/scalafmt/docs/installation.html">Installation</a></li><li class="navListItem"><a class="navItem" href="/scalafmt/docs/configuration.html">Configuration</a></li><li class="navListItem"><a class="navItem" href="/scalafmt/docs/gotchas.html">Gotchas</a></li><li class="navListItem"><a class="navItem" href="/scalafmt/docs/faq.html">FAQ / Troubleshooting</a></li><li class="navListItem"><a class="navItem" href="/scalafmt/docs/known-issues.html">Known Issues</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Contributing</h3><ul><li class="navListItem"><a class="navItem" href="/scalafmt/docs/contributing-scalafmt.html">Contributing</a></li><li class="navListItem"><a class="navItem" href="/scalafmt/docs/contributing-website.html">Contributing to the website</a></li></ul></div></div></section></div><script>
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              const headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                if (event.target.tagName === 'A') {
+                  document.body.classList.remove('tocActive');
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/scalameta/scalafmt/edit/master/docs/installation.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">Installation</h1></header><article><div><span><h2><a class="anchor" aria-hidden="true" id="cli"></a><a href="#cli" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>CLI</h2>
+<p>The recommended way to install the scalafmt command line tool is with
+<a href="#coursier">Coursier</a>.</p>
+<h3><a class="anchor" aria-hidden="true" id="coursier"></a><a href="#coursier" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Coursier</h3>
+<div class="sidenote">
+To install Coursier see <a href="https://github.com/coursier/coursier#command-line" target="_blank">here</a>
+</div>
+<p>Create a standalone executable in <code>/usr/local/bin/scalafmt</code> with (sudo if
+necessary):</p>
+<pre><code class="hljs css languages- sh">coursier bootstrap com.geirsson:scalafmt-cli_2.12:1.5.1 \
+  -r bintray:scalameta/maven \
+  -o /usr/<span class="hljs-built_in">local</span>/bin/scalafmt --standalone --main org.scalafmt.cli.Cli
+scalafmt --version <span class="hljs-comment"># should be 1.5.1</span>
+</code></pre>
+<p>Alternatively you can create a slim 15 KiB bootstrap script with:</p>
+<pre><code class="hljs css languages- sh">coursier bootstrap com.geirsson:scalafmt-cli_2.12:1.5.1 \
+  -r bintray:scalameta/maven \
+  -o scalafmt --main org.scalafmt.cli.Cli
+./scalafmt --version <span class="hljs-comment"># should be 1.5.1</span>
+</code></pre>
+<p>It is <strong>recommended</strong> to put this bootstrap script in your code repository to
+make sure everyone on your team, as well as CI, uses the same scalafmt version.
+To configure which files to format, see <a href="/scalafmt/docs/configuration.html#project">project</a>.</p>
+<p>To customize the JVM options, use the Coursier option <code>--java-opt</code>, more info
+with</p>
+<pre><code class="hljs css languages- sh">coursier bootstrap --<span class="hljs-built_in">help</span> | grep -A 1 <span class="hljs-string">"\-\-java-opt"</span>
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="pre-release"></a><a href="#pre-release" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Pre-release</h3>
+<p>Our CI publishes a pre-release version of scalafmt to Bintray on every merge
+into master. To use a pre-release, replace 1.5.1 with the version
+here:</p>
+<p><a href='https://bintray.com/scalameta/maven/scalafmt-cli/_latestVersion'>
+<img src='https://api.bintray.com/packages/scalameta/maven/scalafmt-cli/images/download.svg'>
+</a></p>
+<p>If you use coursier to install a pre-release, be sure to include the flag -r
+bintray:scalameta/maven so that the artifact can be resolved.</p>
+<p>If you use sbt to install a pre-release, be sure to add the following setting</p>
+<pre><code class="hljs css languages- scala">resolvers += <span class="hljs-type">Resolver</span>.bintray(<span class="hljs-string">"scalameta"</span>, <span class="hljs-string">"maven"</span>)
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="nailgun"></a><a href="#nailgun" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Nailgun</h3>
+<p>Nailgun is recommended if you want to integrate scalafmt with a text editor like
+vim/Emacs/Atom/Sublime/VS Code.</p>
+<ul>
+<li>Make sure you have a nailgun client installed. For example with
+<code>brew install nailgun</code>.</li>
+<li>Create a standalone executable in <code>/usr/local/bin/scalafmt_ng</code> with (sudo if
+necessary)</li>
+</ul>
+<pre><code class="hljs css languages- sh">coursier bootstrap --standalone com.geirsson:scalafmt-cli_2.12:1.5.1 \
+  -r bintray:scalameta/maven \
+  -o /usr/<span class="hljs-built_in">local</span>/bin/scalafmt_ng -f --main com.martiansoftware.nailgun.NGServer
+scalafmt_ng &amp; // start nailgun <span class="hljs-keyword">in</span> background
+ng ng-alias scalafmt org.scalafmt.cli.Cli
+ng scalafmt --version <span class="hljs-comment"># should be 1.5.1</span>
+</code></pre>
+<p>Nailgun keeps scalafmt running on a local server to avoid the JVM startup
+penalty and also so scalafmt can benefit from JIT. This makes scalafmt up to 10x
+faster when formatting a single file from the CLI. The downside to Nailgun is
+that the setup is complicated and the long-running server needs to be restarted
+once in awhile.</p>
+<h3><a class="anchor" aria-hidden="true" id="homebrew"></a><a href="#homebrew" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Homebrew</h3>
+<p>You can install scalafmt via Homebrew using a custom formula</p>
+<pre><code class="hljs css languages- sh">brew install --HEAD olafurpg/scalafmt/scalafmt
+scalafmt --version // should be 1.5.1
+
+// to upgrade between releases
+brew upgrade scalafmt
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="help"></a><a href="#help" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>--help</h3>
+<pre><code class="hljs"><span class="hljs-keyword">build </span>commit: <span class="hljs-keyword">be75729f88fd9cf5fcedf42cd56d6ef7a7f8aa03
+</span><span class="hljs-keyword">build </span>time: Sat Sep <span class="hljs-number">01</span> <span class="hljs-number">22</span>:<span class="hljs-number">55</span>:<span class="hljs-number">44</span> CEST <span class="hljs-number">2018</span>
+</code></pre>
+<pre><code class="hljs">scalafmt 1.6.0-RC4+74-be75729f+20180901-2255-SNAPSHOT
+Usage: scalafmt [options] [&lt;<span class="hljs-keyword">file</span>&gt;...]
+
+  -<span class="hljs-keyword">h</span>, --<span class="hljs-keyword">help</span>               prints this usage text
+  -v, --<span class="hljs-keyword">version</span>            <span class="hljs-keyword">print</span> <span class="hljs-keyword">version</span> 
+  &lt;<span class="hljs-keyword">file</span>&gt;...                <span class="hljs-keyword">file</span> or directory, <span class="hljs-keyword">in</span> <span class="hljs-keyword">which</span> case all *.<span class="hljs-keyword">scala</span> files are formatted.
+  --stdout                 write formatted files to stdout
+  --git &lt;value&gt;            <span class="hljs-keyword">if</span> true, ignore files <span class="hljs-keyword">in</span> .gitignore (default false)
+  --exclude &lt;value&gt;        <span class="hljs-keyword">file</span> or directory, <span class="hljs-keyword">in</span> <span class="hljs-keyword">which</span> case all *.<span class="hljs-keyword">scala</span> files are formatted.
+  -c, --config &lt;value&gt;     a <span class="hljs-keyword">file</span> path to .scalafmt.<span class="hljs-keyword">conf</span>.
+  --config-str &lt;value&gt;     configuration defined <span class="hljs-keyword">as</span> a <span class="hljs-built_in">string</span>
+  --stdin                  <span class="hljs-keyword">read</span> from stdin and <span class="hljs-keyword">print</span> to stdout
+  --<span class="hljs-keyword">no</span>-stderr              don't <span class="hljs-keyword">use</span> strerr <span class="hljs-keyword">for</span> messages, output to stdout
+  --assume-filename &lt;value&gt;
+                           when using --stdin, <span class="hljs-keyword">use</span> --assume-filename to hint to scalafmt that the <span class="hljs-keyword">input</span> is <span class="hljs-keyword">an</span> .sbt <span class="hljs-keyword">file</span>.
+  --<span class="hljs-keyword">test</span>                   <span class="hljs-keyword">test</span> <span class="hljs-keyword">for</span> mis-formatted code, exits with status 1 <span class="hljs-keyword">on</span> failure.
+  --migrate2hocon &lt;value&gt;  migrate .scalafmt <span class="hljs-keyword">CLI</span> style configuration to hocon style configuration <span class="hljs-keyword">in</span> .scalafmt.<span class="hljs-keyword">conf</span>
+  --diff                   <span class="hljs-keyword">If</span> <span class="hljs-keyword">set</span>, only <span class="hljs-keyword">format</span> edited files <span class="hljs-keyword">in</span> git diff against master.
+  --diff-branch &lt;value&gt;    <span class="hljs-keyword">If</span> <span class="hljs-keyword">set</span>, only <span class="hljs-keyword">format</span> edited files <span class="hljs-keyword">in</span> git diff against provided branch.
+  --build-info             prints build information
+  --quiet                  don't <span class="hljs-keyword">print</span> <span class="hljs-keyword">out</span> stuff to console.
+  --debug                  <span class="hljs-keyword">print</span> <span class="hljs-keyword">out</span> diagnostics to console.
+  --non-interactive        disable fancy progress bar, useful <span class="hljs-keyword">in</span> <span class="hljs-keyword">ci</span> or sbt <span class="hljs-keyword">plugin</span>.
+Examples:
+scalafmt # <span class="hljs-keyword">Format</span> all files <span class="hljs-keyword">in</span> the current project, configuration is determined <span class="hljs-keyword">in</span> this <span class="hljs-keyword">order</span>:
+         # 1. .scalafmt.<span class="hljs-keyword">conf</span> <span class="hljs-keyword">file</span> <span class="hljs-keyword">in</span> current directory
+         # 2. .scalafmt.<span class="hljs-keyword">conf</span> inside root directory of current git repo
+         # 3. <span class="hljs-keyword">no</span> configuration, default style
+scalafmt --<span class="hljs-keyword">test</span> # throw exception <span class="hljs-keyword">on</span> mis-formatted files, won't write to files.
+scalafmt --diff # <span class="hljs-keyword">Format</span> all files that were edited <span class="hljs-keyword">in</span> git diff against master branch.
+scalafmt --diff-branch 2.x # same <span class="hljs-keyword">as</span> --diff, except against branch 2.x
+scalafmt --stdin # <span class="hljs-keyword">read</span> from stdin and <span class="hljs-keyword">print</span> to stdout
+scalafmt --stdin --assume-filename foo.sbt &lt; foo.sbt # required when using --stdin to <span class="hljs-keyword">format</span> .sbt files.
+scalafmt Code1.<span class="hljs-keyword">scala</span> A.<span class="hljs-keyword">scala</span>       # write formatted contents to <span class="hljs-keyword">file</span>.
+scalafmt --stdout Code.<span class="hljs-keyword">scala</span>       # <span class="hljs-keyword">print</span> formatted contents to stdout.
+scalafmt --exclude target          # <span class="hljs-keyword">format</span> all files <span class="hljs-keyword">in</span> directory excluding target
+scalafmt --config .scalafmt.<span class="hljs-keyword">conf</span>   # <span class="hljs-keyword">read</span> custom style from <span class="hljs-keyword">file</span>
+scalafmt --config-str <span class="hljs-string">"style=IntelliJ"</span> # define custom style <span class="hljs-keyword">as</span> a flag, must be quoted.
+Please <span class="hljs-keyword">file</span> bugs to https:<span class="hljs-comment">//github.com/scalameta/scalafmt/issues</span>
+      
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="intellij"></a><a href="#intellij" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>IntelliJ</h2>
+<div class="sidenote">
+Please upvote <a href="https://youtrack.jetbrains.com/issue/SCL-13658">this Jetbrains ticket</a>
+about adding built-in support for Scalafmt in the IntelliJ Scala plugin.
+</div>
+<p><a href="https://plugins.jetbrains.com/plugin/8236?pr=">Here is the plugin</a>. You can
+install it directly from within IntelliJ:</p>
+<ul>
+<li>open <code>Settings &gt; Plugins</code></li>
+<li>open <code>Browse repositories</code></li>
+<li>search for <code>scalafmt</code></li>
+<li>restart IntelliJ.</li>
+</ul>
+<p>The default shortcut is <code>Ctrl + Shift + L</code>. Undo works, but not redo.</p>
+<p>The plugin determines which style to use in this order:</p>
+<ol>
+<li><code>.scalafmt.conf</code> in the project's root directory, if it exists</li>
+<li><code>$HOME/.scalafmt.conf</code>, if it exists</li>
+<li>Otherwise, uses <code>default</code> style.</li>
+</ol>
+<p>For details on how <code>.scalafmt.conf</code> should look like, see
+<a href="/scalafmt/docs/configuration.html">Configuration</a>. The scalafmt IntelliJ plugin has a &quot;Format on
+save&quot; setting.</p>
+<ul>
+<li>To enable for current project: <code>Settings &gt; Tools &gt; Scalafmt</code></li>
+<li>To enable for all future project:
+<code>File &gt; Other settings &gt; Default settings &gt; Scalafmt</code></li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="sbt"></a><a href="#sbt" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>sbt</h2>
+<p>You can choose between</p>
+<ul>
+<li><a href="#sbt-scalafmt">sbt-scalafmt</a> (sbt 1.0 only)</li>
+<li><a href="#neo-sbt-scalafmt">neo-sbt-scalafmt</a> (sbt 0.13 and sbt 1.0)</li>
+</ul>
+<h3><a class="anchor" aria-hidden="true" id="sbt-scalafmt"></a><a href="#sbt-scalafmt" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>sbt-scalafmt</h3>
+<pre><code class="hljs css languages- scala"><span class="hljs-comment">// In project/plugins.sbt. Note, does not support sbt 0.13, only sbt 1.0.</span>
+addSbtPlugin(<span class="hljs-string">"com.geirsson"</span> % <span class="hljs-string">"sbt-scalafmt"</span> % <span class="hljs-string">"1.5.1"</span>)
+</code></pre>
+<p>The sbt plugin is enabled by default for the Test and Compile configurations. To
+enable the plugin for integration tests</p>
+<pre><code class="hljs css languages- scala">inConfig(<span class="hljs-type">IntegrationTest</span>)(scalafmtConfigSettings)
+</code></pre>
+<p>and then use <code>it:scalafmt</code> to format.</p>
+<p>Pro tip. To share configuration across projects, you can define a setting in
+<code>build.sbt</code> to generate <code>.scalafmt.conf</code> programmatically on sbt load.</p>
+<pre><code class="hljs css languages- scala">// define setting key to write configuration to .scalafmt.conf
+SettingKey[Unit]("scalafmtGenerateConfig") :=
+  IO.write( // writes to file once when build is loaded
+    file(".scalafmt.conf"),
+    """style = IntelliJ
+      |# Your configuration here
+      """.stripMargin.getBytes("UTF-8")
+  )
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="neo-sbt-scalafmt"></a><a href="#neo-sbt-scalafmt" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>neo-sbt-scalafmt</h3>
+<p><a href="https://github.com/lucidsoftware/neo-sbt-scalafmt">lucidsoftware/neo-sbt-scalafmt</a>
+is an sbt plugin that</p>
+<ul>
+<li>supports both sbt 0.13 and 1.0.0</li>
+<li>supports any version of scalafmt</li>
+<li>runs in-process</li>
+<li>uses SBT's update resolutions mechanism, which tends to be slow for large
+multi-module builds.</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="gradle"></a><a href="#gradle" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Gradle</h2>
+<p>It is possible to use scalafmt in gradle with the following externally
+maintained plugins:</p>
+<ul>
+<li><a href="https://github.com/diffplug/spotless/tree/master/plugin-gradle#applying-scalafmt-to-scala-files">Spotless</a></li>
+<li><a href="https://github.com/alenkacz/gradle-scalafmt">gradle-scalafmt</a></li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="maven"></a><a href="#maven" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Maven</h2>
+<p>It is possible to use scalafmt in Maven with the following externally maintained
+plugin:</p>
+<ul>
+<li><a href="https://github.com/SimonJPegg/mvn_scalafmt">mvn_scalafmt</a></li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="mill"></a><a href="#mill" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Mill</h2>
+<p>Mill have scalafmt support built-in:</p>
+<ul>
+<li><a href="http://www.lihaoyi.com/mill/page/configuring-mill.html#reformatting-your-code">scalafmt module</a></li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="vim"></a><a href="#vim" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Vim</h2>
+<ul>
+<li>Make sure you have the <a href="#cli">CLI</a> installed and working.</li>
+<li>install <a href="https://github.com/Chiel92/vim-autoformat">vim-autoformat</a></li>
+<li>add to your <code>.vimrc</code></li>
+</ul>
+<pre><code class="hljs"><span class="hljs-keyword">noremap</span> <span class="hljs-symbol">&lt;F5&gt;</span> :Autoformat<span class="hljs-symbol">&lt;CR&gt;</span>
+<span class="hljs-keyword">let</span> <span class="hljs-variable">g:formatdef_scalafmt</span> = <span class="hljs-string">"'scalafmt --stdin'"</span>
+<span class="hljs-keyword">let</span> <span class="hljs-variable">g:formatters_scala</span> = [<span class="hljs-string">'scalafmt'</span>]
+</code></pre>
+<div class="sidenote">
+You pay the JVM startup penalty on every format unless you're using
+<a href="#nailgun">Nailgun</a>.
+</div>
+<h2><a class="anchor" aria-hidden="true" id="standalone-library"></a><a href="#standalone-library" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Standalone library</h2>
+<p>Add to your dependencies</p>
+<pre><code class="hljs css languages- scala">libraryDependencies += <span class="hljs-string">"com.geirsson"</span> %% <span class="hljs-string">"scalafmt-core"</span> % <span class="hljs-string">"1.5.1"</span>
+<span class="hljs-comment">// Scala.js</span>
+libraryDependencies += <span class="hljs-string">"com.geirsson"</span> %%% <span class="hljs-string">"scalafmt-core"</span> % <span class="hljs-string">"1.5.1"</span>
+</code></pre>
+<p>Use the API like this:</p>
+<pre><code class="hljs css languages- scala">org.scalafmt.Scalafmt.format("""
+      object FormatMe { List(Split(Space, 0).withPolicy(SingleLineBlock(close)), Split(Newline, 1).withPolicy{ case Decision(t@FormatToken(_, `close`, _), s) =&gt; Decision(t, List(Split(Newline, 0)))}.withIndent(2, close, Right)) }
+""").get
+// res2: String = """object FormatMe {
+//   List(
+//     Split(Space, 0).withPolicy(SingleLineBlock(close)),
+//     Split(Newline, 1)
+//       .withPolicy {
+//         case Decision(t @ FormatToken(_, `close`, _), s) =&gt;
+//           Decision(t, List(Split(Newline, 0)))
+//       }
+//       .withIndent(2, close, Right)
+//   )
+// }
+// """
+</code></pre>
+<p>Obtain a configuration object with <code>parseHoconConfig</code></p>
+<pre><code class="hljs css languages- scala">val config = org.scalafmt.Scalafmt.parseHoconConfig("align=most").get
+// config: org.scalafmt.config.ScalafmtConfig = ScalafmtConfig(  "1.5.1",  80,  ScalaDoc,  OptIn(true, false, true, true, true, false),  BinPack(false, false, false, true, 5, List(".*"), List("String", "Term.Name")),  ContinuationIndent(2, 4, 4),  Align(    false,    false,    Set(      AlignToken("\u2190", "Enumerator.Generator"),      AlignToken("%", "Term.ApplyInfix"),      AlignToken("{", "Template"),      AlignToken("\u21d2", "Case"),      AlignToken("extends", "Defn.(Class|Trait|Object)"),      AlignToken("\u2192", "Term.ApplyInfix"),      AlignToken("=", "(Enumerator.Val|Defn.(Va(l|r)|Def|Type))"),      AlignToken("&lt;-", "Enumerator.Generator"),      AlignToken("//", ".*"),      AlignToken("-&gt;", "Term.ApplyInfix"),      AlignToken("%%", "Term.ApplyInfix"),      AlignToken("=&gt;", "Case"),      AlignToken("}", "Template"),      AlignToken("%%%", "Term.ApplyInfix")    ),    true,    true,    Map("Equals" -&gt; "Assign", "LeftArrow" -&gt; "Assign"),    Map(      "Defn.Trait" -&gt; "class/object/trait",      "Enumerator.Val" -&gt; "for",      "Defn.Class" -&gt; "class/object/trait",      "Defn.Object" -&gt; "class/object/trait",      "Defn.Val" -&gt; "val/var/def",      "Defn.Def" -&gt; "val/var/def",      "Defn.Var" -&gt; "val/var/def",      "Enumerator.Generator" -&gt; "for"    )  ),  Spaces(Never, false, false, false, List(), true, true, false),  Literals(Upper, Lower, Lower),  unix,  Map(),  RewriteSettings(    List(),    RedundantBracesSettings(true, true, 100, false, false),    SortSettings(List(implicit, final, sealed, abstract, override, private, protected, lazy)),    Pattern(...
+
+org.scalafmt.Scalafmt.format("""
+    object Align {
+        val x = 1
+        val xx = 2
+    }
+""", config).get
+// res3: String = """object Align {
+//   val x  = 1
+//   val xx = 2
+// }
+// """
+</code></pre>
+<p>To format code with top-level statements like <code>*.sbt</code> files</p>
+<pre><code class="hljs css languages- scala">val configForSbt = org.scalafmt.Scalafmt.configForSbt(config)
+// configForSbt: org.scalafmt.config.ScalafmtConfig = ScalafmtConfig(  "1.5.1",  80,  ScalaDoc,  OptIn(true, false, true, true, true, false),  BinPack(false, false, false, true, 5, List(".*"), List("String", "Term.Name")),  ContinuationIndent(2, 4, 4),  Align(    false,    false,    Set(      AlignToken("\u2190", "Enumerator.Generator"),      AlignToken("%", "Term.ApplyInfix"),      AlignToken("{", "Template"),      AlignToken("\u21d2", "Case"),      AlignToken("extends", "Defn.(Class|Trait|Object)"),      AlignToken("\u2192", "Term.ApplyInfix"),      AlignToken("=", "(Enumerator.Val|Defn.(Va(l|r)|Def|Type))"),      AlignToken("&lt;-", "Enumerator.Generator"),      AlignToken("//", ".*"),      AlignToken("-&gt;", "Term.ApplyInfix"),      AlignToken("%%", "Term.ApplyInfix"),      AlignToken("=&gt;", "Case"),      AlignToken("}", "Template"),      AlignToken("%%%", "Term.ApplyInfix")    ),    true,    true,    Map("Equals" -&gt; "Assign", "LeftArrow" -&gt; "Assign"),    Map(      "Defn.Trait" -&gt; "class/object/trait",      "Enumerator.Val" -&gt; "for",      "Defn.Class" -&gt; "class/object/trait",      "Defn.Object" -&gt; "class/object/trait",      "Defn.Val" -&gt; "val/var/def",      "Defn.Def" -&gt; "val/var/def",      "Defn.Var" -&gt; "val/var/def",      "Enumerator.Generator" -&gt; "for"    )  ),  Spaces(Never, false, false, false, List(), true, true, false),  Literals(Upper, Lower, Lower),  unix,  Map(),  RewriteSettings(    List(),    RedundantBracesSettings(true, true, 100, false, false),    SortSettings(List(implicit, final, sealed, abstract, override, private, protected, lazy)),    Pattern(...
+
+org.scalafmt.Scalafmt.format("""
+    val x = 1
+    val xx = 2
+""", configForSbt).get
+// res4: String = """val x  = 1
+// val xx = 2
+// """
+</code></pre>
+<p>The Scalafmt public API consists only of methods in<code>org.scalafmt.Scalafmt</code>. In
+particular, case classes in <code>org.scalafmt.config</code> are subject to binary and
+source breaking changes on any release.</p>
+<h2><a class="anchor" aria-hidden="true" id="help-wanted"></a><a href="#help-wanted" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Help Wanted</h2>
+<ul>
+<li>Ensime</li>
+<li>Scala IDE (<a href="https://github.com/scalameta/scalafmt/issues/125">help wanted!</a>)</li>
+<li>Your favorite editor? Join the gitter channel.</li>
+</ul>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/scalafmt/docs/introduction.html">← Introduction</a><a class="docs-next button" href="/scalafmt/docs/configuration.html">Configuration →</a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#cli">CLI</a><ul class="toc-headings"><li><a href="#coursier">Coursier</a></li><li><a href="#pre-release">Pre-release</a></li><li><a href="#nailgun">Nailgun</a></li><li><a href="#homebrew">Homebrew</a></li><li><a href="#help">--help</a></li></ul></li><li><a href="#intellij">IntelliJ</a></li><li><a href="#sbt">sbt</a><ul class="toc-headings"><li><a href="#sbt-scalafmt">sbt-scalafmt</a></li><li><a href="#neo-sbt-scalafmt">neo-sbt-scalafmt</a></li></ul></li><li><a href="#gradle">Gradle</a></li><li><a href="#maven">Maven</a></li><li><a href="#mill">Mill</a></li><li><a href="#vim">Vim</a></li><li><a href="#standalone-library">Standalone library</a></li><li><a href="#help-wanted">Help Wanted</a></li></ul></nav></div><footer class="nav-footer" id="footer" style="background-color:#A23244"><section class="sitemap"><div><h5>Docs</h5><a href="
+                /scalafmt/docs/introduction.html">Overview</a><a href="
+                /scalafmt/docs/contributing-scalafmt.html">Contributors</a></div><div><h5>Community</h5><a href="https://gitter.im/scalameta/scalafmt" target="_blank">Chat on Gitter</a></div><div><h5>More</h5><a href="https://github.com/scalameta/scalafmt" target="_blank">GitHub</a></div></section><section class="copyright">Copyright © 2018 Scalafmt</section></footer></div></body></html>
