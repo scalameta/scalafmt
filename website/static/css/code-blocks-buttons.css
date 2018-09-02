@@ -38,10 +38,7 @@ pre .btnCompare:hover {
   font-size: 11px;
 }
 
-.btnClipboard {
-  right: 10px;
-}
-
+.btnClipboard,
 .btnCompare {
-  right: 70px;
+  right: 10px;
 }

@@ -11,9 +11,9 @@ the root directory of your project.
 
 Here is an example `.scalafmt.conf`:
 
-```yaml
-align = true    # For pretty alignment.
-maxColumn = 100 # For my wide 30" display.
+```scala config
+align = true    // For pretty alignment.
+maxColumn = 100 // For my wide 30" display.
 ```
 
 > A note of warning. I personally use the default style, which means that the
