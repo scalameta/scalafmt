@@ -4,6 +4,15 @@
 const repoUrl = 'https://github.com/scalameta/scalafmt';
 const baseUrl = '/scalafmt/';
 
+const users = [
+  {
+    caption: 'buildo',
+    image: 'https://www.buildo.io/static/media/logo.60e4e7fc.svg',
+    infoLink: 'https://www.buildo.io',
+    pinned: true,
+  },
+];
+
 const siteConfig = {
   title: 'Scalafmt',
   tagline: 'A code formatter for Scala',
@@ -26,7 +35,7 @@ const siteConfig = {
   ],
 
   // If you have users set above, you add it here:
-  // users,
+  users,
 
   /* path to images for header/footer */
   // headerIcon: 'img/scalameta-logo.png',
