@@ -506,7 +506,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       formatToken.left.is[Token.Equals] &&
         owners(formatToken.left).is[Defn]
     val indent: Int = {
-      if (style.unindentTopLevelOperators && isAssignment) {
+      if (style.unindentTopLevelOperators && isAssignment &&
+        newlinesBetween(next(next(formatToken)).between) > 0) {
         // see https://github.com/scalameta/scalafmt/issues/848
         2
       } else if ((style.unindentTopLevelOperators ||
