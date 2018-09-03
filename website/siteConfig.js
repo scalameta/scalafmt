@@ -14,6 +14,11 @@ const siteConfig = {
   projectName: 'Scalafmt',
   organizationName: 'Scalameta',
 
+  algolia: {
+    apiKey: '3409ffc8eadf85381f1b8cca926b07c4',
+    indexName: 'scalafmt'
+  },
+
   // For no header links in the top nav bar -> headerLinks: [],
   headerLinks: [
     {doc: 'introduction', label: 'Docs'},
