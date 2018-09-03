@@ -17,10 +17,6 @@ jobs:
     - env: TEST="2.12"
       script: sbt ci-test
     - stage: release
-      script: sbt ci-release
-    - env:
-        - USER_EMAIL=olafurpg@gmail.com
-      stage: release
       script: sbt docs/docusaurusPublishGhpages
 
 cache:

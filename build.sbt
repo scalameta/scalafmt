@@ -88,52 +88,6 @@ lazy val cli = project
   )
   .dependsOn(coreJVM)
 
-lazy val big = project
-  .in(file("scalafmt-big"))
-  .settings(
-    moduleName := "scalafmt-big",
-    crossScalaVersions := List(scala212),
-    mimaReportBinaryIssues := {},
-    shadeSettings
-  )
-  .dependsOn(cli)
-
-lazy val shadeSettings: List[Setting[_]] = List(
-  assemblyOption.in(assembly) ~= { _.copy(includeScala = false) },
-  assemblyShadeRules.in(assembly) := Seq(
-    ShadeRule
-      .rename(
-        "scala.meta.**" -> "org.scalafmt.shaded.meta.@1",
-        "fastparse.**" -> "org.scalafmt.shaded.fastparse.@1"
-      )
-      .inAll,
-    ShadeRule
-      .zap(
-        "scalapb.**",
-        "com.trueaccord.**"
-      )
-      .inAll
-  ),
-  artifact.in(Compile, packageBin) := artifact.in(Compile, assembly).value,
-  pomPostProcess := { (node: scala.xml.Node) =>
-    new scala.xml.transform.RuleTransformer(
-      new scala.xml.transform.RewriteRule {
-        override def transform(node: scala.xml.Node): scala.xml.NodeSeq =
-          node match {
-            case e: scala.xml.Elem
-                if e.label == "dependency" &&
-                  e.child.exists { child =>
-                    child.label == "artifactId" &&
-                    child.text.startsWith("scalafmt")
-                  } =>
-              scala.xml.Comment(s"shaded scalafmt-cli dependency.")
-            case _ => node
-          }
-      }
-    ).transform(node).head
-  }
-) ++ addArtifact(artifact.in(Compile, packageBin), assembly).settings
-
 lazy val intellij = project
   .in(file("scalafmt-intellij"))
   .settings(
