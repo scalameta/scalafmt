@@ -4,14 +4,14 @@ title: Introduction
 ---
 
 > Any style guide written in English is either so brief that it’s ambiguous, or
-> so long that no one reads it.
-> <cite>- Bob Nystrom, [Hardest Program I've Ever Written][bob], Dart, Google.</cite>
+> so long that no one reads it. <cite>- Bob Nystrom, [Hardest Program I've Ever
+> Written][bob], Dart, Google.</cite>
 
 `scalafmt` turns the mess <span class='widescreen-only'>on left</span>
 <span class='non-widescreen-only'>on the top</span> into the (hopefully)
 readable, idiomatic and consistently formatted Scala code
-<span class='widescreen-only'> on the right</span>
-<span class='non-widescreen-only'>at the bottom</span>.
+<span class='widescreen-only'> on the
+right</span><span class='non-widescreen-only'>at the bottom</span>.
 
 ```scala mdoc:passthrough
 website.formatExample(
@@ -48,4 +48,5 @@ Curious to learn more about scalafmt? Check out this talk:
 
 <iframe src="https://player.vimeo.com/video/165929294" width="100%" style="height: 28em;" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
 
-[bob]: http://journal.stuffwithstuff.com/2015/09/08/the-hardest-program-ive-ever-written/
+[bob]:
+  http://journal.stuffwithstuff.com/2015/09/08/the-hardest-program-ive-ever-written/
