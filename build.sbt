@@ -199,11 +199,11 @@ lazy val docs = project
   .settings(
     crossScalaVersions := List(scala212),
     skip in publish := true,
-    libraryDependencies ++= List(
-      "com.geirsson" % "mdoc" % "0.4.0" cross CrossVersion.full
-    )
+    mainClass.in(Compile) := Some("docs.Main")
   )
   .dependsOn(cli)
+  .enablePlugins(DocusaurusPlugin)
+
 val V = "\\d+\\.\\d+\\.\\d+"
 val ReleaseCandidate = s"($V-RC\\d+).*".r
 val Milestone = s"($V-M\\d+).*".r
