@@ -1,8 +1,10 @@
 resolvers ++= Seq(
   Classpaths.sbtPluginReleases,
+  Resolver.sonatypeRepo("releases"),
   Resolver.bintrayIvyRepo("jetbrains", "sbt-plugins")
 )
 
+addSbtPlugin("com.geirsson" % "sbt-docusaurus" % "0.2.0")
 addSbtPlugin("com.geirsson" % "sbt-ci-release" % "1.2.1")
 addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.7.0")
 addSbtPlugin(
@@ -15,4 +17,3 @@ addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.24")
 // https://github.com/JetBrains/sbt-idea-plugin/commit/d56a8c0641329eddeb340baa0a15a3786d0c73f8#commitcomment-29963323
 addSbtPlugin("org.jetbrains" % "sbt-idea-plugin" % "1.0.1")
 addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "0.1.18")
-addSbtPlugin("com.geirsson" % "sbt-docusaurus" % "0.1.2")
