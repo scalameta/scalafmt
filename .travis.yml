@@ -26,7 +26,7 @@ jobs:
         - git config --global user.name "${GH_NAME}"
         - git config --global user.email "${GH_EMAIL}"
         - echo "machine github.com login ${GH_NAME} password ${GITHUB_DEPLOY_KEY}" > ~/.netrc
-        - GIT_USER="${GH_NAME}" sbt docusaurusPublishGhPages
+        - GIT_USER="${GH_NAME}" sbt docusaurusPublishGhpages
 
 cache:
   directories:
