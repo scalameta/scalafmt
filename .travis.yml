@@ -21,7 +21,7 @@ jobs:
     - env:
         - USER_EMAIL=olafurpg@gmail.com
       stage: release
-      script: sbt docusaurusPublishGhpages
+      script: sbt docs/docusaurusPublishGhpages
 
 cache:
   directories:
