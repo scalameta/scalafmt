@@ -17,7 +17,7 @@ jobs:
     - env: TEST="2.12"
       script: sbt ci-test
     - stage: release
-      script: sbt docs/docusaurusPublishGhpages
+      script: sbt ci-release docs/docusaurusPublishGhpages
 
 cache:
   directories:
