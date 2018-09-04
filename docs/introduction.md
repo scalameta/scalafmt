@@ -4,8 +4,9 @@ title: Introduction
 ---
 
 > Any style guide written in English is either so brief that it’s ambiguous, or
-> so long that no one reads it. <cite>- Bob Nystrom, [Hardest Program I've Ever
-> Written][bob], Dart, Google.</cite>
+> so long that no one reads it.
+
+<cite>- Bob Nystrom, [Hardest Program I've Ever Written][bob], Dart, Google.</cite>
 
 `scalafmt` turns the mess <span class='widescreen-only'>on left</span>
 <span class='non-widescreen-only'>on the top</span> into the (hopefully)
