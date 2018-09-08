@@ -164,7 +164,21 @@ inConfig(IntegrationTest)(scalafmtConfigSettings)
 
 and then use `it:scalafmt` to format.
 
-Pro tip. To share configuration across projects, you can define a setting in
+#### Main Tasks
+- `scalafmt`: Format scala sources under the project with scalafmt.
+- `scalafmtCli`: Run the scalafmt command line interface.
+- `scalafmtCheck`: Check if the scala sources under the project has been formatted.
+- `scalafmtSbt`: Format `*.sbt` and `project/*.scala` files.
+- `scalafmtSbtCheck`: Check if the files has been formatted by `scalafmtSbt`.
+- `scalafmtOnly`: Format a single given file.
+
+#### Main Configurations
+- `scalafmtOnCompile`: Defines if the sbt-scalafmt should run scalafmt on compile. Default `false`.
+- `scalafmtConfig`: Optional location of `.scalafmt.conf` file. If `None` the default config is used. By default, `.scalafmt.conf` file on the project root will be used.
+
+
+#### Pro tip
+To share configuration across projects, you can define a setting in
 `build.sbt` to generate `.scalafmt.conf` programmatically on sbt load.
 
 ```scala
