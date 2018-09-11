@@ -1,0 +1,70 @@
+maxColumn = 100
+docstrings = JavaDoc
+assumeStandardLibraryStripMargin = false
+align = none
+continuationIndent.callSite = 2
+continuationIndent.defnSite = 2
+danglingParentheses = true
+spaces.inImportCurlyBraces = false
+spaces.afterTripleEquals = true
+newlines.sometimesBeforeColonInMethodReturnType = true
+binPack.parentConstructors = false
+<<< Idempotency Violation 1
+(copy(text = "                                                                                                                                        "))
+>>>
+(
+  copy(
+    text = "                                                                                                                                        "
+  )
+)
+<<< Idempotency Violation 2
+assert(
+  Seq(itsStartingToBecomeObviousImJustMakingUpLongVariableNamesToReachMyMaxWidthAndCauseProblems, forScalafmt)
+    .groupBy(identity)(true).size == 1
+)
+>>>
+assert(
+  Seq(
+    itsStartingToBecomeObviousImJustMakingUpLongVariableNamesToReachMyMaxWidthAndCauseProblems, forScalafmt
+  ).groupBy(identity)(true).size == 1
+)
+<<< Idempotency Violation 3
+    Foo {
+        bar
+    }
+      .map { _ =>
+        qux
+      }
+>>>
+    Foo {
+        bar
+    }.map { _ =>
+        qux
+      }
+<<< Idempotency Violation 4
+when(formatting
+  .formatting(should))
+  .be(
+    idempotent
+  )
+>>>
+when(
+  formatting
+    .formatting(should)
+).be(
+  idempotent
+)
+<<< Idempotency Violation 5
+foos
+  .map { case (a, b) =>
+    val distance: Float = -(atWhatPointDoTheseLongNameStopRevealingMyIntentionsToYou dot (vector / norm(vector).toFloat))
+  }
+>>>
+foos
+  .map {
+    case (a, b) =>
+      val distance
+        : Float = -(atWhatPointDoTheseLongNameStopRevealingMyIntentionsToYou dot (vector / norm(
+        vector
+      ).toFloat))
+  }
