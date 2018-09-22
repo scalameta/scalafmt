@@ -55,7 +55,8 @@ lazy val core = crossProject(JVMPlatform, JSPlatform)
     buildInfoSettings,
     libraryDependencies ++= Seq(
       metaconfig.value,
-      scalameta.value
+      scalameta.value,
+      "org.scala-lang" % "scala-reflect" % scalaVersion.value,
     )
   )
   .jsSettings(
