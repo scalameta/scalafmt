@@ -55,7 +55,10 @@ lazy val core = crossProject(JVMPlatform, JSPlatform)
     buildInfoSettings,
     libraryDependencies ++= Seq(
       metaconfig.value,
-      scalameta.value
+      scalameta.value,
+      // scala-reflect is an undeclared dependency of fansi, see #1252.
+      // Scalafmt itself does not require scala-reflect.
+      "org.scala-lang" % "scala-reflect" % scalaVersion.value,
     )
   )
   .jsSettings(
