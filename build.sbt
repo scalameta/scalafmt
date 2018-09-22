@@ -1,5 +1,6 @@
 import Dependencies._
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
+import scala.util.Try
 
 def scala211 = "2.11.12"
 def scala212 = "2.12.6"
@@ -180,7 +181,7 @@ lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
     "stable" -> stableVersion.value,
     "scala" -> scalaVersion.value,
     "coursier" -> coursier,
-    "commit" -> sys.process.Process("git rev-parse HEAD").lineStream_!.head,
+    "commit" -> Try(sys.process.Process("git rev-parse HEAD").lineStream_!.head).getOrElse("no-commit"),
     "timestamp" -> System.currentTimeMillis().toString,
     scalaVersion,
     sbtVersion
