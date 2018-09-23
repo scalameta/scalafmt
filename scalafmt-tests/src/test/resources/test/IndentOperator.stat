@@ -94,3 +94,21 @@ object TestRoutes {
       ???
     }
 }
+<<< #848 known limitation - right-hand side of assignment is unindented
+  val x =
+  1 +
+  2 +
+  3
+>>>
+val x =
+1 +
+2 +
+3
+<<< #848 known limitation 2 - right-hand side of assignment is unindented
+  val x = 1 +
+  2 +
+  3
+>>>
+val x = 1 +
+2 +
+3
