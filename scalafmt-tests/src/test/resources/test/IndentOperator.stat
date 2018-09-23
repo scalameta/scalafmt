@@ -112,3 +112,29 @@ val x =
 val x = 1 +
 2 +
 3
+<<< #1223 assignment + regular application
+val x = a + B(
+    a,
+    2
+)
+>>>
+val x = a + B(
+  a,
+  2
+)
+<<< #1223 assignment + right-associative + regular application
+val x = a :: B(
+    a,
+    2
+)
+>>>
+val x = a :: B(
+  a,
+  2
+)
+<<< #1282 known limitation - counter-example why PR insufficient
+val x = 1 + 2 +
+  3
+>>>
+val x = 1 + 2 +
+3
