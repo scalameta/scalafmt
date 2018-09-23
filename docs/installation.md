@@ -3,6 +3,101 @@ id: installation
 title: Installation
 ---
 
+You can use Scalafmt from your editor, build tool or terminal.
+
+## IntelliJ
+
+Scalafmt v1.5.1 comes pre-installed with the IntelliJ Scala plugin. If your
+project has a `.scalafmt.conf` file, then you will be prompted whether to use
+the "scalafmt formatter" or continue using the "IntelliJ formatter":
+
+![IntelliJ scalafmt formatter](assets/img/intellij-install.png)
+
+The built-in support for Scalafmt only supports Scalafmt v1.5.1 at the moment.
+To use a different version of Scalafmt with IntelliJ, install
+[this plugin](https://plugins.jetbrains.com/plugin/8236?pr=). You can install it
+directly from within IntelliJ:
+
+- open `Settings > Plugins`
+- open `Browse repositories`
+- search for `scalafmt`
+- restart IntelliJ.
+
+The default shortcut is `Ctrl + Shift + L`. Undo works, but not redo.
+
+The plugin determines which style to use in this order:
+
+1. `.scalafmt.conf` in the project's root directory, if it exists
+1. `$HOME/.scalafmt.conf`, if it exists
+1. Otherwise, uses `default` style.
+
+For details on how `.scalafmt.conf` should look like, see
+[Configuration](configuration.md). The scalafmt IntelliJ plugin has a "Format on
+save" setting.
+
+- To enable for current project: `Settings > Tools > Scalafmt`
+- To enable for all future project:
+  `File > Other settings > Default settings > Scalafmt`
+
+## sbt
+
+```scala
+// In project/plugins.sbt. Note, does not support sbt 0.13, only sbt 1.0.
+addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "1.5.1")
+```
+
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.geirsson/sbt-scalafmt/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.geirsson/sbt-scalafmt)
+
+### Task keys
+
+- `scalafmt`: Format scala sources under the project with scalafmt.
+- `scalafmtCli`: Run the scalafmt command line interface.
+- `scalafmtCheck`: Check if the scala sources under the project has been
+  formatted.
+- `scalafmtSbt`: Format `*.sbt` and `project/*.scala` files.
+- `scalafmtSbtCheck`: Check if the files has been formatted by `scalafmtSbt`.
+- `scalafmtOnly`: Format a single given file.
+
+### Setting keys
+
+- `scalafmtOnCompile: Boolean`: Defines if the sbt-scalafmt should run scalafmt
+  on compile. Default `false`.
+- `scalafmtConfig: Option[File]`: Optional location of `.scalafmt.conf` file. If
+  `None` the default config is used. By default, `.scalafmt.conf` file on the
+  project root will be used.
+
+### Enable IntegrationTest
+
+The sbt plugin is enabled by default for the Test and Compile configurations.
+Use `scalafmtConfigSettings` to enable the plugin for integration tests and then
+use `it:scalafmt` to format.
+
+```scala
+inConfig(IntegrationTest)(scalafmtConfigSettings)
+```
+
+### Share configuration between builds
+
+To share configuration across different sbt builds, create a custom sbt plugin
+that generates `.scalafmt.conf` on build reload.
+
+```scala
+// project/MyScalafmtPlugin.scala
+import sbt._
+object MyScalafmtPlugin extends AutoPlugin {
+  override def trigger = allRequirements
+  override def requires = plugins.JvmPlugin
+  override def buildSettings: Seq[Def.Setting[_]] = {
+    SettingKey[Unit]("scalafmtGenerateConfig") :=
+      IO.write(
+        // writes to file once when build is loaded
+        file(".scalafmt.conf"),
+        "maxColumn = 100".stripMargin.getBytes("UTF-8")
+      )
+  }
+}
+```
+
 ## CLI
 
 The recommended way to install the scalafmt command line tool is with
@@ -109,99 +204,6 @@ println(website.plaintext(org.scalafmt.cli.CliArgParser.buildInfo))
 ```scala mdoc:passthrough
 println(website.plaintext(org.scalafmt.cli.CliArgParser.scoptParser.usage))
 ```
-
-## IntelliJ
-
-<div class="sidenote">
-  Please upvote <a href="https://youtrack.jetbrains.com/issue/SCL-13658">this Jetbrains ticket</a>
-  about adding built-in support for Scalafmt in the IntelliJ Scala plugin.
-</div>
-
-[Here is the plugin](https://plugins.jetbrains.com/plugin/8236?pr=). You can
-install it directly from within IntelliJ:
-
-- open `Settings > Plugins`
-- open `Browse repositories`
-- search for `scalafmt`
-- restart IntelliJ.
-
-The default shortcut is `Ctrl + Shift + L`. Undo works, but not redo.
-
-The plugin determines which style to use in this order:
-
-1. `.scalafmt.conf` in the project's root directory, if it exists
-1. `$HOME/.scalafmt.conf`, if it exists
-1. Otherwise, uses `default` style.
-
-For details on how `.scalafmt.conf` should look like, see
-[Configuration](configuration.md). The scalafmt IntelliJ plugin has a "Format on
-save" setting.
-
-- To enable for current project: `Settings > Tools > Scalafmt`
-- To enable for all future project:
-  `File > Other settings > Default settings > Scalafmt`
-
-## sbt
-
-You can choose between
-
-- [sbt-scalafmt](#sbt-scalafmt) (sbt 1.0 only)
-- [neo-sbt-scalafmt](#neo-sbt-scalafmt) (sbt 0.13 and sbt 1.0)
-
-### sbt-scalafmt
-
-```scala
-// In project/plugins.sbt. Note, does not support sbt 0.13, only sbt 1.0.
-addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "1.5.1")
-```
-
-The sbt plugin is enabled by default for the Test and Compile configurations. To
-enable the plugin for integration tests
-
-```scala
-inConfig(IntegrationTest)(scalafmtConfigSettings)
-```
-
-and then use `it:scalafmt` to format.
-
-#### Main Tasks
-- `scalafmt`: Format scala sources under the project with scalafmt.
-- `scalafmtCli`: Run the scalafmt command line interface.
-- `scalafmtCheck`: Check if the scala sources under the project has been formatted.
-- `scalafmtSbt`: Format `*.sbt` and `project/*.scala` files.
-- `scalafmtSbtCheck`: Check if the files has been formatted by `scalafmtSbt`.
-- `scalafmtOnly`: Format a single given file.
-
-#### Main Configurations
-- `scalafmtOnCompile`: Defines if the sbt-scalafmt should run scalafmt on compile. Default `false`.
-- `scalafmtConfig`: Optional location of `.scalafmt.conf` file. If `None` the default config is used. By default, `.scalafmt.conf` file on the project root will be used.
-
-
-#### Pro tip
-To share configuration across projects, you can define a setting in
-`build.sbt` to generate `.scalafmt.conf` programmatically on sbt load.
-
-```scala
-// define setting key to write configuration to .scalafmt.conf
-SettingKey[Unit]("scalafmtGenerateConfig") :=
-  IO.write( // writes to file once when build is loaded
-    file(".scalafmt.conf"),
-    """style = IntelliJ
-      |# Your configuration here
-      """.stripMargin.getBytes("UTF-8")
-  )
-```
-
-### neo-sbt-scalafmt
-
-[lucidsoftware/neo-sbt-scalafmt](https://github.com/lucidsoftware/neo-sbt-scalafmt)
-is an sbt plugin that
-
-- supports both sbt 0.13 and 1.0.0
-- supports any version of scalafmt
-- runs in-process
-- uses SBT's update resolutions mechanism, which tends to be slow for large
-  multi-module builds.
 
 ## Gradle
 

@@ -6,27 +6,12 @@ title: Configuration
 Configuration for scalafmt is defined in a plain text file `.scalafmt.conf`
 using [HOCON](https://github.com/typesafehub/config) syntax.
 
-To reuse your configuration with IntelliJ, `.scalafmt.conf` must be placed in
-the root directory of your project.
-
 Here is an example `.scalafmt.conf`:
 
 ```scala config
 align = true    // For pretty alignment.
 maxColumn = 100 // For my wide 30" display.
 ```
-
-> A note of warning. I personally use the default style, which means that the
-> default style is by far the most tested and supported style. Most of the
-> configuration flags are quite innocent, while some of them work very
-> differently (esp. Scala.js). It is very difficult to guarantee that all
-> configurations options play nicely together so I recommend you try not to go
-> too crazy on this part.
-
-The following sections describe the most common configuration options.
-
-> If you are using scalafmt as a Standalone library, you can pass in a
-> `ScalafmtConfig` instance, which is set to `ScalafmtStyle.default` by default.
 
 ## Most popular
 
@@ -265,6 +250,7 @@ val x = List(
 
 To find the `owner` part for a custom tree, depend on Scalameta and use
 `scala.meta.Tree.productPrefix` from the the (for example, Ammonite) REPL.
+
 ```scala
 @ import $ivy.`org.scalameta:scalameta_2.12:@SCALAMETA_VERSION@`, scala.meta._
 @ val termMatch = q"x match { case 2 => foo(bar) }"
@@ -313,6 +299,8 @@ for {
 align.openParenCallSite
 ```
 
+> Default changed from `true` to `false` in v1.6.
+
 ```scala mdoc:scalafmt
 align.openParenCallSite = true
 ---
@@ -347,6 +335,8 @@ function(
 align.openParenDefnSite
 ```
 
+> Default changed from `true` to `false` in v1.6.
+
 ```scala mdoc:scalafmt
 align.openParenDefnSite = true
 ---
@@ -374,7 +364,8 @@ class IntStringLong(
 The `newlines.*` options are used to configure when and where `scalafmt` should
 insert newlines.
 
-> You might be interested in the [Vertical Multiline](#vertical-multiline) section.
+> You might be interested in the [Vertical Multiline](#vertical-multiline)
+> section.
 
 ### `newlines.alwaysBeforeTopLevelStatements`
 
