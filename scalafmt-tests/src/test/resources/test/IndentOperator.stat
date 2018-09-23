@@ -112,3 +112,25 @@ val x =
 val x = 1 +
   2 +
   3
+<<< #1223 infix with call
+val x = y :: List(
+a,
+b,
+c
+)
+>>>
+val x = y :: List(
+  a,
+  b,
+  c
+)
+<<< #1223 infix operator two
+  val x = y andThen List(
+  a,
+  b
+  )
+>>>
+val x = y andThen List(
+  a,
+  b
+)
