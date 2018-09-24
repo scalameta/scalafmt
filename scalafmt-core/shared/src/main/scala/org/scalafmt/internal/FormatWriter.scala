@@ -32,7 +32,7 @@ class FormatWriter(formatOps: FormatOps) {
     val sb = new StringBuilder()
     var lastState = State.start // used to calculate start of formatToken.right.
     reconstructPath(tokens, splits, debug = false) {
-      case (state, formatToken, whitespace) =>
+      case (state, formatToken, whitespace, tokenAligns) =>
         formatToken.left match {
           case c: Comment =>
             sb.append(formatComment(c, state.indentation))
@@ -52,7 +52,12 @@ class FormatWriter(formatOps: FormatOps) {
             sb.append(rewrittenToken)
         }
 
-        handleTrailingCommasAndWhitespace(formatToken, state, sb, whitespace)
+        handleTrailingCommasAndWhitespace(
+          formatToken,
+          state,
+          sb,
+          whitespace,
+          tokenAligns)
 
         formatToken.right match {
           // state.column matches the end of formatToken.right
@@ -149,10 +154,12 @@ class FormatWriter(formatOps: FormatOps) {
   def reconstructPath(
       toks: Array[FormatToken],
       splits: Vector[Split],
-      debug: Boolean)(callback: (State, FormatToken, String) => Unit): Unit = {
+      debug: Boolean)(
+      callback: (State, FormatToken, String, Map[FormatToken, Int]) => Unit)
+    : Unit = {
     require(toks.length >= splits.length, "splits !=")
     val locations = getFormatLocations(toks, splits, debug)
-    val tokenAligns = alignmentTokens(locations).withDefaultValue(0)
+    val tokenAligns = alignmentTokens(locations)
     var lastModification = locations.head.split.modification
     locations.zipWithIndex.foreach {
       case (FormatLocation(tok, split, state), i) =>
@@ -160,9 +167,10 @@ class FormatWriter(formatOps: FormatOps) {
         val whitespace = split.modification match {
           case Space =>
             val previousAlign =
-              if (lastModification == NoSplit) tokenAligns(prev(tok))
+              if (lastModification == NoSplit)
+                tokenAligns.getOrElse(prev(tok), 0)
               else 0
-            " " + (" " * (tokenAligns(tok) + previousAlign))
+            " " + (" " * (tokenAligns.getOrElse(tok, 0) + previousAlign))
           case nl: NewlineT
               if nl.acceptNoSplit && !tok.left.isInstanceOf[Comment] &&
                 state.indentation >= previous.state.column =>
@@ -184,7 +192,7 @@ class FormatWriter(formatOps: FormatOps) {
           case NoSplit => ""
         }
         lastModification = split.modification
-        callback.apply(state, tok, whitespace)
+        callback.apply(state, tok, whitespace, tokenAligns)
     }
     if (debug) {
 
@@ -394,7 +402,9 @@ class FormatWriter(formatOps: FormatOps) {
       formatToken: FormatToken,
       state: State,
       sb: StringBuilder,
-      whitespace: String): Unit = {
+      whitespace: String,
+      tokenAligns: Map[FormatToken, Int]
+  ): Unit = {
 
     import org.scalafmt.config.TrailingCommas
 
@@ -438,9 +448,16 @@ class FormatWriter(formatOps: FormatOps) {
             !prevNonComment(formatToken).left
               .is[LeftParen] && // skip empty parentheses
             right.is[CloseDelim] && isNewline =>
-        sb.insert(
-          sb.length - left.syntax.length - prevFormatToken.between.length,
-          ",")
+        val indexOfComment = sb.lastIndexOf(left.syntax)
+        val index = sb.lastIndexOf(prevFormatToken.left.syntax, indexOfComment)
+
+        // If the leading comment is vertically aligned, preserve the location of
+        // the comment to avoid breaking the alignment.
+        if (tokenAligns.get(prevFormatToken).isDefined) {
+          sb.setCharAt(index + prevFormatToken.left.syntax.length, ',')
+        } else {
+          sb.insert(index + prevFormatToken.left.syntax.length, ",")
+        }
         sb.append(whitespace)
 
       // foo(
@@ -464,8 +481,17 @@ class FormatWriter(formatOps: FormatOps) {
       case TrailingCommas.never
           if left.is[Comment] && prevFormatToken.left.is[Comma] &&
             right.is[CloseDelim] && isNewline =>
-        sb.deleteCharAt(
-          sb.length - left.syntax.length - prevFormatToken.between.length - 1)
+        val indexOfComment = sb.lastIndexOf(left.syntax)
+        val indexOfComma =
+          sb.lastIndexOf(prevFormatToken.left.syntax, indexOfComment)
+
+        // If the leading comment is vertically aligned, preserve the location of
+        // the comment to avoid breaking the alignment.
+        if (tokenAligns.get(prevFormatToken).isDefined) {
+          sb.setCharAt(indexOfComma, ' ')
+        } else {
+          sb.deleteCharAt(indexOfComma)
+        }
         sb.append(whitespace)
 
       // foo(a, b,)
