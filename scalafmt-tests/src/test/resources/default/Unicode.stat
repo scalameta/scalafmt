@@ -1,0 +1,5 @@
+80 columns                                                                     |
+<<< preserve the unicode literals in pattern position, see scalafix#619
+def a = (1, 2, 3) match { case (r, \u03b8, \u03c6) => r + \u03b8 + \u03c6 }
+>>>
+def a = (1, 2, 3) match { case (r, \u03b8, \u03c6) => r + \u03b8 + \u03c6 }
