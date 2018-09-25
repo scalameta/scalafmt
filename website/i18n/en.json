@@ -3,19 +3,41 @@
   "localized-strings": {
     "next": "Next",
     "previous": "Previous",
-    "tagline": "A code formatter for Scala",
-    "configuration": "Configuration",
-    "contributing-scalafmt": "Contributing",
-    "contributing-website": "Contributing to the website",
-    "faq": "FAQ / Troubleshooting",
-    "gotchas": "Gotchas",
-    "installation": "Installation",
-    "introduction": "Introduction",
-    "known-issues": "Known Issues",
-    "Docs": "Docs",
-    "GitHub": "GitHub",
-    "Documentation": "Documentation",
-    "Contributing": "Contributing"
+    "tagline": "Code formatter for Scala",
+    "docs": {
+      "configuration": {
+        "title": "Configuration"
+      },
+      "contributing-scalafmt": {
+        "title": "Contributing"
+      },
+      "contributing-website": {
+        "title": "Contributing to the website"
+      },
+      "faq": {
+        "title": "FAQ / Troubleshooting"
+      },
+      "gotchas": {
+        "title": "Gotchas"
+      },
+      "installation": {
+        "title": "Installation"
+      },
+      "introduction": {
+        "title": "Introduction"
+      },
+      "known-issues": {
+        "title": "Known Issues"
+      }
+    },
+    "links": {
+      "Docs": "Docs",
+      "GitHub": "GitHub"
+    },
+    "categories": {
+      "Documentation": "Documentation",
+      "Contributing": "Contributing"
+    }
   },
   "pages-strings": {
     "Help Translate|recruit community translators for your project": "Help Translate",

@@ -1,19 +1,26 @@
-const React = require('react');
+const React = require("react");
 
-const siteConfig = require(process.cwd() + '/siteConfig.js');
+const siteConfig = require(process.cwd() + "/siteConfig.js");
 
 class Footer extends React.Component {
   render() {
-    const currentYear = new Date().getFullYear();
-    const { copyright, colors: { secondaryColor } } = this.props.config;
+    const {
+      copyright,
+      colors: { secondaryColor }
+    } = this.props.config;
     return (
-      <footer className="nav-footer" id="footer" style={{ backgroundColor: secondaryColor }}>
-      <section className="sitemap">
+      <footer
+        className="nav-footer"
+        id="footer"
+        style={{ backgroundColor: secondaryColor }}
+      >
+        <section className="sitemap">
           {this.props.config.footerIcon && (
             <a href={this.props.config.baseUrl} className="nav-home">
               <img
-                src={`${this.props.config.baseUrl}${this.props.config
-                  .footerIcon}`}
+                src={`${this.props.config.baseUrl}${
+                  this.props.config.footerIcon
+                }`}
                 alt={this.props.config.title}
                 width="66"
                 height="58"
@@ -24,15 +31,21 @@ class Footer extends React.Component {
             <h5>Docs</h5>
             <a
               href={`
-                ${this.props.config.baseUrl}docs/introduction.html`}
+                ${this.props.config.baseUrl}docs/installation.html`}
             >
-              Overview
+              Installation
+            </a>
+            <a
+              href={`
+                ${this.props.config.baseUrl}docs/configuration.html`}
+            >
+              Configuration
             </a>
             <a
               href={`
                 ${this.props.config.baseUrl}docs/contributing-scalafmt.html`}
             >
-              Contributors
+              Contributing
             </a>
           </div>
           <div>
