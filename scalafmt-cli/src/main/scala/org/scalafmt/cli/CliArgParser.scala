@@ -176,8 +176,8 @@ object CliArgParser {
     s"""build commit: ${Versions.commit}
        |build time: ${new Date(Versions.timestamp.toLong)}""".stripMargin
 
-  private implicit val urlOptRead: Read[URL] = Read.reads {
-    Try(new URL(_)).fold(
+  private implicit val urlOptRead: Read[URL] = Read.reads { s =>
+    Try(new URL(s)).fold(
       _ => throw new IllegalArgumentException("Expected a URL"),
       identity
     )
