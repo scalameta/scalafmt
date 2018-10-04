@@ -2,12 +2,15 @@ package org.scalafmt.cli
 
 import java.io.File
 import java.util.Date
+import java.net.URL
 
 import org.scalafmt.Versions
 import org.scalafmt.config.Config
 import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.FileOps
-import scopt.OptionParser
+import scopt.{OptionParser, Read}
+
+import scala.util.Try
 
 object CliArgParser {
 
@@ -25,6 +28,7 @@ object CliArgParser {
        |scalafmt --stdout Code.scala       # print formatted contents to stdout.
        |scalafmt --exclude target          # format all files in directory excluding target
        |scalafmt --config .scalafmt.conf   # read custom style from file
+       |scalafmt --config-url "https://raw.githubusercontent.com/scalameta/scalafmt/master/.scalafmt.conf" # read custom style from URL
        |scalafmt --config-str "style=IntelliJ" # define custom style as a flag, must be quoted.""".stripMargin
 
   val scoptParser: OptionParser[CliOptions] =
@@ -48,6 +52,13 @@ object CliArgParser {
           c
         )
       }
+
+      private def readConfigFromURL(
+          url: URL,
+          c: CliOptions): CliOptions = {
+        readConfig(FileOps.readURL(url), c)
+      }
+
       private def readConfig(contents: String, c: CliOptions): CliOptions = {
         c.copy(config = Config.fromHoconString(contents).get)
       }
@@ -101,6 +112,9 @@ object CliArgParser {
       opt[String]('c', "config")
         .action(readConfigFromFile)
         .text("a file path to .scalafmt.conf.")
+      opt[URL]("config-url")
+        .action(readConfigFromURL)
+        .text("URL to take .scalafmt.conf. from")
       opt[String]("config-str")
         .action(readConfig)
         .text("configuration defined as a string")
@@ -161,4 +175,12 @@ object CliArgParser {
   def buildInfo =
     s"""build commit: ${Versions.commit}
        |build time: ${new Date(Versions.timestamp.toLong)}""".stripMargin
+
+  private implicit val urlOptRead: Read[URL] = Read.reads {
+    Try(new URL(_)).fold(
+      _ => throw new IllegalArgumentException("Expected a URL"),
+      identity
+    )
+  }
+
 }

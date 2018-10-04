@@ -2,6 +2,7 @@ package org.scalafmt.util
 
 import scala.io.Codec
 import java.io._
+import java.net.URL
 
 object FileOps {
 
@@ -40,10 +41,14 @@ object FileOps {
     */
   def readFile(filename: String)(implicit codec: Codec): String = {
     if (filename matches "https?://.*") {
-      scala.io.Source.fromURL(filename)("UTF-8").getLines().mkString("\n")
+      readURL(new URL(filename))
     } else {
       readFile(new File(filename))
     }
+  }
+
+  def readURL(url: URL): String = {
+    scala.io.Source.fromURL(url)("UTF-8").getLines().mkString("\n")
   }
 
   def readFile(file: AbsoluteFile)(implicit codec: Codec): String = {
