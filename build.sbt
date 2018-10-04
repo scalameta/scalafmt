@@ -2,7 +2,7 @@ import Dependencies._
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
 def scala211 = "2.11.12"
-def scala212 = "2.12.6"
+def scala212 = "2.12.7"
 
 inThisBuild(
   List(
