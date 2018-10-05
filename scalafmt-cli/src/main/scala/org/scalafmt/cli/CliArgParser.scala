@@ -10,8 +10,6 @@ import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.FileOps
 import scopt.{OptionParser, Read}
 
-import scala.util.Try
-
 object CliArgParser {
 
   val usageExamples: String =
@@ -53,9 +51,7 @@ object CliArgParser {
         )
       }
 
-      private def readConfigFromURL(
-          url: URL,
-          c: CliOptions): CliOptions = {
+      private def readConfigFromURL(url: URL, c: CliOptions): CliOptions = {
         readConfig(FileOps.readURL(url), c)
       }
 
