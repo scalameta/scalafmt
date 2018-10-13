@@ -39,9 +39,11 @@ commands += Command.command("ci-test") { s =>
     case Some("2.11") => scala211
     case _ => scala212
   }
+  val docsTest = if (scalaVersion == scala212) "docs/run" else "version"
   s"++$scalaVersion" ::
     s"tests/test" ::
     s"coreJS/test" ::
+    docsTest ::
     s
 }
 
@@ -156,7 +158,10 @@ lazy val docs = project
   .settings(
     crossScalaVersions := List(scala212),
     skip in publish := true,
-    mainClass.in(Compile) := Some("docs.Main")
+    mainClass.in(Compile) := Some("docs.Main"),
+    libraryDependencies ++= List(
+      "com.geirsson" % "mdoc" % "0.5.3" cross CrossVersion.full
+    )
   )
   .dependsOn(cli)
   .enablePlugins(DocusaurusPlugin)
