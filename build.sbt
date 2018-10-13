@@ -43,7 +43,7 @@ commands += Command.command("ci-test") { s =>
   s"++$scalaVersion" ::
     s"tests/test" ::
     s"coreJS/test" ::
-    docstTest ::
+    docsTest ::
     s
 }
 
