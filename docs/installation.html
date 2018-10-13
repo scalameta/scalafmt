@@ -172,10 +172,10 @@ scalafmt --version // should be 1.5.1
 brew upgrade scalafmt
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="help"></a><a href="#help" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>--help</h3>
-<pre><code class="hljs"><span class="hljs-keyword">build</span> <span class="hljs-keyword">commit</span>: <span class="hljs-number">175</span>ee66e048e690aeb8a22f56ab4fd355c219ca8
-<span class="hljs-keyword">build</span> time: Tue Sep <span class="hljs-number">25</span> <span class="hljs-number">19</span>:<span class="hljs-number">22</span>:<span class="hljs-number">54</span> UTC <span class="hljs-number">2018</span>
+<pre><code class="hljs">build commit: eae26c94bfed6228f687221af12b82d43c722787
+build time: Sat Oct <span class="hljs-number">13</span> <span class="hljs-number">20</span>:<span class="hljs-number">32</span>:<span class="hljs-number">08</span> UTC <span class="hljs-number">2018</span>
 </code></pre>
-<pre><code class="hljs">scalafmt 1.6.0-RC4+119-175ee66e-SNAPSHOT
+<pre><code class="hljs">scalafmt 1.6.0-RC4+120-eae26c94-SNAPSHOT
 Usage: scalafmt [options] [&lt;<span class="hljs-keyword">file</span>&gt;...]
 
   -<span class="hljs-keyword">h</span>, --<span class="hljs-keyword">help</span>               prints this usage text
@@ -273,8 +273,55 @@ libraryDependencies += <span class="hljs-string">"com.geirsson"</span> %%% <span
 </code></pre>
 <p>Obtain a configuration object with <code>parseHoconConfig</code></p>
 <pre><code class="hljs css language-scala">val config = org.scalafmt.Scalafmt.parseHoconConfig("align=most").get
-// config: org.scalafmt.config.ScalafmtConfig = ScalafmtConfig(  "1.5.1",  80,  ScalaDoc,  OptIn(true, false, true, true, true, false),  BinPack(false, false, false, true, 5, List(".*"), List("String", "Term.Name")),  ContinuationIndent(2, 4, 4),  Align(    false,    false,    Set(      AlignToken("\u2190", "Enumerator.Generator"),      AlignToken("%", "Term.ApplyInfix"),      AlignToken("{", "Template"),      AlignToken("\u21d2", "Case"),      AlignToken("extends", "Defn.(Class|Trait|Object)"),      AlignToken("\u2192", "Term.ApplyInfix"),      AlignToken("=", "(Enumerator.Val|Defn.(Va(l|r)|Def|Type))"),      AlignToken("&lt;-", "Enumerator.Generator"),      AlignToken("//", ".*"),      AlignToken("-&gt;", "Term.ApplyInfix"),      AlignToken("%%", "Term.ApplyInfix"),      AlignToken("=&gt;", "Case"),      AlignToken("}", "Template"),      AlignToken("%%%", "Term.ApplyInfix")    ),    true,    true,    Map("Equals" -&gt; "Assign", "LeftArrow" -&gt; "Assign"),    Map(      "Defn.Trait" -&gt; "class/object/trait",      "Enumerator.Val" -&gt; "for",      "Defn.Class" -&gt; "class/object/trait",      "Defn.Object" -&gt; "class/object/trait",      "Defn.Val" -&gt; "val/var/def",      "Defn.Def" -&gt; "val/var/def",      "Defn.Var" -&gt; "val/var/def",      "Enumerator.Generator" -&gt; "for"    )  ),  Spaces(Never, false, false, false, List(), true, true, false),  Literals(Upper, Lower, Lower),  unix,  Map(),  RewriteSettings(    List(),    RedundantBracesSettings(true, true, 100, false, false),    SortSettings(List(implicit, final, sealed, abstract, override, private, protected, lazy)),    Pattern(...
-
+// config: org.scalafmt.config.ScalafmtConfig = ScalafmtConfig(
+//   "1.5.1",
+//   80,
+//   ScalaDoc,
+//   OptIn(true, false, true, true, true, false),
+//   BinPack(false, false, false, true, 5, List(".*"), List("String", "Term.Name")),
+//   ContinuationIndent(2, 4, 4),
+//   Align(
+//     false,
+//     false,
+//     Set(
+//       AlignToken("\u2190", "Enumerator.Generator"),
+//       AlignToken("%", "Term.ApplyInfix"),
+//       AlignToken("{", "Template"),
+//       AlignToken("\u21d2", "Case"),
+//       AlignToken("extends", "Defn.(Class|Trait|Object)"),
+//       AlignToken("\u2192", "Term.ApplyInfix"),
+//       AlignToken("=", "(Enumerator.Val|Defn.(Va(l|r)|Def|Type))"),
+//       AlignToken("&lt;-", "Enumerator.Generator"),
+//       AlignToken("//", ".*"),
+//       AlignToken("-&gt;", "Term.ApplyInfix"),
+//       AlignToken("%%", "Term.ApplyInfix"),
+//       AlignToken("=&gt;", "Case"),
+//       AlignToken("}", "Template"),
+//       AlignToken("%%%", "Term.ApplyInfix")
+//     ),
+//     true,
+//     true,
+//     Map("Equals" -&gt; "Assign", "LeftArrow" -&gt; "Assign"),
+//     Map(
+//       "Defn.Trait" -&gt; "class/object/trait",
+//       "Enumerator.Val" -&gt; "for",
+//       "Defn.Class" -&gt; "class/object/trait",
+//       "Defn.Object" -&gt; "class/object/trait",
+//       "Defn.Val" -&gt; "val/var/def",
+//       "Defn.Def" -&gt; "val/var/def",
+//       "Defn.Var" -&gt; "val/var/def",
+//       "Enumerator.Generator" -&gt; "for"
+//     )
+//   ),
+//   Spaces(Never, false, false, false, List(), true, true, false),
+//   Literals(Upper, Lower, Lower),
+//   unix,
+//   Map(),
+//   RewriteSettings(
+//     List(),
+//     RedundantBracesSettings(true, true, 100, false, false),
+//     SortSettings(
+// ...
 org.scalafmt.Scalafmt.format("""
     object Align {
         val x = 1
@@ -289,8 +336,55 @@ org.scalafmt.Scalafmt.format("""
 </code></pre>
 <p>To format code with top-level statements like <code>*.sbt</code> files</p>
 <pre><code class="hljs css language-scala">val configForSbt = org.scalafmt.Scalafmt.configForSbt(config)
-// configForSbt: org.scalafmt.config.ScalafmtConfig = ScalafmtConfig(  "1.5.1",  80,  ScalaDoc,  OptIn(true, false, true, true, true, false),  BinPack(false, false, false, true, 5, List(".*"), List("String", "Term.Name")),  ContinuationIndent(2, 4, 4),  Align(    false,    false,    Set(      AlignToken("\u2190", "Enumerator.Generator"),      AlignToken("%", "Term.ApplyInfix"),      AlignToken("{", "Template"),      AlignToken("\u21d2", "Case"),      AlignToken("extends", "Defn.(Class|Trait|Object)"),      AlignToken("\u2192", "Term.ApplyInfix"),      AlignToken("=", "(Enumerator.Val|Defn.(Va(l|r)|Def|Type))"),      AlignToken("&lt;-", "Enumerator.Generator"),      AlignToken("//", ".*"),      AlignToken("-&gt;", "Term.ApplyInfix"),      AlignToken("%%", "Term.ApplyInfix"),      AlignToken("=&gt;", "Case"),      AlignToken("}", "Template"),      AlignToken("%%%", "Term.ApplyInfix")    ),    true,    true,    Map("Equals" -&gt; "Assign", "LeftArrow" -&gt; "Assign"),    Map(      "Defn.Trait" -&gt; "class/object/trait",      "Enumerator.Val" -&gt; "for",      "Defn.Class" -&gt; "class/object/trait",      "Defn.Object" -&gt; "class/object/trait",      "Defn.Val" -&gt; "val/var/def",      "Defn.Def" -&gt; "val/var/def",      "Defn.Var" -&gt; "val/var/def",      "Enumerator.Generator" -&gt; "for"    )  ),  Spaces(Never, false, false, false, List(), true, true, false),  Literals(Upper, Lower, Lower),  unix,  Map(),  RewriteSettings(    List(),    RedundantBracesSettings(true, true, 100, false, false),    SortSettings(List(implicit, final, sealed, abstract, override, private, protected, lazy)),    Pattern(...
-
+// configForSbt: org.scalafmt.config.ScalafmtConfig = ScalafmtConfig(
+//   "1.5.1",
+//   80,
+//   ScalaDoc,
+//   OptIn(true, false, true, true, true, false),
+//   BinPack(false, false, false, true, 5, List(".*"), List("String", "Term.Name")),
+//   ContinuationIndent(2, 4, 4),
+//   Align(
+//     false,
+//     false,
+//     Set(
+//       AlignToken("\u2190", "Enumerator.Generator"),
+//       AlignToken("%", "Term.ApplyInfix"),
+//       AlignToken("{", "Template"),
+//       AlignToken("\u21d2", "Case"),
+//       AlignToken("extends", "Defn.(Class|Trait|Object)"),
+//       AlignToken("\u2192", "Term.ApplyInfix"),
+//       AlignToken("=", "(Enumerator.Val|Defn.(Va(l|r)|Def|Type))"),
+//       AlignToken("&lt;-", "Enumerator.Generator"),
+//       AlignToken("//", ".*"),
+//       AlignToken("-&gt;", "Term.ApplyInfix"),
+//       AlignToken("%%", "Term.ApplyInfix"),
+//       AlignToken("=&gt;", "Case"),
+//       AlignToken("}", "Template"),
+//       AlignToken("%%%", "Term.ApplyInfix")
+//     ),
+//     true,
+//     true,
+//     Map("Equals" -&gt; "Assign", "LeftArrow" -&gt; "Assign"),
+//     Map(
+//       "Defn.Trait" -&gt; "class/object/trait",
+//       "Enumerator.Val" -&gt; "for",
+//       "Defn.Class" -&gt; "class/object/trait",
+//       "Defn.Object" -&gt; "class/object/trait",
+//       "Defn.Val" -&gt; "val/var/def",
+//       "Defn.Def" -&gt; "val/var/def",
+//       "Defn.Var" -&gt; "val/var/def",
+//       "Enumerator.Generator" -&gt; "for"
+//     )
+//   ),
+//   Spaces(Never, false, false, false, List(), true, true, false),
+//   Literals(Upper, Lower, Lower),
+//   unix,
+//   Map(),
+//   RewriteSettings(
+//     List(),
+//     RedundantBracesSettings(true, true, 100, false, false),
+//     SortSettings(
+// ...
 org.scalafmt.Scalafmt.format("""
     val x = 1
     val xx = 2
@@ -312,6 +406,17 @@ source breaking changes on any release.</p>
                 /scalafmt/docs/installation.html">Installation</a><a href="
                 /scalafmt/docs/configuration.html">Configuration</a><a href="
                 /scalafmt/docs/contributing-scalafmt.html">Contributing</a></div><div><h5>Community</h5><a href="https://gitter.im/scalameta/scalafmt" target="_blank">Chat on Gitter</a></div><div><h5>More</h5><a href="https://github.com/scalameta/scalafmt" target="_blank">GitHub</a></div></section><section class="copyright">Copyright © 2018 Scalafmt</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+                document.addEventListener('keyup', function(e) {
+                  if (e.target !== document.body) {
+                    return;
+                  }
+                  // keyCode for '/' (slash)
+                  if (e.keyCode === 191) {
+                    const search = document.getElementById('search_input_react');
+                    search && search.focus();
+                  }
+                });
+              </script><script>
               var search = docsearch({
                 
                 apiKey: '3409ffc8eadf85381f1b8cca926b07c4',
