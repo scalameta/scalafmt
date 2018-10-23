@@ -109,6 +109,7 @@ lazy val intellij = project
     cleanFiles += ideaDownloadDirectory.value
   )
   .dependsOn(coreJVM, cli)
+  .enablePlugins(SbtIdeaPlugin)
 
 lazy val tests = project
   .in(file("scalafmt-tests"))
