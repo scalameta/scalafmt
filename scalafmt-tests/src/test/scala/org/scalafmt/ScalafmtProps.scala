@@ -47,7 +47,8 @@ class ScalafmtProps extends FormatAssertions {
         case e: Error.FormatterOutputDoesNotParse =>
           List(
             Observation(
-              e.getMessage.lines.slice(1, 2).mkString(""),
+              // Predef.augmentString = work around scala/bug#11125 on JDK 11
+              augmentString(e.getMessage).lines.slice(1, 2).mkString(""),
               e.line,
               FormattedOutputDoesNotParse
             )
@@ -56,13 +57,15 @@ class ScalafmtProps extends FormatAssertions {
           List(Observation(e.getMessage, -1, Unknown(e)))
         case e: DiffFailure =>
           val line =
-            e.obtained.lines
-              .zip(e.expected.lines)
+            // Predef.augmentString = work around scala/bug#11125 on JDK 11
+            augmentString(e.obtained).lines
+              .zip(augmentString(e.expected).lines)
               .takeWhile { case (a, b) => a == b }
               .length
           List(
             Observation(
-              e.diff.lines.take(3).mkString("\n"),
+              // Predef.augmentString = work around scala/bug#11125 on JDK 11
+              augmentString(e.diff).lines.take(3).mkString("\n"),
               line,
               NonIdempotent
             )

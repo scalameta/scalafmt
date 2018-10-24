@@ -58,8 +58,11 @@ trait FormatAssertions extends FunSuiteLike with DiffAssertions {
     */
   def diffAsts(original: String, obtained: String): String = {
 //    compareContents(formatAst(original), formatAst(obtained))
-    compareContents(original.replace("(", "\n("), obtained.replace("(", "\n(")).lines
-      .mkString("\n")
+    // Predef.augmentString = work around scala/bug#11125 on JDK 11
+    augmentString(
+      compareContents(
+        original.replace("(", "\n("),
+        obtained.replace("(", "\n("))).lines.mkString("\n")
   }
 
   // TODO(olafur) move this to scala.meta?
@@ -67,7 +70,8 @@ trait FormatAssertions extends FunSuiteLike with DiffAssertions {
   def parseException2Message(e: ParseException, obtained: String): String = {
     val range = 3
     val i = e.pos.startLine
-    val lines = obtained.lines.toVector
+    // Predef.augmentString = work around scala/bug#11125 on JDK 11
+    val lines = augmentString(obtained).lines.toVector
     val arrow = (" " * (e.pos.startColumn - 2)) + "^"
     s"""${lines.slice(i - range, i + 1).mkString("\n")}
        |$arrow

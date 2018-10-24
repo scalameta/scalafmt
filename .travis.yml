@@ -1,8 +1,5 @@
 language: scala
 
-jdk:
-  - oraclejdk8
-
 stages:
   - name: test
   - name: release
@@ -11,12 +8,22 @@ stages:
 jobs:
   include:
     - env: TEST="scalafmt"
+      jdk: oraclejdk8
       script: ./scalafmt --test
     - env: TEST="2.11"
+      jdk: oraclejdk8
       script: sbt ci-test
     - env: TEST="2.12"
+      jdk: oraclejdk8
+      script: sbt ci-test
+    - env: TEST="2.11"
+      jdk: openjdk11
+      script: sbt ci-test
+    - env: TEST="2.12"
+      jdk: openjdk11
       script: sbt ci-test
     - stage: release
+      jdk: oraclejdk8
       script: sbt ci-release docs/docusaurusPublishGhpages
 
 cache:

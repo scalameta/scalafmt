@@ -205,7 +205,9 @@ object TokenOps {
       //
       // In this case, we would put a newline before """short and indent by
       // two.
-      lit.syntax.lines.map(_.replaceFirst(" *|", "").length).max
+      //
+      // Predef.augmentString = work around scala/bug#11125 on JDK 11
+      augmentString(lit.syntax).lines.map(_.replaceFirst(" *|", "").length).max
     case _ =>
       val tokenSyntax = token.syntax
       val firstNewline = tokenSyntax.indexOf('\n')

@@ -36,8 +36,8 @@ class GitOpsImpl(private[util] val workingDirectory: AbsoluteFile)
             e)
       }
     }
-
-    gitRes.map(_.lines.toSeq)
+    // Predef.augmentString = work around scala/bug#11125 on JDK 11
+    gitRes.map(augmentString(_).lines.toSeq)
   }
 
   override def lsTree(dir: AbsoluteFile): Seq[AbsoluteFile] =
