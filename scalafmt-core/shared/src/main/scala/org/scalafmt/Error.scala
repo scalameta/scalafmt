@@ -42,7 +42,7 @@ object Error {
                        |=====================
                        |$diff
                        |=====================
-                       |${output.lines.toVector.take(10).mkString("\n")}
+                       |${output.linesIterator.toVector.take(10).mkString("\n")}
                        |=====================
                        |Formatter changed AST
       """.stripMargin)

@@ -12,7 +12,8 @@ package object website {
   def replaceMargin(s: String): String = {
     val buf = new StringBuilder
 
-    for (line <- s.lines) {
+    // Predef.augmentString = work around scala/bug#11125 on JDK 11
+    for (line <- augmentString(s).lines) {
       val len = line.length
       var index = 0
       while (index < len && line.charAt(index) <= ' ') {

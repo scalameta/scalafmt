@@ -12,18 +12,21 @@ object ManualTests extends HasTests {
       filename <- listFiles(testDir) if filename.endsWith(manual)
       test <- {
         val spec = filename.stripPrefix(testDir + "/").stripSuffix(manual)
-        readFile(filename).lines.withFilter(_.startsWith("ONLY")).map { name =>
-          val original = readFile(stripPrefix(name))
-          DiffTest(
-            spec,
-            stripPrefix(name),
-            name,
-            original,
-            original,
-            isSkip(name),
-            isOnly(name),
-            style)
-        }
+        // Predef.augmentString = work around scala/bug#11125 on JDK 11
+        augmentString(readFile(filename)).lines
+          .withFilter(_.startsWith("ONLY"))
+          .map { name =>
+            val original = readFile(stripPrefix(name))
+            DiffTest(
+              spec,
+              stripPrefix(name),
+              name,
+              original,
+              original,
+              isSkip(name),
+              isOnly(name),
+              style)
+          }
       }
     } yield test
     val scalaFiles = for {
