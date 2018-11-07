@@ -96,7 +96,7 @@ continuationIndent.callSite
 Example:
 
 ```scala mdoc:scalafmt
-continuationIndent.defnSite = 2
+continuationIndent.callSite = 2
 ---
 function(
 argument1, // indented by 2
