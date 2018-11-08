@@ -122,7 +122,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       val openApply = next(leftTok2tok(tok)).right
       def startsOpenApply =
         isOpenApply(
-          token = openApply,
+          openApply,
           includeCurly = initStyle.includeCurlyBraceInSelectChains,
           includeNoParens = initStyle.includeNoParensInSelectChains)
       def isChildOfImport =
@@ -466,7 +466,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     */
   def getSelectsLastToken(dot: Dot): Token = {
     var curr = next(leftTok2tok(dot))
-    while (isOpenApply(token = curr.right, includeCurly = true, includeNoParens = true) &&
+    while (isOpenApply(curr.right, includeCurly = true, includeNoParens = true) &&
       !statementStarts.contains(hash(curr.right))) {
       curr = leftTok2tok(matchingParentheses(hash(curr.right)))
     }
