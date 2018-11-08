@@ -1,0 +1,11 @@
+includeNoParensInSelectChains = true
+<<< include applications without parens in select chains
+List(1).toIterator.buffered
+  .map(_ + 2)
+  .filter(_ > 2)
+>>>
+List(1)
+  .toIterator
+  .buffered
+  .map(_ + 2)
+  .filter(_ > 2)

@@ -109,6 +109,20 @@ import org.scalafmt.util.ValidationOps
   *        x + 2
   *    }.filter(_ > 2)
   *  }}}
+  * @param includeNoParensInSelectChains
+  *  If true, includes applications without parens in select chains/pipelines.
+  *  {{{
+  *    // If true
+  *    List(1)
+  *      .toIterator
+  *      .buffered
+  *      .map(_ + 2)
+  *      .filter(_ > 2)
+  *    // If false
+  *    List(1).toIterator.buffered
+  *      .map(_ + 2)
+  *      .filter(_ > 2)
+  *  }}}
   */
 case class ScalafmtConfig(
     version: String = org.scalafmt.Versions.stable,
@@ -132,6 +146,7 @@ case class ScalafmtConfig(
     importSelectors: ImportSelectors = ImportSelectors.noBinPack,
     unindentTopLevelOperators: Boolean = false,
     includeCurlyBraceInSelectChains: Boolean = true,
+    includeNoParensInSelectChains: Boolean = false,
     assumeStandardLibraryStripMargin: Boolean = false,
     danglingParentheses: Boolean = true,
     poorMansTrailingCommasInConfigStyle: Boolean = false,

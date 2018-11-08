@@ -123,10 +123,11 @@ object TokenOps {
     else Space
   }
 
-  def isOpenApply(token: Token, includeCurly: Boolean = false): Boolean =
+  def isOpenApply(token: Token, includeCurly: Boolean, includeNoParens: Boolean): Boolean =
     token match {
       case LeftParen() | LeftBracket() => true
       case LeftBrace() if includeCurly => true
+      case Dot() if includeNoParens => true
       case _ => false
     }
 
