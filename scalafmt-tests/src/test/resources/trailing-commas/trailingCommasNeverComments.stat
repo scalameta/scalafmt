@@ -37,3 +37,27 @@ def method(
     b: String
 // a comment
 )
+<<< preserve the position of comment see #1231
+object Test {
+  def apply() = {
+    div(
+      div(
+        (5 to 5).map { res => 5 },
+        //
+      )
+    )
+  }
+}
+>>>
+object Test {
+  def apply() = {
+    div(
+      div(
+        (5 to 5).map { res =>
+          5
+        }
+        //
+      )
+    )
+  }
+}
