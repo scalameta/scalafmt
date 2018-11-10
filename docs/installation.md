@@ -9,7 +9,7 @@ You can use Scalafmt from your editor, build tool or terminal.
 
 To install the [Scalafmt IntelliJ plugin](https://plugins.jetbrains.com/plugin/8236?pr=)
 
-- open `Settings > Plugins`
+- open `Preferences > Plugins`
 - open `Browse repositories`
 - search for `scalafmt`
 - click "Install"
@@ -24,18 +24,32 @@ To install the [Scalafmt IntelliJ plugin](https://plugins.jetbrains.com/plugin/8
 
 ### Format on save
 
-- for the current project (recommended): `Settings > Tools > Scalafmt`
+- for the current project (recommended): `Preferences > Tools > Scalafmt`
 - for all new project: `File > Other settings > Default settings > Scalafmt`
 
-> Scalafmt comes pre-installed with the IntelliJ Scala plugin, it is **not**
-> recommended to use it. When prompted make sure to select "continue using
-> IntelliJ formatter"
->
-> ![IntelliJ scalafmt formatter](assets/img/intellij-install.png)
->
-> The built-in Scalafmt is limited to support v1.5.1 and it enables
-> undesirable behavior such as formatting expanded snippets with a low column
-> width.
+### Install nightly plugin
+
+To try out the latest pending releases for the Scalafmt plugin:
+
+- Visit [Scalafmt plugin page](https://plugins.jetbrains.com/plugin/8236-scalafmt)
+- Select "nightly"
+- Click "Download"
+- Open IntelliJ
+- Uninstall existing Scalafmt plugin installation, if any
+- Select `Preferences > Plugins > "install plugin from disk..."`
+- Choose the downloaded `intellij-scalafmt.zip`
+- Restart IntelliJ
+
+### Continue using IntelliJ formatter
+
+Scalafmt comes pre-installed with the IntelliJ Scala plugin, it is **not**
+recommended to use it. When prompted make sure to select "continue using
+IntelliJ formatter"
+
+![IntelliJ scalafmt formatter](assets/img/intellij-install.png)
+
+The built-in Scalafmt is limited to support v1.5.1 and it enables
+undesirable behavior such as formatting expanded snippets with a low column width.
 
 ## sbt
 
