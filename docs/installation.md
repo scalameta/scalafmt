@@ -25,7 +25,9 @@ To install the [Scalafmt IntelliJ plugin](https://plugins.jetbrains.com/plugin/8
 ### Format on save
 
 - for the current project (recommended): `Preferences > Tools > Scalafmt`
-- for all new project: `File > Other settings > Default settings > Scalafmt`
+- for all new project: `File > Other settings > Preferences for new projects > Tools > Scalafmt`
+
+![Enable format on save in IntelliJ](assets/img/intellij-on-save.png)
 
 ### Install nightly plugin
 
