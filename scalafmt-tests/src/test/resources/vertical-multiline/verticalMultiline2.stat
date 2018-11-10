@@ -1,0 +1,10 @@
+verticalMultiline = {
+    atDefnSite = true
+}
+<<< Don't break code when there are comments
+class TestClass(
+  field3: String // comment
+)
+>>>
+class TestClass(
+  field3: String) // comment
