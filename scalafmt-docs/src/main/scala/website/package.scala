@@ -79,7 +79,8 @@ package object website {
     if (code.contains("validatedInstances")) {
       logger.println("=======")
       logger.println(
-        parsedConfig.newlines.sometimesBeforeColonInMethodReturnType)
+        parsedConfig.newlines.sometimesBeforeColonInMethodReturnType
+      )
       logger.println(parsedConfig.maxColumn)
       logger.println()
       logger.println(config.mkString("\n"))
