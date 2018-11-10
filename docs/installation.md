@@ -7,37 +7,35 @@ You can use Scalafmt from your editor, build tool or terminal.
 
 ## IntelliJ
 
-Scalafmt v1.5.1 comes pre-installed with the IntelliJ Scala plugin. If your
-project has a `.scalafmt.conf` file, then you will be prompted whether to use
-the "scalafmt formatter" or continue using the "IntelliJ formatter":
-
-![IntelliJ scalafmt formatter](assets/img/intellij-install.png)
-
-The built-in support for Scalafmt only supports Scalafmt v1.5.1 at the moment.
-To use a different version of Scalafmt with IntelliJ, install
-[this plugin](https://plugins.jetbrains.com/plugin/8236?pr=). You can install it
-directly from within IntelliJ:
+To install the [Scalafmt IntelliJ plugin](https://plugins.jetbrains.com/plugin/8236?pr=)
 
 - open `Settings > Plugins`
 - open `Browse repositories`
 - search for `scalafmt`
-- restart IntelliJ.
+- click "Install"
+- restart IntelliJ
 
-The default shortcut is `Ctrl + Shift + L`. Undo works, but not redo.
+![Scalafmt IntelliJ Plugin](assets/img/intellij-plugin.png)
 
-The plugin determines which style to use in this order:
+### Format current file
 
-1. `.scalafmt.conf` in the project's root directory, if it exists
-1. `$HOME/.scalafmt.conf`, if it exists
-1. Otherwise, uses `default` style.
+- `Cmd + Shift + L` (macOS)
+- `Ctrl + Shift + L` (other)
 
-For details on how `.scalafmt.conf` should look like, see
-[Configuration](configuration.md). The scalafmt IntelliJ plugin has a "Format on
-save" setting.
+### Format on save
 
-- To enable for current project: `Settings > Tools > Scalafmt`
-- To enable for all future project:
-  `File > Other settings > Default settings > Scalafmt`
+- for the current project (recommended): `Settings > Tools > Scalafmt`
+- for all new project: `File > Other settings > Default settings > Scalafmt`
+
+> Scalafmt comes pre-installed with the IntelliJ Scala plugin, it is **not**
+> recommended to use it. When prompted make sure to select "continue using
+> IntelliJ formatter"
+>
+> ![IntelliJ scalafmt formatter](assets/img/intellij-install.png)
+>
+> The built-in Scalafmt is limited to support v1.5.1 and it enables
+> undesirable behavior such as formatting expanded snippets with a low column
+> width.
 
 ## sbt
 
@@ -50,7 +48,8 @@ addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "1.5.1")
 
 ### Task keys
 
-- `scalafmt`: Format scala sources under the project with scalafmt.
+- `myproject/scalafmt`: Format main sources of `myproject` project
+- `myproject/test:scalafmt`: Format test sources of `myproject` project
 - `scalafmtCli`: Run the scalafmt command line interface.
 - `scalafmtCheck`: Check if the scala sources under the project has been
   formatted.
@@ -58,13 +57,19 @@ addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "1.5.1")
 - `scalafmtSbtCheck`: Check if the files has been formatted by `scalafmtSbt`.
 - `scalafmtOnly`: Format a single given file.
 
-### Setting keys
+### Customize configuration location
 
-- `scalafmtOnCompile: Boolean`: Defines if the sbt-scalafmt should run scalafmt
-  on compile. Default `false`.
 - `scalafmtConfig: Option[File]`: Optional location of `.scalafmt.conf` file. If
   `None` the default config is used. By default, `.scalafmt.conf` file on the
   project root will be used.
+
+### Format on compile
+
+> ⚠️ This option is **discouraged**, it is recommended
+> to use "format on save" in the editor instead.
+
+- `scalafmtOnCompile: Boolean`: Defines if the sbt-scalafmt should run scalafmt
+  on compile. Default `false`.
 
 ### Enable IntegrationTest
 
@@ -263,8 +268,11 @@ org.scalafmt.Scalafmt.format("""
 
 Obtain a configuration object with `parseHoconConfig`
 
-```scala mdoc
+```scala mdoc:silent
 val config = org.scalafmt.Scalafmt.parseHoconConfig("align=most").get
+```
+
+```scala mdoc
 org.scalafmt.Scalafmt.format("""
     object Align {
         val x = 1
@@ -275,8 +283,11 @@ org.scalafmt.Scalafmt.format("""
 
 To format code with top-level statements like `*.sbt` files
 
-```scala mdoc
+```scala mdoc:silent
 val configForSbt = org.scalafmt.Scalafmt.configForSbt(config)
+```
+
+```scala mdoc
 org.scalafmt.Scalafmt.format("""
     val x = 1
     val xx = 2

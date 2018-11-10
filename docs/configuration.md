@@ -589,7 +589,7 @@ import foo.{~>, `symbol`, bar, Random}
 
 ## Vertical Multiline
 
-Since: v1.6.0
+Since: v1.6.0. Note that the IntelliJ built-in support uses Scalafmt v1.5.1.
 
 If enabled this formats methods such that parameters are on their own line
 indented by [`continuationIndent.defnSite`](#continuationindentdefnsite).
