@@ -7,7 +7,8 @@ You can use Scalafmt from your editor, build tool or terminal.
 
 ## IntelliJ
 
-To install the [Scalafmt IntelliJ plugin](https://plugins.jetbrains.com/plugin/8236?pr=)
+To install the
+[Scalafmt IntelliJ plugin](https://plugins.jetbrains.com/plugin/8236?pr=)
 
 - open `Preferences > Plugins`
 - open `Browse repositories`
@@ -25,7 +26,8 @@ To install the [Scalafmt IntelliJ plugin](https://plugins.jetbrains.com/plugin/8
 ### Format on save
 
 - for the current project (recommended): `Preferences > Tools > Scalafmt`
-- for all new project: `File > Other settings > Preferences for new projects > Tools > Scalafmt`
+- for all new project:
+  `File > Other settings > Preferences for new projects > Tools > Scalafmt`
 
 ![Enable format on save in IntelliJ](assets/img/intellij-on-save.png)
 
@@ -33,7 +35,8 @@ To install the [Scalafmt IntelliJ plugin](https://plugins.jetbrains.com/plugin/8
 
 To try out the latest pending releases for the Scalafmt plugin:
 
-- Visit [Scalafmt plugin page](https://plugins.jetbrains.com/plugin/8236-scalafmt)
+- Visit
+  [Scalafmt plugin page](https://plugins.jetbrains.com/plugin/8236-scalafmt)
 - Select "nightly"
 - Click "Download"
 - Open IntelliJ
@@ -44,14 +47,23 @@ To try out the latest pending releases for the Scalafmt plugin:
 
 ### Continue using IntelliJ formatter
 
-Scalafmt comes pre-installed with the IntelliJ Scala plugin, it is **not**
-recommended to use it. When prompted make sure to select "continue using
-IntelliJ formatter"
+When prompted whether to "use scalafmt formatter" make sure to select "continue
+using IntelliJ formatter"
 
 ![IntelliJ scalafmt formatter](assets/img/intellij-install.png)
 
-The built-in Scalafmt is limited to support v1.5.1 and it enables
-undesirable behavior such as formatting expanded snippets with a low column width.
+As long as you have the Scalafmt plugin installed as instructed above you can
+still [format current file](#format-current-file) and
+[format on save](#format-on-save).
+
+It is not recommended to select "use scalafmt formatter" since the built-in
+support provided by IntelliJ has limitations
+
+- it is hardcoded against a single Scalafmt version (v1.5.1 at this time),
+  making it difficult to upgrade to new releases.
+- it enables undesirable behavior such as formatting expanded snippets (example:
+  "implement methods" inspection) with a low column width. Scalafmt is primarily
+  designed to format entire text files instead of individual snippets of code.
 
 ## sbt
 
@@ -81,8 +93,8 @@ addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "1.5.1")
 
 ### Format on compile
 
-> ⚠️ This option is **discouraged**, it is recommended
-> to use "format on save" in the editor instead.
+> ⚠️ This option is **discouraged**, it is recommended to use "format on save"
+> in the editor instead.
 
 - `scalafmtOnCompile: Boolean`: Defines if the sbt-scalafmt should run scalafmt
   on compile. Default `false`.
