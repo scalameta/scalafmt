@@ -188,7 +188,7 @@ bintray:scalameta/maven so that the artifact can be resolved.
 If you use sbt to install a pre-release, be sure to add the following setting
 
 ```scala
-resolvers += Resolver.bintray("scalameta", "maven")
+resolvers += Resolver.bintrayRepo("scalameta", "maven")
 ```
 
 ### Nailgun
