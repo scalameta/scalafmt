@@ -23,6 +23,11 @@ To install the
 - `Cmd + Shift + L` (macOS)
 - `Ctrl + Shift + L` (other)
 
+To re-configure the shortcut
+
+- Open `Preferences > Keymap`
+- Search for "Reformat with scalafmt"
+
 ### Format on save
 
 - for the current project (recommended): `Preferences > Tools > Scalafmt`
@@ -64,6 +69,14 @@ support provided by IntelliJ has limitations
 - it enables undesirable behavior such as formatting expanded snippets (example:
   "implement methods" inspection) with a low column width. Scalafmt is primarily
   designed to format entire text files instead of individual snippets of code.
+
+To reset the formatter to IntelliJ for an existing project that uses the
+Scalafmt formatter:
+
+- Open `Preferences > Editor > Code Style > Scala`
+- Switch "Formatter" value to "IntelliJ"
+
+It is not possible to reset this setting for all existing projects.
 
 ## sbt
 
