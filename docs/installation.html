@@ -44,6 +44,11 @@
 <li><code>Cmd + Shift + L</code> (macOS)</li>
 <li><code>Ctrl + Shift + L</code> (other)</li>
 </ul>
+<p>To re-configure the shortcut</p>
+<ul>
+<li>Open <code>Preferences &gt; Keymap</code></li>
+<li>Search for &quot;Reformat with scalafmt&quot;</li>
+</ul>
 <h3><a class="anchor" aria-hidden="true" id="format-on-save"></a><a href="#format-on-save" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Format on save</h3>
 <ul>
 <li>for the current project (recommended): <code>Preferences &gt; Tools &gt; Scalafmt</code></li>
@@ -80,6 +85,13 @@ making it difficult to upgrade to new releases.</li>
 &quot;implement methods&quot; inspection) with a low column width. Scalafmt is primarily
 designed to format entire text files instead of individual snippets of code.</li>
 </ul>
+<p>To reset the formatter to IntelliJ for an existing project that uses the
+Scalafmt formatter:</p>
+<ul>
+<li>Open <code>Preferences &gt; Editor &gt; Code Style &gt; Scala</code></li>
+<li>Switch &quot;Formatter&quot; value to &quot;IntelliJ&quot;</li>
+</ul>
+<p>It is not possible to reset this setting for all existing projects.</p>
 <h2><a class="anchor" aria-hidden="true" id="sbt"></a><a href="#sbt" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>sbt</h2>
 <pre><code class="hljs css language-scala"><span class="hljs-comment">// In project/plugins.sbt. Note, does not support sbt 0.13, only sbt 1.0.</span>
 addSbtPlugin(<span class="hljs-string">"com.geirsson"</span> % <span class="hljs-string">"sbt-scalafmt"</span> % <span class="hljs-string">"1.5.1"</span>)
@@ -204,10 +216,10 @@ scalafmt --version // should be 1.5.1
 brew upgrade scalafmt
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="help"></a><a href="#help" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>--help</h3>
-<pre><code class="hljs">build commit: bf0211f56b81bbc605e3d65f88d6c54b28b80a6b
-build time: Sun Nov <span class="hljs-number">11</span> <span class="hljs-number">10</span>:<span class="hljs-number">31</span>:<span class="hljs-number">23</span> UTC <span class="hljs-number">2018</span>
+<pre><code class="hljs">build commit: <span class="hljs-number">36f</span>26b258e73ceb32b6e0ccc49091515e05f58ef
+build time: Tue Nov <span class="hljs-number">13</span> <span class="hljs-number">10</span>:<span class="hljs-number">12</span>:<span class="hljs-number">11</span> UTC <span class="hljs-number">2018</span>
 </code></pre>
-<pre><code class="hljs">scalafmt 1.6.0-RC4+121-bf0211f5-SNAPSHOT
+<pre><code class="hljs">scalafmt 1.6.0-RC4+121-36f26b25-SNAPSHOT
 Usage: scalafmt [options] [&lt;<span class="hljs-keyword">file</span>&gt;...]
 
   -<span class="hljs-keyword">h</span>, --<span class="hljs-keyword">help</span>               prints this usage text
