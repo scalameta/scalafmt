@@ -10,7 +10,7 @@ You can use Scalafmt from your editor, build tool or terminal.
 To install the
 [Scalafmt IntelliJ plugin](https://plugins.jetbrains.com/plugin/8236?pr=)
 
-- open `Preferences > Plugins`
+- open `Preferences > Plugins` (for Windows/Linux it is called `Settings` instead of `Preferences`)
 - open `Browse repositories`
 - search for `scalafmt`
 - click "Install"
