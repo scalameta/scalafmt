@@ -1,0 +1,17 @@
+maxColumn = 40
+danglingParentheses = false
+verticalMultiline.atDefnSite = true
+<<< ONLY handles comment correctly
+case class Example(
+    a: Example,
+    b: Example,
+    c: Example,
+    d: Example // Comment
+)
+>>>
+case class Example(
+    a: Example,
+    b: Example,
+    c: Example,
+    d: Example // Comment
+  )
