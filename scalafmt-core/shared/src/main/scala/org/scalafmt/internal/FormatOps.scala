@@ -830,7 +830,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     val paramGroupSplitter: PartialFunction[Decision, Decision] = {
       // If this is a class, then don't dangle the last paren unless the line ends with a comment
       case Decision(t @ FormatToken(previous, rp @ RightParenOrBracket(), _), _)
-          if shouldNotDangle && rp == lastParen && !isSingleLineComment(previous) =>
+          if shouldNotDangle && rp == lastParen && !isSingleLineComment(
+            previous) =>
         val split = Split(NoSplit, 0)
         Decision(t, Seq(split))
       // Indent seperators `)(` and `](` by `indentSep`
