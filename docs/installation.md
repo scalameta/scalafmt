@@ -119,7 +119,7 @@ Use `scalafmtConfigSettings` to enable the plugin for integration tests and the
 use `it:scalafmt` to format.
 
 ```scala
-inConfig(IntegrationTest)(scalafmtConfigSettings)
+inConfig(IntegrationTest)(org.scalafmt.sbt.ScalafmtPlugin.scalafmtConfigSettings)
 ```
 
 ### Share configuration between builds
