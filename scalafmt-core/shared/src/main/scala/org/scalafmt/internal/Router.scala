@@ -726,7 +726,7 @@ class Router(formatOps: FormatOps) {
           // Spark style guide allows this:
           // https://github.com/databricks/scala-style-guide#indent
           Split(Newline, Constants.SparkColonNewline)
-            .withIndent(2, expire, Left)
+            .withIndent(style.continuationIndent.typeAnnSite, expire, Left)
             .withPolicy(penalizeNewlines)
         )
       case FormatToken(Colon(), _, _)

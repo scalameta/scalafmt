@@ -1,0 +1,13 @@
+continuationIndent.callSite   = 2
+continuationIndent.defnSite   = 4
+continuationIndent.extendSite = 4
+continuationIndent.typeAnnSite = 6
+danglingParentheses = false
+maxColumn = 50
+<<< Type Annotation Site
+def doAThingFunction(extremelyLongNamedParameterNumberOne: Int, extremelyLongNamedParameterNumberTwo: Int): ExtremelyLongNameForAReturnValueType
+>>>
+def doAThingFunction(
+    extremelyLongNamedParameterNumberOne: Int,
+    extremelyLongNamedParameterNumberTwo: Int)
+      : ExtremelyLongNameForAReturnValueType
