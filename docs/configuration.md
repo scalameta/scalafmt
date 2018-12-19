@@ -141,7 +141,9 @@ x match { // false for case arrows
 ```
 
 > **Pro tip**: Enable this setting to minimize git diffs/conflicts from
-> renamings and other refactorings.
+> renamings and other refactorings, without having to ignore whitespace
+> changes in diffs or use `--ignore-all-space` to avoid conflicts when
+> git merging or rebasing.
 
 #### `align=some`
 

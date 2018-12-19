@@ -138,7 +138,10 @@
           foo(a: Int, // false for call site
               b: String): Int
 
-        Pro tip: Enable this setting to minimize git diffs/conflicts from renamings and other refactorings.
+        Pro tip: Enable this setting to minimize git diffs/conflicts from
+        renamings and other refactorings, without having to ignore whitespace
+        changes in diffs or use `--ignore-all-space` to avoid conflicts when
+        git merging or rebasing.
 
         @configurationBlock(alignNone, true)
 
