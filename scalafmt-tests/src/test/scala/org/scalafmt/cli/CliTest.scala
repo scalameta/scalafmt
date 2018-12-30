@@ -7,7 +7,6 @@ import java.io.PrintStream
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
-
 import org.scalafmt.Error.MisformattedFile
 import org.scalafmt.Error.NoMatchingFiles
 import org.scalafmt.config.Config
@@ -17,8 +16,8 @@ import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.OsSpecific._
 import org.scalafmt.util.FileOps
 import org.scalatest.FunSuite
-
 import FileTestOps._
+import scala.meta.internal.io.FileIO
 
 abstract class AbstractCliTest extends FunSuite with DiffAssertions {
 
@@ -617,5 +616,14 @@ class CliTest extends AbstractCliTest {
     intercept[IllegalArgumentException] {
       noArgTest(root, "", Seq(Array.empty))
     }
+  }
+
+  test("eof") {
+    val in = Files.createTempFile("scalafmt", "Foo.scala")
+    Files.write(in, "object A".getBytes(StandardCharsets.UTF_8))
+    val exit = Cli.mainWithOptions(Array(in.toString), CliOptions.default)
+    assert(exit.isOk)
+    val obtained = new String(Files.readAllBytes(in), StandardCharsets.UTF_8)
+    assert(obtained == "object A\n")
   }
 }

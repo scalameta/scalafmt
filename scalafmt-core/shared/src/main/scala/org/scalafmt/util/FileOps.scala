@@ -2,6 +2,9 @@ package org.scalafmt.util
 
 import scala.io.Codec
 import java.io._
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
 
 object FileOps {
 
@@ -51,23 +54,7 @@ object FileOps {
   }
 
   def readFile(file: File)(implicit codec: Codec): String = {
-    // Prefer this to inefficient Source.fromFile.
-    val sb = new StringBuilder
-    val br = new BufferedReader(
-      new InputStreamReader(new FileInputStream(file), codec.charSet))
-    try {
-      var line = ""
-      while ({
-        line = br.readLine()
-        line != null
-      }) {
-        sb.append(line)
-        sb.append("\n")
-      }
-    } finally {
-      br.close()
-    }
-    sb.toString()
+    new String(Files.readAllBytes(file.toPath), codec.charSet)
   }
 
   def getFile(path: String*): File = {
@@ -75,22 +62,23 @@ object FileOps {
   }
 
   def writeFile(file: AbsoluteFile, content: String)(
-      implicit codec: Codec): Unit =
+      implicit codec: Codec
+  ): Unit = {
     writeFile(file.jfile, content)
+  }
 
   def writeFile(file: File, content: String)(implicit codec: Codec): Unit = {
-    // For java 6 compatibility we don't use java.nio.
-    val bw = new BufferedWriter(
-      new OutputStreamWriter(new FileOutputStream(file), codec.charSet))
-    try {
-      bw.write(content)
-    } finally {
-      bw.close()
-    }
-
+    writeFile(file.toPath, content)
   }
+
+  def writeFile(path: Path, content: String)(implicit codec: Codec): Unit = {
+    val bytes = content.getBytes(codec.charSet)
+    Files.write(path, bytes)
+  }
+
   def writeFile(filename: String, content: String)(
-      implicit codec: Codec): Unit = {
-    writeFile(new File(filename), content)
+      implicit codec: Codec
+  ): Unit = {
+    writeFile(Paths.get(filename), content)
   }
 }
