@@ -47,6 +47,20 @@ commands += Command.command("ci-test") { s =>
     s
 }
 
+lazy val interfaces = project
+  .in(file("scalafmt-interfaces"))
+  .settings(
+    crossVersion := CrossVersion.disabled,
+    resourceGenerators.in(Compile) += Def.task {
+      val out =
+        managedResourceDirectories.in(Compile).value.head / "scalafmt.properties"
+      val props = new java.util.Properties()
+      props.put("version", version.value)
+      IO.write(props, "scalafmt properties", out)
+      List(out)
+    }
+  )
+
 lazy val core = crossProject(JVMPlatform, JSPlatform)
   .in(file("scalafmt-core"))
   .settings(
@@ -60,7 +74,7 @@ lazy val core = crossProject(JVMPlatform, JSPlatform)
       scalameta.value,
       // scala-reflect is an undeclared dependency of fansi, see #1252.
       // Scalafmt itself does not require scala-reflect.
-      "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+      "org.scala-lang" % "scala-reflect" % scalaVersion.value
     )
   )
   .jsSettings(
@@ -91,7 +105,7 @@ lazy val cli = project
       "com.github.scopt" %% "scopt" % "3.5.0"
     )
   )
-  .dependsOn(coreJVM)
+  .dependsOn(coreJVM, interfaces)
 
 lazy val intellij = project
   .in(file("scalafmt-intellij"))
