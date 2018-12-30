@@ -730,6 +730,30 @@ List(1)
   .filter(_ > 2)
 ```
 
+### `includeNoParensInSelectChains`
+
+```scala mdoc:defaults
+includeNoParensInSelectChains
+```
+
+```scala mdoc:scalafmt
+includeNoParensInSelectChains = true
+---
+List(1)
+  .toIterator
+  .buffered
+  .map(_ + 2)
+  .filter(_ > 2)
+```
+
+```scala mdoc:scalafmt
+includeNoParensInSelectChains = false
+---
+List(1).toIterator.buffered
+  .map(_ + 2)
+  .filter(_ > 2)
+```
+
 ### `optIn.breakChainOnFirstMethodDot`
 
 ```scala mdoc:defaults
