@@ -2,7 +2,7 @@ import Dependencies._
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
 def scala211 = "2.11.12"
-def scala212 = "2.12.7"
+def scala212 = "2.12.8"
 
 inThisBuild(
   List(
@@ -47,13 +47,37 @@ commands += Command.command("ci-test") { s =>
     s
 }
 
+lazy val dynamic = project
+  .in(file("scalafmt-dynamic"))
+  .settings(
+    moduleName := "scalafmt-dynamic",
+    description := "Implementation of scalafmt-interfaces",
+    buildInfoSettings,
+    buildInfoPackage := "org.scalafmt.dynamic",
+    buildInfoObject := "BuildInfo",
+    fork.in(Test) := true,
+    libraryDependencies ++= List(
+      "com.geirsson" %% "coursier-small" % "1.3.1",
+      "com.typesafe" % "config" % "1.3.3",
+      scalatest.value % Test,
+      scalametaTestkit % Test
+    )
+  )
+  .dependsOn(interfaces)
+  .enablePlugins(BuildInfoPlugin)
+
 lazy val interfaces = project
   .in(file("scalafmt-interfaces"))
   .settings(
+    moduleName := "scalafmt-interfaces",
+    description := "Dependency-free, pure Java public interfaces to integrate with Scalafmt through a build tool or editor plugin.",
     crossVersion := CrossVersion.disabled,
     resourceGenerators.in(Compile) += Def.task {
       val out =
-        managedResourceDirectories.in(Compile).value.head / "scalafmt.properties"
+        managedResourceDirectories
+          .in(Compile)
+          .value
+          .head / "scalafmt.properties"
       val props = new java.util.Properties()
       props.put("version", version.value)
       IO.write(props, "scalafmt properties", out)
@@ -173,10 +197,7 @@ lazy val docs = project
   .settings(
     crossScalaVersions := List(scala212),
     skip in publish := true,
-    mainClass.in(Compile) := Some("docs.Main"),
-    libraryDependencies ++= List(
-      "com.geirsson" % "mdoc" % "0.5.3" cross CrossVersion.full
-    )
+    mdoc := run.in(Compile).evaluated
   )
   .dependsOn(cli)
   .enablePlugins(DocusaurusPlugin)
@@ -202,6 +223,7 @@ lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
     "nightly" -> version.value,
     "stable" -> stableVersion.value,
     "scala" -> scalaVersion.value,
+    "scala211" -> scala211,
     "coursier" -> coursier,
     "commit" -> sys.process.Process("git rev-parse HEAD").lineStream_!.head,
     "timestamp" -> System.currentTimeMillis().toString,

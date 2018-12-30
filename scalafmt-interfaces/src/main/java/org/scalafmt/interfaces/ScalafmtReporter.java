@@ -2,16 +2,42 @@ package org.scalafmt.interfaces;
 
 import java.nio.file.Path;
 
+/**
+ * A reporter to handle error and information messages from Scalafmt.
+ */
 public interface ScalafmtReporter {
 
-    void excluded(String filename);
+    /**
+     * An error occurred while trying to process this file.
+     *
+     * @param file can be either a Scala source file or .scalafmt.conf.
+     * @param message the error message.
+     */
+    void error(Path file, String message);
 
-    void parsedConfig(Path config);
+    /**
+     * An unexpected exception occurred while trying to process this file.
+     *
+     * @param file can be either a Scala source file or .scalafmt.conf.
+     */
+    void error(Path file, Throwable e);
 
-    void error(Throwable e);
-
+    /**
+     * A generic error occurred.
+     */
     void error(String message);
 
-    void error(Path path, String message);
+    /**
+     * This file was not formatted because it's excluded by project settings from .scalafmt.conf.
+     *
+     * @param file the file path that was not formatted.
+     */
+    void excluded(Path file);
+
+    /**
+     * The .scalafmt.conf file was parsed with the given Scalafmt version.
+     */
+    void parsedConfig(Path config, String scalafmtVersion);
+
 
 }
