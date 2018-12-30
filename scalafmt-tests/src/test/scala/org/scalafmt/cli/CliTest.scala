@@ -17,6 +17,7 @@ import org.scalafmt.util.OsSpecific._
 import org.scalafmt.util.FileOps
 import org.scalatest.FunSuite
 import FileTestOps._
+import java.io.IOException
 import scala.meta.internal.io.FileIO
 
 abstract class AbstractCliTest extends FunSuite with DiffAssertions {
@@ -196,7 +197,7 @@ class CliTest extends AbstractCliTest {
     val exit = Cli.run(formatInPlace)
     assert(exit.is(ExitCode.TestError))
     val str = FileOps.readFile(tmpFile.toString)
-    assertNoDiff(str, unformatted + '\n')
+    assertNoDiff(str, unformatted)
   }
 
   test("scalafmt foo.randomsuffix is formatted") {
@@ -282,7 +283,7 @@ class CliTest extends AbstractCliTest {
   test("scalafmt doesnotexist.scala throws error") {
     def check(filename: String): Unit = {
       val args = Array(s"$filename.scala".asFilename)
-      intercept[FileNotFoundException] {
+      intercept[IOException] {
         Cli.exceptionThrowingMain(args)
       }
     }
@@ -313,6 +314,7 @@ class CliTest extends AbstractCliTest {
          |}
          |/target/foo.scala
          |object A   { }
+         |
          |/.scalafmt.conf
          |maxColumn = 2
          |project.excludeFilters = [target]
@@ -409,8 +411,8 @@ class CliTest extends AbstractCliTest {
     val conf = Cli.getConfig(args, opts)
     Cli.run(conf.get)
 
-    assertNoDiff(root / "scalatex.scalatex", unformatted + '\n')
-    assertNoDiff(root / "sbt.sbtfile", sbtOriginal + '\n')
+    assertNoDiff(root / "scalatex.scalatex", unformatted)
+    assertNoDiff(root / "sbt.sbtfile", sbtOriginal)
 
     assertNoDiff(root / "scalafile.scala", formatted)
     val sbtFormatted =
@@ -440,7 +442,7 @@ class CliTest extends AbstractCliTest {
     runWith(root, s"$inner1 $inner2 $full")
 
     assertNoDiff(inner1 / "file1.scala", formatted)
-    assertNoDiff(inner2 / "file2.scalahala", unformatted + '\n')
+    assertNoDiff(inner2 / "file2.scalahala", unformatted)
     assertNoDiff(full, formatted)
   }
 
