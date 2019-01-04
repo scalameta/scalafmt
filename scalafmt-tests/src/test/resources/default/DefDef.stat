@@ -48,18 +48,18 @@ def zipWith[E2, U2, F, G, T, D[_]](q2: Query[E2, U2, D], f: (E, E2) => F)(
 def groupBy[K, T, G, P](f: E => K)(
     implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G],
     vshape: Shape[_ <: FlatShapeLevel, E, _, P])
-  : Query[(G, Query[P, U, Seq]), (T, Query[P, U, Seq]), C]
+    : Query[(G, Query[P, U, Seq]), (T, Query[P, U, Seq]), C]
 <<< slick groupBy 2
   def groupBy[K, T, G, P](f: E => K)(implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G], vshape: Shape[_ <: FlatShapeLevel, E, _, P]): Query[(G, Query[P, U, Seq]), (T, Query[P, U, Seq]), CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC, (T, Query[P, U, Seq]), (T, Query[P, U, Seq])]
 >>>
 def groupBy[K, T, G, P](f: E => K)(
     implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G],
     vshape: Shape[_ <: FlatShapeLevel, E, _, P])
-  : Query[(G, Query[P, U, Seq]),
-          (T, Query[P, U, Seq]),
-          CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC,
-          (T, Query[P, U, Seq]),
-          (T, Query[P, U, Seq])]
+    : Query[(G, Query[P, U, Seq]),
+            (T, Query[P, U, Seq]),
+            CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC,
+            (T, Query[P, U, Seq]),
+            (T, Query[P, U, Seq])]
 
 <<< slick queryShape
   @inline implicit def queryShape[Level >: NestedShapeLevel <: ShapeLevel, T, Q <: QueryBase[_]](implicit ev: Q <:< Rep[T]) = RepShape[Level, Q, T]
@@ -92,7 +92,7 @@ final class BaseJoinQuery[+E1, +E2, U1, U2, C[_], +B1, +B2](
 final def getSelectChain(
     child: Term.Select,
     accum: Vector[Term.Select] = Vector.empty[Term.Select])
-  : Vector[Term.Select] = {
+    : Vector[Term.Select] = {
   body
 }
 <<< hanging #127
@@ -161,7 +161,7 @@ def viewMethod: Gen[ViewClass.Op] = oneOf(
   implicit def validatedInstances[E](implicit E: Semigroup[E]): Traverse[Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] = 2
 >>>
 implicit def validatedInstances[E](implicit E: Semigroup[E])
-  : Traverse[Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] = 2
+    : Traverse[Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] = 2
 <<< #212 is last resort 0.2.3-RC1 bug
 {
    def UnindentAtExclude(
@@ -185,7 +185,7 @@ object a {
 >>>
 object a {
   override def composeWithFunctor[G[_]: Functor]
-    : Functor[Lambda[X => F[G[X]]]] = compose[G]
+      : Functor[Lambda[X => F[G[X]]]] = compose[G]
 }
 <<< #238
 object a {
@@ -198,7 +198,7 @@ private def a012345678901234567(
 object a {
   private def a012345678901234567(
       b01234567890123456789aaaaaaaaaaaaaaaaa: B01234567890123456789)
-    : Future[C012345678901[D012345678901]] = {
+      : Future[C012345678901[D012345678901]] = {
     ???
   }
 }

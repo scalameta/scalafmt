@@ -120,21 +120,6 @@ argument1: Type1 // indented by 4
 ): ReturnType
 ```
 
-### `continuationIndent.typeAnnSite`
-
-```scala mdoc:defaults
-continuationIndent.typeAnnSite
-```
-
-Same as `continuationIndent.callSite` except for type annotation and return type site. Example:
-
-```scala mdoc:scalafmt
-continuationIndent.defnSite = 4
----
-def function(argument1: Type1)
-    : ReturnType // indented by 4
-```
-
 ## Alignment
 
 Default: **some**
