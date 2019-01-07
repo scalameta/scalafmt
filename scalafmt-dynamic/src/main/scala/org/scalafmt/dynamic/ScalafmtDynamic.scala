@@ -77,7 +77,7 @@ final case class ScalafmtDynamic(
         reflect.format(file, code)
       } catch {
         case VersionMismatch(_, _) =>
-          fmts.remove(config)
+          fmts.remove(config).foreach(_.classLoader.close())
           format(config, file, code)
         case ScalafmtConfigException(msg) =>
           reporter.error(config, msg)
