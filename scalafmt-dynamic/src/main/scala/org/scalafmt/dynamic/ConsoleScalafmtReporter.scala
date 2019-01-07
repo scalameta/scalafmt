@@ -18,6 +18,7 @@ class ConsoleScalafmtReporter(out: PrintStream) extends ScalafmtReporter {
     trimStacktrace(e)
     e.printStackTrace(out)
   }
+
   override def error(path: Path, message: String): Unit = {
     out.println(s"error: $path: $message")
   }

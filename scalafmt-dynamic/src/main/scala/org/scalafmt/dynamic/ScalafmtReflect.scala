@@ -17,6 +17,10 @@ case class ScalafmtReflect(
     reporter: ScalafmtReporter
 ) {
   private val formatted = classLoader.loadClass("org.scalafmt.Formatted")
+  private val parseException =
+    classLoader.loadClass("scala.meta.parsers.ParseException")
+  private val tokenizeException =
+    classLoader.loadClass("scala.meta.tokenizers.TokenizeException")
   private val formattedGet = formatted.getMethod("get")
   private val scalafmt = classLoader.loadClass("org.scalafmt.Scalafmt")
   private val scalaSet = classLoader.loadClass("scala.collection.immutable.Set")
@@ -116,7 +120,45 @@ case class ScalafmtReflect(
           formatMethod.invoke(null, code, dialectConfig, emptyRange)
       }
       clearTokenizerCache()
-      formattedGet.invoke(formatted).asInstanceOf[String]
+      try {
+        formattedGet.invoke(formatted).asInstanceOf[String]
+      } catch {
+        case ReflectionException(e)
+            if tokenizeException.isInstance(e) ||
+              parseException.isInstance(e) =>
+          val pos = invoke(e, "pos")
+          val range = positionRange(pos)
+          val shortMessage = invokeAs[String](e, "shortMessage")
+          throw PositionExceptionImpl(
+            file,
+            code,
+            shortMessage,
+            e.getMessage,
+            range,
+            e
+          )
+      }
+    }
+  }
+
+  private def positionRange(pos: Object): RangePosition = {
+    try {
+      RangePosition(
+        invokeAs[Int](pos, "startLine"),
+        invokeAs[Int](pos, "startColumn"),
+        invokeAs[Int](pos, "endLine"),
+        invokeAs[Int](pos, "endColumn")
+      )
+    } catch {
+      case _: NoSuchMethodException =>
+        val start = invoke(pos, "start")
+        val end = invoke(pos, "end")
+        RangePosition(
+          invokeAs[Int](start, "line"),
+          invokeAs[Int](start, "column"),
+          invokeAs[Int](end, "line"),
+          invokeAs[Int](end, "column")
+        )
     }
   }
 
@@ -152,6 +194,13 @@ case class ScalafmtReflect(
     module.get(null)
   }
 
+  private def invokeAs[T](
+      obj: Object,
+      toInvoke: String,
+      args: (Class[_], Object)*
+  ): T = {
+    invoke(obj, toInvoke, args: _*).asInstanceOf[T]
+  }
   private def invoke(
       obj: Object,
       toInvoke: String,
