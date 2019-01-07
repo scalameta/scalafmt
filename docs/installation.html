@@ -32,7 +32,8 @@
 <p>To install the
 <a href="https://plugins.jetbrains.com/plugin/8236?pr=">Scalafmt IntelliJ plugin</a></p>
 <ul>
-<li>open <code>Preferences &gt; Plugins</code> (for Windows/Linux it is called <code>Settings</code> instead of <code>Preferences</code>)</li>
+<li>open <code>Preferences &gt; Plugins</code> (for Windows/Linux it is called <code>Settings</code>
+instead of <code>Preferences</code>)</li>
 <li>open <code>Browse repositories</code></li>
 <li>search for <code>scalafmt</code></li>
 <li>click &quot;Install&quot;</li>
@@ -216,10 +217,10 @@ scalafmt --version // should be 1.5.1
 brew upgrade scalafmt
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="help"></a><a href="#help" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>--help</h3>
-<pre><code class="hljs">build commit: f23a39d1147b76acce1db4f223b7f8251842ba97
-build time: Fri Jan <span class="hljs-number">04</span> <span class="hljs-number">19</span>:<span class="hljs-number">16</span>:<span class="hljs-number">29</span> UTC <span class="hljs-number">2019</span>
+<pre><code class="hljs">build commit: <span class="hljs-number">7452</span>afb3ef74c582c1a5b143603ca4bb3030c08d
+build time: Mon Jan <span class="hljs-number">07</span> <span class="hljs-number">14</span>:<span class="hljs-number">19</span>:<span class="hljs-number">07</span> UTC <span class="hljs-number">2019</span>
 </code></pre>
-<pre><code class="hljs">scalafmt 1.6.0-RC4+141-f23a39d1-SNAPSHOT
+<pre><code class="hljs">scalafmt 1.6.0-RC4+146-7452afb3-SNAPSHOT
 Usage: scalafmt [options] [&lt;<span class="hljs-keyword">file</span>&gt;...]
 
   -<span class="hljs-keyword">h</span>, --<span class="hljs-keyword">help</span>               prints this usage text
@@ -293,64 +294,150 @@ You pay the JVM startup penalty on every format unless you're using
 <a href="#nailgun">Nailgun</a>.
 </div>
 <h2><a class="anchor" aria-hidden="true" id="standalone-library"></a><a href="#standalone-library" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Standalone library</h2>
-<p>Add to your dependencies</p>
-<pre><code class="hljs css language-scala">libraryDependencies += <span class="hljs-string">"com.geirsson"</span> %% <span class="hljs-string">"scalafmt-core"</span> % <span class="hljs-string">"1.5.1"</span>
-<span class="hljs-comment">// Scala.js</span>
-libraryDependencies += <span class="hljs-string">"com.geirsson"</span> %%% <span class="hljs-string">"scalafmt-core"</span> % <span class="hljs-string">"1.5.1"</span>
+<p>Use the <code>scalafmt-dynamic</code> module to integrate with Scalafmt.</p>
+<pre><code class="hljs css language-scala">libraryDependencies += <span class="hljs-string">"com.geirsson"</span> %% <span class="hljs-string">"scalafmt-dynamic"</span> % <span class="hljs-string">"1.5.1"</span>
 </code></pre>
-<p>Use the API like this:</p>
-<pre><code class="hljs css language-scala">org.scalafmt.Scalafmt.format("""
-      object FormatMe { List(Split(Space, 0).withPolicy(SingleLineBlock(close)), Split(Newline, 1).withPolicy{ case Decision(t@FormatToken(_, `close`, _), s) =&gt; Decision(t, List(Split(Newline, 0)))}.withIndent(2, close, Right)) }
-""").get
-// res2: String = """object FormatMe {
-//   List(
-//     Split(Space, 0).withPolicy(SingleLineBlock(close)),
-//     Split(Newline, 1)
-//       .withPolicy {
-//         case Decision(t @ FormatToken(_, `close`, _), s) =&gt;
-//           Decision(t, List(Split(Newline, 0)))
-//       }
-//       .withIndent(2, close, Right)
-//   )
-// }
-// """
+<p>First, create an instance of <code>Scalafmt</code> and get paths for the file to format
+along with it's configuration file.</p>
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">import</span> java.nio.file._
+<span class="hljs-keyword">import</span> org.scalafmt.interfaces.<span class="hljs-type">Scalafmt</span>
+<span class="hljs-keyword">val</span> scalafmt = <span class="hljs-type">Scalafmt</span>.create(<span class="hljs-keyword">this</span>.getClass.getClassLoader)
+<span class="hljs-keyword">val</span> config = <span class="hljs-type">Paths</span>.get(<span class="hljs-string">".scalafmt.conf"</span>)
+<span class="hljs-keyword">val</span> file = <span class="hljs-type">Paths</span>.get(<span class="hljs-string">"Main.scala"</span>)
 </code></pre>
-<p>Obtain a configuration object with <code>parseHoconConfig</code></p>
-<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> config = org.scalafmt.<span class="hljs-type">Scalafmt</span>.parseHoconConfig(<span class="hljs-string">"align=most"</span>).get
+<p>Use the <code>format</code> method to format a string with the given config and filename.</p>
+<pre><code class="hljs css language-scala">println(scalafmt.format(config, file, <span class="hljs-string">"object A  {  }"</span>))
+<span class="hljs-comment">// object A {}</span>
+<span class="hljs-comment">//</span>
 </code></pre>
-<pre><code class="hljs css language-scala">org.scalafmt.Scalafmt.format("""
-    object Align {
-        val x = 1
-        val xx = 2
-    }
-""", config).get
-// res3: String = """object Align {
-//   val x  = 1
-//   val xx = 2
-// }
-// """
-</code></pre>
-<p>To format code with top-level statements like <code>*.sbt</code> files</p>
-<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> configForSbt = org.scalafmt.<span class="hljs-type">Scalafmt</span>.configForSbt(config)
-</code></pre>
-<pre><code class="hljs css language-scala">org.scalafmt.Scalafmt.format("""
-    val x = 1
-    val xx = 2
-""", configForSbt).get
-// res4: String = """val x  = 1
-// val xx = 2
-// """
-</code></pre>
-<p>The Scalafmt public API consists only of methods in<code>org.scalafmt.Scalafmt</code>. In
-particular, case classes in <code>org.scalafmt.config</code> are subject to binary and
-source breaking changes on any release.</p>
-<h2><a class="anchor" aria-hidden="true" id="help-wanted"></a><a href="#help-wanted" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Help Wanted</h2>
+<h3><a class="anchor" aria-hidden="true" id="binary-compatibility-guarantees"></a><a href="#binary-compatibility-guarantees" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Binary compatibility guarantees</h3>
+<p>Stable public APIs:</p>
 <ul>
-<li>Ensime</li>
-<li>Scala IDE (<a href="https://github.com/scalameta/scalafmt/issues/125">help wanted!</a>)</li>
-<li>Your favorite editor? Join the gitter channel.</li>
+<li><code>org.scalafmt.interfaces</code> (recommended): pure Java APIs with no external
+dependencies. Can be loaded via the <code>scalafmt-dynamic</code> module.</li>
+<li><code>org.scalafmt.Scalafmt</code> (discouraged): old public API that is stable and will
+remain stable but has several limitations.
+<ul>
+<li>no support for <code>version</code> in <code>.scalafmt.conf</code></li>
+<li>does not respect <code>project.excludeFilters</code> in <code>.scalafmt.conf</code></li>
+<li>doesn't automatically handle <code>*.sbt</code> and <code>*.sc</code> files</li>
+<li>no caching of <code>.scalafmt.conf</code></li>
+</ul></li>
 </ul>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-next button" href="/scalafmt/docs/configuration.html"><span>Configuration</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#intellij">IntelliJ</a><ul class="toc-headings"><li><a href="#format-current-file">Format current file</a></li><li><a href="#format-on-save">Format on save</a></li><li><a href="#install-nightly-plugin">Install nightly plugin</a></li><li><a href="#continue-using-intellij-formatter">Continue using IntelliJ formatter</a></li></ul></li><li><a href="#sbt">sbt</a><ul class="toc-headings"><li><a href="#task-keys">Task keys</a></li><li><a href="#customize-configuration-location">Customize configuration location</a></li><li><a href="#format-on-compile">Format on compile</a></li><li><a href="#enable-integrationtest">Enable IntegrationTest</a></li><li><a href="#share-configuration-between-builds">Share configuration between builds</a></li></ul></li><li><a href="#cli">CLI</a><ul class="toc-headings"><li><a href="#coursier">Coursier</a></li><li><a href="#pre-release">Pre-release</a></li><li><a href="#nailgun">Nailgun</a></li><li><a href="#homebrew">Homebrew</a></li><li><a href="#help">--help</a></li></ul></li><li><a href="#gradle">Gradle</a></li><li><a href="#maven">Maven</a></li><li><a href="#mill">Mill</a></li><li><a href="#vim">Vim</a></li><li><a href="#standalone-library">Standalone library</a></li><li><a href="#help-wanted">Help Wanted</a></li></ul></nav></div><footer class="nav-footer" id="footer" style="background-color:#A23244"><section class="sitemap"><div><h5>Docs</h5><a href="
+<p>Internal APIs that are subject to binary breaking changes in any release:</p>
+<ul>
+<li><code>org.scalafmt.dynamic</code>: private implementation of <code>scalafmt-interfaces</code>. These
+classes can be used via the static method
+<code>org.scalafmt.interfaces.Scalafmt.create(ClassLoader)</code>.</li>
+<li><code>org.scalafmt.config</code>: case classes for <code>.scalafmt.conf</code> configuration that
+that are only intended for internal usage.</li>
+<li><code>org.scalafmt.cli</code>: private implementation of the command-line interface.</li>
+</ul>
+<h3><a class="anchor" aria-hidden="true" id="sbt-and-sc-files"></a><a href="#sbt-and-sc-files" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>*.sbt</code> and <code>*.sc</code> files</h3>
+<p>It's possible to format <code>*.sbt</code> and <code>*.sc</code> files.</p>
+<pre><code class="hljs css language-scala">println(scalafmt.format(config, <span class="hljs-type">Paths</span>.get(<span class="hljs-string">"build.sbt"</span>), <span class="hljs-string">"lazy    val   x =   project"</span>))
+<span class="hljs-comment">// lazy val x = project</span>
+<span class="hljs-comment">// </span>
+println(scalafmt.format(config, <span class="hljs-type">Paths</span>.get(<span class="hljs-string">"build.sc"</span>), <span class="hljs-string">"def  main(  ) = println()"</span>))
+<span class="hljs-comment">// def main() = println()</span>
+<span class="hljs-comment">//</span>
+</code></pre>
+<p>The <code>scalafmt</code> instance automatically picks the correct parser depending on the
+provided filename.</p>
+<h3><a class="anchor" aria-hidden="true" id="version-handling"></a><a href="#version-handling" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Version handling</h3>
+<p>By default, the <code>scalafmt</code> instance automatically downloads the Scalafmt version
+declared in <code>.scalafmt.conf</code>. If the <code>version</code> setting is not declared, the
+original file contents are returned unchanged and an error is reported with
+instructions how to fix the problem.</p>
+<p>Use <code>withRespectVersion(false)</code> to fall back to a default Scalafmt version when
+its not declared in <code>.scalafmt.conf</code>. Use <code>withDefaultVersion(version)</code> to
+customize the fallback version.</p>
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> scalafmtThatDoesntRequireVersionSetting = scalafmt
+  .withRespectVersion(<span class="hljs-literal">false</span>)
+  .withDefaultVersion(<span class="hljs-string">"1.6.0-RC4"</span>)
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="error-reporting"></a><a href="#error-reporting" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Error reporting</h3>
+<p>By default, Scalafmt errors are reported to <code>System.err</code>. Extend
+<code>org.scalafmt.interfaces.ScalafmtReporter</code> to customize error reporting to
+handle parse and config errors.</p>
+<p>Here is an example how to extend <code>ScalafmtReporter</code>.</p>
+<p>File: <a href="https://github.com/scalameta/mdoc/blob/master/scalafmt-dynamic/src/main/scala/org/scalafmt/dynamic/ConsoleScalafmtReporter.scala">ConsoleScalafmtReporter.scala</a></p>
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">package</span> org.scalafmt.dynamic
+
+<span class="hljs-keyword">import</span> java.io.<span class="hljs-type">PrintStream</span>
+<span class="hljs-keyword">import</span> java.io.<span class="hljs-type">PrintWriter</span>
+<span class="hljs-keyword">import</span> java.nio.file.<span class="hljs-type">Path</span>
+<span class="hljs-keyword">import</span> org.scalafmt.interfaces.<span class="hljs-type">ScalafmtReporter</span>
+
+<span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">ConsoleScalafmtReporter</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">ConsoleScalafmtReporter</span>(<span class="hljs-params"><span class="hljs-type">System</span>.err</span>)</span>
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ConsoleScalafmtReporter</span>(<span class="hljs-params">out: <span class="hljs-type">PrintStream</span></span>) <span class="hljs-keyword">extends</span> <span class="hljs-title">ScalafmtReporter</span> </span>{
+  <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">downloadWriter</span></span>(): <span class="hljs-type">PrintWriter</span> = <span class="hljs-keyword">new</span> <span class="hljs-type">PrintWriter</span>(out)
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">trimStacktrace</span></span>(e: <span class="hljs-type">Throwable</span>): <span class="hljs-type">Unit</span> = ()
+  <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">excluded</span></span>(filename: <span class="hljs-type">Path</span>): <span class="hljs-type">Unit</span> = {
+    out.println(<span class="hljs-string">s"file excluded: <span class="hljs-subst">$filename</span>"</span>)
+  }
+  <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">error</span></span>(file: <span class="hljs-type">Path</span>, e: <span class="hljs-type">Throwable</span>): <span class="hljs-type">Unit</span> = {
+    out.print(<span class="hljs-string">s"error: <span class="hljs-subst">$file</span>: "</span>)
+    trimStacktrace(e)
+    e.printStackTrace(out)
+  }
+  <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">error</span></span>(path: <span class="hljs-type">Path</span>, message: <span class="hljs-type">String</span>): <span class="hljs-type">Unit</span> = {
+    out.println(<span class="hljs-string">s"error: <span class="hljs-subst">$path</span>: <span class="hljs-subst">$message</span>"</span>)
+  }
+
+  <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">parsedConfig</span></span>(config: <span class="hljs-type">Path</span>, scalafmtVersion: <span class="hljs-type">String</span>): <span class="hljs-type">Unit</span> = {
+    out.println(<span class="hljs-string">s"parsed config (v<span class="hljs-subst">$scalafmtVersion</span>): <span class="hljs-subst">$config</span>"</span>)
+  }
+}
+</code></pre>
+<p>Use <code>withReporter(reporter)</code> to pass in your custom reporter.</p>
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">import</span> java.io._
+<span class="hljs-keyword">import</span> org.scalafmt.dynamic._
+<span class="hljs-keyword">val</span> myOut = <span class="hljs-keyword">new</span> <span class="hljs-type">ByteArrayOutputStream</span>()
+<span class="hljs-keyword">val</span> myReporter = <span class="hljs-keyword">new</span> <span class="hljs-type">ConsoleScalafmtReporter</span>(<span class="hljs-keyword">new</span> <span class="hljs-type">PrintStream</span>(myOut))
+<span class="hljs-keyword">val</span> customReporterScalafmt = scalafmt.withReporter(myReporter)
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="project-filters"></a><a href="#project-filters" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Project filters</h3>
+<p>By default, <code>scalafmt</code> only formats files that match the
+<code>project.{excludeFilters,includeFilters}</code> settings in <code>.scalafmt.conf</code>. Use
+<code>withRespectExcludeFilters(false)</code> to disable this behavior.</p>
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> scalafmtThatIgnoresProjectSettings = scalafmt.withRespectProjectFilters(<span class="hljs-literal">false</span>)
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="clearing-resources"></a><a href="#clearing-resources" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Clearing resources</h3>
+<p>Use the <code>clear()</code> method to clear up resources of the <code>scalafmt</code> instance.</p>
+<pre><code class="hljs css language-scala">scalafmt.clear()
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="calling-from-java"></a><a href="#calling-from-java" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Calling from Java</h3>
+<p>It's possible to call Scalafmt from Java without depending directly on Scala
+libraries.</p>
+<p>First, depend on the <code>scalafmt-interfaces</code> module, which is a pure Java library
+with no external dependencies.</p>
+<pre><code class="hljs css language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>com.geirsson<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>scalafmt-interfaces<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>1.5.1<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span>
+</code></pre>
+<p>Next, obtain a classloader with the <code>scalafmt-dynamic_2.12</code> classpath.</p>
+<pre><code class="hljs css language-java"><span class="hljs-keyword">import</span> java.net.URLClassLoader;
+<span class="hljs-comment">// this package contains only Java APIs.</span>
+<span class="hljs-keyword">import</span> org.scalafmt.interfaces.*;
+
+<span class="hljs-comment">// ClassLoader that shares only org.scalafmt.interfaces from this classloader.</span>
+ClassLoader sharedParent = <span class="hljs-keyword">new</span> ScalafmtClassLoader(<span class="hljs-keyword">this</span>.getClass.getClassLoader)
+
+<span class="hljs-comment">// Jars to com.geirsson:scalafmt-dynamic_2.12:1.5.1 classpath. Obtain</span>
+<span class="hljs-comment">// these from your build tool or programmatically with ivy/coursier.</span>
+URL[] jars = <span class="hljs-comment">// ...</span>
+ClassLoader scalafmtDynamic = <span class="hljs-keyword">new</span> URLClassLoader(jars, sharedParent)
+</code></pre>
+<p>Finally, create an instance of <code>Scalafmt</code> with the <code>scalafmt-dynamic</code>
+classloader.</p>
+<pre><code class="hljs css language-java">Scalafmt scalafmt = Scalafmt.create(scalafmtDynamic)
+String formatted = scalafmt.format(config, file, <span class="hljs-string">"object A   { }"</span>)
+</code></pre>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-next button" href="/scalafmt/docs/configuration.html"><span>Configuration</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#intellij">IntelliJ</a><ul class="toc-headings"><li><a href="#format-current-file">Format current file</a></li><li><a href="#format-on-save">Format on save</a></li><li><a href="#install-nightly-plugin">Install nightly plugin</a></li><li><a href="#continue-using-intellij-formatter">Continue using IntelliJ formatter</a></li></ul></li><li><a href="#sbt">sbt</a><ul class="toc-headings"><li><a href="#task-keys">Task keys</a></li><li><a href="#customize-configuration-location">Customize configuration location</a></li><li><a href="#format-on-compile">Format on compile</a></li><li><a href="#enable-integrationtest">Enable IntegrationTest</a></li><li><a href="#share-configuration-between-builds">Share configuration between builds</a></li></ul></li><li><a href="#cli">CLI</a><ul class="toc-headings"><li><a href="#coursier">Coursier</a></li><li><a href="#pre-release">Pre-release</a></li><li><a href="#nailgun">Nailgun</a></li><li><a href="#homebrew">Homebrew</a></li><li><a href="#help">--help</a></li></ul></li><li><a href="#gradle">Gradle</a></li><li><a href="#maven">Maven</a></li><li><a href="#mill">Mill</a></li><li><a href="#vim">Vim</a></li><li><a href="#standalone-library">Standalone library</a><ul class="toc-headings"><li><a href="#binary-compatibility-guarantees">Binary compatibility guarantees</a></li><li><a href="#sbt-and-sc-files"><code>*.sbt</code> and <code>*.sc</code> files</a></li><li><a href="#version-handling">Version handling</a></li><li><a href="#error-reporting">Error reporting</a></li><li><a href="#project-filters">Project filters</a></li><li><a href="#clearing-resources">Clearing resources</a></li><li><a href="#calling-from-java">Calling from Java</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer" style="background-color:#A23244"><section class="sitemap"><div><h5>Docs</h5><a href="
                 /scalafmt/docs/installation.html">Installation</a><a href="
                 /scalafmt/docs/configuration.html">Configuration</a><a href="
                 /scalafmt/docs/contributing-scalafmt.html">Contributing</a></div><div><h5>Community</h5><a href="https://gitter.im/scalameta/scalafmt" target="_blank">Chat on Gitter</a></div><div><h5>More</h5><a href="https://github.com/scalameta/scalafmt" target="_blank">GitHub</a></div></section><section class="copyright">Copyright © 2019 Scalafmt</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
