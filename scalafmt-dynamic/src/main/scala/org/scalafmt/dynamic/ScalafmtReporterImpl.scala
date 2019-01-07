@@ -11,8 +11,8 @@ class ScalafmtReporterImpl(out: PrintStream) extends ScalafmtReporter {
   override def excluded(filename: Path): Unit = {
     out.println(s"file excluded: $filename")
   }
-  override def error(e: Throwable): Unit = {
-    out.print("error: ")
+  override def error(file: Path, e: Throwable): Unit = {
+    out.print(s"error: $file: ")
     trimStacktrace(e)
     e.printStackTrace(out)
   }

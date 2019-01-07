@@ -42,6 +42,15 @@ case class ScalafmtReflect(
   private val optionCls = classLoader.loadClass("scala.Option")
   private val configCls = classLoader.loadClass("org.scalafmt.config.Config")
   private val scalafmtCls = classLoader.loadClass("org.scalafmt.Scalafmt")
+  private val dialectCls = classLoader.loadClass("scala.meta.Dialect")
+  private val dialectsCls = classLoader.loadClass("scala.meta.dialects.package")
+  private val sbtDialect: Object = {
+    try dialectsCls.getMethod("Sbt").invoke(null)
+    catch {
+      case ReflectionException(_: NoSuchMethodException) =>
+        dialectsCls.getMethod("Sbt0137").invoke(null)
+    }
+  }
   private var config: Object = _
 
   def readConfig(): String = {
@@ -63,7 +72,7 @@ case class ScalafmtReflect(
           configCls.getMethod("fromHoconString$default$2").invoke(null)
         fromHocon.invoke(null, configText, fromHoconEmptyPath)
     }
-    try invokeNoArg(configured, "get")
+    try invoke(configured, "get")
     catch {
       case e: InvocationTargetException
           if e.getCause.isInstanceOf[NoSuchElementException] =>
@@ -96,11 +105,17 @@ case class ScalafmtReflect(
       reporter.excluded(file)
       code
     } else {
+      val dialectConfig =
+        if (filename.endsWith(".sbt") || filename.endsWith(".sc")) {
+          invoke(config, "withDialect", (dialectCls, sbtDialect))
+        } else {
+          config
+        }
       val formatted = formatFilenameMethod match {
         case Some(method) =>
-          method.invoke(null, code, config, emptyRange, filename)
+          method.invoke(null, code, dialectConfig, emptyRange, filename)
         case None =>
-          formatMethod.invoke(null, code, config, emptyRange)
+          formatMethod.invoke(null, code, dialectConfig, emptyRange)
       }
       clearTokenizerCache()
       formattedGet.invoke(formatted).asInstanceOf[String]
@@ -108,18 +123,15 @@ case class ScalafmtReflect(
   }
 
   private def clearTokenizerCache(): Unit = {
-    val cls = classLoader.loadClass(
+    val cache = moduleInstance(
       "scala.meta.internal.tokenizers.PlatformTokenizerCache$"
     )
-    val module = cls.getField("MODULE$")
-    module.setAccessible(true)
-    val cache = module.get(null)
-    invokeNoArg(invokeNoArg(cache, "megaCache"), "clear")
+    invoke(invoke(cache, "megaCache"), "clear")
   }
 
   private def checkVersionMismatch(config: Object): Unit = {
     if (respectVersion) {
-      val obtained = invokeNoArg(config, "version").asInstanceOf[String]
+      val obtained = invoke(config, "version").asInstanceOf[String]
       if (obtained != version) {
         throw VersionMismatch(obtained, version)
       }
@@ -129,15 +141,26 @@ case class ScalafmtReflect(
   private def isIgnoredFile(filename: String, config: Object): Boolean = {
     if (!respectProjectFilters) true
     else {
-      val matcher = invokeNoArg(invokeNoArg(config, "project"), "matcher")
+      val matcher = invoke(invoke(config, "project"), "matcher")
       val matches = matcher.getClass.getMethod("matches", classOf[String])
       !matches.invoke(matcher, filename).asInstanceOf[java.lang.Boolean]
     }
   }
 
-  private def invokeNoArg(obj: Object, toInvoke: String): Object = {
+  private def moduleInstance(fqn: String): Object = {
+    val cls = classLoader.loadClass(fqn)
+    val module = cls.getField("MODULE$")
+    module.setAccessible(true)
+    module.get(null)
+  }
+
+  private def invoke(
+      obj: Object,
+      toInvoke: String,
+      args: (Class[_], Object)*
+  ): Object = {
     val clazz = obj.getClass
-    val method = clazz.getMethod(toInvoke)
-    method.invoke(obj)
+    val method = clazz.getMethod(toInvoke, args.map(_._1): _*)
+    method.invoke(obj, args.map(_._2): _*)
   }
 }

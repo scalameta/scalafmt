@@ -17,8 +17,9 @@ import java.util.ServiceLoader;
  *
  * - this API is guaranteed to be binary compatible with all future versions of Scalafmt.
  * - it downloads the Scalafmt version matching the 'version' setting in .scalafmt.conf.
- *   All versions down to v1.0.0 are supported.
+ *   All versions down to v1.2.0 are supported.
  * - it respects the 'project.{excludeFilters,includeFilters}' setting in .scalafmt.conf.
+ * - it uses the correct parser for `*.sbt` and `*.sc` files.
  * - it automatically caches parsing of configuration files avoiding redundant work when possible.
  * - it has two external library dependencies (com.geirsson:coursier-small and com.typesafe:config),
  *   which is a smaller dependency footprint compared to com.geirsson:scalafmt-core.
@@ -82,6 +83,10 @@ public interface Scalafmt {
      * Clear internal caches such as classloaded Scalafmt instances.
      */
     void clear();
+
+    static Scalafmt create() {
+        return create(Thread.currentThread().getClass().getClassLoader());
+    }
 
     /**
      * Classload a new instance of this Scalafmt instance.

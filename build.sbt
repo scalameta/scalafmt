@@ -55,7 +55,6 @@ lazy val dynamic = project
     buildInfoSettings,
     buildInfoPackage := "org.scalafmt.dynamic",
     buildInfoObject := "BuildInfo",
-    fork.in(Test) := true,
     libraryDependencies ++= List(
       "com.geirsson" %% "coursier-small" % "1.3.1",
       "com.typesafe" % "config" % "1.3.3",
@@ -199,7 +198,7 @@ lazy val docs = project
     skip in publish := true,
     mdoc := run.in(Compile).evaluated
   )
-  .dependsOn(cli)
+  .dependsOn(cli, dynamic)
   .enablePlugins(DocusaurusPlugin)
 
 val V = "\\d+\\.\\d+\\.\\d+"

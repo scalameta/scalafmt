@@ -24,7 +24,7 @@ class DynamicSuite extends FunSuite with DiffAssertions {
     val writer = new PrintWriter(download)
     val out = new ByteArrayOutputStream()
     val parsed = mutable.Map.empty[String, Int]
-    def parsedCount = parsed.values.sum
+    def parsedCount: Int = parsed.values.sum
     val reporter: ScalafmtReporter =
       new ScalafmtReporterImpl(new PrintStream(out)) {
         override def parsedConfig(
@@ -202,15 +202,14 @@ class DynamicSuite extends FunSuite with DiffAssertions {
   }
 
   check("config-error") { f =>
-    f.ignoreVersion()
     f.setConfig(
       """max=70
         |version=1.6.0-RC4
         |""".stripMargin
     )
     f.assertError(
-      """|error: Invalid field: max. Expected one of version, maxColumn, docstrings, optIn, binPack, continuationIndent, align, spaces, literals, lineEndings, rewriteTokens, rewrite, indentOperator, newlines, runner, indentYieldKeyword, importSelectors, unindentTopLevelOperators, includeCurlyBraceInSelectChains, assumeStandardLibraryStripMargin, danglingParentheses, poorMansTrailingCommasInConfigStyle, trailingCommas, verticalMultilineAtDefinitionSite, verticalMultilineAtDefinitionSiteArityThreshold, verticalMultiline, onTestFailure, encoding, project
-      """.stripMargin
+      """|error: path/.scalafmt.conf: Invalid field: max. Expected one of version, maxColumn, docstrings, optIn, binPack, continuationIndent, align, spaces, literals, lineEndings, rewriteTokens, rewrite, indentOperator, newlines, runner, indentYieldKeyword, importSelectors, unindentTopLevelOperators, includeCurlyBraceInSelectChains, assumeStandardLibraryStripMargin, danglingParentheses, poorMansTrailingCommasInConfigStyle, trailingCommas, verticalMultilineAtDefinitionSite, verticalMultilineAtDefinitionSiteArityThreshold, verticalMultiline, onTestFailure, encoding, project
+         |""".stripMargin
     )
   }
 
@@ -243,6 +242,34 @@ class DynamicSuite extends FunSuite with DiffAssertions {
       "error: failed to resolve Scalafmt version '1.0'"
     )
     assert(f.downloadLogs.nonEmpty)
+  }
+
+  check("sbt") { f =>
+    def check(isLegacy: Boolean): Unit = {
+      List("build.sbt", "build.sc").foreach { filename =>
+        f.assertFormat(
+          "lazy   val   x =  project",
+          "lazy val x = project\n",
+          Paths.get(filename)
+        )
+        val input = if (isLegacy) ": <input>" else ""
+        f.assertError(
+          "lazy   val   x =  project",
+          s"""|error: sbt.scala$input:1: error: classes cannot be lazy
+              |lazy   val   x =  project
+              |^
+              |""".stripMargin
+        )
+      }
+    }
+    f.setConfig(
+      """|project.includeFilters = [ ".*" ]
+         |""".stripMargin
+    )
+    f.setVersion("1.6.0-RC4")
+    check(isLegacy = false)
+    f.setVersion("1.2.0")
+    check(isLegacy = true)
   }
 
 }
