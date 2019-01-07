@@ -3,6 +3,16 @@ id: changelog
 title: Changelog
 ---
 
+## [v2.0.0-RC2](https://github.com/scalameta/scalafmt/tree/v2.0.0-RC2) (2019-01-07)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.0.0-RC1...v2.0.0-RC2)
+
+**Merged pull requests:**
+
+- Change publish organization to org.scalameta from com.geirsson [\#1339](https://github.com/scalameta/scalafmt/pull/1339) ([olafurpg](https://github.com/olafurpg))
+- Add release notes for v2.0 [\#1338](https://github.com/scalameta/scalafmt/pull/1338) ([olafurpg](https://github.com/olafurpg))
+
+
 ## [v2.0.0-RC1](https://github.com/scalameta/scalafmt/tree/v2.0.0-RC1) (2019-01-07)
 
 [Full Changelog](https://github.com/scalameta/scalafmt/compare/v1.6.0-RC4...v2.0.0-RC1)
