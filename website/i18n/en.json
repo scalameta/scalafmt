@@ -5,6 +5,9 @@
     "previous": "Previous",
     "tagline": "Code formatter for Scala",
     "docs": {
+      "changelog": {
+        "title": "Changelog"
+      },
       "configuration": {
         "title": "Configuration"
       },

@@ -7,8 +7,6 @@ import com.geirsson.coursiersmall.ResolutionException
 import com.geirsson.coursiersmall.Settings
 import com.typesafe.config.ConfigException
 import com.typesafe.config.ConfigFactory
-import java.io.PrintWriter
-import java.io.Writer
 import java.lang.reflect.InvocationTargetException
 import java.net.URLClassLoader
 import java.nio.file.Files

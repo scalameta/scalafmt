@@ -5,7 +5,8 @@
       "configuration",
       "gotchas",
       "faq",
-      "known-issues"
+      "known-issues",
+      "changelog"
     ],
     "Contributing": ["contributing-scalafmt", "contributing-website"]
   }
