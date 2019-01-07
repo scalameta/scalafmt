@@ -71,6 +71,7 @@ lazy val interfaces = project
     moduleName := "scalafmt-interfaces",
     description := "Dependency-free, pure Java public interfaces to integrate with Scalafmt through a build tool or editor plugin.",
     crossVersion := CrossVersion.disabled,
+    autoScalaLibrary := false,
     resourceGenerators.in(Compile) += Def.task {
       val out =
         managedResourceDirectories
