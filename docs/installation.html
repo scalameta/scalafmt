@@ -95,9 +95,9 @@ Scalafmt formatter:</p>
 <p>It is not possible to reset this setting for all existing projects.</p>
 <h2><a class="anchor" aria-hidden="true" id="sbt"></a><a href="#sbt" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>sbt</h2>
 <pre><code class="hljs css language-scala"><span class="hljs-comment">// In project/plugins.sbt. Note, does not support sbt 0.13, only sbt 1.0.</span>
-addSbtPlugin(<span class="hljs-string">"com.geirsson"</span> % <span class="hljs-string">"sbt-scalafmt"</span> % <span class="hljs-string">"1.5.1"</span>)
+addSbtPlugin(<span class="hljs-string">"org.scalameta"</span> % <span class="hljs-string">"sbt-scalafmt"</span> % <span class="hljs-string">"1.5.1"</span>)
 </code></pre>
-<p><a href="https://maven-badges.herokuapp.com/maven-central/com.geirsson/sbt-scalafmt"><img src="https://maven-badges.herokuapp.com/maven-central/com.geirsson/sbt-scalafmt/badge.svg" alt="Maven Central"></a></p>
+<p><a href="https://maven-badges.herokuapp.com/maven-central/org.scalameta/sbt-scalafmt"><img src="https://maven-badges.herokuapp.com/maven-central/org.scalameta/sbt-scalafmt/badge.svg" alt="Maven Central"></a></p>
 <h3><a class="anchor" aria-hidden="true" id="task-keys"></a><a href="#task-keys" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Task keys</h3>
 <ul>
 <li><code>myproject/scalafmt</code>: Format main sources of <code>myproject</code> project</li>
@@ -157,13 +157,13 @@ To install Coursier see <a href="https://github.com/coursier/coursier#command-li
 </div>
 <p>Create a standalone executable in <code>/usr/local/bin/scalafmt</code> with (sudo if
 necessary):</p>
-<pre><code class="hljs css language-sh">coursier bootstrap com.geirsson:scalafmt-cli_2.12:1.5.1 \
+<pre><code class="hljs css language-sh">coursier bootstrap org.scalameta:scalafmt-cli_2.12:1.5.1 \
   -r bintray:scalameta/maven \
   -o /usr/<span class="hljs-built_in">local</span>/bin/scalafmt --standalone --main org.scalafmt.cli.Cli
 scalafmt --version <span class="hljs-comment"># should be 1.5.1</span>
 </code></pre>
 <p>Alternatively you can create a slim 15 KiB bootstrap script with:</p>
-<pre><code class="hljs css language-sh">coursier bootstrap com.geirsson:scalafmt-cli_2.12:1.5.1 \
+<pre><code class="hljs css language-sh">coursier bootstrap org.scalameta:scalafmt-cli_2.12:1.5.1 \
   -r bintray:scalameta/maven \
   -o scalafmt --main org.scalafmt.cli.Cli
 ./scalafmt --version <span class="hljs-comment"># should be 1.5.1</span>
@@ -196,7 +196,7 @@ vim/Emacs/Atom/Sublime/VS Code.</p>
 <li>Create a standalone executable in <code>/usr/local/bin/scalafmt_ng</code> with (sudo if
 necessary)</li>
 </ul>
-<pre><code class="hljs css language-sh">coursier bootstrap --standalone com.geirsson:scalafmt-cli_2.12:1.5.1 \
+<pre><code class="hljs css language-sh">coursier bootstrap --standalone org.scalameta:scalafmt-cli_2.12:1.5.1 \
   -r bintray:scalameta/maven \
   -o /usr/<span class="hljs-built_in">local</span>/bin/scalafmt_ng -f --main com.martiansoftware.nailgun.NGServer
 scalafmt_ng &amp; // start nailgun <span class="hljs-keyword">in</span> background
@@ -217,10 +217,10 @@ scalafmt --version // should be 1.5.1
 brew upgrade scalafmt
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="help"></a><a href="#help" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>--help</h3>
-<pre><code class="hljs">build commit: <span class="hljs-number">300f</span>964f2c997304937ebe1f6539dd6526335e52
-build time: Mon Jan <span class="hljs-number">07</span> <span class="hljs-number">16</span>:<span class="hljs-number">35</span>:<span class="hljs-number">33</span> UTC <span class="hljs-number">2019</span>
+<pre><code class="hljs">build commit: <span class="hljs-number">2958911185</span>c7e145ca6f4f85803c8e6bf2fa99ec
+build time: Mon Jan <span class="hljs-number">07</span> <span class="hljs-number">16</span>:<span class="hljs-number">44</span>:<span class="hljs-number">52</span> UTC <span class="hljs-number">2019</span>
 </code></pre>
-<pre><code class="hljs">scalafmt 2.0.0-RC1+3-300f964f-SNAPSHOT
+<pre><code class="hljs">scalafmt 2.0.0-RC2
 Usage: scalafmt [options] [&lt;<span class="hljs-keyword">file</span>&gt;...]
 
   -<span class="hljs-keyword">h</span>, --<span class="hljs-keyword">help</span>               prints this usage text
@@ -295,7 +295,7 @@ You pay the JVM startup penalty on every format unless you're using
 </div>
 <h2><a class="anchor" aria-hidden="true" id="standalone-library"></a><a href="#standalone-library" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Standalone library</h2>
 <p>Use the <code>scalafmt-dynamic</code> module to integrate with Scalafmt.</p>
-<pre><code class="hljs css language-scala">libraryDependencies += <span class="hljs-string">"com.geirsson"</span> %% <span class="hljs-string">"scalafmt-dynamic"</span> % <span class="hljs-string">"1.5.1"</span>
+<pre><code class="hljs css language-scala">libraryDependencies += <span class="hljs-string">"org.scalameta"</span> %% <span class="hljs-string">"scalafmt-dynamic"</span> % <span class="hljs-string">"1.5.1"</span>
 </code></pre>
 <p>First, create an instance of <code>Scalafmt</code> and get paths for the file to format
 along with it's configuration file.</p>
@@ -414,7 +414,7 @@ libraries.</p>
 <p>First, depend on the <code>scalafmt-interfaces</code> module, which is a pure Java library
 with no external dependencies.</p>
 <pre><code class="hljs css language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>com.geirsson<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.scalameta<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>scalafmt-interfaces<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>1.5.1<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span>
@@ -427,7 +427,7 @@ with no external dependencies.</p>
 <span class="hljs-comment">// ClassLoader that shares only org.scalafmt.interfaces from this classloader.</span>
 ClassLoader sharedParent = <span class="hljs-keyword">new</span> ScalafmtClassLoader(<span class="hljs-keyword">this</span>.getClass.getClassLoader)
 
-<span class="hljs-comment">// Jars to com.geirsson:scalafmt-dynamic_2.12:1.5.1 classpath. Obtain</span>
+<span class="hljs-comment">// Jars to org.scalameta:scalafmt-dynamic_2.12:1.5.1 classpath. Obtain</span>
 <span class="hljs-comment">// these from your build tool or programmatically with ivy/coursier.</span>
 URL[] jars = <span class="hljs-comment">// ...</span>
 ClassLoader scalafmtDynamic = <span class="hljs-keyword">new</span> URLClassLoader(jars, sharedParent)
