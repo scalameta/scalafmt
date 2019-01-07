@@ -19,6 +19,7 @@ object Main {
       )
       .withStringModifiers(
         List(
+          new FileModifier,
           new ScalafmtModifier,
           new DefaultsModifier
         )

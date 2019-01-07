@@ -10,7 +10,7 @@ import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
 import java.nio.file.attribute.FileTime
 import org.scalactic.source.Position
-import org.scalafmt.dynamic.ScalafmtReporterImpl
+import org.scalafmt.dynamic.ConsoleScalafmtReporter
 import org.scalafmt.interfaces.Scalafmt
 import org.scalafmt.interfaces.ScalafmtReporter
 import org.scalatest.FunSuite
@@ -21,12 +21,12 @@ class DynamicSuite extends FunSuite with DiffAssertions {
   class Format(name: String) {
     val download = new ByteArrayOutputStream()
     def downloadLogs: String = download.toString()
-    val writer = new PrintWriter(download)
     val out = new ByteArrayOutputStream()
     val parsed = mutable.Map.empty[String, Int]
     def parsedCount: Int = parsed.values.sum
     val reporter: ScalafmtReporter =
-      new ScalafmtReporterImpl(new PrintStream(out)) {
+      new ConsoleScalafmtReporter(new PrintStream(out)) {
+        override def downloadWriter(): PrintWriter = new PrintWriter(download)
         override def parsedConfig(
             config: Path,
             scalafmtVersion: String
@@ -44,7 +44,6 @@ class DynamicSuite extends FunSuite with DiffAssertions {
       .create(this.getClass.getClassLoader)
       .withReporter(reporter)
       .withDefaultVersion("1.6.0-RC4")
-      .withDownloadWriter(writer)
     def ignoreVersion(): Unit = {
       dynamic = dynamic.withRespectVersion(false)
     }
@@ -272,4 +271,8 @@ class DynamicSuite extends FunSuite with DiffAssertions {
     check(isLegacy = true)
   }
 
+  check("no-config") { f =>
+    Files.delete(f.config)
+    f.assertError("error: path/.scalafmt.conf: file does not exist")
+  }
 }

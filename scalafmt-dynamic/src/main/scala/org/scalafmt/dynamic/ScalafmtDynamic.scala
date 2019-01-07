@@ -11,12 +11,12 @@ import java.io.PrintWriter
 import java.io.Writer
 import java.lang.reflect.InvocationTargetException
 import java.net.URLClassLoader
+import java.nio.file.Files
 import java.nio.file.Path
 import org.scalafmt.interfaces._
 import scala.collection.concurrent.TrieMap
 import scala.collection.mutable
 import scala.concurrent.duration.Duration
-import scala.util.Properties
 import scala.util.control.NonFatal
 
 final case class ScalafmtDynamic(
@@ -32,7 +32,7 @@ final case class ScalafmtDynamic(
     fmts.clear()
   }
   def this() = this(
-    ScalafmtReporterImpl,
+    ConsoleScalafmtReporter,
     true,
     true,
     BuildInfo.version,
@@ -96,22 +96,27 @@ final case class ScalafmtDynamic(
       case Some(fmt) =>
         tryFormat(fmt)
       case None =>
-        readVersion(config) match {
-          case Some(version) =>
-            loadScalafmt(config, version) match {
-              case Some(fmt) =>
-                fmts(config) = fmt
-                tryFormat(fmt)
-              case None =>
-                code
-            }
-          case None =>
-            reporter.error(
-              config,
-              s"missing setting 'version'. " +
-                s"To fix this problem, add the following line to .scalafmt.conf: 'version=$defaultVersion'."
-            )
-            code
+        if (!Files.exists(config)) {
+          reporter.error(config, "file does not exist")
+          code
+        } else {
+          readVersion(config) match {
+            case Some(version) =>
+              loadScalafmt(config, version) match {
+                case Some(fmt) =>
+                  fmts(config) = fmt
+                  tryFormat(fmt)
+                case None =>
+                  code
+              }
+            case None =>
+              reporter.error(
+                config,
+                s"missing setting 'version'. " +
+                  s"To fix this problem, add the following line to .scalafmt.conf: 'version=$defaultVersion'."
+              )
+              code
+          }
         }
     }
   }

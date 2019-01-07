@@ -1,12 +1,14 @@
 package org.scalafmt.dynamic
 
 import java.io.PrintStream
+import java.io.PrintWriter
 import java.nio.file.Path
 import org.scalafmt.interfaces.ScalafmtReporter
 
-object ScalafmtReporterImpl extends ScalafmtReporterImpl(System.out)
+object ConsoleScalafmtReporter extends ConsoleScalafmtReporter(System.err)
 
-class ScalafmtReporterImpl(out: PrintStream) extends ScalafmtReporter {
+class ConsoleScalafmtReporter(out: PrintStream) extends ScalafmtReporter {
+  override def downloadWriter(): PrintWriter = new PrintWriter(out)
   def trimStacktrace(e: Throwable): Unit = ()
   override def excluded(filename: Path): Unit = {
     out.println(s"file excluded: $filename")

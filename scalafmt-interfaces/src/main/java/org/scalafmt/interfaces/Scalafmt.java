@@ -75,18 +75,9 @@ public interface Scalafmt {
     Scalafmt withReporter(ScalafmtReporter reporter);
 
     /**
-     * Use this writer for printing download progress, defaults to System.err.
-     */
-    Scalafmt withDownloadWriter(Writer writer);
-
-    /**
      * Clear internal caches such as classloaded Scalafmt instances.
      */
     void clear();
-
-    static Scalafmt create() {
-        return create(Thread.currentThread().getClass().getClassLoader());
-    }
 
     /**
      * Classload a new instance of this Scalafmt instance.

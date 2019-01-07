@@ -1,5 +1,6 @@
 package org.scalafmt.interfaces;
 
+import java.io.PrintWriter;
 import java.nio.file.Path;
 
 /**
@@ -39,5 +40,9 @@ public interface ScalafmtReporter {
      */
     void parsedConfig(Path config, String scalafmtVersion);
 
+    /**
+     * Use this writer for printing progress while downloading new Scalafmt versions.
+     */
+    PrintWriter downloadWriter();
 
 }
