@@ -10,7 +10,8 @@ You can use Scalafmt from your editor, build tool or terminal.
 To install the
 [Scalafmt IntelliJ plugin](https://plugins.jetbrains.com/plugin/8236?pr=)
 
-- open `Preferences > Plugins` (for Windows/Linux it is called `Settings` instead of `Preferences`)
+- open `Preferences > Plugins` (for Windows/Linux it is called `Settings`
+  instead of `Preferences`)
 - open `Browse repositories`
 - search for `scalafmt`
 - click "Install"
@@ -291,58 +292,156 @@ You pay the JVM startup penalty on every format unless you're using
 
 ## Standalone library
 
-Add to your dependencies
+Use the `scalafmt-dynamic` module to integrate with Scalafmt.
 
 ```scala
-libraryDependencies += "com.geirsson" %% "scalafmt-core" % "@STABLE_VERSION@"
-// Scala.js
-libraryDependencies += "com.geirsson" %%% "scalafmt-core" % "@STABLE_VERSION@"
+libraryDependencies += "com.geirsson" %% "scalafmt-dynamic" % "@STABLE_VERSION@"
 ```
 
-Use the API like this:
-
-```scala mdoc
-org.scalafmt.Scalafmt.format("""
-      object FormatMe { List(Split(Space, 0).withPolicy(SingleLineBlock(close)), Split(Newline, 1).withPolicy{ case Decision(t@FormatToken(_, `close`, _), s) => Decision(t, List(Split(Newline, 0)))}.withIndent(2, close, Right)) }
-""").get
-```
-
-Obtain a configuration object with `parseHoconConfig`
+First, create an instance of `Scalafmt` and get paths for the file to format
+along with it's configuration file.
 
 ```scala mdoc:silent
-val config = org.scalafmt.Scalafmt.parseHoconConfig("align=most").get
+import java.nio.file._
+import org.scalafmt.interfaces.Scalafmt
+val scalafmt = Scalafmt.create(this.getClass.getClassLoader)
+val config = Paths.get(".scalafmt.conf")
+val file = Paths.get("Main.scala")
 ```
+
+Use the `format` method to format a string with the given config and filename.
 
 ```scala mdoc
-org.scalafmt.Scalafmt.format("""
-    object Align {
-        val x = 1
-        val xx = 2
-    }
-""", config).get
+println(scalafmt.format(config, file, "object A  {  }"))
 ```
 
-To format code with top-level statements like `*.sbt` files
+### Binary compatibility guarantees
+
+Stable public APIs:
+
+- `org.scalafmt.interfaces` (recommended): pure Java APIs with no external
+  dependencies. Can be loaded via the `scalafmt-dynamic` module.
+- `org.scalafmt.Scalafmt` (discouraged): old public API that is stable and will
+  remain stable but has several limitations.
+  - no support for `version` in `.scalafmt.conf`
+  - does not respect `project.excludeFilters` in `.scalafmt.conf`
+  - doesn't automatically handle `*.sbt` and `*.sc` files
+  - no caching of `.scalafmt.conf`
+
+Internal APIs that are subject to binary breaking changes in any release:
+
+- `org.scalafmt.dynamic`: private implementation of `scalafmt-interfaces`. These
+  classes can be used via the static method
+  `org.scalafmt.interfaces.Scalafmt.create(ClassLoader)`.
+- `org.scalafmt.config`: case classes for `.scalafmt.conf` configuration that
+  that are only intended for internal usage.
+- `org.scalafmt.cli`: private implementation of the command-line interface.
+
+### `*.sbt` and `*.sc` files
+
+It's possible to format `*.sbt` and `*.sc` files.
+
+```scala mdoc
+println(scalafmt.format(config, Paths.get("build.sbt"), "lazy    val   x =   project"))
+println(scalafmt.format(config, Paths.get("build.sc"), "def  main(  ) = println()"))
+```
+
+The `scalafmt` instance automatically picks the correct parser depending on the
+provided filename.
+
+### Version handling
+
+By default, the `scalafmt` instance automatically downloads the Scalafmt version
+declared in `.scalafmt.conf`. If the `version` setting is not declared, the
+original file contents are returned unchanged and an error is reported with
+instructions how to fix the problem.
+
+Use `withRespectVersion(false)` to fall back to a default Scalafmt version when
+its not declared in `.scalafmt.conf`. Use `withDefaultVersion(version)` to
+customize the fallback version.
 
 ```scala mdoc:silent
-val configForSbt = org.scalafmt.Scalafmt.configForSbt(config)
+val scalafmtThatDoesntRequireVersionSetting = scalafmt
+  .withRespectVersion(false)
+  .withDefaultVersion("1.6.0-RC4")
 ```
+
+### Error reporting
+
+By default, Scalafmt errors are reported to `System.err`. Extend
+`org.scalafmt.interfaces.ScalafmtReporter` to customize error reporting to
+handle parse and config errors.
+
+Here is an example how to extend `ScalafmtReporter`.
+
+```scala mdoc:file:scalafmt-dynamic/src/main/scala/org/scalafmt/dynamic/ConsoleScalafmtReporter.scala
+
+```
+
+Use `withReporter(reporter)` to pass in your custom reporter.
+
+```scala mdoc:silent
+import java.io._
+import org.scalafmt.dynamic._
+val myOut = new ByteArrayOutputStream()
+val myReporter = new ConsoleScalafmtReporter(new PrintStream(myOut))
+val customReporterScalafmt = scalafmt.withReporter(myReporter)
+```
+
+### Project filters
+
+By default, `scalafmt` only formats files that match the
+`project.{excludeFilters,includeFilters}` settings in `.scalafmt.conf`. Use
+`withRespectExcludeFilters(false)` to disable this behavior.
+
+```scala mdoc:silent
+val scalafmtThatIgnoresProjectSettings = scalafmt.withRespectProjectFilters(false)
+```
+
+### Clearing resources
+
+Use the `clear()` method to clear up resources of the `scalafmt` instance.
 
 ```scala mdoc
-org.scalafmt.Scalafmt.format("""
-    val x = 1
-    val xx = 2
-""", configForSbt).get
+scalafmt.clear()
 ```
 
-The Scalafmt public API consists only of methods in`org.scalafmt.Scalafmt`. In
-particular, case classes in `org.scalafmt.config` are subject to binary and
-source breaking changes on any release.
+### Calling from Java
 
-## Help Wanted
+It's possible to call Scalafmt from Java without depending directly on Scala
+libraries.
 
-- Ensime
-- Scala IDE ([help wanted!](https://github.com/scalameta/scalafmt/issues/125))
-- Your favorite editor? Join the gitter channel.
+First, depend on the `scalafmt-interfaces` module, which is a pure Java library
+with no external dependencies.
 
-[intellij-ticket]: https://youtrack.jetbrains.com/issue/SCL-13658
+```xml
+<dependency>
+    <groupId>com.geirsson</groupId>
+    <artifactId>scalafmt-interfaces</artifactId>
+    <version>@STABLE_VERSION@</version>
+</dependency>
+```
+
+Next, obtain a classloader with the `scalafmt-dynamic_2.12` classpath.
+
+```java
+import java.net.URLClassLoader;
+// this package contains only Java APIs.
+import org.scalafmt.interfaces.*;
+
+// ClassLoader that shares only org.scalafmt.interfaces from this classloader.
+ClassLoader sharedParent = new ScalafmtClassLoader(this.getClass.getClassLoader)
+
+// Jars to com.geirsson:scalafmt-dynamic_2.12:@STABLE_VERSION@ classpath. Obtain
+// these from your build tool or programmatically with ivy/coursier.
+URL[] jars = // ...
+ClassLoader scalafmtDynamic = new URLClassLoader(jars, sharedParent)
+```
+
+Finally, create an instance of `Scalafmt` with the `scalafmt-dynamic`
+classloader.
+
+```java
+Scalafmt scalafmt = Scalafmt.create(scalafmtDynamic)
+String formatted = scalafmt.format(config, file, "object A   { }")
+```
