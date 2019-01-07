@@ -22,7 +22,7 @@ import java.util.ServiceLoader;
  * - it uses the correct parser for `*.sbt` and `*.sc` files.
  * - it automatically caches parsing of configuration files avoiding redundant work when possible.
  * - it has two external library dependencies (com.geirsson:coursier-small and com.typesafe:config),
- *   which is a smaller dependency footprint compared to com.geirsson:scalafmt-core.
+ *   which is a smaller dependency footprint compared to scalafmt-core.
  */
 public interface Scalafmt {
 

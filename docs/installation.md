@@ -83,10 +83,10 @@ It is not possible to reset this setting for all existing projects.
 
 ```scala
 // In project/plugins.sbt. Note, does not support sbt 0.13, only sbt 1.0.
-addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "1.5.1")
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "1.5.1")
 ```
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.geirsson/sbt-scalafmt/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.geirsson/sbt-scalafmt)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.scalameta/sbt-scalafmt/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.scalameta/sbt-scalafmt)
 
 ### Task keys
 
@@ -160,7 +160,7 @@ Create a standalone executable in `/usr/local/bin/scalafmt` with (sudo if
 necessary):
 
 ```sh
-coursier bootstrap com.geirsson:scalafmt-cli_2.12:@STABLE_VERSION@ \
+coursier bootstrap org.scalameta:scalafmt-cli_2.12:@STABLE_VERSION@ \
   -r bintray:scalameta/maven \
   -o /usr/local/bin/scalafmt --standalone --main org.scalafmt.cli.Cli
 scalafmt --version # should be @STABLE_VERSION@
@@ -169,7 +169,7 @@ scalafmt --version # should be @STABLE_VERSION@
 Alternatively you can create a slim 15 KiB bootstrap script with:
 
 ```sh
-coursier bootstrap com.geirsson:scalafmt-cli_2.12:@STABLE_VERSION@ \
+coursier bootstrap org.scalameta:scalafmt-cli_2.12:@STABLE_VERSION@ \
   -r bintray:scalameta/maven \
   -o scalafmt --main org.scalafmt.cli.Cli
 ./scalafmt --version # should be @STABLE_VERSION@
@@ -216,7 +216,7 @@ vim/Emacs/Atom/Sublime/VS Code.
   necessary)
 
 ```sh
-coursier bootstrap --standalone com.geirsson:scalafmt-cli_2.12:@STABLE_VERSION@ \
+coursier bootstrap --standalone org.scalameta:scalafmt-cli_2.12:@STABLE_VERSION@ \
   -r bintray:scalameta/maven \
   -o /usr/local/bin/scalafmt_ng -f --main com.martiansoftware.nailgun.NGServer
 scalafmt_ng & // start nailgun in background
@@ -295,7 +295,7 @@ You pay the JVM startup penalty on every format unless you're using
 Use the `scalafmt-dynamic` module to integrate with Scalafmt.
 
 ```scala
-libraryDependencies += "com.geirsson" %% "scalafmt-dynamic" % "@STABLE_VERSION@"
+libraryDependencies += "org.scalameta" %% "scalafmt-dynamic" % "@STABLE_VERSION@"
 ```
 
 First, create an instance of `Scalafmt` and get paths for the file to format
@@ -416,7 +416,7 @@ with no external dependencies.
 
 ```xml
 <dependency>
-    <groupId>com.geirsson</groupId>
+    <groupId>org.scalameta</groupId>
     <artifactId>scalafmt-interfaces</artifactId>
     <version>@STABLE_VERSION@</version>
 </dependency>
@@ -432,7 +432,7 @@ import org.scalafmt.interfaces.*;
 // ClassLoader that shares only org.scalafmt.interfaces from this classloader.
 ClassLoader sharedParent = new ScalafmtClassLoader(this.getClass.getClassLoader)
 
-// Jars to com.geirsson:scalafmt-dynamic_2.12:@STABLE_VERSION@ classpath. Obtain
+// Jars to org.scalameta:scalafmt-dynamic_2.12:@STABLE_VERSION@ classpath. Obtain
 // these from your build tool or programmatically with ivy/coursier.
 URL[] jars = // ...
 ClassLoader scalafmtDynamic = new URLClassLoader(jars, sharedParent)

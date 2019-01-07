@@ -43,7 +43,7 @@ class DynamicSuite extends FunSuite with DiffAssertions {
     var dynamic = Scalafmt
       .create(this.getClass.getClassLoader)
       .withReporter(reporter)
-      .withDefaultVersion("1.6.0-RC4")
+      .withDefaultVersion(latest)
     def ignoreVersion(): Unit = {
       dynamic = dynamic.withRespectVersion(false)
     }
@@ -125,6 +125,8 @@ class DynamicSuite extends FunSuite with DiffAssertions {
     }
   }
 
+  def latest = "2.0.0-RC1"
+
   def checkVersion(version: String): Unit = {
     check(s"v$version") { f =>
       f.setConfig(
@@ -135,11 +137,11 @@ class DynamicSuite extends FunSuite with DiffAssertions {
     }
   }
 
-  checkVersion("1.6.0-RC4")
+  checkVersion(latest)
   checkVersion("1.0.0")
 
   check("filename-ok") { f =>
-    f.setConfig("version=1.6.0-RC4")
+    f.setConfig(s"version=$latest")
     f.assertError(
       "object A {",
       """|error: filename-ok.scala: L1: error: } expected but end of file found
@@ -163,9 +165,9 @@ class DynamicSuite extends FunSuite with DiffAssertions {
   check("missing-version") { f =>
     f.assertError(
       "object A  { }",
-      """|
-         |error: path/.scalafmt.conf: missing setting 'version'. To fix this problem, add the following line to .scalafmt.conf: 'version=1.6.0-RC4'.
-         |""".stripMargin
+      s"""|
+          |error: path/.scalafmt.conf: missing setting 'version'. To fix this problem, add the following line to .scalafmt.conf: 'version=$latest'.
+          |""".stripMargin
     )
   }
 
@@ -193,7 +195,7 @@ class DynamicSuite extends FunSuite with DiffAssertions {
       f.assertIgnored("path/App.scala")
       f.assertIgnored("path/UserSpec.scala")
     }
-    f.setVersion("1.6.0-RC4")
+    f.setVersion(latest)
     check()
     f.setVersion("1.0.0")
     check()
@@ -202,25 +204,25 @@ class DynamicSuite extends FunSuite with DiffAssertions {
 
   check("config-error") { f =>
     f.setConfig(
-      """max=70
-        |version=1.6.0-RC4
-        |""".stripMargin
+      s"""max=70
+         |version=$latest
+         |""".stripMargin
     )
     f.assertError(
-      """|error: path/.scalafmt.conf: Invalid field: max. Expected one of version, maxColumn, docstrings, optIn, binPack, continuationIndent, align, spaces, literals, lineEndings, rewriteTokens, rewrite, indentOperator, newlines, runner, indentYieldKeyword, importSelectors, unindentTopLevelOperators, includeCurlyBraceInSelectChains, assumeStandardLibraryStripMargin, danglingParentheses, poorMansTrailingCommasInConfigStyle, trailingCommas, verticalMultilineAtDefinitionSite, verticalMultilineAtDefinitionSiteArityThreshold, verticalMultiline, onTestFailure, encoding, project
+      """|error: path/.scalafmt.conf: Invalid field: max. Expected one of version, maxColumn, docstrings, optIn, binPack, continuationIndent, align, spaces, literals, lineEndings, rewriteTokens, rewrite, indentOperator, newlines, runner, indentYieldKeyword, importSelectors, unindentTopLevelOperators, includeCurlyBraceInSelectChains, includeNoParensInSelectChains, assumeStandardLibraryStripMargin, danglingParentheses, poorMansTrailingCommasInConfigStyle, trailingCommas, verticalMultilineAtDefinitionSite, verticalMultilineAtDefinitionSiteArityThreshold, verticalMultiline, onTestFailure, encoding, project
          |""".stripMargin
     )
   }
 
   check("config-cache") { f =>
-    f.setConfig("version=1.6.0-RC4")
+    f.setVersion(latest)
     f.assertFormat()
     f.assertFormat()
     assert(f.parsedCount == 1, f.parsed)
     f.setConfig(
-      """version=1.6.0-RC4
-        |maxColumn = 40
-        |""".stripMargin
+      s"""version=$latest
+         |maxColumn = 40
+         |""".stripMargin
     )
     f.assertFormat()
     assert(f.parsedCount == 2, f.parsed)
@@ -232,7 +234,7 @@ class DynamicSuite extends FunSuite with DiffAssertions {
         |""".stripMargin
     )
     f.assertFormat()
-    assert(f.parsed == Map("1.0.0" -> 1, "1.6.0-RC4" -> 3))
+    assert(f.parsed == Map("1.0.0" -> 1, latest -> 3))
   }
 
   check("wrong-version") { f =>
@@ -264,7 +266,7 @@ class DynamicSuite extends FunSuite with DiffAssertions {
       """|project.includeFilters = [ ".*" ]
          |""".stripMargin
     )
-    f.setVersion("1.6.0-RC4")
+    f.setVersion(latest)
     check()
     f.setVersion("1.2.0")
     check()
