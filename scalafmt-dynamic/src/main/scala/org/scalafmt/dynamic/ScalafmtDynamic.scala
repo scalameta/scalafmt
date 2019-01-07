@@ -55,20 +55,8 @@ final case class ScalafmtDynamic(
     def report(e: Throwable): Unit = e match {
       case e: InvocationTargetException =>
         report(e.getCause)
-      case e: IllegalStateException =>
-        // Metaconfig uses IllegalStateException for some reason ¯\_(ツ)_/¯
-        reporter.error(file, e.getMessage)
       case _ =>
-        e.getClass.getName match {
-          case "scala.meta.parsers.ParseException" |
-              "scala.meta.parsers.TokenizeException" =>
-            val msg = e.toString
-              .replaceAllLiterally("<input>:", "L")
-              .replaceAllLiterally(file.toString + ":", "L")
-            reporter.error(file, msg)
-          case _ =>
-            reporter.error(file, e)
-        }
+        reporter.error(file, e)
     }
     def tryFormat(reflect: ScalafmtReflect): String = {
       try {

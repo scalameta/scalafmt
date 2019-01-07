@@ -16,7 +16,10 @@ import org.scalafmt.interfaces.ScalafmtReporter
 import org.scalatest.FunSuite
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
+import scala.{meta => m}
 import scala.meta.testkit._
+import PositionSyntax._
+import org.scalafmt.interfaces.PositionException
 
 class DynamicSuite extends FunSuite with DiffAssertions {
   class Format(name: String) {
@@ -29,6 +32,23 @@ class DynamicSuite extends FunSuite with DiffAssertions {
     val reporter: ScalafmtReporter =
       new ConsoleScalafmtReporter(new PrintStream(out)) {
         override def downloadWriter(): PrintWriter = new PrintWriter(download)
+
+        override def error(file: Path, e: Throwable): Unit = e match {
+          case p: PositionException =>
+            val input = m.Input.VirtualFile(file.toString, p.code)
+            val pos =
+              m.Position.Range(
+                input,
+                p.startLine,
+                p.startCharacter,
+                p.endLine,
+                p.endCharacter
+              )
+            val formattedMessage = pos.formatMessage("error", p.shortMessage)
+            out.write(formattedMessage.getBytes(StandardCharsets.UTF_8))
+          case _ =>
+            super.error(file, e)
+        }
         override def missingVersion(
             config: Path,
             defaultVersion: String
@@ -157,26 +177,20 @@ class DynamicSuite extends FunSuite with DiffAssertions {
   checkVersion(latest)
   checkVersion("1.0.0")
 
-  check("filename-ok") { f =>
-    f.setConfig(s"version=$latest")
-    f.assertError(
-      "object A {",
-      """|error: filename-ok.scala: L1: error: } expected but end of file found
-         |object A {
-         |          ^
-         |""".stripMargin
-    )
-  }
-
-  check("filename-missing") { f =>
-    f.setConfig("version=1.0.0")
-    f.assertError(
-      "object A {",
-      """|error: filename-missing.scala: L1: error: } expected but end of file found
-         |object A {
-         |          ^
-         |""".stripMargin
-    )
+  check("parse-error") { f =>
+    def check(): Unit = {
+      f.assertError(
+        "object object A",
+        """|parse-error.scala:1:8: error: identifier expected but object found
+           |object object A
+           |       ^^^^^^
+           |""".stripMargin
+      )
+    }
+    f.setVersion(latest)
+    check()
+    f.setVersion("1.0.0")
+    check()
   }
 
   check("missing-version") { f =>
@@ -267,10 +281,10 @@ class DynamicSuite extends FunSuite with DiffAssertions {
         )
         f.assertError(
           "lazy   val   x =  project",
-          s"""|error: sbt.scala: L1: error: classes cannot be lazy
-              |lazy   val   x =  project
-              |^
-              |""".stripMargin
+          """|sbt.scala:1:1: error: classes cannot be lazy
+             |lazy   val   x =  project
+             |^^^^
+             |""".stripMargin
         )
       }
     }

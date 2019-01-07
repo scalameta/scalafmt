@@ -17,9 +17,11 @@ public interface ScalafmtReporter {
     void error(Path file, String message);
 
     /**
-     * An unexpected exception occurred while trying to process this file.
+     * An exception occurred while trying to process this file.
      *
      * @param file can be either a Scala source file or .scalafmt.conf.
+     * @param e the exception that occurred, has type {@link PositionException}
+     *          when the error appeared as a position.
      */
     void error(Path file, Throwable e);
 
