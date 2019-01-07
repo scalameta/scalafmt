@@ -142,7 +142,7 @@ class DynamicSuite extends FunSuite with DiffAssertions {
     f.setConfig("version=1.6.0-RC4")
     f.assertError(
       "object A {",
-      """|error: filename-ok.scala:1: error: } expected but end of file found
+      """|error: filename-ok.scala: L1: error: } expected but end of file found
          |object A {
          |          ^
          |""".stripMargin
@@ -153,7 +153,7 @@ class DynamicSuite extends FunSuite with DiffAssertions {
     f.setConfig("version=1.0.0")
     f.assertError(
       "object A {",
-      """|error: filename-missing.scala: <input>:1: error: } expected but end of file found
+      """|error: filename-missing.scala: L1: error: } expected but end of file found
          |object A {
          |          ^
          |""".stripMargin
@@ -238,23 +238,22 @@ class DynamicSuite extends FunSuite with DiffAssertions {
   check("wrong-version") { f =>
     f.setVersion("1.0")
     f.assertError(
-      "error: failed to resolve Scalafmt version '1.0'"
+      "error: path/.scalafmt.conf: failed to resolve Scalafmt version '1.0'"
     )
     assert(f.downloadLogs.nonEmpty)
   }
 
   check("sbt") { f =>
-    def check(isLegacy: Boolean): Unit = {
+    def check(): Unit = {
       List("build.sbt", "build.sc").foreach { filename =>
         f.assertFormat(
           "lazy   val   x =  project",
           "lazy val x = project\n",
           Paths.get(filename)
         )
-        val input = if (isLegacy) ": <input>" else ""
         f.assertError(
           "lazy   val   x =  project",
-          s"""|error: sbt.scala$input:1: error: classes cannot be lazy
+          s"""|error: sbt.scala: L1: error: classes cannot be lazy
               |lazy   val   x =  project
               |^
               |""".stripMargin
@@ -266,9 +265,9 @@ class DynamicSuite extends FunSuite with DiffAssertions {
          |""".stripMargin
     )
     f.setVersion("1.6.0-RC4")
-    check(isLegacy = false)
+    check()
     f.setVersion("1.2.0")
-    check(isLegacy = true)
+    check()
   }
 
   check("no-config") { f =>

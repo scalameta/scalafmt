@@ -315,6 +315,28 @@ Use the `format` method to format a string with the given config and filename.
 println(scalafmt.format(config, file, "object A  {  }"))
 ```
 
+### Binary compatibility guarantees
+
+Stable public APIs:
+
+- `org.scalafmt.interfaces` (recommended): pure Java APIs with no external
+  dependencies. Can be loaded via the `scalafmt-dynamic` module.
+- `org.scalafmt.Scalafmt` (discouraged): old public API that is stable and will
+  remain stable but has several limitations.
+  - no support for `version` in `.scalafmt.conf`
+  - does not respect `project.excludeFilters` in `.scalafmt.conf`
+  - doesn't automatically handle `*.sbt` and `*.sc` files
+  - no caching of `.scalafmt.conf`
+
+Internal APIs that are subject to binary breaking changes in any release:
+
+- `org.scalafmt.dynamic`: private implementation of `scalafmt-interfaces`. These
+  classes can be used via the static method
+  `org.scalafmt.interfaces.Scalafmt.create(ClassLoader)`.
+- `org.scalafmt.config`: case classes for `.scalafmt.conf` configuration that
+  that are only intended for internal usage.
+- `org.scalafmt.cli`: private implementation of the command-line interface.
+
 ### `*.sbt` and `*.sc` files
 
 It's possible to format `*.sbt` and `*.sc` files.
@@ -324,15 +346,19 @@ println(scalafmt.format(config, Paths.get("build.sbt"), "lazy    val   x =   pro
 println(scalafmt.format(config, Paths.get("build.sc"), "def  main(  ) = println()"))
 ```
 
-The `scalafmt` instance automatically picks up the `version` setting and
-downloads the correct version of Scalafmt.
+The `scalafmt` instance automatically picks the correct parser depending on the
+provided filename.
 
 ### Version handling
 
-By default, `scalafmt` only formats when there is a `version` setting in
-`.scalafmt.conf`. Use `withRespectVersion(false)` to disable this behavior and
-`withDefaultVersion(version)` to customize the fallback version when
-`.scalafmt.conf` doesn't declare a Scalafmt version.
+By default, the `scalafmt` instance automatically downloads the Scalafmt version
+declared in `.scalafmt.conf`. If the `version` setting is not declared, the
+original file contents are returned unchanged and an error is reported with
+instructions how to fix the problem.
+
+Use `withRespectVersion(false)` to fall back to a default Scalafmt version when
+its not declared in `.scalafmt.conf`. Use `withDefaultVersion(version)` to
+customize the fallback version.
 
 ```scala mdoc:silent
 val scalafmtThatDoesntRequireVersionSetting = scalafmt
@@ -345,6 +371,8 @@ val scalafmtThatDoesntRequireVersionSetting = scalafmt
 By default, Scalafmt errors are reported to `System.err`. Extend
 `org.scalafmt.interfaces.ScalafmtReporter` to customize error reporting to
 handle parse and config errors.
+
+Here is an example how to extend `ScalafmtReporter`.
 
 ```scala mdoc:file:scalafmt-dynamic/src/main/scala/org/scalafmt/dynamic/ConsoleScalafmtReporter.scala
 
@@ -384,7 +412,7 @@ It's possible to call Scalafmt from Java without depending directly on Scala
 libraries.
 
 First, depend on the `scalafmt-interfaces` module, which is a pure Java library
-that weighs a few kilobytes with no external dependencies.
+with no external dependencies.
 
 ```xml
 <dependency>
@@ -408,28 +436,12 @@ ClassLoader sharedParent = new ScalafmtClassLoader(this.getClass.getClassLoader)
 // these from your build tool or programmatically with ivy/coursier.
 URL[] jars = // ...
 ClassLoader scalafmtDynamic = new URLClassLoader(jars, sharedParent)
+```
+
+Finally, create an instance of `Scalafmt` with the `scalafmt-dynamic`
+classloader.
+
+```java
 Scalafmt scalafmt = Scalafmt.create(scalafmtDynamic)
 String formatted = scalafmt.format(config, file, "object A   { }")
 ```
-
-### Internal APIs
-
-It is not recommended to use APIs outside of `org.scalafmt.dynamic` and
-`org.scalafmt.interfaces`. The object `org.scalafmt.Scalafmt` has been the
-public API until v1.6 but those methods have several problems:
-
-- they don't have a stable binary API
-- they don't support `version` in `.scalafmt.conf`
-- they don't respect `project.excludeFilters` in `.scalafmt.conf`
-- they don't automatically handle `*.sbt` and `*.sc` files
-
-The `scalafmt-dynamic` module doesn't depend on Scalafmt itself so it also has a
-smaller dependency footprint.
-
-## Help Wanted
-
-- Ensime
-- Scala IDE ([help wanted!](https://github.com/scalameta/scalafmt/issues/125))
-- Your favorite editor? Join the gitter channel.
-
-[intellij-ticket]: https://youtrack.jetbrains.com/issue/SCL-13658

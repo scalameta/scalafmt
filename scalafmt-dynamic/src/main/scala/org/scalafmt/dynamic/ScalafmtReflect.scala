@@ -1,6 +1,5 @@
 package org.scalafmt.dynamic
 
-import java.lang.reflect.InvocationTargetException
 import java.net.URLClassLoader
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
@@ -74,9 +73,8 @@ case class ScalafmtReflect(
     }
     try invoke(configured, "get")
     catch {
-      case e: InvocationTargetException
-          if e.getCause.isInstanceOf[NoSuchElementException] =>
-        throw ScalafmtConfigException(e.getCause.getMessage)
+      case ReflectionException(e: NoSuchElementException) =>
+        throw ScalafmtConfigException(e.getMessage)
     }
   }
 

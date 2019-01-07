@@ -15,6 +15,10 @@ import org.scalafmt.internal.FormatOps
 import org.scalafmt.internal.FormatWriter
 import org.scalafmt.rewrite.Rewrite
 
+/**
+  * WARNING. This API is discouraged when integrating with Scalafmt from a build tool
+  * or editor plugin. It is recommended to use the `scalafmt-dynamic` module instead.
+  */
 object Scalafmt {
 
   private val WindowsLineEnding = "\r\n"
@@ -22,6 +26,9 @@ object Scalafmt {
 
   /**
     * Format Scala code using scalafmt.
+    *
+    * WARNING. This API is discouraged when integrating with Scalafmt from a build tool
+    * or editor plugin. It is recommended to use the `scalafmt-dynamic` module instead.
     *
     * @param code Code string to format.
     * @param style Configuration for formatting output.
@@ -78,7 +85,8 @@ object Scalafmt {
   def format(
       code: String,
       style: ScalafmtConfig = ScalafmtConfig.default,
-      range: Set[Range] = Set.empty[Range]): Formatted = {
+      range: Set[Range] = Set.empty[Range]
+  ): Formatted = {
     format(code, style, range, "<input>")
   }
 
@@ -94,7 +102,8 @@ object Scalafmt {
     **/
   def configWithDialect(
       config: ScalafmtConfig,
-      dialect: Dialect): ScalafmtConfig =
+      dialect: Dialect
+  ): ScalafmtConfig =
     config.withDialect(dialect)
 
   def configForSbt(

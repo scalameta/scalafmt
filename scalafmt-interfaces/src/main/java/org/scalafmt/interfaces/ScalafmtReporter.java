@@ -24,11 +24,6 @@ public interface ScalafmtReporter {
     void error(Path file, Throwable e);
 
     /**
-     * A generic error occurred.
-     */
-    void error(String message);
-
-    /**
      * This file was not formatted because it's excluded by project settings from .scalafmt.conf.
      *
      * @param file the file path that was not formatted.

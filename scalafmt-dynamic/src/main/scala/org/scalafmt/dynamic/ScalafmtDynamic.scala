@@ -24,7 +24,6 @@ final case class ScalafmtDynamic(
     respectVersion: Boolean,
     respectExcludeFilters: Boolean,
     defaultVersion: String,
-    writer: Writer,
     fmts: mutable.Map[Path, ScalafmtReflect]
 ) extends Scalafmt {
   override def clear(): Unit = {
@@ -35,14 +34,10 @@ final case class ScalafmtDynamic(
     ConsoleScalafmtReporter,
     true,
     true,
-    BuildInfo.version,
-    new PrintWriter(System.err),
+    BuildInfo.stable,
     TrieMap.empty[Path, ScalafmtReflect]
   )
 
-  override def withDownloadWriter(writer: Writer): Scalafmt = {
-    copy(writer = writer)
-  }
   override def withReporter(reporter: ScalafmtReporter): Scalafmt = {
     copy(reporter = reporter)
   }
@@ -58,23 +53,20 @@ final case class ScalafmtDynamic(
   override def withDefaultVersion(defaultVersion: String): Scalafmt = {
     copy(defaultVersion = defaultVersion)
   }
-  def report(file: Path, e: Throwable): Unit = {
-    if (e.isInstanceOf[InvocationTargetException]) {
+  def report(file: Path, e: Throwable): Unit = e match {
+    case e: InvocationTargetException =>
       report(file, e.getCause)
-    } else {
+    case _ =>
       e.getClass.getName match {
         case "scala.meta.parsers.ParseException" |
             "scala.meta.parsers.TokenizeException" =>
           val msg = e.toString
-          if (msg.contains(file.toString)) {
-            reporter.error(msg)
-          } else {
-            reporter.error(file, e.toString)
-          }
+            .replaceAllLiterally("<input>:", "L")
+            .replaceAllLiterally(file.toString + ":", "L")
+          reporter.error(file, msg)
         case _ =>
           reporter.error(file, e)
       }
-    }
   }
   override def format(config: Path, file: Path, code: String): String = {
     def tryFormat(reflect: ScalafmtReflect): String = {
@@ -161,7 +153,7 @@ final case class ScalafmtDynamic(
             )
           )
           .withTtl(Some(Duration.Inf))
-          .withWriter(writer)
+          .withWriter(reporter.downloadWriter())
           .withRepositories(
             new Settings().repositories ++ List(
               Repository.SonatypeSnapshots
@@ -182,7 +174,7 @@ final case class ScalafmtDynamic(
       Some(fmt)
     } catch {
       case _: ResolutionException =>
-        reporter.error(errorMessage)
+        reporter.error(config, errorMessage)
         None
       case NonFatal(e) =>
         reporter.error(config, ScalafmtException(errorMessage, e))
