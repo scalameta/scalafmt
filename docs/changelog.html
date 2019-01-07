@@ -1,0 +1,900 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Changelog · Scalafmt</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="&lt;h2&gt;&lt;a class=&quot;anchor&quot; aria-hidden=&quot;true&quot; id=&quot;v200-rc1-https-githubcom-scalameta-scalafmt-tree-v200-rc1-2019-01-07&quot;&gt;&lt;/a&gt;&lt;a href=&quot;#v200-rc1-https-githubcom-scalameta-scalafmt-tree-v200-rc1-2019-01-07&quot; aria-hidden=&quot;true&quot; class=&quot;hash-link&quot;&gt;&lt;svg class=&quot;hash-link-icon&quot; aria-hidden=&quot;true&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;&lt;a href=&quot;https://github.com/scalameta/scalafmt/tree/v2.0.0-RC1&quot;&gt;v2.0.0-RC1&lt;/a&gt; (2019-01-07)&lt;/h2&gt;
+"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Changelog · Scalafmt"/><meta property="og:type" content="website"/><meta property="og:url" content="http://scalameta.org/scalafmt/index.html"/><meta property="og:description" content="&lt;h2&gt;&lt;a class=&quot;anchor&quot; aria-hidden=&quot;true&quot; id=&quot;v200-rc1-https-githubcom-scalameta-scalafmt-tree-v200-rc1-2019-01-07&quot;&gt;&lt;/a&gt;&lt;a href=&quot;#v200-rc1-https-githubcom-scalameta-scalafmt-tree-v200-rc1-2019-01-07&quot; aria-hidden=&quot;true&quot; class=&quot;hash-link&quot;&gt;&lt;svg class=&quot;hash-link-icon&quot; aria-hidden=&quot;true&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;&lt;a href=&quot;https://github.com/scalameta/scalafmt/tree/v2.0.0-RC1&quot;&gt;v2.0.0-RC1&lt;/a&gt; (2019-01-07)&lt;/h2&gt;
+"/><meta property="og:image" content="http://scalameta.org/scalafmt/img/scalameta-logo.png"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="http://scalameta.org/scalafmt/img/scalameta-logo.png"/><link rel="shortcut icon" href="/scalafmt/img/favicon.ico"/><link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.css"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css"/><link rel="stylesheet" href="/scalafmt/css/code-blocks-buttons.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/scalafmt/js/code-blocks-buttons.js"></script><script type="text/javascript" src="/scalafmt/js/code-blocks-compare.js"></script><link rel="stylesheet" href="/scalafmt/css/main.css"/></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/scalafmt/"><h2 class="headerTitle">Scalafmt</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/scalafmt/docs/installation.html" target="_self">Docs</a></li><li class=""><a href="https://github.com/scalameta/scalafmt" target="_blank">GitHub</a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><i></i></div><h2><i>›</i><span>Documentation</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Documentation</h3><ul><li class="navListItem"><a class="navItem" href="/scalafmt/docs/installation.html">Installation</a></li><li class="navListItem"><a class="navItem" href="/scalafmt/docs/configuration.html">Configuration</a></li><li class="navListItem"><a class="navItem" href="/scalafmt/docs/gotchas.html">Gotchas</a></li><li class="navListItem"><a class="navItem" href="/scalafmt/docs/faq.html">FAQ / Troubleshooting</a></li><li class="navListItem"><a class="navItem" href="/scalafmt/docs/known-issues.html">Known Issues</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/scalafmt/docs/changelog.html">Changelog</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Contributing</h3><ul><li class="navListItem"><a class="navItem" href="/scalafmt/docs/contributing-scalafmt.html">Contributing</a></li><li class="navListItem"><a class="navItem" href="/scalafmt/docs/contributing-website.html">Contributing to the website</a></li></ul></div></div></section></div><script>
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              const headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                if (event.target.tagName === 'A') {
+                  document.body.classList.remove('tocActive');
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/scalameta/scalafmt/edit/master/docs/CHANGELOG.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">Changelog</h1></header><article><div><span><h2><a class="anchor" aria-hidden="true" id="v200-rc1-https-githubcom-scalameta-scalafmt-tree-v200-rc1-2019-01-07"></a><a href="#v200-rc1-https-githubcom-scalameta-scalafmt-tree-v200-rc1-2019-01-07" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v2.0.0-RC1">v2.0.0-RC1</a> (2019-01-07)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v1.6.0-RC4...v2.0.0-RC1">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Add scalafmt-dynamic module for easier build tool integrations. <a href="https://github.com/scalameta/scalafmt/pull/1337">#1337</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Type Annotation Site indention same as Definition Site <a href="https://github.com/scalameta/scalafmt/pull/1336">#1336</a> (<a href="https://github.com/AesaKamar">AesaKamar</a>)</li>
+<li>Fix the mysterious case of missing newline at end of file. <a href="https://github.com/scalameta/scalafmt/pull/1333">#1333</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Expand on the align=none protip <a href="https://github.com/scalameta/scalafmt/pull/1331">#1331</a> (<a href="https://github.com/dwijnand">dwijnand</a>)</li>
+<li>Fix broken links README <a href="https://github.com/scalameta/scalafmt/pull/1330">#1330</a> (<a href="https://github.com/glammers1">glammers1</a>)</li>
+<li>Add Continuation Indentation for Type Annotation Site <a href="https://github.com/scalameta/scalafmt/pull/1324">#1324</a> (<a href="https://github.com/AesaKamar">AesaKamar</a>)</li>
+<li>avoid generating invalid scala code <a href="https://github.com/scalameta/scalafmt/pull/1323">#1323</a> (<a href="https://github.com/woparry">woparry</a>)</li>
+<li>Update sbt plugin docs <a href="https://github.com/scalameta/scalafmt/pull/1322">#1322</a> (<a href="https://github.com/cb372">cb372</a>)</li>
+<li>Preferences changed to Settings. <a href="https://github.com/scalameta/scalafmt/pull/1319">#1319</a> (<a href="https://github.com/P3trur0">P3trur0</a>)</li>
+<li>Clarify &quot;use intellij formatter&quot; <a href="https://github.com/scalameta/scalafmt/pull/1315">#1315</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Update docs to clarify installation <a href="https://github.com/scalameta/scalafmt/pull/1314">#1314</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add includeNoParensInSelectChains <a href="https://github.com/scalameta/scalafmt/pull/1310">#1310</a> (<a href="https://github.com/nkouevda">nkouevda</a>)</li>
+<li>Fix configuration example for continuationIndent.callSite in document <a href="https://github.com/scalameta/scalafmt/pull/1308">#1308</a> (<a href="https://github.com/tanishiking">tanishiking</a>)</li>
+<li>add JDK 11 to Travis-CI matrix <a href="https://github.com/scalameta/scalafmt/pull/1304">#1304</a> (<a href="https://github.com/SethTisue">SethTisue</a>)</li>
+<li>Enable sbt-idea-plugin in intellij project <a href="https://github.com/scalameta/scalafmt/pull/1301">#1301</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add test for preserving location of comment when removing trailing comma <a href="https://github.com/scalameta/scalafmt/pull/1296">#1296</a> (<a href="https://github.com/tanishiking">tanishiking</a>)</li>
+<li>Upgrade mdoc and generate docs in PRs <a href="https://github.com/scalameta/scalafmt/pull/1295">#1295</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Upgrade scala to 2.12.7 <a href="https://github.com/scalameta/scalafmt/pull/1294">#1294</a> (<a href="https://github.com/aaabramov">aaabramov</a>)</li>
+<li>Add test for <a href="https://github.com/scalameta/scalafmt/issues/1176">https://github.com/scalameta/scalafmt/issues/1176</a> <a href="https://github.com/scalameta/scalafmt/pull/1287">#1287</a> (<a href="https://github.com/tanishiking">tanishiking</a>)</li>
+<li>Revert fix for unindentTopLevelOperators, acknowledge limitation instead <a href="https://github.com/scalameta/scalafmt/pull/1286">#1286</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add explicit dependency on org.scala-lang/scala-reflect <a href="https://github.com/scalameta/scalafmt/pull/1284">#1284</a> (<a href="https://github.com/tanishiking">tanishiking</a>)</li>
+<li>Scalameta 4.0.0 <a href="https://github.com/scalameta/scalafmt/pull/1283">#1283</a> (<a href="https://github.com/eed3si9n">eed3si9n</a>)</li>
+<li>Bring back the docs for sbt-scalafmt <a href="https://github.com/scalameta/scalafmt/pull/1277">#1277</a> (<a href="https://github.com/tanishiking">tanishiking</a>)</li>
+<li>Fix quote in homepage <a href="https://github.com/scalameta/scalafmt/pull/1276">#1276</a> (<a href="https://github.com/gabro">gabro</a>)</li>
+<li>Upgrade to sbt-docusaurus v0.2 <a href="https://github.com/scalameta/scalafmt/pull/1275">#1275</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Enable search in website <a href="https://github.com/scalameta/scalafmt/pull/1274">#1274</a> (<a href="https://github.com/gabro">gabro</a>)</li>
+<li>Use sbt-docusaurus 0.1.2 <a href="https://github.com/scalameta/scalafmt/pull/1273">#1273</a> (<a href="https://github.com/gabro">gabro</a>)</li>
+<li>Publish website with CI <a href="https://github.com/scalameta/scalafmt/pull/1271">#1271</a> (<a href="https://github.com/gabro">gabro</a>)</li>
+<li>Add website landing page <a href="https://github.com/scalameta/scalafmt/pull/1270">#1270</a> (<a href="https://github.com/gabro">gabro</a>)</li>
+<li>Enable builds under GraalVM <a href="https://github.com/scalameta/scalafmt/pull/1266">#1266</a> (<a href="https://github.com/ssaavedra">ssaavedra</a>)</li>
+<li>Fix trailing commas always/never not to put/delete trailing comma on incorrect location <a href="https://github.com/scalameta/scalafmt/pull/1262">#1262</a> (<a href="https://github.com/tanishiking">tanishiking</a>)</li>
+<li>Fix jvm options <a href="https://github.com/scalameta/scalafmt/pull/1261">#1261</a> (<a href="https://github.com/jiminhsieh">jiminhsieh</a>)</li>
+<li>Vertical align adjacent single lines of comment <a href="https://github.com/scalameta/scalafmt/pull/1260">#1260</a> (<a href="https://github.com/tanishiking">tanishiking</a>)</li>
+<li>Cleanup empty parentheses check <a href="https://github.com/scalameta/scalafmt/pull/1258">#1258</a> (<a href="https://github.com/gabro">gabro</a>)</li>
+<li>Add ignore and allElementsOf to AvoidInfix <a href="https://github.com/scalameta/scalafmt/pull/1257">#1257</a> (<a href="https://github.com/joan38">joan38</a>)</li>
+<li>Update Adopters.scala <a href="https://github.com/scalameta/scalafmt/pull/1253">#1253</a> (<a href="https://github.com/alodavi">alodavi</a>)</li>
+<li>Fix the typos detected by github.com/client9/misspell <a href="https://github.com/scalameta/scalafmt/pull/1251">#1251</a> (<a href="https://github.com/seratch">seratch</a>)</li>
+<li>Simplify build <a href="https://github.com/scalameta/scalafmt/pull/1250">#1250</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add codacy to adopters list <a href="https://github.com/scalameta/scalafmt/pull/1248">#1248</a> (<a href="https://github.com/bmbferreira">bmbferreira</a>)</li>
+<li>Upgrade sbt to 1.2.0 <a href="https://github.com/scalameta/scalafmt/pull/1247">#1247</a> (<a href="https://github.com/tanishiking">tanishiking</a>)</li>
+<li>Fix combination of trailingCommas=always and verticalMultilineAtDefnSite=true <a href="https://github.com/scalameta/scalafmt/pull/1241">#1241</a> (<a href="https://github.com/tanishiking">tanishiking</a>)</li>
+<li>Fix invalid rewrite of trailingCommas=always <a href="https://github.com/scalameta/scalafmt/pull/1239">#1239</a> (<a href="https://github.com/tanishiking">tanishiking</a>)</li>
+<li>Add blurb about comment wrapping <a href="https://github.com/scalameta/scalafmt/pull/1235">#1235</a> (<a href="https://github.com/calebharris">calebharris</a>)</li>
+<li>Move website to markdown + docusaurus <a href="https://github.com/scalameta/scalafmt/pull/1199">#1199</a> (<a href="https://github.com/gabro">gabro</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v160-rc4-https-githubcom-scalameta-scalafmt-tree-v160-rc4-2018-07-09"></a><a href="#v160-rc4-https-githubcom-scalameta-scalafmt-tree-v160-rc4-2018-07-09" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v1.6.0-RC4">v1.6.0-RC4</a> (2018-07-09)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v1.6.0-RC3...v1.6.0-RC4">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Fix trailing comma handling when followed by indenation-free comment  <a href="https://github.com/scalameta/scalafmt/pull/1230">#1230</a> (<a href="https://github.com/gabro">gabro</a>)</li>
+<li>Add foursquare to adopters list <a href="https://github.com/scalameta/scalafmt/pull/1229">#1229</a> (<a href="https://github.com/iantabolt">iantabolt</a>)</li>
+<li>Upgrade metaconfig <a href="https://github.com/scalameta/scalafmt/pull/1226">#1226</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v160-rc3-https-githubcom-scalameta-scalafmt-tree-v160-rc3-2018-06-10"></a><a href="#v160-rc3-https-githubcom-scalameta-scalafmt-tree-v160-rc3-2018-06-10" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v1.6.0-RC3">v1.6.0-RC3</a> (2018-06-10)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v1.6.0-RC2...v1.6.0-RC3">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>First steps to shading sbt-scalafmt <a href="https://github.com/scalameta/scalafmt/pull/1218">#1218</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v160-rc2-https-githubcom-scalameta-scalafmt-tree-v160-rc2-2018-06-05"></a><a href="#v160-rc2-https-githubcom-scalameta-scalafmt-tree-v160-rc2-2018-06-05" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v1.6.0-RC2">v1.6.0-RC2</a> (2018-06-05)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v1.6.0-RC1...v1.6.0-RC2">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Support <code>align.tokens={none,some,more,most}</code> <a href="https://github.com/scalameta/scalafmt/pull/1215">#1215</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Change default to <code>trailingCommas = never</code> <a href="https://github.com/scalameta/scalafmt/pull/1214">#1214</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Avoid lookup up match for non-Token.Left{Brace,Paren} <a href="https://github.com/scalameta/scalafmt/pull/1213">#1213</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Re-add fromHoconString overload to please neo-scalafmt <a href="https://github.com/scalameta/scalafmt/pull/1212">#1212</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Don't crash on isWindows check, fixes #1207 <a href="https://github.com/scalameta/scalafmt/pull/1211">#1211</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v160-rc1-https-githubcom-scalameta-scalafmt-tree-v160-rc1-2018-05-27"></a><a href="#v160-rc1-https-githubcom-scalameta-scalafmt-tree-v160-rc1-2018-05-27" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v1.6.0-RC1">v1.6.0-RC1</a> (2018-05-27)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v1.5.1...v1.6.0-RC1">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Upgrade to the latest metaconfig <a href="https://github.com/scalameta/scalafmt/pull/1145">#1145</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Enable dangling parentheses and disable align.openParen by default <a href="https://github.com/scalameta/scalafmt/pull/1198">#1198</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Unskip trailing commas tests, fixes #1174 <a href="https://github.com/scalameta/scalafmt/pull/1197">#1197</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Indent commas in val patterns by continuationIndent.defnSite <a href="https://github.com/scalameta/scalafmt/pull/1192">#1192</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Indent body of vals when unindentTopLevelOperators=true. <a href="https://github.com/scalameta/scalafmt/pull/1191">#1191</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Clean up handling of exit codes in the cli <a href="https://github.com/scalameta/scalafmt/pull/1189">#1189</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add option spaces.afterSymbolicDefs <a href="https://github.com/scalameta/scalafmt/pull/1188">#1188</a> (<a href="https://github.com/slavaschmidt">slavaschmidt</a>)</li>
+<li>Force blocks in try / finally to format on multiple lines <a href="https://github.com/scalameta/scalafmt/pull/1187">#1187</a> (<a href="https://github.com/slavaschmidt">slavaschmidt</a>)</li>
+<li>Print out unified diff on --test failure. <a href="https://github.com/scalameta/scalafmt/pull/1186">#1186</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Pretty-print parse error more nicely. <a href="https://github.com/scalameta/scalafmt/pull/1185">#1185</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add support to force upper/lower case literal suffixes <a href="https://github.com/scalameta/scalafmt/pull/1183">#1183</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix indent for nested infix operators <a href="https://github.com/scalameta/scalafmt/pull/1181">#1181</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix 3 bugs <a href="https://github.com/scalameta/scalafmt/pull/1180">#1180</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Disable inline modifier by default. <a href="https://github.com/scalameta/scalafmt/pull/1179">#1179</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Include more information on &quot;error due to bug&quot; failure <a href="https://github.com/scalameta/scalafmt/pull/1178">#1178</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add more examples for standalone library usage <a href="https://github.com/scalameta/scalafmt/pull/1177">#1177</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add repro for #1033. <a href="https://github.com/scalameta/scalafmt/pull/1175">#1175</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add trailingCommas option <a href="https://github.com/scalameta/scalafmt/pull/1174">#1174</a> (<a href="https://github.com/gabro">gabro</a>)</li>
+<li>Upgrade to Scalameta v3.7  <a href="https://github.com/scalameta/scalafmt/pull/1170">#1170</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Allow with-chain wrapping for all params #1125 <a href="https://github.com/scalameta/scalafmt/pull/1169">#1169</a> (<a href="https://github.com/iantabolt">iantabolt</a>)</li>
+<li>updated maven settings <a href="https://github.com/scalameta/scalafmt/pull/1165">#1165</a> (<a href="https://github.com/jozic">jozic</a>)</li>
+<li>Add section about scalafmt support in mill <a href="https://github.com/scalameta/scalafmt/pull/1164">#1164</a> (<a href="https://github.com/rockjam">rockjam</a>)</li>
+<li>Render the used config values as part of formatting examples <a href="https://github.com/scalameta/scalafmt/pull/1163">#1163</a> (<a href="https://github.com/mads-hartmann">mads-hartmann</a>)</li>
+<li>Remove obsolete warning <a href="https://github.com/scalameta/scalafmt/pull/1162">#1162</a> (<a href="https://github.com/jbgi">jbgi</a>)</li>
+<li>Update Configuration.scalatex <a href="https://github.com/scalameta/scalafmt/pull/1160">#1160</a> (<a href="https://github.com/jozic">jozic</a>)</li>
+<li>Add size to AvoidInfix <a href="https://github.com/scalameta/scalafmt/pull/1159">#1159</a> (<a href="https://github.com/joan38">joan38</a>)</li>
+<li>Disable redundantBraces.generalExpressions by default. <a href="https://github.com/scalameta/scalafmt/pull/1157">#1157</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix the full-width example styling <a href="https://github.com/scalameta/scalafmt/pull/1156">#1156</a> (<a href="https://github.com/mads-hartmann">mads-hartmann</a>)</li>
+<li>Reorganise the documentation for configuration options <a href="https://github.com/scalameta/scalafmt/pull/1155">#1155</a> (<a href="https://github.com/mads-hartmann">mads-hartmann</a>)</li>
+<li>Make it configurable when to exclude dangling parens for vertical <a href="https://github.com/scalameta/scalafmt/pull/1154">#1154</a> (<a href="https://github.com/mads-hartmann">mads-hartmann</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v151-https-githubcom-scalameta-scalafmt-tree-v151-2018-04-26"></a><a href="#v151-https-githubcom-scalameta-scalafmt-tree-v151-2018-04-26" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v1.5.1">v1.5.1</a> (2018-04-26)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v1.5.0...v1.5.1">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>SortModifiers rewrite fixes + doc prettyfying <a href="https://github.com/scalameta/scalafmt/pull/1153">#1153</a> (<a href="https://github.com/lorandszakacs">lorandszakacs</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v150-https-githubcom-scalameta-scalafmt-tree-v150-2018-04-23"></a><a href="#v150-https-githubcom-scalameta-scalafmt-tree-v150-2018-04-23" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v1.5.0">v1.5.0</a> (2018-04-23)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v1.4.0...v1.5.0">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Style the page using the colors from the scalameta logo <a href="https://github.com/scalameta/scalafmt/pull/1144">#1144</a> (<a href="https://github.com/mads-hartmann">mads-hartmann</a>)</li>
+<li>Add verticalMultilineAtDefinitionSiteArityThreshold setting <a href="https://github.com/scalameta/scalafmt/pull/1143">#1143</a> (<a href="https://github.com/mads-hartmann">mads-hartmann</a>)</li>
+<li>Implement SortModifiers rewrite rule <a href="https://github.com/scalameta/scalafmt/pull/1140">#1140</a> (<a href="https://github.com/lorandszakacs">lorandszakacs</a>)</li>
+<li>Configuration doc fix <a href="https://github.com/scalameta/scalafmt/pull/1139">#1139</a> (<a href="https://github.com/mattkohl">mattkohl</a>)</li>
+<li>Make sbt-scalafmt incremental <a href="https://github.com/scalameta/scalafmt/pull/1136">#1136</a> (<a href="https://github.com/vovapolu">vovapolu</a>)</li>
+<li>Example for new sbt plugin <a href="https://github.com/scalameta/scalafmt/pull/1135">#1135</a> (<a href="https://github.com/vovapolu">vovapolu</a>)</li>
+<li>Add configuration to disable newlines between multiline defs <a href="https://github.com/scalameta/scalafmt/pull/1134">#1134</a> (<a href="https://github.com/iantabolt">iantabolt</a>)</li>
+<li>Generalize with-chain wrapping for defs and type definitions <a href="https://github.com/scalameta/scalafmt/pull/1132">#1132</a> (<a href="https://github.com/iantabolt">iantabolt</a>)</li>
+<li>Correct Homebrew installation terminology <a href="https://github.com/scalameta/scalafmt/pull/1121">#1121</a> (<a href="https://github.com/srstevenson">srstevenson</a>)</li>
+<li>Fix #1116, insert space in type projection when selecting symbolic members <a href="https://github.com/scalameta/scalafmt/pull/1117">#1117</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix documentation <a href="https://github.com/scalameta/scalafmt/pull/1114">#1114</a> (<a href="https://github.com/jiminhsieh">jiminhsieh</a>)</li>
+<li>Ensure RedundantParens only removes matching parens - fixes #1111 <a href="https://github.com/scalameta/scalafmt/pull/1112">#1112</a> (<a href="https://github.com/bcarl">bcarl</a>)</li>
+<li>Fix openParenDefnSite docs <a href="https://github.com/scalameta/scalafmt/pull/1108">#1108</a> (<a href="https://github.com/lorandszakacs">lorandszakacs</a>)</li>
+<li>Adds support for formatting .sc files using sbt options. <a href="https://github.com/scalameta/scalafmt/pull/1107">#1107</a> (<a href="https://github.com/lloydmeta">lloydmeta</a>)</li>
+<li>Include ZSH tab-completion file to bin/_scalafmt <a href="https://github.com/scalameta/scalafmt/pull/1105">#1105</a> (<a href="https://github.com/propensive">propensive</a>)</li>
+<li>Support trailing commas in sbt files <a href="https://github.com/scalameta/scalafmt/pull/1103">#1103</a> (<a href="https://github.com/dwijnand">dwijnand</a>)</li>
+<li>Add section on align.openParenDefnSite <a href="https://github.com/scalameta/scalafmt/pull/1102">#1102</a> (<a href="https://github.com/lorandszakacs">lorandszakacs</a>)</li>
+<li>Add optIn.blankLineBeforeDocstring setting <a href="https://github.com/scalameta/scalafmt/pull/1101">#1101</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Remove redundant braces from if-else and case expressions <a href="https://github.com/scalameta/scalafmt/pull/1122">#1122</a> (<a href="https://github.com/japgolly">japgolly</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v140-https-githubcom-scalameta-scalafmt-tree-v140-2017-12-18"></a><a href="#v140-https-githubcom-scalameta-scalafmt-tree-v140-2017-12-18" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v1.4.0">v1.4.0</a> (2017-12-18)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v1.3.0...v1.4.0">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Add an &quot;original code&quot; section the issue template <a href="https://github.com/scalameta/scalafmt/pull/1092">#1092</a> (<a href="https://github.com/dwijnand">dwijnand</a>)</li>
+<li>Fix version number in website and document pre-release. <a href="https://github.com/scalameta/scalafmt/pull/1089">#1089</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add  -r bintray:scalameta/maven to Coursier install commands <a href="https://github.com/scalameta/scalafmt/pull/1088">#1088</a> (<a href="https://github.com/lloydmeta">lloydmeta</a>)</li>
+<li>Use - instead of + in snapshot versions <a href="https://github.com/scalameta/scalafmt/pull/1082">#1082</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Point to a correct project on scaladex <a href="https://github.com/scalameta/scalafmt/pull/1071">#1071</a> (<a href="https://github.com/alenkacz">alenkacz</a>)</li>
+<li>Bump dependencies versions <a href="https://github.com/scalameta/scalafmt/pull/1070">#1070</a> (<a href="https://github.com/loskutov">loskutov</a>)</li>
+<li>Add Mendix to the list of adopters <a href="https://github.com/scalameta/scalafmt/pull/1066">#1066</a> (<a href="https://github.com/nerush">nerush</a>)</li>
+<li>Document that RedundantBraces may cause non-idempotent formatting. <a href="https://github.com/scalameta/scalafmt/pull/1057">#1057</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Empty input with <code>--diff</code> and <code>--stdin</code> is okay <a href="https://github.com/scalameta/scalafmt/pull/1093">#1093</a> (<a href="https://github.com/yln">yln</a>)</li>
+<li>Introduce &quot;default&quot;, &quot;akka&quot; and &quot;akka-http&quot; as IndentOperator config <a href="https://github.com/scalameta/scalafmt/pull/1090">#1090</a> (<a href="https://github.com/daddykotex">daddykotex</a>)</li>
+<li>Fix file not found errors when running from a subdirectory w/ project.git = true <a href="https://github.com/scalameta/scalafmt/pull/1087">#1087</a> (<a href="https://github.com/lloydmeta">lloydmeta</a>)</li>
+<li>New scalafmt sbt plugin <a href="https://github.com/scalameta/scalafmt/pull/1085">#1085</a> (<a href="https://github.com/vovapolu">vovapolu</a>)</li>
+<li>No space in by-name params <a href="https://github.com/scalameta/scalafmt/pull/1079">#1079</a> (<a href="https://github.com/vovapolu">vovapolu</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v130-https-githubcom-scalameta-scalafmt-tree-v130-2017-09-24"></a><a href="#v130-https-githubcom-scalameta-scalafmt-tree-v130-2017-09-24" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v1.3.0">v1.3.0</a> (2017-09-24)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v1.2.0...v1.3.0">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>add missing wonderbar to the optIn.breakChainOnFirstMethodDot code examples <a href="https://github.com/scalameta/scalafmt/pull/1046">#1046</a> (<a href="https://github.com/esarbe">esarbe</a>)</li>
+<li>Disabling alignment helps minimizing git diffs <a href="https://github.com/scalameta/scalafmt/pull/1045">#1045</a> (<a href="https://github.com/nightscape">nightscape</a>)</li>
+<li>Add http4s to adopters list <a href="https://github.com/scalameta/scalafmt/pull/1036">#1036</a> (<a href="https://github.com/aeons">aeons</a>)</li>
+<li>Repository transfer scmInfo: olafurpg =&gt; scalameta <a href="https://github.com/scalameta/scalafmt/pull/1034">#1034</a> (<a href="https://github.com/MasseGuillaume">MasseGuillaume</a>)</li>
+<li>Fix new GitOpsTest on OSX <a href="https://github.com/scalameta/scalafmt/pull/1030">#1030</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Use the encoding option when writing files, too. <a href="https://github.com/scalameta/scalafmt/pull/1053">#1053</a> (<a href="https://github.com/alexdupre">alexdupre</a>)</li>
+<li>AsciiSortImports is now incompatible with ExpandImportSelectors. Fixes #1024 <a href="https://github.com/scalameta/scalafmt/pull/1048">#1048</a> (<a href="https://github.com/Lasering">Lasering</a>)</li>
+<li>Add optIn.breaksInsideChains = true <a href="https://github.com/scalameta/scalafmt/pull/1037">#1037</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Git testing framework and fix for some git-file-fetching issues <a href="https://github.com/scalameta/scalafmt/pull/1028">#1028</a> (<a href="https://github.com/pjrt">pjrt</a>)</li>
+<li>Return non-zero exit code in ./scalafmt if no files match filter <a href="https://github.com/scalameta/scalafmt/pull/1025">#1025</a> (<a href="https://github.com/yln">yln</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v120-https-githubcom-scalameta-scalafmt-tree-v120-2017-08-11"></a><a href="#v120-https-githubcom-scalameta-scalafmt-tree-v120-2017-08-11" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v1.2.0">v1.2.0</a> (2017-08-11)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v1.1.0...v1.2.0">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Tweak Coursier installation instructions <a href="https://github.com/scalameta/scalafmt/pull/1011">#1011</a> (<a href="https://github.com/dwijnand">dwijnand</a>)</li>
+<li>[typo] bin.packParentConstructors =&gt; binPack.parentConstructors <a href="https://github.com/scalameta/scalafmt/pull/1009">#1009</a> (<a href="https://github.com/ronanM">ronanM</a>)</li>
+<li>Enable mima binary checks in CI. <a href="https://github.com/scalameta/scalafmt/pull/1017">#1017</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Hacky hacks to fix off-by-two errors <a href="https://github.com/scalameta/scalafmt/pull/1016">#1016</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Update to sbt 1.0.0 <a href="https://github.com/scalameta/scalafmt/pull/1015">#1015</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fail fast on invalid .scalafmt.conf when running with no args. <a href="https://github.com/scalameta/scalafmt/pull/1014">#1014</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Use the VCS root as a potential config path in the IntelliJ plugin <a href="https://github.com/scalameta/scalafmt/pull/1007">#1007</a> (<a href="https://github.com/stuhood">stuhood</a>)</li>
+<li>Implement option for discarding whitespace between a keyword and left-paren <a href="https://github.com/scalameta/scalafmt/pull/998">#998</a> (<a href="https://github.com/nrinaudo">nrinaudo</a>)</li>
+<li>Add support for inserting a line break between a curly if and an else. <a href="https://github.com/scalameta/scalafmt/pull/996">#996</a> (<a href="https://github.com/nrinaudo">nrinaudo</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v110-https-githubcom-scalameta-scalafmt-tree-v110-2017-07-09"></a><a href="#v110-https-githubcom-scalameta-scalafmt-tree-v110-2017-07-09" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v1.1.0">v1.1.0</a> (2017-07-09)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v1.0.0-RC4...v1.1.0">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Update Adopters.scala <a href="https://github.com/scalameta/scalafmt/pull/992">#992</a> (<a href="https://github.com/cwbeck">cwbeck</a>)</li>
+<li>fix for jvmopts and enabling no-stderr by default if possible <a href="https://github.com/scalameta/scalafmt/pull/987">#987</a> (<a href="https://github.com/muxanick">muxanick</a>)</li>
+<li>Re-enable appveyor <a href="https://github.com/scalameta/scalafmt/pull/986">#986</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Adding of --no-stderr option <a href="https://github.com/scalameta/scalafmt/pull/985">#985</a> (<a href="https://github.com/muxanick">muxanick</a>)</li>
+<li>Add optIn.selfAnnotationNewline, fixes #938 <a href="https://github.com/scalameta/scalafmt/pull/983">#983</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix off-by-one error, #976. <a href="https://github.com/scalameta/scalafmt/pull/982">#982</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Document removal of bestEffortInDeeplyNestedCode. <a href="https://github.com/scalameta/scalafmt/pull/980">#980</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Use lenient dialect by default <a href="https://github.com/scalameta/scalafmt/pull/979">#979</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v100-rc4-https-githubcom-scalameta-scalafmt-tree-v100-rc4-2017-06-17"></a><a href="#v100-rc4-https-githubcom-scalameta-scalafmt-tree-v100-rc4-2017-06-17" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v1.0.0-RC4">v1.0.0-RC4</a> (2017-06-17)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v1.0.0...v1.0.0-RC4">Full Changelog</a></p>
+<h2><a class="anchor" aria-hidden="true" id="v100-https-githubcom-scalameta-scalafmt-tree-v100-2017-06-17"></a><a href="#v100-https-githubcom-scalameta-scalafmt-tree-v100-2017-06-17" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v1.0.0">v1.0.0</a> (2017-06-17)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v1.0.0-RC3...v1.0.0">Full Changelog</a></p>
+<h2><a class="anchor" aria-hidden="true" id="v100-rc3-https-githubcom-scalameta-scalafmt-tree-v100-rc3-2017-06-14"></a><a href="#v100-rc3-https-githubcom-scalameta-scalafmt-tree-v100-rc3-2017-06-14" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v1.0.0-RC3">v1.0.0-RC3</a> (2017-06-14)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v1.0.0-RC2...v1.0.0-RC3">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Fix #973. <a href="https://github.com/scalameta/scalafmt/pull/974">#974</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Harden AvoidInfix. <a href="https://github.com/scalameta/scalafmt/pull/971">#971</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v100-rc2-https-githubcom-scalameta-scalafmt-tree-v100-rc2-2017-06-08"></a><a href="#v100-rc2-https-githubcom-scalameta-scalafmt-tree-v100-rc2-2017-06-08" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v1.0.0-RC2">v1.0.0-RC2</a> (2017-06-08)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v1.0.0-RC1...v1.0.0-RC2">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Re-enable auto-publish on merge into master. <a href="https://github.com/scalameta/scalafmt/pull/968">#968</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Enable alignment on case arrows by default <a href="https://github.com/scalameta/scalafmt/pull/964">#964</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Remove outdated contributing tutorial. <a href="https://github.com/scalameta/scalafmt/pull/963">#963</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix #960 and #927: Oddness with git and non-root <a href="https://github.com/scalameta/scalafmt/pull/961">#961</a> (<a href="https://github.com/pjrt">pjrt</a>)</li>
+<li>Topic/#933 <a href="https://github.com/scalameta/scalafmt/pull/959">#959</a> (<a href="https://github.com/Daxten">Daxten</a>)</li>
+<li>Break line if def equals is at columns + 1 <a href="https://github.com/scalameta/scalafmt/pull/957">#957</a> (<a href="https://github.com/aeons">aeons</a>)</li>
+<li>#916 Add option to space context bounds only when multiple. ReaderUti… <a href="https://github.com/scalameta/scalafmt/pull/956">#956</a> (<a href="https://github.com/hejfelix">hejfelix</a>)</li>
+<li>Replace <code>./scalafmt</code> with <code>scalafmt</code> <a href="https://github.com/scalameta/scalafmt/pull/954">#954</a> (<a href="https://github.com/amirkarimi">amirkarimi</a>)</li>
+<li>Enable optIn.annotationNewlines = true by default, fixes #942 <a href="https://github.com/scalameta/scalafmt/pull/953">#953</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Bump build dependencies <a href="https://github.com/scalameta/scalafmt/pull/952">#952</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Exclude scalapb from runtime, fixes #944 <a href="https://github.com/scalameta/scalafmt/pull/951">#951</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Enable Travis CI <a href="https://github.com/scalameta/scalafmt/pull/947">#947</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v100-rc1-https-githubcom-scalameta-scalafmt-tree-v100-rc1-2017-05-26"></a><a href="#v100-rc1-https-githubcom-scalameta-scalafmt-tree-v100-rc1-2017-05-26" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v1.0.0-RC1">v1.0.0-RC1</a> (2017-05-26)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.7.0-RC1...v1.0.0-RC1">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Upgrade to non-broken metaconfig release. <a href="https://github.com/scalameta/scalafmt/pull/946">#946</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>documentation fix <a href="https://github.com/scalameta/scalafmt/pull/945">#945</a> (<a href="https://github.com/nadavwr">nadavwr</a>)</li>
+<li>Remake the CLI interface <a href="https://github.com/scalameta/scalafmt/pull/939">#939</a> (<a href="https://github.com/pjrt">pjrt</a>)</li>
+<li>Invite Paul Draper to the team and document neo-sbt-scalafmt! <a href="https://github.com/scalameta/scalafmt/pull/926">#926</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Cleanup before v1.0, fixes #918 <a href="https://github.com/scalameta/scalafmt/pull/921">#921</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix #911 <a href="https://github.com/scalameta/scalafmt/pull/920">#920</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Remove enclosing parens  in avoidinfix , closes #851 <a href="https://github.com/scalameta/scalafmt/pull/919">#919</a> (<a href="https://github.com/otolabqu">otolabqu</a>)</li>
+<li>Add support for auto-binpacking of argument lists with idents only <a href="https://github.com/scalameta/scalafmt/pull/910">#910</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix coordinates for scalafmt-bootstrap <a href="https://github.com/scalameta/scalafmt/pull/908">#908</a> (<a href="https://github.com/nightscape">nightscape</a>)</li>
+<li>Update docs. <a href="https://github.com/scalameta/scalafmt/pull/906">#906</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Remove homebrew. <a href="https://github.com/scalameta/scalafmt/pull/905">#905</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v070-rc1-https-githubcom-scalameta-scalafmt-tree-v070-rc1-2017-04-23"></a><a href="#v070-rc1-https-githubcom-scalameta-scalafmt-tree-v070-rc1-2017-04-23" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.7.0-RC1">v0.7.0-RC1</a> (2017-04-23)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.6.8...v0.7.0-RC1">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Multiline top level statement, addresses #893 <a href="https://github.com/scalameta/scalafmt/pull/904">#904</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix #735. newlines before and after implicit keyword <a href="https://github.com/scalameta/scalafmt/pull/903">#903</a> (<a href="https://github.com/sugakandrey">sugakandrey</a>)</li>
+<li>Make build green again on appveyor and IntelliJ <a href="https://github.com/scalameta/scalafmt/pull/902">#902</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix AvoidInfix for methods with empty parameters list <a href="https://github.com/scalameta/scalafmt/pull/901">#901</a> (<a href="https://github.com/sugakandrey">sugakandrey</a>)</li>
+<li>Port core to Scala.js <a href="https://github.com/scalameta/scalafmt/pull/898">#898</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Migrate to sbt 1.0.0-M5 for sbt-scalafmt. <a href="https://github.com/scalameta/scalafmt/pull/896">#896</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix #883. <a href="https://github.com/scalameta/scalafmt/pull/887">#887</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Upgrade dependencies <a href="https://github.com/scalameta/scalafmt/pull/885">#885</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix #880, filter diff files with canFormat <a href="https://github.com/scalameta/scalafmt/pull/881">#881</a> (<a href="https://github.com/caoilte">caoilte</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v068-https-githubcom-scalameta-scalafmt-tree-v068-2017-04-06"></a><a href="#v068-https-githubcom-scalameta-scalafmt-tree-v068-2017-04-06" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.6.8">v0.6.8</a> (2017-04-06)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.6.7...v0.6.8">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Auto publish docs on merge to master, fixes #764 <a href="https://github.com/scalameta/scalafmt/pull/877">#877</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v067-https-githubcom-scalameta-scalafmt-tree-v067-2017-04-05"></a><a href="#v067-https-githubcom-scalameta-scalafmt-tree-v067-2017-04-05" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.6.7">v0.6.7</a> (2017-04-05)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.6.6...v0.6.7">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Publish to bintray <a href="https://github.com/scalameta/scalafmt/pull/870">#870</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Clean up repo. <a href="https://github.com/scalameta/scalafmt/pull/869">#869</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Document random stuff in CONTRIBUTING.md <a href="https://github.com/scalameta/scalafmt/pull/868">#868</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Implement #863: vertical-multiline for type params <a href="https://github.com/scalameta/scalafmt/pull/864">#864</a> (<a href="https://github.com/pjrt">pjrt</a>)</li>
+<li>Fix #799 Allow ASCII sorting of imports <a href="https://github.com/scalameta/scalafmt/pull/860">#860</a> (<a href="https://github.com/pjrt">pjrt</a>)</li>
+<li>Fix #808: newlines after curly lambda <a href="https://github.com/scalameta/scalafmt/pull/859">#859</a> (<a href="https://github.com/pjrt">pjrt</a>)</li>
+<li>Fix appveyor again <a href="https://github.com/scalameta/scalafmt/pull/858">#858</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Remove unused statement <a href="https://github.com/scalameta/scalafmt/pull/857">#857</a> (<a href="https://github.com/ocadaruma">ocadaruma</a>)</li>
+<li>Updated latest_version in scalafmt_auto <a href="https://github.com/scalameta/scalafmt/pull/856">#856</a> (<a href="https://github.com/jupblb">jupblb</a>)</li>
+<li>Fix appveyor <a href="https://github.com/scalameta/scalafmt/pull/855">#855</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix #736: Make verticalMultiline apply to classes too <a href="https://github.com/scalameta/scalafmt/pull/854">#854</a> (<a href="https://github.com/pjrt">pjrt</a>)</li>
+<li>fix readme.md <a href="https://github.com/scalameta/scalafmt/pull/852">#852</a> (<a href="https://github.com/xuwei-k">xuwei-k</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v066-https-githubcom-scalameta-scalafmt-tree-v066-2017-03-20"></a><a href="#v066-https-githubcom-scalameta-scalafmt-tree-v066-2017-03-20" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.6.6">v0.6.6</a> (2017-03-20)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.6.5...v0.6.6">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Switch to coursier 1.0.0-M15-5 <a href="https://github.com/scalameta/scalafmt/pull/846">#846</a> (<a href="https://github.com/alexarchambault">alexarchambault</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v065-https-githubcom-scalameta-scalafmt-tree-v065-2017-03-18"></a><a href="#v065-https-githubcom-scalameta-scalafmt-tree-v065-2017-03-18" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.6.5">v0.6.5</a> (2017-03-18)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.6.4...v0.6.5">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Bootstrap should resolve with lock retry <a href="https://github.com/scalameta/scalafmt/pull/838">#838</a> (<a href="https://github.com/stephennancekivell">stephennancekivell</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v064-https-githubcom-scalameta-scalafmt-tree-v064-2017-03-14"></a><a href="#v064-https-githubcom-scalameta-scalafmt-tree-v064-2017-03-14" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.6.4">v0.6.4</a> (2017-03-14)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.6.3...v0.6.4">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Use custom cache dir, second attempt at #807 <a href="https://github.com/scalameta/scalafmt/pull/834">#834</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v063-https-githubcom-scalameta-scalafmt-tree-v063-2017-03-13"></a><a href="#v063-https-githubcom-scalameta-scalafmt-tree-v063-2017-03-13" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.6.3">v0.6.3</a> (2017-03-13)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.6.2...v0.6.3">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Update appveyor <a href="https://github.com/scalameta/scalafmt/pull/826">#826</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix spaces.inParens for brackets <a href="https://github.com/scalameta/scalafmt/pull/825">#825</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Update badges <a href="https://github.com/scalameta/scalafmt/pull/824">#824</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Clean up home dir and drone build steps. <a href="https://github.com/scalameta/scalafmt/pull/823">#823</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Upgrade to drone v0.5 <a href="https://github.com/scalameta/scalafmt/pull/821">#821</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>fix mainClass not found error on windows machine (that comment makes … <a href="https://github.com/scalameta/scalafmt/pull/819">#819</a> (<a href="https://github.com/Daxten">Daxten</a>)</li>
+<li>Fix issue #816: Makes verticalMultilineDefnSite respect continuationIndent.defnSite <a href="https://github.com/scalameta/scalafmt/pull/829">#829</a> (<a href="https://github.com/pjrt">pjrt</a>)</li>
+<li>Topic/newlines_annotations #806 <a href="https://github.com/scalameta/scalafmt/pull/820">#820</a> (<a href="https://github.com/Daxten">Daxten</a>)</li>
+<li>Fix #780, add spaces in parens flag <a href="https://github.com/scalameta/scalafmt/pull/818">#818</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Don't resolve from ivy2local in ScalafmtBotstrap. <a href="https://github.com/scalameta/scalafmt/pull/817">#817</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix newlines.alwaysBeforeTopLevelStatements doc <a href="https://github.com/scalameta/scalafmt/pull/804">#804</a> (<a href="https://github.com/dwijnand">dwijnand</a>)</li>
+<li>Fix #798. <a href="https://github.com/scalameta/scalafmt/pull/803">#803</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix #800. <a href="https://github.com/scalameta/scalafmt/pull/801">#801</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>[WIP] fix for #774; no newline after comments <a href="https://github.com/scalameta/scalafmt/pull/797">#797</a> (<a href="https://github.com/Daxten">Daxten</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v062-https-githubcom-scalameta-scalafmt-tree-v062-2017-03-07"></a><a href="#v062-https-githubcom-scalameta-scalafmt-tree-v062-2017-03-07" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.6.2">v0.6.2</a> (2017-03-07)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.6.1...v0.6.2">Full Changelog</a></p>
+<h2><a class="anchor" aria-hidden="true" id="v061-https-githubcom-scalameta-scalafmt-tree-v061-2017-03-06"></a><a href="#v061-https-githubcom-scalameta-scalafmt-tree-v061-2017-03-06" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.6.1">v0.6.1</a> (2017-03-06)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.6.0...v0.6.1">Full Changelog</a></p>
+<h2><a class="anchor" aria-hidden="true" id="v060-https-githubcom-scalameta-scalafmt-tree-v060-2017-03-06"></a><a href="#v060-https-githubcom-scalameta-scalafmt-tree-v060-2017-03-06" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.6.0">v0.6.0</a> (2017-03-06)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.5.8...v0.6.0">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>s/precommit/pre-commit <a href="https://github.com/scalameta/scalafmt/pull/795">#795</a> (<a href="https://github.com/xuwei-k">xuwei-k</a>)</li>
+<li>Cross-build to 2.12 <a href="https://github.com/scalameta/scalafmt/pull/794">#794</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix #535 <a href="https://github.com/scalameta/scalafmt/pull/793">#793</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Validate rewrite rule combination, fixes #775 <a href="https://github.com/scalameta/scalafmt/pull/792">#792</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Clean up docstrings and ScalafmtConfig, fixes #586 <a href="https://github.com/scalameta/scalafmt/pull/791">#791</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix #728, infix indent for :: <a href="https://github.com/scalameta/scalafmt/pull/790">#790</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix #699, exclude excluded files in format-on-save in IntelliJ <a href="https://github.com/scalameta/scalafmt/pull/789">#789</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix #694, support encoding configuration. UTF-8 is default. <a href="https://github.com/scalameta/scalafmt/pull/788">#788</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix #741, unified spark colon for def/val <a href="https://github.com/scalameta/scalafmt/pull/787">#787</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix #590, indent by 2 spaces for = // <a href="https://github.com/scalameta/scalafmt/pull/786">#786</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix #747, respect align settings even for tuples <a href="https://github.com/scalameta/scalafmt/pull/785">#785</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix #748 <a href="https://github.com/scalameta/scalafmt/pull/784">#784</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix #753, add support for custom error message for --test via .scalafmt.conf <a href="https://github.com/scalameta/scalafmt/pull/783">#783</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix #745, handle config style + forced bin packing <a href="https://github.com/scalameta/scalafmt/pull/782">#782</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Guard against tests that have ONLY in CI <a href="https://github.com/scalameta/scalafmt/pull/781">#781</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix #756 <a href="https://github.com/scalameta/scalafmt/pull/779">#779</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Improve performance of State.next by reusing syntax instance <a href="https://github.com/scalameta/scalafmt/pull/776">#776</a> (<a href="https://github.com/rorygraves">rorygraves</a>)</li>
+<li>Handle comment breaking wrapping <a href="https://github.com/scalameta/scalafmt/pull/773">#773</a> (<a href="https://github.com/dwijnand">dwijnand</a>)</li>
+<li>Simplify build so <code>sbt test</code> &quot;just works&quot; <a href="https://github.com/scalameta/scalafmt/pull/760">#760</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Polish infix indentation around assignment. <a href="https://github.com/scalameta/scalafmt/pull/740">#740</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v058-https-githubcom-scalameta-scalafmt-tree-v058-2017-03-03"></a><a href="#v058-https-githubcom-scalameta-scalafmt-tree-v058-2017-03-03" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.5.8">v0.5.8</a> (2017-03-03)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.5.7...v0.5.8">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>#763 Fix Varargs expansion shouldn't be split <a href="https://github.com/scalameta/scalafmt/pull/772">#772</a> (<a href="https://github.com/tgodzik">tgodzik</a>)</li>
+<li>Make sure to always resolve HOCON config <a href="https://github.com/scalameta/scalafmt/pull/771">#771</a> (<a href="https://github.com/dwijnand">dwijnand</a>)</li>
+<li>#759 filter out deleted files on --diff <a href="https://github.com/scalameta/scalafmt/pull/770">#770</a> (<a href="https://github.com/tgodzik">tgodzik</a>)</li>
+<li>Fix vertical alignment on last block of file <a href="https://github.com/scalameta/scalafmt/pull/769">#769</a> (<a href="https://github.com/dwijnand">dwijnand</a>)</li>
+<li>Generalise and structure the issue template <a href="https://github.com/scalameta/scalafmt/pull/766">#766</a> (<a href="https://github.com/dwijnand">dwijnand</a>)</li>
+<li>Clarify config values &amp; examples some <a href="https://github.com/scalameta/scalafmt/pull/761">#761</a> (<a href="https://github.com/dwijnand">dwijnand</a>)</li>
+<li>fix isTopLevelStatement for edge-cases <a href="https://github.com/scalameta/scalafmt/pull/750">#750</a> (<a href="https://github.com/Daxten">Daxten</a>)</li>
+<li>#739: AvoidInfix Bug <a href="https://github.com/scalameta/scalafmt/pull/749">#749</a> (<a href="https://github.com/ysusuk">ysusuk</a>)</li>
+<li>Upgrade to meta 1.6 <a href="https://github.com/scalameta/scalafmt/pull/746">#746</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Remove 'HEAD' from git diff, to include all uncommitted changes aswell <a href="https://github.com/scalameta/scalafmt/pull/742">#742</a> (<a href="https://github.com/bjornj12">bjornj12</a>)</li>
+<li>Fix #731: empty-param group with verical style <a href="https://github.com/scalameta/scalafmt/pull/734">#734</a> (<a href="https://github.com/pjrt">pjrt</a>)</li>
+<li>Add flag for newline before toplevel statements <a href="https://github.com/scalameta/scalafmt/pull/733">#733</a> (<a href="https://github.com/Daxten">Daxten</a>)</li>
+<li>#726: unimport is not respected <a href="https://github.com/scalameta/scalafmt/pull/729">#729</a> (<a href="https://github.com/ysusuk">ysusuk</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v057-https-githubcom-scalameta-scalafmt-tree-v057-2017-02-24"></a><a href="#v057-https-githubcom-scalameta-scalafmt-tree-v057-2017-02-24" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.5.7">v0.5.7</a> (2017-02-24)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.5.6...v0.5.7">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>skip git hooks during pages update <a href="https://github.com/scalameta/scalafmt/pull/727">#727</a> (<a href="https://github.com/ysusuk">ysusuk</a>)</li>
+<li>#724: Update rewrite rules docs <a href="https://github.com/scalameta/scalafmt/pull/725">#725</a> (<a href="https://github.com/ysusuk">ysusuk</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v056-https-githubcom-scalameta-scalafmt-tree-v056-2017-02-08"></a><a href="#v056-https-githubcom-scalameta-scalafmt-tree-v056-2017-02-08" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.5.6">v0.5.6</a> (2017-02-08)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.5.5...v0.5.6">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>#709: Feature request: AvoidInfix rewrite <a href="https://github.com/scalameta/scalafmt/pull/715">#715</a> (<a href="https://github.com/ysusuk">ysusuk</a>)</li>
+<li>Fix #710: Extra space added for unary operations <a href="https://github.com/scalameta/scalafmt/pull/714">#714</a> (<a href="https://github.com/pjrt">pjrt</a>)</li>
+<li>Add Iurii Susuk to the team! <a href="https://github.com/scalameta/scalafmt/pull/713">#713</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>#706: Migrate to scalafix patches <a href="https://github.com/scalameta/scalafmt/pull/712">#712</a> (<a href="https://github.com/ysusuk">ysusuk</a>)</li>
+<li>Another fix for <code>verticalMultilineAtDefinitionSite</code> <a href="https://github.com/scalameta/scalafmt/pull/711">#711</a> (<a href="https://github.com/pjrt">pjrt</a>)</li>
+<li>Fix #672, edge case with inline comment <a href="https://github.com/scalameta/scalafmt/pull/708">#708</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v055-https-githubcom-scalameta-scalafmt-tree-v055-2017-02-01"></a><a href="#v055-https-githubcom-scalameta-scalafmt-tree-v055-2017-02-01" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.5.5">v0.5.5</a> (2017-02-01)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.5.4...v0.5.5">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>#690: Support check for &quot;redundant enclosing brace&quot; in string interpo... <a href="https://github.com/scalameta/scalafmt/pull/703">#703</a> (<a href="https://github.com/ysusuk">ysusuk</a>)</li>
+<li>Add new &quot;Team&quot; section in readme <a href="https://github.com/scalameta/scalafmt/pull/702">#702</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix issue on verticalMultilineAtDefinitionSite <a href="https://github.com/scalameta/scalafmt/pull/700">#700</a> (<a href="https://github.com/pjrt">pjrt</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v054-https-githubcom-scalameta-scalafmt-tree-v054-2017-01-26"></a><a href="#v054-https-githubcom-scalameta-scalafmt-tree-v054-2017-01-26" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.5.4">v0.5.4</a> (2017-01-26)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.5.3...v0.5.4">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Fix #697, unary operator to symbolic ident <a href="https://github.com/scalameta/scalafmt/pull/698">#698</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Adds a new style for function defs <a href="https://github.com/scalameta/scalafmt/pull/682">#682</a> (<a href="https://github.com/pjrt">pjrt</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v053-https-githubcom-scalameta-scalafmt-tree-v053-2017-01-24"></a><a href="#v053-https-githubcom-scalameta-scalafmt-tree-v053-2017-01-24" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.5.3">v0.5.3</a> (2017-01-24)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.5.3-RC1...v0.5.3">Full Changelog</a></p>
+<h2><a class="anchor" aria-hidden="true" id="v053-rc1-https-githubcom-scalameta-scalafmt-tree-v053-rc1-2017-01-23"></a><a href="#v053-rc1-https-githubcom-scalameta-scalafmt-tree-v053-rc1-2017-01-23" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.5.3-RC1">v0.5.3-RC1</a> (2017-01-23)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.5.2...v0.5.3-RC1">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Initialize term display logger. <a href="https://github.com/scalameta/scalafmt/pull/692">#692</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix &quot;pr&quot; helper method in docs gen <a href="https://github.com/scalameta/scalafmt/pull/689">#689</a> (<a href="https://github.com/dwijnand">dwijnand</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v052-https-githubcom-scalameta-scalafmt-tree-v052-2017-01-22"></a><a href="#v052-https-githubcom-scalameta-scalafmt-tree-v052-2017-01-22" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.5.2">v0.5.2</a> (2017-01-22)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.5.2-RC1...v0.5.2">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Fix #677 <a href="https://github.com/scalameta/scalafmt/pull/688">#688</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix #671 <a href="https://github.com/scalameta/scalafmt/pull/687">#687</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>679 <a href="https://github.com/scalameta/scalafmt/pull/686">#686</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix #661 <a href="https://github.com/scalameta/scalafmt/pull/685">#685</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Resolve config <a href="https://github.com/scalameta/scalafmt/pull/681">#681</a> (<a href="https://github.com/avdv">avdv</a>)</li>
+<li>New ContinuationIndent: extendSite <a href="https://github.com/scalameta/scalafmt/pull/678">#678</a> (<a href="https://github.com/pjrt">pjrt</a>)</li>
+<li>fix Patch insideRange <a href="https://github.com/scalameta/scalafmt/pull/675">#675</a> (<a href="https://github.com/MasseGuillaume">MasseGuillaume</a>)</li>
+<li>#657: New rewrite: expand import selectors <a href="https://github.com/scalameta/scalafmt/pull/674">#674</a> (<a href="https://github.com/ysusuk">ysusuk</a>)</li>
+<li>#660: Feature request: configurable spaces around infix types <a href="https://github.com/scalameta/scalafmt/pull/669">#669</a> (<a href="https://github.com/ysusuk">ysusuk</a>)</li>
+<li>Update ln numbers and output in Tutorial <a href="https://github.com/scalameta/scalafmt/pull/666">#666</a> (<a href="https://github.com/ysusuk">ysusuk</a>)</li>
+<li>Remove extra newline from stdout <a href="https://github.com/scalameta/scalafmt/pull/665">#665</a> (<a href="https://github.com/dguo-coursera">dguo-coursera</a>)</li>
+<li>Add --fallback-mode flag to cli <a href="https://github.com/scalameta/scalafmt/pull/659">#659</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v052-rc1-https-githubcom-scalameta-scalafmt-tree-v052-rc1-2016-12-28"></a><a href="#v052-rc1-https-githubcom-scalameta-scalafmt-tree-v052-rc1-2016-12-28" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.5.2-RC1">v0.5.2-RC1</a> (2016-12-28)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.5.1...v0.5.2-RC1">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Ditch synthetic project in favor of coursier. <a href="https://github.com/scalameta/scalafmt/pull/658">#658</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fixes #399 - Automate IntelliJ Plugin Update <a href="https://github.com/scalameta/scalafmt/pull/655">#655</a> (<a href="https://github.com/rbellamy">rbellamy</a>)</li>
+<li>Fix #607. <a href="https://github.com/scalameta/scalafmt/pull/651">#651</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Make nested path exclusions working on Windows <a href="https://github.com/scalameta/scalafmt/pull/648">#648</a> (<a href="https://github.com/mpociecha">mpociecha</a>)</li>
+<li>Fix links to Tutorial.md <a href="https://github.com/scalameta/scalafmt/pull/647">#647</a> (<a href="https://github.com/mpociecha">mpociecha</a>)</li>
+<li>Setup AppVeyor <a href="https://github.com/scalameta/scalafmt/pull/645">#645</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Christmas cleaning <a href="https://github.com/scalameta/scalafmt/pull/643">#643</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix path separators and line endings to make most of tests passing on Windows <a href="https://github.com/scalameta/scalafmt/pull/642">#642</a> (<a href="https://github.com/mpociecha">mpociecha</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v051-https-githubcom-scalameta-scalafmt-tree-v051-2016-12-23"></a><a href="#v051-https-githubcom-scalameta-scalafmt-tree-v051-2016-12-23" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.5.1">v0.5.1</a> (2016-12-23)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.5.0...v0.5.1">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Fix #639 <a href="https://github.com/scalameta/scalafmt/pull/640">#640</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix link URL in the sbt docs <a href="https://github.com/scalameta/scalafmt/pull/637">#637</a> (<a href="https://github.com/cb372">cb372</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v050-https-githubcom-scalameta-scalafmt-tree-v050-2016-12-23"></a><a href="#v050-https-githubcom-scalameta-scalafmt-tree-v050-2016-12-23" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.5.0">v0.5.0</a> (2016-12-23)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.5.0-RC4...v0.5.0">Full Changelog</a></p>
+<h2><a class="anchor" aria-hidden="true" id="v050-rc4-https-githubcom-scalameta-scalafmt-tree-v050-rc4-2016-12-21"></a><a href="#v050-rc4-https-githubcom-scalameta-scalafmt-tree-v050-rc4-2016-12-21" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.5.0-RC4">v0.5.0-RC4</a> (2016-12-21)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.5.0-RC3...v0.5.0-RC4">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Fix idempotency regression from #629 <a href="https://github.com/scalameta/scalafmt/pull/631">#631</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Improve builds in IntelliJ and on Windows <a href="https://github.com/scalameta/scalafmt/pull/630">#630</a> (<a href="https://github.com/mpociecha">mpociecha</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v050-rc3-https-githubcom-scalameta-scalafmt-tree-v050-rc3-2016-12-20"></a><a href="#v050-rc3-https-githubcom-scalameta-scalafmt-tree-v050-rc3-2016-12-20" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.5.0-RC3">v0.5.0-RC3</a> (2016-12-20)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.5.0-RC2...v0.5.0-RC3">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Automatically bin pack for argument lists of literals. <a href="https://github.com/scalameta/scalafmt/pull/629">#629</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>add maven version badge to readme <a href="https://github.com/scalameta/scalafmt/pull/628">#628</a> (<a href="https://github.com/emanresusername">emanresusername</a>)</li>
+<li>Fewer search state exploded. <a href="https://github.com/scalameta/scalafmt/pull/626">#626</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Improve search state for reactjs style DSLs. Fixes #458 <a href="https://github.com/scalameta/scalafmt/pull/622">#622</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add runner.optimizer.forceConfig... flag. <a href="https://github.com/scalameta/scalafmt/pull/621">#621</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add config-str flag, fixes #617 <a href="https://github.com/scalameta/scalafmt/pull/620">#620</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>fixing regex for latest version <a href="https://github.com/scalameta/scalafmt/pull/619">#619</a> (<a href="https://github.com/sudev">sudev</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v050-rc2-https-githubcom-scalameta-scalafmt-tree-v050-rc2-2016-12-18"></a><a href="#v050-rc2-https-githubcom-scalameta-scalafmt-tree-v050-rc2-2016-12-18" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.5.0-RC2">v0.5.0-RC2</a> (2016-12-18)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.5.0-RC1...v0.5.0-RC2">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Upgrade to scala.meta 1.3. <a href="https://github.com/scalameta/scalafmt/pull/615">#615</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v050-rc1-https-githubcom-scalameta-scalafmt-tree-v050-rc1-2016-12-18"></a><a href="#v050-rc1-https-githubcom-scalameta-scalafmt-tree-v050-rc1-2016-12-18" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.5.0-RC1">v0.5.0-RC1</a> (2016-12-18)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.4.10...v0.5.0-RC1">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Prepare for 0.5 release. <a href="https://github.com/scalameta/scalafmt/pull/613">#613</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Support intellij style + config style arg, fixes #593. <a href="https://github.com/scalameta/scalafmt/pull/612">#612</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Bump penalty for select chains of length 1. <a href="https://github.com/scalameta/scalafmt/pull/611">#611</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Revive the sbt plugin <a href="https://github.com/scalameta/scalafmt/pull/610">#610</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix Linux installation command <a href="https://github.com/scalameta/scalafmt/pull/602">#602</a> (<a href="https://github.com/felixmulder">felixmulder</a>)</li>
+<li>Remove SBT plugin, see #597. <a href="https://github.com/scalameta/scalafmt/pull/598">#598</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add newlines.neverInDanglingParenthesesSingleLineArgList, fixes #593 <a href="https://github.com/scalameta/scalafmt/pull/595">#595</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add indentYieldKeyword setting, fixes #592. <a href="https://github.com/scalameta/scalafmt/pull/594">#594</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v0410-https-githubcom-scalameta-scalafmt-tree-v0410-2016-11-10"></a><a href="#v0410-https-githubcom-scalameta-scalafmt-tree-v0410-2016-11-10" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.4.10">v0.4.10</a> (2016-11-10)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.4.9...v0.4.10">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Fix #583. Avoid try to format dirs <a href="https://github.com/scalameta/scalafmt/pull/584">#584</a> (<a href="https://github.com/andreaTP">andreaTP</a>)</li>
+<li>Remove redundant braces in enumerator guard conditions <a href="https://github.com/scalameta/scalafmt/pull/578">#578</a> (<a href="https://github.com/ShaneDelmore">ShaneDelmore</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v049-https-githubcom-scalameta-scalafmt-tree-v049-2016-11-04"></a><a href="#v049-https-githubcom-scalameta-scalafmt-tree-v049-2016-11-04" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.4.9">v0.4.9</a> (2016-11-04)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.4.8...v0.4.9">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Create bootstrap script, towards #571. <a href="https://github.com/scalameta/scalafmt/pull/577">#577</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>/usr/bin/env <a href="https://github.com/scalameta/scalafmt/pull/575">#575</a> (<a href="https://github.com/MasseGuillaume">MasseGuillaume</a>)</li>
+<li>More configurable metaconfig <a href="https://github.com/scalameta/scalafmt/pull/570">#570</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Issue 457 long imports <a href="https://github.com/scalameta/scalafmt/pull/567">#567</a> (<a href="https://github.com/mtomko">mtomko</a>)</li>
+<li>Add info about Arch Linux package <a href="https://github.com/scalameta/scalafmt/pull/565">#565</a> (<a href="https://github.com/RatanRSur">RatanRSur</a>)</li>
+<li>Update IDEA plugin <a href="https://github.com/scalameta/scalafmt/pull/562">#562</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix scalafmt_auto script. <a href="https://github.com/scalameta/scalafmt/pull/559">#559</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v048-https-githubcom-scalameta-scalafmt-tree-v048-2016-10-25"></a><a href="#v048-https-githubcom-scalameta-scalafmt-tree-v048-2016-10-25" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.4.8">v0.4.8</a> (2016-10-25)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.4.7...v0.4.8">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Add flag: newlines.neverInResultType. Fixes #496 <a href="https://github.com/scalameta/scalafmt/pull/555">#555</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Replace java.io.File with custom AbsoluteFile. <a href="https://github.com/scalameta/scalafmt/pull/554">#554</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Handle Pat.Interpolate, fixes #512 <a href="https://github.com/scalameta/scalafmt/pull/550">#550</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Infix applications to count towards valign depth, fixes #531 <a href="https://github.com/scalameta/scalafmt/pull/549">#549</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Use constant instead of strings and remove useless statement in SBT <a href="https://github.com/scalameta/scalafmt/pull/548">#548</a> (<a href="https://github.com/joan38">joan38</a>)</li>
+<li>Move Settings at project level <a href="https://github.com/scalameta/scalafmt/pull/544">#544</a> (<a href="https://github.com/joan38">joan38</a>)</li>
+<li>Fix broken test. <a href="https://github.com/scalameta/scalafmt/pull/539">#539</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Format on save and update the notification system <a href="https://github.com/scalameta/scalafmt/pull/534">#534</a> (<a href="https://github.com/joan38">joan38</a>)</li>
+<li>WIP Break select chain on curly braces <a href="https://github.com/scalameta/scalafmt/pull/532">#532</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Allow --config to be absolute path <a href="https://github.com/scalameta/scalafmt/pull/528">#528</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v047-https-githubcom-scalameta-scalafmt-tree-v047-2016-10-17"></a><a href="#v047-https-githubcom-scalameta-scalafmt-tree-v047-2016-10-17" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.4.7">v0.4.7</a> (2016-10-17)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.4.6...v0.4.7">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Skip RedundantBraces rewrite on term.function <a href="https://github.com/scalameta/scalafmt/pull/526">#526</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Only align tokens with same distance to root node. <a href="https://github.com/scalameta/scalafmt/pull/525">#525</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Expose --assume-filename flag in CLI <a href="https://github.com/scalameta/scalafmt/pull/524">#524</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Swallow stderr when running gitops <a href="https://github.com/scalameta/scalafmt/pull/523">#523</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v046-https-githubcom-scalameta-scalafmt-tree-v046-2016-10-11"></a><a href="#v046-https-githubcom-scalameta-scalafmt-tree-v046-2016-10-11" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.4.6">v0.4.6</a> (2016-10-11)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.4.5...v0.4.6">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Add nailgun interrop to CLI. <a href="https://github.com/scalameta/scalafmt/pull/514">#514</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v045-https-githubcom-scalameta-scalafmt-tree-v045-2016-10-10"></a><a href="#v045-https-githubcom-scalameta-scalafmt-tree-v045-2016-10-10" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.4.5">v0.4.5</a> (2016-10-10)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.4.4...v0.4.5">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Fix --config flag <a href="https://github.com/scalameta/scalafmt/pull/508">#508</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add indent for Term.Assign, fixes #506 <a href="https://github.com/scalameta/scalafmt/pull/507">#507</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add syntax align.tokens.add = [foobar] <a href="https://github.com/scalameta/scalafmt/pull/499">#499</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>486 <a href="https://github.com/scalameta/scalafmt/pull/498">#498</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v044-https-githubcom-scalameta-scalafmt-tree-v044-2016-10-07"></a><a href="#v044-https-githubcom-scalameta-scalafmt-tree-v044-2016-10-07" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.4.4">v0.4.4</a> (2016-10-07)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.4.3...v0.4.4">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Add scala-reflect back, fixes #492. <a href="https://github.com/scalameta/scalafmt/pull/495">#495</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Distinction between Import braces and string interpolation braces #424 <a href="https://github.com/scalameta/scalafmt/pull/454">#454</a> (<a href="https://github.com/hasumedic">hasumedic</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v043-https-githubcom-scalameta-scalafmt-tree-v043-2016-10-05"></a><a href="#v043-https-githubcom-scalameta-scalafmt-tree-v043-2016-10-05" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.4.3">v0.4.3</a> (2016-10-05)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.4.2...v0.4.3">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Port macros to inline meta <a href="https://github.com/scalameta/scalafmt/pull/491">#491</a> (<a href="https://github.com/cb372">cb372</a>)</li>
+<li>Produce clearer error messages for config typos in tests. <a href="https://github.com/scalameta/scalafmt/pull/489">#489</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Display error message on configuration error in IntelliJ plugin <a href="https://github.com/scalameta/scalafmt/pull/484">#484</a> (<a href="https://github.com/phalodi">phalodi</a>)</li>
+<li>New rewrite rule for replacing parens with braces in for expressions <a href="https://github.com/scalameta/scalafmt/pull/483">#483</a> (<a href="https://github.com/caoilte">caoilte</a>)</li>
+<li>Fix for <a href="https://github.com/olafurpg/scalafmt/issues/478">https://github.com/olafurpg/scalafmt/issues/478</a> <a href="https://github.com/scalameta/scalafmt/pull/482">#482</a> (<a href="https://github.com/caoilte">caoilte</a>)</li>
+<li>Created a scalafmt shell script to bootstrap usage <a href="https://github.com/scalameta/scalafmt/pull/359">#359</a> (<a href="https://github.com/hntd187">hntd187</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v042-https-githubcom-scalameta-scalafmt-tree-v042-2016-09-28"></a><a href="#v042-https-githubcom-scalameta-scalafmt-tree-v042-2016-09-28" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.4.2">v0.4.2</a> (2016-09-28)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.4.1...v0.4.2">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Allow indentOperator = akka <a href="https://github.com/scalameta/scalafmt/pull/475">#475</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v041-https-githubcom-scalameta-scalafmt-tree-v041-2016-09-27"></a><a href="#v041-https-githubcom-scalameta-scalafmt-tree-v041-2016-09-27" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.4.1">v0.4.1</a> (2016-09-27)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.4.0...v0.4.1">Full Changelog</a></p>
+<h2><a class="anchor" aria-hidden="true" id="v040-https-githubcom-scalameta-scalafmt-tree-v040-2016-09-27"></a><a href="#v040-https-githubcom-scalameta-scalafmt-tree-v040-2016-09-27" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.4.0">v0.4.0</a> (2016-09-27)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/0.4...v0.4.0">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Remove redundant braces and no other tokens! <a href="https://github.com/scalameta/scalafmt/pull/471">#471</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add note on how to build the docs. <a href="https://github.com/scalameta/scalafmt/pull/469">#469</a> (<a href="https://github.com/johnynek">johnynek</a>)</li>
+<li>The great refactoring. <a href="https://github.com/scalameta/scalafmt/pull/468">#468</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add support for dynamic configuration, fixes #315 <a href="https://github.com/scalameta/scalafmt/pull/464">#464</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Semantics preserving rewrites before formatting. <a href="https://github.com/scalameta/scalafmt/pull/447">#447</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="04-https-githubcom-scalameta-scalafmt-tree-04-2016-09-23"></a><a href="#04-https-githubcom-scalameta-scalafmt-tree-04-2016-09-23" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/0.4">0.4</a> (2016-09-23)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.3.2-RC4...0.4">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Move configuration to HOCON <a href="https://github.com/scalameta/scalafmt/pull/459">#459</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Bump scala.meta version to 1.1.0 <a href="https://github.com/scalameta/scalafmt/pull/452">#452</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>#356 Code with windows line endings after formatting still has windows endings <a href="https://github.com/scalameta/scalafmt/pull/445">#445</a> (<a href="https://github.com/mmatloka">mmatloka</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v032-rc4-https-githubcom-scalameta-scalafmt-tree-v032-rc4-2016-09-14"></a><a href="#v032-rc4-https-githubcom-scalameta-scalafmt-tree-v032-rc4-2016-09-14" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.3.2-RC4">v0.3.2-RC4</a> (2016-09-14)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.3.2-RC3...v0.3.2-RC4">Full Changelog</a></p>
+<h2><a class="anchor" aria-hidden="true" id="v032-rc3-https-githubcom-scalameta-scalafmt-tree-v032-rc3-2016-09-14"></a><a href="#v032-rc3-https-githubcom-scalameta-scalafmt-tree-v032-rc3-2016-09-14" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.3.2-RC3">v0.3.2-RC3</a> (2016-09-14)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.3.2-RC1...v0.3.2-RC3">Full Changelog</a></p>
+<h2><a class="anchor" aria-hidden="true" id="v032-rc1-https-githubcom-scalameta-scalafmt-tree-v032-rc1-2016-09-14"></a><a href="#v032-rc1-https-githubcom-scalameta-scalafmt-tree-v032-rc1-2016-09-14" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.3.2-RC1">v0.3.2-RC1</a> (2016-09-14)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.3.2-RC2...v0.3.2-RC1">Full Changelog</a></p>
+<h2><a class="anchor" aria-hidden="true" id="v032-rc2-https-githubcom-scalameta-scalafmt-tree-v032-rc2-2016-09-14"></a><a href="#v032-rc2-https-githubcom-scalameta-scalafmt-tree-v032-rc2-2016-09-14" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.3.2-RC2">v0.3.2-RC2</a> (2016-09-14)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.3.1...v0.3.2-RC2">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Add support to align by tokens that have no space before them <a href="https://github.com/scalameta/scalafmt/pull/441">#441</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add style config to keep new lines on chained method calls <a href="https://github.com/scalameta/scalafmt/pull/440">#440</a> (<a href="https://github.com/melrief">melrief</a>)</li>
+<li>Option to put a newline to be put before the parameters of a lambda <a href="https://github.com/scalameta/scalafmt/pull/439">#439</a> (<a href="https://github.com/stefanobaghino">stefanobaghino</a>)</li>
+<li>Exclude files with a CLI option <a href="https://github.com/scalameta/scalafmt/pull/437">#437</a> (<a href="https://github.com/stefanobaghino">stefanobaghino</a>)</li>
+<li>align %%% in defaultWithAlign <a href="https://github.com/scalameta/scalafmt/pull/436">#436</a> (<a href="https://github.com/melrief">melrief</a>)</li>
+<li>Add adopter: Teralytics <a href="https://github.com/scalameta/scalafmt/pull/433">#433</a> (<a href="https://github.com/stefanobaghino">stefanobaghino</a>)</li>
+<li>Update Adopters.scala <a href="https://github.com/scalameta/scalafmt/pull/430">#430</a> (<a href="https://github.com/easel">easel</a>)</li>
+<li>Fix #417 <a href="https://github.com/scalameta/scalafmt/pull/429">#429</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add letgo to adopters <a href="https://github.com/scalameta/scalafmt/pull/428">#428</a> (<a href="https://github.com/GMadorell">GMadorell</a>)</li>
+<li>Update Adopters.scala <a href="https://github.com/scalameta/scalafmt/pull/426">#426</a> (<a href="https://github.com/RomanIakovlev">RomanIakovlev</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v031-https-githubcom-scalameta-scalafmt-tree-v031-2016-08-24"></a><a href="#v031-https-githubcom-scalameta-scalafmt-tree-v031-2016-08-24" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.3.1">v0.3.1</a> (2016-08-24)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.3.0...v0.3.1">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Add hidden poorMansTrailingCommasInConfigStyle flag for fun <a href="https://github.com/scalameta/scalafmt/pull/412">#412</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Format sbt files <a href="https://github.com/scalameta/scalafmt/pull/411">#411</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Treat Pat.ExtractInfix like Term.ApplyInfix. Fixes #408 <a href="https://github.com/scalameta/scalafmt/pull/409">#409</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Make SBT plugin pick up .sbt files <a href="https://github.com/scalameta/scalafmt/pull/407">#407</a> (<a href="https://github.com/mdedetrich">mdedetrich</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v030-https-githubcom-scalameta-scalafmt-tree-v030-2016-08-17"></a><a href="#v030-https-githubcom-scalameta-scalafmt-tree-v030-2016-08-17" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.3.0">v0.3.0</a> (2016-08-17)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.3.0-RC1...v0.3.0">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Add drone file. <a href="https://github.com/scalameta/scalafmt/pull/406">#406</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v030-rc1-https-githubcom-scalameta-scalafmt-tree-v030-rc1-2016-08-13"></a><a href="#v030-rc1-https-githubcom-scalameta-scalafmt-tree-v030-rc1-2016-08-13" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.3.0-RC1">v0.3.0-RC1</a> (2016-08-13)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.2.12...v0.3.0-RC1">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Format sbt files, fixes #378 <a href="https://github.com/scalameta/scalafmt/pull/402">#402</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>0.3.0 rc1 <a href="https://github.com/scalameta/scalafmt/pull/401">#401</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Scalameta 1.0 <a href="https://github.com/scalameta/scalafmt/pull/395">#395</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Don't force break before self annotation, fixes #376 <a href="https://github.com/scalameta/scalafmt/pull/391">#391</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Consolidate type compounds and parent constructor handling, fixes #370 <a href="https://github.com/scalameta/scalafmt/pull/390">#390</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Allow limited mixed owner alignment, fixes #184 <a href="https://github.com/scalameta/scalafmt/pull/389">#389</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Allow _ as identifier before apply, fixes #375 <a href="https://github.com/scalameta/scalafmt/pull/388">#388</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Depend on scala-library in sbt plugin, fixes #190 <a href="https://github.com/scalameta/scalafmt/pull/374">#374</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v0212-https-githubcom-scalameta-scalafmt-tree-v0212-2016-08-05"></a><a href="#v0212-https-githubcom-scalameta-scalafmt-tree-v0212-2016-08-05" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.2.12">v0.2.12</a> (2016-08-05)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.2.11...v0.2.12">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Increase control over infix operator indentation, fixes #367. <a href="https://github.com/scalameta/scalafmt/pull/372">#372</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add spaceBeforeContextBoundColon option <a href="https://github.com/scalameta/scalafmt/pull/369">#369</a> (<a href="https://github.com/triggerNZ">triggerNZ</a>)</li>
+<li>Updated sbt-assembly  to 0.14.3 <a href="https://github.com/scalameta/scalafmt/pull/361">#361</a> (<a href="https://github.com/VEINHORN">VEINHORN</a>)</li>
+<li>Fix indent expire token for lambdas, towards #357 <a href="https://github.com/scalameta/scalafmt/pull/358">#358</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v0211-https-githubcom-scalameta-scalafmt-tree-v0211-2016-07-08"></a><a href="#v0211-https-githubcom-scalameta-scalafmt-tree-v0211-2016-07-08" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.2.11">v0.2.11</a> (2016-07-08)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.2.10...v0.2.11">Full Changelog</a></p>
+<h2><a class="anchor" aria-hidden="true" id="v0210-https-githubcom-scalameta-scalafmt-tree-v0210-2016-06-30"></a><a href="#v0210-https-githubcom-scalameta-scalafmt-tree-v0210-2016-06-30" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.2.10">v0.2.10</a> (2016-06-30)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.2.9...v0.2.10">Full Changelog</a></p>
+<h2><a class="anchor" aria-hidden="true" id="v029-https-githubcom-scalameta-scalafmt-tree-v029-2016-06-30"></a><a href="#v029-https-githubcom-scalameta-scalafmt-tree-v029-2016-06-30" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.2.9">v0.2.9</a> (2016-06-30)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.2.8...v0.2.9">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>339 <a href="https://github.com/scalameta/scalafmt/pull/352">#352</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v028-https-githubcom-scalameta-scalafmt-tree-v028-2016-06-23"></a><a href="#v028-https-githubcom-scalameta-scalafmt-tree-v028-2016-06-23" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.2.8">v0.2.8</a> (2016-06-23)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.2.7...v0.2.8">Full Changelog</a></p>
+<h2><a class="anchor" aria-hidden="true" id="v027-https-githubcom-scalameta-scalafmt-tree-v027-2016-06-23"></a><a href="#v027-https-githubcom-scalameta-scalafmt-tree-v027-2016-06-23" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.2.7">v0.2.7</a> (2016-06-23)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.2.6...v0.2.7">Full Changelog</a></p>
+<h2><a class="anchor" aria-hidden="true" id="v026-https-githubcom-scalameta-scalafmt-tree-v026-2016-06-22"></a><a href="#v026-https-githubcom-scalameta-scalafmt-tree-v026-2016-06-22" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.2.6">v0.2.6</a> (2016-06-22)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.2.6-RC1...v0.2.6">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Allow NoSplit in config style in case of single line policy <a href="https://github.com/scalameta/scalafmt/pull/335">#335</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Depenalize line breaks inside {}, fixes #318 <a href="https://github.com/scalameta/scalafmt/pull/333">#333</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Remove &quot;bad files&quot; from mega test, fixes #280 <a href="https://github.com/scalameta/scalafmt/pull/332">#332</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>No newline between = {, fixes #328. <a href="https://github.com/scalameta/scalafmt/pull/329">#329</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>No space before Decl.Type, fixes #288 <a href="https://github.com/scalameta/scalafmt/pull/328">#328</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fail fast instead of best-effort formatting <a href="https://github.com/scalameta/scalafmt/pull/326">#326</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add macro benchmark. <a href="https://github.com/scalameta/scalafmt/pull/320">#320</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Correct all other mentions of &quot;paretheses&quot; <a href="https://github.com/scalameta/scalafmt/pull/314">#314</a> (<a href="https://github.com/i-am-the-slime">i-am-the-slime</a>)</li>
+<li>Typo in parentheses <a href="https://github.com/scalameta/scalafmt/pull/313">#313</a> (<a href="https://github.com/i-am-the-slime">i-am-the-slime</a>)</li>
+<li>Fix typos <a href="https://github.com/scalameta/scalafmt/pull/311">#311</a> (<a href="https://github.com/williamho">williamho</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v026-rc1-https-githubcom-scalameta-scalafmt-tree-v026-rc1-2016-06-01"></a><a href="#v026-rc1-https-githubcom-scalameta-scalafmt-tree-v026-rc1-2016-06-01" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.2.6-RC1">v0.2.6-RC1</a> (2016-06-01)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.2.5...v0.2.6-RC1">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>gitignore and clean repos.tar.gz <a href="https://github.com/scalameta/scalafmt/pull/302">#302</a> (<a href="https://github.com/annappropriate">annappropriate</a>)</li>
+<li>Space after triple equals <a href="https://github.com/scalameta/scalafmt/pull/298">#298</a> (<a href="https://github.com/annappropriate">annappropriate</a>)</li>
+<li>Expose --alignByArrowEnumeratorGenerator in CLI <a href="https://github.com/scalameta/scalafmt/pull/287">#287</a> (<a href="https://github.com/djspiewak">djspiewak</a>)</li>
+<li>fallback to config file in home dir <a href="https://github.com/scalameta/scalafmt/pull/246">#246</a> (<a href="https://github.com/maximn">maximn</a>)</li>
+<li>Drop %% in addSbtPlugin <a href="https://github.com/scalameta/scalafmt/pull/245">#245</a> (<a href="https://github.com/dwijnand">dwijnand</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v025-https-githubcom-scalameta-scalafmt-tree-v025-2016-05-17"></a><a href="#v025-https-githubcom-scalameta-scalafmt-tree-v025-2016-05-17" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.2.5">v0.2.5</a> (2016-05-17)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.2.4...v0.2.5">Full Changelog</a></p>
+<h2><a class="anchor" aria-hidden="true" id="v024-https-githubcom-scalameta-scalafmt-tree-v024-2016-05-16"></a><a href="#v024-https-githubcom-scalameta-scalafmt-tree-v024-2016-05-16" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.2.4">v0.2.4</a> (2016-05-16)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.2.3...v0.2.4">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>0.2.4 rc3 <a href="https://github.com/scalameta/scalafmt/pull/240">#240</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>0.2.4 rc2 <a href="https://github.com/scalameta/scalafmt/pull/234">#234</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>0.2.4 rc1 <a href="https://github.com/scalameta/scalafmt/pull/231">#231</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Use unmanagedSourceDirectories for sourceDirectories <a href="https://github.com/scalameta/scalafmt/pull/229">#229</a> (<a href="https://github.com/fthomas">fthomas</a>)</li>
+<li>Optimizations: roughly 17% improvement <a href="https://github.com/scalameta/scalafmt/pull/216">#216</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Parallel <a href="https://github.com/scalameta/scalafmt/pull/215">#215</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v023-https-githubcom-scalameta-scalafmt-tree-v023-2016-05-06"></a><a href="#v023-https-githubcom-scalameta-scalafmt-tree-v023-2016-05-06" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.2.3">v0.2.3</a> (2016-05-06)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.2.2...v0.2.3">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>0.2.3 <a href="https://github.com/scalameta/scalafmt/pull/213">#213</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>0.2.3 <a href="https://github.com/scalameta/scalafmt/pull/211">#211</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fixes the check for URLs vs files <a href="https://github.com/scalameta/scalafmt/pull/206">#206</a> (<a href="https://github.com/propensive">propensive</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v022-https-githubcom-scalameta-scalafmt-tree-v022-2016-04-19"></a><a href="#v022-https-githubcom-scalameta-scalafmt-tree-v022-2016-04-19" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.2.2">v0.2.2</a> (2016-04-19)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.2.1...v0.2.2">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>0.2.2 <a href="https://github.com/scalameta/scalafmt/pull/189">#189</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>0.2.2 <a href="https://github.com/scalameta/scalafmt/pull/173">#173</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v021-https-githubcom-scalameta-scalafmt-tree-v021-2016-04-14"></a><a href="#v021-https-githubcom-scalameta-scalafmt-tree-v021-2016-04-14" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.2.1">v0.2.1</a> (2016-04-14)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.2.0...v0.2.1">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>0.2.1 <a href="https://github.com/scalameta/scalafmt/pull/156">#156</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v020-https-githubcom-scalameta-scalafmt-tree-v020-2016-04-12"></a><a href="#v020-https-githubcom-scalameta-scalafmt-tree-v020-2016-04-12" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.2.0">v0.2.0</a> (2016-04-12)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.1.6...v0.2.0">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>0.2.0 <a href="https://github.com/scalameta/scalafmt/pull/146">#146</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v016-https-githubcom-scalameta-scalafmt-tree-v016-2016-04-05"></a><a href="#v016-https-githubcom-scalameta-scalafmt-tree-v016-2016-04-05" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.1.6">v0.1.6</a> (2016-04-05)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.1.5...v0.1.6">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>0.1.6 - format all the files <a href="https://github.com/scalameta/scalafmt/pull/142">#142</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>0.1.6-SNAPSHOT <a href="https://github.com/scalameta/scalafmt/pull/137">#137</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>0.1.5 <a href="https://github.com/scalameta/scalafmt/pull/136">#136</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v015-https-githubcom-scalameta-scalafmt-tree-v015-2016-04-01"></a><a href="#v015-https-githubcom-scalameta-scalafmt-tree-v015-2016-04-01" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.1.5">v0.1.5</a> (2016-04-01)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.1.4...v0.1.5">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>0.1.5-SNAPSHOT <a href="https://github.com/scalameta/scalafmt/pull/132">#132</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v014-https-githubcom-scalameta-scalafmt-tree-v014-2016-03-18"></a><a href="#v014-https-githubcom-scalameta-scalafmt-tree-v014-2016-03-18" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.1.4">v0.1.4</a> (2016-03-18)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.1.3...v0.1.4">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Reformat project with 0.1.4 <a href="https://github.com/scalameta/scalafmt/pull/130">#130</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>0.1.4 fixes <a href="https://github.com/scalameta/scalafmt/pull/129">#129</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>0.1.4 <a href="https://github.com/scalameta/scalafmt/pull/128">#128</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v013-https-githubcom-scalameta-scalafmt-tree-v013-2016-03-11"></a><a href="#v013-https-githubcom-scalameta-scalafmt-tree-v013-2016-03-11" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.1.3">v0.1.3</a> (2016-03-11)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.1.2...v0.1.3">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>0.1.3 <a href="https://github.com/scalameta/scalafmt/pull/124">#124</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Move intellij plugin to this repo. <a href="https://github.com/scalameta/scalafmt/pull/119">#119</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v012-https-githubcom-scalameta-scalafmt-tree-v012-2016-03-10"></a><a href="#v012-https-githubcom-scalameta-scalafmt-tree-v012-2016-03-10" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.1.2">v0.1.2</a> (2016-03-10)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.1.1...v0.1.2">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Fix most issues from @sjrd <a href="https://github.com/scalameta/scalafmt/pull/118">#118</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add Java 6 compatibility. <a href="https://github.com/scalameta/scalafmt/pull/113">#113</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>&quot;Bootstrap&quot;: format scalafmt with scalafmt <a href="https://github.com/scalameta/scalafmt/pull/93">#93</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v011-https-githubcom-scalameta-scalafmt-tree-v011-2016-03-08"></a><a href="#v011-https-githubcom-scalameta-scalafmt-tree-v011-2016-03-08" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.1.1">v0.1.1</a> (2016-03-08)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.1.0...v0.1.1">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Format all files in directory with cli. <a href="https://github.com/scalameta/scalafmt/pull/92">#92</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v010-https-githubcom-scalameta-scalafmt-tree-v010-2016-03-07"></a><a href="#v010-https-githubcom-scalameta-scalafmt-tree-v010-2016-03-07" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.1.0">v0.1.0</a> (2016-03-07)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.1.0-RC3...v0.1.0">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Setup Scalatex doc site. <a href="https://github.com/scalameta/scalafmt/pull/90">#90</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Sbt plugin <a href="https://github.com/scalameta/scalafmt/pull/89">#89</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Remove logging dependency from core. <a href="https://github.com/scalameta/scalafmt/pull/88">#88</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v010-rc3-https-githubcom-scalameta-scalafmt-tree-v010-rc3-2016-03-04"></a><a href="#v010-rc3-https-githubcom-scalameta-scalafmt-tree-v010-rc3-2016-03-04" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.1.0-RC3">v0.1.0-RC3</a> (2016-03-04)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.1.0-RC2...v0.1.0-RC3">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Add support to call from Scala 2.10. <a href="https://github.com/scalameta/scalafmt/pull/87">#87</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v010-rc2-https-githubcom-scalameta-scalafmt-tree-v010-rc2-2016-03-03"></a><a href="#v010-rc2-https-githubcom-scalameta-scalafmt-tree-v010-rc2-2016-03-03" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.1.0-RC2">v0.1.0-RC2</a> (2016-03-03)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/v0.1.0-RC0...v0.1.0-RC2">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Publish to Maven Central. <a href="https://github.com/scalameta/scalafmt/pull/86">#86</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Support binpack + non-binpack parameters. <a href="https://github.com/scalameta/scalafmt/pull/85">#85</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Optimization: limit queue size even inside no opt zones. <a href="https://github.com/scalameta/scalafmt/pull/84">#84</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Pretty <a href="https://github.com/scalameta/scalafmt/pull/82">#82</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Various optimizations, 4 files to go Scala.js. <a href="https://github.com/scalameta/scalafmt/pull/81">#81</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Up to ~30% performance improvements. <a href="https://github.com/scalameta/scalafmt/pull/79">#79</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix all remaining output bugs. <a href="https://github.com/scalameta/scalafmt/pull/78">#78</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Remove memoization, ~100x speed improvement. <a href="https://github.com/scalameta/scalafmt/pull/77">#77</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix multiple output bugs from FormatExperiment. <a href="https://github.com/scalameta/scalafmt/pull/76">#76</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix output bugs, scalafmt can format itself! <a href="https://github.com/scalameta/scalafmt/pull/75">#75</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Minor optimizations. <a href="https://github.com/scalameta/scalafmt/pull/74">#74</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Limit calls to token.position.end.line. <a href="https://github.com/scalameta/scalafmt/pull/73">#73</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix output bugs, find new ones. <a href="https://github.com/scalameta/scalafmt/pull/72">#72</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Find optimal tokens 3x faster, pay with memory. <a href="https://github.com/scalameta/scalafmt/pull/71">#71</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Prepare for optimisations. <a href="https://github.com/scalameta/scalafmt/pull/70">#70</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Refactor. <a href="https://github.com/scalameta/scalafmt/pull/69">#69</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Move tests back to core, fixes #66 <a href="https://github.com/scalameta/scalafmt/pull/68">#68</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add more benchmarks. <a href="https://github.com/scalameta/scalafmt/pull/67">#67</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Benchmarks <a href="https://github.com/scalameta/scalafmt/pull/65">#65</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Setup multi-project build for easier benchmarking. <a href="https://github.com/scalameta/scalafmt/pull/64">#64</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Run formatter on scala-js repo. <a href="https://github.com/scalameta/scalafmt/pull/63">#63</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix warts in output. <a href="https://github.com/scalameta/scalafmt/pull/62">#62</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Format most files with scalafmt, yay :D <a href="https://github.com/scalameta/scalafmt/pull/61">#61</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="v010-rc0-https-githubcom-scalameta-scalafmt-tree-v010-rc0-2016-02-09"></a><a href="#v010-rc0-https-githubcom-scalameta-scalafmt-tree-v010-rc0-2016-02-09" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><a href="https://github.com/scalameta/scalafmt/tree/v0.1.0-RC0">v0.1.0-RC0</a> (2016-02-09)</h2>
+<p><a href="https://github.com/scalameta/scalafmt/compare/358ce783b5eb9a854006620ab9c058f3f7c85c0b...v0.1.0-RC0">Full Changelog</a></p>
+<p><strong>Merged pull requests:</strong></p>
+<ul>
+<li>Add --range flag to cli. <a href="https://github.com/scalameta/scalafmt/pull/60">#60</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>OptimalAt keyed by state.column -&gt; format token. <a href="https://github.com/scalameta/scalafmt/pull/59">#59</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>More polish. <a href="https://github.com/scalameta/scalafmt/pull/58">#58</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Update Split. <a href="https://github.com/scalameta/scalafmt/pull/57">#57</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add optimalAt optimization. <a href="https://github.com/scalameta/scalafmt/pull/56">#56</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Fix formatting for lots of statements. <a href="https://github.com/scalameta/scalafmt/pull/54">#54</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Bump test coverage. <a href="https://github.com/scalameta/scalafmt/pull/53">#53</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Refactor: replace Push with Indent[T &lt;: Length] <a href="https://github.com/scalameta/scalafmt/pull/52">#52</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Strip ONLY/SKIP from test names. <a href="https://github.com/scalameta/scalafmt/pull/51">#51</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Refine Formatter cases. <a href="https://github.com/scalameta/scalafmt/pull/50">#50</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>No space on ApplyUnary. <a href="https://github.com/scalameta/scalafmt/pull/49">#49</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Await in afterAll until results are submitted. <a href="https://github.com/scalameta/scalafmt/pull/48">#48</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add expire field to Indent. <a href="https://github.com/scalameta/scalafmt/pull/47">#47</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Remove couchapp to separate project. <a href="https://github.com/scalameta/scalafmt/pull/46">#46</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Simplify data submission. <a href="https://github.com/scalameta/scalafmt/pull/45">#45</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Too big change :( <a href="https://github.com/scalameta/scalafmt/pull/44">#44</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Update Travis jdk to 8. <a href="https://github.com/scalameta/scalafmt/pull/40">#40</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add stopwatch class. <a href="https://github.com/scalameta/scalafmt/pull/39">#39</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Regression testing with speed.scalafmt.org, fixes #11. <a href="https://github.com/scalameta/scalafmt/pull/38">#38</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Format with 2x newlines. <a href="https://github.com/scalameta/scalafmt/pull/37">#37</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add heatmap over state visits. <a href="https://github.com/scalameta/scalafmt/pull/35">#35</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Shrink search space. <a href="https://github.com/scalameta/scalafmt/pull/34">#34</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Format argument lists. <a href="https://github.com/scalameta/scalafmt/pull/31">#31</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Link tests from readme. <a href="https://github.com/scalameta/scalafmt/pull/27">#27</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Use policy to unindent when leaving block, fixes #19. <a href="https://github.com/scalameta/scalafmt/pull/26">#26</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Introduce policy, fixes #15. <a href="https://github.com/scalameta/scalafmt/pull/24">#24</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add a Gitter chat badge to readme.md <a href="https://github.com/scalameta/scalafmt/pull/22">#22</a> (<a href="https://github.com/gitter-badger">gitter-badger</a>)</li>
+<li>Setup Coveralls. <a href="https://github.com/scalameta/scalafmt/pull/21">#21</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add column-limit with basic strategies. <a href="https://github.com/scalameta/scalafmt/pull/20">#20</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add pomExtra. <a href="https://github.com/scalameta/scalafmt/pull/16">#16</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add FormatToken, fixes #9. <a href="https://github.com/scalameta/scalafmt/pull/10">#10</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Downgrade Coveralls. <a href="https://github.com/scalameta/scalafmt/pull/6">#6</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add Travis badge to readme. <a href="https://github.com/scalameta/scalafmt/pull/5">#5</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Add multi-project support for coveralls. <a href="https://github.com/scalameta/scalafmt/pull/4">#4</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Coveralls <a href="https://github.com/scalameta/scalafmt/pull/3">#3</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Coverage <a href="https://github.com/scalameta/scalafmt/pull/2">#2</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+<li>Format using shortest path search. <a href="https://github.com/scalameta/scalafmt/pull/1">#1</a> (<a href="https://github.com/olafurpg">olafurpg</a>)</li>
+</ul>
+<p>* <em>This Changelog was automatically generated by <a href="https://github.com/github-changelog-generator/github-changelog-generator">github_changelog_generator</a></em></p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/scalafmt/docs/known-issues.html"><span class="arrow-prev">← </span><span>Known Issues</span></a><a class="docs-next button" href="/scalafmt/docs/contributing-scalafmt.html"><span>Contributing</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#v200-rc1-https-githubcom-scalameta-scalafmt-tree-v200-rc1-2019-01-07">v2.0.0-RC1</a></li><li><a href="#v160-rc4-https-githubcom-scalameta-scalafmt-tree-v160-rc4-2018-07-09">v1.6.0-RC4</a></li><li><a href="#v160-rc3-https-githubcom-scalameta-scalafmt-tree-v160-rc3-2018-06-10">v1.6.0-RC3</a></li><li><a href="#v160-rc2-https-githubcom-scalameta-scalafmt-tree-v160-rc2-2018-06-05">v1.6.0-RC2</a></li><li><a href="#v160-rc1-https-githubcom-scalameta-scalafmt-tree-v160-rc1-2018-05-27">v1.6.0-RC1</a></li><li><a href="#v151-https-githubcom-scalameta-scalafmt-tree-v151-2018-04-26">v1.5.1</a></li><li><a href="#v150-https-githubcom-scalameta-scalafmt-tree-v150-2018-04-23">v1.5.0</a></li><li><a href="#v140-https-githubcom-scalameta-scalafmt-tree-v140-2017-12-18">v1.4.0</a></li><li><a href="#v130-https-githubcom-scalameta-scalafmt-tree-v130-2017-09-24">v1.3.0</a></li><li><a href="#v120-https-githubcom-scalameta-scalafmt-tree-v120-2017-08-11">v1.2.0</a></li><li><a href="#v110-https-githubcom-scalameta-scalafmt-tree-v110-2017-07-09">v1.1.0</a></li><li><a href="#v100-rc4-https-githubcom-scalameta-scalafmt-tree-v100-rc4-2017-06-17">v1.0.0-RC4</a></li><li><a href="#v100-https-githubcom-scalameta-scalafmt-tree-v100-2017-06-17">v1.0.0</a></li><li><a href="#v100-rc3-https-githubcom-scalameta-scalafmt-tree-v100-rc3-2017-06-14">v1.0.0-RC3</a></li><li><a href="#v100-rc2-https-githubcom-scalameta-scalafmt-tree-v100-rc2-2017-06-08">v1.0.0-RC2</a></li><li><a href="#v100-rc1-https-githubcom-scalameta-scalafmt-tree-v100-rc1-2017-05-26">v1.0.0-RC1</a></li><li><a href="#v070-rc1-https-githubcom-scalameta-scalafmt-tree-v070-rc1-2017-04-23">v0.7.0-RC1</a></li><li><a href="#v068-https-githubcom-scalameta-scalafmt-tree-v068-2017-04-06">v0.6.8</a></li><li><a href="#v067-https-githubcom-scalameta-scalafmt-tree-v067-2017-04-05">v0.6.7</a></li><li><a href="#v066-https-githubcom-scalameta-scalafmt-tree-v066-2017-03-20">v0.6.6</a></li><li><a href="#v065-https-githubcom-scalameta-scalafmt-tree-v065-2017-03-18">v0.6.5</a></li><li><a href="#v064-https-githubcom-scalameta-scalafmt-tree-v064-2017-03-14">v0.6.4</a></li><li><a href="#v063-https-githubcom-scalameta-scalafmt-tree-v063-2017-03-13">v0.6.3</a></li><li><a href="#v062-https-githubcom-scalameta-scalafmt-tree-v062-2017-03-07">v0.6.2</a></li><li><a href="#v061-https-githubcom-scalameta-scalafmt-tree-v061-2017-03-06">v0.6.1</a></li><li><a href="#v060-https-githubcom-scalameta-scalafmt-tree-v060-2017-03-06">v0.6.0</a></li><li><a href="#v058-https-githubcom-scalameta-scalafmt-tree-v058-2017-03-03">v0.5.8</a></li><li><a href="#v057-https-githubcom-scalameta-scalafmt-tree-v057-2017-02-24">v0.5.7</a></li><li><a href="#v056-https-githubcom-scalameta-scalafmt-tree-v056-2017-02-08">v0.5.6</a></li><li><a href="#v055-https-githubcom-scalameta-scalafmt-tree-v055-2017-02-01">v0.5.5</a></li><li><a href="#v054-https-githubcom-scalameta-scalafmt-tree-v054-2017-01-26">v0.5.4</a></li><li><a href="#v053-https-githubcom-scalameta-scalafmt-tree-v053-2017-01-24">v0.5.3</a></li><li><a href="#v053-rc1-https-githubcom-scalameta-scalafmt-tree-v053-rc1-2017-01-23">v0.5.3-RC1</a></li><li><a href="#v052-https-githubcom-scalameta-scalafmt-tree-v052-2017-01-22">v0.5.2</a></li><li><a href="#v052-rc1-https-githubcom-scalameta-scalafmt-tree-v052-rc1-2016-12-28">v0.5.2-RC1</a></li><li><a href="#v051-https-githubcom-scalameta-scalafmt-tree-v051-2016-12-23">v0.5.1</a></li><li><a href="#v050-https-githubcom-scalameta-scalafmt-tree-v050-2016-12-23">v0.5.0</a></li><li><a href="#v050-rc4-https-githubcom-scalameta-scalafmt-tree-v050-rc4-2016-12-21">v0.5.0-RC4</a></li><li><a href="#v050-rc3-https-githubcom-scalameta-scalafmt-tree-v050-rc3-2016-12-20">v0.5.0-RC3</a></li><li><a href="#v050-rc2-https-githubcom-scalameta-scalafmt-tree-v050-rc2-2016-12-18">v0.5.0-RC2</a></li><li><a href="#v050-rc1-https-githubcom-scalameta-scalafmt-tree-v050-rc1-2016-12-18">v0.5.0-RC1</a></li><li><a href="#v0410-https-githubcom-scalameta-scalafmt-tree-v0410-2016-11-10">v0.4.10</a></li><li><a href="#v049-https-githubcom-scalameta-scalafmt-tree-v049-2016-11-04">v0.4.9</a></li><li><a href="#v048-https-githubcom-scalameta-scalafmt-tree-v048-2016-10-25">v0.4.8</a></li><li><a href="#v047-https-githubcom-scalameta-scalafmt-tree-v047-2016-10-17">v0.4.7</a></li><li><a href="#v046-https-githubcom-scalameta-scalafmt-tree-v046-2016-10-11">v0.4.6</a></li><li><a href="#v045-https-githubcom-scalameta-scalafmt-tree-v045-2016-10-10">v0.4.5</a></li><li><a href="#v044-https-githubcom-scalameta-scalafmt-tree-v044-2016-10-07">v0.4.4</a></li><li><a href="#v043-https-githubcom-scalameta-scalafmt-tree-v043-2016-10-05">v0.4.3</a></li><li><a href="#v042-https-githubcom-scalameta-scalafmt-tree-v042-2016-09-28">v0.4.2</a></li><li><a href="#v041-https-githubcom-scalameta-scalafmt-tree-v041-2016-09-27">v0.4.1</a></li><li><a href="#v040-https-githubcom-scalameta-scalafmt-tree-v040-2016-09-27">v0.4.0</a></li><li><a href="#04-https-githubcom-scalameta-scalafmt-tree-04-2016-09-23">0.4</a></li><li><a href="#v032-rc4-https-githubcom-scalameta-scalafmt-tree-v032-rc4-2016-09-14">v0.3.2-RC4</a></li><li><a href="#v032-rc3-https-githubcom-scalameta-scalafmt-tree-v032-rc3-2016-09-14">v0.3.2-RC3</a></li><li><a href="#v032-rc1-https-githubcom-scalameta-scalafmt-tree-v032-rc1-2016-09-14">v0.3.2-RC1</a></li><li><a href="#v032-rc2-https-githubcom-scalameta-scalafmt-tree-v032-rc2-2016-09-14">v0.3.2-RC2</a></li><li><a href="#v031-https-githubcom-scalameta-scalafmt-tree-v031-2016-08-24">v0.3.1</a></li><li><a href="#v030-https-githubcom-scalameta-scalafmt-tree-v030-2016-08-17">v0.3.0</a></li><li><a href="#v030-rc1-https-githubcom-scalameta-scalafmt-tree-v030-rc1-2016-08-13">v0.3.0-RC1</a></li><li><a href="#v0212-https-githubcom-scalameta-scalafmt-tree-v0212-2016-08-05">v0.2.12</a></li><li><a href="#v0211-https-githubcom-scalameta-scalafmt-tree-v0211-2016-07-08">v0.2.11</a></li><li><a href="#v0210-https-githubcom-scalameta-scalafmt-tree-v0210-2016-06-30">v0.2.10</a></li><li><a href="#v029-https-githubcom-scalameta-scalafmt-tree-v029-2016-06-30">v0.2.9</a></li><li><a href="#v028-https-githubcom-scalameta-scalafmt-tree-v028-2016-06-23">v0.2.8</a></li><li><a href="#v027-https-githubcom-scalameta-scalafmt-tree-v027-2016-06-23">v0.2.7</a></li><li><a href="#v026-https-githubcom-scalameta-scalafmt-tree-v026-2016-06-22">v0.2.6</a></li><li><a href="#v026-rc1-https-githubcom-scalameta-scalafmt-tree-v026-rc1-2016-06-01">v0.2.6-RC1</a></li><li><a href="#v025-https-githubcom-scalameta-scalafmt-tree-v025-2016-05-17">v0.2.5</a></li><li><a href="#v024-https-githubcom-scalameta-scalafmt-tree-v024-2016-05-16">v0.2.4</a></li><li><a href="#v023-https-githubcom-scalameta-scalafmt-tree-v023-2016-05-06">v0.2.3</a></li><li><a href="#v022-https-githubcom-scalameta-scalafmt-tree-v022-2016-04-19">v0.2.2</a></li><li><a href="#v021-https-githubcom-scalameta-scalafmt-tree-v021-2016-04-14">v0.2.1</a></li><li><a href="#v020-https-githubcom-scalameta-scalafmt-tree-v020-2016-04-12">v0.2.0</a></li><li><a href="#v016-https-githubcom-scalameta-scalafmt-tree-v016-2016-04-05">v0.1.6</a></li><li><a href="#v015-https-githubcom-scalameta-scalafmt-tree-v015-2016-04-01">v0.1.5</a></li><li><a href="#v014-https-githubcom-scalameta-scalafmt-tree-v014-2016-03-18">v0.1.4</a></li><li><a href="#v013-https-githubcom-scalameta-scalafmt-tree-v013-2016-03-11">v0.1.3</a></li><li><a href="#v012-https-githubcom-scalameta-scalafmt-tree-v012-2016-03-10">v0.1.2</a></li><li><a href="#v011-https-githubcom-scalameta-scalafmt-tree-v011-2016-03-08">v0.1.1</a></li><li><a href="#v010-https-githubcom-scalameta-scalafmt-tree-v010-2016-03-07">v0.1.0</a></li><li><a href="#v010-rc3-https-githubcom-scalameta-scalafmt-tree-v010-rc3-2016-03-04">v0.1.0-RC3</a></li><li><a href="#v010-rc2-https-githubcom-scalameta-scalafmt-tree-v010-rc2-2016-03-03">v0.1.0-RC2</a></li><li><a href="#v010-rc0-https-githubcom-scalameta-scalafmt-tree-v010-rc0-2016-02-09">v0.1.0-RC0</a></li></ul></nav></div><footer class="nav-footer" id="footer" style="background-color:#A23244"><section class="sitemap"><div><h5>Docs</h5><a href="
+                /scalafmt/docs/installation.html">Installation</a><a href="
+                /scalafmt/docs/configuration.html">Configuration</a><a href="
+                /scalafmt/docs/contributing-scalafmt.html">Contributing</a></div><div><h5>Community</h5><a href="https://gitter.im/scalameta/scalafmt" target="_blank">Chat on Gitter</a></div><div><h5>More</h5><a href="https://github.com/scalameta/scalafmt" target="_blank">GitHub</a></div></section><section class="copyright">Copyright © 2019 Scalafmt</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+                document.addEventListener('keyup', function(e) {
+                  if (e.target !== document.body) {
+                    return;
+                  }
+                  // keyCode for '/' (slash)
+                  if (e.keyCode === 191) {
+                    const search = document.getElementById('search_input_react');
+                    search && search.focus();
+                  }
+                });
+              </script><script>
+              var search = docsearch({
+                
+                apiKey: '3409ffc8eadf85381f1b8cca926b07c4',
+                indexName: 'scalafmt',
+                inputSelector: '#search_input_react'
+              });
+            </script></body></html>
