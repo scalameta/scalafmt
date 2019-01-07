@@ -6,7 +6,7 @@ def scala212 = "2.12.8"
 
 inThisBuild(
   List(
-    organization := "com.geirsson", // not org.scalameta because that's a breaking change
+    organization := "org.scalameta",
     homepage := Some(url("https://github.com/scalameta/scalafmt")),
     licenses := List(
       "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")
@@ -71,6 +71,7 @@ lazy val interfaces = project
     moduleName := "scalafmt-interfaces",
     description := "Dependency-free, pure Java public interfaces to integrate with Scalafmt through a build tool or editor plugin.",
     crossVersion := CrossVersion.disabled,
+    autoScalaLibrary := false,
     resourceGenerators.in(Compile) += Def.task {
       val out =
         managedResourceDirectories

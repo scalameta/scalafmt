@@ -137,12 +137,18 @@ final case class ScalafmtDynamic(
       val scalaVersion =
         if (version.startsWith("0.")) BuildInfo.scala211
         else BuildInfo.scala
+      val organization =
+        if (version.startsWith("1") || version.startsWith("0") || version == "2.0.0-RC1") {
+          "com.geirsson"
+        } else {
+          "org.scalameta"
+        }
       val jars = CoursierSmall.fetch(
         new Settings()
           .withDependencies(
             List(
               new Dependency(
-                "com.geirsson",
+                organization,
                 s"scalafmt-cli_$scalaBinaryVersion",
                 version
               ),
@@ -156,7 +162,10 @@ final case class ScalafmtDynamic(
           .withTtl(Some(Duration.Inf))
           .withWriter(reporter.downloadWriter())
           .withRepositories(
-            new Settings().repositories ++ List(
+            List(
+              Repository.MavenCentral,
+              Repository.Ivy2Local,
+              Repository.SonatypeReleases,
               Repository.SonatypeSnapshots
             )
           )
