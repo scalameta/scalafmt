@@ -53,22 +53,25 @@ final case class ScalafmtDynamic(
   override def withDefaultVersion(defaultVersion: String): Scalafmt = {
     copy(defaultVersion = defaultVersion)
   }
-  def report(file: Path, e: Throwable): Unit = e match {
-    case e: InvocationTargetException =>
-      report(file, e.getCause)
-    case _ =>
-      e.getClass.getName match {
-        case "scala.meta.parsers.ParseException" |
-            "scala.meta.parsers.TokenizeException" =>
-          val msg = e.toString
-            .replaceAllLiterally("<input>:", "L")
-            .replaceAllLiterally(file.toString + ":", "L")
-          reporter.error(file, msg)
-        case _ =>
-          reporter.error(file, e)
-      }
-  }
   override def format(config: Path, file: Path, code: String): String = {
+    def report(e: Throwable): Unit = e match {
+      case e: InvocationTargetException =>
+        report(e.getCause)
+      case e: IllegalStateException =>
+        // Metaconfig uses IllegalStateException for some reason ¯\_(ツ)_/¯
+        reporter.error(file, e.getMessage)
+      case _ =>
+        e.getClass.getName match {
+          case "scala.meta.parsers.ParseException" |
+              "scala.meta.parsers.TokenizeException" =>
+            val msg = e.toString
+              .replaceAllLiterally("<input>:", "L")
+              .replaceAllLiterally(file.toString + ":", "L")
+            reporter.error(file, msg)
+          case _ =>
+            reporter.error(file, e)
+        }
+    }
     def tryFormat(reflect: ScalafmtReflect): String = {
       try {
         reflect.format(file, code)
@@ -80,7 +83,7 @@ final case class ScalafmtDynamic(
           reporter.error(config, msg)
           code
         case NonFatal(e) =>
-          report(file, e)
+          report(e)
           code
       }
     }

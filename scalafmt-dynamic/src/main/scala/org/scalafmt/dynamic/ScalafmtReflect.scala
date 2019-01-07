@@ -73,7 +73,7 @@ case class ScalafmtReflect(
     }
     try invoke(configured, "get")
     catch {
-      case ReflectionException(e: NoSuchElementException) =>
+      case ReflectionException(e) =>
         throw ScalafmtConfigException(e.getMessage)
     }
   }
