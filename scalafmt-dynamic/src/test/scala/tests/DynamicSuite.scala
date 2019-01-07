@@ -15,6 +15,7 @@ import org.scalafmt.interfaces.Scalafmt
 import org.scalafmt.interfaces.ScalafmtReporter
 import org.scalatest.FunSuite
 import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 import scala.meta.testkit._
 
 class DynamicSuite extends FunSuite with DiffAssertions {
@@ -24,9 +25,16 @@ class DynamicSuite extends FunSuite with DiffAssertions {
     val out = new ByteArrayOutputStream()
     val parsed = mutable.Map.empty[String, Int]
     def parsedCount: Int = parsed.values.sum
+    val missingVersions = ListBuffer.empty[String]
     val reporter: ScalafmtReporter =
       new ConsoleScalafmtReporter(new PrintStream(out)) {
         override def downloadWriter(): PrintWriter = new PrintWriter(download)
+        override def missingVersion(
+            config: Path,
+            defaultVersion: String
+        ): Unit = {
+          missingVersions += defaultVersion
+        }
         override def parsedConfig(
             config: Path,
             scalafmtVersion: String
@@ -104,6 +112,15 @@ class DynamicSuite extends FunSuite with DiffAssertions {
       }
       assertNoDiffOrPrintExpected(obtained, expected)
     }
+    def assertMissingVersion()(implicit pos: Position): Unit = {
+      out.reset()
+      missingVersions.clear()
+      val original = "object  A"
+      val obtained = dynamic.format(config, filename, original)
+      assert(out.toString().isEmpty)
+      assert(missingVersions.nonEmpty)
+      assertNoDiffOrPrintExpected(obtained, original, "Formatter did not error")
+    }
     def assertError(expected: String)(implicit pos: Position): Unit = {
       assertError("object A  {  }", expected)
     }
@@ -163,12 +180,7 @@ class DynamicSuite extends FunSuite with DiffAssertions {
   }
 
   check("missing-version") { f =>
-    f.assertError(
-      "object A  { }",
-      s"""|
-          |error: path/.scalafmt.conf: missing setting 'version'. To fix this problem, add the following line to .scalafmt.conf: 'version=$latest'.
-          |""".stripMargin
-    )
+    f.assertMissingVersion()
   }
 
   check("ignore-version") { f =>

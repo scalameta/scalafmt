@@ -103,11 +103,7 @@ final case class ScalafmtDynamic(
                   code
               }
             case None =>
-              reporter.error(
-                config,
-                s"missing setting 'version'. " +
-                  s"To fix this problem, add the following line to .scalafmt.conf: 'version=$defaultVersion'."
-              )
+              reporter.missingVersion(config, defaultVersion)
               code
           }
         }

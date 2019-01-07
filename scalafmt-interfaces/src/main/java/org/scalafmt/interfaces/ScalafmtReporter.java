@@ -31,6 +31,20 @@ public interface ScalafmtReporter {
     void excluded(Path file);
 
     /**
+     * This .scalafmt.conf file is missing the 'version' setting.
+     *
+     * @param config the .scalafmt.conf file.
+     * @param defaultVersion the configured default Scalafmt version.
+     */
+    default void missingVersion(Path config, String defaultVersion) {
+        String message = String.format(
+            "missing setting 'version'. To fix this problem, add the following line to .scalafmt.conf: 'version=%s'.",
+            defaultVersion
+        );
+        error(config, message);
+    }
+
+    /**
      * The .scalafmt.conf file was parsed with the given Scalafmt version.
      */
     void parsedConfig(Path config, String scalafmtVersion);
