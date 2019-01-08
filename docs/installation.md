@@ -83,7 +83,7 @@ It is not possible to reset this setting for all existing projects.
 
 ```scala
 // In project/plugins.sbt. Note, does not support sbt 0.13, only sbt 1.0.
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "1.5.1")
+addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "1.5.1")
 ```
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.scalameta/sbt-scalafmt/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.scalameta/sbt-scalafmt)
@@ -363,7 +363,7 @@ customize the fallback version.
 ```scala mdoc:silent
 val scalafmtThatDoesntRequireVersionSetting = scalafmt
   .withRespectVersion(false)
-  .withDefaultVersion("1.6.0-RC4")
+  .withDefaultVersion("@STABLE_VERSION@")
 ```
 
 ### Error reporting
