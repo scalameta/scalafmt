@@ -23,6 +23,8 @@ import scala.reflect.classTag
 import org.scalafmt.Error
 import org.scalafmt.Error.UnexpectedTree
 import org.scalafmt.internal.FormatToken
+
+import scala.collection.mutable
 import scala.meta.Init
 
 /**
@@ -95,7 +97,7 @@ object TreeOps {
   }
 
   def getStatementStarts(tree: Tree): Map[TokenHash, Tree] = {
-    val ret = Map.newBuilder[TokenHash, Tree]
+    val ret = mutable.Map.newBuilder[TokenHash, Tree]
     ret.sizeHint(tree.tokens.length)
 
     def addAll(trees: Seq[Tree]): Unit = {
@@ -149,7 +151,7 @@ object TreeOps {
       x.children.foreach(loop)
     }
     loop(tree)
-    ret.result()
+    ret.result().toMap
   }
 
   /**
@@ -192,7 +194,7 @@ object TreeOps {
     * Creates lookup table from token offset to its closest scala.meta tree.
     */
   def getOwners(tree: Tree): Map[TokenHash, Tree] = {
-    val result = Map.newBuilder[TokenHash, Tree]
+    val result = mutable.Map.newBuilder[TokenHash, Tree]
     def loop(x: Tree): Unit = {
       x.tokens.foreach { tok =>
         result += hash(tok) -> x
@@ -200,7 +202,7 @@ object TreeOps {
       x.children.foreach(loop)
     }
     loop(tree)
-    result.result()
+    result.result().toMap
   }
 
   @tailrec

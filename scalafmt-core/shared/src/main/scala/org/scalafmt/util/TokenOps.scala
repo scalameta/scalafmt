@@ -18,6 +18,9 @@ import org.scalafmt.internal.Policy
 import org.scalafmt.internal.Space
 import org.scalafmt.internal.Split
 
+import scala.util.MurmurHash
+import scala.util.hashing.MurmurHash3
+
 /**
   * Stateless helper functions on [[scala.meta.Token]].
   */
