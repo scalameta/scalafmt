@@ -27,6 +27,7 @@ case class OptimalToken(token: Token, killOnFail: Boolean = false)
 object Split{
   final val emptyArray = Array[Indent[Length]]()
 }
+
 case class Split(
     modification: Modification,
     cost: Int,
