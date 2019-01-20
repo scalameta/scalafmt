@@ -688,8 +688,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   def binPackParentConstructorSplits(
       owners: Set[Tree],
       lastToken: Token,
-      indent: Int)(implicit line: sourcecode.Line): Seq[Split] = {
-    Seq(
+      indent: Int)(implicit line: sourcecode.Line): Array[Split] = {
+    Array(
       Split(Space, 0)
         .withPolicy(SingleLineBlock(lastToken))
         .withIndent(Num(indent), lastToken, Left),
@@ -747,7 +747,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     * Implementation for `verticalMultiline`
     */
   def verticalMultiline(owner: Tree, ft: FormatToken)(
-      implicit style: ScalafmtConfig): Seq[Split] = {
+      implicit style: ScalafmtConfig): Array[Split] = {
 
     val FormatToken(open, r, _) = ft
     val close = matching(open)
@@ -904,7 +904,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
     val aboveArityThreshold = (maxArity >= style.verticalMultiline.arityThreshold) || (maxArity >= style.verticalMultilineAtDefinitionSiteArityThreshold)
 
-    Seq(
+    Array(
       Split(NoSplit, 0, ignoreIf = !isBracket && aboveArityThreshold)
         .withPolicy(SingleLineBlock(singleLineExpire)),
       Split(Newline, 1) // Otherwise split vertically

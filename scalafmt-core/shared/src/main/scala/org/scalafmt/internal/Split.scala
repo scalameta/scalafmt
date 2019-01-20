@@ -23,11 +23,15 @@ case class OptimalToken(token: Token, killOnFail: Boolean = false)
   *             this split originates.
   *
   */
+
+object Split{
+  final val emptyArray = Array[Indent[Length]]()
+}
 case class Split(
     modification: Modification,
     cost: Int,
     ignoreIf: Boolean = false,
-    indents: Vector[Indent[Length]] = Vector.empty[Indent[Length]],
+    indents: Seq[Indent[Length]] = Split.emptyArray,
     policy: Policy = NoPolicy,
     penalty: Boolean = false,
     optimalAt: Option[OptimalToken] = None)(
@@ -40,7 +44,7 @@ case class Split(
     case _ => this
   }
 
-  val indentation = indents
+  def indentation = indents
     .map(_.length match {
       case Num(x) => x.toString
       case x => x.toString
