@@ -31,24 +31,29 @@ import org.scalafmt.util.Whitespace
 import org.scalafmt.util.Modifier
 import org.scalafmt.util.RightParenOrBracket
 import org.scalameta.logger
+import scala.collection.immutable.HashMap
 import scala.meta.Init
 
 /**
   * Helper functions for generating splits/policies for a given tree.
   */
 class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
-  val runner = initStyle.runner
+  final val runner = initStyle.runner
   import TokenOps._
   import TreeOps._
+
   implicit val dialect = initStyle.runner.dialect
-  val tokens: Array[FormatToken] = FormatToken.formatTokens(tree.tokens)
-  val ownersMap = getOwners(tree)
-  val statementStarts = getStatementStarts(tree)
-  val dequeueSpots = getDequeueSpots(tree) ++ statementStarts.keys
-  val matchingParentheses: Map[TokenHash, Token] = getMatchingParentheses(
+
+  final val tokens: Array[FormatToken] = FormatToken.formatTokens(tree.tokens)
+
+  final val ownersMap: TokenHash => Tree = getOwners(tree)
+  final val statementStarts = getStatementStarts(tree)
+  final val dequeueSpots = getDequeueSpots(tree) ++ statementStarts.keys
+  final val matchingParentheses: Map[TokenHash, Token] = getMatchingParentheses(
     tree.tokens)
-  val styleMap =
+  final val styleMap =
     new StyleMap(tokens, initStyle, ownersMap, matchingParentheses)
+
   private val vAlignDepthCache = mutable.Map.empty[Tree, Int]
   // Maps token to number of non-whitespace bytes before the token's position.
   private final val nonWhitespaceOffset: Map[Token, Int] = {
@@ -113,7 +118,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
   object `:owner:` {
     def unapply(tok: Token): Option[(Token, Tree)] =
-      ownersMap.get(hash(tok)).map(tree => tok -> tree)
+      Some(tok -> ownersMap(hash(tok)))
   }
 
   object `:chain:` {
@@ -145,15 +150,14 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     }
   }
 
-  lazy val leftTok2tok: Map[Token, FormatToken] = {
-    val result = Map.newBuilder[Token, FormatToken]
-    result.sizeHint(tokens.length)
+  lazy val leftTok2tok: mutable.Map[Token, FormatToken] = {
+    val result = new mutable.OpenHashMap[Token, FormatToken](tokens.length)
     tokens.foreach(t => result += t.left -> t)
     result += (tokens.last.right -> tokens.last)
     result.result()
   }
 
-  lazy val tok2idx: Map[FormatToken, Int] = tokens.zipWithIndex.toMap
+  lazy val tok2idx: Map[FormatToken, Int] = HashMap[FormatToken,Int](tokens.zipWithIndex:_*)
 
   def prev(tok: Token): Token = prev(leftTok2tok(tok)).right
   def prev(tok: FormatToken): FormatToken = {
@@ -543,7 +547,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
     owner.parent match {
       case Some(_: Type.ApplyInfix)
-          if style.spaces.neverAroundInfixTypes.contains((op.value)) =>
+          if style.spaces.neverAroundInfixTypes.contains(op.value) =>
         Split(NoSplit, 0)
       case _ =>
         Split(modification, 0).withIndent(Num(indent), expire, ExpiresOn.Left)
@@ -834,12 +838,12 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
           if shouldNotDangle && rp == lastParen && !isSingleLineComment(
             previous) =>
         val split = Split(NoSplit, 0)
-        Decision(t, Seq(split))
+        Decision(t, Array(split))
       // Indent seperators `)(` and `](` by `indentSep`
       case Decision(t @ FormatToken(_, rp @ RightParenOrBracket(), _), _)
           if ownerCheck(rp) =>
         val split = Split(Newline, 0).withIndent(indentSep, rp, Left)
-        Decision(t, Seq(split))
+        Decision(t, Array(split))
       // Add a newline after left paren if:
       // - There's an implicit keyword and newlineBeforeImplicitKW is enabled
       // - newlineAfterOpenParen is enabled
@@ -871,14 +875,13 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
         Decision(
           t,
-          Seq(
-            Split(mod, 0)
-              .withIndent(indentParam, close2, Right)
+          Array(
+            Split.withIndent(mod, 0,
+              indent = Indent(indentParam, close2, Right))
           ))
       case Decision(t @ FormatToken(KwImplicit(), _, _), _)
-          if (style.verticalMultiline.newlineAfterImplicitKW || style.newlines.afterImplicitKWInVerticalMultiline) =>
-        val split = Split(Newline, 0)
-        Decision(t, Seq(split))
+          if style.verticalMultiline.newlineAfterImplicitKW || style.newlines.afterImplicitKWInVerticalMultiline =>
+        Decision(t, Constants.NewlineSeq)
     }
 
     // Our policy is a combination of OneArgLineSplit and a custom splitter
@@ -905,12 +908,12 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     val aboveArityThreshold = (maxArity >= style.verticalMultiline.arityThreshold) || (maxArity >= style.verticalMultilineAtDefinitionSiteArityThreshold)
 
     Array(
-      Split(NoSplit, 0, ignoreIf = !isBracket && aboveArityThreshold)
-        .withPolicy(SingleLineBlock(singleLineExpire)),
-      Split(Newline, 1) // Otherwise split vertically
-        .withIndent(firstIndent, close, Right)
-        .withPolicy(policy)
-    )
+      Split(NoSplit, 0, ignoreIf = !isBracket && aboveArityThreshold, policy = SingleLineBlock(singleLineExpire)),
+      Split.withIndent(Newline,
+        1,
+        indent = Indent(firstIndent, close, Right) ,
+        policy = policy)// Otherwise split vertically
+      )
 
   }
 

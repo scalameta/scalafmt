@@ -33,9 +33,9 @@ class BestFirstSearch(
   /**
     * Precomputed table of splits for each token.
     */
-  val routes: Array[Seq[Split]] = {
+  val routes: Array[Array[Split]] = {
     val router = new Router(formatOps)
-    val result = Array.newBuilder[Seq[Split]]
+    val result = Array.newBuilder[Array[Split]]
     tokens.foreach { t =>
       result += router.getSplitsMemo(t)
     }
@@ -215,10 +215,10 @@ class BestFirstSearch(
             tokens(deepestYet.splits.length).left)
         } else {
 
-          val splits: Seq[Split] =
-            if (curr.formatOff) List(provided(splitToken))
+          val splits: Array[Split] =
+            if (curr.formatOff) Array(provided(splitToken))
             else if (splitToken.inside(range)) routes(curr.splits.length)
-            else List(provided(splitToken))
+            else Array(provided(splitToken))
 
           val actualSplit = {
             curr.policy
@@ -277,15 +277,15 @@ class BestFirstSearch(
       val tok = tokens(deepestYet.splits.length)
       val splitsAfterPolicy =
         deepestYet.policy.execute(Decision(tok, nextSplits))
-      val msg = s"""UNABLE TO FORMAT,
-                   |tok=$tok
-                   |state.length=${state.splits.length}
-                   |toks.length=${tokens.length}
-                   |deepestYet.length=${deepestYet.splits.length}
-                   |policies=${deepestYet.policy.policies}
-                   |nextSplits=$nextSplits
-                   |splitsAfterPolicy=$splitsAfterPolicy""".stripMargin
       if (runner.debug) {
+        val msg = s"""UNABLE TO FORMAT,
+                     |tok=$tok
+                     |state.length=${state.splits.length}
+                     |toks.length=${tokens.length}
+                     |deepestYet.length=${deepestYet.splits.length}
+                     |policies=${deepestYet.policy.policies}
+                     |nextSplits=$nextSplits
+                     |splitsAfterPolicy=$splitsAfterPolicy""".stripMargin
         logger.debug(s"""Failed to format
                         |$msg""".stripMargin)
       }

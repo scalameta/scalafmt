@@ -22,7 +22,7 @@ import scala.meta.Init
 class StyleMap(
     tokens: Array[FormatToken],
     init: ScalafmtConfig,
-    owners: Map[TokenHash, Tree],
+    owners: TokenHash => Tree,
     matching: Map[TokenHash, Token]) {
   import TokenOps.hash
   val literalR: FilterMatcher = init.binPack.literalsRegex

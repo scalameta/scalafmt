@@ -202,8 +202,8 @@ class FormatWriter(formatOps: FormatOps) {
     }
   }
 
-  lazy val topLevelTokens: List[TokenHash] = {
-    val buffer = List.newBuilder[TokenHash]
+  lazy val topLevelTokens: Array[TokenHash] = {
+    val buffer = Array.newBuilder[TokenHash]
     val trav = new Traverser {
       override def apply(tree: Tree): Unit = tree match {
         case Term.Block(_) =>
@@ -220,6 +220,7 @@ class FormatWriter(formatOps: FormatOps) {
     }
 
     trav(tree)
+
     buffer.result()
   }
 

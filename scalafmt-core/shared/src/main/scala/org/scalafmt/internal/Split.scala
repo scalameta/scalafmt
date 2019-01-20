@@ -1,13 +1,14 @@
 package org.scalafmt.internal
 
 import scala.meta.tokens.Token
-
 import org.scalafmt.internal.Length.Num
 import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util.TokenOps
+import org.scalafmt.util.TokenOps.rhsIsCommentedOut
+
+import scala.meta.tokens.Token.Ident
 
 case class OptimalToken(token: Token, killOnFail: Boolean = false)
-
 /**
   * A Split is the whitespace between two non-whitespace tokens.
   *
@@ -23,21 +24,16 @@ case class OptimalToken(token: Token, killOnFail: Boolean = false)
   *             this split originates.
   *
   */
-
-object Split{
-  final val emptyArray = Array[Indent[Length]]()
-}
-
 case class Split(
     modification: Modification,
     cost: Int,
     ignoreIf: Boolean = false,
-    indents: Seq[Indent[Length]] = Split.emptyArray,
+    indents: Seq[Indent[Length]] = Array.empty[Indent[Length]],
     policy: Policy = NoPolicy,
-    penalty: Boolean = false,
     optimalAt: Option[OptimalToken] = None)(
-    implicit val line: sourcecode.Line) {
+  implicit val line: sourcecode.Line) {
   import TokenOps._
+  //def penalty: Boolean = policy != NoPolicy || optimalAt.isDefined ||addedPenalty
 
   def adapt(formatToken: FormatToken): Split = modification match {
     case n: NewlineT if !n.noIndent && rhsIsCommentedOut(formatToken) =>
@@ -75,7 +71,6 @@ case class Split(
       ignoreIf,
       indents,
       policy,
-      true,
       Some(OptimalToken(token, killOnFail)))(line)
   }
 
@@ -84,7 +79,7 @@ case class Split(
       if (policy == NoPolicy) newPolicy
       else
         throw new UnsupportedOperationException("Can't have two policies yet.")
-    new Split(modification, cost, ignoreIf, indents, update, true, optimalAt)(
+    new Split(modification, cost, ignoreIf, indents, update, optimalAt)(
       line)
   }
 
@@ -95,7 +90,6 @@ case class Split(
       ignoreIf,
       indents,
       policy,
-      true,
       optimalAt)(line)
 
   def withIndent(length: Length, expire: Token, expiresOn: ExpiresOn): Split = {
@@ -108,7 +102,6 @@ case class Split(
           ignoreIf,
           Indent(length, expire, expiresOn) +: indents,
           policy,
-          penalty,
           optimalAt)(line)
     }
   }
@@ -119,4 +112,88 @@ case class Split(
 
   override def toString =
     s"""$modification:${line.value}(cost=$cost, indents=$indentation, $policy)"""
+}
+
+object Split {
+
+  final def withIndent(
+             modification: Modification,
+             cost: Int,
+             ignoreIf: Boolean = false,
+             indent: Indent[Length],
+             policy: Policy = NoPolicy
+  )(implicit line: sourcecode.Line) ={
+    val indents = indent.length match {
+      case Num(0) => emptyIndent
+      case _ => Array(indent)
+    }
+    new Split(
+      modification,
+      cost,
+      ignoreIf,
+      indents,
+      policy)(line)
+  }
+
+  val emptyIndent = Array[Indent[Length]]()
+
+  final def withIdentAndOptionToken(
+             modification: Modification,
+             cost: Int,
+             indent: Indent[Length],
+             token: Option[Token],
+             policy: Policy = NoPolicy,
+             ignoreIf: Boolean = false
+           )(implicit line: sourcecode.Line) = {
+    val indents = indent.length match {
+      case Num(0) => emptyIndent
+      case _ => Array(indent)
+    }
+
+    val optimaltoken = token.map(OptimalToken(_))
+
+    new Split(
+      modification,
+      cost,
+      ignoreIf,
+      indents,
+      policy,
+      optimaltoken)(line)
+  }
+
+  @inline
+  final def withToken(
+             modification: Modification,
+             cost: Int,
+             token: Token,
+             ignoreIf: Boolean = false,
+             indents: Seq[Indent[Length]] = emptyIndent,
+             policy: Policy = NoPolicy,
+             killOnFail: Boolean = false
+           )(implicit line: sourcecode.Line) = new Split(
+    modification,
+    cost,
+    ignoreIf,
+    indents,
+    policy,
+    Some(OptimalToken(token, killOnFail))
+  )(line)
+
+  @inline
+  final def withIdentAndToken(
+             modification: Modification,
+             cost: Int,
+             indent: Indent[Length],
+             token: Token,
+             ignoreIf: Boolean = false,
+             policy: Policy = NoPolicy,
+             killOnFail: Boolean = false
+           )(implicit line: sourcecode.Line) = new Split(
+    modification,
+    cost,
+    ignoreIf,
+    Array(indent),
+    policy,
+    Some(OptimalToken(token, killOnFail))
+  )(line)
 }
