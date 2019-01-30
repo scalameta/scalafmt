@@ -242,6 +242,15 @@ scalafmt --version // should be @STABLE_VERSION@
 brew upgrade scalafmt
 ```
 
+### Arch Linux
+
+You can install scalafmt for Arch Linux from AUR. There is the [scalafmt-native](https://aur.archlinux.org/packages/scalafmt-native) package that installs scalafmt 
+binary built with GraalVM. GraalVM native binary provides instant startup without Nailgun.
+```sh
+yaourt -S scalafmt-native
+scalafmt --version // should be @STABLE_VERSION@
+```
+
 ### --help
 
 ```scala mdoc:passthrough
