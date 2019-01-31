@@ -107,8 +107,9 @@ addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "1.5.1")
 
 ### Format on compile
 
-> ⚠️ This option is **discouraged**, it is recommended to use "format on save"
-> in the editor instead.
+> ⚠️ This option is **discouraged** since it messes up with undo buffers in the
+> editor and it slows down compilation.
+> It is recommended to use "format on save" in the editor instead.
 
 - `scalafmtOnCompile: Boolean`: Defines if the sbt-scalafmt should run scalafmt
   on compile. Default `false`.
