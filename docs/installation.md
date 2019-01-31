@@ -86,7 +86,7 @@ It is not possible to reset this setting for all existing projects.
 addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "1.5.1")
 ```
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.scalameta/sbt-scalafmt/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.scalameta/sbt-scalafmt)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.geirsson/sbt-scalafmt/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.geirsson/sbt-scalafmt)
 
 ### Task keys
 
