@@ -101,9 +101,10 @@ addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "1.5.1")
 
 ### Customize configuration location
 
-- `scalafmtConfig: Option[File]`: Optional location of `.scalafmt.conf` file. If
-  `None` the default config is used. By default, `.scalafmt.conf` file on the
-  project root will be used.
+- `scalafmtConfig: Option[File]`: The location of the `.scalafmt.conf`
+  configuration file. Defaults to the `.scalafmt.conf` file at the root of the
+  project if present, `None` if not. When the value is `None` the default config
+  will be used.
 
 ### Format on compile
 
