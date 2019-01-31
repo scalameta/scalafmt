@@ -38,8 +38,7 @@ That's not a question, but I agree that code formatters like scalafmt do
 sometimes increase the size of diffs in code reviews. I still believe it's worth
 it, considering
 
-1.  Proper formatting
-    [helps you catch bugs](https://twitter.com/extempore2/status/717716747181096960)!
+1.  Proper formatting helps you catch bugs!
 
 2.  You can enable non-whitespace diffs during code review. For Github, add
     `?w=1` to the URL to ignore whitespace changes.
