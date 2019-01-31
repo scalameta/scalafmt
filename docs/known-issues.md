@@ -23,7 +23,7 @@ source file unformatted.
 
 There are two workaround if you are affected by this issue:
 
-* Wrap the offending block with `// format: off`. The SBT/IntelliJ/CLI
+* Wrap the offending block with `// format: off`. The sbt/IntelliJ/CLI
   integrations should point you to the line where scalafmt starts to struggle.
 
 * Try `align.openParenCallSite = false` to shrink the search space.

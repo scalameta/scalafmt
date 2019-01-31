@@ -17,7 +17,7 @@ Head over to [the user docs][docs] for instructions on how to install scalafmt.
 - Write new formatting test: read [this doc](scalafmt-tests/src/test/resources/readme.md).
 - Build docs: See instructions on the [site][docs-guide] or locally at `./docs/contributing-website.md`.
 - Hack on IntelliJ plugin: see [this doc](scalafmt-intellij/readme.md).
-- Hack on SBT plugin: run `sbt scripted`.
+- Hack on sbt plugin: run `sbt scripted`.
 - Run jmh benchmarks: `./bin/run-benchmarks.sh`.
 - Run formatter on millions of lines of code: `tests/test:runMain  org.scalafmt.ScalafmtProps` (slow, and requires a lot of memory/cpu)
 - Debug performance: after each test run in `FormatTests`, a flamegraph report
