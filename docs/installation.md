@@ -161,7 +161,7 @@ necessary):
 
 ```sh
 coursier bootstrap org.scalameta:scalafmt-cli_2.12:@STABLE_VERSION@ \
-  -r bintray:scalameta/maven \
+  -r sonatype:snapshots \
   -o /usr/local/bin/scalafmt --standalone --main org.scalafmt.cli.Cli
 scalafmt --version # should be @STABLE_VERSION@
 ```
@@ -170,7 +170,7 @@ Alternatively you can create a slim 15 KiB bootstrap script with:
 
 ```sh
 coursier bootstrap org.scalameta:scalafmt-cli_2.12:@STABLE_VERSION@ \
-  -r bintray:scalameta/maven \
+  -r sonatype:snapshots \
   -o scalafmt --main org.scalafmt.cli.Cli
 ./scalafmt --version # should be @STABLE_VERSION@
 ```
@@ -188,21 +188,19 @@ coursier bootstrap --help | grep -A 1 "\-\-java-opt"
 
 ### Pre-release
 
-Our CI publishes a pre-release version of scalafmt to Bintray on every merge
+Our CI publishes a pre-release version of scalafmt to Sonatype Snapshots on every merge
 into master. To use a pre-release, replace @STABLE_VERSION@ with the version
 here:
 
-<a href='https://bintray.com/scalameta/maven/scalafmt-cli/_latestVersion'>
-    <img src='https://api.bintray.com/packages/scalameta/maven/scalafmt-cli/images/download.svg'>
-</a>
+[![Sonatype Snapshots](https://img.shields.io/nexus/s/https/oss.sonatype.org/org.scalameta/scalafmt-cli_2.12.svg)](https://oss.sonatype.org/content/repositories/snapshots/org/scalameta/scalafmt-cli_2.12/)
 
 If you use coursier to install a pre-release, be sure to include the flag -r
-bintray:scalameta/maven so that the artifact can be resolved.
+sonatype:snapshots so that the artifact can be resolved.
 
 If you use sbt to install a pre-release, be sure to add the following setting
 
 ```scala
-resolvers += Resolver.bintrayRepo("scalameta", "maven")
+resolvers += Resolver.sonatypeRepo("snapshots")
 ```
 
 ### Nailgun
@@ -217,7 +215,7 @@ vim/Emacs/Atom/Sublime/VS Code.
 
 ```sh
 coursier bootstrap --standalone org.scalameta:scalafmt-cli_2.12:@STABLE_VERSION@ \
-  -r bintray:scalameta/maven \
+  -r sonatype:snapshots \
   -o /usr/local/bin/scalafmt_ng -f --main com.martiansoftware.nailgun.NGServer
 scalafmt_ng & // start nailgun in background
 ng ng-alias scalafmt org.scalafmt.cli.Cli
