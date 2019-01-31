@@ -153,7 +153,7 @@ The recommended way to install the scalafmt command line tool is with
 ### Coursier
 
 <div class="sidenote">
-To install Coursier see <a href="https://github.com/coursier/coursier#command-line" target="_blank">here</a>
+To install Coursier see <a href="https://get-coursier.io/docs/cli-overview" target="_blank">here</a>
 </div>
 
 Create a standalone executable in `/usr/local/bin/scalafmt` with (sudo if
