@@ -596,7 +596,7 @@ Since: v1.6.0. Note that the IntelliJ built-in support uses Scalafmt v1.5.1.
 If enabled this formats methods such that parameters are on their own line
 indented by [`continuationIndent.defnSite`](#continuationindentdefnsite).
 Separation between parameter groups are indented by two spaces less than
-`continuationIndent.defnSite`. The return type is on its own line at then end.
+`continuationIndent.defnSite`. The return type is on its own line at the end.
 
 > This formatting is only triggered if the method definition exceeds the
 > maxColumn value in width or if the number of arguments to the method exceeds
