@@ -120,7 +120,7 @@ Scalafmt formatter:</p>
 <pre><code class="hljs css language-scala"><span class="hljs-comment">// In project/plugins.sbt. Note, does not support sbt 0.13, only sbt 1.0.</span>
 addSbtPlugin(<span class="hljs-string">"com.geirsson"</span> % <span class="hljs-string">"sbt-scalafmt"</span> % <span class="hljs-string">"1.5.1"</span>)
 </code></pre>
-<p><a href="https://maven-badges.herokuapp.com/maven-central/org.scalameta/sbt-scalafmt"><img src="https://maven-badges.herokuapp.com/maven-central/org.scalameta/sbt-scalafmt/badge.svg" alt="Maven Central"></a></p>
+<p><a href="https://maven-badges.herokuapp.com/maven-central/com.geirsson/sbt-scalafmt"><img src="https://maven-badges.herokuapp.com/maven-central/com.geirsson/sbt-scalafmt/badge.svg" alt="Maven Central"></a></p>
 <h3><a class="anchor" aria-hidden="true" id="task-keys"></a><a href="#task-keys" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Task keys</h3>
 <ul>
 <li><code>myproject/scalafmt</code>: Format main sources of <code>myproject</code> project</li>
@@ -176,18 +176,18 @@ that generates <code>.scalafmt.conf</code> on build reload.</p>
 <a href="#coursier">Coursier</a>.</p>
 <h3><a class="anchor" aria-hidden="true" id="coursier"></a><a href="#coursier" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Coursier</h3>
 <div class="sidenote">
-To install Coursier see <a href="https://github.com/coursier/coursier#command-line" target="_blank">here</a>
+To install Coursier see <a href="https://get-coursier.io/docs/cli-overview" target="_blank">here</a>
 </div>
 <p>Create a standalone executable in <code>/usr/local/bin/scalafmt</code> with (sudo if
 necessary):</p>
 <pre><code class="hljs css language-sh">coursier bootstrap org.scalameta:scalafmt-cli_2.12:2.0.0-RC4 \
-  -r bintray:scalameta/maven \
+  -r sonatype:snapshots \
   -o /usr/<span class="hljs-built_in">local</span>/bin/scalafmt --standalone --main org.scalafmt.cli.Cli
 scalafmt --version <span class="hljs-comment"># should be 2.0.0-RC4</span>
 </code></pre>
 <p>Alternatively you can create a slim 15 KiB bootstrap script with:</p>
 <pre><code class="hljs css language-sh">coursier bootstrap org.scalameta:scalafmt-cli_2.12:2.0.0-RC4 \
-  -r bintray:scalameta/maven \
+  -r sonatype:snapshots \
   -o scalafmt --main org.scalafmt.cli.Cli
 ./scalafmt --version <span class="hljs-comment"># should be 2.0.0-RC4</span>
 </code></pre>
@@ -199,16 +199,14 @@ with</p>
 <pre><code class="hljs css language-sh">coursier bootstrap --<span class="hljs-built_in">help</span> | grep -A 1 <span class="hljs-string">"\-\-java-opt"</span>
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="pre-release"></a><a href="#pre-release" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Pre-release</h3>
-<p>Our CI publishes a pre-release version of scalafmt to Bintray on every merge
+<p>Our CI publishes a pre-release version of scalafmt to Sonatype Snapshots on every merge
 into master. To use a pre-release, replace 2.0.0-RC4 with the version
 here:</p>
-<p><a href='https://bintray.com/scalameta/maven/scalafmt-cli/_latestVersion'>
-<img src='https://api.bintray.com/packages/scalameta/maven/scalafmt-cli/images/download.svg'>
-</a></p>
+<p><a href="https://oss.sonatype.org/content/repositories/snapshots/org/scalameta/scalafmt-cli_2.12/"><img src="https://img.shields.io/nexus/s/https/oss.sonatype.org/org.scalameta/scalafmt-cli_2.12.svg" alt="Sonatype Snapshots"></a></p>
 <p>If you use coursier to install a pre-release, be sure to include the flag -r
-bintray:scalameta/maven so that the artifact can be resolved.</p>
+sonatype:snapshots so that the artifact can be resolved.</p>
 <p>If you use sbt to install a pre-release, be sure to add the following setting</p>
-<pre><code class="hljs css language-scala">resolvers += <span class="hljs-type">Resolver</span>.bintrayRepo(<span class="hljs-string">"scalameta"</span>, <span class="hljs-string">"maven"</span>)
+<pre><code class="hljs css language-scala">resolvers += <span class="hljs-type">Resolver</span>.sonatypeRepo(<span class="hljs-string">"snapshots"</span>)
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="nailgun"></a><a href="#nailgun" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Nailgun</h3>
 <p>Nailgun is recommended if you want to integrate scalafmt with a text editor like
@@ -220,7 +218,7 @@ vim/Emacs/Atom/Sublime/VS Code.</p>
 necessary)</li>
 </ul>
 <pre><code class="hljs css language-sh">coursier bootstrap --standalone org.scalameta:scalafmt-cli_2.12:2.0.0-RC4 \
-  -r bintray:scalameta/maven \
+  -r sonatype:snapshots \
   -o /usr/<span class="hljs-built_in">local</span>/bin/scalafmt_ng -f --main com.martiansoftware.nailgun.NGServer
 scalafmt_ng &amp; // start nailgun <span class="hljs-keyword">in</span> background
 ng ng-alias scalafmt org.scalafmt.cli.Cli
@@ -246,10 +244,10 @@ binary built with GraalVM. GraalVM native binary provides instant startup withou
 scalafmt --version // should be 2.0.0-RC4
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="help"></a><a href="#help" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>--help</h3>
-<pre><code class="hljs">build commit: <span class="hljs-number">90</span>c9f4793af239ce3a512c2f675e69cab523b7bb
-build time: Wed Jan <span class="hljs-number">30</span> <span class="hljs-number">13</span>:<span class="hljs-number">23</span>:<span class="hljs-number">43</span> UTC <span class="hljs-number">2019</span>
+<pre><code class="hljs">build commit: c7a20e1b5867e5d7fe9c0b13ac0ae3166078df72
+build time: Fri Feb <span class="hljs-number">01</span> <span class="hljs-number">09</span>:<span class="hljs-number">30</span>:<span class="hljs-number">41</span> UTC <span class="hljs-number">2019</span>
 </code></pre>
-<pre><code class="hljs">scalafmt 2.0.0-RC4+3-90c9f479-SNAPSHOT
+<pre><code class="hljs">scalafmt 2.0.0-RC4+17-c7a20e1b-SNAPSHOT
 Usage: scalafmt [options] [&lt;<span class="hljs-keyword">file</span>&gt;...]
 
   -<span class="hljs-keyword">h</span>, --<span class="hljs-keyword">help</span>               prints this usage text

@@ -64,7 +64,7 @@ minutes to complete formatting, scalafmt chooses to bail early and leave the
 source file unformatted.</p>
 <p>There are two workaround if you are affected by this issue:</p>
 <ul>
-<li><p>Wrap the offending block with <code>// format: off</code>. The SBT/IntelliJ/CLI
+<li><p>Wrap the offending block with <code>// format: off</code>. The sbt/IntelliJ/CLI
 integrations should point you to the line where scalafmt starts to struggle.</p></li>
 <li><p>Try <code>align.openParenCallSite = false</code> to shrink the search space.</p></li>
 <li><p>Refactor your code to eliminate deeply nested function calls. Binding large
