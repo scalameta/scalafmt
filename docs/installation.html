@@ -134,14 +134,16 @@ formatted.</li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="customize-configuration-location"></a><a href="#customize-configuration-location" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Customize configuration location</h3>
 <ul>
-<li><code>scalafmtConfig: Option[File]</code>: Optional location of <code>.scalafmt.conf</code> file. If
-<code>None</code> the default config is used. By default, <code>.scalafmt.conf</code> file on the
-project root will be used.</li>
+<li><code>scalafmtConfig: Option[File]</code>: The location of the <code>.scalafmt.conf</code>
+configuration file. Defaults to the <code>.scalafmt.conf</code> file at the root of the
+project if present, <code>None</code> if not. When the value is <code>None</code> the default config
+will be used.</li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="format-on-compile"></a><a href="#format-on-compile" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Format on compile</h3>
 <blockquote>
-<p>⚠️ This option is <strong>discouraged</strong>, it is recommended to use &quot;format on save&quot;
-in the editor instead.</p>
+<p>⚠️ This option is <strong>discouraged</strong> since it messes up with undo buffers in the
+editor and it slows down compilation.
+It is recommended to use &quot;format on save&quot; in the editor instead.</p>
 </blockquote>
 <ul>
 <li><code>scalafmtOnCompile: Boolean</code>: Defines if the sbt-scalafmt should run scalafmt
@@ -244,10 +246,10 @@ binary built with GraalVM. GraalVM native binary provides instant startup withou
 scalafmt --version // should be 2.0.0-RC4
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="help"></a><a href="#help" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>--help</h3>
-<pre><code class="hljs">build commit: c7a20e1b5867e5d7fe9c0b13ac0ae3166078df72
-build time: Fri Feb <span class="hljs-number">01</span> <span class="hljs-number">09</span>:<span class="hljs-number">30</span>:<span class="hljs-number">41</span> UTC <span class="hljs-number">2019</span>
+<pre><code class="hljs">build commit: a98d34d12ff62449ed3ce30a3c10c2865eb6bc98
+build time: Fri Feb <span class="hljs-number">01</span> <span class="hljs-number">10</span>:<span class="hljs-number">28</span>:<span class="hljs-number">30</span> UTC <span class="hljs-number">2019</span>
 </code></pre>
-<pre><code class="hljs">scalafmt 2.0.0-RC4+17-c7a20e1b-SNAPSHOT
+<pre><code class="hljs">scalafmt 2.0.0-RC4+23-a98d34d1-SNAPSHOT
 Usage: scalafmt [options] [&lt;<span class="hljs-keyword">file</span>&gt;...]
 
   -<span class="hljs-keyword">h</span>, --<span class="hljs-keyword">help</span>               prints this usage text
