@@ -9,7 +9,7 @@ using [HOCON](https://github.com/typesafehub/config) syntax.
 Here is an example `.scalafmt.conf`:
 
 ```scala config
-align = true    // For pretty alignment.
+align = more    // For pretty alignment.
 maxColumn = 100 // For my wide 30" display.
 ```
 
@@ -23,7 +23,7 @@ maxColumn
 
 - Keep in mind that 80 characters fit perfectly on a split laptop screen with
   regular resolution.
-- Github mobile view only shows 80 characters and sometimes you might review
+- GitHub mobile view only shows 80 characters and sometimes you might review
   code on your phone.
 - Consider refactoring your code before of choosing a value above 100.
 
@@ -125,7 +125,7 @@ argument1: Type1 // indented by 4
 Default: **some**
 
 Align has several nested fields, which you can customize. However, it comes with
-four possible defaults: none, some, more, & most.
+four possible presets: none, some, more, & most.
 
 ### `align`
 
