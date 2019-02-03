@@ -1,21 +1,17 @@
 package org.scalafmt.cli
 
 import com.martiansoftware.nailgun.NGContext
-import java.io.InputStream
-import java.io.OutputStreamWriter
-import java.io.PrintStream
+import java.io.{InputStream, OutputStreamWriter, PrintStream}
+import java.nio.file.Paths
 import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.atomic.AtomicReference
-import java.util.function.UnaryOperator
+
 import org.scalafmt.Error.MisformattedFile
 import org.scalafmt.Error.NoMatchingFiles
-import org.scalafmt.Formatted
-import org.scalafmt.Scalafmt
+import org.scalafmt.interfaces.Scalafmt
 import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.FileOps
+
 import scala.meta.internal.tokenizers.PlatformTokenizerCache
-import scala.meta.parsers.ParseException
-import scala.meta.tokenizers.TokenizeException
 import scala.util.control.NoStackTrace
 
 object Cli {
@@ -83,30 +79,25 @@ object Cli {
     CliArgParser.scoptParser.parse(args, init).map(CliOptions.auto(args, init))
   }
 
-  private def canFormat(path: String): Boolean =
-    path.endsWith(".scala") || path.endsWith(".sbt") || path.endsWith(".sc")
-
   /** Returns file paths defined via options.{customFiles,customExclude} */
   private def getFilesFromCliOptions(options: CliOptions): Seq[AbsoluteFile] = {
-
-    def canFormat(f: AbsoluteFile) = options.filterMatcher.matches(f)
-
-    options.fileFetchMode match {
+    val files = options.fileFetchMode match {
       case m @ (GitFiles | RecursiveSearch) =>
         val fetchFiles: AbsoluteFile => Seq[AbsoluteFile] =
           if (m == GitFiles) options.gitOps.lsTree(_)
           else FileOps.listFiles(_)
 
         options.files.flatMap {
-          case d if d.jfile.isDirectory => fetchFiles(d).filter(canFormat)
-          // DESNOTE(2017-05-19, pjrt): A plain, fully passed file will (try to) be
-          // formatted regardless of what it is or where it is.
+          case d if d.jfile.isDirectory => fetchFiles(d)
           case f => Seq(f)
         }
       case DiffFiles(branch) =>
-        options.gitOps.diff(branch).filter(canFormat)
+        options.gitOps.diff(branch)
     }
-
+    val excludeRegexp = options.excludeFilterRegexp
+    files.filter { f =>
+      excludeRegexp.findFirstIn(f.path).isEmpty
+    }
   }
 
   private def getInputMethods(options: CliOptions): Seq[InputMethod] = {
@@ -120,44 +111,24 @@ object Cli {
 
   private def handleFile(
       inputMethod: InputMethod,
-      options: CliOptions): ExitCode = {
-    try unsafeHandleFile(inputMethod, options)
-    catch {
-      case MisformattedFile(_, diff) =>
-        options.common.err.println(diff)
-        ExitCode.TestError
-    }
-  }
-
-  private def unsafeHandleFile(
-      inputMethod: InputMethod,
-      options: CliOptions): ExitCode = {
+      scalafmtInstance: Scalafmt,
+      options: CliOptions): Unit = {
     val input = inputMethod.readInput(options)
-    val formatResult = Scalafmt.format(
-      input,
-      options.config,
-      options.range,
-      inputMethod.filename
-    )
-    formatResult match {
-      case Formatted.Success(formatted) =>
-        inputMethod.write(formatted, input, options)
-        ExitCode.Ok
-      case Formatted.Failure(e) =>
-        if (options.config.runner.ignoreWarnings) {
-          ExitCode.Ok // do nothing
-        } else {
-          e match {
-            case e @ (_: ParseException | _: TokenizeException) =>
-              options.common.err.println(e.toString)
-              ExitCode.ParseError
-            case _ =>
-              new FailedToFormat(inputMethod.filename, e)
-                .printStackTrace(options.common.out)
-              ExitCode.UnexpectedError
-          }
-        }
-    }
+
+    // DESNOTE(2017-05-19, pjrt): A plain, fully passed file will (try to) be
+    // formatted regardless of what it is or where it is.
+    val shouldRespectFilters =
+      AbsoluteFile.fromPath(inputMethod.filename).forall { file =>
+        !options.customFiles.contains(file)
+      }
+    val formatResult = scalafmtInstance
+      .withRespectProjectFilters(shouldRespectFilters)
+      .format(
+        options.configPath,
+        Paths.get(inputMethod.filename),
+        input
+      )
+    inputMethod.write(formatResult, input, options)
   }
 
   def newTermDisplay(
@@ -180,7 +151,8 @@ object Cli {
     termDisplay
   }
 
-  def run(options: CliOptions): ExitCode = {
+  private[cli] def run(options: CliOptions): ExitCode = {
+
     val inputMethods = getInputMethods(options)
     if (inputMethods.isEmpty && options.diff.isEmpty && !options.stdIn)
       throw NoMatchingFiles
@@ -195,24 +167,43 @@ object Cli {
       out.println("Formatting files: " + inputMethods.toList)
     }
 
-    val sbtOptions = options.copy(
-      config = options.config.copy(runner = options.config.runner.forSbt))
+    val reporter = new ScalafmtCliReporter(options)
+    val scalafmtInstance = Scalafmt
+      .create(this.getClass.getClassLoader)
+      .withReporter(reporter)
+
+    // DESNOTE(2017-05-19, pjrt): A plain, fully passed file will (try to) be
+    // formatted regardless of what it is or where it is.
+    val fqpns = inputMethods.filter { input =>
+      AbsoluteFile.fromPath(input.filename).forall { file =>
+        options.customFiles.contains(file)
+      }
+    }
+    val scalafmtInstanceIgnoreFilters =
+      if (fqpns.isEmpty) scalafmtInstance
+      else
+        Scalafmt
+          .create(this.getClass.getClassLoader)
+          .withReporter(reporter)
+          .withRespectProjectFilters(false)
+
     val termDisplay = newTermDisplay(options, inputMethods, termDisplayMessage)
-    val exitCode = new AtomicReference(ExitCode.Ok)
-    inputMethods.par.foreach { inputMethod =>
-      val inputConfig =
-        if (inputMethod.isSbt || inputMethod.isSc) sbtOptions else options
-      val code = handleFile(inputMethod, inputConfig)
-      exitCode.getAndUpdate(new UnaryOperator[ExitCode] {
-        override def apply(t: ExitCode): ExitCode =
-          ExitCode.merge(code, t)
-      })
+
+    inputMethods.foreach { inputMethod =>
+      val instance =
+        if (fqpns.contains(inputMethod)) scalafmtInstanceIgnoreFilters
+        else scalafmtInstance
+      try handleFile(inputMethod, instance, options)
+      catch {
+        case e: MisformattedFile => reporter.error(e.file.toPath, e)
+      }
       PlatformTokenizerCache.megaCache.clear()
       termDisplay.taskProgress(termDisplayMessage, counter.incrementAndGet())
     }
-    termDisplay.completedTask(termDisplayMessage, exitCode.get.isOk)
+
+    val exit = reporter.getExitCode
+    termDisplay.completedTask(termDisplayMessage, exit.isOk)
     termDisplay.stop()
-    val exit = exitCode.get()
     if (options.testing) {
       if (exit.isOk) {
         options.common.out.println("All files are formatted with scalafmt :)")
@@ -220,15 +211,13 @@ object Cli {
         options.common.out.println(
           "error: --test failed"
         )
-        if (options.config.onTestFailure.nonEmpty) {
-          options.common.out.println(options.config.onTestFailure)
-        }
+        options.onTestFailure.foreach(options.common.out.println)
       } else {
         options.common.out.println(s"error: $exit")
       }
     }
     if (options.testing &&
-      !options.config.runner.fatalWarnings &&
+      !options.fatalWarnings &&
       !exit.is(ExitCode.TestError)) {
       // Ignore parse errors etc.
       ExitCode.Ok
@@ -236,9 +225,4 @@ object Cli {
       exit
     }
   }
-
-  private class FailedToFormat(filename: String, cause: Throwable)
-      extends Exception(filename, cause)
-      with NoStackTrace
-
 }
