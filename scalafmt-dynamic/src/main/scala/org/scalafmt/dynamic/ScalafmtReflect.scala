@@ -179,7 +179,7 @@ case class ScalafmtReflect(
   }
 
   private def isIgnoredFile(filename: String, config: Object): Boolean = {
-    if (!respectProjectFilters) true
+    if (!respectProjectFilters) false
     else {
       val matcher = invoke(invoke(config, "project"), "matcher")
       val matches = matcher.getClass.getMethod("matches", classOf[String])
