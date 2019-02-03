@@ -228,6 +228,27 @@ class DynamicSuite extends FunSuite with DiffAssertions {
     f.ignoreExcludeFilters()
   }
 
+  check("ignore-exclude-filters") { f =>
+    f.setConfig(
+      """
+        |project.includeFilters = [
+        |  ".*Spec\\.scala$"
+        |]
+        |project.excludeFilters = [
+        |  "UserSpec\\.scala$"
+        |]
+        |""".stripMargin
+    )
+    def check(): Unit = {
+      f.assertNotIgnored("path/App.pm")
+      f.assertNotIgnored("path/App.scala")
+      f.assertNotIgnored("path/UserSpec.scala")
+    }
+    f.setVersion(latest)
+    f.ignoreExcludeFilters()
+    check()
+  }
+
   check("config-error") { f =>
     f.setConfig(
       s"""max=70
