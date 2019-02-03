@@ -2,12 +2,10 @@ package org.scalafmt.cli
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.io.FileNotFoundException
 import java.io.PrintStream
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
-import org.scalafmt.Error.MisformattedFile
 import org.scalafmt.Error.NoMatchingFiles
 import org.scalafmt.config.Config
 import org.scalafmt.config.ScalafmtConfig
@@ -18,9 +16,10 @@ import org.scalafmt.util.FileOps
 import org.scalatest.FunSuite
 import FileTestOps._
 import java.io.IOException
-import scala.meta.internal.io.FileIO
 
 abstract class AbstractCliTest extends FunSuite with DiffAssertions {
+
+  val ScalafmtVersion = "1.6.0-RC4"
 
   def mkArgs(str: String): Array[String] =
     str.split(' ')
@@ -59,6 +58,12 @@ abstract class AbstractCliTest extends FunSuite with DiffAssertions {
   def getConfig(args: Array[String]): CliOptions = {
     Cli.getConfig(args, baseCliOptions).get
   }
+
+  val commonScalafmtConfig: Path = Files.createTempFile(".scalafmt", ".conf")
+  val commonConfig: String = s"""
+                                |version=$ScalafmtVersion
+               """.stripMargin
+  Files.write(commonScalafmtConfig, commonConfig.getBytes)
 
   val unformatted = """
                       |object a    extends   App {
@@ -127,11 +132,18 @@ class CliTest extends AbstractCliTest {
   test("scalafmt tmpFile tmpFile2") {
     val originalTmpFile = Files.createTempFile("prefix", ".scala")
     val originalTmpFile2 = Files.createTempFile("prefix2", ".scala")
+    val scalafmtConfig = Files.createTempFile("scalafmtConfig", ".scala")
+    val config = s"""
+                    |version=$ScalafmtVersion
+                    |maxColumn=7,
+                    |style=IntelliJ
+    """.stripMargin
     Files.write(originalTmpFile, unformatted.getBytes)
     Files.write(originalTmpFile2, unformatted.getBytes)
+    Files.write(scalafmtConfig, config.getBytes)
     val args = Array(
-      "--config-str",
-      "{maxColumn=7,style=IntelliJ}",
+      "--config",
+      scalafmtConfig.toFile.getPath,
       originalTmpFile.toFile.getPath,
       originalTmpFile2.toFile.getPath
     )
@@ -148,6 +160,8 @@ class CliTest extends AbstractCliTest {
     Files.write(originalTmpFile, unformatted.getBytes)
     val args = Array(
       "--stdout",
+      "--config",
+      commonScalafmtConfig.toFile.getPath,
       originalTmpFile.toFile.getPath
     )
     val baos = new ByteArrayOutputStream()
@@ -163,12 +177,20 @@ class CliTest extends AbstractCliTest {
   }
 
   test("scalafmt --stdin --assume-filename") {
+    val scalafmtConfig = Files.createTempFile(".scalafmt", ".conf")
+    val config = s"""
+                    |version=$ScalafmtVersion
+                    |maxColumn=7
+                    |style=IntelliJ
+    """.stripMargin
+    Files.write(scalafmtConfig, config.getBytes)
+
     val args = Array(
       "--stdin",
       "--assume-filename",
       "build.sbt",
-      "--config-str",
-      "{maxColumn=7,style=IntelliJ}"
+      "--config",
+      scalafmtConfig.toFile.getPath
     )
     val printToStdout = getConfig(args)
     val bais = new ByteArrayInputStream(sbtOriginal.getBytes)
@@ -191,7 +213,9 @@ class CliTest extends AbstractCliTest {
     Files.write(tmpFile, unformatted.getBytes)
     val args = Array(
       tmpFile.toFile.getPath,
-      "--test"
+      "--test",
+      "--config",
+      commonScalafmtConfig.toFile.getPath
     )
     val formatInPlace = getConfig(args)
     val exit = Cli.run(formatInPlace)
@@ -204,10 +228,13 @@ class CliTest extends AbstractCliTest {
     val tmpFile = Files.createTempFile("prefix", "randomsuffix")
     Files.write(tmpFile, unformatted.getBytes)
     val args = Array(
+      "--config",
+      commonScalafmtConfig.toFile.getPath,
       tmpFile.toFile.getAbsolutePath
     )
     Cli.exceptionThrowingMain(args)
     val obtained = FileOps.readFile(tmpFile.toString)
+    // TODO: We need to pass customFiles information to ProjectFiles
     assertNoDiff(obtained, formatted)
   }
 
@@ -233,7 +260,9 @@ class CliTest extends AbstractCliTest {
           |""".stripMargin
     val options = getConfig(
       Array(
-        input.path
+        input.path,
+        "--config",
+        commonScalafmtConfig.toFile.getPath
       )
     )
     Cli.run(options)
@@ -271,6 +300,8 @@ class CliTest extends AbstractCliTest {
           |""".stripMargin
     val options = getConfig(
       Array(
+        "--config",
+        commonScalafmtConfig.toFile.getPath,
         input.path,
         "--exclude",
         "target/nested".asFilename
@@ -282,7 +313,11 @@ class CliTest extends AbstractCliTest {
 
   test("scalafmt doesnotexist.scala throws error") {
     def check(filename: String): Unit = {
-      val args = Array(s"$filename.scala".asFilename)
+      val args = Array(
+        s"$filename.scala".asFilename,
+        "--config",
+        commonScalafmtConfig.toFile.getPath
+      )
       intercept[IOException] {
         Cli.exceptionThrowingMain(args)
       }
@@ -292,14 +327,17 @@ class CliTest extends AbstractCliTest {
   }
 
   test("scalafmt (no matching files) throws error") {
+    val options = baseCliOptions.copy(config = Some(commonScalafmtConfig))
     intercept[NoMatchingFiles.type] {
-      Cli.run(baseCliOptions)
+      Cli.run(options)
     }
   }
 
   test("scalafmt (no matching files) is okay with --diff and --stdin") {
-    val diff = getConfig(Array("--diff"))
-    val stdin = getConfig(Array("--stdin")).copy(
+    val diff = getConfig(
+      Array("--diff", "--config", commonScalafmtConfig.toFile.getPath))
+    val stdin = getConfig(
+      Array("--stdin", "--config", commonScalafmtConfig.toFile.getPath)).copy(
       common = CommonOptions(in = new ByteArrayInputStream("".getBytes))
     )
     Cli.run(diff)
@@ -308,33 +346,35 @@ class CliTest extends AbstractCliTest {
 
   test("scalafmt (no arg) read config from git repo") {
     val input = string2dir(
-      """|/foo.scala
-         |object    FormatMe {
-         |  val x = 1
-         |}
-         |/target/foo.scala
-         |object A   { }
-         |
-         |/.scalafmt.conf
-         |maxColumn = 2
-         |project.excludeFilters = [target]
-         |""".stripMargin
+      s"""|/foo.scala
+          |object    FormatMe {
+          |  val x = 1
+          |}
+          |/target/foo.scala
+          |object A   { }
+          |
+          |/.scalafmt.conf
+          |version = $ScalafmtVersion
+          |maxColumn = 2
+          |project.excludeFilters = [target]
+          |""".stripMargin
     )
 
     val expected =
-      """|/.scalafmt.conf
-         |maxColumn = 2
-         |project.excludeFilters = [target]
-         |
-         |/foo.scala
-         |object FormatMe {
-         |  val x =
-         |    1
-         |}
-         |
-         |/target/foo.scala
-         |object A   { }
-         |""".stripMargin
+      s"""|/.scalafmt.conf
+          |version = $ScalafmtVersion
+          |maxColumn = 2
+          |project.excludeFilters = [target]
+          |
+          |/foo.scala
+          |object FormatMe {
+          |  val x =
+          |    1
+          |}
+          |
+          |/target/foo.scala
+          |object A   { }
+          |""".stripMargin
     noArgTest(
       input,
       expected,
@@ -356,7 +396,9 @@ class CliTest extends AbstractCliTest {
          |/foo.scala
          |object FormatMe
          |""".stripMargin,
-      Seq(Array.empty[String])
+      Seq(
+        Array("--config", commonScalafmtConfig.toFile.getPath)
+      )
     )
   }
 
@@ -372,6 +414,7 @@ class CliTest extends AbstractCliTest {
       s"""|/nested/foo.scala
           |$original
           |/.scalafmt.conf
+          |version=$ScalafmtVersion
           |maxColumn = 2
           |""".stripMargin
     )
@@ -394,6 +437,7 @@ class CliTest extends AbstractCliTest {
         s"""
            |/scalafmt.conf
            |style = default
+           |version = $ScalafmtVersion
            |/scalafile.scala
            |$unformatted
            |/scalatex.scalatex
@@ -439,7 +483,9 @@ class CliTest extends AbstractCliTest {
     val inner2 = root / "inner2"
     val full = inner2 / "file3.scalahala"
 
-    runWith(root, s"$inner1 $inner2 $full")
+    runWith(
+      root,
+      s"--config ${commonScalafmtConfig.toFile.getPath} $inner1 $inner2 $full")
 
     assertNoDiff(inner1 / "file1.scala", formatted)
     assertNoDiff(inner2 / "file2.scalahala", unformatted)
@@ -448,10 +494,11 @@ class CliTest extends AbstractCliTest {
 
   test("--config accepts absolute paths") {
     val root = string2dir(
-      """/scalafmt.conf
-        |style = intellij
-        |/foo.scala
-        |object    A
+      s"""/scalafmt.conf
+         |version = $ScalafmtVersion
+         |style = intellij
+         |/foo.scala
+         |object    A
       """.stripMargin
     )
     val config = (root / "scalafmt.conf").path
@@ -477,6 +524,8 @@ class CliTest extends AbstractCliTest {
     Files.write(file3, unformatted.getBytes)
     def fileStr(fs: Path*) = fs.map(_.toFile.getPath).mkString(",")
     val args = Array(
+      "--config",
+      commonScalafmtConfig.toFile.getPath,
       "-i",
       "-f",
       fileStr(file1, file2, file3)
@@ -499,7 +548,7 @@ class CliTest extends AbstractCliTest {
     noArgTest(
       string2dir(input),
       input,
-      Seq(Array.empty),
+      Seq(Array("--config", commonScalafmtConfig.toFile.getPath)),
       assertExit = { exit =>
         assert(exit.is(ExitCode.ParseError))
       },
@@ -525,12 +574,13 @@ class CliTest extends AbstractCliTest {
 
   test("--test failure prints out unified diff") {
     val input =
-      """|/.scalafmt.conf
-         |onTestFailure = "To fix this ..."
-         |
-         |/foo.scala
-         |object    A { }
-         |""".stripMargin
+      s"""|/.scalafmt.conf
+          |onTestFailure = "To fix this ..."
+          |version = $ScalafmtVersion
+          |
+          |/foo.scala
+          |object    A { }
+          |""".stripMargin
     noArgTest(
       string2dir(input),
       input,
@@ -561,19 +611,19 @@ class CliTest extends AbstractCliTest {
     noArgTest(
       string2dir(input),
       input,
-      Seq(Array("--test")),
+      Seq(Array("--test", "--config", commonScalafmtConfig.toFile.getPath)),
       assertExit = { exit =>
         assert(exit.isOk)
       },
       assertOut = out => {
-        println(out)
+        println(s"succeed: $out")
         assert(
           out.contains(
-            """|foo.scala:2: error: } expected but end of file found
-               |
-               |^
-               |error: ParseError=2""".stripMargin
-          )
+            "foo.scala:2: error: } expected but end of file found"
+          ) &&
+            out.contains(
+              "error: ParseError=2"
+            )
         )
       }
     )
@@ -581,12 +631,12 @@ class CliTest extends AbstractCliTest {
 
   test("--test fails with parse error if fatalWarnings=true") {
     val input =
-      """|/.scalafmt.conf
-         |runner.fatalWarnings = true
-         |
-         |/foo.scala
-         |object A {
-         |""".stripMargin
+      s"""|/.scalafmt.conf
+          |runner.fatalWarnings = true
+          |version = $ScalafmtVersion
+          |/foo.scala
+          |object A {
+          |""".stripMargin
     noArgTest(
       string2dir(input),
       input,
@@ -597,10 +647,9 @@ class CliTest extends AbstractCliTest {
       assertOut = out => {
         assert(
           out.contains(
-            """|foo.scala:2: error: } expected but end of file found
-               |
-               |^
-               |error: ParseError=2""".stripMargin
+            "foo.scala:2: error: } expected but end of file found"
+          ) && out.contains(
+            "error: ParseError=2"
           )
         )
       }
@@ -608,16 +657,28 @@ class CliTest extends AbstractCliTest {
   }
 
   test("exception is thrown on invalid .scalafmt.conf") {
-    val root = string2dir(
-      """/.scalafmt.conf
-        |blah = intellij
-        |/foo.scala
-        |object    A
+    val input =
+      s"""/.scalafmt.conf
+         |version=$ScalafmtVersion
+         |blah = intellij
+         |/foo.scala
+         |object A {}
       """.stripMargin
+    noArgTest(
+      string2dir(input),
+      input,
+      Seq(Array.empty),
+      assertExit = { exit =>
+        assert(exit == ExitCode.UnexpectedError)
+      },
+      assertOut = out => {
+        assert(
+          out.contains(
+            "Invalid field: blah"
+          )
+        )
+      }
     )
-    intercept[IllegalArgumentException] {
-      noArgTest(root, "", Seq(Array.empty))
-    }
   }
 
   test("eof") {

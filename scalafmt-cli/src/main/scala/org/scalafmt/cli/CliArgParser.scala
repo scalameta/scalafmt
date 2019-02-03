@@ -4,9 +4,7 @@ import java.io.File
 import java.util.Date
 
 import org.scalafmt.Versions
-import org.scalafmt.config.Config
 import org.scalafmt.util.AbsoluteFile
-import org.scalafmt.util.FileOps
 import scopt.OptionParser
 
 object CliArgParser {
@@ -24,8 +22,7 @@ object CliArgParser {
        |scalafmt Code1.scala A.scala       # write formatted contents to file.
        |scalafmt --stdout Code.scala       # print formatted contents to stdout.
        |scalafmt --exclude target          # format all files in directory excluding target
-       |scalafmt --config .scalafmt.conf   # read custom style from file
-       |scalafmt --config-str "style=IntelliJ" # define custom style as a flag, must be quoted.""".stripMargin
+       |scalafmt --config .scalafmt.conf   # read custom style from file.""".stripMargin
 
   val scoptParser: OptionParser[CliOptions] =
     new scopt.OptionParser[CliOptions]("scalafmt") {
@@ -42,14 +39,9 @@ object CliArgParser {
       private def readConfigFromFile(
           file: String,
           c: CliOptions): CliOptions = {
-        readConfig(
-          FileOps.readFile(
-            AbsoluteFile.fromFile(new File(file), c.common.workingDirectory)),
-          c
-        )
-      }
-      private def readConfig(contents: String, c: CliOptions): CliOptions = {
-        c.copy(config = Config.fromHoconString(contents).get)
+        val configFile =
+          AbsoluteFile.fromFile(new File(file), c.common.workingDirectory)
+        c.copy(config = Some(configFile.jfile.toPath))
       }
 
       private def addFile(file: File, c: CliOptions): CliOptions = {
@@ -101,9 +93,6 @@ object CliArgParser {
       opt[String]('c', "config")
         .action(readConfigFromFile)
         .text("a file path to .scalafmt.conf.")
-      opt[String]("config-str")
-        .action(readConfig)
-        .text("configuration defined as a string")
       opt[Unit]("stdin")
         .action((_, c) => c.copy(stdIn = true))
         .text("read from stdin and print to stdout")
