@@ -157,7 +157,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     result.result()
   }
 
-  lazy val tok2idx: Map[FormatToken, Int] = HashMap[FormatToken,Int](tokens.zipWithIndex:_*)
+  lazy val tok2idx: Map[FormatToken, Int] =
+    HashMap[FormatToken, Int](tokens.zipWithIndex: _*)
 
   def prev(tok: Token): Token = prev(leftTok2tok(tok)).right
   def prev(tok: FormatToken): FormatToken = {
@@ -876,8 +877,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
         Decision(
           t,
           Array(
-            Split.withIndent(mod, 0,
-              indent = Indent(indentParam, close2, Right))
+            Split
+              .withIndent(mod, 0, indent = Indent(indentParam, close2, Right))
           ))
       case Decision(t @ FormatToken(KwImplicit(), _, _), _)
           if style.verticalMultiline.newlineAfterImplicitKW || style.newlines.afterImplicitKWInVerticalMultiline =>
@@ -908,12 +909,17 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     val aboveArityThreshold = (maxArity >= style.verticalMultiline.arityThreshold) || (maxArity >= style.verticalMultilineAtDefinitionSiteArityThreshold)
 
     Array(
-      Split(NoSplit, 0, ignoreIf = !isBracket && aboveArityThreshold, policy = SingleLineBlock(singleLineExpire)),
-      Split.withIndent(Newline,
+      Split(
+        NoSplit,
+        0,
+        ignoreIf = !isBracket && aboveArityThreshold,
+        policy = SingleLineBlock(singleLineExpire)),
+      Split.withIndent(
+        Newline,
         1,
-        indent = Indent(firstIndent, close, Right) ,
-        policy = policy)// Otherwise split vertically
-      )
+        indent = Indent(firstIndent, close, Right),
+        policy = policy) // Otherwise split vertically
+    )
 
   }
 

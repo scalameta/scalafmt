@@ -81,7 +81,7 @@ class Router(formatOps: FormatOps) {
     val newlines = newlinesBetween(formatToken.between)
 
     formatToken match {
-      case FormatToken(_: BOF, _, _) =>DontSplitSeq
+      case FormatToken(_: BOF, _, _) => DontSplitSeq
       case FormatToken(_, _: EOF, _) => NewlineSeq
       case FormatToken(start @ Interpolation.Start(), _, _) =>
         val isStripMargin = isMarginizedString(start)
@@ -104,16 +104,19 @@ class Router(formatOps: FormatOps) {
           Interpolation.Id(_) | Interpolation.Part(_) | Interpolation.Start() |
           Interpolation.SpliceStart(),
           _,
-          _) =>DontSplitSeq
+          _) =>
+        DontSplitSeq
       case FormatToken(
           _,
           Interpolation.Part(_) | Interpolation.End() |
           Interpolation.SpliceEnd(),
-          _) =>DontSplitSeq
-      case FormatToken(LeftBrace(), RightBrace(), _) =>DontSplitSeq
+          _) =>
+        DontSplitSeq
+      case FormatToken(LeftBrace(), RightBrace(), _) => DontSplitSeq
       // Import
       case FormatToken(Dot(), open @ LeftBrace(), _)
-          if parents(rightOwner).exists(_.is[Import]) =>DontSplitSeq
+          if parents(rightOwner).exists(_.is[Import]) =>
+        DontSplitSeq
       // Import left brace
       case FormatToken(open @ LeftBrace(), _, _)
           if parents(leftOwner).exists(_.is[Import]) =>
@@ -149,7 +152,8 @@ class Router(formatOps: FormatOps) {
         )
       // Interpolated string left brace
       case FormatToken(open @ LeftBrace(), _, _)
-          if leftOwner.is[SomeInterpolate] =>DontSplitSeq
+          if leftOwner.is[SomeInterpolate] =>
+        DontSplitSeq
       case FormatToken(_, close @ RightBrace(), _)
           if parents(rightOwner).exists(_.is[Import]) ||
             rightOwner.is[SomeInterpolate] =>
@@ -161,7 +165,8 @@ class Router(formatOps: FormatOps) {
             0)
         )
       case FormatToken(Dot(), underscore @ Underscore(), _)
-          if parents(rightOwner).exists(_.is[Import]) =>DontSplitSeq
+          if parents(rightOwner).exists(_.is[Import]) =>
+        DontSplitSeq
 
       // { ... } Blocks
       case tok @ FormatToken(open @ LeftBrace(), right, between) =>
@@ -309,7 +314,8 @@ class Router(formatOps: FormatOps) {
           if startsStatement(tok) && newlines == 0 =>
         val expire = statementStarts(hash(right)).tokens.last
         Array(
-          Split.withToken(Space,
+          Split.withToken(
+            Space,
             0,
             policy = SingleLineBlock(expire),
             token = expire),
@@ -398,11 +404,13 @@ class Router(formatOps: FormatOps) {
             Decision(t, s.filter(_.modification.isNewline))
         }, expire.end)
         Array(
-          Split.withToken(Space, 0,
+          Split.withToken(
+            Space,
+            0,
             token = expire,
             killOnFail = true,
             policy = SingleLineBlock(expire)),
-          Split(Space, 1,policy = forceNewlineBeforeExtends)
+          Split(Space, 1, policy = forceNewlineBeforeExtends)
         )
       // DefDef
       case tok @ FormatToken(KwDef(), name @ Ident(_), _) =>
@@ -493,9 +501,11 @@ class Router(formatOps: FormatOps) {
         val indent = Num(style.continuationIndent.defnSite)
         if (isTuple(leftOwner)) {
           Array(
-            Split(NoSplit, 0,
-              policy = SingleLineBlock(close, disallowSingleLineComments = false)
-            )
+            Split(
+              NoSplit,
+              0,
+              policy =
+                SingleLineBlock(close, disallowSingleLineComments = false))
           )
         } else {
           def penalizeBrackets(penalty: Int): Policy =
@@ -523,7 +533,8 @@ class Router(formatOps: FormatOps) {
             else NoSplit
 
           Array(
-            Split.withIndent(noSplitModification,
+            Split.withIndent(
+              noSplitModification,
               0 + (nestingPenalty * bracketMultiplier),
               policy = noSplitPolicy,
               indent = Indent(indent, close, Left)),
@@ -567,8 +578,9 @@ class Router(formatOps: FormatOps) {
             0,
             token = optimal,
             policy = noSplitPolicy,
-            indent= Indent(indent, close, Left)),
-          Split.withIndent(Newline,
+            indent = Indent(indent, close, Left)),
+          Split.withIndent(
+            Newline,
             2,
             policy = unindentPolicy,
             indent = Indent(4, close, Left))
@@ -760,10 +772,12 @@ class Router(formatOps: FormatOps) {
           )
         )
 
-      case FormatToken(LeftParen(), LeftBrace(), between) =>DontSplitSeq
+      case FormatToken(LeftParen(), LeftBrace(), between) => DontSplitSeq
 
-      case FormatToken(_, LeftBrace(), _) if isXmlBrace(rightOwner) =>DontSplitSeq
-      case FormatToken(RightBrace(), _, _) if isXmlBrace(leftOwner) =>DontSplitSeq
+      case FormatToken(_, LeftBrace(), _) if isXmlBrace(rightOwner) =>
+        DontSplitSeq
+      case FormatToken(RightBrace(), _, _) if isXmlBrace(leftOwner) =>
+        DontSplitSeq
       // non-statement starting curly brace
       case FormatToken(left, open @ LeftBrace(), _) =>
         val close = matchingParentheses(hash(open))
@@ -786,7 +800,7 @@ class Router(formatOps: FormatOps) {
         )
 
       // Delim
-      case FormatToken(_, Comma(), _) =>DontSplitSeq
+      case FormatToken(_, Comma(), _) => DontSplitSeq
       // These are mostly filtered out/modified by policies.
       case tok @ FormatToken(Comma(), right, _) =>
         // TODO(olafur) DRY, see OneArgOneLine.
@@ -850,9 +864,9 @@ class Router(formatOps: FormatOps) {
               )
             )
         }
-      case FormatToken(_, Semicolon(), _) =>DontSplitSeq
+      case FormatToken(_, Semicolon(), _) => DontSplitSeq
       case FormatToken(KwReturn(), _, _) =>
-       leftOwner match {
+        leftOwner match {
           case Term.Return(unit @ Lit.Unit()) if unit.tokens.isEmpty =>
             // Always force blank line for Unit "return".
             NewlineSeq
@@ -869,9 +883,10 @@ class Router(formatOps: FormatOps) {
 
           case _ =>
             left match {
-              case ident: Ident => Array(
-                Split(identModification(ident), 0)
-              )
+              case ident: Ident =>
+                Array(
+                  Split(identModification(ident), 0)
+                )
               case _ => DontSplitSeq
             }
         }
@@ -1011,7 +1026,8 @@ class Router(formatOps: FormatOps) {
           )
       // ApplyUnary
       case tok @ FormatToken(Ident(_), Literal(), _)
-          if leftOwner == rightOwner =>DontSplitSeq
+          if leftOwner == rightOwner =>
+        DontSplitSeq
       case FormatToken(op @ Ident(_), right, _) if leftOwner.parent.exists {
             case unary: Term.ApplyUnary =>
               unary.op.tokens.head == op
@@ -1196,10 +1212,12 @@ class Router(formatOps: FormatOps) {
 
       // Type variance
       case tok @ FormatToken(Ident(_), Ident(_), _)
-          if isTypeVariant(leftOwner) =>DontSplitSeq
+          if isTypeVariant(leftOwner) =>
+        DontSplitSeq
 
       // Var args
-      case FormatToken(_, Ident("*"), _) if rightOwner.is[Type.Repeated] =>DontSplitSeq
+      case FormatToken(_, Ident("*"), _) if rightOwner.is[Type.Repeated] =>
+        DontSplitSeq
 
       case FormatToken(open @ LeftParen(), right, _) =>
         val owner = owners(open)
@@ -1264,9 +1282,11 @@ class Router(formatOps: FormatOps) {
 
       // Protected []
       case tok @ FormatToken(_, LeftBracket(), _)
-          if isModPrivateProtected(leftOwner) =>DontSplitSeq
+          if isModPrivateProtected(leftOwner) =>
+        DontSplitSeq
       case tok @ FormatToken(LeftBracket(), _, _)
-          if isModPrivateProtected(leftOwner) =>DontSplitSeq
+          if isModPrivateProtected(leftOwner) =>
+        DontSplitSeq
 
       // Case
       case tok @ FormatToken(cs @ KwCase(), _, _) if leftOwner.is[Case] =>
@@ -1353,32 +1373,35 @@ class Router(formatOps: FormatOps) {
       // Interpolation
       case FormatToken(_, Interpolation.Id(_) | Xml.Start(), _) =>
         SpaceSplitSeq
-      case FormatToken(Interpolation.Id(_) | Xml.Start(), _, _) =>DontSplitSeq
+      case FormatToken(Interpolation.Id(_) | Xml.Start(), _, _) => DontSplitSeq
       // Throw exception
       case FormatToken(KwThrow(), _, _) =>
         SpaceSplitSeq
 
       // Singleton types
-      case FormatToken(_, KwType(), _) if rightOwner.is[Type.Singleton] =>DontSplitSeq
+      case FormatToken(_, KwType(), _) if rightOwner.is[Type.Singleton] =>
+        DontSplitSeq
       // seq to var args foo(seq:_*)
       case FormatToken(Colon(), Underscore(), _)
           if next(formatToken).right.syntax == "*" =>
         SpaceSplitSeq
       case FormatToken(Underscore(), asterisk @ Ident("*"), _)
-          if prev(formatToken).left.is[Colon] =>DontSplitSeq
+          if prev(formatToken).left.is[Colon] =>
+        DontSplitSeq
       // Xml
-      case FormatToken(Xml.Part(_), _, _) =>DontSplitSeq
-      case FormatToken(_, Xml.Part(_), _) =>DontSplitSeq
+      case FormatToken(Xml.Part(_), _, _) => DontSplitSeq
+      case FormatToken(_, Xml.Part(_), _) => DontSplitSeq
       // Fallback
-      case FormatToken(_, Dot(), _) =>DontSplitSeq
+      case FormatToken(_, Dot(), _) => DontSplitSeq
       case FormatToken(left, Hash(), _) =>
         Array(
           Split(if (endsWithSymbolIdent(left)) Space else NoSplit, 0)
         )
       case FormatToken(Hash(), ident: Ident, _) =>
         if (TokenOps.isSymbolicIdent(ident)) SpaceSplitSeq else DontSplitSeq
-      case FormatToken(Dot(), Ident(_) | KwThis() | KwSuper(), _) =>DontSplitSeq
-      case FormatToken(_, RightBracket(), _) =>DontSplitSeq
+      case FormatToken(Dot(), Ident(_) | KwThis() | KwSuper(), _) =>
+        DontSplitSeq
+      case FormatToken(_, RightBracket(), _) => DontSplitSeq
       case FormatToken(_, RightParen(), _) =>
         val mod =
           if (style.spaces.inParentheses &&
@@ -1396,10 +1419,10 @@ class Router(formatOps: FormatOps) {
         }
       case FormatToken(Keyword() | Modifier(), _, _) =>
         SpaceSplitSeq
-      case FormatToken(LeftBracket(), _, _) =>DontSplitSeq
+      case FormatToken(LeftBracket(), _, _) => DontSplitSeq
       case FormatToken(_, Delim(), _) =>
         SpaceSplitSeq
-      case FormatToken(Underscore(), Ident("*"), _) =>DontSplitSeq
+      case FormatToken(Underscore(), Ident("*"), _) => DontSplitSeq
       case FormatToken(RightArrow(), _, _) if leftOwner.is[Type.ByName] =>
         val mod = if (!style.spaces.inByNameTypes) NoSplit else Space
         Array(
