@@ -100,7 +100,12 @@ class DynamicSuite extends FunSuite with DiffAssertions {
       out.toString.replaceAllLiterally(config.toString, "path/.scalafmt.conf")
     }
     def errors: String = {
-      out.toString.lines.filter(_.startsWith("error")).mkString("\n")
+      // work around scala/bug#11125
+      scala.Predef
+        .augmentString(out.toString)
+        .lines
+        .filter(_.startsWith("error"))
+        .mkString("\n")
     }
     def assertNotIgnored(filename: String)(implicit pos: Position): Unit = {
       assertFormat(
