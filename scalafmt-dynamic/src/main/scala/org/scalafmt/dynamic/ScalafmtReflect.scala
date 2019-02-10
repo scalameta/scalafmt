@@ -2,10 +2,12 @@ package org.scalafmt.dynamic
 
 import java.net.URLClassLoader
 import java.nio.charset.StandardCharsets
-import java.nio.file.Files
-import java.nio.file.Path
 import java.nio.file.attribute.FileTime
+import java.nio.file.{Files, Path}
+
 import org.scalafmt.interfaces.ScalafmtReporter
+
+import scala.reflect.ClassTag
 import scala.util.Try
 
 case class ScalafmtReflect(
@@ -16,42 +18,49 @@ case class ScalafmtReflect(
     respectProjectFilters: Boolean,
     reporter: ScalafmtReporter
 ) {
-  private val formatted = classLoader.loadClass("org.scalafmt.Formatted")
-  private val parseException =
-    classLoader.loadClass("scala.meta.parsers.ParseException")
-  private val tokenizeException =
-    classLoader.loadClass("scala.meta.tokenizers.TokenizeException")
-  private val formattedGet = formatted.getMethod("get")
-  private val scalafmt = classLoader.loadClass("org.scalafmt.Scalafmt")
-  private val scalaSet = classLoader.loadClass("scala.collection.immutable.Set")
+  import classLoader.loadClass
+  import org.scalafmt.dynamic.ScalafmtReflect._
+
+  private val formattedCls = loadClass("org.scalafmt.Formatted")
+  private val scalaSetCls = loadClass("scala.collection.immutable.Set")
+  private val optionCls = loadClass("scala.Option")
+  private val configCls = loadClass("org.scalafmt.config.Config")
+  private val scalafmtCls = loadClass("org.scalafmt.Scalafmt")
+  private val dialectCls = loadClass("scala.meta.Dialect")
+  private val dialectsCls = loadClass("scala.meta.dialects.package")
+
+  private val parseExceptionCls =
+    loadClass("scala.meta.parsers.ParseException")
+  private val tokenizeExceptionCls =
+    loadClass("scala.meta.tokenizers.TokenizeException")
+
   private val defaultScalaFmtConfig =
-    scalafmt.getMethod("format$default$2").invoke(null)
-  private val emptyRange = scalafmt.getMethod("format$default$3").invoke(null)
-  private val formatMethod = scalafmt.getMethod(
+    scalafmtCls.invokeStatic("format$default$2")
+  private val emptyRange =
+    scalafmtCls.invokeStatic("format$default$3")
+
+  private val formattedGet = formattedCls.getMethod("get")
+  private val formatMethod = scalafmtCls.getMethod(
     "format",
     classOf[String],
     defaultScalaFmtConfig.getClass,
-    scalaSet
+    scalaSetCls
   )
-  private val formatFilenameMethod = Try(
-    scalafmt.getMethod(
+  private val formatMethodWithFilename = Try(
+    scalafmtCls.getMethod(
       "format",
       classOf[String],
       defaultScalaFmtConfig.getClass,
-      scalaSet,
+      scalaSetCls,
       classOf[String]
     )
   ).toOption
-  private val optionCls = classLoader.loadClass("scala.Option")
-  private val configCls = classLoader.loadClass("org.scalafmt.config.Config")
-  private val scalafmtCls = classLoader.loadClass("org.scalafmt.Scalafmt")
-  private val dialectCls = classLoader.loadClass("scala.meta.Dialect")
-  private val dialectsCls = classLoader.loadClass("scala.meta.dialects.package")
+
   private val sbtDialect: Object = {
-    try dialectsCls.getMethod("Sbt").invoke(null)
+    try dialectsCls.invokeStatic("Sbt")
     catch {
       case ReflectionException(_: NoSuchMethodException) =>
-        dialectsCls.getMethod("Sbt0137").invoke(null)
+        dialectsCls.invokeStatic("Sbt0137")
     }
   }
   private var config: Object = _
@@ -63,19 +72,18 @@ case class ScalafmtReflect(
   def parseConfig(): Object = {
     val configText = readConfig()
     val configured: Object = try { // scalafmt >= 1.6.0
-      val parseHoconConfig =
-        scalafmtCls.getMethod("parseHoconConfig", classOf[String])
-      parseHoconConfig.invoke(null, configText)
+      scalafmtCls.invokeStatic("parseHoconConfig", configText.asParam)
     } catch {
       case _: NoSuchMethodException =>
         // scalafmt >= v0.7.0-RC1 && scalafmt < 1.6.0
-        val fromHocon =
-          configCls.getMethod("fromHoconString", classOf[String], optionCls)
         val fromHoconEmptyPath =
-          configCls.getMethod("fromHoconString$default$2").invoke(null)
-        fromHocon.invoke(null, configText, fromHoconEmptyPath)
+          configCls.invokeStatic("fromHoconString$default$2")
+        configCls.invokeStatic(
+          "fromHoconString",
+          (classOf[String], configText),
+          (optionCls, fromHoconEmptyPath))
     }
-    try invoke(configured, "get")
+    try configured.invoke("get")
     catch {
       case ReflectionException(e) =>
         throw ScalafmtConfigException(e.getMessage)
@@ -109,11 +117,11 @@ case class ScalafmtReflect(
     } else {
       val dialectConfig =
         if (filename.endsWith(".sbt") || filename.endsWith(".sc")) {
-          invoke(config, "withDialect", (dialectCls, sbtDialect))
+          config.invoke("withDialect", (dialectCls, sbtDialect))
         } else {
           config
         }
-      val formatted = formatFilenameMethod match {
+      val formatted = formatMethodWithFilename match {
         case Some(method) =>
           method.invoke(null, code, dialectConfig, emptyRange, filename)
         case None =>
@@ -124,11 +132,11 @@ case class ScalafmtReflect(
         formattedGet.invoke(formatted).asInstanceOf[String]
       } catch {
         case ReflectionException(e)
-            if tokenizeException.isInstance(e) ||
-              parseException.isInstance(e) =>
-          val pos = invoke(e, "pos")
+            if tokenizeExceptionCls.isInstance(e) ||
+              parseExceptionCls.isInstance(e) =>
+          val pos = e.invoke("pos")
           val range = positionRange(pos)
-          val shortMessage = invokeAs[String](e, "shortMessage")
+          val shortMessage = e.invokeAs[String]("shortMessage")
           throw PositionExceptionImpl(
             file,
             code,
@@ -144,20 +152,20 @@ case class ScalafmtReflect(
   private def positionRange(pos: Object): RangePosition = {
     try {
       RangePosition(
-        invokeAs[Int](pos, "startLine"),
-        invokeAs[Int](pos, "startColumn"),
-        invokeAs[Int](pos, "endLine"),
-        invokeAs[Int](pos, "endColumn")
+        pos.invokeAs[Int]("startLine"),
+        pos.invokeAs[Int]("startColumn"),
+        pos.invokeAs[Int]("endLine"),
+        pos.invokeAs[Int]("endColumn")
       )
     } catch {
       case _: NoSuchMethodException =>
-        val start = invoke(pos, "start")
-        val end = invoke(pos, "end")
+        val start = pos.invoke("start")
+        val end = pos.invoke("end")
         RangePosition(
-          invokeAs[Int](start, "line"),
-          invokeAs[Int](start, "column"),
-          invokeAs[Int](end, "line"),
-          invokeAs[Int](end, "column")
+          start.invokeAs[Int]("line"),
+          start.invokeAs[Int]("column"),
+          end.invokeAs[Int]("line"),
+          end.invokeAs[Int]("column")
         )
     }
   }
@@ -166,12 +174,12 @@ case class ScalafmtReflect(
     val cache = moduleInstance(
       "scala.meta.internal.tokenizers.PlatformTokenizerCache$"
     )
-    invoke(invoke(cache, "megaCache"), "clear")
+    cache.invoke("megaCache").invoke("clear")
   }
 
   private def checkVersionMismatch(config: Object): Unit = {
     if (respectVersion) {
-      val obtained = invoke(config, "version").asInstanceOf[String]
+      val obtained = config.invokeAs[String]("version")
       if (obtained != version) {
         throw VersionMismatch(obtained, version)
       }
@@ -181,7 +189,7 @@ case class ScalafmtReflect(
   private def isIgnoredFile(filename: String, config: Object): Boolean = {
     if (!respectProjectFilters) false
     else {
-      val matcher = invoke(invoke(config, "project"), "matcher")
+      val matcher = config.invoke("project").invoke("matcher")
       val matches = matcher.getClass.getMethod("matches", classOf[String])
       !matches.invoke(matcher, filename).asInstanceOf[java.lang.Boolean]
     }
@@ -193,21 +201,35 @@ case class ScalafmtReflect(
     module.setAccessible(true)
     module.get(null)
   }
+}
 
-  private def invokeAs[T](
-      obj: Object,
-      toInvoke: String,
-      args: (Class[_], Object)*
-  ): T = {
-    invoke(obj, toInvoke, args: _*).asInstanceOf[T]
+object ScalafmtReflect {
+
+  private implicit class ObjectReflectOps[T](val target: T) extends AnyVal {
+    def invokeAs[R](methodName: String, args: (Class[_], Object)*): R = {
+      invoke(methodName, args: _*).asInstanceOf[R]
+    }
+
+    def invoke(methodName: String, args: (Class[_], Object)*): Object = {
+      val clazz = target.getClass
+      val method = clazz.getMethod(methodName, args.map(_._1): _*)
+      method.invoke(target, args.map(_._2): _*)
+    }
+
+    def asParam(implicit classTag: ClassTag[T]): (Class[_], T) = {
+      (classTag.runtimeClass, target)
+    }
   }
-  private def invoke(
-      obj: Object,
-      toInvoke: String,
-      args: (Class[_], Object)*
-  ): Object = {
-    val clazz = obj.getClass
-    val method = clazz.getMethod(toInvoke, args.map(_._1): _*)
-    method.invoke(obj, args.map(_._2): _*)
+
+  private implicit class ClassReflectOps(val clazz: Class[_]) extends AnyVal {
+    def invokeStaticAs[T](methodName: String, args: (Class[_], Object)*): T = {
+      invokeStatic(methodName, args: _*).asInstanceOf[T]
+    }
+
+    def invokeStatic(methodName: String, args: (Class[_], Object)*): Object = {
+      val method = clazz.getMethod(methodName, args.map(_._1): _*)
+      method.invoke(null, args.map(_._2): _*)
+    }
   }
+
 }
