@@ -14,14 +14,12 @@ import scala.util.control.NonFatal
 class ScalafmtDynamicDownloader(
     respectVersion: Boolean,
     respectExcludeFilters: Boolean,
-    reporter: ScalafmtReporter
+    reporter: ScalafmtReporter,
+    cacheConfig: Boolean,
+    ttl: Option[Duration] = None
 ) {
 
-  def download(
-      config: Path,
-      version: String,
-      ttl: Option[Duration] = None
-  ): DownloadResult = {
+  def download(config: Path, version: String): DownloadResult = {
     Try {
       val settings = new Settings()
         .withDependencies(dependencies(version))
@@ -41,6 +39,7 @@ class ScalafmtDynamicDownloader(
       ScalafmtReflect(
         classloader,
         config,
+        cacheConfig,
         version,
         respectVersion,
         respectExcludeFilters,
