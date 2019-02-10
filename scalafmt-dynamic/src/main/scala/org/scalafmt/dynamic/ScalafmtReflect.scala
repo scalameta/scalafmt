@@ -13,6 +13,7 @@ import scala.util.Try
 case class ScalafmtReflect(
     classLoader: URLClassLoader,
     configFile: Path,
+    cacheConfig: Boolean,
     version: String,
     respectVersion: Boolean,
     respectProjectFilters: Boolean,
@@ -64,8 +65,18 @@ case class ScalafmtReflect(
     }
   }
   private var config: Object = _
+  private var configLastTimestamp = FileTime.fromMillis(0)
+  private def configParsed: Object = {
+    val currentTimestamp = Files.getLastModifiedTime(configFile)
+    if (cacheConfig && currentTimestamp.compareTo(configLastTimestamp) != 0) {
+      config = parseConfig()
+      configLastTimestamp = currentTimestamp
+      reporter.parsedConfig(configFile, version)
+    }
+    config
+  }
 
-  def readConfig(): String = {
+  private def readConfig(): String = {
     new String(Files.readAllBytes(configFile), StandardCharsets.UTF_8)
   }
 
@@ -90,19 +101,8 @@ case class ScalafmtReflect(
     }
   }
 
-  private var lastTimestamp = FileTime.fromMillis(0)
-
-  def format(filename: Path, code: String): String = {
-    val currentTimestamp = Files.getLastModifiedTime(configFile)
-    if (currentTimestamp.compareTo(lastTimestamp) != 0) {
-      config = parseConfig()
-      lastTimestamp = currentTimestamp
-      reporter.parsedConfig(configFile, version)
-      formatInternal(filename, code, config)
-    } else {
-      formatInternal(filename, code, config)
-    }
-  }
+  def format(filename: Path, code: String): String =
+    formatInternal(filename, code, configParsed)
 
   private def formatInternal(
       file: Path,

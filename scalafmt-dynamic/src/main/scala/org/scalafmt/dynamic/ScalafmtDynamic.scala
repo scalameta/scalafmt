@@ -16,6 +16,7 @@ final case class ScalafmtDynamic(
     respectVersion: Boolean,
     respectExcludeFilters: Boolean,
     defaultVersion: String,
+    cacheConfig: Boolean,
     fmts: mutable.Map[Path, ScalafmtReflect]
 ) extends Scalafmt {
 
@@ -24,11 +25,17 @@ final case class ScalafmtDynamic(
     true,
     true,
     BuildInfo.stable,
+    true,
     TrieMap.empty[Path, ScalafmtReflect]
   )
 
   private lazy val downloader =
-    new ScalafmtDynamicDownloader(respectVersion, respectExcludeFilters, reporter)
+    new ScalafmtDynamicDownloader(
+      respectVersion,
+      respectExcludeFilters,
+      reporter,
+      cacheConfig
+    )
 
   override def clear(): Unit = {
     fmts.values.foreach(_.classLoader.close())
@@ -47,6 +54,9 @@ final case class ScalafmtDynamic(
 
   override def withDefaultVersion(defaultVersion: String): Scalafmt =
     copy(defaultVersion = defaultVersion)
+
+  def withConfigCaching(cacheConfig: Boolean): Scalafmt =
+    copy(cacheConfig = cacheConfig)
 
   override def format(config: Path, file: Path, code: String): String = {
     formatDetailed(config, file, code) match {
