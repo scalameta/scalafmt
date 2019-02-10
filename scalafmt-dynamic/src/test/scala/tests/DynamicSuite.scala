@@ -119,7 +119,8 @@ class DynamicSuite extends FunSuite with DiffAssertions {
       val file = Paths.get(filename)
       val original = "object A  { }"
       val obtained = dynamic.format(config, file, original)
-      assert(out.toString().contains(s"file excluded: $filename"))
+      val outString = out.toString().replaceAll("\\\\", "/")
+      assert(outString.contains(s"file excluded: $filename"))
       assertNoDiffOrPrintExpected(obtained, original)
     }
     def assertFormat()(implicit pos: Position): Unit = {

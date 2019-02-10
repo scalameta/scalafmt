@@ -3,6 +3,7 @@ package org.scalafmt.dynamic
 import java.nio.file.{Files, Path}
 
 import com.typesafe.config.{ConfigException, ConfigFactory}
+import org.scalafmt.dynamic.ScalafmtDynamic.FormatResult
 import org.scalafmt.interfaces._
 
 import scala.collection.concurrent.TrieMap
@@ -80,8 +81,6 @@ final case class ScalafmtDynamic(
     }
   }
 
-  type FormatResult = Either[ScalafmtDynamicError, String]
-
   def formatDetailed(config: Path, file: Path, code: String): FormatResult = {
     def tryFormat(reflect: ScalafmtReflect): FormatResult = {
       Try(reflect.format(file, code)).toEither.left.flatMap {
@@ -130,4 +129,8 @@ final case class ScalafmtDynamic(
         None
     }
   }
+}
+
+object ScalafmtDynamic {
+  type FormatResult = Either[ScalafmtDynamicError, String]
 }

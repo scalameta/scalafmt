@@ -4,7 +4,7 @@ import java.net.URLClassLoader
 import java.nio.file.Path
 
 import com.geirsson.coursiersmall._
-import org.scalafmt.dynamic.ScalafmtDynamicDownloader.DownloadFailure
+import org.scalafmt.dynamic.ScalafmtDynamicDownloader._
 import org.scalafmt.interfaces.ScalafmtReporter
 
 import scala.concurrent.duration.Duration
@@ -17,24 +17,25 @@ class ScalafmtDynamicDownloader(
     reporter: ScalafmtReporter
 ) {
 
-  type DownloadResult = Either[DownloadFailure, ScalafmtReflect]
-
-  def download(config: Path, version: String): DownloadResult = {
+  def download(
+      config: Path,
+      version: String,
+      ttl: Option[Duration] = None
+  ): DownloadResult = {
     Try {
-      val jars: Seq[Path] = CoursierSmall.fetch(
-        new Settings()
-          .withDependencies(dependencies(version))
-          .withTtl(Some(Duration.Inf))
-          .withWriter(reporter.downloadWriter())
-          .withRepositories(
-            List(
-              Repository.MavenCentral,
-              Repository.Ivy2Local,
-              Repository.SonatypeReleases,
-              Repository.SonatypeSnapshots
-            )
+      val settings = new Settings()
+        .withDependencies(dependencies(version))
+        .withTtl(ttl.orElse(Some(Duration.Inf)))
+        .withWriter(reporter.downloadWriter())
+        .withRepositories(
+          List(
+            Repository.MavenCentral,
+            Repository.Ivy2Local,
+            Repository.SonatypeReleases,
+            Repository.SonatypeSnapshots
           )
-      )
+        )
+      val jars: Seq[Path] = CoursierSmall.fetch(settings)
       val urls = jars.map(_.toUri.toURL).toArray
       val classloader = new URLClassLoader(urls, null)
       ScalafmtReflect(
@@ -87,5 +88,7 @@ class ScalafmtDynamicDownloader(
 }
 
 object ScalafmtDynamicDownloader {
+  type DownloadResult = Either[DownloadFailure, ScalafmtReflect]
+
   case class DownloadFailure(version: String, cause: Option[Throwable])
 }
