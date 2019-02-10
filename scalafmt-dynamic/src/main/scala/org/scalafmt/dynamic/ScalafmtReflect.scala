@@ -5,9 +5,9 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.attribute.FileTime
 import java.nio.file.{Files, Path}
 
+import org.scalafmt.dynamic.ReflectUtils._
 import org.scalafmt.interfaces.ScalafmtReporter
 
-import scala.reflect.ClassTag
 import scala.util.Try
 
 case class ScalafmtReflect(
@@ -20,14 +20,12 @@ case class ScalafmtReflect(
     reporter: ScalafmtReporter
 ) {
   import classLoader.loadClass
-  import org.scalafmt.dynamic.ScalafmtReflect._
 
   private val formattedCls = loadClass("org.scalafmt.Formatted")
   private val scalaSetCls = loadClass("scala.collection.immutable.Set")
   private val optionCls = loadClass("scala.Option")
   private val configCls = loadClass("org.scalafmt.config.Config")
   private val scalafmtCls = loadClass("org.scalafmt.Scalafmt")
-  private val dialectCls = loadClass("scala.meta.Dialect")
   private val dialectsCls = loadClass("scala.meta.dialects.package")
 
   private val parseExceptionCls =
@@ -64,9 +62,9 @@ case class ScalafmtReflect(
         dialectsCls.invokeStatic("Sbt0137")
     }
   }
-  private var config: Object = _
+  private var config: ScalafmtConfigReflect = _
   private var configLastTimestamp = FileTime.fromMillis(0)
-  private def configParsed: Object = {
+  private def configParsed: ScalafmtConfigReflect = {
     val currentTimestamp = Files.getLastModifiedTime(configFile)
     if (cacheConfig && currentTimestamp.compareTo(configLastTimestamp) != 0) {
       config = parseConfig()
@@ -80,7 +78,7 @@ case class ScalafmtReflect(
     new String(Files.readAllBytes(configFile), StandardCharsets.UTF_8)
   }
 
-  def parseConfig(): Object = {
+  def parseConfig(): ScalafmtConfigReflect = {
     val configText = readConfig()
     val configured: Object = try { // scalafmt >= 1.6.0
       scalafmtCls.invokeStatic("parseHoconConfig", configText.asParam)
@@ -94,8 +92,10 @@ case class ScalafmtReflect(
           (classOf[String], configText),
           (optionCls, fromHoconEmptyPath))
     }
-    try configured.invoke("get")
-    catch {
+
+    try {
+      new ScalafmtConfigReflect(configured.invoke("get"), classLoader)
+    } catch {
       case ReflectionException(e) =>
         throw ScalafmtConfigException(e.getMessage)
     }
@@ -107,7 +107,7 @@ case class ScalafmtReflect(
   private def formatInternal(
       file: Path,
       code: String,
-      config: Object
+      config: ScalafmtConfigReflect
   ): String = {
     checkVersionMismatch(config)
     val filename = file.toString
@@ -115,17 +115,17 @@ case class ScalafmtReflect(
       reporter.excluded(file)
       code
     } else {
-      val dialectConfig =
+      val dialectConfig: ScalafmtConfigReflect =
         if (filename.endsWith(".sbt") || filename.endsWith(".sc")) {
-          config.invoke("withDialect", (dialectCls, sbtDialect))
+          config.withDialect(sbtDialect)
         } else {
           config
         }
       val formatted = formatMethodWithFilename match {
         case Some(method) =>
-          method.invoke(null, code, dialectConfig, emptyRange, filename)
+          method.invoke(null, code, dialectConfig.target, emptyRange, filename)
         case None =>
-          formatMethod.invoke(null, code, dialectConfig, emptyRange)
+          formatMethod.invoke(null, code, dialectConfig.target, emptyRange)
       }
       clearTokenizerCache()
       try {
@@ -177,22 +177,19 @@ case class ScalafmtReflect(
     cache.invoke("megaCache").invoke("clear")
   }
 
-  private def checkVersionMismatch(config: Object): Unit = {
+  private def checkVersionMismatch(config: ScalafmtConfigReflect): Unit = {
     if (respectVersion) {
-      val obtained = config.invokeAs[String]("version")
+      val obtained = config.version
       if (obtained != version) {
         throw VersionMismatch(obtained, version)
       }
     }
   }
 
-  private def isIgnoredFile(filename: String, config: Object): Boolean = {
-    if (!respectProjectFilters) false
-    else {
-      val matcher = config.invoke("project").invoke("matcher")
-      val matches = matcher.getClass.getMethod("matches", classOf[String])
-      !matches.invoke(matcher, filename).asInstanceOf[java.lang.Boolean]
-    }
+  private def isIgnoredFile(
+      filename: String,
+      config: ScalafmtConfigReflect): Boolean = {
+    respectProjectFilters && !config.isIncludedInProject(filename)
   }
 
   private def moduleInstance(fqn: String): Object = {
@@ -201,35 +198,4 @@ case class ScalafmtReflect(
     module.setAccessible(true)
     module.get(null)
   }
-}
-
-object ScalafmtReflect {
-
-  private implicit class ObjectReflectOps[T](val target: T) extends AnyVal {
-    def invokeAs[R](methodName: String, args: (Class[_], Object)*): R = {
-      invoke(methodName, args: _*).asInstanceOf[R]
-    }
-
-    def invoke(methodName: String, args: (Class[_], Object)*): Object = {
-      val clazz = target.getClass
-      val method = clazz.getMethod(methodName, args.map(_._1): _*)
-      method.invoke(target, args.map(_._2): _*)
-    }
-
-    def asParam(implicit classTag: ClassTag[T]): (Class[_], T) = {
-      (classTag.runtimeClass, target)
-    }
-  }
-
-  private implicit class ClassReflectOps(val clazz: Class[_]) extends AnyVal {
-    def invokeStaticAs[T](methodName: String, args: (Class[_], Object)*): T = {
-      invokeStatic(methodName, args: _*).asInstanceOf[T]
-    }
-
-    def invokeStatic(methodName: String, args: (Class[_], Object)*): Object = {
-      val method = clazz.getMethod(methodName, args.map(_._1): _*)
-      method.invoke(null, args.map(_._2): _*)
-    }
-  }
-
 }
