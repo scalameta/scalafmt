@@ -5,13 +5,15 @@ import com.geirsson.coursiersmall.Dependency
 import com.geirsson.coursiersmall.Repository
 import com.geirsson.coursiersmall.ResolutionException
 import com.geirsson.coursiersmall.Settings
-import com.typesafe.config.ConfigException
-import com.typesafe.config.ConfigFactory
 import java.lang.reflect.InvocationTargetException
 import java.net.URLClassLoader
-import java.nio.file.Files
-import java.nio.file.Path
+import java.nio.charset.StandardCharsets
+import java.nio.file.{Files, Path, Paths}
+import java.security.MessageDigest
+
+import com.typesafe.config.{ConfigException, ConfigFactory}
 import org.scalafmt.interfaces._
+
 import scala.collection.concurrent.TrieMap
 import scala.collection.mutable
 import scala.concurrent.duration.Duration
@@ -22,7 +24,7 @@ final case class ScalafmtDynamic(
     respectVersion: Boolean,
     respectExcludeFilters: Boolean,
     defaultVersion: String,
-    fmts: mutable.Map[Path, ScalafmtReflect]
+    fmts: mutable.Map[String, ScalafmtReflect]
 ) extends Scalafmt {
   override def clear(): Unit = {
     fmts.values.foreach(_.classLoader.close())
@@ -33,7 +35,7 @@ final case class ScalafmtDynamic(
     true,
     true,
     BuildInfo.stable,
-    TrieMap.empty[Path, ScalafmtReflect]
+    TrieMap.empty[String, ScalafmtReflect]
   )
 
   override def withReporter(reporter: ScalafmtReporter): Scalafmt = {
@@ -51,7 +53,29 @@ final case class ScalafmtDynamic(
   override def withDefaultVersion(defaultVersion: String): Scalafmt = {
     copy(defaultVersion = defaultVersion)
   }
+
+  override def format(config: String, file: Path, code: String): String = {
+    val configFile = Paths.get("stdin.conf")
+    formatInternal(configFile, config, file, code)
+  }
+
   override def format(config: Path, file: Path, code: String): String = {
+    if (!Files.exists(config)) {
+      reporter.error(config, "file does not exist")
+      code
+    } else {
+      val configStr = readConfig(config)
+      formatInternal(config, configStr, file, code)
+    }
+  }
+
+  private def formatInternal(
+      configFile: Path,
+      configStr: String,
+      file: Path,
+      code: String
+  ): String = {
+    import ScalafmtDynamic.ConfigTextOps
     def report(e: Throwable): Unit = e match {
       case e: InvocationTargetException =>
         report(e.getCause)
@@ -63,44 +87,38 @@ final case class ScalafmtDynamic(
         reflect.format(file, code)
       } catch {
         case VersionMismatch(_, _) =>
-          fmts.remove(config).foreach(_.classLoader.close())
-          format(config, file, code)
+          fmts.remove(configStr.sha1).foreach(_.classLoader.close())
+          formatInternal(configFile, configStr, file, code)
         case ScalafmtConfigException(msg) =>
-          reporter.error(config, msg)
+          reporter.error(configFile, msg)
           code
         case NonFatal(e) =>
           report(e)
           code
       }
     }
-    fmts.get(config) match {
+    fmts.get(configStr.sha1) match {
       case Some(fmt) =>
         tryFormat(fmt)
       case None =>
-        if (!Files.exists(config)) {
-          reporter.error(config, "file does not exist")
-          code
-        } else {
-          readVersion(config) match {
-            case Some(version) =>
-              loadScalafmt(config, version) match {
-                case Some(fmt) =>
-                  fmts(config) = fmt
-                  tryFormat(fmt)
-                case None =>
-                  code
-              }
-            case None =>
-              reporter.missingVersion(config, defaultVersion)
-              code
-          }
+        readVersion(configStr) match {
+          case Some(version) =>
+            loadScalafmt(configFile, configStr, version) match {
+              case Some(fmt) =>
+                tryFormat(fmt)
+              case None =>
+                code
+            }
+          case None =>
+            reporter.missingVersion(configFile, defaultVersion)
+            code
         }
     }
   }
 
-  private def readVersion(config: Path): Option[String] = {
+  private def readVersion(config: String): Option[String] = {
     try {
-      Some(ConfigFactory.parseFile(config.toFile).getString("version"))
+      Some(ConfigFactory.parseString(config).getString("version"))
     } catch {
       case _: ConfigException.Missing if !respectVersion =>
         Some(defaultVersion)
@@ -110,7 +128,8 @@ final case class ScalafmtDynamic(
   }
 
   private def loadScalafmt(
-      config: Path,
+      configPath: Path,
+      configStr: String,
       version: String
   ): Option[ScalafmtReflect] = {
     def errorMessage = s"failed to resolve Scalafmt version '$version'"
@@ -158,22 +177,36 @@ final case class ScalafmtDynamic(
       val classloader = new URLClassLoader(urls, null)
       val fmt = ScalafmtReflect(
         classloader,
-        config,
+        configPath,
+        configStr,
         version,
         respectVersion,
         respectExcludeFilters,
         reporter
       )
-      fmts(config) = fmt
+      import ScalafmtDynamic.ConfigTextOps
+      fmts(configStr.sha1) = fmt
       Some(fmt)
     } catch {
       case _: ResolutionException =>
-        reporter.error(config, errorMessage)
+        reporter.error(configPath, errorMessage)
         None
       case NonFatal(e) =>
-        reporter.error(config, ScalafmtException(errorMessage, e))
+        reporter.error(configPath, ScalafmtException(errorMessage, e))
         None
     }
   }
 
+  private[this] def readConfig(configFile: Path): String = {
+    new String(Files.readAllBytes(configFile), StandardCharsets.UTF_8)
+  }
+}
+
+object ScalafmtDynamic {
+  private[this] val md = MessageDigest.getInstance("SHA-1")
+  implicit class ConfigTextOps(private val configStr: String) extends AnyVal {
+    def sha1: String = {
+      md.digest(configStr.getBytes("UTF-8")).map("%02x".format(_)).mkString
+    }
+  }
 }

@@ -1,16 +1,14 @@
 package org.scalafmt.dynamic
 
 import java.net.URLClassLoader
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.attribute.FileTime
 import org.scalafmt.interfaces.ScalafmtReporter
 import scala.util.Try
 
 case class ScalafmtReflect(
     classLoader: URLClassLoader,
-    configFile: Path,
+    configPath: Path,
+    configStr: String,
     version: String,
     respectVersion: Boolean,
     respectProjectFilters: Boolean,
@@ -56,16 +54,11 @@ case class ScalafmtReflect(
   }
   private var config: Object = _
 
-  def readConfig(): String = {
-    new String(Files.readAllBytes(configFile), StandardCharsets.UTF_8)
-  }
-
   def parseConfig(): Object = {
-    val configText = readConfig()
     val configured: Object = try { // scalafmt >= 1.6.0
       val parseHoconConfig =
         scalafmtCls.getMethod("parseHoconConfig", classOf[String])
-      parseHoconConfig.invoke(null, configText)
+      parseHoconConfig.invoke(null, configStr)
     } catch {
       case _: NoSuchMethodException =>
         // scalafmt >= v0.7.0-RC1 && scalafmt < 1.6.0
@@ -73,7 +66,7 @@ case class ScalafmtReflect(
           configCls.getMethod("fromHoconString", classOf[String], optionCls)
         val fromHoconEmptyPath =
           configCls.getMethod("fromHoconString$default$2").invoke(null)
-        fromHocon.invoke(null, configText, fromHoconEmptyPath)
+        fromHocon.invoke(null, configStr, fromHoconEmptyPath)
     }
     try invoke(configured, "get")
     catch {
@@ -82,18 +75,12 @@ case class ScalafmtReflect(
     }
   }
 
-  private var lastTimestamp = FileTime.fromMillis(0)
-
   def format(filename: Path, code: String): String = {
-    val currentTimestamp = Files.getLastModifiedTime(configFile)
-    if (currentTimestamp.compareTo(lastTimestamp) != 0) {
+    if (config == null) {
       config = parseConfig()
-      lastTimestamp = currentTimestamp
-      reporter.parsedConfig(configFile, version)
-      formatInternal(filename, code, config)
-    } else {
-      formatInternal(filename, code, config)
+      reporter.parsedConfig(configPath, version)
     }
+    formatInternal(filename, code, config)
   }
 
   private def formatInternal(

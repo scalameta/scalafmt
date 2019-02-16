@@ -8,7 +8,6 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
-import java.nio.file.attribute.FileTime
 import org.scalactic.source.Position
 import org.scalafmt.dynamic.ConsoleScalafmtReporter
 import org.scalafmt.interfaces.Scalafmt
@@ -80,11 +79,8 @@ class DynamicSuite extends FunSuite with DiffAssertions {
     }
     val config = Files.createTempFile("scalafmt", ".scalafmt.conf")
     val filename = Paths.get(name + ".scala")
-    var timestamps = 100L
     def setConfig(newConfig: String): Unit = {
       Files.write(this.config, newConfig.getBytes(StandardCharsets.UTF_8))
-      timestamps += 100000
-      Files.setLastModifiedTime(this.config, FileTime.fromMillis(timestamps))
     }
     def setVersion(newVersion: String): Unit = {
       addConfig(s"version=$newVersion")
@@ -132,6 +128,19 @@ class DynamicSuite extends FunSuite with DiffAssertions {
     )(implicit pos: Position): Unit = {
       out.reset()
       val obtained = dynamic.format(config, file, original)
+      if (errors.nonEmpty) {
+        assertNoDiffOrPrintExpected(out.toString(), "", "Reporter had errors")
+      }
+      assertNoDiffOrPrintExpected(obtained, expected)
+    }
+    def assertFormatWithConfigStr(
+        original: String,
+        expected: String,
+        file: Path = filename,
+        configStr: String
+    )(implicit pos: Position): Unit = {
+      out.reset()
+      val obtained = dynamic.format(configStr, file, original)
       if (errors.nonEmpty) {
         assertNoDiffOrPrintExpected(out.toString(), "", "Reporter had errors")
       }
@@ -286,7 +295,7 @@ class DynamicSuite extends FunSuite with DiffAssertions {
         |""".stripMargin
     )
     f.assertFormat()
-    assert(f.parsed == Map("1.0.0" -> 1, latest -> 3))
+    assert(f.parsed == Map("1.0.0" -> 1, latest -> 2))
   }
 
   check("wrong-version") { f =>
@@ -327,5 +336,29 @@ class DynamicSuite extends FunSuite with DiffAssertions {
   check("no-config") { f =>
     Files.delete(f.config)
     f.assertError("error: path/.scalafmt.conf: file does not exist")
+  }
+
+  check("config-str missing versions") { f =>
+    f.missingVersions.clear()
+    val configStr =
+      """|project.includeFilters = [ ".*" ]
+         |""".stripMargin
+    f.assertFormatWithConfigStr(
+      "object A  {  }",
+      "object A  {  }",
+      Paths.get("foo.scala"),
+      configStr
+    )
+    assert(f.missingVersions.nonEmpty)
+  }
+
+  check("config-str parse config") { f =>
+    val configStr = s"{version=$latest,maxColumn=7,style=IntelliJ}"
+    f.assertFormatWithConfigStr(
+      "object A  {      }",
+      "object A {}\n",
+      Paths.get("foo.scala"),
+      configStr
+    )
   }
 }
