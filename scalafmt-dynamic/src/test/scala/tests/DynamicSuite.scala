@@ -1,25 +1,20 @@
 package tests
 
-import java.io.ByteArrayOutputStream
-import java.io.PrintStream
-import java.io.PrintWriter
+import java.io.{ByteArrayOutputStream, PrintStream, PrintWriter}
 import java.nio.charset.StandardCharsets
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
-import java.nio.file.StandardOpenOption
+import java.nio.file.{Files, Path, Paths, StandardOpenOption}
 import java.nio.file.attribute.FileTime
+
 import org.scalactic.source.Position
-import org.scalafmt.dynamic.ConsoleScalafmtReporter
-import org.scalafmt.interfaces.Scalafmt
-import org.scalafmt.interfaces.ScalafmtReporter
+import org.scalafmt.dynamic.utils.ConsoleScalafmtReporter
+import org.scalafmt.interfaces.{PositionException, Scalafmt, ScalafmtReporter}
 import org.scalatest.FunSuite
+import tests.PositionSyntax._
+
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
-import scala.{meta => m}
 import scala.meta.testkit._
-import PositionSyntax._
-import org.scalafmt.interfaces.PositionException
+import scala.{meta => m}
 
 class DynamicSuite extends FunSuite with DiffAssertions {
   class Format(name: String) {

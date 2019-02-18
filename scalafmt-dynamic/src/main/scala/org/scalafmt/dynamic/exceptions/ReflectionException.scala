@@ -1,4 +1,4 @@
-package org.scalafmt.dynamic
+package org.scalafmt.dynamic.exceptions
 
 import java.lang.reflect.InvocationTargetException
 

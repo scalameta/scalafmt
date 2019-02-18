@@ -5,7 +5,8 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.attribute.FileTime
 import java.nio.file.{Files, Path}
 
-import org.scalafmt.dynamic.ReflectUtils._
+import org.scalafmt.dynamic.exceptions._
+import org.scalafmt.dynamic.utils.ReflectUtils._
 import org.scalafmt.interfaces.ScalafmtReporter
 
 import scala.util.Try
@@ -62,9 +63,9 @@ case class ScalafmtReflect(
         dialectsCls.invokeStatic("Sbt0137")
     }
   }
-  private var config: ScalafmtConfigReflect = _
+  private var config: ScalafmtReflectConfig = _
   private var configLastTimestamp = FileTime.fromMillis(0)
-  private def configParsed: ScalafmtConfigReflect = {
+  private def configParsed: ScalafmtReflectConfig = {
     val currentTimestamp = Files.getLastModifiedTime(configFile)
     if (cacheConfig && currentTimestamp.compareTo(configLastTimestamp) != 0) {
       config = parseConfig()
@@ -78,7 +79,7 @@ case class ScalafmtReflect(
     new String(Files.readAllBytes(configFile), StandardCharsets.UTF_8)
   }
 
-  def parseConfig(): ScalafmtConfigReflect = {
+  def parseConfig(): ScalafmtReflectConfig = {
     val configText = readConfig()
     val configured: Object = try { // scalafmt >= 1.6.0
       scalafmtCls.invokeStatic("parseHoconConfig", configText.asParam)
@@ -94,7 +95,7 @@ case class ScalafmtReflect(
     }
 
     try {
-      new ScalafmtConfigReflect(configured.invoke("get"), classLoader)
+      new ScalafmtReflectConfig(configured.invoke("get"), classLoader)
     } catch {
       case ReflectionException(e) =>
         throw ScalafmtConfigException(e.getMessage)
@@ -107,7 +108,7 @@ case class ScalafmtReflect(
   private def formatInternal(
       file: Path,
       code: String,
-      config: ScalafmtConfigReflect
+      config: ScalafmtReflectConfig
   ): String = {
     checkVersionMismatch(config)
     val filename = file.toString
@@ -115,7 +116,7 @@ case class ScalafmtReflect(
       reporter.excluded(file)
       code
     } else {
-      val dialectConfig: ScalafmtConfigReflect =
+      val dialectConfig: ScalafmtReflectConfig =
         if (filename.endsWith(".sbt") || filename.endsWith(".sc")) {
           config.withDialect(sbtDialect)
         } else {
@@ -152,18 +153,22 @@ case class ScalafmtReflect(
   private def positionRange(pos: Object): RangePosition = {
     try {
       RangePosition(
+        pos.invokeAs[Int]("start"),
         pos.invokeAs[Int]("startLine"),
         pos.invokeAs[Int]("startColumn"),
+        pos.invokeAs[Int]("end"),
         pos.invokeAs[Int]("endLine"),
         pos.invokeAs[Int]("endColumn")
       )
     } catch {
-      case _: NoSuchMethodException =>
+      case _: ReflectiveOperationException | _: ClassCastException =>
         val start = pos.invoke("start")
         val end = pos.invoke("end")
         RangePosition(
+          start.invokeAs[Int]("offset"),
           start.invokeAs[Int]("line"),
           start.invokeAs[Int]("column"),
+          end.invokeAs[Int]("offset"),
           end.invokeAs[Int]("line"),
           end.invokeAs[Int]("column")
         )
@@ -177,7 +182,7 @@ case class ScalafmtReflect(
     cache.invoke("megaCache").invoke("clear")
   }
 
-  private def checkVersionMismatch(config: ScalafmtConfigReflect): Unit = {
+  private def checkVersionMismatch(config: ScalafmtReflectConfig): Unit = {
     if (respectVersion) {
       val obtained = config.version
       if (obtained != version) {
@@ -188,7 +193,7 @@ case class ScalafmtReflect(
 
   private def isIgnoredFile(
       filename: String,
-      config: ScalafmtConfigReflect): Boolean = {
+      config: ScalafmtReflectConfig): Boolean = {
     respectProjectFilters && !config.isIncludedInProject(filename)
   }
 

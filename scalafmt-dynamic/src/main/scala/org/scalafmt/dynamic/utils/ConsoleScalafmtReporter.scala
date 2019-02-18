@@ -1,8 +1,8 @@
-package org.scalafmt.dynamic
+package org.scalafmt.dynamic.utils
 
-import java.io.PrintStream
-import java.io.PrintWriter
+import java.io.{PrintStream, PrintWriter}
 import java.nio.file.Path
+
 import org.scalafmt.interfaces.ScalafmtReporter
 
 object ConsoleScalafmtReporter extends ConsoleScalafmtReporter(System.err)

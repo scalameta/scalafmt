@@ -1,4 +1,4 @@
-package org.scalafmt.dynamic
+package org.scalafmt.dynamic.exceptions
 
 import java.nio.file.Path
 import org.scalafmt.interfaces.PositionException
@@ -11,8 +11,10 @@ case class PositionExceptionImpl(
     pos: RangePosition,
     cause: Throwable
 ) extends PositionException(longMessage, cause) {
-  override def startLine: Int = pos.startLine
-  override def startCharacter: Int = pos.startCharacter
-  override def endLine: Int = pos.endLine
-  override def endCharacter: Int = pos.endCharacter
+  def start: Int = pos.start
+  def end: Int = pos.end
+  def startLine: Int = pos.startLine
+  def startCharacter: Int = pos.startCharacter
+  def endLine: Int = pos.endLine
+  def endCharacter: Int = pos.endCharacter
 }
