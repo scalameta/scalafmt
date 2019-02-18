@@ -1,10 +1,12 @@
 package org.scalafmt.dynamic
 
+import java.net.URLClassLoader
 import java.nio.file.{Files, Path}
 
 import com.typesafe.config.{ConfigException, ConfigFactory}
 import org.scalafmt.dynamic.ScalafmtDynamic.FormatResult
-import org.scalafmt.dynamic.exceptions.{ReflectionException, ScalafmtConfigException, ScalafmtException, VersionMismatch}
+import org.scalafmt.dynamic.ScalafmtDynamicDownloader.{DownloadResolutionError, DownloadSuccess, DownloadUnknownError}
+import org.scalafmt.dynamic.exceptions._
 import org.scalafmt.dynamic.utils.ConsoleScalafmtReporter
 import org.scalafmt.interfaces._
 
@@ -30,14 +32,6 @@ final case class ScalafmtDynamic(
     true,
     TrieMap.empty[Path, ScalafmtReflect]
   )
-
-  private lazy val downloader =
-    new ScalafmtDynamicDownloader(
-      respectVersion,
-      respectExcludeFilters,
-      reporter,
-      cacheConfig
-    )
 
   override def clear(): Unit = {
     fmts.values.foreach(_.classLoader.close())
@@ -81,15 +75,13 @@ final case class ScalafmtDynamic(
       case ScalafmtDynamicError.CannotDownload(configPath, version, cause) =>
         val message = s"failed to resolve Scalafmt version '$version'"
         cause match {
-          case Some(value) =>
-            reporter.error(configPath, ScalafmtException(message, value))
-          case None =>
-            reporter.error(configPath, message)
+          case Some(e) => reporter.error(configPath, message, e)
+          case None => reporter.error(configPath, message)
         }
-      case ScalafmtDynamicError.UnknownError(_, Some(cause)) =>
+      case ScalafmtDynamicError.CorruptedClassPath(configPath, version, _, cause) =>
+        reporter.error(configPath, s"scalafmt version $version classpath is corrupted", cause)
+      case ScalafmtDynamicError.UnknownError(cause) =>
         reporter.error(file, cause)
-      case ScalafmtDynamicError.UnknownError(message, _) =>
-        reporter.error(file, message)
     }
   }
 
@@ -116,9 +108,7 @@ final case class ScalafmtDynamic(
         version <- readVersion(config).toRight {
           ScalafmtDynamicError.ConfigMissingVersion(config)
         }
-        fmtReflect <- downloader.download(config, version).left.map { f =>
-          ScalafmtDynamicError.CannotDownload(config, f.version, f.cause)
-        }
+        fmtReflect <- downloadAndResolve(config, version)
         codeFormatted <- {
           fmts(config) = fmtReflect
           tryFormat(fmtReflect)
@@ -129,6 +119,36 @@ final case class ScalafmtDynamic(
       .get(config)
       .map(tryFormat)
       .getOrElse(downloadAndFormat)
+  }
+
+  private def downloadAndResolve(config: Path, version: String): Either[ScalafmtDynamicError, ScalafmtReflect] = {
+    val downloader = new ScalafmtDynamicDownloader(reporter.downloadWriter())
+    downloader.download(version)
+      .left.map {
+        case f@DownloadResolutionError(_, _) =>
+          ScalafmtDynamicError.CannotDownload(config, f.version, None)
+        case f@DownloadUnknownError(_, _) =>
+          ScalafmtDynamicError.CannotDownload(config, f.version, Option(f.cause))
+      }
+      .flatMap { case DownloadSuccess(_, urls) =>
+        Try {
+          val classloader = new URLClassLoader(urls.toArray, null)
+          ScalafmtReflect(
+            classloader,
+            config,
+            cacheConfig,
+            version,
+            respectVersion,
+            respectExcludeFilters,
+            reporter
+          )
+        }.toEither.left.map {
+          case e: ReflectiveOperationException =>
+            ScalafmtDynamicError.CorruptedClassPath(config, version, urls, e)
+          case e =>
+            ScalafmtDynamicError.UnknownError(e)
+        }
+      }
   }
 
   private def readVersion(config: Path): Option[String] = {

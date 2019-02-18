@@ -1,68 +1,47 @@
 package org.scalafmt.dynamic
 
-import java.net.URLClassLoader
+import java.io.PrintWriter
+import java.net.URL
 import java.nio.file.Path
 
 import com.geirsson.coursiersmall._
 import org.scalafmt.dynamic.ScalafmtDynamicDownloader._
-import org.scalafmt.interfaces.ScalafmtReporter
 
 import scala.concurrent.duration.Duration
 import scala.util.Try
-import scala.util.control.NonFatal
 
 class ScalafmtDynamicDownloader(
-    respectVersion: Boolean,
-    respectExcludeFilters: Boolean,
-    reporter: ScalafmtReporter,
-    cacheConfig: Boolean,
+    downloadProgressWriter: PrintWriter,
     ttl: Option[Duration] = None
 ) {
 
-  def download(config: Path, version: String): DownloadResult = {
+  def download(version: String): Either[DownloadFailure, DownloadSuccess] = {
     Try {
       val settings = new Settings()
         .withDependencies(dependencies(version))
         .withTtl(ttl.orElse(Some(Duration.Inf)))
-        .withWriter(reporter.downloadWriter())
-        .withRepositories(
-          List(
-            Repository.MavenCentral,
-            Repository.Ivy2Local,
-            Repository.SonatypeReleases,
-            Repository.SonatypeSnapshots
-          )
-        )
+        .withWriter(downloadProgressWriter)
+        .withRepositories(List(
+          Repository.MavenCentral,
+          Repository.Ivy2Local,
+          Repository.SonatypeReleases,
+          Repository.SonatypeSnapshots
+        ))
       val jars: Seq[Path] = CoursierSmall.fetch(settings)
       val urls = jars.map(_.toUri.toURL).toArray
-      val classloader = new URLClassLoader(urls, null)
-      ScalafmtReflect(
-        classloader,
-        config,
-        cacheConfig,
-        version,
-        respectVersion,
-        respectExcludeFilters,
-        reporter
-      )
+      DownloadSuccess(version, urls)
     }.toEither.left.map {
-      case _: ResolutionException => DownloadFailure(version, None)
-      case NonFatal(e) => DownloadFailure(version, Some(e))
+      case e: ResolutionException =>
+        DownloadResolutionError(version, e)
+      case e =>
+        DownloadUnknownError(version, e)
     }
   }
 
   private def dependencies(version: String): List[Dependency] = {
     List(
-      new Dependency(
-        organization(version),
-        s"scalafmt-cli_${scalaBinaryVersion(version)}",
-        version
-      ),
-      new Dependency(
-        "org.scala-lang",
-        "scala-reflect",
-        scalaVersion(version)
-      )
+      new Dependency(organization(version), s"scalafmt-cli_${scalaBinaryVersion(version)}", version),
+      new Dependency("org.scala-lang", "scala-reflect", scalaVersion(version))
     )
   }
 
@@ -87,7 +66,13 @@ class ScalafmtDynamicDownloader(
 }
 
 object ScalafmtDynamicDownloader {
-  type DownloadResult = Either[DownloadFailure, ScalafmtReflect]
-
-  case class DownloadFailure(version: String, cause: Option[Throwable])
+  sealed trait DownloadResult {
+    def version: String
+  }
+  case class DownloadSuccess(version: String, jarUrls: Seq[URL]) extends DownloadResult
+  sealed trait DownloadFailure extends DownloadResult {
+    def cause: Throwable
+  }
+  case class DownloadResolutionError(version: String, cause: ResolutionException) extends DownloadFailure
+  case class DownloadUnknownError(version: String, cause: Throwable) extends DownloadFailure
 }

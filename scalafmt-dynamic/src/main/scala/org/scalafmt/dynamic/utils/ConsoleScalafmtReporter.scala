@@ -3,6 +3,7 @@ package org.scalafmt.dynamic.utils
 import java.io.{PrintStream, PrintWriter}
 import java.nio.file.Path
 
+import org.scalafmt.dynamic.exceptions.ScalafmtException
 import org.scalafmt.interfaces.ScalafmtReporter
 
 object ConsoleScalafmtReporter extends ConsoleScalafmtReporter(System.err)
@@ -16,6 +17,10 @@ class ConsoleScalafmtReporter(out: PrintStream) extends ScalafmtReporter {
 
   override def error(path: Path, message: String): Unit = {
     out.println(s"error: $path: $message")
+  }
+
+  override def error(file: Path, message: String, e: Throwable): Unit = {
+    error(file, ScalafmtException(message, e))
   }
 
   override def excluded(filename: Path): Unit = {
