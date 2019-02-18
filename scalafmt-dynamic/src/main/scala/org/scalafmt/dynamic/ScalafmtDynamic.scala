@@ -4,6 +4,8 @@ import java.nio.file.{Files, Path}
 
 import com.typesafe.config.{ConfigException, ConfigFactory}
 import org.scalafmt.dynamic.ScalafmtDynamic.FormatResult
+import org.scalafmt.dynamic.exceptions.{ReflectionException, ScalafmtConfigException, ScalafmtException, VersionMismatch}
+import org.scalafmt.dynamic.utils.ConsoleScalafmtReporter
 import org.scalafmt.interfaces._
 
 import scala.collection.concurrent.TrieMap

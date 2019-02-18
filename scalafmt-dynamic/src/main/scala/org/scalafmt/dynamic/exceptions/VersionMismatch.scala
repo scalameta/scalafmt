@@ -1,4 +1,4 @@
-package org.scalafmt.dynamic
+package org.scalafmt.dynamic.exceptions
 
 case class VersionMismatch(obtainedVersion: String, expectedVersion: String)
     extends Exception(

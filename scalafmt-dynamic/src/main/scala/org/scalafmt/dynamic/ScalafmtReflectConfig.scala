@@ -1,8 +1,8 @@
 package org.scalafmt.dynamic
 
-import org.scalafmt.dynamic.ReflectUtils._
+import org.scalafmt.dynamic.utils.ReflectUtils._
 
-class ScalafmtConfigReflect private[dynamic] (
+class ScalafmtReflectConfig private[dynamic](
     private[dynamic] val target: Object,
     private[dynamic] val classLoader: ClassLoader
 ) {
@@ -17,9 +17,9 @@ class ScalafmtConfigReflect private[dynamic] (
     matcher.invokeAs[java.lang.Boolean]("matches", filename.asParam)
   }
 
-  def withDialect(sbtDialect: Object): ScalafmtConfigReflect = {
+  def withDialect(sbtDialect: Object): ScalafmtReflectConfig = {
     val newTarget = target.invoke("withDialect", (dialectCls, sbtDialect))
-    new ScalafmtConfigReflect(newTarget, classLoader)
+    new ScalafmtReflectConfig(newTarget, classLoader)
   }
 
 }
