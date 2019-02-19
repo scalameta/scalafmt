@@ -6,6 +6,7 @@ import java.nio.file.{Files, Path, Paths, StandardOpenOption}
 import java.nio.file.attribute.FileTime
 
 import org.scalactic.source.Position
+import org.scalafmt.dynamic.ScalafmtDynamic
 import org.scalafmt.dynamic.utils.ConsoleScalafmtReporter
 import org.scalafmt.interfaces.{PositionException, Scalafmt, ScalafmtReporter}
 import org.scalatest.FunSuite
@@ -63,10 +64,11 @@ class DynamicSuite extends FunSuite with DiffAssertions {
           )
         }
       }
-    var dynamic = Scalafmt
+    var dynamic: ScalafmtDynamic = Scalafmt
       .create(this.getClass.getClassLoader)
       .withReporter(reporter)
       .withDefaultVersion(latest)
+      .asInstanceOf[ScalafmtDynamic]
     def ignoreVersion(): Unit = {
       dynamic = dynamic.withRespectVersion(false)
     }
@@ -160,6 +162,29 @@ class DynamicSuite extends FunSuite with DiffAssertions {
       val format = new Format(name)
       try fn(format)
       finally format.dynamic.clear()
+    }
+  }
+
+  private val testedVersions = Seq(
+    "2.0.0-RC4",
+    "1.6.0-RC4",
+    "1.5.1",
+    "1.5.0",
+    "1.4.0",
+    "1.3.0",
+    "1.2.0",
+    "1.1.0",
+    "1.0.0-RC4",
+    "1.0.0"
+  )
+
+  def checkExhaustive(name: String)(fn: (Format, String) => Unit): Unit = {
+    testedVersions.foreach { version =>
+      test(s"$name (version: $version)") {
+        val format = new Format(name)
+        try fn(format, version)
+        finally format.dynamic.clear()
+      }
     }
   }
 
@@ -331,5 +356,65 @@ class DynamicSuite extends FunSuite with DiffAssertions {
   check("no-config") { f =>
     Files.delete(f.config)
     f.assertError("error: path/.scalafmt.conf: file does not exist")
+  }
+
+  check("intellij-default-config") { f: Format =>
+    val version = "1.5.1"
+    f.setVersion(version)
+    f.assertFormat()
+
+    val reflect = f.dynamic.fmtsCache.get(version)
+    assert(reflect.nonEmpty)
+    assert(reflect.get.intellijScalaFmtConfig.nonEmpty)
+  }
+
+  checkExhaustive("continuation-indent-callSite-and-defnSite") { (f, version) =>
+    f.setConfig(
+      s"""version=$version
+         |continuationIndent.callSite = 5
+         |continuationIndent.defnSite = 3
+      """.stripMargin
+    )
+    val original =
+      """class A {
+        |  function1(
+        |  argument1,
+        |  ""
+        |  )
+        |
+        |  def function2(
+        |  argument1: Type1
+        |  ): ReturnType
+        |}
+      """.stripMargin
+    val expected =
+      """class A {
+        |  function1(
+        |       argument1,
+        |       ""
+        |  )
+        |
+        |  def function2(
+        |     argument1: Type1
+        |  ): ReturnType
+        |}
+      """.stripMargin
+    f.assertFormat(original, expected)
+  }
+
+  checkExhaustive("hasRewriteRules-and-withoutRewriteRules") { (f, version) =>
+    f.setConfig(
+      s"""version=$version
+         |rewrite.rules = [RedundantBraces]
+        """.stripMargin
+    )
+    f.assertFormat()
+    val configOpt = f.dynamic.configsCache.get(f.config).map(_._1)
+    assert(configOpt.nonEmpty)
+    val config = configOpt.get
+    assert(config.hasRewriteRules)
+    val configWithoutRewrites = config.withoutRewriteRules
+    assert(config !== configWithoutRewrites)
+    assert(!configWithoutRewrites.hasRewriteRules)
   }
 }
