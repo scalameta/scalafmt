@@ -24,9 +24,12 @@ class ScalafmtReflectConfig private[dynamic](
 
   private val rewriteRulesMethod = Try(targetCls.getMethod("rewrite")).toOption
 
-  private val continuationIndentMethod = Try(targetCls.getMethod("continuationIndent")).toOption
-  private val continuationIndentCallSiteMethod = Try(targetCls.getMethod("continuationIndentCallSite")).toOption
-  private val continuationIndentDefnSiteMethod = Try(targetCls.getMethod("continuationIndentDefnSite")).toOption
+  private val continuationIndentMethod =
+    Try(targetCls.getMethod("continuationIndent")).toOption
+  private val continuationIndentCallSiteMethod =
+    Try(targetCls.getMethod("continuationIndentCallSite")).toOption
+  private val continuationIndentDefnSiteMethod =
+    Try(targetCls.getMethod("continuationIndentDefnSite")).toOption
   private val DefaultIndentCallSite = 2
   private val DefaultIndentDefnSite = 4
 
@@ -48,14 +51,13 @@ class ScalafmtReflectConfig private[dynamic](
   }
 
   def withSbtDialect: ScalafmtReflectConfig = {
-    // TODO: maybe hold loaded classes in some helper class not to reload them each time?
+    // TODO: maybe hold loaded classes in some helper class not to reload them each time during copy?
     val newTarget = target.invoke("withDialect", (dialectCls, sbtDialect))
     new ScalafmtReflectConfig(fmtReflect, newTarget, classLoader)
   }
 
   def withoutRewriteRules: ScalafmtReflectConfig = {
     if (hasRewriteRules) {
-      // FIXME: this is only tested for version 1.5.1, check behaviour for other versions
       val fieldsValues = constructorParams.map(param => target.invoke(param))
       fieldsValues(rewriteParamIdx) = emptyRewrites
       val targetNew = constructor.newInstance(fieldsValues: _*).asInstanceOf[Object]
@@ -69,14 +71,13 @@ class ScalafmtReflectConfig private[dynamic](
     rewriteRulesMethod match {
       case Some(method) =>
         // scalafmt >= v0.4.1
-        val rewriteSettings = method.invoke(target) // TODO: check whether it is correct for all versions
+        val rewriteSettings = method.invoke(target)
         !rewriteSettings.invoke("rules").invokeAs[Boolean]("isEmpty")
       case None =>
         false
     }
   }
 
-  // TODO: check whether it is correct for all versions
   val continuationIndentCallSite: Int = {
     continuationIndentMethod match {
       case Some(method) => // scalafmt >= v0.4
@@ -92,7 +93,6 @@ class ScalafmtReflectConfig private[dynamic](
     }
   }
 
-  // TODO: check whether it is correct for all versions
   val continuationIndentDefnSite: Int = {
     continuationIndentMethod match {
       case Some(method) =>

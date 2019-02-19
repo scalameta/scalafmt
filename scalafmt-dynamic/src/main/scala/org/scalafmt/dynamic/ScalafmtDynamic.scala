@@ -41,20 +41,20 @@ final case class ScalafmtDynamic(
     fmtsCache.clear()
   }
 
-  override def withReporter(reporter: ScalafmtReporter): Scalafmt =
+  override def withReporter(reporter: ScalafmtReporter): ScalafmtDynamic =
     copy(reporter = reporter)
 
   override def withRespectProjectFilters(
-      respectExcludeFilters: Boolean): Scalafmt =
+      respectExcludeFilters: Boolean): ScalafmtDynamic =
     copy(respectExcludeFilters = respectExcludeFilters)
 
-  override def withRespectVersion(respectVersion: Boolean): Scalafmt =
+  override def withRespectVersion(respectVersion: Boolean): ScalafmtDynamic =
     copy(respectVersion = respectVersion)
 
-  override def withDefaultVersion(defaultVersion: String): Scalafmt =
+  override def withDefaultVersion(defaultVersion: String): ScalafmtDynamic =
     copy(defaultVersion = defaultVersion)
 
-  def withConfigCaching(cacheConfigs: Boolean): Scalafmt =
+  def withConfigCaching(cacheConfigs: Boolean): ScalafmtDynamic =
     copy(cacheConfigs = cacheConfigs)
 
   override def format(config: Path, file: Path, code: String): String = {
