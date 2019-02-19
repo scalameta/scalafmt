@@ -13,8 +13,8 @@ case class PositionExceptionImpl(
 ) extends PositionException(longMessage, cause) {
   def start: Int = pos.start
   def end: Int = pos.end
-  def startLine: Int = pos.startLine
-  def startCharacter: Int = pos.startCharacter
-  def endLine: Int = pos.endLine
-  def endCharacter: Int = pos.endCharacter
+  override def startLine: Int = pos.startLine
+  override def startCharacter: Int = pos.startCharacter
+  override def endLine: Int = pos.endLine
+  override def endCharacter: Int = pos.endCharacter
 }

@@ -176,7 +176,9 @@ class DynamicSuite extends FunSuite with DiffAssertions {
   }
 
   checkVersion(latest)
+  checkVersion("1.5.1")
   checkVersion("1.0.0")
+  //checkVersion("0.2.8") // fails for now
 
   check("parse-error") { f =>
     def check(): Unit = {
@@ -267,6 +269,7 @@ class DynamicSuite extends FunSuite with DiffAssertions {
     f.assertFormat()
     f.assertFormat()
     assert(f.parsedCount == 1, f.parsed)
+
     f.setConfig(
       s"""version=$latest
          |maxColumn = 40
@@ -276,13 +279,18 @@ class DynamicSuite extends FunSuite with DiffAssertions {
     assert(f.parsedCount == 2, f.parsed)
     f.assertFormat()
     assert(f.parsedCount == 2, f.parsed)
+
     f.setConfig(
       """version=1.0.0
         |maxColumn = 40
         |""".stripMargin
     )
     f.assertFormat()
-    assert(f.parsed == Map("1.0.0" -> 1, latest -> 3))
+    assert(f.parsedCount == 3, f.parsed)
+    f.assertFormat()
+    assert(f.parsedCount == 3, f.parsed)
+
+    assert(f.parsed == Map("1.0.0" -> 1, latest -> 2))
   }
 
   check("wrong-version") { f =>

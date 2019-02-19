@@ -1,6 +1,7 @@
 package org.scalafmt.dynamic
 
 import java.net.URLClassLoader
+import java.nio.file.attribute.FileTime
 import java.nio.file.{Files, Path}
 
 import com.typesafe.config.{ConfigException, ConfigFactory}
@@ -20,8 +21,9 @@ final case class ScalafmtDynamic(
     respectVersion: Boolean,
     respectExcludeFilters: Boolean,
     defaultVersion: String,
-    cacheConfig: Boolean,
-    fmts: mutable.Map[Path, ScalafmtReflect]
+    fmtsCache: mutable.Map[String, ScalafmtReflect],
+    cacheConfigs: Boolean,
+    configsCache: mutable.Map[Path, (ScalafmtReflectConfig, FileTime)]
 ) extends Scalafmt {
 
   def this() = this(
@@ -29,13 +31,14 @@ final case class ScalafmtDynamic(
     true,
     true,
     BuildInfo.stable,
+    TrieMap.empty,
     true,
-    TrieMap.empty[Path, ScalafmtReflect]
+    TrieMap.empty
   )
 
   override def clear(): Unit = {
-    fmts.values.foreach(_.classLoader.close())
-    fmts.clear()
+    fmtsCache.values.foreach(_.classLoader.close())
+    fmtsCache.clear()
   }
 
   override def withReporter(reporter: ScalafmtReporter): Scalafmt =
@@ -51,8 +54,8 @@ final case class ScalafmtDynamic(
   override def withDefaultVersion(defaultVersion: String): Scalafmt =
     copy(defaultVersion = defaultVersion)
 
-  def withConfigCaching(cacheConfig: Boolean): Scalafmt =
-    copy(cacheConfig = cacheConfig)
+  def withConfigCaching(cacheConfigs: Boolean): Scalafmt =
+    copy(cacheConfigs = cacheConfigs)
 
   override def format(config: Path, file: Path, code: String): String = {
     formatDetailed(config, file, code) match {
@@ -85,70 +88,111 @@ final case class ScalafmtDynamic(
     }
   }
 
-  def formatDetailed(config: Path, file: Path, code: String): FormatResult = {
-    def tryFormat(reflect: ScalafmtReflect): FormatResult = {
-      Try(reflect.format(file, code)).toEither.left.flatMap {
-        case VersionMismatch(_, _) =>
-          fmts.remove(config).foreach(_.classLoader.close())
-          formatDetailed(config, file, code)
-        case ex: ScalafmtConfigException =>
-          Left(ScalafmtDynamicError.ConfigParseError(config, ex))
-        case ReflectionException(e) =>
-          Left(ScalafmtDynamicError.UnknownError(e))
-        case NonFatal(e) =>
-          Left(ScalafmtDynamicError.UnknownError(e))
+  def formatDetailed(configPath: Path, file: Path, code: String): FormatResult = {
+    def tryFormat(reflect: ScalafmtReflect, config: ScalafmtReflectConfig): FormatResult = {
+      Try {
+        val filename = file.toString
+        val configWithDialect: ScalafmtReflectConfig =
+          if (filename.endsWith(".sbt") || filename.endsWith(".sc")) {
+            config.withSbtDialect
+          } else {
+            config
+          }
+        if (isIgnoredFile(filename, configWithDialect)) {
+          reporter.excluded(file)
+          code
+        } else {
+          reflect.format(code, configWithDialect, Some(file))
+        }
+      }.toEither.left.map {
+        case ReflectionException(e) => ScalafmtDynamicError.UnknownError(e)
+        case e => ScalafmtDynamicError.UnknownError(e)
       }
     }
 
-    def downloadAndFormat: FormatResult =
-      for {
-        _ <- Option(config).filter(conf => Files.exists(conf)).toRight {
-          ScalafmtDynamicError.ConfigDoesNotExist(config)
-        }
-        version <- readVersion(config).toRight {
-          ScalafmtDynamicError.ConfigMissingVersion(config)
-        }
-        fmtReflect <- downloadAndResolve(config, version)
-        codeFormatted <- {
-          fmts(config) = fmtReflect
-          tryFormat(fmtReflect)
-        }
-      } yield codeFormatted
-
-    fmts
-      .get(config)
-      .map(tryFormat)
-      .getOrElse(downloadAndFormat)
+    for {
+      config <- resolveConfig(configPath)
+      codeFormatted <- tryFormat(config.fmtReflect, config)
+    } yield codeFormatted
   }
 
-  private def downloadAndResolve(config: Path, version: String): Either[ScalafmtDynamicError, ScalafmtReflect] = {
-    val downloader = new ScalafmtDynamicDownloader(reporter.downloadWriter())
-    downloader.download(version)
-      .left.map {
-        case f@DownloadResolutionError(_, _) =>
-          ScalafmtDynamicError.CannotDownload(config, f.version, None)
-        case f@DownloadUnknownError(_, _) =>
-          ScalafmtDynamicError.CannotDownload(config, f.version, Option(f.cause))
+  private def isIgnoredFile(filename: String, config: ScalafmtReflectConfig): Boolean = {
+    respectExcludeFilters && !config.isIncludedInProject(filename)
+  }
+
+  private def resolveConfig(configPath: Path): Either[ScalafmtDynamicError, ScalafmtReflectConfig] = {
+    if(!Files.exists(configPath)) {
+      Left(ScalafmtDynamicError.ConfigDoesNotExist(configPath))
+    } else if (cacheConfigs) {
+      val currentTimestamp: FileTime = Files.getLastModifiedTime(configPath)
+      configsCache.get(configPath) match {
+        case Some((config, lastModified)) if lastModified.compareTo(currentTimestamp) == 0 =>
+          Right(config)
+        case _ =>
+          for {
+            config <- resolveConfigWithScalafmt(configPath)
+          } yield {
+            configsCache(configPath) = (config, currentTimestamp)
+            reporter.parsedConfig(configPath, config.version)
+            config
+          }
       }
-      .flatMap { case DownloadSuccess(_, urls) =>
-        Try {
-          val classloader = new URLClassLoader(urls.toArray, null)
-          ScalafmtReflect(
-            classloader,
-            config,
-            cacheConfig,
-            version,
-            respectVersion,
-            respectExcludeFilters,
-            reporter
-          )
-        }.toEither.left.map {
-          case e: ReflectiveOperationException =>
-            ScalafmtDynamicError.CorruptedClassPath(config, version, urls, e)
-          case e =>
-            ScalafmtDynamicError.UnknownError(e)
-        }
-      }
+    } else {
+      resolveConfigWithScalafmt(configPath)
+    }
+  }
+  private def resolveConfigWithScalafmt(configPath: Path): Either[ScalafmtDynamicError, ScalafmtReflectConfig] = {
+    for {
+      version <- readVersion(configPath).toRight(ScalafmtDynamicError.ConfigMissingVersion(configPath))
+      fmtReflect <- resolveFormatter(configPath, version)
+      config <- parseConfig(configPath, fmtReflect)
+    } yield config
+  }
+
+  private def parseConfig(configPath: Path, fmtReflect: ScalafmtReflect): Either[ScalafmtDynamicError, ScalafmtReflectConfig] = {
+    Try(fmtReflect.parseConfig(configPath)).toEither.left.map {
+      case ex: ScalafmtConfigException =>
+        ScalafmtDynamicError.ConfigParseError(configPath, ex)
+      case ex =>
+        ScalafmtDynamicError.UnknownError(ex)
+    }
+  }
+
+  // TODO: there can be issues if resolveFormatter is called multiple times (e.g. formatter is called twice)
+  //  in such cases download process can be started multiple times,
+  //  possible solution: keep information about download process in fmtsCache
+  private def resolveFormatter(configPath: Path, version: String): Either[ScalafmtDynamicError, ScalafmtReflect] = {
+    fmtsCache.get(version) match {
+      case Some(value) =>
+        Right(value)
+      case None =>
+        val downloader = new ScalafmtDynamicDownloader(reporter.downloadWriter())
+        downloader.download(version)
+          .left.map {
+            case f@DownloadResolutionError(_, _) =>
+              ScalafmtDynamicError.CannotDownload(configPath, f.version, None)
+            case f@DownloadUnknownError(_, _) =>
+              ScalafmtDynamicError.CannotDownload(configPath, f.version, Option(f.cause))
+          }
+          .flatMap(resolveClassPath(configPath, _))
+          .map { scalafmt: ScalafmtReflect =>
+            fmtsCache(version) = scalafmt
+            scalafmt
+          }
+    }
+  }
+
+  private def resolveClassPath(configPath: Path, downloadSuccess: DownloadSuccess): Either[ScalafmtDynamicError, ScalafmtReflect] = {
+    val DownloadSuccess(version, urls) = downloadSuccess
+    Try {
+      val classloader = new URLClassLoader(urls.toArray, null)
+      ScalafmtReflect(classloader, version, respectVersion)
+    }.toEither.left.map {
+      case e: ReflectiveOperationException =>
+        ScalafmtDynamicError.CorruptedClassPath(configPath, version, urls, e)
+      case e =>
+        ScalafmtDynamicError.UnknownError(e)
+    }
   }
 
   private def readVersion(config: Path): Option[String] = {
