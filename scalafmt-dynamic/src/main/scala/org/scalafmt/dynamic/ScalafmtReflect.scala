@@ -7,6 +7,7 @@ import java.nio.file.{Files, Path}
 import org.scalafmt.dynamic.exceptions._
 import org.scalafmt.dynamic.utils.ReflectUtils._
 
+import scala.reflect.ClassTag
 import scala.util.Try
 
 case class ScalafmtReflect(
@@ -23,11 +24,15 @@ case class ScalafmtReflect(
   private val configCls = loadClass("org.scalafmt.config.Config")
   private val scalafmtCls = loadClass("org.scalafmt.Scalafmt")
 
-  private val parseExceptionCls = loadClass("scala.meta.parsers.ParseException")
-  private val tokenizeExceptionCls = loadClass("scala.meta.tokenizers.TokenizeException")
+  private val parseExceptionCls =
+    loadClass("scala.meta.parsers.ParseException")
+  private val tokenizeExceptionCls =
+    loadClass("scala.meta.tokenizers.TokenizeException")
 
-  private val defaultScalaFmtConfig = scalafmtCls.invokeStatic("format$default$2")
-  private val emptyRange = scalafmtCls.invokeStatic("format$default$3")
+  private val defaultScalaFmtConfig =
+    scalafmtCls.invokeStatic("format$default$2")
+  private val emptyRange =
+    scalafmtCls.invokeStatic("format$default$3")
 
   private val formattedGet = formattedCls.getMethod("get")
   private val formatMethod = scalafmtCls.getMethod(
@@ -47,9 +52,10 @@ case class ScalafmtReflect(
   ).toOption
 
   // TODO: see implementation details for other versions of scalafmt, find where intellij config is kept
-  val intellijScalaFmtConfig: Option[ScalafmtReflectConfig] = {
+  lazy val intellijScalaFmtConfig: Option[ScalafmtReflectConfig] = {
     if (version == "1.5.1") {
-      val scalaFmtConfigCls = classLoader.loadClass("org.scalafmt.config.ScalafmtConfig")
+      val scalaFmtConfigCls =
+        classLoader.loadClass("org.scalafmt.config.ScalafmtConfig")
       val configTarget = scalaFmtConfigCls.invokeStatic("intellij")
       Some(new ScalafmtReflectConfig(this, configTarget, classLoader))
     } else {
@@ -58,7 +64,8 @@ case class ScalafmtReflect(
   }
 
   def parseConfig(configPath: Path): ScalafmtReflectConfig = {
-    val configText = new String(Files.readAllBytes(configPath), StandardCharsets.UTF_8)
+    val configBytes = Files.readAllBytes(configPath)
+    val configText = new String(configBytes, StandardCharsets.UTF_8)
     parseConfigFromString(configText)
   }
 
@@ -68,8 +75,13 @@ case class ScalafmtReflect(
     } catch {
       case _: NoSuchMethodException =>
         // scalafmt >= v0.7.0-RC1 && scalafmt < 1.6.0
-        val fromHoconEmptyPath = configCls.invokeStatic("fromHoconString$default$2")
-        configCls.invokeStatic("fromHoconString", configText.asParam, (optionCls, fromHoconEmptyPath))
+        val fromHoconEmptyPath =
+          configCls.invokeStatic("fromHoconString$default$2")
+        configCls.invokeStatic(
+          "fromHoconString",
+          configText.asParam,
+          fromHoconEmptyPath.asParam(optionCls)
+        )
     }
 
     try {
@@ -80,7 +92,11 @@ case class ScalafmtReflect(
     }
   }
 
-  def format(code: String, config: ScalafmtReflectConfig, fileOpt: Option[Path] = None): String = {
+  def format(
+      code: String,
+      config: ScalafmtReflectConfig,
+      fileOpt: Option[Path] = None
+  ): String = {
     checkVersionMismatch(config)
 
     val formatted = (formatMethodWithFilename, fileOpt) match {
@@ -95,12 +111,19 @@ case class ScalafmtReflect(
       formattedGet.invoke(formatted).asInstanceOf[String]
     } catch {
       case ReflectionException(e)
-        if tokenizeExceptionCls.isInstance(e) ||
-          parseExceptionCls.isInstance(e) =>
+          if tokenizeExceptionCls.isInstance(e) ||
+            parseExceptionCls.isInstance(e) =>
         val pos = e.invoke("pos")
         val range = positionRange(pos)
         val shortMessage = e.invokeAs[String]("shortMessage")
-        throw PositionExceptionImpl(fileOpt.orNull, code, shortMessage, e.getMessage, range, e)
+        throw PositionExceptionImpl(
+          fileOpt.orNull,
+          code,
+          shortMessage,
+          e.getMessage,
+          range,
+          e
+        )
     }
   }
 

@@ -21,12 +21,7 @@ class ScalafmtDynamicDownloader(
         .withDependencies(dependencies(version))
         .withTtl(ttl.orElse(Some(Duration.Inf)))
         .withWriter(downloadProgressWriter)
-        .withRepositories(List(
-          Repository.MavenCentral,
-          Repository.Ivy2Local,
-          Repository.SonatypeReleases,
-          Repository.SonatypeSnapshots
-        ))
+        .withRepositories(repositories)
       val jars: Seq[Path] = CoursierSmall.fetch(settings)
       val urls = jars.map(_.toUri.toURL).toArray
       DownloadSuccess(version, urls)
@@ -38,12 +33,18 @@ class ScalafmtDynamicDownloader(
     }
   }
 
-  private def dependencies(version: String): List[Dependency] = {
-    List(
-      new Dependency(organization(version), s"scalafmt-cli_${scalaBinaryVersion(version)}", version),
-      new Dependency("org.scala-lang", "scala-reflect", scalaVersion(version))
+  private def dependencies(version: String): List[Dependency] = List(
+    new Dependency(
+      organization(version),
+      s"scalafmt-cli_${scalaBinaryVersion(version)}",
+      version
+    ),
+    new Dependency(
+      "org.scala-lang",
+      "scala-reflect",
+      scalaVersion(version)
     )
-  }
+  )
 
   @inline
   private def scalaBinaryVersion(version: String): String =
@@ -63,16 +64,27 @@ class ScalafmtDynamicDownloader(
       "org.scalameta"
     }
 
+  private def repositories: List[Repository] = List(
+    Repository.MavenCentral,
+    Repository.Ivy2Local,
+    Repository.SonatypeReleases,
+    Repository.SonatypeSnapshots
+  )
 }
 
 object ScalafmtDynamicDownloader {
   sealed trait DownloadResult {
     def version: String
   }
-  case class DownloadSuccess(version: String, jarUrls: Seq[URL]) extends DownloadResult
+  case class DownloadSuccess(version: String, jarUrls: Seq[URL])
+      extends DownloadResult
   sealed trait DownloadFailure extends DownloadResult {
     def cause: Throwable
   }
-  case class DownloadResolutionError(version: String, cause: ResolutionException) extends DownloadFailure
-  case class DownloadUnknownError(version: String, cause: Throwable) extends DownloadFailure
+  case class DownloadResolutionError(
+      version: String,
+      cause: ResolutionException
+  ) extends DownloadFailure
+  case class DownloadUnknownError(version: String, cause: Throwable)
+      extends DownloadFailure
 }

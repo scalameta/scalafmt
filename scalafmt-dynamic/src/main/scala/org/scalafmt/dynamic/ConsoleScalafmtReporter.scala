@@ -1,4 +1,4 @@
-package org.scalafmt.dynamic.utils
+package org.scalafmt.dynamic
 
 import java.io.{PrintStream, PrintWriter}
 import java.nio.file.Path
