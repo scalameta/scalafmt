@@ -18,6 +18,10 @@ object ReflectUtils {
     def asParam(implicit classTag: ClassTag[T]): (Class[_], T) = {
       (classTag.runtimeClass, target)
     }
+
+    def asParam(clazz: Class[_]): (Class[_], T) = {
+      (clazz, target)
+    }
   }
 
   implicit class ClassReflectOps(val clazz: Class[_]) extends AnyVal {

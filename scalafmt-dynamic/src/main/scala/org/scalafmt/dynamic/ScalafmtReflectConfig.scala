@@ -8,7 +8,7 @@ import org.scalafmt.dynamic.utils.ReflectUtils._
 import scala.util.Try
 
 //noinspection TypeAnnotation
-class ScalafmtReflectConfig private[dynamic](
+class ScalafmtReflectConfig private[dynamic] (
     val fmtReflect: ScalafmtReflect,
     private[dynamic] val target: Object,
     private val classLoader: ClassLoader
@@ -16,8 +16,10 @@ class ScalafmtReflectConfig private[dynamic](
   private val targetCls = target.getClass
   private val constructor: Constructor[_] = targetCls.getConstructors()(0)
   private val constructorParams = constructor.getParameters.map(_.getName)
-  private val rewriteParamIdx = constructorParams.indexOf("rewrite").ensuring(_ >= 0)
-  private val emptyRewrites = target.invoke("apply$default$" + (rewriteParamIdx + 1))
+  private val rewriteParamIdx =
+    constructorParams.indexOf("rewrite").ensuring(_ >= 0)
+  private val emptyRewrites =
+    target.invoke("apply$default$" + (rewriteParamIdx + 1))
 
   private val dialectCls = classLoader.loadClass("scala.meta.Dialect")
   private val dialectsCls = classLoader.loadClass("scala.meta.dialects.package")
@@ -58,9 +60,11 @@ class ScalafmtReflectConfig private[dynamic](
 
   def withoutRewriteRules: ScalafmtReflectConfig = {
     if (hasRewriteRules) {
+      // emulating this.copy(rewrite = RewriteSettings())
       val fieldsValues = constructorParams.map(param => target.invoke(param))
       fieldsValues(rewriteParamIdx) = emptyRewrites
-      val targetNew = constructor.newInstance(fieldsValues: _*).asInstanceOf[Object]
+      val targetNew =
+        constructor.newInstance(fieldsValues: _*).asInstanceOf[Object]
       new ScalafmtReflectConfig(fmtReflect, targetNew, classLoader)
     } else {
       this
