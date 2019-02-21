@@ -22,7 +22,8 @@ object CliArgParser {
        |scalafmt Code1.scala A.scala       # write formatted contents to file.
        |scalafmt --stdout Code.scala       # print formatted contents to stdout.
        |scalafmt --exclude target          # format all files in directory excluding target
-       |scalafmt --config .scalafmt.conf   # read custom style from file.""".stripMargin
+       |scalafmt --config .scalafmt.conf   # read custom style from file.
+       |scalafmt --config-str "style=IntelliJ" # define custom style as a flag, must be quoted.""".stripMargin
 
   val scoptParser: OptionParser[CliOptions] =
     new scopt.OptionParser[CliOptions]("scalafmt") {
@@ -34,6 +35,10 @@ object CliArgParser {
         else showHeader
         sys.exit
         c
+      }
+
+      private def readConfig(contents: String, c: CliOptions): CliOptions = {
+        c.copy(configStr = Some(contents))
       }
 
       private def readConfigFromFile(
@@ -93,6 +98,9 @@ object CliArgParser {
       opt[String]('c', "config")
         .action(readConfigFromFile)
         .text("a file path to .scalafmt.conf.")
+      opt[String]("config-str")
+        .action(readConfig)
+        .text("configuration defined as a string")
       opt[Unit]("stdin")
         .action((_, c) => c.copy(stdIn = true))
         .text("read from stdin and print to stdout")

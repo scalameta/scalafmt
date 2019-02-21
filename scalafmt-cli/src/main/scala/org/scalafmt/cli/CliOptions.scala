@@ -1,16 +1,19 @@
 package org.scalafmt.cli
 
-import java.io.InputStream
-import java.io.PrintStream
+import java.io.{IOException, InputStream, PrintStream}
 import java.nio.charset.UnsupportedCharsetException
-import java.nio.file.Path
+import java.nio.file.{Files, Path}
 
 import com.typesafe.config.{ConfigException, ConfigFactory}
-import org.scalafmt.util.{AbsoluteFile, GitOps, GitOpsImpl, OsSpecific}
+import metaconfig.Configured
+import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.config.Config
+import org.scalafmt.util.{AbsoluteFile, FileOps, GitOps, GitOpsImpl, OsSpecific}
 
 import scala.io.Codec
 import scala.util.control.NonFatal
 import scala.util.matching.Regex
+import scala.util.control.Exception.catching
 
 object CliOptions {
   val default = CliOptions()
@@ -29,7 +32,8 @@ object CliOptions {
     * called directly from main.
     */
   def auto(args: Array[String], init: CliOptions)(
-      parsed: CliOptions): CliOptions = {
+      parsed: CliOptions
+  ): CliOptions = {
     val style: Option[Path] = if (init.config != parsed.config) {
       parsed.config
     } else {
@@ -41,7 +45,6 @@ object CliOptions {
       config = style
     )
   }
-
   private def getConfigJFile(file: AbsoluteFile): AbsoluteFile =
     file / ".scalafmt.conf"
 
@@ -71,6 +74,7 @@ case class CommonOptions(
 
 case class CliOptions(
     config: Option[Path] = None,
+    configStr: Option[String] = None,
     range: Set[Range] = Set.empty[Range],
     customFiles: Seq[AbsoluteFile] = Nil,
     customExcludes: Seq[String] = Nil,
@@ -93,9 +97,32 @@ case class CliOptions(
   private[this] val DefaultIgnoreWarnings = false
   private[this] val DefaultEncoding = Codec.UTF8
 
-  def configPath: Path = config.getOrElse(
-    (common.workingDirectory / ".scalafmt.conf").jfile.toPath
-  )
+  private[this] val tempConfigPath: Option[Path] = configStr.map { s =>
+    val file = Files.createTempFile(".scalafmt", ".conf")
+    Files.write(file, s.getBytes)
+    file
+  }
+
+  def configPath: Path = tempConfigPath match {
+    case Some(tempConf) => tempConf
+    case None =>
+      config.getOrElse(
+        (common.workingDirectory / ".scalafmt.conf").jfile.toPath
+      )
+  }
+
+  def scalafmtConfig: Configured[ScalafmtConfig] = {
+    (configStr match {
+      case Some(contents) => Some(contents)
+      case None =>
+        val file =
+          AbsoluteFile.fromFile(configPath.toFile, common.workingDirectory)
+        catching(classOf[IOException]).opt(FileOps.readFile(file))
+    }).map { content =>
+        Config.fromHoconString(content)
+      }
+      .getOrElse(Configured.Ok(ScalafmtConfig.default))
+  }
 
   val inPlace: Boolean = writeMode == Override
 
@@ -149,6 +176,9 @@ case class CliOptions(
 
   private[cli] def encoding: Codec =
     readEncoding(configPath).getOrElse(DefaultEncoding)
+
+  private[cli] def version: Option[String] =
+    readVersion(configPath)
 
   private def readGit(config: Path): Option[Boolean] = {
     try {
@@ -206,6 +236,15 @@ case class CliOptions(
     } catch {
       case _: ConfigException.Missing => None
       case _: UnsupportedCharsetException => None
+      case NonFatal(_) => None
+    }
+  }
+
+  private def readVersion(config: Path): Option[String] = {
+    try {
+      Some(ConfigFactory.parseFile(config.toFile).getString("version"))
+    } catch {
+      case _: ConfigException.Missing => None
       case NonFatal(_) => None
     }
   }
