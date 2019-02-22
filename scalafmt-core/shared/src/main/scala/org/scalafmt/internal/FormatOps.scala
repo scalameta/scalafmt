@@ -504,7 +504,15 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       formatToken.between,
       rightIsComment = formatToken.right.isInstanceOf[Comment])
     val indent = {
-      if ((style.unindentTopLevelOperators ||
+      if (style.unindentTopLevelOperators &&
+        !isTopLevelInfixApplication(owner) &&
+        style.indentOperator.includeRegexp
+          .findFirstIn(formatToken.left.syntax)
+          .isDefined &&
+        style.indentOperator.excludeRegexp
+          .findFirstIn(formatToken.left.syntax)
+          .isEmpty) 2
+      else if ((style.unindentTopLevelOperators ||
         isTopLevelInfixApplication(owner)) &&
         (style.indentOperator.includeRegexp
           .findFirstIn(op.tokens.head.syntax)
