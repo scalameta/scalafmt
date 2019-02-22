@@ -1,0 +1,79 @@
+// This is a copy of IndentOperatorSpray, modified to use the default indentOperator
+unindentTopLevelOperators = true
+indentOperator = default
+<<< Indent operators
+object TestRoutes {
+  def routes = {
+    pathPrefix("foo") {
+      ???
+    } ~
+      pathPrefix("bar") {
+        ???
+      }
+
+      val foo = 1 +
+      2 -
+      2 *
+      3 \
+      4
+
+      val far = a >
+      b
+
+      val faz = a &&
+        b
+
+      val foz = a &&
+        b
+
+      val boo = a <
+      b
+
+      val bar = a +=
+      b
+
+      val baz = a ++=
+      b
+
+      val foz = a >>=
+      b
+  }
+}
+>>>
+object TestRoutes {
+  def routes = {
+    pathPrefix("foo") {
+      ???
+    } ~
+    pathPrefix("bar") {
+      ???
+    }
+
+    val foo = 1 +
+      2 -
+      2 *
+      3 \
+      4
+
+    val far = a >
+      b
+
+    val faz = a &&
+    b
+
+    val foz = a &&
+    b
+
+    val boo = a <
+    b
+
+    val bar = a +=
+      b
+
+    val baz = a ++=
+      b
+
+    val foz = a >>=
+      b
+  }
+}
