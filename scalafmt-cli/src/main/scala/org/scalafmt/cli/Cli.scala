@@ -153,6 +153,10 @@ object Cli {
       out.println("Working directory: " + pwd)
     }
 
+    // Run format using
+    // - `scalafmt-dynamic` if the specified `version` setting doesn't match build version.
+    // - `scalafmt-core` if the specified `version` setting match with build version
+    //   (or if the `version` is not specified).
     val exit = options.version match {
       case None => runScalafmt(options, termDisplayMessage)
       case Some(v) if v == Versions.version =>
@@ -219,6 +223,10 @@ object Cli {
       .create(this.getClass.getClassLoader)
       .withReporter(reporter)
 
+    // Path names fully qualified by `customFiles`.
+    // If there exists fqpns, create another instance of `scalafmt-dynamic`
+    // that ignores `excludeFilters` because fully qualified files will (try to) be
+    // formatted regardless of what it is or where it is (and excludeFilter).
     val fqpns = inputMethods.filter { input =>
       AbsoluteFile.fromPath(input.filename).forall { file =>
         options.customFiles.contains(file)
@@ -236,6 +244,7 @@ object Cli {
 
     inputMethods.foreach { inputMethod =>
       val instance =
+        // Use scalafmt-dynamic that ignores exclude filters for fully qualified paths
         if (fqpns.contains(inputMethod)) scalafmtInstanceIgnoreFilters
         else scalafmtInstance
       try handleFile(inputMethod, instance, options)
