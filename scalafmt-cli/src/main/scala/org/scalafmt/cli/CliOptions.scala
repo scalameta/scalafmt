@@ -92,17 +92,31 @@ case class CliOptions(
     gitOpsConstructor: AbsoluteFile => GitOps = x => new GitOpsImpl(x),
     noStdErr: Boolean = false
 ) {
+  // These default values are copied from here.
+  // https://github.com/scalameta/scalafmt/blob/f2154330afa0bc4a0a556598adeb116eafecb8e3/scalafmt-core/shared/src/main/scala/org/scalafmt/config/ScalafmtConfig.scala#L127-L162
   private[this] val DefaultGit = false
   private[this] val DefaultFatalWarnings = false
   private[this] val DefaultIgnoreWarnings = false
   private[this] val DefaultEncoding = Codec.UTF8
 
+
+  /** Create a temporary file that contains configuration string specified by `--config-str`.
+    * This temporary file will be passed to `scalafmt-dynamic`.
+    * See https://github.com/scalameta/scalafmt/pull/1367#issuecomment-464744077
+    */
   private[this] val tempConfigPath: Option[Path] = configStr.map { s =>
     val file = Files.createTempFile(".scalafmt", ".conf")
     Files.write(file, s.getBytes)
     file
   }
 
+  /** - If --config-str is specified (and tempConfigPath is defined),
+    *   this returns the path to a temporary file.
+    * - If both tempConfigPath and config are None,
+    *   this return the path to `.scalafmt.conf` on the working directory.
+    *
+    * @return A path to a configuration file
+    */
   def configPath: Path = tempConfigPath match {
     case Some(tempConf) => tempConf
     case None =>
@@ -111,6 +125,12 @@ case class CliOptions(
       )
   }
 
+  /** Parse the scalafmt configuration and try to encode it to `ScalafmtConfig`.
+    * If `--config-str` is specified, this will parse the configuration string specified by `--config-str`.
+    * Otherwise, a contents of configuration file specified by `configPath` will be parsed.
+    *
+    * If `--config-str` is not specified and configuration file is missing, this will return the default configuration
+    */
   def scalafmtConfig: Configured[ScalafmtConfig] = {
     (configStr match {
       case Some(contents) => Some(contents)
