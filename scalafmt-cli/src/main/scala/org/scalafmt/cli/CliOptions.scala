@@ -99,7 +99,6 @@ case class CliOptions(
   private[this] val DefaultIgnoreWarnings = false
   private[this] val DefaultEncoding = Codec.UTF8
 
-
   /** Create a temporary file that contains configuration string specified by `--config-str`.
     * This temporary file will be passed to `scalafmt-dynamic`.
     * See https://github.com/scalameta/scalafmt/pull/1367#issuecomment-464744077
