@@ -1,6 +1,5 @@
 package org.scalafmt.cli
 
-import scala.io.Codec
 import scala.io.Source
 
 import java.io.File
@@ -40,7 +39,7 @@ object InputMethod {
   case class FileContents(file: AbsoluteFile) extends InputMethod {
     override def filename = file.path
     def readInput(options: CliOptions): String =
-      FileOps.readFile(filename)(options.config.encoding)
+      FileOps.readFile(filename)(options.encoding)
     override def write(
         formatted: String,
         original: String,
@@ -59,7 +58,7 @@ object InputMethod {
         }
       } else if (options.inPlace) {
         if (codeChanged) {
-          FileOps.writeFile(filename, formatted)(options.config.encoding)
+          FileOps.writeFile(filename, formatted)(options.encoding)
         }
       } else {
         options.common.out.print(formatted)
