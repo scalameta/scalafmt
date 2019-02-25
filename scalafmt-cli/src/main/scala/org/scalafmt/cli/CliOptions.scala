@@ -196,6 +196,9 @@ case class CliOptions(
   private[cli] def encoding: Codec =
     readEncoding(configPath).getOrElse(DefaultEncoding)
 
+  /** Returns None if .scalafmt.conf is not found or
+    * version setting is missing.
+    */
   private[cli] def version: Option[String] =
     readVersion(configPath)
 

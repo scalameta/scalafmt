@@ -1,6 +1,6 @@
 package org.scalafmt.cli
 
-import java.io.File
+import java.io.{File, PrintStream}
 import java.nio.file.Files
 
 import org.scalafmt.util.AbsoluteFile
@@ -46,4 +46,27 @@ object FileTestOps {
       .replace(File.separator, "/") // ensure original separators
   }
 
+  def getMockOptions(baseDir: AbsoluteFile): CliOptions =
+    getMockOptions(baseDir, baseDir)
+
+  def getMockOptions(
+      baseDir: AbsoluteFile,
+      workingDir: AbsoluteFile,
+      out: PrintStream = System.out
+  ): CliOptions = {
+    CliOptions.default.copy(
+      gitOpsConstructor = _ => new FakeGitOps(baseDir),
+      common = CliOptions.default.common.copy(
+        workingDirectory = workingDir,
+        out = out,
+        err = out
+      )
+    )
+  }
+
+  val baseCliOptions: CliOptions = getMockOptions(
+    AbsoluteFile
+      .fromPath(Files.createTempDirectory("base-dir").toString)
+      .get
+  )
 }
