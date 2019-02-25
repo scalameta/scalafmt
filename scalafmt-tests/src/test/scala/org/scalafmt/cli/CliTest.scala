@@ -32,30 +32,6 @@ abstract class AbstractCliTest extends FunSuite with DiffAssertions {
     Cli.run(conf.get)
   }
 
-  def getMockOptions(baseDir: AbsoluteFile): CliOptions =
-    getMockOptions(baseDir, baseDir)
-
-  def getMockOptions(
-      baseDir: AbsoluteFile,
-      workingDir: AbsoluteFile,
-      out: PrintStream = System.out
-  ): CliOptions = {
-    CliOptions.default.copy(
-      gitOpsConstructor = _ => new FakeGitOps(baseDir),
-      common = CliOptions.default.common.copy(
-        workingDirectory = workingDir,
-        out = out,
-        err = out
-      )
-    )
-  }
-
-  val baseCliOptions: CliOptions = getMockOptions(
-    AbsoluteFile
-      .fromPath(Files.createTempDirectory("base-dir").toString)
-      .get
-  )
-
   def getConfig(args: Array[String]): CliOptions = {
     Cli.getConfig(args, baseCliOptions).get
   }
@@ -745,4 +721,48 @@ trait CliTestBehavior { this: AbstractCliTest =>
 class CliTest extends AbstractCliTest with CliTestBehavior {
   testsFor(testCli("1.6.0-RC4")) // test for runDynamic
   testsFor(testCli(Versions.version)) // test for runScalafmt
+
+  test("Running pre-resolved version of scalafmt if .scalafmt.conf is missing.") {
+    val input =
+      s"""|/foo.scala
+          |object A {}
+          |""".stripMargin
+    noArgTest(
+      string2dir(input),
+      input,
+      Seq(
+        Array("--debug") // debug options is needed to output running scalafmt version
+      ),
+      assertExit = { exit =>
+        assert(exit.isOk, exit)
+      },
+      assertOut = out => {
+        assert(out.contains(Versions.version))
+      }
+    )
+  }
+
+  test(
+    "Running pre-resolved version of scalafmt if `version` setting is missing.") {
+    val input =
+      s"""|/.scalafmt.conf
+          |maxColumn = 10
+          |
+          |/foo.scala
+          |object A {}
+          |""".stripMargin
+    noArgTest(
+      string2dir(input),
+      input,
+      Seq(
+        Array("--debug") // debug options is needed to output running scalafmt version
+      ),
+      assertExit = { exit =>
+        assert(exit.isOk, exit)
+      },
+      assertOut = out => {
+        assert(out.contains(Versions.version))
+      }
+    )
+  }
 }

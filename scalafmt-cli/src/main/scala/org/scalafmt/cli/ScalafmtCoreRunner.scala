@@ -4,7 +4,7 @@ import java.util.function.UnaryOperator
 
 import metaconfig.Configured
 import org.scalafmt.Error.{MisformattedFile, NoMatchingFiles}
-import org.scalafmt.{Formatted, Scalafmt}
+import org.scalafmt.{Formatted, Scalafmt, Versions}
 import org.scalafmt.config.{FilterMatcher, ScalafmtConfig}
 import org.scalafmt.util.OsSpecific
 
@@ -22,6 +22,8 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
         if (!options.quiet) options.common.err.println(s"${e.msg}")
         ExitCode.UnexpectedError
       case Configured.Ok(scalafmtConf) =>
+        if (options.debug)
+          options.common.out.println(s"parsed config (v${Versions.version})")
         val filterMatcher: FilterMatcher = FilterMatcher(
           scalafmtConf.project.includeFilters
             .map(OsSpecific.fixSeparatorsInPathPattern),
