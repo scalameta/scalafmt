@@ -1280,8 +1280,9 @@ class Router(formatOps: FormatOps) {
               },
               expire = expire.end
             ))
-            .withIndent(2, expire, Left) // case body indented by 2.
-            .withIndent(2, arrow, Left) // cond body indented by 4.
+            .withIndent(2, arrow, Left) // cond body indented by 2.
+            .withIndent(2, expire, Left) // case body indented by 4.
+
         )
       case tok @ FormatToken(_, cond @ KwIf(), _) if rightOwner.is[Case] =>
         val arrow = getArrow(rightOwner.asInstanceOf[Case])
