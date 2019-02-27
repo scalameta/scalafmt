@@ -1,0 +1,112 @@
+style = default
+
+# Real example extracted from
+# https://github.com/scala/scala/blob/a9337c2aa8c634bd72a10e364592c068a99d2aa3/src/compiler/scala/tools/nsc/backend/jvm/opt/InlinerHeuristics.scala#L154
+# Even though the innermost call needs to be wrapped to fit on one line, wrapping
+# the outer ones too doesn't help.
+<<< Avoid unnecessary wrapping
+def f = {
+  Some(Left(CalleeNotFinal(callee.calleeDeclarationClass.internalName, callee.callee.name, callee.callee.desc, callsite.isInlineAnnotated)))
+}
+>>>
+def f = {
+  Some(Left(CalleeNotFinal(
+    callee.calleeDeclarationClass.internalName,
+    callee.callee.name,
+    callee.callee.desc,
+    callsite.isInlineAnnotated)))
+}
+
+<<< Preseve lambda on same line as outer function call
+def f = {
+  something.call(x => {
+    g(x)
+    h(y)
+  })
+}
+>>>
+def f = {
+  something.call(x => {
+    g(x)
+    h(y)
+  })
+}
+
+<<< Preseve lambda on same line as outer curly function call
+def f = {
+  something.call { (x, y) =>
+    g(x)
+    h(y)
+  }
+}
+>>>
+def f = {
+  something.call { (x, y) =>
+    g(x)
+    h(y)
+  }
+}
+
+<<< Preseve lambda on same line as outer curried function call
+def f = {
+  something.call(foo)(x => {
+    g(x)
+    h(y)
+  })
+}
+>>>
+def f = {
+  something.call(foo)(x => {
+    g(x)
+    h(y)
+  })
+}
+
+<<< Preseve lambda on same line as outer function call (with wrapped simple expr body)
+def f = {
+  something.call(x =>
+    WidgetFactoryFactoryFactoryFactory.createWidgetFactoryFactoryFactory(sheep)
+      .createWidgetFactoryFactory(pelts)
+      .createWidgetFactory(wool)
+  )
+}
+>>>
+def f = {
+  something.call(x =>
+    WidgetFactoryFactoryFactoryFactory.createWidgetFactoryFactoryFactory(sheep)
+      .createWidgetFactoryFactory(pelts)
+      .createWidgetFactory(wool)
+  )
+}
+
+<<< Preseve lambda on same line as outer function call (with shorter wrapped simple expr body)
+def f = {
+  something.call(x =>
+    createWidgetFactoryFactoryFactoryFactory(sheep)
+      .createWidgetFactoryFactory(pelts)
+      .createWidgetFactory(wool)
+  )
+}
+>>>
+def f = {
+  something.call(x =>
+    createWidgetFactoryFactoryFactory(sheep)
+      .createWidgetFactoryFactory(pelts)
+      .createWidgetFactory(wool)
+  )
+}
+
+<<< Preseve lambda on same line as outer function call (with wrapped inner call)
+def f = {
+  something.call(x => foo(
+    WidgetFactoryFactoryFactoryFactory, createWidgetFactoryFactoryPelts, createWidgetFactoryWool,
+  ))
+}
+>>>
+def f = {
+  something.call(x => foo(
+    WidgetFactoryFactoryFactoryFactory,
+    createWidgetFactoryFactoryPelts,
+    createWidgetFactoryWool,
+  ))
+}
