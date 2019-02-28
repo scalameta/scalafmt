@@ -7,7 +7,6 @@ import java.nio.file.{Files, Path}
 import org.scalafmt.dynamic.exceptions._
 import org.scalafmt.dynamic.utils.ReflectUtils._
 
-import scala.reflect.ClassTag
 import scala.util.Try
 
 case class ScalafmtReflect(
