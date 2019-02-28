@@ -246,10 +246,10 @@ binary built with GraalVM. GraalVM native binary provides instant startup withou
 scalafmt --version // should be 2.0.0-RC4
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="help"></a><a href="#help" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>--help</h3>
-<pre><code class="hljs">build commit: fd48c4b0ea33608923dcbf78ec4bfafdb06699bd
-build time: Mon Feb <span class="hljs-number">25</span> <span class="hljs-number">17</span>:<span class="hljs-number">38</span>:<span class="hljs-number">47</span> UTC <span class="hljs-number">2019</span>
+<pre><code class="hljs">build commit: fd840e7d8e4d1371e731447e3baf710a0343a7b5
+build time: Thu Feb <span class="hljs-number">28</span> <span class="hljs-number">12</span>:<span class="hljs-number">40</span>:<span class="hljs-number">07</span> UTC <span class="hljs-number">2019</span>
 </code></pre>
-<pre><code class="hljs">scalafmt 2.0.0-RC4+40-fd48c4b0-SNAPSHOT
+<pre><code class="hljs">scalafmt 2.0.0-RC4+56-fd840e7d-SNAPSHOT
 Usage: scalafmt [options] [&lt;<span class="hljs-keyword">file</span>&gt;...]
 
   -<span class="hljs-keyword">h</span>, --<span class="hljs-keyword">help</span>               prints this usage text
@@ -393,19 +393,15 @@ handle parse and config errors.</p>
 <p>File: <a href="https://github.com/scalameta/mdoc/blob/master/scalafmt-dynamic/src/main/scala/org/scalafmt/dynamic/ConsoleScalafmtReporter.scala">ConsoleScalafmtReporter.scala</a></p>
 <pre><code class="hljs css language-scala"><span class="hljs-keyword">package</span> org.scalafmt.dynamic
 
-<span class="hljs-keyword">import</span> java.io.<span class="hljs-type">PrintStream</span>
-<span class="hljs-keyword">import</span> java.io.<span class="hljs-type">PrintWriter</span>
+<span class="hljs-keyword">import</span> java.io.{<span class="hljs-type">PrintStream</span>, <span class="hljs-type">PrintWriter</span>}
 <span class="hljs-keyword">import</span> java.nio.file.<span class="hljs-type">Path</span>
+
+<span class="hljs-keyword">import</span> org.scalafmt.dynamic.exceptions.<span class="hljs-type">ScalafmtException</span>
 <span class="hljs-keyword">import</span> org.scalafmt.interfaces.<span class="hljs-type">ScalafmtReporter</span>
 
 <span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">ConsoleScalafmtReporter</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">ConsoleScalafmtReporter</span>(<span class="hljs-params"><span class="hljs-type">System</span>.err</span>)</span>
 
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ConsoleScalafmtReporter</span>(<span class="hljs-params">out: <span class="hljs-type">PrintStream</span></span>) <span class="hljs-keyword">extends</span> <span class="hljs-title">ScalafmtReporter</span> </span>{
-  <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">downloadWriter</span></span>(): <span class="hljs-type">PrintWriter</span> = <span class="hljs-keyword">new</span> <span class="hljs-type">PrintWriter</span>(out)
-  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">trimStacktrace</span></span>(e: <span class="hljs-type">Throwable</span>): <span class="hljs-type">Unit</span> = ()
-  <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">excluded</span></span>(filename: <span class="hljs-type">Path</span>): <span class="hljs-type">Unit</span> = {
-    out.println(<span class="hljs-string">s"file excluded: <span class="hljs-subst">$filename</span>"</span>)
-  }
   <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">error</span></span>(file: <span class="hljs-type">Path</span>, e: <span class="hljs-type">Throwable</span>): <span class="hljs-type">Unit</span> = {
     out.print(<span class="hljs-string">s"error: <span class="hljs-subst">$file</span>: "</span>)
     trimStacktrace(e)
@@ -416,9 +412,21 @@ handle parse and config errors.</p>
     out.println(<span class="hljs-string">s"error: <span class="hljs-subst">$path</span>: <span class="hljs-subst">$message</span>"</span>)
   }
 
+  <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">error</span></span>(file: <span class="hljs-type">Path</span>, message: <span class="hljs-type">String</span>, e: <span class="hljs-type">Throwable</span>): <span class="hljs-type">Unit</span> = {
+    error(file, <span class="hljs-type">ScalafmtException</span>(message, e))
+  }
+
+  <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">excluded</span></span>(filename: <span class="hljs-type">Path</span>): <span class="hljs-type">Unit</span> = {
+    out.println(<span class="hljs-string">s"file excluded: <span class="hljs-subst">$filename</span>"</span>)
+  }
+
   <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">parsedConfig</span></span>(config: <span class="hljs-type">Path</span>, scalafmtVersion: <span class="hljs-type">String</span>): <span class="hljs-type">Unit</span> = {
     out.println(<span class="hljs-string">s"parsed config (v<span class="hljs-subst">$scalafmtVersion</span>): <span class="hljs-subst">$config</span>"</span>)
   }
+
+  <span class="hljs-keyword">override</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">downloadWriter</span></span>(): <span class="hljs-type">PrintWriter</span> = <span class="hljs-keyword">new</span> <span class="hljs-type">PrintWriter</span>(out)
+
+  <span class="hljs-keyword">protected</span> <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">trimStacktrace</span></span>(e: <span class="hljs-type">Throwable</span>): <span class="hljs-type">Unit</span> = ()
 }
 </code></pre>
 <p>Use <code>withReporter(reporter)</code> to pass in your custom reporter.</p>
