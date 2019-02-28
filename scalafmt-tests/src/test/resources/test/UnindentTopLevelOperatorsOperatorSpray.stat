@@ -15,6 +15,12 @@ object TestRoutes {
       3 \
       4
 
+      val foo = 1 +
+      2 -
+      2 *
+      3 \
+      4
+
       a >
       b
 
@@ -51,6 +57,12 @@ object TestRoutes {
     2 *
     3 \
     4
+
+    val foo = 1 +
+      2 -
+      2 *
+      3 \
+      4
 
     a >
     b
@@ -94,24 +106,24 @@ object TestRoutes {
       ???
     }
 }
-<<< #848 known limitation - right-hand side of assignment is unindented
+<<< #848
   val x =
   1 +
   2 +
   3
 >>>
 val x =
-1 +
-2 +
-3
-<<< #848 known limitation 2 - right-hand side of assignment is unindented
+  1 +
+  2 +
+  3
+<<< #848 Test 2
   val x = 1 +
   2 +
   3
 >>>
 val x = 1 +
-2 +
-3
+  2 +
+  3
 <<< #1223 assignment + regular application
 val x = a + B(
     a,
@@ -119,22 +131,22 @@ val x = a + B(
 )
 >>>
 val x = a + B(
-  a,
-  2
-)
-<<< #1223 assignment + right-associative + regular application
+    a,
+    2
+  )
+<<< #1223 assignment + right-associative
 val x = a :: B(
     a,
     2
 )
 >>>
 val x = a :: B(
-  a,
-  2
-)
-<<< #1282 known limitation - counter-example why PR insufficient
+    a,
+    2
+  )
+<<< #1282
 val x = 1 + 2 +
   3
 >>>
 val x = 1 + 2 +
-3
+  3

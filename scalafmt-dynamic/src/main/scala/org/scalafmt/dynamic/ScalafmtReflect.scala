@@ -13,7 +13,7 @@ import scala.util.Try
 case class ScalafmtReflect(
     classLoader: URLClassLoader,
     version: String,
-    respectVersion: Boolean,
+    respectVersion: Boolean
 ) {
   import classLoader.loadClass
 

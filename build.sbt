@@ -126,10 +126,18 @@ lazy val cli = project
     libraryDependencies ++= Seq(
       "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0",
       "com.martiansoftware" % "nailgun-server" % "0.9.1",
-      "com.github.scopt" %% "scopt" % "3.5.0"
-    )
+      "com.github.scopt" %% "scopt" % "3.5.0",
+      // undeclared transitive dependency of coursier-small
+      "org.scala-lang.modules" %% "scala-xml" % "1.1.1"
+    ),
+    scalacOptions ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, 11)) => Seq("-target:jvm-1.8")
+        case _ => Seq.empty
+      }
+    }
   )
-  .dependsOn(coreJVM, interfaces)
+  .dependsOn(coreJVM, dynamic)
 
 lazy val intellij = project
   .in(file("scalafmt-intellij"))

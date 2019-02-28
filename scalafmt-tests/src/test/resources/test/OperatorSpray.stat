@@ -1,0 +1,143 @@
+// This is copied from UnindentTopLevelOperatorsOperatorSpray,
+// but uses the default unindentTopLevelOperators = false
+// Tests have been updated to match expected output
+unindentTopLevelOperators = false
+indentOperator = spray
+<<< Indent operators
+object TestRoutes {
+  def routes = {
+    pathPrefix("foo") {
+      ???
+    } ~
+      pathPrefix("bar") {
+        ???
+      }
+      1 +
+      2 -
+      2 *
+      3 \
+      4
+
+      a >
+      b
+
+      a &&
+        b
+
+      a &&
+        b
+
+      a <
+      b
+
+      a +=
+      b
+
+      a ++=
+      b
+
+      a >>=
+      b
+  }
+}
+>>>
+object TestRoutes {
+  def routes = {
+    pathPrefix("foo") {
+      ???
+    } ~
+    pathPrefix("bar") {
+      ???
+    }
+    1 +
+    2 -
+    2 *
+    3 \
+    4
+
+    a >
+    b
+
+    a &&
+    b
+
+    a &&
+    b
+
+    a <
+    b
+
+    a +=
+      b
+
+    a ++=
+      b
+
+    a >>=
+      b
+  }
+}
+<<< Without braces
+object TestRoutes {
+  def routes =
+    pathPrefix("foo") {
+      ???
+    } ~
+      pathPrefix("bar") {
+        ???
+      }
+      }
+>>>
+object TestRoutes {
+  def routes =
+    pathPrefix("foo") {
+      ???
+    } ~
+      pathPrefix("bar") {
+        ???
+      }
+}
+<<< #848 known limitation - right-hand side of assignment is unindented
+  val x =
+  1 +
+  2 +
+  3
+>>>
+val x =
+  1 +
+    2 +
+    3
+<<< #848 known limitation 2 - right-hand side of assignment is unindented
+  val x = 1 +
+  2 +
+  3
+>>>
+val x = 1 +
+  2 +
+  3
+<<< #1223 assignment + regular application
+val x = a + B(
+    a,
+    2
+)
+>>>
+val x = a + B(
+  a,
+  2
+)
+<<< #1223 assignment + right-associative + regular application
+val x = a :: B(
+    a,
+    2
+)
+>>>
+val x = a :: B(
+  a,
+  2
+)
+<<< #1282 known limitation - counter-example why PR insufficient
+val x = 1 + 2 +
+  3
+>>>
+val x = 1 + 2 +
+  3
