@@ -1,25 +1,20 @@
 package tests
 
-import java.io.ByteArrayOutputStream
-import java.io.PrintStream
-import java.io.PrintWriter
+import java.io.{ByteArrayOutputStream, PrintStream, PrintWriter}
 import java.nio.charset.StandardCharsets
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
-import java.nio.file.StandardOpenOption
+import java.nio.file.{Files, Path, Paths, StandardOpenOption}
 import java.nio.file.attribute.FileTime
+
 import org.scalactic.source.Position
-import org.scalafmt.dynamic.ConsoleScalafmtReporter
-import org.scalafmt.interfaces.Scalafmt
-import org.scalafmt.interfaces.ScalafmtReporter
+import org.scalafmt.dynamic.{ConsoleScalafmtReporter, ScalafmtDynamic}
+import org.scalafmt.interfaces.{PositionException, Scalafmt, ScalafmtReporter}
 import org.scalatest.FunSuite
+import tests.PositionSyntax._
+
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
-import scala.{meta => m}
 import scala.meta.testkit._
-import PositionSyntax._
-import org.scalafmt.interfaces.PositionException
+import scala.{meta => m}
 
 class DynamicSuite extends FunSuite with DiffAssertions {
   class Format(name: String) {
@@ -68,10 +63,11 @@ class DynamicSuite extends FunSuite with DiffAssertions {
           )
         }
       }
-    var dynamic = Scalafmt
+    var dynamic: ScalafmtDynamic = Scalafmt
       .create(this.getClass.getClassLoader)
       .withReporter(reporter)
       .withDefaultVersion(latest)
+      .asInstanceOf[ScalafmtDynamic]
     def ignoreVersion(): Unit = {
       dynamic = dynamic.withRespectVersion(false)
     }
@@ -119,7 +115,8 @@ class DynamicSuite extends FunSuite with DiffAssertions {
       val file = Paths.get(filename)
       val original = "object A  { }"
       val obtained = dynamic.format(config, file, original)
-      assert(out.toString().contains(s"file excluded: $filename"))
+      val outString = out.toString().replaceAll("\\\\", "/")
+      assert(outString.contains(s"file excluded: $filename"))
       assertNoDiffOrPrintExpected(obtained, original)
     }
     def assertFormat()(implicit pos: Position): Unit = {
@@ -167,6 +164,29 @@ class DynamicSuite extends FunSuite with DiffAssertions {
     }
   }
 
+  private val testedVersions = Seq(
+    "2.0.0-RC4",
+    "1.6.0-RC4",
+    "1.5.1",
+    "1.5.0",
+    "1.4.0",
+    "1.3.0",
+    "1.2.0",
+    "1.1.0",
+    "1.0.0-RC4",
+    "1.0.0"
+  )
+
+  def checkExhaustive(name: String)(fn: (Format, String) => Unit): Unit = {
+    testedVersions.foreach { version =>
+      test(s"$name (version: $version)") {
+        val format = new Format(name)
+        try fn(format, version)
+        finally format.dynamic.clear()
+      }
+    }
+  }
+
   def latest = "2.0.0-RC1"
 
   def checkVersion(version: String): Unit = {
@@ -180,7 +200,9 @@ class DynamicSuite extends FunSuite with DiffAssertions {
   }
 
   checkVersion(latest)
+  checkVersion("1.5.1")
   checkVersion("1.0.0")
+  //checkVersion("0.2.8") // fails for now
 
   check("parse-error") { f =>
     def check(): Unit = {
@@ -271,6 +293,7 @@ class DynamicSuite extends FunSuite with DiffAssertions {
     f.assertFormat()
     f.assertFormat()
     assert(f.parsedCount == 1, f.parsed)
+
     f.setConfig(
       s"""version=$latest
          |maxColumn = 40
@@ -280,13 +303,18 @@ class DynamicSuite extends FunSuite with DiffAssertions {
     assert(f.parsedCount == 2, f.parsed)
     f.assertFormat()
     assert(f.parsedCount == 2, f.parsed)
+
     f.setConfig(
       """version=1.0.0
         |maxColumn = 40
         |""".stripMargin
     )
     f.assertFormat()
-    assert(f.parsed == Map("1.0.0" -> 1, latest -> 3))
+    assert(f.parsedCount == 3, f.parsed)
+    f.assertFormat()
+    assert(f.parsedCount == 3, f.parsed)
+
+    assert(f.parsed == Map("1.0.0" -> 1, latest -> 2))
   }
 
   check("wrong-version") { f =>
@@ -327,5 +355,65 @@ class DynamicSuite extends FunSuite with DiffAssertions {
   check("no-config") { f =>
     Files.delete(f.config)
     f.assertError("error: path/.scalafmt.conf: file does not exist")
+  }
+
+  check("intellij-default-config") { f: Format =>
+    val version = "1.5.1"
+    f.setVersion(version)
+    f.assertFormat()
+
+    val reflect = f.dynamic.fmtsCache.get(version)
+    assert(reflect.nonEmpty)
+    assert(reflect.get.intellijScalaFmtConfig.nonEmpty)
+  }
+
+  checkExhaustive("continuation-indent-callSite-and-defnSite") { (f, version) =>
+    f.setConfig(
+      s"""version=$version
+         |continuationIndent.callSite = 5
+         |continuationIndent.defnSite = 3
+      """.stripMargin
+    )
+    val original =
+      """class A {
+        |  function1(
+        |  argument1,
+        |  ""
+        |  )
+        |
+        |  def function2(
+        |  argument1: Type1
+        |  ): ReturnType
+        |}
+      """.stripMargin
+    val expected =
+      """class A {
+        |  function1(
+        |       argument1,
+        |       ""
+        |  )
+        |
+        |  def function2(
+        |     argument1: Type1
+        |  ): ReturnType
+        |}
+      """.stripMargin
+    f.assertFormat(original, expected)
+  }
+
+  checkExhaustive("hasRewriteRules-and-withoutRewriteRules") { (f, version) =>
+    f.setConfig(
+      s"""version=$version
+         |rewrite.rules = [RedundantBraces]
+        """.stripMargin
+    )
+    f.assertFormat()
+    val configOpt = f.dynamic.configsCache.get(f.config).map(_._1)
+    assert(configOpt.nonEmpty)
+    val config = configOpt.get
+    assert(config.hasRewriteRules)
+    val configWithoutRewrites = config.withoutRewriteRules
+    assert(config !== configWithoutRewrites)
+    assert(!configWithoutRewrites.hasRewriteRules)
   }
 }
