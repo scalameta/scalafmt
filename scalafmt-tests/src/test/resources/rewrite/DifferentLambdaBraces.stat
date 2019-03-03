@@ -1,0 +1,58 @@
+rewrite.rules=[DifferentLambdaBraces]
+maxColumn=40
+<<< don't modify single-line lambda with parens 
+xs.map(x => x + 1)
+>>>
+xs.map(x => x + 1)
+<<< replaces parens to curly braces after line break addition
+parametersList.map(parameter => applySettings(parameter))
+>>>
+parametersList.map { parameter =>
+  applySettings(parameter)
+}
+<<< work with nested lambdas
+parametersList.map(p => p.children.map(x => applySettings(x).map(f)))
+>>>
+parametersList.map { p =>
+  p.children.map { x =>
+    applySettings(x).map(f)
+  }
+}
+<<< don't replace correct nested lambdas
+parametersList.map { p =>
+  p.children.map(x => applySettings(x))
+}
+>>>
+parametersList.map { p =>
+  p.children.map(x => applySettings(x))
+}
+<<< replace braces in long nested lambdas
+parametersList.map(param => param.children.map(x => aaaaaaaaaaaaaaaaaaaaaaaaaaaa(x)))
+>>>
+parametersList.map { param =>
+  param.children.map { x =>
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaa(x)
+  }
+}
+<<< b
+xs.map(f(1, _))
+>>>
+xs.map(f(1, _))
+<<< replaces curly braces to parens for single-line lambda  
+xs.map { x => x + 1 }
+>>>
+xs.map(x => x + 1)
+<<< don't replace braces in multiline block lambdas
+xs.map { x =>
+  x + 1
+}
+>>>
+xs.map { x =>
+  x + 1
+}
+<<< don't replace braces in long block lambdas
+parametersList.map { x => applySettings(x) }
+>>>
+parametersList.map { x =>
+  applySettings(x)
+}
