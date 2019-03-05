@@ -83,21 +83,25 @@ It is not possible to reset this setting for all existing projects.
 
 ```scala
 // In project/plugins.sbt. Note, does not support sbt 0.13, only sbt 1.0.
-addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "1.5.1")
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.0.0-RC5")
+// or
+addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "1.5.1") // before 1.6.0-RC4 
 ```
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.geirsson/sbt-scalafmt/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.geirsson/sbt-scalafmt)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.scalameta/sbt-scalafmt/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.scalameta/sbt-scalafmt)
 
 ### Task keys
 
 - `myproject/scalafmt`: Format main sources of `myproject` project
 - `myproject/test:scalafmt`: Format test sources of `myproject` project
-- `scalafmtCli`: Run the scalafmt command line interface.
+- `scalafmtIncremental`: Format Scala sources to be compiled incrementally with scalafmt. (available as of v2.0.0-RC5)
 - `scalafmtCheck`: Check if the scala sources under the project has been
   formatted.
 - `scalafmtSbt`: Format `*.sbt` and `project/*.scala` files.
 - `scalafmtSbtCheck`: Check if the files has been formatted by `scalafmtSbt`.
 - `scalafmtOnly`: Format a single given file.
+- `scalafmtAll`: Execute the scalafmt task for all configurations in which it is enabled. (By default this means the Compile and Test configurations.) (available as of v2.0.0-RC5)
+- `scalafmtCheckAll`: Execute the scalafmtCheck task for all configurations in which it is enabled. (By default this means the Compile and Test configurations.) (available as of v2.0.0-RC5)
 
 ### Customize configuration location
 
