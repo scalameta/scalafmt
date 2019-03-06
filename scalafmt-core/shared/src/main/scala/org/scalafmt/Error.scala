@@ -29,10 +29,13 @@ object Error {
       extends Error(
         pos.formatMessage(
           "error",
-          "Unable to format file due to bug in scalafmt"))
+          "Unable to format file due to bug in scalafmt"
+        )
+      )
   case class CantFindDefnToken[T: ClassTag](tree: Tree)
       extends Error(
-        s"Expected keyword of type ${classTag[T].getClass} in tree $tree")
+        s"Expected keyword of type ${classTag[T].getClass} in tree $tree"
+      )
 
   case class CaseMissingArrow(tree: Case)
       extends Error(s"Missing => in case: \n$tree")
@@ -72,9 +75,10 @@ object Error {
   case class SearchStateExploded(
       deepestState: State,
       partialOutput: String,
-      lastToken: Token)
-      extends Error(
-        s"Search state exploded around line ${lastToken.pos.endLine}") {
+      lastToken: Token
+  ) extends Error(
+        s"Search state exploded around line ${lastToken.pos.endLine}"
+      ) {
     def line: Int = lastToken.pos.endLine
   }
 
@@ -84,7 +88,8 @@ object Error {
   case object NoMatchingFiles
       extends Error(
         "No files formatted/tested. " +
-          "Verify include/exclude filters and command line arguments.")
+          "Verify include/exclude filters and command line arguments."
+      )
 
   case class InvalidOption(option: String)
       extends Error(s"Invalid option $option")

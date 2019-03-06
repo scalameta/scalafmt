@@ -46,7 +46,8 @@ object ScalaFile {
         s"""${repos.getAbsolutePath} is not a directory, run:
            |* wget $reposTarballUrl
            |* tar xvf $tarballNameWithExt
-           |""".stripMargin)
+           |""".stripMargin
+      )
     }
 
     Seq(files: _*).flatMap { repo =>

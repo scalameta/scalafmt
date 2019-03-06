@@ -57,7 +57,8 @@ class FormatTests
       Scalafmt.format(t.original, t.style.copy(runner = runner)) match {
         case Formatted.Failure(e)
             if t.style.onTestFailure.nonEmpty && e.getMessage.contains(
-              e.getMessage) =>
+              e.getMessage
+            ) =>
           t.expected
         case Formatted.Failure(e: Incomplete) => e.formattedCode
         case Formatted.Failure(e: SearchStateExploded) =>
@@ -71,7 +72,8 @@ class FormatTests
       t.style.onTestFailure.isEmpty) {
       assertFormatPreservesAst(t.original, obtained)(
         parse,
-        t.style.runner.dialect)
+        t.style.runner.dialect
+      )
     }
     val formattedAgain =
       Scalafmt.format(obtained, t.style.copy(runner = runner)).get
@@ -106,7 +108,9 @@ class FormatTests
       _ <- Future(
         FileOps.writeFile(
           s"target${File.separator}index.html",
-          Report.heatmap(results)))
+          Report.heatmap(results)
+        )
+      )
     } yield ()
     // Travis exits right after running tests.
     if (sys.env.contains("TRAVIS")) Await.ready(k, 20 seconds)

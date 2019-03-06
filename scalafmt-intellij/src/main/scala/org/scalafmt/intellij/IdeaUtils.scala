@@ -27,7 +27,9 @@ object IdeaUtils {
         PluginName,
         PluginName,
         Utility.escape(msg),
-        notificationType))
+        notificationType
+      )
+    )
 
   private def getConfigFileInPath(path: String, configRelativePath: String) = {
     Option(FileOps.getFile(path, configRelativePath)).collect {
@@ -46,7 +48,8 @@ object IdeaUtils {
 
   def searchForConfig(
       project: Option[Project],
-      file: VirtualFile): Option[String] = {
+      file: VirtualFile
+  ): Option[String] = {
     val files = for {
       proj <- project.toList
       basePath = proj.getBasePath
@@ -67,7 +70,8 @@ object IdeaUtils {
         case NotOk(e) =>
           IdeaUtils.displayMessage(
             s"Failed to read $configFile. \n" + e.toString(),
-            NotificationType.WARNING)
+            NotificationType.WARNING
+          )
           None
         case Ok(config) => Some(config)
       }
@@ -75,7 +79,8 @@ object IdeaUtils {
       if (!styleCache.get(configFile).contains(config)) {
         IdeaUtils.displayMessage(
           "scalafmt picked up new style configuration",
-          NotificationType.INFORMATION)
+          NotificationType.INFORMATION
+        )
         styleCache.update(configFile, config)
       }
       config
@@ -87,7 +92,8 @@ object IdeaUtils {
     for {
       project <- Option(event.getData(CommonDataKeys.PROJECT))
       editor <- Option(
-        FileEditorManager.getInstance(project).getSelectedTextEditor)
+        FileEditorManager.getInstance(project).getSelectedTextEditor
+      )
       document <- Option(editor.getDocument)
     } yield FileDocument(Some(project), document)
 }

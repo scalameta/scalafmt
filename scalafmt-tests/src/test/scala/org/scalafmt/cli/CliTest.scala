@@ -314,7 +314,8 @@ trait CliTestBehavior { this: AbstractCliTest =>
     }
 
     test(
-      s"scalafmt (no matching files) is okay with --diff and --stdin: $label") {
+      s"scalafmt (no matching files) is okay with --diff and --stdin: $label"
+    ) {
       val diff = getConfig(
         Array(
           "--diff",
@@ -476,7 +477,8 @@ trait CliTestBehavior { this: AbstractCliTest =>
 
       runWith(
         root,
-        s"""--config-str {version="$version"} $inner1 $inner2 $full""")
+        s"""--config-str {version="$version"} $inner1 $inner2 $full"""
+      )
 
       assertNoDiff(inner1 / "file1.scala", formatted)
       assertNoDiff(inner2 / "file2.scalahala", unformatted)
@@ -703,7 +705,9 @@ trait CliTestBehavior { this: AbstractCliTest =>
           Array(
             "--config-str",
             s"""{version="$version",onTestFailure="$expected"}""",
-            "--test")),
+            "--test"
+          )
+        ),
         assertExit = { exit =>
           assert(exit.is(ExitCode.TestError))
         },
@@ -743,7 +747,8 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
   }
 
   test(
-    "Running pre-resolved version of scalafmt if `version` setting is missing.") {
+    "Running pre-resolved version of scalafmt if `version` setting is missing."
+  ) {
     val input =
       s"""|/.scalafmt.conf
           |maxColumn = 10

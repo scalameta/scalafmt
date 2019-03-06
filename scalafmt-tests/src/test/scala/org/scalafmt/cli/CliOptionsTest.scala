@@ -15,28 +15,37 @@ class CliOptionsTest extends FunSuite {
     import org.scalafmt.config.Config
     val NotOk(err) = Config.fromHoconString("style = foobar")
     assert(
-      "Unknown style name foobar. Expected one of: Scala.js, IntelliJ, default, defaultWithAlign" == err.msg)
+      "Unknown style name foobar. Expected one of: Scala.js, IntelliJ, default, defaultWithAlign" == err.msg
+    )
 
     val overrideOne = Config.fromHoconString("""|style = defaultWithAlign
                                                 |maxColumn = 100
                                                 |""".stripMargin)
     assert(
-      Ok(ScalafmtConfig.defaultWithAlign.copy(maxColumn = 100)) == overrideOne)
+      Ok(ScalafmtConfig.defaultWithAlign.copy(maxColumn = 100)) == overrideOne
+    )
     assert(
-      Ok(ScalafmtConfig.intellij) == Config.fromHoconString("style = intellij"))
+      Ok(ScalafmtConfig.intellij) == Config.fromHoconString("style = intellij")
+    )
     assert(
-      Ok(ScalafmtConfig.scalaJs) == Config.fromHoconString("style = Scala.js"))
+      Ok(ScalafmtConfig.scalaJs) == Config.fromHoconString("style = Scala.js")
+    )
     assert(
-      Ok(ScalafmtConfig.defaultWithAlign) == Config.fromHoconString(
-        "style = defaultWithAlign"))
+      Ok(ScalafmtConfig.defaultWithAlign) == Config
+        .fromHoconString("style = defaultWithAlign")
+    )
   }
 
   test(
-    ".configPath returns a path to the temporary file that contains configuration specified by --config-str") {
+    ".configPath returns a path to the temporary file that contains configuration specified by --config-str"
+  ) {
     val expected = "foo bar"
     val path: Path = baseCliOptions
-      .copy(configStr =
-        Some(s"""{version="${Versions.version}", onTestFailure="$expected"}"""))
+      .copy(
+        configStr = Some(
+          s"""{version="${Versions.version}", onTestFailure="$expected"}"""
+        )
+      )
       .configPath
     val config = Config.fromHoconFile(path.toFile).get
     assert(config.onTestFailure == expected)
@@ -49,23 +58,28 @@ class CliOptionsTest extends FunSuite {
   }
 
   test(
-    ".configPath returns path to workingDirectory's .scalafmt.conf by default") {
+    ".configPath returns path to workingDirectory's .scalafmt.conf by default"
+  ) {
     val opt = baseCliOptions
     assert(
-      (opt.common.workingDirectory / ".scalafmt.conf").jfile.toPath == opt.configPath)
+      (opt.common.workingDirectory / ".scalafmt.conf").jfile.toPath == opt.configPath
+    )
   }
 
   test(
-    ".scalafmtConfig returns the configuration encoded from configStr if configStr is exists") {
+    ".scalafmtConfig returns the configuration encoded from configStr if configStr is exists"
+  ) {
     val expected = "foo bar"
     val opt = baseCliOptions.copy(
       configStr =
-        Some(s"""{version="${Versions.version}", onTestFailure="$expected"}"""))
+        Some(s"""{version="${Versions.version}", onTestFailure="$expected"}""")
+    )
     assert(opt.scalafmtConfig.get.onTestFailure == expected)
   }
 
   test(
-    ".scalafmtConfig returns the configuration read from configuration file located on configPath") {
+    ".scalafmtConfig returns the configuration read from configuration file located on configPath"
+  ) {
     val expected = "foo bar"
     val configPath = Files.createTempFile(".scalafmt", ".conf")
     val config = s"""
@@ -80,7 +94,8 @@ class CliOptionsTest extends FunSuite {
   }
 
   test(
-    ".scalafmtConfig returns default ScalafmtConfig is configuration file is missing") {
+    ".scalafmtConfig returns default ScalafmtConfig is configuration file is missing"
+  ) {
     val configDir = Files.createTempDirectory("temp-dir")
     val configPath = Paths.get(configDir.toString + "/.scalafmt.conf")
     val opt = baseCliOptions.copy(config = Some(configPath))
@@ -91,7 +106,9 @@ class CliOptionsTest extends FunSuite {
     val expected = "foo bar"
     val opt = baseCliOptions.copy(
       configStr = Some(
-        s"""{invalidKey="${Versions.version}", onTestFailure="$expected"}"""))
+        s"""{invalidKey="${Versions.version}", onTestFailure="$expected"}"""
+      )
+    )
     assert(opt.scalafmtConfig.isNotOk)
   }
 }

@@ -33,7 +33,8 @@ class GitOpsImpl(private[util] val workingDirectory: AbsoluteFile)
           throw new IllegalStateException(
             s"Failed to run command ${cmd.mkString(" ")}. " +
               s"Error: ${lastError.toString()}",
-            e)
+            e
+          )
       }
     }
     // Predef.augmentString = work around scala/bug#11125 on JDK 11

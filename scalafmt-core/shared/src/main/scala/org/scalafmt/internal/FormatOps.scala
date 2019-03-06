@@ -46,7 +46,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   val statementStarts = getStatementStarts(tree)
   val dequeueSpots = getDequeueSpots(tree) ++ statementStarts.keys
   val matchingParentheses: Map[TokenHash, Token] = getMatchingParentheses(
-    tree.tokens)
+    tree.tokens
+  )
   val styleMap =
     new StyleMap(tokens, initStyle, ownersMap, matchingParentheses)
   private val vAlignDepthCache = mutable.Map.empty[Tree, Int]
@@ -124,7 +125,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
         isOpenApply(
           openApply,
           includeCurly = initStyle.includeCurlyBraceInSelectChains,
-          includeNoParens = initStyle.includeNoParensInSelectChains)
+          includeNoParens = initStyle.includeNoParensInSelectChains
+        )
       def isChildOfImport =
         parents(rightOwner).exists(_.is[Import])
       def isShortCurlyChain(chain: Vector[Term.Select]): Boolean =
@@ -171,7 +173,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
   @tailrec
   final def findFirst(start: FormatToken, end: Token)(
-      f: FormatToken => Boolean): Option[FormatToken] = {
+      f: FormatToken => Boolean
+  ): Option[FormatToken] = {
     if (start.left.start > end.start) None
     else if (f(start)) Some(start)
     else {
@@ -184,7 +187,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   @tailrec
   final def prevNonCommentWithCount(
       curr: FormatToken,
-      accum: Int = 0): (Int, FormatToken) = {
+      accum: Int = 0
+  ): (Int, FormatToken) = {
     if (!curr.left.is[Comment]) accum -> curr
     else {
       val tok = prev(curr)
@@ -198,7 +202,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   @tailrec
   final def nextNonCommentWithCount(
       curr: FormatToken,
-      accum: Int = 0): (Int, FormatToken) = {
+      accum: Int = 0
+  ): (Int, FormatToken) = {
     if (!curr.right.is[Comment]) accum -> curr
     else {
       val tok = next(curr)
@@ -231,7 +236,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   def isJsNative(jsToken: Token): Boolean = {
     initStyle.newlines.neverBeforeJsNative && jsToken.syntax == "js" &&
     owners(jsToken).parent.exists(
-      _.show[Structure].trim == """Term.Select(Term.Name("js"), Term.Name("native"))""")
+      _.show[Structure].trim == """Term.Select(Term.Name("js"), Term.Name("native"))"""
+    )
   }
 
   def isTripleQuote(token: Token): Boolean = token.syntax.startsWith("\"\"\"")
@@ -262,7 +268,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
   def getExcludeIf(
       end: Token,
-      cond: Token => Boolean = _.is[RightBrace]): Set[Range] = {
+      cond: Token => Boolean = _.is[RightBrace]
+  ): Set[Range] = {
     if (cond(end)) // allow newlines in final {} block
       Set(Range(matchingParentheses(hash(end)).start, end.end))
     else Set.empty[Range]
@@ -283,7 +290,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   def insideBlock(
       start: FormatToken,
       end: Token,
-      matches: Token => Boolean): Set[Token] = {
+      matches: Token => Boolean
+  ): Set[Token] = {
     val result = Set.newBuilder[Token]
     var prev = start
     var curr = next(start)
@@ -328,7 +336,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   }.getOrElse(tree.tokens.last)
 
   def OneArgOneLineSplit(open: Token, noTrailingCommas: Boolean = false)(
-      implicit line: sourcecode.Line): Policy = {
+      implicit line: sourcecode.Line
+  ): Policy = {
     // TODO(olafur) clear queue between arguments, they are independent.
     val expire = matchingParentheses(hash(open))
     Policy(
@@ -346,7 +355,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
         // Newline on every comma.
         case d @ Decision(
               t @ FormatToken(comma @ Comma(), right, between),
-              splits)
+              splits
+            )
             if owners(open) == owners(comma) &&
               // TODO(olafur) what the right { decides to be single line?
               !right.is[LeftBrace] &&
@@ -365,7 +375,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
   def UnindentAtExclude(
       exclude: Set[Token],
-      indent: Length): PartialFunction[Decision, Decision] = {
+      indent: Length
+  ): PartialFunction[Decision, Decision] = {
     case Decision(t, s) if exclude.contains(t.left) =>
       val close = matchingParentheses(hash(t.left))
       Decision(t, s.map(_.withIndent(indent, close, ExpiresOn.Left)))
@@ -376,8 +387,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       penalty: Int,
       penalizeLambdas: Boolean = true,
       ignore: FormatToken => Boolean = _ => false,
-      penaliseNewlinesInsideTokens: Boolean = false)(
-      implicit line: sourcecode.Line): Policy = {
+      penaliseNewlinesInsideTokens: Boolean = false
+  )(implicit line: sourcecode.Line): Policy = {
     Policy(
       {
         case Decision(tok, s)
@@ -396,7 +407,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   }
 
   def penalizeNewlineByNesting(from: Token, to: Token)(
-      implicit line: sourcecode.Line): Policy = {
+      implicit line: sourcecode.Line
+  ): Policy = {
     val range = Range(from.start, to.end).inclusive
     Policy(
       {
@@ -431,8 +443,9 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     template.tokens.find(x => x.is[LeftBrace] && owners(x) == template)
   }
 
-  def safeFilterNewlines(splits: Seq[Split])(
-      implicit line: sourcecode.Line): Seq[Split] = {
+  def safeFilterNewlines(
+      splits: Seq[Split]
+  )(implicit line: sourcecode.Line): Seq[Split] = {
     val filtered = splits.filter(_.modification.isNewline)
     if (filtered.nonEmpty) filtered
     else Seq(Split(Newline, 0))
@@ -491,18 +504,21 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   }
 
   def infixSplit(owner: Term.ApplyInfix, formatToken: FormatToken)(
-      implicit line: sourcecode.Line): Split =
+      implicit line: sourcecode.Line
+  ): Split =
     infixSplit(owner, owner.op, owner.args, formatToken)
 
   def infixSplit(
       owner: Tree,
       op: Name,
       rhsArgs: Seq[Tree],
-      formatToken: FormatToken)(implicit line: sourcecode.Line): Split = {
+      formatToken: FormatToken
+  )(implicit line: sourcecode.Line): Split = {
     val style = styleMap.at(formatToken)
     val modification = newlines2Modification(
       formatToken.between,
-      rightIsComment = formatToken.right.isInstanceOf[Comment])
+      rightIsComment = formatToken.right.isInstanceOf[Comment]
+    )
     val indent = {
       if (style.unindentTopLevelOperators &&
         !isTopLevelInfixApplication(owner) &&
@@ -696,7 +712,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   def binPackParentConstructorSplits(
       owners: Set[Tree],
       lastToken: Token,
-      indent: Int)(implicit line: sourcecode.Line): Seq[Split] = {
+      indent: Int
+  )(implicit line: sourcecode.Line): Seq[Split] = {
     Seq(
       Split(Space, 0)
         .withPolicy(SingleLineBlock(lastToken))
@@ -755,7 +772,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     * Implementation for `verticalMultiline`
     */
   def verticalMultiline(owner: Tree, ft: FormatToken)(
-      implicit style: ScalafmtConfig): Seq[Split] = {
+      implicit style: ScalafmtConfig
+  ): Seq[Split] = {
 
     val FormatToken(open, r, _) = ft
     val close = matching(open)
@@ -840,7 +858,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       // If this is a class, then don't dangle the last paren unless the line ends with a comment
       case Decision(t @ FormatToken(previous, rp @ RightParenOrBracket(), _), _)
           if shouldNotDangle && rp == lastParen && !isSingleLineComment(
-            previous) =>
+            previous
+          ) =>
         val split = Split(NoSplit, 0)
         Decision(t, Seq(split))
       // Indent seperators `)(` and `](` by `indentSep`
@@ -882,7 +901,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
           Seq(
             Split(mod, 0)
               .withIndent(indentParam, close2, Right)
-          ))
+          )
+        )
       case Decision(t @ FormatToken(KwImplicit(), _, _), _)
           if (style.verticalMultiline.newlineAfterImplicitKW || style.newlines.afterImplicitKWInVerticalMultiline) =>
         val split = Split(Newline, 0)

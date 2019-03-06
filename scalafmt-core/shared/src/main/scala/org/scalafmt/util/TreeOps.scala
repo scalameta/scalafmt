@@ -217,7 +217,8 @@ object TreeOps {
   @tailrec
   final def parents(
       tree: Tree,
-      accum: Seq[Tree] = Seq.empty[Tree]): Seq[Tree] = {
+      accum: Seq[Tree] = Seq.empty[Tree]
+  ): Seq[Tree] = {
     tree.parent match {
       case Some(parent) => parents(parent, parent +: accum)
       case _ => accum
@@ -365,7 +366,8 @@ object TreeOps {
 
   def getApplyArgs(
       formatToken: FormatToken,
-      leftOwner: Tree): (Tree, Seq[Tree]) = {
+      leftOwner: Tree
+  ): (Tree, Seq[Tree]) = {
     leftOwner match {
       case t: Defn.Def if formatToken.left.is[LeftBracket] =>
         t.name -> t.tparams
@@ -390,7 +392,8 @@ object TreeOps {
   @tailrec
   final def getSelectChain(
       child: Tree,
-      accum: Vector[Term.Select]): Vector[Term.Select] = {
+      accum: Vector[Term.Select]
+  ): Vector[Term.Select] = {
     child.parent match {
       case Some(parent: Term.Select) =>
         getSelectChain(parent, accum :+ parent)
@@ -437,7 +440,8 @@ object TreeOps {
 
   // TODO(olafur) scala.meta should make this easier.
   def findSiblingGuard(
-      generator: Enumerator.Generator): Option[Enumerator.Guard] = {
+      generator: Enumerator.Generator
+  ): Option[Enumerator.Guard] = {
     for {
       parent <- generator.parent if parent.is[Term.For] ||
         parent.is[Term.ForYield]
@@ -449,7 +453,8 @@ object TreeOps {
         val i = enums.indexOf(generator)
         if (i == -1)
           throw new IllegalStateException(
-            s"Generator $generator is part of parents enums.")
+            s"Generator $generator is part of parents enums."
+          )
         enums
           .drop(i + 1)
           .takeWhile(_.is[Enumerator.Guard])

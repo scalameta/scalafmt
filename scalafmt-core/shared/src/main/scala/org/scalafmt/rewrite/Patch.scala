@@ -14,7 +14,8 @@ object TokenPatch {
   def AddRight(
       tok: Token,
       toAdd: String,
-      keepTok: Boolean = false): TokenPatch =
+      keepTok: Boolean = false
+  ): TokenPatch =
     Add(tok, "", toAdd, keepTok)
   def AddLeft(tok: Token, toAdd: String, keepTok: Boolean = false): TokenPatch =
     Add(tok, toAdd, "", keepTok)
@@ -22,10 +23,11 @@ object TokenPatch {
       override val tok: Token,
       addLeft: String,
       addRight: String,
-      keepTok: Boolean)
-      extends TokenPatch(
+      keepTok: Boolean
+  ) extends TokenPatch(
         tok,
-        s"""$addLeft${if (keepTok) tok else ""}$addRight""")
+        s"""$addLeft${if (keepTok) tok else ""}$addRight"""
+      )
 
 }
 
@@ -36,7 +38,8 @@ object Patch {
         add1.tok,
         add1.addLeft + add2.addLeft,
         add1.addRight + add2.addRight,
-        add1.keepTok && add2.keepTok)
+        add1.keepTok && add2.keepTok
+      )
     case (_: Remove, add: Add) => add.copy(keepTok = false)
     case (add: Add, _: Remove) => add.copy(keepTok = false)
     case (rem: Remove, _: Remove) => rem
@@ -47,7 +50,8 @@ object Patch {
   }
 
   def apply(ast: Tree, patches: Seq[Patch])(
-      implicit ctx: RewriteCtx): String = {
+      implicit ctx: RewriteCtx
+  ): String = {
     val input = ast.tokens(ctx.style.runner.dialect)
     val tokenPatches = patches.collect { case e: TokenPatch => e }
     val patchMap: Map[(Int, Int), String] =
