@@ -3,6 +3,48 @@ id: changelog
 title: Changelog
 ---
 
+## [v2.0.0-RC5](https://github.com/scalameta/scalafmt/tree/v2.0.0-RC5) (2019-02-28)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.0.0-RC4...v2.0.0-RC5)
+
+**Merged pull requests:**
+
+- Indent Operator Fix [\#1372](https://github.com/scalameta/scalafmt/pull/1372) ([er1c](https://github.com/er1c))
+- Indent Operator Tests [\#1371](https://github.com/scalameta/scalafmt/pull/1371) ([er1c](https://github.com/er1c))
+- 1344 api changes to integrate with intellij [\#1368](https://github.com/scalameta/scalafmt/pull/1368) ([unkarjedy](https://github.com/unkarjedy))
+- Make scalafmt-cli to use scalafmt-dynamic module instead of depending only on a specific version of scalafmt-core. [\#1366](https://github.com/scalameta/scalafmt/pull/1366) ([tanishiking](https://github.com/tanishiking))
+- Minor tweak for java11 .lines not getting picked up via StringOps in scala-dynamic testfile DynamicSuite.scala [\#1365](https://github.com/scalameta/scalafmt/pull/1365) ([er1c](https://github.com/er1c))
+- Welcome Rikito Taniguchi to the team! [\#1363](https://github.com/scalameta/scalafmt/pull/1363) ([olafurpg](https://github.com/olafurpg))
+- Make ScalafmtReflect format any files if respectProjectFilters=false [\#1361](https://github.com/scalameta/scalafmt/pull/1361) ([tanishiking](https://github.com/tanishiking))
+- sbt [\#1359](https://github.com/scalameta/scalafmt/pull/1359) ([dwijnand](https://github.com/dwijnand))
+- GitHub [\#1358](https://github.com/scalameta/scalafmt/pull/1358) ([dwijnand](https://github.com/dwijnand))
+- No more extempore2 [\#1357](https://github.com/scalameta/scalafmt/pull/1357) ([dwijnand](https://github.com/dwijnand))
+- Fix a typo [\#1356](https://github.com/scalameta/scalafmt/pull/1356) ([dwijnand](https://github.com/dwijnand))
+- Switch to non-legacy align = more [\#1355](https://github.com/scalameta/scalafmt/pull/1355) ([dwijnand](https://github.com/dwijnand))
+- Switch from bintray to sonatype snapshots [\#1354](https://github.com/scalameta/scalafmt/pull/1354) ([dwijnand](https://github.com/dwijnand))
+- Justify discouraging format on compile [\#1353](https://github.com/scalameta/scalafmt/pull/1353) ([dwijnand](https://github.com/dwijnand))
+- Clarify scalafmtConfig's default vs None [\#1352](https://github.com/scalameta/scalafmt/pull/1352) ([dwijnand](https://github.com/dwijnand))
+- Fix sbt plugin Maven Central badge [\#1350](https://github.com/scalameta/scalafmt/pull/1350) ([dwijnand](https://github.com/dwijnand))
+- Update Coursier CLI link [\#1348](https://github.com/scalameta/scalafmt/pull/1348) ([er1c](https://github.com/er1c))
+- Added Arch Linux installation instruction on website [\#1347](https://github.com/scalameta/scalafmt/pull/1347) ([poslegm](https://github.com/poslegm))
+
+## [v2.0.0-RC4](https://github.com/scalameta/scalafmt/tree/v2.0.0-RC4) (2019-01-07)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.0.0-RC3...v2.0.0-RC4)
+
+**Merged pull requests:**
+
+- Report range positions for parse errors [\#1341](https://github.com/scalameta/scalafmt/pull/1341) ([olafurpg](https://github.com/olafurpg))
+
+## [v2.0.0-RC3](https://github.com/scalameta/scalafmt/tree/v2.0.0-RC3) (2019-01-07)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.0.0-RC2...v2.0.0-RC3)
+
+**Merged pull requests:**
+
+- Add custom reporter endpoint for missing scalafmt version [\#1340](https://github.com/scalameta/scalafmt/pull/1340) ([olafurpg](https://github.com/olafurpg))
+
+
 ## [v2.0.0-RC2](https://github.com/scalameta/scalafmt/tree/v2.0.0-RC2) (2019-01-07)
 
 [Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.0.0-RC1...v2.0.0-RC2)
