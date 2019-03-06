@@ -121,11 +121,13 @@ object Readme {
 
   def configurationBlock(
       style: ScalafmtConfig,
-      collapsed: Boolean = false): TypedTag[String] = {
+      collapsed: Boolean = false
+  ): TypedTag[String] = {
     div(
       span(
         "Show/hide configuration used for this example",
-        `class` := "scalafmt-configuration-toggle"),
+        `class` := "scalafmt-configuration-toggle"
+      ),
       pre(changedConfig(style)),
       `class` := {
         "scalafmt-configuration" + (
@@ -143,8 +145,10 @@ object Readme {
         List(
           div(hl.scala(code), `class` := "before"),
           div(hl.scala(formatted), `class` := "after")
-        )),
-      configurationBlock(style))
+        )
+      ),
+      configurationBlock(style)
+    )
   }
 
   def demoStyle(style: ScalafmtConfig)(code: String): TypedTag[String] = {
@@ -166,7 +170,9 @@ object Readme {
         code,
         ScalafmtConfig.default40.copy(
           align =
-            ScalafmtConfig.default40.align.copy(tokens = AlignToken.default)))
+            ScalafmtConfig.default40.align.copy(tokens = AlignToken.default)
+        )
+      )
       .get
     hl.scala(formatted)
   }
@@ -178,13 +184,15 @@ object Readme {
     ScalafmtConfig.default.copy(
       rewrite = ScalafmtConfig.default.rewrite.copy(
         rules = Seq(AvoidInfix)
-      ))
+      )
+    )
 
   val rewriteImportSelectors =
     ScalafmtConfig.default.copy(
       rewrite = ScalafmtConfig.default.rewrite.copy(
         rules = Seq(ExpandImportSelectors)
-      ))
+      )
+    )
 
   val rewriteBraces =
     ScalafmtConfig.default.copy(
@@ -193,31 +201,36 @@ object Readme {
           stringInterpolation = true
         ),
         rules = Seq(RedundantBraces)
-      ))
+      )
+    )
 
   val rewriteParens =
     ScalafmtConfig.default.copy(
       rewrite = ScalafmtConfig.default.rewrite.copy(
         rules = Seq(RedundantParens)
-      ))
+      )
+    )
 
   val rewriteImports =
     ScalafmtConfig.default.copy(
       rewrite = ScalafmtConfig.default.rewrite.copy(
         rules = Seq(SortImports)
-      ))
+      )
+    )
 
   val rewriteAsciiImports =
     ScalafmtConfig.default.copy(
       rewrite = ScalafmtConfig.default.rewrite.copy(
         rules = Seq(AsciiSortImports)
-      ))
+      )
+    )
 
   val rewriteSortModifiers =
     ScalafmtConfig.default120.copy(
       rewrite = ScalafmtConfig.default.rewrite.copy(
         rules = Seq(SortModifiers)
-      ))
+      )
+    )
 
   /**
     * This looks way too hacky. But can't seem to find a typeclass
@@ -241,7 +254,8 @@ object Readme {
     ScalafmtConfig.default.copy(
       rewrite = ScalafmtConfig.default.rewrite.copy(
         rules = Seq(PreferCurlyFors)
-      ))
+      )
+    )
 
   val verticalAlign = ScalafmtConfig.default.copy(
     maxColumn = 60,
@@ -250,9 +264,10 @@ object Readme {
 
   val VerticalMultilineDefultConfigStr = Conf.printHocon(
     Conf.Obj(
-      "verticalMultiline" -> ConfEncoder[VerticalMultiline].write(
-        ScalafmtConfig.default.verticalMultiline)
-    ))
+      "verticalMultiline" -> ConfEncoder[VerticalMultiline]
+        .write(ScalafmtConfig.default.verticalMultiline)
+    )
+  )
 
   val verticalAlignImplicitBefore = ScalafmtConfig.default.copy(
     maxColumn = 60,
@@ -317,7 +332,8 @@ object Readme {
   val alignMost = ScalafmtConfig.default.copy(align = Align.most)
   val alignCaseArrow = ScalafmtConfig.default
   val alignArrowEnum = ScalafmtConfig.defaultWithAlign.copy(
-    align = Align.default.copy(arrowEnumeratorGenerator = true))
+    align = Align.default.copy(arrowEnumeratorGenerator = true)
+  )
   val alignModuleId = ScalafmtConfig.defaultWithAlign
 
   def format(style: ScalafmtConfig)(code: String): TypedTag[String] = {

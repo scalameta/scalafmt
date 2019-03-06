@@ -30,8 +30,8 @@ case class Split(
     indents: Vector[Indent[Length]] = Vector.empty[Indent[Length]],
     policy: Policy = NoPolicy,
     penalty: Boolean = false,
-    optimalAt: Option[OptimalToken] = None)(
-    implicit val line: sourcecode.Line) {
+    optimalAt: Option[OptimalToken] = None
+)(implicit val line: sourcecode.Line) {
   import TokenOps._
 
   def adapt(formatToken: FormatToken): Split = modification match {
@@ -71,7 +71,8 @@ case class Split(
       indents,
       policy,
       true,
-      Some(OptimalToken(token, killOnFail)))(line)
+      Some(OptimalToken(token, killOnFail))
+    )(line)
   }
 
   def withPolicy(newPolicy: Policy): Split = {
@@ -80,7 +81,8 @@ case class Split(
       else
         throw new UnsupportedOperationException("Can't have two policies yet.")
     new Split(modification, cost, ignoreIf, indents, update, true, optimalAt)(
-      line)
+      line
+    )
   }
 
   def withPenalty(penalty: Int): Split =
@@ -91,7 +93,8 @@ case class Split(
       indents,
       policy,
       true,
-      optimalAt)(line)
+      optimalAt
+    )(line)
 
   def withIndent(length: Length, expire: Token, expiresOn: ExpiresOn): Split = {
     length match {
@@ -104,7 +107,8 @@ case class Split(
           Indent(length, expire, expiresOn) +: indents,
           policy,
           penalty,
-          optimalAt)(line)
+          optimalAt
+        )(line)
     }
   }
 

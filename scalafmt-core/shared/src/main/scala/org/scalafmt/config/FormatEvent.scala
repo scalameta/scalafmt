@@ -18,6 +18,6 @@ object FormatEvent {
   case class CompleteFormat(
       totalExplored: Int,
       finalState: State,
-      tokens: Array[FormatToken])
-      extends FormatEvent
+      tokens: Array[FormatToken]
+  ) extends FormatEvent
 }

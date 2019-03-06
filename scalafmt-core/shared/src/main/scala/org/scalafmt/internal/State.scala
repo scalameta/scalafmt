@@ -18,8 +18,8 @@ final case class State(
     indentation: Int,
     pushes: Vector[Indent[Num]],
     column: Int,
-    formatOff: Boolean)
-    extends Ordered[State] {
+    formatOff: Boolean
+) extends Ordered[State] {
 
   def compare(that: State): Int = {
     val costCompare = Integer.valueOf(-this.cost).compareTo(-that.cost)
@@ -57,7 +57,8 @@ object State {
     0,
     Vector.empty[Indent[Num]],
     0,
-    formatOff = false)
+    formatOff = false
+  )
 
   /**
     * Calculates next State given split at tok.
@@ -66,7 +67,8 @@ object State {
       curr: State,
       style: ScalafmtConfig,
       split: Split,
-      tok: FormatToken): State = {
+      tok: FormatToken
+  ): State = {
     import curr._
     val nonExpiredIndents = pushes.filterNot { push =>
       val expireToken: Token =

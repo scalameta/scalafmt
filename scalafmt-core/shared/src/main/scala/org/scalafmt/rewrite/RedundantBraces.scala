@@ -20,12 +20,13 @@ case object RedundantBraces extends Rewrite {
     scala.collection.mutable.Builder[Patch, Seq[Patch]]
 
   @inline private def settings(
-      implicit ctx: RewriteCtx): RedundantBracesSettings =
+      implicit ctx: RewriteCtx
+  ): RedundantBracesSettings =
     ctx.style.rewrite.redundantBraces
 
-  private def processInterpolation(t: Term.Interpolate)(
-      implicit builder: PatchBuilder,
-      ctx: RewriteCtx): Unit = {
+  private def processInterpolation(
+      t: Term.Interpolate
+  )(implicit builder: PatchBuilder, ctx: RewriteCtx): Unit = {
     import ctx.tokenTraverser._
 
     def isIdentifierAtStart(value: String) =
@@ -63,9 +64,10 @@ case object RedundantBraces extends Rewrite {
     builder.result()
   }
 
-  private def removeTrailingLF(bodyEnd: Position, close: Token)(
-      implicit builder: PatchBuilder,
-      ctx: RewriteCtx): Unit =
+  private def removeTrailingLF(
+      bodyEnd: Position,
+      close: Token
+  )(implicit builder: PatchBuilder, ctx: RewriteCtx): Unit =
     if (close.pos.startLine != bodyEnd.endLine) {
       import ctx.tokenTraverser._
       val next = nextToken(close)
@@ -74,7 +76,8 @@ case object RedundantBraces extends Rewrite {
     }
 
   private def processBlock(
-      b: Term.Block)(implicit builder: PatchBuilder, ctx: RewriteCtx): Unit =
+      b: Term.Block
+  )(implicit builder: PatchBuilder, ctx: RewriteCtx): Unit =
     if (b.tokens.nonEmpty) {
       val open = b.tokens.head
       if (open.is[LeftBrace]) {

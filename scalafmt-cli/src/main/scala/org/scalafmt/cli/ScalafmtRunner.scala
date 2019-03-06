@@ -13,7 +13,8 @@ trait ScalafmtRunner {
   protected def newTermDisplay(
       options: CliOptions,
       inputMethods: Seq[InputMethod],
-      msg: String): TermDisplay = {
+      msg: String
+  ): TermDisplay = {
     val termDisplay = new TermDisplay(
       new OutputStreamWriter(options.info),
       fallbackMode =
@@ -32,7 +33,8 @@ trait ScalafmtRunner {
 
   protected def getInputMethods(
       options: CliOptions,
-      filter: Option[FilterMatcher]): Seq[InputMethod] = {
+      filter: Option[FilterMatcher]
+  ): Seq[InputMethod] = {
     if (options.stdIn) {
       Seq(InputMethod.StdinCode(options.assumeFilename, options.common.in))
     } else {
@@ -45,7 +47,8 @@ trait ScalafmtRunner {
   /** Returns file paths defined via options.{customFiles,customExclude} */
   private[this] def getFilesFromCliOptions(
       options: CliOptions,
-      filter: Option[FilterMatcher]): Seq[AbsoluteFile] = {
+      filter: Option[FilterMatcher]
+  ): Seq[AbsoluteFile] = {
     def canFormat(f: AbsoluteFile): Boolean =
       filter.map(_.matches(f)).getOrElse(true)
     val files = options.fileFetchMode match {

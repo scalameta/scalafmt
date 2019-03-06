@@ -28,7 +28,8 @@ object Config {
 
   def fromHoconString(
       string: String,
-      path: Option[String]): Configured[ScalafmtConfig] =
+      path: Option[String]
+  ): Configured[ScalafmtConfig] =
     fromHoconString(string, path, ScalafmtConfig.default)
 
   def fromHoconString(
@@ -60,7 +61,8 @@ object Config {
               values
                 .collectFirst { case (`p`, value) => Ok(value) }
                 .getOrElse(
-                  ConfError.message(s"Config $baseConf has no field $p").notOk)
+                  ConfError.message(s"Config $baseConf has no field $p").notOk
+                )
             case x =>
               ConfError.typeMismatch("Conf.Obj", x).notOk
           }

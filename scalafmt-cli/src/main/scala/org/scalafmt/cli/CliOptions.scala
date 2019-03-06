@@ -208,7 +208,8 @@ case class CliOptions(
         ConfigFactory
           .parseFile(config.toFile)
           .getConfig("project")
-          .getBoolean("git"))
+          .getBoolean("git")
+      )
     } catch {
       case _: ConfigException.Missing => None
       case NonFatal(_) => None
@@ -230,7 +231,8 @@ case class CliOptions(
         ConfigFactory
           .parseFile(config.toFile)
           .getConfig("runner")
-          .getBoolean("fatalWarnings"))
+          .getBoolean("fatalWarnings")
+      )
     } catch {
       case _: ConfigException.Missing => None
       case NonFatal(_) => None
@@ -243,7 +245,8 @@ case class CliOptions(
         ConfigFactory
           .parseFile(config.toFile)
           .atPath("runner")
-          .getBoolean("ignoreWarnings"))
+          .getBoolean("ignoreWarnings")
+      )
     } catch {
       case _: ConfigException.Missing => None
       case NonFatal(_) => None

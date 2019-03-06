@@ -102,7 +102,8 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
           case Configured.NotOk(c) =>
             throw new IllegalArgumentException(
               s"""Failed to parse filename $filename:
-                 |$c""".stripMargin)
+                 |$c""".stripMargin
+            )
         }
       )
     }
@@ -119,7 +120,8 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
         trimmed(expected),
         moduleSkip || isSkip(name),
         moduleOnly || isOnly(name),
-        style)
+        style
+      )
     }
   }
 
@@ -142,7 +144,8 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
       output,
       Debug.maxVisitedToken,
       visitedStates,
-      Debug.elapsedNs)
+      Debug.elapsedNs
+    )
   }
 
   def ignore(t: DiffTest): Boolean = false
@@ -165,7 +168,8 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
               case e: ParseException =>
                 fail(
                   "test does not parse" +
-                    parseException2Message(e, t.original))
+                    parseException2Message(e, t.original)
+                )
             }
           case None => fail(s"Found no parse for filename ${t.filename}")
         }
@@ -184,14 +188,16 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
     if (t.style.rewrite.rules.isEmpty) {
       assertFormatPreservesAst(t.original, obtained)(
         parse,
-        t.style.runner.dialect)
+        t.style.runner.dialect
+      )
     }
     assertNoDiff(obtained, t.expected)
   }
 
   def getFormatOutput(
       style: ScalafmtConfig,
-      onlyOne: Boolean): Array[FormatOutput] = {
+      onlyOne: Boolean
+  ): Array[FormatOutput] = {
     val builder = mutable.ArrayBuilder.make[FormatOutput]()
     new FormatWriter(Debug.formatOps)
       .reconstructPath(Debug.tokens, Debug.state.splits, debug = onlyOne) {
@@ -199,7 +205,8 @@ trait HasTests extends FunSuiteLike with FormatAssertions {
           builder += FormatOutput(
             token.left.syntax,
             whitespace,
-            Debug.formatTokenExplored(token))
+            Debug.formatTokenExplored(token)
+          )
       }
     builder.result()
   }

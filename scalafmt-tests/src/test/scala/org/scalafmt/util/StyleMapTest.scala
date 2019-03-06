@@ -20,11 +20,13 @@ class StyleMapTest extends FunSuite {
     assert(
       m.styleMap
         .at(m.tokens.head)
-        .maxColumn == ScalafmtConfig.default.maxColumn)
+        .maxColumn == ScalafmtConfig.default.maxColumn
+    )
     assert(
       m.styleMap
         .at(m.tokens.find(_.left.syntax == "println").get)
-        .maxColumn == 100)
+        .maxColumn == 100
+    )
     assert(m.styleMap.at(m.tokens.last).maxColumn == 110)
   }
 

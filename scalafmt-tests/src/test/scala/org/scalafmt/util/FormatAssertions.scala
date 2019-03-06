@@ -62,7 +62,9 @@ trait FormatAssertions extends FunSuiteLike with DiffAssertions {
     augmentString(
       compareContents(
         original.replace("(", "\n("),
-        obtained.replace("(", "\n("))).lines.mkString("\n")
+        obtained.replace("(", "\n(")
+      )
+    ).lines.mkString("\n")
   }
 
   // TODO(olafur) move this to scala.meta?

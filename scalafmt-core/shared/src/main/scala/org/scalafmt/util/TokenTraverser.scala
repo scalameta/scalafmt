@@ -41,8 +41,9 @@ class TokenTraverser(tokens: Tokens) {
   }
 
   @tailrec
-  final def reverseFind(token: Token)(
-      predicate: Token => Boolean): Option[Token] = {
+  final def reverseFind(
+      token: Token
+  )(predicate: Token => Boolean): Option[Token] = {
     prevToken(token) match {
       case t if t == token => None
       case t if predicate(t) => Option(t)
@@ -51,7 +52,8 @@ class TokenTraverser(tokens: Tokens) {
   }
 
   final def filter(start: Token, end: Token)(
-      predicate: Token => Boolean): Seq[Token] = {
+      predicate: Token => Boolean
+  ): Seq[Token] = {
     if (start == end || nextToken(start) == start) Nil
     else {
       val tail = filter(nextToken(start), end)(predicate)
