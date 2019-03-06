@@ -85,6 +85,30 @@ merged.</li>
 </ul>
 <h2><a class="anchor" aria-hidden="true" id="opening-issues"></a><a href="#opening-issues" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Opening issues</h2>
 <p>Please always include concrete code examples with obtained and expected output.</p>
+<h2><a class="anchor" aria-hidden="true" id="releasing"></a><a href="#releasing" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Releasing</h2>
+<ul>
+<li>Write release notes here: <a href="https://github.com/scalameta/scalafmt/releases/new">https://github.com/scalameta/scalafmt/releases/new</a></li>
+<li>Pushing a git tag should trigger a release to Maven Central from the CI.</li>
+<li>Once CI has finished releasing, update sbt-scalafmt to the latest release.</li>
+<li>Validate that sbt-scalafmt and scalafmt-core have published successfully by
+running the following script (assumming you have <code>coursier</code> installed)</li>
+</ul>
+<pre><code class="hljs">./bin/<span class="hljs-keyword">test</span>-release.<span class="hljs-keyword">sh</span> <span class="hljs-variable">$VERSION</span>
+</code></pre>
+<ul>
+<li>Update the changelog on the website with the following command (assuming you
+have <code>docker</code> installed)</li>
+</ul>
+<pre><code class="hljs"><span class="hljs-comment"># Step 1</span>
+<span class="hljs-attr">PREVIOUS_VERSION=</span>v2.<span class="hljs-number">0.0</span>-RC5
+docker run -it --rm -v $(pwd):/project markmandel/github-changelog-generator --<span class="hljs-keyword">user</span> <span class="hljs-title">scalameta</span> --project scalafmt --no-issues -t <span class="hljs-number">387</span>f5c8b32fffb6614e7a1985d44905abe7258eb --since-<span class="hljs-keyword">tag</span> <span class="hljs-title">$PREVIOUS_VERSION</span>
+
+<span class="hljs-comment"># Step 2</span>
+<span class="hljs-comment"># copy-paste relevant lines from CHANGELOG.md to docs/CHANGELOG.md</span>
+
+<span class="hljs-comment"># Step 3</span>
+<span class="hljs-comment"># Remove auto-generated `CHANGELOG.md` from step 1.</span>
+</code></pre>
 <h2><a class="anchor" aria-hidden="true" id="random-stuff"></a><a href="#random-stuff" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Random stuff</h2>
 <ul>
 <li>Try to keep complex logic out of Router.scala, instead move it into a utility
@@ -99,7 +123,7 @@ agnostic to the source file being formatted.</li>
 <li><code>Token/TreeClasses</code>: groups of trees/tokens that belong together and support
 the <code>Tree/Token.is[T]</code> syntax.</li>
 </ul>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/scalafmt/docs/changelog.html"><span class="arrow-prev">← </span><span>Changelog</span></a><a class="docs-next button" href="/scalafmt/docs/contributing-website.html"><span>Contributing to the website</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#compiling-project">Compiling project</a></li><li><a href="#opening-pull-requests">Opening pull requests</a></li><li><a href="#opening-issues">Opening issues</a></li><li><a href="#random-stuff">Random stuff</a></li></ul></nav></div><footer class="nav-footer" id="footer" style="background-color:#A23244"><section class="sitemap"><div><h5>Docs</h5><a href="
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/scalafmt/docs/changelog.html"><span class="arrow-prev">← </span><span>Changelog</span></a><a class="docs-next button" href="/scalafmt/docs/contributing-website.html"><span>Contributing to the website</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#compiling-project">Compiling project</a></li><li><a href="#opening-pull-requests">Opening pull requests</a></li><li><a href="#opening-issues">Opening issues</a></li><li><a href="#releasing">Releasing</a></li><li><a href="#random-stuff">Random stuff</a></li></ul></nav></div><footer class="nav-footer" id="footer" style="background-color:#A23244"><section class="sitemap"><div><h5>Docs</h5><a href="
                 /scalafmt/docs/installation.html">Installation</a><a href="
                 /scalafmt/docs/configuration.html">Configuration</a><a href="
                 /scalafmt/docs/contributing-scalafmt.html">Contributing</a></div><div><h5>Community</h5><a href="https://gitter.im/scalameta/scalafmt" target="_blank">Chat on Gitter</a></div><div><h5>More</h5><a href="https://github.com/scalameta/scalafmt" target="_blank">GitHub</a></div></section><section class="copyright">Copyright © 2019 Scalafmt</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
