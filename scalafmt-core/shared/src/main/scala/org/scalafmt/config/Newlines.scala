@@ -77,6 +77,24 @@ import metaconfig.generic.Surface
   *         .flatMap(f)
   *         .map(g)
   *   }}}
+  * @param avoidAfterYield
+  *   If false (legacy behavior), inserts unconditional line break after `yield`
+  *   if the yield body doesn't fit on a single line.
+  *   For example,
+  *   {{{
+  *     // newlines.avoidAfterYield = true (default)
+  *     for (a <- as)
+  *     yield Future {
+  *       ...
+  *     }
+  *
+  *     // newlines.avoidAfterYield = false (default before v2).
+  *     for (a <- as)
+  *     yield
+  *       Future {
+  *         ...
+  *       }
+  *   }}}
   */
 case class Newlines(
     neverInResultType: Boolean = false,
@@ -91,7 +109,8 @@ case class Newlines(
     @deprecated("Use VerticalMultiline.newlineBeforeImplicitKW instead")
     beforeImplicitKWInVerticalMultiline: Boolean = false,
     alwaysBeforeElseAfterCurlyIf: Boolean = false,
-    alwaysBeforeMultilineDef: Boolean = true
+    alwaysBeforeMultilineDef: Boolean = true,
+    avoidAfterYield: Boolean = true,
 ) {
   val reader: ConfDecoder[Newlines] = generic.deriveDecoder(this).noTypos
 }

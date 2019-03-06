@@ -924,7 +924,7 @@ class Router(formatOps: FormatOps) {
             }
             val spacePolicy: Policy = rhs match {
               case _: Term.If => twoBranches
-              case _: Term.ForYield if !style.indentYieldKeyword => twoBranches
+              case _: Term.ForYield => twoBranches
               case _ => NoPolicy
             }
             val jsNative = isJsNative(right)
@@ -1319,14 +1319,17 @@ class Router(formatOps: FormatOps) {
           // Either everything fits in one line or break on =>
           Split(Space, 0).withIndent(indent, lastToken, Left)
         )
-      case tok @ FormatToken(KwYield(), right, _)
-          if leftOwner.is[Term.ForYield] =>
-        val lastToken = leftOwner.asInstanceOf[Term.ForYield].body.tokens.last
-        Seq(
-          // Either everything fits in one line or break on =>
-          Split(Space, 0).withPolicy(SingleLineBlock(lastToken)),
-          Split(Newline, 1).withIndent(2, lastToken, Left)
-        )
+      case FormatToken(KwYield(), _, _) if leftOwner.is[Term.ForYield] =>
+        if (style.newlines.avoidAfterYield && !rightOwner.is[Term.If]) {
+          Seq(Split(Space, 0))
+        } else {
+          val lastToken = leftOwner.asInstanceOf[Term.ForYield].body.tokens.last
+          Seq(
+            // Either everything fits in one line or break on =>
+            Split(Space, 0).withPolicy(SingleLineBlock(lastToken)),
+            Split(Newline, 1).withIndent(2, lastToken, Left)
+          )
+        }
       // Interpolation
       case FormatToken(_, Interpolation.Id(_) | Xml.Start(), _) =>
         Seq(
