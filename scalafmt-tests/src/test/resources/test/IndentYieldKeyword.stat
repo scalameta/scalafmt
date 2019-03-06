@@ -47,11 +47,26 @@ yield
 >>>
 val sizes =
   for (row <- table)
+  yield (for (cell <- row)
+         yield
+           if (cell == null) 0
+           else cell.toString.length)
+<<< break before `for` 2
+val sizes = for (row <- table) yield (
+  for (cell <- row)
   yield
-    (for (cell <- row)
-     yield
-       if (cell == null) 0
-       else cell.toString.length)
+    if (cell == null) 0
+    else cell.toString.length
+)
+>>>
+val sizes =
+  for (row <- table)
+  yield (
+    for (cell <- row)
+    yield
+      if (cell == null) 0
+      else cell.toString.length
+  )
 <<< normal way #592
 val sizes = for (row <- table) yield {
     for (cell <- row)

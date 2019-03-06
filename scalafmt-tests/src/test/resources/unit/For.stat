@@ -23,12 +23,28 @@ row <- table) yield ( for (
 cell <- row) yield if (cell == null) 0
 else cell.toString.length)
 >>>
-val sizes = for (row <- table)
-  yield
-    (for (cell <- row)
+val sizes =
+  for (row <- table)
+    yield (for (cell <- row)
       yield
         if (cell == null) 0
         else cell.toString.length)
+<<< crazy one-liner 2
+val sizes = for (row <- table) yield (
+  for (cell <- row)
+  yield
+    if (cell == null) 0
+    else cell.toString.length
+)
+>>>
+val sizes =
+  for (row <- table)
+    yield (
+        for (cell <- row)
+          yield
+            if (cell == null) 0
+            else cell.toString.length
+    )
 <<< if singleline
 val k = for {
     _ <- Future(1) if !onlyOne
@@ -158,6 +174,56 @@ for {
 } yield {
   thing(i, j)
 }
+<<< scala.js codingstyle val
+val x = for {
+  i <- 0 until n
+  j <- 0 until i
+} yield {
+  thing(i, j)
+}
+>>>
+val x = for {
+  i <- 0 until n
+  j <- 0 until i
+} yield {
+  thing(i, j)
+}
+<<< scala.js codingstyle val 2
+val x = (for {
+  i <- 0 until n
+  j <- 0 until i
+} yield {
+  thing(i, j)
+}).headOption
+>>>
+val x = (for {
+  i <- 0 until n
+  j <- 0 until i
+} yield {
+  thing(i, j)
+}).headOption
+<<< scala.js codingstyle val 3
+val x = for {
+  i <- 0 until n
+  j <- 0 until i
+} yield List(1)
+  .map(i => i + 1)
+  .foo(
+      a,
+      b,
+      c
+  )
+>>>
+val x = for {
+  i <- 0 until n
+  j <- 0 until i
+} yield List(1)
+  .map(i => i + 1)
+  .foo(
+      a,
+      b,
+      c
+  )
 <<< alignByArrowEnumeratorGenerator
 for {
   x <- new Integer {
