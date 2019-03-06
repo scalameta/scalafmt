@@ -33,7 +33,8 @@ object Terminal {
         Process(Seq("bash", "-c", s"$pathedTput $s 2> /dev/tty"))
           .!!(nullLog)
           .trim
-          .toInt).toOption
+          .toInt
+      ).toOption
     } else
       None
 
@@ -108,7 +109,8 @@ object TermDisplay {
       if (currentTime > startTime)
         Some(
           (downloaded - previouslyDownloaded).toDouble /
-            (System.currentTimeMillis() - startTime) * 1000.0)
+            (System.currentTimeMillis() - startTime) * 1000.0
+        )
       else
         None
     }
@@ -159,8 +161,7 @@ object TermDisplay {
             else if (current == remote)
               s"No new update since ${formatTimestamp(current)}"
             else
-              s"Warning: local copy newer than remote one (${formatTimestamp(
-                current)} > ${formatTimestamp(remote)})"
+              s"Warning: local copy newer than remote one (${formatTimestamp(current)} > ${formatTimestamp(remote)})"
           case (Some(_), None) =>
             // FIXME Likely a 404 Not found, that should be taken into account by the cache
             "No modified time in response"
@@ -296,11 +297,13 @@ object TermDisplay {
           val total0 = url.length + 1 + extra0.length
           val overflow0 = total0 - width + 1
 
-          val url0 = if (total0 >= width)
-            url.take(
-              ((width - baseExtraWidth - 1) max (url.length - overflow0)) - 1) + "…"
-          else
-            url
+          val url0 =
+            if (total0 >= width)
+              url.take(
+                ((width - baseExtraWidth - 1) max (url.length - overflow0)) - 1
+              ) + "…"
+            else
+              url
 
           (url0, extra0)
         } else
@@ -473,21 +476,24 @@ class TermDisplay(
         0L,
         None,
         System.currentTimeMillis(),
-        updateCheck = false),
+        updateCheck = false
+      ),
       s"$msg\n"
     )
 
   def taskLength(
       url: String,
       totalLength: Long,
-      alreadyDownloaded: Long): Unit = {
+      alreadyDownloaded: Long
+  ): Unit = {
     val info = updateThread.infos.get(url)
     assert(info != null)
     val newInfo = info match {
       case info0: DownloadInfo =>
         info0.copy(
           length = Some(totalLength),
-          previouslyDownloaded = alreadyDownloaded)
+          previouslyDownloaded = alreadyDownloaded
+        )
       case _ =>
         throw new Exception(s"Incoherent display state for $url")
     }
@@ -515,7 +521,8 @@ class TermDisplay(
 
   override def checkingUpdates(
       url: String,
-      currentTimeOpt: Option[Long]): Unit =
+      currentTimeOpt: Option[Long]
+  ): Unit =
     updateThread.newEntry(
       url,
       CheckUpdateInfo(currentTimeOpt, None, isDone = false),

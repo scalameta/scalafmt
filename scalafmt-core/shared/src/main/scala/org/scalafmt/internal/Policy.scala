@@ -14,11 +14,13 @@ case class Policy(
     f: PartialFunction[Decision, Decision],
     expire: Int,
     noDequeue: Boolean = false,
-    isSingleLine: Boolean = false)(implicit val line: sourcecode.Line) {
+    isSingleLine: Boolean = false
+)(implicit val line: sourcecode.Line) {
 
   def merge(
       other: PartialFunction[Decision, Decision],
-      newExpire: Int): Policy =
+      newExpire: Int
+  ): Policy =
     Policy(f.orElse(other), newExpire)
 
   def merge(other: Policy, newExpire: Int): Policy =
@@ -43,7 +45,8 @@ case class Policy(
       case x =>
         otherF.applyOrElse(
           f.applyOrElse(x, identity[Decision]),
-          identity[Decision])
+          identity[Decision]
+        )
     }
     copy(f = newPf)
   }

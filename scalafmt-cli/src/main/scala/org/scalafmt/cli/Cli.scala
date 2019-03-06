@@ -11,8 +11,10 @@ object Cli {
   def nailMain(nGContext: NGContext): Unit = {
     val workingDirectory =
       AbsoluteFile.fromPath(nGContext.getWorkingDirectory).getOrElse {
-        throw new IllegalStateException(s"Expected absolute path, " +
-          s"obtained nGContext.getWorkingDirectory = ${nGContext.getWorkingDirectory}")
+        throw new IllegalStateException(
+          s"Expected absolute path, " +
+            s"obtained nGContext.getWorkingDirectory = ${nGContext.getWorkingDirectory}"
+        )
       }
     val exit = mainWithOptions(
       nGContext.getArgs,
@@ -33,7 +35,8 @@ object Cli {
       in: InputStream,
       out: PrintStream,
       err: PrintStream,
-      workingDirectory: String): Unit = {
+      workingDirectory: String
+  ): Unit = {
     val options = CliOptions.default.copy(
       common = CommonOptions(
         in = in,

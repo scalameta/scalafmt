@@ -23,7 +23,8 @@ class StyleMap(
     tokens: Array[FormatToken],
     init: ScalafmtConfig,
     owners: Map[TokenHash, Tree],
-    matching: Map[TokenHash, Token]) {
+    matching: Map[TokenHash, Token]
+) {
   import TokenOps.hash
   val literalR: FilterMatcher = init.binPack.literalsRegex
   private val prefix = "\\s*scalafmt: ".r

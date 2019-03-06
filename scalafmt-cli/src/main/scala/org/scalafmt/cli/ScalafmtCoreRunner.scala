@@ -48,7 +48,8 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
           PlatformTokenizerCache.megaCache.clear()
           termDisplay.taskProgress(
             termDisplayMessage,
-            counter.incrementAndGet())
+            counter.incrementAndGet()
+          )
         }
         termDisplay.completedTask(termDisplayMessage, exitCode.get.isOk)
         termDisplay.stop()
@@ -59,7 +60,8 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
   private[this] def handleFile(
       inputMethod: InputMethod,
       options: CliOptions,
-      config: ScalafmtConfig): ExitCode = {
+      config: ScalafmtConfig
+  ): ExitCode = {
     try unsafeHandleFile(inputMethod, options, config)
     catch {
       case MisformattedFile(_, diff) =>

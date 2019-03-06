@@ -55,6 +55,7 @@ class SettingsGui(project: Project) extends SearchableConfigurable {
   override def reset(): Unit = {
     formatOnSaveCheckBox.setSelected(IdeaSettings(project).formatOnSave)
     relativePathToConfigTextField.setText(
-      IdeaSettings(project).relativePathToConfig)
+      IdeaSettings(project).relativePathToConfig
+    )
   }
 }

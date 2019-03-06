@@ -10,7 +10,8 @@ case class TestStats(
     javaInfo: JavaInfo,
     osInfo: OsInfo,
     runtimeInfo: RuntimeInfo,
-    gitInfo: GitInfo) {
+    gitInfo: GitInfo
+) {
 
   def shortInfo: String =
     s"TestStats(created=${new Date(createdAt)}," + s"commit=${gitInfo.commit})"
@@ -35,5 +36,6 @@ object TestStats {
       JavaInfo(),
       OsInfo(),
       RuntimeInfo(),
-      GitInfo())
+      GitInfo()
+    )
 }

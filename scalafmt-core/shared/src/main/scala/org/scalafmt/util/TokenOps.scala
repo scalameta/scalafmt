@@ -54,7 +54,8 @@ object TokenOps {
   def shouldGet2xNewlines(
       tok: FormatToken,
       style: ScalafmtConfig,
-      owners: Token => Tree): Boolean = {
+      owners: Token => Tree
+  ): Boolean = {
     !forceDocstringBlankLine(tok.left, style) && {
       val newlines = newlinesBetween(tok.between)
       newlines > 1 ||
@@ -126,7 +127,8 @@ object TokenOps {
   def isOpenApply(
       token: Token,
       includeCurly: Boolean = false,
-      includeNoParens: Boolean = false): Boolean =
+      includeNoParens: Boolean = false
+  ): Boolean =
     token match {
       case LeftParen() | LeftBracket() => true
       case LeftBrace() if includeCurly => true
@@ -141,8 +143,8 @@ object TokenOps {
       expire: Token,
       exclude: Set[Range] = Set.empty,
       disallowSingleLineComments: Boolean = true,
-      penaliseNewlinesInsideTokens: Boolean = false)(
-      implicit line: sourcecode.Line): Policy = {
+      penaliseNewlinesInsideTokens: Boolean = false
+  )(implicit line: sourcecode.Line): Policy = {
     Policy(
       {
         case Decision(tok, splits)
@@ -171,13 +173,15 @@ object TokenOps {
 
   def newlines2Modification(
       between: Vector[Token],
-      rightIsComment: Boolean = false): Modification =
+      rightIsComment: Boolean = false
+  ): Modification =
     newlinesBetween(between) match {
       case 0 => Space
       case x =>
         NewlineT(
           isDouble = x == 2,
-          noIndent = rightIsComment && endsWithNoIndent(between))
+          noIndent = rightIsComment && endsWithNoIndent(between)
+        )
     }
 
   // TODO(olafur) calculate this once inside getSplits.

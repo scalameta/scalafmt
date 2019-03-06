@@ -6,7 +6,8 @@ class ScalafmtTest extends org.scalatest.FunSuite {
   def check(
       original: String,
       expected: String,
-      config: ScalafmtConfig = ScalafmtConfig.default): Unit = {
+      config: ScalafmtConfig = ScalafmtConfig.default
+  ): Unit = {
     test(logger.revealWhitespace(original).take(30)) {
       val obtained = Scalafmt.format(original, config).get
       if (obtained != expected) logger.elem(obtained)

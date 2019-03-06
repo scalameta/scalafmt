@@ -21,7 +21,8 @@ import org.scalafmt.util.TreeOps
 class BestFirstSearch(
     val formatOps: FormatOps,
     range: Set[Range],
-    formatWriter: FormatWriter) {
+    formatWriter: FormatWriter
+) {
   import Token._
 
   import LoggerOps._
@@ -98,7 +99,8 @@ class BestFirstSearch(
         split.withIndent(
           Num(2),
           matchingParentheses(hash(formatToken.left)),
-          Right)
+          Right
+        )
       else split
     result
   }
@@ -114,7 +116,8 @@ class BestFirstSearch(
   val memo = mutable.Map.empty[(Int, StateHash), State]
 
   def shortestPathMemo(start: State, stop: Token, depth: Int, maxCost: Int)(
-      implicit line: sourcecode.Line): State = {
+      implicit line: sourcecode.Line
+  ): State = {
     val key = (start.splits.length, stateColumnKey(start))
     val cachedState = memo.get(key)
     cachedState match {
@@ -150,7 +153,8 @@ class BestFirstSearch(
       start: State,
       stop: Token,
       depth: Int = 0,
-      maxCost: Int = Integer.MAX_VALUE): State = {
+      maxCost: Int = Integer.MAX_VALUE
+  ): State = {
     val Q = new PriorityQueue[State]()
     var result = start
     var lastDequeue = start
@@ -212,7 +216,8 @@ class BestFirstSearch(
           throw SearchStateExploded(
             deepestYet,
             formatWriter.mkString(deepestYet.splits),
-            tokens(deepestYet.splits.length).left)
+            tokens(deepestYet.splits.length).left
+          )
         } else {
 
           val splits: Seq[Split] =
@@ -244,7 +249,8 @@ class BestFirstSearch(
                   shortestPath(nextState, token, depth + 1, maxCost = 0)
                 if (hasReachedEof(nextNextState) ||
                   (nextNextState.splits.length < tokens.length && tokens(
-                    nextNextState.splits.length).left.start >= token.start)) {
+                    nextNextState.splits.length
+                  ).left.start >= token.start)) {
                   optimalNotFound = false
 //                  logger.elem(split, splitToken, formatWriter.mkString(nextNextState.splits), tokens(nextNextState.splits.length))
                   Q.enqueue(nextNextState)

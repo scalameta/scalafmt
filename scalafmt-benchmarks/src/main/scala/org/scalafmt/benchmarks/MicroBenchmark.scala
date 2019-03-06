@@ -51,7 +51,8 @@ abstract class MicroBenchmark(path: String*) extends FormatBenchmark {
     if (filename.isFile) filename
     else
       FileOps.getFile(
-        Seq("scalafmt-benchmarks", "src", "resources") ++ path: _*)
+        Seq("scalafmt-benchmarks", "src", "resources") ++ path: _*
+      )
   }
 
   def scalametaParser(): Unit = {

@@ -44,7 +44,8 @@ final case class ScalafmtDynamic(
     copy(reporter = reporter)
 
   override def withRespectProjectFilters(
-      respectExcludeFilters: Boolean): ScalafmtDynamic =
+      respectExcludeFilters: Boolean
+  ): ScalafmtDynamic =
     copy(respectExcludeFilters = respectExcludeFilters)
 
   override def withRespectVersion(respectVersion: Boolean): ScalafmtDynamic =
@@ -101,7 +102,8 @@ final case class ScalafmtDynamic(
   }
 
   private def resolveConfig(
-      configPath: Path): Either[ScalafmtDynamicError, ScalafmtReflectConfig] = {
+      configPath: Path
+  ): Either[ScalafmtDynamicError, ScalafmtReflectConfig] = {
     if (!Files.exists(configPath)) {
       Left(ScalafmtDynamicError.ConfigDoesNotExist(configPath))
     } else if (cacheConfigs) {
@@ -128,7 +130,8 @@ final case class ScalafmtDynamic(
   ): FormatEval[ScalafmtReflectConfig] = {
     for {
       version <- readVersion(configPath).toRight(
-        ScalafmtDynamicError.ConfigMissingVersion(configPath))
+        ScalafmtDynamicError.ConfigMissingVersion(configPath)
+      )
       fmtReflect <- resolveFormatter(configPath, version)
       config <- parseConfig(configPath, fmtReflect)
     } yield config

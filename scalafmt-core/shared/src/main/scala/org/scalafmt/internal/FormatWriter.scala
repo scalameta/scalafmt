@@ -57,7 +57,8 @@ class FormatWriter(formatOps: FormatOps) {
           state,
           sb,
           whitespace,
-          tokenAligns)
+          tokenAligns
+        )
 
         formatToken.right match {
           // state.column matches the end of formatToken.right
@@ -107,7 +108,8 @@ class FormatWriter(formatOps: FormatOps) {
           (for {
             parent <- owners(token).parent
             firstInterpolationPart <- parent.tokens.find(
-              _.is[Interpolation.Part])
+              _.is[Interpolation.Part]
+            )
             char <- firstInterpolationPart.syntax.headOption
           } yield char).getOrElse(' ')
         case _ =>
@@ -127,7 +129,8 @@ class FormatWriter(formatOps: FormatOps) {
   def getFormatLocations(
       toks: Array[FormatToken],
       splits: Vector[Split],
-      debug: Boolean): Array[FormatLocation] = {
+      debug: Boolean
+  ): Array[FormatLocation] = {
     require(toks.length >= splits.length, "splits !=")
     val statesBuilder = Array.newBuilder[FormatLocation]
     statesBuilder.sizeHint(toks.length)
@@ -141,7 +144,8 @@ class FormatWriter(formatOps: FormatOps) {
         if (debug && tokens.length < 1000) {
           val left = cleanup(tok.left).slice(0, 15)
           logger.debug(
-            f"$left%-15s $split ${currState.indentation} ${currState.column}")
+            f"$left%-15s $split ${currState.indentation} ${currState.column}"
+          )
         }
     }
     statesBuilder.result()
@@ -154,9 +158,10 @@ class FormatWriter(formatOps: FormatOps) {
   def reconstructPath(
       toks: Array[FormatToken],
       splits: Vector[Split],
-      debug: Boolean)(
-      callback: (State, FormatToken, String, Map[FormatToken, Int]) => Unit)
-    : Unit = {
+      debug: Boolean
+  )(
+      callback: (State, FormatToken, String, Map[FormatToken, Int]) => Unit
+  ): Unit = {
     require(toks.length >= splits.length, "splits !=")
     val locations = getFormatLocations(toks, splits, debug)
     val tokenAligns = alignmentTokens(locations)
@@ -225,7 +230,8 @@ class FormatWriter(formatOps: FormatOps) {
 
   private def isMultilineTopLevelStatement(
       toks: Array[FormatLocation],
-      i: Int): Boolean = {
+      i: Int
+  ): Boolean = {
     @tailrec def isMultiline(end: Token, i: Int): Boolean = {
       if (i >= toks.length || toks(i).formatToken.left == end) false
       else if (toks(i).split.modification.isNewline) true
@@ -285,7 +291,8 @@ class FormatWriter(formatOps: FormatOps) {
   private def columnsMatch(
       a: Array[FormatLocation],
       b: Array[FormatLocation],
-      endOfLine: FormatToken): Int = {
+      endOfLine: FormatToken
+  ): Int = {
     val result = a.zip(b).takeWhile {
       case (row1, row2) =>
         // skip checking if row1 and row2 matches if both of them continues to a single line of comment
@@ -315,7 +322,8 @@ class FormatWriter(formatOps: FormatOps) {
   // TODO(olafur) Refactor implementation to make it maintainable. It's super
   // imperative and error-prone right now.
   def alignmentTokens(
-      locations: Array[FormatLocation]): Map[FormatToken, Int] = {
+      locations: Array[FormatLocation]
+  ): Map[FormatToken, Int] = {
     if (initStyle.align.tokens.isEmpty || locations.length != tokens.length)
       Map.empty[FormatToken, Int]
     else {
@@ -513,5 +521,6 @@ object FormatWriter {
   case class FormatLocation(
       formatToken: FormatToken,
       split: Split,
-      state: State)
+      state: State
+  )
 }

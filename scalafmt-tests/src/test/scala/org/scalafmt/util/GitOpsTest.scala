@@ -37,8 +37,8 @@ class GitOpsTest extends fixture.FunSuite {
 
   def touch(
       name: String = Random.alphanumeric.take(10).mkString,
-      dir: Option[AbsoluteFile] = None)(
-      implicit ops: GitOpsImpl): AbsoluteFile = {
+      dir: Option[AbsoluteFile] = None
+  )(implicit ops: GitOpsImpl): AbsoluteFile = {
     val f = File.createTempFile(name, ".ext", dir.orElse(ops.rootDir).get.jfile)
     AbsoluteFile.fromPath(f.toString).get
   }
@@ -55,8 +55,9 @@ class GitOpsTest extends fixture.FunSuite {
       .lsTree(ops.workingDirectory)
       .filterNot(_.jfile.getName().contains("initialfile"))
 
-  def mkDir(dirName: String = Random.alphanumeric.take(10).mkString)(
-      implicit ops: GitOpsImpl): AbsoluteFile = {
+  def mkDir(
+      dirName: String = Random.alphanumeric.take(10).mkString
+  )(implicit ops: GitOpsImpl): AbsoluteFile = {
     val file = new File(ops.rootDir.get.jfile, dirName)
     file.mkdir()
     AbsoluteFile.fromFile(file, ops.workingDirectory)
@@ -91,17 +92,17 @@ class GitOpsTest extends fixture.FunSuite {
   }
 
   test(
-    "lsTree should return files properly when the working directory is under the git root directory") {
-    implicit ops =>
-      val f1 = touch()
-      add(f1)
+    "lsTree should return files properly when the working directory is under the git root directory"
+  ) { implicit ops =>
+    val f1 = touch()
+    add(f1)
 
-      val innerDir = mkDir()
-      val f2 = touch(dir = Some(innerDir))
-      add(f2)
+    val innerDir = mkDir()
+    val f2 = touch(dir = Some(innerDir))
+    add(f2)
 
-      val innerGitOps = new GitOpsImpl(innerDir)
-      ls(innerGitOps) should contain only f2
+    val innerGitOps = new GitOpsImpl(innerDir)
+    ls(innerGitOps) should contain only f2
   }
 
   test("lsTree should return committed files that have been modified") {
@@ -164,18 +165,18 @@ class GitOpsTest extends fixture.FunSuite {
   }
 
   test(
-    "diff should return added files that are then modified against a different branch") {
-    implicit o =>
-      val f = touch()
-      add(f)
-      commit
-      checkoutBr("other")
-      val f1 = touch()
-      val f2 = touch()
-      add(f1)
-      add(f2)
-      modify(f1)
-      diff("master") should contain only (f1, f2)
+    "diff should return added files that are then modified against a different branch"
+  ) { implicit o =>
+    val f = touch()
+    add(f)
+    commit
+    checkoutBr("other")
+    val f1 = touch()
+    val f2 = touch()
+    add(f1)
+    add(f2)
+    modify(f1)
+    diff("master") should contain only (f1, f2)
   }
 
   test("diff should not return removed files against a different branch") {

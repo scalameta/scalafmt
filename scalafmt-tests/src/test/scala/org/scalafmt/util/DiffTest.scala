@@ -10,6 +10,7 @@ case class DiffTest(
     expected: String,
     skip: Boolean,
     only: Boolean,
-    style: ScalafmtConfig) {
+    style: ScalafmtConfig
+) {
   val fullName = s"$spec: $name"
 }

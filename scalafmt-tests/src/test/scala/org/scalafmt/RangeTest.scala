@@ -20,7 +20,8 @@ class RangeTest extends FunSuite with DiffAssertions {
       .format(
         original,
         ScalafmtConfig.unitTest40,
-        range = Set(Range(2, 2).inclusive))
+        range = Set(Range(2, 2).inclusive)
+      )
       .get
     assertNoDiff(obtained, expected)
   }
