@@ -362,9 +362,9 @@ class DynamicSuite extends FunSuite with DiffAssertions {
     f.setVersion(version)
     f.assertFormat()
 
-    val reflect = f.dynamic.fmtsCache.get(version)
+    val reflect = f.dynamic.formatCache.getFromCache(version)
     assert(reflect.nonEmpty)
-    assert(reflect.get.intellijScalaFmtConfig.nonEmpty)
+    assert(reflect.get.right.get.intellijScalaFmtConfig.nonEmpty)
   }
 
   checkExhaustive("continuation-indent-callSite-and-defnSite") { (f, version) =>
@@ -408,7 +408,9 @@ class DynamicSuite extends FunSuite with DiffAssertions {
         """.stripMargin
     )
     f.assertFormat()
-    val configOpt = f.dynamic.configsCache.get(f.config).map(_._1)
+    val configOpt = f.dynamic.configsCache
+      .getFromCache(f.config)
+      .flatMap(_.toOption.map(_._1))
     assert(configOpt.nonEmpty)
     val config = configOpt.get
     assert(config.hasRewriteRules)

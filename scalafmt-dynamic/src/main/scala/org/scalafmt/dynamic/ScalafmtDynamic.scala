@@ -8,10 +8,10 @@ import com.typesafe.config.{ConfigException, ConfigFactory}
 import org.scalafmt.dynamic.ScalafmtDynamic.{FormatEval, FormatResult}
 import org.scalafmt.dynamic.ScalafmtDynamicDownloader._
 import org.scalafmt.dynamic.exceptions._
+import org.scalafmt.dynamic.utils.ReentrantCache
 import org.scalafmt.interfaces._
 
-import scala.collection.concurrent.TrieMap
-import scala.collection.mutable
+import scala.concurrent.ExecutionContext
 import scala.util.Try
 import scala.util.control.NonFatal
 
@@ -20,9 +20,11 @@ final case class ScalafmtDynamic(
     respectVersion: Boolean,
     respectExcludeFilters: Boolean,
     defaultVersion: String,
-    fmtsCache: mutable.Map[String, ScalafmtReflect],
+    formatCache: ReentrantCache[String, FormatEval[ScalafmtReflect]],
     cacheConfigs: Boolean,
-    configsCache: mutable.Map[Path, (ScalafmtReflectConfig, FileTime)]
+    configsCache: ReentrantCache[Path, FormatEval[
+      (ScalafmtReflectConfig, FileTime)
+    ]]
 ) extends Scalafmt {
 
   def this() = this(
@@ -30,15 +32,17 @@ final case class ScalafmtDynamic(
     true,
     true,
     BuildInfo.stable,
-    TrieMap.empty,
+    ReentrantCache(),
     true,
-    TrieMap.empty
+    ReentrantCache()
   )
 
-  override def clear(): Unit = {
-    fmtsCache.values.foreach(_.classLoader.close())
-    fmtsCache.clear()
-  }
+  override def clear(): Unit =
+    formatCache
+      .clear()
+      .foreach(
+        _.foreach(_.foreach(_.classLoader.close()))(ExecutionContext.global)
+      )
 
   override def withReporter(reporter: ScalafmtReporter): ScalafmtDynamic =
     copy(reporter = reporter)
@@ -108,19 +112,17 @@ final case class ScalafmtDynamic(
       Left(ScalafmtDynamicError.ConfigDoesNotExist(configPath))
     } else if (cacheConfigs) {
       val currentTimestamp: FileTime = Files.getLastModifiedTime(configPath)
-      configsCache.get(configPath) match {
-        case Some((config, lastModified))
-            if lastModified.compareTo(currentTimestamp) == 0 =>
-          Right(config)
-        case _ =>
-          for {
-            config <- resolveConfigWithScalafmt(configPath)
-          } yield {
-            configsCache(configPath) = (config, currentTimestamp)
+      configsCache
+        .getOrAddToCache(
+          configPath,
+          _.exists(_._2.compareTo(currentTimestamp) != 0)
+        ) { () =>
+          resolveConfigWithScalafmt(configPath).map { config =>
             reporter.parsedConfig(configPath, config.version)
-            config
+            (config, currentTimestamp)
           }
-      }
+        }
+        .map(_._1)
     } else {
       resolveConfigWithScalafmt(configPath)
     }
@@ -149,33 +151,23 @@ final case class ScalafmtDynamic(
     }
   }
 
-  // TODO: there can be issues if resolveFormatter is called multiple times (e.g. formatter is called twice)
-  //  in such cases download process can be started multiple times,
-  //  possible solution: keep information about download process in fmtsCache
   private def resolveFormatter(
       configPath: Path,
       version: String
   ): FormatEval[ScalafmtReflect] = {
-    fmtsCache.get(version) match {
-      case Some(value) =>
-        Right(value)
-      case None =>
-        val writer = reporter.downloadWriter()
-        val downloader = new ScalafmtDynamicDownloader(writer)
-        downloader
-          .download(version)
-          .left
-          .map {
-            case DownloadResolutionError(v, _) =>
-              ScalafmtDynamicError.CannotDownload(configPath, v, None)
-            case DownloadUnknownError(v, cause) =>
-              ScalafmtDynamicError.CannotDownload(configPath, v, Option(cause))
-          }
-          .flatMap(resolveClassPath(configPath, _))
-          .map { scalafmt: ScalafmtReflect =>
-            fmtsCache(version) = scalafmt
-            scalafmt
-          }
+    formatCache.getOrAddToCache(version) { () =>
+      val writer = reporter.downloadWriter()
+      val downloader = new ScalafmtDynamicDownloader(writer)
+      downloader
+        .download(version)
+        .left
+        .map {
+          case DownloadResolutionError(v, _) =>
+            ScalafmtDynamicError.CannotDownload(configPath, v, None)
+          case DownloadUnknownError(v, cause) =>
+            ScalafmtDynamicError.CannotDownload(configPath, v, Option(cause))
+        }
+        .flatMap(resolveClassPath(configPath, _))
     }
   }
 
