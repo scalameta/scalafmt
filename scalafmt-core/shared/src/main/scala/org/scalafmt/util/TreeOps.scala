@@ -192,15 +192,33 @@ object TreeOps {
     * Creates lookup table from token offset to its closest scala.meta tree.
     */
   def getOwners(tree: Tree): Map[TokenHash, Tree] = {
-    val result = Map.newBuilder[TokenHash, Tree]
-    def loop(x: Tree): Unit = {
+    val result = new java.util.HashMap[TokenHash, Tree](2048)
+    import scala.collection.mutable
+    val workList: mutable.Queue[Tree] = new mutable.Queue[Tree]()
+    workList.enqueue(tree)
+    while (workList.nonEmpty) {
+      val x = workList.dequeue()
       x.tokens.foreach { tok =>
-        result += hash(tok) -> x
+        result.put(hash(tok), x)
       }
-      x.children.foreach(loop)
+      workList.enqueue(x.children: _*)
     }
-    loop(tree)
-    result.result()
+    import scala.collection.JavaConverters._
+    import scala.collection.immutable
+    new immutable.AbstractMap[TokenHash, Tree]
+    with immutable.MapLike[TokenHash, Tree, Map[TokenHash, Tree]] {
+      override def +[V1 >: Tree](kv: (TokenHash, V1)): Map[TokenHash, V1] =
+        throw new NotImplementedError("+ is not implemented")
+      override def -(key: TokenHash): Map[TokenHash, Tree] =
+        throw new NotImplementedError("- is not implemented")
+
+      override def get(key: TokenHash): Option[Tree] =
+        if (result.containsKey(key)) Some(result.get(key)) else None
+      override def iterator: Iterator[(TokenHash, Tree)] =
+        result.keySet().iterator().asScala.map(k => k -> apply(k))
+
+      override def apply(key: TokenHash): Tree = result.get(key)
+    }
   }
 
   @tailrec
