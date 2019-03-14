@@ -95,7 +95,12 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     }
     def addOptional(tree: Tree): Unit =
       tree.tokens.headOption.foreach(x => optional += hash(x))
-    def iter(tree: Tree): Unit = {
+
+    import scala.collection.mutable
+    val workList: mutable.Queue[Tree] = new mutable.Queue[Tree]()
+    workList.enqueue(tree)
+    while(workList.nonEmpty) {
+      val tree = workList.dequeue()
       tree match {
         case p: Pkg => packages ++= p.ref.tokens
         case i: Import => imports ++= i.tokens
@@ -106,9 +111,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
           addOptional(t.name)
         case _ =>
       }
-      tree.children.foreach(iter)
+      workList.enqueue(tree.children: _*)
     }
-    iter(tree)
     (packages.result(), imports.result(), arguments.toMap, optional)
   }
 
