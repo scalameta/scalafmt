@@ -54,7 +54,8 @@ object Scalafmt {
         } else {
           code
         }
-        val toParse = Rewrite(Input.VirtualFile(filename, unixCode), style)
+        val input = Input.File(new java.io.File(filename))
+        val toParse = Rewrite(input, style)
         val tree = runner.dialect(toParse).parse(runner.parser).get
         val formatOps = new FormatOps(tree, style)
         runner.eventCallback(CreateFormatOps(formatOps))
