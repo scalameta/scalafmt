@@ -1,0 +1,34 @@
+maxColumn = 6
+danglingParentheses = {callSite: true, defnSite: false}
+
+<<< classes and methods
+object Foo3 {
+  def f(a: A, b: B, c: C) = 1
+  class F(a: A, b: B, c: C)
+
+  f(a, b, c)
+  new F(a, b, c)
+}
+>>>
+object Foo3 {
+  def f(
+      a: A,
+      b: B,
+      c: C) =
+    1
+  class F(
+      a: A,
+      b: B,
+      c: C)
+
+  f(
+    a,
+    b,
+    c
+  )
+  new F(
+    a,
+    b,
+    c
+  )
+}

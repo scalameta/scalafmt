@@ -148,7 +148,7 @@ case class ScalafmtConfig(
     includeCurlyBraceInSelectChains: Boolean = true,
     includeNoParensInSelectChains: Boolean = false,
     assumeStandardLibraryStripMargin: Boolean = false,
-    danglingParentheses: Boolean = true,
+    danglingParentheses: DanglingParentheses = DanglingParentheses(true, true),
     poorMansTrailingCommasInConfigStyle: Boolean = false,
     trailingCommas: TrailingCommas = TrailingCommas.never,
     @deprecated("Use VerticalMultiline.atDefnSite instead", "1.6.0")
@@ -156,6 +156,7 @@ case class ScalafmtConfig(
     @deprecated("Use VerticalMultiline.arityThreshold instead", "1.6.0")
     verticalMultilineAtDefinitionSiteArityThreshold: Int = 100,
     verticalMultiline: VerticalMultiline = VerticalMultiline(),
+    verticalAlignMultilineOperators: Boolean = false,
     onTestFailure: String = "",
     encoding: Codec = "UTF-8",
     project: ProjectFiles = ProjectFiles()
@@ -212,7 +213,7 @@ object ScalafmtConfig {
     optIn = default.optIn.copy(
       configStyleArguments = false
     ),
-    danglingParentheses = true
+    danglingParentheses = DanglingParentheses(true, true)
   )
 
   def addAlign(style: ScalafmtConfig): ScalafmtConfig = style.copy(
@@ -286,7 +287,7 @@ object ScalafmtConfig {
     maxColumn = 79,
     assumeStandardLibraryStripMargin = false,
     includeCurlyBraceInSelectChains = false,
-    danglingParentheses = false,
+    danglingParentheses = DanglingParentheses(false, false),
     align = default.align.copy(
       tokens = Set.empty,
       openParenCallSite = true,
