@@ -1,5 +1,5 @@
 package org.scalafmt
-import org.scalafmt.config.{DanglingParentheses, ScalafmtConfig}
+import org.scalafmt.config.ScalafmtConfig
 import org.scalameta.logger
 
 class ScalafmtTest extends org.scalatest.FunSuite {
@@ -51,4 +51,5 @@ class ScalafmtTest extends org.scalatest.FunSuite {
        |""".stripMargin,
     config.ScalafmtConfig.default40
   )
+
 }
