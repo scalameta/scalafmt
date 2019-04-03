@@ -66,7 +66,8 @@ class ScalafmtTest extends org.scalatest.FunSuite {
        |  )
        |}
        |""".stripMargin,
-    config.ScalafmtConfig.default40.copy(maxColumn = 10, verticalAlignMultilineOperators = true)
+    config.ScalafmtConfig.default40
+      .copy(maxColumn = 10, verticalAlignMultilineOperators = true)
   )
 
   check(
@@ -82,7 +83,8 @@ class ScalafmtTest extends org.scalatest.FunSuite {
        |    b
        |}
        |""".stripMargin,
-    config.ScalafmtConfig.default40.copy(maxColumn = 10, verticalAlignMultilineOperators = true)
+    config.ScalafmtConfig.default40
+      .copy(maxColumn = 10, verticalAlignMultilineOperators = true)
   )
 
   check(
@@ -96,7 +98,8 @@ class ScalafmtTest extends org.scalatest.FunSuite {
        |  b
        |}
        |""".stripMargin,
-    config.ScalafmtConfig.default40.copy(maxColumn = 6, verticalAlignMultilineOperators = true)
+    config.ScalafmtConfig.default40
+      .copy(maxColumn = 6, verticalAlignMultilineOperators = true)
   )
 
   check(
@@ -131,7 +134,10 @@ class ScalafmtTest extends org.scalatest.FunSuite {
        |  )
        |}
        |""".stripMargin,
-    config.ScalafmtConfig.default40.copy(maxColumn = 6, danglingParentheses = DanglingParentheses(true, false))
+    config.ScalafmtConfig.default40.copy(
+      maxColumn = 6,
+      danglingParentheses = DanglingParentheses(true, false)
+    )
   )
 
 }

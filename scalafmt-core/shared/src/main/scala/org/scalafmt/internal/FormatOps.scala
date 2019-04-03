@@ -520,7 +520,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       rightIsComment = formatToken.right.isInstanceOf[Comment]
     )
     val indent = {
-      if (style.verticalAlignMultilineOperators){
+      if (style.verticalAlignMultilineOperators) {
         if (formatToken.left.text == "=") 2 else 0
       } else if (style.unindentTopLevelOperators &&
         !isTopLevelInfixApplication(owner) &&
