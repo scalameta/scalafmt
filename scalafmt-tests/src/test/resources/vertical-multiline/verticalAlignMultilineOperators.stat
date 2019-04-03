@@ -1,0 +1,39 @@
+verticalAlignMultilineOperators = true
+maxColumn = 10
+
+<<< in function call
+object Foo1 {
+  function(
+    a &&
+    b
+  )
+}
+>>>
+object Foo1 {
+  function(
+    a &&
+    b
+  )
+}
+<<< after assignment
+object Foo2 {
+  val x =
+    a +
+    b
+}
+>>>
+object Foo2 {
+  val x =
+    a +
+    b
+}
+<<< in template body
+object Foo3 {
+  a +
+  b
+}
+>>>
+object Foo3 {
+  a +
+  b
+}
