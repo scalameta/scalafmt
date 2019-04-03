@@ -1,5 +1,5 @@
 package org.scalafmt
-import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.config.{DanglingParentheses, ScalafmtConfig}
 import org.scalameta.logger
 
 class ScalafmtTest extends org.scalatest.FunSuite {
@@ -52,23 +52,6 @@ class ScalafmtTest extends org.scalatest.FunSuite {
     config.ScalafmtConfig.default40
   )
   check(
-    """|object Foo {
-       |  function(
-       |    a &&
-       |    b
-       |  )
-       |}
-       |""".stripMargin,
-    """|object Foo {
-       |  function(
-       |    a &&
-       |    b
-       |  )
-       |}
-       |""".stripMargin,
-    config.ScalafmtConfig.default40.copy(maxColumn = 10, unindentTopLevelOperators = true)
-  )
-  check(
     """|object Foo1 {
        |  function(
        |    a &&
@@ -83,24 +66,9 @@ class ScalafmtTest extends org.scalatest.FunSuite {
        |  )
        |}
        |""".stripMargin,
-    config.ScalafmtConfig.default40.copy(maxColumn = 10)
+    config.ScalafmtConfig.default40.copy(maxColumn = 10, verticalAlignMultilineOperators = true)
   )
 
-  check(
-    """|object Foo {
-       |  val x =
-       |    a +
-       |    b
-       |}
-       |""".stripMargin,
-    """|object Foo {
-       |  val x =
-       |    a +
-       |    b
-       |}
-       |""".stripMargin,
-    config.ScalafmtConfig.default40.copy(maxColumn = 10, unindentTopLevelOperators = true)
-  )
   check(
     """|object Foo2 {
        |  val x =
@@ -114,21 +82,7 @@ class ScalafmtTest extends org.scalatest.FunSuite {
        |    b
        |}
        |""".stripMargin,
-    config.ScalafmtConfig.default40.copy(maxColumn = 10)
-  )
-
-  check(
-    """|object Foo {
-       |  a +
-       |  b
-       |}
-       |""".stripMargin,
-    """|object Foo {
-       |  a +
-       |  b
-       |}
-       |""".stripMargin,
-    config.ScalafmtConfig.default40.copy(maxColumn = 6, unindentTopLevelOperators = true)
+    config.ScalafmtConfig.default40.copy(maxColumn = 10, verticalAlignMultilineOperators = true)
   )
 
   check(
@@ -142,7 +96,42 @@ class ScalafmtTest extends org.scalatest.FunSuite {
        |  b
        |}
        |""".stripMargin,
-    config.ScalafmtConfig.default40.copy(maxColumn = 6)
+    config.ScalafmtConfig.default40.copy(maxColumn = 6, verticalAlignMultilineOperators = true)
+  )
+
+  check(
+    """|object Foo3 {
+       |  def f(a: A, b: B, c: C) = 1
+       |  class F(a: A, b: B, c: C)
+       |
+       |  f(a, b, c)
+       |  new F(a, b, c)
+       |}
+       |""".stripMargin,
+    """|object Foo3 {
+       |  def f(
+       |      a: A,
+       |      b: B,
+       |      c: C) =
+       |    1
+       |  class F(
+       |      a: A,
+       |      b: B,
+       |      c: C)
+       |
+       |  f(
+       |    a,
+       |    b,
+       |    c
+       |  )
+       |  new F(
+       |    a,
+       |    b,
+       |    c
+       |  )
+       |}
+       |""".stripMargin,
+    config.ScalafmtConfig.default40.copy(maxColumn = 6, danglingParentheses = DanglingParentheses(true, false))
   )
 
 }

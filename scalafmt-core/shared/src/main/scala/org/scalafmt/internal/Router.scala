@@ -665,18 +665,21 @@ class Router(formatOps: FormatOps) {
 
         val tooManyArguments = args.length > 100
 
-        val newlinePolicy: Policy = if (style.danglingParentheses && !defnSite) {
-          val breakOnClosing = Policy({
-            case d @ Decision(FormatToken(_, `close`, _), s) =>
-              d.onlyNewlines
-          }, close.end)
-          breakOnClosing
-        } else {
-          Policy(PartialFunction.empty[Decision, Decision], close.end)
-        }
+        val newlinePolicy: Policy =
+          if (style.danglingParentheses.defnSite && defnSite ||
+            style.danglingParentheses.callSite && !defnSite) {
+            val breakOnClosing = Policy({
+              case d @ Decision(FormatToken(_, `close`, _), s) =>
+                d.onlyNewlines
+            }, close.end)
+            breakOnClosing
+          } else {
+            Policy(PartialFunction.empty[Decision, Decision], close.end)
+          }
 
         val noSplitPolicy =
-          if (style.danglingParentheses && !defnSite) {
+          if (style.danglingParentheses.defnSite && defnSite ||
+            style.danglingParentheses.callSite && !defnSite) {
             SingleLineBlock(close, exclude = excludeRanges)
           } else singleLine(10)
 
