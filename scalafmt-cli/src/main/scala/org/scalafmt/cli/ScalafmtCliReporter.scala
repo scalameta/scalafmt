@@ -6,7 +6,7 @@ import java.util.function.UnaryOperator
 
 import org.scalafmt.Error.MisformattedFile
 import org.scalafmt.interfaces.{PositionException, ScalafmtReporter}
-import org.scalafmt.dynamic.ScalafmtException
+import org.scalafmt.dynamic.exceptions.ScalafmtException
 
 import scala.util.control.NoStackTrace
 
