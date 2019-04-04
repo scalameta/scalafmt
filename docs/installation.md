@@ -83,7 +83,7 @@ It is not possible to reset this setting for all existing projects.
 
 ```scala
 // In project/plugins.sbt. Note, does not support sbt 0.13, only sbt 1.0.
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.0.0-RC5")
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.0.0")
 // or
 addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "1.5.1") // before 1.6.0-RC4 
 ```
@@ -94,7 +94,6 @@ addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "1.5.1") // before 1.6.0-RC4
 
 - `myproject/scalafmt`: Format main sources of `myproject` project
 - `myproject/test:scalafmt`: Format test sources of `myproject` project
-- `scalafmtIncremental`: Format Scala sources to be compiled incrementally with scalafmt. (available as of v2.0.0-RC5)
 - `scalafmtCheck`: Check if the scala sources under the project has been
   formatted.
 - `scalafmtSbt`: Format `*.sbt` and `project/*.scala` files.
@@ -105,19 +104,18 @@ addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "1.5.1") // before 1.6.0-RC4
 
 ### Customize configuration location
 
-- `scalafmtConfig: Option[File]`: The location of the `.scalafmt.conf`
+- `scalafmtConfig: File`: The location of the `.scalafmt.conf`
   configuration file. Defaults to the `.scalafmt.conf` file at the root of the
-  project if present, `None` if not. When the value is `None` the default config
-  will be used.
+  project.
 
 ### Format on compile
 
-> ⚠️ This option is **discouraged** since it messes up with undo buffers in the
-> editor and it slows down compilation.
-> It is recommended to use "format on save" in the editor instead.
-
 - `scalafmtOnCompile: Boolean`: Defines if the sbt-scalafmt should run scalafmt
   on compile. Default `false`.
+
+> ⚠️ This option is **discouraged** since it messes up undo buffers in the
+> editor and it slows down compilation.
+> It is recommended to use "format on save" in the editor instead.
 
 ### Enable IntegrationTest
 
@@ -200,10 +198,10 @@ here:
 
 [![Sonatype Snapshots](https://img.shields.io/nexus/s/https/oss.sonatype.org/org.scalameta/scalafmt-cli_2.12.svg)](https://oss.sonatype.org/content/repositories/snapshots/org/scalameta/scalafmt-cli_2.12/)
 
-If you use coursier to install a pre-release, be sure to include the flag -r
-sonatype:snapshots so that the artifact can be resolved.
+If you use coursier to install a pre-release, be sure to include the flag `-r
+sonatype:snapshots` so that the artifact can be resolved.
 
-If you use sbt to install a pre-release, be sure to add the following setting
+If you use sbt to install a pre-release, be sure to add the following setting:
 
 ```scala
 resolvers += Resolver.sonatypeRepo("snapshots")
