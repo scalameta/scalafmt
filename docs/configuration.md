@@ -4,7 +4,7 @@ title: Configuration
 ---
 
 Configuration for scalafmt is defined in a plain text file `.scalafmt.conf`
-using [HOCON](https://github.com/typesafehub/config) syntax.
+using [HOCON](https://github.com/lightbend/config) syntax.
 
 Here is an example `.scalafmt.conf`:
 
