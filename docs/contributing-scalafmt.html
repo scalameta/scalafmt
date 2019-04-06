@@ -64,11 +64,11 @@ test for Scala.js, tests benchmark code and also compiles the documentation.</li
 <ul>
 <li><strong>All code PRs should come with</strong>: a meaningful description, inline-comments
 for important things, unit tests (positive and negative), and a green build in
-<a href="https://travis-ci.org/olafurpg/scalafmt">CI</a>.</li>
+<a href="https://travis-ci.org/scalameta/scalafmt">CI</a>.</li>
 <li><strong>Format your code with scalafmt</strong>. Run <code>./scalafmt</code> from the project root
 directory.</li>
 <li><strong>PRs for features should generally come with <em>something</em> added to the
-<a href="https://olafurpg.github.io/scalafmt">Documentation</a></strong>, so people can discover
+<a href="https://scalameta.org/scalafmt">Documentation</a></strong>, so people can discover
 that it exists. The docs are written in <code>readme/Readme.scalatex</code>.</li>
 <li><strong>Be prepared to discuss/argue-for your changes if you want them merged</strong>! You
 will probably need to refactor so your changes fit into the larger codebase -
@@ -100,8 +100,8 @@ running the following script (assumming you have <code>coursier</code> installed
 have <code>docker</code> installed)</li>
 </ul>
 <pre><code class="hljs"><span class="hljs-comment"># Step 1</span>
-<span class="hljs-attr">PREVIOUS_VERSION=</span>v2.<span class="hljs-number">0.0</span>-RC5
-docker run -it --rm -v $(pwd):/project markmandel/github-changelog-generator --<span class="hljs-keyword">user</span> <span class="hljs-title">scalameta</span> --project scalafmt --no-issues -t <span class="hljs-number">387</span>f5c8b32fffb6614e7a1985d44905abe7258eb --since-<span class="hljs-keyword">tag</span> <span class="hljs-title">$PREVIOUS_VERSION</span>
+PREVIOUS_VERSION=v2.0.0-RC5
+docker run -it <span class="hljs-params">--rm</span> -v $<span class="hljs-params">(pwd)</span>:<span class="hljs-string">/project</span> markmandel/github-changelog-generator <span class="hljs-params">--user</span> scalameta <span class="hljs-params">--project</span> scalafmt <span class="hljs-params">--since-tag</span> $PREVIOUS_VERSION <span class="hljs-params">--no-issues</span> <span class="hljs-params">--token</span> 387f5c8b32fffb6614e7a1985d44905abe7258eb
 
 <span class="hljs-comment"># Step 2</span>
 <span class="hljs-comment"># copy-paste relevant lines from CHANGELOG.md to docs/CHANGELOG.md</span>

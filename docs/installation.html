@@ -52,63 +52,39 @@
             });
         </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/scalameta/scalafmt/edit/master/docs/installation.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 class="postHeaderTitle">Installation</h1></header><article><div><span><p>You can use Scalafmt from your editor, build tool or terminal.</p>
 <h2><a class="anchor" aria-hidden="true" id="intellij"></a><a href="#intellij" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>IntelliJ</h2>
-<p>To install the
-<a href="https://plugins.jetbrains.com/plugin/8236?pr=">Scalafmt IntelliJ plugin</a></p>
-<ul>
-<li>open <code>Preferences &gt; Plugins</code> (for Windows/Linux it is called <code>Settings</code>
-instead of <code>Preferences</code>)</li>
-<li>open <code>Browse repositories</code></li>
-<li>search for <code>scalafmt</code></li>
-<li>click &quot;Install&quot;</li>
-<li>restart IntelliJ</li>
-</ul>
-<p><img src="/scalafmt/docs/assets/img/intellij-plugin.png" alt="Scalafmt IntelliJ Plugin"></p>
+<p>The IntelliJ Scala plugin has built-in support for Scalafmt. When opening a
+project that contains <a href="/scalafmt/docs/configuration.html">a <code>.scalafmt.conf</code> file</a>, you will be
+prompted to use it:</p>
+<p><img src="/scalafmt/docs/assets/img/intellij-choose-formatter.png" alt="IntelliJ scalafmt formatter"></p>
+<p>Choose the scalafmt formatter and IntelliJ's <code>Reformat Code</code> action will then
+use Scalafmt when formatting files. See below for shortcuts.</p>
+<p><em><strong>Note:</strong> IntelliJ <a href="https://blog.jetbrains.com/scala/2019/03/27/intellij-scala-plugin-2019-1-highlighting-for-comprehensions-find-usages-for-implicits-and-more/">2019.1 or later</a> is required in order for the Scala plugin
+to support Scalafmt and the dynamic <code>version</code> set in your <code>.scalafmt.conf</code>. If
+you must use an older version, see <a href="/scalafmt/docs/faq.html#how-can-i-work-with-older-versions-of-intellij">the FAQ</a> for an alternative.</em></p>
 <h3><a class="anchor" aria-hidden="true" id="format-current-file"></a><a href="#format-current-file" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Format current file</h3>
 <ul>
-<li><code>Cmd + Shift + L</code> (macOS)</li>
-<li><code>Ctrl + Shift + L</code> (other)</li>
+<li><kbd>Opt + Cmd + L</kbd> (macOS)</li>
+<li><kbd>Ctrl + Alt + L</kbd> (other)</li>
 </ul>
-<p>To re-configure the shortcut</p>
+<p>To re-configure the shortcut:</p>
 <ul>
 <li>Open <code>Preferences &gt; Keymap</code></li>
-<li>Search for &quot;Reformat with scalafmt&quot;</li>
+<li>Search for &quot;Reformat Code&quot;</li>
 </ul>
+<h4><a class="anchor" aria-hidden="true" id="range-formatting"></a><a href="#range-formatting" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Range formatting</h4>
+<p>Scalafmt is primarily designed to operate on entire text files—formatting
+selected ranges of code may produce undesirable results. For this reason,
+IntelliJ uses its own formatter for ranges by default. It is not recommended to
+change this, and is instead recommended to format files when saving.</p>
 <h3><a class="anchor" aria-hidden="true" id="format-on-save"></a><a href="#format-on-save" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Format on save</h3>
 <ul>
-<li>for the current project (recommended): <code>Preferences &gt; Tools &gt; Scalafmt</code></li>
-<li>for all new project:
-<code>File &gt; Other settings &gt; Preferences for new projects &gt; Tools &gt; Scalafmt</code></li>
+<li>for the current project (recommended):
+<code>Preferences &gt; Editor &gt; Code Style &gt; Scala</code></li>
+<li>for all new projects:<br>
+<code>File &gt; Other Settings &gt; Preferences for New Projects… &gt; Editor &gt; Code Style &gt; Scala</code></li>
 </ul>
-<p><img src="/scalafmt/docs/assets/img/intellij-on-save.png" alt="Enable format on save in IntelliJ"></p>
-<h3><a class="anchor" aria-hidden="true" id="install-nightly-plugin"></a><a href="#install-nightly-plugin" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Install nightly plugin</h3>
-<p>To try out the latest pending releases for the Scalafmt plugin:</p>
-<ul>
-<li>Visit
-<a href="https://plugins.jetbrains.com/plugin/8236-scalafmt">Scalafmt plugin page</a></li>
-<li>Select &quot;nightly&quot;</li>
-<li>Click &quot;Download&quot;</li>
-<li>Open IntelliJ</li>
-<li>Uninstall existing Scalafmt plugin installation, if any</li>
-<li>Select <code>Preferences &gt; Plugins &gt; &quot;install plugin from disk...&quot;</code></li>
-<li>Choose the downloaded <code>intellij-scalafmt.zip</code></li>
-<li>Restart IntelliJ</li>
-</ul>
-<h3><a class="anchor" aria-hidden="true" id="continue-using-intellij-formatter"></a><a href="#continue-using-intellij-formatter" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Continue using IntelliJ formatter</h3>
-<p>When prompted whether to &quot;use scalafmt formatter&quot; make sure to select &quot;continue
-using IntelliJ formatter&quot;</p>
-<p><img src="/scalafmt/docs/assets/img/intellij-install.png" alt="IntelliJ scalafmt formatter"></p>
-<p>As long as you have the Scalafmt plugin installed as instructed above you can
-still <a href="#format-current-file">format current file</a> and
-<a href="#format-on-save">format on save</a>.</p>
-<p>It is not recommended to select &quot;use scalafmt formatter&quot; since the built-in
-support provided by IntelliJ has limitations</p>
-<ul>
-<li>it is hardcoded against a single Scalafmt version (v1.5.1 at this time),
-making it difficult to upgrade to new releases.</li>
-<li>it enables undesirable behavior such as formatting expanded snippets (example:
-&quot;implement methods&quot; inspection) with a low column width. Scalafmt is primarily
-designed to format entire text files instead of individual snippets of code.</li>
-</ul>
+<p><img src="/scalafmt/docs/assets/img/intellij-on-save-native.png" alt="Enable format on save in IntelliJ"></p>
+<h3><a class="anchor" aria-hidden="true" id="resume-using-intellij-formatter"></a><a href="#resume-using-intellij-formatter" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Resume using IntelliJ formatter</h3>
 <p>To reset the formatter to IntelliJ for an existing project that uses the
 Scalafmt formatter:</p>
 <ul>
@@ -117,8 +93,8 @@ Scalafmt formatter:</p>
 </ul>
 <p>It is not possible to reset this setting for all existing projects.</p>
 <h2><a class="anchor" aria-hidden="true" id="sbt"></a><a href="#sbt" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>sbt</h2>
-<pre><code class="hljs css language-scala"><span class="hljs-comment">// In project/plugins.sbt. Note, does not support sbt 0.13, only sbt 1.0.</span>
-addSbtPlugin(<span class="hljs-string">"org.scalameta"</span> % <span class="hljs-string">"sbt-scalafmt"</span> % <span class="hljs-string">"2.0.0-RC5"</span>)
+<pre><code class="hljs css language-scala"><span class="hljs-comment">// In project/plugins.sbt. Note, does not support sbt 0.13, only sbt 1.x.</span>
+addSbtPlugin(<span class="hljs-string">"org.scalameta"</span> % <span class="hljs-string">"sbt-scalafmt"</span> % <span class="hljs-string">"2.0.0"</span>)
 <span class="hljs-comment">// or</span>
 addSbtPlugin(<span class="hljs-string">"com.geirsson"</span> % <span class="hljs-string">"sbt-scalafmt"</span> % <span class="hljs-string">"1.5.1"</span>) <span class="hljs-comment">// before 1.6.0-RC4 </span>
 </code></pre>
@@ -127,7 +103,6 @@ addSbtPlugin(<span class="hljs-string">"com.geirsson"</span> % <span class="hljs
 <ul>
 <li><code>myproject/scalafmt</code>: Format main sources of <code>myproject</code> project</li>
 <li><code>myproject/test:scalafmt</code>: Format test sources of <code>myproject</code> project</li>
-<li><code>scalafmtIncremental</code>: Format Scala sources to be compiled incrementally with scalafmt. (available as of v2.0.0-RC5)</li>
 <li><code>scalafmtCheck</code>: Check if the scala sources under the project has been
 formatted.</li>
 <li><code>scalafmtSbt</code>: Format <code>*.sbt</code> and <code>project/*.scala</code> files.</li>
@@ -138,21 +113,20 @@ formatted.</li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="customize-configuration-location"></a><a href="#customize-configuration-location" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Customize configuration location</h3>
 <ul>
-<li><code>scalafmtConfig: Option[File]</code>: The location of the <code>.scalafmt.conf</code>
+<li><code>scalafmtConfig: File</code>: The location of the <code>.scalafmt.conf</code>
 configuration file. Defaults to the <code>.scalafmt.conf</code> file at the root of the
-project if present, <code>None</code> if not. When the value is <code>None</code> the default config
-will be used.</li>
+project.</li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="format-on-compile"></a><a href="#format-on-compile" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Format on compile</h3>
-<blockquote>
-<p>⚠️ This option is <strong>discouraged</strong> since it messes up with undo buffers in the
-editor and it slows down compilation.
-It is recommended to use &quot;format on save&quot; in the editor instead.</p>
-</blockquote>
 <ul>
 <li><code>scalafmtOnCompile: Boolean</code>: Defines if the sbt-scalafmt should run scalafmt
 on compile. Default <code>false</code>.</li>
 </ul>
+<blockquote>
+<p>⚠️ This option is <strong>discouraged</strong> since it messes up undo buffers in the
+editor and it slows down compilation.
+It is recommended to use &quot;format on save&quot; in the editor instead.</p>
+</blockquote>
 <h3><a class="anchor" aria-hidden="true" id="enable-integrationtest"></a><a href="#enable-integrationtest" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Enable IntegrationTest</h3>
 <p>The sbt plugin is enabled by default for the Test and Compile configurations.
 Use <code>scalafmtConfigSettings</code> to enable the plugin for integration tests and then
@@ -209,9 +183,8 @@ with</p>
 into master. To use a pre-release, replace 2.0.0-RC6 with the version
 here:</p>
 <p><a href="https://oss.sonatype.org/content/repositories/snapshots/org/scalameta/scalafmt-cli_2.12/"><img src="https://img.shields.io/nexus/s/https/oss.sonatype.org/org.scalameta/scalafmt-cli_2.12.svg" alt="Sonatype Snapshots"></a></p>
-<p>If you use coursier to install a pre-release, be sure to include the flag -r
-sonatype:snapshots so that the artifact can be resolved.</p>
-<p>If you use sbt to install a pre-release, be sure to add the following setting</p>
+<p>If you use coursier to install a pre-release, be sure to include the flag <code>-r sonatype:snapshots</code> so that the artifact can be resolved.</p>
+<p>If you use sbt to install a pre-release, be sure to add the following setting:</p>
 <pre><code class="hljs css language-scala">resolvers += <span class="hljs-type">Resolver</span>.sonatypeRepo(<span class="hljs-string">"snapshots"</span>)
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="nailgun"></a><a href="#nailgun" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Nailgun</h3>
@@ -250,10 +223,10 @@ binary built with GraalVM. GraalVM native binary provides instant startup withou
 scalafmt --version // should be 2.0.0-RC6
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="help"></a><a href="#help" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>--help</h3>
-<pre><code class="hljs">build commit: <span class="hljs-number">1</span>d6aab76deb5e97587c8923978e6f08c1bf5534e
-build time: Thu Apr <span class="hljs-number">04</span> <span class="hljs-number">12</span>:<span class="hljs-number">29</span>:<span class="hljs-number">16</span> UTC <span class="hljs-number">2019</span>
+<pre><code class="hljs">build commit: a0a3e5dea2ce9bcdac88596f4d125c2b0062df70
+build time: Sat Apr <span class="hljs-number">06</span> <span class="hljs-number">09</span>:<span class="hljs-number">15</span>:<span class="hljs-number">18</span> UTC <span class="hljs-number">2019</span>
 </code></pre>
-<pre><code class="hljs">scalafmt 2.0.0-RC6
+<pre><code class="hljs">scalafmt 2.0.0-RC6+6-a0a3e5de-SNAPSHOT
 Usage: scalafmt [options] [&lt;<span class="hljs-keyword">file</span>&gt;...]
 
   -<span class="hljs-keyword">h</span>, --<span class="hljs-keyword">help</span>               prints this usage text
@@ -479,7 +452,7 @@ classloader.</p>
 <pre><code class="hljs css language-java">Scalafmt scalafmt = Scalafmt.create(scalafmtDynamic)
 String formatted = scalafmt.format(config, file, <span class="hljs-string">"object A   { }"</span>)
 </code></pre>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-next button" href="/scalafmt/docs/configuration.html"><span>Configuration</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#intellij">IntelliJ</a><ul class="toc-headings"><li><a href="#format-current-file">Format current file</a></li><li><a href="#format-on-save">Format on save</a></li><li><a href="#install-nightly-plugin">Install nightly plugin</a></li><li><a href="#continue-using-intellij-formatter">Continue using IntelliJ formatter</a></li></ul></li><li><a href="#sbt">sbt</a><ul class="toc-headings"><li><a href="#task-keys">Task keys</a></li><li><a href="#customize-configuration-location">Customize configuration location</a></li><li><a href="#format-on-compile">Format on compile</a></li><li><a href="#enable-integrationtest">Enable IntegrationTest</a></li><li><a href="#share-configuration-between-builds">Share configuration between builds</a></li></ul></li><li><a href="#cli">CLI</a><ul class="toc-headings"><li><a href="#coursier">Coursier</a></li><li><a href="#pre-release">Pre-release</a></li><li><a href="#nailgun">Nailgun</a></li><li><a href="#homebrew">Homebrew</a></li><li><a href="#arch-linux">Arch Linux</a></li><li><a href="#help">--help</a></li></ul></li><li><a href="#gradle">Gradle</a></li><li><a href="#maven">Maven</a></li><li><a href="#mill">Mill</a></li><li><a href="#vim">Vim</a></li><li><a href="#standalone-library">Standalone library</a><ul class="toc-headings"><li><a href="#binary-compatibility-guarantees">Binary compatibility guarantees</a></li><li><a href="#sbt-and-sc-files"><code>*.sbt</code> and <code>*.sc</code> files</a></li><li><a href="#version-handling">Version handling</a></li><li><a href="#error-reporting">Error reporting</a></li><li><a href="#project-filters">Project filters</a></li><li><a href="#clearing-resources">Clearing resources</a></li><li><a href="#calling-from-java">Calling from Java</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer" style="background-color:#A23244"><section class="sitemap"><div><h5>Docs</h5><a href="
+</span></div></article></div><div class="docs-prevnext"><a class="docs-next button" href="/scalafmt/docs/configuration.html"><span>Configuration</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#intellij">IntelliJ</a><ul class="toc-headings"><li><a href="#format-current-file">Format current file</a></li><li><a href="#format-on-save">Format on save</a></li><li><a href="#resume-using-intellij-formatter">Resume using IntelliJ formatter</a></li></ul></li><li><a href="#sbt">sbt</a><ul class="toc-headings"><li><a href="#task-keys">Task keys</a></li><li><a href="#customize-configuration-location">Customize configuration location</a></li><li><a href="#format-on-compile">Format on compile</a></li><li><a href="#enable-integrationtest">Enable IntegrationTest</a></li><li><a href="#share-configuration-between-builds">Share configuration between builds</a></li></ul></li><li><a href="#cli">CLI</a><ul class="toc-headings"><li><a href="#coursier">Coursier</a></li><li><a href="#pre-release">Pre-release</a></li><li><a href="#nailgun">Nailgun</a></li><li><a href="#homebrew">Homebrew</a></li><li><a href="#arch-linux">Arch Linux</a></li><li><a href="#help">--help</a></li></ul></li><li><a href="#gradle">Gradle</a></li><li><a href="#maven">Maven</a></li><li><a href="#mill">Mill</a></li><li><a href="#vim">Vim</a></li><li><a href="#standalone-library">Standalone library</a><ul class="toc-headings"><li><a href="#binary-compatibility-guarantees">Binary compatibility guarantees</a></li><li><a href="#sbt-and-sc-files"><code>*.sbt</code> and <code>*.sc</code> files</a></li><li><a href="#version-handling">Version handling</a></li><li><a href="#error-reporting">Error reporting</a></li><li><a href="#project-filters">Project filters</a></li><li><a href="#clearing-resources">Clearing resources</a></li><li><a href="#calling-from-java">Calling from Java</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer" style="background-color:#A23244"><section class="sitemap"><div><h5>Docs</h5><a href="
                 /scalafmt/docs/installation.html">Installation</a><a href="
                 /scalafmt/docs/configuration.html">Configuration</a><a href="
                 /scalafmt/docs/contributing-scalafmt.html">Contributing</a></div><div><h5>Community</h5><a href="https://gitter.im/scalameta/scalafmt" target="_blank">Chat on Gitter</a></div><div><h5>More</h5><a href="https://github.com/scalameta/scalafmt" target="_blank">GitHub</a></div></section><section class="copyright">Copyright © 2019 Scalafmt</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
