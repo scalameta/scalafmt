@@ -3,6 +3,17 @@ id: changelog
 title: Changelog
 ---
 
+## [v2.0.0-RC6](https://github.com/scalameta/scalafmt/tree/v2.0.0-RC6) (2019-04-04)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.0.0-RC5...v2.0.0-RC6)
+
+**Merged pull requests:**
+
+- Add flags to support apache/spark style of configuration [\#1395](https://github.com/scalameta/scalafmt/pull/1395) ([lihaoyi-databricks](https://github.com/lihaoyi-databricks)) 
+- Update changelog and document release process [\#1379](https://github.com/scalameta/scalafmt/pull/1379) ([olafurpg](https://github.com/olafurpg)) 
+- Avoid newlines after yield keyword. [\#1378](https://github.com/scalameta/scalafmt/pull/1378) ([olafurpg](https://github.com/olafurpg)) 
+
+
 ## [v2.0.0-RC5](https://github.com/scalameta/scalafmt/tree/v2.0.0-RC5) (2019-02-28)
 
 [Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.0.0-RC4...v2.0.0-RC5)
