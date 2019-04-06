@@ -746,9 +746,7 @@ includeNoParensInSelectChains
 ```scala mdoc:scalafmt
 includeNoParensInSelectChains = true
 ---
-List(1)
-  .toIterator
-  .buffered
+List(1).toIterator.buffered
   .map(_ + 2)
   .filter(_ > 2)
 ```
@@ -756,9 +754,7 @@ List(1)
 ```scala mdoc:scalafmt
 includeNoParensInSelectChains = false
 ---
-List(1).toIterator.buffered
-  .map(_ + 2)
-  .filter(_ > 2)
+List(1).toIterator.buffered.map(_ + 2).filter(_ > 2)
 ```
 
 ### `optIn.breakChainOnFirstMethodDot`
