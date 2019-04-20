@@ -18,6 +18,7 @@ build_script:
   - sbt downloadIdea tests/compile
 
 test_script:
+  - sbt coreJVM/test
   - sbt ci-test
 
 cache:
