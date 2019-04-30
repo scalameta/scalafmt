@@ -145,8 +145,6 @@ object CliArgParser {
       opt[String]("diff-branch")
         .action((branch, c) => c.copy(diff = Some(branch)))
         .text("If set, only format edited files in git diff against provided branch. Has no effect if mode set to `changed`.")
-      opt[Unit]('c', "changed-only")
-          .action((_, c) => c.copy())
       opt[Unit]("build-info")
         .action({
           case (_, c) =>
