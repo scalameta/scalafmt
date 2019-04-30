@@ -7,6 +7,7 @@ import scala.util.control.NonFatal
 import java.io.File
 
 trait GitOps {
+  def status: Seq[AbsoluteFile]
   def diff(branch: String): Seq[AbsoluteFile]
   def lsTree(dir: AbsoluteFile): Seq[AbsoluteFile]
   def rootDir: Option[AbsoluteFile]
@@ -50,7 +51,7 @@ class GitOpsImpl(private[util] val workingDirectory: AbsoluteFile)
           "--full-name",
           dir.path
         )
-      ).toOption.toSeq.flatten.map(f => rtDir / f)
+      ).getOrElse(Seq.empty).map(f => rtDir / f)
     }
 
   override def rootDir: Option[AbsoluteFile] = {
@@ -76,7 +77,31 @@ class GitOpsImpl(private[util] val workingDirectory: AbsoluteFile)
     )
     for {
       root <- rootDir.toSeq
-      path <- exec(cmd).toOption.toSeq.flatten
+      path <- exec(cmd).getOrElse(Seq.empty)
     } yield AbsoluteFile.fromFile(new File(path), root)
   }
+
+  override def status: Seq[AbsoluteFile] = {
+    val cmd = Seq(
+      "git",
+      "status",
+      "--porcelain"
+    )
+    for {
+      root <- rootDir.toSeq
+      statusLine <- exec(cmd).getOrElse(Seq.empty)
+      file <- getFileFromGitStatusLine(statusLine).toSeq
+    } yield AbsoluteFile.fromFile(file, root)
+  }.filter(_.exists)
+
+  private final val statusCodesSubstringLength = 3
+  private final val moveStatusArrowDelimiter = "-> "
+
+  private def getFileFromGitStatusLine(s: String): Option[File] =
+    s.substring(statusCodesSubstringLength)
+      .split(moveStatusArrowDelimiter) match {
+      case Array(path) => Try(new File(path)).toOption
+      case Array(_, path) => Try(new File(path)).toOption
+      case _ => None
+    }
 }

@@ -5,6 +5,7 @@ import java.io.File
 /** Wrapper around java.io.File with an absolute path. */
 sealed abstract case class AbsoluteFile(jfile: File) {
   def path: String = jfile.getAbsolutePath
+  def exists: Boolean = jfile.exists()
   def /(other: String) = new AbsoluteFile(new File(jfile, other)) {}
 
   override def toString(): String = path

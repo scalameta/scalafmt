@@ -14,7 +14,7 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
       termDisplayMessage: String
   ): ExitCode = {
     val inputMethods = getInputMethods(options, None)
-    if (inputMethods.isEmpty && options.diff.isEmpty && !options.stdIn)
+    if (inputMethods.isEmpty && options.mode.isEmpty && !options.stdIn)
       throw NoMatchingFiles
 
     val counter = new AtomicInteger()

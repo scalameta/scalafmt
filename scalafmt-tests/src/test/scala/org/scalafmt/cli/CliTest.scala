@@ -71,6 +71,7 @@ abstract class AbstractCliTest extends FunSuite with DiffAssertions {
 
   def gimmeConfig(string: String): ScalafmtConfig =
     Config.fromHoconString(string).get
+
   def noArgTest(
       input: AbsoluteFile,
       expected: String,
@@ -314,11 +315,12 @@ trait CliTestBehavior { this: AbstractCliTest =>
     }
 
     test(
-      s"scalafmt (no matching files) is okay with --diff and --stdin: $label"
+      s"scalafmt (no matching files) is okay with --mode diff and --stdin: $label"
     ) {
       val diff = getConfig(
         Array(
-          "--diff",
+          "--mode",
+          "diff",
           "--config-str",
           s"""{version="$version",style=IntelliJ}"""
         )
@@ -370,9 +372,10 @@ trait CliTestBehavior { this: AbstractCliTest =>
       noArgTest(
         input,
         expected,
-        Seq(Array.empty[String], Array("--diff"))
+        Seq(Array.empty[String], Array("--mode", "diff"))
       )
     }
+
     test(s"scalafmt (no arg, no config): $label") {
       noArgTest(
         string2dir(
@@ -459,7 +462,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
     }
 
     test(
-      s"includeFilters are ignored for full paths but NOT ignore for passed directories: $label"
+      s"includeFilters are ignored for full paths but NOT test for passed directories: $label"
     ) {
       val root =
         string2dir(

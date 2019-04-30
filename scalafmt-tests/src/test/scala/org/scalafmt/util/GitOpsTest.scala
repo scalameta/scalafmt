@@ -5,9 +5,10 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths}
 
 import scala.util._
-
 import org.scalatest._
 import org.scalactic.source.Position
+
+import scala.reflect.io.Directory
 
 class GitOpsTest extends fixture.FunSuite {
 
@@ -41,6 +42,22 @@ class GitOpsTest extends fixture.FunSuite {
   )(implicit ops: GitOpsImpl): AbsoluteFile = {
     val f = File.createTempFile(name, ".ext", dir.orElse(ops.rootDir).get.jfile)
     AbsoluteFile.fromPath(f.toString).get
+  }
+
+  def mv(f: AbsoluteFile, dir: Option[AbsoluteFile] = None)(
+      implicit ops: GitOpsImpl
+  ): AbsoluteFile = {
+    val destDir = Files.createTempDirectory(
+      dir.orElse(ops.rootDir).get.jfile.toPath,
+      "dir_"
+    )
+    val dest = Files.move(
+      f.jfile.toPath,
+      destDir,
+      java.nio.file.StandardCopyOption.REPLACE_EXISTING
+    )
+    rm(f)
+    AbsoluteFile.fromPath(dest.toString).get
   }
 
   def modify(f: AbsoluteFile): Unit = {
@@ -117,6 +134,9 @@ class GitOpsTest extends fixture.FunSuite {
   def diff(br: String = "HEAD")(implicit ops: GitOpsImpl): Seq[AbsoluteFile] =
     ops.diff(br)
 
+  def status(implicit ops: GitOpsImpl): Seq[AbsoluteFile] =
+    ops.status
+
   // diff
   test("diff should return modified committed files") { implicit o =>
     val f = touch()
@@ -192,6 +212,35 @@ class GitOpsTest extends fixture.FunSuite {
       commit
       rm(f1)
       diff("master") should contain only (f2)
+  }
+
+  test("status should return only modified files") { implicit o =>
+    val f = touch()
+    add(f)
+    commit
+    val f1 = touch()
+    status should contain only f1
+  }
+
+  test("status should return moved") { implicit o =>
+    val f = touch()
+    add(f)
+    commit
+    val f1 = mv(f)
+    add(f1)
+    status should contain only f1
+  }
+
+  test("status should not return deleted files") { implicit o =>
+    val f = touch()
+    modify(f)
+    add(f)
+    commit
+    val f1 = touch()
+    modify(f1)
+    add(f1)
+    rm(f)
+    status should contain only f1
   }
 
 }
