@@ -141,10 +141,13 @@ object CliArgParser {
           s"""Sets the files to be formatted fetching mode.
              |Options:
              |        diff - format files listed in `git diff` against master
-             |        changed - format files listed in `git status` (latest changes against previous commit)""".stripMargin)
+             |        changed - format files listed in `git status` (latest changes against previous commit)""".stripMargin
+        )
       opt[String]("diff-branch")
         .action((branch, c) => c.copy(diff = Some(branch)))
-        .text("If set, only format edited files in git diff against provided branch. Has no effect if mode set to `changed`.")
+        .text(
+          "If set, only format edited files in git diff against provided branch. Has no effect if mode set to `changed`."
+        )
       opt[Unit]("build-info")
         .action({
           case (_, c) =>
