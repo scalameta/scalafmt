@@ -1,9 +1,8 @@
 package org.scalafmt.util
 
 import scala.sys.process.ProcessLogger
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 import scala.util.control.NonFatal
-
 import java.io.File
 
 trait GitOps {
@@ -90,18 +89,29 @@ class GitOpsImpl(private[util] val workingDirectory: AbsoluteFile)
     for {
       root <- rootDir.toSeq
       statusLine <- exec(cmd).getOrElse(Seq.empty)
-      file <- getFileFromGitStatusLine(statusLine).toSeq
+      file <- getFileFromGitStatusLine(statusLine).toOption.toSeq
     } yield AbsoluteFile.fromFile(file, root)
   }.filter(_.exists)
 
-  private final val statusCodesSubstringLength = 3
-  private final val moveStatusArrowDelimiter = "-> "
+  private final val renameStatusCode = "R"
+  private final val renameStatusArrowDelimiter = "-> "
 
-  private def getFileFromGitStatusLine(s: String): Option[File] =
-    s.substring(statusCodesSubstringLength)
-      .split(moveStatusArrowDelimiter) match {
-      case Array(path) => Try(new File(path)).toOption
-      case Array(_, path) => Try(new File(path)).toOption
-      case _ => None
-    }
+  private def extractPathPart(s: String): Try[String] =
+    Try(
+      Option(s)
+        .filter(_.substring(0, 2).contains(renameStatusCode))
+        .map(_.split(renameStatusArrowDelimiter).last)
+        .getOrElse(s.trim.split(' ').tail.mkString(" "))
+        .trim
+    )
+
+  private def trimQuotes(s: String): String =
+    s.replaceAll("^\"|\"$", "")
+
+  private def getFileFromGitStatusLine(s: String): Try[File] =
+    for {
+      pathRaw <- extractPathPart(s)
+      path = trimQuotes(pathRaw)
+      file <- Try(new File(path))
+    } yield file
 }

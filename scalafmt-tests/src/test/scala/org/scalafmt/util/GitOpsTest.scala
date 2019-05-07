@@ -8,8 +8,6 @@ import scala.util._
 import org.scalatest._
 import org.scalactic.source.Position
 
-import scala.reflect.io.Directory
-
 class GitOpsTest extends fixture.FunSuite {
 
   import Matchers._
@@ -243,6 +241,13 @@ class GitOpsTest extends fixture.FunSuite {
     status should contain only f1
   }
 
+  test("status should return files with spaces in the path") { implicit o =>
+    val dir = mkDir("dir 1")
+    val f = touch(dir = Option(dir))
+    add(f)
+    status should contain only f
+  }
+
 }
 
 private object GitOpsTest {
@@ -255,8 +260,8 @@ private object GitOpsTest {
     file.jfile.delete
 
   // Git commands
-  def git(str: String)(implicit ops: GitOpsImpl, pos: Position): Seq[String] =
-    ops.exec("git" +: str.split(' ').toSeq) match {
+  def git(str: String*)(implicit ops: GitOpsImpl, pos: Position): Seq[String] =
+    ops.exec("git" +: str) match {
       case Failure(f) => fail(s"Failed git command. Got: $f")
       case Success(s) => s
     }
@@ -265,17 +270,17 @@ private object GitOpsTest {
     git("init")
 
   def add(file: AbsoluteFile)(implicit ops: GitOpsImpl): Unit =
-    git(s"add $file")
+    git("add", file.toString())
 
   def rm(file: AbsoluteFile)(implicit ops: GitOpsImpl): Unit =
-    git(s"rm $file")
+    git("rm", file.toString())
 
   def commit(implicit ops: GitOpsImpl): Unit =
-    git(s"commit -m 'some-message'")
+    git("commit", "-m", "'some-message'")
 
   def checkout(br: String)(implicit ops: GitOpsImpl): Unit =
-    git(s"checkout $br")
+    git("checkout", "$br")
 
   def checkoutBr(newBr: String)(implicit ops: GitOpsImpl): Unit =
-    git(s"checkout -b $newBr")
+    git("checkout", "-b", "$newBr")
 }
