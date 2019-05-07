@@ -135,6 +135,12 @@ object CliArgParser {
         .text(
           """migrate .scalafmt CLI style configuration to hocon style configuration in .scalafmt.conf"""
         )
+      opt[Unit]("diff")
+        .action((_, c) => c.copy(mode = Option(DiffFiles("master"))))
+        .text(
+          s"""Format files listed in `git diff` against master.
+             |Deprecated: use --mode diff instead""".stripMargin
+        )
       opt[FileFetchMode]("mode")
         .action((m, c) => c.copy(mode = Option(m)))
         .text(
