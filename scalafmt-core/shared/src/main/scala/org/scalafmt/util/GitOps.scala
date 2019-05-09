@@ -96,11 +96,20 @@ class GitOpsImpl(private[util] val workingDirectory: AbsoluteFile)
   private final val renameStatusCode = "R"
   private final val renameStatusArrowDelimiter = "-> "
 
+  /*
+    Method extracts path to changed file from the singular line of the `git status --porcelain` output.
+   (see https://git-scm.com/docs/git-status#_short_format)
+   */
   private def extractPathPart(s: String): Try[String] =
     Try(
       Option(s)
+      // Checks if the line status states the file was renamed (E.g: `R  ORIG_PATH -> PATH`)
         .filter(_.substring(0, 2).contains(renameStatusCode))
+        // takes the part of the string after the `-> ` character sequence
         .map(_.split(renameStatusArrowDelimiter).last)
+        // fallback for the regular status line (E.g.: `XY PATH`)
+        // Drops the status codes by splitting on white spaces then taking the tail of the result
+        // Restores spaces in the path by merging the tail back with white space separator
         .getOrElse(s.trim.split(' ').tail.mkString(" "))
         .trim
     )
@@ -109,9 +118,6 @@ class GitOpsImpl(private[util] val workingDirectory: AbsoluteFile)
     s.replaceAll("^\"|\"$", "")
 
   private def getFileFromGitStatusLine(s: String): Try[File] =
-    for {
-      pathRaw <- extractPathPart(s)
-      path = trimQuotes(pathRaw)
-      file <- Try(new File(path))
-    } yield file
+    extractPathPart(s)
+      .map(pathRaw => new File(trimQuotes(pathRaw)))
 }
