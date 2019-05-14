@@ -15,7 +15,8 @@ object CliArgParser {
        |         # 2. .scalafmt.conf inside root directory of current git repo
        |         # 3. no configuration, default style
        |scalafmt --test # throw exception on mis-formatted files, won't write to files.
-       |scalafmt --diff # Format all files that were edited in git diff against master branch.
+       |scalafmt --mode diff # Format all files that were edited in git diff against master branch.
+       |scalafmt --mode changed # Format files listed in `git status` (latest changes against previous commit.
        |scalafmt --diff-branch 2.x # same as --diff, except against branch 2.x
        |scalafmt --stdin # read from stdin and print to stdout
        |scalafmt --stdin --assume-filename foo.sbt < foo.sbt # required when using --stdin to format .sbt files.
@@ -135,12 +136,23 @@ object CliArgParser {
           """migrate .scalafmt CLI style configuration to hocon style configuration in .scalafmt.conf"""
         )
       opt[Unit]("diff")
-        .action((_, c) => c.copy(diff = Some("master")))
-        .text("If set, only format edited files in git diff against master.")
+        .action((_, c) => c.copy(mode = Option(DiffFiles("master"))))
+        .text(
+          s"""Format files listed in `git diff` against master.
+             |Deprecated: use --mode diff instead""".stripMargin
+        )
+      opt[FileFetchMode]("mode")
+        .action((m, c) => c.copy(mode = Option(m)))
+        .text(
+          s"""Sets the files to be formatted fetching mode.
+             |Options:
+             |        diff - format files listed in `git diff` against master
+             |        changed - format files listed in `git status` (latest changes against previous commit)""".stripMargin
+        )
       opt[String]("diff-branch")
         .action((branch, c) => c.copy(diff = Some(branch)))
         .text(
-          "If set, only format edited files in git diff against provided branch."
+          "If set, only format edited files in git diff against provided branch. Has no effect if mode set to `changed`."
         )
       opt[Unit]("build-info")
         .action({

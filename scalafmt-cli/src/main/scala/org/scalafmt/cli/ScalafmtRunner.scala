@@ -50,7 +50,8 @@ trait ScalafmtRunner {
       filter: Option[FilterMatcher]
   ): Seq[AbsoluteFile] = {
     def canFormat(f: AbsoluteFile): Boolean =
-      filter.map(_.matches(f)).getOrElse(true)
+      filter.forall(_.matches(f))
+
     val files = options.fileFetchMode match {
       case m @ (GitFiles | RecursiveSearch) =>
         val fetchFiles: AbsoluteFile => Seq[AbsoluteFile] =
@@ -63,8 +64,12 @@ trait ScalafmtRunner {
           // formatted regardless of what it is or where it is.
           case f => Seq(f)
         }
+
       case DiffFiles(branch) =>
         options.gitOps.diff(branch).filter(canFormat)
+
+      case ChangedFiles =>
+        options.gitOps.status.filter(canFormat)
     }
     val excludeRegexp = options.excludeFilterRegexp
     files.filter { f =>

@@ -5,7 +5,6 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths}
 
 import scala.util._
-
 import org.scalatest._
 import org.scalactic.source.Position
 
@@ -41,6 +40,22 @@ class GitOpsTest extends fixture.FunSuite {
   )(implicit ops: GitOpsImpl): AbsoluteFile = {
     val f = File.createTempFile(name, ".ext", dir.orElse(ops.rootDir).get.jfile)
     AbsoluteFile.fromPath(f.toString).get
+  }
+
+  def mv(f: AbsoluteFile, dir: Option[AbsoluteFile] = None)(
+      implicit ops: GitOpsImpl
+  ): AbsoluteFile = {
+    val destDir = Files.createTempDirectory(
+      dir.orElse(ops.rootDir).get.jfile.toPath,
+      "dir_"
+    )
+    val dest = Files.move(
+      f.jfile.toPath,
+      destDir,
+      java.nio.file.StandardCopyOption.REPLACE_EXISTING
+    )
+    rm(f)
+    AbsoluteFile.fromPath(dest.toString).get
   }
 
   def modify(f: AbsoluteFile): Unit = {
@@ -116,6 +131,9 @@ class GitOpsTest extends fixture.FunSuite {
 
   def diff(br: String = "HEAD")(implicit ops: GitOpsImpl): Seq[AbsoluteFile] =
     ops.diff(br)
+
+  def status(implicit ops: GitOpsImpl): Seq[AbsoluteFile] =
+    ops.status
 
   // diff
   test("diff should return modified committed files") { implicit o =>
@@ -194,6 +212,42 @@ class GitOpsTest extends fixture.FunSuite {
       diff("master") should contain only (f2)
   }
 
+  test("status should return only modified files") { implicit o =>
+    val f = touch()
+    add(f)
+    commit
+    val f1 = touch()
+    status should contain only f1
+  }
+
+  test("status should return moved") { implicit o =>
+    val f = touch()
+    add(f)
+    commit
+    val f1 = mv(f)
+    add(f1)
+    status should contain only f1
+  }
+
+  test("status should not return deleted files") { implicit o =>
+    val f = touch()
+    modify(f)
+    add(f)
+    commit
+    val f1 = touch()
+    modify(f1)
+    add(f1)
+    rm(f)
+    status should contain only f1
+  }
+
+  test("status should return files with spaces in the path") { implicit o =>
+    val dir = mkDir("dir 1")
+    val f = touch(dir = Option(dir))
+    add(f)
+    status should contain only f
+  }
+
 }
 
 private object GitOpsTest {
@@ -206,8 +260,8 @@ private object GitOpsTest {
     file.jfile.delete
 
   // Git commands
-  def git(str: String)(implicit ops: GitOpsImpl, pos: Position): Seq[String] =
-    ops.exec("git" +: str.split(' ').toSeq) match {
+  def git(str: String*)(implicit ops: GitOpsImpl, pos: Position): Seq[String] =
+    ops.exec("git" +: str) match {
       case Failure(f) => fail(s"Failed git command. Got: $f")
       case Success(s) => s
     }
@@ -216,17 +270,17 @@ private object GitOpsTest {
     git("init")
 
   def add(file: AbsoluteFile)(implicit ops: GitOpsImpl): Unit =
-    git(s"add $file")
+    git("add", file.toString())
 
   def rm(file: AbsoluteFile)(implicit ops: GitOpsImpl): Unit =
-    git(s"rm $file")
+    git("rm", file.toString())
 
   def commit(implicit ops: GitOpsImpl): Unit =
-    git(s"commit -m 'some-message'")
+    git("commit", "-m", "'some-message'")
 
   def checkout(br: String)(implicit ops: GitOpsImpl): Unit =
-    git(s"checkout $br")
+    git("checkout", "$br")
 
   def checkoutBr(newBr: String)(implicit ops: GitOpsImpl): Unit =
-    git(s"checkout -b $newBr")
+    git("checkout", "-b", "$newBr")
 }
