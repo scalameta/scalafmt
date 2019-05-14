@@ -1203,7 +1203,7 @@ class Router(formatOps: FormatOps) {
         )
 
       // Type variance
-      case tok @ FormatToken(Ident(_), Ident(_), _)
+      case tok @ FormatToken(Ident(_), Ident(_) | Underscore(), _)
           if isTypeVariant(leftOwner) =>
         Seq(
           Split(NoSplit, 0)
