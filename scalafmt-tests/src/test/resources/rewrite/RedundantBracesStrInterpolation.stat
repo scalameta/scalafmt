@@ -64,3 +64,19 @@ object a {
 object a {
   s"Hello ${d.toString}"
 }
+<<< SKIP identifier started with underscore
+object a {
+  s"Hello ${_id}"
+}
+>>>
+object a {
+  s"Hello ${_id}"
+}
+<<< SKIP literal identifier
+object a {
+  s"Hello ${`type`}"
+}
+>>>
+object a {
+  s"Hello ${`type`}"
+}
