@@ -1,6 +1,6 @@
 package org.scalafmt.cli
 
-import java.io.{IOException, InputStream, PrintStream}
+import java.io.{IOException, InputStream, OutputStream, PrintStream}
 import java.nio.charset.UnsupportedCharsetException
 import java.nio.file.{Files, Path}
 
@@ -42,7 +42,13 @@ object CliOptions {
     val newMode = if (parsed.testing) Stdout else parsed.writeMode
     parsed.copy(
       writeMode = newMode,
-      config = style
+      config = style,
+      common = parsed.common.copy(
+        info =
+          if (parsed.noStdErr || (!parsed.stdIn && parsed.writeMode != Stdout))
+            parsed.common.out
+          else parsed.common.err
+      )
     )
   }
 
@@ -66,11 +72,17 @@ object CliOptions {
   }
 }
 
+object NoopOutputStream extends OutputStream {
+  override def write(b: Int): Unit = ()
+}
+
 case class CommonOptions(
     workingDirectory: AbsoluteFile = AbsoluteFile.userDir,
     out: PrintStream = System.out,
     in: InputStream = System.in,
-    err: PrintStream = System.err
+    err: PrintStream = System.err,
+    debug: PrintStream = new PrintStream(NoopOutputStream),
+    info: PrintStream = System.out
 )
 
 case class CliOptions(
@@ -83,7 +95,6 @@ case class CliOptions(
     testing: Boolean = false,
     stdIn: Boolean = false,
     quiet: Boolean = false,
-    debug: Boolean = false,
     git: Option[Boolean] = None,
     nonInteractive: Boolean = false,
     mode: Option[FileFetchMode] = None,
@@ -165,10 +176,6 @@ case class CliOptions(
 
   def withFiles(files: Seq[AbsoluteFile]): CliOptions = {
     this.copy(customFiles = files)
-  }
-
-  def info: PrintStream = {
-    if (noStdErr || (!stdIn && writeMode != Stdout)) common.out else common.err
   }
 
   def excludeFilterRegexp: Regex =
