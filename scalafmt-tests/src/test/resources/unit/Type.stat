@@ -23,6 +23,14 @@ package object internal {
    */
   type TokenHash = Long
 }
+<<< covariant annotation with underscore #1280
+trait CovariantAnnotation[F[+_]]
+>>>
+trait CovariantAnnotation[F[+_]]
+<<< contravariant annotation with underscore #1280
+trait ContravariantAnnotation[F[-_]]
+>>>
+trait ContravariantAnnotation[F[-_]]
 <<< variance annotation #98
  trait JSIterator[+A] extends js.Object
 >>>
