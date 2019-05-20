@@ -165,7 +165,7 @@ object CliArgParser {
         .action((_, c) => c.copy(quiet = true))
         .text("don't print out stuff to console.")
       opt[Unit]("debug")
-        .action((_, c) => c.copy(common = c.common.copy(debug = System.out)))
+        .action((_, c) => c.copy(debug = true))
         .text("print out diagnostics to console.")
       opt[Unit]("non-interactive")
         .action((_, c) => c.copy(nonInteractive = true))
