@@ -7,69 +7,50 @@ You can use Scalafmt from your editor, build tool or terminal.
 
 ## IntelliJ
 
-To install the
-[Scalafmt IntelliJ plugin](https://plugins.jetbrains.com/plugin/8236?pr=)
+The IntelliJ Scala plugin has built-in support for Scalafmt. When opening a
+project that contains [a `.scalafmt.conf` file](configuration.md), you will be
+prompted to use it:
 
-- open `Preferences > Plugins` (for Windows/Linux it is called `Settings`
-  instead of `Preferences`)
-- open `Browse repositories`
-- search for `scalafmt`
-- click "Install"
-- restart IntelliJ
+![IntelliJ scalafmt formatter](assets/img/intellij-choose-formatter.png)
 
-![Scalafmt IntelliJ Plugin](assets/img/intellij-plugin.png)
+Choose the scalafmt formatter and IntelliJ's `Reformat Code` action will then
+use Scalafmt when formatting files. See below for shortcuts.
+
+_**Note:** IntelliJ [2019.1 or later] is required in order for the Scala plugin
+to support Scalafmt and the dynamic `version` set in your `.scalafmt.conf`. If
+you must use an older version, see [the FAQ][old intellij] for an alternative._
+
+[2019.1 or later]: https://blog.jetbrains.com/scala/2019/03/27/intellij-scala-plugin-2019-1-highlighting-for-comprehensions-find-usages-for-implicits-and-more/
+[old intellij]: faq.md#how-can-i-work-with-older-versions-of-intellij
 
 ### Format current file
 
-- `Cmd + Shift + L` (macOS)
-- `Ctrl + Shift + L` (other)
+- <kbd>Opt + Cmd + L</kbd> (macOS)
+- <kbd>Ctrl + Alt + L</kbd> (other)
 
-To re-configure the shortcut
+To re-configure the shortcut:
 
 - Open `Preferences > Keymap`
-- Search for "Reformat with scalafmt"
+- Search for "Reformat Code"
+
+#### Range formatting
+
+Scalafmt is primarily designed to operate on entire text files—formatting
+selected ranges of code may produce undesirable results. For this reason,
+IntelliJ uses its own formatter for ranges by default. It is not recommended to
+change this, and is instead recommended to format files when saving.
 
 ### Format on save
 
-- for the current project (recommended): `Preferences > Tools > Scalafmt`
-- for all new project:
-  `File > Other settings > Preferences for new projects > Tools > Scalafmt`
+- for the current project (recommended):
+  `Preferences > Editor > Code Style > Scala`
+- for all new projects:  
+  `File > Other Settings > Preferences for New Projects… > Editor > Code Style >
+  Scala`
 
-![Enable format on save in IntelliJ](assets/img/intellij-on-save.png)
+![Enable format on save in IntelliJ](assets/img/intellij-on-save-native.png)
 
-### Install nightly plugin
-
-To try out the latest pending releases for the Scalafmt plugin:
-
-- Visit
-  [Scalafmt plugin page](https://plugins.jetbrains.com/plugin/8236-scalafmt)
-- Select "nightly"
-- Click "Download"
-- Open IntelliJ
-- Uninstall existing Scalafmt plugin installation, if any
-- Select `Preferences > Plugins > "install plugin from disk..."`
-- Choose the downloaded `intellij-scalafmt.zip`
-- Restart IntelliJ
-
-### Continue using IntelliJ formatter
-
-When prompted whether to "use scalafmt formatter" make sure to select "continue
-using IntelliJ formatter"
-
-![IntelliJ scalafmt formatter](assets/img/intellij-install.png)
-
-As long as you have the Scalafmt plugin installed as instructed above you can
-still [format current file](#format-current-file) and
-[format on save](#format-on-save).
-
-It is not recommended to select "use scalafmt formatter" since the built-in
-support provided by IntelliJ has limitations
-
-- it is hardcoded against a single Scalafmt version (v1.5.1 at this time),
-  making it difficult to upgrade to new releases.
-- it enables undesirable behavior such as formatting expanded snippets (example:
-  "implement methods" inspection) with a low column width. Scalafmt is primarily
-  designed to format entire text files instead of individual snippets of code.
+### Resume using IntelliJ formatter
 
 To reset the formatter to IntelliJ for an existing project that uses the
 Scalafmt formatter:
@@ -82,8 +63,8 @@ It is not possible to reset this setting for all existing projects.
 ## sbt
 
 ```scala
-// In project/plugins.sbt. Note, does not support sbt 0.13, only sbt 1.0.
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.0.0-RC5")
+// In project/plugins.sbt. Note, does not support sbt 0.13, only sbt 1.x.
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.0.0")
 // or
 addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "1.5.1") // before 1.6.0-RC4 
 ```
@@ -94,7 +75,6 @@ addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "1.5.1") // before 1.6.0-RC4
 
 - `myproject/scalafmt`: Format main sources of `myproject` project
 - `myproject/test:scalafmt`: Format test sources of `myproject` project
-- `scalafmtIncremental`: Format Scala sources to be compiled incrementally with scalafmt. (available as of v2.0.0-RC5)
 - `scalafmtCheck`: Check if the scala sources under the project has been
   formatted.
 - `scalafmtSbt`: Format `*.sbt` and `project/*.scala` files.
@@ -105,19 +85,18 @@ addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "1.5.1") // before 1.6.0-RC4
 
 ### Customize configuration location
 
-- `scalafmtConfig: Option[File]`: The location of the `.scalafmt.conf`
+- `scalafmtConfig: File`: The location of the `.scalafmt.conf`
   configuration file. Defaults to the `.scalafmt.conf` file at the root of the
-  project if present, `None` if not. When the value is `None` the default config
-  will be used.
+  project.
 
 ### Format on compile
 
-> ⚠️ This option is **discouraged** since it messes up with undo buffers in the
-> editor and it slows down compilation.
-> It is recommended to use "format on save" in the editor instead.
-
 - `scalafmtOnCompile: Boolean`: Defines if the sbt-scalafmt should run scalafmt
   on compile. Default `false`.
+
+> ⚠️ This option is **discouraged** since it messes up undo buffers in the
+> editor and it slows down compilation.
+> It is recommended to use "format on save" in the editor instead.
 
 ### Enable IntegrationTest
 
@@ -200,10 +179,10 @@ here:
 
 [![Sonatype Snapshots](https://img.shields.io/nexus/s/https/oss.sonatype.org/org.scalameta/scalafmt-cli_2.12.svg)](https://oss.sonatype.org/content/repositories/snapshots/org/scalameta/scalafmt-cli_2.12/)
 
-If you use coursier to install a pre-release, be sure to include the flag -r
-sonatype:snapshots so that the artifact can be resolved.
+If you use coursier to install a pre-release, be sure to include the flag `-r
+sonatype:snapshots` so that the artifact can be resolved.
 
-If you use sbt to install a pre-release, be sure to add the following setting
+If you use sbt to install a pre-release, be sure to add the following setting:
 
 ```scala
 resolvers += Resolver.sonatypeRepo("snapshots")

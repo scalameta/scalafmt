@@ -4,7 +4,7 @@ title: Configuration
 ---
 
 Configuration for scalafmt is defined in a plain text file `.scalafmt.conf`
-using [HOCON](https://github.com/typesafehub/config) syntax.
+using [HOCON](https://github.com/lightbend/config) syntax.
 
 Here is an example `.scalafmt.conf`:
 
@@ -251,7 +251,7 @@ val x = List(
 ```
 
 To find the `owner` part for a custom tree, depend on Scalameta and use
-`scala.meta.Tree.productPrefix` from the the (for example, Ammonite) REPL.
+`scala.meta.Tree.productPrefix` from the (for example, Ammonite) REPL.
 
 ```scala
 @ import $ivy.`org.scalameta:scalameta_2.12:@SCALAMETA_VERSION@`, scala.meta._
@@ -268,6 +268,11 @@ Term.Match(Term.Name("x"), Seq(Case(Lit.Int(2), None, Term.Apply(Term.Name("foo"
 @ termMatch.productPrefix
 res1: String = "Term.Match"
 ```
+
+### `align.tokens.add`
+
+Usage is identical to `align.tokens`, but token pairs will be _added_ to
+defaults rather than replacing them.
 
 ### `align.arrowEnumeratorGenerator`
 
@@ -591,7 +596,7 @@ import foo.{~>, `symbol`, bar, Random}
 
 ## Vertical Multiline
 
-Since: v1.6.0. Note that the IntelliJ built-in support uses Scalafmt v1.5.1.
+Since: v1.6.0.
 
 If enabled this formats methods such that parameters are on their own line
 indented by [`continuationIndent.defnSite`](#continuationindentdefnsite).
@@ -635,10 +640,10 @@ verticalMultiline.newlineAfterOpenParen = true
 def other(a: String, b: String)(c: String, d: String) = a + b + c
 ```
 
-### `verticalMultiline.newlineAfterOpenParen`
+### `verticalMultiline.newlineBeforeImplicitKW`
 
 ```scala mdoc:defaults
-verticalMultiline.newlineAfterOpenParen
+verticalMultiline.newlineBeforeImplicitKW
 ```
 
 ```scala mdoc:scalafmt
@@ -650,6 +655,8 @@ def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```
 
 ## Disabling Formatting
+
+<!-- TODO: document dynamic configuration: https://github.com/scalameta/scalafmt/pull/464 -->
 
 ### // format: off
 
@@ -739,9 +746,7 @@ includeNoParensInSelectChains
 ```scala mdoc:scalafmt
 includeNoParensInSelectChains = true
 ---
-List(1)
-  .toIterator
-  .buffered
+List(1).toIterator.buffered
   .map(_ + 2)
   .filter(_ > 2)
 ```
@@ -749,9 +754,7 @@ List(1)
 ```scala mdoc:scalafmt
 includeNoParensInSelectChains = false
 ---
-List(1).toIterator.buffered
-  .map(_ + 2)
-  .filter(_ > 2)
+List(1).toIterator.buffered.map(_ + 2).filter(_ > 2)
 ```
 
 ### `optIn.breakChainOnFirstMethodDot`

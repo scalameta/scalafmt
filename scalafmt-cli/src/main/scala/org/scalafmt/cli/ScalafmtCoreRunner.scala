@@ -32,7 +32,7 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
         )
 
         val inputMethods = getInputMethods(options, Some(filterMatcher))
-        if (inputMethods.isEmpty && options.diff.isEmpty && !options.stdIn)
+        if (inputMethods.isEmpty && options.mode.isEmpty && !options.stdIn)
           throw NoMatchingFiles
 
         val counter = new AtomicInteger()

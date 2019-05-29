@@ -9,7 +9,7 @@ import org.scalafmt.Error.InvalidScalafmtConfiguration
 import org.scalafmt.Formatted
 import org.scalafmt.Scalafmt
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.config.ScalafmtRunner
+import org.scalafmt.config.{ScalafmtRunner => SRunner}
 import org.scalafmt.util.{FileOps, StyleCache}
 import org.scalafmt.util.LoggerOps._
 
@@ -48,8 +48,8 @@ class Scalafmt210 {
     val currentPath = new File("").getAbsolutePath + "/"
     val relativePath = filename.stripPrefix(currentPath)
     val runner = // DRY please, same login in CLI
-      if (filename.endsWith(".sbt")) ScalafmtRunner.sbt
-      else ScalafmtRunner.default
+      if (filename.endsWith(".sbt")) SRunner.sbt
+      else SRunner.default
     val style = scalafmtStyle.copy(runner = runner)
     Scalafmt.format(code, style) match {
       case Formatted.Success(formattedCode) => formattedCode

@@ -45,6 +45,7 @@ object CliOptions {
       config = style
     )
   }
+
   private def getConfigJFile(file: AbsoluteFile): AbsoluteFile =
     file / ".scalafmt.conf"
 
@@ -85,6 +86,7 @@ case class CliOptions(
     debug: Boolean = false,
     git: Option[Boolean] = None,
     nonInteractive: Boolean = false,
+    mode: Option[FileFetchMode] = None,
     diff: Option[String] = None,
     assumeFilename: String = "stdin.scala", // used when read from stdin
     migrate: Option[AbsoluteFile] = None,
@@ -145,11 +147,8 @@ case class CliOptions(
 
   val inPlace: Boolean = writeMode == Override
 
-  val fileFetchMode: FileFetchMode = {
-    diff.map(DiffFiles).getOrElse {
-      if (isGit) GitFiles else RecursiveSearch
-    }
-  }
+  val fileFetchMode: FileFetchMode =
+    mode.orElse(Some(GitFiles).filter(_ => isGit)).getOrElse(RecursiveSearch)
 
   val files: Seq[AbsoluteFile] =
     if (customFiles.isEmpty)

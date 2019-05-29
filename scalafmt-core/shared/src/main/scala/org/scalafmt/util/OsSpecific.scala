@@ -7,8 +7,10 @@ object OsSpecific {
     // on Node.js + Window and also in the browser.
     java.io.File.separatorChar == '\\'
 
+  // We need double backslashes here because Regex needs to be escaped.
   def fixSeparatorsInPathPattern(unixSpecificPattern: String): String =
-    unixSpecificPattern.replace('/', java.io.File.separatorChar)
+    if (isWindows) unixSpecificPattern.replaceAllLiterally("/", "\\\\")
+    else unixSpecificPattern
 
   implicit class XtensionStringAsFilename(string: String) {
     def asFilename: String = fixSeparatorsInPathPattern(string)

@@ -17,11 +17,11 @@ title: Contributing
 
 - **All code PRs should come with**: a meaningful description, inline-comments
   for important things, unit tests (positive and negative), and a green build in
-  [CI](https://travis-ci.org/olafurpg/scalafmt).
+  [CI](https://travis-ci.org/scalameta/scalafmt).
 - **Format your code with scalafmt**. Run `./scalafmt` from the project root
   directory.
 - **PRs for features should generally come with _something_ added to the
-  [Documentation](https://olafurpg.github.io/scalafmt)**, so people can discover
+  [Documentation](https://scalameta.org/scalafmt)**, so people can discover
   that it exists. The docs are written in `readme/Readme.scalatex`.
 - **Be prepared to discuss/argue-for your changes if you want them merged**! You
   will probably need to refactor so your changes fit into the larger codebase -
@@ -55,7 +55,7 @@ Please always include concrete code examples with obtained and expected output.
 ```
 # Step 1
 PREVIOUS_VERSION=v2.0.0-RC5
-docker run -it --rm -v $(pwd):/project markmandel/github-changelog-generator --user scalameta --project scalafmt --no-issues -t 387f5c8b32fffb6614e7a1985d44905abe7258eb --since-tag $PREVIOUS_VERSION
+docker run -it --rm -v $(pwd):/project markmandel/github-changelog-generator --user scalameta --project scalafmt --since-tag $PREVIOUS_VERSION --no-issues --token 387f5c8b32fffb6614e7a1985d44905abe7258eb
 
 # Step 2
 # copy-paste relevant lines from CHANGELOG.md to docs/CHANGELOG.md

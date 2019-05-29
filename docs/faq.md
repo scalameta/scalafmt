@@ -63,3 +63,85 @@ it, considering
 
 No, the formatting rules will evolve even between PATCH releases. I recommend
 you inspect the diff for **every** scalafmt update.
+
+## How can I work with older versions of IntelliJ?
+
+If for some reason you cannot use IntelliJ 2019.1 or later (e.g. licensing),
+the legacy documentation below describes how to use the dedicated scalafmt
+plugin when IntelliJ did not support dynamic scalafmt versions, or did not
+directly support scalafmt at all.
+
+> ⚠️ Do **not** follow this answer if you use a current version of IntelliJ, see
+> [the main installation page](installation.md#intellij) instead.
+
+To install the
+[Scalafmt IntelliJ plugin](https://plugins.jetbrains.com/plugin/8236-scalafmt):
+
+- open `Preferences > Plugins` (for Windows/Linux it is called `Settings`
+  instead of `Preferences`)
+- open `Browse repositories` (or the `Marketplace` tab in later versions)
+- search for `scalafmt`
+- click "Install"
+- restart IntelliJ
+
+![Scalafmt IntelliJ Plugin](assets/img/intellij-plugin.png)
+
+### Format current file
+
+- `Cmd + Shift + L` (macOS)
+- `Ctrl + Shift + L` (other)
+
+To re-configure the shortcut
+
+- Open `Preferences > Keymap`
+- Search for "Reformat with scalafmt"
+
+### Format on save
+
+- for the current project (recommended): `Preferences > Tools > Scalafmt`
+- for all new project:
+  `File > Other settings > Preferences for new projects > Tools > Scalafmt`
+
+![Enable format on save in IntelliJ](assets/img/intellij-on-save.png)
+
+### Install nightly plugin
+
+To try out the latest pending releases for the Scalafmt plugin:
+
+- Visit
+  [Scalafmt plugin page](https://plugins.jetbrains.com/plugin/8236-scalafmt)
+- Select "nightly"
+- Click "Download"
+- Open IntelliJ
+- Uninstall existing Scalafmt plugin installation, if any
+- Select `Preferences > Plugins > "install plugin from disk..."`
+- Choose the downloaded `intellij-scalafmt.zip`
+- Restart IntelliJ
+
+### Continue using IntelliJ formatter
+
+When prompted whether to "use scalafmt formatter" make sure to select "continue
+using IntelliJ formatter"
+
+![IntelliJ scalafmt formatter](assets/img/intellij-install.png)
+
+As long as you have the Scalafmt plugin installed as instructed above you can
+still [format current file](#format-current-file) and
+[format on save](#format-on-save).
+
+It is not recommended to select "use scalafmt formatter" since the built-in
+support provided by IntelliJ has limitations
+
+- it is hardcoded against a single Scalafmt version (v1.5.1 at this time),
+  making it difficult to upgrade to new releases.
+- it enables undesirable behavior such as formatting expanded snippets (example:
+  "implement methods" inspection) with a low column width. Scalafmt is primarily
+  designed to format entire text files instead of individual snippets of code.
+
+To reset the formatter to IntelliJ for an existing project that uses the
+Scalafmt formatter:
+
+- Open `Preferences > Editor > Code Style > Scala`
+- Switch "Formatter" value to "IntelliJ"
+
+It is not possible to reset this setting for all existing projects.

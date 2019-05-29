@@ -8,5 +8,6 @@ class FakeGitOps(root: AbsoluteFile) extends GitOps {
   override def lsTree(dir: AbsoluteFile): Vector[AbsoluteFile] =
     FileOps.listFiles(dir)
   override def rootDir: Option[AbsoluteFile] = Some(root)
+  override def status: Seq[AbsoluteFile] = lsTree(root)
   override def diff(branch: String): Seq[AbsoluteFile] = lsTree(root)
 }
