@@ -32,9 +32,16 @@ case object RedundantBraces extends Rewrite {
     def isIdentifierAtStart(value: String) =
       value.nonEmpty && (Character.isLetterOrDigit(value.head) || value.head == '_')
 
+    // hack for literal identifiers detection (`type`, `val`, ...)
+    def isLiteralIdentifier(arg: Term.Name): Boolean =
+      (arg.pos.end - arg.pos.start) - arg.value.length() == 2
+
+    def shouldTermBeEscaped(arg: Term.Name): Boolean =
+      arg.value.head == '_' || isLiteralIdentifier(arg)
+
     t.parts.tail.zip(t.args).foreach {
       case (Lit(value: String), arg @ Term.Name(_))
-          if !isIdentifierAtStart(value) =>
+          if !isIdentifierAtStart(value) && !shouldTermBeEscaped(arg) =>
         val openBrace = prevToken(arg.tokens.head)
         val closeBrace = nextToken(arg.tokens.head)
         (openBrace, closeBrace) match {

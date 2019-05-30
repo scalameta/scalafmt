@@ -64,3 +64,19 @@ object a {
 object a {
   s"Hello ${d.toString}"
 }
+<<< identifier started with underscore
+object a {
+  s"Hello ${_id}"
+}
+>>>
+object a {
+  s"Hello ${_id}"
+}
+<<< literal identifier
+object a {
+  s"Hello ${`type`}"
+}
+>>>
+object a {
+  s"Hello ${`type`}"
+}
