@@ -41,7 +41,9 @@ final case class ScalafmtDynamic(
     formatCache
       .clear()
       .foreach(
-        _.foreach(_.foreach(_.classLoader.close()))(ExecutionContext.global)
+        _.foreach(_.right.foreach(_.classLoader.close()))(
+          ExecutionContext.global
+        )
       )
 
   override def withReporter(reporter: ScalafmtReporter): ScalafmtDynamic =
@@ -115,7 +117,7 @@ final case class ScalafmtDynamic(
       configsCache
         .getOrAddToCache(
           configPath,
-          _.exists(_._2.compareTo(currentTimestamp) != 0)
+          _.right.exists(_._2.compareTo(currentTimestamp) != 0)
         ) { () =>
           resolveConfigWithScalafmt(configPath).map { config =>
             reporter.parsedConfig(configPath, config.version)
