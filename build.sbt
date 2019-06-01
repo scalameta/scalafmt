@@ -119,13 +119,13 @@ lazy val coreJS = core.js
 
 import sbtassembly.AssemblyPlugin.defaultUniversalScript
 
-
 lazy val cli = project
   .in(file("scalafmt-cli"))
   .settings(
     moduleName := "scalafmt-cli",
     mainClass in assembly := Some("org.scalafmt.cli.Cli"),
-    assemblyOption in assembly := (assemblyOption in assembly).value.copy(prependShellScript = Some(defaultUniversalScript(shebang = false))),
+    assemblyOption in assembly := (assemblyOption in assembly).value
+      .copy(prependShellScript = Some(defaultUniversalScript(shebang = false))),
     assemblyJarName.in(assembly) := "scalafmt.jar",
     libraryDependencies ++= Seq(
       "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0",
