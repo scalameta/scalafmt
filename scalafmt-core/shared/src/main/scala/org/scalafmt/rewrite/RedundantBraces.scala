@@ -32,9 +32,20 @@ case object RedundantBraces extends Rewrite {
     def isIdentifierAtStart(value: String) =
       value.nonEmpty && (Character.isLetterOrDigit(value.head) || value.head == '_')
 
+    def isLiteralIdentifier(arg: Term.Name): Boolean =
+      arg.syntax.startsWith("`") && arg.syntax.endsWith("`")
+
+    /**
+      * we need remain braces for interpolated literal identifiers: s"string  ${`type`}"
+      * and identifiers started with '_': s"string  %{_id}"
+      * otherwise formatting will result in compilation error (see https://github.com/scalameta/scalafmt/issues/1420)
+      */
+    def shouldTermBeEscaped(arg: Term.Name): Boolean =
+      arg.value.head == '_' || isLiteralIdentifier(arg)
+
     t.parts.tail.zip(t.args).foreach {
       case (Lit(value: String), arg @ Term.Name(_))
-          if !isIdentifierAtStart(value) =>
+          if !isIdentifierAtStart(value) && !shouldTermBeEscaped(arg) =>
         val openBrace = prevToken(arg.tokens.head)
         val closeBrace = nextToken(arg.tokens.head)
         (openBrace, closeBrace) match {
