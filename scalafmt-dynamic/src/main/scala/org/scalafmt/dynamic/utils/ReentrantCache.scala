@@ -24,15 +24,11 @@ class ReentrantCache[K, V] {
       }
     } match {
       case Right(fut) =>
-        /*fut.value match {
-          case Some(Success(value)) =>
-          //println(s"Value for $key already cached")
-          case Some(Success(value)) =>
-            //println(s"Previous calculation for $key failed")
-          case None =>
-            //println(s"Previous calculation for $key still ongoing")
-        }*/
-        val result = Await.result(fut, 1.minute) // get or wait for other thread to finish download
+        // we set the timeout to 10 minutes because
+        // we can't expect everybody to have the same internet connection speed.
+        //
+        // get or wait for other thread to finish download
+        val result = Await.result(fut, 10.minute)
 
         if (shouldEvict(result)) {
           synchronized {
@@ -42,7 +38,6 @@ class ReentrantCache[K, V] {
         } else
           result
       case Left(p) =>
-        //println(s"$key not found, now loading into cache")
         val result = Try(get())
         p.complete(result)
         result.get
@@ -56,7 +51,7 @@ class ReentrantCache[K, V] {
     }
 
   def getFromCache(key: K): Option[V] =
-    cache.get(key).map(Await.result(_, 1.minute))
+    cache.get(key).map(Await.result(_, 10.minute))
 }
 object ReentrantCache {
   def apply[K, V](): ReentrantCache[K, V] = new ReentrantCache[K, V]
