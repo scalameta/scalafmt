@@ -883,7 +883,8 @@ class Router(formatOps: FormatOps) {
         val mod: Modification = rightOwner match {
           case tp: Type.Param =>
             val contextOption = style.spaces.beforeContextBoundColon
-            if (contextOption.isIfMultipleBounds && tp.cbounds.size > 1 || contextOption.isAlways)
+            val summaryTypeBoundsCount = tp.tbounds.lo.size + tp.tbounds.hi.size + tp.cbounds.size
+            if (contextOption.isIfMultipleBounds && summaryTypeBoundsCount > 1 || contextOption.isAlways)
               Space
             else NoSplit
 
