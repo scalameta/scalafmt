@@ -481,7 +481,11 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     var curr = next(leftTok2tok(dot))
     while (isOpenApply(curr.right, includeCurly = true, includeNoParens = true) &&
       !statementStarts.contains(hash(curr.right))) {
-      curr = leftTok2tok(matchingParentheses(hash(curr.right)))
+      if (curr.right.is[Dot]) {
+        curr = next(leftTok2tok(curr.right))
+      } else {
+        curr = leftTok2tok(matchingParentheses(hash(curr.right)))
+      }
     }
     curr.left
   }
