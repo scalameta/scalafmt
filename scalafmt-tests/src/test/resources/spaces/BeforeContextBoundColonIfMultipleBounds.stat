@@ -11,3 +11,7 @@ def orderLaws[A : Eq : Arbitrary] = O
 def myMethod[F[_]:Functor](): Foo
 >>>
 def myMethod[F[_]: Functor](): Foo
+<<< space before colon with subtype bound #1391
+final class Test[A <: B: ClassTag]
+>>>
+final class Test[A <: B : ClassTag]
