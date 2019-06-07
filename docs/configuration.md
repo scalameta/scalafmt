@@ -435,6 +435,70 @@ else {
 }
 ```
 
+### `newlines.avoidEmptyLineBeforeClosingCurly`
+
+```scala mdoc:defaults
+newlines.avoidEmptyLineBeforeClosingCurly
+```
+
+```scala mdoc:scalafmt
+newlines.avoidEmptyLineBeforeClosingCurly = false
+---
+def foo: String = {
+  val aux = {
+   "bar"
+
+  }
+
+  aux
+
+}
+```
+
+```scala mdoc:scalafmt
+newlines.avoidEmptyLineBeforeClosingCurly = true
+---
+def foo: String = {
+  val aux = {
+   "bar"
+  }
+
+  aux
+}
+```
+
+### `newlines.avoidEmptyLineAfterOpenCurly`
+
+```scala mdoc:defaults
+newlines.avoidEmptyLineAfterOpenCurly
+```
+
+```scala mdoc:scalafmt
+newlines.avoidEmptyLineAfterOpenCurly = false
+---
+def foo: String = {
+
+  val aux = {
+
+   "bar"
+  }
+
+  aux
+}
+```
+
+```scala mdoc:scalafmt
+newlines.avoidEmptyLineAfterOpenCurly = true
+---
+def foo: String = {
+  val aux = {
+   "bar"
+  }
+
+  aux
+}
+```
+
 ## Rewrite Rules
 
 To enable a rewrite rule, add it to the config like this
