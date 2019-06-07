@@ -1,0 +1,45 @@
+maxColumn = 80
+newlines.avoidEmptyLineAfterOpenCurly = true
+newlines.avoidEmptyLineBeforeClosingCurly = true
+
+<<< should remove newlines at the beginning of a def block
+def other: String = {
+
+  "Result"
+}
+>>>
+def other: String = {
+  "Result"
+}
+
+<<< should remove newlines at the beginning and end of a def block
+def other: String = {
+
+  "Result"
+
+}
+>>>
+def other: String = {
+  "Result"
+}
+
+<<< should remove newlines at the beginning and end of a val block
+def other: String = {
+
+  val aux = {
+
+    "Result"
+
+  }
+
+  aux
+
+}
+>>>
+def other: String = {
+  val aux = {
+    "Result"
+  }
+
+  aux
+}
