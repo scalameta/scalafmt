@@ -3,6 +3,24 @@ id: changelog
 title: Changelog
 ---
 
+## [v2.0.0-RC8](https://github.com/scalameta/scalafmt/tree/v2.0.0-RC8) (2019-06-06)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.0.0-RC7...v2.0.0-RC8)
+
+**Merged pull requests:**
+
+- Fixed error with includeNoParensInSelectChains and full qualified names [\#1429](https://github.com/scalameta/scalafmt/pull/1429) ([poslegm](https://github.com/poslegm))
+- Fixed spaces.beforeContextBoundColon=IfMultipleBounds behavior for case with subtyping [\#1428](https://github.com/scalameta/scalafmt/pull/1428) ([poslegm](https://github.com/poslegm))
+-  Fixed bug with RedundantBraces for string interpolation [\#1425](https://github.com/scalameta/scalafmt/pull/1425) ([poslegm](https://github.com/poslegm))
+- Remove space for variance annotations with underscore [\#1419](https://github.com/scalameta/scalafmt/pull/1419) ([vlovgr](https://github.com/vlovgr))
+- Add the CLI option to fetch only recently changed files for formating. [\#1416](https://github.com/scalameta/scalafmt/pull/1416) ([stremlenye](https://github.com/stremlenye))
+- Use a simple cache based on futures to avoid redownloading on concurrent usage [\#1384](https://github.com/scalameta/scalafmt/pull/1384) ([jrudolph](https://github.com/jrudolph))
+- Upgrade IntelliJ plugin [\#1381](https://github.com/scalameta/scalafmt/pull/1381) ([olafurpg](https://github.com/olafurpg))
+- Upgrade to latest scalafmt. [\#1380](https://github.com/scalameta/scalafmt/pull/1380) ([olafurpg](https://github.com/olafurpg))
+- Update changelog and document release process [\#1379](https://github.com/scalameta/scalafmt/pull/1379) ([olafurpg](https://github.com/olafurpg))
+- Avoid newlines after yield keyword. [\#1378](https://github.com/scalameta/scalafmt/pull/1378) ([olafurpg](https://github.com/olafurpg))
+- Update website for sbt-scalafmt 2.0.0-RC5 [\#1377](https://github.com/scalameta/scalafmt/pull/1377) ([tanishiking](https://github.com/tanishiking))
+
 ## [v2.0.0-RC6](https://github.com/scalameta/scalafmt/tree/v2.0.0-RC6) (2019-04-04)
 
 [Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.0.0-RC5...v2.0.0-RC6)
