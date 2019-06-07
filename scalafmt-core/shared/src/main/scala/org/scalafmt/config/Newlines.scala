@@ -110,7 +110,9 @@ case class Newlines(
     beforeImplicitKWInVerticalMultiline: Boolean = false,
     alwaysBeforeElseAfterCurlyIf: Boolean = false,
     alwaysBeforeMultilineDef: Boolean = true,
-    avoidAfterYield: Boolean = true
+    avoidAfterYield: Boolean = true,
+    avoidEmptyLineAfterOpenCurly: Boolean = false,
+    avoidEmptyLineBeforeClosingCurly: Boolean = false
 ) {
   val reader: ConfDecoder[Newlines] = generic.deriveDecoder(this).noTypos
 }
