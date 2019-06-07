@@ -1,7 +1,7 @@
 maxColumn = 80
 newlines.avoidEmptyLineBeforeClosingCurly = true
 
-<<< should remove newlines at the end of a block
+<<< should remove empty lines at the end of a block
 def other: String = {
   "Result"
 

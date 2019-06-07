@@ -357,7 +357,8 @@ class Router(formatOps: FormatOps) {
           )
         }
 
-      case FormatToken(_, RightBrace(), _) if style.newlines.avoidEmptyLineBeforeClosingCurly && newlines > 1 =>
+      case FormatToken(_, RightBrace(), _)
+          if style.newlines.avoidEmptyLineBeforeClosingCurly && newlines > 1 =>
         Seq(
           Split(NoSplit, 0)
         )
