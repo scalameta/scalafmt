@@ -55,9 +55,6 @@ docstrings = JavaDoc
 assumeStandardLibraryStripMargin
 ```
 
-> May cause non-idempotent formatting in rare cases, see
-> https://github.com/scalameta/scalafmt/issues/192.
-
 If `true`, the margin character `|` is aligned with the opening triple quote
 `"""` in interpolated and raw string literals.
 
