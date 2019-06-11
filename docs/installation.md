@@ -234,6 +234,14 @@ yaourt -S scalafmt-native
 scalafmt --version // should be @STABLE_VERSION@
 ```
 
+### Gentoo Linux
+
+A scalafmt native/binary `.ebuild` based on the same build as the above Arch link is available in a [custom repo](https://github.com/lJoublanc/luciano-overlay). Only `x86_64` architecture is supported. Install it like so:
+```sh
+eselect repository add luciano-overlay git https://github.com/lJoublanc/luciano-overlay.git
+emerge scalafmt-native-bin
+```
+
 ### --help
 
 ```scala mdoc:passthrough
