@@ -823,14 +823,18 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
     val isClassLike = owner.is[meta.Ctor.Primary] || owner.is[meta.Defn.Class]
     val isTrait = owner.is[meta.Defn.Trait]
+    val isDef = owner.is[meta.Defn.Def]
     val excludeClass = style.verticalMultiline.excludeDanglingParens
       .contains(DanglingExclude.`class`)
     val excludeTrait = style.verticalMultiline.excludeDanglingParens
       .contains(DanglingExclude.`trait`)
+    val excludeDef = style.verticalMultiline.excludeDanglingParens
+      .contains(DanglingExclude.`def`)
 
     val shouldNotDangle =
       (isClassLike && excludeClass) ||
-        (isTrait && excludeTrait)
+        (isTrait && excludeTrait) ||
+        (isDef && excludeDef)
 
     // Since classes and defs aren't the same (see below), we need to
     // create two (2) OneArgOneLineSplit when dealing with classes. One

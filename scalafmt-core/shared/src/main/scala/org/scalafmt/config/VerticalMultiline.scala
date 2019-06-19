@@ -32,7 +32,8 @@ sealed abstract class DanglingExclude
 object DanglingExclude {
   case object `class` extends DanglingExclude
   case object `trait` extends DanglingExclude
+  case object `def` extends DanglingExclude
 
   implicit val danglingExcludeReader: ConfCodec[DanglingExclude] =
-    ReaderUtil.oneOf[DanglingExclude](`class`, `trait`)
+    ReaderUtil.oneOf[DanglingExclude](`class`, `trait`, `def`)
 }

@@ -1,0 +1,80 @@
+verticalMultiline = {
+    atDefnSite = true
+    excludeDanglingParens = [class, trait, def]
+}
+
+<<< not modify single line
+def getListing(
+  a: String,
+  b: String,
+  c: String,
+  d: String
+): Future[String] = {
+  a + b + c + d + e
+}
+>>>
+def getListing(a: String, b: String, c: String, d: String): Future[String] = {
+  a + b + c + d + e
+}
+
+<<< with implicit param
+def getListing(
+  a: String,
+  b: String,
+  c: String,
+  d: String
+)(implicit e: String
+): Future[String] = {
+  a + b + c + d + e
+}
+>>>
+def getListing(
+    a: String,
+    b: String,
+    c: String,
+    d: String
+  )(implicit e: String): Future[String] = {
+  a + b + c + d + e
+}
+
+<<< with many param groups
+def getListing(
+  a: String,
+  b: String)(
+  c: String,
+  d: String
+)(implicit e: String
+): Future[String] = {
+  a + b + c + d + e
+}
+>>>
+def getListing(
+    a: String,
+    b: String
+  )(c: String,
+    d: String
+  )(implicit e: String): Future[String] = {
+  a + b + c + d + e
+}
+
+<<< with many implicits
+def getListing(
+  a: String,
+  b: String,
+  c: String,
+  d: String
+)(implicit e: String, g: String, f: String
+): Future[String] = {
+  a + b + c + d + e + g + f
+}
+>>>
+def getListing(
+    a: String,
+    b: String,
+    c: String,
+    d: String
+  )(implicit e: String,
+    g: String,
+    f: String): Future[String] = {
+  a + b + c + d + e + g + f
+}
