@@ -64,12 +64,27 @@ class ScalafmtDynamicDownloader(
       "org.scalameta"
     }
 
-  private def repositories: List[Repository] = List(
-    Repository.MavenCentral,
-    Repository.Ivy2Local,
-    Repository.SonatypeReleases,
-    Repository.SonatypeSnapshots
-  )
+  private def repositories: List[Repository] =
+    coursierEnvironmentRepositories.getOrElse(
+      List(
+        Repository.MavenCentral,
+        Repository.Ivy2Local,
+        Repository.SonatypeReleases,
+        Repository.SonatypeSnapshots
+      )
+    )
+
+  // Structure of COURSIER_REPOSITORIES as described at: https://get-coursier.io/blog/2019/02/05/1.1.0-M11
+  private def coursierEnvironmentRepositories: Option[List[Repository]] = {
+    sys.env
+      .get("COURSIER_REPOSITORIES")
+      .map(
+        _.split('|')
+          .filter(_.trim.nonEmpty)
+          .map(new Repository.Maven(_))
+          .toList
+      )
+  }
 }
 
 object ScalafmtDynamicDownloader {
