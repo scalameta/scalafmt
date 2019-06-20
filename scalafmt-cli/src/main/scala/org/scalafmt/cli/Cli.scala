@@ -79,7 +79,7 @@ object Cli {
     val termDisplayMessage =
       if (options.testing) "Looking for unformatted files..."
       else "Reformatting..."
-    options.common.info.println(
+    options.common.debug.println(
       "Working directory: " + options.common.workingDirectory.jfile.getPath
     )
 

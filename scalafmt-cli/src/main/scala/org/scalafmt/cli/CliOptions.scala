@@ -80,6 +80,10 @@ object CliOptions {
 object NoopOutputStream extends OutputStream { self =>
   override def write(b: Int): Unit = ()
 
+  override def write(b : Array[Byte]) : Unit = ()
+
+  override def write(b : Array[Byte], off : Int, len : Int) : Unit = ()
+
   val printStream = new PrintStream(self)
 }
 
