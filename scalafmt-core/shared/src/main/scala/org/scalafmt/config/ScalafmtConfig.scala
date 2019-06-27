@@ -202,8 +202,6 @@ object ScalafmtConfig {
 
   val indentOperatorsIncludeAkka = "^.*=$"
   val indentOperatorsExcludeAkka = "^$"
-  val indentOperatorsIncludeDefault = ".*"
-  val indentOperatorsExcludeDefault = "^(&&|\\|\\|)$"
 
   val default = ScalafmtConfig()
 

@@ -1,0 +1,19 @@
+unindentTopLevelOperators = true 
+<<< unindentTopLevelOperators should not break code blocks
+class TestSpec extends FlatSpec with Matchers {
+
+"Foo" should "do things" in {
+def bar: String = "test"
+bar should endWith("st")
+}
+
+}
+>>>
+class TestSpec extends FlatSpec with Matchers {
+
+  "Foo" should "do things" in {
+    def bar: String = "test"
+    bar should endWith("st")
+  }
+
+}

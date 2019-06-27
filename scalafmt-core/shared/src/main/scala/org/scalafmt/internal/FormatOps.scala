@@ -18,7 +18,12 @@ import scala.meta.prettyprinters.Structure
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 import org.scalafmt.Error.CaseMissingArrow
-import org.scalafmt.config.{DanglingExclude, ScalafmtConfig, VerticalMultiline}
+import org.scalafmt.config.{
+  DanglingExclude,
+  IndentOperator,
+  ScalafmtConfig,
+  VerticalMultiline
+}
 import org.scalafmt.internal.ExpiresOn.Left
 import org.scalafmt.internal.ExpiresOn.Right
 import org.scalafmt.internal.Length.Num
@@ -527,6 +532,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       if (style.verticalAlignMultilineOperators) {
         if (formatToken.left.text == "=") 2 else 0
       } else if (style.unindentTopLevelOperators &&
+        style.indentOperator == IndentOperator.akka &&
         !isTopLevelInfixApplication(owner) &&
         style.indentOperator.includeRegexp
           .findFirstIn(formatToken.left.syntax)
