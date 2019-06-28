@@ -365,7 +365,7 @@ token. If no <code>owner</code> is provided, then all tree kinds will be matched
 </p></details>
 <p>To find the <code>owner</code> part for a custom tree, depend on Scalameta and use
 <code>scala.meta.Tree.productPrefix</code> from the (for example, Ammonite) REPL.</p>
-<pre><code class="hljs css language-scala">@ import $ivy.`org.scalameta:scalameta_2.12:4.0.0`, scala.meta._
+<pre><code class="hljs css language-scala">@ import $ivy.`org.scalameta:scalameta_2.12:4.2.0`, scala.meta._
 @ val termMatch = q"x match { case 2 =&gt; foo(bar) }"
 termMatch: Term.Match = x match {
  case 2 =&gt;
@@ -1041,7 +1041,7 @@ foo
 of Scalafmt. A good place to start is <code>ScalafmtConfig</code>. Observe that this
 listing below is the top-level, there are more configuration options if you
 visited nested fields like <code>spaces</code> and <code>newlines</code>.</p>
-<pre><code class="hljs">version = <span class="hljs-string">"2.0.0-RC8"</span>
+<pre><code class="hljs">version = <span class="hljs-string">"2.0.0"</span>
 maxColumn = <span class="hljs-number">80</span>
 docstrings = ScalaDoc
 optIn<span class="hljs-selector-class">.configStyleArguments</span> = true
