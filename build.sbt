@@ -42,7 +42,7 @@ commands += Command.command("ci-test") { s =>
   val docsTest = if (scalaVersion == scala212) "docs/run" else "version"
   s"++$scalaVersion" ::
     s"tests/test" ::
-    s"coreJS/test" ::
+    // s"coreJS/test" ::
     docsTest ::
     s
 }
@@ -85,7 +85,7 @@ lazy val interfaces = project
     }
   )
 
-lazy val core = crossProject(JVMPlatform, JSPlatform)
+lazy val core = crossProject(JVMPlatform)
   .in(file("scalafmt-core"))
   .settings(
     moduleName := "scalafmt-core",
@@ -101,12 +101,12 @@ lazy val core = crossProject(JVMPlatform, JSPlatform)
       "org.scala-lang" % "scala-reflect" % scalaVersion.value
     )
   )
-  .jsSettings(
-    libraryDependencies ++= List(
-      metaconfigHocon.value,
-      scalatest.value % Test // must be here for coreJS/test to run anything
-    )
-  )
+  // .jsSettings(
+  //   libraryDependencies ++= List(
+  //     metaconfigHocon.value,
+  //     scalatest.value % Test // must be here for coreJS/test to run anything
+  //   )
+  // )
   .jvmSettings(
     fork.in(run).in(Test) := true,
     libraryDependencies ++= List(
@@ -115,7 +115,7 @@ lazy val core = crossProject(JVMPlatform, JSPlatform)
   )
   .enablePlugins(BuildInfoPlugin)
 lazy val coreJVM = core.jvm
-lazy val coreJS = core.js
+// lazy val coreJS = core.js
 
 lazy val cli = project
   .in(file("scalafmt-cli"))
