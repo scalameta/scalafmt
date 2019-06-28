@@ -29,3 +29,11 @@ trait T(a: Int)
 class T(a : Int)
 >>>
 class T(a: Int)
+<<< underscore separator
+val x =   1_000_000
+>>>
+val x = 1_000_000
+<<< by name implicit
+def foo(implicit   x: => Int) = x
+>>>
+def foo(implicit x: => Int) = x
