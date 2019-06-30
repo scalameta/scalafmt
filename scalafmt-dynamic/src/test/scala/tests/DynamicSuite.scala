@@ -165,6 +165,7 @@ class DynamicSuite extends FunSuite with DiffAssertions {
   }
 
   private val testedVersions = Seq(
+    "2.0.0",
     "2.0.0-RC4",
     "1.6.0-RC4",
     "1.5.1",

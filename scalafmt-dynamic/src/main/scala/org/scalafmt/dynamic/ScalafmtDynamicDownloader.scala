@@ -1,14 +1,17 @@
 package org.scalafmt.dynamic
 
-import java.io.PrintWriter
+import java.io.{File, PrintWriter}
 import java.net.URL
-import java.nio.file.Path
 
-import com.geirsson.coursiersmall._
 import org.scalafmt.dynamic.ScalafmtDynamicDownloader._
 
+import coursier._
+import coursier.error.ResolutionError
+import coursier.cache.FileCache
+import coursier.cache.loggers.RefreshLogger
+
 import scala.concurrent.duration.Duration
-import scala.util.Try
+import scala.util.control.NonFatal
 
 class ScalafmtDynamicDownloader(
     downloadProgressWriter: PrintWriter,
@@ -16,32 +19,42 @@ class ScalafmtDynamicDownloader(
 ) {
 
   def download(version: String): Either[DownloadFailure, DownloadSuccess] = {
-    Try {
-      val settings = new Settings()
-        .withDependencies(dependencies(version))
-        .withTtl(ttl.orElse(Some(Duration.Inf)))
-        .withWriter(downloadProgressWriter)
-        .withRepositories(repositories)
-      val jars: Seq[Path] = CoursierSmall.fetch(settings)
-      val urls = jars.map(_.toUri.toURL).toArray
-      DownloadSuccess(version, urls)
-    }.toEither.left.map {
-      case e: ResolutionException =>
-        DownloadResolutionError(version, e)
-      case e =>
-        DownloadUnknownError(version, e)
+    try {
+      val jars: Seq[File] = Fetch()
+        .addDependencies(dependencies(version): _*)
+        .addRepositories(repositories: _*)
+        .withResolveCache(
+          FileCache().noCredentials
+            .withTtl(ttl.orElse(Some(Duration.Inf)))
+            .withLogger(
+              new RefreshLogger(
+                downloadProgressWriter,
+                RefreshLogger.defaultDisplay(),
+                fallbackMode = true
+              )
+            )
+        )
+        .run()
+      val urls = jars.map(_.toPath.toUri.toURL).toArray
+      Right(DownloadSuccess(version, urls))
+    } catch {
+      case e: ResolutionError =>
+        Left(DownloadResolutionError(version, e))
+      case e if NonFatal(e) =>
+        Left(DownloadUnknownError(version, e))
     }
   }
 
   private def dependencies(version: String): List[Dependency] = List(
-    new Dependency(
-      organization(version),
-      s"scalafmt-cli_${scalaBinaryVersion(version)}",
+    Dependency.of(
+      Module(
+        organization(version),
+        ModuleName(s"scalafmt-cli_${scalaBinaryVersion(version)}")
+      ),
       version
     ),
-    new Dependency(
-      "org.scala-lang",
-      "scala-reflect",
+    Dependency.of(
+      Module(org"org.scala-lang", name"scala-reflect"),
       scalaVersion(version)
     )
   )
@@ -57,18 +70,18 @@ class ScalafmtDynamicDownloader(
     else BuildInfo.scala
 
   @inline
-  private def organization(version: String): String =
+  private def organization(version: String): Organization =
     if (version.startsWith("1") || version.startsWith("0") || version == "2.0.0-RC1") {
-      "com.geirsson"
+      org"com.geirsson"
     } else {
-      "org.scalameta"
+      org"org.scalameta"
     }
 
   private def repositories: List[Repository] = List(
-    Repository.MavenCentral,
-    Repository.Ivy2Local,
-    Repository.SonatypeReleases,
-    Repository.SonatypeSnapshots
+    Repositories.central,
+    LocalRepositories.ivy2Local,
+    Repositories.sonatype("releases"),
+    Repositories.sonatype("snapshots")
   )
 }
 
@@ -83,7 +96,7 @@ object ScalafmtDynamicDownloader {
   }
   case class DownloadResolutionError(
       version: String,
-      cause: ResolutionException
+      cause: ResolutionError
   ) extends DownloadFailure
   case class DownloadUnknownError(version: String, cause: Throwable)
       extends DownloadFailure

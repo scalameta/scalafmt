@@ -56,7 +56,8 @@ lazy val dynamic = project
     buildInfoPackage := "org.scalafmt.dynamic",
     buildInfoObject := "BuildInfo",
     libraryDependencies ++= List(
-      "com.geirsson" %% "coursier-small" % "1.3.1",
+      "io.get-coursier" %% "coursier" % coursier,
+      "io.get-coursier" %% "coursier-cache" % coursier,
       "com.typesafe" % "config" % "1.3.3",
       scalatest.value % Test,
       scalametaTestkit % Test
@@ -126,9 +127,7 @@ lazy val cli = project
     libraryDependencies ++= Seq(
       "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0",
       "com.martiansoftware" % "nailgun-server" % "0.9.1",
-      "com.github.scopt" %% "scopt" % "3.5.0",
-      // undeclared transitive dependency of coursier-small
-      "org.scala-lang.modules" %% "scala-xml" % "1.1.1"
+      "com.github.scopt" %% "scopt" % "3.5.0"
     ),
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
