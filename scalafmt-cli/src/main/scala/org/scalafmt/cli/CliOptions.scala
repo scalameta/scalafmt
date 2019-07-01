@@ -1,6 +1,6 @@
 package org.scalafmt.cli
 
-import java.io.{IOException, InputStream, PrintStream}
+import java.io.{IOException, InputStream, OutputStream, PrintStream}
 import java.nio.charset.UnsupportedCharsetException
 import java.nio.file.{Files, Path}
 
@@ -39,10 +39,21 @@ object CliOptions {
     } else {
       tryCurrentDirectory(parsed).orElse(tryGit(parsed))
     }
+
     val newMode = if (parsed.testing) Stdout else parsed.writeMode
+
+    val auxOut =
+      if (parsed.noStdErr || (!parsed.stdIn && parsed.writeMode != Stdout))
+        parsed.common.out
+      else parsed.common.err
+
     parsed.copy(
       writeMode = newMode,
-      config = style
+      config = style,
+      common = parsed.common.copy(
+        info = auxOut,
+        debug = if (parsed.debug) auxOut else init.common.debug
+      )
     )
   }
 
@@ -66,11 +77,23 @@ object CliOptions {
   }
 }
 
+object NoopOutputStream extends OutputStream { self =>
+  override def write(b: Int): Unit = ()
+
+  override def write(b: Array[Byte]): Unit = ()
+
+  override def write(b: Array[Byte], off: Int, len: Int): Unit = ()
+
+  val printStream = new PrintStream(self)
+}
+
 case class CommonOptions(
     workingDirectory: AbsoluteFile = AbsoluteFile.userDir,
     out: PrintStream = System.out,
     in: InputStream = System.in,
-    err: PrintStream = System.err
+    err: PrintStream = System.err,
+    debug: PrintStream = NoopOutputStream.printStream,
+    info: PrintStream = NoopOutputStream.printStream
 )
 
 case class CliOptions(
@@ -79,11 +102,7 @@ case class CliOptions(
     range: Set[Range] = Set.empty[Range],
     customFiles: Seq[AbsoluteFile] = Nil,
     customExcludes: Seq[String] = Nil,
-    writeMode: WriteMode = Override,
     testing: Boolean = false,
-    stdIn: Boolean = false,
-    quiet: Boolean = false,
-    debug: Boolean = false,
     git: Option[Boolean] = None,
     nonInteractive: Boolean = false,
     mode: Option[FileFetchMode] = None,
@@ -92,6 +111,10 @@ case class CliOptions(
     migrate: Option[AbsoluteFile] = None,
     common: CommonOptions = CommonOptions(),
     gitOpsConstructor: AbsoluteFile => GitOps = x => new GitOpsImpl(x),
+    writeMode: WriteMode = Override,
+    debug: Boolean = false,
+    quiet: Boolean = false,
+    stdIn: Boolean = false,
     noStdErr: Boolean = false
 ) {
   // These default values are copied from here.
@@ -165,10 +188,6 @@ case class CliOptions(
 
   def withFiles(files: Seq[AbsoluteFile]): CliOptions = {
     this.copy(customFiles = files)
-  }
-
-  def info: PrintStream = {
-    if (noStdErr || (!stdIn && writeMode != Stdout)) common.out else common.err
   }
 
   def excludeFilterRegexp: Regex =

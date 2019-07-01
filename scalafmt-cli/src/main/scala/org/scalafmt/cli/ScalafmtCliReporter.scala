@@ -56,17 +56,14 @@ class ScalafmtCliReporter(options: CliOptions) extends ScalafmtReporter {
     }
   }
 
-  override def excluded(file: Path): Unit = {
-    if (options.debug) options.common.out.println(s"file excluded: $file")
-  }
+  override def excluded(file: Path): Unit =
+    options.common.debug.println(s"file excluded: $file")
 
   override def parsedConfig(
       config: Path,
       scalafmtVersion: String
-  ): Unit = {
-    if (options.debug)
-      options.common.out.println(s"parsed config (v$scalafmtVersion): $config")
-  }
+  ): Unit =
+    options.common.debug.println(s"parsed config (v$scalafmtVersion): $config")
 
   override def downloadWriter(): PrintWriter =
     new PrintWriter(options.common.out)

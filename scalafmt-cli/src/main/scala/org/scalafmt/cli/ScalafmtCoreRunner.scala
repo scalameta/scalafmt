@@ -22,8 +22,7 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
         if (!options.quiet) options.common.err.println(s"${e.msg}")
         ExitCode.UnexpectedError
       case Configured.Ok(scalafmtConf) =>
-        if (options.debug)
-          options.common.out.println(s"parsed config (v${Versions.version})")
+        options.common.debug.println(s"parsed config (v${Versions.version})")
         val filterMatcher: FilterMatcher = FilterMatcher(
           scalafmtConf.project.includeFilters
             .map(OsSpecific.fixSeparatorsInPathPattern),

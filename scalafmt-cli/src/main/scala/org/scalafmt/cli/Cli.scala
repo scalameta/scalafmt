@@ -79,11 +79,9 @@ object Cli {
     val termDisplayMessage =
       if (options.testing) "Looking for unformatted files..."
       else "Reformatting..."
-    if (options.debug) {
-      val pwd = options.common.workingDirectory.jfile.getPath
-      val out = options.info
-      out.println("Working directory: " + pwd)
-    }
+    options.common.debug.println(
+      "Working directory: " + options.common.workingDirectory.jfile.getPath
+    )
 
     // Run format using
     // - `scalafmt-dynamic` if the specified `version` setting doesn't match build version.
