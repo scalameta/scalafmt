@@ -21,9 +21,7 @@ trait ScalafmtRunner {
         options.nonInteractive ||
           TermDisplay.defaultFallbackMode
     )
-    if (!options.quiet &&
-      (options.inPlace || options.testing) &&
-      inputMethods.length > 5) {
+    if ((options.inPlace || options.testing) && inputMethods.length > 5) {
       termDisplay.init()
       termDisplay.startTask(msg, options.common.workingDirectory.jfile)
       termDisplay.taskLength(msg, inputMethods.length, 0)
