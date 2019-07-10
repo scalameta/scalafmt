@@ -53,14 +53,18 @@ object CliOptions {
       common = parsed.common.copy(
         out = guardPrintStream(parsed.quiet)(parsed.common.out),
         info = guardPrintStream(parsed.quiet)(auxOut),
-        debug = guardPrintStream(parsed.quiet)(if (parsed.debug) auxOut else init.common.debug),
+        debug = guardPrintStream(parsed.quiet)(
+          if (parsed.debug) auxOut else init.common.debug
+        ),
         err = guardPrintStream(parsed.quiet)(parsed.common.err)
       )
     )
   }
 
-  private def guardPrintStream(p: => Boolean)(candidate: PrintStream): PrintStream =
-    if(p) NoopOutputStream.printStream else candidate
+  private def guardPrintStream(
+      p: => Boolean
+  )(candidate: PrintStream): PrintStream =
+    if (p) NoopOutputStream.printStream else candidate
 
   private def getConfigJFile(file: AbsoluteFile): AbsoluteFile =
     file / ".scalafmt.conf"
@@ -76,7 +80,8 @@ object CliOptions {
   }
 
   private def tryCurrentDirectory(options: CliOptions): Option[Path] =
-    Option(tryDirectory(options.common.workingDirectory)).filter(_.toFile.isFile)
+    Option(tryDirectory(options.common.workingDirectory))
+      .filter(_.toFile.isFile)
 }
 
 object NoopOutputStream extends OutputStream { self =>

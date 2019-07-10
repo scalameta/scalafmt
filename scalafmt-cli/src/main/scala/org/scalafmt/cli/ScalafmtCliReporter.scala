@@ -46,8 +46,8 @@ class ScalafmtCliReporter(options: CliOptions) extends ScalafmtReporter {
         })
       case ScalafmtException(_, cause) => error(file, cause)
       case _ if !options.ignoreWarnings =>
-          new FailedToFormat(file.toString, e)
-            .printStackTrace(options.common.err)
+        new FailedToFormat(file.toString, e)
+          .printStackTrace(options.common.err)
         exitCode.getAndUpdate(new UnaryOperator[ExitCode] {
           override def apply(t: ExitCode): ExitCode =
             ExitCode.merge(ExitCode.UnexpectedError, t)
