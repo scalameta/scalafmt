@@ -19,7 +19,7 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
   ): ExitCode = {
     options.scalafmtConfig match {
       case Configured.NotOk(e) =>
-        if (!options.quiet) options.common.err.println(s"${e.msg}")
+        options.common.err.println(s"${e.msg}")
         ExitCode.UnexpectedError
       case Configured.Ok(scalafmtConf) =>
         options.common.debug.println(s"parsed config (v${Versions.version})")

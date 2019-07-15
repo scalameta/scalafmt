@@ -51,30 +51,37 @@ object CliOptions {
       writeMode = newMode,
       config = style,
       common = parsed.common.copy(
-        info = auxOut,
-        debug = if (parsed.debug) auxOut else init.common.debug
+        out = guardPrintStream(parsed.quiet)(parsed.common.out),
+        info = guardPrintStream(parsed.quiet)(auxOut),
+        debug = guardPrintStream(parsed.quiet)(
+          if (parsed.debug) auxOut else init.common.debug
+        ),
+        err = guardPrintStream(parsed.quiet)(parsed.common.err)
       )
     )
   }
 
+  private def guardPrintStream(
+      p: => Boolean
+  )(candidate: PrintStream): PrintStream =
+    if (p) NoopOutputStream.printStream else candidate
+
   private def getConfigJFile(file: AbsoluteFile): AbsoluteFile =
     file / ".scalafmt.conf"
 
-  private def tryDirectory(options: CliOptions)(dir: AbsoluteFile): Path =
+  private def tryDirectory(dir: AbsoluteFile): Path =
     getConfigJFile(dir).jfile.toPath
 
   private def tryGit(options: CliOptions): Option[Path] = {
     for {
       rootDir <- options.gitOps.rootDir
-      path = tryDirectory(options)(rootDir)
-      configFilePath <- if (path.toFile.isFile) Some(path) else None
+      configFilePath <- Option(tryDirectory(rootDir)).filter(_.toFile.isFile)
     } yield configFilePath
   }
 
-  private def tryCurrentDirectory(options: CliOptions): Option[Path] = {
-    val configFilePath = tryDirectory(options)(options.common.workingDirectory)
-    if (configFilePath.toFile.isFile) Some(configFilePath) else None
-  }
+  private def tryCurrentDirectory(options: CliOptions): Option[Path] =
+    Option(tryDirectory(options.common.workingDirectory))
+      .filter(_.toFile.isFile)
 }
 
 object NoopOutputStream extends OutputStream { self =>

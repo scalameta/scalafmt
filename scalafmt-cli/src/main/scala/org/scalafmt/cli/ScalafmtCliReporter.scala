@@ -20,7 +20,7 @@ class ScalafmtCliReporter(options: CliOptions) extends ScalafmtReporter {
       message: String
   ): Unit = {
     if (!options.ignoreWarnings) {
-      if (!options.quiet) options.common.err.println(s"$message: $file")
+      options.common.err.println(s"$message: $file")
       exitCode.getAndUpdate(new UnaryOperator[ExitCode] {
         override def apply(t: ExitCode): ExitCode =
           ExitCode.merge(ExitCode.UnexpectedError, t)
@@ -33,7 +33,7 @@ class ScalafmtCliReporter(options: CliOptions) extends ScalafmtReporter {
   ): Unit = {
     e match {
       case _: PositionException if !options.ignoreWarnings =>
-        if (!options.quiet) options.common.err.println(s"${e.toString}: $file")
+        options.common.err.println(s"${e.toString}: $file")
         exitCode.getAndUpdate(new UnaryOperator[ExitCode] {
           override def apply(t: ExitCode): ExitCode =
             ExitCode.merge(ExitCode.ParseError, t)
@@ -46,9 +46,8 @@ class ScalafmtCliReporter(options: CliOptions) extends ScalafmtReporter {
         })
       case ScalafmtException(_, cause) => error(file, cause)
       case _ if !options.ignoreWarnings =>
-        if (!options.quiet)
-          new FailedToFormat(file.toString, e)
-            .printStackTrace(options.common.err)
+        new FailedToFormat(file.toString, e)
+          .printStackTrace(options.common.err)
         exitCode.getAndUpdate(new UnaryOperator[ExitCode] {
           override def apply(t: ExitCode): ExitCode =
             ExitCode.merge(ExitCode.UnexpectedError, t)
