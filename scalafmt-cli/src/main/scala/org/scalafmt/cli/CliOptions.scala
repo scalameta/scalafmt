@@ -157,15 +157,12 @@ case class CliOptions(
     */
   def scalafmtConfig: Configured[ScalafmtConfig] = {
     (configStr match {
-      case Some(contents) => Some(contents)
+      case Some(contents) => Some(Config.fromHoconString(contents))
       case None =>
         val file =
           AbsoluteFile.fromFile(configPath.toFile, common.workingDirectory)
-        catching(classOf[IOException]).opt(FileOps.readFile(file))
-    }).map { content =>
-        Config.fromHoconString(content)
-      }
-      .getOrElse(Configured.Ok(ScalafmtConfig.default))
+        catching(classOf[IOException]).opt(Config.fromHoconFile(file.jfile))
+    }).getOrElse(Configured.Ok(ScalafmtConfig.default))
   }
 
   val inPlace: Boolean = writeMode == Override

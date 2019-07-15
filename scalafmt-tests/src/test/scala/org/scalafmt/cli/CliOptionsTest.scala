@@ -94,7 +94,7 @@ class CliOptionsTest extends FunSuite {
   }
 
   test(
-    ".scalafmtConfig returns default ScalafmtConfig is configuration file is missing"
+    ".scalafmtConfig returns default ScalafmtConfig if configuration file is missing"
   ) {
     val configDir = Files.createTempDirectory("temp-dir")
     val configPath = Paths.get(configDir.toString + "/.scalafmt.conf")
