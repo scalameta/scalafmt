@@ -29,3 +29,7 @@ intellij/out
 
 *~
 docs/xx.md
+
+# metals
+.metals/
+.bloop/
