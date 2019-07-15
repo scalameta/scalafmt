@@ -45,11 +45,6 @@ Please always include concrete code examples with obtained and expected output.
 - Write release notes here: https://github.com/scalameta/scalafmt/releases/new
 - Pushing a git tag should trigger a release to Maven Central from the CI.
 - Once CI has finished releasing, update sbt-scalafmt to the latest release.
-- Validate that sbt-scalafmt and scalafmt-core have published successfully by
-  running the following script (assumming you have `coursier` installed)
-```
-./bin/test-release.sh $VERSION
-```
 - Update the changelog on the website with the following command (assuming you
   have `docker` installed)
 ```
