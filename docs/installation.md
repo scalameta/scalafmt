@@ -204,7 +204,7 @@ coursier bootstrap --standalone org.scalameta:scalafmt-cli_2.12:@STABLE_VERSION@
   -o /usr/local/bin/scalafmt_ng -f --main com.martiansoftware.nailgun.NGServer
 scalafmt_ng & // start nailgun in background
 ng ng-alias scalafmt org.scalafmt.cli.Cli
-ng scalafmt --version # should be @STABLE_VERSION@
+ng scalafmt -- --version # should be @STABLE_VERSION@
 ```
 
 Nailgun keeps scalafmt running on a local server to avoid the JVM startup
