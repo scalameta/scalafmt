@@ -70,6 +70,9 @@ case object RedundantBraces extends Rewrite {
 
       case t: Term.Interpolate if settings.stringInterpolation =>
         processInterpolation(t)
+
+      case i: Import if settings.imports =>
+        processImport(i)
     }
 
     builder.result()
@@ -178,4 +181,26 @@ case object RedundantBraces extends Rewrite {
           b.stats.last.pos.endLine - b.stats.head.pos.startLine
       diff <= settings.maxLines
     }
+
+  private def processImport(
+      i: Import
+  )(implicit builder: PatchBuilder): Unit = {
+    val im = i.importers.flatMap { importer =>
+      if (importer.importees.length == 1 && importer.toString.contains("{")) {
+        importer.importees.headOption
+          .filter(
+            im => im.isNot[Importee.Rename] && im.isNot[Importee.Unimport]
+          )
+          .map(im => s"${importer.ref}.${im}")
+      } else None
+    }
+
+    if (im.nonEmpty) {
+      i.tokens.tail.foreach(t => builder += TokenPatch.Remove(t))
+      builder += TokenPatch.AddLeft(
+        i.tokens.head,
+        s"import ${im.mkString(", ")}"
+      )
+    }
+  }
 }
