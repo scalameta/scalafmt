@@ -1,0 +1,102 @@
+rewrite.rules = [GroupImports]
+<<< basic
+{
+  import b.c.{d, e}
+  import a.b.c
+  object a {
+    import c.e.z
+    import c.d.e
+  }
+}
+>>>
+{
+  import a.b.c
+  import b.c.{d, e}
+  object a {
+    import c.d.e
+    import c.e.z
+  }
+}
+<<< multiline imports
+{
+  import b.c.{
+    d => z,
+    e => x
+  }
+  import a.b.c
+}
+>>>
+{
+  import a.b.c
+  import b.c.{d => z, e => x}
+}
+<<< multi importers
+{
+  import b.c.d, f.{d, e}
+  import a.b.c
+}
+>>>
+{
+  import a.b.c
+  import b.c.d
+  import f.{d, e}
+}
+<<< extra lines between imports
+{
+  import a.b
+
+
+  import a.c
+  object a {
+    import c.b
+
+    
+    import c.c
+  }
+}
+>>>
+{
+  import a.b
+  import a.c
+  object a {
+    import c.b
+    import c.c
+  }
+}
+<<< extra lines after imports
+{
+  import a.b
+  import a.c
+
+
+  object a {
+    import c.b
+    import c.c
+
+
+  }
+}
+>>>
+{
+  import a.b
+  import a.c
+  object a {
+    import c.b
+    import c.c
+  }
+}
+<<< group
+{
+  import java.b.z, com.b
+  import scala.c
+  import java.a.x
+}
+>>>
+{
+  import java.a.x
+  import java.b.z
+
+  import scala.c
+
+  import com.b
+}

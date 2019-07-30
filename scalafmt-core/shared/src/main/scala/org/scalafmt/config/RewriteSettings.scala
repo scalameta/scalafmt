@@ -7,10 +7,12 @@ import org.scalafmt.rewrite.{AvoidInfix, Rewrite}
 case class RewriteSettings(
     rules: Seq[Rewrite] = Nil,
     redundantBraces: RedundantBracesSettings = RedundantBracesSettings(),
+    groupImports: GroupImportsSettings = GroupImportsSettings.default,
     sortModifiers: SortSettings = SortSettings.default,
     neverInfix: Pattern = Pattern.neverInfix
 ) {
   private implicit val redundantBracesReader = redundantBraces.reader
+  private implicit val groupImportsReader = groupImports.reader
   private implicit val patternReader = neverInfix.reader
   val reader: ConfDecoder[RewriteSettings] = generic.deriveDecoder(this).noTypos
   Rewrite.validateRewrites(rules) match {

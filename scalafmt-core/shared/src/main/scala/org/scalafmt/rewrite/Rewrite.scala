@@ -26,6 +26,7 @@ object Rewrite {
     ReaderUtil.oneOf[Rewrite](
       RedundantBraces,
       RedundantParens,
+      GroupImports,
       SortImports,
       AsciiSortImports,
       PreferCurlyFors,
@@ -41,6 +42,7 @@ object Rewrite {
   val name2rewrite: Map[String, Rewrite] = nameMap[Rewrite](
     RedundantBraces,
     RedundantParens,
+    GroupImports,
     SortImports,
     AsciiSortImports,
     PreferCurlyFors,
@@ -56,7 +58,10 @@ object Rewrite {
   private def incompatibleRewrites: List[(Rewrite, Rewrite)] = List(
     SortImports -> ExpandImportSelectors,
     SortImports -> AsciiSortImports,
-    AsciiSortImports -> ExpandImportSelectors
+    AsciiSortImports -> ExpandImportSelectors,
+    SortImports -> GroupImports,
+    AsciiSortImports -> GroupImports,
+    ExpandImportSelectors -> GroupImports
   )
 
   def validateRewrites(rewrites: Seq[Rewrite]): Seq[String] = {

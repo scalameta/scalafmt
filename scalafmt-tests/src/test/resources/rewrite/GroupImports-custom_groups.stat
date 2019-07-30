@@ -1,0 +1,23 @@
+rewrite.rules = [GroupImports]
+rewrite.groupImports.groups = ["x", "y", "_", "z"]
+rewrite.groupImports.emptyLineBetweenGroups = false
+<<< group
+{
+  import x.b.z, z.b, x.a.b
+  import b.a.c
+
+  import y.c
+  import y._
+  
+  import a.b.x
+}
+>>>
+{
+  import x.a.b
+  import x.b.z
+  import y.c
+  import y._
+  import a.b.x
+  import b.a.c
+  import z.b
+}

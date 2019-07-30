@@ -1,0 +1,46 @@
+rewrite.rules = [GroupImports]
+<<< importees
+{
+  import b.c.{
+    d, // c1
+    e /* c2 */, f // c3
+  }
+}
+>>>
+{
+  import b.c.{
+    d, // c1
+    e /* c2 */,
+    f // c3
+  }
+}
+<<< sort imports with comments
+{
+  import b.b // c1
+  import a.b /* c2 */
+}
+>>>
+{
+  import a.b /* c2 */
+  import b.b // c1
+}
+<<< inline imports with comments
+{
+  import d.e /* c1 */, c.d /* c2 */, b.c /* c3 */, a.b /* c4 */
+}
+>>>
+{
+  import a.b /* c4 */
+  import b.c /* c3 */
+  import c.d /* c2 */
+  import d.e /* c1 */
+}
+<<< multi comments per import
+{
+  import a.b /* c1 */ /* c2 */, b.c /* c3 */ // c4
+}
+>>>
+{
+  import a.b /* c1 */ /* c2 */
+  import b.c /* c3 */ // c4
+}
