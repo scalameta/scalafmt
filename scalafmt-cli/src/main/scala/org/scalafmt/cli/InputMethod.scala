@@ -60,7 +60,11 @@ object InputMethod {
         }
       } else if (options.inPlace) {
         if (codeChanged) {
-          FileOps.writeFile(filename, formatted)(options.encoding)
+          if (options.list) {
+            options.common.out.println(filename)
+          } else {
+            FileOps.writeFile(filename, formatted)(options.encoding)
+          }
         }
       } else {
         options.common.out.print(formatted)

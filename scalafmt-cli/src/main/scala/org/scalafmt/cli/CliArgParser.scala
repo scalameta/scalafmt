@@ -170,6 +170,9 @@ object CliArgParser {
       opt[Unit]("non-interactive")
         .action((_, c) => c.copy(nonInteractive = true))
         .text("disable fancy progress bar, useful in ci or sbt plugin.")
+      opt[Unit]("list")
+        .action((_, c) => c.copy(list = true))
+        .text("list files that are different from scalafmt formatting")
       opt[(Int, Int)]("range")
         .hidden()
         .action({
