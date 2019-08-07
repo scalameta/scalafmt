@@ -117,7 +117,7 @@ final case class ScalafmtDynamic(
       configsCache
         .getOrAddToCache(
           configPath,
-          _.right.exists(_._2.compareTo(currentTimestamp) != 0)
+          _.fold(_ => true, _._2.compareTo(currentTimestamp) != 0)
         ) { () =>
           resolveConfigWithScalafmt(configPath).map { config =>
             reporter.parsedConfig(configPath, config.version)
