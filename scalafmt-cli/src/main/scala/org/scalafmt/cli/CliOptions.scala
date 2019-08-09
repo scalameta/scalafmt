@@ -52,7 +52,7 @@ object CliOptions {
       config = style,
       common = parsed.common.copy(
         out = guardPrintStream(parsed.quiet)(parsed.common.out),
-        info = guardPrintStream(parsed.quiet)(auxOut),
+        info = guardPrintStream(parsed.quiet || parsed.list)(auxOut),
         debug = guardPrintStream(parsed.quiet)(
           if (parsed.debug) auxOut else init.common.debug
         ),
@@ -122,7 +122,8 @@ case class CliOptions(
     debug: Boolean = false,
     quiet: Boolean = false,
     stdIn: Boolean = false,
-    noStdErr: Boolean = false
+    noStdErr: Boolean = false,
+    list: Boolean = false
 ) {
   // These default values are copied from here.
   // https://github.com/scalameta/scalafmt/blob/f2154330afa0bc4a0a556598adeb116eafecb8e3/scalafmt-core/shared/src/main/scala/org/scalafmt/config/ScalafmtConfig.scala#L127-L162
