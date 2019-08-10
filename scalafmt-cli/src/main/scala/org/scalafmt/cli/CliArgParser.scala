@@ -100,9 +100,10 @@ object CliArgParser {
         .action((opt, c) => c.copy(git = Some(opt)))
         .text("if true, ignore files in .gitignore (default false)")
       opt[Seq[String]]("exclude")
+        .unbounded()
         .action((excludes, c) => c.copy(customExcludes = excludes))
         .text(
-          "file or directory, in which case all *.scala files are formatted."
+          "file or directory, when missing all *.scala files are formatted."
         )
       opt[String]('c', "config")
         .action(readConfigFromFile)
