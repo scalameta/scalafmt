@@ -1,0 +1,17 @@
+maxColumn = 40
+<<< keep indentation for comments within method chain in statement
+foo()
+// bar
+.bar()
+>>>
+foo()
+  // bar
+  .bar()
+<<< keep indentation for comments within method chain in assignment
+val res = foo()
+// bar
+.bar()
+>>>
+val res = foo()
+  // bar
+  .bar()
