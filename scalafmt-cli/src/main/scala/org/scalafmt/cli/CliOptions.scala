@@ -123,7 +123,8 @@ case class CliOptions(
     quiet: Boolean = false,
     stdIn: Boolean = false,
     noStdErr: Boolean = false,
-    list: Boolean = false
+    list: Boolean = false,
+    check: Boolean = false
 ) {
   // These default values are copied from here.
   // https://github.com/scalameta/scalafmt/blob/f2154330afa0bc4a0a556598adeb116eafecb8e3/scalafmt-core/shared/src/main/scala/org/scalafmt/config/ScalafmtConfig.scala#L127-L162

@@ -124,6 +124,11 @@ object CliArgParser {
       opt[Unit]("test")
         .action((_, c) => c.copy(testing = true))
         .text("test for mis-formatted code, exits with status 1 on failure.")
+      opt[Unit]("check")
+        .action((_, c) => c.copy(check = true))
+        .text(
+          "test for mis-formatted code, exits with status 1 on first failure."
+        )
       opt[File]("migrate2hocon")
         .action(
           (file, c) =>
