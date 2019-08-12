@@ -40,7 +40,14 @@ class FormatWriter(formatOps: FormatOps) {
             sb.append(formatMarginizedString(token, state.indentation))
           case Constant.String(_) => // Ignore, see below.
           case c: Constant.Long =>
-            sb.append(initStyle.literals.long.process(c.syntax))
+            val syntax = c.syntax
+            // longs can be written as hex literals like 0xFF123L. Dont uppercase the X
+            if (syntax.startsWith("0x")) {
+              sb.append("0x")
+              sb.append(initStyle.literals.long.process(syntax.substring(2)))
+            } else {
+              sb.append(initStyle.literals.long.process(syntax))
+            }
           case c: Constant.Float =>
             sb.append(initStyle.literals.float.process(c.syntax))
           case c: Constant.Double =>
