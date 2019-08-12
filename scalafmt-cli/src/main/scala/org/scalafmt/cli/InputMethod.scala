@@ -64,7 +64,9 @@ object InputMethod {
         if (codeChanged) {
           if (options.list) {
             options.common.out.println(
-              options.common.workingDirectory.jfile.toURI().relativize(file.jfile.toURI())
+              options.common.workingDirectory.jfile
+                .toURI()
+                .relativize(file.jfile.toURI())
             )
             ExitCode.TestError
           } else {
