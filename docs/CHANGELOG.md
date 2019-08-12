@@ -3,6 +3,41 @@ id: changelog
 title: Changelog
 ---
 
+## [v2.0.1](https://github.com/scalameta/scalafmt/tree/v2.0.0) (2019-08-12)
+
+This release contains some new features and fixes for regressions.
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.0.0...HEAD)
+
+
+### New features
+**`--list` option**
+When you want to check if your files are formatted, you can run scalafmt with the `--list` flag. This will output a list of unformatted files if any.
+
+```
+$ scalafmt --list
+```
+
+if some of the files require re-formatting, scalafmt print the list of those files and return exit code 1.
+
+```
+src/main/scala/file1.scala
+src/main/scala/file1.scala
+```
+
+
+**Merged pull requests:**
+
+- Return exit code 1 for `scalafmt --list` if there are any files that require re-formatting [\#1474](https://github.com/scalameta/scalafmt/pull/1474) ([tanishiking](https://github.com/tanishiking))
+- dont uppercase long hex literal 0x prefix [\#1473](https://github.com/scalameta/scalafmt/pull/1473) ([stephennancekivell](https://github.com/stephennancekivell))
+- Use openjdk8 instead of oraclejdk8 [\#1471](https://github.com/scalameta/scalafmt/pull/1471) ([tanishiking](https://github.com/tanishiking))
+- do not cache for ever invalid configs [\#1467](https://github.com/scalameta/scalafmt/pull/1467) ([bjaglin](https://github.com/bjaglin))
+- Add --list cli option \#1459 [\#1466](https://github.com/scalameta/scalafmt/pull/1466) ([droptheplot](https://github.com/droptheplot))
+- Update the release process document, and upgrade docusaurus [\#1452](https://github.com/scalameta/scalafmt/pull/1452) ([tanishiking](https://github.com/tanishiking))
+- Update .gitignore for metals and bloop [\#1451](https://github.com/scalameta/scalafmt/pull/1451) ([tanishiking](https://github.com/tanishiking))
+- Suppress cli output in case  option was set [\#1449](https://github.com/scalameta/scalafmt/pull/1449) ([stremlenye](https://github.com/stremlenye))
+- exclude dangling parens in methods with enabled verticalMultiline [\#1435](https://github.com/scalameta/scalafmt/pull/1435) ([darl](https://github.com/darl))
+-  Prints out the paths of files subjected to formating before the beginning of formatting in debug mode [\#1422](https://github.com/scalameta/scalafmt/pull/1422) ([stremlenye](https://github.com/stremlenye))
+
 ## [v2.0.0-RC8](https://github.com/scalameta/scalafmt/tree/v2.0.0-RC8) (2019-06-06)
 
 [Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.0.0-RC7...v2.0.0-RC8)
