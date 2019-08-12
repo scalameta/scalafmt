@@ -722,6 +722,40 @@ trait CliTestBehavior { this: AbstractCliTest =>
         }
       )
     }
+
+    test(
+      s"--list enable scalafmt to output a list of unformatted files with ExitCode.TestError: ${label}"
+    ) {
+      val input =
+        s"""|/.scalafmt.conf
+            |version = "$version"
+            |
+            |/bar.scala
+            |object    A { }
+            |
+            |/baz.scala
+            |object A {}
+            |
+            |/dir/foo.scala
+            |object   A { }
+            |""".stripMargin
+      val dir = string2dir(input)
+      noArgTest(
+        dir,
+        input,
+        Seq(Array("--list")),
+        assertExit = { exit =>
+          assert(exit.is(ExitCode.TestError))
+        },
+        assertOut = out => {
+          assert(
+            out.contains("bar.scala") &&
+              !out.contains("baz.scala") &&
+              out.contains("dir/foo.scala")
+          )
+        }
+      )
+    }
   }
 }
 
