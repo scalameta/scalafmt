@@ -14,7 +14,7 @@ sealed abstract class InputMethod {
   def isSc: Boolean = filename.endsWith(".sc")
   def readInput(options: CliOptions): String
   def filename: String
-  def write(formatted: String, original: String, options: CliOptions): Unit
+  def write(formatted: String, original: String, options: CliOptions): ExitCode
 }
 
 object InputMethod {
@@ -33,8 +33,9 @@ object InputMethod {
         code: String,
         original: String,
         options: CliOptions
-    ): Unit = {
+    ): ExitCode = {
       options.common.out.print(code)
+      ExitCode.Ok
     }
   }
   case class FileContents(file: AbsoluteFile) extends InputMethod {
@@ -45,7 +46,7 @@ object InputMethod {
         formatted: String,
         original: String,
         options: CliOptions
-    ): Unit = {
+    ): ExitCode = {
       val codeChanged = formatted != original
       if (options.testing) {
         if (codeChanged) {
@@ -57,17 +58,21 @@ object InputMethod {
               formatted
             )
           )
-        }
+          ExitCode.TestError
+        } else ExitCode.Ok
       } else if (options.inPlace) {
         if (codeChanged) {
           if (options.list) {
             options.common.out.println(filename)
+            ExitCode.TestError
           } else {
             FileOps.writeFile(filename, formatted)(options.encoding)
+            ExitCode.Ok
           }
-        }
+        } else ExitCode.Ok
       } else {
         options.common.out.print(formatted)
+        ExitCode.Ok
       }
     }
   }

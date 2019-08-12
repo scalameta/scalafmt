@@ -743,7 +743,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
         input,
         Seq(Array("--list")),
         assertExit = { exit =>
-          assert(exit.isOk)
+          assert(exit.is(ExitCode.TestError))
         },
         assertOut = out => {
           assert(

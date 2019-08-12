@@ -87,7 +87,6 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
     formatResult match {
       case Formatted.Success(formatted) =>
         inputMethod.write(formatted, input, options)
-        ExitCode.Ok
       case Formatted.Failure(e) =>
         if (scalafmtConfig.runner.ignoreWarnings) {
           ExitCode.Ok // do nothing
