@@ -63,7 +63,9 @@ object InputMethod {
       } else if (options.inPlace) {
         if (codeChanged) {
           if (options.list) {
-            options.common.out.println(filename)
+            options.common.out.println(
+              options.common.workingDirectory.jfile.toURI().relativize(file.jfile.toURI())
+            )
             ExitCode.TestError
           } else {
             FileOps.writeFile(filename, formatted)(options.encoding)

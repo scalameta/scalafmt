@@ -734,7 +734,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
             |/baz.scala
             |object A {}
             |
-            |/foo.scala
+            |/dir/foo.scala
             |object   A { }
             |""".stripMargin
       val dir = string2dir(input)
@@ -747,9 +747,9 @@ trait CliTestBehavior { this: AbstractCliTest =>
         },
         assertOut = out => {
           assert(
-            out.contains(s"${dir}/bar.scala") &&
-            !out.contains(s"${dir}/baz.scala") &&
-            out.contains(s"${dir}/foo.scala")
+            out.contains("bar.scala") &&
+            !out.contains("baz.scala") &&
+            out.contains("dir/foo.scala")
           )
         }
       )
