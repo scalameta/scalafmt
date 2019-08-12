@@ -150,7 +150,7 @@ object CliArgParser {
              |        changed - format files listed in `git status` (latest changes against previous commit)""".stripMargin
         )
       opt[String]("diff-branch")
-        .action((branch, c) => c.copy(diff = Some(branch)))
+        .action((branch, c) => c.copy(mode = Option(DiffFiles(branch))))
         .text(
           "If set, only format edited files in git diff against provided branch. Has no effect if mode set to `changed`."
         )

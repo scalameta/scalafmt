@@ -113,7 +113,6 @@ case class CliOptions(
     git: Option[Boolean] = None,
     nonInteractive: Boolean = false,
     mode: Option[FileFetchMode] = None,
-    diff: Option[String] = None,
     assumeFilename: String = "stdin.scala", // used when read from stdin
     migrate: Option[AbsoluteFile] = None,
     common: CommonOptions = CommonOptions(),
