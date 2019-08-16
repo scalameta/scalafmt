@@ -413,10 +413,10 @@ class FormatWriter(formatOps: FormatOps) {
   import scala.meta.internal.classifiers.classifier
 
   @classifier
-  trait CloseDelim
-  object CloseDelim {
+  private trait CloseParenOrBracket
+  private object CloseParenOrBracket {
     def unapply(token: Token): Boolean =
-      token.is[RightParen] || token.is[RightBracket] || token.is[RightBrace]
+      token.is[RightParen] || token.is[RightBracket]
   }
 
   private def handleTrailingCommasAndWhitespace(
@@ -435,11 +435,23 @@ class FormatWriter(formatOps: FormatOps) {
       sb.append(whitespace)
       return
     }
+    val isImport = owner.isInstanceOf[Importer]
 
     val left = formatToken.left
     val right = nextNonComment(formatToken).right
     val isNewline = state.splits.last.modification.isNewline
     val prevFormatToken = prev(formatToken)
+    // Scala syntax allows commas before right braces in weird places,
+    // like constructor bodies:
+    // def this() = {
+    //   this(1),
+    // }
+    // This code simply ignores those commas because it does not
+    // consider them "trailing" commas. It does not remove them
+    // in the TrailingCommas.never branch, nor does it
+    // try to add them in the TrainingCommas.always branch.
+    lazy val rightIsCloseDelim = right
+      .is[CloseParenOrBracket] || (right.is[RightBrace] && isImport)
 
     initStyle.trailingCommas match {
       // foo(
@@ -453,7 +465,7 @@ class FormatWriter(formatOps: FormatOps) {
             !left.is[Comment] &&
             !left.is[LeftParen] && // skip empty parentheses
             !formatToken.right.is[Comment] &&
-            right.is[CloseDelim] && isNewline =>
+            rightIsCloseDelim && isNewline =>
         sb.append(",")
         sb.append(whitespace)
 
@@ -468,7 +480,7 @@ class FormatWriter(formatOps: FormatOps) {
             !prevFormatToken.left.is[Comment] &&
             !prevNonComment(formatToken).left
               .is[LeftParen] && // skip empty parentheses
-            right.is[CloseDelim] && isNewline =>
+            rightIsCloseDelim && isNewline =>
         val indexOfComment = sb.lastIndexOf(left.syntax)
         val index = sb.lastIndexOf(prevFormatToken.left.syntax, indexOfComment)
 
@@ -488,7 +500,7 @@ class FormatWriter(formatOps: FormatOps) {
       //
       // Remove the comma after b
       case TrailingCommas.never
-          if left.is[Comma] && right.is[CloseDelim] &&
+          if left.is[Comma] && rightIsCloseDelim &&
             !formatToken.right.is[Comment] && isNewline =>
         sb.deleteCharAt(sb.length - 1)
         sb.append(whitespace)
@@ -501,7 +513,7 @@ class FormatWriter(formatOps: FormatOps) {
       // Remove the comma after b (before comment)
       case TrailingCommas.never
           if left.is[Comment] && prevFormatToken.left.is[Comma] &&
-            right.is[CloseDelim] && isNewline =>
+            rightIsCloseDelim && isNewline =>
         val indexOfComment = sb.lastIndexOf(left.syntax)
         val indexOfComma =
           sb.lastIndexOf(prevFormatToken.left.syntax, indexOfComment)
@@ -519,7 +531,7 @@ class FormatWriter(formatOps: FormatOps) {
       //
       // Remove the comma after b
       case _
-          if left.is[Comma] && right.is[CloseDelim] &&
+          if left.is[Comma] && rightIsCloseDelim &&
             !next(formatToken).left.is[Comment] && !isNewline =>
         sb.deleteCharAt(sb.length - 1)
 
