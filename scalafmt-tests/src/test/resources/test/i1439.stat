@@ -17,3 +17,15 @@ class TestSpec extends FlatSpec with Matchers {
   }
 
 }
+<<< test
+object test {
+  val x = 1 + {
+    2 + 3
+  }
+}
+>>>
+object test {
+  val x = 1 + {
+    2 + 3
+  }
+}
