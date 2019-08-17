@@ -1,12 +1,11 @@
 package org.scalafmt.dynamic
 
+import com.typesafe.config.ConfigFactory
 import java.net.URLClassLoader
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
-
 import org.scalafmt.dynamic.exceptions._
 import org.scalafmt.dynamic.utils.ReflectUtils._
-
 import scala.util.Try
 
 case class ScalafmtReflect(
@@ -63,8 +62,7 @@ case class ScalafmtReflect(
   }
 
   def parseConfig(configPath: Path): ScalafmtReflectConfig = {
-    val configBytes = Files.readAllBytes(configPath)
-    val configText = new String(configBytes, StandardCharsets.UTF_8)
+    val configText = ConfigFactory.parseFile(configPath.toFile).root.render()
     parseConfigFromString(configText)
   }
 
