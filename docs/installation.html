@@ -139,7 +139,8 @@ use <code>it:scalafmt</code> to format.</p>
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="share-configuration-between-builds"></a><a href="#share-configuration-between-builds" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Share configuration between builds</h3>
 <p>To share configuration across different sbt builds, create a custom sbt plugin
-that generates <code>.scalafmt.conf</code> on build reload.</p>
+that generates <code>.scalafmt-common.conf</code> on build reload, then include the
+generated file from <code>.scalafmt.conf</code></p>
 <pre><code class="hljs css language-scala"><span class="hljs-comment">// project/MyScalafmtPlugin.scala</span>
 <span class="hljs-keyword">import</span> sbt._
 <span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">MyScalafmtPlugin</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">AutoPlugin</span> </span>{
@@ -149,11 +150,14 @@ that generates <code>.scalafmt.conf</code> on build reload.</p>
     <span class="hljs-type">SettingKey</span>[<span class="hljs-type">Unit</span>](<span class="hljs-string">"scalafmtGenerateConfig"</span>) :=
       <span class="hljs-type">IO</span>.write(
         <span class="hljs-comment">// writes to file once when build is loaded</span>
-        file(<span class="hljs-string">".scalafmt.conf"</span>),
+        file(<span class="hljs-string">".scalafmt-common.conf"</span>),
         <span class="hljs-string">"maxColumn = 100"</span>.stripMargin.getBytes(<span class="hljs-string">"UTF-8"</span>)
       )
   }
 }
+</code></pre>
+<pre><code class="hljs"><span class="hljs-comment">// .scalafmt.conf</span>
+<span class="hljs-keyword">include</span> <span class="hljs-string">".scalafmt-common.conf"</span>
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="cli"></a><a href="#cli" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>CLI</h2>
 <p>The recommended way to install the scalafmt command line tool is with
@@ -227,10 +231,10 @@ binary built with GraalVM. GraalVM native binary provides instant startup withou
 scalafmt --version // should be 2.0.1
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="help"></a><a href="#help" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>--help</h3>
-<pre><code class="hljs">build commit: a78fa0356f6d0943f9d805acac6ef6ec04d7530f
-build time: Sat Aug <span class="hljs-number">17</span> <span class="hljs-number">03</span>:<span class="hljs-number">40</span>:<span class="hljs-number">42</span> UTC <span class="hljs-number">2019</span>
+<pre><code class="hljs">build commit: e90bfc6fdc068ea655a85351ac3b94af88451730
+build time: Sat Aug <span class="hljs-number">17</span> <span class="hljs-number">05</span>:<span class="hljs-number">16</span>:<span class="hljs-number">19</span> UTC <span class="hljs-number">2019</span>
 </code></pre>
-<pre><code class="hljs">scalafmt 2.0.1+5-a78fa035-SNAPSHOT
+<pre><code class="hljs">scalafmt 2.0.1+7-e90bfc6f-SNAPSHOT
 Usage: scalafmt [options] [&lt;<span class="hljs-keyword">file</span>&gt;...]
 
   -<span class="hljs-keyword">h</span>, --<span class="hljs-keyword">help</span>               prints this usage text
