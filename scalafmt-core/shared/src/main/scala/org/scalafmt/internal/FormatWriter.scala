@@ -176,6 +176,7 @@ class FormatWriter(formatOps: FormatOps) {
     locations.zipWithIndex.foreach {
       case (FormatLocation(tok, split, state), i) =>
         val previous = locations(Math.max(0, i - 1))
+        val next = locations.lift(i + 1)
         val whitespace = split.modification match {
           case Space =>
             val previousAlign =
@@ -191,6 +192,11 @@ class FormatWriter(formatOps: FormatOps) {
               if nl.acceptSpace &&
                 state.indentation >= previous.state.column =>
             " "
+          case _: NewlineT
+              if tok.right.isInstanceOf[Comment] &&
+                next.isDefined &&
+                next.get.formatToken.right.isInstanceOf[Dot] =>
+            "\n" + " " * (state.indentation + 2)
           case nl: NewlineT =>
             val newline =
               if (nl.isDouble || isMultilineTopLevelStatement(locations, i))
