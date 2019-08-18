@@ -258,6 +258,9 @@ trait CliTestBehavior { this: AbstractCliTest =>
             |
             |/target/nested/nested2/DoNotFormatMeToo.scala
             |object    BBBBBBIgnoreME   {  }
+            |
+            |/target/nested3/DoNotFormatMe.scala
+            |object    CIgnoreME   {  }
             |""".stripMargin
       )
       val expected =
@@ -272,6 +275,9 @@ trait CliTestBehavior { this: AbstractCliTest =>
             |
             |/target/nested/nested2/DoNotFormatMeToo.scala
             |object    BBBBBBIgnoreME   {  }
+            |
+            |/target/nested3/DoNotFormatMe.scala
+            |object    CIgnoreME   {  }
             |""".stripMargin
       val options = getConfig(
         Array(
@@ -279,7 +285,8 @@ trait CliTestBehavior { this: AbstractCliTest =>
           s"""{version="$version",style=IntelliJ}""",
           input.path,
           "--exclude",
-          "target/nested".asFilename
+          "target/nested".asFilename,
+          "target/nested3".asFilename
         )
       )
       Cli.run(options)
