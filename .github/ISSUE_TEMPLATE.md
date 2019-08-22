@@ -3,6 +3,7 @@ This template is a guideline, not a strict requirement.
 - **Integration**: IntelliJ
 - **Configuration**:
 ```
+version = 2.0.1
 maxColumn = 100
 ```
 
