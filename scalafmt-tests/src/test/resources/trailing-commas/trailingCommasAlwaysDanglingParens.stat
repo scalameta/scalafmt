@@ -22,6 +22,38 @@ def method(
     b: String,
 )
 
+<<< should not add a comma in a lambda body
+object Foo {
+  Some(1).map(data => {
+    data
+  })
+}
+>>>
+object Foo {
+  Some(1).map(data => {
+    data
+  })
+}
+
+<<< should not add a comma in a constructor body
+def this() = {
+  this(1)
+}
+>>>
+def this() = {
+  this(1)
+}
+
+<<< does not remove a legal (but weird) comma in a constructor body
+def this() = {
+  this(1),
+}
+>>>
+def this() = {
+  this(1),
+}
+
+
 <<< should not add a trailing comma when not breaking into multiple lines
 def m(a: Int, b: Int)
 >>>
