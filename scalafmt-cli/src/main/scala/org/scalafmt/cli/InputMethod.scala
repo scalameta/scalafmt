@@ -48,7 +48,7 @@ object InputMethod {
         options: CliOptions
     ): ExitCode = {
       val codeChanged = formatted != original
-      if (options.testing) {
+      if (options.testing || options.check) {
         if (codeChanged) {
           throw MisformattedFile(
             new File(filename),
