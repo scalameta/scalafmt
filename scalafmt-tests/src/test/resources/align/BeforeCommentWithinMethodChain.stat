@@ -2,16 +2,36 @@ maxColumn = 40
 <<< keep indentation for comments within method chain in statement
 foo()
 // bar
+// baz
 .bar()
 >>>
 foo()
   // bar
+  // baz
   .bar()
 <<< keep indentation for comments within method chain in assignment
 val res = foo()
 // bar
+// baz
 .bar()
 >>>
 val res = foo()
   // bar
+  // baz
   .bar()
+<<< don't add extra indentation for comments in middle of chain
+"x"
+// bar
+// baz
+.bar()
+// bar2
+// baz2
+.bar2()
+>>>
+"x"
+  // bar
+  // baz
+  .bar()
+  // bar2
+  // baz2
+  .bar2()
