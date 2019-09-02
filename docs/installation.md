@@ -64,7 +64,7 @@ It is not possible to reset this setting for all existing projects.
 
 ```scala
 // In project/plugins.sbt. Note, does not support sbt 0.13, only sbt 1.x.
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.0.0")
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.0.4")
 // or
 addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "1.5.1") // before 1.6.0-RC4 
 ```
