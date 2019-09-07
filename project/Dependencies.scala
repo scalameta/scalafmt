@@ -19,7 +19,6 @@ object Dependencies {
   }
 
   val scalametaTestkit = "org.scalameta" %% "testkit" % scalametaV
-  val scalariform = "org.scalariform" %% "scalariform" % "0.1.8"
 
   val scalacheck = "org.scalacheck" %% "scalacheck" % scalacheckV
   val scalatest = Def.setting("org.scalatest" %%% "scalatest" % scalatestV)
