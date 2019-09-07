@@ -6,7 +6,7 @@ resolvers ++= Seq(
 
 addSbtPlugin("org.scalameta" % "sbt-mdoc" % "1.2.7")
 addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "1.6.0-RC4")
-addSbtPlugin("com.geirsson" % "sbt-ci-release" % "1.2.2")
+addSbtPlugin("com.geirsson" % "sbt-ci-release" % "1.3.1")
 addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.7.0")
 addSbtPlugin(
   "io.get-coursier" % "sbt-coursier" % coursier.util.Properties.version
