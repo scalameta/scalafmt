@@ -363,7 +363,7 @@ token. If no <code>owner</code> is provided, then all tree kinds will be matched
 </p></details>
 <p>To find the <code>owner</code> part for a custom tree, depend on Scalameta and use
 <code>scala.meta.Tree.productPrefix</code> from the (for example, Ammonite) REPL.</p>
-<pre><code class="hljs css language-scala">@ import $ivy.`org.scalameta:scalameta_2.12:4.2.0`, scala.meta._
+<pre><code class="hljs css language-scala">@ import $ivy.`org.scalameta:scalameta_2.12:4.2.3`, scala.meta._
 @ val termMatch = q"x match { case 2 =&gt; foo(bar) }"
 termMatch: Term.Match = x match {
  case 2 =&gt;
