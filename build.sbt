@@ -130,9 +130,9 @@ lazy val cli = project
     libraryDependencies ++= Seq(
       "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0",
       "com.martiansoftware" % "nailgun-server" % "0.9.1",
-      "com.github.scopt" %% "scopt" % "3.5.0",
+      "com.github.scopt" %% "scopt" % "3.7.1",
       // undeclared transitive dependency of coursier-small
-      "org.scala-lang.modules" %% "scala-xml" % "1.1.1"
+      "org.scala-lang.modules" %% "scala-xml" % "1.2.0"
     ),
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
@@ -155,7 +155,7 @@ lazy val intellij = project
     test := {}, // no need to download IDEA to run all tests.
     ideaEdition := IdeaEdition.Community,
     ideaDownloadDirectory in ThisBuild := baseDirectory.value / "idea",
-    libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.0.6",
+    libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.2.0",
     cleanFiles += ideaDownloadDirectory.value
   )
   .dependsOn(coreJVM, cli)
@@ -167,8 +167,8 @@ lazy val tests = project
     skip in publish := true,
     libraryDependencies ++= Seq(
       // Test dependencies
-      "com.lihaoyi" %% "scalatags" % "0.6.3",
-      "org.typelevel" %% "paiges-core" % "0.2.0",
+      "com.lihaoyi" %% "scalatags" % "0.6.8",
+      "org.typelevel" %% "paiges-core" % "0.2.4",
       scalametaTestkit
     )
   )
