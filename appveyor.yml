@@ -27,4 +27,3 @@ cache:
   - '%USERPROFILE%\.sbt'
   - '%USERPROFILE%\.coursier'
   - '%USERPROFILE%\scoop\cache'
-  - scalafmt-intellij\idea

@@ -32,7 +32,6 @@ inThisBuild(
 
 name := "scalafmtRoot"
 skip in publish := true
-addCommandAlias("downloadIdea", "intellij/updateIdea")
 
 commands += Command.command("ci-test") { s =>
   val scalaVersion = sys.env.get("TEST") match {
@@ -142,24 +141,6 @@ lazy val cli = project
     }
   )
   .dependsOn(coreJVM, dynamic)
-
-lazy val intellij = project
-  .in(file("scalafmt-intellij"))
-  .settings(
-    buildInfoSettings,
-    crossScalaVersions := List(scala211),
-    skip in publish := true,
-    sources in (Compile, doc) := Nil,
-    mimaReportBinaryIssues := {},
-    ideaBuild := "2016.3.2",
-    test := {}, // no need to download IDEA to run all tests.
-    ideaEdition := IdeaEdition.Community,
-    ideaDownloadDirectory in ThisBuild := baseDirectory.value / "idea",
-    libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.2.0",
-    cleanFiles += ideaDownloadDirectory.value
-  )
-  .dependsOn(coreJVM, cli)
-  .enablePlugins(SbtIdeaPlugin)
 
 lazy val tests = project
   .in(file("scalafmt-tests"))
