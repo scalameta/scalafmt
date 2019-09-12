@@ -1039,7 +1039,7 @@ class Router(formatOps: FormatOps) {
           lastToken,
           style.continuationIndent.extendSite
         )
-      case FormatToken(left, KwWith(), _) =>
+      case FormatToken(_, KwWith(), _) =>
         rightOwner match {
           // something like new A with B with C
           case template: Template if template.parent.exists(p => p.is[Term.New] || p.is[Term.NewAnonymous]) =>
