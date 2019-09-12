@@ -736,6 +736,13 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     )
   }
 
+  def splitWithChain(isFirstWith: Boolean, chain: => Set[Tree], lastToken: => Token): Seq[Split] =
+    if (isFirstWith) {
+      binPackParentConstructorSplits(chain, lastToken, 2)
+    } else {
+      Seq(Split(Space, 0), Split(Newline, 1))
+    }
+
   def newlineBeforeClosingCurlyPolicy(close: Token) =
     Policy({
       case d @ Decision(t @ FormatToken(_, `close`, _), s) =>
