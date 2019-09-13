@@ -736,7 +736,11 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     )
   }
 
-  def splitWithChain(isFirstWith: Boolean, chain: => Set[Tree], lastToken: => Token): Seq[Split] =
+  def splitWithChain(
+      isFirstWith: Boolean,
+      chain: => Set[Tree],
+      lastToken: => Token
+  ): Seq[Split] =
     if (isFirstWith) {
       binPackParentConstructorSplits(chain, lastToken, 2)
     } else {

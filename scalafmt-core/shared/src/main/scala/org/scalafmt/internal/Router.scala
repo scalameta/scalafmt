@@ -10,7 +10,21 @@ import org.scalafmt.util._
 import scala.collection.mutable
 import scala.language.implicitConversions
 import scala.meta.tokens.{Token, Tokens}
-import scala.meta.{Case, Defn, Enumerator, Import, Init, Lit, Mod, Pat, Pkg, Template, Term, Tree, Type}
+import scala.meta.{
+  Case,
+  Defn,
+  Enumerator,
+  Import,
+  Init,
+  Lit,
+  Mod,
+  Pat,
+  Pkg,
+  Template,
+  Term,
+  Tree,
+  Type
+}
 
 // Too many to import individually.
 import scala.meta.tokens.Token._
@@ -1042,11 +1056,18 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_, KwWith(), _) =>
         rightOwner match {
           // something like new A with B with C
-          case template: Template if template.parent.exists(p => p.is[Term.New] || p.is[Term.NewAnonymous]) =>
+          case template: Template
+              if template.parent.exists { p =>
+                p.is[Term.New] || p.is[Term.NewAnonymous]
+              } =>
             val isFirstWith = template.inits.headOption.exists { init =>
               leftOwner.is[Init] && init == leftOwner || init.tpe == leftOwner
             }
-            splitWithChain(isFirstWith, Set(template), templateCurly(template).getOrElse(template.tokens.last))
+            splitWithChain(
+              isFirstWith,
+              Set(template),
+              templateCurly(template).getOrElse(template.tokens.last)
+            )
 
           case template: Template =>
             val hasSelfAnnotation = template.self.tokens.nonEmpty
@@ -1074,7 +1095,12 @@ class Router(formatOps: FormatOps) {
               Split(Newline, 1).withPolicy(policy)
             )
           // trait A extends B with C with D with E
-          case t @ WithChain(top) => splitWithChain(!t.lhs.is[Type.With], withChain(top).toSet, top.tokens.last)
+          case t @ WithChain(top) =>
+            splitWithChain(
+              !t.lhs.is[Type.With],
+              withChain(top).toSet,
+              top.tokens.last
+            )
 
           case _ =>
             Seq(Split(Space, 0))
