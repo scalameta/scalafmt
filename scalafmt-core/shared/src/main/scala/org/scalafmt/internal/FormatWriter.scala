@@ -176,7 +176,13 @@ class FormatWriter(formatOps: FormatOps) {
     locations.zipWithIndex.foreach {
       case (FormatLocation(tok, split, state), i) =>
         val previous = locations(Math.max(0, i - 1))
-        val next = locations.lift(i + 1)
+        // TODO this could get slow for really long comment blocks. If that
+        //   becomes a problem, we could also precompute these locations.
+        lazy val nextNonComment = locations
+          .drop(i + 1)
+          .dropWhile(_.formatToken.right.isInstanceOf[Comment])
+          .headOption
+
         val whitespace = split.modification match {
           case Space =>
             val previousAlign =
@@ -194,9 +200,14 @@ class FormatWriter(formatOps: FormatOps) {
             " "
           case _: NewlineT
               if tok.right.isInstanceOf[Comment] &&
-                next.isDefined &&
-                next.get.formatToken.right.isInstanceOf[Dot] =>
-            "\n" + " " * (state.indentation + 2)
+                nextNonComment.exists(_.formatToken.right.isInstanceOf[Dot]) =>
+            // TODO this could slow for really long chains and could be indexed if necessary.
+            val existsPreviousDotCall = locations
+              .take(i - 1)
+              .exists(_.formatToken.right.isInstanceOf[Dot])
+            // TODO should this 2 be hard-coded, set to some other existing configurable parameter, or configurable?
+            val extraIndent = if (existsPreviousDotCall) 0 else 2
+            "\n" + " " * (state.indentation + extraIndent)
           case nl: NewlineT =>
             val newline =
               if (nl.isDouble || isMultilineTopLevelStatement(locations, i))
