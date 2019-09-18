@@ -329,3 +329,77 @@ object hello {
       }
     } yield ()
 }
+<<< consider multiline private defs as top level statements
+object Test {
+  private val a: String = "a"
+  private val b: String = "b"
+  private val c: String = "c"
+  private def d: String = {
+    "d"
+  }
+  private def e: String = {
+    "e"
+  }
+  private def f: String = {
+    "f"
+  }
+}
+>>>
+object Test {
+  private val a: String = "a"
+  private val b: String = "b"
+  private val c: String = "c"
+
+  private def d: String = {
+    "d"
+  }
+
+  private def e: String = {
+    "e"
+  }
+
+  private def f: String = {
+    "f"
+  }
+}
+<<< one private field
+object Test {
+  final def d: String = {
+    "a"
+  }
+  private object a {
+    def b = "a"
+  }
+}
+>>>
+object Test {
+
+  final def d: String = {
+    "a"
+  }
+
+  private object a {
+    def b = "a"
+  }
+}
+<<< top level with modifier
+private object K {
+  def l: String = ""
+}
+>>>
+private object K {
+  def l: String = ""
+}
+<<< miltiple modifiers
+private object K {
+  override protected implicit def l: String = {
+  ""
+  }
+}
+>>>
+private object K {
+
+  override protected implicit def l: String = {
+    ""
+  }
+}

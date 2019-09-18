@@ -262,7 +262,7 @@ class FormatWriter(formatOps: FormatOps) {
       else isMultiline(end, i + 1)
     }
     def actualOwner(token: Token): Tree = owners(token) match {
-      case annot: Mod.Annot => annot.parent.get
+      case mod: Mod => mod.parent.get
       case x => x
     }
     initStyle.newlines.alwaysBeforeTopLevelStatements && {
