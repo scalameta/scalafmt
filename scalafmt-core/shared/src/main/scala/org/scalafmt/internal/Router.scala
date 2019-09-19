@@ -38,6 +38,11 @@ object Constants {
   val ExceedColumnPenalty = 1000
   // Breaking a line like s"aaaaaaa${111111 + 22222}" should be last resort.
   val BreakSingleLineInterpolatedString = 10 * ExceedColumnPenalty
+  // when converting new A with B with C to
+  // new A
+  //   with B
+  //   with C
+  val IndentForWithChains = 2
 }
 
 /**
@@ -1060,6 +1065,8 @@ class Router(formatOps: FormatOps) {
                 p.is[Term.New] || p.is[Term.NewAnonymous]
               } =>
             val isFirstWith = template.inits.headOption.exists { init =>
+              // [init.tpe == leftOwner] part is about expressions like [new A with B]
+              // [leftOwner.is[Init] && init == leftOwner] part is about expressions like [new A(x) with B]
               leftOwner.is[Init] && init == leftOwner || init.tpe == leftOwner
             }
             splitWithChain(
@@ -1508,4 +1515,15 @@ class Router(formatOps: FormatOps) {
     )
 
   private implicit def int2num(n: Int): Num = Num(n)
+
+  private def splitWithChain(
+      isFirstWith: Boolean,
+      chain: => Set[Tree],
+      lastToken: => Token
+  ): Seq[Split] =
+    if (isFirstWith) {
+      binPackParentConstructorSplits(chain, lastToken, IndentForWithChains)
+    } else {
+      Seq(Split(Space, 0), Split(Newline, 1))
+    }
 }
