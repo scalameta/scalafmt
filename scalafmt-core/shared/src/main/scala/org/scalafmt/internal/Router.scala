@@ -1,43 +1,30 @@
 package org.scalafmt.internal
 
-import scala.language.implicitConversions
-import scala.annotation.tailrec
-import scala.collection.mutable
-import scala.meta.Case
-import scala.meta.Defn
-import scala.meta.Enumerator
-import scala.meta.Import
-import scala.meta.Mod
-import scala.meta.Pat
-import scala.meta.Pkg
-import scala.meta.Template
-import scala.meta.Term
-import scala.meta.Tree
-import scala.meta.Type
-import scala.meta.tokens.Token
-import scala.meta.tokens.Tokens
 import org.scalafmt.Error.UnexpectedTree
 import org.scalafmt.config.{ImportSelectors, NewlineCurlyLambda}
-import org.scalafmt.internal.ExpiresOn.Left
-import org.scalafmt.internal.ExpiresOn.Right
-import org.scalafmt.internal.Length.Num
-import org.scalafmt.internal.Length.StateColumn
+import org.scalafmt.internal.ExpiresOn.{Left, Right}
+import org.scalafmt.internal.Length.{Num, StateColumn}
 import org.scalafmt.internal.Policy.NoPolicy
-import org.scalafmt.util.Delim
-import org.scalafmt.util.CtorModifier
-import org.scalafmt.util.InfixApplication
-import org.scalafmt.util.Keyword
-import org.scalafmt.util.Literal
-import org.scalafmt.util.LoggerOps
-import org.scalafmt.util.Modifier
-import org.scalafmt.util.RightParenOrBracket
-import org.scalafmt.util.WithChain
-import org.scalafmt.util.SomeInterpolate
-import org.scalafmt.util.TokenOps
-import org.scalafmt.util.TreeOps
-import org.scalafmt.util.Trivia
+import org.scalafmt.util._
 
-import scala.meta.Lit
+import scala.collection.mutable
+import scala.language.implicitConversions
+import scala.meta.tokens.{Token, Tokens}
+import scala.meta.{
+  Case,
+  Defn,
+  Enumerator,
+  Import,
+  Init,
+  Lit,
+  Mod,
+  Pat,
+  Pkg,
+  Template,
+  Term,
+  Tree,
+  Type
+}
 
 // Too many to import individually.
 import scala.meta.tokens.Token._
@@ -51,6 +38,11 @@ object Constants {
   val ExceedColumnPenalty = 1000
   // Breaking a line like s"aaaaaaa${111111 + 22222}" should be last resort.
   val BreakSingleLineInterpolatedString = 10 * ExceedColumnPenalty
+  // when converting new A with B with C to
+  // new A
+  //   with B
+  //   with C
+  val IndentForWithChains = 2
 }
 
 /**
@@ -1066,8 +1058,23 @@ class Router(formatOps: FormatOps) {
           lastToken,
           style.continuationIndent.extendSite
         )
-      case tok @ FormatToken(_, right @ KwWith(), _) =>
+      case FormatToken(_, KwWith(), _) =>
         rightOwner match {
+          // something like new A with B with C
+          case template: Template if template.parent.exists { p =>
+                p.is[Term.New] || p.is[Term.NewAnonymous]
+              } =>
+            val isFirstWith = template.inits.headOption.exists { init =>
+              // [init.tpe == leftOwner] part is about expressions like [new A with B]
+              // [leftOwner.is[Init] && init == leftOwner] part is about expressions like [new A(x) with B]
+              leftOwner.is[Init] && init == leftOwner || init.tpe == leftOwner
+            }
+            splitWithChain(
+              isFirstWith,
+              Set(template),
+              templateCurly(template).getOrElse(template.tokens.last)
+            )
+
           case template: Template =>
             val hasSelfAnnotation = template.self.tokens.nonEmpty
             val expire = templateCurly(rightOwner)
@@ -1093,15 +1100,14 @@ class Router(formatOps: FormatOps) {
               Split(Space, 0),
               Split(Newline, 1).withPolicy(policy)
             )
+          // trait A extends B with C with D with E
           case t @ WithChain(top) =>
-            val isFirstWith = !t.lhs.is[Type.With]
-            if (isFirstWith) {
-              val chain = withChain(top)
-              val lastToken = top.tokens.last
-              binPackParentConstructorSplits(chain.toSet, lastToken, 2)
-            } else {
-              Seq(Split(Space, 0), Split(Newline, 1))
-            }
+            splitWithChain(
+              !t.lhs.is[Type.With],
+              withChain(top).toSet,
+              top.tokens.last
+            )
+
           case _ =>
             Seq(Split(Space, 0))
         }
@@ -1509,4 +1515,15 @@ class Router(formatOps: FormatOps) {
     )
 
   private implicit def int2num(n: Int): Num = Num(n)
+
+  private def splitWithChain(
+      isFirstWith: Boolean,
+      chain: => Set[Tree],
+      lastToken: => Token
+  ): Seq[Split] =
+    if (isFirstWith) {
+      binPackParentConstructorSplits(chain, lastToken, IndentForWithChains)
+    } else {
+      Seq(Split(Space, 0), Split(Newline, 1))
+    }
 }
