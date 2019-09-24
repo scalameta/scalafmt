@@ -54,8 +54,8 @@ it, considering
 * `align=none` If alignment is enabled a renaming of one entity can impact the
   indentation of other entities.
 
-* `danglingParenthesis=true` Having the closing parenthesis on the same line as
-  the last argument makes the diff line include the parenthesis and everything
+* `danglingParentheses=true` Having the closing parentheses on the same line as
+  the last argument makes the diff line include the parentheses and everything
   following it in case that argument is renamed. So, technically this does not
   reduce the number of diff lines, but the length of them.
 
