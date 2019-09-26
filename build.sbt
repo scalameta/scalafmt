@@ -59,7 +59,8 @@ lazy val dynamic = project
       "com.typesafe" % "config" % "1.3.3",
       scalatest.value % Test,
       scalametaTestkit % Test
-    )
+    ),
+    scalacOptions ++= scalacJvmOptions.value
   )
   .dependsOn(interfaces)
   .enablePlugins(BuildInfoPlugin)
@@ -118,6 +119,13 @@ lazy val coreJVM = core.jvm
 
 import sbtassembly.AssemblyPlugin.defaultUniversalScript
 
+val scalacJvmOptions = Def.setting {
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, 11)) => Seq("-target:jvm-1.8")
+    case _ => Seq.empty
+  }
+}
+
 lazy val cli = project
   .in(file("scalafmt-cli"))
   .settings(
@@ -133,12 +141,7 @@ lazy val cli = project
       // undeclared transitive dependency of coursier-small
       "org.scala-lang.modules" %% "scala-xml" % "1.2.0"
     ),
-    scalacOptions ++= {
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, 11)) => Seq("-target:jvm-1.8")
-        case _ => Seq.empty
-      }
-    }
+    scalacOptions ++= scalacJvmOptions.value
   )
   .dependsOn(coreJVM, dynamic)
 
