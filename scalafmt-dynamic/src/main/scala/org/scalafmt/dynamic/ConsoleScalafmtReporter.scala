@@ -5,6 +5,7 @@ import java.nio.file.Path
 
 import org.scalafmt.dynamic.exceptions.ScalafmtException
 import org.scalafmt.interfaces.ScalafmtReporter
+import java.io.OutputStreamWriter
 
 object ConsoleScalafmtReporter extends ConsoleScalafmtReporter(System.err)
 
@@ -32,6 +33,9 @@ class ConsoleScalafmtReporter(out: PrintStream) extends ScalafmtReporter {
   }
 
   override def downloadWriter(): PrintWriter = new PrintWriter(out)
+
+  override def downloadOutputStreamWriter(): OutputStreamWriter =
+    new OutputStreamWriter(out)
 
   protected def trimStacktrace(e: Throwable): Unit = ()
 }
