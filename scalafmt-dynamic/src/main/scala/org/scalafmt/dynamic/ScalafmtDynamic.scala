@@ -14,6 +14,7 @@ import org.scalafmt.interfaces._
 import scala.concurrent.ExecutionContext
 import scala.util.Try
 import scala.util.control.NonFatal
+import java.io.OutputStreamWriter
 
 final case class ScalafmtDynamic(
     reporter: ScalafmtReporter,
@@ -158,7 +159,7 @@ final case class ScalafmtDynamic(
       version: String
   ): FormatEval[ScalafmtReflect] = {
     formatCache.getOrAddToCache(version) { () =>
-      val writer = reporter.downloadWriter()
+      val writer = reporter.downloadOutputStreamWriter()
       val downloader = new ScalafmtDynamicDownloader(writer)
       downloader
         .download(version)

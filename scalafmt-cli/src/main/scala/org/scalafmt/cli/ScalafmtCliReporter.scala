@@ -1,5 +1,7 @@
 package org.scalafmt.cli
+
 import java.io.PrintWriter
+import java.io.OutputStreamWriter
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicReference
 import java.util.function.UnaryOperator
@@ -66,6 +68,9 @@ class ScalafmtCliReporter(options: CliOptions) extends ScalafmtReporter {
 
   override def downloadWriter(): PrintWriter =
     new PrintWriter(options.common.out)
+
+  override def downloadOutputStreamWriter(): OutputStreamWriter =
+    new OutputStreamWriter(options.common.out)
 }
 
 private class FailedToFormat(filename: String, cause: Throwable)
