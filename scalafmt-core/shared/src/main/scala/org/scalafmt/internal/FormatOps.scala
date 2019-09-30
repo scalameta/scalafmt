@@ -799,8 +799,11 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
         case FormatToken(RightParenOrBracket(), l @ LeftParen(), _) =>
           loop(l)
         case f @ FormatToken(left @ RightParenOrBracket(), right, _) =>
+          lazy val isCtorModifier =
+            ownersMap(hash(right)).parent.exists(_.is[meta.Ctor])
           right match {
-            case Modifier() =>
+            // modifier for constructor if class definition has type parameters: [class A[T, K, C] private (a: Int)]
+            case Modifier() if isCtorModifier =>
               // This case only applies to classes
               next(f).right match {
                 case x @ (_: Token.LeftParen | _: Token.LeftBracket) =>
