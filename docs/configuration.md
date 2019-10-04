@@ -591,6 +591,24 @@ rewrite.rules = [AsciiSortImports]
 import foo.{~>, `symbol`, bar, Random}
 ```
 
+### `GroupImports`
+
+Groups imports by the first part, sorts them inside groups using
+the traditional ASCII sorting. Groups and their order can be customized using `groups`
+setting, use `"_"` placeholder to define "the rest" group
+
+```scala mdoc:scalafmt
+rewrite.rules = [GroupImports]
+rewrite.groupImports.groups = ["java", "scala", "_"]
+rewrite.groupImports.emptyLineBetweenGroups = true
+---
+import java.{bar, foo}
+
+import scala.fmt
+
+import com.my.class
+```
+
 ## Vertical Multiline
 
 Since: v1.6.0.
