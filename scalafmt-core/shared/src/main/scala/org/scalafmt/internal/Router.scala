@@ -1178,7 +1178,8 @@ class Router(formatOps: FormatOps) {
         )
       case FormatToken(RightBrace(), KwElse(), _) =>
         if (style.newlines.alwaysBeforeElseAfterCurlyIf) Seq(Split(Newline, 0))
-        else Seq(Split(Space, 0))
+        else if (leftOwner.is[Term.Block]) Seq(Split(Space, 0))
+        else Seq(Split(Newline, 1))
       case FormatToken(RightBrace(), KwYield(), _) =>
         Seq(
           Split(Space, 0)
