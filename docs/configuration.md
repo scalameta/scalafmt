@@ -606,7 +606,7 @@ import java.{bar, foo}
 
 import scala.fmt
 
-import com.my.class
+import com.my.clazz
 ```
 
 ## Vertical Multiline
