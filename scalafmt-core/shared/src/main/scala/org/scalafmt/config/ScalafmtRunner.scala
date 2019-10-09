@@ -16,7 +16,7 @@ import scala.meta.parsers.Parse
   */
 case class ScalafmtRunner(
     debug: Boolean = false,
-    eventCallback: FormatEvent => Unit = _ => Unit,
+    eventCallback: FormatEvent => Unit = _ => (),
     parser: Parse[_ <: Tree] = Parse.parseSource,
     optimizer: ScalafmtOptimizer = ScalafmtOptimizer.default,
     maxStateVisits: Int = 1000000,
@@ -84,7 +84,7 @@ object ScalafmtRunner {
     */
   val default = ScalafmtRunner(
     debug = false,
-    eventCallback = _ => Unit,
+    eventCallback = _ => (),
     parser = scala.meta.parsers.Parse.parseSource,
     optimizer = ScalafmtOptimizer.default,
     maxStateVisits = 1000000

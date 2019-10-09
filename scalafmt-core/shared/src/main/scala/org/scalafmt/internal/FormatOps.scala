@@ -16,7 +16,7 @@ import scala.meta.Tree
 import scala.meta.Type
 import scala.meta.prettyprinters.Structure
 import scala.meta.tokens.Token
-import scala.meta.tokens.Token._
+import scala.meta.tokens.Token.{Space => _, _}
 import org.scalafmt.Error.CaseMissingArrow
 import org.scalafmt.config.{
   DanglingExclude,

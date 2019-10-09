@@ -3,6 +3,7 @@ import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
 def scala211 = "2.11.12"
 def scala212 = "2.12.8"
+def scala213 = "2.13.0"
 
 inThisBuild(
   List(
@@ -19,8 +20,8 @@ inThisBuild(
         url("https://geirsson.com")
       )
     ),
-    scalaVersion := scala212,
-    crossScalaVersions := List(scala212, scala211),
+    scalaVersion := scala213,
+    crossScalaVersions := List(scala213, scala212, scala211),
     resolvers += Resolver.sonatypeRepo("releases"),
     libraryDependencies ++= List(
       scalatest.value % Test,
@@ -89,10 +90,8 @@ lazy val core = crossProject(JVMPlatform)
   .in(file("scalafmt-core"))
   .settings(
     moduleName := "scalafmt-core",
-    addCompilerPlugin(
-      "org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full
-    ),
     buildInfoSettings,
+    scalacOptions ++= scalacJvmOptions.value,
     libraryDependencies ++= Seq(
       metaconfig.value,
       scalameta.value,
@@ -122,6 +121,7 @@ import sbtassembly.AssemblyPlugin.defaultUniversalScript
 val scalacJvmOptions = Def.setting {
   CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, 11)) => Seq("-target:jvm-1.8")
+    case Some((2, 13)) => Seq("-Ymacro-annotations")
     case _ => Seq.empty
   }
 }

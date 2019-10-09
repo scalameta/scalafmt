@@ -13,7 +13,7 @@ import scala.meta.Tree
 import scala.meta.Type
 import scala.meta.prettyprinters.Syntax
 import scala.meta.tokens.Token
-import scala.meta.tokens.Token._
+import scala.meta.tokens.Token.{Space => _, _}
 import java.util.regex.Pattern
 
 import org.scalafmt.internal.FormatWriter.FormatLocation

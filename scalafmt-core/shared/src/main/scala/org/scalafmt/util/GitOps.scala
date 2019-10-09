@@ -22,7 +22,7 @@ class GitOpsImpl(private[util] val workingDirectory: AbsoluteFile)
   private[util] def exec(cmd: Seq[String]): Try[Seq[String]] = {
     val gitRes: Try[String] = Try {
       val lastError = new StringBuilder
-      val swallowStderr = ProcessLogger(_ => Unit, err => lastError.append(err))
+      val swallowStderr = ProcessLogger(_ => (), err => lastError.append(err))
       try {
         sys.process
           .Process(cmd, workingDirectory.jfile)

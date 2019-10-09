@@ -27,7 +27,7 @@ import scala.meta.{
 }
 
 // Too many to import individually.
-import scala.meta.tokens.Token._
+import scala.meta.tokens.Token.{Space => _, _}
 
 object Constants {
   val ShouldBeNewline = 100000
