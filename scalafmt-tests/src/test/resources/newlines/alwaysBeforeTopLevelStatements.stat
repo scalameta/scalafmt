@@ -144,7 +144,7 @@ object A {
   @Annotation
   class B
   @Singleton
-  class B @Inject()(val x: Int)
+  class B @Inject() (val x: Int)
   @js.native
   class C() {
     def c = 5
@@ -157,7 +157,7 @@ object A {
   class B
 
   @Singleton
-  class B @Inject()(val x: Int)
+  class B @Inject() (val x: Int)
 
   @js.native
   class C() {
@@ -294,7 +294,7 @@ object a {
   }
 
   /** Implements the ..... /status/about, etc */
-  class Status @Inject()(ws: WSClient) {
+  class Status @Inject() (ws: WSClient) {
     ???
   }
 
