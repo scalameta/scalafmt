@@ -3,7 +3,7 @@ import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
 def scala211 = "2.11.12"
 def scala212 = "2.12.8"
-def scala213 = "2.13.0"
+def scala213 = "2.13.1"
 
 inThisBuild(
   List(
@@ -98,7 +98,13 @@ lazy val core = crossProject(JVMPlatform)
       // scala-reflect is an undeclared dependency of fansi, see #1252.
       // Scalafmt itself does not require scala-reflect.
       "org.scala-lang" % "scala-reflect" % scalaVersion.value
-    )
+    ),
+    libraryDependencies ++= {
+       CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, 13)) => Seq.empty 
+        case _ => Seq(compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full))
+      }
+    }
   )
   // .jsSettings(
   //   libraryDependencies ++= List(
