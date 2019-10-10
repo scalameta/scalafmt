@@ -16,10 +16,16 @@ jobs:
     - env: TEST="2.12"
       jdk: openjdk8
       script: sbt ci-test
+    - env: TEST="2.13"
+      jdk: openjdk8
+      script: sbt ci-test
     - env: TEST="2.11"
       jdk: openjdk11
       script: sbt ci-test
     - env: TEST="2.12"
+      jdk: openjdk11
+      script: sbt ci-test
+    - env: TEST="2.13"
       jdk: openjdk11
       script: sbt ci-test
     - stage: release

@@ -37,7 +37,8 @@ skip in publish := true
 commands += Command.command("ci-test") { s =>
   val scalaVersion = sys.env.get("TEST") match {
     case Some("2.11") => scala211
-    case _ => scala212
+    case Some("2.12") => scala212
+    case _ => scala213
   }
   val docsTest = if (scalaVersion == scala212) "docs/run" else "version"
   s"++$scalaVersion" ::
