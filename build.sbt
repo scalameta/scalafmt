@@ -100,9 +100,14 @@ lazy val core = crossProject(JVMPlatform)
       "org.scala-lang" % "scala-reflect" % scalaVersion.value
     ),
     libraryDependencies ++= {
-       CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, 13)) => Seq.empty 
-        case _ => Seq(compilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full))
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, 13)) => Seq.empty
+        case _ =>
+          Seq(
+            compilerPlugin(
+              "org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full
+            )
+          )
       }
     }
   )
