@@ -1,18 +1,14 @@
 package org.scalafmt.dynamic
 
-import java.io.PrintWriter
+import java.io.OutputStreamWriter
 import java.net.URL
-import java.nio.file.Path
 
 import coursierapi._
-import scala.collection.JavaConverters._
 import org.scalafmt.dynamic.ScalafmtDynamicDownloader._
 
+import scala.collection.JavaConverters._
 import scala.concurrent.duration.Duration
 import scala.util.Try
-import java.io.OutputStream
-import java.io.PrintStream
-import java.io.OutputStreamWriter
 
 class ScalafmtDynamicDownloader(
     downloadProgressWriter: OutputStreamWriter,
@@ -75,14 +71,16 @@ class ScalafmtDynamicDownloader(
       "org.scalameta"
     }
 
-  private def repositories: Array[Repository] = Array(
-    Repository.central(),
-    Repository.ivy2Local(),
-    MavenRepository.of(
-      "https://oss.sonatype.org/content/repositories/snapshots"
-    ),
-    MavenRepository.of("https://oss.sonatype.org/content/repositories/public")
-  )
+  private def repositories: Array[Repository] = {
+    // Default repositories are ivy2local, central and also anything in COURSIER_REPOSITORIES overrides
+    Repository.defaults().asScala.toArray ++ Array(
+      MavenRepository.of(
+        "https://oss.sonatype.org/content/repositories/snapshots"
+      ),
+      MavenRepository.of("https://oss.sonatype.org/content/repositories/public")
+    )
+  }
+
 }
 
 object ScalafmtDynamicDownloader {
