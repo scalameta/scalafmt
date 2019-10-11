@@ -40,7 +40,6 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
         val termDisplay =
           newTermDisplay(options, inputMethods, termDisplayMessage)
         val exitCode = new AtomicReference(ExitCode.Ok)
-        // TODO add parallel collections
         inputMethods.foreach { inputMethod =>
           val code = handleFile(inputMethod, options, scalafmtConf)
           exitCode.getAndUpdate(new UnaryOperator[ExitCode] {
