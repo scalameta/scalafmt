@@ -1,20 +1,14 @@
 package org.scalafmt.dynamic
 
-import java.io.PrintWriter
+import java.io.OutputStreamWriter
 import java.net.URL
-import java.nio.file.Path
 
 import coursierapi._
-
-import scala.collection.JavaConverters._
 import org.scalafmt.dynamic.ScalafmtDynamicDownloader._
 
+import scala.collection.JavaConverters._
 import scala.concurrent.duration.Duration
 import scala.util.Try
-import java.io.OutputStream
-import java.io.PrintStream
-import java.io.OutputStreamWriter
-import scala.concurrent.JavaConversions._
 
 class ScalafmtDynamicDownloader(
     downloadProgressWriter: OutputStreamWriter,
