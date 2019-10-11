@@ -153,6 +153,15 @@ lazy val cli = project
       // undeclared transitive dependency of coursier-small
       "org.scala-lang.modules" %% "scala-xml" % "1.2.0"
     ),
+    libraryDependencies ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, 13)) =>
+          Seq(
+            "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0"
+          )
+        case _ => Seq.empty
+      }
+    },
     scalacOptions ++= scalacJvmOptions.value
   )
   .dependsOn(coreJVM, dynamic)
@@ -163,7 +172,10 @@ lazy val tests = project
     skip in publish := true,
     libraryDependencies ++= Seq(
       // Test dependencies
-      "com.lihaoyi" %% "scalatags" % "0.6.8",
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, 13)) => "com.lihaoyi" %% "scalatags" % "0.7.0"
+        case _ => "com.lihaoyi" %% "scalatags" % "0.6.8"
+      },
       "org.typelevel" %% "paiges-core" % "0.2.4",
       scalametaTestkit
     )
