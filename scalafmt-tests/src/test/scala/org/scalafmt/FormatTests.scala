@@ -113,6 +113,6 @@ class FormatTests
       )
     } yield ()
     // Travis exits right after running tests.
-    if (sys.env.contains("TRAVIS")) Await.ready(k, 20 seconds)
+    if (sys.env.contains("TRAVIS")) Await.ready(k, 20.seconds)
   }
 }

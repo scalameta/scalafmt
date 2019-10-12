@@ -9,7 +9,21 @@ import org.scalafmt.util._
 
 import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.meta.{Case, Ctor, Decl, Defn, Import, Init, Name, Pat, Pkg, Template, Term, Tree, Type}
+import scala.meta.{
+  Case,
+  Ctor,
+  Decl,
+  Defn,
+  Import,
+  Init,
+  Name,
+  Pat,
+  Pkg,
+  Template,
+  Term,
+  Tree,
+  Type
+}
 import scala.meta.prettyprinters.Structure
 import scala.meta.tokens.Token
 import scala.meta.tokens.{Token => T}
@@ -196,14 +210,17 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     nextNonCommentWithCount(curr)._2
 
   @tailrec
-  final def rhsOptimalToken(start: FormatToken): Token = start.right match {
-    case T.Comma() | T.LeftParen() | T.RightParen() | T.RightBracket() | T.Semicolon() |
-         T.RightArrow() | T.Equals()
-        if next(start) != start &&
-          !startsNewBlock(start.right) &&
-          newlinesBetween(start.between) == 0 =>
-      rhsOptimalToken(next(start))
-    case _ => start.left
+  final def rhsOptimalToken(start: FormatToken): Token = {
+    import T._
+    start.right match {
+      case Comma() | LeftParen() | RightParen() | RightBracket() | Semicolon() |
+          RightArrow() | Equals()
+          if next(start) != start &&
+            !startsNewBlock(start.right) &&
+            newlinesBetween(start.between) == 0 =>
+        rhsOptimalToken(next(start))
+      case _ => start.left
+    }
   }
 
   final def startsNewBlock(t: Token): Boolean =
