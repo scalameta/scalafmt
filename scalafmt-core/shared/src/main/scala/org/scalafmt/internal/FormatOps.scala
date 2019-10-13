@@ -211,10 +211,9 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
   @tailrec
   final def rhsOptimalToken(start: FormatToken): Token = {
-    import T._
     start.right match {
-      case Comma() | LeftParen() | RightParen() | RightBracket() | Semicolon() |
-          RightArrow() | Equals()
+      case T.Comma() | T.LeftParen() | T.RightParen() | T.RightBracket() |
+          T.Semicolon() | T.RightArrow() | T.Equals()
           if next(start) != start &&
             !startsNewBlock(start.right) &&
             newlinesBetween(start.between) == 0 =>
