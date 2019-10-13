@@ -956,8 +956,11 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       else NoSplit
 
     Seq(
-      Split(singleLineModification, 0, ignoreIf = !isBracket && aboveArityThreshold)
-        .withPolicy(SingleLineBlock(singleLineExpire)),
+      Split(
+        singleLineModification,
+        0,
+        ignoreIf = !isBracket && aboveArityThreshold
+      ).withPolicy(SingleLineBlock(singleLineExpire)),
       Split(Newline, 1) // Otherwise split vertically
         .withIndent(firstIndent, close, Right)
         .withPolicy(policy)
