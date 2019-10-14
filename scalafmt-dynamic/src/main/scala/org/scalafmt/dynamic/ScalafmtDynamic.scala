@@ -169,6 +169,8 @@ final case class ScalafmtDynamic(
             ScalafmtDynamicError.CannotDownload(configPath, v, None)
           case DownloadUnknownError(v, cause) =>
             ScalafmtDynamicError.CannotDownload(configPath, v, Option(cause))
+          case InvalidVersionError(v, cause) =>
+            ScalafmtDynamicError.CannotDownload(configPath, v, None)
         }
         .flatMap(resolveClassPath(configPath, _))
     }

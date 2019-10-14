@@ -239,6 +239,7 @@ lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
     "stable" -> stableVersion.value,
     "scala" -> scalaVersion.value,
     "scala211" -> scala211,
+    "scala212" -> scala212,
     "coursier" -> coursier,
     "commit" -> sys.process.Process("git rev-parse HEAD").lineStream_!.head,
     "timestamp" -> System.currentTimeMillis().toString,
