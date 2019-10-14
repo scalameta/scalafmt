@@ -4,9 +4,14 @@ import scala.util.control.{NonFatal, NoStackTrace}
 
 case class ScalafmtVersion(major: Int, minor: Int, patch: Int, rc: Int) {
   private lazy val integerRepr: Int =
-    major * 1000 + minor * 100 + patch * 10 + rc
-  def <(other: ScalafmtVersion): Boolean = integerRepr < other.integerRepr
-  def >(other: ScalafmtVersion): Boolean = integerRepr > other.integerRepr
+    major * 100 + minor * 10 + patch
+
+  def <(other: ScalafmtVersion): Boolean =
+    if (integerRepr == other.integerRepr)
+      rc != 0 && (other.rc == 0 || rc < other.rc)
+    else integerRepr < other.integerRepr
+
+  def >(other: ScalafmtVersion): Boolean = this != other && !(this < other)
 
   override def toString: String =
     s"$major.$minor.$patch" + (if (rc > 0) s"-RC$rc" else "")
