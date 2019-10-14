@@ -1,41 +1,14 @@
-package org.scalafmt.benchmarks
-
-import scala.collection.GenIterable
-import scala.meta.Source
-import scala.meta.testkit.Corpus
-import scala.meta.testkit.CorpusFile
-import scala.util.Try
+package benchmarks
 
 import java.util.concurrent.TimeUnit
 
-import org.openjdk.jmh.annotations.Benchmark
-import org.openjdk.jmh.annotations.BenchmarkMode
-import org.openjdk.jmh.annotations.Measurement
-import org.openjdk.jmh.annotations.Mode
-import org.openjdk.jmh.annotations.OutputTimeUnit
-import org.openjdk.jmh.annotations.Scope
-import org.openjdk.jmh.annotations.Setup
-import org.openjdk.jmh.annotations.Warmup
+import org.openjdk.jmh.annotations._
 import org.scalafmt.Scalafmt
-import org.scalafmt.config.RewriteSettings
-import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.rewrite.RedundantBraces
-import org.scalafmt.rewrite.SortImports
+import org.scalafmt.benchmarks.FormatBenchmark
 
-trait FormatBenchmark {
-  def formatRewrite(code: String) = {
-    Scalafmt
-      .format(
-        code,
-        style = ScalafmtConfig.default.copy(
-          rewrite = RewriteSettings(
-            rules = Seq(SortImports, RedundantBraces)
-          )
-        )
-      )
-      .get
-  }
-}
+import scala.collection.GenIterable
+import scala.meta.testkit.Corpus
+import scala.util.Try
 
 /**
   * Formats filename at with scalafmt.

@@ -1,5 +1,6 @@
 package org.scalafmt.benchmarks
 
+import benchmarks.MacroBenchmark
 import org.scalafmt.benchmarks.Micro.ScalaJsFile
 import org.scalatest.FunSuite
 
