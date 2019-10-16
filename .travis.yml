@@ -34,8 +34,7 @@ jobs:
 
 cache:
   directories:
-    - $HOME/.sbt/1.0/dependency
-    - $HOME/.sbt/launchers
+    - $HOME/.sbt
     - $HOME/.ivy2/cache
     - $HOME/.coursier
     - target/repos
