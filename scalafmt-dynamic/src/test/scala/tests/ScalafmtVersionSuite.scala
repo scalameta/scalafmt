@@ -24,6 +24,33 @@ class ScalafmtVersionSuite extends FunSuite {
       ScalafmtVersion
         .parse("1.2.3-M14") == Left(InvalidVersionException("1.2.3-M14"))
     )
+    assert(
+      ScalafmtVersion
+        .parse("1.1.1.1") == Left(InvalidVersionException("1.1.1.1"))
+    )
+    assert(
+      ScalafmtVersion.parse("2.-1.0") == Left(InvalidVersionException("2.-1.0"))
+    )
+    assert(
+      ScalafmtVersion.parse("2.1.0.") == Left(InvalidVersionException("2.1.0."))
+    )
+    assert(
+      ScalafmtVersion.parse(",2.1.0") == Left(InvalidVersionException(",2.1.0"))
+    )
+    assert(
+      ScalafmtVersion.parse("2.1a.0") == Left(InvalidVersionException("2.1a.0"))
+    )
+    assert(
+      ScalafmtVersion.parse("2.1.0-") == Left(InvalidVersionException("2.1.0-"))
+    )
+    assert(
+      ScalafmtVersion
+        .parse("2.1.0-rc1") == Left(InvalidVersionException("2.1.0-rc1"))
+    )
+    assert(
+      ScalafmtVersion
+        .parse("2.1.0-RC1-M4") == Left(InvalidVersionException("2.1.0-RC1-M4"))
+    )
   }
 
   test("order versions") {

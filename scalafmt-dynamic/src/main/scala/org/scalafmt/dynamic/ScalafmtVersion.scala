@@ -3,7 +3,7 @@ package org.scalafmt.dynamic
 import scala.util.control.{NonFatal, NoStackTrace}
 
 case class ScalafmtVersion(major: Int, minor: Int, patch: Int, rc: Int) {
-  private lazy val integerRepr: Int =
+  private val integerRepr: Int =
     major * 100 + minor * 10 + patch
 
   def <(other: ScalafmtVersion): Boolean =
@@ -22,20 +22,38 @@ object ScalafmtVersion {
       extends Exception(s"Invalid scalafmt version $version")
       with NoStackTrace
 
+  private val versionRegex = """(\d)\.(\d)\.(\d)(-RC(\d))?""".r
+
   def parse(version: String): Either[InvalidVersionException, ScalafmtVersion] =
     try {
-      val splitByDot = version.split("\\.")
-      val major = splitByDot(0).toInt
-      val minor = splitByDot(1).toInt
-      val splitByHyphen = splitByDot(2).split("-")
-      val patch = splitByHyphen(0).toInt
-      val rc =
-        if (splitByHyphen.size == 1) 0
-        else if (splitByHyphen(1).startsWith("RC"))
-          splitByHyphen(1).drop(2).toInt
-        else throw InvalidVersionException(version)
-      Right(ScalafmtVersion(major, minor, patch, rc))
+      version match {
+        case versionRegex(major, minor, patch, null, null) =>
+          Right(
+            ScalafmtVersion(
+              positiveInt(major),
+              positiveInt(minor),
+              positiveInt(patch),
+              0
+            )
+          )
+        case versionRegex(major, minor, patch, _, rc) =>
+          Right(
+            ScalafmtVersion(
+              positiveInt(major),
+              positiveInt(minor),
+              positiveInt(patch),
+              positiveInt(rc)
+            )
+          )
+        case _ => Left(InvalidVersionException(version))
+      }
     } catch {
       case e if NonFatal(e) => Left(InvalidVersionException(version))
     }
+
+  private def positiveInt(s: String): Int = {
+    val i = s.toInt
+    require(i >= 0)
+    i
+  }
 }
