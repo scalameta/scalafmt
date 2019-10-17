@@ -58,6 +58,7 @@ object Patch {
       (tokenPatches)
         .groupBy(t => t.tok.start -> t.tok.end)
         .mapValues(_.reduce(merge).newTok)
+        .toMap
     input.toIterator
       .map(x => patchMap.getOrElse(x.start -> x.end, x.syntax))
       .mkString

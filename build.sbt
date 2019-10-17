@@ -3,6 +3,7 @@ import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
 def scala211 = "2.11.12"
 def scala212 = "2.12.8"
+def scala213 = "2.13.1"
 
 inThisBuild(
   List(
@@ -19,8 +20,8 @@ inThisBuild(
         url("https://geirsson.com")
       )
     ),
-    scalaVersion := scala212,
-    crossScalaVersions := List(scala212, scala211),
+    scalaVersion := scala213,
+    crossScalaVersions := List(scala213, scala212, scala211),
     resolvers += Resolver.sonatypeRepo("releases"),
     libraryDependencies ++= List(
       scalatest.value % Test,
@@ -36,7 +37,8 @@ skip in publish := true
 commands += Command.command("ci-test") { s =>
   val scalaVersion = sys.env.get("TEST") match {
     case Some("2.11") => scala211
-    case _ => scala212
+    case Some("2.12") => scala212
+    case _ => scala213
   }
   val docsTest = if (scalaVersion == scala212) "docs/run" else "version"
   s"++$scalaVersion" ::
@@ -89,17 +91,26 @@ lazy val core = crossProject(JVMPlatform)
   .in(file("scalafmt-core"))
   .settings(
     moduleName := "scalafmt-core",
-    addCompilerPlugin(
-      "org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full
-    ),
     buildInfoSettings,
+    scalacOptions ++= scalacJvmOptions.value,
     libraryDependencies ++= Seq(
       metaconfig.value,
       scalameta.value,
       // scala-reflect is an undeclared dependency of fansi, see #1252.
       // Scalafmt itself does not require scala-reflect.
       "org.scala-lang" % "scala-reflect" % scalaVersion.value
-    )
+    ),
+    libraryDependencies ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, 13)) => Seq.empty
+        case _ =>
+          Seq(
+            compilerPlugin(
+              "org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full
+            )
+          )
+      }
+    }
   )
   // .jsSettings(
   //   libraryDependencies ++= List(
@@ -122,6 +133,7 @@ import sbtassembly.AssemblyPlugin.defaultUniversalScript
 val scalacJvmOptions = Def.setting {
   CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, 11)) => Seq("-target:jvm-1.8")
+    case Some((2, 13)) => Seq("-Ymacro-annotations")
     case _ => Seq.empty
   }
 }
@@ -141,6 +153,15 @@ lazy val cli = project
       // undeclared transitive dependency of coursier-small
       "org.scala-lang.modules" %% "scala-xml" % "1.2.0"
     ),
+    libraryDependencies ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, 13)) =>
+          Seq(
+            "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0"
+          )
+        case _ => Seq.empty
+      }
+    },
     scalacOptions ++= scalacJvmOptions.value
   )
   .dependsOn(coreJVM, dynamic)
@@ -151,7 +172,10 @@ lazy val tests = project
     skip in publish := true,
     libraryDependencies ++= Seq(
       // Test dependencies
-      "com.lihaoyi" %% "scalatags" % "0.6.8",
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, 13)) => "com.lihaoyi" %% "scalatags" % "0.7.0"
+        case _ => "com.lihaoyi" %% "scalatags" % "0.6.8"
+      },
       "org.typelevel" %% "paiges-core" % "0.2.4",
       scalametaTestkit
     )
@@ -215,6 +239,7 @@ lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
     "stable" -> stableVersion.value,
     "scala" -> scalaVersion.value,
     "scala211" -> scala211,
+    "scala212" -> scala212,
     "coursier" -> coursier,
     "commit" -> sys.process.Process("git rev-parse HEAD").lineStream_!.head,
     "timestamp" -> System.currentTimeMillis().toString,

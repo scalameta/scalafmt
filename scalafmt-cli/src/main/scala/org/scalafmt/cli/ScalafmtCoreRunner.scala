@@ -1,4 +1,5 @@
 package org.scalafmt.cli
+
 import java.util.concurrent.atomic.{AtomicInteger, AtomicReference}
 import java.util.function.UnaryOperator
 
@@ -6,6 +7,7 @@ import metaconfig.Configured
 import org.scalafmt.Error.{MisformattedFile, NoMatchingFiles}
 import org.scalafmt.{Formatted, Scalafmt, Versions}
 import org.scalafmt.config.{FilterMatcher, ScalafmtConfig}
+import org.scalafmt.cli.CompatParCollections.Converters._
 import org.scalafmt.util.OsSpecific
 
 import scala.meta.internal.tokenizers.PlatformTokenizerCache

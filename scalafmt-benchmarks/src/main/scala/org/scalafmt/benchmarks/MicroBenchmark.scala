@@ -3,25 +3,9 @@ package org.scalafmt.benchmarks
 import java.io.File
 import java.util.concurrent.TimeUnit
 
-import org.openjdk.jmh.annotations.Benchmark
-import org.openjdk.jmh.annotations.BenchmarkMode
-import org.openjdk.jmh.annotations.Measurement
-import org.openjdk.jmh.annotations.Mode
-import org.openjdk.jmh.annotations.OutputTimeUnit
-import org.openjdk.jmh.annotations.Scope
-import org.openjdk.jmh.annotations.Setup
-import org.openjdk.jmh.annotations.Warmup
+import org.openjdk.jmh.annotations._
 import org.scalafmt.Scalafmt
 import org.scalafmt.util.FileOps
-import scala.meta.Source
-
-import org.scalafmt.config.RedundantBracesSettings
-import org.scalafmt.config.RewriteSettings
-import org.scalafmt.config.ScalafmtOptimizer
-import org.scalafmt.config.ScalafmtRunner
-import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.rewrite.RedundantBraces
-import org.scalafmt.rewrite.SortImports
 
 /**
   * Formats filename at [[path]] with scalafmt.

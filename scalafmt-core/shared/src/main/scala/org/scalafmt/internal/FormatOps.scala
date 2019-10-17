@@ -1,42 +1,32 @@
 package org.scalafmt.internal
 
-import scala.annotation.tailrec
-import scala.collection.mutable
-import scala.meta.Case
-import scala.meta.Ctor
-import scala.meta.Decl
-import scala.meta.Defn
-import scala.meta.Import
-import scala.meta.Name
-import scala.meta.Pat
-import scala.meta.Pkg
-import scala.meta.Template
-import scala.meta.Term
-import scala.meta.Tree
-import scala.meta.Type
-import scala.meta.prettyprinters.Structure
-import scala.meta.tokens.Token
-import scala.meta.tokens.Token._
 import org.scalafmt.Error.CaseMissingArrow
-import org.scalafmt.config.{
-  DanglingExclude,
-  IndentOperator,
-  ScalafmtConfig,
-  VerticalMultiline
-}
-import org.scalafmt.internal.ExpiresOn.Left
-import org.scalafmt.internal.ExpiresOn.Right
+import org.scalafmt.config.{DanglingExclude, ScalafmtConfig}
+import org.scalafmt.internal.ExpiresOn.{Left, Right}
 import org.scalafmt.internal.Length.Num
 import org.scalafmt.internal.Policy.NoPolicy
-import org.scalafmt.util.CtorModifier
-import org.scalafmt.util.StyleMap
-import org.scalafmt.util.TokenOps
-import org.scalafmt.util.TreeOps
-import org.scalafmt.util.Whitespace
-import org.scalafmt.util.Modifier
-import org.scalafmt.util.RightParenOrBracket
-import org.scalameta.logger
-import scala.meta.Init
+import org.scalafmt.util._
+
+import scala.annotation.tailrec
+import scala.collection.mutable
+import scala.meta.{
+  Case,
+  Ctor,
+  Decl,
+  Defn,
+  Import,
+  Init,
+  Name,
+  Pat,
+  Pkg,
+  Template,
+  Term,
+  Tree,
+  Type
+}
+import scala.meta.prettyprinters.Structure
+import scala.meta.tokens.Token
+import scala.meta.tokens.{Token => T}
 
 /**
   * Helper functions for generating splits/policies for a given tree.
@@ -145,7 +135,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       rightOwner match {
         case t: Term.Select if startsOpenApply && !isChildOfImport =>
           val chain = getSelectChain(t)
-          if (openApply.is[LeftBrace] && isShortCurlyChain(chain)) None
+          if (openApply.is[T.LeftBrace] && isShortCurlyChain(chain)) None
           else Some(tok -> chain)
         case _ => None
       }
@@ -194,7 +184,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       curr: FormatToken,
       accum: Int = 0
   ): (Int, FormatToken) = {
-    if (!curr.left.is[Comment]) accum -> curr
+    if (!curr.left.is[T.Comment]) accum -> curr
     else {
       val tok = prev(curr)
       if (tok == curr) accum -> curr
@@ -209,7 +199,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       curr: FormatToken,
       accum: Int = 0
   ): (Int, FormatToken) = {
-    if (!curr.right.is[Comment]) accum -> curr
+    if (!curr.right.is[T.Comment]) accum -> curr
     else {
       val tok = next(curr)
       if (tok == curr) accum -> curr
@@ -220,14 +210,16 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     nextNonCommentWithCount(curr)._2
 
   @tailrec
-  final def rhsOptimalToken(start: FormatToken): Token = start.right match {
-    case Comma() | LeftParen() | RightParen() | RightBracket() | Semicolon() |
-        RightArrow() | Equals()
-        if next(start) != start &&
-          !startsNewBlock(start.right) &&
-          newlinesBetween(start.between) == 0 =>
-      rhsOptimalToken(next(start))
-    case _ => start.left
+  final def rhsOptimalToken(start: FormatToken): Token = {
+    start.right match {
+      case T.Comma() | T.LeftParen() | T.RightParen() | T.RightBracket() |
+          T.Semicolon() | T.RightArrow() | T.Equals()
+          if next(start) != start &&
+            !startsNewBlock(start.right) &&
+            newlinesBetween(start.between) == 0 =>
+        rhsOptimalToken(next(start))
+      case _ => start.left
+    }
   }
 
   final def startsNewBlock(t: Token): Boolean =
@@ -248,11 +240,11 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   def isTripleQuote(token: Token): Boolean = token.syntax.startsWith("\"\"\"")
 
   def isMarginizedString(token: Token): Boolean = token match {
-    case start @ Interpolation.Start() =>
+    case start @ T.Interpolation.Start() =>
       val end = matchingParentheses(hash(start))
       val afterEnd = next(leftTok2tok(end))
       afterEnd.left.syntax == "." && afterEnd.right.syntax == "stripMargin"
-    case string: Constant.String =>
+    case string: T.Constant.String =>
       string.syntax.startsWith("\"\"\"") && {
         val afterString = next(leftTok2tok(string))
         afterString.left.syntax == "." &&
@@ -264,7 +256,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   @tailrec
   final def startsStatement(tok: FormatToken): Boolean = {
     statementStarts.contains(hash(tok.right)) ||
-    (tok.right.is[Comment] && tok.between.exists(_.is[LF]) &&
+    (tok.right.is[T.Comment] && tok.between.exists(_.is[T.LF]) &&
     startsStatement(next(tok)))
   }
 
@@ -273,7 +265,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
   def getExcludeIf(
       end: Token,
-      cond: Token => Boolean = _.is[RightBrace]
+      cond: Token => Boolean = _.is[T.RightBrace]
   ): Set[Range] = {
     if (cond(end)) // allow newlines in final {} block
       Set(Range(matchingParentheses(hash(end)).start, end.end))
@@ -281,7 +273,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   }
 
   def skipUnindent(token: Token): Boolean = {
-    token.is[LeftParen] && {
+    token.is[T.LeftParen] && {
       val owner = owners(token)
       val isSuperfluous = isSuperfluousParenthesis(token, owner)
       isSuperfluous && (owner match {
@@ -324,7 +316,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       case procedure: Defn.Def
           if procedure.decltpe.isDefined &&
             procedure.decltpe.get.tokens.isEmpty =>
-        procedure.body.tokens.find(_.is[LeftBrace])
+        procedure.body.tokens.find(_.is[T.LeftBrace])
       case Defn.Def(_, _, _, _, _, b @ Term.Block(_)) =>
         b.tokens.headOption
       case _: Ctor.Primary =>
@@ -332,11 +324,11 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
           // This is a terrible terrible hack. Please consider removing this.
           // The RightParen() LeftBrace() pair is presumably a ") {" combination
           // at a class definition
-          case FormatToken(RightParen(), b @ LeftBrace(), _) => Some(b)
+          case FormatToken(T.RightParen(), b @ T.LeftBrace(), _) => Some(b)
           case _ => Some(matchingParentheses(hash(open)))
         }
       case _ =>
-        tree.tokens.find(t => t.is[Equals] && owners(t) == tree)
+        tree.tokens.find(t => t.is[T.Equals] && owners(t) == tree)
     }
   }.getOrElse(tree.tokens.last)
 
@@ -347,9 +339,9 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     val expire = matchingParentheses(hash(open))
     Policy(
       {
-        case d @ Decision(t @ FormatToken(left, comma @ Comma(), _), splits)
+        case d @ Decision(t @ FormatToken(left, comma @ T.Comma(), _), splits)
             if noTrailingCommas &&
-              !next(t).right.is[Comment] &&
+              !next(t).right.is[T.Comment] &&
               owners(open) == owners(comma) =>
           Decision(t, splits.map {
             case x if x.modification == NoSplit =>
@@ -359,18 +351,18 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
         // Newline on every comma.
         case d @ Decision(
-              t @ FormatToken(comma @ Comma(), right, between),
+              t @ FormatToken(comma @ T.Comma(), right, between),
               splits
             )
             if owners(open) == owners(comma) &&
               // TODO(olafur) what the right { decides to be single line?
-              !right.is[LeftBrace] &&
+              !right.is[T.LeftBrace] &&
               // If comment is bound to comma, see unit/Comment.
-              (!right.is[Comment] ||
-                between.exists(_.is[LF])) =>
+              (!right.is[T.Comment] ||
+                between.exists(_.is[T.LF])) =>
           Decision(t, splits.filter { x =>
             val isNewline = x.modification.isNewline
-            if (noTrailingCommas && !right.is[Comment]) !isNewline
+            if (noTrailingCommas && !right.is[T.Comment]) !isNewline
             else isNewline
           })
       },
@@ -398,7 +390,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       {
         case Decision(tok, s)
             if tok.right.end < expire.end &&
-              (penalizeLambdas || !tok.left.is[RightArrow]) && !ignore(tok) =>
+              (penalizeLambdas || !tok.left.is[T.RightArrow]) && !ignore(tok) =>
           Decision(tok, s.map {
             case split
                 if split.modification.isNewline ||
@@ -437,7 +429,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
   def getArrow(caseStat: Case): Token =
     caseStat.tokens
-      .find(t => t.is[RightArrow] && owners(t) == caseStat)
+      .find(t => t.is[T.RightArrow] && owners(t) == caseStat)
       .getOrElse(throw CaseMissingArrow(caseStat))
 
   def templateCurly(owner: Tree): Token = {
@@ -445,7 +437,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   }
 
   def templateCurly(template: Template): Option[Token] = {
-    template.tokens.find(x => x.is[LeftBrace] && owners(x) == template)
+    template.tokens.find(x => x.is[T.LeftBrace] && owners(x) == template)
   }
 
   def safeFilterNewlines(
@@ -456,15 +448,15 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     else Seq(Split(Newline, 0))
   }
 
-  final def getElseChain(term: Term.If): Vector[KwElse] = {
-    term.tokens.find(x => x.is[KwElse] && owners(x) == term) match {
-      case Some(els @ KwElse()) =>
+  final def getElseChain(term: Term.If): Vector[T.KwElse] = {
+    term.tokens.find(x => x.is[T.KwElse] && owners(x) == term) match {
+      case Some(els @ T.KwElse()) =>
         val rest = term.elsep match {
           case t: Term.If => getElseChain(t)
-          case _ => Vector.empty[KwElse]
+          case _ => Vector.empty[T.KwElse]
         }
         els +: rest
-      case _ => Vector.empty[KwElse]
+      case _ => Vector.empty[T.KwElse]
     }
   }
 
@@ -482,11 +474,11 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     *
     * @param dot the dot owned by the select.
     */
-  def getSelectsLastToken(dot: Dot): Token = {
+  def getSelectsLastToken(dot: T.Dot): Token = {
     var curr = next(leftTok2tok(dot))
     while (isOpenApply(curr.right, includeCurly = true, includeNoParens = true) &&
       !statementStarts.contains(hash(curr.right))) {
-      if (curr.right.is[Dot]) {
+      if (curr.right.is[T.Dot]) {
         curr = next(leftTok2tok(curr.right))
       } else {
         curr = leftTok2tok(matchingParentheses(hash(curr.right)))
@@ -503,10 +495,10 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   }
 
   def chainOptimalToken(chain: Vector[Term.Select]): Token = {
-    val lastDotIndex = chain.last.tokens.lastIndexWhere(_.is[Dot])
+    val lastDotIndex = chain.last.tokens.lastIndexWhere(_.is[T.Dot])
     val lastDot =
       if (lastDotIndex != -1)
-        chain.last.tokens(dialect)(lastDotIndex).asInstanceOf[Dot]
+        chain.last.tokens(dialect)(lastDotIndex).asInstanceOf[T.Dot]
       else
         throw new IllegalStateException(s"Missing . in select ${chain.last}")
     lastToken(owners(getSelectsLastToken(lastDot)))
@@ -526,7 +518,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     val style = styleMap.at(formatToken)
     val modification = newlines2Modification(
       formatToken.between,
-      rightIsComment = formatToken.right.isInstanceOf[Comment]
+      rightIsComment = formatToken.right.isInstanceOf[T.Comment]
     )
     val indent = {
       if (style.verticalAlignMultilineOperators) {
@@ -596,7 +588,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     *
     * the expire token is the closing }, otherwise it's bar.
     */
-  def selectExpire(dot: Dot): Token = {
+  def selectExpire(dot: T.Dot): Token = {
     val owner = ownersMap(hash(dot))
     (for {
       parent <- owner.parent
@@ -637,12 +629,12 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     var expire = tree.tokens.head
     tree.tokens.foreach {
       case t if !inside && ((t, ownersMap(hash(t))) match {
-            case (LeftParen(), _: Term.Apply | _: Init) =>
+            case (T.LeftParen(), _: Term.Apply | _: Init) =>
               // TODO(olafur) https://github.com/scalameta/scalameta/issues/345
               val x = true
               x
             // Type compounds can be inside defn.defs
-            case (LeftBrace(), Type.Refine(_, _)) => true
+            case (T.LeftBrace(), Type.Refine(_, _)) => true
             case _ => false
           }) =>
         inside = true
@@ -690,14 +682,14 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   }
 
   def isSingleIdentifierAnnotation(tok: FormatToken): Boolean = {
-    val toMatch = if (tok.right.is[RightParen]) {
+    val toMatch = if (tok.right.is[T.RightParen]) {
       // Hack to allow any annotations with arguments like @foo(1)
       prev(prev(leftTok2tok(matchingParentheses(hash(tok.right)))))
     } else {
       tok
     }
     toMatch match {
-      case FormatToken(At(), _: Ident, _) => true
+      case FormatToken(T.At(), _: T.Ident, _) => true
       case _ => false
     }
   }
@@ -712,7 +704,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     else {
       Policy(
         {
-          case Decision(t @ FormatToken(_, right @ KwWith(), _), splits)
+          case Decision(t @ FormatToken(_, right @ T.KwWith(), _), splits)
               if owners.contains(ownersMap(hash(right))) =>
             Decision(t, splits.filter(_.modification.isNewline))
         },
@@ -767,7 +759,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       val clearQueues = Set.newBuilder[TokenHash]
       val forces = Set.newBuilder[Tree]
       tree.tokens.foreach {
-        case left @ LeftParen() `:owner:` (app: Term.Apply)
+        case left @ T.LeftParen() `:owner:` (app: Term.Apply)
             if app.args.length >= runner.optimizer.forceConfigStyleMinArgCount &&
               distance(left, matching(left)) > maxDistance =>
           forces += app
@@ -791,12 +783,12 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     val close = matching(open)
     val indentParam = Num(style.continuationIndent.defnSite)
     val indentSep = Num((indentParam.n - 2).max(0))
-    val isBracket = open.is[LeftBracket]
+    val isBracket = open.is[T.LeftBracket]
 
     @tailrec
     def loop(token: Token): Option[Token] = {
       leftTok2tok(matching(token)) match {
-        case FormatToken(RightParenOrBracket(), l @ LeftParen(), _) =>
+        case FormatToken(RightParenOrBracket(), l @ T.LeftParen(), _) =>
           loop(l)
         case f @ FormatToken(left @ RightParenOrBracket(), right, _) =>
           lazy val isCtorModifier =
@@ -806,7 +798,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
             case Modifier() if isCtorModifier =>
               // This case only applies to classes
               next(f).right match {
-                case x @ (_: Token.LeftParen | _: Token.LeftBracket) =>
+                case x @ (_: T.LeftParen | _: T.LeftBracket) =>
                   loop(x)
                 case _ =>
                   Some(left)
@@ -855,7 +847,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
         // Try to find the first paren. If found, then we are dealing with
         // a class with type AND value params. Otherwise it is a class with
         // just type params.
-        findFirst(afterTypes, lastParen)(t => t.left.is[LeftParen])
+        findFirst(afterTypes, lastParen)(t => t.left.is[T.LeftParen])
           .fold(base)(t => base.merge(OneArgOneLineSplit(t.left)))
       } else base
     }
@@ -890,11 +882,11 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       // - There's an implicit keyword and newlineBeforeImplicitKW is enabled
       // - newlineAfterOpenParen is enabled
       // - Mixed-params case with constructor modifier `] private (`
-      case Decision(t @ FormatToken(open2 @ LeftParen(), right, _), _) =>
+      case Decision(t @ FormatToken(open2 @ T.LeftParen(), right, _), _) =>
         val close2 = matchingParentheses(hash(open2))
         val prevT = prev(t).left
 
-        val isImplicitArgList = right.is[KwImplicit]
+        val isImplicitArgList = right.is[T.KwImplicit]
 
         val newlineBeforeImplicitEnabled =
           style.verticalMultiline.newlineBeforeImplicitKW ||
@@ -922,7 +914,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
               .withIndent(indentParam, close2, Right)
           )
         )
-      case Decision(t @ FormatToken(KwImplicit(), _, _), _)
+      case Decision(t @ FormatToken(T.KwImplicit(), _, _), _)
           if (style.verticalMultiline.newlineAfterImplicitKW || style.newlines.afterImplicitKWInVerticalMultiline) =>
         val split = Split(Newline, 0)
         Decision(t, Seq(split))
@@ -933,7 +925,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     val policy = oneLinePerArg.merge(paramGroupSplitter, lastParen.end)
 
     val firstIndent =
-      if (r.is[RightParen]) indentSep // An empty param group
+      if (r.is[T.RightParen]) indentSep // An empty param group
       else indentParam
 
     val singleLineExpire =
@@ -964,7 +956,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   // Returns leading comment, if there exists one, otherwise formatToken.right
   @tailrec
   final def leadingComment(formatToken: FormatToken): Token = {
-    if (formatToken.newlinesBetween <= 1 && formatToken.left.is[Comment])
+    if (formatToken.newlinesBetween <= 1 && formatToken.left.is[T.Comment])
       leadingComment(prev(formatToken))
     else formatToken.right
   }
