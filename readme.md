@@ -32,6 +32,7 @@ The current maintainers (people who can merge pull requests) are:
 * Iurii Susuk - [`@ysusuk`](https://github.com/ysusuk)
 * Paul Draper - [`@pauldraper`](https://github.com/pauldraper)
 * Rikito Taniguchi [`@tanishiking`](https://github.com/tanishiking)
+* Mikhail Chugunkov [`@poslegm`](https://github.com/poslegm)
 
 An up-to-date list of contributors is available here: https://github.com/scalameta/scalafmt/graphs/contributors
 
