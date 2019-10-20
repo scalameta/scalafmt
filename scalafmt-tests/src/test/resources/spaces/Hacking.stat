@@ -3,7 +3,3 @@ maxColumn = 40
 function(a, b, c)
 >>>
 function( a, b, c )
-<<< Space between annotation and ctor argument list
-class A @Inject()(b: C)
->>>
-class A @Inject() (b: C)

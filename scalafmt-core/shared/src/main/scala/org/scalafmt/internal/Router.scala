@@ -372,7 +372,11 @@ class Router(formatOps: FormatOps) {
           } =>
         val modification: Modification = leftOwner match {
           case _: Mod => Space
-          case _: Init => Space
+          // Add a space between constructor annotations and their parameter lists
+          // see:
+          // https://github.com/scalameta/scalafmt/pull/1516
+          // https://github.com/scalameta/scalafmt/issues/1528
+          case init: Init if init.parent.forall(_.is[Mod.Annot]) => Space
           case t: Term.Name
               if style.spaces.afterTripleEquals &&
                 t.tokens.map(_.syntax) == Seq("===") =>
