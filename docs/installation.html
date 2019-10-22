@@ -98,7 +98,7 @@ Scalafmt formatter:</p>
 <p>It is not possible to reset this setting for all existing projects.</p>
 <h2><a class="anchor" aria-hidden="true" id="sbt"></a><a href="#sbt" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>sbt</h2>
 <pre><code class="hljs css language-scala"><span class="hljs-comment">// In project/plugins.sbt. Note, does not support sbt 0.13, only sbt 1.x.</span>
-addSbtPlugin(<span class="hljs-string">"org.scalameta"</span> % <span class="hljs-string">"sbt-scalafmt"</span> % <span class="hljs-string">"2.0.4"</span>)
+addSbtPlugin(<span class="hljs-string">"org.scalameta"</span> % <span class="hljs-string">"sbt-scalafmt"</span> % <span class="hljs-string">"2.2.0"</span>)
 <span class="hljs-comment">// or</span>
 addSbtPlugin(<span class="hljs-string">"com.geirsson"</span> % <span class="hljs-string">"sbt-scalafmt"</span> % <span class="hljs-string">"1.5.1"</span>) <span class="hljs-comment">// before 1.6.0-RC4 </span>
 </code></pre>
@@ -231,10 +231,10 @@ binary built with GraalVM. GraalVM native binary provides instant startup withou
 scalafmt --version // should be 2.2.1
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="help"></a><a href="#help" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>--help</h3>
-<pre><code class="hljs">build commit: c5cbcaa8e5c5e9808bbc988d3152ba7569c7224b
-build time: Mon Oct <span class="hljs-number">21</span> <span class="hljs-number">09</span>:<span class="hljs-number">26</span>:<span class="hljs-number">33</span> UTC <span class="hljs-number">2019</span>
+<pre><code class="hljs">build commit: f6b3458ac792624e86cd277d9c5a719d15386ef4
+build time: Tue Oct <span class="hljs-number">22</span> <span class="hljs-number">17</span>:<span class="hljs-number">07</span>:<span class="hljs-number">31</span> UTC <span class="hljs-number">2019</span>
 </code></pre>
-<pre><code class="hljs">scalafmt 2.2.1
+<pre><code class="hljs">scalafmt 2.2.1+1-f6b3458a-SNAPSHOT
 Usage: scalafmt [options] [&lt;<span class="hljs-keyword">file</span>&gt;...]
 
   -<span class="hljs-keyword">h</span>, --<span class="hljs-keyword">help</span>               prints this usage text
