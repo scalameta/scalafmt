@@ -223,7 +223,6 @@ callStatement = js.If(genIsInstanceOf(callTrg, rtClass.tpe), {
         rawApply
     } else {
       val reflBoxClassPatched = {
-
         def isIntOrLongKind(kind: TypeKind) = kind match {
           case _: INT | LONG => true
           case _ => false

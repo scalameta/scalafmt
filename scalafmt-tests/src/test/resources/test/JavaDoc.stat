@@ -8,7 +8,6 @@ val y = 2
 }
 >>>
 object a {
-
   /**
    * Y is cool
    */

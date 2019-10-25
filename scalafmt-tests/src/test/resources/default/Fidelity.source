@@ -10,7 +10,6 @@ object ScalaJSGroupID {
 }
 >>>
 object ScalaJSGroupID {
-
   def auto_impl(c: Context { type PrefixType = ScalaJSGroupID })()
       : Expr[CrossGroupArtifactID] = {
     reify {}
