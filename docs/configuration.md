@@ -432,39 +432,6 @@ else {
 }
 ```
 
-### `newlines.avoidEmptyLinesAroundBlock`
-
-```scala mdoc:defaults
-newlines.avoidEmptyLinesAroundBlock
-```
-
-```scala mdoc:scalafmt
-newlines.avoidEmptyLinesAroundBlock = false
----
-def foo: String = {
-
-  val aux = {
-
-   "bar"
-
-  }
-
-  aux
-
-}
-```
-
-```scala mdoc:scalafmt
-newlines.avoidEmptyLinesAroundBlock = true
----
-def foo: String = {
-  val aux = {
-   "bar"
-  }
-  aux
-}
-```
-
 ## Rewrite Rules
 
 To enable a rewrite rule, add it to the config like this
