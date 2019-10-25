@@ -4,7 +4,7 @@ import metaconfig.{Conf, ConfDecoder, ConfEncoder, Configured}
 
 sealed abstract class Edition(val order: Int, val name: String)
 
-object Edition  {
+object Edition {
   implicit val ordering: Ordering[Edition] = Ordering.by[Edition, Int](_.order)
 
   implicit val decoder: ConfDecoder[Edition] = ConfDecoder.instance {
