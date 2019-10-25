@@ -258,6 +258,9 @@ trait CliTestBehavior { this: AbstractCliTest =>
             |
             |/target/nested/nested2/DoNotFormatMeToo.scala
             |object    BBBBBBIgnoreME   {  }
+            |
+            |/target/nested3/DoNotFormatMe.scala
+            |object    CIgnoreME   {  }
             |""".stripMargin
       )
       val expected =
@@ -272,6 +275,9 @@ trait CliTestBehavior { this: AbstractCliTest =>
             |
             |/target/nested/nested2/DoNotFormatMeToo.scala
             |object    BBBBBBIgnoreME   {  }
+            |
+            |/target/nested3/DoNotFormatMe.scala
+            |object    CIgnoreME   {  }
             |""".stripMargin
       val options = getConfig(
         Array(
@@ -279,7 +285,8 @@ trait CliTestBehavior { this: AbstractCliTest =>
           s"""{version="$version",style=IntelliJ}""",
           input.path,
           "--exclude",
-          "target/nested".asFilename
+          "target/nested".asFilename,
+          "target/nested3".asFilename
         )
       )
       Cli.run(options)
@@ -718,6 +725,40 @@ trait CliTestBehavior { this: AbstractCliTest =>
           assert(
             out.contains(expected) &&
               !out.contains(unexpected)
+          )
+        }
+      )
+    }
+
+    test(
+      s"--list enable scalafmt to output a list of unformatted files with ExitCode.TestError: ${label}"
+    ) {
+      val input =
+        s"""|/.scalafmt.conf
+            |version = "$version"
+            |
+            |/bar.scala
+            |object    A { }
+            |
+            |/baz.scala
+            |object A {}
+            |
+            |/dir/foo.scala
+            |object   A { }
+            |""".stripMargin
+      val dir = string2dir(input)
+      noArgTest(
+        dir,
+        input,
+        Seq(Array("--list")),
+        assertExit = { exit =>
+          assert(exit.is(ExitCode.TestError))
+        },
+        assertOut = out => {
+          assert(
+            out.contains("bar.scala") &&
+              !out.contains("baz.scala") &&
+              out.contains("dir/foo.scala")
           )
         }
       )

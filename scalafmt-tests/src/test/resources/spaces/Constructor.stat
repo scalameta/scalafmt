@@ -1,0 +1,15 @@
+maxColumn = 100
+<<< Space between annotation and ctor argument list
+class A @Inject()(b: C)
+>>>
+class A @Inject() (b: C)
+
+<<< Space between annotation and ctor argument list (with multiple argument list)
+class MyComponent @Inject()(ctx: Context)(ws: WSClient)
+>>>
+class MyComponent @Inject() (ctx: Context)(ws: WSClient)
+
+<<< Do not add add a space when a constructor has multiple argument lists #1528
+new ShardEntity(rts) (onMessage)
+>>>
+new ShardEntity(rts)(onMessage)

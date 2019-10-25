@@ -1,0 +1,58 @@
+maxColumn = 39
+<<< format mixins
+new A with B with C with D with E with F
+>>>
+new A
+  with B
+  with C
+  with D
+  with E
+  with F
+<<< format real-world mixins
+private val somePrivateThing = new Thing[IO](config.application) with AnotherTrait1 with AnotherTrait2 with AnotherTrait3[IO, String, Int]
+>>>
+private val somePrivateThing =
+  new Thing[IO](config.application)
+    with AnotherTrait1
+    with AnotherTrait2
+    with AnotherTrait3[IO, String, Int]
+<<< format mixin with empty constructor params
+private val somePrivateThing = new Thing[IO]() with AnotherTrait1 with AnotherTrait2 with AnotherTrait3[IO, String, Int]
+>>>
+private val somePrivateThing =
+  new Thing[IO]()
+    with AnotherTrait1
+    with AnotherTrait2
+    with AnotherTrait3[IO, String, Int]
+<<< format mixin without constructor params
+private val somePrivateThing = new Thing[IO] with AnotherTrait1 with AnotherTrait2 with AnotherTrait3[IO, String, Int]
+>>>
+private val somePrivateThing =
+  new Thing[IO]
+    with AnotherTrait1
+    with AnotherTrait2
+    with AnotherTrait3[IO, String, Int]
+<<< format mixin without generic params
+private val somePrivateThing = new Thing(config.application) with AnotherTrait1 with AnotherTrait2 with AnotherTrait3
+>>>
+private val somePrivateThing =
+  new Thing(config.application)
+    with AnotherTrait1
+    with AnotherTrait2
+    with AnotherTrait3
+<<< format already multi-line with
+new A with B with C
+with D with E
+with F
+>>>
+new A
+  with B
+  with C
+  with D
+  with E
+  with F
+<<< format short mixins
+new A with B
+ with C
+>>>
+new A with B with C

@@ -1,25 +1,15 @@
 package org.scalafmt.internal
 
-import scala.annotation.tailrec
-import scala.collection.mutable
-import scala.meta.Decl
-import scala.meta.Defn
-import scala.meta.Mod
-import scala.meta.Import
-import scala.meta.Importer
-import scala.meta.Pkg
-import scala.meta.Term
-import scala.meta.Tree
-import scala.meta.Type
-import scala.meta.prettyprinters.Syntax
-import scala.meta.tokens.Token
-import scala.meta.tokens.Token._
 import java.util.regex.Pattern
 
 import org.scalafmt.internal.FormatWriter.FormatLocation
 import org.scalafmt.util.TreeOps
 
+import scala.annotation.tailrec
+import scala.meta.tokens.Token
+import scala.meta.tokens.{Token => T}
 import scala.meta.transversers.Traverser
+import scala.meta.{Importer, Mod, Term, Tree}
 
 /**
   * Produces formatted output from sequence of splits.
@@ -34,16 +24,23 @@ class FormatWriter(formatOps: FormatOps) {
     reconstructPath(tokens, splits, debug = false) {
       case (state, formatToken, whitespace, tokenAligns) =>
         formatToken.left match {
-          case c: Comment =>
+          case c: T.Comment =>
             sb.append(formatComment(c, state.indentation))
-          case token @ Interpolation.Part(_) =>
+          case token @ T.Interpolation.Part(_) =>
             sb.append(formatMarginizedString(token, state.indentation))
-          case Constant.String(_) => // Ignore, see below.
-          case c: Constant.Long =>
-            sb.append(initStyle.literals.long.process(c.syntax))
-          case c: Constant.Float =>
+          case T.Constant.String(_) => // Ignore, see below.
+          case c: T.Constant.Long =>
+            val syntax = c.syntax
+            // longs can be written as hex literals like 0xFF123L. Dont uppercase the X
+            if (syntax.startsWith("0x")) {
+              sb.append("0x")
+              sb.append(initStyle.literals.long.process(syntax.substring(2)))
+            } else {
+              sb.append(initStyle.literals.long.process(syntax))
+            }
+          case c: T.Constant.Float =>
             sb.append(initStyle.literals.float.process(c.syntax))
-          case c: Constant.Double =>
+          case c: T.Constant.Double =>
             sb.append(initStyle.literals.double.process(c.syntax))
           case token =>
             val rewrittenToken =
@@ -62,7 +59,7 @@ class FormatWriter(formatOps: FormatOps) {
 
         formatToken.right match {
           // state.column matches the end of formatToken.right
-          case literal: Constant.String =>
+          case literal: T.Constant.String =>
             val column =
               if (state.splits.last.modification.isNewline) state.indentation
               else lastState.column + whitespace.length
@@ -81,7 +78,7 @@ class FormatWriter(formatOps: FormatOps) {
 
   val leadingAsteriskSpace =
     Pattern.compile("\n *\\*(?!\\*)", Pattern.MULTILINE)
-  private def formatComment(comment: Comment, indent: Int): String = {
+  private def formatComment(comment: T.Comment, indent: Int): String = {
     val alignedComment =
       if (comment.syntax.startsWith("/*") &&
         formatOps.initStyle.reformatDocstrings) {
@@ -101,14 +98,14 @@ class FormatWriter(formatOps: FormatOps) {
   val leadingPipeSpace = Pattern.compile("\n *\\|", Pattern.MULTILINE)
   private def formatMarginizedString(token: Token, indent: Int): String = {
     if (!initStyle.assumeStandardLibraryStripMargin) token.syntax
-    else if (token.is[Interpolation.Part] ||
+    else if (token.is[T.Interpolation.Part] ||
       isMarginizedString(token)) {
       val firstChar: Char = token match {
-        case Interpolation.Part(_) =>
+        case T.Interpolation.Part(_) =>
           (for {
             parent <- owners(token).parent
             firstInterpolationPart <- parent.tokens.find(
-              _.is[Interpolation.Part]
+              _.is[T.Interpolation.Part]
             )
             char <- firstInterpolationPart.syntax.headOption
           } yield char).getOrElse(' ')
@@ -169,6 +166,13 @@ class FormatWriter(formatOps: FormatOps) {
     locations.zipWithIndex.foreach {
       case (FormatLocation(tok, split, state), i) =>
         val previous = locations(Math.max(0, i - 1))
+        // TODO this could get slow for really long comment blocks. If that
+        //   becomes a problem, we could also precompute these locations.
+        lazy val nextNonComment = locations
+          .drop(i + 1)
+          .dropWhile(_.formatToken.right.isInstanceOf[T.Comment])
+          .headOption
+
         val whitespace = split.modification match {
           case Space =>
             val previousAlign =
@@ -177,13 +181,25 @@ class FormatWriter(formatOps: FormatOps) {
               else 0
             " " + (" " * (tokenAligns.getOrElse(tok, 0) + previousAlign))
           case nl: NewlineT
-              if nl.acceptNoSplit && !tok.left.isInstanceOf[Comment] &&
+              if nl.acceptNoSplit && !tok.left.isInstanceOf[T.Comment] &&
                 state.indentation >= previous.state.column =>
             ""
           case nl: NewlineT
               if nl.acceptSpace &&
                 state.indentation >= previous.state.column =>
             " "
+          case _: NewlineT
+              if tok.right.isInstanceOf[T.Comment] &&
+                nextNonComment.exists(
+                  _.formatToken.right.isInstanceOf[T.Dot]
+                ) =>
+            // TODO this could slow for really long chains and could be indexed if necessary.
+            val existsPreviousDotCall = locations
+              .take(i - 1)
+              .exists(_.formatToken.right.isInstanceOf[T.Dot])
+            // TODO should this 2 be hard-coded, set to some other existing configurable parameter, or configurable?
+            val extraIndent = if (existsPreviousDotCall) 0 else 2
+            "\n" + " " * (state.indentation + extraIndent)
           case nl: NewlineT =>
             val newline =
               if (nl.isDouble || isMultilineTopLevelStatement(locations, i))
@@ -238,7 +254,7 @@ class FormatWriter(formatOps: FormatOps) {
       else isMultiline(end, i + 1)
     }
     def actualOwner(token: Token): Tree = owners(token) match {
-      case annot: Mod.Annot => annot.parent.get
+      case mod: Mod => mod.parent.get
       case x => x
     }
     initStyle.newlines.alwaysBeforeTopLevelStatements && {
@@ -252,7 +268,7 @@ class FormatWriter(formatOps: FormatOps) {
   private def isCandidate(location: FormatLocation): Boolean = {
     val token = location.formatToken.right
     val code = token match {
-      case c: Comment if isSingleLineComment(c) => "//"
+      case c: T.Comment if isSingleLineComment(c) => "//"
       case t => t.syntax
     }
     styleMap.at(location.formatToken).alignMap.get(code).exists { ownerRegexp =>
@@ -277,7 +293,7 @@ class FormatWriter(formatOps: FormatOps) {
     formatToken match {
       // Corner case when line ends with comment
       // TODO(olafur) should this be part of owners?
-      case FormatToken(x, c: Comment, _) if isSingleLineComment(c) =>
+      case FormatToken(x, c: T.Comment, _) if isSingleLineComment(c) =>
         owners(x)
       case FormatToken(_, r, _) =>
         owners(r) match {
@@ -400,10 +416,10 @@ class FormatWriter(formatOps: FormatOps) {
   import scala.meta.internal.classifiers.classifier
 
   @classifier
-  trait CloseDelim
-  object CloseDelim {
+  private trait CloseParenOrBracket
+  private object CloseParenOrBracket {
     def unapply(token: Token): Boolean =
-      token.is[RightParen] || token.is[RightBracket] || token.is[RightBrace]
+      token.is[T.RightParen] || token.is[T.RightBracket]
   }
 
   private def handleTrailingCommasAndWhitespace(
@@ -422,11 +438,23 @@ class FormatWriter(formatOps: FormatOps) {
       sb.append(whitespace)
       return
     }
+    val isImport = owner.isInstanceOf[Importer]
 
     val left = formatToken.left
     val right = nextNonComment(formatToken).right
     val isNewline = state.splits.last.modification.isNewline
     val prevFormatToken = prev(formatToken)
+    // Scala syntax allows commas before right braces in weird places,
+    // like constructor bodies:
+    // def this() = {
+    //   this(1),
+    // }
+    // This code simply ignores those commas because it does not
+    // consider them "trailing" commas. It does not remove them
+    // in the TrailingCommas.never branch, nor does it
+    // try to add them in the TrainingCommas.always branch.
+    lazy val rightIsCloseDelim = right
+      .is[CloseParenOrBracket] || (right.is[T.RightBrace] && isImport)
 
     initStyle.trailingCommas match {
       // foo(
@@ -436,11 +464,11 @@ class FormatWriter(formatOps: FormatOps) {
       //
       // Insert a comma after b
       case TrailingCommas.always
-          if !left.is[Comma] &&
-            !left.is[Comment] &&
-            !left.is[LeftParen] && // skip empty parentheses
-            !formatToken.right.is[Comment] &&
-            right.is[CloseDelim] && isNewline =>
+          if !left.is[T.Comma] &&
+            !left.is[T.Comment] &&
+            !left.is[T.LeftParen] && // skip empty parentheses
+            !formatToken.right.is[T.Comment] &&
+            rightIsCloseDelim && isNewline =>
         sb.append(",")
         sb.append(whitespace)
 
@@ -451,11 +479,11 @@ class FormatWriter(formatOps: FormatOps) {
       //
       // Insert a comma after b (before comment)
       case TrailingCommas.always
-          if left.is[Comment] && !prevFormatToken.left.is[Comma] &&
-            !prevFormatToken.left.is[Comment] &&
+          if left.is[T.Comment] && !prevFormatToken.left.is[T.Comma] &&
+            !prevFormatToken.left.is[T.Comment] &&
             !prevNonComment(formatToken).left
-              .is[LeftParen] && // skip empty parentheses
-            right.is[CloseDelim] && isNewline =>
+              .is[T.LeftParen] && // skip empty parentheses
+            rightIsCloseDelim && isNewline =>
         val indexOfComment = sb.lastIndexOf(left.syntax)
         val index = sb.lastIndexOf(prevFormatToken.left.syntax, indexOfComment)
 
@@ -475,8 +503,8 @@ class FormatWriter(formatOps: FormatOps) {
       //
       // Remove the comma after b
       case TrailingCommas.never
-          if left.is[Comma] && right.is[CloseDelim] &&
-            !formatToken.right.is[Comment] && isNewline =>
+          if left.is[T.Comma] && rightIsCloseDelim &&
+            !formatToken.right.is[T.Comment] && isNewline =>
         sb.deleteCharAt(sb.length - 1)
         sb.append(whitespace)
 
@@ -487,8 +515,8 @@ class FormatWriter(formatOps: FormatOps) {
       //
       // Remove the comma after b (before comment)
       case TrailingCommas.never
-          if left.is[Comment] && prevFormatToken.left.is[Comma] &&
-            right.is[CloseDelim] && isNewline =>
+          if left.is[T.Comment] && prevFormatToken.left.is[T.Comma] &&
+            rightIsCloseDelim && isNewline =>
         val indexOfComment = sb.lastIndexOf(left.syntax)
         val indexOfComma =
           sb.lastIndexOf(prevFormatToken.left.syntax, indexOfComment)
@@ -506,8 +534,8 @@ class FormatWriter(formatOps: FormatOps) {
       //
       // Remove the comma after b
       case _
-          if left.is[Comma] && right.is[CloseDelim] &&
-            !next(formatToken).left.is[Comment] && !isNewline =>
+          if left.is[T.Comma] && rightIsCloseDelim &&
+            !next(formatToken).left.is[T.Comment] && !isNewline =>
         sb.deleteCharAt(sb.length - 1)
 
       case _ => sb.append(whitespace)

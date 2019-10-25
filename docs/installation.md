@@ -64,7 +64,7 @@ It is not possible to reset this setting for all existing projects.
 
 ```scala
 // In project/plugins.sbt. Note, does not support sbt 0.13, only sbt 1.x.
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.0.0")
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.2.0")
 // or
 addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "1.5.1") // before 1.6.0-RC4 
 ```
@@ -111,7 +111,8 @@ inConfig(IntegrationTest)(org.scalafmt.sbt.ScalafmtPlugin.scalafmtConfigSettings
 ### Share configuration between builds
 
 To share configuration across different sbt builds, create a custom sbt plugin
-that generates `.scalafmt.conf` on build reload.
+that generates `.scalafmt-common.conf` on build reload, then include the
+generated file from `.scalafmt.conf`
 
 ```scala
 // project/MyScalafmtPlugin.scala
@@ -123,12 +124,17 @@ object MyScalafmtPlugin extends AutoPlugin {
     SettingKey[Unit]("scalafmtGenerateConfig") :=
       IO.write(
         // writes to file once when build is loaded
-        file(".scalafmt.conf"),
+        file(".scalafmt-common.conf"),
         "maxColumn = 100".stripMargin.getBytes("UTF-8")
       )
   }
 }
 ```
+
+```
+// .scalafmt.conf
+include ".scalafmt-common.conf"
+``` 
 
 ## CLI
 

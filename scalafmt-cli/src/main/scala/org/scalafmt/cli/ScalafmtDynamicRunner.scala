@@ -1,12 +1,14 @@
 package org.scalafmt.cli
 import java.nio.file.Paths
-import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.{AtomicReference, AtomicInteger}
+import java.util.function.UnaryOperator
 
 import org.scalafmt.Error.{MisformattedFile, NoMatchingFiles}
 import org.scalafmt.interfaces.Scalafmt
 import org.scalafmt.util.AbsoluteFile
 
 import scala.meta.internal.tokenizers.PlatformTokenizerCache
+import util.control.Breaks._
 
 object ScalafmtDynamicRunner extends ScalafmtRunner {
   override private[cli] def run(
@@ -42,20 +44,30 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
 
     val termDisplay = newTermDisplay(options, inputMethods, termDisplayMessage)
 
-    inputMethods.foreach { inputMethod =>
-      val instance =
-        // Use scalafmt-dynamic that ignores exclude filters for fully qualified paths
-        if (fqpns.contains(inputMethod)) scalafmtInstanceIgnoreFilters
-        else scalafmtInstance
-      try handleFile(inputMethod, instance, options)
-      catch {
-        case e: MisformattedFile => reporter.error(e.file.toPath, e)
+    val exitCode = new AtomicReference(ExitCode.Ok)
+    breakable {
+      inputMethods.foreach { inputMethod =>
+        val instance =
+          // Use scalafmt-dynamic that ignores exclude filters for fully qualified paths
+          if (fqpns.contains(inputMethod)) scalafmtInstanceIgnoreFilters
+          else scalafmtInstance
+        try {
+          val code = handleFile(inputMethod, instance, options)
+          exitCode.getAndUpdate(new UnaryOperator[ExitCode] {
+            override def apply(t: ExitCode): ExitCode =
+              ExitCode.merge(code, t)
+          })
+        } catch {
+          case e: MisformattedFile =>
+            reporter.error(e.file.toPath, e)
+            if (options.check) break
+        }
+        PlatformTokenizerCache.megaCache.clear()
+        termDisplay.taskProgress(termDisplayMessage, counter.incrementAndGet())
       }
-      PlatformTokenizerCache.megaCache.clear()
-      termDisplay.taskProgress(termDisplayMessage, counter.incrementAndGet())
     }
 
-    val exit = reporter.getExitCode
+    val exit = ExitCode.merge(exitCode.get, reporter.getExitCode)
 
     termDisplay.completedTask(termDisplayMessage, exit.isOk)
     termDisplay.stop()
@@ -67,7 +79,7 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
       inputMethod: InputMethod,
       scalafmtInstance: Scalafmt,
       options: CliOptions
-  ): Unit = {
+  ): ExitCode = {
     val input = inputMethod.readInput(options)
 
     // DESNOTE(2017-05-19, pjrt): A plain, fully passed file will (try to) be

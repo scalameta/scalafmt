@@ -100,9 +100,10 @@ object CliArgParser {
         .action((opt, c) => c.copy(git = Some(opt)))
         .text("if true, ignore files in .gitignore (default false)")
       opt[Seq[String]]("exclude")
+        .unbounded()
         .action((excludes, c) => c.copy(customExcludes = excludes))
         .text(
-          "file or directory, in which case all *.scala files are formatted."
+          "file or directory, when missing all *.scala files are formatted."
         )
       opt[String]('c', "config")
         .action(readConfigFromFile)
@@ -124,6 +125,11 @@ object CliArgParser {
       opt[Unit]("test")
         .action((_, c) => c.copy(testing = true))
         .text("test for mis-formatted code, exits with status 1 on failure.")
+      opt[Unit]("check")
+        .action((_, c) => c.copy(check = true))
+        .text(
+          "test for mis-formatted code, exits with status 1 on first failure."
+        )
       opt[File]("migrate2hocon")
         .action(
           (file, c) =>
@@ -150,7 +156,7 @@ object CliArgParser {
              |        changed - format files listed in `git status` (latest changes against previous commit)""".stripMargin
         )
       opt[String]("diff-branch")
-        .action((branch, c) => c.copy(diff = Some(branch)))
+        .action((branch, c) => c.copy(mode = Option(DiffFiles(branch))))
         .text(
           "If set, only format edited files in git diff against provided branch. Has no effect if mode set to `changed`."
         )
@@ -170,6 +176,9 @@ object CliArgParser {
       opt[Unit]("non-interactive")
         .action((_, c) => c.copy(nonInteractive = true))
         .text("disable fancy progress bar, useful in ci or sbt plugin.")
+      opt[Unit]("list")
+        .action((_, c) => c.copy(list = true))
+        .text("list files that are different from scalafmt formatting")
       opt[(Int, Int)]("range")
         .hidden()
         .action({

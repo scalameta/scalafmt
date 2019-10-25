@@ -1,4 +1,5 @@
 package org.scalafmt.cli
+
 import java.util.concurrent.atomic.{AtomicInteger, AtomicReference}
 import java.util.function.UnaryOperator
 
@@ -6,6 +7,7 @@ import metaconfig.Configured
 import org.scalafmt.Error.{MisformattedFile, NoMatchingFiles}
 import org.scalafmt.{Formatted, Scalafmt, Versions}
 import org.scalafmt.config.{FilterMatcher, ScalafmtConfig}
+import org.scalafmt.cli.CompatParCollections.Converters._
 import org.scalafmt.util.OsSpecific
 
 import scala.meta.internal.tokenizers.PlatformTokenizerCache
@@ -19,11 +21,10 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
   ): ExitCode = {
     options.scalafmtConfig match {
       case Configured.NotOk(e) =>
-        if (!options.quiet) options.common.err.println(s"${e.msg}")
+        options.common.err.println(s"${e.msg}")
         ExitCode.UnexpectedError
       case Configured.Ok(scalafmtConf) =>
-        if (options.debug)
-          options.common.out.println(s"parsed config (v${Versions.version})")
+        options.common.debug.println(s"parsed config (v${Versions.version})")
         val filterMatcher: FilterMatcher = FilterMatcher(
           scalafmtConf.project.includeFilters
             .map(OsSpecific.fixSeparatorsInPathPattern),
@@ -88,7 +89,6 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
     formatResult match {
       case Formatted.Success(formatted) =>
         inputMethod.write(formatted, input, options)
-        ExitCode.Ok
       case Formatted.Failure(e) =>
         if (scalafmtConfig.runner.ignoreWarnings) {
           ExitCode.Ok // do nothing

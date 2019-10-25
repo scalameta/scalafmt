@@ -16,14 +16,12 @@ trait ScalafmtRunner {
       msg: String
   ): TermDisplay = {
     val termDisplay = new TermDisplay(
-      new OutputStreamWriter(options.info),
+      new OutputStreamWriter(options.common.info),
       fallbackMode =
         options.nonInteractive ||
           TermDisplay.defaultFallbackMode
     )
-    if (!options.quiet &&
-      (options.inPlace || options.testing) &&
-      inputMethods.length > 5) {
+    if ((options.inPlace || options.testing) && inputMethods.length > 5) {
       termDisplay.init()
       termDisplay.startTask(msg, options.common.workingDirectory.jfile)
       termDisplay.taskLength(msg, inputMethods.length, 0)
@@ -40,6 +38,8 @@ trait ScalafmtRunner {
     } else {
       val projectFiles: Seq[AbsoluteFile] =
         getFilesFromCliOptions(options, filter)
+      options.common.debug
+        .print(s"Files to be formatted:\n${projectFiles.mkString("\n")}\n")
       projectFiles.map(InputMethod.FileContents.apply)
     }
   }

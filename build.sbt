@@ -3,6 +3,7 @@ import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
 def scala211 = "2.11.12"
 def scala212 = "2.12.8"
+def scala213 = "2.13.1"
 
 inThisBuild(
   List(
@@ -19,8 +20,8 @@ inThisBuild(
         url("https://geirsson.com")
       )
     ),
-    scalaVersion := scala212,
-    crossScalaVersions := List(scala212, scala211),
+    scalaVersion := scala213,
+    crossScalaVersions := List(scala213, scala212, scala211),
     resolvers += Resolver.sonatypeRepo("releases"),
     libraryDependencies ++= List(
       scalatest.value % Test,
@@ -32,17 +33,17 @@ inThisBuild(
 
 name := "scalafmtRoot"
 skip in publish := true
-addCommandAlias("downloadIdea", "intellij/updateIdea")
 
 commands += Command.command("ci-test") { s =>
   val scalaVersion = sys.env.get("TEST") match {
     case Some("2.11") => scala211
-    case _ => scala212
+    case Some("2.12") => scala212
+    case _ => scala213
   }
   val docsTest = if (scalaVersion == scala212) "docs/run" else "version"
   s"++$scalaVersion" ::
     s"tests/test" ::
-    s"coreJS/test" ::
+    // s"coreJS/test" ::
     docsTest ::
     s
 }
@@ -56,11 +57,12 @@ lazy val dynamic = project
     buildInfoPackage := "org.scalafmt.dynamic",
     buildInfoObject := "BuildInfo",
     libraryDependencies ++= List(
-      "com.geirsson" %% "coursier-small" % "1.3.1",
+      "io.get-coursier" % "interface" % "0.0.12",
       "com.typesafe" % "config" % "1.3.3",
       scalatest.value % Test,
       scalametaTestkit % Test
-    )
+    ),
+    scalacOptions ++= scalacJvmOptions.value
   )
   .dependsOn(interfaces)
   .enablePlugins(BuildInfoPlugin)
@@ -85,28 +87,37 @@ lazy val interfaces = project
     }
   )
 
-lazy val core = crossProject(JVMPlatform, JSPlatform)
+lazy val core = crossProject(JVMPlatform)
   .in(file("scalafmt-core"))
   .settings(
     moduleName := "scalafmt-core",
-    addCompilerPlugin(
-      "org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full
-    ),
     buildInfoSettings,
+    scalacOptions ++= scalacJvmOptions.value,
     libraryDependencies ++= Seq(
       metaconfig.value,
       scalameta.value,
       // scala-reflect is an undeclared dependency of fansi, see #1252.
       // Scalafmt itself does not require scala-reflect.
       "org.scala-lang" % "scala-reflect" % scalaVersion.value
-    )
+    ),
+    libraryDependencies ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, 13)) => Seq.empty
+        case _ =>
+          Seq(
+            compilerPlugin(
+              "org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full
+            )
+          )
+      }
+    }
   )
-  .jsSettings(
-    libraryDependencies ++= List(
-      metaconfigHocon.value,
-      scalatest.value % Test // must be here for coreJS/test to run anything
-    )
-  )
+  // .jsSettings(
+  //   libraryDependencies ++= List(
+  //     metaconfigHocon.value,
+  //     scalatest.value % Test // must be here for coreJS/test to run anything
+  //   )
+  // )
   .jvmSettings(
     fork.in(run).in(Test) := true,
     libraryDependencies ++= List(
@@ -115,47 +126,45 @@ lazy val core = crossProject(JVMPlatform, JSPlatform)
   )
   .enablePlugins(BuildInfoPlugin)
 lazy val coreJVM = core.jvm
-lazy val coreJS = core.js
+// lazy val coreJS = core.js
+
+import sbtassembly.AssemblyPlugin.defaultUniversalScript
+
+val scalacJvmOptions = Def.setting {
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, 11)) => Seq("-target:jvm-1.8")
+    case Some((2, 13)) => Seq("-Ymacro-annotations")
+    case _ => Seq.empty
+  }
+}
 
 lazy val cli = project
   .in(file("scalafmt-cli"))
   .settings(
     moduleName := "scalafmt-cli",
     mainClass in assembly := Some("org.scalafmt.cli.Cli"),
+    assemblyOption in assembly := (assemblyOption in assembly).value
+      .copy(prependShellScript = Some(defaultUniversalScript(shebang = false))),
     assemblyJarName.in(assembly) := "scalafmt.jar",
     libraryDependencies ++= Seq(
       "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0",
       "com.martiansoftware" % "nailgun-server" % "0.9.1",
-      "com.github.scopt" %% "scopt" % "3.5.0",
+      "com.github.scopt" %% "scopt" % "3.7.1",
       // undeclared transitive dependency of coursier-small
-      "org.scala-lang.modules" %% "scala-xml" % "1.1.1"
+      "org.scala-lang.modules" %% "scala-xml" % "1.2.0"
     ),
-    scalacOptions ++= {
+    libraryDependencies ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, 11)) => Seq("-target:jvm-1.8")
+        case Some((2, 13)) =>
+          Seq(
+            "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0"
+          )
         case _ => Seq.empty
       }
-    }
+    },
+    scalacOptions ++= scalacJvmOptions.value
   )
   .dependsOn(coreJVM, dynamic)
-
-lazy val intellij = project
-  .in(file("scalafmt-intellij"))
-  .settings(
-    buildInfoSettings,
-    crossScalaVersions := List(scala211),
-    skip in publish := true,
-    sources in (Compile, doc) := Nil,
-    mimaReportBinaryIssues := {},
-    ideaBuild := "2016.3.2",
-    test := {}, // no need to download IDEA to run all tests.
-    ideaEdition := IdeaEdition.Community,
-    ideaDownloadDirectory in ThisBuild := baseDirectory.value / "idea",
-    libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.0.6",
-    cleanFiles += ideaDownloadDirectory.value
-  )
-  .dependsOn(coreJVM, cli)
-  .enablePlugins(SbtIdeaPlugin)
 
 lazy val tests = project
   .in(file("scalafmt-tests"))
@@ -163,8 +172,11 @@ lazy val tests = project
     skip in publish := true,
     libraryDependencies ++= Seq(
       // Test dependencies
-      "com.lihaoyi" %% "scalatags" % "0.6.3",
-      "org.typelevel" %% "paiges-core" % "0.2.0",
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, 13)) => "com.lihaoyi" %% "scalatags" % "0.7.0"
+        case _ => "com.lihaoyi" %% "scalatags" % "0.6.8"
+      },
+      "org.typelevel" %% "paiges-core" % "0.2.4",
       scalametaTestkit
     )
   )
@@ -227,6 +239,7 @@ lazy val buildInfoSettings: Seq[Def.Setting[_]] = Seq(
     "stable" -> stableVersion.value,
     "scala" -> scalaVersion.value,
     "scala211" -> scala211,
+    "scala212" -> scala212,
     "coursier" -> coursier,
     "commit" -> sys.process.Process("git rev-parse HEAD").lineStream_!.head,
     "timestamp" -> System.currentTimeMillis().toString,

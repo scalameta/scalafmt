@@ -1,5 +1,7 @@
 package org.scalafmt.cli
+
 import java.io.PrintWriter
+import java.io.OutputStreamWriter
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicReference
 import java.util.function.UnaryOperator
@@ -20,7 +22,7 @@ class ScalafmtCliReporter(options: CliOptions) extends ScalafmtReporter {
       message: String
   ): Unit = {
     if (!options.ignoreWarnings) {
-      if (!options.quiet) options.common.err.println(s"$message: $file")
+      options.common.err.println(s"$message: $file")
       exitCode.getAndUpdate(new UnaryOperator[ExitCode] {
         override def apply(t: ExitCode): ExitCode =
           ExitCode.merge(ExitCode.UnexpectedError, t)
@@ -33,7 +35,7 @@ class ScalafmtCliReporter(options: CliOptions) extends ScalafmtReporter {
   ): Unit = {
     e match {
       case _: PositionException if !options.ignoreWarnings =>
-        if (!options.quiet) options.common.err.println(s"${e.toString}: $file")
+        options.common.err.println(s"${e.toString}: $file")
         exitCode.getAndUpdate(new UnaryOperator[ExitCode] {
           override def apply(t: ExitCode): ExitCode =
             ExitCode.merge(ExitCode.ParseError, t)
@@ -46,9 +48,8 @@ class ScalafmtCliReporter(options: CliOptions) extends ScalafmtReporter {
         })
       case ScalafmtException(_, cause) => error(file, cause)
       case _ if !options.ignoreWarnings =>
-        if (!options.quiet)
-          new FailedToFormat(file.toString, e)
-            .printStackTrace(options.common.err)
+        new FailedToFormat(file.toString, e)
+          .printStackTrace(options.common.err)
         exitCode.getAndUpdate(new UnaryOperator[ExitCode] {
           override def apply(t: ExitCode): ExitCode =
             ExitCode.merge(ExitCode.UnexpectedError, t)
@@ -56,20 +57,20 @@ class ScalafmtCliReporter(options: CliOptions) extends ScalafmtReporter {
     }
   }
 
-  override def excluded(file: Path): Unit = {
-    if (options.debug) options.common.out.println(s"file excluded: $file")
-  }
+  override def excluded(file: Path): Unit =
+    options.common.debug.println(s"file excluded: $file")
 
   override def parsedConfig(
       config: Path,
       scalafmtVersion: String
-  ): Unit = {
-    if (options.debug)
-      options.common.out.println(s"parsed config (v$scalafmtVersion): $config")
-  }
+  ): Unit =
+    options.common.debug.println(s"parsed config (v$scalafmtVersion): $config")
 
   override def downloadWriter(): PrintWriter =
     new PrintWriter(options.common.out)
+
+  override def downloadOutputStreamWriter(): OutputStreamWriter =
+    new OutputStreamWriter(options.common.out)
 }
 
 private class FailedToFormat(filename: String, cause: Throwable)

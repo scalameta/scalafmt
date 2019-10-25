@@ -294,6 +294,9 @@ class DynamicSuite extends FunSuite with DiffAssertions {
     f.assertFormat()
     assert(f.parsedCount == 1, f.parsed)
 
+    f.setConfig("invalid")
+    f.assertMissingVersion()
+
     f.setConfig(
       s"""version=$latest
          |maxColumn = 40

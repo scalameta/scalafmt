@@ -279,3 +279,13 @@ object Recorder {
   sealed abstract class Ast[A]
   final case class Record()
 }
+<<< don't fail on private[x] after class definitions (#1491)
+object Flurp {
+  class Banana(foo: String)
+  private[somepackage] object Dummy
+}
+>>>
+object Flurp {
+  class Banana(foo: String)
+  private[somepackage] object Dummy
+}

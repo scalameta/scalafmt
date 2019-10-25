@@ -8,15 +8,11 @@
 Head over to [the user docs][docs] for instructions on how to install scalafmt.
 
 ### Quick help
-
-- `sbt compile` on a clean machine will fail to compile the `scalafmt-intellij` project.
-  - if you plan to develop the intellij plugin, run `downloadIdea` first to fetch the IntelliJ SDK (~600mb).
-  - or, run `sbt test` or `sbt core/compile` (specific project).
+- `sbt compile` or `sbt core/compile` (specific project).
 - Run all unit tests: `sbt test`
 - Run only formatting tests: `tests/testOnly *FormatTests`.
 - Write new formatting test: read [this doc](scalafmt-tests/src/test/resources/readme.md).
 - Build docs: See instructions on the [site][docs-guide] or locally at `./docs/contributing-website.md`.
-- Hack on IntelliJ plugin: see [this doc](scalafmt-intellij/readme.md).
 - Hack on sbt plugin: run `sbt scripted`.
 - Run jmh benchmarks: `./bin/run-benchmarks.sh`.
 - Run formatter on millions of lines of code: `tests/test:runMain  org.scalafmt.ScalafmtProps` (slow, and requires a lot of memory/cpu)
@@ -27,8 +23,6 @@ Head over to [the user docs][docs] for instructions on how to install scalafmt.
   along with this background process:
   `browser-sync start --server --files "target/*.html"`.
   See [Browsersync](https://www.browsersync.io/).
-- `intellij/compile:compileIncremental` failed? Run `downloadIdea` to download custom IntelliJ plugin.
-  The download may take a while.
 
 ### Team
 The current maintainers (people who can merge pull requests) are:
@@ -38,6 +32,7 @@ The current maintainers (people who can merge pull requests) are:
 * Iurii Susuk - [`@ysusuk`](https://github.com/ysusuk)
 * Paul Draper - [`@pauldraper`](https://github.com/pauldraper)
 * Rikito Taniguchi [`@tanishiking`](https://github.com/tanishiking)
+* Mikhail Chugunkov [`@poslegm`](https://github.com/poslegm)
 
 An up-to-date list of contributors is available here: https://github.com/scalameta/scalafmt/graphs/contributors
 

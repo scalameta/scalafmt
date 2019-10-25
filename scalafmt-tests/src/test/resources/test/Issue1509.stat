@@ -1,0 +1,21 @@
+maxColumn=41
+<<< issue 1509
+val x =
+if (true)
+  List() match {
+    case x :: xs => ???
+    case Nil => ???
+  }
+else {
+  2
+}
+>>>
+val x =
+  if (true)
+    List() match {
+      case x :: xs => ???
+      case Nil     => ???
+    }
+  else {
+    2
+  }

@@ -14,6 +14,7 @@ import org.scalafmt.interfaces._
 import scala.concurrent.ExecutionContext
 import scala.util.Try
 import scala.util.control.NonFatal
+import java.io.OutputStreamWriter
 
 final case class ScalafmtDynamic(
     reporter: ScalafmtReporter,
@@ -117,7 +118,7 @@ final case class ScalafmtDynamic(
       configsCache
         .getOrAddToCache(
           configPath,
-          _.right.exists(_._2.compareTo(currentTimestamp) != 0)
+          _.fold(_ => true, _._2.compareTo(currentTimestamp) != 0)
         ) { () =>
           resolveConfigWithScalafmt(configPath).map { config =>
             reporter.parsedConfig(configPath, config.version)
@@ -158,7 +159,7 @@ final case class ScalafmtDynamic(
       version: String
   ): FormatEval[ScalafmtReflect] = {
     formatCache.getOrAddToCache(version) { () =>
-      val writer = reporter.downloadWriter()
+      val writer = reporter.downloadOutputStreamWriter()
       val downloader = new ScalafmtDynamicDownloader(writer)
       downloader
         .download(version)
@@ -167,6 +168,8 @@ final case class ScalafmtDynamic(
           case DownloadResolutionError(v, _) =>
             ScalafmtDynamicError.CannotDownload(configPath, v, None)
           case DownloadUnknownError(v, cause) =>
+            ScalafmtDynamicError.CannotDownload(configPath, v, Option(cause))
+          case InvalidVersionError(v, cause) =>
             ScalafmtDynamicError.CannotDownload(configPath, v, Option(cause))
         }
         .flatMap(resolveClassPath(configPath, _))
