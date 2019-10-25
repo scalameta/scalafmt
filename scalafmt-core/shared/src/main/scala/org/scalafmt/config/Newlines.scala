@@ -3,8 +3,6 @@ package org.scalafmt.config
 import metaconfig._
 import metaconfig.generic.Surface
 
-import Edition.ordering._
-
 /**
   * @param penalizeSingleSelectMultiArgList
   *   If true, adds a penalty to newlines before a dot starting a select
@@ -116,10 +114,6 @@ case class Newlines(
     avoidEmptyLinesAroundBlock: Option[Boolean] = None
 ) {
   val reader: ConfDecoder[Newlines] = generic.deriveDecoder(this).noTypos
-
-  def shouldAvoidEmptyLinesAroundBlock(edition: Edition): Boolean = {
-    avoidEmptyLinesAroundBlock.getOrElse(edition > Edition201910)
-  }
 }
 
 object Newlines {

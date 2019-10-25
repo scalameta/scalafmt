@@ -9,6 +9,8 @@ import metaconfig.Configured._
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.ValidationOps
 
+import Edition.ordering._
+
 /** Configuration options for scalafmt.
   *
   * @param version The version of scalafmt to use for this project. Currently not used,
@@ -190,6 +192,9 @@ case class ScalafmtConfig(
     continuationIndent.callSite,
     continuationIndent.defnSite
   )
+
+  val avoidEmptyLinesAroundBlock: Boolean =
+    newlines.avoidEmptyLinesAroundBlock.getOrElse(edition > Edition201910)
 }
 
 object ScalafmtConfig {

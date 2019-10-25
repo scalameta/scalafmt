@@ -184,7 +184,7 @@ class Router(formatOps: FormatOps) {
             selfAnnotation.nonEmpty
         val nl: Modification =
           if (isSelfAnnotation) newlines2Modification(formatToken)
-          else if (style.newlines.shouldAvoidEmptyLinesAroundBlock(style.edition)) NewlineT()
+          else if (style.avoidEmptyLinesAroundBlock) NewlineT()
           else NewlineT(shouldGet2xNewlines(tok, style, owners))
 
         val (startsLambda, lambdaPolicy, lambdaArrow, lambdaIndent) =
@@ -349,7 +349,7 @@ class Router(formatOps: FormatOps) {
         }
 
       case FormatToken(_, T.RightBrace(), _)
-          if style.newlines.shouldAvoidEmptyLinesAroundBlock(style.edition) && newlines > 1 =>
+          if style.avoidEmptyLinesAroundBlock && newlines > 1 =>
         Seq(
           Split(NoSplit, 0)
         )
