@@ -159,7 +159,8 @@ case class ScalafmtConfig(
     verticalAlignMultilineOperators: Boolean = false,
     onTestFailure: String = "",
     encoding: Codec = "UTF-8",
-    project: ProjectFiles = ProjectFiles()
+    project: ProjectFiles = ProjectFiles(),
+    edition: Edition = EditionLatest
 ) {
   private implicit val runnerReader = runner.reader
   private implicit val projectReader = project.reader
