@@ -1,6 +1,5 @@
 maxColumn = 80
-newlines.avoidEmptyLineAfterOpenCurly = true
-newlines.avoidEmptyLineBeforeClosingCurly = true
+newlines.avoidEmptyLinesAroundBlock = true
 
 <<< should remove empty lines at the beginning of a def block
 def other: String = {
@@ -42,4 +41,15 @@ def other: String = {
   }
 
   aux
+}
+
+<<< should remove empty lines at the end of a block
+def other: String = {
+  "Result"
+
+
+}
+>>>
+def other: String = {
+  "Result"
 }

@@ -432,17 +432,19 @@ else {
 }
 ```
 
-### `newlines.avoidEmptyLineBeforeClosingCurly`
+### `newlines.avoidEmptyLinesAroundBlock`
 
 ```scala mdoc:defaults
-newlines.avoidEmptyLineBeforeClosingCurly
+newlines.avoidEmptyLinesAroundBlock
 ```
 
 ```scala mdoc:scalafmt
-newlines.avoidEmptyLineBeforeClosingCurly = false
+newlines.avoidEmptyLinesAroundBlock = false
 ---
 def foo: String = {
+
   val aux = {
+
    "bar"
 
   }
@@ -453,45 +455,12 @@ def foo: String = {
 ```
 
 ```scala mdoc:scalafmt
-newlines.avoidEmptyLineBeforeClosingCurly = true
+newlines.avoidEmptyLinesAroundBlock = true
 ---
 def foo: String = {
   val aux = {
    "bar"
   }
-
-  aux
-}
-```
-
-### `newlines.avoidEmptyLineAfterOpenCurly`
-
-```scala mdoc:defaults
-newlines.avoidEmptyLineAfterOpenCurly
-```
-
-```scala mdoc:scalafmt
-newlines.avoidEmptyLineAfterOpenCurly = false
----
-def foo: String = {
-
-  val aux = {
-
-   "bar"
-  }
-
-  aux
-}
-```
-
-```scala mdoc:scalafmt
-newlines.avoidEmptyLineAfterOpenCurly = true
----
-def foo: String = {
-  val aux = {
-   "bar"
-  }
-
   aux
 }
 ```
