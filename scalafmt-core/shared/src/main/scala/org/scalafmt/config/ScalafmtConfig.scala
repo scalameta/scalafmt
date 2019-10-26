@@ -162,7 +162,7 @@ case class ScalafmtConfig(
     onTestFailure: String = "",
     encoding: Codec = "UTF-8",
     project: ProjectFiles = ProjectFiles(),
-    edition: Edition = EditionLatest
+    edition: Edition = Edition.Latest
 ) {
   private implicit val runnerReader = runner.reader
   private implicit val projectReader = project.reader
@@ -194,7 +194,7 @@ case class ScalafmtConfig(
   )
 
   val avoidEmptyLinesAroundBlock: Boolean =
-    newlines.avoidEmptyLinesAroundBlock.getOrElse(edition > Edition201910)
+    newlines.avoidEmptyLinesAroundBlock.getOrElse(edition > Edition(2019, 10))
 }
 
 object ScalafmtConfig {
