@@ -1,6 +1,4 @@
 maxColumn = 80
-newlines.avoidEmptyLinesAroundBlock = true
-
 <<< should remove empty lines at the beginning of a def block
 def other: String = {
 
