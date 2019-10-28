@@ -82,6 +82,28 @@ val example2 =
   |""".stripMargin
 ```
 
+## Edition
+
+The `edition` setting allows Scalafmt users to stay on older default settings
+while upgrading to the latest Scalafmt release.
+
+The use-case for configuring the `edition` setting is when you want to upgrade
+to the latest Scalafmt version (for example, to enjoy a bug fix in the parser)
+but need more time to deal with the latest changes in the formatting output.
+
+The end goal for users should be to remove the `edition` setting from
+`.scalafmt.conf` in order to enjoy the latest improvements to the formatting
+output.
+
+```scala mdoc:defaults
+edition
+```
+
+The `edition` setting is formatted as `"$year-$month"` and should be interpreted
+as: "use the default settings at that given date". For example the setting
+`edition = 2019-10` means that the default settings from October 2019 should be
+used.
+
 ## Indentation
 
 ### `continuationIndent.callSite`
@@ -138,9 +160,9 @@ x match { // false for case arrows
 ```
 
 > **Pro tip**: Enable this setting to minimize git diffs/conflicts from
-> renamings and other refactorings, without having to ignore whitespace
-> changes in diffs or use `--ignore-all-space` to avoid conflicts when
-> git merging or rebasing.
+> renamings and other refactorings, without having to ignore whitespace changes
+> in diffs or use `--ignore-all-space` to avoid conflicts when git merging or
+> rebasing.
 
 #### `align=some`
 

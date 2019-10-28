@@ -34,7 +34,6 @@ sealed private[test] trait Test {
 }
 
 final private[test] object Tests {
-
   final private type T1 = Int
   final private type T2 = String
 
@@ -78,7 +77,6 @@ sealed private[test] trait Test {
 }
 
 final private[test] object Tests {
-
   final private type T1 = Int
   final private type T2 = String
 

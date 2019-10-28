@@ -28,7 +28,6 @@
   x + y
 })
 object a extends b with c {
-
   def foo[T: Int#Double#Triple,
           R <% String](
       @annot1

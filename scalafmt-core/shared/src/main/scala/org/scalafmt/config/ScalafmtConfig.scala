@@ -9,6 +9,8 @@ import metaconfig.Configured._
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.ValidationOps
 
+import Edition.ordering._
+
 /** Configuration options for scalafmt.
   *
   * @param version The version of scalafmt to use for this project. Currently not used,
@@ -159,7 +161,8 @@ case class ScalafmtConfig(
     verticalAlignMultilineOperators: Boolean = false,
     onTestFailure: String = "",
     encoding: Codec = "UTF-8",
-    project: ProjectFiles = ProjectFiles()
+    project: ProjectFiles = ProjectFiles(),
+    edition: Edition = Edition.Latest
 ) {
   private implicit val runnerReader = runner.reader
   private implicit val projectReader = project.reader
@@ -189,6 +192,9 @@ case class ScalafmtConfig(
     continuationIndent.callSite,
     continuationIndent.defnSite
   )
+
+  val avoidEmptyLinesAroundBlock: Boolean =
+    newlines.avoidEmptyLinesAroundBlock.getOrElse(edition > Edition(2019, 10))
 }
 
 object ScalafmtConfig {

@@ -15,7 +15,6 @@ object a {
 }
 >>>
 object a {
-
   def x(i: Int): String =
     if (i == 0)
       "zero"
@@ -23,7 +22,6 @@ object a {
       "sub-zero"
     else
       "other"
-
 }
 <<< if-else with stuff
 object a {
@@ -50,7 +48,6 @@ object a {
 }
 >>>
 object a {
-
   def x(i: Int): String =
     if (i == 0)
       /* what */
@@ -88,7 +85,6 @@ object a {
 }
 >>>
 object a {
-
   val x: Int => Unit =
     if (i == 0)
       println("zero")
@@ -98,7 +94,6 @@ object a {
   def y(i: Int) =
     if (i > 0)
       println("yes!")
-
 }
 <<< nested if
 object a {

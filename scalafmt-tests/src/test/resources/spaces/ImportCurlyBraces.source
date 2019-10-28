@@ -13,11 +13,9 @@ object Hase {
 import play.api.libs.json.{ JsObject, JsString, Json }
 
 object Hase {
-
   def name(xs: OtherObject): String = {
     s"Hallo ${xs.name}"
   }
-
 }
 <<< import
 import a.b.{c => d}

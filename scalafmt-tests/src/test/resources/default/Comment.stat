@@ -10,7 +10,6 @@
   }
 >>>
 {
-
   def cancel(reason: Any): js.Promise[Any] = js.native // comment
 
   /**
@@ -29,7 +28,6 @@ object KeyValue {
 }
 >>>
 object KeyValue {
-
   // ================================
   // 6.3.1 Special Key Values
 
@@ -45,7 +43,6 @@ object KeyValue {
 }
 >>>
 object KeyValue {
-
   // comment
   /** This key value */
   final val Unidentified = "Unidentified"
@@ -74,7 +71,6 @@ object D {
   }
 >>>
 object D {
-
   private val decompressedPrefixes: Seq[(String, String)] =
     compressedPrefixes map { case (a, b) => (b, a) }
 
@@ -94,7 +90,6 @@ object Primes {
 }
 >>>
 object Primes {
-
   // prime sieve; use instead of the test or stream when you know the
   // upper bound of the primes you will need.
   // en.wikipedia.org/wiki/Sieve_of_Eratosthenes

@@ -249,7 +249,6 @@ class ResolutionCopier(x: Int) {
 }
 >>>
 class ResolutionCopier(x: Int) {
-
   def visitClassDeclaration(node: ClassDeclaration): Boolean = {
     val toNode = this._toNode.asInstanceOf[ClassDeclaration];
     javaBooleanAnd(
