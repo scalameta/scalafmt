@@ -1,0 +1,7 @@
+spaces.inParentheses = true
+maxColumn = 40
+verticalMultiline.atDefnSite = true
+<<< def
+def x(foo: Int) = 2
+>>>
+def x( foo: Int ) = 2
