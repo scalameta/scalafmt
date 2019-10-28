@@ -2,19 +2,23 @@ package org.scalafmt.config
 
 import metaconfig.{Conf, ConfDecoder, ConfEncoder, Configured}
 
-sealed abstract class Edition(val order: Int, val name: String)
+case class Edition(year: Int, month: Int)
 
 object Edition {
-  implicit val ordering: Ordering[Edition] = Ordering.by[Edition, Int](_.order)
+  val Latest = Edition(Int.MaxValue, Int.MaxValue)
+  implicit val ordering: Ordering[Edition] =
+    Ordering.by[Edition, (Int, Int)](e => e.year -> e.month)
+  lazy val format = "(\\d{4})-(\\d{1,2})".r
 
-  implicit val decoder: ConfDecoder[Edition] = ConfDecoder.instance {
-    case Conf.Str("2019-10") => Configured.ok(Edition201910)
-    case _ => Configured.ok(EditionLatest)
-  }
+  implicit val decoder: ConfDecoder[Edition] =
+    ConfDecoder.instanceExpect("'$year-$month', for example '2019-08'") {
+      case Conf.Str(format(year, month)) =>
+        Configured.ok(Edition(year.toInt, month.toInt))
+      case Conf.Str("latest") => Configured.ok(Latest)
+    }
 
   implicit val encoder: ConfEncoder[Edition] =
-    ConfEncoder.instance(edition => Conf.Str(edition.name))
+    ConfEncoder.instance(
+      edition => Conf.Str(f"${edition.year}%d-${edition.month}%02d")
+    )
 }
-
-case object Edition201910 extends Edition(0, "2019-10")
-case object EditionLatest extends Edition(Int.MaxValue, "latest")
