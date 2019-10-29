@@ -95,14 +95,14 @@ The end goal for users should be to remove the `edition` setting from
 `.scalafmt.conf` in order to enjoy the latest improvements to the formatting
 output.
 
-```scala mdoc:defaults
-edition
-```
-
 The `edition` setting is formatted as `"$year-$month"` and should be interpreted
-as: "use the default settings at that given date". For example the setting
-`edition = 2019-10` means that the default settings from October 2019 should be
-used.
+as: "use the default settings at that given date". The latest edition is selected by default.
+
+Example:
+
+```scala config
+edition = 2019-10 // default settings from October 2019 should be used 
+```
 
 ## Indentation
 
