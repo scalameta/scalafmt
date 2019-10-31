@@ -1053,67 +1053,67 @@ foo
 of Scalafmt. A good place to start is <code>ScalafmtConfig</code>. Observe that this
 listing below is the top-level, there are more configuration options if you
 visited nested fields like <code>spaces</code> and <code>newlines</code>.</p>
-<pre><code class="hljs">version = <span class="hljs-string">"2.2.1"</span>
-maxColumn = <span class="hljs-number">80</span>
-docstrings = ScalaDoc
-optIn<span class="hljs-selector-class">.configStyleArguments</span> = true
-optIn<span class="hljs-selector-class">.breaksInsideChains</span> = false
-optIn<span class="hljs-selector-class">.breakChainOnFirstMethodDot</span> = true
-optIn<span class="hljs-selector-class">.selfAnnotationNewline</span> = true
-optIn<span class="hljs-selector-class">.annotationNewlines</span> = true
-optIn<span class="hljs-selector-class">.blankLineBeforeDocstring</span> = false
-binPack<span class="hljs-selector-class">.unsafeCallSite</span> = false
-binPack<span class="hljs-selector-class">.unsafeDefnSite</span> = false
-binPack<span class="hljs-selector-class">.parentConstructors</span> = false
-binPack<span class="hljs-selector-class">.literalArgumentLists</span> = true
-binPack<span class="hljs-selector-class">.literalsMinArgCount</span> = <span class="hljs-number">5</span>
-binPack<span class="hljs-selector-class">.literalsInclude</span> = [
+<pre><code class="hljs"><span class="hljs-attr">version</span> = <span class="hljs-string">"2.2.2"</span>
+<span class="hljs-attr">maxColumn</span> = <span class="hljs-number">80</span>
+<span class="hljs-attr">docstrings</span> = ScalaDoc
+optIn.<span class="hljs-attr">configStyleArguments</span> = <span class="hljs-literal">true</span>
+optIn.<span class="hljs-attr">breaksInsideChains</span> = <span class="hljs-literal">false</span>
+optIn.<span class="hljs-attr">breakChainOnFirstMethodDot</span> = <span class="hljs-literal">true</span>
+optIn.<span class="hljs-attr">selfAnnotationNewline</span> = <span class="hljs-literal">true</span>
+optIn.<span class="hljs-attr">annotationNewlines</span> = <span class="hljs-literal">true</span>
+optIn.<span class="hljs-attr">blankLineBeforeDocstring</span> = <span class="hljs-literal">false</span>
+binPack.<span class="hljs-attr">unsafeCallSite</span> = <span class="hljs-literal">false</span>
+binPack.<span class="hljs-attr">unsafeDefnSite</span> = <span class="hljs-literal">false</span>
+binPack.<span class="hljs-attr">parentConstructors</span> = <span class="hljs-literal">false</span>
+binPack.<span class="hljs-attr">literalArgumentLists</span> = <span class="hljs-literal">true</span>
+binPack.<span class="hljs-attr">literalsMinArgCount</span> = <span class="hljs-number">5</span>
+binPack.<span class="hljs-attr">literalsInclude</span> = [
   <span class="hljs-string">".*"</span>
 ]
-binPack<span class="hljs-selector-class">.literalsExclude</span> = [
+binPack.<span class="hljs-attr">literalsExclude</span> = [
   String
   <span class="hljs-string">"Term.Name"</span>
 ]
-continuationIndent<span class="hljs-selector-class">.callSite</span> = <span class="hljs-number">2</span>
-continuationIndent<span class="hljs-selector-class">.defnSite</span> = <span class="hljs-number">4</span>
-continuationIndent<span class="hljs-selector-class">.extendSite</span> = <span class="hljs-number">4</span>
-align<span class="hljs-selector-class">.openParenCallSite</span> = false
-align<span class="hljs-selector-class">.openParenDefnSite</span> = false
-align<span class="hljs-selector-class">.tokens</span> = [
+continuationIndent.<span class="hljs-attr">callSite</span> = <span class="hljs-number">2</span>
+continuationIndent.<span class="hljs-attr">defnSite</span> = <span class="hljs-number">4</span>
+continuationIndent.<span class="hljs-attr">extendSite</span> = <span class="hljs-number">4</span>
+align.<span class="hljs-attr">openParenCallSite</span> = <span class="hljs-literal">false</span>
+align.<span class="hljs-attr">openParenDefnSite</span> = <span class="hljs-literal">false</span>
+align.<span class="hljs-attr">tokens</span> = [
   {
-    <span class="hljs-selector-tag">code</span> = <span class="hljs-string">"=&gt;"</span>
-    owner = Case
+    <span class="hljs-attr">code</span> = <span class="hljs-string">"=&gt;"</span>
+    <span class="hljs-attr">owner</span> = Case
   }
 ]
-align<span class="hljs-selector-class">.arrowEnumeratorGenerator</span> = false
-align<span class="hljs-selector-class">.ifWhileOpenParen</span> = true
-align<span class="hljs-selector-class">.treeCategory</span>.<span class="hljs-string">"Defn.Trait"</span> = <span class="hljs-string">"class/object/trait"</span>
-align<span class="hljs-selector-class">.treeCategory</span>.<span class="hljs-string">"Defn.Object"</span> = <span class="hljs-string">"class/object/trait"</span>
-align<span class="hljs-selector-class">.treeCategory</span>.<span class="hljs-string">"Defn.Val"</span> = <span class="hljs-string">"val/var/def"</span>
-align<span class="hljs-selector-class">.treeCategory</span>.<span class="hljs-string">"Defn.Def"</span> = <span class="hljs-string">"val/var/def"</span>
-align<span class="hljs-selector-class">.treeCategory</span>.<span class="hljs-string">"Defn.Var"</span> = <span class="hljs-string">"val/var/def"</span>
-align<span class="hljs-selector-class">.treeCategory</span>.<span class="hljs-string">"Enumerator.Generator"</span> = <span class="hljs-keyword">for</span>
-align<span class="hljs-selector-class">.treeCategory</span>.<span class="hljs-string">"Enumerator.Val"</span> = <span class="hljs-keyword">for</span>
-align<span class="hljs-selector-class">.treeCategory</span>.<span class="hljs-string">"Defn.Class"</span> = <span class="hljs-string">"class/object/trait"</span>
-spaces<span class="hljs-selector-class">.beforeContextBoundColon</span> = Never
-spaces<span class="hljs-selector-class">.afterTripleEquals</span> = false
-spaces<span class="hljs-selector-class">.inImportCurlyBraces</span> = false
-spaces<span class="hljs-selector-class">.inParentheses</span> = false
-spaces<span class="hljs-selector-class">.neverAroundInfixTypes</span> = []
-spaces<span class="hljs-selector-class">.afterKeywordBeforeParen</span> = true
-spaces<span class="hljs-selector-class">.inByNameTypes</span> = true
-spaces<span class="hljs-selector-class">.afterSymbolicDefs</span> = false
-literals<span class="hljs-selector-class">.long</span> = Upper
-literals<span class="hljs-selector-class">.float</span> = Lower
-literals<span class="hljs-selector-class">.double</span> = Lower
-lineEndings = unix
-rewrite<span class="hljs-selector-class">.rules</span> = []
-rewrite<span class="hljs-selector-class">.redundantBraces</span><span class="hljs-selector-class">.methodBodies</span> = true
-rewrite<span class="hljs-selector-class">.redundantBraces</span><span class="hljs-selector-class">.includeUnitMethods</span> = true
-rewrite<span class="hljs-selector-class">.redundantBraces</span><span class="hljs-selector-class">.maxLines</span> = <span class="hljs-number">100</span>
-rewrite<span class="hljs-selector-class">.redundantBraces</span><span class="hljs-selector-class">.stringInterpolation</span> = false
-rewrite<span class="hljs-selector-class">.redundantBraces</span><span class="hljs-selector-class">.generalExpressions</span> = false
-rewrite<span class="hljs-selector-class">.sortModifiers</span><span class="hljs-selector-class">.order</span> = [
+align.<span class="hljs-attr">arrowEnumeratorGenerator</span> = <span class="hljs-literal">false</span>
+align.<span class="hljs-attr">ifWhileOpenParen</span> = <span class="hljs-literal">true</span>
+align.treeCategory.<span class="hljs-string">"Defn.Trait"</span> = <span class="hljs-string">"class/object/trait"</span>
+align.treeCategory.<span class="hljs-string">"Defn.Object"</span> = <span class="hljs-string">"class/object/trait"</span>
+align.treeCategory.<span class="hljs-string">"Defn.Val"</span> = <span class="hljs-string">"val/var/def"</span>
+align.treeCategory.<span class="hljs-string">"Defn.Def"</span> = <span class="hljs-string">"val/var/def"</span>
+align.treeCategory.<span class="hljs-string">"Defn.Var"</span> = <span class="hljs-string">"val/var/def"</span>
+align.treeCategory.<span class="hljs-string">"Enumerator.Generator"</span> = for
+align.treeCategory.<span class="hljs-string">"Enumerator.Val"</span> = for
+align.treeCategory.<span class="hljs-string">"Defn.Class"</span> = <span class="hljs-string">"class/object/trait"</span>
+spaces.<span class="hljs-attr">beforeContextBoundColon</span> = Never
+spaces.<span class="hljs-attr">afterTripleEquals</span> = <span class="hljs-literal">false</span>
+spaces.<span class="hljs-attr">inImportCurlyBraces</span> = <span class="hljs-literal">false</span>
+spaces.<span class="hljs-attr">inParentheses</span> = <span class="hljs-literal">false</span>
+spaces.<span class="hljs-attr">neverAroundInfixTypes</span> = []
+spaces.<span class="hljs-attr">afterKeywordBeforeParen</span> = <span class="hljs-literal">true</span>
+spaces.<span class="hljs-attr">inByNameTypes</span> = <span class="hljs-literal">true</span>
+spaces.<span class="hljs-attr">afterSymbolicDefs</span> = <span class="hljs-literal">false</span>
+literals.<span class="hljs-attr">long</span> = Upper
+literals.<span class="hljs-attr">float</span> = Lower
+literals.<span class="hljs-attr">double</span> = Lower
+<span class="hljs-attr">lineEndings</span> = unix
+rewrite.<span class="hljs-attr">rules</span> = []
+rewrite.redundantBraces.<span class="hljs-attr">methodBodies</span> = <span class="hljs-literal">true</span>
+rewrite.redundantBraces.<span class="hljs-attr">includeUnitMethods</span> = <span class="hljs-literal">true</span>
+rewrite.redundantBraces.<span class="hljs-attr">maxLines</span> = <span class="hljs-number">100</span>
+rewrite.redundantBraces.<span class="hljs-attr">stringInterpolation</span> = <span class="hljs-literal">false</span>
+rewrite.redundantBraces.<span class="hljs-attr">generalExpressions</span> = <span class="hljs-literal">false</span>
+rewrite.sortModifiers.<span class="hljs-attr">order</span> = [
   <span class="hljs-string">"`implicit`"</span>
   <span class="hljs-string">"`final`"</span>
   <span class="hljs-string">"`sealed`"</span>
@@ -1123,10 +1123,10 @@ rewrite<span class="hljs-selector-class">.sortModifiers</span><span class="hljs-
   <span class="hljs-string">"`protected`"</span>
   <span class="hljs-string">"`lazy`"</span>
 ]
-rewrite<span class="hljs-selector-class">.neverInfix</span><span class="hljs-selector-class">.includeFilters</span> = [
+rewrite.neverInfix.<span class="hljs-attr">includeFilters</span> = [
   <span class="hljs-string">"[\w\d_]+"</span>
 ]
-rewrite<span class="hljs-selector-class">.neverInfix</span><span class="hljs-selector-class">.excludeFilters</span> = [
+rewrite.neverInfix.<span class="hljs-attr">excludeFilters</span> = [
   until
   to
   by
@@ -1154,70 +1154,70 @@ rewrite<span class="hljs-selector-class">.neverInfix</span><span class="hljs-sel
   inOrderElementsOf
   theSameElementsAs
 ]
-indentOperator<span class="hljs-selector-class">.include</span> = <span class="hljs-string">".*"</span>
-indentOperator<span class="hljs-selector-class">.exclude</span> = <span class="hljs-string">"^(&amp;&amp;|\|\|)$"</span>
-newlines<span class="hljs-selector-class">.neverInResultType</span> = false
-newlines<span class="hljs-selector-class">.neverBeforeJsNative</span> = false
-newlines<span class="hljs-selector-class">.sometimesBeforeColonInMethodReturnType</span> = true
-newlines<span class="hljs-selector-class">.penalizeSingleSelectMultiArgList</span> = true
-newlines<span class="hljs-selector-class">.alwaysBeforeCurlyBraceLambdaParams</span> = false
-newlines<span class="hljs-selector-class">.alwaysBeforeTopLevelStatements</span> = false
-newlines<span class="hljs-selector-class">.afterCurlyLambda</span> = never
-newlines<span class="hljs-selector-class">.afterImplicitKWInVerticalMultiline</span> = false
-newlines<span class="hljs-selector-class">.beforeImplicitKWInVerticalMultiline</span> = false
-newlines<span class="hljs-selector-class">.alwaysBeforeElseAfterCurlyIf</span> = false
-newlines<span class="hljs-selector-class">.alwaysBeforeMultilineDef</span> = true
-newlines<span class="hljs-selector-class">.avoidAfterYield</span> = true
-runner<span class="hljs-selector-class">.debug</span> = false
-runner<span class="hljs-selector-class">.eventCallback</span> = <span class="hljs-string">"&lt;FormatEvent =&gt; Unit&gt;"</span>
-runner<span class="hljs-selector-class">.parser</span> = <span class="hljs-string">"&lt;Parse[Tree]&gt;"</span>
-runner<span class="hljs-selector-class">.optimizer</span><span class="hljs-selector-class">.dequeueOnNewStatements</span> = true
-runner<span class="hljs-selector-class">.optimizer</span><span class="hljs-selector-class">.escapeInPathologicalCases</span> = true
-runner<span class="hljs-selector-class">.optimizer</span><span class="hljs-selector-class">.maxVisitsPerToken</span> = <span class="hljs-number">513</span>
-runner<span class="hljs-selector-class">.optimizer</span><span class="hljs-selector-class">.maxEscapes</span> = <span class="hljs-number">16</span>
-runner<span class="hljs-selector-class">.optimizer</span><span class="hljs-selector-class">.maxDepth</span> = <span class="hljs-number">100</span>
-runner<span class="hljs-selector-class">.optimizer</span><span class="hljs-selector-class">.acceptOptimalAtHints</span> = true
-runner<span class="hljs-selector-class">.optimizer</span><span class="hljs-selector-class">.disableOptimizationsInsideSensitiveAreas</span> = true
-runner<span class="hljs-selector-class">.optimizer</span><span class="hljs-selector-class">.pruneSlowStates</span> = true
-runner<span class="hljs-selector-class">.optimizer</span><span class="hljs-selector-class">.recurseOnBlocks</span> = true
-runner<span class="hljs-selector-class">.optimizer</span><span class="hljs-selector-class">.forceConfigStyleOnOffset</span> = <span class="hljs-number">150</span>
-runner<span class="hljs-selector-class">.optimizer</span><span class="hljs-selector-class">.forceConfigStyleMinArgCount</span> = <span class="hljs-number">2</span>
-runner<span class="hljs-selector-class">.maxStateVisits</span> = <span class="hljs-number">1000000</span>
-runner<span class="hljs-selector-class">.dialect</span> = <span class="hljs-string">"&lt;Dialect&gt;"</span>
-runner<span class="hljs-selector-class">.ignoreWarnings</span> = false
-runner<span class="hljs-selector-class">.fatalWarnings</span> = false
-indentYieldKeyword = true
-importSelectors = noBinPack
-unindentTopLevelOperators = false
-includeCurlyBraceInSelectChains = true
-includeNoParensInSelectChains = false
-assumeStandardLibraryStripMargin = false
-danglingParentheses = true
-poorMansTrailingCommasInConfigStyle = false
-trailingCommas = never
-verticalMultilineAtDefinitionSite = false
-verticalMultilineAtDefinitionSiteArityThreshold = <span class="hljs-number">100</span>
-verticalMultiline<span class="hljs-selector-class">.atDefnSite</span> = false
-verticalMultiline<span class="hljs-selector-class">.arityThreshold</span> = <span class="hljs-number">100</span>
-verticalMultiline<span class="hljs-selector-class">.newlineBeforeImplicitKW</span> = false
-verticalMultiline<span class="hljs-selector-class">.newlineAfterImplicitKW</span> = false
-verticalMultiline<span class="hljs-selector-class">.newlineAfterOpenParen</span> = false
-verticalMultiline<span class="hljs-selector-class">.excludeDanglingParens</span> = [
+indentOperator.<span class="hljs-attr">include</span> = <span class="hljs-string">".*"</span>
+indentOperator.<span class="hljs-attr">exclude</span> = <span class="hljs-string">"^(&amp;&amp;|\|\|)$"</span>
+newlines.<span class="hljs-attr">neverInResultType</span> = <span class="hljs-literal">false</span>
+newlines.<span class="hljs-attr">neverBeforeJsNative</span> = <span class="hljs-literal">false</span>
+newlines.<span class="hljs-attr">sometimesBeforeColonInMethodReturnType</span> = <span class="hljs-literal">true</span>
+newlines.<span class="hljs-attr">penalizeSingleSelectMultiArgList</span> = <span class="hljs-literal">true</span>
+newlines.<span class="hljs-attr">alwaysBeforeCurlyBraceLambdaParams</span> = <span class="hljs-literal">false</span>
+newlines.<span class="hljs-attr">alwaysBeforeTopLevelStatements</span> = <span class="hljs-literal">false</span>
+newlines.<span class="hljs-attr">afterCurlyLambda</span> = never
+newlines.<span class="hljs-attr">afterImplicitKWInVerticalMultiline</span> = <span class="hljs-literal">false</span>
+newlines.<span class="hljs-attr">beforeImplicitKWInVerticalMultiline</span> = <span class="hljs-literal">false</span>
+newlines.<span class="hljs-attr">alwaysBeforeElseAfterCurlyIf</span> = <span class="hljs-literal">false</span>
+newlines.<span class="hljs-attr">alwaysBeforeMultilineDef</span> = <span class="hljs-literal">true</span>
+newlines.<span class="hljs-attr">avoidAfterYield</span> = <span class="hljs-literal">true</span>
+runner.<span class="hljs-attr">debug</span> = <span class="hljs-literal">false</span>
+runner.<span class="hljs-attr">eventCallback</span> = <span class="hljs-string">"&lt;FormatEvent =&gt; Unit&gt;"</span>
+runner.<span class="hljs-attr">parser</span> = <span class="hljs-string">"&lt;Parse[Tree]&gt;"</span>
+runner.optimizer.<span class="hljs-attr">dequeueOnNewStatements</span> = <span class="hljs-literal">true</span>
+runner.optimizer.<span class="hljs-attr">escapeInPathologicalCases</span> = <span class="hljs-literal">true</span>
+runner.optimizer.<span class="hljs-attr">maxVisitsPerToken</span> = <span class="hljs-number">513</span>
+runner.optimizer.<span class="hljs-attr">maxEscapes</span> = <span class="hljs-number">16</span>
+runner.optimizer.<span class="hljs-attr">maxDepth</span> = <span class="hljs-number">100</span>
+runner.optimizer.<span class="hljs-attr">acceptOptimalAtHints</span> = <span class="hljs-literal">true</span>
+runner.optimizer.<span class="hljs-attr">disableOptimizationsInsideSensitiveAreas</span> = <span class="hljs-literal">true</span>
+runner.optimizer.<span class="hljs-attr">pruneSlowStates</span> = <span class="hljs-literal">true</span>
+runner.optimizer.<span class="hljs-attr">recurseOnBlocks</span> = <span class="hljs-literal">true</span>
+runner.optimizer.<span class="hljs-attr">forceConfigStyleOnOffset</span> = <span class="hljs-number">150</span>
+runner.optimizer.<span class="hljs-attr">forceConfigStyleMinArgCount</span> = <span class="hljs-number">2</span>
+runner.<span class="hljs-attr">maxStateVisits</span> = <span class="hljs-number">1000000</span>
+runner.<span class="hljs-attr">dialect</span> = <span class="hljs-string">"&lt;Dialect&gt;"</span>
+runner.<span class="hljs-attr">ignoreWarnings</span> = <span class="hljs-literal">false</span>
+runner.<span class="hljs-attr">fatalWarnings</span> = <span class="hljs-literal">false</span>
+<span class="hljs-attr">indentYieldKeyword</span> = <span class="hljs-literal">true</span>
+<span class="hljs-attr">importSelectors</span> = noBinPack
+<span class="hljs-attr">unindentTopLevelOperators</span> = <span class="hljs-literal">false</span>
+<span class="hljs-attr">includeCurlyBraceInSelectChains</span> = <span class="hljs-literal">true</span>
+<span class="hljs-attr">includeNoParensInSelectChains</span> = <span class="hljs-literal">false</span>
+<span class="hljs-attr">assumeStandardLibraryStripMargin</span> = <span class="hljs-literal">false</span>
+<span class="hljs-attr">danglingParentheses</span> = <span class="hljs-literal">true</span>
+<span class="hljs-attr">poorMansTrailingCommasInConfigStyle</span> = <span class="hljs-literal">false</span>
+<span class="hljs-attr">trailingCommas</span> = never
+<span class="hljs-attr">verticalMultilineAtDefinitionSite</span> = <span class="hljs-literal">false</span>
+<span class="hljs-attr">verticalMultilineAtDefinitionSiteArityThreshold</span> = <span class="hljs-number">100</span>
+verticalMultiline.<span class="hljs-attr">atDefnSite</span> = <span class="hljs-literal">false</span>
+verticalMultiline.<span class="hljs-attr">arityThreshold</span> = <span class="hljs-number">100</span>
+verticalMultiline.<span class="hljs-attr">newlineBeforeImplicitKW</span> = <span class="hljs-literal">false</span>
+verticalMultiline.<span class="hljs-attr">newlineAfterImplicitKW</span> = <span class="hljs-literal">false</span>
+verticalMultiline.<span class="hljs-attr">newlineAfterOpenParen</span> = <span class="hljs-literal">false</span>
+verticalMultiline.<span class="hljs-attr">excludeDanglingParens</span> = [
   <span class="hljs-string">"`class`"</span>
   <span class="hljs-string">"`trait`"</span>
 ]
-verticalAlignMultilineOperators = false
-onTestFailure = <span class="hljs-string">""</span>
-encoding = <span class="hljs-string">"UTF-8"</span>
-project<span class="hljs-selector-class">.git</span> = false
-project<span class="hljs-selector-class">.files</span> = []
-project<span class="hljs-selector-class">.includeFilters</span> = [
+<span class="hljs-attr">verticalAlignMultilineOperators</span> = <span class="hljs-literal">false</span>
+<span class="hljs-attr">onTestFailure</span> = <span class="hljs-string">""</span>
+<span class="hljs-attr">encoding</span> = <span class="hljs-string">"UTF-8"</span>
+project.<span class="hljs-attr">git</span> = <span class="hljs-literal">false</span>
+project.<span class="hljs-attr">files</span> = []
+project.<span class="hljs-attr">includeFilters</span> = [
   <span class="hljs-string">".*\.scala$"</span>
   <span class="hljs-string">".*\.sbt$"</span>
   <span class="hljs-string">".*\.sc$"</span>
 ]
-project<span class="hljs-selector-class">.excludeFilters</span> = []
-edition = <span class="hljs-string">"2147483647-2147483647"</span>
+project.<span class="hljs-attr">excludeFilters</span> = []
+<span class="hljs-attr">edition</span> = <span class="hljs-string">"2147483647-2147483647"</span>
 </code></pre>
 </span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/scalafmt/docs/installation.html"><span class="arrow-prev">← </span><span>Installation</span></a><a class="docs-next button" href="/scalafmt/docs/gotchas.html"><span>Gotchas</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#most-popular">Most popular</a><ul class="toc-headings"><li><a href="#maxcolumn"><code>maxColumn</code></a></li><li><a href="#docstrings"><code>docstrings</code></a></li><li><a href="#assumestandardlibrarystripmargin"><code>assumeStandardLibraryStripMargin</code></a></li></ul></li><li><a href="#edition">Edition</a></li><li><a href="#indentation">Indentation</a><ul class="toc-headings"><li><a href="#continuationindentcallsite"><code>continuationIndent.callSite</code></a></li><li><a href="#continuationindentdefnsite"><code>continuationIndent.defnSite</code></a></li></ul></li><li><a href="#alignment">Alignment</a><ul class="toc-headings"><li><a href="#align"><code>align</code></a></li><li><a href="#aligntokens"><code>align.tokens</code></a></li><li><a href="#aligntokensadd"><code>align.tokens.add</code></a></li><li><a href="#alignarrowenumeratorgenerator"><code>align.arrowEnumeratorGenerator</code></a></li><li><a href="#alignopenparencallsite"><code>align.openParenCallSite</code></a></li><li><a href="#alignopenparendefnsite"><code>align.openParenDefnSite</code></a></li></ul></li><li><a href="#newlines">Newlines</a><ul class="toc-headings"><li><a href="#newlinesalwaysbeforetoplevelstatements"><code>newlines.alwaysBeforeTopLevelStatements</code></a></li><li><a href="#newlinesalwaysbeforeelseaftercurlyif"><code>newlines.alwaysBeforeElseAfterCurlyIf</code></a></li></ul></li><li><a href="#rewrite-rules">Rewrite Rules</a><ul class="toc-headings"><li><a href="#avoidinfix"><code>AvoidInfix</code></a></li><li><a href="#expandimportselectors"><code>ExpandImportSelectors</code></a></li><li><a href="#redundantbraces"><code>RedundantBraces</code></a></li><li><a href="#redundantparens"><code>RedundantParens</code></a></li><li><a href="#sortmodifiers"><code>SortModifiers</code></a></li><li><a href="#prefercurlyfors"><code>PreferCurlyFors</code></a></li><li><a href="#sortimports"><code>SortImports</code></a></li><li><a href="#asciisortimports"><code>AsciiSortImports</code></a></li></ul></li><li><a href="#vertical-multiline">Vertical Multiline</a><ul class="toc-headings"><li><a href="#verticalmultilinearitythreshold"><code>verticalMultiline.arityThreshold</code></a></li><li><a href="#verticalmultilinenewlineafteropenparen"><code>verticalMultiline.newlineAfterOpenParen</code></a></li><li><a href="#verticalmultilinenewlinebeforeimplicitkw"><code>verticalMultiline.newlineBeforeImplicitKW</code></a></li></ul></li><li><a href="#disabling-formatting">Disabling Formatting</a><ul class="toc-headings"><li><a href="#format-off">// format: off</a></li><li><a href="#project">Project</a></li></ul></li><li><a href="#miscellaneous">Miscellaneous</a><ul class="toc-headings"><li><a href="#binpackliteralargumentlists"><code>binPack.literalArgumentLists</code></a></li><li><a href="#includecurlybraceinselectchains"><code>includeCurlyBraceInSelectChains</code></a></li><li><a href="#includenoparensinselectchains"><code>includeNoParensInSelectChains</code></a></li><li><a href="#optinbreakchainonfirstmethoddot"><code>optIn.breakChainOnFirstMethodDot</code></a></li></ul></li><li><a href="#other">Other</a></li></ul></nav></div><footer class="nav-footer" id="footer" style="background-color:#A23244"><section class="sitemap"><div><h5>Docs</h5><a href="
                 /scalafmt/docs/installation.html">Installation</a><a href="
