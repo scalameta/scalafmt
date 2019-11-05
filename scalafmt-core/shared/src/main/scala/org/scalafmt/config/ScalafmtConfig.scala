@@ -194,7 +194,7 @@ case class ScalafmtConfig(
   )
 
   val avoidEmptyLinesAroundBlock: Boolean =
-    edition > Edition(2019, 10)
+    newlines.avoidEmptyLinesAroundBlock.getOrElse(edition > Edition(2019, 10))
 }
 
 object ScalafmtConfig {

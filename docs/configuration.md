@@ -454,6 +454,32 @@ else {
 }
 ```
 
+### `newlines.avoidEmptyLinesAroundBlock`
+
+Removes empty lines at at the beginning and end of blocks (true by default)
+
+```scala mdoc:defaults
+newlines.avoidEmptyLinesAroundBlock
+```
+
+```scala mdoc:scalafmt
+newlines.avoidEmptyLinesAroundBlock = true
+---
+def f(): Unit = {
+
+  println("hello")
+
+}
+```
+
+```scala mdoc:scalafmt
+newlines.avoidEmptyLinesAroundBlock = false
+---
+def f(): Unit = {
+  println("hello")
+}
+```
+
 ## Rewrite Rules
 
 To enable a rewrite rule, add it to the config like this

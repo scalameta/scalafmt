@@ -1,0 +1,63 @@
+maxColumn = 80
+newlines.avoidEmptyLinesAroundBlock = false
+<<< should remain empty lines at the beginning of a def block
+def other: String = {
+
+  "Result"
+}
+>>>
+def other: String = {
+
+  "Result"
+}
+
+<<< should remain empty lines at the beginning and end of a def block
+def other: String = {
+
+  "Result"
+
+}
+>>>
+def other: String = {
+
+  "Result"
+
+}
+
+<<< should remain empty lines at the beginning and end of a val block
+def other: String = {
+
+  val aux = {
+
+    "Result"
+
+  }
+
+  aux
+
+}
+>>>
+def other: String = {
+
+  val aux = {
+
+    "Result"
+
+  }
+
+  aux
+
+}
+
+<<< should remain empty lines at the end of a block
+def other: String = {
+  "Result"
+
+
+}
+>>>
+def other: String = {
+  "Result"
+
+
+}

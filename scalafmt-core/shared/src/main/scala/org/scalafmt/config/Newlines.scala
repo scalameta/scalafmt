@@ -95,6 +95,23 @@ import metaconfig.generic.Surface
   *         ...
   *       }
   *   }}}
+  * @param avoidEmptyLinesAroundBlock
+  *   Removes empty lines at at the beginning and end of blocks (true by default)
+  *   For example,
+  *   {{{
+  *     def f(): Unit = {
+  *
+  *       println("hello")
+  *
+  *     }
+  *
+  *     // newlines.avoidEmptyLinesAroundBlock
+  *
+  *     def f(): Unit = {
+  *       println("hello")
+  *     }
+  *   }}}
+  *
   */
 case class Newlines(
     neverInResultType: Boolean = false,
@@ -110,7 +127,8 @@ case class Newlines(
     beforeImplicitKWInVerticalMultiline: Boolean = false,
     alwaysBeforeElseAfterCurlyIf: Boolean = false,
     alwaysBeforeMultilineDef: Boolean = true,
-    avoidAfterYield: Boolean = true
+    avoidAfterYield: Boolean = true,
+    avoidEmptyLinesAroundBlock: Option[Boolean] = None
 ) {
   val reader: ConfDecoder[Newlines] = generic.deriveDecoder(this).noTypos
 }
