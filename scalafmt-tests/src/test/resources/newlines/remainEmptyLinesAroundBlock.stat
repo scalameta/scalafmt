@@ -49,7 +49,7 @@ def other: String = {
 
 }
 
-<<< should remain empty lines at the end of a block
+<<< should remain one empty line at the end of a block
 def other: String = {
   "Result"
 
@@ -58,6 +58,5 @@ def other: String = {
 >>>
 def other: String = {
   "Result"
-
 
 }
