@@ -192,9 +192,6 @@ case class ScalafmtConfig(
     continuationIndent.callSite,
     continuationIndent.defnSite
   )
-
-  val avoidEmptyLinesAroundBlock: Boolean =
-    edition > Edition(2019, 10)
 }
 
 object ScalafmtConfig {

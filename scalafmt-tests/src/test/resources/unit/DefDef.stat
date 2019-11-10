@@ -119,4 +119,5 @@ def heyImCool = {
 >>>
 def heyImCool = {
   val c = b.foobar
+
 }

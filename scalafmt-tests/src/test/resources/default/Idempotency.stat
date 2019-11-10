@@ -86,6 +86,7 @@ val bindingFuture = Http().bindAndHandleSync({
 >>>
 {
   {
+
     {
       {
         {
@@ -102,6 +103,7 @@ val bindingFuture = Http().bindAndHandleSync({
       }
     }
   }
+
 }
 <<< rendering #339
 {{
@@ -128,6 +130,7 @@ val bindingFuture = Http().bindAndHandleSync({
           RequestRenderingContext(request, hostHeader, sendEntityTrigger)
         }
       }
+
     })
   }
 }
@@ -166,6 +169,7 @@ val bindingFuture = Http().bindAndHandleSync({
                                  })
         new ResponseParsingMerge(rootParser)
       }
+
     })
   }
 }

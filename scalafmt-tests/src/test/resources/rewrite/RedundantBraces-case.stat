@@ -15,12 +15,14 @@ object a {
 }
 >>>
 object a {
+
   val x: Int => String = {
     case 2 =>
       "two"
     case _ =>
       "other"
   }
+
 }
 <<< case clauses with stuff
 object a {
@@ -39,6 +41,7 @@ object a {
 }
 >>>
 object a {
+
   val x: Int => String = {
     case 2 =>
       println("TWO")
@@ -47,6 +50,7 @@ object a {
       // Nice
       "other"
   }
+
 }
 <<< case clauses to unit
 object a {
@@ -62,10 +66,12 @@ object a {
 }
 >>>
 object a {
+
   val x: Int => Unit = {
     case 0 =>
     case 1 =>
     case 2 =>
     case _ => println("?")
   }
+
 }
