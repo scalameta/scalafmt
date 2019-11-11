@@ -32,6 +32,7 @@ private[test] sealed trait Test {
 }
 
 private[test] final object Tests {
+
   protected[Tests] final case object Test1 extends Test {
     final implicit override lazy val name: String = "foo"
   }
@@ -65,6 +66,7 @@ private[test] sealed trait Test {
 }
 
 private[test] final object Tests {
+
   protected[Tests] final case object Test1 extends Test {
     final implicit override lazy val name: String = "foo"
   }

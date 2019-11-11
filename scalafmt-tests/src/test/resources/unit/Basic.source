@@ -7,6 +7,7 @@ object a {
     def two = 2 }
 >>>
 object a {
+
   def one = 1
 
   def two = 2
@@ -23,6 +24,7 @@ object a {
     def two = 2 }
 >>>
 object a {
+
   /**
     * One
     */

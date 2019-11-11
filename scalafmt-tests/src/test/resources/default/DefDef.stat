@@ -9,6 +9,7 @@ object a {
 }
 >>>
 object a {
+
   /**
     * Returns True is this state will always return better formatting than other.
     */

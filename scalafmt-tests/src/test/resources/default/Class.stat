@@ -62,6 +62,7 @@ class MediaStream() extends EventTarget {
 }
 >>>
 class MediaStream() extends EventTarget {
+
   /**
     */
   val ended: Boolean = js.native
