@@ -9,7 +9,7 @@ case class Decision(formatToken: FormatToken, splits: Seq[Split]) {
   import org.scalafmt.util.TokenOps._
 
   def noNewlines: Decision =
-    Decision(formatToken, splits.filter(_.modification.isNewline))
+    Decision(formatToken, splits.filterNot(_.modification.isNewline))
 
   def onlyNewlines(implicit line: sourcecode.Line): Decision = {
     val filtered = splits.filter(_.modification.isNewline)
