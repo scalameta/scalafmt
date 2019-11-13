@@ -125,7 +125,7 @@ class Router(formatOps: FormatOps) {
           close,
           disallowSingleLineComments = disallowSingleLineComments
         )
-        val newlineBeforeClosingCurly = newlineBeforeClosingCurlyPolicy(close)
+        val newlineBeforeClosingCurly = newlineOnTokenPolicy(close)
 
         val newlinePolicy = style.importSelectors match {
           case ImportSelectors.noBinPack =>
@@ -172,7 +172,7 @@ class Router(formatOps: FormatOps) {
       // { ... } Blocks
       case tok @ FormatToken(open @ T.LeftBrace(), right, between) =>
         val close = matchingParentheses(hash(open))
-        val newlineBeforeClosingCurly = newlineBeforeClosingCurlyPolicy(close)
+        val newlineBeforeClosingCurly = newlineOnTokenPolicy(close)
         val selfAnnotation: Option[Tokens] = leftOwner match {
           // Self type: trait foo { self => ... }
           case t: Template => Some(t.self.name.tokens).filter(_.nonEmpty)
@@ -664,11 +664,7 @@ class Router(formatOps: FormatOps) {
         val newlinePolicy: Policy =
           if (style.danglingParentheses.defnSite && defnSite ||
             style.danglingParentheses.callSite && !defnSite) {
-            val breakOnClosing = Policy({
-              case d @ Decision(FormatToken(_, `close`, _), s) =>
-                d.onlyNewlines
-            }, close.end)
-            breakOnClosing
+            newlineOnTokenPolicy(close)
           } else {
             Policy(PartialFunction.empty[Decision, Decision], close.end)
           }

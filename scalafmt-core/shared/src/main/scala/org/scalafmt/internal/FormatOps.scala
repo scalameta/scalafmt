@@ -728,7 +728,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     )
   }
 
-  def newlineBeforeClosingCurlyPolicy(close: Token) =
+  def newlineOnTokenPolicy(close: Token) =
     Policy({
       case d @ Decision(t @ FormatToken(_, `close`, _), s) =>
         d.onlyNewlines
