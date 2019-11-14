@@ -1,6 +1,12 @@
 import Dependencies._
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
-def localSnapshotVersion = "2.2.3-SNAPSHOT"
+
+def parseTagVersion: String = {
+  import scala.sys.process._
+  // drop `v` prefix
+  "git describe --abbrev=0 --tags".!!.drop(1).trim
+}
+def localSnapshotVersion: String = s"$parseTagVersion-SNAPSHOT"
 def isCI = System.getenv("CI") != null
 
 def scala211 = "2.11.12"
