@@ -697,6 +697,21 @@ class Router(formatOps: FormatOps) {
           else if (right.is[T.Comment]) newlines2Modification(between)
           else NoSplit
 
+        val keepConfigStyleSplit =
+          style.optIn.configStyleArguments && newlines != 0
+        val splitForAssignToken =
+          if (defnSite || isBracket || keepConfigStyleSplit) None
+          else
+            getAssignAtSingleArgCallSite(leftOwner).map { assign =>
+              val assignToken = assign.rhs match {
+                case b: Term.Block => b.tokens.head
+                case _ => assign.tokens.find(_.is[T.Equals]).get
+              }
+              Split(NoSplit, 1 + nestedPenalty + lhsPenalty)
+                .withPolicy(newlinePolicy.andThen(SingleLineBlock(assignToken)))
+                .withOptimalToken(assignToken)
+            }
+
         Seq(
           Split(noSplitModification, 0, policy = noSplitPolicy)
             .withOptimalToken(expirationToken)
@@ -705,7 +720,7 @@ class Router(formatOps: FormatOps) {
             newlineModification,
             (1 + nestedPenalty + lhsPenalty) * bracketMultiplier,
             policy = newlinePolicy.andThen(singleLine(4)),
-            ignoreIf = args.length > 1 || isTuple
+            ignoreIf = args.length > 1 || isTuple || splitForAssignToken.isDefined
           ).withOptimalToken(expirationToken)
             .withIndent(indent, close, Right),
           Split(
@@ -724,7 +739,7 @@ class Router(formatOps: FormatOps) {
             ignoreIf = singleArgument || isTuple
           ).withOptimalToken(expirationToken)
             .withIndent(indent, close, Right)
-        )
+        ) ++ splitForAssignToken.toSeq
 
       // Closing def site ): ReturnType
       case FormatToken(left, T.Colon(), _)

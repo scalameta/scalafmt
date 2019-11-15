@@ -581,8 +581,8 @@ opt[String]("json-extractor") action { (x, c) =>
 }
 >>>
 opt[String]("json-extractor") action { (x, c) =>
-  c.copy(
-      common = c.common.copy(jsonExtractor = JsonExtractorOption.withName(x)))
+  c.copy(common =
+    c.common.copy(jsonExtractor = JsonExtractorOption.withName(x)))
 }
 <<< nested apply with assign 2
  {
@@ -597,9 +597,8 @@ opt[String]("json-extractor") action { (x, c) =>
 >>>
 {
   val config =
-    WSClientConfig(
-        ssl =
-          SSLConfig(loose = SSLLooseConfig(allowLegacyHelloMessages = None)))
+    WSClientConfig(ssl =
+      SSLConfig(loose = SSLLooseConfig(allowLegacyHelloMessages = None)))
   val game = Game(
       castleLastMoveTime =
         CastleLastMoveTime.init.copy(castles = game.board.history.castles),
