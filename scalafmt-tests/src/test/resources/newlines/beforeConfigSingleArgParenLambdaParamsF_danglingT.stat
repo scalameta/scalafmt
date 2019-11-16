@@ -1,0 +1,329 @@
+edition = 2019-11
+newlines.alwaysBeforeCurlyBraceLambdaParams = false
+danglingParentheses.callSite = true
+<<< 1: multi-arg multi-stmt lambda call
+def f = {
+  something.call (
+     (x, y) => {
+       g(x)
+       g(y)
+     }
+  )
+}
+>>>
+def f = {
+  something.call(
+    (x, y) => {
+      g(x)
+      g(y)
+    }
+  )
+}
+<<< 2: single-arg single-stmt block long-body lambda call
+def f = {
+  something.call (
+     x => {
+       g("some very very very very long string which exceeds 80 columns")
+     }
+  )
+}
+>>>
+def f = {
+  something.call(
+    x => {
+      g("some very very very very long string which exceeds 80 columns")
+    }
+  )
+}
+<<< 3: single-arg single-stmt non-block long-body lambda call
+def f = {
+  something.call (
+     x =>
+       g("some very very very very long string which exceeds 80 columns")
+  )
+}
+>>>
+def f = {
+  something.call(
+    x => g("some very very very very long string which exceeds 80 columns")
+  )
+}
+<<< 4: single-arg single-stmt non-block multi-line long-body lambda call
+def f = {
+  something.call (
+     x => // comment
+       g(
+         "some very very very very long string which exceeds 80 columns" +
+         " with some extra information"
+       )
+  )
+}
+>>>
+def f = {
+  something.call(
+    x => // comment
+      g(
+        "some very very very very long string which exceeds 80 columns" +
+          " with some extra information"
+      )
+  )
+}
+<<< 5: multi-arg single-stmt block long-body lambda call
+def f = {
+  something.call (
+     (x,y) => {
+       g("some very very very very long string which we don't want to be split")
+     }
+  )
+}
+>>>
+def f = {
+  something.call(
+    (x, y) => {
+      g("some very very very very long string which we don't want to be split")
+    }
+  )
+}
+<<< 6: multi-arg multi-stmt long-body lambda call
+def f = {
+  something.call (
+     (x,y) => {
+       g(x)
+       g(y)
+       g("some very very very very long string which we don't want to be split")
+     }
+  )
+}
+>>>
+def f = {
+  something.call(
+    (x, y) => {
+      g(x)
+      g(y)
+      g("some very very very very long string which we don't want to be split")
+    }
+  )
+}
+<<< 7: multi-long-arg single-stmt short-body lambda call
+def f = {
+  something_very_very_very_long.call_another_long_method ((a,b,c,d,e,f,g,h,i,j,k,l,m,n,o) =>
+       g(x)
+  )
+}
+>>>
+def f = {
+  something_very_very_very_long.call_another_long_method(
+    (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) => g(x)
+  )
+}
+<<< 8: multi-long-arg single-stmt longer-body lambda call
+def f = {
+  something_very_very_very_long.call_another_long_method ((a,b,c,d,e,f,g,h,i,j,k,l,m,n,o) =>
+       this_method_is_also_not_very_short(x, y, z)
+  )
+}
+>>>
+def f = {
+  something_very_very_very_long.call_another_long_method(
+    (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) =>
+      this_method_is_also_not_very_short(x, y, z)
+  )
+}
+<<< 9: single-arg single-stmt short-body lambda call
+def f = {
+  something.call (
+  x =>
+       g(x)
+  )
+}
+>>>
+def f = {
+  something.call(
+    x => g(x)
+  )
+}
+<<< 10: single-arg single-stmt short-splittable-body lambda call
+def f = {
+  something.call (
+  x =>
+       g.copy(a = x)
+  )
+}
+>>>
+def f = {
+  something.call(
+    x => g.copy(a = x)
+  )
+}
+<<< 11: single-arg single-stmt medium-splittable-body lambda call
+def f = {
+  something.call (
+  x =>
+       g.copy(a = "some very very very very long string which we don't want to be split")
+  )
+}
+>>>
+def f = {
+  something.call(
+    x =>
+      g.copy(a =
+        "some very very very very long string which we don't want to be split"
+      )
+  )
+}
+<<< 12: single-arg single-stmt long-splittable-body lambda call (fails idempotency)
+def f = {
+  something.call (
+  x =>
+  g.copy(a = "some very very very very long string which we don't want to be split at all")
+  )
+}
+>>>
+def f = {
+  something.call(
+    x =>
+      g.copy(a =
+        "some very very very very long string which we don't want to be split at all"
+      )
+  )
+}
+<<< 13: single-arg single-stmt medium-splittable-body with multiple args lambda call
+def f = {
+  something.call (
+  x =>
+       g.copy(a = "some very very very very long string which we don't want to be split",
+              b = "some very very very very long string which we don't want to be split")
+  )
+}
+>>>
+def f = {
+  something.call(
+    x =>
+      g.copy(
+        a =
+          "some very very very very long string which we don't want to be split",
+        b =
+          "some very very very very long string which we don't want to be split"
+      )
+  )
+}
+<<< 14: lambda with many nested apply
+       EventFilter[ActorInitializationException](occurrences = 1) intercept {
+         intercept[akka.actor.ActorInitializationException] {
+          wrap(
+            result ⇒
+              actorOf(Props(new OuterActor(actorOf(
+                 Props(promiseIntercept(new FailingInnerActor)(result)))))))
+         }
+
+         contextStackMustBeEmpty()
+       }
+>>>
+EventFilter[ActorInitializationException](occurrences = 1) intercept {
+  intercept[akka.actor.ActorInitializationException] {
+    wrap(
+      result ⇒
+        actorOf(
+          Props(
+            new OuterActor(
+              actorOf(Props(promiseIntercept(new FailingInnerActor)(result)))
+            )
+          )
+        )
+    )
+  }
+
+  contextStackMustBeEmpty()
+}
+<<< 15: lambda with many nested apply using braces for comparison
+       EventFilter[ActorInitializationException](occurrences = 1) intercept {
+         intercept[akka.actor.ActorInitializationException] {
+          wrap{
+            result ⇒
+              actorOf(Props(new OuterActor(actorOf(
+                 Props(promiseIntercept(new FailingInnerActor)(result))))))}
+         }
+
+         contextStackMustBeEmpty()
+       }
+>>>
+EventFilter[ActorInitializationException](occurrences = 1) intercept {
+  intercept[akka.actor.ActorInitializationException] {
+    wrap { result ⇒
+      actorOf(
+        Props(
+          new OuterActor(
+            actorOf(Props(promiseIntercept(new FailingInnerActor)(result)))
+          )
+        )
+      )
+    }
+  }
+
+  contextStackMustBeEmpty()
+}
+<<< 16: prefer split on equals vs split on arrow in includedTerms
+     terms.foreach {
+       case Deletion(term: Term) =>
+         term match {
+           case inner: ColumnRef =>
+             includedTerms = includedTerms.filter(_ != Seq(inner.value))
+           case ColumnInteraction(cols) =>
+             val fromInteraction = expandInteraction(schema, cols).map(_.toSet)
+            includedTerms =
+              includedTerms.filter(t => !fromInteraction.contains(t.toSet))
+           case Dot =>
+             // e.g. "- .", which removes all first-order terms
+             includedTerms = includedTerms.filter {
+               case Seq(t) => !dotTerms.contains(t)
+               case _      => true
+             }
+           case _: Deletion =>
+             throw new RuntimeException("Deletion terms cannot be nested")
+           case _: Intercept =>
+         }
+       case _: Intercept =>
+     }
+>>>
+terms.foreach {
+  case Deletion(term: Term) =>
+    term match {
+      case inner: ColumnRef =>
+        includedTerms = includedTerms.filter(_ != Seq(inner.value))
+      case ColumnInteraction(cols) =>
+        val fromInteraction = expandInteraction(schema, cols).map(_.toSet)
+        includedTerms =
+          includedTerms.filter(t => !fromInteraction.contains(t.toSet))
+      case Dot =>
+        // e.g. "- .", which removes all first-order terms
+        includedTerms = includedTerms.filter {
+          case Seq(t) => !dotTerms.contains(t)
+          case _      => true
+        }
+      case _: Deletion =>
+        throw new RuntimeException("Deletion terms cannot be nested")
+      case _: Intercept =>
+    }
+  case _: Intercept =>
+}
+<<< 17: keep line breaks to preserve semantics
+List(10, 11, 12).map(x =>
+  x
+  - 5
+)
+>>>
+List(10, 11, 12).map(
+  x =>
+    x
+      - 5
+)
+<<< 18: keep line breaks to preserve semantics
+List(10, 11, 12).map(x => {
+  x
+  - 5
+})
+>>>
+List(10, 11, 12).map(x => {
+  x
+  -5
+})
