@@ -573,3 +573,35 @@ def startSharding(system: ActorSystem,
     }
   }
 }
+<<< nested apply with assign
+opt[String]("json-extractor") action { (x, c) =>
+    c.copy(         common =
+            c.common.copy(
+            jsonExtractor = JsonExtractorOption.withName(x)))
+}
+>>>
+opt[String]("json-extractor") action { (x, c) =>
+  c.copy(
+      common = c.common.copy(jsonExtractor = JsonExtractorOption.withName(x)))
+}
+<<< nested apply with assign 2
+ {
+       val config =
+         WSClientConfig(          ssl =
+            SSLConfig(loose = SSLLooseConfig(allowLegacyHelloMessages = None)))
+        val game = Game(              castleLastMoveTime =
+                CastleLastMoveTime.init.copy(castles = game.board.history.castles),
+                    daysPerTurn = daysPerTurn
+                    )
+                    }
+>>>
+{
+  val config =
+    WSClientConfig(
+        ssl =
+          SSLConfig(loose = SSLLooseConfig(allowLegacyHelloMessages = None)))
+  val game = Game(
+      castleLastMoveTime =
+        CastleLastMoveTime.init.copy(castles = game.board.history.castles),
+      daysPerTurn = daysPerTurn)
+}
