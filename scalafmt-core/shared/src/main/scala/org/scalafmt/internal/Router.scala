@@ -460,6 +460,39 @@ class Router(formatOps: FormatOps) {
         verticalMultiline(leftOwner, ft)(style)
 
       // Term.Apply and friends
+      case FormatToken(T.LeftParen(), _, _)
+          if style.optIn.configStyleArguments &&
+            !style.newlinesBeforeSingleArgParenLambdaParams &&
+            getLambdaAtSingleArgCallSite(leftOwner).isDefined => {
+        val lambda = getLambdaAtSingleArgCallSite(leftOwner).get
+        val (lambdaIsABlock, lambdaToken) = lambda.body match {
+          case b: Term.Block =>
+            true -> b.tokens.head
+          case _ =>
+            val arrow = lambda.tokens.find(_.is[T.RightArrow]).get
+            next(arrow).is[T.LeftBrace] -> arrow
+        }
+
+        val close = matchingParentheses(hash(formatToken.left))
+        val splitOnClosePolicy =
+          if (style.danglingParentheses.callSite && !lambdaIsABlock)
+            newlineOnTokenPolicy(close)
+          else
+            Policy(Policy.emptyPf, close.end)
+        val noSplitBeforeArrowPolicy =
+          splitOnClosePolicy.andThen(SingleLineBlock(lambdaToken))
+
+        val newlinePenalty = 3 + nestedApplies(leftOwner)
+        Seq(
+          Split(NoSplit, 0, policy = SingleLineBlock(close))
+            .withOptimalToken(close),
+          Split(NoSplit, 0, policy = noSplitBeforeArrowPolicy)
+            .withOptimalToken(lambdaToken),
+          Split(Newline, newlinePenalty, policy = splitOnClosePolicy)
+            .withIndent(style.continuationIndent.callSite, close, Right)
+        )
+      }
+
       case FormatToken(T.LeftParen() | T.LeftBracket(), right, between)
           if style.optIn.configStyleArguments &&
             (isDefnSite(leftOwner) || isCallSite(leftOwner)) &&

@@ -536,4 +536,10 @@ object TreeOps {
       case _ => None
     }
 
+  def getLambdaAtSingleArgCallSite(tree: Tree): Option[Term.Function] =
+    tree match {
+      case Term.Apply(_, List(fun: Term.Function)) => Some(fun)
+      case _ => None
+    }
+
 }

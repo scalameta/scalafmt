@@ -1,6 +1,7 @@
 style = default
 <<< forAll
-forAll(table)((reqProto, headReq, reqCH, resProto, resCH, resCD, renCH, close) ⇒
+forAll(table)(
+  (reqProto, headReq, reqCH, resProto, resCH, resCD, renCH, close) ⇒
   ResponseRenderingContext(
     response = HttpResponse(200, headers = resCH.toList,
       entity = if (resCD) HttpEntity.CloseDelimited(ContentTypes.`text/plain(UTF-8)`,
@@ -16,33 +17,32 @@ forAll(table)((reqProto, headReq, reqCH, resProto, resCH, resCD, renCH, close) �
            |${if (resCD) "" else "Content-Length: 6\n"}
            |${if (headReq) "" else "ENTITY"}""", close))
 >>>
-forAll(table)(
-  (reqProto, headReq, reqCH, resProto, resCH, resCD, renCH, close) ⇒
-    ResponseRenderingContext(
-      response = HttpResponse(
-        200,
-        headers = resCH.toList,
-        entity =
-          if (resCD)
-            HttpEntity.CloseDelimited(
-              ContentTypes.`text/plain(UTF-8)`,
-              Source.single(ByteString("ENTITY"))
-            )
-          else HttpEntity("ENTITY"),
-        protocol = resProto
-      ),
-      requestMethod = if (headReq) HttpMethods.HEAD else HttpMethods.GET,
-      requestProtocol = reqProto,
-      closeRequested = HttpMessage.connectionCloseExpected(reqProto, reqCH)
-    ) should renderTo(
-      s"""${resProto.value} 200 OK
+forAll(table)((reqProto, headReq, reqCH, resProto, resCH, resCD, renCH, close) ⇒
+  ResponseRenderingContext(
+    response = HttpResponse(
+      200,
+      headers = resCH.toList,
+      entity =
+        if (resCD)
+          HttpEntity.CloseDelimited(
+            ContentTypes.`text/plain(UTF-8)`,
+            Source.single(ByteString("ENTITY"))
+          )
+        else HttpEntity("ENTITY"),
+      protocol = resProto
+    ),
+    requestMethod = if (headReq) HttpMethods.HEAD else HttpMethods.GET,
+    requestProtocol = reqProto,
+    closeRequested = HttpMessage.connectionCloseExpected(reqProto, reqCH)
+  ) should renderTo(
+    s"""${resProto.value} 200 OK
            |Server: akka-http/1.0.0
            |Date: Thu, 25 Aug 2011 09:10:29 GMT
            |${renCH.fold("")(_ + "\n")}Content-Type: text/plain; charset=UTF-8
            |${if (resCD) "" else "Content-Length: 6\n"}
            |${if (headReq) "" else "ENTITY"}""",
-      close
-    )
+    close
+  )
 )
 <<< don't force me
 val boss = system.actorOf(Props(new Actor {
