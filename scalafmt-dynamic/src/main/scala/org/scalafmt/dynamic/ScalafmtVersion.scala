@@ -22,7 +22,7 @@ object ScalafmtVersion {
       extends Exception(s"Invalid scalafmt version $version")
       with NoStackTrace
 
-  private val versionRegex = """(\d)\.(\d)\.(\d)(-RC(\d))?""".r
+  private val versionRegex = """(\d)\.(\d)\.(\d)(-RC(\d))?(?:-SNAPSHOT)?""".r
 
   def parse(version: String): Either[InvalidVersionException, ScalafmtVersion] =
     try {

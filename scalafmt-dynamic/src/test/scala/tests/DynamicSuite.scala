@@ -323,9 +323,10 @@ class DynamicSuite extends FunSuite with DiffAssertions {
   check("wrong-version") { f =>
     f.setVersion("1.0")
     f.assertError(
-      "error: path/.scalafmt.conf: failed to resolve Scalafmt version '1.0'"
+      """|error: path/.scalafmt.conf: org.scalafmt.dynamic.exceptions.ScalafmtException: failed to resolve Scalafmt version '1.0'
+         |Caused by: org.scalafmt.dynamic.ScalafmtVersion$InvalidVersionException: Invalid scalafmt version 1.0""".stripMargin
     )
-    assert(f.downloadLogs.nonEmpty)
+    assert(f.downloadLogs.isEmpty)
   }
 
   check("sbt") { f =>

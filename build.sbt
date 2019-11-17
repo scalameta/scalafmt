@@ -1,12 +1,24 @@
 import Dependencies._
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
+def parseTagVersion: String = {
+  import scala.sys.process._
+  // drop `v` prefix
+  "git describe --abbrev=0 --tags".!!.drop(1).trim
+}
+def localSnapshotVersion: String = s"$parseTagVersion-SNAPSHOT"
+def isCI = System.getenv("CI") != null
+
 def scala211 = "2.11.12"
 def scala212 = "2.12.8"
 def scala213 = "2.13.1"
 
 inThisBuild(
   List(
+    version ~= { dynVer =>
+      if (isCI) dynVer
+      else localSnapshotVersion // only for local publishng
+    },
     organization := "org.scalameta",
     homepage := Some(url("https://github.com/scalameta/scalafmt")),
     licenses := List(

@@ -12,6 +12,15 @@ class ScalafmtVersionSuite extends FunSuite {
       ScalafmtVersion.parse("2.0.0-RC4") == Right(ScalafmtVersion(2, 0, 0, 4))
     )
     assert(ScalafmtVersion.parse("2.1.1") == Right(ScalafmtVersion(2, 1, 1, 0)))
+    assert(
+      ScalafmtVersion
+        .parse("2.2.3-SNAPSHOT") == Right(ScalafmtVersion(2, 2, 3, 0))
+    )
+    assert(
+      ScalafmtVersion.parse("2.0.0-RC1-SNAPSHOT") == Right(
+        ScalafmtVersion(2, 0, 0, 1)
+      )
+    )
   }
 
   test("fail on invalid versions") {
@@ -50,6 +59,11 @@ class ScalafmtVersionSuite extends FunSuite {
     assert(
       ScalafmtVersion
         .parse("2.1.0-RC1-M4") == Left(InvalidVersionException("2.1.0-RC1-M4"))
+    )
+    assert(
+      ScalafmtVersion.parse("2.0.0-RC1+metadata") == Left(
+        InvalidVersionException("2.0.0-RC1+metadata")
+      )
     )
   }
 
