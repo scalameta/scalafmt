@@ -9,7 +9,7 @@ import scala.annotation.tailrec
 import scala.meta.tokens.Token
 import scala.meta.tokens.{Token => T}
 import scala.meta.transversers.Traverser
-import scala.meta.{Importer, Mod, Term, Tree}
+import scala.meta.{Importer, Mod, Pkg, Term, Tree}
 
 /**
   * Produces formatted output from sequence of splits.
@@ -258,13 +258,29 @@ class FormatWriter(formatOps: FormatOps) {
       case x => x
     }
     initStyle.newlines.alwaysBeforeTopLevelStatements && {
-      topLevelTokens.contains(hash(toks(i).formatToken.right)) && {
-        val (distance, FormatToken(_, nextNonComment, _)) =
-          nextNonCommentWithCount(toks(i).formatToken)
-        isMultiline(actualOwner(nextNonComment).tokens.last, i + distance + 1)
-      }
+      val formatToken = toks(i).formatToken
+      def checkPackage: Option[Boolean] =
+        if (!initStyle.activeForEdition_2019_11) None
+        else
+          Some(owners(formatToken.left))
+            .collect { case term: Term.Name => term.parent }
+            .flatten
+            .collect { case pkg: Pkg => pkg.stats.headOption }
+            .flatten
+            .map {
+              case pkg: Pkg => next(pkg.ref.tokens.last).is[T.LeftBrace]
+              case _ => true
+            }
+      def checkTopLevelStatement(): Boolean =
+        topLevelTokens.contains(hash(formatToken.right)) && {
+          val (distance, FormatToken(_, nextNonComment, _)) =
+            nextNonCommentWithCount(formatToken)
+          isMultiline(actualOwner(nextNonComment).tokens.last, i + distance + 1)
+        }
+      checkPackage.getOrElse(checkTopLevelStatement)
     }
   }
+
   private def isCandidate(location: FormatLocation): Boolean = {
     val token = location.formatToken.right
     val code = token match {

@@ -7,6 +7,7 @@ import a.b.c
 class d {}
 >>>
 package a
+
 import a.b.c
 class d {}
 <<< #1069 2
@@ -17,8 +18,8 @@ import d.e.f
 class d {}
 >>>
 package a
-
 package b
+
 import a.b.c
 import d.e.f
 class d {}
