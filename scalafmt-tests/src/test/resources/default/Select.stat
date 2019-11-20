@@ -277,3 +277,78 @@ object a {
   keys.clear() // we need to remove the selected keys from the set, otherwise they remain selected
 >>>
 keys.clear() // we need to remove the selected keys from the set, otherwise they remain selected
+<<< #1334 continue chain indent after a comment
+class Foo {
+  val vv = v.aaa //
+.bbb
+.ccc()
+}
+>>>
+class Foo {
+  val vv = v.aaa //
+  .bbb.ccc()
+}
+<<< #1334 continue chain indent after a comment, a bit longer
+class Foo {
+  val vv = v.aaa //
+  .bbb //
+  .ccc //
+  .ddd
+  .eee()
+}
+>>>
+class Foo {
+  val vv = v.aaa //
+  .bbb //
+  .ccc //
+  .ddd.eee()
+}
+<<< #1334 continue chain indent after a comment with apply
+class Foo {
+  val vv = v.aaa //
+  .bbb() //
+  .ccc //
+  .ddd()
+}
+>>>
+class Foo {
+  val vv = v.aaa //
+    .bbb() //
+    .ccc //
+    .ddd()
+}
+<<< #1334 continue chain indent after a comment with apply, longer
+class Foo {
+  val vv = v.aaa //
+  .bbb() //
+  .ccc() //
+  .ddd()
+}
+>>>
+class Foo {
+  val vv = v.aaa //
+    .bbb() //
+    .ccc() //
+    .ddd()
+}
+<<< #1334 very long unbroken select chain
+class Foo {
+  val vv = v.aaaaaaaaaa.bbbbbbbbbb.cccccccccc.dddddddddd.eeeeeeeeee.ffffffffff.gggggggggg.hhhhhhhhhh.iiiiiiiiii
+}
+>>>
+class Foo {
+  val vv =
+    v.aaaaaaaaaa.bbbbbbbbbb.cccccccccc.dddddddddd.eeeeeeeeee.ffffffffff.gggggggggg.hhhhhhhhhh.iiiiiiiiii
+}
+<<< #1334 very long broken select chain
+class Foo {
+  val vv = v.aaaaaaaaaa
+  .bbbbbbbbbb
+  .cccccccccc.dddddddddd
+  .eeeeeeeeee.ffffffffff.gggggggggg.hhhhhhhhhh.iiiiiiiiii
+}
+>>>
+class Foo {
+  val vv =
+    v.aaaaaaaaaa.bbbbbbbbbb.cccccccccc.dddddddddd.eeeeeeeeee.ffffffffff.gggggggggg.hhhhhhhhhh.iiiiiiiiii
+}
