@@ -37,13 +37,13 @@ def foo(a: Int): Int = // a comment
       ???
 >>>
 def foo(a: Int): Int = // a comment
-???
+  ???
 <<< Indent after comment with block
 def foo(a: Int): Int = // a comment
 {
   ??? }
 >>>
 def foo(a: Int): Int = // a comment
-{
-  ???
-}
+  {
+    ???
+  }
