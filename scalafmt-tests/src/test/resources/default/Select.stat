@@ -62,7 +62,7 @@ val lastToken = owner.body.tokens.filter {
   case _: Whitespace | _: Comment => false
   case _ => true
 } // edge case, if body is empty expire on arrow.
-.lastOption.getOrElse(arrow)
+  .lastOption.getOrElse(arrow)
 <<< apply infix has indent
 val expireAAAAAAAAAAAAAAAAAAAAA = owner.tokens.
   find(t => t.isInstanceOf[`=`] && owners(t) == owner)
@@ -286,7 +286,7 @@ class Foo {
 >>>
 class Foo {
   val vv = v.aaa //
-  .bbb.ccc()
+    .bbb.ccc()
 }
 <<< #1334 continue chain indent after a comment, a bit longer
 class Foo {
@@ -299,9 +299,9 @@ class Foo {
 >>>
 class Foo {
   val vv = v.aaa //
-  .bbb //
-  .ccc //
-  .ddd.eee()
+    .bbb //
+    .ccc //
+    .ddd.eee()
 }
 <<< #1334 continue chain indent after a comment with apply
 class Foo {
@@ -349,6 +349,6 @@ class Foo {
 }
 >>>
 class Foo {
-  val vv =
-    v.aaaaaaaaaa.bbbbbbbbbb.cccccccccc.dddddddddd.eeeeeeeeee.ffffffffff.gggggggggg.hhhhhhhhhh.iiiiiiiiii
+  val vv = v.aaaaaaaaaa.bbbbbbbbbb.cccccccccc.dddddddddd
+    .eeeeeeeeee.ffffffffff.gggggggggg.hhhhhhhhhh.iiiiiiiiii
 }

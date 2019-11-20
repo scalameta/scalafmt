@@ -1340,6 +1340,16 @@ class Router(formatOps: FormatOps) {
           Split(Space, 0, policy = singleLine),
           Split(Newline, 1).withPolicy(penalizeNewlineByNesting(cond, arrow))
         )
+      case FormatToken(_, dot @ T.Dot(), _) =>
+        // allow keeping a newline (and indent) within a select chain
+        val noNewLine = !style.activeForEdition_2019_11 ||
+          newlines == 0 || rightOwner.isNot[Term.Select]
+        val newlinePenalty = if (noNewLine) 0 else 10 + treeDepth(rightOwner)
+        Seq(
+          Split(NoSplit, 0),
+          Split(Newline, newlinePenalty, ignoreIf = noNewLine)
+            .withIndent(2, dot, Left)
+        )
       // Inline comment
       case FormatToken(_, c: T.Comment, between) =>
         Seq(Split(newlines2Modification(between), 0))
@@ -1419,10 +1429,6 @@ class Router(formatOps: FormatOps) {
           Split(NoSplit, 0)
         )
       // Fallback
-      case FormatToken(_, T.Dot(), _) =>
-        Seq(
-          Split(NoSplit, 0)
-        )
       case FormatToken(left, T.Hash(), _) =>
         Seq(
           Split(if (endsWithSymbolIdent(left)) Space else NoSplit, 0)
