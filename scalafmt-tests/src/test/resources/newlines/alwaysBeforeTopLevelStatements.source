@@ -1,0 +1,37 @@
+maxColumn = 80
+newlines.alwaysBeforeTopLevelStatements = true
+
+<<< #1069 1
+package a
+import a.b.c
+class d {}
+>>>
+package a
+import a.b.c
+class d {}
+<<< #1069 2
+package a
+package b
+import a.b.c
+import d.e.f
+class d {}
+>>>
+package a
+
+package b
+import a.b.c
+import d.e.f
+class d {}
+<<< #1069 3
+package a
+package b {
+import a.b.c
+class d {}
+}
+>>>
+package a
+
+package b {
+  import a.b.c
+  class d {}
+}
