@@ -18,3 +18,32 @@ def foo = Future({
   val bar = fetchBar()
   bar.map(_ + 10)
 })
+<<< Indent without comment
+def foo(a: Int): Int =
+      ???
+>>>
+def foo(a: Int): Int =
+  ???
+<<< Indent without comment with block
+def foo(a: Int): Int =
+{
+  ??? }
+>>>
+def foo(a: Int): Int = {
+  ???
+}
+<<< Indent after comment
+def foo(a: Int): Int = // a comment
+      ???
+>>>
+def foo(a: Int): Int = // a comment
+???
+<<< Indent after comment with block
+def foo(a: Int): Int = // a comment
+{
+  ??? }
+>>>
+def foo(a: Int): Int = // a comment
+{
+  ???
+}
