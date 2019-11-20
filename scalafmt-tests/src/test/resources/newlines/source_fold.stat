@@ -2128,3 +2128,101 @@ object a {
     """aaa bbb ccc ddd eee fff ggg"""
   )
 }
+<<< #1334 1: continue chain indent after a comment
+class Foo {
+  val vv = v.aaa //
+  //
+.bbb
+.ccc()
+  val vv = v.aaa //
+  val vv = v.aaa
+}
+>>>
+class Foo {
+  val vv = v.aaa //
+  //
+    .bbb.ccc()
+  val vv = v.aaa //
+  val vv = v.aaa
+}
+<<< #1334 2: continue chain indent after a comment, a bit longer
+class Foo {
+  val vv = v.aaa //
+  .bbb //
+  //
+  .ccc //
+  .ddd
+  .eee()
+}
+>>>
+class Foo {
+  val vv = v.aaa //
+    .bbb //
+    //
+    .ccc //
+    .ddd.eee()
+}
+<<< #1334 3: continue chain indent after a comment with apply
+class Foo {
+  val vv = v.aaa //
+  .bbb() //
+  //
+  .ccc //
+  .ddd()
+}
+>>>
+class Foo {
+  val vv = v.aaa //
+    .bbb() //
+    //
+    .ccc //
+    .ddd()
+}
+<<< #1334 4: continue chain indent after a comment with apply, longer
+class Foo {
+  val vv = v.aaa //
+  .bbb() //
+  .ccc() //
+  .ddd()
+}
+>>>
+class Foo {
+  val vv = v.aaa //
+    .bbb() //
+    .ccc() //
+    .ddd()
+}
+<<< #1334 5: select and a block apply after a comment
+     val a: Vector[Array[Double]] = b.c
+     // similarUserFeatures may not contain the requested user
+   .map { x =>
+       similarUserFeatures.get(x)
+     }.flatten
+     // another comment
+     .map { foo =>
+       bar
+       }
+       .tail
+>>>
+val a: Vector[Array[Double]] = b.c
+// similarUserFeatures may not contain the requested user
+  .map { x =>
+    similarUserFeatures.get(x)
+  }.flatten
+  // another comment
+  .map { foo => bar }.tail
+<<< #1334 6: multiple select and a match after a comment
+val a: Vector[Array[Double]] = b.c
+       // Only handle first case, others will be fixed on the next pass.
+  .headOption
+  .a match {
+ case None =>
+ case _ =>
+}
+>>>
+val a: Vector[Array[Double]] = b.c
+// Only handle first case, others will be fixed on the next pass.
+  .headOption.a match {
+  case None =>
+  case _ =>
+}
