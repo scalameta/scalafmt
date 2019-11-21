@@ -102,8 +102,10 @@ case object RedundantBraces extends Rewrite {
       }
     }
 
+  private def exactlyOneStatement(b: Term.Block): Boolean =
+    b.stats.lengthCompare(1) == 0
+
   private def removeBlock(b: Term.Block)(implicit ctx: RewriteCtx): Boolean = {
-    def exactlyOneStatement = b.stats.lengthCompare(1) == 0
     b.parent.exists {
 
       case _: Case =>
@@ -124,7 +126,7 @@ case object RedundantBraces extends Rewrite {
             case _ => true
           }
         settings.methodBodies &&
-        exactlyOneStatement &&
+        exactlyOneStatement(b) &&
         blockSizeIsOk(b) &&
         innerOk &&
         !isProcedureSyntax(d) &&
@@ -136,7 +138,7 @@ case object RedundantBraces extends Rewrite {
 
       case _ =>
         settings.generalExpressions &&
-          exactlyOneStatement &&
+          exactlyOneStatement(b) &&
           blockSizeIsOk(b) &&
           !retainSingleStatBlock(b)
     }
