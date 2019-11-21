@@ -22,23 +22,8 @@ abstract class Rewrite {
 }
 
 object Rewrite {
-  implicit val reader: ConfCodec[Rewrite] =
-    ReaderUtil.oneOf[Rewrite](
-      RedundantBraces,
-      RedundantParens,
-      SortImports,
-      AsciiSortImports,
-      PreferCurlyFors,
-      ExpandImportSelectors,
-      AvoidInfix,
-      SortModifiers
-    )
 
-  private def nameMap[T](t: sourcecode.Text[T]*): Map[String, T] = {
-    t.view.map(x => x.source -> x.value).toMap
-  }
-
-  val name2rewrite: Map[String, Rewrite] = nameMap[Rewrite](
+  private val rewrites = Seq[sourcecode.Text[Rewrite]](
     RedundantBraces,
     RedundantParens,
     SortImports,
@@ -48,8 +33,13 @@ object Rewrite {
     AvoidInfix,
     SortModifiers
   )
+
+  implicit val reader: ConfCodec[Rewrite] = ReaderUtil.oneOf(rewrites: _*)
+
+  val name2rewrite: Map[String, Rewrite] =
+    rewrites.view.map(x => x.source -> x.value).toMap
   val rewrite2name: Map[Rewrite, String] = name2rewrite.map(_.swap)
-  val available = Rewrite.name2rewrite.keys.mkString(", ")
+  val available = name2rewrite.keys.mkString(", ")
 
   val default: Seq[Rewrite] = name2rewrite.values.toSeq
 
