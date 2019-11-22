@@ -41,6 +41,19 @@ class GitOpsTest extends fixture.FunSuite {
     AbsoluteFile.fromPath(f.toString).get
   }
 
+  def symbolicLinkTo(
+      file: AbsoluteFile,
+      name: String = Random.alphanumeric.take(10).mkString,
+      dir: Option[AbsoluteFile] = None
+  )(implicit ops: GitOpsImpl): AbsoluteFile = {
+    val linkFile =
+      File.createTempFile(name, ".ext", dir.orElse(ops.rootDir).get.jfile)
+    linkFile.delete()
+    val link = AbsoluteFile.fromPath(linkFile.toString).get
+    Files.createSymbolicLink(linkFile.toPath, file.jfile.toPath)
+    link
+  }
+
   def mv(f: AbsoluteFile, dir: Option[AbsoluteFile] = None)(
       implicit ops: GitOpsImpl
   ): AbsoluteFile = {
@@ -92,6 +105,15 @@ class GitOpsTest extends fixture.FunSuite {
   test("lsTree should return committed files") { implicit ops =>
     val f = touch()
     add(f)
+    commit
+    ls should contain only (f)
+  }
+
+  test("lsTree should exclude symbolic links") { implicit ops =>
+    val f = touch()
+    add(f)
+    val g = symbolicLinkTo(f)
+    add(g)
     commit
     ls should contain only (f)
   }

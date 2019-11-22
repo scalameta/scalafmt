@@ -1,10 +1,8 @@
 package org.scalafmt.util
 
-import scala.io.Codec
 import java.io._
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
+import java.nio.file.{Files, LinkOption, Path, Paths}
+import scala.io.Codec
 
 object FileOps {
 
@@ -13,7 +11,7 @@ object FileOps {
     else new File(workingDir, file.getPath)
 
   def isRegularFile(file: File): Boolean =
-    Files.isRegularFile(file.toPath)
+    Files.isRegularFile(file.toPath, LinkOption.NOFOLLOW_LINKS)
 
   def listFiles(path: String): Vector[String] = {
     listFiles(new File(path))
