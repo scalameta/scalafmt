@@ -3,6 +3,88 @@ id: changelog
 title: Changelog
 ---
 
+## [v2.2.2](https://github.com/scalameta/scalafmt/tree/v2.2.2) (2019-10-29)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.2.1...v2.2.2)
+
+**Merged pull requests:**
+
+- Discord label in README [\#1545](https://github.com/scalameta/scalafmt/pull/1545) ([poslegm](https://github.com/poslegm))
+- Edition docs fix [\#1544](https://github.com/scalameta/scalafmt/pull/1544) ([poslegm](https://github.com/poslegm))
+- Remove `avoidEmptyLinesAroundBlock` option [\#1541](https://github.com/scalameta/scalafmt/pull/1541) ([olafurpg](https://github.com/olafurpg))
+- sbt plugin version update [\#1537](https://github.com/scalameta/scalafmt/pull/1537) ([poslegm](https://github.com/poslegm))
+- Fix inconsistent spaces with verticalMultiline and spaces.inParentheses [\#1529](https://github.com/scalameta/scalafmt/pull/1529) ([sirmax](https://github.com/sirmax))
+- Avoid empty lines in the beginning and end of blocks [\#1431](https://github.com/scalameta/scalafmt/pull/1431) ([tdidriksen](https://github.com/tdidriksen))
+
+## [v2.2.1](https://github.com/scalameta/scalafmt/tree/v2.2.1) (2019-10-21)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.2.0...v2.2.1)
+
+**Merged pull requests:**
+
+- Do not add space between constructor parameters [\#1535](https://github.com/scalameta/scalafmt/pull/1535) ([tanishiking](https://github.com/tanishiking))
+- Welcome Mikhail Chugunkov to the team! [\#1533](https://github.com/scalameta/scalafmt/pull/1533) ([olafurpg](https://github.com/olafurpg))
+
+## [v2.2.0](https://github.com/scalameta/scalafmt/tree/v2.2.0) (2019-10-17)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.1.1...v2.2.0)
+
+**Merged pull requests:**
+
+- sbt-mdoc update [\#1532](https://github.com/scalameta/scalafmt/pull/1532) ([poslegm](https://github.com/poslegm))
+- Update Scala to 2.13 [\#1522](https://github.com/scalameta/scalafmt/pull/1522) ([poslegm](https://github.com/poslegm))
+
+## [v2.1.1](https://github.com/scalameta/scalafmt/tree/v2.1.1) (2019-10-11)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.1.0...v2.1.1)
+
+**Merged pull requests:**
+
+- Use Coursier defaults, which also adds support for COURSIER\_REPOSITORIES [\#1524](https://github.com/scalameta/scalafmt/pull/1524) ([henricook](https://github.com/henricook))
+- Insert newline for else keyword, fixes \#1509. [\#1520](https://github.com/scalameta/scalafmt/pull/1520) ([olafurpg](https://github.com/olafurpg))
+- Add a space between constructor annotations and their parameter lists [\#1516](https://github.com/scalameta/scalafmt/pull/1516) ([dominics](https://github.com/dominics))
+
+## [v2.1.0](https://github.com/scalameta/scalafmt/tree/v2.1.0) (2019-09-30)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.1.0-RC2...v2.1.0)
+
+**Merged pull requests:**
+
+- Fixed bug with private\[x\] after class definitions \(\#1491\) [\#1513](https://github.com/scalameta/scalafmt/pull/1513) ([poslegm](https://github.com/poslegm))
+- typo danglingParentheses [\#1508](https://github.com/scalameta/scalafmt/pull/1508) ([ilyakharlamov](https://github.com/ilyakharlamov))
+
+## [v2.1.0-RC2](https://github.com/scalameta/scalafmt/tree/v2.1.0-RC2) (2019-09-26)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.1.0-RC1...v2.1.0-RC2)
+
+**Merged pull requests:**
+
+- Use coursier/interface instead of coursier-small [\#1511](https://github.com/scalameta/scalafmt/pull/1511) ([olafurpg](https://github.com/olafurpg))
+- With chains alignment for "new" with mixins [\#1503](https://github.com/scalameta/scalafmt/pull/1503) ([poslegm](https://github.com/poslegm))
+- Remove scalafmt-intellij [\#1500](https://github.com/scalameta/scalafmt/pull/1500) ([tanishiking](https://github.com/tanishiking))
+- Update dependencies [\#1497](https://github.com/scalameta/scalafmt/pull/1497) ([tanishiking](https://github.com/tanishiking))
+- Updated sbt plugin version on the website [\#1494](https://github.com/scalameta/scalafmt/pull/1494) ([poslegm](https://github.com/poslegm))
+- Fixed alwaysBeforeTopLevelStatements for modifiers  [\#1489](https://github.com/scalameta/scalafmt/pull/1489) ([poslegm](https://github.com/poslegm))
+- Make comment blocks line up. [\#1488](https://github.com/scalameta/scalafmt/pull/1488) ([adampauls](https://github.com/adampauls))
+
+## [v2.1.0-RC1](https://github.com/scalameta/scalafmt/tree/v2.1.0-RC1) (2019-08-25)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.0.1...v2.1.0-RC1)
+
+**Merged pull requests:**
+
+- Add release-drafter.yml [\#1483](https://github.com/scalameta/scalafmt/pull/1483) ([tanishiking](https://github.com/tanishiking))
+- Tweak a test that makes sure multiple exclude flags works as expected [\#1481](https://github.com/scalameta/scalafmt/pull/1481) ([tanishiking](https://github.com/tanishiking))
+- Don't treat commas in lambda bodies as "trailing commas" [\#1479](https://github.com/scalameta/scalafmt/pull/1479) ([adampauls](https://github.com/adampauls))
+- Add --check cli option [\#1478](https://github.com/scalameta/scalafmt/pull/1478) ([droptheplot](https://github.com/droptheplot))
+- Update ISSUE\_TEMPLATE to current version support [\#1476](https://github.com/scalameta/scalafmt/pull/1476) ([anilkumarmyla](https://github.com/anilkumarmyla))
+- Update CHANGELOG [\#1475](https://github.com/scalameta/scalafmt/pull/1475) ([tanishiking](https://github.com/tanishiking))
+- fix running with the diff branch file filter [\#1472](https://github.com/scalameta/scalafmt/pull/1472) ([stephennancekivell](https://github.com/stephennancekivell))
+- Keep indentation for comments within method chain [\#1470](https://github.com/scalameta/scalafmt/pull/1470) ([droptheplot](https://github.com/droptheplot))
+- Allow for multiple --exclude flags [\#1469](https://github.com/scalameta/scalafmt/pull/1469) ([sortega](https://github.com/sortega))
+- fix include resolution for cli and sbt plugin [\#1450](https://github.com/scalameta/scalafmt/pull/1450) ([nadavwr](https://github.com/nadavwr))
+- Fixed unindentTopLevelOperator behavior without indentOperator=spray [\#1440](https://github.com/scalameta/scalafmt/pull/1440) ([poslegm](https://github.com/poslegm))
+
 ## [v2.0.1](https://github.com/scalameta/scalafmt/tree/v2.0.0) (2019-08-12)
 
 This release contains some new features and fixes for regressions.
