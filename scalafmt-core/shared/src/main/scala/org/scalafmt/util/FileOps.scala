@@ -12,6 +12,9 @@ object FileOps {
     if (file.isAbsolute) file
     else new File(workingDir, file.getPath)
 
+  def isRegularFile(file: File): Boolean =
+    Files.isRegularFile(file.toPath)
+
   def listFiles(path: String): Vector[String] = {
     listFiles(new File(path))
   }
