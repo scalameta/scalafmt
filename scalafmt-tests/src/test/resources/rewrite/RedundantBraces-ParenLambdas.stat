@@ -28,7 +28,7 @@ object a {
 }
 >>>
 object a {
-  val a = b(c => { d }, e => { f })
+  val a = b(c => d, e => f)
 }
 <<< #1237 4 apply multiple single-stat multiline
 object a {
@@ -51,14 +51,11 @@ object a {
 >>>
 object a {
   val a = b(
-    c => { d },
-    e => {
-      f + f
-    },
-    g => {
+    c => d,
+    e => f + f,
+    g =>
       h +
-        h
-    },
+        h,
     i => {
       j +
         j -
