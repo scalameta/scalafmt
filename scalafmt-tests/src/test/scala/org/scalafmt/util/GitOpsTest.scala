@@ -3,15 +3,15 @@ package org.scalafmt.util
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths}
-
 import scala.util._
-import org.scalatest._
 import org.scalactic.source.Position
+import org.scalafmt.util.DeleteTree.deleteTree
+import org.scalatest._
 
 class GitOpsTest extends fixture.FunSuite {
 
-  import Matchers._
   import GitOpsTest._
+  import Matchers._
 
   val root = AbsoluteFile.userDir
   val dirName = "gitTestDir"
@@ -20,7 +20,7 @@ class GitOpsTest extends fixture.FunSuite {
 
   // DESNOTE(2017-08-16, pjrt): Create a temporary git directory for each
   // test.
-  override def withFixture(test: OneArgTest) = {
+  override def withFixture(test: OneArgTest): Outcome = {
     val f = Files.createTempDirectory(dirName)
     val absFile = AbsoluteFile.fromPath(f.toString).get
     val ops = new GitOpsImpl(absFile)
@@ -29,9 +29,8 @@ class GitOpsTest extends fixture.FunSuite {
     val initF = touch("initialfile")(ops)
     add(initF)(ops)
     commit(ops)
-    val t = try test.toNoArgTest(ops)
-    finally f.toFile.delete
-    withFixture(t)
+    try withFixture(test.toNoArgTest(ops))
+    finally deleteTree(f)
   }
 
   def touch(
@@ -252,7 +251,6 @@ class GitOpsTest extends fixture.FunSuite {
 
 private object GitOpsTest {
 
-  import OptionValues._
   import Matchers._
 
   // Filesystem commands
