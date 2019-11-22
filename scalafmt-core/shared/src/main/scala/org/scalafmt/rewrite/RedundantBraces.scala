@@ -130,6 +130,10 @@ case object RedundantBraces extends Rewrite {
         !isProcedureSyntax(d) &&
         !disqualifiedByUnit
 
+      case p: Term.Function
+          if ctx.style.activeForEdition_2019_11 && isBlockFunction(p) =>
+        settings.methodBodies
+
       case _ =>
         settings.generalExpressions &&
           exactlyOneStatement &&

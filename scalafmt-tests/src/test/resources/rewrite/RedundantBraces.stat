@@ -154,3 +154,57 @@ object a {
   def x: Int = // comment
     2
 }
+<<< fixes nested block in multi-line lambda 1
+object a {
+  method { x => { // 1
+        2
+        3
+        4
+     }
+  }
+}
+>>>
+object a {
+  method { x => // 1
+    2
+    3
+    4
+  }
+}
+<<< fixes nested block in multi-line lambda 2
+object a {
+  method { x =>
+     { // 1
+        2
+        3
+        4
+     }
+  }
+}
+>>>
+object a {
+  method { x =>
+    // 1
+    2
+    3
+    4
+  }
+}
+<<< doesn't touch block in multi-line paren lambda
+object a {
+  method ( x =>
+     {
+        2
+        3
+        4
+     }
+  )
+}
+>>>
+object a {
+  method(x => {
+    2
+    3
+    4
+  })
+}
