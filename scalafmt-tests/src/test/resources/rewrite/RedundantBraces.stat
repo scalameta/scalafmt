@@ -190,7 +190,7 @@ object a {
     4
   }
 }
-<<< doesn't touch block in multi-line paren lambda
+<<< turn block in multi-line paren lambda into curly lambda
 object a {
   method ( x =>
      {
@@ -202,9 +202,9 @@ object a {
 }
 >>>
 object a {
-  method(x => {
+  method { x =>
     2
     3
     4
-  })
+  }
 }

@@ -9,6 +9,8 @@ import scala.meta._
 import scala.meta.tokens.Token.LF
 import scala.meta.tokens.Token.LeftBrace
 import scala.meta.tokens.Token.RightBrace
+
+import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps._
 
 /**
@@ -65,6 +67,9 @@ case object RedundantBraces extends Rewrite {
 
     code.traverse {
 
+      case t: Term.Apply if ctx.style.activeForEdition_2019_11 =>
+        processApply(t)
+
       case b: Term.Block =>
         processBlock(b)
 
@@ -73,6 +78,37 @@ case object RedundantBraces extends Rewrite {
     }
 
     builder.result()
+  }
+
+  private def processApply(
+      tree: Term.Apply
+  )(implicit builder: PatchBuilder, ctx: RewriteCtx): Unit = {
+    val lastToken = tree.tokens.last
+    if (settings.methodBodies && lastToken.is[Token.RightParen]) {
+      tree.args match {
+        case Nil =>
+        case List(arg) => processSingleArgApply(arg, lastToken)
+        case args =>
+      }
+    }
+  }
+
+  private def processSingleArgApply(
+      arg: Term,
+      rparen: Token
+  )(implicit builder: PatchBuilder, ctx: RewriteCtx): Unit = arg match {
+    // single-arg apply of a lambda
+    // a(b => { c; d }) change to a { b => c; d }
+    case f: Term.Function
+        if f.tokens.last.is[Token.RightBrace] && getTermLineSpan(f) > 0 =>
+      val rbrace = f.tokens.last
+      val lbrace = ctx.matchingParens(TokenOps.hash(rbrace))
+      val lparen = ctx.matchingParens(TokenOps.hash(rparen))
+      builder += TokenPatch.Replace(lparen, lbrace.text)
+      builder += TokenPatch.Remove(lbrace)
+      builder += TokenPatch.Remove(rparen)
+      removeTrailingLF(rbrace.pos, rparen)
+    case _ =>
   }
 
   private def removeTrailingLF(
@@ -176,12 +212,14 @@ case object RedundantBraces extends Rewrite {
     }
 
   private def blockSizeIsOk(b: Term.Block)(implicit ctx: RewriteCtx): Boolean =
-    b.tokens.isEmpty || {
-      val diff =
-        if (b.stats.isEmpty)
-          b.tokens.last.pos.endLine - b.tokens.head.pos.startLine
-        else
-          b.stats.last.pos.endLine - b.stats.head.pos.startLine
-      diff <= settings.maxLines
-    }
+    getBlockLineSpan(b) <= settings.maxLines
+
+  private def getBlockLineSpan(b: Term.Block)(implicit ctx: RewriteCtx): Int =
+    if (b.stats.isEmpty) getTermLineSpan(b)
+    else b.stats.last.pos.endLine - b.stats.head.pos.startLine
+
+  private def getTermLineSpan(b: Term)(implicit ctx: RewriteCtx): Int =
+    if (b.tokens.isEmpty) 0
+    else b.tokens.last.pos.endLine - b.tokens.head.pos.startLine
+
 }

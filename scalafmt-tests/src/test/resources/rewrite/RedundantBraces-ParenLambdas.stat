@@ -18,10 +18,9 @@ object a {
 }
 >>>
 object a {
-  val a = b(c => {
+  val a = b { c =>
     d // c1
   } // c2
-  )
 }
 <<< #1237 3 apply multiple single-stat
 object a {
@@ -74,10 +73,10 @@ object a {
 }
 >>>
 object a {
-  val a = b(c => {
+  val a = b { c =>
     d
     e
-  })
+  }
 }
 <<< #1237 6 apply single multi-stat with semicolon
 object a {
@@ -94,10 +93,10 @@ object a {
 }
 >>>
 object a {
-  val a = b(c => {
+  val a = b { c =>
     d;
     e
-  })
+  }
 }
 <<< #1237 8 block single multi-stat with newline
 object a {
