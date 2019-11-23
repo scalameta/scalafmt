@@ -218,12 +218,32 @@ class Router(formatOps: FormatOps) {
               case _ => false
             }
 
+        // null if skipping
+        val singleLineDecision: PartialFunction[Decision, Decision] =
+          if (skipSingleLineBlock) {
+            null
+          } else if (!style.activeForEdition_2019_11) {
+            Policy.emptyPf
+          } else {
+            def isCatch = leftOwner match {
+              // for catch with case, we should go up only one level
+              // see if this is a single-case catch block
+              case _: Term.Try if rightOwner.is[Case] => true
+              case _ => false
+            }
+
+            val breakSingleLineAfterClose =
+              !next(close).is[T.RightParen] && isCatch
+            if (!breakSingleLineAfterClose) Policy.emptyPf
+            else decideNewlineAfterToken(close)
+          }
+
         val spaceMod = xmlSpace(leftOwner)
 
         Seq(
-          Split(spaceMod, 0, ignoreIf = skipSingleLineBlock)
+          Split(spaceMod, 0, ignoreIf = singleLineDecision == null)
             .withOptimalToken(close, killOnFail = true)
-            .withPolicy(SingleLineBlock(close)),
+            .withPolicy(SingleLineBlock(close).andThen(singleLineDecision)),
           Split(
             Space,
             0,
