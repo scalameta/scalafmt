@@ -1,7 +1,7 @@
 package org.scalafmt.util
 
 import scala.sys.process.ProcessLogger
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 import scala.util.control.NonFatal
 import java.io.File
 
@@ -41,17 +41,20 @@ class GitOpsImpl(private[util] val workingDirectory: AbsoluteFile)
     gitRes.map(augmentString(_).lines.toSeq)
   }
 
-  override def lsTree(dir: AbsoluteFile): Seq[AbsoluteFile] =
+  override def lsTree(dir: AbsoluteFile): Seq[AbsoluteFile] = {
+    val cmd = Seq(
+      "git",
+      "ls-files",
+      "--full-name",
+      dir.path
+    )
     rootDir.fold(Seq.empty[AbsoluteFile]) { rtDir =>
-      exec(
-        Seq(
-          "git",
-          "ls-files",
-          "--full-name",
-          dir.path
-        )
-      ).getOrElse(Seq.empty).map(f => rtDir / f)
+      exec(cmd)
+        .getOrElse(Seq.empty)
+        .map(f => rtDir / f)
+        .filter(file => FileOps.isRegularFile(file.jfile))
     }
+  }
 
   override def rootDir: Option[AbsoluteFile] = {
     val cmd = Seq(

@@ -3,15 +3,15 @@ package org.scalafmt.util
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths}
-
 import scala.util._
-import org.scalatest._
 import org.scalactic.source.Position
+import org.scalafmt.util.DeleteTree.deleteTree
+import org.scalatest._
 
 class GitOpsTest extends fixture.FunSuite {
 
-  import Matchers._
   import GitOpsTest._
+  import Matchers._
 
   val root = AbsoluteFile.userDir
   val dirName = "gitTestDir"
@@ -20,7 +20,7 @@ class GitOpsTest extends fixture.FunSuite {
 
   // DESNOTE(2017-08-16, pjrt): Create a temporary git directory for each
   // test.
-  override def withFixture(test: OneArgTest) = {
+  override def withFixture(test: OneArgTest): Outcome = {
     val f = Files.createTempDirectory(dirName)
     val absFile = AbsoluteFile.fromPath(f.toString).get
     val ops = new GitOpsImpl(absFile)
@@ -29,9 +29,8 @@ class GitOpsTest extends fixture.FunSuite {
     val initF = touch("initialfile")(ops)
     add(initF)(ops)
     commit(ops)
-    val t = try test.toNoArgTest(ops)
-    finally f.toFile.delete
-    withFixture(t)
+    try withFixture(test.toNoArgTest(ops))
+    finally deleteTree(f)
   }
 
   def touch(
@@ -40,6 +39,19 @@ class GitOpsTest extends fixture.FunSuite {
   )(implicit ops: GitOpsImpl): AbsoluteFile = {
     val f = File.createTempFile(name, ".ext", dir.orElse(ops.rootDir).get.jfile)
     AbsoluteFile.fromPath(f.toString).get
+  }
+
+  def symbolicLinkTo(
+      file: AbsoluteFile,
+      name: String = Random.alphanumeric.take(10).mkString,
+      dir: Option[AbsoluteFile] = None
+  )(implicit ops: GitOpsImpl): AbsoluteFile = {
+    val linkFile =
+      File.createTempFile(name, ".ext", dir.orElse(ops.rootDir).get.jfile)
+    linkFile.delete()
+    val link = AbsoluteFile.fromPath(linkFile.toString).get
+    Files.createSymbolicLink(linkFile.toPath, file.jfile.toPath)
+    link
   }
 
   def mv(f: AbsoluteFile, dir: Option[AbsoluteFile] = None)(
@@ -93,6 +105,15 @@ class GitOpsTest extends fixture.FunSuite {
   test("lsTree should return committed files") { implicit ops =>
     val f = touch()
     add(f)
+    commit
+    ls should contain only (f)
+  }
+
+  test("lsTree should exclude symbolic links") { implicit ops =>
+    val f = touch()
+    add(f)
+    val g = symbolicLinkTo(f)
+    add(g)
     commit
     ls should contain only (f)
   }
@@ -252,7 +273,6 @@ class GitOpsTest extends fixture.FunSuite {
 
 private object GitOpsTest {
 
-  import OptionValues._
   import Matchers._
 
   // Filesystem commands

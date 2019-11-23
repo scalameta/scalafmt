@@ -55,8 +55,8 @@ trait ScalafmtRunner {
     val files = options.fileFetchMode match {
       case m @ (GitFiles | RecursiveSearch) =>
         val fetchFiles: AbsoluteFile => Seq[AbsoluteFile] =
-          if (m == GitFiles) options.gitOps.lsTree(_)
-          else FileOps.listFiles(_)
+          if (m == GitFiles) options.gitOps.lsTree
+          else FileOps.listFiles
 
         options.files.flatMap {
           case d if d.jfile.isDirectory => fetchFiles(d).filter(canFormat)
