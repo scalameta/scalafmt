@@ -12,7 +12,8 @@ object Foo {
   try {
     a
     b
-  } catch c
+  }
+  catch c
   finally d
 }
 <<< 2: try/catch with curly, finally without
@@ -25,7 +26,8 @@ object Foo {
   try {
     a
     b
-  } catch { case c => }
+  }
+  catch { case c => }
   finally d
 }
 <<< 3: try/catch/finally with curly
@@ -39,7 +41,8 @@ object Foo {
   try {
     a
     b
-  } catch { case c => }
+  }
+  catch { case c => }
   finally {
     d
     e
@@ -56,7 +59,8 @@ object Foo {
   catch {
     case c =>
     case d =>
-  } finally e
+  }
+  finally e
 }
 <<< 5: try with curly, finally without
 object Foo {
@@ -68,5 +72,6 @@ object Foo {
   try {
     a
     b
-  } finally e
+  }
+  finally e
 }
