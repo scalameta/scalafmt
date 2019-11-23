@@ -91,41 +91,48 @@ try {
 <<< #350 assignment: short single line
 val template: String = try source.mkString finally source.close()
 >>>
-val template: String = try source.mkString
-finally source.close()
+val template: String =
+  try source.mkString
+  finally source.close()
 <<< #350 assignment: long single line with catch handler and finally
 val template: String = try source.mkString catch veryLongHandlerToExceedLineLength finally source.close()
 >>>
-val template: String = try source.mkString
-catch veryLongHandlerToExceedLineLength
-finally source.close()
+val template: String =
+  try source.mkString
+  catch veryLongHandlerToExceedLineLength
+  finally source.close()
 <<< #350 assignment: long single line with catch and finally
 val template: String = try source.mkString catch { case e if NonFatal(e) => log.error("failed to make string", e) } finally source.close()
 >>>
-val template: String = try source.mkString
-catch { case e if NonFatal(e) => log.error("failed to make string", e) } finally source
-  .close()
+val template: String =
+  try source.mkString
+  catch { case e if NonFatal(e) => log.error("failed to make string", e) } finally source
+    .close()
 <<< #350 assignment: short single line with catch handler and finally
 val template: String = try foo catch bar finally baz
 >>>
-val template: String = try foo
-catch bar
-finally baz
+val template: String =
+  try foo
+  catch bar
+  finally baz
 <<< #350 assignment: short single line with catch and finally
 val template: String = try foo catch { case e => bar } finally baz
 >>>
-val template: String = try foo
-catch { case e => bar } finally baz
+val template: String =
+  try foo
+  catch { case e => bar } finally baz
 <<< #350 assignment: short single line with multi-catch and parens
 val template: String = ( try foo catch { case e => bar; case c => baz } )
 >>>
-val template: String = (try foo
-catch { case e => bar; case c => baz })
+val template: String =
+  (try foo
+  catch { case e => bar; case c => baz })
 <<< #350 assignment: short single line with multi-catch and finally
 val template: String = try foo catch { case e => bar; case c => baz } finally qux
 >>>
-val template: String = try foo
-catch { case e => bar; case c => baz } finally qux
+val template: String =
+  try foo
+  catch { case e => bar; case c => baz } finally qux
 <<< #350 statement: short single line with multi-catch and finally
 try foo catch { case e => bar; case c => baz } finally qux
 >>>
