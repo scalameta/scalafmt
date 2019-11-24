@@ -141,7 +141,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
       rightOwner match {
         case t: Term.Select if startsOpenApply && !isChildOfImport =>
-          val chain = getSelectChain(t)
+          val chain = getSelectChain(t, Vector(t))
           if (openApply.is[T.LeftBrace] && isShortCurlyChain(chain)) None
           else Some(tok -> chain)
         case _ => None
