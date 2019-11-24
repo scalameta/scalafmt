@@ -467,11 +467,6 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     }
   }
 
-  def lastTokenInChain(chain: Vector[Term.Select]): Token = {
-    if (chain.length == 1) lastToken(chain.last)
-    else chainOptimalToken(chain)
-  }
-
   /**
     * Returns last token of select, handles case when select's parent is apply.
     *
