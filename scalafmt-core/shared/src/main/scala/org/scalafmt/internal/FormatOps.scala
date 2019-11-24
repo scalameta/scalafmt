@@ -39,12 +39,11 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   import TreeOps._
   implicit val dialect = initStyle.runner.dialect
   val tokens: Array[FormatToken] = FormatToken.formatTokens(tree.tokens)
-  val ownersMap = getOwners(tree)
+  private val ownersMap = getOwners(tree)
   val statementStarts = getStatementStarts(tree)
   val dequeueSpots = getDequeueSpots(tree) ++ statementStarts.keys
-  val matchingParentheses: Map[TokenHash, Token] = getMatchingParentheses(
-    tree.tokens
-  )
+  private val matchingParentheses: Map[TokenHash, Token] =
+    getMatchingParentheses(tree.tokens)
   val styleMap =
     new StyleMap(tokens, initStyle, ownersMap, matchingParentheses)
   private val vAlignDepthCache = mutable.Map.empty[Tree, Int]
@@ -258,7 +257,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
   def isMarginizedString(token: Token): Boolean = token match {
     case start @ T.Interpolation.Start() =>
-      val end = matchingParentheses(hash(start))
+      val end = matching(start)
       val afterEnd = next(leftTok2tok(end))
       afterEnd.left.syntax == "." && afterEnd.right.syntax == "stripMargin"
     case string: T.Constant.String =>
@@ -278,14 +277,14 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   }
 
   def parensRange(open: Token): Range =
-    Range(open.start, matchingParentheses(hash(open)).end)
+    Range(open.start, matching(open).end)
 
   def getExcludeIf(
       end: Token,
       cond: Token => Boolean = _.is[T.RightBrace]
   ): Set[Range] = {
     if (cond(end)) // allow newlines in final {} block
-      Set(Range(matchingParentheses(hash(end)).start, end.end))
+      Set(Range(matching(end).start, end.end))
     else Set.empty[Range]
   }
 
@@ -311,7 +310,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     var curr = next(start)
 
     def goToMatching(): Unit = {
-      val close = matchingParentheses(hash(curr.left))
+      val close = matching(curr.left)
       curr = leftTok2tok(close)
     }
 
@@ -353,7 +352,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       implicit line: sourcecode.Line
   ): Policy = {
     // TODO(olafur) clear queue between arguments, they are independent.
-    val expire = matchingParentheses(hash(open))
+    val expire = matching(open)
     Policy(
       {
         case d @ Decision(t @ FormatToken(left, comma @ T.Comma(), _), splits)
@@ -391,7 +390,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       indent: Length
   ): Policy.Pf = {
     case Decision(t, s) if exclude.contains(t.left) =>
-      val close = matchingParentheses(hash(t.left))
+      val close = matching(t.left)
       Decision(t, s.map(_.withIndent(indent, close, ExpiresOn.Left)))
   }
 
@@ -489,7 +488,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       if (curr.right.is[T.Dot]) {
         curr = next(leftTok2tok(curr.right))
       } else {
-        curr = leftTok2tok(matchingParentheses(hash(curr.right)))
+        curr = leftTok2tok(matching(curr.right))
       }
     }
     curr.left
@@ -632,7 +631,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     * the expire token is the closing }, otherwise it's bar.
     */
   def selectExpire(dot: T.Dot): Token = {
-    val owner = ownersMap(hash(dot))
+    val owner = owners(dot)
     (for {
       parent <- owner.parent
       (_, args) <- splitApplyIntoLhsAndArgsLifted(parent) if args.nonEmpty
@@ -689,7 +688,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
             case _ => false
           }) =>
         inside = true
-        expire = matchingParentheses(hash(t))
+        expire = matching(t)
       case x if x == expire => inside = false
       case x if inside => result += x
       case _ =>
@@ -699,7 +698,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
   def opensConfigStyle(formatToken: FormatToken): Boolean = {
     formatToken.newlinesBetween > 0 && {
-      val close = matchingParentheses(hash(formatToken.left))
+      val close = matching(formatToken.left)
       prev(leftTok2tok(close)).newlinesBetween > 0
     }
   }
@@ -735,7 +734,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   def isSingleIdentifierAnnotation(tok: FormatToken): Boolean = {
     val toMatch = if (tok.right.is[T.RightParen]) {
       // Hack to allow any annotations with arguments like @foo(1)
-      prev(prev(leftTok2tok(matchingParentheses(hash(tok.right)))))
+      prev(prev(leftTok2tok(matching(tok.right))))
     } else {
       tok
     }
@@ -749,14 +748,14 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     nonWhitespaceOffset(right) - nonWhitespaceOffset(left)
   }
 
-  def ctorWithChain(owners: Set[Tree], lastToken: Token): Policy = {
+  def ctorWithChain(ownerSet: Set[Tree], lastToken: Token): Policy = {
     if (styleMap.at(leftTok2tok(lastToken)).binPack.parentConstructors)
       NoPolicy
     else {
       Policy(
         {
           case d @ Decision(FormatToken(_, right: T.KwWith, _), _)
-              if owners.contains(ownersMap(hash(right))) =>
+              if ownerSet.contains(owners(right)) =>
             d.onlyNewlinesWithoutFallback
         },
         lastToken.end
@@ -877,7 +876,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
           loop(l)
         case f @ FormatToken(left @ RightParenOrBracket(), right, _) =>
           lazy val isCtorModifier =
-            ownersMap(hash(right)).parent.exists(_.is[meta.Ctor])
+            owners(right).parent.exists(_.is[meta.Ctor])
           right match {
             // modifier for constructor if class definition has type parameters: [class A[T, K, C] private (a: Int)]
             case Modifier() if isCtorModifier =>
@@ -928,7 +927,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     val oneLinePerArg = {
       val base = OneArgOneLineSplit(open)
       if (mixedParams) {
-        val afterTypes = leftTok2tok(matchingParentheses(hash(open)))
+        val afterTypes = leftTok2tok(matching(open))
         // Try to find the first paren. If found, then we are dealing with
         // a class with type AND value params. Otherwise it is a class with
         // just type params.
@@ -968,7 +967,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       // - newlineAfterOpenParen is enabled
       // - Mixed-params case with constructor modifier `] private (`
       case Decision(t @ FormatToken(open2 @ T.LeftParen(), right, _), _) =>
-        val close2 = matchingParentheses(hash(open2))
+        val close2 = matching(open2)
         val prevT = prev(t).left
 
         val isImplicitArgList = right.is[T.KwImplicit]
