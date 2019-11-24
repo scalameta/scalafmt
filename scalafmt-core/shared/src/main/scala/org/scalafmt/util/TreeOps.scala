@@ -387,10 +387,6 @@ object TreeOps {
     }
   }
 
-  final def getSelectChain(select: Term.Select): Vector[Term.Select] = {
-    select +: getSelectChain(select, Vector.empty[Term.Select])
-  }
-
   def isChainApplyParent(parent: Tree, child: Tree): Boolean =
     splitApplyIntoLhsAndArgsLifted(parent).exists(_._1 == child)
 
