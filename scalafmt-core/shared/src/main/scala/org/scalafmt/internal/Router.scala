@@ -76,7 +76,7 @@ class Router(formatOps: FormatOps) {
         )
       case FormatToken(start @ T.Interpolation.Start(), _, _) =>
         val isStripMargin = isMarginizedString(start)
-        val end = matchingParentheses(hash(start))
+        val end = matching(start)
         val policy =
           if (isTripleQuote(start)) NoPolicy
           else penalizeAllNewlines(end, BreakSingleLineInterpolatedString)
@@ -119,7 +119,7 @@ class Router(formatOps: FormatOps) {
       // Import left brace
       case FormatToken(open @ T.LeftBrace(), _, _)
           if parents(leftOwner).exists(_.is[Import]) =>
-        val close = matchingParentheses(hash(open))
+        val close = matching(open)
         val disallowSingleLineComments = style.importSelectors != ImportSelectors.singleLine
         val policy = SingleLineBlock(
           close,
@@ -171,7 +171,7 @@ class Router(formatOps: FormatOps) {
 
       // { ... } Blocks
       case tok @ FormatToken(open @ T.LeftBrace(), right, between) =>
-        val close = matchingParentheses(hash(open))
+        val close = matching(open)
         val newlineBeforeClosingCurly = newlineBeforeClosePolicy(close)
         val selfAnnotation: Option[Tokens] = leftOwner match {
           // Self type: trait foo { self => ... }
@@ -465,9 +465,7 @@ class Router(formatOps: FormatOps) {
           expire, {
             case T.RightBrace() => true
             case close @ T.RightParen()
-                if opensConfigStyle(
-                  leftTok2tok(matchingParentheses(hash(close)))
-                ) =>
+                if opensConfigStyle(leftTok2tok(matching(close))) =>
               // Example:
               // def x = foo(
               //     1
@@ -523,7 +521,7 @@ class Router(formatOps: FormatOps) {
         val lambdaToken =
           getOptimalTokenFor(if (lambdaIsABlock) next(arrowFt) else arrowFt)
 
-        val close = matchingParentheses(hash(formatToken.left))
+        val close = matching(formatToken.left)
         val newlinePolicy =
           if (!style.danglingParentheses.callSite) None
           else Some(newlineBeforeClosePolicy(close))
@@ -555,7 +553,7 @@ class Router(formatOps: FormatOps) {
             }) =>
         val open = formatToken.left
         val indent = getApplyIndent(leftOwner, isConfigStyle = true)
-        val close = matchingParentheses(hash(open))
+        val close = matching(open)
         val newlineBeforeClose: Policy.Pf = {
           case Decision(t @ FormatToken(_, `close`, _), splits) =>
             Decision(t, Seq(Split(Newline, 0)))
@@ -581,7 +579,7 @@ class Router(formatOps: FormatOps) {
 
       case FormatToken(open @ (T.LeftParen() | T.LeftBracket()), right, between)
           if style.binPack.unsafeDefnSite && isDefnSite(leftOwner) =>
-        val close = matchingParentheses(hash(open))
+        val close = matching(open)
         val isBracket = open.is[T.LeftBracket]
         val indent = Num(style.continuationIndent.defnSite)
         if (isTuple(leftOwner)) {
@@ -630,7 +628,7 @@ class Router(formatOps: FormatOps) {
       case FormatToken(T.LeftParen() | T.LeftBracket(), _, _)
           if style.binPack.unsafeCallSite && isCallSite(leftOwner) =>
         val open = formatToken.left
-        val close = matchingParentheses(hash(open))
+        val close = matching(open)
         val indent = getApplyIndent(leftOwner)
         val (lhs, args) = getApplyArgs(formatToken, leftOwner)
         val optimal = leftOwner.tokens.find(_.is[T.Comma]).orElse(Some(close))
@@ -675,7 +673,7 @@ class Router(formatOps: FormatOps) {
             (!style.binPack.unsafeCallSite && isCallSite(leftOwner)) ||
             (!style.binPack.unsafeDefnSite && isDefnSite(leftOwner)) =>
         val open = tok.left
-        val close = matchingParentheses(hash(open))
+        val close = matching(open)
         val (lhs, args) = getApplyArgs(formatToken, leftOwner)
         // In long sequence of select/apply, we penalize splitting on
         // parens furthest to the right.
@@ -866,7 +864,7 @@ class Router(formatOps: FormatOps) {
         )
       // non-statement starting curly brace
       case FormatToken(left, open @ T.LeftBrace(), _) =>
-        val close = matchingParentheses(hash(open))
+        val close = matching(open)
         val isComma = left.is[T.Comma]
         val bodyHasNewlines = if (isComma) {
           open.pos.endLine != close.pos.startLine
@@ -1217,7 +1215,7 @@ class Router(formatOps: FormatOps) {
               case _ => false
             }
           } =>
-        val close = matchingParentheses(hash(open))
+        val close = matching(open)
         val penalizeNewlines = penalizeNewlineByNesting(open, close)
         val indent: Length =
           if (style.align.ifWhileOpenParen) StateColumn
@@ -1323,7 +1321,7 @@ class Router(formatOps: FormatOps) {
         val owner = owners(open)
         val isConfig = opensConfigStyle(formatToken)
         val isSuperfluous = isSuperfluousParenthesis(open, owner)
-        val close = matchingParentheses(hash(open))
+        val close = matching(open)
         val breakOnClose = Policy({
           case Decision(t @ FormatToken(_, `close`, _), s) =>
             Decision(t, Seq(Split(Newline, 0)))

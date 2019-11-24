@@ -77,17 +77,17 @@ class BestFirstSearch(
     hasBestSolution
   }
 
-  def shouldRecurseOnBlock(curr: State, stop: Token) = {
-    val leftLeft = getLeftLeft(curr)
-    val leftLeftOwner = ownersMap(hash(leftLeft))
+  def shouldRecurseOnBlock(curr: State, stop: Token) = recurseOnBlocks && {
     val splitToken = tokens(curr.splits.length)
-    val style = styleMap.at(splitToken)
-    recurseOnBlocks && isInsideNoOptZone(splitToken) &&
-    leftLeft.is[LeftBrace] && matchingParentheses(hash(leftLeft)) != stop && {
-      // Block must span at least 3 lines to be worth recursing.
-      val close = matchingParentheses(hash(leftLeft))
-      distance(leftLeft, close) > style.maxColumn * 3
-    } && extractStatementsIfAny(leftLeftOwner).nonEmpty
+    isInsideNoOptZone(splitToken) && {
+      val leftLeft = getLeftLeft(curr)
+      leftLeft.is[LeftBrace] && {
+        val style = styleMap.at(splitToken)
+        val close = matching(leftLeft)
+        // Block must span at least 3 lines to be worth recursing.
+        close != stop && distance(leftLeft, close) > style.maxColumn * 3
+      } && extractStatementsIfAny(owners(leftLeft)).nonEmpty
+    }
   }
 
   def provided(formatToken: FormatToken): Split = {
@@ -95,11 +95,7 @@ class BestFirstSearch(
     val split = Split(Provided(formatToken.between.map(_.syntax).mkString), 0)
     val result =
       if (formatToken.left.is[LeftBrace])
-        split.withIndent(
-          Num(2),
-          matchingParentheses(hash(formatToken.left)),
-          Right
-        )
+        split.withIndent(Num(2), matching(formatToken.left), Right)
       else split
     result
   }
@@ -199,7 +195,7 @@ class BestFirstSearch(
         }
 
         if (shouldRecurseOnBlock(curr, stop)) {
-          val close = matchingParentheses(hash(getLeftLeft(curr)))
+          val close = matching(getLeftLeft(curr))
           val nextState =
             shortestPathMemo(curr, close, depth = depth + 1, maxCost = maxCost)
           val nextToken = tokens(nextState.splits.length)
