@@ -1059,8 +1059,11 @@ class Router(formatOps: FormatOps) {
       case tok @ FormatToken(left, dot @ T.Dot() `:chain:` chain, _)
           if !left.is[T.Underscore] =>
         val nestedPenalty = nestedSelect(rightOwner) + nestedApplies(leftOwner)
-        val expire = lastTokenInChain(chain)
         val optimalToken = chainOptimalToken(chain)
+        val expire =
+          if (chain.length == 1) lastToken(chain.last)
+          else optimalToken
+
         val breakOnEveryDot = Policy(
           {
             case Decision(t @ FormatToken(_, dot2 @ T.Dot(), _), s)
