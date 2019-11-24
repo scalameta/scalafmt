@@ -1059,7 +1059,7 @@ class Router(formatOps: FormatOps) {
       case tok @ FormatToken(left, dot @ T.Dot() `:chain:` chain, _)
           if !left.is[T.Underscore] =>
         val nestedPenalty = nestedSelect(rightOwner) + nestedApplies(leftOwner)
-        val lastToken = lastTokenInChain(chain)
+        val expire = lastTokenInChain(chain)
         val optimalToken = chainOptimalToken(chain)
         val breakOnEveryDot = Policy(
           {
@@ -1071,18 +1071,18 @@ class Router(formatOps: FormatOps) {
                 else Newline
               Decision(t, Seq(Split(mod, 1)))
           },
-          lastToken.end
+          expire.end
         )
-        val exclude = getExcludeIf(lastToken)
+        val exclude = getExcludeIf(expire)
         // This policy will apply to both the space and newline splits, otherwise
         // the newline is too cheap even it doesn't actually prevent other newlines.
-        val penalizeNewlinesInApply = penalizeAllNewlines(lastToken, 2)
-        val noSplitPolicy = SingleLineBlock(lastToken, exclude)
+        val penalizeNewlinesInApply = penalizeAllNewlines(expire, 2)
+        val noSplitPolicy = SingleLineBlock(expire, exclude)
           .andThen(penalizeNewlinesInApply.f)
-          .copy(expire = lastToken.end)
+          .copy(expire = expire.end)
         val newlinePolicy = breakOnEveryDot
           .andThen(penalizeNewlinesInApply.f)
-          .copy(expire = lastToken.end)
+          .copy(expire = expire.end)
         val ignoreNoSplit = style.optIn.breakChainOnFirstMethodDot && newlines > 0
         val chainLengthPenalty =
           if (style.newlines.penalizeSingleSelectMultiArgList &&
