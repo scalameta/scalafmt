@@ -40,15 +40,19 @@ case class Policy(
     * first pf is not defined at argument.
     */
   def andThen(otherF: PartialFunction[Decision, Decision]): Policy = {
-    // TODO(olafur) optimize?
-    val newPf: PartialFunction[Decision, Decision] = {
-      case x =>
-        otherF.applyOrElse(
-          f.applyOrElse(x, identity[Decision]),
-          identity[Decision]
-        )
+    if (otherF == Policy.emptyPf) this
+    else if (this.f == Policy.emptyPf) copy(f = otherF)
+    else {
+      // TODO(olafur) optimize?
+      val newPf: PartialFunction[Decision, Decision] = {
+        case x =>
+          otherF.applyOrElse(
+            f.applyOrElse(x, identity[Decision]),
+            identity[Decision]
+          )
+      }
+      copy(f = newPf)
     }
-    copy(f = newPf)
   }
 
   override def toString = s"P:${line.value}(D=$noDequeue)"

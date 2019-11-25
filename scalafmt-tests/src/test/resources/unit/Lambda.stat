@@ -69,14 +69,13 @@ Thing(implicit ctx => j => ???)
 <<< long curried with ()
 Thing(implicit ctx => j => k => aaaaaaaaaaaaa(bbbbbbbbbbbbbbbbbbb, cccccccccc, ddddddddddddddddddddj)) // coooooooooooooooomment
 >>>
-Thing(
-    implicit ctx =>
-      j =>
-        k =>
-          aaaaaaaaaaaaa(
-              bbbbbbbbbbbbbbbbbbb,
-              cccccccccc,
-              ddddddddddddddddddddj)) // coooooooooooooooomment
+Thing(implicit ctx =>
+  j =>
+    k =>
+      aaaaaaaaaaaaa(
+          bbbbbbbbbbbbbbbbbbb,
+          cccccccccc,
+          ddddddddddddddddddddj)) // coooooooooooooooomment
 <<< single line uncurried
 Thing() { implicit ctx =>
       ???
@@ -90,11 +89,10 @@ val groupedData = Array(topic1, topic2).flatMap(
         topic =>
           partitionDataFetchResponseMap.map(foobar))
 >>>
-val groupedData =
-  Array(topic1, topic2).flatMap(
-      topic =>
-        partitionDataFetchResponseMap
-          .map(foobar))
+val groupedData = Array(topic1, topic2)
+  .flatMap(topic =>
+    partitionDataFetchResponseMap.map(
+        foobar))
 <<< 1.8 upgrade
 val x: Int => Int =  { y =>
   y + 1

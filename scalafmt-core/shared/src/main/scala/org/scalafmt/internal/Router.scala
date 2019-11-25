@@ -125,7 +125,7 @@ class Router(formatOps: FormatOps) {
           close,
           disallowSingleLineComments = disallowSingleLineComments
         )
-        val newlineBeforeClosingCurly = newlineBeforeClosingCurlyPolicy(close)
+        val newlineBeforeClosingCurly = newlineOnTokenPolicy(close)
 
         val newlinePolicy = style.importSelectors match {
           case ImportSelectors.noBinPack =>
@@ -172,7 +172,7 @@ class Router(formatOps: FormatOps) {
       // { ... } Blocks
       case tok @ FormatToken(open @ T.LeftBrace(), right, between) =>
         val close = matchingParentheses(hash(open))
-        val newlineBeforeClosingCurly = newlineBeforeClosingCurlyPolicy(close)
+        val newlineBeforeClosingCurly = newlineOnTokenPolicy(close)
         val selfAnnotation: Option[Tokens] = leftOwner match {
           // Self type: trait foo { self => ... }
           case t: Template => Some(t.self.name.tokens).filter(_.nonEmpty)
@@ -460,6 +460,39 @@ class Router(formatOps: FormatOps) {
         verticalMultiline(leftOwner, ft)(style)
 
       // Term.Apply and friends
+      case FormatToken(T.LeftParen(), _, _)
+          if style.optIn.configStyleArguments &&
+            !style.newlinesBeforeSingleArgParenLambdaParams &&
+            getLambdaAtSingleArgCallSite(leftOwner).isDefined => {
+        val lambda = getLambdaAtSingleArgCallSite(leftOwner).get
+        val (lambdaIsABlock, lambdaToken) = lambda.body match {
+          case b: Term.Block =>
+            true -> b.tokens.head
+          case _ =>
+            val arrow = lambda.tokens.find(_.is[T.RightArrow]).get
+            next(arrow).is[T.LeftBrace] -> arrow
+        }
+
+        val close = matchingParentheses(hash(formatToken.left))
+        val splitOnClosePolicy =
+          if (style.danglingParentheses.callSite && !lambdaIsABlock)
+            newlineOnTokenPolicy(close)
+          else
+            Policy(Policy.emptyPf, close.end)
+        val noSplitBeforeArrowPolicy =
+          splitOnClosePolicy.andThen(SingleLineBlock(lambdaToken))
+
+        val newlinePenalty = 3 + nestedApplies(leftOwner)
+        Seq(
+          Split(NoSplit, 0, policy = SingleLineBlock(close))
+            .withOptimalToken(close),
+          Split(NoSplit, 0, policy = noSplitBeforeArrowPolicy)
+            .withOptimalToken(lambdaToken),
+          Split(Newline, newlinePenalty, policy = splitOnClosePolicy)
+            .withIndent(style.continuationIndent.callSite, close, Right)
+        )
+      }
+
       case FormatToken(T.LeftParen() | T.LeftBracket(), right, between)
           if style.optIn.configStyleArguments &&
             (isDefnSite(leftOwner) || isCallSite(leftOwner)) &&
@@ -664,11 +697,7 @@ class Router(formatOps: FormatOps) {
         val newlinePolicy: Policy =
           if (style.danglingParentheses.defnSite && defnSite ||
             style.danglingParentheses.callSite && !defnSite) {
-            val breakOnClosing = Policy({
-              case d @ Decision(FormatToken(_, `close`, _), s) =>
-                d.onlyNewlines
-            }, close.end)
-            breakOnClosing
+            newlineOnTokenPolicy(close)
           } else {
             Policy(PartialFunction.empty[Decision, Decision], close.end)
           }
@@ -701,6 +730,21 @@ class Router(formatOps: FormatOps) {
           else if (right.is[T.Comment]) newlines2Modification(between)
           else NoSplit
 
+        val keepConfigStyleSplit =
+          style.optIn.configStyleArguments && newlines != 0
+        val splitForAssignToken =
+          if (defnSite || isBracket || keepConfigStyleSplit) None
+          else
+            getAssignAtSingleArgCallSite(leftOwner).map { assign =>
+              val assignToken = assign.rhs match {
+                case b: Term.Block => b.tokens.head
+                case _ => assign.tokens.find(_.is[T.Equals]).get
+              }
+              Split(NoSplit, 1 + nestedPenalty + lhsPenalty)
+                .withPolicy(newlinePolicy.andThen(SingleLineBlock(assignToken)))
+                .withOptimalToken(assignToken)
+            }
+
         Seq(
           Split(noSplitModification, 0, policy = noSplitPolicy)
             .withOptimalToken(expirationToken)
@@ -709,7 +753,7 @@ class Router(formatOps: FormatOps) {
             newlineModification,
             (1 + nestedPenalty + lhsPenalty) * bracketMultiplier,
             policy = newlinePolicy.andThen(singleLine(4)),
-            ignoreIf = args.length > 1 || isTuple
+            ignoreIf = args.length > 1 || isTuple || splitForAssignToken.isDefined
           ).withOptimalToken(expirationToken)
             .withIndent(indent, close, Right),
           Split(
@@ -728,7 +772,7 @@ class Router(formatOps: FormatOps) {
             ignoreIf = singleArgument || isTuple
           ).withOptimalToken(expirationToken)
             .withIndent(indent, close, Right)
-        )
+        ) ++ splitForAssignToken.toSeq
 
       // Closing def site ): ReturnType
       case FormatToken(left, T.Colon(), _)

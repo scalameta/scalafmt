@@ -147,14 +147,14 @@ object TokenOps {
   )(implicit line: sourcecode.Line): Policy = {
     Policy(
       {
-        case Decision(tok, splits)
+        case d @ Decision(tok, _)
             if !tok.right.is[EOF] && tok.right.end <= expire.end &&
               exclude.forall(!_.contains(tok.left.start)) &&
               (disallowSingleLineComments || !isSingleLineComment(tok.left)) =>
           if (penaliseNewlinesInsideTokens && tok.leftHasNewline) {
             Decision(tok, Seq.empty[Split])
           } else {
-            Decision(tok, splits.filterNot(_.modification.isNewline))
+            d.noNewlines
           }
       },
       expire.end,

@@ -1,4 +1,5 @@
 style = defaultWithAlign
+edition = 2019-10
 onTestFailure = "Search state"
 align = most
 danglingParentheses = false

@@ -199,6 +199,8 @@ case class ScalafmtConfig(
 
   // Edition 2019-11
   val activeForEdition_2019_11: Boolean = activeFor(Edition(2019, 11))
+  val newlinesBeforeSingleArgParenLambdaParams: Boolean =
+    newlines.alwaysBeforeCurlyBraceLambdaParams || !activeForEdition_2019_11
 }
 
 object ScalafmtConfig {
