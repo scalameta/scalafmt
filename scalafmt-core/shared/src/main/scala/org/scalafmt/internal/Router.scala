@@ -458,15 +458,18 @@ class Router(formatOps: FormatOps) {
             // The block will take care of indenting by 2.
             Seq(Split(Space, 0))
           case _ =>
+            val rhsIsComment = isSingleLineComment(right)
             Seq(
               Split(
                 Space,
                 0,
-                ignoreIf = newlines > 0 && !rhsIsJsNative,
+                ignoreIf = rhsIsComment || newlines > 0 && !rhsIsJsNative,
                 policy =
                   if (!style.newlines.alwaysBeforeMultilineDef) NoPolicy
                   else SingleLineBlock(expire, exclude = exclude)
               ),
+              Split(Space, 0, ignoreIf = newlines != 0 || !rhsIsComment)
+                .withIndent(2, expire, Left),
               Split(Newline, 1, ignoreIf = rhsIsJsNative)
                 .withIndent(2, expire, Left)
             )
