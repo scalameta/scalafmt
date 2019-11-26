@@ -168,10 +168,9 @@ case FormatToken(open @ LeftParen(), _, _) if {
           } => { a; b }
           }}
 >>>
-produces error: test does not parse; was rewritten as:
 object a {
   b match {
-    case FormatToken(open @ LeftParen(), _, _) if
+    case FormatToken(open @ LeftParen(), _, _) if {
           val isSuperfluous = isSuperfluousParenthesis(open, leftOwner)
           leftOwner match {
             case _: Term.If | _: Term.While | _: Term.For | _: Term.ForYield
@@ -179,7 +178,7 @@ object a {
               true
             case _ => false
           }
-        =>
-      { a; b }
+        } =>
+      a; b
   }
 }

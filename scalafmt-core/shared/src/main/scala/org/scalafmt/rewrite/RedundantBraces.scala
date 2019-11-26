@@ -171,8 +171,13 @@ case object RedundantBraces extends Rewrite {
   private def removeBlock(b: Term.Block)(implicit ctx: RewriteCtx): Boolean = {
     b.parent.exists {
 
-      case _: Case =>
-        settings.generalExpressions
+      case p: Case =>
+        settings.generalExpressions && {
+          (p.body eq b) ||
+          exactlyOneStatement(b) &&
+          blockSizeIsOk(b) &&
+          !retainSingleStatBlock(b)
+        }
 
       case _: Term.Apply =>
         // Example: as.map { _.toString }
