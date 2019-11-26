@@ -89,9 +89,21 @@ object Cli {
     //   (or if the `version` is not specified).
     val runner: ScalafmtRunner = options.version match {
       case None => ScalafmtCoreRunner
-      case Some(v) if v == Versions.version =>
-        ScalafmtCoreRunner
-      case _ => ScalafmtDynamicRunner
+      case Some(v) =>
+        if (v == Versions.version) ScalafmtCoreRunner
+        else {
+          val isNativeImage =
+            "true" == System.getProperty("scalafmt.native-image", "false")
+          if (isNativeImage) {
+            throw new UnsupportedOperationException(
+              s"""Expected version '${Versions.version}' but found version '${v}'.
+                 |To fix this problem, update the 'version' setting in the .scalafmt.conf
+                 |file '${options.configPath}' to have the value '${Versions.version}'.
+                 |""".stripMargin
+            )
+          }
+          ScalafmtDynamicRunner
+        }
     }
     val exit = runner.run(options, termDisplayMessage)
 
