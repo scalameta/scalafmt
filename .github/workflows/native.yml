@@ -18,11 +18,7 @@ jobs:
       - uses: actions/checkout@v1
       - uses: olafurpg/setup-scala@v5
       - run: jabba install graal-custom@19.3=tgz+${{ matrix.url }}
-      - name: sbt cli/graalvm-native-image:packageBin
-        run: |
-          jabba use graal-custom@19.3
-          gu install native-image
-          sbt cli/graalvm-native-image:packageBin
+      - run: bin/build-native-image.sh
       - uses: actions/upload-artifact@master
         with:
           name: scalafmt
