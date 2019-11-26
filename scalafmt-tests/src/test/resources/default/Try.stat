@@ -62,33 +62,26 @@ object Foo {
 }
 >>>
 object Foo {
-  try {
-    foo()
-  } finally {
-    bar()
-  }
+  try { foo() }
+  finally { bar() }
 }
 <<< try/catch/finally curly no single line blocks
 object Foo {
-  try { foo()  }
+   try{foo()}
   catch { case bar => baz }
-  finally {  qux()  }
+ finally {qux()  }
 }
 >>>
 object Foo {
-  try {
-    foo()
-  } catch { case bar => baz }
-  finally {
-    qux()
-  }
+  try { foo() }
+  catch { case bar => baz }
+  finally { qux() }
 }
 <<< try/catch with handler
 try { foo()  } catch handler
 >>>
-try {
-  foo()
-} catch handler
+try { foo() }
+catch handler
 <<< #350 assignment: short single line
 val template: String = try source.mkString finally source.close()
 >>>
