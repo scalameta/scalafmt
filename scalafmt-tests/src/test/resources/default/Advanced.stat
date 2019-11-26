@@ -88,9 +88,8 @@ val createAsStat = if (semantics.asInstanceOfs == Unchecked) {
 def processOptions(): Unit = {
   if (option.startsWith("relSourceMap:")) {
     val uriStr = option.stripPrefix("relSourceMap:")
-    try {
-      relSourceMap = Some(new URI(uriStr))
-    } catch {
+    try { relSourceMap = Some(new URI(uriStr)) }
+    catch {
       case e: URISyntaxException => error(s"$uriStr is not a valid URI")
     }
   } else {

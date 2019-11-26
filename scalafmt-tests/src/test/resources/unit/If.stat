@@ -120,11 +120,8 @@ object Bar {
 if (true) { a }
 else { 2 }
 >>>
-if (true) {
-  a
-} else {
-  2
-}
+if (true) { a }
+else { 2 }
 <<< #930 return
 if (true) return
 else println(1)
@@ -137,26 +134,20 @@ else println(1)
       else if ('a' <= c && c <= 'f') { c - 'a' + 10 }
       else { -1 }
 >>>
-if ('0' <= c && c <= '9') {
-  c - '0'
-} else if ('A' <= c && c <= 'F') {
+if ('0' <= c && c <= '9') { c - '0' }
+else if ('A' <= c && c <= 'F') {
   c - 'A' + 10
 } else if ('a' <= c && c <= 'f') {
   c - 'a' + 10
-} else {
-  -1
-}
+} else { -1 }
 <<< #1043 with lines joined
       if ('0' <= c && c <= '9') { c - '0' }      else if ('A' <= c && c <= 'F') { c - 'A' + 10 }
       else if ('a' <= c && c <= 'f') { c - 'a' + 10 }
       else { -1 }
 >>>
-if ('0' <= c && c <= '9') {
-  c - '0'
-} else if ('A' <= c && c <= 'F') {
+if ('0' <= c && c <= '9') { c - '0' }
+else if ('A' <= c && c <= 'F') {
   c - 'A' + 10
 } else if ('a' <= c && c <= 'f') {
   c - 'a' + 10
-} else {
-  -1
-}
+} else { -1 }

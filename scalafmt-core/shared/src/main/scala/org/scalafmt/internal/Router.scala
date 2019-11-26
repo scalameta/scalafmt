@@ -9,6 +9,7 @@ import org.scalafmt.util._
 
 import scala.collection.mutable
 import scala.language.implicitConversions
+import scala.meta.classifiers.Classifier
 import scala.meta.tokens.{Token, Tokens}
 import scala.meta.tokens.{Token => T}
 import scala.meta.{
@@ -210,34 +211,43 @@ class Router(formatOps: FormatOps) {
               }
             }
 
-        val skipSingleLineBlock =
-          startsLambda ||
-            newlines > 0 ||
-            leftOwner.parent.exists {
-              case _: Term.If | _: Term.Try | _: Term.TryWithHandler => true
-              case _ => false
-            }
+        def getSingleLineDecisionPre2019Nov = leftOwner.parent match {
+          case Some(_: Term.If | _: Term.Try | _: Term.TryWithHandler) => null
+          case _ => Policy.emptyPf
+        }
+        def getSingleLineDecisionFor2019Nov = {
+          type Classifiers = Seq[Classifier[Token, _]]
+          def classifiersByParent: Classifiers = leftOwner.parent match {
+            case Some(_: Term.If) => Seq(T.KwElse.classifier)
+            case Some(_: Term.Try | _: Term.TryWithHandler) =>
+              Seq(T.KwCatch.classifier, T.KwFinally.classifier)
+            case _ => Seq.empty
+          }
+          val classifiers: Classifiers = leftOwner match {
+            // for catch with case, we should go up only one level
+            case _: Term.Try if rightOwner.is[Case] =>
+              Seq(T.KwFinally.classifier)
+            case _ if !style.activeForEdition_2020_01 => Seq.empty
+            case _ => classifiersByParent
+          }
+
+          val breakSingleLineAfterClose = classifiers.nonEmpty && {
+            val afterClose = tokens(close).right
+            classifiers.exists(_(afterClose))
+          }
+          if (!breakSingleLineAfterClose) Policy.emptyPf
+          else decideNewlinesOnlyAfterClose(close)
+        }
+        def getSingleLineDecision: Policy.Pf =
+          if (newlines > 0) null
+          else if (style.activeForEdition_2019_11)
+            getSingleLineDecisionFor2019Nov
+          else
+            getSingleLineDecisionPre2019Nov
 
         // null if skipping
-        val singleLineDecision: Policy.Pf =
-          if (skipSingleLineBlock) {
-            null
-          } else if (!style.activeForEdition_2019_11) {
-            Policy.emptyPf
-          } else {
-            def isCatch = leftOwner match {
-              // for catch with case, we should go up only one level
-              case _: Term.Try if rightOwner.is[Case] => true
-              case _ => false
-            }
-
-            val afterClose = tokens(close).right
-            val breakSingleLineAfterClose =
-              if (isCatch) afterClose.is[T.KwFinally]
-              else false
-            if (!breakSingleLineAfterClose) Policy.emptyPf
-            else decideNewlinesOnlyAfterClose(close)
-          }
+        val singleLineDecision =
+          if (startsLambda) null else getSingleLineDecision
 
         val spaceMod = xmlSpace(leftOwner)
 

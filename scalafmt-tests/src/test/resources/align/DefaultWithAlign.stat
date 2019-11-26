@@ -385,9 +385,7 @@ object mixed {
 >>>
 {
   if (cond) foo
-  else {
-    val chars = s.toCharArray
-  }
+  else { val chars = s.toCharArray }
   val prefix =
     "sbt.paths." + projectName + "." + uncapitalize(config.name) + "."
 }
