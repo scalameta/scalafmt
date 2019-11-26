@@ -21,5 +21,5 @@ jobs:
       - run: bin/build-native-image.sh
       - uses: actions/upload-artifact@master
         with:
-          name: scalafmt
+          name: scalafmt-${{ matrix.os }}
           path: scalafmt-cli/target/graalvm-native-image/cli
