@@ -734,6 +734,13 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
         d.onlyNewlines
     }, close.end)
 
+  def decideNewlineAfterToken(
+      close: Token
+  ): PartialFunction[Decision, Decision] = {
+    case d: Decision if d.formatToken.left eq close =>
+      d.onlyNewlines
+  }
+
   // Returns the depth of this node in the AST, used to prevent false positives.
   final def vAlignDepth(tree: Tree): Int = {
     vAlignDepthCache.getOrElseUpdate(tree, vAlignDepthUnCached(tree))

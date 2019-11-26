@@ -218,12 +218,32 @@ class Router(formatOps: FormatOps) {
               case _ => false
             }
 
+        // null if skipping
+        val singleLineDecision: PartialFunction[Decision, Decision] =
+          if (skipSingleLineBlock) {
+            null
+          } else if (!style.activeForEdition_2019_11) {
+            Policy.emptyPf
+          } else {
+            def isCatch = leftOwner match {
+              // for catch with case, we should go up only one level
+              // see if this is a single-case catch block
+              case _: Term.Try if rightOwner.is[Case] => true
+              case _ => false
+            }
+
+            val breakSingleLineAfterClose =
+              !next(close).is[T.RightParen] && isCatch
+            if (!breakSingleLineAfterClose) Policy.emptyPf
+            else decideNewlineAfterToken(close)
+          }
+
         val spaceMod = xmlSpace(leftOwner)
 
         Seq(
-          Split(spaceMod, 0, ignoreIf = skipSingleLineBlock)
+          Split(spaceMod, 0, ignoreIf = singleLineDecision == null)
             .withOptimalToken(close, killOnFail = true)
-            .withPolicy(SingleLineBlock(close)),
+            .withPolicy(SingleLineBlock(close).andThen(singleLineDecision)),
           Split(
             Space,
             0,
@@ -990,23 +1010,24 @@ class Router(formatOps: FormatOps) {
                 ignore = x => excludeRanges.exists(_.contains(x.left.start))
               )
             }
+            val jsNative = isJsNative(right)
+            val noNewline = jsNative
             val spacePolicy: Policy = rhs match {
               case _: Term.If => twoBranches
               case _: Term.ForYield => twoBranches
+              case _: Term.Try | _: Term.TryWithHandler
+                  if style.activeForEdition_2019_11 && !noNewline =>
+                null // we force newlines in try/catch/finally
               case _ => NoPolicy
             }
-            val jsNative = isJsNative(right)
-            val isDefn = leftOwner.isInstanceOf[Defn]
+            val noSpace = null == spacePolicy ||
+              (!jsNative && newlines > 0 && leftOwner.isInstanceOf[Defn])
             val spaceIndent = if (isSingleLineComment(right)) 2 else 0
             Seq(
-              Split(
-                Space,
-                0,
-                policy = spacePolicy,
-                ignoreIf = isDefn && !jsNative && newlines > 0
-              ).withOptimalToken(expire, killOnFail = false)
+              Split(Space, 0, policy = spacePolicy, ignoreIf = noSpace)
+                .withOptimalToken(expire, killOnFail = false)
                 .withIndent(spaceIndent, expire, Left),
-              Split(mod, 1 + penalty, ignoreIf = jsNative)
+              Split(mod, 1 + penalty, ignoreIf = noNewline)
                 .withIndent(2, expire, Left)
             )
         }
