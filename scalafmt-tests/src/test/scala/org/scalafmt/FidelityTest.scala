@@ -27,16 +27,15 @@ class FidelityTest extends FunSuite with FormatAssertions {
   val files = FileOps
     .listFiles(".")
     .filter(_.endsWith(".scala"))
-    .filterNot(
-      x =>
-        Set(
-          "ConfigReader.scala",
-          "BuildTime.scala",
-          "GitCommit.scala",
-          "/target/",
-          "/resources/",
-          "/gh-pages/"
-        ).map(_.replace("/", File.separator)).exists(x.contains)
+    .filterNot(x =>
+      Set(
+        "ConfigReader.scala",
+        "BuildTime.scala",
+        "GitCommit.scala",
+        "/target/",
+        "/resources/",
+        "/gh-pages/"
+      ).map(_.replace("/", File.separator)).exists(x.contains)
     )
 
   val examples = files.map(Test.apply)
