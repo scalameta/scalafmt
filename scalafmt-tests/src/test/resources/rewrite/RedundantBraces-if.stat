@@ -154,3 +154,31 @@ object a {
       else
         println("no??")
 }
+<<< #1147
+object a {
+ b match {
+case FormatToken(open @ LeftParen(), _, _) if {
+            val isSuperfluous = isSuperfluousParenthesis(open, leftOwner)
+            leftOwner match {
+              case _: Term.If | _: Term.While | _: Term.For | _: Term.ForYield
+                  if !isSuperfluous =>
+                true
+              case _ => false
+            }
+          } => { a; b }
+          }}
+>>>
+object a {
+  b match {
+    case FormatToken(open @ LeftParen(), _, _) if {
+          val isSuperfluous = isSuperfluousParenthesis(open, leftOwner)
+          leftOwner match {
+            case _: Term.If | _: Term.While | _: Term.For | _: Term.ForYield
+                if !isSuperfluous =>
+              true
+            case _ => false
+          }
+        } =>
+      a; b
+  }
+}

@@ -9,7 +9,10 @@ import scala.meta._
 import scala.meta.tokens.Token.LF
 import scala.meta.tokens.Token.LeftBrace
 import scala.meta.tokens.Token.RightBrace
+
+import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps._
+import org.scalafmt.util.Whitespace
 
 /**
   * Removes/adds curly braces where desired.
@@ -65,6 +68,9 @@ case object RedundantBraces extends Rewrite {
 
     code.traverse {
 
+      case t: Term.Apply if ctx.style.activeForEdition_2019_11 =>
+        processApply(t)
+
       case b: Term.Block =>
         processBlock(b)
 
@@ -73,6 +79,58 @@ case object RedundantBraces extends Rewrite {
     }
 
     builder.result()
+  }
+
+  private def processApply(
+      tree: Term.Apply
+  )(implicit builder: PatchBuilder, ctx: RewriteCtx): Unit = {
+    val lastToken = tree.tokens.last
+    if (settings.methodBodies && lastToken.is[Token.RightParen]) {
+      tree.args match {
+        case Nil =>
+        case List(arg) => processSingleArgApply(arg, lastToken)
+        case args => processMultiArgApply(args)
+      }
+    }
+  }
+
+  private def processSingleArgApply(
+      arg: Term,
+      rparen: Token
+  )(implicit builder: PatchBuilder, ctx: RewriteCtx): Unit = arg match {
+    // single-arg apply of a lambda
+    // a(b => { c; d }) change to a { b => c; d }
+    case f: Term.Function
+        if f.tokens.last.is[Token.RightBrace] && getTermLineSpan(f) > 0 =>
+      val rbrace = f.tokens.last
+      val lbrace = ctx.matchingParens(TokenOps.hash(rbrace))
+      val lparen = ctx.matchingParens(TokenOps.hash(rparen))
+      builder += TokenPatch.Replace(lparen, lbrace.text)
+      builder += TokenPatch.Remove(lbrace)
+      builder += TokenPatch.Remove(rparen)
+      removeTrailingLF(rbrace.pos, rparen)
+    case _ =>
+  }
+
+  private def processMultiArgApply(
+      args: Seq[Term]
+  )(implicit builder: PatchBuilder, ctx: RewriteCtx): Unit = args.foreach {
+    // multi-arg apply of single-stat lambdas
+    // a(b => { c }, d => { e }) change to a(b => c, d => e)
+    // a single-stat lambda with braces can be converted to one without braces,
+    // but the reverse conversion isn't always possible
+    case fun @ Term.Function(_, body)
+        if fun.tokens.last.is[Token.RightBrace]
+          && exactlyOneStatement(body) && isLineSpanOk(body) =>
+      val rbrace = fun.tokens.last
+      val lbrace = ctx.matchingParens(TokenOps.hash(rbrace))
+      builder += TokenPatch.Remove(lbrace)
+      builder += TokenPatch.Remove(rbrace)
+      removeTrailingLF(lbrace.pos, rbrace)
+      ctx.tokenTraverser
+        .reverseFind(rbrace)(!Whitespace.unapply(_))
+        .foreach(t => removeTrailingLF(t.pos, rbrace))
+    case _ =>
   }
 
   private def removeTrailingLF(
@@ -102,12 +160,24 @@ case object RedundantBraces extends Rewrite {
       }
     }
 
+  private def exactlyOneStatement(b: Term.Block): Boolean =
+    b.stats.lengthCompare(1) == 0
+
+  private def exactlyOneStatement(t: Term): Boolean = t match {
+    case b: Term.Block => exactlyOneStatement(b)
+    case _ => true
+  }
+
   private def removeBlock(b: Term.Block)(implicit ctx: RewriteCtx): Boolean = {
-    def exactlyOneStatement = b.stats.lengthCompare(1) == 0
     b.parent.exists {
 
-      case _: Case =>
-        settings.generalExpressions
+      case p: Case =>
+        settings.generalExpressions && {
+          (p.body eq b) ||
+          exactlyOneStatement(b) &&
+          blockSizeIsOk(b) &&
+          !retainSingleStatBlock(b)
+        }
 
       case _: Term.Apply =>
         // Example: as.map { _.toString }
@@ -124,7 +194,7 @@ case object RedundantBraces extends Rewrite {
             case _ => true
           }
         settings.methodBodies &&
-        exactlyOneStatement &&
+        exactlyOneStatement(b) &&
         blockSizeIsOk(b) &&
         innerOk &&
         !isProcedureSyntax(d) &&
@@ -136,7 +206,7 @@ case object RedundantBraces extends Rewrite {
 
       case _ =>
         settings.generalExpressions &&
-          exactlyOneStatement &&
+          exactlyOneStatement(b) &&
           blockSizeIsOk(b) &&
           !retainSingleStatBlock(b)
     }
@@ -174,12 +244,22 @@ case object RedundantBraces extends Rewrite {
     }
 
   private def blockSizeIsOk(b: Term.Block)(implicit ctx: RewriteCtx): Boolean =
-    b.tokens.isEmpty || {
-      val diff =
-        if (b.stats.isEmpty)
-          b.tokens.last.pos.endLine - b.tokens.head.pos.startLine
-        else
-          b.stats.last.pos.endLine - b.stats.head.pos.startLine
-      diff <= settings.maxLines
+    getBlockLineSpan(b) <= settings.maxLines
+
+  private def isLineSpanOk(b: Term)(implicit ctx: RewriteCtx): Boolean = {
+    val diff = b match {
+      case b: Term.Block => getBlockLineSpan(b)
+      case _ => getTermLineSpan(b)
     }
+    diff <= settings.maxLines
+  }
+
+  private def getBlockLineSpan(b: Term.Block)(implicit ctx: RewriteCtx): Int =
+    if (b.stats.isEmpty) getTermLineSpan(b)
+    else b.stats.last.pos.endLine - b.stats.head.pos.startLine
+
+  private def getTermLineSpan(b: Term)(implicit ctx: RewriteCtx): Int =
+    if (b.tokens.isEmpty) 0
+    else b.tokens.last.pos.endLine - b.tokens.head.pos.startLine
+
 }

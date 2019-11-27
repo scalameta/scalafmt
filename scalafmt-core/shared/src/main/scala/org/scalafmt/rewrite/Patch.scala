@@ -11,6 +11,8 @@ abstract class TokenPatch(val tok: Token, val newTok: String) extends TreePatch
 
 object TokenPatch {
   case class Remove(override val tok: Token) extends TokenPatch(tok, "")
+  case class Replace(override val tok: Token, override val newTok: String)
+      extends TokenPatch(tok, newTok)
   def AddRight(
       tok: Token,
       toAdd: String,

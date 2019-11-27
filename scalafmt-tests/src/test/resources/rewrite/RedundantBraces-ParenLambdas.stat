@@ -1,0 +1,109 @@
+rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.methodBodies = true
+rewrite.redundantBraces.maxLines = 1
+<<< #1237 1 ctor is untouched
+object a {
+  val a = new b(c => { d })
+}
+>>>
+object a {
+  val a = new b(c => { d })
+}
+<<< #1237 2 apply single-stat with comments
+object a {
+  val a = b(c => {
+  d // c1
+  } // c2
+  )
+}
+>>>
+object a {
+  val a = b { c =>
+    d // c1
+  } // c2
+}
+<<< #1237 3 apply multiple single-stat
+object a {
+  val a = b(c => { d }, e => { f })
+}
+>>>
+object a {
+  val a = b(c => d, e => f)
+}
+<<< #1237 4 apply multiple single-stat multiline
+object a {
+  val a = b(
+    c => { d },
+    e => {
+    f + f
+    },
+    g => {
+      h +
+          h
+    },
+    i => {
+      j +
+          j -
+              j
+    }
+  )
+}
+>>>
+object a {
+  val a = b(
+    c => d,
+    e => f + f,
+    g =>
+      h +
+        h,
+    i => {
+      j +
+        j -
+        j
+    }
+  )
+}
+<<< #1237 5 apply single multi-stat with newline
+object a {
+  val a = b(c => { d
+   e})
+}
+>>>
+object a {
+  val a = b { c =>
+    d
+    e
+  }
+}
+<<< #1237 6 apply single multi-stat with semicolon
+object a {
+  val a = b(c => { d; e })
+}
+>>>
+object a {
+  val a = b(c => { d; e })
+}
+<<< #1237 7 apply single multi-stat with semicolon and newline
+object a {
+  val a = b(c => { d;
+   e })
+}
+>>>
+object a {
+  val a = b { c =>
+    d;
+    e
+  }
+}
+<<< #1237 8 block single multi-stat with newline
+object a {
+  val a = b { c => { d
+   e}}
+}
+>>>
+object a {
+  val a = b { c =>
+    d
+    e
+  }
+}
