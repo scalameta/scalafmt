@@ -1,5 +1,7 @@
 package org.scalafmt.internal
 
+import java.{util => ju}
+import scala.collection.JavaConverters._
 import org.scalafmt.Error.CaseMissingArrow
 import org.scalafmt.config.{DanglingExclude, ScalafmtConfig}
 import org.scalafmt.internal.ExpiresOn.{Left, Right}
@@ -92,10 +94,10 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       tree.tokens.headOption.foreach(x => optional += hash(x))
 
     import scala.collection.mutable
-    val workList: mutable.Queue[Tree] = new mutable.Queue[Tree]()
-    workList.enqueue(tree)
-    while(workList.nonEmpty) {
-      val tree = workList.dequeue()
+    val workList = new ju.LinkedList[Tree]()
+    workList.add(tree)
+    while (!workList.isEmpty) {
+      val tree = workList.poll()
       tree match {
         case p: Pkg => packages ++= p.ref.tokens
         case i: Import => imports ++= i.tokens
@@ -106,7 +108,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
           addOptional(t.name)
         case _ =>
       }
-      workList.enqueue(tree.children: _*)
+      workList.addAll(tree.children.asJava)
     }
     (packages.result(), imports.result(), arguments.toMap, optional)
   }
