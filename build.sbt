@@ -46,6 +46,8 @@ inThisBuild(
 name := "scalafmtRoot"
 skip in publish := true
 
+addCommandAlias("native-image", "cli/graalvm-native-image:packageBin")
+
 commands += Command.command("ci-test") { s =>
   val scalaVersion = sys.env.get("TEST") match {
     case Some("2.11") => scala211
