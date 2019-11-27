@@ -3,7 +3,7 @@ on:
   push:
   pull_request:
 jobs:
-  unix:
+  build:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -12,8 +12,10 @@ jobs:
         include:
           - os: macOS-latest
             url: https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-19.3.0/graalvm-ce-java11-darwin-amd64-19.3.0.tar.gz
+            artifact: scalafmt-macos
           - os: ubuntu-latest
             url: https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-19.3.0/graalvm-ce-java11-linux-amd64-19.3.0.tar.gz
+            artifact: scalafmt-linux
     steps:
       - uses: actions/checkout@v1
       - uses: olafurpg/setup-scala@v5
@@ -21,5 +23,5 @@ jobs:
       - run: bin/build-native-image.sh
       - uses: actions/upload-artifact@master
         with:
-          name: scalafmt-${{ matrix.os }}
-          path: scalafmt-cli/target/graalvm-native-image/cli
+          name: ${{ matrix.artifact }}
+          path: scalafmt
