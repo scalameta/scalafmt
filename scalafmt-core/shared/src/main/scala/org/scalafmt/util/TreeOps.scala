@@ -1,5 +1,7 @@
 package org.scalafmt.util
 
+import java.{util => ju}
+import scala.collection.JavaConverters._
 import scala.annotation.tailrec
 import scala.meta.Case
 import scala.meta.Ctor
@@ -191,16 +193,19 @@ object TreeOps {
   /**
     * Creates lookup table from token offset to its closest scala.meta tree.
     */
-  def getOwners(tree: Tree): Map[TokenHash, Tree] = {
-    val result = Map.newBuilder[TokenHash, Tree]
-    def loop(x: Tree): Unit = {
+  def getOwners(tree: Tree): collection.Map[TokenHash, Tree] = {
+    val result = new java.util.HashMap[TokenHash, Tree](2048)
+    import scala.collection.mutable
+    val workList = new ju.LinkedList[Tree]()
+    workList.add(tree)
+    while (!workList.isEmpty) {
+      val x = workList.poll()
       x.tokens.foreach { tok =>
-        result += hash(tok) -> x
+        result.put(hash(tok), x)
       }
-      x.children.foreach(loop)
+      workList.addAll(x.children.asJava)
     }
-    loop(tree)
-    result.result()
+    result.asScala
   }
 
   @tailrec
