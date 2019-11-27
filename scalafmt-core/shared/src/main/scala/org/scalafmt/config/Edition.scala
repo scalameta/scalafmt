@@ -18,7 +18,7 @@ object Edition {
     }
 
   implicit val encoder: ConfEncoder[Edition] =
-    ConfEncoder.instance(
-      edition => Conf.Str(f"${edition.year}%d-${edition.month}%02d")
+    ConfEncoder.instance(edition =>
+      Conf.Str(f"${edition.year}%d-${edition.month}%02d")
     )
 }

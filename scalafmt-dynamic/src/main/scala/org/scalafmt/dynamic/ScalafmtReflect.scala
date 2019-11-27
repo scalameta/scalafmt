@@ -67,19 +67,20 @@ case class ScalafmtReflect(
   }
 
   def parseConfigFromString(configText: String): ScalafmtReflectConfig = {
-    val configured: Object = try { // scalafmt >= 1.6.0
-      scalafmtCls.invokeStatic("parseHoconConfig", configText.asParam)
-    } catch {
-      case _: NoSuchMethodException =>
-        // scalafmt >= v0.7.0-RC1 && scalafmt < 1.6.0
-        val fromHoconEmptyPath =
-          configCls.invokeStatic("fromHoconString$default$2")
-        configCls.invokeStatic(
-          "fromHoconString",
-          configText.asParam,
-          fromHoconEmptyPath.asParam(optionCls)
-        )
-    }
+    val configured: Object =
+      try { // scalafmt >= 1.6.0
+        scalafmtCls.invokeStatic("parseHoconConfig", configText.asParam)
+      } catch {
+        case _: NoSuchMethodException =>
+          // scalafmt >= v0.7.0-RC1 && scalafmt < 1.6.0
+          val fromHoconEmptyPath =
+            configCls.invokeStatic("fromHoconString$default$2")
+          configCls.invokeStatic(
+            "fromHoconString",
+            configText.asParam,
+            fromHoconEmptyPath.asParam(optionCls)
+          )
+      }
 
     try {
       new ScalafmtReflectConfig(this, configured.invoke("get"), classLoader)

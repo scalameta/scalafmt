@@ -11,9 +11,9 @@ object Tabulator {
   def format(table: Seq[Seq[Any]]) = table match {
     case Seq() => ""
     case _ =>
-      val sizes = for (row <- table)
-        yield
-          (for (cell <- row)
+      val sizes =
+        for (row <- table)
+          yield (for (cell <- row)
             yield
               if (cell == null) 0
               else cell.toString.length)
@@ -27,10 +27,11 @@ object Tabulator {
       )).mkString("\n")
 
   def formatRow(row: Seq[Any], colSizes: Seq[Int]) = {
-    val cells = (for ((item, size) <- row.zip(colSizes))
-      yield
-        if (size == 0) ""
-        else ("%" + size + "s").format(item))
+    val cells =
+      (for ((item, size) <- row.zip(colSizes))
+        yield
+          if (size == 0) ""
+          else ("%" + size + "s").format(item))
     cells.mkString("|", "|", "|")
   }
 

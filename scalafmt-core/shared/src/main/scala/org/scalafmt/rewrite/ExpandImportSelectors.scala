@@ -13,10 +13,9 @@ case object ExpandImportSelectors extends Rewrite {
           .map { `import` =>
             val expandedImport = `import`.collect {
               case importer @ Importer(path, importees) =>
-                val hasRenamesOrUnimports = importees.exists(
-                  importee =>
-                    importee.is[Importee.Rename] || importee
-                      .is[Importee.Unimport]
+                val hasRenamesOrUnimports = importees.exists(importee =>
+                  importee.is[Importee.Rename] || importee
+                    .is[Importee.Unimport]
                 )
 
                 val hasWildcards = importees.exists(_.is[Importee.Wildcard])
@@ -45,9 +44,8 @@ case object ExpandImportSelectors extends Rewrite {
           .groupBy(_.tok)
 
         val mergedPatches: Seq[Patch] = groupedPatches.values.map { patches =>
-          patches.reduce(
-            (p1: TokenPatch, p2: TokenPatch) =>
-              TokenPatch.AddRight(p1.tok, p1.newTok + "\n" + p2.newTok)
+          patches.reduce((p1: TokenPatch, p2: TokenPatch) =>
+            TokenPatch.AddRight(p1.tok, p1.newTok + "\n" + p2.newTok)
           )
         }.toSeq
 

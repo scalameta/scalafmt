@@ -169,7 +169,8 @@ object TermDisplay {
             s"Last update: ${formatTimestamp(remote)}"
           case (None, None) =>
             "" // ???
-        } else
+        }
+      else
         currentTimeOpt match {
           case Some(current) =>
             s"Checking for updates since ${formatTimestamp(current)}"

@@ -43,11 +43,10 @@ case object AvoidInfix extends Rewrite {
             val selectorParens = for {
               fstToken <- fstArgsToken
               lastToken <- lastArgsToken
-            } yield
-              Seq(
-                TokenPatch.AddLeft(fstToken, "(", keepTok = true),
-                TokenPatch.AddRight(lastToken, ")", keepTok = true)
-              )
+            } yield Seq(
+              TokenPatch.AddLeft(fstToken, "(", keepTok = true),
+              TokenPatch.AddRight(lastToken, ")", keepTok = true)
+            )
             selectorParens.getOrElse(Seq.empty)
           } else
             Nil
@@ -67,18 +66,16 @@ case object AvoidInfix extends Rewrite {
           case _ => Nil
         }
 
-        val toBeRemoved = fstArgsToken.fold(Seq.empty[TokenPatch])(
-          token =>
-            ctx.tokenTraverser
-              .filter(fstOpToken, token)(_.is[LF])
-              .map(TokenPatch.Remove)
+        val toBeRemoved = fstArgsToken.fold(Seq.empty[TokenPatch])(token =>
+          ctx.tokenTraverser
+            .filter(fstOpToken, token)(_.is[LF])
+            .map(TokenPatch.Remove)
         )
 
-        val hasSingleLineComment = fstArgsToken.exists(
-          token =>
-            ctx.tokenTraverser
-              .filter(fstOpToken, token)(TokenOps.isSingleLineComment)
-              .nonEmpty
+        val hasSingleLineComment = fstArgsToken.exists(token =>
+          ctx.tokenTraverser
+            .filter(fstOpToken, token)(TokenOps.isSingleLineComment)
+            .nonEmpty
         )
 
         val infixTokens = infix.tokens
