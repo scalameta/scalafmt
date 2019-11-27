@@ -76,6 +76,55 @@ object Cli {
   }
 
   private[cli] def run(options: CliOptions): ExitCode = {
+    findRunner(options) match {
+      case Left(message) =>
+        options.common.err.println(message)
+        ExitCode.UnsupportedVersion
+      case Right(runner) =>
+        runWithRunner(options, runner)
+    }
+  }
+
+  private val isNativeImage: Boolean =
+    "true" == System.getProperty("scalafmt.native-image", "false")
+
+  private def findRunner(
+      options: CliOptions
+  ): Either[String, ScalafmtRunner] = {
+    // Run format using
+    // - `scalafmt-dynamic` if the specified `version` setting doesn't match build version.
+    // - `scalafmt-core` if the specified `version` setting match with build version
+    //   (or if the `version` is not specified).
+    options.version match {
+      case None =>
+        Right(ScalafmtCoreRunner)
+      case Some(v) =>
+        if (v == Versions.version) {
+          Right(ScalafmtCoreRunner)
+        } else if (isNativeImage) {
+          Left(
+            s"""error: invalid Scalafmt version.
+               |
+               |This Scalafmt installation has version '${Versions.version}' and the version configured in '${options.configPath}' is '${v}'.
+               |To fix this problem, add the following line to .scalafmt.conf:
+               |```
+               |version = '${Versions.version}'
+               |```
+               |
+               |NOTE: this error happens only when running a native Scalafmt binary.
+               |Scalafmt automatically installs and invokes the correct version of Scalafmt when running on the JVM.
+               |""".stripMargin
+          )
+        } else {
+          Right(ScalafmtDynamicRunner)
+        }
+    }
+
+  }
+  private[cli] def runWithRunner(
+      options: CliOptions,
+      runner: ScalafmtRunner
+  ): ExitCode = {
     val termDisplayMessage =
       if (options.testing) "Looking for unformatted files..."
       else "Reformatting..."
@@ -83,16 +132,6 @@ object Cli {
       "Working directory: " + options.common.workingDirectory.jfile.getPath
     )
 
-    // Run format using
-    // - `scalafmt-dynamic` if the specified `version` setting doesn't match build version.
-    // - `scalafmt-core` if the specified `version` setting match with build version
-    //   (or if the `version` is not specified).
-    val runner: ScalafmtRunner = options.version match {
-      case None => ScalafmtCoreRunner
-      case Some(v) if v == Versions.version =>
-        ScalafmtCoreRunner
-      case _ => ScalafmtDynamicRunner
-    }
     val exit = runner.run(options, termDisplayMessage)
 
     if (options.testing) {

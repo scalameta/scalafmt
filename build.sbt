@@ -46,6 +46,8 @@ inThisBuild(
 name := "scalafmtRoot"
 skip in publish := true
 
+addCommandAlias("native-image", "cli/graalvm-native-image:packageBin")
+
 commands += Command.command("ci-test") { s =>
   val scalaVersion = sys.env.get("TEST") match {
     case Some("2.11") => scala211
@@ -158,6 +160,12 @@ lazy val cli = project
     assemblyOption in assembly := (assemblyOption in assembly).value
       .copy(prependShellScript = Some(defaultUniversalScript(shebang = false))),
     assemblyJarName.in(assembly) := "scalafmt.jar",
+    assemblyMergeStrategy in assembly := {
+      case "reflect.properties" => MergeStrategy.first
+      case x =>
+        val oldStrategy = (assemblyMergeStrategy in assembly).value
+        oldStrategy(x)
+    },
     libraryDependencies ++= Seq(
       "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0",
       "com.martiansoftware" % "nailgun-server" % "0.9.1",
@@ -174,9 +182,31 @@ lazy val cli = project
         case _ => Seq.empty
       }
     },
-    scalacOptions ++= scalacJvmOptions.value
+    scalacOptions ++= scalacJvmOptions.value,
+    mainClass in GraalVMNativeImage := Some("org.scalafmt.cli.Cli"),
+    graalVMNativeImageOptions ++= {
+      val reflectionFile =
+        Keys.sourceDirectory.in(Compile).value./("graal")./("reflection.json")
+      assert(reflectionFile.exists, "no such file: " + reflectionFile)
+      List(
+        "-H:+ReportUnsupportedElementsAtRuntime",
+        "-Dscalafmt.native-image=true",
+        "--initialize-at-build-time",
+        "--no-server",
+        "--enable-http",
+        "--enable-https",
+        "-H:EnableURLProtocols=http,https",
+        "--enable-all-security-services",
+        "--no-fallback",
+        s"-H:ReflectionConfigurationFiles=$reflectionFile",
+        "--allow-incomplete-classpath",
+        "-H:+ReportExceptionStackTraces"
+        //"--initialize-at-build-time=scala.Function1"
+      )
+    }
   )
   .dependsOn(coreJVM, dynamic)
+  .enablePlugins(GraalVMNativeImagePlugin)
 
 lazy val tests = project
   .in(file("scalafmt-tests"))

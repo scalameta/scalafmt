@@ -29,7 +29,8 @@ object ExitCode {
       TestError,
       ParseError,
       CommandLineArgumentError,
-      UnexpectedError
+      UnexpectedError,
+      UnsupportedVersion
     : ExitCode = generateExitStatus
   // format: on
   lazy val all: List[ExitCode] = allInternal.toList

@@ -1,0 +1,27 @@
+name: Native Image
+on:
+  push:
+  pull_request:
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macOS-latest, ubuntu-latest]
+        include:
+          - os: macOS-latest
+            url: https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-19.3.0/graalvm-ce-java11-darwin-amd64-19.3.0.tar.gz
+            artifact: scalafmt-macos
+          - os: ubuntu-latest
+            url: https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-19.3.0/graalvm-ce-java11-linux-amd64-19.3.0.tar.gz
+            artifact: scalafmt-linux
+    steps:
+      - uses: actions/checkout@v1
+      - uses: olafurpg/setup-scala@v5
+      - run: jabba install graal-custom@19.3=tgz+${{ matrix.url }}
+      - run: bin/build-native-image.sh
+      - uses: actions/upload-artifact@master
+        with:
+          name: ${{ matrix.artifact }}
+          path: scalafmt
