@@ -227,13 +227,14 @@ class Router(formatOps: FormatOps) {
           } else {
             def isCatch = leftOwner match {
               // for catch with case, we should go up only one level
-              // see if this is a single-case catch block
               case _: Term.Try if rightOwner.is[Case] => true
               case _ => false
             }
 
+            val afterClose = next(close)
             val breakSingleLineAfterClose =
-              !next(close).is[T.RightParen] && isCatch
+              if (isCatch) afterClose.is[T.KwFinally]
+              else false
             if (!breakSingleLineAfterClose) Policy.emptyPf
             else decideNewlineAfterToken(close)
           }

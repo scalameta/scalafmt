@@ -146,8 +146,7 @@ finally qux
 try foo catch { case e => bar; case c if { true } => baz } // comment
 >>>
 try foo
-catch { case e => bar; case c if { true } => baz }
-// comment
+catch { case e => bar; case c if { true } => baz } // comment
 <<< #350 statement: multi-line with catch and semicolon
 object a {
 try foo catch { case e => "very long statement, needs to split line very soon" }; x = 43
@@ -159,10 +158,10 @@ try {
 >>>
 object a {
   try foo
-  catch { case e => "very long statement, needs to split line very soon" }
-  ; x = 43
+  catch { case e => "very long statement, needs to split line very soon" };
+  x = 43
   try {
     foo
-  } catch { case e => "very long statement, needs to split line very soon" }
-  ; x = 43
+  } catch { case e => "very long statement, needs to split line very soon" };
+  x = 43
 }
