@@ -21,6 +21,8 @@ jobs:
       - uses: olafurpg/setup-scala@v5
       - run: jabba install graal-custom@19.3=tgz+${{ matrix.url }}
       - run: bin/build-native-image.sh
+        env:
+          CI: true
       - uses: actions/upload-artifact@master
         with:
           name: ${{ matrix.artifact }}
