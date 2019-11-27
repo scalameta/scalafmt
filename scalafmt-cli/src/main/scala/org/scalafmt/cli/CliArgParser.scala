@@ -131,12 +131,11 @@ object CliArgParser {
           "test for mis-formatted code, exits with status 1 on first failure."
         )
       opt[File]("migrate2hocon")
-        .action(
-          (file, c) =>
-            c.copy(
-              migrate =
-                Some(AbsoluteFile.fromFile(file, c.common.workingDirectory))
-            )
+        .action((file, c) =>
+          c.copy(
+            migrate =
+              Some(AbsoluteFile.fromFile(file, c.common.workingDirectory))
+          )
         )
         .text(
           """migrate .scalafmt CLI style configuration to hocon style configuration in .scalafmt.conf"""

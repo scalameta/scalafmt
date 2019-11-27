@@ -888,12 +888,11 @@ class Router(formatOps: FormatOps) {
                 }, comma.right.end)
               case _ => NoPolicy
             }
-            val optToken = nextComma.map(
-              _ =>
-                OptimalToken(
-                  rhsOptimalToken(leftTok2tok(nextArg.tokens.last)),
-                  killOnFail = true
-                )
+            val optToken = nextComma.map(_ =>
+              OptimalToken(
+                rhsOptimalToken(leftTok2tok(nextArg.tokens.last)),
+                killOnFail = true
+              )
             )
             Seq(
               Split(Space, 0, optimalAt = optToken).withPolicy(singleLine),
@@ -1581,10 +1580,9 @@ class Router(formatOps: FormatOps) {
             else newlineSplits
           case FormatToken(_, c: T.Comment, between)
               if newlinesBetween(between) == 0 && c.syntax.startsWith("//") =>
-            splits.map(
-              x =>
-                if (x.modification.isNewline) x.copy(modification = Space)
-                else x
+            splits.map(x =>
+              if (x.modification.isNewline) x.copy(modification = Space)
+              else x
             )
           case _ => splits
         }
