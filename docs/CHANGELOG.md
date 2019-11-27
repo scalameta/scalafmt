@@ -3,6 +3,30 @@ id: changelog
 title: Changelog
 ---
 
+## [v2.3.0-RC2](https://github.com/scalameta/scalafmt/tree/v2.3.0-RC2) (2019-11-27)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.3.0-RC1...v2.3.0-RC2)
+
+## [v2.3.0-RC1](https://github.com/scalameta/scalafmt/tree/v2.3.0-RC1) (2019-11-27)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.2.2...v2.3.0-RC1)
+
+**Merged pull requests:**
+
+- Upgrade to the latest Scalameta [\#1565](https://github.com/scalameta/scalafmt/pull/1565) ([olafurpg](https://github.com/olafurpg))
+- Performance improvements [\#1564](https://github.com/scalameta/scalafmt/pull/1564) ([olafurpg](https://github.com/olafurpg))
+- RedundantBraces: lambda braces to single-arg apply, remove arou… [\#1563](https://github.com/scalameta/scalafmt/pull/1563) ([kitbellew](https://github.com/kitbellew))
+- Router: fix split rule after catch in try [\#1562](https://github.com/scalameta/scalafmt/pull/1562) ([kitbellew](https://github.com/kitbellew))
+- Setup GitHub Actions to generate native images [\#1561](https://github.com/scalameta/scalafmt/pull/1561) ([olafurpg](https://github.com/olafurpg))
+- Remove irregular files, including symbolic links, from `git ls-files`. [\#1559](https://github.com/scalameta/scalafmt/pull/1559) ([SamirTalwar](https://github.com/SamirTalwar))
+- Router: fix def body indent with a comment \#1240 [\#1556](https://github.com/scalameta/scalafmt/pull/1556) ([kitbellew](https://github.com/kitbellew))
+- FormatWriter: insert newline after packages \#1069 [\#1555](https://github.com/scalameta/scalafmt/pull/1555) ([kitbellew](https://github.com/kitbellew))
+- Router: treat try/finally the same as if/else \#350 [\#1554](https://github.com/scalameta/scalafmt/pull/1554) ([kitbellew](https://github.com/kitbellew))
+- Make it easier to test scalafmt local snapshot build [\#1552](https://github.com/scalameta/scalafmt/pull/1552) ([tanishiking](https://github.com/tanishiking))
+- Router: format lambda in 1-arg call as with braces [\#1551](https://github.com/scalameta/scalafmt/pull/1551) ([kitbellew](https://github.com/kitbellew))
+- RedundantBraces: remove nested braces in lambda [\#1549](https://github.com/scalameta/scalafmt/pull/1549) ([kitbellew](https://github.com/kitbellew))
+- Revert avoidEmptyLinesAroundBlock feature [\#1548](https://github.com/scalameta/scalafmt/pull/1548) ([poslegm](https://github.com/poslegm))
+
 ## [v2.2.2](https://github.com/scalameta/scalafmt/tree/v2.2.2) (2019-10-29)
 
 [Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.2.1...v2.2.2)
