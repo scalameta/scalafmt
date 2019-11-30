@@ -389,11 +389,15 @@ class Router(formatOps: FormatOps) {
       // New statement
       case tok @ FormatToken(T.Semicolon(), right, between)
           if startsStatement(tok) && newlines == 0 =>
-        val expire = statementStarts(hash(right)).tokens.last
+        val spaceSplit =
+          if (style.newlines.sourceIs(Newlines.unfold)) Split.ignored
+          else {
+            val expire = statementStarts(hash(right)).tokens.last
+            Split(Space, 0, policy = SingleLineBlock(expire))
+              .withOptimalToken(expire)
+          }
         Seq(
-          Split(Space, 0)
-            .withOptimalToken(expire)
-            .withPolicy(SingleLineBlock(expire)),
+          spaceSplit,
           // For some reason, this newline cannot cost 1.
           Split(NewlineT(shouldGet2xNewlines(tok)), 0)
         )
