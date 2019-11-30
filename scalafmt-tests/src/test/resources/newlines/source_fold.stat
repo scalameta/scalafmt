@@ -1,0 +1,3 @@
+align = none
+maxColumn = 40
+newlines.source = fold

@@ -95,8 +95,15 @@ import metaconfig.generic.Surface
   *         ...
   *       }
   *   }}}
+  * @param source
+  *   Controls how line breaks in the input source are handled
+  *   If `classic` (default), the old mixed behaviour will be used
+  *   If `keep`, try to keep source newlines
+  *   If `fold`, ignore source and try to remove line breaks
+  *   If `unfold`, ignore source and try to break lines
   */
 case class Newlines(
+    source: Newlines.SourceHints = Newlines.classic,
     neverInResultType: Boolean = false,
     neverBeforeJsNative: Boolean = false,
     sometimesBeforeColonInMethodReturnType: Boolean = true,
@@ -111,11 +118,40 @@ case class Newlines(
     avoidAfterYield: Boolean = true
 ) {
   val reader: ConfDecoder[Newlines] = generic.deriveDecoder(this).noTypos
+  if (source != Newlines.classic) {
+    Newlines.warnSourceIsExperimental
+    require(
+      source == Newlines.keep || afterCurlyLambda != NewlineCurlyLambda.preserve,
+      s"newlines: can't use source=${source} and afterCurlyLambda=$afterCurlyLambda"
+    )
+  }
 }
 
 object Newlines {
   implicit lazy val surface: Surface[Newlines] = generic.deriveSurface
   implicit lazy val encoder: ConfEncoder[Newlines] = generic.deriveEncoder
+
+  sealed abstract class SourceHints
+
+  // the classic handler of source newlines
+  case object classic extends SourceHints
+
+  // try to keep newlines
+  case object keep extends SourceHints
+
+  // try to fold newlines into spaces (but not semicolons)
+  case object fold extends SourceHints
+
+  // try to turn spaces and semicolons into newlines
+  case object unfold extends SourceHints
+
+  implicit val sourceHintsReader: ConfCodec[SourceHints] =
+    ReaderUtil.oneOf[SourceHints](keep, fold, unfold)
+
+  private lazy val warnSourceIsExperimental: Unit =
+    Console.err.println(
+      "newlines.source is experimental, will change ignoring edition setting"
+    )
 }
 
 sealed abstract class NewlineCurlyLambda
