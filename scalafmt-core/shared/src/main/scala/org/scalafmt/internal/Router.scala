@@ -1516,13 +1516,19 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(mod, 0)
         )
-      case FormatToken(left, kw @ Keyword(), _) =>
-        if (!left.is[T.RightBrace] &&
-          Set("finally", "catch").contains(kw.syntax)) {
-          Seq(Split(Newline, 0))
-        } else {
-          Seq(Split(Space, 0))
-        }
+
+      case FormatToken(left, _: T.KwCatch | _: T.KwFinally, _)
+          if style.newlinesBetweenCurlyAndCatchFinally
+            || !left.is[T.RightBrace] =>
+        Seq(
+          Split(Newline, 0)
+        )
+
+      case FormatToken(_, Keyword(), _) =>
+        Seq(
+          Split(Space, 0)
+        )
+
       case FormatToken(Keyword() | Modifier(), _, _) =>
         Seq(
           Split(Space, 0)

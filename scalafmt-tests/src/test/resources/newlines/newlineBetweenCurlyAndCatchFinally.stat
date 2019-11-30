@@ -1,0 +1,77 @@
+maxColumn = 80
+newlines.alwaysBeforeElseAfterCurlyIf = true
+<<< 1: try with curly, catch/finally without
+object Foo {
+  try {
+    a
+    b
+  } catch c  finally d
+}
+>>>
+object Foo {
+  try {
+    a
+    b
+  }
+  catch c
+  finally d
+}
+<<< 2: try/catch with curly, finally without
+object Foo {
+  try { a
+    b}   catch { case c => } finally d
+}
+>>>
+object Foo {
+  try {
+    a
+    b
+  }
+  catch { case c => }
+  finally d
+}
+<<< 3: try/catch/finally with curly
+object Foo {
+  try { a
+    b}   catch { case c => } finally { d
+    e}
+}
+>>>
+object Foo {
+  try {
+    a
+    b
+  }
+  catch { case c => }
+  finally {
+    d
+    e
+  }
+}
+<<< 4: catch with curly, try/finally without
+object Foo {
+  try a  catch { case c =>
+  case d => } finally e
+}
+>>>
+object Foo {
+  try a
+  catch {
+    case c =>
+    case d =>
+  }
+  finally e
+}
+<<< 5: try with curly, finally without
+object Foo {
+  try { a
+    b}  finally e
+}
+>>>
+object Foo {
+  try {
+    a
+    b
+  }
+  finally e
+}
