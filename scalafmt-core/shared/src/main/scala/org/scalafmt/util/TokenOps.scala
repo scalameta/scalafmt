@@ -1,17 +1,14 @@
 package org.scalafmt.util
 
-import org.scalafmt.config.FormatEvent.CreateFormatOps
-
-import scala.meta.{Defn, Mod, Pkg, Template, Tree}
+import scala.meta.{Defn, Pkg, Template, Tree}
 import scala.meta.dialects.Scala211
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
+
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.Decision
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.Modification
-import org.scalafmt.internal.Newline
-import org.scalafmt.internal.Newline2x
 import org.scalafmt.internal.NewlineT
 import org.scalafmt.internal.NoSplit
 import org.scalafmt.internal.Policy
@@ -57,7 +54,7 @@ object TokenOps {
       owners: Token => Tree
   ): Boolean = {
     !forceDocstringBlankLine(tok.left, style) && {
-      val newlines = newlinesBetween(tok.between)
+      val newlines = tok.newlinesBetween
       newlines > 1 ||
       (forceDocstringBlankLine(tok.right, style) && !tok.left.is[Comment])
     }
@@ -168,29 +165,20 @@ object TokenOps {
     case _ => false
   }
 
-  def newlines2Modification(formatToken: FormatToken): Modification =
-    newlines2Modification(formatToken.between, formatToken.right.is[Comment])
+  def isNoIndent(formatToken: FormatToken): Boolean =
+    formatToken.right.is[Comment] && endsWithNoIndent(formatToken.between)
 
   def newlines2Modification(
-      between: Vector[Token],
-      rightIsComment: Boolean = false
+      newlines: Int,
+      noIndent: Boolean = false
   ): Modification =
-    newlinesBetween(between) match {
+    newlines match {
       case 0 => Space
-      case x =>
-        NewlineT(
-          isDouble = x == 2,
-          noIndent = rightIsComment && endsWithNoIndent(between)
-        )
+      case x => NewlineT(isDouble = x == 2, noIndent = noIndent)
     }
 
-  // TODO(olafur) calculate this once inside getSplits.
-
-  def newlinesBetween(between: Vector[Token]): Int =
-    between.count(_.is[LF])
-
-  def isAttachedSingleLineComment(token: Token, between: Vector[Token]) =
-    isSingleLineComment(token) && newlinesBetween(between) == 0
+  def isAttachedSingleLineComment(ft: FormatToken) =
+    isSingleLineComment(ft.right) && ft.newlinesBetween == 0
 
   def defnTemplate(tree: Tree): Option[Template] = tree match {
     case t: Defn.Object => Some(t.templ)

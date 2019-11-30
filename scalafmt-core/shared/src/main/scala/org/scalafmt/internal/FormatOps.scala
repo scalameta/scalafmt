@@ -222,7 +222,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
           T.Semicolon() | T.RightArrow() | T.Equals()
           if next(start) != start &&
             !startsNewBlock(start.right) &&
-            newlinesBetween(start.between) == 0 =>
+            start.newlinesBetween == 0 =>
         rhsOptimalToken(next(start))
       case _ => start.left
     }
@@ -262,7 +262,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   @tailrec
   final def startsStatement(tok: FormatToken): Boolean = {
     statementStarts.contains(hash(tok.right)) ||
-    (tok.right.is[T.Comment] && tok.between.exists(_.is[T.LF]) &&
+    (tok.right.is[T.Comment] && tok.newlinesBetween != 0 &&
     startsStatement(next(tok)))
   }
 
@@ -364,8 +364,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
               // TODO(olafur) what the right { decides to be single line?
               !right.is[T.LeftBrace] &&
               // If comment is bound to comma, see unit/Comment.
-              (!right.is[T.Comment] ||
-                between.exists(_.is[T.LF])) =>
+              (!right.is[T.Comment] || t.newlinesBetween != 0) =>
           Decision(t, splits.filter { x =>
             val isNewline = x.modification.isNewline
             if (noTrailingCommas && !right.is[T.Comment]) !isNewline
@@ -495,7 +494,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
   def getRightAttachedComment(token: Token): Token = {
     val formatToken = leftTok2tok(token)
-    if (isAttachedSingleLineComment(formatToken.right, formatToken.between))
+    if (isAttachedSingleLineComment(formatToken))
       formatToken.right
     else token
   }
@@ -523,8 +522,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   )(implicit line: sourcecode.Line): Split = {
     val style = styleMap.at(formatToken)
     val modification = newlines2Modification(
-      formatToken.between,
-      rightIsComment = formatToken.right.isInstanceOf[T.Comment]
+      formatToken.newlinesBetween,
+      isNoIndent(formatToken)
     )
     val indent = {
       if (style.verticalAlignMultilineOperators) {
@@ -547,7 +546,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
           .findFirstIn(op.tokens.head.syntax)
           .isDefined)) 0
       else if (!modification.isNewline &&
-        !isAttachedSingleLineComment(formatToken.right, formatToken.between)) 0
+        !isSingleLineComment(formatToken.right)) 0
       else 2
     }
     val isRightAssociative =
@@ -653,9 +652,9 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   }
 
   def opensConfigStyle(formatToken: FormatToken): Boolean = {
-    newlinesBetween(formatToken.between) > 0 && {
+    formatToken.newlinesBetween > 0 && {
       val close = matchingParentheses(hash(formatToken.left))
-      newlinesBetween(prev(leftTok2tok(close)).between) > 0
+      prev(leftTok2tok(close)).newlinesBetween > 0
     }
   }
 
