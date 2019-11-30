@@ -20,7 +20,8 @@ _**Note:** IntelliJ [2019.1 or later] is required in order for the Scala plugin
 to support Scalafmt and the dynamic `version` set in your `.scalafmt.conf`. If
 you must use an older version, see [the FAQ][old intellij] for an alternative._
 
-[2019.1 or later]: https://blog.jetbrains.com/scala/2019/03/27/intellij-scala-plugin-2019-1-highlighting-for-comprehensions-find-usages-for-implicits-and-more/
+[2019.1 or later]:
+  https://blog.jetbrains.com/scala/2019/03/27/intellij-scala-plugin-2019-1-highlighting-for-comprehensions-find-usages-for-implicits-and-more/
 [old intellij]: faq.md#how-can-i-work-with-older-versions-of-intellij
 
 ### Format current file
@@ -45,8 +46,7 @@ change this, and is instead recommended to format files when saving.
 - for the current project (recommended):
   `Preferences > Editor > Code Style > Scala`
 - for all new projects:  
-  `File > Other Settings > Preferences for New Projects… > Editor > Code Style >
-  Scala`
+  `File > Other Settings > Preferences for New Projects… > Editor > Code Style > Scala`
 
 ![Enable format on save in IntelliJ](assets/img/intellij-on-save-native.png)
 
@@ -66,7 +66,7 @@ It is not possible to reset this setting for all existing projects.
 // In project/plugins.sbt. Note, does not support sbt 0.13, only sbt 1.x.
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.2.1")
 // or
-addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "1.5.1") // before 1.6.0-RC4 
+addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "1.5.1") // before 1.6.0-RC4
 ```
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.scalameta/sbt-scalafmt/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.scalameta/sbt-scalafmt)
@@ -80,14 +80,17 @@ addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "1.5.1") // before 1.6.0-RC4
 - `scalafmtSbt`: Format `*.sbt` and `project/*.scala` files.
 - `scalafmtSbtCheck`: Check if the files has been formatted by `scalafmtSbt`.
 - `scalafmtOnly`: Format a single given file.
-- `scalafmtAll`: Execute the scalafmt task for all configurations in which it is enabled. (By default this means the Compile and Test configurations.) (available as of v2.0.0-RC5)
-- `scalafmtCheckAll`: Execute the scalafmtCheck task for all configurations in which it is enabled. (By default this means the Compile and Test configurations.) (available as of v2.0.0-RC5)
+- `scalafmtAll`: Execute the scalafmt task for all configurations in which it is
+  enabled. (By default this means the Compile and Test configurations.)
+  (available as of v2.0.0-RC5)
+- `scalafmtCheckAll`: Execute the scalafmtCheck task for all configurations in
+  which it is enabled. (By default this means the Compile and Test
+  configurations.) (available as of v2.0.0-RC5)
 
 ### Customize configuration location
 
-- `scalafmtConfig: File`: The location of the `.scalafmt.conf`
-  configuration file. Defaults to the `.scalafmt.conf` file at the root of the
-  project.
+- `scalafmtConfig: File`: The location of the `.scalafmt.conf` configuration
+  file. Defaults to the `.scalafmt.conf` file at the root of the project.
 
 ### Format on compile
 
@@ -95,8 +98,8 @@ addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "1.5.1") // before 1.6.0-RC4
   on compile. Default `false`.
 
 > ⚠️ This option is **discouraged** since it messes up undo buffers in the
-> editor and it slows down compilation.
-> It is recommended to use "format on save" in the editor instead.
+> editor and it slows down compilation. It is recommended to use "format on
+> save" in the editor instead.
 
 ### Enable IntegrationTest
 
@@ -134,7 +137,7 @@ object MyScalafmtPlugin extends AutoPlugin {
 ```
 // .scalafmt.conf
 include ".scalafmt-common.conf"
-``` 
+```
 
 ## CLI
 
@@ -160,9 +163,12 @@ scalafmt --version # should be @STABLE_VERSION@
 Alternatively you can create a slim 15 KiB bootstrap script with:
 
 ```sh
-coursier bootstrap org.scalameta:scalafmt-cli_2.12:@STABLE_VERSION@ \
+curl -Lo coursier https://git.io/coursier-cli
+chmod +x coursier
+./coursier bootstrap org.scalameta:scalafmt-cli_2.12:@STABLE_VERSION@ \
   -r sonatype:snapshots \
   -o scalafmt --main org.scalafmt.cli.Cli
+rm -f coursier
 ./scalafmt --version # should be @STABLE_VERSION@
 ```
 
@@ -179,20 +185,42 @@ coursier bootstrap --help | grep -A 1 "\-\-java-opt"
 
 ### Pre-release
 
-Our CI publishes a pre-release version of scalafmt to Sonatype Snapshots on every merge
-into master. To use a pre-release, replace @STABLE_VERSION@ with the version
-here:
+Our CI publishes a pre-release version of scalafmt to Sonatype Snapshots on
+every merge into master. To use a pre-release, replace @STABLE_VERSION@ with the
+version here:
 
 [![Sonatype Snapshots](https://img.shields.io/nexus/s/https/oss.sonatype.org/org.scalameta/scalafmt-cli_2.12.svg)](https://oss.sonatype.org/content/repositories/snapshots/org/scalameta/scalafmt-cli_2.12/)
 
-If you use coursier to install a pre-release, be sure to include the flag `-r
-sonatype:snapshots` so that the artifact can be resolved.
+If you use coursier to install a pre-release, be sure to include the flag
+`-r sonatype:snapshots` so that the artifact can be resolved.
 
 If you use sbt to install a pre-release, be sure to add the following setting:
 
 ```scala
 resolvers += Resolver.sonatypeRepo("snapshots")
 ```
+
+### Native image
+
+For macOS and Linux, it's possible to download pre-built GraalVm native binaries
+with instant startup and fast performance for short-lived Scalafmt runs.
+
+```sh
+VERSION=@VERSION@
+INSTALL_LOCATION=/usr/local/bin/scalafmt-native
+curl https://raw.githubusercontent.com/scalameta/scalafmt/master/bin/install-scalafmt-native.sh | \
+  sh -s -- $VERSION $INSTALL_LOCATION
+scalafmt-native --help # should show version @VERSION@
+```
+
+> The native image binaries have the limitation of working only with one version
+> of Scalafmt. > The native binaries fail when the `version` setting in
+> `.scalafmt.conf` does not match the version of the native binary. > It's
+> recommended to use the JVM binary if you expect to use Scalafmt in multiple
+> projects with different Scalafmt versions.
+
+Please see issue [#1569](https://github.com/scalameta/scalafmt/issues/1569) if
+you'd like to contribute support for building native images for Windows!
 
 ### Nailgun
 
@@ -233,8 +261,11 @@ brew upgrade scalafmt
 
 ### Arch Linux
 
-You can install scalafmt for Arch Linux from AUR. There is the [scalafmt-native](https://aur.archlinux.org/packages/scalafmt-native) package that installs scalafmt 
-binary built with GraalVM. GraalVM native binary provides instant startup without Nailgun.
+You can install scalafmt for Arch Linux from AUR. There is the
+[scalafmt-native](https://aur.archlinux.org/packages/scalafmt-native) package
+that installs scalafmt binary built with GraalVM. GraalVM native binary provides
+instant startup without Nailgun.
+
 ```sh
 yaourt -S scalafmt-native
 scalafmt --version // should be @STABLE_VERSION@
