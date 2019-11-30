@@ -63,7 +63,7 @@ class Router(formatOps: FormatOps) {
     val style = styleMap.at(formatToken)
     val leftOwner = owners(formatToken.left)
     val rightOwner = owners(formatToken.right)
-    val newlines = newlinesBetween(formatToken.between)
+    val newlines = formatToken.newlinesBetween
 
     formatToken match {
       case FormatToken(_: T.BOF, _, _) =>
@@ -183,7 +183,7 @@ class Router(formatOps: FormatOps) {
             newlines > 0 &&
             selfAnnotation.nonEmpty
         val nl: Modification =
-          if (isSelfAnnotation) newlines2Modification(formatToken)
+          if (isSelfAnnotation) newlines2Modification(newlines, isNoIndent(tok))
           else NewlineT(shouldGet2xNewlines(tok, style, owners))
 
         val (startsLambda, lambdaPolicy, lambdaArrow, lambdaIndent) =
@@ -348,7 +348,7 @@ class Router(formatOps: FormatOps) {
         val isAnnotation =
           right.is[T.At] || isSingleIdentifierAnnotation(prev(tok))
         if (isAnnotation && style.optIn.annotationNewlines)
-          Seq(Split(newlines2Modification(formatToken), 0))
+          Seq(Split(newlines2Modification(newlines), 0))
         else {
           val spaceCouldBeOk =
             newlines == 0 &&
@@ -582,7 +582,7 @@ class Router(formatOps: FormatOps) {
             case _ => noSplitPenalizeNewlines
           }
           val noSplitModification =
-            if (right.is[T.Comment]) newlines2Modification(between)
+            if (right.is[T.Comment]) newlines2Modification(newlines)
             else NoSplit
 
           Seq(
@@ -704,7 +704,7 @@ class Router(formatOps: FormatOps) {
         val oneArgOneLine = OneArgOneLineSplit(open)
 
         val newlineModification: Modification =
-          if (right.is[T.Comment] && newlinesBetween(between) == 0)
+          if (right.is[T.Comment] && newlines == 0)
             Space
           else if (right.is[T.LeftBrace]) NoSplit
           else Newline
@@ -751,7 +751,7 @@ class Router(formatOps: FormatOps) {
         val noSplitModification: Modification =
           if (formatToken.left.is[T.LeftParen] &&
             style.spaces.inParentheses) Space
-          else if (right.is[T.Comment]) newlines2Modification(between)
+          else if (right.is[T.Comment]) newlines2Modification(newlines)
           else NoSplit
 
         val keepConfigStyleSplit =
@@ -864,8 +864,7 @@ class Router(formatOps: FormatOps) {
       // These are mostly filtered out/modified by policies.
       case tok @ FormatToken(T.Comma(), right, _) =>
         // TODO(olafur) DRY, see OneArgOneLine.
-        val rhsIsAttachedComment =
-          isSingleLineComment(tok.right) && newlinesBetween(tok.between) == 0
+        val rhsIsAttachedComment = isAttachedSingleLineComment(tok)
         val binPack = isBinPack(leftOwner)
         val isInfix = leftOwner.isInstanceOf[Term.ApplyInfix]
         argumentStarts.get(hash(right)) match {
@@ -994,7 +993,7 @@ class Router(formatOps: FormatOps) {
         }
 
         val mod: Modification =
-          if (isAttachedSingleLineComment(right, between)) Space
+          if (isAttachedSingleLineComment(formatToken)) Space
           else Newline
 
         val exclude =
@@ -1235,9 +1234,8 @@ class Router(formatOps: FormatOps) {
           case t: Term.For => t.body.tokens.last
           case t: Term.ForYield => t.body.tokens.last
         }
-        val rightIsOnNewLine = newlines > 0
         // Inline comment attached to closing RightParen
-        val attachedComment = !rightIsOnNewLine && isSingleLineComment(right)
+        val attachedComment = isAttachedSingleLineComment(formatToken)
         val newlineModification: Modification =
           if (attachedComment)
             Space // Inline comment will force newline later.
@@ -1331,7 +1329,7 @@ class Router(formatOps: FormatOps) {
       case opt
           if style.optIn.annotationNewlines &&
             optionalNewlines(hash(opt.right)) =>
-        Seq(Split(newlines2Modification(opt), 0))
+        Seq(Split(newlines2Modification(newlines), 0))
       // Pat
       case tok @ FormatToken(T.Ident("|"), _, _)
           if leftOwner.is[Pat.Alternative] =>
@@ -1389,7 +1387,7 @@ class Router(formatOps: FormatOps) {
                   case d @ Decision(t @ FormatToken(`arrow`, right, between), s)
                       // TODO(olafur) any other corner cases?
                       if !right.isInstanceOf[T.LeftBrace] &&
-                        !isAttachedSingleLineComment(right, between) =>
+                        !isAttachedSingleLineComment(t) =>
                     Decision(t, s.filter(_.modification.isNewline))
                 },
                 expire = expire.end
@@ -1409,13 +1407,13 @@ class Router(formatOps: FormatOps) {
           Split(Newline, 1).withPolicy(penalizeNewlineByNesting(cond, arrow))
         )
       // Inline comment
-      case FormatToken(_, c: T.Comment, between) =>
-        Seq(Split(newlines2Modification(between), 0))
+      case FormatToken(_, c: T.Comment, _) =>
+        Seq(Split(newlines2Modification(newlines), 0))
       // Commented out code should stay to the left
-      case FormatToken(c: T.Comment, _, between) if c.syntax.startsWith("//") =>
+      case FormatToken(c: T.Comment, _, _) if isSingleLineComment(c) =>
         Seq(Split(Newline, 0))
-      case FormatToken(c: T.Comment, _, between) =>
-        Seq(Split(newlines2Modification(between), 0))
+      case FormatToken(c: T.Comment, _, _) =>
+        Seq(Split(newlines2Modification(newlines), 0))
 
       // Term.ForYield
       case tok @ FormatToken(_, arrow @ T.KwIf(), _)
@@ -1577,15 +1575,14 @@ class Router(formatOps: FormatOps) {
         formatToken match {
           // TODO(olafur) refactor into "global policy"
           // Only newlines after inline comments.
-          case FormatToken(c @ T.Comment(_), _, _)
-              if c.syntax.startsWith("//") =>
+          case FormatToken(c: T.Comment, _, _) if isSingleLineComment(c) =>
             val newlineSplits = splits.filter { x =>
               !x.ignoreIf && x.modification.isNewline
             }
             if (newlineSplits.isEmpty) Seq(Split(Newline, 0))
             else newlineSplits
-          case FormatToken(_, c: T.Comment, between)
-              if newlinesBetween(between) == 0 && c.syntax.startsWith("//") =>
+          case FormatToken(_, c: T.Comment, _)
+              if isAttachedSingleLineComment(formatToken) =>
             splits.map(x =>
               if (x.modification.isNewline) x.copy(modification = Space)
               else x

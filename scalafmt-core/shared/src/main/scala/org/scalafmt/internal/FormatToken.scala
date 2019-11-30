@@ -3,7 +3,6 @@ package org.scalafmt.internal
 import scala.meta.tokens.Token
 import scala.meta.tokens.Tokens
 
-import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TokenOps._
 import org.scalafmt.util.Whitespace
 
@@ -27,7 +26,7 @@ case class FormatToken(left: Token, right: Token, between: Vector[Token]) {
     else range.exists(_.contains(right.pos.endLine))
   }
 
-  def newlinesBetween: Int = TokenOps.newlinesBetween(between)
+  lazy val newlinesBetween: Int = between.count(_.is[Token.LF])
 
   val leftHasNewline = left.syntax.contains('\n')
 
