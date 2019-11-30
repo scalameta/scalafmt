@@ -95,7 +95,8 @@ object a {
   try {
     a
   } catch {
-    case b => ; case c =>
+    case b => ;
+    case c =>
   } finally {
     d
   }
@@ -112,7 +113,8 @@ object a {
   try {
     a
   } catch {
-    case b => ; case c =>
+    case b => ;
+    case c =>
   } finally {
     d
   }
@@ -126,7 +128,8 @@ try {
 try {
   a
 } catch {
-  case b => ; case c =>
+  case b => ;
+  case c =>
 } finally {
   d
 }
