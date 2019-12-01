@@ -1,0 +1,21 @@
+maxColumn = 80
+<<< select chain: interpolate, package, import
+newlines.source = unfold
+maxColumn = 10
+===
+package a.b.c
+import a.b.c
+object a {
+val a = s"${a.b.c.d}"
+val b = foo[a.b.c.d.e](f.g)
+}
+>>>
+package a.b.c
+import a.b.c
+object a {
+  val a =
+    s"${a.b.c.d}"
+  val b = foo[
+    a.b.c.d.e
+  ](f.g)
+}
