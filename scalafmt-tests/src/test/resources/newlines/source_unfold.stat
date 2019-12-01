@@ -189,3 +189,382 @@ else if (b)
   b
 else
   c
+<<< 2.1: def one-line body
+def a = b
+>>>
+def a = b
+<<< 2.2: def one-line block body
+object a {
+def a = { b; c }
+}
+>>>
+object a {
+  def a = {
+    b;
+    c
+  }
+}
+<<< 2.3: def one-line block body with a break
+object a {
+def a =
+ { b; c }
+}
+>>>
+object a {
+  def a = {
+    b;
+    c
+  }
+}
+<<< 2.4: def multiline-line block body with a break
+object a {
+def a =
+ {
+  b;c }}
+>>>
+object a {
+  def a = {
+    b;
+    c
+  }
+}
+<<< 2.5: def multiline-line block body with a break
+object a {
+def a = {
+  b;c }
+}
+>>>
+object a {
+  def a = {
+    b;
+    c
+  }
+}
+<<< 2.6 #1747: one line with else
+maxColumn = 55
+===
+object a {
+  val ok1 = if (a > 10) Some(a) else None
+  val ok2 = if (a > 10) { Some(a) } else { None }
+  val ok3 = if (aaaa > 10000) { Some(aaaa) } else { None }
+}
+>>>
+object a {
+  val ok1 =
+    if (a > 10)
+      Some(a)
+    else
+      None
+  val ok2 = if (a > 10) {
+    Some(a)
+  } else {
+    None
+  }
+  val ok3 = if (aaaa > 10000) {
+    Some(aaaa)
+  } else {
+    None
+  }
+}
+<<< 2.7 #1747: one line without else
+maxColumn = 40
+===
+object a {
+  val ok1 = if (a > 10) Some(a)
+  val ok2 = if (a > 10) { Some(a) }
+  val ok3 = if (aaaa > 10000) { Some(aaaa) }
+}
+>>>
+object a {
+  val ok1 =
+    if (a > 10)
+      Some(a)
+  val ok2 = if (a > 10) {
+    Some(a)
+  }
+  val ok3 = if (aaaa > 10000) {
+    Some(aaaa)
+  }
+}
+<<< 2.8 #1747: split on then with else
+maxColumn = 55
+===
+object a {
+  val ok1 = if (a > 10)
+    Some(a)
+  else
+    None
+  val ok2 = if (a > 10) {
+    Some(a)
+  } else {
+    None
+  }
+  val ok3 = if (aaaa > 10000) {
+     Some(aaaa)
+  }
+  else {
+    None
+  }
+}
+>>>
+object a {
+  val ok1 =
+    if (a > 10)
+      Some(a)
+    else
+      None
+  val ok2 = if (a > 10) {
+    Some(a)
+  } else {
+    None
+  }
+  val ok3 = if (aaaa > 10000) {
+    Some(aaaa)
+  } else {
+    None
+  }
+}
+<<< 2.9 #1747: split on else
+maxColumn = 55
+===
+object a {
+  val ok1 = if (a > 10) Some(a) else
+    None
+  val ok2 = if (a > 10) { Some(a) } else {
+    None
+  }
+  val ok3 = if (aaaa > 10000) { Some(aaaa) } else {
+    None
+  }
+}
+>>>
+object a {
+  val ok1 =
+    if (a > 10)
+      Some(a)
+    else
+      None
+  val ok2 = if (a > 10) {
+    Some(a)
+  } else {
+    None
+  }
+  val ok3 = if (aaaa > 10000) {
+    Some(aaaa)
+  } else {
+    None
+  }
+}
+<<< 2.10 #1747: split on then without else
+maxColumn = 40
+===
+object a {
+  val ok1 = if (a > 10)
+    Some(a)
+  val ok2 = if (a > 10) {
+    Some(a) }
+  val ok3 = if (aaaa > 10000) {
+    Some(aaaa) }
+}
+>>>
+object a {
+  val ok1 =
+    if (a > 10)
+      Some(a)
+  val ok2 = if (a > 10) {
+    Some(a)
+  }
+  val ok3 = if (aaaa > 10000) {
+    Some(aaaa)
+  }
+}
+<<< 2.11 #1747: split on if
+maxColumn = 55
+===
+object a {
+  val ok1 =
+    if (a > 10) Some(a) else None
+  val ok2 =
+    if (a > 10) { Some(a) } else { None }
+  val ok3 =
+    if (aaaa > 10000) { Some(aaaa) } else { None }
+}
+>>>
+object a {
+  val ok1 =
+    if (a > 10)
+      Some(a)
+    else
+      None
+  val ok2 =
+    if (a > 10) {
+      Some(a)
+    } else {
+      None
+    }
+  val ok3 =
+    if (aaaa > 10000) {
+      Some(aaaa)
+    } else {
+      None
+    }
+}
+<<< 2.12 #1747: split on if without else
+maxColumn = 40
+===
+object a {
+  val ok1 =
+    if (a > 10) Some(a)
+  val ok2 =
+    if (a > 10) { Some(a) }
+  val ok3 =
+   if (aaaa > 10000) { Some(aaaa) }
+}
+>>>
+object a {
+  val ok1 =
+    if (a > 10)
+      Some(a)
+  val ok2 =
+    if (a > 10) {
+      Some(a)
+    }
+  val ok3 =
+    if (aaaa > 10000) {
+      Some(aaaa)
+    }
+}
+<<< 2.13 val with for/yield
+maxColumn = 80
+===
+val attributes = for (_ ← 1 to count) yield {
+  val tag = d.readUnsignedShort()
+  val length = d.readInt()
+  if (debug) println(s"LNB:   tag ${c(tag)} ($length bytes)")
+  if (tag != s) {
+    skip(d, length)
+    None
+  } else {
+    val name = d.readUnsignedShort()
+    Some(c(name))
+  }
+}
+>>>
+val attributes =
+  for (_ ← 1 to count)
+    yield {
+      val tag = d.readUnsignedShort()
+      val length = d.readInt()
+      if (debug)
+        println(s"LNB:   tag ${c(tag)} ($length bytes)")
+      if (tag != s) {
+        skip(d, length)
+        None
+      } else {
+        val name = d.readUnsignedShort()
+        Some(c(name))
+      }
+    }
+<<< 2.14 val with short for/yield
+maxColumn = 80
+===
+val attributes =
+ for (i ← 1 to count)
+ yield i
+>>>
+val attributes =
+  for (i ← 1 to count)
+    yield i
+<<< 2.15 val with literal apply
+object a {
+   val a = b(0x1F, // ID1
+       0x8B, // ID2
+       8, // CM = Deflate
+       0, // FLG
+       0, // MTIME 1
+       0, // MTIME 2
+       0, // MTIME 3
+       0, // MTIME 4
+       0, // XFL
+       0 // OS
+    )
+ }
+>>>
+object a {
+  val a = b(0x1F, // ID1
+    0x8B, // ID2
+    8, // CM = Deflate
+    0, // FLG
+    0, // MTIME 1
+    0, // MTIME 2
+    0, // MTIME 3
+    0, // MTIME 4
+    0, // XFL
+    0 // OS
+    )
+}
+<<< 2.16 val with apply and comment
+danglingParentheses = false
+===
+val a = Set("b" // ...
+)
+>>>
+val a = Set("b" // ...
+)
+<<< 2.17 val with apply-apply-select
+val aaaaa = bbbbb.asss(as).ccccc(
+    ddddd,
+    eeeee,
+    fffff
+  ) // comment
+>>>
+val aaaaa = bbbbb
+  .asss(as)
+  .ccccc(
+    ddddd,
+    eeeee,
+    fffff
+  ) // comment
+<<< 2.18 val with apply-apply
+val aaaaa = (getSomeLongerFunction(c))(as)
+>>>
+val aaaaa =
+  (getSomeLongerFunction(c))(as)
+<<< 2.19 val with apply-select-select
+val aaaaa = bbbbb.asss.ccccc(
+    ddddd,
+    eeeee,
+    fffff
+  ) // comment
+>>>
+val aaaaa = bbbbb.asss.ccccc(
+  ddddd,
+  eeeee,
+  fffff
+) // comment
+<<< 2.20 val with apply-select-select
+val nested =
+  promiseIntercept(new Actor {
+    def receive = {
+      case _ ⇒
+    }
+  })(result)
+>>>
+val nested =
+  promiseIntercept(new Actor {
+    def receive = {
+      case _ ⇒
+    }
+  })(result)
+<<< 2.21 val with apply type
+  val deployment = system
+    .asInstanceOf[ActorSystemImpl]
+    .provider
+    .deployer
+    .lookup(service.split("/").drop(1))
+>>>
+val deployment = system
+  .asInstanceOf[ActorSystemImpl]
+  .provider
+  .deployer
+  .lookup(service.split("/").drop(1))
