@@ -989,8 +989,10 @@ def activationFutureFor(
       .ask(AwaitActivation(endpoint))(timeout)
     )
     .map[ActorRef]({
-      case EndpointActivated(`endpoint`) ⇒ endpoint
-      case EndpointFailedToActivate(`endpoint`, cause) ⇒ throw cause
+      case EndpointActivated(`endpoint`) ⇒
+        endpoint
+      case EndpointFailedToActivate(`endpoint`, cause) ⇒
+        throw cause
     })
 <<< SKIP 3.27 enclosed in block, def, chain follows
 maxColumn = 80
@@ -1314,8 +1316,10 @@ object a extends b with c {
       y: Int = 3
   ): Int = {
     "match" match {
-      case 1 | 2 => 3
-      case <A>2</A> => 2
+      case 1 | 2 =>
+        3
+      case <A>2</A> =>
+        2
     }
   }
 }
@@ -1362,8 +1366,10 @@ object a extends b with c {
       y: Int = 3
   ): Int = {
     "match" match {
-      case 1 | 2 => 3
-      case <A>2</A> => 2
+      case 1 | 2 =>
+        3
+      case <A>2</A> =>
+        2
     }
   }
 }
@@ -1409,7 +1415,8 @@ a match {
     dd
     ddd
   case e =>
-  case f => ff
+  case f =>
+    ff
 }
 <<< 5.2 #1518
 a match {
@@ -1421,6 +1428,7 @@ a match {
 a match {
   case b: C =>
     d.e match {
-      case f => "g"
+      case f =>
+        "g"
     }
 }
