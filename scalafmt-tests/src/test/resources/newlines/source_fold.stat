@@ -1220,3 +1220,40 @@ class Engine[TD, EI, PD, Q, P, A](
     val algorithmClassMap: Map[String, Class[_ <: BaseAlgorithm[PD, _, Q, P]]],
     val servingClassMap: Map[String, Class[_ <: BaseServing[Q, P]]]
 ) extends BaseEngine[EI, Q, P, A]
+<<< 5.1: case statements
+a match {
+  case b =>
+    bb
+  case c => cc
+   ccc
+  case d =>
+   dd
+   ddd
+  case e =>
+  case f => ff
+}
+>>>
+a match {
+  case b =>
+    bb
+  case c =>
+    cc
+    ccc
+  case d =>
+    dd
+    ddd
+  case e =>
+  case f => ff
+}
+<<< 5.2 #1518
+a match {
+  case b: C =>
+    ddd.eee match { case fff => """ggg""" }
+}
+>>>
+a match {
+  case b: C =>
+    ddd.eee match {
+      case fff => """ggg"""
+    }
+}
