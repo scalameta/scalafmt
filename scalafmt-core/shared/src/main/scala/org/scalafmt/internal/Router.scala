@@ -371,16 +371,14 @@ class Router(formatOps: FormatOps) {
           }
           .getOrElse(rightOwner.tokens.last)
 
-        val isAnnotation =
-          right.is[T.At] || isSingleIdentifierAnnotation(prev(tok))
-        if (isAnnotation && style.optIn.annotationNewlines)
+        val annoRight = right.is[T.At]
+        val annoLeft = isSingleIdentifierAnnotation(prev(tok))
+
+        if ((annoRight || annoLeft) && style.optIn.annotationNewlines)
           Seq(Split(newlines2Modification(newlines), 0))
         else {
-          val spaceCouldBeOk =
-            newlines == 0 &&
-              !left.is[T.Comment] &&
-              right.is[Keyword] &&
-              isSingleIdentifierAnnotation(prev(tok))
+          val spaceCouldBeOk = annoLeft &&
+            newlines == 0 && right.is[Keyword]
           Seq(
             Split(
               // This split needs to have an optimalAt field.
