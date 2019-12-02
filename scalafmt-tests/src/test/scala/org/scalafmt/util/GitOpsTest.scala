@@ -7,8 +7,10 @@ import scala.util._
 import org.scalactic.source.Position
 import org.scalafmt.util.DeleteTree.deleteTree
 import org.scalatest._
+import org.scalatest.funsuite
+import org.scalatest.matchers.should.Matchers
 
-class GitOpsTest extends fixture.FunSuite {
+class GitOpsTest extends funsuite.FixtureAnyFunSuite {
 
   import GitOpsTest._
   import Matchers._

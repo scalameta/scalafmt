@@ -14,13 +14,13 @@ import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.DiffAssertions
 import org.scalafmt.util.OsSpecific._
 import org.scalafmt.util.FileOps
-import org.scalatest.FunSuite
 import FileTestOps._
 import java.io.IOException
 
 import org.scalafmt.Versions
+import org.scalatest.funsuite.AnyFunSuite
 
-abstract class AbstractCliTest extends FunSuite with DiffAssertions {
+abstract class AbstractCliTest extends AnyFunSuite with DiffAssertions {
   def mkArgs(str: String): Array[String] =
     str.split(' ')
 

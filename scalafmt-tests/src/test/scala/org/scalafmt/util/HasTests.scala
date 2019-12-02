@@ -29,9 +29,9 @@ import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.config.ScalafmtRunner
 import org.scalafmt.internal.FormatWriter
 import org.scalafmt.rewrite.Rewrite
-import org.scalatest.FunSuiteLike
+import org.scalatest.funsuite.AnyFunSuiteLike
 
-trait HasTests extends FunSuiteLike with FormatAssertions {
+trait HasTests extends AnyFunSuiteLike with FormatAssertions {
   import LoggerOps._
   import org.scalafmt.config.ScalafmtConfig._
   def scalafmtRunner(base: ScalafmtRunner): ScalafmtRunner = base.copy(

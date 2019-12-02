@@ -5,11 +5,11 @@ import java.nio.file.{Files, Path, Paths}
 import metaconfig.Configured.NotOk
 import metaconfig.Configured.Ok
 import org.scalafmt.config.{Config, ScalafmtConfig}
-import org.scalatest.FunSuite
 import FileTestOps._
 import org.scalafmt.Versions
+import org.scalatest.funsuite.AnyFunSuite
 
-class CliOptionsTest extends FunSuite {
+class CliOptionsTest extends AnyFunSuite {
 
   test("style = ...") {
     import org.scalafmt.config.Config

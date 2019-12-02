@@ -1,8 +1,9 @@
 package org.scalafmt
 import org.scalafmt.config.ScalafmtConfig
 import org.scalameta.logger
+import org.scalatest
 
-class ScalafmtTest extends org.scalatest.FunSuite {
+class ScalafmtTest extends scalatest.funsuite.AnyFunSuite {
   def check(
       original: String,
       expected: String,

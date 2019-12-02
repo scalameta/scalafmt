@@ -8,15 +8,15 @@ import java.nio.file.attribute.FileTime
 import org.scalactic.source.Position
 import org.scalafmt.dynamic.{ConsoleScalafmtReporter, ScalafmtDynamic}
 import org.scalafmt.interfaces.{PositionException, Scalafmt, ScalafmtReporter}
-import org.scalatest.FunSuite
 import tests.PositionSyntax._
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.meta.testkit._
 import scala.{meta => m}
+import org.scalatest.funsuite.AnyFunSuite
 
-class DynamicSuite extends FunSuite with DiffAssertions {
+class DynamicSuite extends AnyFunSuite with DiffAssertions {
   class Format(name: String) {
     val download = new ByteArrayOutputStream()
     def downloadLogs: String = download.toString()
