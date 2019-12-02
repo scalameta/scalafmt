@@ -91,3 +91,9 @@ object RightParenOrBracket {
   def unapply(tok: Token): Boolean =
     tok.is[RightParen] || tok.is[RightBracket]
 }
+
+@classifier
+trait LeftParenOrBrace
+object LeftParenOrBrace {
+  def unapply(tok: Token): Boolean = tok.is[LeftParen] || tok.is[LeftBrace]
+}

@@ -460,9 +460,7 @@ val nested =
 >>>
 val nested = promiseIntercept(
   new Actor {
-    def receive = {
-      case _ ⇒
-    }
+    def receive = { case _ ⇒ }
   }
 )(result)
 <<< 2.21 val with apply type
@@ -1234,8 +1232,7 @@ a match {
 }
 >>>
 a match {
-  case b =>
-    bb
+  case b => bb
   case c =>
     cc
     ccc
@@ -1252,8 +1249,7 @@ a match {
 }
 >>>
 a match {
-  case b: C =>
-    ddd.eee match {
+  case b: C => ddd.eee match {
       case fff => """ggg"""
     }
 }
