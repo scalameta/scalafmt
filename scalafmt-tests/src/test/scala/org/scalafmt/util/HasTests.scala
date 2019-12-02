@@ -90,27 +90,36 @@ trait HasTests extends AnyFunSuiteLike with FormatAssertions {
     val moduleSkip = isSkip(content)
     val split = content.split(s"$sep<<< ")
 
+    def loadStyle(content: String, base: ScalafmtConfig): ScalafmtConfig =
+      Config.fromHoconString(content, None, base) match {
+        case Configured.Ok(c) => c
+        case Configured.NotOk(c) =>
+          throw new IllegalArgumentException(
+            s"""Failed to parse filename $filename:
+               |$content
+               |$c""".stripMargin
+          )
+      }
     val style: ScalafmtConfig = {
-      val firstLine = split.head
       val pathPatternToReplace =
         if (OsSpecific.isWindows) s"""\\\\.*""" else "/.*"
       Try(
         spec2style(spec.replaceFirst(pathPatternToReplace, ""))
       ).getOrElse(
-        Config.fromHoconString(firstLine.stripPrefix("ONLY ")) match {
-          case Configured.Ok(c) => c
-          case Configured.NotOk(c) =>
-            throw new IllegalArgumentException(
-              s"""Failed to parse filename $filename:
-                 |$c""".stripMargin
-            )
-        }
+        loadStyle(split.head.stripPrefix("ONLY "), ScalafmtConfig.default)
       )
     }
 
     split.tail.map { t =>
       val before :: expected :: Nil = t.split(s"$sep>>>$sep", 2).toList
-      val name :: original :: Nil = before.split(sep, 2).toList
+      val extraConfig = before.split(s"$sep===$sep", 2).toList
+      val (testStyle, name :: original :: Nil) = extraConfig match {
+        case nameAndOriginal :: Nil =>
+          (style, nameAndOriginal.split(sep, 2).toList)
+        case nameAndConfig :: original :: Nil =>
+          val name :: config :: Nil = nameAndConfig.split(sep, 2).toList
+          (loadStyle(config, style), name :: original :: Nil)
+      }
       val actualName = stripPrefix(name)
       DiffTest(
         spec,
@@ -120,7 +129,7 @@ trait HasTests extends AnyFunSuiteLike with FormatAssertions {
         trimmed(expected),
         moduleSkip || isSkip(name),
         moduleOnly || isOnly(name),
-        style
+        testStyle
       )
     }
   }
