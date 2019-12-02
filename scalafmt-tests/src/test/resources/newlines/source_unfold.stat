@@ -1230,7 +1230,8 @@ trait a { self =>
     blah
 }
 >>>
-trait a { self =>
+trait a {
+  self =>
   blah
 }
 <<< 4.5: #938 flag false, newline yes
