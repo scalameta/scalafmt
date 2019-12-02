@@ -218,7 +218,7 @@ lazy val tests = project
         case Some((2, 13)) => "com.lihaoyi" %% "scalatags" % "0.7.0"
         case _ => "com.lihaoyi" %% "scalatags" % "0.6.8"
       },
-      "org.typelevel" %% "paiges-core" % "0.2.4",
+      "org.typelevel" %% "paiges-core" % "0.3.0",
       scalametaTestkit
     )
   )
