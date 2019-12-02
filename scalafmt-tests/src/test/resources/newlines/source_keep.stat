@@ -963,3 +963,315 @@ object foo {
     c = d
   )
 }
+<<< 4.1: annotation with newlines
+maxColumn = 50
+optIn.annotationNewlines = true
+===
+object WrapperToHaveStatTestCaseParserWorking {
+  @annot   @deprecated   class B(@annot @deprecated private implicit val x: Int) extends A {
+    @annot override def foo = 1
+
+    @annot
+    override def bar = {   1 }
+
+    @annot @annot2 @annot3 @annot4 /*comment4*/ @annot5 @deprecated def foo2(@annot @deprecated x: Int) = 1
+
+    // in case of annotations with params located in many lines
+    // let's live with changed lines of params
+    @annot @annot2(value =
+    "foo", someInt = 5) @annot3
+    @deprecated(value =
+    "bar") def bar2  =  1
+  }
+
+  @annot @annot2
+  @annot3
+  @annot4 @deprecated class C
+
+  @annot
+  @deprecated
+  class D
+}
+>>>
+object WrapperToHaveStatTestCaseParserWorking {
+  @annot @deprecated class B(
+      @annot @deprecated private implicit val x: Int
+  ) extends A {
+    @annot override def foo = 1
+
+    @annot
+    override def bar = { 1 }
+
+    @annot @annot2 @annot3 @annot4 /*comment4*/ @annot5 @deprecated def foo2(
+        @annot @deprecated x: Int
+    ) = 1
+
+    // in case of annotations with params located in many lines
+    // let's live with changed lines of params
+    @annot @annot2(
+      value =
+        "foo",
+      someInt = 5
+    ) @annot3
+    @deprecated(
+      value =
+        "bar"
+    ) def bar2 = 1
+  }
+
+  @annot @annot2
+  @annot3
+  @annot4 @deprecated class C
+
+  @annot
+  @deprecated
+  class D
+}
+<<< 4.2: annotation without newlines
+maxColumn = 50
+optIn.annotationNewlines = false
+===
+object WrapperToHaveStatTestCaseParserWorking {
+  @annot   @deprecated   class B(@annot @deprecated private implicit val x: Int) extends A {
+    @annot override def foo = 1
+
+    @annot
+    override def bar = {   1 }
+
+    @annot @annot2 @annot3 @annot4 /*comment4*/ @annot5 @deprecated def foo2(@annot @deprecated x: Int) = 1
+
+    // in case of annotations with params located in many lines
+    // let's live with changed lines of params
+    @annot @annot2(value =
+    "foo", someInt = 5) @annot3
+    @deprecated(value =
+    "bar") def bar2  =  1
+  }
+
+  @annot @annot2
+  @annot3
+  @annot4 @deprecated class C
+
+  @annot
+  @deprecated
+  class D
+}
+>>>
+object WrapperToHaveStatTestCaseParserWorking {
+  @annot
+  @deprecated
+  class B(
+      @annot @deprecated private implicit val x: Int
+  ) extends A {
+    @annot override def foo = 1
+
+    @annot
+    override def bar = { 1 }
+
+    @annot
+    @annot2
+    @annot3
+    @annot4 /*comment4*/
+    @annot5
+    @deprecated
+    def foo2(@annot @deprecated x: Int) = 1
+
+    // in case of annotations with params located in many lines
+    // let's live with changed lines of params
+    @annot
+    @annot2(
+      value =
+        "foo",
+      someInt = 5
+    )
+    @annot3
+    @deprecated(
+      value =
+        "bar"
+    ) def bar2 = 1
+  }
+
+  @annot
+  @annot2
+  @annot3
+  @annot4
+  @deprecated class C
+
+  @annot
+  @deprecated
+  class D
+}
+<<< 4.3: #938 flag false, newline no
+optIn.selfAnnotationNewline = false
+maxColumn = 20
+===
+trait a { self =>
+    blah
+}
+>>>
+trait a { self =>
+  blah
+}
+<<< 4.4: #938 flag true, newline no
+optIn.selfAnnotationNewline = true
+maxColumn = 20
+===
+trait a { self =>
+    blah
+}
+>>>
+trait a { self =>
+  blah
+}
+<<< 4.5: #938 flag false, newline yes
+optIn.selfAnnotationNewline = false
+maxColumn = 20
+===
+trait a {
+  self =>
+    blah
+}
+>>>
+trait a {
+  self =>
+  blah
+}
+<<< 4.6: #938 flag true, newline yes
+optIn.selfAnnotationNewline = true
+maxColumn = 20
+===
+trait a {
+ self =>
+    blah
+}
+>>>
+trait a {
+  self =>
+  blah
+}
+<<< 4.7: #938 flag true, newline no, line too long
+optIn.selfAnnotationNewline = true
+maxColumn = 20
+===
+trait a { selfaaaaaaaaaaaaaaaa =>
+    blah
+}
+>>>
+trait a {
+  selfaaaaaaaaaaaaaaaa =>
+  blah
+}
+<<< 4.8 flag true, annot in param
+optIn.annotationNewlines = true
+===
+@ foobar("annot", {
+  val x = 2
+  val y = 2 // y=2
+  x + y
+})
+ object
+  a  extends b with c {
+
+   def
+   foo[T: Int#Double#Triple,
+       R <% String](
+    @annot1
+    x
+    : Int @annot2 = 2
+    , y: Int = 3): Int = {
+    "match" match {
+      case 1 | 2 =>   3
+      case <A>2</A> => 2
+    }
+   }
+}
+>>>
+@foobar(
+  "annot", {
+    val x = 2
+    val y = 2 // y=2
+    x + y
+  }
+)
+object a extends b with c {
+
+  def foo[
+      T: Int#Double#Triple,
+      R <% String
+  ](
+      @annot1
+      x: Int @annot2 = 2,
+      y: Int = 3
+  ): Int = {
+    "match" match {
+      case 1 | 2 => 3
+      case <A>2</A> => 2
+    }
+  }
+}
+<<< 4.9 flag false, annot in param
+optIn.annotationNewlines = false
+===
+@ foobar("annot", {
+  val x = 2
+  val y = 2 // y=2
+  x + y
+})
+ object
+  a  extends b with c {
+
+   def
+   foo[T: Int#Double#Triple,
+       R <% String](
+    @annot1
+    x
+    : Int @annot2 = 2
+    , y: Int = 3): Int = {
+    "match" match {
+      case 1 | 2 =>   3
+      case <A>2</A> => 2
+    }
+   }
+}
+>>>
+@foobar(
+  "annot", {
+    val x = 2
+    val y = 2 // y=2
+    x + y
+  }
+)
+object a extends b with c {
+
+  def foo[
+      T: Int#Double#Triple,
+      R <% String
+  ](
+      @annot1 x: Int @annot2 = 2,
+      y: Int = 3
+  ): Int = {
+    "match" match {
+      case 1 | 2 => 3
+      case <A>2</A> => 2
+    }
+  }
+}
+<<< 4.10
+maxColumn = 80
+===
+class Engine[TD, EI, PD, Q, P, A](
+    val dataSourceClassMap: Map[String, Class[
+      _ <: BaseDataSource[TD, EI, Q, A]]],
+     val preparatorClassMap: Map[String, Class[_ <: BasePreparator[TD, PD]]],
+     val algorithmClassMap: Map[String, Class[_ <: BaseAlgorithm[PD, _, Q, P]]],
+     val servingClassMap: Map[String, Class[_ <: BaseServing[Q, P]]])
+     extends BaseEngine[EI, Q, P, A]
+>>>
+class Engine[TD, EI, PD, Q, P, A](
+    val dataSourceClassMap: Map[String, Class[
+      _ <: BaseDataSource[TD, EI, Q, A]
+    ]],
+    val preparatorClassMap: Map[String, Class[_ <: BasePreparator[TD, PD]]],
+    val algorithmClassMap: Map[String, Class[_ <: BaseAlgorithm[PD, _, Q, P]]],
+    val servingClassMap: Map[String, Class[_ <: BaseServing[Q, P]]]
+) extends BaseEngine[EI, Q, P, A]
