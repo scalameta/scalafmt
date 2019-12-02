@@ -180,11 +180,12 @@ class Router(formatOps: FormatOps) {
           case _ => None
         }
         val isSelfAnnotation =
-          style.optIn.selfAnnotationNewline &&
-            newlines > 0 &&
-            selfAnnotation.nonEmpty
+          style.optIn.selfAnnotationNewline && selfAnnotation.nonEmpty && (
+            formatToken.hasBreak || style.newlines.sourceIgnored
+          )
         val nl: Modification =
-          if (isSelfAnnotation) getModCheckIndent(formatToken)
+          if (isSelfAnnotation)
+            getModCheckIndent(formatToken, math.max(newlines, 1))
           else NewlineT(shouldGet2xNewlines(tok))
 
         val (lambdaExpire, lambdaArrow, lambdaIndent) =
