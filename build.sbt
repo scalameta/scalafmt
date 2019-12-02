@@ -71,7 +71,7 @@ lazy val dynamic = project
     buildInfoPackage := "org.scalafmt.dynamic",
     buildInfoObject := "BuildInfo",
     libraryDependencies ++= List(
-      "io.get-coursier" % "interface" % "0.0.12",
+      "io.get-coursier" % "interface" % "0.0.14",
       "com.typesafe" % "config" % "1.3.3",
       scalatest.value % Test,
       scalametaTestkit % Test
