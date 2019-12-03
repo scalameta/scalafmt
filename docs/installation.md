@@ -206,11 +206,11 @@ For macOS and Linux, it's possible to download pre-built GraalVm native binaries
 with instant startup and fast performance for short-lived Scalafmt runs.
 
 ```sh
-VERSION=@VERSION@
+VERSION=@STABLE_VERSION@
 INSTALL_LOCATION=/usr/local/bin/scalafmt-native
 curl https://raw.githubusercontent.com/scalameta/scalafmt/master/bin/install-scalafmt-native.sh | \
   sh -s -- $VERSION $INSTALL_LOCATION
-scalafmt-native --help # should show version @VERSION@
+scalafmt-native --help # should show version @STABLE_VERSION@
 ```
 
 > The native image binaries have the limitation of working only with one version
