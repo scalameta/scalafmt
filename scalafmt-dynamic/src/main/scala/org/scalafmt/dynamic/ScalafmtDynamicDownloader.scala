@@ -5,7 +5,6 @@ import java.net.URL
 
 import coursierapi._
 import org.scalafmt.dynamic.ScalafmtDynamicDownloader._
-import org.scalafmt.dynamic.ScalafmtVersion
 import org.scalafmt.dynamic.ScalafmtVersion.InvalidVersionException
 
 import scala.collection.JavaConverters._
@@ -14,6 +13,7 @@ import scala.util.Try
 
 class ScalafmtDynamicDownloader(
     downloadProgressWriter: OutputStreamWriter,
+    customRepositories: List[Repository],
     ttl: Option[Duration] = None
 ) {
 
@@ -86,7 +86,9 @@ class ScalafmtDynamicDownloader(
 
   private def repositories: Array[Repository] = {
     // Default repositories are ivy2local, central and also anything in COURSIER_REPOSITORIES overrides
-    Repository.defaults().asScala.toArray ++ Array(
+    customRepositories.toArray ++ Repository
+      .defaults()
+      .asScala ++ Array(
       MavenRepository.of(
         "https://oss.sonatype.org/content/repositories/snapshots"
       ),

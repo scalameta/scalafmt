@@ -1,10 +1,11 @@
 package org.scalafmt.dynamic
 
 import java.net.URLClassLoader
-import java.nio.file.attribute.FileTime
 import java.nio.file.{Files, Path}
+import java.nio.file.attribute.FileTime
 
 import com.typesafe.config.{ConfigException, ConfigFactory}
+import coursierapi.{MavenRepository, Repository}
 import org.scalafmt.dynamic.ScalafmtDynamic.{FormatEval, FormatResult}
 import org.scalafmt.dynamic.ScalafmtDynamicDownloader._
 import org.scalafmt.dynamic.exceptions._
@@ -14,10 +15,10 @@ import org.scalafmt.interfaces._
 import scala.concurrent.ExecutionContext
 import scala.util.Try
 import scala.util.control.NonFatal
-import java.io.OutputStreamWriter
 
 final case class ScalafmtDynamic(
     reporter: ScalafmtReporter,
+    repositories: List[Repository],
     respectVersion: Boolean,
     respectExcludeFilters: Boolean,
     defaultVersion: String,
@@ -30,6 +31,7 @@ final case class ScalafmtDynamic(
 
   def this() = this(
     ConsoleScalafmtReporter,
+    Nil,
     true,
     true,
     BuildInfo.stable,
@@ -160,7 +162,7 @@ final case class ScalafmtDynamic(
   ): FormatEval[ScalafmtReflect] = {
     formatCache.getOrAddToCache(version) { () =>
       val writer = reporter.downloadOutputStreamWriter()
-      val downloader = new ScalafmtDynamicDownloader(writer)
+      val downloader = new ScalafmtDynamicDownloader(writer, repositories)
       downloader
         .download(version)
         .left
@@ -235,6 +237,9 @@ final case class ScalafmtDynamic(
         None
     }
   }
+
+  override def withMavenRepositories(repositories: String*): Scalafmt =
+    copy(repositories = repositories.map(MavenRepository.of).toList)
 }
 
 object ScalafmtDynamic {
