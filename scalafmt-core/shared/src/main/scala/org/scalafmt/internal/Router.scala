@@ -1592,14 +1592,13 @@ class Router(formatOps: FormatOps) {
   def getSplitsMemo(formatToken: FormatToken): Seq[Split] =
     cache.getOrElseUpdate(
       formatToken, {
-        val splits = getSplits(formatToken).map(_.adapt(formatToken))
+        val splits =
+          getSplits(formatToken).filter(!_.ignoreIf).map(_.adapt(formatToken))
         formatToken match {
           // TODO(olafur) refactor into "global policy"
           // Only newlines after inline comments.
           case FormatToken(c: T.Comment, _, _) if isSingleLineComment(c) =>
-            val newlineSplits = splits.filter { x =>
-              !x.ignoreIf && x.modification.isNewline
-            }
+            val newlineSplits = splits.filter(_.modification.isNewline)
             if (newlineSplits.isEmpty) Seq(Split(Newline, 0))
             else newlineSplits
           case FormatToken(_, c: T.Comment, _)
