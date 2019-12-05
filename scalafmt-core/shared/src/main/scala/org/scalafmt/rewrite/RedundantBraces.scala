@@ -104,11 +104,15 @@ case object RedundantBraces extends Rewrite {
         if f.tokens.last.is[Token.RightBrace] && getTermLineSpan(f) > 0 =>
       val rbrace = f.tokens.last
       val lbrace = ctx.matchingParens(TokenOps.hash(rbrace))
-      val lparen = ctx.matchingParens(TokenOps.hash(rparen))
-      builder += TokenPatch.Replace(lparen, lbrace.text)
-      builder += TokenPatch.Remove(lbrace)
-      builder += TokenPatch.Remove(rparen)
-      removeTrailingLF(rbrace.pos, rparen)
+      // we really wanted the first token of body but Block usually
+      // points to the next non-whitespace token after opening brace
+      if (lbrace.start <= f.body.tokens.head.start) {
+        val lparen = ctx.matchingParens(TokenOps.hash(rparen))
+        builder += TokenPatch.Replace(lparen, lbrace.text)
+        builder += TokenPatch.Remove(lbrace)
+        builder += TokenPatch.Remove(rparen)
+        removeTrailingLF(rbrace.pos, rparen)
+      }
     case _ =>
   }
 
@@ -124,12 +128,14 @@ case object RedundantBraces extends Rewrite {
           && exactlyOneStatement(body) && isLineSpanOk(body) =>
       val rbrace = fun.tokens.last
       val lbrace = ctx.matchingParens(TokenOps.hash(rbrace))
-      builder += TokenPatch.Remove(lbrace)
-      builder += TokenPatch.Remove(rbrace)
-      removeTrailingLF(lbrace.pos, rbrace)
-      ctx.tokenTraverser
-        .reverseFind(rbrace)(!Whitespace.unapply(_))
-        .foreach(t => removeTrailingLF(t.pos, rbrace))
+      if (lbrace.start <= body.tokens.head.start) {
+        builder += TokenPatch.Remove(lbrace)
+        builder += TokenPatch.Remove(rbrace)
+        removeTrailingLF(lbrace.pos, rbrace)
+        ctx.tokenTraverser
+          .reverseFind(rbrace)(!Whitespace.unapply(_))
+          .foreach(t => removeTrailingLF(t.pos, rbrace))
+      }
     case _ =>
   }
 

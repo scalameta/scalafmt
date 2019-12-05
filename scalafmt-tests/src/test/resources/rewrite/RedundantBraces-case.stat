@@ -75,3 +75,17 @@ object a {
   }
 
 }
+<<< #1583 1 shouldn't remove "redundant braces"
+val a = b.c(d =>
+ e match {  case f =>
+})
+>>>
+val a = b.c(d =>
+  e match {
+    case f =>
+  }
+)
+<<< #1583 2 shouldn't remove "redundant braces"
+val a = b.c(d => {e}, f =>g match {  case h =>})
+>>>
+val a = b.c(d => e, f => g match { case h => })
