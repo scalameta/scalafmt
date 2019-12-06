@@ -1138,8 +1138,14 @@ class Router(formatOps: FormatOps) {
                 .withIndent(2, expire, Left)
             )
         }
-      case tok @ FormatToken(left, dot @ T.Dot() `:chain:` chain, _)
-          if !left.is[T.Underscore] =>
+
+      case FormatToken(T.Ident(name), _: T.Dot, _) if isSymbolicName(name) =>
+        Seq(Split(NoSplit, 0))
+
+      case FormatToken(_: T.Underscore, _: T.Dot, _) =>
+        Seq(Split(NoSplit, 0))
+
+      case tok @ FormatToken(left, dot @ T.Dot() `:chain:` chain, _) =>
         val nestedPenalty = nestedSelect(rightOwner) + nestedApplies(leftOwner)
         val optimalToken = chainOptimalToken(chain)
         val expire =
@@ -1185,18 +1191,16 @@ class Router(formatOps: FormatOps) {
               }
               .getOrElse(0)
           } else 0
-        if (TokenOps.isSymbolicIdent(left))
-          Seq(Split(NoSplit, 0))
-        else
-          Seq(
-            Split(NoSplit, 0, ignoreIf = ignoreNoSplit)
-              .withPolicy(noSplitPolicy),
-            Split(
-              Newline.copy(acceptNoSplit = true),
-              2 + nestedPenalty + chainLengthPenalty
-            ).withPolicy(newlinePolicy)
-              .withIndent(2, optimalToken, Left)
-          )
+        Seq(
+          Split(NoSplit, 0, ignoreIf = ignoreNoSplit)
+            .withPolicy(noSplitPolicy),
+          Split(
+            Newline.copy(acceptNoSplit = true),
+            2 + nestedPenalty + chainLengthPenalty
+          ).withPolicy(newlinePolicy)
+            .withIndent(2, optimalToken, Left)
+        )
+
       // ApplyUnary
       case tok @ FormatToken(T.Ident(_), Literal(), _)
           if leftOwner == rightOwner =>
