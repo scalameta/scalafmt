@@ -1,6 +1,5 @@
 package org.scalafmt.interfaces;
 
-import java.io.Writer;
 import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -73,6 +72,11 @@ public interface Scalafmt {
      * Use this reporter to report errors and information messages.
      */
     Scalafmt withReporter(ScalafmtReporter reporter);
+
+    /**
+     * Use this repositories to resolve dependencies.
+     */
+    Scalafmt withMavenRepositories(String ... repositories);
 
     /**
      * Clear internal caches such as classloaded Scalafmt instances.
