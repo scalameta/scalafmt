@@ -36,7 +36,7 @@ package b {
   import a.b.c
   class d {}
 }
-<<< #1594
+<<< #1593 1
 package a.b.c
 package d.e
 package f
@@ -49,3 +49,24 @@ package f
 
 import g.h.i.j
 package k {}
+<<< #1593 2
+package a.b.c
+package d.e
+package f
+import g.h.i.j
+
+package k.l.m {
+  import n.o.p
+  class q {}
+}
+>>>
+package a.b.c
+package d.e
+package f
+
+import g.h.i.j
+
+package k.l.m {
+  import n.o.p
+  class q {}
+}
