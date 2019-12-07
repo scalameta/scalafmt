@@ -259,24 +259,35 @@ class FormatWriter(formatOps: FormatOps) {
     }
     initStyle.newlines.alwaysBeforeTopLevelStatements && {
       val formatToken = toks(i).formatToken
+
       def checkPackage: Option[Boolean] =
         if (!initStyle.activeForEdition_2019_11) None
         else
           Some(owners(formatToken.left))
             .collect { case term: Term.Name => term.parent }
             .flatten
-            .collect { case pkg: Pkg => pkg.stats.headOption }
+            .collect {
+              // package a
+              case pkg: Pkg =>
+                pkg.stats.headOption
+
+              // package a.b.c
+              case select: Term.Select =>
+                select.parent.collect { case pkg: Pkg => pkg.stats.headOption }.flatten
+            }
             .flatten
             .map {
               case pkg: Pkg => next(pkg.ref.tokens.last).is[T.LeftBrace]
               case _ => true
             }
-      def checkTopLevelStatement(): Boolean =
+
+      def checkTopLevelStatement: Boolean =
         topLevelTokens.contains(hash(formatToken.right)) && {
           val (distance, FormatToken(_, nextNonComment, _)) =
             nextNonCommentWithCount(formatToken)
           isMultiline(actualOwner(nextNonComment).tokens.last, i + distance + 1)
         }
+
       checkPackage.getOrElse(checkTopLevelStatement)
     }
   }
