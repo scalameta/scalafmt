@@ -36,3 +36,16 @@ package b {
   import a.b.c
   class d {}
 }
+<<< #mytest
+package a.b.c
+package d.e
+package f
+import g.h.i.j
+package k {}
+>>>
+package a.b.c
+package d.e
+package f
+
+import g.h.i.j
+package k {}
