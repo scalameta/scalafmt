@@ -36,7 +36,7 @@ package b {
   import a.b.c
   class d {}
 }
-<<< #mytest
+<<< #1594
 package a.b.c
 package d.e
 package f
