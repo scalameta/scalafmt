@@ -1,7 +1,6 @@
 package org.scalafmt.internal
 
 import scala.collection.mutable
-import scala.meta.Defn
 import scala.meta.tokens.Token
 
 import org.scalafmt.Error.SearchStateExploded
@@ -155,7 +154,7 @@ class BestFirstSearch(
       depth: Int = 0,
       maxCost: Int = Integer.MAX_VALUE
   ): State = {
-    val Q = new PriorityQueue[State]()
+    val Q = new mutable.PriorityQueue[State]()
     var result = start
     var lastDequeue = start
     Q += start
