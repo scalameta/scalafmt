@@ -4,7 +4,7 @@ sealed abstract class Modification {
 
   def isNewline: Boolean = this match {
     case _: NewlineT => true
-    case Provided(code) if code.contains('\n') => true
+    case Provided(code) if code.headOption == Some('\n') => true
     case _ => false
   }
 
