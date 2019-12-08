@@ -64,25 +64,13 @@ case class Split(
 
   def withOptimalToken(token: Token, killOnFail: Boolean = false): Split = {
     require(optimalAt.isEmpty)
-    new Split(
-      modification,
-      cost,
-      ignoreIf,
-      indents,
-      policy,
-      true,
-      Some(OptimalToken(token, killOnFail))
-    )(line)
+    copy(optimalAt = Some(OptimalToken(token, killOnFail)), penalty = true)
   }
 
   def withPolicy(newPolicy: Policy): Split = {
-    val update =
-      if (policy == NoPolicy) newPolicy
-      else
-        throw new UnsupportedOperationException("Can't have two policies yet.")
-    new Split(modification, cost, ignoreIf, indents, update, true, optimalAt)(
-      line
-    )
+    if (policy != NoPolicy)
+      throw new UnsupportedOperationException("Can't have two policies yet.")
+    copy(policy = newPolicy, penalty = true)
   }
 
   def withPolicy(newPolicy: Option[Policy]): Split =
@@ -94,31 +82,13 @@ case class Split(
     else copy(policy = policy.orElse(newPolicy))
 
   def withPenalty(penalty: Int): Split =
-    new Split(
-      modification,
-      cost + penalty,
-      ignoreIf,
-      indents,
-      policy,
-      true,
-      optimalAt
-    )(line)
+    copy(cost = cost + penalty, penalty = true)
 
-  def withIndent(length: Length, expire: Token, expiresOn: ExpiresOn): Split = {
+  def withIndent(length: Length, expire: Token, expiresOn: ExpiresOn): Split =
     length match {
       case Num(0) => this
-      case _ =>
-        new Split(
-          modification,
-          cost,
-          ignoreIf,
-          Indent(length, expire, expiresOn) +: indents,
-          policy,
-          penalty,
-          optimalAt
-        )(line)
+      case _ => copy(indents = Indent(length, expire, expiresOn) +: indents)
     }
-  }
 
   def sameSplit(other: Split): Boolean =
     this.modification == other.modification &&
