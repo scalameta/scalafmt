@@ -21,15 +21,14 @@ import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.Report
 import org.scalatest.BeforeAndAfterAllConfigMap
 import org.scalatest.ConfigMap
-import org.scalatest.FunSuite
-import org.scalatest.concurrent.Timeouts
+import org.scalatest.concurrent.TimeLimits
 import org.scalatest.time.SpanSugar._
-
+import org.scalatest.funsuite.AnyFunSuite
 // TODO(olafur) property test: same solution without optimization or timeout.
 
 class FormatTests
-    extends FunSuite
-    with Timeouts
+    extends AnyFunSuite
+    with TimeLimits
     with BeforeAndAfterAllConfigMap
     with HasTests
     with FormatAssertions

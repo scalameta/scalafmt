@@ -1,6 +1,7 @@
 package org.scalafmt
 
-class ScalafmtConfigTest extends org.scalatest.FunSuite {
+import org.scalatest
+class ScalafmtConfigTest extends scalatest.funsuite.AnyFunSuite {
 
   test("project.matcher") {
     val config = Scalafmt

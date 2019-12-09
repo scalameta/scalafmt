@@ -3,9 +3,9 @@ package org.scalafmt
 import org.scalafmt.config.Docstrings
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.DiffAssertions
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class CommentTest extends FunSuite with DiffAssertions {
+class CommentTest extends AnyFunSuite with DiffAssertions {
   val javadocStyle: ScalafmtConfig =
     ScalafmtConfig.default.copy(docstrings = Docstrings.JavaDoc)
   test("remove trailing space in comments") {

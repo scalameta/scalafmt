@@ -11,9 +11,9 @@ import java.io.ByteArrayInputStream
 import org.scalafmt.Error.FormatterChangedAST
 import org.scalafmt.Error.FormatterOutputDoesNotParse
 import org.scalameta.logger
-import org.scalatest.FunSuiteLike
+import org.scalatest.funsuite.AnyFunSuiteLike
 
-trait FormatAssertions extends FunSuiteLike with DiffAssertions {
+trait FormatAssertions extends AnyFunSuiteLike with DiffAssertions {
 
   def assertFormatPreservesAst[T <: Tree](
       original: String,
