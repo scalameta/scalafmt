@@ -288,18 +288,6 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     else Set.empty[Range]
   }
 
-  def skipUnindent(token: Token): Boolean = {
-    token.is[T.LeftParen] && {
-      val owner = owners(token)
-      val isSuperfluous = isSuperfluousParenthesis(token, owner)
-      isSuperfluous && (owner match {
-        case _: Term.ApplyUnary | _: Term.Block => false
-        case _ => true
-      })
-
-    }
-  }
-
   def insideBlock(
       start: FormatToken,
       end: Token,
@@ -615,25 +603,6 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       case _ =>
         infixSplitImpl(owner, op, rhsArgs, formatToken)
     }
-
-  /**
-    * Returns the expire token for the owner of dot.
-    *
-    * If the select is part of an apply like
-    *
-    * foo.bar { ... }
-    *
-    * the expire token is the closing }, otherwise it's bar.
-    */
-  def selectExpire(dot: T.Dot): Token = {
-    val owner = owners(dot)
-    (for {
-      parent <- owner.parent
-      (_, args) <- splitApplyIntoLhsAndArgsLifted(parent) if args.nonEmpty
-    } yield {
-      args.last.tokens.last
-    }).getOrElse(owner.tokens.last)
-  }
 
   def isEmptyFunctionBody(tree: Tree): Boolean = tree match {
     case function: Term.Function =>
