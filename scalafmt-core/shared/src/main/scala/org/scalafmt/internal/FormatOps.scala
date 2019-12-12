@@ -378,7 +378,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   def UnindentAtExclude(
       exclude: Set[Token],
       indent: Length
-  ): PartialFunction[Decision, Decision] = {
+  ): Policy.Pf = {
     case Decision(t, s) if exclude.contains(t.left) =>
       val close = matchingParentheses(hash(t.left))
       Decision(t, s.map(_.withIndent(indent, close, ExpiresOn.Left)))
@@ -775,9 +775,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
         d.onlyNewlines
     }, close.end)
 
-  def decideNewlineAfterToken(
-      close: Token
-  ): PartialFunction[Decision, Decision] = {
+  def decideNewlineAfterToken(close: Token): Policy.Pf = {
     case d: Decision if d.formatToken.left eq close =>
       d.onlyNewlines
   }
@@ -913,7 +911,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       rpOwner == owner || rpOwner == valueParamsOwner
     }
 
-    val paramGroupSplitter: PartialFunction[Decision, Decision] = {
+    val paramGroupSplitter: Policy.Pf = {
       // If this is a class, then don't dangle the last paren unless the line ends with a comment
       case Decision(t @ FormatToken(previous, rp @ RightParenOrBracket(), _), _)
           if shouldNotDangle && rp == lastParen && !isSingleLineComment(

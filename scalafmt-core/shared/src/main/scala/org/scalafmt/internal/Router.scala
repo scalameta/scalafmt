@@ -219,7 +219,7 @@ class Router(formatOps: FormatOps) {
             }
 
         // null if skipping
-        val singleLineDecision: PartialFunction[Decision, Decision] =
+        val singleLineDecision: Policy.Pf =
           if (skipSingleLineBlock) {
             null
           } else if (!style.activeForEdition_2019_11) {
@@ -526,7 +526,7 @@ class Router(formatOps: FormatOps) {
         val open = formatToken.left
         val indent = getApplyIndent(leftOwner, isConfigStyle = true)
         val close = matchingParentheses(hash(open))
-        val newlineBeforeClose: PartialFunction[Decision, Decision] = {
+        val newlineBeforeClose: Policy.Pf = {
           case Decision(t @ FormatToken(_, `close`, _), splits) =>
             Decision(t, Seq(Split(Newline, 0)))
         }
@@ -717,7 +717,7 @@ class Router(formatOps: FormatOps) {
             style.danglingParentheses.callSite && !defnSite) {
             newlineOnTokenPolicy(close)
           } else {
-            Policy(PartialFunction.empty[Decision, Decision], close.end)
+            Policy(Policy.emptyPf, close.end)
           }
 
         val noSplitPolicy =
