@@ -11,14 +11,14 @@ import org.scalafmt.Error.NoopDefaultPolicyApplied
   * @param expire The latest token offset.
   */
 case class Policy(
-    f: PartialFunction[Decision, Decision],
+    f: Policy.Pf,
     expire: Int,
     noDequeue: Boolean = false,
     isSingleLine: Boolean = false
 )(implicit val line: sourcecode.Line) {
 
   def merge(
-      other: PartialFunction[Decision, Decision],
+      other: Policy.Pf,
       newExpire: Int
   ): Policy =
     Policy(f.orElse(other), newExpire)
@@ -39,12 +39,12 @@ case class Policy(
   /** Similar to PartialFunction.andThen, except applies second pf even if the
     * first pf is not defined at argument.
     */
-  def andThen(otherF: PartialFunction[Decision, Decision]): Policy = {
+  def andThen(otherF: Policy.Pf): Policy = {
     if (otherF == Policy.emptyPf) this
     else if (this.f == Policy.emptyPf) copy(f = otherF)
     else {
       // TODO(olafur) optimize?
-      val newPf: PartialFunction[Decision, Decision] = {
+      val newPf: Policy.Pf = {
         case x =>
           otherF.applyOrElse(
             f.applyOrElse(x, identity[Decision]),
@@ -59,11 +59,14 @@ case class Policy(
 }
 
 object Policy {
-  val IdentityPolicy: PartialFunction[Decision, Decision] = {
+
+  type Pf = PartialFunction[Decision, Decision]
+
+  val IdentityPolicy: Pf = {
     case d => throw NoopDefaultPolicyApplied(d)
   }
 
-  val emptyPf = PartialFunction.empty[Decision, Decision]
+  val emptyPf: Pf = PartialFunction.empty
 
   val empty = new Policy(IdentityPolicy, Integer.MAX_VALUE) {
 
