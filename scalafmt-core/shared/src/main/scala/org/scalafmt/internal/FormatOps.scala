@@ -445,14 +445,6 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     template.tokens.find(x => x.is[T.LeftBrace] && owners(x) == template)
   }
 
-  def safeFilterNewlines(
-      splits: Seq[Split]
-  )(implicit line: sourcecode.Line): Seq[Split] = {
-    val filtered = splits.filter(_.modification.isNewline)
-    if (filtered.nonEmpty) filtered
-    else Seq(Split(Newline, 0))
-  }
-
   final def getElseChain(term: Term.If): Vector[T.KwElse] = {
     term.tokens.find(x => x.is[T.KwElse] && owners(x) == term) match {
       case Some(els @ T.KwElse()) =>
@@ -745,9 +737,9 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     else {
       Policy(
         {
-          case Decision(t @ FormatToken(_, right @ T.KwWith(), _), splits)
+          case d @ Decision(FormatToken(_, right: T.KwWith, _), _)
               if owners.contains(ownersMap(hash(right))) =>
-            Decision(t, splits.filter(_.modification.isNewline))
+            d.onlyNewlinesWithoutFallback
         },
         lastToken.end
       )
@@ -772,12 +764,12 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   def newlineOnTokenPolicy(close: Token) =
     Policy({
       case d @ Decision(t @ FormatToken(_, `close`, _), s) =>
-        d.onlyNewlines
+        d.onlyNewlinesWithFallback(Split(Newline, 0))
     }, close.end)
 
   def decideNewlineAfterToken(close: Token): Policy.Pf = {
     case d: Decision if d.formatToken.left eq close =>
-      d.onlyNewlines
+      d.onlyNewlinesWithFallback(Split(Newline, 0))
   }
 
   // Returns the depth of this node in the AST, used to prevent false positives.
