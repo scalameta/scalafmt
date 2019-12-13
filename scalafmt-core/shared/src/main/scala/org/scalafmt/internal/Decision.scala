@@ -11,17 +11,21 @@ case class Decision(formatToken: FormatToken, splits: Seq[Split]) {
   def noNewlines: Decision =
     Decision(formatToken, splits.filterNot(_.modification.isNewline))
 
-  def onlyNewlines(implicit line: sourcecode.Line): Decision = {
-    val filtered = splits.filter(_.modification.isNewline)
-    if (filtered.nonEmpty) Decision(formatToken, filtered)
-    else Decision(formatToken, Seq(Split(Newline, 0)))
+  def onlyNewlinesWithFallback(default: => Split): Decision = {
+    val filtered = onlyNewlineSplits
+    Decision(formatToken, if (filtered.nonEmpty) filtered else Seq(default))
   }
 
-  def forceNewline(implicit line: sourcecode.Line): Decision = {
+  def forceNewline: Decision =
     if (isAttachedSingleLineComment(formatToken))
       this
-    else {
-      Decision(formatToken, splits.filter(_.modification.isNewline))
-    }
-  }
+    else
+      onlyNewlinesWithoutFallback
+
+  def onlyNewlinesWithoutFallback: Decision =
+    Decision(formatToken, onlyNewlineSplits)
+
+  private def onlyNewlineSplits: Seq[Split] =
+    splits.filter(_.modification.isNewline)
+
 }

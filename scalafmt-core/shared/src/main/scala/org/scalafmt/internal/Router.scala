@@ -417,9 +417,9 @@ class Router(formatOps: FormatOps) {
           .flatMap(templateCurly)
           .getOrElse(leftOwner.tokens.last)
         val forceNewlineBeforeExtends = Policy({
-          case Decision(t @ FormatToken(_, right @ T.KwExtends(), _), s)
+          case d @ Decision(FormatToken(_, right: T.KwExtends, _), _)
               if owners(right) == leftOwner =>
-            Decision(t, s.filter(_.modification.isNewline))
+            d.onlyNewlinesWithoutFallback
         }, expire.end)
         Seq(
           Split(Space, 0)
@@ -1206,7 +1206,7 @@ class Router(formatOps: FormatOps) {
           case d @ Decision(t, s)
               if elses.contains(t.right) && !t.left
                 .isInstanceOf[T.RightBrace] =>
-            d.onlyNewlines
+            d.onlyNewlinesWithFallback(Split(Newline, 0))
         }, expire.end)
         Seq(
           Split(Space, 0)
@@ -1376,11 +1376,11 @@ class Router(formatOps: FormatOps) {
             .withPolicy(
               Policy(
                 {
-                  case d @ Decision(t @ FormatToken(`arrow`, right, between), s)
+                  case d @ Decision(t @ FormatToken(`arrow`, right, _), _)
                       // TODO(olafur) any other corner cases?
                       if !right.isInstanceOf[T.LeftBrace] &&
                         !isAttachedSingleLineComment(t) =>
-                    Decision(t, s.filter(_.modification.isNewline))
+                    d.onlyNewlinesWithoutFallback
                 },
                 expire = expire.end
               )
