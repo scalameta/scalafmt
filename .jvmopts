@@ -1,8 +1,9 @@
--Dfile.encoding=UTF8
+-Xss4m
 -Xms1G
--Xmx3G
+-Xmx4G
 -XX:MaxMetaspaceSize=512M
 -XX:ReservedCodeCacheSize=250M
 -XX:+TieredCompilation
 -XX:-UseGCOverheadLimit
 -XX:+CMSClassUnloadingEnabled
+-Dfile.encoding=UTF8
