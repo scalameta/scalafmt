@@ -761,15 +761,22 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     )
   }
 
-  def newlineOnTokenPolicy(close: Token) =
-    Policy({
-      case d @ Decision(t @ FormatToken(_, `close`, _), s) =>
-        d.onlyNewlinesWithFallback(Split(Newline, 0))
-    }, close.end)
+  def newlineBeforeClosePolicy(close: Token) =
+    Policy(decideNewlineBeforeToken(close), close.end)
 
-  def decideNewlineAfterToken(close: Token): Policy.Pf = {
+  def decideNewlineBeforeToken(close: Token): Policy.Pf = {
+    case d: Decision if d.formatToken.right eq close =>
+      d.onlyNewlinesWithFallback(Split(Newline, 0))
+  }
+
+  def decideNewlineAfterClose(close: Token): Policy.Pf = {
     case d: Decision if d.formatToken.left eq close =>
       d.onlyNewlinesWithFallback(Split(Newline, 0))
+  }
+
+  def decideNewlineAfterToken(token: Token): Policy.Pf = {
+    case d: Decision if d.formatToken.left eq token =>
+      d.onlyNewlinesWithoutFallback
   }
 
   // Returns the depth of this node in the AST, used to prevent false positives.
