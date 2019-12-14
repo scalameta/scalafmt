@@ -278,24 +278,30 @@ class Router(formatOps: FormatOps) {
           Split(Space, 0, ignoreIf = !canBeSpace),
           Split(afterCurlyNewlines, 1).withIndent(2, endOfFunction, Left)
         )
+
       case FormatToken(T.RightArrow(), right, _)
           if leftOwner.is[Term.Function] =>
-        val (endOfFunction, expiresOn) = functionExpire(
-          leftOwner.asInstanceOf[Term.Function]
-        )
+        val lambda = leftOwner.asInstanceOf[Term.Function]
+        val (endOfFunction, expiresOn) = functionExpire(lambda)
         val hasSingleLineComment = isSingleLineComment(right)
-        val hasBlock = !hasSingleLineComment &&
-          nextNonComment(formatToken).right.isInstanceOf[T.LeftBrace]
         val indent = // don't indent if the body is empty `{ x => }`
           if (isEmptyFunctionBody(leftOwner) && !right.is[T.Comment]) 0
           else 2
-        Seq(
+        val singleLineSplit =
           Split(Space, 0, ignoreIf = hasSingleLineComment)
-            .withPolicy(SingleLineBlock(endOfFunction)),
-          Split(Space, 0, ignoreIf = !hasBlock),
-          Split(Newline, 1 + nestedApplies(leftOwner), ignoreIf = hasBlock)
+            .withPolicy(SingleLineBlock(endOfFunction))
+        def newlineSplit =
+          Split(Newline, 1 + nestedApplies(leftOwner))
             .withIndent(indent, endOfFunction, expiresOn)
-        )
+        val multiLineSplits =
+          if (hasSingleLineComment)
+            Seq(newlineSplit)
+          else {
+            val hasBlock = nextNonComment(formatToken).right.is[T.LeftBrace]
+            Seq(if (hasBlock) Split(Space, 0) else newlineSplit)
+          }
+        singleLineSplit +: multiLineSplits
+
       // Case arrow
       case tok @ FormatToken(arrow @ T.RightArrow(), right, between)
           if leftOwner.isInstanceOf[Case] =>
