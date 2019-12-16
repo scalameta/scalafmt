@@ -99,8 +99,10 @@ case class Split(
     this.modification == other.modification &&
       this.line.value == other.line.value && this.cost == other.cost
 
-  override def toString =
-    s"""$modification:${line.value}(cost=$cost, indents=$indentation, $policy)"""
+  override def toString = {
+    val prefix = if (ignoreIf) "!" else ""
+    s"""$prefix$modification:${line.value}(cost=$cost, indents=$indentation, $policy)"""
+  }
 }
 
 object Split {
