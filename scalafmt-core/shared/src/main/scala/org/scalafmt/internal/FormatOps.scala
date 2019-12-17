@@ -893,7 +893,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
         // a class with type AND value params. Otherwise it is a class with
         // just type params.
         findFirst(afterTypes, lastParen)(t => t.left.is[T.LeftParen])
-          .fold(base)(t => base.merge(OneArgOneLineSplit(t.left)))
+          .fold(base)(t => base.orElse(OneArgOneLineSplit(t.left)))
       } else base
     }
 
@@ -967,7 +967,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
     // Our policy is a combination of OneArgLineSplit and a custom splitter
     // for parameter groups.
-    val policy = oneLinePerArg.merge(paramGroupSplitter, lastParen.end)
+    val policy = oneLinePerArg.orElse(paramGroupSplitter, lastParen.end)
 
     val firstIndent =
       if (r.is[T.RightParen]) indentSep // An empty param group

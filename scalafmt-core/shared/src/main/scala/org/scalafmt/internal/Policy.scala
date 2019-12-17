@@ -17,19 +17,19 @@ case class Policy(
     isSingleLine: Boolean = false
 )(implicit val line: sourcecode.Line) {
 
-  def merge(
-      other: Policy.Pf,
-      newExpire: Int
-  ): Policy =
-    Policy(f.orElse(other), newExpire)
+  def orElse(other: Policy.Pf, minExpire: Int = 0): Policy =
+    if (other == Policy.emptyPf) this
+    else
+      copy(
+        f = if (f == Policy.emptyPf) other else f.orElse(other),
+        expire = math.max(minExpire, expire)
+      )
 
-  def merge(other: Policy, newExpire: Int): Policy =
-    merge(other.f, newExpire)
+  def orElse(other: Policy): Policy =
+    orElse(other.f, other.expire)
 
-  def merge(other: Policy): Policy = {
-    val newExpire = expire.max(other.expire)
-    merge(other, newExpire)
-  }
+  def orElse(other: Option[Policy]): Policy =
+    other.fold(this)(orElse)
 
   def andThen(other: Policy): Policy = {
     if (this.f == Policy.emptyPf) other
