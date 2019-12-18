@@ -283,13 +283,14 @@ class Router(formatOps: FormatOps) {
         val (endOfFunction, expiresOn) = functionExpire(
           leftOwner.asInstanceOf[Term.Function]
         )
-        val hasBlock =
+        val hasSingleLineComment = isSingleLineComment(right)
+        val hasBlock = !hasSingleLineComment &&
           nextNonComment(formatToken).right.isInstanceOf[T.LeftBrace]
         val indent = // don't indent if the body is empty `{ x => }`
           if (isEmptyFunctionBody(leftOwner) && !right.is[T.Comment]) 0
           else 2
         Seq(
-          Split(Space, 0, ignoreIf = isSingleLineComment(right))
+          Split(Space, 0, ignoreIf = hasSingleLineComment)
             .withPolicy(SingleLineBlock(endOfFunction)),
           Split(Space, 0, ignoreIf = !hasBlock),
           Split(Newline, 1 + nestedApplies(leftOwner), ignoreIf = hasBlock)

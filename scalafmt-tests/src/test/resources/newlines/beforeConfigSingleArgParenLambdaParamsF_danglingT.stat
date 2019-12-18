@@ -63,10 +63,10 @@ def f = {
 def f = {
   something.call(
     (x, y) => // comment
-    {
-      g(x)
-      g(y)
-    }
+      {
+        g(x)
+        g(y)
+      }
   )
 }
 <<< 1.4: multi-arg multi-stmt lambda call with multiple split comments
@@ -84,11 +84,12 @@ def f = {
 >>>
 def f = {
   something.call(
-    (x, y) => // comment
-    /* comment */ {
-      g(x)
-      g(y)
-    }
+    (x, y) =>
+      // comment
+      /* comment */ {
+        g(x)
+        g(y)
+      }
   )
 }
 <<< 1.5: multi-arg multi-stmt lambda call with multiple attached comments
@@ -106,10 +107,10 @@ def f = {
 def f = {
   something.call(
     (x, y) => // comment
-    /* comment */ {
-      g(x)
-      g(y)
-    }
+      /* comment */ {
+        g(x)
+        g(y)
+      }
   )
 }
 <<< 1.6: multi-arg multi-stmt lambda call with multiple inline comments
