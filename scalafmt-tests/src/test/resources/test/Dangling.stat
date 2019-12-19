@@ -169,3 +169,12 @@ Props(
         c
     )
 )
+<<< #1608: apply with single too-long assign of infix
+{
+  Bbbbbbbbbbbbbbbbbbb(cccccccccccccc = dddddddd + eeeeeeee /* comment */)
+}
+>>>
+{
+  Bbbbbbbbbbbbbbbbbbb(cccccccccccccc = dddddddd + eeeeeeee /* comment */
+  )
+}
