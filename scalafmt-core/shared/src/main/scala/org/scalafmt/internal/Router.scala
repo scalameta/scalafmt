@@ -60,7 +60,7 @@ class Router(formatOps: FormatOps) {
   import formatOps._
 
   private def getSplits(formatToken: FormatToken): Seq[Split] = {
-    val style = styleMap.at(formatToken)
+    implicit val style = styleMap.at(formatToken)
     val leftOwner = owners(formatToken.left)
     val rightOwner = owners(formatToken.right)
     val newlines = formatToken.newlinesBetween
@@ -664,10 +664,6 @@ class Router(formatOps: FormatOps) {
         val excludeRanges = exclude.map(parensRange)
 
         val indent = getApplyIndent(leftOwner)
-        val noUnindent = {
-          val toSkip = insideBlock(tok, close, skipUnindent).map(parensRange)
-          exclude.filterNot(x => toSkip.exists(_.contains(x.start)))
-        }
 
         val singleArgument = args.length == 1
 
@@ -708,8 +704,6 @@ class Router(formatOps: FormatOps) {
             Space
           else if (right.is[T.LeftBrace]) NoSplit
           else Newline
-
-        val charactersInside = (close.start - open.end) - 2
 
         val defnSite = isDefnSite(leftOwner)
         val expirationToken: Token =
