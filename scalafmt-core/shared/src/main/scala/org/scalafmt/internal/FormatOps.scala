@@ -327,22 +327,22 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     result.result()
   }
 
-  def defnSiteLastToken(open: Token, tree: Tree): Token = {
+  def defnSiteLastToken(close: FormatToken, tree: Tree): Token = {
     tree match {
       // TODO(olafur) scala.meta should make this easier.
       case procedure: Defn.Def
           if procedure.decltpe.isDefined &&
             procedure.decltpe.get.tokens.isEmpty =>
         procedure.body.tokens.find(_.is[T.LeftBrace])
-      case Defn.Def(_, _, _, _, _, b @ Term.Block(_)) =>
-        b.tokens.headOption
+      case t: Defn.Def if t.body.is[Term.Block] =>
+        t.body.tokens.headOption
       case _: Ctor.Primary =>
-        leftTok2tok(matchingParentheses(hash(open))) match {
+        close match {
           // This is a terrible terrible hack. Please consider removing this.
           // The RightParen() LeftBrace() pair is presumably a ") {" combination
           // at a class definition
-          case FormatToken(T.RightParen(), b @ T.LeftBrace(), _) => Some(b)
-          case _ => Some(matchingParentheses(hash(open)))
+          case FormatToken(_: T.RightParen, b: T.LeftBrace, _) => Some(b)
+          case _ => Some(close.left)
         }
       case _ =>
         tree.tokens.find(t => t.is[T.Equals] && owners(t) == tree)
