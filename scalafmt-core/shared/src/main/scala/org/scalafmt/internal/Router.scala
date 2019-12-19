@@ -741,17 +741,19 @@ class Router(formatOps: FormatOps) {
 
         val tooManyArguments = args.length > 100
 
+        val wouldDangle =
+          if (defnSite) style.danglingParentheses.defnSite
+          else style.danglingParentheses.callSite
+
         val newlinePolicy: Policy =
-          if (style.danglingParentheses.defnSite && defnSite ||
-            style.danglingParentheses.callSite && !defnSite) {
+          if (wouldDangle) {
             newlinesOnlyBeforeClosePolicy(close)
           } else {
             Policy.empty(close)
           }
 
         val noSplitPolicy =
-          if (style.danglingParentheses.defnSite && defnSite ||
-            style.danglingParentheses.callSite && !defnSite) {
+          if (wouldDangle) {
             SingleLineBlock(close, exclude = excludeRanges)
           } else singleLine(10)
 
