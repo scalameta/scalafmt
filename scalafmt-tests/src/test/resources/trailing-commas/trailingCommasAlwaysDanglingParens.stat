@@ -204,3 +204,29 @@ object Foo {
     }
   }
 }
+<<< #1604 1: avoid single-arg assign closing paren split adding trailing comma
+{
+  Bbbbbbbbbbbbbb(ccccccccccc = // comment
+  dddddddd + eeeeeeee /* comment */)
+}
+>>>
+Idempotency violated
+{
+  Bbbbbbbbbbbbbb(ccccccccccc = // comment
+    dddddddd + eeeeeeee,
+  /* comment */
+  )
+}
+<<< #1604 2: avoid single-arg assign closing paren split keeping trailing comma
+{
+  Bbbbbbbbbbbbbb(ccccccccccc = // comment
+    dddddddd + eeeeeeee, /* comment */
+  )
+}
+>>>
+{
+  Bbbbbbbbbbbbbb(ccccccccccc = // comment
+    dddddddd + eeeeeeee,
+  /* comment */
+  )
+}

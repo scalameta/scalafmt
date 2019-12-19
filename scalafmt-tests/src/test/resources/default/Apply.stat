@@ -604,3 +604,46 @@ opt[String]("json-extractor") action { (x, c) =>
         CastleLastMoveTime.init.copy(castles = game.board.history.castles),
       daysPerTurn = daysPerTurn)
 }
+<<< #1604 1: apply with then without assign, and attached comments
+{
+       val config =         WSClientConfig(          ssl =
+SSLConfig(SSLLooseConfig(allowLegacyHelloMessages = None)/*comment 123 comment 234*/)) //comment 345 comment 456
+}
+>>>
+{
+  val config =
+    WSClientConfig(ssl = SSLConfig(SSLLooseConfig(allowLegacyHelloMessages =
+      None) /*comment 123 comment 234*/ )) //comment 345 comment 456
+}
+<<< #1604 2: apply without then with assign, and attached comments
+{
+       val config =         WSClientConfig(
+SSLConfig(loose = SSLLooseConfig(allowLegacyHelloMessages = None)/*comment 123 comment 234*/)) //comment 345 comment 456
+}
+>>>
+{
+  val config =
+    WSClientConfig(SSLConfig(loose = SSLLooseConfig(allowLegacyHelloMessages =
+      None) /*comment 123 comment 234*/ )) //comment 345 comment 456
+}
+<<< #1604 3: apply with assign and attached comments
+{
+       val config =         WSClientConfig(ssl =
+SSLConfig(loose = SSLLooseConfig(allowLegacyHelloMessages = None)/*comment 123 comment 234*/)) //comment 345 comment 456
+}
+>>>
+{
+  val config =
+    WSClientConfig(ssl = SSLConfig(loose = SSLLooseConfig(allowLegacyHelloMessages =
+      None) /*comment 123 comment 234*/ )) //comment 345 comment 456
+}
+<<< #1604 4: apply without assign and attached comments
+{
+       val config =         WSClientConfig(
+SSLConfig(SSLLooseConfig(None)/*comment 123 comment 234*/)) //comment 345 comment 456
+}
+>>>
+{
+  val config = WSClientConfig(
+      SSLConfig(SSLLooseConfig(None) /*comment 123 comment 234*/ )) //comment 345 comment 456
+}
