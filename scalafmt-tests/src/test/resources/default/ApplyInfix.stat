@@ -339,3 +339,19 @@ val overrides =
     "hostname" ::
     "port" ::
     Nil
+<<< #1608: apply with single too-long assign of infix
+{
+  Bbbbbbbbbbbbbbbbbbbbbbb(cccccccccccccccccc = dddddddd + eeeeeeee /* comment */)
+}
+>>>
+{
+  Bbbbbbbbbbbbbbbbbbbbbbb(cccccccccccccccccc = dddddddd + eeeeeeee /* comment */ )
+}
+<<< #1608: while with infix
+object a {
+        while (isEmptyChar(ext.getContainingFile.getText.charAt(end - 1))) end = end - 1
+        }
+>>>
+object a {
+  while (isEmptyChar(ext.getContainingFile.getText.charAt(end - 1))) end = end - 1
+}
