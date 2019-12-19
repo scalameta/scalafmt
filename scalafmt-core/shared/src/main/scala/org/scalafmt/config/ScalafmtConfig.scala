@@ -203,6 +203,9 @@ case class ScalafmtConfig(
     newlines.alwaysBeforeCurlyBraceLambdaParams || !activeForEdition_2019_11
   val newlinesBetweenCurlyAndCatchFinally: Boolean =
     newlines.alwaysBeforeElseAfterCurlyIf && activeForEdition_2019_11
+
+  // Edition 2020-01
+  val activeForEdition_2020_01: Boolean = activeFor(Edition(2020, 1))
 }
 
 object ScalafmtConfig {
