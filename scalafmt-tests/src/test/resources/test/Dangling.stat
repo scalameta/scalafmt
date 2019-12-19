@@ -179,3 +179,126 @@ Props(
     dddddddd + eeeeeeee /* comment */
   )
 }
+<<< #1604 1: apply with and without assign and attached comments
+{
+       val config =         WSClientConfig(          ssl =
+SSLConfig(SSLLooseConfig(allowLegacyHelloMessages = None)/*comment 123 comment 234*/)) //comment 345 comment 456
+}
+>>>
+{
+  val config = WSClientConfig(ssl =
+    SSLConfig(
+        SSLLooseConfig(allowLegacyHelloMessages =
+          None
+        ) /*comment 123 comment 234*/
+    )
+  ) //comment 345 comment 456
+}
+<<< #1604 2: apply with and without assign and attached comments 2
+{
+       val config =         WSClientConfig(
+SSLConfig(loose = SSLLooseConfig(allowLegacyHelloMessages = None)/*comment 123 comment 234*/)) //comment 345 comment 456
+}
+>>>
+{
+  val config = WSClientConfig(
+      SSLConfig(loose =
+        SSLLooseConfig(allowLegacyHelloMessages =
+          None
+        ) /*comment 123 comment 234*/
+      )
+  ) //comment 345 comment 456
+}
+<<< #1604 3: apply without assign and attached comments
+{
+       val config =         WSClientConfig(
+SSLConfig(SSLLooseConfig(None)/*comment 123 comment 234*/)) //comment 345 comment 456
+}
+>>>
+{
+  val config = WSClientConfig(
+      SSLConfig(
+          SSLLooseConfig(None) /*comment 123 comment 234*/
+      )
+  ) //comment 345 comment 456
+}
+<<< #1604 4: apply with assign and attached comments
+{
+       val config =         WSClientConfig(ssl =
+SSLConfig(loose = SSLLooseConfig(allowLegacyHelloMessages = None)/*comment 123 comment 234*/)) //comment 345 comment 456
+}
+>>>
+{
+  val config = WSClientConfig(ssl =
+    SSLConfig(loose =
+      SSLLooseConfig(allowLegacyHelloMessages =
+        None
+      ) /*comment 123 comment 234*/
+    )
+  ) //comment 345 comment 456
+}
+<<< #1604 5: apply with single too-long assign of trailing comment then infix
+{
+  Bbbbbbbbbbbbbbbbbbbb(ccccccccccccccc = // comment
+  dddddddd + eeeeeeee /* comment */)
+}
+>>>
+{
+  Bbbbbbbbbbbbbbbbbbbb(ccccccccccccccc = // comment
+    dddddddd + eeeeeeee /* comment */
+  )
+}
+<<< #1604 6: apply with single a bit long assign and inline comment
+{
+  Bbbbbbbbbbbbb(cccccccccccc = dddddddd /* comment */)
+}
+>>>
+{
+  Bbbbbbbbbbbbb(cccccccccccc = dddddddd /* comment */
+  )
+}
+<<< #1604 7: apply with single a bit long assign and trailing comment
+{
+  Bbbbbbbbbbbbb(cccccccccccc = dddddddd // comment
+)
+}
+>>>
+{
+  Bbbbbbbbbbbbb(cccccccccccc = dddddddd // comment
+  )
+}
+<<< #1604 8: apply with single a bit long assign and trailing comment
+{
+  Bbbbbbbbbbbbb(cccccccccccc = // comment
+dddddddd)
+}
+>>>
+{
+  Bbbbbbbbbbbbb(cccccccccccc = // comment
+    dddddddd
+  )
+}
+<<< #1604 9: apply with single a bit long assign of trailing comment then block
+{
+  Bbbbbbbbbbbbb(cccccccccccc = // comment
+{dddddddd})
+}
+>>>
+error: Unable to format file due to bug in scalafmt
+{
+  Bbbbbbbbbbbbb(
+      cccccccccccc = // comment
+        { dddddddd }
+  )
+}
+<<< #1604 10: apply with single a bit long assign of block with trailing comment
+{
+  Bbbbbbbbbbbbb(cccccccccccc = { // comment
+dddddddd})
+}
+>>>
+{
+  Bbbbbbbbbbbbb(cccccccccccc = { // comment
+    dddddddd
+  })
+}

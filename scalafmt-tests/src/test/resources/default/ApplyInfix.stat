@@ -357,3 +357,34 @@ object a {
   while (isEmptyChar(ext.getContainingFile.getText.charAt(end - 1)))
     end = end - 1
 }
+<<< #1604 1: apply with single too-long assign of trailing comment then infix
+{
+  Bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb(ccccccccccccccccccccccccccccccccc = // comment
+  dddddddd + eeeeeeee /* comment */)
+}
+>>>
+{
+  Bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb(ccccccccccccccccccccccccccccccccc = // comment
+    dddddddd + eeeeeeee /* comment */ )
+}
+<<< #1604 2: apply with single a bit long assign of trailing comment then block
+{
+  Bbbbbbbbbbbbb(cccccccccccc = // comment
+{dddddddd + eeeeeeee  /* comment */ })
+}
+>>>
+{
+  Bbbbbbbbbbbbb(cccccccccccc = // comment
+    { dddddddd + eeeeeeee /* comment */ })
+}
+<<< #1604 3: apply with single a bit long assign of block with trailing comment
+{
+  Bbbbbbbbbbbbb(cccccccccccc = { // comment
+dddddddd + eeeeeeee /* comment */ })
+}
+>>>
+{
+  Bbbbbbbbbbbbb(cccccccccccc = { // comment
+    dddddddd + eeeeeeee /* comment */
+  })
+}
