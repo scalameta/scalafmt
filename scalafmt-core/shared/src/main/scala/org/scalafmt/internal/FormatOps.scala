@@ -509,9 +509,48 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     lastToken(owners(getSelectsLastToken(lastDot)))
   }
 
-  def infixSplit(owner: Term.ApplyInfix, formatToken: FormatToken)(
-      implicit line: sourcecode.Line
-  ): Split =
+  def infixIndent(
+      owner: Term.ApplyInfix,
+      formatToken: FormatToken,
+      isNewline: Boolean
+  )(implicit style: ScalafmtConfig): Int =
+    infixIndent(owner, owner.op, owner.args, formatToken, isNewline)
+
+  def infixIndent(
+      owner: Tree,
+      op: Name,
+      rhsArgs: Seq[Tree],
+      formatToken: FormatToken,
+      isNewline: Boolean
+  )(implicit style: ScalafmtConfig): Int = {
+    if (style.verticalAlignMultilineOperators) {
+      if (formatToken.left.text == "=") 2 else 0
+    } else if (style.unindentTopLevelOperators &&
+      rhsArgs.headOption.forall(_.isNot[Term.Block]) &&
+      !isTopLevelInfixApplication(owner) &&
+      style.indentOperator.includeRegexp
+        .findFirstIn(formatToken.left.syntax)
+        .isDefined &&
+      style.indentOperator.excludeRegexp
+        .findFirstIn(formatToken.left.syntax)
+        .isEmpty) 2
+    else if ((style.unindentTopLevelOperators ||
+      isTopLevelInfixApplication(owner)) &&
+      (style.indentOperator.includeRegexp
+        .findFirstIn(op.tokens.head.syntax)
+        .isEmpty ||
+      style.indentOperator.excludeRegexp
+        .findFirstIn(op.tokens.head.syntax)
+        .isDefined)) 0
+    else if (!isNewline &&
+      !isSingleLineComment(formatToken.right)) 0
+    else 2
+  }
+
+  def infixSplit(
+      owner: Term.ApplyInfix,
+      formatToken: FormatToken
+  )(implicit line: sourcecode.Line, style: ScalafmtConfig): Split =
     infixSplit(owner, owner.op, owner.args, formatToken)
 
   def infixSplit(
@@ -519,36 +558,13 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       op: Name,
       rhsArgs: Seq[Tree],
       formatToken: FormatToken
-  )(implicit line: sourcecode.Line): Split = {
-    val style = styleMap.at(formatToken)
+  )(implicit line: sourcecode.Line, style: ScalafmtConfig): Split = {
     val modification = newlines2Modification(
       formatToken.newlinesBetween,
       isNoIndent(formatToken)
     )
-    val indent = {
-      if (style.verticalAlignMultilineOperators) {
-        if (formatToken.left.text == "=") 2 else 0
-      } else if (style.unindentTopLevelOperators &&
-        rhsArgs.headOption.forall(_.isNot[Term.Block]) &&
-        !isTopLevelInfixApplication(owner) &&
-        style.indentOperator.includeRegexp
-          .findFirstIn(formatToken.left.syntax)
-          .isDefined &&
-        style.indentOperator.excludeRegexp
-          .findFirstIn(formatToken.left.syntax)
-          .isEmpty) 2
-      else if ((style.unindentTopLevelOperators ||
-        isTopLevelInfixApplication(owner)) &&
-        (style.indentOperator.includeRegexp
-          .findFirstIn(op.tokens.head.syntax)
-          .isEmpty ||
-        style.indentOperator.excludeRegexp
-          .findFirstIn(op.tokens.head.syntax)
-          .isDefined)) 0
-      else if (!modification.isNewline &&
-        !isSingleLineComment(formatToken.right)) 0
-      else 2
-    }
+    val indent =
+      infixIndent(owner, op, rhsArgs, formatToken, modification.isNewline)
     val isRightAssociative =
       // NOTE. Silly workaround because we call infixSplit from assignment =, see #798
       formatToken.left.syntax != "=" &&
