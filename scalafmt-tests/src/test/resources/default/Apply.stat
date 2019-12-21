@@ -611,9 +611,11 @@ SSLConfig(SSLLooseConfig(allowLegacyHelloMessages = None)/*comment 123 comment 2
 }
 >>>
 {
-  val config =
-    WSClientConfig(ssl = SSLConfig(SSLLooseConfig(allowLegacyHelloMessages =
-      None) /*comment 123 comment 234*/ )) //comment 345 comment 456
+  val config = WSClientConfig(ssl = SSLConfig(
+      SSLLooseConfig(allowLegacyHelloMessages = None
+      ) /*comment 123 comment 234*/
+  )
+  ) //comment 345 comment 456
 }
 <<< #1604 2: apply without then with assign, and attached comments
 {
@@ -622,9 +624,9 @@ SSLConfig(loose = SSLLooseConfig(allowLegacyHelloMessages = None)/*comment 123 c
 }
 >>>
 {
-  val config =
-    WSClientConfig(SSLConfig(loose = SSLLooseConfig(allowLegacyHelloMessages =
-      None) /*comment 123 comment 234*/ )) //comment 345 comment 456
+  val config = WSClientConfig(SSLConfig(loose =
+    SSLLooseConfig(allowLegacyHelloMessages = None) /*comment 123 comment 234*/
+  )) //comment 345 comment 456
 }
 <<< #1604 3: apply with assign and attached comments
 {
@@ -633,9 +635,10 @@ SSLConfig(loose = SSLLooseConfig(allowLegacyHelloMessages = None)/*comment 123 c
 }
 >>>
 {
-  val config =
-    WSClientConfig(ssl = SSLConfig(loose = SSLLooseConfig(allowLegacyHelloMessages =
-      None) /*comment 123 comment 234*/ )) //comment 345 comment 456
+  val config = WSClientConfig(ssl = SSLConfig(loose =
+    SSLLooseConfig(allowLegacyHelloMessages = None) /*comment 123 comment 234*/
+  )
+  ) //comment 345 comment 456
 }
 <<< #1604 4: apply without assign and attached comments
 {
@@ -645,5 +648,6 @@ SSLConfig(SSLLooseConfig(None)/*comment 123 comment 234*/)) //comment 345 commen
 >>>
 {
   val config = WSClientConfig(
-      SSLConfig(SSLLooseConfig(None) /*comment 123 comment 234*/ )) //comment 345 comment 456
+      SSLConfig(SSLLooseConfig(None) /*comment 123 comment 234*/ )
+  ) //comment 345 comment 456
 }

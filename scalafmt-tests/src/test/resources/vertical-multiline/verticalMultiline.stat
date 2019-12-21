@@ -69,7 +69,9 @@ def format_![
     T <: Tree // Some type comment
   ](code: String, // The code!
     code2: String
-  )(implicit ev: Parse[T], // The Parser!!! Some very long comment that goes over limit
+  )(implicit ev: Parse[
+      T
+    ], // The Parser!!! Some very long comment that goes over limit
     ex: D
   ): String = 1
 

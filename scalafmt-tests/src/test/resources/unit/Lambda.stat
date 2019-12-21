@@ -75,7 +75,8 @@ Thing(implicit ctx =>
       aaaaaaaaaaaaa(
           bbbbbbbbbbbbbbbbbbb,
           cccccccccc,
-          ddddddddddddddddddddj)) // coooooooooooooooomment
+          ddddddddddddddddddddj
+      )) // coooooooooooooooomment
 <<< single line uncurried
 Thing() { implicit ctx =>
       ???

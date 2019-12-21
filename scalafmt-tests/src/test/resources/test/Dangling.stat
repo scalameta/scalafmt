@@ -218,7 +218,9 @@ SSLConfig(SSLLooseConfig(None)/*comment 123 comment 234*/)) //comment 345 commen
 {
   val config = WSClientConfig(
       SSLConfig(
-          SSLLooseConfig(None) /*comment 123 comment 234*/
+          SSLLooseConfig(
+              None
+          ) /*comment 123 comment 234*/
       )
   ) //comment 345 comment 456
 }

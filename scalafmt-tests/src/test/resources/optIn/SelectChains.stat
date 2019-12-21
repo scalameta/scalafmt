@@ -16,7 +16,9 @@ val design: Design =
 val design: Design =
   newDesign // Create an empty design
     .bind[A].to[AImpl] // Bind a concrete class AImpl to A
-    .bind[B].toInstance(new B(1)) // Bind a concrete instance to B (This instance will be a singleton)
+    .bind[B].toInstance(
+      new B(1)
+    ) // Bind a concrete instance to B (This instance will be a singleton)
     .bind[S].toSingleton // S will be a singleton within the session
     .bind[ES].toEagerSingleton // ES will be initialized as a singleton at session start time
     .bind[D1]

@@ -109,7 +109,10 @@ Seq(
 )
 >>>
 Seq(
-    Split(Space, 0), // End files with trailing newline
+    Split(
+        Space,
+        0
+    ), // End files with trailing newline
     Split(Newline, 1)
 )
 <<< seq to var arg, #178
