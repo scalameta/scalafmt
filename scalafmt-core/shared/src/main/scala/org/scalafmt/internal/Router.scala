@@ -994,9 +994,7 @@ class Router(formatOps: FormatOps) {
           insideBlock(formatToken, expire, _.isInstanceOf[T.LeftBrace])
         rhs match {
           case t: Term.ApplyInfix =>
-            Seq(
-              infixSplit(t, formatToken)
-            )
+            infixSplit(t, formatToken)
           case _ =>
             def twoBranches: Policy = {
               val excludeRanges = exclude.map(parensRange)
@@ -1315,11 +1313,11 @@ class Router(formatOps: FormatOps) {
           if isApplyInfix(op, leftOwner) =>
         // TODO(olafur) move extractor into pattern match.
         val InfixApplication(_, op, args) = leftOwner.parent.get
-        Seq(infixSplit(leftOwner, op, args, formatToken))
+        infixSplit(leftOwner, op, args, formatToken)
       case FormatToken(left, op @ T.Ident(_), between)
           if isApplyInfix(op, rightOwner) =>
         val InfixApplication(_, op, args) = rightOwner.parent.get
-        Seq(infixSplit(rightOwner, op, args, formatToken))
+        infixSplit(rightOwner, op, args, formatToken)
       case opt
           if style.optIn.annotationNewlines &&
             optionalNewlines(hash(opt.right)) =>
