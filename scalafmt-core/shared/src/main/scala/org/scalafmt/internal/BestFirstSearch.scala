@@ -30,6 +30,8 @@ class BestFirstSearch(
   import formatOps._
   import formatOps.runner.optimizer._
 
+  implicit val stateOrdering = State.Ordering
+
   /**
     * Precomputed table of splits for each token.
     */
