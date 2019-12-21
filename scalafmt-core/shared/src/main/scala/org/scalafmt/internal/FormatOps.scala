@@ -550,21 +550,15 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   def infixSplit(
       owner: Term.ApplyInfix,
       formatToken: FormatToken
-  )(implicit line: sourcecode.Line, style: ScalafmtConfig): Split =
+  )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] =
     infixSplit(owner, owner.op, owner.args, formatToken)
 
-  def infixSplit(
+  private def infixSplitImpl(
       owner: Tree,
       op: Name,
       rhsArgs: Seq[Tree],
       formatToken: FormatToken
-  )(implicit line: sourcecode.Line, style: ScalafmtConfig): Split = {
-    val modification = newlines2Modification(
-      formatToken.newlinesBetween,
-      isNoIndent(formatToken)
-    )
-    val indent =
-      infixIndent(owner, op, rhsArgs, formatToken, modification.isNewline)
+  )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] = {
     val isRightAssociative =
       // NOTE. Silly workaround because we call infixSplit from assignment =, see #798
       formatToken.left.syntax != "=" &&
@@ -590,15 +584,31 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       }
     } yield token).getOrElse(owner.tokens.last)
 
+    val modification = newlines2Modification(
+      formatToken.newlinesBetween,
+      isNoIndent(formatToken)
+    )
+    val isNewline = modification.isNewline
+    val indent = infixIndent(owner, op, rhsArgs, formatToken, isNewline)
+    val split =
+      Split(modification, 0).withIndent(Num(indent), expire, ExpiresOn.Left)
+
+    Seq(split)
+  }
+
+  def infixSplit(
+      owner: Tree,
+      op: Name,
+      rhsArgs: Seq[Tree],
+      formatToken: FormatToken
+  )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] =
     owner.parent match {
       case Some(_: Type.ApplyInfix)
           if style.spaces.neverAroundInfixTypes.contains((op.value)) =>
-        Split(NoSplit, 0)
+        Seq(Split(NoSplit, 0))
       case _ =>
-        Split(modification, 0).withIndent(Num(indent), expire, ExpiresOn.Left)
+        infixSplitImpl(owner, op, rhsArgs, formatToken)
     }
-
-  }
 
   /**
     * Returns the expire token for the owner of dot.
