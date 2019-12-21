@@ -1,5 +1,6 @@
 package org.scalafmt.internal
 
+import scala.annotation.tailrec
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token.Comment
 
@@ -19,29 +20,7 @@ final case class State(
     pushes: Vector[Indent[Num]],
     column: Int,
     formatOff: Boolean
-) extends Ordered[State] {
-
-  def compare(that: State): Int = {
-    val costCompare = Integer.valueOf(-this.cost).compareTo(-that.cost)
-    if (costCompare != 0) costCompare
-    else {
-      val splitsCompare =
-        Integer.valueOf(this.splits.length).compareTo(that.splits.length)
-      if (splitsCompare != 0) splitsCompare
-      else {
-        // Break ties by the split line origin.
-        var i = this.splits.length - 1
-        var r = 0
-        while (i > 0 && r == 0) {
-          r = Integer
-            .valueOf(this.splits(i).line.value)
-            .compareTo(that.splits(i).line.value)
-          i -= 1
-        }
-        r
-      }
-    }
-  }
+) {
 
   override def toString = s"State($cost, ${splits.length})"
 
@@ -133,4 +112,45 @@ object State {
       nextFormatOff
     )
   }
+
+  // this is not best state, it's higher priority for search
+  object Ordering extends Ordering[State] {
+    override def compare(x: State, y: State): Int = compareAt(x, y, 0)
+
+    private val comparisons: Seq[(State, State) => Int] = Seq(
+      compareCost,
+      compareSplitsLength,
+      compareSplitOrigin
+    )
+
+    @tailrec
+    private def compareAt(s1: State, s2: State, i: Int): Int = {
+      val r = comparisons(i)(s1, s2)
+      if (r != 0 || i == comparisons.length - 1) r
+      else compareAt(s1, s2, i + 1)
+    }
+
+    // priority on higher cost
+    private def compareCost(s1: State, s2: State): Int =
+      Integer.compare(s2.cost, s1.cost)
+
+    // priority on fewer splits
+    private def compareSplitsLength(s1: State, s2: State): Int =
+      Integer.compare(s1.splits.length, s2.splits.length)
+
+    // priority on earlier line defining the last split
+    private def compareSplitOrigin(s1: State, s2: State): Int =
+      // We assume the same number of splits, see compareSplitsLength
+      // Break ties by the last split's line origin.
+      compareSplitOrigin(s1, s2, s1.splits.length - 1)
+
+    @tailrec
+    private def compareSplitOrigin(s1: State, s2: State, i: Int): Int = {
+      // Break ties by the last split's line origin.
+      val r = Integer.compare(s1.splits(i).line.value, s2.splits(i).line.value)
+      if (r != 0 || i == 0) r
+      else compareSplitOrigin(s1, s2, i - 1)
+    }
+  }
+
 }
