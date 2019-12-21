@@ -215,6 +215,9 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
             !startsNewBlock(start.right) &&
             start.newlinesBetween == 0 =>
         rhsOptimalToken(next(start))
+      case c: T.Comment
+          if style.activeForEdition_2020_01 && start.newlinesBetween == 0 =>
+        c
       case _ => start.left
     }
   }

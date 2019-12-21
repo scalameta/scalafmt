@@ -741,12 +741,15 @@ class Router(formatOps: FormatOps) {
 
         val tooManyArguments = args.length > 100
 
+        val mustDangle = style.activeForEdition_2020_01 && (
+          expirationToken.is[T.Comment]
+        )
         val wouldDangle =
           if (defnSite) style.danglingParentheses.defnSite
           else style.danglingParentheses.callSite
 
         val newlinePolicy: Policy =
-          if (wouldDangle) {
+          if (wouldDangle || mustDangle) {
             newlinesOnlyBeforeClosePolicy(close)
           } else {
             Policy.empty(close)
@@ -796,7 +799,7 @@ class Router(formatOps: FormatOps) {
             }
 
         val noSplitPolicy =
-          if (wouldDangle)
+          if (wouldDangle || mustDangle && isBracket)
             SingleLineBlock(close, exclude = excludeRanges)
           else
             singleLine(10)

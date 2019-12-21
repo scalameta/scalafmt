@@ -470,15 +470,18 @@ EventsResponse.fromJson(json, run).success.value.events should be(
 val TodoApp = ReactComponentB[Unit]("TodoApp")
   .initialState(State(Nil, ""))
   .renderS(($, s) =>
-    <.div(
-        <.h3("TODO"),
-        TodoList(s.items),
-        <.form(
-            ^.onSubmit ==> $._runState(handleSubmit), // runState runs a state monad and applies the result.
-            <.input( // _runState is similar but takes a function-to-a-state-monad.
-                ^.onChange ==> $._runState(acceptChange), // In these cases, the function will be fed the JS event.
-                ^.value := s.text),
-            <.button("Add #", s.items.length + 1))))
+    <.div(<.h3("TODO"),
+          TodoList(s.items),
+          <.form(
+              ^.onSubmit ==> $._runState(
+                  handleSubmit
+              ), // runState runs a state monad and applies the result.
+              <.input( // _runState is similar but takes a function-to-a-state-monad.
+                  ^.onChange ==> $._runState(
+                      acceptChange
+                  ), // In these cases, the function will be fed the JS event.
+                  ^.value := s.text),
+              <.button("Add #", s.items.length + 1))))
   .build
 <<< #745
 object SharedPolicyAmounts {
