@@ -205,11 +205,13 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     nextNonCommentWithCount(curr)._2
 
   @tailrec
-  final def rhsOptimalToken(start: FormatToken): Token = {
+  final def rhsOptimalToken(
+      start: FormatToken
+  )(implicit style: ScalafmtConfig): Token = {
     start.right match {
       case T.Comma() | T.LeftParen() | T.RightParen() | T.RightBracket() |
           T.Semicolon() | T.RightArrow() | T.Equals()
-          if next(start) != start &&
+          if (1 + start.meta.idx) != tokens.length &&
             !startsNewBlock(start.right) &&
             start.newlinesBetween == 0 =>
         rhsOptimalToken(next(start))
