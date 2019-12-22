@@ -364,8 +364,9 @@ object a {
 }
 >>>
 {
-  Bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb(ccccccccccccccccccccccccccccccccc = // comment
-    dddddddd + eeeeeeee /* comment */ )
+  Bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb(
+      ccccccccccccccccccccccccccccccccc = // comment
+        dddddddd + eeeeeeee /* comment */ )
 }
 <<< #1604 2: apply with single a bit long assign of trailing comment then block
 {

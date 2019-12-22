@@ -188,8 +188,9 @@ SSLConfig(SSLLooseConfig(allowLegacyHelloMessages = None)/*comment 123 comment 2
 {
   val config = WSClientConfig(ssl =
     SSLConfig(
-        SSLLooseConfig(allowLegacyHelloMessages =
-          None
+        SSLLooseConfig(
+            allowLegacyHelloMessages =
+              None
         ) /*comment 123 comment 234*/
     )
   ) //comment 345 comment 456
@@ -203,8 +204,9 @@ SSLConfig(loose = SSLLooseConfig(allowLegacyHelloMessages = None)/*comment 123 c
 {
   val config = WSClientConfig(
       SSLConfig(loose =
-        SSLLooseConfig(allowLegacyHelloMessages =
-          None
+        SSLLooseConfig(
+            allowLegacyHelloMessages =
+              None
         ) /*comment 123 comment 234*/
       )
   ) //comment 345 comment 456
@@ -233,8 +235,9 @@ SSLConfig(loose = SSLLooseConfig(allowLegacyHelloMessages = None)/*comment 123 c
 {
   val config = WSClientConfig(ssl =
     SSLConfig(loose =
-      SSLLooseConfig(allowLegacyHelloMessages =
-        None
+      SSLLooseConfig(
+          allowLegacyHelloMessages =
+            None
       ) /*comment 123 comment 234*/
     )
   ) //comment 345 comment 456
@@ -278,8 +281,9 @@ dddddddd)
 }
 >>>
 {
-  Bbbbbbbbbbbbb(cccccccccccc = // comment
-    dddddddd
+  Bbbbbbbbbbbbb(
+      cccccccccccc = // comment
+        dddddddd
   )
 }
 <<< #1604 9: apply with single a bit long assign of trailing comment then block
@@ -288,7 +292,6 @@ dddddddd)
 {dddddddd})
 }
 >>>
-error: Unable to format file due to bug in scalafmt
 {
   Bbbbbbbbbbbbb(
       cccccccccccc = // comment
@@ -302,7 +305,9 @@ dddddddd})
 }
 >>>
 {
-  Bbbbbbbbbbbbb(cccccccccccc = { // comment
-    dddddddd
-  })
+  Bbbbbbbbbbbbb(
+      cccccccccccc = { // comment
+        dddddddd
+      }
+  )
 }

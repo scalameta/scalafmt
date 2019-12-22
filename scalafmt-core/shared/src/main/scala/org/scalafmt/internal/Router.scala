@@ -794,7 +794,11 @@ class Router(formatOps: FormatOps) {
                 if (newlinePolicy.isEmpty) Policy.emptyPf
                 else decideNewlinesOnlyAfterToken(breakToken)
               val noSplitCost = 1 + nestedPenalty + lhsPenalty
+              val newlineCost = Constants.ExceedColumnPenalty + noSplitCost
               Seq(
+                Split(Newline, newlineCost)
+                  .withPolicy(newlinePolicy)
+                  .withIndent(indent, close, Right),
                 Split(NoSplit, noSplitCost)
                   .withOptimalToken(breakToken)
                   .withPolicy(
