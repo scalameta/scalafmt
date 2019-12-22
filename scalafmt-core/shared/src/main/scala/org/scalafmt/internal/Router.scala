@@ -776,7 +776,7 @@ class Router(formatOps: FormatOps) {
 
         val keepConfigStyleSplit =
           style.optIn.configStyleArguments && newlines != 0
-        val splitForAssignToken =
+        val splitsForAssign =
           if (defnSite || isBracket || keepConfigStyleSplit) None
           else
             getAssignAtSingleArgCallSite(leftOwner).map { assign =>
@@ -784,9 +784,15 @@ class Router(formatOps: FormatOps) {
                 case b: Term.Block => b.tokens.head
                 case _ => assign.tokens.find(_.is[T.Equals]).get
               }
-              Split(NoSplit, 1 + nestedPenalty + lhsPenalty)
-                .withPolicy(newlinePolicy.andThen(SingleLineBlock(assignToken)))
-                .withOptimalToken(assignToken)
+              val noSplitCost = 1 + nestedPenalty + lhsPenalty
+              Seq(
+                Split(NoSplit, noSplitCost)
+                  .withOptimalToken(assignToken)
+                  .withPolicy(
+                    newlinePolicy
+                      .andThen(SingleLineBlock(assignToken))
+                  )
+              )
             }
 
         val noSplitPolicy =
@@ -802,7 +808,7 @@ class Router(formatOps: FormatOps) {
             newlineModification,
             (1 + nestedPenalty + lhsPenalty) * bracketMultiplier,
             policy = newlinePolicy.andThen(singleLine(4)),
-            ignoreIf = args.length > 1 || isTuple || splitForAssignToken.isDefined
+            ignoreIf = args.length > 1 || isTuple || splitsForAssign.isDefined
           ).withOptimalToken(expirationToken)
             .withIndent(indent, close, Right),
           Split(
@@ -821,7 +827,7 @@ class Router(formatOps: FormatOps) {
             ignoreIf = singleArgument || isTuple
           ).withOptimalToken(expirationToken)
             .withIndent(indent, close, Right)
-        ) ++ splitForAssignToken.toSeq
+        ) ++ splitsForAssign.getOrElse(Seq.empty)
 
       // Closing def site ): ReturnType
       case FormatToken(left, T.Colon(), _)
