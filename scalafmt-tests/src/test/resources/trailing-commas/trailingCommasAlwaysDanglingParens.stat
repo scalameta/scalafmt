@@ -210,11 +210,9 @@ object Foo {
   dddddddd + eeeeeeee /* comment */)
 }
 >>>
-Idempotency violated
 {
   Bbbbbbbbbbbbbb(ccccccccccc = // comment
-    dddddddd + eeeeeeee,
-  /* comment */
+    dddddddd + eeeeeeee, /* comment */
   )
 }
 <<< #1604 2: avoid single-arg assign closing paren split keeping trailing comma
@@ -226,7 +224,6 @@ Idempotency violated
 >>>
 {
   Bbbbbbbbbbbbbb(ccccccccccc = // comment
-    dddddddd + eeeeeeee,
-  /* comment */
+    dddddddd + eeeeeeee, /* comment */
   )
 }

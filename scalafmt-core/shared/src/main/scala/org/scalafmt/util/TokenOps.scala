@@ -2,6 +2,7 @@ package org.scalafmt.util
 
 import scala.meta.{Defn, Pkg, Template, Tree}
 import scala.meta.dialects.Scala211
+import scala.meta.internal.classifiers.classifier
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 
@@ -252,4 +253,12 @@ object TokenOps {
     "// @formatter:on", // IntelliJ
     "// format: on" // scalariform
   )
+
+  @classifier
+  trait CloseParenOrBracket
+  object CloseParenOrBracket {
+    def unapply(token: Token): Boolean =
+      token.is[Token.RightParen] || token.is[Token.RightBracket]
+  }
+
 }
