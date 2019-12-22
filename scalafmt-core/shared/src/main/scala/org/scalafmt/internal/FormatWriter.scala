@@ -439,15 +439,6 @@ class FormatWriter(formatOps: FormatOps) {
     }
   }
 
-  import scala.meta.internal.classifiers.classifier
-
-  @classifier
-  private trait CloseParenOrBracket
-  private object CloseParenOrBracket {
-    def unapply(token: Token): Boolean =
-      token.is[T.RightParen] || token.is[T.RightBracket]
-  }
-
   private def handleTrailingCommasAndWhitespace(
       formatToken: FormatToken,
       state: State,

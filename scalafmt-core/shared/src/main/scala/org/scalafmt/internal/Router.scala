@@ -951,9 +951,16 @@ class Router(formatOps: FormatOps) {
                 0
             }
             val singleLineComment = isSingleLineComment(right)
+            val noNewline = newlines == 0 && {
+              singleLineComment || style.activeForEdition_2020_01 && {
+                val nextTok = nextNonComment(tok).right
+                // perhaps a trailing comma
+                (nextTok ne right) && nextTok.is[CloseParenOrBracket]
+              }
+            }
             Seq(
               Split(Space, 0, ignoreIf = newlines != 0 && singleLineComment),
-              Split(Newline, 1, ignoreIf = newlines == 0 && singleLineComment)
+              Split(Newline, 1, ignoreIf = noNewline)
                 .withIndent(indent, right, ExpiresOn.Right)
             )
         }
