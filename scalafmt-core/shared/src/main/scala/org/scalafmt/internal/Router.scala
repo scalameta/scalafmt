@@ -752,11 +752,6 @@ class Router(formatOps: FormatOps) {
             Policy.empty(close)
           }
 
-        val noSplitPolicy =
-          if (wouldDangle) {
-            SingleLineBlock(close, exclude = excludeRanges)
-          } else singleLine(10)
-
         val noSplitIndent =
           if (isSingleLineComment(right)) indent
           else Num(0)
@@ -794,6 +789,11 @@ class Router(formatOps: FormatOps) {
                 .withOptimalToken(assignToken)
             }
 
+        val noSplitPolicy =
+          if (wouldDangle)
+            SingleLineBlock(close, exclude = excludeRanges)
+          else
+            singleLine(10)
         Seq(
           Split(noSplitModification, 0, policy = noSplitPolicy)
             .withOptimalToken(expirationToken)
