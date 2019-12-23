@@ -787,13 +787,20 @@ class Router(formatOps: FormatOps) {
                 case b: Term.Block => b.tokens.head
                 case _ => assign.tokens.find(_.is[T.Equals]).get
               }
+              val assignFT = tokens(assignToken)
+              val hasComment = isAttachedSingleLineComment(assignFT)
+              val breakToken = if (hasComment) assignFT.right else assignToken
+              val newlineAfterAssignDecision =
+                if (newlinePolicy.isEmpty) Policy.emptyPf
+                else decideNewlinesOnlyAfterToken(breakToken)
               val noSplitCost = 1 + nestedPenalty + lhsPenalty
               Seq(
                 Split(NoSplit, noSplitCost)
-                  .withOptimalToken(assignToken)
+                  .withOptimalToken(breakToken)
                   .withPolicy(
                     newlinePolicy
-                      .andThen(SingleLineBlock(assignToken))
+                      .andThen(newlineAfterAssignDecision)
+                      .andThen(SingleLineBlock(breakToken))
                   )
               )
             }
