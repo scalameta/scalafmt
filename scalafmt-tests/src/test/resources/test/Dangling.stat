@@ -256,7 +256,8 @@ SSLConfig(loose = SSLLooseConfig(allowLegacyHelloMessages = None)/*comment 123 c
 }
 >>>
 {
-  Bbbbbbbbbbbbb(cccccccccccc = dddddddd /* comment */
+  Bbbbbbbbbbbbb(cccccccccccc =
+    dddddddd /* comment */
   )
 }
 <<< #1604 7: apply with single a bit long assign and trailing comment
@@ -266,7 +267,8 @@ SSLConfig(loose = SSLLooseConfig(allowLegacyHelloMessages = None)/*comment 123 c
 }
 >>>
 {
-  Bbbbbbbbbbbbb(cccccccccccc = dddddddd // comment
+  Bbbbbbbbbbbbb(cccccccccccc =
+    dddddddd // comment
   )
 }
 <<< #1604 8: apply with single a bit long assign and trailing comment
