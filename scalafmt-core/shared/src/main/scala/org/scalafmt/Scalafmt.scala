@@ -40,9 +40,9 @@ object Scalafmt {
     */
   def format(
       code: String,
-      style: ScalafmtConfig,
-      range: Set[Range],
-      filename: String
+      style: ScalafmtConfig = ScalafmtConfig.default,
+      range: Set[Range] = Set.empty,
+      filename: String = "<input>"
   ): Formatted = {
     try {
       val runner = style.runner
@@ -80,14 +80,6 @@ object Scalafmt {
       // TODO(olafur) add more fine grained errors.
       case NonFatal(e) => Formatted.Failure(e)
     }
-  }
-
-  def format(
-      code: String,
-      style: ScalafmtConfig = ScalafmtConfig.default,
-      range: Set[Range] = Set.empty[Range]
-  ): Formatted = {
-    format(code, style, range, "<input>")
   }
 
   def parseHoconConfig(configString: String): Configured[ScalafmtConfig] =

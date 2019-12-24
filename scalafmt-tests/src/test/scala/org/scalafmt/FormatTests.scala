@@ -52,19 +52,22 @@ class FormatTests
 
   def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
     val runner = scalafmtRunner(t.style.runner).copy(parser = parse)
-    val obtained =
-      Scalafmt.format(t.original, t.style.copy(runner = runner)) match {
-        case Formatted.Failure(e)
-            if t.style.onTestFailure.nonEmpty && e.getMessage.contains(
-              e.getMessage
-            ) =>
-          t.expected
-        case Formatted.Failure(e: Incomplete) => e.formattedCode
-        case Formatted.Failure(e: SearchStateExploded) =>
-          logger.elem(e)
-          e.partialOutput
-        case x => x.get
-      }
+    val obtained = Scalafmt.format(
+      t.original,
+      t.style.copy(runner = runner),
+      filename = t.filename
+    ) match {
+      case Formatted.Failure(e)
+          if t.style.onTestFailure.nonEmpty && e.getMessage.contains(
+            e.getMessage
+          ) =>
+        t.expected
+      case Formatted.Failure(e: Incomplete) => e.formattedCode
+      case Formatted.Failure(e: SearchStateExploded) =>
+        logger.elem(e)
+        e.partialOutput
+      case x => x.get
+    }
     debugResults += saveResult(t, obtained, onlyOne)
     if (t.style.rewrite.rules.isEmpty &&
       !t.style.assumeStandardLibraryStripMargin &&
@@ -74,8 +77,13 @@ class FormatTests
         t.style.runner.dialect
       )
     }
-    val formattedAgain =
-      Scalafmt.format(obtained, t.style.copy(runner = runner)).get
+    val formattedAgain = Scalafmt
+      .format(
+        obtained,
+        t.style.copy(runner = runner),
+        filename = t.filename
+      )
+      .get
 //          getFormatOutput(t.style, true) // uncomment to debug
     assertNoDiff(formattedAgain, obtained, "Idempotency violated")
     if (!onlyManual) {
