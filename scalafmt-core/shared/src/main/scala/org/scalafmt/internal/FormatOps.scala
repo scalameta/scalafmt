@@ -559,9 +559,10 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       rhsArgs: Seq[Tree],
       formatToken: FormatToken
   )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] = {
+    val isNotEquals = !formatToken.left.is[Token.Equals]
     val isRightAssociative =
       // NOTE. Silly workaround because we call infixSplit from assignment =, see #798
-      formatToken.left.syntax != "=" &&
+      isNotEquals &&
         isRightAssociativeOperator(op.value)
     val expire = (for {
       arg <- {
@@ -593,7 +594,16 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     val split =
       Split(modification, 0).withIndent(Num(indent), expire, ExpiresOn.Left)
 
-    Seq(split)
+    if (!style.activeForEdition_2020_01 || isNotEquals ||
+      isNewline || formatToken.right.is[T.Comment])
+      Seq(split)
+    else {
+      val altIndent = infixIndent(owner, op, rhsArgs, formatToken, true)
+      Seq(
+        split,
+        Split(Newline, 1).withIndent(Num(altIndent), expire, ExpiresOn.Left)
+      )
+    }
   }
 
   def infixSplit(
