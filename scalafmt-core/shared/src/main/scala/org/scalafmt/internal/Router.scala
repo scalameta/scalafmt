@@ -801,6 +801,8 @@ class Router(formatOps: FormatOps) {
         val noSplitPolicy =
           if (wouldDangle || mustDangle && isBracket)
             SingleLineBlock(close, exclude = excludeRanges)
+          else if (splitsForAssign.isDefined)
+            singleLine(3)
           else
             singleLine(10)
         Seq(
