@@ -388,7 +388,8 @@ object mixed {
   else {
     val chars = s.toCharArray
   }
-  val prefix = "sbt.paths." + projectName + "." + uncapitalize(config.name) + "."
+  val prefix =
+    "sbt.paths." + projectName + "." + uncapitalize(config.name) + "."
 }
 <<< #521
 x match {

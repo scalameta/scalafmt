@@ -175,6 +175,7 @@ Props(
 }
 >>>
 {
-  Bbbbbbbbbbbbbbbbbbb(cccccccccccccc = dddddddd + eeeeeeee /* comment */
+  Bbbbbbbbbbbbbbbbbbb(cccccccccccccc =
+    dddddddd + eeeeeeee /* comment */
   )
 }

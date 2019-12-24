@@ -345,7 +345,8 @@ val overrides =
 }
 >>>
 {
-  Bbbbbbbbbbbbbbbbbbbbbbb(cccccccccccccccccc = dddddddd + eeeeeeee /* comment */ )
+  Bbbbbbbbbbbbbbbbbbbbbbb(cccccccccccccccccc =
+    dddddddd + eeeeeeee /* comment */ )
 }
 <<< #1608: while with infix
 object a {
@@ -353,5 +354,6 @@ object a {
         }
 >>>
 object a {
-  while (isEmptyChar(ext.getContainingFile.getText.charAt(end - 1))) end = end - 1
+  while (isEmptyChar(ext.getContainingFile.getText.charAt(end - 1))) end =
+    end - 1
 }
