@@ -1214,17 +1214,17 @@ class Router(formatOps: FormatOps) {
             .withPolicy(SingleLineBlock(expire)),
           Split(Space, 1).withPolicy(breakOnlyBeforeElse)
         )
-      case FormatToken(close @ T.RightParen(), right, between)
-          if (leftOwner match {
+      case FormatToken(close: T.RightParen, _, _) if (leftOwner match {
             case _: Term.If | _: Term.For => true
-            case _: Term.ForYield if style.indentYieldKeyword => true
+            case _: Term.ForYield => style.indentYieldKeyword
+            case _: Term.While => style.activeForEdition_2020_01
             case _ => false
-          }) &&
-            !isFirstOrLastToken(close, leftOwner) =>
+          }) && !isFirstOrLastToken(close, leftOwner) =>
         val expire = leftOwner match {
           case t: Term.If => t.thenp.tokens.last
           case t: Term.For => t.body.tokens.last
           case t: Term.ForYield => t.body.tokens.last
+          case t: Term.While => t.body.tokens.last
         }
         // Inline comment attached to closing RightParen
         val attachedComment = isAttachedSingleLineComment(formatToken)
