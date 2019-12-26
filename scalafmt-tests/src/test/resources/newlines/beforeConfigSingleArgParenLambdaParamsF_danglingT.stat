@@ -221,11 +221,9 @@ def f = {
 }
 >>>
 def f = {
-  activeValuesIterator foreach (
-      v => {
-        1 + 1
-      }
-  )
+  activeValuesIterator foreach (v => {
+    1 + 1
+  })
 }
 <<< 2: single-arg single-stmt block long-body lambda call
 def f = {
