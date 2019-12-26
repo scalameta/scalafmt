@@ -191,15 +191,14 @@ object Foo {
   }
 }
 >>>
-Violates idempotency
 object Foo {
   def xxxxxxxxxxxxxxxxxxx(struct1: Xxxxxxx, struct2: Xxxxxxx): Seq[Xxxxxxx] = {
     (1, 2) match {
       case (1, 2) =>
         arg1.keys.toSet.union(arg2.keys.toSet).toSeq.flatMap { k =>
           if (argOp1 == argOp2) {
-            xx(arg1(k), arg2(k)).map(d => d.copy(path = Seq(op, Y(k)) ++ d.path),
-            )
+            xx(arg1(k), arg2(k))
+              .map(d => d.copy(path = Seq(op, Y(k)) ++ d.path))
           }
         }
     }

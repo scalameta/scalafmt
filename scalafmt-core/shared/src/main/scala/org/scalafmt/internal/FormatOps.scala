@@ -764,6 +764,23 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   def newlineBeforeClosePolicy(close: Token) =
     Policy(decideNewlineBeforeToken(close), close.end)
 
+  def delayedBreakPolicy(onBreakPolicy: Policy): Policy = {
+    object OnBreakDecision {
+      def unapply(d: Decision): Option[Decision] = {
+        var replaced = false
+        def decisionPf(s: Split): Split =
+          if (!s.modification.isNewline) s
+          else {
+            replaced = true
+            s.orElsePolicy(onBreakPolicy)
+          }
+        val splits = d.splits.map(decisionPf)
+        if (replaced) Some(d.copy(splits = splits)) else None
+      }
+    }
+    onBreakPolicy.copy(f = { case OnBreakDecision(d) => d })
+  }
+
   def decideNewlineBeforeToken(close: Token): Policy.Pf = {
     case d: Decision if d.formatToken.right eq close =>
       d.onlyNewlinesWithFallback(Split(Newline, 0))
