@@ -66,6 +66,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   val (forceConfigStyle, emptyQueueSpots) = getForceConfigStyle
 
   @inline def matching(token: Token): Token = matchingParentheses(hash(token))
+  @inline def matchingOpt(token: Token): Option[Token] =
+    matchingParentheses.get(hash(token))
 
   @inline
   def owners(token: Token): Tree = ownersMap(hash(token))
@@ -757,9 +759,14 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   def newlineBeforeClosePolicy(close: Token) =
     Policy(decideNewlineBeforeToken(close), close.end)
 
-  def delayedBreakPolicy(onBreakPolicy: Policy): Policy = {
+  def delayedBreakPolicy(
+      leftCheck: Option[Token => Boolean]
+  )(onBreakPolicy: Policy): Policy = {
     object OnBreakDecision {
-      def unapply(d: Decision): Option[Decision] = {
+      def unapply(d: Decision): Option[Decision] =
+        if (leftCheck.exists(!_(d.formatToken.left))) None
+        else unapplyImpl(d)
+      private def unapplyImpl(d: Decision): Option[Decision] = {
         var replaced = false
         def decisionPf(s: Split): Split =
           if (!s.modification.isNewline) s

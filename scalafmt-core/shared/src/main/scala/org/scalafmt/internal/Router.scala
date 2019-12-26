@@ -496,13 +496,16 @@ class Router(formatOps: FormatOps) {
             !style.newlinesBeforeSingleArgParenLambdaParams &&
             getLambdaAtSingleArgCallSite(leftOwner).isDefined => {
         val lambda = getLambdaAtSingleArgCallSite(leftOwner).get
-        val (lambdaIsABlock, lambdaToken) = lambda.body match {
+        val lambdaLeft: Option[Token] =
+          matchingOpt(functionExpire(lambda)._1).filter(_.is[T.LeftBrace])
+        val lambdaToken = lambda.body match {
           case b: Term.Block =>
-            true -> b.tokens.head
+            b.tokens.head
           case _ =>
             val arrow = lambda.tokens.find(_.is[T.RightArrow]).get
-            next(arrow).is[T.LeftBrace] -> arrow
+            lambdaLeft.filter(_ eq next(arrow)).getOrElse(arrow)
         }
+        val lambdaIsABlock = lambdaLeft.exists(_ eq lambdaToken)
 
         val close = matchingParentheses(hash(formatToken.left))
         val newlinePolicy =
@@ -510,7 +513,10 @@ class Router(formatOps: FormatOps) {
           else Some(newlineBeforeClosePolicy(close))
         val spacePolicy = SingleLineBlock(lambdaToken).orElse {
           if (lambdaIsABlock) None
-          else newlinePolicy.map(delayedBreakPolicy)
+          else
+            newlinePolicy.map(
+              delayedBreakPolicy(lambdaLeft.map(open => _.end < open.end))
+            )
         }
 
         val newlinePenalty = 3 + nestedApplies(leftOwner)
