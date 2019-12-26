@@ -66,7 +66,8 @@ def f = {
     {
       g(x)
       g(y)
-    })
+    }
+  )
 }
 <<< 1.4: multi-arg multi-stmt lambda call with multiple split comments
 def f = {
@@ -87,7 +88,8 @@ def f = {
     /* comment */ {
       g(x)
       g(y)
-    })
+    }
+  )
 }
 <<< 1.5: multi-arg multi-stmt lambda call with multiple attached comments
 def f = {
@@ -107,7 +109,8 @@ def f = {
     /* comment */ {
       g(x)
       g(y)
-    })
+    }
+  )
 }
 <<< 1.6: multi-arg multi-stmt lambda call with multiple inline comments
 def f = {
@@ -127,7 +130,8 @@ def f = {
     /* comment2 */ {
       g(x)
       g(y)
-    })
+    }
+  )
 }
 <<< 1.7: multi-arg multi-stmt lambda call with long params
 def f = {
@@ -149,7 +153,8 @@ def f = {
     /* comment2 */ {
       g(x)
       g(y)
-    })
+    }
+  )
 }
 <<< 1.8: multi-arg multi-stmt lambda call with long params and block with short comment
 def f = {

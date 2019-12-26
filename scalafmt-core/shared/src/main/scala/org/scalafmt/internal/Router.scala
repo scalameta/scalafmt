@@ -498,21 +498,22 @@ class Router(formatOps: FormatOps) {
         }
 
         val close = matchingParentheses(hash(formatToken.left))
-        val splitOnClosePolicy =
-          if (style.danglingParentheses.callSite && !lambdaIsABlock)
-            newlineBeforeClosePolicy(close)
-          else
-            Policy(Policy.emptyPf, close.end)
-        val noSplitBeforeArrowPolicy =
-          splitOnClosePolicy.andThen(SingleLineBlock(lambdaToken))
+        val newlinePolicy =
+          if (!style.danglingParentheses.callSite) None
+          else Some(newlineBeforeClosePolicy(close))
+        val spacePolicy = SingleLineBlock(lambdaToken).orElse {
+          if (lambdaIsABlock) None
+          else newlinePolicy.map(delayedBreakPolicy)
+        }
 
         val newlinePenalty = 3 + nestedApplies(leftOwner)
         Seq(
           Split(NoSplit, 0, policy = SingleLineBlock(close))
             .withOptimalToken(close),
-          Split(NoSplit, 0, policy = noSplitBeforeArrowPolicy)
+          Split(NoSplit, 0, policy = spacePolicy)
             .withOptimalToken(lambdaToken),
-          Split(Newline, newlinePenalty, policy = splitOnClosePolicy)
+          Split(Newline, newlinePenalty)
+            .withPolicy(newlinePolicy)
             .withIndent(style.continuationIndent.callSite, close, Right)
         )
       }

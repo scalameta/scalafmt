@@ -85,6 +85,14 @@ case class Split(
     )
   }
 
+  def withPolicy(newPolicy: Option[Policy]): Split =
+    newPolicy.fold(this)(withPolicy)
+
+  def orElsePolicy(newPolicy: Policy): Split =
+    if (NoPolicy == newPolicy) this
+    else if (NoPolicy == policy) copy(policy = newPolicy)
+    else copy(policy = policy.orElse(newPolicy))
+
   def withPenalty(penalty: Int): Split =
     new Split(
       modification,
