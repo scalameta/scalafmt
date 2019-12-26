@@ -1371,9 +1371,8 @@ class Router(formatOps: FormatOps) {
         // TODO(olafur) expire on token.end to avoid this bug.
         val expire = Option(owner.body)
           .filter(_.tokens.exists(!_.is[Trivia]))
-          .map(lastToken)
-          .map(getRightAttachedComment)
-          .getOrElse(arrow) // edge case, if body is empty expire on arrow.
+          // edge case, if body is empty expire on arrow
+          .fold(arrow)(t => getOptimalTokenFor(lastToken(t)))
 
         Seq(
           // Either everything fits in one line or break on =>

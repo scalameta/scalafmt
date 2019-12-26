@@ -484,12 +484,11 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     curr.left
   }
 
-  def getRightAttachedComment(token: Token): Token = {
-    val formatToken = leftTok2tok(token)
-    if (isAttachedSingleLineComment(formatToken))
-      formatToken.right
-    else token
-  }
+  def getOptimalTokenFor(token: Token): Token =
+    getOptimalTokenFor(leftTok2tok(token))
+
+  def getOptimalTokenFor(ft: FormatToken): Token =
+    if (isAttachedSingleLineComment(ft)) ft.right else ft.left
 
   def chainOptimalToken(chain: Vector[Term.Select]): Token = {
     val lastDotIndex = chain.last.tokens.lastIndexWhere(_.is[T.Dot])
