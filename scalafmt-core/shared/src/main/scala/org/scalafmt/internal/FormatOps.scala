@@ -641,15 +641,25 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     case _ => false
   }
 
-  def functionExpire(function: Term.Function): (Token, ExpiresOn) =
-    function.parent
-      .collect {
-        case b: Term.Block if b.stats.length == 1 =>
-          b.tokens.last -> Right
-      }
-      .getOrElse {
-        function.tokens.findLast(!_.is[Whitespace]).get -> Left
-      }
+  def functionExpire(function: Term.Function): (Token, ExpiresOn) = {
+    def dropWS(rtoks: Seq[Token]): Seq[Token] =
+      rtoks.dropWhile(_.is[Whitespace])
+    def orElse(rtoks: Seq[Token]) = {
+      val last = rtoks.head
+      if (last.is[T.RightParen] && (matching(last) eq rtoks.last))
+        rtoks.tail.find(!_.is[Whitespace]).get -> Left
+      else
+        last -> Left
+    }
+
+    def getRToks = dropWS(function.tokens.reverse)
+    function.parent match {
+      case Some(b: Term.Block) if b.stats.length == 1 =>
+        b.tokens.last -> Right
+      case _ =>
+        orElse(getRToks)
+    }
+  }
 
   def noOptimizationZones(tree: Tree): Set[Token] = {
     val result = Set.newBuilder[Token]

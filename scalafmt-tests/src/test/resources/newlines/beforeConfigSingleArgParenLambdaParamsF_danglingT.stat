@@ -212,8 +212,7 @@ def f = {
 def f = {
   activeValuesIterator foreach (v => {
     val nn = canNormS(v); sum += nn * nn
-  }
-  )
+  })
 }
 <<< 1.12: single-stat block lambda called via infix
 maxColumn = 37
@@ -225,9 +224,10 @@ def f = {
 }
 >>>
 def f = {
-  activeValuesIterator foreach (v => {
-    1 + 1
-  }
+  activeValuesIterator foreach (
+    v => {
+      1 + 1
+    }
   )
 }
 <<< 2: single-arg single-stmt block long-body lambda call
