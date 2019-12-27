@@ -572,3 +572,50 @@ object a {
     )
   }
 }
+<<< 19: lambdas with trailing comment in case stats
+val f = {
+  // c1
+  case (a, b) =>
+    c: Int => {
+      d
+      e
+      }
+
+  // c2
+  case (a, b) =>
+    c: Int => {
+      d
+      e
+      }
+
+  // c3
+  case (a, b) =>
+    c: Int => ({
+      d
+      e
+    })
+}
+>>>
+val f = {
+  // c1
+  case (a, b) =>
+    c: Int => {
+      d
+      e
+    }
+
+  // c2
+  case (a, b) =>
+    c: Int => {
+      d
+      e
+    }
+
+  // c3
+  case (a, b) =>
+    c: Int =>
+      ({
+        d
+        e
+      })
+}

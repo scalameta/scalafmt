@@ -651,11 +651,15 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       else
         last -> Left
     }
+    def dropComment(rtoks: Seq[Token]) =
+      if (rtoks.head.is[T.Comment]) dropWS(rtoks.tail) else rtoks
 
     def getRToks = dropWS(function.tokens.reverse)
     function.parent match {
       case Some(b: Term.Block) if b.stats.length == 1 =>
         b.tokens.last -> Right
+      case Some(Case(_, _, `function`)) =>
+        orElse(dropComment(getRToks))
       case _ =>
         orElse(getRToks)
     }
