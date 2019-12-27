@@ -61,12 +61,11 @@ def f = {
 }
 >>>
 def f = {
-  something.call(
-    (x, y) => // comment
-      {
-        g(x)
-        g(y)
-      })
+  something.call((x, y) => // comment
+    {
+      g(x)
+      g(y)
+    })
 }
 <<< 1.4: multi-arg multi-stmt lambda call with multiple split comments
 def f = {
@@ -82,13 +81,12 @@ def f = {
 }
 >>>
 def f = {
-  something.call(
-    (x, y) =>
-      // comment
-      /* comment */ {
-        g(x)
-        g(y)
-      })
+  something.call((x, y) =>
+    // comment
+    /* comment */ {
+      g(x)
+      g(y)
+    })
 }
 <<< 1.5: multi-arg multi-stmt lambda call with multiple attached comments
 def f = {
@@ -103,12 +101,11 @@ def f = {
 }
 >>>
 def f = {
-  something.call(
-    (x, y) => // comment
-      /* comment */ {
-        g(x)
-        g(y)
-      })
+  something.call((x, y) => // comment
+    /* comment */ {
+      g(x)
+      g(y)
+    })
 }
 <<< 1.6: multi-arg multi-stmt lambda call with multiple inline comments
 def f = {
@@ -123,12 +120,11 @@ def f = {
 }
 >>>
 def f = {
-  something.call(
-    (x, y) => /* comment1 */
-    /* comment2 */ {
-      g(x)
-      g(y)
-    })
+  something.call((x, y) => /* comment1 */
+  /* comment2 */ {
+    g(x)
+    g(y)
+  })
 }
 <<< 1.7: multi-arg multi-stmt lambda call with long params
 def f = {
@@ -162,10 +158,11 @@ def f = {
 }
 >>>
 def f = {
-  something.call((aaaaaaaaaaaaaaaaaaaaaaaaaaa, bbbbbbbbbbbbbbbbbbbbbbbbbbb) => { // comment
-    g(x)
-    g(y)
-  })
+  something.call(
+    (aaaaaaaaaaaaaaaaaaaaaaaaaaa, bbbbbbbbbbbbbbbbbbbbbbbbbbb) => { // comment
+      g(x)
+      g(y)
+    })
 }
 <<< 1.9: multi-arg multi-stmt lambda call with long params and block with long comment
 def f = {
@@ -177,10 +174,14 @@ def f = {
 }
 >>>
 def f = {
-  something.call((aaaaaaaaaaaaaaaaaaaaaaaaaaa, bbbbbbbbbbbbbbbbbbbbbbbbbbb) => { // long comment
-    g(x)
-    g(y)
-  })
+  something.call(
+    (
+        aaaaaaaaaaaaaaaaaaaaaaaaaaa,
+        bbbbbbbbbbbbbbbbbbbbbbbbbbb
+    ) => { // long comment
+      g(x)
+      g(y)
+    })
 }
 <<< 1.10: multi-arg multi-stmt lambda call with long params and block with long comment
 def f = {

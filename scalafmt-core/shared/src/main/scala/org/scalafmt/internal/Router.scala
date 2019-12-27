@@ -498,14 +498,11 @@ class Router(formatOps: FormatOps) {
         val lambda = getLambdaAtSingleArgCallSite(leftOwner).get
         val lambdaLeft: Option[Token] =
           matchingOpt(functionExpire(lambda)._1).filter(_.is[T.LeftBrace])
-        val lambdaToken = lambda.body match {
-          case b: Term.Block =>
-            b.tokens.head
-          case _ =>
-            val arrow = lambda.tokens.find(_.is[T.RightArrow]).get
-            lambdaLeft.filter(_ eq next(arrow)).getOrElse(arrow)
-        }
-        val lambdaIsABlock = lambdaLeft.exists(_ eq lambdaToken)
+
+        val arrowFt = leftTok2tok(lambda.tokens.find(_.is[T.RightArrow]).get)
+        val lambdaIsABlock = lambdaLeft.exists(_ eq arrowFt.right)
+        val lambdaToken =
+          getOptimalTokenFor(if (lambdaIsABlock) next(arrowFt) else arrowFt)
 
         val close = matchingParentheses(hash(formatToken.left))
         val newlinePolicy =
