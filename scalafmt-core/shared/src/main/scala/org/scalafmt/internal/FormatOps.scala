@@ -765,7 +765,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   }
 
   def newlinesOnlyBeforeClosePolicy(close: Token) =
-    Policy(decideNewlinesOnlyBeforeClose(close), close.end)
+    Policy(decideNewlinesOnlyBeforeClose)(close)
 
   def decideNewlinesOnlyBeforeClose(close: Token): Policy.Pf = {
     case d: Decision if d.formatToken.right eq close =>
