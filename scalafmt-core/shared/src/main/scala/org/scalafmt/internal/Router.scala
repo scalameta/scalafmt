@@ -125,7 +125,7 @@ class Router(formatOps: FormatOps) {
           close,
           disallowSingleLineComments = disallowSingleLineComments
         )
-        val newlineBeforeClosingCurly = newlineBeforeClosePolicy(close)
+        val newlineBeforeClosingCurly = newlinesOnlyBeforeClosePolicy(close)
 
         val newlinePolicy = style.importSelectors match {
           case ImportSelectors.noBinPack =>
@@ -172,7 +172,7 @@ class Router(formatOps: FormatOps) {
       // { ... } Blocks
       case tok @ FormatToken(open @ T.LeftBrace(), right, between) =>
         val close = matching(open)
-        val newlineBeforeClosingCurly = newlineBeforeClosePolicy(close)
+        val newlineBeforeClosingCurly = newlinesOnlyBeforeClosePolicy(close)
         val selfAnnotation: Option[Tokens] = leftOwner match {
           // Self type: trait foo { self => ... }
           case t: Template => Some(t.self.name.tokens).filter(_.nonEmpty)
@@ -236,7 +236,7 @@ class Router(formatOps: FormatOps) {
               if (isCatch) afterClose.is[T.KwFinally]
               else false
             if (!breakSingleLineAfterClose) Policy.emptyPf
-            else decideNewlineAfterClose(close)
+            else decideNewlinesOnlyAfterClose(close)
           }
 
         val spaceMod = xmlSpace(leftOwner)
@@ -522,7 +522,7 @@ class Router(formatOps: FormatOps) {
         val close = matching(formatToken.left)
         val newlinePolicy =
           if (!style.danglingParentheses.callSite) None
-          else Some(newlineBeforeClosePolicy(close))
+          else Some(newlinesOnlyBeforeClosePolicy(close))
         val spacePolicy = SingleLineBlock(lambdaToken).orElse {
           if (lambdaIsABlock) None
           else
@@ -744,7 +744,7 @@ class Router(formatOps: FormatOps) {
         val newlinePolicy: Policy =
           if (style.danglingParentheses.defnSite && defnSite ||
             style.danglingParentheses.callSite && !defnSite) {
-            newlineBeforeClosePolicy(close)
+            newlinesOnlyBeforeClosePolicy(close)
           } else {
             Policy(Policy.emptyPf, close.end)
           }
