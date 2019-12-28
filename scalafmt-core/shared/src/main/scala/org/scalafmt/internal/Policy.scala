@@ -1,5 +1,7 @@
 package org.scalafmt.internal
 
+import scala.meta.tokens.Token
+
 import org.scalafmt.Error.NoopDefaultPolicyApplied
 
 /**
@@ -74,4 +76,8 @@ object Policy {
   }
 
   val NoPolicy = empty
+
+  def apply(func: Token => Pf)(token: Token): Policy =
+    new Policy(func(token), token.end)
+
 }
