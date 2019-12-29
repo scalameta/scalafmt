@@ -70,12 +70,12 @@ object Policy {
 
   val emptyPf: Pf = PartialFunction.empty
 
-  val empty = new Policy(IdentityPolicy, Integer.MAX_VALUE) {
+  val NoPolicy = new Policy(IdentityPolicy, Integer.MAX_VALUE) {
 
     override def toString: String = "NoPolicy"
   }
 
-  val NoPolicy = empty
+  def empty(token: Token): Policy = Policy(emptyPf, token.end)
 
   def apply(func: Token => Pf)(token: Token): Policy =
     new Policy(func(token), token.end)
