@@ -746,7 +746,7 @@ class Router(formatOps: FormatOps) {
             style.danglingParentheses.callSite && !defnSite) {
             newlinesOnlyBeforeClosePolicy(close)
           } else {
-            Policy(Policy.emptyPf, close.end)
+            Policy.empty(close)
           }
 
         val noSplitPolicy =
