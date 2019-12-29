@@ -761,7 +761,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
         if (replaced) Some(d.copy(splits = splits)) else None
       }
     }
-    onBreakPolicy.copy(f = { case OnBreakDecision(d) => d })
+    if (onBreakPolicy.isEmpty) onBreakPolicy
+    else onBreakPolicy.copy(f = { case OnBreakDecision(d) => d })
   }
 
   def newlinesOnlyBeforeClosePolicy(close: Token) =

@@ -19,11 +19,13 @@ case class Policy(
     isSingleLine: Boolean = false
 )(implicit val line: sourcecode.Line) {
 
+  def isEmpty: Boolean = Policy.isEmpty(f)
+
   def orElse(other: Policy.Pf, minExpire: Int = 0): Policy =
-    if (other == Policy.emptyPf) this
+    if (Policy.isEmpty(other)) this
     else
       copy(
-        f = if (f == Policy.emptyPf) other else f.orElse(other),
+        f = if (isEmpty) other else f.orElse(other),
         expire = math.max(minExpire, expire)
       )
 
@@ -33,17 +35,15 @@ case class Policy(
   def orElse(other: Option[Policy]): Policy =
     other.fold(this)(orElse)
 
-  def andThen(other: Policy): Policy = {
-    if (this.f == Policy.emptyPf) other
-    else this.andThen(other.f)
-  }
+  def andThen(other: Policy): Policy =
+    if (isEmpty) other else andThen(other.f)
 
   /** Similar to PartialFunction.andThen, except applies second pf even if the
     * first pf is not defined at argument.
     */
   def andThen(otherF: Policy.Pf): Policy = {
-    if (otherF == Policy.emptyPf) this
-    else if (this.f == Policy.emptyPf) copy(f = otherF)
+    if (Policy.isEmpty(otherF)) this
+    else if (isEmpty) copy(f = otherF)
     else {
       // TODO(olafur) optimize?
       val newPf: Policy.Pf = {
@@ -80,4 +80,5 @@ object Policy {
   def apply(func: Token => Pf)(token: Token): Policy =
     new Policy(func(token), token.end)
 
+  def isEmpty(pf: Pf): Boolean = pf == emptyPf
 }
