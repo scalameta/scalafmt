@@ -231,7 +231,7 @@ class Router(formatOps: FormatOps) {
               case _ => false
             }
 
-            val afterClose = next(close)
+            val afterClose = tokens(close).right
             val breakSingleLineAfterClose =
               if (isCatch) afterClose.is[T.KwFinally]
               else false
@@ -362,7 +362,7 @@ class Router(formatOps: FormatOps) {
         val expire = rightOwner.tokens
           .find(_.is[T.Equals])
           .map { equalsToken =>
-            val equalsFormatToken = leftTok2tok(equalsToken)
+            val equalsFormatToken = tokens(equalsToken)
             if (equalsFormatToken.right.is[T.LeftBrace]) {
               equalsFormatToken.right
             } else {
@@ -463,7 +463,7 @@ class Router(formatOps: FormatOps) {
           expire, {
             case T.RightBrace() => true
             case close @ T.RightParen()
-                if opensConfigStyle(leftTok2tok(matching(close))) =>
+                if opensConfigStyle(tokens(matching(close))) =>
               // Example:
               // def x = foo(
               //     1
@@ -514,7 +514,7 @@ class Router(formatOps: FormatOps) {
         val lambdaLeft: Option[Token] =
           matchingOpt(functionExpire(lambda)._1).filter(_.is[T.LeftBrace])
 
-        val arrowFt = leftTok2tok(lambda.tokens.find(_.is[T.RightArrow]).get)
+        val arrowFt = tokens(lambda.tokens.find(_.is[T.RightArrow]).get)
         val lambdaIsABlock = lambdaLeft.exists(_ eq arrowFt.right)
         val lambdaToken =
           getOptimalTokenFor(if (lambdaIsABlock) next(arrowFt) else arrowFt)
@@ -732,7 +732,7 @@ class Router(formatOps: FormatOps) {
           else Newline
 
         val defnSite = isDefnSite(leftOwner)
-        val closeFormatToken = leftTok2tok(close)
+        val closeFormatToken = tokens(close)
         val expirationToken: Token =
           if (defnSite && !isBracket)
             defnSiteLastToken(closeFormatToken, leftOwner)
@@ -892,16 +892,14 @@ class Router(formatOps: FormatOps) {
         val isInfix = leftOwner.isInstanceOf[Term.ApplyInfix]
         argumentStarts.get(hash(right)) match {
           case Some(nextArg) if binPack =>
-            val nextComma: Option[FormatToken] = next(
-              leftTok2tok(nextArg.tokens.last)
-            ) match {
+            val lastFT = tokens(nextArg.tokens.last)
+            val nextComma: Option[FormatToken] = tokens(lastFT, 1) match {
               case t @ FormatToken(left @ T.Comma(), _, _)
                   if owners(left) == leftOwner =>
                 Some(t)
               case _ => None
             }
-            penalizeAllNewlines(nextArg.tokens.last, 3)
-            val singleLine = SingleLineBlock(nextArg.tokens.last)
+            val singleLine = SingleLineBlock(lastFT.left)
             val breakOnNextComma = nextComma match {
               case Some(comma) =>
                 Policy({
@@ -912,7 +910,7 @@ class Router(formatOps: FormatOps) {
             }
             val optToken = nextComma.map(_ =>
               OptimalToken(
-                rhsOptimalToken(leftTok2tok(nextArg.tokens.last)),
+                rhsOptimalToken(lastFT),
                 killOnFail = true
               )
             )
@@ -1094,7 +1092,7 @@ class Router(formatOps: FormatOps) {
             // many arguments on the same line can be hard to read. By not
             // putting a newline before the dot, we force the argument list
             // to break into multiple lines.
-            splitApplyIntoLhsAndArgsLifted(owners(next(next(tok)).right))
+            splitApplyIntoLhsAndArgsLifted(owners(tokens(tok, 2).right))
               .map {
                 case (_, lst) => Math.max(0, lst.length - 1)
               }
@@ -1229,7 +1227,7 @@ class Router(formatOps: FormatOps) {
       case FormatToken(T.KwIf(), _, _) if leftOwner.is[Term.If] =>
         val owner = leftOwner.asInstanceOf[Term.If]
         val expire = rhsOptimalToken(
-          leftTok2tok(
+          tokens(
             owner.elsep.tokens.lastOption.getOrElse(owner.tokens.last)
           )
         )
@@ -1280,7 +1278,7 @@ class Router(formatOps: FormatOps) {
           Split(Space, 0)
         )
       case FormatToken(_, T.KwElse() | T.KwYield(), _) =>
-        val expire = rhsOptimalToken(leftTok2tok(rightOwner.tokens.last))
+        val expire = rhsOptimalToken(tokens(rightOwner.tokens.last))
         val exclude =
           insideBlock(formatToken, expire, _.is[T.LeftBrace]).map(parensRange)
         Seq(

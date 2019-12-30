@@ -38,7 +38,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   import TokenOps._
   import TreeOps._
   implicit val dialect = initStyle.runner.dialect
-  val tokens: Array[FormatToken] = FormatToken.formatTokens(tree.tokens)
+  val tokens: FormatTokens = FormatTokens(tree.tokens)
   private val ownersMap = getOwners(tree)
   val statementStarts = getStatementStarts(tree)
   val dequeueSpots = getDequeueSpots(tree) ++ statementStarts.keys
@@ -122,7 +122,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   object `:chain:` {
     def unapply(tok: Token): Option[(Token, Vector[Term.Select])] = {
       val rightOwner = owners(tok)
-      val openApply = next(leftTok2tok(tok)).right
+      val openApply = tokens(tok, 1).right
       def startsOpenApply =
         isOpenApply(
           openApply,
@@ -149,29 +149,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     }
   }
 
-  lazy val leftTok2tok: Map[Token, FormatToken] = {
-    val result = Map.newBuilder[Token, FormatToken]
-    result.sizeHint(tokens.length)
-    tokens.foreach(t => result += t.left -> t)
-    result += (tokens.last.right -> tokens.last)
-    result.result()
-  }
-
-  lazy val tok2idx: Map[FormatToken, Int] = tokens.zipWithIndex.toMap
-
-  def prev(tok: Token): Token = prev(leftTok2tok(tok)).right
-  def prev(tok: FormatToken): FormatToken = {
-    val i = tok2idx(tok)
-    if (i == 0) tok
-    else tokens(i - 1)
-  }
-
-  def next(tok: Token): Token = leftTok2tok(tok).right
-  def next(tok: FormatToken): FormatToken = {
-    val i = tok2idx(tok)
-    if (i == tokens.length - 1) tok
-    else tokens(i + 1)
-  }
+  @inline def prev(tok: FormatToken): FormatToken = tokens(tok, -1)
+  @inline def next(tok: FormatToken): FormatToken = tokens(tok, 1)
 
   @tailrec
   final def findFirst(start: FormatToken, end: Token)(
@@ -258,11 +237,11 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   def isMarginizedString(token: Token): Boolean = token match {
     case start @ T.Interpolation.Start() =>
       val end = matching(start)
-      val afterEnd = next(leftTok2tok(end))
+      val afterEnd = tokens(end, 1)
       afterEnd.left.syntax == "." && afterEnd.right.syntax == "stripMargin"
     case string: T.Constant.String =>
       string.syntax.startsWith("\"\"\"") && {
-        val afterString = next(leftTok2tok(string))
+        val afterString = tokens(string, 1)
         afterString.left.syntax == "." &&
         afterString.right.syntax == "stripMargin"
       }
@@ -299,7 +278,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
     def goToMatching(): Unit = {
       val close = matching(curr.left)
-      curr = leftTok2tok(close)
+      curr = tokens(close)
     }
 
     while (curr.left.start < end.start && curr != prev) {
@@ -465,20 +444,20 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     * @param dot the dot owned by the select.
     */
   def getSelectsLastToken(dot: T.Dot): Token = {
-    var curr = next(leftTok2tok(dot))
+    var curr = tokens(dot, 1)
     while (isOpenApply(curr.right, includeCurly = true, includeNoParens = true) &&
       !statementStarts.contains(hash(curr.right))) {
       if (curr.right.is[T.Dot]) {
-        curr = next(leftTok2tok(curr.right))
+        curr = tokens(curr, 2)
       } else {
-        curr = leftTok2tok(matching(curr.right))
+        curr = tokens(matching(curr.right))
       }
     }
     curr.left
   }
 
   def getOptimalTokenFor(token: Token): Token =
-    getOptimalTokenFor(leftTok2tok(token))
+    getOptimalTokenFor(tokens(token))
 
   def getOptimalTokenFor(ft: FormatToken): Token =
     if (isAttachedSingleLineComment(ft)) ft.right else ft.left
@@ -663,13 +642,13 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   def opensConfigStyle(formatToken: FormatToken): Boolean = {
     formatToken.newlinesBetween > 0 && {
       val close = matching(formatToken.left)
-      prev(leftTok2tok(close)).newlinesBetween > 0
+      tokens(close, -1).newlinesBetween > 0
     }
   }
 
   def styleAt(tree: Tree): ScalafmtConfig = {
     val style =
-      styleMap.at(leftTok2tok.getOrElse(tree.tokens.head, tokens.head))
+      styleMap.at(tokens.get(tree.tokens.head).getOrElse(tokens.arr.head))
     if (styleMap.forcedBinPack(tree)) // off-by-one
       styleMap.setBinPack(style, callSite = true)
     else style
@@ -698,7 +677,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   def isSingleIdentifierAnnotation(tok: FormatToken): Boolean = {
     val toMatch = if (tok.right.is[T.RightParen]) {
       // Hack to allow any annotations with arguments like @foo(1)
-      prev(prev(leftTok2tok(matching(tok.right))))
+      tokens(matching(tok.right), -2)
     } else {
       tok
     }
@@ -713,7 +692,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   }
 
   def ctorWithChain(ownerSet: Set[Tree], lastToken: Token): Policy = {
-    if (styleMap.at(leftTok2tok(lastToken)).binPack.parentConstructors)
+    if (styleMap.at(tokens(lastToken)).binPack.parentConstructors)
       NoPolicy
     else {
       Policy(
@@ -836,7 +815,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
     @tailrec
     def loop(token: Token): Option[Token] = {
-      leftTok2tok(matching(token)) match {
+      tokens(matching(token)) match {
         case FormatToken(RightParenOrBracket(), l @ T.LeftParen(), _) =>
           loop(l)
         case f @ FormatToken(left @ RightParenOrBracket(), right, _) =>
@@ -892,7 +871,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     val oneLinePerArg = {
       val base = OneArgOneLineSplit(open)
       if (mixedParams) {
-        val afterTypes = leftTok2tok(matching(open))
+        val afterTypes = tokens(matching(open))
         // Try to find the first paren. If found, then we are dealing with
         // a class with type AND value params. Otherwise it is a class with
         // just type params.

@@ -2,6 +2,7 @@ package org.scalafmt.config
 
 import org.scalafmt.internal.FormatOps
 import org.scalafmt.internal.FormatToken
+import org.scalafmt.internal.FormatTokens
 import org.scalafmt.internal.Split
 import org.scalafmt.internal.State
 
@@ -18,6 +19,6 @@ object FormatEvent {
   case class CompleteFormat(
       totalExplored: Int,
       finalState: State,
-      tokens: Array[FormatToken]
+      tokens: FormatTokens
   ) extends FormatEvent
 }
