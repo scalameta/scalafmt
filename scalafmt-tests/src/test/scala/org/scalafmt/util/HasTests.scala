@@ -46,7 +46,7 @@ trait HasTests extends AnyFunSuiteLike with FormatAssertions {
       case CompleteFormat(explored, state, tokens) =>
         Debug.explored += explored
         Debug.state = state
-        Debug.tokens = tokens
+        Debug.tokens = tokens.arr
       case _ =>
     }
   )

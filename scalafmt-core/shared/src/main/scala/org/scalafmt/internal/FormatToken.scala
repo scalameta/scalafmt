@@ -1,10 +1,8 @@
 package org.scalafmt.internal
 
 import scala.meta.tokens.Token
-import scala.meta.tokens.Tokens
 
 import org.scalafmt.util.TokenOps._
-import org.scalafmt.util.Whitespace
 
 /**
   * Two adjacent non-whitespace tokens.
@@ -15,9 +13,9 @@ import org.scalafmt.util.Whitespace
   *
   * @param left The left non-whitespace token.
   * @param right The right non-whitespace token.
-  * @param between The whitespace tokens between left and right.
+  * @param meta Extra information about the token
   */
-case class FormatToken(left: Token, right: Token, between: Vector[Token]) {
+case class FormatToken(left: Token, right: Token, meta: FormatToken.Meta) {
 
   override def toString = s"${left.syntax}∙${right.syntax}"
 
@@ -26,7 +24,8 @@ case class FormatToken(left: Token, right: Token, between: Vector[Token]) {
     else range.exists(_.contains(right.pos.endLine))
   }
 
-  lazy val newlinesBetween: Int = between.count(_.is[Token.LF])
+  def between = meta.between
+  lazy val newlinesBetween: Int = meta.between.count(_.is[Token.LF])
 
   val leftHasNewline = left.syntax.contains('\n')
 
@@ -39,23 +38,12 @@ case class FormatToken(left: Token, right: Token, between: Vector[Token]) {
 object FormatToken {
 
   /**
-    * Convert scala.meta Tokens to FormatTokens.
-    *
-    * Since tokens might be very large, we try to allocate as
-    * little memory as possible.
+    * @param between The whitespace tokens between left and right.
+    * @param idx The token's index in the FormatTokens array
     */
-  def formatTokens(tokens: Tokens): Array[FormatToken] = {
-    var left = tokens.head
-    val result = Array.newBuilder[FormatToken]
-    val whitespace = Vector.newBuilder[Token]
-    tokens.toArray.foreach {
-      case t @ Whitespace() => whitespace += t
-      case right =>
-        val tok = FormatToken(left, right, whitespace.result)
-        result += tok
-        left = right
-        whitespace.clear()
-    }
-    result.result
-  }
+  case class Meta(
+      between: Vector[Token],
+      idx: Int
+  )
+
 }

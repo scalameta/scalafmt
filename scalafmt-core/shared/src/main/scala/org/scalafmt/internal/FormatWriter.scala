@@ -21,7 +21,7 @@ class FormatWriter(formatOps: FormatOps) {
   def mkString(splits: Vector[Split]): String = {
     val sb = new StringBuilder()
     var lastState = State.start // used to calculate start of formatToken.right.
-    reconstructPath(tokens, splits, debug = false) {
+    reconstructPath(tokens.arr, splits, debug = false) {
       case (state, formatToken, whitespace, tokenAligns) =>
         formatToken.left match {
           case c: T.Comment =>
@@ -230,8 +230,7 @@ class FormatWriter(formatOps: FormatOps) {
         case Term.Block(_) =>
           ()
         case TreeOps.MaybeTopLevelStat(t) =>
-          val tok = leftTok2tok(t.tokens.head)
-          val result = leadingComment(prev(tok))
+          val result = leadingComment(tokens(t.tokens.head, -1))
           val hashed = hash(result)
           buffer += hashed
           super.apply(tree)
@@ -277,7 +276,7 @@ class FormatWriter(formatOps: FormatOps) {
             }
             .flatten
             .map {
-              case pkg: Pkg => next(pkg.ref.tokens.last).is[T.LeftBrace]
+              case pkg: Pkg => tokens(pkg.ref.tokens.last).right.is[T.LeftBrace]
               case _ => true
             }
 
@@ -562,7 +561,7 @@ class FormatWriter(formatOps: FormatOps) {
       // Remove the comma after b
       case _
           if left.is[T.Comma] && rightIsCloseDelim &&
-            !next(formatToken).left.is[T.Comment] && !isNewline =>
+            !formatToken.right.is[T.Comment] && !isNewline =>
         sb.deleteCharAt(sb.length - 1)
 
       case _ => sb.append(whitespace)

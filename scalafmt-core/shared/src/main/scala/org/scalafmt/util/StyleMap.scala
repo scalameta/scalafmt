@@ -6,21 +6,20 @@ import scala.meta.Term
 import scala.meta.Tree
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token.Comment
-import scala.meta.tokens.Token.Ident
 import scala.meta.tokens.Token.LeftParen
 import scala.meta.tokens.Token.RightParen
-import scala.meta.tokens.Tokens
 import metaconfig.Configured
 import org.scalafmt.config.Config
 import org.scalafmt.config.FilterMatcher
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.FormatToken
+import org.scalafmt.internal.FormatTokens
 import org.scalafmt.util.TokenOps.TokenHash
 import org.scalameta.logger
 import scala.meta.Init
 
 class StyleMap(
-    tokens: Array[FormatToken],
+    tokens: FormatTokens,
     init: ScalafmtConfig,
     owners: collection.Map[TokenHash, Tree],
     matching: Map[TokenHash, Token]
@@ -34,7 +33,7 @@ class StyleMap(
     var empty = true
     val map = Map.newBuilder[FormatToken, ScalafmtConfig]
     val disableBinPack = mutable.Set.empty[Token]
-    tokens.foreach { tok =>
+    tokens.arr.foreach { tok =>
       tok.left match {
         case Comment(c) if prefix.findFirstIn(c).isDefined =>
           Config.fromHoconString(c, Some("scalafmt"), init) match {
