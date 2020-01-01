@@ -126,6 +126,21 @@ def f = {
     g(y)
   })
 }
+<<< 1.61: multi-arg single-stmt lambda call with multiple inline comments
+def f = {
+  something.call (
+     (x, y) =>     /* comment1 */ /* comment2 */
+     /* comment3 */
+       g(x)
+  )
+}
+>>>
+def f = {
+  something.call((x, y) =>
+    /* comment1 */ /* comment2 */
+    /* comment3 */
+    g(x))
+}
 <<< 1.7: multi-arg multi-stmt lambda call with long params
 def f = {
   something.call ((aaaaaaaaaaaaaaaaaaaaaaaaaaaaa, bbbbbbbbbbbbbbbbbbbbbbbbbbbbb) =>     /* comment1 */
