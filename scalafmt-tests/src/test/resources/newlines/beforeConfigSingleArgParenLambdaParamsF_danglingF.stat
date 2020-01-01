@@ -199,9 +199,8 @@ def f = {
 }
 >>>
 def f = {
-  something.call((aaaaaaaaaaaaaaaaaaaaaaaaaaa, bbbbbbbbbbbbbbbbbbbbbbbbbbb) => {
-    val x = 1; x + 1
-  } match { case 1 => 1; case _ => 0 })
+  something.call((aaaaaaaaaaaaaaaaaaaaaaaaaaa, bbbbbbbbbbbbbbbbbbbbbbbbbbb) =>
+    { val x = 1; x + 1 } match { case 1 => 1; case _ => 0 })
 }
 <<< 1.11: multi-stat block lambda called via infix
 def f = {

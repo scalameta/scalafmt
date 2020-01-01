@@ -303,7 +303,8 @@ class Router(formatOps: FormatOps) {
           } else {
             // 2020-01: break after same-line comments, and any open brace
             val nonComment = nextNonCommentSameLine(formatToken)
-            val hasBlock = nonComment.right.is[T.LeftBrace]
+            val hasBlock = nonComment.right.is[T.LeftBrace] &&
+              (matching(nonComment.right) eq endOfFunction)
             if (!hasBlock && (nonComment eq formatToken))
               Seq(newlineSplit)
             else {
