@@ -203,6 +203,15 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     prevNonCommentWithCount(curr)._2
 
   @tailrec
+  final def nextNonCommentSameLine(curr: FormatToken): FormatToken =
+    if (curr.newlinesBetween != 0 || !curr.right.is[T.Comment]) curr
+    else {
+      val tok = next(curr)
+      if (tok == curr) curr
+      else nextNonCommentSameLine(tok)
+    }
+
+  @tailrec
   final def nextNonCommentWithCount(
       curr: FormatToken,
       accum: Int = 0

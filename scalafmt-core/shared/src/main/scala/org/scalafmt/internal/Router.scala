@@ -296,9 +296,25 @@ class Router(formatOps: FormatOps) {
         val multiLineSplits =
           if (hasSingleLineComment)
             Seq(newlineSplit)
-          else {
+          else if (!style.activeForEdition_2020_01) {
+            // older: if followed by an open brace, break after it, else now
             val hasBlock = nextNonComment(formatToken).right.is[T.LeftBrace]
             Seq(if (hasBlock) Split(Space, 0) else newlineSplit)
+          } else {
+            // 2020-01: break after same-line comments, and any open brace
+            val nonComment = nextNonCommentSameLine(formatToken)
+            val hasBlock = nonComment.right.is[T.LeftBrace]
+            if (!hasBlock && (nonComment eq formatToken))
+              Seq(newlineSplit)
+            else {
+              // if brace, don't add indent, the LeftBrace rule will do that
+              val spaceIndent = if (hasBlock) 0 else indent
+              Seq(
+                Split(Space, 0)
+                  .withIndent(spaceIndent, endOfFunction, expiresOn)
+                  .withOptimalToken(getOptimalTokenFor(next(nonComment)))
+              )
+            }
           }
         singleLineSplit +: multiLineSplits
 

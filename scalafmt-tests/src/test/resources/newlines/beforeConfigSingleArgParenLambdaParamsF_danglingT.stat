@@ -1,4 +1,3 @@
-edition = 2019-11
 newlines.alwaysBeforeCurlyBraceLambdaParams = false
 danglingParentheses.callSite = true
 <<< 1: multi-arg multi-stmt lambda call
@@ -124,10 +123,10 @@ def f = {
 >>>
 def f = {
   something.call((x, y) => /* comment1 */
-  /* comment2 */ {
-    g(x)
-    g(y)
-  }
+    /* comment2 */ {
+      g(x)
+      g(y)
+    }
   )
 }
 <<< 1.61: multi-arg single-stmt lambda call with multiple inline comments
@@ -140,8 +139,7 @@ def f = {
 }
 >>>
 def f = {
-  something.call((x, y) =>
-    /* comment1 */ /* comment2 */
+  something.call((x, y) => /* comment1 */ /* comment2 */
     /* comment3 */
     g(x)
   )
@@ -163,10 +161,10 @@ def f = {
         aaaaaaaaaaaaaaaaaaaaaaaaaaaaa,
         bbbbbbbbbbbbbbbbbbbbbbbbbbbbb
     ) => /* comment1 */
-    /* comment2 */ {
-      g(x)
-      g(y)
-    }
+      /* comment2 */ {
+        g(x)
+        g(y)
+      }
   )
 }
 <<< 1.8: multi-arg multi-stmt lambda call with long params and block with short comment
