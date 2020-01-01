@@ -307,12 +307,14 @@ class Router(formatOps: FormatOps) {
             if (!hasBlock && (nonComment eq formatToken))
               Seq(newlineSplit)
             else {
+              // break after the brace or comment if fits, or now if doesn't
               // if brace, don't add indent, the LeftBrace rule will do that
               val spaceIndent = if (hasBlock) 0 else indent
               Seq(
                 Split(Space, 0)
                   .withIndent(spaceIndent, endOfFunction, expiresOn)
-                  .withOptimalToken(getOptimalTokenFor(next(nonComment)))
+                  .withOptimalToken(getOptimalTokenFor(next(nonComment))),
+                newlineSplit
               )
             }
           }

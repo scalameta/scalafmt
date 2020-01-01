@@ -152,10 +152,8 @@ def f = {
 >>>
 def f = {
   something.call(
-    (
-        aaaaaaaaaaaaaaaaaaaaaaaaaaaaa,
-        bbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-    ) => /* comment1 */
+    (aaaaaaaaaaaaaaaaaaaaaaaaaaaaa, bbbbbbbbbbbbbbbbbbbbbbbbbbbbb) =>
+      /* comment1 */
       /* comment2 */ {
         g(x)
         g(y)
@@ -188,13 +186,11 @@ def f = {
 >>>
 def f = {
   something.call(
-    (
-        aaaaaaaaaaaaaaaaaaaaaaaaaaa,
-        bbbbbbbbbbbbbbbbbbbbbbbbbbb
-    ) => { // long comment
-      g(x)
-      g(y)
-    })
+    (aaaaaaaaaaaaaaaaaaaaaaaaaaa, bbbbbbbbbbbbbbbbbbbbbbbbbbb) =>
+      { // long comment
+        g(x)
+        g(y)
+      })
 }
 <<< 1.10: multi-arg multi-stmt lambda call with long params and block with long comment
 def f = {
