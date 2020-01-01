@@ -887,7 +887,6 @@ class Router(formatOps: FormatOps) {
       // These are mostly filtered out/modified by policies.
       case tok @ FormatToken(T.Comma(), right, _) =>
         // TODO(olafur) DRY, see OneArgOneLine.
-        val rhsIsAttachedComment = isAttachedSingleLineComment(tok)
         val binPack = isBinPack(leftOwner)
         val isInfix = leftOwner.isInstanceOf[Term.ApplyInfix]
         argumentStarts.get(hash(right)) match {
@@ -938,13 +937,11 @@ class Router(formatOps: FormatOps) {
               case _ =>
                 0
             }
+            val singleLineComment = isSingleLineComment(right)
             Seq(
-              Split(Space, 0),
-              Split(Newline, 1, ignoreIf = rhsIsAttachedComment).withIndent(
-                Num(indent),
-                right,
-                ExpiresOn.Right
-              )
+              Split(Space, 0, ignoreIf = newlines != 0 && singleLineComment),
+              Split(Newline, 1, ignoreIf = newlines == 0 && singleLineComment)
+                .withIndent(indent, right, ExpiresOn.Right)
             )
         }
       case FormatToken(_, T.Semicolon(), _) =>
