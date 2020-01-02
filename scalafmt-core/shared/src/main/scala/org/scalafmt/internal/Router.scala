@@ -278,23 +278,49 @@ class Router(formatOps: FormatOps) {
           Split(Space, 0, ignoreIf = !canBeSpace),
           Split(afterCurlyNewlines, 1).withIndent(2, endOfFunction, Left)
         )
+
       case FormatToken(T.RightArrow(), right, _)
           if leftOwner.is[Term.Function] =>
-        val (endOfFunction, expiresOn) = functionExpire(
-          leftOwner.asInstanceOf[Term.Function]
-        )
-        val hasBlock =
-          nextNonComment(formatToken).right.isInstanceOf[T.LeftBrace]
+        val lambda = leftOwner.asInstanceOf[Term.Function]
+        val (endOfFunction, expiresOn) = functionExpire(lambda)
+        val hasSingleLineComment = isSingleLineComment(right)
         val indent = // don't indent if the body is empty `{ x => }`
           if (isEmptyFunctionBody(leftOwner) && !right.is[T.Comment]) 0
           else 2
-        Seq(
-          Split(Space, 0, ignoreIf = isSingleLineComment(right))
-            .withPolicy(SingleLineBlock(endOfFunction)),
-          Split(Space, 0, ignoreIf = !hasBlock),
-          Split(Newline, 1 + nestedApplies(leftOwner), ignoreIf = hasBlock)
+        val singleLineSplit =
+          Split(Space, 0, ignoreIf = hasSingleLineComment)
+            .withPolicy(SingleLineBlock(endOfFunction))
+        def newlineSplit =
+          Split(Newline, 1 + nestedApplies(leftOwner))
             .withIndent(indent, endOfFunction, expiresOn)
-        )
+        val multiLineSplits =
+          if (hasSingleLineComment)
+            Seq(newlineSplit)
+          else if (!style.activeForEdition_2020_01) {
+            // older: if followed by an open brace, break after it, else now
+            val hasBlock = nextNonComment(formatToken).right.is[T.LeftBrace]
+            Seq(if (hasBlock) Split(Space, 0) else newlineSplit)
+          } else {
+            // 2020-01: break after same-line comments, and any open brace
+            val nonComment = nextNonCommentSameLine(formatToken)
+            val hasBlock = nonComment.right.is[T.LeftBrace] &&
+              (matching(nonComment.right) eq endOfFunction)
+            if (!hasBlock && (nonComment eq formatToken))
+              Seq(newlineSplit)
+            else {
+              // break after the brace or comment if fits, or now if doesn't
+              // if brace, don't add indent, the LeftBrace rule will do that
+              val spaceIndent = if (hasBlock) 0 else indent
+              Seq(
+                Split(Space, 0)
+                  .withIndent(spaceIndent, endOfFunction, expiresOn)
+                  .withOptimalToken(getOptimalTokenFor(next(nonComment))),
+                newlineSplit
+              )
+            }
+          }
+        singleLineSplit +: multiLineSplits
+
       // Case arrow
       case tok @ FormatToken(arrow @ T.RightArrow(), right, between)
           if leftOwner.isInstanceOf[Case] =>
@@ -489,13 +515,13 @@ class Router(formatOps: FormatOps) {
             !style.newlinesBeforeSingleArgParenLambdaParams &&
             getLambdaAtSingleArgCallSite(leftOwner).isDefined => {
         val lambda = getLambdaAtSingleArgCallSite(leftOwner).get
-        val (lambdaIsABlock, lambdaToken) = lambda.body match {
-          case b: Term.Block =>
-            true -> b.tokens.head
-          case _ =>
-            val arrow = lambda.tokens.find(_.is[T.RightArrow]).get
-            next(arrow).is[T.LeftBrace] -> arrow
-        }
+        val lambdaLeft: Option[Token] =
+          matchingOpt(functionExpire(lambda)._1).filter(_.is[T.LeftBrace])
+
+        val arrowFt = leftTok2tok(lambda.tokens.find(_.is[T.RightArrow]).get)
+        val lambdaIsABlock = lambdaLeft.exists(_ eq arrowFt.right)
+        val lambdaToken =
+          getOptimalTokenFor(if (lambdaIsABlock) next(arrowFt) else arrowFt)
 
         val close = matchingParentheses(hash(formatToken.left))
         val newlinePolicy =
@@ -503,7 +529,10 @@ class Router(formatOps: FormatOps) {
           else Some(newlineBeforeClosePolicy(close))
         val spacePolicy = SingleLineBlock(lambdaToken).orElse {
           if (lambdaIsABlock) None
-          else newlinePolicy.map(delayedBreakPolicy)
+          else
+            newlinePolicy.map(
+              delayedBreakPolicy(lambdaLeft.map(open => _.end < open.end))
+            )
         }
 
         val newlinePenalty = 3 + nestedApplies(leftOwner)
@@ -1364,9 +1393,8 @@ class Router(formatOps: FormatOps) {
         // TODO(olafur) expire on token.end to avoid this bug.
         val expire = Option(owner.body)
           .filter(_.tokens.exists(!_.is[Trivia]))
-          .map(lastToken)
-          .map(getRightAttachedComment)
-          .getOrElse(arrow) // edge case, if body is empty expire on arrow.
+          // edge case, if body is empty expire on arrow
+          .fold(arrow)(t => getOptimalTokenFor(lastToken(t)))
 
         Seq(
           // Either everything fits in one line or break on =>

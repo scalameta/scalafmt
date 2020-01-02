@@ -544,6 +544,11 @@ object TreeOps {
   def getLambdaAtSingleArgCallSite(tree: Tree): Option[Term.Function] =
     tree match {
       case Term.Apply(_, List(fun: Term.Function)) => Some(fun)
+      case fun: Term.Function if fun.parent.exists({
+            case Term.ApplyInfix(_, _, _, List(`fun`)) => true
+            case _ => false
+          }) =>
+        Some(fun)
       case _ => None
     }
 

@@ -66,6 +66,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   val (forceConfigStyle, emptyQueueSpots) = getForceConfigStyle
 
   @inline def matching(token: Token): Token = matchingParentheses(hash(token))
+  @inline def matchingOpt(token: Token): Option[Token] =
+    matchingParentheses.get(hash(token))
 
   @inline
   def owners(token: Token): Tree = ownersMap(hash(token))
@@ -199,6 +201,15 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   }
   def prevNonComment(curr: FormatToken): FormatToken =
     prevNonCommentWithCount(curr)._2
+
+  @tailrec
+  final def nextNonCommentSameLine(curr: FormatToken): FormatToken =
+    if (curr.newlinesBetween != 0 || !curr.right.is[T.Comment]) curr
+    else {
+      val tok = next(curr)
+      if (tok == curr) curr
+      else nextNonCommentSameLine(tok)
+    }
 
   @tailrec
   final def nextNonCommentWithCount(
@@ -484,12 +495,11 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     curr.left
   }
 
-  def getRightAttachedComment(token: Token): Token = {
-    val formatToken = leftTok2tok(token)
-    if (isAttachedSingleLineComment(formatToken))
-      formatToken.right
-    else token
-  }
+  def getOptimalTokenFor(token: Token): Token =
+    getOptimalTokenFor(leftTok2tok(token))
+
+  def getOptimalTokenFor(ft: FormatToken): Token =
+    if (isAttachedSingleLineComment(ft)) ft.right else ft.left
 
   def chainOptimalToken(chain: Vector[Term.Select]): Token = {
     val lastDotIndex = chain.last.tokens.lastIndexWhere(_.is[T.Dot])
@@ -641,18 +651,26 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   }
 
   def functionExpire(function: Term.Function): (Token, ExpiresOn) = {
-    (for {
-      parent <- function.parent
-      blockEnd <- parent match {
-        case b: Term.Block if b.stats.length == 1 =>
-          Some(b.tokens.last -> Right)
-        case _ => None
-      }
-    } yield blockEnd).getOrElse {
-      function.tokens.last match {
-        case tok @ Whitespace() => tok -> Right
-        case tok => tok -> Left
-      }
+    def dropWS(rtoks: Seq[Token]): Seq[Token] =
+      rtoks.dropWhile(_.is[Whitespace])
+    def orElse(rtoks: Seq[Token]) = {
+      val last = rtoks.head
+      if (last.is[T.RightParen] && (matching(last) eq rtoks.last))
+        rtoks.tail.find(!_.is[Whitespace]).get -> Left
+      else
+        last -> Left
+    }
+    def dropComment(rtoks: Seq[Token]) =
+      if (rtoks.head.is[T.Comment]) dropWS(rtoks.tail) else rtoks
+
+    def getRToks = dropWS(function.tokens.reverse)
+    function.parent match {
+      case Some(b: Term.Block) if b.stats.length == 1 =>
+        b.tokens.last -> Right
+      case Some(Case(_, _, `function`)) =>
+        orElse(dropComment(getRToks))
+      case _ =>
+        orElse(getRToks)
     }
   }
 
@@ -764,9 +782,14 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   def newlineBeforeClosePolicy(close: Token) =
     Policy(decideNewlineBeforeToken(close), close.end)
 
-  def delayedBreakPolicy(onBreakPolicy: Policy): Policy = {
+  def delayedBreakPolicy(
+      leftCheck: Option[Token => Boolean]
+  )(onBreakPolicy: Policy): Policy = {
     object OnBreakDecision {
-      def unapply(d: Decision): Option[Decision] = {
+      def unapply(d: Decision): Option[Decision] =
+        if (leftCheck.exists(!_(d.formatToken.left))) None
+        else unapplyImpl(d)
+      private def unapplyImpl(d: Decision): Option[Decision] = {
         var replaced = false
         def decisionPf(s: Split): Split =
           if (!s.modification.isNewline) s
