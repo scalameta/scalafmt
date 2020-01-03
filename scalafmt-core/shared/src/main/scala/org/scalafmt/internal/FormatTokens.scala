@@ -42,15 +42,18 @@ object FormatTokens {
     var left = tokens.head
     val result = Array.newBuilder[FormatToken]
     var ftIdx = 0
-    val whitespace = Vector.newBuilder[Token]
-    tokens.toArray.foreach {
-      case t @ Whitespace() => whitespace += t
+    var wsIdx = 0
+    var tokIdx = 0
+    val arr = tokens.toArray
+    arr.foreach {
+      case Whitespace() => tokIdx += 1
       case right =>
-        val meta = FormatToken.Meta(whitespace.result, ftIdx)
+        val meta = FormatToken.Meta(arr.slice(wsIdx, tokIdx), ftIdx)
         result += FormatToken(left, right, meta)
         left = right
         ftIdx += 1
-        whitespace.clear()
+        tokIdx += 1
+        wsIdx = tokIdx
     }
     new FormatTokens(result.result)
   }

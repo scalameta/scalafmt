@@ -42,7 +42,7 @@ object FormatToken {
     * @param idx The token's index in the FormatTokens array
     */
   case class Meta(
-      between: Vector[Token],
+      between: Array[Token],
       idx: Int
   )
 

@@ -74,7 +74,7 @@ object TokenOps {
     else tree.tokens(Scala211)(lastIndex)
   }
 
-  def endsWithNoIndent(between: Vector[Token]): Boolean =
+  def endsWithNoIndent(between: Seq[Token]): Boolean =
     between.lastOption.exists(_.is[LF])
 
   def rhsIsCommentedOut(formatToken: FormatToken): Boolean =
