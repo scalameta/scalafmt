@@ -60,6 +60,17 @@ Scalafmt formatter:
 
 It is not possible to reset this setting for all existing projects.
 
+## Metals
+
+[Metals](https://scalameta.org/metals/) automatically uses Scalafmt to respond to formatting
+requests from the editor, according to the configuration defined in `.scalafmt.conf`.
+
+In most editors, if you there is no `.scalafmt.conf`, upon receiving the first format request Metals
+will create the `.scalafmt.conf` file for you.
+
+You can find more information on triggering a format request for individual editors in their
+respective parts of the [Metals site](https://scalameta.org/metals/docs/editors/overview.html).
+
 ## sbt
 
 ```scala
