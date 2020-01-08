@@ -413,8 +413,10 @@ def f = {
 def f = {
   something.call(x =>
     g.copy(
-      a = "some very very very very long string which we don't want to be split",
-      b = "some very very very very long string which we don't want to be split"))
+      a =
+        "some very very very very long string which we don't want to be split",
+      b =
+        "some very very very very long string which we don't want to be split"))
 }
 <<< 14: lambda with many nested apply
        EventFilter[ActorInitializationException](occurrences = 1) intercept {
