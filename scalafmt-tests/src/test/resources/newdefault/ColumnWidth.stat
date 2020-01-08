@@ -26,3 +26,25 @@ class Motion(
     blah
   }
 }
+<<< #1543 split on comma in assign shouldn't exceed maxColumn
+maxColumn = 30
+===
+object LongLines {
+  LongLines(
+    field1 = "123456789012345",
+    field2 = "1234567890123451",
+    field3 = """12345678901""",
+    field4 = "12345678901234".!
+  )
+}
+>>>
+object LongLines {
+  LongLines(
+    field1 = "123456789012345",
+    field2 =
+      "1234567890123451",
+    field3 = """12345678901""",
+    field4 =
+      "12345678901234".!
+  )
+}
