@@ -89,10 +89,9 @@ final class BaseJoinQuery[+E1, +E2, U1, U2, C[_], +B1, +B2](
   }
 >>>
 @tailrec
-final def getSelectChain(
-    child: Term.Select,
-    accum: Vector[Term.Select] = Vector.empty[Term.Select])
-    : Vector[Term.Select] = {
+final def getSelectChain(child: Term.Select,
+                         accum: Vector[Term.Select] =
+                           Vector.empty[Term.Select]): Vector[Term.Select] = {
   body
 }
 <<< hanging #127

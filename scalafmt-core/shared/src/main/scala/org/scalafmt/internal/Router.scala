@@ -1041,7 +1041,19 @@ class Router(formatOps: FormatOps) {
             }
         }
 
+        def wouldDangle = {
+          val dangleStyle = style.danglingParentheses
+          (dangleStyle.defnSite && leftOwner.parent.exists(isDefnSite)) ||
+          (dangleStyle.callSite && leftOwner.parent.exists(isCallSite))
+        }
+
         val expire = rhs.tokens.last
+        // rhsOptimalToken is too aggressive here
+        val optimal = tokens(expire).right match {
+          case x: T.Comma => x
+          case x @ CloseParenOrBracket() if !wouldDangle => x
+          case _ => expire
+        }
 
         val penalty = leftOwner match {
           case l: Term.Assign if style.binPack.unsafeCallSite =>
@@ -1084,7 +1096,7 @@ class Router(formatOps: FormatOps) {
             val spaceIndent = if (isSingleLineComment(right)) 2 else 0
             Seq(
               Split(Space, 0, policy = spacePolicy, ignoreIf = noSpace)
-                .withOptimalToken(expire, killOnFail = false)
+                .withOptimalToken(optimal, killOnFail = false)
                 .withIndent(spaceIndent, expire, Left),
               Split(mod, 1 + penalty, ignoreIf = noNewline)
                 .withIndent(2, expire, Left)
