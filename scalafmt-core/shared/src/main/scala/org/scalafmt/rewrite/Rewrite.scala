@@ -1,5 +1,7 @@
 package org.scalafmt.rewrite
 
+import scala.collection.mutable
+
 import metaconfig.ConfCodec
 import scala.meta._
 import org.scalafmt.config.ReaderUtil
@@ -12,7 +14,7 @@ case class RewriteCtx(
 ) {
   implicit val dialect = style.runner.dialect
 
-  private val patchBuilder = Seq.newBuilder[TokenPatch]
+  private val patchBuilder = mutable.Map.empty[(Int, Int), TokenPatch]
 
   val tokens = tree.tokens
   val tokenTraverser = new TokenTraverser(tokens)
@@ -21,21 +23,21 @@ case class RewriteCtx(
   def isMatching(a: Token, b: Token) =
     matchingParens.get(TokenOps.hash(a)).contains(b)
 
-  def applyPatches: String = {
-    val patchMap: Map[(Int, Int), String] =
-      patchBuilder.result
-        .groupBy(t => t.tok.start -> t.tok.end)
-        .view
-        .mapValues(_.reduce(Patch.merge).newTok)
-        .toMap
+  def applyPatches: String =
     tokens.toIterator
-      .map(x => patchMap.getOrElse(x.start -> x.end, x.syntax))
+      .map(x => patchBuilder.get(x.start -> x.end).fold(x.syntax)(_.newTok))
       .mkString
-  }
 
   def addPatchSet(patches: TokenPatch*): Unit =
     if (!patches.exists(x => tokenTraverser.isExcluded(x.tok)))
-      patchBuilder.addAll(patches)
+      patches.foreach { patch =>
+        val key = (patch.tok.start, patch.tok.end)
+        val value = patchBuilder.get(key) match {
+          case Some(prev) => Patch.merge(prev, patch)
+          case None => patch
+        }
+        patchBuilder.update(key, value)
+      }
 
 }
 
