@@ -6,7 +6,7 @@ import scala.meta._
 
 object SortModifiers extends Rewrite {
 
-  override def rewrite(ctx: RewriteCtx): Seq[Patch] = {
+  override def rewrite(implicit ctx: RewriteCtx): Seq[Patch] = {
     implicit val order = ctx.style.rewrite.sortModifiers.order
 
     /*

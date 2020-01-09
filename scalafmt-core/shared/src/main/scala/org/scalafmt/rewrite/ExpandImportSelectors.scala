@@ -4,7 +4,7 @@ import scala.meta._
 
 case object ExpandImportSelectors extends Rewrite {
 
-  override def rewrite(ctx: RewriteCtx): Seq[Patch] = {
+  override def rewrite(implicit ctx: RewriteCtx): Seq[Patch] = {
     val builder = Seq.newBuilder[Patch]
 
     ctx.tree.traverse {

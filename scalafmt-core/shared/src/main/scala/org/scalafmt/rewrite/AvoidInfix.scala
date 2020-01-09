@@ -19,7 +19,7 @@ case object AvoidInfix extends Rewrite {
   // and be done with it. However, until transform becomes token aware (see https://github.com/scalameta/scalameta/pull/457)
   // we will do these dangerous rewritings by hand.
 
-  override def rewrite(ctx: RewriteCtx): Seq[Patch] = {
+  override def rewrite(implicit ctx: RewriteCtx): Seq[Patch] = {
     val matcher = ctx.style.rewrite.neverInfix.toMatcher
     ctx.tree.collect {
       case infix @ Term.ApplyInfix(lhs, op, _, args)

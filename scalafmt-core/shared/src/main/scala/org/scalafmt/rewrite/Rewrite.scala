@@ -21,7 +21,7 @@ case class RewriteCtx(
 }
 
 abstract class Rewrite {
-  def rewrite(ctx: RewriteCtx): Seq[Patch]
+  def rewrite(implicit ctx: RewriteCtx): Seq[Patch]
 }
 
 object Rewrite {
