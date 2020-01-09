@@ -107,3 +107,16 @@ object a {
     e
   }
 }
+<<< #1237 8 block single multi-stat with newline (format:off)
+object a {
+  // format: off
+  val a = b { c => { d
+   e}}
+}
+
+>>>
+object a {
+  // format: off
+  val a = b { c =>  d
+   e}
+}

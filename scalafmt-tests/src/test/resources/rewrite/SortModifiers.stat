@@ -53,6 +53,17 @@ object test {
 object test {
   private[test] final implicit override def foo: Int = ???
 }
+<<< def — override implicit final private — scoped (format:off)
+object test {
+  // format: off
+  override implicit final private[test] def foo: Int = ???
+}
+
+>>>
+object test {
+  // format: off
+  private[test] final implicit override def foo: Int = ???
+}
 <<< val — no mods
 object test {
   val foo: Int = ???

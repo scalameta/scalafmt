@@ -10,6 +10,19 @@ object a {
     b <- bs if b > 2
   } yield (a, b)
 }
+<<< replaces parens with braces and removes semi-colons on single line multi generator for-yield expression (format:off)
+object a {
+// format: off
+  for(a <- as; b <- bs if b > 2) yield (a, b)
+}
+
+>>>
+object a {
+// format: off
+  for{
+a <- as
+ b <- bs if b > 2} yield (a, b)
+}
 <<< doesn't change single generator for-yield expression that uses parens
 object a {
   for (a <- as) yield a

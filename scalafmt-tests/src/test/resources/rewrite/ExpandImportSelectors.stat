@@ -18,11 +18,67 @@ object e {
   import d.e.f
   import d.e.g
 }
+<<< basic (format:off)
+// format: off
+object e {
+  import a.{
+    b,
+    c
+  }, h.{
+    k, l
+  }
+  import d.e.{f, g}
+}
+
+>>>
+// format: off
+object e {
+  import a.b
+import a.c
+import h.k
+import h.l
+  import d.e.f
+import d.e.g
+}
 <<< rename/unimport
 object blah {
   import a.{
     foo => bar,
     zzzz => _,
+    baz
+  }
+}
+>>>
+object blah {
+  import a.{foo => bar}
+  import a.{zzzz => _}
+  import a.baz
+}
+<<< rename/unimport (partial format:off 1)
+object blah {
+  // format: off
+  import a.{
+    // format: on
+    foo => bar,
+    zzzz => _,
+    baz
+  }
+}
+
+>>>
+object blah {
+  // format: off
+  import a.{foo => bar}
+import a.{zzzz => _}
+import a.baz
+}
+<<< rename/unimport (partial format:off 2)
+object blah {
+  import a.{
+    // format: off
+    foo => bar,
+    zzzz => _,
+    // format: on
     baz
   }
 }
