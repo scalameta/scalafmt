@@ -494,7 +494,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     if (style.verticalAlignMultilineOperators) {
       if (formatToken.left.text == "=") 2 else 0
     } else if (style.unindentTopLevelOperators &&
-      rhsArgs.headOption.forall(_.isNot[Term.Block]) &&
+      rhsArgs.headOption
+        .forall(x => x.isNot[Term.Block] && x.isNot[Term.NewAnonymous]) &&
       !isTopLevelInfixApplication(owner) &&
       style.indentOperator.includeRegexp
         .findFirstIn(formatToken.left.syntax)
