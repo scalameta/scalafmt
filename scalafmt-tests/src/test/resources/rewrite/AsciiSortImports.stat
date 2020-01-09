@@ -9,3 +9,20 @@ import a.{
 }
 >>>
 import a.{Uppercase, `symbol`, lowercase, ~>}
+<<< ascii sorting (format:off)
+// format: off
+import a.{
+  ~>,
+  lowercase,
+  Uppercase,
+  `symbol`
+}
+
+>>>
+// format: off
+import a.{
+  Uppercase,
+  `symbol`,
+  lowercase,
+  ~>
+}

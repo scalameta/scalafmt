@@ -149,3 +149,10 @@ def contains(ip: String) = apply.map(_.blah(strToIp(ip)))
 
 >>>
 val makeVersion = (nodots _).compose(stripVersion _)
+<<< crazy (format:off)
+// format: off
+ val makeVersion = nodots _ compose stripVersion _
+
+>>>
+// format: off
+ val makeVersion = (nodots _) .compose (stripVersion _)

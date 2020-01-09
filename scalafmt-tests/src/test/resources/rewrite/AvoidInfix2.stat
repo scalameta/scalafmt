@@ -4,3 +4,10 @@ rewrite.neverInfix.includeFilters = [".*"]
 lst :: foo
 >>>
 lst.::(foo)
+<<< basic (format:off)
+// format: off
+lst :: foo
+
+>>>
+// format: off
+lst .:: (foo)

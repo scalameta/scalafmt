@@ -14,6 +14,23 @@ object a {
     println(a + b)
   }
 }
+<<< replaces parens with braces and removes semi-colons on single line multi generator for expression (format:off)
+object a {
+// format: off
+  for(a <- as; b <- bs if b > 2) {
+    println(a + b)
+  }
+}
+
+>>>
+object a {
+// format: off
+  for{
+a <- as
+ b <- bs if b > 2} {
+    println(a + b)
+  }
+}
 <<< doesn't change single generator for expression that uses parens
 object a {
   for (a <- as) {

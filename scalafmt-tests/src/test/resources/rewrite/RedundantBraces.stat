@@ -24,6 +24,32 @@ object a {
   def z(i: Int): Int =
     4
 }
+<<< basic (format:off)
+object a {
+// format: off
+  def x(i: Int): Int = {
+    2
+  }
+
+  def y(i: Int): Int = {
+    3
+  }
+  def z(i: Int): Int = {
+    4
+  }
+}
+
+>>>
+object a {
+// format: off
+  def x(i: Int): Int = 
+    2
+  
+  def y(i: Int): Int = 
+    3
+    def z(i: Int): Int = 
+    4
+  }
 <<< respect max lines
 object a {
   def x(i: Int): Int = {

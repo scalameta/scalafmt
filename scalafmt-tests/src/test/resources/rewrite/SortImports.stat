@@ -20,6 +20,40 @@ import a.b.{
 object a {
   import a.b.{b, c}
 }
+<<< nested (format:off)
+object a {
+// format: off
+import a.b.{
+  c,
+  b
+}
+}
+
+>>>
+object a {
+// format: off
+import a.b.{
+  b,
+  c
+}
+}
+<<< nested (format:off partial)
+object a {
+import a.b.{
+  c,
+// format: off
+  b
+}
+}
+
+>>>
+object a {
+  import a.b.{
+    b,
+// format: off
+  c
+}
+}
 <<< sorting
 import a.{
   ~>,
