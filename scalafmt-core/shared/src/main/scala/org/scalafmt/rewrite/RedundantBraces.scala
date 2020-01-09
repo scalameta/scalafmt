@@ -60,9 +60,7 @@ case object RedundantBraces extends Rewrite {
     }
   }
 
-  override def rewrite(ctx: RewriteCtx): Seq[Patch] = {
-    implicit def _ctx = ctx
-
+  override def rewrite(implicit ctx: RewriteCtx): Seq[Patch] = {
     implicit val builder = Seq.newBuilder[Patch]
 
     ctx.tree.traverse {

@@ -8,7 +8,7 @@ case object RedundantParens extends Rewrite {
   def isWrappedInParens(tokens: Tokens): Boolean =
     tokens.nonEmpty && tokens.head.is[LeftParen] && tokens.last.is[RightParen]
 
-  override def rewrite(ctx: RewriteCtx): Seq[Patch] = {
+  override def rewrite(implicit ctx: RewriteCtx): Seq[Patch] = {
     val builder = Seq.newBuilder[Patch]
     import ctx.dialect
     ctx.tree.collect {

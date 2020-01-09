@@ -24,9 +24,8 @@ import scala.meta._
 case object PreferCurlyFors extends Rewrite {
 
   def findForParens(
-      forTokens: Tokens,
-      ctx: RewriteCtx
-  ): Option[(Token, Token)] = {
+      forTokens: Tokens
+  )(implicit ctx: RewriteCtx): Option[(Token, Token)] = {
     import ctx.tokenTraverser._
 
     for {
@@ -38,9 +37,8 @@ case object PreferCurlyFors extends Rewrite {
   }
 
   def findForSemiColons(
-      forEnumerators: Seq[Enumerator],
-      ctx: RewriteCtx
-  ): Seq[Token] = {
+      forEnumerators: Seq[Enumerator]
+  )(implicit ctx: RewriteCtx): Seq[Token] = {
     import ctx.tokenTraverser._
 
     for {
@@ -57,19 +55,18 @@ case object PreferCurlyFors extends Rewrite {
 
   def rewriteFor(
       forTokens: Tokens,
-      forEnumerators: Seq[Enumerator],
-      ctx: RewriteCtx
-  ): Seq[Patch] = {
+      forEnumerators: Seq[Enumerator]
+  )(implicit ctx: RewriteCtx): Seq[Patch] = {
     import ctx.tokenTraverser._
 
     val builder = Seq.newBuilder[Patch]
 
-    findForParens(forTokens, ctx).foreach { parens =>
+    findForParens(forTokens).foreach { parens =>
       val openBraceTokens =
         if (nextToken(parens._1).is[Token.LF]) "{" else "{\n"
       builder += TokenPatch.AddRight(parens._1, openBraceTokens)
       builder += TokenPatch.AddRight(parens._2, "}")
-      findForSemiColons(forEnumerators, ctx).foreach { semiColon =>
+      findForSemiColons(forEnumerators).foreach { semiColon =>
         val semiColonReplacementTokens =
           if (nextToken(semiColon).is[Token.LF]) "" else "\n"
         builder += TokenPatch.AddRight(semiColon, semiColonReplacementTokens)
@@ -82,14 +79,14 @@ case object PreferCurlyFors extends Rewrite {
   def hasMoreThanOneGenerator(forEnumerators: Seq[Enumerator]): Boolean =
     forEnumerators.count(_.is[Enumerator.Generator]) > 1
 
-  override def rewrite(ctx: RewriteCtx): Seq[Patch] = {
+  override def rewrite(implicit ctx: RewriteCtx): Seq[Patch] = {
     val builder = Seq.newBuilder[Patch]
     import ctx.dialect
     ctx.tree.collect {
       case fy: Term.ForYield if hasMoreThanOneGenerator(fy.enums) =>
-        builder ++= rewriteFor(fy.tokens, fy.enums, ctx)
+        builder ++= rewriteFor(fy.tokens, fy.enums)
       case f: Term.For if hasMoreThanOneGenerator(f.enums) =>
-        builder ++= rewriteFor(f.tokens, f.enums, ctx)
+        builder ++= rewriteFor(f.tokens, f.enums)
     }
     builder.result()
   }

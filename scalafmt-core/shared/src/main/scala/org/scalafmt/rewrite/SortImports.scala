@@ -20,7 +20,7 @@ sealed trait SortImports extends Rewrite {
     */
   def sorted(str: Seq[String]): Seq[String]
 
-  override def rewrite(ctx: RewriteCtx): Seq[Patch] = {
+  override def rewrite(implicit ctx: RewriteCtx): Seq[Patch] = {
     import ctx.dialect
     ctx.tree.collect {
       case Import(imports) =>
