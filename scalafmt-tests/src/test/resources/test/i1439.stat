@@ -29,3 +29,10 @@ object test {
     2 + 3
   }
 }
+<<< #1547
+it should "test something" in new A {
+     println(test) }
+>>>
+it should "test something" in new A {
+  println(test)
+}
