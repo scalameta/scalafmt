@@ -1,7 +1,5 @@
 package org.scalafmt.rewrite
 
-import scala.meta.Importee
-import scala.meta.Tree
 import scala.meta._
 
 /**
@@ -22,9 +20,9 @@ sealed trait SortImports extends Rewrite {
     */
   def sorted(str: Seq[String]): Seq[String]
 
-  override def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch] = {
+  override def rewrite(ctx: RewriteCtx): Seq[Patch] = {
     import ctx.dialect
-    code.collect {
+    ctx.tree.collect {
       case Import(imports) =>
         imports.flatMap { `import` =>
           if (`import`.importees.exists(!_.is[Importee.Name])) {

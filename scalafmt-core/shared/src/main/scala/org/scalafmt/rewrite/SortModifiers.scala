@@ -2,12 +2,11 @@ package org.scalafmt.rewrite
 
 import org.scalafmt.config.SortSettings._
 
-import scala.meta.Tree
 import scala.meta._
 
 object SortModifiers extends Rewrite {
 
-  override def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch] = {
+  override def rewrite(ctx: RewriteCtx): Seq[Patch] = {
     implicit val order = ctx.style.rewrite.sortModifiers.order
 
     /*
@@ -21,7 +20,7 @@ object SortModifiers extends Rewrite {
      * }}}
      * are considered Mods, instead of being similar to `Defn.Val`, or `Defn.Var`.
      */
-    val patchesOfPatches = code.collect {
+    val patchesOfPatches = ctx.tree.collect {
       case d: Decl.Def => sortMods(d.mods)
       case v: Decl.Val => sortMods(v.mods)
       case v: Decl.Var => sortMods(v.mods)

@@ -9,7 +9,7 @@ import scala.meta.tokens.Token.{
   RightBrace,
   RightParen
 }
-import scala.meta.{Tree, _}
+import scala.meta._
 
 case object AvoidInfix extends Rewrite {
   // In a perfect world, we could just use
@@ -19,9 +19,9 @@ case object AvoidInfix extends Rewrite {
   // and be done with it. However, until transform becomes token aware (see https://github.com/scalameta/scalameta/pull/457)
   // we will do these dangerous rewritings by hand.
 
-  override def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch] = {
+  override def rewrite(ctx: RewriteCtx): Seq[Patch] = {
     val matcher = ctx.style.rewrite.neverInfix.toMatcher
-    code.collect {
+    ctx.tree.collect {
       case infix @ Term.ApplyInfix(lhs, op, _, args)
           if matcher.matches(op.value) =>
         val fstOpToken = op.tokens.head

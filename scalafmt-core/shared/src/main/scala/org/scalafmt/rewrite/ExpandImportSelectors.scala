@@ -1,13 +1,13 @@
 package org.scalafmt.rewrite
 
-import scala.meta.{Importee, Tree, _}
+import scala.meta._
 
 case object ExpandImportSelectors extends Rewrite {
 
-  override def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch] = {
+  override def rewrite(ctx: RewriteCtx): Seq[Patch] = {
     val builder = Seq.newBuilder[Patch]
 
-    code.traverse {
+    ctx.tree.traverse {
       case q"import ..$imports" =>
         val groupedPatches: Map[Token, Seq[TokenPatch]] = imports
           .map { `import` =>

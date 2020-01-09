@@ -3,7 +3,7 @@ package org.scalafmt.rewrite
 import org.scalafmt.util.{TokenOps, Whitespace}
 
 import scala.meta.tokens.Tokens
-import scala.meta.{Tree, _}
+import scala.meta._
 
 /**
   * Replaces multi generator For / ForYield Expression parens and semi-colons
@@ -82,10 +82,10 @@ case object PreferCurlyFors extends Rewrite {
   def hasMoreThanOneGenerator(forEnumerators: Seq[Enumerator]): Boolean =
     forEnumerators.count(_.is[Enumerator.Generator]) > 1
 
-  override def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch] = {
+  override def rewrite(ctx: RewriteCtx): Seq[Patch] = {
     val builder = Seq.newBuilder[Patch]
     import ctx.dialect
-    code.collect {
+    ctx.tree.collect {
       case fy: Term.ForYield if hasMoreThanOneGenerator(fy.enums) =>
         builder ++= rewriteFor(fy.tokens, fy.enums, ctx)
       case f: Term.For if hasMoreThanOneGenerator(f.enums) =>

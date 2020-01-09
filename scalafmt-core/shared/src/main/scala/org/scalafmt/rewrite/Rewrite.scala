@@ -4,21 +4,24 @@ import metaconfig.ConfCodec
 import scala.meta._
 import org.scalafmt.config.ReaderUtil
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.util.TokenOps.TokenHash
 import org.scalafmt.util.{TokenOps, TokenTraverser, TreeOps}
 
 case class RewriteCtx(
     style: ScalafmtConfig,
-    tokenTraverser: TokenTraverser,
-    matchingParens: Map[TokenHash, Token]
+    tree: Tree
 ) {
   implicit val dialect = style.runner.dialect
+
+  val tokens = tree.tokens
+  val tokenTraverser = new TokenTraverser(tokens)
+  val matchingParens = TreeOps.getMatchingParentheses(tokens)
+
   def isMatching(a: Token, b: Token) =
     matchingParens.get(TokenOps.hash(a)).contains(b)
 }
 
 abstract class Rewrite {
-  def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch]
+  def rewrite(ctx: RewriteCtx): Seq[Patch]
 }
 
 object Rewrite {
@@ -67,13 +70,8 @@ object Rewrite {
     } else {
       style.runner.dialect(input).parse(style.runner.parser) match {
         case Parsed.Success(ast) =>
-          val tokens = ast.tokens(style.runner.dialect)
-          val ctx = RewriteCtx(
-            style,
-            tokenTraverser = new TokenTraverser(tokens),
-            TreeOps.getMatchingParentheses(tokens)
-          )
-          val patches: Seq[Patch] = rewrites.flatMap(_.rewrite(ast, ctx))
+          val ctx = RewriteCtx(style, ast)
+          val patches: Seq[Patch] = rewrites.flatMap(_.rewrite(ctx))
           val out = Patch(ast, patches)(ctx)
           input match {
             case Input.File(path, _) =>
