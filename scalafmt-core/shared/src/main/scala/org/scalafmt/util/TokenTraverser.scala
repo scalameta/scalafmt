@@ -5,15 +5,26 @@ import scala.meta.tokens.Token
 import scala.meta.tokens.Tokens
 
 class TokenTraverser(tokens: Tokens) {
-  private[this] val tok2idx = {
+  private[this] val (tok2idx, excludedTokens) = {
     val map = Map.newBuilder[Token, Int]
+    val excluded = Set.newBuilder[TokenOps.TokenHash]
+    var formatOff = false
     var i = 0
     tokens.foreach { tok =>
+      if (!formatOff) {
+        if (TokenOps.isFormatOff(tok)) formatOff = true
+      } else {
+        if (TokenOps.isFormatOn(tok)) formatOff = false
+        else excluded += TokenOps.hash(tok)
+      }
       map += (tok -> i)
       i += 1
     }
-    map.result()
+    (map.result(), excluded.result())
   }
+
+  final def isExcluded(token: Token): Boolean =
+    excludedTokens.contains(TokenOps.hash(token))
 
   def nextToken(token: Token): Token = {
     tok2idx.get(token) match {

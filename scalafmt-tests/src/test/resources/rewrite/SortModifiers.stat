@@ -62,7 +62,7 @@ object test {
 >>>
 object test {
   // format: off
-  private[test] final implicit override def foo: Int = ???
+  override implicit final private[test] def foo: Int = ???
 }
 <<< val — no mods
 object test {

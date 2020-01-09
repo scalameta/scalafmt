@@ -19,9 +19,7 @@ object a {
 >>>
 object a {
 // format: off
-  for{
-a <- as
- b <- bs if b > 2} yield (a, b)
+  for(a <- as; b <- bs if b > 2) yield (a, b)
 }
 <<< doesn't change single generator for-yield expression that uses parens
 object a {

@@ -25,9 +25,7 @@ object a {
 >>>
 object a {
 // format: off
-  for{
-a <- as
- b <- bs if b > 2} {
+  for(a <- as; b <- bs if b > 2) {
     println(a + b)
   }
 }

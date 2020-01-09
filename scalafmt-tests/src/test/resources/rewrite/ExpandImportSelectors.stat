@@ -33,12 +33,13 @@ object e {
 >>>
 // format: off
 object e {
-  import a.b
-import a.c
-import h.k
-import h.l
-  import d.e.f
-import d.e.g
+  import a.{
+    b,
+    c
+  }, h.{
+    k, l
+  }
+  import d.e.{f, g}
 }
 <<< rename/unimport
 object blah {
@@ -68,9 +69,9 @@ object blah {
 >>>
 object blah {
   // format: off
-  import a.{foo => bar}
-import a.{zzzz => _}
-import a.baz
+  import a.{
+    // format: on
+    foo => bar, zzzz => _, baz}
 }
 <<< rename/unimport (partial format:off 2)
 object blah {
@@ -84,9 +85,13 @@ object blah {
 }
 >>>
 object blah {
-  import a.{foo => bar}
-  import a.{zzzz => _}
-  import a.baz
+  import a.{
+    // format: off
+    foo => bar,
+    zzzz => _,
+    // format: on
+    baz
+  }
 }
 <<< rename and unimport and wildcard
 object blah {

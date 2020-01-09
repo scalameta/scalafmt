@@ -33,8 +33,8 @@ import a.b.{
 object a {
 // format: off
 import a.b.{
-  b,
-  c
+  c,
+  b
 }
 }
 <<< nested (format:off partial)
@@ -49,9 +49,9 @@ import a.b.{
 >>>
 object a {
   import a.b.{
-    b,
+    c,
 // format: off
-  c
+  b
 }
 }
 <<< sorting

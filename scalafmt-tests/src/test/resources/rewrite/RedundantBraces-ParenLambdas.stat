@@ -117,6 +117,6 @@ object a {
 >>>
 object a {
   // format: off
-  val a = b { c =>  d
-   e}
+  val a = b { c => { d
+   e}}
 }
