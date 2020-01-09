@@ -4,7 +4,6 @@ import org.scalafmt.config.RedundantBracesSettings
 import org.scalafmt.internal.Side
 import org.scalafmt.internal.SyntacticGroupOps
 import org.scalafmt.internal.TreeSyntacticGroup
-import scala.meta.Tree
 import scala.meta._
 import scala.meta.tokens.Token.LF
 import scala.meta.tokens.Token.LeftBrace
@@ -61,12 +60,12 @@ case object RedundantBraces extends Rewrite {
     }
   }
 
-  override def rewrite(code: Tree, ctx: RewriteCtx): Seq[Patch] = {
+  override def rewrite(ctx: RewriteCtx): Seq[Patch] = {
     implicit def _ctx = ctx
 
     implicit val builder = Seq.newBuilder[Patch]
 
-    code.traverse {
+    ctx.tree.traverse {
 
       case t: Term.Apply if ctx.style.activeForEdition_2019_11 =>
         processApply(t)
