@@ -10,4 +10,4 @@ lst :: foo
 
 >>>
 // format: off
-lst .:: (foo)
+lst :: foo

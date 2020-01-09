@@ -34,7 +34,8 @@ case class RewriteCtx(
   }
 
   def addPatchSet(patches: TokenPatch*): Unit =
-    patchBuilder.addAll(patches)
+    if (!patches.exists(x => tokenTraverser.isExcluded(x.tok)))
+      patchBuilder.addAll(patches)
 
 }
 

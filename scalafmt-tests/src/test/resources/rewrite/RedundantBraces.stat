@@ -42,14 +42,17 @@ object a {
 >>>
 object a {
 // format: off
-  def x(i: Int): Int = 
+  def x(i: Int): Int = {
     2
-  
-  def y(i: Int): Int = 
+  }
+
+  def y(i: Int): Int = {
     3
-    def z(i: Int): Int = 
+  }
+  def z(i: Int): Int = {
     4
   }
+}
 <<< respect max lines
 object a {
   def x(i: Int): Int = {

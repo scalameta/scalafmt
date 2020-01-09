@@ -101,20 +101,20 @@ object a {
     if (i == 0)
       /* what */
       "zero"
-    else if (i < 0)
+    else if (i < 0) {
       // format: off
       // Ahh2
       "sub-zero"
-     else if (i > 9000) {
+    } else if (i > 9000) {
       println("i = " + i)
       "over 9000"
     } else if (i > 90000) {
       println("i = " + i)
       "over 90000!"
-    } else if (i == 1) 
-       "one" 
+    } else if (i == 1) {
+      {{ "one" }}
       // format: on
-    else
+    } else
       "other"
 }
 <<< if without else

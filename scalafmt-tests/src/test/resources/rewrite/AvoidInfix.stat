@@ -155,4 +155,4 @@ val makeVersion = (nodots _).compose(stripVersion _)
 
 >>>
 // format: off
- val makeVersion = (nodots _) .compose (stripVersion _)
+ val makeVersion = nodots _ compose stripVersion _
