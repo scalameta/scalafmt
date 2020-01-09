@@ -18,6 +18,20 @@ case class RewriteCtx(
 
   def isMatching(a: Token, b: Token) =
     matchingParens.get(TokenOps.hash(a)).contains(b)
+
+  def applyPatches(patches: Seq[Patch]): String = {
+    val tokenPatches = patches.collect { case e: TokenPatch => e }
+    val patchMap: Map[(Int, Int), String] =
+      tokenPatches
+        .groupBy(t => t.tok.start -> t.tok.end)
+        .view
+        .mapValues(_.reduce(Patch.merge).newTok)
+        .toMap
+    tokens.toIterator
+      .map(x => patchMap.getOrElse(x.start -> x.end, x.syntax))
+      .mkString
+  }
+
 }
 
 abstract class Rewrite {
@@ -72,7 +86,7 @@ object Rewrite {
         case Parsed.Success(ast) =>
           val ctx = RewriteCtx(style, ast)
           val patches: Seq[Patch] = rewrites.flatMap(_.rewrite(ctx))
-          val out = Patch(ast, patches)(ctx)
+          val out = ctx.applyPatches(patches)
           input match {
             case Input.File(path, _) =>
               Input.VirtualFile(path.toString(), out)
