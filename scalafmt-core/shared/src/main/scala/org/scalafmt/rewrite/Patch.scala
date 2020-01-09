@@ -51,18 +51,4 @@ object Patch {
                    |2. $b""".stripMargin)
   }
 
-  def apply(ast: Tree, patches: Seq[Patch])(
-      implicit ctx: RewriteCtx
-  ): String = {
-    val input = ast.tokens(ctx.style.runner.dialect)
-    val tokenPatches = patches.collect { case e: TokenPatch => e }
-    val patchMap: Map[(Int, Int), String] =
-      (tokenPatches)
-        .groupBy(t => t.tok.start -> t.tok.end)
-        .mapValues(_.reduce(merge).newTok)
-        .toMap
-    input.toIterator
-      .map(x => patchMap.getOrElse(x.start -> x.end, x.syntax))
-      .mkString
-  }
 }
