@@ -18,30 +18,25 @@ sealed trait SortImports extends Rewrite {
   /**
     * The sorting scheme to use when sorting the imports
     */
-  def sorted(str: Seq[String]): Seq[String]
+  protected def sorted(str: Seq[String]): IndexedSeq[String]
 
   override def rewrite(implicit ctx: RewriteCtx): Seq[Patch] = {
     import ctx.dialect
     ctx.tree.collect {
       case Import(imports) =>
         imports.flatMap { `import` =>
-          if (`import`.importees.exists(!_.is[Importee.Name])) {
+          val importees = `import`.importees
+          if (importees.exists(!_.is[Importee.Name])) {
             // Do nothing if an importee has for example rename
             // import a.{d, b => c}
             // I think we are safe to sort these, just want to convince myself
             // it's 100% safe first.
             Nil
           } else {
-            val sortedImporteesByIndex: Map[Int, String] =
-              sorted(`import`.importees.map(_.tokens.mkString)).zipWithIndex
-                .map(_.swap)
-                .toMap
-            `import`.importees.zipWithIndex.collect {
+            val sortedImportees = sorted(importees.map(_.tokens.mkString))
+            importees.zipWithIndex.map {
               case (importee, i) =>
-                TokenPatch.AddRight(
-                  importee.tokens.head,
-                  sortedImporteesByIndex(i)
-                )
+                TokenPatch.AddRight(importee.tokens.head, sortedImportees(i))
             }
           }
         }
@@ -60,7 +55,7 @@ case object SortImports extends SortImports {
   private val UCase = """([A-Z].*)""".r
   private val Other = """(.+)""".r
 
-  override def sorted(strs: Seq[String]): Seq[String] = {
+  override def sorted(strs: Seq[String]): IndexedSeq[String] = {
     // we really want partition, but there is no ternary version of it
     val (syms, lcs, ucs) = strs.foldLeft(
       (Vector.empty[String], Vector.empty[String], Vector.empty[String])
@@ -83,5 +78,6 @@ case object SortImports extends SortImports {
   */
 case object AsciiSortImports extends SortImports {
 
-  override def sorted(strs: Seq[String]): Seq[String] = strs.sorted
+  override def sorted(strs: Seq[String]): IndexedSeq[String] =
+    strs.sorted.toIndexedSeq
 }
