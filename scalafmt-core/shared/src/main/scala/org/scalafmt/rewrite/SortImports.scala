@@ -20,27 +20,29 @@ sealed trait SortImports extends Rewrite {
     */
   protected def sorted(str: Seq[String]): IndexedSeq[String]
 
-  override def rewrite(implicit ctx: RewriteCtx): Seq[Patch] = {
+  override def rewrite(implicit ctx: RewriteCtx): Unit = {
     import ctx.dialect
-    ctx.tree.collect {
+    ctx.tree.traverse {
       case Import(imports) =>
-        imports.flatMap { `import` =>
+        val builder = Seq.newBuilder[TokenPatch]
+        imports.foreach { `import` =>
           val importees = `import`.importees
-          if (importees.exists(!_.is[Importee.Name])) {
+          if (!importees.exists(!_.is[Importee.Name])) {
             // Do nothing if an importee has for example rename
             // import a.{d, b => c}
             // I think we are safe to sort these, just want to convince myself
             // it's 100% safe first.
-            Nil
-          } else {
             val sortedImportees = sorted(importees.map(_.tokens.mkString))
-            importees.zipWithIndex.map {
-              case (importee, i) =>
+            var i = 0
+            importees.foreach { importee =>
+              builder +=
                 TokenPatch.AddRight(importee.tokens.head, sortedImportees(i))
+              i += 1
             }
           }
         }
-    }.flatten
+        ctx.addPatchSet(builder.result(): _*)
+    }
   }
 }
 

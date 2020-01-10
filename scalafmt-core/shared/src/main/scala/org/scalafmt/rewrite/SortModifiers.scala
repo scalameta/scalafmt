@@ -6,7 +6,7 @@ import scala.meta._
 
 object SortModifiers extends Rewrite {
 
-  override def rewrite(implicit ctx: RewriteCtx): Seq[Patch] = {
+  override def rewrite(implicit ctx: RewriteCtx): Unit = {
     implicit val order = ctx.style.rewrite.sortModifiers.order
 
     /*
@@ -20,7 +20,7 @@ object SortModifiers extends Rewrite {
      * }}}
      * are considered Mods, instead of being similar to `Defn.Val`, or `Defn.Var`.
      */
-    val patchesOfPatches = ctx.tree.collect {
+    ctx.tree.traverse {
       case d: Decl.Def => sortMods(d.mods)
       case v: Decl.Val => sortMods(v.mods)
       case v: Decl.Var => sortMods(v.mods)
@@ -37,23 +37,21 @@ object SortModifiers extends Rewrite {
           p.mods.filterNot(m => m.is[Mod.ValParam] || m.is[Mod.VarParam])
         )
     }
-    patchesOfPatches.flatten
   }
 
   private def sortMods(
       oldMods: Seq[Mod]
-  )(implicit order: List[ModKey]): Seq[Patch] = {
-    if (oldMods.isEmpty) Nil
-    else {
+  )(implicit ctx: RewriteCtx, order: List[ModKey]): Unit = {
+    if (oldMods.nonEmpty) {
       val sanitized = oldMods.filterNot(isHiddenImplicit)
       val sortedMods: Seq[Mod] = sanitized.sortWith(orderModsBy(order))
 
-      sortedMods.zip(sanitized).flatMap {
+      ctx.addPatchSet(sortedMods.zip(sanitized).flatMap {
         case (next, old) =>
-          val removeOld = old.tokens.map(t => TokenPatch.Remove(t))
+          val removeOld = old.tokens.map(TokenPatch.Remove)
           val addNext = TokenPatch.AddRight(old.tokens.head, next.syntax)
           removeOld :+ addNext
-      }
+      }: _*)
     }
   }
 
