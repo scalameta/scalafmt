@@ -5,9 +5,7 @@ import scala.meta._
 
 case object ExpandImportSelectors extends Rewrite {
 
-  override def rewrite(implicit ctx: RewriteCtx): Seq[Patch] = {
-    val builder = Seq.newBuilder[Patch]
-
+  override def rewrite(implicit ctx: RewriteCtx): Unit = {
     ctx.tree.traverse {
       case q"import ..$imports" =>
         val groupedPatches = mutable.Map.empty[Token, Group]
@@ -15,7 +13,7 @@ case object ExpandImportSelectors extends Rewrite {
           val parentTokens = `import`.parent.get.tokens
           val group =
             groupedPatches.getOrElseUpdate(parentTokens.head, new Group)
-          parentTokens.tail.foreach(x => builder += TokenPatch.Remove(x))
+          parentTokens.tail.foreach(x => group.patches += TokenPatch.Remove(x))
 
           `import`.traverse {
             case importer @ Importer(path, importees) =>
@@ -42,15 +40,15 @@ case object ExpandImportSelectors extends Rewrite {
 
         groupedPatches.foreach {
           case (tok, group) =>
-            builder +=
+            group.patches +=
               TokenPatch.AddRight(tok, group.imports.mkString("\n"))
+            ctx.addPatchSet(group.patches.result(): _*)
         }
     }
-
-    builder.result()
   }
 
   private case class Group(
+      patches: mutable.Builder[TokenPatch, Seq[TokenPatch]] = Seq.newBuilder,
       imports: mutable.ArrayBuffer[String] = new mutable.ArrayBuffer
   )
 

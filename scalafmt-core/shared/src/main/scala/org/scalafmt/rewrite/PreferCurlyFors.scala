@@ -56,10 +56,10 @@ case object PreferCurlyFors extends Rewrite {
   def rewriteFor(
       forTokens: Tokens,
       forEnumerators: Seq[Enumerator]
-  )(implicit ctx: RewriteCtx): Seq[Patch] = {
+  )(implicit ctx: RewriteCtx): Seq[TokenPatch] = {
     import ctx.tokenTraverser._
 
-    val builder = Seq.newBuilder[Patch]
+    val builder = Seq.newBuilder[TokenPatch]
 
     findForParens(forTokens).foreach { parens =>
       val openBraceTokens =
@@ -79,15 +79,13 @@ case object PreferCurlyFors extends Rewrite {
   def hasMoreThanOneGenerator(forEnumerators: Seq[Enumerator]): Boolean =
     forEnumerators.count(_.is[Enumerator.Generator]) > 1
 
-  override def rewrite(implicit ctx: RewriteCtx): Seq[Patch] = {
-    val builder = Seq.newBuilder[Patch]
+  override def rewrite(implicit ctx: RewriteCtx): Unit = {
     import ctx.dialect
-    ctx.tree.collect {
+    ctx.tree.traverse {
       case fy: Term.ForYield if hasMoreThanOneGenerator(fy.enums) =>
-        builder ++= rewriteFor(fy.tokens, fy.enums)
+        ctx.addPatchSet(rewriteFor(fy.tokens, fy.enums): _*)
       case f: Term.For if hasMoreThanOneGenerator(f.enums) =>
-        builder ++= rewriteFor(f.tokens, f.enums)
+        ctx.addPatchSet(rewriteFor(f.tokens, f.enums): _*)
     }
-    builder.result()
   }
 }

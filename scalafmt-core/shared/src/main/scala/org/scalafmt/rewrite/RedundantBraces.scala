@@ -19,7 +19,7 @@ import org.scalafmt.util.Whitespace
 case object RedundantBraces extends Rewrite {
 
   private type PatchBuilder =
-    scala.collection.mutable.Builder[Patch, Seq[Patch]]
+    scala.collection.mutable.Builder[TokenPatch, Seq[TokenPatch]]
 
   @inline private def settings(
       implicit ctx: RewriteCtx
@@ -28,7 +28,7 @@ case object RedundantBraces extends Rewrite {
 
   private def processInterpolation(
       t: Term.Interpolate
-  )(implicit builder: PatchBuilder, ctx: RewriteCtx): Unit = {
+  )(implicit ctx: RewriteCtx): Unit = {
     import ctx.tokenTraverser._
 
     def isIdentifierAtStart(value: String) =
@@ -52,17 +52,17 @@ case object RedundantBraces extends Rewrite {
         val closeBrace = nextToken(arg.tokens.head)
         (openBrace, closeBrace) match {
           case (LeftBrace(), RightBrace()) =>
-            builder += TokenPatch.Remove(openBrace)
-            builder += TokenPatch.Remove(closeBrace)
+            ctx.addPatchSet(
+              TokenPatch.Remove(openBrace),
+              TokenPatch.Remove(closeBrace)
+            )
           case _ =>
         }
       case _ =>
     }
   }
 
-  override def rewrite(implicit ctx: RewriteCtx): Seq[Patch] = {
-    implicit val builder = Seq.newBuilder[Patch]
-
+  override def rewrite(implicit ctx: RewriteCtx): Unit = {
     ctx.tree.traverse {
 
       case t: Term.Apply if ctx.style.activeForEdition_2019_11 =>
@@ -74,13 +74,11 @@ case object RedundantBraces extends Rewrite {
       case t: Term.Interpolate if settings.stringInterpolation =>
         processInterpolation(t)
     }
-
-    builder.result()
   }
 
   private def processApply(
       tree: Term.Apply
-  )(implicit builder: PatchBuilder, ctx: RewriteCtx): Unit = {
+  )(implicit ctx: RewriteCtx): Unit = {
     val lastToken = tree.tokens.last
     if (settings.methodBodies && lastToken.is[Token.RightParen]) {
       tree.args match {
@@ -94,7 +92,7 @@ case object RedundantBraces extends Rewrite {
   private def processSingleArgApply(
       arg: Term,
       rparen: Token
-  )(implicit builder: PatchBuilder, ctx: RewriteCtx): Unit = arg match {
+  )(implicit ctx: RewriteCtx): Unit = arg match {
     // single-arg apply of a lambda
     // a(b => { c; d }) change to a { b => c; d }
     case f: Term.Function
@@ -105,17 +103,19 @@ case object RedundantBraces extends Rewrite {
       // points to the next non-whitespace token after opening brace
       if (lbrace.start <= f.body.tokens.head.start) {
         val lparen = ctx.matchingParens(TokenOps.hash(rparen))
+        implicit val builder = Seq.newBuilder[TokenPatch]
         builder += TokenPatch.Replace(lparen, lbrace.text)
         builder += TokenPatch.Remove(lbrace)
         builder += TokenPatch.Remove(rparen)
         removeTrailingLF(rbrace.pos, rparen)
+        ctx.addPatchSet(builder.result(): _*)
       }
     case _ =>
   }
 
   private def processMultiArgApply(
       args: Seq[Term]
-  )(implicit builder: PatchBuilder, ctx: RewriteCtx): Unit = args.foreach {
+  )(implicit ctx: RewriteCtx): Unit = args.foreach {
     // multi-arg apply of single-stat lambdas
     // a(b => { c }, d => { e }) change to a(b => c, d => e)
     // a single-stat lambda with braces can be converted to one without braces,
@@ -126,12 +126,14 @@ case object RedundantBraces extends Rewrite {
       val rbrace = fun.tokens.last
       val lbrace = ctx.matchingParens(TokenOps.hash(rbrace))
       if (lbrace.start <= body.tokens.head.start) {
+        implicit val builder = Seq.newBuilder[TokenPatch]
         builder += TokenPatch.Remove(lbrace)
         builder += TokenPatch.Remove(rbrace)
         removeTrailingLF(lbrace.pos, rbrace)
         ctx.tokenTraverser
           .reverseFind(rbrace)(!Whitespace.unapply(_))
           .foreach(t => removeTrailingLF(t.pos, rbrace))
+        ctx.addPatchSet(builder.result(): _*)
       }
     case _ =>
   }
@@ -149,16 +151,18 @@ case object RedundantBraces extends Rewrite {
 
   private def processBlock(
       b: Term.Block
-  )(implicit builder: PatchBuilder, ctx: RewriteCtx): Unit =
+  )(implicit ctx: RewriteCtx): Unit =
     if (b.tokens.nonEmpty) {
       val open = b.tokens.head
       if (open.is[LeftBrace]) {
         val close = b.tokens.last
         if (removeBlock(b) && close.is[RightBrace]) {
           val endPos = if (b.stats.isEmpty) b.pos else b.stats.last.pos
+          implicit val builder = Seq.newBuilder[TokenPatch]
           removeTrailingLF(endPos, close)
           builder += TokenPatch.Remove(open)
           builder += TokenPatch.Remove(close)
+          ctx.addPatchSet(builder.result(): _*)
         }
       }
     }

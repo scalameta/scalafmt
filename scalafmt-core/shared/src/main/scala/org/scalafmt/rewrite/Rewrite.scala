@@ -12,6 +12,8 @@ case class RewriteCtx(
 ) {
   implicit val dialect = style.runner.dialect
 
+  private val patchBuilder = Seq.newBuilder[TokenPatch]
+
   val tokens = tree.tokens
   val tokenTraverser = new TokenTraverser(tokens)
   val matchingParens = TreeOps.getMatchingParentheses(tokens)
@@ -19,10 +21,9 @@ case class RewriteCtx(
   def isMatching(a: Token, b: Token) =
     matchingParens.get(TokenOps.hash(a)).contains(b)
 
-  def applyPatches(patches: Seq[Patch]): String = {
-    val tokenPatches = patches.collect { case e: TokenPatch => e }
+  def applyPatches: String = {
     val patchMap: Map[(Int, Int), String] =
-      tokenPatches
+      patchBuilder.result
         .groupBy(t => t.tok.start -> t.tok.end)
         .view
         .mapValues(_.reduce(Patch.merge).newTok)
@@ -32,10 +33,13 @@ case class RewriteCtx(
       .mkString
   }
 
+  def addPatchSet(patches: TokenPatch*): Unit =
+    patchBuilder.addAll(patches)
+
 }
 
 abstract class Rewrite {
-  def rewrite(implicit ctx: RewriteCtx): Seq[Patch]
+  def rewrite(implicit ctx: RewriteCtx): Unit
 }
 
 object Rewrite {
@@ -85,8 +89,8 @@ object Rewrite {
       style.runner.dialect(input).parse(style.runner.parser) match {
         case Parsed.Success(ast) =>
           val ctx = RewriteCtx(style, ast)
-          val patches: Seq[Patch] = rewrites.flatMap(_.rewrite(ctx))
-          val out = ctx.applyPatches(patches)
+          rewrites.foreach(_.rewrite(ctx))
+          val out = ctx.applyPatches
           input match {
             case Input.File(path, _) =>
               Input.VirtualFile(path.toString(), out)
