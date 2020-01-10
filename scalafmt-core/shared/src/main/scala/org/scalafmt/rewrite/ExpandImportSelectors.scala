@@ -23,13 +23,11 @@ case object ExpandImportSelectors extends Rewrite {
                 if (hasWildcards && hasRenamesOrUnimports)
                   Seq(s"import ${importer.syntax}")
                 else
-                  importees.collect {
-                    case importee: Importee =>
-                      if (importee.toString.contains("=>"))
-                        s"import $path.{$importee}"
-                      else
-                        s"import $path.$importee"
-                    case importee @ _ => importee
+                  importees.map { importee =>
+                    if (importee.toString.contains("=>"))
+                      s"import $path.{$importee}"
+                    else
+                      s"import $path.$importee"
                   }
             }.flatten
             val patchStr = expandedImport.mkString("\n")
