@@ -22,13 +22,11 @@ class FormatWriter(formatOps: FormatOps) {
     val sb = new StringBuilder()
     var lastState = State.start // used to calculate start of formatToken.right.
     val locations = getFormatLocations(tokens.arr, splits, debug = false)
-    val tokenAligns = locations.tokenAligns
 
     locations.iterate.foreach { entry =>
       val location = entry.curr
       val state = location.state
       val formatToken = location.formatToken
-      val whitespace = entry.getWhitespace
 
       formatToken.left match {
         case c: T.Comment =>
@@ -61,13 +59,7 @@ class FormatWriter(formatOps: FormatOps) {
           sb.append(rewrittenToken)
       }
 
-      handleTrailingCommasAndWhitespace(
-        formatToken,
-        state,
-        sb,
-        whitespace,
-        tokenAligns
-      )
+      entry.formatWhitespace(sb)
 
       lastState = state
     }
@@ -214,6 +206,124 @@ class FormatWriter(formatOps: FormatOps) {
           case NoSplit => ""
         }
       }
+
+      def formatWhitespace(sb: StringBuilder): Unit = {
+
+        import org.scalafmt.config.TrailingCommas
+
+        val whitespace = getWhitespace
+
+        val owner = owners(tok.right)
+        if (!runner.dialect.allowTrailingCommas ||
+          !isImporterOrDefnOrCallSite(owner)) {
+          sb.append(whitespace)
+          return
+        }
+        val isImport = owner.isInstanceOf[Importer]
+
+        val left = tok.left
+        val right = nextNonComment(tok).right
+        val isNewline = curr.split.modification.isNewline
+        val prevFormatToken = previous.formatToken
+        // Scala syntax allows commas before right braces in weird places,
+        // like constructor bodies:
+        // def this() = {
+        //   this(1),
+        // }
+        // This code simply ignores those commas because it does not
+        // consider them "trailing" commas. It does not remove them
+        // in the TrailingCommas.never branch, nor does it
+        // try to add them in the TrainingCommas.always branch.
+        lazy val rightIsCloseDelim = right
+          .is[CloseParenOrBracket] || (right.is[T.RightBrace] && isImport)
+
+        initStyle.trailingCommas match {
+          // foo(
+          //   a,
+          //   b
+          // )
+          //
+          // Insert a comma after b
+          case TrailingCommas.always
+              if !left.is[T.Comma] &&
+                !left.is[T.Comment] &&
+                !left.is[T.LeftParen] && // skip empty parentheses
+                !tok.right.is[T.Comment] &&
+                rightIsCloseDelim && isNewline =>
+            sb.append(",")
+            sb.append(whitespace)
+
+          // foo(
+          //   a,
+          //   b // comment
+          // )
+          //
+          // Insert a comma after b (before comment)
+          case TrailingCommas.always
+              if left.is[T.Comment] && !prevFormatToken.left.is[T.Comma] &&
+                !prevFormatToken.left.is[T.Comment] &&
+                !prevNonComment(tok).left
+                  .is[T.LeftParen] && // skip empty parentheses
+                rightIsCloseDelim && isNewline =>
+            val indexOfComment = sb.lastIndexOf(left.syntax)
+            val index =
+              sb.lastIndexOf(prevFormatToken.left.syntax, indexOfComment)
+
+            // If the leading comment is vertically aligned, preserve the location of
+            // the comment to avoid breaking the alignment.
+            if (tokenAligns.get(prevFormatToken).isDefined) {
+              sb.setCharAt(index + prevFormatToken.left.syntax.length, ',')
+            } else {
+              sb.insert(index + prevFormatToken.left.syntax.length, ",")
+            }
+            sb.append(whitespace)
+
+          // foo(
+          //   a,
+          //   b,
+          // )
+          //
+          // Remove the comma after b
+          case TrailingCommas.never
+              if left.is[T.Comma] && rightIsCloseDelim &&
+                !tok.right.is[T.Comment] && isNewline =>
+            sb.deleteCharAt(sb.length - 1)
+            sb.append(whitespace)
+
+          // foo(
+          //   a,
+          //   b, // comment
+          // )
+          //
+          // Remove the comma after b (before comment)
+          case TrailingCommas.never
+              if left.is[T.Comment] && prevFormatToken.left.is[T.Comma] &&
+                rightIsCloseDelim && isNewline =>
+            val indexOfComment = sb.lastIndexOf(left.syntax)
+            val indexOfComma =
+              sb.lastIndexOf(prevFormatToken.left.syntax, indexOfComment)
+
+            // If the leading comment is vertically aligned, preserve the location of
+            // the comment to avoid breaking the alignment.
+            if (tokenAligns.get(prevFormatToken).isDefined) {
+              sb.setCharAt(indexOfComma, ' ')
+            } else {
+              sb.deleteCharAt(indexOfComma)
+            }
+            sb.append(whitespace)
+
+          // foo(a, b,)
+          //
+          // Remove the comma after b
+          case _
+              if left.is[T.Comma] && rightIsCloseDelim &&
+                !tok.right.is[T.Comment] && !isNewline =>
+            sb.deleteCharAt(sb.length - 1)
+
+          case _ => sb.append(whitespace)
+        }
+      }
+
     }
   }
 
@@ -433,126 +543,6 @@ class FormatWriter(formatOps: FormatOps) {
     }
   }
 
-  private def handleTrailingCommasAndWhitespace(
-      formatToken: FormatToken,
-      state: State,
-      sb: StringBuilder,
-      whitespace: String,
-      tokenAligns: Map[FormatToken, Int]
-  ): Unit = {
-
-    import org.scalafmt.config.TrailingCommas
-
-    val owner = owners(formatToken.right)
-    if (!runner.dialect.allowTrailingCommas ||
-      !isImporterOrDefnOrCallSite(owner)) {
-      sb.append(whitespace)
-      return
-    }
-    val isImport = owner.isInstanceOf[Importer]
-
-    val left = formatToken.left
-    val right = nextNonComment(formatToken).right
-    val isNewline = state.splits.last.modification.isNewline
-    val prevFormatToken = prev(formatToken)
-    // Scala syntax allows commas before right braces in weird places,
-    // like constructor bodies:
-    // def this() = {
-    //   this(1),
-    // }
-    // This code simply ignores those commas because it does not
-    // consider them "trailing" commas. It does not remove them
-    // in the TrailingCommas.never branch, nor does it
-    // try to add them in the TrainingCommas.always branch.
-    lazy val rightIsCloseDelim = right
-      .is[CloseParenOrBracket] || (right.is[T.RightBrace] && isImport)
-
-    initStyle.trailingCommas match {
-      // foo(
-      //   a,
-      //   b
-      // )
-      //
-      // Insert a comma after b
-      case TrailingCommas.always
-          if !left.is[T.Comma] &&
-            !left.is[T.Comment] &&
-            !left.is[T.LeftParen] && // skip empty parentheses
-            !formatToken.right.is[T.Comment] &&
-            rightIsCloseDelim && isNewline =>
-        sb.append(",")
-        sb.append(whitespace)
-
-      // foo(
-      //   a,
-      //   b // comment
-      // )
-      //
-      // Insert a comma after b (before comment)
-      case TrailingCommas.always
-          if left.is[T.Comment] && !prevFormatToken.left.is[T.Comma] &&
-            !prevFormatToken.left.is[T.Comment] &&
-            !prevNonComment(formatToken).left
-              .is[T.LeftParen] && // skip empty parentheses
-            rightIsCloseDelim && isNewline =>
-        val indexOfComment = sb.lastIndexOf(left.syntax)
-        val index = sb.lastIndexOf(prevFormatToken.left.syntax, indexOfComment)
-
-        // If the leading comment is vertically aligned, preserve the location of
-        // the comment to avoid breaking the alignment.
-        if (tokenAligns.get(prevFormatToken).isDefined) {
-          sb.setCharAt(index + prevFormatToken.left.syntax.length, ',')
-        } else {
-          sb.insert(index + prevFormatToken.left.syntax.length, ",")
-        }
-        sb.append(whitespace)
-
-      // foo(
-      //   a,
-      //   b,
-      // )
-      //
-      // Remove the comma after b
-      case TrailingCommas.never
-          if left.is[T.Comma] && rightIsCloseDelim &&
-            !formatToken.right.is[T.Comment] && isNewline =>
-        sb.deleteCharAt(sb.length - 1)
-        sb.append(whitespace)
-
-      // foo(
-      //   a,
-      //   b, // comment
-      // )
-      //
-      // Remove the comma after b (before comment)
-      case TrailingCommas.never
-          if left.is[T.Comment] && prevFormatToken.left.is[T.Comma] &&
-            rightIsCloseDelim && isNewline =>
-        val indexOfComment = sb.lastIndexOf(left.syntax)
-        val indexOfComma =
-          sb.lastIndexOf(prevFormatToken.left.syntax, indexOfComment)
-
-        // If the leading comment is vertically aligned, preserve the location of
-        // the comment to avoid breaking the alignment.
-        if (tokenAligns.get(prevFormatToken).isDefined) {
-          sb.setCharAt(indexOfComma, ' ')
-        } else {
-          sb.deleteCharAt(indexOfComma)
-        }
-        sb.append(whitespace)
-
-      // foo(a, b,)
-      //
-      // Remove the comma after b
-      case _
-          if left.is[T.Comma] && rightIsCloseDelim &&
-            !formatToken.right.is[T.Comment] && !isNewline =>
-        sb.deleteCharAt(sb.length - 1)
-
-      case _ => sb.append(whitespace)
-    }
-
-  }
 }
 
 object FormatWriter {
