@@ -2,10 +2,11 @@ package org.scalafmt.internal
 
 import java.util.regex.Pattern
 
-import org.scalafmt.internal.FormatWriter.FormatLocation
 import org.scalafmt.util.TreeOps
 
 import scala.annotation.tailrec
+import scala.collection.IndexedSeq
+import scala.collection.mutable.ArrayBuffer
 import scala.meta.tokens.Token
 import scala.meta.tokens.{Token => T}
 import scala.meta.transversers.Traverser
@@ -15,6 +16,7 @@ import scala.meta.{Importer, Mod, Pkg, Term, Tree}
   * Produces formatted output from sequence of splits.
   */
 class FormatWriter(formatOps: FormatOps) {
+  import FormatWriter._
   import formatOps._
   import org.scalafmt.util.TreeOps._
 
@@ -78,10 +80,10 @@ class FormatWriter(formatOps: FormatOps) {
     val alignedComment =
       if (comment.syntax.startsWith("/*") &&
         formatOps.initStyle.reformatDocstrings) {
-        val isDocstring = comment.syntax.startsWith("/**")
+        val isDocstring =
+          comment.syntax.startsWith("/**") && initStyle.scalaDocs
         val spaces: String =
-          if (isDocstring && initStyle.scalaDocs) " " * (indent + 2)
-          else " " * (indent + 1)
+          getIndentation(if (isDocstring) (indent + 2) else (indent + 1))
         leadingAsteriskSpace
           .matcher(comment.syntax)
           .replaceAll(s"\n$spaces\\*")
@@ -109,7 +111,7 @@ class FormatWriter(formatOps: FormatOps) {
           token.syntax.find(_ != '"').getOrElse(' ')
       }
       val extraIndent: Int = if (firstChar == '|') 1 else 0
-      val spaces = " " * (indent + extraIndent)
+      val spaces = getIndentation(indent + extraIndent)
       leadingPipeSpace.matcher(token.syntax).replaceAll(s"\n$spaces\\|")
     } else {
       token.syntax
@@ -176,15 +178,18 @@ class FormatWriter(formatOps: FormatOps) {
               if (lastModification != NoSplit) 0
               else getAlign(previous.formatToken)
             val currentAlign = getAlign(tok, alignOffset)
-            " " + (" " * (currentAlign + previousAlign))
+            getIndentation(1 + currentAlign + previousAlign)
+
           case nl: NewlineT
               if nl.acceptNoSplit && !tok.left.isInstanceOf[T.Comment] &&
                 state.indentation >= previous.state.column =>
             ""
+
           case nl: NewlineT
               if nl.acceptSpace &&
                 state.indentation >= previous.state.column =>
             " "
+
           case _: NewlineT
               if tok.right.isInstanceOf[T.Comment] &&
                 nextNonComment.exists(
@@ -195,17 +200,18 @@ class FormatWriter(formatOps: FormatOps) {
               locations.lastIndexWhere(_.formatToken.right.is[T.Dot], i - 1)
             // TODO should this 2 be hard-coded, set to some other existing configurable parameter, or configurable?
             val extraIndent = if (0 <= prevDotIdx) 0 else 2
-            "\n" + " " * (state.indentation + extraIndent)
+            "\n" + getIndentation(state.indentation + extraIndent)
+
           case nl: NewlineT =>
             val newline =
               if (nl.isDouble || isMultilineTopLevelStatement(locations, i))
                 "\n\n"
               else "\n"
-            val indentation =
-              if (nl.noIndent) ""
-              else " " * state.indentation
-            newline + indentation
+            if (nl.noIndent) newline
+            else newline + getIndentation(state.indentation)
+
           case Provided(literal) => literal
+
           case NoSplit => ""
         }
       }
@@ -504,4 +510,19 @@ object FormatWriter {
       split: Split,
       state: State
   )
+
+  // cache indentations to some level
+  private val indentations: IndexedSeq[String] = {
+    val size = 64
+    val buf = new ArrayBuffer[String](size)
+    buf += ""
+    // use the previous indentation to add another space
+    (1 until size).foreach(_ => buf += " " + buf.last)
+    buf
+  }
+
+  // see if indentation level is cached first
+  private def getIndentation(len: Int): String =
+    if (len < indentations.length) indentations(len) else " " * len
+
 }
