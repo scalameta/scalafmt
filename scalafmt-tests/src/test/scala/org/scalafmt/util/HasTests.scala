@@ -213,15 +213,21 @@ trait HasTests extends AnyFunSuiteLike with FormatAssertions {
       onlyOne: Boolean
   ): Array[FormatOutput] = {
     val builder = mutable.ArrayBuilder.make[FormatOutput]
-    new FormatWriter(Debug.formatOps)
-      .reconstructPath(Debug.tokens, Debug.state.splits, debug = onlyOne) {
-        case (_, token, whitespace, _) =>
-          builder += FormatOutput(
-            token.left.syntax,
-            whitespace,
-            Debug.formatTokenExplored(token)
-          )
+    val locations = new FormatWriter(Debug.formatOps)
+      .getFormatLocations(Debug.tokens, Debug.state.splits, debug = onlyOne)
+    locations.iterate.foreach { entry =>
+      val token = entry.curr.formatToken
+      builder += FormatOutput(
+        token.left.syntax,
+        entry.getWhitespace,
+        Debug.formatTokenExplored(token)
+      )
+    }
+    if (onlyOne) {
+      locations.locations.lastOption.foreach { location =>
+        logger.debug(s"Total cost: ${location.state.cost}")
       }
+    }
     builder.result()
   }
 
