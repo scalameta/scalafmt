@@ -21,53 +21,61 @@ class FormatWriter(formatOps: FormatOps) {
   def mkString(splits: Vector[Split]): String = {
     val sb = new StringBuilder()
     var lastState = State.start // used to calculate start of formatToken.right.
-    reconstructPath(tokens.arr, splits, debug = false) {
-      case (state, formatToken, whitespace, tokenAligns) =>
-        formatToken.left match {
-          case c: T.Comment =>
-            sb.append(formatComment(c, state.indentation))
-          case token @ T.Interpolation.Part(_) =>
-            sb.append(formatMarginizedString(token, state.indentation))
-          case T.Constant.String(_) => // Ignore, see below.
-          case c: T.Constant.Long =>
-            val syntax = c.syntax
-            // longs can be written as hex literals like 0xFF123L. Dont uppercase the X
-            if (syntax.startsWith("0x")) {
-              sb.append("0x")
-              sb.append(initStyle.literals.long.process(syntax.substring(2)))
-            } else {
-              sb.append(initStyle.literals.long.process(syntax))
-            }
-          case c: T.Constant.Float =>
-            sb.append(initStyle.literals.float.process(c.syntax))
-          case c: T.Constant.Double =>
-            sb.append(initStyle.literals.double.process(c.syntax))
-          case token =>
-            val rewrittenToken =
-              formatOps.initStyle.rewriteTokens
-                .getOrElse(token.syntax, token.syntax)
-            sb.append(rewrittenToken)
-        }
+    val locations = getFormatLocations(tokens.arr, splits, debug = false)
+    val tokenAligns = locations.tokenAligns
 
-        handleTrailingCommasAndWhitespace(
-          formatToken,
-          state,
-          sb,
-          whitespace,
-          tokenAligns
-        )
+    locations.iterate.foreach { entry =>
+      val location = entry.curr
+      val state = location.state
+      val formatToken = location.formatToken
+      val whitespace = entry.getWhitespace
 
-        formatToken.right match {
-          // state.column matches the end of formatToken.right
-          case literal: T.Constant.String =>
-            val column =
-              if (state.splits.last.modification.isNewline) state.indentation
-              else lastState.column + whitespace.length
-            sb.append(formatMarginizedString(literal, column + 2))
-          case _ => // Ignore
-        }
-        lastState = state
+      formatToken.left match {
+        case c: T.Comment =>
+          sb.append(formatComment(c, state.indentation))
+        case token @ T.Interpolation.Part(_) =>
+          sb.append(formatMarginizedString(token, state.indentation))
+        case T.Constant.String(_) => // Ignore, see below.
+        case c: T.Constant.Long =>
+          val syntax = c.syntax
+          // longs can be written as hex literals like 0xFF123L. Dont uppercase the X
+          if (syntax.startsWith("0x")) {
+            sb.append("0x")
+            sb.append(initStyle.literals.long.process(syntax.substring(2)))
+          } else {
+            sb.append(initStyle.literals.long.process(syntax))
+          }
+        case c: T.Constant.Float =>
+          sb.append(initStyle.literals.float.process(c.syntax))
+        case c: T.Constant.Double =>
+          sb.append(initStyle.literals.double.process(c.syntax))
+        case token =>
+          val rewrittenToken =
+            formatOps.initStyle.rewriteTokens
+              .getOrElse(token.syntax, token.syntax)
+          sb.append(rewrittenToken)
+      }
+
+      handleTrailingCommasAndWhitespace(
+        formatToken,
+        state,
+        sb,
+        whitespace,
+        tokenAligns
+      )
+
+      formatToken.right match {
+        // state.column matches the end of formatToken.right
+        case literal: T.Constant.String =>
+          val column =
+            if (state.splits.last.modification.isNewline) state.indentation
+            else lastState.column + whitespace.length
+          sb.append(formatMarginizedString(literal, column + 2))
+        case _ => // Ignore
+      }
+      lastState = state
     }
+
     sb.toString()
   }
 
@@ -127,14 +135,13 @@ class FormatWriter(formatOps: FormatOps) {
       toks: Array[FormatToken],
       splits: Vector[Split],
       debug: Boolean
-  ): Array[FormatLocation] = {
+  ): FormatLocations = {
     require(toks.length >= splits.length, "splits !=")
     val statesBuilder = Array.newBuilder[FormatLocation]
     statesBuilder.sizeHint(toks.length)
     var currState = State.start
-    splits.zipWithIndex.foreach {
-      case (split, i) =>
-        val tok = toks(i)
+    splits.zip(toks).foreach {
+      case (split, tok) =>
         currState = State.next(currState, styleMap.at(tok), split, tok)
         statesBuilder += FormatLocation(tok, split, currState)
         // TIP. Use the following line to debug origin of splits.
@@ -145,27 +152,25 @@ class FormatWriter(formatOps: FormatOps) {
           )
         }
     }
-    statesBuilder.result()
+    new FormatLocations(statesBuilder.result())
   }
 
-  /**
-    * Reconstructs path for all tokens and invokes callback for each token/split
-    * combination.
-    */
-  def reconstructPath(
-      toks: Array[FormatToken],
-      splits: Vector[Split],
-      debug: Boolean
-  )(
-      callback: (State, FormatToken, String, Map[FormatToken, Int]) => Unit
-  ): Unit = {
-    require(toks.length >= splits.length, "splits !=")
-    val locations = getFormatLocations(toks, splits, debug)
-    val tokenAligns = alignmentTokens(locations)
-    var lastModification = locations.head.split.modification
-    locations.zipWithIndex.foreach {
-      case (FormatLocation(tok, split, state), i) =>
-        val previous = locations(Math.max(0, i - 1))
+  class FormatLocations(val locations: Array[FormatLocation]) {
+
+    val tokenAligns: Map[FormatToken, Int] = alignmentTokens(locations)
+
+    def iterate: Iterator[Entry] =
+      Iterator.range(0, locations.length).map(new Entry(_))
+
+    class Entry(val i: Int) {
+      val curr = locations(i)
+      val previous = locations(math.max(i - 1, 0))
+
+      @inline def tok = curr.formatToken
+      @inline def state = curr.state
+      @inline def lastModification = previous.split.modification
+
+      def getWhitespace: String = {
         // TODO this could get slow for really long comment blocks. If that
         //   becomes a problem, we could also precompute these locations.
         lazy val nextNonComment = locations
@@ -173,11 +178,11 @@ class FormatWriter(formatOps: FormatOps) {
           .dropWhile(_.formatToken.right.isInstanceOf[T.Comment])
           .headOption
 
-        val whitespace = split.modification match {
+        curr.split.modification match {
           case Space =>
             val previousAlign =
               if (lastModification == NoSplit)
-                tokenAligns.getOrElse(prev(tok), 0)
+                tokenAligns.getOrElse(previous.formatToken, 0)
               else 0
             " " + (" " * (tokenAligns.getOrElse(tok, 0) + previousAlign))
           case nl: NewlineT
@@ -212,13 +217,6 @@ class FormatWriter(formatOps: FormatOps) {
           case Provided(literal) => literal
           case NoSplit => ""
         }
-        lastModification = split.modification
-        callback.apply(state, tok, whitespace, tokenAligns)
-    }
-    if (debug) {
-
-      locations.lastOption.foreach { location =>
-        logger.debug(s"Total cost: ${location.state.cost}")
       }
     }
   }
