@@ -287,7 +287,7 @@ class FormatWriter(formatOps: FormatOps) {
           case TrailingCommas.never
               if left.is[T.Comma] && rightIsCloseDelim &&
                 !tok.right.is[T.Comment] && isNewline =>
-            sb.deleteCharAt(sb.length - 1)
+            sb.setLength(sb.length - 1)
             sb.append(whitespace)
 
           // foo(
@@ -318,7 +318,7 @@ class FormatWriter(formatOps: FormatOps) {
           case _
               if left.is[T.Comma] && rightIsCloseDelim &&
                 !tok.right.is[T.Comment] && !isNewline =>
-            sb.deleteCharAt(sb.length - 1)
+            sb.setLength(sb.length - 1)
 
           case _ => sb.append(whitespace)
         }
