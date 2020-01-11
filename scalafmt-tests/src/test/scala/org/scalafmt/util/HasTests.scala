@@ -219,7 +219,7 @@ trait HasTests extends AnyFunSuiteLike with FormatAssertions {
       val token = entry.curr.formatToken
       builder += FormatOutput(
         token.left.syntax,
-        entry.getWhitespace,
+        entry.getWhitespace(0),
         Debug.formatTokenExplored(token)
       )
     }
