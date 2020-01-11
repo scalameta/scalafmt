@@ -60,16 +60,48 @@ Scalafmt formatter:
 
 It is not possible to reset this setting for all existing projects.
 
+## VS Code
+
+You can use the [Metals](#metals) language server to format code with Scalafmt
+in VS Code. For more details, refer to the
+[Metals documentation](https://scalameta.org/metals/docs/editors/vscode.html).
+
+## Vim
+
+You can use the [Metals](#metals) language server to format code with Scalafmt
+in Vim and NeoVim. For more details, refer to the
+[Metals documentation](https://scalameta.org/metals/docs/editors/vim.html).
+
+## Emacs
+
+You can use the [Metals](#metals) language server to format code with Scalafmt
+in Emacs. For more details, refer to the
+[Metals documentation](https://scalameta.org/metals/docs/editors/emacs.html).
+
+## Sublime Text
+
+You can use the [Metals](#metals) language server to format code with Scalafmt
+in Sublime Text. For more details, refer to the
+[Metals documentation](https://scalameta.org/metals/docs/editors/sublime.html).
+
+## Eclipse
+
+You can use the [Metals](#metals) language server to format code with Scalafmt
+in Eclipse. For more details, refer to the
+[Metals documentation](https://scalameta.org/metals/docs/editors/eclipse.html).
+
 ## Metals
 
-[Metals](https://scalameta.org/metals/) automatically uses Scalafmt to respond to formatting
-requests from the editor, according to the configuration defined in `.scalafmt.conf`.
+[Metals](https://scalameta.org/metals/) automatically uses Scalafmt to respond
+to formatting requests from the editor, according to the configuration defined
+in `.scalafmt.conf`.
 
-In most editors, if you there is no `.scalafmt.conf`, upon receiving the first format request Metals
-will create the `.scalafmt.conf` file for you.
+In most editors, if you there is no `.scalafmt.conf`, upon receiving the first
+format request Metals will create the `.scalafmt.conf` file for you.
 
-You can find more information on triggering a format request for individual editors in their
-respective parts of the [Metals site](https://scalameta.org/metals/docs/editors/overview.html).
+You can find more information on triggering a format request for individual
+editors in their respective parts of the
+[Metals site](https://scalameta.org/metals/docs/editors/overview.html).
 
 ## sbt
 
@@ -273,9 +305,9 @@ brew upgrade scalafmt
 ### Arch Linux
 
 You can install scalafmt for Arch Linux from AUR. There is the
-[scalafmt-native-bin](https://aur.archlinux.org/packages/scalafmt-native-bin) package
-that installs scalafmt binary built with GraalVM. GraalVM native binary provides
-instant startup without Nailgun.
+[scalafmt-native-bin](https://aur.archlinux.org/packages/scalafmt-native-bin)
+package that installs scalafmt binary built with GraalVM. GraalVM native binary
+provides instant startup without Nailgun.
 
 ```sh
 yaourt -S scalafmt-native-bin
@@ -312,23 +344,6 @@ plugin:
 Mill have scalafmt support built-in:
 
 - [scalafmt module](http://www.lihaoyi.com/mill/page/configuring-mill.html#reformatting-your-code)
-
-## Vim
-
-- Make sure you have the [CLI](#cli) installed and working.
-- install [vim-autoformat](https://github.com/Chiel92/vim-autoformat)
-- add to your `.vimrc`
-
-```
-noremap <F5> :Autoformat<CR>
-let g:formatdef_scalafmt = "'scalafmt --stdin'"
-let g:formatters_scala = ['scalafmt']
-```
-
-<div class="sidenote">
-You pay the JVM startup penalty on every format unless you're using
-<a href="#nailgun">Nailgun</a>.
-</div>
 
 ## Standalone library
 
