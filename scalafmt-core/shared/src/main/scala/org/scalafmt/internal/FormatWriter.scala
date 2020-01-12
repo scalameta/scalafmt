@@ -18,7 +18,6 @@ import scala.meta.{Importer, Mod, Pkg, Term, Tree}
 class FormatWriter(formatOps: FormatOps) {
   import FormatWriter._
   import formatOps._
-  import org.scalafmt.util.TreeOps._
 
   def mkString(splits: Vector[Split]): String = {
     val sb = new StringBuilder()
@@ -222,7 +221,7 @@ class FormatWriter(formatOps: FormatOps) {
 
         val owner = owners(tok.right)
         if (!runner.dialect.allowTrailingCommas ||
-          !isImporterOrDefnOrCallSite(owner)) {
+          !TreeOps.isImporterOrDefnOrCallSite(owner)) {
           sb.append(getWhitespace(0))
           return
         }
@@ -411,7 +410,7 @@ class FormatWriter(formatOps: FormatOps) {
             vAlignDepth(row1Owner) == vAlignDepth(row2Owner)
           key(row1.formatToken.right) == key(row2.formatToken.right) &&
           sameLengthToRoot && {
-            val eofParents = parents(owners(endOfLine.right))
+            val eofParents = TreeOps.parents(owners(endOfLine.right))
             !(eofParents.contains(row1Owner) || eofParents.contains(row2Owner))
           }
         }
