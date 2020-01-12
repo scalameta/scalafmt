@@ -133,7 +133,7 @@ object Report {
   def mergeResults(after: Result, before: Result): Seq[FormatOutput] =
     after.tokens.zip(before.tokens).map {
       case (aft, bef) =>
-        FormatOutput(aft.token, aft.whitespace, aft.visits - bef.visits)
+        FormatOutput(aft.token, aft.visits - bef.visits)
     }
 
   def mkHtml(output: Seq[FormatOutput], scalaStyle: ScalafmtConfig): String = {
@@ -149,7 +149,6 @@ object Report {
         else s"rgb($redness, 256, $redness)" // green
       val html = span(background := styleBackground, x.token).render
       sb.append(html)
-      sb.append(x.whitespace.replace("\n\n", "\n\n"))
     }
     sb.toString()
   }

@@ -218,8 +218,7 @@ trait HasTests extends AnyFunSuiteLike with FormatAssertions {
     locations.iterate.foreach { entry =>
       val token = entry.curr.formatToken
       builder += FormatOutput(
-        token.left.syntax,
-        entry.getWhitespace(0),
+        token.left.syntax + entry.getWhitespace(0),
         Debug.formatTokenExplored(token)
       )
     }

@@ -1,3 +1,3 @@
 package org.scalafmt.util
 
-case class FormatOutput(token: String, whitespace: String, visits: Int)
+case class FormatOutput(token: String, visits: Int)
