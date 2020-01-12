@@ -145,13 +145,13 @@ class FormatWriter(formatOps: FormatOps) {
 
   class FormatLocations(val locations: Array[FormatLocation]) {
 
-    val tokenAligns: Map[FormatToken, Int] = alignmentTokens(locations)
+    val tokenAligns: Map[TokenHash, Int] = alignmentTokens(locations)
 
     def iterate: Iterator[Entry] =
       Iterator.range(0, locations.length).map(new Entry(_))
 
-    private def getAlign(ft: FormatToken, alignOffset: Int = 0): Int =
-      tokenAligns.get(ft).fold(0)(_ + alignOffset)
+    private def getAlign(tok: Token, alignOffset: Int = 0): Int =
+      tokenAligns.get(hash(tok)).fold(0)(_ + alignOffset)
 
     class Entry(val i: Int) {
       val curr = locations(i)
@@ -174,8 +174,8 @@ class FormatWriter(formatOps: FormatOps) {
           case Space =>
             val previousAlign =
               if (lastModification != NoSplit) 0
-              else getAlign(previous.formatToken)
-            val currentAlign = getAlign(tok, alignOffset)
+              else getAlign(previous.formatToken.left)
+            val currentAlign = getAlign(tok.left, alignOffset)
             getIndentation(1 + currentAlign + previousAlign)
 
           case nl: NewlineT
@@ -425,11 +425,11 @@ class FormatWriter(formatOps: FormatOps) {
   // imperative and error-prone right now.
   def alignmentTokens(
       locations: Array[FormatLocation]
-  ): Map[FormatToken, Int] = {
+  ): Map[TokenHash, Int] = {
     if (initStyle.align.tokens.isEmpty || locations.length != tokens.length)
-      Map.empty[FormatToken, Int]
+      Map.empty[TokenHash, Int]
     else {
-      val finalResult = Map.newBuilder[FormatToken, Int]
+      val finalResult = Map.newBuilder[TokenHash, Int]
       var i = 0
       var minMatches = Integer.MAX_VALUE
       var block = Vector.empty[Array[FormatLocation]]
@@ -475,13 +475,13 @@ class FormatWriter(formatOps: FormatOps) {
                   }
                   val key =
                     columnWidth - line(column).formatToken.right.syntax.length
-                  key -> line(column)
+                  key -> hash(line(column).formatToken.left)
                 }
               }
               val (maxWidth, _) = blockWithWidth.maxBy(_._1)
               blockWithWidth.foreach {
-                case (width, line) =>
-                  finalResult += line.formatToken -> (maxWidth - width)
+                case (width, tokenHash) =>
+                  finalResult += tokenHash -> (maxWidth - width)
               }
               column += 1
             }
