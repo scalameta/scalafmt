@@ -35,7 +35,12 @@ class FormatWriter(formatOps: FormatOps) {
           sb.append(formatComment(c, state.indentation))
         case token @ T.Interpolation.Part(_) =>
           sb.append(formatMarginizedString(token, state.indentation))
-        case T.Constant.String(_) => // Ignore, see below.
+        case literal: T.Constant.String =>
+          sb.append(formatMarginizedString(literal, {
+            // compute indentation by locating the previous newline in output
+            val sbEnd = sb.length - 1
+            2 + sbEnd - sb.lastIndexOf('\n', sbEnd)
+          }))
         case c: T.Constant.Long =>
           val syntax = c.syntax
           // longs can be written as hex literals like 0xFF123L. Dont uppercase the X
@@ -64,15 +69,6 @@ class FormatWriter(formatOps: FormatOps) {
         tokenAligns
       )
 
-      formatToken.right match {
-        // state.column matches the end of formatToken.right
-        case literal: T.Constant.String =>
-          val column =
-            if (state.splits.last.modification.isNewline) state.indentation
-            else lastState.column + whitespace.length
-          sb.append(formatMarginizedString(literal, column + 2))
-        case _ => // Ignore
-      }
       lastState = state
     }
 
@@ -104,10 +100,10 @@ class FormatWriter(formatOps: FormatOps) {
   }
 
   val leadingPipeSpace = Pattern.compile("\n *\\|", Pattern.MULTILINE)
-  private def formatMarginizedString(token: Token, indent: Int): String = {
-    if (!initStyle.assumeStandardLibraryStripMargin) token.syntax
-    else if (token.is[T.Interpolation.Part] ||
-      isMarginizedString(token)) {
+  private def formatMarginizedString(token: Token, indent: => Int): String = {
+    val shouldMarginize = initStyle.assumeStandardLibraryStripMargin &&
+      (token.is[T.Interpolation.Part] || isMarginizedString(token))
+    if (shouldMarginize) {
       val firstChar: Char = token match {
         case T.Interpolation.Part(_) =>
           (for {
