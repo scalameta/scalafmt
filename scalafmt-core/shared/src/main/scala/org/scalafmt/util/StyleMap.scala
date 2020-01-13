@@ -28,10 +28,10 @@ class StyleMap(
   val literalR: FilterMatcher = init.binPack.literalsRegex
   private val prefix = "\\s*scalafmt: ".r
   val forcedBinPack: mutable.Set[Tree] = mutable.Set.empty
-  val (isEmpty: Boolean, tok2style: Map[FormatToken, ScalafmtConfig]) = {
+  val (isEmpty: Boolean, tok2style: Map[TokenHash, ScalafmtConfig]) = {
     var curr = init
     var empty = true
-    val map = Map.newBuilder[FormatToken, ScalafmtConfig]
+    val map = Map.newBuilder[TokenHash, ScalafmtConfig]
     val disableBinPack = mutable.Set.empty[Token]
     tokens.arr.foreach { tok =>
       tok.left match {
@@ -56,7 +56,7 @@ class StyleMap(
       }
       if (!empty) {
         // Minor optimization? Only add to map if needed.
-        map += (tok -> curr)
+        map += hash(tok.left) -> curr
       }
     }
     (empty, map.result())
@@ -91,8 +91,12 @@ class StyleMap(
       case _ => false
     }
 
-  def at(token: FormatToken): ScalafmtConfig = {
-    tok2style.getOrElse(token, init)
-  }
+  @inline
+  def at(token: FormatToken): ScalafmtConfig =
+    at(token.left)
+
+  @inline
+  def at(token: Token): ScalafmtConfig =
+    tok2style.getOrElse(hash(token), init)
 
 }
