@@ -655,8 +655,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   }
 
   def styleAt(tree: Tree): ScalafmtConfig = {
-    val style =
-      styleMap.at(tokens.get(tree.tokens.head).getOrElse(tokens.arr.head))
+    val style = styleMap.at(tree.tokens.head)
     if (styleMap.forcedBinPack(tree)) // off-by-one
       styleMap.setBinPack(style, callSite = true)
     else style
