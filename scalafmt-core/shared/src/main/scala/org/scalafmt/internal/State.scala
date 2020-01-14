@@ -15,14 +15,16 @@ import org.scalafmt.util.TokenOps
 final case class State(
     cost: Int,
     policy: PolicySummary,
-    splits: Vector[Split],
+    split: Split,
+    depth: Int,
+    prev: State,
     indentation: Int,
     pushes: Vector[Indent[Num]],
     column: Int,
     formatOff: Boolean
 ) {
 
-  override def toString = s"State($cost, ${splits.length})"
+  override def toString = s"State($cost, $depth)"
 
   def alwaysBetter(other: State): Boolean =
     this.cost <= other.cost && this.indentation <= other.indentation
@@ -91,7 +93,9 @@ final case class State(
       cost + splitWithPenalty.cost,
       // TODO(olafur) expire policy, see #18.
       newPolicy,
-      splits :+ splitWithPenalty,
+      splitWithPenalty,
+      depth + 1,
+      this,
       newIndent,
       newIndents,
       nextStateColumn,
@@ -106,7 +110,9 @@ object State {
   val start = State(
     0,
     PolicySummary.empty,
-    Vector.empty[Split],
+    null,
+    0,
+    null,
     0,
     Vector.empty[Indent[Num]],
     0,
@@ -136,20 +142,16 @@ object State {
 
     // priority on fewer splits
     private def compareSplitsLength(s1: State, s2: State): Int =
-      Integer.compare(s1.splits.length, s2.splits.length)
+      Integer.compare(s1.depth, s2.depth)
 
     // priority on earlier line defining the last split
-    private def compareSplitOrigin(s1: State, s2: State): Int =
+    @tailrec
+    private def compareSplitOrigin(s1: State, s2: State): Int = {
       // We assume the same number of splits, see compareSplitsLength
       // Break ties by the last split's line origin.
-      compareSplitOrigin(s1, s2, s1.splits.length - 1)
-
-    @tailrec
-    private def compareSplitOrigin(s1: State, s2: State, i: Int): Int = {
-      // Break ties by the last split's line origin.
-      val r = Integer.compare(s1.splits(i).line.value, s2.splits(i).line.value)
-      if (r != 0 || i == 0) r
-      else compareSplitOrigin(s1, s2, i - 1)
+      val r = Integer.compare(s1.split.line.value, s2.split.line.value)
+      if (r != 0 || s1.prev.depth == 0) r
+      else compareSplitOrigin(s1.prev, s2.prev)
     }
   }
 

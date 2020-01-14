@@ -214,7 +214,7 @@ trait HasTests extends AnyFunSuiteLike with FormatAssertions {
   ): Array[FormatOutput] = {
     val builder = mutable.ArrayBuilder.make[FormatOutput]
     val locations = new FormatWriter(Debug.formatOps)
-      .getFormatLocations(Debug.tokens, Debug.state.splits, debug = onlyOne)
+      .getFormatLocations(Debug.tokens, Debug.state, debug = onlyOne)
     locations.iterate.foreach { entry =>
       val token = entry.curr.formatToken
       builder += FormatOutput(
