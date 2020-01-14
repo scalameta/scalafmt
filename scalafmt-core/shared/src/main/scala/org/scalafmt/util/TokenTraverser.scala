@@ -42,25 +42,55 @@ class TokenTraverser(tokens: Tokens) {
     }
   }
 
-  @tailrec
-  final def find(token: Token)(predicate: Token => Boolean): Option[Token] = {
-    nextToken(token) match {
-      case t if t == token => None
-      case t if predicate(t) => Option(t)
-      case t => find(t)(predicate)
-    }
-  }
+  /**
+    * Find a token after the given one. The search stops when the predicate
+    * returns Some value (or the end is reached).
+    * @return Some(token) if the predicate returned Some(true), else None.
+    */
+  def findAfter(
+      token: Token
+  )(predicate: Token => Option[Boolean]): Option[Token] =
+    tok2idx.get(token).flatMap(x => findAtOrAfter(x + 1, predicate))
+
+  /**
+    * Find a token before the given one. The search stops when the predicate
+    * returns Some value (or the end is reached).
+    * @return Some(token) if the predicate returned Some(true), else None.
+    */
+  def findBefore(
+      token: Token
+  )(predicate: Token => Option[Boolean]): Option[Token] =
+    tok2idx.get(token).flatMap(x => findAtOrBefore(x - 1, predicate))
 
   @tailrec
-  final def reverseFind(
-      token: Token
-  )(predicate: Token => Boolean): Option[Token] = {
-    prevToken(token) match {
-      case t if t == token => None
-      case t if predicate(t) => Option(t)
-      case t => reverseFind(t)(predicate)
+  private def findAtOrAfter(
+      off: Int,
+      pred: Token => Option[Boolean]
+  ): Option[Token] =
+    if (off >= tokens.length) None
+    else {
+      val token = tokens(off)
+      pred(token) match {
+        case Some(true) => Some(token)
+        case Some(false) => None
+        case _ => findAtOrAfter(off + 1, pred)
+      }
     }
-  }
+
+  @tailrec
+  private def findAtOrBefore(
+      off: Int,
+      pred: Token => Option[Boolean]
+  ): Option[Token] =
+    if (off < 0) None
+    else {
+      val token = tokens(off)
+      pred(token) match {
+        case Some(true) => Some(token)
+        case Some(false) => None
+        case _ => findAtOrBefore(off - 1, pred)
+      }
+    }
 
   final def filter(start: Token, end: Token)(
       predicate: Token => Boolean

@@ -30,8 +30,11 @@ case object PreferCurlyFors extends Rewrite {
 
     for {
       forToken <- forTokens.find(_.is[Token.KwFor])
-      leftParen <- find(forToken)(_.isNot[Whitespace])
-        .filter(_.is[Token.LeftParen])
+      leftParen <- findAfter(forToken) {
+        case _: Token.LeftParen => Some(true)
+        case Whitespace() => None
+        case _ => Some(false)
+      }
       rightParen <- ctx.matchingParens.get(TokenOps.hash(leftParen))
     } yield (leftParen, rightParen)
   }
@@ -47,9 +50,11 @@ case object PreferCurlyFors extends Rewrite {
         .tokens(ctx.style.runner.dialect)
         .headOption
         .toIterable
-      semicolon <- reverseFind(token)(_.isNot[Whitespace])
-        .filter(_.is[Token.Semicolon])
-        .toIterable
+      semicolon <- findBefore(token) {
+        case _: Token.Semicolon => Some(true)
+        case Whitespace() => None
+        case _ => Some(false)
+      }.toIterable
     } yield semicolon
   }
 
