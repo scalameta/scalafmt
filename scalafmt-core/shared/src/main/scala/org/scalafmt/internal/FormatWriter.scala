@@ -19,10 +19,10 @@ class FormatWriter(formatOps: FormatOps) {
   import FormatWriter._
   import formatOps._
 
-  def mkString(splits: Vector[Split]): String = {
+  def mkString(state: State): String = {
     val sb = new StringBuilder()
     var lastState = State.start // used to calculate start of formatToken.right.
-    val locations = getFormatLocations(tokens.arr, splits, debug = false)
+    val locations = getFormatLocations(tokens.arr, state, debug = false)
 
     locations.iterate.foreach { entry =>
       val location = entry.curr
@@ -122,26 +122,25 @@ class FormatWriter(formatOps: FormatOps) {
 
   def getFormatLocations(
       toks: Array[FormatToken],
-      splits: Vector[Split],
+      state: State,
       debug: Boolean
   ): FormatLocations = {
-    require(toks.length >= splits.length, "splits !=")
-    val statesBuilder = Array.newBuilder[FormatLocation]
-    statesBuilder.sizeHint(toks.length)
-    var currState = State.start
-    splits.zip(toks).foreach {
-      case (split, tok) =>
-        currState = currState.next(styleMap.at(tok), split, tok)
-        statesBuilder += FormatLocation(tok, split, currState)
-        // TIP. Use the following line to debug origin of splits.
-        if (debug && tokens.length < 1000) {
-          val left = cleanup(tok.left).slice(0, 15)
-          logger.debug(
-            f"$left%-15s $split ${currState.indentation} ${currState.column}"
-          )
-        }
+    require(toks.length >= state.depth, "splits !=")
+    val result = new Array[FormatLocation](state.depth)
+    var curState = state
+    while (curState.depth != 0) {
+      val idx = curState.depth - 1
+      val tok = toks(idx)
+      result(idx) = FormatLocation(tok, curState)
+      curState = curState.prev
+      if (debug && toks.length < 1000) {
+        val left = cleanup(tok.left).slice(0, 15)
+        logger.debug(
+          f"$left%-15s ${curState.split} ${curState.indentation} ${curState.column}"
+        )
+      }
     }
-    new FormatLocations(statesBuilder.result())
+    new FormatLocations(result)
   }
 
   class FormatLocations(val locations: Array[FormatLocation]) {
@@ -160,7 +159,7 @@ class FormatWriter(formatOps: FormatOps) {
 
       @inline def tok = curr.formatToken
       @inline def state = curr.state
-      @inline def lastModification = previous.split.modification
+      @inline def lastModification = previous.state.split.modification
 
       def getWhitespace(alignOffset: Int): String = {
         // TODO this could get slow for really long comment blocks. If that
@@ -171,7 +170,7 @@ class FormatWriter(formatOps: FormatOps) {
           if (0 > nonCommentIdx) None else Some(locations(nonCommentIdx))
         }
 
-        curr.split.modification match {
+        state.split.modification match {
           case Space =>
             val previousAlign =
               if (lastModification != NoSplit) 0
@@ -232,7 +231,7 @@ class FormatWriter(formatOps: FormatOps) {
         val right = nextNonCommentTok.right
         val isNewline =
           Seq(curr, locations(math.min(i + skip, locations.length - 1)))
-            .exists(_.split.modification.isNewline)
+            .exists(_.state.split.modification.isNewline)
 
         // Scala syntax allows commas before right braces in weird places,
         // like constructor bodies:
@@ -310,7 +309,7 @@ class FormatWriter(formatOps: FormatOps) {
   ): Boolean = {
     @tailrec def isMultiline(end: Token, i: Int): Boolean = {
       if (i >= toks.length || toks(i).formatToken.left == end) false
-      else if (toks(i).split.modification.isNewline) true
+      else if (toks(i).state.split.modification.isNewline) true
       else isMultiline(end, i + 1)
     }
     def actualOwner(token: Token): Tree = owners(token) match {
@@ -437,7 +436,7 @@ class FormatWriter(formatOps: FormatOps) {
       while (i < locations.length) {
         val columnCandidates = Array.newBuilder[FormatLocation]
         while (i < locations.length &&
-          !locations(i).split.modification.isNewline) {
+          !locations(i).state.split.modification.isNewline) {
           if (isCandidate(locations(i))) {
             columnCandidates += locations(i)
           }
@@ -446,11 +445,11 @@ class FormatWriter(formatOps: FormatOps) {
         val candidates = columnCandidates.result()
         if (block.isEmpty) {
           if (candidates.nonEmpty &&
-            locations(i).split.modification.newlines == 1) {
+            locations(i).state.split.modification.newlines == 1) {
             block = block :+ candidates
           }
         } else {
-          val newlines = locations(i).split.modification.newlines
+          val newlines = locations(i).state.split.modification.newlines
           val matches =
             columnsMatch(block.last, candidates, locations(i).formatToken)
           minMatches = Math
@@ -506,7 +505,6 @@ object FormatWriter {
 
   case class FormatLocation(
       formatToken: FormatToken,
-      split: Split,
       state: State
   )
 
