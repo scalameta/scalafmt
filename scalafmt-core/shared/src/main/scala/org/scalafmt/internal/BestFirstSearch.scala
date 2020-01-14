@@ -138,7 +138,7 @@ class BestFirstSearch(
         }
       }) {
       val tok = tokens(curr.splits.length)
-      curr = State.next(curr, styleMap.at(tok), provided(tok), tok)
+      curr = curr.next(styleMap.at(tok), provided(tok), tok)
     }
     curr
   }
@@ -230,7 +230,7 @@ class BestFirstSearch(
           }
           var optimalNotFound = true
           actualSplit.foreach { split =>
-            val nextState = State.next(curr, style, split, splitToken)
+            val nextState = curr.next(style, split, splitToken)
             if (depth == 0 && split.modification.isNewline &&
               !best.contains(splitToken.left)) {
               best.update(splitToken.left, nextState)

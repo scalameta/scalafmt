@@ -26,29 +26,15 @@ final case class State(
 
   def alwaysBetter(other: State): Boolean =
     this.cost <= other.cost && this.indentation <= other.indentation
-}
-
-object State {
-  val start = State(
-    0,
-    PolicySummary.empty,
-    Vector.empty[Split],
-    0,
-    Vector.empty[Indent[Num]],
-    0,
-    formatOff = false
-  )
 
   /**
     * Calculates next State given split at tok.
     */
   def next(
-      curr: State,
       style: ScalafmtConfig,
       split: Split,
       tok: FormatToken
   ): State = {
-    import curr._
     val nonExpiredIndents = pushes.filterNot { push =>
       val expireToken: Token =
         if (push.expiresAt == Left) tok.left
@@ -112,6 +98,20 @@ object State {
       nextFormatOff
     )
   }
+
+}
+
+object State {
+
+  val start = State(
+    0,
+    PolicySummary.empty,
+    Vector.empty[Split],
+    0,
+    Vector.empty[Indent[Num]],
+    0,
+    formatOff = false
+  )
 
   // this is not best state, it's higher priority for search
   object Ordering extends Ordering[State] {

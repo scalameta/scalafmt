@@ -131,7 +131,7 @@ class FormatWriter(formatOps: FormatOps) {
     var currState = State.start
     splits.zip(toks).foreach {
       case (split, tok) =>
-        currState = State.next(currState, styleMap.at(tok), split, tok)
+        currState = currState.next(styleMap.at(tok), split, tok)
         statesBuilder += FormatLocation(tok, split, currState)
         // TIP. Use the following line to debug origin of splits.
         if (debug && tokens.length < 1000) {
