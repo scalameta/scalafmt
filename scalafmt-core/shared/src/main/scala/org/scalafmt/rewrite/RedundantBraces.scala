@@ -131,7 +131,7 @@ case object RedundantBraces extends Rewrite {
         builder += TokenPatch.Remove(rbrace)
         removeTrailingLF(lbrace.pos, rbrace)
         ctx.tokenTraverser
-          .reverseFind(rbrace)(!Whitespace.unapply(_))
+          .findBefore(rbrace)(x => Some(!Whitespace.unapply(x)))
           .foreach(t => removeTrailingLF(t.pos, rbrace))
         ctx.addPatchSet(builder.result(): _*)
       }
