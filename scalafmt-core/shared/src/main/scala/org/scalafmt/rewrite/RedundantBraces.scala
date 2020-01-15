@@ -222,17 +222,24 @@ case object RedundantBraces extends Rewrite {
           }
           insideIfThen && parentIfHasAnElse && blockIsIfWithoutElse
 
-        case parent =>
-          val side = parent match {
-            case t: Term.ApplyInfix
-                if t.args.lengthCompare(1) == 0 && (t.args.head eq b) =>
-              Side.Right
-            case _ => Side.Left
+        case p: Term.ApplyInfix =>
+          stat match {
+            case _: Term.ApplyInfix =>
+              val useRight = p.args.lengthCompare(1) == 0 && (p.args.head eq b)
+              SyntacticGroupOps.groupNeedsParenthesis(
+                TreeSyntacticGroup(p),
+                TreeSyntacticGroup(stat),
+                if (useRight) Side.Right else Side.Left
+              )
+            case _: Name | _: Lit => false
+            case _ => true // don't allow other non-infix
           }
+
+        case parent =>
           SyntacticGroupOps.groupNeedsParenthesis(
             TreeSyntacticGroup(parent),
             TreeSyntacticGroup(stat),
-            side
+            Side.Left
           )
       }
     }

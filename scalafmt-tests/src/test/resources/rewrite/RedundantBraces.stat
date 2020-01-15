@@ -251,8 +251,9 @@ class Test extends AnyWordSpec {
 class Test extends AnyWordSpec {
   "SUT" when {
     "statement about test" should {
-      "some test" in
-      val s = 1
+      "some test" in {
+        val s = 1
+      }
     }
   }
 }
@@ -289,8 +290,9 @@ object a {
 object a {
   def findAccountByAPIKey(apiKey: APIKey) = byKeyCache.get(apiKey) match {
     case None =>
-      delegate.findAccountByAPIKey(apiKey) map
+      delegate.findAccountByAPIKey(apiKey) map {
         _ map _ tap (add(apiKey, _)) unsafePerformIO
+      }
   }
 }
 <<< #1633 1.3: func with placeholder and infix
@@ -380,7 +382,7 @@ object a {
 }
 >>>
 object a {
-  b getOrElse c(d)
+  b getOrElse { c(d) }
 }
 <<< #1633 3.2: function block in a val statement
 object a {
@@ -388,7 +390,7 @@ object a {
 }
 >>>
 object a {
-  b getOrElse c.d { e }
+  b getOrElse { c.d { e } }
 }
 <<< #1633 3.3: function block in a val statement
 object a {
@@ -404,7 +406,7 @@ object a {
 }
 >>>
 object a {
-  b map _.select
+  b map { _.select }
 }
 <<< #1633 3.5: function block in a val statement
 object a {
@@ -412,7 +414,7 @@ object a {
 }
 >>>
 object a {
-  b map _.apply(_)
+  b map { _.apply(_) }
 }
 <<< #1633 4.1: infix with literal
 object a {
@@ -471,9 +473,9 @@ object a {
 }
 >>>
 object a {
-  1 +
+  1 + {
     a(b)
-  +3
+  } + 3
 }
 <<< #1633 4.6: infix with apply and no break before
 object a {
@@ -482,8 +484,9 @@ object a {
 }
 >>>
 object a {
-  1 +
-    a(b) + 3
+  1 + {
+    a(b)
+  } + 3
 }
 <<< #1633 4.7: infix with apply and comment
 object a {
@@ -493,9 +496,9 @@ object a {
 }
 >>>
 object a {
-  1 +
+  1 + {
     a(b) // comment
-  +3
+  } + 3
 }
 <<< #1633 4.8: infix with apply and two comments
 object a {
@@ -505,12 +508,11 @@ object a {
    3
 }
 >>>
-test does not parse
 object a {
-  1 +
+  1 + {
     a(b) // comment
-  + // comment
-  3
+  } + // comment
+    3
 }
 <<< #1633 5.1: verify correct newline removal
 object a {
