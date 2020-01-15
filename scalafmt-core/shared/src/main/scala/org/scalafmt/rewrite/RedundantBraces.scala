@@ -208,7 +208,7 @@ case object RedundantBraces extends Rewrite {
   )(implicit ctx: RewriteCtx): Boolean =
     getSingleStatIfLineSpanOk(b).exists { stat =>
       !b.parent.exists {
-        case parentIf: Term.If =>
+        case parentIf: Term.If if stat.is[Term.If] =>
           // if (a) { if (b) c } else d
           //   ↑ cannot be replaced by ↓
           // if (a) if (b) c else d
@@ -216,10 +216,8 @@ case object RedundantBraces extends Rewrite {
           // if (a) { if (b) c else d }
           def insideIfThen = parentIf.thenp eq b
           def parentIfHasAnElse = parentIf.elsep.tokens.nonEmpty
-          def blockIsIfWithoutElse = stat match {
-            case childIf: Term.If => childIf.elsep.tokens.isEmpty
-            case _ => false
-          }
+          def blockIsIfWithoutElse =
+            stat.asInstanceOf[Term.If].elsep.tokens.isEmpty
           insideIfThen && parentIfHasAnElse && blockIsIfWithoutElse
 
         case p: Term.ApplyInfix =>

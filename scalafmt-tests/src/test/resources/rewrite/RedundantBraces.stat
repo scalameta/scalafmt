@@ -360,9 +360,11 @@ object a {
 }
 >>>
 object a {
-  val select =
-    if (max)(a: CTuple, b: CTuple) => (a.compareTo(b) >= 0)
-    else (a: CTuple, b: CTuple) => (a.compareTo(b) <= 0)
+  val select = if (max) { (a: CTuple, b: CTuple) =>
+    (a.compareTo(b) >= 0)
+  } else { (a: CTuple, b: CTuple) =>
+    (a.compareTo(b) <= 0)
+  }
 }
 <<< #1633 2.2: function block in a val statement
 object a {
