@@ -149,25 +149,22 @@ case object RedundantBraces extends Rewrite {
         builder += TokenPatch.Remove(next)
     }
 
-  private def processBlock(
-      b: Term.Block
-  )(implicit ctx: RewriteCtx): Unit =
-    if (b.tokens.nonEmpty) {
-      val open = b.tokens.head
-      if (open.is[LeftBrace]) {
-        val close = b.tokens.last
-        if (removeBlock(b) && close.is[RightBrace]) {
-          val endPos = if (b.stats.isEmpty) b.pos else b.stats.last.pos
-          implicit val builder = Seq.newBuilder[TokenPatch]
-          removeTrailingLF(endPos, close)
-          builder += TokenPatch.Remove(open)
-          builder += TokenPatch.Remove(close)
-          ctx.addPatchSet(builder.result(): _*)
-        }
+  private def processBlock(b: Term.Block)(implicit ctx: RewriteCtx): Unit =
+    b.tokens.headOption.filter(_.is[LeftBrace]).foreach { open =>
+      val close = b.tokens.last
+      if (close.is[RightBrace] && okToRemoveBlock(b)) {
+        val endPos = b.stats.lastOption.fold(b.pos)(_.pos)
+        implicit val builder = Seq.newBuilder[TokenPatch]
+        removeTrailingLF(endPos, close)
+        builder += TokenPatch.Remove(open)
+        builder += TokenPatch.Remove(close)
+        ctx.addPatchSet(builder.result(): _*)
       }
     }
 
-  private def removeBlock(b: Term.Block)(implicit ctx: RewriteCtx): Boolean = {
+  private def okToRemoveBlock(
+      b: Term.Block
+  )(implicit ctx: RewriteCtx): Boolean = {
     b.parent.exists {
 
       case p: Case =>
