@@ -215,7 +215,7 @@ lazy val tests = project
     libraryDependencies ++= Seq(
       // Test dependencies
       CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, 13)) => "com.lihaoyi" %% "scalatags" % "0.8.3"
+        case Some((2, 13)) => "com.lihaoyi" %% "scalatags" % "0.8.4"
         case _ => "com.lihaoyi" %% "scalatags" % "0.6.8"
       },
       "org.typelevel" %% "paiges-core" % "0.3.0",
