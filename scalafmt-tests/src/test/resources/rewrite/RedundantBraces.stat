@@ -528,7 +528,8 @@ object a {
   val b = c { d =>
     e
   } // comment1
-  /* comment2 */ /* comment3 */
+  /* comment2 */
+  /* comment3 */
 }
 <<< #1633 5.2: keep config style
 object a {
@@ -540,5 +541,8 @@ object a {
 }
 >>>
 object a {
-  val b = c(d, e => f)
+  val b = c(
+    d,
+    e => f
+  )
 }

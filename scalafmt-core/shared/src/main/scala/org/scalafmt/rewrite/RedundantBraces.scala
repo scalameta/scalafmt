@@ -107,7 +107,7 @@ case object RedundantBraces extends Rewrite {
         builder += TokenPatch.Replace(lparen, lbrace.text)
         builder += TokenPatch.Remove(lbrace)
         builder += TokenPatch.Remove(rparen)
-        removeTrailingLF(rbrace.pos, rparen)
+        removeLFToAvoidEmptyLine(rparen)
         ctx.addPatchSet(builder.result(): _*)
       }
     case _ =>
@@ -129,33 +129,38 @@ case object RedundantBraces extends Rewrite {
         implicit val builder = Seq.newBuilder[TokenPatch]
         builder += TokenPatch.Remove(lbrace)
         builder += TokenPatch.Remove(rbrace)
-        removeTrailingLF(lbrace.pos, rbrace)
-        ctx.tokenTraverser
-          .findBefore(rbrace)(x => Some(!Whitespace.unapply(x)))
-          .foreach(t => removeTrailingLF(t.pos, rbrace))
+        removeLFToAvoidEmptyLine(rbrace)
         ctx.addPatchSet(builder.result(): _*)
       }
     case _ =>
   }
 
-  private def removeTrailingLF(
-      bodyEnd: Position,
-      close: Token
-  )(implicit builder: PatchBuilder, ctx: RewriteCtx): Unit =
-    if (close.pos.startLine != bodyEnd.endLine) {
-      import ctx.tokenTraverser._
-      val next = nextToken(close)
-      if (next.is[LF])
-        builder += TokenPatch.Remove(next)
+  // this is a helper function to be used with the token traverser
+  // finds a newline not blocked by any non-whitespace characters
+  private def isLFSkipWhitespace(token: Token): Option[Boolean] =
+    token match {
+      case _: LF => Some(true)
+      case Whitespace() => None
+      case _ => Some(false)
     }
+
+  private def removeLFToAvoidEmptyLine(
+      token: Token
+  )(implicit builder: PatchBuilder, ctx: RewriteCtx): Unit = {
+    if (ctx.tokenTraverser
+        .findBefore(token)(isLFSkipWhitespace)
+        .isDefined)
+      ctx.tokenTraverser
+        .findAfter(token)(isLFSkipWhitespace)
+        .foreach(builder += TokenPatch.Remove(_))
+  }
 
   private def processBlock(b: Term.Block)(implicit ctx: RewriteCtx): Unit =
     b.tokens.headOption.filter(_.is[LeftBrace]).foreach { open =>
       val close = b.tokens.last
       if (close.is[RightBrace] && okToRemoveBlock(b)) {
-        val endPos = b.stats.lastOption.fold(b.pos)(_.pos)
         implicit val builder = Seq.newBuilder[TokenPatch]
-        removeTrailingLF(endPos, close)
+        removeLFToAvoidEmptyLine(close)
         builder += TokenPatch.Remove(open)
         builder += TokenPatch.Remove(close)
         ctx.addPatchSet(builder.result(): _*)
