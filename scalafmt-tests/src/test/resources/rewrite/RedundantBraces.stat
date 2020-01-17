@@ -426,9 +426,9 @@ object a {
 }
 >>>
 object a {
-  1 +
+  1 + {
     2
-  +3
+  } + 3
 }
 <<< #1633 4.2: infix with literal and no break before
 object a {
@@ -448,9 +448,9 @@ object a {
 }
 >>>
 object a {
-  1 +
+  1 + {
     2 // comment
-  +3
+  } + 3
 }
 <<< #1633 4.4: infix with literal and two comments
 object a {
@@ -460,12 +460,11 @@ object a {
    3
 }
 >>>
-test does not parse
 object a {
-  1 +
+  1 + {
     2 // comment
-  + // comment
-  3
+  } + // comment
+    3
 }
 <<< #1633 4.5: infix with apply
 object a {
