@@ -160,10 +160,24 @@ case object RedundantBraces extends Rewrite {
       val close = b.tokens.last
       if (close.is[RightBrace] && okToRemoveBlock(b)) {
         implicit val builder = Seq.newBuilder[TokenPatch]
-        removeLFToAvoidEmptyLine(close)
-        builder += TokenPatch.Remove(open)
-        builder += TokenPatch.Remove(close)
-        ctx.addPatchSet(builder.result(): _*)
+        val ok =
+          if (b.parent.exists(_.is[Term.ApplyInfix])) {
+            /* for infix, we will preserve the block unless the closing brace
+             * follows a non-whitespace character on the same line as we don't
+             * break lines around infix expressions.
+             * we shouldn't join with the previous line (which might also end
+             * in a comment), and if we keep the break before the right brace
+             * we are removing, that will likely invalidate the expression. */
+            ctx.tokenTraverser.findBefore(close)(isLFSkipWhitespace).isEmpty
+          } else {
+            removeLFToAvoidEmptyLine(close)
+            true
+          }
+        if (ok) {
+          builder += TokenPatch.Remove(open)
+          builder += TokenPatch.Remove(close)
+          ctx.addPatchSet(builder.result(): _*)
+        }
       }
     }
 

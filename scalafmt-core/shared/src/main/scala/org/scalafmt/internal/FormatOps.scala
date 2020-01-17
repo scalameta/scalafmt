@@ -554,6 +554,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       }
     } yield token).getOrElse(owner.tokens.last)
 
+    // we don't modify line breaks generally around infix expressions
+    // TODO: if that ever changes, modify how rewrite rules handle infix
     val modification = newlines2Modification(
       formatToken.newlinesBetween,
       isNoIndent(formatToken)
