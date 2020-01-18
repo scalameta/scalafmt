@@ -430,35 +430,41 @@ class FormatWriter(formatOps: FormatOps) {
       Map.empty[TokenHash, Int]
     else {
       val finalResult = Map.newBuilder[TokenHash, Int]
-      var i = 0
       var minMatches = Integer.MAX_VALUE
       var block = Vector.empty[Array[FormatLocation]]
-      while (i < locations.length) {
-        val columnCandidates = Array.newBuilder[FormatLocation]
-        while (i < locations.length &&
-          !locations(i).state.split.modification.isNewline) {
-          if (isCandidate(locations(i))) {
-            columnCandidates += locations(i)
-          }
-          i += 1
+      val locationIter = new Iterator[FormatLocation] {
+        private val iter = locations.iterator
+        var last: FormatLocation = null
+        override def hasNext: Boolean = iter.hasNext
+        override def next(): FormatLocation = {
+          last = iter.next()
+          last
         }
+      }
+      while (locationIter.hasNext) {
+        val columnCandidates = Array.newBuilder[FormatLocation]
+        def shouldContinue(floc: FormatLocation): Boolean = {
+          val ok = !floc.state.split.modification.isNewline
+          if (ok)
+            if (isCandidate(floc)) columnCandidates += floc
+          ok
+        }
+        while (shouldContinue(locationIter.next()) && locationIter.hasNext) {}
+        val location = locationIter.last
         val candidates = columnCandidates.result()
+        val doubleNewline = location.state.split.modification.newlines > 1
         if (block.isEmpty) {
-          if (candidates.nonEmpty &&
-            locations(i).state.split.modification.newlines == 1) {
+          if (candidates.nonEmpty && !doubleNewline)
             block = block :+ candidates
-          }
         } else {
-          val newlines = locations(i).state.split.modification.newlines
           val matches =
-            columnsMatch(block.last, candidates, locations(i).formatToken)
+            columnsMatch(block.last, candidates, location.formatToken)
           minMatches = Math
             .min(minMatches, if (matches > 0) matches else block.head.length)
           if (matches > 0) {
             block = block :+ candidates
           }
-          def isEndOfFile = i == locations.length - 1
-          if (matches == 0 || newlines > 1 || isEndOfFile) {
+          if (matches == 0 || doubleNewline || !locationIter.hasNext) {
             var column = 0
             val columns = minMatches
             while (column < columns) {
@@ -476,7 +482,7 @@ class FormatWriter(formatOps: FormatOps) {
               }
               column += 1
             }
-            if (candidates.isEmpty || newlines > 1) {
+            if (candidates.isEmpty || doubleNewline) {
               block = Vector.empty[Array[FormatLocation]]
             } else {
               block = Vector(candidates)
@@ -484,7 +490,6 @@ class FormatWriter(formatOps: FormatOps) {
             minMatches = Integer.MAX_VALUE
           }
         }
-        i += 1
       }
       finalResult.result()
     }
