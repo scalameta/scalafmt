@@ -462,23 +462,14 @@ class FormatWriter(formatOps: FormatOps) {
             var column = 0
             val columns = minMatches
             while (column < columns) {
-              val blockWithWidth = {
-                block.map { line =>
-                  val columnWidth = if (column == 0) {
-                    line(column).state.column
-                  } else {
-                    val previousLocation = line(column - 1)
-                    val previousColumn =
-                      previousLocation.state.column -
-                        previousLocation.formatToken.right.syntax.length
-                    line(column).state.column - previousColumn
-                  }
-                  val key =
-                    columnWidth - line(column).formatToken.right.syntax.length
-                  key -> hash(line(column).formatToken.left)
-                }
+              val blockWithWidth = block.map { line =>
+                val location = line(column)
+                val previousWidth =
+                  if (column == 0) 0 else line(column - 1).state.prev.column
+                val key = location.state.prev.column - previousWidth
+                key -> hash(location.formatToken.left)
               }
-              val (maxWidth, _) = blockWithWidth.maxBy(_._1)
+              val maxWidth = blockWithWidth.map(_._1).max
               blockWithWidth.foreach {
                 case (width, tokenHash) =>
                   finalResult += tokenHash -> (maxWidth - width)
