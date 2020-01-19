@@ -72,8 +72,10 @@ class Router(formatOps: FormatOps) {
           Split(NoSplit, 0)
         )
       case FormatToken(_, _: T.EOF, _) =>
+        val modification =
+          if (style.newlines.alwaysAtTheEndOfFile) Newline else NoSplit
         Seq(
-          Split(Newline, 0) // End files with trailing newline
+          Split(modification, 0)
         )
       case FormatToken(start @ T.Interpolation.Start(), _, _) =>
         val isStripMargin = isMarginizedString(start)

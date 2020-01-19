@@ -454,6 +454,29 @@ else {
 }
 ```
 
+### `newlines.alwaysAtTheEndOfFile`
+
+```scala mdoc:defaults
+newlines.alwaysAtTheEndOfFile
+```
+
+```scala mdoc:scalafmt
+newlines.alwaysAtTheEndOfFile = true
+---
+object A {
+  val foo = 3
+}
+//here is a newline
+```
+
+```scala mdoc:scalafmt
+newlines.alwaysAtTheEndOfFile = false
+---
+object A {
+  val foo = 3
+} //file ends here
+```
+
 ## Rewrite Rules
 
 To enable a rewrite rule, add it to the config like this
@@ -516,7 +539,7 @@ q"Hello ${name}"
 
 Configuration options and default values:
 
-// TODO(olafur): multiline defaults
+<!--  TODO(olafur): multiline defaults -->
 
 - `rewrite.redundantBraces.maxLines = 100`
 - `rewrite.redundantBraces.includeUnitMethods = true`

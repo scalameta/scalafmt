@@ -37,7 +37,22 @@ class ScalafmtTest extends scalatest.funsuite.AnyFunSuite {
        |  val xx = 3
        |}
        |""".stripMargin,
-    config.ScalafmtConfig.defaultWithAlign
+    ScalafmtConfig.defaultWithAlign
+  )
+  val newlinesAtTheEOFConfig = ScalafmtConfig.default.copy(newlines =
+    ScalafmtConfig.default.newlines.copy(alwaysAtTheEndOfFile = false)
+  )
+  check(
+    """object A {
+      |  val foo = 3
+      |}
+      |
+      |
+      |""".stripMargin,
+    """object A {
+      |  val foo = 3
+      |}""".stripMargin,
+    newlinesAtTheEOFConfig
   )
   check(
     """|object A { function(aaaaaaaa, bbbbbbbbbb, ddddd(eeeeeeeeee, fffffff, gggggggg)) }
@@ -50,7 +65,7 @@ class ScalafmtTest extends scalatest.funsuite.AnyFunSuite {
        |  )
        |}
        |""".stripMargin,
-    config.ScalafmtConfig.default40
+    ScalafmtConfig.default40
   )
 
 }
