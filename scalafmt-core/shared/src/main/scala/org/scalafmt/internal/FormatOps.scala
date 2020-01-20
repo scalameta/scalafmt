@@ -129,8 +129,6 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
           includeCurly = initStyle.includeCurlyBraceInSelectChains,
           includeNoParens = initStyle.includeNoParensInSelectChains
         )
-      def isChildOfImport =
-        parents(rightOwner).exists(_.is[Import])
       def isShortCurlyChain(chain: Vector[Term.Select]): Boolean =
         chain.length == 2 && {
           !(for {
@@ -140,7 +138,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
         }
 
       rightOwner match {
-        case t: Term.Select if startsOpenApply && !isChildOfImport =>
+        case t: Term.Select
+            if startsOpenApply && !existsParentOfType[Import](rightOwner) =>
           val chain = getSelectChain(t, Vector(t))
           if (openApply.is[T.LeftBrace] && isShortCurlyChain(chain)) None
           else Some(tok -> chain)

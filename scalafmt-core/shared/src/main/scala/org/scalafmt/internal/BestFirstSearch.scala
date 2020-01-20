@@ -130,9 +130,8 @@ class BestFirstSearch(
     var curr = state
     while (!hasReachedEof(curr) && {
         val token = tokens(curr.depth).left
-        !statementStarts.contains(hash(token)) && {
-          parents(owners(token)).length <= maxDepth
-        }
+        !statementStarts.contains(hash(token)) &&
+        numParents(owners(token)) <= maxDepth
       }) {
       val tok = tokens(curr.depth)
       curr = curr.next(styleMap.at(tok), provided(tok), tok)
