@@ -495,10 +495,13 @@ class FormatWriter(formatOps: FormatOps) {
           def sameLengthToRoot =
             vAlignDepth(row1Owner) == vAlignDepth(row2Owner)
           key(row1.formatToken.right) == key(row2.formatToken.right) &&
-          sameLengthToRoot && {
-            val eofParents = TreeOps.parents(owners(endOfLine.right))
-            !(eofParents.contains(row1Owner) || eofParents.contains(row2Owner))
-          }
+          sameLengthToRoot &&
+          TreeOps
+            .findTreeWithParent(owners(endOfLine.right)) {
+              case `row1Owner` | `row2Owner` => Some(true)
+              case _ => None
+            }
+            .isEmpty
         }
     }
     result.length

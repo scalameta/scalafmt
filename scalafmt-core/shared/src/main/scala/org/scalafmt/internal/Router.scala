@@ -112,14 +112,14 @@ class Router(formatOps: FormatOps) {
           Split(NoSplit, 0)
         )
       // Import
-      case FormatToken(T.Dot(), open @ T.LeftBrace(), _)
-          if parents(rightOwner).exists(_.is[Import]) =>
+      case FormatToken(_: T.Dot, _: T.LeftBrace, _)
+          if existsParentOfType[Import](rightOwner) =>
         Seq(
           Split(NoSplit, 0)
         )
       // Import left brace
-      case FormatToken(open @ T.LeftBrace(), _, _)
-          if parents(leftOwner).exists(_.is[Import]) =>
+      case FormatToken(open: T.LeftBrace, _, _)
+          if existsParentOfType[Import](leftOwner) =>
         val close = matching(open)
         val disallowSingleLineComments =
           style.importSelectors != ImportSelectors.singleLine
@@ -155,8 +155,8 @@ class Router(formatOps: FormatOps) {
           Split(NoSplit, 0)
         )
       case FormatToken(_, close @ T.RightBrace(), _)
-          if parents(rightOwner).exists(_.is[Import]) ||
-            rightOwner.is[SomeInterpolate] =>
+          if rightOwner.is[SomeInterpolate] ||
+            existsParentOfType[Import](rightOwner) =>
         val isInterpolate = rightOwner.is[Term.Interpolate]
         Seq(
           Split(
@@ -165,8 +165,8 @@ class Router(formatOps: FormatOps) {
             0
           )
         )
-      case FormatToken(T.Dot(), underscore @ T.Underscore(), _)
-          if parents(rightOwner).exists(_.is[Import]) =>
+      case FormatToken(_: T.Dot, _: T.Underscore, _)
+          if existsParentOfType[Import](rightOwner) =>
         Seq(
           Split(NoSplit, 0)
         )

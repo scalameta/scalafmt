@@ -19,6 +19,7 @@ import scala.meta.Template
 import scala.meta.Term
 import scala.meta.Tree
 import scala.meta.Type
+import scala.meta.classifiers.Classifier
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 import scala.meta.tokens.Tokens
@@ -222,15 +223,45 @@ object TreeOps {
     childOf(owners(hash(tok)), tree)
 
   @tailrec
-  final def parents(
-      tree: Tree,
-      accum: Seq[Tree] = Seq.empty[Tree]
-  ): Seq[Tree] = {
+  final def numParents(tree: Tree, accum: Int = 0): Int =
     tree.parent match {
-      case Some(parent) => parents(parent, parent +: accum)
+      case Some(parent) => numParents(parent, 1 + accum)
       case _ => accum
     }
-  }
+
+  /**
+    * Returns first ancestor whose parent matches the given predicate.
+    */
+  @tailrec
+  def findTreeWithParent(
+      tree: Tree
+  )(pred: Tree => Option[Boolean]): Option[Tree] =
+    tree.parent match {
+      case None => None
+      case Some(p) =>
+        pred(p) match {
+          case Some(true) => Some(tree)
+          case Some(false) => None
+          case None => findTreeWithParent(p)(pred)
+        }
+    }
+
+  /**
+    * Returns first ancestor with a parent of a given type.
+    */
+  def findTreeWithParentOfType[A <: Tree](tree: Tree)(
+      implicit classifier: Classifier[Tree, A]
+  ): Option[Tree] =
+    findTreeWithParent(tree)(p => if (classifier(p)) Some(true) else None)
+
+  /**
+    * Returns true if a matching ancestor of a given type exists.
+    */
+  @inline
+  def existsParentOfType[A <: Tree](
+      tree: Tree
+  )(implicit classifier: Classifier[Tree, A]): Boolean =
+    findTreeWithParentOfType[A](tree).isDefined
 
   def isTopLevel(tree: Tree): Boolean = tree match {
     case _: Pkg | _: Source => true
