@@ -121,8 +121,8 @@ case object RedundantBraces extends Rewrite {
     // a single-stat lambda with braces can be converted to one without braces,
     // but the reverse conversion isn't always possible
     case fun @ Term.Function(_, body)
-        if fun.tokens.last.is[Token.RightBrace]
-          && exactlyOneStatement(body) && isLineSpanOk(body) =>
+        if fun.tokens.last.is[Token.RightBrace] &&
+          isSingleStatLineSpanOk(body) =>
       val rbrace = fun.tokens.last
       val lbrace = ctx.matchingParens(TokenOps.hash(rbrace))
       if (lbrace.start <= body.tokens.head.start) {
@@ -167,23 +167,12 @@ case object RedundantBraces extends Rewrite {
       }
     }
 
-  private def exactlyOneStatement(b: Term.Block): Boolean =
-    b.stats.lengthCompare(1) == 0
-
-  private def exactlyOneStatement(t: Term): Boolean = t match {
-    case b: Term.Block => exactlyOneStatement(b)
-    case _ => true
-  }
-
   private def removeBlock(b: Term.Block)(implicit ctx: RewriteCtx): Boolean = {
     b.parent.exists {
 
       case p: Case =>
         settings.generalExpressions && {
-          (p.body eq b) ||
-          exactlyOneStatement(b) &&
-          blockSizeIsOk(b) &&
-          !retainSingleStatBlock(b)
+          (p.body eq b) || shouldRemoveSingleStatBlock(b)
         }
 
       case _: Term.Apply =>
@@ -195,15 +184,12 @@ case object RedundantBraces extends Rewrite {
       case d: Defn.Def =>
         def disqualifiedByUnit =
           !settings.includeUnitMethods && d.decltpe.exists(_.syntax == "Unit")
-        def innerOk =
-          b.stats.head match {
-            case _: Term.Function | _: Defn => false
-            case _ => true
-          }
+        def innerOk(s: Stat) = s match {
+          case _: Term.Function | _: Defn => false
+          case _ => true
+        }
         settings.methodBodies &&
-        exactlyOneStatement(b) &&
-        blockSizeIsOk(b) &&
-        innerOk &&
+        getSingleStatIfLineSpanOk(b).exists(innerOk) &&
         !isProcedureSyntax(d) &&
         !disqualifiedByUnit
 
@@ -212,58 +198,62 @@ case object RedundantBraces extends Rewrite {
         settings.methodBodies
 
       case _ =>
-        settings.generalExpressions &&
-          exactlyOneStatement(b) &&
-          blockSizeIsOk(b) &&
-          !retainSingleStatBlock(b)
+        settings.generalExpressions && shouldRemoveSingleStatBlock(b)
     }
   }
 
   /** Some blocks look redundant but aren't */
-  private def retainSingleStatBlock(b: Term.Block): Boolean =
-    b.parent.exists {
-      case parentIf: Term.If =>
-        // if (a) { if (b) c } else d
-        //   ↑ cannot be replaced by ↓
-        // if (a) if (b) c else d
-        //   which would be equivalent to
-        // if (a) { if (b) c else d }
-        def insideIfThen = parentIf.thenp eq b
-        def parentIfHasAnElse = parentIf.elsep.tokens.nonEmpty
-        def blockIsIfWithoutElse = b.stats.head match {
-          case childIf: Term.If => childIf.elsep.tokens.isEmpty
-          case _ => false
-        }
-        insideIfThen && parentIfHasAnElse && blockIsIfWithoutElse
+  private def shouldRemoveSingleStatBlock(
+      b: Term.Block
+  )(implicit ctx: RewriteCtx): Boolean =
+    getSingleStatIfLineSpanOk(b).exists { stat =>
+      !b.parent.exists {
+        case parentIf: Term.If =>
+          // if (a) { if (b) c } else d
+          //   ↑ cannot be replaced by ↓
+          // if (a) if (b) c else d
+          //   which would be equivalent to
+          // if (a) { if (b) c else d }
+          def insideIfThen = parentIf.thenp eq b
+          def parentIfHasAnElse = parentIf.elsep.tokens.nonEmpty
+          def blockIsIfWithoutElse = stat match {
+            case childIf: Term.If => childIf.elsep.tokens.isEmpty
+            case _ => false
+          }
+          insideIfThen && parentIfHasAnElse && blockIsIfWithoutElse
 
-      case parent =>
-        val side = parent match {
-          case t: Term.ApplyInfix
-              if t.args.lengthCompare(1) == 0 && (t.args.head eq b) =>
-            Side.Right
-          case _ => Side.Left
-        }
-        SyntacticGroupOps.groupNeedsParenthesis(
-          TreeSyntacticGroup(parent),
-          TreeSyntacticGroup(b.stats.head),
-          side
-        )
+        case parent =>
+          val side = parent match {
+            case t: Term.ApplyInfix
+                if t.args.lengthCompare(1) == 0 && (t.args.head eq b) =>
+              Side.Right
+            case _ => Side.Left
+          }
+          SyntacticGroupOps.groupNeedsParenthesis(
+            TreeSyntacticGroup(parent),
+            TreeSyntacticGroup(stat),
+            side
+          )
+      }
     }
 
-  private def blockSizeIsOk(b: Term.Block)(implicit ctx: RewriteCtx): Boolean =
-    getBlockLineSpan(b) <= settings.maxLines
-
-  private def isLineSpanOk(b: Term)(implicit ctx: RewriteCtx): Boolean = {
-    val diff = b match {
-      case b: Term.Block => getBlockLineSpan(b)
-      case _ => getTermLineSpan(b)
+  private def isSingleStatLineSpanOk(
+      b: Term
+  )(implicit ctx: RewriteCtx): Boolean =
+    b match {
+      case b: Term.Block => getSingleStatIfLineSpanOk(b).isDefined
+      case _ => getTermLineSpan(b) <= settings.maxLines
     }
-    diff <= settings.maxLines
-  }
 
-  private def getBlockLineSpan(b: Term.Block)(implicit ctx: RewriteCtx): Int =
-    if (b.stats.isEmpty) getTermLineSpan(b)
-    else b.stats.last.pos.endLine - b.stats.head.pos.startLine
+  private def getSingleStatIfLineSpanOk(
+      b: Term.Block
+  )(implicit ctx: RewriteCtx): Option[Stat] =
+    if (b.stats.lengthCompare(1) != 0) None
+    else {
+      val s = b.stats.head
+      val spanOk = (s.pos.endLine - s.pos.startLine) <= settings.maxLines
+      if (spanOk) Some(s) else None
+    }
 
   private def getTermLineSpan(b: Term)(implicit ctx: RewriteCtx): Int =
     if (b.tokens.isEmpty) 0
