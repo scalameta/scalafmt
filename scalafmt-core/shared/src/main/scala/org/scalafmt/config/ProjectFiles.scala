@@ -2,6 +2,7 @@ package org.scalafmt.config
 
 import metaconfig._
 import org.scalafmt.util.OsSpecific
+import FilterMatcher.mkRegexp
 
 case class ProjectFiles(
     git: Boolean = false,
@@ -11,9 +12,12 @@ case class ProjectFiles(
 ) {
   val reader: ConfDecoder[ProjectFiles] = generic.deriveDecoder(this).noTypos
   lazy val matcher: FilterMatcher =
-    FilterMatcher(
-      includeFilters.map(OsSpecific.fixSeparatorsInPathPattern),
-      excludeFilters.map(OsSpecific.fixSeparatorsInPathPattern)
+    new FilterMatcher(
+      mkRegexp(includeFilters.map(OsSpecific.fixSeparatorsInPathPattern)),
+      mkRegexp(
+        excludeFilters.map(OsSpecific.fixSeparatorsInPathPattern),
+        strict = true
+      )
     )
 }
 object ProjectFiles {
