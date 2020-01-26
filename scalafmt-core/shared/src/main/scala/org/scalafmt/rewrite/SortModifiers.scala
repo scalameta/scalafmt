@@ -51,7 +51,8 @@ object SortModifiers extends Rewrite {
           if (next eq old) Seq.empty
           else {
             val removeOld = old.tokens.tail.map(TokenPatch.Remove)
-            val addNext = TokenPatch.Replace(old.tokens.head, next.syntax)
+            val nextSyntax = next.tokens.syntax // XXX: not next.syntax!
+            val addNext = TokenPatch.Replace(old.tokens.head, nextSyntax)
             removeOld :+ addNext
           }
       }: _*)
