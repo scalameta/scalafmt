@@ -48,9 +48,12 @@ object SortModifiers extends Rewrite {
 
       ctx.addPatchSet(sortedMods.zip(sanitized).flatMap {
         case (next, old) =>
-          val removeOld = old.tokens.map(TokenPatch.Remove)
-          val addNext = TokenPatch.AddRight(old.tokens.head, next.syntax)
-          removeOld :+ addNext
+          if (next eq old) Seq.empty
+          else {
+            val removeOld = old.tokens.tail.map(TokenPatch.Remove)
+            val addNext = TokenPatch.Replace(old.tokens.head, next.syntax)
+            removeOld :+ addNext
+          }
       }: _*)
     }
   }
