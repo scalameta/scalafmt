@@ -215,3 +215,19 @@ trait test {
   private[test] final implicit override var bad: Int
   private final implicit override def bar: Int
 }
+<<< #1506: make sure annotation syntax is preserved
+@annotation(
+    "Here is a really long string, which needs to be wrapped." +
+      " scalafmt forces this concatenated string onto a single line" +
+      " but it would be preferable for it to behave like it does for the string below."
+  )
+  val SomeLongString = "Here is a really long string, which needs to be wrapped." +
+    " This split string will stay wrapped properly, but the same string in the annotation" +
+    " won't and is forced to be on a single line."
+>>>
+@annotation(
+  "Here is a really long string, which needs to be wrapped." + " scalafmt forces this concatenated string onto a single line" + " but it would be preferable for it to behave like it does for the string below."
+)
+val SomeLongString = "Here is a really long string, which needs to be wrapped." +
+  " This split string will stay wrapped properly, but the same string in the annotation" +
+  " won't and is forced to be on a single line."
