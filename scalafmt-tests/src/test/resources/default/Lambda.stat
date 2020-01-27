@@ -193,3 +193,110 @@ pairList.map(pair => {
 val add = (x: Int) => x + 2
 >>>
 val add = (x: Int) => x + 2
+<<< #965
+style = defaultWithAlign
+maxColumn = 120
+newlines.sometimesBeforeColonInMethodReturnType = false
+align.openParenCallSite = false
+rewrite.rules = [RedundantBraces, RedundantParens]
+===
+def test(dataFrame: DataFrame) = {
+    val zeroAccumulator = Array.fill(1)((0.0, 0))
+
+    dataFrame.rdd.aggregate(zeroAccumulator)({(acc, row) => acc.zip(row.toSeq).map{ case (x, y) => {
+      if(true) (1, 2)
+      else (x._1 + 2, x._2 + 1)
+    }}},
+      {(acc1, acc2) => acc1.zip(acc2).map{ case (x, y) => (x._1 + y._1, x._2 + y._2)}})
+      .map{case (sum, count) => sum}
+  }
+>>>
+Unable to format file due to bug in scalafmt
+def test(dataFrame: DataFrame) = {
+    val zeroAccumulator = Array.fill(1)((0.0, 0))
+
+    dataFrame.rdd.aggregate(zeroAccumulator)({(acc, row) => acc.zip(row.toSeq).map{ case (x, y) => {
+      if(true) (1, 2)
+      else (x._1 + 2, x._2 + 1)
+    }}},
+      {(acc1, acc2) => acc1.zip(acc2).map{ case (x, y) => (x._1 + y._1, x._2 + y._2)}})
+      .map{case (sum, count) => sum}
+  }
+<<< one-line lambda: make sure infix is handled correctly
+object a {
+val parser = new scopt.OptionParser[ServerConfig]("CreateServer") {
+      opt[String]("batch") action { (x, c) =>
+        c.copy(batch = x)
+      } text ("Batch label of the deployment.")
+      opt[String]("engineId") action { (x, c) =>
+        c.copy(engineId = Some(x))
+      } text ("Engine ID.")
+  }
+}
+>>>
+object a {
+  val parser = new scopt.OptionParser[ServerConfig]("CreateServer") {
+    opt[String]("batch") action { (x, c) =>
+      c.copy(batch = x)
+    } text ("Batch label of the deployment.")
+    opt[String]("engineId") action { (x, c) =>
+      c.copy(engineId = Some(x))
+    } text ("Engine ID.")
+  }
+}
+<<< one-line lambda: make sure infix is handled correctly 2
+object a {
+cmd("help").action {
+ (_, c) => c.copy(commands = c.commands :+ "help")
+  } children (
+         arg[String]("<command>") optional ()
+          action { (x, c) =>
+            c.copy(commands = c.commands :+ x)
+          }
+       )
+}
+>>>
+object a {
+  cmd("help").action { (_, c) =>
+    c.copy(commands = c.commands :+ "help")
+  } children (
+      arg[String]("<command>") optional ()
+        action { (x, c) =>
+          c.copy(commands = c.commands :+ x)
+        }
+  )
+}
+<<< one-line lambda: make sure multiline string is handled correctly
+object a {
+val b = c { d => """The quick brown fox jumps over the lazy dog
+     | The quick brown fox jumps over the lazy dog
+     | The quick brown fox jumps over the lazy dog
+     |""".stripMargin }
+}
+>>>
+object a {
+  val b = c { d =>
+    """The quick brown fox jumps over the lazy dog
+     | The quick brown fox jumps over the lazy dog
+     | The quick brown fox jumps over the lazy dog
+     |""".stripMargin
+  }
+}
+<<< one-line lambda: make sure multiline string is handled correctly 2
+assumeStandardLibraryStripMargin = true
+===
+object a {
+val b = c { d => """The quick brown fox jumps over the lazy dog
+      | The quick brown fox jumps over the lazy dog
+      | The quick brown fox jumps over the lazy dog
+      |""".stripMargin }
+}
+>>>
+object a {
+  val b = c { d =>
+    """The quick brown fox jumps over the lazy dog
+      | The quick brown fox jumps over the lazy dog
+      | The quick brown fox jumps over the lazy dog
+      |""".stripMargin
+  }
+}

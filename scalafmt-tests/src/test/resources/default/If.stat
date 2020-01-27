@@ -132,6 +132,26 @@ if (fullInfo)
     .flatMap(_.toSeq)
     .map(_._1)
     .toSet
+<<< #1409
+class Sample {
+  def mkFunc(flag: Boolean): String => Boolean = {
+    if(flag) {
+      (v => true)
+    } else {
+      (v => false)
+    }
+  }
+}
+>>>
+class Sample {
+  def mkFunc(flag: Boolean): String => Boolean = {
+    if (flag) { (v =>
+      true)
+    } else { (v =>
+      false)
+    }
+  }
+}
 <<< #1413
 if (Keys.useCoursier.value)
       Def.task {
