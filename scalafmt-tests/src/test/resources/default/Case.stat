@@ -92,3 +92,31 @@ x match {
       .count()
   }
 }
+<<< nested block in body, verify correct indentation
+object a {
+  b match {
+    case c => {}
+     d
+     case e => {
+      f
+     }
+     g
+    case h => {
+        i
+      } // comment
+  }
+}
+>>>
+object a {
+  b match {
+    case c => {}
+    d
+  case e => {
+      f
+    }
+    g
+  case h => {
+      i
+    } // comment
+  }
+}
