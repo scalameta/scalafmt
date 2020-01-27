@@ -57,27 +57,26 @@ case class Policy(
     }
   }
 
-  override def toString = s"P:${line.value}(D=$noDequeue)"
+  override def toString = s"P:${line.value}(D=$noDequeue)E:$expire"
 }
 
 object Policy {
 
   type Pf = PartialFunction[Decision, Decision]
 
-  val IdentityPolicy: Pf = {
-    case d => throw NoopDefaultPolicyApplied(d)
-  }
-
   val emptyPf: Pf = PartialFunction.empty
 
-  val NoPolicy = new Policy(IdentityPolicy, Integer.MAX_VALUE) {
-
+  val NoPolicy = new Policy(emptyPf, Integer.MAX_VALUE)(sourcecode.Line(0)) {
     override def toString: String = "NoPolicy"
   }
 
-  def empty(token: Token): Policy = Policy(emptyPf, token.end)
+  def empty(token: Token)(
+      implicit line: sourcecode.Line
+  ): Policy = Policy(emptyPf, token.end)
 
-  def apply(func: Token => Pf)(token: Token): Policy =
+  def apply(func: Token => Pf)(token: Token)(
+      implicit line: sourcecode.Line
+  ): Policy =
     new Policy(func(token), token.end)
 
   def isEmpty(pf: Pf): Boolean = pf == emptyPf
