@@ -236,7 +236,7 @@ class Router(formatOps: FormatOps) {
             classifiers.exists(_(afterClose))
           }
           if (!breakSingleLineAfterClose) Policy.emptyPf
-          else decideNewlinesOnlyAfterClose(close)
+          else decideNewlinesOnlyAfterClose(Split(Newline, 0))(close)
         }
         def getSingleLineDecision: Policy.Pf =
           if (newlines > 0) null

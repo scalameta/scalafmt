@@ -751,17 +751,19 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     else onBreakPolicy.copy(f = { case OnBreakDecision(d) => d })
   }
 
-  def newlinesOnlyBeforeClosePolicy(close: Token) =
-    Policy(decideNewlinesOnlyBeforeClose)(close)
+  def newlinesOnlyBeforeClosePolicy(close: Token)(
+      implicit line: sourcecode.Line
+  ): Policy =
+    Policy(decideNewlinesOnlyBeforeClose(Split(Newline, 0)))(close)
 
-  def decideNewlinesOnlyBeforeClose(close: Token): Policy.Pf = {
+  def decideNewlinesOnlyBeforeClose(split: Split)(close: Token): Policy.Pf = {
     case d: Decision if d.formatToken.right eq close =>
-      d.onlyNewlinesWithFallback(Split(Newline, 0))
+      d.onlyNewlinesWithFallback(split)
   }
 
-  def decideNewlinesOnlyAfterClose(close: Token): Policy.Pf = {
+  def decideNewlinesOnlyAfterClose(split: Split)(close: Token): Policy.Pf = {
     case d: Decision if d.formatToken.left eq close =>
-      d.onlyNewlinesWithFallback(Split(Newline, 0))
+      d.onlyNewlinesWithFallback(split)
   }
 
   def decideNewlinesOnlyAfterToken(token: Token): Policy.Pf = {
