@@ -334,15 +334,13 @@ class Router(formatOps: FormatOps) {
       // Case arrow
       case tok @ FormatToken(arrow @ T.RightArrow(), right, between)
           if leftOwner.isInstanceOf[Case] =>
+        val caseStat = leftOwner.asInstanceOf[Case]
         right match {
-          case T.LeftBrace() =>
+          case _: T.LeftBrace if caseStat.body eq rightOwner =>
             // Redundant {} block around case statements.
             Seq(
-              Split(Space, 0).withIndent(
-                -2,
-                leftOwner.asInstanceOf[Case].body.tokens.last,
-                Left
-              )
+              Split(Space, 0)
+                .withIndent(-2, rightOwner.tokens.last, Left)
             )
           case _ =>
             Seq(

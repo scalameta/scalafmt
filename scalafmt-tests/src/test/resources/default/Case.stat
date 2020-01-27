@@ -110,12 +110,12 @@ object a {
 object a {
   b match {
     case c => {}
-    d
-  case e => {
-      f
-    }
-    g
-  case h => {
+      d
+    case e => {
+        f
+      }
+      g
+    case h => {
       i
     } // comment
   }
