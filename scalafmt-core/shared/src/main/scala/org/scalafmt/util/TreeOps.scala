@@ -297,11 +297,12 @@ object TreeOps {
     *
     * `(a(1))` will parse into the same tree as `a(1)`.
     */
-  def isSuperfluousParenthesis(open: Token, owner: Tree): Boolean = {
+  def isSuperfluousParenthesis(open: Token, owner: Tree): Boolean =
     open.is[LeftParen] &&
-    !isTuple(owner) &&
-    owner.tokens.headOption.contains(open)
-  }
+      isSuperfluousParenthesis(open.asInstanceOf[LeftParen], owner)
+
+  def isSuperfluousParenthesis(open: LeftParen, owner: Tree): Boolean =
+    !isTuple(owner) && owner.tokens.headOption.contains(open)
 
   def isFirstOrLastToken(token: Token, owner: Tree): Boolean = {
     owner.tokens.headOption.contains(token) ||

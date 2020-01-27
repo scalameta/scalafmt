@@ -427,15 +427,23 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     template.tokens.find(x => x.is[T.LeftBrace] && owners(x) == template)
   }
 
-  final def getElseChain(term: Term.If): Vector[T.KwElse] = {
+  @inline
+  def getElseChain(term: Term.If): Seq[T] = getElseChain(term, Seq.empty)
+
+  @tailrec
+  private final def getElseChain(term: Term.If, res: Seq[T]): Seq[T] = {
     term.tokens.find(x => x.is[T.KwElse] && owners(x) == term) match {
       case Some(els @ T.KwElse()) =>
-        val rest = term.elsep match {
-          case t: Term.If => getElseChain(t)
-          case _ => Vector.empty[T.KwElse]
+        val tuck = !initStyle.newlines.alwaysBeforeElseAfterCurlyIf && {
+          val prev = tokens(els, -1).left
+          prev.is[T.RightBrace] && owners(prev) != term
         }
-        els +: rest
-      case _ => Vector.empty[T.KwElse]
+        val newRes = if (tuck) res else res :+ els
+        term.elsep match {
+          case t: Term.If => getElseChain(t, newRes)
+          case _ => newRes
+        }
+      case _ => res
     }
   }
 
