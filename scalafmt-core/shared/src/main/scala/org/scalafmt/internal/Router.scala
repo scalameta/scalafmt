@@ -1255,15 +1255,11 @@ class Router(formatOps: FormatOps) {
             Seq(Split(Space, 0))
         }
       // If/For/While/For with (
-      case FormatToken(open @ T.LeftParen(), _, _) if {
-            val isSuperfluous = isSuperfluousParenthesis(open, leftOwner)
-            leftOwner match {
-              case _: Term.If | _: Term.While | _: Term.For | _: Term.ForYield
-                  if !isSuperfluous =>
-                true
-              case _ => false
-            }
-          } =>
+      case FormatToken(open: T.LeftParen, _, _) if (leftOwner match {
+            case _: Term.If | _: Term.While | _: Term.For | _: Term.ForYield =>
+              !isSuperfluousParenthesis(open, leftOwner)
+            case _ => false
+          }) =>
         val close = matching(open)
         val penalizeNewlines = penalizeNewlineByNesting(open, close)
         val indent: Length =
@@ -1282,12 +1278,14 @@ class Router(formatOps: FormatOps) {
           )
         )
         val elses = getElseChain(owner)
-        val breakOnlyBeforeElse = Policy({
-          case d @ Decision(t, s)
-              if elses.contains(t.right) && !t.left
-                .isInstanceOf[T.RightBrace] =>
-            d.onlyNewlinesWithFallback(Split(Newline, 0))
-        }, expire.end)
+        val breakOnlyBeforeElse =
+          if (elses.isEmpty) Policy.NoPolicy
+          else
+            Policy({
+              case d @ Decision(FormatToken(_, r: T.KwElse, _), _)
+                  if elses.contains(r) =>
+                d.onlyNewlinesWithFallback(Split(Newline, 0))
+            }, expire.end)
         Seq(
           Split(Space, 0)
             .withOptimalToken(expire, killOnFail = true)
@@ -1320,9 +1318,12 @@ class Router(formatOps: FormatOps) {
           Split(newlineModification, 1).withIndent(2, expire, Left)
         )
       case FormatToken(T.RightBrace(), T.KwElse(), _) =>
-        if (style.newlines.alwaysBeforeElseAfterCurlyIf) Seq(Split(Newline, 0))
-        else if (leftOwner.is[Term.Block]) Seq(Split(Space, 0))
-        else Seq(Split(Newline, 1))
+        val nlOnly = style.newlines.alwaysBeforeElseAfterCurlyIf ||
+          !leftOwner.is[Term.Block] || !leftOwner.parent.forall(_ == rightOwner)
+        Seq(
+          Split(if (nlOnly) Newline else Space, 0)
+        )
+
       case FormatToken(T.RightBrace(), T.KwYield(), _) =>
         Seq(
           Split(Space, 0)
@@ -1337,19 +1338,14 @@ class Router(formatOps: FormatOps) {
           Split(Newline, 1)
         )
       // Last else branch
-      case tok @ FormatToken(els @ T.KwElse(), _, _)
-          if !nextNonComment(tok).right.is[T.KwIf] =>
-        val expire = leftOwner match {
-          case t: Term.If => t.elsep.tokens.last
-          case x => throw new UnexpectedTree[Term.If](x)
-        }
+      case FormatToken(_: T.KwElse, _, _) if (leftOwner match {
+            case t: Term.If => !t.elsep.is[Term.If]
+            case x => throw new UnexpectedTree[Term.If](x)
+          }) =>
+        val expire = leftOwner.asInstanceOf[Term.If].elsep.tokens.last
         Seq(
-          Split(
-            Space,
-            0,
-            policy = SingleLineBlock(expire),
-            ignoreIf = newlines > 0
-          ),
+          Split(Space, 0, ignoreIf = newlines != 0)
+            .withPolicy(SingleLineBlock(expire)),
           Split(Newline, 1).withIndent(2, expire, Left)
         )
 
