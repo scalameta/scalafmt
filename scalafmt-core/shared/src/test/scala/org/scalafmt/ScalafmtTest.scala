@@ -10,7 +10,7 @@ class ScalafmtTest extends scalatest.funsuite.AnyFunSuite {
       config: ScalafmtConfig = ScalafmtConfig.default
   ): Unit = {
     test(logger.revealWhitespace(original).take(30)) {
-      val obtained = Scalafmt.format(original, config).get
+      val obtained = Scalafmt.formatCode(original, config).get
       if (obtained != expected) logger.elem(obtained)
       assert(obtained == expected)
     }

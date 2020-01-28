@@ -80,7 +80,7 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
     val scalafmtConfig =
       if (inputMethod.isSbt || inputMethod.isSc) config.forSbt
       else config
-    val formatResult = Scalafmt.format(
+    val formatResult = Scalafmt.formatCode(
       input,
       scalafmtConfig,
       options.range,
