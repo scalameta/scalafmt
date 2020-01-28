@@ -192,13 +192,8 @@ trait HasTests extends AnyFunSuiteLike with FormatAssertions {
 
   def defaultRun(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
     val runner = scalafmtRunner(t.style.runner).copy(parser = parse)
-    val obtained = Scalafmt
-      .format(
-        t.original,
-        t.style.copy(runner = runner),
-        filename = t.filename
-      )
-      .get
+    val obtained =
+      Scalafmt.format(t.original, t.style.copy(runner = runner)).get
     if (t.style.rewrite.rules.isEmpty) {
       assertFormatPreservesAst(t.original, obtained)(
         parse,

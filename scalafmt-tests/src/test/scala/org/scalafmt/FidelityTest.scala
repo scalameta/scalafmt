@@ -43,7 +43,7 @@ class FidelityTest extends AnyFunSuite with FormatAssertions {
   examples.foreach { example =>
     test(example.filename) {
       val formatted =
-        Scalafmt.format(example.code, filename = example.filename).get
+        Scalafmt.format(example.code, ScalafmtConfig.default).get
       assertFormatPreservesAst(example.code, formatted)(
         scala.meta.parsers.Parse.parseSource,
         Scala211
