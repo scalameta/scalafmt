@@ -24,6 +24,7 @@ object Scalafmt {
   private val WindowsLineEnding = "\r\n"
   private val UnixLineEnding = "\n"
 
+  // XXX: don't modify signature, scalafmt-dynamic expects it via reflection
   /**
     * Format Scala code using scalafmt.
     *
@@ -43,6 +44,15 @@ object Scalafmt {
       style: ScalafmtConfig,
       range: Set[Range],
       filename: String
+  ): Formatted = {
+    formatCode(code, style, range, filename)
+  }
+
+  private[scalafmt] def formatCode(
+      code: String,
+      style: ScalafmtConfig = ScalafmtConfig.default,
+      range: Set[Range] = Set.empty,
+      filename: String = "<input>"
   ): Formatted = {
     try {
       val runner = style.runner
@@ -82,12 +92,13 @@ object Scalafmt {
     }
   }
 
+  // XXX: don't modify signature, scalafmt-dynamic expects it via reflection
   def format(
       code: String,
       style: ScalafmtConfig = ScalafmtConfig.default,
       range: Set[Range] = Set.empty[Range]
   ): Formatted = {
-    format(code, style, range, "<input>")
+    formatCode(code, style, range)
   }
 
   def parseHoconConfig(configString: String): Configured[ScalafmtConfig] =

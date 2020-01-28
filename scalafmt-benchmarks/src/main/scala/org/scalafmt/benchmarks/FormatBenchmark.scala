@@ -7,7 +7,7 @@ import org.scalafmt.rewrite.{RedundantBraces, SortImports}
 trait FormatBenchmark {
   def formatRewrite(code: String): String = {
     Scalafmt
-      .format(
+      .formatCode(
         code,
         style = ScalafmtConfig.default.copy(
           rewrite = RewriteSettings(

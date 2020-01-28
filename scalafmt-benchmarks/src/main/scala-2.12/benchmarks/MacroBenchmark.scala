@@ -57,7 +57,7 @@ abstract class MacroBenchmark(parallel: Boolean, maxFiles: Int)
   @Benchmark
   def scalafmt(): Unit = {
     files.foreach { file =>
-      Try(Scalafmt.format(file))
+      Try(Scalafmt.formatCode(file))
     }
   }
 
