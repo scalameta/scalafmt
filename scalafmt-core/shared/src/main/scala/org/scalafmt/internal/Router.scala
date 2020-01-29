@@ -595,8 +595,8 @@ class Router(formatOps: FormatOps) {
         val indent = getApplyIndent(leftOwner, isConfigStyle = true)
         val close = matching(open)
         val newlineBeforeClose: Policy.Pf = {
-          case Decision(t @ FormatToken(_, `close`, _), splits) =>
-            Decision(t, Seq(Split(Newline, 0)))
+          case Decision(FormatToken(_, `close`, _), _) =>
+            Seq(Split(Newline, 0))
         }
         val extraIndent: Length =
           if (style.poorMansTrailingCommasInConfigStyle) Num(2)
@@ -1148,7 +1148,7 @@ class Router(formatOps: FormatOps) {
                 if (style.optIn.breaksInsideChains && t.newlinesBetween == 0)
                   NoSplit
                 else Newline
-              Decision(t, Seq(Split(mod, 1)))
+              Seq(Split(mod, 1))
           },
           expire.end
         )
@@ -1395,11 +1395,10 @@ class Router(formatOps: FormatOps) {
       case FormatToken(open @ T.LeftParen(), right, _) =>
         val owner = owners(open)
         val isConfig = opensConfigStyle(formatToken)
-        val isSuperfluous = isSuperfluousParenthesis(open, owner)
         val close = matching(open)
         val breakOnClose = Policy({
-          case Decision(t @ FormatToken(_, `close`, _), s) =>
-            Decision(t, Seq(Split(Newline, 0)))
+          case Decision(FormatToken(_, `close`, _), _) =>
+            Seq(Split(Newline, 0))
         }, close.end)
         val indent: Length = right match {
           case T.KwIf() => StateColumn

@@ -2,8 +2,6 @@ package org.scalafmt.internal
 
 import scala.meta.tokens.Token
 
-import org.scalafmt.Error.NoopDefaultPolicyApplied
-
 /**
   * The decision made by [[Router]].
   *
@@ -49,8 +47,8 @@ case class Policy(
       val newPf: Policy.Pf = {
         case x =>
           otherF.applyOrElse(
-            f.applyOrElse(x, identity[Decision]),
-            identity[Decision]
+            f.andThen(x.withSplits _).applyOrElse(x, identity[Decision]),
+            (x: Decision) => x.splits
           )
       }
       copy(f = newPf)
@@ -62,7 +60,7 @@ case class Policy(
 
 object Policy {
 
-  type Pf = PartialFunction[Decision, Decision]
+  type Pf = PartialFunction[Decision, Seq[Split]]
 
   val emptyPf: Pf = PartialFunction.empty
 

@@ -354,11 +354,11 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
             if noTrailingCommas &&
               !next(t).right.is[T.Comment] &&
               owners(open) == owners(comma) =>
-          Decision(t, splits.map {
+          splits.map {
             case x if x.modification == NoSplit =>
               x.copy(modification = Newline)
             case x => x
-          })
+          }
 
         // Newline on every comma.
         case d @ Decision(
@@ -370,11 +370,11 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
               !right.is[T.LeftBrace] &&
               // If comment is bound to comma, see unit/Comment.
               (!right.is[T.Comment] || t.newlinesBetween != 0) =>
-          Decision(t, splits.filter { x =>
+          splits.filter { x =>
             val isNewline = x.modification.isNewline
             if (noTrailingCommas && !right.is[T.Comment]) !isNewline
             else isNewline
-          })
+          }
       },
       expire.end
     )
@@ -386,7 +386,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   ): Policy.Pf = {
     case Decision(t, s) if exclude.contains(t.left) =>
       val close = matching(t.left)
-      Decision(t, s.map(_.withIndent(indent, close, ExpiresOn.Left)))
+      s.map(_.withIndent(indent, close, ExpiresOn.Left))
   }
 
   def penalizeAllNewlines(
@@ -401,13 +401,13 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
         case Decision(tok, s)
             if tok.right.end < expire.end &&
               (penalizeLambdas || !tok.left.is[T.RightArrow]) && !ignore(tok) =>
-          Decision(tok, s.map {
+          s.map {
             case split
                 if split.modification.isNewline ||
                   (penaliseNewlinesInsideTokens && tok.leftHasNewline) =>
               split.withPenalty(penalty)
             case x => x
-          })
+          }
       },
       expire.end
     )
@@ -427,11 +427,11 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
           val penalty =
             nestedSelect(owners(t.left)) + nestedApplies(owners(t.right)) +
               nonBoolPenalty
-          Decision(t, s.map {
+          s.map {
             case split if split.modification.isNewline =>
               split.withPenalty(penalty)
             case x => x
-          })
+          }
       },
       to.end
     )
@@ -763,10 +763,10 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       leftCheck: Option[Token => Boolean]
   )(onBreakPolicy: Policy): Policy = {
     object OnBreakDecision {
-      def unapply(d: Decision): Option[Decision] =
+      def unapply(d: Decision): Option[Seq[Split]] =
         if (leftCheck.exists(!_(d.formatToken.left))) None
         else unapplyImpl(d)
-      private def unapplyImpl(d: Decision): Option[Decision] = {
+      private def unapplyImpl(d: Decision): Option[Seq[Split]] = {
         var replaced = false
         def decisionPf(s: Split): Split =
           if (!s.modification.isNewline) s
@@ -775,7 +775,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
             s.orElsePolicy(onBreakPolicy)
           }
         val splits = d.splits.map(decisionPf)
-        if (replaced) Some(d.copy(splits = splits)) else None
+        if (replaced) Some(splits) else None
       }
     }
     if (onBreakPolicy.isEmpty) onBreakPolicy
@@ -939,13 +939,11 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
           if shouldNotDangle && rp == lastParen && !isSingleLineComment(
             previous
           ) =>
-        val split = Split(NoSplit, 0)
-        Decision(t, Seq(split))
+        Seq(Split(NoSplit, 0))
       // Indent seperators `)(` and `](` by `indentSep`
       case Decision(t @ FormatToken(_, rp @ RightParenOrBracket(), _), _)
           if ownerCheck(rp) =>
-        val split = Split(Newline, 0).withIndent(indentSep, rp, Left)
-        Decision(t, Seq(split))
+        Seq(Split(Newline, 0).withIndent(indentSep, rp, Left))
       // Add a newline after left paren if:
       // - There's an implicit keyword and newlineBeforeImplicitKW is enabled
       // - newlineAfterOpenParen is enabled
@@ -975,17 +973,13 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
           if (shouldAddNewline) Newline
           else NoSplit
 
-        Decision(
-          t,
-          Seq(
-            Split(mod, 0)
-              .withIndent(indentParam, close2, Right)
-          )
+        Seq(
+          Split(mod, 0)
+            .withIndent(indentParam, close2, Right)
         )
       case Decision(t @ FormatToken(T.KwImplicit(), _, _), _)
           if (style.verticalMultiline.newlineAfterImplicitKW || style.newlines.afterImplicitKWInVerticalMultiline) =>
-        val split = Split(Newline, 0)
-        Decision(t, Seq(split))
+        Seq(Split(Newline, 0))
     }
 
     // Our policy is a combination of OneArgLineSplit and a custom splitter
