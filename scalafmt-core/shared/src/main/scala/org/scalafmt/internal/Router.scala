@@ -187,29 +187,31 @@ class Router(formatOps: FormatOps) {
           if (isSelfAnnotation) newlines2Modification(newlines, isNoIndent(tok))
           else NewlineT(shouldGet2xNewlines(tok, style, owners))
 
-        val (startsLambda, lambdaPolicy, lambdaArrow, lambdaIndent) =
+        val (lambdaExpire, lambdaArrow, lambdaIndent) =
           statementStarts
             .get(hash(right))
             .collect {
               case owner: Term.Function =>
                 val arrow = lastLambda(owner).tokens.find(_.is[T.RightArrow])
                 val expire = arrow.getOrElse(owner.params.last.tokens.last)
-                val singleLineUntilArrow =
-                  newlineBeforeClosingCurly.andThen(SingleLineBlock(expire).f)
-                (true, singleLineUntilArrow, arrow, 0)
+                (expire, arrow, 0)
             }
             .getOrElse {
               selfAnnotation match {
                 case Some(tokens) =>
                   val arrow = leftOwner.tokens.find(_.is[T.RightArrow])
-                  val singleLineUntilArrow = newlineBeforeClosingCurly.andThen(
-                    SingleLineBlock(arrow.getOrElse(tokens.last)).f
-                  )
-                  (true, singleLineUntilArrow, arrow, 2)
+                  val expire = arrow.getOrElse(tokens.last)
+                  (expire, arrow, 2)
                 case _ =>
-                  (false, NoPolicy, None, 0)
+                  (null, None, 0)
               }
             }
+        val lambdaPolicy =
+          if (lambdaExpire == null) null
+          else {
+            newlineBeforeClosingCurly
+              .andThen(SingleLineBlock(lambdaExpire))
+          }
 
         def getSingleLineDecisionPre2019Nov = leftOwner.parent match {
           case Some(_: Term.If | _: Term.Try | _: Term.TryWithHandler) => null
@@ -247,7 +249,8 @@ class Router(formatOps: FormatOps) {
 
         // null if skipping
         val singleLineDecision =
-          if (startsLambda) null else getSingleLineDecision
+          if (lambdaPolicy == null) getSingleLineDecision
+          else null
 
         val spaceMod = xmlSpace(leftOwner)
 
@@ -260,8 +263,7 @@ class Router(formatOps: FormatOps) {
             0,
             ignoreIf =
               style.newlines.alwaysBeforeCurlyBraceLambdaParams ||
-                isSelfAnnotation ||
-                !startsLambda
+                isSelfAnnotation || lambdaPolicy == null
           ).withOptimalToken(lambdaArrow)
             .withIndent(lambdaIndent, close, Right)
             .withPolicy(lambdaPolicy),
