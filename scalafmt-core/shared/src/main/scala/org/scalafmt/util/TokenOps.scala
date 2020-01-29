@@ -150,7 +150,7 @@ object TokenOps {
               exclude.forall(!_.contains(tok.left.start)) &&
               (disallowSingleLineComments || !isSingleLineComment(tok.left)) =>
           if (penaliseNewlinesInsideTokens && tok.leftHasNewline) {
-            Decision(tok, Seq.empty[Split])
+            Seq.empty
           } else {
             d.noNewlines
           }
