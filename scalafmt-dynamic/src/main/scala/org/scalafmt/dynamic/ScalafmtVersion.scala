@@ -2,7 +2,13 @@ package org.scalafmt.dynamic
 
 import scala.util.control.{NonFatal, NoStackTrace}
 
-case class ScalafmtVersion(major: Int, minor: Int, patch: Int, rc: Int) {
+case class ScalafmtVersion(
+    major: Int,
+    minor: Int,
+    patch: Int,
+    rc: Int,
+    snapshot: Boolean = false
+) {
   private val integerRepr: Int =
     major * 100 + minor * 10 + patch
 
@@ -14,7 +20,9 @@ case class ScalafmtVersion(major: Int, minor: Int, patch: Int, rc: Int) {
   def >(other: ScalafmtVersion): Boolean = this != other && !(this < other)
 
   override def toString: String =
-    s"$major.$minor.$patch" + (if (rc > 0) s"-RC$rc" else "")
+    s"$major.$minor.$patch" +
+      (if (rc > 0) s"-RC$rc" else "") +
+      (if (snapshot) "-SNAPSHOT" else "")
 }
 
 object ScalafmtVersion {
@@ -22,27 +30,29 @@ object ScalafmtVersion {
       extends Exception(s"Invalid scalafmt version $version")
       with NoStackTrace
 
-  private val versionRegex = """(\d)\.(\d)\.(\d)(-RC(\d))?(?:-SNAPSHOT)?""".r
+  private val versionRegex = """(\d)\.(\d)\.(\d)(-RC(\d))?(-SNAPSHOT)?""".r
 
   def parse(version: String): Either[InvalidVersionException, ScalafmtVersion] =
     try {
       version match {
-        case versionRegex(major, minor, patch, null, null) =>
+        case versionRegex(major, minor, patch, null, null, snapshot) =>
           Right(
             ScalafmtVersion(
               positiveInt(major),
               positiveInt(minor),
               positiveInt(patch),
-              0
+              0,
+              snapshot != null
             )
           )
-        case versionRegex(major, minor, patch, _, rc) =>
+        case versionRegex(major, minor, patch, _, rc, snapshot) =>
           Right(
             ScalafmtVersion(
               positiveInt(major),
               positiveInt(minor),
               positiveInt(patch),
-              positiveInt(rc)
+              positiveInt(rc),
+              snapshot != null
             )
           )
         case _ => Left(InvalidVersionException(version))
