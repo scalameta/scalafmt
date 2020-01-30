@@ -280,14 +280,12 @@ class Router(formatOps: FormatOps) {
         val canBeSpace =
           statementStarts(hash(right)).isInstanceOf[Term.Function]
         val afterCurlyNewlines =
-          style.newlines.afterCurlyLambda match {
-            case NewlineCurlyLambda.never => Newline
-            case NewlineCurlyLambda.always => Newline2x
-            case NewlineCurlyLambda.preserve =>
-              if (newlines >= 2) Newline2x else Newline
-          }
+          getSpaceAndNewlineAfterCurlyLambda(newlines)
+        val spaceSplit =
+          if (canBeSpace) Split(Space, 0)
+          else Split.ignored
         Seq(
-          Split(Space, 0, ignoreIf = !canBeSpace),
+          spaceSplit,
           Split(afterCurlyNewlines, 1).withIndent(2, endOfFunction, Left)
         )
 

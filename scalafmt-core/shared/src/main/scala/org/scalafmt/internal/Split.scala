@@ -97,3 +97,9 @@ case class Split(
   override def toString =
     s"""$modification:${line.value}(cost=$cost, indents=$indentation, $policy)"""
 }
+
+object Split {
+
+  val ignored = Split(NoSplit, 0, ignoreIf = true)(sourcecode.Line(0))
+
+}
