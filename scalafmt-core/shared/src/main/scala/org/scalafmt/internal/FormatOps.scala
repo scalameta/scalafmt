@@ -3,7 +3,7 @@ package org.scalafmt.internal
 import java.{util => ju}
 import scala.collection.JavaConverters._
 import org.scalafmt.Error.CaseMissingArrow
-import org.scalafmt.config.{DanglingExclude, ScalafmtConfig}
+import org.scalafmt.config.{DanglingExclude, NewlineCurlyLambda, ScalafmtConfig}
 import org.scalafmt.internal.ExpiresOn.{Left, Right}
 import org.scalafmt.internal.Length.Num
 import org.scalafmt.internal.Policy.NoPolicy
@@ -1017,4 +1017,15 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     case _: Term.Xml | _: Pat.Xml => NoSplit
     case _ => Space
   }
+
+  def getSpaceAndNewlineAfterCurlyLambda(
+      newlines: Int
+  )(implicit style: ScalafmtConfig): NewlineT =
+    style.newlines.afterCurlyLambda match {
+      case NewlineCurlyLambda.never => Newline
+      case NewlineCurlyLambda.always => Newline2x
+      case NewlineCurlyLambda.preserve =>
+        if (newlines >= 2) Newline2x else Newline
+    }
+
 }
