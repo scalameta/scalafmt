@@ -1,23 +1,17 @@
 package org.scalafmt.internal
 
 sealed abstract class Modification {
-
-  def isNewline: Boolean = this match {
-    case _: NewlineT => true
-    case Provided(code) if code.headOption == Some('\n') => true
-    case _ => false
-  }
-
-  def newlines: Int = this match {
-    case n: NewlineT => if (n.isDouble) 2 else 1
-    case Provided(code) => code.count(_ == '\n')
-    case _ => 0
-  }
+  val newlines: Int
+  @inline final def isNewline: Boolean = newlines != 0
 }
 
-case class Provided(code: String) extends Modification
+case class Provided(code: String) extends Modification {
+  override lazy val newlines: Int = code.count(_ == '\n')
+}
 
-case object NoSplit extends Modification
+case object NoSplit extends Modification {
+  override val newlines: Int = 0
+}
 
 /**
   * A split representing a newline.
@@ -40,6 +34,7 @@ case class NewlineT(
     val indent = if (noIndent) "NoIndent" else ""
     double + indent + "Newline"
   }
+  override val newlines: Int = if (isDouble) 2 else 1
 }
 
 object Newline extends NewlineT {
@@ -53,5 +48,6 @@ object NoIndentNewline extends NewlineT(noIndent = true)
 object Newline2xNoIndent extends NewlineT(isDouble = true, noIndent = true)
 
 object Space extends Modification {
+  override val newlines: Int = 0
   override def toString = "Space"
 }
