@@ -66,19 +66,19 @@ class ScalafmtDynamicDownloader(
 
   @inline
   private def scalaBinaryVersion(version: ScalafmtVersion): String =
-    if (version < ScalafmtVersion(0, 7, 0, 0, false)) "2.11"
-    else if (version < ScalafmtVersion(2, 1, 2, 0, false)) "2.12"
+    if (version < ScalafmtVersion(0, 7, 0, 0)) "2.11"
+    else if (version < ScalafmtVersion(2, 1, 2, 0)) "2.12"
     else "2.13"
 
   @inline
   private def scalaVersion(version: ScalafmtVersion): String =
-    if (version < ScalafmtVersion(0, 7, 0, 0, false)) BuildInfo.scala211
-    else if (version < ScalafmtVersion(2, 1, 2, 0, false)) BuildInfo.scala212
+    if (version < ScalafmtVersion(0, 7, 0, 0)) BuildInfo.scala211
+    else if (version < ScalafmtVersion(2, 1, 2, 0)) BuildInfo.scala212
     else BuildInfo.scala
 
   @inline
   private def organization(version: ScalafmtVersion): String =
-    if (version < ScalafmtVersion(2, 0, 0, 2, false)) {
+    if (version < ScalafmtVersion(2, 0, 0, 2)) {
       "com.geirsson"
     } else {
       "org.scalameta"

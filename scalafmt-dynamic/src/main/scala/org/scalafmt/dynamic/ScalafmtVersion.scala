@@ -7,7 +7,7 @@ case class ScalafmtVersion(
     minor: Int,
     patch: Int,
     rc: Int,
-    snapshot: Boolean
+    snapshot: Boolean = false
 ) {
   private val integerRepr: Int =
     major * 100 + minor * 10 + patch

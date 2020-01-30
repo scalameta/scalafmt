@@ -7,21 +7,16 @@ import org.scalatest.funsuite.AnyFunSuite
 class ScalafmtVersionSuite extends AnyFunSuite {
   test("parse valid versions") {
     assert(
-      ScalafmtVersion
-        .parse("2.0.0") == Right(ScalafmtVersion(2, 0, 0, 0, false))
+      ScalafmtVersion.parse("2.0.0") == Right(ScalafmtVersion(2, 0, 0, 0))
     )
     assert(
-      ScalafmtVersion
-        .parse("0.1.3") == Right(ScalafmtVersion(0, 1, 3, 0, false))
+      ScalafmtVersion.parse("0.1.3") == Right(ScalafmtVersion(0, 1, 3, 0))
     )
     assert(
-      ScalafmtVersion.parse("2.0.0-RC4") == Right(
-        ScalafmtVersion(2, 0, 0, 4, false)
-      )
+      ScalafmtVersion.parse("2.0.0-RC4") == Right(ScalafmtVersion(2, 0, 0, 4))
     )
     assert(
-      ScalafmtVersion
-        .parse("2.1.1") == Right(ScalafmtVersion(2, 1, 1, 0, false))
+      ScalafmtVersion.parse("2.1.1") == Right(ScalafmtVersion(2, 1, 1, 0))
     )
     assert(
       ScalafmtVersion
@@ -103,38 +98,16 @@ class ScalafmtVersionSuite extends AnyFunSuite {
   }
 
   test("order versions") {
-    assert(
-      ScalafmtVersion(2, 0, 0, 0, false) > ScalafmtVersion(1, 5, 1, 0, false)
-    )
-    assert(
-      ScalafmtVersion(2, 0, 0, 0, false) > ScalafmtVersion(2, 0, 0, 1, false)
-    )
-    assert(
-      ScalafmtVersion(2, 0, 0, 4, false) > ScalafmtVersion(1, 9, 9, 9, false)
-    )
-    assert(
-      ScalafmtVersion(0, 1, 2, 0, false) > ScalafmtVersion(0, 1, 1, 0, false)
-    )
-    assert(
-      ScalafmtVersion(0, 2, 2, 0, false) > ScalafmtVersion(0, 1, 2, 0, false)
-    )
-    assert(
-      ScalafmtVersion(2, 0, 0, 2, false) < ScalafmtVersion(2, 0, 0, 4, false)
-    )
-    assert(
-      ScalafmtVersion(2, 0, 0, 2, false) < ScalafmtVersion(2, 0, 0, 0, false)
-    )
-    assert(
-      ScalafmtVersion(0, 1, 2, 0, false) < ScalafmtVersion(1, 0, 0, 0, false)
-    )
-    assert(
-      ScalafmtVersion(0, 1, 8, 0, false) < ScalafmtVersion(0, 2, 2, 0, false)
-    )
-    assert(
-      !(ScalafmtVersion(2, 0, 0, 0, false) < ScalafmtVersion(1, 5, 1, 0, false))
-    )
-    assert(
-      !(ScalafmtVersion(0, 1, 8, 0, false) > ScalafmtVersion(0, 2, 2, 0, false))
-    )
+    assert(ScalafmtVersion(2, 0, 0, 0) > ScalafmtVersion(1, 5, 1, 0))
+    assert(ScalafmtVersion(2, 0, 0, 0) > ScalafmtVersion(2, 0, 0, 1))
+    assert(ScalafmtVersion(2, 0, 0, 4) > ScalafmtVersion(1, 9, 9, 9))
+    assert(ScalafmtVersion(0, 1, 2, 0) > ScalafmtVersion(0, 1, 1, 0))
+    assert(ScalafmtVersion(0, 2, 2, 0) > ScalafmtVersion(0, 1, 2, 0))
+    assert(ScalafmtVersion(2, 0, 0, 2) < ScalafmtVersion(2, 0, 0, 4))
+    assert(ScalafmtVersion(2, 0, 0, 2) < ScalafmtVersion(2, 0, 0, 0))
+    assert(ScalafmtVersion(0, 1, 2, 0) < ScalafmtVersion(1, 0, 0, 0))
+    assert(ScalafmtVersion(0, 1, 8, 0) < ScalafmtVersion(0, 2, 2, 0))
+    assert(!(ScalafmtVersion(2, 0, 0, 0) < ScalafmtVersion(1, 5, 1, 0)))
+    assert(!(ScalafmtVersion(0, 1, 8, 0) > ScalafmtVersion(0, 2, 2, 0)))
   }
 }
