@@ -173,6 +173,7 @@ class Router(formatOps: FormatOps) {
       // { ... } Blocks
       case tok @ FormatToken(open @ T.LeftBrace(), right, between) =>
         val close = matching(open)
+        val closeFT = tokens(close)
         val newlineBeforeClosingCurly = newlinesOnlyBeforeClosePolicy(close)
         val selfAnnotation: Option[Tokens] = leftOwner match {
           // Self type: trait foo { self => ... }
@@ -234,7 +235,7 @@ class Router(formatOps: FormatOps) {
           }
 
           val breakSingleLineAfterClose = classifiers.nonEmpty && {
-            val afterClose = tokens(close).right
+            val afterClose = closeFT.right
             classifiers.exists(_(afterClose))
           }
           if (!breakSingleLineAfterClose) Policy.emptyPf
@@ -252,12 +253,19 @@ class Router(formatOps: FormatOps) {
           if (lambdaPolicy == null) getSingleLineDecision
           else null
 
-        val spaceMod = xmlSpace(leftOwner)
+        val singleLineSplit =
+          if (singleLineDecision == null) Split.ignored
+          else {
+            val expire = endOfSingleLineBlock(closeFT)
+            val policy =
+              SingleLineBlock(expire)
+                .andThen(singleLineDecision)
+            Split(xmlSpace(leftOwner), 0, policy = policy)
+              .withOptimalToken(close, killOnFail = true)
+          }
 
         Seq(
-          Split(spaceMod, 0, ignoreIf = singleLineDecision == null)
-            .withOptimalToken(close, killOnFail = true)
-            .withPolicy(SingleLineBlock(close).andThen(singleLineDecision)),
+          singleLineSplit,
           Split(
             Space,
             0,

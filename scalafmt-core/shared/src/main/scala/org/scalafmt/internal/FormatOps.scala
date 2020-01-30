@@ -211,7 +211,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     start.right match {
       case T.Comma() | T.LeftParen() | T.RightParen() | T.RightBracket() |
           T.Semicolon() | T.RightArrow() | T.Equals()
-          if (1 + start.meta.idx) != tokens.length &&
+          if tokens.hasNext(start) &&
             !startsNewBlock(start.right) &&
             start.newlinesBetween == 0 =>
         rhsOptimalToken(next(start))
@@ -219,6 +219,29 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
           if style.activeForEdition_2020_01 && start.newlinesBetween == 0 =>
         c
       case _ => start.left
+    }
+  }
+
+  @tailrec
+  final def endOfSingleLineBlock(
+      start: FormatToken
+  )(implicit style: ScalafmtConfig): Token = {
+    val endFound = start.right match {
+      case _: T.Comma | _: T.LeftParen | _: T.Semicolon | _: T.RightArrow |
+          _: T.Equals =>
+        None
+      case _: T.RightParen if start.left.is[T.LeftParen] => None
+      case c: T.Comment
+          if isSingleLineComment(c) && start.newlinesBetween == 0 =>
+        Some(c)
+      case _ => Some(start.left)
+    }
+
+    endFound match {
+      case Some(t) => t
+      case None =>
+        val hasNext = tokens.hasNext(start) && !startsNewBlock(start.right)
+        if (hasNext) endOfSingleLineBlock(next(start)) else start.left
     }
   }
 

@@ -28,6 +28,9 @@ class FormatTokens(val arr: Array[FormatToken])
   def apply(tok: Token, off: Int): FormatToken = apply(apply(tok), off)
   def apply(ft: FormatToken, off: Int): FormatToken = at(ft.meta.idx + off)
 
+  @inline def hasNext(ft: FormatToken): Boolean = ft.meta.idx < (arr.length - 1)
+  @inline def hasPrev(ft: FormatToken): Boolean = ft.meta.idx > 0
+
 }
 
 object FormatTokens {
