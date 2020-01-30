@@ -259,7 +259,7 @@ class Router(formatOps: FormatOps) {
           else {
             val expire = endOfSingleLineBlock(closeFT)
             val policy =
-              SingleLineBlock(expire)
+              SingleLineBlock(expire, penaliseNewlinesInsideTokens = true)
                 .andThen(singleLineDecision)
             Split(xmlSpace(leftOwner), 0, policy = policy)
               .withOptimalToken(close, killOnFail = true)
