@@ -761,7 +761,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
   def delayedBreakPolicy(
       leftCheck: Option[Token => Boolean]
-  )(onBreakPolicy: Policy): Policy = {
+  )(onBreakPolicy: Policy)(implicit line: sourcecode.Line): Policy = {
     object OnBreakDecision {
       def unapply(d: Decision): Option[Seq[Split]] =
         if (leftCheck.exists(!_(d.formatToken.left))) None

@@ -34,12 +34,12 @@ case class Policy(
     other.fold(this)(orElse)
 
   def andThen(other: Policy): Policy =
-    if (isEmpty) other else andThen(other.f)
+    if (isEmpty) other else andThen(other.f, other.expire)
 
   /** Similar to PartialFunction.andThen, except applies second pf even if the
     * first pf is not defined at argument.
     */
-  def andThen(otherF: Policy.Pf): Policy = {
+  def andThen(otherF: Policy.Pf, minExpire: Int = 0): Policy = {
     if (Policy.isEmpty(otherF)) this
     else if (isEmpty) copy(f = otherF)
     else {
@@ -51,7 +51,7 @@ case class Policy(
             (x: Decision) => x.splits
           )
       }
-      copy(f = newPf)
+      copy(f = newPf, expire = math.max(minExpire, expire))
     }
   }
 
