@@ -16,7 +16,16 @@ def f = {
   }
 }
 
-<<< Preserve no-newline in lambda call
+<<< Preserve no newline in lambda call
+def f = {
+  something.call { x =>    g(x)
+  }
+}
+>>>
+def f = {
+  something.call { x => g(x) }
+}
+<<< Preserve no empty line in lambda call
 def f = {
   something.call { x =>
     g(x)

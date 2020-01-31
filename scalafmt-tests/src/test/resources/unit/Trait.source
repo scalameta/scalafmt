@@ -35,9 +35,7 @@ trait Cap extends Util { self =>
     x
   }
 
-  val x: Int => Int = { y =>
-    y + 1
-  }
+  val x: Int => Int = { y => y + 1 }
 }
 <<< #370
 trait SampleTrait extends A with B with C with D with E{

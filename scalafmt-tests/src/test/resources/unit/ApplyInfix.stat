@@ -120,9 +120,7 @@ ctx.replace(
 ctx.replace(
     additionalImports =
       "" ::
-        foo.map { x =>
-          x + 1
-        }
+        foo.map { x => x + 1 }
 )
 <<< right assoc
 x ::

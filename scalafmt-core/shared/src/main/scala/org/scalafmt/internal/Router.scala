@@ -213,6 +213,7 @@ class Router(formatOps: FormatOps) {
             val arrowOptimal = getOptimalTokenFor(lambdaExpire)
             newlineBeforeClosingCurly
               .andThen(SingleLineBlock(arrowOptimal))
+              .andThen(decideNewlinesOnlyAfterToken(arrowOptimal))
           }
 
         def getSingleLineDecisionPre2019Nov = leftOwner.parent match {
@@ -250,19 +251,35 @@ class Router(formatOps: FormatOps) {
             getSingleLineDecisionPre2019Nov
 
         // null if skipping
-        val singleLineDecision =
-          if (lambdaPolicy == null) getSingleLineDecision
-          else null
+        val (singleLineCost, singleLineDecision) =
+          if (lambdaPolicy == null) (0, getSingleLineDecision)
+          else if (style.activeForEdition_2020_01 &&
+            !style.newlines.alwaysBeforeCurlyBraceLambdaParams &&
+            getSpaceAndNewlineAfterCurlyLambda(newlines)._1)
+            (
+              leftOwner.parent
+                .flatMap { x =>
+                  // penalize single line in the middle of infix
+                  x.parent.collect {
+                    case y: Term.ApplyInfix if y.lhs eq x => 1
+                  }
+                }
+                .getOrElse(0),
+              getSingleLineDecisionFor2019Nov
+            )
+          else (0, null)
 
         val singleLineSplit =
           if (singleLineDecision == null) Split.ignored
           else {
-            val expire = endOfSingleLineBlock(closeFT)
+            val expire =
+              if (lambdaPolicy == null) close
+              else endOfSingleLineBlock(closeFT)
             val policy =
               SingleLineBlock(expire, penaliseNewlinesInsideTokens = true)
                 .andThen(singleLineDecision)
-            Split(xmlSpace(leftOwner), 0, policy = policy)
-              .withOptimalToken(close, killOnFail = true)
+            Split(xmlSpace(leftOwner), singleLineCost, policy = policy)
+              .withOptimalToken(expire, killOnFail = true)
           }
 
         Seq(
@@ -288,10 +305,18 @@ class Router(formatOps: FormatOps) {
         )
         val canBeSpace =
           statementStarts(hash(right)).isInstanceOf[Term.Function]
-        val afterCurlyNewlines =
+        val (afterCurlySpace, afterCurlyNewlines) =
           getSpaceAndNewlineAfterCurlyLambda(newlines)
         val spaceSplit =
           if (canBeSpace) Split(Space, 0)
+          else if (afterCurlySpace && style.activeForEdition_2020_01)
+            Split(Space, 0)
+              .withPolicy(
+                SingleLineBlock(
+                  getOptimalTokenFor(endOfFunction),
+                  penaliseNewlinesInsideTokens = true
+                )
+              )
           else Split.ignored
         Seq(
           spaceSplit,

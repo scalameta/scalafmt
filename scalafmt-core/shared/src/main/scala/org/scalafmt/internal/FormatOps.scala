@@ -1043,12 +1043,12 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
   def getSpaceAndNewlineAfterCurlyLambda(
       newlines: Int
-  )(implicit style: ScalafmtConfig): NewlineT =
+  )(implicit style: ScalafmtConfig): (Boolean, NewlineT) =
     style.newlines.afterCurlyLambda match {
-      case NewlineCurlyLambda.never => Newline
-      case NewlineCurlyLambda.always => Newline2x
+      case NewlineCurlyLambda.never => (true, Newline)
+      case NewlineCurlyLambda.always => (false, Newline2x)
       case NewlineCurlyLambda.preserve =>
-        if (newlines >= 2) Newline2x else Newline
+        (newlines == 0, if (newlines >= 2) Newline2x else Newline)
     }
 
 }

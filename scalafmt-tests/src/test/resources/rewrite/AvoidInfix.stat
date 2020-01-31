@@ -14,9 +14,7 @@ lst.map(foo)
 <<< has curly
 lst map { x => y }
 >>>
-lst.map { x =>
-  y
-}
+lst.map { x => y }
 <<< to
 1 to 100
 >>>
@@ -125,9 +123,7 @@ seq should have length 5
   perform(_ + 1)
 }
 >>>
-(1 to total).foreach { _ =>
-  perform(_ + 1)
-}
+(1 to total).foreach { _ => perform(_ + 1) }
 <<< excluded combinators in lhs 4
 seq should have length 5 and true
 >>>

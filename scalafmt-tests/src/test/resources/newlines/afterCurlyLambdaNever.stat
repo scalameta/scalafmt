@@ -10,9 +10,7 @@ def f = {
 }
 >>>
 def f = {
-  something.call { x =>
-    g(x)
-  }
+  something.call { x => g(x) }
 }
 
 <<< Preseve no-newline in lambda call
@@ -23,9 +21,7 @@ def f = {
 }
 >>>
 def f = {
-  something.call { x =>
-    g(x)
-  }
+  something.call { x => g(x) }
 }
 
 <<< Remove many newlines in lambda call
@@ -39,7 +35,5 @@ def f = {
 }
 >>>
 def f = {
-  something.call { x =>
-    g(x)
-  }
+  something.call { x => g(x) }
 }

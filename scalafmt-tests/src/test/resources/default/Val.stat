@@ -67,9 +67,7 @@ val ps = params map { p =>
      JSMethodParam(p.info, p.asTerm.isParamWithDefault)
    }
 >>>
-val ps = params map { p =>
-  JSMethodParam(p.info, p.asTerm.isParamWithDefault)
-}
+val ps = params map { p => JSMethodParam(p.info, p.asTerm.isParamWithDefault) }
 <<< #269 2
 val wasBOM = if (endianness == AutoEndian) {
   // Read BOM
