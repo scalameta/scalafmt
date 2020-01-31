@@ -21,7 +21,6 @@ class FormatWriter(formatOps: FormatOps) {
 
   def mkString(state: State): String = {
     val sb = new StringBuilder()
-    var lastState = State.start // used to calculate start of formatToken.right.
     val locations = getFormatLocations(tokens.arr, state, debug = false)
 
     locations.iterate.foreach { entry =>
@@ -35,11 +34,17 @@ class FormatWriter(formatOps: FormatOps) {
         case token @ T.Interpolation.Part(_) =>
           sb.append(formatMarginizedString(token, state.indentation))
         case literal: T.Constant.String =>
-          sb.append(formatMarginizedString(literal, {
-            // compute indentation by locating the previous newline in output
-            val sbEnd = sb.length - 1
-            2 + sbEnd - sb.lastIndexOf('\n', sbEnd)
-          }))
+          def indent = {
+            val prevState = entry.previous.state
+            if (prevState.split.modification.isNewline)
+              2 + state.indentation
+            else {
+              // compute indentation by locating the previous newline in output
+              val sbEnd = sb.length - 1;
+              2 + sbEnd - sb.lastIndexOf('\n', sbEnd)
+            }
+          }
+          sb.append(formatMarginizedString(literal, indent))
         case c: T.Constant.Long =>
           val syntax = c.syntax
           // longs can be written as hex literals like 0xFF123L. Dont uppercase the X
@@ -61,8 +66,6 @@ class FormatWriter(formatOps: FormatOps) {
       }
 
       entry.formatWhitespace(sb)
-
-      lastState = state
     }
 
     sb.toString()
