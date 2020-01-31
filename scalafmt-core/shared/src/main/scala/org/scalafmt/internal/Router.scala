@@ -210,8 +210,9 @@ class Router(formatOps: FormatOps) {
         val lambdaPolicy =
           if (lambdaExpire == null) null
           else {
+            val arrowOptimal = getOptimalTokenFor(lambdaExpire)
             newlineBeforeClosingCurly
-              .andThen(SingleLineBlock(lambdaExpire))
+              .andThen(SingleLineBlock(arrowOptimal))
           }
 
         def getSingleLineDecisionPre2019Nov = leftOwner.parent match {
@@ -803,9 +804,7 @@ class Router(formatOps: FormatOps) {
                 case b: Term.Block => b.tokens.head
                 case _ => assign.tokens.find(_.is[T.Equals]).get
               }
-              val assignFT = tokens(assignToken)
-              val hasComment = isAttachedSingleLineComment(assignFT)
-              val breakToken = if (hasComment) assignFT.right else assignToken
+              val breakToken = getOptimalTokenFor(assignToken)
               val newlineAfterAssignDecision =
                 if (newlinePolicy.isEmpty) Policy.emptyPf
                 else decideNewlinesOnlyAfterToken(breakToken)
