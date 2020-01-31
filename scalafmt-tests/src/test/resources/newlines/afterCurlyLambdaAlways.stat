@@ -16,10 +16,22 @@ def f = {
   }
 }
 
-<<< Force newline in lambda call
+<<< Force empty line in lambda call with a newline
 def f = {
   something.call { x =>
     g(x)
+  }
+}
+>>>
+def f = {
+  something.call { x =>
+
+    g(x)
+  }
+}
+<<< Force empty line in lambda call without a newline
+def f = {
+  something.call { x =>    g(x)
   }
 }
 >>>

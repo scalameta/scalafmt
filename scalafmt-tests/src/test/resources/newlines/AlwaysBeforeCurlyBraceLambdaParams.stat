@@ -16,15 +16,13 @@ lst.map { x =>
 }
 >>>
 lst.map {
-  x =>
-    x
+  x => x
 }
 <<< apply to one-liners as well
 lst.map { x => x }
 >>>
 lst.map {
-  x =>
-    x
+  x => x
 }
 <<< but preserve newlines if inserted
 lst.map {
@@ -33,6 +31,5 @@ lst.map {
 }
 >>>
 lst.map {
-  x =>
-    x
+  x => x
 }

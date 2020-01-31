@@ -145,11 +145,8 @@ class Sample {
 >>>
 class Sample {
   def mkFunc(flag: Boolean): String => Boolean = {
-    if (flag) { (v =>
-      true)
-    } else { (v =>
-      false)
-    }
+    if (flag) { (v => true) }
+    else { (v => false) }
   }
 }
 <<< #1413

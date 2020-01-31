@@ -37,9 +37,7 @@ def withDedicatedVar: Unit = {
   {
     {
       preloads.foreach { p =>
-        cache.getOrElseUpdate(p, futureStreams.map { r =>
-          r.streams.get(p)
-        })
+        cache.getOrElseUpdate(p, futureStreams.map { r => r.streams.get(p) })
       }
     }
   }
@@ -211,17 +209,23 @@ def test(dataFrame: DataFrame) = {
       .map{case (sum, count) => sum}
   }
 >>>
-Unable to format file due to bug in scalafmt
 def test(dataFrame: DataFrame) = {
-    val zeroAccumulator = Array.fill(1)((0.0, 0))
+  val zeroAccumulator = Array.fill(1)((0.0, 0))
 
-    dataFrame.rdd.aggregate(zeroAccumulator)({(acc, row) => acc.zip(row.toSeq).map{ case (x, y) => {
-      if(true) (1, 2)
-      else (x._1 + 2, x._2 + 1)
-    }}},
-      {(acc1, acc2) => acc1.zip(acc2).map{ case (x, y) => (x._1 + y._1, x._2 + y._2)}})
-      .map{case (sum, count) => sum}
-  }
+  dataFrame.rdd
+    .aggregate(zeroAccumulator)(
+      { (acc, row) =>
+        acc.zip(row.toSeq).map {
+          case (x, y) => {
+            if (true) (1, 2)
+            else (x._1 + 2, x._2 + 1)
+          }
+        }
+      },
+      { (acc1, acc2) => acc1.zip(acc2).map { case (x, y) => (x._1 + y._1, x._2 + y._2) } }
+    )
+    .map { case (sum, count) => sum }
+}
 <<< one-line lambda: make sure infix is handled correctly
 object a {
 val parser = new scopt.OptionParser[ServerConfig]("CreateServer") {
@@ -261,9 +265,7 @@ object a {
     c.copy(commands = c.commands :+ "help")
   } children (
       arg[String]("<command>") optional ()
-        action { (x, c) =>
-          c.copy(commands = c.commands :+ x)
-        }
+        action { (x, c) => c.copy(commands = c.commands :+ x) }
   )
 }
 <<< one-line lambda: make sure multiline string is handled correctly

@@ -138,9 +138,7 @@ lst.map { x =>
 >>>
 LookupJoin
   .rightSumming(TypedPipe.from(in1))
-  .map { x =>
-    x
-  }
+  .map { x => x }
   .write(TypedTsv[(String, String, String, String)]("output2"))
 <<< scalding discardTestJob
 
@@ -154,13 +152,9 @@ class DiscardTestJob(args: Args) extends Job(args) {
 >>>
 class DiscardTestJob(args: Args) extends Job(args) {
   TextLine(args("in"))
-    .map('words -> 'wsize) { word: String =>
-      word.length
-    }
+    .map('words -> 'wsize) { word: String => word.length }
     .discard('words)
-    .map('* -> 'correct) { te: TupleEntry =>
-      te.getFields.contains('words)
-    }
+    .map('* -> 'correct) { te: TupleEntry => te.getFields.contains('words) }
     .write(Tsv(args("out")))
 }
 <<< scalding typedthrowserrorsjov
