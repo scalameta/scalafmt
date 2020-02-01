@@ -239,6 +239,175 @@ object a {
     4
   }
 }
+<<< #1027 1.1: braces to parens yes: single-stat
+object a {
+  b.c { d =>
+   e }
+}
+>>>
+object a {
+  b.c { d => e }
+}
+<<< #1027 1.2: braces to parens no: multi-stat
+object a {
+  b.c { d =>
+   e; f }
+}
+>>>
+object a {
+  b.c { d => e; f }
+}
+<<< #1027 1.3: braces to parens no: multi-stat block
+object a {
+  b.c { d => {
+   e; f }}
+}
+>>>
+object a {
+  b.c { d => e; f }
+}
+<<< #1027 1.4: braces to parens no: empty body
+object a {
+  b.c { d => }
+}
+>>>
+object a {
+  b.c { d => }
+}
+<<< #1027 1.5: braces to parens yes: multi-param list
+object a {
+  b.c(d) { e => f }
+}
+>>>
+object a {
+  b.c(d) { e => f }
+}
+<<< #1027 1.6: braces to parens yes: func of func
+object a {
+  b.c(d) { implicit e => f => g }
+}
+>>>
+object a {
+  b.c(d) { implicit e => f => g }
+}
+<<< #1027 1.7: braces to parens yes: func of infix
+object a {
+  b.c(d) { implicit e => f shouldBe g }
+}
+>>>
+object a {
+  b.c(d) { implicit e => f shouldBe g }
+}
+<<< #1027 1.8: braces to parens yes: multiple brace single-arg param-lists
+object a {
+  b.c(d) { e } { implicit f => g }
+}
+>>>
+object a {
+  b.c(d) { e } { implicit f => g }
+}
+<<< #1027 1.9: braces to parens yes: func of multi-stat func
+object a {
+  b.c { d => e => { f; g } }
+}
+>>>
+object a {
+  b.c { d => e => { f; g } }
+}
+<<< #1027 2.1: parens to braces no
+object a {
+  b.c (d =>
+    e
+     + f)
+}
+>>>
+object a {
+  b.c(d =>
+    e
+      + f
+  )
+}
+<<< #1027 2.2: parens to braces no
+object a {
+  b.c ({d =>    e     + f})
+}
+>>>
+object a {
+  b.c({ d => e + f })
+}
+<<< #1027 3.1: with align
+align = more
+===
+object a {
+  val b = c(d => {e}) // comment1
+  val bb = cc(dd => {ee}) // comment2
+}
+>>>
+object a {
+  val b  = c { d => e }    // comment1
+  val bb = cc { dd => ee } // comment2
+}
+<<< #1027 3.2: with align
+align = more
+===
+object a {
+  val b = c(d => {e}) // comment1
+  val bb = cc(dd => ee) // comment2
+}
+>>>
+object a {
+  val b  = c { d => e } // comment1
+  val bb = cc(dd => ee) // comment2
+}
+<<< #1027 3.3: with align
+align = more
+===
+object a {
+  val b = c(d => {e})(d => {e}) // comment1
+  val bb = cc(dd => {ee})(dd => {ee}) // comment2
+}
+>>>
+object a {
+  val b  = c { d => e } { d => e }      // comment1
+  val bb = cc { dd => ee } { dd => ee } // comment2
+}
+<<< #1027 3.4: with align
+align = more
+===
+object a {
+  val b = c(d => {e})(d => {e}) // comment1
+  val bb = cc(dd => ee)(dd => ee) // comment2
+}
+>>>
+object a {
+  val b  = c { d => e } { d => e } // comment1
+  val bb = cc(dd => ee)(dd => ee)  // comment2
+}
+<<< #1027 3.5: with align
+align = more
+===
+object a {
+  val b = c(d => e)(d => e) // comment1
+  val bb = cc(dd => {ee})(dd => {ee(ff =>{gg})}) // comment2
+}
+>>>
+object a {
+  val b  = c(d => e)(d => e)                         // comment1
+  val bb = cc { dd => ee } { dd => ee { ff => gg } } // comment2
+}
+<<< #1027 3.6: with align, no redundant braces
+rewrite.rules = []
+align = more
+===
+object a {
+  val b  = c(d => e)(d => e) // comment1
+  val bb = cc(dd => {ee})(dd => {ee}) // comment2
+}
+>>>
+object a {
+  val b  = c(d => e)(d => e)              // comment1
+  val bb = cc(dd => { ee })(dd => { ee }) // comment2
+}
 <<< #1631
 class Test extends AnyWordSpec {
   "SUT" when {
