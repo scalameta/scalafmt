@@ -203,6 +203,9 @@ case class ScalafmtConfig(
 
   // Edition 2020-01
   val activeForEdition_2020_01: Boolean = activeFor(Edition(2020, 1))
+
+  // Edition 2020-03
+  val activeForEdition_2020_03: Boolean = activeFor(Edition(2020, 3))
 }
 
 object ScalafmtConfig {
