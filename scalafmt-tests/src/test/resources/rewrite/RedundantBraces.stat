@@ -539,3 +539,25 @@ object a {
     e => f
   )
 }
+<<< apply 1: single-stat block as an apply arg
+rewrite.redundantBraces.methodBodies = false
+===
+object a {
+  b({ 1 + 2 },
+    { x => { y; z }})({ x => y }, { x; y })
+}
+>>>
+object a {
+  b({ 1 + 2 }, { x => { y; z } })({ x => y }, { x; y })
+}
+<<< apply 2: single-stat block as an apply arg
+rewrite.redundantBraces.methodBodies = true
+===
+object a {
+  b({ 1 + 2 },
+    { x => { y; z }})({ x => y }, { x; y })
+}
+>>>
+object a {
+  b({ 1 + 2 }, { x => y; z })({ x => y }, { x; y })
+}
