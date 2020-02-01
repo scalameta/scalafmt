@@ -68,6 +68,9 @@ case object RedundantBraces extends Rewrite {
       case t: Term.Apply if ctx.style.activeForEdition_2019_11 =>
         processApply(t)
 
+      case t: Init if ctx.style.activeForEdition_2020_01 =>
+        processInit(t)
+
       case b: Term.Block =>
         processBlock(b)
 
@@ -75,6 +78,11 @@ case object RedundantBraces extends Rewrite {
         processInterpolation(t)
     }
   }
+
+  private def processInit(
+      tree: Init
+  )(implicit ctx: RewriteCtx): Unit =
+    tree.argss.foreach(processMultiArgApply)
 
   private def processApply(
       tree: Term.Apply

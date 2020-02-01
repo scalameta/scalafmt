@@ -1,13 +1,13 @@
 rewrite.rules = [RedundantBraces]
 rewrite.redundantBraces.methodBodies = true
 rewrite.redundantBraces.maxLines = 1
-<<< #1237 1 ctor is untouched
+<<< #1237 1 ctor is treated as multi-stat
 object a {
-  val a = new b(c => { d })
+  val a = new b(c => { d })(c => {d}, c => { d; e })
 }
 >>>
 object a {
-  val a = new b(c => { d })
+  val a = new b(c => d)(c => d, c => { d; e })
 }
 <<< #1237 2 apply single-stat with comments
 object a {
