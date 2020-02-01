@@ -80,7 +80,7 @@ case object RedundantBraces extends Rewrite {
       tree: Term.Apply
   )(implicit ctx: RewriteCtx): Unit = {
     val lastToken = tree.tokens.last
-    if (settings.methodBodies && lastToken.is[Token.RightParen]) {
+    if (lastToken.is[Token.RightParen]) {
       tree.args match {
         case Nil =>
         case List(arg) => processSingleArgApply(arg, lastToken)
@@ -96,7 +96,8 @@ case object RedundantBraces extends Rewrite {
     // single-arg apply of a lambda
     // a(b => { c; d }) change to a { b => c; d }
     case f: Term.Function
-        if f.tokens.last.is[Token.RightBrace] && getTermLineSpan(f) > 0 =>
+        if settings.methodBodies && f.tokens.last.is[Token.RightBrace] &&
+          getTermLineSpan(f) > 0 =>
       val rbrace = f.tokens.last
       val lbrace = ctx.matchingParens(TokenOps.hash(rbrace))
       // we really wanted the first token of body but Block usually
@@ -121,7 +122,7 @@ case object RedundantBraces extends Rewrite {
     // a single-stat lambda with braces can be converted to one without braces,
     // but the reverse conversion isn't always possible
     case fun @ Term.Function(_, body)
-        if fun.tokens.last.is[Token.RightBrace] &&
+        if settings.methodBodies && fun.tokens.last.is[Token.RightBrace] &&
           isSingleStatLineSpanOk(body) =>
       val rbrace = fun.tokens.last
       val lbrace = ctx.matchingParens(TokenOps.hash(rbrace))
