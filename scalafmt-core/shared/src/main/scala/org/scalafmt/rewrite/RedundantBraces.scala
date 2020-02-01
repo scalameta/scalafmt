@@ -105,7 +105,7 @@ case object RedundantBraces extends Rewrite {
     // a(b => { c; d }) change to a { b => c; d }
     case f: Term.Function
         if settings.methodBodies && f.tokens.last.is[Token.RightBrace] &&
-          getTermLineSpan(f) > 0 =>
+          (ctx.style.activeForEdition_2020_01 || getTermLineSpan(f) > 0) =>
       val rbrace = f.tokens.last
       val lbrace = ctx.matchingParens(TokenOps.hash(rbrace))
       // we really wanted the first token of body but Block usually
