@@ -81,7 +81,7 @@ object a {
 }
 >>>
 object a {
-  val a = b(c => { d; e })
+  val a = b { c => d; e }
 }
 <<< #1237 7 apply single multi-stat with semicolon and newline
 object a {
