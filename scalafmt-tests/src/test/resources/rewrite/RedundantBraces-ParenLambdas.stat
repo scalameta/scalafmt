@@ -120,3 +120,11 @@ object a {
   val a = b { c => { d
    e}}
 }
+<<< look only for immediate braces around lambda
+object a {
+  val a = b { c => d => { e; f } }
+}
+>>>
+object a {
+  val a = b { c => d => e; f }
+}
