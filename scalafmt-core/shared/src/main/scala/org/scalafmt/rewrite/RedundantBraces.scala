@@ -72,7 +72,7 @@ case object RedundantBraces extends Rewrite {
         processInit(t)
 
       case b: Term.Block =>
-        processBlock(b)
+        processBlock(b, okToRemoveBlock)
 
       case t: Term.Interpolate if settings.stringInterpolation =>
         processInterpolation(t)
@@ -141,6 +141,8 @@ case object RedundantBraces extends Rewrite {
         removeLFToAvoidEmptyLine(rbrace)
         ctx.addPatchSet(builder.result(): _*)
       }
+    case b: Term.Block if ctx.style.activeForEdition_2020_01 =>
+      processBlock(b, okToRemoveBlockWithinApply)
     case _ =>
   }
 
@@ -164,10 +166,13 @@ case object RedundantBraces extends Rewrite {
         .foreach(builder += TokenPatch.Remove(_))
   }
 
-  private def processBlock(b: Term.Block)(implicit ctx: RewriteCtx): Unit =
+  private def processBlock(
+      b: Term.Block,
+      check: Term.Block => Boolean
+  )(implicit ctx: RewriteCtx): Unit =
     b.tokens.headOption.filter(_.is[LeftBrace]).foreach { open =>
       val close = b.tokens.last
-      if (close.is[RightBrace] && okToRemoveBlock(b)) {
+      if (close.is[RightBrace] && check(b)) {
         implicit val builder = Seq.newBuilder[TokenPatch]
         val ok =
           if (b.parent.exists(_.is[Term.ApplyInfix])) {
@@ -224,6 +229,16 @@ case object RedundantBraces extends Rewrite {
 
       case _ =>
         settings.generalExpressions && shouldRemoveSingleStatBlock(b)
+    }
+  }
+
+  private def okToRemoveBlockWithinApply(
+      b: Term.Block
+  )(implicit ctx: RewriteCtx): Boolean = {
+    getSingleStatIfLineSpanOk(b).exists {
+      case Term.Function(_, _: Term.Block) =>
+        !settings.methodBodies // else the inner block will be rewritten, too
+      case _ => true
     }
   }
 
