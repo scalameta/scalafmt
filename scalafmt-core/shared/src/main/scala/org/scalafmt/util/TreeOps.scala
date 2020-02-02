@@ -9,6 +9,7 @@ import scala.meta.Decl
 import scala.meta.Defn
 import scala.meta.Enumerator
 import scala.meta.Importer
+import scala.meta.Init
 import scala.meta.Mod
 import scala.meta.Pat
 import scala.meta.Pkg
@@ -24,8 +25,8 @@ import scala.reflect.ClassTag
 import scala.reflect.classTag
 import org.scalafmt.Error
 import org.scalafmt.Error.UnexpectedTree
+import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.FormatToken
-import scala.meta.Init
 
 /**
   * Stateless helper functions on [[scala.meta.Tree]].
@@ -542,14 +543,24 @@ object TreeOps {
       case _ => None
     }
 
-  def getLambdaAtSingleArgCallSite(tree: Tree): Option[Term.Function] =
-    tree match {
+  def getLambdaAtSingleArgCallSite(
+      ltree: Tree,
+      rtree: Tree
+  )(implicit style: ScalafmtConfig): Option[Term.Function] =
+    ltree match {
       case Term.Apply(_, List(fun: Term.Function)) => Some(fun)
       case fun: Term.Function if fun.parent.exists({
             case Term.ApplyInfix(_, _, _, List(`fun`)) => true
             case _ => false
           }) =>
         Some(fun)
+      case t: Init if style.activeForEdition_2020_01 =>
+        rtree.parent.flatMap { rparam =>
+          t.argss.collectFirst {
+            case List(fun: Term.Function) if rparam eq fun.params.head =>
+              fun
+          }
+        }
       case _ => None
     }
 
