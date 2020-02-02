@@ -1,6 +1,6 @@
 package org.scalafmt.rewrite
 
-import org.scalafmt.util.{TokenOps, Whitespace}
+import org.scalafmt.util.Whitespace
 
 import scala.meta.tokens.Tokens
 import scala.meta._
@@ -35,7 +35,7 @@ case object PreferCurlyFors extends Rewrite {
         case Whitespace() => None
         case _ => Some(false)
       }
-      rightParen <- ctx.matchingParens.get(TokenOps.hash(leftParen))
+      rightParen <- ctx.getMatchingOpt(leftParen)
     } yield (leftParen, rightParen)
   }
 

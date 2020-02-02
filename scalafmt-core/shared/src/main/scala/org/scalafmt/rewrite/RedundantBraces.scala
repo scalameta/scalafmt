@@ -9,7 +9,6 @@ import scala.meta.tokens.Token.LF
 import scala.meta.tokens.Token.LeftBrace
 import scala.meta.tokens.Token.RightBrace
 
-import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps._
 import org.scalafmt.util.Whitespace
 
@@ -107,11 +106,11 @@ case object RedundantBraces extends Rewrite {
         if settings.methodBodies && f.tokens.last.is[Token.RightBrace] &&
           (ctx.style.activeForEdition_2020_01 || getTermLineSpan(f) > 0) =>
       val rbrace = f.tokens.last
-      val lbrace = ctx.matchingParens(TokenOps.hash(rbrace))
+      val lbrace = ctx.getMatching(rbrace)
       // we really wanted the first token of body but Block usually
       // points to the next non-whitespace token after opening brace
       if (lbrace.start <= f.body.tokens.head.start) {
-        val lparen = ctx.matchingParens(TokenOps.hash(rparen))
+        val lparen = ctx.getMatching(rparen)
         implicit val builder = Seq.newBuilder[TokenPatch]
         builder += TokenPatch.Replace(lparen, lbrace.text)
         builder += TokenPatch.Remove(lbrace)
@@ -133,7 +132,7 @@ case object RedundantBraces extends Rewrite {
         if settings.methodBodies && fun.tokens.last.is[Token.RightBrace] &&
           isSingleStatLineSpanOk(body) =>
       val rbrace = fun.tokens.last
-      val lbrace = ctx.matchingParens(TokenOps.hash(rbrace))
+      val lbrace = ctx.getMatching(rbrace)
       if (lbrace.start <= body.tokens.head.start) {
         implicit val builder = Seq.newBuilder[TokenPatch]
         builder += TokenPatch.Remove(lbrace)
