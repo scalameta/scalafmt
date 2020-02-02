@@ -5,20 +5,15 @@ import org.scalafmt.internal.Side
 import org.scalafmt.internal.SyntacticGroupOps
 import org.scalafmt.internal.TreeSyntacticGroup
 import scala.meta._
-import scala.meta.tokens.Token.LF
 import scala.meta.tokens.Token.LeftBrace
 import scala.meta.tokens.Token.RightBrace
 
 import org.scalafmt.util.TreeOps._
-import org.scalafmt.util.Whitespace
 
 /**
   * Removes/adds curly braces where desired.
   */
 case object RedundantBraces extends Rewrite {
-
-  private type PatchBuilder =
-    scala.collection.mutable.Builder[TokenPatch, Seq[TokenPatch]]
 
   @inline private def settings(
       implicit ctx: RewriteCtx
@@ -115,7 +110,7 @@ case object RedundantBraces extends Rewrite {
         builder += TokenPatch.Replace(lparen, lbrace.text)
         builder += TokenPatch.Remove(lbrace)
         builder += TokenPatch.Remove(rparen)
-        removeLFToAvoidEmptyLine(rparen)
+        ctx.removeLFToAvoidEmptyLine(rparen)
         ctx.addPatchSet(builder.result(): _*)
       }
     case _ =>
@@ -137,32 +132,12 @@ case object RedundantBraces extends Rewrite {
         implicit val builder = Seq.newBuilder[TokenPatch]
         builder += TokenPatch.Remove(lbrace)
         builder += TokenPatch.Remove(rbrace)
-        removeLFToAvoidEmptyLine(rbrace)
+        ctx.removeLFToAvoidEmptyLine(rbrace)
         ctx.addPatchSet(builder.result(): _*)
       }
     case b: Term.Block if ctx.style.activeForEdition_2020_01 =>
       processBlock(b, okToRemoveBlockWithinApply)
     case _ =>
-  }
-
-  // this is a helper function to be used with the token traverser
-  // finds a newline not blocked by any non-whitespace characters
-  private def isLFSkipWhitespace(token: Token): Option[Boolean] =
-    token match {
-      case _: LF => Some(true)
-      case Whitespace() => None
-      case _ => Some(false)
-    }
-
-  private def removeLFToAvoidEmptyLine(
-      token: Token
-  )(implicit builder: PatchBuilder, ctx: RewriteCtx): Unit = {
-    if (ctx.tokenTraverser
-        .findBefore(token)(isLFSkipWhitespace)
-        .isDefined)
-      ctx.tokenTraverser
-        .findAfter(token)(isLFSkipWhitespace)
-        .foreach(builder += TokenPatch.Remove(_))
   }
 
   private def processBlock(
@@ -181,9 +156,9 @@ case object RedundantBraces extends Rewrite {
              * we shouldn't join with the previous line (which might also end
              * in a comment), and if we keep the break before the right brace
              * we are removing, that will likely invalidate the expression. */
-            ctx.tokenTraverser.findBefore(close)(isLFSkipWhitespace).isEmpty
+            !ctx.onlyWhitespaceBefore(close)
           } else {
-            removeLFToAvoidEmptyLine(close)
+            ctx.removeLFToAvoidEmptyLine(close)
             true
           }
         if (ok) {
