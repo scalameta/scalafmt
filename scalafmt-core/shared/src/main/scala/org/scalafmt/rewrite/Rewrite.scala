@@ -4,8 +4,11 @@ import scala.collection.mutable
 
 import metaconfig.ConfCodec
 import scala.meta._
+import scala.meta.tokens.Token.LF
+
 import org.scalafmt.config.ReaderUtil
 import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.util.Whitespace
 import org.scalafmt.util.{TokenOps, TokenTraverser, TreeOps}
 
 case class RewriteCtx(
@@ -45,6 +48,21 @@ case class RewriteCtx(
         patchBuilder.update(key, value)
       }
 
+  def onlyWhitespaceBefore(token: Token): Boolean =
+    tokenTraverser.findBefore(token)(RewriteCtx.isLFSkipWhitespace).isDefined
+
+  def getPatchToAvoidEmptyLine(token: Token): Option[TokenPatch] =
+    if (!onlyWhitespaceBefore(token)) None
+    else
+      tokenTraverser
+        .findAfter(token)(RewriteCtx.isLFSkipWhitespace)
+        .map(TokenPatch.Remove)
+
+  def removeLFToAvoidEmptyLine(
+      token: Token
+  )(implicit builder: Rewrite.PatchBuilder): Unit =
+    getPatchToAvoidEmptyLine(token).foreach(builder += _)
+
 }
 
 abstract class Rewrite {
@@ -52,6 +70,9 @@ abstract class Rewrite {
 }
 
 object Rewrite {
+
+  type PatchBuilder =
+    scala.collection.mutable.Builder[TokenPatch, Seq[TokenPatch]]
 
   private val rewrites = Seq[sourcecode.Text[Rewrite]](
     RedundantBraces,
@@ -110,4 +131,18 @@ object Rewrite {
       }
     }
   }
+
+}
+
+object RewriteCtx {
+
+  // this is a helper function to be used with the token traverser
+  // finds a newline not blocked by any non-whitespace characters
+  private def isLFSkipWhitespace(token: Token): Option[Boolean] =
+    token match {
+      case _: LF => Some(true)
+      case Whitespace() => None
+      case _ => Some(false)
+    }
+
 }
