@@ -112,7 +112,7 @@ object a {
 }
 >>>
 object a {
-  a({ b => c })
+  a { b => c }
 }
 <<< single-arg apply of a block 2
 object a {
@@ -120,7 +120,7 @@ object a {
 }
 >>>
 object a {
-  a({ b; c })
+  a { b; c }
 }
 <<< single-arg apply of a block 3
 object a {
@@ -131,7 +131,5 @@ object a {
 }
 >>>
 object a {
-  (
-    a { b; c }
-  )
+  a { b; c }
 }
