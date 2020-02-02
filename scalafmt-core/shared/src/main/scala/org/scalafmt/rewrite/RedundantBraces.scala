@@ -259,23 +259,11 @@ case object RedundantBraces extends Rewrite {
   private def isSingleStatLineSpanOk(
       b: Term
   )(implicit ctx: RewriteCtx): Boolean =
-    b match {
-      case b: Term.Block => getSingleStatIfLineSpanOk(b).isDefined
-      case _ => getTermLineSpan(b) <= settings.maxLines
-    }
+    getTermSingleStat(b).exists(getTermLineSpan(_) <= settings.maxLines)
 
   private def getSingleStatIfLineSpanOk(
       b: Term.Block
   )(implicit ctx: RewriteCtx): Option[Stat] =
-    if (b.stats.lengthCompare(1) != 0) None
-    else {
-      val s = b.stats.head
-      val spanOk = (s.pos.endLine - s.pos.startLine) <= settings.maxLines
-      if (spanOk) Some(s) else None
-    }
-
-  private def getTermLineSpan(b: Term)(implicit ctx: RewriteCtx): Int =
-    if (b.tokens.isEmpty) 0
-    else b.tokens.last.pos.endLine - b.tokens.head.pos.startLine
+    getBlockSingleStat(b).filter(getTermLineSpan(_) <= settings.maxLines)
 
 }

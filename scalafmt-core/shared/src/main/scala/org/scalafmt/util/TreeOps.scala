@@ -13,6 +13,7 @@ import scala.meta.Mod
 import scala.meta.Pat
 import scala.meta.Pkg
 import scala.meta.Source
+import scala.meta.Stat
 import scala.meta.Template
 import scala.meta.Term
 import scala.meta.Tree
@@ -555,5 +556,20 @@ object TreeOps {
 
   def isSingleElement(elements: List[Tree], value: Tree): Boolean =
     elements.lengthCompare(1) == 0 && (value eq elements.head)
+
+  def getBlockSingleStat(b: Term.Block): Option[Stat] =
+    if (b.stats.lengthCompare(1) != 0) None else Some(b.stats.head)
+
+  def getTermSingleStat(t: Term): Option[Tree] = t match {
+    case b: Term.Block => getBlockSingleStat(b)
+    case _ => Some(t)
+  }
+
+  def getTermLineSpan(b: Tree): Int =
+    if (b.tokens.isEmpty) 0
+    else {
+      val pos = b.pos
+      pos.endLine - pos.startLine
+    }
 
 }
