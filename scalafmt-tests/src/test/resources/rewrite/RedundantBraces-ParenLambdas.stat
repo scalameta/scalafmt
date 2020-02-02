@@ -126,5 +126,5 @@ object a {
 }
 >>>
 object a {
-  val a = b { c => d => e; f }
+  val a = b { c => d => { e; f } }
 }

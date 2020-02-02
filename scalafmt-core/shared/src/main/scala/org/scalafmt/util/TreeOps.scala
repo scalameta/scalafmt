@@ -67,6 +67,12 @@ object TreeOps {
       case _ => false
     }
 
+  def isFunctionWithBraces(fun: Term.Function): Boolean =
+    fun.parent match {
+      case Some(b: Term.Block) => isSingleElement(b.stats, fun)
+      case _ => false
+    }
+
   def extractStatementsIfAny(tree: Tree): Seq[Tree] = tree match {
     case b: Term.Block => b.stats
     case b: Term.Function if isBlockFunction(b) => b.body :: Nil
