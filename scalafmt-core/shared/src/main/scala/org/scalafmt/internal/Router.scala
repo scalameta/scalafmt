@@ -551,8 +551,8 @@ class Router(formatOps: FormatOps) {
       case FormatToken(T.LeftParen(), _, _)
           if style.optIn.configStyleArguments &&
             !style.newlinesBeforeSingleArgParenLambdaParams &&
-            getLambdaAtSingleArgCallSite(leftOwner).isDefined => {
-        val lambda = getLambdaAtSingleArgCallSite(leftOwner).get
+            getLambdaAtSingleArgCallSite(leftOwner, rightOwner).isDefined => {
+        val lambda = getLambdaAtSingleArgCallSite(leftOwner, rightOwner).get
         val lambdaLeft: Option[Token] =
           matchingOpt(functionExpire(lambda)._1).filter(_.is[T.LeftBrace])
 
