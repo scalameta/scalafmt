@@ -27,6 +27,21 @@ case object RedundantParens extends Rewrite {
             case _ =>
           }
         }
+
+      case t @ Term.Apply(_, List(b: Term.Block))
+          if ctx.style.activeForEdition_2020_01 &&
+            b.tokens.headOption.exists(_.is[Token.LeftBrace]) =>
+        t.tokens.lastOption.filter(_.is[RightParen]).foreach { rparen =>
+          ctx.getMatchingOpt(rparen).foreach { lparen =>
+            implicit val builder = Seq.newBuilder[TokenPatch]
+            builder += TokenPatch.Remove(lparen)
+            builder += TokenPatch.Remove(rparen)
+            ctx.removeLFToAvoidEmptyLine(lparen)
+            ctx.removeLFToAvoidEmptyLine(rparen)
+            ctx.addPatchSet(builder.result(): _*)
+          }
+        }
+
     }
   }
 }
