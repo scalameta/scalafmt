@@ -224,7 +224,7 @@ case object RedundantBraces extends Rewrite {
         !disqualifiedByUnit
 
       case p: Term.Function
-          if ctx.style.activeForEdition_2019_11 && isBlockFunction(p) =>
+          if ctx.style.activeForEdition_2019_11 && isFunctionWithBraces(p) =>
         settings.methodBodies
 
       case _ =>
