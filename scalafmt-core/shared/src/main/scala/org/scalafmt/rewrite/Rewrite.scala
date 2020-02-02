@@ -20,8 +20,14 @@ case class RewriteCtx(
   val tokenTraverser = new TokenTraverser(tokens)
   val matchingParens = TreeOps.getMatchingParentheses(tokens)
 
-  def isMatching(a: Token, b: Token) =
-    matchingParens.get(TokenOps.hash(a)).contains(b)
+  @inline def getMatching(a: Token): Token =
+    matchingParens(TokenOps.hash(a))
+
+  @inline def getMatchingOpt(a: Token): Option[Token] =
+    matchingParens.get(TokenOps.hash(a))
+
+  @inline def isMatching(a: Token, b: Token) =
+    getMatchingOpt(a).contains(b)
 
   def applyPatches: String =
     tokens.toIterator
