@@ -59,14 +59,12 @@ object TreeOps {
     ret.result()
   }
 
+  @tailrec
   def isBlockFunction(fun: Term.Function): Boolean =
-    fun.parent.exists {
-      case b: Term.Block =>
-        b.stats.lengthCompare(1) == 0 && b.stats.head.eq(fun)
-      case next: Term.Function =>
-        isBlockFunction(next)
-      case _ =>
-        false
+    fun.parent match {
+      case Some(b: Term.Block) => isSingleElement(b.stats, fun)
+      case Some(next: Term.Function) => isBlockFunction(next)
+      case _ => false
     }
 
   def extractStatementsIfAny(tree: Tree): Seq[Tree] = tree match {
@@ -548,5 +546,8 @@ object TreeOps {
         Some(fun)
       case _ => None
     }
+
+  def isSingleElement(elements: List[Tree], value: Tree): Boolean =
+    elements.lengthCompare(1) == 0 && (value eq elements.head)
 
 }
