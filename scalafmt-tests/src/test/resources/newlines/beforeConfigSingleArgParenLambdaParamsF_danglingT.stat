@@ -648,3 +648,59 @@ val f = {
         e
       })
 }
+<<< init: keep single-arg-ctor lambda param on first line 1
+object a {
+  class b extends c(
+  _ => d({
+    e
+    f
+    }))
+}
+>>>
+object a {
+  class b
+      extends c(
+        _ =>
+          d({
+            e
+            f
+          })
+      )
+}
+<<< init: keep single-arg-ctor lambda param on first line 2
+object a {
+  class b extends c( _ => d({
+    e
+    f
+    }))
+}
+>>>
+object a {
+  class b
+      extends c(
+        _ =>
+          d({
+            e
+            f
+          })
+      )
+}
+<<< init: ignore multi-arg-ctor lambda param 3
+object a {
+  class b extends c( _ => d({
+    e
+    f
+    }), _ => e)
+}
+>>>
+object a {
+  class b
+      extends c(
+        _ =>
+          d({
+            e
+            f
+          }),
+        _ => e
+      )
+}
