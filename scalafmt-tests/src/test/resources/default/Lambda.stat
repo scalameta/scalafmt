@@ -214,15 +214,14 @@ def test(dataFrame: DataFrame) = {
 
   dataFrame.rdd
     .aggregate(zeroAccumulator)(
-      { (acc, row) =>
+      (acc, row) =>
         acc.zip(row.toSeq).map {
           case (x, y) => {
             if (true) (1, 2)
             else (x._1 + 2, x._2 + 1)
           }
-        }
-      },
-      { (acc1, acc2) => acc1.zip(acc2).map { case (x, y) => (x._1 + y._1, x._2 + y._2) } }
+        },
+      (acc1, acc2) => acc1.zip(acc2).map { case (x, y) => (x._1 + y._1, x._2 + y._2) }
     )
     .map { case (sum, count) => sum }
 }
