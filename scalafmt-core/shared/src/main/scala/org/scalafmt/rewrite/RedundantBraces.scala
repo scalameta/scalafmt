@@ -263,7 +263,7 @@ case object RedundantBraces extends Rewrite {
         case p: Term.ApplyInfix =>
           stat match {
             case _: Term.ApplyInfix =>
-              val useRight = p.args.lengthCompare(1) == 0 && (p.args.head eq b)
+              val useRight = isSingleElement(p.args, b)
               SyntacticGroupOps.groupNeedsParenthesis(
                 TreeSyntacticGroup(p),
                 TreeSyntacticGroup(stat),
