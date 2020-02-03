@@ -10,19 +10,20 @@ import scala.meta.tokens.Token.RightBrace
 
 import org.scalafmt.util.TreeOps._
 
+object RedundantBraces extends Rewrite {
+  override def create(implicit ctx: RewriteCtx): RewriteSession =
+    new RedundantBraces
+}
+
 /**
   * Removes/adds curly braces where desired.
   */
-case object RedundantBraces extends Rewrite {
+class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
 
-  @inline private def settings(
-      implicit ctx: RewriteCtx
-  ): RedundantBracesSettings =
+  private val settings: RedundantBracesSettings =
     ctx.style.rewrite.redundantBraces
 
-  private def processInterpolation(
-      t: Term.Interpolate
-  )(implicit ctx: RewriteCtx): Unit = {
+  private def processInterpolation(t: Term.Interpolate): Unit = {
     import ctx.tokenTraverser._
 
     def isIdentifierAtStart(value: String) =
@@ -56,31 +57,26 @@ case object RedundantBraces extends Rewrite {
     }
   }
 
-  override def rewrite(implicit ctx: RewriteCtx): Unit = {
-    ctx.tree.traverse {
+  override def rewrite(tree: Tree): Unit = tree match {
+    case t: Term.Apply if ctx.style.activeForEdition_2019_11 =>
+      processApply(t)
 
-      case t: Term.Apply if ctx.style.activeForEdition_2019_11 =>
-        processApply(t)
+    case t: Init if ctx.style.activeForEdition_2020_01 =>
+      processInit(t)
 
-      case t: Init if ctx.style.activeForEdition_2020_01 =>
-        processInit(t)
+    case b: Term.Block =>
+      processBlock(b, okToRemoveBlock)
 
-      case b: Term.Block =>
-        processBlock(b, okToRemoveBlock)
+    case t: Term.Interpolate if settings.stringInterpolation =>
+      processInterpolation(t)
 
-      case t: Term.Interpolate if settings.stringInterpolation =>
-        processInterpolation(t)
-    }
+    case _ =>
   }
 
-  private def processInit(
-      tree: Init
-  )(implicit ctx: RewriteCtx): Unit =
+  private def processInit(tree: Init): Unit =
     tree.argss.foreach(processMultiArgApply)
 
-  private def processApply(
-      tree: Term.Apply
-  )(implicit ctx: RewriteCtx): Unit = {
+  private def processApply(tree: Term.Apply): Unit = {
     val lastToken = tree.tokens.last
     if (lastToken.is[Token.RightParen]) {
       tree.args match {
@@ -91,34 +87,30 @@ case object RedundantBraces extends Rewrite {
     }
   }
 
-  private def processSingleArgApply(
-      arg: Term,
-      rparen: Token
-  )(implicit ctx: RewriteCtx): Unit = arg match {
-    // single-arg apply of a lambda
-    // a(b => { c; d }) change to a { b => c; d }
-    case f: Term.Function
-        if settings.methodBodies && f.tokens.last.is[Token.RightBrace] &&
-          (ctx.style.activeForEdition_2020_01 || getTermLineSpan(f) > 0) =>
-      val rbrace = f.tokens.last
-      val lbrace = ctx.getMatching(rbrace)
-      // we really wanted the first token of body but Block usually
-      // points to the next non-whitespace token after opening brace
-      if (lbrace.start <= f.body.tokens.head.start) {
-        val lparen = ctx.getMatching(rparen)
-        implicit val builder = Seq.newBuilder[TokenPatch]
-        builder += TokenPatch.Replace(lparen, lbrace.text)
-        builder += TokenPatch.Remove(lbrace)
-        builder += TokenPatch.Remove(rparen)
-        ctx.removeLFToAvoidEmptyLine(rparen)
-        ctx.addPatchSet(builder.result(): _*)
-      }
-    case _ =>
-  }
+  private def processSingleArgApply(arg: Term, rparen: Token): Unit =
+    arg match {
+      // single-arg apply of a lambda
+      // a(b => { c; d }) change to a { b => c; d }
+      case f: Term.Function
+          if settings.methodBodies && f.tokens.last.is[Token.RightBrace] &&
+            (ctx.style.activeForEdition_2020_01 || getTermLineSpan(f) > 0) =>
+        val rbrace = f.tokens.last
+        val lbrace = ctx.getMatching(rbrace)
+        // we really wanted the first token of body but Block usually
+        // points to the next non-whitespace token after opening brace
+        if (lbrace.start <= f.body.tokens.head.start) {
+          val lparen = ctx.getMatching(rparen)
+          implicit val builder = Seq.newBuilder[TokenPatch]
+          builder += TokenPatch.Replace(lparen, lbrace.text)
+          builder += TokenPatch.Remove(lbrace)
+          builder += TokenPatch.Remove(rparen)
+          ctx.removeLFToAvoidEmptyLine(rparen)
+          ctx.addPatchSet(builder.result(): _*)
+        }
+      case _ =>
+    }
 
-  private def processMultiArgApply(
-      args: Seq[Term]
-  )(implicit ctx: RewriteCtx): Unit = args.foreach {
+  private def processMultiArgApply(args: Seq[Term]): Unit = args.foreach {
     // multi-arg apply of single-stat lambdas
     // a(b => { c }, d => { e }) change to a(b => c, d => e)
     // a single-stat lambda with braces can be converted to one without braces,
@@ -140,10 +132,7 @@ case object RedundantBraces extends Rewrite {
     case _ =>
   }
 
-  private def processBlock(
-      b: Term.Block,
-      check: Term.Block => Boolean
-  )(implicit ctx: RewriteCtx): Unit =
+  private def processBlock(b: Term.Block, check: Term.Block => Boolean): Unit =
     b.tokens.headOption.filter(_.is[LeftBrace]).foreach { open =>
       val close = b.tokens.last
       if (close.is[RightBrace] && check(b)) {
@@ -169,9 +158,7 @@ case object RedundantBraces extends Rewrite {
       }
     }
 
-  private def okToRemoveBlock(
-      b: Term.Block
-  )(implicit ctx: RewriteCtx): Boolean = {
+  private def okToRemoveBlock(b: Term.Block): Boolean = {
     b.parent.exists {
 
       case p: Case =>
@@ -206,9 +193,7 @@ case object RedundantBraces extends Rewrite {
     }
   }
 
-  private def okToRemoveBlockWithinApply(
-      b: Term.Block
-  )(implicit ctx: RewriteCtx): Boolean = {
+  private def okToRemoveBlockWithinApply(b: Term.Block): Boolean = {
     getSingleStatIfLineSpanOk(b).exists {
       case Term.Function(_, _: Term.Block) =>
         !settings.methodBodies // else the inner block will be rewritten, too
@@ -217,9 +202,7 @@ case object RedundantBraces extends Rewrite {
   }
 
   /** Some blocks look redundant but aren't */
-  private def shouldRemoveSingleStatBlock(
-      b: Term.Block
-  )(implicit ctx: RewriteCtx): Boolean =
+  private def shouldRemoveSingleStatBlock(b: Term.Block): Boolean =
     getSingleStatIfLineSpanOk(b).exists { stat =>
       !b.parent.exists {
         case parentIf: Term.If if stat.is[Term.If] =>
@@ -256,14 +239,10 @@ case object RedundantBraces extends Rewrite {
       }
     }
 
-  private def isSingleStatLineSpanOk(
-      b: Term
-  )(implicit ctx: RewriteCtx): Boolean =
-    getTermSingleStat(b).exists(getTermLineSpan(_) <= settings.maxLines)
+  private def isSingleStatLineSpanOk(t: Term): Boolean =
+    getTermSingleStat(t).exists(getTermLineSpan(_) <= settings.maxLines)
 
-  private def getSingleStatIfLineSpanOk(
-      b: Term.Block
-  )(implicit ctx: RewriteCtx): Option[Stat] =
+  private def getSingleStatIfLineSpanOk(b: Term.Block): Option[Stat] =
     getBlockSingleStat(b).filter(getTermLineSpan(_) <= settings.maxLines)
 
 }

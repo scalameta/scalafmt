@@ -2,7 +2,7 @@ package org.scalafmt.config
 
 import metaconfig._
 import org.scalafmt.Error.InvalidScalafmtConfiguration
-import org.scalafmt.rewrite.{AvoidInfix, Rewrite}
+import org.scalafmt.rewrite.Rewrite
 
 case class RewriteSettings(
     rules: Seq[Rewrite] = Nil,
