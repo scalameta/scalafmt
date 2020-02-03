@@ -229,3 +229,100 @@ object Foo {
       dddddddd + eeeeeeee, /* comment */
   )
 }
+<<< #1667
+maxColumn = 80
+optIn.breakChainOnFirstMethodDot = false
+===
+object Foo {
+  def foo(): Unit = {
+    aaaaaaaaaaaaaaa(c, ddddddd).map { zzzzzzzzzz =>
+      val ccccc = zz.bbbbbb(EEEEE.xxx, Schema.String).toOption.flatMap {
+        case c: Seq[String] =>
+          xxxx(c, (v: String) => s"""\\"$v\\"""")(Schema.String).map(s =>
+            Yyyyyyyyyyyyyyyy("SSSSSSS", s),
+          )
+      }
+    }.get
+  }
+}
+>>>
+Idempotency violated
+object Foo {
+  def foo(): Unit = {
+    aaaaaaaaaaaaaaa(c, ddddddd).map { zzzzzzzzzz =>
+      val ccccc = zz.bbbbbb(EEEEE.xxx, Schema.String).toOption.flatMap {
+        case c: Seq[String] =>
+          xxxx(c, (v: String) => s"""\\"$v\\"""")(Schema.String)
+            .map(s => Yyyyyyyyyyyyyyyy("SSSSSSS", s))
+      }
+    }.get
+  }
+}
+<<< #1667 test various scenarios
+object a {
+  class a[
+   t1,
+   t2 // comment
+  ](a1: Int,
+    a2: Int // comment
+  )(
+    b1: String,
+    b2: String // comment
+  )(implicit
+    c1: SomeType1,
+    c2: SomeType2 // comment
+  ) {
+    def this(
+      a1: Int,
+      a2: Int // comment
+    )(
+      b1: String,
+      b2: String // comment
+    )(implicit
+      c1: SomeType1,
+      c2: SomeType2 // comment
+    ) = this(
+      a1,
+      a2 // comment
+    ) (
+      b1,
+      b2 // comment
+    )
+  }
+}
+>>>
+object a {
+  class a[
+      t1,
+      t2, // comment
+  ](
+      a1: Int,
+      a2: Int, // comment
+  )(
+      b1: String,
+      b2: String, // comment
+  )(
+      implicit
+      c1: SomeType1,
+      c2: SomeType2, // comment
+  ) {
+    def this(
+        a1: Int,
+        a2: Int, // comment
+    )(
+        b1: String,
+        b2: String, // comment
+    )(
+        implicit
+        c1: SomeType1,
+        c2: SomeType2, // comment
+    ) =
+      this(
+        a1,
+        a2, // comment
+      )(
+        b1,
+        b2, // comment
+      )
+  }
+}
