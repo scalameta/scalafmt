@@ -5,9 +5,15 @@ import org.scalafmt.config.SortSettings._
 import scala.meta._
 
 object SortModifiers extends Rewrite {
+  override def create(implicit ctx: RewriteCtx): RewriteSession =
+    new SortModifiers
+}
 
-  override def rewrite(implicit ctx: RewriteCtx): Unit = {
-    implicit val order = ctx.style.rewrite.sortModifiers.order
+class SortModifiers(implicit ctx: RewriteCtx) extends RewriteSession {
+
+  private implicit val order = ctx.style.rewrite.sortModifiers.order
+
+  override def rewrite(tree: Tree): Unit = tree match {
 
     /*
      * in the case of Class, Object, and of class constructor parameters
@@ -20,31 +26,28 @@ object SortModifiers extends Rewrite {
      * }}}
      * are considered Mods, instead of being similar to `Defn.Val`, or `Defn.Var`.
      */
-    ctx.tree.traverse {
-      case d: Decl.Def => sortMods(d.mods)
-      case v: Decl.Val => sortMods(v.mods)
-      case v: Decl.Var => sortMods(v.mods)
-      case t: Decl.Type => sortMods(t.mods)
-      case d: Defn.Def => sortMods(d.mods)
-      case v: Defn.Val => sortMods(v.mods)
-      case v: Defn.Var => sortMods(v.mods)
-      case t: Defn.Type => sortMods(t.mods)
-      case c: Defn.Class => sortMods(c.mods.filterNot(_.is[Mod.Case]))
-      case o: Defn.Object => sortMods(o.mods.filterNot(_.is[Mod.Case]))
-      case t: Defn.Trait => sortMods(t.mods)
-      case p: Term.Param =>
-        sortMods(
-          p.mods.filterNot(m => m.is[Mod.ValParam] || m.is[Mod.VarParam])
-        )
-    }
+    case d: Decl.Def => sortMods(d.mods)
+    case v: Decl.Val => sortMods(v.mods)
+    case v: Decl.Var => sortMods(v.mods)
+    case t: Decl.Type => sortMods(t.mods)
+    case d: Defn.Def => sortMods(d.mods)
+    case v: Defn.Val => sortMods(v.mods)
+    case v: Defn.Var => sortMods(v.mods)
+    case t: Defn.Type => sortMods(t.mods)
+    case c: Defn.Class => sortMods(c.mods.filterNot(_.is[Mod.Case]))
+    case o: Defn.Object => sortMods(o.mods.filterNot(_.is[Mod.Case]))
+    case t: Defn.Trait => sortMods(t.mods)
+    case p: Term.Param =>
+      sortMods(
+        p.mods.filterNot(m => m.is[Mod.ValParam] || m.is[Mod.VarParam])
+      )
+    case _ =>
   }
 
-  private def sortMods(
-      oldMods: Seq[Mod]
-  )(implicit ctx: RewriteCtx, order: List[ModKey]): Unit = {
+  private def sortMods(oldMods: Seq[Mod]): Unit = {
     if (oldMods.nonEmpty) {
       val sanitized = oldMods.filterNot(isHiddenImplicit)
-      val sortedMods: Seq[Mod] = sanitized.sortWith(orderModsBy(order))
+      val sortedMods: Seq[Mod] = sanitized.sortWith(orderModsBy)
 
       ctx.addPatchSet(sortedMods.zip(sanitized).flatMap {
         case (next, old) =>
@@ -81,7 +84,7 @@ object SortModifiers extends Rewrite {
     * @return
     *   m1 < m2; according to the order given by the List
     */
-  private def orderModsBy(order: List[ModKey])(m1: Mod, m2: Mod): Boolean = {
+  private def orderModsBy(m1: Mod, m2: Mod): Boolean = {
     val idx1 = order.indexWhere(modCorrespondsToSettingKey(m1))
     val idx2 = order.indexWhere(modCorrespondsToSettingKey(m2))
     idx1 < idx2

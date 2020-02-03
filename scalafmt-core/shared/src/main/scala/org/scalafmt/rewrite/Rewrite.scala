@@ -5,6 +5,7 @@ import scala.collection.mutable
 import metaconfig.ConfCodec
 import scala.meta._
 import scala.meta.tokens.Token.LF
+import scala.meta.transversers.SimpleTraverser
 
 import org.scalafmt.config.ReaderUtil
 import org.scalafmt.config.ScalafmtConfig
@@ -66,7 +67,11 @@ case class RewriteCtx(
 }
 
 abstract class Rewrite {
-  def rewrite(implicit ctx: RewriteCtx): Unit
+  def create(implicit ctx: RewriteCtx): RewriteSession
+}
+
+abstract class RewriteSession(implicit ctx: RewriteCtx) {
+  def rewrite(tree: Tree): Unit
 }
 
 object Rewrite {
@@ -124,7 +129,14 @@ object Rewrite {
       style.runner.dialect(input).parse(style.runner.parser) match {
         case Parsed.Success(ast) =>
           val ctx = RewriteCtx(style, ast)
-          rewrites.foreach(_.rewrite(ctx))
+          val rewriteSessions = rewrites.map(_.create(ctx)).toList
+          val traverser = new SimpleTraverser {
+            override def apply(tree: Tree): Unit = {
+              rewriteSessions.foreach(_.rewrite(tree))
+              super.apply(tree)
+            }
+          }
+          traverser(ast)
           val out = ctx.applyPatches
           input match {
             case Input.File(path, _) =>

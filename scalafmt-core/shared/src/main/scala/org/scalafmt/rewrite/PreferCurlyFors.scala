@@ -5,6 +5,11 @@ import org.scalafmt.util.Whitespace
 import scala.meta.tokens.Tokens
 import scala.meta._
 
+object PreferCurlyFors extends Rewrite {
+  override def create(implicit ctx: RewriteCtx): RewriteSession =
+    new PreferCurlyFors
+}
+
 /**
   * Replaces multi generator For / ForYield Expression parens and semi-colons
   * with braces and new-lines.
@@ -21,13 +26,12 @@ import scala.meta._
   *   } yield (a, b)
   *
   */
-case object PreferCurlyFors extends Rewrite {
+class PreferCurlyFors(implicit ctx: RewriteCtx) extends RewriteSession {
 
-  def findForParens(
-      forTokens: Tokens
-  )(implicit ctx: RewriteCtx): Option[(Token, Token)] = {
-    import ctx.tokenTraverser._
+  import ctx.dialect
+  import ctx.tokenTraverser._
 
+  private def findForParens(forTokens: Tokens): Option[(Token, Token)] =
     for {
       forToken <- forTokens.find(_.is[Token.KwFor])
       leftParen <- findAfter(forToken) {
@@ -37,13 +41,8 @@ case object PreferCurlyFors extends Rewrite {
       }
       rightParen <- ctx.getMatchingOpt(leftParen)
     } yield (leftParen, rightParen)
-  }
 
-  def findForSemiColons(
-      forEnumerators: Seq[Enumerator]
-  )(implicit ctx: RewriteCtx): Seq[Token] = {
-    import ctx.tokenTraverser._
-
+  private def findForSemiColons(forEnumerators: Seq[Enumerator]): Seq[Token] =
     for {
       enumerator <- forEnumerators
       token <- enumerator
@@ -56,14 +55,11 @@ case object PreferCurlyFors extends Rewrite {
         case _ => Some(false)
       }.toIterable
     } yield semicolon
-  }
 
-  def rewriteFor(
+  private def rewriteFor(
       forTokens: Tokens,
       forEnumerators: Seq[Enumerator]
-  )(implicit ctx: RewriteCtx): Seq[TokenPatch] = {
-    import ctx.tokenTraverser._
-
+  ): Seq[TokenPatch] = {
     val builder = Seq.newBuilder[TokenPatch]
 
     findForParens(forTokens).foreach { parens =>
@@ -81,16 +77,17 @@ case object PreferCurlyFors extends Rewrite {
     builder.result()
   }
 
-  def hasMoreThanOneGenerator(forEnumerators: Seq[Enumerator]): Boolean =
+  private def hasMoreThanOneGenerator(
+      forEnumerators: Seq[Enumerator]
+  ): Boolean =
     forEnumerators.count(_.is[Enumerator.Generator]) > 1
 
-  override def rewrite(implicit ctx: RewriteCtx): Unit = {
-    import ctx.dialect
-    ctx.tree.traverse {
-      case fy: Term.ForYield if hasMoreThanOneGenerator(fy.enums) =>
-        ctx.addPatchSet(rewriteFor(fy.tokens, fy.enums): _*)
-      case f: Term.For if hasMoreThanOneGenerator(f.enums) =>
-        ctx.addPatchSet(rewriteFor(f.tokens, f.enums): _*)
-    }
+  override def rewrite(tree: Tree): Unit = tree match {
+    case fy: Term.ForYield if hasMoreThanOneGenerator(fy.enums) =>
+      ctx.addPatchSet(rewriteFor(fy.tokens, fy.enums): _*)
+    case f: Term.For if hasMoreThanOneGenerator(f.enums) =>
+      ctx.addPatchSet(rewriteFor(f.tokens, f.enums): _*)
+    case _ =>
   }
+
 }
