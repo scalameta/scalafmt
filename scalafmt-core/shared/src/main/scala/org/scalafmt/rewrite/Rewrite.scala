@@ -8,8 +8,8 @@ import scala.meta.tokens.Token.LF
 
 import org.scalafmt.config.ReaderUtil
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.util.Whitespace
-import org.scalafmt.util.{TokenOps, TokenTraverser, TreeOps}
+import org.scalafmt.config.TrailingCommas
+import org.scalafmt.util.{TokenOps, TokenTraverser, TreeOps, Whitespace}
 
 case class RewriteCtx(
     style: ScalafmtConfig,
@@ -112,7 +112,12 @@ object Rewrite {
   }
 
   def apply(input: Input, style: ScalafmtConfig): Input = {
-    val rewrites = style.rewrite.rules
+    val trailingCommaRewrite =
+      if (!style.runner.dialect.allowTrailingCommas ||
+        style.trailingCommas == TrailingCommas.preserve) Seq.empty
+      else Seq(RewriteTrailingCommas)
+
+    val rewrites = style.rewrite.rules ++ trailingCommaRewrite
     if (rewrites.isEmpty) {
       input
     } else {
