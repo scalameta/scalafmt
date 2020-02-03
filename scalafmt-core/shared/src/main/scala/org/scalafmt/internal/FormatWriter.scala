@@ -218,68 +218,48 @@ class FormatWriter(formatOps: FormatOps) {
 
         import org.scalafmt.config.TrailingCommas
 
-        val owner = owners(tok.right)
-        if (!runner.dialect.allowTrailingCommas ||
-          !TreeOps.isImporterOrDefnOrCallSite(owner)) {
+        /* If we are mutating trailing commas ('always' or 'never'), we should
+         * have removed them first in RewriteTrailingCommas; now we simply need
+         * to append them in case of 'always', but only when dangling */
+        val appendComma = runner.dialect.allowTrailingCommas &&
+          initStyle.trailingCommas == TrailingCommas.always &&
+          !tok.left.is[T.Comma] && !tok.left.is[T.Comment] && {
+          def owner = owners(tok.right)
+
+          val (skip, nextNonCommentTok) = nextNonCommentWithCount(tok)
+          val right = nextNonCommentTok.right
+          def isNewline =
+            Seq(curr, locations(math.min(i + skip, locations.length - 1)))
+              .exists(_.state.split.modification.isNewline)
+
+          // Scala syntax allows commas before right braces in weird places,
+          // like constructor bodies:
+          // def this() = {
+          //   this(1),
+          // }
+          // This code simply ignores those commas because it does not
+          // consider them "trailing" commas. It does not remove them
+          // in the TrailingCommas.never branch, nor does it
+          // try to add them in the TrainingCommas.always branch.
+
+          // skip empty parens/braces/brackets
+          def rightIsCloseDelim = right match {
+            case _: T.RightBrace =>
+              !tok.left.is[T.LeftBrace] && owner.is[Importer]
+            case _: T.RightParen =>
+              !tok.left.is[T.LeftParen] && TreeOps.isDefnOrCallSite(owner)
+            case _: T.RightBracket =>
+              !tok.left.is[T.LeftBracket] && TreeOps.isDefnOrCallSite(owner)
+            case _ => false
+          }
+          rightIsCloseDelim && isNewline
+        }
+
+        if (appendComma)
+          sb.append(',').append(getWhitespace(-1))
+        else
           sb.append(getWhitespace(0))
-          return
-        }
-        val isImport = owner.isInstanceOf[Importer]
-
-        val left = tok.left
-        val (skip, nextNonCommentTok) = nextNonCommentWithCount(tok)
-        val right = nextNonCommentTok.right
-        val isNewline =
-          Seq(curr, locations(math.min(i + skip, locations.length - 1)))
-            .exists(_.state.split.modification.isNewline)
-
-        // Scala syntax allows commas before right braces in weird places,
-        // like constructor bodies:
-        // def this() = {
-        //   this(1),
-        // }
-        // This code simply ignores those commas because it does not
-        // consider them "trailing" commas. It does not remove them
-        // in the TrailingCommas.never branch, nor does it
-        // try to add them in the TrainingCommas.always branch.
-        lazy val rightIsCloseDelim = right
-          .is[CloseParenOrBracket] || (right.is[T.RightBrace] && isImport)
-
-        initStyle.trailingCommas match {
-          // foo(
-          //   a,
-          //   b
-          // )
-          //
-          // Insert a comma after b
-          case TrailingCommas.always
-              if !left.is[T.Comma] &&
-                !left.is[T.Comment] &&
-                !left.is[T.LeftParen] && // skip empty parentheses
-                rightIsCloseDelim && isNewline =>
-            sb.append(',').append(getWhitespace(-1))
-
-          // foo(
-          //   a,
-          //   b,
-          // )
-          //
-          // Remove the comma after b
-          case TrailingCommas.never
-              if left.is[T.Comma] && rightIsCloseDelim && isNewline =>
-            sb.setLength(sb.length - 1)
-            sb.append(getWhitespace(1))
-
-          // foo(a, b,)
-          //
-          // Remove the comma after b
-          case _ if left.is[T.Comma] && rightIsCloseDelim && !isNewline =>
-            sb.setLength(sb.length - 1)
-
-          case _ => sb.append(getWhitespace(0))
-        }
       }
-
     }
   }
 

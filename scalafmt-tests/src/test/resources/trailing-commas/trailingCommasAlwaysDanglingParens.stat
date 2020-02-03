@@ -246,14 +246,14 @@ object Foo {
   }
 }
 >>>
-Idempotency violated
 object Foo {
   def foo(): Unit = {
     aaaaaaaaaaaaaaa(c, ddddddd).map { zzzzzzzzzz =>
       val ccccc = zz.bbbbbb(EEEEE.xxx, Schema.String).toOption.flatMap {
         case c: Seq[String] =>
-          xxxx(c, (v: String) => s"""\\"$v\\"""")(Schema.String)
-            .map(s => Yyyyyyyyyyyyyyyy("SSSSSSS", s))
+          xxxx(c, (v: String) => s"""\\"$v\\"""")(Schema.String).map(s =>
+            Yyyyyyyyyyyyyyyy("SSSSSSS", s),
+          )
       }
     }.get
   }
