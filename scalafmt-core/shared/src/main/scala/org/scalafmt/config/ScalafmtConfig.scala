@@ -9,8 +9,6 @@ import metaconfig.Configured._
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.ValidationOps
 
-import Edition.ordering._
-
 /** Configuration options for scalafmt.
   *
   * @param version The version of scalafmt to use for this project. Currently not used,
@@ -266,7 +264,7 @@ object ScalafmtConfig {
     docstrings = Docstrings.JavaDoc,
     align = default.align.copy(
       arrowEnumeratorGenerator = false,
-      tokens = Set(AlignToken.caseArrow),
+      tokens = Seq(AlignToken.caseArrow),
       ifWhileOpenParen = false
     )
   )
@@ -304,7 +302,7 @@ object ScalafmtConfig {
     includeCurlyBraceInSelectChains = false,
     danglingParentheses = DanglingParentheses(false, false),
     align = default.align.copy(
-      tokens = Set.empty,
+      tokens = Seq.empty,
       openParenCallSite = true,
       openParenDefnSite = true
     ),
@@ -371,10 +369,10 @@ object ScalafmtConfig {
       case els => base.read(els)
     }
   def alignTokenReader(
-      initTokens: Set[AlignToken]
-  ): ConfDecoder[Set[AlignToken]] = {
-    val baseReader = ConfDecoder[Set[AlignToken]]
-    ConfDecoder.instance[Set[AlignToken]] {
+      initTokens: Seq[AlignToken]
+  ): ConfDecoder[Seq[AlignToken]] = {
+    val baseReader = ConfDecoder[Seq[AlignToken]]
+    ConfDecoder.instance[Seq[AlignToken]] {
       case Conf.Obj(("add", conf) :: Nil) =>
         baseReader.read(conf).map(initTokens ++ _)
       case Align.Builtin(a) => Ok(a.tokens)
