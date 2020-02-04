@@ -355,14 +355,6 @@ object ScalafmtConfig {
         }
     }
 
-  def gimmeStrPairs(tokens: Seq[String]): Seq[(String, String)] = {
-    tokens.map { token =>
-      val splitted = token.split(";", 2)
-      if (splitted.length != 2)
-        throw new IllegalArgumentException("pair must contain ;")
-      (splitted(0), splitted(1))
-    }
-  }
   def alignReader(base: ConfDecoder[Align]): ConfDecoder[Align] =
     ConfDecoder.instance[Align] {
       case Align.Builtin(a) => Ok(a)
