@@ -29,7 +29,7 @@ object AlignToken {
       case els => fallbackAlign.reader.read(els)
     }
 
-  val default = Set(
+  val default = Seq(
     caseArrow,
     AlignToken("extends", "Defn.(Class|Trait|Object)"),
     AlignToken("//", ".*"),

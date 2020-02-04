@@ -58,7 +58,7 @@ import metaconfig.generic.Surface
 case class Align(
     openParenCallSite: Boolean = false,
     openParenDefnSite: Boolean = false,
-    tokens: Set[AlignToken] = Set(AlignToken.caseArrow),
+    tokens: Seq[AlignToken] = Seq(AlignToken.caseArrow),
     arrowEnumeratorGenerator: Boolean = false,
     ifWhileOpenParen: Boolean = true,
     tokenCategory: Map[String, String] = Map(),
@@ -74,7 +74,7 @@ case class Align(
     )
 ) {
   implicit val reader: ConfDecoder[Align] = generic.deriveDecoder(this).noTypos
-  implicit val alignReader: ConfDecoder[Set[AlignToken]] =
+  implicit val alignReader: ConfDecoder[Seq[AlignToken]] =
     ScalafmtConfig.alignTokenReader(tokens)
 }
 
@@ -84,7 +84,7 @@ object Align {
   val none: Align = Align(
     openParenCallSite = false,
     openParenDefnSite = false,
-    tokens = Set.empty,
+    tokens = Seq.empty,
     ifWhileOpenParen = false,
     tokenCategory = Map.empty,
     treeCategory = Map.empty

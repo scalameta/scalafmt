@@ -53,7 +53,7 @@ class StyleMapTest extends AnyFunSuite {
 
     val newPrintlnConfig = newFormatOps.styleMap.at(printlnToken)
     assert(printlnConfig.alignMap("=").regex == overrideEquals)
-    assert(newPrintlnConfig.alignMap("=").regex == defaultEquals) // this is wrong
+    assert(newPrintlnConfig.alignMap("=").regex == overrideEquals)
   }
 
 }
