@@ -1,7 +1,7 @@
 package org.scalafmt
 
-import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.DiffAssertions
+import org.scalafmt.util.HasTests
 import org.scalatest.funsuite.AnyFunSuite
 
 class RangeTest extends AnyFunSuite with DiffAssertions {
@@ -19,7 +19,7 @@ class RangeTest extends AnyFunSuite with DiffAssertions {
     val obtained = Scalafmt
       .format(
         original,
-        ScalafmtConfig.unitTest40,
+        HasTests.unitTest40,
         range = Set(Range(2, 2).inclusive)
       )
       .get
