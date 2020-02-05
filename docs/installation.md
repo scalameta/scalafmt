@@ -75,8 +75,12 @@ in Vim and NeoVim. For more details, refer to the
 ## Emacs
 
 You can use the [Metals](#metals) language server to format code with Scalafmt
-in Emacs. For more details, refer to the
-[Metals documentation](https://scalameta.org/metals/docs/editors/emacs.html).
+in Emacs. For more details, refer to the [Metals
+documentation](https://scalameta.org/metals/docs/editors/emacs.html).
+
+The externally maintained
+[format-all](https://github.com/lassik/emacs-format-all-the-code) extension to
+Emacs also supports scalafmt as one of its formatters.
 
 ## Sublime Text
 
