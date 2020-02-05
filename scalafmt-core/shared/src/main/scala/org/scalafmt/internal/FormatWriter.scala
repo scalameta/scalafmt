@@ -2,10 +2,12 @@ package org.scalafmt.internal
 
 import java.util.regex.Pattern
 
+import org.scalafmt.rewrite.RedundantBraces
 import org.scalafmt.util.TreeOps
 
 import scala.annotation.tailrec
 import scala.collection.IndexedSeq
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.meta.tokens.Token
 import scala.meta.tokens.{Token => T}
@@ -59,9 +61,9 @@ class FormatWriter(formatOps: FormatOps) {
         case c: T.Constant.Double =>
           sb.append(initStyle.literals.double.process(c.syntax))
         case token =>
+          val syntax = Option(location.replace).getOrElse(token.syntax)
           val rewrittenToken =
-            formatOps.initStyle.rewriteTokens
-              .getOrElse(token.syntax, token.syntax)
+            formatOps.initStyle.rewriteTokens.getOrElse(syntax, syntax)
           sb.append(rewrittenToken)
       }
 
@@ -143,7 +145,109 @@ class FormatWriter(formatOps: FormatOps) {
         )
       }
     }
+
+    if (initStyle.activeForEdition_2020_01 &&
+      initStyle.rewrite.rules.contains(RedundantBraces))
+      replaceRedundantBraces(result)
+
     new FormatLocations(result)
+  }
+
+  private def replaceRedundantBraces(locations: Array[FormatLocation]): Unit = {
+    // will map closing brace to opening brace and its line offset
+    val lookup = mutable.Map.empty[Int, (Int, Int)]
+    val inParentheses = initStyle.spaces.inParentheses
+
+    // iterate backwards, to encounter closing braces first
+    var lineOffset = 0
+    var idx = locations.length - 1
+    while (0 <= idx) {
+      val loc = locations(idx)
+      val tok = loc.formatToken
+      val state = loc.state
+      // increment line offset
+      if (tok.leftHasNewline ||
+        state.split.modification.isNewline) lineOffset += 1
+      tok.left match {
+        case rb: T.RightBrace => // look for "foo { bar }"
+          owners(rb) match {
+            case b: Term.Block if TreeOps.getBlockSingleStat(b).exists {
+                  /* guard for statements requiring a wrapper block
+                   * "foo { x => y; z }" can't become "foo(x => y; z)" */
+                  case Term.Function(_, body) =>
+                    TreeOps.getTermSingleStat(body).isDefined
+                  case _ => true
+                } =>
+              b.parent match {
+                case Some(ta: Term.Apply)
+                    if TreeOps.isSingleElement(ta.args, b) &&
+                      (ta.tokens.last eq rb) =>
+                  val beg = tokens(matching(rb))
+                  lookup.update(beg.meta.idx, tok.meta.idx -> lineOffset)
+                case _ =>
+              }
+            case _ =>
+          }
+        case _: T.LeftBrace =>
+          lookup.remove(idx).foreach {
+            case (end, endOffset) if endOffset == lineOffset =>
+              // remove space before "{"
+              val prevBegState =
+                if (0 == idx || (state.prev.split.modification ne Space))
+                  state.prev
+                else {
+                  val prevloc = locations(idx - 1)
+                  val prevState = state.prev
+                    .copy(split = state.prev.split.copy(modification = NoSplit))
+                  locations(idx - 1) = prevloc.copy(
+                    shift = prevloc.shift - 1,
+                    state = prevState
+                  )
+                  prevState
+                }
+
+              // update "{"
+              locations(idx) =
+                if (inParentheses)
+                  loc.copy(
+                    replace = "(",
+                    state = state.copy(prev = prevBegState)
+                  )
+                else {
+                  // remove space after "{"
+                  val split = state.split.copy(modification = NoSplit)
+                  loc.copy(
+                    replace = "(",
+                    shift = loc.shift - 1,
+                    state = state.copy(prev = prevBegState, split = split)
+                  )
+                }
+
+              val prevEndLoc = locations(end - 1)
+              val prevEndState = prevEndLoc.state
+              val newPrevEndState =
+                if (inParentheses) prevEndState
+                else {
+                  // remove space before "}"
+                  val split = prevEndState.split.copy(modification = NoSplit)
+                  val newState = prevEndState.copy(split = split)
+                  locations(end - 1) = prevEndLoc
+                    .copy(shift = prevEndLoc.shift - 1, state = newState)
+                  newState
+                }
+
+              // update "}"
+              val endLoc = locations(end)
+              locations(end) = endLoc.copy(
+                replace = ")",
+                state = endLoc.state.copy(prev = newPrevEndState)
+              )
+            case _ =>
+          }
+        case _ =>
+      }
+      idx -= 1
+    }
   }
 
   class FormatLocations(val locations: Array[FormatLocation]) {
@@ -412,6 +516,7 @@ class FormatWriter(formatOps: FormatOps) {
     if (initStyle.align.tokens.isEmpty || locations.length != tokens.length)
       Map.empty[TokenHash, Int]
     else {
+      var columnShift = 0
       val finalResult = Map.newBuilder[TokenHash, Int]
       var minMatches = Integer.MAX_VALUE
       var block = Vector.empty[Array[FormatLocation]]
@@ -428,8 +533,13 @@ class FormatWriter(formatOps: FormatOps) {
         val columnCandidates = Array.newBuilder[FormatLocation]
         def shouldContinue(floc: FormatLocation): Boolean = {
           val ok = !floc.state.split.modification.isNewline
+          if (!ok || floc.formatToken.leftHasNewline) columnShift = 0
+          columnShift += floc.shift
           if (ok)
-            if (isCandidate(floc)) columnCandidates += floc
+            if (isCandidate(floc))
+              columnCandidates += floc.copy(shift =
+                floc.state.prev.column + columnShift
+              )
           ok
         }
         while (shouldContinue(locationIter.next()) && locationIter.hasNext) {}
@@ -454,8 +564,8 @@ class FormatWriter(formatOps: FormatOps) {
               val blockWithWidth = block.map { line =>
                 val location = line(column)
                 val previousWidth =
-                  if (column == 0) 0 else line(column - 1).state.prev.column
-                val key = location.state.prev.column - previousWidth
+                  if (column == 0) 0 else line(column - 1).shift
+                val key = location.shift - previousWidth
                 key -> hash(location.formatToken.left)
               }
               val maxWidth = blockWithWidth.map(_._1).max
@@ -484,7 +594,9 @@ object FormatWriter {
 
   case class FormatLocation(
       formatToken: FormatToken,
-      state: State
+      state: State,
+      shift: Int = 0,
+      replace: String = null
   )
 
   // cache indentations to some level
