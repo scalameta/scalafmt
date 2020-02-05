@@ -37,11 +37,11 @@ object a {
       iv: Option[String]
   ): dim.MerchantDna =
     dim.MerchantDna(
-      primaryRecurPeriod = subsDna.flatMap { _.primary },
-      weekly = subsDna.map { _.weekly }.getOrElse(false),
-      monthly = subsDna.map { _.monthly }.getOrElse(false),
-      quarterly = subsDna.map { _.quarterly }.getOrElse(false),
-      annual = subsDna.map { _.annual }.getOrElse(false),
+      primaryRecurPeriod = subsDna.flatMap(_.primary),
+      weekly = subsDna.map(_.weekly).getOrElse(false),
+      monthly = subsDna.map(_.monthly).getOrElse(false),
+      quarterly = subsDna.map(_.quarterly).getOrElse(false),
+      annual = subsDna.map(_.annual).getOrElse(false),
       platformConnectUsage = cu,
       industryVertical = iv
     )

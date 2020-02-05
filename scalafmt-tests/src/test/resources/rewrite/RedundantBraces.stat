@@ -246,7 +246,7 @@ object a {
 }
 >>>
 object a {
-  b.c { d => e }
+  b.c(d => e)
 }
 <<< #1027 1.2: braces to parens no: multi-stat
 object a {
@@ -280,7 +280,7 @@ object a {
 }
 >>>
 object a {
-  b.c(d) { e => f }
+  b.c(d)(e => f)
 }
 <<< #1027 1.6: braces to parens yes: func of func
 object a {
@@ -288,7 +288,7 @@ object a {
 }
 >>>
 object a {
-  b.c(d) { implicit e => f => g }
+  b.c(d)(implicit e => f => g)
 }
 <<< #1027 1.7: braces to parens yes: func of infix
 object a {
@@ -296,7 +296,7 @@ object a {
 }
 >>>
 object a {
-  b.c(d) { implicit e => f shouldBe g }
+  b.c(d)(implicit e => f shouldBe g)
 }
 <<< #1027 1.8: braces to parens yes: multiple brace single-arg param-lists
 object a {
@@ -304,7 +304,7 @@ object a {
 }
 >>>
 object a {
-  b.c(d) { e } { implicit f => g }
+  b.c(d)(e)(implicit f => g)
 }
 <<< #1027 1.9: braces to parens yes: func of multi-stat func
 object a {
@@ -312,7 +312,7 @@ object a {
 }
 >>>
 object a {
-  b.c { d => e => { f; g } }
+  b.c(d => e => { f; g })
 }
 <<< #1027 2.1: parens to braces no
 object a {
@@ -344,8 +344,8 @@ object a {
 }
 >>>
 object a {
-  val b  = c { d => e }    // comment1
-  val bb = cc { dd => ee } // comment2
+  val b  = c(d => e)    // comment1
+  val bb = cc(dd => ee) // comment2
 }
 <<< #1027 3.2: with align
 align = more
@@ -356,7 +356,7 @@ object a {
 }
 >>>
 object a {
-  val b  = c { d => e } // comment1
+  val b  = c(d => e)    // comment1
   val bb = cc(dd => ee) // comment2
 }
 <<< #1027 3.3: with align
@@ -368,8 +368,8 @@ object a {
 }
 >>>
 object a {
-  val b  = c { d => e } { d => e }      // comment1
-  val bb = cc { dd => ee } { dd => ee } // comment2
+  val b  = c(d => e)(d => e)      // comment1
+  val bb = cc(dd => ee)(dd => ee) // comment2
 }
 <<< #1027 3.4: with align
 align = more
@@ -380,8 +380,8 @@ object a {
 }
 >>>
 object a {
-  val b  = c { d => e } { d => e } // comment1
-  val bb = cc(dd => ee)(dd => ee)  // comment2
+  val b  = c(d => e)(d => e)      // comment1
+  val bb = cc(dd => ee)(dd => ee) // comment2
 }
 <<< #1027 3.5: with align
 align = more
@@ -392,8 +392,8 @@ object a {
 }
 >>>
 object a {
-  val b  = c(d => e)(d => e)                         // comment1
-  val bb = cc { dd => ee } { dd => ee { ff => gg } } // comment2
+  val b  = c(d => e)(d => e)                // comment1
+  val bb = cc(dd => ee)(dd => ee(ff => gg)) // comment2
 }
 <<< #1027 3.6: with align, no redundant braces
 rewrite.rules = []
@@ -445,7 +445,7 @@ class Test extends AnyWordSpec {
     formFields('firstName, "age".as[Int], 'sex.?, "VIP" ? false) {
       (firstName, age, sex, vip) ⇒ complete(firstName + age + sex + vip)
     }
-  } ~> check { responseAs[String] shouldEqual "Mike42Nonefalse" }
+  } ~> check(responseAs[String] shouldEqual "Mike42Nonefalse")
 }
 <<< #1633 1.2: func with placeholder and select
 object a {
@@ -557,7 +557,7 @@ object a {
 }
 >>>
 object a {
-  b getOrElse { c.d { e } }
+  b getOrElse { c.d(e) }
 }
 <<< #1633 3.3: function block in a val statement
 object a {
@@ -689,7 +689,7 @@ object a {
 }
 >>>
 object a {
-  val b = c { d => e } // comment1
+  val b = c(d => e) // comment1
   /* comment2 */
   /* comment3 */
 }
