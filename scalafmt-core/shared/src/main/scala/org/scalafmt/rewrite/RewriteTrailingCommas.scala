@@ -36,7 +36,6 @@ case object RewriteTrailingCommas extends Rewrite {
       case t: Ctor.Primary => afterEachArgs(t.paramss)
 
       case t: Term.Apply => afterArgs(t.args)
-      case t: Type.Apply => afterArgs(t.args)
       case t: Pat.Extract => afterArgs(t.args)
       case t: Pat.Tuple => afterArgs(t.args)
       case t: Term.Tuple => afterArgs(t.args)
