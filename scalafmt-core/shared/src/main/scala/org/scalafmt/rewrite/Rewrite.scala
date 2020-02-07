@@ -138,23 +138,6 @@ object Rewrite {
 
   val default: Seq[Rewrite] = name2rewrite.values.toSeq
 
-  private def incompatibleRewrites: List[(Rewrite, Rewrite)] =
-    List(
-      SortImports -> ExpandImportSelectors,
-      SortImports -> AsciiSortImports,
-      AsciiSortImports -> ExpandImportSelectors
-    )
-
-  def validateRewrites(rewrites: Seq[Rewrite]): Seq[String] = {
-    incompatibleRewrites.flatMap { case (a, b) =>
-      if (rewrites.contains(a) && rewrites.contains(b))
-        List(
-          s"Incompatible rewrites: $a and $b"
-        )
-      else Nil
-    }
-  }
-
   def apply(input: VirtualFile, style: ScalafmtConfig): VirtualFile = {
     val rewrites = style.rewrite.rewriteFactoryRules
     if (rewrites.isEmpty) {

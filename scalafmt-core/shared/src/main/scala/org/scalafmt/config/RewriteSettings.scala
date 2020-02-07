@@ -1,9 +1,7 @@
 package org.scalafmt.config
 
 import metaconfig._
-import org.scalafmt.Error.InvalidScalafmtConfiguration
-import org.scalafmt.rewrite.Rewrite
-import org.scalafmt.rewrite.RewriteFactory
+import org.scalafmt.rewrite._
 
 case class RewriteSettings(
     rules: Seq[Rewrite] = Nil,
@@ -12,16 +10,6 @@ case class RewriteSettings(
     sortModifiers: SortSettings = SortSettings.default,
     neverInfix: Pattern = Pattern.neverInfix
 ) {
-  Rewrite.validateRewrites(rules) match {
-    case Nil => // OK
-    case errs =>
-      throw InvalidScalafmtConfiguration(
-        new IllegalArgumentException(
-          errs.mkString("\n")
-        )
-      )
-  }
-
   def rewriteFactoryRules: Seq[RewriteFactory] =
     rules.collect { case x: RewriteFactory => x }
 
@@ -39,7 +27,12 @@ case class RewriteSettings(
 object RewriteSettings {
   implicit lazy val surface: generic.Surface[RewriteSettings] =
     generic.deriveSurface
-  implicit lazy val codec: ConfCodecEx[RewriteSettings] =
-    generic.deriveCodecEx(RewriteSettings()).noTypos
+  implicit lazy val encoder: ConfEncoder[RewriteSettings] =
+    generic.deriveEncoder
+
+  implicit lazy val decoder: ConfDecoderEx[RewriteSettings] =
+    generic.deriveDecoderEx(RewriteSettings()).noTypos.flatMap {
+      Imports.validateImports
+    }
 
 }
