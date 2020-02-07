@@ -201,7 +201,7 @@ class GitOpsTest extends FunSuite {
     val f2 = touch()
     add(f1)
     add(f2)
-    assert(diff() == Seq(f1, f2))
+    assert(diff().toSet == Set(f1, f2))
   }
 
   test("diff should return added files against a different branch") {
