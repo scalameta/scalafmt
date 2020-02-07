@@ -1,38 +1,20 @@
 package org.scalafmt
 
-import scala.language.postfixOps
-
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.meta.Tree
-import scala.meta.parsers.Parse
-
 import java.io.File
 
-import org.scalafmt.Error.Incomplete
-import org.scalafmt.Error.SearchStateExploded
-import org.scalafmt.util.DiffAssertions
-import org.scalafmt.util.DiffTest
-import org.scalafmt.util.FileOps
-import org.scalafmt.util.FormatAssertions
-import org.scalafmt.util.HasTests
-import org.scalafmt.util.LoggerOps
-import org.scalafmt.util.Report
-import org.scalatest.BeforeAndAfterAllConfigMap
-import org.scalatest.ConfigMap
-import org.scalatest.concurrent.TimeLimits
-import org.scalatest.time.SpanSugar._
-import org.scalatest.funsuite.AnyFunSuite
+import munit.FunSuite
+import org.scalafmt.Error.{Incomplete, SearchStateExploded}
+import org.scalafmt.util._
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
+import scala.language.postfixOps
+import scala.meta.Tree
+import scala.meta.parsers.Parse
 // TODO(olafur) property test: same solution without optimization or timeout.
 
-class FormatTests
-    extends AnyFunSuite
-    with TimeLimits
-    with BeforeAndAfterAllConfigMap
-    with HasTests
-    with FormatAssertions
-    with DiffAssertions {
+class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
   import LoggerOps._
   lazy val onlyUnit = UnitTests.tests.exists(_.only)
   lazy val onlyManual = !onlyUnit && ManualTests.tests.exists(_.only)
@@ -99,7 +81,7 @@ class FormatTests
     (left.spec, left.name).compare(right.spec -> right.name) < 0
   }
 
-  override def afterAll(configMap: ConfigMap): Unit = {
+  override def afterAll(): Unit = {
     val splits = Debug.enqueuedSplits
       .groupBy(_.line.value)
       .toVector

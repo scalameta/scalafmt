@@ -12,11 +12,10 @@ import tests.PositionSyntax._
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
-import scala.meta.testkit._
 import scala.{meta => m}
-import org.scalatest.funsuite.AnyFunSuite
+import munit.FunSuite
 
-class DynamicSuite extends AnyFunSuite with DiffAssertions {
+class DynamicSuite extends FunSuite {
   class Format(name: String) {
     val download = new ByteArrayOutputStream()
     def downloadLogs: String = download.toString()
@@ -117,7 +116,7 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
       val obtained = dynamic.format(config, file, original)
       val outString = out.toString().replaceAll("\\\\", "/")
       assert(outString.contains(s"file excluded: $filename"))
-      assertNoDiffOrPrintExpected(obtained, original)
+      assertNoDiff(obtained, original)
     }
     def assertFormat()(implicit pos: Position): Unit = {
       assertFormat("object A  {  }", "object A {}\n")
@@ -130,9 +129,9 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
       out.reset()
       val obtained = dynamic.format(config, file, original)
       if (errors.nonEmpty) {
-        assertNoDiffOrPrintExpected(out.toString(), "", "Reporter had errors")
+        assertNoDiff(out.toString(), "", "Reporter had errors")
       }
-      assertNoDiffOrPrintExpected(obtained, expected)
+      assertNoDiff(obtained, expected)
     }
     def assertMissingVersion()(implicit pos: Position): Unit = {
       out.reset()
@@ -141,7 +140,7 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
       val obtained = dynamic.format(config, filename, original)
       assert(out.toString().isEmpty)
       assert(missingVersions.nonEmpty)
-      assertNoDiffOrPrintExpected(obtained, original, "Formatter did not error")
+      assertNoDiff(obtained, original, "Formatter did not error")
     }
     def assertError(expected: String)(implicit pos: Position): Unit = {
       assertError("object A  {  }", expected)
@@ -151,8 +150,8 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
     ): Unit = {
       out.reset()
       val obtained = dynamic.format(config, filename, code)
-      assertNoDiffOrPrintExpected(relevant, expected)
-      assertNoDiffOrPrintExpected(obtained, obtained, "Formatter did not error")
+      assertNoDiff(relevant, expected)
+      assertNoDiff(obtained, obtained, "Formatter did not error")
     }
   }
 
@@ -419,7 +418,7 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
     val config = configOpt.get
     assert(config.hasRewriteRules)
     val configWithoutRewrites = config.withoutRewriteRules
-    assert(config !== configWithoutRewrites)
+    assert(config != configWithoutRewrites)
     assert(!configWithoutRewrites.hasRewriteRules)
   }
 }

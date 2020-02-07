@@ -1,26 +1,23 @@
 package org.scalafmt.cli
 
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.PrintStream
+import java.io.{
+  ByteArrayInputStream,
+  ByteArrayOutputStream,
+  IOException,
+  PrintStream
+}
 import java.nio.charset.StandardCharsets
-import java.nio.file.Files
-import java.nio.file.Path
+import java.nio.file.{Files, Path}
 
+import munit.FunSuite
 import org.scalafmt.Error.NoMatchingFiles
-import org.scalafmt.config.Config
-import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.util.AbsoluteFile
-import org.scalafmt.util.DiffAssertions
-import org.scalafmt.util.OsSpecific._
-import org.scalafmt.util.FileOps
-import FileTestOps._
-import java.io.IOException
-
 import org.scalafmt.Versions
-import org.scalatest.funsuite.AnyFunSuite
+import org.scalafmt.cli.FileTestOps._
+import org.scalafmt.config.{Config, ScalafmtConfig}
+import org.scalafmt.util.{AbsoluteFile, FileOps}
+import org.scalafmt.util.OsSpecific._
 
-abstract class AbstractCliTest extends AnyFunSuite with DiffAssertions {
+abstract class AbstractCliTest extends FunSuite {
   def mkArgs(str: String): Array[String] =
     str.split(' ')
 
@@ -147,7 +144,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
       Cli.run(auto)
       val obtained = new String(baos.toByteArray, StandardCharsets.UTF_8)
       assertNoDiff(obtained, formatted)
-      assert(obtained.size == formatted.size)
+      assert(obtained.length == formatted.length)
     }
 
     test(s"scalafmt --stdin --assume-filename: $label") {
@@ -457,15 +454,15 @@ trait CliTestBehavior { this: AbstractCliTest =>
       val conf = Cli.getConfig(args, opts)
       Cli.run(conf.get)
 
-      assertNoDiff(root / "scalatex.scalatex", unformatted)
-      assertNoDiff(root / "sbt.sbtfile", sbtOriginal)
+      assertNoDiff(dir2string(root / "scalatex.scalatex"), unformatted)
+      assertNoDiff(dir2string(root / "sbt.sbtfile"), sbtOriginal)
 
-      assertNoDiff(root / "scalafile.scala", formatted)
+      assertNoDiff(dir2string(root / "scalafile.scala"), formatted)
       val sbtFormatted =
         """|lazy val x = project
            |lazy val y = project
            |""".stripMargin
-      assertNoDiff(root / "sbt.sbt", sbtFormatted)
+      assertNoDiff(dir2string(root / "sbt.sbt"), sbtFormatted)
     }
 
     test(
@@ -490,9 +487,9 @@ trait CliTestBehavior { this: AbstractCliTest =>
         s"""--config-str {version="$version"} $inner1 $inner2 $full"""
       )
 
-      assertNoDiff(inner1 / "file1.scala", formatted)
-      assertNoDiff(inner2 / "file2.scalahala", unformatted)
-      assertNoDiff(full, formatted)
+      assertNoDiff(dir2string(inner1 / "file1.scala"), formatted)
+      assertNoDiff(dir2string(inner2 / "file2.scalahala"), unformatted)
+      assertNoDiff(dir2string(full), formatted)
     }
 
     test(s"--config accepts absolute paths: $label") {
@@ -731,7 +728,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
     }
 
     test(
-      s"--list enable scalafmt to output a list of unformatted files with ExitCode.TestError: ${label}"
+      s"--list enable scalafmt to output a list of unformatted files with ExitCode.TestError: $label"
     ) {
       val input =
         s"""|/.scalafmt.conf
@@ -767,8 +764,8 @@ trait CliTestBehavior { this: AbstractCliTest =>
 }
 
 class CliTest extends AbstractCliTest with CliTestBehavior {
-  testsFor(testCli("1.6.0-RC4")) // test for runDynamic
-  testsFor(testCli(Versions.version)) // test for runScalafmt
+  testCli("1.6.0-RC4") // test for runDynamic
+  testCli(Versions.version) // test for runScalafmt
 
   test("Running pre-resolved version of scalafmt if .scalafmt.conf is missing.") {
     val input =

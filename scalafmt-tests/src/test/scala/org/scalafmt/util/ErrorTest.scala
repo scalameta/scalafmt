@@ -2,9 +2,9 @@ package org.scalafmt.util
 
 import org.scalafmt.Formatted
 import org.scalafmt.Scalafmt
-import org.scalatest.funsuite.AnyFunSuite
+import munit.FunSuite
 
-class ErrorTest extends AnyFunSuite with DiffAssertions {
+class ErrorTest extends FunSuite {
   test("errors are caught") {
     val nonSourceFile = Seq(
       "class A {",

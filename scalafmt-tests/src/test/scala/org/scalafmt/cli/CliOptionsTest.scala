@@ -7,9 +7,9 @@ import metaconfig.Configured.Ok
 import org.scalafmt.config.{Config, ScalafmtConfig}
 import FileTestOps._
 import org.scalafmt.Versions
-import org.scalatest.funsuite.AnyFunSuite
+import munit.FunSuite
 
-class CliOptionsTest extends AnyFunSuite {
+class CliOptionsTest extends FunSuite {
 
   test("style = ...") {
     import org.scalafmt.config.Config

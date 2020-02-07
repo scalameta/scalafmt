@@ -1,31 +1,27 @@
 package org.scalafmt.util
 
-import scala.collection.mutable
-import scala.meta.Tree
-import scala.meta.parsers.Parse
-import scala.meta.parsers.ParseException
-import scala.util.Try
-
 import java.io.File
 
 import metaconfig.Configured
-import org.scalafmt.Debug
+import munit.Assertions._
 import org.scalafmt.Error.UnknownStyle
-import org.scalafmt.Scalafmt
-import org.scalafmt.config.Config
-import org.scalafmt.config.ContinuationIndent
-import org.scalafmt.config.DanglingParentheses
-import org.scalafmt.config.FormatEvent.CompleteFormat
-import org.scalafmt.config.FormatEvent.CreateFormatOps
-import org.scalafmt.config.FormatEvent.Enqueue
-import org.scalafmt.config.FormatEvent.Explored
-import org.scalafmt.config.FormatEvent.VisitToken
-import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.config.ScalafmtRunner
+import org.scalafmt.{Debug, Scalafmt}
+import org.scalafmt.config.FormatEvent._
+import org.scalafmt.config.{
+  Config,
+  ContinuationIndent,
+  DanglingParentheses,
+  ScalafmtConfig,
+  ScalafmtRunner
+}
 import org.scalafmt.internal.FormatWriter
-import org.scalatest.funsuite.AnyFunSuiteLike
 
-trait HasTests extends AnyFunSuiteLike with FormatAssertions {
+import scala.collection.mutable
+import scala.meta.Tree
+import scala.meta.parsers.Parse
+import scala.util.Try
+
+trait HasTests extends FormatAssertions {
   import LoggerOps._
 
   def scalafmtRunner(base: ScalafmtRunner): ScalafmtRunner = base.copy(
@@ -152,37 +148,6 @@ trait HasTests extends AnyFunSuiteLike with FormatAssertions {
   }
 
   def ignore(t: DiffTest): Boolean = false
-
-  def runTest(run: (DiffTest, Parse[_ <: Tree]) => Unit)(t: DiffTest): Unit = {
-    val paddedName = f"${t.fullName}%-70s|"
-
-    if (ignore(t)) {
-      // Not even ignore(t), save console space.
-    } else if (t.skip) {
-      ignore(paddedName) {}
-    } else {
-      test(paddedName) {
-        Debug.newTest()
-        filename2parse(t.filename) match {
-          case Some(parse) =>
-            try {
-              run.apply(t, parse)
-            } catch {
-              case e: ParseException =>
-                fail(
-                  "test does not parse" +
-                    parseException2Message(e, t.original)
-                )
-            }
-          case None => fail(s"Found no parse for filename ${t.filename}")
-        }
-      }
-    }
-  }
-
-  def runTestsDefault(): Unit = {
-    testsToRun.foreach(runTest(defaultRun))
-  }
 
   def defaultRun(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
     val runner = scalafmtRunner(t.style.runner).copy(parser = parse)
