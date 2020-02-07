@@ -116,12 +116,13 @@ object ScalafmtProps {
   case object FormattedOutputDoesNotParse extends Bug
   case object SearchStateExploded extends Bug
   case class Unknown(e: Throwable) extends Bug
+
   case class DiffFailure(
       title: String,
       expected: String,
       obtained: String,
       diff: String
-  )
+  ) extends Exception
 
   def main(args: Array[String]): Unit = {
     val props = new ScalafmtProps()
