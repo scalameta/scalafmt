@@ -9,7 +9,7 @@ import org.scalafmt.util.FileOps
 import org.scalafmt.util.FormatAssertions
 import org.scalameta.logger
 import munit.FunSuite
-import munit.internal.difflib.Diffs
+import munit.FailException
 
 class ScalafmtProps extends FunSuite with FormatAssertions {
   import ScalafmtProps._
@@ -34,14 +34,16 @@ class ScalafmtProps extends FunSuite with FormatAssertions {
           case Formatted.Success(formatted) =>
             assertFormatPreservesAst[Source](code, formatted)
             val formattedSecondTime = Scalafmt.format(formatted, config).get
-            Diffs.assertNoDiff(formattedSecondTime, formatted, diff => {
-              throw DiffFailure(
-                "Idempotency",
-                formatted,
-                formattedSecondTime,
-                diff
-              )
-            }, "Idempotency")
+            try assertNoDiff(formattedSecondTime, formatted, "Idempotency")
+            catch {
+              case diff: FailException =>
+                throw DiffFailure(
+                  "Idempotency",
+                  formatted,
+                  formattedSecondTime,
+                  diff.getMessage
+                )
+            }
             Nil
           case Formatted.Failure(_: ParseException | _: TokenizeException) =>
             Nil
