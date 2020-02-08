@@ -34,11 +34,11 @@ class ScalafmtProps extends FunSuite with FormatAssertions {
           case Formatted.Success(formatted) =>
             assertFormatPreservesAst[Source](code, formatted)
             val formattedSecondTime = Scalafmt.format(formatted, config).get
-            try assertNoDiff(formattedSecondTime, formatted, "Idempotency")
+            try assertNoDiff(formattedSecondTime, formatted, "Idempotence")
             catch {
               case diff: FailException =>
                 throw DiffFailure(
-                  "Idempotency",
+                  "Idempotence",
                   formatted,
                   formattedSecondTime,
                   diff.getMessage
