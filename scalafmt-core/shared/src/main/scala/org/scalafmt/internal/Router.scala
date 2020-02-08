@@ -739,6 +739,8 @@ class Router(formatOps: FormatOps) {
         val indent = getApplyIndent(leftOwner)
 
         val singleArgument = args.length == 1
+        val multipleArgs = args.length > 1
+        val tooManyArguments = args.length > 100
 
         def insideBraces(t: FormatToken): Boolean =
           excludeRanges.exists(_.contains(t.left.start))
@@ -786,8 +788,6 @@ class Router(formatOps: FormatOps) {
           else
             rhsOptimalToken(closeFormatToken)
 
-        val tooManyArguments = args.length > 100
-
         val mustDangle = style.activeForEdition_2020_01 && (
           expirationToken.is[T.Comment]
         )
@@ -806,17 +806,10 @@ class Router(formatOps: FormatOps) {
           if (isSingleLineComment(right)) indent
           else Num(0)
 
-        val isTuple = leftOwner match {
-          case _: Type.Tuple => style.align.openParenDefnSite
-          case _: Term.Tuple => style.align.openParenCallSite
-          case _ => false
-        }
-        val skipOpenParenAlign = {
-          !isTuple && {
-            (defnSite && !style.align.openParenDefnSite) ||
-            (!defnSite && !style.align.openParenCallSite)
-          }
-        }
+        val align =
+          if (defnSite) style.align.openParenDefnSite
+          else style.align.openParenCallSite
+        val alignTuple = align && isTuple(leftOwner)
 
         val noSplitModification: Modification =
           if (formatToken.left.is[T.LeftParen] &&
@@ -869,23 +862,21 @@ class Router(formatOps: FormatOps) {
             newlineModification,
             (1 + nestedPenalty + lhsPenalty) * bracketMultiplier,
             policy = newlinePolicy.andThen(singleLine(4)),
-            ignoreIf = args.length > 1 || isTuple || splitsForAssign.isDefined
+            ignoreIf = multipleArgs || alignTuple || splitsForAssign.isDefined
           ).withOptimalToken(expirationToken)
             .withIndent(indent, close, Right),
           Split(
             noSplitModification,
             (2 + lhsPenalty) * bracketMultiplier,
             policy = oneArgOneLine,
-            ignoreIf =
-              singleArgument || tooManyArguments ||
-                skipOpenParenAlign
+            ignoreIf = singleArgument || tooManyArguments || !align
           ).withOptimalToken(expirationToken)
             .withIndent(StateColumn, close, Right),
           Split(
             Newline,
             (3 + nestedPenalty + lhsPenalty) * bracketMultiplier,
             policy = newlinePolicy.andThen(oneArgOneLine),
-            ignoreIf = singleArgument || isTuple
+            ignoreIf = singleArgument || alignTuple
           ).withOptimalToken(expirationToken)
             .withIndent(indent, close, Right)
         ) ++ splitsForAssign.getOrElse(Seq.empty)
