@@ -291,7 +291,7 @@ class DynamicSuite extends FunSuite {
     f.setVersion(latest)
     f.assertFormat()
     f.assertFormat()
-    assert(f.parsedCount == 1, f.parsed)
+    assertEquals(f.parsedCount, 1, f.parsed)
 
     f.setConfig("invalid")
     f.assertMissingVersion()
@@ -302,9 +302,9 @@ class DynamicSuite extends FunSuite {
          |""".stripMargin
     )
     f.assertFormat()
-    assert(f.parsedCount == 2, f.parsed)
+    assertEquals(f.parsedCount, 2, f.parsed)
     f.assertFormat()
-    assert(f.parsedCount == 2, f.parsed)
+    assertEquals(f.parsedCount, 2, f.parsed)
 
     f.setConfig(
       """version=1.0.0
@@ -312,11 +312,11 @@ class DynamicSuite extends FunSuite {
         |""".stripMargin
     )
     f.assertFormat()
-    assert(f.parsedCount == 3, f.parsed)
+    assertEquals(f.parsedCount, 3, f.parsed)
     f.assertFormat()
-    assert(f.parsedCount == 3, f.parsed)
+    assertEquals(f.parsedCount, 3, f.parsed)
 
-    assert(f.parsed == Map("1.0.0" -> 1, latest -> 2))
+    assertEquals(f.parsed.toMap, Map("1.0.0" -> 1, latest -> 2))
   }
 
   check("wrong-version") { f =>
@@ -418,7 +418,7 @@ class DynamicSuite extends FunSuite {
     val config = configOpt.get
     assert(config.hasRewriteRules)
     val configWithoutRewrites = config.withoutRewriteRules
-    assert(config != configWithoutRewrites)
+    assertNotEquals(config, configWithoutRewrites)
     assert(!configWithoutRewrites.hasRewriteRules)
   }
 }
