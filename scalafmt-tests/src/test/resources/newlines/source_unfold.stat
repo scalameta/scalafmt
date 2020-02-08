@@ -1,3 +1,167 @@
 align = none
 maxColumn = 40
 newlines.source = unfold
+<<< 1.1: block, if-else, line too long
+if (true) {      println(aaaaaaaaaaaaaaaaaaaaaaaaaa)}
+>>>
+if (true) {
+  println(aaaaaaaaaaaaaaaaaaaaaaaaaa)
+}
+<<< 1.2: block, if-else, egyptian curlies
+object a {
+if (a) {
+println("bbb") } else c
+}
+>>>
+object a {
+  if (a) {
+    println("bbb")
+  } else c
+}
+<<< 1.3: block, if, non-egyptian curlies
+object a {
+if (a)
+{
+println("bbb")
+}
+else
+{
+c
+}}
+>>>
+object a {
+  if (a) {
+    println("bbb")
+  } else {
+    c
+  }
+}
+<<< 1.4: block #1043
+object a {
+      if ('0' <= c && c <= '9') { c - '0' }
+      else if ('A' <= c && c <= 'F') {
+       c - 'A' + 10 }
+      else if ('a' <= c && c <= 'f') { c - 'a' + 10 }
+      else {
+       -1  }}
+>>>
+object a {
+  if ('0' <= c && c <= '9') { c - '0' }
+  else if ('A' <= c && c <= 'F') {
+    c - 'A' + 10
+  } else if ('a' <= c && c <= 'f') {
+    c - 'a' + 10
+  } else {
+    -1
+  }
+}
+<<< 1.5: block #1043 with lines joined
+object a {
+      if ('0' <= c && c <= '9') { c - '0' }      else if ('A' <= c && c <= 'F') {
+       c - 'A' + 10 }  else if ('a' <= c && c <= 'f') { c - 'a' + 10 }      else {
+                                                            -1
+}}
+>>>
+object a {
+  if ('0' <= c && c <= '9') { c - '0' }
+  else if ('A' <= c && c <= 'F') {
+    c - 'A' + 10
+  } else if ('a' <= c && c <= 'f') {
+    c - 'a' + 10
+  } else {
+    -1
+  }
+}
+<<< 1.6: block, try-catch, line too long
+object a {
+try { aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa } catch { case b => }
+}
+>>>
+object a {
+  try {
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  } catch { case b => }
+}
+<<< 1.7: block, try-catch, no breaks
+object a {
+try { a } catch { case b => ; case c => } finally { d }
+}
+>>>
+object a {
+  try { a }
+  catch { case b => ; case c => }
+  finally { d }
+}
+<<< 1.8: block, try-catch, with breaks
+object a {
+try {
+ a } catch {
+  case b => ; case c => } finally {
+   d }
+}
+>>>
+object a {
+  try {
+    a
+  } catch {
+    case b => ; case c =>
+  } finally {
+    d
+  }
+}
+<<< 1.9: block, try-catch, with breaks, top-level
+try {
+ a } catch {
+  case b => ; case c => } finally {
+   d }
+>>>
+try {
+  a
+} catch {
+  case b => ; case c =>
+} finally {
+  d
+}
+<<< 1.a: block, class
+object a {
+class a {
+ type b = Int
+}
+}
+>>>
+object a {
+  class a {
+    type b = Int
+  }
+}
+<<< 1.b: block, trait and object
+object a {
+trait b {
+ type c = Int
+}
+object b {
+def apply(c: Int) = { new d(c)
+}
+}}
+>>>
+object a {
+  trait b {
+    type c = Int
+  }
+  object b {
+    def apply(c: Int) = { new d(c) }
+  }
+}
+<<< 1.c: block followed by an infix, overflowing if no break
+maxColumn = 80
+===
+object a {
+    the[Exception] thrownBy { SizeUtils.calculate(segments, "user")
+    } should have message """Cannot resolve column name "user" among (segment_id);"""
+}
+>>>
+object a {
+  the[Exception] thrownBy {
+    SizeUtils.calculate(segments, "user")
+  } should have message """Cannot resolve column name "user" among (segment_id);"""
+}
