@@ -344,40 +344,35 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
   def OneArgOneLineSplit(open: Token, noTrailingCommas: Boolean = false)(
       implicit line: sourcecode.Line
-  ): Policy = {
+  ): Policy =
     // TODO(olafur) clear queue between arguments, they are independent.
-    val expire = matching(open)
-    Policy(
-      {
-        case d @ Decision(t @ FormatToken(left, comma @ T.Comma(), _), splits)
-            if noTrailingCommas &&
-              !next(t).right.is[T.Comment] &&
-              owners(open) == owners(comma) =>
-          splits.map {
-            case x if x.modification == NoSplit =>
-              x.copy(modification = Newline)
-            case x => x
-          }
+    Policy(matching(open)) {
+      case d @ Decision(t @ FormatToken(left, comma @ T.Comma(), _), splits)
+          if noTrailingCommas &&
+            !next(t).right.is[T.Comment] &&
+            owners(open) == owners(comma) =>
+        splits.map {
+          case x if x.modification == NoSplit =>
+            x.copy(modification = Newline)
+          case x => x
+        }
 
-        // Newline on every comma.
-        case d @ Decision(
-              t @ FormatToken(comma @ T.Comma(), right, between),
-              splits
-            )
-            if owners(open) == owners(comma) &&
-              // TODO(olafur) what the right { decides to be single line?
-              !right.is[T.LeftBrace] &&
-              // If comment is bound to comma, see unit/Comment.
-              (!right.is[T.Comment] || t.newlinesBetween != 0) =>
-          splits.filter { x =>
-            val isNewline = x.modification.isNewline
-            if (noTrailingCommas && !right.is[T.Comment]) !isNewline
-            else isNewline
-          }
-      },
-      expire.end
-    )
-  }
+      // Newline on every comma.
+      case d @ Decision(
+            t @ FormatToken(comma @ T.Comma(), right, between),
+            splits
+          )
+          if owners(open) == owners(comma) &&
+            // TODO(olafur) what the right { decides to be single line?
+            !right.is[T.LeftBrace] &&
+            // If comment is bound to comma, see unit/Comment.
+            (!right.is[T.Comment] || t.newlinesBetween != 0) =>
+        splits.filter { x =>
+          val isNewline = x.modification.isNewline
+          if (noTrailingCommas && !right.is[T.Comment]) !isNewline
+          else isNewline
+        }
+    }
 
   def UnindentAtExclude(
       exclude: Set[Token],
@@ -394,46 +389,39 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       penalizeLambdas: Boolean = true,
       ignore: FormatToken => Boolean = _ => false,
       penaliseNewlinesInsideTokens: Boolean = false
-  )(implicit line: sourcecode.Line): Policy = {
-    Policy(
-      {
-        case Decision(tok, s)
-            if tok.right.end < expire.end &&
-              (penalizeLambdas || !tok.left.is[T.RightArrow]) && !ignore(tok) =>
-          s.map {
-            case split
-                if split.modification.isNewline ||
-                  (penaliseNewlinesInsideTokens && tok.leftHasNewline) =>
-              split.withPenalty(penalty)
-            case x => x
-          }
-      },
-      expire.end
-    )
-  }
+  )(implicit line: sourcecode.Line): Policy =
+    Policy(expire) {
+      case Decision(tok, s)
+          if tok.right.end < expire.end &&
+            (penalizeLambdas || !tok.left.is[T.RightArrow]) && !ignore(tok) =>
+        s.map {
+          case split
+              if split.modification.isNewline ||
+                (penaliseNewlinesInsideTokens && tok.leftHasNewline) =>
+            split.withPenalty(penalty)
+          case x => x
+        }
+    }
 
   def penalizeNewlineByNesting(from: Token, to: Token)(
       implicit line: sourcecode.Line
   ): Policy = {
     val range = Range(from.start, to.end).inclusive
-    Policy(
-      {
-        case Decision(t, s) if range.contains(t.right.start) =>
-          val nonBoolPenalty =
-            if (isBoolOperator(t.left)) 0
-            else 5
+    Policy(to) {
+      case Decision(t, s) if range.contains(t.right.start) =>
+        val nonBoolPenalty =
+          if (isBoolOperator(t.left)) 0
+          else 5
 
-          val penalty =
-            nestedSelect(owners(t.left)) + nestedApplies(owners(t.right)) +
-              nonBoolPenalty
-          s.map {
-            case split if split.modification.isNewline =>
-              split.withPenalty(penalty)
-            case x => x
-          }
-      },
-      to.end
-    )
+        val penalty =
+          nestedSelect(owners(t.left)) + nestedApplies(owners(t.right)) +
+            nonBoolPenalty
+        s.map {
+          case split if split.modification.isNewline =>
+            split.withPenalty(penalty)
+          case x => x
+        }
+    }
   }
 
   def getArrow(caseStat: Case): Token =
@@ -728,20 +716,15 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     nonWhitespaceOffset(right) - nonWhitespaceOffset(left)
   }
 
-  def ctorWithChain(ownerSet: Set[Tree], lastToken: Token): Policy = {
+  def ctorWithChain(ownerSet: Set[Tree], lastToken: Token): Policy =
     if (styleMap.at(tokens(lastToken)).binPack.parentConstructors)
       NoPolicy
-    else {
-      Policy(
-        {
-          case d @ Decision(FormatToken(_, right: T.KwWith, _), _)
-              if ownerSet.contains(owners(right)) =>
-            d.onlyNewlinesWithoutFallback
-        },
-        lastToken.end
-      )
-    }
-  }
+    else
+      Policy(lastToken) {
+        case d @ Decision(FormatToken(_, right: T.KwWith, _), _)
+            if ownerSet.contains(owners(right)) =>
+          d.onlyNewlinesWithoutFallback
+      }
 
   def binPackParentConstructorSplits(
       owners: Set[Tree],
@@ -784,7 +767,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   def newlinesOnlyBeforeClosePolicy(close: Token)(
       implicit line: sourcecode.Line
   ): Policy =
-    Policy(decideNewlinesOnlyBeforeClose(Split(Newline, 0)))(close)
+    Policy.map(decideNewlinesOnlyBeforeClose(Split(Newline, 0)))(close)
 
   def decideNewlinesOnlyBeforeClose(split: Split)(close: Token): Policy.Pf = {
     case d: Decision if d.formatToken.right eq close =>
