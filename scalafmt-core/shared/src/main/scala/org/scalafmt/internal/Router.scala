@@ -487,11 +487,11 @@ class Router(formatOps: FormatOps) {
         val expire = defnTemplate(leftOwner)
           .flatMap(templateCurly)
           .getOrElse(leftOwner.tokens.last)
-        val forceNewlineBeforeExtends = Policy({
+        val forceNewlineBeforeExtends = Policy(expire) {
           case d @ Decision(FormatToken(_, right: T.KwExtends, _), _)
               if owners(right) == leftOwner =>
             d.onlyNewlinesWithoutFallback
-        }, expire.end)
+        }
         Seq(
           Split(Space, 0)
             .withOptimalToken(expire, killOnFail = true)
@@ -608,7 +608,7 @@ class Router(formatOps: FormatOps) {
           else Num(0)
         val isForcedBinPack = styleMap.forcedBinPack.contains(leftOwner)
         val policy =
-          if (isForcedBinPack) Policy(newlineBeforeClose, close.end)
+          if (isForcedBinPack) Policy(close)(newlineBeforeClose)
           else {
             val oneArgOneLine = OneArgOneLineSplit(
               open,
@@ -688,7 +688,7 @@ class Router(formatOps: FormatOps) {
         val unindent =
           UnindentAtExclude(exclude, Num(-style.continuationIndent.callSite))
         val unindentPolicy =
-          if (args.length == 1) Policy(unindent, close.end)
+          if (args.length == 1) Policy(close)(unindent)
           else NoPolicy
         def ignoreBlocks(x: FormatToken): Boolean = {
           excludeRanges.exists(_.contains(x.left.end))
@@ -970,10 +970,10 @@ class Router(formatOps: FormatOps) {
             val singleLine = SingleLineBlock(lastFT.left)
             val breakOnNextComma = nextComma match {
               case Some(comma) =>
-                Policy({
+                Policy(comma.right) {
                   case d @ Decision(t, s) if comma == t =>
                     d.forceNewline
-                }, comma.right.end)
+                }
               case _ => NoPolicy
             }
             val optToken = nextComma.map(_ =>
@@ -1146,18 +1146,15 @@ class Router(formatOps: FormatOps) {
           if (chain.length == 1) lastToken(chain.last)
           else optimalToken
 
-        val breakOnEveryDot = Policy(
-          {
-            case Decision(t @ FormatToken(_, dot2 @ T.Dot(), _), s)
-                if chain.contains(owners(dot2)) =>
-              val mod =
-                if (style.optIn.breaksInsideChains && t.newlinesBetween == 0)
-                  NoSplit
-                else Newline
-              Seq(Split(mod, 1))
-          },
-          expire.end
-        )
+        val breakOnEveryDot = Policy(expire) {
+          case Decision(t @ FormatToken(_, dot2 @ T.Dot(), _), s)
+              if chain.contains(owners(dot2)) =>
+            val mod =
+              if (style.optIn.breaksInsideChains && t.newlinesBetween == 0)
+                NoSplit
+              else Newline
+            Seq(Split(mod, 1))
+        }
         val exclude = getExcludeIf(expire)
         // This policy will apply to both the space and newline splits, otherwise
         // the newline is too cheap even it doesn't actually prevent other newlines.
@@ -1260,22 +1257,18 @@ class Router(formatOps: FormatOps) {
             val expire = templateCurly(rightOwner)
             val policy =
               if (hasSelfAnnotation) NoPolicy
-              else {
-                Policy(
-                  {
-                    // Force template to be multiline.
-                    case d @ Decision(
-                          FormatToken(open @ T.LeftBrace(), right, _),
-                          splits
-                        )
-                        if !hasSelfAnnotation &&
-                          !right.is[T.RightBrace] && // corner case, body is {}
-                          childOf(template, owners(open)) =>
-                      d.forceNewline
-                  },
-                  expire.end
-                )
-              }
+              else
+                Policy(expire) {
+                  // Force template to be multiline.
+                  case d @ Decision(
+                        FormatToken(open @ T.LeftBrace(), right, _),
+                        splits
+                      )
+                      if !hasSelfAnnotation &&
+                        !right.is[T.RightBrace] && // corner case, body is {}
+                        childOf(template, owners(open)) =>
+                    d.forceNewline
+                }
             Seq(
               Split(Space, 0),
               Split(Newline, 1).withPolicy(policy)
@@ -1318,11 +1311,11 @@ class Router(formatOps: FormatOps) {
         val breakOnlyBeforeElse =
           if (elses.isEmpty) Policy.NoPolicy
           else
-            Policy({
+            Policy(expire) {
               case d @ Decision(FormatToken(_, r: T.KwElse, _), _)
                   if elses.contains(r) =>
                 d.onlyNewlinesWithFallback(Split(Newline, 0))
-            }, expire.end)
+            }
         Seq(
           Split(Space, 0)
             .withOptimalToken(expire, killOnFail = true)
@@ -1400,13 +1393,12 @@ class Router(formatOps: FormatOps) {
         )
 
       case FormatToken(open @ T.LeftParen(), right, _) =>
-        val owner = owners(open)
         val isConfig = opensConfigStyle(formatToken)
         val close = matching(open)
-        val breakOnClose = Policy({
+        val breakOnClose = Policy(close) {
           case Decision(FormatToken(_, `close`, _), _) =>
             Seq(Split(Newline, 0))
-        }, close.end)
+        }
         val indent: Length = right match {
           case T.KwIf() => StateColumn
           case T.KwFor() if !style.indentYieldKeyword => StateColumn
@@ -1485,16 +1477,13 @@ class Router(formatOps: FormatOps) {
             .withPolicy(SingleLineBlock(expire)),
           Split(Space, 1)
             .withPolicy(
-              Policy(
-                {
-                  case d @ Decision(t @ FormatToken(`arrow`, right, _), _)
-                      // TODO(olafur) any other corner cases?
-                      if !right.isInstanceOf[T.LeftBrace] &&
-                        !isAttachedSingleLineComment(t) =>
-                    d.onlyNewlinesWithoutFallback
-                },
-                expire = expire.end
-              )
+              Policy(expire) {
+                case d @ Decision(t @ FormatToken(`arrow`, right, _), _)
+                    // TODO(olafur) any other corner cases?
+                    if !right.isInstanceOf[T.LeftBrace] &&
+                      !isAttachedSingleLineComment(t) =>
+                  d.onlyNewlinesWithoutFallback
+              }
             )
             .withIndent(2, expire, Left) // case body indented by 2.
             .withIndent(2, arrow, Left) // cond body indented by 4.

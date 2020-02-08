@@ -70,12 +70,14 @@ object Policy {
 
   def empty(token: Token)(
       implicit line: sourcecode.Line
-  ): Policy = Policy(emptyPf, token.end)
+  ): Policy = Policy(token)(emptyPf)
 
-  def apply(func: Token => Pf)(token: Token)(
+  def map(func: Token => Pf)(token: Token)(
       implicit line: sourcecode.Line
-  ): Policy =
-    new Policy(func(token), token.end)
+  ): Policy = Policy(token)(func(token))
+
+  def apply(token: Token)(f: Pf)(implicit line: sourcecode.Line): Policy =
+    new Policy(f, token.end)
 
   def isEmpty(pf: Pf): Boolean = pf == emptyPf
 }
