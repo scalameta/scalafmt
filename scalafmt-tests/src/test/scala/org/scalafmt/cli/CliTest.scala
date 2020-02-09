@@ -73,12 +73,8 @@ abstract class AbstractCliTest extends FunSuite {
       input: AbsoluteFile,
       expected: String,
       cmds: Seq[Array[String]],
-      assertExit: ExitCode => Unit = { exit =>
-        assert(exit.isOk, exit)
-      },
-      assertOut: String => Unit = { out =>
-        println(out)
-      }
+      assertExit: ExitCode => Unit = { exit => assert(exit.isOk, exit) },
+      assertOut: String => Unit = { out => println(out) }
   ): Unit = {
     cmds.foreach { args =>
       val out = new ByteArrayOutputStream()
@@ -553,9 +549,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
             s"""{version="$version",style=IntelliJ}"""
           )
         ),
-        assertExit = { exit =>
-          assert(exit.is(ExitCode.ParseError))
-        },
+        assertExit = { exit => assert(exit.is(ExitCode.ParseError)) },
         assertOut = out => {
           assert(
             out.contains(
@@ -589,9 +583,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
         string2dir(input),
         input,
         Seq(Array("--test")),
-        assertExit = { exit =>
-          assert(exit.is(ExitCode.TestError))
-        },
+        assertExit = { exit => assert(exit.is(ExitCode.TestError)) },
         assertOut = out => {
           assert(
             out.contains(
@@ -616,9 +608,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
         string2dir(input),
         input,
         Seq(Array("--test", "--config-str", s"""{version="$version"}""")),
-        assertExit = { exit =>
-          assert(exit.isOk)
-        },
+        assertExit = { exit => assert(exit.isOk) },
         assertOut = out => {
           println(s"succeed: $out")
           assert(
@@ -645,9 +635,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
         string2dir(input),
         input,
         Seq(Array("--test")),
-        assertExit = { exit =>
-          assert(exit == ExitCode.ParseError)
-        },
+        assertExit = { exit => assert(exit == ExitCode.ParseError) },
         assertOut = out => {
           assert(
             out.contains(
@@ -672,9 +660,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
         string2dir(input),
         input,
         Seq(Array.empty),
-        assertExit = { exit =>
-          assert(exit == ExitCode.UnexpectedError)
-        },
+        assertExit = { exit => assert(exit == ExitCode.UnexpectedError) },
         assertOut = out => {
           assert(
             out.contains(
@@ -715,9 +701,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
             "--test"
           )
         ),
-        assertExit = { exit =>
-          assert(exit.is(ExitCode.TestError))
-        },
+        assertExit = { exit => assert(exit.is(ExitCode.TestError)) },
         assertOut = out => {
           assert(
             out.contains(expected) &&
@@ -748,9 +732,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
         dir,
         input,
         Seq(Array("--list")),
-        assertExit = { exit =>
-          assert(exit.is(ExitCode.TestError))
-        },
+        assertExit = { exit => assert(exit.is(ExitCode.TestError)) },
         assertOut = out => {
           assert(
             out.contains("bar.scala") &&
@@ -776,11 +758,11 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
       string2dir(input),
       input,
       Seq(
-        Array("--debug") // debug options is needed to output running scalafmt version
+        Array(
+          "--debug"
+        ) // debug options is needed to output running scalafmt version
       ),
-      assertExit = { exit =>
-        assert(exit.isOk, exit)
-      },
+      assertExit = { exit => assert(exit.isOk, exit) },
       assertOut = out => {
         assert(out.contains(Versions.version))
       }
@@ -801,11 +783,11 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
       string2dir(input),
       input,
       Seq(
-        Array("--debug") // debug options is needed to output running scalafmt version
+        Array(
+          "--debug"
+        ) // debug options is needed to output running scalafmt version
       ),
-      assertExit = { exit =>
-        assert(exit.isOk, exit)
-      },
+      assertExit = { exit => assert(exit.isOk, exit) },
       assertOut = out => {
         assert(out.contains(Versions.version))
       }

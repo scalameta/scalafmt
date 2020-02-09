@@ -40,7 +40,9 @@ class StyleMap(
             case Configured.Ok(style) =>
               empty = false
               curr = style
-            case Configured.NotOk(e) => // TODO(olafur) report error via callback
+            case Configured.NotOk(
+                e
+                ) => // TODO(olafur) report error via callback
               logger.elem(e)
           }
         case open @ LeftParen()

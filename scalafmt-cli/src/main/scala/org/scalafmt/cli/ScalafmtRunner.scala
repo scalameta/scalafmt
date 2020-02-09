@@ -72,8 +72,6 @@ trait ScalafmtRunner {
         options.gitOps.status.filter(canFormat)
     }
     val excludeRegexp = options.excludeFilterRegexp
-    files.filter { f =>
-      excludeRegexp.findFirstIn(f.path).isEmpty
-    }
+    files.filter { f => excludeRegexp.findFirstIn(f.path).isEmpty }
   }
 }

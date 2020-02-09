@@ -6,9 +6,7 @@ import org.scalafmt.util.LoggerOps
 class PolicySummary(val policies: Vector[Policy]) {
   import LoggerOps._
 
-  @inline def noDequeue = policies.exists { x =>
-    x.isSingleLine || x.noDequeue
-  }
+  @inline def noDequeue = policies.exists { x => x.isSingleLine || x.noDequeue }
 
   @inline def isSafe = !noDequeue
 

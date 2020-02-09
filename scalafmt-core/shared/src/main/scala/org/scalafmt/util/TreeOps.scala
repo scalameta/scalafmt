@@ -108,9 +108,7 @@ object TreeOps {
 
     def addAll(trees: Seq[Tree]): Unit = {
       trees.foreach { t =>
-        t.tokens.headOption.foreach { tok =>
-          ret += hash(tok) -> t
-        }
+        t.tokens.headOption.foreach { tok => ret += hash(tok) -> t }
       }
     }
 
@@ -206,9 +204,7 @@ object TreeOps {
     workList.add(tree)
     while (!workList.isEmpty) {
       val x = workList.poll()
-      x.tokens.foreach { tok =>
-        result.put(hash(tok), x)
-      }
+      x.tokens.foreach { tok => result.put(hash(tok), x) }
       workList.addAll(x.children.asJava)
     }
     result.asScala

@@ -121,7 +121,8 @@ class Router(formatOps: FormatOps) {
       case FormatToken(open @ T.LeftBrace(), _, _)
           if parents(leftOwner).exists(_.is[Import]) =>
         val close = matching(open)
-        val disallowSingleLineComments = style.importSelectors != ImportSelectors.singleLine
+        val disallowSingleLineComments =
+          style.importSelectors != ImportSelectors.singleLine
         val policy = SingleLineBlock(
           close,
           disallowSingleLineComments = disallowSingleLineComments
@@ -378,7 +379,11 @@ class Router(formatOps: FormatOps) {
             )
           case _ =>
             Seq(
-              Split(Space, 0, ignoreIf = newlines != 0), // Gets killed by `case` policy.
+              Split(
+                Space,
+                0,
+                ignoreIf = newlines != 0
+              ), // Gets killed by `case` policy.
               Split(
                 NewlineT(isDouble = false, noIndent = rhsIsCommentedOut(tok)),
                 1
@@ -1034,7 +1039,8 @@ class Router(formatOps: FormatOps) {
         val mod: Modification = rightOwner match {
           case tp: Type.Param =>
             val contextOption = style.spaces.beforeContextBoundColon
-            val summaryTypeBoundsCount = tp.tbounds.lo.size + tp.tbounds.hi.size + tp.cbounds.size
+            val summaryTypeBoundsCount =
+              tp.tbounds.lo.size + tp.tbounds.hi.size + tp.cbounds.size
             if (contextOption.isIfMultipleBounds && summaryTypeBoundsCount > 1 || contextOption.isAlways)
               Space
             else NoSplit
@@ -1162,7 +1168,8 @@ class Router(formatOps: FormatOps) {
         val newlinePolicy = breakOnEveryDot
           .andThen(penalizeNewlinesInApply.f)
           .copy(expire = expire.end)
-        val ignoreNoSplit = style.optIn.breakChainOnFirstMethodDot && newlines > 0
+        val ignoreNoSplit =
+          style.optIn.breakChainOnFirstMethodDot && newlines > 0
         val chainLengthPenalty =
           if (style.newlines.penalizeSingleSelectMultiArgList &&
             chain.length < 2) {

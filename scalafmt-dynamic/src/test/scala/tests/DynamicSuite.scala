@@ -219,9 +219,7 @@ class DynamicSuite extends FunSuite {
     check()
   }
 
-  check("missing-version") { f =>
-    f.assertMissingVersion()
-  }
+  check("missing-version") { f => f.assertMissingVersion() }
 
   check("ignore-version") { f =>
     f.ignoreVersion()

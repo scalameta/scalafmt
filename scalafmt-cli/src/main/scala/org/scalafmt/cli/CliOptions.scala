@@ -51,7 +51,8 @@ object CliOptions {
       writeMode = newMode,
       config = style,
       common = parsed.common.copy(
-        out = guardPrintStream(parsed.quiet && !parsed.stdIn)(parsed.common.out),
+        out =
+          guardPrintStream(parsed.quiet && !parsed.stdIn)(parsed.common.out),
         info = guardPrintStream(parsed.quiet || parsed.list)(auxOut),
         debug = guardPrintStream(parsed.quiet)(
           if (parsed.debug) auxOut else init.common.debug
