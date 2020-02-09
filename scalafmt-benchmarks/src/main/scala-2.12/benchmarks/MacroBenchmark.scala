@@ -38,9 +38,7 @@ abstract class MacroBenchmark(parallel: Boolean, maxFiles: Int)
             url = Corpus.fastparse.url.replace("olafurpg", "scalameta")
           )
         )
-        .filter { f =>
-          f.projectUrl.contains("scala-js")
-        }
+        .filter { f => f.projectUrl.contains("scala-js") }
         .take(maxFiles)
         .map(_.read)
         .toBuffer
@@ -56,16 +54,12 @@ abstract class MacroBenchmark(parallel: Boolean, maxFiles: Int)
 
   @Benchmark
   def scalafmt(): Unit = {
-    files.foreach { file =>
-      Try(Scalafmt.formatCode(file))
-    }
+    files.foreach { file => Try(Scalafmt.formatCode(file)) }
   }
 
   @Benchmark
   def scalafmt_rewrite(): Unit = {
-    files.foreach { file =>
-      Try(formatRewrite(file))
-    }
+    files.foreach { file => Try(formatRewrite(file)) }
   }
 
 }
