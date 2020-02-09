@@ -711,3 +711,13 @@ object ThreadPoolConfigDispatcherBuilder {
       : Option[(ThreadPoolConfigDispatcherBuilder) => ThreadPoolConfigDispatcherBuilder] =
     opt map fun
 }
+<<< implicit with single argument
+align = none
+===
+  def apply(throughput: Int)(implicit context: ExecutionContext)
+      : SerializedSuspendableExecutionContext =
+     new SerializedSuspendableExecutionContext(throughput)
+>>>
+def apply(throughput: Int)(implicit context: ExecutionContext)
+    : SerializedSuspendableExecutionContext =
+  new SerializedSuspendableExecutionContext(throughput)

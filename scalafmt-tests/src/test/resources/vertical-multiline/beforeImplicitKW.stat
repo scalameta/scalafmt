@@ -19,6 +19,15 @@ def format_![T <: Tree](
   ev2: EC
 ): String
 
+<<< should add a newline after implicit keyword in function definitions (non-vm)
+verticalMultiline.atDefnSite = false
+===
+def format_![T <: Tree](code: String, foo: Int)(f: A => B, k: D)(implicit ev: Parse[T], ev2: EC): String
+>>>
+def format_![T <: Tree](code: String, foo: Int)(f: A => B, k: D)(
+  implicit ev: Parse[T],
+  ev2: EC
+): String
 <<< should add a newline after implicit keyword in class definitions
 final class UserProfile(name: String, age: Int, address: Address, profession: Profession, school: School)(
   implicit ctx: Context, ec: Executor)
@@ -72,5 +81,16 @@ implicit def pairEncoder[A, B](implicit aEncoder: CsvEncoder[A],
 implicit def pairEncoder[A, B](
   implicit
   aEncoder: CsvEncoder[A],
+  bEncoder: CsvEncoder[B]
+): CsvEncoder[(A, B)]
+<<< should work without explicit parameter groups (non-vm)
+verticalMultiline.atDefnSite = false
+===
+implicit def pairEncoder[A, B](implicit aEncoder: CsvEncoder[A],
+    bEncoder: CsvEncoder[B]
+): CsvEncoder[(A, B)]
+>>>
+implicit def pairEncoder[A, B](
+  implicit aEncoder: CsvEncoder[A],
   bEncoder: CsvEncoder[B]
 ): CsvEncoder[(A, B)]
