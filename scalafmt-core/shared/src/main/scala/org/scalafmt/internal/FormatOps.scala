@@ -831,9 +831,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
             if app.args.length >= runner.optimizer.forceConfigStyleMinArgCount &&
               distance(left, matching(left)) > maxDistance =>
           forces += app
-          app.args.foreach { arg =>
-            clearQueues += hash(arg.tokens.head)
-          }
+          app.args.foreach { arg => clearQueues += hash(arg.tokens.head) }
         case _ =>
       }
       (forces.result(), clearQueues.result())
@@ -1003,7 +1001,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       case _ => 0
     }
 
-    val aboveArityThreshold = (maxArity >= style.verticalMultiline.arityThreshold) || (maxArity >= style.verticalMultilineAtDefinitionSiteArityThreshold)
+    val aboveArityThreshold =
+      (maxArity >= style.verticalMultiline.arityThreshold) || (maxArity >= style.verticalMultilineAtDefinitionSiteArityThreshold)
 
     val singleLineModification =
       if (style.spaces.inParentheses) Space

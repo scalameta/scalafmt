@@ -341,9 +341,7 @@ object TermDisplay {
             doneQueue.clear()
 
             val dw = downloads.toVector
-              .map { url =>
-                url -> infos.get(url)
-              }
+              .map { url => url -> infos.get(url) }
               .sortBy { case (_, info) => -info.fraction.sum }
 
             (q, dw)
@@ -397,9 +395,7 @@ object TermDisplay {
         case Some(Message.Update) =>
           val downloads0 = downloads.synchronized {
             downloads.toVector
-              .map { url =>
-                url -> infos.get(url)
-              }
+              .map { url => url -> infos.get(url) }
               .sortBy { case (_, info) => -info.fraction.sum }
           }
 
