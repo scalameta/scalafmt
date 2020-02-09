@@ -596,4 +596,22 @@ object TreeOps {
       pos.endLine - pos.startLine
     }
 
+  /**
+    * In cases like:
+    * {{{
+    *   class X(
+    *     implicit
+    *     private[this] val i1: Int,
+    *     private[this] var i2: String
+    * )
+    * }}}
+    *
+    * `val i1`, and `var i2` have a ``Mod.Implicit`` with empty tokens.
+    */
+  def isHiddenImplicit(m: Mod): Boolean =
+    m.tokens.isEmpty && m.is[Mod.Implicit]
+
+  def isExplicitImplicit(m: Mod): Boolean =
+    m.tokens.nonEmpty && m.is[Mod.Implicit]
+
 }

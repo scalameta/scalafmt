@@ -1,6 +1,7 @@
 package org.scalafmt.rewrite
 
 import org.scalafmt.config.SortSettings._
+import org.scalafmt.util.TreeOps
 
 import scala.meta._
 
@@ -46,7 +47,8 @@ class SortModifiers(implicit ctx: RewriteCtx) extends RewriteSession {
 
   private def sortMods(oldMods: Seq[Mod]): Unit = {
     if (oldMods.nonEmpty) {
-      val sanitized = oldMods.filterNot(isHiddenImplicit)
+      // ignore implicit "implicit" whenever we sort, and apply patches
+      val sanitized = oldMods.filterNot(TreeOps.isHiddenImplicit)
       val sortedMods: Seq[Mod] = sanitized.sortWith(orderModsBy)
 
       ctx.addPatchSet(sortedMods.zip(sanitized).flatMap {
@@ -60,24 +62,6 @@ class SortModifiers(implicit ctx: RewriteCtx) extends RewriteSession {
           }
       }: _*)
     }
-  }
-
-  /**
-    * In cases like:
-    * {{{
-    *   class X(
-    *     implicit
-    *     private[this] val i1: Int,
-    *     private[this] var i2: String
-    * )
-    * }}}
-    *
-    * `val i1`, and `var i2` have a ``Mod.Implicit`` with empty tokens.
-    * Therefore we want to completely ignore this "mod" whenever we sort,
-    * and apply patches
-    */
-  private def isHiddenImplicit(m: Mod): Boolean = {
-    m.tokens.isEmpty && m.is[Mod.Implicit]
   }
 
   /**
