@@ -7,21 +7,21 @@ import java.io.File
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.FormatAssertions
-import org.scalatest.funsuite.AnyFunSuite
+import munit.FunSuite
 
 /**
   * Asserts formatter does not alter original source file's AST.
   *
   * Will maybe use scalacheck someday.
   */
-class FidelityTest extends AnyFunSuite with FormatAssertions {
+class FidelityTest extends FunSuite with FormatAssertions {
 
-  case class Test(filename: String, code: String)
+  case class TestCase(filename: String, code: String)
 
-  object Test {
+  object TestCase {
 
-    def apply(filename: String): Test =
-      Test(filename, FileOps.readFile(filename))
+    def apply(filename: String): TestCase =
+      TestCase(filename, FileOps.readFile(filename))
   }
 
   val files = FileOps
@@ -38,7 +38,7 @@ class FidelityTest extends AnyFunSuite with FormatAssertions {
       ).map(_.replace("/", File.separator)).exists(x.contains)
     )
 
-  val examples = files.map(Test.apply)
+  val examples = files.map(TestCase.apply)
 
   examples.foreach { example =>
     test(example.filename) {

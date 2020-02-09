@@ -1,19 +1,16 @@
 package org.scalafmt.util
 
-import scala.meta.Dialect
-import scala.meta.Tree
-import scala.meta.parsers.Parse
-import scala.meta.parsers.ParseException
-import scala.meta.testkit.StructurallyEqual
-
 import java.io.ByteArrayInputStream
 
-import org.scalafmt.Error.FormatterChangedAST
-import org.scalafmt.Error.FormatterOutputDoesNotParse
+import munit.internal.difflib.Diffs
+import org.scalafmt.Error.{FormatterChangedAST, FormatterOutputDoesNotParse}
 import org.scalameta.logger
-import org.scalatest.funsuite.AnyFunSuiteLike
 
-trait FormatAssertions extends AnyFunSuiteLike with DiffAssertions {
+import scala.meta.parsers.{Parse, ParseException}
+import scala.meta.testkit.StructurallyEqual
+import scala.meta.{Dialect, Tree}
+
+trait FormatAssertions {
 
   def assertFormatPreservesAst[T <: Tree](
       original: String,
@@ -60,7 +57,7 @@ trait FormatAssertions extends AnyFunSuiteLike with DiffAssertions {
 //    compareContents(formatAst(original), formatAst(obtained))
     // Predef.augmentString = work around scala/bug#11125 on JDK 11
     augmentString(
-      compareContents(
+      Diffs.unifiedDiff(
         original.replace("(", "\n("),
         obtained.replace("(", "\n(")
       )

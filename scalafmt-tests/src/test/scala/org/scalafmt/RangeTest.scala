@@ -1,10 +1,9 @@
 package org.scalafmt
 
-import org.scalafmt.util.DiffAssertions
+import munit.FunSuite
 import org.scalafmt.util.HasTests
-import org.scalatest.funsuite.AnyFunSuite
 
-class RangeTest extends AnyFunSuite with DiffAssertions {
+class RangeTest extends FunSuite {
   test("range preserves indent") {
     val original = """object a {
                      |val x = 1

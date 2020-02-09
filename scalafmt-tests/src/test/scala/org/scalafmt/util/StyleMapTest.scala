@@ -4,9 +4,9 @@ import scala.meta._
 
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.FormatOps
-import org.scalatest.funsuite.AnyFunSuite
+import munit.FunSuite
 
-class StyleMapTest extends AnyFunSuite {
+class StyleMapTest extends FunSuite {
   test("basic") {
     val code =
       """object a {

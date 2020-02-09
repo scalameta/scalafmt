@@ -36,10 +36,11 @@ inThisBuild(
     crossScalaVersions := List(scala213, scala212, scala211),
     resolvers += Resolver.sonatypeRepo("releases"),
     libraryDependencies ++= List(
-      scalatest.value % Test,
+      munit.value % Test,
       scalacheck % Test,
       scalametaTestkit % Test
-    )
+    ),
+    testFrameworks += new TestFramework("munit.Framework")
   )
 )
 
@@ -73,7 +74,7 @@ lazy val dynamic = project
     libraryDependencies ++= List(
       "io.get-coursier" % "interface" % "0.0.17",
       "com.typesafe" % "config" % "1.4.0",
-      scalatest.value % Test,
+      munit.value % Test,
       scalametaTestkit % Test
     ),
     scalacOptions ++= scalacJvmOptions.value

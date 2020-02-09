@@ -3,14 +3,15 @@ package org.scalafmt
 import scala.collection.mutable
 import scala.meta._
 import scala.meta.testkit._
-
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.FormatAssertions
 import org.scalameta.logger
+import munit.FunSuite
+import munit.FailException
 
-class ScalafmtProps extends FormatAssertions {
+class ScalafmtProps extends FunSuite with FormatAssertions {
   import ScalafmtProps._
   def getBugs(
       config: ScalafmtConfig = ScalafmtConfig.default,
@@ -33,7 +34,16 @@ class ScalafmtProps extends FormatAssertions {
           case Formatted.Success(formatted) =>
             assertFormatPreservesAst[Source](code, formatted)
             val formattedSecondTime = Scalafmt.format(formatted, config).get
-            assertNoDiff(formattedSecondTime, formatted, "Idempotency")
+            try assertNoDiff(formattedSecondTime, formatted, "Idempotence")
+            catch {
+              case diff: FailException =>
+                throw DiffFailure(
+                  "Idempotence",
+                  formatted,
+                  formattedSecondTime,
+                  diff.getMessage
+                )
+            }
             Nil
           case Formatted.Failure(_: ParseException | _: TokenizeException) =>
             Nil
@@ -108,6 +118,13 @@ object ScalafmtProps {
   case object FormattedOutputDoesNotParse extends Bug
   case object SearchStateExploded extends Bug
   case class Unknown(e: Throwable) extends Bug
+
+  case class DiffFailure(
+      title: String,
+      expected: String,
+      obtained: String,
+      diff: String
+  ) extends Exception
 
   def main(args: Array[String]): Unit = {
     val props = new ScalafmtProps()
