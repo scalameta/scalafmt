@@ -1309,3 +1309,143 @@ object a {
       }
     }
 }
+<<< 7.1: enumerator and guard short, for long
+object a {
+  def c(b: List[Int]): List[Int] =
+    for {
+      a <- b
+      if (b ++ b).length >= 2
+    } yield a
+}
+>>>
+object a {
+  def c(b: List[Int]): List[Int] =
+    for {
+      a <- b
+      if (b ++ b).length >= 2
+    } yield a
+}
+<<< 7.2: enumerator shoft, guard long
+maxColumn = 28
+===
+object a {
+  def c(b: List[Int]): List[Int] =
+    for {
+      a <- b if (b ++ b).length >= 2
+    } yield a
+}
+>>>
+object a {
+  def c(
+      b: List[Int]
+  ): List[Int] =
+    for {
+      a <- b if (b ++ b)
+        .length >= 2
+    } yield a
+}
+<<< 7.3: enumerator and guard short, for short
+for (a <- b.sortBy(c)
+ if a > 0) yield x
+>>>
+for (a <- b.sortBy(c)
+  if a > 0) yield x
+<<< 7.4: enumerator and guard long
+maxColumn = 17
+===
+val k = for {
+  _ <- aaa + bbb
+    if !onlyOne
+  _ <- Future(aaa)
+    if !onlyOne
+  _ <- Future(2)
+} yield ()
+>>>
+val k = for {
+  _ <- aaa + bbb
+  if !onlyOne
+  _ <- Future(
+    aaa
+  )
+  if !onlyOne
+  _ <- Future(2)
+} yield ()
+<<< 7.5: multiple consecutive guards
+maxColumn = 80
+===
+val allOps = (
+  for {
+    c ← classes
+    m ← c.getMethods if !Modifier.isStatic(m.getModifiers); if !ignore(m.getName)
+    if !m.getName.contains("$"); if !materializing(m)
+  } yield m.getName
+).toSet
+>>>
+val allOps = (for {
+  c ← classes
+  m ← c.getMethods if !Modifier.isStatic(m.getModifiers); if !ignore(m.getName)
+  if !m.getName.contains("$"); if !materializing(m)
+} yield m.getName).toSet
+<<< 7.6: for-yield with select chain
+maxColumn = 80
+===
+object a {
+for {
+       (listenAddress, listenerPromise) ← wrappedTransport.listen
+       // Enforce ordering between the signalling of "listen ready" to upstream
+       // and initialization happening in interceptListen
+      _ ←
+        listenerPromise
+          .tryCompleteWith(
+            interceptListen(listenAddress, upstreamListenerPromise.future1))
+          .future2
+     } yield (augmentScheme(listenAddress), upstreamListenerPromise)
+        listenerPromise
+          .tryCompleteWith(
+            interceptListen(listenAddress, upstreamListenerPromise.future1))
+          .future2
+}
+>>>
+object a {
+  for {
+    (listenAddress, listenerPromise) ← wrappedTransport.listen
+    // Enforce ordering between the signalling of "listen ready" to upstream
+    // and initialization happening in interceptListen
+    _ ← listenerPromise.tryCompleteWith(
+      interceptListen(listenAddress, upstreamListenerPromise.future1)
+    ).future2
+  } yield (augmentScheme(listenAddress), upstreamListenerPromise)
+  listenerPromise.tryCompleteWith(
+    interceptListen(listenAddress, upstreamListenerPromise.future1)
+  ).future2
+}
+<<< 7.7: for-yield enclosed in parens
+for {
+  nu <- rand.gaussian(0, 1)
+  y = nu * nu
+  x = (mean
+        + mean * mean * y * 0.5 / shape
+        - 0.5 * mean / shape * math
+          .sqrt(4 * mean * shape * y + mean * mean * y * y)
+    )
+  z <- rand.uniform
+} yield {
+  if (z <= mean / (mean + x))
+    x
+  else
+    mean * mean / x
+}
+>>>
+for {
+  nu <- rand.gaussian(0, 1)
+  y = nu * nu
+  x = (mean
+      + mean * mean * y * 0.5 / shape
+      - 0.5 * mean / shape * math.sqrt(
+        4 * mean * shape * y + mean * mean * y * y
+      ))
+  z <- rand.uniform
+} yield {
+  if (z <= mean / (mean + x)) x
+  else mean * mean / x
+}
