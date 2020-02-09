@@ -1,4 +1,4 @@
-maxColumn = 200 #to not disturb the output too much
+maxColumn = 100 #to not disturb the output too much
 rewrite {
   rules = [SortModifiers]
   sortModifiers {
