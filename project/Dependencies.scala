@@ -7,7 +7,7 @@ import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
 object Dependencies {
   val metaconfigV = "0.9.5"
   val scalametaV = "4.3.0"
-  val munitV = "0.4.4"
+  val munitV = "0.4.5"
   val scalacheckV = "1.14.3"
   val coursier = "1.0.3"
 
