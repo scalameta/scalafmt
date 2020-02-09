@@ -41,8 +41,7 @@ trait HasTests extends FormatAssertions {
     }
   )
   lazy val debugResults = mutable.ArrayBuilder.make[Result]
-  val testDir =
-    "scalafmt-tests/src/test/resources".replace("/", File.separator)
+  val testDir = new File(getClass.getClassLoader.getResource("").toURI).getAbsolutePath
 
   def tests: Seq[DiffTest]
 
