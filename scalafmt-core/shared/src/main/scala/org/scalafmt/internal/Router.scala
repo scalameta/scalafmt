@@ -1400,43 +1400,6 @@ class Router(formatOps: FormatOps) {
           if isApplyInfix(op, rightOwner) =>
         val InfixApplication(_, op, args) = rightOwner.parent.get
         infixSplit(rightOwner, op, args, formatToken)
-      case opt
-          if style.optIn.annotationNewlines &&
-            optionalNewlines(hash(opt.right)) =>
-        Seq(Split(newlines2Modification(newlines), 0))
-      // Pat
-      case tok @ FormatToken(T.Ident("|"), _, _)
-          if leftOwner.is[Pat.Alternative] =>
-        Seq(
-          Split(Space, 0),
-          Split(Newline, 1)
-        )
-      case FormatToken(
-          T.Ident(_) | Literal() | T.Interpolation.End() | T.Xml.End(),
-          T.Ident(_) | Literal() | T.Xml.Start(),
-          _
-          ) =>
-        Seq(
-          Split(Space, 0)
-        )
-
-      // Case
-      case FormatToken(_, T.KwMatch(), _) =>
-        Seq(
-          Split(Space, 0)
-        )
-
-      // Protected []
-      case tok @ FormatToken(_, T.LeftBracket(), _)
-          if isModPrivateProtected(leftOwner) =>
-        Seq(
-          Split(NoSplit, 0)
-        )
-      case tok @ FormatToken(T.LeftBracket(), _, _)
-          if isModPrivateProtected(leftOwner) =>
-        Seq(
-          Split(NoSplit, 0)
-        )
 
       // Case
       case tok @ FormatToken(cs @ T.KwCase(), _, _) if leftOwner.is[Case] =>
@@ -1484,6 +1447,45 @@ class Router(formatOps: FormatOps) {
         Seq(Split(Newline, 0))
       case FormatToken(c: T.Comment, _, _) =>
         Seq(Split(newlines2Modification(newlines), 0))
+
+      case opt
+          if style.optIn.annotationNewlines &&
+            optionalNewlines(hash(opt.right)) =>
+        Seq(Split(newlines2Modification(newlines), 0))
+
+      // Pat
+      case tok @ FormatToken(T.Ident("|"), _, _)
+          if leftOwner.is[Pat.Alternative] =>
+        Seq(
+          Split(Space, 0),
+          Split(Newline, 1)
+        )
+      case FormatToken(
+          T.Ident(_) | Literal() | T.Interpolation.End() | T.Xml.End(),
+          T.Ident(_) | Literal() | T.Xml.Start(),
+          _
+          ) =>
+        Seq(
+          Split(Space, 0)
+        )
+
+      // Case
+      case FormatToken(_, T.KwMatch(), _) =>
+        Seq(
+          Split(Space, 0)
+        )
+
+      // Protected []
+      case tok @ FormatToken(_, T.LeftBracket(), _)
+          if isModPrivateProtected(leftOwner) =>
+        Seq(
+          Split(NoSplit, 0)
+        )
+      case tok @ FormatToken(T.LeftBracket(), _, _)
+          if isModPrivateProtected(leftOwner) =>
+        Seq(
+          Split(NoSplit, 0)
+        )
 
       // Term.ForYield
       case tok @ FormatToken(_, arrow @ T.KwIf(), _)
