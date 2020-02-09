@@ -105,3 +105,166 @@ implicit def pairEncoder[A, B](implicit
   aEncoder: CsvEncoder[A],
   bEncoder: CsvEncoder[B]
 ): CsvEncoder[(A, B)]
+<<< #1362 1: single implict, long line
+danglingParentheses = true
+align.openParenCallSite = false
+align.openParenDefnSite = false
+===
+case class Foo(
+  a: Int,
+  b: Boolean,
+  c: String,
+  d: String,
+  e: String,
+  f: String,
+  g: String
+) {
+  def run[F[_]](
+    a: Int,
+    b: Int = 0
+  )(implicit
+    F: Monad[F]
+  ): F[Resolution] =
+    ???
+}
+>>>
+case class Foo(
+  a: Int,
+  b: Boolean,
+  c: String,
+  d: String,
+  e: String,
+  f: String,
+  g: String) {
+  def run[F[_]](
+    a: Int,
+    b: Int = 0
+  )(implicit
+    F: Monad[F]
+  ): F[Resolution] =
+    ???
+}
+<<< #1362 2: single implicit, short line
+maxColumn = 40
+danglingParentheses = true
+align.openParenCallSite = false
+align.openParenDefnSite = false
+===
+case class Foo(
+  a: Int,
+  b: Boolean,
+  c: String,
+  d: String,
+  e: String,
+  f: String,
+  g: String
+) {
+  def run[F[_]](
+    a: Int,
+    b: Int = 0
+  )(implicit
+    F: Monad[F]
+  ): F[Resolution] =
+    ???
+}
+>>>
+case class Foo(
+  a: Int,
+  b: Boolean,
+  c: String,
+  d: String,
+  e: String,
+  f: String,
+  g: String) {
+  def run[F[_]](
+    a: Int,
+    b: Int = 0
+  )(implicit
+    F: Monad[F]
+  ): F[Resolution] =
+    ???
+}
+<<< #1362 3: multiple implicits, short line
+maxColumn = 30
+danglingParentheses = true
+align.openParenCallSite = false
+align.openParenDefnSite = false
+===
+case class Foo(
+  a: Int,
+  b: Boolean,
+  c: String,
+  d: String,
+  e: String,
+  f: String,
+  g: String
+) {
+  def run[F[_]](
+    a: Int,
+    b: Int = 0
+  )(implicit
+    F: Monad[F],
+    G: Monad[G]
+  ): F[Resolution] =
+    ???
+}
+>>>
+case class Foo(
+  a: Int,
+  b: Boolean,
+  c: String,
+  d: String,
+  e: String,
+  f: String,
+  g: String) {
+  def run[F[_]](
+    a: Int,
+    b: Int = 0
+  )(implicit
+    F: Monad[F],
+    G: Monad[G]
+  ): F[Resolution] =
+    ???
+}
+<<< #1362 4: multiple implicits, long line
+maxColumn = 60
+danglingParentheses = true
+align.openParenCallSite = false
+align.openParenDefnSite = false
+===
+case class Foo(
+  a: Int,
+  b: Boolean,
+  c: String,
+  d: String,
+  e: String,
+  f: String,
+  g: String
+) {
+  def run[F[_]](
+    a: Int,
+    b: Int = 0
+  )(implicit
+    F: Monad[F],
+    G: Monad[G]
+  ): F[Resolution] =
+    ???
+}
+>>>
+case class Foo(
+  a: Int,
+  b: Boolean,
+  c: String,
+  d: String,
+  e: String,
+  f: String,
+  g: String) {
+  def run[F[_]](
+    a: Int,
+    b: Int = 0
+  )(implicit
+    F: Monad[F],
+    G: Monad[G]
+  ): F[Resolution] =
+    ???
+}
