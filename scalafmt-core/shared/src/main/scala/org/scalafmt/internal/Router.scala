@@ -1002,7 +1002,7 @@ class Router(formatOps: FormatOps) {
               singleLineComment || style.activeForEdition_2020_01 && {
                 val nextTok = nextNonComment(tok).right
                 // perhaps a trailing comma
-                (nextTok ne right) && nextTok.is[CloseParenOrBracket]
+                (nextTok ne right) && nextTok.is[RightParenOrBracket]
               }
             }
             Seq(
@@ -1078,7 +1078,7 @@ class Router(formatOps: FormatOps) {
         // rhsOptimalToken is too aggressive here
         val optimal = tokens(expire).right match {
           case x: T.Comma => x
-          case x @ CloseParenOrBracket() if !wouldDangle => x
+          case x @ RightParenOrBracket() if !wouldDangle => x
           case _ => expire
         }
 
