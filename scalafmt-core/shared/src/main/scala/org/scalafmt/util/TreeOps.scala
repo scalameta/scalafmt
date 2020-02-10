@@ -10,6 +10,7 @@ import scala.meta.Defn
 import scala.meta.Enumerator
 import scala.meta.Init
 import scala.meta.Mod
+import scala.meta.Name
 import scala.meta.Pat
 import scala.meta.Pkg
 import scala.meta.Source
@@ -357,35 +358,47 @@ object TreeOps {
     case _ => false
   }
 
-  val splitApplyIntoLhsAndArgs: PartialFunction[Tree, (Tree, Seq[Tree])] = {
-    case t: Term.Apply => t.fun -> t.args
-    case t: Term.Super => t -> Seq(t.superp)
-    case t: Pat.Extract => t.fun -> t.args
-    case t: Pat.Tuple => t -> t.args
-    case t: Type.Apply => t.tpe -> t.args
-    case t: Term.ApplyType => t.fun -> t.targs
-    case t: Term.Tuple => t -> t.args
-    case t: Term.Function => t -> t.params
-    case t: Type.Function => t -> t.params
-    case t: Type.Tuple => t -> t.args
-    case t: Type.Param => t.name -> t.tparams
-    case t: Decl.Type => t.name -> t.tparams
-    case t: Defn.Type => t.name -> t.tparams
-    // TODO(olafur) flatten correct? Filter by this () section?
-    case t: Init => t.tpe -> t.argss.flatten
-    case t: Defn.Def => t.name -> t.paramss.flatten
-    case t: Defn.Macro => t.name -> t.paramss.flatten
-    case t: Decl.Def => t.name -> t.paramss.flatten
-    case t: Defn.Class => t.name -> t.ctor.paramss.flatten
-    case t: Defn.Trait => t.name -> t.ctor.paramss.flatten
-    case t: Ctor.Primary => t.name -> t.paramss.flatten
-    case t: Ctor.Secondary => t.name -> t.paramss.flatten
+  type CallParts = (Tree, Either[Seq[Tree], Seq[Seq[Tree]]])
+  val splitCallIntoParts: PartialFunction[Tree, CallParts] = {
+    case t: Term.Apply => (t.fun, Left(t.args))
+    case t: Term.Super => (t, Left(Seq(t.superp)))
+    case t: Pat.Extract => (t.fun, Left(t.args))
+    case t: Pat.Tuple => (t, Left(t.args))
+    case t: Type.Apply => (t.tpe, Left(t.args))
+    case t: Term.ApplyType => (t.fun, Left(t.targs))
+    case t: Term.Tuple => (t, Left(t.args))
+    case t: Term.Function => (t, Left(t.params))
+    case t: Type.Function => (t, Left(t.params))
+    case t: Type.Tuple => (t, Left(t.args))
+    case t: Init => (t.tpe, Right(t.argss))
+  }
+  object SplitCallIntoParts {
+    def unapply(tree: Tree): Option[CallParts] =
+      splitCallIntoParts.lift(tree)
   }
 
-  val splitApplyIntoLhsAndArgsLifted = splitApplyIntoLhsAndArgs.lift
+  type DefnParts = (Seq[Mod], Name, Seq[Type.Param], Seq[Seq[Term.Param]])
+  val splitDefnIntoParts: PartialFunction[Tree, DefnParts] = {
+    // types
+    case t: Type.Param => (t.mods, t.name, t.tparams, Seq.empty)
+    case t: Decl.Type => (t.mods, t.name, t.tparams, Seq.empty)
+    case t: Defn.Type => (t.mods, t.name, t.tparams, Seq.empty)
+    // definitions
+    case t: Defn.Def => (t.mods, t.name, t.tparams, t.paramss)
+    case t: Defn.Macro => (t.mods, t.name, t.tparams, t.paramss)
+    case t: Decl.Def => (t.mods, t.name, t.tparams, t.paramss)
+    case t: Defn.Class => (t.mods, t.name, t.tparams, t.ctor.paramss)
+    case t: Defn.Trait => (t.mods, t.name, t.tparams, t.ctor.paramss)
+    case t: Ctor.Primary => (t.mods, t.name, Seq.empty, t.paramss)
+    case t: Ctor.Secondary => (t.mods, t.name, Seq.empty, t.paramss)
+  }
+  object SplitDefnIntoParts {
+    def unapply(tree: Tree): Option[DefnParts] =
+      splitDefnIntoParts.lift(tree)
+  }
 
   def isChainApplyParent(parent: Tree, child: Tree): Boolean =
-    splitApplyIntoLhsAndArgsLifted(parent).exists(_._1 == child)
+    splitCallIntoParts.lift(parent).exists(_._1 == child)
 
   @tailrec
   final def getSelectChain(
@@ -404,7 +417,7 @@ object TreeOps {
   def startsSelectChain(tree: Tree): Boolean = tree match {
     case select: Term.Select =>
       !(existsChild(_.is[Term.Select])(select) &&
-        existsChild(splitApplyIntoLhsAndArgs.isDefinedAt)(select))
+        existsChild(splitCallIntoParts.isDefinedAt)(select))
     case _ => false
   }
 

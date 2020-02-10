@@ -1080,18 +1080,28 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     }(x => prevNonComment(tokens(x, -1)))
 
   def getApplyArgs(formatToken: FormatToken): (Tree, Seq[Tree]) = {
-    val leftOwner = formatToken.meta.leftOwner
-    leftOwner match {
-      case t: Defn.Def if formatToken.left.is[T.LeftBracket] =>
-        t.name -> t.tparams
-      // TODO(olafur) missing Defn.Def with `(` case.
-      case _ =>
-        splitApplyIntoLhsAndArgsLifted(leftOwner).getOrElse {
-          logger.debug(s"""Unknown tree
-                          |${log(leftOwner.parent.get)}
-                          |${isDefnSite(leftOwner)}""".stripMargin)
-          throw UnexpectedTree[Term.Apply](leftOwner)
+    def getArgs(argss: Seq[Seq[Tree]]): Seq[Tree] =
+      argss.flatten
+    formatToken.meta.leftOwner match {
+      case t @ SplitDefnIntoParts(_, name, tparams, paramss) =>
+        if (formatToken.left.is[T.LeftParen])
+          (name, getArgs(paramss))
+        else {
+          // XXX: backwards-compatible hack
+          val useTParams = t.is[Defn.Def] ||
+            t.is[Type.Param] || t.is[Decl.Type] || t.is[Defn.Type]
+          (name, if (useTParams) tparams else paramss.flatten)
         }
+      case SplitCallIntoParts(tree, either) =>
+        either match {
+          case util.Left(args) => (tree, args)
+          case util.Right(argss) => (tree, getArgs(argss))
+        }
+      case leftOwner =>
+        logger.debug(s"""Unknown tree
+                        |${log(leftOwner.parent.get)}
+                        |${isDefnSite(leftOwner)}""".stripMargin)
+        throw UnexpectedTree[Term.Apply](leftOwner)
     }
   }
 

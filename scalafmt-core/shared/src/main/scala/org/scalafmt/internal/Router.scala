@@ -671,7 +671,7 @@ class Router(formatOps: FormatOps) {
         val open = formatToken.left
         val close = matching(open)
         val indent = getApplyIndent(leftOwner)
-        val (lhs, args) = getApplyArgs(formatToken)
+        val (_, args) = getApplyArgs(formatToken)
         val optimal = leftOwner.tokens.find(_.is[T.Comma]).orElse(Some(close))
         val isBracket = open.is[T.LeftBracket]
         // TODO(olafur) DRY. Same logic as in default.
@@ -1153,11 +1153,13 @@ class Router(formatOps: FormatOps) {
             // many arguments on the same line can be hard to read. By not
             // putting a newline before the dot, we force the argument list
             // to break into multiple lines.
-            splitApplyIntoLhsAndArgsLifted(tokens(tok, 2).meta.rightOwner)
-              .map {
-                case (_, lst) => Math.max(0, lst.length - 1)
-              }
-              .getOrElse(0)
+            splitCallIntoParts.lift(tokens(tok, 2).meta.rightOwner) match {
+              case Some((_, util.Left(args))) =>
+                Math.max(0, args.length - 1)
+              case Some((_, util.Right(argss))) =>
+                Math.max(0, argss.map(_.length).sum - 1)
+              case _ => 0
+            }
           } else 0
         Seq(
           Split(NoSplit, 0, ignoreIf = ignoreNoSplit)
