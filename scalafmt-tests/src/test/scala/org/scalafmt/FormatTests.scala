@@ -2,10 +2,12 @@ package org.scalafmt
 
 import java.io.File
 
+import org.scalactic.source.Position
+import org.scalatest.{BeforeAndAfterAllConfigMap, ConfigMap}
 import org.scalatest.funsuite.AnyFunSuite
+
 import org.scalafmt.Error.{Incomplete, SearchStateExploded}
 import org.scalafmt.util._
-import org.scalatest.{BeforeAndAfterAllConfigMap, ConfigMap}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -34,16 +36,17 @@ class FormatTests
   }
 
   tests
-    .sortWith(bySpecThenName)
+    .sortBy(x => (x.loc.fileName, x.loc.lineNumber))
     .withFilter(testShouldRun)
     .foreach(runTest(run))
 
   def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
+    implicit val loc: Position = t.loc
     val runner = scalafmtRunner(t.style.runner).copy(parser = parse)
     val obtained = Scalafmt.formatCode(
       t.original,
       t.style.copy(runner = runner),
-      filename = t.filename
+      filename = loc.filePathname
     ) match {
       case Formatted.Failure(e)
           if t.style.onTestFailure.nonEmpty && e.getMessage.contains(
@@ -69,7 +72,7 @@ class FormatTests
       .formatCode(
         obtained,
         t.style.copy(runner = runner),
-        filename = t.filename
+        filename = loc.filePathname
       )
       .get
 //          getFormatOutput(t.style, true) // uncomment to debug
@@ -81,11 +84,6 @@ class FormatTests
   }
 
   def testShouldRun(t: DiffTest): Boolean = !onlyOne || t.only
-
-  def bySpecThenName(left: DiffTest, right: DiffTest): Boolean = {
-    import scala.math.Ordered.orderingToOrdered
-    (left.spec, left.name).compare(right.spec -> right.name) < 0
-  }
 
   override def afterAll(configMap: ConfigMap): Unit = {
     val splits = Debug.enqueuedSplits

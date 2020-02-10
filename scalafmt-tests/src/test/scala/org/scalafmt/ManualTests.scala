@@ -1,5 +1,8 @@
 package org.scalafmt
 
+import java.io.File
+
+import org.scalactic.source.Position
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.DiffTest
 import org.scalafmt.util.FileOps
@@ -8,19 +11,19 @@ import org.scalafmt.util.HasTests
 object ManualTests extends HasTests {
   lazy val tests: Seq[DiffTest] = {
     import FileOps._
+    val testPrefix = testDir + File.separator
     val manualFiles = for {
       filename <- listFiles(testDir) if filename.endsWith(manual)
       test <- {
-        val spec = filename.stripPrefix(testDir + "/").stripSuffix(manual)
-        // Predef.augmentString = work around scala/bug#11125 on JDK 11
-        augmentString(readFile(filename)).lines
+        readFile(filename).linesIterator
           .withFilter(_.startsWith("ONLY"))
           .map { name =>
-            val original = readFile(stripPrefix(name))
+            val testPath = stripPrefix(name)
+            val original = readFile(testPath)
+            val testFile = testPath.stripPrefix(testPrefix)
             DiffTest(
-              spec,
-              stripPrefix(name),
-              name,
+              testFile,
+              new Position(testFile, testPath, 1),
               original,
               original,
               isSkip(name),
@@ -35,9 +38,8 @@ object ManualTests extends HasTests {
     } yield {
       val content = readFile(filename)
       DiffTest(
-        "Scala",
         filename,
-        filename,
+        new Position(filename, filename, 1),
         content,
         content,
         false,
