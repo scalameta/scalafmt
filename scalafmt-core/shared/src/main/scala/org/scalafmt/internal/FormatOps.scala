@@ -983,19 +983,19 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       case _ => 0
     }
 
-    val aboveArityThreshold =
-      (maxArity >= style.verticalMultiline.arityThreshold) || (maxArity >= style.verticalMultilineAtDefinitionSiteArityThreshold)
+    def belowArityThreshold = maxArity < math.min(
+      style.verticalMultiline.arityThreshold,
+      style.verticalMultilineAtDefinitionSiteArityThreshold
+    )
 
     val singleLineModification =
       if (style.spaces.inParentheses) Space
       else NoSplit
 
     Seq(
-      Split(
-        singleLineModification,
-        0,
-        ignoreIf = !isBracket && aboveArityThreshold
-      ).withPolicy(SingleLineBlock(singleLineExpire)),
+      Split(singleLineModification, 0)
+        .onlyIf(isBracket || belowArityThreshold)
+        .withPolicy(SingleLineBlock(singleLineExpire)),
       Split(Newline, 1) // Otherwise split vertically
         .withIndent(firstIndent, close, Right)
         .withPolicy(policy)

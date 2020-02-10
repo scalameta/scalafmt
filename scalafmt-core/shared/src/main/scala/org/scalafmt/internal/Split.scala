@@ -57,6 +57,9 @@ case class Split(
       else firstLine
   }
 
+  def onlyIf(flag: Boolean): Split =
+    if (ignoreIf || flag) this else copy(ignoreIf = true)
+
   def withOptimalToken(token: Option[Token]): Split = token match {
     case Some(token) => withOptimalToken(token)
     case _ => this
@@ -107,6 +110,7 @@ case class Split(
 
 object Split {
 
-  val ignored = Split(NoSplit, 0, ignoreIf = true)(sourcecode.Line(0))
+  def ignored(implicit line: sourcecode.Line) =
+    Split(NoSplit, 0, ignoreIf = true)
 
 }
