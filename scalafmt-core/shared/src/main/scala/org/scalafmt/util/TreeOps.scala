@@ -313,15 +313,6 @@ object TreeOps {
     case _ => false
   }
 
-  def isBinPackDefnSite(tree: Tree): Boolean = tree match {
-    case _: Decl.Def | _: Defn.Def | _: Defn.Macro | _: Defn.Class |
-        _: Defn.Trait | _: Ctor.Secondary | _: Defn.Type | _: Type.Apply |
-        _: Type.Param | _: Type.Tuple =>
-      true
-    case x: Ctor.Primary => x.parent.exists(isBinPackDefnSite)
-    case _ => false
-  }
-
   /**
     * Returns true if open is "unnecessary".
     *
@@ -357,11 +348,6 @@ object TreeOps {
 
   def isDefnOrCallSite(tree: Tree): Boolean =
     isDefnSite(tree) || isCallSite(tree)
-
-  def isImporterOrDefnOrCallSite(tree: Tree): Boolean = tree match {
-    case _: Importer => true
-    case _ => isDefnOrCallSite(tree)
-  }
 
   def noSpaceBeforeOpeningParen(tree: Tree): Boolean =
     !isTuple(tree) && isDefnOrCallSite(tree)
