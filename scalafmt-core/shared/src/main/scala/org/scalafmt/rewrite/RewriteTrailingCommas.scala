@@ -4,6 +4,7 @@ import scala.meta._
 import scala.meta.classifiers.Classifier
 import scala.meta.tokens.Token
 
+import org.scalafmt.util.TreeOps
 import org.scalafmt.util.Whitespace
 
 object RewriteTrailingCommas extends Rewrite {
@@ -24,27 +25,15 @@ class RewriteTrailingCommas(implicit ctx: RewriteCtx) extends RewriteSession {
         case _ =>
       }
 
-    case t: Decl.Def => afterTParams(t.tparams); afterEachArgs(t.paramss)
-    case t: Defn.Def => afterTParams(t.tparams); afterEachArgs(t.paramss)
-    case t: Defn.Macro => afterTParams(t.tparams); afterEachArgs(t.paramss)
-    case t: Defn.Class => afterTParams(t.tparams)
-    case t: Defn.Trait => afterTParams(t.tparams)
-    case t: Ctor.Secondary => afterEachArgs(t.paramss)
-    case t: Decl.Type => afterTParams(t.tparams)
-    case t: Defn.Type => afterTParams(t.tparams)
-    case t: Type.Apply => afterArgs(t.args)
-    case t: Type.Param => afterTParams(t.tparams)
-    case t: Type.Tuple => afterArgs(t.args)
-    case t: Term.Function => afterArgs(t.params)
-    case t: Type.Function => afterArgs(t.params)
-    case t: Ctor.Primary => afterEachArgs(t.paramss)
+    case TreeOps.SplitDefnIntoParts(_, _, tparams, paramss) =>
+      afterTParams(tparams)
+      afterEachArgs(paramss)
 
-    case t: Term.Apply => afterArgs(t.args)
-    case t: Pat.Extract => afterArgs(t.args)
-    case t: Pat.Tuple => afterArgs(t.args)
-    case t: Term.Tuple => afterArgs(t.args)
-    case t: Term.ApplyType => afterArgs(t.targs)
-    case t: Init => afterEachArgs(t.argss)
+    case TreeOps.SplitCallIntoParts(_, either) =>
+      either match {
+        case Left(args) => afterArgs(args)
+        case Right(argss) => afterEachArgs(argss)
+      }
 
     case _ =>
   }
@@ -70,17 +59,17 @@ class RewriteTrailingCommas(implicit ctx: RewriteCtx) extends RewriteSession {
     }
   }
 
-  private def afterTParams(tparams: List[Type.Param]): Unit =
+  private def afterTParams(tparams: Seq[Type.Param]): Unit =
     tparams.lastOption.foreach {
       _.tokens.lastOption.foreach(forwardBeforeType[Token.RightBracket])
     }
 
-  private def afterArgs(args: List[Tree]): Unit =
+  private def afterArgs(args: Seq[Tree]): Unit =
     args.lastOption.foreach {
       _.tokens.lastOption.foreach(forwardBeforeType[Token.RightParen])
     }
 
-  private def afterEachArgs(argss: List[List[Tree]]): Unit =
+  private def afterEachArgs(argss: Seq[Seq[Tree]]): Unit =
     argss.foreach(afterArgs)
 
 }
