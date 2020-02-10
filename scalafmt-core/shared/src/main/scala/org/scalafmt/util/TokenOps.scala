@@ -254,11 +254,4 @@ object TokenOps {
     "// format: on" // scalariform
   )
 
-  @classifier
-  trait CloseParenOrBracket
-  object CloseParenOrBracket {
-    def unapply(token: Token): Boolean =
-      token.is[Token.RightParen] || token.is[Token.RightBracket]
-  }
-
 }
