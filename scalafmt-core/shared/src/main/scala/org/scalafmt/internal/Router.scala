@@ -141,11 +141,9 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(if (style.spaces.inImportCurlyBraces) Space else NoSplit, 0)
             .withPolicy(policy),
-          Split(
-            Newline,
-            1,
-            ignoreIf = style.importSelectors == ImportSelectors.singleLine
-          ).withPolicy(newlinePolicy)
+          Split(Newline, 1)
+            .onlyIf(style.importSelectors != ImportSelectors.singleLine)
+            .withPolicy(newlinePolicy)
             .withIndent(2, close, Right)
         )
       // Interpolated string left brace
@@ -425,12 +423,9 @@ class Router(formatOps: FormatOps) {
           val spaceCouldBeOk = annoLeft &&
             newlines == 0 && right.is[Keyword]
           Seq(
-            Split(
-              // This split needs to have an optimalAt field.
-              Space,
-              0,
-              ignoreIf = !spaceCouldBeOk
-            ).withOptimalToken(expire)
+            // This split needs to have an optimalAt field.
+            Split(Space, 0, ignoreIf = !spaceCouldBeOk)
+              .withOptimalToken(expire)
               .withPolicy(SingleLineBlock(expire)),
             // For some reason, this newline cannot cost 1.
             Split(newline, 0)
@@ -929,11 +924,9 @@ class Router(formatOps: FormatOps) {
         }
         Seq(
           Split(Space, 0),
-          Split(
-            Newline,
-            0,
-            ignoreIf = !isComma || newlines == 0 || bodyHasNewlines
-          ).withOptimalToken(close, killOnFail = true)
+          Split(Newline, 0)
+            .onlyIf(isComma && newlines != 0 && !bodyHasNewlines)
+            .withOptimalToken(close, killOnFail = true)
             .withPolicy(SingleLineBlock(close))
         )
 
