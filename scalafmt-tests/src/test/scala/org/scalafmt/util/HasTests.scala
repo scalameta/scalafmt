@@ -3,7 +3,6 @@ package org.scalafmt.util
 import java.io.File
 
 import metaconfig.Configured
-import org.scalatest.Assertions._
 import org.scalafmt.Error.UnknownStyle
 import org.scalafmt.{Debug, Scalafmt}
 import org.scalafmt.config.FormatEvent._
@@ -20,6 +19,8 @@ import scala.collection.mutable
 import scala.meta.Tree
 import scala.meta.parsers.Parse
 import scala.util.Try
+
+import org.scalactic.source.Position
 
 trait HasTests extends FormatAssertions {
   import LoggerOps._
@@ -99,6 +100,7 @@ trait HasTests extends FormatAssertions {
       )
     }
 
+    var linenum = 2 + split.head.split(sep).length
     split.tail.map { t =>
       val before :: expected :: Nil = t.split(s"$sep>>>$sep", 2).toList
       val extraConfig = before.split(s"$sep===$sep", 2).toList
@@ -110,16 +112,17 @@ trait HasTests extends FormatAssertions {
           (loadStyle(config, style), name :: original :: Nil)
       }
       val actualName = stripPrefix(name)
-      DiffTest(
-        spec,
+      val test = DiffTest(
         actualName,
-        filename,
+        new Position(spec, filename, linenum),
         original,
         trimmed(expected),
         moduleSkip || isSkip(name),
         moduleOnly || isOnly(name),
         testStyle
       )
+      linenum += t.split(sep).length
+      test
     }
   }
 
@@ -149,12 +152,13 @@ trait HasTests extends FormatAssertions {
   def ignore(t: DiffTest): Boolean = false
 
   def defaultRun(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
+    implicit val loc: Position = t.loc
     val runner = scalafmtRunner(t.style.runner).copy(parser = parse)
     val obtained = Scalafmt
       .formatCode(
         t.original,
         t.style.copy(runner = runner),
-        filename = t.filename
+        filename = loc.filePathname
       )
       .get
     if (t.style.rewrite.rules.isEmpty) {

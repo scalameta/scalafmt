@@ -1,5 +1,6 @@
 package org.scalafmt.util
 
+import org.scalactic.source.Position
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalafmt.Debug
 
@@ -8,6 +9,8 @@ import scala.meta.parsers.{Parse, ParseException}
 
 trait CanRunTests extends AnyFunSuite with HasTests {
   def runTest(run: (DiffTest, Parse[_ <: Tree]) => Unit)(t: DiffTest): Unit = {
+    implicit val loc: Position = t.loc
+    val filename = loc.filePathname
     val paddedName = f"${t.fullName}%-70s|"
 
     if (ignore(t)) {
@@ -17,7 +20,7 @@ trait CanRunTests extends AnyFunSuite with HasTests {
     } else {
       test(paddedName) {
         Debug.newTest()
-        filename2parse(t.filename) match {
+        filename2parse(filename) match {
           case Some(parse) =>
             try {
               run.apply(t, parse)
@@ -28,7 +31,7 @@ trait CanRunTests extends AnyFunSuite with HasTests {
                     parseException2Message(e, t.original)
                 )
             }
-          case None => fail(s"Found no parse for filename ${t.filename}")
+          case None => fail(s"Found no parse for filename $filename")
         }
       }
     }
