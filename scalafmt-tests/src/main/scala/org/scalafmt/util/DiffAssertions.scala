@@ -26,7 +26,17 @@ trait DiffAssertions extends AnyFunSuiteLike {
           Some(title + "\n" + error2message(obtained, expected)),
         None: Option[Throwable],
         pos
-      )
+      ) {
+    /* fool Intellij, prepend a stack trace element pointing to the test case
+     * to allow clicking to the file location; the trick is to show just the
+     * short file name under failedCodeFileName, and put the slightly longer
+     * version in pos.fileName as a hint in case of multiple matches. */
+    // see https://github.com/JetBrains/intellij-scala/blob/ce13d312447ff67404f9359a0543d1bf78c7430a/scala/scala-impl/src/org/jetbrains/plugins/scala/testingSupport/util/scalatest/ScalaTestFailureLocationFilter.java#L76
+    override def failedCodeFileName = Some(new File(pos.fileName).getName)
+    override lazy val failedCodeStackDepth = 0
+    override lazy val getStackTrace =
+      new StackTraceElement(pos.fileName, "", "", 0) +: super.getStackTrace
+  }
 
   def error2message(obtained: String, expected: String): String = {
     val sb = new StringBuilder
