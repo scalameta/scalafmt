@@ -2,7 +2,6 @@ package org.scalafmt.util
 
 import java.io.ByteArrayInputStream
 
-import munit.internal.difflib.Diffs
 import org.scalafmt.Error.{FormatterChangedAST, FormatterOutputDoesNotParse}
 import org.scalameta.logger
 
@@ -10,7 +9,7 @@ import scala.meta.parsers.{Parse, ParseException}
 import scala.meta.testkit.StructurallyEqual
 import scala.meta.{Dialect, Tree}
 
-trait FormatAssertions {
+trait FormatAssertions extends DiffAssertions {
 
   def assertFormatPreservesAst[T <: Tree](
       original: String,
@@ -57,7 +56,7 @@ trait FormatAssertions {
 //    compareContents(formatAst(original), formatAst(obtained))
     // Predef.augmentString = work around scala/bug#11125 on JDK 11
     augmentString(
-      Diffs.unifiedDiff(
+      compareContents(
         original.replace("(", "\n("),
         obtained.replace("(", "\n(")
       )

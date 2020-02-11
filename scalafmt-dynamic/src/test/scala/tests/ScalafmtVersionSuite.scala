@@ -2,9 +2,9 @@ package tests
 
 import org.scalafmt.dynamic.ScalafmtVersion
 import org.scalafmt.dynamic.ScalafmtVersion.InvalidVersionException
-import munit.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class ScalafmtVersionSuite extends FunSuite {
+class ScalafmtVersionSuite extends AnyFunSuite {
   test("parse valid versions") {
     assert(
       ScalafmtVersion.parse("2.0.0") == Right(ScalafmtVersion(2, 0, 0, 0))

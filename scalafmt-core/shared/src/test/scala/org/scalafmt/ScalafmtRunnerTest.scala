@@ -2,9 +2,9 @@ package org.scalafmt
 
 import scala.meta._
 import org.scalafmt.config._
-import munit.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class ScalafmtRunnerTest extends FunSuite {
+class ScalafmtRunnerTest extends AnyFunSuite {
   test("sbt dialect supports trailing commas") {
     ScalafmtRunner.sbt
       .dialect(

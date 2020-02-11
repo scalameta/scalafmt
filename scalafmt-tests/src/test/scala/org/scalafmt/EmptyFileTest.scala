@@ -2,9 +2,9 @@ package org.scalafmt
 
 import java.lang.System.lineSeparator
 
-import munit.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class EmptyFileTest extends FunSuite {
+class EmptyFileTest extends AnyFunSuite {
   test("empty tree formats to newline") {
     Seq("", lineSeparator, "", s"   $lineSeparator  ").foreach { original =>
       val expected = lineSeparator

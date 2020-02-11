@@ -2,45 +2,44 @@ package org.scalafmt.util
 
 import java.io.File
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Path, Paths}
-
-import munit.{Assertions, FunSuite}
+import java.nio.file.{Files, Paths}
+import scala.util._
 import org.scalactic.source.Position
 import org.scalafmt.util.DeleteTree.deleteTree
+import org.scalatest._
+import org.scalatest.funsuite
+import org.scalatest.matchers.should.Matchers
 
-import scala.util._
-
-class GitOpsTest extends FunSuite {
+class GitOpsTest extends funsuite.FixtureAnyFunSuite {
 
   import GitOpsTest._
+  import Matchers._
 
   val root = AbsoluteFile.userDir
   val dirName = "gitTestDir"
 
+  override type FixtureParam = GitOpsImpl
+
   // DESNOTE(2017-08-16, pjrt): Create a temporary git directory for each
   // test.
-  private implicit var gitOps: GitOpsImpl = _
-  private var path: Path = _
-
-  override def beforeEach(context: BeforeEach): Unit = {
-    path = Files.createTempDirectory(dirName)
-    val absFile = AbsoluteFile.fromPath(path.toString).get
-    gitOps = new GitOpsImpl(absFile)
-    init(gitOps)
+  override def withFixture(test: OneArgTest): Outcome = {
+    val f = Files.createTempDirectory(dirName)
+    val absFile = AbsoluteFile.fromPath(f.toString).get
+    val ops = new GitOpsImpl(absFile)
+    init(ops)
     // initial commit is needed
-    val initF = touch("initialfile")
-    add(initF)(gitOps)
-    commit(gitOps)
+    val initF = touch("initialfile")(ops)
+    add(initF)(ops)
+    commit(ops)
+    try withFixture(test.toNoArgTest(ops))
+    finally deleteTree(f)
   }
-
-  override def afterEach(context: AfterEach): Unit = deleteTree(path)
 
   def touch(
       name: String = Random.alphanumeric.take(10).mkString,
       dir: Option[AbsoluteFile] = None
-  ): AbsoluteFile = {
-    val f =
-      File.createTempFile(name, ".ext", dir.orElse(gitOps.rootDir).get.jfile)
+  )(implicit ops: GitOpsImpl): AbsoluteFile = {
+    val f = File.createTempFile(name, ".ext", dir.orElse(ops.rootDir).get.jfile)
     AbsoluteFile.fromPath(f.toString).get
   }
 
@@ -48,18 +47,20 @@ class GitOpsTest extends FunSuite {
       file: AbsoluteFile,
       name: String = Random.alphanumeric.take(10).mkString,
       dir: Option[AbsoluteFile] = None
-  ): AbsoluteFile = {
+  )(implicit ops: GitOpsImpl): AbsoluteFile = {
     val linkFile =
-      File.createTempFile(name, ".ext", dir.orElse(gitOps.rootDir).get.jfile)
+      File.createTempFile(name, ".ext", dir.orElse(ops.rootDir).get.jfile)
     linkFile.delete()
     val link = AbsoluteFile.fromPath(linkFile.toString).get
     Files.createSymbolicLink(linkFile.toPath, file.jfile.toPath)
     link
   }
 
-  def mv(f: AbsoluteFile, dir: Option[AbsoluteFile] = None): AbsoluteFile = {
+  def mv(f: AbsoluteFile, dir: Option[AbsoluteFile] = None)(
+      implicit ops: GitOpsImpl
+  ): AbsoluteFile = {
     val destDir = Files.createTempDirectory(
-      dir.orElse(gitOps.rootDir).get.jfile.toPath,
+      dir.orElse(ops.rootDir).get.jfile.toPath,
       "dir_"
     )
     val dest = Files.move(
@@ -85,50 +86,52 @@ class GitOpsTest extends FunSuite {
 
   def mkDir(
       dirName: String = Random.alphanumeric.take(10).mkString
-  ): AbsoluteFile = {
-    val file = new File(gitOps.rootDir.get.jfile, dirName)
+  )(implicit ops: GitOpsImpl): AbsoluteFile = {
+    val file = new File(ops.rootDir.get.jfile, dirName)
     file.mkdir()
-    AbsoluteFile.fromFile(file, gitOps.workingDirectory)
+    AbsoluteFile.fromFile(file, ops.workingDirectory)
   }
 
   test("lsTree should not return files not added to the index") {
-    touch()
-    assert(ls.isEmpty)
+    implicit ops =>
+      touch()
+      ls shouldBe empty
   }
 
-  test("#1010: lsTree should return staged files") {
+  test("#1010: lsTree should return staged files") { implicit ops =>
     val f = touch()
     add(f)
-    assert(ls == Seq(f))
+    ls should contain only (f)
   }
 
-  test("lsTree should return committed files") {
+  test("lsTree should return committed files") { implicit ops =>
     val f = touch()
     add(f)
     commit
-    assert(ls == Seq(f))
+    ls should contain only (f)
   }
 
-  test("lsTree should exclude symbolic links") {
+  test("lsTree should exclude symbolic links") { implicit ops =>
     val f = touch()
     add(f)
     val g = symbolicLinkTo(f)
     add(g)
     commit
-    assert(ls == Seq(f))
+    ls should contain only (f)
   }
 
   test("lsTree should not return committed files that have been deleted") {
-    val f = touch()
-    add(f)
-    commit
-    rm(f)
-    assert(ls.isEmpty)
+    implicit ops =>
+      val f = touch()
+      add(f)
+      commit
+      rm(f)
+      ls shouldBe empty
   }
 
   test(
     "lsTree should return files properly when the working directory is under the git root directory"
-  ) {
+  ) { implicit ops =>
     val f1 = touch()
     add(f1)
 
@@ -137,15 +140,16 @@ class GitOpsTest extends FunSuite {
     add(f2)
 
     val innerGitOps = new GitOpsImpl(innerDir)
-    assert(ls(innerGitOps) == Seq(f2))
+    ls(innerGitOps) should contain only f2
   }
 
   test("lsTree should return committed files that have been modified") {
-    val f = touch()
-    add(f)
-    commit
-    modify(f)
-    assert(ls == Seq(f))
+    implicit ops =>
+      val f = touch()
+      add(f)
+      commit
+      modify(f)
+      ls should contain only (f)
   }
 
   def diff(br: String = "HEAD")(implicit ops: GitOpsImpl): Seq[AbsoluteFile] =
@@ -155,54 +159,55 @@ class GitOpsTest extends FunSuite {
     ops.status
 
   // diff
-  test("diff should return modified committed files") {
+  test("diff should return modified committed files") { implicit o =>
     val f = touch()
     add(f)
     commit
     modify(f)
-    assert(diff() == Seq(f))
+    diff() should contain only (f)
   }
 
-  test("#1000: diff should not return git deleted files") {
+  test("#1000: diff should not return git deleted files") { implicit o =>
     val f = touch()
     add(f)
     commit
     rm(f)
-    assert(diff().isEmpty)
+    diff() shouldBe empty
   }
 
-  test("#1000: diff should not return fs deleted files") {
+  test("#1000: diff should not return fs deleted files") { implicit o =>
     val f = touch()
     add(f)
     commit
     rmfs(f)
-    assert(diff().isEmpty)
+    diff() shouldBe empty
   }
 
-  test("diff should return added files against HEAD") {
+  test("diff should return added files against HEAD") { implicit o =>
     val f1 = touch()
     val f2 = touch()
     add(f1)
     add(f2)
-    assert(diff().toSet == Set(f1, f2))
+    diff() should contain only (f1, f2)
   }
 
   test("diff should return added files against a different branch") {
-    val f = touch()
-    add(f)
-    commit
-    checkoutBr("other")
-    val f1 = touch()
-    val f2 = touch()
-    add(f1)
-    add(f2)
-    commit
-    assert(diff("master").toSet == Set(f1, f2))
+    implicit o =>
+      val f = touch()
+      add(f)
+      commit
+      checkoutBr("other")
+      val f1 = touch()
+      val f2 = touch()
+      add(f1)
+      add(f2)
+      commit
+      diff("master") should contain only (f1, f2)
   }
 
   test(
     "diff should return added files that are then modified against a different branch"
-  ) {
+  ) { implicit o =>
     val f = touch()
     add(f)
     commit
@@ -212,41 +217,42 @@ class GitOpsTest extends FunSuite {
     add(f1)
     add(f2)
     modify(f1)
-    assert(diff("master").toSet == Set(f1, f2))
+    diff("master") should contain only (f1, f2)
   }
 
   test("diff should not return removed files against a different branch") {
+    implicit o =>
+      val f = touch()
+      add(f)
+      commit
+      checkoutBr("other")
+      val f1 = touch()
+      val f2 = touch()
+      add(f1)
+      add(f2)
+      commit
+      rm(f1)
+      diff("master") should contain only (f2)
+  }
+
+  test("status should return only modified files") { implicit o =>
     val f = touch()
     add(f)
     commit
-    checkoutBr("other")
     val f1 = touch()
-    val f2 = touch()
-    add(f1)
-    add(f2)
-    commit
-    rm(f1)
-    assert(diff("master") == Seq(f2))
+    status should contain only f1
   }
 
-  test("status should return only modified files") {
-    val f = touch()
-    add(f)
-    commit
-    val f1 = touch()
-    assert(status == Seq(f1))
-  }
-
-  test("status should return moved") {
+  test("status should return moved") { implicit o =>
     val f = touch()
     add(f)
     commit
     val f1 = mv(f)
     add(f1)
-    assert(status == Seq(f1))
+    status should contain only f1
   }
 
-  test("status should not return deleted files") {
+  test("status should not return deleted files") { implicit o =>
     val f = touch()
     modify(f)
     add(f)
@@ -255,19 +261,21 @@ class GitOpsTest extends FunSuite {
     modify(f1)
     add(f1)
     rm(f)
-    assert(status == Seq(f1))
+    status should contain only f1
   }
 
-  test("status should return files with spaces in the path") {
+  test("status should return files with spaces in the path") { implicit o =>
     val dir = mkDir("dir 1")
     val f = touch(dir = Option(dir))
     add(f)
-    assert(status == Seq(f))
+    status should contain only f
   }
 
 }
 
 private object GitOpsTest {
+
+  import Matchers._
 
   // Filesystem commands
   def rmfs(file: AbsoluteFile): Unit =
@@ -276,7 +284,7 @@ private object GitOpsTest {
   // Git commands
   def git(str: String*)(implicit ops: GitOpsImpl, pos: Position): Seq[String] =
     ops.exec("git" +: str) match {
-      case Failure(f) => Assertions.fail(s"Failed git command. Got: $f")
+      case Failure(f) => fail(s"Failed git command. Got: $f")
       case Success(s) => s
     }
 

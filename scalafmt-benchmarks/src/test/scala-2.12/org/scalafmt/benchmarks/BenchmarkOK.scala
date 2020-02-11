@@ -2,14 +2,14 @@ package org.scalafmt.benchmarks
 
 import benchmarks.MacroBenchmark
 import org.scalafmt.benchmarks.Micro.ScalaJsFile
-import munit.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
 class TestMacroP extends MacroBenchmark(true, 10)
 class TestMacroS extends MacroBenchmark(true, 5)
 class TestMicroSmall extends ScalaJsFile("EventSerializers.scala")
 class TestMicroMedium extends ScalaJsFile("PrintStreamTest.scala")
 
-class BenchmarkOK extends FunSuite {
+class BenchmarkOK extends AnyFunSuite {
 
   Seq(
     new TestMacroP,

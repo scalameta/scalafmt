@@ -1,10 +1,11 @@
 package org.scalafmt
 
 import metaconfig.Conf
-import munit.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 import org.scalafmt.config.Edition
+import org.scalafmt.util.DiffAssertions
 
-class EditionTest extends FunSuite {
+class EditionTest extends AnyFunSuite with DiffAssertions {
   def check(original: String, expected: Edition): Unit = {
     test(original) {
       val conf = Conf.Str(original)
