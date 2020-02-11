@@ -170,7 +170,7 @@ class FormatWriter(formatOps: FormatOps) {
         state.split.modification.isNewline) lineOffset += 1
       tok.left match {
         case rb: T.RightBrace => // look for "foo { bar }"
-          owners(rb) match {
+          tok.meta.leftOwner match {
             case b: Term.Block if TreeOps.getBlockSingleStat(b).exists {
                   /* guard for statements requiring a wrapper block
                    * "foo { x => y; z }" can't become "foo(x => y; z)" */
@@ -331,7 +331,7 @@ class FormatWriter(formatOps: FormatOps) {
         val appendComma = runner.dialect.allowTrailingCommas &&
           initStyle.trailingCommas == TrailingCommas.always &&
           !tok.left.is[T.Comma] && !tok.left.is[T.Comment] && {
-          def owner = owners(tok.right)
+          def owner = tok.meta.rightOwner
 
           val (skip, nextNonCommentTok) = nextNonCommentWithCount(tok)
           val right = nextNonCommentTok.right
@@ -409,7 +409,7 @@ class FormatWriter(formatOps: FormatOps) {
       def checkPackage: Option[Boolean] =
         if (!initStyle.activeForEdition_2019_11) None
         else
-          Some(owners(formatToken.left))
+          Some(formatToken.meta.leftOwner)
             .collect { case term: Term.Name => term.parent }
             .flatten
             .collect {
@@ -463,19 +463,17 @@ class FormatWriter(formatOps: FormatOps) {
   }
 
   private def getAlignOwner(formatToken: FormatToken): Tree =
-    formatToken match {
-      // Corner case when line ends with comment
-      // TODO(olafur) should this be part of owners?
-      case FormatToken(x, c: T.Comment, _) if isSingleLineComment(c) =>
-        owners(x)
-      case FormatToken(_, r, _) =>
-        owners(r) match {
-          case name: Term.Name
-              if name.parent.exists(_.isInstanceOf[Term.ApplyInfix]) =>
-            name.parent.get
-          case x => x
-        }
-    }
+    // Corner case when line ends with comment
+    // TODO(olafur) should this be part of owners?
+    if (isSingleLineComment(formatToken.right))
+      formatToken.meta.leftOwner
+    else
+      formatToken.meta.rightOwner match {
+        case name: Term.Name
+            if name.parent.exists(_.isInstanceOf[Term.ApplyInfix]) =>
+          name.parent.get
+        case x => x
+      }
 
   private def columnsMatch(
       a: Array[FormatLocation],
@@ -497,7 +495,7 @@ class FormatWriter(formatOps: FormatOps) {
           key(row1.formatToken.right) == key(row2.formatToken.right) &&
           sameLengthToRoot &&
           TreeOps
-            .findTreeWithParent(owners(endOfLine.right)) {
+            .findTreeWithParent(endOfLine.meta.rightOwner) {
               case `row1Owner` | `row2Owner` => Some(true)
               case _ => None
             }
