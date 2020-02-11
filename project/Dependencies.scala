@@ -7,7 +7,7 @@ import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
 object Dependencies {
   val metaconfigV = "0.9.7"
   val scalametaV = "4.3.0"
-  val munitV = "0.4.5"
+  val scalatestV = "3.1.0"
   val scalacheckV = "1.14.3"
   val coursier = "1.0.3"
 
@@ -21,7 +21,7 @@ object Dependencies {
   val scalametaTestkit = "org.scalameta" %% "testkit" % scalametaV
 
   val scalacheck = "org.scalacheck" %% "scalacheck" % scalacheckV
-  val munit = Def.setting("org.scalameta" %%% "munit" % munitV)
+  val scalatest = Def.setting("org.scalatest" %%% "scalatest" % scalatestV)
   val scalameta = Def.setting {
     scalaBinaryVersion.value match {
       case "2.11" =>

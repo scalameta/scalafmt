@@ -9,15 +9,15 @@ import java.io.{
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 
-import munit.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 import org.scalafmt.Error.NoMatchingFiles
 import org.scalafmt.Versions
 import org.scalafmt.cli.FileTestOps._
 import org.scalafmt.config.{Config, ScalafmtConfig}
-import org.scalafmt.util.{AbsoluteFile, FileOps}
+import org.scalafmt.util.{AbsoluteFile, DiffAssertions, FileOps}
 import org.scalafmt.util.OsSpecific._
 
-abstract class AbstractCliTest extends FunSuite {
+abstract class AbstractCliTest extends AnyFunSuite with DiffAssertions {
   def mkArgs(str: String): Array[String] =
     str.split(' ')
 

@@ -2,9 +2,10 @@ package org.scalafmt
 
 import java.io.File
 
-import munit.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 import org.scalafmt.Error.{Incomplete, SearchStateExploded}
 import org.scalafmt.util._
+import org.scalatest.{BeforeAndAfterAllConfigMap, ConfigMap}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -14,7 +15,12 @@ import scala.meta.Tree
 import scala.meta.parsers.Parse
 // TODO(olafur) property test: same solution without optimization or timeout.
 
-class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
+class FormatTests
+    extends AnyFunSuite
+    with CanRunTests
+    with FormatAssertions
+    with DiffAssertions
+    with BeforeAndAfterAllConfigMap {
   import LoggerOps._
   lazy val onlyUnit = UnitTests.tests.exists(_.only)
   lazy val onlyManual = !onlyUnit && ManualTests.tests.exists(_.only)
@@ -81,7 +87,7 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
     (left.spec, left.name).compare(right.spec -> right.name) < 0
   }
 
-  override def afterAll(): Unit = {
+  override def afterAll(configMap: ConfigMap): Unit = {
     val splits = Debug.enqueuedSplits
       .groupBy(_.line.value)
       .toVector

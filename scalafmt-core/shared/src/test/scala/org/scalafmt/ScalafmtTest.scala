@@ -1,15 +1,15 @@
 package org.scalafmt
 
-import munit.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 import org.scalafmt.config.ScalafmtConfig
 import org.scalameta.logger
 
-class ScalafmtTest extends FunSuite {
+class ScalafmtTest extends AnyFunSuite {
   def check(
       original: String,
       expected: String,
       config: ScalafmtConfig = ScalafmtConfig.default
-  )(implicit loc: munit.Location): Unit = {
+  ): Unit = {
     test(logger.revealWhitespace(original).take(30)) {
       val obtained = Scalafmt.formatCode(original, config).get
       if (obtained != expected) logger.elem(obtained)

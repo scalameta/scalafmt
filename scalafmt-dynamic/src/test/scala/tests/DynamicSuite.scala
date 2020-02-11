@@ -13,9 +13,11 @@ import tests.PositionSyntax._
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.{meta => m}
-import munit.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class DynamicSuite extends FunSuite {
+import scala.meta.testkit.DiffAssertions
+
+class DynamicSuite extends AnyFunSuite with DiffAssertions {
   class Format(name: String) {
     val download = new ByteArrayOutputStream()
     def downloadLogs: String = download.toString()
@@ -116,7 +118,7 @@ class DynamicSuite extends FunSuite {
       val obtained = dynamic.format(config, file, original)
       val outString = out.toString().replaceAll("\\\\", "/")
       assert(outString.contains(s"file excluded: $filename"))
-      assertNoDiff(obtained, original)
+      assertNoDiffOrPrintExpected(obtained, original)
     }
     def assertFormat()(implicit pos: Position): Unit = {
       assertFormat("object A  {  }", "object A {}\n")
@@ -129,9 +131,9 @@ class DynamicSuite extends FunSuite {
       out.reset()
       val obtained = dynamic.format(config, file, original)
       if (errors.nonEmpty) {
-        assertNoDiff(out.toString(), "", "Reporter had errors")
+        assertNoDiffOrPrintExpected(out.toString(), "", "Reporter had errors")
       }
-      assertNoDiff(obtained, expected)
+      assertNoDiffOrPrintExpected(obtained, expected)
     }
     def assertMissingVersion()(implicit pos: Position): Unit = {
       out.reset()
@@ -289,7 +291,7 @@ class DynamicSuite extends FunSuite {
     f.setVersion(latest)
     f.assertFormat()
     f.assertFormat()
-    assertEquals(f.parsedCount, 1, f.parsed)
+    assert(f.parsedCount == 1, f.parsed)
 
     f.setConfig("invalid")
     f.assertMissingVersion()
@@ -300,9 +302,9 @@ class DynamicSuite extends FunSuite {
          |""".stripMargin
     )
     f.assertFormat()
-    assertEquals(f.parsedCount, 2, f.parsed)
+    assert(f.parsedCount == 2, f.parsed)
     f.assertFormat()
-    assertEquals(f.parsedCount, 2, f.parsed)
+    assert(f.parsedCount == 2, f.parsed)
 
     f.setConfig(
       """version=1.0.0
@@ -310,11 +312,11 @@ class DynamicSuite extends FunSuite {
         |""".stripMargin
     )
     f.assertFormat()
-    assertEquals(f.parsedCount, 3, f.parsed)
+    assert(f.parsedCount == 3, f.parsed)
     f.assertFormat()
-    assertEquals(f.parsedCount, 3, f.parsed)
+    assert(f.parsedCount == 3, f.parsed)
 
-    assertEquals(f.parsed.toMap, Map("1.0.0" -> 1, latest -> 2))
+    assert(f.parsed.toMap == Map("1.0.0" -> 1, latest -> 2))
   }
 
   check("wrong-version") { f =>
@@ -416,7 +418,7 @@ class DynamicSuite extends FunSuite {
     val config = configOpt.get
     assert(config.hasRewriteRules)
     val configWithoutRewrites = config.withoutRewriteRules
-    assertNotEquals(config, configWithoutRewrites)
+    assert(config !== configWithoutRewrites)
     assert(!configWithoutRewrites.hasRewriteRules)
   }
 }

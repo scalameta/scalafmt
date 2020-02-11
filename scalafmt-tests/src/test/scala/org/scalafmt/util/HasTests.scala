@@ -3,7 +3,7 @@ package org.scalafmt.util
 import java.io.File
 
 import metaconfig.Configured
-import munit.Assertions._
+import org.scalatest.Assertions._
 import org.scalafmt.Error.UnknownStyle
 import org.scalafmt.{Debug, Scalafmt}
 import org.scalafmt.config.FormatEvent._

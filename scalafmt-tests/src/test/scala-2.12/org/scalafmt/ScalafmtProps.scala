@@ -8,10 +8,10 @@ import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.FormatAssertions
 import org.scalameta.logger
-import munit.FunSuite
-import munit.FailException
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.FailException
 
-class ScalafmtProps extends FunSuite with FormatAssertions {
+class ScalafmtProps extends AnyFunSuite with FormatAssertions {
   import ScalafmtProps._
   def getBugs(
       config: ScalafmtConfig = ScalafmtConfig.default,
