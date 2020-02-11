@@ -50,16 +50,13 @@ object TokenOps {
   }
 
   def shouldGet2xNewlines(
-      tok: FormatToken,
-      style: ScalafmtConfig,
-      owners: Token => Tree
-  ): Boolean = {
+      tok: FormatToken
+  )(implicit style: ScalafmtConfig): Boolean =
     !forceDocstringBlankLine(tok.left, style) && {
       val newlines = tok.newlinesBetween
       newlines > 1 ||
       (forceDocstringBlankLine(tok.right, style) && !tok.left.is[Comment])
     }
-  }
 
   def forceDocstringBlankLine(token: Token, style: ScalafmtConfig): Boolean = {
     if (style.optIn.blankLineBeforeDocstring) false

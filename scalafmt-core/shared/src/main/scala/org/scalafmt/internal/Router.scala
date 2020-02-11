@@ -187,7 +187,7 @@ class Router(formatOps: FormatOps) {
             selfAnnotation.nonEmpty
         val nl: Modification =
           if (isSelfAnnotation) newlines2Modification(newlines, isNoIndent(tok))
-          else NewlineT(shouldGet2xNewlines(tok, style, owners))
+          else NewlineT(shouldGet2xNewlines(tok))
 
         val (lambdaExpire, lambdaArrow, lambdaIndent) =
           statementStarts
@@ -399,13 +399,11 @@ class Router(formatOps: FormatOps) {
             .withOptimalToken(expire)
             .withPolicy(SingleLineBlock(expire)),
           // For some reason, this newline cannot cost 1.
-          Split(NewlineT(shouldGet2xNewlines(tok, style, owners)), 0)
+          Split(NewlineT(shouldGet2xNewlines(tok)), 0)
         )
 
       case tok @ FormatToken(left, right, between) if startsStatement(tok) =>
-        val newline: Modification = NewlineT(
-          shouldGet2xNewlines(tok, style, owners)
-        )
+        val newline: Modification = NewlineT(shouldGet2xNewlines(tok))
         val expire = rightOwner.tokens
           .find(_.is[T.Equals])
           .map { equalsToken =>
