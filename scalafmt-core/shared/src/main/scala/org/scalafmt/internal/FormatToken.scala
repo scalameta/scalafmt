@@ -1,5 +1,6 @@
 package org.scalafmt.internal
 
+import scala.meta.Tree
 import scala.meta.tokens.Token
 
 import org.scalafmt.util.TokenOps._
@@ -43,7 +44,9 @@ object FormatToken {
     */
   case class Meta(
       between: Array[Token],
-      idx: Int
+      idx: Int,
+      leftOwner: Tree,
+      rightOwner: Tree
   )
 
 }

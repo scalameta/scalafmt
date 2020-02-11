@@ -1,5 +1,6 @@
 package org.scalafmt.internal
 
+import scala.meta.Tree
 import scala.meta.tokens.Token
 import scala.meta.tokens.Tokens
 
@@ -41,8 +42,9 @@ object FormatTokens {
     * Since tokens might be very large, we try to allocate as
     * little memory as possible.
     */
-  def apply(tokens: Tokens): FormatTokens = {
+  def apply(tokens: Tokens, owner: Token => Tree): FormatTokens = {
     var left = tokens.head
+    var lowner = owner(left)
     val result = Array.newBuilder[FormatToken]
     var ftIdx = 0
     var wsIdx = 0
@@ -51,9 +53,12 @@ object FormatTokens {
     arr.foreach {
       case Whitespace() => tokIdx += 1
       case right =>
-        val meta = FormatToken.Meta(arr.slice(wsIdx, tokIdx), ftIdx)
+        val rowner = owner(right)
+        val meta =
+          FormatToken.Meta(arr.slice(wsIdx, tokIdx), ftIdx, lowner, rowner)
         result += FormatToken(left, right, meta)
         left = right
+        lowner = rowner
         ftIdx += 1
         tokIdx += 1
         wsIdx = tokIdx

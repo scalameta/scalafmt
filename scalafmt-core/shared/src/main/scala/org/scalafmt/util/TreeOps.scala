@@ -389,10 +389,8 @@ object TreeOps {
 
   val splitApplyIntoLhsAndArgsLifted = splitApplyIntoLhsAndArgs.lift
 
-  def getApplyArgs(
-      formatToken: FormatToken,
-      leftOwner: Tree
-  ): (Tree, Seq[Tree]) = {
+  def getApplyArgs(formatToken: FormatToken): (Tree, Seq[Tree]) = {
+    val leftOwner = formatToken.meta.leftOwner
     leftOwner match {
       case t: Defn.Def if formatToken.left.is[LeftBracket] =>
         t.name -> t.tparams
@@ -558,10 +556,9 @@ object TreeOps {
     }
 
   def getLambdaAtSingleArgCallSite(
-      ltree: Tree,
-      rtree: Tree
+      ft: FormatToken
   )(implicit style: ScalafmtConfig): Option[Term.Function] =
-    ltree match {
+    ft.meta.leftOwner match {
       case Term.Apply(_, List(fun: Term.Function)) => Some(fun)
       case fun: Term.Function if fun.parent.exists({
             case Term.ApplyInfix(_, _, _, List(`fun`)) => true
@@ -569,7 +566,7 @@ object TreeOps {
           }) =>
         Some(fun)
       case t: Init if style.activeForEdition_2020_01 =>
-        rtree.parent.flatMap { rparam =>
+        ft.meta.rightOwner.parent.flatMap { rparam =>
           t.argss.collectFirst {
             case List(fun: Term.Function) if rparam eq fun.params.head =>
               fun

@@ -57,9 +57,9 @@ class BestFirstSearch(
     noOptimizations.contains(token.left)
   }
 
-  def getLeftLeft(curr: State): Token = {
-    tokens(Math.max(0, curr.depth - 1)).left
-  }
+  @inline
+  def getLeft(curr: State): FormatToken =
+    tokens(Math.max(0, curr.depth - 1))
 
   /**
     * Returns true if it's OK to skip over state.
@@ -79,13 +79,13 @@ class BestFirstSearch(
   def shouldRecurseOnBlock(curr: State, stop: Token) = recurseOnBlocks && {
     val splitToken = tokens(curr.depth)
     isInsideNoOptZone(splitToken) && {
-      val leftLeft = getLeftLeft(curr)
-      leftLeft.is[LeftBrace] && {
+      val left = getLeft(curr)
+      left.left.is[LeftBrace] && {
         val style = styleMap.at(splitToken)
-        val close = matching(leftLeft)
+        val close = matching(left.left)
         // Block must span at least 3 lines to be worth recursing.
-        close != stop && distance(leftLeft, close) > style.maxColumn * 3
-      } && extractStatementsIfAny(owners(leftLeft)).nonEmpty
+        close != stop && distance(left.left, close) > style.maxColumn * 3
+      } && extractStatementsIfAny(left.meta.leftOwner).nonEmpty
     }
   }
 
@@ -129,9 +129,9 @@ class BestFirstSearch(
   def untilNextStatement(state: State, maxDepth: Int): State = {
     var curr = state
     while (!hasReachedEof(curr) && {
-        val token = tokens(curr.depth).left
-        !statementStarts.contains(hash(token)) &&
-        numParents(owners(token)) <= maxDepth
+        val token = tokens(curr.depth)
+        !statementStarts.contains(hash(token.left)) &&
+        numParents(token.meta.leftOwner) <= maxDepth
       }) {
       val tok = tokens(curr.depth)
       curr = curr.next(styleMap.at(tok), provided(tok), tok)
@@ -192,7 +192,7 @@ class BestFirstSearch(
         }
 
         if (shouldRecurseOnBlock(curr, stop)) {
-          val close = matching(getLeftLeft(curr))
+          val close = matching(getLeft(curr).left)
           val nextState =
             shortestPathMemo(curr, close, depth = depth + 1, maxCost = maxCost)
           val nextToken = tokens(nextState.depth)
