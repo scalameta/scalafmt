@@ -652,3 +652,35 @@ SSLConfig(SSLLooseConfig(None)/*comment 123 comment 234*/)) //comment 345 commen
       SSLConfig(SSLLooseConfig(None) /*comment 123 comment 234*/ )
   ) //comment 345 comment 456
 }
+<<< comment in first arg, no newline
+maxColumn = 28
+===
+val a = b(  /* comment */ arg1,
+   arg2)
+>>>
+Idempotency violated
+val a = b(
+/* comment */ arg1, arg2)
+<<< comment in first arg, newline
+maxColumn = 28
+===
+val a = b(
+  /* comment */ arg1,    arg2)
+>>>
+val a = b(
+/* comment */ arg1, arg2)
+<<< init with multiple curried parameters and comment, long
+align = none
+===
+val a = new b(/*c1*/c => d)(/*c2*/e => f, g => h)
+>>>
+val a = new b( /*c1*/ c => d)( /*c2*/ e => f, g => h)
+<<< init with multiple curried parameters and comment, short
+align = none
+maxColumn = 30
+===
+val a = new b(/*c1*/c => dddddddd)(/*c2*/e => f, g => h)
+>>>
+val a = new b(
+    /*c1*/ c => dddddddd
+)( /*c2*/ e => f, g => h)
