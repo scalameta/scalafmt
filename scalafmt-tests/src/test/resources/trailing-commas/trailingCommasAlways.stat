@@ -111,4 +111,11 @@ object Foo {
   }
 }
 >>>
-java.util.NoSuchElementException: head of empty list
+object Foo {
+  def foo(): Unit = ()
+
+  def run(): Thread = {
+    new Thread( /*c1*/ )(() =>
+      foo())
+  }
+}

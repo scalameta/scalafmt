@@ -682,6 +682,7 @@ maxColumn = 30
 ===
 val a = new b(/*c1*/c => dddddddd)(/*c2*/e => f, g => h)
 >>>
-val a = new b(
-    /*c1*/ c => dddddddd
-)( /*c2*/ e => f, g => h)
+val a = new b( /*c1*/ c =>
+  dddddddd)(
+    /*c2*/ e => f,
+    g => h)
