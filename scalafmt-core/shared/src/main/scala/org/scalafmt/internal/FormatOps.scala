@@ -988,12 +988,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       style.verticalMultilineAtDefinitionSiteArityThreshold
     )
 
-    val singleLineModification =
-      if (style.spaces.inParentheses) Space
-      else NoSplit
-
     Seq(
-      Split(singleLineModification, 0)
+      Split(Space(style.spaces.inParentheses), 0)
         .onlyIf(isBracket || belowArityThreshold)
         .withPolicy(SingleLineBlock(singleLineExpire)),
       Split(Newline, 1) // Otherwise split vertically

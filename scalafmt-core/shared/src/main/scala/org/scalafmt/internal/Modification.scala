@@ -50,4 +50,6 @@ object Newline2xNoIndent extends NewlineT(isDouble = true, noIndent = true)
 object Space extends Modification {
   override val newlines: Int = 0
   override def toString = "Space"
+
+  def apply(flag: Boolean): Modification = if (flag) Space else NoSplit
 }
