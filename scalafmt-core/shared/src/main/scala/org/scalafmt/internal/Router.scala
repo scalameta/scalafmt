@@ -139,7 +139,7 @@ class Router(formatOps: FormatOps) {
         }
 
         Seq(
-          Split(if (style.spaces.inImportCurlyBraces) Space else NoSplit, 0)
+          Split(Space(style.spaces.inImportCurlyBraces), 0)
             .withPolicy(policy),
           Split(Newline, 1)
             .onlyIf(style.importSelectors != ImportSelectors.singleLine)
@@ -158,8 +158,7 @@ class Router(formatOps: FormatOps) {
         val isInterpolate = rightOwner.is[Term.Interpolate]
         Seq(
           Split(
-            if (style.spaces.inImportCurlyBraces && !isInterpolate) Space
-            else NoSplit,
+            Space(style.spaces.inImportCurlyBraces && !isInterpolate),
             0
           )
         )
@@ -881,7 +880,7 @@ class Router(formatOps: FormatOps) {
         val expire = lastToken(defDefReturnType(rightOwner).get)
         val penalizeNewlines =
           penalizeAllNewlines(expire, Constants.BracketPenalty)
-        val sameLineSplit = if (endsWithSymbolIdent(left)) Space else NoSplit
+        val sameLineSplit = Space(endsWithSymbolIdent(left))
         Seq(
           Split(sameLineSplit, 0).withPolicy(penalizeNewlines),
           // Spark style guide allows this:
@@ -1023,9 +1022,9 @@ class Router(formatOps: FormatOps) {
             val contextOption = style.spaces.beforeContextBoundColon
             val summaryTypeBoundsCount =
               tp.tbounds.lo.size + tp.tbounds.hi.size + tp.cbounds.size
-            if (contextOption.isIfMultipleBounds && summaryTypeBoundsCount > 1 || contextOption.isAlways)
-              Space
-            else NoSplit
+            val useSpace = contextOption.isAlways ||
+              contextOption.isIfMultipleBounds && summaryTypeBoundsCount > 1
+            Space(useSpace)
 
           case _ =>
             left match {
@@ -1192,7 +1191,7 @@ class Router(formatOps: FormatOps) {
             case _ => false
           } =>
         Seq(
-          Split(if (isSymbolicIdent(right)) Space else NoSplit, 0)
+          Split(Space(isSymbolicIdent(right)), 0)
         )
       // Annotations, see #183 for discussion on this.
       case FormatToken(_, bind @ T.At(), _) if rightOwner.is[Pat.Bind] =>
@@ -1569,12 +1568,11 @@ class Router(formatOps: FormatOps) {
         )
       case FormatToken(left, T.Hash(), _) =>
         Seq(
-          Split(if (endsWithSymbolIdent(left)) Space else NoSplit, 0)
+          Split(Space(endsWithSymbolIdent(left)), 0)
         )
       case FormatToken(T.Hash(), ident: T.Ident, _) =>
-        val mod = if (TokenOps.isSymbolicIdent(ident)) Space else NoSplit
         Seq(
-          Split(mod, 0)
+          Split(Space(isSymbolicIdent(ident)), 0)
         )
       case FormatToken(T.Dot(), T.Ident(_) | T.KwThis() | T.KwSuper(), _) =>
         Seq(
@@ -1586,9 +1584,7 @@ class Router(formatOps: FormatOps) {
         )
       case FormatToken(_, T.RightParen(), _) =>
         val mod =
-          if (style.spaces.inParentheses &&
-            isDefnOrCallSite(rightOwner)) Space
-          else NoSplit
+          Space(style.spaces.inParentheses && isDefnOrCallSite(rightOwner))
         Seq(
           Split(mod, 0)
         )
@@ -1622,7 +1618,7 @@ class Router(formatOps: FormatOps) {
           Split(NoSplit, 0)
         )
       case FormatToken(T.RightArrow(), _, _) if leftOwner.is[Type.ByName] =>
-        val mod = if (!style.spaces.inByNameTypes) NoSplit else Space
+        val mod = Space(style.spaces.inByNameTypes)
         Seq(
           Split(mod, 0)
         )

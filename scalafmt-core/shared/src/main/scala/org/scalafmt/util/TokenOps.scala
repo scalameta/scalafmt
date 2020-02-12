@@ -114,9 +114,7 @@ object TokenOps {
 
   def identModification(ident: Ident): Modification = {
     val lastCharacter = ident.syntax.last
-    if (Character.isLetterOrDigit(lastCharacter) || lastCharacter == '`')
-      NoSplit
-    else Space
+    Space(!Character.isLetterOrDigit(lastCharacter) && lastCharacter != '`')
   }
 
   def isOpenApply(
