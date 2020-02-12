@@ -1045,13 +1045,19 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
           }) =>
         Some(fun)
       case t: Init if style.activeForEdition_2020_01 =>
-        ft.meta.rightOwner.parent.flatMap { rparam =>
-          t.argss.collectFirst {
-            case List(fun: Term.Function) if rparam eq fun.params.head =>
-              fun
-          }
-        }
+        findArgsFor(ft, t.argss).collect { case List(f: Term.Function) => f }
       case _ => None
     }
+
+  def findArgsFor(ft: FormatToken, argss: Seq[Seq[Tree]]): Option[Seq[Tree]] = {
+    // find the arg group starting with given format token
+    val beg = ft.left.start
+    argss
+      .find(_.headOption.exists(_.tokens.head.start >= beg))
+      .filter { x =>
+        val pos = x.head.tokens.head.start
+        pos <= ft.right.end || pos <= matching(ft.left).start
+      }
+  }
 
 }
