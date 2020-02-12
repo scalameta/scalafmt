@@ -18,7 +18,6 @@ case class OptimalToken(token: Token, killOnFail: Boolean = false)
   * @param cost How good is this output? Lower is better.
   * @param indents Does this add indentation?
   * @param policy How does this split affect other later splits?
-  * @param penalty Does this split overflow the column limit?
   * @param line For debugging, to retrace from which case in [[Router]]
   *             this split originates.
   *
@@ -29,7 +28,6 @@ case class Split(
     ignoreIf: Boolean = false,
     indents: Vector[Indent[Length]] = Vector.empty[Indent[Length]],
     policy: Policy = NoPolicy,
-    penalty: Boolean = false,
     optimalAt: Option[OptimalToken] = None
 )(implicit val line: sourcecode.Line) {
   import TokenOps._
@@ -67,13 +65,13 @@ case class Split(
 
   def withOptimalToken(token: Token, killOnFail: Boolean = false): Split = {
     require(optimalAt.isEmpty)
-    copy(optimalAt = Some(OptimalToken(token, killOnFail)), penalty = true)
+    copy(optimalAt = Some(OptimalToken(token, killOnFail)))
   }
 
   def withPolicy(newPolicy: Policy): Split = {
     if (policy != NoPolicy)
       throw new UnsupportedOperationException("Can't have two policies yet.")
-    copy(policy = newPolicy, penalty = true)
+    copy(policy = newPolicy)
   }
 
   def withPolicy(newPolicy: Option[Policy]): Split =
@@ -90,7 +88,7 @@ case class Split(
     else copy(policy = policy.andThen(newPolicy))
 
   def withPenalty(penalty: Int): Split =
-    copy(cost = cost + penalty, penalty = true)
+    copy(cost = cost + penalty)
 
   def withIndent(length: Length, expire: Token, expiresOn: ExpiresOn): Split =
     length match {
