@@ -121,3 +121,39 @@ def heyImCool = {
   val c = b.foobar
 
 }
+<<< multiple bracket and paren groups with comments 1
+  implicit def xorBifunctor: Bitraverse[Xor] =
+    new Bitraverse[Xor] {
+      def bitraverse[G[_], A, B, C, D](/*c1*/fab: Xor[A, B])(/*c2*/
+          f: A => G[C],
+          g: B => G[D])(implicit G: Applicative[G]): G[Xor[C, D]] =
+        fab match {
+          case Xor.Left(a)  => G.map(f(a))(Xor.left)
+          case Xor.Right(b) => G.map(g(b))(Xor.right)
+        }
+}
+>>>
+Idempotency violated
+implicit def xorBifunctor
+    : Bitraverse[Xor] =
+  new Bitraverse[Xor] {
+    def bitraverse[G[_], A, B, C, D]( /*c1*/ fab: Xor[A, B])(
+        /*c2*/
+        f: A => G[C],
+        g: B => G[D])(
+        implicit G: Applicative[G])
+        : G[Xor[C, D]] =
+      fab match {
+        case Xor.Left(a) =>
+          G.map(f(a))(Xor.left)
+        case Xor.Right(b) =>
+          G.map(g(b))(Xor.right)
+      }
+  }
+<<< multiple bracket and paren groups with comments 2
+val a = new a[b, c](/*c1*/d => e)(/*c2*/f => g, h => i)(/*c3*/j => k)
+>>>
+val a = new a[b, c]( /*c1*/ d => e)(
+    /*c2*/ f => g,
+    h => i
+)( /*c3*/ j => k)
