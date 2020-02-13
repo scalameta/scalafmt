@@ -732,9 +732,10 @@ class Router(formatOps: FormatOps) {
 
         val indent = getApplyIndent(leftOwner)
 
+        // XXX: sometimes we have zero args, so multipleArgs != !singleArgument
         val singleArgument = args.length == 1
         val multipleArgs = args.length > 1
-        val tooManyArguments = args.length > 100
+        val notTooManyArgs = multipleArgs && args.length <= 100
 
         def insideBraces(t: FormatToken): Boolean =
           excludeRanges.exists(_.contains(t.left.start))
@@ -852,7 +853,7 @@ class Router(formatOps: FormatOps) {
             .withIndent(indent, close, Right),
           Split(noSplitMod, (2 + lhsPenalty) * bracketCoef)
             .withPolicy(oneArgOneLine)
-            .onlyIf(!singleArgument && !tooManyArguments && align)
+            .onlyIf(notTooManyArgs && align)
             .onlyIf(noSplitMod != null)
             .withOptimalToken(expirationToken)
             .withIndent(StateColumn, close, Right),
