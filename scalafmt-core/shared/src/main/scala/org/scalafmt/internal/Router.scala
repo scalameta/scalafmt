@@ -570,11 +570,14 @@ class Router(formatOps: FormatOps) {
             )
         }
 
+        val noSplitMod = getNoSplit(formatToken, true)
         val newlinePenalty = 3 + nestedApplies(leftOwner)
         Seq(
-          Split(NoSplit, 0, policy = SingleLineBlock(close))
+          Split(noSplitMod, 0, policy = SingleLineBlock(close))
+            .onlyIf(noSplitMod != null)
             .withOptimalToken(close),
-          Split(NoSplit, 0, policy = spacePolicy)
+          Split(noSplitMod, 0, policy = spacePolicy)
+            .onlyIf(noSplitMod != null)
             .withOptimalToken(lambdaToken),
           Split(Newline, newlinePenalty)
             .withPolicy(newlinePolicy)
@@ -792,20 +795,13 @@ class Router(formatOps: FormatOps) {
             Policy.empty(close)
           }
 
-        val noSplitIndent =
-          if (isSingleLineComment(right)) indent
-          else Num(0)
+        val noSplitMod = getNoSplit(formatToken, !isBracket)
+        val noSplitIndent = if (right.is[T.Comment]) indent else Num(0)
 
         val align =
           if (defnSite) style.align.openParenDefnSite
           else style.align.openParenCallSite
         val alignTuple = align && isTuple(leftOwner)
-
-        val noSplitMod: Modification =
-          if (formatToken.left.is[T.LeftParen] &&
-            style.spaces.inParentheses) Space
-          else if (right.is[T.Comment]) newlines2Modification(newlines)
-          else NoSplit
 
         val keepConfigStyleSplit =
           style.optIn.configStyleArguments && newlines != 0
@@ -846,6 +842,7 @@ class Router(formatOps: FormatOps) {
             singleLine(10)
         Seq(
           Split(noSplitMod, 0, policy = noSplitPolicy)
+            .onlyIf(noSplitMod != null)
             .withOptimalToken(expirationToken)
             .withIndent(noSplitIndent, close, Right),
           Split(newlineMod, (1 + nestedPenalty) * bracketCoef)
@@ -856,6 +853,7 @@ class Router(formatOps: FormatOps) {
           Split(noSplitMod, (2 + lhsPenalty) * bracketCoef)
             .withPolicy(oneArgOneLine)
             .onlyIf(!singleArgument && !tooManyArguments && align)
+            .onlyIf(noSplitMod != null)
             .withOptimalToken(expirationToken)
             .withIndent(StateColumn, close, Right),
           Split(Newline, (3 + nestedPenalty) * bracketCoef)

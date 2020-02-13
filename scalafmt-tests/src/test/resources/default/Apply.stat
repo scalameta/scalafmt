@@ -165,11 +165,11 @@ val ret = new mutable.MapBuilder[TokenHash, Tree, Map[TokenHash, Tree]](
       {
         Seq(
             Split(
-                  // This split needs to have an optimalAt field.
-                  Space,
-                  0,
-                  ignoreIf = !spaceCouldBeOk,
-                  optimalAt = Some(expire_______________a))
+                // This split needs to have an optimalAt field.
+                Space,
+                0,
+                ignoreIf = !spaceCouldBeOk,
+                optimalAt = Some(expire_______________a))
               .withPolicy(SingleLineBlockAAAA(expire))
         )
       }
@@ -204,14 +204,14 @@ val result = new scala.collection.mutable.SetBuilder[Token, Set[Token]](Set.empt
     })
 >>>
 writeRead(
-          // Use list because Array has a shitty toString
-          { (b: List[Byte], os) =>
-            os.writePosVarInt(b.size); os.writeBytes(b.toArray)
-          }, { is =>
-            val bytes = new Array[Byte](is.readPosVarInt)
-            is.readFully(bytes)
-            bytes.toList
-          })
+    // Use list because Array has a shitty toString
+    { (b: List[Byte], os) =>
+      os.writePosVarInt(b.size); os.writeBytes(b.toArray)
+    }, { is =>
+      val bytes = new Array[Byte](is.readPosVarInt)
+      is.readFully(bytes)
+      bytes.toList
+    })
 <<< resolution copier
 class ResolutionCopier(x: Int) {
 
@@ -658,9 +658,9 @@ maxColumn = 28
 val a = b(  /* comment */ arg1,
    arg2)
 >>>
-Idempotency violated
 val a = b(
-/* comment */ arg1, arg2)
+    /* comment */ arg1,
+    arg2)
 <<< comment in first arg, newline
 maxColumn = 28
 ===
@@ -668,7 +668,8 @@ val a = b(
   /* comment */ arg1,    arg2)
 >>>
 val a = b(
-/* comment */ arg1, arg2)
+    /* comment */ arg1,
+    arg2)
 <<< init with multiple curried parameters and comment, long
 align = none
 ===
