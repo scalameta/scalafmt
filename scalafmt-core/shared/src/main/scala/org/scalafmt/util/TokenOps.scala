@@ -76,8 +76,7 @@ object TokenOps {
     between.lastOption.exists(_.is[LF])
 
   def rhsIsCommentedOut(formatToken: FormatToken): Boolean =
-    formatToken.right.is[Comment] &&
-      formatToken.right.syntax.startsWith("//") &&
+    isSingleLineComment(formatToken.right) &&
       endsWithNoIndent(formatToken.between)
 
   val booleanOperators = Set("&&", "||")
@@ -156,8 +155,11 @@ object TokenOps {
     )
   }
 
+  def isSingleLineComment(c: Token.Comment): Boolean =
+    c.syntax.startsWith("//")
+
   def isSingleLineComment(token: Token): Boolean = token match {
-    case c: Comment => c.syntax.startsWith("//")
+    case c: Comment => isSingleLineComment(c)
     case _ => false
   }
 

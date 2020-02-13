@@ -1022,4 +1022,16 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
         (newlines == 0, if (newlines >= 2) Newline2x else Newline)
     }
 
+  def getNoSplit(
+      ft: FormatToken,
+      spaceOk: Boolean
+  )(implicit style: ScalafmtConfig): Modification =
+    ft.right match {
+      case c: T.Comment =>
+        val isDetachedSlc = ft.newlinesBetween != 0 && isSingleLineComment(c)
+        if (isDetachedSlc || next(ft).leftHasNewline) null else Space
+      case _ =>
+        Space(style.spaces.inParentheses && spaceOk)
+    }
+
 }
