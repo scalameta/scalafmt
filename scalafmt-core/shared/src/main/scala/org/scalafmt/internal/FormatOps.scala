@@ -686,12 +686,26 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     result.result()
   }
 
-  def opensConfigStyle(formatToken: FormatToken): Boolean = {
-    formatToken.newlinesBetween > 0 && {
+  def opensConfigStyle(
+      formatToken: FormatToken
+  )(implicit style: ScalafmtConfig): Boolean = {
+    def opensImplicit =
+      (style.newlines.afterImplicitParamListModifier ||
+        next(formatToken).newlinesBetween != 0) &&
+        opensConfigStyleImplicitParamList(formatToken)
+    (formatToken.newlinesBetween != 0 || opensImplicit) && {
       val close = matching(formatToken.left)
       tokens(close, -1).newlinesBetween > 0
     }
   }
+
+  def opensConfigStyleImplicitParamList(
+      formatToken: FormatToken
+  )(implicit style: ScalafmtConfig): Boolean =
+    style.activeForEdition_2020_03 &&
+      formatToken.right.is[T.KwImplicit] &&
+      !style.newlines.beforeImplicitParamListModifier &&
+      opensImplicitParamList(formatToken).isDefined
 
   def styleAt(tree: Tree): ScalafmtConfig = {
     val style = styleMap.at(tree.tokens.head)
@@ -1121,6 +1135,15 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
                         |${isDefnSite(leftOwner)}""".stripMargin)
         throw UnexpectedTree[Term.Apply](leftOwner)
     }
+  }
+
+  def opensImplicitParamList(ft: FormatToken): Option[Seq[Term.Param]] = {
+    val paramsOpt = splitDefnIntoParts.lift(ft.meta.leftOwner).flatMap {
+      case (_, _, _, paramss) =>
+        findArgsFor(ft, paramss)
+    }
+    // make sure there's no other param with implicit
+    paramsOpt.filter(!_.exists(TreeOps.hasExplicitImplicit))
   }
 
 }

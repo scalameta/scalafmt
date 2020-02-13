@@ -583,24 +583,20 @@ class Router(formatOps: FormatOps) {
       }
 
       case FormatToken(T.LeftParen() | T.LeftBracket(), right, between)
-          if style.optIn.configStyleArguments &&
-            (isDefnSite(leftOwner) || isCallSite(leftOwner)) &&
+          if style.optIn.configStyleArguments && isDefnOrCallSite(leftOwner) &&
             (opensConfigStyle(formatToken) || {
               forceConfigStyle(leftOwner) && !styleMap.forcedBinPack(leftOwner)
             }) =>
         val open = formatToken.left
         val indent = getApplyIndent(leftOwner, isConfigStyle = true)
         val close = matching(open)
-        val newlineBeforeClose: Policy.Pf = {
-          case Decision(FormatToken(_, `close`, _), _) =>
-            Seq(Split(Newline, 0))
-        }
+        val newlineBeforeClose = newlinesOnlyBeforeClosePolicy(close)
         val extraIndent: Length =
           if (style.poorMansTrailingCommasInConfigStyle) Num(2)
           else Num(0)
         val isForcedBinPack = styleMap.forcedBinPack.contains(leftOwner)
         val policy =
-          if (isForcedBinPack) Policy(close)(newlineBeforeClose)
+          if (isForcedBinPack) newlineBeforeClose
           else OneArgOneLineSplit(formatToken).orElse(newlineBeforeClose)
         Seq(
           Split(Newline, 0, policy = policy)
