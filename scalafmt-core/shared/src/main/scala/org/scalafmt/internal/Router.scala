@@ -717,11 +717,9 @@ class Router(formatOps: FormatOps) {
         val lhsPenalty = treeDepth(lhs)
 
         val isBracket = open.is[T.LeftBracket]
-        val bracketMultiplier =
-          if (isBracket) Constants.BracketPenalty
-          else 1
+        val bracketCoef = if (isBracket) Constants.BracketPenalty else 1
 
-        val nestedPenalty = nestedApplies(leftOwner)
+        val nestedPenalty = nestedApplies(leftOwner) + lhsPenalty
         val exclude =
           if (isBracket) insideBlock(tok, close, _.is[T.LeftBracket])
           else
@@ -766,7 +764,7 @@ class Router(formatOps: FormatOps) {
 
         val oneArgOneLine = OneArgOneLineSplit(formatToken)
 
-        val newlineModification: Modification =
+        val newlineMod: Modification =
           if (right.is[T.Comment] && newlines == 0)
             Space
           else if (right.is[T.LeftBrace]) NoSplit
@@ -803,7 +801,7 @@ class Router(formatOps: FormatOps) {
           else style.align.openParenCallSite
         val alignTuple = align && isTuple(leftOwner)
 
-        val noSplitModification: Modification =
+        val noSplitMod: Modification =
           if (formatToken.left.is[T.LeftParen] &&
             style.spaces.inParentheses) Space
           else if (right.is[T.Comment]) newlines2Modification(newlines)
@@ -823,7 +821,7 @@ class Router(formatOps: FormatOps) {
               val newlineAfterAssignDecision =
                 if (newlinePolicy.isEmpty) Policy.emptyPf
                 else decideNewlinesOnlyAfterToken(breakToken)
-              val noSplitCost = 1 + nestedPenalty + lhsPenalty
+              val noSplitCost = 1 + nestedPenalty
               val newlineCost = Constants.ExceedColumnPenalty + noSplitCost
               Seq(
                 Split(Newline, newlineCost)
@@ -847,29 +845,22 @@ class Router(formatOps: FormatOps) {
           else
             singleLine(10)
         Seq(
-          Split(noSplitModification, 0, policy = noSplitPolicy)
+          Split(noSplitMod, 0, policy = noSplitPolicy)
             .withOptimalToken(expirationToken)
             .withIndent(noSplitIndent, close, Right),
-          Split(
-            newlineModification,
-            (1 + nestedPenalty + lhsPenalty) * bracketMultiplier,
-            policy = newlinePolicy.andThen(singleLine(4)),
-            ignoreIf = multipleArgs || alignTuple || splitsForAssign.isDefined
-          ).withOptimalToken(expirationToken)
+          Split(newlineMod, (1 + nestedPenalty) * bracketCoef)
+            .withPolicy(newlinePolicy.andThen(singleLine(4)))
+            .onlyIf(!multipleArgs && !alignTuple && splitsForAssign.isEmpty)
+            .withOptimalToken(expirationToken)
             .withIndent(indent, close, Right),
-          Split(
-            noSplitModification,
-            (2 + lhsPenalty) * bracketMultiplier,
-            policy = oneArgOneLine,
-            ignoreIf = singleArgument || tooManyArguments || !align
-          ).withOptimalToken(expirationToken)
+          Split(noSplitMod, (2 + lhsPenalty) * bracketCoef)
+            .withPolicy(oneArgOneLine)
+            .onlyIf(!singleArgument && !tooManyArguments && align)
+            .withOptimalToken(expirationToken)
             .withIndent(StateColumn, close, Right),
-          Split(
-            Newline,
-            (3 + nestedPenalty + lhsPenalty) * bracketMultiplier,
-            policy = newlinePolicy.andThen(oneArgOneLine),
-            ignoreIf = singleArgument || alignTuple
-          ).withOptimalToken(expirationToken)
+          Split(Newline, (3 + nestedPenalty) * bracketCoef)
+            .withPolicy(newlinePolicy.andThen(oneArgOneLine))
+            .onlyIf(!singleArgument && !alignTuple)
             .withIndent(indent, close, Right)
         ) ++ splitsForAssign.getOrElse(Seq.empty)
 
