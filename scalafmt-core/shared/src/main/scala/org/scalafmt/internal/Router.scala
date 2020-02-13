@@ -839,7 +839,7 @@ class Router(formatOps: FormatOps) {
             newlinePenalty: Int
         )(implicit line: sourcecode.Line): Policy = {
           val baseSingleLinePolicy = if (isBracket) {
-            if (singleArgument)
+            if (!multipleArgs)
               penalizeAllNewlines(
                 close,
                 newlinePenalty,
@@ -848,14 +848,14 @@ class Router(formatOps: FormatOps) {
             else SingleLineBlock(close)
           } else {
             val penalty =
-              if (singleArgument) newlinePenalty
+              if (!multipleArgs) newlinePenalty
               else Constants.ShouldBeNewline
             penalizeAllNewlines(
               close,
               penalty = penalty,
               ignore = insideBraces,
-              penalizeLambdas = !singleArgument,
-              penaliseNewlinesInsideTokens = !singleArgument
+              penalizeLambdas = multipleArgs,
+              penaliseNewlinesInsideTokens = multipleArgs
             )
           }
 
@@ -975,7 +975,7 @@ class Router(formatOps: FormatOps) {
             .withIndent(if (align) StateColumn else indent, close, Before),
           Split(Newline, (3 + nestedPenalty) * bracketCoef + nlPenalty)
             .withPolicy(oneArgOneLine)
-            .onlyIf(!singleArgument && !alignTuple)
+            .onlyIf(multipleArgs && !alignTuple)
             .withIndent(indent, close, Before)
         ) ++ splitsForAssign.getOrElse(Seq.empty)
 
