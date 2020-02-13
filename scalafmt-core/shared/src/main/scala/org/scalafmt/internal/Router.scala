@@ -768,8 +768,7 @@ class Router(formatOps: FormatOps) {
         val oneArgOneLine = OneArgOneLineSplit(formatToken)
 
         val newlineMod: Modification =
-          if (right.is[T.Comment] && newlines == 0)
-            Space
+          if (newlines == 0 && isSingleLineComment(right)) Space
           else if (right.is[T.LeftBrace]) NoSplit
           else Newline
 

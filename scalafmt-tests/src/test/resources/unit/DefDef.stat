@@ -133,11 +133,11 @@ def heyImCool = {
         }
 }
 >>>
-Idempotency violated
 implicit def xorBifunctor
     : Bitraverse[Xor] =
   new Bitraverse[Xor] {
-    def bitraverse[G[_], A, B, C, D]( /*c1*/ fab: Xor[A, B])(
+    def bitraverse[G[_], A, B, C, D](
+        /*c1*/ fab: Xor[A, B])(
         /*c2*/
         f: A => G[C],
         g: B => G[D])(
@@ -155,5 +155,4 @@ val a = new a[b, c](/*c1*/d => e)(/*c2*/f => g, h => i)(/*c3*/j => k)
 >>>
 val a = new a[b, c]( /*c1*/ d => e)(
     /*c2*/ f => g,
-    h => i
-)( /*c3*/ j => k)
+    h => i)( /*c3*/ j => k)

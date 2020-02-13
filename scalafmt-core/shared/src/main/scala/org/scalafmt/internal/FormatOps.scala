@@ -216,7 +216,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
             start.newlinesBetween == 0 =>
         rhsOptimalToken(next(start))
       case c: T.Comment
-          if style.activeForEdition_2020_01 && start.newlinesBetween == 0 =>
+          if style.activeForEdition_2020_01 && start.newlinesBetween == 0 &&
+            (!start.left.is[T.LeftParen] || isSingleLineComment(c)) =>
         c
       case _ => start.left
     }
