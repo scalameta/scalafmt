@@ -583,4 +583,7 @@ object TreeOps {
   def isExplicitImplicit(m: Mod): Boolean =
     m.tokens.nonEmpty && m.is[Mod.Implicit]
 
+  def hasExplicitImplicit(param: Term.Param): Boolean =
+    param.mods.exists(isExplicitImplicit)
+
 }
