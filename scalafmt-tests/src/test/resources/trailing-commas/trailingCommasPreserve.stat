@@ -37,8 +37,7 @@ def a(b: Int,
  c: Int,
 )
 >>>
-Formatter output does not parse:
-def a(b: Int, c: Int, )
+def a(b: Int, c: Int)
 <<< should remove trailing comma when folding, with comment
 maxColumn = 40
 danglingParentheses = false
@@ -46,8 +45,7 @@ danglingParentheses = false
 def a(b: Int, c: Int,
  /* comment */ )
 >>>
-Formatter output does not parse:
-def a(b: Int, c: Int, /* comment */ )
+def a(b: Int, c: Int /* comment */ )
 <<< should remove trailing comma when folding, with spaces
 spaces.inParentheses = true
 ===
@@ -55,8 +53,7 @@ def a(b: Int,
  c: Int,
 )
 >>>
-Formatter output does not parse:
-def a( b: Int, c: Int, )
+def a( b: Int, c: Int )
 <<< should remove trailing comma when folding, with spaces and comment
 spaces.inParentheses = true
 maxColumn = 40
@@ -65,5 +62,4 @@ danglingParentheses = false
 def a(b: Int, c: Int,
  /* comment */ )
 >>>
-Formatter output does not parse:
-def a( b: Int, c: Int, /* comment */ )
+def a( b: Int, c: Int /* comment */ )
