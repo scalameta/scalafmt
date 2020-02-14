@@ -328,9 +328,7 @@ class FormatWriter(formatOps: FormatOps) {
         /* If we are mutating trailing commas ('always' or 'never'), we should
          * have removed them first in RewriteTrailingCommas; now we simply need
          * to append them in case of 'always', but only when dangling */
-        val appendComma = runner.dialect.allowTrailingCommas &&
-          initStyle.trailingCommas == TrailingCommas.always &&
-          !tok.left.is[T.Comma] && !tok.left.is[T.Comment] && {
+        def isClosedDelimWithNewline(expectedNewline: Boolean): Boolean = {
           def owner = tok.meta.rightOwner
 
           val (skip, nextNonCommentTok) = nextNonCommentWithCount(tok)
@@ -359,13 +357,29 @@ class FormatWriter(formatOps: FormatOps) {
               !tok.left.is[T.LeftBracket] && TreeOps.isDefnOrCallSite(owner)
             case _ => false
           }
-          rightIsCloseDelim && isNewline
+
+          rightIsCloseDelim && expectedNewline == isNewline
         }
 
-        if (appendComma)
-          sb.append(',').append(getWhitespace(-1))
+        @inline def ws(offset: Int): Unit = sb.append(getWhitespace(offset))
+
+        if (!runner.dialect.allowTrailingCommas || tok.left.is[T.Comment])
+          ws(0)
         else
-          sb.append(getWhitespace(0))
+          initStyle.trailingCommas match {
+            // remove comma if no newline
+            case TrailingCommas.preserve
+                if tok.left.is[T.Comma] && isClosedDelimWithNewline(false) =>
+              sb.setLength(sb.length - 1)
+              if (!tok.right.is[T.RightParen]) ws(1)
+              else if (initStyle.spaces.inParentheses) sb.append(' ')
+            // append comma if newline
+            case TrailingCommas.always
+                if !tok.left.is[T.Comma] && isClosedDelimWithNewline(true) =>
+              sb.append(',')
+              ws(-1)
+            case _ => ws(0)
+          }
       }
     }
   }
