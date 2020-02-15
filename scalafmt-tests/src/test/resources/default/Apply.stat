@@ -695,3 +695,20 @@ val a = new b( /*c1*/ c =>
   dddddddd)(
     /*c2*/ e => f,
     g => h)
+<<< def with multiple curried single parameters
+ object ThreadPoolConfigDispatcherBuilder {
+  def conf_?[T](opt: Option[T])(
+      fun: (
+          T) => ThreadPoolConfigDispatcherBuilder => ThreadPoolConfigDispatcherBuilder)
+       : Option[
+         (ThreadPoolConfigDispatcherBuilder) => ThreadPoolConfigDispatcherBuilder] =
+     opt map fun
+ }
+>>>
+object ThreadPoolConfigDispatcherBuilder {
+  def conf_?[T](opt: Option[T])(
+      fun: (
+          T) => ThreadPoolConfigDispatcherBuilder => ThreadPoolConfigDispatcherBuilder)
+      : Option[(ThreadPoolConfigDispatcherBuilder) => ThreadPoolConfigDispatcherBuilder] =
+    opt map fun
+}
