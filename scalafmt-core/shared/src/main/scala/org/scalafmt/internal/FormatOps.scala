@@ -1068,7 +1068,10 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       case _ => None
     }
 
-  def findArgsFor(ft: FormatToken, argss: Seq[Seq[Tree]]): Option[Seq[Tree]] = {
+  def findArgsFor[A <: Tree](
+      ft: FormatToken,
+      argss: Seq[Seq[A]]
+  ): Option[Seq[A]] = {
     // find the arg group starting with given format token
     val beg = ft.left.start
     argss
@@ -1101,9 +1104,12 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       else tokens(nextNonComment(maybeArrow), 1)
     }(x => prevNonComment(tokens(x, -1)))
 
-  def getApplyArgs(formatToken: FormatToken): (Tree, Seq[Tree]) = {
+  def getApplyArgs(
+      formatToken: FormatToken
+  )(implicit style: ScalafmtConfig): (Tree, Seq[Tree]) = {
     def getArgs(argss: Seq[Seq[Tree]]): Seq[Tree] =
-      argss.flatten
+      if (!style.activeForEdition_2020_03) argss.flatten
+      else findArgsFor(formatToken, argss).getOrElse(Seq.empty)
     formatToken.meta.leftOwner match {
       case t @ SplitDefnIntoParts(_, name, tparams, paramss) =>
         if (formatToken.left.is[T.LeftParen])
