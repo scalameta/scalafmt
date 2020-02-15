@@ -136,20 +136,18 @@ override def run(args: List[String]): IO[ExitCode] =
       program
     }
 >>>
-test does not parse
 override def run(args: List[String]): IO[ExitCode] =
   Slf4jLogger
     .create[IO]
-    .flatMap(implicit logger: Logger[IO] => program)
+    .flatMap { implicit logger: Logger[IO] => program }
 <<< #1707 2: don't rewrite to parens if typed lambda param
 def a(b: B): C[D] =
     C[String].contramap[D] { i: D =>
       b.format(i)
     }
 >>>
-test does not parse
-def a(formatter: DateTimeFormatter): b[Instant] =
-  C[String].contramap[D](i: D => b.format(i))
+def a(b: B): C[D] =
+  C[String].contramap[D] { i: D => b.format(i) }
 <<< #1707 3: rewrite to parens if typed lambda param with parens
 def a(b: B): C[D] =
     C[String].contramap[D] { (i: D) =>
@@ -172,6 +170,4 @@ danglingParentheses = false
 val a = b[IO](
 { c: Int => if (d) e else f }, g)
 >>>
-test does not parse
-val a = b[IO](
- c: Int => if (d) e else f , g)
+val a = b[IO]({ c: Int => if (d) e else f }, g)
