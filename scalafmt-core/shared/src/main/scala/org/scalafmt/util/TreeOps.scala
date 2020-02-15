@@ -8,7 +8,6 @@ import scala.meta.Ctor
 import scala.meta.Decl
 import scala.meta.Defn
 import scala.meta.Enumerator
-import scala.meta.Importer
 import scala.meta.Init
 import scala.meta.Mod
 import scala.meta.Pat
@@ -26,15 +25,11 @@ import scala.meta.tokens.Tokens
 import scala.reflect.ClassTag
 import scala.reflect.classTag
 import org.scalafmt.Error
-import org.scalafmt.Error.UnexpectedTree
-import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.internal.FormatToken
 
 /**
   * Stateless helper functions on [[scala.meta.Tree]].
   */
 object TreeOps {
-  import LoggerOps._
   import TokenOps._
 
   @tailrec
@@ -388,22 +383,6 @@ object TreeOps {
   }
 
   val splitApplyIntoLhsAndArgsLifted = splitApplyIntoLhsAndArgs.lift
-
-  def getApplyArgs(formatToken: FormatToken): (Tree, Seq[Tree]) = {
-    val leftOwner = formatToken.meta.leftOwner
-    leftOwner match {
-      case t: Defn.Def if formatToken.left.is[LeftBracket] =>
-        t.name -> t.tparams
-      // TODO(olafur) missing Defn.Def with `(` case.
-      case _ =>
-        splitApplyIntoLhsAndArgsLifted(leftOwner).getOrElse {
-          logger.debug(s"""Unknown tree
-                          |${log(leftOwner.parent.get)}
-                          |${isDefnSite(leftOwner)}""".stripMargin)
-          throw UnexpectedTree[Term.Apply](leftOwner)
-        }
-    }
-  }
 
   def isChainApplyParent(parent: Tree, child: Tree): Boolean =
     splitApplyIntoLhsAndArgsLifted(parent).exists(_._1 == child)
