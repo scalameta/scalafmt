@@ -2,12 +2,13 @@ package org.scalafmt.internal
 
 import java.{util => ju}
 import scala.collection.JavaConverters._
-import org.scalafmt.Error.CaseMissingArrow
+import org.scalafmt.Error.{CaseMissingArrow, UnexpectedTree}
 import org.scalafmt.config.{DanglingExclude, NewlineCurlyLambda, ScalafmtConfig}
 import org.scalafmt.internal.ExpiresOn.{Left, Right}
 import org.scalafmt.internal.Length.Num
 import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util._
+import org.scalafmt.util.LoggerOps.{log, logger}
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -1077,5 +1078,21 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       if (maybeArrow.left.is[T.RightArrow]) maybeArrow
       else tokens(nextNonComment(maybeArrow), 1)
     }(x => prevNonComment(tokens(x, -1)))
+
+  def getApplyArgs(formatToken: FormatToken): (Tree, Seq[Tree]) = {
+    val leftOwner = formatToken.meta.leftOwner
+    leftOwner match {
+      case t: Defn.Def if formatToken.left.is[T.LeftBracket] =>
+        t.name -> t.tparams
+      // TODO(olafur) missing Defn.Def with `(` case.
+      case _ =>
+        splitApplyIntoLhsAndArgsLifted(leftOwner).getOrElse {
+          logger.debug(s"""Unknown tree
+                          |${log(leftOwner.parent.get)}
+                          |${isDefnSite(leftOwner)}""".stripMargin)
+          throw UnexpectedTree[Term.Apply](leftOwner)
+        }
+    }
+  }
 
 }
