@@ -174,8 +174,9 @@ class FormatWriter(formatOps: FormatOps) {
             case b: Term.Block if TreeOps.getBlockSingleStat(b).exists {
                   /* guard for statements requiring a wrapper block
                    * "foo { x => y; z }" can't become "foo(x => y; z)" */
-                  case Term.Function(_, body) =>
-                    TreeOps.getTermSingleStat(body).isDefined
+                  case f: Term.Function =>
+                    TreeOps.getTermSingleStat(f.body).isDefined &&
+                      !RedundantBraces.needParensAroundParams(f)
                   case _ => true
                 } =>
               b.parent match {

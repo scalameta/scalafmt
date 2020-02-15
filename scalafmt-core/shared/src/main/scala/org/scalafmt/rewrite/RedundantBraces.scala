@@ -13,6 +13,18 @@ import org.scalafmt.util.TreeOps._
 object RedundantBraces extends Rewrite {
   override def create(implicit ctx: RewriteCtx): RewriteSession =
     new RedundantBraces
+
+  def needParensAroundParams(f: Term.Function): Boolean =
+    /* either we have parens or no type; multiple params or
+     * no params guarantee parens, so we look for type and
+     * parens only for a single param */
+    f.params match {
+      case List(param) if param.decltpe.nonEmpty =>
+        val leftParen = f.tokens.find(_.is[Token.LeftParen])
+        !leftParen.exists(_.start <= param.tokens.head.start)
+      case _ => false
+    }
+
 }
 
 /**
@@ -193,13 +205,14 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
     }
   }
 
-  private def okToRemoveBlockWithinApply(b: Term.Block): Boolean = {
+  private def okToRemoveBlockWithinApply(b: Term.Block): Boolean =
     getSingleStatIfLineSpanOk(b).exists {
-      case Term.Function(_, _: Term.Block) =>
-        !settings.methodBodies // else the inner block will be rewritten, too
+      case f: Term.Function =>
+        // don't rewrite block if the inner block will be rewritten, too
+        !(f.body.is[Term.Block] && settings.methodBodies) &&
+          !RedundantBraces.needParensAroundParams(f)
       case _ => true
     }
-  }
 
   /** Some blocks look redundant but aren't */
   private def shouldRemoveSingleStatBlock(b: Term.Block): Boolean =
