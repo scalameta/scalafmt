@@ -1034,4 +1034,24 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
         Space(style.spaces.inParentheses && spaceOk)
     }
 
+  def getLambdaAtSingleArgCallSite(
+      ft: FormatToken
+  )(implicit style: ScalafmtConfig): Option[Term.Function] =
+    ft.meta.leftOwner match {
+      case Term.Apply(_, List(fun: Term.Function)) => Some(fun)
+      case fun: Term.Function if fun.parent.exists({
+            case Term.ApplyInfix(_, _, _, List(`fun`)) => true
+            case _ => false
+          }) =>
+        Some(fun)
+      case t: Init if style.activeForEdition_2020_01 =>
+        ft.meta.rightOwner.parent.flatMap { rparam =>
+          t.argss.collectFirst {
+            case List(fun: Term.Function) if rparam eq fun.params.head =>
+              fun
+          }
+        }
+      case _ => None
+    }
+
 }
