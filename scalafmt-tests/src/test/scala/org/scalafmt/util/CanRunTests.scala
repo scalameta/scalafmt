@@ -27,7 +27,7 @@ trait CanRunTests extends AnyFunSuite with HasTests {
             } catch {
               case e: ParseException =>
                 fail(
-                  "test does not parse" +
+                  "test does not parse\n" +
                     parseException2Message(e, t.original)
                 )
             }
