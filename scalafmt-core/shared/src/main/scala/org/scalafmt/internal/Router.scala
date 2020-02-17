@@ -1314,7 +1314,7 @@ class Router(formatOps: FormatOps) {
             .withPolicy(SingleLineBlock(expire)),
           Split(Space, 1).withPolicy(breakOnlyBeforeElse)
         )
-      case FormatToken(close: T.RightParen, _, _) if (leftOwner match {
+      case FormatToken(close: T.RightParen, right, _) if (leftOwner match {
             case _: Term.If | _: Term.For => true
             case _: Term.ForYield => style.indentYieldKeyword
             case _: Term.While => style.activeForEdition_2020_01
@@ -1326,10 +1326,11 @@ class Router(formatOps: FormatOps) {
           case t: Term.ForYield => t.body.tokens.last
           case t: Term.While => t.body.tokens.last
         }
-        val exclude = insideBlockRanges[T.LeftBrace](formatToken, expire)
+        val noSpace = isSingleLineComment(right) || shouldBreak(formatToken)
+        def exclude = insideBlockRanges[T.LeftBrace](formatToken, expire)
         Seq(
           Split(Space, 0)
-            .notIf(isSingleLineComment(formatToken.right) || newlines != 0)
+            .notIf(noSpace)
             .withPolicy(SingleLineBlock(expire, exclude = exclude)),
           Split(Newline, 1).withIndent(2, expire, Left)
         )
@@ -1346,10 +1347,11 @@ class Router(formatOps: FormatOps) {
         )
       case FormatToken(_, T.KwElse() | T.KwYield(), _) =>
         val expire = rhsOptimalToken(tokens(rightOwner.tokens.last))
-        val exclude = insideBlockRanges[T.LeftBrace](formatToken, expire)
+        val noSpace = shouldBreak(formatToken)
+        def exclude = insideBlockRanges[T.LeftBrace](formatToken, expire)
         Seq(
           Split(Space, 0)
-            .onlyIf(newlines == 0)
+            .notIf(noSpace)
             .withPolicy(SingleLineBlock(expire, exclude = exclude)),
           Split(Newline, 1)
         )
@@ -1359,10 +1361,9 @@ class Router(formatOps: FormatOps) {
             case x => throw new UnexpectedTree[Term.If](x)
           }) =>
         val expire = leftOwner.asInstanceOf[Term.If].elsep.tokens.last
+        val noSpace = shouldBreak(formatToken)
         Seq(
-          Split(Space, 0)
-            .onlyIf(newlines == 0)
-            .withPolicy(SingleLineBlock(expire)),
+          Split(Space, 0).notIf(noSpace).withPolicy(SingleLineBlock(expire)),
           Split(Newline, 1).withIndent(2, expire, Left)
         )
 

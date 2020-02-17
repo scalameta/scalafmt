@@ -16,7 +16,8 @@ println("bbb") } else c
 object a {
   if (a) {
     println("bbb")
-  } else c
+  } else
+    c
 }
 <<< 1.3: block, if, non-egyptian curlies
 object a {
@@ -184,5 +185,7 @@ println("bbb") else if (b) b else c
 >>>
 if (a)
   println("bbb")
-else if (b) b
-else c
+else if (b)
+  b
+else
+  c
