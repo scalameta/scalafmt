@@ -177,6 +177,7 @@ class FormatWriter(formatOps: FormatOps) {
                   case f: Term.Function =>
                     TreeOps.getTermSingleStat(f.body).isDefined &&
                       !RedundantBraces.needParensAroundParams(f)
+                  case _: Term.Assign => false // disallowed in 2.13
                   case _ => true
                 } =>
               b.parent match {
