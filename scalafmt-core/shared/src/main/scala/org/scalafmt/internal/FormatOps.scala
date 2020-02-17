@@ -425,11 +425,6 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     }
   }
 
-  def getArrow(caseStat: Case): Token =
-    caseStat.tokens
-      .find(t => t.is[T.RightArrow] && owners(t) == caseStat)
-      .getOrElse(throw CaseMissingArrow(caseStat))
-
   def templateCurly(owner: Tree): Token = {
     defnTemplate(owner).flatMap(templateCurly).getOrElse(owner.tokens.last)
   }
@@ -1060,5 +1055,27 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
         pos <= ft.right.end || pos <= matching(ft.left).start
       }
   }
+
+  // look for arrow before body, if any, else after params
+  def getFuncArrow(term: Term.Function): Option[FormatToken] =
+    term.body.tokens.headOption
+      .map(x => prevNonComment(tokens(x, -1)))
+      .orElse {
+        val lastParam = term.params.lastOption
+        lastParam.flatMap(_.tokens.lastOption).map { x =>
+          val maybeArrow = tokens(nextNonComment(tokens(x)), 1)
+          if (maybeArrow.left.is[T.RightArrow]) maybeArrow
+          else tokens(nextNonComment(maybeArrow), 1)
+        }
+      }
+
+  // look for arrow before body, if any, else after cond/pat
+  def getCaseArrow(term: Case): FormatToken =
+    term.body.tokens.headOption.fold {
+      val endOfPat = term.cond.getOrElse(term.pat).tokens.last
+      val maybeArrow = tokens(nextNonComment(tokens(endOfPat)), 1)
+      if (maybeArrow.left.is[T.RightArrow]) maybeArrow
+      else tokens(nextNonComment(maybeArrow), 1)
+    }(x => prevNonComment(tokens(x, -1)))
 
 }
