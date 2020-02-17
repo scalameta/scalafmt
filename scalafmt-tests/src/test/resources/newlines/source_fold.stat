@@ -152,3 +152,17 @@ object a {
     SizeUtils.calculate(segments, "user")
   } should have message """Cannot resolve column name "user" among (segment_id);"""
 }
+<<< 1.d: if-else, no curlies
+if (a)
+println("bbb")
+ else
+  if (b)
+   b else
+ c
+>>>
+if (a)
+  println("bbb")
+else if (b)
+  b
+else
+  c
