@@ -6,6 +6,7 @@ import scala.meta.internal.classifiers.classifier
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 
+import org.scalafmt.config.Newlines
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.Decision
 import org.scalafmt.internal.FormatToken
@@ -250,5 +251,12 @@ object TokenOps {
     "// @formatter:on", // IntelliJ
     "// format: on" // scalariform
   )
+
+  def shouldBreak(ft: FormatToken)(implicit style: ScalafmtConfig): Boolean =
+    style.newlines.source match {
+      case Newlines.classic | Newlines.keep => ft.hasBreak
+      case Newlines.fold => false
+      case Newlines.unfold => true
+    }
 
 }

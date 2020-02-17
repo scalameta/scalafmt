@@ -160,9 +160,6 @@ println("bbb")
    b else
  c
 >>>
-if (a)
-  println("bbb")
-else if (b)
-  b
-else
-  c
+if (a) println("bbb")
+else if (b) b
+else c
