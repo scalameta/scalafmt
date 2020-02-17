@@ -171,3 +171,13 @@ val a = b[IO](
 { c: Int => if (d) e else f }, g)
 >>>
 val a = b[IO]({ c: Int => if (d) e else f }, g)
+<<< #1708 with an assignment block
+F.runAsync(stream.compile.toVector) {
+           case Right(bs) => IO { bytes = bs }
+           case Left(t) => IO.raiseError(t)
+         }
+>>>
+F.runAsync(stream.compile.toVector) {
+  case Right(bs) => IO { bytes = bs }
+  case Left(t)   => IO.raiseError(t)
+}
