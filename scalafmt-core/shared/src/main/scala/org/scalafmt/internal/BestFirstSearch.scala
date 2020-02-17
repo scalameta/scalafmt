@@ -44,7 +44,6 @@ class BestFirstSearch(
   val noOptimizations = noOptimizationZones(tree)
   var explored = 0
   var deepestYet = State.start
-  var deepestYetSafe = State.start
   var statementCount = 0
   val best = mutable.Map.empty[Token, State]
   var pathologicalEscapes = 0
@@ -150,7 +149,6 @@ class BestFirstSearch(
   ): State = {
     val Q = new mutable.PriorityQueue[State]()
     var result = start
-    var lastDequeue = start
     Q += start
     // TODO(olafur) this while loop is waaaaaaaaaaaaay tooo big.
     while (Q.nonEmpty) {
@@ -170,9 +168,6 @@ class BestFirstSearch(
         if (curr.depth > deepestYet.depth) {
           deepestYet = curr
         }
-        if (curr.policy.isSafe && curr.depth > deepestYetSafe.depth) {
-          deepestYetSafe = curr
-        }
         runner.eventCallback(VisitToken(splitToken))
         visits.put(splitToken, visits(splitToken) + 1)
 
@@ -183,9 +178,6 @@ class BestFirstSearch(
           (depth > 0 || !isInsideNoOptZone(splitToken)) &&
           lastWasNewline) {
           Q.clear()
-          if (!isInsideNoOptZone(splitToken) && lastDequeue.policy.isSafe) {
-            lastDequeue = curr
-          }
         } else if (emptyQueueSpots(hash(splitToken.left)) && lastWasNewline) {
           Q.clear()
         }

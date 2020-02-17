@@ -150,8 +150,7 @@ object TokenOps {
           }
       },
       expire.end,
-      noDequeue = exclude.isEmpty,
-      isSingleLine = true
+      noDequeue = true
     )
   }
 
