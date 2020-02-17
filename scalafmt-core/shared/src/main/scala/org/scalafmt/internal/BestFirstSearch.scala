@@ -163,7 +163,7 @@ class BestFirstSearch(
           token.left.syntax.nonEmpty && token.left.start >= stop.start
         }) {
         result = curr
-        Q.dequeueAll
+        Q.clear()
       } else if (shouldEnterState(curr)) {
         val splitToken = tokens(curr.depth)
         val style = styleMap.at(splitToken)
@@ -182,13 +182,12 @@ class BestFirstSearch(
           dequeueSpots.contains(hash(splitToken.left)) &&
           (depth > 0 || !isInsideNoOptZone(splitToken)) &&
           lastWasNewline) {
-          Q.dequeueAll
+          Q.clear()
           if (!isInsideNoOptZone(splitToken) && lastDequeue.policy.isSafe) {
             lastDequeue = curr
           }
-        } else if (emptyQueueSpots(hash(splitToken.left)) &&
-          lastWasNewline) {
-          Q.dequeueAll
+        } else if (emptyQueueSpots(hash(splitToken.left)) && lastWasNewline) {
+          Q.clear()
         }
 
         if (shouldRecurseOnBlock(curr, stop)) {
@@ -201,7 +200,7 @@ class BestFirstSearch(
           }
         } else if (escapeInPathologicalCases &&
           visits(splitToken) > maxVisitsPerToken) {
-          Q.dequeueAll
+          Q.clear()
           best.clear()
           visits.clear()
           runner.eventCallback(CompleteFormat(explored, deepestYet, tokens))
