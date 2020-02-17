@@ -13,8 +13,7 @@ import scala.meta.tokens.Token
 case class Policy(
     f: Policy.Pf,
     expire: Int,
-    noDequeue: Boolean = false,
-    isSingleLine: Boolean = false
+    noDequeue: Boolean = false
 )(implicit val line: sourcecode.Line) {
 
   def isEmpty: Boolean = Policy.isEmpty(f)
