@@ -191,7 +191,18 @@ class Router(formatOps: FormatOps) {
             .get(hash(right))
             .collect {
               case owner: Term.Function =>
-                val arrow = lastLambda(owner).tokens.find(_.is[T.RightArrow])
+                val lastFunc = lastLambda(owner)
+                // look for arrow before body, if any, else after params
+                val arrow = lastFunc.body.tokens.headOption
+                  .map(x => prevNonComment(tokens(x, -1)).left)
+                  .orElse {
+                    val lastParam = lastFunc.params.lastOption
+                    lastParam.flatMap(_.tokens.lastOption).map { x =>
+                      val beforeArrow = nextNonComment(tokens(x))
+                      if (beforeArrow.right.is[T.RightArrow]) beforeArrow.right
+                      else nextNonComment(tokens(beforeArrow, 1)).right
+                    }
+                  }
                 val expire = arrow.getOrElse(owner.params.last.tokens.last)
                 (expire, arrow, 0)
             }

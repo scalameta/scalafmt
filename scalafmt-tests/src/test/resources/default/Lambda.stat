@@ -301,3 +301,88 @@ object a {
       |""".stripMargin
   }
 }
+<<< #1714 1
+testAsync("Resource.make is equivalent to a partially applied bracket") { implicit ec =>
+    check { (acquire: IO[String], release: String => IO[Unit], f: String => IO[String]) =>
+      acquire.bracket(f)(release) <-> Resource.make(acquire)(release).use(f)
+    }
+  }
+>>>
+testAsync("Resource.make is equivalent to a partially applied bracket") {
+  implicit ec =>
+    check {
+      (acquire: IO[String],
+       release: String => IO[Unit],
+       f: String => IO[String]) =>
+        acquire.bracket(f)(release) <-> Resource.make(acquire)(release).use(f)
+    }
+}
+<<< #1714 2
+align = none
+maxColumn = 120
+danglingParentheses = true
+===
+testAsync("Resource.make is equivalent to a partially applied bracket") { implicit ec =>
+    check { (acquire: IO[String], release: String => IO[Unit], f: String => IO[String]) =>
+      acquire.bracket(f)(release) <-> Resource.make(acquire)(release).use(f)
+    }
+  }
+>>>
+testAsync("Resource.make is equivalent to a partially applied bracket") { implicit ec =>
+  check { (acquire: IO[String], release: String => IO[Unit], f: String => IO[String]) =>
+    acquire.bracket(f)(release) <-> Resource.make(acquire)(release).use(f)
+  }
+}
+<<< #1714 3
+align = none
+maxColumn = 120
+danglingParentheses = true
+===
+testAsync("Resource.make is equivalent to a partially applied bracket") { implicit ec =>
+    check { (acquire: IO[String], release: String => IO[Unit], f: String => IO[String]/* c1 */)/* c2 */=>
+      /*c3*/ acquire.bracket(f)(release) <-> Resource.make(acquire)(release).use(f)
+    }
+  }
+>>>
+testAsync("Resource.make is equivalent to a partially applied bracket") { implicit ec =>
+  check { (acquire: IO[String], release: String => IO[Unit], f: String => IO[String] /* c1 */ ) /* c2 */ =>
+    /*c3*/
+    acquire.bracket(f)(release) <-> Resource.make(acquire)(release).use(f)
+  }
+}
+<<< #1714 4
+align = none
+maxColumn = 120
+danglingParentheses = true
+===
+testAsync("Resource.make is equivalent to a partially applied bracket") { implicit ec =>
+    check { (acquire: IO[String], release: String => IO[Unit], f: String => IO[String]/* c1 */)/* c2 */=>
+      /*c3*/ { acquire.bracket(f)(release) <-> Resource.make(acquire)(release).use(f) }
+    }
+  }
+>>>
+testAsync("Resource.make is equivalent to a partially applied bracket") { implicit ec =>
+  check { (acquire: IO[String], release: String => IO[Unit], f: String => IO[String] /* c1 */ ) /* c2 */ =>
+    /*c3*/
+    { acquire.bracket(f)(release) <-> Resource.make(acquire)(release).use(f) }
+  }
+}
+<<< #1714 5
+align = none
+maxColumn = 120
+danglingParentheses = true
+===
+testAsync("Resource.make is equivalent to a partially applied bracket") { implicit ec =>
+    check { (acquire: IO[String], release: String => IO[Unit], f: String => IO[String]/* c1 */)/* c2 */=>
+      { /*c3*/ acquire.bracket(f)(release) <-> Resource.make(acquire)(release).use(f) }
+    }
+  }
+>>>
+testAsync("Resource.make is equivalent to a partially applied bracket") { implicit ec =>
+  check { (acquire: IO[String], release: String => IO[Unit], f: String => IO[String] /* c1 */ ) /* c2 */ =>
+    {
+      /*c3*/
+      acquire.bracket(f)(release) <-> Resource.make(acquire)(release).use(f)
+    }
+  }
+}
