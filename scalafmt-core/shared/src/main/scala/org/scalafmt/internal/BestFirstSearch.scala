@@ -39,7 +39,7 @@ private class BestFirstSearch private (
   val routes: Array[Seq[Split]] = {
     val router = new Router(formatOps)
     val result = Array.newBuilder[Seq[Split]]
-    tokens.foreach { t => result += router.getSplitsMemo(t) }
+    tokens.foreach { t => result += router.getSplits(t) }
     result.result()
   }
   val noOptimizations = noOptimizationZones(tree)

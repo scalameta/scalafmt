@@ -12,7 +12,6 @@ import org.scalafmt.internal.Length.{Num, StateColumn}
 import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util._
 
-import scala.collection.mutable
 import scala.language.implicitConversions
 import scala.meta.classifiers.Classifier
 import scala.meta.tokens.{Token, Tokens}
@@ -66,7 +65,7 @@ class Router(formatOps: FormatOps) {
   import TreeOps._
   import formatOps._
 
-  private def getSplits(formatToken: FormatToken): Seq[Split] = {
+  private def getSplitsImpl(formatToken: FormatToken): Seq[Split] = {
     implicit val style = styleMap.at(formatToken)
     val leftOwner = formatToken.meta.leftOwner
     val rightOwner = formatToken.meta.rightOwner
@@ -1803,9 +1802,6 @@ class Router(formatOps: FormatOps) {
     }
   }
 
-  // TODO(olafur) replace cache with array of seq[split]
-  private val cache = mutable.Map.empty[FormatToken, Seq[Split]]
-
   /**
     * Assigns possible splits to a FormatToken.
     *
@@ -1813,28 +1809,25 @@ class Router(formatOps: FormatOps) {
     * splits as edges. Given a format token (a node in the graph), Route
     * determines which edges lead out from the format token.
     */
-  def getSplitsMemo(formatToken: FormatToken): Seq[Split] =
-    cache.getOrElseUpdate(
-      formatToken, {
-        val splits =
-          getSplits(formatToken).filter(!_.isIgnored).map(_.adapt(formatToken))
-        formatToken match {
-          // TODO(olafur) refactor into "global policy"
-          // Only newlines after inline comments.
-          case FormatToken(c: T.Comment, _, _) if isSingleLineComment(c) =>
-            val newlineSplits = splits.filter(_.modification.isNewline)
-            if (newlineSplits.isEmpty) Seq(Split(Newline, 0))
-            else newlineSplits
-          case FormatToken(_, c: T.Comment, _)
-              if isAttachedSingleLineComment(formatToken) =>
-            splits.map(x =>
-              if (x.modification.isNewline) x.copy(modification = Space)
-              else x
-            )
-          case _ => splits
-        }
-      }
-    )
+  def getSplits(formatToken: FormatToken): Seq[Split] = {
+    val splits =
+      getSplitsImpl(formatToken).filter(!_.isIgnored).map(_.adapt(formatToken))
+    formatToken match {
+      // TODO(olafur) refactor into "global policy"
+      // Only newlines after inline comments.
+      case FormatToken(c: T.Comment, _, _) if isSingleLineComment(c) =>
+        val newlineSplits = splits.filter(_.modification.isNewline)
+        if (newlineSplits.isEmpty) Seq(Split(Newline, 0))
+        else newlineSplits
+      case FormatToken(_, c: T.Comment, _)
+          if isAttachedSingleLineComment(formatToken) =>
+        splits.map(x =>
+          if (x.modification.isNewline) x.copy(modification = Space)
+          else x
+        )
+      case _ => splits
+    }
+  }
 
   private implicit def int2num(n: Int): Num = Num(n)
 
