@@ -386,3 +386,40 @@ testAsync("Resource.make is equivalent to a partially applied bracket") { implic
     }
   }
 }
+<<< #448
+object Foo {
+  code.collect {
+    case d: Defn.Def if (d match {
+      case _ => false
+
+
+    }) &&
+      d=>
+  }
+}
+>>>
+Unable to format file due to bug in scalafmt
+<<< #1485
+style = IntelliJ
+maxColumn = 120
+===
+class A {
+  def foo: B =
+    a.b() { c =>
+        val d = c.add(
+          D[E](
+            1, {
+              case conditionNameShouldLongEnough =>
+                foo1(objectNameShouldLongEnough, objectNameShouldLongEnough)
+                0
+              case conditionNameShouldLongEnough =>
+                foo1(objectNameShouldLongEnough, objectNameShouldLongEnough)
+                1
+            }
+          )
+        )
+      }
+      .f("f")
+}
+>>>
+Unable to format file due to bug in scalafmt
