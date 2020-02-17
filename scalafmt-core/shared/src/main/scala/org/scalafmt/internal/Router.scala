@@ -191,27 +191,17 @@ class Router(formatOps: FormatOps) {
             .get(hash(right))
             .collect {
               case owner: Term.Function =>
-                val lastFunc = lastLambda(owner)
-                // look for arrow before body, if any, else after params
-                val arrow = lastFunc.body.tokens.headOption
-                  .map(x => prevNonComment(tokens(x, -1)).left)
-                  .orElse {
-                    val lastParam = lastFunc.params.lastOption
-                    lastParam.flatMap(_.tokens.lastOption).map { x =>
-                      val beforeArrow = nextNonComment(tokens(x))
-                      if (beforeArrow.right.is[T.RightArrow]) beforeArrow.right
-                      else nextNonComment(tokens(beforeArrow, 1)).right
-                    }
-                  }
-                val expire = arrow.getOrElse(owner.params.last.tokens.last)
-                (expire, arrow, 0)
+                val arrow = getFuncArrow(lastLambda(owner))
+                val expire =
+                  arrow.getOrElse(tokens(owner.params.last.tokens.last))
+                (expire, arrow.map(_.left), 0)
             }
             .getOrElse {
               selfAnnotation match {
-                case Some(tokens) =>
+                case Some(anno) =>
                   val arrow = leftOwner.tokens.find(_.is[T.RightArrow])
-                  val expire = arrow.getOrElse(tokens.last)
-                  (expire, arrow, 2)
+                  val expire = arrow.getOrElse(anno.last)
+                  (tokens(expire), arrow, 2)
                 case _ =>
                   (null, None, 0)
               }
@@ -564,7 +554,7 @@ class Router(formatOps: FormatOps) {
         val lambdaLeft: Option[Token] =
           matchingOpt(functionExpire(lambda)._1).filter(_.is[T.LeftBrace])
 
-        val arrowFt = tokens(lambda.tokens.find(_.is[T.RightArrow]).get)
+        val arrowFt = getFuncArrow(lambda).get
         val lambdaIsABlock = lambdaLeft.exists(_ eq arrowFt.right)
         val lambdaToken =
           getOptimalTokenFor(if (lambdaIsABlock) next(arrowFt) else arrowFt)
@@ -1447,7 +1437,7 @@ class Router(formatOps: FormatOps) {
       // Case
       case tok @ FormatToken(cs @ T.KwCase(), _, _) if leftOwner.is[Case] =>
         val owner = leftOwner.asInstanceOf[Case]
-        val arrow = getArrow(owner)
+        val arrow = getCaseArrow(owner).left
         // TODO(olafur) expire on token.end to avoid this bug.
         val expire = Option(owner.body)
           .filter(_.tokens.exists(!_.is[Trivia]))
@@ -1473,7 +1463,7 @@ class Router(formatOps: FormatOps) {
             .withIndent(2, arrow, Left) // cond body indented by 4.
         )
       case tok @ FormatToken(_, cond @ T.KwIf(), _) if rightOwner.is[Case] =>
-        val arrow = getArrow(rightOwner.asInstanceOf[Case])
+        val arrow = getCaseArrow(rightOwner.asInstanceOf[Case]).left
         val exclude =
           insideBlock(tok, arrow, _.is[T.LeftBrace]).map(parensRange)
         val singleLine = SingleLineBlock(arrow, exclude = exclude)
