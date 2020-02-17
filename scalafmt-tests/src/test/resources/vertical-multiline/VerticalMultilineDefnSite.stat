@@ -14,3 +14,18 @@ def format_![T <: Tree](
 )(implicit ev: Parse[T],
   ev2: EC
 ): String
+<<< #1462
+maxColumn = 91
+===
+object Test {
+
+  def create(
+    somethingInfo: foo.T = Something("my-something", Some("test-something"), "something", Some(Format("something", "something")),
+      Some(something.Something("something", "something", "something", "something")))
+  ): Unit = {
+    w(foo)
+  }
+
+}
+>>>
+Unable to format file due to bug in scalafmt
