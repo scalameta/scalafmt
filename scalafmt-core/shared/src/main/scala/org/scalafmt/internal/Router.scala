@@ -673,17 +673,13 @@ class Router(formatOps: FormatOps) {
             insideBlock(formatToken, close, _.isInstanceOf[T.LeftBracket])
           else
             insideBlock(formatToken, close, x => x.isInstanceOf[T.LeftBrace])
-        val excludeRanges = exclude.map(parensRange)
         val unindent =
           UnindentAtExclude(exclude, Num(-style.continuationIndent.callSite))
         val unindentPolicy =
           if (args.length == 1) Policy(close)(unindent)
           else NoPolicy
-        def ignoreBlocks(x: FormatToken): Boolean = {
-          excludeRanges.exists(_.contains(x.left.end))
-        }
         val noSplitPolicy =
-          penalizeAllNewlines(close, 3, ignore = ignoreBlocks)
+          penalizeAllNewlines(close, 3, ignore = inRange(exclude))
             .andThen(unindent)
         Seq(
           Split(NoSplit, 0)
@@ -719,9 +715,7 @@ class Router(formatOps: FormatOps) {
         val nestedPenalty = nestedApplies(leftOwner) + lhsPenalty
         val exclude =
           if (isBracket) insideBlock(tok, close, _.is[T.LeftBracket])
-          else
-            insideBlock(tok, close, x => x.is[T.LeftBrace])
-        val excludeRanges = exclude.map(parensRange)
+          else insideBlock(tok, close, _.is[T.LeftBrace])
 
         val indent = getApplyIndent(leftOwner)
 
@@ -729,9 +723,6 @@ class Router(formatOps: FormatOps) {
         val singleArgument = args.length == 1
         val multipleArgs = args.length > 1
         val notTooManyArgs = multipleArgs && args.length <= 100
-
-        def insideBraces(t: FormatToken): Boolean =
-          excludeRanges.exists(_.contains(t.left.start))
 
         def singleLine(
             newlinePenalty: Int
@@ -751,7 +742,7 @@ class Router(formatOps: FormatOps) {
             penalizeAllNewlines(
               close,
               penalty = penalty,
-              ignore = insideBraces,
+              ignore = inRange(exclude),
               penalizeLambdas = !singleArgument,
               penaliseNewlinesInsideTokens = !singleArgument
             )
@@ -826,7 +817,7 @@ class Router(formatOps: FormatOps) {
 
         val noSplitPolicy =
           if (wouldDangle || mustDangle && isBracket)
-            SingleLineBlock(close, exclude = excludeRanges)
+            SingleLineBlock(close, exclude = exclude)
           else if (splitsForAssign.isDefined)
             singleLine(3)
           else
@@ -1064,11 +1055,10 @@ class Router(formatOps: FormatOps) {
             infixSplit(t, formatToken)
           case _ =>
             def twoBranches: Policy = {
-              val excludeRanges = exclude.map(parensRange)
               penalizeAllNewlines(
                 expire,
                 Constants.ShouldBeSingleLine,
-                ignore = x => excludeRanges.exists(_.contains(x.left.start))
+                ignore = inRange(exclude)
               )
             }
             val jsNative = isJsNative(right)
@@ -1296,8 +1286,7 @@ class Router(formatOps: FormatOps) {
           case t: Term.ForYield => t.body.tokens.last
           case t: Term.While => t.body.tokens.last
         }
-        val exclude =
-          insideBlock(formatToken, expire, _.is[T.LeftBrace]).map(parensRange)
+        val exclude = insideBlock(formatToken, expire, _.is[T.LeftBrace])
         Seq(
           Split(Space, 0)
             .notIf(isSingleLineComment(formatToken.right) || newlines != 0)
@@ -1317,8 +1306,7 @@ class Router(formatOps: FormatOps) {
         )
       case FormatToken(_, T.KwElse() | T.KwYield(), _) =>
         val expire = rhsOptimalToken(tokens(rightOwner.tokens.last))
-        val exclude =
-          insideBlock(formatToken, expire, _.is[T.LeftBrace]).map(parensRange)
+        val exclude = insideBlock(formatToken, expire, _.is[T.LeftBrace])
         Seq(
           Split(Space, 0)
             .onlyIf(newlines == 0)
@@ -1451,8 +1439,7 @@ class Router(formatOps: FormatOps) {
         )
       case tok @ FormatToken(_, cond @ T.KwIf(), _) if rightOwner.is[Case] =>
         val arrow = getCaseArrow(rightOwner.asInstanceOf[Case]).left
-        val exclude =
-          insideBlock(tok, arrow, _.is[T.LeftBrace]).map(parensRange)
+        val exclude = insideBlock(tok, arrow, _.is[T.LeftBrace])
         val singleLine = SingleLineBlock(arrow, exclude = exclude)
 
         Seq(

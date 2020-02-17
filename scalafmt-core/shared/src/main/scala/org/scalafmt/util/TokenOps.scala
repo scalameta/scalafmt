@@ -1,5 +1,6 @@
 package org.scalafmt.util
 
+import scala.collection.immutable.TreeMap
 import scala.meta.{Defn, Pkg, Template, Tree}
 import scala.meta.dialects.Scala211
 import scala.meta.internal.classifiers.classifier
@@ -133,15 +134,16 @@ object TokenOps {
     */
   def SingleLineBlock(
       expire: Token,
-      exclude: Set[Range] = Set.empty,
+      exclude: TreeMap[Int, Int] = TreeMap.empty,
       disallowSingleLineComments: Boolean = true,
       penaliseNewlinesInsideTokens: Boolean = false
   )(implicit line: sourcecode.Line): Policy = {
+    val rangeCheck = inRange(exclude)
     Policy(
       {
         case d @ Decision(tok, _)
             if !tok.right.is[EOF] && tok.right.end <= expire.end &&
-              exclude.forall(!_.contains(tok.left.start)) &&
+              !rangeCheck(tok) &&
               (disallowSingleLineComments || !isSingleLineComment(tok.left)) =>
           if (penaliseNewlinesInsideTokens && tok.leftHasNewline) {
             Seq.empty
@@ -249,5 +251,10 @@ object TokenOps {
     "// @formatter:on", // IntelliJ
     "// format: on" // scalariform
   )
+
+  def inRange(ranges: TreeMap[Int, Int]): FormatToken => Boolean = ft => {
+    val pos = ft.left.end
+    ranges.maxBefore(pos).exists(_._2 > pos)
+  }
 
 }

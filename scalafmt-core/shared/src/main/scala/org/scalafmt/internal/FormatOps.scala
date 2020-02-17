@@ -11,6 +11,7 @@ import org.scalafmt.util._
 import org.scalafmt.util.LoggerOps.{log, logger}
 
 import scala.annotation.tailrec
+import scala.collection.immutable.TreeMap
 import scala.collection.mutable
 import scala.meta.{
   Case,
@@ -291,30 +292,27 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   def getExcludeIf(
       end: Token,
       cond: Token => Boolean = _.is[T.RightBrace]
-  ): Set[Range] = {
+  ): TreeMap[Int, Int] = {
     if (cond(end)) // allow newlines in final {} block
-      Set(Range(matching(end).start, end.end))
-    else Set.empty[Range]
+      TreeMap(matching(end).start -> end.end)
+    else TreeMap.empty
   }
 
   def insideBlock(
       start: FormatToken,
       end: Token,
       matches: Token => Boolean
-  ): Set[Token] = {
-    val result = Set.newBuilder[Token]
+  ): TreeMap[Int, Int] = {
+    val result = TreeMap.newBuilder[Int, Int]
     var prev = start
     var curr = next(start)
 
-    def goToMatching(): Unit = {
-      val close = matching(curr.left)
-      curr = tokens(close)
-    }
-
     while (curr.left.start < end.start && curr != prev) {
-      if (matches(curr.left)) {
-        result += curr.left
-        goToMatching()
+      val open = curr.left
+      if (matches(open)) {
+        val close = matching(open)
+        result += open.start -> close.end
+        curr = tokens(close)
       } else {
         prev = curr
         curr = next(curr)
@@ -377,10 +375,10 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   }
 
   def UnindentAtExclude(
-      exclude: Set[Token],
+      exclude: TreeMap[Int, Int],
       indent: Length
   ): Policy.Pf = {
-    case Decision(t, s) if exclude.contains(t.left) =>
+    case Decision(t, s) if exclude.contains(t.left.start) =>
       val close = matching(t.left)
       s.map(_.withIndent(indent, close, ExpiresOn.Left))
   }
