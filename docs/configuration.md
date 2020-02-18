@@ -523,6 +523,9 @@ Configuration options and default values:
 - `rewrite.redundantBraces.stringInterpolation = true`
 - `rewrite.redundantBraces.generalExpressions = false` (disabled by default due
   to #1147)
+- `rewrite.redundantBraces.parensForOneLineApply`
+  - by default, `true` in edition 2020-01
+  - turns `foo { bar => baz }` into `foo(bar => baz)`
 
 ### `RedundantParens`
 
