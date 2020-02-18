@@ -393,6 +393,54 @@ insert newlines.
 > You might be interested in the [Vertical Multiline](#vertical-multiline)
 > section.
 
+### `danglingParentheses`
+
+While this parameter is not technically under the `newlines` section, it logically belongs there.
+
+```scala mdoc:defaults
+danglingParentheses
+```
+
+```scala mdoc:scalafmt
+danglingParentheses.defnSite = true
+danglingParentheses.callSite = true
+# shortcut to set both
+danglingParentheses = true
+---
+object a {
+  // defnSite
+  def method(
+    a: Int,
+    b: String
+  ): Boolean
+
+  // callSite
+  method(
+    a,
+    b
+  )
+}
+```
+
+```scala mdoc:scalafmt
+danglingParentheses.defnSite = false
+danglingParentheses.callSite = false
+# shortcut to set both
+danglingParentheses = false
+---
+object a {
+  // defnSite
+  def method(
+    a: Int,
+    b: String): Boolean
+
+  // callSite
+  method(
+    a,
+    b)
+}
+```
+
 ### `newlines.alwaysBeforeTopLevelStatements`
 
 ```scala mdoc:defaults
@@ -520,6 +568,7 @@ Configuration options and default values:
 
 - `rewrite.redundantBraces.maxLines = 100`
 - `rewrite.redundantBraces.includeUnitMethods = true`
+- `rewrite.redundantBraces.methodBodies = true`
 - `rewrite.redundantBraces.stringInterpolation = true`
 - `rewrite.redundantBraces.generalExpressions = false` (disabled by default due
   to #1147)
