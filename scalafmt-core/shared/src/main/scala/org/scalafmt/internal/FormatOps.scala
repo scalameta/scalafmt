@@ -345,22 +345,46 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     }
   }.getOrElse(tree.tokens.last)
 
-  def OneArgOneLineSplit(tok: FormatToken, noTrailingCommas: Boolean = false)(
-      implicit line: sourcecode.Line
+  @inline
+  def OneArgOneLineSplit(tok: FormatToken)(
+      implicit line: sourcecode.Line,
+      style: ScalafmtConfig
+  ): Policy =
+    if (style.poorMansTrailingCommasInConfigStyle)
+      splitOneArgPerLineBeforeComma(tok)
+    else
+      splitOneArgPerLineAfterComma(tok)
+
+  def splitOneArgPerLineBeforeComma(tok: FormatToken)(
+      implicit line: sourcecode.Line,
+      style: ScalafmtConfig
   ): Policy = {
     val owner = tok.meta.leftOwner
     // TODO(olafur) clear queue between arguments, they are independent.
     Policy(matching(tok.left)) {
       case Decision(t @ FormatToken(_, _: T.Comma, _), splits)
-          if noTrailingCommas &&
-            !next(t).right.is[T.Comment] &&
-            owner == t.meta.rightOwner =>
-        splits.map {
-          case x if x.modification == NoSplit =>
-            x.copy(modification = Newline)
-          case x => x
+          if owner == t.meta.rightOwner && !next(t).right.is[T.Comment] =>
+        splits.map { x =>
+          if (x.modification != NoSplit) x else x.copy(modification = Newline)
         }
 
+      case Decision(t @ FormatToken(_: T.Comma, right, _), splits)
+          if owner == t.meta.leftOwner &&
+            !right.is[T.LeftBrace] &&
+            // If comment is bound to comma, see unit/Comment.
+            (!right.is[T.Comment] || t.newlinesBetween != 0) =>
+        val isNewline = right.is[T.Comment]
+        splits.filter(_.modification.isNewline == isNewline)
+    }
+  }
+
+  def splitOneArgPerLineAfterComma(tok: FormatToken)(
+      implicit line: sourcecode.Line,
+      style: ScalafmtConfig
+  ): Policy = {
+    val owner = tok.meta.leftOwner
+    // TODO(olafur) clear queue between arguments, they are independent.
+    Policy(matching(tok.left)) {
       // Newline on every comma.
       case Decision(t @ FormatToken(_: T.Comma, right, _), splits)
           if owner == t.meta.leftOwner &&
@@ -368,11 +392,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
             !right.is[T.LeftBrace] &&
             // If comment is bound to comma, see unit/Comment.
             (!right.is[T.Comment] || t.newlinesBetween != 0) =>
-        splits.filter { x =>
-          val isNewline = x.modification.isNewline
-          if (noTrailingCommas && !right.is[T.Comment]) !isNewline
-          else isNewline
-        }
+        splits.filter(_.modification.isNewline)
     }
   }
 
