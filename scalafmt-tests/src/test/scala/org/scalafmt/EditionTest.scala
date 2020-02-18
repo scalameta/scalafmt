@@ -6,7 +6,7 @@ import org.scalafmt.config.Edition
 import org.scalafmt.util.DiffAssertions
 
 class EditionTest extends AnyFunSuite with DiffAssertions {
-  def check(original: String, expected: Edition): Unit = {
+  def check(original: String, expected: Edition, expectedStr: String): Unit = {
     test(original) {
       val conf = Conf.Str(original)
       val obtained = Edition.decoder.read(conf).get
@@ -14,6 +14,12 @@ class EditionTest extends AnyFunSuite with DiffAssertions {
         Edition.encoder.write(obtained).toString(),
         Edition.encoder.write(expected).toString()
       )
+      assertNoDiff(expected.toString, expectedStr)
+    }
+  }
+  def checkActiveFor(less: String, more: String): Unit = {
+    test(s"$less <= $more") {
+      assert(Edition(less) <= Edition(more))
     }
   }
   def checkError(original: String, expectedError: String): Unit = {
@@ -26,9 +32,9 @@ class EditionTest extends AnyFunSuite with DiffAssertions {
       }
     }
   }
-  check("2019-09", Edition(2019, 9))
-  check("2019-9", Edition(2019, 9))
-  check("2019-10", Edition(2019, 10))
+  check("2019-09", Edition(2019, 9), "2019-09")
+  check("2019-9", Edition(2019, 9), "2019-09")
+  check("2019-10", Edition(2019, 10), "2019-10")
   checkError(
     "2019-invalid",
     """|Type mismatch;
@@ -36,4 +42,7 @@ class EditionTest extends AnyFunSuite with DiffAssertions {
        |  expected : '$year-$month', for example '2019-08'
        |""".stripMargin.trim
   )
+  checkActiveFor("2019-09", "2019-09")
+  checkActiveFor("2019-09", "2019-10")
+  checkActiveFor("2019-08", "2019-09")
 }
