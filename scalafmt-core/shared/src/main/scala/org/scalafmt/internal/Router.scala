@@ -601,13 +601,7 @@ class Router(formatOps: FormatOps) {
         val isForcedBinPack = styleMap.forcedBinPack.contains(leftOwner)
         val policy =
           if (isForcedBinPack) Policy(close)(newlineBeforeClose)
-          else {
-            val oneArgOneLine = OneArgOneLineSplit(
-              formatToken,
-              noTrailingCommas = style.poorMansTrailingCommasInConfigStyle
-            )
-            oneArgOneLine.copy(f = oneArgOneLine.f.orElse(newlineBeforeClose))
-          }
+          else OneArgOneLineSplit(formatToken).orElse(newlineBeforeClose)
         Seq(
           Split(Newline, 0, policy = policy)
             .withIndent(indent, close, Right)
