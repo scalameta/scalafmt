@@ -146,7 +146,8 @@ class FormatWriter(formatOps: FormatOps) {
       }
     }
 
-    if (initStyle.activeForEdition_2020_01 &&
+    if (initStyle.rewrite.redundantBraces.parensForOneLineApply
+        .getOrElse(initStyle.activeForEdition_2020_01) &&
       initStyle.rewrite.rules.contains(RedundantBraces))
       replaceRedundantBraces(result)
 
