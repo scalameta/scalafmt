@@ -192,8 +192,7 @@ case class ScalafmtConfig(
   )
 
   // Edition-specific settings below
-  def activeFor(edition: Edition): Boolean =
-    Edition.ordering.gteq(this.edition, edition)
+  def activeFor(edition: Edition): Boolean = this.edition >= edition
 
   // Edition 2019-11
   val activeForEdition_2019_11: Boolean = activeFor(Edition(2019, 11))
