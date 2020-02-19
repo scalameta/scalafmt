@@ -182,7 +182,7 @@ class BestFirstSearch(
           visits(curr.depth) > maxVisitsPerToken) {
           Q.clear()
           best.clear()
-          runner.event(CompleteFormat(explored, deepestYet, tokens))
+          runner.event(CompleteFormat(explored, deepestYet))
           throw SearchStateExploded(
             deepestYet,
             formatWriter.mkString(deepestYet),
@@ -242,7 +242,7 @@ class BestFirstSearch(
   def getBestPath: SearchResult = {
     val state = shortestPath(State.start, tree.tokens.last)
     if (state.depth == tokens.length) {
-      runner.event(CompleteFormat(explored, state, tokens))
+      runner.event(CompleteFormat(explored, state))
       SearchResult(state, reachedEOF = true)
     } else {
       val nextSplits = routes(deepestYet.depth)
@@ -261,7 +261,7 @@ class BestFirstSearch(
         logger.debug(s"""Failed to format
                         |$msg""".stripMargin)
       }
-      runner.event(CompleteFormat(explored, deepestYet, tokens))
+      runner.event(CompleteFormat(explored, deepestYet))
       SearchResult(deepestYet, reachedEOF = false)
     }
   }
