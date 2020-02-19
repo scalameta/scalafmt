@@ -34,10 +34,9 @@ trait HasTests extends FormatAssertions {
       case explored: Explored if explored.n % 10000 == 0 =>
         logger.elem(explored)
       case Enqueue(split) => Debug.enqueued(split)
-      case CompleteFormat(explored, state, tokens) =>
+      case CompleteFormat(explored, state) =>
         Debug.explored += explored
         Debug.state = state
-        Debug.tokens = tokens.arr
       case _ =>
     }
   )

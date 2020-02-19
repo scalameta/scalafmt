@@ -27,7 +27,7 @@ object Debug {
   var lastTestExplored = 0
   var explored = 0
   var state = State.start
-  var tokens = Array.empty[FormatToken]
+  def tokens = formatOps.tokens.arr
   var startTime = System.nanoTime()
 
   def newTest(): Unit = {
