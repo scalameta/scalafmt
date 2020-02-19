@@ -8,6 +8,7 @@ import org.scalafmt.config.FormatEvent.CompleteFormat
 import org.scalafmt.config.FormatEvent.Enqueue
 import org.scalafmt.config.FormatEvent.Explored
 import org.scalafmt.config.FormatEvent.VisitToken
+import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.ExpiresOn.Right
 import org.scalafmt.internal.Length.Num
 import org.scalafmt.util.LoggerOps
@@ -56,10 +57,6 @@ class BestFirstSearch(
     noOptimizations.contains(token.left)
   }
 
-  @inline
-  def getLeft(curr: State): FormatToken =
-    tokens(Math.max(0, curr.depth - 1))
-
   /**
     * Returns true if it's OK to skip over state.
     */
@@ -75,18 +72,24 @@ class BestFirstSearch(
     hasBestSolution
   }
 
-  def shouldRecurseOnBlock(curr: State, stop: Token) = recurseOnBlocks && {
-    val splitToken = tokens(curr.depth)
-    isInsideNoOptZone(splitToken) && {
-      val left = getLeft(curr)
-      left.left.is[LeftBrace] && {
-        val style = styleMap.at(splitToken)
+  def shouldRecurseOnBlock(
+      ft: FormatToken,
+      stop: Token,
+      style: ScalafmtConfig
+  ): Option[Token] =
+    if (!recurseOnBlocks || !isInsideNoOptZone(ft)) None
+    else {
+      val left = tokens(ft, -1)
+      if (!left.left.is[LeftBrace]) None
+      else {
         val close = matching(left.left)
         // Block must span at least 3 lines to be worth recursing.
-        close != stop && distance(left.left, close) > style.maxColumn * 3
-      } && extractStatementsIfAny(left.meta.leftOwner).nonEmpty
+        val ok = close != stop &&
+          distance(left.left, close) > style.maxColumn * 3 &&
+          extractStatementsIfAny(left.meta.leftOwner).nonEmpty
+        if (ok) Some(close) else None
+      }
     }
-  }
 
   def provided(formatToken: FormatToken): Split = {
     // TODO(olafur) the indentation is not correctly set.
@@ -112,18 +115,18 @@ class BestFirstSearch(
 
   def shortestPathMemo(start: State, stop: Token, depth: Int, maxCost: Int)(
       implicit line: sourcecode.Line
-  ): State = {
+  ): Option[State] = {
     val key = (start.depth, stateColumnKey(start))
     val cachedState = memo.get(key)
-    cachedState match {
-      case Some(state) => state
-      case None =>
-        // Only update state if it reached stop.
-        val nextState = shortestPath(start, stop, depth, maxCost)
-        if (tokens(nextState.depth).left == stop) {
-          memo.update(key, nextState)
-        }
-        nextState
+    if (cachedState.nonEmpty) cachedState
+    else {
+      // Only update state if it reached stop.
+      val nextState = shortestPath(start, stop, depth, maxCost)
+      if (tokens(nextState.depth).left != stop) None
+      else {
+        memo.update(key, nextState)
+        Some(nextState)
+      }
     }
   }
 
@@ -171,15 +174,11 @@ class BestFirstSearch(
             Q.clear()
         }
 
-        if (shouldRecurseOnBlock(curr, stop)) {
-          val close = matching(getLeft(curr).left)
-          val nextState =
-            shortestPathMemo(curr, close, depth = depth + 1, maxCost = maxCost)
-          val nextToken = tokens(nextState.depth)
-          if (nextToken.left == close) {
-            Q.enqueue(nextState)
-          }
-        } else if (escapeInPathologicalCases &&
+        val blockClose = shouldRecurseOnBlock(splitToken, stop, style)
+        if (blockClose.nonEmpty)
+          shortestPathMemo(curr, blockClose.get, depth + 1, maxCost)
+            .foreach(Q.enqueue(_))
+        else if (escapeInPathologicalCases &&
           visits(splitToken) > maxVisitsPerToken) {
           Q.clear()
           best.clear()
