@@ -3,7 +3,7 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/7gha7cxm5lw8fsc3)](https://ci.appveyor.com/project/olafurpg/scalafmt/branch/master)
 [![Join the chat at https://gitter.im/scalameta/scalafmt](https://badges.gitter.im/scalameta/scalafmt.svg)](https://gitter.im/scalameta/scalafmt?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Join the discord chat](https://img.shields.io/discord/632642981228314653?label=discord)](https://discordapp.com/channels/632642981228314653/632665341864181780)
-[![Latest version](https://index.scala-lang.org/scalameta/scalafmt/scalafmt-core/latest.svg?color=orange)](https://index.scala-lang.org/scalameta/scalafmt/scalafmt-core)
+[![Latest version](https://index.scala-lang.org/scalameta/scalafmt/scalafmt-core/latest.svg?color=orange&kill_cache=1)](https://index.scala-lang.org/scalameta/scalafmt/scalafmt-core)
 
 ### [User documentation][docs]
 Head over to [the user docs][docs] for instructions on how to install scalafmt.
