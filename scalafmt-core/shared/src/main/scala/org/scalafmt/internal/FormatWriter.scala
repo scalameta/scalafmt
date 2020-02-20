@@ -23,7 +23,7 @@ class FormatWriter(formatOps: FormatOps) {
 
   def mkString(state: State): String = {
     val sb = new StringBuilder()
-    val locations = getFormatLocations(tokens.arr, state, debug = false)
+    val locations = getFormatLocations(state, debug = false)
 
     locations.iterate.foreach { entry =>
       val location = entry.curr
@@ -126,10 +126,10 @@ class FormatWriter(formatOps: FormatOps) {
   import org.scalafmt.util.TokenOps._
 
   def getFormatLocations(
-      toks: Array[FormatToken],
       state: State,
       debug: Boolean
   ): FormatLocations = {
+    val toks = formatOps.tokens.arr
     require(toks.length >= state.depth, "splits !=")
     val result = new Array[FormatLocation](state.depth)
     var curState = state
