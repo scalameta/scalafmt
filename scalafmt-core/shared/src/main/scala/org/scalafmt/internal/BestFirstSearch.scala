@@ -46,9 +46,9 @@ class BestFirstSearch(
   var explored = 0
   var deepestYet = State.start
   var statementCount = 0
-  val best = mutable.Map.empty[Token, State]
+  val best = mutable.Map.empty[Int, State]
   var pathologicalEscapes = 0
-  val visits = mutable.Map.empty[FormatToken, Int].withDefaultValue(0)
+  val visits = new Array[Int](tokens.length)
 
   type StateHash = Long
 
@@ -66,7 +66,7 @@ class BestFirstSearch(
       curr.policy.noDequeue || isInsideNoOptZone(splitToken)
     def hasBestSolution = !pruneSlowStates || insideOptimizationZone || {
       // TODO(olafur) document why/how this optimization works.
-      val result = !best.get(splitToken.left).exists(_.alwaysBetter(curr))
+      val result = !best.get(curr.depth).exists(_.alwaysBetter(curr))
       result
     }
     hasBestSolution
@@ -163,7 +163,7 @@ class BestFirstSearch(
           deepestYet = curr
         }
         runner.eventCallback(VisitToken(splitToken))
-        visits.put(splitToken, visits(splitToken) + 1)
+        visits(curr.depth) += 1
 
         if (curr.split != null && curr.split.modification.isNewline) {
           val tokenHash = hash(splitToken.left)
@@ -179,10 +179,9 @@ class BestFirstSearch(
           shortestPathMemo(curr, blockClose.get, depth + 1, maxCost)
             .foreach(Q.enqueue(_))
         else if (escapeInPathologicalCases &&
-          visits(splitToken) > maxVisitsPerToken) {
+          visits(curr.depth) > maxVisitsPerToken) {
           Q.clear()
           best.clear()
-          visits.clear()
           runner.eventCallback(CompleteFormat(explored, deepestYet, tokens))
           throw SearchStateExploded(
             deepestYet,
@@ -206,8 +205,8 @@ class BestFirstSearch(
           actualSplit.foreach { split =>
             val nextState = curr.next(style, split, splitToken)
             if (depth == 0 && split.modification.isNewline &&
-              !best.contains(splitToken.left)) {
-              best.update(splitToken.left, nextState)
+              !best.contains(curr.depth)) {
+              best.update(curr.depth, nextState)
             }
             runner.eventCallback(Enqueue(split))
             split.optimalAt match {
