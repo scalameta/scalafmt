@@ -171,15 +171,13 @@ class BestFirstSearch(
         runner.eventCallback(VisitToken(splitToken))
         visits.put(splitToken, visits(splitToken) + 1)
 
-        def lastWasNewline =
-          curr.split != null && curr.split.modification.isNewline
-        if (dequeueOnNewStatements &&
-          dequeueSpots.contains(hash(splitToken.left)) &&
-          (depth > 0 || !isInsideNoOptZone(splitToken)) &&
-          lastWasNewline) {
-          Q.clear()
-        } else if (emptyQueueSpots(hash(splitToken.left)) && lastWasNewline) {
-          Q.clear()
+        if (curr.split != null && curr.split.modification.isNewline) {
+          val tokenHash = hash(splitToken.left)
+          if (emptyQueueSpots.contains(tokenHash) ||
+            dequeueOnNewStatements &&
+            dequeueSpots.contains(tokenHash) &&
+            (depth > 0 || !isInsideNoOptZone(splitToken)))
+            Q.clear()
         }
 
         if (shouldRecurseOnBlock(curr, stop)) {
