@@ -125,19 +125,6 @@ class BestFirstSearch(
     }
   }
 
-  def untilNextStatement(state: State, maxDepth: Int): State = {
-    var curr = state
-    while (!hasReachedEof(curr) && {
-        val token = tokens(curr.depth)
-        !statementStarts.contains(hash(token.left)) &&
-        numParents(token.meta.leftOwner) <= maxDepth
-      }) {
-      val tok = tokens(curr.depth)
-      curr = curr.next(styleMap.at(tok), provided(tok), tok)
-    }
-    curr
-  }
-
   /**
     * Runs best first search to find lowest penalty split.
     */
