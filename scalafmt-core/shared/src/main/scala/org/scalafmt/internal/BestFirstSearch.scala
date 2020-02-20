@@ -102,9 +102,11 @@ class BestFirstSearch(
     state.column << 8 | state.indentation
   }
 
-  def hasReachedEof(state: State): Boolean = {
-    explored > runner.maxStateVisits || state.depth == tokens.length
-  }
+  def hasReachedEof(state: State, stop: Token): Boolean =
+    state.depth >= tokens.length || {
+      val token = tokens(state.depth)
+      token.left.start >= stop.start && token.left.end > token.left.start
+    }
 
   val memo = mutable.Map.empty[(Int, StateHash), State]
 
@@ -142,11 +144,13 @@ class BestFirstSearch(
       val curr = Q.dequeue()
       explored += 1
       runner.eventCallback(Explored(explored, depth, Q.size))
-      if (hasReachedEof(curr) || {
-          val token = tokens(curr.depth)
-          // If token is empty we can take one more split before reaching stop.
-          token.left.syntax.nonEmpty && token.left.start >= stop.start
-        }) {
+      if (explored > runner.maxStateVisits)
+        throw SearchStateExploded(
+          deepestYet,
+          formatWriter.mkString(deepestYet),
+          tokens(deepestYet.depth).left
+        )
+      if (hasReachedEof(curr, stop)) {
         result = curr
         Q.clear()
       } else if (shouldEnterState(curr)) {
@@ -214,9 +218,7 @@ class BestFirstSearch(
                     nextState.split.cost == 0 =>
                 val nextNextState =
                   shortestPath(nextState, token, depth + 1, maxCost = 0)
-                if (hasReachedEof(nextNextState) ||
-                  (nextNextState.depth < tokens.length &&
-                  tokens(nextNextState.depth).left.start >= token.start)) {
+                if (hasReachedEof(nextNextState, token)) {
                   optimalNotFound = false
 //                  logger.elem(split, splitToken, formatWriter.mkString(nextNextState.splits), tokens(nextNextState.splits.length))
                   Q.enqueue(nextNextState)
