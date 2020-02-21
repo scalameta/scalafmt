@@ -67,7 +67,7 @@ object Scalafmt {
         val toParse = Rewrite(Input.VirtualFile(filename, unixCode), style)
         val tree = runner.dialect(toParse).parse(runner.parser).get
         val formatOps = new FormatOps(tree, style)
-        runner.eventCallback(CreateFormatOps(formatOps))
+        runner.event(CreateFormatOps(formatOps))
         val formatWriter = new FormatWriter(formatOps)
         val search = new BestFirstSearch(formatOps, range, formatWriter)
         val partial = search.getBestPath
