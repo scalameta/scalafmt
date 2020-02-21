@@ -714,7 +714,23 @@ object A {
   }
 }
 >>>
-Unable to format file due to bug in scalafmt
+object A {
+  def foo() = {
+    x.map(
+      _.y(
+        abcd,
+        { case ((abcdefghij, aswbasdfaw), asfda) => aswdf }, {
+          case (abcdefghij, sadfasdass) =>
+            (
+              asdfa.sadvfs(abcdefghij).get,
+              asdfasdfasfdasda.asdfas(asdfasdaas).get
+            )
+        },
+        foo
+      )
+    )
+  }
+}
 <<< #1599 2: modified, with partial func inside block
 object A {
   def foo() = {
@@ -727,7 +743,25 @@ object A {
   }
 }
 >>>
-Unable to format file due to bug in scalafmt
+object A {
+  def foo() = {
+    x.map(
+      _.y(
+        abcd,
+        { { case ((abcdefghij, aswbasdfaw), asfda) => aswdf } }, {
+          {
+            case (abcdefghij, sadfasdass) =>
+              (
+                asdfa.sadvfs(abcdefghij).get,
+                asdfasdfasfdasda.asdfas(asdfasdaas).get
+              )
+          }
+        },
+        foo
+      )
+    )
+  }
+}
 <<< #1599 3: modified, with lambda
 object A {
   def foo() = {
@@ -740,4 +774,20 @@ object A {
   }
 }
 >>>
-Unable to format file due to bug in scalafmt
+object A {
+  def foo() = {
+    x.map(
+      _.y(
+        abcd,
+        { case_abcdefghij_aswbasdfaw_asfda => aswdf }, {
+          case_abcdefghij_sadfasdass =>
+            (
+              asdfa.sadvfs(abcdefghij).get,
+              asdfasdfasfdasda.asdfas(asdfasdaas).get
+            )
+        },
+        foo
+      )
+    )
+  }
+}

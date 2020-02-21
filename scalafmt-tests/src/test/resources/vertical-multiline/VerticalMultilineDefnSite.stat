@@ -28,4 +28,14 @@ object Test {
 
 }
 >>>
-Unable to format file due to bug in scalafmt
+object Test {
+
+  def create(
+    somethingInfo: foo.T = Something("my-something", Some("test-something"), "something",
+      Some(Format("something", "something")), Some(something.Something("something",
+          "something", "something", "something")))
+  ): Unit = {
+    w(foo)
+  }
+
+}
