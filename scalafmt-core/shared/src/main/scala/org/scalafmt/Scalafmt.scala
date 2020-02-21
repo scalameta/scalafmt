@@ -69,8 +69,7 @@ object Scalafmt {
         val formatOps = new FormatOps(tree, style)
         runner.event(CreateFormatOps(formatOps))
         val formatWriter = new FormatWriter(formatOps)
-        val search = new BestFirstSearch(formatOps, range, formatWriter)
-        val partial = search.getBestPath
+        val partial = BestFirstSearch(formatOps, range, formatWriter)
         val formattedString = formatWriter.mkString(partial.state)
         val correctedFormattedString =
           if ((style.lineEndings == preserve && isWindows) ||

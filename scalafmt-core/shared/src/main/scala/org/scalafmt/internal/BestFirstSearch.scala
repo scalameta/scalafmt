@@ -18,7 +18,7 @@ import org.scalafmt.util.TreeOps
 /**
   * Implements best first search to find optimal formatting.
   */
-class BestFirstSearch(
+private class BestFirstSearch private (
     val formatOps: FormatOps,
     range: Set[Range],
     formatWriter: FormatWriter
@@ -180,8 +180,6 @@ class BestFirstSearch(
             .foreach(Q.enqueue(_))
         else if (escapeInPathologicalCases &&
           visits(curr.depth) > maxVisitsPerToken) {
-          Q.clear()
-          best.clear()
           runner.event(CompleteFormat(explored, deepestYet))
           throw SearchStateExploded(
             deepestYet,
@@ -268,3 +266,14 @@ class BestFirstSearch(
 }
 
 case class SearchResult(state: State, reachedEOF: Boolean)
+
+object BestFirstSearch {
+
+  def apply(
+      formatOps: FormatOps,
+      range: Set[Range],
+      formatWriter: FormatWriter
+  ): SearchResult =
+    new BestFirstSearch(formatOps, range, formatWriter).getBestPath
+
+}
