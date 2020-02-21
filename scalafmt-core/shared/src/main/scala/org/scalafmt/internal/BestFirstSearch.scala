@@ -105,12 +105,6 @@ private class BestFirstSearch private (
     state.column << 8 | state.indentation
   }
 
-  def hasReachedEof(state: State, stop: Token): Boolean =
-    state.depth >= tokens.length || {
-      val token = tokens(state.depth)
-      token.left.start >= stop.start && token.left.end > token.left.start
-    }
-
   val memo = mutable.Map.empty[(Int, StateHash), State]
 
   def shortestPathMemo(start: State, stop: Token, depth: Int, maxCost: Int)(
@@ -122,7 +116,7 @@ private class BestFirstSearch private (
     else {
       // Only update state if it reached stop.
       val nextState = shortestPath(start, stop, depth, maxCost)
-      if (tokens(nextState.depth).left != stop) None
+      if (null == nextState) None
       else {
         memo.update(key, nextState)
         Some(nextState)
@@ -140,7 +134,7 @@ private class BestFirstSearch private (
       maxCost: Int = Integer.MAX_VALUE
   ): State = {
     val Q = new mutable.PriorityQueue[State]()
-    var result = start
+    var result: State = null
     Q += start
     // TODO(olafur) this while loop is waaaaaaaaaaaaay tooo big.
     while (Q.nonEmpty) {
@@ -153,11 +147,14 @@ private class BestFirstSearch private (
           formatWriter.mkString(deepestYet),
           tokens(deepestYet.depth).left
         )
-      if (hasReachedEof(curr, stop)) {
+      val splitToken =
+        if (curr.depth >= tokens.length) null else tokens(curr.depth)
+      if (null == splitToken ||
+        splitToken.left.start >= stop.start &&
+        splitToken.left.start < splitToken.left.end) {
         result = curr
         Q.clear()
       } else if (shouldEnterState(curr)) {
-        val splitToken = tokens(curr.depth)
         val style = styleMap.at(splitToken)
         if (curr.depth > deepestYet.depth) {
           deepestYet = curr
@@ -214,7 +211,7 @@ private class BestFirstSearch private (
                     nextState.split.cost == 0 =>
                 val nextNextState =
                   shortestPath(nextState, token, depth + 1, maxCost = 0)
-                if (hasReachedEof(nextNextState, token)) {
+                if (null != nextNextState) {
                   optimalNotFound = false
 //                  logger.elem(split, splitToken, formatWriter.mkString(nextNextState.splits), tokens(nextNextState.splits.length))
                   Q.enqueue(nextNextState)
@@ -239,7 +236,7 @@ private class BestFirstSearch private (
 
   def getBestPath: SearchResult = {
     val state = shortestPath(State.start, tree.tokens.last)
-    if (state.depth == tokens.length) {
+    if (null != state) {
       runner.event(CompleteFormat(explored, state))
       SearchResult(state, reachedEOF = true)
     } else {
@@ -249,7 +246,6 @@ private class BestFirstSearch private (
         deepestYet.policy.execute(Decision(tok, nextSplits))
       val msg = s"""UNABLE TO FORMAT,
                    |tok=$tok
-                   |state.depth=${state.depth}
                    |toks.length=${tokens.length}
                    |deepestYet.length=${deepestYet.depth}
                    |policies=${deepestYet.policy.policies}
