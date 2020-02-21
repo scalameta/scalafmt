@@ -398,7 +398,16 @@ object Foo {
   }
 }
 >>>
-Unable to format file due to bug in scalafmt
+object Foo {
+  code.collect {
+    case d: Defn.Def
+        if (d match {
+          case _ => false
+
+        }) &&
+          d =>
+  }
+}
 <<< #1485
 style = IntelliJ
 maxColumn = 120
@@ -422,4 +431,17 @@ class A {
       .f("f")
 }
 >>>
-Unable to format file due to bug in scalafmt
+class A {
+  def foo: B =
+    a.b() { c =>
+        val d = c.add(D[E](1, {
+          case conditionNameShouldLongEnough =>
+            foo1(objectNameShouldLongEnough, objectNameShouldLongEnough)
+            0
+          case conditionNameShouldLongEnough =>
+            foo1(objectNameShouldLongEnough, objectNameShouldLongEnough)
+            1
+        }))
+      }
+      .f("f")
+}

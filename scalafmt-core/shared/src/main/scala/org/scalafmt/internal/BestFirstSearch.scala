@@ -133,11 +133,18 @@ private class BestFirstSearch private (
       depth: Int = 0,
       maxCost: Int = Integer.MAX_VALUE
   ): State = {
-    val Q = new mutable.PriorityQueue[State]()
-    var result: State = null
+    def newGeneration = new mutable.PriorityQueue[State]()
+    var Q = newGeneration
+    var generations: List[mutable.PriorityQueue[State]] = Nil
+    def addGeneration =
+      if (Q.nonEmpty) {
+        generations = Q :: generations
+        Q = newGeneration
+      }
     Q += start
+
     // TODO(olafur) this while loop is waaaaaaaaaaaaay tooo big.
-    while (Q.nonEmpty) {
+    while (true) {
       val curr = Q.dequeue()
       explored += 1
       runner.event(Explored(explored, depth, Q.size))
@@ -152,9 +159,10 @@ private class BestFirstSearch private (
       if (null == splitToken ||
         splitToken.left.start >= stop.start &&
         splitToken.left.start < splitToken.left.end) {
-        result = curr
-        Q.clear()
-      } else if (shouldEnterState(curr)) {
+        return curr
+      }
+
+      if (shouldEnterState(curr)) {
         val style = styleMap.at(splitToken)
         if (curr.depth > deepestYet.depth) {
           deepestYet = curr
@@ -168,7 +176,8 @@ private class BestFirstSearch private (
             dequeueOnNewStatements &&
             dequeueSpots.contains(tokenHash) &&
             (depth > 0 || !isInsideNoOptZone(splitToken)))
-            Q.clear()
+            if (depth == 0) addGeneration
+            else Q.clear()
         }
 
         val blockClose = shouldRecurseOnBlock(splitToken, stop, style)
@@ -230,8 +239,18 @@ private class BestFirstSearch private (
           }
         }
       }
+
+      if (Q.isEmpty) {
+        if (generations.isEmpty)
+          return null
+
+        Q = generations.head
+        generations = generations.tail
+      }
     }
-    result
+
+    // unreachable
+    null
   }
 
   def getBestPath: SearchResult = {
