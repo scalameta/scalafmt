@@ -146,7 +146,7 @@ class BestFirstSearch(
     while (Q.nonEmpty) {
       val curr = Q.dequeue()
       explored += 1
-      runner.eventCallback(Explored(explored, depth, Q.size))
+      runner.event(Explored(explored, depth, Q.size))
       if (explored > runner.maxStateVisits)
         throw SearchStateExploded(
           deepestYet,
@@ -162,7 +162,7 @@ class BestFirstSearch(
         if (curr.depth > deepestYet.depth) {
           deepestYet = curr
         }
-        runner.eventCallback(VisitToken(splitToken))
+        runner.event(VisitToken(splitToken))
         visits(curr.depth) += 1
 
         if (curr.split != null && curr.split.modification.isNewline) {
@@ -182,7 +182,7 @@ class BestFirstSearch(
           visits(curr.depth) > maxVisitsPerToken) {
           Q.clear()
           best.clear()
-          runner.eventCallback(CompleteFormat(explored, deepestYet, tokens))
+          runner.event(CompleteFormat(explored, deepestYet, tokens))
           throw SearchStateExploded(
             deepestYet,
             formatWriter.mkString(deepestYet),
@@ -208,7 +208,7 @@ class BestFirstSearch(
               !best.contains(curr.depth)) {
               best.update(curr.depth, nextState)
             }
-            runner.eventCallback(Enqueue(split))
+            runner.event(Enqueue(split))
             split.optimalAt match {
               case Some(OptimalToken(token, killOnFail))
                   if acceptOptimalAtHints && optimalNotFound &&
@@ -242,7 +242,7 @@ class BestFirstSearch(
   def getBestPath: SearchResult = {
     val state = shortestPath(State.start, tree.tokens.last)
     if (state.depth == tokens.length) {
-      runner.eventCallback(CompleteFormat(explored, state, tokens))
+      runner.event(CompleteFormat(explored, state, tokens))
       SearchResult(state, reachedEOF = true)
     } else {
       val nextSplits = routes(deepestYet.depth)
@@ -261,7 +261,7 @@ class BestFirstSearch(
         logger.debug(s"""Failed to format
                         |$msg""".stripMargin)
       }
-      runner.eventCallback(CompleteFormat(explored, deepestYet, tokens))
+      runner.event(CompleteFormat(explored, deepestYet, tokens))
       SearchResult(deepestYet, reachedEOF = false)
     }
   }

@@ -16,7 +16,7 @@ import scala.meta.parsers.Parse
   */
 case class ScalafmtRunner(
     debug: Boolean = false,
-    eventCallback: FormatEvent => Unit = _ => (),
+    private val eventCallback: FormatEvent => Unit = null,
     parser: Parse[_ <: Tree] = Parse.parseSource,
     optimizer: ScalafmtOptimizer = ScalafmtOptimizer.default,
     maxStateVisits: Int = 1000000,
@@ -33,6 +33,13 @@ case class ScalafmtRunner(
         toplevelSeparator = ""
       )
     )
+
+  def event(evt: => FormatEvent): Unit =
+    if (null != eventCallback) eventCallback(evt)
+
+  def events(evts: => Iterator[FormatEvent]): Unit =
+    if (null != eventCallback) evts.foreach(eventCallback)
+
 }
 
 object ScalafmtRunner {
@@ -84,7 +91,6 @@ object ScalafmtRunner {
     */
   val default = ScalafmtRunner(
     debug = false,
-    eventCallback = _ => (),
     parser = scala.meta.parsers.Parse.parseSource,
     optimizer = ScalafmtOptimizer.default,
     maxStateVisits = 1000000
