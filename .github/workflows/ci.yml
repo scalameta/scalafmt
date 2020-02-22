@@ -27,3 +27,27 @@ jobs:
       - uses: actions/checkout@v2
       - uses: olafurpg/setup-scala@v2
       - run: ./scalafmt --test
+  native-image:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macOS-latest, ubuntu-latest]
+        include:
+          - os: macOS-latest
+            url: https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-20.0.0/graalvm-ce-java11-darwin-amd64-20.0.0.tar.gz
+            artifact: scalafmt-macos
+          - os: ubuntu-latest
+            url: https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-20.0.0/graalvm-ce-java11-linux-amd64-20.0.0.tar.gz
+            artifact: scalafmt-linux
+    steps:
+      - uses: actions/checkout@v1
+      - uses: olafurpg/setup-scala@v5
+      - run: jabba install graal-custom@20.0=tgz+${{ matrix.url }}
+      - run: bin/build-native-image.sh
+        env:
+          CI: true
+      - uses: actions/upload-artifact@master
+        with:
+          name: ${{ matrix.artifact }}
+          path: scalafmt
