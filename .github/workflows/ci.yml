@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: olafurpg/setup-scala@v2
+      - uses: olafurpg/setup-scala@v6
       - run: sbt ci-test
         env:
           TEST: ${{ matrix.scala }}
