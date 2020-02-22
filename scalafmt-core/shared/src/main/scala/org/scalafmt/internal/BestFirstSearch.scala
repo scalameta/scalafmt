@@ -45,10 +45,9 @@ private class BestFirstSearch private (
   val noOptimizations = noOptimizationZones(tree)
   var explored = 0
   var deepestYet = State.start
-  var statementCount = 0
   val best = mutable.Map.empty[Int, State]
-  var pathologicalEscapes = 0
   val visits = new Array[Int](tokens.length)
+  val keepSlowStates = !pruneSlowStates
 
   type StateHash = Long
 
@@ -60,17 +59,11 @@ private class BestFirstSearch private (
   /**
     * Returns true if it's OK to skip over state.
     */
-  def shouldEnterState(curr: State): Boolean = {
-    val splitToken = tokens(curr.depth)
-    val insideOptimizationZone =
-      curr.policy.noDequeue || isInsideNoOptZone(splitToken)
-    def hasBestSolution = !pruneSlowStates || insideOptimizationZone || {
+  def shouldEnterState(curr: State): Boolean =
+    keepSlowStates || curr.policy.noDequeue ||
+      isInsideNoOptZone(tokens(curr.depth)) ||
       // TODO(olafur) document why/how this optimization works.
-      val result = !best.get(curr.depth).exists(_.alwaysBetter(curr))
-      result
-    }
-    hasBestSolution
-  }
+      !best.get(curr.depth).exists(_.alwaysBetter(curr))
 
   def shouldRecurseOnBlock(
       ft: FormatToken,
@@ -208,7 +201,7 @@ private class BestFirstSearch private (
           var optimalNotFound = true
           actualSplit.foreach { split =>
             val nextState = curr.next(style, split, splitToken)
-            if (depth == 0 && split.modification.isNewline &&
+            if (!keepSlowStates && depth == 0 && split.modification.isNewline &&
               !best.contains(curr.depth)) {
               best.update(curr.depth, nextState)
             }
