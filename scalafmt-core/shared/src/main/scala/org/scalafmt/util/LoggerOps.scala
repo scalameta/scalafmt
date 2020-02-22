@@ -8,6 +8,8 @@ import scala.meta.tokens.Tokens
 
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.Split
+import org.scalafmt.internal.State
+
 import sourcecode.Text
 
 /**
@@ -20,12 +22,19 @@ object LoggerOps {
   def name2style[T](styles: Text[T]*): Map[String, T] =
     styles.map(x => x.source -> x.value).toMap
 
+  def log(s: State): String = {
+    val policies = s.policy.policies.map(_.toString).mkString(",")
+    s"d=${s.depth} w=${s.cost} i=${s.indentation} col=${s.column}; p=$policies; s=${log(s.split)}"
+  }
   def log(split: Split): String = s"$split"
 
   def log(formatToken: FormatToken): String =
     s"""${log(formatToken.left)}
        |${log(formatToken.between: _*)}
        |${log(formatToken.right)}""".stripMargin
+
+  def log2(formatToken: FormatToken): String =
+    s"${formatToken.left}∙${formatToken.right}"
 
   def escape(raw: String): String = {
     raw
