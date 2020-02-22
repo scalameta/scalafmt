@@ -20,9 +20,8 @@ jobs:
           java-version: ${{ matrix.java }}
       - run: 
           # for GitOps tests
-          git config --global user.email "scalafmt@scalameta.org"
-          git config --global user.name "scalafmt"
-          sbt ci-test
+          git config --global user.email "scalafmt@scalameta.org" && git config --global user.name "scalafmt"
+      - run: sbt ci-test
         env:
           TEST: ${{ matrix.scala }}
   formatting:
