@@ -487,19 +487,28 @@ object x {
 type iovec = CStruct2[Ptr[Byte], // iov_base
                         CSize] // iov_len
 >>>
-Unable to format file due to bug in scalafmt
+type iovec = CStruct2[
+  Ptr[Byte], // iov_base
+  CSize
+] // iov_len
 <<< #1720 with val
 val iovec = CStruct2[Ptr[Byte], // iov_base
                         CSize](a) // iov_len
 >>>
-Unable to format file due to bug in scalafmt
+val iovec = CStruct2[
+  Ptr[Byte], // iov_base
+  CSize
+](a) // iov_len
 <<< #1720 no align
 align = none
 ===
 type iovec = CStruct2[Ptr[Byte], // iov_base
                         CSize] // iov_len
 >>>
-Unable to format file due to bug in scalafmt
+type iovec = CStruct2[
+  Ptr[Byte], // iov_base
+  CSize
+] // iov_len
 <<< #1720 second SL comment
 type iovec = CStruct2[Ptr[Byte],
                         CSize] // iov_len
@@ -509,7 +518,10 @@ type iovec = CStruct2[Ptr[Byte], CSize] // iov_len
 type iovec = CStruct2[Ptr[Byte], // iov_base
                         CSize]
 >>>
-Unable to format file due to bug in scalafmt
+type iovec = CStruct2[
+  Ptr[Byte], // iov_base
+  CSize
+]
 <<< #1720 nested multi-arg type with two SL comments
 type iovec = CStruct2[Ptr[Byte, // iov_base
                         CSize]] // iov_len
@@ -529,7 +541,10 @@ type iovec = CStruct2[
 type iovec = CStruct2[Ptr[Byte], /* iov_base */
                         CSize]
 >>>
-Unable to format file due to bug in scalafmt
+type iovec = CStruct2[
+  Ptr[Byte], /* iov_base */
+  CSize
+]
 <<< #1720 first inline comment with apply
 val iovec = CStruct2(Ptr(Byte), /* iov_base */
                         CSize)

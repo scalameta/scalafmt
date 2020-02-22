@@ -47,7 +47,7 @@ private class BestFirstSearch private (
   var deepestYet = State.start
   val best = mutable.Map.empty[Int, State]
   val visits = new Array[Int](tokens.length)
-  val keepSlowStates = !pruneSlowStates
+  var keepSlowStates = !pruneSlowStates
 
   type StateHash = Long
 
@@ -247,7 +247,16 @@ private class BestFirstSearch private (
   }
 
   def getBestPath: SearchResult = {
-    val state = shortestPath(State.start, tree.tokens.last)
+    val state = {
+      def run = shortestPath(State.start, tree.tokens.last)
+      val state = run
+      if (null != state) state
+      else {
+        best.clear()
+        keepSlowStates = true
+        run
+      }
+    }
     if (null != state) {
       runner.event(CompleteFormat(explored, state))
       SearchResult(state, reachedEOF = true)
