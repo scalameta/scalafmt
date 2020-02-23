@@ -2,6 +2,8 @@ package org.scalafmt.util
 
 import java.io.File
 
+import scala.annotation.tailrec
+
 import metaconfig.Configured
 import org.scalafmt.Error.UnknownStyle
 import org.scalafmt.{Debug, Scalafmt}
@@ -99,7 +101,12 @@ trait HasTests extends FormatAssertions {
       )
     }
 
-    var linenum = 2 + split.head.split(sep).length
+    @tailrec
+    def numLines(str: String, cnt: Int = 1, off: Int = 0): Int = {
+      val idx = str.indexOf(sep, off)
+      if (idx < 0) cnt else numLines(str, cnt + 1, idx + sep.length)
+    }
+    var linenum = numLines(split.head, 2)
     split.tail.map { t =>
       val before :: expected :: Nil = t.split(s"$sep>>>$sep", 2).toList
       val extraConfig = before.split(s"$sep===$sep", 2).toList
@@ -120,7 +127,7 @@ trait HasTests extends FormatAssertions {
         moduleOnly || isOnly(name),
         testStyle
       )
-      linenum += t.split(sep).length
+      linenum += numLines(t)
       test
     }
   }
