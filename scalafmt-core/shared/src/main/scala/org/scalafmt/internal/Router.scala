@@ -289,7 +289,7 @@ class Router(formatOps: FormatOps) {
               style.newlines.alwaysBeforeCurlyBraceLambdaParams ||
                 isSelfAnnotation || lambdaPolicy == null
             )
-            .withOptimalToken(lambdaArrow)
+            .withOptimalTokenOpt(lambdaArrow)
             .withIndent(lambdaIndent, close, Right)
             .withPolicy(lambdaPolicy),
           Split(nl, 1)
@@ -577,7 +577,7 @@ class Router(formatOps: FormatOps) {
             .onlyIf(noSplitMod != null)
             .withOptimalToken(lambdaToken),
           Split(Newline, newlinePenalty)
-            .withPolicy(newlinePolicy)
+            .withPolicyOpt(newlinePolicy)
             .withIndent(style.continuationIndent.callSite, close, Right)
         )
       }
@@ -687,7 +687,7 @@ class Router(formatOps: FormatOps) {
             .andThen(unindent)
         Seq(
           Split(NoSplit, 0)
-            .withOptimalToken(optimal)
+            .withOptimalTokenOpt(optimal)
             .withPolicy(noSplitPolicy)
             .withIndent(indent, close, Left),
           Split(Newline, 2)
