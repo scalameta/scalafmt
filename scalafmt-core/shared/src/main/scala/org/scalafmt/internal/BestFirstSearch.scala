@@ -179,7 +179,7 @@ private class BestFirstSearch private (
             .foreach(Q.enqueue(_))
         else if (escapeInPathologicalCases &&
           visits(curr.depth) > maxVisitsPerToken) {
-          runner.event(CompleteFormat(explored, deepestYet))
+          complete(deepestYet)
           throw SearchStateExploded(
             deepestYet,
             formatWriter.mkString(deepestYet),
@@ -246,6 +246,9 @@ private class BestFirstSearch private (
     null
   }
 
+  private def complete(state: State): Unit =
+    runner.event(CompleteFormat(explored, state))
+
   def getBestPath: SearchResult = {
     val state = {
       def run = shortestPath(State.start, tree.tokens.last)
@@ -258,7 +261,7 @@ private class BestFirstSearch private (
       }
     }
     if (null != state) {
-      runner.event(CompleteFormat(explored, state))
+      complete(state)
       SearchResult(state, reachedEOF = true)
     } else {
       val nextSplits = routes(deepestYet.depth)
@@ -276,7 +279,7 @@ private class BestFirstSearch private (
         logger.debug(s"""Failed to format
                         |$msg""".stripMargin)
       }
-      runner.event(CompleteFormat(explored, deepestYet))
+      complete(deepestYet)
       SearchResult(deepestYet, reachedEOF = false)
     }
   }
