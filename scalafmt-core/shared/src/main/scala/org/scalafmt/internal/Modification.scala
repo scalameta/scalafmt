@@ -11,6 +11,7 @@ case class Provided(code: String) extends Modification {
 
 case object NoSplit extends Modification {
   override val newlines: Int = 0
+  def orNL(flag: Boolean): Modification = if (flag) this else Newline
 }
 
 /**
@@ -51,5 +52,6 @@ object Space extends Modification {
   override val newlines: Int = 0
   override def toString = "Space"
 
-  def apply(flag: Boolean): Modification = if (flag) Space else NoSplit
+  def apply(flag: Boolean): Modification = if (flag) this else NoSplit
+  def orNL(flag: Boolean): Modification = if (flag) this else Newline
 }
