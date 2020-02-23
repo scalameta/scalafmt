@@ -18,12 +18,12 @@ jobs:
       - uses: olafurpg/setup-scala@v6
         with:
           java-version: ${{ matrix.java }}
-      - run: 
-          # for GitOps tests
-          git config --global user.email "scalafmt@scalameta.org" && git config --global user.name "scalafmt"
       - run: sbt ci-test
         env:
           TEST: ${{ matrix.scala }}
+          # for GitOps tests
+          GIT_AUTHOR_NAME: scalafmt
+          GIT_AUTHOR_EMAIL: scalafmt@scalameta.org
   formatting:
     runs-on: ubuntu-latest
     steps:
