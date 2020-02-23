@@ -19,7 +19,6 @@ trait CanRunTests extends AnyFunSuite with HasTests {
       ignore(paddedName) {}
     } else {
       test(paddedName) {
-        Debug.newTest()
         filename2parse(filename) match {
           case Some(parse) =>
             try {
