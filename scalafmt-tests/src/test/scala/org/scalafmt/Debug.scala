@@ -1,8 +1,6 @@
 package org.scalafmt
 
 import scala.collection.mutable
-import scala.meta.Tree
-import scala.meta.tokens.Token
 
 import java.util.concurrent.TimeUnit
 
@@ -18,8 +16,6 @@ import org.scalafmt.internal.State
   */
 object Debug {
 
-  val treeExplored = mutable.Map.empty[Tree, Int].withDefaultValue(0)
-  val tokenExplored = mutable.Map.empty[Token, Int].withDefaultValue(0)
   val formatTokenExplored =
     mutable.Map.empty[FormatToken, Int].withDefaultValue(0)
   val enqueuedSplits = mutable.Set.empty[Split]
@@ -31,8 +27,6 @@ object Debug {
   var startTime = System.nanoTime()
 
   def newTest(): Unit = {
-    treeExplored.clear()
-    tokenExplored.clear()
     startTime = System.nanoTime()
     lastTestExplored = explored
   }
@@ -57,19 +51,8 @@ object Debug {
   }
 
   def visit(token: FormatToken): Unit = {
-    visit(token.left)
-    visit(token.right)
     val visits = formatTokenExplored.getOrElse(token, 0) + 1
     formatTokenExplored += token -> visits
   }
 
-  def visit(token: Token): Unit = {
-    val visits = tokenExplored.getOrElse(token, 0) + 1
-    tokenExplored += token -> visits
-  }
-
-  def visit(tree: Tree): Unit = {
-    val visits = treeExplored.getOrElse(tree, 0) + 1
-    treeExplored += tree -> visits
-  }
 }
