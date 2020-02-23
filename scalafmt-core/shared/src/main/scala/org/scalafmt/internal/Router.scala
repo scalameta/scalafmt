@@ -762,10 +762,7 @@ class Router(formatOps: FormatOps) {
 
         val oneArgOneLine = OneArgOneLineSplit(formatToken)
 
-        val newlineMod: Modification =
-          if (newlines == 0 && isSingleLineComment(right)) Space
-          else if (right.is[T.LeftBrace]) NoSplit
-          else Newline
+        val newlineMod: Modification = NoSplit.orNL(right.is[T.LeftBrace])
 
         val defnSite = isDefnSite(leftOwner)
         val closeFormatToken = tokens(close)
@@ -957,11 +954,7 @@ class Router(formatOps: FormatOps) {
           case _ if isInfix =>
             Seq(
               // Do whatever the user did if infix.
-              Split(
-                if (newlines > 0) Newline
-                else Space,
-                0
-              )
+              Split(Space.orNL(newlines == 0), 0)
             )
           case _ =>
             val indent = leftOwner match {
@@ -1118,10 +1111,9 @@ class Router(formatOps: FormatOps) {
         val breakOnEveryDot = Policy(expire) {
           case Decision(t @ FormatToken(_, _: T.Dot, _), _)
               if chain.contains(t.meta.rightOwner) =>
-            val mod =
-              if (style.optIn.breaksInsideChains && t.newlinesBetween == 0)
-                NoSplit
-              else Newline
+            val mod = NoSplit.orNL(
+              style.optIn.breaksInsideChains && t.newlinesBetween == 0
+            )
             Seq(Split(mod, 1))
         }
         val exclude = getExcludeIf(expire)
@@ -1316,7 +1308,7 @@ class Router(formatOps: FormatOps) {
         val nlOnly = style.newlines.alwaysBeforeElseAfterCurlyIf ||
           !leftOwner.is[Term.Block] || !leftOwner.parent.forall(_ == rightOwner)
         Seq(
-          Split(if (nlOnly) Newline else Space, 0)
+          Split(Space.orNL(!nlOnly), 0)
         )
 
       case FormatToken(T.RightBrace(), T.KwYield(), _) =>

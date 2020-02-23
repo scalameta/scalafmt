@@ -946,9 +946,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
             (style.verticalMultiline.newlineAfterOpenParen && !isImplicitArgList && isDefinition) ||
             mixedParamsWithCtorModifier
 
-        val mod =
-          if (shouldAddNewline) Newline
-          else NoSplit
+        val mod = NoSplit.orNL(!shouldAddNewline)
 
         Seq(
           Split(mod, 0)
