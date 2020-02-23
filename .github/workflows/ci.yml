@@ -20,7 +20,8 @@ jobs:
       - run: 	
           # for GitOps tests	
           git config --global user.email "scalafmt@scalameta.org" && git config --global user.name "scalafmt"
-      - run: sbt -mem 2048 +tests/test
+      - run:
+          sbt -mem 2048 +tests/test
   docs:
     runs-on: ubuntu-latest
     steps:
