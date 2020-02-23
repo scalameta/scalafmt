@@ -25,7 +25,7 @@ case class OptimalToken(token: Token, killOnFail: Boolean = false)
 case class Split(
     modification: Modification,
     cost: Int,
-    ignoreIf: Boolean = false,
+    tag: SplitTag = SplitTag.Active,
     indents: Vector[Indent[Length]] = Vector.empty[Indent[Length]],
     policy: Policy = NoPolicy,
     optimalAt: Option[OptimalToken] = None
@@ -55,8 +55,25 @@ case class Split(
       else firstLine
   }
 
+  @inline
+  def isIgnored: Boolean = isTaggedFor(SplitTag.Ignored)
+
+  @inline
+  def isActive: Boolean = isTaggedFor(SplitTag.Active)
+
+  @inline
+  def isTaggedFor(tag: SplitTag): Boolean = this.tag == tag
+
+  @inline
+  def notIf(flag: Boolean): Split = onlyIf(!flag)
+
   def onlyIf(flag: Boolean): Split =
-    if (ignoreIf || flag) this else copy(ignoreIf = true)
+    if (flag || isIgnored) this else copy(tag = SplitTag.Ignored)
+
+  def onlyFor(tag: SplitTag): Split =
+    if (isIgnored) this
+    else if (isActive) copy(tag = tag)
+    else throw new UnsupportedOperationException("Multiple tags unsupported")
 
   def withOptimalToken(token: Option[Token]): Split = token match {
     case Some(token) => withOptimalToken(token)
@@ -101,7 +118,11 @@ case class Split(
       this.line.value == other.line.value && this.cost == other.cost
 
   override def toString = {
-    val prefix = if (ignoreIf) "!" else ""
+    val prefix = tag match {
+      case SplitTag.Ignored => "!"
+      case SplitTag.Active => ""
+      case _ => s"[$tag]"
+    }
     s"""$prefix$modification:${line.value}(cost=$cost, indents=$indentation, $policy)"""
   }
 }
@@ -109,6 +130,6 @@ case class Split(
 object Split {
 
   def ignored(implicit line: sourcecode.Line) =
-    Split(NoSplit, 0, ignoreIf = true)
+    Split(NoSplit, 0, tag = SplitTag.Ignored)
 
 }

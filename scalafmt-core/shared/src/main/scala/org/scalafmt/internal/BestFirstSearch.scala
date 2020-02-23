@@ -196,6 +196,7 @@ private class BestFirstSearch private (
             curr.policy
               .execute(Decision(splitToken, splits))
               .splits
+              .filter(_.isActive)
               .sortBy(_.cost)
           }
           var optimalNotFound = true
