@@ -88,34 +88,32 @@ case class Split(
   def withPolicy(newPolicy: Policy): Split = {
     if (policy != NoPolicy)
       throw new UnsupportedOperationException("Can't have two policies yet.")
-    copy(policy = newPolicy)
+    if (isIgnored) this else copy(policy = newPolicy)
   }
 
   def withPolicy(newPolicy: Option[Policy]): Split =
-    newPolicy.fold(this)(withPolicy)
+    if (isIgnored) this else newPolicy.fold(this)(withPolicy(_))
 
   def orElsePolicy(newPolicy: Policy): Split =
-    if (newPolicy.isEmpty) this
+    if (isIgnored || newPolicy.isEmpty) this
     else if (policy.isEmpty) copy(policy = newPolicy)
     else copy(policy = policy.orElse(newPolicy))
 
   def andThenPolicy(newPolicy: Policy): Split =
-    if (newPolicy.isEmpty) this
+    if (isIgnored || newPolicy.isEmpty) this
     else if (policy.isEmpty) copy(policy = newPolicy)
     else copy(policy = policy.andThen(newPolicy))
 
   def withPenalty(penalty: Int): Split =
-    copy(cost = cost + penalty)
+    if (isIgnored) this else copy(cost = cost + penalty)
 
   def withIndent(length: Length, expire: Token, expiresOn: ExpiresOn): Split =
     length match {
       case Num(0) => this
-      case _ => copy(indents = Indent(length, expire, expiresOn) +: indents)
+      case _ =>
+        if (isIgnored) this
+        else copy(indents = Indent(length, expire, expiresOn) +: indents)
     }
-
-  def sameSplit(other: Split): Boolean =
-    this.modification == other.modification &&
-      this.line.value == other.line.value && this.cost == other.cost
 
   override def toString = {
     val prefix = tag match {
