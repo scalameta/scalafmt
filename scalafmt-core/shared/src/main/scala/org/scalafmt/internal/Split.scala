@@ -75,23 +75,27 @@ case class Split(
     else if (isActive) copy(tag = tag)
     else throw new UnsupportedOperationException("Multiple tags unsupported")
 
-  def withOptimalToken(token: Option[Token]): Split = token match {
-    case Some(token) => withOptimalToken(token)
-    case _ => this
+  def withOptimalTokenOpt(
+      token: => Option[Token],
+      killOnFail: Boolean = false
+  ): Split =
+    withOptimalAt(token.map(OptimalToken(_, killOnFail)))
+
+  def withOptimalToken(token: => Token, killOnFail: Boolean = false): Split =
+    withOptimalAt(Some(OptimalToken(token, killOnFail)))
+
+  def withOptimalAt(optimalAt: => Option[OptimalToken]): Split = {
+    require(this.optimalAt.isEmpty)
+    if (isIgnored) this else copy(optimalAt = optimalAt)
   }
 
-  def withOptimalToken(token: Token, killOnFail: Boolean = false): Split = {
-    require(optimalAt.isEmpty)
-    copy(optimalAt = Some(OptimalToken(token, killOnFail)))
-  }
-
-  def withPolicy(newPolicy: Policy): Split = {
+  def withPolicy(newPolicy: => Policy): Split = {
     if (policy != NoPolicy)
       throw new UnsupportedOperationException("Can't have two policies yet.")
     if (isIgnored) this else copy(policy = newPolicy)
   }
 
-  def withPolicy(newPolicy: Option[Policy]): Split =
+  def withPolicyOpt(newPolicy: => Option[Policy]): Split =
     if (isIgnored) this else newPolicy.fold(this)(withPolicy(_))
 
   def orElsePolicy(newPolicy: Policy): Split =
