@@ -893,6 +893,26 @@ class Router(formatOps: FormatOps) {
             else isDefnSite(leftOwner) && !style.binPack.unsafeDefnSite
           } =>
         val close = matching(open)
+        val oneArgPerLineSplits =
+          if (!style.activeForEdition_2020_03) Seq.empty
+          else
+            (rightOwner match {
+              case _: Term.PartialFunction | Term.Block(
+                    List(_: Term.Function | _: Term.PartialFunction)
+                  ) =>
+                Seq(Split(Newline, 0))
+              case _ =>
+                val breakAfter =
+                  rhsOptimalToken(next(nextNonCommentSameLine(formatToken)))
+                val multiLine =
+                  newlinesOnlyBeforeClosePolicy(close)
+                    .orElse(decideNewlinesOnlyAfterToken(breakAfter))
+                Seq(
+                  Split(Newline, 0, policy = SingleLineBlock(close))
+                    .withOptimalToken(close, killOnFail = true),
+                  Split(Space, 1, policy = multiLine)
+                )
+            }).map(_.onlyFor(SplitTag.OneArgPerLine))
         def oneLineBody = open.pos.endLine == close.pos.startLine
         Seq(
           Split(Space, 0),
@@ -900,7 +920,7 @@ class Router(formatOps: FormatOps) {
             .onlyIf(newlines != 0 && oneLineBody)
             .withOptimalToken(close, killOnFail = true)
             .withPolicy(SingleLineBlock(close))
-        )
+        ) ++ oneArgPerLineSplits
       case FormatToken(_, _: T.LeftBrace, _) =>
         Seq(Split(Space, 0))
 
