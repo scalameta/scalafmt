@@ -42,16 +42,18 @@ class FormatTests
 
   def run(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
     implicit val loc: Position = t.loc
-    val runner = scalafmtRunner(t.style.runner).copy(parser = parse)
-    val obtained = Scalafmt.formatCode(
+    val debug = new Debug(onlyOne)
+    val runner = t.style.runner.copy(parser = parse)
+    val formatted = Scalafmt.formatCode(
       t.original,
-      t.style.copy(runner = runner),
+      t.style.copy(runner = scalafmtRunner(runner, debug)),
       filename = loc.filePathname
-    ) match {
+    )
+    debug.printTest()
+    val obtained = formatted match {
       case Formatted.Failure(e)
-          if t.style.onTestFailure.nonEmpty && e.getMessage.contains(
-            e.getMessage
-          ) =>
+          if t.style.onTestFailure.nonEmpty &&
+            e.getMessage.contains(t.style.onTestFailure) =>
         t.expected
       case Formatted.Failure(e: Incomplete) => e.formattedCode
       case Formatted.Failure(e: SearchStateExploded) =>
@@ -59,7 +61,7 @@ class FormatTests
         e.partialOutput
       case x => x.get
     }
-    debugResults += saveResult(t, obtained, onlyOne)
+    debugResults += saveResult(t, obtained, debug)
     if (t.style.rewrite.rules.isEmpty &&
       !t.style.assumeStandardLibraryStripMargin &&
       t.style.onTestFailure.isEmpty) {
@@ -71,7 +73,7 @@ class FormatTests
     val formattedAgain = Scalafmt
       .formatCode(
         obtained,
-        t.style.copy(runner = runner),
+        t.style.copy(runner = scalafmtRunner(runner, new Debug(false))),
         filename = loc.filePathname
       )
       .get
@@ -79,20 +81,12 @@ class FormatTests
     assertNoDiff(formattedAgain, obtained, "Idempotency violated")
     if (!onlyManual) {
       assertNoDiff(obtained, t.expected)
-      Debug.newTest()
     }
   }
 
   def testShouldRun(t: DiffTest): Boolean = !onlyOne || t.only
 
   override def afterAll(configMap: ConfigMap): Unit = {
-    val splits = Debug.enqueuedSplits
-      .groupBy(_.line.value)
-      .toVector
-      .sortBy(-_._2.size)
-      .map(x => s"Split(line=${x._1}, count=${x._2.size})")
-      .take(3)
-    logger.debug(splits.mkString(", "))
     logger.debug(s"Total explored: ${Debug.explored}")
     val results = debugResults.result()
     // TODO(olafur) don't block printing out test results.

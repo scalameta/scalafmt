@@ -27,18 +27,19 @@ import org.scalactic.source.Position
 trait HasTests extends FormatAssertions {
   import LoggerOps._
 
-  def scalafmtRunner(base: ScalafmtRunner): ScalafmtRunner = base.copy(
+  def scalafmtRunner(sr: ScalafmtRunner, dg: Debug): ScalafmtRunner = sr.copy(
     debug = true,
     maxStateVisits = 150000,
     eventCallback = {
-      case CreateFormatOps(ops) => Debug.formatOps = ops
+      case CreateFormatOps(ops) => dg.formatOps = ops
       case explored: Explored if explored.n % 10000 == 0 =>
         logger.elem(explored)
-      case Enqueue(split) => Debug.enqueued(split)
-      case evt: CompleteFormat => Debug.completed(evt)
+      case Enqueue(split) => dg.enqueued(split)
+      case evt: CompleteFormat => dg.completed(evt)
       case _ =>
     }
   )
+
   lazy val debugResults = mutable.ArrayBuilder.make[Result]
   val testDir = new File(getClass.getClassLoader.getResource("").toURI).getAbsolutePath
 
@@ -137,18 +138,17 @@ trait HasTests extends FormatAssertions {
       case style => throw UnknownStyle(style)
     }
 
-  def saveResult(t: DiffTest, obtained: String, onlyOne: Boolean): Result = {
-    val visitedStates = Debug.exploredInTest
-    val output = getFormatOutput(t.style, onlyOne)
+  def saveResult(t: DiffTest, obtained: String, debug: Debug): Result = {
+    val output = getFormatOutput(t.style, debug)
     val obtainedHtml = Report.mkHtml(output, t.style)
     Result(
       t,
       obtained,
       obtainedHtml,
       output,
-      Debug.formatTokenExplored.max,
-      visitedStates,
-      Debug.elapsedNs
+      debug.formatTokenExplored.max,
+      debug.explored,
+      debug.elapsedNs
     )
   }
 
@@ -156,7 +156,8 @@ trait HasTests extends FormatAssertions {
 
   def defaultRun(t: DiffTest, parse: Parse[_ <: Tree]): Unit = {
     implicit val loc: Position = t.loc
-    val runner = scalafmtRunner(t.style.runner).copy(parser = parse)
+    val debug = new Debug(false)
+    val runner = scalafmtRunner(t.style.runner, debug).copy(parser = parse)
     val obtained = Scalafmt
       .formatCode(
         t.original,
@@ -175,19 +176,19 @@ trait HasTests extends FormatAssertions {
 
   def getFormatOutput(
       style: ScalafmtConfig,
-      onlyOne: Boolean
+      debug: Debug
   ): Array[FormatOutput] = {
     val builder = mutable.ArrayBuilder.make[FormatOutput]
-    val locations = new FormatWriter(Debug.formatOps)
-      .getFormatLocations(Debug.state, debug = onlyOne)
+    val locations = new FormatWriter(debug.formatOps)
+      .getFormatLocations(debug.state, debug = debug.verbose)
     locations.iterate.foreach { entry =>
       val token = entry.curr.formatToken
       builder += FormatOutput(
         token.left.syntax + entry.getWhitespace(0),
-        Debug.formatTokenExplored(token.meta.idx)
+        debug.formatTokenExplored(token.meta.idx)
       )
     }
-    if (onlyOne) {
+    if (debug.verbose) {
       locations.locations.lastOption.foreach { location =>
         logger.debug(s"Total cost: ${location.state.cost}")
       }
