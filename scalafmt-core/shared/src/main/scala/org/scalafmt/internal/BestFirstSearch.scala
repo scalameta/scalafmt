@@ -247,7 +247,7 @@ private class BestFirstSearch private (
   }
 
   private def complete(state: State): Unit =
-    runner.event(CompleteFormat(explored, state))
+    runner.event(CompleteFormat(explored, state, visits))
 
   def getBestPath: SearchResult = {
     val state = {

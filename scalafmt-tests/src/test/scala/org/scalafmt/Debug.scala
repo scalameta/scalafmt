@@ -4,8 +4,8 @@ import scala.collection.mutable
 
 import java.util.concurrent.TimeUnit
 
+import org.scalafmt.config.FormatEvent.CompleteFormat
 import org.scalafmt.internal.FormatOps
-import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.Split
 import org.scalafmt.internal.State
 
@@ -16,8 +16,7 @@ import org.scalafmt.internal.State
   */
 object Debug {
 
-  val formatTokenExplored =
-    mutable.Map.empty[FormatToken, Int].withDefaultValue(0)
+  var formatTokenExplored: IndexedSeq[Int] = _
   val enqueuedSplits = mutable.Set.empty[Split]
   var formatOps: FormatOps = _
   var lastTestExplored = 0
@@ -38,21 +37,15 @@ object Debug {
 
   def exploredInTest = explored - lastTestExplored
 
-  def maxVisitedToken: Int = {
-    if (tokens.isEmpty) 0
-    else {
-      val maxTok = tokens.maxBy(x => formatTokenExplored.getOrElse(x, 0))
-      formatTokenExplored.getOrElse(maxTok, -1)
-    }
-  }
-
   def enqueued(split: Split): Unit = {
     enqueuedSplits += split
   }
 
-  def visit(token: FormatToken): Unit = {
-    val visits = formatTokenExplored.getOrElse(token, 0) + 1
-    formatTokenExplored += token -> visits
+  def completed(event: CompleteFormat): Unit = {
+    explored += event.totalExplored
+    Debug.explored += event.totalExplored
+    formatTokenExplored = event.visits
+    state = event.finalState
   }
 
 }

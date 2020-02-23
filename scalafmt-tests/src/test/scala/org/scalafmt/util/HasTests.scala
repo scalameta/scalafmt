@@ -32,13 +32,10 @@ trait HasTests extends FormatAssertions {
     maxStateVisits = 150000,
     eventCallback = {
       case CreateFormatOps(ops) => Debug.formatOps = ops
-      case VisitToken(tok) => Debug.visit(tok)
       case explored: Explored if explored.n % 10000 == 0 =>
         logger.elem(explored)
       case Enqueue(split) => Debug.enqueued(split)
-      case CompleteFormat(explored, state) =>
-        Debug.explored += explored
-        Debug.state = state
+      case evt: CompleteFormat => Debug.completed(evt)
       case _ =>
     }
   )
@@ -149,7 +146,7 @@ trait HasTests extends FormatAssertions {
       obtained,
       obtainedHtml,
       output,
-      Debug.maxVisitedToken,
+      Debug.formatTokenExplored.max,
       visitedStates,
       Debug.elapsedNs
     )
@@ -187,7 +184,7 @@ trait HasTests extends FormatAssertions {
       val token = entry.curr.formatToken
       builder += FormatOutput(
         token.left.syntax + entry.getWhitespace(0),
-        Debug.formatTokenExplored(token)
+        Debug.formatTokenExplored(token.meta.idx)
       )
     }
     if (onlyOne) {
