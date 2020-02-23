@@ -1,0 +1,61 @@
+name: CI
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        java: [openjdk@1.8, openjdk@1.11]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: olafurpg/setup-scala@v6
+        with:
+          java-version: ${{ matrix.java }}
+      - run: 	
+          # for GitOps tests	
+          git config --global user.email "scalafmt@scalameta.org" && git config --global user.name "scalafmt"
+      - run: sbt +tests/test
+        env:
+          SBT_OPTS: "-Xmx2G"
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: olafurpg/setup-scala@v6
+      - run: sbt ++2.12.8 docs/run
+  formatting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: olafurpg/setup-scala@v6
+      - run: ./scalafmt --test
+  native-image:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macOS-latest, ubuntu-latest]
+        include:
+          - os: macOS-latest
+            url: https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-20.0.0/graalvm-ce-java11-darwin-amd64-20.0.0.tar.gz
+            artifact: scalafmt-macos
+          - os: ubuntu-latest
+            url: https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-20.0.0/graalvm-ce-java11-linux-amd64-20.0.0.tar.gz
+            artifact: scalafmt-linux
+    steps:
+      - uses: actions/checkout@v2
+      - uses: olafurpg/setup-scala@v6
+      - run: jabba install graal-custom@20.0=tgz+${{ matrix.url }}
+      - run: bin/build-native-image.sh
+        env:
+          CI: true
+      - uses: actions/upload-artifact@master
+        with:
+          name: ${{ matrix.artifact }}
+          path: scalafmt

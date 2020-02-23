@@ -1,33 +1,11 @@
 language: scala
 
 stages:
-  - name: test
   - name: release
     if: (branch = master AND type = push) OR (tag IS present)
 
 jobs:
   include:
-    - env: TEST="scalafmt"
-      jdk: openjdk8
-      script: ./scalafmt --test
-    - env: TEST="2.11"
-      jdk: openjdk8
-      script: sbt ci-test
-    - env: TEST="2.12"
-      jdk: openjdk8
-      script: sbt ci-test
-    - env: TEST="2.13"
-      jdk: openjdk8
-      script: sbt ci-test
-    - env: TEST="2.11"
-      jdk: openjdk11
-      script: sbt ci-test
-    - env: TEST="2.12"
-      jdk: openjdk11
-      script: sbt ci-test
-    - env: TEST="2.13"
-      jdk: openjdk11
-      script: sbt ci-test
     - stage: release
       jdk: openjdk8
       script: sbt ci-release docs/docusaurusPublishGhpages
