@@ -23,7 +23,7 @@ trait DiffAssertions extends AnyFunSuiteLike {
   )(implicit pos: Position)
       extends TestFailedException(
         (_: StackDepthException) =>
-          Some(title + "\n" + error2message(obtained, expected)),
+          Some(title + "\n" + error2message(obtained, diff)),
         None: Option[Throwable],
         pos
       ) {
@@ -38,7 +38,7 @@ trait DiffAssertions extends AnyFunSuiteLike {
       new StackTraceElement(pos.fileName, "", "", 0) +: super.getStackTrace
   }
 
-  def error2message(obtained: String, expected: String): String = {
+  def error2message(obtained: String, diff: String): String = {
     val sb = new StringBuilder
     if (obtained.length < 1000) sb.append(s"""
          #${header("Obtained")}
@@ -46,27 +46,27 @@ trait DiffAssertions extends AnyFunSuiteLike {
          """.stripMargin('#'))
     sb.append(s"""
          #${header("Diff")}
-         #${trailingSpace(compareContents(obtained, expected))}
+         #${trailingSpace(diff)}
          """.stripMargin('#'))
     sb.toString()
   }
 
   def assertNoDiff(obtained: String, expected: String, title: String = "")(
       implicit pos: Position
-  ): Boolean = {
-    val result = compareContents(obtained, expected)
-    if (result.isEmpty) {
-      assert(
-        obtained.length == expected.length,
-        ". Is there a redundant/missing trailing newline?"
-      )
-      true
-    } else throw DiffFailure(title, expected, obtained, result)
+  ): Unit = {
+    val diff = compareContents(expected, obtained)
+    if (diff.nonEmpty)
+      throw DiffFailure(title, expected, obtained, diff)
+    assert(
+      obtained.length == expected.length,
+      ". Is there a redundant/missing trailing newline?"
+    )
   }
 
   def assertNoDiff(file: AbsoluteFile, expected: String)(
       implicit pos: Position
-  ): Boolean = assertNoDiff(FileOps.readFile(file.jfile), expected)
+  ): Unit =
+    assertNoDiff(FileOps.readFile(file.jfile), expected)
 
   def trailingSpace(str: String): String = str.replaceAll(" \n", "∙\n")
 
