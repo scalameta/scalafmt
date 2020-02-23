@@ -887,21 +887,22 @@ class Router(formatOps: FormatOps) {
           Split(NoSplit, 0)
         )
       // non-statement starting curly brace
-      case FormatToken(left, open @ T.LeftBrace(), _) =>
+      case FormatToken(_: T.Comma, open: T.LeftBrace, _)
+          if !style.poorMansTrailingCommasInConfigStyle && {
+            if (isCallSite(leftOwner)) !style.binPack.unsafeCallSite
+            else isDefnSite(leftOwner) && !style.binPack.unsafeDefnSite
+          } =>
         val close = matching(open)
-        val isComma = left.is[T.Comma]
-        val bodyHasNewlines = if (isComma) {
-          open.pos.endLine != close.pos.startLine
-        } else {
-          true
-        }
+        def oneLineBody = open.pos.endLine == close.pos.startLine
         Seq(
           Split(Space, 0),
           Split(Newline, 0)
-            .onlyIf(isComma && newlines != 0 && !bodyHasNewlines)
+            .onlyIf(newlines != 0 && oneLineBody)
             .withOptimalToken(close, killOnFail = true)
             .withPolicy(SingleLineBlock(close))
         )
+      case FormatToken(_, _: T.LeftBrace, _) =>
+        Seq(Split(Space, 0))
 
       // Delim
       case FormatToken(_, T.Comma(), _) =>
