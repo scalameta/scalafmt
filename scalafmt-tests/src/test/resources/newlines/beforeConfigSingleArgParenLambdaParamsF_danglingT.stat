@@ -719,7 +719,8 @@ object A {
     x.map(
       _.y(
         abcd,
-        { case ((abcdefghij, aswbasdfaw), asfda) => aswdf }, {
+        { case ((abcdefghij, aswbasdfaw), asfda) => aswdf },
+        {
           case (abcdefghij, sadfasdass) =>
             (
               asdfa.sadvfs(abcdefghij).get,
@@ -748,7 +749,8 @@ object A {
     x.map(
       _.y(
         abcd,
-        { { case ((abcdefghij, aswbasdfaw), asfda) => aswdf } }, {
+        { { case ((abcdefghij, aswbasdfaw), asfda) => aswdf } },
+        {
           {
             case (abcdefghij, sadfasdass) =>
               (
@@ -779,12 +781,12 @@ object A {
     x.map(
       _.y(
         abcd,
-        { case_abcdefghij_aswbasdfaw_asfda => aswdf }, {
-          case_abcdefghij_sadfasdass =>
-            (
-              asdfa.sadvfs(abcdefghij).get,
-              asdfasdfasfdasda.asdfas(asdfasdaas).get
-            )
+        { case_abcdefghij_aswbasdfaw_asfda => aswdf },
+        { case_abcdefghij_sadfasdass =>
+          (
+            asdfa.sadvfs(abcdefghij).get,
+            asdfasdfasfdasda.asdfas(asdfasdaas).get
+          )
         },
         foo
       )

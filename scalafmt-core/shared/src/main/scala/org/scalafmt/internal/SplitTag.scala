@@ -22,4 +22,6 @@ object SplitTag {
   case object Active extends Base
   case object Ignored extends Base
 
+  case object OneArgPerLine extends Custom
+
 }

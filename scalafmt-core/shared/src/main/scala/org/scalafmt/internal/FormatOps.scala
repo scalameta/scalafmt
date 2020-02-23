@@ -389,10 +389,14 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       case Decision(t @ FormatToken(_: T.Comma, right, _), splits)
           if owner == t.meta.leftOwner &&
             // TODO(olafur) what the right { decides to be single line?
-            !right.is[T.LeftBrace] &&
             // If comment is bound to comma, see unit/Comment.
             (!right.is[T.Comment] || t.newlinesBetween != 0) =>
-        splits.filter(_.modification.isNewline)
+        if (!right.is[T.LeftBrace])
+          splits.filter(_.modification.isNewline)
+        else if (!style.activeForEdition_2020_03)
+          splits
+        else
+          SplitTag.OneArgPerLine.activateOnly(splits)
     }
   }
 
