@@ -15,6 +15,9 @@ object FormatEvent {
   case class VisitToken(formatToken: FormatToken) extends FormatEvent
   case class Explored(n: Int, depth: Int, queueSize: Int) extends FormatEvent
   case class Enqueue(split: Split) extends FormatEvent
-  case class CompleteFormat(totalExplored: Int, finalState: State)
-      extends FormatEvent
+  case class CompleteFormat(
+      totalExplored: Int,
+      finalState: State,
+      visits: IndexedSeq[Int]
+  ) extends FormatEvent
 }
