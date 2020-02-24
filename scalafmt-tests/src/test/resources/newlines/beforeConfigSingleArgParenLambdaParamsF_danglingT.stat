@@ -791,3 +791,62 @@ object A {
     )
   }
 }
+<<< multiple block arguments 1
+object a {
+ b(
+        { _ + _ }, { _ - _ }, { _ * _ },
+         { _ * _ }, {
+          _ / _
+        }, { (a, b) => b }, { _ % _ }, { _ pow _ })
+}
+>>>
+object a {
+  b({ _ + _ }, { _ - _ }, { _ * _ }, { _ * _ }, {
+    _ / _
+  }, { (a, b) => b }, { _ % _ }, { _ pow _ })
+}
+<<< multiple block arguments 2
+@expand
+@expand.valify
+implicit def v_s_Op[
+    @expand.args(Int, Double, Float, Long) T,
+    @expand.args(
+      OpAdd,
+      OpSub,
+      OpMulScalar,
+      OpMulMatrix,
+      OpDiv,
+      OpSet,
+      OpMod,
+      OpPow
+    ) Op <: OpType
+](
+    implicit @expand.sequence[Op]({ _ + _ }, { _ - _ }, { _ * _ }, { _ * _ }, {
+     _ / _ }, { (a, b) => b }, { _ % _ }, { _ pow _ })
+    op: Op.Impl2[T, T, T],
+    @expand.sequence[T](0, 0.0, 0.0f, 0L)
+    zero: T
+): BinaryRegistry[Vector[T], T, Op.type, Vector[T]] = null
+>>>
+@expand
+@expand.valify
+implicit def v_s_Op[
+    @expand.args(Int, Double, Float, Long) T,
+    @expand.args(
+      OpAdd,
+      OpSub,
+      OpMulScalar,
+      OpMulMatrix,
+      OpDiv,
+      OpSet,
+      OpMod,
+      OpPow
+    ) Op <: OpType
+](
+    implicit @expand.sequence[Op]({ _ + _ }, { _ - _ }, { _ * _ }, { _ * _ }, {
+      _ / _
+    }, { (a, b) => b }, { _ % _ }, { _ pow _ })
+    op: Op.Impl2[T, T, T],
+    @expand.sequence[T](0, 0.0, 0.0f, 0L)
+    zero: T
+): BinaryRegistry[Vector[T], T, Op.type, Vector[T]] = null
