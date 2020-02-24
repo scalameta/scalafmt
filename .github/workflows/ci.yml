@@ -22,7 +22,7 @@ jobs:
           git config --global user.email "scalafmt@scalameta.org" && git config --global user.name "scalafmt"
       - run: sbt +tests/test
         env:
-          SBT_OPTS: "-Xmx2G -XX:MaxMetaspaceSize=512m"
+          SBT_OPTS: "-Xms1G -Xmx3G -XX:MaxMetaspaceSize=512M -XX:ReservedCodeCacheSize=250M -XX:+TieredCompilation -XX:-UseGCOverheadLimit -XX:+CMSClassUnloadingEnabled"
   docs:
     runs-on: ubuntu-latest
     steps:
