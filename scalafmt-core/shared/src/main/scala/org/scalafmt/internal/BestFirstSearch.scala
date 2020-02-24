@@ -253,7 +253,7 @@ private class BestFirstSearch private (
     val state = {
       def run = shortestPath(State.start, tree.tokens.last)
       val state = run
-      if (null != state) state
+      if (null != state || keepSlowStates) state
       else {
         best.clear()
         keepSlowStates = true
