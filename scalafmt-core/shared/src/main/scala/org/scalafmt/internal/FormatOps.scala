@@ -297,17 +297,22 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     (tok.right.is[T.Comment] && tok.hasBreak && startsStatement(next(tok)))
   }
 
-  def parensRange(open: Token): Range =
-    Range(open.start, matching(open).end)
+  def parensRange(token: Token): Option[Range] =
+    matchingOpt(token).map { other =>
+      if (token.start < other.end)
+        Range(token.start, other.end)
+      else
+        Range(other.start, token.end)
+    }
 
   def getExcludeIf(
       end: Token,
       cond: Token => Boolean = _.is[T.RightBrace]
   ): Set[Range] = {
     if (cond(end)) // allow newlines in final {} block
-      Set(Range(matching(end).start, end.end))
-    else Set.empty[Range]
-  }
+      parensRange(end)
+    else None
+  }.toSet
 
   def insideBlockRanges[A](start: FormatToken, end: Token)(
       implicit classifier: Classifier[Token, A]
@@ -319,7 +324,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       end: Token,
       matches: Token => Boolean
   ): Set[Range] =
-    insideBlock(start, end, matches).map(parensRange)
+    insideBlock(start, end, matches).flatMap(parensRange)
 
   def insideBlock[A](start: FormatToken, end: Token)(
       implicit classifier: Classifier[Token, A]
