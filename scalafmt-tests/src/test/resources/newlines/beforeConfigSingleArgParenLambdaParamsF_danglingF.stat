@@ -690,9 +690,16 @@ object a {
 }
 >>>
 object a {
-  b({ _ + _ }, { _ - _ }, { _ * _ }, { _ * _ }, {
-    _ / _
-  }, { (a, b) => b }, { _ % _ }, { _ pow _ })
+  b(
+    { _ + _ },
+    { _ - _ },
+    { _ * _ },
+    { _ * _ }, {
+      _ / _
+    },
+    { (a, b) => b },
+    { _ % _ },
+    { _ pow _ })
 }
 <<< multiple block arguments 2
 @expand
@@ -732,9 +739,16 @@ implicit def v_s_Op[
       OpPow
     ) Op <: OpType
 ](
-    implicit @expand.sequence[Op]({ _ + _ }, { _ - _ }, { _ * _ }, { _ * _ }, {
-      _ / _
-    }, { (a, b) => b }, { _ % _ }, { _ pow _ })
+    implicit @expand.sequence[Op](
+      { _ + _ },
+      { _ - _ },
+      { _ * _ },
+      { _ * _ }, {
+        _ / _
+      },
+      { (a, b) => b },
+      { _ % _ },
+      { _ pow _ })
     op: Op.Impl2[T, T, T],
     @expand.sequence[T](0, 0.0, 0.0f, 0L)
     zero: T

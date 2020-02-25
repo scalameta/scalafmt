@@ -49,28 +49,30 @@ val createAsStat = if (semantics.asInstanceOfs == Unchecked) {
 val createAsStat = if (semantics.asInstanceOfs == Unchecked) {
   js.Skip()
 } else {
-  envFieldDef("as",
-              className,
-              js.Function(List(objParam), js.Return(className match {
-                case Definitions.ObjectClass => obj
-                case _ =>
-                  val throwError = {
-                    genCallHelper("throwClassCastException",
-                                  obj,
-                                  js.StringLiteral(displayName))
-                  }
-                  if (className == RuntimeNothingClass) {
-                    // Always throw for .asInstanceOf[Nothing], even for null
-                    throwError
-                  } else {
-                    js.If(js.Apply(envField("is", className), List(obj)) ||
-                            (obj === js.Null()), {
-                            obj
-                          }, {
-                            throwError
-                          })
-                  }
-              })))
+  envFieldDef(
+      "as",
+      className,
+      js.Function(List(objParam),
+                  js.Return(className match {
+                    case Definitions.ObjectClass => obj
+                    case _ =>
+                      val throwError = {
+                        genCallHelper("throwClassCastException",
+                                      obj,
+                                      js.StringLiteral(displayName))
+                      }
+                      if (className == RuntimeNothingClass) {
+                        // Always throw for .asInstanceOf[Nothing], even for null
+                        throwError
+                      } else {
+                        js.If(js.Apply(envField("is", className), List(obj)) ||
+                                (obj === js.Null()), {
+                                obj
+                              }, {
+                                throwError
+                              })
+                      }
+                  })))
 }
 <<< processOptions
   def processOptions(): Unit = {
@@ -202,52 +204,54 @@ options.testFilter match {
             callStatement
           })(jstpe.AnyType)
 >>>
-callStatement = js.If(genIsInstanceOf(callTrg, rtClass.tpe), {
-  if (implMethodSym.owner == ObjectClass) {
-    // If the method is defined on Object, we can call it normally.
-    genApplyMethod(callTrg, implMethodSym, arguments)
-  } else {
-    if (rtClass == StringClass) {
-      val (rtModuleClass, methodIdent) = encodeRTStringMethodSym(implMethodSym)
-      val retTpe = implMethodSym.tpe.resultType
-      val castCallTrg = fromAny(callTrg, StringClass.toTypeConstructor)
-      val rawApply = genApplyMethod(genLoadModule(rtModuleClass),
-                                    methodIdent,
-                                    castCallTrg :: arguments,
-                                    toIRType(retTpe))
-      // Box the result of the implementing method if required
-      if (isPrimitiveValueType(retTpe))
-        makePrimitiveBox(rawApply, retTpe)
-      else
-        rawApply
-    } else {
-      val reflBoxClassPatched = {
-
-        def isIntOrLongKind(kind: TypeKind) = kind match {
-          case _: INT | LONG => true
-          case _ => false
-        }
-        if (rtClass == BoxedDoubleClass &&
-            toTypeKind(implMethodSym.tpe.resultType) == DoubleKind &&
-            isIntOrLongKind(toTypeKind(sym.tpe.resultType))) {
-          // This must be an Int, and not a Double
-          IntegerReflectiveCallClass
+callStatement = js.If(
+    genIsInstanceOf(callTrg, rtClass.tpe), {
+      if (implMethodSym.owner == ObjectClass) {
+        // If the method is defined on Object, we can call it normally.
+        genApplyMethod(callTrg, implMethodSym, arguments)
+      } else {
+        if (rtClass == StringClass) {
+          val (rtModuleClass, methodIdent) =
+            encodeRTStringMethodSym(implMethodSym)
+          val retTpe = implMethodSym.tpe.resultType
+          val castCallTrg = fromAny(callTrg, StringClass.toTypeConstructor)
+          val rawApply = genApplyMethod(genLoadModule(rtModuleClass),
+                                        methodIdent,
+                                        castCallTrg :: arguments,
+                                        toIRType(retTpe))
+          // Box the result of the implementing method if required
+          if (isPrimitiveValueType(retTpe))
+            makePrimitiveBox(rawApply, retTpe)
+          else
+            rawApply
         } else {
-          reflBoxClass
+          val reflBoxClassPatched = {
+
+            def isIntOrLongKind(kind: TypeKind) = kind match {
+              case _: INT | LONG => true
+              case _ => false
+            }
+            if (rtClass == BoxedDoubleClass &&
+                toTypeKind(implMethodSym.tpe.resultType) == DoubleKind &&
+                isIntOrLongKind(toTypeKind(sym.tpe.resultType))) {
+              // This must be an Int, and not a Double
+              IntegerReflectiveCallClass
+            } else {
+              reflBoxClass
+            }
+          }
+          val castCallTrg =
+            fromAny(callTrg,
+                    reflBoxClassPatched.primaryConstructor.tpe.params.head.tpe)
+          val reflBox = genNew(reflBoxClassPatched,
+                               reflBoxClassPatched.primaryConstructor,
+                               List(castCallTrg))
+          genApplyMethod(reflBox, proxyIdent, arguments, jstpe.AnyType)
         }
       }
-      val castCallTrg =
-        fromAny(callTrg,
-                reflBoxClassPatched.primaryConstructor.tpe.params.head.tpe)
-      val reflBox = genNew(reflBoxClassPatched,
-                           reflBoxClassPatched.primaryConstructor,
-                           List(castCallTrg))
-      genApplyMethod(reflBox, proxyIdent, arguments, jstpe.AnyType)
-    }
-  }
-}, { // else
-  callStatement
-})(jstpe.AnyType)
+    }, { // else
+      callStatement
+    })(jstpe.AnyType)
 <<< Infinite recursion?
         val ctorParamDefs = usedCtorParams map { p =>
           // in the apply method's context
@@ -373,30 +377,43 @@ val createIsArrayOfStat = {
   envFieldDef(
       "isArrayOf",
       className,
-      js.Function(List(objParam, depthParam), className match {
-        case Definitions.ObjectClass =>
-          val dataVarDef = genLet(Ident("data"), mutable = false, {
-            obj && (obj DOT "$classData")
-          })
-          val data = dataVarDef.ref
-          js.Block(dataVarDef, js.If(!data, {
-            js.Return(js.BooleanLiteral(false))
-          }, {
-            val arrayDepthVarDef =
-              genLet(Ident("arrayDepth"), mutable = false, {
-                (data DOT "arrayDepth") || js.IntLiteral(0)
-              })
-            val arrayDepth = arrayDepthVarDef.ref
-            js.Block(arrayDepthVarDef, js.Return {
-              // Array[A] </: Array[Array[A]]
-              !js.BinaryOp(JSBinaryOp.<, arrayDepth, depth) &&
-              (// Array[Array[A]] <: Array[Object]
-              js.BinaryOp(JSBinaryOp.>, arrayDepth, depth) ||
-              // Array[Int] </: Array[Object]
-              !genIdentBracketSelect(data DOT "arrayBase", "isPrimitive"))
-            })
+      js.Function(
+          List(objParam, depthParam),
+          className match {
+            case Definitions.ObjectClass =>
+              val dataVarDef = genLet(Ident("data"),
+                                      mutable = false, {
+                                        obj && (obj DOT "$classData")
+                                      })
+              val data = dataVarDef.ref
+              js.Block(dataVarDef,
+                       js.If(!data, {
+                               js.Return(js.BooleanLiteral(false))
+                             }, {
+                               val arrayDepthVarDef =
+                                 genLet(Ident("arrayDepth"),
+                                        mutable = false, {
+                                          (data DOT "arrayDepth") || js
+                                            .IntLiteral(0)
+                                        })
+                               val arrayDepth = arrayDepthVarDef.ref
+                               js.Block(arrayDepthVarDef,
+                                        js.Return {
+                                          // Array[A] </: Array[Array[A]]
+                                          !js.BinaryOp(JSBinaryOp.<,
+                                                       arrayDepth,
+                                                       depth) &&
+                                          (// Array[Array[A]] <: Array[Object]
+                                          js.BinaryOp(JSBinaryOp.>,
+                                                      arrayDepth,
+                                                      depth) ||
+                                          // Array[Int] </: Array[Object]
+                                          !genIdentBracketSelect(
+                                              data DOT "arrayBase",
+                                              "isPrimitive"))
+                                        })
+                             }))
           }))
-      }))
 }
 <<< js.Return
                 js.Block(
@@ -412,15 +429,16 @@ val createIsArrayOfStat = {
                   })
 
 >>>
-js.Block(arrayDepthVarDef, js.Return {
-  // Array[A] </: Array[Array[A]]
-  !js.BinaryOp(JSBinaryOp.<, arrayDepth, depth) && (
-      // Array[Array[A]] <: Array[Object]
-      js.BinaryOp(JSBinaryOp.>, arrayDepth, depth) ||
-      // Array[Int] </: Array[Object]
-      !genIdentBracketSelect(data DOT "arrayBase", "isPrimitive")
-  )
-})
+js.Block(arrayDepthVarDef,
+         js.Return {
+           // Array[A] </: Array[Array[A]]
+           !js.BinaryOp(JSBinaryOp.<, arrayDepth, depth) && (
+               // Array[Array[A]] <: Array[Object]
+               js.BinaryOp(JSBinaryOp.>, arrayDepth, depth) ||
+               // Array[Int] </: Array[Object]
+               !genIdentBracketSelect(data DOT "arrayBase", "isPrimitive")
+           )
+         })
 <<< Js.Function
 js.Function(List(objParam, depthParam), js.Return {
                     js.If(

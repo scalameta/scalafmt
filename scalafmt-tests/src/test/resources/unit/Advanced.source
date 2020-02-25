@@ -23,10 +23,10 @@
 }
 >>>
 @foobar("annot", {
-  val x = 2
-  val y = 2 // y=2
-  x + y
-})
+          val x = 2
+          val y = 2 // y=2
+          x + y
+        })
 object a extends b with c {
 
   def foo[T: Int#Double#Triple,

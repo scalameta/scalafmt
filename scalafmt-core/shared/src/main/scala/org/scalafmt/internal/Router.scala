@@ -707,22 +707,24 @@ class Router(formatOps: FormatOps) {
         // parens furthest to the right.
         val lhsPenalty = treeDepth(lhs)
 
+        // XXX: sometimes we have zero args, so multipleArgs != !singleArgument
+        val singleArgument = args.length == 1
+        val multipleArgs = args.length > 1
+        val notTooManyArgs = multipleArgs && args.length <= 100
+
         val isBracket = open.is[T.LeftBracket]
         val bracketCoef = if (isBracket) Constants.BracketPenalty else 1
 
         val nestedPenalty = nestedApplies(leftOwner) + lhsPenalty
         val exclude =
           if (isBracket) insideBlock(tok, close, _.is[T.LeftBracket])
+          else if (style.activeForEdition_2020_03 && multipleArgs)
+            Set.empty[Token]
           else
             insideBlock(tok, close, x => x.is[T.LeftBrace])
         val excludeRanges = exclude.map(parensRange)
 
         val indent = getApplyIndent(leftOwner)
-
-        // XXX: sometimes we have zero args, so multipleArgs != !singleArgument
-        val singleArgument = args.length == 1
-        val multipleArgs = args.length > 1
-        val notTooManyArgs = multipleArgs && args.length <= 100
 
         def insideBraces(t: FormatToken): Boolean =
           excludeRanges.exists(_.contains(t.left.start))

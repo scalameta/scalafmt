@@ -93,10 +93,12 @@
 {
   {
     def bindingInfoWithFields(style: BindingStyle) =
-      logger.trace("Looking for fields with style %s".format(style), (for {
-        field <- fields;
-        bindingInfo <- field.binding if bindingInfo.bindingStyle == style
-      } yield (bindingInfo, field)).toList)
+      logger.trace(
+          "Looking for fields with style %s".format(style),
+          (for {
+            field <- fields;
+            bindingInfo <- field.binding if bindingInfo.bindingStyle == style
+          } yield (bindingInfo, field)).toList)
   }
 }
 <<< indent too low
@@ -136,11 +138,12 @@
    case name => CPathField(name)
  }) :: acc)
 >>>
-parse0(tail, (head match {
-  case "[*]" => CPathArray
-  case IndexPattern(index) => CPathIndex(index.toInt)
-  case name => CPathField(name)
-}) :: acc)
+parse0(tail,
+       (head match {
+         case "[*]" => CPathArray
+         case IndexPattern(index) => CPathIndex(index.toInt)
+         case name => CPathField(name)
+       }) :: acc)
 <<< #394 this sucks but so does your tuple
 {{
     (ref.copy(selector = (prefix \ ref.selector)),
@@ -155,13 +158,14 @@ parse0(tail, (head match {
 >>>
 {
   {
-    (ref.copy(selector = (prefix \ ref.selector)), (ref.ctype match {
-      case CString => ArrayStrColumn.empty(sliceSize)
-      case CBoolean => ArrayBoolColumn.empty()
-      case CArrayType(elemType) =>
-        ArrayHomogeneousArrayColumn.empty(sliceSize)(elemType)
-      case CUndefined => sys.error("CUndefined cannot be serialized")
-    }))
+    (ref.copy(selector = (prefix \ ref.selector)),
+     (ref.ctype match {
+       case CString => ArrayStrColumn.empty(sliceSize)
+       case CBoolean => ArrayBoolColumn.empty()
+       case CArrayType(elemType) =>
+         ArrayHomogeneousArrayColumn.empty(sliceSize)(elemType)
+       case CUndefined => sys.error("CUndefined cannot be serialized")
+     }))
   }
 }
 <<< #394 just use variable, it's fine
@@ -197,11 +201,12 @@ val second =
         case _ => 2
       }))
 >>>
-assertEquals(1, ((NoContext: Any) match {
-  case that: AnyRef if this eq that => 0
-  case NoContext => 1
-  case _ => 2
-}))
+assertEquals(1,
+             ((NoContext: Any) match {
+               case that: AnyRef if this eq that => 0
+               case NoContext => 1
+               case _ => 2
+             }))
 <<< #394 4
 {{{{
         b sort {
