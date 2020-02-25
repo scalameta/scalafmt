@@ -29,10 +29,12 @@ List(Split(Space,
            0,
            policy = SingleLineBlock(close),
            ignoreIf = blockSize > style.maxColumn),
-     Split(nl, 1, policy = {
-       case Decision(t @ FormatToken(_, `close`, _), s) =>
-         Decision(t, List(Split(Newline, 0)))
-     }))
+     Split(nl,
+           1,
+           policy = {
+             case Decision(t @ FormatToken(_, `close`, _), s) =>
+               Decision(t, List(Split(Newline, 0)))
+           }))
 <<< Massive (good API) 3
 Split(Space, 0).withPolicy {
     // Following case:
@@ -70,17 +72,19 @@ Split(Space, 0, policy = {
       Decision(t, splits.map(_.withModification(Newline2x)))
 })
 >>>
-Split(Space, 0, policy = {
-  // Following case:
-  // package foo // this is cool
-  //
-  // object a
-  case Decision(t @ FormatToken(`lastRef`, _: Comment, between), splits)
-      if !between.exists(_.isInstanceOf[`\n`]) =>
-    Decision(t, splits.map(_.withModification(Space)))
-  case Decision(t @ FormatToken(`lastRef`, _, _), splits) =>
-    Decision(t, splits.map(_.withModification(Newline2x)))
-})
+Split(Space,
+      0,
+      policy = {
+        // Following case:
+        // package foo // this is cool
+        //
+        // object a
+        case Decision(t @ FormatToken(`lastRef`, _: Comment, between), splits)
+            if !between.exists(_.isInstanceOf[`\n`]) =>
+          Decision(t, splits.map(_.withModification(Space)))
+        case Decision(t @ FormatToken(`lastRef`, _, _), splits) =>
+          Decision(t, splits.map(_.withModification(Newline2x)))
+      })
 <<< Looong
 Seq(
   Split(modification, 0, policy = singleLine)
@@ -135,9 +139,10 @@ Seq(
     Split(Space, 0).withPolicy(SingleLineBlock(lastToken)),
     Split(Space, 1)
       .withPolicy(Policy({
-        case Decision(t @ FormatToken(`arrow`, _, _), s) =>
-          Decision(t, s.filter(_.modification.isNewline))
-      }, expire = lastToken.end))
+                           case Decision(t @ FormatToken(`arrow`, _, _), s) =>
+                             Decision(t, s.filter(_.modification.isNewline))
+                         },
+                         expire = lastToken.end))
       .withIndent(2, lastToken, Left) // case body indented by 2.
       .withIndent(2, arrow, Left) // cond body indented by 4.
 )
@@ -312,9 +317,10 @@ implicit class IterableW[+A](it: JSIterable[A]) {
             data => data)
 >>>
 foo.fold(err => {
-  logger.warn(s"Malformed request: $err\n${req.body}")
-  BadRequest(jsonError(JsError toJson err)).fuccess
-}, data => data)
+           logger.warn(s"Malformed request: $err\n${req.body}")
+           BadRequest(jsonError(JsError toJson err)).fuccess
+         },
+         data => data)
 <<< quirk in 0.2.4-RC1, #233
 {{{{{
           compileInputs in (It, compile) <<= (compileInputs in (It, compile)) dependsOn
@@ -345,13 +351,15 @@ foo.fold(err => {
 >>>
 Seq(
     Split(Space, 0),
-    Split(Newline, 1).withPolicy(Policy({
-      // Force template to be multiline.
-      case d @ Decision(FormatToken(open: `{`, right, _), splits)
-          if !right.isInstanceOf[`}`] && // corner case, body is {}
-            childOf(template, owners(open)) =>
-        d.copy(splits = splits.filter(_.modification.isNewline))
-    }, expire.end))
+    Split(Newline, 1).withPolicy(
+        Policy({
+                 // Force template to be multiline.
+                 case d @ Decision(FormatToken(open: `{`, right, _), splits)
+                     if !right.isInstanceOf[`}`] && // corner case, body is {}
+                       childOf(template, owners(open)) =>
+                   d.copy(splits = splits.filter(_.modification.isNewline))
+               },
+               expire.end))
 )
 <<< #310
 CreditCard(customerId = customerId,

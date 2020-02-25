@@ -55,17 +55,18 @@ def withDedicatedVar: Unit = {
       end withValue res.value
     })
 >>>
-(excty, { focus: Focus =>
-  val enter = symopt.map { sym =>
-    val cast = focus withOp Op.As(excty, exc.value)
-    curEnv.enter(sym, cast.value)
-    cast
-  }.getOrElse(focus)
-  val begin = enter withOp Nrt.call(Nrt.begin_catch, excwrap.value)
-  val res = genExpr(body, begin)
-  val end = res withOp Nrt.call(Nrt.end_catch)
-  end withValue res.value
-})
+(excty,
+ { focus: Focus =>
+   val enter = symopt.map { sym =>
+     val cast = focus withOp Op.As(excty, exc.value)
+     curEnv.enter(sym, cast.value)
+     cast
+   }.getOrElse(focus)
+   val begin = enter withOp Nrt.call(Nrt.begin_catch, excwrap.value)
+   val res = genExpr(body, begin)
+   val end = res withOp Nrt.call(Nrt.end_catch)
+   end withValue res.value
+ })
 <<< SKIP intellij bug
 class ScProjectionType private () {
   def isAliasTypeInner = {
@@ -434,14 +435,19 @@ class A {
 class A {
   def foo: B =
     a.b() { c =>
-        val d = c.add(D[E](1, {
-          case conditionNameShouldLongEnough =>
-            foo1(objectNameShouldLongEnough, objectNameShouldLongEnough)
-            0
-          case conditionNameShouldLongEnough =>
-            foo1(objectNameShouldLongEnough, objectNameShouldLongEnough)
-            1
-        }))
+        val d = c.add(
+          D[E](
+            1,
+            {
+              case conditionNameShouldLongEnough =>
+                foo1(objectNameShouldLongEnough, objectNameShouldLongEnough)
+                0
+              case conditionNameShouldLongEnough =>
+                foo1(objectNameShouldLongEnough, objectNameShouldLongEnough)
+                1
+            }
+          )
+        )
       }
       .f("f")
 }
