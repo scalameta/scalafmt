@@ -955,10 +955,6 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
         val isImplicitArgList = right.is[T.KwImplicit]
 
-        val newlineBeforeImplicitEnabled =
-          style.verticalMultiline.newlineBeforeImplicitKW ||
-            style.newlines.beforeImplicitKWInVerticalMultiline
-
         val mixedParamsWithCtorModifier =
           mixedParams && prevT.meta.leftOwner.is[CtorModifier]
 
@@ -966,7 +962,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
         val isDefinition = ownerCheck(owners(close2))
 
         val shouldAddNewline =
-          (isImplicitArgList && newlineBeforeImplicitEnabled) ||
+          (isImplicitArgList && style.newlines.beforeImplicitKW) ||
             (style.verticalMultiline.newlineAfterOpenParen && !isImplicitArgList && isDefinition) ||
             mixedParamsWithCtorModifier
 
@@ -977,7 +973,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
             .withIndent(indentParam, close2, Right)
         )
       case Decision(t @ FormatToken(T.KwImplicit(), _, _), _)
-          if (style.verticalMultiline.newlineAfterImplicitKW || style.newlines.afterImplicitKWInVerticalMultiline) =>
+          if style.newlines.afterImplicitKW =>
         Seq(Split(Newline, 0))
     }
 
@@ -1002,14 +998,9 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       case _ => 0
     }
 
-    def belowArityThreshold = maxArity < math.min(
-      style.verticalMultiline.arityThreshold,
-      style.verticalMultilineAtDefinitionSiteArityThreshold
-    )
-
     Seq(
       Split(Space(style.spaces.inParentheses), 0)
-        .onlyIf(isBracket || belowArityThreshold)
+        .onlyIf(isBracket || maxArity < style.verticalMultiline.arityThreshold)
         .withPolicy(SingleLineBlock(singleLineExpire)),
       Split(Newline, 1) // Otherwise split vertically
         .withIndent(firstIndent, close, Right)

@@ -502,6 +502,34 @@ else {
 }
 ```
 
+### `newlines.beforeImplicitKW`
+
+```scala mdoc:defaults
+newlines.beforeImplicitKW
+```
+
+```scala mdoc:scalafmt
+maxColumn = 60
+verticalMultiline.atDefnSite = true
+newlines.beforeImplicitKW = true
+---
+def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
+```
+
+### `newlines.afterImplicitKW`
+
+```scala mdoc:defaults
+newlines.afterImplicitKW
+```
+
+```scala mdoc:scalafmt
+maxColumn = 60
+verticalMultiline.atDefnSite = true
+newlines.afterImplicitKW = true
+---
+def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
+```
+
 ## Rewrite Rules
 
 To enable a rewrite rule, add it to the config like this
@@ -709,20 +737,6 @@ verticalMultiline.arityThreshold = 2
 verticalMultiline.newlineAfterOpenParen = true
 ---
 def other(a: String, b: String)(c: String, d: String) = a + b + c
-```
-
-### `verticalMultiline.newlineBeforeImplicitKW`
-
-```scala mdoc:defaults
-verticalMultiline.newlineBeforeImplicitKW
-```
-
-```scala mdoc:scalafmt
-maxColumn = 60
-verticalMultiline.atDefnSite = true
-verticalMultiline.newlineBeforeImplicitKW = true
----
-def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```
 
 ## Disabling Formatting

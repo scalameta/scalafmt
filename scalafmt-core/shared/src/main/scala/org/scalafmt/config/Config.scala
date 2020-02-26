@@ -70,7 +70,14 @@ object Config {
       ScalafmtConfig.configReader(default).read(next)
     }
 
-  private val renamedParameters = Map.empty[String, String]
+  private val renamedParameters = Map(
+    "verticalMultilineAtDefinitionSite" -> "verticalMultiline.atDefnSite",
+    "verticalMultilineAtDefinitionSiteArityThreshold" -> "verticalMultiline.arityThreshold",
+    "newlines.afterImplicitKWInVerticalMultiline" -> "newlines.afterImplicitKW",
+    "newlines.beforeImplicitKWInVerticalMultiline" -> "newlines.beforeImplicitKW",
+    "verticalMultiline.newlineBeforeImplicitKW" -> "newlines.beforeImplicitKW",
+    "verticalMultiline.newlineAfterImplicitKW" -> "newlines.afterImplicitKW"
+  )
 
   def confRename(conf: Conf, srcToDst: Map[String, String]): Configured[Conf] =
     conf match {

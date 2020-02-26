@@ -8,8 +8,6 @@ import metaconfig._
 case class VerticalMultiline(
     atDefnSite: Boolean = false,
     arityThreshold: Int = 100,
-    newlineBeforeImplicitKW: Boolean = false,
-    newlineAfterImplicitKW: Boolean = false,
     newlineAfterOpenParen: Boolean = false,
     excludeDanglingParens: List[DanglingExclude] = List(
       DanglingExclude.`class`,
