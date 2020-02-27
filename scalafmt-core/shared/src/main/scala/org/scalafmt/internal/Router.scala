@@ -537,7 +537,7 @@ class Router(formatOps: FormatOps) {
       // Parameter opening for one parameter group. This format works
       // on the WHOLE defnSite (via policies)
       case ft @ FormatToken((T.LeftParen() | T.LeftBracket()), _, _)
-          if (style.verticalMultiline.atDefnSite || style.verticalMultilineAtDefinitionSite) &&
+          if style.verticalMultiline.atDefnSite &&
             isDefnSiteWithParams(leftOwner) =>
         verticalMultiline(leftOwner, ft)(style)
 
