@@ -21,6 +21,8 @@ def format_![T <: Tree](code: String)(f: A => B)(implicit ev: Parse[T]): String
 def format_![T <: Tree](code: String)(f: A => B)(implicit ev: Parse[T]): String
 
 <<< small multi-line functions should fit in one line
+optIn.configStyleArguments = false
+===
 def format_![T <: Tree](
     code: String)(
     f: A => B)
