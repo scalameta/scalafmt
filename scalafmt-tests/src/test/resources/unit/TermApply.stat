@@ -113,9 +113,8 @@ Seq(
 )
 >>>
 Seq(
-    Split(
-        Space,
-        0
+    Split(Space,
+          0
     ), // End files with trailing newline
     Split(Newline, 1)
 )
