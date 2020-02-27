@@ -752,8 +752,6 @@ class Router(formatOps: FormatOps) {
           baseSingleLinePolicy
         }
 
-        val oneArgOneLine = OneArgOneLineSplit(formatToken)
-
         val newlineMod: Modification = NoSplit.orNL(right.is[T.LeftBrace])
 
         val defnSite = isDefnSite(leftOwner)
@@ -823,6 +821,8 @@ class Router(formatOps: FormatOps) {
             singleLine(3)
           else
             singleLine(10)
+        val oneArgOneLine =
+          newlinePolicy.andThen(OneArgOneLineSplit(formatToken))
         Seq(
           Split(noSplitMod, 0, policy = noSplitPolicy)
             .onlyIf(noSplitMod != null)
@@ -840,7 +840,7 @@ class Router(formatOps: FormatOps) {
             .withOptimalToken(expirationToken)
             .withIndent(StateColumn, close, Right),
           Split(Newline, (3 + nestedPenalty) * bracketCoef)
-            .withPolicy(newlinePolicy.andThen(oneArgOneLine))
+            .withPolicy(oneArgOneLine)
             .onlyIf(!singleArgument && !alignTuple)
             .withIndent(indent, close, Right)
         ) ++ splitsForAssign.getOrElse(Seq.empty)
