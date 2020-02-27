@@ -148,10 +148,6 @@ case class ScalafmtConfig(
     )
     poorMansTrailingCommasInConfigStyle: Boolean = false,
     trailingCommas: TrailingCommas = TrailingCommas.never,
-    @deprecated("Use VerticalMultiline.atDefnSite instead", "1.6.0")
-    verticalMultilineAtDefinitionSite: Boolean = false,
-    @deprecated("Use VerticalMultiline.arityThreshold instead", "1.6.0")
-    verticalMultilineAtDefinitionSiteArityThreshold: Int = 100,
     verticalMultiline: VerticalMultiline = VerticalMultiline(),
     verticalAlignMultilineOperators: Boolean = false,
     onTestFailure: String = "",
