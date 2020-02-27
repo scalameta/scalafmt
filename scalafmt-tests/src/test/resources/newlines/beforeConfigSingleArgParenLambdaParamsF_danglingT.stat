@@ -852,8 +852,8 @@ implicit def v_s_Op[
       OpMod,
       OpPow
     ) Op <: OpType
-](
-    implicit @expand.sequence[Op](
+](implicit
+    @expand.sequence[Op](
       { _ + _ },
       { _ - _ },
       { _ * _ },

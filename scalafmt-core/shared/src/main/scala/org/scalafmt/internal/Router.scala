@@ -598,8 +598,17 @@ class Router(formatOps: FormatOps) {
         val policy =
           if (isForcedBinPack) newlineBeforeClose
           else OneArgOneLineSplit(formatToken).orElse(newlineBeforeClose)
+        val implicitSplit =
+          if (opensConfigStyleImplicitParamList(formatToken))
+            Split(Space(style.spaces.inParentheses), 0)
+              .withPolicy(policy.orElse(decideNewlinesOnlyAfterToken(right)))
+              .withOptimalToken(right, killOnFail = true)
+              .withIndent(indent, close, Right)
+              .withIndent(extraIndent, right, Right)
+          else Split.ignored
         Seq(
-          Split(Newline, 0, policy = policy)
+          implicitSplit,
+          Split(Newline, if (implicitSplit.isActive) 1 else 0, policy = policy)
             .withIndent(indent, close, Right)
             .withIndent(extraIndent, right, Right)
         )
@@ -776,7 +785,13 @@ class Router(formatOps: FormatOps) {
             Policy.empty(close)
           }
 
-        val noSplitMod = getNoSplit(formatToken, !isBracket)
+        val handleImplicit = style.activeForEdition_2020_03 &&
+          opensImplicitParamList(formatToken, args)
+
+        val noSplitMod =
+          if (handleImplicit && style.newlines.beforeImplicitParamListModifier)
+            null
+          else getNoSplit(formatToken, !isBracket)
         val noSplitIndent = if (right.is[T.Comment]) indent else Num(0)
 
         val align =
@@ -835,10 +850,10 @@ class Router(formatOps: FormatOps) {
             .withIndent(indent, close, Right),
           Split(noSplitMod, (2 + lhsPenalty) * bracketCoef)
             .withPolicy(oneArgOneLine)
-            .onlyIf(notTooManyArgs && align)
+            .onlyIf(handleImplicit || (notTooManyArgs && align))
             .onlyIf(noSplitMod != null)
             .withOptimalToken(expirationToken)
-            .withIndent(StateColumn, close, Right),
+            .withIndent(if (align) StateColumn else indent, close, Right),
           Split(Newline, (3 + nestedPenalty) * bracketCoef)
             .withPolicy(oneArgOneLine)
             .onlyIf(!singleArgument && !alignTuple)
@@ -1443,6 +1458,21 @@ class Router(formatOps: FormatOps) {
         Seq(Split(Newline, 0))
       case FormatToken(c: T.Comment, _, _) =>
         Seq(Split(newlines2Modification(newlines), 0))
+
+      case FormatToken(_: T.KwImplicit, _, _)
+          if style.activeForEdition_2020_03 &&
+            !style.verticalMultiline.atDefnSite =>
+        opensImplicitParamList(formatToken).fold {
+          Seq(Split(Space, 0))
+        } { params =>
+          val spaceSplit = Split(Space, 0)
+            .notIf(style.newlines.afterImplicitParamListModifier)
+            .withPolicy(SingleLineBlock(params.last.tokens.last))
+          Seq(
+            spaceSplit,
+            Split(Newline, if (spaceSplit.isActive) 1 else 0)
+          )
+        }
 
       case opt
           if style.optIn.annotationNewlines &&

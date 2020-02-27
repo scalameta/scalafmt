@@ -16,8 +16,7 @@ class X(final private val x: Int)(
     val i1: Int
 )
 >>>
-class X(final private val x: Int)(
-    implicit
+class X(final private val x: Int)(implicit
     val i1: Int
 )
 <<< 1148 — implicit val with only private
@@ -27,8 +26,7 @@ class X(private final val x: Int)(
     private[this] var i2: String
 )
 >>>
-class X(final private val x: Int)(
-    implicit
+class X(final private val x: Int)(implicit
     private[this] val i1: Int,
     private[this] var i2: String
 )
@@ -39,8 +37,7 @@ class X(private final val x: Int)(
     private[this] final var i2: String
 )
 >>>
-class X(final private val x: Int)(
-    implicit
+class X(final private val x: Int)(implicit
     final private[this] val i1: Int,
     final private[this] var i2: String
 )

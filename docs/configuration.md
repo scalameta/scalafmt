@@ -502,6 +502,68 @@ else {
 }
 ```
 
+### Newlines around `implicit` parameter list modifier
+
+#### Before
+
+> If set, forces newline before `implicit`. Otherwise, newline
+> can still be added if the keyword would overflow the line.
+
+```scala mdoc:defaults
+newlines.beforeImplicitParamListModifier
+```
+```scala mdoc:scalafmt
+maxColumn = 60
+newlines.beforeImplicitParamListModifier = true
+---
+def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
+```
+
+#### After
+
+> If set, forces newline after `implicit`. Otherwise, newline can
+> still be added unless `before` is true, or the entire implicit
+> parameter list fits on a line, or config style is false.
+
+```scala mdoc:defaults
+newlines.afterImplicitParamListModifier
+```
+```scala mdoc:scalafmt
+maxColumn = 60
+newlines.afterImplicitParamListModifier = true
+---
+def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
+```
+
+#### Both before and after
+```scala mdoc:scalafmt
+maxColumn = 60
+newlines.afterImplicitParamListModifier = true
+newlines.beforeImplicitParamListModifier = true
+---
+def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
+```
+
+#### Neither before nor after
+```scala mdoc:scalafmt
+maxColumn = 60
+newlines.afterImplicitParamListModifier = false
+newlines.beforeImplicitParamListModifier = false
+---
+def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
+```
+
+#### With `optIn.configStyleArguments`
+```scala mdoc:scalafmt
+maxColumn = 60
+optIn.configStyleArguments = true
+newlines.afterImplicitParamListModifier = true
+---
+def format(code: String, age: Int)(
+   implicit ev: Parser, c: Context
+): String
+```
+
 ## Rewrite Rules
 
 To enable a rewrite rule, add it to the config like this
@@ -711,16 +773,35 @@ verticalMultiline.newlineAfterOpenParen = true
 def other(a: String, b: String)(c: String, d: String) = a + b + c
 ```
 
-### `verticalMultiline.newlineBeforeImplicitKW`
+### Vertical multiline with `implicit` parameter lists
 
-```scala mdoc:defaults
-verticalMultiline.newlineBeforeImplicitKW
-```
+> Also see the general section on
+> [implicit parameter lists](#newlines-around-implicit-parameter-list-modifier).
 
+#### Before only
 ```scala mdoc:scalafmt
 maxColumn = 60
 verticalMultiline.atDefnSite = true
-verticalMultiline.newlineBeforeImplicitKW = true
+newlines.beforeImplicitParamListModifier = true
+---
+def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
+```
+
+#### After only
+```scala mdoc:scalafmt
+maxColumn = 60
+verticalMultiline.atDefnSite = true
+newlines.afterImplicitParamListModifier = true
+---
+def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
+```
+
+#### Before and after
+```scala mdoc:scalafmt
+maxColumn = 60
+verticalMultiline.atDefnSite = true
+newlines.beforeImplicitParamListModifier = true
+newlines.afterImplicitParamListModifier = true
 ---
 def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```

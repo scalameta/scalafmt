@@ -193,8 +193,7 @@ case class Foo(
   def run[F[_]](
       a: Int,
       b: Int = 0
-  )(
-      implicit
+  )(implicit
       F: Monad[F]
   ): F[Resolution] =
     ???
@@ -235,8 +234,7 @@ case class Foo(
   def run[F[_]](
       a: Int,
       b: Int = 0
-  )(
-      implicit
+  )(implicit
       F: Monad[F]
   ): F[Resolution] =
     ???
@@ -278,8 +276,7 @@ case class Foo(
   def run[F[_]](
       a: Int,
       b: Int = 0
-  )(
-      implicit
+  )(implicit
       F: Monad[F],
       G: Monad[G]
   ): F[Resolution] =
@@ -322,8 +319,7 @@ case class Foo(
   def run[F[_]](
       a: Int,
       b: Int = 0
-  )(
-      implicit
+  )(implicit
       F: Monad[F],
       G: Monad[G]
   ): F[Resolution] =

@@ -33,7 +33,8 @@ private def withNewLocalDefs(bindings: List[Binding])(
   def joinFull[E1 >: E, E2, U2, D[_], O1, U1, O2](q2: Query[E2, _, D])(implicit ol1: OptionLift[E1, O1], sh1: Shape[FlatShapeLevel, O1, U1, _], ol2: OptionLift[E2, O2], sh2: Shape[FlatShapeLevel, O2, U2, _])
 >>>
 def joinFull[E1 >: E, E2, U2, D[_], O1, U1, O2](q2: Query[E2, _, D])(
-    implicit ol1: OptionLift[E1, O1],
+    implicit
+    ol1: OptionLift[E1, O1],
     sh1: Shape[FlatShapeLevel, O1, U1, _],
     ol2: OptionLift[E2, O2],
     sh2: Shape[FlatShapeLevel, O2, U2, _])
@@ -45,16 +46,16 @@ def zipWith[E2, U2, F, G, T, D[_]](q2: Query[E2, U2, D], f: (E, E2) => F)(
 <<< slick groupBy
   def groupBy[K, T, G, P](f: E => K)(implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G], vshape: Shape[_ <: FlatShapeLevel, E, _, P]): Query[(G, Query[P, U, Seq]), (T, Query[P, U, Seq]), C]
 >>>
-def groupBy[K, T, G, P](f: E => K)(
-    implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G],
-    vshape: Shape[_ <: FlatShapeLevel, E, _, P])
+def groupBy[K, T, G, P](f: E => K)(implicit
+                                   kshape: Shape[_ <: FlatShapeLevel, K, T, G],
+                                   vshape: Shape[_ <: FlatShapeLevel, E, _, P])
     : Query[(G, Query[P, U, Seq]), (T, Query[P, U, Seq]), C]
 <<< slick groupBy 2
   def groupBy[K, T, G, P](f: E => K)(implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G], vshape: Shape[_ <: FlatShapeLevel, E, _, P]): Query[(G, Query[P, U, Seq]), (T, Query[P, U, Seq]), CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC, (T, Query[P, U, Seq]), (T, Query[P, U, Seq])]
 >>>
-def groupBy[K, T, G, P](f: E => K)(
-    implicit kshape: Shape[_ <: FlatShapeLevel, K, T, G],
-    vshape: Shape[_ <: FlatShapeLevel, E, _, P])
+def groupBy[K, T, G, P](f: E => K)(implicit
+                                   kshape: Shape[_ <: FlatShapeLevel, K, T, G],
+                                   vshape: Shape[_ <: FlatShapeLevel, E, _, P])
     : Query[(G, Query[P, U, Seq]),
             (T, Query[P, U, Seq]),
             CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC,

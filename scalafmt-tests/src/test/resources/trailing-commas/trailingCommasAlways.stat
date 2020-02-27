@@ -77,8 +77,7 @@ object a {
   )(
       b1: String,
       b2: String, // comment
-  )(
-      implicit
+  )(implicit
       c1: SomeType1,
       c2: SomeType2, // comment
   ) {
@@ -88,8 +87,7 @@ object a {
     )(
         b1: String,
         b2: String, // comment
-    )(
-        implicit
+    )(implicit
         c1: SomeType1,
         c2: SomeType2, // comment
     ) =
