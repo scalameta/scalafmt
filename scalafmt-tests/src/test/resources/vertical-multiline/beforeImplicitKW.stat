@@ -25,7 +25,8 @@ verticalMultiline.atDefnSite = false
 def format_![T <: Tree](code: String, foo: Int)(f: A => B, k: D)(implicit ev: Parse[T], ev2: EC): String
 >>>
 def format_![T <: Tree](code: String, foo: Int)(f: A => B, k: D)(
-  implicit ev: Parse[T],
+  implicit
+  ev: Parse[T],
   ev2: EC
 ): String
 <<< should add a newline after implicit keyword in class definitions
@@ -91,6 +92,7 @@ implicit def pairEncoder[A, B](implicit aEncoder: CsvEncoder[A],
 ): CsvEncoder[(A, B)]
 >>>
 implicit def pairEncoder[A, B](
-  implicit aEncoder: CsvEncoder[A],
+  implicit
+  aEncoder: CsvEncoder[A],
   bEncoder: CsvEncoder[B]
 ): CsvEncoder[(A, B)]

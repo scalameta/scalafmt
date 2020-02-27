@@ -718,6 +718,6 @@ align = none
       : SerializedSuspendableExecutionContext =
      new SerializedSuspendableExecutionContext(throughput)
 >>>
-def apply(throughput: Int)(implicit context: ExecutionContext)
-    : SerializedSuspendableExecutionContext =
+def apply(throughput: Int)(implicit
+    context: ExecutionContext): SerializedSuspendableExecutionContext =
   new SerializedSuspendableExecutionContext(throughput)

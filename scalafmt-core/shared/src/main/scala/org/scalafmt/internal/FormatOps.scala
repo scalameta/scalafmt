@@ -1148,4 +1148,10 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     paramsOpt.filter(!_.exists(TreeOps.hasExplicitImplicit))
   }
 
+  def opensImplicitParamList(ft: FormatToken, args: Seq[Tree]): Boolean =
+    ft.right.is[T.KwImplicit] && args.forall {
+      case t: Term.Param => !hasExplicitImplicit(t)
+      case _ => true
+    }
+
 }
