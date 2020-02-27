@@ -4,7 +4,8 @@ import metaconfig._
 
 case class DanglingParentheses(
     callSite: Boolean,
-    defnSite: Boolean
+    defnSite: Boolean,
+    exclude: List[DanglingParentheses.Exclude] = Nil
 ) {
   val decoder: ConfDecoder[DanglingParentheses] =
     generic.deriveDecoder(this).noTypos
@@ -29,5 +30,16 @@ object DanglingParentheses {
 
   implicit val encoder: ConfEncoder[DanglingParentheses] =
     generic.deriveEncoder
+
+  sealed abstract class Exclude
+
+  object Exclude {
+    case object `class` extends Exclude
+    case object `trait` extends Exclude
+    case object `def` extends Exclude
+
+    implicit val reader: ConfCodec[Exclude] =
+      ReaderUtil.oneOf[Exclude](`class`, `trait`, `def`)
+  }
 
 }

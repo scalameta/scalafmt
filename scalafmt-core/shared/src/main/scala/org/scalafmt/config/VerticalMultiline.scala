@@ -21,9 +21,14 @@ case class VerticalMultiline(
     )
     newlineAfterImplicitKW: Boolean = false,
     newlineAfterOpenParen: Boolean = false,
-    excludeDanglingParens: List[DanglingExclude] = List(
-      DanglingExclude.`class`,
-      DanglingExclude.`trait`
+    @annotation.DeprecatedName(
+      "excludeDanglingParens",
+      "Use danglingParentheses.exclude instead",
+      "2.5.0"
+    )
+    excludeDanglingParens: List[DanglingParentheses.Exclude] = List(
+      DanglingParentheses.Exclude.`class`,
+      DanglingParentheses.Exclude.`trait`
     )
 ) {
   val reader: ConfDecoder[VerticalMultiline] =
@@ -35,15 +40,4 @@ object VerticalMultiline {
     generic.deriveSurface
   implicit lazy val encoder: ConfEncoder[VerticalMultiline] =
     generic.deriveEncoder[VerticalMultiline]
-}
-
-sealed abstract class DanglingExclude
-
-object DanglingExclude {
-  case object `class` extends DanglingExclude
-  case object `trait` extends DanglingExclude
-  case object `def` extends DanglingExclude
-
-  implicit val danglingExcludeReader: ConfCodec[DanglingExclude] =
-    ReaderUtil.oneOf[DanglingExclude](`class`, `trait`, `def`)
 }

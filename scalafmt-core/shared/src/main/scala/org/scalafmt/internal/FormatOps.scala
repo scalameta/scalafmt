@@ -2,8 +2,12 @@ package org.scalafmt.internal
 
 import java.{util => ju}
 import scala.collection.JavaConverters._
-import org.scalafmt.Error.{CaseMissingArrow, UnexpectedTree}
-import org.scalafmt.config.{DanglingExclude, NewlineCurlyLambda, ScalafmtConfig}
+import org.scalafmt.Error.UnexpectedTree
+import org.scalafmt.config.{
+  DanglingParentheses,
+  NewlineCurlyLambda,
+  ScalafmtConfig
+}
 import org.scalafmt.internal.ExpiresOn.{Left, Right}
 import org.scalafmt.internal.Length.Num
 import org.scalafmt.internal.Policy.NoPolicy
@@ -909,12 +913,17 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     val isClassLike = owner.is[meta.Ctor.Primary] || owner.is[meta.Defn.Class]
     val isTrait = owner.is[meta.Defn.Trait]
     val isDef = owner.is[meta.Defn.Def]
-    val excludeClass = style.verticalMultiline.excludeDanglingParens
-      .contains(DanglingExclude.`class`)
-    val excludeTrait = style.verticalMultiline.excludeDanglingParens
-      .contains(DanglingExclude.`trait`)
-    val excludeDef = style.verticalMultiline.excludeDanglingParens
-      .contains(DanglingExclude.`def`)
+    val danglingParenthesesExclude =
+      if (style.danglingParentheses.exclude.isEmpty)
+        style.verticalMultiline.excludeDanglingParens
+      else
+        style.danglingParentheses.exclude
+    val excludeClass = danglingParenthesesExclude
+      .contains(DanglingParentheses.Exclude.`class`)
+    val excludeTrait = danglingParenthesesExclude
+      .contains(DanglingParentheses.Exclude.`trait`)
+    val excludeDef = danglingParenthesesExclude
+      .contains(DanglingParentheses.Exclude.`def`)
 
     val shouldNotDangle =
       (isClassLike && excludeClass) ||
