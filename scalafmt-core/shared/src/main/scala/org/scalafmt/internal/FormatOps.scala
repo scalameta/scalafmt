@@ -986,7 +986,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       if (isBracket) close // If we can fit the type params, make it so
       else lastParen // If we can fit all in one block, make it so
 
-    val maxArity = valueParamsOwner match {
+    def maxArity = valueParamsOwner match {
       case d: Decl.Def if d.paramss.nonEmpty => d.paramss.map(_.size).max
       case d: Defn.Def if d.paramss.nonEmpty => d.paramss.map(_.size).max
       case m: Defn.Macro if m.paramss.nonEmpty => m.paramss.map(_.size).max
@@ -995,12 +995,16 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       case _ => 0
     }
 
+    def configStyle =
+      style.optIn.configStyleArguments &&
+        style.activeForEdition_2020_03 && ft.newlinesBetween != 0
+
     def belowArityThreshold =
       maxArity < style.verticalMultiline.arityThreshold
 
     Seq(
       Split(Space(style.spaces.inParentheses), 0)
-        .onlyIf(isBracket || belowArityThreshold)
+        .onlyIf(isBracket || !configStyle && belowArityThreshold)
         .withPolicy(SingleLineBlock(singleLineExpire)),
       Split(Newline, 1) // Otherwise split vertically
         .withIndent(firstIndent, close, Right)

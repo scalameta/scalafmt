@@ -4,6 +4,8 @@ verticalMultiline = {
 }
 
 <<< not modify single line
+optIn.configStyleArguments = false
+===
 def getListing(
   a: String,
   b: String,
