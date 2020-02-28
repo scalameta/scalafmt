@@ -20,15 +20,9 @@ jobs:
       - run: 	
           # for GitOps tests	
           git config --global user.email "scalafmt@scalameta.org" && git config --global user.name "scalafmt"
-      - run: TEST="2.11" sbt tests/test
-      - run: TEST="2.12" sbt tests/test
-      - run: TEST="2.13" sbt tests/test
-  docs:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: olafurpg/setup-scala@v6
-      - run: sbt ++2.12.8 docs/run
+      - run: TEST="2.11" sbt ci-test
+      - run: TEST="2.12" sbt ci-test
+      - run: TEST="2.13" sbt ci-test
   formatting:
     runs-on: ubuntu-latest
     steps:
