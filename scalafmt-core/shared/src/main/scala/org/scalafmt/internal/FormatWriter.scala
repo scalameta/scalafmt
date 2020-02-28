@@ -172,15 +172,7 @@ class FormatWriter(formatOps: FormatOps) {
       tok.left match {
         case rb: T.RightBrace => // look for "foo { bar }"
           tok.meta.leftOwner match {
-            case b: Term.Block if TreeOps.getBlockSingleStat(b).exists {
-                  /* guard for statements requiring a wrapper block
-                   * "foo { x => y; z }" can't become "foo(x => y; z)" */
-                  case f: Term.Function =>
-                    TreeOps.getTermSingleStat(f.body).isDefined &&
-                      !RedundantBraces.needParensAroundParams(f)
-                  case _: Term.Assign => false // disallowed in 2.13
-                  case _ => true
-                } =>
+            case b: Term.Block if RedundantBraces.canRewriteWithParens(b) =>
               b.parent match {
                 case Some(ta: Term.Apply)
                     if TreeOps.isSingleElement(ta.args, b) &&

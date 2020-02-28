@@ -1,5 +1,7 @@
 package org.scalafmt.rewrite
 
+import scala.annotation.tailrec
+
 import org.scalafmt.config.RedundantBracesSettings
 import org.scalafmt.internal.Side
 import org.scalafmt.internal.SyntacticGroupOps
@@ -24,6 +26,23 @@ object RedundantBraces extends Rewrite {
         !leftParen.exists(_.start <= param.tokens.head.start)
       case _ => false
     }
+
+  def canRewriteWithParens(b: Term.Block): Boolean = {
+    getBlockSingleStat(b).exists {
+      case f: Term.Function => RedundantBraces.canRewriteWithParens(f)
+      case _: Term.Assign => false // disallowed in 2.13
+      case _ => true
+    }
+  }
+
+  /* guard for statements requiring a wrapper block
+   * "foo { x => y; z }" can't become "foo(x => y; z)" */
+  @tailrec
+  def canRewriteWithParens(f: Term.Function, nested: Boolean = false): Boolean =
+    !needParensAroundParams(f) && (getTermSingleStat(f.body) match {
+      case Some(t: Term.Function) => canRewriteWithParens(t, true)
+      case x => nested || x.isDefined
+    })
 
 }
 

@@ -184,5 +184,4 @@ F.runAsync(stream.compile.toVector) {
 <<< #1748 no braces to parens with nested lambda, with types
 def old = foo.map { a => b: SomeType => blah() }
 >>>
-test does not parse
-def old = foo.map(a => b: SomeType => blah())
+def old = foo.map { a => b: SomeType => blah() }
