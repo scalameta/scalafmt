@@ -268,3 +268,24 @@ case class Foo(
   ): F[Resolution] =
     ???
 }
+<<< #1539 1: config style, no dangling
+optIn.configStyleArguments = true
+danglingParentheses = false
+===
+class Abc(
+  x: Int,
+  b: Int
+)
+>>>
+class Abc(x: Int, b: Int)
+<<< #1539 2: config style, dangling
+optIn.configStyleArguments = true
+danglingParentheses = true
+verticalMultiline.excludeDanglingParens = []
+===
+class Abc(
+  x: Int,
+  b: Int
+)
+>>>
+class Abc(x: Int, b: Int)
