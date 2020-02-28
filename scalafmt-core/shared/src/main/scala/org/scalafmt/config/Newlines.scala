@@ -104,6 +104,8 @@ case class Newlines(
     alwaysBeforeCurlyBraceLambdaParams: Boolean = false,
     alwaysBeforeTopLevelStatements: Boolean = false,
     afterCurlyLambda: NewlineCurlyLambda = NewlineCurlyLambda.never,
+    afterImplicitParamListModifier: Boolean = false,
+    beforeImplicitParamListModifier: Boolean = false,
     alwaysBeforeElseAfterCurlyIf: Boolean = false,
     alwaysBeforeMultilineDef: Boolean = true,
     avoidAfterYield: Boolean = true

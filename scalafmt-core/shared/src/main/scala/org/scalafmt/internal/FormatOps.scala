@@ -957,6 +957,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
         val shouldAddNewline = {
           if (right.is[T.KwImplicit])
+            style.newlines.beforeImplicitParamListModifier ||
             style.verticalMultiline.newlineBeforeImplicitKW
           else
             style.verticalMultiline.newlineAfterOpenParen && isDefinition
@@ -967,7 +968,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
             .withIndent(indentParam, close2, Right)
         )
       case Decision(t @ FormatToken(T.KwImplicit(), _, _), _)
-          if style.verticalMultiline.newlineAfterImplicitKW =>
+          if style.newlines.afterImplicitParamListModifier ||
+            style.verticalMultiline.newlineAfterImplicitKW =>
         Seq(Split(Newline, 0))
     }
 
