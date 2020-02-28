@@ -173,3 +173,113 @@ else
         CustomHttp.okhttpClient.value
     )
   }
+<<< #1747 1: one line with else
+object a {
+  val ok1 = if (a > 10) Some(a) else None
+  val ok2 = if (a > 10) { Some(a) } else { None }
+}
+>>>
+object a {
+  val ok1 = if (a > 10) Some(a) else None
+  val ok2 = if (a > 10) { Some(a) }
+  else { None }
+}
+<<< #1747 2: one line without else
+object a {
+  val ok1 = if (a > 10) Some(a)
+  val ok2 = if (a > 10) { Some(a) }
+}
+>>>
+object a {
+  val ok1 = if (a > 10) Some(a)
+  val ok2 = if (a > 10) { Some(a) }
+}
+<<< #1747 3: split on then with else
+object a {
+  val ok1 = if (a > 10)
+    Some(a)
+  else
+    None
+  val ok2 = if (a > 10) {
+    Some(a)
+  } else {
+    None
+  }
+}
+>>>
+object a {
+  val ok1 =
+    if (a > 10)
+      Some(a)
+    else
+      None
+  val ok2 = if (a > 10) {
+    Some(a)
+  } else {
+    None
+  }
+}
+<<< #1747 4: split on else
+object a {
+  val ok1 = if (a > 10) Some(a) else
+    None
+  val ok2 = if (a > 10) { Some(a) } else {
+    None
+  }
+}
+>>>
+object a {
+  val ok1 =
+    if (a > 10) Some(a)
+    else
+      None
+  val ok2 = if (a > 10) { Some(a) }
+  else {
+    None
+  }
+}
+<<< #1747 5: split on then without else
+object a {
+  val ok1 = if (a > 10)
+    Some(a)
+  val ok2 = if (a > 10) {
+    Some(a) }
+}
+>>>
+object a {
+  val ok1 =
+    if (a > 10)
+      Some(a)
+  val ok2 = if (a > 10) {
+    Some(a)
+  }
+}
+<<< #1747 6: split on if
+object a {
+  val ok1 =
+    if (a > 10) Some(a) else None
+  val ok2 =
+    if (a > 10) { Some(a) } else { None }
+}
+>>>
+object a {
+  val ok1 =
+    if (a > 10) Some(a) else None
+  val ok2 =
+    if (a > 10) { Some(a) }
+    else { None }
+}
+<<< #1747 7: split on if without else
+object a {
+  val ok1 =
+    if (a > 10) Some(a)
+  val ok2 =
+    if (a > 10) { Some(a) }
+}
+>>>
+object a {
+  val ok1 =
+    if (a > 10) Some(a)
+  val ok2 =
+    if (a > 10) { Some(a) }
+}
