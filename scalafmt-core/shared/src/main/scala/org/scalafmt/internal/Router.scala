@@ -775,7 +775,7 @@ class Router(formatOps: FormatOps) {
           expirationToken.is[T.Comment]
         )
         val wouldDangle =
-          if (defnSite) style.danglingParentheses.defnSite
+          if (defnSite) !shouldNotDangleAtDefnSite(leftOwner, false)
           else style.danglingParentheses.callSite
 
         val newlinePolicy: Policy =
@@ -1063,10 +1063,9 @@ class Router(formatOps: FormatOps) {
             }
         }
 
-        def wouldDangle = {
-          val dangleStyle = style.danglingParentheses
-          (dangleStyle.defnSite && leftOwner.parent.exists(isDefnSite)) ||
-          (dangleStyle.callSite && leftOwner.parent.exists(isCallSite))
+        def wouldDangle = leftOwner.parent.exists { lop =>
+          if (isDefnSite(lop)) !shouldNotDangleAtDefnSite(lop, false)
+          else isCallSite(lop) && style.danglingParentheses.callSite
         }
 
         val expire = rhs.tokens.last
