@@ -8,7 +8,17 @@ import metaconfig._
 case class VerticalMultiline(
     atDefnSite: Boolean = false,
     arityThreshold: Int = 100,
+    @annotation.DeprecatedName(
+      "newlineBeforeImplicitKW",
+      "Use newlines.beforeImplicitParamListModifier instead",
+      "2.5.0"
+    )
     newlineBeforeImplicitKW: Boolean = false,
+    @annotation.DeprecatedName(
+      "newlineAfterImplicitKW",
+      "Use newlines.afterImplicitParamListModifier instead",
+      "2.5.0"
+    )
     newlineAfterImplicitKW: Boolean = false,
     newlineAfterOpenParen: Boolean = false,
     excludeDanglingParens: List[DanglingExclude] = List(

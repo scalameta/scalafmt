@@ -1,8 +1,6 @@
 maxColumn = 80
-verticalMultiline = {
-    atDefnSite = true
-    newlineAfterImplicitKW = true
-}
+newlines.afterImplicitParamListModifier = true
+verticalMultiline.atDefnSite = true
 continuationIndent.defnSite = 2
 continuationIndent.extendSite = 0
 
