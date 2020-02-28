@@ -3,11 +3,7 @@ package org.scalafmt.internal
 import java.{util => ju}
 import scala.collection.JavaConverters._
 import org.scalafmt.Error.UnexpectedTree
-import org.scalafmt.config.{
-  DanglingParentheses,
-  NewlineCurlyLambda,
-  ScalafmtConfig
-}
+import org.scalafmt.config.{NewlineCurlyLambda, ScalafmtConfig}
 import org.scalafmt.internal.ExpiresOn.{Left, Right}
 import org.scalafmt.internal.Length.Num
 import org.scalafmt.internal.Policy.NoPolicy
@@ -904,31 +900,13 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
     val mixedParams = {
       owner match {
-        case cls: meta.Defn.Class =>
+        case cls: Defn.Class =>
           cls.tparams.nonEmpty && cls.ctor.paramss.nonEmpty
         case _ => false
       }
     }
 
-    val isClassLike = owner.is[meta.Ctor.Primary] || owner.is[meta.Defn.Class]
-    val isTrait = owner.is[meta.Defn.Trait]
-    val isDef = owner.is[meta.Defn.Def]
-    val danglingParenthesesExclude =
-      if (style.danglingParentheses.exclude.isEmpty)
-        style.verticalMultiline.excludeDanglingParens
-      else
-        style.danglingParentheses.exclude
-    val excludeClass = danglingParenthesesExclude
-      .contains(DanglingParentheses.Exclude.`class`)
-    val excludeTrait = danglingParenthesesExclude
-      .contains(DanglingParentheses.Exclude.`trait`)
-    val excludeDef = danglingParenthesesExclude
-      .contains(DanglingParentheses.Exclude.`def`)
-
-    val shouldNotDangle =
-      (isClassLike && excludeClass) ||
-        (isTrait && excludeTrait) ||
-        (isDef && excludeDef)
+    val shouldNotDangle = shouldNotDangleAtDefnSite(owner, true)
 
     // Since classes and defs aren't the same (see below), we need to
     // create two (2) OneArgOneLineSplit when dealing with classes. One

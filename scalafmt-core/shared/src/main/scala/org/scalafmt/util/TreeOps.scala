@@ -26,6 +26,7 @@ import scala.meta.tokens.Tokens
 import scala.reflect.ClassTag
 import scala.reflect.classTag
 import org.scalafmt.Error
+import org.scalafmt.config.{DanglingParentheses, ScalafmtConfig}
 
 /**
   * Stateless helper functions on [[scala.meta.Tree]].
@@ -585,5 +586,27 @@ object TreeOps {
 
   def hasExplicitImplicit(param: Term.Param): Boolean =
     param.mods.exists(isExplicitImplicit)
+
+  def shouldNotDangleAtDefnSite(
+      tree: Tree,
+      isVerticalMultiline: Boolean
+  )(implicit style: ScalafmtConfig): Boolean =
+    !style.danglingParentheses.defnSite || {
+      val excludeList =
+        if (isVerticalMultiline && style.danglingParentheses.exclude.isEmpty)
+          style.verticalMultiline.excludeDanglingParens
+        else
+          style.danglingParentheses.exclude
+      excludeList.nonEmpty && {
+        val exclude = tree match {
+          case _: Ctor.Primary | _: Defn.Class =>
+            DanglingParentheses.Exclude.`class`
+          case _: Defn.Trait => DanglingParentheses.Exclude.`trait`
+          case _: Defn.Def => DanglingParentheses.Exclude.`def`
+          case _ => null
+        }
+        null != exclude && excludeList.contains(exclude)
+      }
+    }
 
 }
