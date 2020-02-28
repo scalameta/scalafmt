@@ -1090,22 +1090,23 @@ class Router(formatOps: FormatOps) {
             }
             val jsNative = isJsNative(right)
             val noNewline = jsNative
-            val spacePolicy: Policy = rhs match {
-              case _: Term.If => twoBranches
-              case _: Term.ForYield => twoBranches
+            val (spacePolicy, spaceIndent) = rhs match {
+              case t: Term.If if style.activeForEdition_2020_03 =>
+                SingleLineBlock(t.cond.tokens.last) -> t.elsep.tokens.nonEmpty
+              case _: Term.If => twoBranches -> false
+              case _: Term.ForYield => twoBranches -> false
               case _: Term.Try | _: Term.TryWithHandler
                   if style.activeForEdition_2019_11 && !noNewline =>
-                null // we force newlines in try/catch/finally
-              case _ => NoPolicy
+                (null, false) // we force newlines in try/catch/finally
+              case _ => NoPolicy -> false
             }
-            val noSpace = null == spacePolicy ||
+            val noSpace = null == spacePolicy || isSingleLineComment(right) ||
               (!jsNative && newlines > 0 && leftOwner.isInstanceOf[Defn])
-            val spaceIndent = if (isSingleLineComment(right)) 2 else 0
             Seq(
               Split(Space, 0, policy = spacePolicy)
                 .notIf(noSpace)
                 .withOptimalToken(optimal)
-                .withIndent(spaceIndent, expire, Left),
+                .withIndent(if (spaceIndent) 2 else 0, expire, Left),
               Split(Newline, 1 + penalty)
                 .notIf(noNewline)
                 .withIndent(2, expire, Left)

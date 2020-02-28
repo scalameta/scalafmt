@@ -182,7 +182,7 @@ object a {
 object a {
   val ok1 = if (a > 10) Some(a) else None
   val ok2 = if (a > 10) { Some(a) }
-  else { None }
+    else { None }
 }
 <<< #1747 2: one line without else
 object a {
@@ -208,16 +208,15 @@ object a {
 }
 >>>
 object a {
-  val ok1 =
-    if (a > 10)
+  val ok1 = if (a > 10)
       Some(a)
     else
       None
   val ok2 = if (a > 10) {
-    Some(a)
-  } else {
-    None
-  }
+      Some(a)
+    } else {
+      None
+    }
 }
 <<< #1747 4: split on else
 object a {
@@ -229,14 +228,13 @@ object a {
 }
 >>>
 object a {
-  val ok1 =
-    if (a > 10) Some(a)
+  val ok1 = if (a > 10) Some(a)
     else
       None
   val ok2 = if (a > 10) { Some(a) }
-  else {
-    None
-  }
+    else {
+      None
+    }
 }
 <<< #1747 5: split on then without else
 object a {
@@ -247,9 +245,8 @@ object a {
 }
 >>>
 object a {
-  val ok1 =
-    if (a > 10)
-      Some(a)
+  val ok1 = if (a > 10)
+    Some(a)
   val ok2 = if (a > 10) {
     Some(a)
   }

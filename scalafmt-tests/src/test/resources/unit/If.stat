@@ -27,8 +27,8 @@ if (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa &&
 val newColumn = if(split == Newline) newIndent
                 else column + split.length
 >>>
-val newColumn =
-  if (split == Newline) newIndent
+val newColumn = if (split == Newline)
+    newIndent
   else column + split.length
 <<< Egyptian curlies
 if (optimalAt.contains(tok.left)) {

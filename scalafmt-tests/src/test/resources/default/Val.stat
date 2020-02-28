@@ -85,19 +85,19 @@ val wasBOM = if (endianness == AutoEndian) {
 } else false
 >>>
 val wasBOM = if (endianness == AutoEndian) {
-  // Read BOM
-  if (b1 == 0xfe && b2 == 0xff) {
-    endianness = BigEndian
-    true
-  } else if (b1 == 0xff && b2 == 0xfe) {
-    endianness = LittleEndian
-    true
-  } else {
-    // Not a valid BOM: default to BigEndian and start reading
-    endianness = BigEndian
-    false
-  }
-} else false
+    // Read BOM
+    if (b1 == 0xfe && b2 == 0xff) {
+      endianness = BigEndian
+      true
+    } else if (b1 == 0xff && b2 == 0xfe) {
+      endianness = LittleEndian
+      true
+    } else {
+      // Not a valid BOM: default to BigEndian and start reading
+      endianness = BigEndian
+      false
+    }
+  } else false
 <<< #269 3
  val route =
         scheme("https") { completeOk } ~
@@ -141,9 +141,9 @@ val predefinedType = if (clazz.getTypeParameters.length == 1) {
         ScDesignatorType(clazz)
 >>>
 val predefinedType = if (clazz.getTypeParameters.length == 1) {
-  ScParameterizedType(ScDesignatorType(clazz), undefines)
-} else
-  ScDesignatorType(clazz)
+    ScParameterizedType(ScDesignatorType(clazz), undefines)
+  } else
+    ScDesignatorType(clazz)
 <<< myRoute
   val myRoute =
     path("") {
