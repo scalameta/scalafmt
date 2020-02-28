@@ -20,15 +20,9 @@ jobs:
       - run: 	
           # for GitOps tests	
           git config --global user.email "scalafmt@scalameta.org" && git config --global user.name "scalafmt"
-      - run: sbt +tests/test
-        env:
-          SBT_OPTS: "-Xms1G -Xmx3G -XX:ReservedCodeCacheSize=250M -XX:+TieredCompilation -XX:-UseGCOverheadLimit -XX:+CMSClassUnloadingEnabled"
-  docs:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: olafurpg/setup-scala@v6
-      - run: sbt ++2.12.8 docs/run
+      - run: TEST="2.11" sbt ci-test
+      - run: TEST="2.12" sbt ci-test
+      - run: TEST="2.13" sbt ci-test
   formatting:
     runs-on: ubuntu-latest
     steps:
