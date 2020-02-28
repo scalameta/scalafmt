@@ -951,28 +951,19 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       // - Mixed-params case with constructor modifier `] private (`
       case Decision(t @ FormatToken(open2 @ T.LeftParen(), right, _), _) =>
         val close2 = matching(open2)
-        val prevT = prev(t)
-
-        val isImplicitArgList = right.is[T.KwImplicit]
-
-        val newlineBeforeImplicitEnabled =
-          style.verticalMultiline.newlineBeforeImplicitKW
-
-        val mixedParamsWithCtorModifier =
-          mixedParams && prevT.meta.leftOwner.is[CtorModifier]
 
         // We don't want to create newlines for default values.
-        val isDefinition = ownerCheck(owners(close2))
+        def isDefinition = ownerCheck(owners(close2))
 
-        val shouldAddNewline =
-          (isImplicitArgList && newlineBeforeImplicitEnabled) ||
-            (style.verticalMultiline.newlineAfterOpenParen && !isImplicitArgList && isDefinition) ||
-            mixedParamsWithCtorModifier
-
-        val mod = NoSplit.orNL(!shouldAddNewline)
+        val shouldAddNewline = {
+          if (right.is[T.KwImplicit])
+            style.verticalMultiline.newlineBeforeImplicitKW
+          else
+            style.verticalMultiline.newlineAfterOpenParen && isDefinition
+        } || (mixedParams && prev(t).meta.leftOwner.is[CtorModifier])
 
         Seq(
-          Split(mod, 0)
+          Split(NoSplit.orNL(!shouldAddNewline), 0)
             .withIndent(indentParam, close2, Right)
         )
       case Decision(t @ FormatToken(T.KwImplicit(), _, _), _)
