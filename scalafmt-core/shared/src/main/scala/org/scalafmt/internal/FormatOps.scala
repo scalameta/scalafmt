@@ -1064,22 +1064,21 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
           }) =>
         Some(fun)
       case t: Init if style.activeForEdition_2020_01 =>
-        findArgsFor(ft, t.argss).collect { case List(f: Term.Function) => f }
+        findArgsFor(ft.left, t.argss).collect {
+          case List(f: Term.Function) => f
+        }
       case _ => None
     }
 
   def findArgsFor[A <: Tree](
-      ft: FormatToken,
+      token: Token,
       argss: Seq[Seq[A]]
-  ): Option[Seq[A]] = {
+  ): Option[Seq[A]] = matchingOpt(token).flatMap { other =>
     // find the arg group starting with given format token
-    val beg = ft.left.start
+    val beg = math.min(token.start, other.start)
     argss
       .find(_.headOption.exists(_.tokens.head.start >= beg))
-      .filter { x =>
-        val pos = x.head.tokens.head.start
-        pos <= ft.right.end || pos <= matching(ft.left).start
-      }
+      .filter(_.head.tokens.head.start <= math.max(token.end, other.end))
   }
 
   // look for arrow before body, if any, else after params
@@ -1105,14 +1104,17 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     }(x => prevNonComment(tokens(x, -1)))
 
   def getApplyArgs(
-      formatToken: FormatToken
+      ft: FormatToken,
+      isRight: Boolean
   )(implicit style: ScalafmtConfig): (Tree, Seq[Tree]) = {
+    val paren = if (isRight) ft.right else ft.left
+    val owner = if (isRight) ft.meta.rightOwner else ft.meta.leftOwner
     def getArgs(argss: Seq[Seq[Tree]]): Seq[Tree] =
       if (!style.activeForEdition_2020_03) argss.flatten
-      else findArgsFor(formatToken, argss).getOrElse(Seq.empty)
-    formatToken.meta.leftOwner match {
+      else findArgsFor(paren, argss).getOrElse(Seq.empty)
+    owner match {
       case t @ SplitDefnIntoParts(_, name, tparams, paramss) =>
-        if (formatToken.left.is[T.LeftParen])
+        if (if (isRight) paren.is[T.RightParen] else paren.is[T.LeftParen])
           (name, getArgs(paramss))
         else {
           // XXX: backwards-compatible hack
@@ -1125,11 +1127,11 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
           case util.Left(args) => (tree, args)
           case util.Right(argss) => (tree, getArgs(argss))
         }
-      case leftOwner =>
+      case _ =>
         logger.debug(s"""Unknown tree
-                        |${log(leftOwner.parent.get)}
-                        |${isDefnSite(leftOwner)}""".stripMargin)
-        throw UnexpectedTree[Term.Apply](leftOwner)
+                        |${log(owner.parent.get)}
+                        |${isDefnSite(owner)}""".stripMargin)
+        throw UnexpectedTree[Term.Apply](owner)
     }
   }
 
