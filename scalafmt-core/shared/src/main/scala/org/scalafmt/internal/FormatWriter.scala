@@ -9,6 +9,7 @@ import scala.annotation.tailrec
 import scala.collection.IndexedSeq
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.meta.Type
 import scala.meta.tokens.Token
 import scala.meta.tokens.{Token => T}
 import scala.meta.transversers.Traverser
@@ -324,6 +325,12 @@ class FormatWriter(formatOps: FormatOps) {
          * have removed them first in RewriteTrailingCommas; now we simply need
          * to append them in case of 'always', but only when dangling */
         def isClosedDelimWithNewline(expectedNewline: Boolean): Boolean = {
+          getClosedDelimWithNewline(expectedNewline).isDefined
+        }
+
+        def getClosedDelimWithNewline(
+            expectedNewline: Boolean
+        ): Option[FormatToken] = {
           def owner = tok.meta.rightOwner
 
           val (skip, nextNonCommentTok) = nextNonCommentWithCount(tok)
@@ -353,7 +360,8 @@ class FormatWriter(formatOps: FormatOps) {
             case _ => false
           }
 
-          rightIsCloseDelim && expectedNewline == isNewline
+          val ok = rightIsCloseDelim && expectedNewline == isNewline
+          if (ok) Some(nextNonCommentTok) else None
         }
 
         @inline def ws(offset: Int): Unit = sb.append(getWhitespace(offset))
@@ -373,11 +381,29 @@ class FormatWriter(formatOps: FormatOps) {
                 if !tok.left.is[T.Comma] && isClosedDelimWithNewline(true) =>
               sb.append(',')
               ws(-1)
+            // append comma if newline and multiple args
+            case TrailingCommas.multiple
+                if !tok.left.is[T.Comma] && getClosedDelimWithNewline(true)
+                  .exists(isCloseDelimForTrailingCommasMultiple) =>
+              sb.append(',')
+              ws(-1)
             case _ => ws(0)
           }
       }
     }
   }
+
+  private def isCloseDelimForTrailingCommasMultiple(ft: FormatToken): Boolean =
+    ft.meta.rightOwner match {
+      case x: Importer => x.importees.length > 1
+      case _ =>
+        val args = getApplyArgs(ft, true)(initStyle)._2
+        args.length > 1 && (args.last match {
+          case _: Term.Repeated => false
+          case t: Term.Param => !t.decltpe.exists(_.is[Type.Repeated])
+          case _ => true
+        })
+    }
 
   lazy val topLevelTokens: List[TokenHash] = {
     val buffer = List.newBuilder[TokenHash]

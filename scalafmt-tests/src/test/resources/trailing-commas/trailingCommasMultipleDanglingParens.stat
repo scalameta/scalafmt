@@ -1,7 +1,7 @@
 maxColumn = 30
 danglingParentheses = true
 align = none
-trailingCommas = always
+trailingCommas = multiple
 
 <<< should add a trailing comma on the last argument
 def method(
@@ -104,7 +104,7 @@ import somepackage.someobject.{
 }
 >>>
 import somepackage.someobject.{
-  memberB,
+  memberB
 }
 <<< add trailing commas in bin-packed imports when breaking over multiple lines
 import somepackage.someobject.{memberA, memberB}
@@ -119,7 +119,7 @@ import somepackage.someobject.{
  }
 >>>
 import somepackage.someobject.{
-  memberB,
+  memberB
 }
 <<< add trailing commas in class constructors
 class SomeClass(a: String, b: String)
@@ -227,7 +227,7 @@ object Foo {
 {
   Bbbbbbbbbbbbbb(
     ccccccccccc = // comment
-      dddddddd + eeeeeeee, /* comment */
+      dddddddd + eeeeeeee /* comment */
   )
 }
 <<< #1604 2: avoid single-arg assign closing paren split keeping trailing comma
@@ -240,7 +240,7 @@ object Foo {
 {
   Bbbbbbbbbbbbbb(
     ccccccccccc = // comment
-      dddddddd + eeeeeeee, /* comment */
+      dddddddd + eeeeeeee /* comment */
   )
 }
 <<< #1667
@@ -266,7 +266,7 @@ object Foo {
       val ccccc = zz.bbbbbb(EEEEE.xxx, Schema.String).toOption.flatMap {
         case c: Seq[String] =>
           xxxx(c, (v: String) => s"""\\"$v\\"""")(Schema.String).map(s =>
-            Yyyyyyyyyyyyyyyy("SSSSSSS", s),
+            Yyyyyyyyyyyyyyyy("SSSSSSS", s)
           )
       }
     }.get
