@@ -658,7 +658,7 @@ class Router(formatOps: FormatOps) {
         val open = formatToken.left
         val close = matching(open)
         val indent = getApplyIndent(leftOwner)
-        val (_, args) = getApplyArgs(formatToken)
+        val (_, args) = getApplyArgs(formatToken, false)
         val optimal = leftOwner.tokens.find(_.is[T.Comma]).orElse(Some(close))
         val isBracket = open.is[T.LeftBracket]
         // TODO(olafur) DRY. Same logic as in default.
@@ -702,7 +702,7 @@ class Router(formatOps: FormatOps) {
             (!style.binPack.unsafeDefnSite && isDefnSite(leftOwner)) =>
         val open = tok.left
         val close = matching(open)
-        val (lhs, args) = getApplyArgs(formatToken)
+        val (lhs, args) = getApplyArgs(formatToken, false)
         // In long sequence of select/apply, we penalize splitting on
         // parens furthest to the right.
         val lhsPenalty = treeDepth(lhs)
