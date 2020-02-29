@@ -1,5 +1,5 @@
 maxColumn = 30
-trailingCommas = always
+trailingCommas = multiple
 
 <<< should consider comments when adding trailing commas
 def method(

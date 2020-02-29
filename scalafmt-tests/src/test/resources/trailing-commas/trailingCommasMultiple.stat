@@ -1,5 +1,5 @@
 maxColumn = 30
-trailingCommas = always
+trailingCommas = multiple
 danglingParentheses = false
 <<< should add a trailing comma on the last argument
 def method(
@@ -23,11 +23,11 @@ def method(
 >>>
 def method(
     a: String,
-    b: String*,
+    b: String*
 ) =
   method(
     a,
-    b: _*,
+    b: _*
   )
 <<< should add a trailing comma on the only repeated argument
 def method(
@@ -38,10 +38,10 @@ def method(
   )
 >>>
 def method(
-    b: String*,
+    b: String*
 ) =
   method(
-    b: _*,
+    b: _*
   )
 <<< should not add a trailing comma when breaking into multiple lines
 def method(a: String, b: String)
