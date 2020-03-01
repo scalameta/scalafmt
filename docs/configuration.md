@@ -665,6 +665,161 @@ rewrite.rules = [AsciiSortImports]
 import foo.{~>, `symbol`, bar, Random}
 ```
 
+### Trailing commas
+
+> See [SIP](https://docs.scala-lang.org/sips/trailing-commas.html)
+
+The rule handles how trailing commas are treated in case of a dangling
+closing delimiter (parenthesis or bracket for definitions or invocations,
+brace for import statements only).
+
+Regardless of the setting, trailing commas are always removed if the closing
+delimiter is not dangling (i.e., follows the final argument without a line break).
+
+> This logic is not triggered via the `rewrite.rules` parameter,
+> but by setting `trailingCommas`.
+
+```scala mdoc:defaults
+trailingCommas
+```
+
+#### Trailing commas: `never`
+
+Makes sure there are no trailing commas:
+```scala mdoc:scalafmt
+trailingCommas = never
+---
+import a.{
+  b,
+  c,
+}
+def method1(
+  a: Int,
+  b: Long,
+) = {}
+def method2(
+  a: Int,
+  b: Long*,
+) = {}
+def method3(
+  a: Int,
+) = {}
+method1(
+  a,
+  b,
+)
+method2(
+  a,
+  b: _*,
+)
+method3(
+  a,
+)
+```
+
+#### Trailing commas: `preserve`
+
+Keeps any trailing commas:
+```scala mdoc:scalafmt
+trailingCommas = preserve
+---
+import a.{
+  b,
+  c,
+}
+def method1(
+  a: Int,
+  b: Long,
+) = {}
+def method2(
+  a: Int,
+  b: Long*
+) = {}
+def method3(
+  a: Int,
+) = {}
+method1(
+  a,
+  b
+)
+method2(
+  a,
+  b: _*,
+)
+method3(
+  a,
+)
+```
+
+#### Trailing commas: `always`
+
+Makes sure there are trailing commas:
+```scala mdoc:scalafmt
+trailingCommas = always
+---
+import a.{
+  b,
+  c
+}
+def method1(
+  a: Int,
+  b: Long
+) = {}
+def method2(
+  a: Int,
+  b: Long*
+) = {}
+def method3(
+  a: Int
+) = {}
+method1(
+  a,
+  b
+)
+method2(
+  a,
+  b: _*
+)
+method3(
+  a
+)
+```
+
+#### Trailing commas: `multiple`
+
+Makes sure there are trailing commas for multiple-argument expressions
+only, except when the last argument is repeated:
+```scala mdoc:scalafmt
+trailingCommas = multiple
+---
+import a.{
+  b,
+  c
+}
+def method1(
+  a: Int,
+  b: Long
+) = {}
+def method2(
+  a: Int,
+  b: Long*,
+) = {}
+def method3(
+  a: Int,
+) = {}
+method1(
+  a,
+  b
+)
+method2(
+  a,
+  b: _*,
+)
+method3(
+  a,
+)
+```
+
 ## Vertical Multiline
 
 Since: v1.6.0.
