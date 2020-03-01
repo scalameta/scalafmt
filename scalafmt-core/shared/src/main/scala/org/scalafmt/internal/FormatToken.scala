@@ -27,6 +27,8 @@ case class FormatToken(left: Token, right: Token, meta: FormatToken.Meta) {
 
   def between = meta.between
   lazy val newlinesBetween: Int = meta.between.count(_.is[Token.LF])
+  @inline def noBreak: Boolean = newlinesBetween == 0
+  @inline def hasBreak: Boolean = newlinesBetween != 0
 
   val leftHasNewline = left.syntax.contains('\n')
 
