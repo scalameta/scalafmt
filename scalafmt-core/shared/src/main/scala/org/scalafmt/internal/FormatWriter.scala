@@ -173,15 +173,13 @@ class FormatWriter(formatOps: FormatOps) {
       tok.left match {
         case rb: T.RightBrace => // look for "foo { bar }"
           tok.meta.leftOwner match {
-            case b: Term.Block if RedundantBraces.canRewriteWithParens(b) =>
-              b.parent match {
-                case Some(ta: Term.Apply)
-                    if TreeOps.isSingleElement(ta.args, b) &&
-                      (ta.tokens.last eq rb) =>
-                  val beg = tokens(matching(rb))
-                  lookup.update(beg.meta.idx, tok.meta.idx -> lineOffset)
-                case _ =>
-              }
+            case b: Term.Block if b.parent.exists {
+                  case ta: Term.Apply if ta.tokens.last eq rb =>
+                    TreeOps.isSingleElement(ta.args, b)
+                  case _ => false
+                } && RedundantBraces.canRewriteWithParens(b) =>
+              val beg = tokens(matching(rb))
+              lookup.update(beg.meta.idx, tok.meta.idx -> lineOffset)
             case _ =>
           }
         case _: T.LeftBrace =>
