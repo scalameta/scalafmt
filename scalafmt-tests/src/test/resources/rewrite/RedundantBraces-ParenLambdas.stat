@@ -185,3 +185,63 @@ F.runAsync(stream.compile.toVector) {
 def old = foo.map { a => b: SomeType => blah() }
 >>>
 def old = foo.map { a => b: SomeType => blah() }
+<<< #1756 val within lambda
+object a {
+  childContext.onDone { _ =>
+    val _ = self.withChildren(_.remove(childContext))
+  }
+}
+>>>
+test does not parse
+object a {
+  childContext.onDone(_ => val _ = self.withChildren(_.remove(childContext)))
+}
+<<< #1756 def within lambda
+object a {
+  childContext.onDone { _ =>
+    def a = self.withChildren(_.remove(childContext))
+  }
+}
+>>>
+test does not parse
+object a {
+  childContext.onDone(_ => def a = self.withChildren(_.remove(childContext)))
+}
+<<< #1756 type within lambda
+object a {
+  childContext.onDone { _ =>
+    type a = Int
+  }
+}
+>>>
+test does not parse
+object a {
+  childContext.onDone(_ => type a = Int)
+}
+<<< #1756 val without lambda
+object a {
+  childContext.onDone { val _ = self.withChildren(_.remove(childContext)) }
+}
+>>>
+test does not parse
+object a {
+  childContext.onDone(val _ = self.withChildren(_.remove(childContext)))
+}
+<<< #1756 def without lambda
+object a {
+  childContext.onDone { def a = self.withChildren(_.remove(childContext)) }
+}
+>>>
+test does not parse
+object a {
+  childContext.onDone(def a = self.withChildren(_.remove(childContext)))
+}
+<<< #1756 type without lambda
+object a {
+  childContext.onDone { type a = Int }
+}
+>>>
+test does not parse
+object a {
+  childContext.onDone(type a = Int)
+}
