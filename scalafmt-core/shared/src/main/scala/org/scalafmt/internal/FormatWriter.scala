@@ -598,10 +598,10 @@ class FormatWriter(formatOps: FormatOps) {
             var column = 0
             val columns = minMatches
             // TODO document
-            val separatorLengthGaps = Array.fill(block.length)(0)
+            val previousSeparatorLengthGaps = Array.fill(block.length)(0)
             while (column < columns) {
               val alignmentUnits =
-                prepareAlignmentInfo(block, separatorLengthGaps, column)
+                prepareAlignmentInfo(block, previousSeparatorLengthGaps, column)
 
               val maxWidth = alignmentUnits.map(_.width).max
 
@@ -611,7 +611,7 @@ class FormatWriter(formatOps: FormatOps) {
               alignmentUnits.foreach { info =>
                 import info._
                 val tokenLengthGap = maxWidthTokenLength - separatorLength
-                separatorLengthGaps(lineIndex) += tokenLengthGap
+                previousSeparatorLengthGaps(lineIndex) = tokenLengthGap
                 finalResult += tokenHash -> (maxWidth - width + tokenLengthGap)
               }
               column += 1
