@@ -27,13 +27,13 @@ object RedundantBraces extends Rewrite {
       case _ => false
     }
 
-  def canRewriteWithParens(b: Term.Block): Boolean = {
+  def canRewriteWithParens(b: Term.Block): Boolean =
     getBlockSingleStat(b).exists {
-      case f: Term.Function => RedundantBraces.canRewriteWithParens(f)
+      case f: Term.Function => canRewriteWithParens(f)
       case _: Term.Assign => false // disallowed in 2.13
+      case _: Defn => false
       case _ => true
     }
-  }
 
   /* guard for statements requiring a wrapper block
    * "foo { x => y; z }" can't become "foo(x => y; z)" */
@@ -41,6 +41,7 @@ object RedundantBraces extends Rewrite {
   def canRewriteWithParens(f: Term.Function, nested: Boolean = false): Boolean =
     !needParensAroundParams(f) && (getTermSingleStat(f.body) match {
       case Some(t: Term.Function) => canRewriteWithParens(t, true)
+      case Some(_: Defn) => false
       case x => nested || x.isDefined
     })
 
