@@ -10,6 +10,6 @@ for {
 } yield cc
 >>>
 for {
-  a  <- b
+  a <- b
   cc = d
 } yield cc
