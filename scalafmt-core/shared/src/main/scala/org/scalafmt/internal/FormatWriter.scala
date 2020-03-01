@@ -3,6 +3,7 @@ package org.scalafmt.internal
 import java.util.regex.Pattern
 
 import org.scalafmt.rewrite.RedundantBraces
+import org.scalafmt.util.TokenOps.TokenHash
 import org.scalafmt.util.TreeOps
 
 import scala.annotation.tailrec
@@ -596,18 +597,22 @@ class FormatWriter(formatOps: FormatOps) {
           if (matches == 0 || doubleNewline || !locationIter.hasNext) {
             var column = 0
             val columns = minMatches
+            // TODO document
+            val separatorLengthGaps = Array.fill(block.length)(0)
             while (column < columns) {
-              val blockWithWidth = block.map { line =>
-                val location = line(column)
-                val previousWidth =
-                  if (column == 0) 0 else line(column - 1).shift
-                val key = location.shift - previousWidth
-                key -> hash(location.formatToken.left)
-              }
-              val maxWidth = blockWithWidth.map(_._1).max
-              blockWithWidth.foreach {
-                case (width, tokenHash) =>
-                  finalResult += tokenHash -> (maxWidth - width)
+              val alignmentUnits =
+                prepareAlignmentInfo(block, separatorLengthGaps, column)
+
+              val maxWidth = alignmentUnits.map(_.width).max
+
+              val maxWidthTokenLength =
+                alignmentUnits.maxBy(_.width).separatorLength
+
+              alignmentUnits.foreach { info =>
+                import info._
+                val tokenLengthGap = maxWidthTokenLength - separatorLength
+                separatorLengthGaps(lineIndex) += tokenLengthGap
+                finalResult += tokenHash -> (maxWidth - width + tokenLengthGap)
               }
               column += 1
             }
@@ -624,6 +629,25 @@ class FormatWriter(formatOps: FormatOps) {
     }
   }
 
+  private def prepareAlignmentInfo(
+      block: Vector[Array[FormatLocation]],
+      separatorLengthGaps: Array[Int],
+      column: Int
+  ): Vector[AlignmentUnit] =
+    block.zipWithIndex.map {
+      case (line, i) =>
+        val location = line(column)
+        val previousWidth =
+          if (column == 0) 0 else line(column - 1).shift
+        val key = location.shift - previousWidth + separatorLengthGaps(i)
+        AlignmentUnit(
+          key,
+          hash(location.formatToken.left),
+          location.formatToken.right.text.length,
+          i
+        )
+    }
+
 }
 
 object FormatWriter {
@@ -633,6 +657,29 @@ object FormatWriter {
       state: State,
       shift: Int = 0,
       replace: String = null
+  )
+
+  /**
+    * Alignment information extracted from FormatToken. Used only when align!=none.
+    * For example:
+    * ```
+    * libraryDependencies ++= Seq(
+    *   "io.get-coursier" % "interface" % "0.0.17",
+    *   "org.scalacheck" %% "scalacheck" % scalacheckV
+    * )
+    * ```
+    *
+    * `"io.get-coursier" % "interface" % "0.0.17"`
+    *  |<--------------->|      => width
+    *  hash("io.get-coursier")  => tokenHash
+    *  length(%)                => separatorLength
+    *  line number in block (1) => lineIndex
+    * */
+  case class AlignmentUnit(
+      width: Int,
+      tokenHash: TokenHash,
+      separatorLength: Int,
+      lineIndex: Int
   )
 
   // cache indentations to some level
