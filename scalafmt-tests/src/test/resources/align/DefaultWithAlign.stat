@@ -553,3 +553,13 @@ val iovec = CStruct2(
   Ptr(Byte), /* iov_base */
   CSize
 )
+<<< pattern matching with tuples
+x match {
+  case 1 => a -> b
+  case 42 => abc -> 3
+}
+>>>
+x match {
+  case 1  => a   -> b
+  case 42 => abc -> 3
+}
