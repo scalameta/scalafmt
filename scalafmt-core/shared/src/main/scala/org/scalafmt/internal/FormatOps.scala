@@ -183,7 +183,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
   @tailrec
   final def nextNonCommentSameLine(curr: FormatToken): FormatToken =
-    if (curr.newlinesBetween != 0 || !curr.right.is[T.Comment]) curr
+    if (curr.hasBreak || !curr.right.is[T.Comment]) curr
     else {
       val tok = next(curr)
       if (tok == curr) curr
@@ -214,10 +214,10 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
           T.Semicolon() | T.RightArrow() | T.Equals()
           if tokens.hasNext(start) &&
             !startsNewBlock(start.right) &&
-            start.newlinesBetween == 0 =>
+            start.noBreak =>
         rhsOptimalToken(next(start))
       case c: T.Comment
-          if style.activeForEdition_2020_01 && start.newlinesBetween == 0 &&
+          if style.activeForEdition_2020_01 && start.noBreak &&
             (!start.left.is[T.LeftParen] || isSingleLineComment(c)) =>
         c
       case _ => start.left
@@ -233,8 +233,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
           _: T.Equals =>
         None
       case _: T.RightParen if start.left.is[T.LeftParen] => None
-      case c: T.Comment
-          if isSingleLineComment(c) && start.newlinesBetween == 0 =>
+      case c: T.Comment if isSingleLineComment(c) && start.noBreak =>
         Some(c)
       case _ => Some(start.left)
     }
@@ -281,8 +280,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   @tailrec
   final def startsStatement(tok: FormatToken): Boolean = {
     statementStarts.contains(hash(tok.right)) ||
-    (tok.right.is[T.Comment] && tok.newlinesBetween != 0 &&
-    startsStatement(next(tok)))
+    (tok.right.is[T.Comment] && tok.hasBreak && startsStatement(next(tok)))
   }
 
   def parensRange(open: Token): Range =
@@ -372,7 +370,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
           if owner == t.meta.leftOwner &&
             !right.is[T.LeftBrace] &&
             // If comment is bound to comma, see unit/Comment.
-            (!right.is[T.Comment] || t.newlinesBetween != 0) =>
+            (!right.is[T.Comment] || t.hasBreak) =>
         val isNewline = right.is[T.Comment]
         splits.filter(_.modification.isNewline == isNewline)
     }
@@ -390,7 +388,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
           if owner == t.meta.leftOwner &&
             // TODO(olafur) what the right { decides to be single line?
             // If comment is bound to comma, see unit/Comment.
-            (!right.is[T.Comment] || t.newlinesBetween != 0) =>
+            (!right.is[T.Comment] || t.hasBreak) =>
         if (!right.is[T.LeftBrace])
           splits.filter(_.modification.isNewline)
         else if (!style.activeForEdition_2020_03)
@@ -687,15 +685,14 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   }
 
   def opensConfigStyle(
-      formatToken: FormatToken
+      ft: FormatToken
   )(implicit style: ScalafmtConfig): Boolean = {
     def opensImplicit =
-      (style.newlines.afterImplicitParamListModifier ||
-        next(formatToken).newlinesBetween != 0) &&
-        opensConfigStyleImplicitParamList(formatToken)
-    (formatToken.newlinesBetween != 0 || opensImplicit) && {
-      val close = matching(formatToken.left)
-      tokens(close, -1).newlinesBetween > 0
+      (style.newlines.afterImplicitParamListModifier || next(ft).hasBreak) &&
+        opensConfigStyleImplicitParamList(ft)
+    (ft.hasBreak || opensImplicit) && {
+      val close = matching(ft.left)
+      tokens(close, -1).hasBreak
     }
   }
 
@@ -997,7 +994,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
     def configStyle =
       style.optIn.configStyleArguments &&
-        style.activeForEdition_2020_03 && ft.newlinesBetween != 0
+        style.activeForEdition_2020_03 && ft.hasBreak
 
     def belowArityThreshold =
       maxArity < style.verticalMultiline.arityThreshold
@@ -1042,7 +1039,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   )(implicit style: ScalafmtConfig): Modification =
     ft.right match {
       case c: T.Comment =>
-        val isDetachedSlc = ft.newlinesBetween != 0 && isSingleLineComment(c)
+        val isDetachedSlc = ft.hasBreak && isSingleLineComment(c)
         if (isDetachedSlc || next(ft).leftHasNewline) null else Space
       case _ =>
         Space(style.spaces.inParentheses && spaceOk)

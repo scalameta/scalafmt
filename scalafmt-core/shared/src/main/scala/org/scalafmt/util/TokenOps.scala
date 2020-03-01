@@ -175,7 +175,7 @@ object TokenOps {
     }
 
   def isAttachedSingleLineComment(ft: FormatToken) =
-    isSingleLineComment(ft.right) && ft.newlinesBetween == 0
+    isSingleLineComment(ft.right) && ft.noBreak
 
   def defnTemplate(tree: Tree): Option[Template] = tree match {
     case t: Defn.Object => Some(t.templ)

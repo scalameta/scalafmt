@@ -1138,10 +1138,8 @@ class Router(formatOps: FormatOps) {
         val breakOnEveryDot = Policy(expire) {
           case Decision(t @ FormatToken(_, _: T.Dot, _), _)
               if chain.contains(t.meta.rightOwner) =>
-            val mod = NoSplit.orNL(
-              style.optIn.breaksInsideChains && t.newlinesBetween == 0
-            )
-            Seq(Split(mod, 1))
+            val noNL = style.optIn.breaksInsideChains && t.noBreak
+            Seq(Split(NoSplit.orNL(noNL), 1))
         }
         val exclude = getExcludeIf(expire)
         // This policy will apply to both the space and newline splits, otherwise
