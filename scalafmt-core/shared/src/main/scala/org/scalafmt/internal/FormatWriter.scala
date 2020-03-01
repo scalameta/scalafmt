@@ -597,7 +597,27 @@ class FormatWriter(formatOps: FormatOps) {
           if (matches == 0 || doubleNewline || !locationIter.hasNext) {
             var column = 0
             val columns = minMatches
-            // TODO document
+
+            /**
+              * Separator length gap needed for align blocks with different token
+              * lengths by expression names, not tokens itself.
+              *
+              * Without gaps considering:
+              * ```
+              * libraryDependencies ++= Seq(
+              *   "org.scalacheck"  %% "scalacheck" % scalacheckV,
+              *   "io.get-coursier" % "interface"   % "0.0.17"
+              * )
+              * ```
+              *
+              * With gaps considering:
+              * ```
+              * libraryDependencies ++= Seq(
+              *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+              *   "io.get-coursier" % "interface"  % "0.0.17"
+              * )
+              * ```
+              * */
             val previousSeparatorLengthGaps = Array.fill(block.length)(0)
             while (column < columns) {
               val alignmentUnits =
