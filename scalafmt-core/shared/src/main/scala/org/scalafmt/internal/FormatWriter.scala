@@ -640,10 +640,13 @@ class FormatWriter(formatOps: FormatOps) {
         val previousWidth =
           if (column == 0) 0 else line(column - 1).shift
         val key = location.shift - previousWidth + separatorLengthGaps(i)
+        val separatorLength =
+          if (location.formatToken.right.is[Token.Comment]) 0
+          else location.formatToken.right.text.length
         AlignmentUnit(
           key,
           hash(location.formatToken.left),
-          location.formatToken.right.text.length,
+          separatorLength,
           i
         )
     }
