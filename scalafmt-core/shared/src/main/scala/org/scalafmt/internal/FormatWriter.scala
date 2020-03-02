@@ -572,10 +572,36 @@ class FormatWriter(formatOps: FormatOps) {
           if (!ok || floc.formatToken.leftHasNewline) columnShift = 0
           columnShift += floc.shift
           if (ok)
-            if (isCandidate(floc))
+            if (isCandidate(floc)) {
+
+              /**
+                * Separator length gap needed to align blocks with different token
+                * lengths by expression names, not tokens themselves.
+                *
+                * Without considering gaps:
+                * ```
+                * libraryDependencies ++= Seq(
+                *   "org.scalacheck"  %% "scalacheck" % scalacheckV,
+                *   "io.get-coursier" % "interface"   % "0.0.17"
+                * )
+                * ```
+                *
+                * Taking gaps into account:
+                * ```
+                * libraryDependencies ++= Seq(
+                *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+                *   "io.get-coursier" % "interface"  % "0.0.17"
+                * )
+                * ```
+                * */
+              val gapWidth =
+                if (!initStyle.activeForEdition_2020_03 ||
+                  floc.formatToken.right.is[T.Comment]) 0
+                else floc.formatToken.right.syntax.length
               columnCandidates += floc.copy(shift =
-                floc.state.prev.column + columnShift
+                floc.state.prev.column + columnShift + gapWidth
               )
+            }
           ok
         }
         while (shouldContinue(locationIter.next()) && locationIter.hasNext) {}
@@ -597,39 +623,14 @@ class FormatWriter(formatOps: FormatOps) {
             var column = 0
             val columns = minMatches
 
-            /**
-              * Separator length gap needed to align blocks with different token
-              * lengths by expression names, not tokens themselves.
-              *
-              * Without considering gaps:
-              * ```
-              * libraryDependencies ++= Seq(
-              *   "org.scalacheck"  %% "scalacheck" % scalacheckV,
-              *   "io.get-coursier" % "interface"   % "0.0.17"
-              * )
-              * ```
-              *
-              * Taking gaps into account:
-              * ```
-              * libraryDependencies ++= Seq(
-              *   "org.scalacheck" %% "scalacheck" % scalacheckV,
-              *   "io.get-coursier" % "interface"  % "0.0.17"
-              * )
-              * ```
-              * */
-            val previousSeparatorLengthGaps = new Array[Int](block.length)
             while (column < columns) {
               val alignmentUnits =
-                prepareAlignmentInfo(block, previousSeparatorLengthGaps, column)
+                prepareAlignmentInfo(block, column)
 
               val widest = alignmentUnits.maxBy(_.width)
               alignmentUnits.foreach { info =>
                 import info._
-                val tokenLengthGap =
-                  if (!initStyle.activeForEdition_2020_03) 0
-                  else widest.separatorLength - separatorLength
-                previousSeparatorLengthGaps(lineIndex) = tokenLengthGap
-                finalResult += tokenHash -> (widest.width - width + tokenLengthGap)
+                finalResult += tokenHash -> (widest.width - width)
               }
               column += 1
             }
@@ -648,7 +649,6 @@ class FormatWriter(formatOps: FormatOps) {
 
   private def prepareAlignmentInfo(
       block: Vector[Array[FormatLocation]],
-      separatorLengthGaps: Array[Int],
       column: Int
   ): Vector[AlignmentUnit] =
     block.zipWithIndex.map {
@@ -656,15 +656,10 @@ class FormatWriter(formatOps: FormatOps) {
         val location = line(column)
         val previousWidth =
           if (column == 0) 0 else line(column - 1).shift
-        val key = location.shift - previousWidth + separatorLengthGaps(i)
-        val separatorLength =
-          if (location.formatToken.right.is[Token.Comment]) 0
-          else location.formatToken.right.syntax.length
+        val key = location.shift - previousWidth
         AlignmentUnit(
           key,
-          hash(location.formatToken.left),
-          separatorLength,
-          i
+          hash(location.formatToken.left)
         )
     }
 
@@ -692,14 +687,10 @@ object FormatWriter {
     * `"io.get-coursier" % "interface" % "0.0.17"`
     *  |<--------------->|      => width
     *  hash("io.get-coursier")  => tokenHash
-    *  length(%)                => separatorLength
-    *  line number in block (1) => lineIndex
     * */
   case class AlignmentUnit(
       width: Int,
-      tokenHash: TokenHash,
-      separatorLength: Int,
-      lineIndex: Int
+      tokenHash: TokenHash
   )
 
   // cache indentations to some level
