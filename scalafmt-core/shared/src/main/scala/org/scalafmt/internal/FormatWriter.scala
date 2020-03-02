@@ -656,7 +656,7 @@ class FormatWriter(formatOps: FormatOps) {
         val key = location.shift - previousWidth + separatorLengthGaps(i)
         val separatorLength =
           if (location.formatToken.right.is[Token.Comment]) 0
-          else location.formatToken.right.text.length
+          else location.formatToken.right.syntax.length
         AlignmentUnit(
           key,
           hash(location.formatToken.left),
