@@ -621,16 +621,12 @@ class FormatWriter(formatOps: FormatOps) {
               val alignmentUnits =
                 prepareAlignmentInfo(block, previousSeparatorLengthGaps, column)
 
-              val maxWidth = alignmentUnits.map(_.width).max
-
-              val maxWidthTokenLength =
-                alignmentUnits.maxBy(_.width).separatorLength
-
+              val widest = alignmentUnits.maxBy(_.width)
               alignmentUnits.foreach { info =>
                 import info._
-                val tokenLengthGap = maxWidthTokenLength - separatorLength
+                val tokenLengthGap = widest.separatorLength - separatorLength
                 previousSeparatorLengthGaps(lineIndex) = tokenLengthGap
-                finalResult += tokenHash -> (maxWidth - width + tokenLengthGap)
+                finalResult += tokenHash -> (widest.width - width + tokenLengthGap)
               }
               column += 1
             }
