@@ -441,6 +441,25 @@ object a {
 }
 ```
 
+#### `danglingParentheses.exclude`
+
+When the appropriate `danglingParentheses` flag (e.g., `defnSite`) has been set,
+this parameter can be used to limit contexts where dangling is applied
+(currently, `class`, `trait` and `def` are supported).
+
+```scala mdoc:defaults
+danglingParentheses.exclude
+```
+
+```scala mdoc:scalafmt
+continuationIndent.defnSite = 2
+danglingParentheses.defnSite = true
+danglingParentheses.exclude = [def]
+---
+def other(a: String, b: String)(c: String, d: String) = a + b + c
+other(a, b)(c, d)
+```
+
 ### `newlines.alwaysBeforeTopLevelStatements`
 
 ```scala mdoc:defaults
@@ -926,6 +945,29 @@ verticalMultiline.arityThreshold = 2
 verticalMultiline.newlineAfterOpenParen = true
 ---
 def other(a: String, b: String)(c: String, d: String) = a + b + c
+```
+
+### `verticalMultiline.excludeDanglingParens`
+
+> This parameter has been deprecated, please use
+> [danglingParentheses.exclude](#danglingparenthesesexclude). Keep in mind,
+> though, that the new parameter is empty by default while the old one isn't,
+> so to use empty exclude list, one must set the old
+> `verticalMultiline.excludeDanglingParens=[]`.
+
+```scala mdoc:defaults
+verticalMultiline.excludeDanglingParens
+```
+
+```scala mdoc:scalafmt
+continuationIndent.defnSite = 2
+verticalMultiline.excludeDanglingParens = [def]
+verticalMultiline.atDefnSite = true
+verticalMultiline.arityThreshold = 2
+verticalMultiline.newlineAfterOpenParen = true
+---
+def other(a: String, b: String)(c: String, d: String) = a + b + c
+other(a, b)(c, d)
 ```
 
 ### Vertical multiline with `implicit` parameter lists
