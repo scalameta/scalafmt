@@ -20,7 +20,7 @@ import scala.meta.{Importer, Mod, Pkg, Term, Tree}
 /**
   * Produces formatted output from sequence of splits.
   */
-class FormatWriter(formatOps: FormatOps)(implicit style: ScalafmtConfig) {
+class FormatWriter(formatOps: FormatOps) {
   import FormatWriter._
   import formatOps._
 
@@ -626,9 +626,8 @@ class FormatWriter(formatOps: FormatOps)(implicit style: ScalafmtConfig) {
               alignmentUnits.foreach { info =>
                 import info._
                 val tokenLengthGap =
-                  if (style.activeForEdition_2020_03)
-                    widest.separatorLength - separatorLength
-                  else 0
+                  if (!initStyle.activeForEdition_2020_03) 0
+                  else widest.separatorLength - separatorLength
                 previousSeparatorLengthGaps(lineIndex) = tokenLengthGap
                 finalResult += tokenHash -> (widest.width - width + tokenLengthGap)
               }

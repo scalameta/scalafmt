@@ -68,7 +68,7 @@ object Scalafmt {
         val tree = runner.dialect(toParse).parse(runner.parser).get
         val formatOps = new FormatOps(tree, style)
         runner.event(CreateFormatOps(formatOps))
-        val formatWriter = new FormatWriter(formatOps)(style)
+        val formatWriter = new FormatWriter(formatOps)
         val partial = BestFirstSearch(formatOps, range, formatWriter)
         val formattedString = formatWriter.mkString(partial.state)
         val correctedFormattedString =
