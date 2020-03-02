@@ -597,10 +597,10 @@ class FormatWriter(formatOps: FormatOps) {
             val columns = minMatches
 
             /**
-              * Separator length gap needed for align blocks with different token
-              * lengths by expression names, not tokens itself.
+              * Separator length gap needed to align blocks with different token
+              * lengths by expression names, not tokens themselves.
               *
-              * Without gaps considering:
+              * Without considering gaps:
               * ```
               * libraryDependencies ++= Seq(
               *   "org.scalacheck"  %% "scalacheck" % scalacheckV,
@@ -608,7 +608,7 @@ class FormatWriter(formatOps: FormatOps) {
               * )
               * ```
               *
-              * With gaps considering:
+              * Taking gaps into account:
               * ```
               * libraryDependencies ++= Seq(
               *   "org.scalacheck" %% "scalacheck" % scalacheckV,
