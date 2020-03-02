@@ -1462,7 +1462,7 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_: T.KwImplicit, _, _)
           if style.activeForEdition_2020_03 &&
             !style.verticalMultiline.atDefnSite =>
-        opensImplicitParamList(formatToken).fold {
+        opensImplicitParamList(prevNonComment(prev(formatToken))).fold {
           Seq(Split(Space, 0))
         } { params =>
           val spaceSplit = Split(Space, 0)

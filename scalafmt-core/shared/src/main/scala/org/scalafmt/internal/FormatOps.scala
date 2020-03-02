@@ -1142,7 +1142,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   def opensImplicitParamList(ft: FormatToken): Option[Seq[Term.Param]] = {
     val paramsOpt = splitDefnIntoParts.lift(ft.meta.leftOwner).flatMap {
       case (_, _, _, paramss) =>
-        findArgsFor(ft, paramss)
+        findArgsFor(ft.left, paramss)
     }
     // make sure there's no other param with implicit
     paramsOpt.filter(!_.exists(TreeOps.hasExplicitImplicit))
