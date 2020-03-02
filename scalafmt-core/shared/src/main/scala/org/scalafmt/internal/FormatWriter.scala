@@ -2,7 +2,9 @@ package org.scalafmt.internal
 
 import java.util.regex.Pattern
 
+import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.rewrite.RedundantBraces
+import org.scalafmt.util.TokenOps.TokenHash
 import org.scalafmt.util.TreeOps
 
 import scala.annotation.tailrec
@@ -594,18 +596,40 @@ class FormatWriter(formatOps: FormatOps) {
           if (matches == 0 || doubleNewline || !locationIter.hasNext) {
             var column = 0
             val columns = minMatches
+
+            /**
+              * Separator length gap needed to align blocks with different token
+              * lengths by expression names, not tokens themselves.
+              *
+              * Without considering gaps:
+              * ```
+              * libraryDependencies ++= Seq(
+              *   "org.scalacheck"  %% "scalacheck" % scalacheckV,
+              *   "io.get-coursier" % "interface"   % "0.0.17"
+              * )
+              * ```
+              *
+              * Taking gaps into account:
+              * ```
+              * libraryDependencies ++= Seq(
+              *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+              *   "io.get-coursier" % "interface"  % "0.0.17"
+              * )
+              * ```
+              * */
+            val previousSeparatorLengthGaps = new Array[Int](block.length)
             while (column < columns) {
-              val blockWithWidth = block.map { line =>
-                val location = line(column)
-                val previousWidth =
-                  if (column == 0) 0 else line(column - 1).shift
-                val key = location.shift - previousWidth
-                key -> hash(location.formatToken.left)
-              }
-              val maxWidth = blockWithWidth.map(_._1).max
-              blockWithWidth.foreach {
-                case (width, tokenHash) =>
-                  finalResult += tokenHash -> (maxWidth - width)
+              val alignmentUnits =
+                prepareAlignmentInfo(block, previousSeparatorLengthGaps, column)
+
+              val widest = alignmentUnits.maxBy(_.width)
+              alignmentUnits.foreach { info =>
+                import info._
+                val tokenLengthGap =
+                  if (!initStyle.activeForEdition_2020_03) 0
+                  else widest.separatorLength - separatorLength
+                previousSeparatorLengthGaps(lineIndex) = tokenLengthGap
+                finalResult += tokenHash -> (widest.width - width + tokenLengthGap)
               }
               column += 1
             }
@@ -622,6 +646,28 @@ class FormatWriter(formatOps: FormatOps) {
     }
   }
 
+  private def prepareAlignmentInfo(
+      block: Vector[Array[FormatLocation]],
+      separatorLengthGaps: Array[Int],
+      column: Int
+  ): Vector[AlignmentUnit] =
+    block.zipWithIndex.map {
+      case (line, i) =>
+        val location = line(column)
+        val previousWidth =
+          if (column == 0) 0 else line(column - 1).shift
+        val key = location.shift - previousWidth + separatorLengthGaps(i)
+        val separatorLength =
+          if (location.formatToken.right.is[Token.Comment]) 0
+          else location.formatToken.right.syntax.length
+        AlignmentUnit(
+          key,
+          hash(location.formatToken.left),
+          separatorLength,
+          i
+        )
+    }
+
 }
 
 object FormatWriter {
@@ -631,6 +677,29 @@ object FormatWriter {
       state: State,
       shift: Int = 0,
       replace: String = null
+  )
+
+  /**
+    * Alignment information extracted from FormatToken. Used only when align!=none.
+    * For example:
+    * ```
+    * libraryDependencies ++= Seq(
+    *   "io.get-coursier" % "interface" % "0.0.17",
+    *   "org.scalacheck" %% "scalacheck" % scalacheckV
+    * )
+    * ```
+    *
+    * `"io.get-coursier" % "interface" % "0.0.17"`
+    *  |<--------------->|      => width
+    *  hash("io.get-coursier")  => tokenHash
+    *  length(%)                => separatorLength
+    *  line number in block (1) => lineIndex
+    * */
+  case class AlignmentUnit(
+      width: Int,
+      tokenHash: TokenHash,
+      separatorLength: Int,
+      lineIndex: Int
   )
 
   // cache indentations to some level

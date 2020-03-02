@@ -1,0 +1,71 @@
+align=most
+<<< Align = with <-
+for {
+  _ <- f1
+  someValue <- f2
+  _ = doLogs
+ _ <- f3
+} yield ()
+>>>
+for {
+  _         <- f1
+  someValue <- f2
+  _          = doLogs
+  _         <- f3
+} yield ()
+<<< align sbt deps
+libraryDependencies ++= Seq(
+"org.scalacheck" %% "scalacheck" % scalacheckV,
+"io.get-coursier" % "interface" % "0.0.17"
+)
+>>>
+libraryDependencies ++= Seq(
+  "org.scalacheck" %% "scalacheck" % scalacheckV,
+  "io.get-coursier" % "interface"  % "0.0.17"
+)
+<<< align long token under short
+libraryDependencies ++= Seq(
+"io.get-coursier" % "interface" % "0.0.17",
+"org.scalacheck" %% "scalacheck" % scalacheckV
+)
+>>>
+libraryDependencies ++= Seq(
+  "io.get-coursier" % "interface"  % "0.0.17",
+  "org.scalacheck" %% "scalacheck" % scalacheckV
+)
+<<< three different lengths
+libraryDependencies ++= Seq(
+"io.get-coursier" % "interface" % "0.0.17",
+"com.geirsson" %%% "metaconfig-core" % metaconfigV,
+"org.scalacheck" %% "scalacheck" % scalacheckV
+)
+>>>
+libraryDependencies ++= Seq(
+  "io.get-coursier" % "interface"       % "0.0.17",
+  "com.geirsson"  %%% "metaconfig-core" % metaconfigV,
+  "org.scalacheck" %% "scalacheck"      % scalacheckV
+)
+<<< another for different lengths
+libraryDependencies ++= Seq(
+"io.get-coursier" % "interface" % "0.0.17",
+"com.geirsson1111111" %%% "metaconfig-core" % metaconfigV,
+"org.scalacheck" %% "scalacheck" % scalacheckV
+)
+>>>
+libraryDependencies ++= Seq(
+  "io.get-coursier"       % "interface"       % "0.0.17",
+  "com.geirsson1111111" %%% "metaconfig-core" % metaconfigV,
+  "org.scalacheck"       %% "scalacheck"      % scalacheckV
+)
+<<< a lot of different tokens
+libraryDependencies ++= Seq(
+"io.get-coursier" % "interface" %% "0.0.17",
+"com.geirsson1111111" %%% "metaconfig-core" % metaconfigV,
+"org.scalacheck" %% "scalacheck" % scalacheckV
+)
+>>>
+libraryDependencies ++= Seq(
+  "io.get-coursier"       % "interface"      %% "0.0.17",
+  "com.geirsson1111111" %%% "metaconfig-core" % metaconfigV,
+  "org.scalacheck"       %% "scalacheck"      % scalacheckV
+)
