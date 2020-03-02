@@ -617,7 +617,7 @@ class FormatWriter(formatOps: FormatOps)(implicit style: ScalafmtConfig) {
               * )
               * ```
               * */
-            val previousSeparatorLengthGaps = Array.fill(block.length)(0)
+            val previousSeparatorLengthGaps = new Array[Int](block.length)
             while (column < columns) {
               val alignmentUnits =
                 prepareAlignmentInfo(block, previousSeparatorLengthGaps, column)
