@@ -179,7 +179,7 @@ trait HasTests extends FormatAssertions {
       debug: Debug
   ): Array[FormatOutput] = {
     val builder = mutable.ArrayBuilder.make[FormatOutput]
-    val locations = new FormatWriter(debug.formatOps)
+    val locations = new FormatWriter(debug.formatOps)(style)
       .getFormatLocations(debug.state, debug = debug.verbose)
     locations.iterate.foreach { entry =>
       val token = entry.curr.formatToken

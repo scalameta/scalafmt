@@ -2,6 +2,7 @@ package org.scalafmt.internal
 
 import java.util.regex.Pattern
 
+import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.rewrite.RedundantBraces
 import org.scalafmt.util.TokenOps.TokenHash
 import org.scalafmt.util.TreeOps
@@ -19,7 +20,7 @@ import scala.meta.{Importer, Mod, Pkg, Term, Tree}
 /**
   * Produces formatted output from sequence of splits.
   */
-class FormatWriter(formatOps: FormatOps) {
+class FormatWriter(formatOps: FormatOps)(implicit style: ScalafmtConfig) {
   import FormatWriter._
   import formatOps._
 
@@ -624,7 +625,10 @@ class FormatWriter(formatOps: FormatOps) {
               val widest = alignmentUnits.maxBy(_.width)
               alignmentUnits.foreach { info =>
                 import info._
-                val tokenLengthGap = widest.separatorLength - separatorLength
+                val tokenLengthGap =
+                  if (style.activeForEdition_2020_03)
+                    widest.separatorLength - separatorLength
+                  else 0
                 previousSeparatorLengthGaps(lineIndex) = tokenLengthGap
                 finalResult += tokenHash -> (widest.width - width + tokenLengthGap)
               }
