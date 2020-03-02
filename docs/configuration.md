@@ -397,22 +397,19 @@ insert newlines.
 
 While this parameter is not technically under the `newlines` section, it logically belongs there.
 
+#### `danglingParentheses.defnSite`
 ```scala mdoc:defaults
-danglingParentheses
+danglingParentheses.defnSite
 ```
-
 ```scala mdoc:scalafmt
 danglingParentheses.defnSite = true
-danglingParentheses.callSite = true
-# shortcut to set both
-danglingParentheses = true
+danglingParentheses.callSite = false
 ---
 object a {
   // defnSite
   def method(
     a: Int,
-    b: String
-  ): Boolean
+    b: String): Boolean
 
   // callSite
   method(
@@ -422,17 +419,20 @@ object a {
 }
 ```
 
+#### `danglingParentheses.callSite`
+```scala mdoc:defaults
+danglingParentheses.callSite
+```
 ```scala mdoc:scalafmt
 danglingParentheses.defnSite = false
-danglingParentheses.callSite = false
-# shortcut to set both
-danglingParentheses = false
+danglingParentheses.callSite = true
 ---
 object a {
   // defnSite
   def method(
     a: Int,
-    b: String): Boolean
+    b: String
+  ): Boolean
 
   // callSite
   method(
