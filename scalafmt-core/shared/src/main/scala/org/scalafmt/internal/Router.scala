@@ -669,9 +669,9 @@ class Router(formatOps: FormatOps) {
         // TODO(olafur) DRY. Same logic as in default.
         val exclude =
           if (isBracket)
-            insideBlock(formatToken, close, _.isInstanceOf[T.LeftBracket])
+            insideBlock[T.LeftBracket](formatToken, close)
           else
-            insideBlock(formatToken, close, x => x.isInstanceOf[T.LeftBrace])
+            insideBlock[T.LeftBrace](formatToken, close)
         val excludeRanges = exclude.map(parensRange)
         val unindent =
           UnindentAtExclude(exclude, Num(-style.continuationIndent.callSite))
@@ -721,13 +721,11 @@ class Router(formatOps: FormatOps) {
         val bracketCoef = if (isBracket) Constants.BracketPenalty else 1
 
         val nestedPenalty = nestedApplies(leftOwner) + lhsPenalty
-        val exclude =
-          if (isBracket) insideBlock(tok, close, _.is[T.LeftBracket])
+        val excludeRanges =
+          if (isBracket) insideBlockRanges[T.LeftBracket](tok, close)
           else if (style.activeForEdition_2020_03 && multipleArgs)
-            Set.empty[Token]
-          else
-            insideBlock(tok, close, x => x.is[T.LeftBrace])
-        val excludeRanges = exclude.map(parensRange)
+            Set.empty[Range]
+          else insideBlockRanges[T.LeftBrace](tok, close)
 
         val indent = getApplyIndent(leftOwner)
 
@@ -1084,14 +1082,13 @@ class Router(formatOps: FormatOps) {
           case _ => 0
         }
 
-        val exclude =
-          insideBlock(formatToken, expire, _.isInstanceOf[T.LeftBrace])
         rhs match {
           case t: Term.ApplyInfix =>
             infixSplit(t, formatToken)
           case _ =>
             def twoBranches: Policy = {
-              val excludeRanges = exclude.map(parensRange)
+              val excludeRanges =
+                insideBlockRanges[T.LeftBrace](formatToken, expire)
               penalizeAllNewlines(
                 expire,
                 Constants.ShouldBeSingleLine,
@@ -1321,8 +1318,7 @@ class Router(formatOps: FormatOps) {
           case t: Term.ForYield => t.body.tokens.last
           case t: Term.While => t.body.tokens.last
         }
-        val exclude =
-          insideBlock(formatToken, expire, _.is[T.LeftBrace]).map(parensRange)
+        val exclude = insideBlockRanges[T.LeftBrace](formatToken, expire)
         Seq(
           Split(Space, 0)
             .notIf(isSingleLineComment(formatToken.right) || newlines != 0)
@@ -1342,8 +1338,7 @@ class Router(formatOps: FormatOps) {
         )
       case FormatToken(_, T.KwElse() | T.KwYield(), _) =>
         val expire = rhsOptimalToken(tokens(rightOwner.tokens.last))
-        val exclude =
-          insideBlock(formatToken, expire, _.is[T.LeftBrace]).map(parensRange)
+        val exclude = insideBlockRanges[T.LeftBrace](formatToken, expire)
         Seq(
           Split(Space, 0)
             .onlyIf(newlines == 0)
@@ -1439,8 +1434,7 @@ class Router(formatOps: FormatOps) {
         )
       case tok @ FormatToken(_, cond @ T.KwIf(), _) if rightOwner.is[Case] =>
         val arrow = getCaseArrow(rightOwner.asInstanceOf[Case]).left
-        val exclude =
-          insideBlock(tok, arrow, _.is[T.LeftBrace]).map(parensRange)
+        val exclude = insideBlockRanges[T.LeftBrace](tok, arrow)
         val singleLine = SingleLineBlock(arrow, exclude = exclude)
 
         Seq(

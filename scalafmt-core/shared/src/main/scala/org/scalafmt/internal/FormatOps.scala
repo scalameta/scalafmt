@@ -12,6 +12,7 @@ import org.scalafmt.util.LoggerOps.{log, logger}
 
 import scala.annotation.tailrec
 import scala.collection.mutable
+import scala.meta.classifiers.Classifier
 import scala.meta.{
   Case,
   Ctor,
@@ -294,6 +295,23 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       Set(Range(matching(end).start, end.end))
     else Set.empty[Range]
   }
+
+  def insideBlockRanges[A](start: FormatToken, end: Token)(
+      implicit classifier: Classifier[Token, A]
+  ): Set[Range] =
+    insideBlockRanges(start, end, classifier.apply)
+
+  def insideBlockRanges(
+      start: FormatToken,
+      end: Token,
+      matches: Token => Boolean
+  ): Set[Range] =
+    insideBlock(start, end, matches).map(parensRange)
+
+  def insideBlock[A](start: FormatToken, end: Token)(
+      implicit classifier: Classifier[Token, A]
+  ): Set[Token] =
+    insideBlock(start, end, classifier.apply)
 
   def insideBlock(
       start: FormatToken,
