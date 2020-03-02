@@ -66,14 +66,6 @@ import org.scalafmt.util.ValidationOps
   *                        If [[org.scalafmt.config.ImportSelectors.singleLine]], import selectors
   *                        are kept on a single line
   *                        The default setting is currently `noBinPack`.
-  * @param poorMansTrailingCommasInConfigStyle (experimental, may be removed)
-  *                                      If true, formats config style like this:
-  *
-  *                                      function(
-  *                                        a
-  *                                        , b
-  *                                        , c
-  *                                      )
   * @param trailingCommas If [[org.scalafmt.config.TrailingCommas.always]], trailing
   *                       commas are added everywhere a newline is followed by a right parens, brace
   *                       or bracket.
@@ -149,6 +141,11 @@ case class ScalafmtConfig(
     includeNoParensInSelectChains: Boolean = false,
     assumeStandardLibraryStripMargin: Boolean = false,
     danglingParentheses: DanglingParentheses = DanglingParentheses(true, true),
+    @annotation.DeprecatedName(
+      "poorMansTrailingCommasInConfigStyle",
+      "Scala supports trailing commas after 2.12.2. Use trailingCommas instead",
+      "2.5.0"
+    )
     poorMansTrailingCommasInConfigStyle: Boolean = false,
     trailingCommas: TrailingCommas = TrailingCommas.never,
     @deprecated("Use VerticalMultiline.atDefnSite instead", "1.6.0")
