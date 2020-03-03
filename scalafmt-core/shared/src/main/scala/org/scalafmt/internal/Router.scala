@@ -1,7 +1,7 @@
 package org.scalafmt.internal
 
 import org.scalafmt.Error.UnexpectedTree
-import org.scalafmt.config.{ImportSelectors, NewlineCurlyLambda, Newlines}
+import org.scalafmt.config.{ScalafmtConfig, ImportSelectors, Newlines}
 import org.scalafmt.internal.ExpiresOn.{Left, Right}
 import org.scalafmt.internal.Length.{Num, StateColumn}
 import org.scalafmt.internal.Policy.NoPolicy
@@ -499,47 +499,8 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(Space, 0)
         )
-      case tok @ FormatToken(e @ T.Equals(), right, _)
-          if defBody(leftOwner).isDefined =>
-        val expire = defBody(leftOwner).get.tokens.last
-        val exclude = getExcludeIf(
-          expire, {
-            case T.RightBrace() => true
-            case close @ T.RightParen()
-                if opensConfigStyle(tokens(matching(close))) =>
-              // Example:
-              // def x = foo(
-              //     1
-              // )
-              true
-            case T.RightParen() if !style.newlines.alwaysBeforeMultilineDef =>
-              true
-            case _ => false
-          }
-        )
-
-        val rhsIsJsNative = isJsNative(right)
-        right match {
-          case T.LeftBrace() =>
-            // The block will take care of indenting by 2.
-            Seq(Split(Space, 0))
-          case _ =>
-            val rhsIsComment = isSingleLineComment(right)
-            Seq(
-              Split(Space, 0)
-                .notIf(rhsIsComment || newlines != 0 && !rhsIsJsNative)
-                .withPolicy(
-                  if (!style.newlines.alwaysBeforeMultilineDef) NoPolicy
-                  else SingleLineBlock(expire, exclude = exclude)
-                ),
-              Split(Space, 0)
-                .onlyIf(newlines == 0 && rhsIsComment)
-                .withIndent(2, expire, Left),
-              Split(Newline, 1)
-                .notIf(rhsIsJsNative)
-                .withIndent(2, expire, Left)
-            )
-        }
+      case FormatToken(_: T.Equals, _, _) if defBody(leftOwner).isDefined =>
+        getSplitsDefEquals(formatToken, defBody(leftOwner).get)
 
       // Parameter opening for one parameter group. This format works
       // on the WHOLE defnSite (via policies)
@@ -1050,10 +1011,9 @@ class Router(formatOps: FormatOps) {
       // an infix application or an if. For example, this is allowed:
       // val x = function(a,
       //                  b)
-      case FormatToken(tok @ T.Equals(), right, between) if (leftOwner match {
-            case _: Defn.Type | _: Defn.Val | _: Defn.Var | _: Term.Assign |
-                _: Term.Assign | _: Term.Assign =>
-              true
+      case FormatToken(_: T.Equals, right, _) if (leftOwner match {
+            case _: Defn.Type | _: Defn.Val | _: Defn.Var => true
+            case _: Term.Assign => true
             case t: Term.Param => t.default.isDefined
             case _ => false
           }) =>
@@ -1069,63 +1029,10 @@ class Router(formatOps: FormatOps) {
             }
         }
 
-        def wouldDangle = leftOwner.parent.exists { lop =>
-          if (isDefnSite(lop)) !shouldNotDangleAtDefnSite(lop, false)
-          else isCallSite(lop) && style.danglingParentheses.callSite
-        }
-
-        val expire = rhs.tokens.last
-        // rhsOptimalToken is too aggressive here
-        val optimal = tokens(expire).right match {
-          case x: T.Comma => x
-          case x @ RightParenOrBracket() if !wouldDangle => x
-          case _ => expire
-        }
-
-        val penalty = leftOwner match {
-          case l: Term.Assign if style.binPack.unsafeCallSite =>
-            Constants.BinPackAssignmentPenalty
-          case l: Term.Param if style.binPack.unsafeDefnSite =>
-            Constants.BinPackAssignmentPenalty
-          case _ => 0
-        }
-
-        rhs match {
-          case t: Term.ApplyInfix =>
-            infixSplit(t, formatToken)
-          case _ =>
-            def twoBranches: Policy = {
-              val excludeRanges =
-                insideBlockRanges[T.LeftBrace](formatToken, expire)
-              penalizeAllNewlines(
-                expire,
-                Constants.ShouldBeSingleLine,
-                ignore = x => excludeRanges.exists(_.contains(x.left.start))
-              )
-            }
-            val jsNative = isJsNative(right)
-            val noNewline = jsNative
-            val spacePolicy: Policy = rhs match {
-              case _: Term.If => twoBranches
-              case _: Term.ForYield => twoBranches
-              case _: Term.Try | _: Term.TryWithHandler
-                  if style.activeForEdition_2019_11 && !noNewline =>
-                null // we force newlines in try/catch/finally
-              case _ => NoPolicy
-            }
-            val noSpace = null == spacePolicy ||
-              (!jsNative && newlines > 0 && leftOwner.isInstanceOf[Defn])
-            val spaceIndent = if (isSingleLineComment(right)) 2 else 0
-            Seq(
-              Split(Space, 0, policy = spacePolicy)
-                .notIf(noSpace)
-                .withOptimalToken(optimal)
-                .withIndent(spaceIndent, expire, Left),
-              Split(Newline, 1 + penalty)
-                .notIf(noNewline)
-                .withIndent(2, expire, Left)
-            )
-        }
+        if (rhs.is[Term.ApplyInfix])
+          infixSplit(rhs.asInstanceOf[Term.ApplyInfix], formatToken)
+        else
+          getSplitsValEquals(formatToken, rhs)
 
       case FormatToken(T.Ident(name), _: T.Dot, _) if isSymbolicName(name) =>
         Seq(Split(NoSplit, 0))
@@ -1696,4 +1603,106 @@ class Router(formatOps: FormatOps) {
     } else {
       Seq(Split(Space, 0), Split(Newline, 1))
     }
+
+  private def getSplitsDefEquals(ft: FormatToken, body: Tree)(
+      implicit style: ScalafmtConfig
+  ): Seq[Split] = {
+    val expire = body.tokens.last
+    def exclude = getExcludeIf(
+      expire, {
+        case T.RightBrace() => true
+        case close @ T.RightParen()
+            if opensConfigStyle(tokens(matching(close))) =>
+          // Example:
+          // def x = foo(
+          //     1
+          // )
+          true
+        case T.RightParen() if !style.newlines.alwaysBeforeMultilineDef =>
+          true
+        case _ => false
+      }
+    )
+    if (ft.right.is[T.LeftBrace])
+      // The block will take care of indenting by 2.
+      Seq(Split(Space, 0))
+    else if (isSingleLineComment(ft.right))
+      Seq(Split(Newline, 0).withIndent(2, expire, Left))
+    else if (isJsNative(ft.right)) {
+      val spacePolicy =
+        if (!style.newlines.alwaysBeforeMultilineDef) Policy.NoPolicy
+        else SingleLineBlock(expire, exclude = exclude)
+      Seq(Split(Space, 0, policy = spacePolicy))
+    } else {
+      val spacePolicy =
+        if (ft.hasBreak) null
+        else if (style.newlines.alwaysBeforeMultilineDef)
+          SingleLineBlock(expire, exclude = exclude)
+        else Policy.NoPolicy
+      Seq(
+        Split(Space, 0, policy = spacePolicy).notIf(spacePolicy == null),
+        Split(Newline, 1).withIndent(2, expire, Left)
+      )
+    }
+  }
+
+  private def getSplitsValEquals(ft: FormatToken, body: Tree)(
+      implicit style: ScalafmtConfig
+  ): Seq[Split] = {
+    def wouldDangle = ft.meta.leftOwner.parent.exists { lop =>
+      if (isDefnSite(lop)) !shouldNotDangleAtDefnSite(lop, false)
+      else isCallSite(lop) && style.danglingParentheses.callSite
+    }
+
+    val expire = body.tokens.last
+    // rhsOptimalToken is too aggressive here
+    val optimal = tokens(expire).right match {
+      case x: T.Comma => x
+      case x @ RightParenOrBracket() if !wouldDangle => x
+      case _ => expire
+    }
+
+    val penalty = ft.meta.leftOwner match {
+      case l: Term.Assign if style.binPack.unsafeCallSite =>
+        Constants.BinPackAssignmentPenalty
+      case l: Term.Param if style.binPack.unsafeDefnSite =>
+        Constants.BinPackAssignmentPenalty
+      case _ => 0
+    }
+
+    def baseSpaceSplit =
+      Split(Space, 0).notIf(isSingleLineComment(ft.right))
+    def twoBranches =
+      baseSpaceSplit
+        .withOptimalToken(optimal)
+        .withPolicy {
+          val excludeRanges =
+            insideBlockRanges[T.LeftBrace](ft, expire)
+          penalizeAllNewlines(
+            expire,
+            Constants.ShouldBeSingleLine,
+            ignore = x => excludeRanges.exists(_.contains(x.left.start))
+          )
+        }
+    val okNewline = !isJsNative(ft.right)
+    val spaceSplit = {
+      if (okNewline && ft.hasBreak && ft.meta.leftOwner.is[Defn]) Split.ignored
+      else
+        body match {
+          case _: Term.If => twoBranches
+          case _: Term.ForYield => twoBranches
+          case _: Term.Try | _: Term.TryWithHandler
+              if style.activeForEdition_2019_11 && okNewline =>
+            Split.ignored // we force newlines in try/catch/finally
+          case _ => baseSpaceSplit.withOptimalToken(optimal)
+        }
+    }
+    Seq(
+      spaceSplit,
+      Split(Newline, 1 + penalty)
+        .onlyIf(okNewline || spaceSplit.isIgnored)
+        .withIndent(2, expire, Left)
+    )
+  }
+
 }
