@@ -93,3 +93,11 @@ type Row =
 type a = b_! # D
 >>>
 type a = b_! #D
+<<< ONLY symbolic types variance
+trait Foo[+ ->[_, _]]
+>>>
+trait Foo[+ ->[_, _]]
+<<< ONLY don't split symbolic type name
+trait Foo[+->[_, _]]
+>>>
+trait Foo[+->[_, _]]
