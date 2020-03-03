@@ -1368,9 +1368,7 @@ class Router(formatOps: FormatOps) {
       // Type variance
       case tok @ FormatToken(T.Ident(_), T.Ident(_) | T.Underscore(), _)
           if isTypeVariant(leftOwner) =>
-        Seq(
-          Split(NoSplit, 0)
-        )
+        Seq(Split(Space(isSymbolicIdent(tok.right)), 0))
 
       // Var args
       case FormatToken(_, T.Ident("*"), _) if rightOwner.is[Type.Repeated] =>
