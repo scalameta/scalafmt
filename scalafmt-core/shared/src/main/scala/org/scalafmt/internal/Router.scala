@@ -924,11 +924,12 @@ class Router(formatOps: FormatOps) {
                   Split(Space, 1, policy = multiLine)
                 )
             }).map(_.onlyFor(SplitTag.OneArgPerLine))
-        def oneLineBody = open.pos.endLine == close.pos.startLine
         Seq(
           Split(Space, 0),
           Split(Newline, 0)
-            .onlyIf(newlines != 0 && oneLineBody)
+            .onlyIf(oneArgPerLineSplits.isEmpty)
+            .onlyIf(newlines != 0)
+            .onlyIf(open.pos.endLine == close.pos.startLine)
             .withOptimalToken(close, killOnFail = true)
             .withPolicy(SingleLineBlock(close))
         ) ++ oneArgPerLineSplits
