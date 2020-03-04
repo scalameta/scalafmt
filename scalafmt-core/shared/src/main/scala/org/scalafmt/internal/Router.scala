@@ -919,7 +919,8 @@ class Router(formatOps: FormatOps) {
           } =>
         val close = matching(open)
         val oneArgPerLineSplits =
-          if (!style.activeForEdition_2020_03) Seq.empty
+          if (!style.activeForEdition_2020_03 && !style.newlines.sourceIgnored)
+            Seq.empty
           else
             (rightOwner match {
               case _: Term.PartialFunction | Term.Block(
@@ -937,12 +938,13 @@ class Router(formatOps: FormatOps) {
                   Split(Space, 1, policy = multiLine)
                 )
             }).map(_.onlyFor(SplitTag.OneArgPerLine))
+        val sourceIsKeep = style.newlines.sourceIs(Newlines.keep)
         Seq(
-          Split(Space, 0),
+          Split(Space, 0).onlyIf(newlines == 0 || !sourceIsKeep),
           Split(Newline, 0)
             .onlyIf(oneArgPerLineSplits.isEmpty)
             .onlyIf(newlines != 0)
-            .onlyIf(open.pos.endLine == close.pos.startLine)
+            .onlyIf(sourceIsKeep || open.pos.endLine == close.pos.startLine)
             .withSingleLine(close, killOnFail = true)
         ) ++ oneArgPerLineSplits
 
