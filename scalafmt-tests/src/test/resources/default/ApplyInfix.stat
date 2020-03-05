@@ -389,3 +389,54 @@ dddddddd + eeeeeeee /* comment */ })
     dddddddd + eeeeeeee /* comment */
   })
 }
+<<< block followed by infix 1
+object a {
+    the[Exception] thrownBy { SizeUtils.calculate(segments, "user")
+    } should have message """Cannot resolve column name "user" among (segment_id);"""
+}
+>>>
+object a {
+  the[Exception] thrownBy { SizeUtils.calculate(segments, "user") } should have message """Cannot resolve column name "user" among (segment_id);"""
+}
+<<< block followed by infix 2
+object a {
+      opt[String]("env") action { (x, c) =>
+        c.copy(env = Some(x))
+      } text ("Comma-separated list of environmental variables (in 'FOO=BAR' " +
+         "format) to pass to the Spark execution environment.")
+}
+>>>
+object a {
+  opt[String]("env") action { (x, c) =>
+    c.copy(env = Some(x))
+  } text ("Comma-separated list of environmental variables (in 'FOO=BAR' " +
+    "format) to pass to the Spark execution environment.")
+}
+<<< infix followed by block, and then another statement (endOfSingleLineBlock)
+object a {
+      (1 to demand3.toInt) foreach { _ ⇒ pSub.sendNext(input.next()) }
+      ((demand1 + demand2 + 1).toInt to (demand1 + demand2 + demand3).toInt) foreach {
+        n ⇒ c.expectNext(n)
+      }
+}
+>>>
+object a {
+  (1 to demand3.toInt) foreach { _ ⇒ pSub.sendNext(input.next()) }
+  ((demand1 + demand2 + 1).toInt to (demand1 + demand2 + demand3).toInt) foreach {
+    n ⇒ c.expectNext(n)
+  }
+}
+<<< block followed by infix 3 (BestFirstSearch shouldn't give up)
+object a {
+    intercept[MappingException] {
+      ExpressionJsonSerializer.deserialize[Token](unknownJson)
+    }.getMessage shouldBe s"Invalid feature tag `unknown`, supported tags: " +
+      "tags..."
+}
+>>>
+object a {
+  intercept[MappingException] {
+    ExpressionJsonSerializer.deserialize[Token](unknownJson)
+  }.getMessage shouldBe s"Invalid feature tag `unknown`, supported tags: " +
+    "tags..."
+}
