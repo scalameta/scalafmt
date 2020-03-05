@@ -213,9 +213,9 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     start.right match {
       case T.Comma() | T.LeftParen() | T.RightParen() | T.RightBracket() |
           T.Semicolon() | T.RightArrow() | T.Equals()
-          if tokens.hasNext(start) &&
-            !startsNewBlock(start.right) &&
-            start.noBreak =>
+          if tokens.hasNext(start) && start.noBreak &&
+            (style.activeForEdition_2020_03 && isInfixRhs(start) ||
+              !startsNewBlockOnRight(start)) =>
         rhsOptimalToken(next(start))
       case c: T.Comment
           if style.activeForEdition_2020_01 && start.noBreak &&
@@ -228,27 +228,41 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   @tailrec
   final def endOfSingleLineBlock(
       start: FormatToken
-  )(implicit style: ScalafmtConfig): Token = {
+  )(implicit style: ScalafmtConfig): FormatToken = {
+    lazy val isInfix = style.activeForEdition_2020_03 && isInfixRhs(start)
     val endFound = start.right match {
       case _: T.Comma | _: T.LeftParen | _: T.Semicolon | _: T.RightArrow |
           _: T.Equals =>
         None
       case _: T.RightParen if start.left.is[T.LeftParen] => None
       case c: T.Comment if isSingleLineComment(c) && start.noBreak =>
-        Some(c)
-      case _ => Some(start.left)
+        Some(start)
+      case _ if start.noBreak && isInfix => None
+      case _ => Some(prev(start))
     }
 
     endFound match {
       case Some(t) => t
       case None =>
-        val hasNext = tokens.hasNext(start) && !startsNewBlock(start.right)
-        if (hasNext) endOfSingleLineBlock(next(start)) else start.left
+        if (!tokens.hasNext(start)) start
+        else if (!isInfix && startsNewBlockOnRight(start)) prev(start)
+        else endOfSingleLineBlock(next(start))
     }
   }
 
-  final def startsNewBlock(t: Token): Boolean =
-    owners(t).tokens.headOption.contains(t)
+  final def isInfixRhs(ft: FormatToken): Boolean = {
+    val tree = ft.meta.rightOwner
+    tree.parent.exists {
+      case y: Term.ApplyInfix =>
+        (y.op eq tree) || y.args.headOption.forall { arg =>
+          (arg eq tree) && arg.tokens.headOption.contains(ft.right)
+        }
+      case _ => false
+    }
+  }
+
+  final def startsNewBlockOnRight(ft: FormatToken): Boolean =
+    ft.meta.rightOwner.tokens.headOption.contains(ft.right)
 
   /**
     * js.native is very special in Scala.js.

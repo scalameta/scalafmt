@@ -130,9 +130,7 @@ x ::
   z
 >>>
 x ::
-  y.map { x =>
-    x + 1
-  } ::
+  y.map { x => x + 1 } ::
   z
 <<< simple expr
 x ::

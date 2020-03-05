@@ -251,35 +251,28 @@ class Router(formatOps: FormatOps) {
             getSingleLineDecisionPre2019Nov
 
         // null if skipping
-        val (singleLineCost, singleLineDecision) =
-          if (lambdaPolicy == null) (0, getSingleLineDecision)
+        val singleLineDecision =
+          if (lambdaPolicy == null) getSingleLineDecision
           else if (style.activeForEdition_2020_01 &&
             !style.newlines.alwaysBeforeCurlyBraceLambdaParams &&
             getSpaceAndNewlineAfterCurlyLambda(newlines)._1)
-            (
-              leftOwner.parent
-                .flatMap { x =>
-                  // penalize single line in the middle of infix
-                  x.parent.collect {
-                    case y: Term.ApplyInfix if y.lhs eq x => 1
-                  }
-                }
-                .getOrElse(0),
-              getSingleLineDecisionFor2019Nov
-            )
-          else (0, null)
+            getSingleLineDecisionFor2019Nov
+          else null
 
         val singleLineSplit =
           if (singleLineDecision == null) Split.ignored
           else {
-            val expire =
-              if (lambdaPolicy == null) close
-              else endOfSingleLineBlock(closeFT)
+            val (expire, optimal) =
+              if (lambdaPolicy != null || style.activeForEdition_2020_03) {
+                val endFT = endOfSingleLineBlock(closeFT)
+                val expire = endFT.right
+                (expire, if (isInfixRhs(endFT)) None else Some(expire))
+              } else (close, Some(close))
             val policy =
               SingleLineBlock(expire, penaliseNewlinesInsideTokens = true)
                 .andThen(singleLineDecision)
-            Split(xmlSpace(leftOwner), singleLineCost, policy = policy)
-              .withOptimalToken(expire, killOnFail = true)
+            Split(xmlSpace(leftOwner), 0, policy = policy)
+              .withOptimalTokenOpt(optimal, killOnFail = true)
           }
 
         Seq(
@@ -551,7 +544,7 @@ class Router(formatOps: FormatOps) {
           matchingOpt(functionExpire(lambda)._1).filter(_.is[T.LeftBrace])
 
         val arrowFt = getFuncArrow(lambda).get
-        val lambdaIsABlock = lambdaLeft.exists(_ eq arrowFt.right)
+        val lambdaIsABlock = lambdaLeft.contains(arrowFt.right)
         val lambdaToken =
           getOptimalTokenFor(if (lambdaIsABlock) next(arrowFt) else arrowFt)
 

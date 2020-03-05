@@ -396,7 +396,9 @@ object a {
 }
 >>>
 object a {
-  the[Exception] thrownBy { SizeUtils.calculate(segments, "user") } should have message """Cannot resolve column name "user" among (segment_id);"""
+  the[Exception] thrownBy {
+    SizeUtils.calculate(segments, "user")
+  } should have message """Cannot resolve column name "user" among (segment_id);"""
 }
 <<< block followed by infix 2
 object a {
