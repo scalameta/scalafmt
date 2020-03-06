@@ -48,8 +48,8 @@ import metaconfig.generic.Surface
   *                              If true, will force a line break before a self annotation
   *                              if there was a line break there before.
   * @param forceBlankLineBeforeDocstring
-  *  If false, always insert a blank line before docstrings,
-  *  If true, preserves blank line only if one exists before.
+  *  If true, always insert a blank line before docstrings,
+  *  If false, preserves blank line only if one exists before.
   *  Example:
   *  {{{
   *    // before
@@ -90,7 +90,7 @@ case class OptIn(
   /**
     * See https://github.com/scalameta/scalafmt/issues/1712
     *
-    * Setting behavior and name was mixed. After deprecation and right naming
+    * Setting behavior and name were mirrored. After deprecation and right naming
     * we need to:
     * if `forceBlankLineBeforeDocstring` (new name) has default value (true)
     *   fallback to `blankLineBeforeDocstring` (old config) which may be

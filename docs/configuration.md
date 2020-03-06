@@ -1129,6 +1129,32 @@ foo
   .filter(_ > 2)
 ```
 
+### `optIn.forceBlankLineBeforeDocstring`
+If true, always insert a blank line before docstrings;  
+If false, preserves blank line only if one exists before.
+
+```scala mdoc:defaults
+optIn.forceBlankLineBeforeDocstring
+```
+
+```scala mdoc:scalafmt
+optIn.forceBlankLineBeforeDocstring = true
+---
+object Stuff {
+  /** Some function */
+  def hello = ()
+}
+```
+
+```scala mdoc:scalafmt
+optIn.forceBlankLineBeforeDocstring = false
+---
+object Stuff {
+  /** Some function */
+  def hello = ()
+}
+```
+
 ### `rewriteTokens`
 Map of tokens to rewrite. For example, Map("⇒" -> "=>") will rewrite unicode arrows to regular ascii arrows.
 
