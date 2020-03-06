@@ -746,7 +746,7 @@ rewrite.rules = [AsciiSortImports]
 import foo.{~>, `symbol`, bar, Random}
 ```
 
-## Trailing commas
+### Trailing commas
 
 > See [SIP](https://docs.scala-lang.org/sips/trailing-commas.html)
 
