@@ -1129,6 +1129,28 @@ foo
   .filter(_ > 2)
 ```
 
+### `rewriteTokens`
+Map of tokens to rewrite. For example, Map("⇒" -> "=>") will rewrite unicode arrows to regular ascii arrows.
+
+```scala mdoc:defaults
+rewriteTokens
+```
+
+```scala mdoc:scalafmt
+rewriteTokens = {
+  "⇒": "=>"
+  "→": "->"
+  "←": "<-"
+}
+---
+val tuple = "a" → 1
+val lambda = (x: Int) ⇒ x + 1
+for {
+  a ← Option(1)
+  b ← Option(2)
+} yield a + b
+```
+
 ## Other
 
 To find all available configuration options, it's best to browse the source code
