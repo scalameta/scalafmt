@@ -59,8 +59,9 @@ object TokenOps {
     }
 
   def forceDocstringBlankLine(token: Token, style: ScalafmtConfig): Boolean = {
-    if (style.optIn.blankLineBeforeDocstring) false
-    else token.is[Comment] && token.syntax.startsWith("/**")
+    style.optIn.forceNewlineBeforeDocstringSummary &&
+    token.is[Comment] &&
+    token.syntax.startsWith("/**")
   }
 
   def lastToken(tree: Tree): Token = {
