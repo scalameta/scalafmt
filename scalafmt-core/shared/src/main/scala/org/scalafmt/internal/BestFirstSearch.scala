@@ -202,8 +202,9 @@ private class BestFirstSearch private (
           var optimalNotFound = true
           actualSplit.foreach { split =>
             val nextState = curr.next(style, split, splitToken)
-            if (!keepSlowStates && depth == 0 && split.modification.isNewline &&
-              !best.contains(curr.depth)) {
+            val updateBest = !keepSlowStates && depth == 0 &&
+              split.modification.isNewline && !best.contains(curr.depth)
+            if (updateBest) {
               best.update(curr.depth, nextState)
             }
             runner.event(Enqueue(split))
@@ -223,12 +224,15 @@ private class BestFirstSearch private (
                   // TODO(olafur) DRY. This solution can still be optimal.
 //                  logger.elem(split, splitToken)
                   Q.enqueue(nextState)
-                } // else kill branch
+                } else { // else kill branch
+                  if (updateBest) best.remove(curr.depth)
+                }
               case _
                   if optimalNotFound &&
                     nextState.cost - curr.cost <= maxCost =>
                 Q.enqueue(nextState)
               case _ => // Kill branch.
+                if (updateBest) best.remove(curr.depth)
             }
           }
         }
