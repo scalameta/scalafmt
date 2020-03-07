@@ -219,7 +219,8 @@ rebasing.</p>
 <span class="hljs-keyword">val</span> x = <span class="hljs-number">2</span> <span class="hljs-comment">// false for assignment</span>
 <span class="hljs-keyword">val</span> xx = <span class="hljs-number">22</span>
 
-<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">B</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">A</span> <span class="hljs-title">//</span> <span class="hljs-title">false</span> <span class="hljs-title">for</span> `<span class="hljs-keyword">extends</span>`</span>
+<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">B</span></span>
+    <span class="hljs-keyword">extends</span> <span class="hljs-type">A</span> <span class="hljs-comment">// false for `extends`</span>
 <span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">BB</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">A</span></span>
 </code></pre>
 <pre><code class="hljs css language-scala original">x <span class="hljs-keyword">match</span> { <span class="hljs-comment">// true for case arrows</span>
@@ -241,7 +242,8 @@ rebasing.</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">val</span> x  = <span class="hljs-number">2</span> <span class="hljs-comment">// true for assignment</span>
 <span class="hljs-keyword">val</span> xx = <span class="hljs-number">22</span>
 
-<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">B</span>  <span class="hljs-keyword">extends</span> <span class="hljs-title">A</span> <span class="hljs-title">//</span> <span class="hljs-title">true</span> <span class="hljs-title">for</span> `<span class="hljs-keyword">extends</span>`</span>
+<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">B</span></span>
+    <span class="hljs-keyword">extends</span> <span class="hljs-type">A</span> <span class="hljs-comment">// true for `extends`</span>
 <span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">BB</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">A</span></span>
 
 q  -&gt; <span class="hljs-number">22</span> <span class="hljs-comment">// true for various infix operators</span>
