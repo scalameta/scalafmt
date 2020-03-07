@@ -234,8 +234,8 @@ Seq(
   {
     {
       system.actorOf(
-          Props[ThreadNameEcho]
-            .withDispatcher("myapp.balancing-dispatcher")) ! "what's the name?"
+          Props[ThreadNameEcho].withDispatcher(
+              "myapp.balancing-dispatcher")) ! "what's the name?"
     }
   }
 }

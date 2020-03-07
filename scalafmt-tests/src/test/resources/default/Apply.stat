@@ -623,8 +623,7 @@ SSLConfig(SSLLooseConfig(allowLegacyHelloMessages = None)/*comment 123 comment 2
   val config = WSClientConfig(ssl =
     SSLConfig(
         SSLLooseConfig(allowLegacyHelloMessages =
-          None
-        ) /*comment 123 comment 234*/
+          None) /*comment 123 comment 234*/
     )
   ) //comment 345 comment 456
 }

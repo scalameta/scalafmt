@@ -1,5 +1,6 @@
 package org.scalafmt.internal
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.meta.tokens.Token
 
@@ -201,14 +202,20 @@ private class BestFirstSearch private (
                     nextState.split.cost == 0 =>
                 val nextNextState =
                   shortestPath(nextState, token, depth + 1, maxCost = 0)
-                if (null != nextNextState) {
-                  optimalNotFound = false
-//                  logger.elem(split, splitToken, formatWriter.mkString(nextNextState.splits), tokens(nextNextState.splits.length))
-                  Q.enqueue(nextNextState)
+                val furtherState =
+                  if (null != nextNextState && style.activeForEdition_2020_03)
+                    traverseSameLine(nextNextState, depth)
+                  else nextNextState
+                if (null != furtherState) {
+                  if (furtherState.column > style.maxColumn)
+                    Q.enqueue(nextNextState)
+                  else {
+                    optimalNotFound = false
+                    Q.enqueue(furtherState)
+                  }
                 } else if (!killOnFail &&
                   nextState.cost - curr.cost <= maxCost) {
                   // TODO(olafur) DRY. This solution can still be optimal.
-//                  logger.elem(split, splitToken)
                   Q.enqueue(nextState)
                 } else { // else kill branch
                   if (updateBest) best.remove(curr.depth)
@@ -256,6 +263,31 @@ private class BestFirstSearch private (
     explored += 1
     runner.event(Explored(explored, depth, queueSize))
   }
+
+  /**
+    * Follow states having single active non-newline split
+    */
+  @tailrec
+  private def traverseSameLine(state: State, depth: Int): State =
+    if (state.depth >= tokens.length) state
+    else {
+      trackState(state, depth, 0)
+      val activeSplits = getActiveSplits(state)
+
+      if (activeSplits.lengthCompare(1) != 0)
+        if (activeSplits.isEmpty) null else state // dead end if empty
+      else {
+        val split = activeSplits.head
+        if (split.modification.isNewline) state
+        else {
+          runner.event(Enqueue(split))
+          val ft = tokens(state.depth)
+          val style = styleMap.at(ft)
+          val nextState = state.next(style, split, ft)
+          traverseSameLine(nextState, depth)
+        }
+      }
+    }
 
   private def complete(state: State): Unit =
     runner.event(CompleteFormat(explored, state, visits))
