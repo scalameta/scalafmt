@@ -442,3 +442,24 @@ object a {
   }.getMessage shouldBe s"Invalid feature tag `unknown`, supported tags: " +
     "tags..."
 }
+<<< block deep into an infix expression 1
+object a {
+        (intercept[IllegalStateException] { t.failingJOptionPigdog }).getMessage should ===(
+          "expected")
+}
+>>>
+object a {
+  (intercept[IllegalStateException] { t.failingJOptionPigdog }).getMessage should ===(
+      "expected")
+}
+<<< block deep into an infix expression 2
+object a {
+           server.out1 ~> Flow[SslTlsOutbound]
+            .collect { case SendBytes(x) ⇒ x }
+             .buffer(1, OverflowStrategy.backpressure) ~> netOut.sink
+}
+>>>
+object a {
+  server.out1 ~> Flow[SslTlsOutbound].collect { case SendBytes(x) ⇒ x }
+    .buffer(1, OverflowStrategy.backpressure) ~> netOut.sink
+}
