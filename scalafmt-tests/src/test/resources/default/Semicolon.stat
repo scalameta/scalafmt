@@ -12,7 +12,8 @@
 text.charAt(pos) match {
   case '<' => handle("&lt;"); prev = pos + 1
   case '<' =>
-    handle("&lt;"); prev = pos + 1 // aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    handle("&lt;");
+    prev = pos + 1 // aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
   case '<' =>
     handle("&lt;");
     prev = pos + aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa

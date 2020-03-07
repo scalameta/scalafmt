@@ -18,7 +18,8 @@ js.Return(!(!({
 <<< force space on infix application arguments
 opt[(Int, Int)]("range") hidden() action {}
 >>>
-opt[(Int, Int)]("range") hidden () action {}
+opt[(Int, Int)](
+    "range") hidden () action {}
 <<< string concatenation
 logger.warning("foooooooooooooo" +
 "baaaaaaaaaaaaaar")

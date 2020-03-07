@@ -449,8 +449,9 @@ object a {
 }
 >>>
 object a {
-  (intercept[IllegalStateException] { t.failingJOptionPigdog }).getMessage should ===(
-      "expected")
+  (intercept[IllegalStateException] {
+    t.failingJOptionPigdog
+  }).getMessage should ===("expected")
 }
 <<< block deep into an infix expression 2
 object a {

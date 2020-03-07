@@ -51,9 +51,9 @@ val bindingFuture = Http().bindAndHandleSync({
       {
         {
           {
-            RawRequestURI(new String(
-                uriBytes,
-                HttpCharsets.aaaaaaaaaa.nioCharset)) :: headers
+            RawRequestURI(
+                new String(uriBytes,
+                           HttpCharsets.aaaaaaaaaa.nioCharset)) :: headers
           }
         }
       }

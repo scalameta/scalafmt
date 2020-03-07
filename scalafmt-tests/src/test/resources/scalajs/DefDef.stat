@@ -234,8 +234,8 @@ object RTCIceCandidateInit {
   @inline
   def apply(candidate: js.UndefOr[String] = js.undefined,
       sdpMid: js.UndefOr[String] = js.undefined,
-      sdpMLineIndex: js.UndefOr[
-          Double] = js.undefined): RTCIceCandidateInit = {
+      sdpMLineIndex: js.UndefOr[Double] =
+        js.undefined): RTCIceCandidateInit = {
     val result = js.Dynamic.literal()
     candidate.foreach(result.candidate = _)
     sdpMid.foreach(result.sdpMid = _)
