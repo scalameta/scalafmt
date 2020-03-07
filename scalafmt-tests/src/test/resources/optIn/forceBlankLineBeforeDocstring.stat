@@ -1,0 +1,51 @@
+style = default
+<<< docstring does not force line break
+optIn.forceBlankLineBeforeDocstring = false
+===
+object Stuff {
+  /** Some function */
+  def hello = ()
+}
+>>>
+object Stuff {
+  /** Some function */
+  def hello = ()
+}
+<<< force blank line
+optIn.forceBlankLineBeforeDocstring = true
+===
+object Stuff {
+  /** Some function */
+  def hello = ()
+}
+>>>
+object Stuff {
+
+  /** Some function */
+  def hello = ()
+}
+<<< support deprecated name with true
+optIn.blankLineBeforeDocstring = true
+===
+object Stuff {
+  /** Some function */
+  def hello = ()
+}
+>>>
+object Stuff {
+  /** Some function */
+  def hello = ()
+}
+<<< support deprecated name with false
+optIn.blankLineBeforeDocstring = false
+===
+object Stuff {
+  /** Some function */
+  def hello = ()
+}
+>>>
+object Stuff {
+
+  /** Some function */
+  def hello = ()
+}

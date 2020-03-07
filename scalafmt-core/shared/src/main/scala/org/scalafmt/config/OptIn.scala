@@ -47,9 +47,9 @@ import metaconfig.generic.Surface
   * @param selfAnnotationNewline See https://github.com/scalameta/scalafmt/issues/938
   *                              If true, will force a line break before a self annotation
   *                              if there was a line break there before.
-  * @param blankLineBeforeDocstring
-  *  If false, always insert a blank line before docstrings,
-  *  If true, preserves blank line only if one exists before.
+  * @param forceBlankLineBeforeDocstring
+  *  If true, always insert a blank line before docstrings,
+  *  If false, preserves blank line only if one exists before.
   *  Example:
   *  {{{
   *    // before
@@ -57,12 +57,12 @@ import metaconfig.generic.Surface
   *      /** Docstring */
   *      def foo = 2
   *    }
-  *    // after, if blankLineBeforeDocstring=true
+  *    // after, if forceBlankLineBeforeDocstring=false
   *    object Foo {
   *      /** Docstring */
   *      def foo = 2
   *    }
-  *    // after, if blankLineBeforeDocstring=false
+  *    // after, if forceBlankLineBeforeDocstring=true
   *    object Foo {
   *
   *      /** Docstring */
@@ -76,10 +76,30 @@ case class OptIn(
     breakChainOnFirstMethodDot: Boolean = true,
     selfAnnotationNewline: Boolean = true,
     annotationNewlines: Boolean = true,
-    // Candidate to become default true at some point.
+    // Candidate to become default false at some point.
+    forceBlankLineBeforeDocstring: Boolean = true,
+    @annotation.DeprecatedName(
+      "blankLineBeforeDocstring",
+      "Use optIn.forceBlankLineBeforeDocstring instead",
+      "2.5.0"
+    )
     blankLineBeforeDocstring: Boolean = false
 ) {
   implicit val reader: ConfDecoder[OptIn] = generic.deriveDecoder(this).noTypos
+
+  /**
+    * See https://github.com/scalameta/scalafmt/issues/1712
+    *
+    * Setting behavior and name were mirrored. After deprecation and right naming
+    * we need to:
+    * if `forceBlankLineBeforeDocstring` (new name) has default value (true)
+    *   fallback to `blankLineBeforeDocstring` (old config) which may be
+    *   configured in .scalafmt.conf
+    * if `forceBlankLineBeforeDocstring` configured to non-default value
+    *   don't look at the old name
+    * */
+  lazy val forceNewlineBeforeDocstringSummary: Boolean =
+    forceBlankLineBeforeDocstring && !blankLineBeforeDocstring
 }
 
 object OptIn {
