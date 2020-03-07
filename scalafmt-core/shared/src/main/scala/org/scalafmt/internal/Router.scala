@@ -262,17 +262,13 @@ class Router(formatOps: FormatOps) {
         val singleLineSplit =
           if (singleLineDecision == null) Split.ignored
           else {
-            val (expire, optimal) =
-              if (lambdaPolicy != null || style.activeForEdition_2020_03) {
-                val endFT = endOfSingleLineBlock(closeFT)
-                val expire = endFT.right
-                (expire, if (isInfixRhs(endFT)) None else Some(expire))
-              } else (close, Some(close))
+            val useOpt = lambdaPolicy != null || style.activeForEdition_2020_03
+            val expire = if (useOpt) endOfSingleLineBlock(closeFT) else close
             val policy =
               SingleLineBlock(expire, penaliseNewlinesInsideTokens = true)
                 .andThen(singleLineDecision)
             Split(xmlSpace(leftOwner), 0, policy = policy)
-              .withOptimalTokenOpt(optimal, killOnFail = true)
+              .withOptimalToken(expire, killOnFail = true)
           }
 
         Seq(

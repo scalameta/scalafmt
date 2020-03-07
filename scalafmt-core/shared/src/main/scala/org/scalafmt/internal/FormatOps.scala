@@ -228,7 +228,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   @tailrec
   final def endOfSingleLineBlock(
       start: FormatToken
-  )(implicit style: ScalafmtConfig): FormatToken = {
+  )(implicit style: ScalafmtConfig): Token = {
     lazy val isInfix = style.activeForEdition_2020_03 && isInfixRhs(start)
     val endFound = start.right match {
       case _: T.Comma | _: T.LeftParen | _: T.Semicolon | _: T.RightArrow |
@@ -236,16 +236,16 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
         None
       case _: T.RightParen if start.left.is[T.LeftParen] => None
       case c: T.Comment if isSingleLineComment(c) && start.noBreak =>
-        Some(start)
+        Some(c)
       case _ if start.noBreak && isInfix => None
-      case _ => Some(prev(start))
+      case _ => Some(start.left)
     }
 
     endFound match {
       case Some(t) => t
       case None =>
-        if (!tokens.hasNext(start)) start
-        else if (!isInfix && startsNewBlockOnRight(start)) prev(start)
+        if (!tokens.hasNext(start)) start.right
+        else if (!isInfix && startsNewBlockOnRight(start)) start.left
         else endOfSingleLineBlock(next(start))
     }
   }
