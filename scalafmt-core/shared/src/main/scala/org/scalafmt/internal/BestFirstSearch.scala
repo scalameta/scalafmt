@@ -139,29 +139,26 @@ private class BestFirstSearch private (
     // TODO(olafur) this while loop is waaaaaaaaaaaaay tooo big.
     while (true) {
       val curr = Q.dequeue()
-      explored += 1
-      runner.event(Explored(explored, depth, Q.size))
-      if (explored > runner.maxStateVisits)
-        throw SearchStateExploded(
-          deepestYet,
-          formatWriter.mkString(deepestYet),
-          tokens(deepestYet.depth).left
-        )
-      val splitToken =
-        if (curr.depth >= tokens.length) null else tokens(curr.depth)
-      if (null == splitToken ||
-        splitToken.left.start >= stop.start &&
+      if (curr.depth >= tokens.length)
+        return curr
+
+      val splitToken = tokens(curr.depth)
+      if (splitToken.left.start >= stop.start &&
         splitToken.left.start < splitToken.left.end) {
         return curr
       }
 
       if (shouldEnterState(curr)) {
+        trackState(curr, depth, Q.length)
+
+        if (explored > runner.maxStateVisits)
+          throw SearchStateExploded(
+            deepestYet,
+            formatWriter.mkString(deepestYet),
+            tokens(deepestYet.depth).left
+          )
+
         val style = styleMap.at(splitToken)
-        if (curr.depth > deepestYet.depth) {
-          deepestYet = curr
-        }
-        runner.event(VisitToken(splitToken))
-        visits(curr.depth) += 1
 
         if (curr.split != null && curr.split.modification.isNewline) {
           val tokenHash = hash(splitToken.left)
@@ -186,19 +183,8 @@ private class BestFirstSearch private (
             tokens(deepestYet.depth).left
           )
         } else {
+          val actualSplit = getActiveSplits(curr)
 
-          val splits: Seq[Split] =
-            if (curr.formatOff) List(provided(splitToken))
-            else if (splitToken.inside(range)) routes(curr.depth)
-            else List(provided(splitToken))
-
-          val actualSplit = {
-            curr.policy
-              .execute(Decision(splitToken, splits))
-              .splits
-              .filter(_.isActive)
-              .sortBy(_.cost)
-          }
           var optimalNotFound = true
           actualSplit.foreach { split =>
             val nextState = curr.next(style, split, splitToken)
@@ -249,6 +235,26 @@ private class BestFirstSearch private (
 
     // unreachable
     null
+  }
+
+  private def getActiveSplits(state: State): Seq[Split] = {
+    val ft = tokens(state.depth)
+    val useProvided = state.formatOff || !ft.inside(range)
+    val splits = if (useProvided) Seq(provided(ft)) else routes(state.depth)
+
+    state.policy
+      .execute(Decision(ft, splits))
+      .splits
+      .filter(_.isActive)
+      .sortBy(_.cost)
+  }
+
+  private def trackState(state: State, depth: Int, queueSize: Int): Unit = {
+    if (state.depth > deepestYet.depth) deepestYet = state
+    runner.event(VisitToken(tokens(state.depth)))
+    visits(state.depth) += 1
+    explored += 1
+    runner.event(Explored(explored, depth, queueSize))
   }
 
   private def complete(state: State): Unit =
