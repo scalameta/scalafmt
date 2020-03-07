@@ -99,8 +99,7 @@ case class OptIn(
     *   don't look at the old name
     * */
   lazy val forceNewlineBeforeDocstringSummary: Boolean =
-    if (forceBlankLineBeforeDocstring) !blankLineBeforeDocstring
-    else forceBlankLineBeforeDocstring
+    forceBlankLineBeforeDocstring && !blankLineBeforeDocstring
 }
 
 object OptIn {
