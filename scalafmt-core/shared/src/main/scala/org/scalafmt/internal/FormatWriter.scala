@@ -523,6 +523,8 @@ class FormatWriter(formatOps: FormatOps) {
       b: Array[FormatLocation],
       endOfLine: FormatToken
   ): Int = {
+    val findParentOnRight =
+      TreeOps.findTreeWithParentSimple(endOfLine.meta.rightOwner) _
     val result = a.zip(b).takeWhile {
       case (row1, row2) =>
         // skip checking if row1 and row2 matches if both of them continues to a single line of comment
@@ -535,14 +537,9 @@ class FormatWriter(formatOps: FormatOps) {
           val row1Owner = getAlignOwner(row1.formatToken)
           def sameLengthToRoot =
             vAlignDepth(row1Owner) == vAlignDepth(row2Owner)
+          def isRowOwner(x: Tree) = (x eq row1Owner) || (x eq row2Owner)
           key(row1.formatToken.right) == key(row2.formatToken.right) &&
-          sameLengthToRoot &&
-          TreeOps
-            .findTreeWithParent(endOfLine.meta.rightOwner) {
-              case `row1Owner` | `row2Owner` => Some(true)
-              case _ => None
-            }
-            .isEmpty
+          sameLengthToRoot && findParentOnRight(isRowOwner).isEmpty
         }
     }
     result.length

@@ -65,12 +65,13 @@ object TokenOps {
   }
 
   def lastToken(tree: Tree): Token = {
-    val lastIndex = tree.tokens.lastIndexWhere {
+    // 2.13 has findLast
+    val tokens = tree.tokens
+    val index = tokens.lastIndexWhere {
       case Trivia() | _: EOF => false
       case _ => true
     }
-    if (lastIndex == -1) tree.tokens.last
-    else tree.tokens(Scala211)(lastIndex)
+    if (index == -1) tokens.last else tokens(index)
   }
 
   def endsWithNoIndent(between: Seq[Token]): Boolean =

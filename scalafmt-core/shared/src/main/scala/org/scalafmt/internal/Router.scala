@@ -1097,7 +1097,7 @@ class Router(formatOps: FormatOps) {
 
       case tok @ FormatToken(left, dot @ T.Dot() `:chain:` chain, _) =>
         val nestedPenalty = nestedSelect(rightOwner) + nestedApplies(leftOwner)
-        val optimalToken = chainOptimalToken(chain)
+        val optimalToken = getSelectOptimalToken(chain.last)
         val expire =
           if (chain.length == 1) lastToken(chain.last)
           else optimalToken
@@ -1112,14 +1112,11 @@ class Router(formatOps: FormatOps) {
         // This policy will apply to both the space and newline splits, otherwise
         // the newline is too cheap even it doesn't actually prevent other newlines.
         val penalizeNewlinesInApply = penalizeAllNewlines(expire, 2)
-        val noSplitPolicy = SingleLineBlock(expire, exclude)
-          .andThen(penalizeNewlinesInApply.f)
-          .copy(expire = expire.end)
-        val newlinePolicy = breakOnEveryDot
-          .andThen(penalizeNewlinesInApply.f)
-          .copy(expire = expire.end)
+        val noSplitPolicy =
+          SingleLineBlock(expire, exclude).andThen(penalizeNewlinesInApply)
+        val newlinePolicy = breakOnEveryDot.andThen(penalizeNewlinesInApply)
         val ignoreNoSplit =
-          style.optIn.breakChainOnFirstMethodDot && newlines > 0
+          style.optIn.breakChainOnFirstMethodDot && tok.hasBreak
         val chainLengthPenalty =
           if (style.newlines.penalizeSingleSelectMultiArgList &&
             chain.length < 2) {
@@ -1137,14 +1134,13 @@ class Router(formatOps: FormatOps) {
               case _ => 0
             }
           } else 0
+        val nlCost = 2 + nestedPenalty + chainLengthPenalty
         Seq(
           Split(NoSplit, 0)
             .notIf(ignoreNoSplit)
             .withPolicy(noSplitPolicy),
-          Split(
-            Newline.copy(acceptNoSplit = true),
-            2 + nestedPenalty + chainLengthPenalty
-          ).withPolicy(newlinePolicy)
+          Split(NewlineT(acceptNoSplit = true), nlCost)
+            .withPolicy(newlinePolicy)
             .withIndent(2, optimalToken, After)
         )
 
