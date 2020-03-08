@@ -67,6 +67,9 @@ object LoggerOps {
             |""".stripMargin
   }
 
+  def logOpt(t: Option[Tree], tokensOnly: Boolean = false): String =
+    t.fold("")(log(_, tokensOnly))
+
   def stripTrailingSpace(s: String): String = s.replaceAll("\\s+\n", "\n")
 
   def reveal(s: String): String = s.map {

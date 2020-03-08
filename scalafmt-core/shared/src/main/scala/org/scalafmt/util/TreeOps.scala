@@ -242,6 +242,10 @@ object TreeOps {
           case None => findTreeWithParent(p)(pred)
         }
     }
+  def findTreeWithParentSimple(
+      tree: Tree
+  )(pred: Tree => Boolean): Option[Tree] =
+    findTreeWithParent(tree)(x => if (pred(x)) Some(true) else None)
 
   /**
     * Returns first ancestor with a parent of a given type.
@@ -249,7 +253,7 @@ object TreeOps {
   def findTreeWithParentOfType[A <: Tree](tree: Tree)(
       implicit classifier: Classifier[Tree, A]
   ): Option[Tree] =
-    findTreeWithParent(tree)(p => if (classifier(p)) Some(true) else None)
+    findTreeWithParentSimple(tree)(classifier.apply)
 
   /**
     * Returns true if a matching ancestor of a given type exists.
