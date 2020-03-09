@@ -609,4 +609,11 @@ object TreeOps {
       }
     }
 
+  def isChildOfCaseClause(tree: Tree): Boolean =
+    findTreeWithParent(tree) {
+      case t: Case => Some(tree ne t.body)
+      case _: Pat => None
+      case _ => Some(false)
+    }.isDefined
+
 }

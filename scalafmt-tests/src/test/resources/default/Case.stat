@@ -132,8 +132,8 @@ x match {
 >>>
 x match {
   case Foo(
-      a,
-      b
+          a,
+          b
       ) =>
     ???
 }

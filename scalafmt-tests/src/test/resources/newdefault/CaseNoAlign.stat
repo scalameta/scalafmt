@@ -11,9 +11,9 @@ val Route: PartialFunction[Decision, Decision] = {
 >>>
 val Route: PartialFunction[Decision, Decision] = {
   case FormatToken(
-      _: Ident | _: `this` | _: `_ ` | _: `(`,
-      _: `.` | _: `#`,
-      _
+        _: Ident | _: `this` | _: `_ ` | _: `(`,
+        _: `.` | _: `#`,
+        _
       ) =>
     List(
       NoSplit0
@@ -108,8 +108,8 @@ x match {
 >>>
 x match {
   case Foo(
-      a,
-      b
+        a,
+        b
       ) =>
     ???
 }
@@ -347,7 +347,7 @@ x match {
 >>>
 x match {
   case VeryLongFirstPatExtractCall(firstParameter, secondParameter)
-        infix QuiteLongSecondPat if VeryLongAdditionalCheck(a, b) =>
+      infix QuiteLongSecondPat if VeryLongAdditionalCheck(a, b) =>
     ???
 }
 <<< #1244 2.2: long patterns: multi-line and single-line with infix and guard
@@ -368,7 +368,7 @@ x match {
         firstParameter,
         secondParameter
       )
-        infix QuiteLongSecondPat
+      infix QuiteLongSecondPat
       if VeryLongAdditionalCheck(firstParameter, secondParameter) =>
     ???
 }
@@ -392,10 +392,10 @@ x match {
         firstParameter,
         secondParameter
       )
-        infix QuiteLongSecondPat(
-          aaa,
-          bbb
-        ) if VeryLongAdditionalCheck(firstParameter, secondParameter) =>
+      infix QuiteLongSecondPat(
+        aaa,
+        bbb
+      ) if VeryLongAdditionalCheck(firstParameter, secondParameter) =>
     ???
 }
 <<< #1244 2.4: long patterns: two multi-line with infix and select guard
@@ -416,10 +416,10 @@ x match {
         firstParameter,
         secondParameter
       )
-        infix QuiteLongSecondPat(
-          aaa,
-          bbb
-        )
+      infix QuiteLongSecondPat(
+        aaa,
+        bbb
+      )
       if VeryLongAdditionalCheckObject
         .checkMethod(firstParameter, secondParameter) =>
     ???
@@ -481,36 +481,36 @@ object a {
 object a {
   expectMsgPF() {
     case SymbolSearchResults(
-        List(
-          TypeSearchResult(
-            "scala.util.Random",
-            "Random",
-            DeclaredAs.Class,
-            Some(_)
-          ),
-          TypeSearchResult(
-            "scala.util.Random$",
-            "Random$",
-            DeclaredAs.Class,
-            Some(_)
+          List(
+            TypeSearchResult(
+              "scala.util.Random",
+              "Random",
+              DeclaredAs.Class,
+              Some(_)
+            ),
+            TypeSearchResult(
+              "scala.util.Random$",
+              "Random$",
+              DeclaredAs.Class,
+              Some(_)
+            )
           )
-        )
         ) =>
     case SymbolSearchResults(
-        List(
-          TypeSearchResult(
-            "java.util.Random",
-            "Random",
-            DeclaredAs.Class,
-            Some(_)
-          ),
-          TypeSearchResult(
-            "scala.util.Random",
-            "Random",
-            DeclaredAs.Class,
-            Some(_)
+          List(
+            TypeSearchResult(
+              "java.util.Random",
+              "Random",
+              DeclaredAs.Class,
+              Some(_)
+            ),
+            TypeSearchResult(
+              "scala.util.Random",
+              "Random",
+              DeclaredAs.Class,
+              Some(_)
+            )
           )
-        )
         ) =>
     // this is a pretty ropey test at the best of times
   }

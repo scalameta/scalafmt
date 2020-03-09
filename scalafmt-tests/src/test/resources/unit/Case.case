@@ -69,8 +69,8 @@ case x: Foo[_] => 1
 case Foooooooooooooooo(aaaaaaaaaaaaaaaa, bbbbbbbbbbbb) =>
 >>>
 case Foooooooooooooooo(
-    aaaaaaaaaaaaaaaa,
-    bbbbbbbbbbbb) =>
+        aaaaaaaaaaaaaaaa,
+        bbbbbbbbbbbb) =>
 <<< #512
 case q"""...${ stats: Seq[Stat] } """ =>
   s"${foo}"

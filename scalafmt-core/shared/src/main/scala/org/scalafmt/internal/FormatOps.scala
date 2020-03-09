@@ -582,6 +582,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
         .isDefined)) 0
     else if (!isNewline &&
       !isSingleLineComment(formatToken.right)) 0
+    else if (style.activeForEdition_2020_03 &&
+      isChildOfCaseClause(owner)) 0
     else 2
   }
 
@@ -743,10 +745,14 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     else style
   }
 
-  def getApplyIndent(leftOwner: Tree, isConfigStyle: Boolean = false): Num = {
-    val style = styleAt(leftOwner)
+  def getApplyIndent(
+      leftOwner: Tree,
+      isConfigStyle: Boolean = false
+  )(implicit style: ScalafmtConfig): Num =
     leftOwner match {
-      case _: Pat if leftOwner.parent.exists(_.is[Case]) =>
+      case _: Pat
+          if !style.activeForEdition_2020_03 &&
+            leftOwner.parent.exists(_.is[Case]) =>
         // The first layer of indentation is provided by the case ensure
         // orpan comments and the case cond is indented correctly.
         Num(0)
@@ -755,7 +761,6 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
         else Num(style.continuationIndent.defnSite)
       case _ => Num(style.continuationIndent.callSite)
     }
-  }
 
   def isBinPack(owner: Tree): Boolean = {
     val style = styleAt(owner)
