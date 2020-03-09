@@ -1,4 +1,4 @@
-40 columns                              |
+maxColumn = 40
 <<< identity matrix
     object A   {
   // format: OFF
@@ -32,3 +32,25 @@ object A {
                              0, 0, 1)
                              function("I don't care about formatting at all")
              }
+<<< should work on comments
+// format: off
+/*
+   *
+*/
+// format: on
+42
+>>>
+// format: off
+/*
+   *
+*/
+// format: on
+42
+<<< should work on longs
+// format: off
+0x123l
+// format: on
+>>>
+// format: off
+0x123l
+// format: on
