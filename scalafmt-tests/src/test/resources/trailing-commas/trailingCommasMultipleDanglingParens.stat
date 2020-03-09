@@ -182,8 +182,8 @@ lst.map { case (
 >>>
 lst.map {
   case (
-      value1,
-      value2,
+        value1,
+        value2,
       ) =>
     value1
 }

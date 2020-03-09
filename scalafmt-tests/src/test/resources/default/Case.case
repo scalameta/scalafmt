@@ -187,14 +187,14 @@ case e @ (
         _: InvocationTargetException | _: NullPointerException |
         _: ClassNotFoundException
     )
-      infix (
-          foo(
-              bar,
-              baz
-          )
-            anotherInfix foo(
-                bar,
-                baz
-            )
-      ) =>
+    infix (
+        foo(
+            bar,
+            baz
+        )
+        anotherInfix foo(
+            bar,
+            baz
+        )
+    ) =>
   qux

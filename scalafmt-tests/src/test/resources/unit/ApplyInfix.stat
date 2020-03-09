@@ -168,8 +168,8 @@ case x :: x
 >>>
 1 match {
   case x :: x
-        :: y :: y
-        :: z :: z =>
+      :: y :: y
+      :: z :: z =>
 }
 <<< type.apply start line
 type x = (X
