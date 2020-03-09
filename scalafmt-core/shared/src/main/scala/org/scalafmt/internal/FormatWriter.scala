@@ -2,7 +2,6 @@ package org.scalafmt.internal
 
 import java.util.regex.Pattern
 
-import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.rewrite.RedundantBraces
 import org.scalafmt.util.TokenOps.TokenHash
 import org.scalafmt.util.TreeOps
@@ -28,12 +27,14 @@ class FormatWriter(formatOps: FormatOps) {
     val sb = new StringBuilder()
     val locations = getFormatLocations(state, debug = false)
 
+    var formatOff = false
     locations.iterate.foreach { entry =>
       val location = entry.curr
       val state = location.state
       val formatToken = location.formatToken
 
       formatToken.left match {
+        case token if formatOff => sb.append(token.syntax)
         case c: T.Comment =>
           sb.append(formatComment(c, state.indentation))
         case token @ T.Interpolation.Part(_) =>
@@ -71,6 +72,8 @@ class FormatWriter(formatOps: FormatOps) {
       }
 
       entry.formatWhitespace(sb)
+
+      formatOff = state.formatOff
     }
 
     sb.toString()
