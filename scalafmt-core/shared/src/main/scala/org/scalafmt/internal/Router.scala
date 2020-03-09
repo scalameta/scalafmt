@@ -1,7 +1,7 @@
 package org.scalafmt.internal
 
 import org.scalafmt.Error.UnexpectedTree
-import org.scalafmt.config.{ImportSelectors, NewlineCurlyLambda}
+import org.scalafmt.config.{ImportSelectors, NewlineCurlyLambda, Newlines}
 import org.scalafmt.internal.ExpiresOn.{Left, Right}
 import org.scalafmt.internal.Length.{Num, StateColumn}
 import org.scalafmt.internal.Policy.NoPolicy
@@ -250,14 +250,28 @@ class Router(formatOps: FormatOps) {
           else
             getSingleLineDecisionPre2019NovOpt
 
+        def getSingleLineLambdaDecisionOpt = {
+          val ok = !style.newlines.alwaysBeforeCurlyBraceLambdaParams &&
+            getSpaceAndNewlineAfterCurlyLambda(newlines)._1
+          if (ok) Some(getSingleLineDecisionFor2019Nov) else None
+        }
+
         // null if skipping
-        val singleLineDecisionOpt =
-          if (lambdaPolicy == null) getClassicSingleLineDecisionOpt
-          else if (style.activeForEdition_2020_01 &&
-            !style.newlines.alwaysBeforeCurlyBraceLambdaParams &&
-            getSpaceAndNewlineAfterCurlyLambda(newlines)._1)
-            Some(getSingleLineDecisionFor2019Nov)
-          else None
+        val singleLineDecisionOpt = style.newlines.source match {
+          case Newlines.keep if newlines != 0 => None
+          case Newlines.unfold => None
+          case Newlines.fold =>
+            // do not fold top-level blocks
+            if (leftOwner.parent.exists(_.parent.isEmpty) ||
+              leftOwner.is[Template]) None
+            else if (lambdaPolicy != null) getSingleLineLambdaDecisionOpt
+            else Some(getSingleLineDecisionFor2019Nov)
+          // old behaviour
+          case _ =>
+            if (lambdaPolicy == null) getClassicSingleLineDecisionOpt
+            else if (!style.activeForEdition_2020_01) None
+            else getSingleLineLambdaDecisionOpt
+        }
 
         val singleLineSplit =
           singleLineDecisionOpt.fold(Split.ignored) { sld =>
@@ -275,7 +289,8 @@ class Router(formatOps: FormatOps) {
           Split(Space, 0)
             .notIf(
               style.newlines.alwaysBeforeCurlyBraceLambdaParams ||
-                isSelfAnnotation || lambdaPolicy == null
+                isSelfAnnotation || lambdaPolicy == null ||
+                style.newlines.sourceIs(Newlines.keep) && newlines != 0
             )
             .withOptimalTokenOpt(lambdaArrow)
             .withIndent(lambdaIndent, close, Right)

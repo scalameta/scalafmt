@@ -125,6 +125,15 @@ case class Newlines(
       s"newlines: can't use source=${source} and afterCurlyLambda=$afterCurlyLambda"
     )
   }
+
+  @inline
+  def sourceIs(hint: Newlines.SourceHints): Boolean =
+    hint eq source
+
+  @inline
+  def sourceIn(hints: Newlines.SourceHints*): Boolean =
+    hints.contains(source)
+
 }
 
 object Newlines {
