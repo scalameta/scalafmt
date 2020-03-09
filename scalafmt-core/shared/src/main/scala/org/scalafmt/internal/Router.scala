@@ -216,9 +216,9 @@ class Router(formatOps: FormatOps) {
               .andThen(decideNewlinesOnlyAfterToken(arrowOptimal))
           }
 
-        def getSingleLineDecisionPre2019Nov = leftOwner.parent match {
-          case Some(_: Term.If | _: Term.Try | _: Term.TryWithHandler) => null
-          case _ => Policy.emptyPf
+        def getSingleLineDecisionPre2019NovOpt = leftOwner.parent match {
+          case Some(_: Term.If | _: Term.Try | _: Term.TryWithHandler) => None
+          case _ => Some(Policy.emptyPf)
         }
         def getSingleLineDecisionFor2019Nov = {
           type Classifiers = Seq[Classifier[Token, _]]
@@ -243,30 +243,29 @@ class Router(formatOps: FormatOps) {
           if (!breakSingleLineAfterClose) Policy.emptyPf
           else decideNewlinesOnlyAfterClose(Split(Newline, 0))(close)
         }
-        def getSingleLineDecision: Policy.Pf =
-          if (newlines > 0) null
+        def getClassicSingleLineDecisionOpt =
+          if (newlines > 0) None
           else if (style.activeForEdition_2019_11)
-            getSingleLineDecisionFor2019Nov
+            Some(getSingleLineDecisionFor2019Nov)
           else
-            getSingleLineDecisionPre2019Nov
+            getSingleLineDecisionPre2019NovOpt
 
         // null if skipping
-        val singleLineDecision =
-          if (lambdaPolicy == null) getSingleLineDecision
+        val singleLineDecisionOpt =
+          if (lambdaPolicy == null) getClassicSingleLineDecisionOpt
           else if (style.activeForEdition_2020_01 &&
             !style.newlines.alwaysBeforeCurlyBraceLambdaParams &&
             getSpaceAndNewlineAfterCurlyLambda(newlines)._1)
-            getSingleLineDecisionFor2019Nov
-          else null
+            Some(getSingleLineDecisionFor2019Nov)
+          else None
 
         val singleLineSplit =
-          if (singleLineDecision == null) Split.ignored
-          else {
+          singleLineDecisionOpt.fold(Split.ignored) { sld =>
             val useOpt = lambdaPolicy != null || style.activeForEdition_2020_03
             val expire = if (useOpt) endOfSingleLineBlock(closeFT) else close
             val policy =
               SingleLineBlock(expire, penaliseNewlinesInsideTokens = true)
-                .andThen(singleLineDecision)
+                .andThen(sld)
             Split(xmlSpace(leftOwner), 0, policy = policy)
               .withOptimalToken(expire, killOnFail = true)
           }
