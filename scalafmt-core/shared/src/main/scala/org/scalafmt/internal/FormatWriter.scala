@@ -73,6 +73,9 @@ class FormatWriter(formatOps: FormatOps) {
 
       entry.formatWhitespace(sb)
 
+      // formatting flag switches at the end of iteration because of
+      // `formatToken.left` rendering. `FormatToken(x, // format: on)` will have
+      // formatOff = false, but x still should not be formatted
       formatOff = state.formatOff
     }
 
