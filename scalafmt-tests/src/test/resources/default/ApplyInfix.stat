@@ -283,13 +283,14 @@ object ExternForwarder {
 1 match {
  case accountIdStr :: userIdStr :: connectorIdStr :: timestampStr :: eventClassStr :: contactIdStr
         :: contactPointIdStr :: contactPointValue :: remoteContactId :: to :: subject :: remoteId
-        :: remoteGroupId :: timeZoneStr :: rest =>
+        :: remoteGroupId :: timeZoneStr :: rest if "some lengthy condition is not empty".nonEmpty =>
 }
 >>>
 1 match {
   case accountIdStr :: userIdStr :: connectorIdStr :: timestampStr :: eventClassStr :: contactIdStr
         :: contactPointIdStr :: contactPointValue :: remoteContactId :: to :: subject :: remoteId
-        :: remoteGroupId :: timeZoneStr :: rest =>
+        :: remoteGroupId :: timeZoneStr :: rest
+      if "some lengthy condition is not empty".nonEmpty =>
 }
 <<< unfortunate side-effect of #740
 { lazy val propertyName =
