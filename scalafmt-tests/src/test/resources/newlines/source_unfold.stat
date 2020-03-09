@@ -46,8 +46,9 @@ object a {
        -1  }}
 >>>
 object a {
-  if ('0' <= c && c <= '9') { c - '0' }
-  else if ('A' <= c && c <= 'F') {
+  if ('0' <= c && c <= '9') {
+    c - '0'
+  } else if ('A' <= c && c <= 'F') {
     c - 'A' + 10
   } else if ('a' <= c && c <= 'f') {
     c - 'a' + 10
@@ -63,8 +64,9 @@ object a {
 }}
 >>>
 object a {
-  if ('0' <= c && c <= '9') { c - '0' }
-  else if ('A' <= c && c <= 'F') {
+  if ('0' <= c && c <= '9') {
+    c - '0'
+  } else if ('A' <= c && c <= 'F') {
     c - 'A' + 10
   } else if ('a' <= c && c <= 'f') {
     c - 'a' + 10
@@ -80,7 +82,9 @@ try { aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa } catch { case b => }
 object a {
   try {
     aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-  } catch { case b => }
+  } catch {
+    case b =>
+  }
 }
 <<< 1.7: block, try-catch, no breaks
 object a {
@@ -88,9 +92,13 @@ try { a } catch { case b => ; case c => } finally { d }
 }
 >>>
 object a {
-  try { a }
-  catch { case b => ; case c => }
-  finally { d }
+  try {
+    a
+  } catch {
+    case b => ; case c =>
+  } finally {
+    d
+  }
 }
 <<< 1.8: block, try-catch, with breaks
 object a {
@@ -149,7 +157,9 @@ object a {
     type c = Int
   }
   object b {
-    def apply(c: Int) = { new d(c) }
+    def apply(c: Int) = {
+      new d(c)
+    }
   }
 }
 <<< 1.c: block followed by an infix, overflowing if no break
