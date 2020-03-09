@@ -108,6 +108,7 @@ case FormatToken(_: `(` | _: `[`, _, between)
                 _: InvocationTargetException | _: NullPointerException |
                 _: ClassNotFoundException
                 ) =>
+                 qux
 >>>
 case e @ (
         _: NoSuchMethodException | _: SecurityException |
@@ -115,3 +116,85 @@ case e @ (
         _: InvocationTargetException | _: NullPointerException |
         _: ClassNotFoundException
     ) =>
+  qux
+<<< gimme space with config style, with guard
+      case e @ (
+      _: NoSuchMethodException | _: SecurityException |
+                _: IllegalAccessException | _: IllegalArgumentException |
+                _: InvocationTargetException | _: NullPointerException |
+                _: ClassNotFoundException
+                ) /* c1 */ if /* c2 */ foo(
+                 bar,
+                 baz
+                 ) =>
+                 qux
+>>>
+case e @ (
+        _: NoSuchMethodException | _: SecurityException |
+        _: IllegalAccessException | _: IllegalArgumentException |
+        _: InvocationTargetException | _: NullPointerException |
+        _: ClassNotFoundException
+    ) /* c1 */
+    if /* c2 */ foo(
+        bar,
+        baz
+    ) =>
+  qux
+<<< gimme space with config style, with infix
+      case e @ (
+      _: NoSuchMethodException | _: SecurityException |
+                _: IllegalAccessException | _: IllegalArgumentException |
+                _: InvocationTargetException | _: NullPointerException |
+                _: ClassNotFoundException
+                ) infix foo(
+                 bar,
+                 baz
+                 ) =>
+                 qux
+>>>
+case e @ (
+        _: NoSuchMethodException | _: SecurityException |
+        _: IllegalAccessException | _: IllegalArgumentException |
+        _: InvocationTargetException | _: NullPointerException |
+        _: ClassNotFoundException
+    ) infix foo(
+        bar,
+        baz
+    ) =>
+  qux
+<<< gimme space with config style, with infix and nest
+      case e @ (
+      _: NoSuchMethodException | _: SecurityException |
+                _: IllegalAccessException | _: IllegalArgumentException |
+                _: InvocationTargetException | _: NullPointerException |
+                _: ClassNotFoundException
+                )
+                infix (
+                foo(
+                 bar,
+                 baz
+                 )
+                 anotherInfix foo(
+                        bar,
+                        baz
+                    )
+                ) =>
+                 qux
+>>>
+case e @ (
+        _: NoSuchMethodException | _: SecurityException |
+        _: IllegalAccessException | _: IllegalArgumentException |
+        _: InvocationTargetException | _: NullPointerException |
+        _: ClassNotFoundException
+    )
+      infix (
+          foo(
+              bar,
+              baz
+          )
+            anotherInfix foo(
+                bar,
+                baz
+            )
+      ) =>
+  qux

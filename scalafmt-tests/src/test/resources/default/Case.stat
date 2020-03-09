@@ -121,3 +121,78 @@ object a {
     } // comment
   }
 }
+<<< #1244 1.1: one multiline pattern
+x match {
+  case Foo(
+      a,
+      b
+      ) =>
+        ???
+}
+>>>
+x match {
+  case Foo(
+      a,
+      b
+      ) =>
+    ???
+}
+<<< #1244 1.2: two multiline patterns with infix and multiline guard
+x match {
+  case
+    Foo(
+      a,
+      b
+  ) infix Bar(
+   c, d
+   ) if bar(
+       a,
+       b
+       ) =>
+    ???
+}
+>>>
+x match {
+  case Foo(
+          a,
+          b
+      ) infix Bar(
+          c,
+          d
+      )
+      if bar(
+          a,
+          b
+      ) =>
+    ???
+}
+<<< #1244 1.3: one single-line pattern and one multiline pattern with infix and guard
+x match {
+  case
+    a@ Foo infix Bar(
+   c, d
+   ) if baz(
+       a,
+       b
+       ) =>
+    if (qux(
+     x,
+     y
+   )) 0 else 1
+}
+>>>
+x match {
+  case a @ Foo infix Bar(
+          c,
+          d
+      )
+      if baz(
+          a,
+          b
+      ) =>
+    if (qux(
+            x,
+            y
+        )) 0
+    else 1
+}
