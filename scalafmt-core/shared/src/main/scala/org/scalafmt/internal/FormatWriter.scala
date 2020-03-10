@@ -73,7 +73,7 @@ class FormatWriter(formatOps: FormatOps) {
           sb.append(rewrittenToken)
       }
 
-      entry.formatWhitespace(sb)
+      entry.formatWhitespace(sb, state.prev.formatOff)
     }
 
     sb.toString()
@@ -320,7 +320,7 @@ class FormatWriter(formatOps: FormatOps) {
         }
       }
 
-      def formatWhitespace(sb: StringBuilder): Unit = {
+      def formatWhitespace(sb: StringBuilder, formatOff: Boolean): Unit = {
 
         import org.scalafmt.config.TrailingCommas
 
@@ -369,7 +369,12 @@ class FormatWriter(formatOps: FormatOps) {
 
         @inline def ws(offset: Int): Unit = sb.append(getWhitespace(offset))
 
-        if (!runner.dialect.allowTrailingCommas || tok.left.is[T.Comment])
+        val noExtraOffset =
+          !runner.dialect.allowTrailingCommas ||
+            tok.left.is[T.Comment] ||
+            formatOff
+
+        if (noExtraOffset)
           ws(0)
         else
           initStyle.trailingCommas match {

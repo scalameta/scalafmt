@@ -54,3 +54,21 @@ object A {
 // format: off
 0x123l
 // format: on
+<<< don't add extra trailing commas
+trailingCommas=always
+===
+// format: off
+f(
+    a,
+    b,
+    c
+)
+// format: on
+>>>
+// format: off
+f(
+    a,
+    b,
+    c
+)
+// format: on
