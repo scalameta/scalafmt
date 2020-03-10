@@ -3,6 +3,188 @@ id: changelog
 title: Changelog
 ---
 
+## [v2.4.2](https://github.com/scalameta/scalafmt/tree/v2.4.2) (2020-02-22)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.4.1...v2.4.2)
+
+**Merged pull requests:**
+
+- BestFirstSearch: if failed without a solution, retry without optimization [\#1731](https://github.com/scalameta/scalafmt/pull/1731) ([kitbellew](https://github.com/kitbellew))
+- Release Drafter workflow [\#1730](https://github.com/scalameta/scalafmt/pull/1730) ([poslegm](https://github.com/poslegm))
+- BestFirstSearch: don't give up too soon [\#1729](https://github.com/scalameta/scalafmt/pull/1729) ([kitbellew](https://github.com/kitbellew))
+- Various cleanup and refactoring changes in BestFirstSearch [\#1728](https://github.com/scalameta/scalafmt/pull/1728) ([kitbellew](https://github.com/kitbellew))
+- Dummy parameter against github caches [\#1727](https://github.com/scalameta/scalafmt/pull/1727) ([poslegm](https://github.com/poslegm))
+- GraalVM to 20.0.0 [\#1726](https://github.com/scalameta/scalafmt/pull/1726) ([poslegm](https://github.com/poslegm))
+- Documentation: describe a few important parameters [\#1725](https://github.com/scalameta/scalafmt/pull/1725) ([kitbellew](https://github.com/kitbellew))
+- FormatOps: extract methods to get func/case arrow [\#1724](https://github.com/scalameta/scalafmt/pull/1724) ([kitbellew](https://github.com/kitbellew))
+- RedundantBraces: add parensForOneLineApply flag [\#1723](https://github.com/scalameta/scalafmt/pull/1723) ([kitbellew](https://github.com/kitbellew))
+- Router bugfix: find the correct lambda right arrow [\#1719](https://github.com/scalameta/scalafmt/pull/1719) ([kitbellew](https://github.com/kitbellew))
+- FormatWriter: don't rewrite {} =\> \(\) in assignment [\#1715](https://github.com/scalameta/scalafmt/pull/1715) ([kitbellew](https://github.com/kitbellew))
+- Update scalafmt-core to 2.4.1 [\#1713](https://github.com/scalameta/scalafmt/pull/1713) ([scala-steward](https://github.com/scala-steward))
+- TreeOps: structure the details of defns or calls [\#1710](https://github.com/scalameta/scalafmt/pull/1710) ([kitbellew](https://github.com/kitbellew))
+
+## [v2.4.1](https://github.com/scalameta/scalafmt/tree/v2.4.1) (2020-02-16)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.4.0...v2.4.1)
+
+**Merged pull requests:**
+
+- FormatWriter: {} =\> \(\): don't rewrite some lambdas [\#1709](https://github.com/scalameta/scalafmt/pull/1709) ([kitbellew](https://github.com/kitbellew))
+- Update scalafmt-core to 2.4.0 [\#1706](https://github.com/scalameta/scalafmt/pull/1706) ([scala-steward](https://github.com/scala-steward))
+
+## [v2.4.0](https://github.com/scalameta/scalafmt/tree/v2.4.0) (2020-02-15)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.4.0-RC2...v2.4.0)
+
+**Merged pull requests:**
+
+- Trailing commas bugfix: can't have trailing comma in `preserve` without a break [\#1705](https://github.com/scalameta/scalafmt/pull/1705) ([kitbellew](https://github.com/kitbellew))
+- A couple of bugfixes in handling of first arg after "\(" [\#1701](https://github.com/scalameta/scalafmt/pull/1701) ([kitbellew](https://github.com/kitbellew))
+- Various cleanup and refactor changes [\#1700](https://github.com/scalameta/scalafmt/pull/1700) ([kitbellew](https://github.com/kitbellew))
+- Update metaconfig-core, ... to 0.9.8 [\#1699](https://github.com/scalameta/scalafmt/pull/1699) ([scala-steward](https://github.com/scala-steward))
+- Tests: determine test's location, provide to Intellij [\#1698](https://github.com/scalameta/scalafmt/pull/1698) ([kitbellew](https://github.com/kitbellew))
+- MUnit reverted to ScalaTest [\#1697](https://github.com/scalameta/scalafmt/pull/1697) ([poslegm](https://github.com/poslegm))
+- Update sbt-scalajs-crossproject to 1.0.0 [\#1695](https://github.com/scalameta/scalafmt/pull/1695) ([scala-steward](https://github.com/scala-steward))
+- Update metaconfig-core, ... to 0.9.7 [\#1694](https://github.com/scalameta/scalafmt/pull/1694) ([scala-steward](https://github.com/scala-steward))
+- Update metaconfig-core, ... to 0.9.6 [\#1693](https://github.com/scalameta/scalafmt/pull/1693) ([scala-steward](https://github.com/scala-steward))
+- Resource folder path resolution from classloader [\#1692](https://github.com/scalameta/scalafmt/pull/1692) ([poslegm](https://github.com/poslegm))
+- Policy: add apply\(\) with partial func in 2nd group [\#1691](https://github.com/scalameta/scalafmt/pull/1691) ([kitbellew](https://github.com/kitbellew))
+- Router: minor refactor for align vars in apply [\#1690](https://github.com/scalameta/scalafmt/pull/1690) ([kitbellew](https://github.com/kitbellew))
+- Router: extract simple T.Dot patterns before chain [\#1689](https://github.com/scalameta/scalafmt/pull/1689) ([kitbellew](https://github.com/kitbellew))
+- TreeOps: find a parent, avoid getting all parents [\#1688](https://github.com/scalameta/scalafmt/pull/1688) ([kitbellew](https://github.com/kitbellew))
+- Update munit to 0.4.5 [\#1687](https://github.com/scalameta/scalafmt/pull/1687) ([scala-steward](https://github.com/scala-steward))
+- Self formatting with 2.4.0-RC2 [\#1686](https://github.com/scalameta/scalafmt/pull/1686) ([poslegm](https://github.com/poslegm))
+- ScalaTest -\> MUnit [\#1681](https://github.com/scalameta/scalafmt/pull/1681) ([poslegm](https://github.com/poslegm))
+
+## [v2.4.0-RC2](https://github.com/scalameta/scalafmt/tree/v2.4.0-RC2) (2020-02-09)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.4.0-RC1...v2.4.0-RC2)
+
+**Merged pull requests:**
+
+- Update metaconfig-core, ... to 0.9.5 [\#1685](https://github.com/scalameta/scalafmt/pull/1685) ([scala-steward](https://github.com/scala-steward))
+- Update sbt-ci-release to 1.5.2 [\#1684](https://github.com/scalameta/scalafmt/pull/1684) ([scala-steward](https://github.com/scala-steward))
+- Update sbt-mima-plugin to 0.6.4 [\#1683](https://github.com/scalameta/scalafmt/pull/1683) ([scala-steward](https://github.com/scala-steward))
+- Update scalatags to 0.8.5 [\#1680](https://github.com/scalameta/scalafmt/pull/1680) ([scala-steward](https://github.com/scala-steward))
+- RewriteTrailingCommas: trivial, remove duplicate [\#1679](https://github.com/scalameta/scalafmt/pull/1679) ([kitbellew](https://github.com/kitbellew))
+- Rewrites: traverse tree once, applying all rules [\#1677](https://github.com/scalameta/scalafmt/pull/1677) ([kitbellew](https://github.com/kitbellew))
+- Update sbt-scalajs to 1.0.0 [\#1676](https://github.com/scalameta/scalafmt/pull/1676) ([scala-steward](https://github.com/scala-steward))
+- Scalafmt is supported by format-all for emacs [\#1675](https://github.com/scalameta/scalafmt/pull/1675) ([sideshowcoder](https://github.com/sideshowcoder))
+- ScalafmtConfig: clean up unused code, move some to tests [\#1674](https://github.com/scalameta/scalafmt/pull/1674) ([kitbellew](https://github.com/kitbellew))
+- ScalafmtConfig bugfix: read align tokens as seq, not set [\#1673](https://github.com/scalameta/scalafmt/pull/1673) ([kitbellew](https://github.com/kitbellew))
+- Update sbt to 1.3.8 [\#1672](https://github.com/scalameta/scalafmt/pull/1672) ([scala-steward](https://github.com/scala-steward))
+- Trailing commas: add a rewrite rule, remove first [\#1669](https://github.com/scalameta/scalafmt/pull/1669) ([kitbellew](https://github.com/kitbellew))
+- Router: treat single-arg lambda of init like apply [\#1666](https://github.com/scalameta/scalafmt/pull/1666) ([kitbellew](https://github.com/kitbellew))
+- RedundantParens: rewrite single-arg apply of block [\#1665](https://github.com/scalameta/scalafmt/pull/1665) ([kitbellew](https://github.com/kitbellew))
+- RedundantBraces: use \(\) for {} one-line lambdas [\#1663](https://github.com/scalameta/scalafmt/pull/1663) ([kitbellew](https://github.com/kitbellew))
+- RedundantBraces: update method body rewrite rules [\#1662](https://github.com/scalameta/scalafmt/pull/1662) ([kitbellew](https://github.com/kitbellew))
+- Minor improvements to split, decision and policy logic [\#1661](https://github.com/scalameta/scalafmt/pull/1661) ([kitbellew](https://github.com/kitbellew))
+- Router: allow single-line curly lambdas [\#1660](https://github.com/scalameta/scalafmt/pull/1660) ([kitbellew](https://github.com/kitbellew))
+
+## [v2.4.0-RC1](https://github.com/scalameta/scalafmt/tree/v2.4.0-RC1) (2020-01-30)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.3.3-RC2...v2.4.0-RC1)
+
+**Merged pull requests:**
+
+- Update sbt-native-packager to 1.6.1 [\#1658](https://github.com/scalameta/scalafmt/pull/1658) ([scala-steward](https://github.com/scala-steward))
+- Update sbt-scalafmt to 2.3.1 [\#1657](https://github.com/scalameta/scalafmt/pull/1657) ([scala-steward](https://github.com/scala-steward))
+- Enable to download and run snapshot version from dynamic [\#1656](https://github.com/scalameta/scalafmt/pull/1656) ([tanishiking](https://github.com/tanishiking))
+- Scalafmt bugfix: restore .format signatures while passing filename [\#1654](https://github.com/scalameta/scalafmt/pull/1654) ([kitbellew](https://github.com/kitbellew))
+- Router bugfix: break on else, indent for block within case [\#1652](https://github.com/scalameta/scalafmt/pull/1652) ([kitbellew](https://github.com/kitbellew))
+- Policy: always pass sourcecode.Line implicitly [\#1651](https://github.com/scalameta/scalafmt/pull/1651) ([kitbellew](https://github.com/kitbellew))
+- Update interface to 0.0.17 [\#1650](https://github.com/scalameta/scalafmt/pull/1650) ([scala-steward](https://github.com/scala-steward))
+- SortModifiers: Use .syntax on tokens, not tree [\#1649](https://github.com/scalameta/scalafmt/pull/1649) ([kitbellew](https://github.com/kitbellew))
+- State/FormatWriter: various optimizations and simplifications [\#1647](https://github.com/scalameta/scalafmt/pull/1647) ([kitbellew](https://github.com/kitbellew))
+- Update sbt-scalajs to 0.6.32 [\#1642](https://github.com/scalameta/scalafmt/pull/1642) ([scala-steward](https://github.com/scala-steward))
+- Update sbt-mdoc to 2.1.1 [\#1621](https://github.com/scalameta/scalafmt/pull/1621) ([scala-steward](https://github.com/scala-steward))
+- Update paradise to 2.1.1 [\#1620](https://github.com/scalameta/scalafmt/pull/1620) ([scala-steward](https://github.com/scala-steward))
+
+## [v2.3.3-RC2](https://github.com/scalameta/scalafmt/tree/v2.3.3-RC2) (2020-01-22)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.3.3-RC1...v2.3.3-RC2)
+
+**Merged pull requests:**
+
+- Update sbt-native-packager to 1.6.0 [\#1641](https://github.com/scalameta/scalafmt/pull/1641) ([scala-steward](https://github.com/scala-steward))
+- Update scalatags to 0.8.4 [\#1636](https://github.com/scalameta/scalafmt/pull/1636) ([scala-steward](https://github.com/scala-steward))
+- RedundantBraces: fix various bugs with general expressions [\#1635](https://github.com/scalameta/scalafmt/pull/1635) ([kitbellew](https://github.com/kitbellew))
+- Update sbt to 1.3.7 [\#1634](https://github.com/scalameta/scalafmt/pull/1634) ([scala-steward](https://github.com/scala-steward))
+- Add headers for each invidiual editor that Metals supports. [\#1629](https://github.com/scalameta/scalafmt/pull/1629) ([olafurpg](https://github.com/olafurpg))
+- FormatOps: check "new anonymous" in infix indent [\#1626](https://github.com/scalameta/scalafmt/pull/1626) ([kitbellew](https://github.com/kitbellew))
+- Rewrite: rewrite patchsets unless any is no-format [\#1625](https://github.com/scalameta/scalafmt/pull/1625) ([kitbellew](https://github.com/kitbellew))
+- Router bugfix: improve optimal token for assign [\#1623](https://github.com/scalameta/scalafmt/pull/1623) ([kitbellew](https://github.com/kitbellew))
+- Update scalatags to 0.8.3 [\#1619](https://github.com/scalameta/scalafmt/pull/1619) ([scala-steward](https://github.com/scala-steward))
+- add in a bit of documentation about Metals [\#1617](https://github.com/scalameta/scalafmt/pull/1617) ([ckipp01](https://github.com/ckipp01))
+
+## [v2.3.3-RC1](https://github.com/scalameta/scalafmt/tree/v2.3.3-RC1) (2020-01-08)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.3.2...v2.3.3-RC1)
+
+**Merged pull requests:**
+
+- Don't silence stdout when it is the only output [\#1622](https://github.com/scalameta/scalafmt/pull/1622) ([sideshowcoder](https://github.com/sideshowcoder))
+- Some performance optimizations for FormatToken [\#1616](https://github.com/scalameta/scalafmt/pull/1616) ([kitbellew](https://github.com/kitbellew))
+- Various refactoring and simplification commits [\#1615](https://github.com/scalameta/scalafmt/pull/1615) ([kitbellew](https://github.com/kitbellew))
+- Router bugfix: keep single-line comment split [\#1614](https://github.com/scalameta/scalafmt/pull/1614) ([kitbellew](https://github.com/kitbellew))
+- Update sbt-ci-release to 1.5.0 [\#1613](https://github.com/scalameta/scalafmt/pull/1613) ([scala-steward](https://github.com/scala-steward))
+- Various bugfixes for single-arg apply of a lambda [\#1612](https://github.com/scalameta/scalafmt/pull/1612) ([kitbellew](https://github.com/kitbellew))
+- Update sbt-mdoc to 2.1.0 [\#1611](https://github.com/scalameta/scalafmt/pull/1611) ([scala-steward](https://github.com/scala-steward))
+- Update sbt to 1.3.6 [\#1610](https://github.com/scalameta/scalafmt/pull/1610) ([scala-steward](https://github.com/scala-steward))
+- FormatOps: allow break after assign in infixSplit [\#1608](https://github.com/scalameta/scalafmt/pull/1608) ([kitbellew](https://github.com/kitbellew))
+- FormatOps: consider comment for RHS optimal token [\#1604](https://github.com/scalameta/scalafmt/pull/1604) ([kitbellew](https://github.com/kitbellew))
+- Update scalacheck to 1.14.3 [\#1602](https://github.com/scalameta/scalafmt/pull/1602) ([scala-steward](https://github.com/scala-steward))
+- Update sbt to 1.3.5 [\#1601](https://github.com/scalameta/scalafmt/pull/1601) ([scala-steward](https://github.com/scala-steward))
+- Router: dangle only if breaking in multi-line lambda [\#1600](https://github.com/scalameta/scalafmt/pull/1600) ([kitbellew](https://github.com/kitbellew))
+- Update sbt-native-packager to 1.5.2 [\#1598](https://github.com/scalameta/scalafmt/pull/1598) ([scala-steward](https://github.com/scala-steward))
+- Update scalafmt-core to 2.3.2 [\#1597](https://github.com/scalameta/scalafmt/pull/1597) ([scala-steward](https://github.com/scala-steward))
+- Update sbt-scalafmt to 2.3.0 [\#1596](https://github.com/scalameta/scalafmt/pull/1596) ([scala-steward](https://github.com/scala-steward))
+- Upgrade to Scalatest 3.1 [\#1595](https://github.com/scalameta/scalafmt/pull/1595) ([olafurpg](https://github.com/olafurpg))
+- Router: preserve single-line formatting for if/try [\#1560](https://github.com/scalameta/scalafmt/pull/1560) ([kitbellew](https://github.com/kitbellew))
+
+## [v2.3.2](https://github.com/scalameta/scalafmt/tree/v2.3.2) (2019-12-08)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.3.1...v2.3.2)
+
+**Merged pull requests:**
+
+- Do not add a new line in multilevel chained package clause [\#1594](https://github.com/scalameta/scalafmt/pull/1594) ([iRevive](https://github.com/iRevive))
+- Update scalafmt-core to 2.3.1 [\#1590](https://github.com/scalameta/scalafmt/pull/1590) ([scala-steward](https://github.com/scala-steward))
+- Update interface to 0.0.16 [\#1589](https://github.com/scalameta/scalafmt/pull/1589) ([scala-steward](https://github.com/scala-steward))
+- adding possibility to specify custom repositories for coursier \(\#1521\) [\#1586](https://github.com/scalameta/scalafmt/pull/1586) ([slivkamiro](https://github.com/slivkamiro))
+
+## [v2.3.1](https://github.com/scalameta/scalafmt/tree/v2.3.1) (2019-12-06)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.3.0...v2.3.1)
+
+**Merged pull requests:**
+
+- RedundantBraces: fix how we find {} in func body [\#1588](https://github.com/scalameta/scalafmt/pull/1588) ([kitbellew](https://github.com/kitbellew))
+
+## [v2.3.0](https://github.com/scalameta/scalafmt/tree/v2.3.0) (2019-12-04)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.3.0-RC2...v2.3.0)
+
+**Merged pull requests:**
+
+- Update sbt-mdoc to 2.0.3 [\#1585](https://github.com/scalameta/scalafmt/pull/1585) ([scala-steward](https://github.com/scala-steward))
+- Update typesafe:config to 1.4.0 [\#1584](https://github.com/scalameta/scalafmt/pull/1584) ([scala-steward](https://github.com/scala-steward))
+- Update sbt-jmh to 0.3.7 [\#1581](https://github.com/scalameta/scalafmt/pull/1581) ([scala-steward](https://github.com/scala-steward))
+- Update paiges-core to 0.3.0 [\#1580](https://github.com/scalameta/scalafmt/pull/1580) ([scala-steward](https://github.com/scala-steward))
+- Update sbt-mdoc to 2.0.2 [\#1579](https://github.com/scalameta/scalafmt/pull/1579) ([scala-steward](https://github.com/scala-steward))
+- Update sbt-scalajs to 0.6.31 [\#1578](https://github.com/scalameta/scalafmt/pull/1578) ([scala-steward](https://github.com/scala-steward))
+- Update sbt-scalajs-crossproject to 0.6.1 [\#1577](https://github.com/scalameta/scalafmt/pull/1577) ([scala-steward](https://github.com/scala-steward))
+- Update sbt-coursier to 1.0.3 [\#1576](https://github.com/scalameta/scalafmt/pull/1576) ([scala-steward](https://github.com/scala-steward))
+- Update interface to 0.0.14 [\#1575](https://github.com/scalameta/scalafmt/pull/1575) ([scala-steward](https://github.com/scala-steward))
+- Update sbt-mima-plugin to 0.6.1 [\#1574](https://github.com/scalameta/scalafmt/pull/1574) ([scala-steward](https://github.com/scala-steward))
+- Update typesafe:config to 1.3.4 [\#1573](https://github.com/scalameta/scalafmt/pull/1573) ([scala-steward](https://github.com/scala-steward))
+- Update sbt-buildinfo to 0.9.0 [\#1572](https://github.com/scalameta/scalafmt/pull/1572) ([scala-steward](https://github.com/scala-steward))
+- Update sbt-assembly to 0.14.10 [\#1571](https://github.com/scalameta/scalafmt/pull/1571) ([scala-steward](https://github.com/scala-steward))
+- Add installation instructions for scalafmt-native. [\#1570](https://github.com/scalameta/scalafmt/pull/1570) ([olafurpg](https://github.com/olafurpg))
+- Router: break between curly and catch, like else [\#1567](https://github.com/scalameta/scalafmt/pull/1567) ([kitbellew](https://github.com/kitbellew))
+- Formatter upgraded to 2.3.0-RC1 [\#1566](https://github.com/scalameta/scalafmt/pull/1566) ([poslegm](https://github.com/poslegm))
+
+
 ## [v2.3.0-RC2](https://github.com/scalameta/scalafmt/tree/v2.3.0-RC2) (2019-11-27)
 
 [Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.3.0-RC1...v2.3.0-RC2)
