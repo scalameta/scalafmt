@@ -27,14 +27,16 @@ class FormatWriter(formatOps: FormatOps) {
     val sb = new StringBuilder()
     val locations = getFormatLocations(state, debug = false)
 
-    var formatOff = false
     locations.iterate.foreach { entry =>
       val location = entry.curr
       val state = location.state
       val formatToken = location.formatToken
 
       formatToken.left match {
-        case token if formatOff => sb.append(token.syntax)
+        // formatting flag fetches from the previous state because of
+        // `formatToken.left` rendering. `FormatToken(x, // format: on)` will have
+        // formatOff = false, but x still should not be formatted
+        case token if state.prev.formatOff => sb.append(token.syntax)
         case c: T.Comment =>
           sb.append(formatComment(c, state.indentation))
         case token @ T.Interpolation.Part(_) =>
@@ -72,11 +74,6 @@ class FormatWriter(formatOps: FormatOps) {
       }
 
       entry.formatWhitespace(sb)
-
-      // formatting flag switches at the end of iteration because of
-      // `formatToken.left` rendering. `FormatToken(x, // format: on)` will have
-      // formatOff = false, but x still should not be formatted
-      formatOff = state.formatOff
     }
 
     sb.toString()
