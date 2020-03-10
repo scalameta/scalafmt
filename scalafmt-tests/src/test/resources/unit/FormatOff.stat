@@ -72,3 +72,11 @@ f(
     c
 )
 // format: on
+<<< should not delete multiple spaces
+// format: off
+val x    =  "ads"
+// format: on
+>>>
+// format: off
+val x    =  "ads"
+// format: on
