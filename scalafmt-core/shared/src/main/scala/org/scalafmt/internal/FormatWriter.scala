@@ -2,7 +2,6 @@ package org.scalafmt.internal
 
 import java.util.regex.Pattern
 
-import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.rewrite.RedundantBraces
 import org.scalafmt.util.TokenOps.TokenHash
 import org.scalafmt.util.TreeOps
@@ -34,6 +33,10 @@ class FormatWriter(formatOps: FormatOps) {
       val formatToken = location.formatToken
 
       formatToken.left match {
+        // formatting flag fetches from the previous state because of
+        // `formatToken.left` rendering. `FormatToken(x, // format: on)` will have
+        // formatOff = false, but x still should not be formatted
+        case token if state.prev.formatOff => sb.append(token.syntax)
         case c: T.Comment =>
           sb.append(formatComment(c, state.indentation))
         case token @ T.Interpolation.Part(_) =>
@@ -70,7 +73,7 @@ class FormatWriter(formatOps: FormatOps) {
           sb.append(rewrittenToken)
       }
 
-      entry.formatWhitespace(sb)
+      entry.formatWhitespace(sb, state.prev.formatOff)
     }
 
     sb.toString()
@@ -317,7 +320,7 @@ class FormatWriter(formatOps: FormatOps) {
         }
       }
 
-      def formatWhitespace(sb: StringBuilder): Unit = {
+      def formatWhitespace(sb: StringBuilder, formatOff: Boolean): Unit = {
 
         import org.scalafmt.config.TrailingCommas
 
@@ -366,7 +369,12 @@ class FormatWriter(formatOps: FormatOps) {
 
         @inline def ws(offset: Int): Unit = sb.append(getWhitespace(offset))
 
-        if (!runner.dialect.allowTrailingCommas || tok.left.is[T.Comment])
+        val noExtraOffset =
+          !runner.dialect.allowTrailingCommas ||
+            tok.left.is[T.Comment] ||
+            formatOff
+
+        if (noExtraOffset)
           ws(0)
         else
           initStyle.trailingCommas match {
