@@ -84,9 +84,10 @@ def fill(points: Double) = x match {
 case ctx => 1
 }
 >>>
-def fill(points: Double) = x match {
-  case ctx => 1
-}
+def fill(points: Double) =
+  x match {
+    case ctx => 1
+  }
 <<< single line excluding last {} block
     def compare(): Int =
       if (startA == endA) {

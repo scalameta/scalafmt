@@ -1608,7 +1608,7 @@ class Router(formatOps: FormatOps) {
       implicit style: ScalafmtConfig
   ): Seq[Split] = {
     val expire = body.tokens.last
-    def exclude = getExcludeIf(
+    def excludeOld = getExcludeIf(
       expire, {
         case T.RightBrace() => true
         case close @ T.RightParen()
@@ -1623,6 +1623,11 @@ class Router(formatOps: FormatOps) {
         case _ => false
       }
     )
+    def exclude =
+      if (style.activeForEdition_2020_03
+        && style.newlines.alwaysBeforeMultilineDef)
+        Set.empty[Range]
+      else excludeOld
     if (ft.right.is[T.LeftBrace])
       // The block will take care of indenting by 2.
       Seq(Split(Space, 0))

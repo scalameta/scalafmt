@@ -49,10 +49,11 @@ package a {
         3
       }
 
-      def e = a match {
-        case 1 => true
-        case 2 => false
-      }
+      def e =
+        a match {
+          case 1 => true
+          case 2 => false
+        }
     }
   }
 }

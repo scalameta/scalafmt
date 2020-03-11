@@ -516,13 +516,14 @@ def startSharding(system: ActorSystem, mediator: ActorRef, shardCount: Int): Uni
 >>>
 def startSharding(system: ActorSystem,
                   mediator: ActorRef,
-                  shardCount: Int): Unit = ClusterSharding(system).start(
-    className[Flow],
-    props(mediator),
-    ClusterShardingSettings(system),
-    { case (name: String, payload) => (name, payload) },
-    { case (name: String, _) => (name.hashCode % shardCount).toString }
-)
+                  shardCount: Int): Unit =
+  ClusterSharding(system).start(
+      className[Flow],
+      props(mediator),
+      ClusterShardingSettings(system),
+      { case (name: String, payload) => (name, payload) },
+      { case (name: String, _) => (name.hashCode % shardCount).toString }
+  )
 <<< spray shit
 {{{
       get {

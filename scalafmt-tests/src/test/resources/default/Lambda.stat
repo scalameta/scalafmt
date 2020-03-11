@@ -115,12 +115,13 @@ def foo(x: Int) = x match {
     (y: Int) => -y
   }
 >>>
-def foo(x: Int) = x match {
-  case 1 =>
-    (y: Int) => y
-  case _ =>
-    (y: Int) => -y
-}
+def foo(x: Int) =
+  x match {
+    case 1 =>
+      (y: Int) => y
+    case _ =>
+      (y: Int) => -y
+  }
 <<< SKIP y u break line? Answer: Because optimizer.recurseOnBlocks
 {
   def foo =

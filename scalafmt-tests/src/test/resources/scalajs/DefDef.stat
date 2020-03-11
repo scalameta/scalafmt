@@ -211,10 +211,11 @@ def sourceMapper: js.UndefOr[js.Function1[ // scalastyle:ignore
     case _                         => th
    }
 >>>
-def unwrapJavaScriptException(th: Throwable): Any = th match {
-  case js.JavaScriptException(e) => e
-  case _                         => th
-}
+def unwrapJavaScriptException(th: Throwable): Any =
+  th match {
+    case js.JavaScriptException(e) => e
+    case _                         => th
+  }
 <<< no newline before { #305
 object RTCIceCandidateInit {
   @inline
