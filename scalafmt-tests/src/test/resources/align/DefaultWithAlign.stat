@@ -182,6 +182,8 @@ object a {
   final val OVERLOADED    = 1L << 33 // symbol
 }
 <<< tricky regex #138
+newlines.alwaysBeforeMultilineDef = false
+===
 def f[A](x: A)(f: A => Int) = f(x) match {
   case 1 => true
   case 222 => false
@@ -191,6 +193,17 @@ def f[A](x: A)(f: A => Int) = f(x) match {
   case 1   => true
   case 222 => false
 }
+<<< tricky regex #138 2
+def f[A](x: A)(f: A => Int) = f(x) match {
+  case 1 => true
+  case 222 => false
+}
+>>>
+def f[A](x: A)(f: A => Int) =
+  f(x) match {
+    case 1   => true
+    case 222 => false
+  }
 <<< conflicting number of columns
     libraryDependencies ++= Seq(
       "org.scala-lang" % "scala-reflect" % scalaVersion.value % "test",
@@ -296,6 +309,8 @@ for {
   aaa = List(1)
 } yield 1
 <<< don't jump scope #152
+newlines.alwaysBeforeMultilineDef = false
+===
 object Cleaver {
    def apply[R, A, B](): Cleaver[R, A, B] = new Cleaver[R, A, B] {
     def split(x: R): A -> B               = (l(x), r(x))
@@ -308,6 +323,21 @@ object Cleaver {
     def split(x: R): A -> B = (l(x), r(x))
     def join(x: A -> B): R  = f(x._1, x._2)
   }
+}
+<<< don't jump scope #152 2
+object Cleaver {
+   def apply[R, A, B](): Cleaver[R, A, B] = new Cleaver[R, A, B] {
+    def split(x: R): A -> B               = (l(x), r(x))
+    def join(x: A -> B): R                = f(x._1, x._2)
+   }
+ }
+>>>
+object Cleaver {
+  def apply[R, A, B](): Cleaver[R, A, B] =
+    new Cleaver[R, A, B] {
+      def split(x: R): A -> B = (l(x), r(x))
+      def join(x: A -> B): R  = f(x._1, x._2)
+    }
 }
 <<< only align single-line statements
 {

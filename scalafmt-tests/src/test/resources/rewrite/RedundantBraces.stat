@@ -458,12 +458,13 @@ object a {
 }
 >>>
 object a {
-  def findAccountByAPIKey(apiKey: APIKey) = byKeyCache.get(apiKey) match {
-    case None =>
-      delegate.findAccountByAPIKey(apiKey) map {
-        _ map _ tap (add(apiKey, _)) unsafePerformIO
-      }
-  }
+  def findAccountByAPIKey(apiKey: APIKey) =
+    byKeyCache.get(apiKey) match {
+      case None =>
+        delegate.findAccountByAPIKey(apiKey) map {
+          _ map _ tap (add(apiKey, _)) unsafePerformIO
+        }
+    }
 }
 <<< #1633 1.3: func with placeholder and infix
 object a {
@@ -476,12 +477,13 @@ object a {
 }
 >>>
 object a {
-  def findAccountByAPIKey(apiKey: APIKey) = byKeyCache.get(apiKey) match {
-    case None =>
-      delegate.findAccountByAPIKey(apiKey) map {
-        _ map (_) tap (add(apiKey, _)) unsafePerformIO (foo)
-      }
-  }
+  def findAccountByAPIKey(apiKey: APIKey) =
+    byKeyCache.get(apiKey) match {
+      case None =>
+        delegate.findAccountByAPIKey(apiKey) map {
+          _ map (_) tap (add(apiKey, _)) unsafePerformIO (foo)
+        }
+    }
 }
 <<< #1633 1.4: func
 object a {
@@ -494,12 +496,13 @@ object a {
 }
 >>>
 object a {
-  def findAccountByAPIKey(apiKey: APIKey) = byKeyCache.get(apiKey) match {
-    case None =>
-      delegate.findAccountByAPIKey(apiKey) map { x =>
-        x._1 map x._2 tap (add(apiKey, _)) unsafePerformIO
-      }
-  }
+  def findAccountByAPIKey(apiKey: APIKey) =
+    byKeyCache.get(apiKey) match {
+      case None =>
+        delegate.findAccountByAPIKey(apiKey) map { x =>
+          x._1 map x._2 tap (add(apiKey, _)) unsafePerformIO
+        }
+    }
 }
 <<< #1633 1.5: partial func
 object a {
@@ -512,13 +515,14 @@ object a {
 }
 >>>
 object a {
-  def findAccountByAPIKey(apiKey: APIKey) = byKeyCache.get(apiKey) match {
-    case None =>
-      delegate.findAccountByAPIKey(apiKey) map {
-        case (x, y) =>
-          x map y tap (add(apiKey, _)) unsafePerformIO
-      }
-  }
+  def findAccountByAPIKey(apiKey: APIKey) =
+    byKeyCache.get(apiKey) match {
+      case None =>
+        delegate.findAccountByAPIKey(apiKey) map {
+          case (x, y) =>
+            x map y tap (add(apiKey, _)) unsafePerformIO
+        }
+    }
 }
 <<< #1633 2.1: function block in an if-statement
 object a {

@@ -152,11 +152,12 @@ def viewMethod: Gen[ViewClass.Op] = oneOf(
   chooseRange ^^ lop(r => s"slice $r"  -> (_ slice r))
 )
 >>>
-def viewMethod: Gen[ViewClass.Op] = oneOf(
-    lowHalf ^^ lop(n => s"drop $n" -> (_ drop n)),
-    highHalf ^^ lop(n => s"take $n" -> (_ take n)),
-    chooseRange ^^ lop(r => s"slice $r" -> (_ slice r))
-)
+def viewMethod: Gen[ViewClass.Op] =
+  oneOf(
+      lowHalf ^^ lop(n => s"drop $n" -> (_ drop n)),
+      highHalf ^^ lop(n => s"take $n" -> (_ take n)),
+      chooseRange ^^ lop(r => s"slice $r" -> (_ slice r))
+  )
 <<< typelevel/cats
   implicit def validatedInstances[E](implicit E: Semigroup[E]): Traverse[Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] = 2
 >>>

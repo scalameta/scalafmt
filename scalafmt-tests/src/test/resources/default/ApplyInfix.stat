@@ -267,17 +267,18 @@ if (other == null) {
     }
 >>>
 object ExternForwarder {
-  def unapply(tree: Tree): Option[Symbol] = tree match {
-    case DefDef()
-        if isExternModule(from.symbol)
-          && params.length == args.length
-          && params.zip(args).forall {
-            case _ => false
-          } =>
-      Some(sel.symbol)
-    case _ =>
-      None
-  }
+  def unapply(tree: Tree): Option[Symbol] =
+    tree match {
+      case DefDef()
+          if isExternModule(from.symbol)
+            && params.length == args.length
+            && params.zip(args).forall {
+              case _ => false
+            } =>
+        Some(sel.symbol)
+      case _ =>
+        None
+    }
 }
 <<< #408
 1 match {
