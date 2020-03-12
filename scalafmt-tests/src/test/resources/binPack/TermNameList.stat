@@ -28,7 +28,7 @@ val secret: List[Bit] = List(aaaaa, aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa,
   aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa, aaaaa, bbbbbbb, aaaaa, aaaaa,
   bbbbbbb, aaaaa, aaaaa, aaaaa, bbbbbbb, aaaaa, aaaaa, aaaaa, bbbbbbb, aaaaa,
   bbbbbbb // comment
-  )
+)
 <<< skip because a.select
 val secret: List[Bit] = List(a.select, aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa, aaaaa, bbbbbbb, aaaaa, aaaaa, bbbbbbb, aaaaa, aaaaa, aaaaa, bbbbbbb, aaaaa, aaaaa, aaaaa, bbbbbbb, aaaaa, bbbbbbb)
 >>>
@@ -65,7 +65,7 @@ somethingVeryLong(bar{baz(
 )
 >>>
 somethingVeryLong(
-    bar {
+  bar {
     baz(
       qux // c1
     )

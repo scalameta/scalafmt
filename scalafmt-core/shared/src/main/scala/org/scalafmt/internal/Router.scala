@@ -637,25 +637,20 @@ class Router(formatOps: FormatOps) {
           else
             insideBlock[T.LeftBrace](formatToken, close)
         val excludeRanges = exclude.map(parensRange)
-        val unindent =
-          UnindentAtExclude(exclude, Num(-style.continuationIndent.callSite))
-        val unindentPolicy =
-          if (args.length == 1) Policy(close)(unindent)
-          else NoPolicy
+        val unindent = UnindentAtExclude(exclude, Num(-indent.n))
         def ignoreBlocks(x: FormatToken): Boolean = {
           excludeRanges.exists(_.contains(x.left.end))
         }
         val noSplitPolicy =
           penalizeAllNewlines(close, 3, ignore = ignoreBlocks)
             .andThen(unindent)
+        val nlIndent = if (style.activeForEdition_2020_03) indent else Num(4)
         Seq(
           Split(NoSplit, 0)
             .withOptimalTokenOpt(optimal)
             .withPolicy(noSplitPolicy)
-            .withIndent(indent, close, Left),
-          Split(Newline, 2)
-            .withPolicy(unindentPolicy)
-            .withIndent(4, close, Left)
+            .withIndent(indent, close, Right),
+          Split(Newline, 2).withIndent(nlIndent, close, Right)
         )
       case FormatToken(T.LeftParen(), T.RightParen(), _) =>
         Seq(Split(NoSplit, 0))
@@ -736,9 +731,13 @@ class Router(formatOps: FormatOps) {
         val mustDangle = style.activeForEdition_2020_01 && (
           expirationToken.is[T.Comment]
         )
-        val wouldDangle =
+        val shouldDangle =
           if (defnSite) !shouldNotDangleAtDefnSite(leftOwner, false)
           else style.danglingParentheses.callSite
+        val wouldDangle = shouldDangle || (style.activeForEdition_2020_03 && {
+          val beforeClose = prev(closeFormatToken)
+          beforeClose.hasBreak && beforeClose.left.is[T.Comment]
+        })
 
         val newlinePolicy: Policy =
           if (wouldDangle || mustDangle) {
@@ -1281,25 +1280,33 @@ class Router(formatOps: FormatOps) {
       case FormatToken(open: T.LeftParen, right, _) =>
         val isConfig = opensConfigStyle(formatToken)
         val close = matching(open)
-        val breakOnClose = Policy(close) {
-          case Decision(FormatToken(_, `close`, _), _) =>
-            Seq(Split(Newline, 0))
+        val editionActive = style.activeForEdition_2020_03
+        def spaceSplitWithoutPolicy = {
+          val indent: Length = right match {
+            case T.KwIf() => StateColumn
+            case T.KwFor() if !style.indentYieldKeyword => StateColumn
+            case _ => Num(0)
+          }
+          val useSpace = editionActive && style.spaces.inParentheses
+          Split(Space(useSpace), 0).withIndent(indent, close, Left)
         }
-        val indent: Length = right match {
-          case T.KwIf() => StateColumn
-          case T.KwFor() if !style.indentYieldKeyword => StateColumn
-          case _ => Num(0)
-        }
-        Seq(
+        def spaceSplit =
+          spaceSplitWithoutPolicy.withPolicy(penalizeAllNewlines(close, 1))
+        def newlineSplit(forceDangle: Boolean) = {
+          val shouldDangle = forceDangle ||
+            editionActive && style.danglingParentheses.callSite
+          val policy =
+            if (!shouldDangle) NoPolicy
+            else newlinesOnlyBeforeClosePolicy(close)
           Split(Newline, 0)
-            .onlyIf(isConfig)
-            .withPolicy(breakOnClose)
-            .withIndent(style.continuationIndent.callSite, close, Right),
-          Split(NoSplit, 0)
-            .notIf(isConfig)
-            .withIndent(indent, close, Left)
-            .withPolicy(penalizeAllNewlines(close, 1))
-        )
+            .withPolicy(policy)
+            .withIndent(style.continuationIndent.callSite, close, Right)
+        }
+        if (isSingleLineComment(right) && editionActive)
+          Seq(newlineSplit(isConfig))
+        else
+          Seq(if (isConfig) newlineSplit(true) else spaceSplit)
+
       // Infix operator.
       case tok @ FormatToken(op @ T.Ident(_), right, between)
           if isApplyInfix(op, leftOwner) =>
