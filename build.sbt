@@ -219,7 +219,8 @@ lazy val tests = project
         case _ => "com.lihaoyi" %% "scalatags" % "0.6.8"
       },
       "org.typelevel" %% "paiges-core" % "0.3.0",
-      scalametaTestkit
+      scalametaTestkit,
+      scalatest.value
     )
   )
   .dependsOn(
