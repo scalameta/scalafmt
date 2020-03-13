@@ -1,0 +1,17 @@
+maxColumn = 80
+<<< ONLY simplified example
+a == () :: Nil
+>>>
+a == () :: Nil
+<<< ONLY hlist example
+"foo" :: () :: true :: HNil
+>>>
+"foo" :: () :: true :: HNil
+<<< ONLY should parse () as unit in list construction
+object X {
+  def x = List(()) == () :: Nil
+}
+>>>
+object X {
+  def x = List(()) == () :: Nil
+}
