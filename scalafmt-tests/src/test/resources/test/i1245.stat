@@ -1,13 +1,13 @@
 maxColumn = 80
-<<< ONLY simplified example
+<<< simplified example
 a == () :: Nil
 >>>
 a == () :: Nil
-<<< ONLY hlist example
+<<< hlist example
 "foo" :: () :: true :: HNil
 >>>
 "foo" :: () :: true :: HNil
-<<< ONLY should parse () as unit in list construction
+<<< should parse () as unit in list construction
 object X {
   def x = List(()) == () :: Nil
 }
