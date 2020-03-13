@@ -393,8 +393,7 @@ class Router(formatOps: FormatOps) {
           if (style.newlines.sourceIs(Newlines.unfold)) Split.ignored
           else {
             val expire = statementStarts(hash(right)).tokens.last
-            Split(Space, 0, policy = SingleLineBlock(expire))
-              .withOptimalToken(expire)
+            Split(Space, 0).withSingleLine(expire)
           }
         Seq(
           spaceSplit,
@@ -428,8 +427,7 @@ class Router(formatOps: FormatOps) {
             // This split needs to have an optimalAt field.
             Split(Space, 0)
               .onlyIf(spaceCouldBeOk)
-              .withOptimalToken(expire)
-              .withPolicy(SingleLineBlock(expire)),
+              .withSingleLine(expire),
             // For some reason, this newline cannot cost 1.
             Split(newline, 0)
           )
@@ -489,9 +487,7 @@ class Router(formatOps: FormatOps) {
             d.onlyNewlinesWithoutFallback
         }
         Seq(
-          Split(Space, 0)
-            .withOptimalToken(expire, killOnFail = true)
-            .withPolicy(SingleLineBlock(expire)),
+          Split(Space, 0).withSingleLine(expire, killOnFail = true),
           Split(Space, 1).withPolicy(forceNewlineBeforeExtends)
         )
       // DefDef
@@ -538,9 +534,9 @@ class Router(formatOps: FormatOps) {
         val noSplitMod = getNoSplit(formatToken, true)
         val newlinePenalty = 3 + nestedApplies(leftOwner)
         Seq(
-          Split(noSplitMod, 0, policy = SingleLineBlock(close))
+          Split(noSplitMod, 0)
             .onlyIf(noSplitMod != null)
-            .withOptimalToken(close),
+            .withSingleLine(close),
           Split(noSplitMod, 0, policy = spacePolicy)
             .onlyIf(noSplitMod != null)
             .withOptimalToken(lambdaToken),
@@ -786,11 +782,9 @@ class Router(formatOps: FormatOps) {
                   .withPolicy(newlinePolicy)
                   .withIndent(indent, close, Right),
                 Split(NoSplit, noSplitCost)
-                  .withOptimalToken(breakToken)
-                  .withPolicy(
-                    newlinePolicy
-                      .andThen(newlineAfterAssignDecision)
-                      .andThen(SingleLineBlock(breakToken))
+                  .withSingleLine(breakToken)
+                  .andThenPolicy(
+                    newlinePolicy.andThen(newlineAfterAssignDecision)
                   )
               )
             }
@@ -887,8 +881,7 @@ class Router(formatOps: FormatOps) {
                   newlinesOnlyBeforeClosePolicy(close)
                     .orElse(decideNewlinesOnlyAfterToken(breakAfter))
                 Seq(
-                  Split(Newline, 0, policy = SingleLineBlock(close))
-                    .withOptimalToken(close, killOnFail = true),
+                  Split(Newline, 0).withSingleLine(close, killOnFail = true),
                   Split(Space, 1, policy = multiLine)
                 )
             }).map(_.onlyFor(SplitTag.OneArgPerLine))
@@ -898,8 +891,7 @@ class Router(formatOps: FormatOps) {
             .onlyIf(oneArgPerLineSplits.isEmpty)
             .onlyIf(newlines != 0)
             .onlyIf(open.pos.endLine == close.pos.startLine)
-            .withOptimalToken(close, killOnFail = true)
-            .withPolicy(SingleLineBlock(close))
+            .withSingleLine(close, killOnFail = true)
         ) ++ oneArgPerLineSplits
       case FormatToken(_, _: T.LeftBrace, _) =>
         Seq(Split(Space, 0))
@@ -1216,9 +1208,7 @@ class Router(formatOps: FormatOps) {
                 d.onlyNewlinesWithFallback(Split(Newline, 0))
             }
         Seq(
-          Split(Space, 0)
-            .withOptimalToken(expire, killOnFail = true)
-            .withPolicy(SingleLineBlock(expire)),
+          Split(Space, 0).withSingleLine(expire, killOnFail = true),
           Split(Space, 1).withPolicy(breakOnlyBeforeElse)
         )
       case FormatToken(close: T.RightParen, right, _) if (leftOwner match {
@@ -1330,9 +1320,7 @@ class Router(formatOps: FormatOps) {
 
         Seq(
           // Either everything fits in one line or break on =>
-          Split(Space, 0)
-            .withOptimalToken(expire, killOnFail = true)
-            .withPolicy(SingleLineBlock(expire)),
+          Split(Space, 0).withSingleLine(expire, killOnFail = true),
           Split(Space, 1)
             .withPolicy(
               Policy(expire) {

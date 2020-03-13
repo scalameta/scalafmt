@@ -95,6 +95,19 @@ case class Split(
     if (isIgnored) this else copy(policy = newPolicy)
   }
 
+  def withSingleLine(
+      expire: Token,
+      killOnFail: Boolean = false
+  )(implicit line: sourcecode.Line): Split =
+    withSingleLineAndOptimal(expire, expire, killOnFail)
+
+  def withSingleLineAndOptimal(
+      expire: Token,
+      optimal: Token,
+      killOnFail: Boolean = false
+  )(implicit line: sourcecode.Line): Split =
+    withOptimalToken(optimal, killOnFail).withPolicy(SingleLineBlock(expire))
+
   def withPolicyOpt(newPolicy: => Option[Policy]): Split =
     if (isIgnored) this else newPolicy.fold(this)(withPolicy(_))
 
