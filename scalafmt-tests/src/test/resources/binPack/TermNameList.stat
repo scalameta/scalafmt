@@ -13,6 +13,22 @@ val secret: List[Bit] = List(aaaaa, aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa,
   aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa, aaaaa, bbbbbbb, aaaaa, aaaaa,
   bbbbbbb, aaaaa, aaaaa, aaaaa, bbbbbbb, aaaaa, aaaaa, aaaaa, bbbbbbb, aaaaa,
   bbbbbbb)
+<<< basic with comment
+val secret: List[Bit] = List(aaaaa, aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa, bbbbbbb, aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa, aaaaa, bbbbbbb, bbbbbbb, aaaaa, bbbbbbb,
+  aaaaa, aaaaa, bbbbbbb, bbbbbbb, aaaaa, bbbbbbb, aaaaa, bbbbbbb, bbbbbbb, aaaaa, aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa, bbbbbbb, aaaaa, bbbbbbb, bbbbbbb, aaaaa, aaaaa, aaaaa, aaaaa, bbbbbbb,
+  aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa, aaaaa, bbbbbbb, aaaaa, aaaaa, bbbbbbb, aaaaa, aaaaa, aaaaa, bbbbbbb, aaaaa, aaaaa, aaaaa,
+  bbbbbbb, aaaaa, bbbbbbb // comment
+)
+>>>
+val secret: List[Bit] = List(aaaaa, aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa,
+  bbbbbbb, aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa, aaaaa, bbbbbbb, bbbbbbb,
+  aaaaa, bbbbbbb, aaaaa, aaaaa, bbbbbbb, bbbbbbb, aaaaa, bbbbbbb, aaaaa,
+  bbbbbbb, bbbbbbb, aaaaa, aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, bbbbbbb, bbbbbbb,
+  aaaaa, bbbbbbb, aaaaa, bbbbbbb, bbbbbbb, aaaaa, aaaaa, aaaaa, aaaaa, bbbbbbb,
+  aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa, aaaaa, bbbbbbb, aaaaa, aaaaa,
+  bbbbbbb, aaaaa, aaaaa, aaaaa, bbbbbbb, aaaaa, aaaaa, aaaaa, bbbbbbb, aaaaa,
+  bbbbbbb // comment
+  )
 <<< skip because a.select
 val secret: List[Bit] = List(a.select, aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa, aaaaa, bbbbbbb, aaaaa, aaaaa, bbbbbbb, aaaaa, aaaaa, aaaaa, bbbbbbb, aaaaa, aaaaa, aaaaa, bbbbbbb, aaaaa, bbbbbbb)
 >>>
@@ -39,3 +55,31 @@ val secret: List[Bit] = List(
   aaaaa,
   bbbbbbb
 )
+<<< unsafeCallSite forced newline
+maxColumn = 20
+binPack.unsafeCallSite = true
+===
+somethingVeryLong(bar{baz(
+  qux // c1
+  )}
+)
+>>>
+somethingVeryLong(
+    bar {
+    baz(
+      qux // c1
+    )
+  })
+<<< unsafeCallSite no split
+binPack.unsafeCallSite = true
+===
+val a = foo(bar{baz(
+  qux // comment
+  )}
+)
+>>>
+val a = foo(bar {
+  baz(
+    qux // comment
+  )
+})

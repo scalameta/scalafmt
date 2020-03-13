@@ -1,6 +1,7 @@
 align = none
 maxColumn = 40
 newlines.source = fold
+runner.optimizer.forceConfigStyleOnOffset = 50
 <<< 1.1: block, if-else, line too long
 if (true) {      println(aaaaaaaaaaaaaaaaaaaaaaaaaa)}
 >>>
@@ -481,3 +482,483 @@ val deployment = system
   .provider
   .deployer
   .lookup(service.split("/").drop(1))
+<<< 3.1: def non-config-style, long
+def a( ccccccccccccccccc:Int,
+ ddddddddddddddddd:String,
+  eeeeeeeeeeeeeeeee:Long) = true
+>>>
+def a(
+    ccccccccccccccccc: Int,
+    ddddddddddddddddd: String,
+    eeeeeeeeeeeeeeeee: Long
+) = true
+<<< 3.2: def non-config-style, short
+def a( b:Int,
+ c:String,
+  d:Long) = true
+>>>
+def a(b: Int, c: String, d: Long) = true
+<<< 3.3: apply non-config-style, no breaks on ( and )
+val a = b(c, d,
+  efgh)
+>>>
+val a = b(c, d, efgh)
+<<< 3.4: apply non-config-style, no break on (, break on )
+val a = b(c,
+ d,
+  efgh
+)
+>>>
+val a = b(c, d, efgh)
+<<< 3.5: apply non-config-style, break on (, no break on )
+val a = b(
+c,
+ d,
+  efgh)
+>>>
+val a = b(c, d, efgh)
+<<< 3.6: apply config-style, break on ( and )
+val a = b(
+c,
+ d,
+  efgh
+  )
+>>>
+val a = b(
+  c,
+  d,
+  efgh
+)
+<<< 3.7: apply non-config-style, force
+val a = b( cccccccccccccc, dddddddddddddd,  eeeeeeeeeeeeee)
+>>>
+val a = b(
+  cccccccccccccc,
+  dddddddddddddd,
+  eeeeeeeeeeeeee
+)
+<<< 3.8: apply non-config-style, too long
+val a = b( ccccccccccc, ddddddddddd,  eeeeeeeeeee)
+>>>
+val a = b(
+  ccccccccccc,
+  ddddddddddd,
+  eeeeeeeeeee
+)
+<<< 3.9: single-arg multi-line apply, possible config-style
+a.b(foo {
+    val bar = baz
+    qux
+  }
+)
+>>>
+a.b(foo {
+  val bar = baz
+  qux
+})
+<<< 3.10 enclosed, infix on the right
+maxColumn = 80
+danglingParentheses = false
+===
+object a {
+  terminaters = Set() ++ (for (i ← 1 to n)
+    yield {
+      val man = context.watch(context.system.actorOf(Props[Terminater]))
+      man ! "run"
+      man
+    })
+}
+>>>
+object a {
+  terminaters = Set() ++ (for (i ← 1 to n) yield {
+    val man = context.watch(context.system.actorOf(Props[Terminater]))
+    man ! "run"
+    man
+  })
+}
+<<< 3.11 enclosed, by itself
+maxColumn = 80
+danglingParentheses = false
+===
+object a {
+  (for (i ← 1 to n)
+    yield {
+      val man = context.watch(context.system.actorOf(Props[Terminater]))
+      man ! "run"
+      man
+    })
+}
+>>>
+object a {
+  (for (i ← 1 to n) yield {
+    val man = context.watch(context.system.actorOf(Props[Terminater]))
+    man ! "run"
+    man
+  })
+}
+<<< 3.12 enclosed, followed by select
+maxColumn = 80
+danglingParentheses = false
+===
+object a {
+  (intercept[java.lang.IllegalStateException] {
+    wrap(result ⇒
+      actorOf(Props(new OuterActor(actorOf(Props(promiseIntercept({
+        throw new IllegalStateException("Ur state be b0rked");
+        new InnerActor
+      })(result)))))))
+  }).getMessage should ===("Ur state be b0rked")
+}
+>>>
+object a {
+  (intercept[java.lang.IllegalStateException] {
+    wrap(result ⇒
+      actorOf(Props(new OuterActor(actorOf(Props(promiseIntercept({
+        throw new IllegalStateException("Ur state be b0rked");
+        new InnerActor
+      })(result)))))))
+  }).getMessage should ===("Ur state be b0rked")
+}
+<<< 3.13 enclosed, followed by select and infix
+maxColumn = 80
+danglingParentheses = false
+===
+object a {
+  (intercept[java.lang.IllegalStateException] {
+    in.readObject
+  }).getMessage should ===(
+    "Trying to deserialize a serialized ActorRef without an ActorSystem in scope." +
+      " Use 'akka.serialization.Serialization.currentSystem.withValue(system) { ... }'")
+}
+>>>
+object a {
+  (intercept[java.lang.IllegalStateException] {
+    in.readObject
+  }).getMessage should ===(
+    "Trying to deserialize a serialized ActorRef without an ActorSystem in scope." +
+      " Use 'akka.serialization.Serialization.currentSystem.withValue(system) { ... }'")
+}
+<<< 3.14 enclosed, assignment, by itself
+maxColumn = 80
+danglingParentheses = false
+===
+object a {
+  val a = (
+    intercept[java.lang.IllegalStateException] {
+      in.readObject
+    }
+  )
+}
+>>>
+object a {
+  val a =
+    (
+      intercept[java.lang.IllegalStateException] { in.readObject }
+    )
+}
+<<< 3.15 enclosed, assignment, infix on left
+maxColumn = 80
+danglingParentheses = false
+===
+object a {
+  val a = (
+    intercept[java.lang.IllegalStateException] {
+      in.readObject
+    }
+  ) ++ 2
+}
+>>>
+object a {
+  val a = (
+    intercept[java.lang.IllegalStateException] { in.readObject }
+  ) ++ 2
+}
+<<< 3.16 enclosed, assignment, infix on right
+maxColumn = 80
+danglingParentheses = false
+===
+object a {
+  val a = 2 ++ (
+    intercept[java.lang.IllegalStateException] {
+      in.readObject
+    }
+  )
+}
+>>>
+object a {
+  val a = 2 ++ (
+    intercept[java.lang.IllegalStateException] { in.readObject }
+  )
+}
+<<< 3.17 enclosed, assignment, infix in middle
+maxColumn = 80
+danglingParentheses = false
+===
+object a {
+  val a = 2 ++ (
+    intercept[java.lang.IllegalStateException] {
+      in.readObject
+    }
+  ) ++ 3
+}
+>>>
+object a {
+  val a = 2 ++ (
+    intercept[java.lang.IllegalStateException] { in.readObject }
+  ) ++ 3
+}
+<<< 3.18 enclosed, assignment, by itself, narrower
+maxColumn = 60
+danglingParentheses = false
+===
+object a {
+  val a = (intercept[java.lang.IllegalStateException] {
+    in.readObject
+  })
+}
+>>>
+object a {
+  val a = (intercept[java.lang.IllegalStateException] {
+    in.readObject
+  })
+}
+<<< 3.19 enclosed, assignment, infix on left, narrower
+maxColumn = 60
+danglingParentheses = false
+===
+object a {
+  val a = (
+    intercept[java.lang.IllegalStateException] {
+      in.readObject
+    }
+  ) ++ 2
+}
+>>>
+object a {
+  val a = (
+    intercept[java.lang.IllegalStateException] {
+      in.readObject
+    }
+  ) ++ 2
+}
+<<< 3.20 enclosed, assignment, infix on right, narrower
+maxColumn = 60
+danglingParentheses = false
+===
+object a {
+  val a = 2 ++ (
+    intercept[java.lang.IllegalStateException] {
+      in.readObject
+    }
+  )
+}
+>>>
+object a {
+  val a = 2 ++ (
+    intercept[java.lang.IllegalStateException] {
+      in.readObject
+    }
+  )
+}
+<<< 3.21 enclosed, assignment, infix in middle, narrower
+maxColumn = 60
+danglingParentheses = false
+===
+object a {
+  val a = 2 ++ (
+    intercept[java.lang.IllegalStateException] {
+      in.readObject
+    }
+  ) ++ 3
+}
+>>>
+object a {
+  val a = 2 ++ (
+    intercept[java.lang.IllegalStateException] {
+      in.readObject
+    }
+  ) ++ 3
+}
+<<< 3.22 enclosed, assignment, by itself, narrow
+maxColumn = 40
+danglingParentheses = false
+===
+object a {
+  val a = (
+    intercept[java.lang.IllegalStateException] {
+      in.readObject
+    }
+  )
+}
+>>>
+object a {
+  val a =
+    (
+      intercept[
+        java.lang.IllegalStateException] {
+        in.readObject
+      }
+    )
+}
+<<< 3.23 enclosed, assignment, infix on left, narrow
+maxColumn = 40
+danglingParentheses = false
+===
+object a {
+  val a = (
+    intercept[java.lang.IllegalStateException] {
+      in.readObject
+    }
+  ) ++ 2
+}
+>>>
+object a {
+  val a = (
+    intercept[
+      java.lang.IllegalStateException] {
+      in.readObject
+    }
+  ) ++ 2
+}
+<<< 3.24 enclosed, assignment, infix on right, narrow
+maxColumn = 40
+danglingParentheses = false
+===
+object a {
+  val a = 2 ++ (
+    intercept[java.lang.IllegalStateException] {
+      in.readObject
+    }
+  )
+}
+>>>
+object a {
+  val a = 2 ++ (
+    intercept[
+      java.lang.IllegalStateException] {
+      in.readObject
+    }
+  )
+}
+<<< 3.25 enclosed, assignment, infix in middle, narrow
+maxColumn = 40
+danglingParentheses = false
+===
+object a {
+  val a = 2 ++ (
+    intercept[java.lang.IllegalStateException] {
+      in.readObject
+    }
+  ) ++ 3
+}
+>>>
+object a {
+  val a = 2 ++ (
+    intercept[
+      java.lang.IllegalStateException] {
+      in.readObject
+    }
+  ) ++ 3
+}
+<<< 3.26 enclosed, def, chain follows
+maxColumn = 80
+===
+  def activationFutureFor(endpoint: ActorRef)(implicit
+      timeout: Timeout,
+      executor: ExecutionContext): Future[ActorRef] =
+    (supervisor
+      .ask(AwaitActivation(endpoint))(timeout))
+      .map[ActorRef]({
+        case EndpointActivated(`endpoint`) ⇒ endpoint
+        case EndpointFailedToActivate(`endpoint`, cause) ⇒ throw cause
+      })
+>>>
+def activationFutureFor(
+    endpoint: ActorRef
+)(implicit timeout: Timeout, executor: ExecutionContext): Future[ActorRef] =
+  (supervisor
+    .ask(AwaitActivation(endpoint))(timeout))
+    .map[ActorRef]({
+      case EndpointActivated(`endpoint`) ⇒ endpoint
+      case EndpointFailedToActivate(`endpoint`, cause) ⇒ throw cause
+    })
+<<< SKIP 3.27 enclosed in block, def, chain follows
+maxColumn = 80
+===
+  def activationFutureFor(endpoint: ActorRef)(implicit
+      timeout: Timeout,
+      executor: ExecutionContext): Future[ActorRef] =
+    {supervisor
+      .ask(AwaitActivation(endpoint))(timeout)}
+      .map[ActorRef]({
+        case EndpointActivated(`endpoint`) ⇒ endpoint
+        case EndpointFailedToActivate(`endpoint`, cause) ⇒ throw cause
+      })
+>>>
+Idempotency violated
+def activationFutureFor(
+    endpoint: ActorRef
+)(implicit timeout: Timeout, executor: ExecutionContext): Future[ActorRef] = {
+  supervisor
+    .ask(AwaitActivation(endpoint))(timeout)
+}.map[ActorRef]({
+  case EndpointActivated(`endpoint`) ⇒ endpoint
+  case EndpointFailedToActivate(`endpoint`, cause) ⇒ throw cause
+})
+<<< 3.28 apply with optimal token
+maxColumn = 80
+danglingParentheses = false
+===
+case class AttributeInfo(symbol : Symbol, typeRef : Type, value : Option[Any],
+  values : Seq[String ~ Any]) // sym_Ref info_Ref {constant_Ref} {nameRef constantRef}
+>>>
+case class AttributeInfo(
+    symbol: Symbol,
+    typeRef: Type,
+    value: Option[Any],
+    values: Seq[
+      String ~ Any
+    ]) // sym_Ref info_Ref {constant_Ref} {nameRef constantRef}
+<<< 3.29 apply with optimal token
+maxColumn = 80
+===
+Multipart.FormData.BodyPart.Strict(
+  "userfile",
+  HttpEntity(`application/pdf`, ByteString("filecontent")),
+  Map("filename" -> "test€.dat"),
+  List(
+    RawHeader("Content-Transfer-Encoding", "binary"),
+    RawHeader("Content-Additional-1", "anything"),
+    RawHeader("Content-Additional-2", "really-anything"))
+)
+>>>
+Multipart.FormData.BodyPart.Strict(
+  "userfile",
+  HttpEntity(`application/pdf`, ByteString("filecontent")),
+  Map("filename" -> "test€.dat"),
+  List(
+    RawHeader("Content-Transfer-Encoding", "binary"),
+    RawHeader("Content-Additional-1", "anything"),
+    RawHeader("Content-Additional-2", "really-anything")
+  )
+)
+<<< 3.30: apply with single-arg assign; open nl, close nonl
+object foo {
+val a = b(c = d)
+val a = b(c =
+  d)
+val a = b(
+  c =  d)
+val a = b(
+  c =  d
+  )
+}
+>>>
+object foo {
+  val a = b(c = d)
+  val a = b(c = d)
+  val a = b(c = d)
+  val a = b(
+    c = d
+  )
+}
