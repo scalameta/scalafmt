@@ -616,4 +616,12 @@ object TreeOps {
       case _ => Some(false)
     }.isDefined
 
+  @tailrec
+  def getEndOfFirstCall(tree: Tree): Token =
+    tree match {
+      case t: Term.Select => getEndOfFirstCall(t.qual)
+      case SplitCallIntoParts(fun, _) if fun ne tree => getEndOfFirstCall(fun)
+      case _ => tree.tokens.last
+    }
+
 }
