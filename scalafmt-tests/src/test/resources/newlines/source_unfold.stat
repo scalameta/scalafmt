@@ -255,16 +255,18 @@ object a {
       Some(a)
     else
       None
-  val ok2 = if (a > 10) {
-    Some(a)
-  } else {
-    None
-  }
-  val ok3 = if (aaaa > 10000) {
-    Some(aaaa)
-  } else {
-    None
-  }
+  val ok2 =
+    if (a > 10) {
+      Some(a)
+    } else {
+      None
+    }
+  val ok3 =
+    if (aaaa > 10000) {
+      Some(aaaa)
+    } else {
+      None
+    }
 }
 <<< 2.7 #1747: one line without else
 maxColumn = 40
@@ -279,12 +281,14 @@ object a {
   val ok1 =
     if (a > 10)
       Some(a)
-  val ok2 = if (a > 10) {
-    Some(a)
-  }
-  val ok3 = if (aaaa > 10000) {
-    Some(aaaa)
-  }
+  val ok2 =
+    if (a > 10) {
+      Some(a)
+    }
+  val ok3 =
+    if (aaaa > 10000) {
+      Some(aaaa)
+    }
 }
 <<< 2.8 #1747: split on then with else
 maxColumn = 55
@@ -313,16 +317,18 @@ object a {
       Some(a)
     else
       None
-  val ok2 = if (a > 10) {
-    Some(a)
-  } else {
-    None
-  }
-  val ok3 = if (aaaa > 10000) {
-    Some(aaaa)
-  } else {
-    None
-  }
+  val ok2 =
+    if (a > 10) {
+      Some(a)
+    } else {
+      None
+    }
+  val ok3 =
+    if (aaaa > 10000) {
+      Some(aaaa)
+    } else {
+      None
+    }
 }
 <<< 2.9 #1747: split on else
 maxColumn = 55
@@ -344,16 +350,18 @@ object a {
       Some(a)
     else
       None
-  val ok2 = if (a > 10) {
-    Some(a)
-  } else {
-    None
-  }
-  val ok3 = if (aaaa > 10000) {
-    Some(aaaa)
-  } else {
-    None
-  }
+  val ok2 =
+    if (a > 10) {
+      Some(a)
+    } else {
+      None
+    }
+  val ok3 =
+    if (aaaa > 10000) {
+      Some(aaaa)
+    } else {
+      None
+    }
 }
 <<< 2.10 #1747: split on then without else
 maxColumn = 40
@@ -371,12 +379,14 @@ object a {
   val ok1 =
     if (a > 10)
       Some(a)
-  val ok2 = if (a > 10) {
-    Some(a)
-  }
-  val ok3 = if (aaaa > 10000) {
-    Some(aaaa)
-  }
+  val ok2 =
+    if (a > 10) {
+      Some(a)
+    }
+  val ok3 =
+    if (aaaa > 10000) {
+      Some(aaaa)
+    }
 }
 <<< 2.11 #1747: split on if
 maxColumn = 55
@@ -472,9 +482,7 @@ val attributes =
  for (i ← 1 to count)
  yield i
 >>>
-val attributes =
-  for (i ← 1 to count)
-    yield i
+val attributes = for (i ← 1 to count) yield i
 <<< 2.15 val with literal apply
 object a {
    val a = b(0x1F, // ID1
