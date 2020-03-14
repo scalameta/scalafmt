@@ -13,17 +13,20 @@ align = more    // For pretty alignment.
 maxColumn = 100 // For my wide 30" display.
 ```
 
-There is a possibility to override scalafmt config for a specific file with
+There is a possibility to override scalafmt config for a specific code with
 `// scalafmt: {}` comment:
 
 ```scala mdoc:scalafmt
 ---
-// inside build.sbt
-// scalafmt: { align = most }
+// scalafmt: { align = most, danglingParentheses = false }
 libraryDependencies ++= Seq(
   "org.scalameta" %% "scalameta" % scalametaV,
-  "org.scalacheck" %% "scalacheck" % scalacheckV
-)
+  "org.scalacheck" %% "scalacheck" % scalacheckV)
+
+// scalafmt: { align = some, danglingParentheses = true } (back to defaults)
+libraryDependencies ++= Seq(
+  "org.scalameta" %% "scalameta" % scalametaV,
+  "org.scalacheck" %% "scalacheck" % scalacheckV)
 ```
 
 ## Most popular
