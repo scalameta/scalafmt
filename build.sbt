@@ -56,8 +56,9 @@ commands += Command.command("ci-test") { s =>
   }
   val docsTest = if (scalaVersion == scala212) "docs/run" else "version"
   s"++$scalaVersion" ::
-    s"tests/test" ::
-    // s"coreJS/test" ::
+    "tests/test" ::
+    "coreJVM/test" ::
+    "dynamic/test" ::
     docsTest ::
     s
 }
