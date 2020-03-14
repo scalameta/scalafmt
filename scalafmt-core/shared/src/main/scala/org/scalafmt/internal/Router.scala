@@ -1754,6 +1754,10 @@ class Router(formatOps: FormatOps) {
           case _ => Right(NoPolicy)
         }
 
+      case Newlines.unfold
+          if (ft.meta.rightOwner eq body) &&
+            isSuperfluousParenthesis(ft.right, body) =>
+        Right(NoPolicy)
       case Newlines.unfold =>
         body match {
           case _: Term.If => Right(SingleLineBlock(expire))
