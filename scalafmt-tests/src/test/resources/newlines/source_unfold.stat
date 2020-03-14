@@ -749,12 +749,11 @@ object a {
 }
 >>>
 object a {
-  val a =
-    (
-      intercept[java.lang.IllegalStateException] {
-        in.readObject
-      }
-    )
+  val a = (
+    intercept[java.lang.IllegalStateException] {
+      in.readObject
+    }
+  )
 }
 <<< 3.15 enclosed, assignment, infix on left
 maxColumn = 80
@@ -898,13 +897,12 @@ object a {
 }
 >>>
 object a {
-  val a =
-    (
-      intercept[
-        java.lang.IllegalStateException] {
-        in.readObject
-      }
-    )
+  val a = (
+    intercept[
+      java.lang.IllegalStateException] {
+      in.readObject
+    }
+  )
 }
 <<< 3.23 enclosed, assignment, infix on left, narrow
 maxColumn = 40
