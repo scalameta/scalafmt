@@ -4,7 +4,6 @@ import java.{util => ju}
 import scala.collection.JavaConverters._
 import org.scalafmt.Error.UnexpectedTree
 import org.scalafmt.config.{NewlineCurlyLambda, ScalafmtConfig}
-import org.scalafmt.internal.ExpiresOn.{Left, Right}
 import org.scalafmt.internal.Length.Num
 import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util._
@@ -436,7 +435,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   ): Policy.Pf = {
     case Decision(t, s) if exclude.contains(t.left) =>
       val close = matching(t.left)
-      s.map(_.withIndent(indent, close, ExpiresOn.Left))
+      s.map(_.withIndent(indent, close, ExpiresOn.After))
   }
 
   def penalizeAllNewlines(
@@ -634,7 +633,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     val isNewline = modification.isNewline
     val indent = infixIndent(owner, op, rhsArgs, formatToken, isNewline)
     val split =
-      Split(modification, 0).withIndent(Num(indent), expire, ExpiresOn.Left)
+      Split(modification, 0).withIndent(Num(indent), expire, ExpiresOn.After)
 
     if (!style.activeForEdition_2020_01 || isNotEquals ||
       isNewline || formatToken.right.is[T.Comment])
@@ -643,7 +642,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       val altIndent = infixIndent(owner, op, rhsArgs, formatToken, true)
       Seq(
         split,
-        Split(Newline, 1).withIndent(Num(altIndent), expire, ExpiresOn.Left)
+        Split(Newline, 1).withIndent(Num(altIndent), expire, ExpiresOn.After)
       )
     }
   }
@@ -677,9 +676,9 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     def orElse(rtoks: Seq[Token]) = {
       val last = rtoks.head
       if (last.is[T.RightParen] && (matching(last) eq rtoks.last))
-        rtoks.tail.find(!_.is[Whitespace]).get -> Left
+        rtoks.tail.find(!_.is[Whitespace]).get -> ExpiresOn.After
       else
-        last -> Left
+        last -> ExpiresOn.After
     }
     def dropComment(rtoks: Seq[Token]) =
       if (rtoks.head.is[T.Comment]) dropWS(rtoks.tail) else rtoks
@@ -687,7 +686,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     def getRToks = dropWS(function.tokens.reverse)
     function.parent match {
       case Some(b: Term.Block) if b.stats.length == 1 =>
-        b.tokens.last -> Right
+        b.tokens.last -> ExpiresOn.Before
       case Some(Case(_, _, `function`)) =>
         orElse(dropComment(getRToks))
       case _ =>
@@ -803,10 +802,10 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     Seq(
       Split(Space, 0)
         .withPolicy(SingleLineBlock(lastToken))
-        .withIndent(Num(indent), lastToken, Left),
+        .withIndent(Num(indent), lastToken, ExpiresOn.After),
       Split(NewlineT(acceptSpace = true), 1)
         .withPolicy(ctorWithChain(owners, lastToken))
-        .withIndent(Num(indent), lastToken, Left)
+        .withIndent(Num(indent), lastToken, ExpiresOn.After)
     )
   }
 
@@ -979,7 +978,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       // Indent seperators `)(` and `](` by `indentSep`
       case Decision(t @ FormatToken(_, rp @ RightParenOrBracket(), _), _)
           if ownerCheck(t.meta.rightOwner) =>
-        Seq(Split(Newline, 0).withIndent(indentSep, rp, Left))
+        Seq(Split(Newline, 0).withIndent(indentSep, rp, ExpiresOn.After))
       // Add a newline after left paren if:
       // - There's an implicit keyword and newlineBeforeImplicitKW is enabled
       // - newlineAfterOpenParen is enabled
@@ -1000,7 +999,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
         Seq(
           Split(NoSplit.orNL(!shouldAddNewline), 0)
-            .withIndent(indentParam, close2, Right)
+            .withIndent(indentParam, close2, ExpiresOn.Before)
         )
       case Decision(t @ FormatToken(T.KwImplicit(), _, _), _)
           if style.newlines.afterImplicitParamListModifier ||
@@ -1041,7 +1040,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
         .onlyIf(isBracket || !configStyle && belowArityThreshold)
         .withPolicy(SingleLineBlock(singleLineExpire)),
       Split(Newline, 1) // Otherwise split vertically
-        .withIndent(firstIndent, close, Right)
+        .withIndent(firstIndent, close, ExpiresOn.Before)
         .withPolicy(policy)
     )
 
@@ -1153,8 +1152,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
         }
       case SplitCallIntoParts(tree, either) =>
         either match {
-          case util.Left(args) => (tree, args)
-          case util.Right(argss) => (tree, getArgs(argss))
+          case Left(args) => (tree, args)
+          case Right(argss) => (tree, getArgs(argss))
         }
       case _ =>
         logger.debug(s"""Unknown tree

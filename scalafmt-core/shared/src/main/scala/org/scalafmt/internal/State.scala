@@ -5,7 +5,6 @@ import scala.meta.tokens.Token
 import scala.meta.tokens.Token.Comment
 
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.internal.ExpiresOn.Left
 import org.scalafmt.internal.Length.Num
 import org.scalafmt.util.TokenOps
 
@@ -39,8 +38,7 @@ final case class State(
   ): State = {
     val nonExpiredIndents = pushes.filterNot { push =>
       val expireToken: Token =
-        if (push.expiresAt == Left) tok.left
-        else tok.right
+        if (push.expiresAt == ExpiresOn.After) tok.left else tok.right
       push.expire.end <= expireToken.end
     }
     val newIndents: Vector[Indent[Num]] =
