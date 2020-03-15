@@ -69,3 +69,15 @@ libraryDependencies ++= Seq(
   "com.geirsson1111111" %%% "metaconfig-core" % metaconfigV,
   "org.scalacheck"       %% "scalacheck"      % scalacheckV
 )
+<<< align all blocks
+libraryDependencies ++= Seq(
+"io.get-coursier" % "interface" %% "0.0.17",
+"com.geirsson1111111" %%% "metaconfig-core" % metaconfigV % Test,
+"org.scalacheck" %% "scalacheck" % sclacheckV % Test
+)
+>>>
+libraryDependencies ++= Seq(
+  "io.get-coursier"       % "interface"      %% "0.0.17",
+  "com.geirsson1111111" %%% "metaconfig-core" % metaconfigV % Test,
+  "org.scalacheck"       %% "scalacheck"      % sclacheckV  % Test
+)
