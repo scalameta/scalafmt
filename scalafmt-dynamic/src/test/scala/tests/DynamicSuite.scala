@@ -15,7 +15,7 @@ import scala.collection.mutable.ListBuffer
 import scala.{meta => m}
 import org.scalatest.funsuite.AnyFunSuite
 
-import scala.meta.testkit.DiffAssertions
+import org.scalafmt.util.DiffAssertions
 
 class DynamicSuite extends AnyFunSuite with DiffAssertions {
   class Format(name: String) {
@@ -211,8 +211,7 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
         "object object A",
         """|parse-error.scala:1:8: error: identifier expected but object found
            |object object A
-           |       ^^^^^^
-           |""".stripMargin
+           |       ^^^^^^""".stripMargin
       )
     }
     f.setVersion(latest)
@@ -323,7 +322,8 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
     f.setVersion("1.0")
     f.assertError(
       """|error: path/.scalafmt.conf: org.scalafmt.dynamic.exceptions.ScalafmtException: failed to resolve Scalafmt version '1.0'
-         |Caused by: org.scalafmt.dynamic.ScalafmtVersion$InvalidVersionException: Invalid scalafmt version 1.0""".stripMargin
+         |Caused by: org.scalafmt.dynamic.ScalafmtVersion$InvalidVersionException: Invalid scalafmt version 1.0
+         |""".stripMargin
     )
     assert(f.downloadLogs.isEmpty)
   }
@@ -340,8 +340,7 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
           "lazy   val   x =  project",
           """|sbt.scala:1:1: error: classes cannot be lazy
              |lazy   val   x =  project
-             |^^^^
-             |""".stripMargin
+             |^^^^""".stripMargin
         )
       }
     }
@@ -357,7 +356,8 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
 
   check("no-config") { f =>
     Files.delete(f.config)
-    f.assertError("error: path/.scalafmt.conf: file does not exist")
+    f.assertError("""|error: path/.scalafmt.conf: file does not exist
+                     |""".stripMargin)
   }
 
   check("intellij-default-config") { f: Format =>
@@ -400,7 +400,7 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
         |     argument1: Type1
         |  ): ReturnType
         |}
-      """.stripMargin
+        |""".stripMargin
     f.assertFormat(original, expected)
   }
 
