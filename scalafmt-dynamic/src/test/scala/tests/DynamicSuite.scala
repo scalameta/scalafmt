@@ -413,7 +413,7 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
     f.assertFormat()
     val configOpt = f.dynamic.configsCache
       .getFromCache(f.config)
-      .flatMap(_.toOption.map(_._1))
+      .flatMap(_.fold(_ => None, Some(_)).map(_._1))
     assert(configOpt.nonEmpty)
     val config = configOpt.get
     assert(config.hasRewriteRules)
