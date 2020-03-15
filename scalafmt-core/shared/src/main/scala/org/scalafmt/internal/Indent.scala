@@ -7,9 +7,9 @@ import org.scalafmt.internal.Length._
 sealed abstract class ExpiresOn
 
 object ExpiresOn {
-  case object Left extends ExpiresOn
+  case object After extends ExpiresOn
 
-  case object Right extends ExpiresOn
+  case object Before extends ExpiresOn
 }
 
 sealed abstract class Length
