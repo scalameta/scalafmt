@@ -663,7 +663,7 @@ class FormatWriter(formatOps: FormatOps) {
     val units = Vector.newBuilder[AlignmentUnit]
     while (i < block.length) {
       val line = block(i)
-      if (line.lengthCompare(column) == 1) {
+      if (column < line.length) {
         val location = line(column)
         val previousWidth =
           if (column == 0) 0 else line(column - 1).shift
