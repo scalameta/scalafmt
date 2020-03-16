@@ -184,7 +184,7 @@ class Router(formatOps: FormatOps) {
             newlines > 0 &&
             selfAnnotation.nonEmpty
         val nl: Modification =
-          if (isSelfAnnotation) newlines2Modification(newlines, isNoIndent(tok))
+          if (isSelfAnnotation) getModCheckIndent(formatToken)
           else NewlineT(shouldGet2xNewlines(tok))
 
         val (lambdaExpire, lambdaArrow, lambdaIndent) =
@@ -419,7 +419,7 @@ class Router(formatOps: FormatOps) {
         val annoLeft = isSingleIdentifierAnnotation(prev(tok))
 
         if ((annoRight || annoLeft) && style.optIn.annotationNewlines)
-          Seq(Split(newlines2Modification(newlines), 0))
+          Seq(Split(getMod(formatToken), 0))
         else {
           val spaceCouldBeOk = annoLeft &&
             newlines == 0 && right.is[Keyword]
@@ -436,7 +436,7 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_, T.RightBrace(), _) =>
         Seq(
           Split(xmlSpace(rightOwner), 0),
-          Split(NewlineT(isDouble = newlines > 1), 0)
+          Split(NewlineT(isDouble = formatToken.hasBlankLine), 0)
         )
       case FormatToken(left @ T.KwPackage(), _, _) if leftOwner.is[Pkg] =>
         Seq(
@@ -609,7 +609,7 @@ class Router(formatOps: FormatOps) {
             case _ => noSplitPenalizeNewlines
           }
           val noSplitModification =
-            if (right.is[T.Comment]) newlines2Modification(newlines)
+            if (right.is[T.Comment]) getMod(formatToken)
             else NoSplit
 
           Seq(
@@ -1398,12 +1398,12 @@ class Router(formatOps: FormatOps) {
         )
       // Inline comment
       case FormatToken(_, c: T.Comment, _) =>
-        Seq(Split(newlines2Modification(newlines), 0))
+        Seq(Split(getMod(formatToken), 0))
       // Commented out code should stay to the left
       case FormatToken(c: T.Comment, _, _) if isSingleLineComment(c) =>
         Seq(Split(Newline, 0))
       case FormatToken(c: T.Comment, _, _) =>
-        Seq(Split(newlines2Modification(newlines), 0))
+        Seq(Split(getMod(formatToken), 0))
 
       case FormatToken(_: T.KwImplicit, _, _)
           if style.activeForEdition_2020_03 &&
@@ -1423,7 +1423,7 @@ class Router(formatOps: FormatOps) {
       case opt
           if style.optIn.annotationNewlines &&
             optionalNewlines(hash(opt.right)) =>
-        Seq(Split(newlines2Modification(newlines), 0))
+        Seq(Split(getMod(formatToken), 0))
 
       // Pat
       case tok @ FormatToken(T.Ident("|"), _, _)

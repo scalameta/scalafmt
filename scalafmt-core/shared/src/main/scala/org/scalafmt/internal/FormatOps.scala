@@ -631,10 +631,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
     // we don't modify line breaks generally around infix expressions
     // TODO: if that ever changes, modify how rewrite rules handle infix
-    val modification = newlines2Modification(
-      formatToken.newlinesBetween,
-      isNoIndent(formatToken)
-    )
+    val modification = getModCheckIndent(formatToken)
     val isNewline = modification.isNewline
     val indent = infixIndent(owner, op, rhsArgs, formatToken, isNewline)
     val split =
@@ -1061,7 +1058,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   // Returns leading comment, if there exists one, otherwise formatToken.right
   @tailrec
   final def leadingComment(formatToken: FormatToken): Token = {
-    if (formatToken.newlinesBetween <= 1 && formatToken.left.is[T.Comment])
+    if (!formatToken.hasBlankLine && formatToken.left.is[T.Comment])
       leadingComment(prev(formatToken))
     else formatToken.right
   }
