@@ -1,5 +1,6 @@
 package org.scalafmt.config
 
+import scala.collection.mutable
 import scala.io.Codec
 import scala.meta.Dialect
 import scala.util.matching.Regex
@@ -155,6 +156,22 @@ case class ScalafmtConfig(
     project: ProjectFiles = ProjectFiles(),
     edition: Edition = Edition.Latest
 ) {
+  if (newlines.source != Newlines.classic) {
+    val errors = new mutable.ArrayBuffer[String]
+    if (newlines.source != Newlines.keep) {
+      if (newlines.afterCurlyLambda == NewlineCurlyLambda.preserve)
+        errors += s"newlines.afterCurlyLambda=${newlines.afterCurlyLambda}"
+      if (optIn.configStyleArguments && align.openParenCallSite)
+        errors += s"optIn.configStyleArguments with align.openParenCallSite"
+      if (optIn.configStyleArguments && align.openParenDefnSite)
+        errors += s"optIn.configStyleArguments with align.openParenDefnSite"
+    }
+    if (errors.nonEmpty) {
+      val prefix = s"newlines: can't use source=${newlines.source} and ["
+      throw new IllegalArgumentException(errors.mkString(prefix, ",", "]"))
+    }
+  }
+
   private implicit val runnerReader = runner.reader
   private implicit val projectReader = project.reader
   private implicit val rewriteReader = rewrite.reader

@@ -500,7 +500,8 @@ object a {
  }
 >>>
 object a {
-  val a = b(0x1F, // ID1
+  val a = b(
+    0x1F, // ID1
     0x8B, // ID2
     8, // CM = Deflate
     0, // FLG
@@ -530,11 +531,7 @@ val aaaaa = bbbbb.asss(as).ccccc(
 >>>
 val aaaaa = bbbbb
   .asss(as)
-  .ccccc(
-    ddddd,
-    eeeee,
-    fffff
-  ) // comment
+  .ccccc(ddddd, eeeee, fffff) // comment
 <<< 2.18 val with apply-apply
 val aaaaa = (getSomeLongerFunction(c))(as)
 >>>
@@ -561,11 +558,13 @@ val nested =
   })(result)
 >>>
 val nested =
-  promiseIntercept(new Actor {
-    def receive = {
-      case _ ⇒
+  promiseIntercept(
+    new Actor {
+      def receive = {
+        case _ ⇒
+      }
     }
-  })(result)
+  )(result)
 <<< 2.21 val with apply type
   val deployment = system
     .asInstanceOf[ActorSystemImpl]
@@ -620,11 +619,7 @@ c,
   efgh
   )
 >>>
-val a = b(
-  c,
-  d,
-  efgh
-)
+val a = b(c, d, efgh)
 <<< 3.7: apply non-config-style, force
 val a = b( cccccccccccccc, dddddddddddddd,  eeeeeeeeeeeeee)
 >>>
@@ -648,10 +643,12 @@ a.b(foo {
   }
 )
 >>>
-a.b(foo {
-  val bar = baz
-  qux
-})
+a.b(
+  foo {
+    val bar = baz
+    qux
+  }
+)
 <<< 3.10 enclosed, infix on the right
 maxColumn = 80
 danglingParentheses = false
@@ -666,12 +663,14 @@ object a {
 }
 >>>
 object a {
-  terminaters = Set() ++ (for (i ← 1 to n)
-    yield {
-      val man = context.watch(context.system.actorOf(Props[Terminater]))
-      man ! "run"
-      man
-    })
+  terminaters = Set() ++ (
+    for (i ← 1 to n)
+      yield {
+        val man = context.watch(context.system.actorOf(Props[Terminater]))
+        man ! "run"
+        man
+      }
+  )
 }
 <<< 3.11 enclosed, by itself
 maxColumn = 80
@@ -709,13 +708,20 @@ object a {
 }
 >>>
 object a {
-  (intercept[java.lang.IllegalStateException] {
-    wrap(result ⇒
-      actorOf(Props(new OuterActor(actorOf(Props(promiseIntercept({
-        throw new IllegalStateException("Ur state be b0rked");
-        new InnerActor
-      })(result)))))))
-  }).getMessage should ===("Ur state be b0rked")
+  (
+    intercept[java.lang.IllegalStateException] {
+      wrap(result ⇒
+        actorOf(
+          Props(
+            new OuterActor(
+              actorOf(
+                Props(
+                  promiseIntercept({
+                    throw new IllegalStateException("Ur state be b0rked");
+                    new InnerActor
+                  })(result)))))))
+    }
+  ).getMessage should ===("Ur state be b0rked")
 }
 <<< 3.13 enclosed, followed by select and infix
 maxColumn = 80
@@ -730,9 +736,11 @@ object a {
 }
 >>>
 object a {
-  (intercept[java.lang.IllegalStateException] {
-    in.readObject
-  }).getMessage should ===(
+  (
+    intercept[java.lang.IllegalStateException] {
+      in.readObject
+    }
+  ).getMessage should ===(
     "Trying to deserialize a serialized ActorRef without an ActorSystem in scope." +
       " Use 'akka.serialization.Serialization.currentSystem.withValue(system) { ... }'")
 }
@@ -749,11 +757,9 @@ object a {
 }
 >>>
 object a {
-  val a = (
-    intercept[java.lang.IllegalStateException] {
-      in.readObject
-    }
-  )
+  val a = (intercept[java.lang.IllegalStateException] {
+    in.readObject
+  })
 }
 <<< 3.15 enclosed, assignment, infix on left
 maxColumn = 80
@@ -897,12 +903,10 @@ object a {
 }
 >>>
 object a {
-  val a = (
-    intercept[
-      java.lang.IllegalStateException] {
-      in.readObject
-    }
-  )
+  val a = (intercept[
+    java.lang.IllegalStateException] {
+    in.readObject
+  })
 }
 <<< 3.23 enclosed, assignment, infix on left, narrow
 maxColumn = 40
@@ -980,8 +984,10 @@ maxColumn = 80
 def activationFutureFor(
     endpoint: ActorRef
 )(implicit timeout: Timeout, executor: ExecutionContext): Future[ActorRef] =
-  (supervisor
-    .ask(AwaitActivation(endpoint))(timeout))
+  (
+    supervisor
+      .ask(AwaitActivation(endpoint))(timeout)
+    )
     .map[ActorRef]({
       case EndpointActivated(`endpoint`) ⇒ endpoint
       case EndpointFailedToActivate(`endpoint`, cause) ⇒ throw cause
@@ -1062,7 +1068,5 @@ object foo {
   val a = b(c = d)
   val a = b(c = d)
   val a = b(c = d)
-  val a = b(
-    c = d
-  )
+  val a = b(c = d)
 }

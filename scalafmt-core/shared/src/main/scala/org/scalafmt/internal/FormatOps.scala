@@ -723,6 +723,13 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   }
 
   def opensConfigStyle(
+      ft: => FormatToken,
+      whenSourceIgnored: Boolean
+  )(implicit style: ScalafmtConfig): Boolean =
+    if (style.newlines.sourceIgnored) whenSourceIgnored
+    else opensConfigStyleClassic(ft)
+
+  private def opensConfigStyleClassic(
       ft: FormatToken
   )(implicit style: ScalafmtConfig): Boolean = {
     def opensImplicit =
@@ -1182,5 +1189,11 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       case t: Term.Param => !hasExplicitImplicit(t)
       case _ => true
     }
+
+  def getClosingIfEnclosedInMatching(tree: Tree): Option[T] =
+    tree.tokens.lastOption.filter(matchingOpt(_).contains(tree.tokens.head))
+
+  def isEnclosedInMatching(tree: Tree): Boolean =
+    getClosingIfEnclosedInMatching(tree).isDefined
 
 }

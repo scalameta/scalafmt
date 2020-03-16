@@ -118,13 +118,7 @@ case class Newlines(
     avoidAfterYield: Boolean = true
 ) {
   val reader: ConfDecoder[Newlines] = generic.deriveDecoder(this).noTypos
-  if (source != Newlines.classic) {
-    Newlines.warnSourceIsExperimental
-    require(
-      source == Newlines.keep || afterCurlyLambda != NewlineCurlyLambda.preserve,
-      s"newlines: can't use source=${source} and afterCurlyLambda=$afterCurlyLambda"
-    )
-  }
+  if (source != Newlines.classic) Newlines.warnSourceIsExperimental
 
   @inline
   def sourceIs(hint: Newlines.SourceHints): Boolean =
@@ -133,6 +127,9 @@ case class Newlines(
   @inline
   def sourceIn(hints: Newlines.SourceHints*): Boolean =
     hints.contains(source)
+
+  val sourceIgnored: Boolean =
+    sourceIn(Newlines.fold, Newlines.unfold)
 
 }
 

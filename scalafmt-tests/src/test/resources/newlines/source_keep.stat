@@ -702,9 +702,10 @@ object a {
 }
 >>>
 object a {
-  val a = (intercept[java.lang.IllegalStateException] {
-    in.readObject
-  }) ++ 2
+  val a = (
+    intercept[java.lang.IllegalStateException] {
+      in.readObject
+    }) ++ 2
 }
 <<< 3.16 enclosed, assignment, infix on right
 maxColumn = 80
@@ -772,9 +773,10 @@ object a {
 }
 >>>
 object a {
-  val a = 2 ++ (intercept[java.lang.IllegalStateException] {
-    in.readObject
-  })
+  val a = 2 ++ (
+    intercept[java.lang.IllegalStateException] {
+      in.readObject
+    })
 }
 <<< 3.21 enclosed, assignment, infix in middle, narrower
 maxColumn = 60
@@ -787,9 +789,10 @@ object a {
 }
 >>>
 object a {
-  val a = 2 ++ (intercept[java.lang.IllegalStateException] {
-    in.readObject
-  }) ++ 3
+  val a = 2 ++ (
+    intercept[java.lang.IllegalStateException] {
+      in.readObject
+    }) ++ 3
 }
 <<< 3.22 enclosed, assignment, by itself, narrow
 maxColumn = 40
@@ -820,10 +823,11 @@ object a {
 }
 >>>
 object a {
-  val a = (intercept[
-    java.lang.IllegalStateException] {
-    in.readObject
-  }) ++ 2
+  val a = (
+    intercept[
+      java.lang.IllegalStateException] {
+      in.readObject
+    }) ++ 2
 }
 <<< 3.24 enclosed, assignment, infix on right, narrow
 maxColumn = 40
