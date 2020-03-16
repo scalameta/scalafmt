@@ -212,9 +212,9 @@ def f[A](x: A)(f: A => Int) =
      )
 >>>
 libraryDependencies ++= Seq(
-  "org.scala-lang" % "scala-reflect" % scalaVersion.value % "test",
+  "org.scala-lang" % "scala-reflect"   % scalaVersion.value % "test",
   "org.scala-lang" % "scala-compiler",
-  "ch.qos.logback" % "logback-classic" % "1.1.6" % "test"
+  "ch.qos.logback" % "logback-classic" % "1.1.6"            % "test"
 )
 <<< 2x newline is respected
 class A {

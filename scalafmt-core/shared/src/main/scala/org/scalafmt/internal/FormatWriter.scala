@@ -562,7 +562,7 @@ class FormatWriter(formatOps: FormatOps) {
     else {
       var columnShift = 0
       val finalResult = Map.newBuilder[TokenHash, Int]
-      var minMatches = Integer.MAX_VALUE
+      var maxMatches = Integer.MIN_VALUE
       var block = Vector.empty[Array[FormatLocation]]
       val locationIter = new Iterator[FormatLocation] {
         private val iter = locations.iterator
@@ -596,14 +596,14 @@ class FormatWriter(formatOps: FormatOps) {
         } else {
           val matches =
             columnsMatch(block.last, candidates, location.formatToken)
-          minMatches = Math
-            .min(minMatches, if (matches > 0) matches else block.head.length)
+          maxMatches = Math
+            .max(maxMatches, if (matches > 0) matches else block.head.length)
           if (matches > 0) {
             block = block :+ candidates
           }
           if (matches == 0 || doubleNewline || !locationIter.hasNext) {
             var column = 0
-            val columns = minMatches
+            val columns = maxMatches
 
             /**
               * Separator length gap needed to align blocks with different token
@@ -646,7 +646,7 @@ class FormatWriter(formatOps: FormatOps) {
             } else {
               block = Vector(candidates)
             }
-            minMatches = Integer.MAX_VALUE
+            maxMatches = Integer.MIN_VALUE
           }
         }
       }
@@ -658,9 +658,12 @@ class FormatWriter(formatOps: FormatOps) {
       block: Vector[Array[FormatLocation]],
       separatorLengthGaps: Array[Int],
       column: Int
-  ): Vector[AlignmentUnit] =
-    block.zipWithIndex.map {
-      case (line, i) =>
+  ): Vector[AlignmentUnit] = {
+    var i = 0
+    val units = Vector.newBuilder[AlignmentUnit]
+    while (i < block.length) {
+      val line = block(i)
+      if (column < line.length) {
         val location = line(column)
         val previousWidth =
           if (column == 0) 0 else line(column - 1).shift
@@ -668,13 +671,18 @@ class FormatWriter(formatOps: FormatOps) {
         val separatorLength =
           if (location.formatToken.right.is[Token.Comment]) 0
           else location.formatToken.right.syntax.length
-        AlignmentUnit(
+        units += AlignmentUnit(
           key,
           hash(location.formatToken.left),
           separatorLength,
           i
         )
+      }
+      i += 1
     }
+
+    units.result()
+  }
 
 }
 
