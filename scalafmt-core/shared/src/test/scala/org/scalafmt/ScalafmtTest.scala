@@ -24,6 +24,7 @@ class ScalafmtTest extends AnyFunSuite {
       |// comment
       """.stripMargin,
     """|object A { println("HELLO!") }
+       |
        |// comment
        |""".stripMargin
   )

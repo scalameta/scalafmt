@@ -54,8 +54,7 @@ object TokenOps {
       tok: FormatToken
   )(implicit style: ScalafmtConfig): Boolean =
     !forceDocstringBlankLine(tok.left, style) && {
-      val newlines = tok.newlinesBetween
-      newlines > 1 ||
+      tok.hasBlankLine ||
       (forceDocstringBlankLine(tok.right, style) && !tok.left.is[Comment])
     }
 
@@ -164,17 +163,21 @@ object TokenOps {
     case _ => false
   }
 
-  def isNoIndent(formatToken: FormatToken): Boolean =
-    formatToken.right.is[Comment] && endsWithNoIndent(formatToken.between)
-
-  def newlines2Modification(
-      newlines: Int,
-      noIndent: Boolean = false
-  ): Modification =
-    newlines match {
-      case 0 => Space
-      case x => NewlineT(isDouble = x == 2, noIndent = noIndent)
+  private def getModByNL(nl: Int, noIndent: => Boolean): Modification =
+    if (FormatToken.noBreak(nl)) Space
+    else {
+      val isDouble = FormatToken.hasBlankLine(nl)
+      NewlineT(isDouble = isDouble, noIndent = noIndent)
     }
+
+  def getMod(ft: FormatToken, noIndent: Boolean = false): Modification =
+    getModByNL(ft.newlinesBetween, noIndent)
+
+  def getModCheckIndent(ft: FormatToken): Modification =
+    getModCheckIndent(ft, ft.newlinesBetween)
+
+  def getModCheckIndent(ft: FormatToken, newlines: Int): Modification =
+    getModByNL(newlines, ft.right.is[Comment] && endsWithNoIndent(ft.between))
 
   def isAttachedSingleLineComment(ft: FormatToken) =
     isSingleLineComment(ft.right) && ft.noBreak

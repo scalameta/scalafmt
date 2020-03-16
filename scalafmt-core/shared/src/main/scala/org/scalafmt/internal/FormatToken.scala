@@ -27,8 +27,9 @@ case class FormatToken(left: Token, right: Token, meta: FormatToken.Meta) {
 
   def between = meta.between
   lazy val newlinesBetween: Int = meta.between.count(_.is[Token.LF])
-  @inline def noBreak: Boolean = newlinesBetween == 0
+  @inline def noBreak: Boolean = FormatToken.noBreak(newlinesBetween)
   @inline def hasBreak: Boolean = newlinesBetween != 0
+  @inline def hasBlankLine: Boolean = FormatToken.hasBlankLine(newlinesBetween)
 
   val leftHasNewline = left.syntax.contains('\n')
 
@@ -39,6 +40,9 @@ case class FormatToken(left: Token, right: Token, meta: FormatToken.Meta) {
 }
 
 object FormatToken {
+
+  @inline def noBreak(newlines: Int): Boolean = newlines == 0
+  @inline def hasBlankLine(newlines: Int): Boolean = newlines > 1
 
   /**
     * @param between The whitespace tokens between left and right.
