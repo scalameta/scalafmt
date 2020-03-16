@@ -209,18 +209,24 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   final def rhsOptimalToken(
       start: FormatToken
   )(implicit style: ScalafmtConfig): Token = {
-    start.right match {
+    val found = start.right match {
       case T.Comma() | T.LeftParen() | T.RightParen() | T.RightBracket() |
           T.Semicolon() | T.RightArrow() | T.Equals()
-          if tokens.hasNext(start) && start.noBreak &&
+          if start.noBreak &&
             (style.activeForEdition_2020_03 && isInfixRhs(start) ||
               !startsNewBlockOnRight(start)) =>
-        rhsOptimalToken(next(start))
+        None
       case c: T.Comment
           if style.activeForEdition_2020_01 && start.noBreak &&
             (!start.left.is[T.LeftParen] || isSingleLineComment(c)) =>
-        c
-      case _ => start.left
+        Some(c)
+      case _ => Some(start.left)
+    }
+    found match {
+      case Some(t) => t
+      case None =>
+        if (!tokens.hasNext(start)) start.right
+        else rhsOptimalToken(next(start))
     }
   }
 
