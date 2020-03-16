@@ -252,4 +252,63 @@ val component = // ← look, you can even use fancy names!
       (RewriteCtx[ScalafixMirror]) => Seq[Patch]) => Rewrite[ScalafixMirror] =
     Rewrite.apply[ScalafixMirror]
 }
-
+<<< apply with optimal token inside
+val currentName = currentNameOption | info.hasSimul
+  .fold(
+    Playing,
+    if (!info.user.hasGames && info.nbImported > 0) Imported else All
+  )
+  .name
+>>>
+val currentName = currentNameOption | info.hasSimul
+  .fold(
+      Playing,
+      if (!info.user.hasGames && info.nbImported > 0) Imported else All
+  )
+  .name
+<<< apply with optimal token inside, and comment
+val currentName = currentNameOption | info.hasSimul
+  .fold(
+    Playing,
+    if (!info.user.hasGames && info.nbImported > 0) Imported else All // c1
+  )
+  .name
+>>>
+val currentName = currentNameOption | info.hasSimul
+  .fold(
+      Playing,
+      if (!info.user.hasGames && info.nbImported > 0) Imported else All // c1
+  )
+  .name
+<<< apply with optimal token inside, no dangle
+danglingParentheses = false
+===
+val currentName = currentNameOption | info.hasSimul
+  .fold(
+    Playing,
+    if (!info.user.hasGames && info.nbImported > 0) Imported else All
+  )
+  .name
+>>>
+val currentName = currentNameOption | info.hasSimul
+  .fold(
+      Playing,
+      if (!info.user.hasGames && info.nbImported > 0) Imported else All
+  )
+  .name
+<<< apply with optimal token inside, and comment, no dangle
+danglingParentheses = false
+===
+val currentName = currentNameOption | info.hasSimul
+  .fold(
+    Playing,
+    if (!info.user.hasGames && info.nbImported > 0) Imported else All // c1
+  )
+  .name
+>>>
+val currentName = currentNameOption | info.hasSimul
+  .fold(
+      Playing,
+      if (!info.user.hasGames && info.nbImported > 0) Imported else All // c1
+  )
+  .name
