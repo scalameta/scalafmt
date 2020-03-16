@@ -210,15 +210,15 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       start: FormatToken
   )(implicit style: ScalafmtConfig): Token = {
     val found = start.right match {
+      case _ if start.hasBlankLine => Some(start.left)
       case _: T.RightParen
           if start.left.is[T.RightParen] || start.left.is[T.LeftParen] =>
         None
       case _: T.RightBracket if start.left.is[T.RightBracket] => None
       case _: T.Comma | _: T.LeftParen | _: T.Semicolon | _: T.RightArrow |
           _: T.Equals
-          if start.noBreak &&
-            (style.activeForEdition_2020_03 && isInfixRhs(start) ||
-              !startsNewBlockOnRight(start)) =>
+          if (style.activeForEdition_2020_03 && isInfixRhs(start) ||
+            !startsNewBlockOnRight(start)) =>
         None
       case c: T.Comment
           if style.activeForEdition_2020_01 && start.noBreak &&
