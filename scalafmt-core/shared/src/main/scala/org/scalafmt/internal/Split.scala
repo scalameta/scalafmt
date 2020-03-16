@@ -124,13 +124,13 @@ case class Split(
   def withPenalty(penalty: Int): Split =
     if (isIgnored) this else copy(cost = cost + penalty)
 
-  def withIndent(length: Length, expire: Token, expiresOn: ExpiresOn): Split =
-    length match {
-      case Num(0) => this
-      case _ =>
-        if (isIgnored) this
-        else copy(indents = Indent(length, expire, expiresOn) +: indents)
-    }
+  def withIndent(length: => Length, expire: => Token, when: ExpiresOn): Split =
+    if (isIgnored) this
+    else
+      length match {
+        case Num(0) => this
+        case x => copy(indents = Indent(x, expire, when) +: indents)
+      }
 
   override def toString = {
     val prefix = tag match {
