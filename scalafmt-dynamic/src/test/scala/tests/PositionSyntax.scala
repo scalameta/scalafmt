@@ -51,7 +51,7 @@ object PositionSyntax {
     def lineTextAndCaret: String = {
       new StringBuilder()
         .append("\n")
-        .append(pos.lineContent)
+        .append(lineContent)
         .append("\n")
         .append(pos.lineCaret)
         .toString()
@@ -102,7 +102,7 @@ object PositionSyntax {
         endColumn = endColumn
       )
 
-    def lineContent: String = pos match {
+    private def lineContent: String = pos match {
       case Position.None => ""
       case range: Position.Range =>
         lineContent(range.startLine).text

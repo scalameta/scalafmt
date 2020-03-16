@@ -51,6 +51,27 @@ trait DiffAssertions extends AnyFunSuiteLike {
     sb.toString()
   }
 
+  def assertNoDiffOrPrintExpected(
+      obtained: String,
+      expected: String,
+      title: String = ""
+  )(implicit source: Position): Unit = {
+    try assertNoDiff(obtained, expected, title)
+    catch {
+      case ex: Exception =>
+        obtained.linesIterator.toList match {
+          case head +: tail =>
+            println("    \"\"\"|" + head)
+            tail.foreach(line => println("       |" + line))
+          case head +: Nil =>
+            println(head)
+          case Nil =>
+            println("obtained is empty")
+        }
+        throw ex
+    }
+  }
+
   def assertNoDiff(obtained: String, expected: String, title: String = "")(
       implicit pos: Position
   ): Unit = {
