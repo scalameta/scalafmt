@@ -756,9 +756,10 @@ class Router(formatOps: FormatOps) {
           else getNoSplit(formatToken, !isBracket)
         val noSplitIndent = if (right.is[T.Comment]) indent else Num(0)
 
-        val align =
+        val align = {
           if (defnSite) style.align.openParenDefnSite
           else style.align.openParenCallSite
+        } && (!handleImplicit || style.newlines.afterImplicitParamListModifier)
         val alignTuple = align && isTuple(leftOwner)
 
         val keepConfigStyleSplit =
@@ -798,6 +799,9 @@ class Router(formatOps: FormatOps) {
             singleLine(10)
         val oneArgOneLine =
           newlinePolicy.andThen(OneArgOneLineSplit(formatToken))
+        val (implicitPenalty, implicitPolicy) =
+          if (!handleImplicit) (2, Policy.emptyPf)
+          else (0, decideNewlinesOnlyAfterToken(right))
         Seq(
           Split(noSplitMod, 0, policy = noSplitPolicy)
             .onlyIf(noSplitMod != null)
@@ -808,11 +812,10 @@ class Router(formatOps: FormatOps) {
             .onlyIf(!multipleArgs && !alignTuple && splitsForAssign.isEmpty)
             .withOptimalToken(expirationToken)
             .withIndent(indent, close, Right),
-          Split(noSplitMod, (2 + lhsPenalty) * bracketCoef)
-            .withPolicy(oneArgOneLine)
+          Split(noSplitMod, (implicitPenalty + lhsPenalty) * bracketCoef)
+            .withPolicy(oneArgOneLine.andThen(implicitPolicy))
             .onlyIf(handleImplicit || (notTooManyArgs && align))
             .onlyIf(noSplitMod != null)
-            .withOptimalToken(expirationToken)
             .withIndent(if (align) StateColumn else indent, close, Right),
           Split(Newline, (3 + nestedPenalty) * bracketCoef)
             .withPolicy(oneArgOneLine)
