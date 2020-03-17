@@ -141,8 +141,8 @@ implicit def xorBifunctor
         /*c1*/ fab: Xor[A, B])(
         /*c2*/
         f: A => G[C],
-        g: B => G[D])(
-        implicit G: Applicative[G])
+        g: B => G[D])(implicit
+        G: Applicative[G])
         : G[Xor[C, D]] =
       fab match {
         case Xor.Left(a) =>
