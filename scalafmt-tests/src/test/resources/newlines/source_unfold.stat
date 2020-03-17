@@ -1100,32 +1100,48 @@ object WrapperToHaveStatTestCaseParserWorking {
 }
 >>>
 object WrapperToHaveStatTestCaseParserWorking {
-  @annot @deprecated class B(
-      @annot @deprecated private implicit val x: Int
+  @annot
+  @deprecated
+  class B(
+      @annot
+      @deprecated
+      private implicit val x: Int
   ) extends A {
-    @annot override def foo = 1
+    @annot
+    override def foo = 1
 
     @annot
     override def bar = {
       1
     }
 
-    @annot @annot2 @annot3 @annot4 /*comment4*/ @annot5 @deprecated def foo2(
-        @annot @deprecated x: Int
+    @annot
+    @annot2
+    @annot3
+    @annot4 /*comment4*/
+    @annot5
+    @deprecated
+    def foo2(
+        @annot
+        @deprecated
+        x: Int
     ) = 1
 
     // in case of annotations with params located in many lines
     // let's live with changed lines of params
-    @annot @annot2(
-      value = "foo",
-      someInt = 5
-    ) @annot3
-    @deprecated(value = "bar") def bar2 = 1
+    @annot
+    @annot2(value = "foo", someInt = 5)
+    @annot3
+    @deprecated(value = "bar")
+    def bar2 = 1
   }
 
-  @annot @annot2
+  @annot
+  @annot2
   @annot3
-  @annot4 @deprecated class C
+  @annot4
+  @deprecated
+  class C
 
   @annot
   @deprecated
@@ -1162,42 +1178,37 @@ object WrapperToHaveStatTestCaseParserWorking {
 }
 >>>
 object WrapperToHaveStatTestCaseParserWorking {
-  @annot
-  @deprecated
+  @annot @deprecated
   class B(
-      @annot @deprecated private implicit val x: Int
+      @annot @deprecated
+      private implicit val x: Int
   ) extends A {
-    @annot override def foo = 1
+    @annot
+    override def foo = 1
 
     @annot
     override def bar = {
       1
     }
 
-    @annot
-    @annot2
-    @annot3
-    @annot4 /*comment4*/
-    @annot5
-    @deprecated
-    def foo2(@annot @deprecated x: Int) = 1
+    @annot @annot2 @annot3 @annot4 /*comment4*/
+    @annot5 @deprecated
+    def foo2(
+        @annot @deprecated
+        x: Int
+    ) = 1
 
     // in case of annotations with params located in many lines
     // let's live with changed lines of params
-    @annot
-    @annot2(value = "foo", someInt = 5)
-    @annot3
-    @deprecated(value = "bar") def bar2 = 1
+    @annot @annot2(value = "foo", someInt = 5)
+    @annot3 @deprecated(value = "bar")
+    def bar2 = 1
   }
 
-  @annot
-  @annot2
-  @annot3
-  @annot4
-  @deprecated class C
+  @annot @annot2 @annot3 @annot4 @deprecated
+  class C
 
-  @annot
-  @deprecated
+  @annot @deprecated
   class D
 }
 <<< 4.3: #938 flag false, newline no
@@ -1345,7 +1356,8 @@ object a extends b with c {
       T: Int#Double#Triple,
       R <% String
   ](
-      @annot1 x: Int @annot2 = 2,
+      @annot1
+      x: Int @annot2 = 2,
       y: Int = 3
   ): Int = {
     "match" match {

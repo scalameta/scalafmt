@@ -418,11 +418,20 @@ class Router(formatOps: FormatOps) {
         val annoRight = right.is[T.At]
         val annoLeft = isSingleIdentifierAnnotation(prev(tok))
 
-        if ((annoRight || annoLeft) && style.optIn.annotationNewlines)
+        if ((annoRight || annoLeft) &&
+          style.optIn.annotationNewlines && !style.newlines.sourceIgnored)
           Seq(Split(getMod(formatToken), 0))
         else {
-          val spaceCouldBeOk = annoLeft &&
-            newlines == 0 && right.is[Keyword]
+          val spaceCouldBeOk = annoLeft && (style.newlines.source match {
+            case Newlines.unfold =>
+              right.is[T.Comment] ||
+                !style.optIn.annotationNewlines && annoRight
+            case Newlines.fold =>
+              right.is[T.Comment] || annoRight ||
+                !style.optIn.annotationNewlines && right.is[Keyword]
+            case _ =>
+              newlines == 0 && right.is[Keyword]
+          })
           Seq(
             // This split needs to have an optimalAt field.
             Split(Space, 0)
@@ -1420,10 +1429,27 @@ class Router(formatOps: FormatOps) {
           )
         }
 
-      case opt
-          if style.optIn.annotationNewlines &&
-            optionalNewlines(hash(opt.right)) =>
-        Seq(Split(getMod(formatToken), 0))
+      case FormatToken(_, r, _) if optionalNewlines(hash(r)) =>
+        def noAnnoLeft =
+          leftOwner.is[Mod] ||
+            !leftOwner.parent.exists(_.parent.exists(_.is[Mod.Annot]))
+        def newlineOrBoth = {
+          val spaceOk = !style.optIn.annotationNewlines
+          Seq(Split(Space.orNL(spaceOk), 0), Split(Newline, 1).onlyIf(spaceOk))
+        }
+        style.newlines.source match {
+          case _ if formatToken.hasBlankLine => Seq(Split(Newline2x, 0))
+          case Newlines.unfold =>
+            if (r.is[T.At]) newlineOrBoth
+            else Seq(Split(Space.orNL(noAnnoLeft), 0))
+          case Newlines.fold =>
+            if (r.is[T.At]) Seq(Split(Space, 0), Split(Newline, 1))
+            else if (noAnnoLeft) Seq(Split(Space, 0))
+            else newlineOrBoth
+          case _ =>
+            val noNL = !style.optIn.annotationNewlines || formatToken.noBreak
+            Seq(Split(Space.orNL(noNL), 0))
+        }
 
       // Pat
       case tok @ FormatToken(T.Ident("|"), _, _)
