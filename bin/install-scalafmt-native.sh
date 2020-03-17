@@ -16,7 +16,7 @@ cd $TMP
 ZIP=$NAME.zip
 curl --fail -Lo $ZIP https://github.com/scalameta/scalafmt/releases/download/$VERSION/$ZIP
 unzip $ZIP
-cp $NAME/scalafmt $INSTALL_LOCATION
+cp scalafmt $INSTALL_LOCATION
 chmod +x $INSTALL_LOCATION
 
 cd $CWD
