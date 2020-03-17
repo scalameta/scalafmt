@@ -312,3 +312,23 @@ trait Test[A] {
 trait Test[A] {
   def <=>[B](that: Test[B]): Int
 }
+<<< #1787
+danglingParentheses = true
+===
+object a {
+  private def getTopN[T](s: Iterable[T], n: Int)(
+      implicit ord: Ordering[T]): Seq[T]
+  private def getTopN[T](s: Iterable[T], n: Int)(
+      implicit ord: Ordering[T]
+  ): Seq[T]
+}
+>>>
+Idempotency violated
+object a {
+  private def getTopN[T](s: Iterable[T], n: Int)(
+      implicit ord: Ordering[T]
+  ): Seq[T]
+  private def getTopN[T](s: Iterable[T], n: Int)(implicit
+      ord: Ordering[T]
+  ): Seq[T]
+}
