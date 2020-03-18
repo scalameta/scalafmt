@@ -564,15 +564,7 @@ class FormatWriter(formatOps: FormatOps) {
       val finalResult = Map.newBuilder[TokenHash, Int]
       var maxMatches = Integer.MIN_VALUE
       var block = Vector.empty[Array[FormatLocation]]
-      val locationIter = new Iterator[FormatLocation] {
-        private val iter = locations.iterator
-        var last: FormatLocation = null
-        override def hasNext: Boolean = iter.hasNext
-        override def next(): FormatLocation = {
-          last = iter.next()
-          last
-        }
-      }
+      val locationIter = new LocationsIterator(locations)
       while (locationIter.hasNext) {
         val columnCandidates = Array.newBuilder[FormatLocation]
         def shouldContinue(floc: FormatLocation): Boolean = {
@@ -732,4 +724,26 @@ object FormatWriter {
   private def getIndentation(len: Int): String =
     if (len < indentations.length) indentations(len) else " " * len
 
+  /**
+    * Because GraalVM native image fails on
+    * access to anonymous class fields
+    * val locationIter = new Iterator[FormatLocation] {
+    *   var last: FormatLocation = null
+    *   ...
+    * }
+    *
+    * locationIter.last // RUNTIME ERROR
+    *
+    * */
+  private class LocationsIterator(
+      private val locations: Iterable[FormatLocation]
+  ) extends Iterator[FormatLocation] {
+    private val iter = locations.iterator
+    var last: FormatLocation = _
+    override def hasNext: Boolean = iter.hasNext
+    override def next(): FormatLocation = {
+      last = iter.next()
+      last
+    }
+  }
 }
