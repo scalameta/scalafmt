@@ -1381,21 +1381,13 @@ class Router(formatOps: FormatOps) {
           // edge case, if body is empty expire on arrow
           .fold(arrow)(t => getOptimalTokenFor(lastToken(t)))
 
-        Seq(
-          // Either everything fits in one line or break on =>
-          Split(Space, 0).withSingleLine(expire, killOnFail = true),
-          Split(Space, 1)
-            .withPolicy(
-              Policy(expire) {
-                case d @ Decision(t @ FormatToken(`arrow`, right, _), _)
-                    // TODO(olafur) any other corner cases?
-                    if !right.isInstanceOf[T.LeftBrace] &&
-                      !isAttachedSingleLineComment(t) =>
-                  d.onlyNewlinesWithoutFallback
-              }
-            )
-            .withIndent(2, expire, After) // case body indented by 2.
-            .withIndent(2, arrow, After) // cond body indented by 4.
+        fitsOneLineOrBreakOnArrow(
+          expire,
+          arrow,
+          Seq(
+            Indent(2, expire, After), // case body indented by 2.
+            Indent(2, arrow, After) // cond body indented by 4.
+          )
         )
       case tok @ FormatToken(_, cond @ T.KwIf(), _) if rightOwner.is[Case] =>
         val arrow = getCaseArrow(rightOwner.asInstanceOf[Case]).left
@@ -1860,5 +1852,39 @@ class Router(formatOps: FormatOps) {
         .withIndent(2, expire, After)
     )
   }
+
+  /**
+    * Either everything fits in one line or break on arrow.
+    *
+    * {{{
+    * xs.map {
+    *   case x =>
+    *     if (condition) doSomething
+    *     else doOtherThing
+    * }
+    * }}}
+    *
+    * in this case `expire` should be `doOtherThing` and arrow should be `=>`
+    *
+   **/
+  private def fitsOneLineOrBreakOnArrow(
+      expire: Token,
+      arrow: Token,
+      indents: Seq[Indent[Length]]
+  ): Seq[Split] =
+    Seq(
+      Split(Space, 0).withSingleLine(expire, killOnFail = true),
+      Split(Space, 1)
+        .withPolicy(
+          Policy(expire) {
+            case d @ Decision(t @ FormatToken(`arrow`, right, _), _)
+                // TODO(olafur) any other corner cases?
+                if !right.isInstanceOf[T.LeftBrace] &&
+                  !isAttachedSingleLineComment(t) =>
+              d.onlyNewlinesWithoutFallback
+          }
+        )
+        .withIndents(indents)
+    )
 
 }
