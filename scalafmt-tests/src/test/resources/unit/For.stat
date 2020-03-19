@@ -254,3 +254,55 @@ val sizes =
         if (cell == null) 0
         else cell.toString.length
   }
+<<< preserve newlines in for
+for {
+  variable <-
+    record.field.field1.map(_.toString)
+  cond <-
+    if (variable) doSomething
+    else doAnything
+} yield cond
+>>>
+for {
+  variable <-
+    record.field.field1.map(_.toString)
+  cond <-
+    if (variable) doSomething
+    else doAnything
+} yield cond
+<<< insert newlines to for if no newlines origin
+for {
+  variable <- record.field.field1.map(_.toString)
+  cond <- if (variable) doSomething else doAnything
+} yield cond
+>>>
+for {
+  variable <-
+    record.field.field1.map(_.toString)
+  cond <-
+    if (variable) doSomething
+    else doAnything
+} yield cond
+<<< keep oneliners if they fits maxColumn
+for {
+  variable <- record.field
+  cond <- doSomething
+} yield cond
+>>>
+for {
+  variable <- record.field
+  cond <- doSomething
+} yield cond
+<<< insert newlines also for values
+for {
+  variable <- record.field.field1.map(_.toString)
+  cond = if (variable) doSomething else doAnything
+} yield cond
+>>>
+for {
+  variable <-
+    record.field.field1.map(_.toString)
+  cond =
+    if (variable) doSomething
+    else doAnything
+} yield cond
