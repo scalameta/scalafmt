@@ -132,6 +132,12 @@ case class Split(
         case x => copy(indents = Indent(x, expire, when) +: indents)
       }
 
+  def withIndent(indent: Indent[Length]): Split =
+    withIndent(indent.length, indent.expire, indent.expiresAt)
+
+  def withIndents(indents: Seq[Indent[Length]]): Split =
+    indents.foldLeft(this)(_ withIndent _)
+
   override def toString = {
     val prefix = tag match {
       case SplitTag.Ignored => "!"
