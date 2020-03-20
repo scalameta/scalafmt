@@ -1930,7 +1930,7 @@ class Router(formatOps: FormatOps) {
       expire: Token,
       arrow: Token,
       indents: Seq[Indent[Length]]
-  )(implicit style: ScalafmtConfig): Seq[Split] =
+  )(implicit style: ScalafmtConfig, line: sourcecode.Line): Seq[Split] =
     Seq(
       Split(Space, 0).withSingleLine(expire, killOnFail = true),
       Split(Space, 1)
