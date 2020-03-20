@@ -10,6 +10,7 @@ import metaconfig.generic.Surface
   *                             If true, preserves the newlines and keeps one
   *                             line per argument.
   * @param breaksInsideChains
+  *  NB: failure unless newlines.source=classic
   *  If true, then the user can opt out of line breaks
   *  inside select chains.
   *
@@ -30,6 +31,7 @@ import metaconfig.generic.Surface
   * }}}
   *
   * @param breakChainOnFirstMethodDot
+  *   NB: ignored unless newlines.source=classic
   *   If true, keeps the line break before a dot if it already exists.
   *   {{{
   *     // original

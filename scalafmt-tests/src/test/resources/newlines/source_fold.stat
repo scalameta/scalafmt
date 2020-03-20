@@ -429,8 +429,7 @@ val aaaaa = bbbbb.asss(as).ccccc(
     fffff
   ) // comment
 >>>
-val aaaaa = bbbbb
-  .asss(as)
+val aaaaa = bbbbb.asss(as)
   .ccccc(ddddd, eeeee, fffff) // comment
 <<< 2.18 val with apply-apply
 val aaaaa = (getSomeLongerFunction(c))(as)
@@ -445,11 +444,8 @@ val aaaaa = bbbbb.asss.ccccc(
     fffff
   ) // comment
 >>>
-val aaaaa = bbbbb.asss.ccccc(
-  ddddd,
-  eeeee,
-  fffff
-) // comment
+val aaaaa = bbbbb.asss
+  .ccccc(ddddd, eeeee, fffff) // comment
 <<< 2.20 val with apply-select-select
 val nested =
   promiseIntercept(new Actor {
@@ -473,8 +469,7 @@ val nested = promiseIntercept(
 >>>
 val deployment = system
   .asInstanceOf[ActorSystemImpl]
-  .provider
-  .deployer
+  .provider.deployer
   .lookup(service.split("/").drop(1))
 <<< 3.1: def non-config-style, long
 def a( ccccccccccccccccc:Int,
@@ -623,9 +618,8 @@ object a {
 }
 >>>
 object a {
-  (intercept[java.lang.IllegalStateException] {
-    in.readObject
-  }).getMessage should ===(
+  (intercept[java.lang.IllegalStateException] { in.readObject })
+    .getMessage should ===(
     "Trying to deserialize a serialized ActorRef without an ActorSystem in scope." +
       " Use 'akka.serialization.Serialization.currentSystem.withValue(system) { ... }'")
 }
@@ -844,12 +838,10 @@ maxColumn = 80
 def activationFutureFor(
     endpoint: ActorRef
 )(implicit timeout: Timeout, executor: ExecutionContext): Future[ActorRef] =
-  (supervisor
-    .ask(AwaitActivation(endpoint))(timeout))
-    .map[ActorRef]({
-      case EndpointActivated(`endpoint`) ⇒ endpoint
-      case EndpointFailedToActivate(`endpoint`, cause) ⇒ throw cause
-    })
+  (supervisor.ask(AwaitActivation(endpoint))(timeout)).map[ActorRef]({
+    case EndpointActivated(`endpoint`) ⇒ endpoint
+    case EndpointFailedToActivate(`endpoint`, cause) ⇒ throw cause
+  })
 <<< 3.27 enclosed in block, def, chain follows
 maxColumn = 80
 ===
@@ -863,16 +855,14 @@ maxColumn = 80
         case EndpointFailedToActivate(`endpoint`, cause) ⇒ throw cause
       })
 >>>
-Idempotency violated
 def activationFutureFor(
     endpoint: ActorRef
 )(implicit timeout: Timeout, executor: ExecutionContext): Future[ActorRef] = {
-  supervisor
-    .ask(AwaitActivation(endpoint))(timeout)
+  supervisor.ask(AwaitActivation(endpoint))(timeout)
 }.map[ActorRef]({
-    case EndpointActivated(`endpoint`) ⇒ endpoint
-    case EndpointFailedToActivate(`endpoint`, cause) ⇒ throw cause
-  })
+  case EndpointActivated(`endpoint`) ⇒ endpoint
+  case EndpointFailedToActivate(`endpoint`, cause) ⇒ throw cause
+})
 <<< 3.28 apply with optimal token
 maxColumn = 80
 danglingParentheses = false
@@ -1264,11 +1254,7 @@ val a =
  .g.h { i => j }
  .k().l({ m => n}, o)
 >>>
-val a = b.c.d
-  .e(f)
-  .g
-  .h { i => j }
-  .k()
+val a = b.c.d.e(f).g.h { i => j }.k()
   .l({ m => n }, o)
 <<< 6.3: chain, breaks in the middle
 val a = b.c
@@ -1290,9 +1276,7 @@ created filter (ref ⇒
 >>>
 object a {
   created filter (ref ⇒
-    !ref.isTerminated && !ref
-      .asInstanceOf[ActorRefWithCell]
-      .underlying
+    !ref.isTerminated && !ref.asInstanceOf[ActorRefWithCell].underlying
       .isInstanceOf[UnstartedCell]
   ) should ===(Seq.empty[ActorRef])
 }
@@ -1313,10 +1297,8 @@ object a {
 }
 >>>
 object a {
-  val unionAlgoPredicts: RDD[(QX, Seq[P])] = sc
-    .union(algoPredicts)
-    .groupByKey()
-    .mapValues { ps =>
+  val unionAlgoPredicts: RDD[(QX, Seq[P])] = sc.union(algoPredicts)
+    .groupByKey().mapValues { ps =>
       {
         assert(
           ps.size == algoCount,

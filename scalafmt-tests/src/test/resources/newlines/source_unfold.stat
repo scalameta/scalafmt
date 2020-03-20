@@ -544,11 +544,9 @@ val aaaaa = bbbbb.asss.ccccc(
     fffff
   ) // comment
 >>>
-val aaaaa = bbbbb.asss.ccccc(
-  ddddd,
-  eeeee,
-  fffff
-) // comment
+val aaaaa = bbbbb
+  .asss
+  .ccccc(ddddd, eeeee, fffff) // comment
 <<< 2.20 val with apply-select-select
 val nested =
   promiseIntercept(new Actor {
@@ -566,11 +564,11 @@ val nested =
     }
   )(result)
 <<< 2.21 val with apply type
-  val deployment = system
-    .asInstanceOf[ActorSystemImpl]
-    .provider
-    .deployer
-    .lookup(service.split("/").drop(1))
+val deployment = system
+  .asInstanceOf[ActorSystemImpl]
+  .provider
+  .deployer
+  .lookup(service.split("/").drop(1))
 >>>
 val deployment = system
   .asInstanceOf[ActorSystemImpl]
@@ -984,16 +982,12 @@ maxColumn = 80
 def activationFutureFor(
     endpoint: ActorRef
 )(implicit timeout: Timeout, executor: ExecutionContext): Future[ActorRef] =
-  (
-    supervisor
-      .ask(AwaitActivation(endpoint))(timeout)
-    )
-    .map[ActorRef]({
-      case EndpointActivated(`endpoint`) ⇒
-        endpoint
-      case EndpointFailedToActivate(`endpoint`, cause) ⇒
-        throw cause
-    })
+  (supervisor.ask(AwaitActivation(endpoint))(timeout)).map[ActorRef]({
+    case EndpointActivated(`endpoint`) ⇒
+      endpoint
+    case EndpointFailedToActivate(`endpoint`, cause) ⇒
+      throw cause
+  })
 <<< 3.27 enclosed in block, def, chain follows
 maxColumn = 80
 ===
@@ -1007,18 +1001,16 @@ maxColumn = 80
         case EndpointFailedToActivate(`endpoint`, cause) ⇒ throw cause
       })
 >>>
-Idempotency violated
 def activationFutureFor(
     endpoint: ActorRef
 )(implicit timeout: Timeout, executor: ExecutionContext): Future[ActorRef] = {
-  supervisor
-    .ask(AwaitActivation(endpoint))(timeout)
+  supervisor.ask(AwaitActivation(endpoint))(timeout)
 }.map[ActorRef]({
-    case EndpointActivated(`endpoint`) ⇒
-      endpoint
-    case EndpointFailedToActivate(`endpoint`, cause) ⇒
-      throw cause
-  })
+  case EndpointActivated(`endpoint`) ⇒
+    endpoint
+  case EndpointFailedToActivate(`endpoint`, cause) ⇒
+    throw cause
+})
 <<< 3.28 apply with optimal token
 maxColumn = 80
 danglingParentheses = false
@@ -1035,6 +1027,7 @@ case class AttributeInfo(
 <<< 3.29 apply with optimal token
 maxColumn = 80
 ===
+object a {
 Multipart.FormData.BodyPart.Strict(
   "userfile",
   HttpEntity(`application/pdf`, ByteString("filecontent")),
@@ -1044,17 +1037,23 @@ Multipart.FormData.BodyPart.Strict(
     RawHeader("Content-Additional-1", "anything"),
     RawHeader("Content-Additional-2", "really-anything"))
 )
+}
 >>>
-Multipart.FormData.BodyPart.Strict(
-  "userfile",
-  HttpEntity(`application/pdf`, ByteString("filecontent")),
-  Map("filename" -> "test€.dat"),
-  List(
-    RawHeader("Content-Transfer-Encoding", "binary"),
-    RawHeader("Content-Additional-1", "anything"),
-    RawHeader("Content-Additional-2", "really-anything")
-  )
-)
+object a {
+  Multipart
+    .FormData
+    .BodyPart
+    .Strict(
+      "userfile",
+      HttpEntity(`application/pdf`, ByteString("filecontent")),
+      Map("filename" -> "test€.dat"),
+      List(
+        RawHeader("Content-Transfer-Encoding", "binary"),
+        RawHeader("Content-Additional-1", "anything"),
+        RawHeader("Content-Additional-2", "really-anything")
+      )
+    )
+}
 <<< 3.30: apply with single-arg assign; open nl, close nonl
 object foo {
 val a = b(c = d)
@@ -1445,7 +1444,9 @@ val a =
  .g.h { i => j }
  .k().l({ m => n}, o)
 >>>
-val a = b.c.d
+val a = b
+  .c
+  .d
   .e(f)
   .g
   .h { i =>
