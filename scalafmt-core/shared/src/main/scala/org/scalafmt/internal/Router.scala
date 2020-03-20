@@ -956,6 +956,33 @@ class Router(formatOps: FormatOps) {
             .onlyIf(open.pos.endLine == close.pos.startLine)
             .withSingleLine(close, killOnFail = true)
         ) ++ oneArgPerLineSplits
+
+      case tok @ FormatToken(T.LeftArrow(), right, _)
+          if leftOwner.is[Enumerator.Generator] =>
+        val lastToken = leftOwner.tokens.last
+        val indent: Length =
+          if (style.align.arrowEnumeratorGenerator) StateColumn
+          else if (right.is[T.LeftBrace]) Num(-2)
+          else Num(0)
+        Seq(
+          Split(Space, 0)
+            .onlyIf(newlines == 0)
+            .withIndent(indent, lastToken, After),
+          Split(Newline, 1).withIndent(indent, lastToken, After)
+        )
+      case tok @ FormatToken(T.Equals(), right, _)
+          if leftOwner.is[Enumerator.Val] =>
+        val lastToken = leftOwner.tokens.last
+        val indent: Length =
+          if (right.is[T.LeftBrace]) Num(-2)
+          else Num(0)
+        Seq(
+          Split(Space, 0)
+            .onlyIf(newlines == 0)
+            .withIndent(indent, lastToken, After),
+          Split(Newline, 1).withIndent(indent, lastToken, After)
+        )
+
       case FormatToken(_, _: T.LeftBrace, _) =>
         Seq(Split(Space, 0))
 
@@ -1509,24 +1536,6 @@ class Router(formatOps: FormatOps) {
           if rightOwner.is[Enumerator.Guard] =>
         Seq(
           // Either everything fits in one line or break on =>
-          Split(Space, 0).onlyIf(newlines == 0),
-          Split(Newline, 1)
-        )
-      case tok @ FormatToken(arrow @ T.LeftArrow(), _, _)
-          if leftOwner.is[Enumerator.Generator] =>
-        val lastToken = leftOwner.tokens.last
-        val indent: Length =
-          if (style.align.arrowEnumeratorGenerator) StateColumn
-          else Num(0)
-        Seq(
-          Split(Space, 0)
-            .onlyIf(newlines == 0)
-            .withIndent(indent, lastToken, After),
-          Split(Newline, 1).withIndent(indent, lastToken, After)
-        )
-      case tok @ FormatToken(arrow @ T.Equals(), _, _)
-          if leftOwner.is[Enumerator.Val] =>
-        Seq(
           Split(Space, 0).onlyIf(newlines == 0),
           Split(Newline, 1)
         )
