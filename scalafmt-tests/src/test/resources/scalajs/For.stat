@@ -6,7 +6,8 @@ val k = for {
 } yield ()
 >>>
 val k = for {
-  _ <- FutureAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA(aaaaaa, bbbbbbbbbbbb,
-      cccccccc) if one
+  _ <-
+    FutureAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA(aaaaaa, bbbbbbbbbbbb,
+        cccccccc) if one
   _ <- Future(2)
 } yield ()
