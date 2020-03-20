@@ -1493,8 +1493,32 @@ class Router(formatOps: FormatOps) {
           if (style.align.arrowEnumeratorGenerator) StateColumn
           else Num(0)
         Seq(
-          // Either everything fits in one line or break on =>
-          Split(Space, 0).withIndent(indent, lastToken, After)
+          Split(Space, 0)
+            .onlyIf(newlines == 0)
+            .withIndent(indent, lastToken, After),
+          Split(Newline, 1).withIndent(indent, lastToken, After)
+        )
+      case tok @ FormatToken(arrow @ T.Equals(), _, _)
+          if leftOwner.is[Enumerator.Val] =>
+        Seq(
+          Split(Space, 0).onlyIf(newlines == 0),
+          Split(Newline, 1)
+        )
+      case tok @ FormatToken(_, arrow @ T.LeftArrow(), _)
+          if rightOwner.is[Enumerator.Generator] =>
+        val lastToken = rightOwner.tokens.last
+        fitsOneLineOrBreakOnArrow(
+          lastToken,
+          arrow,
+          Seq(Indent(2, lastToken, After))
+        )
+      case tok @ FormatToken(_, arrow @ T.Equals(), _)
+          if rightOwner.is[Enumerator.Val] =>
+        val lastToken = rightOwner.tokens.last
+        fitsOneLineOrBreakOnArrow(
+          lastToken,
+          arrow,
+          Seq(Indent(2, lastToken, After))
         )
       case FormatToken(T.KwYield(), _, _) if leftOwner.is[Term.ForYield] =>
         if (style.newlines.avoidAfterYield && !rightOwner.is[Term.If]) {
