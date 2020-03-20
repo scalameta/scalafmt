@@ -961,26 +961,31 @@ class Router(formatOps: FormatOps) {
           if leftOwner.is[Enumerator.Generator] =>
         val lastToken = leftOwner.tokens.last
         val indent: Length =
-          if (style.align.arrowEnumeratorGenerator) StateColumn
-          else if (right.is[T.LeftBrace]) Num(-2)
+          if (shouldBreakAfterArrowInFor && right.is[T.LeftBrace]) Num(-2)
+        else if (right.is[T.LeftBrace]) Num(0)
+          else if (style.align.arrowEnumeratorGenerator) StateColumn
           else Num(0)
         Seq(
           Split(Space, 0)
-            .onlyIf(newlines == 0)
             .withIndent(indent, lastToken, After),
-          Split(Newline, 1).withIndent(indent, lastToken, After)
+          Split(Newline, 1)
+            .onlyIf(shouldBreakAfterArrowInFor)
+            .withIndent(indent, lastToken, After)
         )
       case tok @ FormatToken(T.Equals(), right, _)
           if leftOwner.is[Enumerator.Val] =>
         val lastToken = leftOwner.tokens.last
         val indent: Length =
-          if (right.is[T.LeftBrace]) Num(-2)
+          if (shouldBreakAfterArrowInFor && right.is[T.LeftBrace]) Num(-2)
+        else if (right.is[T.LeftBrace]) Num(0)
+          else if (style.align.arrowEnumeratorGenerator) StateColumn
           else Num(0)
         Seq(
           Split(Space, 0)
-            .onlyIf(newlines == 0)
             .withIndent(indent, lastToken, After),
-          Split(Newline, 1).withIndent(indent, lastToken, After)
+          Split(Newline, 1)
+            .onlyIf(shouldBreakAfterArrowInFor)
+            .withIndent(indent, lastToken, After)
         )
 
       case FormatToken(_, _: T.LeftBrace, _) =>
@@ -1540,7 +1545,8 @@ class Router(formatOps: FormatOps) {
           Split(Newline, 1)
         )
       case tok @ FormatToken(_, arrow @ T.LeftArrow(), _)
-          if rightOwner.is[Enumerator.Generator] =>
+          if rightOwner
+            .is[Enumerator.Generator] && shouldBreakAfterArrowInFor =>
         val lastToken = rightOwner.tokens.last
         fitsOneLineOrBreakOnArrow(
           lastToken,
@@ -1548,7 +1554,7 @@ class Router(formatOps: FormatOps) {
           Seq(Indent(2, lastToken, After))
         )
       case tok @ FormatToken(_, arrow @ T.Equals(), _)
-          if rightOwner.is[Enumerator.Val] =>
+          if rightOwner.is[Enumerator.Val] && shouldBreakAfterArrowInFor =>
         val lastToken = rightOwner.tokens.last
         fitsOneLineOrBreakOnArrow(
           lastToken,
@@ -1911,6 +1917,11 @@ class Router(formatOps: FormatOps) {
         .withIndent(2, expire, After)
     )
   }
+
+  private def shouldBreakAfterArrowInFor(
+      implicit style: ScalafmtConfig
+  ): Boolean =
+    !style.align.arrowEnumeratorGenerator && style.activeForEdition_2020_03
 
   /**
     * Either everything fits in one line or break on arrow.
