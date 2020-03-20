@@ -472,13 +472,11 @@ val aaaaa = bbbbb.asss(as).ccccc(
     fffff
   ) // comment
 >>>
-val aaaaa = bbbbb
-  .asss(as)
-  .ccccc(
-    ddddd,
-    eeeee,
-    fffff
-  ) // comment
+val aaaaa = bbbbb.asss(as).ccccc(
+  ddddd,
+  eeeee,
+  fffff
+) // comment
 <<< 2.18 val with apply-apply
 val aaaaa = (getSomeLongerFunction(c))(as)
 >>>
@@ -895,13 +893,13 @@ maxColumn = 80
         case EndpointFailedToActivate(`endpoint`, cause) ⇒ throw cause
       })
 >>>
-Idempotency violated
 def activationFutureFor(
     endpoint: ActorRef
 )(implicit timeout: Timeout, executor: ExecutionContext): Future[ActorRef] = {
   supervisor
     .ask(AwaitActivation(endpoint))(timeout)
-}.map[ActorRef]({
+}
+  .map[ActorRef]({
     case EndpointActivated(`endpoint`) ⇒ endpoint
     case EndpointFailedToActivate(`endpoint`, cause) ⇒ throw cause
   })
@@ -1325,18 +1323,18 @@ val a =
  .k().l({ m => n}, o)
 >>>
 val a =
-  b.c.d
-    .e(f)
-    .g
-    .h { i => j }
-    .k()
-    .l({ m => n }, o)
+  b.c
+    .d.e(f)
+    .g.h { i => j }
+    .k().l({ m => n }, o)
 <<< 6.3: chain, breaks in the middle
 val a = b.c
  .d.e() .f
  .g .h()
 >>>
-val a = b.c.d.e().f.g.h()
+val a = b.c
+  .d.e().f
+  .g.h()
 <<< 6.4: chain without apply
 maxColumn = 72
 includeNoParensInSelectChains = true
@@ -1353,8 +1351,7 @@ object a {
   created filter (ref ⇒
     !ref.isTerminated && !ref
       .asInstanceOf[ActorRefWithCell]
-      .underlying
-      .isInstanceOf[UnstartedCell]
+      .underlying.isInstanceOf[UnstartedCell]
   ) should ===(Seq.empty[ActorRef])
 }
 <<< 6.5: chain with delayed indent after break
@@ -1375,9 +1372,7 @@ object a {
 >>>
 object a {
   val unionAlgoPredicts: RDD[(QX, Seq[P])] = sc
-    .union(algoPredicts)
-    .groupByKey()
-    .mapValues { ps =>
+    .union(algoPredicts).groupByKey().mapValues { ps =>
       {
         assert(
           ps.size == algoCount,

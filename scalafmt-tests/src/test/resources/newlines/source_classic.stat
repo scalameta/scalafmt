@@ -931,7 +931,7 @@ def activationFutureFor(
       case EndpointActivated(`endpoint`) ⇒ endpoint
       case EndpointFailedToActivate(`endpoint`, cause) ⇒ throw cause
     })
-<<< SKIP 3.27 enclosed in block, def, chain follows
+<<< SKIP 3.27 enclosed in block, def, chain follows (can't be fixed due to acceptNoSplit)
 maxColumn = 80
 ===
   def activationFutureFor(endpoint: ActorRef)(implicit
