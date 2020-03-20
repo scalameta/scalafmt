@@ -373,19 +373,45 @@ class Router(formatOps: FormatOps) {
       case tok @ FormatToken(arrow @ T.RightArrow(), right, between)
           if leftOwner.isInstanceOf[Case] =>
         val caseStat = leftOwner.asInstanceOf[Case]
-        right match {
-          case _: T.LeftBrace if caseStat.body eq rightOwner =>
-            // Redundant {} block around case statements.
-            Seq(
-              Split(Space, 0)
-                .withIndent(-2, rightOwner.tokens.last, After)
-            )
-          case _ =>
-            Seq(
-              // Gets killed by `case` policy.
-              Split(Space, 0).onlyIf(newlines == 0),
-              Split(NewlineT(noIndent = rhsIsCommentedOut(tok)), 1)
-            )
+        if (right.is[T.LeftBrace] && (caseStat.body eq rightOwner))
+          // Redundant {} block around case statements.
+          Seq(Split(Space, 0).withIndent(-2, rightOwner.tokens.last, After))
+        else {
+          def newlineSplit(cost: Int) =
+            Split(NewlineT(noIndent = rhsIsCommentedOut(tok)), cost)
+          def foldedSplits = caseStat.body match {
+            case _ if right.is[T.KwCase] || isSingleLineComment(right) =>
+              Right(Split.ignored)
+            case t if t.tokens.isEmpty || caseStat.cond.isDefined =>
+              Right(Split(Space, 0).withSingleLineOpt(t.tokens.lastOption))
+            case t: Term.If if t.elsep.tokens.isEmpty =>
+              Right(Split(Space, 0).withSingleLine(t.cond.tokens.last))
+            case t @ (_: Term.ForYield | _: Term.Match) =>
+              val end = t.tokens.last
+              val exclude = insideBlockRanges[T.LeftBrace](tok, end)
+              Right(Split(Space, 0).withSingleLine(end, exclude = exclude))
+            case t @ SplitCallIntoParts(fun, _) if fun ne caseStat.body =>
+              val end = t.tokens.last
+              val exclude = insideBlockRanges[LeftParenOrBrace](tok, end)
+              val splits = Seq(
+                Split(Space, 0).withSingleLine(end, exclude),
+                newlineSplit(1).withPolicy(penalizeAllNewlines(end, 1))
+              )
+              Left(splits)
+            case t =>
+              Right(Split(Space, 0).withSingleLine(t.tokens.last))
+          }
+          val result = style.newlines.source match {
+            case Newlines.fold => foldedSplits
+            case Newlines.unfold =>
+              Right(Split(Space, 0).onlyIf(right.is[T.Semicolon]))
+            case _ =>
+              Right(Split(Space, 0).notIf(formatToken.hasBreak))
+          }
+          result.fold(identity, x => {
+            val nlCost = if (x.isIgnored) 0 else x.cost + 1
+            Seq(x, newlineSplit(nlCost))
+          })
         }
       // New statement
       case tok @ FormatToken(T.Semicolon(), right, between)
@@ -1895,7 +1921,7 @@ class Router(formatOps: FormatOps) {
       expire: Token,
       arrow: Token,
       indents: Seq[Indent[Length]]
-  ): Seq[Split] =
+  )(implicit style: ScalafmtConfig): Seq[Split] =
     Seq(
       Split(Space, 0).withSingleLine(expire, killOnFail = true),
       Split(Space, 1)
@@ -1906,7 +1932,8 @@ class Router(formatOps: FormatOps) {
                 if !right.isInstanceOf[T.LeftBrace] &&
                   !isAttachedSingleLineComment(t) =>
               d.onlyNewlinesWithoutFallback
-          }
+          },
+          ignore = style.newlines.sourceIs(Newlines.fold)
         )
         .withIndents(indents)
     )

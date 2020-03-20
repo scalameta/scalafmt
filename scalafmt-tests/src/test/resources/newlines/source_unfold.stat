@@ -989,8 +989,10 @@ def activationFutureFor(
       .ask(AwaitActivation(endpoint))(timeout)
     )
     .map[ActorRef]({
-      case EndpointActivated(`endpoint`) ⇒ endpoint
-      case EndpointFailedToActivate(`endpoint`, cause) ⇒ throw cause
+      case EndpointActivated(`endpoint`) ⇒
+        endpoint
+      case EndpointFailedToActivate(`endpoint`, cause) ⇒
+        throw cause
     })
 <<< SKIP 3.27 enclosed in block, def, chain follows
 maxColumn = 80
@@ -1314,8 +1316,10 @@ object a extends b with c {
       y: Int = 3
   ): Int = {
     "match" match {
-      case 1 | 2 => 3
-      case <A>2</A> => 2
+      case 1 | 2 =>
+        3
+      case <A>2</A> =>
+        2
     }
   }
 }
@@ -1362,8 +1366,10 @@ object a extends b with c {
       y: Int = 3
   ): Int = {
     "match" match {
-      case 1 | 2 => 3
-      case <A>2</A> => 2
+      case 1 | 2 =>
+        3
+      case <A>2</A> =>
+        2
     }
   }
 }
@@ -1386,3 +1392,43 @@ class Engine[TD, EI, PD, Q, P, A](
     val algorithmClassMap: Map[String, Class[_ <: BaseAlgorithm[PD, _, Q, P]]],
     val servingClassMap: Map[String, Class[_ <: BaseServing[Q, P]]]
 ) extends BaseEngine[EI, Q, P, A]
+<<< 5.1: case statements
+a match {
+  case b =>
+    bb
+  case c => cc
+   ccc
+  case d =>
+   dd
+   ddd
+  case e =>
+  case f => ff
+}
+>>>
+a match {
+  case b =>
+    bb
+  case c =>
+    cc
+    ccc
+  case d =>
+    dd
+    ddd
+  case e =>
+  case f =>
+    ff
+}
+<<< 5.2 #1518
+a match {
+  case b: C => d.e match {
+    case f => "g"
+  }
+}
+>>>
+a match {
+  case b: C =>
+    d.e match {
+      case f =>
+        "g"
+    }
+}

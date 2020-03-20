@@ -89,24 +89,34 @@ case class Split(
     if (isIgnored) this else copy(optimalAt = optimalAt)
   }
 
-  def withPolicy(newPolicy: => Policy): Split = {
+  def withPolicy(newPolicy: => Policy, ignore: Boolean = false): Split = {
     if (policy != NoPolicy)
       throw new UnsupportedOperationException("Can't have two policies yet.")
-    if (isIgnored) this else copy(policy = newPolicy)
+    if (isIgnored || ignore) this else copy(policy = newPolicy)
   }
 
   def withSingleLine(
       expire: Token,
+      exclude: => Set[Range] = Set.empty,
       killOnFail: Boolean = false
   )(implicit line: sourcecode.Line): Split =
-    withSingleLineAndOptimal(expire, expire, killOnFail)
+    withSingleLineAndOptimal(expire, expire, exclude, killOnFail)
+
+  def withSingleLineOpt(
+      expire: Option[Token],
+      exclude: => Set[Range] = Set.empty,
+      killOnFail: Boolean = false
+  )(implicit line: sourcecode.Line): Split =
+    expire.fold(this)(withSingleLine(_, exclude, killOnFail))
 
   def withSingleLineAndOptimal(
       expire: Token,
       optimal: Token,
+      exclude: => Set[Range] = Set.empty,
       killOnFail: Boolean = false
   )(implicit line: sourcecode.Line): Split =
-    withOptimalToken(optimal, killOnFail).withPolicy(SingleLineBlock(expire))
+    withOptimalToken(optimal, killOnFail)
+      .withPolicy(SingleLineBlock(expire, exclude))
 
   def withPolicyOpt(newPolicy: => Option[Policy]): Split =
     if (isIgnored) this else newPolicy.fold(this)(withPolicy(_))
