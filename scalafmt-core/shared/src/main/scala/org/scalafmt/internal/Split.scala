@@ -158,6 +158,9 @@ case class Split(
     if (isIgnored) this
     else indent.fold(this)(withIndent(_))
 
+  def withIndents(indents: Seq[Indent[_]]): Split =
+    indents.foldLeft(this)(_ withIndent _)
+
   private def withIndentImpl(indent: Indent[_]): Split =
     copy(indents = indent +: indents)
 
