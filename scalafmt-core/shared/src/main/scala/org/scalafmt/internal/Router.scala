@@ -962,7 +962,7 @@ class Router(formatOps: FormatOps) {
         val lastToken = leftOwner.tokens.last
         val indent: Length =
           if (shouldBreakAfterArrowInFor && right.is[T.LeftBrace]) Num(-2)
-        else if (right.is[T.LeftBrace]) Num(0)
+          else if (right.is[T.LeftBrace]) Num(0)
           else if (style.align.arrowEnumeratorGenerator) StateColumn
           else Num(0)
         Seq(
@@ -977,7 +977,7 @@ class Router(formatOps: FormatOps) {
         val lastToken = leftOwner.tokens.last
         val indent: Length =
           if (shouldBreakAfterArrowInFor && right.is[T.LeftBrace]) Num(-2)
-        else if (right.is[T.LeftBrace]) Num(0)
+          else if (right.is[T.LeftBrace]) Num(0)
           else if (style.align.arrowEnumeratorGenerator) StateColumn
           else Num(0)
         Seq(
@@ -1545,8 +1545,8 @@ class Router(formatOps: FormatOps) {
           Split(Newline, 1)
         )
       case tok @ FormatToken(_, arrow @ T.LeftArrow(), _)
-          if rightOwner
-            .is[Enumerator.Generator] && shouldBreakAfterArrowInFor =>
+          if rightOwner.is[Enumerator.Generator] &&
+            shouldBreakAfterArrowInFor =>
         val lastToken = rightOwner.tokens.last
         fitsOneLineOrBreakOnArrow(
           lastToken,
