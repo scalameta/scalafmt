@@ -1119,8 +1119,7 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_, _: T.Dot, _)
           if style.newlines.sourceIgnored &&
             rightOwner.is[Term.Select] && findTreeWithParent(rightOwner) {
-            case _: Type.Select | _: Term.Interpolate => Some(true)
-            case _: Importer | _: Pkg => Some(true)
+            case _: Type.Select | _: Importer | _: Pkg => Some(true)
             case _: Term.Select | SplitCallIntoParts(_, _) => None
             case _ => Some(false)
           }.isDefined =>
