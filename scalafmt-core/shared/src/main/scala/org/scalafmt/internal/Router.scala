@@ -114,11 +114,9 @@ class Router(formatOps: FormatOps) {
           Split(NoSplit, 0)
         )
       // Import
-      case FormatToken(_: T.Dot, _: T.LeftBrace, _)
+      case FormatToken(_: T.Dot, _: T.LeftBrace | _: T.Underscore, _)
           if existsParentOfType[Import](rightOwner) =>
-        Seq(
-          Split(NoSplit, 0)
-        )
+        Seq(Split(NoSplit, 0))
       // Import left brace
       case FormatToken(open: T.LeftBrace, _, _)
           if existsParentOfType[Import](leftOwner) =>
@@ -148,27 +146,17 @@ class Router(formatOps: FormatOps) {
             .withPolicy(newlinePolicy)
             .withIndent(2, close, Before)
         )
+      case FormatToken(_, _: T.RightBrace, _)
+          if existsParentOfType[Import](rightOwner) =>
+        Seq(Split(Space(style.spaces.inImportCurlyBraces), 0))
+
       // Interpolated string left brace
       case FormatToken(open @ T.LeftBrace(), _, _)
           if leftOwner.is[SomeInterpolate] =>
-        Seq(
-          Split(NoSplit, 0)
-        )
+        Seq(Split(NoSplit, 0))
       case FormatToken(_, close @ T.RightBrace(), _)
-          if rightOwner.is[SomeInterpolate] ||
-            existsParentOfType[Import](rightOwner) =>
-        val isInterpolate = rightOwner.is[Term.Interpolate]
-        Seq(
-          Split(
-            Space(style.spaces.inImportCurlyBraces && !isInterpolate),
-            0
-          )
-        )
-      case FormatToken(_: T.Dot, _: T.Underscore, _)
-          if existsParentOfType[Import](rightOwner) =>
-        Seq(
-          Split(NoSplit, 0)
-        )
+          if rightOwner.is[SomeInterpolate] =>
+        Seq(Split(NoSplit, 0))
 
       // { ... } Blocks
       case tok @ FormatToken(open @ T.LeftBrace(), right, between) =>
@@ -391,7 +379,7 @@ class Router(formatOps: FormatOps) {
               val end = t.tokens.last
               val exclude = insideBlockRanges[T.LeftBrace](tok, end)
               Right(Split(Space, 0).withSingleLine(end, exclude = exclude))
-            case t @ SplitCallIntoParts(fun, _) if fun ne caseStat.body =>
+            case t @ SplitCallIntoParts(fun, _) if fun ne t =>
               val end = t.tokens.last
               val exclude = insideBlockRanges[LeftParenOrBrace](tok, end)
               val splits = Seq(
