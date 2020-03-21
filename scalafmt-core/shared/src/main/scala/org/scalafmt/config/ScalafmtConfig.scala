@@ -89,6 +89,7 @@ import org.scalafmt.util.ValidationOps
   *                    file (windows if there was at least one windows line ending, unix if there
   *                    was zero occurrences of windows line endings)
   * @param includeCurlyBraceInSelectChains
+  *  NB: failure unless newlines.source=classic
   *  If true, includes curly brace applications in select chains/pipelines.
   *  {{{
   *    // If true
@@ -103,6 +104,7 @@ import org.scalafmt.util.ValidationOps
   *    }.filter(_ > 2)
   *  }}}
   * @param includeNoParensInSelectChains
+  *  NB: ignored unless newlines.source=classic
   *  If true, includes applications without parens in select chains/pipelines.
   *  {{{
   *    // If true
@@ -166,6 +168,10 @@ case class ScalafmtConfig(
       if (optIn.configStyleArguments && align.openParenDefnSite)
         errors += s"optIn.configStyleArguments with align.openParenDefnSite"
     }
+    if (optIn.breaksInsideChains)
+      errors += s"optIn.breaksInsideChains=${optIn.breaksInsideChains}"
+    if (!includeCurlyBraceInSelectChains)
+      errors += s"includeCurlyBraceInSelectChains=${includeCurlyBraceInSelectChains}"
     if (errors.nonEmpty) {
       val prefix = s"newlines: can't use source=${newlines.source} and ["
       throw new IllegalArgumentException(errors.mkString(prefix, ",", "]"))

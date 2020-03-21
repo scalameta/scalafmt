@@ -26,7 +26,7 @@ case class Split(
     modification: Modification,
     cost: Int,
     tag: SplitTag = SplitTag.Active,
-    indents: Vector[Indent[Length]] = Vector.empty[Indent[Length]],
+    indents: Seq[Indent[_]] = Seq.empty,
     policy: Policy = NoPolicy,
     optimalAt: Option[OptimalToken] = None
 )(implicit val line: sourcecode.Line) {
@@ -131,6 +131,10 @@ case class Split(
     else if (policy.isEmpty) copy(policy = newPolicy)
     else copy(policy = policy.andThen(newPolicy))
 
+  def andThenPolicyOpt(newPolicy: => Option[Policy]): Split =
+    if (isIgnored) this
+    else newPolicy.fold(this)(andThenPolicy)
+
   def withPenalty(penalty: Int): Split =
     if (isIgnored) this else copy(cost = cost + penalty)
 
@@ -139,14 +143,26 @@ case class Split(
     else
       length match {
         case Num(0) => this
-        case x => copy(indents = Indent(x, expire, when) +: indents)
+        case x => withIndentImpl(Indent(x, expire, when))
       }
 
-  def withIndent(indent: Indent[Length]): Split =
-    withIndent(indent.length, indent.expire, indent.expiresAt)
+  def withIndent(indent: => Indent[_]): Split =
+    if (isIgnored) this
+    else
+      indent match {
+        case Indent(Num(0), _, _) => this
+        case x => withIndentImpl(x)
+      }
 
-  def withIndents(indents: Seq[Indent[Length]]): Split =
+  def withIndentOpt(indent: => Option[Indent[_]]): Split =
+    if (isIgnored) this
+    else indent.fold(this)(withIndent(_))
+
+  def withIndents(indents: Seq[Indent[_]]): Split =
     indents.foldLeft(this)(_ withIndent _)
+
+  private def withIndentImpl(indent: Indent[_]): Split =
+    copy(indents = indent +: indents)
 
   override def toString = {
     val prefix = tag match {

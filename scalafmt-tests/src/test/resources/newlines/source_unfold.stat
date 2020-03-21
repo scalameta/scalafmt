@@ -544,11 +544,9 @@ val aaaaa = bbbbb.asss.ccccc(
     fffff
   ) // comment
 >>>
-val aaaaa = bbbbb.asss.ccccc(
-  ddddd,
-  eeeee,
-  fffff
-) // comment
+val aaaaa = bbbbb
+  .asss
+  .ccccc(ddddd, eeeee, fffff) // comment
 <<< 2.20 val with apply-select-select
 val nested =
   promiseIntercept(new Actor {
@@ -566,11 +564,11 @@ val nested =
     }
   )(result)
 <<< 2.21 val with apply type
-  val deployment = system
-    .asInstanceOf[ActorSystemImpl]
-    .provider
-    .deployer
-    .lookup(service.split("/").drop(1))
+val deployment = system
+  .asInstanceOf[ActorSystemImpl]
+  .provider
+  .deployer
+  .lookup(service.split("/").drop(1))
 >>>
 val deployment = system
   .asInstanceOf[ActorSystemImpl]
@@ -984,17 +982,13 @@ maxColumn = 80
 def activationFutureFor(
     endpoint: ActorRef
 )(implicit timeout: Timeout, executor: ExecutionContext): Future[ActorRef] =
-  (
-    supervisor
-      .ask(AwaitActivation(endpoint))(timeout)
-    )
-    .map[ActorRef]({
-      case EndpointActivated(`endpoint`) ⇒
-        endpoint
-      case EndpointFailedToActivate(`endpoint`, cause) ⇒
-        throw cause
-    })
-<<< SKIP 3.27 enclosed in block, def, chain follows
+  (supervisor.ask(AwaitActivation(endpoint))(timeout)).map[ActorRef]({
+    case EndpointActivated(`endpoint`) ⇒
+      endpoint
+    case EndpointFailedToActivate(`endpoint`, cause) ⇒
+      throw cause
+  })
+<<< 3.27 enclosed in block, def, chain follows
 maxColumn = 80
 ===
   def activationFutureFor(endpoint: ActorRef)(implicit
@@ -1007,15 +1001,15 @@ maxColumn = 80
         case EndpointFailedToActivate(`endpoint`, cause) ⇒ throw cause
       })
 >>>
-Idempotency violated
 def activationFutureFor(
     endpoint: ActorRef
 )(implicit timeout: Timeout, executor: ExecutionContext): Future[ActorRef] = {
-  supervisor
-    .ask(AwaitActivation(endpoint))(timeout)
+  supervisor.ask(AwaitActivation(endpoint))(timeout)
 }.map[ActorRef]({
-  case EndpointActivated(`endpoint`) ⇒ endpoint
-  case EndpointFailedToActivate(`endpoint`, cause) ⇒ throw cause
+  case EndpointActivated(`endpoint`) ⇒
+    endpoint
+  case EndpointFailedToActivate(`endpoint`, cause) ⇒
+    throw cause
 })
 <<< 3.28 apply with optimal token
 maxColumn = 80
@@ -1033,6 +1027,7 @@ case class AttributeInfo(
 <<< 3.29 apply with optimal token
 maxColumn = 80
 ===
+object a {
 Multipart.FormData.BodyPart.Strict(
   "userfile",
   HttpEntity(`application/pdf`, ByteString("filecontent")),
@@ -1042,17 +1037,23 @@ Multipart.FormData.BodyPart.Strict(
     RawHeader("Content-Additional-1", "anything"),
     RawHeader("Content-Additional-2", "really-anything"))
 )
+}
 >>>
-Multipart.FormData.BodyPart.Strict(
-  "userfile",
-  HttpEntity(`application/pdf`, ByteString("filecontent")),
-  Map("filename" -> "test€.dat"),
-  List(
-    RawHeader("Content-Transfer-Encoding", "binary"),
-    RawHeader("Content-Additional-1", "anything"),
-    RawHeader("Content-Additional-2", "really-anything")
-  )
-)
+object a {
+  Multipart
+    .FormData
+    .BodyPart
+    .Strict(
+      "userfile",
+      HttpEntity(`application/pdf`, ByteString("filecontent")),
+      Map("filename" -> "test€.dat"),
+      List(
+        RawHeader("Content-Transfer-Encoding", "binary"),
+        RawHeader("Content-Additional-1", "anything"),
+        RawHeader("Content-Additional-2", "really-anything")
+      )
+    )
+}
 <<< 3.30: apply with single-arg assign; open nl, close nonl
 object foo {
 val a = b(c = d)
@@ -1430,5 +1431,88 @@ a match {
     d.e match {
       case f =>
         "g"
+    }
+}
+<<< 6.1: chain, no break
+val a = b.c.d.e().f.g.h()
+>>>
+val a = b.c.d.e().f.g.h()
+<<< 6.2: chain, break on =
+val a =
+ b.c
+ .d.e(f)
+ .g.h { i => j }
+ .k().l({ m => n}, o)
+>>>
+val a = b
+  .c
+  .d
+  .e(f)
+  .g
+  .h { i =>
+    j
+  }
+  .k()
+  .l(
+    { m =>
+      n
+    },
+    o
+  )
+<<< 6.3: chain, breaks in the middle
+val a = b.c
+ .d.e() .f
+ .g .h()
+>>>
+val a = b.c.d.e().f.g.h()
+<<< 6.4: chain without apply
+maxColumn = 72
+includeNoParensInSelectChains = true
+===
+object a {
+created filter (ref ⇒
+         !ref.isTerminated && !ref
+          .asInstanceOf[ActorRefWithCell]
+          .underlying.isInstanceOf[UnstartedCell]) should ===(
+        Seq.empty[ActorRef])
+}
+>>>
+object a {
+  created filter (ref ⇒
+    !ref.isTerminated && !ref
+      .asInstanceOf[ActorRefWithCell]
+      .underlying
+      .isInstanceOf[UnstartedCell]
+  ) should ===(Seq.empty[ActorRef])
+}
+<<< 6.5: chain with delayed indent after break
+maxColumn = 70
+===
+object a {
+  val unionAlgoPredicts: RDD[(QX, Seq[P])] = sc
+    .union(algoPredicts).groupByKey().mapValues { ps =>
+      {
+        assert(
+          ps.size == algoCount,
+          "Must have same length as algoCount")
+        // TODO. Check size == algoCount
+        ps.toSeq.sortBy(_._1).map(_._2)
+      }
+    }
+}
+>>>
+object a {
+  val unionAlgoPredicts: RDD[(QX, Seq[P])] = sc
+    .union(algoPredicts)
+    .groupByKey()
+    .mapValues { ps =>
+      {
+        assert(
+          ps.size == algoCount,
+          "Must have same length as algoCount"
+        )
+        // TODO. Check size == algoCount
+        ps.toSeq.sortBy(_._1).map(_._2)
+      }
     }
 }

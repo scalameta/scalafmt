@@ -17,6 +17,7 @@ import scala.meta.{
   Defn,
   Enumerator,
   Import,
+  Importer,
   Init,
   Lit,
   Mod,
@@ -1127,9 +1128,77 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_: T.Underscore, _: T.Dot, _) =>
         Seq(Split(NoSplit, 0))
 
+      case FormatToken(_, _: T.Dot, _)
+          if style.newlines.sourceIgnored &&
+            rightOwner.is[Term.Select] && findTreeWithParent(rightOwner) {
+            case _: Type.Select | _: Term.Interpolate => Some(true)
+            case _: Importer | _: Pkg => Some(true)
+            case _: Term.Select | SplitCallIntoParts(_, _) => None
+            case _ => Some(false)
+          }.isDefined =>
+        Seq(Split(NoSplit, 0))
+
+      case t @ FormatToken(left, _: T.Dot, _)
+          if !style.newlines.sourceIs(Newlines.classic) &&
+            rightOwner.is[Term.Select] =>
+        val (expireTree, nextSelect) = findLastApplyAndNextSelect(rightOwner)
+        val prevSelect = findPrevSelect(rightOwner.asInstanceOf[Term.Select])
+        val expire = lastToken(expireTree)
+
+        val baseSplits = style.newlines.source match {
+          case _ if left.is[T.Comment] =>
+            Seq(Split(Space.orNL(t.noBreak), 0))
+
+          case Newlines.keep =>
+            Seq(Split(NoSplit.orNL(t.noBreak), 0))
+
+          case Newlines.unfold =>
+            if (prevSelect.isEmpty && nextSelect.isEmpty)
+              Seq(Split(NoSplit, 0), Split(Newline, 1))
+            else {
+              val forcedBreakPolicy = nextSelect.map { tree =>
+                Policy(tree.name.tokens.head) {
+                  case Decision(t @ FormatToken(_, _: T.Dot, _), s)
+                      if t.meta.rightOwner eq tree =>
+                    s.filter(_.modification.isNewline)
+                }
+              }
+              Seq(
+                Split(NoSplit, 0).withSingleLine(expire),
+                Split(Newline, 1).withPolicyOpt(forcedBreakPolicy)
+              )
+            }
+
+          case Newlines.fold =>
+            val end = nextSelect.fold(expire)(x => lastToken(x.qual))
+            def exclude = insideBlockRanges[LeftParenOrBrace](t, end)
+            Seq(
+              Split(NoSplit, 0).withSingleLine(end, exclude),
+              Split(Newline, 1)
+            )
+        }
+
+        val delayedBreakPolicy = nextSelect.map { tree =>
+          Policy(tree.name.tokens.head) {
+            case Decision(t @ FormatToken(_, _: T.Dot, _), s)
+                if t.meta.rightOwner eq tree =>
+              SplitTag.SelectChainFirstNL.activateOnly(s)
+          }
+        }
+
+        // trigger indent only on the first newline
+        val indent = Indent(Num(2), expire, After)
+        val splits = baseSplits.map { s =>
+          if (s.modification.isNewline) s.withIndent(indent)
+          else s.andThenPolicyOpt(delayedBreakPolicy)
+        }
+
+        if (prevSelect.isEmpty) splits
+        else baseSplits ++ splits.map(_.onlyFor(SplitTag.SelectChainFirstNL))
+
       case tok @ FormatToken(left, dot @ T.Dot() `:chain:` chain, _) =>
         val nestedPenalty = nestedSelect(rightOwner) + nestedApplies(leftOwner)
-        val optimalToken = chainOptimalToken(chain)
+        val optimalToken = getSelectOptimalToken(chain.last)
         val expire =
           if (chain.length == 1) lastToken(chain.last)
           else optimalToken
@@ -1144,14 +1213,11 @@ class Router(formatOps: FormatOps) {
         // This policy will apply to both the space and newline splits, otherwise
         // the newline is too cheap even it doesn't actually prevent other newlines.
         val penalizeNewlinesInApply = penalizeAllNewlines(expire, 2)
-        val noSplitPolicy = SingleLineBlock(expire, exclude)
-          .andThen(penalizeNewlinesInApply.f)
-          .copy(expire = expire.end)
-        val newlinePolicy = breakOnEveryDot
-          .andThen(penalizeNewlinesInApply.f)
-          .copy(expire = expire.end)
+        val noSplitPolicy =
+          SingleLineBlock(expire, exclude).andThen(penalizeNewlinesInApply)
+        val newlinePolicy = breakOnEveryDot.andThen(penalizeNewlinesInApply)
         val ignoreNoSplit =
-          style.optIn.breakChainOnFirstMethodDot && newlines > 0
+          style.optIn.breakChainOnFirstMethodDot && tok.hasBreak
         val chainLengthPenalty =
           if (style.newlines.penalizeSingleSelectMultiArgList &&
             chain.length < 2) {
@@ -1169,14 +1235,13 @@ class Router(formatOps: FormatOps) {
               case _ => 0
             }
           } else 0
+        val nlCost = 2 + nestedPenalty + chainLengthPenalty
         Seq(
           Split(NoSplit, 0)
             .notIf(ignoreNoSplit)
             .withPolicy(noSplitPolicy),
-          Split(
-            Newline.copy(acceptNoSplit = true),
-            2 + nestedPenalty + chainLengthPenalty
-          ).withPolicy(newlinePolicy)
+          Split(NewlineT(acceptNoSplit = true), nlCost)
+            .withPolicy(newlinePolicy)
             .withIndent(2, optimalToken, After)
         )
 

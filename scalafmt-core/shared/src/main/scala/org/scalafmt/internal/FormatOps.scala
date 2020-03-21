@@ -550,13 +550,13 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   def getOptimalTokenFor(ft: FormatToken): Token =
     if (isAttachedSingleLineComment(ft)) ft.right else ft.left
 
-  def chainOptimalToken(chain: Vector[Term.Select]): Token = {
-    val lastDotIndex = chain.last.tokens.lastIndexWhere(_.is[T.Dot])
-    val lastDot =
-      if (lastDotIndex != -1)
-        chain.last.tokens(dialect)(lastDotIndex).asInstanceOf[T.Dot]
-      else
-        throw new IllegalStateException(s"Missing . in select ${chain.last}")
+  def getSelectOptimalToken(tree: Tree): Token = {
+    // 2.13 has findLast
+    val tokens = tree.tokens
+    val index = tokens.lastIndexWhere(_.is[T.Dot])
+    if (index == -1)
+      throw new IllegalStateException(s"Missing . in select $tree")
+    val lastDot = tokens(index).asInstanceOf[T.Dot]
     lastToken(getSelectsLastToken(lastDot).meta.leftOwner)
   }
 
@@ -1202,5 +1202,29 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
   def isEnclosedInMatching(tree: Tree): Boolean =
     getClosingIfEnclosedInMatching(tree).isDefined
+
+  @tailrec
+  final def findPrevSelect(tree: Tree): Option[Term.Select] = tree match {
+    case t: Term.Select => Some(t)
+    case t @ SplitCallIntoParts(fun, _) if t ne fun =>
+      if (isEnclosedInMatching(t)) None else findPrevSelect(fun)
+    case _ => None
+  }
+  def findPrevSelect(tree: Term.Select): Option[Term.Select] =
+    findPrevSelect(tree.qual)
+
+  @tailrec
+  final def findLastApplyAndNextSelect(
+      tree: Tree,
+      select: Option[Term.Select] = None
+  ): (Tree, Option[Term.Select]) =
+    tree.parent match {
+      case Some(p: Term.Select) =>
+        findLastApplyAndNextSelect(p, select.orElse(Some(p)))
+      case Some(p @ SplitCallIntoParts(`tree`, _)) =>
+        if (isEnclosedInMatching(p)) (p, select)
+        else findLastApplyAndNextSelect(p, select)
+      case _ => (tree, select)
+    }
 
 }
