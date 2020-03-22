@@ -1547,7 +1547,8 @@ object a {
       b: List[Int]
   ): List[Int] =
     for {
-      a <- b if (b ++ b)
+      a <- b
+      if (b ++ b)
         .length >= 2
     } yield a
 }
@@ -1573,13 +1574,11 @@ val k =
   for {
     _ <- aa + bb
     if !onlyOne
-    _ <- Future(
-      aaa
-    )
+    _ <-
+      Future(aaa)
     if !onlyOne
-    _ <- Future(
-      2
-    )
+    _ <-
+      Future(2)
   } yield ()
 <<< 7.5: multiple consecutive guards
 maxColumn = 80
@@ -1596,7 +1595,8 @@ val allOps =
   (
     for {
       c ← classes
-      m ← c.getMethods if !Modifier.isStatic(m.getModifiers);
+      m ← c.getMethods
+      if !Modifier.isStatic(m.getModifiers);
       if !ignore(m.getName)
       if !m.getName.contains("$");
       if !materializing(m)

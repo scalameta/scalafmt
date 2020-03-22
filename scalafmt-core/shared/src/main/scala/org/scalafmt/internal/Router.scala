@@ -1,7 +1,7 @@
 package org.scalafmt.internal
 
 import org.scalafmt.Error.UnexpectedTree
-import org.scalafmt.config.{ScalafmtConfig, ImportSelectors, Newlines}
+import org.scalafmt.config.{ImportSelectors, Newlines, ScalafmtConfig}
 import org.scalafmt.internal.ExpiresOn.{After, Before}
 import org.scalafmt.internal.Length.{Num, StateColumn}
 import org.scalafmt.internal.Policy.NoPolicy
@@ -1575,13 +1575,27 @@ class Router(formatOps: FormatOps) {
         )
 
       // Term.ForYield
-      case tok @ FormatToken(_, arrow @ T.KwIf(), _)
-          if rightOwner.is[Enumerator.Guard] =>
-        Seq(
-          // Either everything fits in one line or break on =>
-          Split(Space, 0).onlyIf(newlines == 0),
-          Split(Newline, 1)
-        )
+      case FormatToken(_, _: T.KwIf, _) if rightOwner.is[Enumerator.Guard] =>
+        /* this covers the first guard only; second and later consecutive guards
+         * are considered to start a new statement and are handled early, in the
+         * "if startsStatement" matches */
+        style.newlines.source match {
+          case Newlines.fold =>
+            val endOfGuard = rightOwner.tokens.last
+            val exclude =
+              insideBlockRanges[LeftParenOrBrace](formatToken, endOfGuard)
+            Seq(
+              Split(Space, 0).withSingleLine(endOfGuard, exclude = exclude),
+              Split(Newline, 1)
+            )
+          case Newlines.unfold =>
+            Seq(Split(Newline, 0))
+          case _ =>
+            Seq(
+              Split(Space, 0).onlyIf(newlines == 0),
+              Split(Newline, 1)
+            )
+        }
       case FormatToken(T.KwYield(), _, _) if leftOwner.is[Term.ForYield] =>
         if (style.newlines.avoidAfterYield && !rightOwner.is[Term.If]) {
           Seq(Split(Space, 0))
@@ -1944,24 +1958,38 @@ class Router(formatOps: FormatOps) {
   )(implicit style: ScalafmtConfig): Seq[Split] = {
     val postCommentFT = nextNonCommentSameLine(ft)
     val expire = lastToken(ft.meta.leftOwner)
-    if (!style.activeForEdition_2020_03)
+    if (!style.activeForEdition_2020_03 &&
+      style.newlines.sourceIs(Newlines.classic))
       Seq(Split(Space, 0))
     else if (postCommentFT.right.is[T.Comment])
       Seq(Split(Space.orNL(ft.noBreak), 0).withIndent(2, expire, After))
+    else if (style.newlines.sourceIs(Newlines.keep))
+      Seq(
+        if (ft.noBreak) Split(Space, 0)
+        else Split(Newline, 0).withIndent(2, expire, After)
+      )
     else {
       val close = getClosingIfEnclosedInMatching(postCommentFT.meta.rightOwner)
-      val spaceSplit = postCommentFT.meta.rightOwner match {
+      val spaceSplit = style.newlines.source match {
         case _ if close.exists(_.is[T.RightBrace]) => Split(Space, 1)
-        case _ if style.align.arrowEnumeratorGenerator =>
+
+        case Newlines.unfold =>
+          if (close.isEmpty) Split.ignored else Split(Space, 1)
+
+        case Newlines.classic if style.align.arrowEnumeratorGenerator =>
           Split(Space, 1).withIndent(StateColumn, expire, After)
-        case _: Term.Try | _: Term.TryWithHandler => Split.ignored
-        case t: Term.If if t.elsep.tokens.nonEmpty => Split.ignored
-        case t: Term.If =>
-          Split(Space, 1).withSingleLine(t.cond.tokens.last)
-        case _ =>
-          def exclude =
-            insideBlockRanges[LeftParenOrBrace](postCommentFT, expire)
-          Split(Space, 0).withSingleLine(expire, exclude = exclude)
+
+        case Newlines.fold | Newlines.classic =>
+          postCommentFT.meta.rightOwner match {
+            case _: Term.Try | _: Term.TryWithHandler => Split.ignored
+            case t: Term.If if t.elsep.tokens.nonEmpty => Split.ignored
+            case t: Term.If =>
+              Split(Space, 1).withSingleLine(t.cond.tokens.last)
+            case _ =>
+              def exclude =
+                insideBlockRanges[LeftParenOrBrace](postCommentFT, expire)
+              Split(Space, 0).withSingleLine(expire, exclude = exclude)
+          }
       }
       Seq(
         Split(Space, 0)
