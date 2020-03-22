@@ -1,5 +1,5 @@
 align.arrowEnumeratorGenerator = true
-maxColumn = 40
+maxColumn = 38
 <<< alignByArrowEnumeratorGenerator
 for {
   x <- new Integer {
