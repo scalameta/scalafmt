@@ -52,7 +52,7 @@ final case class State(
     val (columnOnCurrentLine, nextStateColumn) = State.getColumns(
       tok,
       newIndent,
-      if (split.modification.isNewline) None else Some(column + split.length)
+      if (split.isNL) None else Some(column + split.length)
     )
     val newPolicy: PolicySummary = policy.combine(split.policy, tok.left.end)
     val splitWithPenalty = {
@@ -60,7 +60,7 @@ final case class State(
         columnOnCurrentLine <= style.maxColumn || {
           val commentExceedsLineLength = right.is[Token.Comment] &&
             tokRightSyntax.length >= (style.maxColumn - newIndent)
-          commentExceedsLineLength && split.modification.isNewline
+          commentExceedsLineLength && split.isNL
         }
       ) {
         split // fits inside column

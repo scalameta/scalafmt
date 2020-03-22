@@ -89,7 +89,7 @@ class FormatWriter(formatOps: FormatOps) {
         val prev = state.prev
         val idx = prev.depth
         val ft = toks(idx)
-        val breaks = state.split.modification.isNewline || ft.leftHasNewline
+        val breaks = state.split.isNL || ft.leftHasNewline
         val newLineId = lineId + (if (breaks) 1 else 0)
         result(idx) = FormatLocation(ft, state, styleMap.at(ft), newLineId)
         iter(prev, newLineId)
@@ -289,7 +289,7 @@ class FormatWriter(formatOps: FormatOps) {
           val right = nextNonCommentTok.right
           def isNewline =
             Seq(curr, locations(math.min(i + skip, locations.length - 1)))
-              .exists(_.state.split.modification.isNewline)
+              .exists(_.state.split.isNL)
 
           // Scala syntax allows commas before right braces in weird places,
           // like constructor bodies:
@@ -356,8 +356,7 @@ class FormatWriter(formatOps: FormatOps) {
           case _: T.Constant.String =>
             TreeOps.getStripMarginChar(tok.meta.leftOwner).map { pipe =>
               def isPipeFirstChar = text.find(_ != '"').contains(pipe)
-              val noAlign = !style.align.stripMargin ||
-                prevState.split.modification.isNewline
+              val noAlign = !style.align.stripMargin || prevState.split.isNL
               val pipeOffset =
                 if (style.align.stripMargin && isPipeFirstChar) 1 else 0
               val indent = pipeOffset +
@@ -810,7 +809,7 @@ class FormatWriter(formatOps: FormatOps) {
           def processLine: FormatLocation = {
             val floc = locations(idx)
             idx += 1
-            val ok = !floc.state.split.modification.isNewline
+            val ok = !floc.state.split.isNL
             if (!ok || floc.formatToken.leftHasNewline) columnShift = 0
             columnShift += floc.shift
             if (!ok) floc
@@ -1020,7 +1019,7 @@ class FormatWriter(formatOps: FormatOps) {
           val floc = locations(idx)
           if (indent.notExpiredBy(floc.formatToken)) {
             val state = floc.state
-            if (state.split.modification.isNewline) {
+            if (state.split.isNL) {
               locations(idx) = floc.copy(state =
                 state.copy(indentation = state.indentation + offset)
               )
@@ -1080,7 +1079,7 @@ class FormatWriter(formatOps: FormatOps) {
       if (minLines <= 0) true
       else if (i >= toks.length || toks(i).formatToken.left == end) false
       else {
-        val hasNL = toks(i).state.split.modification.isNewline
+        val hasNL = toks(i).state.split.isNL
         isMultiline(end, i + 1, if (hasNL) minLines - 1 else minLines)
       }
     val formatToken = toks(i).formatToken
@@ -1240,9 +1239,9 @@ object FormatWriter {
       alignHashKey: Int = 0,
       replace: String = null
   ) {
-    def hasBreakAfter: Boolean = state.split.modification.isNewline
+    def hasBreakAfter: Boolean = state.split.isNL
     def hasBreakBefore: Boolean =
-      state.prev.split.modification.isNewline || formatToken.left.start == 0
+      state.prev.split.isNL || formatToken.left.start == 0
     def isStandalone: Boolean = hasBreakAfter && hasBreakBefore
   }
 

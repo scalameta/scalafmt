@@ -564,10 +564,7 @@ class Router(formatOps: FormatOps) {
         val forceNewlineBeforeExtends = Policy(expire) {
           case Decision(t @ FormatToken(_, _: T.KwExtends, _), s)
               if t.meta.rightOwner == leftOwner =>
-            s.filter { x =>
-              x.modification.isNewline &&
-              (x.activeTag ne SplitTag.OnelineWithChain)
-            }
+            s.filter(x => x.isNL && (x.activeTag ne SplitTag.OnelineWithChain))
         }
         val policyEnd = defnBeforeTemplate(leftOwner).fold(r)(_.tokens.last)
         val policy = delayedBreakPolicy(None)(forceNewlineBeforeExtends)
@@ -1215,7 +1212,7 @@ class Router(formatOps: FormatOps) {
                 Policy(tree.name.tokens.head) {
                   case Decision(t @ FormatToken(_, _: T.Dot, _), s)
                       if t.meta.rightOwner eq tree =>
-                    s.filter(_.modification.isNewline)
+                    s.filter(_.isNL)
                 }
               }
               Seq(
@@ -1247,7 +1244,7 @@ class Router(formatOps: FormatOps) {
         val willBreak =
           nextNonCommentSameLine(tokens(formatToken, 2)).right.is[T.Comment]
         val splits = baseSplits.map { s =>
-          if (willBreak || s.modification.isNewline) s.withIndent(indent)
+          if (willBreak || s.isNL) s.withIndent(indent)
           else s.andThenPolicyOpt(delayedBreakPolicy)
         }
 
@@ -1888,15 +1885,12 @@ class Router(formatOps: FormatOps) {
       // TODO(olafur) refactor into "global policy"
       // Only newlines after inline comments.
       case FormatToken(c: T.Comment, _, _) if isSingleLineComment(c) =>
-        val newlineSplits = splits.filter(_.modification.isNewline)
+        val newlineSplits = splits.filter(_.isNL)
         if (newlineSplits.isEmpty) Seq(Split(Newline, 0))
         else newlineSplits
       case FormatToken(_, c: T.Comment, _)
           if isAttachedSingleLineComment(formatToken) =>
-        splits.map(x =>
-          if (x.modification.isNewline) x.copy(modification = Space)(x.line)
-          else x
-        )
+        splits.map(x => if (x.isNL) x.copy(modification = Space)(x.line) else x)
       case _ => splits
     }
   }
