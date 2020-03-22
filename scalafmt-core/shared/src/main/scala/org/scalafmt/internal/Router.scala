@@ -946,23 +946,8 @@ class Router(formatOps: FormatOps) {
             .withSingleLine(close, killOnFail = true)
         ) ++ oneArgPerLineSplits
 
-      case tok @ FormatToken(T.LeftArrow(), right, _)
-          if leftOwner.is[Enumerator.Generator] =>
-        val lastToken = leftOwner.tokens.last
-        val indent: Length =
-          if (shouldBreakAfterArrowInFor && right.is[T.LeftBrace]) Num(-2)
-          else if (right.is[T.LeftBrace]) Num(0)
-          else if (style.align.arrowEnumeratorGenerator) StateColumn
-          else Num(0)
-        Seq(
-          Split(Space, 0)
-            .withIndent(indent, lastToken, After),
-          Split(Newline, 1)
-            .onlyIf(shouldBreakAfterArrowInFor)
-            .withIndent(indent, lastToken, After)
-        )
-      case tok @ FormatToken(T.Equals(), right, _)
-          if leftOwner.is[Enumerator.Val] =>
+      case tok @ FormatToken(_: T.LeftArrow | _: T.Equals, right, _)
+          if leftOwner.is[Enumerator] =>
         val lastToken = leftOwner.tokens.last
         val indent: Length =
           if (shouldBreakAfterArrowInFor && right.is[T.LeftBrace]) Num(-2)
