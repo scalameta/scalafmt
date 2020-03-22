@@ -1333,9 +1333,11 @@ class Router(formatOps: FormatOps) {
         val indent: Length =
           if (style.align.ifWhileOpenParen) StateColumn
           else style.continuationIndent.callSite
+        val oldClassic = !style.activeForEdition_2020_03 &&
+          style.newlines.sourceIs(Newlines.classic)
         Seq(
           Split(NoSplit, 0)
-            .withIndent(indent, close, After)
+            .withIndent(indent, close, if (oldClassic) After else Before)
             .withPolicy(penalizeNewlines)
         )
       case FormatToken(T.KwIf(), _, _) if leftOwner.is[Term.If] =>
