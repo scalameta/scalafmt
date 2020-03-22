@@ -1942,16 +1942,26 @@ class Router(formatOps: FormatOps) {
   private def getSplitsEnumerator(
       ft: FormatToken
   )(implicit style: ScalafmtConfig): Seq[Split] = {
+    val postCommentFT = nextNonCommentSameLine(ft)
     val expire = lastToken(ft.meta.leftOwner)
     if (!style.activeForEdition_2020_03)
       Seq(Split(Space, 0))
+    else if (postCommentFT.right.is[T.Comment])
+      Seq(Split(Space.orNL(ft.noBreak), 0).withIndent(2, expire, After))
     else {
-      val close = getClosingIfEnclosedInMatching(ft.meta.rightOwner)
-      val spaceSplit = ft.meta.rightOwner match {
+      val close = getClosingIfEnclosedInMatching(postCommentFT.meta.rightOwner)
+      val spaceSplit = postCommentFT.meta.rightOwner match {
         case _ if close.exists(_.is[T.RightBrace]) => Split(Space, 1)
         case _ if style.align.arrowEnumeratorGenerator =>
           Split(Space, 1).withIndent(StateColumn, expire, After)
-        case _ => Split.ignored
+        case _: Term.Try | _: Term.TryWithHandler => Split.ignored
+        case t: Term.If if t.elsep.tokens.nonEmpty => Split.ignored
+        case t: Term.If =>
+          Split(Space, 1).withSingleLine(t.cond.tokens.last)
+        case _ =>
+          def exclude =
+            insideBlockRanges[LeftParenOrBrace](postCommentFT, expire)
+          Split(Space, 0).withSingleLine(expire, exclude = exclude)
       }
       Seq(
         Split(Space, 0)
@@ -1959,6 +1969,7 @@ class Router(formatOps: FormatOps) {
           .withSingleLine(expire),
         spaceSplit.withIndentOpt(close.map(Indent(Num(2), _, Before))),
         Split(Newline, if (spaceSplit.isIgnored) 1 else spaceSplit.cost + 1)
+          .onlyIf(ft eq postCommentFT)
           .withIndent(2, expire, After)
       )
     }
