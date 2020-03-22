@@ -80,7 +80,7 @@ lazy val dynamic = project
     ),
     scalacOptions ++= scalacJvmOptions.value
   )
-  .dependsOn(interfaces, tests % Test)
+  .dependsOn(interfaces)
   .enablePlugins(BuildInfoPlugin)
 
 lazy val interfaces = project
@@ -207,7 +207,7 @@ lazy val cli = project
       )
     }
   )
-  .dependsOn(coreJVM, dynamic, tests % Test)
+  .dependsOn(coreJVM, dynamic)
   .enablePlugins(GraalVMNativeImagePlugin)
 
 lazy val tests = project
@@ -225,7 +225,7 @@ lazy val tests = project
       scalatest.value
     )
   )
-  .dependsOn(coreJVM)
+  .dependsOn(coreJVM, dynamic, cli)
 
 lazy val benchmarks = project
   .in(file("scalafmt-benchmarks"))

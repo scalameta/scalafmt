@@ -1,4 +1,4 @@
-package tests
+package org.scalafmt.dynamic
 
 import java.io.{ByteArrayOutputStream, PrintStream, PrintWriter}
 import java.nio.charset.StandardCharsets
@@ -8,7 +8,7 @@ import java.nio.file.attribute.FileTime
 import org.scalactic.source.Position
 import org.scalafmt.dynamic.{ConsoleScalafmtReporter, ScalafmtDynamic}
 import org.scalafmt.interfaces.{PositionException, Scalafmt, ScalafmtReporter}
-import tests.PositionSyntax._
+import PositionSyntax._
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer

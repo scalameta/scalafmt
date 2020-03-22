@@ -1,4 +1,4 @@
-package tests
+package org.scalafmt.dynamic
 
 import scala.meta._
 
