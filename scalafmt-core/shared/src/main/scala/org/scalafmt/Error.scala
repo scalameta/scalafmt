@@ -11,6 +11,7 @@ import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.State
 import org.scalafmt.util.LoggerOps
 import scala.meta.internal.inputs._
+import scala.util.control.NoStackTrace
 
 sealed abstract class Error(msg: String) extends Exception(msg)
 
@@ -92,6 +93,7 @@ object Error {
         "No files formatted/tested. " +
           "Verify include/exclude filters and command line arguments."
       )
+      with NoStackTrace
 
   case class InvalidOption(option: String)
       extends Error(s"Invalid option $option")
