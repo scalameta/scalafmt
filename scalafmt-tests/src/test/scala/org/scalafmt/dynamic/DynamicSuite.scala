@@ -6,7 +6,6 @@ import java.nio.file.{Files, Path, Paths, StandardOpenOption}
 import java.nio.file.attribute.FileTime
 
 import org.scalactic.source.Position
-import org.scalafmt.dynamic.{ConsoleScalafmtReporter, ScalafmtDynamic}
 import org.scalafmt.interfaces.{PositionException, Scalafmt, ScalafmtReporter}
 import PositionSyntax._
 

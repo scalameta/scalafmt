@@ -57,9 +57,6 @@ commands += Command.command("ci-test") { s =>
   val docsTest = if (scalaVersion == scala212) "docs/run" else "version"
   s"++$scalaVersion" ::
     "tests/test" ::
-    "coreJVM/test" ::
-    "dynamic/test" ::
-    "cli/test" ::
     docsTest ::
     s
 }
@@ -74,9 +71,7 @@ lazy val dynamic = project
     buildInfoObject := "BuildInfo",
     libraryDependencies ++= List(
       "io.get-coursier" % "interface" % "0.0.17",
-      "com.typesafe" % "config" % "1.4.0",
-      scalatest.value % Test,
-      scalametaTestkit % Test
+      "com.typesafe" % "config" % "1.4.0"
     ),
     scalacOptions ++= scalacJvmOptions.value
   )
@@ -223,7 +218,8 @@ lazy val tests = project
       "org.typelevel" %% "paiges-core" % "0.3.0",
       scalametaTestkit,
       scalatest.value
-    )
+    ),
+    scalacOptions ++= scalacJvmOptions.value
   )
   .dependsOn(coreJVM, dynamic, cli)
 
