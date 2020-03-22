@@ -1,6 +1,5 @@
-package tests
+package org.scalafmt.dynamic
 
-import org.scalafmt.dynamic.ScalafmtVersion
 import org.scalafmt.dynamic.ScalafmtVersion.InvalidVersionException
 import org.scalatest.funsuite.AnyFunSuite
 

@@ -57,9 +57,6 @@ commands += Command.command("ci-test") { s =>
   val docsTest = if (scalaVersion == scala212) "docs/run" else "version"
   s"++$scalaVersion" ::
     "tests/test" ::
-    "coreJVM/test" ::
-    "dynamic/test" ::
-    "cli/test" ::
     docsTest ::
     s
 }
@@ -74,13 +71,11 @@ lazy val dynamic = project
     buildInfoObject := "BuildInfo",
     libraryDependencies ++= List(
       "io.get-coursier" % "interface" % "0.0.17",
-      "com.typesafe" % "config" % "1.4.0",
-      scalatest.value % Test,
-      scalametaTestkit % Test
+      "com.typesafe" % "config" % "1.4.0"
     ),
     scalacOptions ++= scalacJvmOptions.value
   )
-  .dependsOn(interfaces, tests % Test)
+  .dependsOn(interfaces)
   .enablePlugins(BuildInfoPlugin)
 
 lazy val interfaces = project
@@ -207,7 +202,7 @@ lazy val cli = project
       )
     }
   )
-  .dependsOn(coreJVM, dynamic, tests % Test)
+  .dependsOn(coreJVM, dynamic)
   .enablePlugins(GraalVMNativeImagePlugin)
 
 lazy val tests = project
@@ -223,9 +218,10 @@ lazy val tests = project
       "org.typelevel" %% "paiges-core" % "0.3.0",
       scalametaTestkit,
       scalatest.value
-    )
+    ),
+    scalacOptions ++= scalacJvmOptions.value
   )
-  .dependsOn(coreJVM)
+  .dependsOn(coreJVM, dynamic, cli)
 
 lazy val benchmarks = project
   .in(file("scalafmt-benchmarks"))
