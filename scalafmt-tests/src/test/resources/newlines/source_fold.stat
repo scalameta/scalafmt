@@ -1321,8 +1321,7 @@ object a {
 object a {
   def c(b: List[Int]): List[Int] =
     for {
-      a <- b
-      if (b ++ b).length >= 2
+      a <- b if (b ++ b).length >= 2
     } yield a
 }
 <<< 7.2: enumerator shoft, guard long
@@ -1348,8 +1347,7 @@ object a {
 for (a <- b.sortBy(c)
  if a > 0) yield x
 >>>
-for (a <- b.sortBy(c)
-  if a > 0) yield x
+for (a <- b.sortBy(c) if a > 0) yield x
 <<< 7.4: enumerator and guard long
 maxColumn = 17
 ===
@@ -1357,7 +1355,7 @@ val k = for {
   _ <- aaa + bbb
     if !onlyOne
   _ <- Future(aaa)
-    if !onlyOne
+  if !onlyOne
   _ <- Future(2)
 } yield ()
 >>>
@@ -1366,8 +1364,7 @@ val k = for {
   if !onlyOne
   _ <- Future(
     aaa
-  )
-  if !onlyOne
+  ) if !onlyOne
   _ <- Future(2)
 } yield ()
 <<< 7.5: multiple consecutive guards
