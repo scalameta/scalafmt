@@ -55,6 +55,9 @@ case class Split(
   val indentation = indents.mkString("[", ", ", "]")
 
   @inline
+  def isNL: Boolean = modification.isNewline
+
+  @inline
   def length: Int = modification.length
 
   @inline

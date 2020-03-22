@@ -162,7 +162,7 @@ private class BestFirstSearch private (
 
         implicit val style = styleMap.at(splitToken)
 
-        if (curr.split != null && curr.split.modification.isNewline) {
+        if (curr.split != null && curr.split.isNL) {
           val tokenHash = hash(splitToken.left)
           if (
             emptyQueueSpots.contains(tokenHash) ||
@@ -195,7 +195,7 @@ private class BestFirstSearch private (
           actualSplit.foreach { split =>
             val nextState = curr.next(split, splitToken)
             val updateBest = !keepSlowStates && depth == 0 &&
-              split.modification.isNewline && !best.contains(curr.depth)
+              split.isNL && !best.contains(curr.depth)
             if (updateBest) {
               best.update(curr.depth, nextState)
             }
@@ -285,7 +285,7 @@ private class BestFirstSearch private (
         if (activeSplits.isEmpty) null else state // dead end if empty
       else {
         val split = activeSplits.head
-        if (split.modification.isNewline) state
+        if (split.isNL) state
         else {
           runner.event(Enqueue(split))
           val ft = tokens(state.depth)

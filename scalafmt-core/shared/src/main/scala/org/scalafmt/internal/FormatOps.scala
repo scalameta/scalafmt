@@ -399,7 +399,7 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
             // If comment is bound to comma, see unit/Comment.
             (!right.is[T.Comment] || t.hasBreak) =>
         val isNewline = right.is[T.Comment]
-        splits.filter(_.modification.isNewline == isNewline)
+        splits.filter(_.isNL == isNewline)
     }
   }
 
@@ -417,7 +417,7 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
             // If comment is bound to comma, see unit/Comment.
             (!right.is[T.Comment] || t.hasBreak) =>
         if (!right.is[T.LeftBrace])
-          splits.filter(_.modification.isNewline)
+          splits.filter(_.isNL)
         else if (!style.activeForEdition_2020_03)
           splits
         else
@@ -447,7 +447,7 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
             (penalizeLambdas || !tok.left.is[T.RightArrow]) && !ignore(tok) =>
         s.map {
           case split
-              if split.modification.isNewline ||
+              if split.isNL ||
                 (penaliseNewlinesInsideTokens && tok.leftHasNewline) =>
             split.withPenalty(penalty)
           case x => x
@@ -468,7 +468,7 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
           nestedSelect(t.meta.leftOwner) + nestedApplies(t.meta.rightOwner) +
             nonBoolPenalty
         s.map {
-          case split if split.modification.isNewline =>
+          case split if split.isNL =>
             split.withPenalty(penalty)
           case x => x
         }
@@ -660,7 +660,7 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
       x => {
         val indent = Indent(Num(2), x.tokens.last, ExpiresOn.After)
         getInfixSplitsBeforeLhsOrRhs(app, ft, fullInfix).map { s =>
-          if (s.modification.isNewline) s.withIndent(indent) else s
+          if (s.isNL) s.withIndent(indent) else s
         }
       }
     )
@@ -731,10 +731,7 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
             if (isSingleLineComment(t.right)) // will break
               s.map(_.switch(firstInfixOp))
             else
-              s.map { x =>
-                if (!x.modification.isNewline) x
-                else x.switch(firstInfixOp)
-              }
+              s.map(x => if (x.isNL) x.switch(firstInfixOp) else x)
         }
 
     val singleLineExpire = if (isFirst) fullExpire else expires.head._1
@@ -1081,7 +1078,7 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
       private def unapplyImpl(d: Decision): Option[Seq[Split]] = {
         var replaced = false
         def decisionPf(s: Split): Split =
-          if (!s.modification.isNewline) s
+          if (!s.isNL) s
           else {
             replaced = true
             s.orElsePolicy(onBreakPolicy)
