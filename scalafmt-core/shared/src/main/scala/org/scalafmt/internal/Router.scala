@@ -946,22 +946,6 @@ class Router(formatOps: FormatOps) {
             .withSingleLine(close, killOnFail = true)
         ) ++ oneArgPerLineSplits
 
-      case tok @ FormatToken(_: T.LeftArrow | _: T.Equals, right, _)
-          if leftOwner.is[Enumerator] =>
-        val lastToken = leftOwner.tokens.last
-        val indent: Length =
-          if (shouldBreakAfterArrowInFor && right.is[T.LeftBrace]) Num(-2)
-          else if (right.is[T.LeftBrace]) Num(0)
-          else if (style.align.arrowEnumeratorGenerator) StateColumn
-          else Num(0)
-        Seq(
-          Split(Space, 0)
-            .withIndent(indent, lastToken, After),
-          Split(Newline, 1)
-            .onlyIf(shouldBreakAfterArrowInFor)
-            .withIndent(indent, lastToken, After)
-        )
-
       case FormatToken(_, _: T.LeftBrace, _) =>
         Seq(Split(Space, 0))
 
@@ -1478,14 +1462,23 @@ class Router(formatOps: FormatOps) {
           // edge case, if body is empty expire on arrow
           .fold(arrow)(t => getOptimalTokenFor(lastToken(t)))
 
-        fitsOneLineOrBreakOnArrow(
-          expire,
-          arrow,
-          Seq(
-            Indent(2, expire, After), // case body indented by 2.
-            Indent(2, arrow, After) // cond body indented by 4.
-          )
+        Seq(
+          Split(Space, 0).withSingleLine(expire, killOnFail = true),
+          Split(Space, 1)
+            .withPolicy(
+              Policy(expire) {
+                case d @ Decision(t @ FormatToken(`arrow`, right, _), _)
+                    // TODO(olafur) any other corner cases?
+                    if !right.isInstanceOf[T.LeftBrace] &&
+                      !isAttachedSingleLineComment(t) =>
+                  d.onlyNewlinesWithoutFallback
+              },
+              ignore = style.newlines.sourceIs(Newlines.fold)
+            )
+            .withIndent(2, expire, After) // case body indented by 2.
+            .withIndent(2, arrow, After) // cond body indented by 4.
         )
+
       case tok @ FormatToken(_, cond @ T.KwIf(), _) if rightOwner.is[Case] =>
         val arrow = getCaseArrow(rightOwner.asInstanceOf[Case]).left
         val exclude = insideBlockRanges[T.LeftBrace](tok, arrow)
@@ -1495,6 +1488,12 @@ class Router(formatOps: FormatOps) {
           Split(Space, 0, policy = singleLine),
           Split(Newline, 1).withPolicy(penalizeNewlineByNesting(cond, arrow))
         )
+
+      // ForYield
+      case tok @ FormatToken(_: T.LeftArrow | _: T.Equals, _, _)
+          if leftOwner.is[Enumerator] =>
+        getSplitsEnumerator(tok)
+
       // Inline comment
       case FormatToken(_, c: T.Comment, _) =>
         Seq(Split(getMod(formatToken), 0))
@@ -1582,23 +1581,6 @@ class Router(formatOps: FormatOps) {
           // Either everything fits in one line or break on =>
           Split(Space, 0).onlyIf(newlines == 0),
           Split(Newline, 1)
-        )
-      case tok @ FormatToken(_, arrow @ T.LeftArrow(), _)
-          if rightOwner.is[Enumerator.Generator] &&
-            shouldBreakAfterArrowInFor =>
-        val lastToken = rightOwner.tokens.last
-        fitsOneLineOrBreakOnArrow(
-          lastToken,
-          arrow,
-          Seq(Indent(2, lastToken, After))
-        )
-      case tok @ FormatToken(_, arrow @ T.Equals(), _)
-          if rightOwner.is[Enumerator.Val] && shouldBreakAfterArrowInFor =>
-        val lastToken = rightOwner.tokens.last
-        fitsOneLineOrBreakOnArrow(
-          lastToken,
-          arrow,
-          Seq(Indent(2, lastToken, After))
         )
       case FormatToken(T.KwYield(), _, _) if leftOwner.is[Term.ForYield] =>
         if (style.newlines.avoidAfterYield && !rightOwner.is[Term.If]) {
@@ -1957,44 +1939,29 @@ class Router(formatOps: FormatOps) {
     )
   }
 
-  private def shouldBreakAfterArrowInFor(
-      implicit style: ScalafmtConfig
-  ): Boolean =
-    !style.align.arrowEnumeratorGenerator && style.activeForEdition_2020_03
-
-  /**
-    * Either everything fits in one line or break on arrow.
-    *
-    * {{{
-    * xs.map {
-    *   case x =>
-    *     if (condition) doSomething
-    *     else doOtherThing
-    * }
-    * }}}
-    *
-    * in this case `expire` should be `doOtherThing` and arrow should be `=>`
-    *
-   **/
-  private def fitsOneLineOrBreakOnArrow(
-      expire: Token,
-      arrow: Token,
-      indents: Seq[Indent[Length]]
-  )(implicit style: ScalafmtConfig, line: sourcecode.Line): Seq[Split] =
-    Seq(
-      Split(Space, 0).withSingleLine(expire, killOnFail = true),
-      Split(Space, 1)
-        .withPolicy(
-          Policy(expire) {
-            case d @ Decision(t @ FormatToken(`arrow`, right, _), _)
-                // TODO(olafur) any other corner cases?
-                if !right.isInstanceOf[T.LeftBrace] &&
-                  !isAttachedSingleLineComment(t) =>
-              d.onlyNewlinesWithoutFallback
-          },
-          ignore = style.newlines.sourceIs(Newlines.fold)
-        )
-        .withIndents(indents)
-    )
+  private def getSplitsEnumerator(
+      ft: FormatToken
+  )(implicit style: ScalafmtConfig): Seq[Split] = {
+    val expire = lastToken(ft.meta.leftOwner)
+    if (!style.activeForEdition_2020_03)
+      Seq(Split(Space, 0))
+    else {
+      val close = getClosingIfEnclosedInMatching(ft.meta.rightOwner)
+      val spaceSplit = ft.meta.rightOwner match {
+        case _ if close.exists(_.is[T.RightBrace]) => Split(Space, 1)
+        case _ if style.align.arrowEnumeratorGenerator =>
+          Split(Space, 1).withIndent(StateColumn, expire, After)
+        case _ => Split.ignored
+      }
+      Seq(
+        Split(Space, 0)
+          .onlyIf(spaceSplit.isIgnored || spaceSplit.cost != 0)
+          .withSingleLine(expire),
+        spaceSplit.withIndentOpt(close.map(Indent(Num(2), _, Before))),
+        Split(Newline, if (spaceSplit.isIgnored) 1 else spaceSplit.cost + 1)
+          .withIndent(2, expire, After)
+      )
+    }
+  }
 
 }
