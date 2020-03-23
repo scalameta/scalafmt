@@ -14,9 +14,7 @@ object SplitTag {
 
   abstract class Custom extends SplitTag {
     override final def activateOnly(splits: Seq[Split]): Seq[Split] =
-      splits.flatMap { s =>
-        if (s.isTaggedFor(this)) Some(s.copy(tag = SplitTag.Active)) else None
-      }
+      splits.map(_.activateFor(this)).filter(_.isActive)
   }
 
   case object Active extends Base

@@ -39,6 +39,7 @@ case class Split(
     modification: Modification,
     cost: Int,
     tag: SplitTag = SplitTag.Active,
+    activeTag: SplitTag = SplitTag.Active,
     indents: Seq[Indent[_]] = Seq.empty,
     policy: Policy = NoPolicy,
     optimalAt: Option[OptimalToken] = None
@@ -52,10 +53,14 @@ case class Split(
   }
 
   val indentation = indents
-    .map(_.length match {
-      case Num(x) => x.toString
-      case x => x.toString
-    })
+    .map { x =>
+      val len = x.length match {
+        case Num(x) => x.toString
+        case x => x.toString
+      }
+      val when = if (x.expiresAt == ExpiresOn.Before) '<' else '>'
+      s"$len$when${x.expire}:${x.expire.end}"
+    }
     .mkString("[", ", ", "]")
 
   def length: Int = modification match {
@@ -69,13 +74,10 @@ case class Split(
   }
 
   @inline
-  def isIgnored: Boolean = isTaggedFor(SplitTag.Ignored)
+  def isIgnored: Boolean = tag eq SplitTag.Ignored
 
   @inline
-  def isActive: Boolean = isTaggedFor(SplitTag.Active)
-
-  @inline
-  def isTaggedFor(tag: SplitTag): Boolean = this.tag == tag
+  def isActive: Boolean = tag eq activeTag
 
   @inline
   def notIf(flag: Boolean): Split = onlyIf(!flag)
@@ -83,10 +85,13 @@ case class Split(
   def onlyIf(flag: Boolean): Split =
     if (flag || isIgnored) this else copy(tag = SplitTag.Ignored)
 
-  def onlyFor(tag: SplitTag): Split =
-    if (isIgnored) this
+  def onlyFor(tag: SplitTag, ignore: Boolean = false): Split =
+    if (isIgnored || ignore || (this.tag eq tag)) this
     else if (isActive) copy(tag = tag)
     else throw new UnsupportedOperationException("Multiple tags unsupported")
+
+  def activateFor(tag: SplitTag): Split =
+    if (isIgnored || (this.activeTag eq tag)) this else copy(activeTag = tag)
 
   def withOptimalTokenOpt(
       token: => Option[Token],
@@ -102,7 +107,10 @@ case class Split(
     if (isIgnored) this else copy(optimalAt = optimalAt)
   }
 
-  def withPolicy(newPolicy: => Policy, ignore: Boolean = false): Split = {
+  def withPolicy(
+      newPolicy: => Policy,
+      ignore: Boolean = false
+  )(implicit line: sourcecode.Line): Split = {
     if (policy != NoPolicy)
       throw new UnsupportedOperationException("Can't have two policies yet.")
     if (isIgnored || ignore) this else copy(policy = newPolicy)
@@ -137,7 +145,9 @@ case class Split(
   )(implicit line: sourcecode.Line): Split =
     withPolicy(SingleLineBlock(expire, exclude))
 
-  def withPolicyOpt(newPolicy: => Option[Policy]): Split =
+  def withPolicyOpt(
+      newPolicy: => Option[Policy]
+  )(implicit line: sourcecode.Line): Split =
     if (isIgnored) this else newPolicy.fold(this)(withPolicy(_))
 
   def orElsePolicy(newPolicy: Policy): Split =
@@ -164,6 +174,13 @@ case class Split(
         case Num(0) => this
         case x => withIndentImpl(Indent(x, expire, when))
       }
+
+  def withIndentOpt(
+      length: => Length,
+      expire: Option[Token],
+      when: ExpiresOn
+  ): Split =
+    expire.fold(this)(withIndent(length, _, when))
 
   def withIndent(indent: => Indent[_ <: Length]): Split =
     if (isIgnored) this
