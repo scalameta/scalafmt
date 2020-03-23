@@ -1615,3 +1615,640 @@ for {
   else
     mean * mean / x
 }
+<<< 8.1: infix with longer left ||
+val a =
+  1 + 2 * 3 && 4 ^ 5 || 6 op
+    7 map {
+      8 % 9
+    }
+>>>
+val a =
+  1 + 2 * 3 && 4 ^ 5 || 6 op
+    7 map {
+    8 % 9
+  }
+<<< 8.2: infix with shorter left ||
+val a = 1 + 2 * 3 || 4 ^ 5 && 6 op 7 map { 8 % 9 }
+>>>
+val a =
+  1 + 2 * 3 || 4 ^ 5 && 6 op 7 map {
+    8 % 9
+  }
+<<< 8.3: infix with longer left ||, narrow
+maxColumn = 20
+===
+val a = 1 + 2 * 3 && 4 ^ 5 || 6 op 7 map { 8 % 9 }
+>>>
+val a =
+  1 + 2 * 3 && 4 ^ 5 || 6 op 7 map {
+    8 % 9
+  }
+<<< 8.4: infix with shorter left ||, narrow
+maxColumn = 17
+===
+{
+val a = 1 + 2 * 3 || 4 ^ 5 && 6 op 7 map { 8 % 9 }
+val b = { 1 + 2 * 3 || 4 ^ 5 && 6 op 7 map { 8 % 9 } || somethinglong }
+}
+>>>
+{
+  val a =
+    1 + 2 * 3 || 4 ^ 5 && 6 op 7 map {
+      8 % 9
+    }
+  val b = {
+    1 + 2 * 3 || 4 ^ 5 && 6 op 7 map {
+      8 % 9
+    } || somethinglong
+  }
+}
+<<< 8.5: sequences of infix operations
+maxColumn = 75
+runner.optimizer.forceConfigStyleOnOffset = 1000
+===
+val strings = Seq(
+    "MetricEvaluatorResult:",
+    s"  # engine params evaluated: ${engineParamsScores.size}") ++
+    Seq(
+      "Optimal Engine Params:",
+      s"  $bestEPStr",
+      "Metrics:",
+      s"  $metricHeader: ${bestScore.score}") ++
+    otherMetricHeaders.zip(bestScore.otherScores).map {
+      case (h, s) => s"  $h: $s"
+    } ++
+    outputPath.toSeq.map { p =>
+      s"The best variant params can be found in $p"
+    }
+>>>
+val strings = Seq(
+  "MetricEvaluatorResult:",
+  s"  # engine params evaluated: ${engineParamsScores.size}"
+) ++
+  Seq(
+    "Optimal Engine Params:",
+    s"  $bestEPStr",
+    "Metrics:",
+    s"  $metricHeader: ${bestScore.score}"
+  ) ++
+  otherMetricHeaders.zip(bestScore.otherScores).map {
+    case (h, s) => s"  $h: $s"
+  } ++
+  outputPath.toSeq.map { p =>
+    s"The best variant params can be found in $p"
+  }
+<<< 8.6: assignment with short expression
+object a {
+  plugins(service.pluginType) += service.pluginName -> service
+}
+>>>
+object a {
+  plugins(
+    service.pluginType
+  ) += service.pluginName -> service
+}
+<<< 8.7
+maxColumn = 80
+===
+val json = ("event" -> data("event")) ~ ("entityType" -> "user") ~
+       ("entityId" -> data("userId")) ~ ("targetEntityType" -> "item") ~
+       ("targetEntityId" -> data("itemId")) ~
+       ("eventTime" -> data("timestamp")) ~ ("properties" -> (("context" ->
+       (("ip" -> data("context[ip]")) ~ ("prop1" -> data("context[prop1]")
+         .toDouble) ~ ("prop2" -> data("context[prop2]")))) ~
+       ("anotherPropertyA" -> data.get("anotherPropertyA").map(_.toDouble)) ~
+       ("anotherPropertyB" -> data.get("anotherPropertyB").map(_.toBoolean))))
+>>>
+val json = ("event" -> data("event")) ~ ("entityType" -> "user") ~
+  ("entityId" -> data("userId")) ~ ("targetEntityType" -> "item") ~
+  ("targetEntityId" -> data("itemId")) ~
+  ("eventTime" -> data("timestamp")) ~ ("properties" -> (("context" ->
+  (("ip" -> data("context[ip]")) ~ ("prop1" -> data(
+    "context[prop1]"
+  ).toDouble) ~ ("prop2" -> data("context[prop2]")))) ~
+  ("anotherPropertyA" -> data.get("anotherPropertyA").map(_.toDouble)) ~
+  ("anotherPropertyB" -> data.get("anotherPropertyB").map(_.toBoolean))))
+<<< 8.8
+maxColumn = 80
+===
+override def hashCode: Int = 41 + fields.hashCode
+>>>
+override def hashCode: Int = 41 + fields.hashCode
+<<< 8.9
+maxColumn = 80
+===
+object a {
+val fields = JField("engineVariant", JString(i.engineVariant)) ::
+   JField("engineFactory", JString(i.engineFactory)) ::
+     JField("batch", JString(i.batch)) ::
+     JField("env", Extraction.decompose(i.env)(DefaultFormats))
+}
+>>>
+object a {
+  val fields = JField("engineVariant", JString(i.engineVariant)) ::
+    JField("engineFactory", JString(i.engineFactory)) ::
+    JField("batch", JString(i.batch)) ::
+    JField("env", Extraction.decompose(i.env)(DefaultFormats))
+}
+<<< 8.10
+maxColumn = 80
+===
+object a {
+  def isReservedPrefix(name: String): Boolean =
+      name.startsWith("$") || name.startsWith("pio_")
+  def idWithAppid(appid: Int, id: String): String = appid + "_" + id
+}
+>>>
+object a {
+  def isReservedPrefix(name: String): Boolean =
+    name.startsWith("$") || name.startsWith("pio_")
+  def idWithAppid(appid: Int, id: String): String = appid + "_" + id
+}
+<<< 8.11
+maxColumn = 80
+===
+Some(
+  ("ip" -> data.get("context[ip]")) ~ (
+  "prop1" ->
+     data.get("context[prop1]").map(_.toDouble)
+))
+>>>
+Some(
+  ("ip" -> data.get("context[ip]")) ~ (
+    "prop1" ->
+      data.get("context[prop1]").map(_.toDouble)
+  )
+)
+<<< 8.12
+maxColumn = 80
+===
+val json = (estype -> ("properties" -> ("status" ->
+      ("type" -> "string") ~ ("index" -> "not_analyzed")) ~ ("startTime" ->
+      ("type" -> "date")) ~ ("endTime" -> ("type" -> "date")) ~ ("engineId" ->
+      ("type" -> "string") ~ ("index" -> "not_analyzed")) ~ ("engineVersion" ->
+      ("type" -> "string") ~ ("index" -> "not_analyzed")) ~ ("engineVariant" ->
+      ("type" -> "string") ~ ("index" -> "not_analyzed")) ~ ("engineFactory" ->
+      ("type" -> "string") ~ ("index" -> "not_analyzed")) ~ ("batch" ->
+      ("type" -> "string") ~ ("index" -> "not_analyzed")) ~
+      ("dataSourceParams" -> ("type" -> "string") ~ ("index" ->
+        "not_analyzed")) ~ ("preparatorParams" -> ("type" -> "string") ~
+        ("index" -> "not_analyzed")) ~ ("algorithmsParams" -> ("type" ->
+          "string") ~ ("index" -> "not_analyzed")) ~ ("servingParams" ->
+          ("type" -> "string") ~ ("index" -> "not_analyzed")) ~ ("status" ->
+          ("type" -> "string") ~ ("index" -> "not_analyzed"))))
+>>>
+val json = (estype -> ("properties" -> ("status" ->
+  ("type" -> "string") ~ ("index" -> "not_analyzed")) ~ ("startTime" ->
+  ("type" -> "date")) ~ ("endTime" -> ("type" -> "date")) ~ ("engineId" ->
+  ("type" -> "string") ~ ("index" -> "not_analyzed")) ~ ("engineVersion" ->
+  ("type" -> "string") ~ ("index" -> "not_analyzed")) ~ ("engineVariant" ->
+  ("type" -> "string") ~ ("index" -> "not_analyzed")) ~ ("engineFactory" ->
+  ("type" -> "string") ~ ("index" -> "not_analyzed")) ~ ("batch" ->
+  ("type" -> "string") ~ ("index" -> "not_analyzed")) ~
+  ("dataSourceParams" -> ("type" -> "string") ~ ("index" ->
+    "not_analyzed")) ~ ("preparatorParams" -> ("type" -> "string") ~
+  ("index" -> "not_analyzed")) ~ ("algorithmsParams" -> ("type" ->
+  "string") ~ ("index" -> "not_analyzed")) ~ ("servingParams" ->
+  ("type" -> "string") ~ ("index" -> "not_analyzed")) ~ ("status" ->
+  ("type" -> "string") ~ ("index" -> "not_analyzed"))))
+<<< 8.13
+val a = b match {
+  case i: EngineInstance =>
+    JObject(
+      JField("id", JString(i.id)) ::
+        JField("status", JString(i.status)) ::
+        JField("startTime", JString(i.startTime.toString)) ::
+        JField("endTime", JString(i.endTime.toString)) ::
+        JField("engineId", JString(i.engineId)) ::
+        JField("engineVersion", JString(i.engineVersion)) ::
+        JField("engineVariant", JString(i.engineVariant)) ::
+        JField("engineFactory", JString(i.engineFactory)) ::
+        JField("batch", JString(i.batch)) ::
+        JField("env", Extraction.decompose(i.env)(DefaultFormats)) ::
+        JField(
+          "sparkConf",
+          Extraction.decompose(i.sparkConf)(DefaultFormats)) ::
+        JField("dataSourceParams", JString(i.dataSourceParams)) ::
+        JField("preparatorParams", JString(i.preparatorParams)) ::
+        JField("algorithmsParams", JString(i.algorithmsParams)) ::
+        JField("servingParams", JString(i.servingParams)) ::
+        Nil)
+}
+>>>
+val a = b match {
+  case i: EngineInstance =>
+    JObject(
+      JField("id", JString(i.id)) ::
+        JField(
+          "status",
+          JString(i.status)
+        ) ::
+        JField(
+          "startTime",
+          JString(i.startTime.toString)
+        ) ::
+        JField(
+          "endTime",
+          JString(i.endTime.toString)
+        ) ::
+        JField(
+          "engineId",
+          JString(i.engineId)
+        ) ::
+        JField(
+          "engineVersion",
+          JString(i.engineVersion)
+        ) ::
+        JField(
+          "engineVariant",
+          JString(i.engineVariant)
+        ) ::
+        JField(
+          "engineFactory",
+          JString(i.engineFactory)
+        ) ::
+        JField(
+          "batch",
+          JString(i.batch)
+        ) ::
+        JField(
+          "env",
+          Extraction.decompose(i.env)(
+            DefaultFormats
+          )
+        ) ::
+        JField(
+          "sparkConf",
+          Extraction.decompose(
+            i.sparkConf
+          )(DefaultFormats)
+        ) ::
+        JField(
+          "dataSourceParams",
+          JString(i.dataSourceParams)
+        ) ::
+        JField(
+          "preparatorParams",
+          JString(i.preparatorParams)
+        ) ::
+        JField(
+          "algorithmsParams",
+          JString(i.algorithmsParams)
+        ) ::
+        JField(
+          "servingParams",
+          JString(i.servingParams)
+        ) ::
+        Nil
+    )
+}
+<<< 8.14
+private lazy val subNode: Parser[SubNode] = rep(' ') ~>
+  ((opt('*') ~ '[' ~> attrName <~ '+' ~ ']' ^^ {
+    name => AttrAppendSubNode(name)
+  }) |
+  (opt('*') ~ '[' ~> attrName <~ '!' ~ ']' ^^ {
+    name => AttrRemoveSubNode(name)
+  }) |    (opt('*') ~ '[' ~> attrName <~ ']' ^^ {
+     name => AttrSubNode(name)
+   }) |
+
+   ('!' ~ '!' ^^ (a => DontMergeAttributes)) |
+   ('<' ~ '*' ~ '>') ^^ (a => SurroundKids()) |
+   ('-' ~ '*' ^^ (a => PrependKidsSubNode())) |
+   ('>' ~ '*' ^^ (a => PrependKidsSubNode())) |
+   ('*' ~ '+' ^^ (a => AppendKidsSubNode())) |
+   ('*' ~ '<' ^^ (a => AppendKidsSubNode())) |
+   '*' ^^ (a => KidsSubNode()) |
+   '^' ~ '*' ^^ (a => SelectThisNode(true)) |
+   '^' ~ '^' ^^ (a => SelectThisNode(false)))
+>>>
+private lazy val subNode
+    : Parser[SubNode] = rep(' ') ~>
+  ((opt(
+    '*'
+  ) ~ '[' ~> attrName <~ '+' ~ ']' ^^ {
+    name =>
+      AttrAppendSubNode(name)
+  }) |
+    (opt(
+      '*'
+    ) ~ '[' ~> attrName <~ '!' ~ ']' ^^ {
+      name =>
+        AttrRemoveSubNode(name)
+    }) | (opt(
+    '*'
+  ) ~ '[' ~> attrName <~ ']' ^^ {
+    name =>
+      AttrSubNode(name)
+  }) |
+
+    ('!' ~ '!' ^^ (a =>
+      DontMergeAttributes
+    )) |
+    ('<' ~ '*' ~ '>') ^^ (a =>
+      SurroundKids()
+    ) |
+    ('-' ~ '*' ^^ (a =>
+      PrependKidsSubNode()
+    )) |
+    ('>' ~ '*' ^^ (a =>
+      PrependKidsSubNode()
+    )) |
+    ('*' ~ '+' ^^ (a =>
+      AppendKidsSubNode()
+    )) |
+    ('*' ~ '<' ^^ (a =>
+      AppendKidsSubNode()
+    )) |
+    '*' ^^ (a => KidsSubNode()) |
+    '^' ~ '*' ^^ (a =>
+      SelectThisNode(true)
+    ) |
+    '^' ~ '^' ^^ (a =>
+      SelectThisNode(false)
+    ))
+<<< 8.15
+maxColumn = 80
+===
+object a {
+  def toEventJson(common: Common, userAction: UserAction): JObject = {
+   import org.json4s.JsonDSL._
+    val json =
+      ("event" -> "subscribe") ~
+        ("entityType" -> "user") ~
+        ("entityId" -> data("data[id]")) ~
+        ("targetEntityType" -> "list") ~
+        ("targetEntityId" -> data("data[list_id]")) ~
+        ("eventTime" -> eventTime) ~
+        ("properties" -> (("email" -> data("data[email]")) ~
+          ("email_type" -> data("data[email_type]")) ~
+          ("merges" -> (("EMAIL" -> data("data[merges][EMAIL]")) ~
+            ("FNAME" -> data("data[merges][FNAME]"))) ~
+            ("LNAME" -> data("data[merges][LNAME]")) ~
+            ("INTERESTS" -> data.get("data[merges][INTERESTS]")))) ~
+          ("ip_opt" -> data("data[ip_opt]")) ~
+          ("ip_signup" -> data("data[ip_signup]")))
+      json
+  }
+}
+>>>
+object a {
+  def toEventJson(common: Common, userAction: UserAction): JObject = {
+    import org.json4s.JsonDSL._
+    val json =
+      ("event" -> "subscribe") ~
+        ("entityType" -> "user") ~
+        ("entityId" -> data("data[id]")) ~
+        ("targetEntityType" -> "list") ~
+        ("targetEntityId" -> data("data[list_id]")) ~
+        ("eventTime" -> eventTime) ~
+        ("properties" -> (("email" -> data("data[email]")) ~
+          ("email_type" -> data("data[email_type]")) ~
+          ("merges" -> (("EMAIL" -> data("data[merges][EMAIL]")) ~
+            ("FNAME" -> data("data[merges][FNAME]"))) ~
+            ("LNAME" -> data("data[merges][LNAME]")) ~
+            ("INTERESTS" -> data.get("data[merges][INTERESTS]")))) ~
+          ("ip_opt" -> data("data[ip_opt]")) ~
+          ("ip_signup" -> data("data[ip_signup]")))
+    json
+  }
+}
+<<< 8.16
+maxColumn = 80
+===
+override def preRestart(cause: Throwable, msg: Option[Any]) {
+       if (master ne null) {
+        master ! "failed with " + cause + " while processing " + msg
+       }
+       context stop self
+     }
+>>>
+override def preRestart(cause: Throwable, msg: Option[Any]) {
+  if (master ne null) {
+    master ! "failed with " + cause + " while processing " + msg
+  }
+  context stop self
+}
+<<< 8.17
+maxColumn = 80
+===
+object a {
+   def `media-range-def` =
+     rule {
+       "*/*" ~ push("*") ~ push("*") |
+        `type` ~ '/' ~
+        ('*' ~ !tchar ~ push("*") | subtype) |
+        '*' ~ push("*") ~ push("*")
+     }
+}
+>>>
+object a {
+  def `media-range-def` =
+    rule {
+      "*/*" ~ push("*") ~ push("*") |
+        `type` ~ '/' ~
+          ('*' ~ !tchar ~ push("*") | subtype) |
+        '*' ~ push("*") ~ push("*")
+    }
+}
+<<< 8.18
+maxColumn = 80
+===
+object a {
+  (people.map(p => (p.name, p.age))
+  // c1
+  returning people.map(_.id)
+  // c2
+  into ((nameAge, id) => Person(id, nameAge._1, nameAge._2))
+  )
+}
+>>>
+object a {
+  (people.map(p => (p.name, p.age))
+  // c1
+    returning people.map(_.id)
+  // c2
+    into ((nameAge, id) => Person(id, nameAge._1, nameAge._2)))
+}
+<<< 8.19
+maxColumn = 80
+===
+def `day-name` =
+     rule(
+       "Sun" ~ push(0) | "Mon" ~ push(1) | "Tue" ~ push(2) | "Wed" ~ push(3) |
+        "Thu" ~ push(4) | "Fri" ~ push(5) | "Sat" ~ push(6))
+>>>
+def `day-name` =
+  rule(
+    "Sun" ~ push(0) | "Mon" ~ push(1) | "Tue" ~ push(2) | "Wed" ~ push(3) |
+      "Thu" ~ push(4) | "Fri" ~ push(5) | "Sat" ~ push(6)
+  )
+<<< 8.20
+maxColumn = 80
+===
+HttpResponse(
+   StatusCodes.ServiceUnavailable,
+   entity = "The server was not able " +
+   "to produce a timely response to your request.\r\nPlease try again in a short while!"
+)
+>>>
+HttpResponse(
+  StatusCodes.ServiceUnavailable,
+  entity = "The server was not able " +
+    "to produce a timely response to your request.\r\nPlease try again in a short while!"
+)
+<<< 8.21
+maxColumn = 80
+===
+private val allParams: Map[String, String] = mandatoryParams +
+    (
+      "data-config" ->
+        dummyOptionalConfigPath,
+      "max-sales-mappers" ->
+        "10",
+      "overwrite" ->
+        null,
+      "keep" -> dummyOptionalMaxVersionCount
+    )
+>>>
+private val allParams: Map[String, String] = mandatoryParams +
+  (
+    "data-config" ->
+      dummyOptionalConfigPath,
+    "max-sales-mappers" ->
+      "10",
+    "overwrite" ->
+      null,
+    "keep" -> dummyOptionalMaxVersionCount
+)
+<<< 8.22
+maxColumn = 40
+===
+"Terminating(" + reason + ")" +
+                   (toDie.toSeq.sorted mkString
+                     (
+                      "\n" +
+                        indent +
+                        "   |    toDie: ", "\n" + indent + "   |           ", ""
+                     ))
+>>>
+"Terminating(" + reason + ")" +
+  (toDie.toSeq.sorted mkString
+    (
+      "\n" +
+        indent +
+        "   |    toDie: ", "\n" + indent + "   |           ", ""
+  ))
+<<< 8.23
+maxColumn = 80
+===
+val ret = (if (dailyStats.isEmpty)
+                   0
+                 else {
+                   val yestStats = dailyStats.last
+                   val yestNav = yestStats.nav
+                   (nav -
+                     yestNav) / nav - 1
+                 })
+>>>
+val ret =
+  (if (dailyStats.isEmpty)
+     0
+   else {
+     val yestStats = dailyStats.last
+     val yestNav = yestStats.nav
+     (nav -
+       yestNav) / nav - 1
+   })
+<<< 8.24
+maxColumn = 80
+===
+def isErrorEnabled(logClass: Class[_], logSource: String) =
+    (eventStream.logLevel >= ErrorLevel) &&
+      Logger(logClass, logSource).isErrorEnabled
+>>>
+def isErrorEnabled(logClass: Class[_], logSource: String) =
+  (eventStream.logLevel >= ErrorLevel) &&
+    Logger(logClass, logSource).isErrorEnabled
+<<< 8.25
+maxColumn = 80
+===
+def getShort(implicit byteOrder: ByteOrder): Short = {
+    if (byteOrder == ByteOrder.BIG_ENDIAN)
+      ((next() & 0xff) << 8 | (next() & 0xff) << 0).toShort
+    else if (byteOrder == ByteOrder.LITTLE_ENDIAN)
+      ((next() & 0xff) << 0 | (next() & 0xff) << 8).toShort
+     else throw new IllegalArgumentException("Unknown byte order " + byteOrder)
+   }
+>>>
+def getShort(implicit byteOrder: ByteOrder): Short = {
+  if (byteOrder == ByteOrder.BIG_ENDIAN)
+    ((next() & 0xff) << 8 | (next() & 0xff) << 0).toShort
+  else if (byteOrder == ByteOrder.LITTLE_ENDIAN)
+    ((next() & 0xff) << 0 | (next() & 0xff) << 8).toShort
+  else throw new IllegalArgumentException("Unknown byte order " + byteOrder)
+}
+<<< 8.26
+maxColumn = 80
+===
+def receiveClusterEvent(evt: ClusterDomainEvent): Unit =
+  evt match {
+    case MemberUp(m) =>
+      if (matchingRole(m)) changeMembers(membersByAge - m + m) // replace
+  }
+>>>
+def receiveClusterEvent(evt: ClusterDomainEvent): Unit =
+  evt match {
+    case MemberUp(m) =>
+      if (matchingRole(m)) changeMembers(membersByAge - m + m) // replace
+  }
+<<< 8.27
+maxColumn = 80
+===
+def insertAndDelete(eventClient: LEvents) = {
+  val resultAfter = eventClient.get(eventId, appId)
+
+  (resultBefore must beEqualTo(Some(expectedBefore))) and
+    (deleteStatus must beEqualTo(true)) and
+    (resultAfter must beEqualTo(None))
+}
+>>>
+def insertAndDelete(eventClient: LEvents) = {
+  val resultAfter = eventClient.get(eventId, appId)
+
+  (resultBefore must beEqualTo(Some(expectedBefore))) and
+    (deleteStatus must beEqualTo(true)) and
+    (resultAfter must beEqualTo(None))
+}
+<<< 8.28
+object a {
+  val b = qual1 op1 { 1 + 2 + 3 + 4 + 5 } op2
+    111 * 222 * 333 * 444 * 555 op3
+    { "1 / 2 / 3 / 4 / 5 / 6 / 7" }
+}
+>>>
+object a {
+  val b = qual1 op1 {
+    1 + 2 + 3 + 4 + 5
+  } op2
+    111 * 222 * 333 * 444 * 555 op3 {
+    "1 / 2 / 3 / 4 / 5 / 6 / 7"
+  }
+}
+<<< 8.29
+object a {
+  val a: Seq[(C, D, E[_, _, _, _], F)] =
+    (0 until c).map { x =>
+      // c1
+      x
+    }
+}
+>>>
+object a {
+  val a: Seq[(C, D, E[_, _, _, _], F)] =
+    (0 until c).map { x =>
+      // c1
+      x
+    }
+}
