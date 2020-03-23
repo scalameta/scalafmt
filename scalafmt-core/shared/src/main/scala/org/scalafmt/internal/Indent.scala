@@ -10,6 +10,9 @@ object ExpiresOn {
   case object After extends ExpiresOn
 
   case object Before extends ExpiresOn
+
+  @inline
+  def beforeIf(flag: Boolean) = if (flag) Before else After
 }
 
 sealed abstract class Length
