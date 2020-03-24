@@ -36,13 +36,14 @@ final case class State(
       split: Split,
       tok: FormatToken
   ): State = {
-    val nonExpiredIndents = pushes.filterNot { push =>
-      val expireToken: Token =
-        if (push.expiresAt == ExpiresOn.After) tok.left else tok.right
-      push.expire.end <= expireToken.end
-    }
     val newIndents: Vector[Indent[Num]] =
-      nonExpiredIndents ++ split.indents.map(_.withNum(column, indentation))
+      if (tok.right.is[Token.EOF]) Vector.empty
+      else
+        pushes.filterNot { push =>
+          val expireToken: Token =
+            if (push.expiresAt == ExpiresOn.After) tok.left else tok.right
+          push.expire.end <= expireToken.end
+        } ++ split.indents.map(_.withNum(column, indentation))
     val newIndent = newIndents.foldLeft(0)(_ + _.length.n)
 
     val tokRightSyntax = tok.right.syntax
