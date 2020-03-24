@@ -301,7 +301,8 @@ class Router(formatOps: FormatOps) {
           getSpaceAndNewlineAfterCurlyLambda(newlines)
         val spaceSplit =
           if (canBeSpace) Split(Space, 0)
-          else if (afterCurlySpace && style.activeForEdition_2020_01)
+          else if (afterCurlySpace && style.activeForEdition_2020_01 &&
+            (!rightOwner.is[Defn] || style.newlines.sourceIs(Newlines.fold)))
             Split(Space, 0)
               .withPolicy(
                 SingleLineBlock(
