@@ -193,7 +193,9 @@ object a {
 }
 >>>
 object a {
-  childContext.onDone { _ => val _ = self.withChildren(_.remove(childContext)) }
+  childContext.onDone { _ =>
+    val _ = self.withChildren(_.remove(childContext))
+  }
 }
 <<< #1756 def within lambda
 object a {
@@ -203,7 +205,9 @@ object a {
 }
 >>>
 object a {
-  childContext.onDone { _ => def a = self.withChildren(_.remove(childContext)) }
+  childContext.onDone { _ =>
+    def a = self.withChildren(_.remove(childContext))
+  }
 }
 <<< #1756 type within lambda
 object a {
@@ -213,7 +217,9 @@ object a {
 }
 >>>
 object a {
-  childContext.onDone { _ => type a = Int }
+  childContext.onDone { _ =>
+    type a = Int
+  }
 }
 <<< #1756 val without lambda
 object a {
