@@ -420,18 +420,14 @@ danglingParentheses.defnSite
 ```scala mdoc:scalafmt
 danglingParentheses.defnSite = true
 danglingParentheses.callSite = false
+maxColumn=25
 ---
 object a {
   // defnSite
-  def method(
-    a: Int,
-    b: String): Boolean
+  def method(a: Int, b: String): Boolean
 
   // callSite
-  method(
-    a,
-    b
-  )
+  method(argument1, argument2)
 }
 ```
 
@@ -442,18 +438,14 @@ danglingParentheses.callSite
 ```scala mdoc:scalafmt
 danglingParentheses.defnSite = false
 danglingParentheses.callSite = true
+maxColumn=25
 ---
 object a {
   // defnSite
-  def method(
-    a: Int,
-    b: String
-  ): Boolean
+  def method(a: Int, b: String): Boolean
 
   // callSite
-  method(
-    a,
-    b)
+  method(argument1, argument2)
 }
 ```
 
