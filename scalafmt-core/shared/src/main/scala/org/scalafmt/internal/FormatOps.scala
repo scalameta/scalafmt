@@ -312,12 +312,13 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   }
 
   def parensRange(token: Token): Option[Range] =
-    matchingOpt(token).map { other =>
-      if (token.start < other.end)
-        Range(token.start, other.end)
-      else
-        Range(other.start, token.end)
-    }
+    matchingOpt(token).map(matchingParensRange(token, _))
+
+  def matchingParensRange(token: Token, other: Token): Range =
+    if (token.start < other.end)
+      Range(token.start, other.end)
+    else
+      Range(other.start, token.end)
 
   def getExcludeIf(
       end: Token,
@@ -331,43 +332,45 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   def insideBlockRanges[A](start: FormatToken, end: Token)(
       implicit classifier: Classifier[Token, A]
   ): Set[Range] =
-    insideBlockRanges(start, end, classifier.apply)
+    insideBlockRanges(start, end, classifyOnRight(classifier))
 
   def insideBlockRanges(
       start: FormatToken,
       end: Token,
-      matches: Token => Boolean
+      matches: FormatToken => Boolean
   ): Set[Range] =
-    insideBlock(start, end, matches).flatMap(parensRange)
+    insideBlock(start, end, matches).map((matchingParensRange _).tupled).toSet
 
   def insideBlock[A](start: FormatToken, end: Token)(
       implicit classifier: Classifier[Token, A]
-  ): Set[Token] =
-    insideBlock(start, end, classifier.apply)
+  ): Map[Token, Token] =
+    insideBlock(start, end, classifyOnRight(classifier))
 
   def insideBlock(
       start: FormatToken,
       end: Token,
-      matches: Token => Boolean
-  ): Set[Token] = {
-    val result = Set.newBuilder[Token]
-    var prev = start
-    var curr = next(start)
+      matches: FormatToken => Boolean
+  ): Map[Token, Token] = {
+    val result = Map.newBuilder[Token, Token]
 
-    def goToMatching(): Unit = {
-      val close = matching(curr.left)
-      curr = tokens(close)
-    }
-
-    while (curr.left.start < end.start && curr != prev) {
-      if (matches(curr.left)) {
-        result += curr.left
-        goToMatching()
-      } else {
-        prev = curr
-        curr = next(curr)
+    @tailrec
+    def run(tok: FormatToken): Unit =
+      if (tok.right.start < end.start) {
+        val nextTokOpt = Option(tok).filter(matches).flatMap { tok =>
+          val open = tok.right
+          matchingOpt(open).flatMap { close =>
+            if (open.start >= close.end) None
+            else {
+              result += open -> close
+              Some(tokens(close))
+            }
+          }
+        }
+        val nextTok = nextTokOpt.getOrElse(next(tok))
+        if (nextTok ne tok) run(nextTok)
       }
-    }
+
+    run(start)
     result.result()
   }
 
