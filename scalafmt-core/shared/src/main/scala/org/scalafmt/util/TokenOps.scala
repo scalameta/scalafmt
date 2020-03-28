@@ -1,5 +1,6 @@
 package org.scalafmt.util
 
+import scala.meta.classifiers.Classifier
 import scala.meta.{Defn, Pkg, Template, Tree}
 import scala.meta.dialects.Scala211
 import scala.meta.tokens.Token
@@ -264,5 +265,8 @@ object TokenOps {
       case Newlines.fold => false
       case Newlines.unfold => true
     }
+
+  def classifyOnRight[A](cls: Classifier[Token, A])(ft: FormatToken): Boolean =
+    cls(ft.right)
 
 }
