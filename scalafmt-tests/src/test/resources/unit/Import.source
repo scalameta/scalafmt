@@ -112,6 +112,7 @@ package a.b.c
 /**
   * docstring
   */
+
 import d.e.f
 <<< docstring: line after but not before [no force]
 optIn.forceBlankLineBeforeDocstring = false
