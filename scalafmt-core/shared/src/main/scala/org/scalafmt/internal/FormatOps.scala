@@ -42,7 +42,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   implicit val dialect = initStyle.runner.dialect
   private val ownersMap = getOwners(tree)
   val tokens: FormatTokens = FormatTokens(tree.tokens, owners)
-  val statementStarts = getStatementStarts(tree)
+  private val statementStarts = getStatementStarts(tree)
   val dequeueSpots = getDequeueSpots(tree) ++ statementStarts.keys
   private val matchingParentheses: Map[TokenHash, Token] =
     getMatchingParentheses(tree.tokens)
@@ -305,11 +305,12 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     }
   }
 
-  @tailrec
-  final def startsStatement(tok: FormatToken): Boolean = {
-    statementStarts.contains(hash(tok.right)) ||
-    (tok.right.is[T.Comment] && tok.hasBreak && startsStatement(next(tok)))
-  }
+  @inline
+  final def startsStatement(tok: FormatToken): Option[Tree] =
+    startsStatement(tok.right)
+  @inline
+  final def startsStatement(token: Token): Option[Tree] =
+    statementStarts.get(hash(token))
 
   def parensRange(token: Token): Option[Range] =
     matchingOpt(token).map(matchingParensRange(token, _))

@@ -48,11 +48,6 @@ object TokenOps {
     longHash
   }
 
-  def shouldGet2xNewlines(
-      tok: FormatToken
-  )(implicit style: ScalafmtConfig): Boolean =
-    tok.hasBlankLine || blankLineBeforeDocstring(tok.left, tok.right)
-
   def blankLineBeforeDocstring(
       left: Token,
       right: Token

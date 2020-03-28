@@ -179,19 +179,17 @@ class Router(formatOps: FormatOps) {
         val nl: Modification =
           if (isSelfAnnotation)
             getModCheckIndent(formatToken, math.max(newlines, 1))
-          else NewlineT(shouldGet2xNewlines(tok))
+          else
+            NewlineT(tok.hasBlankLine || blankLineBeforeDocstring(open, right))
 
         val (lambdaExpire, lambdaArrow, lambdaIndent) =
-          statementStarts
-            .get(hash(right))
-            .collect {
-              case owner: Term.Function =>
-                val arrow = getFuncArrow(lastLambda(owner))
-                val expire =
-                  arrow.getOrElse(tokens(owner.params.last.tokens.last))
-                (expire, arrow.map(_.left), 0)
-            }
-            .getOrElse {
+          startsStatement(right) match {
+            case Some(owner: Term.Function) =>
+              val arrow = getFuncArrow(lastLambda(owner))
+              val expire =
+                arrow.getOrElse(tokens(owner.params.last.tokens.last))
+              (expire, arrow.map(_.left), 0)
+            case _ =>
               selfAnnotation match {
                 case Some(anno) =>
                   val arrow = leftOwner.tokens.find(_.is[T.RightArrow])
@@ -200,7 +198,7 @@ class Router(formatOps: FormatOps) {
                 case _ =>
                   (null, None, 0)
               }
-            }
+          }
         val lambdaPolicy =
           if (lambdaExpire == null) null
           else {
@@ -309,13 +307,13 @@ class Router(formatOps: FormatOps) {
             .withIndent(2, close, Before)
         )
       case FormatToken(arrow @ T.RightArrow(), right, _)
-          if statementStarts.contains(hash(right)) &&
+          if startsStatement(right).isDefined &&
             leftOwner.isInstanceOf[Term.Function] =>
         val endOfFunction = lastToken(
           leftOwner.asInstanceOf[Term.Function].body
         )
         val canBeSpace =
-          statementStarts(hash(right)).isInstanceOf[Term.Function]
+          startsStatement(right).get.isInstanceOf[Term.Function]
         val (afterCurlySpace, afterCurlyNewlines) =
           getSpaceAndNewlineAfterCurlyLambda(newlines)
         val spaceSplit =
@@ -448,22 +446,22 @@ class Router(formatOps: FormatOps) {
           })
         }
       // New statement
-      case tok @ FormatToken(T.Semicolon(), right, between)
-          if startsStatement(tok) && newlines == 0 =>
+      case tok @ FormatToken(T.Semicolon(), right, _)
+          if newlines == 0 && startsStatement(right).isDefined =>
         val spaceSplit =
           if (style.newlines.sourceIs(Newlines.unfold)) Split.ignored
           else {
-            val expire = statementStarts(hash(right)).tokens.last
+            val expire = startsStatement(right).get.tokens.last
             Split(Space, 0).withSingleLine(expire)
           }
         Seq(
           spaceSplit,
           // For some reason, this newline cannot cost 1.
-          Split(NewlineT(shouldGet2xNewlines(tok)), 0)
+          Split(NewlineT(isDouble = tok.hasBlankLine), 0)
         )
 
-      case tok @ FormatToken(left, right, between) if startsStatement(tok) =>
-        val newline: Modification = NewlineT(shouldGet2xNewlines(tok))
+      case tok @ FormatToken(left, right, _)
+          if startsStatement(right).isDefined =>
         val expire = rightOwner.tokens
           .find(_.is[T.Equals])
           .map { equalsToken =>
@@ -499,7 +497,7 @@ class Router(formatOps: FormatOps) {
               .onlyIf(spaceCouldBeOk)
               .withSingleLine(expire),
             // For some reason, this newline cannot cost 1.
-            Split(newline, 0)
+            Split(NewlineT(isDouble = tok.hasBlankLine), 0)
           )
         }
 
@@ -1543,8 +1541,10 @@ class Router(formatOps: FormatOps) {
         getSplitsEnumerator(tok)
 
       // Inline comment
-      case FormatToken(_, c: T.Comment, _) =>
-        Seq(Split(getMod(formatToken), 0))
+      case FormatToken(left, c: T.Comment, _) =>
+        val firstDocstring = blankLineBeforeDocstring(left, c)
+        val mod = if (firstDocstring) Newline2x else getMod(formatToken)
+        Seq(Split(mod, 0))
       // Commented out code should stay to the left
       case FormatToken(c: T.Comment, _, _) if isSingleLineComment(c) =>
         Seq(Split(Newline, 0))
