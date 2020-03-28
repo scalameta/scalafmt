@@ -10,6 +10,7 @@ import scala.meta._
 import scala.meta.tokens.Token.LeftBrace
 import scala.meta.tokens.Token.RightBrace
 
+import org.scalafmt.util.InfixApp
 import org.scalafmt.util.TreeOps._
 
 object RedundantBraces extends Rewrite {
@@ -169,19 +170,36 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
       val close = b.tokens.last
       if (close.is[RightBrace] && check(b)) {
         implicit val builder = Seq.newBuilder[TokenPatch]
-        val ok =
-          if (b.parent.exists(_.is[Term.ApplyInfix])) {
+        val ok = b.parent match {
+          case Some(InfixApp(_)) =>
             /* for infix, we will preserve the block unless the closing brace
              * follows a non-whitespace character on the same line as we don't
              * break lines around infix expressions.
              * we shouldn't join with the previous line (which might also end
              * in a comment), and if we keep the break before the right brace
              * we are removing, that will likely invalidate the expression. */
-            !ctx.onlyWhitespaceBefore(close)
-          } else {
+            val canRemove: ((Token, Option[Token.LF])) => Boolean =
+              if (!ctx.style.newlines.formatInfix) {
+                case (_, lfOpt) => lfOpt.isEmpty
+              }
+              else {
+                case (nonWs, lfOpt) =>
+                  if (nonWs.is[Token.Comment]) lfOpt.isEmpty
+                  else {
+                    lfOpt.foreach(builder += TokenPatch.Remove(_))
+                    true
+                  }
+              }
+            Seq(
+              // ensure can remove opening brace
+              ctx.tokenTraverser.findAfter(open) _,
+              // ensure can remove closing brace
+              ctx.tokenTraverser.findBefore(close) _
+            ).forall(ctx.findNonWhitespaceWith(_).exists(canRemove))
+          case _ =>
             ctx.removeLFToAvoidEmptyLine(close)
             true
-          }
+        }
         if (ok) {
           builder += TokenPatch.Remove(open)
           builder += TokenPatch.Remove(close)

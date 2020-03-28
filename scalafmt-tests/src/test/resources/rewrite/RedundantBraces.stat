@@ -1,6 +1,7 @@
 rewrite.rules = [RedundantBraces]
 rewrite.redundantBraces.maxLines = 1
 rewrite.redundantBraces.generalExpressions = true
+newlines.afterInfix = some
 <<< basic
 object a {
   def x(i: Int): Int = {
@@ -321,6 +322,8 @@ object a {
   b.c(d => e => { f; g })
 }
 <<< #1027 2.1: parens to braces no
+newlines.afterInfix = keep
+===
 object a {
   b.c (d =>
     e
@@ -607,9 +610,7 @@ object a {
 }
 >>>
 object a {
-  1 + {
-    2
-  } + 3
+  1 + 2 + 3
 }
 <<< #1633 4.2: infix with literal and no break before
 object a {
@@ -618,8 +619,7 @@ object a {
 }
 >>>
 object a {
-  1 +
-    2 + 3
+  1 + 2 + 3
 }
 <<< #1633 4.3: infix with literal and comment
 object a {

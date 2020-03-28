@@ -52,6 +52,20 @@ case class RewriteCtx(
   def onlyWhitespaceBefore(token: Token): Boolean =
     tokenTraverser.findBefore(token)(RewriteCtx.isLFSkipWhitespace).isDefined
 
+  def findNonWhitespaceWith(
+      f: (Token => Option[Boolean]) => Option[Token]
+  ): Option[(Token, Option[LF])] = {
+    var lf: Option[LF] = None
+    val nonWs = f {
+      case t: LF =>
+        if (lf.nonEmpty) Some(false)
+        else { lf = Some(t); None }
+      case Whitespace() => None
+      case _ => Some(true)
+    }
+    nonWs.map((_, lf))
+  }
+
   def getPatchToAvoidEmptyLine(token: Token): Option[TokenPatch] =
     if (!onlyWhitespaceBefore(token)) None
     else
