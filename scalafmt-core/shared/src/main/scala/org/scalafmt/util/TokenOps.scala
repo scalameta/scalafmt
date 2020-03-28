@@ -53,16 +53,21 @@ object TokenOps {
   def shouldGet2xNewlines(
       tok: FormatToken
   )(implicit style: ScalafmtConfig): Boolean =
-    !forceDocstringBlankLine(tok.left, style) && {
-      tok.hasBlankLine ||
-      (forceDocstringBlankLine(tok.right, style) && !tok.left.is[Comment])
-    }
+    tok.hasBlankLine || blankLineBeforeDocstring(tok.left, tok.right)
 
-  def forceDocstringBlankLine(token: Token, style: ScalafmtConfig): Boolean = {
+  def blankLineBeforeDocstring(
+      left: Token,
+      right: Token
+  )(implicit style: ScalafmtConfig): Boolean =
+    right.is[Token.Comment] &&
+      blankLineBeforeDocstring(left, right.asInstanceOf[Token.Comment])
+
+  def blankLineBeforeDocstring(
+      left: Token,
+      right: Token.Comment
+  )(implicit style: ScalafmtConfig): Boolean =
     style.optIn.forceNewlineBeforeDocstringSummary &&
-    token.is[Comment] &&
-    token.syntax.startsWith("/**")
-  }
+      !left.is[Token.Comment] && right.syntax.startsWith("/**")
 
   def lastToken(tree: Tree): Token = {
     // 2.13 has findLast
