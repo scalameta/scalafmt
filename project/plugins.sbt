@@ -14,6 +14,6 @@ addSbtPlugin(
 addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.14.10")
 addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.3.7")
 addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.0.0")
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.0.0")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.0.1")
 addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "0.6.4")
 addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.6.1")
