@@ -168,7 +168,7 @@ lazy val cli = project
       "com.martiansoftware" % "nailgun-server" % "0.9.1",
       "com.github.scopt" %% "scopt" % "3.7.1",
       // undeclared transitive dependency of coursier-small
-      "org.scala-lang.modules" %% "scala-xml" % "1.2.0"
+      "org.scala-lang.modules" %% "scala-xml" % "1.3.0"
     ),
     libraryDependencies ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
@@ -212,7 +212,7 @@ lazy val tests = project
     libraryDependencies ++= Seq(
       // Test dependencies
       CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, 13)) => "com.lihaoyi" %% "scalatags" % "0.8.5"
+        case Some((2, 13)) => "com.lihaoyi" %% "scalatags" % "0.8.6"
         case _ => "com.lihaoyi" %% "scalatags" % "0.6.8"
       },
       "org.typelevel" %% "paiges-core" % "0.3.0",
