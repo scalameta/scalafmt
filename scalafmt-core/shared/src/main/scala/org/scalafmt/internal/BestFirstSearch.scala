@@ -10,7 +10,6 @@ import org.scalafmt.config.FormatEvent.Enqueue
 import org.scalafmt.config.FormatEvent.Explored
 import org.scalafmt.config.FormatEvent.VisitToken
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.internal.ExpiresOn
 import org.scalafmt.internal.Length.Num
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.TokenOps
@@ -156,7 +155,7 @@ private class BestFirstSearch private (
           throw SearchStateExploded(
             deepestYet,
             formatWriter.mkString(deepestYet),
-            tokens(deepestYet.depth).left
+            tokens(deepestYet.depth)
           )
 
         val style = styleMap.at(splitToken)
@@ -181,7 +180,7 @@ private class BestFirstSearch private (
           throw SearchStateExploded(
             deepestYet,
             formatWriter.mkString(deepestYet),
-            tokens(deepestYet.depth).left
+            splitToken
           )
         } else {
           val actualSplit = getActiveSplits(curr, maxCost)

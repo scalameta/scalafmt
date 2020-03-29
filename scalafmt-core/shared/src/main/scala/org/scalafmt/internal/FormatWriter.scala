@@ -3,7 +3,7 @@ package org.scalafmt.internal
 import java.util.regex.Pattern
 
 import org.scalafmt.rewrite.RedundantBraces
-import org.scalafmt.util.TokenOps.TokenHash
+import org.scalafmt.util.TokenOps._
 import org.scalafmt.util.TreeOps
 
 import scala.annotation.tailrec
@@ -25,7 +25,7 @@ class FormatWriter(formatOps: FormatOps) {
 
   def mkString(state: State): String = {
     val sb = new StringBuilder()
-    val locations = getFormatLocations(state, debug = false)
+    val locations = getFormatLocations(state)
 
     locations.iterate.foreach { entry =>
       val location = entry.curr
@@ -134,29 +134,20 @@ class FormatWriter(formatOps: FormatOps) {
     }
   }
 
-  import org.scalafmt.util.LoggerOps._
-  import org.scalafmt.util.TokenOps._
-
-  def getFormatLocations(
-      state: State,
-      debug: Boolean
-  ): FormatLocations = {
+  def getFormatLocations(state: State): FormatLocations = {
     val toks = formatOps.tokens.arr
     require(toks.length >= state.depth, "splits !=")
     val result = new Array[FormatLocation](state.depth)
-    var curState = state
-    while (curState.depth != 0) {
-      val idx = curState.depth - 1
-      val tok = toks(idx)
-      result(idx) = FormatLocation(tok, curState)
-      curState = curState.prev
-      if (debug && toks.length < 1000) {
-        val left = cleanup(tok.left).slice(0, 15)
-        logger.debug(
-          f"$left%-15s ${curState.split} ${curState.indentation} ${curState.column}"
-        )
+
+    @tailrec
+    def iter(state: State): Unit =
+      if (state.depth != 0) {
+        val prev = state.prev
+        val idx = prev.depth
+        result(idx) = FormatLocation(toks(idx), state)
+        iter(prev)
       }
-    }
+    iter(state)
 
     if (initStyle.rewrite.redundantBraces.parensForOneLineApply
         .getOrElse(initStyle.activeForEdition_2020_01) &&
