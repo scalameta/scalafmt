@@ -1,5 +1,6 @@
 package org.scalafmt
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 
 import java.util.concurrent.TimeUnit
@@ -63,6 +64,36 @@ class Debug(val verbose: Boolean) {
         }
       LoggerOps.logger.debug(sb.toString())
     }
+
+    val toks = if (null == formatOps) null else formatOps.tokens.arr
+    if (null != toks) {
+      if (null != formatTokenExplored)
+        formatTokenExplored.zipWithIndex.sortBy(-_._1).take(3).foreach {
+          case (visits, idx) =>
+            LoggerOps.logger.debug("Visited " + toks(idx) + ": " + visits)
+        }
+
+      val stack = new mutable.ListBuffer[String]
+      val posWidth = s"%${1 + math.log10(toks.last.left.end).toInt}d"
+      @tailrec
+      def iter(state: State): Unit =
+        if (state.prev ne State.start) {
+          val prev = state.prev
+          val tok = toks(prev.depth).left
+          val clean = LoggerOps.cleanup(tok).slice(0, 15).formatted("%-15s")
+          stack.prepend(
+            s"${tok.end.formatted(posWidth)}: $clean" +
+              s" ${state.split} ${prev.indentation} ${prev.column} [${prev.cost}]"
+          )
+          iter(prev)
+        }
+      if (state ne State.start) {
+        iter(state)
+        stack.foreach(LoggerOps.logger.debug)
+      }
+    }
+
+    LoggerOps.logger.debug(s"Total cost: ${state.cost}")
   }
 
 }

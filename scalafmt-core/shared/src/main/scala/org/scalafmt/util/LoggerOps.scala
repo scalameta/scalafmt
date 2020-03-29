@@ -33,8 +33,7 @@ object LoggerOps {
        |${log(formatToken.between: _*)}
        |${log(formatToken.right)}""".stripMargin
 
-  def log2(formatToken: FormatToken): String =
-    s"${formatToken.left}∙${formatToken.right}"
+  def log2(formatToken: FormatToken): String = formatToken.toString
 
   def escape(raw: String): String = {
     raw
@@ -51,7 +50,7 @@ object LoggerOps {
   def log(tokens: Tokens): String = tokens.map(log).mkString("\n")
 
   def log(token: Token): String =
-    f"${cleanup(token).slice(0, 30)}%-30s ${getTokenClass(token)}"
+    f"[${token.end}]${cleanup(token).slice(0, 30)}%-30s ${getTokenClass(token)}"
 
   private def getTokenClass(token: Token) =
     token.getClass.getName.stripPrefix("scala.meta.tokens.Token$")

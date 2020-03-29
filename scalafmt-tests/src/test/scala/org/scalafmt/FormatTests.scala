@@ -69,14 +69,15 @@ class FormatTests
         t.style.runner.dialect
       )
     }
+    val debug2 = new Debug(onlyOne)
     val formattedAgain = Scalafmt
       .formatCode(
         obtained,
-        t.style.copy(runner = scalafmtRunner(runner, new Debug(false))),
+        t.style.copy(runner = scalafmtRunner(runner, debug2)),
         filename = loc.filePathname
       )
       .get
-//          getFormatOutput(t.style, true) // uncomment to debug
+    debug2.printTest()
     assertNoDiff(formattedAgain, obtained, "Idempotency violated")
     if (!onlyManual) {
       assertNoDiff(obtained, t.expected)
