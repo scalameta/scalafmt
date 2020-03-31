@@ -6,9 +6,31 @@ stages:
 
 jobs:
   include:
-    - stage: release
+    - name: "sbt release"
+      stage: release
       jdk: openjdk8
       script: sbt ci-release docs/docusaurusPublishGhpages
+    - name: "dockerize"
+      stage: release
+      services:
+        - docker
+      script:
+      # Extract the d.d.d version from .scalafmt.conf
+      - SCALAFMT_VERSION="$(grep '^version=' .scalafmt.conf | cut -d '=' -f 2 | tr -s '[:blank:]')"
+      # Log in to Docker Hub via user/pass environment variables
+      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      - cd docker/ || exit 1
+      # Build + push both 'latest' and version tags
+      - >
+        docker build
+        --no-cache
+        --build-arg SCALAFMT_VERSION="$SCALAFMT_VERSION"
+        --progress=plain
+        -t "scalameta/$DOCKER_USERNAME:$version"
+        -t "scalameta/$DOCKER_USERNAME:latest"
+        .
+      - docker push "scalameta/$DOCKER_USERNAME:$version"
+      - docker push "scalameta/$DOCKER_USERNAME:latest"
 
 cache:
   directories:
