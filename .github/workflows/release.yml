@@ -6,11 +6,11 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
-      - name: Publish ${{ github.ref }}
       - uses: actions/checkout@v2
       - uses: olafurpg/setup-scala@v7
       - uses: olafurpg/setup-gpg@v2
       - run: git fetch --unshallow
+      - name: Publish ${{ github.ref }}
         run: ./bin/docker-publish.sh
         env:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
