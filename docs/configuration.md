@@ -651,6 +651,12 @@ rewrite.redundantBraces.stringInterpolation = true
 q"Hello ${name}"
 ```
 
+```scala mdoc:scalafmt
+rewrite.rules = [RedundantBraces]
+---
+List(1, 2, 3).map { x => x + 1 }
+```
+
 Configuration options and default values:
 
 // TODO(olafur): multiline defaults
