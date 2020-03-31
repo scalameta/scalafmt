@@ -14,4 +14,4 @@ RUN set -ex \
         --main org.scalafmt.cli.Cli \
     && rm -f coursier \
     && scalafmt --version
-CMD ["/usr/local/bin/scalafmt", "-"]
+CMD ["/usr/local/bin/scalafmt"]
