@@ -240,6 +240,8 @@ object a {
   }
 }
 <<< #1027 1.1: braces to parens yes: single-stat
+newlines.source=fold
+===
 object a {
   b.c { d =>
    e }
@@ -255,7 +257,9 @@ object a {
 }
 >>>
 object a {
-  b.c { d => e; f }
+  b.c { d =>
+    e; f
+  }
 }
 <<< #1027 1.3: braces to parens no: multi-stat block
 object a {
@@ -264,7 +268,9 @@ object a {
 }
 >>>
 object a {
-  b.c { d => e; f }
+  b.c { d =>
+    e; f
+  }
 }
 <<< #1027 1.4: braces to parens no: empty body
 object a {
@@ -443,7 +449,8 @@ class Test extends AnyWordSpec {
   println
   Post("/", urlEncodedForm) ~> {
     formFields('firstName, "age".as[Int], 'sex.?, "VIP" ? false) {
-      (firstName, age, sex, vip) ⇒ complete(firstName + age + sex + vip)
+      (firstName, age, sex, vip) ⇒
+        complete(firstName + age + sex + vip)
     }
   } ~> check(responseAs[String] shouldEqual "Mike42Nonefalse")
 }
@@ -534,8 +541,11 @@ object a {
 }
 >>>
 object a {
-  val select = if (max) { (a: CTuple, b: CTuple) => (a.compareTo(b) >= 0) }
-  else { (a: CTuple, b: CTuple) => (a.compareTo(b) <= 0) }
+  val select = if (max) { (a: CTuple, b: CTuple) =>
+    (a.compareTo(b) >= 0)
+  } else { (a: CTuple, b: CTuple) =>
+    (a.compareTo(b) <= 0)
+  }
 }
 <<< #1633 2.2: function block in a val statement
 object a {
@@ -545,7 +555,9 @@ object a {
 }
 >>>
 object a {
-  val select = { (a: CTuple, b: CTuple) => (a.compareTo(b) >= 0) }
+  val select = { (a: CTuple, b: CTuple) =>
+    (a.compareTo(b) >= 0)
+  }
 }
 <<< #1633 3.1: function block in a val statement
 object a {
@@ -685,6 +697,8 @@ object a {
     3
 }
 <<< #1633 5.1: verify correct newline removal
+newlines.source=fold
+===
 object a {
   val b = c(d => {
     e } // comment1

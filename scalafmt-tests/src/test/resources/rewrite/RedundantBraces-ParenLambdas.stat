@@ -139,7 +139,9 @@ override def run(args: List[String]): IO[ExitCode] =
 override def run(args: List[String]): IO[ExitCode] =
   Slf4jLogger
     .create[IO]
-    .flatMap { implicit logger: Logger[IO] => program }
+    .flatMap { implicit logger: Logger[IO] =>
+      program
+    }
 <<< #1707 2: don't rewrite to parens if typed lambda param
 def a(b: B): C[D] =
     C[String].contramap[D] { i: D =>
@@ -147,23 +149,27 @@ def a(b: B): C[D] =
     }
 >>>
 def a(b: B): C[D] =
-  C[String].contramap[D] { i: D => b.format(i) }
-<<< #1707 3: rewrite to parens if typed lambda param with parens
+  C[String].contramap[D] { i: D =>
+    b.format(i)
+  }
+<<< #1707 3: rewrite to parens if typed lambda param with parens and source=fold
+newlines.source=fold
+===
 def a(b: B): C[D] =
     C[String].contramap[D] { (i: D) =>
       b.format(i)
     }
 >>>
-def a(b: B): C[D] =
-  C[String].contramap[D]((i: D) => b.format(i))
-<<< #1707 4: rewrite to parens if multiple params
+def a(b: B): C[D] = C[String].contramap[D]((i: D) => b.format(i))
+<<< #1707 4: rewrite to parens if multiple params and source=fold
+newlines.source=fold
+===
 def a(b: B): C[D] =
     C[String].contramap[D] { (i: D, j: Int) =>
       b.format(i)
     }
 >>>
-def a(b: B): C[D] =
-  C[String].contramap[D]((i: D, j: Int) => b.format(i))
+def a(b: B): C[D] = C[String].contramap[D]((i: D, j: Int) => b.format(i))
 <<< #1708
 danglingParentheses = false
 ===

@@ -36,7 +36,9 @@ Thing() { implicit ctx => j =>
       ???
 }
 >>>
-Thing() { implicit ctx => j => ??? }
+Thing() { implicit ctx => j =>
+  ???
+}
 <<< curried break before first
 Thing() { implicit ctx => j => kkkkkkkkkk =>
       ???
@@ -55,7 +57,8 @@ Thing() {
   implicit ctx => j =>
     kkkkkkkkkkkkkkkkkkk =>
       llllllllllll =>
-        mmmmmmmmmmmmmmmmmmm => ???
+        mmmmmmmmmmmmmmmmmmm =>
+          ???
 }
 <<< curried with ()
 Thing(implicit ctx => j =>
@@ -79,7 +82,9 @@ Thing() { implicit ctx =>
       ???
 }
 >>>
-Thing() { implicit ctx => ??? }
+Thing() { implicit ctx =>
+  ???
+}
 <<< ( arg =>
 val groupedData = Array(topic1, topic2).flatMap(
         topic =>
@@ -94,7 +99,9 @@ val x: Int => Int =  { y =>
   y + 1
 }
 >>>
-val x: Int => Int = { y => y + 1 }
+val x: Int => Int = { y =>
+  y + 1
+}
 <<< indent
 map(() => {
   x =>

@@ -67,7 +67,9 @@ val ps = params map { p =>
      JSMethodParam(p.info, p.asTerm.isParamWithDefault)
    }
 >>>
-val ps = params map { p => JSMethodParam(p.info, p.asTerm.isParamWithDefault) }
+val ps = params map { p =>
+  JSMethodParam(p.info, p.asTerm.isParamWithDefault)
+}
 <<< #269 2
 val wasBOM = if (endianness == AutoEndian) {
   // Read BOM
@@ -203,7 +205,9 @@ val myRoute = path("") {
         readFromFile(fileName)
       }
 >>>
-val vfile = options.jar map { jar => readFromJar(jar, fileName) } getOrElse {
+val vfile = options.jar map { jar =>
+  readFromJar(jar, fileName)
+} getOrElse {
   readFromFile(fileName)
 }
 <<< vfile 2
@@ -215,7 +219,9 @@ val vfile = options.jar map { jar => readFromJar(jar, fileName) } getOrElse {
       }
 >>>
 val vfile =
-  options.jar map { jar => readFromJar(jar, fileName) } getOrElse {
+  options.jar map { jar =>
+    readFromJar(jar, fileName)
+  } getOrElse {
     readFromFile(fileName)
   }
 <<< #590

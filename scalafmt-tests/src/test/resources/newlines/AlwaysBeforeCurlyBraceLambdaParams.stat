@@ -16,7 +16,8 @@ lst.map { x =>
 }
 >>>
 lst.map {
-  x => x
+  x =>
+    x
 }
 <<< apply to one-liners as well
 lst.map { x => x }
@@ -31,5 +32,6 @@ lst.map {
 }
 >>>
 lst.map {
-  x => x
+  x =>
+    x
 }

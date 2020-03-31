@@ -1,9 +1,10 @@
 package org.scalafmt.internal
 
 import java.{util => ju}
+
 import scala.collection.JavaConverters._
 import org.scalafmt.Error.UnexpectedTree
-import org.scalafmt.config.{NewlineCurlyLambda, ScalafmtConfig}
+import org.scalafmt.config.{NewlineCurlyLambda, Newlines, ScalafmtConfig}
 import org.scalafmt.internal.Length.Num
 import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util._
@@ -1080,13 +1081,19 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
   def getSpaceAndNewlineAfterCurlyLambda(
       newlines: Int
-  )(implicit style: ScalafmtConfig): (Boolean, NewlineT) =
+  )(implicit style: ScalafmtConfig): (Boolean, NewlineT) = {
+    val tryToSquashLambdaInOneLine =
+      style.newlines.sourceIs(Newlines.fold) || newlines == 0
     style.newlines.afterCurlyLambda match {
-      case NewlineCurlyLambda.never => (true, Newline)
+      case NewlineCurlyLambda.never => (tryToSquashLambdaInOneLine, Newline)
       case NewlineCurlyLambda.always => (false, Newline2x)
       case NewlineCurlyLambda.preserve =>
-        (newlines == 0, if (newlines >= 2) Newline2x else Newline)
+        (
+          tryToSquashLambdaInOneLine,
+          if (newlines >= 2) Newline2x else Newline
+        )
     }
+  }
 
   def getNoSplit(
       ft: FormatToken,
