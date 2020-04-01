@@ -1084,7 +1084,13 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   )(implicit style: ScalafmtConfig): (Boolean, NewlineT) =
     style.newlines.afterCurlyLambda match {
       case NewlineCurlyLambda.squash => (true, Newline)
-      case NewlineCurlyLambda.never => (newlines == 0, Newline)
+      case NewlineCurlyLambda.never =>
+        val space = style.newlines.source match {
+          case Newlines.fold => true
+          case Newlines.unfold => false
+          case _ => newlines == 0
+        }
+        (space, Newline)
       case NewlineCurlyLambda.always => (false, Newline2x)
       case NewlineCurlyLambda.preserve =>
         (newlines == 0, if (newlines >= 2) Newline2x else Newline)
