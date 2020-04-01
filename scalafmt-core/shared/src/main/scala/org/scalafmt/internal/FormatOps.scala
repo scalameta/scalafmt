@@ -1081,9 +1081,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
   def getSpaceAndNewlineAfterCurlyLambda(
       newlines: Int
-  )(implicit style: ScalafmtConfig): (Boolean, NewlineT) = {
-    val tryToSquashLambdaInOneLine =
-      style.newlines.sourceIs(Newlines.fold) || newlines == 0
+  )(implicit style: ScalafmtConfig): (Boolean, NewlineT) =
     style.newlines.afterCurlyLambda match {
       case NewlineCurlyLambda.squash => (true, Newline)
       case NewlineCurlyLambda.never => (newlines == 0, Newline)
@@ -1091,7 +1089,6 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       case NewlineCurlyLambda.preserve =>
         (newlines == 0, if (newlines >= 2) Newline2x else Newline)
     }
-  }
 
   def getNoSplit(
       ft: FormatToken,
