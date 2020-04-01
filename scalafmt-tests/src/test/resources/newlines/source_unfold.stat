@@ -1675,3 +1675,35 @@ for {
   else
     mean * mean / x
 }
+<<< unfold ctor body with zero args
+val foo = new Bar { () =>
+  f(42)
+}
+>>>
+val foo =
+  new Bar { () =>
+    f(42)
+  }
+<<< unfold ctor body with zero args
+val foo = new Bar { () => f(42) }
+>>>
+val foo =
+  new Bar { () =>
+    f(42)
+  }
+<<< unfold ctor body with wildcard arg
+val foo = Bar { _ =>
+  println("a")
+}
+>>>
+val foo = Bar { _ =>
+  println("a")
+}
+<<< unfold apply with zero args
+val foo = Bar { () =>
+  f(42)
+}
+>>>
+val foo = Bar { () =>
+  f(42)
+}

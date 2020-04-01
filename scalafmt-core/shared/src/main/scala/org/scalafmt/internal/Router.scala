@@ -9,6 +9,7 @@ import org.scalafmt.util._
 
 import scala.collection.mutable
 import scala.language.implicitConversions
+import scala.meta.Term.NewAnonymous
 import scala.meta.classifiers.Classifier
 import scala.meta.tokens.{Token, Tokens}
 import scala.meta.tokens.{Token => T}
@@ -251,9 +252,12 @@ class Router(formatOps: FormatOps) {
           case Newlines.keep if newlines != 0 => None
           case Newlines.unfold => None
           case Newlines.fold =>
+            val isTopLevelBlock =
+              leftOwner.parent.exists(_.parent.isEmpty) ||
+                (leftOwner.is[Template] &&
+                  !leftOwner.parent.exists(_.is[NewAnonymous]))
             // do not fold top-level blocks
-            if (leftOwner.parent.exists(_.parent.isEmpty) ||
-              leftOwner.is[Template]) None
+            if (isTopLevelBlock) None
             else if (lambdaPolicy != null) getSingleLineLambdaDecisionOpt
             else Some(getSingleLineDecisionFor2019Nov)
           // old behaviour
@@ -327,6 +331,16 @@ class Router(formatOps: FormatOps) {
         val singleLineSplit =
           Split(Space, 0)
             .notIf(hasSingleLineComment)
+            // for constructors with empty args lambda
+            // new Foo { () =>
+            //   println("wow")
+            // }
+            .notIf(
+              leftOwner.parent.exists(_.is[Template]) &&
+                leftOwner.parent.exists(_.parent.exists(_.is[NewAnonymous])) &&
+                newlines > 0 &&
+                !style.newlines.sourceIs(Newlines.fold)
+            )
             .withPolicy(SingleLineBlock(endOfFunction))
         def newlineSplit =
           Split(Newline, 1 + nestedApplies(leftOwner))
