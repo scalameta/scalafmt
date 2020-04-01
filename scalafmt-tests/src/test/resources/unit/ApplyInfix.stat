@@ -121,7 +121,9 @@ ctx.replace(
 ctx.replace(
     additionalImports =
       "" ::
-        foo.map { x => x + 1 }
+        foo.map { x =>
+          x + 1
+        }
 )
 <<< right assoc
 x ::
@@ -131,7 +133,9 @@ x ::
   z
 >>>
 x ::
-  y.map { x => x + 1 } ::
+  y.map { x =>
+    x + 1
+  } ::
   z
 <<< simple expr
 x ::

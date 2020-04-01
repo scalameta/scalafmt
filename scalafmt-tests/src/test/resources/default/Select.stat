@@ -139,7 +139,9 @@ lst.map { x =>
 >>>
 LookupJoin
   .rightSumming(TypedPipe.from(in1))
-  .map { x => x }
+  .map { x =>
+    x
+  }
   .write(TypedTsv[(String, String, String, String)]("output2"))
 <<< scalding discardTestJob
 

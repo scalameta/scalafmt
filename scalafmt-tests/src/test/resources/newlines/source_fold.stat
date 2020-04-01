@@ -1,6 +1,7 @@
 align = none
 maxColumn = 40
 newlines.source = fold
+newlines.afterCurlyLambda = squash
 runner.optimizer.forceConfigStyleOnOffset = 50
 <<< 1.1: block, if-else, line too long
 if (true) {      println(aaaaaaaaaaaaaaaaaaaaaaaaaa)}
@@ -1445,4 +1446,21 @@ for {
 } yield {
   if (z <= mean / (mean + x)) x
   else mean * mean / x
+}
+<<< #1409
+class Sample {
+  def mkFunc(): String => Boolean = {
+    if(flag) {
+      v => true
+    } else {
+      v => false
+    }
+  }
+}
+>>>
+class Sample {
+  def mkFunc(): String => Boolean = {
+    if (flag) { v => true }
+    else { v => false }
+  }
 }

@@ -11,8 +11,12 @@ includeCurlyBraceInSelectChains = true
 >>>
 def acceptParticipants =
   actions[Lottery]
-    .handleCommand { cmd: AddParticipant => ParticipantAdded(cmd.name, id) }
-    .handleEvent { evt: ParticipantAdded => this.addParticipant(evt.name) }
+    .handleCommand { cmd: AddParticipant =>
+      ParticipantAdded(cmd.name, id)
+    }
+    .handleEvent { evt: ParticipantAdded =>
+      this.addParticipant(evt.name)
+    }
 <<< .value #639
 val x = Def.taskDyn {
     println(1)

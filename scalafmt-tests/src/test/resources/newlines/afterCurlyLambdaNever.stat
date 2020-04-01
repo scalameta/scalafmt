@@ -10,7 +10,9 @@ def f = {
 }
 >>>
 def f = {
-  something.call { x => g(x) }
+  something.call { x =>
+    g(x)
+  }
 }
 
 <<< Preseve no-newline in lambda call
@@ -21,7 +23,9 @@ def f = {
 }
 >>>
 def f = {
-  something.call { x => g(x) }
+  something.call { x =>
+    g(x)
+  }
 }
 
 <<< Remove many newlines in lambda call
@@ -35,7 +39,9 @@ def f = {
 }
 >>>
 def f = {
-  something.call { x => g(x) }
+  something.call { x =>
+    g(x)
+  }
 }
 <<< #1717
 maxColumn = 100
@@ -64,7 +70,8 @@ class Bar {
           case Nil => connection.pure(Right(toResponse(campaigns, Map.empty)))
           case _ =>
             getProfileEmails(request.securityContext, profileIds).to[ConnectionIO].map {
-              profileEmails => Right(toResponse(campaigns, profileEmails))
+              profileEmails =>
+                Right(toResponse(campaigns, profileEmails))
             }
         }
       }

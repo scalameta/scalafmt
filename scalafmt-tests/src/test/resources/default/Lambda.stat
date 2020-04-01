@@ -266,7 +266,9 @@ object a {
     c.copy(commands = c.commands :+ "help")
   } children (
       arg[String]("<command>") optional ()
-        action { (x, c) => c.copy(commands = c.commands :+ x) }
+        action { (x, c) =>
+          c.copy(commands = c.commands :+ x)
+        }
   )
 }
 <<< one-line lambda: make sure multiline string is handled correctly

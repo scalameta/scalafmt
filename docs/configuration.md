@@ -529,6 +529,64 @@ else {
 }
 ```
 
+### `newlines.afterCurlyLambda`
+
+```scala mdoc:defaults
+newlines.afterCurlyLambda
+```
+
+```scala mdoc:scalafmt
+newlines.afterCurlyLambda = never
+---
+something.map { x =>
+
+
+
+  f(x)
+}
+
+something.map { x => f(x) }
+```
+
+```scala mdoc:scalafmt
+newlines.afterCurlyLambda = always
+---
+something.map { x =>
+
+
+
+  f(x)
+}
+
+something.map { x => f(x) }
+```
+
+```scala mdoc:scalafmt
+newlines.afterCurlyLambda = preserve
+---
+something.map { x =>
+
+
+
+  f(x)
+}
+
+something.map { x => f(x) }
+```
+
+```scala mdoc:scalafmt
+newlines.afterCurlyLambda = squash
+---
+something.map { x =>
+
+
+
+  f(x)
+}
+
+something.map { x => f(x) }
+```
+
 ### Newlines around `implicit` parameter list modifier
 
 #### Before
@@ -649,6 +707,28 @@ rewrite.rules = [RedundantBraces]
 rewrite.redundantBraces.stringInterpolation = true
 ---
 q"Hello ${name}"
+```
+
+```scala mdoc:scalafmt
+rewrite.rules = [RedundantBraces]
+---
+List(1, 2, 3).map { x => x + 1 }
+```
+
+Entire power of `RedundantBraces` can be accessed with `newlines.afterCurlyLambda=squash`.
+It will try to squash lambda body in one line and then replace braces with parens:
+```scala mdoc:scalafmt
+rewrite.rules = [RedundantBraces]
+newlines.afterCurlyLambda=squash
+---
+List(1, 2, 3).map { x =>
+  x + 1
+}
+
+List(1, 2, 3).map { x =>
+  println("you can't squash me!")
+  x + 1
+}
 ```
 
 Configuration options and default values:

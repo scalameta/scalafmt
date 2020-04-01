@@ -5,4 +5,6 @@ lst.map { x =>
   x + 1
 }
 >>>
-lst.map { x => x + 1 }
+lst.map { x =>
+  x + 1
+}

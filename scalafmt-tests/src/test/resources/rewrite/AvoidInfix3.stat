@@ -5,7 +5,9 @@ rewrite.rules = [AvoidInfix]
   x
 }
 >>>
-(NotQuoted ~ any.*).map { x => x }
+(NotQuoted ~ any.*).map { x =>
+  x
+}
 <<< settings
 Project("sub", file("sub")) delegateTo (root) settings (check <<= checkTask)
 >>>
