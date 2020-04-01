@@ -158,24 +158,23 @@ case class ScalafmtConfig(
     project: ProjectFiles = ProjectFiles(),
     edition: Edition = Edition.Latest
 ) {
+  val errors = new mutable.ArrayBuffer[String]
+  if (newlines.sourceIgnored) {
+    if (newlines.afterCurlyLambda == NewlineCurlyLambda.preserve)
+      errors += s"newlines.afterCurlyLambda=${newlines.afterCurlyLambda}"
+    if (optIn.configStyleArguments &&
+      (align.openParenCallSite || align.openParenDefnSite))
+      errors += "optIn.configStyleArguments with align.openParen[Call,Defn]Site"
+  }
   if (newlines.source != Newlines.classic) {
-    val errors = new mutable.ArrayBuffer[String]
-    if (newlines.source != Newlines.keep) {
-      if (newlines.afterCurlyLambda == NewlineCurlyLambda.preserve)
-        errors += s"newlines.afterCurlyLambda=${newlines.afterCurlyLambda}"
-      if (optIn.configStyleArguments && align.openParenCallSite)
-        errors += s"optIn.configStyleArguments with align.openParenCallSite"
-      if (optIn.configStyleArguments && align.openParenDefnSite)
-        errors += s"optIn.configStyleArguments with align.openParenDefnSite"
-    }
     if (optIn.breaksInsideChains)
       errors += s"optIn.breaksInsideChains=${optIn.breaksInsideChains}"
     if (!includeCurlyBraceInSelectChains)
       errors += s"includeCurlyBraceInSelectChains=${includeCurlyBraceInSelectChains}"
-    if (errors.nonEmpty) {
-      val prefix = s"newlines: can't use source=${newlines.source} and ["
-      throw new IllegalArgumentException(errors.mkString(prefix, ",", "]"))
-    }
+  }
+  if (errors.nonEmpty) {
+    val prefix = s"newlines: can't use source=${newlines.source} and ["
+    throw new ScalafmtConfigException(errors.mkString(prefix, ",", "]"))
   }
 
   private implicit val runnerReader = runner.reader
