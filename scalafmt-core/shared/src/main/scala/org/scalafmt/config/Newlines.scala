@@ -167,7 +167,8 @@ object NewlineCurlyLambda {
   case object preserve extends NewlineCurlyLambda
   case object always extends NewlineCurlyLambda
   case object never extends NewlineCurlyLambda
+  case object squash extends NewlineCurlyLambda
 
   implicit val newlineCurlyLambdaReader: ConfCodec[NewlineCurlyLambda] =
-    ReaderUtil.oneOf[NewlineCurlyLambda](preserve, always, never)
+    ReaderUtil.oneOf[NewlineCurlyLambda](preserve, always, never, squash)
 }

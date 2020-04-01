@@ -1085,13 +1085,11 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     val tryToSquashLambdaInOneLine =
       style.newlines.sourceIs(Newlines.fold) || newlines == 0
     style.newlines.afterCurlyLambda match {
-      case NewlineCurlyLambda.never => (tryToSquashLambdaInOneLine, Newline)
+      case NewlineCurlyLambda.squash => (true, Newline)
+      case NewlineCurlyLambda.never => (newlines == 0, Newline)
       case NewlineCurlyLambda.always => (false, Newline2x)
       case NewlineCurlyLambda.preserve =>
-        (
-          tryToSquashLambdaInOneLine,
-          if (newlines >= 2) Newline2x else Newline
-        )
+        (newlines == 0, if (newlines >= 2) Newline2x else Newline)
     }
   }
 

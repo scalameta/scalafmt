@@ -1,6 +1,7 @@
 align = none
 maxColumn = 40
 newlines.source = fold
+newlines.afterCurlyLambda = squash
 runner.optimizer.forceConfigStyleOnOffset = 50
 <<< 1.1: block, if-else, line too long
 if (true) {      println(aaaaaaaaaaaaaaaaaaaaaaaaaa)}

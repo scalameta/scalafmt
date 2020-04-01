@@ -168,6 +168,12 @@ case class ScalafmtConfig(
       if (optIn.configStyleArguments && align.openParenDefnSite)
         errors += s"optIn.configStyleArguments with align.openParenDefnSite"
     }
+    if (newlines.source == Newlines.fold && newlines.afterCurlyLambda != NewlineCurlyLambda.squash) {
+      errors += s"newlines.afterCurlyLambda=${newlines.afterCurlyLambda}"
+    }
+    if (newlines.source == Newlines.unfold && newlines.afterCurlyLambda == NewlineCurlyLambda.squash) {
+      errors += s"newlines.afterCurlyLambda=${newlines.afterCurlyLambda}"
+    }
     if (optIn.breaksInsideChains)
       errors += s"optIn.breaksInsideChains=${optIn.breaksInsideChains}"
     if (!includeCurlyBraceInSelectChains)

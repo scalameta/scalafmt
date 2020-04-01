@@ -240,7 +240,7 @@ object a {
   }
 }
 <<< #1027 1.1: braces to parens yes: single-stat
-newlines.source=fold
+newlines.afterCurlyLambda=squash
 ===
 object a {
   b.c { d =>
@@ -697,7 +697,7 @@ object a {
     3
 }
 <<< #1633 5.1: verify correct newline removal
-newlines.source=fold
+newlines.afterCurlyLambda=squash
 ===
 object a {
   val b = c(d => {
