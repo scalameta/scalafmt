@@ -55,6 +55,18 @@ import metaconfig.generic.Surface
   *   If `always`, it will always add one empty line (opposite of `never`).
   *   If `preserve`, and there isn't an empty line, it will keep it as it is.
   *   If there is one or more empty lines, it will place a single empty line.
+  *
+  *   If `squash`, it will try to squash lambda body in one line:
+  *
+  *   {{{
+  *     xs.map { x =>
+  *       x + 1
+  *     }
+  *   }}}
+  *   will become
+  *   {{{
+  *     xs.map { x => x + 1 }
+  *   }}}
   * @param alwaysBeforeElseAfterCurlyIf if true, add a new line between the end of a curly if and the following else.
   *   For example
   *   if(someCond) {
