@@ -1,0 +1,50 @@
+newlines.afterCurlyLambda = squash
+
+<<< squash newline in lambda call
+def f = {
+  something.call { x =>
+
+    g(x)
+  }
+}
+>>>
+def f = {
+  something.call { x => g(x) }
+}
+
+<<< squash no newline in lambda call
+def f = {
+  something.call { x =>    g(x)
+  }
+}
+>>>
+def f = {
+  something.call { x => g(x) }
+}
+<<< squash no empty line in lambda call
+def f = {
+  something.call { x =>
+    g(x)
+  }
+}
+>>>
+def f = {
+  something.call { x => g(x) }
+}
+
+<<< don't touch constructors with zero args lambda
+val foo = new Bar { () =>
+  println("hello")
+}
+>>>
+val foo = new Bar { () =>
+  println("hello")
+}
+<<< don't touch constructors with wildcard arg lambda
+val foo = new Bar { _ =>
+  println("hello")
+}
+>>>
+val foo = new Bar { _ =>
+  println("hello")
+}
