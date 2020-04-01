@@ -132,7 +132,7 @@ if (fullInfo)
     .flatMap(_.toSeq)
     .map(_._1)
     .toSet
-<<< #1409 yes, it's ugly, but consistent with Scala grammar: {}
+<<< #1409 yes, it's ugly, but consistent with Scala grammar: {} owns by lambda body
 class Sample {
   def mkFunc(flag: Boolean): String => Boolean = {
     if(flag) {
