@@ -96,4 +96,36 @@ import org.{
   K,
   L
 }
+<<< docstring: line after but not before [force]
+optIn.forceBlankLineBeforeDocstring = true
+optIn.blankLineBeforeDocstring = false
+===
+package a.b.c
+/**
+ * docstring
+ */
 
+import d.e.f
+>>>
+package a.b.c
+
+/**
+  * docstring
+  */
+import d.e.f
+<<< docstring: line after but not before [no force]
+optIn.forceBlankLineBeforeDocstring = false
+===
+package a.b.c
+/**
+ * docstring
+ */
+
+import d.e.f
+>>>
+package a.b.c
+/**
+  * docstring
+  */
+
+import d.e.f
