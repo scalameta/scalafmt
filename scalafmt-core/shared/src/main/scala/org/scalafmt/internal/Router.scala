@@ -9,7 +9,6 @@ import org.scalafmt.util._
 
 import scala.collection.mutable
 import scala.language.implicitConversions
-import scala.meta.Term.NewAnonymous
 import scala.meta.classifiers.Classifier
 import scala.meta.tokens.{Token, Tokens}
 import scala.meta.tokens.{Token => T}
@@ -255,7 +254,7 @@ class Router(formatOps: FormatOps) {
             val isTopLevelBlock =
               leftOwner.parent.exists(_.parent.isEmpty) ||
                 (leftOwner.is[Template] &&
-                  !leftOwner.parent.exists(_.is[NewAnonymous]))
+                  !leftOwner.parent.exists(_.is[Term.NewAnonymous]))
             // do not fold top-level blocks
             if (isTopLevelBlock) None
             else if (lambdaPolicy != null) getSingleLineLambdaDecisionOpt
@@ -337,7 +336,8 @@ class Router(formatOps: FormatOps) {
             // }
             .notIf(
               leftOwner.parent.exists(_.is[Template]) &&
-                leftOwner.parent.exists(_.parent.exists(_.is[NewAnonymous])) &&
+                leftOwner.parent
+                  .exists(_.parent.exists(_.is[Term.NewAnonymous])) &&
                 newlines > 0 &&
                 !style.newlines.sourceIs(Newlines.fold)
             )
