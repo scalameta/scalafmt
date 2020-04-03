@@ -1475,11 +1475,11 @@ val foo = new Bar { () => f(42) }
 >>>
 val foo = new Bar { () => f(42) }
 <<< fold ctor body with wildcard arg
-val foo = Bar { _ =>
+val foo = new Bar { _ =>
   println("a")
 }
 >>>
-val foo = Bar { _ => println("a") }
+val foo = new Bar { _ => println("a") }
 <<< fold apply with zero args
 val foo = Bar { () =>
   f(42)

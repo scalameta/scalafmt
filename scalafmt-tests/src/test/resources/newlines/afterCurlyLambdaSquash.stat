@@ -32,19 +32,3 @@ def f = {
   something.call { x => g(x) }
 }
 
-<<< don't touch constructors with zero args lambda
-val foo = new Bar { () =>
-  println("hello")
-}
->>>
-val foo = new Bar { () =>
-  println("hello")
-}
-<<< don't touch constructors with wildcard arg lambda
-val foo = new Bar { _ =>
-  println("hello")
-}
->>>
-val foo = new Bar { _ =>
-  println("hello")
-}

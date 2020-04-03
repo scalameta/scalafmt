@@ -1,7 +1,12 @@
 package org.scalafmt.internal
 
 import org.scalafmt.Error.UnexpectedTree
-import org.scalafmt.config.{ImportSelectors, Newlines, ScalafmtConfig}
+import org.scalafmt.config.{
+  ImportSelectors,
+  NewlineCurlyLambda,
+  Newlines,
+  ScalafmtConfig
+}
 import org.scalafmt.internal.ExpiresOn.{After, Before}
 import org.scalafmt.internal.Length.{Num, StateColumn}
 import org.scalafmt.internal.Policy.NoPolicy
@@ -252,9 +257,12 @@ class Router(formatOps: FormatOps) {
           case Newlines.unfold => None
           case Newlines.fold =>
             val isTopLevelBlock =
-              leftOwner.parent.exists(_.parent.isEmpty) ||
-                (leftOwner.is[Template] &&
-                  !leftOwner.parent.exists(_.is[Term.NewAnonymous]))
+              leftOwner.parent.exists(_.parent.isEmpty) || (leftOwner match {
+                case t: Template =>
+                  !leftOwner.parent.exists(_.is[Term.NewAnonymous])
+                case _ => false
+              })
+
             // do not fold top-level blocks
             if (isTopLevelBlock) None
             else if (lambdaPolicy != null) getSingleLineLambdaDecisionOpt
@@ -320,27 +328,41 @@ class Router(formatOps: FormatOps) {
         )
 
       case FormatToken(T.RightArrow(), right, _)
-          if leftOwner.is[Term.Function] =>
-        val lambda = leftOwner.asInstanceOf[Term.Function]
-        val (endOfFunction, expiresOn) = functionExpire(lambda)
+          if leftOwner.is[Term.Function] ||
+            (leftOwner.is[Template] &&
+              leftOwner.parent.exists(_.is[Term.NewAnonymous])) =>
+        val (endOfFunction, expiresOn) = leftOwner match {
+          case t: Term.Function => functionExpire(t)
+          case t => lastToken(t) -> ExpiresOn.Before
+        }
+
         val hasSingleLineComment = isSingleLineComment(right)
         val indent = // don't indent if the body is empty `{ x => }`
           if (isEmptyFunctionBody(leftOwner) && !right.is[T.Comment]) 0
+          else if (leftOwner.is[Template]) 0 // { applied the indent
           else 2
+
+        def noSingleLine = {
+          // for constructors with empty args lambda
+          // new Foo { () =>
+          //   println("wow")
+          // }
+          val isCurlyLambda =
+            leftOwner.is[Template] || leftOwner.parent.exists(_.is[Template])
+
+          def noSquash =
+            style.newlines.afterCurlyLambda != NewlineCurlyLambda.squash
+
+          isCurlyLambda && (style.newlines.source match {
+            case Newlines.fold => false
+            case Newlines.unfold => noSquash
+            case Newlines.keep => newlines != 0
+            case Newlines.classic => newlines != 0 && noSquash
+          })
+        }
         val singleLineSplit =
           Split(Space, 0)
-            .notIf(hasSingleLineComment)
-            // for constructors with empty args lambda
-            // new Foo { () =>
-            //   println("wow")
-            // }
-            .notIf(
-              leftOwner.parent.exists(_.is[Template]) &&
-                leftOwner.parent
-                  .exists(_.parent.exists(_.is[Term.NewAnonymous])) &&
-                newlines > 0 &&
-                !style.newlines.sourceIs(Newlines.fold)
-            )
+            .notIf(hasSingleLineComment || noSingleLine)
             .withPolicy(SingleLineBlock(endOfFunction))
         def newlineSplit =
           Split(Newline, 1 + nestedApplies(leftOwner))
