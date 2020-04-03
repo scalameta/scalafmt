@@ -1,0 +1,119 @@
+maxColumn=80
+<<< should not throw SearchStateExploded
+object a {
+@tailrec
+  final def rhsOptimalToken(start: FormatToken): Token = start.right match {
+      case T.Comma() | T.LeftParen() | T.RightParen() | T.RightBracket() |
+          T.Semicolon() | T.RightArrow() | T.Equals()
+          if next(start) != start &&
+            !startsNewBlock(start.right) &&
+            newlinesBetween(start.between) == 0 =>
+        rhsOptimalToken(next(start))
+      case _ => start.left
+    }
+}
+>>>
+object a {
+  @tailrec
+  final def rhsOptimalToken(start: FormatToken): Token =
+    start.right match {
+      case T.Comma() | T.LeftParen() | T.RightParen() | T.RightBracket() |
+          T.Semicolon() | T.RightArrow() | T.Equals()
+          if next(start) != start &&
+            !startsNewBlock(start.right) &&
+            newlinesBetween(start.between) == 0 =>
+        rhsOptimalToken(next(start))
+      case _ => start.left
+    }
+}
+<<< scala-native
+def genCQuoteOp(app: Apply): Val = {
+  app match {
+    // Sometimes I really miss quasiquotes.
+    //
+    // case q"""
+    //   scala.scalanative.unsafe.`package`.CQuote(
+    //     new StringContext(scala.this.Predef.wrapRefArray(
+    //       Array[String]{${str: String}}.$asInstanceOf[Array[Object]]()
+    //     ))
+    //   ).c()
+    // """ =>
+    case Apply(
+        Select(
+        Apply(
+        _,
+        List(
+        Apply(_,
+              List(
+              Apply(_,
+                    List(
+                    Apply(TypeApply(
+                          Select(ArrayValue(
+                                 _, List(Literal(Constant(str: String)))),
+                                 _),
+                          _),
+                          _))))))),
+        _),
+        _) =>
+      val chars = Val.Chars(str.replace("\\n", "\n").replace("\\r", "\r"))
+      val const = Val.Const(chars)
+      buf.box(nir.Rt.BoxedPtr, const, unwind)
+
+    case _ =>
+      unsupported(app)
+  }
+}
+>>>
+def genCQuoteOp(app: Apply): Val = {
+  app match {
+    // Sometimes I really miss quasiquotes.
+    //
+    // case q"""
+    //   scala.scalanative.unsafe.`package`.CQuote(
+    //     new StringContext(scala.this.Predef.wrapRefArray(
+    //       Array[String]{${str: String}}.$asInstanceOf[Array[Object]]()
+    //     ))
+    //   ).c()
+    // """ =>
+    case Apply(
+          Select(
+            Apply(
+              _,
+              List(
+                Apply(
+                  _,
+                  List(
+                    Apply(
+                      _,
+                      List(
+                        Apply(
+                          TypeApply(
+                            Select(
+                              ArrayValue(
+                                _,
+                                List(Literal(Constant(str: String)))
+                              ),
+                              _
+                            ),
+                            _
+                          ),
+                          _
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            ),
+            _
+          ),
+          _
+        ) =>
+      val chars = Val.Chars(str.replace("\\n", "\n").replace("\\r", "\r"))
+      val const = Val.Const(chars)
+      buf.box(nir.Rt.BoxedPtr, const, unwind)
+
+    case _ =>
+      unsupported(app)
+  }
+}
