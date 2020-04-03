@@ -13,3 +13,33 @@ class MyComponent @Inject() (ctx: Context)(ws: WSClient)
 new ShardEntity(rts) (onMessage)
 >>>
 new ShardEntity(rts)(onMessage)
+<<< preserve ctor lambda with zero args
+val foo = new Bar { () =>
+  println("a")
+}
+>>>
+val foo = new Bar { () =>
+  println("a")
+}
+<<< preserve ctor lambda with wildcard arg
+val foo = new Bar { _ =>
+  println("a")
+}
+>>>
+val foo = new Bar { _ =>
+  println("a")
+}
+<<< preserve ctor one line lambda with zero args
+val foo = new Bar { () => println("a") }
+>>>
+val foo = new Bar { () => println("a") }
+<<< preserve ctor lambda with zero args and parens
+val foo = new Bar ( () => println("a") )
+>>>
+val foo = new Bar(() => println("a"))
+<<< squash ctor lambda with zero args and parens
+val foo = new Bar(() =>
+  println("a")
+)
+>>>
+val foo = new Bar(() => println("a"))

@@ -1534,3 +1534,31 @@ for {
   else
     mean * mean / x
 }
+<<< keep ctor body with zero args
+val foo = new Bar { () =>
+  f(42)
+}
+>>>
+val foo = new Bar { () =>
+  f(42)
+}
+<<< keep ctor body with zero args
+val foo = new Bar { () => f(42) }
+>>>
+val foo = new Bar { () => f(42) }
+<<< keep ctor body with wildcard arg
+val foo = Bar { _ =>
+  println("a")
+}
+>>>
+val foo = Bar { _ =>
+  println("a")
+}
+<<< keep apply with zero args
+val foo = Bar { () =>
+  f(42)
+}
+>>>
+val foo = Bar { () =>
+  f(42)
+}

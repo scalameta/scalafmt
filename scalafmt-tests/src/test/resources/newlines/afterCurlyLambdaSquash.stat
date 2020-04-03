@@ -1,0 +1,34 @@
+newlines.afterCurlyLambda = squash
+
+<<< squash newline in lambda call
+def f = {
+  something.call { x =>
+
+    g(x)
+  }
+}
+>>>
+def f = {
+  something.call { x => g(x) }
+}
+
+<<< squash no newline in lambda call
+def f = {
+  something.call { x =>    g(x)
+  }
+}
+>>>
+def f = {
+  something.call { x => g(x) }
+}
+<<< squash no empty line in lambda call
+def f = {
+  something.call { x =>
+    g(x)
+  }
+}
+>>>
+def f = {
+  something.call { x => g(x) }
+}
+

@@ -78,3 +78,27 @@ class Bar {
       .transact(managerTransactor)
   }
 }
+<<< constructors with args lambda
+val foo = new Bar { (a, b) =>
+  println("hello")
+}
+>>>
+val foo = new Bar { (a, b) =>
+  println("hello")
+}
+<<< constructors with zero args lambda
+val foo = new Bar { () =>
+  println("hello")
+}
+>>>
+val foo = new Bar { () =>
+  println("hello")
+}
+<<< constructors with wildcard arg lambda
+val foo = new Bar { _ =>
+  println("hello")
+}
+>>>
+val foo = new Bar { _ =>
+  println("hello")
+}
