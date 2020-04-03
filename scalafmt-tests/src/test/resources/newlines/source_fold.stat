@@ -1486,3 +1486,11 @@ val foo = Bar { () =>
 }
 >>>
 val foo = Bar { () => f(42) }
+<<< keep new class definition as is
+val a = new A {
+  def f = b
+}
+>>>
+val a = new A {
+  def f = b
+}

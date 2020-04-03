@@ -259,7 +259,16 @@ class Router(formatOps: FormatOps) {
             val isTopLevelBlock =
               leftOwner.parent.exists(_.parent.isEmpty) || (leftOwner match {
                 case t: Template =>
-                  !leftOwner.parent.exists(_.is[Term.NewAnonymous])
+                  // false for
+                  // new A { () =>
+                  //   println("A")
+                  // }
+                  // but true for
+                  // new A {
+                  //   def f = x
+                  // }
+                  !leftOwner.parent.exists(_.is[Term.NewAnonymous]) ||
+                    t.stats.exists(_.is[Defn])
                 case _ => false
               })
 
