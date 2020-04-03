@@ -267,7 +267,7 @@ class Router(formatOps: FormatOps) {
                   // new A {
                   //   def f = x
                   // }
-                  !leftOwner.parent.exists(_.is[Term.NewAnonymous]) ||
+                  !t.parent.exists(_.is[Term.NewAnonymous]) ||
                     t.stats.exists(_.is[Defn])
                 case _ => false
               })
