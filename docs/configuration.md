@@ -67,15 +67,28 @@ docstrings = JavaDoc
 
 ### `assumeStandardLibraryStripMargin`
 
+This parameter simply says the `.stripMargin` method was not redefined
+by the user to assign special meaning to indentation preceding
+the `|` character. Hence, that indentation can be modified.
+
 ```scala mdoc:defaults
 assumeStandardLibraryStripMargin
 ```
 
-If `true`, the margin character `|` is aligned with the opening triple quote
-`"""` in interpolated and raw string literals.
+```scala mdoc:defaults
+align.stripMargin
+```
+
+If `true`, lines starting with the margin character `|` (or another if
+specified in the `.stripMargin(...)` call) will be indented differently.
+
+If `align.stripMargin` is true, they will align with the opening triple-quote
+`"""` in interpolated and raw string literals. Otherwise, they will be indented
+relative to the _start_ of the opening line.
 
 ```scala mdoc:scalafmt
 assumeStandardLibraryStripMargin = true
+align.stripMargin = true
 ---
 val example1 =
   s"""Examples:
@@ -85,10 +98,23 @@ val example1 =
   |""".stripMargin
 ```
 
+```scala mdoc:scalafmt
+assumeStandardLibraryStripMargin = true
+align.stripMargin = false
+---
+val example1 =
+  s"""|Examples:
+      |  * one
+      |  * two
+      |  * $three
+      |""".stripMargin
+```
+
 The pipe character can immediately follow the opening `"""`
 
 ```scala mdoc:scalafmt
 assumeStandardLibraryStripMargin = true
+align.stripMargin = true
 ---
 val example2 =
   s"""|Examples:
@@ -157,6 +183,10 @@ x match { // false for case arrows
 > renamings and other refactorings, without having to ignore whitespace changes
 > in diffs or use `--ignore-all-space` to avoid conflicts when git merging or
 > rebasing.
+
+> Starting with the introduction of `align.stripMargin` parameter in v2.5.0,
+> one must explicitly enable it to get earlier behaviour of `align=none`.
+> See [assumeStandardLibraryStripMargin](#assumestandardlibrarystripmargin).
 
 #### `align=some`
 
@@ -378,6 +408,17 @@ class IntStringLong(
   long: Long
 )
 ```
+
+### `align.stripMargin`
+
+See [assumeStandardLibraryStripMargin](#assumestandardlibrarystripmargin).
+
+```scala mdoc:defaults
+align.stripMargin
+```
+
+This functionality is enabled in all presets except `align=none` where it was
+disabled since the parameter's introduction in v2.5.0.
 
 ## Newlines
 
