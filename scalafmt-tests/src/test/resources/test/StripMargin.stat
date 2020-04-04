@@ -1,8 +1,8 @@
 assumeStandardLibraryStripMargin = true
 <<< Align | margin 1
 val x = """Formatter changed AST
-          |=====================
-          |$diff
+      |=====================
+      |$diff
         """
         .stripMargin
 >>>
@@ -10,6 +10,53 @@ val x = """Formatter changed AST
           |=====================
           |$diff
         """.stripMargin
+<<< No align | margin 1
+align.stripMargin = false
+===
+val x = """Formatter changed AST
+      |=====================
+      |$diff
+        """
+        .stripMargin
+>>>
+val x = """Formatter changed AST
+          |=====================
+          |$diff
+        """.stripMargin
+<<< Align | margin 1, different char
+val x = """Formatter changed AST
+      |=====================
+      |$diff
+      ?=====================
+      ?$diff
+        """
+        .stripMargin('?')
+>>>
+val x = """Formatter changed AST
+          |=====================
+          |$diff
+      ?=====================
+      ?$diff
+        """
+  .stripMargin('?')
+<<< No align | margin 1, different char
+align.stripMargin = false
+===
+val x = """Formatter changed AST
+      |=====================
+      |$diff
+      ?=====================
+      ?$diff
+        """
+        .stripMargin('?')
+>>>
+val x = """Formatter changed AST
+          |=====================
+          |$diff
+      ?=====================
+      ?$diff
+        """
+  .stripMargin('?')
 <<< Align | margin 2
 {
   val x = 1
@@ -34,6 +81,14 @@ val x =
     |Long line aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
     |""".stripMargin
 <<< pipe char on first line #324
+"""|first
+  |second""".stripMargin
+>>>
+"""|first
+   |second""".stripMargin
+<<< pipe char on first line #324, no align
+align.stripMargin = false
+===
 """|first
   |second""".stripMargin
 >>>
