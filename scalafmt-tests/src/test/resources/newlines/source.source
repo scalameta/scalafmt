@@ -15,7 +15,8 @@ import a.b.c
 object a {
   val a =
     s"${a.b.c.d}"
-  val b = foo[
-    a.b.c.d.e
-  ](f.g)
+  val b =
+    foo[
+      a.b.c.d.e
+    ](f.g)
 }
