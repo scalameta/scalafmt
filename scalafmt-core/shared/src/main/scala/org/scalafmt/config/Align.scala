@@ -54,8 +54,14 @@ import metaconfig.generic.Surface
   *   Defn.Var, set the values to:
   *     Map("Defn.Var" -> "Assign", "Defn.Val" -> "Assign")
   *   Note. Requires mixedOwners to be true.
+  * @param stripMargin
+  *   If set, indent lines with a strip-margin character in a multiline string
+  *   constant relative to the opening quotes (or the strip-margin character if
+  *   present) on the first line; otherwise, indent relative to the beginning
+  *   of the first line, as usual.
   */
 case class Align(
+    stripMargin: Boolean = true,
     openParenCallSite: Boolean = false,
     openParenDefnSite: Boolean = false,
     tokens: Seq[AlignToken] = Seq(AlignToken.caseArrow),
@@ -82,6 +88,7 @@ object Align {
   // no vertical alignment whatsoever, if you find any vertical alignment with
   // this settings, please report an issue.
   val none: Align = Align(
+    stripMargin = false,
     openParenCallSite = false,
     openParenDefnSite = false,
     tokens = Seq.empty,
