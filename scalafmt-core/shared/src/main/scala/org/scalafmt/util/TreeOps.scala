@@ -614,12 +614,19 @@ object TreeOps {
       case _ => Some(false)
     }.isDefined
 
-  @tailrec
-  def getEndOfFirstCall(tree: Tree): Token =
-    tree match {
-      case t: Term.Select => getEndOfFirstCall(t.qual)
-      case SplitCallIntoParts(fun, _) if fun ne tree => getEndOfFirstCall(fun)
-      case _ => tree.tokens.last
-    }
+  object EndOfFirstCall {
+    def unapply(tree: Tree): Option[Token] =
+      traverse(tree, None).map(_.tokens.last)
+
+    @tailrec
+    private def traverse(tree: Tree, res: Option[Tree]): Option[Tree] =
+      tree match {
+        case t: Term.Select if res.isDefined => traverse(t.qual, Some(t.qual))
+        case t: Term.ApplyType => traverse(t.fun, Some(t))
+        case SplitCallIntoParts(fun, _) if fun ne tree =>
+          traverse(fun, Some(fun))
+        case _ => res
+      }
+  }
 
 }

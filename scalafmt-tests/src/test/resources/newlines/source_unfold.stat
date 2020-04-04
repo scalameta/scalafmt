@@ -1110,9 +1110,8 @@ object a {
 }
 >>>
 object a {
-  val b: Bbbbb[Seq[Ccccc]] = writable[
-    Seq[Ccccc]
-  ]
+  val b: Bbbbb[Seq[Ccccc]] =
+    writable[Seq[Ccccc]]
 }
 <<< 4.1: annotation with newlines
 maxColumn = 50

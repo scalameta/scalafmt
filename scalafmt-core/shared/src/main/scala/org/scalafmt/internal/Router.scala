@@ -1961,8 +1961,9 @@ class Router(formatOps: FormatOps) {
           case _: Term.ForYield => twoBranches
           case _: Term.Try | _: Term.TryWithHandler =>
             Right(SingleLineBlock(expire))
-          case SplitCallIntoParts(fun, _) if fun ne body =>
-            Left(baseSpaceSplit.withSingleLine(getEndOfFirstCall(fun)))
+          case EndOfFirstCall(end) =>
+            val policy = penalizeAllNewlines(end, 1)
+            Left(baseSpaceSplit.withOptimalToken(end).withPolicy(policy))
           case _ => Right(NoPolicy)
         }
 
@@ -1985,8 +1986,7 @@ class Router(formatOps: FormatOps) {
           case _: Term.Try | _: Term.TryWithHandler => Left(Split.ignored)
           // don't tuck curried apply
           case Term.Apply(_: Term.Apply, _) => Right(SingleLineBlock(expire))
-          case SplitCallIntoParts(fun, _) if fun ne body =>
-            Left(baseSpaceSplit.withSingleLine(getEndOfFirstCall(fun)))
+          case EndOfFirstCall(end) => Left(baseSpaceSplit.withSingleLine(end))
           case _ if okNewline && ft.meta.leftOwner.is[Defn] =>
             Right(SingleLineBlock(expire))
           case _ => Right(NoPolicy)
