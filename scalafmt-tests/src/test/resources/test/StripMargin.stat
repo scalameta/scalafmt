@@ -33,10 +33,10 @@ val x = """Formatter changed AST
         .stripMargin('?')
 >>>
 val x = """Formatter changed AST
-          |=====================
-          |$diff
-      ?=====================
-      ?$diff
+      |=====================
+      |$diff
+          ?=====================
+          ?$diff
         """
   .stripMargin('?')
 <<< No align | margin 1, different char
@@ -51,10 +51,10 @@ val x = """Formatter changed AST
         .stripMargin('?')
 >>>
 val x = """Formatter changed AST
-          |=====================
-          |$diff
-      ?=====================
-      ?$diff
+      |=====================
+      |$diff
+          ?=====================
+          ?$diff
         """
   .stripMargin('?')
 <<< Align | margin 2

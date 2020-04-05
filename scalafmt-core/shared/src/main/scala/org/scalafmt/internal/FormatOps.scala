@@ -288,18 +288,22 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
 
   def isTripleQuote(token: Token): Boolean = token.syntax.startsWith("\"\"\"")
 
-  def isMarginizedString(token: Token): Boolean = token match {
-    case start @ T.Interpolation.Start() =>
-      val end = matching(start)
-      val afterEnd = tokens(end, 1)
-      afterEnd.left.syntax == "." && afterEnd.right.syntax == "stripMargin"
-    case string: T.Constant.String =>
-      string.syntax.startsWith("\"\"\"") && {
-        val afterString = tokens(string, 1)
-        afterString.left.syntax == "." &&
-        afterString.right.syntax == "stripMargin"
-      }
-    case _ => false
+  def getStripMarginChar(token: Token): Option[Char] = {
+    def getChar(ft: FormatToken): Option[Char] =
+      if (!ft.left.is[T.Dot] || ft.right.syntax != "stripMargin") None
+      else
+        tokens(ft, 2) match {
+          case FormatToken(_: T.LeftParen, r: T.Constant.Char, _) =>
+            Some(r.value)
+          case _ => Some('|')
+        }
+    token match {
+      case start @ T.Interpolation.Start() =>
+        getChar(tokens(matching(start), 1))
+      case string: T.Constant.String if isTripleQuote(string) =>
+        getChar(tokens(string, 1))
+      case _ => None
+    }
   }
 
   @tailrec
