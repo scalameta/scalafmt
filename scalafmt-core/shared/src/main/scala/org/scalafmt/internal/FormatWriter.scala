@@ -103,7 +103,10 @@ class FormatWriter(formatOps: FormatOps) {
     removeTrailingWhiteSpace(alignedComment)
   }
 
-  val leadingPipeSpace = Pattern.compile("\n *\\|", Pattern.MULTILINE)
+  private def getStripMarginPattern(pipe: Char) =
+    Pattern.compile(raw"(?<=\n) *(?=[$pipe])", Pattern.MULTILINE)
+  private val leadingPipeSpace = getStripMarginPattern('|')
+
   private def formatMarginizedString(token: Token, indent: => Int): String = {
     val shouldMarginize = initStyle.assumeStandardLibraryStripMargin &&
       (token.is[T.Interpolation.Part] || isMarginizedString(token))
@@ -122,7 +125,7 @@ class FormatWriter(formatOps: FormatOps) {
       }
       val extraIndent: Int = if (firstChar == '|') 1 else 0
       val spaces = getIndentation(indent + extraIndent)
-      leadingPipeSpace.matcher(token.syntax).replaceAll(s"\n$spaces\\|")
+      leadingPipeSpace.matcher(token.syntax).replaceAll(spaces)
     } else {
       token.syntax
     }
