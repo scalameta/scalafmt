@@ -428,6 +428,39 @@ insert newlines.
 > You might be interested in the [Vertical Multiline](#vertical-multiline)
 > section.
 
+### `newlines.source`
+
+> Since v2.5.0.
+
+This parameter controls the general approach to line breaks, and whether to take into
+account existing newlines in the source. The default value (if the parameter is not
+specified) is the _classic_, original way. Below are the alternatives.
+
+> These alternatives are EXPERIMENTAL and might change in the future without
+> regard to any `edition` settings, until fully released (and this message deleted).
+
+#### `newlines.source=keep`
+
+This approach attempts to preserve line breaks in the input whenever possible.
+
+#### `newlines.source=fold,unfold`
+
+These two approaches _completely ignore_ existing line breaks, except around comments
+and blank lines (i.e., multiple consecutive newlines).
+
+> Might require increasing runner limits
+> (`runner.optimizer.maxVisitsPerToken`, possibly even `runner.maxStateVisits`),
+> to avoid _SearchStateExploded_ exceptions.
+
+`fold` attempts to remove line breaks whenever possible resulting in a more
+horizontal, or vertically compact look.
+
+`unfold`, on the other hand, is intended for those who prefer a more vertical,
+or horizontally compact look.
+
+Both settings attempt to play nice with other parameters, but some combinations
+are prohibited and will result in an error.
+
 ### `danglingParentheses`
 
 While this parameter is not technically under the `newlines` section, it
