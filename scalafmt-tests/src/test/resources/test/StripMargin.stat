@@ -20,8 +20,8 @@ val x = """Formatter changed AST
         .stripMargin
 >>>
 val x = """Formatter changed AST
-          |=====================
-          |$diff
+  |=====================
+  |$diff
         """.stripMargin
 <<< Align | margin 1, different char
 val x = """Formatter changed AST
@@ -53,8 +53,8 @@ val x = """Formatter changed AST
 val x = """Formatter changed AST
       |=====================
       |$diff
-          ?=====================
-          ?$diff
+    ?=====================
+    ?$diff
         """
   .stripMargin('?')
 <<< Align | margin 2
@@ -93,4 +93,4 @@ align.stripMargin = false
   |second""".stripMargin
 >>>
 """|first
-   |second""".stripMargin
+  |second""".stripMargin
