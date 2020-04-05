@@ -108,9 +108,13 @@ class FormatWriter(formatOps: FormatOps) {
   private val leadingPipeSpace = getStripMarginPattern('|')
 
   private def formatMarginizedString(token: Token, indent: => Int): String = {
-    val shouldMarginize = initStyle.assumeStandardLibraryStripMargin &&
-      (token.is[T.Interpolation.Part] || isMarginizedString(token))
-    if (shouldMarginize) {
+    val pipeOpt =
+      if (!initStyle.assumeStandardLibraryStripMargin) None
+      else if (token.is[T.Interpolation.Part]) Some('|')
+      else getStripMarginChar(token)
+    pipeOpt.fold(token.syntax) { pipe =>
+      val pattern =
+        if (pipe == '|') leadingPipeSpace else getStripMarginPattern(pipe)
       val firstChar: Char = token match {
         case T.Interpolation.Part(_) =>
           (for {
@@ -123,11 +127,9 @@ class FormatWriter(formatOps: FormatOps) {
         case _ =>
           token.syntax.find(_ != '"').getOrElse(' ')
       }
-      val extraIndent: Int = if (firstChar == '|') 1 else 0
+      val extraIndent = if (firstChar == pipe) 1 else 0
       val spaces = getIndentation(indent + extraIndent)
-      leadingPipeSpace.matcher(token.syntax).replaceAll(spaces)
-    } else {
-      token.syntax
+      pattern.matcher(token.syntax).replaceAll(spaces)
     }
   }
 

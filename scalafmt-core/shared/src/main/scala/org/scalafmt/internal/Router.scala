@@ -82,19 +82,18 @@ class Router(formatOps: FormatOps) {
           Split(Newline, 0) // End files with trailing newline
         )
       case FormatToken(start @ T.Interpolation.Start(), _, _) =>
-        val isStripMargin = isMarginizedString(start)
         val end = matching(start)
         val policy =
           if (isTripleQuote(start)) NoPolicy
           else penalizeAllNewlines(end, BreakSingleLineInterpolatedString)
+        val split = Split(NoSplit, 0).withPolicy(policy)
         Seq(
           // statecolumn - 1 because of margin characters |
-          Split(NoSplit, 0)
-            .onlyIf(isStripMargin)
-            .withPolicy(policy)
-            .withIndent(StateColumn, end, After)
-            .withIndent(-1, end, After),
-          Split(NoSplit, 0).notIf(isStripMargin).withPolicy(policy)
+          if (getStripMarginChar(start).isDefined)
+            split
+              .withIndent(StateColumn, end, After)
+              .withIndent(-1, end, After)
+          else split
         )
       case FormatToken(
           T.Interpolation.Id(_) | T.Interpolation.Part(_) |
