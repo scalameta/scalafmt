@@ -43,8 +43,8 @@ class FormatWriter(formatOps: FormatOps) {
           sb.append(formatMarginizedString(token, state.indentation))
         case literal: T.Constant.String =>
           def indent = {
-            val prevState = entry.previous.state
-            if (prevState.split.modification.isNewline)
+            if (!initStyle.align.stripMargin ||
+              entry.previous.state.split.modification.isNewline)
               2 + state.indentation
             else {
               // compute indentation by locating the previous newline in output
@@ -115,7 +115,7 @@ class FormatWriter(formatOps: FormatOps) {
     pipeOpt.fold(token.syntax) { pipe =>
       val pattern =
         if (pipe == '|') leadingPipeSpace else getStripMarginPattern(pipe)
-      val firstChar: Char = token match {
+      def firstChar: Char = token match {
         case T.Interpolation.Part(_) =>
           (for {
             parent <- owners(token).parent
@@ -127,7 +127,8 @@ class FormatWriter(formatOps: FormatOps) {
         case _ =>
           token.syntax.find(_ != '"').getOrElse(' ')
       }
-      val extraIndent = if (firstChar == pipe) 1 else 0
+      val extraIndent =
+        if (initStyle.align.stripMargin && firstChar == pipe) 1 else 0
       val spaces = getIndentation(indent + extraIndent)
       pattern.matcher(token.syntax).replaceAll(spaces)
     }

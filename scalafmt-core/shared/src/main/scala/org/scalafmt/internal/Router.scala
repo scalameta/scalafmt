@@ -89,7 +89,7 @@ class Router(formatOps: FormatOps) {
         val split = Split(NoSplit, 0).withPolicy(policy)
         Seq(
           // statecolumn - 1 because of margin characters |
-          if (getStripMarginChar(start).isDefined)
+          if (style.align.stripMargin && getStripMarginChar(start).isDefined)
             split
               .withIndent(StateColumn, end, After)
               .withIndent(-1, end, After)
