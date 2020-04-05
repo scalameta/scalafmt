@@ -713,6 +713,64 @@ def format(code: String, age: Int)(
 ): String
 ```
 
+### `newlines.afterInfix`
+
+> Since v2.5.0.
+
+This parameter (and its companions) controls formatting around infix
+expressions.
+
+> The default value depends on `newlines.source` (see below).
+
+#### `newlines.afterInfix=keep`
+
+This approach preserves line breaks in the input. This is the original
+behaviour, and default for `newlines.source=classic,keep`.
+
+#### `newlines.afterInfix=many,some`
+
+These approaches _completely ignore_ existing newlines around infix, always use
+a space before an infix operator and occasionally break after it. `some` is
+default for `newlines.source=fold`, and `many` for `newlines.source=unfold`.
+
+> Might require increasing runner limits
+> (`runner.optimizer.maxVisitsPerToken`, possibly even `runner.maxStateVisits`),
+> to avoid _SearchStateExploded_ exceptions.
+
+`some` will introduce fewer line breaks than `many`. Both will attempt to break after
+[higher-precedence operators](https://scala-lang.org/files/archive/spec/2.11/06-expressions.html#infix-operations),
+and both will _always_ break before an expression enclosed in matching parentheses.
+
+#### `newlines.afterInfixMaxCountPerFile`
+
+```scala mdoc:defaults
+newlines.afterInfixMaxCountPerFile
+```
+
+If the total number of infix operations in the _entire file_ exceeds
+`newlines.afterInfixMaxCountPerFile`, the formatter automatically switches to
+`newlines.afterInfix=keep` for this file.
+
+#### `newlines.afterInfixMaxCountPerExprForSome`
+
+```scala mdoc:defaults
+newlines.afterInfixMaxCountPerExprForSome
+```
+
+If `newlines.afterInfix` is set to `some` and the number of infix operations in a
+_given expression sequence_ (top-level or enclosed in parens/braces) exceeds
+`newlines.afterInfixMaxCountPerExprForSome`, the formatter switches to `many`
+for that sequence only.
+
+#### `newlines.afterInfixBreakOnNested`
+
+```scala mdoc:defaults
+newlines.afterInfixBreakOnNested
+```
+
+If enabled, will force line breaks around a nested parenthesized
+sub-expression in a multi-line infix expression.
+
 ## Rewrite Rules
 
 To enable a rewrite rule, add it to the config like this
