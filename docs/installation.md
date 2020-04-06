@@ -20,8 +20,7 @@ _**Note:** IntelliJ [2019.1 or later] is required in order for the Scala plugin
 to support Scalafmt and the dynamic `version` set in your `.scalafmt.conf`. If
 you must use an older version, see [the FAQ][old intellij] for an alternative._
 
-[2019.1 or later]:
-  https://blog.jetbrains.com/scala/2019/03/27/intellij-scala-plugin-2019-1-highlighting-for-comprehensions-find-usages-for-implicits-and-more/
+[2019.1 or later]: https://blog.jetbrains.com/scala/2019/03/27/intellij-scala-plugin-2019-1-highlighting-for-comprehensions-find-usages-for-implicits-and-more/
 [old intellij]: faq.md#how-can-i-work-with-older-versions-of-intellij
 
 ### Format current file

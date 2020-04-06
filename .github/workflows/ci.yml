@@ -32,6 +32,8 @@ jobs:
       - uses: actions/checkout@v2
       - uses: olafurpg/setup-scala@v6
       - run: ./scalafmt --test
+      - run: yarn install
+      - run: yarn format-check
   native-image:
     runs-on: ${{ matrix.os }}
     strategy:

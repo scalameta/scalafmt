@@ -23,15 +23,15 @@ source file unformatted.
 
 There are two workaround if you are affected by this issue:
 
-* Wrap the offending block with `// format: off`. The sbt/IntelliJ/CLI
+- Wrap the offending block with `// format: off`. The sbt/IntelliJ/CLI
   integrations should point you to the line where scalafmt starts to struggle.
 
-* Try `align.openParenCallSite = false` to shrink the search space.
+- Try `align.openParenCallSite = false` to shrink the search space.
 
-* Refactor your code to eliminate deeply nested function calls. Binding large
+- Refactor your code to eliminate deeply nested function calls. Binding large
   function arguments to variables is a good start.
 
-* Other cool code formatters like ClangFormat, dartfmt and rfmt use better
+- Other cool code formatters like ClangFormat, dartfmt and rfmt use better
   techniques to solve this issue, which scalafmt can maybe learn from.
 
 ## Non-idempotent

@@ -1,0 +1,10 @@
+{
+  "name": "Scalafmt",
+  "scripts": {
+    "format": "prettier --write docs",
+    "format-check": "prettier --check docs"
+  },
+  "devDependencies": {
+    "prettier": "2.0.4"
+  }
+}

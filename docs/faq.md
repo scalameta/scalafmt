@@ -8,10 +8,9 @@ title: FAQ / Troubleshooting
 [Scalariform](http://scala-ide.org/scalariform/) does an excellent job of
 tidying up common formatting errors. However,
 
-* Scalariform does not have a `maxColumn` setting, which I personally like and
+- Scalariform does not have a `maxColumn` setting, which I personally like and
   is present in many popular coding styles.
-
-* Scalariform preserves most line breaking decisions, leaving it up to you (or
+- Scalariform preserves most line breaking decisions, leaving it up to you (or
   even worse, your colleagues) to choose a formatting layout. Scalafmt takes
   liberty to add/remove newlines, making your entire codebase look consistent.
 
@@ -51,10 +50,10 @@ it, considering
 
 ## Which configuration options minimize diffs/conflicts in version control?}
 
-* `align=none` If alignment is enabled a renaming of one entity can impact the
+- `align=none` If alignment is enabled a renaming of one entity can impact the
   indentation of other entities.
 
-* `danglingParentheses=true` Having the closing parentheses on the same line as
+- `danglingParentheses=true` Having the closing parentheses on the same line as
   the last argument makes the diff line include the parentheses and everything
   following it in case that argument is renamed. So, technically this does not
   reduce the number of diff lines, but the length of them.

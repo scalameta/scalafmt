@@ -20,6 +20,8 @@ title: Contributing
   [CI](https://travis-ci.org/scalameta/scalafmt).
 - **Format your code with scalafmt**. Run `./scalafmt` from the project root
   directory.
+- **Format documentation with Prettier**. Run `yarn install && yarn format`
+  from the project root directory.
 - **PRs for features should generally come with _something_ added to the
   [Documentation](https://scalameta.org/scalafmt)**, so people can discover that
   it exists. The docs are written in `readme/Readme.scalatex`.
