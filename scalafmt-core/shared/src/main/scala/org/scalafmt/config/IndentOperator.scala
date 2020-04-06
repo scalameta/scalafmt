@@ -36,27 +36,25 @@ case class IndentOperator(
 ) {
   val reader: ConfDecoder[IndentOperator] = generic.deriveDecoder(this).noTypos
 
-  val includeRegexp = include.r
-  val excludeRegexp = exclude.r
+  private val includeRegexp = include.r.pattern
+  private val excludeRegexp = exclude.r.pattern
+
+  def noindent(op: String): Boolean =
+    excludeRegexp.matcher(op).find() || !includeRegexp.matcher(op).find()
 }
 
 object IndentOperator {
+  private val default = IndentOperator()
+  private val akka = IndentOperator(include = "^.*=$", exclude = "^$")
+
   implicit lazy val surface: generic.Surface[IndentOperator] =
     generic.deriveSurface
   implicit lazy val encoder: ConfEncoder[IndentOperator] =
     generic.deriveEncoder
-  val default = IndentOperator()
-  val akka = IndentOperator(
-    ScalafmtConfig.indentOperatorsIncludeAkka,
-    ScalafmtConfig.indentOperatorsExcludeAkka
-  )
   implicit val IndentOperatorDecoder: ConfDecoder[IndentOperator] =
     ConfDecoder.instance[IndentOperator] {
-      case Conf.Str("spray" | "akka" | "akka-http") =>
-        Ok(IndentOperator.akka)
-      case Conf.Str("default") =>
-        Ok(IndentOperator.default)
-      case els =>
-        default.reader.read(els)
+      case Conf.Str("spray" | "akka" | "akka-http") => Ok(IndentOperator.akka)
+      case Conf.Str("default") => Ok(IndentOperator.default)
+      case els => default.reader.read(els)
     }
 }

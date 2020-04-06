@@ -232,9 +232,6 @@ object ScalafmtConfig {
   implicit lazy val codecEncoder: ConfEncoder[Codec] =
     ConfEncoder.StringEncoder.contramap(_.name)
 
-  val indentOperatorsIncludeAkka = "^.*=$"
-  val indentOperatorsExcludeAkka = "^$"
-
   val default = ScalafmtConfig()
 
   val intellij: ScalafmtConfig = default.copy(
