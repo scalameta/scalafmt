@@ -98,28 +98,6 @@ val example2 =
   |""".stripMargin
 ```
 
-## Edition
-
-The `edition` setting allows Scalafmt users to stay on older default settings
-while upgrading to the latest Scalafmt release.
-
-The use-case for configuring the `edition` setting is when you want to upgrade
-to the latest Scalafmt version (for example, to enjoy a bug fix in the parser)
-but need more time to deal with the latest changes in the formatting output.
-
-The end goal for users should be to remove the `edition` setting from
-`.scalafmt.conf` in order to enjoy the latest improvements to the formatting
-output.
-
-The `edition` setting is formatted as `"$year-$month"` and should be interpreted
-as: "use the default settings at that given date". The latest edition is selected by default.
-
-Example:
-
-```scala config
-edition = 2019-10 // default settings from October 2019 should be used 
-```
-
 ## Indentation
 
 ### `continuationIndent.callSite`
@@ -411,12 +389,15 @@ insert newlines.
 
 ### `danglingParentheses`
 
-While this parameter is not technically under the `newlines` section, it logically belongs there.
+While this parameter is not technically under the `newlines` section, it
+logically belongs there.
 
 #### `danglingParentheses.defnSite`
+
 ```scala mdoc:defaults
 danglingParentheses.defnSite
 ```
+
 ```scala mdoc:scalafmt
 danglingParentheses.defnSite = true
 danglingParentheses.callSite = false
@@ -432,9 +413,11 @@ object a {
 ```
 
 #### `danglingParentheses.callSite`
+
 ```scala mdoc:defaults
 danglingParentheses.callSite
 ```
+
 ```scala mdoc:scalafmt
 danglingParentheses.defnSite = false
 danglingParentheses.callSite = true
@@ -591,12 +574,13 @@ something.map { x => f(x) }
 
 #### Before
 
-> If set, forces newline before `implicit`. Otherwise, newline
-> can still be added if the keyword would overflow the line.
+> If set, forces newline before `implicit`. Otherwise, newline can still be
+> added if the keyword would overflow the line.
 
 ```scala mdoc:defaults
 newlines.beforeImplicitParamListModifier
 ```
+
 ```scala mdoc:scalafmt
 maxColumn = 60
 newlines.beforeImplicitParamListModifier = true
@@ -606,13 +590,14 @@ def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 
 #### After
 
-> If set, forces newline after `implicit`. Otherwise, newline can
-> still be added unless `before` is true, or the entire implicit
-> parameter list fits on a line, or config style is false.
+> If set, forces newline after `implicit`. Otherwise, newline can still be added
+> unless `before` is true, or the entire implicit parameter list fits on a line,
+> or config style is false.
 
 ```scala mdoc:defaults
 newlines.afterImplicitParamListModifier
 ```
+
 ```scala mdoc:scalafmt
 maxColumn = 60
 newlines.afterImplicitParamListModifier = true
@@ -621,6 +606,7 @@ def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```
 
 #### Both before and after
+
 ```scala mdoc:scalafmt
 maxColumn = 60
 newlines.afterImplicitParamListModifier = true
@@ -630,6 +616,7 @@ def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```
 
 #### Neither before nor after
+
 ```scala mdoc:scalafmt
 maxColumn = 60
 newlines.afterImplicitParamListModifier = false
@@ -639,6 +626,7 @@ def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```
 
 #### With `optIn.configStyleArguments`
+
 ```scala mdoc:scalafmt
 maxColumn = 60
 optIn.configStyleArguments = true
@@ -715,8 +703,10 @@ rewrite.rules = [RedundantBraces]
 List(1, 2, 3).map { x => x + 1 }
 ```
 
-Entire power of `RedundantBraces` can be accessed with `newlines.afterCurlyLambda=squash`.
-It will try to squash lambda body in one line and then replace braces with parens:
+Entire power of `RedundantBraces` can be accessed with
+`newlines.afterCurlyLambda=squash`. It will try to squash lambda body in one
+line and then replace braces with parens:
+
 ```scala mdoc:scalafmt
 rewrite.rules = [RedundantBraces]
 newlines.afterCurlyLambda=squash
@@ -838,15 +828,16 @@ import foo.{~>, `symbol`, bar, Random}
 
 > See [SIP](https://docs.scala-lang.org/sips/trailing-commas.html)
 
-The rule handles how trailing commas are treated in case of a dangling
-closing delimiter (parenthesis or bracket for definitions or invocations,
-brace for import statements only).
+The rule handles how trailing commas are treated in case of a dangling closing
+delimiter (parenthesis or bracket for definitions or invocations, brace for
+import statements only).
 
 Regardless of the setting, trailing commas are always removed if the closing
-delimiter is not dangling (i.e., follows the final argument without a line break).
+delimiter is not dangling (i.e., follows the final argument without a line
+break).
 
-> This logic is not triggered via the `rewrite.rules` parameter,
-> but by setting `trailingCommas`.
+> This logic is not triggered via the `rewrite.rules` parameter, but by setting
+> `trailingCommas`.
 
 ```scala mdoc:defaults
 trailingCommas
@@ -855,6 +846,7 @@ trailingCommas
 #### Trailing commas: `never`
 
 Makes sure there are no trailing commas:
+
 ```scala mdoc:scalafmt
 trailingCommas = never
 ---
@@ -889,6 +881,7 @@ method3(
 #### Trailing commas: `preserve`
 
 Keeps any trailing commas:
+
 ```scala mdoc:scalafmt
 trailingCommas = preserve
 ---
@@ -923,6 +916,7 @@ method3(
 #### Trailing commas: `always`
 
 Makes sure there are trailing commas:
+
 ```scala mdoc:scalafmt
 trailingCommas = always
 ---
@@ -956,8 +950,9 @@ method3(
 
 #### Trailing commas: `multiple`
 
-Makes sure there are trailing commas for multiple-argument expressions
-only, except when the last argument is repeated:
+Makes sure there are trailing commas for multiple-argument expressions only,
+except when the last argument is repeated:
+
 ```scala mdoc:scalafmt
 trailingCommas = multiple
 ---
@@ -1039,8 +1034,8 @@ def other(a: String, b: String)(c: String, d: String) = a + b + c
 
 > This parameter has been deprecated, please use
 > [danglingParentheses.exclude](#danglingparenthesesexclude). Keep in mind,
-> though, that the new parameter is empty by default while the old one isn't,
-> so to use empty exclude list, one must set the old
+> though, that the new parameter is empty by default while the old one isn't, so
+> to use empty exclude list, one must set the old
 > `verticalMultiline.excludeDanglingParens=[]`.
 
 ```scala mdoc:defaults
@@ -1064,6 +1059,7 @@ other(a, b)(c, d)
 > [implicit parameter lists](#newlines-around-implicit-parameter-list-modifier).
 
 #### Before only
+
 ```scala mdoc:scalafmt
 maxColumn = 60
 verticalMultiline.atDefnSite = true
@@ -1073,6 +1069,7 @@ def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```
 
 #### After only
+
 ```scala mdoc:scalafmt
 maxColumn = 60
 verticalMultiline.atDefnSite = true
@@ -1082,6 +1079,7 @@ def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```
 
 #### Before and after
+
 ```scala mdoc:scalafmt
 maxColumn = 60
 verticalMultiline.atDefnSite = true
@@ -1218,6 +1216,7 @@ foo
 ```
 
 ### `optIn.forceBlankLineBeforeDocstring`
+
 If true, always insert a blank line before docstrings;  
 If false, preserves blank line only if one exists before.
 
@@ -1244,7 +1243,9 @@ object Stuff {
 ```
 
 ### `rewriteTokens`
-Map of tokens to rewrite. For example, Map("⇒" -> "=>") will rewrite unicode arrows to regular ascii arrows.
+
+Map of tokens to rewrite. For example, Map("⇒" -> "=>") will rewrite unicode
+arrows to regular ascii arrows.
 
 ```scala mdoc:defaults
 rewriteTokens
@@ -1264,6 +1265,12 @@ for {
   b ← Option(2)
 } yield a + b
 ```
+
+## Edition
+
+Editions are no longer used. They're kept for backwards compatibility with old
+configuration files but new changes to the default Scalafmt formatting behavior
+will not respect the `edition` setting.
 
 ## Other
 
