@@ -184,7 +184,6 @@ title: Changelog
 - Router: break between curly and catch, like else [\#1567](https://github.com/scalameta/scalafmt/pull/1567) ([kitbellew](https://github.com/kitbellew))
 - Formatter upgraded to 2.3.0-RC1 [\#1566](https://github.com/scalameta/scalafmt/pull/1566) ([poslegm](https://github.com/poslegm))
 
-
 ## [v2.3.0-RC2](https://github.com/scalameta/scalafmt/tree/v2.3.0-RC2) (2019-11-27)
 
 [Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.3.0-RC1...v2.3.0-RC2)
@@ -246,7 +245,7 @@ title: Changelog
 
 **Merged pull requests:**
 
-- Use Coursier defaults, which also adds support for COURSIER\_REPOSITORIES [\#1524](https://github.com/scalameta/scalafmt/pull/1524) ([henricook](https://github.com/henricook))
+- Use Coursier defaults, which also adds support for COURSIER_REPOSITORIES [\#1524](https://github.com/scalameta/scalafmt/pull/1524) ([henricook](https://github.com/henricook))
 - Insert newline for else keyword, fixes \#1509. [\#1520](https://github.com/scalameta/scalafmt/pull/1520) ([olafurpg](https://github.com/olafurpg))
 - Add a space between constructor annotations and their parameter lists [\#1516](https://github.com/scalameta/scalafmt/pull/1516) ([dominics](https://github.com/dominics))
 
@@ -270,7 +269,7 @@ title: Changelog
 - Remove scalafmt-intellij [\#1500](https://github.com/scalameta/scalafmt/pull/1500) ([tanishiking](https://github.com/tanishiking))
 - Update dependencies [\#1497](https://github.com/scalameta/scalafmt/pull/1497) ([tanishiking](https://github.com/tanishiking))
 - Updated sbt plugin version on the website [\#1494](https://github.com/scalameta/scalafmt/pull/1494) ([poslegm](https://github.com/poslegm))
-- Fixed alwaysBeforeTopLevelStatements for modifiers  [\#1489](https://github.com/scalameta/scalafmt/pull/1489) ([poslegm](https://github.com/poslegm))
+- Fixed alwaysBeforeTopLevelStatements for modifiers [\#1489](https://github.com/scalameta/scalafmt/pull/1489) ([poslegm](https://github.com/poslegm))
 - Make comment blocks line up. [\#1488](https://github.com/scalameta/scalafmt/pull/1488) ([adampauls](https://github.com/adampauls))
 
 ## [v2.1.0-RC1](https://github.com/scalameta/scalafmt/tree/v2.1.0-RC1) (2019-08-25)
@@ -283,7 +282,7 @@ title: Changelog
 - Tweak a test that makes sure multiple exclude flags works as expected [\#1481](https://github.com/scalameta/scalafmt/pull/1481) ([tanishiking](https://github.com/tanishiking))
 - Don't treat commas in lambda bodies as "trailing commas" [\#1479](https://github.com/scalameta/scalafmt/pull/1479) ([adampauls](https://github.com/adampauls))
 - Add --check cli option [\#1478](https://github.com/scalameta/scalafmt/pull/1478) ([droptheplot](https://github.com/droptheplot))
-- Update ISSUE\_TEMPLATE to current version support [\#1476](https://github.com/scalameta/scalafmt/pull/1476) ([anilkumarmyla](https://github.com/anilkumarmyla))
+- Update ISSUE_TEMPLATE to current version support [\#1476](https://github.com/scalameta/scalafmt/pull/1476) ([anilkumarmyla](https://github.com/anilkumarmyla))
 - Update CHANGELOG [\#1475](https://github.com/scalameta/scalafmt/pull/1475) ([tanishiking](https://github.com/tanishiking))
 - fix running with the diff branch file filter [\#1472](https://github.com/scalameta/scalafmt/pull/1472) ([stephennancekivell](https://github.com/stephennancekivell))
 - Keep indentation for comments within method chain [\#1470](https://github.com/scalameta/scalafmt/pull/1470) ([droptheplot](https://github.com/droptheplot))
@@ -296,8 +295,8 @@ title: Changelog
 This release contains some new features and fixes for regressions.
 [Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.0.0...HEAD)
 
-
 ### New features
+
 **`--list` option**
 When you want to check if your files are formatted, you can run scalafmt with the `--list` flag. This will output a list of unformatted files if any.
 
@@ -312,7 +311,6 @@ src/main/scala/file1.scala
 src/main/scala/file1.scala
 ```
 
-
 **Merged pull requests:**
 
 - Return exit code 1 for `scalafmt --list` if there are any files that require re-formatting [\#1474](https://github.com/scalameta/scalafmt/pull/1474) ([tanishiking](https://github.com/tanishiking))
@@ -322,9 +320,9 @@ src/main/scala/file1.scala
 - Add --list cli option \#1459 [\#1466](https://github.com/scalameta/scalafmt/pull/1466) ([droptheplot](https://github.com/droptheplot))
 - Update the release process document, and upgrade docusaurus [\#1452](https://github.com/scalameta/scalafmt/pull/1452) ([tanishiking](https://github.com/tanishiking))
 - Update .gitignore for metals and bloop [\#1451](https://github.com/scalameta/scalafmt/pull/1451) ([tanishiking](https://github.com/tanishiking))
-- Suppress cli output in case  option was set [\#1449](https://github.com/scalameta/scalafmt/pull/1449) ([stremlenye](https://github.com/stremlenye))
+- Suppress cli output in case option was set [\#1449](https://github.com/scalameta/scalafmt/pull/1449) ([stremlenye](https://github.com/stremlenye))
 - exclude dangling parens in methods with enabled verticalMultiline [\#1435](https://github.com/scalameta/scalafmt/pull/1435) ([darl](https://github.com/darl))
--  Prints out the paths of files subjected to formating before the beginning of formatting in debug mode [\#1422](https://github.com/scalameta/scalafmt/pull/1422) ([stremlenye](https://github.com/stremlenye))
+- Prints out the paths of files subjected to formating before the beginning of formatting in debug mode [\#1422](https://github.com/scalameta/scalafmt/pull/1422) ([stremlenye](https://github.com/stremlenye))
 
 ## [v2.0.0-RC8](https://github.com/scalameta/scalafmt/tree/v2.0.0-RC8) (2019-06-06)
 
@@ -334,7 +332,7 @@ src/main/scala/file1.scala
 
 - Fixed error with includeNoParensInSelectChains and full qualified names [\#1429](https://github.com/scalameta/scalafmt/pull/1429) ([poslegm](https://github.com/poslegm))
 - Fixed spaces.beforeContextBoundColon=IfMultipleBounds behavior for case with subtyping [\#1428](https://github.com/scalameta/scalafmt/pull/1428) ([poslegm](https://github.com/poslegm))
--  Fixed bug with RedundantBraces for string interpolation [\#1425](https://github.com/scalameta/scalafmt/pull/1425) ([poslegm](https://github.com/poslegm))
+- Fixed bug with RedundantBraces for string interpolation [\#1425](https://github.com/scalameta/scalafmt/pull/1425) ([poslegm](https://github.com/poslegm))
 - Remove space for variance annotations with underscore [\#1419](https://github.com/scalameta/scalafmt/pull/1419) ([vlovgr](https://github.com/vlovgr))
 - Add the CLI option to fetch only recently changed files for formating. [\#1416](https://github.com/scalameta/scalafmt/pull/1416) ([stremlenye](https://github.com/stremlenye))
 - Use a simple cache based on futures to avoid redownloading on concurrent usage [\#1384](https://github.com/scalameta/scalafmt/pull/1384) ([jrudolph](https://github.com/jrudolph))
@@ -350,10 +348,9 @@ src/main/scala/file1.scala
 
 **Merged pull requests:**
 
-- Add flags to support apache/spark style of configuration [\#1395](https://github.com/scalameta/scalafmt/pull/1395) ([lihaoyi-databricks](https://github.com/lihaoyi-databricks)) 
-- Update changelog and document release process [\#1379](https://github.com/scalameta/scalafmt/pull/1379) ([olafurpg](https://github.com/olafurpg)) 
-- Avoid newlines after yield keyword. [\#1378](https://github.com/scalameta/scalafmt/pull/1378) ([olafurpg](https://github.com/olafurpg)) 
-
+- Add flags to support apache/spark style of configuration [\#1395](https://github.com/scalameta/scalafmt/pull/1395) ([lihaoyi-databricks](https://github.com/lihaoyi-databricks))
+- Update changelog and document release process [\#1379](https://github.com/scalameta/scalafmt/pull/1379) ([olafurpg](https://github.com/olafurpg))
+- Avoid newlines after yield keyword. [\#1378](https://github.com/scalameta/scalafmt/pull/1378) ([olafurpg](https://github.com/olafurpg))
 
 ## [v2.0.0-RC5](https://github.com/scalameta/scalafmt/tree/v2.0.0-RC5) (2019-02-28)
 
@@ -396,7 +393,6 @@ src/main/scala/file1.scala
 
 - Add custom reporter endpoint for missing scalafmt version [\#1340](https://github.com/scalameta/scalafmt/pull/1340) ([olafurpg](https://github.com/olafurpg))
 
-
 ## [v2.0.0-RC2](https://github.com/scalameta/scalafmt/tree/v2.0.0-RC2) (2019-01-07)
 
 [Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.0.0-RC1...v2.0.0-RC2)
@@ -405,7 +401,6 @@ src/main/scala/file1.scala
 
 - Change publish organization to org.scalameta from com.geirsson [\#1339](https://github.com/scalameta/scalafmt/pull/1339) ([olafurpg](https://github.com/olafurpg))
 - Add release notes for v2.0 [\#1338](https://github.com/scalameta/scalafmt/pull/1338) ([olafurpg](https://github.com/olafurpg))
-
 
 ## [v2.0.0-RC1](https://github.com/scalameta/scalafmt/tree/v2.0.0-RC1) (2019-01-07)
 
@@ -424,7 +419,7 @@ src/main/scala/file1.scala
 - Preferences changed to Settings. [\#1319](https://github.com/scalameta/scalafmt/pull/1319) ([P3trur0](https://github.com/P3trur0))
 - Clarify "use intellij formatter" [\#1315](https://github.com/scalameta/scalafmt/pull/1315) ([olafurpg](https://github.com/olafurpg))
 - Update docs to clarify installation [\#1314](https://github.com/scalameta/scalafmt/pull/1314) ([olafurpg](https://github.com/olafurpg))
--  Add includeNoParensInSelectChains [\#1310](https://github.com/scalameta/scalafmt/pull/1310) ([nkouevda](https://github.com/nkouevda))
+- Add includeNoParensInSelectChains [\#1310](https://github.com/scalameta/scalafmt/pull/1310) ([nkouevda](https://github.com/nkouevda))
 - Fix configuration example for continuationIndent.callSite in document [\#1308](https://github.com/scalameta/scalafmt/pull/1308) ([tanishiking](https://github.com/tanishiking))
 - add JDK 11 to Travis-CI matrix [\#1304](https://github.com/scalameta/scalafmt/pull/1304) ([SethTisue](https://github.com/SethTisue))
 - Enable sbt-idea-plugin in intellij project [\#1301](https://github.com/scalameta/scalafmt/pull/1301) ([olafurpg](https://github.com/olafurpg))
@@ -464,7 +459,7 @@ src/main/scala/file1.scala
 
 **Merged pull requests:**
 
-- Fix trailing comma handling when followed by indenation-free comment  [\#1230](https://github.com/scalameta/scalafmt/pull/1230) ([gabro](https://github.com/gabro))
+- Fix trailing comma handling when followed by indenation-free comment [\#1230](https://github.com/scalameta/scalafmt/pull/1230) ([gabro](https://github.com/gabro))
 - Add foursquare to adopters list [\#1229](https://github.com/scalameta/scalafmt/pull/1229) ([iantabolt](https://github.com/iantabolt))
 - Upgrade metaconfig [\#1226](https://github.com/scalameta/scalafmt/pull/1226) ([olafurpg](https://github.com/olafurpg))
 
@@ -512,7 +507,7 @@ src/main/scala/file1.scala
 - Add more examples for standalone library usage [\#1177](https://github.com/scalameta/scalafmt/pull/1177) ([olafurpg](https://github.com/olafurpg))
 - Add repro for \#1033. [\#1175](https://github.com/scalameta/scalafmt/pull/1175) ([olafurpg](https://github.com/olafurpg))
 - Add trailingCommas option [\#1174](https://github.com/scalameta/scalafmt/pull/1174) ([gabro](https://github.com/gabro))
-- Upgrade to Scalameta v3.7  [\#1170](https://github.com/scalameta/scalafmt/pull/1170) ([olafurpg](https://github.com/olafurpg))
+- Upgrade to Scalameta v3.7 [\#1170](https://github.com/scalameta/scalafmt/pull/1170) ([olafurpg](https://github.com/olafurpg))
 - Allow with-chain wrapping for all params \#1125 [\#1169](https://github.com/scalameta/scalafmt/pull/1169) ([iantabolt](https://github.com/iantabolt))
 - updated maven settings [\#1165](https://github.com/scalameta/scalafmt/pull/1165) ([jozic](https://github.com/jozic))
 - Add section about scalafmt support in mill [\#1164](https://github.com/scalameta/scalafmt/pull/1164) ([rockjam](https://github.com/rockjam))
@@ -567,7 +562,7 @@ src/main/scala/file1.scala
 
 - Add an "original code" section the issue template [\#1092](https://github.com/scalameta/scalafmt/pull/1092) ([dwijnand](https://github.com/dwijnand))
 - Fix version number in website and document pre-release. [\#1089](https://github.com/scalameta/scalafmt/pull/1089) ([olafurpg](https://github.com/olafurpg))
-- Add  -r bintray:scalameta/maven to Coursier install commands [\#1088](https://github.com/scalameta/scalafmt/pull/1088) ([lloydmeta](https://github.com/lloydmeta))
+- Add -r bintray:scalameta/maven to Coursier install commands [\#1088](https://github.com/scalameta/scalafmt/pull/1088) ([lloydmeta](https://github.com/lloydmeta))
 - Use - instead of + in snapshot versions [\#1082](https://github.com/scalameta/scalafmt/pull/1082) ([olafurpg](https://github.com/olafurpg))
 - Point to a correct project on scaladex [\#1071](https://github.com/scalameta/scalafmt/pull/1071) ([alenkacz](https://github.com/alenkacz))
 - Bump dependencies versions [\#1070](https://github.com/scalameta/scalafmt/pull/1070) ([loskutov](https://github.com/loskutov))
@@ -675,7 +670,7 @@ src/main/scala/file1.scala
 - Invite Paul Draper to the team and document neo-sbt-scalafmt! [\#926](https://github.com/scalameta/scalafmt/pull/926) ([olafurpg](https://github.com/olafurpg))
 - Cleanup before v1.0, fixes \#918 [\#921](https://github.com/scalameta/scalafmt/pull/921) ([olafurpg](https://github.com/olafurpg))
 - Fix \#911 [\#920](https://github.com/scalameta/scalafmt/pull/920) ([olafurpg](https://github.com/olafurpg))
-- Remove enclosing parens  in avoidinfix , closes \#851 [\#919](https://github.com/scalameta/scalafmt/pull/919) ([otolabqu](https://github.com/otolabqu))
+- Remove enclosing parens in avoidinfix , closes \#851 [\#919](https://github.com/scalameta/scalafmt/pull/919) ([otolabqu](https://github.com/otolabqu))
 - Add support for auto-binpacking of argument lists with idents only [\#910](https://github.com/scalameta/scalafmt/pull/910) ([olafurpg](https://github.com/olafurpg))
 - Fix coordinates for scalafmt-bootstrap [\#908](https://github.com/scalameta/scalafmt/pull/908) ([nightscape](https://github.com/nightscape))
 - Update docs. [\#906](https://github.com/scalameta/scalafmt/pull/906) ([olafurpg](https://github.com/olafurpg))
@@ -719,7 +714,7 @@ src/main/scala/file1.scala
 - Fix \#808: newlines after curly lambda [\#859](https://github.com/scalameta/scalafmt/pull/859) ([pjrt](https://github.com/pjrt))
 - Fix appveyor again [\#858](https://github.com/scalameta/scalafmt/pull/858) ([olafurpg](https://github.com/olafurpg))
 - Remove unused statement [\#857](https://github.com/scalameta/scalafmt/pull/857) ([ocadaruma](https://github.com/ocadaruma))
-- Updated latest\_version in scalafmt\_auto [\#856](https://github.com/scalameta/scalafmt/pull/856) ([jupblb](https://github.com/jupblb))
+- Updated latest_version in scalafmt_auto [\#856](https://github.com/scalameta/scalafmt/pull/856) ([jupblb](https://github.com/jupblb))
 - Fix appveyor [\#855](https://github.com/scalameta/scalafmt/pull/855) ([olafurpg](https://github.com/olafurpg))
 - Fix \#736: Make verticalMultiline apply to classes too [\#854](https://github.com/scalameta/scalafmt/pull/854) ([pjrt](https://github.com/pjrt))
 - fix readme.md [\#852](https://github.com/scalameta/scalafmt/pull/852) ([xuwei-k](https://github.com/xuwei-k))
@@ -761,7 +756,7 @@ src/main/scala/file1.scala
 - Upgrade to drone v0.5 [\#821](https://github.com/scalameta/scalafmt/pull/821) ([olafurpg](https://github.com/olafurpg))
 - fix mainClass not found error on windows machine \(that comment makes … [\#819](https://github.com/scalameta/scalafmt/pull/819) ([Daxten](https://github.com/Daxten))
 - Fix issue \#816: Makes verticalMultilineDefnSite respect continuationIndent.defnSite [\#829](https://github.com/scalameta/scalafmt/pull/829) ([pjrt](https://github.com/pjrt))
-- Topic/newlines\_annotations \#806 [\#820](https://github.com/scalameta/scalafmt/pull/820) ([Daxten](https://github.com/Daxten))
+- Topic/newlines_annotations \#806 [\#820](https://github.com/scalameta/scalafmt/pull/820) ([Daxten](https://github.com/Daxten))
 - Fix \#780, add spaces in parens flag [\#818](https://github.com/scalameta/scalafmt/pull/818) ([olafurpg](https://github.com/olafurpg))
 - Don't resolve from ivy2local in ScalafmtBotstrap. [\#817](https://github.com/scalameta/scalafmt/pull/817) ([olafurpg](https://github.com/olafurpg))
 - Fix newlines.alwaysBeforeTopLevelStatements doc [\#804](https://github.com/scalameta/scalafmt/pull/804) ([dwijnand](https://github.com/dwijnand))
@@ -831,7 +826,7 @@ src/main/scala/file1.scala
 **Merged pull requests:**
 
 - skip git hooks during pages update [\#727](https://github.com/scalameta/scalafmt/pull/727) ([ysusuk](https://github.com/ysusuk))
--  \#724: Update rewrite rules docs [\#725](https://github.com/scalameta/scalafmt/pull/725) ([ysusuk](https://github.com/ysusuk))
+- \#724: Update rewrite rules docs [\#725](https://github.com/scalameta/scalafmt/pull/725) ([ysusuk](https://github.com/ysusuk))
 
 ## [v0.5.6](https://github.com/scalameta/scalafmt/tree/v0.5.6) (2017-02-08)
 
@@ -992,7 +987,7 @@ src/main/scala/file1.scala
 - Issue 457 long imports [\#567](https://github.com/scalameta/scalafmt/pull/567) ([mtomko](https://github.com/mtomko))
 - Add info about Arch Linux package [\#565](https://github.com/scalameta/scalafmt/pull/565) ([RatanRSur](https://github.com/RatanRSur))
 - Update IDEA plugin [\#562](https://github.com/scalameta/scalafmt/pull/562) ([olafurpg](https://github.com/olafurpg))
-- Fix scalafmt\_auto script. [\#559](https://github.com/scalameta/scalafmt/pull/559) ([olafurpg](https://github.com/olafurpg))
+- Fix scalafmt_auto script. [\#559](https://github.com/scalameta/scalafmt/pull/559) ([olafurpg](https://github.com/olafurpg))
 
 ## [v0.4.8](https://github.com/scalameta/scalafmt/tree/v0.4.8) (2016-10-25)
 
@@ -1168,7 +1163,7 @@ src/main/scala/file1.scala
 
 - Increase control over infix operator indentation, fixes \#367. [\#372](https://github.com/scalameta/scalafmt/pull/372) ([olafurpg](https://github.com/olafurpg))
 - Add spaceBeforeContextBoundColon option [\#369](https://github.com/scalameta/scalafmt/pull/369) ([triggerNZ](https://github.com/triggerNZ))
-- Updated sbt-assembly  to 0.14.3 [\#361](https://github.com/scalameta/scalafmt/pull/361) ([VEINHORN](https://github.com/VEINHORN))
+- Updated sbt-assembly to 0.14.3 [\#361](https://github.com/scalameta/scalafmt/pull/361) ([VEINHORN](https://github.com/VEINHORN))
 - Fix indent expire token for lambdas, towards \#357 [\#358](https://github.com/scalameta/scalafmt/pull/358) ([olafurpg](https://github.com/olafurpg))
 
 ## [v0.2.11](https://github.com/scalameta/scalafmt/tree/v0.2.11) (2016-07-08)
@@ -1423,6 +1418,4 @@ src/main/scala/file1.scala
 - Coverage [\#2](https://github.com/scalameta/scalafmt/pull/2) ([olafurpg](https://github.com/olafurpg))
 - Format using shortest path search. [\#1](https://github.com/scalameta/scalafmt/pull/1) ([olafurpg](https://github.com/olafurpg))
 
-
-
-\* *This Changelog was automatically generated by [github_changelog_generator](https://github.com/github-changelog-generator/github-changelog-generator)*
+\* _This Changelog was automatically generated by [github_changelog_generator](https://github.com/github-changelog-generator/github-changelog-generator)_

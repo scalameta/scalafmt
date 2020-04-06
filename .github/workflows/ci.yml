@@ -32,6 +32,9 @@ jobs:
       - uses: actions/checkout@v2
       - uses: olafurpg/setup-scala@v6
       - run: ./scalafmt --test
+      - run: |
+          npx prettier --write docs
+          git diff --exit-code
   native-image:
     runs-on: ${{ matrix.os }}
     strategy:
