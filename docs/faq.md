@@ -8,10 +8,9 @@ title: FAQ / Troubleshooting
 [Scalariform](http://scala-ide.org/scalariform/) does an excellent job of
 tidying up common formatting errors. However,
 
-- Scalariform does not have a `maxColumn` setting, which I personally like and
+* Scalariform does not have a `maxColumn` setting, which I personally like and
   is present in many popular coding styles.
-
-- Scalariform preserves most line breaking decisions, leaving it up to you (or
+* Scalariform preserves most line breaking decisions, leaving it up to you (or
   even worse, your colleagues) to choose a formatting layout. Scalafmt takes
   liberty to add/remove newlines, making your entire codebase look consistent.
 
