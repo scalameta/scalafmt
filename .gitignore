@@ -33,3 +33,5 @@ docs/xx.md
 # metals
 .metals/
 .bloop/
+
+node_modules/
