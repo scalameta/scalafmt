@@ -2,9 +2,9 @@ package org.scalafmt.util
 
 import scala.meta.classifiers.Classifier
 import scala.meta.{Defn, Pkg, Template, Tree}
-import scala.meta.dialects.Scala211
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
+import scala.meta.tokens.Tokens
 
 import org.scalafmt.config.Newlines
 import org.scalafmt.config.ScalafmtConfig
@@ -62,15 +62,18 @@ object TokenOps {
     style.optIn.forceNewlineBeforeDocstringSummary &&
       !left.is[Token.Comment] && right.syntax.startsWith("/**")
 
-  def lastToken(tree: Tree): Token = {
-    // 2.13 has findLast
-    val tokens = tree.tokens
-    val index = tokens.lastIndexWhere {
+  // 2.13 implements SeqOps.findLast
+  def findLast[A](seq: Seq[A])(cond: A => Boolean): Option[A] =
+    seq.reverseIterator.find(cond)
+
+  def lastToken(tokens: Tokens): Token = {
+    findLast(tokens) {
       case Trivia() | _: EOF => false
       case _ => true
-    }
-    if (index == -1) tokens.last else tokens(index)
+    }.getOrElse(tokens.last)
   }
+
+  def lastToken(tree: Tree): Token = lastToken(tree.tokens)
 
   def endsWithNoIndent(between: Seq[Token]): Boolean =
     between.lastOption.exists(_.is[LF])

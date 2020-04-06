@@ -530,12 +530,10 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     if (isAttachedSingleLineComment(ft)) ft.right else ft.left
 
   def getSelectOptimalToken(tree: Tree): Token = {
-    // 2.13 has findLast
-    val tokens = tree.tokens
-    val index = tokens.lastIndexWhere(_.is[T.Dot])
-    if (index == -1)
+    val lastDotOpt = findLast(tree.tokens)(_.is[T.Dot])
+    if (lastDotOpt.isEmpty)
       throw new IllegalStateException(s"Missing . in select $tree")
-    val lastDot = tokens(index).asInstanceOf[T.Dot]
+    val lastDot = lastDotOpt.get.asInstanceOf[T.Dot]
     lastToken(getSelectsLastToken(lastDot).meta.leftOwner)
   }
 
