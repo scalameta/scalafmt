@@ -553,29 +553,25 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   )(implicit style: ScalafmtConfig): Int = {
     if (style.verticalAlignMultilineOperators) {
       if (formatToken.left.text == "=") 2 else 0
-    } else if (style.unindentTopLevelOperators &&
-      rhsArgs.headOption
-        .forall(x => x.isNot[Term.Block] && x.isNot[Term.NewAnonymous]) &&
-      !isTopLevelInfixApplication(owner) &&
-      style.indentOperator.includeRegexp
-        .findFirstIn(formatToken.left.syntax)
-        .isDefined &&
-      style.indentOperator.excludeRegexp
-        .findFirstIn(formatToken.left.syntax)
-        .isEmpty) 2
-    else if ((style.unindentTopLevelOperators ||
-      isTopLevelInfixApplication(owner)) &&
-      (style.indentOperator.includeRegexp
-        .findFirstIn(op.tokens.head.syntax)
-        .isEmpty ||
-      style.indentOperator.excludeRegexp
-        .findFirstIn(op.tokens.head.syntax)
-        .isDefined)) 0
+    } else if (!rhsArgs.headOption.exists { x =>
+        x.is[Term.Block] || x.is[Term.NewAnonymous]
+      } && isInfixTopLevelMatch(owner, formatToken.left.syntax, false)) 2
+    else if (isInfixTopLevelMatch(owner, op.value, true)) 0
     else if (!isNewline &&
       !isSingleLineComment(formatToken.right)) 0
     else if (style.activeForEdition_2020_03 &&
       isChildOfCaseClause(owner)) 0
     else 2
+  }
+
+  private def isInfixTopLevelMatch(
+      tree: Tree,
+      op: String,
+      noindent: Boolean
+  )(implicit style: ScalafmtConfig) = {
+    def isTopLevel = isTopLevelInfixApplication(tree)
+    noindent == style.indentOperator.noindent(op) &&
+    noindent == (noindent == style.unindentTopLevelOperators || isTopLevel)
   }
 
   def infixSplit(
