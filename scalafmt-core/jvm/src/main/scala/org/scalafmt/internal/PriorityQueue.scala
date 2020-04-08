@@ -3,9 +3,9 @@ package org.scalafmt.internal
 /**
   * Minimal implementation of the PriorityQueue's functions needed.
   *
-  * We use [[java.util.PriorityQueue]] to enable usage under GraalVM. The
+  * We use `java.util.PriorityQueue` to enable usage under GraalVM. The
   * native-image compiler is unable to work with
-  * [[scala.collection.mutable.PriorityQueue]] currently.
+  * `scala.collection.mutable.PriorityQueue` currently.
   *
   * @tparam T the values inside the queue
   */

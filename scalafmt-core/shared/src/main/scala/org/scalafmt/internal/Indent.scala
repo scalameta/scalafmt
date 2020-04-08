@@ -41,8 +41,8 @@ object Length {
   * @param expire Until which token does this indentation stay?
   * @param expiresAt If Right, then expires when [[expire]] is curr.right,
   *                  otherwise curr.left in [[BestFirstSearch]].
-  * @tparam T Can be a known number [[Num]] (used in [[State]]) or unknown
-  *           integer [[StateColumn]] (used in [[Split]]).
+  * @tparam T Can be a known number [[Length.Num]] (used in [[State]]) or unknown
+  *           integer [[Length.StateColumn]] (used in [[Split]]).
   */
 case class Indent[T <: Length](length: T, expire: Token, expiresAt: ExpiresOn) {
 

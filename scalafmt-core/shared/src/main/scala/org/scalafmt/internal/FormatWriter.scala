@@ -553,7 +553,7 @@ class FormatWriter(formatOps: FormatOps) {
 
   /**
     * Returns how many extra spaces are needed to align tokens, as configured
-    * by [[initStyle.align.tokens]].
+    * by `initStyle.align.tokens`.
     */
   // TODO(olafur) Refactor implementation to make it maintainable. It's super
   // imperative and error-prone right now.

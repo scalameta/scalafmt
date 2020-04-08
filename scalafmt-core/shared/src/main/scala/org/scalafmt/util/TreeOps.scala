@@ -29,7 +29,7 @@ import org.scalafmt.Error
 import org.scalafmt.config.{DanglingParentheses, ScalafmtConfig}
 
 /**
-  * Stateless helper functions on [[scala.meta.Tree]].
+  * Stateless helper functions on `scala.meta.Tree`.
   */
 object TreeOps {
   import TokenOps._
@@ -284,7 +284,7 @@ object TreeOps {
   }
 
   /**
-    * Returns `true` if the [[Tree]] is a class, trait or def
+    * Returns `true` if the `scala.meta.Tree` is a class, trait or def
     *
     * For classes this includes primary and secondary Ctors.
     */
@@ -298,7 +298,7 @@ object TreeOps {
   }
 
   /**
-    * Returns `true` if the [[Tree]] is a definition site
+    * Returns `true` if the `scala.meta.Tree` is a definition site
     *
     * Currently, this includes everything from classes and defs to type
     * applications
