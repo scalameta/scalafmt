@@ -113,7 +113,10 @@ lazy val core = crossProject(JVMPlatform)
     ),
     libraryDependencies ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, 13)) => Seq.empty
+        case Some((2, 13)) =>
+          Seq(
+            "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0"
+          )
         case _ =>
           Seq(
             compilerPlugin(
@@ -170,15 +173,6 @@ lazy val cli = project
       // undeclared transitive dependency of coursier-small
       "org.scala-lang.modules" %% "scala-xml" % "1.3.0"
     ),
-    libraryDependencies ++= {
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, 13)) =>
-          Seq(
-            "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0"
-          )
-        case _ => Seq.empty
-      }
-    },
     scalacOptions ++= scalacJvmOptions.value,
     mainClass in GraalVMNativeImage := Some("org.scalafmt.cli.Cli"),
     graalVMNativeImageOptions ++= {
