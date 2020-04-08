@@ -146,7 +146,7 @@ case class Split(
         case x => withIndentImpl(Indent(x, expire, when))
       }
 
-  def withIndent(indent: => Indent[_]): Split =
+  def withIndent(indent: => Indent[_ <: Length]): Split =
     if (isIgnored) this
     else
       indent match {
@@ -154,14 +154,14 @@ case class Split(
         case x => withIndentImpl(x)
       }
 
-  def withIndentOpt(indent: => Option[Indent[_]]): Split =
+  def withIndentOpt(indent: => Option[Indent[_ <: Length]]): Split =
     if (isIgnored) this
     else indent.fold(this)(withIndent(_))
 
-  def withIndents(indents: Seq[Indent[_]]): Split =
+  def withIndents(indents: Seq[Indent[_ <: Length]]): Split =
     indents.foldLeft(this)(_ withIndent _)
 
-  private def withIndentImpl(indent: Indent[_]): Split =
+  private def withIndentImpl(indent: Indent[_ <: Length]): Split =
     copy(indents = indent +: indents)
 
   override def toString = {

@@ -2,7 +2,6 @@ package org.scalafmt.util
 
 import scala.meta.{Defn, Pkg, Template, Tree}
 import scala.meta.dialects.Scala211
-import scala.meta.internal.classifiers.classifier
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 
@@ -12,10 +11,8 @@ import org.scalafmt.internal.Decision
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.Modification
 import org.scalafmt.internal.NewlineT
-import org.scalafmt.internal.NoSplit
 import org.scalafmt.internal.Policy
 import org.scalafmt.internal.Space
-import org.scalafmt.internal.Split
 
 /**
   * Stateless helper functions on [[scala.meta.Token]].

@@ -4,7 +4,6 @@ import scala.meta.dialects.Scala211
 
 import java.io.File
 
-import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.FileOps
 import org.scalafmt.util.FormatAssertions
 import org.scalatest.funsuite.AnyFunSuite

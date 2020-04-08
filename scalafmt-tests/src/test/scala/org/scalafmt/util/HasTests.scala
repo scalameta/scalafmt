@@ -114,6 +114,8 @@ trait HasTests extends FormatAssertions {
         case nameAndConfig :: original :: Nil =>
           val name :: config :: Nil = nameAndConfig.split(sep, 2).toList
           (loadStyle(config, style), name :: original :: Nil)
+        case other =>
+          throw new IllegalStateException(s"invalid extraConfig: ${other}")
       }
       val actualName = stripPrefix(name)
       val test = DiffTest(

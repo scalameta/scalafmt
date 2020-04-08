@@ -1,7 +1,5 @@
 package org.scalafmt.cli
 
-import scopt.Read
-
 /**
   * Determines the mode in which Scalafmt will behave
   *

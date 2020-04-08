@@ -96,7 +96,6 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     def addOptional(tree: Tree): Unit =
       tree.tokens.headOption.foreach(x => optional += hash(x))
 
-    import scala.collection.mutable
     val workList = new ju.LinkedList[Tree]()
     workList.add(tree)
     while (!workList.isEmpty) {

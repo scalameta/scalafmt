@@ -31,7 +31,7 @@ import metaconfig._
   *                   solution that reaches the same point later, the first
   *                   solution is preferred if it can be verified to be
   *                   always better (see
-  *                   [[org.scalafmt.internal.State.alwaysBetter()]]).
+  *                   [[org.scalafmt.internal.State.alwaysBetter]]).
   *
   *                   Note. This affects the output positively because it
   *                   breaks a tie between two equally expensive solutions

@@ -2,7 +2,6 @@ package org.scalafmt.util
 
 import org.scalactic.source.Position
 import org.scalatest.funsuite.AnyFunSuite
-import org.scalafmt.Debug
 
 import scala.meta.Tree
 import scala.meta.parsers.{Parse, ParseException}

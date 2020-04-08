@@ -1,6 +1,5 @@
 package org.scalafmt.config
 
-import scala.language.reflectiveCalls
 import metaconfig._
 import java.io.File
 import metaconfig.Conf
