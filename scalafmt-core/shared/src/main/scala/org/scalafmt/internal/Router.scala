@@ -417,7 +417,8 @@ class Router(formatOps: FormatOps) {
             case t if t.tokens.isEmpty || caseStat.cond.isDefined =>
               Right(Split(Space, 0).withSingleLineOpt(t.tokens.lastOption))
             case t: Term.If if t.elsep.tokens.isEmpty =>
-              Right(Split(Space, 0).withSingleLine(t.cond.tokens.last))
+              // must not use optimal token here, will lead to column overflow
+              Right(Split(Space, 0).withSingleLineNoOptimal(t.cond.tokens.last))
             case t @ (_: Term.ForYield | _: Term.Match) =>
               val end = t.tokens.last
               val exclude = insideBlockRanges[T.LeftBrace](tok, end)
