@@ -129,7 +129,13 @@ case class Split(
       killOnFail: Boolean = false
   )(implicit line: sourcecode.Line): Split =
     withOptimalToken(optimal, killOnFail)
-      .withPolicy(SingleLineBlock(expire, exclude))
+      .withSingleLineNoOptimal(expire, exclude)
+
+  def withSingleLineNoOptimal(
+      expire: Token,
+      exclude: => Set[Range] = Set.empty
+  )(implicit line: sourcecode.Line): Split =
+    withPolicy(SingleLineBlock(expire, exclude))
 
   def withPolicyOpt(newPolicy: => Option[Policy]): Split =
     if (isIgnored) this else newPolicy.fold(this)(withPolicy(_))
