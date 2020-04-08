@@ -8,7 +8,7 @@ import com.typesafe.config.{ConfigException, ConfigFactory}
 import metaconfig.Configured
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.config.Config
-import org.scalafmt.util.{AbsoluteFile, FileOps, GitOps, GitOpsImpl, OsSpecific}
+import org.scalafmt.util.{AbsoluteFile, GitOps, GitOpsImpl, OsSpecific}
 
 import scala.io.Codec
 import scala.util.control.NonFatal

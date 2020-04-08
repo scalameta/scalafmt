@@ -12,7 +12,6 @@ import org.scalafmt.util._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
-import scala.language.postfixOps
 import scala.meta.Tree
 import scala.meta.parsers.Parse
 // TODO(olafur) property test: same solution without optimization or timeout.

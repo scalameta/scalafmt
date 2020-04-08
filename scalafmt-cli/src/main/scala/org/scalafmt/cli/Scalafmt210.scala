@@ -5,7 +5,6 @@ import scala.util.matching.Regex
 import java.io.File
 
 import metaconfig._, Configured._
-import org.scalafmt.Error.InvalidScalafmtConfiguration
 import org.scalafmt.Formatted
 import org.scalafmt.Scalafmt
 import org.scalafmt.config.ScalafmtConfig

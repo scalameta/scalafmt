@@ -197,7 +197,6 @@ object TreeOps {
     */
   def getOwners(tree: Tree): collection.Map[TokenHash, Tree] = {
     val result = new java.util.HashMap[TokenHash, Tree](2048)
-    import scala.collection.mutable
     val workList = new ju.LinkedList[Tree]()
     workList.add(tree)
     while (!workList.isEmpty) {
