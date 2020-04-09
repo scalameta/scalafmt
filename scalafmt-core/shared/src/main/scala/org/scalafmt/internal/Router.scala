@@ -1126,12 +1126,6 @@ class Router(formatOps: FormatOps) {
         else
           getSplitsValEquals(formatToken, rhs)
 
-      case FormatToken(T.Ident(name), _: T.Dot, _) if isSymbolicName(name) =>
-        Seq(Split(NoSplit, 0))
-
-      case FormatToken(_: T.Underscore, _: T.Dot, _) =>
-        Seq(Split(NoSplit, 0))
-
       case FormatToken(_, _: T.Dot, _)
           if style.newlines.sourceIgnored &&
             rightOwner.is[Term.Select] && findTreeWithParent(rightOwner) {
@@ -1168,7 +1162,8 @@ class Router(formatOps: FormatOps) {
               }
               Seq(
                 Split(NoSplit, 0).withSingleLine(expire),
-                Split(Newline, 1).withPolicyOpt(forcedBreakPolicy)
+                Split(NewlineT(acceptNoSplit = true), 1)
+                  .withPolicyOpt(forcedBreakPolicy)
               )
             }
 
@@ -1177,7 +1172,7 @@ class Router(formatOps: FormatOps) {
             def exclude = insideBlockRanges[LeftParenOrBrace](t, end)
             Seq(
               Split(NoSplit, 0).withSingleLine(end, exclude),
-              Split(Newline, 1)
+              Split(NewlineT(acceptNoSplit = true), 1)
             )
         }
 
@@ -1198,6 +1193,12 @@ class Router(formatOps: FormatOps) {
 
         if (prevSelect.isEmpty) splits
         else baseSplits ++ splits.map(_.onlyFor(SplitTag.SelectChainFirstNL))
+
+      case FormatToken(T.Ident(name), _: T.Dot, _) if isSymbolicName(name) =>
+        Seq(Split(NoSplit, 0))
+
+      case FormatToken(_: T.Underscore, _: T.Dot, _) =>
+        Seq(Split(NoSplit, 0))
 
       case tok @ FormatToken(left, dot @ T.Dot() `:chain:` chain, _) =>
         val nestedPenalty = nestedSelect(rightOwner) + nestedApplies(leftOwner)
