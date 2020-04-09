@@ -491,30 +491,18 @@ val augassign: P[Ast.operator] = P(
   )
 >>>
 val augassign: P[Ast.operator] = P(
-  "+="
-    .!.map(_ => Ast.operator.Add) |
-    "-="
-      .!.map(_ => Ast.operator.Sub) |
-    "*="
-      .!.map(_ => Ast.operator.Mult) |
-    "/="
-      .!.map(_ => Ast.operator.Div) |
-    "%="
-      .!.map(_ => Ast.operator.Mod) |
-    "&="
-      .!.map(_ => Ast.operator.BitAnd) |
-    "|="
-      .!.map(_ => Ast.operator.BitOr) |
-    "^="
-      .!.map(_ => Ast.operator.BitXor) |
-    "<<="
-      .!.map(_ => Ast.operator.LShift) |
-    ">>="
-      .!.map(_ => Ast.operator.RShift) |
-    "**="
-      .!.map(_ => Ast.operator.Pow) |
-    "//="
-      .!.map(_ => Ast.operator.FloorDiv)
+  "+=".!.map(_ => Ast.operator.Add) |
+    "-=".!.map(_ => Ast.operator.Sub) |
+    "*=".!.map(_ => Ast.operator.Mult) |
+    "/=".!.map(_ => Ast.operator.Div) |
+    "%=".!.map(_ => Ast.operator.Mod) |
+    "&=".!.map(_ => Ast.operator.BitAnd) |
+    "|=".!.map(_ => Ast.operator.BitOr) |
+    "^=".!.map(_ => Ast.operator.BitXor) |
+    "<<=".!.map(_ => Ast.operator.LShift) |
+    ">>=".!.map(_ => Ast.operator.RShift) |
+    "**=".!.map(_ => Ast.operator.Pow) |
+    "//=".!.map(_ => Ast.operator.FloorDiv)
 )
 <<< 3.1: def non-config-style, long
 def a( ccccccccccccccccc:Int,
