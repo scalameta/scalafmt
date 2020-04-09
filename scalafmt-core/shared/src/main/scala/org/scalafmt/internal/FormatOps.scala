@@ -166,73 +166,44 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     }
   }
 
-  @tailrec
-  final def prevNonCommentWithCount(
-      curr: FormatToken,
-      accum: Int = 0
-  ): (Int, FormatToken) = {
-    if (!curr.left.is[T.Comment]) accum -> curr
-    else {
-      val tok = prev(curr)
-      if (tok == curr) accum -> curr
-      else prevNonCommentWithCount(tok, accum + 1)
-    }
-  }
-  def prevNonComment(curr: FormatToken): FormatToken =
-    prevNonCommentWithCount(curr)._2
-
-  @tailrec
   final def nextNonCommentSameLine(curr: FormatToken): FormatToken =
-    if (curr.hasBreak || !curr.right.is[T.Comment]) curr
-    else {
-      val tok = next(curr)
-      if (tok == curr) curr
-      else nextNonCommentSameLine(tok)
-    }
+    findToken(curr, next)(ft => ft.hasBreak || !ft.right.is[T.Comment])
+      .fold(identity, identity)
 
-  @tailrec
-  final def nextNonCommentWithCount(
-      curr: FormatToken,
-      accum: Int = 0
-  ): (Int, FormatToken) = {
-    if (!curr.right.is[T.Comment]) accum -> curr
-    else {
-      val tok = next(curr)
-      if (tok == curr) accum -> curr
-      else nextNonCommentWithCount(tok, accum + 1)
-    }
-  }
-  def nextNonComment(curr: FormatToken): FormatToken =
-    nextNonCommentWithCount(curr)._2
+  final def nextNonComment(curr: FormatToken): FormatToken =
+    findToken(curr, next) {
+      case FormatToken(_, _: T.Comment, _) => false
+      case _ => true
+    }.fold(identity, identity)
 
-  @tailrec
+  final def prevNonComment(curr: FormatToken): FormatToken =
+    findToken(curr, prev) {
+      case FormatToken(_: T.Comment, _, _) => false
+      case _ => true
+    }.fold(identity, identity)
+
   final def rhsOptimalToken(
       start: FormatToken
-  )(implicit style: ScalafmtConfig): Token = {
-    val found = start.right match {
-      case _ if start.hasBlankLine => Some(start.left)
-      case _: T.RightParen
-          if start.left.is[T.RightParen] || start.left.is[T.LeftParen] =>
-        None
-      case _: T.RightBracket if start.left.is[T.RightBracket] => None
-      case _: T.Comma | _: T.LeftParen | _: T.Semicolon | _: T.RightArrow |
-          _: T.Equals
-          if (style.activeForEdition_2020_03 && isInfixRhs(start) ||
-            !startsNewBlockOnRight(start)) =>
-        None
-      case c: T.Comment
-          if style.activeForEdition_2020_01 && start.noBreak &&
-            (!start.left.is[T.LeftParen] || isSingleLineComment(c)) =>
-        Some(c)
-      case _ => Some(start.left)
-    }
-    found match {
-      case Some(t) => t
-      case None =>
-        if (!tokens.hasNext(start)) start.right
-        else rhsOptimalToken(next(start))
-    }
-  }
+  )(implicit style: ScalafmtConfig): Token =
+    findTokenWith(start, next) { start =>
+      start.right match {
+        case _ if start.hasBlankLine => Some(start.left)
+        case _: T.RightParen
+            if start.left.is[T.RightParen] || start.left.is[T.LeftParen] =>
+          None
+        case _: T.RightBracket if start.left.is[T.RightBracket] => None
+        case _: T.Comma | _: T.LeftParen | _: T.Semicolon | _: T.RightArrow |
+            _: T.Equals
+            if (style.activeForEdition_2020_03 && isInfixRhs(start) ||
+              !startsNewBlockOnRight(start)) =>
+          None
+        case c: T.Comment
+            if style.activeForEdition_2020_01 && start.noBreak &&
+              (!start.left.is[T.LeftParen] || isSingleLineComment(c)) =>
+          Some(c)
+        case _ => Some(start.left)
+      }
+    }.fold(_.right, identity)
 
   @tailrec
   final def endOfSingleLineBlock(
@@ -1074,12 +1045,10 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   }
 
   // Returns leading comment, if there exists one, otherwise formatToken.right
-  @tailrec
-  final def leadingComment(formatToken: FormatToken): Token = {
-    if (!formatToken.hasBlankLine && formatToken.left.is[T.Comment])
-      leadingComment(prev(formatToken))
-    else formatToken.right
-  }
+  final def leadingComment(formatToken: FormatToken): Token =
+    findToken(formatToken, prev) { formatToken =>
+      formatToken.hasBlankLine || !formatToken.left.is[T.Comment]
+    }.fold(_.left, _.right)
 
   def xmlSpace(owner: Tree): Modification = owner match {
     case _: Term.Xml | _: Pat.Xml => NoSplit
@@ -1241,5 +1210,24 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
         else findLastApplyAndNextSelect(p, select)
       case _ => (tree, select)
     }
+
+  @tailrec
+  final def findTokenWith[A](
+      ft: FormatToken,
+      iter: FormatToken => FormatToken
+  )(f: FormatToken => Option[A]): Either[FormatToken, A] =
+    f(ft) match {
+      case Some(a) => Right(a)
+      case _ =>
+        val nextFt = iter(ft)
+        if (nextFt eq ft) Left(ft)
+        else findTokenWith(nextFt, iter)(f)
+    }
+
+  final def findToken(
+      ft: FormatToken,
+      iter: FormatToken => FormatToken
+  )(f: FormatToken => Boolean): Either[FormatToken, FormatToken] =
+    findTokenWith(ft, iter)(Some(_).filter(f))
 
 }
