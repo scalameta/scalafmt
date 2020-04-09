@@ -333,7 +333,8 @@ class FormatWriter(formatOps: FormatOps) {
         ): Option[FormatToken] = {
           def owner = tok.meta.rightOwner
 
-          val (skip, nextNonCommentTok) = nextNonCommentWithCount(tok)
+          val nextNonCommentTok = nextNonComment(tok)
+          val skip = nextNonCommentTok.meta.idx - tok.meta.idx
           val right = nextNonCommentTok.right
           def isNewline =
             Seq(curr, locations(math.min(i + skip, locations.length - 1)))
@@ -439,10 +440,6 @@ class FormatWriter(formatOps: FormatOps) {
       else if (toks(i).state.split.modification.isNewline) true
       else isMultiline(end, i + 1)
     }
-    def actualOwner(token: Token): Tree = owners(token) match {
-      case mod: Mod => mod.parent.get
-      case x => x
-    }
     initStyle.newlines.alwaysBeforeTopLevelStatements && {
       val formatToken = toks(i).formatToken
 
@@ -469,9 +466,13 @@ class FormatWriter(formatOps: FormatOps) {
 
       def checkTopLevelStatement: Boolean =
         topLevelTokens.contains(hash(formatToken.right)) && {
-          val (distance, FormatToken(_, nextNonComment, _)) =
-            nextNonCommentWithCount(formatToken)
-          isMultiline(actualOwner(nextNonComment).tokens.last, i + distance + 1)
+          val nextNonCommentTok = nextNonComment(formatToken)
+          val distance = nextNonCommentTok.meta.idx - formatToken.meta.idx
+          val nonCommentOwner = nextNonCommentTok.meta.rightOwner match {
+            case mod: Mod => mod.parent.get
+            case x => x
+          }
+          isMultiline(nonCommentOwner.tokens.last, i + distance + 1)
         }
 
       checkPackage.getOrElse(checkTopLevelStatement)
