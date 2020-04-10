@@ -12,7 +12,7 @@ import scala.meta.Type
 
 object InfixApplication {
   def unapply(tree: Tree): Option[(Tree, Name, Seq[Tree])] = tree match {
-    case infix: Type.ApplyInfix => Some((infix.lhs, infix.op, infix.children))
+    case infix: Type.ApplyInfix => Some((infix.lhs, infix.op, Seq(infix.rhs)))
     case infix: Term.ApplyInfix => Some((infix.lhs, infix.op, infix.args))
     case infix: Pat.ExtractInfix => Some((infix.lhs, infix.op, infix.rhs))
     case _ => None

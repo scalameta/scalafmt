@@ -41,11 +41,13 @@ function(
 <<< infix types #500
 type Row =
   AlertEvent :+:
+  TestEvent :+:
   InteractionEvent
 >>>
 type Row =
   AlertEvent :+:
-  InteractionEvent
+    TestEvent :+:
+    InteractionEvent
 <<< base config is preseverd
 {
   // scalafmt: { maxColumn = 40 }
