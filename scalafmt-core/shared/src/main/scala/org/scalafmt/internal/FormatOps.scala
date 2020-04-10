@@ -233,8 +233,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   final def isInfixRhs(ft: FormatToken): Boolean = {
     val tree = ft.meta.rightOwner
     tree.parent.exists {
-      case y: Term.ApplyInfix =>
-        (y.op eq tree) || y.args.headOption.forall { arg =>
+      case InfixApplication(_, op, rhs) =>
+        (op eq tree) || rhs.headOption.forall { arg =>
           (arg eq tree) && arg.tokens.headOption.contains(ft.right)
         }
       case _ => false
