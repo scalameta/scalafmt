@@ -489,25 +489,18 @@ object TreeOps {
       case _ => first
     }
 
-  final def isApplyInfix(op: Token.Ident, owner: Tree): Boolean =
-    owner.parent.exists {
-      case infix: Type.ApplyInfix => infix.op == owner
-      case infix: Term.ApplyInfix => infix.op == owner
-      case infix: Pat.ExtractInfix => infix.op == owner
+  final def isInfixOp(tree: Tree): Boolean =
+    tree.parent.exists {
+      case InfixApplication(_, op, _) => op eq tree
       case _ => false
     }
 
   @tailrec
   final def isTopLevelInfixApplication(child: Tree): Boolean =
     child.parent match {
-      case Some(parent) =>
-        parent match {
-          case _: Term.ApplyInfix | _: Type.ApplyInfix =>
-            isTopLevelInfixApplication(parent)
-          case _: Term.Block | _: Term.If | _: Term.While | _: Source => true
-          case fun: Term.Function => isBlockFunction(fun)
-          case _ => false
-        }
+      case Some(p @ InfixApplication(_)) => isTopLevelInfixApplication(p)
+      case Some(_: Term.Block | _: Term.If | _: Term.While | _: Source) => true
+      case Some(fun: Term.Function) => isBlockFunction(fun)
       case _ => false
     }
 
