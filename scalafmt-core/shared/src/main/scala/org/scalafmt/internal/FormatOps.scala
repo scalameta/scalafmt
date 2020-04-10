@@ -587,28 +587,16 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       formatToken: FormatToken
   )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] = {
     val isNotEquals = !formatToken.left.is[Token.Equals]
-    val isRightAssociative =
-      // NOTE. Silly workaround because we call infixSplit from assignment =, see #798
-      isNotEquals &&
-        isRightAssociativeOperator(op.value)
-    val expire = (for {
-      arg <- {
-        if (isRightAssociative) rhsArgs.headOption
-        else rhsArgs.lastOption
-      }
-      token <- {
-        if (isRightAssociative) {
-          arg match {
-            case InfixApplication(lhs, _, _) =>
-              lhs.tokens.lastOption
-            case _ =>
-              arg.tokens.lastOption
-          }
-        } else {
-          arg.tokens.lastOption
+    // NOTE. Silly workaround because we call infixSplit from assignment =, see #798
+    val treeOpt =
+      if (isNotEquals && isRightAssociativeOperator(op.value))
+        rhsArgs.headOption.collectFirst {
+          case InfixApplication(lhs, _, _) if lhs.tokens.nonEmpty => lhs
+          case arg if arg.tokens.nonEmpty => arg
         }
-      }
-    } yield token).getOrElse(owner.tokens.last)
+      else
+        findLast(rhsArgs)(_.tokens.nonEmpty)
+    val expire = treeOpt.getOrElse(owner).tokens.last
 
     // we don't modify line breaks generally around infix expressions
     // TODO: if that ever changes, modify how rewrite rules handle infix
