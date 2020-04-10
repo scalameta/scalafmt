@@ -22,5 +22,6 @@ object SplitTag {
 
   case object OneArgPerLine extends Custom
   case object SelectChainFirstNL extends Custom
+  case object InfixChainNoNL extends Custom
 
 }

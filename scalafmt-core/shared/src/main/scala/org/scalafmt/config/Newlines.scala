@@ -1,5 +1,7 @@
 package org.scalafmt.config
 
+import org.scalafmt.config.Newlines.AfterInfix
+
 import metaconfig._
 import metaconfig.generic.Surface
 
@@ -113,6 +115,20 @@ import metaconfig.generic.Surface
   *   If `keep`, try to keep source newlines
   *   If `fold`, ignore source and try to remove line breaks
   *   If `unfold`, ignore source and try to break lines
+  * @param afterInfix
+  *   Controls how line breaks around operations are handled
+  *   If `keep` (default for source=classic,keep), preserve existing
+  *   If `some` (default for source=fold), break after some infix ops
+  *   If `many` (default for source=unfold), break after many infix ops
+  * @param afterInfixBreakOnNested
+  *   Force breaks around nested (enclosed in parentheses) expressions
+  * @param afterInfixMaxCountPerFile
+  *   Switch to `keep` for a given file if the total number of infix
+  *   operations in that file exceeds this value
+  * @param afterInfixMaxCountPerExprForSome
+  *   Switch to `many` for a given expression (possibly nested) if the
+  *   number of operations in that expression exceeds this value AND
+  *   `afterInfix` had been set to `some`.
   */
 case class Newlines(
     source: Newlines.SourceHints = Newlines.classic,
@@ -127,6 +143,10 @@ case class Newlines(
     beforeImplicitParamListModifier: Boolean = false,
     alwaysBeforeElseAfterCurlyIf: Boolean = false,
     alwaysBeforeMultilineDef: Boolean = true,
+    afterInfix: Option[AfterInfix] = None,
+    afterInfixBreakOnNested: Boolean = false,
+    afterInfixMaxCountPerExprForSome: Int = 10,
+    afterInfixMaxCountPerFile: Int = 500,
     avoidAfterYield: Boolean = true
 ) {
   val reader: ConfDecoder[Newlines] = generic.deriveDecoder(this).noTypos
@@ -143,6 +163,25 @@ case class Newlines(
   val sourceIgnored: Boolean =
     sourceIn(Newlines.fold, Newlines.unfold)
 
+  val breakAfterInfix: AfterInfix =
+    afterInfix.getOrElse {
+      source match {
+        case Newlines.unfold => AfterInfix.many
+        case Newlines.fold => AfterInfix.some
+        case Newlines.keep => AfterInfix.keep
+        case Newlines.classic => AfterInfix.keep
+      }
+    }
+  val formatInfix: Boolean = breakAfterInfix ne AfterInfix.keep
+
+  def checkInfixConfig(infixCount: Int): Newlines = {
+    val needAfterInfix: AfterInfix =
+      if (infixCount > afterInfixMaxCountPerFile) AfterInfix.keep
+      else breakAfterInfix
+    if (needAfterInfix == breakAfterInfix) this
+    else copy(afterInfix = Some(needAfterInfix))
+  }
+
 }
 
 object Newlines {
@@ -150,16 +189,12 @@ object Newlines {
   implicit lazy val encoder: ConfEncoder[Newlines] = generic.deriveEncoder
 
   sealed abstract class SourceHints
-
   // the classic handler of source newlines
   case object classic extends SourceHints
-
   // try to keep newlines
   case object keep extends SourceHints
-
   // try to fold newlines into spaces (but not semicolons)
   case object fold extends SourceHints
-
   // try to turn spaces and semicolons into newlines
   case object unfold extends SourceHints
 
@@ -170,6 +205,17 @@ object Newlines {
     Console.err.println(
       "newlines.source is experimental, will change ignoring edition setting"
     )
+
+  sealed abstract class AfterInfix
+  object AfterInfix {
+    case object keep extends AfterInfix
+    case object some extends AfterInfix
+    case object many extends AfterInfix
+
+    implicit val reader: ConfCodec[AfterInfix] =
+      ReaderUtil.oneOf[AfterInfix](keep, some, many)
+  }
+
 }
 
 sealed abstract class NewlineCurlyLambda
