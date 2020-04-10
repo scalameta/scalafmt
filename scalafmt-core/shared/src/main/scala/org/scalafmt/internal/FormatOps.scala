@@ -34,7 +34,20 @@ import scala.meta.tokens.{Token => T}
 /**
   * Helper functions for generating splits/policies for a given tree.
   */
-class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
+class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
+  val initStyle = {
+    val queue = new mutable.Queue[Tree]
+    queue += tree
+    var count = 0
+    while (queue.nonEmpty) {
+      val elem = queue.dequeue()
+      queue ++= elem.children
+      if (TreeOps.isInfixApp(elem)) count += 1
+    }
+    val checkedNewlines = baseStyle.newlines.checkInfixConfig(count)
+    if (checkedNewlines eq baseStyle.newlines) baseStyle
+    else baseStyle.copy(newlines = checkedNewlines)
+  }
   val runner = initStyle.runner
   import TokenOps._
   import TreeOps._
@@ -548,7 +561,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       } && isInfixTopLevelMatch(app.all, formatToken.left.syntax, false)) 2
     else if (isInfixTopLevelMatch(app.all, app.op.value, true)) 0
     else if (!isNewline && !isSingleLineComment(formatToken.right)) 0
-    else if (style.activeForEdition_2020_03 &&
+    else if ((style.activeForEdition_2020_03 || style.newlines.formatInfix) &&
       app.all.is[Pat] && isChildOfCaseClause(app.all)) 0
     else 2
   }
@@ -615,8 +628,255 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       case t: Type.ApplyInfix
           if style.spaces.neverAroundInfixTypes.contains(t.op.value) =>
         Seq(Split(NoSplit, 0))
+      case _ if style.newlines.formatInfix =>
+        if (ft.meta.leftOwner ne app.op) Seq(Split(Space, 0))
+        else getInfixSplitsBeforeLhsOrRhs(app, ft, findEnclosingInfix(app))
       case _ => infixSplitImpl(app, ft, false)
     }
+
+  @tailrec
+  private def findEnclosingInfix(child: InfixApp): InfixApp =
+    if (isEnclosedInMatching(child.all)) child
+    else
+      child.all.parent match {
+        case Some(InfixApp(parent)) if !parent.isAssignment =>
+          if ((child.all ne parent.lhs) && parent.rhs.length != 1) child
+          else findEnclosingInfix(parent)
+        case _ => child
+      }
+
+  def getInfixSplitsBeforeLhs(
+      lhsApp: InfixApp,
+      ft: FormatToken,
+      newStmtModOrBody: Either[Modification, Tree]
+  )(implicit style: ScalafmtConfig): Seq[Split] = {
+    val fullInfixTreeOpt = findTreeWithParentSimple(lhsApp.all)(!isInfixApp(_))
+    val fullInfix = fullInfixTreeOpt.flatMap(asInfixApp).getOrElse(lhsApp)
+    val app = findLeftInfix(fullInfix)
+    newStmtModOrBody.fold(
+      x => getInfixSplitsBeforeLhsOrRhs(app, ft, fullInfix, Some(x)),
+      x => {
+        val indent = Indent(Num(2), x.tokens.last, ExpiresOn.After)
+        getInfixSplitsBeforeLhsOrRhs(app, ft, fullInfix).map { s =>
+          if (s.modification.isNewline) s.withIndent(indent) else s
+        }
+      }
+    )
+  }
+
+  private def getInfixSplitsBeforeLhsOrRhs(
+      app: InfixApp,
+      ft: FormatToken,
+      fullInfix: InfixApp,
+      newStmtMod: Option[Modification] = None
+  )(implicit style: ScalafmtConfig): Seq[Split] = {
+    val beforeLhs = ft.meta.leftOwner ne app.op
+    val maxPrecedence =
+      if (beforeLhs) 0 // not used
+      else infixSequenceMaxPrecedence(fullInfix)
+    val closeOpt = matchingOpt(ft.right)
+    val expiresOpt =
+      if (closeOpt.isDefined) None
+      else {
+        val res = mutable.Buffer.empty[InfixApp]
+        findNextInfixes(fullInfix.all, app.lhs, res)
+        val infixes = if (beforeLhs) res.toSeq else res.toSeq.tail
+        val filtered =
+          if (!style.newlines.afterInfixBreakOnNested) infixes
+          else
+            infixes.takeWhile { x =>
+              val close = lastToken(x.lhs)
+              !close.is[T.RightParen] ||
+              !isEnclosedInMatching(owners(close), matching(close), close)
+            }
+        if (filtered.isEmpty) None
+        else {
+          val res = filtered.foldLeft(Seq.empty[(T, Int)]) {
+            case (out, ia) =>
+              val cost = maxPrecedence - ia.precedence
+              if (out.nonEmpty && out.last._2 <= cost) out
+              else out :+ getMidInfixToken(ia) -> cost
+          }
+          Some(res)
+        }
+      }
+
+    val breakPenalty = if (beforeLhs) 1 else (maxPrecedence - app.precedence)
+    val fullExpire = getLastEnclosedToken(fullInfix.all)
+    val expires = expiresOpt.fold(Seq(fullExpire -> 0)) { x =>
+      if (x.last._2 == 0) x else x :+ fullExpire -> 0
+    }
+    val firstInfixOp = findLeftInfix(fullInfix).op
+    val isFirst = beforeLhs || (firstInfixOp eq app.op)
+
+    val infixTooLong = infixSequenceLength(fullInfix) >
+      style.newlines.afterInfixMaxCountPerExprForSome
+    val breakMany = infixTooLong ||
+      style.newlines.breakAfterInfix == Newlines.AfterInfix.many
+    val rightAsInfix = asInfixApp(ft.meta.rightOwner)
+
+    val nlMod = newStmtMod.getOrElse(getModCheckIndent(ft, 1))
+    val nlIndentLength = Num(if (beforeLhs) 0 else infixIndent(app, ft, true))
+    val fullIndent = Indent(nlIndentLength, fullExpire, ExpiresOn.After)
+    val nlIndent =
+      if (isFirst || (fullIndent eq Indent.Empty)) fullIndent
+      else new Indent.Before(fullIndent, firstInfixOp)
+    val nlPolicy =
+      if (nlIndent eq Indent.Empty) NoPolicy
+      else
+        Policy(fullExpire) {
+          case Decision(t: FormatToken, s) if isInfixOp(t.meta.leftOwner) =>
+            s.map { x =>
+              if (!x.modification.isNewline) x
+              else x.switch(firstInfixOp)
+            }
+        }
+
+    val singleLineExpire = if (isFirst) fullExpire else expires.head._1
+    val singleLinePolicy =
+      if (infixTooLong || !isFirst) None
+      else Some(getSingleLineInfixPolicy(fullExpire))
+    val nlSinglelineSplit = Split(nlMod, 0)
+      .onlyIf(singleLinePolicy.isDefined && beforeLhs)
+      .withIndent(nlIndentLength, singleLineExpire, ExpiresOn.After)
+      .withSingleLine(singleLineExpire)
+      .andThenPolicyOpt(singleLinePolicy)
+    val spaceSingleLine = Split(Space, 0)
+      .onlyIf(newStmtMod.isEmpty)
+      .withSingleLine(singleLineExpire)
+      .andThenPolicyOpt(singleLinePolicy)
+    val singleLineSplits = Seq(
+      spaceSingleLine.onlyFor(SplitTag.InfixChainNoNL),
+      spaceSingleLine.onlyIf(singleLinePolicy.isDefined),
+      nlSinglelineSplit
+    )
+
+    val otherSplits = closeOpt.fold {
+      val nlSplit = Split(nlMod, 1 + breakPenalty)
+      Seq(nlSplit.withIndent(nlIndent).withPolicy(nlPolicy))
+    } { close =>
+      val noSingleLine = newStmtMod.isDefined || breakMany ||
+        rightAsInfix.exists(10 < infixSequenceLength(_))
+      val nextOp =
+        if (!style.newlines.afterInfixBreakOnNested) None
+        else if (beforeLhs) Some(app.op)
+        else
+          getInfixRhsAsInfix(app) match {
+            case Some(ia) => Some(findLeftInfix(ia).op)
+            case _ => findNextInfixInParent(app.all, fullInfix.all)
+          }
+      val endOfNextOp = nextOp.map(_.tokens.last)
+      val breakAfterClose = endOfNextOp.flatMap { tok =>
+        val end = nextNonCommentSameLine(tokens(tok))
+        if (end.right.is[T.LeftBrace]) None
+        else Some(Policy.map(decideNewlinesOnlyAfterToken)(end.left))
+      }
+
+      val nlSplit = Split(nlMod, 0)
+        .andThenPolicyOpt(breakAfterClose)
+        .withIndent(nlIndent)
+        .withPolicy(nlPolicy)
+      val singleLineSplit = Split(Space, 0)
+        .notIf(noSingleLine)
+        .withSingleLine(endOfNextOp.getOrElse(close))
+        .andThenPolicyOpt(breakAfterClose)
+        .andThenPolicy(getSingleLineInfixPolicy(close))
+      Seq(singleLineSplit, nlSplit)
+    }
+
+    val spaceSplits: Seq[Split] =
+      if (ft.right.is[T.Comment]) Seq.empty
+      else if (closeOpt.isDefined) Seq.empty
+      else {
+        val nextFT = if (rightAsInfix.isDefined) next(ft) else ft
+        expires.filter(_._2 <= breakPenalty).takeRight(3).map {
+          case (expire, cost) =>
+            val exclude =
+              if (breakMany) Set.empty[Range]
+              else insideBlockRanges[LeftParenOrBrace](nextFT, expire)
+            Split(newStmtMod.getOrElse(Space), cost)
+              .withSingleLine(expire, exclude)
+        }
+      }
+
+    singleLineSplits ++ spaceSplits ++ otherSplits
+  }
+
+  def getSingleLineInfixPolicy(end: Token) = Policy(end) {
+    case Decision(t: FormatToken, s) if isInfixOp(t.meta.leftOwner) =>
+      SplitTag.InfixChainNoNL.activateOnly(s)
+  }
+
+  def getMidInfixToken(app: InfixApp): Token = {
+    val opToken = app.op.tokens.head
+    val opFollowsComment = tokens(opToken, -1).left.is[T.Comment]
+    if (opFollowsComment) lastToken(app.lhs) else opToken
+  }
+
+  private def getLastEnclosedToken(tree: Tree): Token = {
+    val tokens = tree.tokens
+    lastToken(if (isEnclosedInMatching(tree)) tokens.dropRight(1) else tokens)
+  }
+
+  @tailrec
+  private def findNextInfixes(
+      fullTree: Tree,
+      tree: Tree,
+      res: mutable.Buffer[InfixApp]
+  ): Unit =
+    tree.parent match {
+      case Some(p @ InfixApp(ia)) if tree ne fullTree =>
+        if (ia.lhs eq tree) findNestedInfixes(ia.rhs, res += ia)
+        findNextInfixes(fullTree, p, res)
+      case _ =>
+    }
+
+  private def findNestedInfixes(
+      tree: Tree,
+      res: mutable.Buffer[InfixApp]
+  ): Unit =
+    if (!isEnclosedInMatching(tree)) {
+      asInfixApp(tree).foreach { ia =>
+        findNestedInfixes(ia.lhs, res)
+        res += ia
+        findNestedInfixes(ia.rhs, res)
+      }
+    }
+  private def findNestedInfixes(
+      trees: Seq[Tree],
+      res: mutable.Buffer[InfixApp]
+  ): Unit =
+    // multiple RHS parameters are always enclosed
+    if (trees.length == 1) findNestedInfixes(trees.head, res)
+
+  @tailrec
+  final def findLeftInfix(app: InfixApp): InfixApp =
+    app.lhs match {
+      case t @ InfixApp(ia) if !isEnclosedInMatching(t) =>
+        findLeftInfix(ia)
+      case _ => app
+    }
+
+  private def getInfixRhsAsInfix(app: InfixApp): Option[InfixApp] =
+    app.rhs match {
+      case Seq(t @ InfixApp(ia)) if !isEnclosedInMatching(t) => Some(ia)
+      case _ => None // multiple parameters to infix are always enclosed
+    }
+
+  private def infixSequenceMaxPrecedence(app: InfixApp): Int = {
+    val queue = new mutable.Queue[InfixApp]()
+    queue += app
+    var maxPrecedence = 0
+    while (queue.nonEmpty) {
+      val elem = queue.dequeue()
+      if (maxPrecedence < elem.precedence)
+        maxPrecedence = elem.precedence
+      queue ++= (elem.lhs +: elem.rhs).collect {
+        case t @ InfixApp(ia) if !isEnclosedInMatching(t) => ia
+      }
+    }
+    maxPrecedence
+  }
 
   def isEmptyFunctionBody(tree: Tree): Boolean = tree match {
     case function: Term.Function =>
@@ -726,7 +986,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     }
 
   def isBinPack(owner: Tree): Boolean = {
-    val style = styleAt(owner)
+    implicit val style = styleAt(owner)
     (style.binPack.unsafeCallSite && isCallSite(owner)) ||
     (style.binPack.unsafeDefnSite && isDefnSite(owner))
   }
@@ -1110,6 +1370,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       if (!style.activeForEdition_2020_03) argss.flatten
       else findArgsFor(paren, argss).getOrElse(Seq.empty)
     owner match {
+      case InfixApp(ia) if style.newlines.formatInfix => (ia.op, ia.rhs)
       case t @ SplitDefnIntoParts(_, name, tparams, paramss) =>
         if (if (isRight) paren.is[T.RightParen] else paren.is[T.LeftParen])
           (name, getArgs(paramss))
@@ -1146,6 +1407,9 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       case t: Term.Param => !hasExplicitImplicit(t)
       case _ => true
     }
+
+  def isEnclosedInMatching(tree: Tree, open: T, close: T): Boolean =
+    tree.tokens.headOption.contains(open) && (tree.tokens.last eq close)
 
   def getClosingIfEnclosedInMatching(tree: Tree): Option[T] =
     tree.tokens.lastOption.filter(matchingOpt(_).contains(tree.tokens.head))

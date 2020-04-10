@@ -3,6 +3,7 @@ package org.scalafmt.util
 import java.{util => ju}
 import scala.collection.JavaConverters._
 import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.meta.Case
 import scala.meta.Ctor
 import scala.meta.Decl
@@ -328,23 +329,27 @@ object TreeOps {
     owner.tokens.lastOption.contains(token)
   }
 
-  def isCallSite(tree: Tree): Boolean = tree match {
-    case _: Term.Apply | _: Type.Apply | _: Pat.Extract | _: Term.Super |
-        _: Pat.Tuple | _: Term.Tuple | _: Term.ApplyType | _: Term.Assign |
-        _: Init =>
-      true
-    case _ => false
-  }
+  def isCallSite(tree: Tree)(implicit style: ScalafmtConfig): Boolean =
+    tree match {
+      case _: Term.Apply | _: Type.Apply | _: Pat.Extract | _: Term.Super |
+          _: Pat.Tuple | _: Term.Tuple | _: Term.ApplyType | _: Term.Assign |
+          _: Init =>
+        true
+      case t: Term.ApplyInfix => style.newlines.formatInfix && t.args.length > 1
+      case _ => false
+    }
 
   def isTuple(tree: Tree): Boolean = tree match {
     case _: Pat.Tuple | _: Term.Tuple | _: Type.Tuple => true
     case _ => false
   }
 
-  def isDefnOrCallSite(tree: Tree): Boolean =
+  def isDefnOrCallSite(tree: Tree)(implicit style: ScalafmtConfig): Boolean =
     isDefnSite(tree) || isCallSite(tree)
 
-  def noSpaceBeforeOpeningParen(tree: Tree): Boolean =
+  def noSpaceBeforeOpeningParen(
+      tree: Tree
+  )(implicit style: ScalafmtConfig): Boolean =
     !isTuple(tree) && isDefnOrCallSite(tree)
 
   def isModPrivateProtected(tree: Tree): Boolean = tree match {
@@ -512,6 +517,28 @@ object TreeOps {
       case Some(fun: Term.Function) => isBlockFunction(fun)
       case _ => false
     }
+
+  @tailrec
+  def findNextInfixInParent(tree: Tree, scope: Tree): Option[Name] =
+    tree.parent match {
+      case Some(t @ InfixApp(ia)) if tree ne scope =>
+        if (ia.lhs eq tree) Some(ia.op) else findNextInfixInParent(t, scope)
+      case _ => None
+    }
+
+  def infixSequenceLength(app: InfixApp): Int = {
+    val queue = new mutable.Queue[InfixApp]()
+    queue += app
+    var length = 0
+    while (queue.nonEmpty) {
+      val elem = queue.dequeue()
+      length += 1
+      queue ++= (elem.lhs +: elem.rhs).collect {
+        case InfixApp(ia) => ia
+      }
+    }
+    length
+  }
 
   // procedure syntax has decltpe: Some("")
   def isProcedureSyntax(defn: Defn.Def): Boolean =

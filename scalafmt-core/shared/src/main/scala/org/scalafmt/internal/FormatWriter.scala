@@ -248,6 +248,7 @@ class FormatWriter(formatOps: FormatOps) {
 
   class FormatLocations(val locations: Array[FormatLocation]) {
 
+    private implicit val style = initStyle
     val tokenAligns: Map[TokenHash, Int] = alignmentTokens(locations)
 
     def iterate: Iterator[Entry] =

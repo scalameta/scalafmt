@@ -152,7 +152,8 @@ object a {
 object a {
   the[Exception] thrownBy {
     SizeUtils.calculate(segments, "user")
-  } should have message """Cannot resolve column name "user" among (segment_id);"""
+  } should have message
+    """Cannot resolve column name "user" among (segment_id);"""
 }
 <<< 1.d: if-else, no curlies
 if (a)
@@ -491,17 +492,12 @@ val augassign: P[Ast.operator] = P(
   )
 >>>
 val augassign: P[Ast.operator] = P(
-  "+=".!.map(_ => Ast.operator.Add) |
-    "-=".!.map(_ => Ast.operator.Sub) |
-    "*=".!.map(_ => Ast.operator.Mult) |
-    "/=".!.map(_ => Ast.operator.Div) |
-    "%=".!.map(_ => Ast.operator.Mod) |
-    "&=".!.map(_ => Ast.operator.BitAnd) |
-    "|=".!.map(_ => Ast.operator.BitOr) |
-    "^=".!.map(_ => Ast.operator.BitXor) |
+  "+=".!.map(_ => Ast.operator.Add) | "-=".!.map(_ => Ast.operator.Sub) |
+    "*=".!.map(_ => Ast.operator.Mult) | "/=".!.map(_ => Ast.operator.Div) |
+    "%=".!.map(_ => Ast.operator.Mod) | "&=".!.map(_ => Ast.operator.BitAnd) |
+    "|=".!.map(_ => Ast.operator.BitOr) | "^=".!.map(_ => Ast.operator.BitXor) |
     "<<=".!.map(_ => Ast.operator.LShift) |
-    ">>=".!.map(_ => Ast.operator.RShift) |
-    "**=".!.map(_ => Ast.operator.Pow) |
+    ">>=".!.map(_ => Ast.operator.RShift) | "**=".!.map(_ => Ast.operator.Pow) |
     "//=".!.map(_ => Ast.operator.FloorDiv)
 )
 <<< 3.1: def non-config-style, long
@@ -588,11 +584,12 @@ object a {
 }
 >>>
 object a {
-  terminaters = Set() ++ (for (i ← 1 to n) yield {
-    val man = context.watch(context.system.actorOf(Props[Terminater]))
-    man ! "run"
-    man
-  })
+  terminaters = Set() ++
+    (for (i ← 1 to n) yield {
+      val man = context.watch(context.system.actorOf(Props[Terminater]))
+      man ! "run"
+      man
+    })
 }
 <<< 3.11 enclosed, by itself
 maxColumn = 80
@@ -714,8 +711,8 @@ object a {
 }
 >>>
 object a {
-  val a =
-    2 ++ (intercept[java.lang.IllegalStateException] { in.readObject }) ++ 3
+  val a = 2 ++ (intercept[java.lang.IllegalStateException] { in.readObject }) ++
+    3
 }
 <<< 3.18 enclosed, assignment, by itself, narrower
 maxColumn = 60
@@ -762,9 +759,10 @@ object a {
 }
 >>>
 object a {
-  val a = 2 ++ (intercept[java.lang.IllegalStateException] {
-    in.readObject
-  })
+  val a = 2 ++
+    (intercept[java.lang.IllegalStateException] {
+      in.readObject
+    })
 }
 <<< 3.21 enclosed, assignment, infix in middle, narrower
 maxColumn = 60
@@ -779,9 +777,10 @@ object a {
 }
 >>>
 object a {
-  val a = 2 ++ (intercept[java.lang.IllegalStateException] {
-    in.readObject
-  }) ++ 3
+  val a = 2 ++
+    (intercept[java.lang.IllegalStateException] {
+      in.readObject
+    }) ++ 3
 }
 <<< 3.22 enclosed, assignment, by itself, narrow
 maxColumn = 40
@@ -833,10 +832,11 @@ object a {
 }
 >>>
 object a {
-  val a = 2 ++ (intercept[
-    java.lang.IllegalStateException] {
-    in.readObject
-  })
+  val a = 2 ++
+    (intercept[
+      java.lang.IllegalStateException] {
+      in.readObject
+    })
 }
 <<< 3.25 enclosed, assignment, infix in middle, narrow
 maxColumn = 40
@@ -851,10 +851,11 @@ object a {
 }
 >>>
 object a {
-  val a = 2 ++ (intercept[
-    java.lang.IllegalStateException] {
-    in.readObject
-  }) ++ 3
+  val a = 2 ++
+    (intercept[
+      java.lang.IllegalStateException] {
+      in.readObject
+    }) ++ 3
 }
 <<< 3.26 enclosed, def, chain follows
 maxColumn = 80
@@ -1318,10 +1319,12 @@ created filter (ref ⇒
 }
 >>>
 object a {
-  created filter (ref ⇒
-    !ref.isTerminated && !ref.asInstanceOf[ActorRefWithCell].underlying
-      .isInstanceOf[UnstartedCell]
-  ) should ===(Seq.empty[ActorRef])
+  created filter
+    (ref ⇒
+      !ref.isTerminated &&
+        !ref.asInstanceOf[ActorRefWithCell].underlying
+          .isInstanceOf[UnstartedCell]
+    ) should ===(Seq.empty[ActorRef])
 }
 <<< 6.5: chain with delayed indent after break
 maxColumn = 70
@@ -1460,13 +1463,16 @@ object a {
   ).future2
 }
 <<< 7.7: for-yield enclosed in parens
+maxColumn = 40
+danglingParentheses = true
+===
 for {
   nu <- rand.gaussian(0, 1)
   y = nu * nu
   x = (mean
         + mean * mean * y * 0.5 / shape
         - 0.5 * mean / shape * math
-          .sqrt(4 * mean * shape * y + mean * mean * y * y)
+          .sqrt(4 * mean * shape * y + mean * mean * y * y) // c1
     )
   z <- rand.uniform
 } yield {
@@ -1479,11 +1485,14 @@ for {
 for {
   nu <- rand.gaussian(0, 1)
   y = nu * nu
-  x = (mean
-      + mean * mean * y * 0.5 / shape
-      - 0.5 * mean / shape * math.sqrt(
-        4 * mean * shape * y + mean * mean * y * y
-      ))
+  x =
+    (mean +
+      mean * mean * y * 0.5 / shape -
+      0.5 * mean / shape * math.sqrt(
+        4 * mean * shape * y +
+          mean * mean * y * y
+      ) // c1
+    )
   z <- rand.uniform
 } yield {
   if (z <= mean / (mean + x)) x
@@ -1544,24 +1553,23 @@ val a =
     }
 >>>
 val a =
-  1 + 2 * 3 && 4 ^ 5 || 6 op
-    7 map { 8 % 9 }
+  1 + 2 * 3 && 4 ^ 5 || 6 op 7 map {
+    8 % 9
+  }
 <<< 8.2: infix with shorter left ||
 val a = 1 + 2 * 3 || 4 ^ 5 && 6 op 7 map { 8 % 9 }
 >>>
-val a =
-  1 + 2 * 3 || 4 ^ 5 && 6 op 7 map {
-    8 % 9
-  }
+val a = 1 + 2 * 3 || 4 ^ 5 && 6 op
+  7 map { 8 % 9 }
 <<< 8.3: infix with longer left ||, narrow
 maxColumn = 20
 ===
 val a = 1 + 2 * 3 && 4 ^ 5 || 6 op 7 map { 8 % 9 }
 >>>
 val a =
-  1 + 2 * 3 && 4 ^ 5 || 6 op 7 map {
-    8 % 9
-  }
+  1 + 2 * 3 && 4 ^
+    5 || 6 op
+    7 map { 8 % 9 }
 <<< 8.4: infix with shorter left ||, narrow
 maxColumn = 17
 ===
@@ -1572,13 +1580,19 @@ val b = { 1 + 2 * 3 || 4 ^ 5 && 6 op 7 map { 8 % 9 } || somethinglong }
 >>>
 {
   val a =
-    1 + 2 * 3 || 4 ^ 5 && 6 op 7 map {
-      8 % 9
-    }
+    1 + 2 * 3 ||
+      4 ^
+      5 && 6 op
+      7 map {
+        8 % 9
+      }
   val b = {
-    1 + 2 * 3 || 4 ^ 5 && 6 op 7 map {
-      8 % 9
-    } || somethinglong
+    1 + 2 * 3 ||
+    4 ^ 5 && 6 op
+      7 map {
+        8 % 9
+      } ||
+      somethinglong
   }
 }
 <<< 8.5: sequences of infix operations
@@ -1603,27 +1617,24 @@ val strings = Seq(
 val strings = Seq(
   "MetricEvaluatorResult:",
   s"  # engine params evaluated: ${engineParamsScores.size}"
-) ++
-  Seq(
-    "Optimal Engine Params:",
-    s"  $bestEPStr",
-    "Metrics:",
-    s"  $metricHeader: ${bestScore.score}"
-  ) ++
-  otherMetricHeaders.zip(bestScore.otherScores).map {
-    case (h, s) => s"  $h: $s"
-  } ++
-  outputPath.toSeq.map { p =>
-    s"The best variant params can be found in $p"
-  }
+) ++ Seq(
+  "Optimal Engine Params:",
+  s"  $bestEPStr",
+  "Metrics:",
+  s"  $metricHeader: ${bestScore.score}"
+) ++ otherMetricHeaders.zip(bestScore.otherScores).map {
+  case (h, s) => s"  $h: $s"
+} ++ outputPath.toSeq.map { p =>
+  s"The best variant params can be found in $p"
+}
 <<< 8.6: assignment with short expression
 object a {
   plugins(service.pluginType) += service.pluginName -> service
 }
 >>>
 object a {
-  plugins(service.pluginType) += service
-    .pluginName -> service
+  plugins(service.pluginType) +=
+    service.pluginName -> service
 }
 <<< 8.7
 maxColumn = 80
@@ -1637,14 +1648,20 @@ val json = ("event" -> data("event")) ~ ("entityType" -> "user") ~
        ("anotherPropertyA" -> data.get("anotherPropertyA").map(_.toDouble)) ~
        ("anotherPropertyB" -> data.get("anotherPropertyB").map(_.toBoolean))))
 >>>
-val json = ("event" -> data("event")) ~ ("entityType" -> "user") ~
-  ("entityId" -> data("userId")) ~ ("targetEntityType" -> "item") ~
-  ("targetEntityId" -> data("itemId")) ~
-  ("eventTime" -> data("timestamp")) ~ ("properties" -> (("context" ->
-  (("ip" -> data("context[ip]")) ~ ("prop1" -> data("context[prop1]")
-    .toDouble) ~ ("prop2" -> data("context[prop2]")))) ~
-  ("anotherPropertyA" -> data.get("anotherPropertyA").map(_.toDouble)) ~
-  ("anotherPropertyB" -> data.get("anotherPropertyB").map(_.toBoolean))))
+val json =
+  ("event" -> data("event")) ~
+    ("entityType" -> "user") ~
+    ("entityId" -> data("userId")) ~
+    ("targetEntityType" -> "item") ~
+    ("targetEntityId" -> data("itemId")) ~
+    ("eventTime" -> data("timestamp")) ~
+    ("properties" ->
+      (("context" ->
+        (("ip" -> data("context[ip]")) ~
+          ("prop1" -> data("context[prop1]").toDouble) ~
+          ("prop2" -> data("context[prop2]")))) ~
+        ("anotherPropertyA" -> data.get("anotherPropertyA").map(_.toDouble)) ~
+        ("anotherPropertyB" -> data.get("anotherPropertyB").map(_.toBoolean))))
 <<< 8.8
 maxColumn = 80
 ===
@@ -1691,8 +1708,8 @@ Some(
 ))
 >>>
 Some(
-  ("ip" -> data.get("context[ip]")) ~ ("prop1" ->
-    data.get("context[prop1]").map(_.toDouble))
+  ("ip" -> data.get("context[ip]")) ~
+    ("prop1" -> data.get("context[prop1]").map(_.toDouble))
 )
 <<< 8.12
 maxColumn = 80
@@ -1712,28 +1729,32 @@ val json = (estype -> ("properties" -> ("status" ->
           ("type" -> "string") ~ ("index" -> "not_analyzed")) ~ ("status" ->
           ("type" -> "string") ~ ("index" -> "not_analyzed"))))
 >>>
-val json = (estype -> ("properties" -> ("status" ->
-  ("type" -> "string") ~ ("index" -> "not_analyzed")) ~ ("startTime" ->
-  ("type" -> "date")) ~ ("endTime" -> ("type" -> "date")) ~ ("engineId" ->
-  ("type" -> "string") ~ ("index" -> "not_analyzed")) ~ ("engineVersion" ->
-  ("type" -> "string") ~ ("index" -> "not_analyzed")) ~ ("engineVariant" ->
-  ("type" -> "string") ~ ("index" -> "not_analyzed")) ~ ("engineFactory" ->
-  ("type" -> "string") ~ ("index" -> "not_analyzed")) ~ ("batch" ->
-  ("type" -> "string") ~ ("index" -> "not_analyzed")) ~
-  ("dataSourceParams" -> ("type" -> "string") ~ ("index" ->
-    "not_analyzed")) ~ ("preparatorParams" -> ("type" -> "string") ~
-  ("index" -> "not_analyzed")) ~ ("algorithmsParams" -> ("type" ->
-  "string") ~ ("index" -> "not_analyzed")) ~ ("servingParams" ->
-  ("type" -> "string") ~ ("index" -> "not_analyzed")) ~ ("status" ->
-  ("type" -> "string") ~ ("index" -> "not_analyzed"))))
+val json =
+  (estype ->
+    ("properties" ->
+      ("status" -> ("type" -> "string") ~ ("index" -> "not_analyzed")) ~
+      ("startTime" -> ("type" -> "date")) ~
+      ("endTime" -> ("type" -> "date")) ~
+      ("engineId" -> ("type" -> "string") ~ ("index" -> "not_analyzed")) ~
+      ("engineVersion" -> ("type" -> "string") ~ ("index" -> "not_analyzed")) ~
+      ("engineVariant" -> ("type" -> "string") ~ ("index" -> "not_analyzed")) ~
+      ("engineFactory" -> ("type" -> "string") ~ ("index" -> "not_analyzed")) ~
+      ("batch" -> ("type" -> "string") ~ ("index" -> "not_analyzed")) ~
+      ("dataSourceParams" -> ("type" -> "string") ~
+        ("index" -> "not_analyzed")) ~
+      ("preparatorParams" -> ("type" -> "string") ~
+        ("index" -> "not_analyzed")) ~
+      ("algorithmsParams" -> ("type" -> "string") ~
+        ("index" -> "not_analyzed")) ~
+      ("servingParams" -> ("type" -> "string") ~ ("index" -> "not_analyzed")) ~
+      ("status" -> ("type" -> "string") ~ ("index" -> "not_analyzed"))))
 <<< 8.13
 maxColumn = 80
 ===
 val a = b match {
   case i: EngineInstance =>
     JObject(
-      JField("id", JString(i.id)) ::
-        JField("status", JString(i.status)) ::
+      JField("id", JString(i.id)) :: JField("status", JString(i.status)) ::
         JField("startTime", JString(i.startTime.toString)) ::
         JField("endTime", JString(i.endTime.toString)) ::
         JField("engineId", JString(i.engineId)) ::
@@ -1741,11 +1762,10 @@ val a = b match {
         JField("engineVariant", JString(i.engineVariant)) ::
         JField("engineFactory", JString(i.engineFactory)) ::
         JField("batch", JString(i.batch)) ::
-        JField("env", Extraction.decompose(i.env)(DefaultFormats)) ::
-        JField(
+        JField("env", Extraction.decompose(i.env)(DefaultFormats)) :: JField(
           "sparkConf",
-          Extraction.decompose(i.sparkConf)(DefaultFormats)) ::
-        JField("dataSourceParams", JString(i.dataSourceParams)) ::
+          Extraction.decompose(i.sparkConf)(DefaultFormats)
+        ) :: JField("dataSourceParams", JString(i.dataSourceParams)) ::
         JField("preparatorParams", JString(i.preparatorParams)) ::
         JField("algorithmsParams", JString(i.algorithmsParams)) ::
         JField("servingParams", JString(i.servingParams)) ::
@@ -1755,8 +1775,7 @@ val a = b match {
 val a = b match {
   case i: EngineInstance =>
     JObject(
-      JField("id", JString(i.id)) ::
-        JField("status", JString(i.status)) ::
+      JField("id", JString(i.id)) :: JField("status", JString(i.status)) ::
         JField("startTime", JString(i.startTime.toString)) ::
         JField("endTime", JString(i.endTime.toString)) ::
         JField("engineId", JString(i.engineId)) ::
@@ -1768,12 +1787,10 @@ val a = b match {
         JField(
           "sparkConf",
           Extraction.decompose(i.sparkConf)(DefaultFormats)
-        ) ::
-        JField("dataSourceParams", JString(i.dataSourceParams)) ::
+        ) :: JField("dataSourceParams", JString(i.dataSourceParams)) ::
         JField("preparatorParams", JString(i.preparatorParams)) ::
         JField("algorithmsParams", JString(i.algorithmsParams)) ::
-        JField("servingParams", JString(i.servingParams)) ::
-        Nil
+        JField("servingParams", JString(i.servingParams)) :: Nil
     )
 }
 <<< 8.14
@@ -1805,17 +1822,21 @@ private lazy val subNode: Parser[SubNode] = rep(' ') ~>
   }) |
     (opt('*') ~ '[' ~> attrName <~ '!' ~ ']' ^^ { name =>
       AttrRemoveSubNode(name)
-    }) | (opt('*') ~ '[' ~> attrName <~ ']' ^^ { name => AttrSubNode(name) }) |
-
+    }) |
+    (opt('*') ~ '[' ~> attrName <~ ']' ^^ { name => AttrSubNode(name) }) |
     ('!' ~ '!' ^^ (a => DontMergeAttributes)) |
-    ('<' ~ '*' ~ '>') ^^ (a => SurroundKids()) |
+    ('<' ~ '*' ~ '>') ^^
+    (a => SurroundKids()) |
     ('-' ~ '*' ^^ (a => PrependKidsSubNode())) |
     ('>' ~ '*' ^^ (a => PrependKidsSubNode())) |
     ('*' ~ '+' ^^ (a => AppendKidsSubNode())) |
     ('*' ~ '<' ^^ (a => AppendKidsSubNode())) |
-    '*' ^^ (a => KidsSubNode()) |
-    '^' ~ '*' ^^ (a => SelectThisNode(true)) |
-    '^' ~ '^' ^^ (a => SelectThisNode(false)))
+    '*' ^^
+    (a => KidsSubNode()) |
+    '^' ~ '*' ^^
+    (a => SelectThisNode(true)) |
+    '^' ~ '^' ^^
+    (a => SelectThisNode(false)))
 <<< 8.15
 maxColumn = 80
 ===
@@ -1851,12 +1872,14 @@ object a {
         ("targetEntityType" -> "list") ~
         ("targetEntityId" -> data("data[list_id]")) ~
         ("eventTime" -> eventTime) ~
-        ("properties" -> (("email" -> data("data[email]")) ~
-          ("email_type" -> data("data[email_type]")) ~
-          ("merges" -> (("EMAIL" -> data("data[merges][EMAIL]")) ~
-            ("FNAME" -> data("data[merges][FNAME]"))) ~
-            ("LNAME" -> data("data[merges][LNAME]")) ~
-            ("INTERESTS" -> data.get("data[merges][INTERESTS]")))) ~
+        ("properties" ->
+          (("email" -> data("data[email]")) ~
+            ("email_type" -> data("data[email_type]")) ~
+            ("merges" ->
+              (("EMAIL" -> data("data[merges][EMAIL]")) ~
+                ("FNAME" -> data("data[merges][FNAME]"))) ~
+              ("LNAME" -> data("data[merges][LNAME]")) ~
+              ("INTERESTS" -> data.get("data[merges][INTERESTS]")))) ~
           ("ip_opt" -> data("data[ip_opt]")) ~
           ("ip_signup" -> data("data[ip_signup]")))
     json
@@ -1896,8 +1919,7 @@ object a {
     rule {
       "*/*" ~ push("*") ~ push("*") |
         `type` ~ '/' ~
-          ('*' ~ !tchar ~ push("*") | subtype) |
-        '*' ~ push("*") ~ push("*")
+        ('*' ~ !tchar ~ push("*") | subtype) | '*' ~ push("*") ~ push("*")
     }
 }
 <<< 8.18
@@ -1915,9 +1937,9 @@ object a {
 object a {
   (people.map(p => (p.name, p.age))
   // c1
-    returning people.map(_.id)
+  returning people.map(_.id)
   // c2
-    into ((nameAge, id) => Person(id, nameAge._1, nameAge._2)))
+  into ((nameAge, id) => Person(id, nameAge._1, nameAge._2)))
 }
 <<< 8.19
 maxColumn = 80
@@ -1962,14 +1984,11 @@ private val allParams: Map[String, String] = mandatoryParams +
 >>>
 private val allParams: Map[String, String] = mandatoryParams +
   (
-    "data-config" ->
-      dummyOptionalConfigPath,
-    "max-sales-mappers" ->
-      "10",
-    "overwrite" ->
-      null,
+    "data-config" -> dummyOptionalConfigPath,
+    "max-sales-mappers" -> "10",
+    "overwrite" -> null,
     "keep" -> dummyOptionalMaxVersionCount
-)
+  )
 <<< 8.22
 maxColumn = 40
 ===
@@ -1984,10 +2003,10 @@ maxColumn = 40
 "Terminating(" + reason + ")" +
   (toDie.toSeq.sorted mkString
     (
-      "\n" +
-        indent +
-        "   |    toDie: ", "\n" + indent + "   |           ", ""
-  ))
+      "\n" + indent + "   |    toDie: ",
+      "\n" + indent + "   |           ",
+      ""
+    ))
 <<< 8.23
 maxColumn = 80
 ===
@@ -2005,8 +2024,7 @@ val ret =
    else {
      val yestStats = dailyStats.last
      val yestNav = yestStats.nav
-     (nav -
-       yestNav) / nav - 1
+     (nav - yestNav) / nav - 1
    })
 <<< 8.24
 maxColumn = 80
@@ -2016,8 +2034,8 @@ def isErrorEnabled(logClass: Class[_], logSource: String) =
       Logger(logClass, logSource).isErrorEnabled
 >>>
 def isErrorEnabled(logClass: Class[_], logSource: String) =
-  (eventStream.logLevel >= ErrorLevel) &&
-    Logger(logClass, logSource).isErrorEnabled
+  (eventStream.logLevel >= ErrorLevel) && Logger(logClass, logSource)
+    .isErrorEnabled
 <<< 8.25
 maxColumn = 80
 ===
@@ -2065,8 +2083,7 @@ def insertAndDelete(eventClient: LEvents) = {
   val resultAfter = eventClient.get(eventId, appId)
 
   (resultBefore must beEqualTo(Some(expectedBefore))) and
-    (deleteStatus must beEqualTo(true)) and
-    (resultAfter must beEqualTo(None))
+    (deleteStatus must beEqualTo(true)) and (resultAfter must beEqualTo(None))
 }
 <<< 8.28
 object a {
@@ -2080,8 +2097,8 @@ object a {
     1 + 2 + 3 + 4 + 5
   } op2
     111 * 222 * 333 * 444 * 555 op3 {
-    "1 / 2 / 3 / 4 / 5 / 6 / 7"
-  }
+      "1 / 2 / 3 / 4 / 5 / 6 / 7"
+    }
 }
 <<< 8.29
 object a {
@@ -2098,4 +2115,16 @@ object a {
       // c1
       x
     }
+}
+<<< 8.30
+object a {
+  json should be(
+    """aaa bbb ccc ddd eee fff ggg"""
+  )
+}
+>>>
+object a {
+  json should be(
+    """aaa bbb ccc ddd eee fff ggg"""
+  )
 }

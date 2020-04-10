@@ -482,24 +482,31 @@ class Router(formatOps: FormatOps) {
           style.optIn.annotationNewlines && !style.newlines.sourceIgnored)
           Seq(Split(getMod(formatToken), 0))
         else {
-          val spaceCouldBeOk = annoLeft && (style.newlines.source match {
-            case Newlines.unfold =>
-              right.is[T.Comment] ||
-                !style.optIn.annotationNewlines && annoRight
-            case Newlines.fold =>
-              right.is[T.Comment] || annoRight ||
-                !style.optIn.annotationNewlines && right.is[Keyword]
-            case _ =>
-              newlines == 0 && right.is[Keyword]
-          })
-          Seq(
-            // This split needs to have an optimalAt field.
-            Split(Space, 0)
-              .onlyIf(spaceCouldBeOk)
-              .withSingleLine(expire),
-            // For some reason, this newline cannot cost 1.
-            Split(NewlineT(isDouble = tok.hasBlankLine), 0)
-          )
+          asInfixApp(rightOwner, style.newlines.formatInfix).fold {
+            val spaceCouldBeOk = annoLeft && (style.newlines.source match {
+              case Newlines.unfold =>
+                right.is[T.Comment] ||
+                  !style.optIn.annotationNewlines && annoRight
+              case Newlines.fold =>
+                right.is[T.Comment] || annoRight ||
+                  !style.optIn.annotationNewlines && right.is[Keyword]
+              case _ =>
+                newlines == 0 && right.is[Keyword]
+            })
+            Seq(
+              // This split needs to have an optimalAt field.
+              Split(Space, 0)
+                .onlyIf(spaceCouldBeOk)
+                .withSingleLine(expire),
+              // For some reason, this newline cannot cost 1.
+              Split(NewlineT(isDouble = tok.hasBlankLine), 0)
+            )
+          } { app =>
+            val mod =
+              if (left.is[T.Comment] && tok.noBreak) Space
+              else NewlineT(isDouble = tok.hasBlankLine)
+            getInfixSplitsBeforeLhs(app, tok, Left(mod))
+          }
         }
 
       case FormatToken(_, T.RightBrace(), _) =>
@@ -565,7 +572,10 @@ class Router(formatOps: FormatOps) {
           Split(Space, 0)
         )
       case FormatToken(_: T.Equals, _, _) if defBody(leftOwner).isDefined =>
-        getSplitsDefEquals(formatToken, defBody(leftOwner).get)
+        val body = defBody(leftOwner).get
+        asInfixApp(rightOwner, style.newlines.formatInfix).fold {
+          getSplitsDefEquals(formatToken, body)
+        }(getInfixSplitsBeforeLhs(_, formatToken, Right(body)))
 
       // Parameter opening for one parameter group. This format works
       // on the WHOLE defnSite (via policies)
@@ -1004,7 +1014,6 @@ class Router(formatOps: FormatOps) {
       case tok @ FormatToken(T.Comma(), right, _) =>
         // TODO(olafur) DRY, see OneArgOneLine.
         val binPack = isBinPack(leftOwner)
-        val isInfix = leftOwner.isInstanceOf[Term.ApplyInfix]
         argumentStarts.get(hash(right)) match {
           case Some(nextArg) if binPack =>
             val lastFT = tokens(nextArg.tokens.last)
@@ -1037,7 +1046,9 @@ class Router(formatOps: FormatOps) {
               Split(Newline, 2, optimalAt = optToken)
                 .withPolicy(breakOnNextComma)
             )
-          case _ if isInfix =>
+          case _
+              if !style.newlines.formatInfix &&
+                leftOwner.isInstanceOf[Term.ApplyInfix] =>
             Seq(
               // Do whatever the user did if infix.
               Split(Space.orNL(newlines == 0), 0)
@@ -1123,10 +1134,12 @@ class Router(formatOps: FormatOps) {
             }
         }
 
-        if (rhs.is[Term.ApplyInfix])
-          beforeInfixSplit(rhs.asInstanceOf[Term.ApplyInfix], formatToken)
-        else
-          getSplitsValEquals(formatToken, rhs)
+        asInfixApp(rightOwner, style.newlines.formatInfix).fold {
+          if (rhs.is[Term.ApplyInfix])
+            beforeInfixSplit(rhs.asInstanceOf[Term.ApplyInfix], formatToken)
+          else
+            getSplitsValEquals(formatToken, rhs)
+        }(getInfixSplitsBeforeLhs(_, formatToken, Right(rhs)))
 
       case FormatToken(_, _: T.Dot, _)
           if style.newlines.sourceIgnored &&
@@ -1482,11 +1495,19 @@ class Router(formatOps: FormatOps) {
                 style.newlines.sourceIs(Newlines.unfold) &&
                   leftOwner.parent.exists {
                     case _: Template | _: Defn => false
+                    case InfixApp(_) => false
                     case _ => true
                   }
               Seq(
                 if (!singleLine) spaceSplit
-                else spaceSplitWithoutPolicy.withPolicy(SingleLineBlock(close)),
+                else {
+                  val singleLineInfixPolicy =
+                    if (!isInfixApp(leftOwner)) None
+                    else Some(getSingleLineInfixPolicy(close))
+                  spaceSplitWithoutPolicy
+                    .withSingleLine(close)
+                    .andThenPolicyOpt(singleLineInfixPolicy)
+                },
                 newlineSplit(10, true)
               )
           }
@@ -1537,9 +1558,22 @@ class Router(formatOps: FormatOps) {
         )
 
       // ForYield
-      case tok @ FormatToken(_: T.LeftArrow | _: T.Equals, _, _)
-          if leftOwner.is[Enumerator] =>
-        getSplitsEnumerator(tok)
+      case tok @ FormatToken(_: T.LeftArrow, _, _)
+          if leftOwner.is[Enumerator.Generator] =>
+        asInfixApp(rightOwner, style.newlines.formatInfix).fold {
+          getSplitsEnumerator(tok)
+        } { app =>
+          val rhs = leftOwner.asInstanceOf[Enumerator.Generator].rhs
+          getInfixSplitsBeforeLhs(app, formatToken, Right(rhs))
+        }
+      case tok @ FormatToken(_: T.Equals, _, _)
+          if leftOwner.is[Enumerator.Val] =>
+        asInfixApp(rightOwner, style.newlines.formatInfix).fold {
+          getSplitsEnumerator(tok)
+        } { app =>
+          val rhs = leftOwner.asInstanceOf[Enumerator.Val].rhs
+          getInfixSplitsBeforeLhs(app, formatToken, Right(rhs))
+        }
 
       // Inline comment
       case FormatToken(left, c: T.Comment, _) =>
@@ -1965,6 +1999,10 @@ class Router(formatOps: FormatOps) {
           case EndOfFirstCall(end) =>
             val policy = penalizeAllNewlines(end, 1)
             Left(baseSpaceSplit.withOptimalToken(end).withPolicy(policy))
+          case InfixApp(ia) if style.newlines.formatInfix =>
+            val end = getMidInfixToken(findLeftInfix(ia))
+            val exclude = insideBlockRanges[LeftParenOrBrace](ft, end)
+            Right(SingleLineBlock(end, exclude = exclude))
           case _ => Right(NoPolicy)
         }
 
