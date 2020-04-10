@@ -1069,14 +1069,17 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(NoSplit, 0)
         )
-      case FormatToken(T.KwReturn(), _, _) =>
-        val mod = leftOwner match {
-          case Term.Return(unit @ Lit.Unit()) if unit.tokens.isEmpty =>
-            // Always force blank line for Unit "return".
-            Newline
-          case _ =>
-            Space
-        }
+      case FormatToken(_: T.KwReturn, _, _) =>
+        val mod =
+          if (formatToken.hasBlankLine) Newline2x
+          else
+            leftOwner match {
+              case Term.Return(unit @ Lit.Unit()) if unit.tokens.isEmpty =>
+                // Always force blank line for Unit "return".
+                Newline
+              case _ =>
+                Space
+            }
         Seq(
           Split(mod, 0)
         )
@@ -1544,8 +1547,10 @@ class Router(formatOps: FormatOps) {
 
       // Inline comment
       case FormatToken(left, c: T.Comment, _) =>
-        val firstDocstring = blankLineBeforeDocstring(left, c)
-        val mod = if (firstDocstring) Newline2x else getMod(formatToken)
+        val mod =
+          if (formatToken.hasBreak && blankLineBeforeDocstring(left, c))
+            Newline2x
+          else getMod(formatToken)
         Seq(Split(mod, 0))
       // Commented out code should stay to the left
       case FormatToken(c: T.Comment, _, _) if isSingleLineComment(c) =>

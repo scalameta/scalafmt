@@ -104,22 +104,22 @@ object TreeOps {
     val ret = Map.newBuilder[TokenHash, Tree]
     ret.sizeHint(tree.tokens.length)
 
-    def add(token: Token, tree: Tree) = ret += hash(token) -> tree
-    def addOne(t: Tree) = t.tokens.find(!_.is[Trivia]).foreach(add(_, t))
-    def addAll(trees: Seq[Tree]) = trees.foreach(addOne)
+    def addTok(token: Token, tree: Tree) = ret += hash(token) -> tree
+    def addTree(t: Tree, tree: Tree) =
+      t.tokens.find(!_.is[Trivia]).foreach(addTok(_, tree))
+    def addAll(trees: Seq[Tree]) = trees.foreach(x => addTree(x, x))
 
     def addDefn[T: ClassTag](mods: Seq[Mod], tree: Tree): Unit = {
       // Each @annotation gets a separate line
       val annotations = mods.filter(_.is[Mod.Annot])
       addAll(annotations)
       mods.find(!_.is[Mod.Annot]) match {
-        case Some(x) =>
-          // Non-annotation modifier, for example `sealed`/`abstract`
-          addOne(x)
+        // Non-annotation modifier, for example `sealed`/`abstract`
+        case Some(x) => addTree(x, tree)
         case _ =>
           // No non-annotation modifier exists, fallback to keyword like `object`
           tree.tokens.find(classTag[T].runtimeClass.isInstance) match {
-            case Some(x) => add(x, tree)
+            case Some(x) => addTok(x, tree)
             case None => throw Error.CantFindDefnToken[T](tree)
           }
       }
