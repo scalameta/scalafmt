@@ -1,0 +1,11 @@
+literals.float = Lower
+<<< lowercase
+123.0F
+>>>
+123.0f
+<<< uppercase
+literals.float = Upper
+===
+123.0f
+>>>
+123.0F

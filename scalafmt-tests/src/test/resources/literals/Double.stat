@@ -1,0 +1,11 @@
+literals.double = Lower
+<<< lowercase
+123.0D
+>>>
+123.0d
+<<< uppercase
+literals.double = Upper
+===
+123.0d
+>>>
+123.0D

@@ -1,0 +1,21 @@
+literals.hex = Lower
+<<< lowercase
+0x7F
+>>>
+0x7f
+<<< uppercase
+literals.hex = Upper
+===
+0x7f
+>>>
+0x7F
+<<< ignore suffix setting
+literals.long = Upper
+===
+0xffffffffl
+>>>
+0xffffffffL
+<<< always lowercase 0x
+0Xfff
+>>>
+0xfff
