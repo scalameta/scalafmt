@@ -94,26 +94,6 @@ object TokenOps {
     booleanOperators.contains(token.syntax) ||
       newlineOkOperators.contains(token.syntax)
 
-  // See http://scala-lang.org/files/archive/spec/2.11/06-expressions.html#assignment-operators
-  val specialAssignmentOperators = Set("<=", ">=", "!=")
-
-  def isAssignmentOperator(token: Token): Boolean = {
-    val code = token.syntax
-    code.last == '=' && code.head != '=' &&
-    !specialAssignmentOperators.contains(code)
-  }
-
-  val symbolOperatorPrecendence: PartialFunction[Char, Int] = {
-    case '|' => 2
-    case '^' => 3
-    case '&' => 4
-    case '=' | '!' => 5
-    case '<' | '>' => 6
-    case ':' => 7
-    case '+' | '-' => 8
-    case '*' | '/' | '%' => 9
-  }
-
   def identModification(ident: Ident): Modification = {
     val lastCharacter = ident.syntax.last
     Space(!Character.isLetterOrDigit(lastCharacter) && lastCharacter != '`')
@@ -246,11 +226,6 @@ object TokenOps {
     // an `_`, operators cannot. This check should suffice.
     !head.isLetter && head != '_'
   }
-
-  // According to spec:
-  // "Operators ending in a colon `:' are right-associative. All other operators are left-associative."
-  // See https://www.scala-lang.org/files/archive/spec/2.11/06-expressions.html
-  def isRightAssociativeOperator(op: String): Boolean = op.endsWith(":")
 
   val formatOnCode = Set(
     "// @formatter:on", // IntelliJ

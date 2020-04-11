@@ -491,14 +491,23 @@ object TreeOps {
 
   final def isInfixOp(tree: Tree): Boolean =
     tree.parent.exists {
-      case InfixApplication(_, op, _) => op eq tree
+      case InfixApp(ia) => ia.op eq tree
       case _ => false
     }
+
+  final def asInfixApp(tree: Tree): Option[InfixApp] = InfixApp.unapply(tree)
+
+  @inline
+  final def asInfixApp(tree: Tree, flag: Boolean = true): Option[InfixApp] =
+    if (flag) asInfixApp(tree) else None
+
+  @inline
+  final def isInfixApp(tree: Tree): Boolean = asInfixApp(tree).isDefined
 
   @tailrec
   final def isTopLevelInfixApplication(child: Tree): Boolean =
     child.parent match {
-      case Some(p @ InfixApplication(_)) => isTopLevelInfixApplication(p)
+      case Some(p @ InfixApp(_)) => isTopLevelInfixApplication(p)
       case Some(_: Term.Block | _: Term.If | _: Term.While | _: Source) => true
       case Some(fun: Term.Function) => isBlockFunction(fun)
       case _ => false

@@ -20,7 +20,6 @@ import scala.meta.{
   Defn,
   Import,
   Init,
-  Name,
   Pat,
   Pkg,
   Template,
@@ -233,8 +232,8 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   final def isInfixRhs(ft: FormatToken): Boolean = {
     val tree = ft.meta.rightOwner
     tree.parent.exists {
-      case InfixApplication(_, op, rhs) =>
-        (op eq tree) || rhs.headOption.forall { arg =>
+      case InfixApp(ia) =>
+        (ia.op eq tree) || ia.rhs.headOption.forall { arg =>
           (arg eq tree) && arg.tokens.headOption.contains(ft.right)
         }
       case _ => false
@@ -538,29 +537,19 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   }
 
   def infixIndent(
-      owner: Term.ApplyInfix,
-      formatToken: FormatToken,
-      isNewline: Boolean
-  )(implicit style: ScalafmtConfig): Int =
-    infixIndent(owner, owner.op, owner.args, formatToken, isNewline)
-
-  def infixIndent(
-      owner: Tree,
-      op: Name,
-      rhsArgs: Seq[Tree],
+      app: InfixApp,
       formatToken: FormatToken,
       isNewline: Boolean
   )(implicit style: ScalafmtConfig): Int = {
-    if (style.verticalAlignMultilineOperators) {
-      if (formatToken.left.text == "=") 2 else 0
-    } else if (!rhsArgs.headOption.exists { x =>
+    if (style.verticalAlignMultilineOperators)
+      if (InfixApp.isAssignment(formatToken.left.syntax)) 2 else 0
+    else if (!app.rhs.headOption.exists { x =>
         x.is[Term.Block] || x.is[Term.NewAnonymous]
-      } && isInfixTopLevelMatch(owner, formatToken.left.syntax, false)) 2
-    else if (isInfixTopLevelMatch(owner, op.value, true)) 0
-    else if (!isNewline &&
-      !isSingleLineComment(formatToken.right)) 0
+      } && isInfixTopLevelMatch(app.all, formatToken.left.syntax, false)) 2
+    else if (isInfixTopLevelMatch(app.all, app.op.value, true)) 0
+    else if (!isNewline && !isSingleLineComment(formatToken.right)) 0
     else if (style.activeForEdition_2020_03 &&
-      isChildOfCaseClause(owner)) 0
+      app.all.is[Pat] && isChildOfCaseClause(app.all)) 0
     else 2
   }
 
@@ -577,32 +566,32 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   def beforeInfixSplit(
       owner: Term.ApplyInfix,
       formatToken: FormatToken
-  )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] =
-    infixSplitImpl(owner, owner.op, owner.args, formatToken, true)
+  )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] = {
+    val InfixApp(app) = owner
+    infixSplitImpl(app, formatToken, true)
+  }
 
   private def infixSplitImpl(
-      owner: Tree,
-      op: Name,
-      rhsArgs: Seq[Tree],
+      app: InfixApp,
       formatToken: FormatToken,
       beforeLhs: Boolean
   )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] = {
     // NOTE. Silly workaround because we call infixSplit from assignment =, see #798
     val treeOpt =
-      if (!beforeLhs && isRightAssociativeOperator(op.value))
-        rhsArgs.headOption.collectFirst {
-          case InfixApplication(lhs, _, _) if lhs.tokens.nonEmpty => lhs
+      if (!beforeLhs && app.isRightAssoc)
+        app.rhs.headOption.collectFirst {
+          case InfixApp(ia) if ia.lhs.tokens.nonEmpty => ia.lhs
           case arg if arg.tokens.nonEmpty => arg
         }
       else
-        findLast(rhsArgs)(_.tokens.nonEmpty)
-    val expire = treeOpt.getOrElse(owner).tokens.last
+        findLast(app.rhs)(_.tokens.nonEmpty)
+    val expire = treeOpt.getOrElse(app.all).tokens.last
 
     // we don't modify line breaks generally around infix expressions
     // TODO: if that ever changes, modify how rewrite rules handle infix
     val modification = getModCheckIndent(formatToken)
     val isNewline = modification.isNewline
-    val indent = infixIndent(owner, op, rhsArgs, formatToken, isNewline)
+    val indent = infixIndent(app, formatToken, isNewline)
     val split =
       Split(modification, 0).withIndent(Num(indent), expire, ExpiresOn.After)
 
@@ -610,7 +599,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
       isNewline || formatToken.right.is[T.Comment])
       Seq(split)
     else {
-      val altIndent = infixIndent(owner, op, rhsArgs, formatToken, true)
+      val altIndent = infixIndent(app, formatToken, true)
       Seq(
         split,
         Split(Newline, 1).withIndent(Num(altIndent), expire, ExpiresOn.After)
@@ -619,16 +608,14 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   }
 
   def insideInfixSplit(
-      owner: Tree,
-      op: Name,
-      rhsArgs: Seq[Tree],
+      app: InfixApp,
       ft: FormatToken
   )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] =
-    owner.parent match {
-      case Some(_: Type.ApplyInfix)
-          if style.spaces.neverAroundInfixTypes.contains((op.value)) =>
+    app.all match {
+      case t: Type.ApplyInfix
+          if style.spaces.neverAroundInfixTypes.contains(t.op.value) =>
         Seq(Split(NoSplit, 0))
-      case _ => infixSplitImpl(owner, op, rhsArgs, ft, false)
+      case _ => infixSplitImpl(app, ft, false)
     }
 
   def isEmptyFunctionBody(tree: Tree): Boolean = tree match {
