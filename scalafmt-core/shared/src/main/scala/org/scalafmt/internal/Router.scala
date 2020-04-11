@@ -1124,7 +1124,7 @@ class Router(formatOps: FormatOps) {
         }
 
         if (rhs.is[Term.ApplyInfix])
-          infixSplit(rhs.asInstanceOf[Term.ApplyInfix], formatToken)
+          beforeInfixSplit(rhs.asInstanceOf[Term.ApplyInfix], formatToken)
         else
           getSplitsValEquals(formatToken, rhs)
 
@@ -1495,10 +1495,10 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_: T.Ident, _, _) if isInfixOp(leftOwner) =>
         // TODO(olafur) move extractor into pattern match.
         val InfixApplication(_, op, args) = leftOwner.parent.get
-        infixSplit(leftOwner, op, args, formatToken)
+        insideInfixSplit(leftOwner, op, args, formatToken)
       case FormatToken(_, _: T.Ident, _) if isInfixOp(rightOwner) =>
         val InfixApplication(_, op, args) = rightOwner.parent.get
-        infixSplit(rightOwner, op, args, formatToken)
+        insideInfixSplit(rightOwner, op, args, formatToken)
 
       // Case
       case tok @ FormatToken(cs @ T.KwCase(), _, _) if leftOwner.is[Case] =>

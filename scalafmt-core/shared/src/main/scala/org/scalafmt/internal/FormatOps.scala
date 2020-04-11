@@ -574,22 +574,22 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     noindent == (noindent == style.unindentTopLevelOperators || isTopLevel)
   }
 
-  def infixSplit(
+  def beforeInfixSplit(
       owner: Term.ApplyInfix,
       formatToken: FormatToken
   )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] =
-    infixSplit(owner, owner.op, owner.args, formatToken)
+    infixSplitImpl(owner, owner.op, owner.args, formatToken, true)
 
   private def infixSplitImpl(
       owner: Tree,
       op: Name,
       rhsArgs: Seq[Tree],
-      formatToken: FormatToken
+      formatToken: FormatToken,
+      beforeLhs: Boolean
   )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] = {
-    val isNotEquals = !formatToken.left.is[Token.Equals]
     // NOTE. Silly workaround because we call infixSplit from assignment =, see #798
     val treeOpt =
-      if (isNotEquals && isRightAssociativeOperator(op.value))
+      if (!beforeLhs && isRightAssociativeOperator(op.value))
         rhsArgs.headOption.collectFirst {
           case InfixApplication(lhs, _, _) if lhs.tokens.nonEmpty => lhs
           case arg if arg.tokens.nonEmpty => arg
@@ -606,7 +606,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     val split =
       Split(modification, 0).withIndent(Num(indent), expire, ExpiresOn.After)
 
-    if (!style.activeForEdition_2020_01 || isNotEquals ||
+    if (!style.activeForEdition_2020_01 || !beforeLhs ||
       isNewline || formatToken.right.is[T.Comment])
       Seq(split)
     else {
@@ -618,18 +618,17 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     }
   }
 
-  def infixSplit(
+  def insideInfixSplit(
       owner: Tree,
       op: Name,
       rhsArgs: Seq[Tree],
-      formatToken: FormatToken
+      ft: FormatToken
   )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] =
     owner.parent match {
       case Some(_: Type.ApplyInfix)
           if style.spaces.neverAroundInfixTypes.contains((op.value)) =>
         Seq(Split(NoSplit, 0))
-      case _ =>
-        infixSplitImpl(owner, op, rhsArgs, formatToken)
+      case _ => infixSplitImpl(owner, op, rhsArgs, ft, false)
     }
 
   def isEmptyFunctionBody(tree: Tree): Boolean = tree match {
