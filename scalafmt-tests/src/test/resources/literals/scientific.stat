@@ -1,0 +1,33 @@
+literals.scientific=Lower
+<<< lowercase double
+1.0E7d
+>>>
+1.0e7d
+<<< lowercase float
+1.17549435E-38f
+>>>
+1.17549435e-38f
+<<< uppercase double
+literals.scientific=Upper
+===
+1.0e7d
+>>>
+1.0E7d
+<<< uppercase float
+literals.scientific=Upper
+===
+1.17549435e-38f
+>>>
+1.17549435E-38f
+<<< keep double
+literals.scientific=Unchanged
+===
+1.0e7d
+>>>
+1.0e7d
+<<< keep float
+literals.scientific=Unchanged
+===
+1.17549435E-38f
+>>>
+1.17549435E-38f

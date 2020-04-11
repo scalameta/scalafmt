@@ -1,6 +1,6 @@
 package org.scalafmt.util
 
-import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.config.{Case, ScalafmtConfig}
 
 object LiteralOps {
 
@@ -38,15 +38,33 @@ object LiteralOps {
     sb.toString()
   }
 
-  /**
-    * Prints float literals with specified case
-    * */
   def prettyPrintFloat(str: String)(implicit style: ScalafmtConfig): String =
-    style.literals.float.process(str)
+    prettyPrintFloatingPoint(str, "F", "f", style.literals.float)
+
+  def prettyPrintDouble(str: String)(implicit style: ScalafmtConfig): String =
+    prettyPrintFloatingPoint(str, "D", "d", style.literals.double)
 
   /**
-    * Prints integer literals with specified case
+    * Prints floating point literals with specified case
+    *
+    * Divides literals into two parts:
+    *
+    * 1.0e-10f
+    * 1.0e-10 is a body with scientific notation
+    * f is a float/double suffix
+    *
+    * literals.scientific applies to body and literals.float/double applies to suffix
     * */
-  def prettyPrintDouble(str: String)(implicit style: ScalafmtConfig): String =
-    style.literals.double.process(str)
+  private def prettyPrintFloatingPoint(
+      str: String,
+      suffixUpper: String,
+      suffixLower: String,
+      suffixCase: Case
+  )(implicit style: ScalafmtConfig): String =
+    if (str.endsWith(suffixUpper) || str.endsWith(suffixLower)) {
+      style.literals.scientific.process(str.dropRight(1)) +
+        suffixCase.process(str.takeRight(1))
+    } else {
+      style.literals.scientific.process(str)
+    }
 }
