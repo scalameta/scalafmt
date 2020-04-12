@@ -18,7 +18,8 @@ import org.scalafmt.util.TokenOps._
   */
 case class FormatToken(left: Token, right: Token, meta: FormatToken.Meta) {
 
-  override def toString = s"${left.syntax}∙${right.syntax}"
+  override def toString =
+    s"${left.syntax}∙${right.syntax}[${left.end}:${right.end}]"
 
   def inside(range: Set[Range]): Boolean = {
     if (range.isEmpty) true

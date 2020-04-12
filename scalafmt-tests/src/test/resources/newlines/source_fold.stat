@@ -472,6 +472,38 @@ val deployment = system
   .asInstanceOf[ActorSystemImpl]
   .provider.deployer
   .lookup(service.split("/").drop(1))
+<<< 2.22
+maxColumn = 80
+===
+val augassign: P[Ast.operator] = P(
+    "+=".!.map(_ => Ast.operator.Add) |
+    "-=".!.map(_ => Ast.operator.Sub) |
+    "*=".!.map(_ => Ast.operator.Mult) |
+    "/=".!.map(_ => Ast.operator.Div) |
+    "%=".!.map(_ => Ast.operator.Mod) |
+    "&=".!.map(_ => Ast.operator.BitAnd) |
+    "|=".!.map(_ => Ast.operator.BitOr) |
+    "^=".!.map(_ => Ast.operator.BitXor) |
+    "<<=".!.map(_ => Ast.operator.LShift) |
+    ">>=".!.map(_ => Ast.operator.RShift) |
+    "**=".!.map(_ => Ast.operator.Pow) |
+    "//=".!.map(_ => Ast.operator.FloorDiv)
+  )
+>>>
+val augassign: P[Ast.operator] = P(
+  "+=".!.map(_ => Ast.operator.Add) |
+    "-=".!.map(_ => Ast.operator.Sub) |
+    "*=".!.map(_ => Ast.operator.Mult) |
+    "/=".!.map(_ => Ast.operator.Div) |
+    "%=".!.map(_ => Ast.operator.Mod) |
+    "&=".!.map(_ => Ast.operator.BitAnd) |
+    "|=".!.map(_ => Ast.operator.BitOr) |
+    "^=".!.map(_ => Ast.operator.BitXor) |
+    "<<=".!.map(_ => Ast.operator.LShift) |
+    ">>=".!.map(_ => Ast.operator.RShift) |
+    "**=".!.map(_ => Ast.operator.Pow) |
+    "//=".!.map(_ => Ast.operator.FloorDiv)
+)
 <<< 3.1: def non-config-style, long
 def a( ccccccccccccccccc:Int,
  ddddddddddddddddd:String,
@@ -764,10 +796,11 @@ object a {
 }
 >>>
 object a {
-  val a = (intercept[
-    java.lang.IllegalStateException] {
-    in.readObject
-  })
+  val a =
+    (intercept[
+      java.lang.IllegalStateException] {
+      in.readObject
+    })
 }
 <<< 3.23 enclosed, assignment, infix on left, narrow
 maxColumn = 40
@@ -917,6 +950,15 @@ object foo {
   val a = b(c = d)
   val a = b(c = d)
   val a = b(c = d)
+}
+<<< 3.31
+object a {
+  val b: Bbbbb[Seq[Ccccc]] = writable[Seq[Ccccc]]
+}
+>>>
+object a {
+  val b: Bbbbb[Seq[Ccccc]] =
+    writable[Seq[Ccccc]]
 }
 <<< 4.1: annotation with newlines
 maxColumn = 50

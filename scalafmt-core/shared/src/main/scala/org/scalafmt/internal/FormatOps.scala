@@ -42,7 +42,7 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   implicit val dialect = initStyle.runner.dialect
   private val ownersMap = getOwners(tree)
   val tokens: FormatTokens = FormatTokens(tree.tokens, owners)
-  val statementStarts = getStatementStarts(tree)
+  private val statementStarts = getStatementStarts(tree)
   val dequeueSpots = getDequeueSpots(tree) ++ statementStarts.keys
   private val matchingParentheses: Map[TokenHash, Token] =
     getMatchingParentheses(tree.tokens)
@@ -166,73 +166,44 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     }
   }
 
-  @tailrec
-  final def prevNonCommentWithCount(
-      curr: FormatToken,
-      accum: Int = 0
-  ): (Int, FormatToken) = {
-    if (!curr.left.is[T.Comment]) accum -> curr
-    else {
-      val tok = prev(curr)
-      if (tok == curr) accum -> curr
-      else prevNonCommentWithCount(tok, accum + 1)
-    }
-  }
-  def prevNonComment(curr: FormatToken): FormatToken =
-    prevNonCommentWithCount(curr)._2
-
-  @tailrec
   final def nextNonCommentSameLine(curr: FormatToken): FormatToken =
-    if (curr.hasBreak || !curr.right.is[T.Comment]) curr
-    else {
-      val tok = next(curr)
-      if (tok == curr) curr
-      else nextNonCommentSameLine(tok)
-    }
+    findToken(curr, next)(ft => ft.hasBreak || !ft.right.is[T.Comment])
+      .fold(identity, identity)
 
-  @tailrec
-  final def nextNonCommentWithCount(
-      curr: FormatToken,
-      accum: Int = 0
-  ): (Int, FormatToken) = {
-    if (!curr.right.is[T.Comment]) accum -> curr
-    else {
-      val tok = next(curr)
-      if (tok == curr) accum -> curr
-      else nextNonCommentWithCount(tok, accum + 1)
-    }
-  }
-  def nextNonComment(curr: FormatToken): FormatToken =
-    nextNonCommentWithCount(curr)._2
+  final def nextNonComment(curr: FormatToken): FormatToken =
+    findToken(curr, next) {
+      case FormatToken(_, _: T.Comment, _) => false
+      case _ => true
+    }.fold(identity, identity)
 
-  @tailrec
+  final def prevNonComment(curr: FormatToken): FormatToken =
+    findToken(curr, prev) {
+      case FormatToken(_: T.Comment, _, _) => false
+      case _ => true
+    }.fold(identity, identity)
+
   final def rhsOptimalToken(
       start: FormatToken
-  )(implicit style: ScalafmtConfig): Token = {
-    val found = start.right match {
-      case _ if start.hasBlankLine => Some(start.left)
-      case _: T.RightParen
-          if start.left.is[T.RightParen] || start.left.is[T.LeftParen] =>
-        None
-      case _: T.RightBracket if start.left.is[T.RightBracket] => None
-      case _: T.Comma | _: T.LeftParen | _: T.Semicolon | _: T.RightArrow |
-          _: T.Equals
-          if (style.activeForEdition_2020_03 && isInfixRhs(start) ||
-            !startsNewBlockOnRight(start)) =>
-        None
-      case c: T.Comment
-          if style.activeForEdition_2020_01 && start.noBreak &&
-            (!start.left.is[T.LeftParen] || isSingleLineComment(c)) =>
-        Some(c)
-      case _ => Some(start.left)
-    }
-    found match {
-      case Some(t) => t
-      case None =>
-        if (!tokens.hasNext(start)) start.right
-        else rhsOptimalToken(next(start))
-    }
-  }
+  )(implicit style: ScalafmtConfig): Token =
+    findTokenWith(start, next) { start =>
+      start.right match {
+        case _ if start.hasBlankLine => Some(start.left)
+        case _: T.RightParen
+            if start.left.is[T.RightParen] || start.left.is[T.LeftParen] =>
+          None
+        case _: T.RightBracket if start.left.is[T.RightBracket] => None
+        case _: T.Comma | _: T.LeftParen | _: T.Semicolon | _: T.RightArrow |
+            _: T.Equals
+            if (style.activeForEdition_2020_03 && isInfixRhs(start) ||
+              !startsNewBlockOnRight(start)) =>
+          None
+        case c: T.Comment
+            if style.activeForEdition_2020_01 && start.noBreak &&
+              (!start.left.is[T.LeftParen] || isSingleLineComment(c)) =>
+          Some(c)
+        case _ => Some(start.left)
+      }
+    }.fold(_.right, identity)
 
   @tailrec
   final def endOfSingleLineBlock(
@@ -305,19 +276,21 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
     }
   }
 
-  @tailrec
-  final def startsStatement(tok: FormatToken): Boolean = {
-    statementStarts.contains(hash(tok.right)) ||
-    (tok.right.is[T.Comment] && tok.hasBreak && startsStatement(next(tok)))
-  }
+  @inline
+  final def startsStatement(tok: FormatToken): Option[Tree] =
+    startsStatement(tok.right)
+  @inline
+  final def startsStatement(token: Token): Option[Tree] =
+    statementStarts.get(hash(token))
 
   def parensRange(token: Token): Option[Range] =
-    matchingOpt(token).map { other =>
-      if (token.start < other.end)
-        Range(token.start, other.end)
-      else
-        Range(other.start, token.end)
-    }
+    matchingOpt(token).map(matchingParensRange(token, _))
+
+  def matchingParensRange(token: Token, other: Token): Range =
+    if (token.start < other.end)
+      Range(token.start, other.end)
+    else
+      Range(other.start, token.end)
 
   def getExcludeIf(
       end: Token,
@@ -331,43 +304,45 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   def insideBlockRanges[A](start: FormatToken, end: Token)(
       implicit classifier: Classifier[Token, A]
   ): Set[Range] =
-    insideBlockRanges(start, end, classifier.apply)
+    insideBlockRanges(start, end, classifyOnRight(classifier))
 
   def insideBlockRanges(
       start: FormatToken,
       end: Token,
-      matches: Token => Boolean
+      matches: FormatToken => Boolean
   ): Set[Range] =
-    insideBlock(start, end, matches).flatMap(parensRange)
+    insideBlock(start, end, matches).map((matchingParensRange _).tupled).toSet
 
   def insideBlock[A](start: FormatToken, end: Token)(
       implicit classifier: Classifier[Token, A]
-  ): Set[Token] =
-    insideBlock(start, end, classifier.apply)
+  ): Map[Token, Token] =
+    insideBlock(start, end, classifyOnRight(classifier))
 
   def insideBlock(
       start: FormatToken,
       end: Token,
-      matches: Token => Boolean
-  ): Set[Token] = {
-    val result = Set.newBuilder[Token]
-    var prev = start
-    var curr = next(start)
+      matches: FormatToken => Boolean
+  ): Map[Token, Token] = {
+    val result = Map.newBuilder[Token, Token]
 
-    def goToMatching(): Unit = {
-      val close = matching(curr.left)
-      curr = tokens(close)
-    }
-
-    while (curr.left.start < end.start && curr != prev) {
-      if (matches(curr.left)) {
-        result += curr.left
-        goToMatching()
-      } else {
-        prev = curr
-        curr = next(curr)
+    @tailrec
+    def run(tok: FormatToken): Unit =
+      if (tok.right.start < end.start) {
+        val nextTokOpt = Option(tok).filter(matches).flatMap { tok =>
+          val open = tok.right
+          matchingOpt(open).flatMap { close =>
+            if (open.start >= close.end) None
+            else {
+              result += open -> close
+              Some(tokens(close))
+            }
+          }
+        }
+        val nextTok = nextTokOpt.getOrElse(next(tok))
+        if (nextTok ne tok) run(nextTok)
       }
-    }
+
+    run(start)
     result.result()
   }
 
@@ -1070,12 +1045,10 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
   }
 
   // Returns leading comment, if there exists one, otherwise formatToken.right
-  @tailrec
-  final def leadingComment(formatToken: FormatToken): Token = {
-    if (!formatToken.hasBlankLine && formatToken.left.is[T.Comment])
-      leadingComment(prev(formatToken))
-    else formatToken.right
-  }
+  final def leadingComment(formatToken: FormatToken): Token =
+    findToken(formatToken, prev) { formatToken =>
+      formatToken.hasBlankLine || !formatToken.left.is[T.Comment]
+    }.fold(_.left, _.right)
 
   def xmlSpace(owner: Tree): Modification = owner match {
     case _: Term.Xml | _: Pat.Xml => NoSplit
@@ -1237,5 +1210,24 @@ class FormatOps(val tree: Tree, val initStyle: ScalafmtConfig) {
         else findLastApplyAndNextSelect(p, select)
       case _ => (tree, select)
     }
+
+  @tailrec
+  final def findTokenWith[A](
+      ft: FormatToken,
+      iter: FormatToken => FormatToken
+  )(f: FormatToken => Option[A]): Either[FormatToken, A] =
+    f(ft) match {
+      case Some(a) => Right(a)
+      case _ =>
+        val nextFt = iter(ft)
+        if (nextFt eq ft) Left(ft)
+        else findTokenWith(nextFt, iter)(f)
+    }
+
+  final def findToken(
+      ft: FormatToken,
+      iter: FormatToken => FormatToken
+  )(f: FormatToken => Boolean): Either[FormatToken, FormatToken] =
+    findTokenWith(ft, iter)(Some(_).filter(f))
 
 }

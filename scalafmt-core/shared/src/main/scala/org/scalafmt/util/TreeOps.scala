@@ -104,30 +104,25 @@ object TreeOps {
     val ret = Map.newBuilder[TokenHash, Tree]
     ret.sizeHint(tree.tokens.length)
 
-    def addAll(trees: Seq[Tree]): Unit = {
-      trees.foreach { t =>
-        t.tokens.headOption.foreach { tok => ret += hash(tok) -> t }
-      }
-    }
+    def addTok(token: Token, tree: Tree) = ret += hash(token) -> tree
+    def addTree(t: Tree, tree: Tree) =
+      t.tokens.find(!_.is[Trivia]).foreach(addTok(_, tree))
+    def addAll(trees: Seq[Tree]) = trees.foreach(x => addTree(x, x))
 
     def addDefn[T: ClassTag](mods: Seq[Mod], tree: Tree): Unit = {
       // Each @annotation gets a separate line
       val annotations = mods.filter(_.is[Mod.Annot])
       addAll(annotations)
-      val firstNonAnnotation: Token = mods
-        .collectFirst {
-          case x if !x.is[Mod.Annot] =>
-            // Non-annotation modifier, for example `sealed`/`abstract`
-            x.tokens.head
-        }
-        .getOrElse {
+      mods.find(!_.is[Mod.Annot]) match {
+        // Non-annotation modifier, for example `sealed`/`abstract`
+        case Some(x) => addTree(x, tree)
+        case _ =>
           // No non-annotation modifier exists, fallback to keyword like `object`
-          tree.tokens.find(x => classTag[T].runtimeClass.isInstance(x)) match {
-            case Some(x) => x
+          tree.tokens.find(classTag[T].runtimeClass.isInstance) match {
+            case Some(x) => addTok(x, tree)
             case None => throw Error.CantFindDefnToken[T](tree)
           }
-        }
-      ret += hash(firstNonAnnotation) -> tree
+      }
     }
 
     def loop(x: Tree): Unit = {
@@ -619,12 +614,19 @@ object TreeOps {
       case _ => Some(false)
     }.isDefined
 
-  @tailrec
-  def getEndOfFirstCall(tree: Tree): Token =
-    tree match {
-      case t: Term.Select => getEndOfFirstCall(t.qual)
-      case SplitCallIntoParts(fun, _) if fun ne tree => getEndOfFirstCall(fun)
-      case _ => tree.tokens.last
-    }
+  object EndOfFirstCall {
+    def unapply(tree: Tree): Option[Token] =
+      traverse(tree, None).map(_.tokens.last)
+
+    @tailrec
+    private def traverse(tree: Tree, res: Option[Tree]): Option[Tree] =
+      tree match {
+        case t: Term.Select if res.isDefined => traverse(t.qual, Some(t.qual))
+        case t: Term.ApplyType => traverse(t.fun, Some(t))
+        case SplitCallIntoParts(fun, _) if fun ne tree =>
+          traverse(fun, Some(fun))
+        case _ => res
+      }
+  }
 
 }

@@ -2,12 +2,12 @@ package org.scalafmt
 
 import scala.meta.Case
 import scala.meta.Tree
-import scala.meta.tokens.Token
 import scala.reflect.ClassTag
 import scala.reflect.classTag
 import java.io.File
 import scala.meta.inputs.Position
 import org.scalafmt.internal.Decision
+import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.State
 import org.scalafmt.util.LoggerOps
 import scala.meta.internal.inputs._
@@ -75,11 +75,13 @@ object Error {
   case class SearchStateExploded(
       deepestState: State,
       partialOutput: String,
-      lastToken: Token
-  ) extends Error(
-        s"Search state exploded around line ${lastToken.pos.endLine}"
-      ) {
-    def line: Int = lastToken.pos.endLine
+      ft: FormatToken
+  ) extends Error({
+        val tok = LoggerOps.log2(ft)
+        val line = ft.left.pos.endLine
+        s"Search state exploded on '$tok', line $line"
+      }) {
+    def line: Int = ft.left.pos.endLine
   }
 
   case class InvalidScalafmtConfiguration(throwable: Throwable)

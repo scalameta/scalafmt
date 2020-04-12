@@ -10,7 +10,6 @@ import org.scalafmt.config.FormatEvent.Enqueue
 import org.scalafmt.config.FormatEvent.Explored
 import org.scalafmt.config.FormatEvent.VisitToken
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.internal.ExpiresOn
 import org.scalafmt.internal.Length.Num
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.TokenOps
@@ -156,7 +155,7 @@ private class BestFirstSearch private (
           throw SearchStateExploded(
             deepestYet,
             formatWriter.mkString(deepestYet),
-            tokens(deepestYet.depth).left
+            tokens(deepestYet.depth)
           )
 
         val style = styleMap.at(splitToken)
@@ -181,10 +180,10 @@ private class BestFirstSearch private (
           throw SearchStateExploded(
             deepestYet,
             formatWriter.mkString(deepestYet),
-            tokens(deepestYet.depth).left
+            splitToken
           )
         } else {
-          val actualSplit = getActiveSplits(curr)
+          val actualSplit = getActiveSplits(curr, maxCost)
 
           var optimalNotFound = true
           actualSplit.foreach { split =>
@@ -244,7 +243,7 @@ private class BestFirstSearch private (
     null
   }
 
-  private def getActiveSplits(state: State): Seq[Split] = {
+  private def getActiveSplits(state: State, maxCost: Int): Seq[Split] = {
     val ft = tokens(state.depth)
     val useProvided = state.formatOff || !ft.inside(range)
     val splits = if (useProvided) Seq(provided(ft)) else routes(state.depth)
@@ -252,7 +251,7 @@ private class BestFirstSearch private (
     state.policy
       .execute(Decision(ft, splits))
       .splits
-      .filter(_.isActive)
+      .filter(x => x.isActive && x.cost <= maxCost)
       .sortBy(_.cost)
   }
 
@@ -272,7 +271,7 @@ private class BestFirstSearch private (
     if (state.depth >= tokens.length) state
     else {
       trackState(state, depth, 0)
-      val activeSplits = getActiveSplits(state)
+      val activeSplits = getActiveSplits(state, Int.MaxValue)
 
       if (activeSplits.lengthCompare(1) != 0)
         if (activeSplits.isEmpty) null else state // dead end if empty

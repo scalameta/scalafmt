@@ -181,19 +181,13 @@ trait HasTests extends FormatAssertions {
       debug: Debug
   ): Array[FormatOutput] = {
     val builder = mutable.ArrayBuilder.make[FormatOutput]
-    val locations = new FormatWriter(debug.formatOps)
-      .getFormatLocations(debug.state, debug = debug.verbose)
-    locations.iterate.foreach { entry =>
+    val writer = new FormatWriter(debug.formatOps)
+    writer.getFormatLocations(debug.state).iterate.foreach { entry =>
       val token = entry.curr.formatToken
       builder += FormatOutput(
         token.left.syntax + entry.getWhitespace(0),
         debug.formatTokenExplored(token.meta.idx)
       )
-    }
-    if (debug.verbose) {
-      locations.locations.lastOption.foreach { location =>
-        logger.debug(s"Total cost: ${location.state.cost}")
-      }
     }
     builder.result()
   }

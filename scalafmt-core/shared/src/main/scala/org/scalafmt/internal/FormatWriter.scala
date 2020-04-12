@@ -3,7 +3,7 @@ package org.scalafmt.internal
 import java.util.regex.Pattern
 
 import org.scalafmt.rewrite.RedundantBraces
-import org.scalafmt.util.TokenOps.TokenHash
+import org.scalafmt.util.TokenOps._
 import org.scalafmt.util.TreeOps
 
 import scala.annotation.tailrec
@@ -25,7 +25,7 @@ class FormatWriter(formatOps: FormatOps) {
 
   def mkString(state: State): String = {
     val sb = new StringBuilder()
-    val locations = getFormatLocations(state, debug = false)
+    val locations = getFormatLocations(state)
 
     locations.iterate.foreach { entry =>
       val location = entry.curr
@@ -134,29 +134,20 @@ class FormatWriter(formatOps: FormatOps) {
     }
   }
 
-  import org.scalafmt.util.LoggerOps._
-  import org.scalafmt.util.TokenOps._
-
-  def getFormatLocations(
-      state: State,
-      debug: Boolean
-  ): FormatLocations = {
+  def getFormatLocations(state: State): FormatLocations = {
     val toks = formatOps.tokens.arr
     require(toks.length >= state.depth, "splits !=")
     val result = new Array[FormatLocation](state.depth)
-    var curState = state
-    while (curState.depth != 0) {
-      val idx = curState.depth - 1
-      val tok = toks(idx)
-      result(idx) = FormatLocation(tok, curState)
-      curState = curState.prev
-      if (debug && toks.length < 1000) {
-        val left = cleanup(tok.left).slice(0, 15)
-        logger.debug(
-          f"$left%-15s ${curState.split} ${curState.indentation} ${curState.column}"
-        )
+
+    @tailrec
+    def iter(state: State): Unit =
+      if (state.depth != 0) {
+        val prev = state.prev
+        val idx = prev.depth
+        result(idx) = FormatLocation(toks(idx), state)
+        iter(prev)
       }
-    }
+    iter(state)
 
     if (initStyle.rewrite.redundantBraces.parensForOneLineApply
         .getOrElse(initStyle.activeForEdition_2020_01) &&
@@ -342,7 +333,8 @@ class FormatWriter(formatOps: FormatOps) {
         ): Option[FormatToken] = {
           def owner = tok.meta.rightOwner
 
-          val (skip, nextNonCommentTok) = nextNonCommentWithCount(tok)
+          val nextNonCommentTok = nextNonComment(tok)
+          val skip = nextNonCommentTok.meta.idx - tok.meta.idx
           val right = nextNonCommentTok.right
           def isNewline =
             Seq(curr, locations(math.min(i + skip, locations.length - 1)))
@@ -448,10 +440,6 @@ class FormatWriter(formatOps: FormatOps) {
       else if (toks(i).state.split.modification.isNewline) true
       else isMultiline(end, i + 1)
     }
-    def actualOwner(token: Token): Tree = owners(token) match {
-      case mod: Mod => mod.parent.get
-      case x => x
-    }
     initStyle.newlines.alwaysBeforeTopLevelStatements && {
       val formatToken = toks(i).formatToken
 
@@ -478,9 +466,13 @@ class FormatWriter(formatOps: FormatOps) {
 
       def checkTopLevelStatement: Boolean =
         topLevelTokens.contains(hash(formatToken.right)) && {
-          val (distance, FormatToken(_, nextNonComment, _)) =
-            nextNonCommentWithCount(formatToken)
-          isMultiline(actualOwner(nextNonComment).tokens.last, i + distance + 1)
+          val nextNonCommentTok = nextNonComment(formatToken)
+          val distance = nextNonCommentTok.meta.idx - formatToken.meta.idx
+          val nonCommentOwner = nextNonCommentTok.meta.rightOwner match {
+            case mod: Mod => mod.parent.get
+            case x => x
+          }
+          isMultiline(nonCommentOwner.tokens.last, i + distance + 1)
         }
 
       checkPackage.getOrElse(checkTopLevelStatement)

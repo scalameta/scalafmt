@@ -1,5 +1,6 @@
 package org.scalafmt.util
 
+import scala.meta.classifiers.Classifier
 import scala.meta.{Defn, Pkg, Template, Tree}
 import scala.meta.dialects.Scala211
 import scala.meta.tokens.Token
@@ -46,11 +47,6 @@ object TokenOps {
         (token.start.toLong << (62 - (8 + 28))) | token.end
     longHash
   }
-
-  def shouldGet2xNewlines(
-      tok: FormatToken
-  )(implicit style: ScalafmtConfig): Boolean =
-    tok.hasBlankLine || blankLineBeforeDocstring(tok.left, tok.right)
 
   def blankLineBeforeDocstring(
       left: Token,
@@ -264,5 +260,8 @@ object TokenOps {
       case Newlines.fold => false
       case Newlines.unfold => true
     }
+
+  def classifyOnRight[A](cls: Classifier[Token, A])(ft: FormatToken): Boolean =
+    cls(ft.right)
 
 }

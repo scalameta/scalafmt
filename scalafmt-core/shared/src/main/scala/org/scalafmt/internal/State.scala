@@ -36,13 +36,14 @@ final case class State(
       split: Split,
       tok: FormatToken
   ): State = {
-    val nonExpiredIndents = pushes.filterNot { push =>
-      val expireToken: Token =
-        if (push.expiresAt == ExpiresOn.After) tok.left else tok.right
-      push.expire.end <= expireToken.end
-    }
     val newIndents: Vector[Indent[Num]] =
-      nonExpiredIndents ++ split.indents.map(_.withNum(column, indentation))
+      if (tok.right.is[Token.EOF]) Vector.empty
+      else
+        pushes.filterNot { push =>
+          val expireToken: Token =
+            if (push.expiresAt == ExpiresOn.After) tok.left else tok.right
+          push.expire.end <= expireToken.end
+        } ++ split.indents.map(_.withNum(column, indentation))
     val newIndent = newIndents.foldLeft(0)(_ + _.length.n)
 
     val tokRightSyntax = tok.right.syntax
@@ -123,9 +124,10 @@ object State {
   object Ordering extends Ordering[State] {
     override def compare(x: State, y: State): Int = compareAt(x, y, 0)
 
+    // each should compare priorities, i.e. define reverse ordering
     private val comparisons: Seq[(State, State) => Int] = Seq(
       compareCost,
-      compareSplitsLength,
+      compareDepth,
       compareSplitOrigin
     )
 
@@ -136,15 +138,15 @@ object State {
       else compareAt(s1, s2, i + 1)
     }
 
-    // priority on higher cost
+    // higher priority on lower cost
     private def compareCost(s1: State, s2: State): Int =
       Integer.compare(s2.cost, s1.cost)
 
-    // priority on fewer splits
-    private def compareSplitsLength(s1: State, s2: State): Int =
+    // higher priority on deeper state
+    private def compareDepth(s1: State, s2: State): Int =
       Integer.compare(s1.depth, s2.depth)
 
-    // priority on earlier line defining the last split
+    // higher priority on later line defining the last split
     @tailrec
     private def compareSplitOrigin(s1: State, s2: State): Int = {
       // We assume the same number of splits, see compareSplitsLength
