@@ -1,0 +1,16 @@
+rewrite.rules = [CamelCaseVariableNaming]
+
+<<< Only basic
+class A {
+  val student_name = "wang"
+  val student_age = 12
+  val studentSex = "male"
+}
+>>>
+class A {
+  val studentName = "wang"
+  val studentAge = 12
+  val studentSex = "male"
+}
+
+

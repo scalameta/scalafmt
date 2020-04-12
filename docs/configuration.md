@@ -865,6 +865,20 @@ rewrite.rules = [AsciiSortImports]
 import foo.{~>, `symbol`, bar, Random}
 ```
 
+### `CamelCaseVariableNaming`
+
+Convert snake case variable naming style to camel case
+
+```scala mdoc:scalafmt
+rewrite.rules = [CamelCaseVariableNaming]
+---
+class A {
+  val student_name = "wang"
+  val student_age = 12
+}
+```  
+
+
 ### Trailing commas
 
 > See [SIP](https://docs.scala-lang.org/sips/trailing-commas.html)

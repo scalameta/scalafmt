@@ -81,6 +81,7 @@ object Rewrite {
 
   private val rewrites = Seq[sourcecode.Text[Rewrite]](
     RedundantBraces,
+    CamelCaseVariableNaming,
     RedundantParens,
     SortImports,
     AsciiSortImports,
