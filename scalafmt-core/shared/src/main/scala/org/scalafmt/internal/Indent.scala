@@ -2,8 +2,6 @@ package org.scalafmt.internal
 
 import scala.meta.tokens.Token
 
-import org.scalafmt.internal.Length._
-
 sealed abstract class ExpiresOn
 
 object ExpiresOn {
@@ -15,10 +13,16 @@ object ExpiresOn {
   def beforeIf(flag: Boolean) = if (flag) Before else After
 }
 
-sealed abstract class Length
+sealed abstract class Length {
+  def withStateOffset(offset: Int): Int
+}
 
 object Length {
-  case class Num(n: Int) extends Length
+
+  case class Num(n: Int) extends Length {
+    override def withStateOffset(offset: Int): Int = n
+    override def toString: String = n.toString
+  }
 
   /**
     * Indent up to the column of the left token.
@@ -28,7 +32,16 @@ object Length {
     * foobar(arg1,
     *        arg2)
     */
-  case object StateColumn extends Length
+  case object StateColumn extends Length {
+    override def withStateOffset(offset: Int): Int = offset
+  }
+}
+
+case class ActualIndent(length: Int, expire: Token, expiresAt: ExpiresOn)
+
+abstract class Indent {
+  def switch(switchObject: AnyRef): Indent
+  def withStateOffset(offset: Int): Option[ActualIndent]
 }
 
 /**
@@ -44,14 +57,44 @@ object Length {
   * @param expire Until which token does this indentation stay?
   * @param expiresAt If Right, then expires when [[expire]] is curr.right,
   *                  otherwise curr.left in [[BestFirstSearch]].
-  * @tparam T Can be a known number [[Length.Num]] (used in [[State]]) or unknown
-  *           integer [[Length.StateColumn]] (used in [[Split]]).
   */
-case class Indent[T <: Length](length: T, expire: Token, expiresAt: ExpiresOn) {
-
-  def withNum(column: Int, indentation: Int): Indent[Num] = length match {
-    case n: Num => Indent(n, expire, expiresAt)
-    case _: StateColumn.type =>
-      Indent(Num(column - indentation), expire, expiresAt)
+private class IndentImpl(length: Length, expire: Token, expiresAt: ExpiresOn)
+    extends Indent {
+  override def switch(switchObject: AnyRef): Indent = this
+  override def withStateOffset(offset: Int): Option[ActualIndent] =
+    Some(ActualIndent(length.withStateOffset(offset), expire, expiresAt))
+  override def toString: String = {
+    val when = if (expiresAt == ExpiresOn.Before) '<' else '>'
+    s"$length$when$expire:${expire.end}"
   }
+}
+
+object Indent {
+
+  def apply(length: Length, expire: Token, expiresAt: ExpiresOn): Indent =
+    length match {
+      case Length.Num(0) => Empty
+      case x => new IndentImpl(x, expire, expiresAt)
+    }
+
+  case object Empty extends Indent {
+    override def withStateOffset(offset: Int): Option[ActualIndent] = None
+    override def switch(switchObject: AnyRef): Indent = this
+  }
+
+  class Before(indent: Indent, before: AnyRef) extends Indent {
+    override def switch(switchObject: AnyRef): Indent =
+      if (before ne switchObject) this else Indent.Empty
+    override def withStateOffset(offset: Int): Option[ActualIndent] =
+      indent.withStateOffset(offset)
+    override def toString: String = s"$indent>?"
+  }
+
+  class After(indent: Indent, after: AnyRef) extends Indent {
+    override def switch(switchObject: AnyRef): Indent =
+      if (after ne switchObject) this else indent
+    override def withStateOffset(offset: Int): Option[ActualIndent] = None
+    override def toString: String = s"?<$indent"
+  }
+
 }

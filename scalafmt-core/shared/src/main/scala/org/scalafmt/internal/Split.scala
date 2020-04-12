@@ -2,7 +2,6 @@ package org.scalafmt.internal
 
 import scala.meta.tokens.Token
 
-import org.scalafmt.internal.Length.Num
 import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util.TokenOps
 
@@ -40,7 +39,7 @@ case class Split(
     cost: Int,
     tag: SplitTag = SplitTag.Active,
     activeTag: SplitTag = SplitTag.Active,
-    indents: Seq[Indent[_]] = Seq.empty,
+    indents: Seq[Indent] = Seq.empty,
     policy: Policy = NoPolicy,
     optimalAt: Option[OptimalToken] = None
 )(implicit val line: sourcecode.Line) {
@@ -52,16 +51,7 @@ case class Split(
     case _ => this
   }
 
-  val indentation = indents
-    .map { x =>
-      val len = x.length match {
-        case Num(x) => x.toString
-        case x => x.toString
-      }
-      val when = if (x.expiresAt == ExpiresOn.Before) '<' else '>'
-      s"$len$when${x.expire}:${x.expire.end}"
-    }
-    .mkString("[", ", ", "]")
+  val indentation = indents.mkString("[", ", ", "]")
 
   def length: Int = modification match {
     case m if m.isNewline => 0
@@ -171,7 +161,7 @@ case class Split(
     if (isIgnored) this
     else
       length match {
-        case Num(0) => this
+        case Length.Num(0) => this
         case x => withIndentImpl(Indent(x, expire, when))
       }
 
@@ -182,23 +172,28 @@ case class Split(
   ): Split =
     expire.fold(this)(withIndent(length, _, when))
 
-  def withIndent(indent: => Indent[_ <: Length]): Split =
+  def withIndent(indent: => Indent): Split =
     if (isIgnored) this
     else
       indent match {
-        case Indent(Num(0), _, _) => this
+        case Indent.Empty => this
         case x => withIndentImpl(x)
       }
 
-  def withIndentOpt(indent: => Option[Indent[_ <: Length]]): Split =
+  def withIndentOpt(indent: => Option[Indent]): Split =
     if (isIgnored) this
     else indent.fold(this)(withIndent(_))
 
-  def withIndents(indents: Seq[Indent[_ <: Length]]): Split =
+  def withIndents(indents: Seq[Indent]): Split =
     indents.foldLeft(this)(_ withIndent _)
 
-  private def withIndentImpl(indent: Indent[_ <: Length]): Split =
+  private def withIndentImpl(indent: Indent): Split =
     copy(indents = indent +: indents)
+
+  def switch(switchObject: AnyRef): Split = {
+    val newIndents = indents.map(_.switch(switchObject))
+    copy(indents = newIndents.filter(_ ne Indent.Empty))
+  }
 
   override def toString = {
     val prefix = tag match {
