@@ -5,7 +5,6 @@ import scala.meta.tokens.Token
 import scala.meta.tokens.Token.Comment
 
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.internal.Length.Num
 import org.scalafmt.util.TokenOps
 
 /**
@@ -18,7 +17,7 @@ final case class State(
     depth: Int,
     prev: State,
     indentation: Int,
-    pushes: Vector[Indent[Num]],
+    pushes: Vector[ActualIndent],
     column: Int,
     formatOff: Boolean
 ) {
@@ -36,15 +35,17 @@ final case class State(
       split: Split,
       tok: FormatToken
   ): State = {
-    val newIndents: Vector[Indent[Num]] =
+    val newIndents: Vector[ActualIndent] =
       if (tok.right.is[Token.EOF]) Vector.empty
-      else
+      else {
+        val offset = column - indentation
         pushes.filterNot { push =>
           val expireToken: Token =
             if (push.expiresAt == ExpiresOn.After) tok.left else tok.right
           push.expire.end <= expireToken.end
-        } ++ split.indents.map(_.withNum(column, indentation))
-    val newIndent = newIndents.foldLeft(0)(_ + _.length.n)
+        } ++ split.indents.flatMap(_.withStateOffset(offset))
+      }
+    val newIndent = newIndents.foldLeft(0)(_ + _.length)
 
     val tokRightSyntax = tok.right.syntax
     // Always account for the cost of the right token.
@@ -115,7 +116,7 @@ object State {
     0,
     null,
     0,
-    Vector.empty[Indent[Num]],
+    Vector.empty[ActualIndent],
     0,
     formatOff = false
   )
