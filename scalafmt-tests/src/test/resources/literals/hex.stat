@@ -8,14 +8,14 @@ literals.hex = Upper
 ===
 0x7f
 >>>
-0x7F
+0X7F
 <<< ignore suffix setting
 literals.long = Upper
 ===
 0xffffffffl
 >>>
 0xffffffffL
-<<< always lowercase 0x
+<<< also lowercase 0x
 0Xfff
 >>>
 0xfff

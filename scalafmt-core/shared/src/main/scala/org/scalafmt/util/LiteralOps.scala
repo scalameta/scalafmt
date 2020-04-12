@@ -18,25 +18,13 @@ object LiteralOps {
     * */
   def prettyPrintInteger(
       str: String
-  )(implicit style: ScalafmtConfig): String = {
-    val sb = new StringBuilder()
-    val body =
-      if (str.startsWith("0x") || str.startsWith("0X")) {
-        sb.append("0x")
-        str.drop(2)
-      } else {
-        str
-      }
-
-    if (body.endsWith("L") || body.endsWith("l")) {
-      sb.append(style.literals.hex.process(body.dropRight(1)))
-      sb.append(style.literals.long.process(body.takeRight(1)))
+  )(implicit style: ScalafmtConfig): String =
+    if (str.endsWith("L") || str.endsWith("l")) {
+      style.literals.hex.process(str.dropRight(1)) +
+        style.literals.long.process(str.takeRight(1))
     } else {
-      sb.append(style.literals.hex.process(body))
+      style.literals.hex.process(str)
     }
-
-    sb.toString()
-  }
 
   def prettyPrintFloat(str: String)(implicit style: ScalafmtConfig): String =
     prettyPrintFloatingPoint(str, "F", "f", style.literals.float)
