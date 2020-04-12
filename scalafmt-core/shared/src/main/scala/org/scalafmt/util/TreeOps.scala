@@ -214,10 +214,10 @@ object TreeOps {
     childOf(owners(hash(tok)), tree)
 
   @tailrec
-  final def numParents(tree: Tree, accum: Int = 0): Int =
+  final def numParents(tree: Tree, cnt: Int = 0)(f: Tree => Boolean): Int =
     tree.parent match {
-      case Some(parent) => numParents(parent, 1 + accum)
-      case _ => accum
+      case Some(p) => numParents(p, if (f(p)) 1 + cnt else cnt)(f)
+      case _ => cnt
     }
 
   /**
@@ -430,23 +430,12 @@ object TreeOps {
   /**
     * How many parents of tree are Term.Apply?
     */
-  def nestedApplies(tree: Tree): Int = {
-    // TODO(olafur) optimize?
-    tree.parent.fold(0) {
-      case parent @ (_: Term.Apply | _: Term.ApplyInfix | _: Type.Apply) =>
-        1 + nestedApplies(parent)
-      case parent => nestedApplies(parent)
-    }
+  def nestedApplies(tree: Tree): Int = numParents(tree) {
+    case _: Term.Apply | _: Term.ApplyInfix | _: Type.Apply => true
+    case _ => false
   }
 
-  // TODO(olafur) abstract with [[NestedApplies]]
-
-  def nestedSelect(tree: Tree): Int = {
-    tree.parent.fold(0) {
-      case parent: Term.Select => 1 + nestedSelect(parent)
-      case parent => nestedSelect(parent)
-    }
-  }
+  def nestedSelect(tree: Tree): Int = numParents(tree)(_.is[Term.Select])
 
   // TODO(olafur) scala.meta should make this easier.
   def findSiblingGuard(
