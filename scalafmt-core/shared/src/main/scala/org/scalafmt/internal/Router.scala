@@ -514,9 +514,9 @@ class Router(formatOps: FormatOps) {
       // Opening [ with no leading space.
       // Opening ( with no leading space.
       case FormatToken(
-          T.KwSuper() | T.KwThis() | T.Ident(_) | T.RightBracket() |
-          T.RightBrace() | T.RightParen() | T.Underscore(),
-          T.LeftParen() | T.LeftBracket(),
+          RightParenOrBracket() | T.KwSuper() | T.KwThis() | T.Ident(_) |
+          T.RightBrace() | T.Underscore(),
+          LeftParenOrBracket(),
           _
           ) if noSpaceBeforeOpeningParen(rightOwner) && {
             leftOwner.parent.forall {
@@ -569,7 +569,7 @@ class Router(formatOps: FormatOps) {
 
       // Parameter opening for one parameter group. This format works
       // on the WHOLE defnSite (via policies)
-      case ft @ FormatToken((T.LeftParen() | T.LeftBracket()), _, _)
+      case ft @ FormatToken(LeftParenOrBracket(), _, _)
           if style.verticalMultiline.atDefnSite &&
             isDefnSiteWithParams(leftOwner) =>
         verticalMultiline(leftOwner, ft)(style)
@@ -615,7 +615,7 @@ class Router(formatOps: FormatOps) {
         )
       }
 
-      case FormatToken(T.LeftParen() | T.LeftBracket(), right, between)
+      case FormatToken(LeftParenOrBracket(), right, between)
           if style.optIn.configStyleArguments && isDefnOrCallSite(leftOwner) &&
             (opensConfigStyle(formatToken, false) || {
               forceConfigStyle(leftOwner) && !styleMap.forcedBinPack(leftOwner)
@@ -646,7 +646,7 @@ class Router(formatOps: FormatOps) {
             .withIndent(extraIndent, right, Before)
         )
 
-      case FormatToken(open @ (T.LeftParen() | T.LeftBracket()), right, between)
+      case FormatToken(open @ LeftParenOrBracket(), right, between)
           if style.binPack.unsafeDefnSite && isDefnSite(leftOwner) =>
         val close = matching(open)
         val isBracket = open.is[T.LeftBracket]
@@ -691,7 +691,7 @@ class Router(formatOps: FormatOps) {
               .withIndent(indent, close, After)
           )
         }
-      case FormatToken(T.LeftParen() | T.LeftBracket(), _, _)
+      case FormatToken(LeftParenOrBracket(), _, _)
           if style.binPack.unsafeCallSite && isCallSite(leftOwner) =>
         val open = formatToken.left
         val close = matching(open)
@@ -733,11 +733,10 @@ class Router(formatOps: FormatOps) {
           if !style.spaces.afterKeywordBeforeParen =>
         Seq(Split(NoSplit, 0))
 
-      case tok @ FormatToken(T.LeftParen() | T.LeftBracket(), right, between)
+      case tok @ FormatToken(open @ LeftParenOrBracket(), right, _)
           if !isSuperfluousParenthesis(formatToken.left, leftOwner) &&
             (!style.binPack.unsafeCallSite && isCallSite(leftOwner)) ||
             (!style.binPack.unsafeDefnSite && isDefnSite(leftOwner)) =>
-        val open = tok.left
         val close = matching(open)
         val (lhs, args) = getApplyArgs(formatToken, false)
         // In long sequence of select/apply, we penalize splitting on
