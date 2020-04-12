@@ -876,8 +876,7 @@ class A {
   val student_name = "wang"
   val student_age = 12
 }
-```  
-
+```
 
 ### Trailing commas
 
