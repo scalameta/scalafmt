@@ -129,6 +129,11 @@ import metaconfig.generic.Surface
   *   Switch to `many` for a given expression (possibly nested) if the
   *   number of operations in that expression exceeds this value AND
   *   `afterInfix` had been set to `some`.
+  * @param topLevelStatements
+  *   Forces a blank line before and/or after a top-level statement.
+  * @param topLevelStatementsMinBreaks
+  *   Minimum span (number of line breaks between first and last line)
+  *   to start forcing blank lines.
   */
 case class Newlines(
     source: Newlines.SourceHints = Newlines.classic,
@@ -137,6 +142,13 @@ case class Newlines(
     sometimesBeforeColonInMethodReturnType: Boolean = true,
     penalizeSingleSelectMultiArgList: Boolean = true,
     alwaysBeforeCurlyBraceLambdaParams: Boolean = false,
+    topLevelStatementsMinBreaks: Int = 1,
+    topLevelStatements: Seq[Newlines.BeforeAfter] = Seq.empty,
+    @annotation.DeprecatedName(
+      "alwaysBeforeTopLevelStatements",
+      "Use newlines.topLevelStatements instead",
+      "2.5.0"
+    )
     alwaysBeforeTopLevelStatements: Boolean = false,
     afterCurlyLambda: NewlineCurlyLambda = NewlineCurlyLambda.never,
     implicitParamListModifier: Seq[Newlines.BeforeAfter] = Seq.empty,
@@ -185,6 +197,12 @@ case class Newlines(
     implicitParamListModifier.contains(Newlines.before)
   lazy val afterImplicitParamListModifier: Boolean =
     implicitParamListModifier.contains(Newlines.after)
+
+  lazy val forceBlankBeforeMultilineTopLevelStmt: Boolean =
+    topLevelStatements.contains(Newlines.before) ||
+      alwaysBeforeTopLevelStatements
+  lazy val forceBlankAfterMultilineTopLevelStmt: Boolean =
+    topLevelStatements.contains(Newlines.after)
 }
 
 object Newlines {
