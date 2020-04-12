@@ -433,12 +433,14 @@ class FormatWriter(formatOps: FormatOps) {
       toks: Array[FormatLocation],
       i: Int
   ): Boolean = {
-    @tailrec def isMultiline(end: Token, i: Int): Boolean = {
-      if (i >= toks.length || toks(i).formatToken.left == end) false
-      else if (toks(i).state.split.modification.isNewline) true
-      else isMultiline(end, i + 1)
-    }
-    initStyle.newlines.alwaysBeforeTopLevelStatements && {
+    @tailrec def isMultiline(end: Token, i: Int, minLines: Int): Boolean =
+      if (minLines <= 0) true
+      else if (i >= toks.length || toks(i).formatToken.left == end) false
+      else {
+        val hasNL = toks(i).state.split.modification.isNewline
+        isMultiline(end, i + 1, if (hasNL) minLines - 1 else minLines)
+      }
+    initStyle.newlines.forceBlankBeforeMultilineTopLevelStmt && {
       val formatToken = toks(i).formatToken
 
       def checkPackage: Option[Boolean] =
@@ -470,7 +472,11 @@ class FormatWriter(formatOps: FormatOps) {
             case mod: Mod => mod.parent.get
             case x => x
           }
-          isMultiline(nonCommentOwner.tokens.last, i + distance + 1)
+          isMultiline(
+            nonCommentOwner.tokens.last,
+            i + distance + 1,
+            initStyle.newlines.topLevelStatementsMinBreaks
+          )
         }
 
       checkPackage.getOrElse(checkTopLevelStatement)

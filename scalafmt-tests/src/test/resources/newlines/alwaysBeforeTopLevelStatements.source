@@ -1,5 +1,5 @@
 maxColumn = 80
-newlines.alwaysBeforeTopLevelStatements = true
+newlines.topLevelStatements = [before]
 
 <<< #1069 1
 package a
@@ -69,4 +69,128 @@ import g.h.i.j
 package k.l.m {
   import n.o.p
   class q {}
+}
+<<< #1653 none
+maxColumn = 25
+newlines.topLevelStatements = []
+===
+object a {
+  object a {
+    def b = { "multiline" }
+    def c = "single"
+  }
+  object a {
+    def c = "single"
+    def b = { "multiline" }
+  }
+}
+>>>
+object a {
+  object a {
+    def b = {
+      "multiline"
+    }
+    def c = "single"
+  }
+  object a {
+    def c = "single"
+    def b = {
+      "multiline"
+    }
+  }
+}
+<<< #1653 before
+maxColumn = 25
+newlines.topLevelStatements = [before]
+===
+object a {
+  object a {
+    def b = { "multiline" }
+    def c = "single"
+  }
+  object a {
+    def c = "single"
+    def b = { "multiline" }
+  }
+}
+>>>
+object a {
+
+  object a {
+
+    def b = {
+      "multiline"
+    }
+    def c = "single"
+  }
+
+  object a {
+    def c = "single"
+
+    def b = {
+      "multiline"
+    }
+  }
+}
+<<< #1653 after
+maxColumn = 25
+newlines.topLevelStatements = [after]
+===
+object a {
+  object a {
+    def b = { "multiline" }
+    def c = "single"
+  }
+  object a {
+    def c = "single"
+    def b = { "multiline" }
+  }
+}
+>>>
+object a {
+  object a {
+    def b = {
+      "multiline"
+    }
+    def c = "single"
+  }
+  object a {
+    def c = "single"
+    def b = {
+      "multiline"
+    }
+  }
+}
+<<< #1653 both
+maxColumn = 25
+newlines.topLevelStatements = [before,after]
+===
+object a {
+  object a {
+    def b = { "multiline" }
+    def c = "single"
+  }
+  object a {
+    def c = "single"
+    def b = { "multiline" }
+  }
+}
+>>>
+object a {
+
+  object a {
+
+    def b = {
+      "multiline"
+    }
+    def c = "single"
+  }
+
+  object a {
+    def c = "single"
+
+    def b = {
+      "multiline"
+    }
+  }
 }

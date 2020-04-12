@@ -55,6 +55,8 @@ trait AllSyntax
     with EitherSyntax
     with EqSyntax
 <<< nested with
+newlines.topLevelStatements = [before]
+===
 trait Grouped[K, +V]
   extends KeyedListLike[K, V, UnsortedGrouped]
   with HashJoinable[K, V]
@@ -67,6 +69,7 @@ trait Grouped[K, +V]
     with HashJoinable[K, V]
     with Sortable[V,
                   ({
+
                     type t[+x] =
                       SortedGrouped[K, x] with Reversible[SortedGrouped[K, x]]
                   })#t]
