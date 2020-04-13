@@ -559,7 +559,11 @@ class FormatWriter(formatOps: FormatOps) {
   def alignmentTokens(
       locations: Array[FormatLocation]
   ): Map[TokenHash, Int] = {
-    if (initStyle.align.tokens.isEmpty || locations.length != tokens.length)
+    lazy val noAlignTokens = locations.forall { floc =>
+      styleMap.at(floc.formatToken).align.tokens.isEmpty
+    }
+
+    if (locations.length != tokens.length || noAlignTokens)
       Map.empty[TokenHash, Int]
     else {
       var columnShift = 0
