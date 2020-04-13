@@ -216,6 +216,13 @@ object Newlines {
       ReaderUtil.oneOf[AfterInfix](keep, some, many)
   }
 
+  sealed abstract class BeforeAfter
+  case object before extends BeforeAfter
+  case object after extends BeforeAfter
+
+  implicit val beforeAfterReader: ConfCodec[BeforeAfter] =
+    ReaderUtil.oneOf[BeforeAfter](before, after)
+
 }
 
 sealed abstract class NewlineCurlyLambda
