@@ -13,22 +13,6 @@ align = more    // For pretty alignment.
 maxColumn = 100 // For my wide 30" display.
 ```
 
-There is a possibility to override scalafmt config for a specific code with
-`// scalafmt: {}` comment:
-
-```scala mdoc:scalafmt
----
-// scalafmt: { align = most, danglingParentheses = false }
-libraryDependencies ++= Seq(
-  "org.scalameta" %% "scalameta" % scalametaV,
-  "org.scalacheck" %% "scalacheck" % scalacheckV)
-
-// scalafmt: { align = some, danglingParentheses = true } (back to defaults)
-libraryDependencies ++= Seq(
-  "org.scalameta" %% "scalameta" % scalametaV,
-  "org.scalacheck" %% "scalacheck" % scalacheckV)
-```
-
 ## Most popular
 
 ### `maxColumn`
@@ -1316,7 +1300,23 @@ def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 
 ## Disabling or customizing formatting
 
-<!-- TODO: document dynamic configuration: https://github.com/scalameta/scalafmt/pull/464 -->
+### For code block
+
+There is a possibility to override scalafmt config for a specific code with
+`// scalafmt: {}` comment:
+
+```scala mdoc:scalafmt
+---
+// scalafmt: { align = most, danglingParentheses = false }
+libraryDependencies ++= Seq(
+  "org.scalameta" %% "scalameta" % scalametaV,
+  "org.scalacheck" %% "scalacheck" % scalacheckV)
+
+// scalafmt: { align = some, danglingParentheses = true } (back to defaults)
+libraryDependencies ++= Seq(
+  "org.scalameta" %% "scalameta" % scalametaV,
+  "org.scalacheck" %% "scalacheck" % scalacheckV)
+```
 
 ### // format: off
 
