@@ -2,9 +2,10 @@ package org.scalafmt.internal
 
 import java.util.regex.Pattern
 
+import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.rewrite.RedundantBraces
 import org.scalafmt.util.TokenOps._
-import org.scalafmt.util.TreeOps
+import org.scalafmt.util.{TreeOps, LiteralOps}
 
 import scala.annotation.tailrec
 import scala.collection.IndexedSeq
@@ -24,6 +25,7 @@ class FormatWriter(formatOps: FormatOps) {
   import formatOps._
 
   def mkString(state: State): String = {
+    implicit val style: ScalafmtConfig = initStyle
     val sb = new StringBuilder()
     val locations = getFormatLocations(state)
 
@@ -53,19 +55,14 @@ class FormatWriter(formatOps: FormatOps) {
             }
           }
           sb.append(formatMarginizedString(literal, indent))
+        case c: T.Constant.Int =>
+          sb.append(LiteralOps.prettyPrintInteger(c.syntax))
         case c: T.Constant.Long =>
-          val syntax = c.syntax
-          // longs can be written as hex literals like 0xFF123L. Dont uppercase the X
-          if (syntax.startsWith("0x")) {
-            sb.append("0x")
-            sb.append(initStyle.literals.long.process(syntax.substring(2)))
-          } else {
-            sb.append(initStyle.literals.long.process(syntax))
-          }
+          sb.append(LiteralOps.prettyPrintInteger(c.syntax))
         case c: T.Constant.Float =>
-          sb.append(initStyle.literals.float.process(c.syntax))
+          sb.append(LiteralOps.prettyPrintFloat(c.syntax))
         case c: T.Constant.Double =>
-          sb.append(initStyle.literals.double.process(c.syntax))
+          sb.append(LiteralOps.prettyPrintDouble(c.syntax))
         case token =>
           val syntax = Option(location.replace).getOrElse(token.syntax)
           val rewrittenToken =

@@ -1,0 +1,11 @@
+literals.long = Lower
+<<< lowercase
+123L
+>>>
+123l
+<<< uppercase
+literals.long = Upper
+===
+123l
+>>>
+123L

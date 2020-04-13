@@ -502,8 +502,8 @@ object a {
 >>>
 object a {
   val a = b(
-    0x1F, // ID1
-    0x8B, // ID2
+    0x1f, // ID1
+    0x8b, // ID2
     8, // CM = Deflate
     0, // FLG
     0, // MTIME 1

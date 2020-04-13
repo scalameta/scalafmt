@@ -60,7 +60,7 @@ object a {
 object a {
   final val BLEND_EQUATION = 0x8009
   final val BLEND_EQUATION_RGB = 0x8009 /* same as BLEND_EQUATION */
-  final val BLEND_EQUATION_ALPHA = 0x883D
+  final val BLEND_EQUATION_ALPHA = 0x883d
 }
 <<< Definitions
 object D {
