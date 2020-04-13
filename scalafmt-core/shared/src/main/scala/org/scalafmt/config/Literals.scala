@@ -6,7 +6,8 @@ case class Literals(
     long: Case = Case.Upper,
     float: Case = Case.Lower,
     double: Case = Case.Lower,
-    hex: Case = Case.Lower,
+    hexBody: Case = Case.Lower,
+    hexPrefix: Case = Case.Lower,
     scientific: Case = Case.Lower
 ) {
   implicit val reader: ConfDecoder[Literals] =

@@ -14,23 +14,24 @@ object LiteralOps {
     * FF123 is a body
     * L is a long suffix
     *
-    * literals.long applies to suffix and literals.hex applies to body
+    * literals.hexPrefix applies prefix, literals.hexBody applies to body
+    * and literals.long applies to suffix
     * */
   def prettyPrintInteger(
       str: String
   )(implicit style: ScalafmtConfig): String =
     if (str.endsWith("L") || str.endsWith("l")) {
-      style.literals.hex.process(str.dropRight(1)) +
+      prettyPrintHex(str.dropRight(1)) +
         style.literals.long.process(str.takeRight(1))
     } else {
-      style.literals.hex.process(str)
+      prettyPrintHex(str)
     }
 
   def prettyPrintFloat(str: String)(implicit style: ScalafmtConfig): String =
-    prettyPrintFloatingPoint(str, "F", "f", style.literals.float)
+    prettyPrintFloatingPoint(str, 'F', 'f', style.literals.float)
 
   def prettyPrintDouble(str: String)(implicit style: ScalafmtConfig): String =
-    prettyPrintFloatingPoint(str, "D", "d", style.literals.double)
+    prettyPrintFloatingPoint(str, 'D', 'd', style.literals.double)
 
   /**
     * Prints floating point literals with specified case
@@ -45,14 +46,24 @@ object LiteralOps {
     * */
   private def prettyPrintFloatingPoint(
       str: String,
-      suffixUpper: String,
-      suffixLower: String,
+      suffixUpper: Char,
+      suffixLower: Char,
       suffixCase: Case
   )(implicit style: ScalafmtConfig): String =
-    if (str.endsWith(suffixUpper) || str.endsWith(suffixLower)) {
+    if (str.last == suffixUpper || str.last == suffixLower) {
       style.literals.scientific.process(str.dropRight(1)) +
         suffixCase.process(str.takeRight(1))
     } else {
       style.literals.scientific.process(str)
+    }
+
+  private def prettyPrintHex(
+      str: String
+  )(implicit style: ScalafmtConfig): String =
+    if (str.startsWith("0x") || str.startsWith("0X")) {
+      style.literals.hexPrefix.process(str.take(2)) +
+        style.literals.hexBody.process(str.drop(2))
+    } else {
+      str // not a hex literal
     }
 }

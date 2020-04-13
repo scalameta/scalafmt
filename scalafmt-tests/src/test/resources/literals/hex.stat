@@ -1,14 +1,14 @@
-literals.hex = Lower
+literals.hexBody = Lower
 <<< lowercase
 0x7F
 >>>
 0x7f
 <<< uppercase
-literals.hex = Upper
+literals.hexBody = Upper
 ===
 0x7f
 >>>
-0X7F
+0x7F
 <<< ignore suffix setting
 literals.long = Upper
 ===
@@ -19,3 +19,9 @@ literals.long = Upper
 0Xfff
 >>>
 0xfff
+<<< uppercase 0x if specified
+literals.hexPrefix = Upper
+===
+0xfff
+>>>
+0Xfff
