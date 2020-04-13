@@ -648,18 +648,20 @@ something.map { x => f(x) }
 
 ### Newlines around `implicit` parameter list modifier
 
+> Since v2.5.0.
+
+```scala mdoc:defaults
+newlines.implicitParamListModifier
+```
+
 #### Before
 
 > If set, forces newline before `implicit`. Otherwise, newline can still be
 > added if the keyword would overflow the line.
 
-```scala mdoc:defaults
-newlines.beforeImplicitParamListModifier
-```
-
 ```scala mdoc:scalafmt
 maxColumn = 60
-newlines.beforeImplicitParamListModifier = true
+newlines.implicitParamListModifier = [before]
 ---
 def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```
@@ -670,13 +672,9 @@ def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 > unless `before` is true, or the entire implicit parameter list fits on a line,
 > or config style is false.
 
-```scala mdoc:defaults
-newlines.afterImplicitParamListModifier
-```
-
 ```scala mdoc:scalafmt
 maxColumn = 60
-newlines.afterImplicitParamListModifier = true
+newlines.implicitParamListModifier = [after]
 ---
 def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```
@@ -685,8 +683,7 @@ def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 
 ```scala mdoc:scalafmt
 maxColumn = 60
-newlines.afterImplicitParamListModifier = true
-newlines.beforeImplicitParamListModifier = true
+newlines.implicitParamListModifier = [before,after]
 ---
 def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```
@@ -695,8 +692,7 @@ def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 
 ```scala mdoc:scalafmt
 maxColumn = 60
-newlines.afterImplicitParamListModifier = false
-newlines.beforeImplicitParamListModifier = false
+newlines.implicitParamListModifier = []
 ---
 def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```
@@ -706,7 +702,7 @@ def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```scala mdoc:scalafmt
 maxColumn = 60
 optIn.configStyleArguments = true
-newlines.afterImplicitParamListModifier = true
+newlines.implicitParamListModifier = [after]
 ---
 def format(code: String, age: Int)(
    implicit ev: Parser, c: Context
@@ -1200,7 +1196,7 @@ other(a, b)(c, d)
 ```scala mdoc:scalafmt
 maxColumn = 60
 verticalMultiline.atDefnSite = true
-newlines.beforeImplicitParamListModifier = true
+newlines.implicitParamListModifier = [before]
 ---
 def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```
@@ -1210,7 +1206,7 @@ def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```scala mdoc:scalafmt
 maxColumn = 60
 verticalMultiline.atDefnSite = true
-newlines.afterImplicitParamListModifier = true
+newlines.implicitParamListModifier = [after]
 ---
 def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```
@@ -1220,8 +1216,7 @@ def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```scala mdoc:scalafmt
 maxColumn = 60
 verticalMultiline.atDefnSite = true
-newlines.beforeImplicitParamListModifier = true
-newlines.afterImplicitParamListModifier = true
+newlines.implicitParamListModifier = [before,after]
 ---
 def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```
