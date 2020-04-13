@@ -152,14 +152,18 @@ object a {
     def b = {
       "multiline"
     }
+
     def c = "single"
   }
+
   object a {
     def c = "single"
     def b = {
       "multiline"
     }
+
   }
+
 }
 <<< #1653 both
 maxColumn = 25
@@ -183,6 +187,7 @@ object a {
     def b = {
       "multiline"
     }
+
     def c = "single"
   }
 
@@ -192,5 +197,7 @@ object a {
     def b = {
       "multiline"
     }
+
   }
+
 }

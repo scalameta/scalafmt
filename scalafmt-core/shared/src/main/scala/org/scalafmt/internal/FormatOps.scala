@@ -1271,10 +1271,10 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
   }
 
   // Returns leading comment, if there exists one, otherwise formatToken.right
-  final def leadingComment(formatToken: FormatToken): Token =
+  final def leadingComment(formatToken: FormatToken): FormatToken =
     findToken(formatToken, prev) { formatToken =>
       formatToken.hasBlankLine || !formatToken.left.is[T.Comment]
-    }.fold(_.left, _.right)
+    }.fold(identity, identity)
 
   def xmlSpace(owner: Tree): Modification = owner match {
     case _: Term.Xml | _: Pat.Xml => NoSplit
