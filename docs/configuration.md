@@ -531,6 +531,12 @@ other(a, b)(c, d)
 
 > Since v2.5.0.
 
+This parameter, together with its companions below, controls whether to
+enforce a blank line before and/or after a top-level statement spanning
+a certain number of lines.
+
+> This parameter will not cause any blank lines to be removed.
+
 ```scala mdoc:defaults
 newlines.topLevelStatements
 ```
@@ -602,6 +608,12 @@ package core {
 ### `newlines.topLevelStatementsMinBreaks`
 
 > Since v2.5.0.
+
+This parameter sets the minimum of line breaks between the first and last
+line of a top-level statement (i.e., one less than the number of lines
+the statement spans). For instance, `newlines.topLevelStatementsMinBreaks=0`
+will apply to all top-level statements, whereas 1 will require at least one
+line break (or a multi-line statement).
 
 ```scala mdoc:defaults
 newlines.topLevelStatementsMinBreaks
