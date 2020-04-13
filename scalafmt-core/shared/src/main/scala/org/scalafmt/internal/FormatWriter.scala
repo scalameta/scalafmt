@@ -10,11 +10,10 @@ import org.scalafmt.util.{TreeOps, LiteralOps}
 import scala.annotation.tailrec
 import scala.collection.IndexedSeq
 import scala.collection.mutable
-import scala.meta.Type
 import scala.meta.tokens.Token
 import scala.meta.tokens.{Token => T}
 import scala.meta.transversers.Traverser
-import scala.meta.{Importer, Mod, Pkg, Term, Tree}
+import scala.meta.{Importer, Mod, Pkg, Template, Term, Tree, Type}
 
 /**
   * Produces formatted output from sequence of splits.
@@ -412,8 +411,8 @@ class FormatWriter(formatOps: FormatOps) {
     val buffer = List.newBuilder[TokenHash]
     val trav = new Traverser {
       override def apply(tree: Tree): Unit = tree match {
-        case Term.Block(_) =>
-          ()
+        case _: Term.Block =>
+        case t: Template => super.apply(t.stats) // skip inits
         case TreeOps.MaybeTopLevelStat(t) =>
           val result = leadingComment(tokens(t.tokens.head, -1))
           val hashed = hash(result)
