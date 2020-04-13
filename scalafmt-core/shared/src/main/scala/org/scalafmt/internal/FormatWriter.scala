@@ -559,10 +559,8 @@ class FormatWriter(formatOps: FormatOps) {
   def alignmentTokens(
       locations: Array[FormatLocation]
   ): Map[TokenHash, Int] = {
-    lazy val noAlignTokens = locations.forall { floc =>
-      styleMap.at(floc.formatToken).align.tokens.isEmpty
-    }
-
+    lazy val noAlignTokens = initStyle.align.tokens.isEmpty &&
+      styleMap.tok2style.values.forall(_.align.tokens.isEmpty)
     if (locations.length != tokens.length || noAlignTokens)
       Map.empty[TokenHash, Int]
     else {
