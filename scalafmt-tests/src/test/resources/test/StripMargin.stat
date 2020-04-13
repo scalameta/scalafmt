@@ -57,6 +57,76 @@ val x = """Formatter changed AST
     ?$diff
         """
   .stripMargin('?')
+<<< No rewrite | margin 1, different char
+assumeStandardLibraryStripMargin = false
+===
+val x = """Formatter changed AST
+      |=====================
+      |$diff
+      ?=====================
+      ?$diff
+        """
+        .stripMargin('?')
+>>>
+val x = """Formatter changed AST
+      |=====================
+      |$diff
+      ?=====================
+      ?$diff
+        """
+  .stripMargin('?')
+<<< Align | margin 1 | interpolate, different char
+val x = s"""Formatter changed AST
+      |=====================
+      |$diff
+      ?=====================
+      ?$diff
+        """
+        .stripMargin('?')
+>>>
+val x = s"""Formatter changed AST
+           |=====================
+           |$diff
+      ?=====================
+      ?$diff
+        """
+  .stripMargin('?')
+<<< No align | margin 1 | interpolate, different char
+align.stripMargin = false
+===
+val x = f"""Formatter changed AST
+      |=====================
+      |$diff
+      ?=====================
+      ?$diff
+        """
+        .stripMargin('?')
+>>>
+val x = f"""Formatter changed AST
+|=====================
+|$diff
+      ?=====================
+      ?$diff
+        """
+  .stripMargin('?')
+<<< No rewrite | margin 1 | interpolate, different char
+assumeStandardLibraryStripMargin = false
+===
+val x = f"""Formatter changed AST
+      |=====================
+      |$diff
+      ?=====================
+      ?$diff
+        """
+        .stripMargin('?')
+>>>
+val x = f"""Formatter changed AST
+      |=====================
+      |$diff
+      ?=====================
+      ?$diff
+        """
+  .stripMargin('?')
 <<< Align | margin 2
 {
   val x = 1

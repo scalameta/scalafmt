@@ -120,3 +120,25 @@ object Primes {
 **                                                                      **
 \*                                                                      */
 trait A
+<<< docstring within commented-out code
+object a {
+  /*
+
+   /**
+     * comment
+     */
+
+  def undefined = ???
+  */
+}
+>>>
+object a {
+  /*
+
+   /**
+ * comment
+ */
+
+  def undefined = ???
+ */
+}
