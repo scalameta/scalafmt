@@ -700,6 +700,12 @@ danglingParentheses.exclude = [<span class="hljs-function"><span class="hljs-key
 <blockquote>
 <p>Since v2.5.0.</p>
 </blockquote>
+<p>This parameter, together with its companions below, controls whether to
+enforce a blank line before and/or after a top-level statement spanning
+a certain number of lines.</p>
+<blockquote>
+<p>This parameter will not cause any blank lines to be removed.</p>
+</blockquote>
 <p>Default: <code>newlines.topLevelStatements = []</code></p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">import</span> org.scalafmt
 <span class="hljs-keyword">package</span> core { <span class="hljs-comment">// no newline added here</span>
@@ -823,6 +829,11 @@ danglingParentheses.exclude = [<span class="hljs-function"><span class="hljs-key
 <blockquote>
 <p>Since v2.5.0.</p>
 </blockquote>
+<p>This parameter sets the minimum of line breaks between the first and last
+line of a top-level statement (i.e., one less than the number of lines
+the statement spans). For instance, <code>newlines.topLevelStatementsMinBreaks=0</code>
+will apply to all top-level statements, whereas 1 will require at least one
+line break (or a multi-line statement).</p>
 <p>Default: <code>newlines.topLevelStatementsMinBreaks = 1</code></p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">package</span> core {
 
