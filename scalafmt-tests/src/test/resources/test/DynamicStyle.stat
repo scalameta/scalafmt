@@ -60,7 +60,7 @@ type Row =
   val x  = 2 +  foo
   val xx = 22 + foo
 }
-<<< ONLY override align it is none originally
+<<< override align it is none originally
 align=none
 ===
 object a {
