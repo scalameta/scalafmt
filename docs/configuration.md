@@ -1339,6 +1339,91 @@ project.includeFilters = [
 ]
 ```
 
+## Literals
+
+> Since v2.5.0.
+
+Scalafmt allows flexible configuration of [Integer](https://www.scala-lang.org/files/archive/spec/2.13/01-lexical-syntax.html#integer-literals)
+and [Floating Point](https://www.scala-lang.org/files/archive/spec/2.13/01-lexical-syntax.html#integer-literals) literals formatting.
+
+Default formatting:
+
+```scala mdoc:scalafmt
+---
+123l
+0XFff
+0x1Abl
+10E-1
+10e-1D
+```
+
+Each `literals.*` setting has three available options:
+`Upper`, `Lower`, `Unchanged`.
+
+### `literals.long`
+
+Responsible for the case of `Long` literals suffix `L`
+
+```scala mdoc:scalafmt
+literals.long=Upper
+---
+123l
+```
+
+### `literals.float`
+
+Responsible for the case of `Float` literals suffix `F`
+
+```scala mdoc:scalafmt
+literals.float=Lower
+---
+42.0F
+```
+
+### `literals.double`
+
+Responsible for the case of `Double` literals suffix `D`
+
+```scala mdoc:scalafmt
+literals.double=Lower
+---
+42.0F
+```
+
+### `literals.hexPrefix`
+
+Responsible for the case of hex integer literals prefix `0x`
+
+```scala mdoc:scalafmt
+literals.hexPrefix=Lower
+---
+0X123
+```
+
+### `literals.hexDigits`
+
+Responsible for the case of hex integer literals digits
+
+```scala mdoc:scalafmt
+literals.hexDigits=Lower
+literals.long=Upper
+---
+0xaAaA
+0xaAaAl
+```
+
+### `literals.scientific`
+
+Responsible for the case of `Double` literals exponent part
+
+```scala mdoc:scalafmt
+literals.scientific=Upper
+literals.float=Lower
+---
+10e-1
+10e-1f
+```
+
 ## Miscellaneous
 
 ### `binPack.literalArgumentLists`
