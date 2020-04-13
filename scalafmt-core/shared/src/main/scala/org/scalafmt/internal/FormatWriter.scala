@@ -10,7 +10,6 @@ import org.scalafmt.util.{TreeOps, LiteralOps}
 import scala.annotation.tailrec
 import scala.collection.IndexedSeq
 import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
 import scala.meta.Type
 import scala.meta.tokens.Token
 import scala.meta.tokens.{Token => T}
@@ -302,10 +301,10 @@ class FormatWriter(formatOps: FormatOps) {
             "\n" + getIndentation(state.indentation + extraIndent)
 
           case nl: NewlineT =>
-            val newline =
-              if (nl.isDouble || isMultilineTopLevelStatement(locations, i))
-                "\n\n"
-              else "\n"
+            val isDouble = nl.isDouble ||
+              initStyle.newlines.forceBlankBeforeMultilineTopLevelStmt &&
+                isMultilineTopLevelStatement(locations, i)
+            val newline = if (isDouble) "\n\n" else "\n"
             if (nl.noIndent) newline
             else newline + getIndentation(state.indentation)
 
@@ -440,47 +439,45 @@ class FormatWriter(formatOps: FormatOps) {
         val hasNL = toks(i).state.split.modification.isNewline
         isMultiline(end, i + 1, if (hasNL) minLines - 1 else minLines)
       }
-    initStyle.newlines.forceBlankBeforeMultilineTopLevelStmt && {
-      val formatToken = toks(i).formatToken
+    val formatToken = toks(i).formatToken
 
-      def checkPackage: Option[Boolean] =
-        if (!initStyle.activeForEdition_2019_11) None
-        else
-          Some(formatToken.meta.leftOwner)
-            .collect { case term: Term.Name => term.parent }
-            .flatten
-            .collect {
-              // package a
-              case pkg: Pkg =>
-                pkg.stats.headOption
+    def checkPackage: Option[Boolean] =
+      if (!initStyle.activeForEdition_2019_11) None
+      else
+        Some(formatToken.meta.leftOwner)
+          .collect { case term: Term.Name => term.parent }
+          .flatten
+          .collect {
+            // package a
+            case pkg: Pkg =>
+              pkg.stats.headOption
 
-              // package a.b.c
-              case select: Term.Select =>
-                select.parent.collect { case pkg: Pkg => pkg.stats.headOption }.flatten
-            }
-            .flatten
-            .map {
-              case pkg: Pkg => tokens(pkg.ref.tokens.last).right.is[T.LeftBrace]
-              case _ => true
-            }
-
-      def checkTopLevelStatement: Boolean =
-        topLevelTokens.contains(hash(formatToken.right)) && {
-          val nextNonCommentTok = nextNonComment(formatToken)
-          val distance = nextNonCommentTok.meta.idx - formatToken.meta.idx
-          val nonCommentOwner = nextNonCommentTok.meta.rightOwner match {
-            case mod: Mod => mod.parent.get
-            case x => x
+            // package a.b.c
+            case select: Term.Select =>
+              select.parent.collect { case pkg: Pkg => pkg.stats.headOption }.flatten
           }
-          isMultiline(
-            nonCommentOwner.tokens.last,
-            i + distance + 1,
-            initStyle.newlines.topLevelStatementsMinBreaks
-          )
-        }
+          .flatten
+          .map {
+            case pkg: Pkg => tokens(pkg.ref.tokens.last).right.is[T.LeftBrace]
+            case _ => true
+          }
 
-      checkPackage.getOrElse(checkTopLevelStatement)
-    }
+    def checkTopLevelStatement: Boolean =
+      topLevelTokens.contains(hash(formatToken.right)) && {
+        val nextNonCommentTok = nextNonComment(formatToken)
+        val distance = nextNonCommentTok.meta.idx - formatToken.meta.idx
+        val nonCommentOwner = nextNonCommentTok.meta.rightOwner match {
+          case mod: Mod => mod.parent.get
+          case x => x
+        }
+        isMultiline(
+          nonCommentOwner.tokens.last,
+          i + distance + 1,
+          initStyle.newlines.topLevelStatementsMinBreaks
+        )
+      }
+
+    checkPackage.getOrElse(checkTopLevelStatement)
   }
 
   private def isCandidate(location: FormatLocation): Boolean = {
@@ -712,7 +709,7 @@ object FormatWriter {
   // cache indentations to some level
   private val indentations: IndexedSeq[String] = {
     val size = 64
-    val buf = new ArrayBuffer[String](size)
+    val buf = new mutable.ArrayBuffer[String](size)
     buf += ""
     // use the previous indentation to add another space
     (1 until size).foreach(_ => buf += " " + buf.last)
