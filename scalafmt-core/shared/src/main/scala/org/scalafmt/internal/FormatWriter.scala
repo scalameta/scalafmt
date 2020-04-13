@@ -302,7 +302,12 @@ class FormatWriter(formatOps: FormatOps) {
           case nl: NewlineT =>
             val isDouble = nl.isDouble ||
               initStyle.newlines.forceBlankBeforeMultilineTopLevelStmt &&
-                isMultilineTopLevelStatement(locations, i)
+                isMultilineTopLevelStatement(locations, i) ||
+              initStyle.newlines.forceBlankAfterMultilineTopLevelStmt &&
+                locations.lengthCompare(i + 1) != 0 &&
+                topLevelLastToHeadTokens.get(i).exists {
+                  isMultilineTopLevelStatement(locations, _)
+                }
             val newline = if (isDouble) "\n\n" else "\n"
             if (nl.noIndent) newline
             else newline + getIndentation(state.indentation)
@@ -407,16 +412,18 @@ class FormatWriter(formatOps: FormatOps) {
         })
     }
 
-  lazy val topLevelTokens: List[TokenHash] = {
-    val buffer = List.newBuilder[TokenHash]
+  lazy val (topLevelHeadTokens, topLevelLastToHeadTokens) = {
+    val headBuffer = Set.newBuilder[Int]
+    val lastBuffer = Map.newBuilder[Int, Int]
     val trav = new Traverser {
       override def apply(tree: Tree): Unit = tree match {
         case _: Term.Block =>
         case t: Template => super.apply(t.stats) // skip inits
         case TreeOps.MaybeTopLevelStat(t) =>
-          val result = leadingComment(tokens(t.tokens.head, -1))
-          val hashed = hash(result)
-          buffer += hashed
+          val leading = leadingComment(tokens(t.tokens.head, -1)).meta.idx
+          val trailing = tokens(t.tokens.last).meta.idx
+          headBuffer += leading
+          lastBuffer += trailing -> leading
           super.apply(tree)
         case _ =>
           super.apply(tree)
@@ -424,7 +431,7 @@ class FormatWriter(formatOps: FormatOps) {
     }
 
     trav(tree)
-    buffer.result()
+    (headBuffer.result(), lastBuffer.result())
   }
 
   private def isMultilineTopLevelStatement(
@@ -462,7 +469,7 @@ class FormatWriter(formatOps: FormatOps) {
           }
 
     def checkTopLevelStatement: Boolean =
-      topLevelTokens.contains(hash(formatToken.right)) && {
+      topLevelHeadTokens.contains(formatToken.meta.idx) && {
         val nextNonCommentTok = nextNonComment(formatToken)
         val distance = nextNonCommentTok.meta.idx - formatToken.meta.idx
         val nonCommentOwner = nextNonCommentTok.meta.rightOwner match {
