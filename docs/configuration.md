@@ -527,36 +527,117 @@ def other(a: String, b: String)(c: String, d: String) = a + b + c
 other(a, b)(c, d)
 ```
 
-### `newlines.alwaysBeforeTopLevelStatements`
+### `newlines.topLevelStatements`
+
+> Since v2.5.0.
 
 ```scala mdoc:defaults
-newlines.alwaysBeforeTopLevelStatements
+newlines.topLevelStatements
 ```
 
 ```scala mdoc:scalafmt
-newlines.alwaysBeforeTopLevelStatements = false
+newlines.topLevelStatements = []
 ---
 import org.scalafmt
 package core { // no newline added here
+  class C1 {}
   object O { // nor here
     val x1 = 1
     val x2 = 2
     def A = "A"
     def B = "B"
+  } // nor here
+  class C2 {}
+}
+```
+
+```scala mdoc:scalafmt
+newlines.topLevelStatements = [before]
+---
+import org.scalafmt
+package core {
+  class C1 {}
+  object O {
+    val x1 = 1
+    val x2 = 2
+    def A = "A"
+    def B = "B"
+  }
+  class C2 {}
+}
+```
+
+```scala mdoc:scalafmt
+newlines.topLevelStatements = [after]
+---
+import org.scalafmt
+package core {
+  class C1 {}
+  object O {
+    val x1 = 1
+    val x2 = 2
+    def A = "A"
+    def B = "B"
+  }
+  class C2 {}
+}
+```
+
+```scala mdoc:scalafmt
+newlines.topLevelStatements = [before,after]
+---
+import org.scalafmt
+package core {
+  class C1 {}
+  object O {
+    val x1 = 1
+    val x2 = 2
+    def A = "A"
+    def B = "B"
+  }
+  class C2 {}
+}
+```
+
+### `newlines.topLevelStatementsMinBreaks`
+
+> Since v2.5.0.
+
+```scala mdoc:defaults
+newlines.topLevelStatementsMinBreaks
+```
+
+```scala mdoc:scalafmt
+newlines.topLevelStatements = [before,after]
+newlines.topLevelStatementsMinBreaks = 0
+---
+package core {
+  object O {
+    val x1 = 1
+    val x2 = 2
+    def A =
+      "A"
+    def B = {
+      "B"
+    }
   }
 }
 ```
 
 ```scala mdoc:scalafmt
-newlines.alwaysBeforeTopLevelStatements = true
+newlines.topLevelStatements = [before,after]
+newlines.topLevelStatementsMinBreaks = 2
 ---
 import org.scalafmt
 package core {
   object O {
     val x1 = 1
     val x2 = 2
-    def A = "A"
-    def B = "B"
+    def A =
+      "A"
+    def B = {
+      "B"
+    }
   }
 }
 ```
