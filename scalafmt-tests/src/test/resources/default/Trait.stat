@@ -69,7 +69,6 @@ trait Grouped[K, +V]
     with HashJoinable[K, V]
     with Sortable[V,
                   ({
-
                     type t[+x] =
                       SortedGrouped[K, x] with Reversible[SortedGrouped[K, x]]
                   })#t]
