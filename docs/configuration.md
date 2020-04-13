@@ -1400,6 +1400,10 @@ Each `literals.*` setting has three available options:
 
 ### `literals.long`
 
+```scala mdoc:defaults
+literals.long
+```
+
 Responsible for the case of `Long` literals suffix `L`
 
 ```scala mdoc:scalafmt
@@ -1409,6 +1413,10 @@ literals.long=Upper
 ```
 
 ### `literals.float`
+
+```scala mdoc:defaults
+literals.float
+```
 
 Responsible for the case of `Float` literals suffix `F`
 
@@ -1420,6 +1428,10 @@ literals.float=Lower
 
 ### `literals.double`
 
+```scala mdoc:defaults
+literals.double
+```
+
 Responsible for the case of `Double` literals suffix `D`
 
 ```scala mdoc:scalafmt
@@ -1430,6 +1442,10 @@ literals.double=Lower
 
 ### `literals.hexPrefix`
 
+```scala mdoc:defaults
+literals.hexPrefix
+```
+
 Responsible for the case of hex integer literals prefix `0x`
 
 ```scala mdoc:scalafmt
@@ -1439,6 +1455,10 @@ literals.hexPrefix=Lower
 ```
 
 ### `literals.hexDigits`
+
+```scala mdoc:defaults
+literals.hexDigits
+```
 
 Responsible for the case of hex integer literals digits
 
@@ -1451,6 +1471,10 @@ literals.long=Upper
 ```
 
 ### `literals.scientific`
+
+```scala mdoc:defaults
+literals.scientific
+```
 
 Responsible for the case of `Double` literals exponent part
 
