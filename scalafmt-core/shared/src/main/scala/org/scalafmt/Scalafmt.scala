@@ -23,6 +23,7 @@ object Scalafmt {
 
   private val WindowsLineEnding = "\r\n"
   private val UnixLineEnding = "\n"
+  private val defaultFilename = "<input>"
 
   // XXX: don't modify signature, scalafmt-dynamic expects it via reflection
   /**
@@ -50,12 +51,15 @@ object Scalafmt {
 
   private[scalafmt] def formatCode(
       code: String,
-      style: ScalafmtConfig = ScalafmtConfig.default,
+      baseStyle: ScalafmtConfig = ScalafmtConfig.default,
       range: Set[Range] = Set.empty,
-      filename: String = "<input>"
+      filename: String = defaultFilename
   ): Formatted = {
+    val style =
+      if (filename == defaultFilename) baseStyle
+      else baseStyle.getConfigFor(filename) // might throw for invalid conf
+    val runner = style.runner
     try {
-      val runner = style.runner
       if (code.matches("\\s*")) Formatted.Success(System.lineSeparator())
       else {
         val isWindows = containsWindowsLineEndings(code)

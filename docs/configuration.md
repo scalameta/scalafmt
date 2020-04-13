@@ -1302,7 +1302,7 @@ newlines.implicitParamListModifier = [before,after]
 def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```
 
-## Disabling Formatting
+## Disabling or customizing formatting
 
 <!-- TODO: document dynamic configuration: https://github.com/scalameta/scalafmt/pull/464 -->
 
@@ -1338,6 +1338,32 @@ project.includeFilters = [
   regex2
 ]
 ```
+
+### `fileOverride`
+
+> Since v2.5.0.
+
+Allows specifying an additional subset of parameters for each file matching
+a [PathMatcher](https://docs.oracle.com/javase/8/docs/api/java/nio/file/FileSystem.html#getPathMatcher-java.lang.String-)
+pattern. For instance,
+
+```
+align = none
+fileOverride {
+  "glob:*.sbt" {
+    align = most
+  }
+  "glob:**/src/test/scala/**/*.scala" {
+    maxColumn = 120
+    binPack.unsafeCallSite = true
+  }
+}
+```
+
+uses `align=none` for all files except `.sbt` for which `align=most` will apply.
+It will also use different parameters for test suites.
+
+> This parameter does not modify which files are formatted.
 
 ## Miscellaneous
 
