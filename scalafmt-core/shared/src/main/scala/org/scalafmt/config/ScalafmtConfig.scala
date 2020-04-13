@@ -1,8 +1,11 @@
 package org.scalafmt.config
 
+import java.nio.file
+
 import scala.collection.mutable
 import scala.io.Codec
 import scala.meta.Dialect
+import scala.util.Try
 import scala.util.matching.Regex
 import metaconfig.annotation._
 import metaconfig._
@@ -156,6 +159,7 @@ case class ScalafmtConfig(
     onTestFailure: String = "",
     encoding: Codec = "UTF-8",
     project: ProjectFiles = ProjectFiles(),
+    fileOverride: Conf.Obj = Conf.Obj.empty,
     edition: Edition = Edition.Latest
 ) {
   val errors = new mutable.ArrayBuffer[String]
@@ -191,6 +195,7 @@ case class ScalafmtConfig(
     ScalafmtConfig.alignReader(align.reader)
   lazy val alignMap: Map[String, Regex] =
     align.tokens.map(x => x.code -> x.owner.r).toMap
+  private implicit val confObjReader = ScalafmtConfig.confObjReader
   def reader: ConfDecoder[ScalafmtConfig] =
     generic.deriveDecoder(this).noTypos.noTypos
 
@@ -205,6 +210,21 @@ case class ScalafmtConfig(
     continuationIndent.callSite,
     continuationIndent.defnSite
   )
+
+  private lazy val expandedFileOverride = Try {
+    val fs = file.FileSystems.getDefault
+    fileOverride.values.map {
+      case (pattern, conf) =>
+        val style = ScalafmtConfig.configReader(this).read(conf).get
+        fs.getPathMatcher(pattern) -> style
+    }
+  }
+  def getConfigFor(filename: String): ScalafmtConfig = {
+    val path = file.FileSystems.getDefault.getPath(filename)
+    expandedFileOverride.get
+      .collectFirst { case (pm, style) if pm.matches(path) => style }
+      .getOrElse(this)
+  }
 
   // Edition-specific settings below
   def activeFor(edition: Edition): Boolean = this.edition >= edition
@@ -231,6 +251,12 @@ object ScalafmtConfig {
 
   implicit lazy val codecEncoder: ConfEncoder[Codec] =
     ConfEncoder.StringEncoder.contramap(_.name)
+
+  implicit val confObjReader: ConfDecoder[Conf.Obj] =
+    ConfDecoder.instance[Conf.Obj] {
+      case x: Conf.Obj => Ok(x)
+      case _ => ConfError.message("not a config").notOk
+    }
 
   val default = ScalafmtConfig()
 
