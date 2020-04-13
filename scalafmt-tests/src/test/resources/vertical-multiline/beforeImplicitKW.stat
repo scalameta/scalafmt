@@ -1,6 +1,5 @@
 maxColumn = 80
-newlines.beforeImplicitParamListModifier = true
-newlines.afterImplicitParamListModifier = true
+newlines.implicitParamListModifier = [before,after]
 verticalMultiline.atDefnSite = true
 continuationIndent.defnSite = 2
 continuationIndent.extendSite = 0

@@ -139,8 +139,7 @@ case class Newlines(
     alwaysBeforeCurlyBraceLambdaParams: Boolean = false,
     alwaysBeforeTopLevelStatements: Boolean = false,
     afterCurlyLambda: NewlineCurlyLambda = NewlineCurlyLambda.never,
-    afterImplicitParamListModifier: Boolean = false,
-    beforeImplicitParamListModifier: Boolean = false,
+    implicitParamListModifier: Seq[Newlines.BeforeAfter] = Seq.empty,
     alwaysBeforeElseAfterCurlyIf: Boolean = false,
     alwaysBeforeMultilineDef: Boolean = true,
     afterInfix: Option[AfterInfix] = None,
@@ -182,6 +181,10 @@ case class Newlines(
     else copy(afterInfix = Some(needAfterInfix))
   }
 
+  lazy val beforeImplicitParamListModifier: Boolean =
+    implicitParamListModifier.contains(Newlines.before)
+  lazy val afterImplicitParamListModifier: Boolean =
+    implicitParamListModifier.contains(Newlines.after)
 }
 
 object Newlines {
