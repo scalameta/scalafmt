@@ -475,6 +475,8 @@ object a {
 
 #### `danglingParentheses.exclude`
 
+> Since v2.5.0.
+
 When the appropriate `danglingParentheses` flag (e.g., `defnSite`) has been set,
 this parameter can be used to limit contexts where dangling is applied
 (currently, `class`, `trait` and `def` are supported).
@@ -773,6 +775,7 @@ Configuration options and default values:
 - `rewrite.redundantBraces.generalExpressions = false` (disabled by default due
   to #1147)
 - `rewrite.redundantBraces.parensForOneLineApply`
+  - since v2.4.2
   - by default, `true` in edition 2020-01
   - turns `foo { bar => baz }` into `foo(bar => baz)`
 
@@ -990,6 +993,8 @@ method3(
 ```
 
 #### Trailing commas: `multiple`
+
+> Since v2.5.0.
 
 Makes sure there are trailing commas for multiple-argument expressions only,
 except when the last argument is repeated:
