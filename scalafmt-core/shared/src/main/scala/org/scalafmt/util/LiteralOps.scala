@@ -14,7 +14,7 @@ object LiteralOps {
     * FF123 is a body
     * L is a long suffix
     *
-    * literals.hexPrefix applies prefix, literals.hexBody applies to body
+    * literals.hexPrefix applies prefix, literals.hexDigits applies to body
     * and literals.long applies to suffix
     * */
   def prettyPrintInteger(
@@ -62,7 +62,7 @@ object LiteralOps {
   )(implicit style: ScalafmtConfig): String =
     if (str.startsWith("0x") || str.startsWith("0X")) {
       style.literals.hexPrefix.process(str.take(2)) +
-        style.literals.hexBody.process(str.drop(2))
+        style.literals.hexDigits.process(str.drop(2))
     } else {
       str // not a hex literal
     }

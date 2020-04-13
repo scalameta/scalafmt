@@ -6,7 +6,7 @@ case class Literals(
     long: Case = Case.Upper,
     float: Case = Case.Lower,
     double: Case = Case.Lower,
-    hexBody: Case = Case.Lower,
+    hexDigits: Case = Case.Lower,
     hexPrefix: Case = Case.Lower,
     scientific: Case = Case.Lower
 ) {
