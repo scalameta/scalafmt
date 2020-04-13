@@ -531,6 +531,12 @@ other(a, b)(c, d)
 
 > Since v2.5.0.
 
+This parameter, together with its companions below, controls whether to
+enforce a blank line before and/or after a top-level statement spanning
+a certain number of lines.
+
+> This parameter will not cause any blank lines to be removed.
+
 ```scala mdoc:defaults
 newlines.topLevelStatements
 ```
@@ -602,6 +608,12 @@ package core {
 ### `newlines.topLevelStatementsMinBreaks`
 
 > Since v2.5.0.
+
+This parameter sets the minimum of line breaks between the first and last
+line of a top-level statement (i.e., one less than the number of lines
+the statement spans). For instance, `newlines.topLevelStatementsMinBreaks=0`
+will apply to all top-level statements, whereas 1 will require at least one
+line break (or a multi-line statement).
 
 ```scala mdoc:defaults
 newlines.topLevelStatementsMinBreaks
@@ -1302,7 +1314,7 @@ newlines.implicitParamListModifier = [before,after]
 def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```
 
-## Disabling Formatting
+## Disabling or customizing formatting
 
 <!-- TODO: document dynamic configuration: https://github.com/scalameta/scalafmt/pull/464 -->
 
@@ -1338,6 +1350,32 @@ project.includeFilters = [
   regex2
 ]
 ```
+
+### `fileOverride`
+
+> Since v2.5.0.
+
+Allows specifying an additional subset of parameters for each file matching
+a [PathMatcher](https://docs.oracle.com/javase/8/docs/api/java/nio/file/FileSystem.html#getPathMatcher-java.lang.String-)
+pattern. For instance,
+
+```
+align = none
+fileOverride {
+  "glob:*.sbt" {
+    align = most
+  }
+  "glob:**/src/test/scala/**/*.scala" {
+    maxColumn = 120
+    binPack.unsafeCallSite = true
+  }
+}
+```
+
+uses `align=none` for all files except `.sbt` for which `align=most` will apply.
+It will also use different parameters for test suites.
+
+> This parameter does not modify which files are formatted.
 
 ## Literals
 
