@@ -122,6 +122,7 @@ case class CliOptions(
     quiet: Boolean = false,
     stdIn: Boolean = false,
     noStdErr: Boolean = false,
+    error: Boolean = false,
     check: Boolean = false
 ) {
   lazy val writeMode: WriteMode = writeModeOpt.getOrElse(WriteMode.Override)

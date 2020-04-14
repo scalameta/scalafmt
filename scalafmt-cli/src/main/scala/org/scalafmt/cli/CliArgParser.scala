@@ -122,13 +122,18 @@ object CliArgParser {
         .text(
           "when using --stdin, use --assume-filename to hint to scalafmt that the input is an .sbt file."
         )
+      opt[Unit]("reportError")
+        .action((_, c) => c.copy(error = true))
+        .text("exit with status 1 if any mis-formatted code found.")
       opt[Unit]("test")
-        .action((_, c) => writeMode(c, WriteMode.Test))
+        .action((_, c) => writeMode(c, WriteMode.Test).copy(error = true))
         .text(
           "test for mis-formatted code only, exits with status 1 on failure."
         )
       opt[Unit]("check")
-        .action((_, c) => writeMode(c, WriteMode.Test).copy(check = true))
+        .action((_, c) =>
+          writeMode(c, WriteMode.Test).copy(error = true, check = true)
+        )
         .text(
           "test for mis-formatted code only, exits with status 1 on first failure."
         )
@@ -174,7 +179,7 @@ object CliArgParser {
         .action((_, c) => c.copy(nonInteractive = true))
         .text("disable fancy progress bar, useful in ci or sbt plugin.")
       opt[Unit]("list")
-        .action((_, c) => writeMode(c, WriteMode.List))
+        .action((_, c) => writeMode(c, WriteMode.List).copy(error = true))
         .text("list files that are different from scalafmt formatting")
       opt[(Int, Int)]("range")
         .hidden()
