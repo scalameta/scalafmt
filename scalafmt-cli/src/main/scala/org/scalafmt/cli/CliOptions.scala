@@ -40,20 +40,19 @@ object CliOptions {
       tryCurrentDirectory(parsed).orElse(tryGit(parsed))
     }
 
-    val newMode = if (parsed.testing) Stdout else parsed.writeMode
-
     val auxOut =
-      if (parsed.noStdErr || (!parsed.stdIn && parsed.writeMode != Stdout))
+      if (parsed.noStdErr || (!parsed.stdIn && parsed.writeMode != WriteMode.Stdout))
         parsed.common.out
       else parsed.common.err
 
     parsed.copy(
-      writeMode = newMode,
       config = style,
       common = parsed.common.copy(
         out =
           guardPrintStream(parsed.quiet && !parsed.stdIn)(parsed.common.out),
-        info = guardPrintStream(parsed.quiet || parsed.list)(auxOut),
+        info = guardPrintStream(
+          parsed.quiet || parsed.writeMode == WriteMode.List
+        )(auxOut),
         debug = guardPrintStream(parsed.quiet)(
           if (parsed.debug) auxOut else init.common.debug
         ),
@@ -110,7 +109,6 @@ case class CliOptions(
     range: Set[Range] = Set.empty[Range],
     customFiles: Seq[AbsoluteFile] = Nil,
     customExcludes: Seq[String] = Nil,
-    testing: Boolean = false,
     git: Option[Boolean] = None,
     nonInteractive: Boolean = false,
     mode: Option[FileFetchMode] = None,
@@ -118,12 +116,11 @@ case class CliOptions(
     migrate: Option[AbsoluteFile] = None,
     common: CommonOptions = CommonOptions(),
     gitOpsConstructor: AbsoluteFile => GitOps = x => new GitOpsImpl(x),
-    writeMode: WriteMode = Override,
+    writeMode: WriteMode = WriteMode.Override,
     debug: Boolean = false,
     quiet: Boolean = false,
     stdIn: Boolean = false,
     noStdErr: Boolean = false,
-    list: Boolean = false,
     check: Boolean = false
 ) {
   // These default values are copied from here.
@@ -173,8 +170,6 @@ case class CliOptions(
         catching(classOf[IOException]).opt(Config.fromHoconFile(file.jfile))
     }).getOrElse(Configured.Ok(ScalafmtConfig.default))
   }
-
-  val inPlace: Boolean = writeMode == Override
 
   val fileFetchMode: FileFetchMode =
     mode.orElse(Some(GitFiles).filter(_ => isGit)).getOrElse(RecursiveSearch)

@@ -126,7 +126,8 @@ object Cli {
       runner: ScalafmtRunner
   ): ExitCode = {
     val termDisplayMessage =
-      if (options.testing) "Looking for unformatted files..."
+      if (options.writeMode == WriteMode.Test)
+        "Looking for unformatted files..."
       else "Reformatting..."
     options.common.debug.println(
       "Working directory: " + options.common.workingDirectory.jfile.getPath
@@ -134,7 +135,7 @@ object Cli {
 
     val exit = runner.run(options, termDisplayMessage)
 
-    if (options.testing) {
+    if (options.writeMode == WriteMode.Test) {
       if (exit.isOk) {
         options.common.out.println("All files are formatted with scalafmt :)")
       } else if (exit.is(ExitCode.TestError)) {
@@ -146,7 +147,7 @@ object Cli {
         options.common.out.println(s"error: $exit")
       }
     }
-    if (options.testing &&
+    if (options.writeMode == WriteMode.Test &&
       !options.fatalWarnings &&
       !exit.is(ExitCode.TestError)) {
       // Ignore parse errors etc.

@@ -87,13 +87,13 @@ object CliArgParser {
         )
 
       opt[Unit]('i', "in-place")
-        .action((opt, c) => c.copy(writeMode = Override))
+        .action((_, c) => c.copy(writeMode = WriteMode.Override))
         .hidden() // this option isn't needed anymore. Simply don't pass
         // --stdout. Keeping for backwards compatibility
         .text("format files in-place (default)")
 
       opt[Unit]("stdout")
-        .action((opt, c) => c.copy(writeMode = Stdout))
+        .action((_, c) => c.copy(writeMode = WriteMode.Stdout))
         .text("write formatted files to stdout")
 
       opt[Boolean]("git")
@@ -123,12 +123,14 @@ object CliArgParser {
           "when using --stdin, use --assume-filename to hint to scalafmt that the input is an .sbt file."
         )
       opt[Unit]("test")
-        .action((_, c) => c.copy(testing = true))
-        .text("test for mis-formatted code, exits with status 1 on failure.")
-      opt[Unit]("check")
-        .action((_, c) => c.copy(check = true))
+        .action((_, c) => c.copy(writeMode = WriteMode.Test))
         .text(
-          "test for mis-formatted code, exits with status 1 on first failure."
+          "test for mis-formatted code only, exits with status 1 on failure."
+        )
+      opt[Unit]("check")
+        .action((_, c) => c.copy(writeMode = WriteMode.Test, check = true))
+        .text(
+          "test for mis-formatted code only, exits with status 1 on first failure."
         )
       opt[File]("migrate2hocon")
         .action((file, c) =>
@@ -176,7 +178,7 @@ object CliArgParser {
         .action((_, c) => c.copy(nonInteractive = true))
         .text("disable fancy progress bar, useful in ci or sbt plugin.")
       opt[Unit]("list")
-        .action((_, c) => c.copy(list = true))
+        .action((_, c) => c.copy(writeMode = WriteMode.List))
         .text("list files that are different from scalafmt formatting")
       opt[(Int, Int)]("range")
         .hidden()

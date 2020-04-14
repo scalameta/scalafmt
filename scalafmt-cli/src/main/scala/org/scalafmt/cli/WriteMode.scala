@@ -8,5 +8,13 @@ package org.scalafmt.cli
   */
 sealed trait WriteMode
 
-case object Override extends WriteMode
-case object Stdout extends WriteMode
+object WriteMode {
+
+  case object Override extends WriteMode
+
+  case object Stdout extends WriteMode
+
+  case object List extends WriteMode
+
+  case object Test extends WriteMode
+}
