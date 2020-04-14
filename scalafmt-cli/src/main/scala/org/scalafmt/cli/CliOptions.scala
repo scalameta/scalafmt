@@ -41,7 +41,8 @@ object CliOptions {
     }
 
     val auxOut =
-      if (parsed.noStdErr || (!parsed.stdIn && parsed.writeMode != WriteMode.Stdout))
+      if (parsed.noStdErr ||
+        !(parsed.stdIn || parsed.writeMode == WriteMode.Stdout))
         parsed.common.out
       else parsed.common.err
 
@@ -116,13 +117,15 @@ case class CliOptions(
     migrate: Option[AbsoluteFile] = None,
     common: CommonOptions = CommonOptions(),
     gitOpsConstructor: AbsoluteFile => GitOps = x => new GitOpsImpl(x),
-    writeMode: WriteMode = WriteMode.Override,
+    writeModeOpt: Option[WriteMode] = None,
     debug: Boolean = false,
     quiet: Boolean = false,
     stdIn: Boolean = false,
     noStdErr: Boolean = false,
     check: Boolean = false
 ) {
+  lazy val writeMode: WriteMode = writeModeOpt.getOrElse(WriteMode.Override)
+
   // These default values are copied from here.
   // https://github.com/scalameta/scalafmt/blob/f2154330afa0bc4a0a556598adeb116eafecb8e3/scalafmt-core/shared/src/main/scala/org/scalafmt/config/ScalafmtConfig.scala#L127-L162
   private[this] val DefaultGit = false
