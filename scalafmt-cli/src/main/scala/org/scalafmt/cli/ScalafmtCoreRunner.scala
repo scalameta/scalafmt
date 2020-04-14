@@ -2,6 +2,7 @@ package org.scalafmt.cli
 
 import java.util.concurrent.atomic.{AtomicInteger, AtomicReference}
 import java.util.function.UnaryOperator
+import util.control.Breaks
 
 import metaconfig.Configured
 import org.scalafmt.Error.{MisformattedFile, NoMatchingFiles}
@@ -40,17 +41,20 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
         val termDisplay =
           newTermDisplay(options, inputMethods, termDisplayMessage)
         val exitCode = new AtomicReference(ExitCode.Ok)
-        inputMethods.par.foreach { inputMethod =>
-          val code = handleFile(inputMethod, options, scalafmtConf)
-          exitCode.getAndUpdate(new UnaryOperator[ExitCode] {
-            override def apply(t: ExitCode): ExitCode =
-              ExitCode.merge(code, t)
-          })
-          PlatformTokenizerCache.megaCache.clear()
-          termDisplay.taskProgress(
-            termDisplayMessage,
-            counter.incrementAndGet()
-          )
+        Breaks.breakable {
+          inputMethods.par.foreach { inputMethod =>
+            val code = handleFile(inputMethod, options, scalafmtConf)
+            exitCode.getAndUpdate(new UnaryOperator[ExitCode] {
+              override def apply(t: ExitCode): ExitCode =
+                ExitCode.merge(code, t)
+            })
+            if (options.check && !code.isOk) Breaks.break
+            PlatformTokenizerCache.megaCache.clear()
+            termDisplay.taskProgress(
+              termDisplayMessage,
+              counter.incrementAndGet()
+            )
+          }
         }
         termDisplay.completedTask(termDisplayMessage, exitCode.get.isOk)
         termDisplay.stop()
