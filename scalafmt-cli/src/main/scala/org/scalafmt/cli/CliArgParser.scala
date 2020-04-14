@@ -87,13 +87,13 @@ object CliArgParser {
         )
 
       opt[Unit]('i', "in-place")
-        .action((_, c) => c.copy(writeMode = WriteMode.Override))
+        .action((_, c) => writeMode(c, WriteMode.Override))
         .hidden() // this option isn't needed anymore. Simply don't pass
         // --stdout. Keeping for backwards compatibility
         .text("format files in-place (default)")
 
       opt[Unit]("stdout")
-        .action((_, c) => c.copy(writeMode = WriteMode.Stdout))
+        .action((_, c) => writeMode(c, WriteMode.Stdout))
         .text("write formatted files to stdout")
 
       opt[Boolean]("git")
@@ -123,12 +123,12 @@ object CliArgParser {
           "when using --stdin, use --assume-filename to hint to scalafmt that the input is an .sbt file."
         )
       opt[Unit]("test")
-        .action((_, c) => c.copy(writeMode = WriteMode.Test))
+        .action((_, c) => writeMode(c, WriteMode.Test))
         .text(
           "test for mis-formatted code only, exits with status 1 on failure."
         )
       opt[Unit]("check")
-        .action((_, c) => c.copy(writeMode = WriteMode.Test, check = true))
+        .action((_, c) => writeMode(c, WriteMode.Test).copy(check = true))
         .text(
           "test for mis-formatted code only, exits with status 1 on first failure."
         )
@@ -162,11 +162,7 @@ object CliArgParser {
           "If set, only format edited files in git diff against provided branch. Has no effect if mode set to `changed`."
         )
       opt[Unit]("build-info")
-        .action({
-          case (_, c) =>
-            println(buildInfo)
-            sys.exit
-        })
+        .action((_, _) => { println(buildInfo); sys.exit })
         .text("prints build information")
       opt[Unit]("quiet")
         .action((_, c) => c.copy(quiet = true))
@@ -178,7 +174,7 @@ object CliArgParser {
         .action((_, c) => c.copy(nonInteractive = true))
         .text("disable fancy progress bar, useful in ci or sbt plugin.")
       opt[Unit]("list")
-        .action((_, c) => c.copy(writeMode = WriteMode.List))
+        .action((_, c) => writeMode(c, WriteMode.List))
         .text("list files that are different from scalafmt formatting")
       opt[(Int, Int)]("range")
         .hidden()
@@ -197,4 +193,15 @@ object CliArgParser {
   def buildInfo =
     s"""build commit: ${Versions.commit}
        |build time: ${new Date(Versions.timestamp.toLong)}""".stripMargin
+
+  private def writeMode(c: CliOptions, writeMode: WriteMode): CliOptions =
+    c.writeModeOpt.fold {
+      c.copy(writeModeOpt = Some(writeMode))
+    } { x =>
+      if (x != writeMode)
+        throw new Conflict(s"writeMode changing from $x to $writeMode")
+      c
+    }
+
+  class Conflict(err: String) extends Exception(err)
 }

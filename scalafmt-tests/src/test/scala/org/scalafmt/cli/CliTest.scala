@@ -84,8 +84,8 @@ abstract class AbstractCliTest extends AnyFunSuite with DiffAssertions {
       assertExit(exit)
       val obtained = dir2string(input)
       assertNoDiff(obtained, expected)
-      val configTest = Cli.getConfig(Array("--test"), config).get
-      Cli.run(configTest)
+      val testConfig = config.copy(writeModeOpt = None)
+      Cli.run(Cli.getConfig(Array("--test"), testConfig).get)
       assertOut(out.toString())
     }
 
