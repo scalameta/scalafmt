@@ -5,7 +5,7 @@ import java.util.regex.Pattern
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.rewrite.RedundantBraces
 import org.scalafmt.util.TokenOps._
-import org.scalafmt.util.{TreeOps, LiteralOps}
+import org.scalafmt.util.{LiteralOps, TreeOps}
 
 import scala.annotation.tailrec
 import scala.collection.IndexedSeq
@@ -39,9 +39,9 @@ class FormatWriter(formatOps: FormatOps) {
         case token if state.formatOff => sb.append(token.syntax)
         case c: T.Comment =>
           sb.append(formatComment(c, state.indentation))
-        case token @ T.Interpolation.Part(_) =>
-          sb.append(formatMarginizedString(token, state.indentation))
-        case literal: T.Constant.String =>
+        case _: T.Interpolation.Part =>
+          sb.append(formatMarginized(formatToken, state.indentation))
+        case _: T.Constant.String =>
           def indent = {
             if (!initStyle.align.stripMargin ||
               state.split.modification.isNewline)
@@ -49,7 +49,7 @@ class FormatWriter(formatOps: FormatOps) {
             else
               2 + state.prev.column + state.prev.split.length
           }
-          sb.append(formatMarginizedString(literal, indent))
+          sb.append(formatMarginized(formatToken, indent))
         case c: T.Constant.Int =>
           sb.append(LiteralOps.prettyPrintInteger(c.syntax))
         case c: T.Constant.Long =>
@@ -95,34 +95,37 @@ class FormatWriter(formatOps: FormatOps) {
     removeTrailingWhiteSpace(alignedComment)
   }
 
+  @inline
   private def getStripMarginPattern(pipe: Char) =
+    if (pipe == '|') leadingPipeSpace else compileStripMarginPattern(pipe)
+  @inline
+  private def compileStripMarginPattern(pipe: Char) =
     Pattern.compile(raw"(?<=\n) *(?=[$pipe])", Pattern.MULTILINE)
-  private val leadingPipeSpace = getStripMarginPattern('|')
+  private val leadingPipeSpace = compileStripMarginPattern('|')
 
-  private def formatMarginizedString(token: Token, indent: => Int): String = {
-    val pipeOpt =
-      if (!initStyle.assumeStandardLibraryStripMargin) None
-      else if (token.is[T.Interpolation.Part]) Some('|')
-      else getStripMarginChar(token)
-    pipeOpt.fold(token.syntax) { pipe =>
-      val pattern =
-        if (pipe == '|') leadingPipeSpace else getStripMarginPattern(pipe)
-      def firstChar: Char = token match {
-        case T.Interpolation.Part(_) =>
-          (for {
-            parent <- owners(token).parent
-            firstInterpolationPart <- parent.tokens.find(
-              _.is[T.Interpolation.Part]
-            )
-            char <- firstInterpolationPart.syntax.headOption
-          } yield char).getOrElse(' ')
-        case _ =>
-          token.syntax.find(_ != '"').getOrElse(' ')
-      }
-      val extraIndent =
-        if (initStyle.align.stripMargin && firstChar == pipe) 1 else 0
-      val spaces = getIndentation(indent + extraIndent)
-      pattern.matcher(token.syntax).replaceAll(spaces)
+  private def formatMarginized(ft: FormatToken, indent: => Int): String = {
+    val text = ft.left.syntax
+    val tupleOpt = ft.left match {
+      case _ if !initStyle.assumeStandardLibraryStripMargin => None
+      case _: T.Constant.String =>
+        getStripMarginChar(ft).map { pipe =>
+          (pipe, () => text.find(_ != '"').contains(pipe))
+        }
+      case _: T.Interpolation.Part =>
+        def check(x: FormatToken) = x.left.is[T.Interpolation.Start]
+        findToken(ft, prev)(check).right.toOption.flatMap { t =>
+          getStripMarginChar(t).map { pipe =>
+            (pipe, () => t.right.syntax.headOption.contains(pipe))
+          }
+        }
+      case _ => None
+    }
+    tupleOpt.fold(text) {
+      case (pipe, isFirstCharPipe) =>
+        val extraIndent =
+          if (initStyle.align.stripMargin && isFirstCharPipe()) 1 else 0
+        val spaces = getIndentation(indent + extraIndent)
+        getStripMarginPattern(pipe).matcher(text).replaceAll(spaces)
     }
   }
 

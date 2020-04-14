@@ -81,23 +81,23 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(Newline, 0) // End files with trailing newline
         )
-      case FormatToken(start @ T.Interpolation.Start(), _, _) =>
+      case FormatToken(start: T.Interpolation.Start, _, _) =>
         val end = matching(start)
         val policy =
           if (isTripleQuote(start)) NoPolicy
           else penalizeAllNewlines(end, BreakSingleLineInterpolatedString)
         val split = Split(NoSplit, 0).withPolicy(policy)
         Seq(
-          // statecolumn - 1 because of margin characters |
-          if (style.align.stripMargin && getStripMarginChar(start).isDefined)
+          if (getStripMarginChar(formatToken).isEmpty) split
+          else if (!style.align.stripMargin) split.withIndent(2, end, After)
+          else // statecolumn - 1 because of margin characters |
             split
               .withIndent(StateColumn, end, After)
               .withIndent(-1, end, After)
-          else split
         )
       case FormatToken(
-          T.Interpolation.Id(_) | T.Interpolation.Part(_) |
-          T.Interpolation.Start() | T.Interpolation.SpliceStart(),
+          _: T.Interpolation.Id | _: T.Interpolation.Part |
+          _: T.Interpolation.Start | _: T.Interpolation.SpliceStart,
           _,
           _
           ) =>
