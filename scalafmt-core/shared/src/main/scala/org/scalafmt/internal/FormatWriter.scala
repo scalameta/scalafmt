@@ -29,14 +29,14 @@ class FormatWriter(formatOps: FormatOps) {
 
     locations.iterate.foreach { entry =>
       val location = entry.curr
-      val state = location.state
+      val state = location.state.prev // this is the state for left
       val formatToken = location.formatToken
 
       formatToken.left match {
         // formatting flag fetches from the previous state because of
         // `formatToken.left` rendering. `FormatToken(x, // format: on)` will have
         // formatOff = false, but x still should not be formatted
-        case token if state.prev.formatOff => sb.append(token.syntax)
+        case token if state.formatOff => sb.append(token.syntax)
         case c: T.Comment =>
           sb.append(formatComment(c, state.indentation))
         case token @ T.Interpolation.Part(_) =>
@@ -44,13 +44,10 @@ class FormatWriter(formatOps: FormatOps) {
         case literal: T.Constant.String =>
           def indent = {
             if (!initStyle.align.stripMargin ||
-              entry.previous.state.split.modification.isNewline)
+              state.split.modification.isNewline)
               2 + state.indentation
-            else {
-              // compute indentation by locating the previous newline in output
-              val sbEnd = sb.length - 1;
-              2 + sbEnd - sb.lastIndexOf('\n', sbEnd)
-            }
+            else
+              2 + state.prev.column + state.prev.split.length
           }
           sb.append(formatMarginizedString(literal, indent))
         case c: T.Constant.Int =>
@@ -68,7 +65,7 @@ class FormatWriter(formatOps: FormatOps) {
           sb.append(rewrittenToken)
       }
 
-      entry.formatWhitespace(sb, state.prev.formatOff)
+      entry.formatWhitespace(sb, state.formatOff)
     }
 
     sb.toString()
