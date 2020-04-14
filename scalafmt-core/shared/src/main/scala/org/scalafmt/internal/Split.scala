@@ -53,15 +53,8 @@ case class Split(
 
   val indentation = indents.mkString("[", ", ", "]")
 
-  def length: Int = modification match {
-    case m if m.isNewline => 0
-    case NoSplit => 0
-    case Space => 1
-    case Provided(code) =>
-      val firstLine = code.indexOf("\n")
-      if (firstLine == -1) code.length
-      else firstLine
-  }
+  @inline
+  def length: Int = modification.length
 
   @inline
   def isIgnored: Boolean = tag eq SplitTag.Ignored

@@ -2,15 +2,22 @@ package org.scalafmt.internal
 
 sealed abstract class Modification {
   val newlines: Int
+  val length: Int
   @inline final def isNewline: Boolean = newlines != 0
 }
 
 case class Provided(code: String) extends Modification {
   override lazy val newlines: Int = code.count(_ == '\n')
+  override lazy val length: Int = {
+    val firstLine = code.indexOf('\n')
+    if (firstLine == -1) code.length
+    else firstLine
+  }
 }
 
 case object NoSplit extends Modification {
   override val newlines: Int = 0
+  override val length: Int = 0
   def orNL(flag: Boolean): Modification = if (flag) this else Newline
 }
 
@@ -36,6 +43,7 @@ case class NewlineT(
     double + indent + "Newline"
   }
   override val newlines: Int = if (isDouble) 2 else 1
+  override val length: Int = 0
 }
 
 object Newline extends NewlineT {
@@ -50,6 +58,7 @@ object Newline2xNoIndent extends NewlineT(isDouble = true, noIndent = true)
 
 object Space extends Modification {
   override val newlines: Int = 0
+  override val length: Int = 1
   override def toString = "Space"
 
   def apply(flag: Boolean): Modification = if (flag) this else NoSplit
