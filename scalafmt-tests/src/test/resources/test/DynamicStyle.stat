@@ -60,3 +60,29 @@ type Row =
   val x  = 2 +  foo
   val xx = 22 + foo
 }
+<<< override align it is none originally
+align=none
+===
+object a {
+  for {
+    x <- "asd"
+    xxxx <- "bb"
+  } yield x
+  // scalafmt: { align = most }
+  for {
+    x <- "asd"
+    xxxx <- "bb"
+  } yield x
+}
+>>>
+object a {
+  for {
+    x <- "asd"
+    xxxx <- "bb"
+  } yield x
+  // scalafmt: { align = most }
+  for {
+    x    <- "asd"
+    xxxx <- "bb"
+  } yield x
+}
