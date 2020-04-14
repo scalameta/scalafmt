@@ -53,8 +53,8 @@ val x = """Formatter changed AST
 val x = """Formatter changed AST
       |=====================
       |$diff
-    ?=====================
-    ?$diff
+  ?=====================
+  ?$diff
         """
   .stripMargin('?')
 <<< No rewrite | margin 1, different char
