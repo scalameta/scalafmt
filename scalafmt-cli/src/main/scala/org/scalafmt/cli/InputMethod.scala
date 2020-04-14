@@ -48,10 +48,9 @@ object InputMethod {
         options: CliOptions
     ): ExitCode = {
       val codeChanged = formatted != original
-      if (options.writeMode == WriteMode.Stdout) {
+      if (options.writeMode == WriteMode.Stdout)
         options.common.out.print(formatted)
-        ExitCode.Ok
-      } else if (codeChanged)
+      else if (codeChanged)
         options.writeMode match {
           case WriteMode.Test =>
             throw MisformattedFile(
@@ -60,18 +59,15 @@ object InputMethod {
             )
           case WriteMode.Override =>
             FileOps.writeFile(filename, formatted)(options.encoding)
-            ExitCode.Ok
           case WriteMode.List =>
             options.common.out.println(
               options.common.workingDirectory.jfile
                 .toURI()
                 .relativize(file.jfile.toURI())
             )
-            ExitCode.TestError
-          case _ => ExitCode.TestError
+          case _ =>
         }
-      else
-        ExitCode.Ok
+      if (options.error && codeChanged) ExitCode.TestError else ExitCode.Ok
     }
   }
 
