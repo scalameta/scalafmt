@@ -8,9 +8,7 @@ case class RedundantBracesSettings(
     maxLines: Int = 100,
     stringInterpolation: Boolean = false,
     parensForOneLineApply: Option[Boolean] = None,
-    // Re-enable generalExpressions once
-    // https://github.com/scalameta/scalafmt/issues/1147 is fixed
-    generalExpressions: Boolean = false
+    generalExpressions: Boolean = true
 ) {
   val reader: ConfDecoder[RedundantBracesSettings] =
     generic.deriveDecoder(this).noTypos
