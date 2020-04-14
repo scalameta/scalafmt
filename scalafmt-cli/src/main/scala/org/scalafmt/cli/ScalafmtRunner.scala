@@ -17,11 +17,9 @@ trait ScalafmtRunner {
   ): TermDisplay = {
     val termDisplay = new TermDisplay(
       new OutputStreamWriter(options.common.info),
-      fallbackMode =
-        options.nonInteractive ||
-          TermDisplay.defaultFallbackMode
+      fallbackMode = options.nonInteractive || TermDisplay.defaultFallbackMode
     )
-    if ((options.inPlace || options.testing) && inputMethods.length > 5) {
+    if (options.writeMode != WriteMode.Stdout && inputMethods.length > 5) {
       termDisplay.init()
       termDisplay.startTask(msg, options.common.workingDirectory.jfile)
       termDisplay.taskLength(msg, inputMethods.length, 0)

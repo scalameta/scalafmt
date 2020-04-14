@@ -48,36 +48,30 @@ object InputMethod {
         options: CliOptions
     ): ExitCode = {
       val codeChanged = formatted != original
-      if (options.testing || options.check) {
-        if (codeChanged) {
-          throw MisformattedFile(
-            new File(filename),
-            unifiedDiff(
-              filename,
-              original,
-              formatted
+      if (options.writeMode == WriteMode.Stdout) {
+        options.common.out.print(formatted)
+        ExitCode.Ok
+      } else if (codeChanged)
+        options.writeMode match {
+          case WriteMode.Test =>
+            throw MisformattedFile(
+              new File(filename),
+              unifiedDiff(filename, original, formatted)
             )
-          )
-          ExitCode.TestError
-        } else ExitCode.Ok
-      } else if (options.inPlace) {
-        if (codeChanged) {
-          if (options.list) {
+          case WriteMode.Override =>
+            FileOps.writeFile(filename, formatted)(options.encoding)
+            ExitCode.Ok
+          case WriteMode.List =>
             options.common.out.println(
               options.common.workingDirectory.jfile
                 .toURI()
                 .relativize(file.jfile.toURI())
             )
             ExitCode.TestError
-          } else {
-            FileOps.writeFile(filename, formatted)(options.encoding)
-            ExitCode.Ok
-          }
-        } else ExitCode.Ok
-      } else {
-        options.common.out.print(formatted)
+          case _ => ExitCode.TestError
+        }
+      else
         ExitCode.Ok
-      }
     }
   }
 
