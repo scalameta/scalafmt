@@ -85,10 +85,10 @@ val x = s"""Formatter changed AST
         .stripMargin('?')
 >>>
 val x = s"""Formatter changed AST
-           |=====================
-           |$diff
-      ?=====================
-      ?$diff
+      |=====================
+      |$diff
+           ?=====================
+           ?$diff
         """
   .stripMargin('?')
 <<< No align | margin 1 | interpolate, different char
@@ -103,10 +103,10 @@ val x = f"""Formatter changed AST
         .stripMargin('?')
 >>>
 val x = f"""Formatter changed AST
-|=====================
-|$diff
-      ?=====================
-      ?$diff
+      |=====================
+      |$diff
+  ?=====================
+  ?$diff
         """
   .stripMargin('?')
 <<< No rewrite | margin 1 | interpolate, different char
