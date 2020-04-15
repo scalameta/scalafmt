@@ -73,6 +73,12 @@ To build a native image of the command-line interface using
 - Run the following command: `sbt native-image`
 - The generated binary lives here: `scalafmt-cli/graalvm-native-image/cli`
 
+## Assembling new CLI artifacts
+
+- From the project root directory,
+  - run `sbt cli/assembly`
+  - run `java -jar scalafmt-cli/target/scala-2.13/scalafmt.jar`, to execute recently built artifacts
+
 ## Random stuff
 
 - Try to keep complex logic out of Router.scala, instead move it into a utility
