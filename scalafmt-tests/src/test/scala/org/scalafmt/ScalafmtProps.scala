@@ -91,8 +91,8 @@ class ScalafmtProps extends AnyFunSuite with FormatAssertions {
         .mkString("\n")
     val report =
       s"""|$summary
-          |
-          |$table """.stripMargin
+        |
+        |$table """.stripMargin
     logger.elem(summary)
     logger.elem(report)
     logger.elem(summary)

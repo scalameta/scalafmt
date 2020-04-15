@@ -95,19 +95,19 @@ class Router(formatOps: FormatOps) {
               .withIndent(-1, end, After)
         )
       case FormatToken(
-          _: T.Interpolation.Id | _: T.Interpolation.Part |
-          _: T.Interpolation.Start | _: T.Interpolation.SpliceStart,
-          _,
-          _
+            _: T.Interpolation.Id | _: T.Interpolation.Part |
+            _: T.Interpolation.Start | _: T.Interpolation.SpliceStart,
+            _,
+            _
           ) =>
         Seq(
           Split(NoSplit, 0)
         )
       case FormatToken(
-          _,
-          T.Interpolation.Part(_) | T.Interpolation.End() |
-          T.Interpolation.SpliceEnd(),
-          _
+            _,
+            T.Interpolation.Part(_) | T.Interpolation.End() |
+            T.Interpolation.SpliceEnd(),
+            _
           ) =>
         Seq(
           Split(NoSplit, 0)
@@ -207,18 +207,20 @@ class Router(formatOps: FormatOps) {
               .andThen(decideNewlinesOnlyAfterToken(arrowOptimal))
           }
 
-        def getSingleLineDecisionPre2019NovOpt = leftOwner.parent match {
-          case Some(_: Term.If | _: Term.Try | _: Term.TryWithHandler) => None
-          case _ => Some(Policy.emptyPf)
-        }
+        def getSingleLineDecisionPre2019NovOpt =
+          leftOwner.parent match {
+            case Some(_: Term.If | _: Term.Try | _: Term.TryWithHandler) => None
+            case _ => Some(Policy.emptyPf)
+          }
         def getSingleLineDecisionFor2019Nov = {
           type Classifiers = Seq[Classifier[Token, _]]
-          def classifiersByParent: Classifiers = leftOwner.parent match {
-            case Some(_: Term.If) => Seq(T.KwElse.classifier)
-            case Some(_: Term.Try | _: Term.TryWithHandler) =>
-              Seq(T.KwCatch.classifier, T.KwFinally.classifier)
-            case _ => Seq.empty
-          }
+          def classifiersByParent: Classifiers =
+            leftOwner.parent match {
+              case Some(_: Term.If) => Seq(T.KwElse.classifier)
+              case Some(_: Term.Try | _: Term.TryWithHandler) =>
+                Seq(T.KwCatch.classifier, T.KwFinally.classifier)
+              case _ => Seq.empty
+            }
           val classifiers: Classifiers = leftOwner match {
             // for catch with case, we should go up only one level
             case _: Term.Try if rightOwner.is[Case] =>
@@ -410,29 +412,32 @@ class Router(formatOps: FormatOps) {
         else {
           def newlineSplit(cost: Int) =
             Split(NewlineT(noIndent = rhsIsCommentedOut(tok)), cost)
-          def foldedSplits = caseStat.body match {
-            case _ if right.is[T.KwCase] || isSingleLineComment(right) =>
-              Right(Split.ignored)
-            case t if t.tokens.isEmpty || caseStat.cond.isDefined =>
-              Right(Split(Space, 0).withSingleLineOpt(t.tokens.lastOption))
-            case t: Term.If if t.elsep.tokens.isEmpty =>
-              // must not use optimal token here, will lead to column overflow
-              Right(Split(Space, 0).withSingleLineNoOptimal(t.cond.tokens.last))
-            case t @ (_: Term.ForYield | _: Term.Match) =>
-              val end = t.tokens.last
-              val exclude = insideBlockRanges[T.LeftBrace](tok, end)
-              Right(Split(Space, 0).withSingleLine(end, exclude = exclude))
-            case t @ SplitCallIntoParts(fun, _) if fun ne t =>
-              val end = t.tokens.last
-              val exclude = insideBlockRanges[LeftParenOrBrace](tok, end)
-              val splits = Seq(
-                Split(Space, 0).withSingleLine(end, exclude),
-                newlineSplit(1).withPolicy(penalizeAllNewlines(end, 1))
-              )
-              Left(splits)
-            case t =>
-              Right(Split(Space, 0).withSingleLine(t.tokens.last))
-          }
+          def foldedSplits =
+            caseStat.body match {
+              case _ if right.is[T.KwCase] || isSingleLineComment(right) =>
+                Right(Split.ignored)
+              case t if t.tokens.isEmpty || caseStat.cond.isDefined =>
+                Right(Split(Space, 0).withSingleLineOpt(t.tokens.lastOption))
+              case t: Term.If if t.elsep.tokens.isEmpty =>
+                // must not use optimal token here, will lead to column overflow
+                Right(
+                  Split(Space, 0).withSingleLineNoOptimal(t.cond.tokens.last)
+                )
+              case t @ (_: Term.ForYield | _: Term.Match) =>
+                val end = t.tokens.last
+                val exclude = insideBlockRanges[T.LeftBrace](tok, end)
+                Right(Split(Space, 0).withSingleLine(end, exclude = exclude))
+              case t @ SplitCallIntoParts(fun, _) if fun ne t =>
+                val end = t.tokens.last
+                val exclude = insideBlockRanges[LeftParenOrBrace](tok, end)
+                val splits = Seq(
+                  Split(Space, 0).withSingleLine(end, exclude),
+                  newlineSplit(1).withPolicy(penalizeAllNewlines(end, 1))
+                )
+                Left(splits)
+              case t =>
+                Right(Split(Space, 0).withSingleLine(t.tokens.last))
+            }
           val result = style.newlines.source match {
             case Newlines.fold => foldedSplits
             case Newlines.unfold =>
@@ -440,10 +445,13 @@ class Router(formatOps: FormatOps) {
             case _ =>
               Right(Split(Space, 0).notIf(formatToken.hasBreak))
           }
-          result.fold(identity, x => {
-            val nlCost = if (x.isIgnored) 0 else x.cost + 1
-            Seq(x, newlineSplit(nlCost))
-          })
+          result.fold(
+            identity,
+            x => {
+              val nlCost = if (x.isIgnored) 0 else x.cost + 1
+              Seq(x, newlineSplit(nlCost))
+            }
+          )
         }
       // New statement
       case tok @ FormatToken(T.Semicolon(), right, _)
@@ -520,10 +528,10 @@ class Router(formatOps: FormatOps) {
       // Opening [ with no leading space.
       // Opening ( with no leading space.
       case FormatToken(
-          RightParenOrBracket() | T.KwSuper() | T.KwThis() | T.Ident(_) |
-          T.RightBrace() | T.Underscore(),
-          LeftParenOrBracket(),
-          _
+            RightParenOrBracket() | T.KwSuper() | T.KwThis() | T.Ident(_) |
+            T.RightBrace() | T.Underscore(),
+            LeftParenOrBracket(),
+            _
           ) if noSpaceBeforeOpeningParen(rightOwner) && {
             leftOwner.parent.forall {
               // infix applications have no space.
@@ -543,7 +551,9 @@ class Router(formatOps: FormatOps) {
                 t.tokens.map(_.syntax) == Seq("===") =>
             Space
           case name: Term.Name
-              if style.spaces.afterSymbolicDefs && isSymbolicName(name.value) && name.parent
+              if style.spaces.afterSymbolicDefs && isSymbolicName(
+                name.value
+              ) && name.parent
                 .exists(isDefDef) =>
             Space
           case _ => NoSplit
@@ -766,15 +776,16 @@ class Router(formatOps: FormatOps) {
         val useConfigStyle =
           style.optIn.configStyleArguments && notSingleEnclosedArgument
 
-        def isExcludedTree(tree: Tree): Boolean = tree match {
-          case t: Init => t.argss.nonEmpty
-          case t: Term.Apply => t.args.nonEmpty
-          case t: Term.ApplyType => t.targs.nonEmpty
-          case t: Term.Match => t.cases.nonEmpty
-          case t: Term.New => t.init.argss.nonEmpty
-          case _: Term.NewAnonymous => true
-          case _ => false
-        }
+        def isExcludedTree(tree: Tree): Boolean =
+          tree match {
+            case t: Init => t.argss.nonEmpty
+            case t: Term.Apply => t.args.nonEmpty
+            case t: Term.ApplyType => t.targs.nonEmpty
+            case t: Term.Match => t.cases.nonEmpty
+            case t: Term.New => t.init.argss.nonEmpty
+            case _: Term.NewAnonymous => true
+            case _ => false
+          }
 
         val nestedPenalty = nestedApplies(leftOwner) + lhsPenalty
         val excludeRanges =
@@ -1632,9 +1643,9 @@ class Router(formatOps: FormatOps) {
           Split(Newline, 1)
         )
       case FormatToken(
-          T.Ident(_) | Literal() | T.Interpolation.End() | T.Xml.End(),
-          T.Ident(_) | Literal() | T.Xml.Start(),
-          _
+            T.Ident(_) | Literal() | T.Interpolation.End() | T.Xml.End(),
+            T.Ident(_) | Literal() | T.Xml.Start(),
+            _
           ) =>
         Seq(
           Split(Space, 0)
@@ -1842,25 +1853,27 @@ class Router(formatOps: FormatOps) {
       Seq(Split(Space, 0), Split(Newline, 1))
     }
 
-  private def getSplitsDefEquals(ft: FormatToken, body: Tree)(
-      implicit style: ScalafmtConfig
+  private def getSplitsDefEquals(ft: FormatToken, body: Tree)(implicit
+      style: ScalafmtConfig
   ): Seq[Split] = {
     val expire = body.tokens.last
-    def excludeOld = getExcludeIf(
-      expire, {
-        case T.RightBrace() => true
-        case close @ T.RightParen()
-            if opensConfigStyle(tokens(matching(close)), true) =>
-          // Example:
-          // def x = foo(
-          //     1
-          // )
-          true
-        case T.RightParen() if !style.newlines.alwaysBeforeMultilineDef =>
-          true
-        case _ => false
-      }
-    )
+    def excludeOld =
+      getExcludeIf(
+        expire,
+        {
+          case T.RightBrace() => true
+          case close @ T.RightParen()
+              if opensConfigStyle(tokens(matching(close)), true) =>
+            // Example:
+            // def x = foo(
+            //     1
+            // )
+            true
+          case T.RightParen() if !style.newlines.alwaysBeforeMultilineDef =>
+            true
+          case _ => false
+        }
+      )
     def exclude =
       if (style.activeForEdition_2020_03
         && style.newlines.alwaysBeforeMultilineDef)
@@ -1913,13 +1926,14 @@ class Router(formatOps: FormatOps) {
     }
   }
 
-  private def getSplitsValEquals(ft: FormatToken, body: Tree)(
-      implicit style: ScalafmtConfig
+  private def getSplitsValEquals(ft: FormatToken, body: Tree)(implicit
+      style: ScalafmtConfig
   ): Seq[Split] = {
-    def wouldDangle = ft.meta.leftOwner.parent.exists { lop =>
-      if (isDefnSite(lop)) !shouldNotDangleAtDefnSite(lop, false)
-      else isCallSite(lop) && style.danglingParentheses.callSite
-    }
+    def wouldDangle =
+      ft.meta.leftOwner.parent.exists { lop =>
+        if (isDefnSite(lop)) !shouldNotDangleAtDefnSite(lop, false)
+        else isCallSite(lop) && style.danglingParentheses.callSite
+      }
 
     val expire = body.tokens.last
     // rhsOptimalToken is too aggressive here
@@ -1939,19 +1953,20 @@ class Router(formatOps: FormatOps) {
 
     def baseSpaceSplit =
       Split(Space, 0).notIf(isSingleLineComment(ft.right))
-    def twoBranches = Left(
-      baseSpaceSplit
-        .withOptimalToken(optimal)
-        .withPolicy {
-          val excludeRanges =
-            insideBlockRanges[T.LeftBrace](ft, expire)
-          penalizeAllNewlines(
-            expire,
-            Constants.ShouldBeSingleLine,
-            ignore = x => excludeRanges.exists(_.contains(x.left.start))
-          )
-        }
-    )
+    def twoBranches =
+      Left(
+        baseSpaceSplit
+          .withOptimalToken(optimal)
+          .withPolicy {
+            val excludeRanges =
+              insideBlockRanges[T.LeftBrace](ft, expire)
+            penalizeAllNewlines(
+              expire,
+              Constants.ShouldBeSingleLine,
+              ignore = x => excludeRanges.exists(_.contains(x.left.start))
+            )
+          }
+      )
     val okNewline = !isJsNative(ft.right)
     val spaceSplit = (style.newlines.source match {
       case Newlines.classic

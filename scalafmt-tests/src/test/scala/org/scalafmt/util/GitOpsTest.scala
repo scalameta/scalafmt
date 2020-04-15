@@ -56,8 +56,8 @@ class GitOpsTest extends funsuite.FixtureAnyFunSuite {
     link
   }
 
-  def mv(f: AbsoluteFile, dir: Option[AbsoluteFile] = None)(
-      implicit ops: GitOpsImpl
+  def mv(f: AbsoluteFile, dir: Option[AbsoluteFile] = None)(implicit
+      ops: GitOpsImpl
   ): AbsoluteFile = {
     val destDir = Files.createTempDirectory(
       dir.orElse(ops.rootDir).get.jfile.toPath,

@@ -25,10 +25,10 @@ case class ScalaFile(filename: String, projectUrl: String, commit: String) {
   def user = userRepo.split("/")(0)
 
   override def toString: String = s"""ScalaFile(
-                                     |    project: $user
-                                     |    github: $githubUrl
-                                     |    raw: $rawUrl
-                                     |)""".stripMargin
+    |    project: $user
+    |    github: $githubUrl
+    |    raw: $rawUrl
+    |)""".stripMargin
 }
 
 object ScalaFile {
@@ -44,9 +44,9 @@ object ScalaFile {
     val files = Option(repos.listFiles()).getOrElse {
       throw new IllegalStateException(
         s"""${repos.getAbsolutePath} is not a directory, run:
-           |* wget $reposTarballUrl
-           |* tar xvf $tarballNameWithExt
-           |""".stripMargin
+          |* wget $reposTarballUrl
+          |* tar xvf $tarballNameWithExt
+          |""".stripMargin
       )
     }
 

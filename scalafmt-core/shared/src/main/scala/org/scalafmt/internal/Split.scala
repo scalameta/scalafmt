@@ -45,11 +45,12 @@ case class Split(
 )(implicit val line: sourcecode.Line) {
   import TokenOps._
 
-  def adapt(formatToken: FormatToken): Split = modification match {
-    case n: NewlineT if !n.noIndent && rhsIsCommentedOut(formatToken) =>
-      copy(modification = NewlineT(n.isDouble, noIndent = true))
-    case _ => this
-  }
+  def adapt(formatToken: FormatToken): Split =
+    modification match {
+      case n: NewlineT if !n.noIndent && rhsIsCommentedOut(formatToken) =>
+        copy(modification = NewlineT(n.isDouble, noIndent = true))
+      case _ => this
+    }
 
   val indentation = indents.mkString("[", ", ", "]")
 

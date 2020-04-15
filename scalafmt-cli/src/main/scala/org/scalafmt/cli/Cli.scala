@@ -104,16 +104,16 @@ object Cli {
         } else if (isNativeImage) {
           Left(
             s"""error: invalid Scalafmt version.
-               |
-               |This Scalafmt installation has version '${Versions.version}' and the version configured in '${options.configPath}' is '${v}'.
-               |To fix this problem, add the following line to .scalafmt.conf:
-               |```
-               |version = '${Versions.version}'
-               |```
-               |
-               |NOTE: this error happens only when running a native Scalafmt binary.
-               |Scalafmt automatically installs and invokes the correct version of Scalafmt when running on the JVM.
-               |""".stripMargin
+              |
+              |This Scalafmt installation has version '${Versions.version}' and the version configured in '${options.configPath}' is '${v}'.
+              |To fix this problem, add the following line to .scalafmt.conf:
+              |```
+              |version = '${Versions.version}'
+              |```
+              |
+              |NOTE: this error happens only when running a native Scalafmt binary.
+              |Scalafmt automatically installs and invokes the correct version of Scalafmt when running on the JVM.
+              |""".stripMargin
           )
         } else {
           Right(ScalafmtDynamicRunner)

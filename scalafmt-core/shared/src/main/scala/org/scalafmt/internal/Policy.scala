@@ -67,12 +67,12 @@ object Policy {
     override def toString: String = "NoPolicy"
   }
 
-  def empty(token: Token)(
-      implicit line: sourcecode.Line
+  def empty(token: Token)(implicit
+      line: sourcecode.Line
   ): Policy = Policy(token)(emptyPf)
 
-  def map(func: Token => Pf)(token: Token)(
-      implicit line: sourcecode.Line
+  def map(func: Token => Pf)(token: Token)(implicit
+      line: sourcecode.Line
   ): Policy = Policy(token)(func(token))
 
   def apply(token: Token)(f: Pf)(implicit line: sourcecode.Line): Policy =

@@ -6,10 +6,10 @@ import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
 
 object Dependencies {
   val metaconfigV = "0.9.10"
-  val scalametaV = "4.3.7"
-  val scalatestV = "3.1.1"
+  val scalametaV  = "4.3.7"
+  val scalatestV  = "3.1.1"
   val scalacheckV = "1.14.3"
-  val coursier = "1.0.3"
+  val coursier    = "1.0.3"
 
   val scalapb = Def.setting {
     ExclusionRule(
@@ -20,8 +20,8 @@ object Dependencies {
 
   val scalametaTestkit = "org.scalameta" %% "testkit" % scalametaV
 
-  val scalacheck = "org.scalacheck" %% "scalacheck" % scalacheckV
-  val scalatest = Def.setting("org.scalatest" %%% "scalatest" % scalatestV)
+  val scalacheck = "org.scalacheck"             %% "scalacheck" % scalacheckV
+  val scalatest  = Def.setting("org.scalatest" %%% "scalatest"  % scalatestV)
   val scalameta = Def.setting {
     scalaBinaryVersion.value match {
       case "2.11" =>
@@ -38,8 +38,8 @@ object Dependencies {
         "org.scalameta" %%% "scalameta" % scalametaV excludeAll scalapb.value
     }
   }
-  val metaconfig = Def.setting("com.geirsson" %%% "metaconfig-core" % metaconfigV)
+  val metaconfig         = Def.setting("com.geirsson" %%% "metaconfig-core"            % metaconfigV)
   val metaconfigTypesafe = Def.setting("com.geirsson" %%% "metaconfig-typesafe-config" % metaconfigV)
-  val metaconfigHocon = Def.setting("com.geirsson" %%% "metaconfig-hocon" % metaconfigV)
+  val metaconfigHocon    = Def.setting("com.geirsson" %%% "metaconfig-hocon"           % metaconfigV)
 
 }

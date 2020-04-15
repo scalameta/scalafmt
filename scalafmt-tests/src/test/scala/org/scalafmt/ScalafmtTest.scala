@@ -24,34 +24,34 @@ class ScalafmtTest extends AnyFunSuite {
       |// comment
       """.stripMargin,
     """|object A { println("HELLO!") }
-       |
-       |// comment
-       |""".stripMargin
+      |
+      |// comment
+      |""".stripMargin
   )
   check(
     """|object A {
-       |  val x = 2
-       |  val xx = 3
-       |}
+      |  val x = 2
+      |  val xx = 3
+      |}
     """.stripMargin,
     """|object A {
-       |  val x  = 2
-       |  val xx = 3
-       |}
-       |""".stripMargin,
+      |  val x  = 2
+      |  val xx = 3
+      |}
+      |""".stripMargin,
     config.ScalafmtConfig.defaultWithAlign
   )
   check(
     """|object A { function(aaaaaaaa, bbbbbbbbbb, ddddd(eeeeeeeeee, fffffff, gggggggg)) }
     """.stripMargin,
     """|object A {
-       |  function(
-       |    aaaaaaaa,
-       |    bbbbbbbbbb,
-       |    ddddd(eeeeeeeeee, fffffff, gggggggg)
-       |  )
-       |}
-       |""".stripMargin,
+      |  function(
+      |    aaaaaaaa,
+      |    bbbbbbbbbb,
+      |    ddddd(eeeeeeeeee, fffffff, gggggggg)
+      |  )
+      |}
+      |""".stripMargin,
     config.ScalafmtConfig.default40
   )
 

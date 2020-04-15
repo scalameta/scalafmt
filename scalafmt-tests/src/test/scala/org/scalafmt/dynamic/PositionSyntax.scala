@@ -42,12 +42,13 @@ object PositionSyntax {
     def rangeNumber: String =
       s"${pos.startLine + 1}:${pos.startColumn + 1}..${pos.endLine + 1}:${pos.endColumn + 1}"
 
-    def rangeText: String = pos match {
-      case Position.None => ""
-      case _ =>
-        if (pos.startLine != pos.endLine) multilines
-        else lineTextAndCaret
-    }
+    def rangeText: String =
+      pos match {
+        case Position.None => ""
+        case _ =>
+          if (pos.startLine != pos.endLine) multilines
+          else lineTextAndCaret
+      }
     def lineTextAndCaret: String = {
       new StringBuilder()
         .append("\n")
@@ -78,16 +79,17 @@ object PositionSyntax {
       }
       sb.toString()
     }
-    def lineCaret: String = pos match {
-      case Position.None =>
-        ""
-      case _ =>
-        val caret =
-          if (pos.start == pos.end) "^"
-          else if (pos.startLine == pos.endLine) "^" * (pos.end - pos.start)
-          else "^"
-        (" " * pos.startColumn) + caret
-    }
+    def lineCaret: String =
+      pos match {
+        case Position.None =>
+          ""
+        case _ =>
+          val caret =
+            if (pos.start == pos.end) "^"
+            else if (pos.startLine == pos.endLine) "^" * (pos.end - pos.start)
+            else "^"
+          (" " * pos.startColumn) + caret
+      }
 
     private def lineContent(
         line: Int,
@@ -102,11 +104,12 @@ object PositionSyntax {
         endColumn = endColumn
       )
 
-    private def lineContent: String = pos match {
-      case Position.None => ""
-      case range: Position.Range =>
-        lineContent(range.startLine).text
-    }
+    private def lineContent: String =
+      pos match {
+        case Position.None => ""
+        case range: Position.Range =>
+          lineContent(range.startLine).text
+      }
   }
 
 }

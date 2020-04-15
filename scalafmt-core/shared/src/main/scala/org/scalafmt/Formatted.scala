@@ -2,15 +2,17 @@ package org.scalafmt
 
 sealed abstract class Formatted {
 
-  def toEither: Either[Throwable, String] = this match {
-    case Formatted.Success(s) => Right(s)
-    case Formatted.Failure(e) => Left(e)
-  }
+  def toEither: Either[Throwable, String] =
+    this match {
+      case Formatted.Success(s) => Right(s)
+      case Formatted.Failure(e) => Left(e)
+    }
 
-  def get: String = this match {
-    case Formatted.Success(code) => code
-    case Formatted.Failure(e) => throw e
-  }
+  def get: String =
+    this match {
+      case Formatted.Success(code) => code
+      case Formatted.Failure(e) => throw e
+    }
 }
 
 object Formatted {

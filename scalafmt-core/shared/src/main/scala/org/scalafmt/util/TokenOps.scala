@@ -140,10 +140,11 @@ object TokenOps {
   def isSingleLineComment(c: Token.Comment): Boolean =
     c.syntax.startsWith("//")
 
-  def isSingleLineComment(token: Token): Boolean = token match {
-    case c: Comment => isSingleLineComment(c)
-    case _ => false
-  }
+  def isSingleLineComment(token: Token): Boolean =
+    token match {
+      case c: Comment => isSingleLineComment(c)
+      case _ => false
+    }
 
   private def getModByNL(nl: Int, noIndent: => Boolean): Modification =
     if (FormatToken.noBreak(nl)) Space
@@ -164,61 +165,69 @@ object TokenOps {
   def isAttachedSingleLineComment(ft: FormatToken) =
     isSingleLineComment(ft.right) && ft.noBreak
 
-  def defnTemplate(tree: Tree): Option[Template] = tree match {
-    case t: Defn.Object => Some(t.templ)
-    case t: Defn.Class => Some(t.templ)
-    case t: Defn.Trait => Some(t.templ)
-    case t: Pkg.Object => Some(t.templ)
-    case t: Template => Some(t)
-    case _ => None
-  }
+  def defnTemplate(tree: Tree): Option[Template] =
+    tree match {
+      case t: Defn.Object => Some(t.templ)
+      case t: Defn.Class => Some(t.templ)
+      case t: Defn.Trait => Some(t.templ)
+      case t: Pkg.Object => Some(t.templ)
+      case t: Template => Some(t)
+      case _ => None
+    }
 
-  def tokenLength(token: Token): Int = token match {
-    case lit: Constant.String =>
-      // Even if the literal is not strip margined, we use the longest line
-      // excluding margins. The will only affect is multiline string literals
-      // with a short first line but long lines inside, example:
-      //
-      // val x = """short
-      //  Long aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-      // """
-      //
-      // In this case, we would put a newline before """short and indent by
-      // two.
-      //
-      // Predef.augmentString = work around scala/bug#11125 on JDK 11
-      augmentString(lit.syntax).lines.map(_.replaceFirst(" *|", "").length).max
-    case _ =>
-      val tokenSyntax = token.syntax
-      val firstNewline = tokenSyntax.indexOf('\n')
-      if (firstNewline == -1) tokenSyntax.length
-      else firstNewline
-  }
+  def tokenLength(token: Token): Int =
+    token match {
+      case lit: Constant.String =>
+        // Even if the literal is not strip margined, we use the longest line
+        // excluding margins. The will only affect is multiline string literals
+        // with a short first line but long lines inside, example:
+        //
+        // val x = """short
+        //  Long aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        // """
+        //
+        // In this case, we would put a newline before """short and indent by
+        // two.
+        //
+        // Predef.augmentString = work around scala/bug#11125 on JDK 11
+        augmentString(lit.syntax).lines
+          .map(_.replaceFirst(" *|", "").length)
+          .max
+      case _ =>
+        val tokenSyntax = token.syntax
+        val firstNewline = tokenSyntax.indexOf('\n')
+        if (firstNewline == -1) tokenSyntax.length
+        else firstNewline
+    }
 
-  def isFormatOn(token: Token): Boolean = token match {
-    case c: Comment if formatOnCode.contains(c.syntax.toLowerCase) => true
-    case _ => false
-  }
+  def isFormatOn(token: Token): Boolean =
+    token match {
+      case c: Comment if formatOnCode.contains(c.syntax.toLowerCase) => true
+      case _ => false
+    }
 
-  def isFormatOff(token: Token): Boolean = token match {
-    case c: Comment if formatOffCode.contains(c.syntax.toLowerCase) => true
-    case _ => false
-  }
+  def isFormatOff(token: Token): Boolean =
+    token match {
+      case c: Comment if formatOffCode.contains(c.syntax.toLowerCase) => true
+      case _ => false
+    }
 
   val formatOffCode = Set(
     "// @formatter:off", // IntelliJ
     "// format: off" // scalariform
   )
 
-  def endsWithSymbolIdent(tok: Token): Boolean = tok match {
-    case Ident(name) => !name.last.isLetterOrDigit
-    case _ => false
-  }
+  def endsWithSymbolIdent(tok: Token): Boolean =
+    tok match {
+      case Ident(name) => !name.last.isLetterOrDigit
+      case _ => false
+    }
 
-  def isSymbolicIdent(tok: Token): Boolean = tok match {
-    case Ident(name) => isSymbolicName(name)
-    case _ => false
-  }
+  def isSymbolicIdent(tok: Token): Boolean =
+    tok match {
+      case Ident(name) => isSymbolicName(name)
+      case _ => false
+    }
 
   def isSymbolicName(name: String): Boolean = {
     val head = name.head

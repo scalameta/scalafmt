@@ -291,7 +291,9 @@ object TermDisplay {
 
           val extra0 =
             if (extra.length > baseExtraWidth)
-              extra.take((baseExtraWidth max (extra.length - overflow)) - 1) + "…"
+              extra.take(
+                (baseExtraWidth max (extra.length - overflow)) - 1
+              ) + "…"
             else
               extra
 

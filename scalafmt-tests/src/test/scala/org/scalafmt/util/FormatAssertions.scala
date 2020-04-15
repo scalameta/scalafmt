@@ -72,10 +72,10 @@ trait FormatAssertions extends DiffAssertions {
     val lines = augmentString(obtained).lines.toVector
     val arrow = (" " * (e.pos.startColumn - 2)) + "^"
     s"""${lines.slice(i - range, i + 1).mkString("\n")}
-       |$arrow
-       |${e.getMessage}
-       |${lines.slice(i + 1, i + range).mkString("\n")}
-       |$obtained
-       |""".stripMargin
+      |$arrow
+      |${e.getMessage}
+      |${lines.slice(i + 1, i + range).mkString("\n")}
+      |$obtained
+      |""".stripMargin
   }
 }

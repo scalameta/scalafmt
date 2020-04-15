@@ -40,12 +40,12 @@ trait DiffAssertions extends AnyFunSuiteLike {
   def error2message(obtained: String, diff: String): String = {
     val sb = new StringBuilder
     if (obtained.length < 1000) sb.append(s"""
-         #${header("Obtained")}
-         #${trailingSpace(obtained)}
+      #${header("Obtained")}
+      #${trailingSpace(obtained)}
          """.stripMargin('#'))
     sb.append(s"""
-         #${header("Diff")}
-         #${trailingSpace(diff)}
+      #${header("Diff")}
+      #${trailingSpace(diff)}
          """.stripMargin('#'))
     sb.toString()
   }
@@ -83,8 +83,8 @@ trait DiffAssertions extends AnyFunSuiteLike {
     )
   }
 
-  def assertNoDiff(file: AbsoluteFile, expected: String)(
-      implicit pos: Position
+  def assertNoDiff(file: AbsoluteFile, expected: String)(implicit
+      pos: Position
   ): Unit =
     assertNoDiff(FileOps.readFile(file.jfile), expected)
 

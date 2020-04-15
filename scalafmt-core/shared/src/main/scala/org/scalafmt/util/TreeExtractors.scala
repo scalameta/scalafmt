@@ -28,12 +28,13 @@ case class InfixApp(lhs: Tree, op: Name, rhs: Seq[Tree], all: Tree) {
 
 object InfixApp {
 
-  def unapply(tree: Tree): Option[InfixApp] = tree match {
-    case t: Type.ApplyInfix => Some(InfixApp(t.lhs, t.op, Seq(t.rhs), t))
-    case t: Term.ApplyInfix => Some(InfixApp(t.lhs, t.op, t.args, t))
-    case t: Pat.ExtractInfix => Some(InfixApp(t.lhs, t.op, t.rhs, t))
-    case _ => None
-  }
+  def unapply(tree: Tree): Option[InfixApp] =
+    tree match {
+      case t: Type.ApplyInfix => Some(InfixApp(t.lhs, t.op, Seq(t.rhs), t))
+      case t: Term.ApplyInfix => Some(InfixApp(t.lhs, t.op, t.args, t))
+      case t: Pat.ExtractInfix => Some(InfixApp(t.lhs, t.op, t.rhs, t))
+      case _ => None
+    }
 
   // https://scala-lang.org/files/archive/spec/2.11/06-expressions.html#infix-operations
   private val infixOpPrecedence: Map[Char, Int] = {
@@ -79,11 +80,12 @@ object InfixApp {
   * alphabetic characters
   */
 object `:parent:` {
-  def unapply(tree: Tree): Option[(Tree, Tree)] = tree.parent match {
-    case Some(parent) =>
-      Some(tree -> parent)
-    case _ => None
-  }
+  def unapply(tree: Tree): Option[(Tree, Tree)] =
+    tree.parent match {
+      case Some(parent) =>
+        Some(tree -> parent)
+      case _ => None
+    }
 }
 
 object WithChain {
@@ -91,7 +93,7 @@ object WithChain {
     TreeOps.topTypeWith(t) match {
       // self types, params, val/def/var/type definitions or declarations
       case (top: Type.With) `:parent:`
-            (_: Defn | _: Decl | _: Term.Param | _: Self) =>
+          (_: Defn | _: Decl | _: Term.Param | _: Self) =>
         Some(top)
       case _ =>
         None

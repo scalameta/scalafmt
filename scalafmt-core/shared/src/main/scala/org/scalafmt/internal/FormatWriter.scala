@@ -352,15 +352,16 @@ class FormatWriter(formatOps: FormatOps) {
           // try to add them in the TrainingCommas.always branch.
 
           // skip empty parens/braces/brackets
-          def rightIsCloseDelim = right match {
-            case _: T.RightBrace =>
-              !tok.left.is[T.LeftBrace] && owner.is[Importer]
-            case _: T.RightParen =>
-              !tok.left.is[T.LeftParen] && TreeOps.isDefnOrCallSite(owner)
-            case _: T.RightBracket =>
-              !tok.left.is[T.LeftBracket] && TreeOps.isDefnOrCallSite(owner)
-            case _ => false
-          }
+          def rightIsCloseDelim =
+            right match {
+              case _: T.RightBrace =>
+                !tok.left.is[T.LeftBrace] && owner.is[Importer]
+              case _: T.RightParen =>
+                !tok.left.is[T.LeftParen] && TreeOps.isDefnOrCallSite(owner)
+              case _: T.RightBracket =>
+                !tok.left.is[T.LeftBracket] && TreeOps.isDefnOrCallSite(owner)
+              case _ => false
+            }
 
           val ok = rightIsCloseDelim && expectedNewline == isNewline
           if (ok) Some(nextNonCommentTok) else None
@@ -416,18 +417,19 @@ class FormatWriter(formatOps: FormatOps) {
     val headBuffer = Set.newBuilder[Int]
     val lastBuffer = Map.newBuilder[Int, Int]
     val trav = new Traverser {
-      override def apply(tree: Tree): Unit = tree match {
-        case _: Term.Block =>
-        case t: Template => super.apply(t.stats) // skip inits
-        case TreeOps.MaybeTopLevelStat(t) =>
-          val leading = leadingComment(tokens(t.tokens.head, -1)).meta.idx
-          val trailing = tokens(t.tokens.last).meta.idx
-          headBuffer += leading
-          lastBuffer += trailing -> leading
-          super.apply(tree)
-        case _ =>
-          super.apply(tree)
-      }
+      override def apply(tree: Tree): Unit =
+        tree match {
+          case _: Term.Block =>
+          case t: Template => super.apply(t.stats) // skip inits
+          case TreeOps.MaybeTopLevelStat(t) =>
+            val leading = leadingComment(tokens(t.tokens.head, -1)).meta.idx
+            val trailing = tokens(t.tokens.last).meta.idx
+            headBuffer += leading
+            lastBuffer += trailing -> leading
+            super.apply(tree)
+          case _ =>
+            super.apply(tree)
+        }
     }
 
     trav(tree)
@@ -460,7 +462,9 @@ class FormatWriter(formatOps: FormatOps) {
 
             // package a.b.c
             case select: Term.Select =>
-              select.parent.collect { case pkg: Pkg => pkg.stats.headOption }.flatten
+              select.parent.collect {
+                case pkg: Pkg => pkg.stats.headOption
+              }.flatten
           }
           .flatten
           .map {

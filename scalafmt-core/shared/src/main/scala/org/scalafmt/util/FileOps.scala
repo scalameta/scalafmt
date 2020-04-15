@@ -62,8 +62,8 @@ object FileOps {
     new File(path.mkString(File.separator))
   }
 
-  def writeFile(file: AbsoluteFile, content: String)(
-      implicit codec: Codec
+  def writeFile(file: AbsoluteFile, content: String)(implicit
+      codec: Codec
   ): Unit = {
     writeFile(file.jfile, content)
   }
@@ -77,8 +77,8 @@ object FileOps {
     Files.write(path, bytes)
   }
 
-  def writeFile(filename: String, content: String)(
-      implicit codec: Codec
+  def writeFile(filename: String, content: String)(implicit
+      codec: Codec
   ): Unit = {
     writeFile(Paths.get(filename), content)
   }
