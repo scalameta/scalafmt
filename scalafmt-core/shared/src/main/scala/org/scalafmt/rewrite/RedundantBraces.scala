@@ -60,7 +60,9 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
     import ctx.tokenTraverser._
 
     def isIdentifierAtStart(value: String) =
-      value.nonEmpty && (Character.isLetterOrDigit(value.head) || value.head == '_')
+      value.nonEmpty && (Character.isLetterOrDigit(
+        value.head
+      ) || value.head == '_')
 
     def isLiteralIdentifier(arg: Term.Name): Boolean =
       arg.syntax.startsWith("`") && arg.syntax.endsWith("`")
@@ -90,21 +92,22 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
     }
   }
 
-  override def rewrite(tree: Tree): Unit = tree match {
-    case t: Term.Apply if ctx.style.activeForEdition_2019_11 =>
-      processApply(t)
+  override def rewrite(tree: Tree): Unit =
+    tree match {
+      case t: Term.Apply if ctx.style.activeForEdition_2019_11 =>
+        processApply(t)
 
-    case t: Init if ctx.style.activeForEdition_2020_01 =>
-      processInit(t)
+      case t: Init if ctx.style.activeForEdition_2020_01 =>
+        processInit(t)
 
-    case b: Term.Block =>
-      processBlock(b, okToRemoveBlock)
+      case b: Term.Block =>
+        processBlock(b, okToRemoveBlock)
 
-    case t: Term.Interpolate if settings.stringInterpolation =>
-      processInterpolation(t)
+      case t: Term.Interpolate if settings.stringInterpolation =>
+        processInterpolation(t)
 
-    case _ =>
-  }
+      case _ =>
+    }
 
   private def processInit(tree: Init): Unit =
     tree.argss.foreach(processMultiArgApply)
@@ -143,27 +146,28 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
       case _ =>
     }
 
-  private def processMultiArgApply(args: Seq[Term]): Unit = args.foreach {
-    // multi-arg apply of single-stat lambdas
-    // a(b => { c }, d => { e }) change to a(b => c, d => e)
-    // a single-stat lambda with braces can be converted to one without braces,
-    // but the reverse conversion isn't always possible
-    case fun @ Term.Function(_, body)
-        if settings.methodBodies && fun.tokens.last.is[Token.RightBrace] &&
-          isSingleStatLineSpanOk(body) =>
-      val rbrace = fun.tokens.last
-      val lbrace = ctx.getMatching(rbrace)
-      if (lbrace.start <= body.tokens.head.start) {
-        implicit val builder = Seq.newBuilder[TokenPatch]
-        builder += TokenPatch.Remove(lbrace)
-        builder += TokenPatch.Remove(rbrace)
-        ctx.removeLFToAvoidEmptyLine(rbrace)
-        ctx.addPatchSet(builder.result(): _*)
-      }
-    case b: Term.Block if ctx.style.activeForEdition_2020_01 =>
-      processBlock(b, okToRemoveBlockWithinApply)
-    case _ =>
-  }
+  private def processMultiArgApply(args: Seq[Term]): Unit =
+    args.foreach {
+      // multi-arg apply of single-stat lambdas
+      // a(b => { c }, d => { e }) change to a(b => c, d => e)
+      // a single-stat lambda with braces can be converted to one without braces,
+      // but the reverse conversion isn't always possible
+      case fun @ Term.Function(_, body)
+          if settings.methodBodies && fun.tokens.last.is[Token.RightBrace] &&
+            isSingleStatLineSpanOk(body) =>
+        val rbrace = fun.tokens.last
+        val lbrace = ctx.getMatching(rbrace)
+        if (lbrace.start <= body.tokens.head.start) {
+          implicit val builder = Seq.newBuilder[TokenPatch]
+          builder += TokenPatch.Remove(lbrace)
+          builder += TokenPatch.Remove(rbrace)
+          ctx.removeLFToAvoidEmptyLine(rbrace)
+          ctx.addPatchSet(builder.result(): _*)
+        }
+      case b: Term.Block if ctx.style.activeForEdition_2020_01 =>
+        processBlock(b, okToRemoveBlockWithinApply)
+      case _ =>
+    }
 
   private def processBlock(b: Term.Block, check: Term.Block => Boolean): Unit =
     b.tokens.headOption.filter(_.is[LeftBrace]).foreach { open =>
@@ -225,10 +229,11 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
       case d: Defn.Def =>
         def disqualifiedByUnit =
           !settings.includeUnitMethods && d.decltpe.exists(_.syntax == "Unit")
-        def innerOk(s: Stat) = s match {
-          case _: Term.Function | _: Defn => false
-          case _ => true
-        }
+        def innerOk(s: Stat) =
+          s match {
+            case _: Term.Function | _: Defn => false
+            case _ => true
+          }
         settings.methodBodies &&
         getSingleStatIfLineSpanOk(b).exists(innerOk) &&
         !isProcedureSyntax(d) &&

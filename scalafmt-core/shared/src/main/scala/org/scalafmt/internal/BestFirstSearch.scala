@@ -311,15 +311,15 @@ private class BestFirstSearch private (
       val splitsAfterPolicy =
         deepestYet.policy.execute(Decision(tok, nextSplits))
       val msg = s"""UNABLE TO FORMAT,
-                   |tok=$tok
-                   |toks.length=${tokens.length}
-                   |deepestYet.length=${deepestYet.depth}
-                   |policies=${deepestYet.policy.policies}
-                   |nextSplits=$nextSplits
-                   |splitsAfterPolicy=$splitsAfterPolicy""".stripMargin
+        |tok=$tok
+        |toks.length=${tokens.length}
+        |deepestYet.length=${deepestYet.depth}
+        |policies=${deepestYet.policy.policies}
+        |nextSplits=$nextSplits
+        |splitsAfterPolicy=$splitsAfterPolicy""".stripMargin
       if (runner.debug) {
         logger.debug(s"""Failed to format
-                        |$msg""".stripMargin)
+          |$msg""".stripMargin)
       }
       complete(deepestYet)
       SearchResult(deepestYet, reachedEOF = false)

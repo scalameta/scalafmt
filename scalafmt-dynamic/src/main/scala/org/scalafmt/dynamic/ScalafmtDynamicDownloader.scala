@@ -51,18 +51,19 @@ class ScalafmtDynamicDownloader(
     }
   }
 
-  private def dependencies(version: ScalafmtVersion): List[Dependency] = List(
-    Dependency.of(
-      organization(version),
-      s"scalafmt-cli_${scalaBinaryVersion(version)}",
-      version.toString
-    ),
-    Dependency.of(
-      "org.scala-lang",
-      "scala-reflect",
-      scalaVersion(version)
+  private def dependencies(version: ScalafmtVersion): List[Dependency] =
+    List(
+      Dependency.of(
+        organization(version),
+        s"scalafmt-cli_${scalaBinaryVersion(version)}",
+        version.toString
+      ),
+      Dependency.of(
+        "org.scala-lang",
+        "scala-reflect",
+        scalaVersion(version)
+      )
     )
-  )
 
   @inline
   private def scalaBinaryVersion(version: ScalafmtVersion): String =

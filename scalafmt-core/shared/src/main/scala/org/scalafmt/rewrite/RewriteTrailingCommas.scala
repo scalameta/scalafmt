@@ -18,25 +18,26 @@ class RewriteTrailingCommas(implicit ctx: RewriteCtx) extends RewriteSession {
    * commas here, to avoid any idempotence problems caused by an extra comma,
    * with a different AST, in a subsequent runs; in FormatWriter, we'll add
    * them back if there is a newline before the closing bracket/paren/brace */
-  override def rewrite(tree: Tree): Unit = tree match {
-    case t: Importer =>
-      t.tokens.lastOption match {
-        case Some(close: Token.RightBrace) => before(close)
-        case _ =>
-      }
+  override def rewrite(tree: Tree): Unit =
+    tree match {
+      case t: Importer =>
+        t.tokens.lastOption match {
+          case Some(close: Token.RightBrace) => before(close)
+          case _ =>
+        }
 
-    case TreeOps.SplitDefnIntoParts(_, _, tparams, paramss) =>
-      afterTParams(tparams)
-      afterEachArgs(paramss)
+      case TreeOps.SplitDefnIntoParts(_, _, tparams, paramss) =>
+        afterTParams(tparams)
+        afterEachArgs(paramss)
 
-    case TreeOps.SplitCallIntoParts(_, either) =>
-      either match {
-        case Left(args) => afterArgs(args)
-        case Right(argss) => afterEachArgs(argss)
-      }
+      case TreeOps.SplitCallIntoParts(_, either) =>
+        either match {
+          case Left(args) => afterArgs(args)
+          case Right(argss) => afterEachArgs(argss)
+        }
 
-    case _ =>
-  }
+      case _ =>
+    }
 
   private def patch(token: Token): Unit =
     ctx.addPatchSet(TokenPatch.Remove(token))

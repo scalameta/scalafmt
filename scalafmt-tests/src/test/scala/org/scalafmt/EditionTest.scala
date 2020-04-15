@@ -38,9 +38,9 @@ class EditionTest extends AnyFunSuite with DiffAssertions {
   checkError(
     "2019-invalid",
     """|Type mismatch;
-       |  found    : String (value: "2019-invalid")
-       |  expected : '$year-$month', for example '2019-08'
-       |""".stripMargin.trim
+      |  found    : String (value: "2019-invalid")
+      |  expected : '$year-$month', for example '2019-08'
+      |""".stripMargin.trim
   )
   checkActiveFor("2019-09", "2019-09")
   checkActiveFor("2019-09", "2019-10")

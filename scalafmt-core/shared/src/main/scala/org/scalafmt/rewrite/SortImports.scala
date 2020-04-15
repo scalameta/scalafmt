@@ -23,29 +23,30 @@ sealed abstract class SortImports(implicit ctx: RewriteCtx)
     */
   protected def sorted(str: Seq[String]): IndexedSeq[String]
 
-  override def rewrite(tree: Tree): Unit = tree match {
-    case Import(imports) =>
-      val builder = Seq.newBuilder[TokenPatch]
-      imports.foreach { `import` =>
-        val importees = `import`.importees
-        if (!importees.exists(!_.is[Importee.Name])) {
-          // Do nothing if an importee has for example rename
-          // import a.{d, b => c}
-          // I think we are safe to sort these, just want to convince myself
-          // it's 100% safe first.
-          val sortedImportees = sorted(importees.map(_.tokens.mkString))
-          var i = 0
-          importees.foreach { importee =>
-            builder +=
-              TokenPatch.AddRight(importee.tokens.head, sortedImportees(i))
-            i += 1
+  override def rewrite(tree: Tree): Unit =
+    tree match {
+      case Import(imports) =>
+        val builder = Seq.newBuilder[TokenPatch]
+        imports.foreach { `import` =>
+          val importees = `import`.importees
+          if (!importees.exists(!_.is[Importee.Name])) {
+            // Do nothing if an importee has for example rename
+            // import a.{d, b => c}
+            // I think we are safe to sort these, just want to convince myself
+            // it's 100% safe first.
+            val sortedImportees = sorted(importees.map(_.tokens.mkString))
+            var i = 0
+            importees.foreach { importee =>
+              builder +=
+                TokenPatch.AddRight(importee.tokens.head, sortedImportees(i))
+              i += 1
+            }
           }
         }
-      }
-      ctx.addPatchSet(builder.result(): _*)
+        ctx.addPatchSet(builder.result(): _*)
 
-    case _ =>
-  }
+      case _ =>
+    }
 }
 
 /**

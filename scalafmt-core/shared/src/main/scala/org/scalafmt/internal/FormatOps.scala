@@ -264,7 +264,9 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
   def isJsNative(jsToken: Token): Boolean = {
     initStyle.newlines.neverBeforeJsNative && jsToken.syntax == "js" &&
     owners(jsToken).parent.exists(
-      _.show[Structure].trim == """Term.Select(Term.Name("js"), Term.Name("native"))"""
+      _.show[
+        Structure
+      ].trim == """Term.Select(Term.Name("js"), Term.Name("native"))"""
     )
   }
 
@@ -313,8 +315,8 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
     else None
   }.toSet
 
-  def insideBlockRanges[A](start: FormatToken, end: Token)(
-      implicit classifier: Classifier[Token, A]
+  def insideBlockRanges[A](start: FormatToken, end: Token)(implicit
+      classifier: Classifier[Token, A]
   ): Set[Range] =
     insideBlockRanges(start, end, classifyOnRight(classifier))
 
@@ -325,8 +327,8 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
   ): Set[Range] =
     insideBlock(start, end, matches).map((matchingParensRange _).tupled).toSet
 
-  def insideBlock[A](start: FormatToken, end: Token)(
-      implicit classifier: Classifier[Token, A]
+  def insideBlock[A](start: FormatToken, end: Token)(implicit
+      classifier: Classifier[Token, A]
   ): Map[Token, Token] =
     insideBlock(start, end, classifyOnRight(classifier))
 
@@ -381,8 +383,8 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
   }.getOrElse(tree.tokens.last)
 
   @inline
-  def OneArgOneLineSplit(tok: FormatToken)(
-      implicit line: sourcecode.Line,
+  def OneArgOneLineSplit(tok: FormatToken)(implicit
+      line: sourcecode.Line,
       style: ScalafmtConfig
   ): Policy =
     if (style.poorMansTrailingCommasInConfigStyle)
@@ -390,8 +392,8 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
     else
       splitOneArgPerLineAfterComma(tok)
 
-  def splitOneArgPerLineBeforeComma(tok: FormatToken)(
-      implicit line: sourcecode.Line,
+  def splitOneArgPerLineBeforeComma(tok: FormatToken)(implicit
+      line: sourcecode.Line,
       style: ScalafmtConfig
   ): Policy = {
     val owner = tok.meta.leftOwner
@@ -413,8 +415,8 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
     }
   }
 
-  def splitOneArgPerLineAfterComma(tok: FormatToken)(
-      implicit line: sourcecode.Line,
+  def splitOneArgPerLineAfterComma(tok: FormatToken)(implicit
+      line: sourcecode.Line,
       style: ScalafmtConfig
   ): Policy = {
     val owner = tok.meta.leftOwner
@@ -464,8 +466,8 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
         }
     }
 
-  def penalizeNewlineByNesting(from: Token, to: Token)(
-      implicit line: sourcecode.Line
+  def penalizeNewlineByNesting(from: Token, to: Token)(implicit
+      line: sourcecode.Line
   ): Policy = {
     val range = Range(from.start, to.end).inclusive
     Policy(to) {
@@ -524,7 +526,11 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
     */
   def getSelectsLastToken(dot: T.Dot): FormatToken = {
     var curr = tokens(dot, 1)
-    while (isOpenApply(curr.right, includeCurly = true, includeNoParens = true) &&
+    while (isOpenApply(
+        curr.right,
+        includeCurly = true,
+        includeNoParens = true
+      ) &&
       !statementStarts.contains(hash(curr.right))) {
       if (curr.right.is[T.Dot]) {
         curr = tokens(curr, 2)
@@ -802,10 +808,11 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
     singleLineSplits ++ spaceSplits ++ otherSplits
   }
 
-  def getSingleLineInfixPolicy(end: Token) = Policy(end) {
-    case Decision(t: FormatToken, s) if isInfixOp(t.meta.leftOwner) =>
-      SplitTag.InfixChainNoNL.activateOnly(s)
-  }
+  def getSingleLineInfixPolicy(end: Token) =
+    Policy(end) {
+      case Decision(t: FormatToken, s) if isInfixOp(t.meta.leftOwner) =>
+        SplitTag.InfixChainNoNL.activateOnly(s)
+    }
 
   def getMidInfixToken(app: InfixApp): Token = {
     val opToken = app.op.tokens.head
@@ -878,14 +885,15 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
     maxPrecedence
   }
 
-  def isEmptyFunctionBody(tree: Tree): Boolean = tree match {
-    case function: Term.Function =>
-      function.body match {
-        case b: Term.Block => b.stats.isEmpty
-        case _ => false
-      }
-    case _ => false
-  }
+  def isEmptyFunctionBody(tree: Tree): Boolean =
+    tree match {
+      case function: Term.Function =>
+        function.body match {
+          case b: Term.Block => b.stats.isEmpty
+          case _ => false
+        }
+      case _ => false
+    }
 
   def functionExpire(function: Term.Function): (Token, ExpiresOn) = {
     def dropWS(rtoks: Seq[Token]): Seq[Token] =
@@ -1056,8 +1064,8 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
     else onBreakPolicy.copy(f = { case OnBreakDecision(d) => d })
   }
 
-  def newlinesOnlyBeforeClosePolicy(close: Token)(
-      implicit line: sourcecode.Line
+  def newlinesOnlyBeforeClosePolicy(close: Token)(implicit
+      line: sourcecode.Line
   ): Policy =
     Policy.map(decideNewlinesOnlyBeforeClose(Split(Newline, 0)))(close)
 
@@ -1115,8 +1123,8 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
   /**
     * Implementation for `verticalMultiline`
     */
-  def verticalMultiline(owner: Tree, ft: FormatToken)(
-      implicit style: ScalafmtConfig
+  def verticalMultiline(owner: Tree, ft: FormatToken)(implicit
+      style: ScalafmtConfig
   ): Seq[Split] = {
 
     val FormatToken(open, r, _) = ft
@@ -1243,14 +1251,16 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
       if (isBracket) close // If we can fit the type params, make it so
       else lastParen // If we can fit all in one block, make it so
 
-    def maxArity = valueParamsOwner match {
-      case d: Decl.Def if d.paramss.nonEmpty => d.paramss.map(_.size).max
-      case d: Defn.Def if d.paramss.nonEmpty => d.paramss.map(_.size).max
-      case m: Defn.Macro if m.paramss.nonEmpty => m.paramss.map(_.size).max
-      case c: Ctor.Primary if c.paramss.nonEmpty => c.paramss.map(_.size).max
-      case c: Ctor.Secondary if c.paramss.nonEmpty => c.paramss.map(_.size).max
-      case _ => 0
-    }
+    def maxArity =
+      valueParamsOwner match {
+        case d: Decl.Def if d.paramss.nonEmpty => d.paramss.map(_.size).max
+        case d: Defn.Def if d.paramss.nonEmpty => d.paramss.map(_.size).max
+        case m: Defn.Macro if m.paramss.nonEmpty => m.paramss.map(_.size).max
+        case c: Ctor.Primary if c.paramss.nonEmpty => c.paramss.map(_.size).max
+        case c: Ctor.Secondary if c.paramss.nonEmpty =>
+          c.paramss.map(_.size).max
+        case _ => 0
+      }
 
     def configStyle =
       style.optIn.configStyleArguments &&
@@ -1276,10 +1286,11 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
       formatToken.hasBlankLine || !formatToken.left.is[T.Comment]
     }.fold(identity, identity)
 
-  def xmlSpace(owner: Tree): Modification = owner match {
-    case _: Term.Xml | _: Pat.Xml => NoSplit
-    case _ => Space
-  }
+  def xmlSpace(owner: Tree): Modification =
+    owner match {
+      case _: Term.Xml | _: Pat.Xml => NoSplit
+      case _ => Space
+    }
 
   def getSpaceAndNewlineAfterCurlyLambda(
       newlines: Int
@@ -1330,13 +1341,14 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
   def findArgsFor[A <: Tree](
       token: Token,
       argss: Seq[Seq[A]]
-  ): Option[Seq[A]] = matchingOpt(token).flatMap { other =>
-    // find the arg group starting with given format token
-    val beg = math.min(token.start, other.start)
-    argss
-      .find(_.headOption.exists(_.tokens.head.start >= beg))
-      .filter(_.head.tokens.head.start <= math.max(token.end, other.end))
-  }
+  ): Option[Seq[A]] =
+    matchingOpt(token).flatMap { other =>
+      // find the arg group starting with given format token
+      val beg = math.min(token.start, other.start)
+      argss
+        .find(_.headOption.exists(_.tokens.head.start >= beg))
+        .filter(_.head.tokens.head.start <= math.max(token.end, other.end))
+    }
 
   // look for arrow before body, if any, else after params
   def getFuncArrow(term: Term.Function): Option[FormatToken] =
@@ -1387,8 +1399,8 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
         }
       case _ =>
         logger.debug(s"""Unknown tree
-                        |${log(owner.parent.get)}
-                        |${isDefnSite(owner)}""".stripMargin)
+          |${log(owner.parent.get)}
+          |${isDefnSite(owner)}""".stripMargin)
         throw UnexpectedTree[Term.Apply](owner)
     }
   }
@@ -1418,12 +1430,13 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
     getClosingIfEnclosedInMatching(tree).isDefined
 
   @tailrec
-  final def findPrevSelect(tree: Tree): Option[Term.Select] = tree match {
-    case t: Term.Select => Some(t)
-    case t @ SplitCallIntoParts(fun, _) if t ne fun =>
-      if (isEnclosedInMatching(t)) None else findPrevSelect(fun)
-    case _ => None
-  }
+  final def findPrevSelect(tree: Tree): Option[Term.Select] =
+    tree match {
+      case t: Term.Select => Some(t)
+      case t @ SplitCallIntoParts(fun, _) if t ne fun =>
+        if (isEnclosedInMatching(t)) None else findPrevSelect(fun)
+      case _ => None
+    }
   def findPrevSelect(tree: Term.Select): Option[Term.Select] =
     findPrevSelect(tree.qual)
 

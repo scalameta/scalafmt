@@ -45,10 +45,11 @@ class PreferCurlyFors(implicit ctx: RewriteCtx) extends RewriteSession {
   private def findForSemiColons(forEnumerators: Seq[Enumerator]): Seq[Token] =
     for {
       enumerator <- forEnumerators
-      token <- enumerator
-        .tokens(ctx.style.runner.dialect)
-        .headOption
-        .toIterable
+      token <-
+        enumerator
+          .tokens(ctx.style.runner.dialect)
+          .headOption
+          .toIterable
       semicolon <- findBefore(token) {
         case _: Token.Semicolon => Some(true)
         case Whitespace() => None
@@ -82,12 +83,13 @@ class PreferCurlyFors(implicit ctx: RewriteCtx) extends RewriteSession {
   ): Boolean =
     forEnumerators.count(_.is[Enumerator.Generator]) > 1
 
-  override def rewrite(tree: Tree): Unit = tree match {
-    case fy: Term.ForYield if hasMoreThanOneGenerator(fy.enums) =>
-      ctx.addPatchSet(rewriteFor(fy.tokens, fy.enums): _*)
-    case f: Term.For if hasMoreThanOneGenerator(f.enums) =>
-      ctx.addPatchSet(rewriteFor(f.tokens, f.enums): _*)
-    case _ =>
-  }
+  override def rewrite(tree: Tree): Unit =
+    tree match {
+      case fy: Term.ForYield if hasMoreThanOneGenerator(fy.enums) =>
+        ctx.addPatchSet(rewriteFor(fy.tokens, fy.enums): _*)
+      case f: Term.For if hasMoreThanOneGenerator(f.enums) =>
+        ctx.addPatchSet(rewriteFor(f.tokens, f.enums): _*)
+      case _ =>
+    }
 
 }

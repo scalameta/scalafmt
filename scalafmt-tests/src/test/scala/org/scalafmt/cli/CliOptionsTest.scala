@@ -19,8 +19,8 @@ class CliOptionsTest extends AnyFunSuite {
     )
 
     val overrideOne = Config.fromHoconString("""|style = defaultWithAlign
-                                                |maxColumn = 100
-                                                |""".stripMargin)
+      |maxColumn = 100
+      |""".stripMargin)
     assert(
       Ok(ScalafmtConfig.defaultWithAlign.copy(maxColumn = 100)) == overrideOne
     )
@@ -83,10 +83,10 @@ class CliOptionsTest extends AnyFunSuite {
     val expected = "foo bar"
     val configPath = Files.createTempFile(".scalafmt", ".conf")
     val config = s"""
-                    |version="${Versions.version}"
-                    |maxColumn=100
-                    |onTestFailure="$expected"
-                    |""".stripMargin
+      |version="${Versions.version}"
+      |maxColumn=100
+      |onTestFailure="$expected"
+      |""".stripMargin
     Files.write(configPath, config.getBytes)
 
     val opt = baseCliOptions.copy(config = Some(configPath))

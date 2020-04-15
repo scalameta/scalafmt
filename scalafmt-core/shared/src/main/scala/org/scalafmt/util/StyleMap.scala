@@ -41,7 +41,7 @@ class StyleMap(
               empty = false
               curr = style
             case Configured.NotOk(
-                e
+                  e
                 ) => // TODO(olafur) report error via callback
               logger.elem(e)
           }
@@ -71,16 +71,17 @@ class StyleMap(
       )
     )
 
-  private def isLiteral(tree: Tree): Boolean = tree match {
-    case lit @ Lit(value: Any) =>
-      val syntax = lit.tokens.mkString
-      val strName =
-        if (syntax.startsWith("0x")) "Byte"
-        else value.getClass.getName
-      literalR.matches(strName)
-    case x @ Term.Name(_) => literalR.matches(x.productPrefix)
-    case _ => false
-  }
+  private def isLiteral(tree: Tree): Boolean =
+    tree match {
+      case lit @ Lit(value: Any) =>
+        val syntax = lit.tokens.mkString
+        val strName =
+          if (syntax.startsWith("0x")) "Byte"
+          else value.getClass.getName
+        literalR.matches(strName)
+      case x @ Term.Name(_) => literalR.matches(x.productPrefix)
+      case _ => false
+    }
 
   private def isLiteralArgumentList(open: LeftParen): Boolean =
     owners(hash(open)) match {

@@ -8,10 +8,11 @@ case class Adopter(
     description: Option[String] = None
 ) {
   import scalatags.Text.all._
-  def bullet: TypedTag[String] = li(
-    a(href := url, name),
-    description.fold("")(x => s": $x")
-  )
+  def bullet: TypedTag[String] =
+    li(
+      a(href := url, name),
+      description.fold("")(x => s": $x")
+    )
 }
 object Adopters {
 

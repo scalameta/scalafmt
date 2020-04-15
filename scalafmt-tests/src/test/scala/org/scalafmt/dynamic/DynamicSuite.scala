@@ -28,22 +28,23 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
       new ConsoleScalafmtReporter(new PrintStream(out)) {
         override def downloadWriter(): PrintWriter = new PrintWriter(download)
 
-        override def error(file: Path, e: Throwable): Unit = e match {
-          case p: PositionException =>
-            val input = m.Input.VirtualFile(file.toString, p.code)
-            val pos =
-              m.Position.Range(
-                input,
-                p.startLine,
-                p.startCharacter,
-                p.endLine,
-                p.endCharacter
-              )
-            val formattedMessage = pos.formatMessage("error", p.shortMessage)
-            out.write(formattedMessage.getBytes(StandardCharsets.UTF_8))
-          case _ =>
-            super.error(file, e)
-        }
+        override def error(file: Path, e: Throwable): Unit =
+          e match {
+            case p: PositionException =>
+              val input = m.Input.VirtualFile(file.toString, p.code)
+              val pos =
+                m.Position.Range(
+                  input,
+                  p.startLine,
+                  p.startCharacter,
+                  p.endLine,
+                  p.endCharacter
+                )
+              val formattedMessage = pos.formatMessage("error", p.shortMessage)
+              out.write(formattedMessage.getBytes(StandardCharsets.UTF_8))
+            case _ =>
+              super.error(file, e)
+          }
         override def missingVersion(
             config: Path,
             defaultVersion: String
@@ -146,8 +147,8 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
     def assertError(expected: String)(implicit pos: Position): Unit = {
       assertError("object A  {  }", expected)
     }
-    def assertError(code: String, expected: String)(
-        implicit pos: Position
+    def assertError(code: String, expected: String)(implicit
+        pos: Position
     ): Unit = {
       out.reset()
       val obtained = dynamic.format(config, filename, code)
@@ -193,7 +194,7 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
     check(s"v$version") { f =>
       f.setConfig(
         s"""|version=$version
-            |""".stripMargin
+          |""".stripMargin
       )
       f.assertFormat("object A  {  }", "object A {}\n")
     }
@@ -209,8 +210,8 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
       f.assertError(
         "object object A",
         """|parse-error.scala:1:8: error: identifier expected but object found
-           |object object A
-           |       ^^^^^^""".stripMargin
+          |object object A
+          |       ^^^^^^""".stripMargin
       )
     }
     f.setVersion(latest)
@@ -276,12 +277,12 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
   check("config-error") { f =>
     f.setConfig(
       s"""max=70
-         |version=$latest
-         |""".stripMargin
+        |version=$latest
+        |""".stripMargin
     )
     f.assertError(
       """|error: path/.scalafmt.conf: Invalid field: max. Expected one of version, maxColumn, docstrings, optIn, binPack, continuationIndent, align, spaces, literals, lineEndings, rewriteTokens, rewrite, indentOperator, newlines, runner, indentYieldKeyword, importSelectors, unindentTopLevelOperators, includeCurlyBraceInSelectChains, includeNoParensInSelectChains, assumeStandardLibraryStripMargin, danglingParentheses, poorMansTrailingCommasInConfigStyle, trailingCommas, verticalMultilineAtDefinitionSite, verticalMultilineAtDefinitionSiteArityThreshold, verticalMultiline, onTestFailure, encoding, project
-         |""".stripMargin
+        |""".stripMargin
     )
   }
 
@@ -296,8 +297,8 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
 
     f.setConfig(
       s"""version=$latest
-         |maxColumn = 40
-         |""".stripMargin
+        |maxColumn = 40
+        |""".stripMargin
     )
     f.assertFormat()
     assert(f.parsedCount == 2, f.parsed)
@@ -321,8 +322,8 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
     f.setVersion("1.0")
     f.assertError(
       """|error: path/.scalafmt.conf: org.scalafmt.dynamic.exceptions.ScalafmtException: failed to resolve Scalafmt version '1.0'
-         |Caused by: org.scalafmt.dynamic.ScalafmtVersion$InvalidVersionException: Invalid scalafmt version 1.0
-         |""".stripMargin
+        |Caused by: org.scalafmt.dynamic.ScalafmtVersion$InvalidVersionException: Invalid scalafmt version 1.0
+        |""".stripMargin
     )
     assert(f.downloadLogs.isEmpty)
   }
@@ -338,14 +339,14 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
         f.assertError(
           "lazy   val   x =  project",
           """|sbt.scala:1:1: error: classes cannot be lazy
-             |lazy   val   x =  project
-             |^^^^""".stripMargin
+            |lazy   val   x =  project
+            |^^^^""".stripMargin
         )
       }
     }
     f.setConfig(
       """|project.includeFilters = [ ".*" ]
-         |""".stripMargin
+        |""".stripMargin
     )
     f.setVersion(latest)
     check()
@@ -356,7 +357,7 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
   check("no-config") { f =>
     Files.delete(f.config)
     f.assertError("""|error: path/.scalafmt.conf: file does not exist
-                     |""".stripMargin)
+      |""".stripMargin)
   }
 
   check("intellij-default-config") { f: Format =>
@@ -372,8 +373,8 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
   checkExhaustive("continuation-indent-callSite-and-defnSite") { (f, version) =>
     f.setConfig(
       s"""version=$version
-         |continuationIndent.callSite = 5
-         |continuationIndent.defnSite = 3
+        |continuationIndent.callSite = 5
+        |continuationIndent.defnSite = 3
       """.stripMargin
     )
     val original =
@@ -406,7 +407,7 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
   checkExhaustive("hasRewriteRules-and-withoutRewriteRules") { (f, version) =>
     f.setConfig(
       s"""version=$version
-         |rewrite.rules = [RedundantBraces]
+        |rewrite.rules = [RedundantBraces]
         """.stripMargin
     )
     f.assertFormat()

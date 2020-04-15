@@ -269,11 +269,12 @@ object ScalafmtConfig {
     danglingParentheses = DanglingParentheses(true, true)
   )
 
-  def addAlign(style: ScalafmtConfig): ScalafmtConfig = style.copy(
-    align = style.align.copy(
-      tokens = AlignToken.default
+  def addAlign(style: ScalafmtConfig): ScalafmtConfig =
+    style.copy(
+      align = style.align.copy(
+        tokens = AlignToken.default
+      )
     )
-  )
 
   val defaultWithAlign: ScalafmtConfig = addAlign(default)
 
@@ -327,13 +328,14 @@ object ScalafmtConfig {
     )
   }.map { case (k, v) => k.toLowerCase -> v }
 
-  def conservativeRunner: ScalafmtRunner = default.runner.copy(
-    optimizer = default.runner.optimizer.copy(
-      // The tests were not written in this style
-      forceConfigStyleOnOffset = 500,
-      forceConfigStyleMinArgCount = 5
+  def conservativeRunner: ScalafmtRunner =
+    default.runner.copy(
+      optimizer = default.runner.optimizer.copy(
+        // The tests were not written in this style
+        forceConfigStyleOnOffset = 500,
+        forceConfigStyleMinArgCount = 5
+      )
     )
-  )
 
   def oneOf[T](m: Map[String, T])(input: String): Configured[T] =
     m.get(input.toLowerCase()) match {

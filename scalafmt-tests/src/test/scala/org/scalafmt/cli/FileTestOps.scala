@@ -40,7 +40,7 @@ object FileTestOps {
       .map { path =>
         val contents = FileOps.readFile(path)
         s"""|${path.stripPrefix(file.jfile.getPath)}
-            |$contents""".stripMargin
+          |$contents""".stripMargin
       }
       .mkString("\n")
       .replace(File.separator, "/") // ensure original separators

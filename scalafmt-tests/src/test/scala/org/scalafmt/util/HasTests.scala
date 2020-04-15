@@ -27,21 +27,24 @@ import org.scalactic.source.Position
 trait HasTests extends FormatAssertions {
   import LoggerOps._
 
-  def scalafmtRunner(sr: ScalafmtRunner, dg: Debug): ScalafmtRunner = sr.copy(
-    debug = true,
-    maxStateVisits = 150000,
-    eventCallback = {
-      case CreateFormatOps(ops) => dg.formatOps = ops
-      case explored: Explored if explored.n % 10000 == 0 =>
-        logger.elem(explored)
-      case Enqueue(split) => dg.enqueued(split)
-      case evt: CompleteFormat => dg.completed(evt)
-      case _ =>
-    }
-  )
+  def scalafmtRunner(sr: ScalafmtRunner, dg: Debug): ScalafmtRunner =
+    sr.copy(
+      debug = true,
+      maxStateVisits = 150000,
+      eventCallback = {
+        case CreateFormatOps(ops) => dg.formatOps = ops
+        case explored: Explored if explored.n % 10000 == 0 =>
+          logger.elem(explored)
+        case Enqueue(split) => dg.enqueued(split)
+        case evt: CompleteFormat => dg.completed(evt)
+        case _ =>
+      }
+    )
 
   lazy val debugResults = mutable.ArrayBuilder.make[Result]
-  val testDir = new File(getClass.getClassLoader.getResource("test").toURI).getParent
+  val testDir = new File(
+    getClass.getClassLoader.getResource("test").toURI
+  ).getParent
 
   def tests: Seq[DiffTest]
 
@@ -85,8 +88,8 @@ trait HasTests extends FormatAssertions {
         case Configured.NotOk(c) =>
           throw new IllegalArgumentException(
             s"""Failed to parse filename $filename:
-               |$content
-               |$c""".stripMargin
+              |$content
+              |$c""".stripMargin
           )
       }
     val style: ScalafmtConfig = {

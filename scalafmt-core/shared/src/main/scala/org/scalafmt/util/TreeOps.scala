@@ -36,15 +36,17 @@ object TreeOps {
   import TokenOps._
 
   @tailrec
-  def topTypeWith(typeWith: Type.With): Type.With = typeWith.parent match {
-    case Some(t: Type.With) => topTypeWith(t)
-    case _ => typeWith
-  }
+  def topTypeWith(typeWith: Type.With): Type.With =
+    typeWith.parent match {
+      case Some(t: Type.With) => topTypeWith(t)
+      case _ => typeWith
+    }
 
-  def withChain(top: Tree): Seq[Type.With] = top match {
-    case t: Type.With => t +: withChain(t.lhs)
-    case _ => Nil
-  }
+  def withChain(top: Tree): Seq[Type.With] =
+    top match {
+      case t: Type.With => t +: withChain(t.lhs)
+      case _ => Nil
+    }
 
   def getEnumStatements(enums: Seq[Enumerator]): Seq[Enumerator] = {
     val ret = Seq.newBuilder[Enumerator]
@@ -74,22 +76,23 @@ object TreeOps {
       case _ => false
     }
 
-  def extractStatementsIfAny(tree: Tree): Seq[Tree] = tree match {
-    case b: Term.Block => b.stats
-    case b: Term.Function if isBlockFunction(b) => b.body :: Nil
-    case t: Pkg => t.stats
-    // TODO(olafur) would be nice to have an abstract "For" superclass.
-    case t: Term.For => getEnumStatements(t.enums)
-    case t: Term.ForYield => getEnumStatements(t.enums)
-    case t: Term.Match => t.cases
-    case t: Term.PartialFunction => t.cases
-    case t: Term.Try => t.catchp
-    case t: Type.Refine => t.stats
-    case t: scala.meta.Source => t.stats
-    case t: Template => t.stats
-    case t: Case if t.body.tokens.nonEmpty => Seq(t.body)
-    case _ => Seq.empty[Tree]
-  }
+  def extractStatementsIfAny(tree: Tree): Seq[Tree] =
+    tree match {
+      case b: Term.Block => b.stats
+      case b: Term.Function if isBlockFunction(b) => b.body :: Nil
+      case t: Pkg => t.stats
+      // TODO(olafur) would be nice to have an abstract "For" superclass.
+      case t: Term.For => getEnumStatements(t.enums)
+      case t: Term.ForYield => getEnumStatements(t.enums)
+      case t: Term.Match => t.cases
+      case t: Term.PartialFunction => t.cases
+      case t: Term.Try => t.catchp
+      case t: Type.Refine => t.stats
+      case t: scala.meta.Source => t.stats
+      case t: Template => t.stats
+      case t: Case if t.body.tokens.nonEmpty => Seq(t.body)
+      case _ => Seq.empty[Tree]
+    }
 
   def getDequeueSpots(tree: Tree): Set[TokenHash] = {
     val ret = Set.newBuilder[TokenHash]
@@ -245,8 +248,8 @@ object TreeOps {
   /**
     * Returns first ancestor with a parent of a given type.
     */
-  def findTreeWithParentOfType[A <: Tree](tree: Tree)(
-      implicit classifier: Classifier[Tree, A]
+  def findTreeWithParentOfType[A <: Tree](tree: Tree)(implicit
+      classifier: Classifier[Tree, A]
   ): Option[Tree] =
     findTreeWithParentSimple(tree)(classifier.apply)
 
@@ -259,39 +262,43 @@ object TreeOps {
   )(implicit classifier: Classifier[Tree, A]): Boolean =
     findTreeWithParentOfType[A](tree).isDefined
 
-  def isTopLevel(tree: Tree): Boolean = tree match {
-    case _: Pkg | _: Source => true
-    case _ => false
-  }
+  def isTopLevel(tree: Tree): Boolean =
+    tree match {
+      case _: Pkg | _: Source => true
+      case _ => false
+    }
 
-  def isDefDef(tree: Tree): Boolean = tree match {
-    case _: Decl.Def | _: Defn.Def => true
-    case _ => false
-  }
+  def isDefDef(tree: Tree): Boolean =
+    tree match {
+      case _: Decl.Def | _: Defn.Def => true
+      case _ => false
+    }
 
-  def defDefReturnType(tree: Tree): Option[Type] = tree match {
-    case d: Decl.Def => Some(d.decltpe)
-    case d: Defn.Def => d.decltpe
-    case d: Defn.Val => d.decltpe
-    case d: Defn.Var => d.decltpe
-    case pat: Pat.Var => pat.parent.flatMap(defDefReturnType)
-    case name: Term.Name => name.parent.flatMap(defDefReturnType)
-    case _ => None
-  }
+  def defDefReturnType(tree: Tree): Option[Type] =
+    tree match {
+      case d: Decl.Def => Some(d.decltpe)
+      case d: Defn.Def => d.decltpe
+      case d: Defn.Val => d.decltpe
+      case d: Defn.Var => d.decltpe
+      case pat: Pat.Var => pat.parent.flatMap(defDefReturnType)
+      case name: Term.Name => name.parent.flatMap(defDefReturnType)
+      case _ => None
+    }
 
   /**
     * Returns `true` if the `scala.meta.Tree` is a class, trait or def
     *
     * For classes this includes primary and secondary Ctors.
     */
-  def isDefnSiteWithParams(tree: Tree): Boolean = tree match {
-    case _: Decl.Def | _: Defn.Def | _: Defn.Macro | _: Defn.Class |
-        _: Defn.Trait | _: Ctor.Secondary =>
-      true
-    case x: Ctor.Primary =>
-      x.parent.exists(isDefnSiteWithParams)
-    case _ => false
-  }
+  def isDefnSiteWithParams(tree: Tree): Boolean =
+    tree match {
+      case _: Decl.Def | _: Defn.Def | _: Defn.Macro | _: Defn.Class |
+          _: Defn.Trait | _: Ctor.Secondary =>
+        true
+      case x: Ctor.Primary =>
+        x.parent.exists(isDefnSiteWithParams)
+      case _ => false
+    }
 
   /**
     * Returns `true` if the `scala.meta.Tree` is a definition site
@@ -299,15 +306,16 @@ object TreeOps {
     * Currently, this includes everything from classes and defs to type
     * applications
     */
-  def isDefnSite(tree: Tree): Boolean = tree match {
-    case _: Decl.Def | _: Defn.Def | _: Defn.Macro | _: Defn.Class |
-        _: Defn.Trait | _: Ctor.Secondary | _: Decl.Type | _: Defn.Type |
-        _: Type.Apply | _: Type.Param | _: Type.Tuple =>
-      true
-    case _: Term.Function | _: Type.Function => true
-    case x: Ctor.Primary => x.parent.exists(isDefnSite)
-    case _ => false
-  }
+  def isDefnSite(tree: Tree): Boolean =
+    tree match {
+      case _: Decl.Def | _: Defn.Def | _: Defn.Macro | _: Defn.Class |
+          _: Defn.Trait | _: Ctor.Secondary | _: Decl.Type | _: Defn.Type |
+          _: Type.Apply | _: Type.Param | _: Type.Tuple =>
+        true
+      case _: Term.Function | _: Type.Function => true
+      case x: Ctor.Primary => x.parent.exists(isDefnSite)
+      case _ => false
+    }
 
   /**
     * Returns true if open is "unnecessary".
@@ -339,10 +347,11 @@ object TreeOps {
       case _ => false
     }
 
-  def isTuple(tree: Tree): Boolean = tree match {
-    case _: Pat.Tuple | _: Term.Tuple | _: Type.Tuple => true
-    case _ => false
-  }
+  def isTuple(tree: Tree): Boolean =
+    tree match {
+      case _: Pat.Tuple | _: Term.Tuple | _: Type.Tuple => true
+      case _ => false
+    }
 
   def isDefnOrCallSite(tree: Tree)(implicit style: ScalafmtConfig): Boolean =
     isDefnSite(tree) || isCallSite(tree)
@@ -352,15 +361,17 @@ object TreeOps {
   )(implicit style: ScalafmtConfig): Boolean =
     !isTuple(tree) && isDefnOrCallSite(tree)
 
-  def isModPrivateProtected(tree: Tree): Boolean = tree match {
-    case _: Mod.Private | _: Mod.Protected => true
-    case _ => false
-  }
+  def isModPrivateProtected(tree: Tree): Boolean =
+    tree match {
+      case _: Mod.Private | _: Mod.Protected => true
+      case _ => false
+    }
 
-  def isTypeVariant(tree: Tree): Boolean = tree match {
-    case _: Mod.Contravariant | _: Mod.Covariant => true
-    case _ => false
-  }
+  def isTypeVariant(tree: Tree): Boolean =
+    tree match {
+      case _: Mod.Contravariant | _: Mod.Covariant => true
+      case _ => false
+    }
 
   type CallParts = (Tree, Either[Seq[Tree], Seq[Seq[Tree]]])
   val splitCallIntoParts: PartialFunction[Tree, CallParts] = {
@@ -418,12 +429,13 @@ object TreeOps {
     }
   }
 
-  def startsSelectChain(tree: Tree): Boolean = tree match {
-    case select: Term.Select =>
-      !(existsChild(_.is[Term.Select])(select) &&
-        existsChild(splitCallIntoParts.isDefinedAt)(select))
-    case _ => false
-  }
+  def startsSelectChain(tree: Tree): Boolean =
+    tree match {
+      case select: Term.Select =>
+        !(existsChild(_.is[Term.Select])(select) &&
+          existsChild(splitCallIntoParts.isDefinedAt)(select))
+      case _ => false
+    }
 
   /**
     * Returns true tree has a child for which f(child) is true.
@@ -435,10 +447,11 @@ object TreeOps {
   /**
     * How many parents of tree are Term.Apply?
     */
-  def nestedApplies(tree: Tree): Int = numParents(tree) {
-    case _: Term.Apply | _: Term.ApplyInfix | _: Type.Apply => true
-    case _ => false
-  }
+  def nestedApplies(tree: Tree): Int =
+    numParents(tree) {
+      case _: Term.Apply | _: Term.ApplyInfix | _: Type.Apply => true
+      case _ => false
+    }
 
   def nestedSelect(tree: Tree): Int = numParents(tree)(_.is[Term.Select])
 
@@ -477,12 +490,13 @@ object TreeOps {
     if (tree.children.isEmpty) 0
     else 1 + tree.children.map(treeDepth).max
 
-  def defBody(tree: Tree): Option[Tree] = tree match {
-    case t: Defn.Def => Some(t.body)
-    case t: Defn.Macro => Some(t.body)
-    case t: Ctor.Secondary => Some(t.init)
-    case _ => None
-  }
+  def defBody(tree: Tree): Option[Tree] =
+    tree match {
+      case t: Defn.Def => Some(t.body)
+      case t: Defn.Macro => Some(t.body)
+      case t: Ctor.Secondary => Some(t.init)
+      case _ => None
+    }
 
   @tailrec
   final def lastLambda(first: Term.Function): Term.Function =
@@ -546,17 +560,19 @@ object TreeOps {
 
   // matches tree nodes that can be considered "top-level statement": package/object/trait/def/val
   object MaybeTopLevelStat {
-    def unapply(tree: Tree): Option[Tree] = tree match {
-      case _: Pkg | _: Defn | _: Decl => Some(tree)
-      case _ => None
-    }
+    def unapply(tree: Tree): Option[Tree] =
+      tree match {
+        case _: Pkg | _: Defn | _: Decl => Some(tree)
+        case _ => None
+      }
   }
 
-  def isXmlBrace(owner: Tree): Boolean = owner match {
-    case _: Term.Xml | _: Pat.Xml => true
-    case b: Term.Block => b.parent.exists(_.isInstanceOf[Term.Xml])
-    case _ => false
-  }
+  def isXmlBrace(owner: Tree): Boolean =
+    owner match {
+      case _: Term.Xml | _: Pat.Xml => true
+      case b: Term.Block => b.parent.exists(_.isInstanceOf[Term.Xml])
+      case _ => false
+    }
 
   def getAssignAtSingleArgCallSite(tree: Tree): Option[Term.Assign] =
     tree match {
@@ -570,10 +586,11 @@ object TreeOps {
   def getBlockSingleStat(b: Term.Block): Option[Stat] =
     if (b.stats.lengthCompare(1) != 0) None else Some(b.stats.head)
 
-  def getTermSingleStat(t: Term): Option[Tree] = t match {
-    case b: Term.Block => getBlockSingleStat(b)
-    case _ => Some(t)
-  }
+  def getTermSingleStat(t: Term): Option[Tree] =
+    t match {
+      case b: Term.Block => getBlockSingleStat(b)
+      case _ => Some(t)
+    }
 
   def getTermLineSpan(b: Tree): Int =
     if (b.tokens.isEmpty) 0

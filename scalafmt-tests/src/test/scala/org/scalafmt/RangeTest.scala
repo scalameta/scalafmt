@@ -6,14 +6,14 @@ import org.scalafmt.util.{DiffAssertions, HasTests}
 class RangeTest extends AnyFunSuite with DiffAssertions {
   test("range preserves indent") {
     val original = """object a {
-                     |val x = 1
-                     |val y = 2
-                     |}
+      |val x = 1
+      |val y = 2
+      |}
       """.stripMargin
     val expected = """object a {
-                     |val x = 1
-                     |  val y = 2
-                     |}
+      |val x = 1
+      |  val y = 2
+      |}
       """.stripMargin
     val obtained = Scalafmt
       .format(

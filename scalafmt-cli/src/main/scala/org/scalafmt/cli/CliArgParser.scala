@@ -11,20 +11,20 @@ object CliArgParser {
 
   val usageExamples: String =
     """|scalafmt # Format all files in the current project, configuration is determined in this order:
-       |         # 1. .scalafmt.conf file in current directory
-       |         # 2. .scalafmt.conf inside root directory of current git repo
-       |         # 3. no configuration, default style
-       |scalafmt --test # throw exception on mis-formatted files, won't write to files.
-       |scalafmt --mode diff # Format all files that were edited in git diff against master branch.
-       |scalafmt --mode changed # Format files listed in `git status` (latest changes against previous commit.
-       |scalafmt --diff-branch 2.x # same as --diff, except against branch 2.x
-       |scalafmt --stdin # read from stdin and print to stdout
-       |scalafmt --stdin --assume-filename foo.sbt < foo.sbt # required when using --stdin to format .sbt files.
-       |scalafmt Code1.scala A.scala       # write formatted contents to file.
-       |scalafmt --stdout Code.scala       # print formatted contents to stdout.
-       |scalafmt --exclude target          # format all files in directory excluding target
-       |scalafmt --config .scalafmt.conf   # read custom style from file.
-       |scalafmt --config-str "style=IntelliJ" # define custom style as a flag, must be quoted.""".stripMargin
+      |         # 1. .scalafmt.conf file in current directory
+      |         # 2. .scalafmt.conf inside root directory of current git repo
+      |         # 3. no configuration, default style
+      |scalafmt --test # throw exception on mis-formatted files, won't write to files.
+      |scalafmt --mode diff # Format all files that were edited in git diff against master branch.
+      |scalafmt --mode changed # Format files listed in `git status` (latest changes against previous commit.
+      |scalafmt --diff-branch 2.x # same as --diff, except against branch 2.x
+      |scalafmt --stdin # read from stdin and print to stdout
+      |scalafmt --stdin --assume-filename foo.sbt < foo.sbt # required when using --stdin to format .sbt files.
+      |scalafmt Code1.scala A.scala       # write formatted contents to file.
+      |scalafmt --stdout Code.scala       # print formatted contents to stdout.
+      |scalafmt --exclude target          # format all files in directory excluding target
+      |scalafmt --config .scalafmt.conf   # read custom style from file.
+      |scalafmt --config-str "style=IntelliJ" # define custom style as a flag, must be quoted.""".stripMargin
 
   val scoptParser: OptionParser[CliOptions] =
     new scopt.OptionParser[CliOptions]("scalafmt") {
@@ -151,15 +151,15 @@ object CliArgParser {
         .action((_, c) => c.copy(mode = Option(DiffFiles("master"))))
         .text(
           s"""Format files listed in `git diff` against master.
-             |Deprecated: use --mode diff instead""".stripMargin
+            |Deprecated: use --mode diff instead""".stripMargin
         )
       opt[FileFetchMode]("mode")
         .action((m, c) => c.copy(mode = Option(m)))
         .text(
           s"""Sets the files to be formatted fetching mode.
-             |Options:
-             |        diff - format files listed in `git diff` against master
-             |        changed - format files listed in `git status` (latest changes against previous commit)""".stripMargin
+            |Options:
+            |        diff - format files listed in `git diff` against master
+            |        changed - format files listed in `git status` (latest changes against previous commit)""".stripMargin
         )
       opt[String]("diff-branch")
         .action((branch, c) => c.copy(mode = Option(DiffFiles(branch))))
@@ -191,13 +191,13 @@ object CliArgParser {
         .text("(experimental) only format line range from=to")
 
       note(s"""|Examples:
-               |$usageExamples
-               |Please file bugs to https://github.com/scalameta/scalafmt/issues
+        |$usageExamples
+        |Please file bugs to https://github.com/scalameta/scalafmt/issues
       """.stripMargin)
     }
   def buildInfo =
     s"""build commit: ${Versions.commit}
-       |build time: ${new Date(Versions.timestamp.toLong)}""".stripMargin
+      |build time: ${new Date(Versions.timestamp.toLong)}""".stripMargin
 
   private def writeMode(c: CliOptions, writeMode: WriteMode): CliOptions =
     c.writeModeOpt.fold {

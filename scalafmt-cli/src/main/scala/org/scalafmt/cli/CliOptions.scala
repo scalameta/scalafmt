@@ -151,13 +151,14 @@ case class CliOptions(
     *
     * @return A path to a configuration file
     */
-  def configPath: Path = tempConfigPath match {
-    case Some(tempConf) => tempConf
-    case None =>
-      config.getOrElse(
-        (common.workingDirectory / ".scalafmt.conf").jfile.toPath
-      )
-  }
+  def configPath: Path =
+    tempConfigPath match {
+      case Some(tempConf) => tempConf
+      case None =>
+        config.getOrElse(
+          (common.workingDirectory / ".scalafmt.conf").jfile.toPath
+        )
+    }
 
   /** Parse the scalafmt configuration and try to encode it to `ScalafmtConfig`.
     * If `--config-str` is specified, this will parse the configuration string specified by `--config-str`.

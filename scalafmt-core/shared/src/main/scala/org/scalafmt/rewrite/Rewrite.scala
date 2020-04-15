@@ -113,11 +113,12 @@ object Rewrite {
 
   val default: Seq[Rewrite] = name2rewrite.values.toSeq
 
-  private def incompatibleRewrites: List[(Rewrite, Rewrite)] = List(
-    SortImports -> ExpandImportSelectors,
-    SortImports -> AsciiSortImports,
-    AsciiSortImports -> ExpandImportSelectors
-  )
+  private def incompatibleRewrites: List[(Rewrite, Rewrite)] =
+    List(
+      SortImports -> ExpandImportSelectors,
+      SortImports -> AsciiSortImports,
+      AsciiSortImports -> ExpandImportSelectors
+    )
 
   def validateRewrites(rewrites: Seq[Rewrite]): Seq[String] = {
     incompatibleRewrites.flatMap {

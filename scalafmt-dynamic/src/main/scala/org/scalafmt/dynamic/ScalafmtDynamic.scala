@@ -29,16 +29,17 @@ final case class ScalafmtDynamic(
     ]]
 ) extends Scalafmt {
 
-  def this() = this(
-    ConsoleScalafmtReporter,
-    Nil,
-    true,
-    true,
-    BuildInfo.stable,
-    ReentrantCache(),
-    true,
-    ReentrantCache()
-  )
+  def this() =
+    this(
+      ConsoleScalafmtReporter,
+      Nil,
+      true,
+      true,
+      BuildInfo.stable,
+      ReentrantCache(),
+      true,
+      ReentrantCache()
+    )
 
   override def clear(): Unit =
     formatCache

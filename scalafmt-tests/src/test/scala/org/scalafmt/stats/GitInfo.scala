@@ -23,9 +23,10 @@ object GitInfo {
     GitInfo("CI", "CI", currentBranch, currentCommit)
   }
 
-  def apply(): GitInfo = travis.getOrElse {
-    GitInfo(user, email, currentBranch, currentCommit)
-  }
+  def apply(): GitInfo =
+    travis.getOrElse {
+      GitInfo(user, email, currentBranch, currentCommit)
+    }
 
   def currentCommit = exec("git", "rev-parse", "HEAD")
 
