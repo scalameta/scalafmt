@@ -16,3 +16,98 @@ Project("sub", file("sub")).delegateTo(root).settings(check <<= checkTask)
 onLoad in Global := (Command.process("project server", _: State)) compose (onLoad in Global).value
 >>>
 onLoad in Global := (Command.process("project server", _: State)).compose((onLoad in Global).value)
+<<< #934 1
+object a {
+  b.c(_ foo 0)
+}
+>>>
+object a {
+  b.c(_.foo(0))
+}
+<<< #934 2
+object a {
+  b.c(foo bar _)
+}
+>>>
+object a {
+  b.c(foo.bar(_))
+}
+<<< #934 3
+object a {
+  b.c(foo _ bar 0)
+}
+>>>
+object a {
+  b.c((foo _).bar(0))
+}
+<<< #934 4
+object a {
+  b.c(_ foo bar baz 0)
+}
+>>>
+object a {
+  b.c(_.foo(bar).baz(0))
+}
+<<< #934 5
+object a {
+  b.c(foo bar _ baz 0)
+}
+>>>
+object a {
+  b.c(foo.bar(_).baz(0))
+}
+<<< #1047 1
+val i: Ordering[I] = Ordering.fromLessThan(_.i isAfter _.i)
+>>>
+val i: Ordering[I] = Ordering.fromLessThan(_.i.isAfter(_.i))
+<<< #1141 1
+object a {
+  implicit val locationReads: Reads[Location] = (
+    (JsPath \ "lat").read[Double] and
+    (JsPath \ "long").read[Double]
+  )(Location.apply _)
+}
+>>>
+object a {
+  implicit val locationReads: Reads[Location] =
+    (JsPath \ "lat").read[Double].and((JsPath \ "long").read[Double])
+  (Location.apply _)
+}
+<<< #1141 2
+maxColumn = 80
+===
+object a {
+  implicit val locationReads: Reads[Location] = (
+    (JsPath \ "lat").read[Double] and
+    ((JsPath \ "long").read[Double]) and
+    ((JsPath \ "anotherField").read[String])
+  )(Location.apply _)
+}
+>>>
+object a {
+  implicit val locationReads: Reads[Location] =
+    (JsPath \ "lat")
+      .read[Double]
+      .and((JsPath \ "long").read[Double])
+      .and((JsPath \ "anotherField").read[String])
+  (Location.apply _)
+}
+<<< #842 1
+maxColumn = 80
+===
+object a {
+  implicit val locationReads: Reads[Location] = (
+    (JsPath \ "lat").read[Double] and
+    ((JsPath \ "long").read[Double]) and // comment
+    ((JsPath \ "anotherField").read[String])
+  )(Location.apply _)
+}
+>>>
+object a {
+  implicit val locationReads: Reads[Location] = (
+    (JsPath \ "lat")
+      .read[Double]
+      .and((JsPath \ "long").read[Double]) and // comment
+      ((JsPath \ "anotherField").read[String])
+  )(Location.apply _)
+}
