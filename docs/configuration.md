@@ -1437,7 +1437,7 @@ Responsible for the case of `Double` literals suffix `D`
 ```scala mdoc:scalafmt
 literals.double=Lower
 ---
-42.0F
+42.0d
 ```
 
 ### `literals.hexPrefix`
