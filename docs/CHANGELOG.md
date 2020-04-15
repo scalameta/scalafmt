@@ -63,7 +63,7 @@ title: Changelog
 - \#1627 \[12\]: Router: ignore line breaks in enumerators [\#1806](https://github.com/scalameta/scalafmt/pull/1806) ([kitbellew](https://github.com/kitbellew))
 - \#1627 \[11\]: Router: relax restrictions on breaks within interpolate [\#1805](https://github.com/scalameta/scalafmt/pull/1805) ([kitbellew](https://github.com/kitbellew))
 - \#1627 \[10\]: Router: ignore line breaks in select chains [\#1796](https://github.com/scalameta/scalafmt/pull/1796) ([kitbellew](https://github.com/kitbellew))
-- Preserve newlines in for comprehension generators and values  [\#1795](https://github.com/scalameta/scalafmt/pull/1795) ([poslegm](https://github.com/poslegm))
+- Preserve newlines in for comprehension generators and values [\#1795](https://github.com/scalameta/scalafmt/pull/1795) ([poslegm](https://github.com/poslegm))
 - \#1627 \[09\]: Router: ignore line breaks in case clauses [\#1793](https://github.com/scalameta/scalafmt/pull/1793) ([kitbellew](https://github.com/kitbellew))
 - \#1627 \[08\]: Router: ignore line breaks in annotations [\#1792](https://github.com/scalameta/scalafmt/pull/1792) ([kitbellew](https://github.com/kitbellew))
 - GraalVM Native Image fix [\#1791](https://github.com/scalameta/scalafmt/pull/1791) ([poslegm](https://github.com/poslegm))
