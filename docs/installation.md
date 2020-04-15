@@ -44,7 +44,7 @@ change this, and is instead recommended to format files when saving.
 
 - for the current project (recommended):
   `Preferences > Editor > Code Style > Scala`
-- for all new projects:  
+- for all new projects:
   `File > Other Settings > Preferences for New Projects… > Editor > Code Style > Scala`
 
 ![Enable format on save in IntelliJ](assets/img/intellij-on-save-native.png)
@@ -265,7 +265,7 @@ with instant startup and fast performance for short-lived Scalafmt runs.
 VERSION=@STABLE_VERSION@
 INSTALL_LOCATION=/usr/local/bin/scalafmt-native
 curl https://raw.githubusercontent.com/scalameta/scalafmt/master/bin/install-scalafmt-native.sh | \
-  sh -s -- $VERSION $INSTALL_LOCATION
+  bash -s -- $VERSION $INSTALL_LOCATION
 scalafmt-native --help # should show version @STABLE_VERSION@
 ```
 
