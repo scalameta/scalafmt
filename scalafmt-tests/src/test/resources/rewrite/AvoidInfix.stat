@@ -1,5 +1,7 @@
 rewrite.rules = [AvoidInfix]
 <<< too many parenthesis
+rewrite.rules = [AvoidInfix, RedundantParens]
+===
 (test fubar compile).value
 >>>
 test.fubar(compile).value
@@ -28,12 +30,13 @@ consumerPollers forall
    (poller => poller.isSubscribeRequestProcessed())
 >>>
 consumerPollers.forall(poller => poller.isSubscribeRequestProcessed())
-<<< don't rewrite if comment
+<<< rewrite around comment
 consumerPollers forall // Why write a comment here??
     (poller => poller.isSubscribeRequestProcessed())
 >>>
-consumerPollers forall // Why write a comment here??
-  (poller => poller.isSubscribeRequestProcessed())
+consumerPollers.forall( // Why write a comment here??
+  poller => poller.isSubscribeRequestProcessed()
+)
 <<< Dangerous 2
 (consumerPollers forall
 
@@ -74,7 +77,7 @@ cp should not contain (jar3.getPath())
 <<< in lambda
 _ compareTo _
 >>>
-_.compareTo(_)
+_ compareTo _
 <<< akka.ActivatorDist 1
 PathFinder(dir) descendantsExcept ("*", gitignoreFileFilter) filter (_.isFile)
 >>>
@@ -119,12 +122,14 @@ seq should have length 5
 >>>
 (seq should have).length(5)
 <<< excluded combinators in lhs 3
-1 to total foreach { _ =>
+1 to total foreach /* c1 */ { _ =>
   perform(_ + 1)
 }
 >>>
-(1 to total).foreach { _ =>
-  perform(_ + 1)
+(1 to total).foreach {
+  /* c1 */
+  _ =>
+    perform(_ + 1)
 }
 <<< excluded combinators in lhs 4
 seq should have length 5 and true
