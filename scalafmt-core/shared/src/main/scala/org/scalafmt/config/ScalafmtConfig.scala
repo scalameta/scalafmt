@@ -275,11 +275,7 @@ object ScalafmtConfig {
         tokens = AlignToken.default
       )
     )
-
   val defaultWithAlign: ScalafmtConfig = addAlign(default)
-
-  val default40: ScalafmtConfig = default.copy(maxColumn = 40)
-  val default120: ScalafmtConfig = default.copy(maxColumn = 120)
 
   /**
     * Experimental implementation of:

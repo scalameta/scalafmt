@@ -52,7 +52,7 @@ class ScalafmtTest extends AnyFunSuite {
       |  )
       |}
       |""".stripMargin,
-    config.ScalafmtConfig.default40
+    config.ScalafmtConfig.default.copy(maxColumn = 40)
   )
 
 }
