@@ -333,17 +333,6 @@ object ScalafmtConfig {
       )
     )
 
-  def oneOf[T](m: Map[String, T])(input: String): Configured[T] =
-    m.get(input.toLowerCase()) match {
-      case Some(x) => Ok(x)
-      case None =>
-        val available = m.keys.mkString(", ")
-        val msg =
-          s"Unknown line endings type $input. Expected one of $available"
-        ConfError.message(msg).notOk
-
-    }
-
   def configReader(baseReader: ScalafmtConfig): ConfDecoder[ScalafmtConfig] =
     ConfDecoder.instance[ScalafmtConfig] {
       case conf @ Conf.Obj(values) =>
