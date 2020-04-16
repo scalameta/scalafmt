@@ -5,7 +5,6 @@ import java.nio.file.StandardOpenOption
 import org.scalafmt.Scalafmt
 import org.scalafmt.config.ScalafmtRunner
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.config.ScalafmtConfig.default40
 import org.scalafmt.config.Config
 
 package object website {
