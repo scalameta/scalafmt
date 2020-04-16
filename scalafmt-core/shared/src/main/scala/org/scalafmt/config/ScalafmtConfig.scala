@@ -192,7 +192,7 @@ case class ScalafmtConfig(
   private implicit val optInReader = optIn.reader
   private implicit val verticalMultilineReader = verticalMultiline.reader
   implicit val alignDecoder: ConfDecoder[Align] =
-    ScalafmtConfig.alignReader(align.reader)
+    Align.alignReader(align.reader)
   lazy val alignMap: Map[String, Regex] =
     align.tokens.map(x => x.code -> x.owner.r).toMap
   private implicit val confObjReader = ScalafmtConfig.confObjReader
@@ -367,20 +367,4 @@ object ScalafmtConfig {
         }
     }
 
-  def alignReader(base: ConfDecoder[Align]): ConfDecoder[Align] =
-    ConfDecoder.instance[Align] {
-      case Align.Builtin(a) => Ok(a)
-      case els => base.read(els)
-    }
-  def alignTokenReader(
-      initTokens: Seq[AlignToken]
-  ): ConfDecoder[Seq[AlignToken]] = {
-    val baseReader = ConfDecoder[Seq[AlignToken]]
-    ConfDecoder.instance[Seq[AlignToken]] {
-      case Conf.Obj(("add", conf) :: Nil) =>
-        baseReader.read(conf).map(initTokens ++ _)
-      case Align.Builtin(a) => Ok(a.tokens)
-      case els => baseReader.read(els)
-    }
-  }
 }
