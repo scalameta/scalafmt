@@ -114,31 +114,25 @@ object Align {
   )
   val allValues = List(default, none, some, most)
 
-  object Builtin {
-    def unapply(conf: Conf): Option[Align] =
-      Option(conf).collect {
-        case Conf.Str("none") | Conf.Bool(false) => Align.none
-        case Conf.Str("some" | "default") => Align.some
-        case Conf.Str("more") | Conf.Bool(true) => Align.more
-        case Conf.Str("most") => Align.most
-      }
+  implicit val preset: PartialFunction[Conf, Align] = {
+    case Conf.Str("none") | Conf.Bool(false) => Align.none
+    case Conf.Str("some" | "default") => Align.some
+    case Conf.Str("more") | Conf.Bool(true) => Align.more
+    case Conf.Str("most") => Align.most
   }
 
   def alignReader(base: ConfDecoder[Align]): ConfDecoder[Align] =
     ConfDecoder.instance[Align] {
-      case Builtin(a) => Configured.Ok(a)
-      case els => base.read(els)
+      case c => preset.lift(c).fold(base.read(c))(Configured.ok)
     }
 
   def alignTokenReader(
       initTokens: Seq[AlignToken]
   ): ConfDecoder[Seq[AlignToken]] = {
-    val baseReader = ConfDecoder[Seq[AlignToken]]
+    val base = ConfDecoder[Seq[AlignToken]]
     ConfDecoder.instance[Seq[AlignToken]] {
-      case Conf.Obj(("add", conf) :: Nil) =>
-        baseReader.read(conf).map(initTokens ++ _)
-      case Builtin(a) => Configured.Ok(a.tokens)
-      case els => baseReader.read(els)
+      case Conf.Obj(("add", c) :: Nil) => base.read(c).map(initTokens ++ _)
+      case c => preset.lift(c).fold(base.read(c))(x => Configured.ok(x.tokens))
     }
   }
 
