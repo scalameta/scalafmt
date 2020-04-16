@@ -1,6 +1,5 @@
 package org.scalafmt.config
 
-import metaconfig.Configured.Ok
 import metaconfig._
 
 /**
@@ -53,8 +52,11 @@ object IndentOperator {
     generic.deriveEncoder
   implicit val IndentOperatorDecoder: ConfDecoder[IndentOperator] =
     ConfDecoder.instance[IndentOperator] {
-      case Conf.Str("spray" | "akka" | "akka-http") => Ok(IndentOperator.akka)
-      case Conf.Str("default") => Ok(IndentOperator.default)
-      case els => default.reader.read(els)
+      case c => preset.lift(c).fold(default.reader.read(c))(Configured.ok)
     }
+
+  implicit val preset: PartialFunction[Conf, IndentOperator] = {
+    case Conf.Str("spray" | "akka" | "akka-http") => IndentOperator.akka
+    case Conf.Str("default") => IndentOperator.default
+  }
 }

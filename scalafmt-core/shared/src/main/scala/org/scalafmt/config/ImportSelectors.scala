@@ -60,10 +60,13 @@ object ImportSelectors {
   // to ScalafmtConfig
   implicit val backwardsCompatibleReader: ConfDecoder[ImportSelectors] =
     ConfDecoder.instance[ImportSelectors] {
-      case Conf.Bool(true) => Ok(ImportSelectors.binPack)
-      case Conf.Bool(false) => Ok(ImportSelectors.noBinPack)
-      case els => reader.read(els)
+      case c => preset.lift(c).fold(reader.read(c))(Configured.ok)
     }
+
+  implicit val preset: PartialFunction[Conf, ImportSelectors] = {
+    case Conf.Bool(true) => ImportSelectors.binPack
+    case Conf.Bool(false) => ImportSelectors.noBinPack
+  }
 
   case object noBinPack extends ImportSelectors
   case object binPack extends ImportSelectors

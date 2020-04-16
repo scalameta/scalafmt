@@ -23,13 +23,16 @@ object DanglingParentheses {
 
   implicit val decoder: ConfDecoder[DanglingParentheses] =
     ConfDecoder.instance[DanglingParentheses] {
-      case Conf.Bool(true) => Configured.Ok(shortcutTrue)
-      case Conf.Bool(false) => Configured.Ok(shortcutFalse)
-      case els => default.decoder.read(els)
+      case c => preset.lift(c).fold(default.decoder.read(c))(Configured.ok)
     }
 
   implicit val encoder: ConfEncoder[DanglingParentheses] =
     generic.deriveEncoder
+
+  implicit val preset: PartialFunction[Conf, DanglingParentheses] = {
+    case Conf.Bool(true) => shortcutTrue
+    case Conf.Bool(false) => shortcutFalse
+  }
 
   sealed abstract class Exclude
 
