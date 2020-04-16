@@ -1,4 +1,4 @@
-align = none
+align.preset = none
 maxColumn = 40
 newlines.source = unfold
 runner.optimizer.forceConfigStyleOnOffset = 50
@@ -515,7 +515,7 @@ object a {
   )
 }
 <<< 2.16 val with apply and comment
-danglingParentheses = false
+danglingParentheses.preset = false
 ===
 val a = Set("b" // ...
 )
@@ -677,7 +677,7 @@ a.b(
 )
 <<< 3.10 enclosed, infix on the right
 maxColumn = 80
-danglingParentheses = false
+danglingParentheses.preset = false
 ===
 object a {
   terminaters = Set() ++ (for (i ← 1 to n)
@@ -699,7 +699,7 @@ object a {
 }
 <<< 3.11 enclosed, by itself
 maxColumn = 80
-danglingParentheses = false
+danglingParentheses.preset = false
 ===
 object a {
   (for (i ← 1 to n)
@@ -720,7 +720,7 @@ object a {
 }
 <<< 3.12 enclosed, followed by select
 maxColumn = 80
-danglingParentheses = false
+danglingParentheses.preset = false
 ===
 object a {
   (intercept[java.lang.IllegalStateException] {
@@ -750,7 +750,7 @@ object a {
 }
 <<< 3.13 enclosed, followed by select and infix
 maxColumn = 80
-danglingParentheses = false
+danglingParentheses.preset = false
 ===
 object a {
   (intercept[java.lang.IllegalStateException] {
@@ -772,7 +772,7 @@ object a {
 }
 <<< 3.14 enclosed, assignment, by itself
 maxColumn = 80
-danglingParentheses = false
+danglingParentheses.preset = false
 ===
 object a {
   val a = (
@@ -789,7 +789,7 @@ object a {
 }
 <<< 3.15 enclosed, assignment, infix on left
 maxColumn = 80
-danglingParentheses = false
+danglingParentheses.preset = false
 ===
 object a {
   val a = (
@@ -806,7 +806,7 @@ object a {
 }
 <<< 3.16 enclosed, assignment, infix on right
 maxColumn = 80
-danglingParentheses = false
+danglingParentheses.preset = false
 ===
 object a {
   val a = 2 ++ (
@@ -824,7 +824,7 @@ object a {
 }
 <<< 3.17 enclosed, assignment, infix in middle
 maxColumn = 80
-danglingParentheses = false
+danglingParentheses.preset = false
 ===
 object a {
   val a = 2 ++ (
@@ -842,7 +842,7 @@ object a {
 }
 <<< 3.18 enclosed, assignment, by itself, narrower
 maxColumn = 60
-danglingParentheses = false
+danglingParentheses.preset = false
 ===
 object a {
   val a = (intercept[java.lang.IllegalStateException] {
@@ -857,7 +857,7 @@ object a {
 }
 <<< 3.19 enclosed, assignment, infix on left, narrower
 maxColumn = 60
-danglingParentheses = false
+danglingParentheses.preset = false
 ===
 object a {
   val a = (
@@ -874,7 +874,7 @@ object a {
 }
 <<< 3.20 enclosed, assignment, infix on right, narrower
 maxColumn = 60
-danglingParentheses = false
+danglingParentheses.preset = false
 ===
 object a {
   val a = 2 ++ (
@@ -892,7 +892,7 @@ object a {
 }
 <<< 3.21 enclosed, assignment, infix in middle, narrower
 maxColumn = 60
-danglingParentheses = false
+danglingParentheses.preset = false
 ===
 object a {
   val a = 2 ++ (
@@ -910,7 +910,7 @@ object a {
 }
 <<< 3.22 enclosed, assignment, by itself, narrow
 maxColumn = 40
-danglingParentheses = false
+danglingParentheses.preset = false
 ===
 object a {
   val a = (
@@ -928,7 +928,7 @@ object a {
 }
 <<< 3.23 enclosed, assignment, infix on left, narrow
 maxColumn = 40
-danglingParentheses = false
+danglingParentheses.preset = false
 ===
 object a {
   val a = (
@@ -946,7 +946,7 @@ object a {
 }
 <<< 3.24 enclosed, assignment, infix on right, narrow
 maxColumn = 40
-danglingParentheses = false
+danglingParentheses.preset = false
 ===
 object a {
   val a = 2 ++ (
@@ -965,7 +965,7 @@ object a {
 }
 <<< 3.25 enclosed, assignment, infix in middle, narrow
 maxColumn = 40
-danglingParentheses = false
+danglingParentheses.preset = false
 ===
 object a {
   val a = 2 ++ (
@@ -1029,7 +1029,7 @@ def activationFutureFor(
 })
 <<< 3.28 apply with optimal token
 maxColumn = 80
-danglingParentheses = false
+danglingParentheses.preset = false
 ===
 case class AttributeInfo(symbol : Symbol, typeRef : Type, value : Option[Any],
   values : Seq[String ~ Any]) // sym_Ref info_Ref {constant_Ref} {nameRef constantRef}

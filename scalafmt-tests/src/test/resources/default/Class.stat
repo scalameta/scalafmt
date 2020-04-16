@@ -159,7 +159,7 @@ final class TypedArrayBufferOps[ // scalastyle:ignore
   ???
 }
 <<< #1362 1: single implict, long line
-danglingParentheses = true
+danglingParentheses.preset = true
 align.openParenCallSite = false
 align.openParenDefnSite = false
 ===
@@ -200,7 +200,7 @@ case class Foo(
 }
 <<< #1362 2: single implicit, short line
 maxColumn = 40
-danglingParentheses = true
+danglingParentheses.preset = true
 align.openParenCallSite = false
 align.openParenDefnSite = false
 ===
@@ -241,7 +241,7 @@ case class Foo(
 }
 <<< #1362 3: multiple implicits, short line
 maxColumn = 30
-danglingParentheses = true
+danglingParentheses.preset = true
 align.openParenCallSite = false
 align.openParenDefnSite = false
 ===
@@ -284,7 +284,7 @@ case class Foo(
 }
 <<< #1362 4: multiple implicits, long line
 maxColumn = 60
-danglingParentheses = true
+danglingParentheses.preset = true
 align.openParenCallSite = false
 align.openParenDefnSite = false
 ===

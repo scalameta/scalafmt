@@ -1,6 +1,6 @@
 maxColumn = 30
 trailingCommas = multiple
-danglingParentheses = false
+danglingParentheses.preset = false
 <<< should add a trailing comma on the last argument
 def method(
     a: String,

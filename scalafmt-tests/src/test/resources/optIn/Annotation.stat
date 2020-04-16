@@ -1,5 +1,5 @@
 optIn.annotationNewlines = true
-danglingParentheses = false
+danglingParentheses.preset = false
 <<< keep lines of annotations unchanged
 object WrapperToHaveStatTestCaseParserWorking {
   @annot   @deprecated   class B(@annot @deprecated x: Int) extends A {

@@ -1,8 +1,8 @@
-style = defaultWithAlign
+preset = defaultWithAlign
 edition = 2019-10
 onTestFailure = "Search state"
-align = most
-danglingParentheses = false
+align.preset = most
+danglingParentheses.preset = false
 <<< #800
 object Test {
   Some(Files.newInputStream(inFile)) match {

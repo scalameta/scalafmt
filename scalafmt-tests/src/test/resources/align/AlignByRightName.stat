@@ -1,4 +1,4 @@
-align=most
+align.preset = most
 <<< Align = with <-
 for {
   _ <- f1

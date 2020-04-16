@@ -1,4 +1,4 @@
-style = default
+preset = default
 <<< #1116
 val x: A#   !
 >>>

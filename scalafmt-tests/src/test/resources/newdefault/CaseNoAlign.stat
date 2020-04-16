@@ -1,6 +1,6 @@
-style = default
+preset = default
 maxColumn = 80
-align = none
+align.preset = none
 <<< Route partial function
 val Route: PartialFunction[Decision, Decision] = {
   case FormatToken(_: Ident | _: `this` | _: `_ ` | _: `(`, _: `.` | _: `#`, _) =>

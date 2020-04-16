@@ -680,13 +680,13 @@ val a = b(
     /* comment */ arg1,
     arg2)
 <<< init with multiple curried parameters and comment, long
-align = none
+align.preset = none
 ===
 val a = new b(/*c1*/c => d)(/*c2*/e => f, g => h)
 >>>
 val a = new b( /*c1*/ c => d)( /*c2*/ e => f, g => h)
 <<< init with multiple curried parameters and comment, short
-align = none
+align.preset = none
 maxColumn = 30
 ===
 val a = new b(/*c1*/c => dddddddd)(/*c2*/e => f, g => h)
@@ -712,7 +712,7 @@ object ThreadPoolConfigDispatcherBuilder {
     opt map fun
 }
 <<< implicit with single argument
-align = none
+align.preset = none
 ===
   def apply(throughput: Int)(implicit context: ExecutionContext)
       : SerializedSuspendableExecutionContext =

@@ -1,4 +1,4 @@
-style = default
+preset = default
 <<< docstring does not force line break
 optIn.forceBlankLineBeforeDocstring = false
 ===

@@ -1,4 +1,4 @@
-style = defaultWithAlign
+preset = defaultWithAlign
 align.tokenCategory {
   Equals = Assign
   LeftArrow = Assign

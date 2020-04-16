@@ -1,6 +1,6 @@
 maxColumn = 30
 trailingCommas = never
-align = more
+align.preset = more
 
 <<< should consider comments when removing trailing commas while align comment
 def method(

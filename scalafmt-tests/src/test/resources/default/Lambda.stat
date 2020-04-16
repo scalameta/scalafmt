@@ -194,7 +194,7 @@ val add = (x: Int) => x + 2
 >>>
 val add = (x: Int) => x + 2
 <<< #965
-style = defaultWithAlign
+preset = defaultWithAlign
 maxColumn = 120
 newlines.sometimesBeforeColonInMethodReturnType = false
 align.openParenCallSite = false
@@ -321,9 +321,9 @@ testAsync("Resource.make is equivalent to a partially applied bracket") {
     }
 }
 <<< #1714 2
-align = none
+align.preset = none
 maxColumn = 120
-danglingParentheses = true
+danglingParentheses.preset = true
 ===
 testAsync("Resource.make is equivalent to a partially applied bracket") { implicit ec =>
     check { (acquire: IO[String], release: String => IO[Unit], f: String => IO[String]) =>
@@ -337,9 +337,9 @@ testAsync("Resource.make is equivalent to a partially applied bracket") { implic
   }
 }
 <<< #1714 3
-align = none
+align.preset = none
 maxColumn = 120
-danglingParentheses = true
+danglingParentheses.preset = true
 ===
 testAsync("Resource.make is equivalent to a partially applied bracket") { implicit ec =>
     check { (acquire: IO[String], release: String => IO[Unit], f: String => IO[String]/* c1 */)/* c2 */=>
@@ -354,9 +354,9 @@ testAsync("Resource.make is equivalent to a partially applied bracket") { implic
   }
 }
 <<< #1714 4
-align = none
+align.preset = none
 maxColumn = 120
-danglingParentheses = true
+danglingParentheses.preset = true
 ===
 testAsync("Resource.make is equivalent to a partially applied bracket") { implicit ec =>
     check { (acquire: IO[String], release: String => IO[Unit], f: String => IO[String]/* c1 */)/* c2 */=>
@@ -371,9 +371,9 @@ testAsync("Resource.make is equivalent to a partially applied bracket") { implic
   }
 }
 <<< #1714 5
-align = none
+align.preset = none
 maxColumn = 120
-danglingParentheses = true
+danglingParentheses.preset = true
 ===
 testAsync("Resource.make is equivalent to a partially applied bracket") { implicit ec =>
     check { (acquire: IO[String], release: String => IO[Unit], f: String => IO[String]/* c1 */)/* c2 */=>
@@ -412,7 +412,7 @@ object Foo {
   }
 }
 <<< #1485
-style = IntelliJ
+preset = IntelliJ
 maxColumn = 120
 ===
 class A {

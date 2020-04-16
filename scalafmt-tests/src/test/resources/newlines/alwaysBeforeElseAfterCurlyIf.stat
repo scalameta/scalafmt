@@ -1,4 +1,4 @@
-style = default
+preset = default
 newlines.alwaysBeforeElseAfterCurlyIf = true
 
 <<< Insert line break between curly if and else

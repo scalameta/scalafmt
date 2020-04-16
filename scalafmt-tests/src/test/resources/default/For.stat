@@ -83,7 +83,7 @@ for ((l, r) ← /* c1 */ (/* c2 */ Seq(
        ) // test Java API
      )) checkOne(looker, l, r)
 <<< multiline for with paren, no align
-align = none
+align.preset = none
 ===
 for ((l, r) ← /* c1 */ ( /* c2 */Seq(
     SelectString("a/b/c") -> None,

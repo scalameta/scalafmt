@@ -1,9 +1,9 @@
 maxColumn = 100 # comment
-style = defaultWithAlign
+preset = defaultWithAlign
 unindentTopLevelOperators = true
 indentOperator.exclude = ":\\+:"
 align.tokens.add = [foo]
-danglingParentheses = false
+danglingParentheses.preset = false
 <<< dynamic
 // scalafmt: { maxColumn = 20 }
 function(aaaaaaaaaaa, bbbbbbb)
@@ -61,14 +61,14 @@ type Row =
   val xx = 22 + foo
 }
 <<< override align it is none originally
-align=none
+align.preset = none
 ===
 object a {
   for {
     x <- "asd"
     xxxx <- "bb"
   } yield x
-  // scalafmt: { align = most }
+  // scalafmt: { align.preset = most }
   for {
     x <- "asd"
     xxxx <- "bb"
@@ -80,7 +80,7 @@ object a {
     x <- "asd"
     xxxx <- "bb"
   } yield x
-  // scalafmt: { align = most }
+  // scalafmt: { align.preset = most }
   for {
     x    <- "asd"
     xxxx <- "bb"

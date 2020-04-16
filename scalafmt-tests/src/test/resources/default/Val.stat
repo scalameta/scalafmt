@@ -287,7 +287,7 @@ val currentName = currentNameOption | info.hasSimul
   )
   .name
 <<< apply with optimal token inside, no dangle
-danglingParentheses = false
+danglingParentheses.preset = false
 ===
 val currentName = currentNameOption | info.hasSimul
   .fold(
@@ -303,7 +303,7 @@ val currentName = currentNameOption | info.hasSimul
   )
   .name
 <<< apply with optimal token inside, and comment, no dangle
-danglingParentheses = false
+danglingParentheses.preset = false
 ===
 val currentName = currentNameOption | info.hasSimul
   .fold(
