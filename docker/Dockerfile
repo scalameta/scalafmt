@@ -1,17 +1,6 @@
-# TOGO: gpg verify
-FROM openjdk:8
+FROM debian:buster-slim
 ARG SCALAFMT_VERSION
-ARG SCALA_VERSION=2.12
-ARG SCALAFMT_INSTALL_LOCATION=/usr/local/bin/scalafmt
-RUN set -ex \
-    && apt-get update -y \
-    && rm -rf /var/lib/apt/lists/* \
-    && curl -sSLo coursier https://git.io/coursier-cli \
-    && chmod u+x coursier \
-    && ./coursier bootstrap "org.scalameta:scalafmt-cli_$SCALA_VERSION:$SCALAFMT_VERSION" \
-        -r sonatype:snapshots \
-        -o "$SCALAFMT_INSTALL_LOCATION" \
-        --main org.scalafmt.cli.Cli \
-    && rm -f coursier \
-    && scalafmt --version
-CMD ["/usr/local/bin/scalafmt"]
+# TODO: (bsolomon1124) I've tried to use Alpine but gives problems at runtime
+# related to musl/libc6-compat/libstdc++.  May be something I'm missing there.
+COPY /opt/scalafmt-linux /bin/scalafmt
+CMD ["/bin/scalafmt"]

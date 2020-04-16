@@ -6,7 +6,7 @@ on:
     tags:
       - '*'
   pull_request:
-  
+
 jobs:
   test:
     strategy:
@@ -21,7 +21,7 @@ jobs:
           java-version: ${{ matrix.java }}
       - run: git fetch --tags
       - run:
-          # for GitOps tests	
+          # for GitOps tests
           git config --global user.email "scalafmt@scalameta.org" && git config --global user.name "scalafmt"
       - run: TEST="2.11" sbt ci-test
       - run: TEST="2.12" sbt ci-test
@@ -58,3 +58,18 @@ jobs:
         with:
           name: ${{ matrix.artifact }}
           path: scalafmt
+  dockerize:
+    needs: [native-image]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: git fetch --unshallow
+      - uses: actions/download-artifact@v1
+        with:
+          name: scalafmt-linux
+          path: /opt
+      - name: Build & publish image(s) for ${{ github.ref }}
+        run: ./bin/docker-publish.sh
+    env:
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
