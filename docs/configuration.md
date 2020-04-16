@@ -9,7 +9,7 @@ using [HOCON](https://github.com/lightbend/config) syntax.
 Here is an example `.scalafmt.conf`:
 
 ```scala config
-align = more    // For pretty alignment.
+align.preset = more    // For pretty alignment.
 maxColumn = 100 // For my wide 30" display.
 ```
 
@@ -108,6 +108,50 @@ val example2 =
   |""".stripMargin
 ```
 
+## Presets
+
+Some sections provide preset values to set multiple parameters at once.
+These are always accessed via the `preset` key of the appropriate section,
+including top-level.
+
+### Top-level presets
+
+- `preset=default`: this preset is implicit and sets all values to their defaults.
+- `preset=IntelliJ`: this preset is defined as
+
+```
+    preset = default
+    continuationIndent.defnSite = 2
+    optIn.configStyleArguments = false
+```
+
+- `preset=defaultWithAlign`: this preset is defined as
+
+```
+    preset = default
+    align.preset = more
+```
+
+- `preset=Scala.js`: this preset is defined as
+
+```
+    preset = default
+    binPack.preset = true
+    align.ifWhileOpenParen = false
+    continuationIndent.callSite = 4
+    docstrings = JavaDoc
+    importSelectors = binPack
+    newlines {
+      neverInResultType = true
+      neverBeforeJsNative = true
+      sometimesBeforeColonInMethodReturnType = false
+    )
+    runner.optimizer {
+      forceConfigStyleOnOffset = 500
+      forceConfigStyleMinArgCount = 5
+    }
+```
+
 ## Indentation
 
 ### `continuationIndent.callSite`
@@ -152,10 +196,10 @@ four possible presets: none, some, more, & most.
 
 ### `align`
 
-#### `align=none`
+#### `align.preset=none`
 
 ```scala mdoc:scalafmt
-align = none
+align.preset = none
 ---
 x match { // false for case arrows
   case 2  => 22 // also comments!
@@ -169,13 +213,13 @@ x match { // false for case arrows
 > rebasing.
 
 > Starting with the introduction of `align.stripMargin` parameter in v2.5.0,
-> one must explicitly enable it to get earlier behaviour of `align=none`.
+> one must explicitly enable it to get earlier behaviour of `align.preset=none`.
 > See [assumeStandardLibraryStripMargin](#assumestandardlibrarystripmargin).
 
-#### `align=some`
+#### `align.preset=some`
 
 ```scala mdoc:scalafmt
-align = some
+align.preset = some
 ---
 x match { // true for case arrows
   case 2 => 22
@@ -189,10 +233,10 @@ case object B extends A // false for `extends`
 case object BB extends A
 ```
 
-#### `align=more`
+#### `align.preset=more`
 
 ```scala mdoc:scalafmt
-align = more
+align.preset = more
 ---
 val x = 2 // true for assignment
 val xx = 22
@@ -229,10 +273,10 @@ libraryDependencies ++= Seq(
 )
 ```
 
-#### `align=most`
+#### `align.preset=most`
 
 ```scala mdoc:scalafmt
-align = most
+align.preset = most
 ---
 for {
   // align <- with =
@@ -401,7 +445,7 @@ See [assumeStandardLibraryStripMargin](#assumestandardlibrarystripmargin).
 align.stripMargin
 ```
 
-This functionality is enabled in all presets except `align=none` where it was
+This functionality is enabled in all presets except `align.preset=none` where it was
 disabled since the parameter's introduction in v2.5.0.
 
 ## Newlines
@@ -1307,12 +1351,12 @@ There is a possibility to override scalafmt config for a specific code with
 
 ```scala mdoc:scalafmt
 ---
-// scalafmt: { align = most, danglingParentheses = false }
+// scalafmt: { align.preset = most, danglingParentheses.preset = false }
 libraryDependencies ++= Seq(
   "org.scalameta" %% "scalameta" % scalametaV,
   "org.scalacheck" %% "scalacheck" % scalacheckV)
 
-// scalafmt: { align = some, danglingParentheses = true } (back to defaults)
+// scalafmt: { align.preset = some, danglingParentheses.preset = true } (back to defaults)
 libraryDependencies ++= Seq(
   "org.scalameta" %% "scalameta" % scalametaV,
   "org.scalacheck" %% "scalacheck" % scalacheckV)
@@ -1360,10 +1404,10 @@ a [PathMatcher](https://docs.oracle.com/javase/8/docs/api/java/nio/file/FileSyst
 pattern. For instance,
 
 ```
-align = none
+align.preset = none
 fileOverride {
   "glob:**/*.sbt" {
-    align = most
+    align.preset = most
   }
   "glob:**/src/test/scala/**/*.scala" {
     maxColumn = 120
@@ -1372,8 +1416,8 @@ fileOverride {
 }
 ```
 
-uses `align=none` for all files except `.sbt` for which `align=most` will apply.
-It will also use different parameters for test suites.
+uses `align.preset=none` for all files except `.sbt` for which `align.preset=most`
+will apply. It will also use different parameters for test suites.
 
 > This parameter does not modify which files are formatted.
 

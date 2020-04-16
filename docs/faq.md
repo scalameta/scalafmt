@@ -50,10 +50,10 @@ it, considering
 
 ## Which configuration options minimize diffs/conflicts in version control?}
 
-- `align=none` If alignment is enabled a renaming of one entity can impact the
+- `align.preset=none` If alignment is enabled a renaming of one entity can impact the
   indentation of other entities.
 
-- `danglingParentheses=true` Having the closing parentheses on the same line as
+- `danglingParentheses.preset=true` Having the closing parentheses on the same line as
   the last argument makes the diff line include the parentheses and everything
   following it in case that argument is renamed. So, technically this does not
   reduce the number of diff lines, but the length of them.
