@@ -81,7 +81,7 @@ case class Align(
 ) {
   implicit val reader: ConfDecoder[Align] = generic.deriveDecoder(this).noTypos
   implicit val alignReader: ConfDecoder[Seq[AlignToken]] =
-    ScalafmtConfig.alignTokenReader(tokens)
+    Align.alignTokenReader(tokens)
 }
 
 object Align {
@@ -123,4 +123,23 @@ object Align {
         case Conf.Str("most") => Align.most
       }
   }
+
+  def alignReader(base: ConfDecoder[Align]): ConfDecoder[Align] =
+    ConfDecoder.instance[Align] {
+      case Builtin(a) => Configured.Ok(a)
+      case els => base.read(els)
+    }
+
+  def alignTokenReader(
+      initTokens: Seq[AlignToken]
+  ): ConfDecoder[Seq[AlignToken]] = {
+    val baseReader = ConfDecoder[Seq[AlignToken]]
+    ConfDecoder.instance[Seq[AlignToken]] {
+      case Conf.Obj(("add", conf) :: Nil) =>
+        baseReader.read(conf).map(initTokens ++ _)
+      case Builtin(a) => Configured.Ok(a.tokens)
+      case els => baseReader.read(els)
+    }
+  }
+
 }
