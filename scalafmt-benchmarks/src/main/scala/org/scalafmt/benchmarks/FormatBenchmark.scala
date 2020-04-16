@@ -9,7 +9,7 @@ trait FormatBenchmark {
     Scalafmt
       .formatCode(
         code,
-        style = ScalafmtConfig.default.copy(
+        baseStyle = ScalafmtConfig.default.copy(
           rewrite = RewriteSettings(
             rules = Seq(SortImports, RedundantBraces)
           )
