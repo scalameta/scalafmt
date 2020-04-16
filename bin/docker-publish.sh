@@ -4,17 +4,7 @@
 # https://github.com/marketplace/actions/build-and-push-docker-images
 # in place of this.
 
-set -ex
-
-if [[ -z "$DOCKER_USERNAME" ]]; then
-    echo "Error: Missing DOCKER_USERNAME" >&2
-    exit 1
-fi
-
-if [[ -z "$DOCKER_PASSWORD" ]]; then
-    echo "Error: Missing DOCKER_PASSWORD" >&2
-    exit 1
-fi
+set -e
 
 # CD over to docker/
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
