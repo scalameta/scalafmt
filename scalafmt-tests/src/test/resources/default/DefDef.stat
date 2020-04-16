@@ -312,7 +312,7 @@ trait Test[A] {
   def <=>[B](that: Test[B]): Int
 }
 <<< #1787
-danglingParentheses = true
+danglingParentheses.preset = true
 ===
 object a {
   private def getTopN[T](s: Iterable[T], n: Int)(

@@ -1,5 +1,5 @@
 unindentTopLevelOperators = true
-indentOperator = spray
+indentOperator.preset = spray
 <<< Indent operators
 object TestRoutes {
   def routes = {

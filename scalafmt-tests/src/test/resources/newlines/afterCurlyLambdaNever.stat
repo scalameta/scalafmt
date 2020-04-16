@@ -1,4 +1,4 @@
-style = default
+preset = default
 newlines.afterCurlyLambda = never
 
 <<< Remove newline in lambda call

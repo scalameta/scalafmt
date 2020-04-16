@@ -345,7 +345,7 @@ object a {
   b.c({ d => e + f })
 }
 <<< #1027 3.1: with align
-align = more
+align.preset = more
 ===
 object a {
   val b = c(d => {e}) // comment1
@@ -357,7 +357,7 @@ object a {
   val bb = cc(dd => ee) // comment2
 }
 <<< #1027 3.2: with align
-align = more
+align.preset = more
 ===
 object a {
   val b = c(d => {e}) // comment1
@@ -369,7 +369,7 @@ object a {
   val bb = cc(dd => ee) // comment2
 }
 <<< #1027 3.3: with align
-align = more
+align.preset = more
 ===
 object a {
   val b = c(d => {e})(d => {e}) // comment1
@@ -381,7 +381,7 @@ object a {
   val bb = cc(dd => ee)(dd => ee) // comment2
 }
 <<< #1027 3.4: with align
-align = more
+align.preset = more
 ===
 object a {
   val b = c(d => {e})(d => {e}) // comment1
@@ -393,7 +393,7 @@ object a {
   val bb = cc(dd => ee)(dd => ee) // comment2
 }
 <<< #1027 3.5: with align
-align = more
+align.preset = more
 ===
 object a {
   val b = c(d => e)(d => e) // comment1
@@ -406,7 +406,7 @@ object a {
 }
 <<< #1027 3.6: with align, no redundant braces
 rewrite.rules = []
-align = more
+align.preset = more
 ===
 object a {
   val b  = c(d => e)(d => e) // comment1

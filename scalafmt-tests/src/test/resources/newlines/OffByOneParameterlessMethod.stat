@@ -1,7 +1,7 @@
-style = defaultWithAlign
+preset = defaultWithAlign
 newlines.sometimesBeforeColonInMethodReturnType = false
 maxColumn = 32
-danglingParentheses = false
+danglingParentheses.preset = false
 <<< equals is at column + 1
 object Test {
 //-----------------------------|

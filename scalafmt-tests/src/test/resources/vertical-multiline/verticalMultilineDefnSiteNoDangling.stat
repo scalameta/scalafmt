@@ -1,5 +1,5 @@
 maxColumn = 40
-danglingParentheses = false
+danglingParentheses.preset = false
 verticalMultiline.atDefnSite = true
 <<< handles comment correctly
 case class Example(

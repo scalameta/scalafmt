@@ -1,7 +1,7 @@
-style = defaultWithAlign
+preset = defaultWithAlign
 runner.dialect = Sbt0137
 align.openParenCallSite = true
-danglingParentheses = false
+danglingParentheses.preset = false
 <<< wrap with inline comment
 lazy val ivyProj = (project in file("ivy"))
   .dependsOn(interfaceProj,

@@ -104,7 +104,7 @@ abstract class Quantity[A <: Quantity[A]]
   println(1)
 }
 <<< trait with multiple complex type params
-align = none
+align.preset = none
 ===
  trait CounterLike[
     K, V, +M <: scala.collection.mutable.Map[K, V], +This <: Counter[K, V]]

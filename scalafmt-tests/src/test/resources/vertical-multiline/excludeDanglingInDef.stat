@@ -82,7 +82,7 @@ def getListing(
 }
 <<< with many implicits (non-vm)
 verticalMultiline.atDefnSite = false
-danglingParentheses = true
+danglingParentheses.preset = true
 ===
 def getListing(
   a: String,
@@ -102,7 +102,7 @@ def getListing(a: String, b: String, c: String, d: String)(implicit
 }
 <<< with many implicits (non-vm, with exclude)
 verticalMultiline.atDefnSite = false
-danglingParentheses = true
+danglingParentheses.preset = true
 danglingParentheses.exclude = [def]
 ===
 def getListing(

@@ -23,7 +23,7 @@ object a {
 <<< complex infix source, fold
 runner.optimizer.maxVisitsPerToken = 2000
 maxColumn = 80
-danglingParentheses = false
+danglingParentheses.preset = false
 newlines.source = fold
 ===
 /**

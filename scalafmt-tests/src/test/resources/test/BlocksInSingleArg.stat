@@ -1,4 +1,4 @@
-style = IntelliJ
+preset = IntelliJ
 optIn.configStyleArguments = true
 <<< single arg with curly
   println(

@@ -1,7 +1,7 @@
 maxColumn = 40
 align.openParenDefnSite = true
 align.openParenCallSite = false
-danglingParentheses = false
+danglingParentheses.preset = false
 <<< single line still works
 function(aaaaaaaa, bbbbbbbb)
 >>>

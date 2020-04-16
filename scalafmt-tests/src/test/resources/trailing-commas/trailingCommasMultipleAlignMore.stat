@@ -1,6 +1,6 @@
 maxColumn = 30
 trailingCommas = multiple
-align = more
+align.preset = more
 <<< should consider comments with extra whitespace when adding trailing commas align more
 def method(
     abc: String, // abc comment

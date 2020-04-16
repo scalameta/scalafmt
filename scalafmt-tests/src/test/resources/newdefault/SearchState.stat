@@ -1,4 +1,4 @@
-style = default
+preset = default
 <<< forAll
 forAll(table)(
   (reqProto, headReq, reqCH, resProto, resCH, resCD, renCH, close) ⇒

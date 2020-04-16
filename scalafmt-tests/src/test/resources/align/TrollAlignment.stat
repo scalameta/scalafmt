@@ -1,4 +1,4 @@
-style = defaultWithAlign
+preset = defaultWithAlign
 align.treeCategory {
   Case: Assign
   "Enumerator.Generator": Assign

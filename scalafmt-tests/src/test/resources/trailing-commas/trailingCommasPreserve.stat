@@ -1,6 +1,6 @@
 maxColumn = 30
-align = none
-danglingParentheses = true
+align.preset = none
+danglingParentheses.preset = true
 trailingCommas = preserve
 
 <<< should preserve the lack of trailing commas
@@ -40,7 +40,7 @@ def a(b: Int,
 def a(b: Int, c: Int)
 <<< should remove trailing comma when folding, with comment
 maxColumn = 40
-danglingParentheses = false
+danglingParentheses.preset = false
 ===
 def a(b: Int, c: Int,
  /* comment */ )
@@ -57,7 +57,7 @@ def a( b: Int, c: Int )
 <<< should remove trailing comma when folding, with spaces and comment
 spaces.inParentheses = true
 maxColumn = 40
-danglingParentheses = false
+danglingParentheses.preset = false
 ===
 def a(b: Int, c: Int,
  /* comment */ )

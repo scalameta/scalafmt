@@ -1,4 +1,4 @@
-style = defaultWithAlign
+preset = defaultWithAlign
 runner.dialect = Sbt0137
 <<< align addSbtPlugin
 addSbtPlugin("io.get-coursier" % "sbt-coursier" % "1.0.0-M14")

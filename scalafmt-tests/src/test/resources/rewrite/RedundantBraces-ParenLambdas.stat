@@ -173,7 +173,7 @@ def a(b: B): C[D] =
 def a(b: B): C[D] =
   C[String].contramap[D]((i: D, j: Int) => b.format(i))
 <<< #1708
-danglingParentheses = false
+danglingParentheses.preset = false
 ===
 val a = b[IO](
 { c: Int => if (d) e else f }, g)

@@ -11,28 +11,29 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class CliOptionsTest extends AnyFunSuite {
 
-  test("style = ...") {
+  test("preset = ...") {
     import org.scalafmt.config.Config
-    val NotOk(err) = Config.fromHoconString("style = foobar")
+    val NotOk(err) = Config.fromHoconString("preset = foobar")
     assert(
-      "Unknown style name foobar. Expected one of: Scala.js, IntelliJ, default, defaultWithAlign" == err.msg
+      "Unknown style \"foobar\". Expected one of: " +
+        "Scala.js, IntelliJ, default, defaultWithAlign" == err.msg
     )
 
-    val overrideOne = Config.fromHoconString("""|style = defaultWithAlign
+    val overrideOne = Config.fromHoconString("""|preset = defaultWithAlign
       |maxColumn = 100
       |""".stripMargin)
     assert(
       Ok(ScalafmtConfig.defaultWithAlign.copy(maxColumn = 100)) == overrideOne
     )
     assert(
-      Ok(ScalafmtConfig.intellij) == Config.fromHoconString("style = intellij")
+      Ok(ScalafmtConfig.intellij) == Config.fromHoconString("preset = intellij")
     )
     assert(
-      Ok(ScalafmtConfig.scalaJs) == Config.fromHoconString("style = Scala.js")
+      Ok(ScalafmtConfig.scalaJs) == Config.fromHoconString("preset = Scala.js")
     )
     assert(
       Ok(ScalafmtConfig.defaultWithAlign) == Config
-        .fromHoconString("style = defaultWithAlign")
+        .fromHoconString("preset = defaultWithAlign")
     )
   }
 

@@ -1,6 +1,6 @@
 spaces.inParentheses = true
 maxColumn = 40
-danglingParentheses = false
+danglingParentheses.preset = false
 <<< Spaces in parentheses
 function(a, b, c)
 >>>

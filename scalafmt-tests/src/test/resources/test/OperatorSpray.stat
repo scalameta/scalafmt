@@ -2,7 +2,7 @@
 // but uses the default unindentTopLevelOperators = false
 // Tests have been updated to match expected output
 unindentTopLevelOperators = false
-indentOperator = spray
+indentOperator.preset = spray
 <<< Indent operators
 object TestRoutes {
   def routes = {

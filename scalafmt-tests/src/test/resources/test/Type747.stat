@@ -1,5 +1,5 @@
 align.openParenDefnSite = false
-danglingParentheses = false
+danglingParentheses.preset = false
 <<< #747
 type MyTypeWithVeryLongName = (A,
                                Int,

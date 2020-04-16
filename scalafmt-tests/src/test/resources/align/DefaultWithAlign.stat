@@ -1,4 +1,4 @@
-align = more
+align.preset = more
 <<< => with comment
 x match {
   case 1 => 2 // this is a comment
@@ -530,7 +530,7 @@ val iovec = CStruct2[
   CSize
 ](a) // iov_len
 <<< #1720 no align
-align = none
+align.preset = none
 ===
 type iovec = CStruct2[Ptr[Byte], // iov_base
                         CSize] // iov_len
