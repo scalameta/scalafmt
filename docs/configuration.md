@@ -1362,7 +1362,7 @@ pattern. For instance,
 ```
 align = none
 fileOverride {
-  "glob:*.sbt" {
+  "glob:**/*.sbt" {
     align = most
   }
   "glob:**/src/test/scala/**/*.scala" {
