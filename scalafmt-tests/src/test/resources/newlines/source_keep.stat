@@ -2230,7 +2230,7 @@ class Foo {
 >>>
 class Foo {
   val vv = v.aaa //
-  //
+    //
     .bbb
     .ccc()
   val vv = v.aaa //
@@ -2297,7 +2297,7 @@ class Foo {
        .tail
 >>>
 val a: Vector[Array[Double]] = b.c
-// similarUserFeatures may not contain the requested user
+  // similarUserFeatures may not contain the requested user
   .map { x =>
     similarUserFeatures.get(x)
   }.flatten
@@ -2316,7 +2316,7 @@ val a: Vector[Array[Double]] = b.c
 }
 >>>
 val a: Vector[Array[Double]] = b.c
-// Only handle first case, others will be fixed on the next pass.
+  // Only handle first case, others will be fixed on the next pass.
   .headOption
   .a match {
   case None =>
