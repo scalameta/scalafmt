@@ -6,8 +6,8 @@ case class DanglingParentheses(
     callSite: Boolean,
     defnSite: Boolean,
     exclude: List[DanglingParentheses.Exclude] = Nil
-) {
-  val decoder: ConfDecoder[DanglingParentheses] =
+) extends Decodable[DanglingParentheses] {
+  override protected[config] def baseDecoder =
     generic.deriveDecoder(this).noTypos
 }
 
@@ -20,11 +20,6 @@ object DanglingParentheses {
 
   implicit lazy val surface: generic.Surface[DanglingParentheses] =
     generic.deriveSurface
-
-  implicit val decoder: ConfDecoder[DanglingParentheses] =
-    ConfDecoder.instance[DanglingParentheses] {
-      case c => preset.lift(c).fold(default.decoder.read(c))(Configured.ok)
-    }
 
   implicit val encoder: ConfEncoder[DanglingParentheses] =
     generic.deriveEncoder
