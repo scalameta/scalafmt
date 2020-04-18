@@ -181,23 +181,45 @@ case class ScalafmtConfig(
     throw new ScalafmtConfigException(errors.mkString(prefix, ",", "]"))
   }
 
-  private implicit val runnerReader = runner.reader
-  private implicit val projectReader = project.reader
-  private implicit val rewriteReader = rewrite.reader
-  private implicit val spacesReader = spaces.reader
-  private implicit val literalsReader = literals.reader
-  private implicit val continuationIndentReader = continuationIndent.reader
-  private implicit val binpackReader = binPack.reader
-  private implicit val newlinesReader = newlines.reader
-  private implicit val optInReader = optIn.reader
-  private implicit val verticalMultilineReader = verticalMultiline.reader
-  implicit val alignDecoder: ConfDecoder[Align] =
-    Align.alignReader(align.reader)
+  private implicit def runnerReader = runner.reader
+  private implicit def projectReader = project.reader
+  private implicit def rewriteReader = rewrite.reader
+  private implicit def spacesReader = spaces.reader
+  private implicit def literalsReader = literals.reader
+  private implicit def continuationIndentReader = continuationIndent.reader
+  private implicit def binpackReader = binPack.decoder
+  private implicit def newlinesReader = newlines.reader
+  private implicit def optInReader = optIn.reader
+  private implicit def verticalMultilineReader = verticalMultiline.reader
+  private implicit def alignDecoder = align.decoder
+  private implicit def danglingParenthesesReader = danglingParentheses.decoder
+  private implicit def indentOperatorReader = indentOperator.decoder
+  private implicit def importSelectorsReader = importSelectors.decoder
   lazy val alignMap: Map[String, Regex] =
     align.tokens.map(x => x.code -> x.owner.r).toMap
   private implicit val confObjReader = ScalafmtConfig.confObjReader
-  def reader: ConfDecoder[ScalafmtConfig] =
-    generic.deriveDecoder(this).noTypos.noTypos
+  private def baseDecoder = generic.deriveDecoder(this).noTypos
+
+  implicit final lazy val decoder: ConfDecoder[ScalafmtConfig] =
+    new ConfDecoder[ScalafmtConfig] {
+      override def read(conf: Conf): Configured[ScalafmtConfig] =
+        (conf match {
+          case x: Conf.Obj =>
+            val section = Seq(Decodable.presetKey, "style").flatMap { y =>
+              x.field(y).map(y -> _)
+            }
+            section.headOption.map {
+              case (field, obj) => obj -> Conf.Obj((x.map - field).toList)
+            }
+          case _ => None
+        }) match {
+          case Some((styleConf, restConf)) =>
+            ScalafmtConfig
+              .readActiveStylePresets(styleConf)
+              .andThen(_.baseDecoder.read(restConf))
+          case _ => baseDecoder.read(conf)
+        }
+    }
 
   def withDialect(dialect: Dialect): ScalafmtConfig =
     copy(runner = runner.copy(dialect = dialect))
@@ -215,7 +237,7 @@ case class ScalafmtConfig(
     val fs = file.FileSystems.getDefault
     fileOverride.values.map {
       case (pattern, conf) =>
-        val style = ScalafmtConfig.configReader(this).read(conf).get
+        val style = decoder.read(conf).get
         fs.getPathMatcher(pattern) -> style
     }
   }
@@ -333,27 +355,17 @@ object ScalafmtConfig {
       )
     )
 
-  def configReader(baseReader: ScalafmtConfig): ConfDecoder[ScalafmtConfig] =
-    ConfDecoder.instance[ScalafmtConfig] {
-      case conf @ Conf.Obj(values) =>
-        val map = values.toMap
-        map.get("style") match {
-          case Some(Conf.Str(baseStyle)) =>
-            val noStyle = Conf.Obj(values.filterNot(_._1 == "style"))
-            ScalafmtConfig.availableStyles.get(baseStyle.toLowerCase) match {
-              case Some(s) => s.reader.read(noStyle)
-              case None =>
-                val alternatives =
-                  ScalafmtConfig.activeStyles.keys.mkString(", ")
-                ConfError
-                  .message(
-                    s"Unknown style name $baseStyle. Expected one of: $alternatives"
-                  )
-                  .notOk
-            }
-          case _ =>
-            baseReader.reader.read(conf)
+  private def readActiveStylePresets(conf: Conf): Configured[ScalafmtConfig] =
+    (conf match {
+      case Conf.Str(x) =>
+        availableStyles.get(x.toLowerCase).map { style =>
+          Configured.ok(style)
         }
+      case _ => None
+    }).getOrElse {
+      val alternatives = activeStyles.keys.mkString(", ")
+      val err = s"Unknown style $conf. Expected one of: $alternatives"
+      ConfError.message(err).notOk
     }
 
 }

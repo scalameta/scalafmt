@@ -66,7 +66,7 @@ object Config {
               ConfError.typeMismatch("Conf.Obj", x).notOk
           }
       }
-      ScalafmtConfig.configReader(default).read(next)
+      default.decoder.read(next)
     }
 
 }

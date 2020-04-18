@@ -37,8 +37,9 @@ case class BinPack(
     literalsMinArgCount: Int = 5,
     literalsInclude: Seq[String] = Seq(".*"),
     literalsExclude: Seq[String] = Seq("String", "Term.Name")
-) {
-  val reader: ConfDecoder[BinPack] = generic.deriveDecoder(this).noTypos
+) extends Decodable[BinPack] {
+  override protected[config] def baseDecoder =
+    generic.deriveDecoder(this).noTypos
   def literalsRegex: FilterMatcher =
     FilterMatcher(literalsInclude, literalsExclude)
 }
@@ -46,4 +47,15 @@ object BinPack {
   implicit lazy val surface: generic.Surface[BinPack] =
     generic.deriveSurface[BinPack]
   implicit lazy val encoder: ConfEncoder[BinPack] = generic.deriveEncoder
+
+  val enabled = BinPack(
+    unsafeDefnSite = true,
+    unsafeCallSite = true,
+    parentConstructors = true
+  )
+  implicit val preset: PartialFunction[Conf, BinPack] = {
+    case Conf.Bool(true) => enabled
+    case Conf.Bool(false) => BinPack()
+  }
+
 }

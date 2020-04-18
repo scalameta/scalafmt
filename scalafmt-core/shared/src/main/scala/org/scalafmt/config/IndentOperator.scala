@@ -32,8 +32,9 @@ import metaconfig._
 case class IndentOperator(
     include: String = ".*",
     exclude: String = "^(&&|\\|\\|)$"
-) {
-  val reader: ConfDecoder[IndentOperator] = generic.deriveDecoder(this).noTypos
+) extends Decodable[IndentOperator] {
+  override protected[config] def baseDecoder =
+    generic.deriveDecoder(this).noTypos
 
   private val includeRegexp = include.r.pattern
   private val excludeRegexp = exclude.r.pattern
@@ -50,10 +51,6 @@ object IndentOperator {
     generic.deriveSurface
   implicit lazy val encoder: ConfEncoder[IndentOperator] =
     generic.deriveEncoder
-  implicit val IndentOperatorDecoder: ConfDecoder[IndentOperator] =
-    ConfDecoder.instance[IndentOperator] {
-      case c => preset.lift(c).fold(default.reader.read(c))(Configured.ok)
-    }
 
   implicit val preset: PartialFunction[Conf, IndentOperator] = {
     case Conf.Str("spray" | "akka" | "akka-http") => IndentOperator.akka

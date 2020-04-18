@@ -1,5 +1,6 @@
 package org.scalafmt
 
+import org.scalafmt.config.Align
 import org.scalafmt.config.Newlines
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -42,6 +43,23 @@ class ScalafmtConfigTest extends AnyFunSuite {
     assert(nlCfg2.source == Newlines.unfold)
     assert(nlCfg1.topLevelStatements == Seq(Newlines.before, Newlines.after))
     assert(nlCfg2.topLevelStatements == Seq.empty)
+  }
+
+  test("align preset no override") {
+    val config = Scalafmt.parseHoconConfig("""
+      |align = none
+      |align.stripMargin = true
+      """.stripMargin).get
+    // none was ignored
+    assert(config.align == Align(stripMargin = true))
+  }
+
+  test("align preset with override") {
+    val config = Scalafmt.parseHoconConfig("""
+      |align.preset = none
+      |align.stripMargin = true
+      """.stripMargin).get
+    assert(config.align == Align.none.copy(stripMargin = true))
   }
 
 }

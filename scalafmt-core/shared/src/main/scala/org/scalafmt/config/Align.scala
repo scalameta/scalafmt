@@ -29,7 +29,7 @@ import metaconfig.generic.Surface
   *
   *               Pro tip. if you use for example
   *
-  *               style = defaultWithAlign
+  *               preset = defaultWithAlign
   *
   *               and want to add one extra token (for example "|>") to align by, write
   *
@@ -78,9 +78,10 @@ case class Align(
       "Enumerator.Generator" -> "for",
       "Enumerator.Val" -> "for"
     )
-) {
-  implicit val reader: ConfDecoder[Align] = generic.deriveDecoder(this).noTypos
-  implicit val alignReader: ConfDecoder[Seq[AlignToken]] =
+) extends Decodable[Align] {
+  override protected[config] def baseDecoder =
+    generic.deriveDecoder(this).noTypos
+  implicit def alignReader: ConfDecoder[Seq[AlignToken]] =
     Align.alignTokenReader(tokens)
 }
 
@@ -120,11 +121,6 @@ object Align {
     case Conf.Str("more") | Conf.Bool(true) => Align.more
     case Conf.Str("most") => Align.most
   }
-
-  def alignReader(base: ConfDecoder[Align]): ConfDecoder[Align] =
-    ConfDecoder.instance[Align] {
-      case c => preset.lift(c).fold(base.read(c))(Configured.ok)
-    }
 
   def alignTokenReader(
       initTokens: Seq[AlignToken]
