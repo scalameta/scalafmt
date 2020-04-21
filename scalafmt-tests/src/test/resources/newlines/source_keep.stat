@@ -2322,3 +2322,29 @@ val a: Vector[Array[Double]] = b.c
   case None =>
   case _ =>
 }
+<<< #1888 check presence of comment, lack of break
+maxColumn = 80
+===
+object a {
+  def b(c: D): E = {
+    val a = b.c
+      .foo(_.tree.tpe =:= typeOf[D])
+      .flatMap { x =>
+        x.tree.children.tail.map { case E(F(g)) => g.asInstanceOf[String] }
+      }
+      .headOption
+    F(c.name.toString.trim, alias, sym.typeSignature)
+  }
+}
+>>>
+object a {
+  def b(c: D): E = {
+    val a = b.c
+      .foo(_.tree.tpe =:= typeOf[D])
+      .flatMap { x =>
+        x.tree.children.tail.map { case E(F(g)) => g.asInstanceOf[String] }
+      }
+      .headOption
+    F(c.name.toString.trim, alias, sym.typeSignature)
+  }
+}
