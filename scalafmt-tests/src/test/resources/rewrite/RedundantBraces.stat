@@ -757,11 +757,11 @@ function { implicit c =>
   }
 }
 >>>
-test does not parse
 function { implicit c =>
   {
     case bar => foo
-  ^
+  }
+}
 <<< #1888 nested partial function in parens
 rewrite.redundantBraces { maxLines = 10, methodBodies = true }
 ===
@@ -771,8 +771,8 @@ object a {
   })
 }
 >>>
-test does not parse
 object a {
   function(c => {
     case bar => foo
-  ^
+  })
+}

@@ -128,7 +128,8 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
       // single-arg apply of a lambda
       // a(b => { c; d }) change to a { b => c; d }
       case f: Term.Function
-          if settings.methodBodies && f.tokens.last.is[Token.RightBrace] &&
+          if okToRemoveAroundFunctionBody(f.body, true) &&
+            f.tokens.last.is[Token.RightBrace] &&
             (ctx.style.activeForEdition_2020_01 || getTermLineSpan(f) > 0) =>
         val rbrace = f.tokens.last
         val lbrace = ctx.getMatching(rbrace)
@@ -153,8 +154,8 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
       // a single-stat lambda with braces can be converted to one without braces,
       // but the reverse conversion isn't always possible
       case fun @ Term.Function(_, body)
-          if settings.methodBodies && fun.tokens.last.is[Token.RightBrace] &&
-            isSingleStatLineSpanOk(body) =>
+          if okToRemoveAroundFunctionBody(body, false) &&
+            fun.tokens.last.is[Token.RightBrace] =>
         val rbrace = fun.tokens.last
         val lbrace = ctx.getMatching(rbrace)
         if (lbrace.start <= body.tokens.head.start) {
@@ -241,7 +242,7 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
 
       case p: Term.Function
           if ctx.style.activeForEdition_2019_11 && isFunctionWithBraces(p) =>
-        settings.methodBodies
+        okToRemoveAroundFunctionBody(b, true)
 
       case _ =>
         settings.generalExpressions && shouldRemoveSingleStatBlock(b)
@@ -295,8 +296,15 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
       }
     }
 
-  private def isSingleStatLineSpanOk(t: Term): Boolean =
-    getTermSingleStat(t).exists(getTermLineSpan(_) <= settings.maxLines)
+  private def okToRemoveAroundFunctionBody(
+      b: Term,
+      okIfMultipleStats: Boolean
+  ): Boolean =
+    settings.methodBodies && (getTermSingleStat(b) match {
+      case Some(_: Term.PartialFunction) => false
+      case Some(s) => getTermLineSpan(s) <= settings.maxLines
+      case _ => okIfMultipleStats
+    })
 
   private def getSingleStatIfLineSpanOk(b: Term.Block): Option[Stat] =
     getBlockSingleStat(b).filter(getTermLineSpan(_) <= settings.maxLines)
