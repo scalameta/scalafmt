@@ -1211,9 +1211,10 @@ class Router(formatOps: FormatOps) {
 
         // trigger indent only on the first newline
         val indent = Indent(Num(2), expire, After)
-        val mustIndent = nextNonCommentSameLine(tokens(formatToken, 2)).hasBreak
+        val willBreak =
+          nextNonCommentSameLine(tokens(formatToken, 2)).right.is[T.Comment]
         val splits = baseSplits.map { s =>
-          if (mustIndent || s.modification.isNewline) s.withIndent(indent)
+          if (willBreak || s.modification.isNewline) s.withIndent(indent)
           else s.andThenPolicyOpt(delayedBreakPolicy)
         }
 
