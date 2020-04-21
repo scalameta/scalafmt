@@ -717,7 +717,7 @@ class Router(formatOps: FormatOps) {
         val indent = getApplyIndent(leftOwner)
         def baseNoSplit = Split(NoSplit, 0).withIndent(indent, close, Before)
         val noSplit =
-          if (style.newlines.sourceIgnored && style.optIn.configStyleArguments)
+          if (style.newlines.sourceIgnored)
             baseNoSplit.withSingleLine(close)
           else {
             val opt = leftOwner.tokens.find(_.is[T.Comma]).orElse(Some(close))
@@ -1027,34 +1027,9 @@ class Router(formatOps: FormatOps) {
         argumentStarts.get(hash(right)) match {
           case Some(nextArg) if binPack =>
             val lastFT = tokens(nextArg.tokens.last)
-            val nextComma: Option[FormatToken] = tokens(lastFT, 1) match {
-              case t @ FormatToken(_: T.Comma, _, _)
-                  if t.meta.leftOwner == leftOwner =>
-                Some(t)
-              case _ => None
-            }
-            val singleLine = SingleLineBlock(lastFT.left)
-            val breakOnNextComma = nextComma match {
-              case Some(comma) =>
-                Policy(comma.right) {
-                  case d @ Decision(t, s) if comma == t =>
-                    d.forceNewline
-                }
-              case _ => NoPolicy
-            }
-            val optToken = nextComma.map(_ =>
-              OptimalToken(
-                rhsOptimalToken(lastFT),
-                killOnFail = true
-              )
-            )
             Seq(
-              Split(Space, 0, optimalAt = optToken).withPolicy(singleLine),
-              Split(Newline, 1, optimalAt = optToken).withPolicy(singleLine),
-              // next argument doesn't fit on a single line, break on comma before
-              // and comma after.
-              Split(Newline, 2, optimalAt = optToken)
-                .withPolicy(breakOnNextComma)
+              Split(Space, 0).withSingleLine(rhsOptimalToken(lastFT)),
+              Split(Newline, 1)
             )
           case _
               if !style.newlines.formatInfix &&
