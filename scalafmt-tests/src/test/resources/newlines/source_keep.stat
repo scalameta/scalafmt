@@ -2401,7 +2401,9 @@ object a {
   test("foo") {
     a.b(c, d) shouldBe
       E(Seq(F(1, "v1"), F(2, "v2")),
-        G(Some(Seq(h, i)), Some(Seq(j, k)), a.b, c.d, e.f.g, h.i.j)).foo
+        G(Some(Seq(h, i)),
+          Some(Seq(j, k)), a.b, c.d,
+          e.f.g, h.i.j)).foo
   }
 }
 <<< binPack indent expiresOn=Before when dangle
