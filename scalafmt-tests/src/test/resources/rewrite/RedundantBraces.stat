@@ -748,3 +748,31 @@ object a {
 object a {
   b(1 + 2, { x => y; z })(x => y, { x; y })
 }
+<<< #1888 nested partial function
+rewrite.redundantBraces { maxLines = 10, methodBodies = true }
+===
+function { implicit c =>
+  {
+    case bar => foo
+  }
+}
+>>>
+test does not parse
+function { implicit c =>
+  {
+    case bar => foo
+  ^
+<<< #1888 nested partial function in parens
+rewrite.redundantBraces { maxLines = 10, methodBodies = true }
+===
+object a {
+  function(c => {
+    case bar => foo
+  })
+}
+>>>
+test does not parse
+object a {
+  function(c => {
+    case bar => foo
+  ^
