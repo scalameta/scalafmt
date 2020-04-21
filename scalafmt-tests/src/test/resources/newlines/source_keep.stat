@@ -2386,3 +2386,36 @@ object a {
     F(c.name.toString.trim, alias, sym.typeSignature)
   }
 }
+<<< binpack call
+binPack.preset = true
+optIn.configStyleArguments = false
+===
+object a {
+  test("foo") {
+    a.b(c, d) shouldBe
+      E(Seq(F(1, "v1"), F(2, "v2")), G(Some(Seq(h, i)), Some(Seq(j, k)), a.b, c.d, e.f.g, h.i.j)).foo
+  }
+}
+>>>
+object a {
+  test("foo") {
+    a.b(c, d) shouldBe
+      E(Seq(F(1, "v1"), F(2, "v2")),
+        G(Some(Seq(h, i)), Some(Seq(j, k)), a.b, c.d, e.f.g, h.i.j)).foo
+  }
+}
+<<< binPack indent expiresOn=Before when dangle
+binPack.preset = true
+optIn.configStyleArguments = false
+===
+object a {
+   protected def foo[U](bar: String, baz: Seq[String] = Seq.empty)(
+       f: HttpResponse => U
+  ): U = qux
+}
+>>>
+object a {
+  protected def foo[U](bar: String,
+      baz: Seq[String] = Seq.empty)(
+      f: HttpResponse => U): U = qux
+}
