@@ -133,3 +133,29 @@ object a {
 object a {
   a { b; c }
 }
+<<< #1895 1
+object a {
+  val x = ((1))
+}
+>>>
+object a {
+  val x = ((1))
+}
+<<< #1895 2
+object a {
+  val z = ((insertData *> readDatabase(id)))
+}
+>>>
+object a {
+  val z = ((insertData *> readDatabase(id)))
+}
+<<< #1895 3
+rewrite.rules = [AvoidInfix, RedundantParens]
+===
+object a {
+  val z = (((insertData) op readDatabase(id)))
+}
+>>>
+object a {
+  val z = ((insertData).op(readDatabase(id)))
+}
