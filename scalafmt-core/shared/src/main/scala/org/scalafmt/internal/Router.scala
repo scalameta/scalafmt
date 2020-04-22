@@ -686,28 +686,36 @@ class Router(formatOps: FormatOps) {
           val nestingPenalty = nestedApplies(leftOwner)
 
           val noSplitPenalizeNewlines = penalizeBrackets(1 + bracketPenalty)
-          val noSplitPolicy: Policy = argumentStarts.get(hash(right)) match {
-            case Some(arg) =>
-              val singleLine = SingleLineBlock(arg.tokens.last)
-              if (isBracket) {
-                noSplitPenalizeNewlines.andThen(singleLine.f)
-              } else {
-                singleLine
+          val mustDangle = style.newlines.sourceIgnored &&
+            style.danglingParentheses.defnSite
+          val noSplitPolicy: Policy =
+            if (mustDangle) SingleLineBlock(close)
+            else
+              argumentStarts.get(hash(right)) match {
+                case Some(arg) =>
+                  val singleLine = SingleLineBlock(arg.tokens.last)
+                  if (isBracket) {
+                    noSplitPenalizeNewlines.andThen(singleLine.f)
+                  } else {
+                    singleLine
+                  }
+                case _ => noSplitPenalizeNewlines
               }
-            case _ => noSplitPenalizeNewlines
-          }
           val noSplitModification =
             if (right.is[T.Comment]) getMod(formatToken)
             else NoSplit
+          val nlDanglePolicy =
+            if (mustDangle) newlinesOnlyBeforeClosePolicy(close) else NoPolicy
 
           Seq(
             Split(noSplitModification, 0 + (nestingPenalty * bracketCoef))
               .withPolicy(noSplitPolicy)
-              .withIndent(indent, close, After),
+              .withIndent(indent, close, Before),
             Split(Newline, (1 + nestingPenalty * nestingPenalty) * bracketCoef)
               .notIf(right.is[T.RightParen])
               .withPolicy(penalizeBrackets(1))
-              .withIndent(indent, close, After)
+              .andThenPolicy(nlDanglePolicy)
+              .withIndent(indent, close, Before)
           )
         }
       case FormatToken(LeftParenOrBracket(), _, _)
@@ -739,10 +747,17 @@ class Router(formatOps: FormatOps) {
                 .andThen(unindent)
             baseNoSplit.withOptimalTokenOpt(opt).withPolicy(policy)
           }
+        val nlDanglePolicy =
+          if (style.newlines.sourceIgnored &&
+            style.danglingParentheses.callSite)
+            newlinesOnlyBeforeClosePolicy(close)
+          else NoPolicy
         val nlIndent = if (style.activeForEdition_2020_03) indent else Num(4)
         Seq(
           noSplit,
-          Split(Newline, 2).withIndent(nlIndent, close, Before)
+          Split(Newline, 2)
+            .withIndent(nlIndent, close, Before)
+            .withPolicy(nlDanglePolicy)
         )
       case FormatToken(T.LeftParen(), T.RightParen(), _) =>
         Seq(Split(NoSplit, 0))
