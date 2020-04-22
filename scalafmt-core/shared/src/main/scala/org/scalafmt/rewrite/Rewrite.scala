@@ -33,6 +33,8 @@ case class RewriteCtx(
   @inline def isMatching(a: Token, b: Token) =
     getMatchingOpt(a).contains(b)
 
+  @inline def getIndex(token: Token) = tokenTraverser.getIndex(token)
+
   def applyPatches: String =
     tokens.toIterator
       .map(x => patchBuilder.get(x.start -> x.end).fold(x.syntax)(_.newTok))
