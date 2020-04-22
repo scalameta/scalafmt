@@ -732,10 +732,13 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
       else
         Policy(fullExpire) {
           case Decision(t: FormatToken, s) if isInfixOp(t.meta.leftOwner) =>
-            s.map { x =>
-              if (!x.modification.isNewline) x
-              else x.switch(firstInfixOp)
-            }
+            if (isSingleLineComment(t.right)) // will break
+              s.map(_.switch(firstInfixOp))
+            else
+              s.map { x =>
+                if (!x.modification.isNewline) x
+                else x.switch(firstInfixOp)
+              }
         }
 
     val singleLineExpire = if (isFirst) fullExpire else expires.head._1
