@@ -66,17 +66,22 @@ case class RewriteCtx(
     nonWs.map((_, lf))
   }
 
-  def getPatchToAvoidEmptyLine(token: Token): Option[TokenPatch] =
-    if (!onlyWhitespaceBefore(token)) None
-    else
+  // end is inclusive
+  def removeLFToAvoidEmptyLine(
+      beg: Token,
+      end: Token
+  )(implicit builder: Rewrite.PatchBuilder): Unit =
+    if (onlyWhitespaceBefore(beg))
       tokenTraverser
-        .findAfter(token)(RewriteCtx.isLFSkipWhitespace)
+        .findAfter(end)(RewriteCtx.isLFSkipWhitespace)
         .map(TokenPatch.Remove)
+        .foreach(builder += _)
 
+  @inline
   def removeLFToAvoidEmptyLine(
       token: Token
   )(implicit builder: Rewrite.PatchBuilder): Unit =
-    getPatchToAvoidEmptyLine(token).foreach(builder += _)
+    removeLFToAvoidEmptyLine(token, token)
 
 }
 
