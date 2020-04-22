@@ -14,16 +14,18 @@ class RedundantParens(implicit ctx: RewriteCtx) extends RewriteSession {
 
   override def rewrite(tree: Tree): Unit =
     tree match {
-      case g: Enumerator.Guard => remove(g.cond)
-
-      case t @ Term.Apply(_, List(b: Term.Block))
-          if ctx.style.activeForEdition_2020_01 &&
-            b.tokens.headOption.exists(_.is[Token.LeftBrace]) =>
-        val lastTok = t.tokens.last
-        ctx.getMatchingOpt(lastTok).foreach(removeBetween(_, lastTok))
-
-      case _ =>
+      case t => rewriteFunc.lift(t)
     }
+
+  private val rewriteFunc: PartialFunction[Tree, Unit] = {
+    case g: Enumerator.Guard => remove(g.cond)
+
+    case t @ Term.Apply(_, List(b: Term.Block))
+        if ctx.style.activeForEdition_2020_01 &&
+          b.tokens.headOption.exists(_.is[Token.LeftBrace]) =>
+      val lastTok = t.tokens.last
+      ctx.getMatchingOpt(lastTok).foreach(removeBetween(_, lastTok))
+  }
 
   private def remove(tree: Tree): Unit =
     removeByTokens(tree.tokens)
