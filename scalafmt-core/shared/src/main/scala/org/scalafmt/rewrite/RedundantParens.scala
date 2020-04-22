@@ -14,11 +14,19 @@ class RedundantParens(implicit ctx: RewriteCtx) extends RewriteSession {
 
   override def rewrite(tree: Tree): Unit =
     tree match {
+      case t: Defn.Val => maybeRemove(t.rhs)
+
+      case t: Defn.Def => maybeRemove(t.body)
+
       case t => rewriteFunc.lift(t)
     }
 
   private val rewriteFunc: PartialFunction[Tree, Unit] = {
     case g: Enumerator.Guard => remove(g.cond)
+
+    case t: Case => t.cond.foreach(remove(_))
+
+    case t @ (_: Lit | _: Term.Name) => remove(t)
 
     case t @ Term.Apply(_, List(b: Term.Block))
         if ctx.style.activeForEdition_2020_01 &&
@@ -26,6 +34,9 @@ class RedundantParens(implicit ctx: RewriteCtx) extends RewriteSession {
       val lastTok = t.tokens.last
       ctx.getMatchingOpt(lastTok).foreach(removeBetween(_, lastTok))
   }
+
+  private def maybeRemove(tree: Tree): Unit =
+    if (!rewriteFunc.isDefinedAt(tree)) remove(tree)
 
   private def remove(tree: Tree): Unit =
     removeByTokens(tree.tokens)

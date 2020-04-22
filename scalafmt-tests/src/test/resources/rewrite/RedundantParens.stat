@@ -63,7 +63,7 @@ object a {
   def c(b: List[Int]): List[Int] =
     for {
       a <- b
-      if (a) || (a)
+      if a || a
     } yield a
 }
 <<< nested compound statement
@@ -79,7 +79,7 @@ object a {
   def c(b: List[Int]): List[Int] =
     for {
       a <- b
-      if ((a)) || ((a))
+      if a || a
     } yield a
 }
 <<< basic match
@@ -88,7 +88,7 @@ object a {
 }
 >>>
 object a {
-  b match { case _ if (a) => b }
+  b match { case _ if a => b }
 }
 <<< compound match
 object a {
@@ -96,7 +96,7 @@ object a {
 }
 >>>
 object a {
-  b match { case _ if (a) || (a) => b }
+  b match { case _ if a || a => b }
 }
 <<< nested compound match
 object a {
@@ -104,7 +104,7 @@ object a {
 }
 >>>
 object a {
-  b match { case _ if ((a) || (a)) => b }
+  b match { case _ if a || a => b }
 }
 <<< single-arg apply of a block 1
 object a {
@@ -139,7 +139,7 @@ object a {
 }
 >>>
 object a {
-  val x = ((1))
+  val x = 1
 }
 <<< #1895 2
 object a {
@@ -147,7 +147,7 @@ object a {
 }
 >>>
 object a {
-  val z = ((insertData *> readDatabase(id)))
+  val z = insertData *> readDatabase(id)
 }
 <<< #1895 3
 rewrite.rules = [AvoidInfix, RedundantParens]
@@ -157,5 +157,5 @@ object a {
 }
 >>>
 object a {
-  val z = ((insertData).op(readDatabase(id)))
+  val z = insertData.op(readDatabase(id))
 }
