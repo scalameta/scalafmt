@@ -2293,7 +2293,9 @@ object a {
       G(
         Some(Seq(h, i)),
         Some(Seq(j, k)), a.b, c.d,
-        e.f.g, h.i.j)).foo
+        e.f.g, h.i.j
+      )
+    ).foo
   }
 }
 <<< binPack indent expiresOn=Before when dangle
@@ -2307,7 +2309,8 @@ object a {
 }
 >>>
 object a {
-  protected def foo[U](bar: String,
-      baz: Seq[String] = Seq.empty)(
-      f: HttpResponse => U): U = qux
+  protected def foo[U](
+      bar: String,
+      baz: Seq[String] = Seq.empty
+  )(f: HttpResponse => U): U = qux
 }
