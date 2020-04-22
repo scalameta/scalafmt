@@ -2252,6 +2252,44 @@ object a {
       x
     }
 }
+<<< 8.30
+object a {
+  json should be(
+    """aaa bbb ccc ddd eee fff ggg"""
+  )
+}
+>>>
+object a {
+  json should be(
+    """aaa bbb ccc ddd eee fff ggg"""
+  )
+}
+<<< 8.31 indent after comment
+object a {
+  val a = Seq(
+    "c1" + // c1
+      "c2" + // c2
+      "c3" + // c3
+      "c4" + // c4
+      "c5" + // c5
+      "c6" + // c6
+      "c7" + // c7
+      "c8" // c8
+  )
+}
+>>>
+object a {
+  val a = Seq(
+    "c1" + // c1
+      "c2" + // c2
+      "c3" + // c3
+      "c4" + // c4
+      "c5" + // c5
+      "c6" + // c6
+      "c7" + // c7
+      "c8" // c8
+  )
+}
 <<< #1334 1: continue chain indent after a comment
 class Foo {
   val vv = v.aaa //
