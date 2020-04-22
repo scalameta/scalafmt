@@ -26,6 +26,8 @@ class TokenTraverser(tokens: Tokens) {
   final def isExcluded(token: Token): Boolean =
     excludedTokens.contains(TokenOps.hash(token))
 
+  @inline def getIndex(token: Token): Int = tok2idx(token)
+
   def nextToken(token: Token): Token = {
     tok2idx.get(token) match {
       case Some(i) if tokens.length > i + 1 =>
