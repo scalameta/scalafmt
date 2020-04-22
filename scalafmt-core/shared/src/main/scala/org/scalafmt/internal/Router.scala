@@ -1835,7 +1835,7 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_, c: T.Comment, _)
           if isAttachedSingleLineComment(formatToken) =>
         splits.map(x =>
-          if (x.modification.isNewline) x.copy(modification = Space)
+          if (x.modification.isNewline) x.copy(modification = Space)(x.line)
           else x
         )
       case _ => splits
