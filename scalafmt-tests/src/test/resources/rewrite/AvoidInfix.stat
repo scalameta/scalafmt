@@ -159,3 +159,21 @@ val makeVersion = (nodots _).compose(stripVersion _)
 >>>
 // format: off
  val makeVersion = nodots _ compose stripVersion _
+<<< wrap lhs correctly
+object a {
+  (a(b("c")) over d) / (e + 1) as f
+}
+>>>
+object a {
+  (a(b("c")).over(d)) / (e + 1).as(f)
+}
+<<< wrap lhs correctly, no parens
+rewrite.rules = [AvoidInfix, RedundantParens]
+===
+object a {
+  (a(b("c")) over d) / (e + 1) as f
+}
+>>>
+object a {
+  (a(b("c")).over(d)) / (e + 1).as(f)
+}
