@@ -1908,12 +1908,17 @@ class Router(formatOps: FormatOps) {
                 SingleLineBlock(t.cond.tokens.last)
               else
                 SingleLineBlock(expire)
-            case _ => SingleLineBlock(expire, exclude = exclude)
+            case _ => penalizeAllNewlines(expire, 1)
           }
       }
       Seq(
         Split(Space, 0, policy = spacePolicy).notIf(spacePolicy == null),
-        Split(Newline, 1).withIndent(2, expire, After)
+        Split(Newline, 1)
+          .withIndent(2, expire, After)
+          .withPolicy(
+            penalizeAllNewlines(expire, 1),
+            !style.newlines.sourceIgnored
+          )
       )
     }
   }
@@ -1996,14 +2001,13 @@ class Router(formatOps: FormatOps) {
           case _: Term.ForYield => twoBranches
           case _: Term.Try | _: Term.TryWithHandler =>
             Right(SingleLineBlock(expire))
-          case EndOfFirstCall(end) =>
-            val policy = penalizeAllNewlines(end, 1)
-            Left(baseSpaceSplit.withOptimalToken(end).withPolicy(policy))
           case InfixApp(ia) if style.newlines.formatInfix =>
             val end = getMidInfixToken(findLeftInfix(ia))
             val exclude = insideBlockRanges[LeftParenOrBrace](ft, end)
             Right(SingleLineBlock(end, exclude = exclude))
-          case _ => Right(NoPolicy)
+          case _ =>
+            val policy = penalizeAllNewlines(expire, 1)
+            Left(baseSpaceSplit.withOptimalToken(optimal).withPolicy(policy))
         }
 
       case Newlines.unfold
@@ -2039,6 +2043,10 @@ class Router(formatOps: FormatOps) {
       Split(Newline, 1 + penalty)
         .onlyIf(okNewline || spaceSplit.isIgnored)
         .withIndent(2, expire, After)
+        .withPolicy(
+          penalizeAllNewlines(expire, 1),
+          !style.newlines.sourceIgnored
+        )
     )
   }
 
