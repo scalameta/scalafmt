@@ -2314,3 +2314,41 @@ object a {
       baz: Seq[String] = Seq.empty
   )(f: HttpResponse => U): U = qux
 }
+<<< val formatting
+newlines.alwaysBeforeMultilineDef = false
+===
+object a {
+  val b = throw new Exception("blah blah")
+  val b = foo_bar_baz_qux("blah blah blah")
+  val b = foo.bar.baz.qux("blah blah blah")
+}
+>>>
+object a {
+  val b = throw new Exception(
+    "blah blah"
+  )
+  val b = foo_bar_baz_qux(
+    "blah blah blah"
+  )
+  val b = foo.bar.baz
+    .qux("blah blah blah")
+}
+<<< def formatting
+newlines.alwaysBeforeMultilineDef = false
+===
+object a {
+  def b = throw new Exception("blah blah")
+  def b = foo_bar_baz_qux("blah blah blah")
+  def b = foo.bar.baz.qux("blah blah blah")
+}
+>>>
+object a {
+  def b = throw new Exception(
+    "blah blah"
+  )
+  def b = foo_bar_baz_qux(
+    "blah blah blah"
+  )
+  def b =
+    foo.bar.baz.qux("blah blah blah")
+}
