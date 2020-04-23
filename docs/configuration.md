@@ -1551,6 +1551,14 @@ binPack.literalArgumentLists = false
 val secret: List[Bit] = List(0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1)
 ```
 
+```scala mdoc:scalafmt
+binPack.literalArgumentLists = true
+binPack.literalsSingleLine = true
+---
+val secret: List[Bit] = List(0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1,
+  0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1)
+```
+
 ### `includeCurlyBraceInSelectChains`
 
 ```scala mdoc:defaults
