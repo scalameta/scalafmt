@@ -76,8 +76,11 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
         }
 
         val shouldWrapLhs = lhs match {
-          case Term.ApplyInfix(_, o, _, _)
-              if !matcher.matches(o.value) && !lhs.tokens.head.is[LeftParen] =>
+          case Term.ApplyInfix(_, o, _, _) if !matcher.matches(o.value) && ! {
+                val head = lhs.tokens.head
+                head.is[LeftParen] &&
+                ctx.getMatchingOpt(head).contains(lhs.tokens.last)
+              } =>
             if (AvoidInfix.hasPlaceholder(lhs)) return
             true
           case _: Term.Eta => true // foo _ compose bar => (foo _).compose(bar)
