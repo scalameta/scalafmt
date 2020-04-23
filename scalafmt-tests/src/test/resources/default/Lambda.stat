@@ -201,7 +201,7 @@ align.openParenCallSite = false
 rewrite.rules = [RedundantBraces, RedundantParens]
 ===
 def test(dataFrame: DataFrame) = {
-    val zeroAccumulator = Array.fill(1)((0.0, 0))
+    val zeroAccumulator = Array.fill(1)(((0.0, 0)))
 
     dataFrame.rdd.aggregate(zeroAccumulator)({(acc, row) => acc.zip(row.toSeq).map{ case (x, y) => {
       if(true) (1, 2)

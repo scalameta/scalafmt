@@ -18,7 +18,7 @@ class RedundantParens(implicit ctx: RewriteCtx) extends RewriteSession {
 
       case t: Defn.Def => maybeRemove(t.body)
 
-      case t => rewriteFunc.lift(t)
+      case t => rewriteFunc.applyOrElse(t, (x: Tree) => remove(x, true))
     }
 
   private val rewriteFunc: PartialFunction[Tree, Unit] = {
@@ -38,19 +38,19 @@ class RedundantParens(implicit ctx: RewriteCtx) extends RewriteSession {
   private def maybeRemove(tree: Tree): Unit =
     if (!rewriteFunc.isDefinedAt(tree)) remove(tree)
 
-  private def remove(tree: Tree): Unit =
-    removeByTokens(tree.tokens)
+  private def remove(tree: Tree, inner: Boolean = false): Unit =
+    removeByTokens(tree.tokens, inner)
 
-  private def removeByTokens(toks: Tokens): Unit =
+  private def removeByTokens(toks: Tokens, inner: Boolean = false): Unit =
     toks.headOption.foreach { head =>
       val beg = ctx.getIndex(head)
-      removeParensByIndex(beg until (beg + toks.length))
+      removeParensByIndex(beg until (beg + toks.length), inner)
     }
 
   private def removeBetween(b: Token, e: Token): Unit =
-    removeParensByIndex(ctx.getIndex(b) to ctx.getIndex(e))
+    removeParensByIndex(ctx.getIndex(b) to ctx.getIndex(e), false)
 
-  private def removeParensByIndex(range: Range): Unit = {
+  private def removeParensByIndex(range: Range, inner: Boolean): Unit = {
     val beg = range.head
     val end = range.last
     val mid = (beg + end) / 2
@@ -71,7 +71,7 @@ class RedundantParens(implicit ctx: RewriteCtx) extends RewriteSession {
     }
     val offEnd = getOutOfRange(0) - 1
     if (offEnd >= 0) {
-      val offBeg = 0
+      val offBeg = if (inner) 1 else 0
       if (offBeg <= offEnd) {
         implicit val builder = Seq.newBuilder[TokenPatch]
         (offBeg to offEnd).foreach { x =>
