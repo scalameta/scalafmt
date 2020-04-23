@@ -16,7 +16,6 @@ import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.FormatTokens
 import org.scalafmt.util.TokenOps.TokenHash
 import org.scalameta.logger
-import scala.meta.Init
 
 class StyleMap(
     tokens: FormatTokens,
@@ -47,7 +46,7 @@ class StyleMap(
           }
         case open @ LeftParen()
             if init.binPack.literalArgumentLists &&
-              isLiteralArgumentList(open) =>
+              opensLiteralArgumentList(tok) =>
           forcedBinPack += owners(hash(open))
           empty = false
           curr = setBinPack(curr, callSite = true)
@@ -83,14 +82,15 @@ class StyleMap(
       case _ => false
     }
 
-  private def isLiteralArgumentList(open: LeftParen): Boolean =
-    owners(hash(open)) match {
-      case t: Term.Apply =>
-        t.args.length > init.binPack.literalsMinArgCount &&
-          t.args.forall(isLiteral)
-      case Init(_, _, args :: Nil) =>
-        args.length > init.binPack.literalsMinArgCount &&
-          args.forall(isLiteral)
+  def opensLiteralArgumentList(ft: FormatToken): Boolean =
+    ft.meta.leftOwner match {
+      case TreeOps.SplitCallIntoParts(_, eitherArgs) =>
+        eitherArgs
+          .fold(Some(_), TokenOps.findArgsFor(ft.left, _, matching))
+          .exists { args =>
+            args.length > init.binPack.literalsMinArgCount &&
+            args.forall(isLiteral)
+          }
       case _ => false
     }
 

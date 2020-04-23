@@ -251,4 +251,17 @@ object TokenOps {
   def classifyOnRight[A](cls: Classifier[Token, A])(ft: FormatToken): Boolean =
     cls(ft.right)
 
+  def findArgsFor[A <: Tree](
+      token: Token,
+      argss: Seq[Seq[A]],
+      matching: Map[TokenHash, Token]
+  ): Option[Seq[A]] =
+    matching.get(hash(token)).flatMap { other =>
+      // find the arg group starting with given format token
+      val beg = math.min(token.start, other.start)
+      argss
+        .find(_.headOption.exists(_.tokens.head.start >= beg))
+        .filter(_.head.tokens.head.start <= math.max(token.end, other.end))
+    }
+
 }

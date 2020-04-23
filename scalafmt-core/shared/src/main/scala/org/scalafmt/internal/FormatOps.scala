@@ -1345,13 +1345,7 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
       token: Token,
       argss: Seq[Seq[A]]
   ): Option[Seq[A]] =
-    matchingOpt(token).flatMap { other =>
-      // find the arg group starting with given format token
-      val beg = math.min(token.start, other.start)
-      argss
-        .find(_.headOption.exists(_.tokens.head.start >= beg))
-        .filter(_.head.tokens.head.start <= math.max(token.end, other.end))
-    }
+    TokenOps.findArgsFor(token, argss, matchingParentheses)
 
   // look for arrow before body, if any, else after params
   def getFuncArrow(term: Term.Function): Option[FormatToken] =
