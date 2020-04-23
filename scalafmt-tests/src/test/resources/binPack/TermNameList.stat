@@ -84,18 +84,20 @@ val a = foo(bar {
   )
 })
 <<< literalsSingleLine=true
+binPack.literalsSingleLine = true
+===
 val secret: List[Bit] = List(select, aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa, aaaaa, bbbbbbb, aaaaa, aaaaa, aaaaa, bbbbbbb, aaaaa)
 >>>
-val secret: List[Bit] = List(select, aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa,
-  aaaaa, bbbbbbb, aaaaa, aaaaa, aaaaa, bbbbbbb, aaaaa)
+val secret: List[Bit] = List(
+  select, aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa, aaaaa, bbbbbbb, aaaaa, aaaaa, aaaaa, bbbbbbb, aaaaa)
 <<< literalsSingleLine=true, accept no split
+binPack.literalsSingleLine = true
+===
 val secret: List[Bit] = List(
   (select, aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa, aaaaa, bbbbbbb, aaaaa, aaaaa, aaaaa, bbbbbbb, aaaaa),
   (select, aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa, aaaaa, bbbbbbb, aaaaa, aaaaa, aaaaa, bbbbbbb, aaaaa))
 >>>
 val secret: List[Bit] = List(
-  (select, aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa, aaaaa, bbbbbbb, aaaaa,
-    aaaaa, aaaaa, bbbbbbb, aaaaa),
-  (select, aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa, aaaaa, bbbbbbb, aaaaa,
-    aaaaa, aaaaa, bbbbbbb, aaaaa)
+  (select, aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa, aaaaa, bbbbbbb, aaaaa, aaaaa, aaaaa, bbbbbbb, aaaaa),
+  (select, aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa, aaaaa, bbbbbbb, aaaaa, aaaaa, aaaaa, bbbbbbb, aaaaa)
 )

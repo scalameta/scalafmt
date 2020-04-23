@@ -34,6 +34,7 @@ case class BinPack(
     unsafeDefnSite: Boolean = false,
     parentConstructors: Boolean = false,
     literalArgumentLists: Boolean = true,
+    literalsSingleLine: Boolean = false,
     literalsMinArgCount: Int = 5,
     literalsInclude: Seq[String] = Seq(".*"),
     literalsExclude: Seq[String] = Seq("String", "Term.Name")

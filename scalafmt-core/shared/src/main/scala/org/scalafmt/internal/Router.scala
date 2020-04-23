@@ -724,8 +724,11 @@ class Router(formatOps: FormatOps) {
         val close = matching(open)
         val indent = getApplyIndent(leftOwner)
         def baseNoSplit = Split(NoSplit, 0).withIndent(indent, close, Before)
+        val singleLineOnly = style.binPack.literalsSingleLine &&
+          styleMap.opensLiteralArgumentList(formatToken)
+
         val noSplit =
-          if (style.newlines.sourceIgnored)
+          if (singleLineOnly || style.newlines.sourceIgnored)
             baseNoSplit.withSingleLine(close)
           else {
             val opt = leftOwner.tokens.find(_.is[T.Comma]).orElse(Some(close))
@@ -747,6 +750,7 @@ class Router(formatOps: FormatOps) {
                 .andThen(unindent)
             baseNoSplit.withOptimalTokenOpt(opt).withPolicy(policy)
           }
+
         val nlDanglePolicy =
           if (style.newlines.sourceIgnored &&
             style.danglingParentheses.callSite)
@@ -755,9 +759,10 @@ class Router(formatOps: FormatOps) {
         val nlIndent = if (style.activeForEdition_2020_03) indent else Num(4)
         Seq(
           noSplit,
-          Split(Newline, 2)
+          Split(NewlineT(acceptNoSplit = singleLineOnly), 2)
             .withIndent(nlIndent, close, Before)
-            .withPolicy(nlDanglePolicy)
+            .withSingleLineOpt(if (singleLineOnly) Some(close) else None)
+            .andThenPolicy(nlDanglePolicy)
         )
       case FormatToken(T.LeftParen(), T.RightParen(), _) =>
         Seq(Split(NoSplit, 0))
