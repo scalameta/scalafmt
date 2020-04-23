@@ -436,9 +436,8 @@ val aaaaa = bbbbb.asss(as)
 <<< 2.18 val with apply-apply
 val aaaaa = (getSomeLongerFunction(c))(as)
 >>>
-val aaaaa = (getSomeLongerFunction(c))(
-  as
-)
+val aaaaa =
+  (getSomeLongerFunction(c))(as)
 <<< 2.19 val with apply-select-select
 val aaaaa = bbbbb.asss.ccccc(
     ddddd,
@@ -456,11 +455,10 @@ val nested =
     }
   })(result)
 >>>
-val nested = promiseIntercept(
-  new Actor {
+val nested =
+  promiseIntercept(new Actor {
     def receive = { case _ ⇒ }
-  }
-)(result)
+  })(result)
 <<< 2.21 val with apply type
   val deployment =
    system
@@ -469,10 +467,10 @@ val nested = promiseIntercept(
     .deployer
     .lookup(service.split("/").drop(1))
 >>>
-val deployment = system
-  .asInstanceOf[ActorSystemImpl]
-  .provider.deployer
-  .lookup(service.split("/").drop(1))
+val deployment =
+  system.asInstanceOf[ActorSystemImpl]
+    .provider.deployer
+    .lookup(service.split("/").drop(1))
 <<< 2.22
 maxColumn = 80
 ===
@@ -795,11 +793,10 @@ object a {
 }
 >>>
 object a {
-  val a =
-    (intercept[
-      java.lang.IllegalStateException] {
-      in.readObject
-    })
+  val a = (intercept[
+    java.lang.IllegalStateException] {
+    in.readObject
+  })
 }
 <<< 3.23 enclosed, assignment, infix on left, narrow
 maxColumn = 40
@@ -1343,8 +1340,8 @@ object a {
 }
 >>>
 object a {
-  val unionAlgoPredicts: RDD[(QX, Seq[P])] = sc.union(algoPredicts)
-    .groupByKey().mapValues { ps =>
+  val unionAlgoPredicts: RDD[(QX, Seq[P])] =
+    sc.union(algoPredicts).groupByKey().mapValues { ps =>
       {
         assert(
           ps.size == algoCount,
@@ -2324,14 +2321,12 @@ object a {
 }
 >>>
 object a {
-  val b = throw new Exception(
-    "blah blah"
-  )
-  val b = foo_bar_baz_qux(
-    "blah blah blah"
-  )
-  val b = foo.bar.baz
-    .qux("blah blah blah")
+  val b =
+    throw new Exception("blah blah")
+  val b =
+    foo_bar_baz_qux("blah blah blah")
+  val b =
+    foo.bar.baz.qux("blah blah blah")
 }
 <<< def formatting
 newlines.alwaysBeforeMultilineDef = false
@@ -2343,12 +2338,10 @@ object a {
 }
 >>>
 object a {
-  def b = throw new Exception(
-    "blah blah"
-  )
-  def b = foo_bar_baz_qux(
-    "blah blah blah"
-  )
+  def b =
+    throw new Exception("blah blah")
+  def b =
+    foo_bar_baz_qux("blah blah blah")
   def b =
     foo.bar.baz.qux("blah blah blah")
 }
