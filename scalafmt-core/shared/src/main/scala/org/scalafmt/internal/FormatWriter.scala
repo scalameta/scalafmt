@@ -13,7 +13,7 @@ import scala.collection.mutable
 import scala.meta.tokens.Token
 import scala.meta.tokens.{Token => T}
 import scala.meta.transversers.Traverser
-import scala.meta.{Importer, Mod, Pkg, Template, Term, Tree, Type}
+import scala.meta.{Importer, Lit, Mod, Pkg, Template, Term, Tree, Type}
 
 /**
   * Produces formatted output from sequence of splits.
@@ -39,17 +39,8 @@ class FormatWriter(formatOps: FormatOps) {
         case token if state.formatOff => sb.append(token.syntax)
         case c: T.Comment =>
           sb.append(formatComment(c, state.indentation))
-        case _: T.Interpolation.Part =>
-          sb.append(formatMarginized(formatToken, state.indentation))
-        case _: T.Constant.String =>
-          def indent = {
-            if (!initStyle.align.stripMargin ||
-              state.split.modification.isNewline)
-              2 + state.indentation
-            else
-              2 + state.prev.column + state.prev.split.length
-          }
-          sb.append(formatMarginized(formatToken, indent))
+        case _: T.Interpolation.Part | _: T.Constant.String =>
+          sb.append(entry.formatMarginized)
         case c: T.Constant.Int =>
           sb.append(LiteralOps.prettyPrintInteger(c.syntax))
         case c: T.Constant.Long =>
@@ -102,32 +93,6 @@ class FormatWriter(formatOps: FormatOps) {
   private def compileStripMarginPattern(pipe: Char) =
     Pattern.compile(raw"(?<=\n) *(?=[$pipe])", Pattern.MULTILINE)
   private val leadingPipeSpace = compileStripMarginPattern('|')
-
-  private def formatMarginized(ft: FormatToken, indent: => Int): String = {
-    val text = ft.left.syntax
-    val tupleOpt = ft.left match {
-      case _ if !initStyle.assumeStandardLibraryStripMargin => None
-      case _: T.Constant.String =>
-        getStripMarginChar(ft).map { pipe =>
-          (pipe, () => text.find(_ != '"').contains(pipe))
-        }
-      case _: T.Interpolation.Part =>
-        def check(x: FormatToken) = x.left.is[T.Interpolation.Start]
-        findToken(ft, prev)(check).right.toOption.flatMap { t =>
-          getStripMarginChar(t).map { pipe =>
-            (pipe, () => t.right.syntax.headOption.contains(pipe))
-          }
-        }
-      case _ => None
-    }
-    tupleOpt.fold(text) {
-      case (pipe, isFirstCharPipe) =>
-        val extraIndent =
-          if (initStyle.align.stripMargin && isFirstCharPipe()) 1 else 0
-        val spaces = getIndentation(indent + extraIndent)
-        getStripMarginPattern(pipe).matcher(text).replaceAll(spaces)
-    }
-  }
 
   def getFormatLocations(state: State): FormatLocations = {
     val toks = formatOps.tokens.arr
@@ -398,6 +363,47 @@ class FormatWriter(formatOps: FormatOps) {
             case _ => ws(0)
           }
       }
+
+      def formatMarginized: String = {
+        val text = tok.left.syntax
+        val tupleOpt = tok.left match {
+          case _ if !initStyle.assumeStandardLibraryStripMargin => None
+          case _: T.Constant.String =>
+            TreeOps.getStripMarginChar(tok.meta.leftOwner).map { pipe =>
+              def isPipeFirstChar = text.find(_ != '"').contains(pipe)
+              val noAlign = !initStyle.align.stripMargin ||
+                prevState.split.modification.isNewline
+              val pipeOffset =
+                if (initStyle.align.stripMargin && isPipeFirstChar) 1 else 0
+              val indent = pipeOffset +
+                (if (noAlign) prevState.indentation
+                 else prevState.prev.column + prevState.prev.split.length)
+              (pipe, 2 + indent)
+            }
+          case _: T.Interpolation.Part =>
+            TreeOps.findInterpolate(tok.meta.leftOwner).flatMap { ti =>
+              TreeOps.getStripMarginChar(ti).map { pipe =>
+                val tiState =
+                  locations(tokens(ti.tokens.head).meta.idx).state.prev
+                val indent =
+                  if (!initStyle.align.stripMargin) tiState.indentation
+                  else
+                    tiState.column + (ti.args.headOption match {
+                      case Some(Lit.String(x)) if x(0) == pipe => 1
+                      case _ => 0
+                    })
+                (pipe, 2 + indent)
+              }
+            }
+          case _ => None
+        }
+        tupleOpt.fold(text) {
+          case (pipe, indent) =>
+            val spaces = getIndentation(indent)
+            getStripMarginPattern(pipe).matcher(text).replaceAll(spaces)
+        }
+      }
+
     }
   }
 

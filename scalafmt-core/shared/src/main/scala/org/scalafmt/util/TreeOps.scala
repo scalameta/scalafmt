@@ -10,6 +10,7 @@ import scala.meta.Decl
 import scala.meta.Defn
 import scala.meta.Enumerator
 import scala.meta.Init
+import scala.meta.Lit
 import scala.meta.Mod
 import scala.meta.Name
 import scala.meta.Pat
@@ -28,6 +29,7 @@ import scala.reflect.ClassTag
 import scala.reflect.classTag
 import org.scalafmt.Error
 import org.scalafmt.config.{DanglingParentheses, ScalafmtConfig}
+import org.scalafmt.internal.FormatToken
 
 /**
   * Stateless helper functions on `scala.meta.Tree`.
@@ -662,6 +664,41 @@ object TreeOps {
           traverse(fun, Some(fun))
         case _ => res
       }
+  }
+
+  @tailrec
+  def findInterpolate(
+      tree: Tree,
+      res: Option[Term.Interpolate] = None
+  ): Option[Term.Interpolate] =
+    tree.parent match {
+      case Some(p: Term.Interpolate) => findInterpolate(p, Some(p))
+      case Some(p) => findInterpolate(p, res)
+      case _ => res
+    }
+
+  def getStripMarginChar(t: Tree): Option[Char] = {
+    t.parent match {
+      case Some(ts: Term.Select) if ts.name.value == "stripMargin" =>
+        ts.parent match {
+          case Some(Term.Apply(_, List(arg: Lit.Char))) => Some(arg.value)
+          case _ => Some('|')
+        }
+      case _ => None
+    }
+  }
+
+  def isTripleQuote(token: Token): Boolean = token.syntax.startsWith("\"\"\"")
+
+  def getStripMarginChar(ft: FormatToken): Option[Char] = {
+    ft.left match {
+      case _: Token.Interpolation.Start =>
+        val ti = TreeOps.findInterpolate(ft.meta.leftOwner)
+        ti.flatMap(TreeOps.getStripMarginChar)
+      case string: Token.Constant.String if isTripleQuote(string) =>
+        TreeOps.getStripMarginChar(ft.meta.leftOwner)
+      case _ => None
+    }
   }
 
 }
