@@ -254,11 +254,12 @@ class FormatWriter(formatOps: FormatOps) {
 
     class Entry(val i: Int) {
       val curr = locations(i)
-      val previous = locations(math.max(i - 1, 0))
+      def previous = locations(math.max(i - 1, 0))
 
       @inline def tok = curr.formatToken
       @inline def state = curr.state
-      @inline def lastModification = previous.state.split.modification
+      @inline def prevState = curr.state.prev
+      @inline def lastModification = prevState.split.modification
 
       def getWhitespace(alignOffset: Int): String = {
         // TODO this could get slow for really long comment blocks. If that
@@ -279,12 +280,11 @@ class FormatWriter(formatOps: FormatOps) {
 
           case nl: NewlineT
               if nl.acceptNoSplit && !tok.left.isInstanceOf[T.Comment] &&
-                state.indentation >= previous.state.column =>
+                state.indentation >= prevState.column =>
             ""
 
           case nl: NewlineT
-              if nl.acceptSpace &&
-                state.indentation >= previous.state.column =>
+              if nl.acceptSpace && state.indentation >= prevState.column =>
             " "
 
           case _: NewlineT
