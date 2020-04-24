@@ -1,7 +1,9 @@
 package org.scalafmt.util
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.meta.Lit
+import scala.meta.Name
 import scala.meta.Term
 import scala.meta.Tree
 import scala.meta.tokens.Token
@@ -70,7 +72,8 @@ class StyleMap(
       )
     )
 
-  private def isLiteral(tree: Tree): Boolean =
+  @tailrec
+  private def isBasicLiteral(tree: Tree): Boolean =
     tree match {
       case lit: Lit =>
         val strName = tree match {
@@ -82,9 +85,36 @@ class StyleMap(
           case _ => lit.value.getClass.getName
         }
         literalR.matches(strName)
-      case x @ Term.Name(_) => literalR.matches(x.productPrefix)
-      case _ => false
+      case x: Name => literalR.matches(x.productPrefix)
+      case _ if !init.binPack.literalsIncludeSimpleExpr => false
+      case t: Term.Select => isBasicLiteral(t.qual)
+      case t: Term.Assign => isBasicLiteral(t.rhs)
+      case _ =>
+        tree.children match {
+          case Nil => true
+          case one :: Nil => isBasicLiteral(one)
+          case _ => false
+        }
     }
+
+  @tailrec
+  private def isLiteral(tree: Tree): Boolean =
+    isBasicLiteral(tree) ||
+      init.binPack.literalsIncludeSimpleExpr && (tree match {
+        case t: Term.Assign => isLiteral(t.rhs)
+        case t: Term.Apply =>
+          isBasicLiteral(t.fun) && (t.args match {
+            case Nil => true
+            case arg :: Nil => isLiteral(arg)
+            case _ => false
+          })
+        case _ =>
+          tree.children match {
+            case Nil => true
+            case one :: Nil => isLiteral(one)
+            case _ => false
+          }
+      })
 
   def opensLiteralArgumentList(ft: FormatToken): Boolean =
     ft.meta.leftOwner match {

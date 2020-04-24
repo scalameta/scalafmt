@@ -102,6 +102,8 @@ val secret: List[Bit] = List(
   (select, aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa, aaaaa, bbbbbbb, aaaaa, aaaaa, aaaaa, bbbbbbb, aaaaa)
 )
 <<< literalsIncludeSimpleApply 1
+binPack.literalsIncludeSimpleExpr = true
+===
 object a {
 val b = Seq(
 (1, "name", date, date, date, date, 1, "cnm", 1, "p2", email, "", "4", null, h1, a3, "cpm", 24f.?, "")
@@ -110,30 +112,13 @@ val b = Seq(
 >>>
 object a {
   val b = Seq(
-    (
-      1,
-      "name",
-      date,
-      date,
-      date,
-      date,
-      1,
-      "cnm",
-      1,
-      "p2",
-      email,
-      "",
-      "4",
-      null,
-      h1,
-      a3,
-      "cpm",
-      24f.?,
-      ""
-    )
+    (1, "name", date, date, date, date, 1, "cnm", 1, "p2", email, "", "4", null,
+      h1, a3, "cpm", 24f.?, "")
   )
 }
 <<< literalsIncludeSimpleApply 2
+binPack.literalsIncludeSimpleExpr = true
+===
 object a {
 val a = b(Seq(foo.bar), Some(Seq(1)), None, Some(1), 360, 0)
     val expected = A(1, tenant, "name", None, Type, "definition", 1, "foo",
@@ -144,37 +129,14 @@ val a = b(Seq(foo.bar), Some(Seq(1)), None, Some(1), 360, 0)
 >>>
 object a {
   val a = b(Seq(foo.bar), Some(Seq(1)), None, Some(1), 360, 0)
-  val expected = A(
-    1,
-    tenant,
-    "name",
-    None,
-    Type,
-    "definition",
-    1,
-    "foo",
-    "bar",
-    "1",
-    now,
-    now
-  )
-  val save = A(
-    1,
-    tenant,
-    "name",
-    None,
-    Type,
-    foo,
-    1,
-    "bar",
-    "baz",
-    "1",
-    null,
-    null,
-    foo(bar(baz.qux))
-  )
+  val expected = A(1, tenant, "name", None, Type, "definition", 1, "foo", "bar",
+    "1", now, now)
+  val save = A(1, tenant, "name", None, Type, foo, 1, "bar", "baz", "1", null,
+    null, foo(bar(baz.qux)))
 }
 <<< literalsIncludeSimpleApply 3
+binPack.literalsIncludeSimpleExpr = true
+===
 object a {
  val foo = Map(
       "a" -> "b",
