@@ -182,9 +182,9 @@ object a {
     |  update targeting_segments
     |  set status = '$status',
     |${lastBuiltOpt.fold("")(dt => s"  last_built = '${formatDate(dt)}',")}
-        |${sizeCondition.fold("")(cond => s"  customers = $cond,")}
-        |  updated_at = now()
-        |  where id in (${audienceIds.mkString(",")})""".stripMargin
+    |${sizeCondition.fold("")(cond => s"  customers = $cond,")}
+    |  updated_at = now()
+    |  where id in (${audienceIds.mkString(",")})""".stripMargin
 }
 <<< align, complex interpolation
 align.stripMargin = true
@@ -204,7 +204,7 @@ object a {
      |  update targeting_segments
      |  set status = '$status',
      |${lastBuiltOpt.fold("")(dt => s"  last_built = '${formatDate(dt)}',")}
-        |${sizeCondition.fold("")(cond => s"  customers = $cond,")}
-        |  updated_at = now()
-        |  where id in (${audienceIds.mkString(",")})""".stripMargin
+     |${sizeCondition.fold("")(cond => s"  customers = $cond,")}
+     |  updated_at = now()
+     |  where id in (${audienceIds.mkString(",")})""".stripMargin
 }
