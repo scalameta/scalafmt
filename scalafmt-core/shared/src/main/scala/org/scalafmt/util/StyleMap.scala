@@ -72,11 +72,15 @@ class StyleMap(
 
   private def isLiteral(tree: Tree): Boolean =
     tree match {
-      case lit @ Lit(value: Any) =>
-        val syntax = lit.tokens.mkString
-        val strName =
-          if (syntax.startsWith("0x")) "Byte"
-          else value.getClass.getName
+      case lit: Lit =>
+        val strName = tree match {
+          case t: Lit.Int
+              if 0 <= t.value && t.value < Byte.MaxValue &&
+                lit.tokens.head.toString.startsWith("0x") =>
+            "Byte"
+          case _: Lit.Null => "Null"
+          case _ => lit.value.getClass.getName
+        }
         literalR.matches(strName)
       case x @ Term.Name(_) => literalR.matches(x.productPrefix)
       case _ => false
