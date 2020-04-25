@@ -60,9 +60,7 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
     import ctx.tokenTraverser._
 
     def isIdentifierAtStart(value: String) =
-      value.nonEmpty && (Character.isLetterOrDigit(
-        value.head
-      ) || value.head == '_')
+      value.headOption.exists(x => Character.isLetterOrDigit(x) || x == '_')
 
     def isLiteralIdentifier(arg: Term.Name): Boolean =
       arg.syntax.startsWith("`") && arg.syntax.endsWith("`")
