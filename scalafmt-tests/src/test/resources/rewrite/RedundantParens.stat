@@ -153,7 +153,7 @@ object a {
 rewrite.rules = [AvoidInfix, RedundantParens]
 ===
 object a {
-  val z = (((insertData) op readDatabase(id)))
+  val z = (((insertData) op (readDatabase(id))))
 }
 >>>
 object a {
@@ -217,3 +217,26 @@ object a {
 object a {
   a == ((b, c, d))
 }
+<<< don't rewrite infix when AvoidInfix
+rewrite.rules = [AvoidInfix, RedundantParens]
+===
+object a {
+  join(a, b)(
+        (x, y) =>
+          where(
+            x.foo < maxRetry and
+              y.retryCount === x.bar and
+              task.status === Failed
+          )
+            select (task)
+            on (x.id === key and
+              y.id === key)
+      ).toList
+}
+>>>
+test does not parse
+            on (x.id === key and
+              y.id === key)
+      ).toList
+}
+^
