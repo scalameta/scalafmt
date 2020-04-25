@@ -36,6 +36,9 @@ class TokenTraverser(tokens: Tokens) {
     }
   }
 
+  def nextNonWsToken(token: Token): Option[Token] =
+    findAfter(token)(x => if (x.is[Whitespace]) None else Some(true))
+
   def prevToken(token: Token): Token = {
     tok2idx.get(token) match {
       case Some(i) if tokens.length > i - 1 =>

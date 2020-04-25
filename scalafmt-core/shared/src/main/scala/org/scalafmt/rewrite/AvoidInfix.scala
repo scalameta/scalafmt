@@ -2,7 +2,6 @@ package org.scalafmt.rewrite
 
 import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.meta.tokens.Token.{LeftParen, RightParen}
 import scala.meta._
 
 object AvoidInfix extends Rewrite {
@@ -63,13 +62,10 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
               if (AvoidInfix.hasPlaceholder(args.head)) return
               builder += TokenPatch.AddRight(opLast, "(", keepTok = true)
               builder += TokenPatch.AddRight(last, ")", keepTok = true)
-            } else if (ctx.tokenTraverser.nextToken(opLast) ne head) {
-              // has comments: move delimiter
-              builder += TokenPatch.AddRight(
-                opLast,
-                head.syntax,
-                keepTok = true
-              )
+            } else {
+              // move delimiter (before comment or newline)
+              builder +=
+                TokenPatch.AddRight(opLast, head.syntax, keepTok = true)
               builder += TokenPatch.Remove(head)
             }
           }
@@ -78,7 +74,7 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
         val shouldWrapLhs = lhs match {
           case Term.ApplyInfix(_, o, _, _) if !matcher.matches(o.value) && ! {
                 val head = lhs.tokens.head
-                head.is[LeftParen] &&
+                head.is[Token.LeftParen] &&
                 ctx.getMatchingOpt(head).contains(lhs.tokens.last)
               } =>
             if (AvoidInfix.hasPlaceholder(lhs)) return
@@ -97,8 +93,8 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
           if !parent.is[Term.ApplyInfix] && !parent.is[Term.Apply]
           if ctx.style.rewrite.rules.contains(RedundantParens)
           infixTokens = tree.tokens
-          head <- infixTokens.headOption if head.is[LeftParen]
-          last <- infixTokens.lastOption if last.is[RightParen]
+          head <- infixTokens.headOption if head.is[Token.LeftParen]
+          last <- infixTokens.lastOption if last.is[Token.RightParen]
           if ctx.isMatching(head, last)
         } yield {
           builder += TokenPatch.Remove(head)
