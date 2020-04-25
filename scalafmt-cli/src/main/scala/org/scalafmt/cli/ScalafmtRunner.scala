@@ -1,7 +1,7 @@
 package org.scalafmt.cli
+
 import java.io.OutputStreamWriter
 
-import org.scalafmt.config.FilterMatcher
 import org.scalafmt.util.{AbsoluteFile, FileOps}
 
 trait ScalafmtRunner {
@@ -29,7 +29,7 @@ trait ScalafmtRunner {
 
   protected def getInputMethods(
       options: CliOptions,
-      filter: Option[FilterMatcher]
+      filter: AbsoluteFile => Boolean
   ): Seq[InputMethod] = {
     if (options.stdIn) {
       Seq(InputMethod.StdinCode(options.assumeFilename, options.common.in))
@@ -45,11 +45,8 @@ trait ScalafmtRunner {
   /** Returns file paths defined via options.{customFiles,customExclude} */
   private[this] def getFilesFromCliOptions(
       options: CliOptions,
-      filter: Option[FilterMatcher]
+      canFormat: AbsoluteFile => Boolean
   ): Seq[AbsoluteFile] = {
-    def canFormat(f: AbsoluteFile): Boolean =
-      filter.forall(_.matches(f))
-
     val files = options.fileFetchMode match {
       case m @ (GitFiles | RecursiveSearch) =>
         val fetchFiles: AbsoluteFile => Seq[AbsoluteFile] =

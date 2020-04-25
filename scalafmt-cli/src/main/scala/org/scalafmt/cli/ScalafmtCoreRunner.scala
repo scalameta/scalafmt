@@ -33,7 +33,7 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
             .map(OsSpecific.fixSeparatorsInPathPattern)
         )
 
-        val inputMethods = getInputMethods(options, Some(filterMatcher))
+        val inputMethods = getInputMethods(options, filterMatcher.matchesFile)
         if (inputMethods.isEmpty && options.mode.isEmpty && !options.stdIn)
           throw NoMatchingFiles
 

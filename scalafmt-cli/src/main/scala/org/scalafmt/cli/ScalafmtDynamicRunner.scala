@@ -1,6 +1,7 @@
 package org.scalafmt.cli
+
 import java.nio.file.Paths
-import java.util.concurrent.atomic.{AtomicReference, AtomicInteger}
+import java.util.concurrent.atomic.{AtomicInteger, AtomicReference}
 import java.util.function.UnaryOperator
 
 import org.scalafmt.Error.{MisformattedFile, NoMatchingFiles}
@@ -15,7 +16,10 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
       options: CliOptions,
       termDisplayMessage: String
   ): ExitCode = {
-    val inputMethods = getInputMethods(options, None)
+    val inputMethods = getInputMethods(
+      options,
+      (x: AbsoluteFile) => true
+    )
     if (inputMethods.isEmpty && options.mode.isEmpty && !options.stdIn)
       throw NoMatchingFiles
 
