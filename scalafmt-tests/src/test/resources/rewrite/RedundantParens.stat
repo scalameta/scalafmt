@@ -168,10 +168,13 @@ object a {
   val (a, b) = ("abcde", "idfa")
 }
 >>>
-test does not parse
 object a {
-  val a: (String, String) = "abcde", "idfa"
-                                   ^
+  val a: (String, String) = ("abcde", "idfa")
+  val a: ((String, String)) = (("abcde", "idfa"))
+  val a = (("abcde", "idfa"))
+  val a = (("abcde", "idfa"))
+  val (a, b) = ("abcde", "idfa")
+}
 <<< #1895 5
 object a {
   def a: (String, String) = ("abcde", "idfa")
@@ -180,10 +183,12 @@ object a {
   def a = ((("abcde", "idfa")))
 }
 >>>
-test does not parse
 object a {
-  def a: (String, String) = "abcde", "idfa"
-                                   ^
+  def a: (String, String) = ("abcde", "idfa")
+  def a: ((String, String)) = (("abcde", "idfa"))
+  def a = (("abcde", "idfa"))
+  def a = (("abcde", "idfa"))
+}
 <<< #1895 6
 object a {
   (a eq b) && (c match {
@@ -210,5 +215,5 @@ object a {
 }
 >>>
 object a {
-  a == (b, c, d)
+  a == ((b, c, d))
 }

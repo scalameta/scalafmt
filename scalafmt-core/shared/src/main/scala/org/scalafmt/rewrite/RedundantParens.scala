@@ -22,6 +22,8 @@ class RedundantParens(implicit ctx: RewriteCtx) extends RewriteSession {
     }
 
   private val rewriteFunc: PartialFunction[Tree, Unit] = {
+    case t @ (_: Term.Tuple | _: Type.Tuple) => remove(t, 2)
+
     case g: Enumerator.Guard => remove(g.cond)
 
     case t: Case => t.cond.foreach(remove(_))
