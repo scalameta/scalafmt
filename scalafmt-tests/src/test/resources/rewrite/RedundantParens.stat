@@ -159,3 +159,56 @@ object a {
 object a {
   val z = insertData.op(readDatabase(id))
 }
+<<< #1895 4
+object a {
+  val a: (String, String) = ("abcde", "idfa")
+  val a: ((String, String)) = (("abcde", "idfa"))
+  val a = (("abcde", "idfa"))
+  val a = ((("abcde", "idfa")))
+  val (a, b) = ("abcde", "idfa")
+}
+>>>
+test does not parse
+object a {
+  val a: (String, String) = "abcde", "idfa"
+                                   ^
+<<< #1895 5
+object a {
+  def a: (String, String) = ("abcde", "idfa")
+  def a: ((String, String)) = (("abcde", "idfa"))
+  def a = (("abcde", "idfa"))
+  def a = ((("abcde", "idfa")))
+}
+>>>
+test does not parse
+object a {
+  def a: (String, String) = "abcde", "idfa"
+                                   ^
+<<< #1895 6
+object a {
+  (a eq b) && (c match {
+    case d => true
+  })
+}
+>>>
+object a {
+  (a eq b) && (c match {
+    case d => true
+  })
+}
+<<< #1895 7
+object a {
+  b((a, b, c))
+}
+>>>
+object a {
+  b((a, b, c))
+}
+<<< #1903 1
+object a {
+  a == ((b, c, d))
+}
+>>>
+object a {
+  a == (b, c, d)
+}
