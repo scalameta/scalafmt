@@ -18,7 +18,7 @@ class RedundantParens(implicit ctx: RewriteCtx) extends RewriteSession {
 
       case t: Defn.Def => maybeRemove(t.body)
 
-      case t => rewriteFunc.applyOrElse(t, (x: Tree) => remove(x, true))
+      case t => rewriteFunc.applyOrElse(t, (x: Tree) => remove(x, 1))
     }
 
   private val rewriteFunc: PartialFunction[Tree, Unit] = {
@@ -35,22 +35,22 @@ class RedundantParens(implicit ctx: RewriteCtx) extends RewriteSession {
       ctx.getMatchingOpt(lastTok).foreach(removeBetween(_, lastTok))
   }
 
-  private def maybeRemove(tree: Tree): Unit =
-    if (!rewriteFunc.isDefinedAt(tree)) remove(tree)
+  private def maybeRemove(tree: Tree, minToKeep: Int = 0): Unit =
+    if (!rewriteFunc.isDefinedAt(tree)) remove(tree, minToKeep)
 
-  private def remove(tree: Tree, inner: Boolean = false): Unit =
-    removeByTokens(tree.tokens, inner)
+  private def remove(tree: Tree, minToKeep: Int = 0): Unit =
+    removeByTokens(tree.tokens, minToKeep)
 
-  private def removeByTokens(toks: Tokens, inner: Boolean = false): Unit =
+  private def removeByTokens(toks: Tokens, minToKeep: Int = 0): Unit =
     toks.headOption.foreach { head =>
       val beg = ctx.getIndex(head)
-      removeParensByIndex(beg until (beg + toks.length), inner)
+      removeParensByIndex(beg until (beg + toks.length), minToKeep)
     }
 
   private def removeBetween(b: Token, e: Token): Unit =
-    removeParensByIndex(ctx.getIndex(b) to ctx.getIndex(e), false)
+    removeParensByIndex(ctx.getIndex(b) to ctx.getIndex(e))
 
-  private def removeParensByIndex(range: Range, inner: Boolean): Unit = {
+  private def removeParensByIndex(range: Range, minToKeep: Int = 0): Unit = {
     val beg = range.head
     val end = range.last
     val mid = (beg + end) / 2
@@ -71,7 +71,7 @@ class RedundantParens(implicit ctx: RewriteCtx) extends RewriteSession {
     }
     val offEnd = getOutOfRange(0) - 1
     if (offEnd >= 0) {
-      val offBeg = if (inner) 1 else 0
+      val offBeg = minToKeep
       if (offBeg <= offEnd) {
         implicit val builder = Seq.newBuilder[TokenPatch]
         (offBeg to offEnd).foreach { x =>
