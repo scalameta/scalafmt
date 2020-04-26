@@ -563,9 +563,7 @@ class Router(formatOps: FormatOps) {
         )
       // Defn.{Object, Class, Trait}
       case tok @ FormatToken(T.KwObject() | T.KwClass() | T.KwTrait(), _, _) =>
-        val expire = defnTemplate(leftOwner)
-          .flatMap(templateCurly)
-          .getOrElse(leftOwner.tokens.last)
+        val expire = templateCurly(leftOwner)
         val forceNewlineBeforeExtends = Policy(expire) {
           case d @ Decision(t @ FormatToken(_, _: T.KwExtends, _), _)
               if t.meta.rightOwner == leftOwner =>
@@ -1308,10 +1306,7 @@ class Router(formatOps: FormatOps) {
       // Template
       case FormatToken(_, right @ T.KwExtends(), _) =>
         val template = defnTemplate(rightOwner)
-        val lastToken = template
-          .flatMap(templateCurly)
-          .orElse(template.map(_.tokens.last))
-          .getOrElse(rightOwner.tokens.last)
+        val lastToken = template.fold(rightOwner.tokens.last)(templateCurly)
         binPackParentConstructorSplits(
           template.toSet,
           lastToken,
@@ -1332,12 +1327,12 @@ class Router(formatOps: FormatOps) {
             splitWithChain(
               isFirstWith(template),
               Set(template),
-              templateCurly(template).getOrElse(template.tokens.last)
+              templateCurly(template)
             )
 
           case template: Template =>
             val hasSelfAnnotation = template.self.tokens.nonEmpty
-            val expire = templateCurly(rightOwner)
+            val expire = templateCurly(template)
             val indent =
               if (!isFirstWith(template)) 0
               else style.continuationIndent.withSiteRelativeToExtends

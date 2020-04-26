@@ -467,13 +467,13 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
     }
   }
 
-  def templateCurly(owner: Tree): Token = {
-    defnTemplate(owner).flatMap(templateCurly).getOrElse(owner.tokens.last)
-  }
+  def templateCurly(owner: Tree): Token =
+    defnTemplate(owner).map(templateCurly).getOrElse(owner.tokens.last)
 
-  def templateCurly(template: Template): Option[Token] = {
-    template.tokens.find(x => x.is[T.LeftBrace] && owners(x) == template)
-  }
+  def templateCurly(template: Template): Token =
+    template.tokens
+      .find(x => x.is[T.LeftBrace] && owners(x) == template)
+      .getOrElse(template.tokens.last)
 
   @inline
   def getElseChain(term: Term.If): Seq[T] = getElseChain(term, Seq.empty)
