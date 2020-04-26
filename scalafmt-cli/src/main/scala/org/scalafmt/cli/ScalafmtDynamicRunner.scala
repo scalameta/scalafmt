@@ -1,12 +1,15 @@
 package org.scalafmt.cli
 
 import java.io.File
+import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.concurrent.atomic.{AtomicInteger, AtomicReference}
 import java.util.function.UnaryOperator
 
 import org.scalafmt.Error.{MisformattedFile, NoMatchingFiles}
 import org.scalafmt.interfaces.Scalafmt
+import org.scalafmt.interfaces.ScalafmtSession
+import org.scalafmt.interfaces.ScalafmtSessionFactory
 import org.scalafmt.util.AbsoluteFile
 
 import scala.meta.internal.tokenizers.PlatformTokenizerCache
@@ -17,28 +20,37 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
       options: CliOptions,
       termDisplayMessage: String
   ): ExitCode = {
-    val customMatcher = getFileMatcher(options.customFiles)
-    val inputMethods = getInputMethods(
-      options,
-      customMatcher
-    )
-    if (inputMethods.isEmpty && options.mode.isEmpty && !options.stdIn)
-      throw NoMatchingFiles
-
-    val counter = new AtomicInteger()
     val reporter = new ScalafmtCliReporter(options)
     val scalafmtInstance = Scalafmt
       .create(this.getClass.getClassLoader)
       .withReporter(reporter)
       .withRespectProjectFilters(false)
 
+    val session = scalafmtInstance match {
+      case t: ScalafmtSessionFactory =>
+        val session = t.createSession(options.configPath)
+        if (session == null) return reporter.getExitCode // XXX: returning
+        session
+      case _ => new MyInstanceSession(options, scalafmtInstance)
+    }
+
+    val customMatcher = getFileMatcher(options.customFiles)
+    val inputMethods = getInputMethods(
+      options,
+      (x: AbsoluteFile) =>
+        customMatcher(x) && session.matchesProjectFilters(x.jfile.toPath)
+    )
+    if (inputMethods.isEmpty && options.mode.isEmpty && !options.stdIn)
+      throw NoMatchingFiles
+
+    val counter = new AtomicInteger()
     val termDisplay = newTermDisplay(options, inputMethods, termDisplayMessage)
 
     val exitCode = new AtomicReference(ExitCode.Ok)
     breakable {
       inputMethods.foreach { inputMethod =>
         try {
-          val code = handleFile(inputMethod, scalafmtInstance, options)
+          val code = handleFile(inputMethod, session, options)
           exitCode.getAndUpdate(new UnaryOperator[ExitCode] {
             override def apply(t: ExitCode): ExitCode =
               ExitCode.merge(code, t)
@@ -61,25 +73,29 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
     exit
   }
 
+  private final class MyInstanceSession(opts: CliOptions, instance: Scalafmt)
+      extends ScalafmtSession {
+    private val customFiles = opts.customFiles.map(_.jfile.toPath)
+    override def format(file: Path, code: String): String = {
+      // DESNOTE(2017-05-19, pjrt): A plain, fully passed file will (try to) be
+      // formatted regardless of what it is or where it is.
+      val formatter =
+        if (customFiles.contains(file)) instance
+        else instance.withRespectProjectFilters(true)
+      formatter.format(opts.configPath, file, code)
+    }
+    override def matchesProjectFilters(file: Path): Boolean = true
+  }
+
   private[this] def handleFile(
       inputMethod: InputMethod,
-      scalafmtInstance: Scalafmt,
+      session: ScalafmtSession,
       options: CliOptions
   ): ExitCode = {
     val input = inputMethod.readInput(options)
 
-    // DESNOTE(2017-05-19, pjrt): A plain, fully passed file will (try to) be
-    // formatted regardless of what it is or where it is.
-    val ignoreFilters =
-      AbsoluteFile.fromPath(inputMethod.filename).exists { file =>
-        options.customFiles.contains(file)
-      }
-    val formatter =
-      if (ignoreFilters) scalafmtInstance
-      else scalafmtInstance.withRespectProjectFilters(true)
-    val formatResult = formatter
+    val formatResult = session
       .format(
-        options.configPath,
         Paths.get(inputMethod.filename),
         input
       )
