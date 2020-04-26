@@ -1318,18 +1318,19 @@ class Router(formatOps: FormatOps) {
           style.continuationIndent.extendSite
         )
       case FormatToken(_, T.KwWith(), _) =>
+        def isFirstWith(t: Template) =
+          t.inits.headOption.exists { init =>
+            // [init.tpe == leftOwner] part is about expressions like [new A with B]
+            // [leftOwner.is[Init] && init == leftOwner] part is about expressions like [new A(x) with B]
+            leftOwner.is[Init] && init == leftOwner || init.tpe == leftOwner
+          }
         rightOwner match {
           // something like new A with B with C
           case template: Template if template.parent.exists { p =>
                 p.is[Term.New] || p.is[Term.NewAnonymous]
               } =>
-            val isFirstWith = template.inits.headOption.exists { init =>
-              // [init.tpe == leftOwner] part is about expressions like [new A with B]
-              // [leftOwner.is[Init] && init == leftOwner] part is about expressions like [new A(x) with B]
-              leftOwner.is[Init] && init == leftOwner || init.tpe == leftOwner
-            }
             splitWithChain(
-              isFirstWith,
+              isFirstWith(template),
               Set(template),
               templateCurly(template).getOrElse(template.tokens.last)
             )
@@ -1337,6 +1338,9 @@ class Router(formatOps: FormatOps) {
           case template: Template =>
             val hasSelfAnnotation = template.self.tokens.nonEmpty
             val expire = templateCurly(rightOwner)
+            val indent =
+              if (!isFirstWith(template)) 0
+              else style.continuationIndent.withSiteRelativeToExtends
             val policy =
               if (hasSelfAnnotation) NoPolicy
               else
@@ -1352,8 +1356,10 @@ class Router(formatOps: FormatOps) {
                     d.forceNewline
                 }
             Seq(
-              Split(Space, 0),
-              Split(Newline, 1).withPolicy(policy)
+              Split(Space, 0).withIndent(indent, expire, ExpiresOn.After),
+              Split(Newline, 1)
+                .withPolicy(policy)
+                .withIndent(indent, expire, ExpiresOn.After)
             )
           // trait A extends B with C with D with E
           case t @ WithChain(top) =>
