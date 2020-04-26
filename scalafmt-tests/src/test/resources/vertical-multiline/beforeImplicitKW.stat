@@ -109,14 +109,14 @@ object a {
     implicit aEncoder: CsvEncoder[A]
   ): CsvEncoder[(A, B)]
   def foo[A, B](
-    implicit
-    aEncoder: CsvEncoder[A],
+    implicit aEncoder: CsvEncoder[A],
     bEncoder: CsvEncoder[B]
   ): CsvEncoder[(A, B)]
 }
 <<< prefer after
 verticalMultiline.atDefnSite = false
-newlines.implicitParamListModifierForce = [after]
+newlines.implicitParamListModifierForce = []
+newlines.implicitParamListModifierPrefer = after
 optIn.configStyleArguments = false
 ===
 object a {
@@ -131,9 +131,7 @@ object a {
 }
 >>>
 object a {
-  def foo[A, B](implicit
-    aEncoder: CsvEncoder[A]
-  ): CsvEncoder[(A, B)]
+  def foo[A, B](implicit aEncoder: CsvEncoder[A]): CsvEncoder[(A, B)]
   def foo[A, B](implicit
     aEncoder: CsvEncoder[A],
     bEncoder: CsvEncoder[B]
@@ -149,7 +147,8 @@ object a {
 }
 <<< prefer before
 verticalMultiline.atDefnSite = false
-newlines.implicitParamListModifierForce = [before]
+newlines.implicitParamListModifierForce = []
+newlines.implicitParamListModifierPrefer = before
 optIn.configStyleArguments = false
 ===
 object a {
@@ -164,28 +163,24 @@ object a {
 }
 >>>
 object a {
+  def foo[A, B](implicit aEncoder: CsvEncoder[A]): CsvEncoder[(A, B)]
   def foo[A, B](
-    implicit aEncoder: CsvEncoder[A]
-  ): CsvEncoder[(A, B)]
-  def foo[A, B](
-    implicit
-    aEncoder: CsvEncoder[A],
+    implicit aEncoder: CsvEncoder[A],
     bEncoder: CsvEncoder[B]
   ): CsvEncoder[(A, B)]
   def foo[A, B](
-    implicit
-    aEncoder: CsvEncoder[A],
+    implicit aEncoder: CsvEncoder[A],
     bEncoder: CsvEncoder[B]
   ): CsvEncoder[(A, B)]
   def foo[A, B](
-    implicit
-    aEncoder: CsvEncoder[A],
+    implicit aEncoder: CsvEncoder[A],
     bEncoder: CsvEncoder[B]
   ): CsvEncoder[(A, B)]
 }
 <<< prefer after, config style
 verticalMultiline.atDefnSite = false
-newlines.implicitParamListModifierForce = [after]
+newlines.implicitParamListModifierForce = []
+newlines.implicitParamListModifierPrefer = after
 optIn.configStyleArguments = true
 ===
 object a {
@@ -200,9 +195,7 @@ object a {
 }
 >>>
 object a {
-  def foo[A, B](implicit
-    aEncoder: CsvEncoder[A]
-  ): CsvEncoder[(A, B)]
+  def foo[A, B](implicit aEncoder: CsvEncoder[A]): CsvEncoder[(A, B)]
   def foo[A, B](implicit
     aEncoder: CsvEncoder[A],
     bEncoder: CsvEncoder[B]
@@ -218,7 +211,8 @@ object a {
 }
 <<< prefer before, config style
 verticalMultiline.atDefnSite = false
-newlines.implicitParamListModifierForce = [before]
+newlines.implicitParamListModifierForce = []
+newlines.implicitParamListModifierPrefer = before
 optIn.configStyleArguments = true
 ===
 object a {
@@ -233,22 +227,17 @@ object a {
 }
 >>>
 object a {
+  def foo[A, B](implicit aEncoder: CsvEncoder[A]): CsvEncoder[(A, B)]
   def foo[A, B](
-    implicit aEncoder: CsvEncoder[A]
-  ): CsvEncoder[(A, B)]
-  def foo[A, B](
-    implicit
-    aEncoder: CsvEncoder[A],
+    implicit aEncoder: CsvEncoder[A],
     bEncoder: CsvEncoder[B]
   ): CsvEncoder[(A, B)]
   def foo[A, B](
-    implicit
-    aEncoder: CsvEncoder[A],
+    implicit aEncoder: CsvEncoder[A],
     bEncoder: CsvEncoder[B]
   ): CsvEncoder[(A, B)]
   def foo[A, B](
-    implicit
-    aEncoder: CsvEncoder[A],
+    implicit aEncoder: CsvEncoder[A],
     bEncoder: CsvEncoder[B]
   ): CsvEncoder[(A, B)]
 }

@@ -949,7 +949,7 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
   )(implicit style: ScalafmtConfig): Boolean =
     style.activeForEdition_2020_03 &&
       formatToken.right.is[T.KwImplicit] &&
-      !style.newlines.forceBeforeImplicitParamListModifier &&
+      style.newlines.notBeforeImplicitParamListModifier &&
       opensImplicitParamList(formatToken).isDefined
 
   def styleAt(tree: Tree): ScalafmtConfig = {
