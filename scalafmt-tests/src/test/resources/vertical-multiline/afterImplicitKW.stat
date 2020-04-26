@@ -1,5 +1,5 @@
 maxColumn = 80
-newlines.implicitParamListModifier = [after]
+newlines.implicitParamListModifierForce = [after]
 verticalMultiline.atDefnSite = true
 continuationIndent.defnSite = 2
 continuationIndent.extendSite = 0
@@ -80,7 +80,7 @@ implicit def pairEncoder[A, B](
 ): CsvEncoder[(A, B)]
 <<< should work without explicit parameter groups (non-vm, before=T)
 verticalMultiline.atDefnSite = false
-newlines.implicitParamListModifier = [before,after]
+newlines.implicitParamListModifierForce = [before,after]
 ===
 implicit def pairEncoder[A, B](
     implicit aEncoder: CsvEncoder[A],

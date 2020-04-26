@@ -772,7 +772,7 @@ something.map { x => f(x) }
 > Since v2.5.0.
 
 ```scala mdoc:defaults
-newlines.implicitParamListModifier
+newlines.implicitParamListModifierForce
 ```
 
 #### Before
@@ -782,7 +782,7 @@ newlines.implicitParamListModifier
 
 ```scala mdoc:scalafmt
 maxColumn = 60
-newlines.implicitParamListModifier = [before]
+newlines.implicitParamListModifierForce = [before]
 ---
 def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```
@@ -795,7 +795,7 @@ def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 
 ```scala mdoc:scalafmt
 maxColumn = 60
-newlines.implicitParamListModifier = [after]
+newlines.implicitParamListModifierForce = [after]
 ---
 def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```
@@ -804,7 +804,7 @@ def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 
 ```scala mdoc:scalafmt
 maxColumn = 60
-newlines.implicitParamListModifier = [before,after]
+newlines.implicitParamListModifierForce = [before,after]
 ---
 def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```
@@ -813,7 +813,7 @@ def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 
 ```scala mdoc:scalafmt
 maxColumn = 60
-newlines.implicitParamListModifier = []
+newlines.implicitParamListModifierForce = []
 ---
 def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```
@@ -823,7 +823,7 @@ def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```scala mdoc:scalafmt
 maxColumn = 60
 optIn.configStyleArguments = true
-newlines.implicitParamListModifier = [after]
+newlines.implicitParamListModifierForce = [after]
 ---
 def format(code: String, age: Int)(
    implicit ev: Parser, c: Context
@@ -1317,7 +1317,7 @@ other(a, b)(c, d)
 ```scala mdoc:scalafmt
 maxColumn = 60
 verticalMultiline.atDefnSite = true
-newlines.implicitParamListModifier = [before]
+newlines.implicitParamListModifierForce = [before]
 ---
 def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```
@@ -1327,7 +1327,7 @@ def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```scala mdoc:scalafmt
 maxColumn = 60
 verticalMultiline.atDefnSite = true
-newlines.implicitParamListModifier = [after]
+newlines.implicitParamListModifierForce = [after]
 ---
 def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```
@@ -1337,7 +1337,7 @@ def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```scala mdoc:scalafmt
 maxColumn = 60
 verticalMultiline.atDefnSite = true
-newlines.implicitParamListModifier = [before,after]
+newlines.implicitParamListModifierForce = [before,after]
 ---
 def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```
