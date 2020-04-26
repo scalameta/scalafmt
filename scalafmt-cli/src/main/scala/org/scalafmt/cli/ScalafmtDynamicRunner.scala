@@ -1,5 +1,6 @@
 package org.scalafmt.cli
 
+import java.io.File
 import java.nio.file.Paths
 import java.util.concurrent.atomic.{AtomicInteger, AtomicReference}
 import java.util.function.UnaryOperator
@@ -16,9 +17,10 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
       options: CliOptions,
       termDisplayMessage: String
   ): ExitCode = {
+    val customMatcher = getFileMatcher(options.customFiles)
     val inputMethods = getInputMethods(
       options,
-      (x: AbsoluteFile) => true
+      customMatcher
     )
     if (inputMethods.isEmpty && options.mode.isEmpty && !options.stdIn)
       throw NoMatchingFiles
@@ -28,35 +30,15 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
     val scalafmtInstance = Scalafmt
       .create(this.getClass.getClassLoader)
       .withReporter(reporter)
-
-    // Path names fully qualified by `customFiles`.
-    // If there exists fqpns, create another instance of `scalafmt-dynamic`
-    // that ignores `excludeFilters` because fully qualified files will (try to) be
-    // formatted regardless of what it is or where it is (and excludeFilter).
-    val fqpns = inputMethods.filter { input =>
-      AbsoluteFile.fromPath(input.filename).forall { file =>
-        options.customFiles.contains(file)
-      }
-    }
-    val scalafmtInstanceIgnoreFilters =
-      if (fqpns.isEmpty) scalafmtInstance
-      else
-        Scalafmt
-          .create(this.getClass.getClassLoader)
-          .withReporter(reporter)
-          .withRespectProjectFilters(false)
+      .withRespectProjectFilters(false)
 
     val termDisplay = newTermDisplay(options, inputMethods, termDisplayMessage)
 
     val exitCode = new AtomicReference(ExitCode.Ok)
     breakable {
       inputMethods.foreach { inputMethod =>
-        val instance =
-          // Use scalafmt-dynamic that ignores exclude filters for fully qualified paths
-          if (fqpns.contains(inputMethod)) scalafmtInstanceIgnoreFilters
-          else scalafmtInstance
         try {
-          val code = handleFile(inputMethod, instance, options)
+          val code = handleFile(inputMethod, scalafmtInstance, options)
           exitCode.getAndUpdate(new UnaryOperator[ExitCode] {
             override def apply(t: ExitCode): ExitCode =
               ExitCode.merge(code, t)
@@ -88,12 +70,14 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
 
     // DESNOTE(2017-05-19, pjrt): A plain, fully passed file will (try to) be
     // formatted regardless of what it is or where it is.
-    val shouldRespectFilters =
-      AbsoluteFile.fromPath(inputMethod.filename).forall { file =>
-        !options.customFiles.contains(file)
+    val ignoreFilters =
+      AbsoluteFile.fromPath(inputMethod.filename).exists { file =>
+        options.customFiles.contains(file)
       }
-    val formatResult = scalafmtInstance
-      .withRespectProjectFilters(shouldRespectFilters)
+    val formatter =
+      if (ignoreFilters) scalafmtInstance
+      else scalafmtInstance.withRespectProjectFilters(true)
+    val formatResult = formatter
       .format(
         options.configPath,
         Paths.get(inputMethod.filename),
@@ -101,4 +85,25 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
       )
     inputMethod.write(formatResult, input, options)
   }
+
+  private def getFileMatcher(
+      paths: Seq[AbsoluteFile]
+  ): AbsoluteFile => Boolean = {
+    if (paths.isEmpty) _ => true
+    else {
+      val (files, dirs) = paths.partition(_.jfile.isFile)
+      (x: AbsoluteFile) =>
+        files.contains(x) || {
+          val filename = x.path
+          dirs.exists { dir =>
+            val dirname = dir.path
+            filename.startsWith(dirname) && (
+              filename.length == dirname.length ||
+              filename.charAt(dirname.length) == File.separatorChar
+            )
+          }
+        }
+    }
+  }
+
 }
