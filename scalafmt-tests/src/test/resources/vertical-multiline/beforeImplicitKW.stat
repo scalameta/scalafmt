@@ -1,5 +1,5 @@
 maxColumn = 80
-newlines.implicitParamListModifier = [before,after]
+newlines.implicitParamListModifierForce = [before,after]
 verticalMultiline.atDefnSite = true
 continuationIndent.defnSite = 2
 continuationIndent.extendSite = 0
@@ -97,7 +97,7 @@ implicit def pairEncoder[A, B](
 ): CsvEncoder[(A, B)]
 <<< force only before
 verticalMultiline.atDefnSite = false
-newlines.implicitParamListModifier = [before]
+newlines.implicitParamListModifierForce = [before]
 ===
 object a {
   def foo[A, B](implicit aEncoder: CsvEncoder[A]): CsvEncoder[(A, B)]
@@ -116,7 +116,7 @@ object a {
 }
 <<< prefer after
 verticalMultiline.atDefnSite = false
-newlines.implicitParamListModifier = [after]
+newlines.implicitParamListModifierForce = [after]
 optIn.configStyleArguments = false
 ===
 object a {
@@ -149,7 +149,7 @@ object a {
 }
 <<< prefer before
 verticalMultiline.atDefnSite = false
-newlines.implicitParamListModifier = [before]
+newlines.implicitParamListModifierForce = [before]
 optIn.configStyleArguments = false
 ===
 object a {
@@ -185,7 +185,7 @@ object a {
 }
 <<< prefer after, config style
 verticalMultiline.atDefnSite = false
-newlines.implicitParamListModifier = [after]
+newlines.implicitParamListModifierForce = [after]
 optIn.configStyleArguments = true
 ===
 object a {
@@ -218,7 +218,7 @@ object a {
 }
 <<< prefer before, config style
 verticalMultiline.atDefnSite = false
-newlines.implicitParamListModifier = [before]
+newlines.implicitParamListModifierForce = [before]
 optIn.configStyleArguments = true
 ===
 object a {

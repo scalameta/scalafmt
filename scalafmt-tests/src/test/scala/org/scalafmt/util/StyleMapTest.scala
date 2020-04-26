@@ -57,36 +57,36 @@ class StyleMapTest extends AnyFunSuite {
     assert(newPrintlnConfig.alignMap("=").regex == overrideEquals)
   }
 
-  test("newlines.implicitParamListModifier") {
+  test("newlines.implicitParamListModifierForce") {
     val code =
       """object a {
-        |  // scalafmt: { newlines.implicitParamListModifier = [after] }
+        |  // scalafmt: { newlines.implicitParamListModifierForce = [after] }
         |  println(1)
         |}
       """.stripMargin.parse[Source].get
     val formatOps = new FormatOps(
       code,
       ScalafmtConfig(newlines =
-        Newlines(implicitParamListModifier = List(Newlines.before))
+        Newlines(implicitParamListModifierForce = List(Newlines.before))
       )
     )
-    val headToken = formatOps.tokens.head
-    val printlnToken = formatOps.tokens.find(_.left.syntax == "println").get
+    val token1 = formatOps.tokens.head
+    val token2 = formatOps.tokens.find(_.left.syntax == "println").get
 
     val defaultValue = List(Newlines.before)
     val overrideValue = List(Newlines.after)
 
-    val headConfig = formatOps.styleMap.at(headToken)
-    val printlnConfig = formatOps.styleMap.at(printlnToken)
-    val newFormatOps = new FormatOps(code, printlnConfig)
+    val style1 = formatOps.styleMap.at(token1)
+    val style2 = formatOps.styleMap.at(token2)
+    val formatOps2 = new FormatOps(code, style2)
 
-    val newHeadConfig = newFormatOps.styleMap.at(headToken)
-    assert(headConfig.newlines.implicitParamListModifier == defaultValue)
-    assert(newHeadConfig.newlines.implicitParamListModifier == overrideValue)
+    val newStyle1 = formatOps2.styleMap.at(token1)
+    assert(style1.newlines.implicitParamListModifierForce == defaultValue)
+    assert(newStyle1.newlines.implicitParamListModifierForce == overrideValue)
 
-    val newPrintlnConfig = newFormatOps.styleMap.at(printlnToken)
-    assert(printlnConfig.newlines.implicitParamListModifier == overrideValue)
-    assert(newPrintlnConfig.newlines.implicitParamListModifier == overrideValue)
+    val newStyle2 = formatOps2.styleMap.at(token2)
+    assert(style2.newlines.implicitParamListModifierForce == overrideValue)
+    assert(newStyle2.newlines.implicitParamListModifierForce == overrideValue)
   }
 
 }

@@ -936,8 +936,8 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
       ft: FormatToken
   )(implicit style: ScalafmtConfig): Boolean = {
     def opensImplicit =
-      (style.newlines.afterImplicitParamListModifier || next(ft).hasBreak) &&
-        opensConfigStyleImplicitParamList(ft)
+      (style.newlines.forceAfterImplicitParamListModifier ||
+        next(ft).hasBreak) && opensConfigStyleImplicitParamList(ft)
     (ft.hasBreak || opensImplicit) && {
       val close = matching(ft.left)
       tokens(close, -1).hasBreak
@@ -949,7 +949,7 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
   )(implicit style: ScalafmtConfig): Boolean =
     style.activeForEdition_2020_03 &&
       formatToken.right.is[T.KwImplicit] &&
-      !style.newlines.beforeImplicitParamListModifier &&
+      !style.newlines.forceBeforeImplicitParamListModifier &&
       opensImplicitParamList(formatToken).isDefined
 
   def styleAt(tree: Tree): ScalafmtConfig = {
@@ -1206,7 +1206,7 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
 
         val shouldAddNewline = {
           if (right.is[T.KwImplicit])
-            style.newlines.beforeImplicitParamListModifier ||
+            style.newlines.forceBeforeImplicitParamListModifier ||
             style.verticalMultiline.newlineBeforeImplicitKW
           else
             style.verticalMultiline.newlineAfterOpenParen && isDefinition
@@ -1217,7 +1217,7 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
             .withIndent(indentParam, close2, ExpiresOn.Before)
         )
       case Decision(t @ FormatToken(T.KwImplicit(), _, _), _)
-          if style.newlines.afterImplicitParamListModifier ||
+          if style.newlines.forceAfterImplicitParamListModifier ||
             style.verticalMultiline.newlineAfterImplicitKW =>
         Seq(Split(Newline, 0))
     }

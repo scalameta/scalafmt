@@ -10,13 +10,13 @@ case class VerticalMultiline(
     arityThreshold: Int = 100,
     @annotation.DeprecatedName(
       "newlineBeforeImplicitKW",
-      "Use newlines.implicitParamListModifier=[before] instead",
+      "Use newlines.implicitParamListModifierForce=[before] instead",
       "2.5.0"
     )
     newlineBeforeImplicitKW: Boolean = false,
     @annotation.DeprecatedName(
       "newlineAfterImplicitKW",
-      "Use newlines.implicitParamListModifier=[after] instead",
+      "Use newlines.implicitParamListModifierForce=[after] instead",
       "2.5.0"
     )
     newlineAfterImplicitKW: Boolean = false,

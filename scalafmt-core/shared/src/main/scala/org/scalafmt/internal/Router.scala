@@ -884,7 +884,8 @@ class Router(formatOps: FormatOps) {
           opensImplicitParamList(formatToken, args)
 
         val noSplitMod =
-          if (handleImplicit && style.newlines.beforeImplicitParamListModifier)
+          if (handleImplicit &&
+            style.newlines.forceBeforeImplicitParamListModifier)
             null
           else getNoSplit(formatToken, !isBracket)
         val noSplitIndent = if (right.is[T.Comment]) indent else Num(0)
@@ -892,7 +893,8 @@ class Router(formatOps: FormatOps) {
         val align = {
           if (defnSite) style.align.openParenDefnSite
           else style.align.openParenCallSite
-        } && (!handleImplicit || style.newlines.afterImplicitParamListModifier)
+        } && (!handleImplicit ||
+          style.newlines.forceAfterImplicitParamListModifier)
         val alignTuple = align && isTuple(leftOwner)
 
         val keepConfigStyleSplit = !sourceIgnored &&
@@ -1602,7 +1604,7 @@ class Router(formatOps: FormatOps) {
           Seq(Split(Space, 0))
         } { params =>
           val spaceSplit = Split(Space, 0)
-            .notIf(style.newlines.afterImplicitParamListModifier)
+            .notIf(style.newlines.forceAfterImplicitParamListModifier)
             .withPolicy(SingleLineBlock(params.last.tokens.last))
           Seq(
             spaceSplit,
