@@ -187,6 +187,26 @@ argument1: Type1 // indented by 4
 ): ReturnType
 ```
 
+### `continuationIndent.extendSite`
+
+```scala mdoc:defaults
+continuationIndent.extendSite
+```
+
+```scala mdoc:defaults
+continuationIndent.withSiteRelativeToExtends
+```
+
+```scala mdoc:scalafmt
+continuationIndent.extendSite = 4
+continuationIndent.withSiteRelativeToExtends = 2
+maxColumn = 30
+---
+trait Foo extends A with B with C with D with E {
+  def foo: Boolean = true
+}
+```
+
 ## Alignment
 
 Default: **some**
