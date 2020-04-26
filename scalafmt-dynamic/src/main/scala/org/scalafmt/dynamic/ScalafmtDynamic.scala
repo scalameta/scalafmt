@@ -27,7 +27,7 @@ final case class ScalafmtDynamic(
     configsCache: ReentrantCache[Path, FormatEval[
       (ScalafmtReflectConfig, FileTime)
     ]]
-) extends Scalafmt {
+) extends ScalafmtSessionFactory {
 
   def this() =
     this(
@@ -241,6 +241,23 @@ final case class ScalafmtDynamic(
 
   override def withMavenRepositories(repositories: String*): Scalafmt =
     copy(repositories = repositories.map(MavenRepository.of).toList)
+
+  override def createSession(config: Path): ScalafmtSession =
+    resolveConfig(config).fold(
+      error => { reportError(config, error); null },
+      config => new MySession(config)
+    )
+
+  private class MySession(cfg: ScalafmtReflectConfig) extends ScalafmtSession {
+    override def format(file: Path, code: String): String =
+      tryFormat(file, code, cfg.fmtReflect, cfg).fold(
+        error => { reportError(file, error); code },
+        formatted => formatted
+      )
+    override def matchesProjectFilters(file: Path): Boolean =
+      cfg.isIncludedInProject(file.toString)
+  }
+
 }
 
 object ScalafmtDynamic {
