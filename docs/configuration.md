@@ -771,11 +771,33 @@ something.map { x => f(x) }
 
 > Since v2.5.0.
 
-```scala mdoc:defaults
-newlines.implicitParamListModifierForce
+#### Prefer After (default)
+
+> Prefers newline after `implicit`. Newline will be added
+> unless the entire implicit parameter list fits on a line,
+> or config style is false. Newline can also be added _before_
+> if the keyword itself would overflow the line.
+
+```scala mdoc:scalafmt
+maxColumn = 60
+newlines.implicitParamListModifierPrefer = after
+---
+def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```
 
-#### Before
+#### Prefer Before
+
+> Prefers newline before `implicit`. Newline will not be added
+> if the entire implicit parameter list fits on a line.
+
+```scala mdoc:scalafmt
+maxColumn = 60
+newlines.implicitParamListModifierPrefer = before
+---
+def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
+```
+
+#### Force Before
 
 > If set, forces newline before `implicit`. Otherwise, newline can still be
 > added if the keyword would overflow the line.
@@ -787,7 +809,7 @@ newlines.implicitParamListModifierForce = [before]
 def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```
 
-#### After
+#### Force After
 
 > If set, forces newline after `implicit`. Otherwise, newline can still be added
 > unless `before` is true, or the entire implicit parameter list fits on a line,
@@ -800,20 +822,11 @@ newlines.implicitParamListModifierForce = [after]
 def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```
 
-#### Both before and after
+#### Force both before and after
 
 ```scala mdoc:scalafmt
 maxColumn = 60
 newlines.implicitParamListModifierForce = [before,after]
----
-def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
-```
-
-#### Neither before nor after
-
-```scala mdoc:scalafmt
-maxColumn = 60
-newlines.implicitParamListModifierForce = []
 ---
 def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```

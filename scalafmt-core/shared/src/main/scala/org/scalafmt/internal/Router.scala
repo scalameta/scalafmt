@@ -949,8 +949,11 @@ class Router(formatOps: FormatOps) {
             .withIndent(indent, close, Before),
           Split(noSplitMod, (implicitPenalty + lhsPenalty) * bracketCoef)
             .withPolicy(oneArgOneLine.andThen(implicitPolicy))
-            .onlyIf(handleImplicit || (notTooManyArgs && align))
             .onlyIf(noSplitMod != null)
+            .onlyIf(
+              (notTooManyArgs && align) || (handleImplicit &&
+                style.newlines.notBeforeImplicitParamListModifier)
+            )
             .withIndent(if (align) StateColumn else indent, close, Before),
           Split(Newline, (3 + nestedPenalty) * bracketCoef)
             .withPolicy(oneArgOneLine)
@@ -1605,7 +1608,10 @@ class Router(formatOps: FormatOps) {
         } { params =>
           val spaceSplit = Split(Space, 0)
             .notIf(style.newlines.forceAfterImplicitParamListModifier)
-            .withPolicy(SingleLineBlock(params.last.tokens.last))
+            .withPolicy(
+              SingleLineBlock(params.last.tokens.last),
+              style.newlines.notPreferAfterImplicitParamListModifier
+            )
           Seq(
             spaceSplit,
             Split(Newline, if (spaceSplit.isActive) 1 else 0)

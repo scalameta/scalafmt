@@ -152,6 +152,7 @@ case class Newlines(
     alwaysBeforeTopLevelStatements: Boolean = false,
     afterCurlyLambda: NewlineCurlyLambda = NewlineCurlyLambda.never,
     implicitParamListModifierForce: Seq[Newlines.BeforeAfter] = Seq.empty,
+    implicitParamListModifierPrefer: Option[Newlines.BeforeAfter] = None,
     alwaysBeforeElseAfterCurlyIf: Boolean = false,
     alwaysBeforeMultilineDef: Boolean = true,
     afterInfix: Option[AfterInfix] = None,
@@ -160,6 +161,14 @@ case class Newlines(
     afterInfixMaxCountPerFile: Int = 500,
     avoidAfterYield: Boolean = true
 ) {
+  if (implicitParamListModifierForce.nonEmpty &&
+    implicitParamListModifierPrefer.nonEmpty) {
+    throw new ScalafmtConfigException(
+      "can't specify both " +
+        "implicitParamListModifierForce and implicitParamListModifierPrefer"
+    )
+  }
+
   val reader: ConfDecoder[Newlines] = generic.deriveDecoder(this).noTypos
   if (source != Newlines.classic) Newlines.warnSourceIsExperimental
 
@@ -197,6 +206,17 @@ case class Newlines(
     implicitParamListModifierForce.contains(Newlines.before)
   lazy val forceAfterImplicitParamListModifier: Boolean =
     implicitParamListModifierForce.contains(Newlines.after)
+
+  private def preferBeforeImplicitParamListModifier: Boolean =
+    implicitParamListModifierPrefer.contains(Newlines.before)
+  lazy val notPreferAfterImplicitParamListModifier: Boolean =
+    implicitParamListModifierForce.nonEmpty ||
+      preferBeforeImplicitParamListModifier
+  lazy val notBeforeImplicitParamListModifier: Boolean =
+    if (implicitParamListModifierForce.isEmpty)
+      !preferBeforeImplicitParamListModifier
+    else
+      !forceBeforeImplicitParamListModifier
 
   lazy val forceBlankBeforeMultilineTopLevelStmt: Boolean =
     topLevelStatements.contains(Newlines.before) ||
