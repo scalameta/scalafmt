@@ -95,3 +95,160 @@ implicit def pairEncoder[A, B](
   aEncoder: CsvEncoder[A],
   bEncoder: CsvEncoder[B]
 ): CsvEncoder[(A, B)]
+<<< force only before
+verticalMultiline.atDefnSite = false
+newlines.implicitParamListModifier = [before]
+===
+object a {
+  def foo[A, B](implicit aEncoder: CsvEncoder[A]): CsvEncoder[(A, B)]
+  def foo[A, B](implicit aEncoder: CsvEncoder[A], bEncoder: CsvEncoder[B]): CsvEncoder[(A, B)]
+}
+>>>
+object a {
+  def foo[A, B](
+    implicit aEncoder: CsvEncoder[A]
+  ): CsvEncoder[(A, B)]
+  def foo[A, B](
+    implicit
+    aEncoder: CsvEncoder[A],
+    bEncoder: CsvEncoder[B]
+  ): CsvEncoder[(A, B)]
+}
+<<< prefer after
+verticalMultiline.atDefnSite = false
+newlines.implicitParamListModifier = [after]
+optIn.configStyleArguments = false
+===
+object a {
+  def foo[A, B](implicit aEncoder: CsvEncoder[A]): CsvEncoder[(A, B)]
+  def foo[A, B](implicit aEncoder: CsvEncoder[A], bEncoder: CsvEncoder[B]): CsvEncoder[(A, B)]
+  def foo[A, B](implicit
+    aEncoder: CsvEncoder[A], bEncoder: CsvEncoder[B]
+  ): CsvEncoder[(A, B)]
+  def foo[A, B](
+    implicit aEncoder: CsvEncoder[A], bEncoder: CsvEncoder[B]
+  ): CsvEncoder[(A, B)]
+}
+>>>
+object a {
+  def foo[A, B](implicit
+    aEncoder: CsvEncoder[A]
+  ): CsvEncoder[(A, B)]
+  def foo[A, B](implicit
+    aEncoder: CsvEncoder[A],
+    bEncoder: CsvEncoder[B]
+  ): CsvEncoder[(A, B)]
+  def foo[A, B](implicit
+    aEncoder: CsvEncoder[A],
+    bEncoder: CsvEncoder[B]
+  ): CsvEncoder[(A, B)]
+  def foo[A, B](implicit
+    aEncoder: CsvEncoder[A],
+    bEncoder: CsvEncoder[B]
+  ): CsvEncoder[(A, B)]
+}
+<<< prefer before
+verticalMultiline.atDefnSite = false
+newlines.implicitParamListModifier = [before]
+optIn.configStyleArguments = false
+===
+object a {
+  def foo[A, B](implicit aEncoder: CsvEncoder[A]): CsvEncoder[(A, B)]
+  def foo[A, B](implicit aEncoder: CsvEncoder[A], bEncoder: CsvEncoder[B]): CsvEncoder[(A, B)]
+  def foo[A, B](implicit
+    aEncoder: CsvEncoder[A], bEncoder: CsvEncoder[B]
+  ): CsvEncoder[(A, B)]
+  def foo[A, B](
+    implicit aEncoder: CsvEncoder[A], bEncoder: CsvEncoder[B]
+  ): CsvEncoder[(A, B)]
+}
+>>>
+object a {
+  def foo[A, B](
+    implicit aEncoder: CsvEncoder[A]
+  ): CsvEncoder[(A, B)]
+  def foo[A, B](
+    implicit
+    aEncoder: CsvEncoder[A],
+    bEncoder: CsvEncoder[B]
+  ): CsvEncoder[(A, B)]
+  def foo[A, B](
+    implicit
+    aEncoder: CsvEncoder[A],
+    bEncoder: CsvEncoder[B]
+  ): CsvEncoder[(A, B)]
+  def foo[A, B](
+    implicit
+    aEncoder: CsvEncoder[A],
+    bEncoder: CsvEncoder[B]
+  ): CsvEncoder[(A, B)]
+}
+<<< prefer after, config style
+verticalMultiline.atDefnSite = false
+newlines.implicitParamListModifier = [after]
+optIn.configStyleArguments = true
+===
+object a {
+  def foo[A, B](implicit aEncoder: CsvEncoder[A]): CsvEncoder[(A, B)]
+  def foo[A, B](implicit aEncoder: CsvEncoder[A], bEncoder: CsvEncoder[B]): CsvEncoder[(A, B)]
+  def foo[A, B](implicit
+    aEncoder: CsvEncoder[A], bEncoder: CsvEncoder[B]
+  ): CsvEncoder[(A, B)]
+  def foo[A, B](
+    implicit aEncoder: CsvEncoder[A], bEncoder: CsvEncoder[B]
+  ): CsvEncoder[(A, B)]
+}
+>>>
+object a {
+  def foo[A, B](implicit
+    aEncoder: CsvEncoder[A]
+  ): CsvEncoder[(A, B)]
+  def foo[A, B](implicit
+    aEncoder: CsvEncoder[A],
+    bEncoder: CsvEncoder[B]
+  ): CsvEncoder[(A, B)]
+  def foo[A, B](implicit
+    aEncoder: CsvEncoder[A],
+    bEncoder: CsvEncoder[B]
+  ): CsvEncoder[(A, B)]
+  def foo[A, B](implicit
+    aEncoder: CsvEncoder[A],
+    bEncoder: CsvEncoder[B]
+  ): CsvEncoder[(A, B)]
+}
+<<< prefer before, config style
+verticalMultiline.atDefnSite = false
+newlines.implicitParamListModifier = [before]
+optIn.configStyleArguments = true
+===
+object a {
+  def foo[A, B](implicit aEncoder: CsvEncoder[A]): CsvEncoder[(A, B)]
+  def foo[A, B](implicit aEncoder: CsvEncoder[A], bEncoder: CsvEncoder[B]): CsvEncoder[(A, B)]
+  def foo[A, B](implicit
+    aEncoder: CsvEncoder[A], bEncoder: CsvEncoder[B]
+  ): CsvEncoder[(A, B)]
+  def foo[A, B](
+    implicit aEncoder: CsvEncoder[A], bEncoder: CsvEncoder[B]
+  ): CsvEncoder[(A, B)]
+}
+>>>
+object a {
+  def foo[A, B](
+    implicit aEncoder: CsvEncoder[A]
+  ): CsvEncoder[(A, B)]
+  def foo[A, B](
+    implicit
+    aEncoder: CsvEncoder[A],
+    bEncoder: CsvEncoder[B]
+  ): CsvEncoder[(A, B)]
+  def foo[A, B](
+    implicit
+    aEncoder: CsvEncoder[A],
+    bEncoder: CsvEncoder[B]
+  ): CsvEncoder[(A, B)]
+  def foo[A, B](
+    implicit
+    aEncoder: CsvEncoder[A],
+    bEncoder: CsvEncoder[B]
+  ): CsvEncoder[(A, B)]
+}
