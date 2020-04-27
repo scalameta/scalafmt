@@ -74,3 +74,20 @@ for {
     else doOtherThing
   }
 } yield x
+<<< unicode
+for {
+  x ← new Integer {
+  def value = 2
+  }
+  y ← Int(2)
+  cond ← if (variable) doSomething else doAnything
+} yield x + y
+>>>
+for {
+  x ← new Integer {
+        def value = 2
+      }
+  y ← Int(2)
+  cond ← if (variable) doSomething
+         else doAnything
+} yield x + y
