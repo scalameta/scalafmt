@@ -729,13 +729,20 @@ object FormatWriter {
     }
   }
 
-  val trailingSpace = Pattern.compile(" +$", Pattern.MULTILINE)
+  private val horizontalWhitespaceClass = "[^\\S\\r\\n]"
+
+  private val trailingSpace = Pattern.compile(
+    s"${horizontalWhitespaceClass}+$$",
+    Pattern.MULTILINE | Pattern.UNICODE_CHARACTER_CLASS
+  )
   private def removeTrailingWhiteSpace(str: String): String = {
     trailingSpace.matcher(str).replaceAll("")
   }
 
-  val leadingAsteriskSpace =
-    Pattern.compile("\n *\\*(?!\\*)", Pattern.MULTILINE)
+  private val leadingAsteriskSpace = Pattern.compile(
+    s"^${horizontalWhitespaceClass}*(?=[*][^*])",
+    Pattern.MULTILINE | Pattern.UNICODE_CHARACTER_CLASS
+  )
   private def formatComment(
       comment: T.Comment,
       indent: Int
@@ -746,9 +753,7 @@ object FormatWriter {
         val isDocstring = comment.syntax.startsWith("/**") && style.scalaDocs
         val spaces: String =
           getIndentation(if (isDocstring) (indent + 2) else (indent + 1))
-        leadingAsteriskSpace
-          .matcher(comment.syntax)
-          .replaceAll(s"\n$spaces\\*")
+        leadingAsteriskSpace.matcher(comment.syntax).replaceAll(spaces)
       } else {
         comment.syntax
       }
@@ -760,7 +765,10 @@ object FormatWriter {
     if (pipe == '|') leadingPipeSpace else compileStripMarginPattern(pipe)
   @inline
   private def compileStripMarginPattern(pipe: Char) =
-    Pattern.compile(raw"(?<=\n) *(?=[$pipe])", Pattern.MULTILINE)
+    Pattern.compile(
+      s"^${horizontalWhitespaceClass}*(?=[$pipe])",
+      Pattern.MULTILINE | Pattern.UNICODE_CHARACTER_CLASS
+    )
   private val leadingPipeSpace = compileStripMarginPattern('|')
 
 }
