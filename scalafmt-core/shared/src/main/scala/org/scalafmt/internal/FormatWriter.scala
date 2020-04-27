@@ -735,7 +735,7 @@ object FormatWriter {
   }
 
   private val leadingAsteriskSpace =
-    Pattern.compile("^\\h*(?=[*][^*])", Pattern.MULTILINE)
+    Pattern.compile("(?<=\\n)\\h*(?=[*][^*])")
   private def formatComment(
       comment: T.Comment,
       indent: Int
@@ -758,7 +758,7 @@ object FormatWriter {
     if (pipe == '|') leadingPipeSpace else compileStripMarginPattern(pipe)
   @inline
   private def compileStripMarginPattern(pipe: Char) =
-    Pattern.compile(s"^\\h*(?=[$pipe])", Pattern.MULTILINE)
+    Pattern.compile(s"(?<=\\n)\\h*(?=[$pipe])")
   private val leadingPipeSpace = compileStripMarginPattern('|')
 
 }
