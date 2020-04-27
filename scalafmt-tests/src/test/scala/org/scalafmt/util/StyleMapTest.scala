@@ -33,7 +33,7 @@ class StyleMapTest extends AnyFunSuite {
   test("align.tokens.add") {
     val code =
       """object a {
-        |  // scalafmt: { align.tokens.add = ["="] }
+        |  // scalafmt: { align.tokens.add = [{ code="=", owner=".*" }] }
         |  println(1)
         |}
       """.stripMargin.parse[Source].get
