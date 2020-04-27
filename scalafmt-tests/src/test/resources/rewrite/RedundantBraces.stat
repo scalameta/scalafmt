@@ -776,3 +776,49 @@ object a {
     case bar => foo
   })
 }
+<<< try with partially enclosed 1: paren kept
+object a {
+  try { (x).y } catch { case a => }
+  try { (x).y } catch handler
+}
+>>>
+test does not parse
+object a {
+  try  (x).y  catch { case a => }
+          ^
+<<< try with partially enclosed 2: paren removed
+rewrite.rules = [RedundantBraces, RedundantParens]
+===
+object a {
+  try { (x).y } catch { case a => }
+  try { (x).y } catch handler
+}
+>>>
+object a {
+  try x.y
+  catch { case a => }
+  try x.y
+  catch handler
+}
+<<< try with partially enclosed 3: brace kept
+object a {
+  try { {x + y}.z } catch { case a => }
+  try { {x + y}.y } catch handler
+}
+>>>
+test does not parse
+object a {
+  try  {x + y}.z  catch { case a => }
+              ^
+<<< try with partially enclosed 4: brace removed
+object a {
+  try { {x}.z } catch { case a => }
+  try { {x}.y } catch handler
+}
+>>>
+object a {
+  try x.z
+  catch { case a => }
+  try x.y
+  catch handler
+}
