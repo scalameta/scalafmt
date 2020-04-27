@@ -178,7 +178,7 @@ object a {
 }
 >>>
 object a {
-  s"""    |
+  s"""|
     |  update targeting_segments
     |  set status = '$status',
     |${lastBuiltOpt.fold("")(dt => s"  last_built = '${formatDate(dt)}',")}
