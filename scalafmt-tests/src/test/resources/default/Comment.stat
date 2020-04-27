@@ -136,7 +136,7 @@ object a {
   /*
 
    /**
-     		* comment
+   * comment
    */
 
   def undefined = ???
