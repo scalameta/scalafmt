@@ -125,7 +125,7 @@ object a {
   /*
 
    /**
-     * comment
+     		* comment
      */
 
   def undefined = ???
@@ -136,7 +136,7 @@ object a {
   /*
 
    /**
-   * comment
+     		* comment
    */
 
   def undefined = ???
