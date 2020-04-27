@@ -1043,14 +1043,14 @@ something.map { x =&gt; f(x) }
 <blockquote>
 <p>Since v2.5.0.</p>
 </blockquote>
-<p>Default: <code>newlines.implicitParamListModifier = []</code></p>
-<h4><a class="anchor" aria-hidden="true" id="before"></a><a href="#before" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Before</h4>
+<h4><a class="anchor" aria-hidden="true" id="prefer-after-default"></a><a href="#prefer-after-default" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Prefer After (default)</h4>
 <blockquote>
-<p>If set, forces newline before <code>implicit</code>. Otherwise, newline can still be
-added if the keyword would overflow the line.</p>
+<p>Prefers newline after <code>implicit</code>. Newline will be added
+unless the entire implicit parameter list fits on a line,
+or config style is false. Newline can also be added <em>before</em>
+if the keyword itself would overflow the line.</p>
 </blockquote>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">format</span></span>(code: <span class="hljs-type">String</span>, age: <span class="hljs-type">Int</span>)(
-    <span class="hljs-keyword">implicit</span>
+<pre><code class="hljs css language-scala formatted"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">format</span></span>(code: <span class="hljs-type">String</span>, age: <span class="hljs-type">Int</span>)(<span class="hljs-keyword">implicit</span>
     ev: <span class="hljs-type">Parser</span>,
     c: <span class="hljs-type">Context</span>
 ): <span class="hljs-type">String</span>
@@ -1059,10 +1059,44 @@ added if the keyword would overflow the line.</p>
 </code></pre>
 <p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">60</span>
-newlines.implicitParamListModifier = [before]
+newlines.implicitParamListModifierPrefer = after
 </code></pre>
 </p></details>
-<h4><a class="anchor" aria-hidden="true" id="after"></a><a href="#after" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>After</h4>
+<h4><a class="anchor" aria-hidden="true" id="prefer-before"></a><a href="#prefer-before" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Prefer Before</h4>
+<blockquote>
+<p>Prefers newline before <code>implicit</code>. Newline will not be added
+if the entire implicit parameter list fits on a line.</p>
+</blockquote>
+<pre><code class="hljs css language-scala formatted"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">format</span></span>(code: <span class="hljs-type">String</span>, age: <span class="hljs-type">Int</span>)(
+    <span class="hljs-keyword">implicit</span> ev: <span class="hljs-type">Parser</span>,
+    c: <span class="hljs-type">Context</span>
+): <span class="hljs-type">String</span>
+</code></pre>
+<pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">format</span></span>(code: <span class="hljs-type">String</span>, age: <span class="hljs-type">Int</span>)(<span class="hljs-keyword">implicit</span> ev: <span class="hljs-type">Parser</span>, c: <span class="hljs-type">Context</span>): <span class="hljs-type">String</span>
+</code></pre>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
+<pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">60</span>
+newlines.implicitParamListModifierPrefer = before
+</code></pre>
+</p></details>
+<h4><a class="anchor" aria-hidden="true" id="force-before"></a><a href="#force-before" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Force Before</h4>
+<blockquote>
+<p>If set, forces newline before <code>implicit</code>. Otherwise, newline can still be
+added if the keyword would overflow the line.</p>
+</blockquote>
+<pre><code class="hljs css language-scala formatted"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">format</span></span>(code: <span class="hljs-type">String</span>, age: <span class="hljs-type">Int</span>)(
+    <span class="hljs-keyword">implicit</span> ev: <span class="hljs-type">Parser</span>,
+    c: <span class="hljs-type">Context</span>
+): <span class="hljs-type">String</span>
+</code></pre>
+<pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">format</span></span>(code: <span class="hljs-type">String</span>, age: <span class="hljs-type">Int</span>)(<span class="hljs-keyword">implicit</span> ev: <span class="hljs-type">Parser</span>, c: <span class="hljs-type">Context</span>): <span class="hljs-type">String</span>
+</code></pre>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
+<pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">60</span>
+newlines.implicitParamListModifierForce = [before]
+</code></pre>
+</p></details>
+<h4><a class="anchor" aria-hidden="true" id="force-after"></a><a href="#force-after" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Force After</h4>
 <blockquote>
 <p>If set, forces newline after <code>implicit</code>. Otherwise, newline can still be added
 unless <code>before</code> is true, or the entire implicit parameter list fits on a line,
@@ -1077,10 +1111,10 @@ or config style is false.</p>
 </code></pre>
 <p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">60</span>
-newlines.implicitParamListModifier = [after]
+newlines.implicitParamListModifierForce = [after]
 </code></pre>
 </p></details>
-<h4><a class="anchor" aria-hidden="true" id="both-before-and-after"></a><a href="#both-before-and-after" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Both before and after</h4>
+<h4><a class="anchor" aria-hidden="true" id="force-both-before-and-after"></a><a href="#force-both-before-and-after" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Force both before and after</h4>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">format</span></span>(code: <span class="hljs-type">String</span>, age: <span class="hljs-type">Int</span>)(
     <span class="hljs-keyword">implicit</span>
     ev: <span class="hljs-type">Parser</span>,
@@ -1091,20 +1125,7 @@ newlines.implicitParamListModifier = [after]
 </code></pre>
 <p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">60</span>
-newlines.implicitParamListModifier = [before,after]
-</code></pre>
-</p></details>
-<h4><a class="anchor" aria-hidden="true" id="neither-before-nor-after"></a><a href="#neither-before-nor-after" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Neither before nor after</h4>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">format</span></span>(code: <span class="hljs-type">String</span>, age: <span class="hljs-type">Int</span>)(<span class="hljs-keyword">implicit</span>
-    ev: <span class="hljs-type">Parser</span>,
-    c: <span class="hljs-type">Context</span>
-): <span class="hljs-type">String</span>
-</code></pre>
-<pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">format</span></span>(code: <span class="hljs-type">String</span>, age: <span class="hljs-type">Int</span>)(<span class="hljs-keyword">implicit</span> ev: <span class="hljs-type">Parser</span>, c: <span class="hljs-type">Context</span>): <span class="hljs-type">String</span>
-</code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
-<pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">60</span>
-newlines.implicitParamListModifier = []
+newlines.implicitParamListModifierForce = [before,after]
 </code></pre>
 </p></details>
 <h4><a class="anchor" aria-hidden="true" id="with-optinconfigstylearguments"></a><a href="#with-optinconfigstylearguments" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>With <code>optIn.configStyleArguments</code></h4>
@@ -1120,7 +1141,7 @@ newlines.implicitParamListModifier = []
 <p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">60</span>
 optIn.configStyleArguments = <span class="hljs-literal">true</span>
-newlines.implicitParamListModifier = [after]
+newlines.implicitParamListModifierForce = [after]
 </code></pre>
 </p></details>
 <h3><a class="anchor" aria-hidden="true" id="newlinesafterinfix"></a><a href="#newlinesafterinfix" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>newlines.afterInfix</code></h3>
@@ -1753,7 +1774,7 @@ verticalMultiline.newlineAfterOpenParen = <span class="hljs-literal">true</span>
 <p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">60</span>
 verticalMultiline.atDefnSite = <span class="hljs-literal">true</span>
-newlines.implicitParamListModifier = [before]
+newlines.implicitParamListModifierForce = [before]
 </code></pre>
 </p></details>
 <h4><a class="anchor" aria-hidden="true" id="after-only"></a><a href="#after-only" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>After only</h4>
@@ -1770,7 +1791,7 @@ newlines.implicitParamListModifier = [before]
 <p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">60</span>
 verticalMultiline.atDefnSite = <span class="hljs-literal">true</span>
-newlines.implicitParamListModifier = [after]
+newlines.implicitParamListModifierForce = [after]
 </code></pre>
 </p></details>
 <h4><a class="anchor" aria-hidden="true" id="before-and-after"></a><a href="#before-and-after" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Before and after</h4>
@@ -1788,7 +1809,7 @@ newlines.implicitParamListModifier = [after]
 <p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">60</span>
 verticalMultiline.atDefnSite = <span class="hljs-literal">true</span>
-newlines.implicitParamListModifier = [before,after]
+newlines.implicitParamListModifierForce = [before,after]
 </code></pre>
 </p></details>
 <h2><a class="anchor" aria-hidden="true" id="disabling-or-customizing-formatting"></a><a href="#disabling-or-customizing-formatting" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Disabling or customizing formatting</h2>
@@ -2284,7 +2305,8 @@ newlines.<span class="hljs-attr">topLevelStatementsMinBreaks</span> = <span clas
 newlines.<span class="hljs-attr">topLevelStatements</span> = []
 newlines.<span class="hljs-attr">alwaysBeforeTopLevelStatements</span> = <span class="hljs-literal">false</span>
 newlines.<span class="hljs-attr">afterCurlyLambda</span> = never
-newlines.<span class="hljs-attr">implicitParamListModifier</span> = []
+newlines.<span class="hljs-attr">implicitParamListModifierForce</span> = []
+newlines.<span class="hljs-attr">implicitParamListModifierPrefer</span> = <span class="hljs-literal">null</span>
 newlines.<span class="hljs-attr">alwaysBeforeElseAfterCurlyIf</span> = <span class="hljs-literal">false</span>
 newlines.<span class="hljs-attr">alwaysBeforeMultilineDef</span> = <span class="hljs-literal">true</span>
 newlines.<span class="hljs-attr">afterInfix</span> = <span class="hljs-literal">null</span>
