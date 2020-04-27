@@ -62,38 +62,6 @@ class FormatWriter(formatOps: FormatOps) {
     sb.toString()
   }
 
-  val trailingSpace = Pattern.compile(" +$", Pattern.MULTILINE)
-  private def removeTrailingWhiteSpace(str: String): String = {
-    trailingSpace.matcher(str).replaceAll("")
-  }
-
-  val leadingAsteriskSpace =
-    Pattern.compile("\n *\\*(?!\\*)", Pattern.MULTILINE)
-  private def formatComment(comment: T.Comment, indent: Int): String = {
-    val alignedComment =
-      if (comment.syntax.startsWith("/*") &&
-        formatOps.initStyle.reformatDocstrings) {
-        val isDocstring =
-          comment.syntax.startsWith("/**") && initStyle.scalaDocs
-        val spaces: String =
-          getIndentation(if (isDocstring) (indent + 2) else (indent + 1))
-        leadingAsteriskSpace
-          .matcher(comment.syntax)
-          .replaceAll(s"\n$spaces\\*")
-      } else {
-        comment.syntax
-      }
-    removeTrailingWhiteSpace(alignedComment)
-  }
-
-  @inline
-  private def getStripMarginPattern(pipe: Char) =
-    if (pipe == '|') leadingPipeSpace else compileStripMarginPattern(pipe)
-  @inline
-  private def compileStripMarginPattern(pipe: Char) =
-    Pattern.compile(raw"(?<=\n) *(?=[$pipe])", Pattern.MULTILINE)
-  private val leadingPipeSpace = compileStripMarginPattern('|')
-
   def getFormatLocations(state: State): FormatLocations = {
     val toks = formatOps.tokens.arr
     require(toks.length >= state.depth, "splits !=")
@@ -760,4 +728,39 @@ object FormatWriter {
       last
     }
   }
+
+  val trailingSpace = Pattern.compile(" +$", Pattern.MULTILINE)
+  private def removeTrailingWhiteSpace(str: String): String = {
+    trailingSpace.matcher(str).replaceAll("")
+  }
+
+  val leadingAsteriskSpace =
+    Pattern.compile("\n *\\*(?!\\*)", Pattern.MULTILINE)
+  private def formatComment(
+      comment: T.Comment,
+      indent: Int
+  )(implicit style: ScalafmtConfig): String = {
+    val alignedComment =
+      if (comment.syntax.startsWith("/*") &&
+        style.reformatDocstrings) {
+        val isDocstring = comment.syntax.startsWith("/**") && style.scalaDocs
+        val spaces: String =
+          getIndentation(if (isDocstring) (indent + 2) else (indent + 1))
+        leadingAsteriskSpace
+          .matcher(comment.syntax)
+          .replaceAll(s"\n$spaces\\*")
+      } else {
+        comment.syntax
+      }
+    removeTrailingWhiteSpace(alignedComment)
+  }
+
+  @inline
+  private def getStripMarginPattern(pipe: Char) =
+    if (pipe == '|') leadingPipeSpace else compileStripMarginPattern(pipe)
+  @inline
+  private def compileStripMarginPattern(pipe: Char) =
+    Pattern.compile(raw"(?<=\n) *(?=[$pipe])", Pattern.MULTILINE)
+  private val leadingPipeSpace = compileStripMarginPattern('|')
+
 }
