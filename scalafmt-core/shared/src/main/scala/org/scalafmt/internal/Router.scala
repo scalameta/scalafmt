@@ -2094,33 +2094,6 @@ class Router(formatOps: FormatOps) {
 
         case Newlines.classic if style.align.arrowEnumeratorGenerator =>
           Split(Space, 1)
-            .withIndent(StateColumn, expire, After)
-            /**
-              * This gap is necessary for pretty alignment multiline expressions
-              * on the right-side of enumerator.
-              * Without:
-              * ```
-              * for {
-              *    a <- new Integer {
-              *          value = 1
-              *        }
-              *   x <- if (variable) doSomething
-              *       else doAnything
-              * }
-              * ```
-              *
-              * With:
-              * ```
-              * for {
-              *    a <- new Integer {
-              *           value = 1
-              *         }
-              *   x <- if (variable) doSomething
-              *        else doAnything
-              * }
-              * ```
-              * */
-            .withIndent(Num(1), expire, After)
 
         case Newlines.fold | Newlines.classic =>
           postCommentFT.meta.rightOwner match {
@@ -2134,16 +2107,56 @@ class Router(formatOps: FormatOps) {
               Split(Space, 0).withSingleLine(expire, exclude = exclude)
           }
       }
+
       Seq(
         Split(Space, 0)
           .onlyIf(spaceSplit.isIgnored || spaceSplit.cost != 0)
           .withSingleLine(expire),
-        spaceSplit.withIndentOpt(close.map(Indent(Num(2), _, Before))),
+        spaceSplit
+          .withIndents(arrowEnumeratorGeneratorAlignIndents(expire))
+          .withIndentOpt(close.map(Indent(Num(2), _, Before))),
         Split(Newline, if (spaceSplit.isIgnored) 1 else spaceSplit.cost + 1)
           .onlyIf(ft eq postCommentFT)
           .withIndent(2, expire, After)
       )
     }
   }
+
+  private def arrowEnumeratorGeneratorAlignIndents(
+      expire: Token
+  )(implicit style: ScalafmtConfig) =
+    if (style.align.arrowEnumeratorGenerator) {
+      Seq(
+        Indent(StateColumn, expire, After),
+        /**
+          * This gap is necessary for pretty alignment multiline expressions
+          * on the right-side of enumerator.
+          * Without:
+          * ```
+          * for {
+          *    a <- new Integer {
+          *          value = 1
+          *        }
+          *   x <- if (variable) doSomething
+          *       else doAnything
+          * }
+          * ```
+          *
+          * With:
+          * ```
+          * for {
+          *    a <- new Integer {
+          *           value = 1
+          *         }
+          *   x <- if (variable) doSomething
+          *        else doAnything
+          * }
+          * ```
+          * */
+        Indent(Num(1), expire, After)
+      )
+    } else {
+      Seq.empty
+    }
 
 }

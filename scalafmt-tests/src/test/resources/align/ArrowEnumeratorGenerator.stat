@@ -91,3 +91,44 @@ for {
   cond ← if (variable) doSomething
          else doAnything
 } yield x + y
+<<< fold
+newlines.source=fold
+align.arrowEnumeratorGenerator = true
+===
+for {
+  x <- new Integer {
+  def value = 2
+  }
+  y <- Int(2)
+  cond <- if (variable) doSomething else doAnything
+} yield x + y
+>>>
+for {
+  x <- new Integer {
+         def value = 2
+       }
+  y <- Int(2)
+  cond <-
+    if (variable) doSomething
+    else doAnything
+} yield x + y
+<<< SKIP keep
+newlines.source=keep
+align.arrowEnumeratorGenerator = true
+===
+for {
+  x <- new Integer {
+  def value = 2
+  }
+  y <- Int(2)
+  cond <- if (variable) doSomething else doAnything
+} yield x + y
+>>>
+for {
+  x <- new Integer {
+         def value = 2
+       }
+  y <- Int(2)
+  cond <- if (variable) doSomething
+          else doAnything
+} yield x + y
