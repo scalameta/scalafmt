@@ -170,6 +170,10 @@ case class ScalafmtConfig(
       (align.openParenCallSite || align.openParenDefnSite))
       errors += "optIn.configStyleArguments with align.openParen[Call,Defn]Site"
   }
+  if (newlines.source == Newlines.unfold) {
+    if (align.arrowEnumeratorGenerator)
+      errors += s"align.arrowEnumeratorGenerator=${align.arrowEnumeratorGenerator}"
+  }
   if (newlines.source != Newlines.classic) {
     if (optIn.breaksInsideChains)
       errors += s"optIn.breaksInsideChains=${optIn.breaksInsideChains}"
