@@ -6,6 +6,7 @@ import java.nio.file.Paths
 import java.util.concurrent.atomic.{AtomicInteger, AtomicReference}
 import java.util.function.UnaryOperator
 
+import org.scalafmt.CompatParCollections.Converters._
 import org.scalafmt.Error.{MisformattedFile, NoMatchingFiles}
 import org.scalafmt.interfaces.Scalafmt
 import org.scalafmt.interfaces.ScalafmtSession
@@ -48,7 +49,7 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
 
     val exitCode = new AtomicReference(ExitCode.Ok)
     breakable {
-      inputMethods.foreach { inputMethod =>
+      inputMethods.par.foreach { inputMethod =>
         try {
           val code = handleFile(inputMethod, session, options)
           exitCode.getAndUpdate(new UnaryOperator[ExitCode] {
