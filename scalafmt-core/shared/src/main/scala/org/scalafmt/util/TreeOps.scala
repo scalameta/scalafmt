@@ -701,4 +701,22 @@ object TreeOps {
     }
   }
 
+  @tailrec
+  def findFirstTreeBetween(tree: Tree, beg: Token, end: Token): Option[Tree] = {
+    def isWithinRange(x: Tokens): Boolean = {
+      x.nonEmpty && x.head.start >= beg.start && x.last.end <= end.end
+    }
+    def matches(tree: Tree): Boolean = {
+      val x = tree.tokens
+      isWithinRange(x) ||
+      x.nonEmpty && x.head.start <= beg.start && x.last.end >= end.end
+    }
+    if (isWithinRange(tree.tokens)) Some(tree)
+    else
+      tree.children.find(matches) match {
+        case Some(c) => findFirstTreeBetween(c, beg, end)
+        case _ => None
+      }
+  }
+
 }

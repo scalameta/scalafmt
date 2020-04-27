@@ -23,7 +23,7 @@ class RedundantParens(implicit ctx: RewriteCtx) extends RewriteSession {
       case t => rewriteFunc.applyOrElse(t, (x: Tree) => remove(x, 1))
     }
 
-  private val rewriteFunc: PartialFunction[Tree, Unit] = {
+  private[rewrite] val rewriteFunc: PartialFunction[Tree, Unit] = {
     case t @ (_: Term.Tuple | _: Type.Tuple) => remove(t, 2)
 
     case g: Enumerator.Guard => remove(g.cond)

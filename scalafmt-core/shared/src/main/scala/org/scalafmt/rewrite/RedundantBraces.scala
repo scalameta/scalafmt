@@ -56,6 +56,10 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
   private val settings: RedundantBracesSettings =
     ctx.style.rewrite.redundantBraces
 
+  private val redundantParensFunc =
+    if (!ctx.style.rewrite.rules.contains(RedundantParens)) None
+    else Some((new RedundantParens).rewriteFunc)
+
   private def processInterpolation(t: Term.Interpolate): Unit = {
     import ctx.tokenTraverser._
 
@@ -283,6 +287,32 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
               )
             case _: Name | _: Lit => false
             case _ => true // don't allow other non-infix
+          }
+
+        case _: Term.Try | _: Term.TryWithHandler =>
+          // "try (x).y" or "try { x }.y" isn't supported until scala 2.13
+          // inside exists, return true if rewrite is OK
+          !stat.tokens.headOption.exists {
+            case x: Token.LeftParen =>
+              ctx.getMatchingOpt(x) match {
+                case Some(y) if y ne stat.tokens.last =>
+                  redundantParensFunc.exists { func =>
+                    findFirstTreeBetween(stat, x, y).exists {
+                      func.isDefinedAt
+                    }
+                  }
+                case _ => true
+              }
+            case x: Token.LeftBrace =>
+              ctx.getMatchingOpt(x) match {
+                case Some(y) if y ne stat.tokens.last =>
+                  findFirstTreeBetween(stat, x, y).exists {
+                    case z: Term.Block => okToRemoveBlock(z)
+                    case _ => false
+                  }
+                case _ => true
+              }
+            case _ => true
           }
 
         case parent =>
