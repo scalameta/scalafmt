@@ -177,3 +177,57 @@ else
         CustomHttp.okhttpClient.value
     )
   }
+<<< #1190 1 if
+continuationIndent.callSite = 2
+maxColumn = 45
+===
+object a {
+  if (numTries > 0 &&
+    oldestCompleteTimestampOpt.isDefined &&
+    activityCache.nonEmpty) {
+      // noop
+  }
+  if (
+      oldestCompleteTimestampOpt.isDefined
+  ) {
+    // noop
+  }
+}
+>>>
+object a {
+  if (numTries > 0 &&
+      oldestCompleteTimestampOpt.isDefined &&
+      activityCache.nonEmpty) {
+    // noop
+  }
+  if (oldestCompleteTimestampOpt.isDefined) {
+    // noop
+  }
+}
+<<< #1190 2 while
+continuationIndent.callSite = 2
+maxColumn = 45
+===
+object a {
+  while (numTries > 0 &&
+    oldestCompleteTimestampOpt.isDefined &&
+    activityCache.nonEmpty) {
+    // noop
+  }
+  while (
+    oldestCompleteTimestampOpt.isDefined
+    ) {
+    // noop
+  }
+}
+>>>
+object a {
+  while (numTries > 0 &&
+         oldestCompleteTimestampOpt.isDefined &&
+         activityCache.nonEmpty) {
+    // noop
+  }
+  while (oldestCompleteTimestampOpt.isDefined) {
+    // noop
+  }
+}
