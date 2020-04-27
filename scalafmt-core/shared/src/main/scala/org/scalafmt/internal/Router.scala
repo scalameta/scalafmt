@@ -2093,7 +2093,34 @@ class Router(formatOps: FormatOps) {
           if (close.isEmpty) Split.ignored else Split(Space, 1)
 
         case Newlines.classic if style.align.arrowEnumeratorGenerator =>
-          Split(Space, 1).withIndent(StateColumn, expire, After)
+          Split(Space, 1)
+            .withIndent(StateColumn, expire, After)
+            /**
+              * This gap is necessary for pretty alignment multiline expressions
+              * on the right-side of enumerator.
+              * Without:
+              * ```
+              * for {
+              *    a <- new Integer {
+              *          value = 1
+              *        }
+              *   x <- if (variable) doSomething
+              *       else doAnything
+              * }
+              * ```
+              *
+              * With:
+              * ```
+              * for {
+              *    a <- new Integer {
+              *           value = 1
+              *         }
+              *   x <- if (variable) doSomething
+              *        else doAnything
+              * }
+              * ```
+              * */
+            .withIndent(Num(1), expire, After)
 
         case Newlines.fold | Newlines.classic =>
           postCommentFT.meta.rightOwner match {
