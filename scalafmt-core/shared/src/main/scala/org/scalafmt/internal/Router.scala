@@ -2081,7 +2081,9 @@ class Router(formatOps: FormatOps) {
       Seq(Split(Space.orNL(ft.noBreak), 0).withIndent(2, expire, After))
     else if (style.newlines.sourceIs(Newlines.keep))
       Seq(
-        if (ft.noBreak) Split(Space, 0)
+        if (ft.noBreak)
+          Split(Space, 0)
+            .withIndents(arrowEnumeratorGeneratorAlignIndents(expire))
         else Split(Newline, 0).withIndent(2, expire, After)
       )
     else {

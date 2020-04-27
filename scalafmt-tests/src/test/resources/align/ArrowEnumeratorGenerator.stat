@@ -112,7 +112,7 @@ for {
     if (variable) doSomething
     else doAnything
 } yield x + y
-<<< SKIP keep
+<<< keep
 newlines.source=keep
 align.arrowEnumeratorGenerator = true
 ===
@@ -131,4 +131,19 @@ for {
   y <- Int(2)
   cond <- if (variable) doSomething
           else doAnything
+} yield x + y
+<<< keep with break
+newlines.source=keep
+align.arrowEnumeratorGenerator = true
+===
+for {
+  cond <-
+  if (variable) doSomething
+  else doAnything
+} yield x + y
+>>>
+for {
+  cond <-
+    if (variable) doSomething
+    else doAnything
 } yield x + y
