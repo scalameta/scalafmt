@@ -972,7 +972,7 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
         Num(0)
       case x if isDefnSite(x) && !x.isInstanceOf[Type.Apply] =>
         if (style.binPack.unsafeDefnSite && !isConfigStyle) Num(0)
-        else Num(style.continuationIndent.defnSite)
+        else Num(style.continuationIndent.getDefnSite(x))
       case _ => Num(style.continuationIndent.callSite)
     }
 
@@ -1112,7 +1112,7 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
 
     val FormatToken(open, r, _) = ft
     val close = matching(open)
-    val indentParam = Num(style.continuationIndent.defnSite)
+    val indentParam = Num(style.continuationIndent.getDefnSite(owner))
     val indentSep = Num((indentParam.n - 2).max(0))
     val isBracket = open.is[T.LeftBracket]
 
