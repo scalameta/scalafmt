@@ -12,16 +12,20 @@ if (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa &&
 bbbbbbbbbbbbbbbbbb)
   println("a")
 >>>
-if (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa &&
-    bbbbbbbbbbbbbbbbbb)
+if (
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa &&
+    bbbbbbbbbbbbbbbbbb
+)
   println("a")
 <<< Long if condition with inline comment
 if (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa &&
       bbbbbbbbbbbbbbbbbb) // comment
   println("a")
 >>>
-if (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa &&
-    bbbbbbbbbbbbbbbbbb) // comment
+if (
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa &&
+    bbbbbbbbbbbbbbbbbb
+) // comment
   println("a")
 <<< If assignment
 val newColumn = if(split == Newline) newIndent
@@ -73,9 +77,11 @@ if ((gets2x(tok) ||
 lines(tok.between) > 1) &&
      !(isDocstring(left) && between)) 1
 >>>
-if ((gets2x(tok) ||
+if (
+    (gets2x(tok) ||
     lines(tok.between) > 1) &&
-    !(isDocstring(left) && between)) 1
+    !(isDocstring(left) && between)
+) 1
 <<< == unary nosplit literal, scalameta/scalameta#344
 if   (firstNewline == -1) tokLength
 >>>

@@ -183,6 +183,11 @@ case class ScalafmtConfig(
       allErrors += errors.mkString(prefix, ",", "]")
     }
   }
+  locally {
+    ValidationOps.addIf(
+      align.ifWhileOpenParen && danglingParentheses.ctrlSite
+    )(allErrors)
+  }
   if (allErrors.nonEmpty) {
     val msg = allErrors.mkString("can't use: [\n\t", "\n\t", "\n]")
     throw new ScalafmtConfigException(msg)

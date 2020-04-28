@@ -14,18 +14,22 @@ else List(Split(Newline, 0))
           Q.dequeueAll
         }
 >>>
-if (aaaaaaaaaaaadequeOnNewStatements &&
+if (
+    aaaaaaaaaaaadequeOnNewStatements &&
     (depth > 0 || !isInsideNoOptZone(splitToken)) &&
     statementStarts.contains(hash(splitToken.left)) &&
-    curr.splits.last.modification.isNewline) {
+    curr.splits.last.modification.isNewline
+) {
   Q.dequeueAll
 }
 <<< break on &&
 if (packageTokensaaaaaa.contains(tok.left) &&
  !packageTokens.contains(tok.right)) true
 >>>
-if (packageTokensaaaaaa.contains(tok.left) &&
-    !packageTokens.contains(tok.right)) true
+if (
+    packageTokensaaaaaa.contains(tok.left) &&
+    !packageTokens.contains(tok.right)
+) true
 <<< if space (
 def identModification(ident: Ident): Modification =
       if (Character.isLetterOrDigit(ident.code.last)) NoSplit
@@ -114,8 +118,10 @@ object a {
       foo
     }
 >>>
-while (!hasReachedEof(curr) &&
-    !statementStarts.contains(hash(tokens(curr.splits.length).left))) {
+while (
+    !hasReachedEof(curr) &&
+    !statementStarts.contains(hash(tokens(curr.splits.length).left))
+) {
   foo
 }
 <<< return
@@ -178,6 +184,7 @@ else
     )
   }
 <<< #1190 1 if
+danglingParentheses.ctrlSite = true
 continuationIndent.callSite = 2
 maxColumn = 45
 ===
@@ -195,9 +202,11 @@ object a {
 }
 >>>
 object a {
-  if (numTries > 0 &&
+  if (
+    numTries > 0 &&
     oldestCompleteTimestampOpt.isDefined &&
-    activityCache.nonEmpty) {
+    activityCache.nonEmpty
+  ) {
     // noop
   }
   if (oldestCompleteTimestampOpt.isDefined) {
@@ -205,6 +214,7 @@ object a {
   }
 }
 <<< #1190 2 while
+danglingParentheses.ctrlSite = true
 continuationIndent.callSite = 2
 maxColumn = 45
 ===
@@ -222,12 +232,16 @@ object a {
 }
 >>>
 object a {
-  while (numTries > 0 &&
+  while (
+    numTries > 0 &&
     oldestCompleteTimestampOpt.isDefined &&
-    activityCache.nonEmpty) {
+    activityCache.nonEmpty
+  ) {
     // noop
   }
-  while (oldestCompleteTimestampOpt.isDefined) {
+  while (
+    oldestCompleteTimestampOpt.isDefined
+  ) {
     // noop
   }
 }

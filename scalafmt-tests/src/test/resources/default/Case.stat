@@ -35,8 +35,10 @@ List(Split(Space, 0).withPolicy {
              s.map {
                case nl if nl.modification.isNewline =>
                  val result =
-                   if (t.right.isInstanceOf[`if`] &&
-                       owners(t.right) == owner) nl
+                   if (
+                       t.right.isInstanceOf[`if`] &&
+                       owners(t.right) == owner
+                   ) nl
                    else nl.withPenalty(1)
                  result.withPolicy(breakOnArrow)
                case x => x
@@ -190,9 +192,11 @@ x match {
           a,
           b
       ) =>
-    if (qux(
+    if (
+        qux(
             x,
             y
-        )) 0
+        )
+    ) 0
     else 1
 }

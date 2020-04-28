@@ -40,8 +40,10 @@ List(Split(Space, 0).withPolicy {
       s.map {
         case nl if nl.modification.isNewline =>
           val result =
-            if (t.right.isInstanceOf[`if`] &&
-              owners(t.right) == owner) nl
+            if (
+              t.right.isInstanceOf[`if`] &&
+              owners(t.right) == owner
+            ) nl
             else nl.withPenalty(1)
           result.withPolicy(breakOnArrow)
         case x => x
@@ -203,14 +205,18 @@ x match {
 }}
 >>>
 {
-  if (x +
-      y) 0
+  if (
+    x +
+      y
+  ) 0
   else 1
 
-  if (qux(
+  if (
+    qux(
       x,
       y
-    )) 0
+    )
+  ) 0
   else 1
 
   x match {
@@ -222,13 +228,17 @@ x match {
           a,
           b
         ) =>
-      if (x +
-          y) 0
+      if (
+        x +
+          y
+      ) 0
       else 1
-      if (qux(
+      if (
+        qux(
           x,
           y
-        )) 0
+        )
+      ) 0
       else 1
   }
 }
@@ -258,14 +268,18 @@ x match {
 }}
 >>>
 {
-  if (x +
-      y) 0
+  if (
+    x +
+      y
+  ) 0
   else 1
 
-  if (qux(
+  if (
+    qux(
       x,
       y
-    )) 0
+    )
+  ) 0
   else 1
 
   x match {

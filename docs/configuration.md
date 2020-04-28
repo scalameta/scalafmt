@@ -554,6 +554,27 @@ object a {
 }
 ```
 
+#### `danglingParentheses.ctrlSite`
+
+Forces dangling on open/close parens around control structures
+(`if`, `while`, `for`) when line breaks must occur.
+
+```scala mdoc:defaults
+danglingParentheses.ctrlSite
+```
+
+```scala mdoc:scalafmt
+danglingParentheses.ctrlSite = true
+maxColumn=20
+---
+if (something) {
+  // nothing
+}
+if (something_else) {
+  // nothing
+}
+```
+
 #### `danglingParentheses.exclude`
 
 > Since v2.5.0.
