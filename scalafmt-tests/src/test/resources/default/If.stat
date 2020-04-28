@@ -115,7 +115,7 @@ object a {
     }
 >>>
 while (!hasReachedEof(curr) &&
-       !statementStarts.contains(hash(tokens(curr.splits.length).left))) {
+    !statementStarts.contains(hash(tokens(curr.splits.length).left))) {
   foo
 }
 <<< return
@@ -196,8 +196,8 @@ object a {
 >>>
 object a {
   if (numTries > 0 &&
-      oldestCompleteTimestampOpt.isDefined &&
-      activityCache.nonEmpty) {
+    oldestCompleteTimestampOpt.isDefined &&
+    activityCache.nonEmpty) {
     // noop
   }
   if (oldestCompleteTimestampOpt.isDefined) {
@@ -223,8 +223,8 @@ object a {
 >>>
 object a {
   while (numTries > 0 &&
-         oldestCompleteTimestampOpt.isDefined &&
-         activityCache.nonEmpty) {
+    oldestCompleteTimestampOpt.isDefined &&
+    activityCache.nonEmpty) {
     // noop
   }
   while (oldestCompleteTimestampOpt.isDefined) {

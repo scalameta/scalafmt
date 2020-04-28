@@ -66,7 +66,7 @@ case class Align(
     openParenDefnSite: Boolean = false,
     tokens: Seq[AlignToken] = Seq(AlignToken.caseArrow),
     arrowEnumeratorGenerator: Boolean = false,
-    ifWhileOpenParen: Boolean = true,
+    ifWhileOpenParen: Boolean = false,
     tokenCategory: Map[String, String] = Map(),
     treeCategory: Map[String, String] = Map(
       "Defn.Val" -> "val/var/def",
