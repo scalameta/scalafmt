@@ -593,3 +593,46 @@ x match {
   case 1  => a   -> b
   case 42 => abc -> 3
 }
+<<< #1896 1: long non-matching first
+align.preset = most
+align.tokens.add = [{code = "=", owner = "(Enumerator.Val|Defn.(Va(l|r)|Def|Type)|Term.Assign)"}]
+===
+object fmt {
+  val header  = JwtHeader(algorithm = Some(JwtAlgorithm.HMD5))
+  val claim   = JwtClaim(content = content)
+  val content = payload.toString
+}
+>>>
+object fmt {
+  val header  = JwtHeader(algorithm = Some(JwtAlgorithm.HMD5))
+  val claim   = JwtClaim(content    = content)
+  val content = payload.toString
+}
+<<< #1896 2: short non-matching first
+align.preset = most
+align.tokens.add = [{code = "=", owner = "(Enumerator.Val|Defn.(Va(l|r)|Def|Type)|Term.Assign)"}]
+===
+object fmt {
+  val claim   = JwtClaim(content = content)
+  val header  = JwtHeader(algorithm = Some(JwtAlgorithm.HMD5))
+  val content = payload.toString
+}
+>>>
+object fmt {
+  val claim   = JwtClaim(content    = content)
+  val header  = JwtHeader(algorithm = Some(JwtAlgorithm.HMD5))
+  val content = payload.toString
+}
+<<< #1896 3
+align.preset = most
+align.tokens.add = [{code = "=", owner = "(Enumerator.Val|Defn.(Va(l|r)|Def|Type)|Term.Assign)"}]
+===
+JwtClaim(
+  abc = cba,
+  content = content
+)
+>>>
+JwtClaim(
+  abc     = cba,
+  content = content
+)
