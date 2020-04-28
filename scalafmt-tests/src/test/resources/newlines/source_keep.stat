@@ -1463,8 +1463,10 @@ object a {
 for (a <- b.sortBy(c)
  if a > 0) yield x
 >>>
-for (a <- b.sortBy(c)
-  if a > 0) yield x
+for (
+  a <- b.sortBy(c)
+  if a > 0
+) yield x
 <<< 7.4: enumerator and guard long
 maxColumn = 17
 ===

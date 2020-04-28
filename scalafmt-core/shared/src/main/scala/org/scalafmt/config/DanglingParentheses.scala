@@ -5,6 +5,7 @@ import metaconfig._
 case class DanglingParentheses(
     callSite: Boolean,
     defnSite: Boolean,
+    ctrlSite: Boolean = true,
     exclude: List[DanglingParentheses.Exclude] = Nil
 ) extends Decodable[DanglingParentheses] {
   override protected[config] def baseDecoder =
@@ -14,7 +15,7 @@ case class DanglingParentheses(
 object DanglingParentheses {
 
   private val shortcutTrue = DanglingParentheses(true, true)
-  private val shortcutFalse = DanglingParentheses(false, false)
+  private val shortcutFalse = DanglingParentheses(false, false, false)
 
   val default = shortcutTrue
 

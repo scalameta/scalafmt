@@ -114,16 +114,20 @@ for {
 for (result <- results.sortBy(-_.x)
                                if result != "W") yield x
 >>>
-for (result <- results.sortBy(-_.x)
-    if result != "W") yield x
+for (
+    result <- results.sortBy(-_.x)
+    if result != "W"
+) yield x
 <<< align by ( #233, no yield
 for (result <- results.sortBy(-_.x)
                                if result != "W") {
                                println(1)
                                }
 >>>
-for (result <- results.sortBy(-_.x)
-    if result != "W") {
+for (
+    result <- results.sortBy(-_.x)
+    if result != "W"
+) {
   println(1)
 }
 <<< scala.js codingstyle 1
