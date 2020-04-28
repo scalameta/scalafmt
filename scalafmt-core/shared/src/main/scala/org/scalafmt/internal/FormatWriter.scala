@@ -368,7 +368,9 @@ class FormatWriter(formatOps: FormatOps) {
         tupleOpt.fold(text) {
           case (pipe, indent) =>
             val spaces = getIndentation(indent)
-            getStripMarginPattern(pipe).matcher(text).replaceAll(spaces)
+            getStripMarginPattern(pipe)
+              .matcher(text)
+              .replaceAll(s"\n${spaces}$$1")
         }
       }
 
@@ -735,7 +737,7 @@ object FormatWriter {
   }
 
   private val leadingAsteriskSpace =
-    Pattern.compile("(?<=\\n)\\h*(?=[*][^*])")
+    Pattern.compile("\n\\h*\\*([^*])", Pattern.MULTILINE)
   private def formatComment(
       comment: T.Comment,
       indent: Int
@@ -746,7 +748,9 @@ object FormatWriter {
         val isDocstring = comment.syntax.startsWith("/**") && style.scalaDocs
         val spaces: String =
           getIndentation(if (isDocstring) (indent + 2) else (indent + 1))
-        leadingAsteriskSpace.matcher(comment.syntax).replaceAll(spaces)
+        leadingAsteriskSpace
+          .matcher(comment.syntax)
+          .replaceAll(s"\n${spaces}*$$1")
       } else {
         comment.syntax
       }
@@ -758,7 +762,8 @@ object FormatWriter {
     if (pipe == '|') leadingPipeSpace else compileStripMarginPattern(pipe)
   @inline
   private def compileStripMarginPattern(pipe: Char) =
-    Pattern.compile(s"(?<=\\n)\\h*(?=[$pipe])")
+    // capture group is used to pass pipe character to distant replaceAll.
+    Pattern.compile(s"\n\\h*(\\${pipe})", Pattern.MULTILINE)
   private val leadingPipeSpace = compileStripMarginPattern('|')
 
 }
