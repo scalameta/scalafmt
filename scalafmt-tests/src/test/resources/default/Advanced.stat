@@ -529,7 +529,7 @@ js.Function(List(objParam, depthParam),
 >>>
 if (uri.isAbsolute() || this.isOpaque()) uri
 else if (uri._scheme.isEmpty && uri._authority.isEmpty &&
-         uri._path.get == "" && uri._query.isEmpty)
+    uri._path.get == "" && uri._query.isEmpty)
   new URI(this.getScheme(),
           this.getRawAuthority(),
           this.getRawPath(),
