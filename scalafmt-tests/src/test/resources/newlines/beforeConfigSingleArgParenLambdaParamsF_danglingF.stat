@@ -389,6 +389,8 @@ def f = {
       "some very very very very long string which we don't want to be split"))
 }
 <<< 12: single-arg single-stmt long-splittable-body lambda call
+newlines.avoidForSimpleOverflow = [toolong]
+===
 def f = {
   something.call (
   x =>

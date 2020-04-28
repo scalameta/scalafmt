@@ -119,3 +119,165 @@ object a {
       type = "akka.actor.dispatch.DispatcherModelSpec$MessageDispatcherInterceptorConfigurator"
     }""".format(n).mkString
 }
+<<< #1505
+newlines.avoidForSimpleOverflow = [toolong]
+===
+object a {
+  foo_bar_baz("Qui et et consectetur atque. Ex blanditiis eius omnis id. Modi est quibusdam error inventore facere vero id. Inventore in sequi praesentium consequuntur ut. Ex mollitia recusandae.") {
+    println("")
+  }
+}
+>>>
+object a {
+  foo_bar_baz(
+      "Qui et et consectetur atque. Ex blanditiis eius omnis id. Modi est quibusdam error inventore facere vero id. Inventore in sequi praesentium consequuntur ut. Ex mollitia recusandae.") {
+    println("")
+  }
+}
+<<< #1505 1
+newlines.avoidForSimpleOverflow = [toolong]
+===
+object a {
+  system.log.warning(
+    "Replicator points to dead letters: Make sure the cluster node is not terminated and has the proper role!")
+}
+>>>
+object a {
+  system.log.warning(
+      "Replicator points to dead letters: Make sure the cluster node is not terminated and has the proper role!")
+}
+<<< #1505 2
+newlines.avoidForSimpleOverflow = [toolong]
+===
+object a {
+  intercept[TestException] {
+    val ct =
+      Thread.currentThread() // Ensure that the thunk is executed in the tests thread
+  }
+}
+>>>
+object a {
+  intercept[TestException] {
+    val ct =
+      Thread
+        .currentThread() // Ensure that the thunk is executed in the tests thread
+  }
+}
+<<< #1505 3
+newlines.avoidForSimpleOverflow = [toolong]
+===
+object a {
+  intercept[TestException] {
+    val ct = Thread.currentThread() // Ensure that the thunk is executed in the tests thread
+  }
+}
+>>>
+object a {
+  intercept[TestException] {
+    val ct =
+      Thread
+        .currentThread() // Ensure that the thunk is executed in the tests thread
+  }
+}
+<<< #1505 4
+continuationIndent.callSite = 2
+newlines.avoidForSimpleOverflow = [toolong]
+===
+object RemoteRestartedQuarantinedSpec extends MultiNodeConfig {
+  commonConfig(debugConfig(on = false).withFallback(ConfigFactory.parseString("""
+       // Important, otherwise it is very racy to get a non-writing endpoint: the only way to do it if the two nodes
+       // associate to each other at the same time. Setting this will ensure that the right scenario happens.
+                               """)))
+}
+>>>
+object RemoteRestartedQuarantinedSpec extends MultiNodeConfig {
+  commonConfig(debugConfig(on = false).withFallback(ConfigFactory.parseString("""
+       // Important, otherwise it is very racy to get a non-writing endpoint: the only way to do it if the two nodes
+       // associate to each other at the same time. Setting this will ensure that the right scenario happens.
+                               """)))
+}
+<<< #1505 5
+maxColumn = 60
+newlines.avoidForSimpleOverflow = [toolong]
+===
+object a {
+  x.responsePromise.failure(new BufferOverflowException(
+    s"Exceeded configured max-open-requests value of [${inputBuffer.capacity}]"))
+}
+>>>
+object a {
+  x.responsePromise.failure(new BufferOverflowException(
+      s"Exceeded configured max-open-requests value of [${inputBuffer.capacity}]"))
+}
+<<< #1505 6
+maxColumn = 60
+newlines.avoidForSimpleOverflow = [toolong]
+===
+object a {
+  (
+    StatusCodes.Forbidden,
+    Map(
+      "message" -> s"${event.event} events are not allowed ${c.d}"))
+}
+>>>
+object a {
+  (StatusCodes.Forbidden,
+   Map("message" -> s"${event.event} events are not allowed ${c.d}"))
+}
+<<< #1505 7
+maxColumn = 40
+newlines.avoidForSimpleOverflow = [toolong]
+===
+object a {
+  (
+    StatusCodes.Forbidden,
+    Map(s"${event.event} events are not allowed ${c.d}"))
+}
+>>>
+object a {
+  (StatusCodes.Forbidden,
+   Map(s"${event.event} events are not allowed ${c.d}"))
+}
+<<< #1505 8
+newlines.avoidForSimpleOverflow = [toolong]
+===
+object a {
+  b match {
+    case _ =>
+      Future.failed[Any](new IllegalArgumentException(
+        s"""Unsupported recipient ActorRef type, question not sent to [$actorSel]. Sender[$sender] sent the message of type "${message.getClass.getName}"."""))
+  }
+}
+>>>
+object a {
+  b match {
+    case _ =>
+      Future.failed[Any](new IllegalArgumentException(
+          s"""Unsupported recipient ActorRef type, question not sent to [$actorSel]. Sender[$sender] sent the message of type "${message.getClass.getName}"."""))
+  }
+}
+<<< #1505 9
+newlines.avoidForSimpleOverflow = [toolong]
+===
+object a {
+  def b = {
+    try {
+      if (false) {}
+      else {
+         info("Uber JAR disabled, but current working directory does not look " +
+           s"like an engine project directory. Please delete lib/${core.getName} manually.")
+      }
+    }
+  }
+}
+>>>
+object a {
+  def b = {
+    try {
+      if (false) {} else {
+        info("Uber JAR disabled, but current working directory does not look " +
+          s"like an engine project directory. Please delete lib/${core.getName} manually.")
+      }
+    }
+  }
+}

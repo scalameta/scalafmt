@@ -525,6 +525,8 @@ def startSharding(system: ActorSystem,
       { case (name: String, _) => (name.hashCode % shardCount).toString }
   )
 <<< spray shit
+newlines.avoidForSimpleOverflow = [punct]
+===
 {{{
       get {
         respondWithMediaType(MediaTypes.`application/json`) {
@@ -584,6 +586,8 @@ def startSharding(system: ActorSystem,
   }
 }
 <<< nested apply with assign
+newlines.avoidForSimpleOverflow = [punct]
+===
 opt[String]("json-extractor") action { (x, c) =>
     c.copy(         common =
             c.common.copy(
@@ -699,6 +703,8 @@ val a = new b( /*c1*/ c =>
     /*c2*/ e => f,
     g => h)
 <<< def with multiple curried single parameters
+newlines.avoidForSimpleOverflow = [punct]
+===
  object ThreadPoolConfigDispatcherBuilder {
   def conf_?[T](opt: Option[T])(
       fun: (
@@ -822,6 +828,7 @@ final case class StreamedEntityCreator[
 preset = intellij
 danglingParentheses.preset = true
 optIn.configStyleArguments = true
+newlines.avoidForSimpleOverflow = [tooLong]
 ===
 pushInput(closeFrame(
                 Protocol.CloseCodes.UnexpectedCondition,
@@ -1246,4 +1253,114 @@ object Test {
   }.getOrElse { // no break
     "something3"
   }
+}
+<<< #1505 1
+maxColumn = 75
+align.preset = none
+newlines.avoidForSimpleOverflow = [toolong]
+===
+object a {
+         Seq(
+           "HTTP/1.1 204 12345678",
+           "90123456789012\r\n") should generalMultiParseTo(
+           Left(MessageStartError(
+             400: StatusCode,
+             ErrorInfo(
+               "Response reason phrase exceeds the configured limit of 21 characters"))))
+}
+>>>
+object a {
+  Seq(
+      "HTTP/1.1 204 12345678",
+      "90123456789012\r\n") should generalMultiParseTo(
+      Left(MessageStartError(
+          400: StatusCode,
+          ErrorInfo(
+              "Response reason phrase exceeds the configured limit of 21 characters"))))
+}
+<<< #1505 2 skip multiple args
+maxColumn = 75
+align.preset = none
+newlines.avoidForSimpleOverflow = [toolong]
+===
+object a {
+   response shouldEqual HttpResponse(
+     status = 302,
+     entity = HttpEntity(
+       ContentTypes.`text/html(UTF-8)`,
+       "The requested resource temporarily resides under <a href=\"/foo\">this URI</a>."),
+     headers = Location("/foo") :: Nil
+   )
+}
+>>>
+object a {
+  response shouldEqual HttpResponse(
+      status = 302,
+      entity = HttpEntity(
+          ContentTypes.`text/html(UTF-8)`,
+          "The requested resource temporarily resides under <a href=\"/foo\">this URI</a>."),
+      headers = Location("/foo") :: Nil
+  )
+}
+<<< #1505 3
+maxColumn = 75
+align.preset = none
+newlines.avoidForSimpleOverflow = [toolong]
+===
+object a {
+   "allow mapping the response" in {
+     val timeoutResponse = HttpResponse(
+       StatusCodes.EnhanceYourCalm,
+       entity =
+         "Unable to serve response within time limit, please enchance your calm.")
+   }
+}
+>>>
+object a {
+  "allow mapping the response" in {
+    val timeoutResponse = HttpResponse(
+        StatusCodes.EnhanceYourCalm,
+        entity =
+          "Unable to serve response within time limit, please enchance your calm.")
+  }
+}
+<<< #1505 4 short unchanged
+maxColumn = 75
+align.preset = none
+newlines.avoidForSimpleOverflow = [toolong]
+===
+object a {
+        val boss = system.actorOf(Props(new Actor {
+          def receive = {
+            case "run" ⇒
+              for (_ ← 1 to num)(context.watch(
+                context.actorOf(props))) ! cachedMessage
+            case Terminated(child) ⇒ stopLatch.countDown()
+          }
+        }).withDispatcher("boss"))
+}
+>>>
+object a {
+  val boss = system.actorOf(Props(new Actor {
+    def receive = {
+      case "run" ⇒
+        for (_ ← 1 to num)(context.watch(
+            context.actorOf(props))) ! cachedMessage
+      case Terminated(child) ⇒ stopLatch.countDown()
+    }
+  }).withDispatcher("boss"))
+}
+<<< #1505 5 two args, second single letter
+newlines.avoidForSimpleOverflow = [toolong]
+===
+object a {
+  notifyError(
+    "Startup timed out. This is usually related to actor system host setting or host name resolution misconfiguration.",
+    e)
+}
+>>>
+object a {
+  notifyError(
+      "Startup timed out. This is usually related to actor system host setting or host name resolution misconfiguration.",
+      e)
 }
