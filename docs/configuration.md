@@ -189,6 +189,8 @@ argument1: Type1 // indented by 4
 
 ### `continuationIndent.ctorSite`
 
+> Since v2.5.0.
+
 Applies to constructors. Defaults to `continuationIndent.defnSite`.
 
 ```scala mdoc:scalafmt
@@ -216,6 +218,7 @@ continuationIndent.withSiteRelativeToExtends
 
 ```scala mdoc:scalafmt
 continuationIndent.extendSite = 4
+# this one added in v2.5.0
 continuationIndent.withSiteRelativeToExtends = 2
 maxColumn = 30
 ---
@@ -572,6 +575,8 @@ object a {
 ```
 
 #### `danglingParentheses.ctrlSite`
+
+> Since v2.5.0.
 
 Forces dangling on open/close parens around control structures
 (`if`, `while`, `for`) when line breaks must occur.
@@ -1629,6 +1634,14 @@ binPack.literalsSingleLine = true
 val secret: List[Bit] = List(0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1,
   0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1)
 ```
+
+See also:
+
+- `binPack.literalsIncludeSimpleExpr` (to allow a few select methods followed
+  by a few nested single-argument apply calls, with literals as arguments);
+  added in v2.5.0
+- all other `binPack.literalXXX` parameters (see list at the bottom) are
+  self-explanatory.
 
 ### `includeCurlyBraceInSelectChains`
 
