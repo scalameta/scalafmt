@@ -23,12 +23,12 @@ class FormatWriter(formatOps: FormatOps) {
   import formatOps._
 
   def mkString(state: State): String = {
-    implicit val style: ScalafmtConfig = initStyle
     val sb = new StringBuilder()
     val locations = getFormatLocations(state)
 
     locations.iterate.foreach { entry =>
       val location = entry.curr
+      implicit val style: ScalafmtConfig = location.style
       val state = location.state.prev // this is the state for left
       val formatToken = location.formatToken
 
@@ -51,8 +51,7 @@ class FormatWriter(formatOps: FormatOps) {
           sb.append(LiteralOps.prettyPrintDouble(c.syntax))
         case token =>
           val syntax = Option(location.replace).getOrElse(token.syntax)
-          val rewrittenToken =
-            formatOps.initStyle.rewriteTokens.getOrElse(syntax, syntax)
+          val rewrittenToken = style.rewriteTokens.getOrElse(syntax, syntax)
           sb.append(rewrittenToken)
       }
 
@@ -72,7 +71,8 @@ class FormatWriter(formatOps: FormatOps) {
       if (state.depth != 0) {
         val prev = state.prev
         val idx = prev.depth
-        result(idx) = FormatLocation(toks(idx), state)
+        val ft = toks(idx)
+        result(idx) = FormatLocation(ft, state, styleMap.at(ft))
         iter(prev)
       }
     iter(state)
@@ -90,7 +90,6 @@ class FormatWriter(formatOps: FormatOps) {
   private def replaceRedundantBraces(locations: Array[FormatLocation]): Unit = {
     // will map closing brace to opening brace and its line offset
     val lookup = mutable.Map.empty[Int, (Int, Int)]
-    val inParentheses = initStyle.spaces.inParentheses
 
     // iterate backwards, to encounter closing braces first
     var lineOffset = 0
@@ -119,6 +118,7 @@ class FormatWriter(formatOps: FormatOps) {
         case _: T.LeftBrace =>
           lookup.remove(idx).foreach {
             case (end, endOffset) if endOffset == lineOffset =>
+              val inParentheses = loc.style.spaces.inParentheses
               // remove space before "{"
               val prevBegState =
                 if (0 == idx || (state.prev.split.modification ne Space))
@@ -180,7 +180,6 @@ class FormatWriter(formatOps: FormatOps) {
 
   class FormatLocations(val locations: Array[FormatLocation]) {
 
-    private implicit val style = initStyle
     val tokenAligns: Map[TokenHash, Int] = alignmentTokens(locations)
 
     def iterate: Iterator[Entry] =
@@ -191,6 +190,7 @@ class FormatWriter(formatOps: FormatOps) {
 
     class Entry(val i: Int) {
       val curr = locations(i)
+      private implicit val style = curr.style
       def previous = locations(math.max(i - 1, 0))
 
       @inline def tok = curr.formatToken
@@ -238,9 +238,9 @@ class FormatWriter(formatOps: FormatOps) {
 
           case nl: NewlineT =>
             val isDouble = nl.isDouble ||
-              initStyle.newlines.forceBlankBeforeMultilineTopLevelStmt &&
+              style.newlines.forceBlankBeforeMultilineTopLevelStmt &&
                 isMultilineTopLevelStatement(locations, i) ||
-              initStyle.newlines.forceBlankAfterMultilineTopLevelStmt &&
+              style.newlines.forceBlankAfterMultilineTopLevelStmt &&
                 locations.lengthCompare(i + 1) != 0 &&
                 topLevelLastToHeadTokens.get(i).exists {
                   isMultilineTopLevelStatement(locations, _)
@@ -314,13 +314,13 @@ class FormatWriter(formatOps: FormatOps) {
         if (noExtraOffset)
           ws(0)
         else
-          initStyle.trailingCommas match {
+          style.trailingCommas match {
             // remove comma if no newline
             case TrailingCommas.preserve
                 if tok.left.is[T.Comma] && isClosedDelimWithNewline(false) =>
               sb.setLength(sb.length - 1)
               if (!tok.right.is[T.RightParen]) ws(1)
-              else if (initStyle.spaces.inParentheses) sb.append(' ')
+              else if (style.spaces.inParentheses) sb.append(' ')
             // append comma if newline
             case TrailingCommas.always
                 if !tok.left.is[T.Comma] && isClosedDelimWithNewline(true) =>
@@ -339,14 +339,14 @@ class FormatWriter(formatOps: FormatOps) {
       def formatMarginized: String = {
         val text = tok.left.syntax
         val tupleOpt = tok.left match {
-          case _ if !initStyle.assumeStandardLibraryStripMargin => None
+          case _ if !style.assumeStandardLibraryStripMargin => None
           case _: T.Constant.String =>
             TreeOps.getStripMarginChar(tok.meta.leftOwner).map { pipe =>
               def isPipeFirstChar = text.find(_ != '"').contains(pipe)
-              val noAlign = !initStyle.align.stripMargin ||
+              val noAlign = !style.align.stripMargin ||
                 prevState.split.modification.isNewline
               val pipeOffset =
-                if (initStyle.align.stripMargin && isPipeFirstChar) 1 else 0
+                if (style.align.stripMargin && isPipeFirstChar) 1 else 0
               val indent = pipeOffset +
                 (if (noAlign) prevState.indentation
                  else prevState.prev.column + prevState.prev.split.length)
@@ -358,7 +358,7 @@ class FormatWriter(formatOps: FormatOps) {
                 val tiState =
                   locations(tokens(ti.tokens.head).meta.idx).state.prev
                 val indent =
-                  if (!initStyle.align.stripMargin) tiState.indentation
+                  if (!style.align.stripMargin) tiState.indentation
                   else
                     tiState.column + (ti.args.headOption match {
                       case Some(Lit.String(x)) if x(0) == pipe => 1
@@ -379,11 +379,13 @@ class FormatWriter(formatOps: FormatOps) {
     }
   }
 
-  private def isCloseDelimForTrailingCommasMultiple(ft: FormatToken): Boolean =
+  private def isCloseDelimForTrailingCommasMultiple(
+      ft: FormatToken
+  )(implicit style: ScalafmtConfig): Boolean =
     ft.meta.rightOwner match {
       case x: Importer => x.importees.length > 1
       case _ =>
-        val args = getApplyArgs(ft, true)(initStyle)._2
+        val args = getApplyArgs(ft, true)._2
         args.length > 1 && (args.last match {
           case _: Term.Repeated => false
           case t: Term.Param => !t.decltpe.exists(_.is[Type.Repeated])
@@ -474,7 +476,7 @@ class FormatWriter(formatOps: FormatOps) {
       case c: T.Comment if isSingleLineComment(c) => "//"
       case t => t.syntax
     }
-    styleMap.at(location.formatToken).alignMap.get(code).exists { ownerRegexp =>
+    location.style.alignMap.get(code).exists { ownerRegexp =>
       val owner = getAlignOwner(location.formatToken)
       ownerRegexp.findFirstIn(owner.getClass.getName).isDefined
     }
@@ -671,6 +673,7 @@ object FormatWriter {
   case class FormatLocation(
       formatToken: FormatToken,
       state: State,
+      style: ScalafmtConfig,
       shift: Int = 0,
       replace: String = null
   )
