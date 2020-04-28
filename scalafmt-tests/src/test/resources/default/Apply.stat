@@ -729,7 +729,7 @@ object a {
 >>>
 object a {
   foo(
-      )
+  )
 }
 <<< config style with empty arg list 2
 object a {
