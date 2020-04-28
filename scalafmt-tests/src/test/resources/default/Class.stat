@@ -325,3 +325,29 @@ case class Foo(
   ): F[Resolution] =
     ???
 }
+<<< #1487
+continuationIndent.defnSite = 2
+===
+abstract class A(
+ b: Int
+) {
+ def foo(
+  x: Int
+ ): Int = 0
+
+ def bar(
+  x: Int
+ ): Int
+}
+>>>
+abstract class A(
+  b: Int
+) {
+  def foo(
+    x: Int
+  ): Int = 0
+
+  def bar(
+    x: Int
+  ): Int
+}
