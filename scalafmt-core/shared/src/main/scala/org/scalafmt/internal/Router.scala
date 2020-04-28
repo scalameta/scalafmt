@@ -669,7 +669,7 @@ class Router(formatOps: FormatOps) {
           if style.binPack.unsafeDefnSite && isDefnSite(leftOwner) =>
         val close = matching(open)
         val isBracket = open.is[T.LeftBracket]
-        val indent = Num(style.continuationIndent.defnSite)
+        val indent = Num(style.continuationIndent.getDefnSite(leftOwner))
         if (isTuple(leftOwner)) {
           Seq(
             Split(NoSplit, 0).withPolicy(
@@ -969,12 +969,13 @@ class Router(formatOps: FormatOps) {
         val penalizeNewlines =
           penalizeAllNewlines(expire, Constants.BracketPenalty)
         val sameLineSplit = Space(endsWithSymbolIdent(left))
+        val indent = style.continuationIndent.getDefnSite(leftOwner)
         Seq(
           Split(sameLineSplit, 0).withPolicy(penalizeNewlines),
           // Spark style guide allows this:
           // https://github.com/databricks/scala-style-guide#indent
           Split(Newline, Constants.SparkColonNewline)
-            .withIndent(style.continuationIndent.defnSite, expire, After)
+            .withIndent(indent, expire, After)
             .withPolicy(penalizeNewlines)
         )
       case FormatToken(T.Colon(), _, _)
@@ -1066,7 +1067,7 @@ class Router(formatOps: FormatOps) {
           case _ =>
             val indent = leftOwner match {
               case _: Defn.Val | _: Defn.Var =>
-                style.continuationIndent.defnSite
+                style.continuationIndent.getDefnSite(leftOwner)
               case _ =>
                 0
             }

@@ -187,6 +187,23 @@ argument1: Type1 // indented by 4
 ): ReturnType
 ```
 
+### `continuationIndent.ctorSite`
+
+Applies to constructors. Defaults to `continuationIndent.defnSite`.
+
+```scala mdoc:scalafmt
+continuationIndent.ctorSite = 4
+continuationIndent.defnSite = 2
+---
+class A(
+ field1: Type1 // indented by 4
+) {
+ def function2(
+  argument1: Type1 // indented by 2
+ ): ReturnType = None
+}
+```
+
 ### `continuationIndent.extendSite`
 
 ```scala mdoc:defaults

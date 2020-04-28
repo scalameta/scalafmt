@@ -327,6 +327,7 @@ case class Foo(
 }
 <<< #1487
 continuationIndent.defnSite = 2
+continuationIndent.ctorSite = 4
 ===
 abstract class A(
  b: Int
@@ -341,7 +342,7 @@ abstract class A(
 }
 >>>
 abstract class A(
-  b: Int
+    b: Int
 ) {
   def foo(
     x: Int
