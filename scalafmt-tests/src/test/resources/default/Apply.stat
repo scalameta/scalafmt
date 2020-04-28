@@ -721,3 +721,35 @@ align.preset = none
 def apply(throughput: Int)(implicit
     context: ExecutionContext): SerializedSuspendableExecutionContext =
   new SerializedSuspendableExecutionContext(throughput)
+<<< config style with empty arg list 1
+object a {
+  foo(
+  )
+}
+>>>
+object a {
+  foo(
+      )
+}
+<<< config style with empty arg list 2
+object a {
+  foo( // c1
+  )
+}
+>>>
+object a {
+  foo( // c1
+  )
+}
+<<< config style with empty arg list 3
+object a {
+  foo(
+    // c1
+  )
+}
+>>>
+object a {
+  foo(
+      // c1
+  )
+}
