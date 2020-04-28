@@ -1227,8 +1227,10 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
     val policy = oneLinePerArg.orElse(paramGroupSplitter, lastParen.end)
 
     val firstIndent =
-      if (r.is[T.RightParen]) indentSep // An empty param group
-      else indentParam
+      if (r.is[T.RightParen]) // An empty param group
+        Indent(indentSep, close, ExpiresOn.After)
+      else
+        Indent(indentParam, close, ExpiresOn.Before)
 
     val singleLineExpire =
       if (isBracket) close // If we can fit the type params, make it so
@@ -1256,9 +1258,8 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
       Split(Space(style.spaces.inParentheses), 0)
         .onlyIf(isBracket || !configStyle && belowArityThreshold)
         .withPolicy(SingleLineBlock(singleLineExpire)),
-      Split(Newline, 1) // Otherwise split vertically
-        .withIndent(firstIndent, close, ExpiresOn.Before)
-        .withPolicy(policy)
+      // Otherwise split vertically
+      Split(Newline, 1).withIndent(firstIndent).withPolicy(policy)
     )
 
   }

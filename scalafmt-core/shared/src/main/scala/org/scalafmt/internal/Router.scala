@@ -662,7 +662,7 @@ class Router(formatOps: FormatOps) {
           implicitSplit,
           Split(Newline, if (implicitSplit.isActive) 1 else 0, policy = policy)
             .withIndent(indent, close, Before)
-            .withIndent(extraIndent, right, Before)
+            .withIndent(extraIndent, right, After)
         )
 
       case FormatToken(open @ LeftParenOrBracket(), right, between)
@@ -1083,7 +1083,7 @@ class Router(formatOps: FormatOps) {
               Split(Space, 0).notIf(newlines != 0 && singleLineComment),
               Split(Newline, 1)
                 .notIf(noNewline)
-                .withIndent(indent, right, ExpiresOn.Before)
+                .withIndent(indent, right, After)
             )
         }
       case FormatToken(_, T.Semicolon(), _) =>

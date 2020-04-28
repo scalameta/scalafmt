@@ -39,11 +39,12 @@ final case class State(
       if (tok.right.is[Token.EOF]) Vector.empty
       else {
         val offset = column - indentation
-        pushes.filterNot { push =>
+        val newPushes = split.indents.flatMap(_.withStateOffset(offset))
+        (pushes ++ newPushes).filterNot { push =>
           val expireToken: Token =
             if (push.expiresAt == ExpiresOn.After) tok.left else tok.right
           push.expire.end <= expireToken.end
-        } ++ split.indents.flatMap(_.withStateOffset(offset))
+        }
       }
     val newIndent = newIndents.foldLeft(0)(_ + _.length)
 
