@@ -49,12 +49,12 @@ class StyleMapTest extends AnyFunSuite {
     val newFormatOps = new FormatOps(code, printlnConfig)
 
     val newHeadConfig = newFormatOps.styleMap.at(headToken)
-    assert(headConfig.alignMap("=").regex == defaultEquals)
-    assert(newHeadConfig.alignMap("=").regex == overrideEquals)
+    assert(headConfig.alignMap("=").pattern() == defaultEquals)
+    assert(newHeadConfig.alignMap("=").pattern() == overrideEquals)
 
     val newPrintlnConfig = newFormatOps.styleMap.at(printlnToken)
-    assert(printlnConfig.alignMap("=").regex == overrideEquals)
-    assert(newPrintlnConfig.alignMap("=").regex == overrideEquals)
+    assert(printlnConfig.alignMap("=").pattern() == overrideEquals)
+    assert(newPrintlnConfig.alignMap("=").pattern() == overrideEquals)
   }
 
   test("newlines.implicitParamListModifierForce") {
