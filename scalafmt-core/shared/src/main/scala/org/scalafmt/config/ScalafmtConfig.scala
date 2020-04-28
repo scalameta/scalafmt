@@ -162,27 +162,30 @@ case class ScalafmtConfig(
     fileOverride: Conf.Obj = Conf.Obj.empty,
     edition: Edition = Edition.Latest
 ) {
-  val errors = new mutable.ArrayBuffer[String]
-  if (newlines.sourceIgnored) {
-    if (newlines.afterCurlyLambda == NewlineCurlyLambda.preserve)
-      errors += s"newlines.afterCurlyLambda=${newlines.afterCurlyLambda}"
-    if (optIn.configStyleArguments &&
-      (align.openParenCallSite || align.openParenDefnSite))
-      errors += "optIn.configStyleArguments with align.openParen[Call,Defn]Site"
+  val allErrors = new mutable.ArrayBuffer[String]
+  locally {
+    import ValidationOps._
+    implicit val errors = new mutable.ArrayBuffer[String]
+    if (newlines.sourceIgnored) {
+      addIf(newlines.afterCurlyLambda == NewlineCurlyLambda.preserve)
+      addIf(optIn.configStyleArguments && align.openParenCallSite)
+      addIf(optIn.configStyleArguments && align.openParenDefnSite)
+    }
+    if (newlines.source == Newlines.unfold) {
+      addIf(align.arrowEnumeratorGenerator)
+    }
+    if (newlines.source != Newlines.classic) {
+      addIf(optIn.breaksInsideChains)
+      addIf(!includeCurlyBraceInSelectChains)
+    }
+    if (errors.nonEmpty) {
+      val prefix = s"newlines.source=${newlines.source} and ["
+      allErrors += errors.mkString(prefix, ",", "]")
+    }
   }
-  if (newlines.source == Newlines.unfold) {
-    if (align.arrowEnumeratorGenerator)
-      errors += s"align.arrowEnumeratorGenerator=${align.arrowEnumeratorGenerator}"
-  }
-  if (newlines.source != Newlines.classic) {
-    if (optIn.breaksInsideChains)
-      errors += s"optIn.breaksInsideChains=${optIn.breaksInsideChains}"
-    if (!includeCurlyBraceInSelectChains)
-      errors += s"includeCurlyBraceInSelectChains=${includeCurlyBraceInSelectChains}"
-  }
-  if (errors.nonEmpty) {
-    val prefix = s"newlines: can't use source=${newlines.source} and ["
-    throw new ScalafmtConfigException(errors.mkString(prefix, ",", "]"))
+  if (allErrors.nonEmpty) {
+    val msg = allErrors.mkString("can't use: [\n\t", "\n\t", "\n]")
+    throw new ScalafmtConfigException(msg)
   }
 
   private implicit def runnerReader = runner.reader
