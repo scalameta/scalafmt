@@ -476,9 +476,9 @@ class FormatWriter(formatOps: FormatOps) {
       case c: T.Comment if isSingleLineComment(c) => "//"
       case t => t.syntax
     }
-    location.style.alignMap.get(code).exists { ownerRegexp =>
+    location.style.alignMap.get(code).exists { pattern =>
       val owner = getAlignOwner(location.formatToken)
-      ownerRegexp.findFirstIn(owner.getClass.getName).isDefined
+      pattern.matcher(owner.getClass.getName).find()
     }
   }
 

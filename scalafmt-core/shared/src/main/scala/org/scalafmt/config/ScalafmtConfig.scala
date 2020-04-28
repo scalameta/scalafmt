@@ -1,12 +1,12 @@
 package org.scalafmt.config
 
 import java.nio.file
+import java.util.regex
 
 import scala.collection.mutable
 import scala.io.Codec
 import scala.meta.Dialect
 import scala.util.Try
-import scala.util.matching.Regex
 import metaconfig.annotation._
 import metaconfig._
 import metaconfig.Configured._
@@ -207,8 +207,8 @@ case class ScalafmtConfig(
   private implicit def danglingParenthesesReader = danglingParentheses.decoder
   private implicit def indentOperatorReader = indentOperator.decoder
   private implicit def importSelectorsReader = importSelectors.decoder
-  lazy val alignMap: Map[String, Regex] =
-    align.tokens.map(x => x.code -> x.owner.r).toMap
+  lazy val alignMap: Map[String, regex.Pattern] =
+    align.tokens.map(x => x.code -> x.owner.r.pattern).toMap
   private implicit val confObjReader = ScalafmtConfig.confObjReader
   private def baseDecoder = generic.deriveDecoder(this).noTypos
 
