@@ -736,8 +736,7 @@ object FormatWriter {
     trailingSpace.matcher(str).replaceAll("")
   }
 
-  private val leadingAsteriskSpace =
-    Pattern.compile("\n\\h*\\*([^*])", Pattern.MULTILINE)
+  private val leadingAsteriskSpace = Pattern.compile("\n\\h*\\*([^*])")
   private def formatComment(
       comment: T.Comment,
       indent: Int
@@ -762,8 +761,7 @@ object FormatWriter {
     if (pipe == '|') leadingPipeSpace else compileStripMarginPattern(pipe)
   @inline
   private def compileStripMarginPattern(pipe: Char) =
-    // capture group is used to pass pipe character to distant replaceAll.
-    Pattern.compile(s"\n\\h*(\\${pipe})", Pattern.MULTILINE)
+    Pattern.compile(s"\n\\h*(\\${pipe})")
   private val leadingPipeSpace = compileStripMarginPattern('|')
 
 }
