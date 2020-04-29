@@ -76,8 +76,10 @@ object Scalafmt {
         val partial = BestFirstSearch(formatOps, range, formatWriter)
         val formattedString = formatWriter.mkString(partial.state)
         val correctedFormattedString =
-          if ((style.lineEndings == preserve && isWindows) ||
-            style.lineEndings == windows) {
+          if (
+            (style.lineEndings == preserve && isWindows) ||
+            style.lineEndings == windows
+          ) {
             formattedString.replaceAll(UnixLineEnding, WindowsLineEnding)
           } else {
             formattedString

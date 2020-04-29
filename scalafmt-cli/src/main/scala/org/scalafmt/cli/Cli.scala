@@ -147,9 +147,11 @@ object Cli {
         options.common.out.println(s"error: $exit")
       }
     }
-    if (options.writeMode == WriteMode.Test &&
+    if (
+      options.writeMode == WriteMode.Test &&
       !options.fatalWarnings &&
-      !exit.is(ExitCode.TestError)) {
+      !exit.is(ExitCode.TestError)
+    ) {
       // Ignore parse errors etc.
       ExitCode.Ok
     } else {

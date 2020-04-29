@@ -77,9 +77,11 @@ class FormatWriter(formatOps: FormatOps) {
       }
     iter(state)
 
-    if (initStyle.rewrite.redundantBraces.parensForOneLineApply
+    if (
+      initStyle.rewrite.redundantBraces.parensForOneLineApply
         .getOrElse(initStyle.activeForEdition_2020_01) &&
-      initStyle.rewrite.rules.contains(RedundantBraces))
+      initStyle.rewrite.rules.contains(RedundantBraces)
+    )
       replaceRedundantBraces(result)
 
     new FormatLocations(result)
@@ -98,8 +100,10 @@ class FormatWriter(formatOps: FormatOps) {
       val tok = loc.formatToken
       val state = loc.state
       // increment line offset
-      if (tok.leftHasNewline ||
-        state.split.modification.isNewline) lineOffset += 1
+      if (
+        tok.leftHasNewline ||
+        state.split.modification.isNewline
+      ) lineOffset += 1
       tok.left match {
         case rb: T.RightBrace => // look for "foo { bar }"
           tok.meta.leftOwner match {
@@ -513,8 +517,10 @@ class FormatWriter(formatOps: FormatOps) {
         // skip checking if row1 and row2 matches if both of them continues to a single line of comment
         // in order to vertical align adjacent single lines of comment.
         // see: https://github.com/scalameta/scalafmt/issues/1242
-        if (isSingleLineComment(row1.formatToken.right) &&
-          isSingleLineComment(row2.formatToken.right)) true
+        if (
+          isSingleLineComment(row1.formatToken.right) &&
+          isSingleLineComment(row2.formatToken.right)
+        ) true
         else {
           val row2Owner = getAlignOwner(row2.formatToken)
           val row1Owner = getAlignOwner(row1.formatToken)
@@ -741,8 +747,10 @@ object FormatWriter {
       indent: Int
   )(implicit style: ScalafmtConfig): String = {
     val alignedComment =
-      if (comment.syntax.startsWith("/*") &&
-        style.reformatDocstrings) {
+      if (
+        comment.syntax.startsWith("/*") &&
+        style.reformatDocstrings
+      ) {
         val isDocstring = comment.syntax.startsWith("/**") && style.scalaDocs
         val spaces: String =
           getIndentation(if (isDocstring) (indent + 2) else (indent + 1))

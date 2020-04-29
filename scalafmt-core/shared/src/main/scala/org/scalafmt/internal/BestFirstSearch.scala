@@ -143,8 +143,10 @@ private class BestFirstSearch private (
         return curr
 
       val splitToken = tokens(curr.depth)
-      if (splitToken.left.start >= stop.start &&
-        splitToken.left.start < splitToken.left.end) {
+      if (
+        splitToken.left.start >= stop.start &&
+        splitToken.left.start < splitToken.left.end
+      ) {
         return curr
       }
 
@@ -162,10 +164,12 @@ private class BestFirstSearch private (
 
         if (curr.split != null && curr.split.modification.isNewline) {
           val tokenHash = hash(splitToken.left)
-          if (emptyQueueSpots.contains(tokenHash) ||
+          if (
+            emptyQueueSpots.contains(tokenHash) ||
             dequeueOnNewStatements &&
             dequeueSpots.contains(tokenHash) &&
-            (depth > 0 || !isInsideNoOptZone(splitToken)))
+            (depth > 0 || !isInsideNoOptZone(splitToken))
+          )
             if (depth == 0) addGeneration
             else Q.clear()
         }
@@ -174,8 +178,10 @@ private class BestFirstSearch private (
         if (blockClose.nonEmpty)
           shortestPathMemo(curr, blockClose.get, depth + 1, maxCost)
             .foreach(Q.enqueue(_))
-        else if (escapeInPathologicalCases &&
-          visits(curr.depth) > maxVisitsPerToken) {
+        else if (
+          escapeInPathologicalCases &&
+          visits(curr.depth) > maxVisitsPerToken
+        ) {
           complete(deepestYet)
           throw SearchStateExploded(
             deepestYet,
@@ -212,8 +218,10 @@ private class BestFirstSearch private (
                     optimalNotFound = false
                     Q.enqueue(furtherState)
                   }
-                } else if (!killOnFail &&
-                  nextState.cost - curr.cost <= maxCost) {
+                } else if (
+                  !killOnFail &&
+                  nextState.cost - curr.cost <= maxCost
+                ) {
                   // TODO(olafur) DRY. This solution can still be optimal.
                   Q.enqueue(nextState)
                 } else { // else kill branch

@@ -319,8 +319,10 @@ class Router(formatOps: FormatOps) {
           getSpaceAndNewlineAfterCurlyLambda(newlines)
         val spaceSplit =
           if (canBeSpace) Split(Space, 0)
-          else if (afterCurlySpace && style.activeForEdition_2020_01 &&
-            (!rightOwner.is[Defn] || style.newlines.sourceIs(Newlines.fold)))
+          else if (
+            afterCurlySpace && style.activeForEdition_2020_01 &&
+            (!rightOwner.is[Defn] || style.newlines.sourceIs(Newlines.fold))
+          )
             Split(Space, 0)
               .withPolicy(
                 SingleLineBlock(
@@ -485,8 +487,10 @@ class Router(formatOps: FormatOps) {
         val annoRight = right.is[T.At]
         val annoLeft = isSingleIdentifierAnnotation(prev(tok))
 
-        if ((annoRight || annoLeft) &&
-          style.optIn.annotationNewlines && !style.newlines.sourceIgnored)
+        if (
+          (annoRight || annoLeft) &&
+          style.optIn.annotationNewlines && !style.newlines.sourceIgnored
+        )
           Seq(Split(getMod(formatToken), 0))
         else {
           asInfixApp(rightOwner, style.newlines.formatInfix).fold {
@@ -752,8 +756,10 @@ class Router(formatOps: FormatOps) {
           }
 
         val nlDanglePolicy =
-          if (style.newlines.sourceIgnored &&
-            style.danglingParentheses.callSite)
+          if (
+            style.newlines.sourceIgnored &&
+            style.danglingParentheses.callSite
+          )
             newlinesOnlyBeforeClosePolicy(close)
           else NoPolicy
         val nlIndent = if (style.activeForEdition_2020_03) indent else Num(4)
@@ -810,13 +816,17 @@ class Router(formatOps: FormatOps) {
         val nestedPenalty = nestedApplies(leftOwner) + lhsPenalty
         val excludeRanges =
           if (isBracket) insideBlockRanges[T.LeftBracket](tok, close)
-          else if (style.activeForEdition_2020_03 && multipleArgs ||
+          else if (
+            style.activeForEdition_2020_03 && multipleArgs ||
             notSingleEnclosedArgument &&
-            style.newlines.sourceIs(Newlines.unfold))
+            style.newlines.sourceIs(Newlines.unfold)
+          )
             Set.empty[Range]
-          else if (style.newlines.sourceIs(Newlines.fold) &&
+          else if (
+            style.newlines.sourceIs(Newlines.fold) &&
             singleArgument &&
-            (!notSingleEnclosedArgument || isExcludedTree(args(0))))
+            (!notSingleEnclosedArgument || isExcludedTree(args(0)))
+          )
             parensRange(args(0).tokens.last).toSet
           else insideBlockRanges[T.LeftBrace](tok, close)
 
@@ -884,8 +894,10 @@ class Router(formatOps: FormatOps) {
           opensImplicitParamList(formatToken, args)
 
         val noSplitMod =
-          if (handleImplicit &&
-            style.newlines.forceBeforeImplicitParamListModifier)
+          if (
+            handleImplicit &&
+            style.newlines.forceBeforeImplicitParamListModifier
+          )
             null
           else getNoSplit(formatToken, !isBracket)
         val noSplitIndent = if (right.is[T.Comment]) indent else Num(0)
@@ -1251,8 +1263,10 @@ class Router(formatOps: FormatOps) {
         val ignoreNoSplit =
           style.optIn.breakChainOnFirstMethodDot && tok.hasBreak
         val chainLengthPenalty =
-          if (style.newlines.penalizeSingleSelectMultiArgList &&
-            chain.length < 2) {
+          if (
+            style.newlines.penalizeSingleSelectMultiArgList &&
+            chain.length < 2
+          ) {
             // penalize by the number of arguments in the rhs open apply.
             // I know, it's a bit arbitrary, but my manual experiments seem
             // to show that it produces OK output. The key insight is that
@@ -1897,8 +1911,10 @@ class Router(formatOps: FormatOps) {
         }
       )
     def exclude =
-      if (style.activeForEdition_2020_03
-        && style.newlines.alwaysBeforeMultilineDef)
+      if (
+        style.activeForEdition_2020_03
+        && style.newlines.alwaysBeforeMultilineDef
+      )
         Set.empty[Range]
       else excludeOld
     if (ft.right.is[T.LeftBrace])
@@ -2085,8 +2101,10 @@ class Router(formatOps: FormatOps) {
   )(implicit style: ScalafmtConfig): Seq[Split] = {
     val postCommentFT = nextNonCommentSameLine(ft)
     val expire = lastToken(ft.meta.leftOwner)
-    if (!style.activeForEdition_2020_03 &&
-      style.newlines.sourceIs(Newlines.classic))
+    if (
+      !style.activeForEdition_2020_03 &&
+      style.newlines.sourceIs(Newlines.classic)
+    )
       Seq(Split(Space, 0))
     else if (postCommentFT.right.is[T.Comment])
       Seq(Split(Space.orNL(ft.noBreak), 0).withIndent(2, expire, After))

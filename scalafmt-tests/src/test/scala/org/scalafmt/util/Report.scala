@@ -14,8 +14,10 @@ object Report {
       div(
         h1(id := "title", "Heatmap"),
         explanation,
-        for (result <- results.sortBy(-_.maxVisitsOnSingleToken)
-          if result.test.name != "Warmup") yield {
+        for (
+          result <- results.sortBy(-_.maxVisitsOnSingleToken)
+          if result.test.name != "Warmup"
+        ) yield {
           div(
             h2(result.title),
             pre(
