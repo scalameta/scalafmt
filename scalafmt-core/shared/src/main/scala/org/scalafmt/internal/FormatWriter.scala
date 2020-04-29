@@ -564,7 +564,7 @@ class FormatWriter(formatOps: FormatOps) {
     else {
       var columnShift = 0
       val finalResult = Map.newBuilder[TokenHash, Int]
-      val block = new mutable.ArrayBuffer[IndexedSeq[FormatLocation]]
+      val block = new AlignBlock
       val locationIter = new LocationsIterator(locations)
       while (locationIter.hasNext) {
         var alignContainer: Tree = null
@@ -602,49 +602,7 @@ class FormatWriter(formatOps: FormatOps) {
             } else block += candidates
           }
           if (matches == 0 || doubleNewline || !locationIter.hasNext) {
-            var column = 0
-            val columns = block.map(_.length).max
-
-            /**
-              * Separator length gap needed to align blocks with different token
-              * lengths by expression names, not tokens themselves.
-              *
-              * Without considering gaps:
-              * ```
-              * libraryDependencies ++= Seq(
-              *   "org.scalacheck"  %% "scalacheck" % scalacheckV,
-              *   "io.get-coursier" % "interface"   % "0.0.17"
-              * )
-              * ```
-              *
-              * Taking gaps into account:
-              * ```
-              * libraryDependencies ++= Seq(
-              *   "org.scalacheck" %% "scalacheck" % scalacheckV,
-              *   "io.get-coursier" % "interface"  % "0.0.17"
-              * )
-              * ```
-              * */
-            val previousSeparatorLengthGaps = new Array[Int](block.length)
-            while (column < columns) {
-              val alignmentUnits = prepareAlignmentInfo(
-                block.toIndexedSeq,
-                previousSeparatorLengthGaps,
-                column
-              )
-
-              val widest = alignmentUnits.maxBy(_.width)
-              alignmentUnits.foreach { info =>
-                import info._
-                val tokenLengthGap =
-                  if (!initStyle.activeForEdition_2020_03) 0
-                  else widest.separatorLength - separatorLength
-                previousSeparatorLengthGaps(lineIndex) = tokenLengthGap
-                finalResult += tokenHash -> (widest.width - width + tokenLengthGap)
-              }
-              column += 1
-            }
-            block.clear()
+            flushNonEmptyAlignBlock(block, finalResult)
           }
         }
         if (block.isEmpty && candidates.nonEmpty && !doubleNewline)
@@ -652,6 +610,56 @@ class FormatWriter(formatOps: FormatOps) {
       }
       finalResult.result()
     }
+  }
+
+  private def flushNonEmptyAlignBlock(
+      block: AlignBlock,
+      builder: mutable.Builder[(TokenHash, Int), Map[TokenHash, Int]]
+  ): Unit = {
+    var column = 0
+    val columns = block.map(_.length).max
+
+    /**
+      * Separator length gap needed to align blocks with different token
+      * lengths by expression names, not tokens themselves.
+      *
+      * Without considering gaps:
+      * ```
+      * libraryDependencies ++= Seq(
+      *   "org.scalacheck"  %% "scalacheck" % scalacheckV,
+      *   "io.get-coursier" % "interface"   % "0.0.17"
+      * )
+      * ```
+      *
+      * Taking gaps into account:
+      * ```
+      * libraryDependencies ++= Seq(
+      *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+      *   "io.get-coursier" % "interface"  % "0.0.17"
+      * )
+      * ```
+      * */
+    val previousSeparatorLengthGaps = new Array[Int](block.length)
+    while (column < columns) {
+      val alignmentUnits = prepareAlignmentInfo(
+        block.toIndexedSeq,
+        previousSeparatorLengthGaps,
+        column
+      )
+
+      val widest = alignmentUnits.maxBy(_.width)
+      alignmentUnits.foreach { info =>
+        import info._
+        val tokenLengthGap =
+          if (!initStyle.activeForEdition_2020_03) 0
+          else widest.separatorLength - separatorLength
+        previousSeparatorLengthGaps(lineIndex) = tokenLengthGap
+        builder += tokenHash -> (widest.width - width + tokenLengthGap)
+      }
+      column += 1
+    }
+
+    block.clear()
   }
 
   private def prepareAlignmentInfo(
@@ -687,6 +695,8 @@ class FormatWriter(formatOps: FormatOps) {
 }
 
 object FormatWriter {
+
+  type AlignBlock = mutable.ArrayBuffer[IndexedSeq[FormatLocation]]
 
   case class FormatLocation(
       formatToken: FormatToken,
