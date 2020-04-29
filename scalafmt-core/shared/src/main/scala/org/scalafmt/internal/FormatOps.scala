@@ -60,7 +60,6 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
     getMatchingParentheses(tree.tokens)
   val styleMap =
     new StyleMap(tokens, initStyle, ownersMap, matchingParentheses)
-  private val vAlignDepthCache = mutable.Map.empty[Tree, Int]
   // Maps token to number of non-whitespace bytes before the token's position.
   private final val nonWhitespaceOffset: Map[Token, Int] = {
     val resultB = Map.newBuilder[Token, Int]
@@ -1073,23 +1072,6 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
   def decideNewlinesOnlyAfterToken(token: Token): Policy.Pf = {
     case d: Decision if d.formatToken.left eq token =>
       d.onlyNewlinesWithoutFallback
-  }
-
-  // Returns the depth of this node in the AST, used to prevent false positives.
-  final def vAlignDepth(tree: Tree): Int = {
-    vAlignDepthCache.getOrElseUpdate(tree, vAlignDepthUnCached(tree))
-  }
-
-  private final def vAlignDepthUnCached(tree: Tree): Int = {
-    val count: Int = tree match {
-      // infix applications don't count towards the length, context #531
-      case _: Term.ApplyInfix => 0
-      case _ => 1
-    }
-    tree.parent match {
-      case Some(parent) => count + vAlignDepth(parent)
-      case None => count
-    }
   }
 
   def getForceConfigStyle: (Set[Tree], Set[TokenHash]) = {

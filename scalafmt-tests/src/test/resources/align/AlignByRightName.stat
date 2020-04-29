@@ -79,5 +79,5 @@ libraryDependencies ++= Seq(
 libraryDependencies ++= Seq(
   "io.get-coursier"       % "interface"      %% "0.0.17",
   "com.geirsson1111111" %%% "metaconfig-core" % foo(a %% b) % Test,
-  "org.scalacheck"       %% "scalacheck"      % sclacheckV % Test
+  "org.scalacheck"       %% "scalacheck"      % sclacheckV  % Test
 )
