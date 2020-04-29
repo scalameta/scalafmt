@@ -561,7 +561,6 @@ class FormatWriter(formatOps: FormatOps) {
     else {
       var columnShift = 0
       val finalResult = Map.newBuilder[TokenHash, Int]
-      var maxMatches = Integer.MIN_VALUE
       val block = new mutable.ArrayBuffer[IndexedSeq[FormatLocation]]
       val locationIter = new LocationsIterator(locations)
       while (locationIter.hasNext) {
@@ -582,16 +581,19 @@ class FormatWriter(formatOps: FormatOps) {
         val candidates = columnCandidates.result()
         val doubleNewline = location.state.split.modification.newlines > 1
         if (block.nonEmpty) {
-          val matches =
-            columnMatches(block.last, candidates, location.formatToken)
-          maxMatches = Math
-            .max(maxMatches, if (matches > 0) matches else block.head.length)
+          val prev = block.last
+          val matches = columnMatches(prev, candidates, location.formatToken)
           if (matches > 0) {
-            block += candidates
+            // truncate candidates if matches are shorter than both lists
+            val truncate = matches < prev.length && matches < candidates.length
+            if (truncate) {
+              block(block.length - 1) = prev.take(matches)
+              block += candidates.take(matches)
+            } else block += candidates
           }
           if (matches == 0 || doubleNewline || !locationIter.hasNext) {
             var column = 0
-            val columns = maxMatches
+            val columns = block.map(_.length).max
 
             /**
               * Separator length gap needed to align blocks with different token
@@ -633,7 +635,6 @@ class FormatWriter(formatOps: FormatOps) {
               column += 1
             }
             block.clear()
-            maxMatches = Integer.MIN_VALUE
           }
         }
         if (block.isEmpty && candidates.nonEmpty && !doubleNewline)
