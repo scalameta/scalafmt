@@ -125,7 +125,7 @@ object a {
   /*
 
    /**
-     		* comment
+     * comment
      */
 
   def undefined = ???
@@ -140,5 +140,17 @@ object a {
    */
 
   def undefined = ???
+   */
+}
+<<< remove spaces and tabs in leading horizontal whitespace
+object A {
+  /*
+		* remove spaces & 2 tabs (\t) in leading horizontal whitespace
+  */
+}
+>>>
+object A {
+  /*
+   * remove spaces & 2 tabs (\t) in leading horizontal whitespace
    */
 }

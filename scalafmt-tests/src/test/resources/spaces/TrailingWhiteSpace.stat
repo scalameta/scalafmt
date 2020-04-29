@@ -1,0 +1,25 @@
+maxColumn = 80
+# Devos: be careful this file contains essential but invisible spaces.
+<<< Remove trailing spaces from variables
+object A {
+  val a = 1    
+  val b = 2    
+}
+>>>
+object A {
+  val a = 1
+  val b = 2
+}
+<<< Remove trailing tab-blank-tab combinations from variables
+object B {
+  val a = 1	 	
+  val b = 2	 	
+}
+>>>
+object B {
+  val a = 1
+  val b = 2
+}
+
+
+

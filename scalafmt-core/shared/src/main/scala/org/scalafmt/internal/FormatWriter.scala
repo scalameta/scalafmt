@@ -731,12 +731,30 @@ object FormatWriter {
     }
   }
 
-  private val trailingSpace = Pattern.compile("\\h+$", Pattern.MULTILINE)
+  /**
+    * No Unicode is necessary in the three (3) Pattern.compile() below.
+    * scalafmt parser will have already have objected.
+    * https://github.com/scala/scala/blob/2.11.x/spec/01-lexical-syntax.md
+    * gives the recognized scala whitespace characters.
+    * "Whitespace characters. \U0020 | \U0009 | \U000D | \U000A"
+    * (original text has lowercase u. U substituted here to allow scalafmt
+    *  to format this file.)
+    *
+    * Of the characters which the parser will pass, only space (\u0020)
+    * and tab (\u0009) are horizontal whitespace.
+    * Save execution time by not checking what the character could not be.
+    *
+    * */
+
+  private val trailingSpace =
+    Pattern.compile("[\\x20\\t]+$", Pattern.MULTILINE)
+
   private def removeTrailingWhiteSpace(str: String): String = {
     trailingSpace.matcher(str).replaceAll("")
   }
 
-  private val leadingAsteriskSpace = Pattern.compile("\n\\h*\\*([^*])")
+  private val leadingAsteriskSpace = Pattern.compile("\n[\\x20\\t]*\\*([^*])")
+
   private def formatComment(
       comment: T.Comment,
       indent: Int
@@ -759,9 +777,11 @@ object FormatWriter {
   @inline
   private def getStripMarginPattern(pipe: Char) =
     if (pipe == '|') leadingPipeSpace else compileStripMarginPattern(pipe)
+
   @inline
   private def compileStripMarginPattern(pipe: Char) =
-    Pattern.compile(s"\n\\h*(\\${pipe})")
+    Pattern.compile(s"\n[\\x20\\t]*(\\${pipe})")
+
   private val leadingPipeSpace = compileStripMarginPattern('|')
 
 }
