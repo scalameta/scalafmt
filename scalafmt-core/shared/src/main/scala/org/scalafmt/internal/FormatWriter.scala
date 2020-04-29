@@ -469,26 +469,29 @@ class FormatWriter(formatOps: FormatOps) {
     checkPackage.getOrElse(checkTopLevelStatement)
   }
 
-  private def isCandidate(location: FormatLocation): Boolean = {
-    val token = location.formatToken.right
-    val code = token match {
-      case c: T.Comment if isSingleLineComment(c) => "//"
-      case t => t.syntax
-    }
-    location.style.alignMap.get(code).exists { pattern =>
+  private def getAlignContainer(location: FormatLocation): Option[Tree] = {
+    val ft = location.formatToken
+    val slc = isSingleLineComment(ft.right)
+    val code = if (slc) "//" else ft.right.syntax
+
+    location.style.alignMap.get(code).flatMap { pattern =>
       val owner = getAlignOwner(location.formatToken)
-      pattern.matcher(owner.getClass.getName).find()
+      if (!pattern.matcher(owner.getClass.getName).find()) None
+      else if (!slc) TreeOps.getAlignContainer(owner)
+      else TreeOps.getAlignContainerComment(ft.meta.rightOwner)
     }
   }
 
-  def key(token: Token): Int = {
+  private def getAlignHashKey(location: FormatLocation): Int = {
+    val ft = location.formatToken
+    val align = location.style.align
     val ownerKey = {
-      val treeKind = owners(token).productPrefix
-      initStyle.align.treeCategory.getOrElse(treeKind, treeKind)
+      val treeKind = ft.meta.rightOwner.productPrefix
+      align.treeCategory.getOrElse(treeKind, treeKind)
     }
     val tokenKey = {
-      val syntax = token.productPrefix
-      initStyle.align.tokenCategory.getOrElse(syntax, syntax)
+      val syntax = ft.right.productPrefix
+      align.tokenCategory.getOrElse(syntax, syntax)
     }
     (tokenKey, ownerKey).hashCode()
   }
@@ -500,9 +503,11 @@ class FormatWriter(formatOps: FormatOps) {
       formatToken.meta.leftOwner
     else
       formatToken.meta.rightOwner match {
-        case name: Term.Name
-            if name.parent.exists(_.isInstanceOf[Term.ApplyInfix]) =>
-          name.parent.get
+        case name: Term.Name =>
+          name.parent match {
+            case Some(p: Term.ApplyInfix) => p
+            case _ => name
+          }
         case x => x
       }
 
@@ -518,16 +523,14 @@ class FormatWriter(formatOps: FormatOps) {
       isSingleLineComment(row1.formatToken.right) &&
       isSingleLineComment(row2.formatToken.right)
     ) true
-    else {
-      val row2Owner = getAlignOwner(row2.formatToken)
-      val row1Owner = getAlignOwner(row1.formatToken)
-      def sameLengthToRoot =
-        vAlignDepth(row1Owner) == vAlignDepth(row2Owner)
-      def isRowOwner(x: Tree) = (x eq row1Owner) || (x eq row2Owner)
-      key(row1.formatToken.right) == key(row2.formatToken.right) &&
-      sameLengthToRoot &&
-      TreeOps.findTreeWithParentSimple(eolTree)(isRowOwner).isEmpty
-    }
+    else
+      (row1.alignContainer eq row2.alignContainer) &&
+      (row1.alignHashKey == row2.alignHashKey) && {
+        val row2Owner = getAlignOwner(row2.formatToken)
+        val row1Owner = getAlignOwner(row1.formatToken)
+        def isRowOwner(x: Tree) = (x eq row1Owner) || (x eq row2Owner)
+        TreeOps.findTreeWithParentSimple(eolTree)(isRowOwner).isEmpty
+      }
 
   private def columnMatches(
       a: Seq[FormatLocation],
@@ -564,16 +567,23 @@ class FormatWriter(formatOps: FormatOps) {
       val block = new mutable.ArrayBuffer[IndexedSeq[FormatLocation]]
       val locationIter = new LocationsIterator(locations)
       while (locationIter.hasNext) {
+        var alignContainer: Tree = null
         val columnCandidates = IndexedSeq.newBuilder[FormatLocation]
         def shouldContinue(floc: FormatLocation): Boolean = {
           val ok = !floc.state.split.modification.isNewline
           if (!ok || floc.formatToken.leftHasNewline) columnShift = 0
           columnShift += floc.shift
           if (ok)
-            if (isCandidate(floc))
-              columnCandidates += floc.copy(shift =
-                floc.state.prev.column + columnShift
-              )
+            getAlignContainer(floc).foreach { container =>
+              if (alignContainer eq null)
+                alignContainer = container
+              if (alignContainer eq container)
+                columnCandidates += floc.copy(
+                  alignContainer = container,
+                  alignHashKey = getAlignHashKey(floc),
+                  shift = floc.state.prev.column + columnShift
+                )
+            }
           ok
         }
         while (shouldContinue(locationIter.next()) && locationIter.hasNext) {}
@@ -683,6 +693,8 @@ object FormatWriter {
       state: State,
       style: ScalafmtConfig,
       shift: Int = 0,
+      alignContainer: Tree = null,
+      alignHashKey: Int = 0,
       replace: String = null
   )
 

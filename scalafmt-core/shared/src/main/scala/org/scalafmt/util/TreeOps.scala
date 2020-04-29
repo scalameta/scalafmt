@@ -719,4 +719,34 @@ object TreeOps {
       }
   }
 
+  @tailrec
+  private def getAlignContainerParent(t: Tree): Option[Tree] =
+    t.parent match {
+      case x @ Some(
+            _: Template | _: Term.Block | _: Term.Match | _: Term.Function |
+            _: Term.PartialFunction
+          ) =>
+        x
+      case Some(p: Term.Select) => getAlignContainerParent(p)
+      case Some(p: Term.Apply) if t.is[Term.Apply] || t.is[Term.Select] =>
+        getAlignContainerParent(p)
+      case x @ Some(p) => p.parent.orElse(x)
+      case _ => Some(t)
+    }
+
+  final def getAlignContainer(t: Tree): Option[Tree] =
+    if (!t.is[Term.ApplyInfix]) getAlignContainerParent(t)
+    else
+      findTreeWithParentSimple(t)(!_.is[Term.ApplyInfix]).flatMap { x =>
+        val p = x.parent.get
+        if (p.is[Term.Apply]) p.parent.orElse(x.parent)
+        else getAlignContainerParent(x)
+      }
+
+  final def getAlignContainerComment(t: Tree): Option[Tree] =
+    t match {
+      case _: Template | _: Term.Block | _: Term.Match => Some(t)
+      case _ => getAlignContainerParent(t)
+    }
+
 }

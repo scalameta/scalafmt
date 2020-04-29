@@ -23,7 +23,7 @@ object fmt {
 object fmt {
   val header  = JwtHeader(algorithm = Some(JwtAlgorithm.HMD5))
   val content = payload.toString
-  val claim   = JwtClaim(content    = content)
+  val claim   = JwtClaim(content = content)
 }
 <<< fallback to any owner
 align.tokens.add = ["!"]

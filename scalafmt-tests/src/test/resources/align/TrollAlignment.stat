@@ -15,5 +15,5 @@ align.tokenCategory {
 >>>
 {
   x match { case 1 => 2 }
-  for { a          <- b } yield b
+  for { a <- b } yield b
 }

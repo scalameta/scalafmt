@@ -605,7 +605,7 @@ object fmt {
 >>>
 object fmt {
   val header  = JwtHeader(algorithm = Some(JwtAlgorithm.HMD5))
-  val claim   = JwtClaim(content    = content)
+  val claim   = JwtClaim(content = content)
   val content = payload.toString
 }
 <<< #1896 2: short non-matching first
@@ -619,7 +619,7 @@ object fmt {
 }
 >>>
 object fmt {
-  val claim   = JwtClaim(content    = content)
+  val claim   = JwtClaim(content = content)
   val header  = JwtHeader(algorithm = Some(JwtAlgorithm.HMD5))
   val content = payload.toString
 }
