@@ -61,9 +61,11 @@ class FormatTests
       case x => x.get
     }
     debugResults += saveResult(t, obtained, debug)
-    if (t.style.rewrite.rules.isEmpty &&
+    if (
+      t.style.rewrite.rules.isEmpty &&
       !t.style.assumeStandardLibraryStripMargin &&
-      t.style.onTestFailure.isEmpty) {
+      t.style.onTestFailure.isEmpty
+    ) {
       assertFormatPreservesAst(t.original, obtained)(
         parse,
         t.style.runner.dialect

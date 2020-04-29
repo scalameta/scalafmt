@@ -140,8 +140,10 @@ object Rewrite {
 
   def apply(input: Input, style: ScalafmtConfig): Input = {
     val trailingCommaRewrite =
-      if (!style.runner.dialect.allowTrailingCommas ||
-        style.trailingCommas == TrailingCommas.preserve) Seq.empty
+      if (
+        !style.runner.dialect.allowTrailingCommas ||
+        style.trailingCommas == TrailingCommas.preserve
+      ) Seq.empty
       else Seq(RewriteTrailingCommas)
 
     val rewrites = style.rewrite.rules ++ trailingCommaRewrite

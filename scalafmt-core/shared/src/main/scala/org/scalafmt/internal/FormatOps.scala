@@ -506,12 +506,14 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
     */
   def getSelectsLastToken(dot: T.Dot): FormatToken = {
     var curr = tokens(dot, 1)
-    while (isOpenApply(
+    while (
+      isOpenApply(
         curr.right,
         includeCurly = true,
         includeNoParens = true
       ) &&
-      !statementStarts.contains(hash(curr.right))) {
+      !statementStarts.contains(hash(curr.right))
+    ) {
       if (curr.right.is[T.Dot]) {
         curr = tokens(curr, 2)
       } else {
@@ -542,13 +544,17 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
   )(implicit style: ScalafmtConfig): Int = {
     if (style.verticalAlignMultilineOperators)
       if (InfixApp.isAssignment(formatToken.left.syntax)) 2 else 0
-    else if (!app.rhs.headOption.exists { x =>
+    else if (
+      !app.rhs.headOption.exists { x =>
         x.is[Term.Block] || x.is[Term.NewAnonymous]
-      } && isInfixTopLevelMatch(app.all, formatToken.left.syntax, false)) 2
+      } && isInfixTopLevelMatch(app.all, formatToken.left.syntax, false)
+    ) 2
     else if (isInfixTopLevelMatch(app.all, app.op.value, true)) 0
     else if (!isNewline && !isSingleLineComment(formatToken.right)) 0
-    else if ((style.activeForEdition_2020_03 || style.newlines.formatInfix) &&
-      app.all.is[Pat] && isChildOfCaseClause(app.all)) 0
+    else if (
+      (style.activeForEdition_2020_03 || style.newlines.formatInfix) &&
+      app.all.is[Pat] && isChildOfCaseClause(app.all)
+    ) 0
     else 2
   }
 
@@ -594,8 +600,10 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
     val split =
       Split(modification, 0).withIndent(Num(indent), expire, ExpiresOn.After)
 
-    if (!style.activeForEdition_2020_01 || !beforeLhs ||
-      isNewline || formatToken.right.is[T.Comment])
+    if (
+      !style.activeForEdition_2020_01 || !beforeLhs ||
+      isNewline || formatToken.right.is[T.Comment]
+    )
       Seq(split)
     else {
       val altIndent = infixIndent(app, formatToken, true)

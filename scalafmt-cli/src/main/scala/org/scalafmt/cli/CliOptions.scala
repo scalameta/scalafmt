@@ -41,8 +41,10 @@ object CliOptions {
     }
 
     val auxOut =
-      if (parsed.noStdErr ||
-        !(parsed.stdIn || parsed.writeMode == WriteMode.Stdout))
+      if (
+        parsed.noStdErr ||
+        !(parsed.stdIn || parsed.writeMode == WriteMode.Stdout)
+      )
         parsed.common.out
       else parsed.common.err
 

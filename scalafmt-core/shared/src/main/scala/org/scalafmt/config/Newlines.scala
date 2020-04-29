@@ -161,8 +161,10 @@ case class Newlines(
     afterInfixMaxCountPerFile: Int = 500,
     avoidAfterYield: Boolean = true
 ) {
-  if (implicitParamListModifierForce.nonEmpty &&
-    implicitParamListModifierPrefer.nonEmpty) {
+  if (
+    implicitParamListModifierForce.nonEmpty &&
+    implicitParamListModifierPrefer.nonEmpty
+  ) {
     throw new ScalafmtConfigException(
       "can't specify both " +
         "implicitParamListModifierForce and implicitParamListModifierPrefer"
