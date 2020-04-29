@@ -440,6 +440,60 @@ class FormatWriter(formatOps: FormatOps) {
       }
     }
 
+    @tailrec
+    private def getAlignContainerParent(
+        t: Tree
+    ): Tree =
+      t.parent match {
+        case Some(
+              p @ (
+                _: Template | _: Term.Block | _: Term.Match | _: Term.Function |
+                _: Term.PartialFunction
+              )
+            ) =>
+          p
+        case Some(p: Term.Select) => getAlignContainerParent(p)
+        case Some(p: Term.Apply) if t.is[Term.Apply] || t.is[Term.Select] =>
+          getAlignContainerParent(p)
+        case Some(p) => p.parent.getOrElse(p)
+        case _ => t
+      }
+
+    private def getAlignContainer(
+        t: Tree
+    ): Tree =
+      if (!t.is[Term.ApplyInfix]) getAlignContainerParent(t)
+      else
+        TreeOps
+          .findTreeWithParentSimple(t)(!_.is[Term.ApplyInfix])
+          .map { x =>
+            val p = x.parent.get
+            if (p.is[Term.Apply]) p.parent.getOrElse(p)
+            else getAlignContainerParent(x)
+          }
+          .getOrElse(t)
+
+    private def getAlignContainerComment(
+        t: Tree
+    ): Tree =
+      t match {
+        case _: Template | _: Term.Block | _: Term.Match => t
+        case _ => getAlignContainerParent(t)
+      }
+
+    def getAlignContainer(location: FormatLocation): Option[Tree] = {
+      val ft = location.formatToken
+      val slc = isSingleLineComment(ft.right)
+      val code = if (slc) "//" else ft.right.syntax
+
+      location.style.alignMap.get(code).flatMap { pattern =>
+        val owner = getAlignOwner(location.formatToken)
+        if (!pattern.matcher(owner.getClass.getName).find()) None
+        else if (!slc) Some(getAlignContainer(owner))
+        else Some(getAlignContainerComment(ft.meta.rightOwner))
+      }
+    }
+
   }
 
   private def isCloseDelimForTrailingCommasMultiple(
@@ -531,19 +585,6 @@ class FormatWriter(formatOps: FormatOps) {
       }
 
     checkPackage.getOrElse(checkTopLevelStatement)
-  }
-
-  private def getAlignContainer(location: FormatLocation): Option[Tree] = {
-    val ft = location.formatToken
-    val slc = isSingleLineComment(ft.right)
-    val code = if (slc) "//" else ft.right.syntax
-
-    location.style.alignMap.get(code).flatMap { pattern =>
-      val owner = getAlignOwner(location.formatToken)
-      if (!pattern.matcher(owner.getClass.getName).find()) None
-      else if (!slc) TreeOps.getAlignContainer(owner)
-      else TreeOps.getAlignContainerComment(ft.meta.rightOwner)
-    }
   }
 
   private def getAlignHashKey(location: FormatLocation): Int = {
