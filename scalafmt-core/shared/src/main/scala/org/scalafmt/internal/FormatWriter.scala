@@ -8,7 +8,6 @@ import org.scalafmt.util.TokenOps._
 import org.scalafmt.util.{LiteralOps, TreeOps}
 
 import scala.annotation.tailrec
-import scala.collection.IndexedSeq
 import scala.collection.mutable
 import scala.meta.tokens.Token
 import scala.meta.tokens.{Token => T}
@@ -563,10 +562,10 @@ class FormatWriter(formatOps: FormatOps) {
       var columnShift = 0
       val finalResult = Map.newBuilder[TokenHash, Int]
       var maxMatches = Integer.MIN_VALUE
-      var block = Vector.empty[Array[FormatLocation]]
+      var block = Vector.empty[IndexedSeq[FormatLocation]]
       val locationIter = new LocationsIterator(locations)
       while (locationIter.hasNext) {
-        val columnCandidates = Array.newBuilder[FormatLocation]
+        val columnCandidates = IndexedSeq.newBuilder[FormatLocation]
         def shouldContinue(floc: FormatLocation): Boolean = {
           val ok = !floc.state.split.modification.isNewline
           if (!ok || floc.formatToken.leftHasNewline) columnShift = 0
@@ -634,7 +633,7 @@ class FormatWriter(formatOps: FormatOps) {
               column += 1
             }
             if (candidates.isEmpty || doubleNewline) {
-              block = Vector.empty[Array[FormatLocation]]
+              block = Vector.empty[IndexedSeq[FormatLocation]]
             } else {
               block = Vector(candidates)
             }
@@ -647,7 +646,7 @@ class FormatWriter(formatOps: FormatOps) {
   }
 
   private def prepareAlignmentInfo(
-      block: Vector[Array[FormatLocation]],
+      block: IndexedSeq[IndexedSeq[FormatLocation]],
       separatorLengthGaps: Array[Int],
       column: Int
   ): Vector[AlignmentUnit] = {
@@ -718,7 +717,7 @@ object FormatWriter {
     buf += ""
     // use the previous indentation to add another space
     (1 until size).foreach(_ => buf += " " + buf.last)
-    buf
+    buf.toIndexedSeq
   }
 
   // see if indentation level is cached first
