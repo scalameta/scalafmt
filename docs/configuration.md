@@ -696,31 +696,7 @@ package core {
 }
 ```
 
-### `newlines.alwaysBeforeMultilineDef`
-
-This parameter forces a new line before the method body on multiline defs:
-
-```scala mdoc:defaults
-newlines.alwaysBeforeMultilineDef
-```
-
-```scala mdoc:scalafmt
-newlines.alwaysBeforeMultilineDef = true
----
-def foo: String = "123".map { x =>
-  x.toUpper
-}
-```
-
-```scala mdoc:scalafmt
-newlines.alwaysBeforeMultilineDef = false
----
-def foo: String = "123".map { x =>
-  x.toUpper
-}
-```
-
-### `newlines.topLevelStatementsMinBreaks`
+#### `newlines.topLevelStatementsMinBreaks`
 
 > Since v2.5.0.
 
@@ -766,6 +742,30 @@ package core {
       "B"
     }
   }
+}
+```
+
+### `newlines.alwaysBeforeMultilineDef`
+
+This parameter forces a new line before the method body on multiline defs:
+
+```scala mdoc:defaults
+newlines.alwaysBeforeMultilineDef
+```
+
+```scala mdoc:scalafmt
+newlines.alwaysBeforeMultilineDef = true
+---
+def foo: String = "123".map { x =>
+  x.toUpper
+}
+```
+
+```scala mdoc:scalafmt
+newlines.alwaysBeforeMultilineDef = false
+---
+def foo: String = "123".map { x =>
+  x.toUpper
 }
 ```
 
