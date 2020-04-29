@@ -508,32 +508,42 @@ class FormatWriter(formatOps: FormatOps) {
       }
 
   private def columnsMatch(
-      a: Array[FormatLocation],
-      b: Array[FormatLocation],
-      endOfLine: FormatToken
-  ): Int = {
-    val findParentOnRight =
-      TreeOps.findTreeWithParentSimple(endOfLine.meta.rightOwner) _
-    val result = a.zip(b).takeWhile {
-      case (row1, row2) =>
-        // skip checking if row1 and row2 matches if both of them continues to a single line of comment
-        // in order to vertical align adjacent single lines of comment.
-        // see: https://github.com/scalameta/scalafmt/issues/1242
-        if (
-          isSingleLineComment(row1.formatToken.right) &&
-          isSingleLineComment(row2.formatToken.right)
-        ) true
-        else {
-          val row2Owner = getAlignOwner(row2.formatToken)
-          val row1Owner = getAlignOwner(row1.formatToken)
-          def sameLengthToRoot =
-            vAlignDepth(row1Owner) == vAlignDepth(row2Owner)
-          def isRowOwner(x: Tree) = (x eq row1Owner) || (x eq row2Owner)
-          key(row1.formatToken.right) == key(row2.formatToken.right) &&
-          sameLengthToRoot && findParentOnRight(isRowOwner).isEmpty
-        }
+      row1: FormatLocation,
+      row2: FormatLocation,
+      eolTree: Tree
+  ): Boolean =
+    // skip checking if row1 and row2 matches if both of them continues to a single line of comment
+    // in order to vertical align adjacent single lines of comment.
+    // see: https://github.com/scalameta/scalafmt/issues/1242
+    if (
+      isSingleLineComment(row1.formatToken.right) &&
+      isSingleLineComment(row2.formatToken.right)
+    ) true
+    else {
+      val row2Owner = getAlignOwner(row2.formatToken)
+      val row1Owner = getAlignOwner(row1.formatToken)
+      def sameLengthToRoot =
+        vAlignDepth(row1Owner) == vAlignDepth(row2Owner)
+      def isRowOwner(x: Tree) = (x eq row1Owner) || (x eq row2Owner)
+      key(row1.formatToken.right) == key(row2.formatToken.right) &&
+      sameLengthToRoot &&
+      TreeOps.findTreeWithParentSimple(eolTree)(isRowOwner).isEmpty
     }
-    result.length
+
+  private def columnMatches(
+      a: Seq[FormatLocation],
+      b: Seq[FormatLocation],
+      eol: FormatToken
+  ): Int = {
+    val endOfLineOwner = eol.meta.rightOwner
+    @tailrec
+    def iter(pairs: Seq[(FormatLocation, FormatLocation)], cnt: Int): Int =
+      pairs.headOption match {
+        case Some((r1, r2)) if columnsMatch(r1, r2, endOfLineOwner) =>
+          iter(pairs.tail, cnt + 1)
+        case _ => cnt
+      }
+    iter(a.zip(b), 0)
   }
 
   /**
@@ -577,7 +587,7 @@ class FormatWriter(formatOps: FormatOps) {
             block = block :+ candidates
         } else {
           val matches =
-            columnsMatch(block.last, candidates, location.formatToken)
+            columnMatches(block.last, candidates, location.formatToken)
           maxMatches = Math
             .max(maxMatches, if (matches > 0) matches else block.head.length)
           if (matches > 0) {
