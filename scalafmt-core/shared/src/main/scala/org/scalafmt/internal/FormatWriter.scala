@@ -562,7 +562,7 @@ class FormatWriter(formatOps: FormatOps) {
       var columnShift = 0
       val finalResult = Map.newBuilder[TokenHash, Int]
       var maxMatches = Integer.MIN_VALUE
-      var block = Vector.empty[IndexedSeq[FormatLocation]]
+      val block = new mutable.ArrayBuffer[IndexedSeq[FormatLocation]]
       val locationIter = new LocationsIterator(locations)
       while (locationIter.hasNext) {
         val columnCandidates = IndexedSeq.newBuilder[FormatLocation]
@@ -581,16 +581,13 @@ class FormatWriter(formatOps: FormatOps) {
         val location = locationIter.last
         val candidates = columnCandidates.result()
         val doubleNewline = location.state.split.modification.newlines > 1
-        if (block.isEmpty) {
-          if (candidates.nonEmpty && !doubleNewline)
-            block = block :+ candidates
-        } else {
+        if (block.nonEmpty) {
           val matches =
             columnMatches(block.last, candidates, location.formatToken)
           maxMatches = Math
             .max(maxMatches, if (matches > 0) matches else block.head.length)
           if (matches > 0) {
-            block = block :+ candidates
+            block += candidates
           }
           if (matches == 0 || doubleNewline || !locationIter.hasNext) {
             var column = 0
@@ -618,8 +615,11 @@ class FormatWriter(formatOps: FormatOps) {
               * */
             val previousSeparatorLengthGaps = new Array[Int](block.length)
             while (column < columns) {
-              val alignmentUnits =
-                prepareAlignmentInfo(block, previousSeparatorLengthGaps, column)
+              val alignmentUnits = prepareAlignmentInfo(
+                block.toIndexedSeq,
+                previousSeparatorLengthGaps,
+                column
+              )
 
               val widest = alignmentUnits.maxBy(_.width)
               alignmentUnits.foreach { info =>
@@ -632,14 +632,12 @@ class FormatWriter(formatOps: FormatOps) {
               }
               column += 1
             }
-            if (candidates.isEmpty || doubleNewline) {
-              block = Vector.empty[IndexedSeq[FormatLocation]]
-            } else {
-              block = Vector(candidates)
-            }
+            block.clear()
             maxMatches = Integer.MIN_VALUE
           }
         }
+        if (block.isEmpty && candidates.nonEmpty && !doubleNewline)
+          block += candidates
       }
       finalResult.result()
     }
