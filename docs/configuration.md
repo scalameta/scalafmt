@@ -488,6 +488,45 @@ align.stripMargin
 This functionality is enabled in all presets except `align.preset=none` where it was
 disabled since the parameter's introduction in v2.5.0.
 
+### `align.multiline`
+
+If this flag is set, when alignment is applied, multiline statements will
+not be excluded from search of tokens to align.
+
+> Since v2.5.0.
+
+```scala mdoc:defaults
+align.multiline
+```
+
+```scala mdoc:scalafmt
+align.preset = more
+align.multiline = true
+---
+for {
+  a <- aaa
+  bbb <- bb
+  cccccc <- c {
+    3
+  }
+  dd <- ddddd
+} yield ()
+```
+
+```scala mdoc:scalafmt
+align.preset = more
+align.multiline = false
+---
+for {
+  a <- aaa
+  bbb <- bb
+  cccccc <- c {
+    3
+  }
+  dd <- ddddd
+} yield ()
+```
+
 ## Newlines
 
 The `newlines.*` options are used to configure when and where `scalafmt` should
