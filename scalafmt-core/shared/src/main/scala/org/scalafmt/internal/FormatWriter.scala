@@ -175,7 +175,7 @@ class FormatWriter(formatOps: FormatOps) {
 
   class FormatLocations(val locations: Array[FormatLocation]) {
 
-    val tokenAligns: Map[TokenHash, Int] = alignmentTokens(locations)
+    val tokenAligns: Map[TokenHash, Int] = alignmentTokens
 
     def iterate: Iterator[Entry] =
       Iterator.range(0, locations.length).map(new Entry(_))
@@ -372,6 +372,70 @@ class FormatWriter(formatOps: FormatOps) {
       }
 
     }
+
+    /**
+      * Returns how many extra spaces are needed to align tokens, as configured
+      * by `initStyle.align.tokens`.
+      */
+    // TODO(olafur) Refactor implementation to make it maintainable. It's super
+    // imperative and error-prone right now.
+    private def alignmentTokens: Map[TokenHash, Int] = {
+      lazy val noAlignTokens = initStyle.align.tokens.isEmpty &&
+        styleMap.tok2style.values.forall(_.align.tokens.isEmpty)
+      if (locations.length != tokens.length || noAlignTokens)
+        Map.empty[TokenHash, Int]
+      else {
+        var columnShift = 0
+        val finalResult = Map.newBuilder[TokenHash, Int]
+        val block = new AlignBlock
+        val locationIter = new LocationsIterator(locations)
+        while (locationIter.hasNext) {
+          var alignContainer: Tree = null
+          val columnCandidates = IndexedSeq.newBuilder[FormatLocation]
+          def shouldContinue(floc: FormatLocation): Boolean = {
+            val ok = !floc.state.split.modification.isNewline
+            if (!ok || floc.formatToken.leftHasNewline) columnShift = 0
+            columnShift += floc.shift
+            if (ok)
+              getAlignContainer(floc).foreach { container =>
+                if (alignContainer eq null)
+                  alignContainer = container
+                if (alignContainer eq container)
+                  columnCandidates += floc.copy(
+                    alignContainer = container,
+                    alignHashKey = getAlignHashKey(floc),
+                    shift = floc.state.prev.column + columnShift
+                  )
+              }
+            ok
+          }
+          while (shouldContinue(locationIter.next()) && locationIter.hasNext) {}
+          val location = locationIter.last
+          val candidates = columnCandidates.result()
+          val doubleNewline = location.state.split.modification.newlines > 1
+          if (block.nonEmpty) {
+            val prev = block.last
+            val matches = columnMatches(prev, candidates, location.formatToken)
+            if (matches > 0) {
+              // truncate candidates if matches are shorter than both lists
+              val truncate =
+                matches < prev.length && matches < candidates.length
+              if (truncate) {
+                block(block.length - 1) = prev.take(matches)
+                block += candidates.take(matches)
+              } else block += candidates
+            }
+            if (matches == 0 || doubleNewline || !locationIter.hasNext) {
+              flushNonEmptyAlignBlock(block, finalResult)
+            }
+          }
+          if (block.isEmpty && candidates.nonEmpty && !doubleNewline)
+            block += candidates
+        }
+        finalResult.result()
+      }
+    }
+
   }
 
   private def isCloseDelimForTrailingCommasMultiple(
@@ -542,70 +606,6 @@ class FormatWriter(formatOps: FormatOps) {
         case _ => cnt
       }
     iter(a.zip(b), 0)
-  }
-
-  /**
-    * Returns how many extra spaces are needed to align tokens, as configured
-    * by `initStyle.align.tokens`.
-    */
-  // TODO(olafur) Refactor implementation to make it maintainable. It's super
-  // imperative and error-prone right now.
-  def alignmentTokens(
-      locations: Array[FormatLocation]
-  ): Map[TokenHash, Int] = {
-    lazy val noAlignTokens = initStyle.align.tokens.isEmpty &&
-      styleMap.tok2style.values.forall(_.align.tokens.isEmpty)
-    if (locations.length != tokens.length || noAlignTokens)
-      Map.empty[TokenHash, Int]
-    else {
-      var columnShift = 0
-      val finalResult = Map.newBuilder[TokenHash, Int]
-      val block = new AlignBlock
-      val locationIter = new LocationsIterator(locations)
-      while (locationIter.hasNext) {
-        var alignContainer: Tree = null
-        val columnCandidates = IndexedSeq.newBuilder[FormatLocation]
-        def shouldContinue(floc: FormatLocation): Boolean = {
-          val ok = !floc.state.split.modification.isNewline
-          if (!ok || floc.formatToken.leftHasNewline) columnShift = 0
-          columnShift += floc.shift
-          if (ok)
-            getAlignContainer(floc).foreach { container =>
-              if (alignContainer eq null)
-                alignContainer = container
-              if (alignContainer eq container)
-                columnCandidates += floc.copy(
-                  alignContainer = container,
-                  alignHashKey = getAlignHashKey(floc),
-                  shift = floc.state.prev.column + columnShift
-                )
-            }
-          ok
-        }
-        while (shouldContinue(locationIter.next()) && locationIter.hasNext) {}
-        val location = locationIter.last
-        val candidates = columnCandidates.result()
-        val doubleNewline = location.state.split.modification.newlines > 1
-        if (block.nonEmpty) {
-          val prev = block.last
-          val matches = columnMatches(prev, candidates, location.formatToken)
-          if (matches > 0) {
-            // truncate candidates if matches are shorter than both lists
-            val truncate = matches < prev.length && matches < candidates.length
-            if (truncate) {
-              block(block.length - 1) = prev.take(matches)
-              block += candidates.take(matches)
-            } else block += candidates
-          }
-          if (matches == 0 || doubleNewline || !locationIter.hasNext) {
-            flushNonEmptyAlignBlock(block, finalResult)
-          }
-        }
-        if (block.isEmpty && candidates.nonEmpty && !doubleNewline)
-          block += candidates
-      }
-      finalResult.result()
-    }
   }
 
   private def flushNonEmptyAlignBlock(
