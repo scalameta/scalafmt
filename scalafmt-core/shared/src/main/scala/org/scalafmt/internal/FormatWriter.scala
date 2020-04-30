@@ -650,11 +650,9 @@ class FormatWriter(formatOps: FormatOps) {
       val widest = alignmentUnits.maxBy(_.width)
       alignmentUnits.foreach { info =>
         import info._
-        val tokenLengthGap =
-          if (!initStyle.activeForEdition_2020_03) 0
-          else widest.separatorLength - separatorLength
-        previousSeparatorLengthGaps(lineIndex) = tokenLengthGap
-        builder += tokenHash -> (widest.width - width + tokenLengthGap)
+        previousSeparatorLengthGaps(lineIndex) =
+          widest.separatorLength - separatorLength
+        builder += tokenHash -> (widest.width - width)
       }
       column += 1
     }
@@ -673,14 +671,14 @@ class FormatWriter(formatOps: FormatOps) {
       val line = block(i)
       if (column < line.length) {
         val location = line(column)
-        val previousWidth =
-          if (column == 0) 0 else line(column - 1).shift
+        val previousWidth = if (column == 0) 0 else line(column - 1).shift
         val key = location.shift - previousWidth + separatorLengthGaps(i)
         val separatorLength =
           if (location.formatToken.right.is[Token.Comment]) 0
+          else if (!initStyle.activeForEdition_2020_03) 0
           else location.formatToken.right.syntax.length
         units += AlignmentUnit(
-          key,
+          key + separatorLength,
           hash(location.formatToken.left),
           separatorLength,
           i
