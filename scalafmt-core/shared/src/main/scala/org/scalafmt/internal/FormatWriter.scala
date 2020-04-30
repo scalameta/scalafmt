@@ -66,15 +66,17 @@ class FormatWriter(formatOps: FormatOps) {
     val result = new Array[FormatLocation](state.depth)
 
     @tailrec
-    def iter(state: State): Unit =
+    def iter(state: State, lineId: Int): Unit =
       if (state.depth != 0) {
         val prev = state.prev
         val idx = prev.depth
         val ft = toks(idx)
-        result(idx) = FormatLocation(ft, state, styleMap.at(ft))
-        iter(prev)
+        val breaks = ft.leftHasNewline || state.split.modification.isNewline
+        val newLineId = lineId + (if (breaks) 1 else 0)
+        result(idx) = FormatLocation(ft, state, styleMap.at(ft), newLineId)
+        iter(prev, newLineId)
       }
-    iter(state)
+    iter(state, 0)
 
     if (
       initStyle.rewrite.redundantBraces.parensForOneLineApply
@@ -91,17 +93,11 @@ class FormatWriter(formatOps: FormatOps) {
     val lookup = mutable.Map.empty[Int, (Int, Int)]
 
     // iterate backwards, to encounter closing braces first
-    var lineOffset = 0
     var idx = locations.length - 1
     while (0 <= idx) {
       val loc = locations(idx)
       val tok = loc.formatToken
       val state = loc.state
-      // increment line offset
-      if (
-        tok.leftHasNewline ||
-        state.split.modification.isNewline
-      ) lineOffset += 1
       tok.left match {
         case rb: T.RightBrace => // look for "foo { bar }"
           tok.meta.leftOwner match {
@@ -111,12 +107,12 @@ class FormatWriter(formatOps: FormatOps) {
                   case _ => false
                 } && RedundantBraces.canRewriteWithParens(b) =>
               val beg = tokens(matching(rb))
-              lookup.update(beg.meta.idx, tok.meta.idx -> lineOffset)
+              lookup.update(beg.meta.idx, tok.meta.idx -> loc.lineId)
             case _ =>
           }
         case _: T.LeftBrace =>
           lookup.remove(idx).foreach {
-            case (end, endOffset) if endOffset == lineOffset =>
+            case (end, endOffset) if endOffset == loc.lineId =>
               val inParentheses = loc.style.spaces.inParentheses
               // remove space before "{"
               val prevBegState =
@@ -700,6 +696,7 @@ object FormatWriter {
       formatToken: FormatToken,
       state: State,
       style: ScalafmtConfig,
+      lineId: Int, // only guaranteed to match for toks on the same line
       shift: Int = 0,
       alignContainer: Tree = null,
       alignHashKey: Int = 0,
