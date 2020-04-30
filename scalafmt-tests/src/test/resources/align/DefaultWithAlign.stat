@@ -665,6 +665,8 @@ JwtClaim(
   content = content
 )
 <<< #1504
+align.multiline = true
+===
 object a {
   val stringFoo = thing.identifier match {
     case foo : SuperFooBarIdentifier =>
@@ -678,7 +680,7 @@ object a {
 >>>
 object a {
   val stringFoo = thing.identifier match {
-    case foo: SuperFooBarIdentifier =>
+    case foo: SuperFooBarIdentifier   =>
       "somestring" / "other_string" / foo.identifyingid
     case tastyBar: TastyBarIdentifier =>
       "something" / "other_other" ? ("arg1" -> tastyBar.ider) & ("limit" -> 111)
@@ -689,6 +691,8 @@ object a {
   }
 }
 <<< #1811 1
+align.multiline = true
+===
 object a {
   for {
     a   <- Option(1)
@@ -702,15 +706,16 @@ object a {
 >>>
 object a {
   for {
-    a   <- Option(1)
-    bbb <- Option(2)
+    a      <- Option(1)
+    bbb    <- Option(2)
     cccccc <- Option {
       3
     }
-    dd <- Option(4)
+    dd     <- Option(4)
   } yield ()
 }
 <<< #1811 2
+align.multiline = true
 align.arrowEnumeratorGenerator = true
 ===
 object a {
@@ -726,22 +731,24 @@ object a {
 >>>
 object a {
   for {
-    a   <- Option(1)
-    bbb <- Option(2)
+    a      <- Option(1)
+    bbb    <- Option(2)
     cccccc <- Option {
                 3
               }
-    dd <- Option(4)
+    dd     <- Option(4)
   } yield ()
 }
 <<< #1841
+align.multiline = true
+===
 object a {
   private[this] val pbClass       = Class.forName("java.lang.ProcessBuilder")
   private[this] val redirectClass = pbClass.getClasses find (_.getSimpleName == "Redirect")
 }
 >>>
 object a {
-  private[this] val pbClass = Class.forName("java.lang.ProcessBuilder")
+  private[this] val pbClass       = Class.forName("java.lang.ProcessBuilder")
   private[this] val redirectClass =
     pbClass.getClasses find (_.getSimpleName == "Redirect")
 }

@@ -61,6 +61,7 @@ import metaconfig.generic.Surface
   *   of the first line, as usual.
   */
 case class Align(
+    multiline: Boolean = false,
     stripMargin: Boolean = true,
     openParenCallSite: Boolean = false,
     openParenDefnSite: Boolean = false,
@@ -107,6 +108,7 @@ object Align {
   // only for the truest vertical aligners, this setting is open for changes,
   // please open PR addding more stuff to it if you like.
   val most: Align = more.copy(
+    multiline = true,
     arrowEnumeratorGenerator = true,
     tokenCategory = Map(
       "Equals" -> "Assign",

@@ -387,7 +387,20 @@ class FormatWriter(formatOps: FormatOps) {
       else {
         var columnShift = 0
         val finalResult = Map.newBuilder[TokenHash, Int]
-        val block = new AlignBlock
+
+        // all blocks must be here, to get final flush
+        val blocks = new mutable.HashMap[Tree, AlignBlock]
+        def createBlock(x: Tree) = blocks.getOrElseUpdate(x, new AlignBlock)
+        var prevAlignContainer: Tree = null
+        var prevBlock: AlignBlock =
+          if (initStyle.align.multiline) null else createBlock(null)
+        val lookupBlock: Tree => AlignBlock =
+          if (!initStyle.align.multiline) _ => prevBlock
+          else (x: Tree) => if (x eq null) prevBlock else createBlock(x)
+        val shouldFlush: Tree => Boolean =
+          if (!initStyle.align.multiline) _ => true
+          else (x: Tree) => x eq prevAlignContainer
+
         var idx = 0
         while (idx < locations.length) {
           var alignContainer: Tree = null
@@ -417,7 +430,8 @@ class FormatWriter(formatOps: FormatOps) {
           val location = processLine
           val candidates = columnCandidates.result()
           val doubleNewline = location.state.split.modification.newlines > 1
-          if (block.nonEmpty) {
+          val block = lookupBlock(alignContainer)
+          if ((block ne null) && block.nonEmpty) {
             val prev = block.last
             val matches = columnMatches(prev, candidates, location.formatToken)
             if (matches > 0) {
@@ -429,12 +443,17 @@ class FormatWriter(formatOps: FormatOps) {
                 block += candidates.take(matches)
               } else block += candidates
             }
-            if (matches == 0 || doubleNewline || idx == locations.length) {
+            if (doubleNewline || matches == 0 && shouldFlush(alignContainer))
               flushNonEmptyAlignBlock(block, finalResult)
-            }
           }
-          if (block.isEmpty && candidates.nonEmpty && !doubleNewline)
-            block += candidates
+          if (alignContainer ne null) {
+            prevAlignContainer = alignContainer
+            prevBlock = block
+            if (block.isEmpty && !doubleNewline) block += candidates
+          }
+        }
+        blocks.valuesIterator.foreach { x =>
+          if (x.nonEmpty) flushNonEmptyAlignBlock(x, finalResult)
         }
         finalResult.result()
       }
@@ -631,10 +650,12 @@ class FormatWriter(formatOps: FormatOps) {
     else
       (row1.alignContainer eq row2.alignContainer) &&
       (row1.alignHashKey == row2.alignHashKey) && {
-        val row2Owner = getAlignOwner(row2.formatToken)
-        val row1Owner = getAlignOwner(row1.formatToken)
-        def isRowOwner(x: Tree) = (x eq row1Owner) || (x eq row2Owner)
-        TreeOps.findTreeWithParentSimple(eolTree)(isRowOwner).isEmpty
+        row1.style.align.multiline || {
+          val row2Owner = getAlignOwner(row2.formatToken)
+          val row1Owner = getAlignOwner(row1.formatToken)
+          def isRowOwner(x: Tree) = (x eq row1Owner) || (x eq row2Owner)
+          TreeOps.findTreeWithParentSimple(eolTree)(isRowOwner).isEmpty
+        }
       }
 
   private def columnMatches(
