@@ -9,6 +9,7 @@ import org.scalafmt.util.{LiteralOps, TreeOps}
 
 import scala.annotation.tailrec
 import scala.collection.mutable
+import scala.meta.Case
 import scala.meta.tokens.Token
 import scala.meta.tokens.{Token => T}
 import scala.meta.transversers.Traverser
@@ -459,10 +460,13 @@ class FormatWriter(formatOps: FormatOps) {
       }
     }
 
+    private def isSameLine(t: Tree)(implicit floc: FormatLocation): Boolean =
+      locations(tokens(t.tokens.head).meta.idx).lineId == floc.lineId
+
     @tailrec
     private def getAlignContainerParent(
         t: Tree
-    ): Tree =
+    )(implicit floc: FormatLocation): Tree =
       t.parent match {
         case Some(
               p @ (
@@ -472,15 +476,20 @@ class FormatWriter(formatOps: FormatOps) {
             ) =>
           p
         case Some(p: Term.Select) => getAlignContainerParent(p)
-        case Some(p: Term.Apply) if t.is[Term.Apply] || t.is[Term.Select] =>
+        case Some(p: Term.Apply) if p.fun eq t =>
           getAlignContainerParent(p)
+        case Some(p: Term.Apply) if p.args.length == 1 && t.is[Term.Apply] =>
+          getAlignContainerParent(p)
+        // containers that can be traversed further if on same line
+        case Some(p @ (_: Case)) =>
+          if (isSameLine(p)) getAlignContainerParent(p) else p
         case Some(p) => p.parent.getOrElse(p)
         case _ => t
       }
 
     private def getAlignContainer(
         t: Tree
-    ): Tree =
+    )(implicit floc: FormatLocation): Tree =
       if (!t.is[Term.ApplyInfix]) getAlignContainerParent(t)
       else
         TreeOps
@@ -494,13 +503,13 @@ class FormatWriter(formatOps: FormatOps) {
 
     private def getAlignContainerComment(
         t: Tree
-    ): Tree =
+    )(implicit floc: FormatLocation): Tree =
       t match {
         case _: Template | _: Term.Block | _: Term.Match => t
         case _ => getAlignContainerParent(t)
       }
 
-    def getAlignContainer(location: FormatLocation): Option[Tree] = {
+    def getAlignContainer(implicit location: FormatLocation): Option[Tree] = {
       val ft = location.formatToken
       val slc = isSingleLineComment(ft.right)
       val code = if (slc) "//" else ft.right.syntax
