@@ -464,7 +464,19 @@ Seq (
   Seq(a % b % c, a %% bb %%% ccc, aaa % bb % c)
 )
 >>>
-java.lang.IndexOutOfBoundsException: -1 is out of bounds (min 0, max 63)
+Seq(
+  Seq(
+    Seq(a   % b  % c, a    %% bb %%% ccc, aaa % bb % c),
+    Seq(aaa % bb % c, aaa %%% bb  %% c, a     % bb % ccc),
+    Seq(
+      aaa     % bb    % c,
+      aaaaa %%% bbbb %% ccc,
+      a       % bb    % ccc
+    ),
+    a % b % c %%%% a %% bb %%% ccc %%%% aaa % bb % c
+  ),
+  Seq(a % b % c, a %% bb %%% ccc, aaa % bb % c)
+)
 <<< align comments in method chain
 foo
   .x() // comment1
