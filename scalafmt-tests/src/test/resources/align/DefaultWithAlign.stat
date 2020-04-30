@@ -684,7 +684,7 @@ object a {
       "somestring" / "other_string" / foo.identifyingid
     case tastyBar: TastyBarIdentifier =>
       "something" / "other_other" ? ("arg1" -> tastyBar.ider) & ("limit" -> 111)
-    case unknown =>
+    case unknown                      =>
       throw new IllegalArgumentException(
         s"Not sure at all what kinda class this is: ${unknown.getClass}"
       )
