@@ -208,3 +208,69 @@ object a {
      |  updated_at = now()
      |  where id in (${audienceIds.mkString(",")})""".stripMargin
 }
+<<< align, pipe character: RIGHT PARENTHESIS
+align.stripMargin = true
+===
+object a {
+     s"""
+        )  update targeting_segments
+        )  set status = '$status',
+        )${lastBuiltOpt.fold("")(dt => s"  last_built = '${formatDate(dt)}',")}
+        )${sizeCondition.fold("")(cond => s"  customers = $cond,")}
+        )  updated_at = now()
+        )  where id in (${audienceIds.mkString(",")})""".stripMargin(')')
+}
+>>>
+object a {
+  s"""
+     )  update targeting_segments
+     )  set status = '$status',
+     )${lastBuiltOpt.fold("")(dt => s"  last_built = '${formatDate(dt)}',")}
+     )${sizeCondition.fold("")(cond => s"  customers = $cond,")}
+     )  updated_at = now()
+     )  where id in (${audienceIds.mkString(",")})""".stripMargin(')')
+}
+<<< align, pipe character: DOLLAR SIGN
+align.stripMargin = true
+===
+object a {
+     s"""
+        $$  update targeting_segments
+        $$  set status = '$status',
+        $$${lastBuiltOpt.fold("")(dt => s"  last_built = '${formatDate(dt)}',")}
+        $$${sizeCondition.fold("")(cond => s"  customers = $cond,")}
+        $$  updated_at = now()
+        $$  where id in (${audienceIds.mkString(",")})""".stripMargin('$')
+}
+>>>
+object a {
+  s"""
+     $$  update targeting_segments
+     $$  set status = '$status',
+     $$${lastBuiltOpt.fold("")(dt => s"  last_built = '${formatDate(dt)}',")}
+     $$${sizeCondition.fold("")(cond => s"  customers = $cond,")}
+     $$  updated_at = now()
+     $$  where id in (${audienceIds.mkString(",")})""".stripMargin('$')
+}
+<<< align, pipe character: REVERSE SOLIDUS a.k.a. backslash
+align.stripMargin = true
+===
+object a {
+     s"""
+        \  update targeting_segments
+        \  set status = '$status',
+        \${lastBuiltOpt.fold("")(dt => s"  last_built = '${formatDate(dt)}',")}
+        \${sizeCondition.fold("")(cond => s"  customers = $cond,")}
+        \  updated_at = now()
+        \  where id in (${audienceIds.mkString(",")})""".stripMargin('\\')
+}
+>>>
+object a {
+  s"""
+     \  update targeting_segments
+     \  set status = '$status',
+     \${lastBuiltOpt.fold("")(dt => s"  last_built = '${formatDate(dt)}',")}
+     \${sizeCondition.fold("")(cond => s"  customers = $cond,")}
+     \  updated_at = now()
+     \  where id in (${audienceIds.mkString(",")})""".stripMargin('\\')
+}

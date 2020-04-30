@@ -1,4 +1,9 @@
-80 columns                                                                     |
+80 columns                                                                     ##
+## Devos BEWARE of reformatting this file, it contains essential invisible
+## horizontal whitespace as defined by Java 8 java.util.regex.Pattern
+## "\\h": [\x20\t\xA0\u1680\u180e\u2000-\u200a\u202f\u205f\u3000].
+## For quick reference \x20 is ASCII space, \t is tab.
+|
 <<< keep blank lines
 {
 
@@ -125,7 +130,7 @@ object a {
   /*
 
    /**
-     		* comment
+     * comment
      */
 
   def undefined = ???
@@ -140,5 +145,107 @@ object a {
    */
 
   def undefined = ???
+   */
+}
+<<< remove tabs in leading horizontal whitespace
+object A {
+  /*
+		* leading tabs (\t)
+	* second line
+  */
+}
+>>>
+object A {
+  /*
+   * leading tabs (\t)
+   * second line
+   */
+}
+<<< remove Unicode U+2000 in leading horizontal whitespace
+object B {
+  /*
+     * leading Unicode U+2000, spaces
+        * second line (spaces only)
+  */
+}
+>>>
+object B {
+  /*
+   * leading Unicode U+2000, spaces
+   * second line (spaces only)
+   */
+}
+<<< remove Unicode U+1680 in leading horizontal whitespace
+object C {
+  /*
+     * leading space, Unicode U+1680, spaces
+        * second line (spaces only)
+           * You may see U+1680 (Ogham mark) but it IS whitespace.
+  */
+}
+>>>
+object C {
+  /*
+   * leading space, Unicode U+1680, spaces
+   * second line (spaces only)
+   * You may see U+1680 (Ogham mark) but it IS whitespace.
+   */
+}
+<<< remove various Unicode characters in leading horizontal whitespace
+object D {
+  /*
+     * leading Unicode U+00A0, spaces
+    * leading Unicode U+1680, spaces
+᠎      * leading Unicode U+180E, spaces
+     * leading Unicode U+2000, spaces
+ 	* leading Unicode U+2001, tab
+ 	* leading Unicode U+2002, tab
+ 	* leading Unicode U+2003, tab
+ 	* leading Unicode U+2004, tab
+ 	* leading Unicode U+2005, tab
+ 	* leading Unicode U+2006, tab
+ 	* leading Unicode U+2007, tab
+ 	* leading Unicode U+2008, tab
+ 	* leading Unicode U+2009, tab
+ 	* leading Unicode U+200A, tab
+ 	* leading Unicode U+202F, tab
+ 	* leading Unicode U+205F, tab
+　   * leading Unicode U+3000, spaces
+*/
+}
+>>>
+object D {
+  /*
+   * leading Unicode U+00A0, spaces
+   * leading Unicode U+1680, spaces
+   * leading Unicode U+180E, spaces
+   * leading Unicode U+2000, spaces
+   * leading Unicode U+2001, tab
+   * leading Unicode U+2002, tab
+   * leading Unicode U+2003, tab
+   * leading Unicode U+2004, tab
+   * leading Unicode U+2005, tab
+   * leading Unicode U+2006, tab
+   * leading Unicode U+2007, tab
+   * leading Unicode U+2008, tab
+   * leading Unicode U+2009, tab
+   * leading Unicode U+200A, tab
+   * leading Unicode U+202F, tab
+   * leading Unicode U+205F, tab
+   * leading Unicode U+3000, spaces
+   */
+}
+<<< remove Unicode U+3000 in leading horizontal whitespace
+object Z {
+  /*
+　   * leading Unicode U+3000, spaces
+        * second line (spaces only)
+  */
+}
+>>>
+object Z {
+  /*
+   * leading Unicode U+3000, spaces
+   * second line (spaces only)
    */
 }

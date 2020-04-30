@@ -1,0 +1,47 @@
+maxColumn = 80
+# Devos: be careful this file contains essential but invisible spaces.
+# Trailing space inside comments is tested in CommentTest.
+<<< Remove trailing spaces outside of comments.
+object A {
+  val a = 1    
+  val b = 2    
+}
+>>>
+object A {
+  val a = 1
+  val b = 2
+}
+<<< Remove trailing tab-blank-tab combinations outside of comments.
+object B {
+  val a = 1	 	
+  val b = 2	 	
+}
+>>>
+object B {
+  val a = 1
+  val b = 2
+}
+<<< Document trailing Unicode whitespace in code rejection by parser.
+object C {
+  // Trailing Unicode whitespace in comments gets removed. See CommentTest.
+  //
+  // Trailing Unicode whitespace in non-comment code gets rejected
+  // by parser.
+  // scala REPL (exercised on 2.13.1) reports:
+  // "error: illegal character '\u2000'"
+  //
+  // scalafmt 2.5.0-RC3 parser reports:
+  // scala.meta.internal.tokenizers.Reporter.syntaxError
+}
+>>>
+object C {
+  // Trailing Unicode whitespace in comments gets removed. See CommentTest.
+  //
+  // Trailing Unicode whitespace in non-comment code gets rejected
+  // by parser.
+  // scala REPL (exercised on 2.13.1) reports:
+  // "error: illegal character '\u2000'"
+  //
+  // scalafmt 2.5.0-RC3 parser reports:
+  // scala.meta.internal.tokenizers.Reporter.syntaxError
+}
