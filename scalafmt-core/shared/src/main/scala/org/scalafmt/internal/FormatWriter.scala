@@ -388,15 +388,19 @@ class FormatWriter(formatOps: FormatOps) {
         var columnShift = 0
         val finalResult = Map.newBuilder[TokenHash, Int]
         val block = new AlignBlock
-        val locationIter = new LocationsIterator(locations)
-        while (locationIter.hasNext) {
+        var idx = 0
+        while (idx < locations.length) {
           var alignContainer: Tree = null
           val columnCandidates = IndexedSeq.newBuilder[FormatLocation]
-          def shouldContinue(floc: FormatLocation): Boolean = {
+          @tailrec
+          def processLine: FormatLocation = {
+            val floc = locations(idx)
+            idx += 1
             val ok = !floc.state.split.modification.isNewline
             if (!ok || floc.formatToken.leftHasNewline) columnShift = 0
             columnShift += floc.shift
-            if (ok)
+            if (!ok) floc
+            else {
               getAlignContainer(floc).foreach { container =>
                 if (alignContainer eq null)
                   alignContainer = container
@@ -407,10 +411,10 @@ class FormatWriter(formatOps: FormatOps) {
                     shift = floc.state.prev.column + columnShift
                   )
               }
-            ok
+              if (idx < locations.length) processLine else floc
+            }
           }
-          while (shouldContinue(locationIter.next()) && locationIter.hasNext) {}
-          val location = locationIter.last
+          val location = processLine
           val candidates = columnCandidates.result()
           val doubleNewline = location.state.split.modification.newlines > 1
           if (block.nonEmpty) {
@@ -425,7 +429,7 @@ class FormatWriter(formatOps: FormatOps) {
                 block += candidates.take(matches)
               } else block += candidates
             }
-            if (matches == 0 || doubleNewline || !locationIter.hasNext) {
+            if (matches == 0 || doubleNewline || idx == locations.length) {
               flushNonEmptyAlignBlock(block, finalResult)
             }
           }
@@ -739,29 +743,6 @@ object FormatWriter {
   // see if indentation level is cached first
   private def getIndentation(len: Int): String =
     if (len < indentations.length) indentations(len) else " " * len
-
-  /**
-    * Because GraalVM native image fails on
-    * access to anonymous class fields
-    * val locationIter = new Iterator[FormatLocation] {
-    *   var last: FormatLocation = null
-    *   ...
-    * }
-    *
-    * locationIter.last // RUNTIME ERROR
-    *
-    * */
-  private class LocationsIterator(
-      private val locations: Iterable[FormatLocation]
-  ) extends Iterator[FormatLocation] {
-    private val iter = locations.iterator
-    var last: FormatLocation = _
-    override def hasNext: Boolean = iter.hasNext
-    override def next(): FormatLocation = {
-      last = iter.next()
-      last
-    }
-  }
 
   private val trailingSpace = Pattern.compile("\\h+$", Pattern.MULTILINE)
   private def removeTrailingWhiteSpace(str: String): String = {
