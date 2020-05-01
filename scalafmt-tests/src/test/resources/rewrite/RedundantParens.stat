@@ -242,3 +242,16 @@ object a {
       .on((x.id === key).and(y.id === key))
   ).toList
 }
+<<< ONLY don't rewrite infix as rhs
+object a {
+  private val foo = ((bar == baz
+     || bar == baz)
+      || bar == baz)
+}
+>>>
+Idempotency violated
+object a {
+  private val foo = bar == baz
+  || bar == baz
+    || bar == baz
+}
