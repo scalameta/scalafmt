@@ -5,6 +5,7 @@ import scala.meta.Dialect
 import scala.meta.Tree
 import scala.meta.dialects.Scala213
 import scala.meta.parsers.Parse
+import scala.meta.parsers.Parsed
 
 /**
   * A FormatRunner configures how formatting should behave.
@@ -39,6 +40,9 @@ case class ScalafmtRunner(
 
   def events(evts: => Iterator[FormatEvent]): Unit =
     if (null != eventCallback) evts.foreach(eventCallback)
+
+  def parse(input: meta.inputs.Input): Parsed[_ <: Tree] =
+    dialect(input).parse(parser)
 
 }
 

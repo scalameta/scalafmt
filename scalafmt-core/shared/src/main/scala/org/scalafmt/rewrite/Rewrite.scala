@@ -150,7 +150,7 @@ object Rewrite {
     if (rewrites.isEmpty) {
       input
     } else {
-      style.runner.dialect(input).parse(style.runner.parser) match {
+      style.runner.parse(input) match {
         case Parsed.Success(ast) =>
           val ctx = RewriteCtx(style, ast)
           val rewriteSessions = rewrites.map(_.create(ctx)).toList

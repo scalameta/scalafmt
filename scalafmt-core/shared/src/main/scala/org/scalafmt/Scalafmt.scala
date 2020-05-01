@@ -69,7 +69,7 @@ object Scalafmt {
           code
         }
         val toParse = Rewrite(Input.VirtualFile(filename, unixCode), style)
-        val tree = runner.dialect(toParse).parse(runner.parser).get
+        val tree = runner.parse(toParse).get
         val formatOps = new FormatOps(tree, style)
         runner.event(CreateFormatOps(formatOps))
         val formatWriter = new FormatWriter(formatOps)
