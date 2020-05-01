@@ -45,7 +45,18 @@ class RedundantParens(implicit ctx: RewriteCtx) extends RewriteSession {
   }
 
   private def maybeRemove(tree: Tree, minToKeep: Int = 0): Unit =
-    if (!rewriteFunc.isDefinedAt(tree)) remove(tree, minToKeep)
+    tree match {
+      case _ if rewriteFunc.isDefinedAt(tree) =>
+      case t: Term.ApplyInfix => // it might have breaks before infix op
+        val lastLhsTok = t.lhs.tokens.last
+        val hasPreOpLF = ctx.tokenTraverser.findBefore(t.op.tokens.head) {
+          case _: Token.LF => Some(true)
+          case `lastLhsTok` => Some(false)
+          case _ => None
+        }
+        if (hasPreOpLF.isEmpty) remove(tree, minToKeep)
+      case _ => remove(tree, minToKeep)
+    }
 
   private def remove(tree: Tree, minToKeep: Int = 0): Unit =
     removeByTokens(tree.tokens, minToKeep)
