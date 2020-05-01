@@ -35,6 +35,17 @@ case class ScalafmtRunner(
       )
     )
 
+  private lazy val correctedDialect: Dialect = {
+    // without allowTraitParameters, our code handling "extends" wouldn't work
+    // owner of "extends" would be Name.Anonymous, expects Trait or Template
+    dialect
+      .copy(allowTraitParameters = true)
+      // this must be explicit, .copy() loses it
+      .withAllowNumericLiteralUnderscoreSeparators(
+        dialect.allowNumericLiteralUnderscoreSeparators
+      )
+  }
+
   def event(evt: => FormatEvent): Unit =
     if (null != eventCallback) eventCallback(evt)
 
@@ -42,7 +53,7 @@ case class ScalafmtRunner(
     if (null != eventCallback) evts.foreach(eventCallback)
 
   def parse(input: meta.inputs.Input): Parsed[_ <: Tree] =
-    dialect(input).parse(parser)
+    correctedDialect(input).parse(parser)
 
 }
 
