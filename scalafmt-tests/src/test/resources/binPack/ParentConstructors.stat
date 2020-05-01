@@ -16,3 +16,20 @@ trait SampleTrait
 
   def foo: Boolean = true
 }
+<<< #370 scala211
+runner.dialect = scala211
+===
+trait SampleTrait extends A with B with C with D with E{
+  self: LongNameMixin with B with C with D with EEEEEEEEE =>
+
+  def foo: Boolean = true
+}
+>>>
+trait SampleTrait extends A with B
+with C with D with E {
+  self: LongNameMixin
+    with B with C with D
+    with EEEEEEEEE =>
+
+  def foo: Boolean = true
+}
