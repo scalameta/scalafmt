@@ -13,8 +13,9 @@ object ValidationOps {
   }
 
   def addIf(
-      what: sourcecode.Text[Boolean]
+      what: sourcecode.Text[Boolean],
+      why: => String = ""
   )(implicit errors: mutable.Buffer[String]): Unit =
-    if (what.value) errors += what.source
+    if (what.value) errors += what.source + why
 
 }

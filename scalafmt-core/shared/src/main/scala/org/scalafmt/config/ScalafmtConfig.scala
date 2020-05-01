@@ -184,9 +184,13 @@ case class ScalafmtConfig(
     }
   }
   locally {
-    ValidationOps.addIf(
-      align.ifWhileOpenParen && danglingParentheses.ctrlSite
-    )(allErrors)
+    implicit val errors = allErrors
+    ValidationOps.addIf(align.ifWhileOpenParen && danglingParentheses.ctrlSite)
+    if (!runner.dialect.allowTrailingCommas) {
+      def err = " (no support in Scala dialect)"
+      ValidationOps.addIf(trailingCommas == TrailingCommas.always, err)
+      ValidationOps.addIf(trailingCommas == TrailingCommas.multiple, err)
+    }
   }
   if (allErrors.nonEmpty) {
     val msg = allErrors.mkString("can't use: [\n\t", "\n\t", "\n]")
