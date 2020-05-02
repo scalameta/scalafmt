@@ -3,6 +3,154 @@ id: changelog
 title: Changelog
 ---
 
+## [v2.5.0](https://github.com/scalameta/scalafmt/tree/v2.5.0) (2020-04-30)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.5.0-RC3...v2.5.0)
+
+### Managed formatting modes
+
+We are defining the `newlines.source` parameter (see https://scalameta.org/scalafmt/docs/configuration.html#newlinessource), which introduces managed, wholesale changes to how code is formatted. One of the options (`keep`) is intended to hand control over line breaks to the user, while the other two (`fold` and `unfold`) will in fact completely ignore user input.
+
+These modes are new and will potentially have a few bugs here and there (especially `keep`), in addition to, possibly, causing mixed sentiment of the "this looks almost good, if only we could do this differently" type. That is expected and likely par for the course for an _opinionated formatter_ that `scalafmt` was intended to be.
+
+However, please submit your bugs and opinions via https://github.com/scalameta/scalafmt/issues/new or comment on existing ones, so that if there are ideas on how to modify the behaviour in a way that resonates with the community, without violating the constraints (for `fold`/`unfold`, user input must be ignored), we'll implement them.
+
+### Editions
+
+Editions were envisioned as a way to allow formatter upgrades while preserving formatting behaviour, but this turned out to be substantially harder to do, so edition 2020-01 is the last one. Also, the same result can easily be accomplished by _not upgrading the formatter_.
+
+### File overrides
+
+One can customize configuration to apply to a subset of files, based on a file pattern. Cases can include special formatting rules for `sbt` files, or others for test suites (for instance, using `AvoidInfix` rewrite for main code with an empty `rewrite.neverInfix.excludeFilters` while allowing special `scalatest` DSL for tests with `rewrite.neverInfix.excludeFilters` containing `should` etc.).
+
+See https://scalameta.org/scalafmt/docs/configuration.html#fileoverride
+
+### Infix formatting
+
+Formatting line breaks around infix expressions turned out to be a difficult problem, and a couple of years ago `scalafmt` gave up on that and let the user choose where to break. Here, we are definining a couple of parameters to try and take that control back, by adding newlines _after_ an infix operator (as the only universally safe place; there are _some_ cases when a break can happen before an infix operator, but those are rare, and this logic doesn't attempt to discern them).
+
+See https://scalameta.org/scalafmt/docs/configuration.html#newlinesafterinfix
+
+### Presets
+
+This is not a new setting but a new, more general way to specify groups of parameters. Previously, you'd use `style = defaultWithAlign` or `align = most` or `danglingParentheses = true`. However, because configuration is represented using HOCON/json, doing it like that meant one couldn't partially override these presets.
+
+The new approach is to define `preset = defaultWithAlign`, or `align.preset = most`, or `danglingParentheses.preset = true`. This way, naming is standardized, and partial overrides are possible.
+
+Please see https://scalameta.org/scalafmt/docs/configuration.html#presets.
+
+### Alignment
+
+The major additions, apart from several bug fixes, are
+
+- right-aligning of infix operators
+- ability to align lines with different number of columns
+- ability to _disable_ alignment within strip-margin multi-line strings; please see https://scalameta.org/scalafmt/docs/configuration.html#alignstripmargin
+- ability to align multi-line blocks (previously, only consecutive, single-line statements we considered); please see https://scalameta.org/scalafmt/docs/configuration.html#alignmultiline.
+
+### Formatting around `implicit` and dangling
+
+This was handled in fixed way in classic formatting mode while had some control in `verticalMultiline` mode. We brought those styles together, by adding a few parameters to control the outcome.
+
+Please see:
+
+- https://scalameta.org/scalafmt/docs/configuration.html#newlines-around-implicit-parameter-list-modifier
+- https://scalameta.org/scalafmt/docs/configuration.html#danglingparentheses (`exclude` and `ctrlSite` are new)
+
+### Indentation
+
+We added several new options to control indentation:
+
+- within constructors: `continuationIndent.ctorSite`
+- in `with` expressions following an `extends`: `continuationIndent.withSiteRelativeToExtends`
+  Please see https://scalameta.org/scalafmt/docs/configuration.html#indentation
+- indentation of case clauses has been changed to be more consistent, no parameter available
+
+### Top-level statements
+
+In addition to enforcing breaks before top-level statements, we now allow the same _after_ the top-level statements. Also, there's a more granular control of which top-level statements are considered. Please see https://scalameta.org/scalafmt/docs/configuration.html#newlinestoplevelstatements
+
+### Rewrites
+
+- trailing commas: a new `multiple` parameter (see https://scalameta.org/scalafmt/docs/configuration.html#trailing-commas)
+- multiple bugfixes for `AvoidInfix`
+- `RedundantParens` expanded to more cases
+
+### Literals
+
+A number of new parameters is available to control formatting of numeric literals. Please see https://scalameta.org/scalafmt/docs/configuration.html#literals.
+
+### Defaults
+
+The following are changes in default behaviour:
+
+- `newlines.afterCurlyLambda = never`: the parameter itself doesn't change, but its behaviour changed since 2.4.2 (a _new_ `squash` setting mimics the old `never`); see https://scalameta.org/scalafmt/docs/configuration.html#newlinesaftercurlylambda
+- `rewrite.redundantBraces.generalExpressions = true`; previously, it was `false`
+- `align.multiline = true`: this new setting modifies the behaviour of `align.preset = most`
+- `newlines.alwaysBeforeMultilineDef`: there is a change in behaviour due to a bugfix, making this option apply consistently.
+
+**Merged pull requests:**
+
+- FormatWriter: optionally support multiline align [\#1934](https://github.com/scalameta/scalafmt/pull/1934) ([kitbellew](https://github.com/kitbellew))
+- FormatWriter: no arbitrary depth to match align [\#1933](https://github.com/scalameta/scalafmt/pull/1933) ([kitbellew](https://github.com/kitbellew))
+- Self-formatting with 2.5.0-RC3 [\#1932](https://github.com/scalameta/scalafmt/pull/1932) ([poslegm](https://github.com/poslegm))
+- Documentation: move alwaysBeforeMultilineDef [\#1931](https://github.com/scalameta/scalafmt/pull/1931) ([kitbellew](https://github.com/kitbellew))
+- Update scalameta, testkit to 4.3.10 [\#1930](https://github.com/scalameta/scalafmt/pull/1930) ([scala-steward](https://github.com/scala-steward))
+- Update sbt-scalafmt to 2.3.4 [\#1928](https://github.com/scalameta/scalafmt/pull/1928) ([scala-steward](https://github.com/scala-steward))
+- Update sbt to 1.3.10 [\#1927](https://github.com/scalameta/scalafmt/pull/1927) ([scala-steward](https://github.com/scala-steward))
+- Update scalatags to 0.9.0 [\#1926](https://github.com/scalameta/scalafmt/pull/1926) ([scala-steward](https://github.com/scala-steward))
+- Update sbt-ci-release to 1.5.3 [\#1925](https://github.com/scalameta/scalafmt/pull/1925) ([scala-steward](https://github.com/scala-steward))
+- Documentation: add newlines.alwaysBeforeMultilineDef [\#1923](https://github.com/scalameta/scalafmt/pull/1923) ([ljwagerfield](https://github.com/ljwagerfield))
+- State bugfix: filter new indents the same as old [\#1922](https://github.com/scalameta/scalafmt/pull/1922) ([kitbellew](https://github.com/kitbellew))
+- Documentation: add version to newer parameters [\#1920](https://github.com/scalameta/scalafmt/pull/1920) ([kitbellew](https://github.com/kitbellew))
+
+## [v2.5.0-RC3](https://github.com/scalameta/scalafmt/tree/v2.5.0-RC3) (2020-04-28)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.5.0-RC2...v2.5.0-RC3)
+
+**Merged pull requests:**
+
+- ContinuationIndent: add granularity to defnSite [\#1919](https://github.com/scalameta/scalafmt/pull/1919) ([kitbellew](https://github.com/kitbellew))
+- DanglingParentheses: add ctrlSite flag [\#1918](https://github.com/scalameta/scalafmt/pull/1918) ([kitbellew](https://github.com/kitbellew))
+- FormatWriter bugfix: add margin in the middle only [\#1917](https://github.com/scalameta/scalafmt/pull/1917) ([kitbellew](https://github.com/kitbellew))
+- FormatWriter: use `\h` for horizontal whitespace [\#1916](https://github.com/scalameta/scalafmt/pull/1916) ([kitbellew](https://github.com/kitbellew))
+- Pretty format multiline expressions in enumerator with align.arrowEnumeratorGenerator [\#1915](https://github.com/scalameta/scalafmt/pull/1915) ([poslegm](https://github.com/poslegm))
+- Usage of default align token owners [\#1914](https://github.com/scalameta/scalafmt/pull/1914) ([poslegm](https://github.com/poslegm))
+- RedundantBraces: fix try with partially enclosed expressions [\#1913](https://github.com/scalameta/scalafmt/pull/1913) ([kitbellew](https://github.com/kitbellew))
+- FormatWriter: match on any horizontal whitespace [\#1911](https://github.com/scalameta/scalafmt/pull/1911) ([kitbellew](https://github.com/kitbellew))
+- ScalafmtDynamicRunner: read and format only matching files [\#1910](https://github.com/scalameta/scalafmt/pull/1910) ([kitbellew](https://github.com/kitbellew))
+- ContinuationIndent: add ability to control "with" [\#1909](https://github.com/scalameta/scalafmt/pull/1909) ([kitbellew](https://github.com/kitbellew))
+- Newlines: add flexibility to implicitParamListModifier [\#1908](https://github.com/scalameta/scalafmt/pull/1908) ([kitbellew](https://github.com/kitbellew))
+- AvoidInfix bugs: RedundantParens conflicts, newline before `\(` [\#1906](https://github.com/scalameta/scalafmt/pull/1906) ([kitbellew](https://github.com/kitbellew))
+- RedundantParens: fix handling of tuples [\#1905](https://github.com/scalameta/scalafmt/pull/1905) ([kitbellew](https://github.com/kitbellew))
+
+## [v2.5.0-RC2](https://github.com/scalameta/scalafmt/tree/v2.5.0-RC2) (2020-04-24)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.5.0-RC1...v2.5.0-RC2)
+
+**Merged pull requests:**
+
+- Binpack literals: allow simple expressions, too [\#1902](https://github.com/scalameta/scalafmt/pull/1902) ([kitbellew](https://github.com/kitbellew))
+- FormatWriter: fix indent for complex interpolation [\#1901](https://github.com/scalameta/scalafmt/pull/1901) ([kitbellew](https://github.com/kitbellew))
+- BinPack: allow single-line formatting of literals [\#1900](https://github.com/scalameta/scalafmt/pull/1900) ([kitbellew](https://github.com/kitbellew))
+- \#1627 \[21\]: Router: improve source=fold formatting of val/def [\#1899](https://github.com/scalameta/scalafmt/pull/1899) ([kitbellew](https://github.com/kitbellew))
+- AvoidInfix: correctly determine when to wrap LHS [\#1898](https://github.com/scalameta/scalafmt/pull/1898) ([kitbellew](https://github.com/kitbellew))
+- RedundantParens: support additional patterns [\#1897](https://github.com/scalameta/scalafmt/pull/1897) ([kitbellew](https://github.com/kitbellew))
+- \#1627 \[20\]: Router bugfix: binPack call rules: overflow, dangling parens [\#1894](https://github.com/scalameta/scalafmt/pull/1894) ([kitbellew](https://github.com/kitbellew))
+- FormatOps: fix infix indent if followed by comment [\#1893](https://github.com/scalameta/scalafmt/pull/1893) ([kitbellew](https://github.com/kitbellew))
+- Router: force indent before comment, not break [\#1891](https://github.com/scalameta/scalafmt/pull/1891) ([kitbellew](https://github.com/kitbellew))
+- RedundantBraces: exclude nested partial function [\#1890](https://github.com/scalameta/scalafmt/pull/1890) ([kitbellew](https://github.com/kitbellew))
+- Router: indent comments in the middle of a select [\#1888](https://github.com/scalameta/scalafmt/pull/1888) ([kitbellew](https://github.com/kitbellew))
+- Presets: automatically decode all config builtins [\#1886](https://github.com/scalameta/scalafmt/pull/1886) ([kitbellew](https://github.com/kitbellew))
+- ScalafmtConfig: move default40 into the test suite [\#1885](https://github.com/scalameta/scalafmt/pull/1885) ([kitbellew](https://github.com/kitbellew))
+- FormatBenchmark: fix, use the correct parameter [\#1884](https://github.com/scalameta/scalafmt/pull/1884) ([kitbellew](https://github.com/kitbellew))
+- Documentation: clarify glob pattern in the example [\#1883](https://github.com/scalameta/scalafmt/pull/1883) ([kitbellew](https://github.com/kitbellew))
+- \[docs\] Pipe Bash script to Bash, not sh [\#1880](https://github.com/scalameta/scalafmt/pull/1880) ([bsolomon1124](https://github.com/bsolomon1124))
+- Docs: Assembling and Executing New CLI Artifacts [\#1879](https://github.com/scalameta/scalafmt/pull/1879) ([aarsenij](https://github.com/aarsenij))
+- Fix literals.double example [\#1878](https://github.com/scalameta/scalafmt/pull/1878) ([xavierguihot](https://github.com/xavierguihot))
+- Self formatting with 2.5.0-RC1 [\#1877](https://github.com/scalameta/scalafmt/pull/1877) ([poslegm](https://github.com/poslegm))
+- Release notes for 2.5.0-RC1 to website [\#1876](https://github.com/scalameta/scalafmt/pull/1876) ([poslegm](https://github.com/poslegm))
+
 ## [v2.5.0-RC1](https://github.com/scalameta/scalafmt/tree/v2.5.0-RC1) (2020-04-15)
 
 [Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.4.2...v2.5.0-RC1)
