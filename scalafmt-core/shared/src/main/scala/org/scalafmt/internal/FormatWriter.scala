@@ -506,16 +506,19 @@ class FormatWriter(formatOps: FormatOps) {
     private def getAlignContainer(
         t: Tree
     )(implicit floc: FormatLocation): Tree =
-      if (!t.is[Term.ApplyInfix]) getAlignContainerParent(t)
-      else
-        TreeOps
-          .findTreeWithParentSimple(t)(!_.is[Term.ApplyInfix])
-          .map { x =>
-            val p = x.parent.get
-            if (p.is[Term.Apply]) p.parent.getOrElse(p)
-            else getAlignContainerParent(x)
-          }
-          .getOrElse(t)
+      t match {
+        case _: Term.ApplyInfix =>
+          TreeOps
+            .findTreeWithParentSimple(t)(!_.is[Term.ApplyInfix])
+            .map { x =>
+              val p = x.parent.get
+              if (p.is[Term.Apply]) p.parent.getOrElse(p)
+              else getAlignContainerParent(x)
+            }
+            .getOrElse(t)
+
+        case _ => getAlignContainerParent(t)
+      }
 
     private def getAlignContainerComment(
         t: Tree
