@@ -389,7 +389,7 @@ class FormatWriter(formatOps: FormatOps) {
         Map.empty[TokenHash, Int]
       else {
         var columnShift = 0
-        val finalResult = Map.newBuilder[TokenHash, Int]
+        implicit val finalResult = Map.newBuilder[TokenHash, Int]
 
         // all blocks must be here, to get final flush
         val blocks = new mutable.HashMap[Tree, AlignBlock]
@@ -447,7 +447,7 @@ class FormatWriter(formatOps: FormatOps) {
               } else block += candidates
             }
             if (doubleNewline || matches == 0 && shouldFlush(alignContainer))
-              flushNonEmptyAlignBlock(block, finalResult)
+              flushAlignBlock(block)
           }
           if (alignContainer ne null) {
             prevAlignContainer = alignContainer
@@ -455,9 +455,7 @@ class FormatWriter(formatOps: FormatOps) {
             if (block.isEmpty && !doubleNewline) block += candidates
           }
         }
-        blocks.valuesIterator.foreach { x =>
-          if (x.nonEmpty) flushNonEmptyAlignBlock(x, finalResult)
-        }
+        blocks.valuesIterator.foreach(flushAlignBlock)
         finalResult.result()
       }
     }
@@ -517,7 +515,7 @@ class FormatWriter(formatOps: FormatOps) {
       val code = if (slc) "//" else ft.right.syntax
 
       location.style.alignMap.get(code).flatMap { pattern =>
-        val owner = getAlignOwner(location.formatToken)
+        val owner = getAlignOwner(ft)
         if (!pattern.matcher(owner.getClass.getName).find()) None
         else if (!slc) Some(getAlignContainer(owner))
         else Some(getAlignContainerComment(ft.meta.rightOwner))
@@ -685,8 +683,15 @@ class FormatWriter(formatOps: FormatOps) {
     iter(a.zip(b), 0)
   }
 
-  private def flushNonEmptyAlignBlock(
-      block: AlignBlock,
+  private def flushAlignBlock(block: AlignBlock)(implicit
+      builder: mutable.Builder[(TokenHash, Int), Map[TokenHash, Int]]
+  ): Unit = {
+    if (block.length > 1)
+      flushMultiEntryAlignBlock(block)
+    block.clear()
+  }
+
+  private def flushMultiEntryAlignBlock(block: AlignBlock)(implicit
       builder: mutable.Builder[(TokenHash, Int), Map[TokenHash, Int]]
   ): Unit = {
     var column = 0
@@ -729,8 +734,6 @@ class FormatWriter(formatOps: FormatOps) {
       }
       column += 1
     }
-
-    block.clear()
   }
 
   private def prepareAlignmentInfo(
