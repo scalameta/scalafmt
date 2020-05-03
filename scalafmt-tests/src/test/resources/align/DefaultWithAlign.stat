@@ -752,3 +752,81 @@ object a {
   private[this] val redirectClass =
     pbClass.getClasses find (_.getSimpleName == "Redirect")
 }
+<<< multiline with blanks
+align.preset = most
+===
+object a {
+  def foo: Int = {
+    val x = ???
+    42
+  }
+
+  def bar: Int = {
+    for { x <- "hey" } yield x
+    42
+  }
+
+  def fooBig: Int = {
+    42
+  }
+
+  def fooBigger: Int = {
+    42
+  }
+}
+>>>
+object a {
+  def foo: Int    = {
+    val x = ???
+    42
+  }
+
+  def bar: Int    = {
+    for { x <- "hey" } yield x
+    42
+  }
+
+  def fooBig: Int = {
+    42
+  }
+
+  def fooBigger: Int = {
+    42
+  }
+}
+<<< multiline without blanks
+align.preset = most
+===
+object a {
+  def foo: Int = {
+    val x = ???
+    42
+  }
+  def bar: Int = {
+    for { x <- "hey" } yield x
+    42
+  }
+  def fooBig: Int = {
+    42
+  }
+  def fooBigger: Int = {
+    42
+  }
+}
+>>>
+object a {
+  def foo: Int       = {
+    val x = ???
+    42
+  }
+  def bar: Int       = {
+    for { x <- "hey" } yield x
+    42
+  }
+  def fooBig: Int    = {
+    42
+  }
+  def fooBigger: Int = {
+    42
+  }
+}
