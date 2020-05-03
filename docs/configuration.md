@@ -1228,6 +1228,8 @@ for {
   a <- b
   if (a.nonEmpty)
 } yield a
+
+val z = (insertData *> readDatabase(id))
 ```
 
 ### `SortModifiers`
