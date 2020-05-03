@@ -397,9 +397,12 @@ class FormatWriter(formatOps: FormatOps) {
         var prevAlignContainer: Tree = null
         var prevBlock: AlignBlock =
           if (initStyle.align.multiline) null else createBlock(null)
-        val lookupBlock: Tree => AlignBlock =
-          if (!initStyle.align.multiline) _ => prevBlock
-          else (x: Tree) => if (x eq null) prevBlock else createBlock(x)
+        val getOrCreateBlock: Tree => AlignBlock =
+          if (initStyle.align.multiline) createBlock else _ => prevBlock
+        val getBlockToFlush: (=> Tree, Boolean) => Option[AlignBlock] =
+          if (initStyle.align.multiline) // don't flush unless blank line
+            (x, isBlankLine) => if (isBlankLine) blocks.get(x) else None
+          else (_, _) => Some(prevBlock)
         val shouldFlush: Tree => Boolean =
           if (!initStyle.align.multiline) _ => true
           else (x: Tree) => x eq prevAlignContainer
@@ -430,29 +433,42 @@ class FormatWriter(formatOps: FormatOps) {
               if (idx < locations.length) processLine else floc
             }
           }
-          val location = processLine
-          val candidates = columnCandidates.result()
+
+          implicit val location = processLine
           val doubleNewline = location.state.split.modification.newlines > 1
-          val block = lookupBlock(alignContainer)
-          if ((block ne null) && block.nonEmpty) {
-            val prev = block.last
-            val matches = columnMatches(prev, candidates, location.formatToken)
-            if (matches > 0) {
-              // truncate candidates if matches are shorter than both lists
-              val truncate =
-                matches < prev.length && matches < candidates.length
-              if (truncate) {
-                block(block.length - 1) = prev.take(matches)
-                block += candidates.take(matches)
-              } else block += candidates
+          if (alignContainer eq null) {
+            getBlockToFlush(
+              getAlignContainer(location.formatToken.meta.rightOwner),
+              doubleNewline
+            ).foreach(flushAlignBlock)
+          } else {
+            val candidates = columnCandidates.result()
+            val block = getOrCreateBlock(alignContainer)
+            if (block.isEmpty) {
+              if (!doubleNewline) block += candidates
+            } else {
+              val prev = block.last
+              val matches =
+                columnMatches(prev, candidates, location.formatToken)
+              if (matches > 0) {
+                // truncate candidates if matches are shorter than both lists
+                val truncate =
+                  matches < prev.length && matches < candidates.length
+                if (truncate) {
+                  block(block.length - 1) = prev.take(matches)
+                  block += candidates.take(matches)
+                } else block += candidates
+              }
+              if (
+                doubleNewline || matches == 0 && shouldFlush(alignContainer)
+              ) {
+                flushAlignBlock(block)
+                if (!doubleNewline && matches == 0) block += candidates
+              }
             }
-            if (doubleNewline || matches == 0 && shouldFlush(alignContainer))
-              flushAlignBlock(block)
-          }
-          if (alignContainer ne null) {
+
             prevAlignContainer = alignContainer
             prevBlock = block
-            if (block.isEmpty && !doubleNewline) block += candidates
           }
         }
         blocks.valuesIterator.foreach(flushAlignBlock)

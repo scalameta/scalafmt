@@ -776,12 +776,12 @@ object a {
 }
 >>>
 object a {
-  def foo: Int    = {
+  def foo: Int = {
     val x = ???
     42
   }
 
-  def bar: Int    = {
+  def bar: Int = {
     for { x <- "hey" } yield x
     42
   }
