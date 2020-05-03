@@ -815,15 +815,15 @@ object a {
 }
 >>>
 object a {
-  def foo: Int       = {
+  def foo: Int = {
     val x = ???
     42
   }
-  def bar: Int       = {
+  def bar: Int = {
     for { x <- "hey" } yield x
     42
   }
-  def fooBig: Int    = {
+  def fooBig: Int = {
     42
   }
   def fooBigger: Int = {
@@ -854,8 +854,8 @@ object a {
 }
 >>>
 object a {
-  def a: Int   = { b % c }
-  def aa: Int  = { bb % cc }
+  def a: Int = { b % c }
+  def aa: Int = { bb % cc }
   def aaa: Int = { bbb % ccc }
 }
 <<< singleline val without blanks
@@ -882,7 +882,7 @@ object a {
 }
 >>>
 object a {
-  val a: Int   = { b % c }
-  val aa: Int  = { bb % cc }
+  val a: Int = { b % c }
+  val aa: Int = { bb % cc }
   val aaa: Int = { bbb % ccc }
 }
