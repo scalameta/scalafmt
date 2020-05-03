@@ -830,3 +830,59 @@ object a {
     42
   }
 }
+<<< singleline def without blanks
+align.preset = most
+===
+object a {
+  def a: Int = b % c
+  def aa: Int = bb % cc
+  def aaa: Int = bbb % ccc
+}
+>>>
+object a {
+  def a: Int   = b   % c
+  def aa: Int  = bb  % cc
+  def aaa: Int = bbb % ccc
+}
+<<< singleline def with blocks and without blanks
+align.preset = most
+===
+object a {
+  def a: Int = { b % c }
+  def aa: Int = { bb % cc }
+  def aaa: Int = { bbb % ccc }
+}
+>>>
+object a {
+  def a: Int   = { b % c }
+  def aa: Int  = { bb % cc }
+  def aaa: Int = { bbb % ccc }
+}
+<<< singleline val without blanks
+align.preset = most
+===
+object a {
+  val a: Int = b % c
+  val aa: Int = bb % cc
+  val aaa: Int = bbb % ccc
+}
+>>>
+object a {
+  val a: Int   = b   % c
+  val aa: Int  = bb  % cc
+  val aaa: Int = bbb % ccc
+}
+<<< singleline val with blocks and without blanks
+align.preset = most
+===
+object a {
+  val a: Int = { b % c }
+  val aa: Int = { bb % cc }
+  val aaa: Int = { bbb % ccc }
+}
+>>>
+object a {
+  val a: Int   = { b % c }
+  val aa: Int  = { bb % cc }
+  val aaa: Int = { bbb % ccc }
+}
