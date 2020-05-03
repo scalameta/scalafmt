@@ -1137,7 +1137,7 @@ str match {
     println("ok")
   }
   case _ => {
-    println("not ok") 
+    println("not ok")
   }
 }
 ```
