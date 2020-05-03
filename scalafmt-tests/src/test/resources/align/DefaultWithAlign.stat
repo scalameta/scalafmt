@@ -794,6 +794,42 @@ object a {
     42
   }
 }
+<<< multiline with blanks and comments and no blocks
+align.preset = most
+===
+object a {
+  def foo: Int =
+    42
+  // comment
+
+  def fooBar: Int =
+    42
+
+  /* comment */
+  def fooBarBaz: Int =
+    42
+
+  // comment
+  def fooBarBazQux: Int =
+    42
+}
+>>>
+object a {
+  def foo: Int =
+    42
+  // comment
+
+  def fooBar: Int       =
+    42
+
+  /* comment */
+  def fooBarBaz: Int    =
+    42
+
+  // comment
+  def fooBarBazQux: Int =
+    42
+}
 <<< multiline without blanks
 align.preset = most
 ===
@@ -831,8 +867,6 @@ object a {
   }
 }
 <<< singleline def without blanks
-align.preset = most
-===
 object a {
   def a: Int = b % c
   def aa: Int = bb % cc
@@ -845,8 +879,6 @@ object a {
   def aaa: Int = bbb % ccc
 }
 <<< singleline def with blocks and without blanks
-align.preset = most
-===
 object a {
   def a: Int = { b % c }
   def aa: Int = { bb % cc }
@@ -859,8 +891,6 @@ object a {
   def aaa: Int = { bbb % ccc }
 }
 <<< singleline val without blanks
-align.preset = most
-===
 object a {
   val a: Int = b % c
   val aa: Int = bb % cc
@@ -873,8 +903,6 @@ object a {
   val aaa: Int = bbb % ccc
 }
 <<< singleline val with blocks and without blanks
-align.preset = most
-===
 object a {
   val a: Int = { b % c }
   val aa: Int = { bb % cc }
