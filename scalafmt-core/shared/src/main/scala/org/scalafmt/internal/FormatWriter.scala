@@ -481,9 +481,10 @@ class FormatWriter(formatOps: FormatOps) {
 
     @tailrec
     private def getAlignContainerParent(
-        t: Tree
+        child: Tree,
+        maybeParent: Option[Tree] = None
     )(implicit floc: FormatLocation): Tree =
-      t.parent match {
+      maybeParent.orElse(child.parent) match {
         case Some(
               p @ (
                 _: Template | _: Term.Block | _: Term.Match | _: Term.Function |
@@ -492,15 +493,16 @@ class FormatWriter(formatOps: FormatOps) {
             ) =>
           p
         case Some(p: Term.Select) => getAlignContainerParent(p)
-        case Some(p: Term.Apply) if p.fun eq t =>
+        case Some(p: Term.Apply) if p.fun eq child =>
           getAlignContainerParent(p)
-        case Some(p: Term.Apply) if p.args.length == 1 && t.is[Term.Apply] =>
+        case Some(p: Term.Apply)
+            if p.args.length == 1 && child.is[Term.Apply] =>
           getAlignContainerParent(p)
         // containers that can be traversed further if on same line
         case Some(p @ (_: Case)) =>
           if (isSameLine(p)) getAlignContainerParent(p) else p
         case Some(p) => p.parent.getOrElse(p)
-        case _ => t
+        case _ => child
       }
 
     private def getAlignContainer(
