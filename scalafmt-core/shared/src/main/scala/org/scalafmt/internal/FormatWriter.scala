@@ -10,6 +10,7 @@ import org.scalafmt.util.{LiteralOps, TreeOps}
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.meta.Case
+import scala.meta.Defn
 import scala.meta.tokens.Token
 import scala.meta.tokens.{Token => T}
 import scala.meta.transversers.Traverser
@@ -501,6 +502,11 @@ class FormatWriter(formatOps: FormatOps) {
         // containers that can be traversed further if on same line
         case Some(p @ (_: Case)) =>
           if (isSameLine(p)) getAlignContainerParent(p) else p
+        // containers that can be traversed further if single-stat
+        case Some(p: Defn.Def) =>
+          if (p.body.is[Term.Block]) p else getAlignContainerParent(p)
+        case Some(p: Defn.Val) =>
+          if (p.rhs.is[Term.Block]) p else getAlignContainerParent(p)
         case Some(p) => p.parent.getOrElse(p)
         case _ => child
       }
@@ -518,6 +524,9 @@ class FormatWriter(formatOps: FormatOps) {
               else getAlignContainerParent(x)
             }
             .getOrElse(t)
+
+        case _: Defn | _: Case =>
+          getAlignContainerParent(t, Some(t))
 
         case _ => getAlignContainerParent(t)
       }
