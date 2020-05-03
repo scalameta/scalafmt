@@ -361,7 +361,7 @@ object TreeOps {
   def noSpaceBeforeOpeningParen(
       tree: Tree
   )(implicit style: ScalafmtConfig): Boolean =
-    !isTuple(tree) && isDefnOrCallSite(tree)
+    !isTuple(tree) && isDefnOrCallSite(tree) && !tree.is[Term.Function]
 
   def isModPrivateProtected(tree: Tree): Boolean =
     tree match {

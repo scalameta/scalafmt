@@ -250,12 +250,12 @@ if (initStyle.align.multiline)
   (x, isBlankLine) => if (isBlankLine) blocks.get(x) else None
 else (_, _) => Some(prevBlock)
 >>>
-if (initStyle.align.multiline)(x, isBlankLine) =>
-  if (isBlankLine) blocks.get(x) else None
+if (initStyle.align.multiline)
+  (x, isBlankLine) => if (isBlankLine) blocks.get(x) else None
 else (_, _) => Some(prevBlock)
 <<< if then function 2
 if (initStyle.align.multiline) (_, _) => Some(prevBlock)
 else (x, isBlankLine) => if (isBlankLine) blocks.get(x) else None
 >>>
-if (initStyle.align.multiline)(_, _) => Some(prevBlock)
+if (initStyle.align.multiline) (_, _) => Some(prevBlock)
 else (x, isBlankLine) => if (isBlankLine) blocks.get(x) else None
