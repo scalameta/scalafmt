@@ -9,12 +9,22 @@ import org.scalafmt.util.{LiteralOps, TreeOps}
 
 import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.meta.Case
-import scala.meta.Defn
 import scala.meta.tokens.Token
 import scala.meta.tokens.{Token => T}
 import scala.meta.transversers.Traverser
-import scala.meta.{Importer, Lit, Mod, Pkg, Template, Term, Tree, Type}
+import scala.meta.{
+  Case,
+  Defn,
+  Importer,
+  Lit,
+  Mod,
+  Pkg,
+  Source,
+  Template,
+  Term,
+  Tree,
+  Type
+}
 
 /**
   * Produces formatted output from sequence of splits.
@@ -480,19 +490,23 @@ class FormatWriter(formatOps: FormatOps) {
     private def isSameLine(t: Tree)(implicit floc: FormatLocation): Boolean =
       locations(tokens(t.tokens.head).meta.idx).lineId == floc.lineId
 
+    object AlignContainer {
+      def unapply(tree: Tree): Option[Tree] =
+        tree match {
+          case _: Source | _: Template | _: Term.Block | _: Term.Match |
+              _: Term.Function | _: Term.PartialFunction =>
+            Some(tree)
+          case _ => None
+        }
+    }
+
     @tailrec
     private def getAlignContainerParent(
         child: Tree,
         maybeParent: Option[Tree] = None
     )(implicit floc: FormatLocation): Tree =
       maybeParent.orElse(child.parent) match {
-        case Some(
-              p @ (
-                _: Template | _: Term.Block | _: Term.Match | _: Term.Function |
-                _: Term.PartialFunction
-              )
-            ) =>
-          p
+        case Some(AlignContainer(p)) => p
         case Some(p: Term.Select) => getAlignContainerParent(p)
         case Some(p: Term.Apply) if p.fun eq child =>
           getAlignContainerParent(p)
@@ -525,8 +539,7 @@ class FormatWriter(formatOps: FormatOps) {
             }
             .getOrElse(t)
 
-        case _: Defn | _: Case =>
-          getAlignContainerParent(t, Some(t))
+        case _: Defn | _: Case => getAlignContainerParent(t, Some(t))
 
         case _ => getAlignContainerParent(t)
       }
