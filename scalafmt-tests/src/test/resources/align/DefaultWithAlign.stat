@@ -819,11 +819,11 @@ object a {
     42
   // comment
 
-  def fooBar: Int       =
+  def fooBar: Int =
     42
 
   /* comment */
-  def fooBarBaz: Int    =
+  def fooBarBaz: Int =
     42
 
   // comment
