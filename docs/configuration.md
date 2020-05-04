@@ -1111,20 +1111,113 @@ List(1, 2, 3).map { x =>
 }
 ```
 
-Configuration options and default values:
+#### Configuration options
 
-// TODO(olafur): multiline defaults
+```scala mdoc:defaults
+rewrite.redundantBraces.generalExpressions
+```
 
-- `rewrite.redundantBraces.maxLines = 100`
-- `rewrite.redundantBraces.includeUnitMethods = true`
-- `rewrite.redundantBraces.methodBodies = true`
-- `rewrite.redundantBraces.stringInterpolation = true`
-- `rewrite.redundantBraces.generalExpressions = false` (disabled by default due
-  to #1147)
-- `rewrite.redundantBraces.parensForOneLineApply`
-  - since v2.4.2
-  - by default, `true` in edition 2020-01
-  - turns `foo { bar => baz }` into `foo(bar => baz)`
+```scala mdoc:scalafmt
+rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.generalExpressions = true
+---
+
+if (a > b) {
+  doSomething()
+} else {
+  doAnything()
+}
+
+while (x < 10) {
+  x += 1
+}
+
+str match {
+  case "a" => {
+    println("ok")
+  }
+  case _ => {
+    println("not ok")
+  }
+}
+```
+
+```scala mdoc:defaults
+rewrite.redundantBraces.methodBodies
+```
+
+```scala mdoc:scalafmt
+rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.methodBodies = true
+---
+def f() = {
+  1 + 1
+}
+```
+
+```scala mdoc:defaults
+rewrite.redundantBraces.includeUnitMethods
+```
+
+Affects only functions with **explicitly** specified `Unit` type
+
+```scala mdoc:scalafmt
+rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.methodBodies = true
+rewrite.redundantBraces.includeUnitMethods = false
+---
+def f() = {
+  1 + 1
+}
+
+def x(): Unit = {
+  println("example")
+}
+```
+
+```scala mdoc:defaults
+rewrite.redundantBraces.stringInterpolation
+```
+
+```scala mdoc:scalafmt
+rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.stringInterpolation = true
+---
+s"user id is ${id}"
+```
+
+`rewrite.redundantBraces.parensForOneLineApply` is `true` by default for `edition` >= 2020-01. See also [newlines.afterCurlyLambda = squash](http://localhost:3000/scalafmt/docs/configuration.html#newlinesaftercurlylambda)
+
+```scala mdoc:scalafmt
+rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.parensForOneLineApply = true
+---
+xs.map { x => x + 1 }
+```
+
+```scala mdoc:defaults
+rewrite.redundantBraces.maxLines
+```
+
+```scala mdoc:scalafmt
+rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.maxLines = 3
+---
+def f() = {
+  collection
+    .map(x => x + 1)
+    .filter(_ < 10)
+    .map(_ * 2)
+}
+
+def f() = {
+  collection
+    .map(x => x + 1)
+    .filter(_ < 10)
+    .map(_ * 2)
+    .headOption
+}
+```
 
 ### `RedundantParens`
 
@@ -1135,6 +1228,8 @@ for {
   a <- b
   if (a.nonEmpty)
 } yield a
+
+val z = (insertData *> readDatabase(id))
 ```
 
 ### `SortModifiers`
