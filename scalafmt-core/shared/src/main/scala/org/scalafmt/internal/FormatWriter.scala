@@ -556,14 +556,6 @@ class FormatWriter(formatOps: FormatOps) {
         case _ => getAlignContainerParent(t)
       }
 
-    private def getAlignContainerComment(
-        t: Tree
-    )(implicit floc: FormatLocation): Tree =
-      t match {
-        case _: Template | _: Term.Block | _: Term.Match => t
-        case _ => getAlignContainerParent(t)
-      }
-
     def getAlignContainer(implicit location: FormatLocation): Option[Tree] = {
       val ft = location.formatToken
       val slc = isSingleLineComment(ft.right)
@@ -573,7 +565,7 @@ class FormatWriter(formatOps: FormatOps) {
         val owner = getAlignOwner(ft)
         if (!pattern.matcher(owner.getClass.getName).find()) None
         else if (!slc) Some(getAlignContainer(owner))
-        else Some(getAlignContainerComment(ft.meta.rightOwner))
+        else Some(getAlignContainer(ft.meta.rightOwner))
       }
     }
 
