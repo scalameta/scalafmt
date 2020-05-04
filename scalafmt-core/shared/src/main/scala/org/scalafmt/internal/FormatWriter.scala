@@ -498,6 +498,18 @@ class FormatWriter(formatOps: FormatOps) {
             Some(tree)
           case _ => None
         }
+
+      object WithBody {
+        def unapply(tree: Tree): Option[Tree] =
+          tree match {
+            case p: Defn.Def => Some(p.body)
+            case p: Defn.Val => Some(p.rhs)
+            case p: Defn.Trait => Some(p.templ)
+            case p: Defn.Class => Some(p.templ)
+            case p: Defn.Object => Some(p.templ)
+            case _ => None
+          }
+      }
     }
 
     @tailrec
@@ -517,10 +529,8 @@ class FormatWriter(formatOps: FormatOps) {
         case Some(p @ (_: Case)) =>
           if (isSameLine(p)) getAlignContainerParent(p) else p
         // containers that can be traversed further if single-stat
-        case Some(p: Defn.Def) =>
-          if (p.body.is[Term.Block]) p else getAlignContainerParent(p)
-        case Some(p: Defn.Val) =>
-          if (p.rhs.is[Term.Block]) p else getAlignContainerParent(p)
+        case Some(p @ AlignContainer.WithBody(b)) =>
+          if (b.is[Term.Block]) p else getAlignContainerParent(p)
         case Some(p) => p.parent.getOrElse(p)
         case _ => child
       }
