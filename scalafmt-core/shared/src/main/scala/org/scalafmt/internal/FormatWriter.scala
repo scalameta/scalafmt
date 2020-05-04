@@ -549,6 +549,8 @@ class FormatWriter(formatOps: FormatOps) {
             }
             .getOrElse(t)
 
+        case AlignContainer(t) if floc.formatToken.right.is[T.Comment] => t
+
         case _: Defn | _: Case => getAlignContainerParent(t, Some(t))
 
         case _ => getAlignContainerParent(t)
