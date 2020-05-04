@@ -1186,7 +1186,7 @@ rewrite.redundantBraces.stringInterpolation = true
 s"user id is ${id}"
 ```
 
-`rewrite.redundantBraces.parensForOneLineApply` is `true` by default for `edition` >= 2020-01. See also [newlines.afterCurlyLambda](http://localhost:3000/scalafmt/docs/configuration.html#newlinesaftercurlylambda)
+`rewrite.redundantBraces.parensForOneLineApply` is `true` by default for `edition` >= 2020-01. See also [newlines.afterCurlyLambda = squash](http://localhost:3000/scalafmt/docs/configuration.html#newlinesaftercurlylambda)
 
 ```scala mdoc:scalafmt
 rewrite.rules = [RedundantBraces]
