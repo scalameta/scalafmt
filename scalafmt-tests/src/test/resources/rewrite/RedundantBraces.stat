@@ -826,3 +826,11 @@ object a {
   try x.y
   catch handler
 }
+<<< #1953
+object a {
+  scalacOptions ~= { _ filterNot (_ startsWith "-Xlint") }
+}
+>>>
+object a {
+  scalacOptions ~= _ filterNot (_ startsWith "-Xlint")
+}
