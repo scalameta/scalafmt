@@ -832,5 +832,5 @@ object a {
 }
 >>>
 object a {
-  scalacOptions ~= _ filterNot (_ startsWith "-Xlint")
+  scalacOptions ~= { _ filterNot (_ startsWith "-Xlint") }
 }

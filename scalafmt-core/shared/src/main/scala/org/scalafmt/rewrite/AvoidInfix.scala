@@ -8,7 +8,7 @@ object AvoidInfix extends Rewrite {
   override def create(implicit ctx: RewriteCtx): RewriteSession =
     new AvoidInfix
 
-  private def hasPlaceholder(tree: Tree): Boolean = {
+  def hasPlaceholder(tree: Tree): Boolean = {
     val queue = new mutable.Queue[Tree]
     queue += tree
     @tailrec
