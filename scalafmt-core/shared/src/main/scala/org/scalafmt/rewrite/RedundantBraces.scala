@@ -278,11 +278,11 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
 
         case p: Term.ApplyInfix =>
           stat match {
-            case _: Term.ApplyInfix =>
+            case t: Term.ApplyInfix if !AvoidInfix.hasPlaceholder(t) =>
               val useRight = isSingleElement(p.args, b)
               SyntacticGroupOps.groupNeedsParenthesis(
                 TreeSyntacticGroup(p),
-                TreeSyntacticGroup(stat),
+                TreeSyntacticGroup(t),
                 if (useRight) Side.Right else Side.Left
               )
             case _: Name | _: Lit => false
