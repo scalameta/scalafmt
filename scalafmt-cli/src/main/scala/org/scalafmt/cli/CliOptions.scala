@@ -54,7 +54,7 @@ object CliOptions {
         out =
           guardPrintStream(parsed.quiet && !parsed.stdIn)(parsed.common.out),
         info = guardPrintStream(
-          parsed.quiet || parsed.writeMode == WriteMode.List
+          parsed.stdIn || parsed.quiet || parsed.writeMode == WriteMode.List
         )(auxOut),
         debug = guardPrintStream(parsed.quiet)(
           if (parsed.debug) auxOut else init.common.debug
