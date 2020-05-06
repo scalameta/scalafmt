@@ -113,7 +113,9 @@ class CliOptionsTest extends AnyFunSuite {
     assert(opt.scalafmtConfig.isNotOk)
   }
 
-  test("don't write info when part of a pipeline receiving from stdin writing to stdout") {
+  test(
+    "don't write info when part of a pipeline receiving from stdin writing to stdout"
+  ) {
     val args = Array("--stdin")
     val options = Cli.getConfig(args, baseCliOptions).get
     assert(options.common.info == NoopOutputStream.printStream)
