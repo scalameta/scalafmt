@@ -207,7 +207,8 @@ The recommended way to install the scalafmt command line tool is with
 ### Coursier
 
 <div class="sidenote">
-To install Coursier see <a href="https://get-coursier.io/docs/cli-overview" target="_blank">here</a>
+To install Coursier see
+<a href="https://get-coursier.io/docs/cli-installation" target="_blank">here</a>
 </div>
 
 Create a standalone executable in `/usr/local/bin/scalafmt` with (sudo if
@@ -223,12 +224,9 @@ scalafmt --version # should be @STABLE_VERSION@
 Alternatively you can create a slim 15 KiB bootstrap script with:
 
 ```sh
-curl -Lo coursier https://git.io/coursier-cli
-chmod +x coursier
-./coursier bootstrap org.scalameta:scalafmt-cli_2.12:@STABLE_VERSION@ \
+coursier bootstrap org.scalameta:scalafmt-cli_2.12:@STABLE_VERSION@ \
   -r sonatype:snapshots \
   -o scalafmt --main org.scalafmt.cli.Cli
-rm -f coursier
 ./scalafmt --version # should be @STABLE_VERSION@
 ```
 
