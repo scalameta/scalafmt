@@ -7,7 +7,11 @@ You can use Scalafmt from your editor, build tool or terminal.
 
 ## IntelliJ
 
-The IntelliJ Scala plugin has built-in support for Scalafmt. When opening a
+The _Scala_ plugin compatible with recent versions of IntelliJ IDEA has
+_built-in_ support for Scalafmt (see **Note** below). _DO NOT_ install the
+deprecated _Scalafmt_ plugin unless you have an older version of Intellij.
+
+When opening a
 project that contains [a `.scalafmt.conf` file](configuration.md), you will be
 prompted to use it:
 
