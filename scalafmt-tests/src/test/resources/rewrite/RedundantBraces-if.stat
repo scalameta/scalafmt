@@ -241,11 +241,11 @@ object a {
 }
 >>>
 object a {
-  if (a)
+  if (a) {
     if (b)
       println("b!")
     else if (c)
       println("c!")
-    else if (d)
-      println("d!")
+  } else if (d)
+    println("d!")
 }
