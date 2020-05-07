@@ -307,15 +307,17 @@ once in awhile.
 
 ### Homebrew
 
-You can install scalafmt via Homebrew using a custom formula
+The recommended way to install the scalafmt command line tool is with
+[Coursier](#coursier), itself available via Homebrew.
 
 ```sh
-brew install --HEAD olafurpg/scalafmt/scalafmt
+brew install coursier/formulas/coursier
+coursier install scalafmt
 scalafmt --version // should be @STABLE_VERSION@
-
-// to upgrade between releases
-brew upgrade scalafmt
 ```
+
+If necessary, make sure to follow the Coursier instructions for updating
+`$PATH` so that the `scalafmt` binary becomes available in your terminal.
 
 ### Arch Linux
 
