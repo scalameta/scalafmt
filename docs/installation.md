@@ -211,18 +211,21 @@ To install Coursier see
 <a href="https://get-coursier.io/docs/cli-installation" target="_blank">here</a>
 </div>
 
-Create a standalone executable in `/usr/local/bin/scalafmt` with (sudo if
-necessary):
+#### standalone
+
+You can create a complete standalone executable with:
 
 ```sh
 coursier bootstrap org.scalameta:scalafmt-cli_2.13:@STABLE_VERSION@ \
   -r sonatype:snapshots --main org.scalafmt.cli.Cli \
   --standalone \
-  -o /usr/local/bin/scalafmt
-scalafmt --version # should be @STABLE_VERSION@
+  -o scalafmt
+./scalafmt --version # should be @STABLE_VERSION@
 ```
 
-Alternatively you can create a slim 15 KiB bootstrap script with:
+#### slim
+
+Finally, you can choose to obtain a slim 15 KiB bootstrap script instead with:
 
 ```sh
 coursier bootstrap org.scalameta:scalafmt-cli_2.13:@STABLE_VERSION@ \
