@@ -211,9 +211,20 @@ To install Coursier see
 <a href="https://get-coursier.io/docs/cli-installation" target="_blank">here</a>
 </div>
 
+#### install
+
+If you're using a recent version of `coursier` which supports direct
+[installation](https://get-coursier.io/docs/cli-overview.html#install)
+of packages, the simplest approach is by running
+
+```sh
+cs install scalafmt
+scalafmt --version # should be @STABLE_VERSION@
+```
+
 #### standalone
 
-You can create a complete standalone executable with:
+Alternatively, you can create a complete standalone executable with:
 
 ```sh
 coursier bootstrap org.scalameta:scalafmt-cli_2.13:@STABLE_VERSION@ \
