@@ -215,7 +215,7 @@ Create a standalone executable in `/usr/local/bin/scalafmt` with (sudo if
 necessary):
 
 ```sh
-coursier bootstrap org.scalameta:scalafmt-cli_2.12:@STABLE_VERSION@ \
+coursier bootstrap org.scalameta:scalafmt-cli_2.13:@STABLE_VERSION@ \
   -r sonatype:snapshots --main org.scalafmt.cli.Cli \
   --standalone \
   -o /usr/local/bin/scalafmt
@@ -225,7 +225,7 @@ scalafmt --version # should be @STABLE_VERSION@
 Alternatively you can create a slim 15 KiB bootstrap script with:
 
 ```sh
-coursier bootstrap org.scalameta:scalafmt-cli_2.12:@STABLE_VERSION@ \
+coursier bootstrap org.scalameta:scalafmt-cli_2.13:@STABLE_VERSION@ \
   -r sonatype:snapshots --main org.scalafmt.cli.Cli \
   -o scalafmt
 ./scalafmt --version # should be @STABLE_VERSION@
@@ -292,7 +292,7 @@ vim/Emacs/Atom/Sublime/VS Code.
   necessary)
 
 ```sh
-coursier bootstrap --standalone org.scalameta:scalafmt-cli_2.12:@STABLE_VERSION@ \
+coursier bootstrap --standalone org.scalameta:scalafmt-cli_2.13:@STABLE_VERSION@ \
   -r sonatype:snapshots -f --main com.martiansoftware.nailgun.NGServer \
   -o /usr/local/bin/scalafmt_ng
 scalafmt_ng & // start nailgun in background
