@@ -27,7 +27,8 @@ final case class ScalafmtDynamic(
     configsCache: ReentrantCache[Path, FormatEval[
       (ScalafmtReflectConfig, FileTime)
     ]]
-) extends ScalafmtSessionFactory {
+) extends Scalafmt
+    with ScalafmtSessionFactory {
 
   def this() =
     this(
