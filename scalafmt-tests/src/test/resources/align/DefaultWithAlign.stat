@@ -914,3 +914,19 @@ object a {
   val aa: Int = { bb % cc }
   val aaa: Int = { bbb % ccc }
 }
+<<< #1948
+align.preset = most
+===
+for {
+  aaa <- bbb % ccc
+  a <- b % c.map { x =>
+    x * x
+  }
+} yield (a, aaa)
+>>>
+for {
+  aaa <- bbb % ccc
+  a   <- b   % c.map { x =>
+         x * x
+       }
+} yield (a, aaa)
