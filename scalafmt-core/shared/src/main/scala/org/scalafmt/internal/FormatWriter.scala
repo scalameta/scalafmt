@@ -569,6 +569,60 @@ class FormatWriter(formatOps: FormatOps) {
       }
     }
 
+    private def flushAlignBlock(block: AlignBlock)(implicit
+        builder: mutable.Builder[(Int, Int), Map[Int, Int]]
+    ): Unit = {
+      if (block.length > 1)
+        flushMultiEntryAlignBlock(block)
+      block.clear()
+    }
+
+    private def flushMultiEntryAlignBlock(block: AlignBlock)(implicit
+        builder: mutable.Builder[(Int, Int), Map[Int, Int]]
+    ): Unit = {
+      var column = 0
+      val columns = block.map(_.length).max
+
+      /**
+        * Separator length gap needed to align blocks with different token
+        * lengths by expression names, not tokens themselves.
+        *
+        * Without considering gaps:
+        * ```
+        * libraryDependencies ++= Seq(
+        *   "org.scalacheck"  %% "scalacheck" % scalacheckV,
+        *   "io.get-coursier" % "interface"   % "0.0.17"
+        * )
+        * ```
+        *
+        * Taking gaps into account:
+        * ```
+        * libraryDependencies ++= Seq(
+        *   "org.scalacheck" %% "scalacheck" % scalacheckV,
+        *   "io.get-coursier" % "interface"  % "0.0.17"
+        * )
+        * ```
+        * */
+      val previousSeparatorLengthGaps = new Array[Int](block.length)
+      while (column < columns) {
+        val alignmentUnits = prepareAlignmentInfo(
+          block.toIndexedSeq,
+          previousSeparatorLengthGaps,
+          column
+        )
+
+        val widest = alignmentUnits.maxBy(_.width)
+        alignmentUnits.foreach { info =>
+          import info._
+          previousSeparatorLengthGaps(lineIndex) =
+            widest.separatorLength - separatorLength
+          val offset = widest.width - width
+          builder += ftIndex -> offset
+        }
+        column += 1
+      }
+    }
+
   }
 
   private def isCloseDelimForTrailingCommasMultiple(
@@ -728,60 +782,6 @@ class FormatWriter(formatOps: FormatOps) {
         case _ => cnt
       }
     iter(a.zip(b), 0)
-  }
-
-  private def flushAlignBlock(block: AlignBlock)(implicit
-      builder: mutable.Builder[(Int, Int), Map[Int, Int]]
-  ): Unit = {
-    if (block.length > 1)
-      flushMultiEntryAlignBlock(block)
-    block.clear()
-  }
-
-  private def flushMultiEntryAlignBlock(block: AlignBlock)(implicit
-      builder: mutable.Builder[(Int, Int), Map[Int, Int]]
-  ): Unit = {
-    var column = 0
-    val columns = block.map(_.length).max
-
-    /**
-      * Separator length gap needed to align blocks with different token
-      * lengths by expression names, not tokens themselves.
-      *
-      * Without considering gaps:
-      * ```
-      * libraryDependencies ++= Seq(
-      *   "org.scalacheck"  %% "scalacheck" % scalacheckV,
-      *   "io.get-coursier" % "interface"   % "0.0.17"
-      * )
-      * ```
-      *
-      * Taking gaps into account:
-      * ```
-      * libraryDependencies ++= Seq(
-      *   "org.scalacheck" %% "scalacheck" % scalacheckV,
-      *   "io.get-coursier" % "interface"  % "0.0.17"
-      * )
-      * ```
-      * */
-    val previousSeparatorLengthGaps = new Array[Int](block.length)
-    while (column < columns) {
-      val alignmentUnits = prepareAlignmentInfo(
-        block.toIndexedSeq,
-        previousSeparatorLengthGaps,
-        column
-      )
-
-      val widest = alignmentUnits.maxBy(_.width)
-      alignmentUnits.foreach { info =>
-        import info._
-        previousSeparatorLengthGaps(lineIndex) =
-          widest.separatorLength - separatorLength
-        val offset = widest.width - width
-        builder += ftIndex -> offset
-      }
-      column += 1
-    }
   }
 
   private def prepareAlignmentInfo(
