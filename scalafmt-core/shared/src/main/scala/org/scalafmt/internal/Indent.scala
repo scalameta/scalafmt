@@ -37,7 +37,13 @@ object Length {
   }
 }
 
-case class ActualIndent(length: Int, expire: Token, expiresAt: ExpiresOn)
+case class ActualIndent(length: Int, expire: Token, expiresAt: ExpiresOn) {
+  def notExpiredBy(ft: FormatToken): Boolean = {
+    val expireToken: Token =
+      if (expiresAt == ExpiresOn.After) ft.left else ft.right
+    expire.end > expireToken.end
+  }
+}
 
 abstract class Indent {
   def switch(switchObject: AnyRef): Indent
