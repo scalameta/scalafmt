@@ -187,13 +187,13 @@ class FormatWriter(formatOps: FormatOps) {
 
   class FormatLocations(val locations: Array[FormatLocation]) {
 
-    val tokenAligns: Map[TokenHash, Int] = alignmentTokens
+    val tokenAligns: Map[Int, Int] = alignmentTokens
 
     def iterate: Iterator[Entry] =
       Iterator.range(0, locations.length).map(new Entry(_))
 
-    private def getAlign(tok: Token, alignOffset: Int = 0): Int =
-      tokenAligns.get(hash(tok)).fold(0)(_ + alignOffset)
+    private def getAlign(tok: FormatToken, alignOffset: Int = 0): Int =
+      tokenAligns.get(tok.meta.idx).fold(0)(_ + alignOffset)
 
     class Entry(val i: Int) {
       val curr = locations(i)
@@ -218,8 +218,8 @@ class FormatWriter(formatOps: FormatOps) {
           case Space =>
             val previousAlign =
               if (lastModification != NoSplit) 0
-              else getAlign(previous.formatToken.left)
-            val currentAlign = getAlign(tok.left, alignOffset)
+              else getAlign(previous.formatToken)
+            val currentAlign = getAlign(tok, alignOffset)
             getIndentation(1 + currentAlign + previousAlign)
 
           case nl: NewlineT
@@ -393,14 +393,14 @@ class FormatWriter(formatOps: FormatOps) {
       */
     // TODO(olafur) Refactor implementation to make it maintainable. It's super
     // imperative and error-prone right now.
-    private def alignmentTokens: Map[TokenHash, Int] = {
+    private def alignmentTokens: Map[Int, Int] = {
       lazy val noAlignTokens = initStyle.align.tokens.isEmpty &&
         styleMap.tok2style.values.forall(_.align.tokens.isEmpty)
       if (locations.length != tokens.length || noAlignTokens)
-        Map.empty[TokenHash, Int]
+        Map.empty[Int, Int]
       else {
         var columnShift = 0
-        implicit val finalResult = Map.newBuilder[TokenHash, Int]
+        implicit val finalResult = Map.newBuilder[Int, Int]
 
         // all blocks must be here, to get final flush
         val blocks = new mutable.HashMap[Tree, AlignBlock]
@@ -731,7 +731,7 @@ class FormatWriter(formatOps: FormatOps) {
   }
 
   private def flushAlignBlock(block: AlignBlock)(implicit
-      builder: mutable.Builder[(TokenHash, Int), Map[TokenHash, Int]]
+      builder: mutable.Builder[(Int, Int), Map[Int, Int]]
   ): Unit = {
     if (block.length > 1)
       flushMultiEntryAlignBlock(block)
@@ -739,7 +739,7 @@ class FormatWriter(formatOps: FormatOps) {
   }
 
   private def flushMultiEntryAlignBlock(block: AlignBlock)(implicit
-      builder: mutable.Builder[(TokenHash, Int), Map[TokenHash, Int]]
+      builder: mutable.Builder[(Int, Int), Map[Int, Int]]
   ): Unit = {
     var column = 0
     val columns = block.map(_.length).max
@@ -777,7 +777,8 @@ class FormatWriter(formatOps: FormatOps) {
         import info._
         previousSeparatorLengthGaps(lineIndex) =
           widest.separatorLength - separatorLength
-        builder += tokenHash -> (widest.width - width)
+        val offset = widest.width - width
+        builder += ftIndex -> offset
       }
       column += 1
     }
@@ -802,7 +803,7 @@ class FormatWriter(formatOps: FormatOps) {
           else location.formatToken.right.syntax.length
         units += AlignmentUnit(
           key + separatorLength,
-          hash(location.formatToken.left),
+          location.formatToken.meta.idx,
           separatorLength,
           i
         )
@@ -848,7 +849,7 @@ object FormatWriter {
     * */
   case class AlignmentUnit(
       width: Int,
-      tokenHash: TokenHash,
+      ftIndex: Int,
       separatorLength: Int,
       lineIndex: Int
   )
