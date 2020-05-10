@@ -40,11 +40,7 @@ final case class State(
       else {
         val offset = column - indentation
         val newPushes = split.indents.flatMap(_.withStateOffset(offset))
-        (pushes ++ newPushes).filterNot { push =>
-          val expireToken: Token =
-            if (push.expiresAt == ExpiresOn.After) tok.left else tok.right
-          push.expire.end <= expireToken.end
-        }
+        (pushes ++ newPushes).filter(_.notExpiredBy(tok))
       }
     val newIndent = newIndents.foldLeft(0)(_ + _.length)
 
