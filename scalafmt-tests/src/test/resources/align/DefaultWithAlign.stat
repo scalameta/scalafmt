@@ -927,6 +927,6 @@ for {
 for {
   aaa <- bbb % ccc
   a   <- b   % c.map { x =>
-         x * x
-       }
+           x * x
+         }
 } yield (a, aaa)

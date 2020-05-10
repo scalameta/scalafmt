@@ -612,14 +612,40 @@ class FormatWriter(formatOps: FormatOps) {
         )
 
         val widest = alignmentUnits.maxBy(_.width)
+        val endIndex = locations.length - 1
         alignmentUnits.foreach { info =>
           import info._
           previousSeparatorLengthGaps(lineIndex) =
             widest.separatorLength - separatorLength
           val offset = widest.width - width
           builder += ftIndex -> offset
+          if (column == 0 && initStyle.align.multiline && ftIndex < endIndex)
+            shiftStateColumnIndent(ftIndex + 1, offset)
         }
         column += 1
+      }
+    }
+
+    private def shiftStateColumnIndent(startIdx: Int, offset: Int): Unit = {
+      // look for StateColumn; it returns indent=0 for withStateOffset(0)
+      val stateIndentOpt = locations(startIdx).state.split.indents
+        .flatMap(_.withStateOffset(0).filter(_.length == 0))
+      stateIndentOpt.headOption.foreach { indent =>
+        @tailrec
+        def updateLocation(idx: Int): Unit = {
+          val floc = locations(idx)
+          if (indent.notExpiredBy(floc.formatToken)) {
+            val state = floc.state
+            if (state.split.modification.isNewline) {
+              locations(idx) = floc.copy(state =
+                state.copy(indentation = state.indentation + offset)
+              )
+            }
+            val nextIdx = idx + 1
+            if (nextIdx < locations.length) updateLocation(nextIdx)
+          }
+        }
+        updateLocation(startIdx)
       }
     }
 
