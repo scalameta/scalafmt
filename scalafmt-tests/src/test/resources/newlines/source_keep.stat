@@ -1330,8 +1330,7 @@ a match {
 a match {
   case b =>
     bb
-  case c =>
-    cc
+  case c => cc
     ccc
   case d =>
     dd
@@ -1347,8 +1346,7 @@ a match {
 }
 >>>
 a match {
-  case b: C =>
-    d.e match {
+  case b: C => d.e match {
       case f => "g"
     }
 }
