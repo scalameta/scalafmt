@@ -1584,7 +1584,7 @@ class Router(formatOps: FormatOps) {
                       !isAttachedSingleLineComment(t) =>
                   d.onlyNewlinesWithoutFallback
               },
-              ignore = style.newlines.sourceIs(Newlines.fold)
+              ignore = style.newlines.sourceIn(Newlines.fold, Newlines.keep)
             )
             .withIndent(2, expire, After) // case body indented by 2.
             .withIndent(2, arrow, After) // cond body indented by 4.
