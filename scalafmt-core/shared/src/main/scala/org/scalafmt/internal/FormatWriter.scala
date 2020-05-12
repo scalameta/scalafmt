@@ -940,14 +940,14 @@ object FormatWriter {
   private def getIndentation(len: Int): String =
     if (len < indentations.length) indentations(len) else " " * len
 
-  private val trailingSpace = Pattern.compile("\\h+$", Pattern.MULTILINE)
+  private val trailingSpace = Pattern.compile("\\h++$", Pattern.MULTILINE)
   private def removeTrailingWhiteSpace(str: String): String = {
     trailingSpace.matcher(str).replaceAll("")
   }
 
-  private val leadingAsteriskSpace = Pattern.compile("(?<=\n)\\h*(?=[*][^*])")
+  private val leadingAsteriskSpace = Pattern.compile("(?<=\n)\\h*+(?=[*][^*])")
   private val onelineDocstring = Pattern.compile(
-    "^/\\*\\*(?:\n\\h*\\*?)?\\h*([^*][^\n]*[^\n\\h])(?:\n\\h*\\**?)?\\h*\\*/$"
+    "^/\\*\\*(?:\n\\h*+\\*?)?\\h*+([^*][^\n]*[^\n\\h])(?:\n\\h*+\\**?)?\\h*+\\*/$"
   )
 
   @inline
@@ -956,7 +956,7 @@ object FormatWriter {
 
   @inline
   private def compileStripMarginPattern(pipe: Char) =
-    Pattern.compile(s"(?<=\n)\\h*(?=\\${pipe})")
+    Pattern.compile(s"(?<=\n)\\h*+(?=\\${pipe})")
 
   private val leadingPipeSpace = compileStripMarginPattern('|')
 
