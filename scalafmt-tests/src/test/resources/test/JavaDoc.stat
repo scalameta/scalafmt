@@ -27,7 +27,7 @@ class Main
     */
 class Main
 <<< #1403 2
-docstrings = JavaDoc
+docstrings.style = JavaDoc
 ===
 /**
   * Main entry-point.
@@ -39,7 +39,7 @@ class Main
  */
 class Main
 <<< #1403 3
-docstrings = ScalaDoc
+docstrings.style = ScalaDoc
 ===
 /**
   * Main entry-point.
@@ -51,7 +51,7 @@ class Main
   */
 class Main
 <<< #1403 4
-docstrings = JavaDoc
+docstrings.style = JavaDoc
 ===
 /** Main entry-point. */
 class Main
@@ -59,7 +59,7 @@ class Main
 /** Main entry-point. */
 class Main
 <<< #1403 5
-docstrings = ScalaDoc
+docstrings.style = ScalaDoc
 ===
 /** Main entry-point. */
 class Main

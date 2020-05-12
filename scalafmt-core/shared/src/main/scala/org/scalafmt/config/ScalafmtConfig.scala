@@ -125,7 +125,7 @@ import org.scalafmt.util.ValidationOps
 case class ScalafmtConfig(
     version: String = org.scalafmt.Versions.stable,
     maxColumn: Int = 80,
-    docstrings: Docstrings = Docstrings.ScalaDoc,
+    docstrings: Docstrings = Docstrings(),
     optIn: OptIn = OptIn(),
     binPack: BinPack = BinPack(),
     continuationIndent: ContinuationIndent = ContinuationIndent(),
@@ -211,6 +211,7 @@ case class ScalafmtConfig(
   private implicit def danglingParenthesesReader = danglingParentheses.decoder
   private implicit def indentOperatorReader = indentOperator.decoder
   private implicit def importSelectorsReader = importSelectors.decoder
+  private implicit def docstringsDecoder = docstrings.decoder
   lazy val alignMap: Map[String, regex.Pattern] =
     align.tokens.map(x => x.code -> x.owner.r.pattern).toMap
   private implicit val confObjReader = ScalafmtConfig.confObjReader
@@ -242,8 +243,6 @@ case class ScalafmtConfig(
 
   def forSbt: ScalafmtConfig = copy(runner = runner.forSbt)
 
-  def reformatDocstrings: Boolean = docstrings != Docstrings.preserve
-  def scalaDocs: Boolean = docstrings == Docstrings.ScalaDoc
   ValidationOps.assertNonNegative(
     continuationIndent.callSite,
     continuationIndent.defnSite
@@ -336,7 +335,7 @@ object ScalafmtConfig {
     // config style. It's fixable, but I don't want to spend time on it
     // right now.
     runner = conservativeRunner,
-    docstrings = Docstrings.JavaDoc,
+    docstrings = default.docstrings.copy(style = Some(Docstrings.JavaDoc)),
     align = default.align.copy(
       arrowEnumeratorGenerator = false,
       tokens = Seq(AlignToken.caseArrow),

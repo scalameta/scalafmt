@@ -390,7 +390,7 @@ class FormatWriter(formatOps: FormatOps) {
         if (isSingleLineComment(text)) {
           formatSinglelineComment(text)
         } else if (text.startsWith("/**")) {
-          if (!style.reformatDocstrings) text
+          if (style.docstrings.style.isEmpty) text
           else formatDocstring(text)
         } else {
           formatMultilineComment(text)
@@ -399,7 +399,7 @@ class FormatWriter(formatOps: FormatOps) {
 
       private def formatDocstring(text: String): String = {
         val spaces: String = getIndentation(
-          prevState.indentation + (if (style.scalaDocs) 2 else 1)
+          prevState.indentation + (if (style.docstrings.isScalaDoc) 2 else 1)
         )
         leadingAsteriskSpace.matcher(text).replaceAll(s"\n${spaces}*$$1")
       }
