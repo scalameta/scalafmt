@@ -137,8 +137,12 @@ object TokenOps {
     )
   }
 
+  @inline
+  def isSingleLineComment(c: String): Boolean = c.startsWith("//")
+
+  @inline
   def isSingleLineComment(c: Token.Comment): Boolean =
-    c.syntax.startsWith("//")
+    isSingleLineComment(c.syntax)
 
   def isSingleLineComment(token: Token): Boolean =
     token match {
