@@ -386,24 +386,31 @@ class FormatWriter(formatOps: FormatOps) {
       }
 
       def formatComment: String = {
-        val comment = tok.left
-        val indent = prevState.indentation
-        val alignedComment =
-          if (
-            comment.syntax.startsWith("/*") &&
-            style.reformatDocstrings
-          ) {
-            val isDocstring =
-              comment.syntax.startsWith("/**") && style.scalaDocs
-            val spaces: String =
-              getIndentation(if (isDocstring) (indent + 2) else (indent + 1))
-            leadingAsteriskSpace
-              .matcher(comment.syntax)
-              .replaceAll(s"\n${spaces}*$$1")
-          } else {
-            comment.syntax
-          }
-        removeTrailingWhiteSpace(alignedComment)
+        val text = removeTrailingWhiteSpace(tok.left.syntax)
+        if (isSingleLineComment(text)) {
+          formatSinglelineComment(text)
+        } else if (text.startsWith("/**")) {
+          if (!style.reformatDocstrings) text
+          else formatDocstring(text)
+        } else {
+          formatMultilineComment(text)
+        }
+      }
+
+      private def formatDocstring(text: String): String = {
+        val spaces: String = getIndentation(
+          prevState.indentation + (if (style.scalaDocs) 2 else 1)
+        )
+        leadingAsteriskSpace.matcher(text).replaceAll(s"\n${spaces}*$$1")
+      }
+
+      private def formatMultilineComment(text: String): String = {
+        val spaces: String = getIndentation(prevState.indentation + 1)
+        leadingAsteriskSpace.matcher(text).replaceAll(s"\n${spaces}*$$1")
+      }
+
+      private def formatSinglelineComment(text: String): String = {
+        text
       }
 
     }
