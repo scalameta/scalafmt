@@ -5,8 +5,12 @@ import org.scalafmt.config.{Docstrings, ScalafmtConfig}
 import org.scalafmt.util.DiffAssertions
 
 class CommentTest extends AnyFunSuite with DiffAssertions {
-  val javadocStyle: ScalafmtConfig =
-    ScalafmtConfig.default.copy(docstrings = Docstrings.JavaDoc)
+
+  private val javadocStyle: ScalafmtConfig =
+    ScalafmtConfig.default.copy(docstrings =
+      ScalafmtConfig.default.docstrings.copy(style = Some(Docstrings.JavaDoc))
+    )
+
   test("remove trailing space in comments") {
     val trailingSpace = "   "
     val original = s"""object a {
