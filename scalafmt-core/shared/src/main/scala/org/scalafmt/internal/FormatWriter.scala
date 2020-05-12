@@ -48,8 +48,8 @@ class FormatWriter(formatOps: FormatOps) {
         // `formatToken.left` rendering. `FormatToken(x, // format: on)` will have
         // formatOff = false, but x still should not be formatted
         case token if state.formatOff => sb.append(token.syntax)
-        case c: T.Comment =>
-          sb.append(formatComment(c, state.indentation))
+        case _: T.Comment =>
+          sb.append(entry.formatComment)
         case _: T.Interpolation.Part | _: T.Constant.String =>
           sb.append(entry.formatMarginized)
         case c: T.Constant.Int =>
@@ -383,6 +383,27 @@ class FormatWriter(formatOps: FormatOps) {
               .matcher(text)
               .replaceAll(s"\n${spaces}$$1")
         }
+      }
+
+      def formatComment: String = {
+        val comment = tok.left
+        val indent = prevState.indentation
+        val alignedComment =
+          if (
+            comment.syntax.startsWith("/*") &&
+            style.reformatDocstrings
+          ) {
+            val isDocstring =
+              comment.syntax.startsWith("/**") && style.scalaDocs
+            val spaces: String =
+              getIndentation(if (isDocstring) (indent + 2) else (indent + 1))
+            leadingAsteriskSpace
+              .matcher(comment.syntax)
+              .replaceAll(s"\n${spaces}*$$1")
+          } else {
+            comment.syntax
+          }
+        removeTrailingWhiteSpace(alignedComment)
       }
 
     }
@@ -900,27 +921,6 @@ object FormatWriter {
   }
 
   private val leadingAsteriskSpace = Pattern.compile("\n\\h*\\*([^*])")
-
-  private def formatComment(
-      comment: T.Comment,
-      indent: Int
-  )(implicit style: ScalafmtConfig): String = {
-    val alignedComment =
-      if (
-        comment.syntax.startsWith("/*") &&
-        style.reformatDocstrings
-      ) {
-        val isDocstring = comment.syntax.startsWith("/**") && style.scalaDocs
-        val spaces: String =
-          getIndentation(if (isDocstring) (indent + 2) else (indent + 1))
-        leadingAsteriskSpace
-          .matcher(comment.syntax)
-          .replaceAll(s"\n${spaces}*$$1")
-      } else {
-        comment.syntax
-      }
-    removeTrailingWhiteSpace(alignedComment)
-  }
 
   @inline
   private def getStripMarginPattern(pipe: Char) =
