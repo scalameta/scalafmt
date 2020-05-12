@@ -14,4 +14,55 @@ object a {
    */
   val y = 2
 }
-
+<<< #1403 1
+docstrings = preserve
+===
+/**
+   * Main entry-point.
+    */
+class Main
+>>>
+/**
+   * Main entry-point.
+    */
+class Main
+<<< #1403 2
+docstrings = JavaDoc
+===
+/**
+  * Main entry-point.
+  */
+class Main
+>>>
+/**
+ * Main entry-point.
+ */
+class Main
+<<< #1403 3
+docstrings = ScalaDoc
+===
+/**
+  * Main entry-point.
+  */
+class Main
+>>>
+/**
+  * Main entry-point.
+  */
+class Main
+<<< #1403 4
+docstrings = JavaDoc
+===
+/** Main entry-point. */
+class Main
+>>>
+/** Main entry-point. */
+class Main
+<<< #1403 5
+docstrings = ScalaDoc
+===
+/** Main entry-point. */
+class Main
+>>>
+/** Main entry-point. */
+class Main
