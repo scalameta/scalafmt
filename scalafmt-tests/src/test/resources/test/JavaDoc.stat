@@ -27,42 +27,46 @@ class Main
     */
 class Main
 <<< #1403 2
+docstrings.oneline = fold
 docstrings.style = JavaDoc
 ===
 /**
   * Main entry-point.
   */
+class Main
+>>>
+/** Main entry-point. */
+class Main
+<<< #1403 3
+docstrings.oneline = fold
+docstrings.style = ScalaDoc
+===
+/**
+  * Main entry-point.
+  */
+class Main
+>>>
+/** Main entry-point. */
+class Main
+<<< #1403 4
+docstrings.oneline = unfold
+docstrings.style = JavaDoc
+===
+/** Main entry-point. */
 class Main
 >>>
 /**
  * Main entry-point.
  */
 class Main
-<<< #1403 3
-docstrings.style = ScalaDoc
-===
-/**
-  * Main entry-point.
-  */
-class Main
->>>
-/**
-  * Main entry-point.
-  */
-class Main
-<<< #1403 4
-docstrings.style = JavaDoc
-===
-/** Main entry-point. */
-class Main
->>>
-/** Main entry-point. */
-class Main
 <<< #1403 5
+docstrings.oneline = unfold
 docstrings.style = ScalaDoc
 ===
 /** Main entry-point. */
 class Main
 >>>
-/** Main entry-point. */
+/**
+  * Main entry-point.
+  */
 class Main

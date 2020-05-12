@@ -4,6 +4,7 @@ import metaconfig._
 import metaconfig.generic.Surface
 
 case class Docstrings(
+    oneline: Docstrings.Oneline = Docstrings.Oneline.keep,
     style: Option[Docstrings.Style] = Some(Docstrings.ScalaDoc)
 ) {
   import Docstrings._
@@ -35,5 +36,14 @@ object Docstrings {
 
   implicit val reader: ConfCodec[Style] =
     ReaderUtil.oneOf[Style](JavaDoc, ScalaDoc)
+
+  sealed abstract class Oneline
+  object Oneline {
+    case object keep extends Oneline
+    case object fold extends Oneline
+    case object unfold extends Oneline
+    implicit val reader: ConfCodec[Oneline] =
+      ReaderUtil.oneOf[Oneline](keep, fold, unfold)
+  }
 
 }

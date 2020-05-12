@@ -2,7 +2,7 @@ package org.scalafmt.internal
 
 import java.util.regex.Pattern
 
-import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.config.{Docstrings, ScalafmtConfig}
 import org.scalafmt.rewrite.RedundantBraces
 import org.scalafmt.util.TokenOps._
 import org.scalafmt.util.{LiteralOps, TreeOps}
@@ -391,9 +391,29 @@ class FormatWriter(formatOps: FormatOps) {
           formatSinglelineComment(text)
         } else if (text.startsWith("/**")) {
           if (style.docstrings.style.isEmpty) text
-          else formatDocstring(text)
+          else formatOnelineDocstring(text).getOrElse(formatDocstring(text))
         } else {
           formatMultilineComment(text)
+        }
+      }
+
+      private def formatOnelineDocstring(text: String): Option[String] = {
+        if (style.docstrings.oneline eq Docstrings.Oneline.keep) None
+        else if (!state.split.modification.isNewline) None
+        else if (!prevState.split.modification.isNewline && tok.left.start > 0)
+          None
+        else {
+          val matcher = onelineDocstring.matcher(text)
+          val res = style.docstrings.oneline match {
+            case Docstrings.Oneline.fold =>
+              Some(matcher.replaceFirst("/** $1 */"))
+            case Docstrings.Oneline.unfold =>
+              val extraIndent = if (style.docstrings.isScalaDoc) 2 else 1
+              val spaces = getIndentation(prevState.indentation + extraIndent)
+              Some(matcher.replaceFirst(s"/**\n$spaces* $$1\n$spaces*/"))
+            case _ => None
+          }
+          res.filter(_ != text)
         }
       }
 
@@ -928,6 +948,9 @@ object FormatWriter {
   }
 
   private val leadingAsteriskSpace = Pattern.compile("\n\\h*\\*([^*])")
+  private val onelineDocstring = Pattern.compile(
+    "^/\\*\\*(?:\n\\h*\\*?)?\\h*([^*][^\n]*[^\n\\h])(?:\n\\h*\\**?)?\\h*\\*/$"
+  )
 
   @inline
   private def getStripMarginPattern(pipe: Char) =
