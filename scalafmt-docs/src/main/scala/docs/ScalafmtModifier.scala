@@ -12,6 +12,9 @@ import mdoc.Reporter
 import mdoc.StringModifier
 
 class ScalafmtModifier extends StringModifier {
+
+  import ScalafmtModifier._
+
   override val name: String = "scalafmt"
   override def process(
       info: String,
@@ -38,16 +41,12 @@ class ScalafmtModifier extends StringModifier {
               val configText = config.text.trim
               val configBlock =
                 if (configText == "") ""
-                else
-                  mdConfigSection(
-                    "Config for this example",
-                    mdCodeBlock("scala config", configText)
-                  )
+                else mdConfigSection("Config for this example:", configText)
 
               val formattedCodeBlock =
-                mdCodeBlock("scala formatted", formatted.trim)
+                mdScalaCodeBlock("formatted", formatted.trim)
               val originalCodeBlock =
-                mdCodeBlock("scala original", program.text.trim)
+                mdScalaCodeBlock("original", program.text.trim)
               List(
                 formattedCodeBlock,
                 originalCodeBlock,
@@ -67,10 +66,22 @@ class ScalafmtModifier extends StringModifier {
     }
   }
 
-  private def mdCodeBlock(language: String, content: String): String =
+}
+
+object ScalafmtModifier {
+
+  def mdCodeBlock(language: String, content: String): String =
     s"```$language\n$content\n```"
 
-  private def mdConfigSection(title: String, content: String): String =
+  def mdScalaCodeBlock(style: String, content: String): String =
+    mdCodeBlock(s"scala $style", content)
+
+  def mdConfigCodeBlock(content: String): String =
+    mdScalaCodeBlock("config", content)
+
+  def mdConfigSection(title: String, code: String): String = {
+    val content = mdConfigCodeBlock(code)
     s"<details class='config' open><summary>$title</summary><p>\n$content\n</p></details>\n"
+  }
 
 }
