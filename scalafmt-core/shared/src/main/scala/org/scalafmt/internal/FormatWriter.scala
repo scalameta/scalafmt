@@ -379,9 +379,7 @@ class FormatWriter(formatOps: FormatOps) {
         tupleOpt.fold(text) {
           case (pipe, indent) =>
             val spaces = getIndentation(indent)
-            getStripMarginPattern(pipe)
-              .matcher(text)
-              .replaceAll(s"\n${spaces}$$1")
+            getStripMarginPattern(pipe).matcher(text).replaceAll(spaces)
         }
       }
 
@@ -421,12 +419,12 @@ class FormatWriter(formatOps: FormatOps) {
         val spaces: String = getIndentation(
           prevState.indentation + (if (style.docstrings.isScalaDoc) 2 else 1)
         )
-        leadingAsteriskSpace.matcher(text).replaceAll(s"\n${spaces}*$$1")
+        leadingAsteriskSpace.matcher(text).replaceAll(spaces)
       }
 
       private def formatMultilineComment(text: String): String = {
         val spaces: String = getIndentation(prevState.indentation + 1)
-        leadingAsteriskSpace.matcher(text).replaceAll(s"\n${spaces}*$$1")
+        leadingAsteriskSpace.matcher(text).replaceAll(spaces)
       }
 
       private def formatSinglelineComment(text: String): String = {
@@ -947,7 +945,7 @@ object FormatWriter {
     trailingSpace.matcher(str).replaceAll("")
   }
 
-  private val leadingAsteriskSpace = Pattern.compile("\n\\h*\\*([^*])")
+  private val leadingAsteriskSpace = Pattern.compile("(?<=\n)\\h*(?=[*][^*])")
   private val onelineDocstring = Pattern.compile(
     "^/\\*\\*(?:\n\\h*\\*?)?\\h*([^*][^\n]*[^\n\\h])(?:\n\\h*\\**?)?\\h*\\*/$"
   )
@@ -958,7 +956,7 @@ object FormatWriter {
 
   @inline
   private def compileStripMarginPattern(pipe: Char) =
-    Pattern.compile(s"\n\\h*(\\${pipe})")
+    Pattern.compile(s"(?<=\n)\\h*(?=\\${pipe})")
 
   private val leadingPipeSpace = compileStripMarginPattern('|')
 

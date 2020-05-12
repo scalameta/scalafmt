@@ -62,7 +62,7 @@ docstrings.style = ScalaDoc
 >>>
 /** Align by second asterisk.
   *
- *
+  *
   */
 <<< format commaent with single asterisk, JavaDoc
 docstrings.style = JavaDoc
@@ -74,5 +74,5 @@ docstrings.style = JavaDoc
 >>>
 /** Align by first asterisk.
  *
-  *
+ *
  */
