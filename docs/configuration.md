@@ -57,9 +57,6 @@ the `|` character. Hence, that indentation can be modified.
 
 ```scala mdoc:defaults
 assumeStandardLibraryStripMargin
-```
-
-```scala mdoc:defaults
 align.stripMargin
 ```
 
@@ -210,9 +207,6 @@ class A(
 
 ```scala mdoc:defaults
 continuationIndent.extendSite
-```
-
-```scala mdoc:defaults
 continuationIndent.withSiteRelativeToExtends
 ```
 
