@@ -126,6 +126,7 @@ case class ScalafmtConfig(
     version: String = org.scalafmt.Versions.stable,
     maxColumn: Int = 80,
     docstrings: Docstrings = Docstrings(),
+    comments: Comments = Comments(),
     optIn: OptIn = OptIn(),
     binPack: BinPack = BinPack(),
     continuationIndent: ContinuationIndent = ContinuationIndent(),
@@ -212,6 +213,7 @@ case class ScalafmtConfig(
   private implicit def indentOperatorReader = indentOperator.decoder
   private implicit def importSelectorsReader = importSelectors.decoder
   private implicit def docstringsDecoder = docstrings.decoder
+  private implicit def commentsDecoder = comments.decoder
   lazy val alignMap: Map[String, regex.Pattern] =
     align.tokens.map(x => x.code -> x.owner.r.pattern).toMap
   private implicit val confObjReader = ScalafmtConfig.confObjReader
