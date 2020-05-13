@@ -80,7 +80,7 @@ code on your phone.</li>
  *
  */</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">docstrings = <span class="hljs-type">ScalaDoc</span>
 </code></pre>
 </p></details>
@@ -92,7 +92,7 @@ code on your phone.</li>
   *
   */</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">docstrings = <span class="hljs-type">JavaDoc</span>
 </code></pre>
 </p></details>
@@ -100,8 +100,10 @@ code on your phone.</li>
 <p>This parameter simply says the <code>.stripMargin</code> method was not redefined
 by the user to assign special meaning to indentation preceding
 the <code>|</code> character. Hence, that indentation can be modified.</p>
-<p>Default: <code>assumeStandardLibraryStripMargin = false</code></p>
-<p>Default: <code>align.stripMargin = true</code></p>
+<pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
+assumeStandardLibraryStripMargin = <span class="hljs-literal">false</span>
+align.stripMargin = <span class="hljs-literal">true</span>
+</code></pre>
 <p>If <code>true</code>, lines starting with the margin character <code>|</code> (or another if
 specified in the <code>.stripMargin(...)</code> call) will be indented differently.</p>
 <p>If <code>align.stripMargin</code> is true, they will align with the opening triple-quote
@@ -121,7 +123,7 @@ relative to the <em>start</em> of the opening line.</p>
   |  * $three
   |""".stripMargin
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">assumeStandardLibraryStripMargin = <span class="hljs-literal">true</span>
 align.stripMargin = <span class="hljs-literal">true</span>
 </code></pre>
@@ -140,7 +142,7 @@ align.stripMargin = <span class="hljs-literal">true</span>
       |  * $three
       |""".stripMargin
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">assumeStandardLibraryStripMargin = <span class="hljs-literal">true</span>
 align.stripMargin = <span class="hljs-literal">false</span>
 </code></pre>
@@ -160,7 +162,7 @@ align.stripMargin = <span class="hljs-literal">false</span>
   |  * $three
   |""".stripMargin
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">assumeStandardLibraryStripMargin = <span class="hljs-literal">true</span>
 align.stripMargin = <span class="hljs-literal">true</span>
 </code></pre>
@@ -217,7 +219,7 @@ argument1, <span class="hljs-comment">// indented by 2</span>
 <span class="hljs-string">""</span>
 )
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">continuationIndent.callSite = <span class="hljs-number">2</span>
 </code></pre>
 </p></details>
@@ -232,7 +234,7 @@ argument1, <span class="hljs-comment">// indented by 2</span>
 argument1: <span class="hljs-type">Type1</span> <span class="hljs-comment">// indented by 4</span>
 ): <span class="hljs-type">ReturnType</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">continuationIndent.defnSite = <span class="hljs-number">4</span>
 </code></pre>
 </p></details>
@@ -257,14 +259,16 @@ argument1: <span class="hljs-type">Type1</span> <span class="hljs-comment">// in
  ): <span class="hljs-type">ReturnType</span> = <span class="hljs-type">None</span>
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">continuationIndent.ctorSite = <span class="hljs-number">4</span>
 continuationIndent.defnSite = <span class="hljs-number">2</span>
 </code></pre>
 </p></details>
 <h3><a class="anchor" aria-hidden="true" id="continuationindentextendsite"></a><a href="#continuationindentextendsite" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>continuationIndent.extendSite</code></h3>
-<p>Default: <code>continuationIndent.extendSite = 4</code></p>
-<p>Default: <code>continuationIndent.withSiteRelativeToExtends = 0</code></p>
+<pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
+continuationIndent.extendSite = <span class="hljs-number">4</span>
+continuationIndent.withSiteRelativeToExtends = <span class="hljs-number">0</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Foo</span></span>
     <span class="hljs-keyword">extends</span> <span class="hljs-type">A</span>
       <span class="hljs-keyword">with</span> <span class="hljs-type">B</span>
@@ -278,7 +282,7 @@ continuationIndent.defnSite = <span class="hljs-number">2</span>
   <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">foo</span></span>: <span class="hljs-type">Boolean</span> = <span class="hljs-literal">true</span>
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">continuationIndent.extendSite = <span class="hljs-number">4</span>
 # <span class="hljs-keyword">this</span> one added in v2<span class="hljs-number">.5</span><span class="hljs-number">.0</span>
 continuationIndent.withSiteRelativeToExtends = <span class="hljs-number">2</span>
@@ -301,7 +305,7 @@ four possible presets: none, some, more, &amp; most.</p>
   <span class="hljs-keyword">case</span> <span class="hljs-number">22</span> =&gt; <span class="hljs-number">222</span> <span class="hljs-comment">// don't align me!</span>
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">align.preset = none
 </code></pre>
 </p></details>
@@ -340,7 +344,7 @@ See <a href="#assumestandardlibrarystripmargin">assumeStandardLibraryStripMargin
 <span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">B</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">A</span> <span class="hljs-title">//</span> <span class="hljs-title">false</span> <span class="hljs-title">for</span> `<span class="hljs-keyword">extends</span>`</span>
 <span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">BB</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">A</span></span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">align.preset = some
 </code></pre>
 </p></details>
@@ -417,7 +421,7 @@ libraryDependencies ++= <span class="hljs-type">Seq</span>(
   <span class="hljs-string">"com.lihaoyi"</span> %% <span class="hljs-string">"sourcecode"</span> % <span class="hljs-string">"0.1.1"</span>
 )
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">align.preset = more
 </code></pre>
 </p></details>
@@ -442,7 +446,7 @@ libraryDependencies ++= <span class="hljs-type">Seq</span>(
   }
 } <span class="hljs-keyword">yield</span> x
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">align.preset = most
 </code></pre>
 </p></details>
@@ -465,7 +469,7 @@ token. If no <code>owner</code> is provided, then all tree kinds will be matched
   <span class="hljs-keyword">case</span> <span class="hljs-number">11</span> =&gt; <span class="hljs-number">11</span> -&gt; <span class="hljs-number">22</span>
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">align.tokens = [{code = <span class="hljs-string">"=&gt;"</span>, owner = <span class="hljs-string">"Case"</span>}]
 </code></pre>
 </p></details>
@@ -479,7 +483,7 @@ token. If no <code>owner</code> is provided, then all tree kinds will be matched
 <span class="hljs-string">"com.lihaoyi"</span> %% <span class="hljs-string">"sourcecode"</span> % <span class="hljs-string">"0.1.1"</span>
 )
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">align.tokens = [
   {code = <span class="hljs-string">"%"</span>, owner = <span class="hljs-string">"Term.ApplyInfix"</span>},
   {code = <span class="hljs-string">"%%"</span>, owner = <span class="hljs-string">"Term.ApplyInfix"</span>}
@@ -519,7 +523,7 @@ defaults rather than replacing them.</p>
      }
 } <span class="hljs-keyword">yield</span> x
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">align.arrowEnumeratorGenerator = <span class="hljs-literal">false</span>
 </code></pre>
 </p></details>
@@ -535,7 +539,7 @@ defaults rather than replacing them.</p>
      }
 } <span class="hljs-keyword">yield</span> x
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">align.arrowEnumeratorGenerator = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
@@ -563,7 +567,7 @@ function(
   argument1,
   argument2)
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">align.openParenCallSite = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
@@ -587,7 +591,7 @@ function(
   argument1,
   argument2)
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">align.openParenCallSite = <span class="hljs-literal">false</span>
 </code></pre>
 </p></details>
@@ -611,7 +615,7 @@ function(
     string: <span class="hljs-type">String</span>,
   long: <span class="hljs-type">Long</span></span>)</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">align.openParenDefnSite = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
@@ -634,7 +638,7 @@ function(
   long: <span class="hljs-type">Long</span>
 </span>)</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">align.openParenDefnSite = <span class="hljs-literal">false</span>
 </code></pre>
 </p></details>
@@ -668,7 +672,7 @@ not be excluded from search of tokens to align.</p>
   dd &lt;- ddddd
 } <span class="hljs-keyword">yield</span> ()
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">align.preset = more
 align.multiline = <span class="hljs-literal">true</span>
 </code></pre>
@@ -691,7 +695,7 @@ align.multiline = <span class="hljs-literal">true</span>
   dd &lt;- ddddd
 } <span class="hljs-keyword">yield</span> ()
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">align.preset = more
 align.multiline = <span class="hljs-literal">false</span>
 </code></pre>
@@ -756,7 +760,7 @@ logically belongs there.</p>
   method(argument1, argument2)
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">danglingParentheses.defnSite = <span class="hljs-literal">true</span>
 danglingParentheses.callSite = <span class="hljs-literal">false</span>
 maxColumn=<span class="hljs-number">25</span>
@@ -785,7 +789,7 @@ maxColumn=<span class="hljs-number">25</span>
   method(argument1, argument2)
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">danglingParentheses.defnSite = <span class="hljs-literal">false</span>
 danglingParentheses.callSite = <span class="hljs-literal">true</span>
 maxColumn=<span class="hljs-number">25</span>
@@ -814,7 +818,7 @@ maxColumn=<span class="hljs-number">25</span>
   <span class="hljs-comment">// nothing</span>
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">danglingParentheses.ctrlSite = <span class="hljs-literal">true</span>
 maxColumn=<span class="hljs-number">20</span>
 </code></pre>
@@ -835,7 +839,7 @@ other(a, b)(c, d)
 <pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">other</span></span>(a: <span class="hljs-type">String</span>, b: <span class="hljs-type">String</span>)(c: <span class="hljs-type">String</span>, d: <span class="hljs-type">String</span>) = a + b + c
 other(a, b)(c, d)
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">continuationIndent.defnSite = <span class="hljs-number">2</span>
 danglingParentheses.defnSite = <span class="hljs-literal">true</span>
 danglingParentheses.exclude = [<span class="hljs-function"><span class="hljs-keyword">def</span>]</span>
@@ -876,7 +880,7 @@ a certain number of lines.</p>
   <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">C2</span> </span>{}
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">newlines.topLevelStatements = []
 </code></pre>
 </p></details>
@@ -906,7 +910,7 @@ a certain number of lines.</p>
   <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">C2</span> </span>{}
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">newlines.topLevelStatements = [before]
 </code></pre>
 </p></details>
@@ -935,7 +939,7 @@ a certain number of lines.</p>
   <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">C2</span> </span>{}
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">newlines.topLevelStatements = [after]
 </code></pre>
 </p></details>
@@ -966,7 +970,7 @@ a certain number of lines.</p>
   <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">C2</span> </span>{}
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">newlines.topLevelStatements = [before,after]
 </code></pre>
 </p></details>
@@ -1011,7 +1015,7 @@ line break (or a multi-line statement).</p>
   }
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">newlines.topLevelStatements = [before,after]
 newlines.topLevelStatementsMinBreaks = <span class="hljs-number">0</span>
 </code></pre>
@@ -1047,7 +1051,7 @@ newlines.topLevelStatementsMinBreaks = <span class="hljs-number">0</span>
   }
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">newlines.topLevelStatements = [before,after]
 newlines.topLevelStatementsMinBreaks = <span class="hljs-number">2</span>
 </code></pre>
@@ -1064,7 +1068,7 @@ newlines.topLevelStatementsMinBreaks = <span class="hljs-number">2</span>
   x.toUpper
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">newlines.alwaysBeforeMultilineDef = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
@@ -1076,7 +1080,7 @@ newlines.topLevelStatementsMinBreaks = <span class="hljs-number">2</span>
   x.toUpper
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">newlines.alwaysBeforeMultilineDef = <span class="hljs-literal">false</span>
 </code></pre>
 </p></details>
@@ -1095,7 +1099,7 @@ newlines.topLevelStatementsMinBreaks = <span class="hljs-number">2</span>
   bar()
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">newlines.alwaysBeforeElseAfterCurlyIf = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
@@ -1112,7 +1116,7 @@ newlines.topLevelStatementsMinBreaks = <span class="hljs-number">2</span>
   bar()
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">newlines.alwaysBeforeElseAfterCurlyIf = <span class="hljs-literal">false</span>
 </code></pre>
 </p></details>
@@ -1133,7 +1137,7 @@ something.map { x =&gt; f(x) }
 
 something.map { x =&gt; f(x) }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">newlines.afterCurlyLambda = never
 </code></pre>
 </p></details>
@@ -1156,7 +1160,7 @@ something.map { x =&gt;
 
 something.map { x =&gt; f(x) }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">newlines.afterCurlyLambda = always
 </code></pre>
 </p></details>
@@ -1176,7 +1180,7 @@ something.map { x =&gt; f(x) }
 
 something.map { x =&gt; f(x) }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">newlines.afterCurlyLambda = preserve
 </code></pre>
 </p></details>
@@ -1193,7 +1197,7 @@ something.map { x =&gt; f(x) }
 
 something.map { x =&gt; f(x) }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">newlines.afterCurlyLambda = squash
 </code></pre>
 </p></details>
@@ -1215,7 +1219,7 @@ if the keyword itself would overflow the line.</p>
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">format</span></span>(code: <span class="hljs-type">String</span>, age: <span class="hljs-type">Int</span>)(<span class="hljs-keyword">implicit</span> ev: <span class="hljs-type">Parser</span>, c: <span class="hljs-type">Context</span>): <span class="hljs-type">String</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">60</span>
 newlines.implicitParamListModifierPrefer = after
 </code></pre>
@@ -1232,7 +1236,7 @@ if the entire implicit parameter list fits on a line.</p>
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">format</span></span>(code: <span class="hljs-type">String</span>, age: <span class="hljs-type">Int</span>)(<span class="hljs-keyword">implicit</span> ev: <span class="hljs-type">Parser</span>, c: <span class="hljs-type">Context</span>): <span class="hljs-type">String</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">60</span>
 newlines.implicitParamListModifierPrefer = before
 </code></pre>
@@ -1249,7 +1253,7 @@ added if the keyword would overflow the line.</p>
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">format</span></span>(code: <span class="hljs-type">String</span>, age: <span class="hljs-type">Int</span>)(<span class="hljs-keyword">implicit</span> ev: <span class="hljs-type">Parser</span>, c: <span class="hljs-type">Context</span>): <span class="hljs-type">String</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">60</span>
 newlines.implicitParamListModifierForce = [before]
 </code></pre>
@@ -1267,7 +1271,7 @@ or config style is false.</p>
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">format</span></span>(code: <span class="hljs-type">String</span>, age: <span class="hljs-type">Int</span>)(<span class="hljs-keyword">implicit</span> ev: <span class="hljs-type">Parser</span>, c: <span class="hljs-type">Context</span>): <span class="hljs-type">String</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">60</span>
 newlines.implicitParamListModifierForce = [after]
 </code></pre>
@@ -1281,7 +1285,7 @@ newlines.implicitParamListModifierForce = [after]
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">format</span></span>(code: <span class="hljs-type">String</span>, age: <span class="hljs-type">Int</span>)(<span class="hljs-keyword">implicit</span> ev: <span class="hljs-type">Parser</span>, c: <span class="hljs-type">Context</span>): <span class="hljs-type">String</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">60</span>
 newlines.implicitParamListModifierForce = [before,after]
 </code></pre>
@@ -1296,7 +1300,7 @@ newlines.implicitParamListModifierForce = [before,after]
    <span class="hljs-keyword">implicit</span> ev: <span class="hljs-type">Parser</span>, c: <span class="hljs-type">Context</span>
 ): <span class="hljs-type">String</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">60</span>
 optIn.configStyleArguments = <span class="hljs-literal">true</span>
 newlines.implicitParamListModifierForce = [after]
@@ -1367,7 +1371,7 @@ future recover {
   <span class="hljs-keyword">case</span> e: <span class="hljs-type">Err</span> =&gt; <span class="hljs-number">0</span>
 } map (_.toString)
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">AvoidInfix</span>]
 </code></pre>
 </p></details>
@@ -1393,7 +1397,7 @@ future recover {
     _
   }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">ExpandImportSelectors</span>]
 </code></pre>
 </p></details>
@@ -1409,7 +1413,7 @@ future recover {
   <span class="hljs-type">List</span>(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>).sum
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">RedundantBraces</span>]
 </code></pre>
 </p></details>
@@ -1417,7 +1421,7 @@ future recover {
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-string">q"Hello <span class="hljs-subst">${name}</span>"</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">RedundantBraces</span>]
 rewrite.redundantBraces.stringInterpolation = <span class="hljs-literal">true</span>
 </code></pre>
@@ -1426,7 +1430,7 @@ rewrite.redundantBraces.stringInterpolation = <span class="hljs-literal">true</s
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-type">List</span>(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>).map { x =&gt; x + <span class="hljs-number">1</span> }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">RedundantBraces</span>]
 </code></pre>
 </p></details>
@@ -1449,7 +1453,7 @@ line and then replace braces with parens:</p>
   x + <span class="hljs-number">1</span>
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">RedundantBraces</span>]
 newlines.afterCurlyLambda=squash
 </code></pre>
@@ -1490,7 +1494,7 @@ str <span class="hljs-keyword">match</span> {
   }
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">RedundantBraces</span>]
 rewrite.redundantBraces.generalExpressions = <span class="hljs-literal">true</span>
 </code></pre>
@@ -1503,7 +1507,7 @@ rewrite.redundantBraces.generalExpressions = <span class="hljs-literal">true</sp
   <span class="hljs-number">1</span> + <span class="hljs-number">1</span>
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">RedundantBraces</span>]
 rewrite.redundantBraces.methodBodies = <span class="hljs-literal">true</span>
 </code></pre>
@@ -1525,7 +1529,7 @@ rewrite.redundantBraces.methodBodies = <span class="hljs-literal">true</span>
   println(<span class="hljs-string">"example"</span>)
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">RedundantBraces</span>]
 rewrite.redundantBraces.methodBodies = <span class="hljs-literal">true</span>
 rewrite.redundantBraces.includeUnitMethods = <span class="hljs-literal">false</span>
@@ -1536,7 +1540,7 @@ rewrite.redundantBraces.includeUnitMethods = <span class="hljs-literal">false</s
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-string">s"user id is <span class="hljs-subst">${id}</span>"</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">RedundantBraces</span>]
 rewrite.redundantBraces.stringInterpolation = <span class="hljs-literal">true</span>
 </code></pre>
@@ -1546,7 +1550,7 @@ rewrite.redundantBraces.stringInterpolation = <span class="hljs-literal">true</s
 </code></pre>
 <pre><code class="hljs css language-scala original">xs.map { x =&gt; x + <span class="hljs-number">1</span> }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">RedundantBraces</span>]
 rewrite.redundantBraces.parensForOneLineApply = <span class="hljs-literal">true</span>
 </code></pre>
@@ -1581,7 +1585,7 @@ rewrite.redundantBraces.parensForOneLineApply = <span class="hljs-literal">true<
     .headOption
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">RedundantBraces</span>]
 rewrite.redundantBraces.maxLines = <span class="hljs-number">3</span>
 </code></pre>
@@ -1601,7 +1605,7 @@ rewrite.redundantBraces.maxLines = <span class="hljs-number">3</span>
 
 <span class="hljs-keyword">val</span> z = (insertData *&gt; readDatabase(id))
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">RedundantParens</span>]
 </code></pre>
 </p></details>
@@ -1615,7 +1619,7 @@ and class parameters.</p>
 <pre><code class="hljs css language-scala original"><span class="hljs-keyword">final</span> <span class="hljs-keyword">lazy</span> <span class="hljs-keyword">private</span> <span class="hljs-keyword">implicit</span> <span class="hljs-keyword">val</span> x = <span class="hljs-number">42</span>
 <span class="hljs-keyword">lazy</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">implicit</span> <span class="hljs-keyword">private</span> <span class="hljs-keyword">val</span> y = <span class="hljs-number">42</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">SortModifiers</span>]
 </code></pre>
 </p></details>
@@ -1630,7 +1634,7 @@ and class parameters.</p>
     private final val i2: <span class="hljs-type">String</span>
 </span>)</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">SortModifiers</span>]
 </code></pre>
 </p></details>
@@ -1644,7 +1648,7 @@ and class parameters.</p>
 <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">A2</span>(<span class="hljs-params">a: <span class="hljs-type">Int</span></span>)</span>
     <span class="hljs-keyword">extends</span> <span class="hljs-type">ADT</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">SortModifiers</span>]
 </code></pre>
 </p></details>
@@ -1655,7 +1659,7 @@ mutually exclusive, you might want to order them next to each other.</p>
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-keyword">override</span> <span class="hljs-keyword">implicit</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">val</span> x = <span class="hljs-number">2</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">SortModifiers</span>]
 rewrite.sortModifiers.order = [
   <span class="hljs-string">"implicit"</span>, <span class="hljs-string">"final"</span>, <span class="hljs-string">"sealed"</span>, <span class="hljs-string">"abstract"</span>,
@@ -1674,7 +1678,7 @@ multiple enumerator generators.</p>
 <pre><code class="hljs css language-scala original"><span class="hljs-keyword">for</span>(a &lt;- as; b &lt;- bs <span class="hljs-keyword">if</span> b &gt; <span class="hljs-number">2</span>)
  <span class="hljs-keyword">yield</span> (a, b)
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">PreferCurlyFors</span>]
 </code></pre>
 </p></details>
@@ -1684,7 +1688,7 @@ multiple enumerator generators.</p>
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-keyword">import</span> foo.{<span class="hljs-type">Zilch</span>, bar, <span class="hljs-type">Random</span>, sand}
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">SortImports</span>]
 </code></pre>
 </p></details>
@@ -1694,7 +1698,7 @@ multiple enumerator generators.</p>
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-keyword">import</span> foo.{~&gt;, `symbol`, bar, <span class="hljs-type">Random</span>}
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">AsciiSortImports</span>]
 </code></pre>
 </p></details>
@@ -1766,7 +1770,7 @@ method3(
   a,
 )
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">trailingCommas = never
 </code></pre>
 </p></details>
@@ -1823,7 +1827,7 @@ method3(
   a,
 )
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">trailingCommas = preserve
 </code></pre>
 </p></details>
@@ -1880,7 +1884,7 @@ method3(
   a
 )
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">trailingCommas = always
 </code></pre>
 </p></details>
@@ -1941,7 +1945,7 @@ method3(
   a,
 )
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">trailingCommas = multiple
 </code></pre>
 </p></details>
@@ -1981,7 +1985,7 @@ the <a href="#verticalmultilinearitythreshold"><code>verticalMultiline.arityThre
   <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">hello</span></span>(how: <span class="hljs-type">String</span>)(are: <span class="hljs-type">String</span>)(you: <span class="hljs-type">String</span>) = how + are + you
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">verticalMultiline.atDefnSite = <span class="hljs-literal">true</span>
 verticalMultiline.arityThreshold = <span class="hljs-number">2</span>
 </code></pre>
@@ -1998,7 +2002,7 @@ verticalMultiline.arityThreshold = <span class="hljs-number">2</span>
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">other</span></span>(a: <span class="hljs-type">String</span>, b: <span class="hljs-type">String</span>)(c: <span class="hljs-type">String</span>, d: <span class="hljs-type">String</span>) = a + b + c
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">continuationIndent.defnSite = <span class="hljs-number">2</span>
 verticalMultiline.atDefnSite = <span class="hljs-literal">true</span>
 verticalMultiline.arityThreshold = <span class="hljs-number">2</span>
@@ -2025,7 +2029,7 @@ other(a, b)(c, d)
 <pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">other</span></span>(a: <span class="hljs-type">String</span>, b: <span class="hljs-type">String</span>)(c: <span class="hljs-type">String</span>, d: <span class="hljs-type">String</span>) = a + b + c
 other(a, b)(c, d)
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">continuationIndent.defnSite = <span class="hljs-number">2</span>
 verticalMultiline.excludeDanglingParens = [<span class="hljs-function"><span class="hljs-keyword">def</span>]</span>
 verticalMultiline.atDefnSite = <span class="hljs-literal">true</span>
@@ -2049,7 +2053,7 @@ verticalMultiline.newlineAfterOpenParen = <span class="hljs-literal">true</span>
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">format</span></span>(code: <span class="hljs-type">String</span>, age: <span class="hljs-type">Int</span>)(<span class="hljs-keyword">implicit</span> ev: <span class="hljs-type">Parser</span>, c: <span class="hljs-type">Context</span>): <span class="hljs-type">String</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">60</span>
 verticalMultiline.atDefnSite = <span class="hljs-literal">true</span>
 newlines.implicitParamListModifierForce = [before]
@@ -2066,7 +2070,7 @@ newlines.implicitParamListModifierForce = [before]
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">format</span></span>(code: <span class="hljs-type">String</span>, age: <span class="hljs-type">Int</span>)(<span class="hljs-keyword">implicit</span> ev: <span class="hljs-type">Parser</span>, c: <span class="hljs-type">Context</span>): <span class="hljs-type">String</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">60</span>
 verticalMultiline.atDefnSite = <span class="hljs-literal">true</span>
 newlines.implicitParamListModifierForce = [after]
@@ -2084,7 +2088,7 @@ newlines.implicitParamListModifierForce = [after]
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">format</span></span>(code: <span class="hljs-type">String</span>, age: <span class="hljs-type">Int</span>)(<span class="hljs-keyword">implicit</span> ev: <span class="hljs-type">Parser</span>, c: <span class="hljs-type">Context</span>): <span class="hljs-type">String</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">60</span>
 verticalMultiline.atDefnSite = <span class="hljs-literal">true</span>
 newlines.implicitParamListModifierForce = [before,after]
@@ -2196,7 +2200,7 @@ and <a href="https://www.scala-lang.org/files/archive/spec/2.13/01-lexical-synta
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-number">123</span>l
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">literals.long=<span class="hljs-type">Upper</span>
 </code></pre>
 </p></details>
@@ -2207,7 +2211,7 @@ and <a href="https://www.scala-lang.org/files/archive/spec/2.13/01-lexical-synta
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-number">42.0</span>F
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">literals.float=<span class="hljs-type">Lower</span>
 </code></pre>
 </p></details>
@@ -2218,7 +2222,7 @@ and <a href="https://www.scala-lang.org/files/archive/spec/2.13/01-lexical-synta
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-number">42.0</span>d
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">literals.double=<span class="hljs-type">Lower</span>
 </code></pre>
 </p></details>
@@ -2229,7 +2233,7 @@ and <a href="https://www.scala-lang.org/files/archive/spec/2.13/01-lexical-synta
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-number">0X123</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">literals.hexPrefix=<span class="hljs-type">Lower</span>
 </code></pre>
 </p></details>
@@ -2242,7 +2246,7 @@ and <a href="https://www.scala-lang.org/files/archive/spec/2.13/01-lexical-synta
 <pre><code class="hljs css language-scala original"><span class="hljs-number">0xaAaA</span>
 <span class="hljs-number">0xaAaA</span>l
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">literals.hexDigits=<span class="hljs-type">Lower</span>
 literals.long=<span class="hljs-type">Upper</span>
 </code></pre>
@@ -2256,7 +2260,7 @@ literals.long=<span class="hljs-type">Upper</span>
 <pre><code class="hljs css language-scala original"><span class="hljs-number">10e-1</span>
 <span class="hljs-number">10e-1</span>f
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">literals.scientific=<span class="hljs-type">Upper</span>
 literals.float=<span class="hljs-type">Lower</span>
 </code></pre>
@@ -2272,7 +2276,7 @@ literals.float=<span class="hljs-type">Lower</span>
 <pre><code class="hljs css language-scala original"><span class="hljs-keyword">val</span> secret: <span class="hljs-type">List</span>[<span class="hljs-type">Bit</span>] = <span class="hljs-type">List</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>,
   <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>)
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">binPack.literalArgumentLists = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
@@ -2294,7 +2298,7 @@ literals.float=<span class="hljs-type">Lower</span>
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-keyword">val</span> secret: <span class="hljs-type">List</span>[<span class="hljs-type">Bit</span>] = <span class="hljs-type">List</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>)
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">binPack.literalArgumentLists = <span class="hljs-literal">false</span>
 </code></pre>
 </p></details>
@@ -2304,7 +2308,7 @@ literals.float=<span class="hljs-type">Lower</span>
 <pre><code class="hljs css language-scala original"><span class="hljs-keyword">val</span> secret: <span class="hljs-type">List</span>[<span class="hljs-type">Bit</span>] = <span class="hljs-type">List</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>,
   <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>)
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">binPack.literalArgumentLists = <span class="hljs-literal">true</span>
 binPack.literalsSingleLine = <span class="hljs-literal">true</span>
 </code></pre>
@@ -2330,7 +2334,7 @@ self-explanatory.</li>
   }
   .filter(_ &gt; <span class="hljs-number">2</span>)
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">includeCurlyBraceInSelectChains = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
@@ -2344,7 +2348,7 @@ self-explanatory.</li>
   }
   .filter(_ &gt; <span class="hljs-number">2</span>)
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">includeCurlyBraceInSelectChains = <span class="hljs-literal">false</span>
 </code></pre>
 </p></details>
@@ -2360,7 +2364,7 @@ self-explanatory.</li>
   .map(_ + <span class="hljs-number">2</span>)
   .filter(_ &gt; <span class="hljs-number">2</span>)
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">includeNoParensInSelectChains = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
@@ -2370,7 +2374,7 @@ self-explanatory.</li>
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-type">List</span>(<span class="hljs-number">1</span>).toIterator.buffered.map(_ + <span class="hljs-number">2</span>).filter(_ &gt; <span class="hljs-number">2</span>)
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">includeNoParensInSelectChains = <span class="hljs-literal">false</span>
 </code></pre>
 </p></details>
@@ -2384,7 +2388,7 @@ foo
   .map(_ + <span class="hljs-number">1</span>)
   .filter(_ &gt; <span class="hljs-number">2</span>)
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">optIn.breakChainOnFirstMethodDot = <span class="hljs-literal">false</span>
 </code></pre>
 </p></details>
@@ -2398,7 +2402,7 @@ foo
   .map(_ + <span class="hljs-number">1</span>) <span class="hljs-comment">// preserve existing newlines</span>
   .filter(_ &gt; <span class="hljs-number">2</span>)
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">optIn.breakChainOnFirstMethodDot = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
@@ -2417,7 +2421,7 @@ If false, preserves blank line only if one exists before.</p>
   <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">hello</span> </span>= ()
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">optIn.forceBlankLineBeforeDocstring = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
@@ -2431,7 +2435,7 @@ If false, preserves blank line only if one exists before.</p>
   <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">hello</span> </span>= ()
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">optIn.forceBlankLineBeforeDocstring = <span class="hljs-literal">false</span>
 </code></pre>
 </p></details>
@@ -2453,7 +2457,7 @@ arrows to regular ascii arrows.</p>
   b ← <span class="hljs-type">Option</span>(<span class="hljs-number">2</span>)
 } <span class="hljs-keyword">yield</span> a + b
 </code></pre>
-<p><details class='config' open><summary>Config for this example</summary><p></p>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">rewriteTokens = {
   <span class="hljs-string">"⇒"</span>: <span class="hljs-string">"=&gt;"</span>
   <span class="hljs-string">"→"</span>: <span class="hljs-string">"-&gt;"</span>
