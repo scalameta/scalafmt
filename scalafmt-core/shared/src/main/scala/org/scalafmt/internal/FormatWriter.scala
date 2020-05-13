@@ -34,7 +34,7 @@ class FormatWriter(formatOps: FormatOps) {
   import formatOps._
 
   def mkString(state: State): String = {
-    val sb = new StringBuilder()
+    implicit val sb = new StringBuilder()
     val locations = getFormatLocations(state)
 
     locations.iterate.foreach { entry =>
@@ -49,7 +49,7 @@ class FormatWriter(formatOps: FormatOps) {
         // formatOff = false, but x still should not be formatted
         case token if state.formatOff => sb.append(token.syntax)
         case _: T.Comment =>
-          sb.append(entry.formatComment)
+          entry.formatComment
         case _: T.Interpolation.Part | _: T.Constant.String =>
           sb.append(entry.formatMarginized)
         case c: T.Constant.Int =>
@@ -66,7 +66,7 @@ class FormatWriter(formatOps: FormatOps) {
           sb.append(rewrittenToken)
       }
 
-      entry.formatWhitespace(sb)
+      entry.formatWhitespace
     }
 
     sb.toString()
@@ -262,7 +262,7 @@ class FormatWriter(formatOps: FormatOps) {
         }
       }
 
-      def formatWhitespace(sb: StringBuilder): Unit = {
+      def formatWhitespace(implicit sb: StringBuilder): Unit = {
 
         import org.scalafmt.config.TrailingCommas
 
@@ -383,52 +383,68 @@ class FormatWriter(formatOps: FormatOps) {
         }
       }
 
-      def formatComment: String = {
+      def formatComment(implicit sb: StringBuilder): Unit = {
         val text = removeTrailingWhiteSpace(tok.left.syntax)
-        if (isSingleLineComment(text)) {
+        if (isSingleLineComment(text))
           formatSinglelineComment(text)
-        } else if (text.startsWith("/**")) {
-          if (style.docstrings.style.isEmpty) text
-          else formatOnelineDocstring(text).getOrElse(formatDocstring(text))
-        } else {
+        else if (text.startsWith("/**"))
+          formatDocstring(text)
+        else
           formatMultilineComment(text)
-        }
       }
 
-      private def formatOnelineDocstring(text: String): Option[String] = {
-        if (style.docstrings.oneline eq Docstrings.Oneline.keep) None
-        else if (!state.split.modification.isNewline) None
-        else if (!prevState.split.modification.isNewline && tok.left.start > 0)
-          None
+      private def formatOnelineDocstring(
+          text: String
+      )(implicit sb: StringBuilder): Boolean = {
+        if (style.docstrings.oneline eq Docstrings.Oneline.keep) false
+        else if (!curr.isStandalone) false
         else {
           val matcher = onelineDocstring.matcher(text)
-          val res = style.docstrings.oneline match {
-            case Docstrings.Oneline.fold =>
-              Some(matcher.replaceFirst("/** $1 */"))
-            case Docstrings.Oneline.unfold =>
-              val extraIndent = if (style.docstrings.isScalaDoc) 2 else 1
-              val spaces = getIndentation(prevState.indentation + extraIndent)
-              Some(matcher.replaceFirst(s"/**\n$spaces* $$1\n$spaces*/"))
-            case _ => None
+          matcher.find() && {
+            style.docstrings.oneline match {
+              case Docstrings.Oneline.fold =>
+                sb.append("/** ").append(matcher.group(1)).append(" */")
+                true
+              case Docstrings.Oneline.unfold =>
+                val extraIndent = if (style.docstrings.isScalaDoc) 2 else 1
+                val spaces = getIndentation(prevState.indentation + extraIndent)
+                sb.append("/**\n").append(spaces).append("* ")
+                sb.append(matcher.group(1))
+                sb.append('\n').append(spaces).append("*/")
+                true
+              case _ => false
+            }
           }
-          res.filter(_ != text)
         }
       }
 
-      private def formatDocstring(text: String): String = {
+      private def formatDocstring(
+          text: String
+      )(implicit sb: StringBuilder): Unit = {
+        if (style.docstrings.style.isEmpty) sb.append(text)
+        else if (!formatOnelineDocstring(text)) formatMultilineDocstring(text)
+      }
+
+      private def formatMultilineDocstring(
+          text: String
+      )(implicit sb: StringBuilder): Unit = {
         val spaces: String = getIndentation(
           prevState.indentation + (if (style.docstrings.isScalaDoc) 2 else 1)
         )
-        leadingAsteriskSpace.matcher(text).replaceAll(spaces)
+        sb.append(leadingAsteriskSpace.matcher(text).replaceAll(spaces))
       }
 
-      private def formatMultilineComment(text: String): String = {
+      private def formatMultilineComment(
+          text: String
+      )(implicit sb: StringBuilder): Unit = {
         val spaces: String = getIndentation(prevState.indentation + 1)
-        leadingAsteriskSpace.matcher(text).replaceAll(spaces)
+        sb.append(leadingAsteriskSpace.matcher(text).replaceAll(spaces))
       }
 
-      private def formatSinglelineComment(text: String): String = {
-        text
+      private def formatSinglelineComment(
+          text: String
+      )(implicit sb: StringBuilder): Unit = {
+        sb.append(text)
       }
 
     }
@@ -901,7 +917,12 @@ object FormatWriter {
       alignContainer: Tree = null,
       alignHashKey: Int = 0,
       replace: String = null
-  )
+  ) {
+    def hasBreakAfter: Boolean = state.split.modification.isNewline
+    def hasBreakBefore: Boolean =
+      state.prev.split.modification.isNewline || formatToken.left.start == 0
+    def isStandalone: Boolean = hasBreakAfter && hasBreakBefore
+  }
 
   /**
     * Alignment information extracted from FormatToken. Used only when align!=none.
