@@ -201,3 +201,132 @@ object literal extends scala.Dynamic { // scalastyle:ignore
 object literal extends scala.Dynamic { // scalastyle:ignore
   ???
 }
+<<< #1234 1: single-line
+// A really long comment that scalafmt should break up but does not because this feature is not implemented yet
+// short comment
+object a {
+  // short comment
+  // Another long comment demonstrating that wrapped comments will be aligned sensibly
+  def a = {}
+}
+>>>
+// A really long comment that scalafmt should break up but does not because this feature is not implemented yet
+// short comment
+object a {
+  // short comment
+  // Another long comment demonstrating that wrapped comments will be aligned sensibly
+  def a = {}
+}
+<<< #1234 2: multi-line
+/* Block-style comments should also be wrapped, because some people like them and we want to be inclusive */
+object a {
+  /* And block-style comments should also be indented aligned sensibly, because they're just as good as single-line comments */
+  def a = {}
+}
+>>>
+/* Block-style comments should also be wrapped, because some people like them and we want to be inclusive */
+object a {
+  /* And block-style comments should also be indented aligned sensibly, because they're just as good as single-line comments */
+  def a = {}
+}
+<<< #1234 3: both
+// A really long comment that scalafmt should break up but does not because this feature is not implemented yet
+// short comment
+/* short comment */
+/* Block-style comments should also be wrapped, because some people like them and we want to be inclusive */
+object a {
+  /* And block-style comments should also be indented aligned sensibly, because they're just as good as single-line comments */
+  /* long comment, with a nested comment following; shouldn't be rewritten
+  /* nested comment
+   */ */
+  /* section 1
+   *
+   * section 2
+
+
+   * section 3:
+   * paragraph 3.1.
+   * paragraph 3.2!
+   * paragraph 3.2?
+   *
+   * section 4
+   * 1. item1
+   * 10: item10
+   * - item1
+   * * item2
+     @ item3
+   */
+  def a = {} /* And block-style comments should also be indented aligned sensibly, because they're just as good as single-line comments */
+}
+>>>
+// A really long comment that scalafmt should break up but does not because this feature is not implemented yet
+// short comment
+/* short comment */
+/* Block-style comments should also be wrapped, because some people like them and we want to be inclusive */
+object a {
+  /* And block-style comments should also be indented aligned sensibly, because they're just as good as single-line comments */
+  /* long comment, with a nested comment following; shouldn't be rewritten
+  /* nested comment
+   */ */
+  /* section 1
+   *
+   * section 2
+
+
+   * section 3:
+   * paragraph 3.1.
+   * paragraph 3.2!
+   * paragraph 3.2?
+   *
+   * section 4
+   * 1. item1
+   * 10: item10
+   * - item1
+   * * item2
+     @ item3
+   */
+  def a = {} /* And block-style comments should also be indented aligned sensibly, because they're just as good as single-line comments */
+}
+<<< #1234 4: trailing
+object a {
+  def a = {} /* And block-style comments should also be indented aligned sensibly, because they're just as good as single-line comments */
+}
+>>>
+object a {
+  def a = {} /* And block-style comments should also be indented aligned sensibly, because they're just as good as single-line comments */
+}
+<<< #1234 5: trailing
+object a {
+  def a = b(c) // A really long comment that scalafmt should break up but does not because this feature is not implemented yet
+}
+>>>
+object a {
+  def a =
+    b(
+        c
+    ) // A really long comment that scalafmt should break up but does not because this feature is not implemented yet
+}
+<<< #1234 6: trailing
+object a {
+  val a = b(c) // A really long comment that scalafmt should break up but does not because this feature is not implemented yet
+}
+>>>
+object a {
+  val a =
+    b(
+        c
+    ) // A really long comment that scalafmt should break up but does not because this feature is not implemented yet
+}
+<<< #1234 7: trailing, use slc
+// A really long comment that scalafmt should break up but does not because this feature is not implemented yet
+object a {
+  val a = b(c) // A really long comment that scalafmt should break up but does not because this feature is not implemented yet
+}
+>>>
+// A really long comment that scalafmt should break up but does not because this feature is not implemented yet
+object a {
+  val a =
+    b(
+        c
+    ) // A really long comment that scalafmt should break up but does not because this feature is not implemented yet
+}
