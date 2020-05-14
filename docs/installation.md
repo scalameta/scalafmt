@@ -118,7 +118,7 @@ in the `.scalafmt.conf` configuration file and downloaded dynamically.
 
 ```scala
 // In project/plugins.sbt. Note, does not support sbt 0.13, only sbt 1.x.
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.3.2") // "2.3.2" is just sbt plugin version
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.0") // "2.4.0" is just sbt plugin version
 ```
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.scalameta/sbt-scalafmt/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.scalameta/sbt-scalafmt)
@@ -197,6 +197,16 @@ object MyScalafmtPlugin extends AutoPlugin {
 ```
 // .scalafmt.conf
 include ".scalafmt-common.conf"
+```
+
+### Limit parallelism
+
+You can limit formatting parallelism for projects with multiple subprojects in your `build.sbt`:
+
+```scala
+import org.scalafmt.sbt.ConcurrentRestrictionTags
+
+Global / concurrentRestrictions += Tags.limit(org.scalafmt.sbt.ConcurrentRestrictionTags.Scalafmt, 4)
 ```
 
 ## CLI
