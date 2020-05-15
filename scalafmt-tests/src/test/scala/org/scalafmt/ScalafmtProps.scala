@@ -4,7 +4,7 @@ import scala.collection.mutable
 import scala.meta._
 import scala.meta.testkit._
 
-import org.scalafmt.CompatParCollections.Converters._
+import org.scalafmt.CompatCollections.ParConverters._
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.FileOps

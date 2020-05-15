@@ -8,7 +8,7 @@ import metaconfig.Configured
 import org.scalafmt.Error.{MisformattedFile, NoMatchingFiles}
 import org.scalafmt.{Formatted, Scalafmt, Versions}
 import org.scalafmt.config.{FilterMatcher, ScalafmtConfig}
-import org.scalafmt.CompatParCollections.Converters._
+import org.scalafmt.CompatCollections.ParConverters._
 import org.scalafmt.util.OsSpecific
 
 import scala.meta.internal.tokenizers.PlatformTokenizerCache
