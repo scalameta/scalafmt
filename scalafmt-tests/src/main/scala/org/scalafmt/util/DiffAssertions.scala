@@ -94,7 +94,7 @@ trait DiffAssertions extends AnyFunSuiteLike {
     compareContents(original.trim.split("\n"), revised.trim.split("\n"))
 
   def compareContents(original: Seq[String], revised: Seq[String]): String = {
-    import collection.JavaConverters._
+    import org.scalafmt.CompatCollections.JavaConverters._
     val diff = difflib.DiffUtils.diff(original.asJava, revised.asJava)
     if (diff.getDeltas.isEmpty) ""
     else
