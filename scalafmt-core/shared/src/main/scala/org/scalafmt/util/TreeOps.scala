@@ -1,7 +1,6 @@
 package org.scalafmt.util
 
 import java.{util => ju}
-import scala.collection.JavaConverters._
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.meta.Case
@@ -27,6 +26,8 @@ import scala.meta.tokens.Token._
 import scala.meta.tokens.Tokens
 import scala.reflect.ClassTag
 import scala.reflect.classTag
+
+import org.scalafmt.CompatCollections.JavaConverters._
 import org.scalafmt.Error
 import org.scalafmt.config.{DanglingParentheses, ScalafmtConfig}
 import org.scalafmt.internal.FormatToken

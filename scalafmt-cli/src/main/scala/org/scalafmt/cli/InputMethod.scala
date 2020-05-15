@@ -76,7 +76,7 @@ object InputMethod {
       original: String,
       revised: String
   ): String = {
-    import collection.JavaConverters._
+    import org.scalafmt.CompatCollections.JavaConverters._
     def jList(string: String) =
       java.util.Collections.list(string.linesIterator.asJavaEnumeration)
     val a = jList(original)

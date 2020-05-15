@@ -2,7 +2,7 @@ package org.scalafmt.internal
 
 import java.{util => ju}
 
-import scala.collection.JavaConverters._
+import org.scalafmt.CompatCollections.JavaConverters._
 import org.scalafmt.Error.UnexpectedTree
 import org.scalafmt.config.{NewlineCurlyLambda, Newlines, ScalafmtConfig}
 import org.scalafmt.internal.Length.Num
