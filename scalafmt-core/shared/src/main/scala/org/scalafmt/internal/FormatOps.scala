@@ -4,7 +4,12 @@ import java.{util => ju}
 
 import org.scalafmt.CompatCollections.JavaConverters._
 import org.scalafmt.Error.UnexpectedTree
-import org.scalafmt.config.{NewlineCurlyLambda, Newlines, ScalafmtConfig}
+import org.scalafmt.config.{
+  Comments,
+  NewlineCurlyLambda,
+  Newlines,
+  ScalafmtConfig
+}
 import org.scalafmt.internal.Length.Num
 import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util._
@@ -210,6 +215,7 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
           None
         case c: T.Comment
             if style.activeForEdition_2020_01 && start.noBreak &&
+              (style.comments.wrap ne Comments.Wrap.trailing) &&
               (!start.left.is[T.LeftParen] || isSingleLineComment(c)) =>
           Some(c)
         case _ => Some(start.left)
@@ -226,7 +232,9 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
           _: T.Equals =>
         None
       case _: T.RightParen if start.left.is[T.LeftParen] => None
-      case c: T.Comment if isSingleLineComment(c) && start.noBreak =>
+      case c: T.Comment
+          if isSingleLineComment(c) && start.noBreak &&
+            (style.comments.wrap ne Comments.Wrap.trailing) =>
         Some(c)
       case _ if start.noBreak && isInfix => None
       case _ => Some(start.left)
