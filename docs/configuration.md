@@ -29,12 +29,14 @@ maxColumn
 
 ### `docstrings`
 
+#### `docstrings.style`
+
 ```scala mdoc:defaults
-docstrings
+docstrings.style
 ```
 
 ```scala mdoc:scalafmt
-docstrings = ScalaDoc
+docstrings.style = ScalaDoc
 ---
 /** Align by second asterisk.
  *
@@ -42,11 +44,34 @@ docstrings = ScalaDoc
 ```
 
 ```scala mdoc:scalafmt
-docstrings = JavaDoc
+docstrings.style = JavaDoc
 ---
 /** Align by first asterisk.
   *
   */
+```
+
+#### `docstrings.oneline`
+
+```scala mdoc:defaults
+docstrings.oneline
+```
+
+```scala mdoc:scalafmt
+docstrings.oneline = fold
+---
+/**
+  * Align by second asterisk.
+  */
+val a = 1
+```
+
+```scala mdoc:scalafmt
+docstrings.style = JavaDoc
+docstrings.oneline = unfold
+---
+/** Align by first asterisk. */
+val a = 1
 ```
 
 ### `assumeStandardLibraryStripMargin`
