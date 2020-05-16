@@ -2,12 +2,14 @@ package org.scalafmt.internal
 
 import java.util.regex.Pattern
 
-import org.scalafmt.config.{Docstrings, ScalafmtConfig}
+import org.scalafmt.CompatCollections.JavaConverters._
+import org.scalafmt.config.{Comments, Docstrings, ScalafmtConfig}
 import org.scalafmt.rewrite.RedundantBraces
 import org.scalafmt.util.TokenOps._
 import org.scalafmt.util.{LiteralOps, TreeOps}
 
 import scala.annotation.tailrec
+import scala.collection.AbstractIterator
 import scala.collection.mutable
 import scala.meta.tokens.Token
 import scala.meta.tokens.{Token => T}
@@ -386,11 +388,11 @@ class FormatWriter(formatOps: FormatOps) {
       def formatComment(implicit sb: StringBuilder): Unit = {
         val text = removeTrailingWhiteSpace(tok.left.syntax)
         if (isSingleLineComment(text))
-          formatSinglelineComment(text)
+          new FormatSlc(text).format
         else if (text.startsWith("/**"))
           formatDocstring(text)
         else
-          formatMultilineComment(text)
+          new FormatMlc(text).format
       }
 
       private def formatOnelineDocstring(
@@ -434,17 +436,149 @@ class FormatWriter(formatOps: FormatOps) {
         sb.append(leadingAsteriskSpace.matcher(text).replaceAll(spaces))
       }
 
-      private def formatMultilineComment(
-          text: String
-      )(implicit sb: StringBuilder): Unit = {
-        val spaces: String = getIndentation(prevState.indentation + 1)
-        sb.append(leadingAsteriskSpace.matcher(text).replaceAll(spaces))
+      private abstract class FormatCommentBase(implicit sb: StringBuilder) {
+        protected final val breakBefore = curr.hasBreakBefore
+        protected final val indent =
+          if (breakBefore) prevState.indentation
+          else prevState.prev.indentation
+        // 2 is for "/*" or " *" or "//"
+        protected final val maxLength = style.maxColumn - indent - 2
+
+        protected final def getFirstLineLength =
+          if (curr.hasBreakBefore) 0
+          else
+            prevState.prev.column - indent +
+              prevState.split.modification.length
+
+        protected final def canRewrite =
+          style.comments.wrap match {
+            case Comments.Wrap.no => false
+            case Comments.Wrap.trailing => curr.hasBreakAfter
+            case Comments.Wrap.standalone => breakBefore && curr.hasBreakAfter
+          }
+
+        protected final type WordIter = Iterator[String]
+        @tailrec
+        protected final def iterWords(
+            iter: WordIter,
+            lineLength: Int,
+            appendLineBreak: () => Unit
+        ): Unit =
+          if (iter.hasNext) {
+            val word = iter.next()
+            val length = word.length
+            val maybeNextLineLength = lineLength + length
+            val nextLineLength =
+              if (lineLength == 0 || maybeNextLineLength <= maxLength)
+                maybeNextLineLength
+              else {
+                appendLineBreak()
+                length
+              }
+            sb.append(' ').append(word)
+            iterWords(iter, nextLineLength + 1, appendLineBreak)
+          }
       }
 
-      private def formatSinglelineComment(
-          text: String
-      )(implicit sb: StringBuilder): Unit = {
-        sb.append(text)
+      private class FormatSlc(text: String)(implicit sb: StringBuilder)
+          extends FormatCommentBase {
+        def format: Unit = {
+          if (
+            canRewrite &&
+            text.length + indent > style.maxColumn
+          ) {
+            val useSlc =
+              breakBefore && style.comments.wrapStandaloneSlcAsSlc
+            val appendLineBreak: () => Unit =
+              if (useSlc) {
+                val spaces: String = getIndentation(indent)
+                () => sb.append('\n').append(spaces).append("//")
+              } else {
+                val spaces: String = getIndentation(indent + 1)
+                () => sb.append('\n').append(spaces).append('*')
+              }
+            val contents = text.substring(2).trim
+            val wordIter = splitAsIterator(slcDelim)(contents)
+            sb.append(if (useSlc) "//" else "/*")
+            iterWords(wordIter, getFirstLineLength, appendLineBreak)
+            if (!useSlc) sb.append(" */")
+          } else sb.append(text)
+        }
+      }
+
+      private class FormatMlc(text: String)(implicit sb: StringBuilder)
+          extends FormatCommentBase {
+        private val spaces: String = getIndentation(indent + 1)
+
+        def format: Unit = {
+          // don't rewrite comments which contain nested comments
+          if (canRewrite && text.lastIndexOf("/*") == 0) {
+            val sectionIter = new SectIter {
+              private val lineIter = {
+                val contents = text.substring(2, text.length - 2).trim
+                splitAsIterator(mlcLineDelim)(contents).buffered
+              }
+
+              override def hasNext = lineIter.hasNext
+              override def next() = new ParaIter
+
+              class ParaIter extends AbstractIterator[Iterator[String]] {
+                private var hasPara: Boolean = true
+                override def hasNext: Boolean =
+                  hasPara && lineIter.hasNext && {
+                    hasPara = lineIter.head.nonEmpty
+                    if (!hasPara)
+                      do {
+                        lineIter.next()
+                      } while (lineIter.hasNext && lineIter.head.isEmpty)
+                    hasPara
+                  }
+                override def next() =
+                  new ParaLineIter().flatMap(splitAsIterator(slcDelim))
+
+                class ParaLineIter extends AbstractIterator[String] {
+                  private var hasLine: Boolean = true
+                  override def hasNext: Boolean = hasLine
+                  override def next(): String = {
+                    val head = lineIter.next()
+                    hasLine = lineIter.hasNext && lineIter.head.nonEmpty &&
+                      !mlcParagraphEnd.matcher(head).find() &&
+                      !mlcParagraphBeg.matcher(lineIter.head).find()
+                    head
+                  }
+                }
+              }
+            }
+            sb.append("/*")
+            iterSections(sectionIter, getFirstLineLength)
+            sb.append(" */")
+          } else {
+            sb.append(leadingAsteriskSpace.matcher(text).replaceAll(spaces))
+          }
+        }
+
+        private def appendLineBreak(): Unit = {
+          sb.append('\n').append(spaces).append('*')
+        }
+
+        private type ParaIter = Iterator[WordIter]
+        private def iterParagraphs(iter: ParaIter, firstLineLen: Int): Unit = {
+          iterWords(iter.next(), firstLineLen, appendLineBreak)
+          while (iter.hasNext) {
+            appendLineBreak()
+            iterWords(iter.next(), 0, appendLineBreak)
+          }
+        }
+
+        private type SectIter = Iterator[ParaIter]
+        private def iterSections(iter: SectIter, firstLineLen: Int): Unit = {
+          iterParagraphs(iter.next(), firstLineLen)
+          while (iter.hasNext) {
+            appendLineBreak()
+            appendLineBreak()
+            iterParagraphs(iter.next(), 0)
+          }
+        }
       }
 
     }
@@ -965,6 +1099,16 @@ object FormatWriter {
   private def removeTrailingWhiteSpace(str: String): String = {
     trailingSpace.matcher(str).replaceAll("")
   }
+
+  private def splitAsIterator(regex: Pattern)(value: String): Iterator[String] =
+    regex.splitAsStream(value).iterator().asScala
+
+  // "slc" stands for single-line comment
+  private val slcDelim = Pattern.compile("\\h++")
+  // "mlc" stands for multi-line comment
+  private val mlcLineDelim = Pattern.compile("\n\\h*+[*]*+\\h*+")
+  private val mlcParagraphEnd = Pattern.compile("[.:!?]")
+  private val mlcParagraphBeg = Pattern.compile("(?:[-*@]|\\d++[.:])")
 
   private val leadingAsteriskSpace = Pattern.compile("(?<=\n)\\h*+(?=[*][^*])")
   private val onelineDocstring = Pattern.compile(
