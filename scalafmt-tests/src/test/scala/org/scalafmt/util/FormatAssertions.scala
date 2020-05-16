@@ -54,13 +54,11 @@ trait FormatAssertions extends DiffAssertions {
     */
   def diffAsts(original: String, obtained: String): String = {
 //    compareContents(formatAst(original), formatAst(obtained))
-    // Predef.augmentString = work around scala/bug#11125 on JDK 11
-    augmentString(
-      compareContents(
-        original.replace("(", "\n("),
-        obtained.replace("(", "\n(")
-      )
-    ).lines.mkString("\n")
+
+    compareContents(
+      original.replace("(", "\n("),
+      obtained.replace("(", "\n(")
+    ).linesIterator.mkString("\n")
   }
 
   // TODO(olafur) move this to scala.meta?
@@ -68,8 +66,7 @@ trait FormatAssertions extends DiffAssertions {
   def parseException2Message(e: ParseException, obtained: String): String = {
     val range = 3
     val i = e.pos.startLine
-    // Predef.augmentString = work around scala/bug#11125 on JDK 11
-    val lines = augmentString(obtained).lines.toVector
+    val lines = obtained.linesIterator.toVector
     val arrow = (" " * (e.pos.startColumn - 2)) + "^"
     s"""${lines.slice(i - range, i + 1).mkString("\n")}
       |$arrow
