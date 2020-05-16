@@ -78,8 +78,7 @@ object InputMethod {
   ): String = {
     import collection.JavaConverters._
     def jList(string: String) =
-      // Predef.augmentString = work around scala/bug#11125 on JDK 11
-      java.util.Collections.list(augmentString(string).lines.asJavaEnumeration)
+      java.util.Collections.list(string.linesIterator.asJavaEnumeration)
     val a = jList(original)
     val b = jList(revised)
     val diff = difflib.DiffUtils.diff(a, b)

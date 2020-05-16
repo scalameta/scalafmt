@@ -98,9 +98,7 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
     }
     def errors: String = {
       // work around scala/bug#11125
-      scala.Predef
-        .augmentString(out.toString)
-        .lines
+      out.toString.linesIterator
         .filter(_.startsWith("error"))
         .mkString("\n")
     }
