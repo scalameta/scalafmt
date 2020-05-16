@@ -15,6 +15,8 @@ class ScalafmtModifier extends StringModifier {
 
   import ScalafmtModifier._
 
+  private final val separator = "---\n"
+
   override val name: String = "scalafmt"
   override def process(
       info: String,
@@ -25,14 +27,14 @@ class ScalafmtModifier extends StringModifier {
       if (code.text.contains("package")) ScalafmtRunner.default
       else ScalafmtRunner.sbt
     val base = ScalafmtConfig.default.copy(runner = runner, maxColumn = 40)
-    val i = code.text.indexOf("---")
+    val i = code.text.indexOf(separator)
     val pos = Position.Range(code, 0, 0)
     if (i == -1) {
       reporter.error(pos, "Missing ---")
       "fail"
     } else {
       val config = Input.Slice(code, 0, i)
-      val program = Input.Slice(code, i + 3, code.chars.length)
+      val program = Input.Slice(code, i + separator.length, code.chars.length)
       Config.fromHoconString(config.text, None, base) match {
         case Configured.Ok(c) =>
           val parsedConfig = c.copy(runner = runner)
