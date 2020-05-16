@@ -27,6 +27,62 @@ maxColumn
   code on your phone.
 - Consider refactoring your code before of choosing a value above 100.
 
+### `comments`
+
+#### `comments.wrap`
+
+Allows wrapping comments exceeding `maxColumn`.
+
+```scala mdoc:defaults
+comments.wrap
+```
+
+##### `comments.wrap = standalone`
+
+A standalone comment is one which is surrounded by line breaks.
+
+```scala mdoc:scalafmt
+maxColumn = 20
+comments.wrap = standalone
+---
+/* long multiline comment */
+// long singleline comment
+val a = 1 // short
+val b = 2 // long singleline comment
+```
+
+##### `comments.wrap = trailing`
+
+A trailing comment is one which is followed by a line break.
+
+```scala mdoc:scalafmt
+maxColumn = 20
+comments.wrap = trailing
+---
+/* long multiline comment */
+// long singleline comment
+val a = 1 // short
+val b = 2 // long singleline comment
+```
+
+#### `comments.wrapStandaloneSlcAsSlc`
+
+This parameter allows formatting a standalone single-line comment (i.e., `//`)
+to be wrapped using the same type, not a multi-line comment (`/* ... */`).
+
+```scala mdoc:defaults
+comments.wrapStandaloneSlcAsSlc
+```
+
+```scala mdoc:scalafmt
+maxColumn = 20
+comments.wrap = trailing
+comments.wrapStandaloneSlcAsSlc = true
+---
+// long singleline comment
+val b = 2 // long singleline comment
+```
+
 ### `docstrings`
 
 #### `docstrings.style`
