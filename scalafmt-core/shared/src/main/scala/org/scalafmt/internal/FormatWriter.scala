@@ -386,7 +386,7 @@ class FormatWriter(formatOps: FormatOps) {
       }
 
       def formatComment(implicit sb: StringBuilder): Unit = {
-        val text = removeTrailingWhiteSpace(tok.left.syntax)
+        val text = tok.left.syntax
         if (isSingleLineComment(text))
           new FormatSlc(text).format
         else if (text.startsWith("/**"))
@@ -433,7 +433,8 @@ class FormatWriter(formatOps: FormatOps) {
         val spaces: String = getIndentation(
           prevState.indentation + (if (style.docstrings.isScalaDoc) 2 else 1)
         )
-        sb.append(leadingAsteriskSpace.matcher(text).replaceAll(spaces))
+        val trimmed = removeTrailingWhiteSpace(text)
+        sb.append(leadingAsteriskSpace.matcher(trimmed).replaceAll(spaces))
       }
 
       private abstract class FormatCommentBase(implicit sb: StringBuilder) {
@@ -502,7 +503,7 @@ class FormatWriter(formatOps: FormatOps) {
             sb.append(if (useSlc) "//" else "/*")
             iterWords(wordIter, getFirstLineLength, appendLineBreak)
             if (!useSlc) sb.append(" */")
-          } else sb.append(text)
+          } else sb.append(removeTrailingWhiteSpace(text))
         }
       }
 
@@ -553,7 +554,8 @@ class FormatWriter(formatOps: FormatOps) {
             iterSections(sectionIter, getFirstLineLength)
             sb.append(" */")
           } else {
-            sb.append(leadingAsteriskSpace.matcher(text).replaceAll(spaces))
+            val trimmed = removeTrailingWhiteSpace(text)
+            sb.append(leadingAsteriskSpace.matcher(trimmed).replaceAll(spaces))
           }
         }
 
