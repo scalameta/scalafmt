@@ -1108,9 +1108,9 @@ object FormatWriter {
   // "slc" stands for single-line comment
   private val slcDelim = Pattern.compile("\\h++")
   // "mlc" stands for multi-line comment
-  private val mlcLineDelim = Pattern.compile("\n\\h*+[*]*+\\h*+")
-  private val mlcParagraphEnd = Pattern.compile("[.:!?]")
-  private val mlcParagraphBeg = Pattern.compile("(?:[-*@]|\\d++[.:])")
+  private val mlcLineDelim = Pattern.compile("\\h*+\n\\h*+[*]*+\\h*+")
+  private val mlcParagraphEnd = Pattern.compile("[.:!?=]$")
+  private val mlcParagraphBeg = Pattern.compile("^(?:[-*@=]|\\d++[.:])")
 
   private val leadingAsteriskSpace = Pattern.compile("(?<=\n)\\h*+(?=[*][^*])")
   private val onelineDocstring = Pattern.compile(
