@@ -6,6 +6,8 @@ import metaconfig._
   * @param oneline
   *        - if fold, try to fold short docstrings into a single line
   *        - if unfold, unfold a single-line docstring into multiple lines
+  * @param wrap
+  *   if yes, allow reformatting/rewrapping the contents of the docstring
   * @param style
   *        - preserve: keep existing formatting
   *        - Asterisk: format intermediate lines with an asterisk below the
@@ -17,6 +19,7 @@ import metaconfig._
   */
 case class Docstrings(
     oneline: Docstrings.Oneline = Docstrings.Oneline.keep,
+    wrap: Docstrings.Wrap = Docstrings.Wrap.no,
     style: Option[Docstrings.Style] = Some(Docstrings.SpaceAsterisk)
 ) {
   import Docstrings._
@@ -66,6 +69,14 @@ object Docstrings {
     case object unfold extends Oneline
     implicit val reader: ConfCodec[Oneline] =
       ReaderUtil.oneOf[Oneline](keep, fold, unfold)
+  }
+
+  sealed abstract class Wrap
+  object Wrap {
+    case object no extends Wrap
+    case object yes extends Wrap
+    implicit val codec: ConfCodec[Wrap] =
+      ReaderUtil.oneOf[Wrap](no, yes)
   }
 
 }
