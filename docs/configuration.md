@@ -1730,6 +1730,114 @@ will apply. It will also use different parameters for test suites.
 
 > This parameter does not modify which files are formatted.
 
+## Spaces
+
+### `spaces.beforeContextBoundColon`
+
+```scala mdoc:defaults
+spaces.beforeContextBoundColon
+```
+
+```scala mdoc:scalafmt
+spaces.beforeContextBoundColon=Never
+---
+def method[A: Bound]: B
+def method[A : Bound]: B
+def method[A: Bound: Bound2]: B
+```
+
+```scala mdoc:scalafmt
+spaces.beforeContextBoundColon=Always
+---
+def method[A: Bound]: B
+def method[A : Bound]: B
+def method[A: Bound: Bound2]: B
+```
+
+```scala mdoc:scalafmt
+spaces.beforeContextBoundColon=IfMultipleBounds
+---
+def method[A: Bound]: B
+def method[A : Bound]: B
+def method[A: Bound: Bound2]: B
+```
+
+### `spaces.inImportCurlyBraces`
+
+```scala mdoc:defaults
+spaces.inImportCurlyBraces
+```
+
+```scala mdoc:scalafmt
+spaces.inImportCurlyBraces=true
+---
+import a.b.{c, d}
+```
+
+### `spaces.inParentheses`
+
+```scala mdoc:defaults
+spaces.inParentheses
+```
+
+```scala mdoc:scalafmt
+spaces.inParentheses=true
+---
+foo(a, b)
+```
+
+### `spaces.neverAroundInfixTypes`
+
+```scala mdoc:defaults
+spaces.neverAroundInfixTypes
+```
+
+```scala mdoc:scalafmt
+spaces.neverAroundInfixTypes=["##"]
+---
+def f: Foo##Repr
+def g: Foo\/Repr
+// usage same operator not as type
+def e = a##b
+```
+
+### `spaces.afterKeywordBeforeParen`
+
+```scala mdoc:defaults
+spaces.afterKeywordBeforeParen
+```
+
+```scala mdoc:scalafmt
+spaces.afterKeywordBeforeParen = false
+---
+if (a) println("HELLO!")
+while (a) println("HELLO!")
+```
+
+### `spaces.inByNameTypes`
+
+```scala mdoc:defaults
+spaces.inByNameTypes
+```
+
+```scala mdoc:scalafmt
+spaces.inByNameTypes = false
+---
+def foo(a: => A): A
+```
+
+### `spaces.afterSymbolicDefs`
+
+```scala mdoc:defaults
+spaces.afterSymbolicDefs
+```
+
+```scala mdoc:scalafmt
+spaces.afterSymbolicDefs=true
+---
+def +++(a: A): F[A]
+```
+
 ## Literals
 
 > Since v2.5.0.
