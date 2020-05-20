@@ -1762,18 +1762,6 @@ def method[A : Bound]: B
 def method[A: Bound: Bound2]: B
 ```
 
-### `spaces.afterTripleEquals`
-
-```scala mdoc:defaults
-spaces.afterTripleEquals
-```
-
-```scala mdoc:scalafmt
-spaces.afterTripleEquals=true
----
-foo must ===(123)
-```
-
 ### `spaces.inImportCurlyBraces`
 
 ```scala mdoc:defaults
