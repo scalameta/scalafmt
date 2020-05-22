@@ -1947,7 +1947,7 @@ literals.float=Lower
 10e-1f
 ```
 
-## Miscellaneous
+## Binpacking
 
 ### `binPack.literalArgumentLists`
 
@@ -1983,6 +1983,38 @@ See also:
   added in v2.5.0
 - all other `binPack.literalXXX` parameters (see list at the bottom) are
   self-explanatory.
+
+### `binPack.parentConstructors`
+
+Parent constructors are `C` and `D` in `class A extends B with C and D`. If true,
+`scalafmt` will fit as many parent constructors on a single line. If false, each
+parent constructor gets its own line.
+
+```scala mdoc:defaults
+binPack.parentConstructors
+```
+
+```scala mdoc:scalafmt
+binPack.parentConstructors = true
+maxColumn = 25
+---
+object A {
+  trait Foo
+  extends Bar
+  with Baz
+}
+```
+
+```scala mdoc:scalafmt
+binPack.parentConstructors = false
+maxColumn = 25
+---
+object A {
+  trait Foo extends Bar with Baz
+}
+```
+
+## Miscellaneous
 
 ### `includeCurlyBraceInSelectChains`
 
