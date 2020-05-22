@@ -2421,3 +2421,55 @@ object a {
       baz: Seq[String] = Seq.empty)(
       f: HttpResponse => U): U = qux
 }
+<<< #1973 1
+maxColumn = 25
+continuationIndent.extendSite = 2
+===
+object a {
+  object Foo
+  extends Bar
+  with Baz
+}
+>>>
+object a {
+  object Foo
+    extends Bar
+    with Baz
+}
+<<< #1973 2
+maxColumn = 25
+continuationIndent.extendSite = 2
+===
+object a {
+  case class Foo(
+    a: Boolean,
+    b: String,
+    c: String,
+  )
+  extends Bar
+  with Baz
+}
+>>>
+object a {
+  case class Foo(
+      a: Boolean,
+      b: String,
+      c: String
+  ) extends Bar
+    with Baz
+}
+<<< #1973 3
+maxColumn = 25
+continuationIndent.extendSite = 2
+===
+object a {
+  trait Foo
+  extends Bar
+  with Baz
+}
+>>>
+object a {
+  trait Foo
+    extends Bar
+    with Baz
+}
