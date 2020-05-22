@@ -1882,7 +1882,7 @@ class Router(formatOps: FormatOps) {
       isFirstWith: Boolean,
       chain: => Set[Tree],
       lastToken: => Token
-  ): Seq[Split] =
+  )(implicit style: ScalafmtConfig): Seq[Split] =
     if (isFirstWith) {
       binPackParentConstructorSplits(chain, lastToken, IndentForWithChains)
     } else {
