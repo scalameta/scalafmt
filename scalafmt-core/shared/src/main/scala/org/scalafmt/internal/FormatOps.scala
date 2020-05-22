@@ -1014,9 +1014,11 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
     nonWhitespaceOffset(right) - nonWhitespaceOffset(left)
   }
 
-  def ctorWithChain(ownerSet: Set[Tree], lastToken: Token): Policy =
-    if (styleMap.at(tokens(lastToken)).binPack.parentConstructors)
-      NoPolicy
+  def ctorWithChain(
+      ownerSet: Set[Tree],
+      lastToken: Token
+  )(implicit style: ScalafmtConfig): Policy =
+    if (style.binPack.parentConstructors) NoPolicy
     else
       Policy(lastToken) {
         case d @ Decision(t @ FormatToken(_, _: T.KwWith, _), _)
@@ -1027,15 +1029,19 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
   def binPackParentConstructorSplits(
       owners: Set[Tree],
       lastToken: Token,
-      indent: Int
-  )(implicit line: sourcecode.Line): Seq[Split] = {
+      indentLen: Int
+  )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] = {
+    val nlMod = NewlineT(acceptSpace = true)
+    val nlPolicy = ctorWithChain(owners, lastToken)
+    val indent = Indent(Num(indentLen), lastToken, ExpiresOn.After)
     Seq(
-      Split(Space, 0)
-        .withPolicy(SingleLineBlock(lastToken))
-        .withIndent(Num(indent), lastToken, ExpiresOn.After),
-      Split(NewlineT(acceptSpace = true), 1)
-        .withPolicy(ctorWithChain(owners, lastToken))
-        .withIndent(Num(indent), lastToken, ExpiresOn.After)
+      Split(Space, 0).withSingleLine(lastToken),
+      Split(nlMod, 0)
+        .onlyIf(nlPolicy ne NoPolicy)
+        .onlyIf(style.newlines.sourceIs(Newlines.fold))
+        .withSingleLine(lastToken)
+        .withIndent(indent),
+      Split(nlMod, 1).withPolicy(nlPolicy).withIndent(indent)
     )
   }
 
