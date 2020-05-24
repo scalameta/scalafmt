@@ -193,3 +193,423 @@ class Main
  *  Main entry-point.
  */
 class Main
+<<< #1387 1 Asterisk
+docstrings.wrap = yes
+docstrings.style = Asterisk
+maxColumn = 30
+===
+/** Start the comment here
+  *
+  * @param d the Double to square, meaning multiply by itself
+  * @returns the result of squaring d
+
+{{{
+multi
+line
+code
+}}}
+@tparam t type, @see [[d]] ({{{single-line code}}})
+  */
+  val a = 1
+>>>
+/**
+ * Start the comment here
+ *
+ * @param d the Double to square, meaning multiply by itself
+ * @returns the result of squaring d
+ *
+ * {{{
+ * multi
+ * line
+ * code
+ * }}}
+ * @tparam t type, @see [[d]] ({{{single-line code}}})
+ */
+val a = 1
+<<< #1387 1 SpaceAsterisk
+docstrings.wrap = yes
+docstrings.style = SpaceAsterisk
+maxColumn = 30
+===
+/** Start the comment here
+ *
+ * @param d the Double to square, meaning multiply by itself
+ * @returns the result of squaring d
+
+{{{
+multi
+line
+code
+}}}
+@tparam t type, @see [[d]] ({{{single-line code}}})
+  */
+  val a = 1
+>>>
+/** Start the comment here
+  *
+  * @param d the Double to square, meaning multiply by itself
+  * @returns the result of squaring d
+  *
+  * {{{
+  * multi
+  * line
+  * code
+  * }}}
+  * @tparam t type, @see [[d]] ({{{single-line code}}})
+  */
+val a = 1
+<<< #1387 1 AsteriskSpace
+docstrings.wrap = yes
+docstrings.style = AsteriskSpace
+maxColumn = 30
+===
+/** Start the comment here
+ *
+ * @param d the Double to square, meaning multiply by itself
+ * @returns the result of squaring d
+
+{{{
+multi
+line
+code
+}}}
+@tparam t type, @see [[d]] ({{{single-line code}}})
+  */
+  val a = 1
+>>>
+/** Start the comment here
+ *
+ *  @param d the Double to square, meaning multiply by itself
+ *  @returns the result of squaring d
+ *
+ *  {{{
+ *  multi
+ *  line
+ *  code
+ *  }}}
+ *  @tparam t type, @see [[d]] ({{{single-line code}}})
+ */
+val a = 1
+<<< #1887 1 Asterisk
+docstrings.wrap = yes
+docstrings.style = Asterisk
+maxColumn = 30
+===
+/** Start the comment here
+  *
+  * @inheritdoc
+  * some text1 some text2 some text3 some text4
+  *  1. list1 list2 list3 list4 list5
+  *   - sublist1 sublist2 sublist3
+  *    a. subsublist1 subsublist2
+  *   - foolist1 foolist2 foolist3
+  *  1. barlist1 barlist2 barlist3
+  */
+  val a = 1
+>>>
+/**
+ * Start the comment here
+ *
+ * @inheritdoc
+ * some text1 some text2 some text3 some text4
+ *  1. list1 list2 list3 list4 list5
+ *   - sublist1 sublist2 sublist3
+ *    a. subsublist1 subsublist2
+ *   - foolist1 foolist2 foolist3
+ *  1. barlist1 barlist2 barlist3
+ */
+val a = 1
+<<< #1887 1 SpaceAsterisk
+docstrings.wrap = yes
+docstrings.style = SpaceAsterisk
+maxColumn = 30
+===
+/** Start the comment here
+  *
+  * @inheritdoc
+  * some text1 some text2 some text3 some text4
+  *  1. list1 list2 list3 list4 list5
+  *   - sublist1 sublist2 sublist3
+  *    a. subsublist1 subsublist2
+  *   - foolist1 foolist2 foolist3
+  *  1. barlist1 barlist2 barlist3
+  */
+  val a = 1
+>>>
+/** Start the comment here
+  *
+  * @inheritdoc
+  * some text1 some text2 some text3 some text4
+  *  1. list1 list2 list3 list4 list5
+  *   - sublist1 sublist2 sublist3
+  *    a. subsublist1 subsublist2
+  *   - foolist1 foolist2 foolist3
+  *  1. barlist1 barlist2 barlist3
+  */
+val a = 1
+<<< #1887 1 AsteriskSpace
+docstrings.wrap = yes
+docstrings.style = AsteriskSpace
+maxColumn = 30
+===
+/** Start the comment here
+  *
+  * @inheritdoc
+  * some text1 some text2 some text3 some text4
+  *  1. list1 list2 list3 list4 list5
+  *   - sublist1 sublist2 sublist3
+  *    a. subsublist1 subsublist2
+  *   - foolist1 foolist2 foolist3
+  *  1. barlist1 barlist2 barlist3
+  */
+  val a = 1
+>>>
+/** Start the comment here
+ *
+ *  @inheritdoc
+ *  some text1 some text2 some text3 some text4
+ *  1. list1 list2 list3 list4 list5
+ *   - sublist1 sublist2 sublist3
+ *    a. subsublist1 subsublist2
+ *   - foolist1 foolist2 foolist3
+ *  1. barlist1 barlist2 barlist3
+ */
+val a = 1
+<<< #1887 2 Asterisk: first line max
+docstrings.wrap = yes
+docstrings.style = Asterisk
+maxColumn = 30
+===
+object a {
+  /** Binds values which should
+   * be wrapped */
+}
+>>>
+object a {
+
+  /**
+   * Binds values which should
+   * be wrapped */
+}
+<<< #1887 2 SpaceAsterisk: first line max
+docstrings.wrap = yes
+docstrings.style = SpaceAsterisk
+maxColumn = 30
+===
+object a {
+  /** Binds values which should
+   * be wrapped */
+}
+>>>
+object a {
+
+  /** Binds values which should
+    * be wrapped */
+}
+<<< #1887 2 AsteriskSpace: first line max
+docstrings.wrap = yes
+docstrings.style = AsteriskSpace
+maxColumn = 30
+===
+object a {
+  /** Binds values which should
+   * be wrapped */
+}
+>>>
+object a {
+
+  /** Binds values which should
+   *  be wrapped */
+}
+<<< #1887 3 Asterisk: markdown
+docstrings.wrap = yes
+docstrings.style = Asterisk
+maxColumn = 15
+# https://docs.scala-lang.org/overviews/scaladoc/for-library-authors.html#markup
+===
+object a {
+  /**
+  `mono space`
+  ''italic text''
+  '''bold text'''
+  __under line__
+  ^super script^
+  ,,sub script,,
+  'single quoted'
+  "double quoted"
+   */
+}
+>>>
+object a {
+
+  /**
+   *  `mono space`
+   *  ''italic text''
+   *  '''bold text'''
+   *  __under line__
+   *  ^super script^
+   *  ,,sub script,,
+   *  'single quoted'
+   *  "double quoted"
+   */
+}
+<<< #1887 3 SpaceAsterisk: markdown
+docstrings.wrap = yes
+docstrings.style = SpaceAsterisk
+maxColumn = 15
+===
+object a {
+  /**
+  `mono space`
+  ''italic text''
+  '''bold text'''
+  __under line__
+  ^super script^
+  ,,sub script,,
+  'single quoted'
+  "double quoted"
+   */
+}
+>>>
+object a {
+
+  /**
+    *  `mono space`
+    *  ''italic text''
+    *  '''bold text'''
+    *  __under line__
+    *  ^super script^
+    *  ,,sub script,,
+    *  'single quoted'
+    *  "double quoted"
+    */
+}
+<<< #1887 3 AsteriskSpace: markdown
+docstrings.wrap = yes
+docstrings.style = AsteriskSpace
+maxColumn = 15
+===
+object a {
+  /**
+  `mono space`
+  ''italic text''
+  '''bold text'''
+  __under line__
+  ^super script^
+  ,,sub script,,
+  'single quoted'
+  "double quoted"
+   */
+}
+>>>
+object a {
+
+  /**
+   *  `mono space`
+   *  ''italic text''
+   *  '''bold text'''
+   *  __under line__
+   *  ^super script^
+   *  ,,sub script,,
+   *  'single quoted'
+   *  "double quoted"
+   */
+}
+<<< #1887 4 Asterisk: urls
+docstrings.wrap = yes
+docstrings.style = Asterisk
+maxColumn = 23
+===
+object a {
+  /** go to
+  http:/a.b.c/d . good luck.
+   */
+}
+>>>
+object a {
+
+  /**
+   * go to
+   *  http:/a.b.c/d . good luck.
+   */
+}
+<<< #1887 4 SpaceAsterisk: urls
+docstrings.wrap = yes
+docstrings.style = SpaceAsterisk
+maxColumn = 24
+===
+object a {
+  /** go to
+  http:/a.b.c/d . good luck.
+   */
+}
+>>>
+object a {
+
+  /** go to
+    *  http:/a.b.c/d . good luck.
+    */
+}
+<<< #1887 4 AsteriskSpace: urls
+docstrings.wrap = yes
+docstrings.style = AsteriskSpace
+maxColumn = 24
+===
+object a {
+  /** go to
+  http:/a.b.c/d . good luck.
+   */
+}
+>>>
+object a {
+
+  /** go to
+   *  http:/a.b.c/d . good luck.
+   */
+}
+<<< #1887 5 Asterisk: html
+docstrings.wrap = yes
+docstrings.style = Asterisk
+maxColumn = 30
+===
+object a {
+  /** go to <a href="http:/a.b.c/d">this url</a>
+   */
+}
+>>>
+object a {
+
+  /**
+   * go to <a href="http:/a.b.c/d">this url</a>
+   */
+}
+<<< #1887 5 SpaceAsterisk: html
+docstrings.wrap = yes
+docstrings.style = SpaceAsterisk
+maxColumn = 30
+===
+object a {
+  /** go to <a href="http:/a.b.c/d">this url</a>
+   */
+}
+>>>
+object a {
+
+  /** go to <a href="http:/a.b.c/d">this url</a>
+    */
+}
+<<< #1887 5 AsteriskSpace: html
+docstrings.wrap = yes
+docstrings.style = AsteriskSpace
+maxColumn = 30
+===
+object a {
+  /** go to <a href="http:/a.b.c/d">this url</a>
+   */
+}
+>>>
+object a {
+
+  /** go to <a href="http:/a.b.c/d">this url</a>
+   */
+}
