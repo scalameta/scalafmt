@@ -462,8 +462,8 @@ class FormatWriter(formatOps: FormatOps) {
         @tailrec
         protected final def iterWords(
             iter: WordIter,
-            lineLength: Int,
-            appendLineBreak: () => Unit
+            appendLineBreak: () => Unit,
+            lineLength: Int = 0
         ): Unit =
           if (iter.hasNext) {
             val word = iter.next()
@@ -477,7 +477,7 @@ class FormatWriter(formatOps: FormatOps) {
                 length
               }
             sb.append(' ').append(word)
-            iterWords(iter, nextLineLength + 1, appendLineBreak)
+            iterWords(iter, appendLineBreak, nextLineLength + 1)
           }
       }
 
@@ -501,7 +501,7 @@ class FormatWriter(formatOps: FormatOps) {
             val contents = text.substring(2).trim
             val wordIter = splitAsIterator(slcDelim)(contents)
             sb.append(if (useSlc) "//" else "/*")
-            iterWords(wordIter, getFirstLineLength, appendLineBreak)
+            iterWords(wordIter, appendLineBreak, getFirstLineLength)
             if (!useSlc) sb.append(" */")
           } else sb.append(removeTrailingWhiteSpace(text))
         }
@@ -564,10 +564,10 @@ class FormatWriter(formatOps: FormatOps) {
 
         private type ParaIter = Iterator[WordIter]
         private def iterParagraphs(iter: ParaIter, firstLineLen: Int): Unit = {
-          iterWords(iter.next(), firstLineLen, appendLineBreak)
+          iterWords(iter.next(), appendLineBreak, firstLineLen)
           while (iter.hasNext) {
             appendLineBreak()
-            iterWords(iter.next(), 0, appendLineBreak)
+            iterWords(iter.next(), appendLineBreak)
           }
         }
 
