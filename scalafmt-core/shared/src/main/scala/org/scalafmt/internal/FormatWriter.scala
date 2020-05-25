@@ -1,5 +1,6 @@
 package org.scalafmt.internal
 
+import java.nio.CharBuffer
 import java.util.regex.Pattern
 
 import org.scalafmt.CompatCollections.JavaConverters._
@@ -432,8 +433,33 @@ class FormatWriter(formatOps: FormatOps) {
       )(implicit sb: StringBuilder): Unit = {
         val extraIndent = if (style.docstrings.isSpaceAsterisk) 2 else 1
         val spaces: String = getIndentation(prevState.indentation + extraIndent)
-        val trimmed = removeTrailingWhiteSpace(text)
-        sb.append(leadingAsteriskSpace.matcher(trimmed).replaceAll(spaces))
+        // remove "/**" and "*/"
+        val trimmed = CharBuffer.wrap(text, 3, text.length - 2)
+        val matcher = docstringLine.matcher(trimmed)
+        def appendLineBreak = sb.append('\n').append(spaces).append('*')
+        sb.append("/**")
+        val sbLen = sb.length()
+        var prevWasBlank = false
+        while (matcher.find()) {
+          val contentBeg = matcher.start(2)
+          val contentEnd = matcher.end(2)
+          if (contentBeg == contentEnd) prevWasBlank = true
+          else {
+            if (sb.length() != sbLen) appendLineBreak
+            if (prevWasBlank) {
+              appendLineBreak
+              prevWasBlank = false
+            }
+            val leadSpaces = matcher.end(1) - matcher.start(1)
+            sb.append(getIndentation(math.max(1, leadSpaces)))
+            sb.append(CharBuffer.wrap(trimmed, contentBeg, contentEnd))
+          }
+        }
+        if (!prevWasBlank) sb.append(" */")
+        else {
+          appendLineBreak
+          sb.append('/')
+        }
       }
 
       private abstract class FormatCommentBase(implicit sb: StringBuilder) {
@@ -1111,6 +1137,8 @@ object FormatWriter {
   private val mlcParagraphBeg = Pattern.compile("^(?:[-*@=]|\\d++[.:])")
 
   private val leadingAsteriskSpace = Pattern.compile("(?<=\n)\\h*+(?=[*][^*])")
+  private val docstringLine =
+    Pattern.compile("^(?:\\h*+\\*)?(\\h*+)(.*?)\\h*+$", Pattern.MULTILINE)
   private val onelineDocstring = Pattern.compile(
     "^/\\*\\*(?:\n\\h*+\\*?)?\\h*+([^*][^\n]*[^\n\\h])(?:\n\\h*+\\**?)?\\h*+\\*/$"
   )
