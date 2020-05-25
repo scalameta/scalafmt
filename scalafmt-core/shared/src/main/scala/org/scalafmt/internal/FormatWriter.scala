@@ -519,19 +519,18 @@ class FormatWriter(formatOps: FormatOps) {
                 val contents = text.substring(2, text.length - 2).trim
                 splitAsIterator(mlcLineDelim)(contents).buffered
               }
+              private def paraEnds: Boolean = lineIter.head.isEmpty
 
               override def hasNext = lineIter.hasNext
               override def next() = new ParaIter
 
-              class ParaIter extends AbstractIterator[Iterator[String]] {
+              class ParaIter extends AbstractIterator[WordIter] {
                 private var hasPara: Boolean = true
                 override def hasNext: Boolean =
                   hasPara && lineIter.hasNext && {
-                    hasPara = lineIter.head.nonEmpty
+                    hasPara = !paraEnds
                     if (!hasPara)
-                      do {
-                        lineIter.next()
-                      } while (lineIter.hasNext && lineIter.head.isEmpty)
+                      do lineIter.next() while (lineIter.hasNext && paraEnds)
                     hasPara
                   }
                 override def next() =
@@ -542,7 +541,7 @@ class FormatWriter(formatOps: FormatOps) {
                   override def hasNext: Boolean = hasLine
                   override def next(): String = {
                     val head = lineIter.next()
-                    hasLine = lineIter.hasNext && lineIter.head.nonEmpty &&
+                    hasLine = lineIter.hasNext && !paraEnds &&
                       !mlcParagraphEnd.matcher(head).find() &&
                       !mlcParagraphBeg.matcher(lineIter.head).find()
                     head
