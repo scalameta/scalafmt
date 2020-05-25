@@ -5,6 +5,7 @@ import java.{util => ju}
 import org.scalafmt.CompatCollections.JavaConverters._
 import org.scalafmt.Error.UnexpectedTree
 import org.scalafmt.config.{
+  BinPack,
   Comments,
   NewlineCurlyLambda,
   Newlines,
@@ -1018,7 +1019,7 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
       ownerSet: Set[Tree],
       lastToken: Token
   )(implicit style: ScalafmtConfig): Policy =
-    if (style.binPack.parentConstructors) NoPolicy
+    if (style.binPack.parentConstructors eq BinPack.ParentCtors.Always) NoPolicy
     else
       Policy(lastToken) {
         case d @ Decision(t @ FormatToken(_, _: T.KwWith, _), _)

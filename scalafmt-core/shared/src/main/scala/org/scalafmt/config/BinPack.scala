@@ -32,7 +32,7 @@ import metaconfig._
 case class BinPack(
     unsafeCallSite: Boolean = false,
     unsafeDefnSite: Boolean = false,
-    parentConstructors: Boolean = false,
+    parentConstructors: BinPack.ParentCtors = BinPack.ParentCtors.MaybeNever,
     literalArgumentLists: Boolean = true,
     literalsIncludeSimpleExpr: Boolean = false,
     literalsSingleLine: Boolean = false,
@@ -53,11 +53,46 @@ object BinPack {
   val enabled = BinPack(
     unsafeDefnSite = true,
     unsafeCallSite = true,
-    parentConstructors = true
+    parentConstructors = ParentCtors.Always
   )
   implicit val preset: PartialFunction[Conf, BinPack] = {
     case Conf.Bool(true) => enabled
     case Conf.Bool(false) => BinPack()
+  }
+
+  sealed abstract class ParentCtors
+  object ParentCtors {
+    case object Always extends ParentCtors
+    case object Never extends ParentCtors
+    case object Oneline extends ParentCtors
+    case object OnelineIfPrimaryOneline extends ParentCtors
+
+    val oneOfReader: ConfCodec[ParentCtors] = ReaderUtil.oneOf(
+      Always,
+      Never,
+      Oneline,
+      OnelineIfPrimaryOneline
+    )
+
+    /* don't expose this; it will serve as unspecified, default to Never but
+     * could be overridden by other parameters, such as newlines.source */
+    case object MaybeNever extends ParentCtors
+
+    implicit val encoder: ConfEncoder[ParentCtors] =
+      new ConfEncoder[ParentCtors] {
+        override def write(value: ParentCtors): Conf =
+          if (value eq MaybeNever) Conf.Str("never")
+          else oneOfReader.write(value)
+      }
+    implicit val decoder: ConfDecoder[ParentCtors] =
+      new ConfDecoder[ParentCtors] {
+        override def read(conf: Conf): Configured[ParentCtors] =
+          conf match {
+            case Conf.Bool(true) => Configured.ok(Always)
+            case Conf.Bool(false) => Configured.ok(Never)
+            case _ => oneOfReader.read(conf)
+          }
+      }
   }
 
 }
