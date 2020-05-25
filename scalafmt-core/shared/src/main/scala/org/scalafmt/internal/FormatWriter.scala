@@ -439,7 +439,7 @@ class FormatWriter(formatOps: FormatOps) {
         def appendLineBreak = sb.append('\n').append(spaces).append('*')
         sb.append("/**")
         val sbLen = sb.length()
-        var prevWasBlank = false
+        var prevWasBlank = style.docstrings.isAsterisk
         while (matcher.find()) {
           val contentBeg = matcher.start(2)
           val contentEnd = matcher.end(2)

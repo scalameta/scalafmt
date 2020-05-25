@@ -46,8 +46,9 @@ docstrings.style = Asterisk
     */
 class Main
 >>>
-/** Top line.
- *  Main entry-point.
+/**
+ * Top line.
+ * Main entry-point.
  */
 class Main
 <<< #1403 1: Asterisk 2
