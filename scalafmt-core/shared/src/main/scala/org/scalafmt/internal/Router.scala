@@ -566,19 +566,22 @@ class Router(formatOps: FormatOps) {
           Split(modification, 0)
         )
       // Defn.{Object, Class, Trait}
-      case tok @ FormatToken(T.KwObject() | T.KwClass() | T.KwTrait(), _, _) =>
+      case FormatToken(_: T.KwObject | _: T.KwClass | _: T.KwTrait, r, _) =>
         val expire = defnTemplate(leftOwner)
           .flatMap(templateCurly)
           .getOrElse(leftOwner.tokens.last)
         val forceNewlineBeforeExtends = Policy(expire) {
-          case d @ Decision(t @ FormatToken(_, _: T.KwExtends, _), _)
+          case Decision(t @ FormatToken(_, _: T.KwExtends, _), s)
               if t.meta.rightOwner == leftOwner =>
-            d.onlyNewlinesWithoutFallback
+            s.filter { x =>
+              x.modification.isNewline &&
+              (x.activeTag ne SplitTag.OnelineWithChain)
+            }
         }
-        Seq(
-          Split(Space, 0).withSingleLine(expire, killOnFail = true),
-          Split(Space, 1).withPolicy(forceNewlineBeforeExtends)
-        )
+        val policyEnd = defnBeforeTemplate(leftOwner).fold(r)(_.tokens.last)
+        val policy = delayedBreakPolicy(None)(forceNewlineBeforeExtends)
+          .copy(expire = policyEnd.end)
+        Seq(Split(Space, 0).withPolicy(policy))
       // DefDef
       case tok @ FormatToken(T.KwDef(), name @ T.Ident(_), _) =>
         Seq(
@@ -1882,7 +1885,7 @@ class Router(formatOps: FormatOps) {
       isFirstWith: Boolean,
       chain: => Set[Tree],
       lastToken: => Token
-  )(implicit style: ScalafmtConfig): Seq[Split] =
+  )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] =
     if (isFirstWith) {
       binPackParentConstructorSplits(chain, lastToken, IndentForWithChains)
     } else {

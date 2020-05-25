@@ -1034,12 +1034,22 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
   )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] = {
     val nlMod = NewlineT(acceptSpace = true)
     val nlPolicy = ctorWithChain(owners, lastToken)
+    val nlOnelineTag = style.binPack.parentConstructors match {
+      case BinPack.ParentCtors.Oneline => SplitTag.Active
+      case BinPack.ParentCtors.OnelineIfPrimaryOneline =>
+        SplitTag.OnelineWithChain
+      case BinPack.ParentCtors.Always | BinPack.ParentCtors.Never =>
+        SplitTag.Ignored
+      case BinPack.ParentCtors.MaybeNever =>
+        val isOneline = style.newlines.sourceIs(Newlines.fold)
+        if (isOneline) SplitTag.Active else SplitTag.Ignored
+    }
     val indent = Indent(Num(indentLen), lastToken, ExpiresOn.After)
     Seq(
       Split(Space, 0).withSingleLine(lastToken),
       Split(nlMod, 0)
-        .onlyIf(nlPolicy ne NoPolicy)
-        .onlyIf(style.newlines.sourceIs(Newlines.fold))
+        .onlyFor(nlOnelineTag)
+        .activateFor(nlOnelineTag)
         .withSingleLine(lastToken)
         .withIndent(indent),
       Split(nlMod, 1).withPolicy(nlPolicy).withIndent(indent)

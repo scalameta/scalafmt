@@ -2470,8 +2470,7 @@ object a {
 >>>
 object a {
   object Foo
-    extends Bar
-    with Baz
+    extends Bar with Baz
 }
 <<< #1973 2
 maxColumn = 25
@@ -2507,6 +2506,5 @@ object a {
 >>>
 object a {
   trait Foo
-    extends Bar
-    with Baz
+    extends Bar with Baz
 }
