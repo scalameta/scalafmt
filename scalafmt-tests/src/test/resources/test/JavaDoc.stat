@@ -46,8 +46,8 @@ docstrings.style = Asterisk
     */
 class Main
 >>>
-/**Top line.
- *Main entry-point.
+/** Top line.
+ *  Main entry-point.
  */
 class Main
 <<< #1403 1: Asterisk 2
@@ -59,7 +59,7 @@ docstrings.style = Asterisk
 class Main
 >>>
 /**
- *Main entry-point.
+ * Main entry-point.
  */
 class Main
 <<< #1403 1: SpaceAsterisk 1
@@ -70,8 +70,8 @@ docstrings.style = SpaceAsterisk
     */
 class Main
 >>>
-/**Top line.
-  *Main entry-point.
+/** Top line.
+  * Main entry-point.
   */
 class Main
 <<< #1403 1: SpaceAsterisk 2
@@ -83,7 +83,7 @@ docstrings.style = SpaceAsterisk
 class Main
 >>>
 /**
-  *Main entry-point.
+  * Main entry-point.
   */
 class Main
 <<< #1403 2: fold Asterisk
