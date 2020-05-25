@@ -408,7 +408,7 @@ class FormatWriter(formatOps: FormatOps) {
                 sb.append("/** ").append(matcher.group(1)).append(" */")
                 true
               case Docstrings.Oneline.unfold =>
-                val extraIndent = if (style.docstrings.isScalaDoc) 2 else 1
+                val extraIndent = if (style.docstrings.isSpaceAsterisk) 2 else 1
                 val spaces = getIndentation(prevState.indentation + extraIndent)
                 sb.append("/**\n").append(spaces).append("* ")
                 sb.append(matcher.group(1))
@@ -430,9 +430,8 @@ class FormatWriter(formatOps: FormatOps) {
       private def formatMultilineDocstring(
           text: String
       )(implicit sb: StringBuilder): Unit = {
-        val spaces: String = getIndentation(
-          prevState.indentation + (if (style.docstrings.isScalaDoc) 2 else 1)
-        )
+        val extraIndent = if (style.docstrings.isSpaceAsterisk) 2 else 1
+        val spaces: String = getIndentation(prevState.indentation + extraIndent)
         val trimmed = removeTrailingWhiteSpace(text)
         sb.append(leadingAsteriskSpace.matcher(trimmed).replaceAll(spaces))
       }

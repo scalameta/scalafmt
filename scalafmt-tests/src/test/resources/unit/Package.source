@@ -52,8 +52,8 @@ package foo
 abstract class Dsl
 class A extends Dsl
 class B extends Dsl
-<<< format commaent with single asterisk, ScalaDoc
-docstrings.style = ScalaDoc
+<<< format comment with single asterisk, SpaceAsterisk
+docstrings.style = SpaceAsterisk
 ===
 /** Align by second asterisk.
  *
@@ -64,8 +64,8 @@ docstrings.style = ScalaDoc
   *
   *
   */
-<<< format commaent with single asterisk, JavaDoc
-docstrings.style = JavaDoc
+<<< format comment with single asterisk, Asterisk
+docstrings.style = Asterisk
 ===
 /** Align by first asterisk.
   *
