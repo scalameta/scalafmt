@@ -92,18 +92,18 @@ docstrings.style
 ```
 
 ```scala mdoc:scalafmt
-docstrings.style = ScalaDoc
+docstrings.style = SpaceAsterisk
 ---
-/** Align by second asterisk.
- *
+/** Format intermediate lines with a space and an asterisk,
+ * both below the two asterisks of the first line
  */
 ```
 
 ```scala mdoc:scalafmt
-docstrings.style = JavaDoc
+docstrings.style = Asterisk
 ---
-/** Align by first asterisk.
-  *
+/** Skip first line, format intermediate lines with an asterisk
+  * below the first asterisk of the first line (aka JavaDoc)
   */
 ```
 
@@ -123,7 +123,7 @@ val a = 1
 ```
 
 ```scala mdoc:scalafmt
-docstrings.style = JavaDoc
+docstrings.style = Asterisk
 docstrings.oneline = unfold
 ---
 /** Align by first asterisk. */

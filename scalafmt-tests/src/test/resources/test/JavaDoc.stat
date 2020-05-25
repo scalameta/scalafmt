@@ -14,7 +14,7 @@ object a {
    */
   val y = 2
 }
-<<< #1403 1
+<<< #1403 1: preserve
 docstrings = preserve
 ===
 /**
@@ -26,9 +26,45 @@ class Main
    * Main entry-point.
     */
 class Main
-<<< #1403 2
+<<< #1403 1: ScalaDoc
+docstrings = ScalaDoc
+===
+/**
+   * Main entry-point.
+    */
+class Main
+>>>
+/**
+  * Main entry-point.
+  */
+class Main
+<<< #1403 1: Asterisk
+docstrings.style = Asterisk
+===
+/**
+   * Main entry-point.
+    */
+class Main
+>>>
+/**
+ * Main entry-point.
+ */
+class Main
+<<< #1403 1: SpaceAsterisk
+docstrings.style = SpaceAsterisk
+===
+/**
+  * Main entry-point.
+  */
+class Main
+>>>
+/**
+  * Main entry-point.
+  */
+class Main
+<<< #1403 2: fold Asterisk
 docstrings.oneline = fold
-docstrings.style = JavaDoc
+docstrings.style = Asterisk
 ===
 /**
   * Main entry-point.
@@ -37,9 +73,9 @@ class Main
 >>>
 /** Main entry-point. */
 class Main
-<<< #1403 3
+<<< #1403 2: fold SpaceAsterisk
 docstrings.oneline = fold
-docstrings.style = ScalaDoc
+docstrings.style = SpaceAsterisk
 ===
 /**
   * Main entry-point.
@@ -48,9 +84,9 @@ class Main
 >>>
 /** Main entry-point. */
 class Main
-<<< #1403 4
+<<< #1403 3: unfold Asterisk
 docstrings.oneline = unfold
-docstrings.style = JavaDoc
+docstrings.style = Asterisk
 ===
 /** Main entry-point. */
 class Main
@@ -59,9 +95,9 @@ class Main
  * Main entry-point.
  */
 class Main
-<<< #1403 5
+<<< #1403 3: unfold SpaceAsterisk
 docstrings.oneline = unfold
-docstrings.style = ScalaDoc
+docstrings.style = SpaceAsterisk
 ===
 /** Main entry-point. */
 class Main

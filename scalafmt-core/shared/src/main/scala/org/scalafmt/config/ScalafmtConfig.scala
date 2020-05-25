@@ -19,10 +19,6 @@ import org.scalafmt.util.ValidationOps
   *                the plan is to use this field for the IntelliJ+sbt integrations.
   * @param maxColumn Column limit, any formatting exceeding this field is
   *                  penalized heavily.
-  * @param docstrings Several options:
-  *                   - ScalaDoc: format as Scala docs
-  *                   - JavaDocs: format as Java docs
-  *                   - preserve: keep existing formatting
   * @param assumeStandardLibraryStripMargin If true, the margin character | is treated
   *                                as the new indentation in multiline strings
   *                                ending with `.stripMargin`.
@@ -337,7 +333,7 @@ object ScalafmtConfig {
     // config style. It's fixable, but I don't want to spend time on it
     // right now.
     runner = conservativeRunner,
-    docstrings = default.docstrings.copy(style = Some(Docstrings.JavaDoc)),
+    docstrings = default.docstrings.copy(style = Some(Docstrings.Asterisk)),
     align = default.align.copy(
       arrowEnumeratorGenerator = false,
       tokens = Seq(AlignToken.caseArrow),

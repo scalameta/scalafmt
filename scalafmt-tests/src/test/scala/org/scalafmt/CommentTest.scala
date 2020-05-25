@@ -8,7 +8,7 @@ class CommentTest extends AnyFunSuite with DiffAssertions {
 
   private val javadocStyle: ScalafmtConfig =
     ScalafmtConfig.default.copy(docstrings =
-      ScalafmtConfig.default.docstrings.copy(style = Some(Docstrings.JavaDoc))
+      ScalafmtConfig.default.docstrings.copy(style = Some(Docstrings.Asterisk))
     )
 
   test("remove trailing space in comments") {
