@@ -1261,7 +1261,8 @@ rewrite.redundantBraces.stringInterpolation = true
 s"user id is ${id}"
 ```
 
-`rewrite.redundantBraces.parensForOneLineApply` is `true` by default for `edition` >= 2020-01. See also [newlines.afterCurlyLambda = squash](http://localhost:3000/scalafmt/docs/configuration.html#newlinesaftercurlylambda)
+`rewrite.redundantBraces.parensForOneLineApply` is `true` by default for `edition` >= 2020-01.
+See also [newlines.afterCurlyLambda = squash](#newlinesaftercurlylambda).
 
 ```scala mdoc:scalafmt
 rewrite.rules = [RedundantBraces]
@@ -1994,9 +1995,13 @@ parent constructor gets its own line.
 binPack.parentConstructors
 ```
 
+> Keep in mind that explicitly specifying the default value might change
+> behaviour; other parameters, such as [`newlines.source`](#newlinessource),
+> could interpret implied default differently but yield to an explicit value.
+
 ```scala mdoc:scalafmt
-binPack.parentConstructors = true
-maxColumn = 25
+binPack.parentConstructors = Always
+maxColumn = 30
 ---
 object A {
   trait Foo
@@ -2006,11 +2011,44 @@ object A {
 ```
 
 ```scala mdoc:scalafmt
-binPack.parentConstructors = false
-maxColumn = 25
+binPack.parentConstructors = Never
+maxColumn = 30
 ---
 object A {
   trait Foo extends Bar with Baz
+}
+```
+
+```scala mdoc:scalafmt
+binPack.parentConstructors = Oneline
+maxColumn = 30
+---
+object A {
+  class Foo(a: Int)
+  extends Bar
+  with Baz
+
+  class Foo(
+    a: Int
+  )
+  extends Bar
+  with Baz
+}
+```
+
+```scala mdoc:scalafmt
+binPack.parentConstructors = OnelineIfPrimaryOneline
+maxColumn = 30
+---
+object A {
+  class Foo(a: Int, b: Int)
+  extends Bar
+  with Baz
+
+  class Foo(
+    a: Int,
+    b: Int
+  ) extends Bar with Baz
 }
 ```
 
