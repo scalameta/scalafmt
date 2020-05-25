@@ -19,6 +19,7 @@ case class Docstrings(
 ) {
   import Docstrings._
 
+  def isAsterisk: Boolean = style.contains(Asterisk)
   def isSpaceAsterisk: Boolean = style.contains(SpaceAsterisk)
 
   implicit lazy val decoder: ConfDecoder[Docstrings] = {

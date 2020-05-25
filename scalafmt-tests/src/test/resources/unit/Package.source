@@ -71,6 +71,7 @@ docstrings.style = Asterisk
   *
   */
 >>>
-/** Align by
+/**
+ * Align by
  * first asterisk.
  */
