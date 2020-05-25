@@ -324,7 +324,7 @@ object ScalafmtConfig {
     binPack = BinPack(
       unsafeDefnSite = true,
       unsafeCallSite = true,
-      parentConstructors = true
+      parentConstructors = BinPack.ParentCtors.Always
     ),
     continuationIndent = ContinuationIndent(4, 4),
     importSelectors = ImportSelectors.binPack,
