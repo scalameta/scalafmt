@@ -55,24 +55,24 @@ class B extends Dsl
 <<< format comment with single asterisk, SpaceAsterisk
 docstrings.style = SpaceAsterisk
 ===
-/** Align by second asterisk.
- *
+/** Align by
+ * second asterisk.
  *
  */
 >>>
-/** Align by second asterisk.
-  *
+/** Align by
+  * second asterisk.
   *
   */
 <<< format comment with single asterisk, Asterisk
 docstrings.style = Asterisk
 ===
-/** Align by first asterisk.
-  *
+/** Align by
+  * first asterisk.
   *
   */
 >>>
-/** Align by first asterisk.
- *
+/** Align by
+ * first asterisk.
  *
  */

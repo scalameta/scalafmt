@@ -17,49 +17,73 @@ object a {
 <<< #1403 1: preserve
 docstrings = preserve
 ===
-/**
+/** Top line.
    * Main entry-point.
     */
 class Main
 >>>
-/**
+/** Top line.
    * Main entry-point.
     */
 class Main
 <<< #1403 1: ScalaDoc
 docstrings = ScalaDoc
 ===
-/**
+/** Top line.
    * Main entry-point.
     */
 class Main
 >>>
-/**
+/** Top line.
   * Main entry-point.
   */
 class Main
-<<< #1403 1: Asterisk
+<<< #1403 1: Asterisk 1
+docstrings.style = Asterisk
+===
+/**Top line.
+   *Main entry-point.
+    */
+class Main
+>>>
+/**Top line.
+ *Main entry-point.
+ */
+class Main
+<<< #1403 1: Asterisk 2
 docstrings.style = Asterisk
 ===
 /**
-   * Main entry-point.
+   *Main entry-point.
     */
 class Main
 >>>
 /**
- * Main entry-point.
+ *Main entry-point.
  */
 class Main
-<<< #1403 1: SpaceAsterisk
+<<< #1403 1: SpaceAsterisk 1
+docstrings.style = SpaceAsterisk
+===
+/**Top line.
+   *Main entry-point.
+    */
+class Main
+>>>
+/**Top line.
+  *Main entry-point.
+  */
+class Main
+<<< #1403 1: SpaceAsterisk 2
 docstrings.style = SpaceAsterisk
 ===
 /**
-  * Main entry-point.
-  */
+   *Main entry-point.
+    */
 class Main
 >>>
 /**
-  * Main entry-point.
+  *Main entry-point.
   */
 class Main
 <<< #1403 2: fold Asterisk
