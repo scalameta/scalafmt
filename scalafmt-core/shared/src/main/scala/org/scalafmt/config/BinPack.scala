@@ -23,9 +23,9 @@ import metaconfig._
   *                            or "Byte".
   * @param literalsExclude     Regexes for literal to exclude from [[literalArgumentLists]].
   * @param parentConstructors  Parent constructors are C and D in
-  *                            "class A extends B with C and D". If true,
+  *                            "class A extends B with C and D". If "Always",
   *                            scalafmt will fit as many parent constructors
-  *                            on a single line. If false, each parent
+  *                            on a single line. If "Never", each parent
   *                            constructor gets its own line.
   *
   */
