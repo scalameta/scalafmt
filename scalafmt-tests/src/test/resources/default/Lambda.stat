@@ -453,3 +453,11 @@ class A {
       }
       .f("f")
 }
+<<< #1969
+object a {
+  And("foo") { () =>
+    // bar
+  }
+}
+>>>
+java.util.NoSuchElementException: last of empty list
