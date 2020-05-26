@@ -12,6 +12,8 @@ import metaconfig._
   *          first asterisk of the first line (aka JavaDoc)
   *        - SpaceAsterisk: format intermediate lines with a space and
   *          an asterisk, both below the two asterisks of the first line
+  *        - AsteriskSpace: format intermediate lines with an asterisk
+  *          and a space, both below the two asterisks of the first line
   */
 case class Docstrings(
     oneline: Docstrings.Oneline = Docstrings.Oneline.keep,
@@ -21,6 +23,7 @@ case class Docstrings(
 
   def isAsterisk: Boolean = style.contains(Asterisk)
   def isSpaceAsterisk: Boolean = style.contains(SpaceAsterisk)
+  def isAsteriskSpace: Boolean = style.contains(AsteriskSpace)
 
   implicit lazy val decoder: ConfDecoder[Docstrings] = {
     val genericDecoder = generic.deriveDecoder(this).noTypos
@@ -51,9 +54,10 @@ object Docstrings {
   sealed abstract class Style
   case object Asterisk extends Style
   case object SpaceAsterisk extends Style
+  case object AsteriskSpace extends Style
 
   implicit val reader: ConfCodec[Style] =
-    ReaderUtil.oneOf[Style](Asterisk, SpaceAsterisk)
+    ReaderUtil.oneOf[Style](Asterisk, SpaceAsterisk, AsteriskSpace)
 
   sealed abstract class Oneline
   object Oneline {

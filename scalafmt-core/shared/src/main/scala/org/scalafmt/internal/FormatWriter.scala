@@ -412,6 +412,7 @@ class FormatWriter(formatOps: FormatOps) {
                 val extraIndent = if (style.docstrings.isSpaceAsterisk) 2 else 1
                 val spaces = getIndentation(prevState.indentation + extraIndent)
                 sb.append("/**\n").append(spaces).append("* ")
+                if (style.docstrings.isAsteriskSpace) sb.append(' ')
                 sb.append(matcher.group(1))
                 sb.append('\n').append(spaces).append("*/")
                 true
@@ -431,6 +432,7 @@ class FormatWriter(formatOps: FormatOps) {
       private def formatMultilineDocstring(
           text: String
       )(implicit sb: StringBuilder): Unit = {
+        val isExtraSpace = style.docstrings.isAsteriskSpace
         val extraIndent = if (style.docstrings.isSpaceAsterisk) 2 else 1
         val spaces: String = getIndentation(prevState.indentation + extraIndent)
         // remove "/**" and "*/"
@@ -451,7 +453,8 @@ class FormatWriter(formatOps: FormatOps) {
               prevWasBlank = false
             }
             val leadSpaces = matcher.end(1) - matcher.start(1)
-            sb.append(getIndentation(math.max(1, leadSpaces)))
+            val minSpaces = if (isExtraSpace && sb.length() != sbLen) 2 else 1
+            sb.append(getIndentation(math.max(minSpaces, leadSpaces)))
             sb.append(CharBuffer.wrap(trimmed, contentBeg, contentEnd))
           }
         }
