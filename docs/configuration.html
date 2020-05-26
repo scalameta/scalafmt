@@ -70,134 +70,38 @@ regular resolution.</li>
 code on your phone.</li>
 <li>Consider refactoring your code before of choosing a value above 100.</li>
 </ul>
-<h3><a class="anchor" aria-hidden="true" id="comments"></a><a href="#comments" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>comments</code></h3>
-<h4><a class="anchor" aria-hidden="true" id="commentswrap"></a><a href="#commentswrap" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>comments.wrap</code></h4>
-<p>Allows wrapping comments exceeding <code>maxColumn</code>.</p>
-<p>Default: <code>comments.wrap = &quot;no&quot;</code></p>
-<h5><a class="anchor" aria-hidden="true" id="commentswrap--standalone"></a><a href="#commentswrap--standalone" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>comments.wrap = standalone</code></h5>
-<p>A standalone comment is one which is surrounded by line breaks.</p>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-comment">/* long multiline
- * comment */</span>
-<span class="hljs-comment">/* long singleline
- * comment */</span>
-<span class="hljs-keyword">val</span> a = <span class="hljs-number">1</span> <span class="hljs-comment">// short</span>
-<span class="hljs-keyword">val</span> b =
-  <span class="hljs-number">2</span> <span class="hljs-comment">// long singleline comment</span>
-</code></pre>
-<pre><code class="hljs css language-scala original"><span class="hljs-comment">/* long multiline comment */</span>
-<span class="hljs-comment">// long singleline comment</span>
-<span class="hljs-keyword">val</span> a = <span class="hljs-number">1</span> <span class="hljs-comment">// short</span>
-<span class="hljs-keyword">val</span> b = <span class="hljs-number">2</span> <span class="hljs-comment">// long singleline comment</span>
-</code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">20</span>
-comments.wrap = standalone
-</code></pre>
-</p></details>
-<h5><a class="anchor" aria-hidden="true" id="commentswrap--trailing"></a><a href="#commentswrap--trailing" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>comments.wrap = trailing</code></h5>
-<p>A trailing comment is one which is followed by a line break.</p>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-comment">/* long multiline
- * comment */</span>
-<span class="hljs-comment">/* long singleline
- * comment */</span>
-<span class="hljs-keyword">val</span> a = <span class="hljs-number">1</span> <span class="hljs-comment">// short</span>
-<span class="hljs-keyword">val</span> b =
-  <span class="hljs-number">2</span> <span class="hljs-comment">/* long
-   * singleline
-   * comment */</span>
-</code></pre>
-<pre><code class="hljs css language-scala original"><span class="hljs-comment">/* long multiline comment */</span>
-<span class="hljs-comment">// long singleline comment</span>
-<span class="hljs-keyword">val</span> a = <span class="hljs-number">1</span> <span class="hljs-comment">// short</span>
-<span class="hljs-keyword">val</span> b = <span class="hljs-number">2</span> <span class="hljs-comment">// long singleline comment</span>
-</code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">20</span>
-comments.wrap = trailing
-</code></pre>
-</p></details>
-<h4><a class="anchor" aria-hidden="true" id="commentswrapstandaloneslcasslc"></a><a href="#commentswrapstandaloneslcasslc" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>comments.wrapStandaloneSlcAsSlc</code></h4>
-<p>This parameter allows formatting a standalone single-line comment (i.e., <code>//</code>)
-to be wrapped using the same type, not a multi-line comment (<code>/* ... */</code>).</p>
-<p>Default: <code>comments.wrapStandaloneSlcAsSlc = false</code></p>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-comment">// long singleline</span>
-<span class="hljs-comment">// comment</span>
-<span class="hljs-keyword">val</span> b =
-  <span class="hljs-number">2</span> <span class="hljs-comment">/* long
-   * singleline
-   * comment */</span>
-</code></pre>
-<pre><code class="hljs css language-scala original"><span class="hljs-comment">// long singleline comment</span>
-<span class="hljs-keyword">val</span> b = <span class="hljs-number">2</span> <span class="hljs-comment">// long singleline comment</span>
-</code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">20</span>
-comments.wrap = trailing
-comments.wrapStandaloneSlcAsSlc = <span class="hljs-literal">true</span>
-</code></pre>
-</p></details>
 <h3><a class="anchor" aria-hidden="true" id="docstrings"></a><a href="#docstrings" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings</code></h3>
-<h4><a class="anchor" aria-hidden="true" id="docstringsstyle"></a><a href="#docstringsstyle" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.style</code></h4>
-<p>Default: <code>docstrings.style = &quot;ScalaDoc&quot;</code></p>
+<p>Default: <code>docstrings = &quot;ScalaDoc&quot;</code></p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">/** Align by second asterisk.
   *
-  */</span>
+ */</span>
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-comment">/** Align by second asterisk.
  *
  */</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">docstrings.style = <span class="hljs-type">ScalaDoc</span>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
+<pre><code class="hljs css language-scala config">docstrings = <span class="hljs-type">ScalaDoc</span>
 </code></pre>
 </p></details>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">/** Align by first asterisk.
  *
- */</span>
+  */</span>
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-comment">/** Align by first asterisk.
   *
   */</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">docstrings.style = <span class="hljs-type">JavaDoc</span>
-</code></pre>
-</p></details>
-<h4><a class="anchor" aria-hidden="true" id="docstringsoneline"></a><a href="#docstringsoneline" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.oneline</code></h4>
-<p>Default: <code>docstrings.oneline = &quot;keep&quot;</code></p>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-comment">/** Align by second asterisk. */</span>
-<span class="hljs-keyword">val</span> a = <span class="hljs-number">1</span>
-</code></pre>
-<pre><code class="hljs css language-scala original"><span class="hljs-comment">/**
-  * Align by second asterisk.
-  */</span>
-<span class="hljs-keyword">val</span> a = <span class="hljs-number">1</span>
-</code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">docstrings.oneline = fold
-</code></pre>
-</p></details>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-comment">/**
- * Align by first asterisk.
- */</span>
-<span class="hljs-keyword">val</span> a = <span class="hljs-number">1</span>
-</code></pre>
-<pre><code class="hljs css language-scala original"><span class="hljs-comment">/** Align by first asterisk. */</span>
-<span class="hljs-keyword">val</span> a = <span class="hljs-number">1</span>
-</code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">docstrings.style = <span class="hljs-type">JavaDoc</span>
-docstrings.oneline = unfold
+<p><details class='config' open><summary>Config for this example</summary><p></p>
+<pre><code class="hljs css language-scala config">docstrings = <span class="hljs-type">JavaDoc</span>
 </code></pre>
 </p></details>
 <h3><a class="anchor" aria-hidden="true" id="assumestandardlibrarystripmargin"></a><a href="#assumestandardlibrarystripmargin" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>assumeStandardLibraryStripMargin</code></h3>
 <p>This parameter simply says the <code>.stripMargin</code> method was not redefined
 by the user to assign special meaning to indentation preceding
 the <code>|</code> character. Hence, that indentation can be modified.</p>
-<pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
-assumeStandardLibraryStripMargin = <span class="hljs-literal">false</span>
-align.stripMargin = <span class="hljs-literal">true</span>
-</code></pre>
+<p>Default: <code>assumeStandardLibraryStripMargin = false</code></p>
+<p>Default: <code>align.stripMargin = true</code></p>
 <p>If <code>true</code>, lines starting with the margin character <code>|</code> (or another if
 specified in the <code>.stripMargin(...)</code> call) will be indented differently.</p>
 <p>If <code>align.stripMargin</code> is true, they will align with the opening triple-quote
@@ -217,7 +121,7 @@ relative to the <em>start</em> of the opening line.</p>
   |  * $three
   |""".stripMargin
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">assumeStandardLibraryStripMargin = <span class="hljs-literal">true</span>
 align.stripMargin = <span class="hljs-literal">true</span>
 </code></pre>
@@ -236,7 +140,7 @@ align.stripMargin = <span class="hljs-literal">true</span>
       |  * $three
       |""".stripMargin
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">assumeStandardLibraryStripMargin = <span class="hljs-literal">true</span>
 align.stripMargin = <span class="hljs-literal">false</span>
 </code></pre>
@@ -256,7 +160,7 @@ align.stripMargin = <span class="hljs-literal">false</span>
   |  * $three
   |""".stripMargin
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">assumeStandardLibraryStripMargin = <span class="hljs-literal">true</span>
 align.stripMargin = <span class="hljs-literal">true</span>
 </code></pre>
@@ -313,7 +217,7 @@ argument1, <span class="hljs-comment">// indented by 2</span>
 <span class="hljs-string">""</span>
 )
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">continuationIndent.callSite = <span class="hljs-number">2</span>
 </code></pre>
 </p></details>
@@ -328,7 +232,7 @@ argument1, <span class="hljs-comment">// indented by 2</span>
 argument1: <span class="hljs-type">Type1</span> <span class="hljs-comment">// indented by 4</span>
 ): <span class="hljs-type">ReturnType</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">continuationIndent.defnSite = <span class="hljs-number">4</span>
 </code></pre>
 </p></details>
@@ -353,16 +257,14 @@ argument1: <span class="hljs-type">Type1</span> <span class="hljs-comment">// in
  ): <span class="hljs-type">ReturnType</span> = <span class="hljs-type">None</span>
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">continuationIndent.ctorSite = <span class="hljs-number">4</span>
 continuationIndent.defnSite = <span class="hljs-number">2</span>
 </code></pre>
 </p></details>
 <h3><a class="anchor" aria-hidden="true" id="continuationindentextendsite"></a><a href="#continuationindentextendsite" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>continuationIndent.extendSite</code></h3>
-<pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
-continuationIndent.extendSite = <span class="hljs-number">4</span>
-continuationIndent.withSiteRelativeToExtends = <span class="hljs-number">0</span>
-</code></pre>
+<p>Default: <code>continuationIndent.extendSite = 4</code></p>
+<p>Default: <code>continuationIndent.withSiteRelativeToExtends = 0</code></p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Foo</span></span>
     <span class="hljs-keyword">extends</span> <span class="hljs-type">A</span>
       <span class="hljs-keyword">with</span> <span class="hljs-type">B</span>
@@ -376,7 +278,7 @@ continuationIndent.withSiteRelativeToExtends = <span class="hljs-number">0</span
   <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">foo</span></span>: <span class="hljs-type">Boolean</span> = <span class="hljs-literal">true</span>
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">continuationIndent.extendSite = <span class="hljs-number">4</span>
 # <span class="hljs-keyword">this</span> one added in v2<span class="hljs-number">.5</span><span class="hljs-number">.0</span>
 continuationIndent.withSiteRelativeToExtends = <span class="hljs-number">2</span>
@@ -399,7 +301,7 @@ four possible presets: none, some, more, &amp; most.</p>
   <span class="hljs-keyword">case</span> <span class="hljs-number">22</span> =&gt; <span class="hljs-number">222</span> <span class="hljs-comment">// don't align me!</span>
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">align.preset = none
 </code></pre>
 </p></details>
@@ -438,7 +340,7 @@ See <a href="#assumestandardlibrarystripmargin">assumeStandardLibraryStripMargin
 <span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">B</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">A</span> <span class="hljs-title">//</span> <span class="hljs-title">false</span> <span class="hljs-title">for</span> `<span class="hljs-keyword">extends</span>`</span>
 <span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">BB</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">A</span></span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">align.preset = some
 </code></pre>
 </p></details>
@@ -515,7 +417,7 @@ libraryDependencies ++= <span class="hljs-type">Seq</span>(
   <span class="hljs-string">"com.lihaoyi"</span> %% <span class="hljs-string">"sourcecode"</span> % <span class="hljs-string">"0.1.1"</span>
 )
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">align.preset = more
 </code></pre>
 </p></details>
@@ -540,7 +442,7 @@ libraryDependencies ++= <span class="hljs-type">Seq</span>(
   }
 } <span class="hljs-keyword">yield</span> x
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">align.preset = most
 </code></pre>
 </p></details>
@@ -563,7 +465,7 @@ token. If no <code>owner</code> is provided, then all tree kinds will be matched
   <span class="hljs-keyword">case</span> <span class="hljs-number">11</span> =&gt; <span class="hljs-number">11</span> -&gt; <span class="hljs-number">22</span>
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">align.tokens = [{code = <span class="hljs-string">"=&gt;"</span>, owner = <span class="hljs-string">"Case"</span>}]
 </code></pre>
 </p></details>
@@ -577,7 +479,7 @@ token. If no <code>owner</code> is provided, then all tree kinds will be matched
 <span class="hljs-string">"com.lihaoyi"</span> %% <span class="hljs-string">"sourcecode"</span> % <span class="hljs-string">"0.1.1"</span>
 )
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">align.tokens = [
   {code = <span class="hljs-string">"%"</span>, owner = <span class="hljs-string">"Term.ApplyInfix"</span>},
   {code = <span class="hljs-string">"%%"</span>, owner = <span class="hljs-string">"Term.ApplyInfix"</span>}
@@ -617,7 +519,7 @@ defaults rather than replacing them.</p>
      }
 } <span class="hljs-keyword">yield</span> x
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">align.arrowEnumeratorGenerator = <span class="hljs-literal">false</span>
 </code></pre>
 </p></details>
@@ -633,7 +535,7 @@ defaults rather than replacing them.</p>
      }
 } <span class="hljs-keyword">yield</span> x
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">align.arrowEnumeratorGenerator = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
@@ -661,7 +563,7 @@ function(
   argument1,
   argument2)
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">align.openParenCallSite = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
@@ -685,7 +587,7 @@ function(
   argument1,
   argument2)
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">align.openParenCallSite = <span class="hljs-literal">false</span>
 </code></pre>
 </p></details>
@@ -709,7 +611,7 @@ function(
     string: <span class="hljs-type">String</span>,
   long: <span class="hljs-type">Long</span></span>)</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">align.openParenDefnSite = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
@@ -732,7 +634,7 @@ function(
   long: <span class="hljs-type">Long</span>
 </span>)</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">align.openParenDefnSite = <span class="hljs-literal">false</span>
 </code></pre>
 </p></details>
@@ -766,7 +668,7 @@ not be excluded from search of tokens to align.</p>
   dd &lt;- ddddd
 } <span class="hljs-keyword">yield</span> ()
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">align.preset = more
 align.multiline = <span class="hljs-literal">true</span>
 </code></pre>
@@ -789,7 +691,7 @@ align.multiline = <span class="hljs-literal">true</span>
   dd &lt;- ddddd
 } <span class="hljs-keyword">yield</span> ()
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">align.preset = more
 align.multiline = <span class="hljs-literal">false</span>
 </code></pre>
@@ -854,7 +756,7 @@ logically belongs there.</p>
   method(argument1, argument2)
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">danglingParentheses.defnSite = <span class="hljs-literal">true</span>
 danglingParentheses.callSite = <span class="hljs-literal">false</span>
 maxColumn=<span class="hljs-number">25</span>
@@ -883,7 +785,7 @@ maxColumn=<span class="hljs-number">25</span>
   method(argument1, argument2)
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">danglingParentheses.defnSite = <span class="hljs-literal">false</span>
 danglingParentheses.callSite = <span class="hljs-literal">true</span>
 maxColumn=<span class="hljs-number">25</span>
@@ -912,7 +814,7 @@ maxColumn=<span class="hljs-number">25</span>
   <span class="hljs-comment">// nothing</span>
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">danglingParentheses.ctrlSite = <span class="hljs-literal">true</span>
 maxColumn=<span class="hljs-number">20</span>
 </code></pre>
@@ -933,7 +835,7 @@ other(a, b)(c, d)
 <pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">other</span></span>(a: <span class="hljs-type">String</span>, b: <span class="hljs-type">String</span>)(c: <span class="hljs-type">String</span>, d: <span class="hljs-type">String</span>) = a + b + c
 other(a, b)(c, d)
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">continuationIndent.defnSite = <span class="hljs-number">2</span>
 danglingParentheses.defnSite = <span class="hljs-literal">true</span>
 danglingParentheses.exclude = [<span class="hljs-function"><span class="hljs-keyword">def</span>]</span>
@@ -974,7 +876,7 @@ a certain number of lines.</p>
   <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">C2</span> </span>{}
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">newlines.topLevelStatements = []
 </code></pre>
 </p></details>
@@ -1004,7 +906,7 @@ a certain number of lines.</p>
   <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">C2</span> </span>{}
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">newlines.topLevelStatements = [before]
 </code></pre>
 </p></details>
@@ -1033,7 +935,7 @@ a certain number of lines.</p>
   <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">C2</span> </span>{}
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">newlines.topLevelStatements = [after]
 </code></pre>
 </p></details>
@@ -1064,7 +966,7 @@ a certain number of lines.</p>
   <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">C2</span> </span>{}
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">newlines.topLevelStatements = [before,after]
 </code></pre>
 </p></details>
@@ -1109,7 +1011,7 @@ line break (or a multi-line statement).</p>
   }
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">newlines.topLevelStatements = [before,after]
 newlines.topLevelStatementsMinBreaks = <span class="hljs-number">0</span>
 </code></pre>
@@ -1145,7 +1047,7 @@ newlines.topLevelStatementsMinBreaks = <span class="hljs-number">0</span>
   }
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">newlines.topLevelStatements = [before,after]
 newlines.topLevelStatementsMinBreaks = <span class="hljs-number">2</span>
 </code></pre>
@@ -1162,7 +1064,7 @@ newlines.topLevelStatementsMinBreaks = <span class="hljs-number">2</span>
   x.toUpper
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">newlines.alwaysBeforeMultilineDef = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
@@ -1174,7 +1076,7 @@ newlines.topLevelStatementsMinBreaks = <span class="hljs-number">2</span>
   x.toUpper
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">newlines.alwaysBeforeMultilineDef = <span class="hljs-literal">false</span>
 </code></pre>
 </p></details>
@@ -1193,7 +1095,7 @@ newlines.topLevelStatementsMinBreaks = <span class="hljs-number">2</span>
   bar()
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">newlines.alwaysBeforeElseAfterCurlyIf = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
@@ -1210,7 +1112,7 @@ newlines.topLevelStatementsMinBreaks = <span class="hljs-number">2</span>
   bar()
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">newlines.alwaysBeforeElseAfterCurlyIf = <span class="hljs-literal">false</span>
 </code></pre>
 </p></details>
@@ -1231,7 +1133,7 @@ something.map { x =&gt; f(x) }
 
 something.map { x =&gt; f(x) }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">newlines.afterCurlyLambda = never
 </code></pre>
 </p></details>
@@ -1254,7 +1156,7 @@ something.map { x =&gt;
 
 something.map { x =&gt; f(x) }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">newlines.afterCurlyLambda = always
 </code></pre>
 </p></details>
@@ -1274,7 +1176,7 @@ something.map { x =&gt; f(x) }
 
 something.map { x =&gt; f(x) }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">newlines.afterCurlyLambda = preserve
 </code></pre>
 </p></details>
@@ -1291,7 +1193,7 @@ something.map { x =&gt; f(x) }
 
 something.map { x =&gt; f(x) }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">newlines.afterCurlyLambda = squash
 </code></pre>
 </p></details>
@@ -1313,7 +1215,7 @@ if the keyword itself would overflow the line.</p>
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">format</span></span>(code: <span class="hljs-type">String</span>, age: <span class="hljs-type">Int</span>)(<span class="hljs-keyword">implicit</span> ev: <span class="hljs-type">Parser</span>, c: <span class="hljs-type">Context</span>): <span class="hljs-type">String</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">60</span>
 newlines.implicitParamListModifierPrefer = after
 </code></pre>
@@ -1330,7 +1232,7 @@ if the entire implicit parameter list fits on a line.</p>
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">format</span></span>(code: <span class="hljs-type">String</span>, age: <span class="hljs-type">Int</span>)(<span class="hljs-keyword">implicit</span> ev: <span class="hljs-type">Parser</span>, c: <span class="hljs-type">Context</span>): <span class="hljs-type">String</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">60</span>
 newlines.implicitParamListModifierPrefer = before
 </code></pre>
@@ -1347,7 +1249,7 @@ added if the keyword would overflow the line.</p>
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">format</span></span>(code: <span class="hljs-type">String</span>, age: <span class="hljs-type">Int</span>)(<span class="hljs-keyword">implicit</span> ev: <span class="hljs-type">Parser</span>, c: <span class="hljs-type">Context</span>): <span class="hljs-type">String</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">60</span>
 newlines.implicitParamListModifierForce = [before]
 </code></pre>
@@ -1365,7 +1267,7 @@ or config style is false.</p>
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">format</span></span>(code: <span class="hljs-type">String</span>, age: <span class="hljs-type">Int</span>)(<span class="hljs-keyword">implicit</span> ev: <span class="hljs-type">Parser</span>, c: <span class="hljs-type">Context</span>): <span class="hljs-type">String</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">60</span>
 newlines.implicitParamListModifierForce = [after]
 </code></pre>
@@ -1379,7 +1281,7 @@ newlines.implicitParamListModifierForce = [after]
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">format</span></span>(code: <span class="hljs-type">String</span>, age: <span class="hljs-type">Int</span>)(<span class="hljs-keyword">implicit</span> ev: <span class="hljs-type">Parser</span>, c: <span class="hljs-type">Context</span>): <span class="hljs-type">String</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">60</span>
 newlines.implicitParamListModifierForce = [before,after]
 </code></pre>
@@ -1394,7 +1296,7 @@ newlines.implicitParamListModifierForce = [before,after]
    <span class="hljs-keyword">implicit</span> ev: <span class="hljs-type">Parser</span>, c: <span class="hljs-type">Context</span>
 ): <span class="hljs-type">String</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">60</span>
 optIn.configStyleArguments = <span class="hljs-literal">true</span>
 newlines.implicitParamListModifierForce = [after]
@@ -1465,7 +1367,7 @@ future recover {
   <span class="hljs-keyword">case</span> e: <span class="hljs-type">Err</span> =&gt; <span class="hljs-number">0</span>
 } map (_.toString)
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">AvoidInfix</span>]
 </code></pre>
 </p></details>
@@ -1491,7 +1393,7 @@ future recover {
     _
   }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">ExpandImportSelectors</span>]
 </code></pre>
 </p></details>
@@ -1507,7 +1409,7 @@ future recover {
   <span class="hljs-type">List</span>(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>).sum
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">RedundantBraces</span>]
 </code></pre>
 </p></details>
@@ -1515,7 +1417,7 @@ future recover {
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-string">q"Hello <span class="hljs-subst">${name}</span>"</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">RedundantBraces</span>]
 rewrite.redundantBraces.stringInterpolation = <span class="hljs-literal">true</span>
 </code></pre>
@@ -1524,7 +1426,7 @@ rewrite.redundantBraces.stringInterpolation = <span class="hljs-literal">true</s
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-type">List</span>(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>).map { x =&gt; x + <span class="hljs-number">1</span> }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">RedundantBraces</span>]
 </code></pre>
 </p></details>
@@ -1547,7 +1449,7 @@ line and then replace braces with parens:</p>
   x + <span class="hljs-number">1</span>
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">RedundantBraces</span>]
 newlines.afterCurlyLambda=squash
 </code></pre>
@@ -1588,7 +1490,7 @@ str <span class="hljs-keyword">match</span> {
   }
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">RedundantBraces</span>]
 rewrite.redundantBraces.generalExpressions = <span class="hljs-literal">true</span>
 </code></pre>
@@ -1601,7 +1503,7 @@ rewrite.redundantBraces.generalExpressions = <span class="hljs-literal">true</sp
   <span class="hljs-number">1</span> + <span class="hljs-number">1</span>
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">RedundantBraces</span>]
 rewrite.redundantBraces.methodBodies = <span class="hljs-literal">true</span>
 </code></pre>
@@ -1623,7 +1525,7 @@ rewrite.redundantBraces.methodBodies = <span class="hljs-literal">true</span>
   println(<span class="hljs-string">"example"</span>)
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">RedundantBraces</span>]
 rewrite.redundantBraces.methodBodies = <span class="hljs-literal">true</span>
 rewrite.redundantBraces.includeUnitMethods = <span class="hljs-literal">false</span>
@@ -1634,18 +1536,17 @@ rewrite.redundantBraces.includeUnitMethods = <span class="hljs-literal">false</s
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-string">s"user id is <span class="hljs-subst">${id}</span>"</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">RedundantBraces</span>]
 rewrite.redundantBraces.stringInterpolation = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
-<p><code>rewrite.redundantBraces.parensForOneLineApply</code> is <code>true</code> by default for <code>edition</code> &gt;= 2020-01.
-See also <a href="#newlinesaftercurlylambda">newlines.afterCurlyLambda = squash</a>.</p>
+<p><code>rewrite.redundantBraces.parensForOneLineApply</code> is <code>true</code> by default for <code>edition</code> &gt;= 2020-01. See also <a href="http://localhost:3000/scalafmt/docs/configuration.html#newlinesaftercurlylambda">newlines.afterCurlyLambda = squash</a></p>
 <pre><code class="hljs css language-scala formatted">xs.map(x =&gt; x + <span class="hljs-number">1</span>)
 </code></pre>
 <pre><code class="hljs css language-scala original">xs.map { x =&gt; x + <span class="hljs-number">1</span> }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">RedundantBraces</span>]
 rewrite.redundantBraces.parensForOneLineApply = <span class="hljs-literal">true</span>
 </code></pre>
@@ -1680,7 +1581,7 @@ rewrite.redundantBraces.parensForOneLineApply = <span class="hljs-literal">true<
     .headOption
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">RedundantBraces</span>]
 rewrite.redundantBraces.maxLines = <span class="hljs-number">3</span>
 </code></pre>
@@ -1700,7 +1601,7 @@ rewrite.redundantBraces.maxLines = <span class="hljs-number">3</span>
 
 <span class="hljs-keyword">val</span> z = (insertData *&gt; readDatabase(id))
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">RedundantParens</span>]
 </code></pre>
 </p></details>
@@ -1714,7 +1615,7 @@ and class parameters.</p>
 <pre><code class="hljs css language-scala original"><span class="hljs-keyword">final</span> <span class="hljs-keyword">lazy</span> <span class="hljs-keyword">private</span> <span class="hljs-keyword">implicit</span> <span class="hljs-keyword">val</span> x = <span class="hljs-number">42</span>
 <span class="hljs-keyword">lazy</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">implicit</span> <span class="hljs-keyword">private</span> <span class="hljs-keyword">val</span> y = <span class="hljs-number">42</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">SortModifiers</span>]
 </code></pre>
 </p></details>
@@ -1729,7 +1630,7 @@ and class parameters.</p>
     private final val i2: <span class="hljs-type">String</span>
 </span>)</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">SortModifiers</span>]
 </code></pre>
 </p></details>
@@ -1743,7 +1644,7 @@ and class parameters.</p>
 <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">A2</span>(<span class="hljs-params">a: <span class="hljs-type">Int</span></span>)</span>
     <span class="hljs-keyword">extends</span> <span class="hljs-type">ADT</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">SortModifiers</span>]
 </code></pre>
 </p></details>
@@ -1754,7 +1655,7 @@ mutually exclusive, you might want to order them next to each other.</p>
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-keyword">override</span> <span class="hljs-keyword">implicit</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">val</span> x = <span class="hljs-number">2</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">SortModifiers</span>]
 rewrite.sortModifiers.order = [
   <span class="hljs-string">"implicit"</span>, <span class="hljs-string">"final"</span>, <span class="hljs-string">"sealed"</span>, <span class="hljs-string">"abstract"</span>,
@@ -1773,7 +1674,7 @@ multiple enumerator generators.</p>
 <pre><code class="hljs css language-scala original"><span class="hljs-keyword">for</span>(a &lt;- as; b &lt;- bs <span class="hljs-keyword">if</span> b &gt; <span class="hljs-number">2</span>)
  <span class="hljs-keyword">yield</span> (a, b)
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">PreferCurlyFors</span>]
 </code></pre>
 </p></details>
@@ -1783,7 +1684,7 @@ multiple enumerator generators.</p>
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-keyword">import</span> foo.{<span class="hljs-type">Zilch</span>, bar, <span class="hljs-type">Random</span>, sand}
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">SortImports</span>]
 </code></pre>
 </p></details>
@@ -1793,7 +1694,7 @@ multiple enumerator generators.</p>
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-keyword">import</span> foo.{~&gt;, `symbol`, bar, <span class="hljs-type">Random</span>}
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">AsciiSortImports</span>]
 </code></pre>
 </p></details>
@@ -1865,7 +1766,7 @@ method3(
   a,
 )
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">trailingCommas = never
 </code></pre>
 </p></details>
@@ -1922,7 +1823,7 @@ method3(
   a,
 )
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">trailingCommas = preserve
 </code></pre>
 </p></details>
@@ -1979,7 +1880,7 @@ method3(
   a
 )
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">trailingCommas = always
 </code></pre>
 </p></details>
@@ -2040,7 +1941,7 @@ method3(
   a,
 )
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">trailingCommas = multiple
 </code></pre>
 </p></details>
@@ -2080,7 +1981,7 @@ the <a href="#verticalmultilinearitythreshold"><code>verticalMultiline.arityThre
   <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">hello</span></span>(how: <span class="hljs-type">String</span>)(are: <span class="hljs-type">String</span>)(you: <span class="hljs-type">String</span>) = how + are + you
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">verticalMultiline.atDefnSite = <span class="hljs-literal">true</span>
 verticalMultiline.arityThreshold = <span class="hljs-number">2</span>
 </code></pre>
@@ -2097,7 +1998,7 @@ verticalMultiline.arityThreshold = <span class="hljs-number">2</span>
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">other</span></span>(a: <span class="hljs-type">String</span>, b: <span class="hljs-type">String</span>)(c: <span class="hljs-type">String</span>, d: <span class="hljs-type">String</span>) = a + b + c
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">continuationIndent.defnSite = <span class="hljs-number">2</span>
 verticalMultiline.atDefnSite = <span class="hljs-literal">true</span>
 verticalMultiline.arityThreshold = <span class="hljs-number">2</span>
@@ -2124,7 +2025,7 @@ other(a, b)(c, d)
 <pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">other</span></span>(a: <span class="hljs-type">String</span>, b: <span class="hljs-type">String</span>)(c: <span class="hljs-type">String</span>, d: <span class="hljs-type">String</span>) = a + b + c
 other(a, b)(c, d)
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">continuationIndent.defnSite = <span class="hljs-number">2</span>
 verticalMultiline.excludeDanglingParens = [<span class="hljs-function"><span class="hljs-keyword">def</span>]</span>
 verticalMultiline.atDefnSite = <span class="hljs-literal">true</span>
@@ -2148,7 +2049,7 @@ verticalMultiline.newlineAfterOpenParen = <span class="hljs-literal">true</span>
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">format</span></span>(code: <span class="hljs-type">String</span>, age: <span class="hljs-type">Int</span>)(<span class="hljs-keyword">implicit</span> ev: <span class="hljs-type">Parser</span>, c: <span class="hljs-type">Context</span>): <span class="hljs-type">String</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">60</span>
 verticalMultiline.atDefnSite = <span class="hljs-literal">true</span>
 newlines.implicitParamListModifierForce = [before]
@@ -2165,7 +2066,7 @@ newlines.implicitParamListModifierForce = [before]
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">format</span></span>(code: <span class="hljs-type">String</span>, age: <span class="hljs-type">Int</span>)(<span class="hljs-keyword">implicit</span> ev: <span class="hljs-type">Parser</span>, c: <span class="hljs-type">Context</span>): <span class="hljs-type">String</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">60</span>
 verticalMultiline.atDefnSite = <span class="hljs-literal">true</span>
 newlines.implicitParamListModifierForce = [after]
@@ -2183,7 +2084,7 @@ newlines.implicitParamListModifierForce = [after]
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">format</span></span>(code: <span class="hljs-type">String</span>, age: <span class="hljs-type">Int</span>)(<span class="hljs-keyword">implicit</span> ev: <span class="hljs-type">Parser</span>, c: <span class="hljs-type">Context</span>): <span class="hljs-type">String</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">maxColumn = <span class="hljs-number">60</span>
 verticalMultiline.atDefnSite = <span class="hljs-literal">true</span>
 newlines.implicitParamListModifierForce = [before,after]
@@ -2267,113 +2168,6 @@ will apply. It will also use different parameters for test suites.</p>
 <blockquote>
 <p>This parameter does not modify which files are formatted.</p>
 </blockquote>
-<h2><a class="anchor" aria-hidden="true" id="spaces"></a><a href="#spaces" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Spaces</h2>
-<h3><a class="anchor" aria-hidden="true" id="spacesbeforecontextboundcolon"></a><a href="#spacesbeforecontextboundcolon" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>spaces.beforeContextBoundColon</code></h3>
-<p>Default: <code>spaces.beforeContextBoundColon = &quot;Never&quot;</code></p>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>[<span class="hljs-type">A</span>: <span class="hljs-type">Bound</span>]: <span class="hljs-type">B</span>
-<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>[<span class="hljs-type">A</span>: <span class="hljs-type">Bound</span>]: <span class="hljs-type">B</span>
-<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>[<span class="hljs-type">A</span>: <span class="hljs-type">Bound</span>: <span class="hljs-type">Bound2</span>]: <span class="hljs-type">B</span>
-</code></pre>
-<pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>[<span class="hljs-type">A</span>: <span class="hljs-type">Bound</span>]: <span class="hljs-type">B</span>
-<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>[<span class="hljs-type">A</span> : <span class="hljs-type">Bound</span>]: <span class="hljs-type">B</span>
-<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>[<span class="hljs-type">A</span>: <span class="hljs-type">Bound</span>: <span class="hljs-type">Bound2</span>]: <span class="hljs-type">B</span>
-</code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">spaces.beforeContextBoundColon=<span class="hljs-type">Never</span>
-</code></pre>
-</p></details>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>[<span class="hljs-type">A</span> : <span class="hljs-type">Bound</span>]: <span class="hljs-type">B</span>
-<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>[<span class="hljs-type">A</span> : <span class="hljs-type">Bound</span>]: <span class="hljs-type">B</span>
-<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>[<span class="hljs-type">A</span> : <span class="hljs-type">Bound</span> : <span class="hljs-type">Bound2</span>]: <span class="hljs-type">B</span>
-</code></pre>
-<pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>[<span class="hljs-type">A</span>: <span class="hljs-type">Bound</span>]: <span class="hljs-type">B</span>
-<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>[<span class="hljs-type">A</span> : <span class="hljs-type">Bound</span>]: <span class="hljs-type">B</span>
-<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>[<span class="hljs-type">A</span>: <span class="hljs-type">Bound</span>: <span class="hljs-type">Bound2</span>]: <span class="hljs-type">B</span>
-</code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">spaces.beforeContextBoundColon=<span class="hljs-type">Always</span>
-</code></pre>
-</p></details>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>[<span class="hljs-type">A</span>: <span class="hljs-type">Bound</span>]: <span class="hljs-type">B</span>
-<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>[<span class="hljs-type">A</span>: <span class="hljs-type">Bound</span>]: <span class="hljs-type">B</span>
-<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>[<span class="hljs-type">A</span> : <span class="hljs-type">Bound</span> : <span class="hljs-type">Bound2</span>]: <span class="hljs-type">B</span>
-</code></pre>
-<pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>[<span class="hljs-type">A</span>: <span class="hljs-type">Bound</span>]: <span class="hljs-type">B</span>
-<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>[<span class="hljs-type">A</span> : <span class="hljs-type">Bound</span>]: <span class="hljs-type">B</span>
-<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>[<span class="hljs-type">A</span>: <span class="hljs-type">Bound</span>: <span class="hljs-type">Bound2</span>]: <span class="hljs-type">B</span>
-</code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">spaces.beforeContextBoundColon=<span class="hljs-type">IfMultipleBounds</span>
-</code></pre>
-</p></details>
-<h3><a class="anchor" aria-hidden="true" id="spacesinimportcurlybraces"></a><a href="#spacesinimportcurlybraces" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>spaces.inImportCurlyBraces</code></h3>
-<p>Default: <code>spaces.inImportCurlyBraces = false</code></p>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">import</span> a.b.{ c, d }
-</code></pre>
-<pre><code class="hljs css language-scala original"><span class="hljs-keyword">import</span> a.b.{c, d}
-</code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">spaces.inImportCurlyBraces=<span class="hljs-literal">true</span>
-</code></pre>
-</p></details>
-<h3><a class="anchor" aria-hidden="true" id="spacesinparentheses"></a><a href="#spacesinparentheses" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>spaces.inParentheses</code></h3>
-<p>Default: <code>spaces.inParentheses = false</code></p>
-<pre><code class="hljs css language-scala formatted">foo( a, b )
-</code></pre>
-<pre><code class="hljs css language-scala original">foo(a, b)
-</code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">spaces.inParentheses=<span class="hljs-literal">true</span>
-</code></pre>
-</p></details>
-<h3><a class="anchor" aria-hidden="true" id="spacesneveraroundinfixtypes"></a><a href="#spacesneveraroundinfixtypes" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>spaces.neverAroundInfixTypes</code></h3>
-<p>Default: <code>spaces.neverAroundInfixTypes = []</code></p>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">f</span></span>: <span class="hljs-type">Foo</span>##<span class="hljs-type">Repr</span>
-<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">g</span></span>: <span class="hljs-type">Foo</span> \/ <span class="hljs-type">Repr</span>
-<span class="hljs-comment">// usage same operator not as type</span>
-<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">e</span> </span>= a ## b
-</code></pre>
-<pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">f</span></span>: <span class="hljs-type">Foo</span>##<span class="hljs-type">Repr</span>
-<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">g</span></span>: <span class="hljs-type">Foo</span>\/<span class="hljs-type">Repr</span>
-<span class="hljs-comment">// usage same operator not as type</span>
-<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">e</span> </span>= a##b
-</code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">spaces.neverAroundInfixTypes=[<span class="hljs-string">"##"</span>]
-</code></pre>
-</p></details>
-<h3><a class="anchor" aria-hidden="true" id="spacesafterkeywordbeforeparen"></a><a href="#spacesafterkeywordbeforeparen" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>spaces.afterKeywordBeforeParen</code></h3>
-<p>Default: <code>spaces.afterKeywordBeforeParen = true</code></p>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">if</span>(a) println(<span class="hljs-string">"HELLO!"</span>)
-<span class="hljs-keyword">while</span>(a) println(<span class="hljs-string">"HELLO!"</span>)
-</code></pre>
-<pre><code class="hljs css language-scala original"><span class="hljs-keyword">if</span> (a) println(<span class="hljs-string">"HELLO!"</span>)
-<span class="hljs-keyword">while</span> (a) println(<span class="hljs-string">"HELLO!"</span>)
-</code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">spaces.afterKeywordBeforeParen = <span class="hljs-literal">false</span>
-</code></pre>
-</p></details>
-<h3><a class="anchor" aria-hidden="true" id="spacesinbynametypes"></a><a href="#spacesinbynametypes" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>spaces.inByNameTypes</code></h3>
-<p>Default: <code>spaces.inByNameTypes = true</code></p>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">foo</span></span>(a: =&gt;<span class="hljs-type">A</span>): <span class="hljs-type">A</span>
-</code></pre>
-<pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">foo</span></span>(a: =&gt; <span class="hljs-type">A</span>): <span class="hljs-type">A</span>
-</code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">spaces.inByNameTypes = <span class="hljs-literal">false</span>
-</code></pre>
-</p></details>
-<h3><a class="anchor" aria-hidden="true" id="spacesaftersymbolicdefs"></a><a href="#spacesaftersymbolicdefs" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>spaces.afterSymbolicDefs</code></h3>
-<p>Default: <code>spaces.afterSymbolicDefs = false</code></p>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">+++</span> </span>(a: <span class="hljs-type">A</span>): <span class="hljs-type">F</span>[<span class="hljs-type">A</span>]
-</code></pre>
-<pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">+++</span></span>(a: <span class="hljs-type">A</span>): <span class="hljs-type">F</span>[<span class="hljs-type">A</span>]
-</code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">spaces.afterSymbolicDefs=<span class="hljs-literal">true</span>
-</code></pre>
-</p></details>
 <h2><a class="anchor" aria-hidden="true" id="literals"></a><a href="#literals" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Literals</h2>
 <blockquote>
 <p>Since v2.5.0.</p>
@@ -2402,7 +2196,7 @@ and <a href="https://www.scala-lang.org/files/archive/spec/2.13/01-lexical-synta
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-number">123</span>l
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">literals.long=<span class="hljs-type">Upper</span>
 </code></pre>
 </p></details>
@@ -2413,7 +2207,7 @@ and <a href="https://www.scala-lang.org/files/archive/spec/2.13/01-lexical-synta
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-number">42.0</span>F
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">literals.float=<span class="hljs-type">Lower</span>
 </code></pre>
 </p></details>
@@ -2424,7 +2218,7 @@ and <a href="https://www.scala-lang.org/files/archive/spec/2.13/01-lexical-synta
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-number">42.0</span>d
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">literals.double=<span class="hljs-type">Lower</span>
 </code></pre>
 </p></details>
@@ -2435,7 +2229,7 @@ and <a href="https://www.scala-lang.org/files/archive/spec/2.13/01-lexical-synta
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-number">0X123</span>
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">literals.hexPrefix=<span class="hljs-type">Lower</span>
 </code></pre>
 </p></details>
@@ -2448,7 +2242,7 @@ and <a href="https://www.scala-lang.org/files/archive/spec/2.13/01-lexical-synta
 <pre><code class="hljs css language-scala original"><span class="hljs-number">0xaAaA</span>
 <span class="hljs-number">0xaAaA</span>l
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">literals.hexDigits=<span class="hljs-type">Lower</span>
 literals.long=<span class="hljs-type">Upper</span>
 </code></pre>
@@ -2462,12 +2256,12 @@ literals.long=<span class="hljs-type">Upper</span>
 <pre><code class="hljs css language-scala original"><span class="hljs-number">10e-1</span>
 <span class="hljs-number">10e-1</span>f
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">literals.scientific=<span class="hljs-type">Upper</span>
 literals.float=<span class="hljs-type">Lower</span>
 </code></pre>
 </p></details>
-<h2><a class="anchor" aria-hidden="true" id="binpacking"></a><a href="#binpacking" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Binpacking</h2>
+<h2><a class="anchor" aria-hidden="true" id="miscellaneous"></a><a href="#miscellaneous" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Miscellaneous</h2>
 <h3><a class="anchor" aria-hidden="true" id="binpackliteralargumentlists"></a><a href="#binpackliteralargumentlists" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>binPack.literalArgumentLists</code></h3>
 <p>Default: <code>binPack.literalArgumentLists = true</code></p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">val</span> secret: <span class="hljs-type">List</span>[<span class="hljs-type">Bit</span>] = <span class="hljs-type">List</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>,
@@ -2478,7 +2272,7 @@ literals.float=<span class="hljs-type">Lower</span>
 <pre><code class="hljs css language-scala original"><span class="hljs-keyword">val</span> secret: <span class="hljs-type">List</span>[<span class="hljs-type">Bit</span>] = <span class="hljs-type">List</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>,
   <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>)
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">binPack.literalArgumentLists = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
@@ -2500,7 +2294,7 @@ literals.float=<span class="hljs-type">Lower</span>
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-keyword">val</span> secret: <span class="hljs-type">List</span>[<span class="hljs-type">Bit</span>] = <span class="hljs-type">List</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>)
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">binPack.literalArgumentLists = <span class="hljs-literal">false</span>
 </code></pre>
 </p></details>
@@ -2510,7 +2304,7 @@ literals.float=<span class="hljs-type">Lower</span>
 <pre><code class="hljs css language-scala original"><span class="hljs-keyword">val</span> secret: <span class="hljs-type">List</span>[<span class="hljs-type">Bit</span>] = <span class="hljs-type">List</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>,
   <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>)
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">binPack.literalArgumentLists = <span class="hljs-literal">true</span>
 binPack.literalsSingleLine = <span class="hljs-literal">true</span>
 </code></pre>
@@ -2523,101 +2317,6 @@ added in v2.5.0</li>
 <li>all other <code>binPack.literalXXX</code> parameters (see list at the bottom) are
 self-explanatory.</li>
 </ul>
-<h3><a class="anchor" aria-hidden="true" id="binpackparentconstructors"></a><a href="#binpackparentconstructors" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>binPack.parentConstructors</code></h3>
-<p>Parent constructors are <code>C</code> and <code>D</code> in <code>class A extends B with C and D</code>. If true,
-<code>scalafmt</code> will fit as many parent constructors on a single line. If false, each
-parent constructor gets its own line.</p>
-<p>Default: <code>binPack.parentConstructors = &quot;never&quot;</code></p>
-<blockquote>
-<p>Keep in mind that explicitly specifying the default value might change
-behaviour; other parameters, such as <a href="#newlinessource"><code>newlines.source</code></a>,
-could interpret implied default differently but yield to an explicit value.</p>
-</blockquote>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">A</span> </span>{
-  <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Foo</span></span>
-      <span class="hljs-keyword">extends</span> <span class="hljs-type">Bar</span> <span class="hljs-keyword">with</span> <span class="hljs-type">Baz</span>
-}
-</code></pre>
-<pre><code class="hljs css language-scala original"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">A</span> </span>{
-  <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Foo</span></span>
-  <span class="hljs-keyword">extends</span> <span class="hljs-type">Bar</span>
-  <span class="hljs-keyword">with</span> <span class="hljs-type">Baz</span>
-}
-</code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">binPack.parentConstructors = <span class="hljs-type">Always</span>
-maxColumn = <span class="hljs-number">30</span>
-</code></pre>
-</p></details>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">A</span> </span>{
-  <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Foo</span></span>
-      <span class="hljs-keyword">extends</span> <span class="hljs-type">Bar</span>
-      <span class="hljs-keyword">with</span> <span class="hljs-type">Baz</span>
-}
-</code></pre>
-<pre><code class="hljs css language-scala original"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">A</span> </span>{
-  <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Foo</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Bar</span> <span class="hljs-keyword">with</span> <span class="hljs-title">Baz</span></span>
-}
-</code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">binPack.parentConstructors = <span class="hljs-type">Never</span>
-maxColumn = <span class="hljs-number">30</span>
-</code></pre>
-</p></details>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">A</span> </span>{
-  <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Foo</span>(<span class="hljs-params">a: <span class="hljs-type">Int</span></span>)</span>
-      <span class="hljs-keyword">extends</span> <span class="hljs-type">Bar</span> <span class="hljs-keyword">with</span> <span class="hljs-type">Baz</span>
-
-  <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Foo</span>(<span class="hljs-params">
-      a: <span class="hljs-type">Int</span>
-  </span>) <span class="hljs-keyword">extends</span> <span class="hljs-title">Bar</span> <span class="hljs-keyword">with</span> <span class="hljs-title">Baz</span></span>
-}
-</code></pre>
-<pre><code class="hljs css language-scala original"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">A</span> </span>{
-  <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Foo</span>(<span class="hljs-params">a: <span class="hljs-type">Int</span></span>)</span>
-  <span class="hljs-keyword">extends</span> <span class="hljs-type">Bar</span>
-  <span class="hljs-keyword">with</span> <span class="hljs-type">Baz</span>
-
-  <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Foo</span>(<span class="hljs-params">
-    a: <span class="hljs-type">Int</span>
-  </span>)</span>
-  <span class="hljs-keyword">extends</span> <span class="hljs-type">Bar</span>
-  <span class="hljs-keyword">with</span> <span class="hljs-type">Baz</span>
-}
-</code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">binPack.parentConstructors = <span class="hljs-type">Oneline</span>
-maxColumn = <span class="hljs-number">30</span>
-</code></pre>
-</p></details>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">A</span> </span>{
-  <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Foo</span>(<span class="hljs-params">a: <span class="hljs-type">Int</span>, b: <span class="hljs-type">Int</span></span>)</span>
-      <span class="hljs-keyword">extends</span> <span class="hljs-type">Bar</span> <span class="hljs-keyword">with</span> <span class="hljs-type">Baz</span>
-
-  <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Foo</span>(<span class="hljs-params">
-      a: <span class="hljs-type">Int</span>,
-      b: <span class="hljs-type">Int</span>
-  </span>) <span class="hljs-keyword">extends</span> <span class="hljs-title">Bar</span></span>
-      <span class="hljs-keyword">with</span> <span class="hljs-type">Baz</span>
-}
-</code></pre>
-<pre><code class="hljs css language-scala original"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">A</span> </span>{
-  <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Foo</span>(<span class="hljs-params">a: <span class="hljs-type">Int</span>, b: <span class="hljs-type">Int</span></span>)</span>
-  <span class="hljs-keyword">extends</span> <span class="hljs-type">Bar</span>
-  <span class="hljs-keyword">with</span> <span class="hljs-type">Baz</span>
-
-  <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Foo</span>(<span class="hljs-params">
-    a: <span class="hljs-type">Int</span>,
-    b: <span class="hljs-type">Int</span>
-  </span>) <span class="hljs-keyword">extends</span> <span class="hljs-title">Bar</span> <span class="hljs-keyword">with</span> <span class="hljs-title">Baz</span></span>
-}
-</code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">binPack.parentConstructors = <span class="hljs-type">OnelineIfPrimaryOneline</span>
-maxColumn = <span class="hljs-number">30</span>
-</code></pre>
-</p></details>
-<h2><a class="anchor" aria-hidden="true" id="miscellaneous"></a><a href="#miscellaneous" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Miscellaneous</h2>
 <h3><a class="anchor" aria-hidden="true" id="includecurlybraceinselectchains"></a><a href="#includecurlybraceinselectchains" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>includeCurlyBraceInSelectChains</code></h3>
 <p>Default: <code>includeCurlyBraceInSelectChains = true</code></p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-type">List</span>(<span class="hljs-number">1</span>)
@@ -2631,7 +2330,7 @@ maxColumn = <span class="hljs-number">30</span>
   }
   .filter(_ &gt; <span class="hljs-number">2</span>)
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">includeCurlyBraceInSelectChains = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
@@ -2645,7 +2344,7 @@ maxColumn = <span class="hljs-number">30</span>
   }
   .filter(_ &gt; <span class="hljs-number">2</span>)
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">includeCurlyBraceInSelectChains = <span class="hljs-literal">false</span>
 </code></pre>
 </p></details>
@@ -2661,7 +2360,7 @@ maxColumn = <span class="hljs-number">30</span>
   .map(_ + <span class="hljs-number">2</span>)
   .filter(_ &gt; <span class="hljs-number">2</span>)
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">includeNoParensInSelectChains = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
@@ -2671,7 +2370,7 @@ maxColumn = <span class="hljs-number">30</span>
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-type">List</span>(<span class="hljs-number">1</span>).toIterator.buffered.map(_ + <span class="hljs-number">2</span>).filter(_ &gt; <span class="hljs-number">2</span>)
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">includeNoParensInSelectChains = <span class="hljs-literal">false</span>
 </code></pre>
 </p></details>
@@ -2685,7 +2384,7 @@ foo
   .map(_ + <span class="hljs-number">1</span>)
   .filter(_ &gt; <span class="hljs-number">2</span>)
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">optIn.breakChainOnFirstMethodDot = <span class="hljs-literal">false</span>
 </code></pre>
 </p></details>
@@ -2699,7 +2398,7 @@ foo
   .map(_ + <span class="hljs-number">1</span>) <span class="hljs-comment">// preserve existing newlines</span>
   .filter(_ &gt; <span class="hljs-number">2</span>)
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">optIn.breakChainOnFirstMethodDot = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
@@ -2718,7 +2417,7 @@ If false, preserves blank line only if one exists before.</p>
   <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">hello</span> </span>= ()
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">optIn.forceBlankLineBeforeDocstring = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
@@ -2732,7 +2431,7 @@ If false, preserves blank line only if one exists before.</p>
   <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">hello</span> </span>= ()
 }
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">optIn.forceBlankLineBeforeDocstring = <span class="hljs-literal">false</span>
 </code></pre>
 </p></details>
@@ -2754,7 +2453,7 @@ arrows to regular ascii arrows.</p>
   b ← <span class="hljs-type">Option</span>(<span class="hljs-number">2</span>)
 } <span class="hljs-keyword">yield</span> a + b
 </code></pre>
-<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<p><details class='config' open><summary>Config for this example</summary><p></p>
 <pre><code class="hljs css language-scala config">rewriteTokens = {
   <span class="hljs-string">"⇒"</span>: <span class="hljs-string">"=&gt;"</span>
   <span class="hljs-string">"→"</span>: <span class="hljs-string">"-&gt;"</span>
@@ -2771,12 +2470,9 @@ will not respect the <code>edition</code> setting.</p>
 of Scalafmt. A good place to start is <code>ScalafmtConfig</code>. Observe that this
 listing below is the top-level, there are more configuration options if you
 visited nested fields like <code>spaces</code> and <code>newlines</code>.</p>
-<pre><code class="hljs"><span class="hljs-attr">version</span> = <span class="hljs-string">"2.5.2"</span>
+<pre><code class="hljs"><span class="hljs-attr">version</span> = <span class="hljs-string">"2.5.3"</span>
 <span class="hljs-attr">maxColumn</span> = <span class="hljs-number">80</span>
-docstrings.<span class="hljs-attr">oneline</span> = keep
-docstrings.<span class="hljs-attr">style</span> = ScalaDoc
-comments.<span class="hljs-attr">wrap</span> = no
-comments.<span class="hljs-attr">wrapStandaloneSlcAsSlc</span> = <span class="hljs-literal">false</span>
+<span class="hljs-attr">docstrings</span> = ScalaDoc
 optIn.<span class="hljs-attr">configStyleArguments</span> = <span class="hljs-literal">true</span>
 optIn.<span class="hljs-attr">breaksInsideChains</span> = <span class="hljs-literal">false</span>
 optIn.<span class="hljs-attr">breakChainOnFirstMethodDot</span> = <span class="hljs-literal">true</span>
@@ -2786,7 +2482,7 @@ optIn.<span class="hljs-attr">forceBlankLineBeforeDocstring</span> = <span class
 optIn.<span class="hljs-attr">blankLineBeforeDocstring</span> = <span class="hljs-literal">false</span>
 binPack.<span class="hljs-attr">unsafeCallSite</span> = <span class="hljs-literal">false</span>
 binPack.<span class="hljs-attr">unsafeDefnSite</span> = <span class="hljs-literal">false</span>
-binPack.<span class="hljs-attr">parentConstructors</span> = never
+binPack.<span class="hljs-attr">parentConstructors</span> = <span class="hljs-literal">false</span>
 binPack.<span class="hljs-attr">literalArgumentLists</span> = <span class="hljs-literal">true</span>
 binPack.<span class="hljs-attr">literalsIncludeSimpleExpr</span> = <span class="hljs-literal">false</span>
 binPack.<span class="hljs-attr">literalsSingleLine</span> = <span class="hljs-literal">false</span>
@@ -2959,7 +2655,7 @@ project.<span class="hljs-attr">includeFilters</span> = [
 project.<span class="hljs-attr">excludeFilters</span> = []
 <span class="hljs-attr">edition</span> = <span class="hljs-string">"9999-12"</span>
 </code></pre>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/scalafmt/docs/installation.html"><span class="arrow-prev">← </span><span>Installation</span></a><a class="docs-next button" href="/scalafmt/docs/gotchas.html"><span>Gotchas</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#most-popular">Most popular</a><ul class="toc-headings"><li><a href="#maxcolumn"><code>maxColumn</code></a></li><li><a href="#comments"><code>comments</code></a></li><li><a href="#docstrings"><code>docstrings</code></a></li><li><a href="#assumestandardlibrarystripmargin"><code>assumeStandardLibraryStripMargin</code></a></li></ul></li><li><a href="#presets">Presets</a><ul class="toc-headings"><li><a href="#top-level-presets">Top-level presets</a></li></ul></li><li><a href="#indentation">Indentation</a><ul class="toc-headings"><li><a href="#continuationindentcallsite"><code>continuationIndent.callSite</code></a></li><li><a href="#continuationindentdefnsite"><code>continuationIndent.defnSite</code></a></li><li><a href="#continuationindentctorsite"><code>continuationIndent.ctorSite</code></a></li><li><a href="#continuationindentextendsite"><code>continuationIndent.extendSite</code></a></li></ul></li><li><a href="#alignment">Alignment</a><ul class="toc-headings"><li><a href="#align"><code>align</code></a></li><li><a href="#aligntokens"><code>align.tokens</code></a></li><li><a href="#aligntokensadd"><code>align.tokens.add</code></a></li><li><a href="#alignarrowenumeratorgenerator"><code>align.arrowEnumeratorGenerator</code></a></li><li><a href="#alignopenparencallsite"><code>align.openParenCallSite</code></a></li><li><a href="#alignopenparendefnsite"><code>align.openParenDefnSite</code></a></li><li><a href="#alignstripmargin"><code>align.stripMargin</code></a></li><li><a href="#alignmultiline"><code>align.multiline</code></a></li></ul></li><li><a href="#newlines">Newlines</a><ul class="toc-headings"><li><a href="#newlinessource"><code>newlines.source</code></a></li><li><a href="#danglingparentheses"><code>danglingParentheses</code></a></li><li><a href="#newlinestoplevelstatements"><code>newlines.topLevelStatements</code></a></li><li><a href="#newlinesalwaysbeforemultilinedef"><code>newlines.alwaysBeforeMultilineDef</code></a></li><li><a href="#newlinesalwaysbeforeelseaftercurlyif"><code>newlines.alwaysBeforeElseAfterCurlyIf</code></a></li><li><a href="#newlinesaftercurlylambda"><code>newlines.afterCurlyLambda</code></a></li><li><a href="#newlines-around-implicit-parameter-list-modifier">Newlines around <code>implicit</code> parameter list modifier</a></li><li><a href="#newlinesafterinfix"><code>newlines.afterInfix</code></a></li></ul></li><li><a href="#rewrite-rules">Rewrite Rules</a><ul class="toc-headings"><li><a href="#avoidinfix"><code>AvoidInfix</code></a></li><li><a href="#expandimportselectors"><code>ExpandImportSelectors</code></a></li><li><a href="#redundantbraces"><code>RedundantBraces</code></a></li><li><a href="#redundantparens"><code>RedundantParens</code></a></li><li><a href="#sortmodifiers"><code>SortModifiers</code></a></li><li><a href="#prefercurlyfors"><code>PreferCurlyFors</code></a></li><li><a href="#sortimports"><code>SortImports</code></a></li><li><a href="#asciisortimports"><code>AsciiSortImports</code></a></li><li><a href="#trailing-commas">Trailing commas</a></li></ul></li><li><a href="#vertical-multiline">Vertical Multiline</a><ul class="toc-headings"><li><a href="#verticalmultilinearitythreshold"><code>verticalMultiline.arityThreshold</code></a></li><li><a href="#verticalmultilinenewlineafteropenparen"><code>verticalMultiline.newlineAfterOpenParen</code></a></li><li><a href="#verticalmultilineexcludedanglingparens"><code>verticalMultiline.excludeDanglingParens</code></a></li><li><a href="#vertical-multiline-with-implicit-parameter-lists">Vertical multiline with <code>implicit</code> parameter lists</a></li></ul></li><li><a href="#disabling-or-customizing-formatting">Disabling or customizing formatting</a><ul class="toc-headings"><li><a href="#for-code-block">For code block</a></li><li><a href="#-format-off">// format: off</a></li><li><a href="#project">Project</a></li><li><a href="#fileoverride"><code>fileOverride</code></a></li></ul></li><li><a href="#spaces">Spaces</a><ul class="toc-headings"><li><a href="#spacesbeforecontextboundcolon"><code>spaces.beforeContextBoundColon</code></a></li><li><a href="#spacesinimportcurlybraces"><code>spaces.inImportCurlyBraces</code></a></li><li><a href="#spacesinparentheses"><code>spaces.inParentheses</code></a></li><li><a href="#spacesneveraroundinfixtypes"><code>spaces.neverAroundInfixTypes</code></a></li><li><a href="#spacesafterkeywordbeforeparen"><code>spaces.afterKeywordBeforeParen</code></a></li><li><a href="#spacesinbynametypes"><code>spaces.inByNameTypes</code></a></li><li><a href="#spacesaftersymbolicdefs"><code>spaces.afterSymbolicDefs</code></a></li></ul></li><li><a href="#literals">Literals</a><ul class="toc-headings"><li><a href="#literalslong"><code>literals.long</code></a></li><li><a href="#literalsfloat"><code>literals.float</code></a></li><li><a href="#literalsdouble"><code>literals.double</code></a></li><li><a href="#literalshexprefix"><code>literals.hexPrefix</code></a></li><li><a href="#literalshexdigits"><code>literals.hexDigits</code></a></li><li><a href="#literalsscientific"><code>literals.scientific</code></a></li></ul></li><li><a href="#binpacking">Binpacking</a><ul class="toc-headings"><li><a href="#binpackliteralargumentlists"><code>binPack.literalArgumentLists</code></a></li><li><a href="#binpackparentconstructors"><code>binPack.parentConstructors</code></a></li></ul></li><li><a href="#miscellaneous">Miscellaneous</a><ul class="toc-headings"><li><a href="#includecurlybraceinselectchains"><code>includeCurlyBraceInSelectChains</code></a></li><li><a href="#includenoparensinselectchains"><code>includeNoParensInSelectChains</code></a></li><li><a href="#optinbreakchainonfirstmethoddot"><code>optIn.breakChainOnFirstMethodDot</code></a></li><li><a href="#optinforceblanklinebeforedocstring"><code>optIn.forceBlankLineBeforeDocstring</code></a></li><li><a href="#rewritetokens"><code>rewriteTokens</code></a></li></ul></li><li><a href="#edition">Edition</a></li><li><a href="#other">Other</a></li></ul></nav></div><footer class="nav-footer" id="footer" style="background-color:#A23244"><section class="sitemap"><div><h5>Docs</h5><a href="
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/scalafmt/docs/installation.html"><span class="arrow-prev">← </span><span>Installation</span></a><a class="docs-next button" href="/scalafmt/docs/gotchas.html"><span>Gotchas</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#most-popular">Most popular</a><ul class="toc-headings"><li><a href="#maxcolumn"><code>maxColumn</code></a></li><li><a href="#docstrings"><code>docstrings</code></a></li><li><a href="#assumestandardlibrarystripmargin"><code>assumeStandardLibraryStripMargin</code></a></li></ul></li><li><a href="#presets">Presets</a><ul class="toc-headings"><li><a href="#top-level-presets">Top-level presets</a></li></ul></li><li><a href="#indentation">Indentation</a><ul class="toc-headings"><li><a href="#continuationindentcallsite"><code>continuationIndent.callSite</code></a></li><li><a href="#continuationindentdefnsite"><code>continuationIndent.defnSite</code></a></li><li><a href="#continuationindentctorsite"><code>continuationIndent.ctorSite</code></a></li><li><a href="#continuationindentextendsite"><code>continuationIndent.extendSite</code></a></li></ul></li><li><a href="#alignment">Alignment</a><ul class="toc-headings"><li><a href="#align"><code>align</code></a></li><li><a href="#aligntokens"><code>align.tokens</code></a></li><li><a href="#aligntokensadd"><code>align.tokens.add</code></a></li><li><a href="#alignarrowenumeratorgenerator"><code>align.arrowEnumeratorGenerator</code></a></li><li><a href="#alignopenparencallsite"><code>align.openParenCallSite</code></a></li><li><a href="#alignopenparendefnsite"><code>align.openParenDefnSite</code></a></li><li><a href="#alignstripmargin"><code>align.stripMargin</code></a></li><li><a href="#alignmultiline"><code>align.multiline</code></a></li></ul></li><li><a href="#newlines">Newlines</a><ul class="toc-headings"><li><a href="#newlinessource"><code>newlines.source</code></a></li><li><a href="#danglingparentheses"><code>danglingParentheses</code></a></li><li><a href="#newlinestoplevelstatements"><code>newlines.topLevelStatements</code></a></li><li><a href="#newlinesalwaysbeforemultilinedef"><code>newlines.alwaysBeforeMultilineDef</code></a></li><li><a href="#newlinesalwaysbeforeelseaftercurlyif"><code>newlines.alwaysBeforeElseAfterCurlyIf</code></a></li><li><a href="#newlinesaftercurlylambda"><code>newlines.afterCurlyLambda</code></a></li><li><a href="#newlines-around-implicit-parameter-list-modifier">Newlines around <code>implicit</code> parameter list modifier</a></li><li><a href="#newlinesafterinfix"><code>newlines.afterInfix</code></a></li></ul></li><li><a href="#rewrite-rules">Rewrite Rules</a><ul class="toc-headings"><li><a href="#avoidinfix"><code>AvoidInfix</code></a></li><li><a href="#expandimportselectors"><code>ExpandImportSelectors</code></a></li><li><a href="#redundantbraces"><code>RedundantBraces</code></a></li><li><a href="#redundantparens"><code>RedundantParens</code></a></li><li><a href="#sortmodifiers"><code>SortModifiers</code></a></li><li><a href="#prefercurlyfors"><code>PreferCurlyFors</code></a></li><li><a href="#sortimports"><code>SortImports</code></a></li><li><a href="#asciisortimports"><code>AsciiSortImports</code></a></li><li><a href="#trailing-commas">Trailing commas</a></li></ul></li><li><a href="#vertical-multiline">Vertical Multiline</a><ul class="toc-headings"><li><a href="#verticalmultilinearitythreshold"><code>verticalMultiline.arityThreshold</code></a></li><li><a href="#verticalmultilinenewlineafteropenparen"><code>verticalMultiline.newlineAfterOpenParen</code></a></li><li><a href="#verticalmultilineexcludedanglingparens"><code>verticalMultiline.excludeDanglingParens</code></a></li><li><a href="#vertical-multiline-with-implicit-parameter-lists">Vertical multiline with <code>implicit</code> parameter lists</a></li></ul></li><li><a href="#disabling-or-customizing-formatting">Disabling or customizing formatting</a><ul class="toc-headings"><li><a href="#for-code-block">For code block</a></li><li><a href="#-format-off">// format: off</a></li><li><a href="#project">Project</a></li><li><a href="#fileoverride"><code>fileOverride</code></a></li></ul></li><li><a href="#literals">Literals</a><ul class="toc-headings"><li><a href="#literalslong"><code>literals.long</code></a></li><li><a href="#literalsfloat"><code>literals.float</code></a></li><li><a href="#literalsdouble"><code>literals.double</code></a></li><li><a href="#literalshexprefix"><code>literals.hexPrefix</code></a></li><li><a href="#literalshexdigits"><code>literals.hexDigits</code></a></li><li><a href="#literalsscientific"><code>literals.scientific</code></a></li></ul></li><li><a href="#miscellaneous">Miscellaneous</a><ul class="toc-headings"><li><a href="#binpackliteralargumentlists"><code>binPack.literalArgumentLists</code></a></li><li><a href="#includecurlybraceinselectchains"><code>includeCurlyBraceInSelectChains</code></a></li><li><a href="#includenoparensinselectchains"><code>includeNoParensInSelectChains</code></a></li><li><a href="#optinbreakchainonfirstmethoddot"><code>optIn.breakChainOnFirstMethodDot</code></a></li><li><a href="#optinforceblanklinebeforedocstring"><code>optIn.forceBlankLineBeforeDocstring</code></a></li><li><a href="#rewritetokens"><code>rewriteTokens</code></a></li></ul></li><li><a href="#edition">Edition</a></li><li><a href="#other">Other</a></li></ul></nav></div><footer class="nav-footer" id="footer" style="background-color:#A23244"><section class="sitemap"><div><h5>Docs</h5><a href="
                 /scalafmt/docs/installation.html">Installation</a><a href="
                 /scalafmt/docs/configuration.html">Configuration</a><a href="
                 /scalafmt/docs/contributing-scalafmt.html">Contributing</a></div><div><h5>Community</h5><a href="https://gitter.im/scalameta/scalafmt" target="_blank">Chat on Gitter</a></div><div><h5>More</h5><a href="https://github.com/scalameta/scalafmt" target="_blank">GitHub</a></div></section><section class="copyright">Copyright © 2020 Scalafmt</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
