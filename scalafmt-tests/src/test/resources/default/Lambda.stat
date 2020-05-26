@@ -460,4 +460,8 @@ object a {
   }
 }
 >>>
-java.util.NoSuchElementException: last of empty list
+object a {
+  And("foo") { () =>
+    // bar
+  }
+}

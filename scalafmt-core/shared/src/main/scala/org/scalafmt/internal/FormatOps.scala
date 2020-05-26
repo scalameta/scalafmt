@@ -1355,6 +1355,10 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
           else tokens(nextNonComment(maybeArrow), 1)
         }
       }
+      .orElse {
+        val headToken = tokens(term.tokens.head)
+        findFirst(headToken, term.tokens.last)(_.left.is[T.RightArrow])
+      }
 
   // look for arrow before body, if any, else after cond/pat
   def getCaseArrow(term: Case): FormatToken =

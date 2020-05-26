@@ -185,8 +185,7 @@ class Router(formatOps: FormatOps) {
           startsStatement(right) match {
             case Some(owner: Term.Function) =>
               val arrow = getFuncArrow(lastLambda(owner))
-              val expire =
-                arrow.getOrElse(tokens(owner.params.last.tokens.last))
+              val expire = arrow.getOrElse(tokens(owner.tokens.last))
               (expire, arrow.map(_.left), 0)
             case _ =>
               selfAnnotation match {
