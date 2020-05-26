@@ -107,6 +107,14 @@ docstrings.style = Asterisk
   */
 ```
 
+```scala mdoc:scalafmt
+docstrings.style = AsteriskSpace
+---
+/** Format intermediate lines with an asterisk and a space,
+  * both below the two asterisks of the first line
+  */
+```
+
 #### `docstrings.oneline`
 
 ```scala mdoc:defaults

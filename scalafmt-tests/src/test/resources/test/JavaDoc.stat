@@ -87,6 +87,46 @@ class Main
   * Main entry-point.
   */
 class Main
+<<< #1403 1: AsteriskSpace 1
+docstrings.style = AsteriskSpace
+===
+/**
+   *Indent0
+  * Indent1
+  *  Indent2
+ *   Indent3
+*    Indent4
+    */
+class Main
+>>>
+/**
+ *  Indent0
+ *  Indent1
+ *  Indent2
+ *   Indent3
+ *    Indent4
+ */
+class Main
+<<< #1403 1: AsteriskSpace 2
+docstrings.style = AsteriskSpace
+===
+/**Top line.
+   *Indent0
+  * Indent1
+  *  Indent2
+ *   Indent3
+*    Indent4
+    */
+class Main
+>>>
+/** Top line.
+ *  Indent0
+ *  Indent1
+ *  Indent2
+ *   Indent3
+ *    Indent4
+ */
+class Main
 <<< #1403 2: fold Asterisk
 docstrings.oneline = fold
 docstrings.style = Asterisk
@@ -101,6 +141,17 @@ class Main
 <<< #1403 2: fold SpaceAsterisk
 docstrings.oneline = fold
 docstrings.style = SpaceAsterisk
+===
+/**
+  * Main entry-point.
+  */
+class Main
+>>>
+/** Main entry-point. */
+class Main
+<<< #1403 2: fold AsteriskSpace
+docstrings.oneline = fold
+docstrings.style = AsteriskSpace
 ===
 /**
   * Main entry-point.
@@ -130,4 +181,15 @@ class Main
 /**
   * Main entry-point.
   */
+class Main
+<<< #1403 3: unfold AsteriskSpace
+docstrings.oneline = unfold
+docstrings.style = AsteriskSpace
+===
+/** Main entry-point. */
+class Main
+>>>
+/**
+ *  Main entry-point.
+ */
 class Main
