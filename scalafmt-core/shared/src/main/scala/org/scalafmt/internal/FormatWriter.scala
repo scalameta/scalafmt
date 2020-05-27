@@ -474,9 +474,9 @@ class FormatWriter(formatOps: FormatOps) {
         protected final val maxLength = style.maxColumn - indent - 2
 
         protected final def getFirstLineLength =
-          if (curr.hasBreakBefore) 0
+          if (breakBefore) 0
           else
-            prevState.prev.column - indent +
+            prevState.prev.column - prevState.prev.indentation +
               prevState.split.modification.length
 
         protected final def canRewrite =
@@ -491,21 +491,27 @@ class FormatWriter(formatOps: FormatOps) {
         protected final def iterWords(
             iter: WordIter,
             appendLineBreak: () => Unit,
-            lineLength: Int = 0
+            lineLength: Int = 0,
+            extraMargin: String = " "
         ): Unit =
           if (iter.hasNext) {
             val word = iter.next()
             val length = word.length
-            val maybeNextLineLength = lineLength + length
+            val maybeNextLineLength = lineLength + length + 1
             val nextLineLength =
-              if (lineLength == 0 || maybeNextLineLength <= maxLength)
+              if (
+                lineLength < extraMargin.length ||
+                maybeNextLineLength <= maxLength
+              ) {
+                sb.append(' ')
                 maybeNextLineLength
-              else {
+              } else {
                 appendLineBreak()
-                length
+                sb.append(extraMargin)
+                length + extraMargin.length
               }
-            sb.append(' ').append(word)
-            iterWords(iter, appendLineBreak, nextLineLength + 1)
+            sb.append(word)
+            iterWords(iter, appendLineBreak, nextLineLength, extraMargin)
           }
       }
 

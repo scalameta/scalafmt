@@ -315,10 +315,11 @@ object a {
 }
 >>>
 object a {
-  def a = {} /* And block-style comments
-   * should also be indented aligned
-   * sensibly, because they're just as
-   * good as single-line comments */
+  def a = {} /* And block-style
+   * comments should also be indented
+   * aligned sensibly, because they're
+   * just as good as single-line
+   * comments */
 }
 <<< #1234 5: trailing
 comments.wrap = trailing
@@ -330,9 +331,9 @@ object a {
 object a {
   def a =
     b(c) /* A really long comment that
-     * scalafmt should break up but does
-     * not because this feature is not
-     * implemented yet */
+     * scalafmt should break up but
+     * does not because this feature is
+     * not implemented yet */
 }
 <<< #1234 6: trailing
 comments.wrap = trailing
@@ -344,9 +345,9 @@ object a {
 object a {
   val a =
     b(c) /* A really long comment that
-     * scalafmt should break up but does
-     * not because this feature is not
-     * implemented yet */
+     * scalafmt should break up but
+     * does not because this feature is
+     * not implemented yet */
 }
 <<< #1234 7: trailing, use slc
 comments.wrap = trailing
@@ -363,7 +364,7 @@ object a {
 object a {
   val a =
     b(c) /* A really long comment that
-     * scalafmt should break up but does
-     * not because this feature is not
-     * implemented yet */
+     * scalafmt should break up but
+     * does not because this feature is
+     * not implemented yet */
 }
