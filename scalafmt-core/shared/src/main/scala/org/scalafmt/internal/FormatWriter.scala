@@ -426,43 +426,8 @@ class FormatWriter(formatOps: FormatOps) {
           text: String
       )(implicit sb: StringBuilder): Unit = {
         if (style.docstrings.style.isEmpty) sb.append(text)
-        else if (!formatOnelineDocstring(text)) formatMultilineDocstring(text)
-      }
-
-      private def formatMultilineDocstring(
-          text: String
-      )(implicit sb: StringBuilder): Unit = {
-        val isExtraSpace = style.docstrings.isAsteriskSpace
-        val extraIndent = if (style.docstrings.isSpaceAsterisk) 2 else 1
-        val spaces: String = getIndentation(prevState.indentation + extraIndent)
-        // remove "/**" and "*/"
-        val trimmed = CharBuffer.wrap(text, 3, text.length - 2)
-        val matcher = docstringLine.matcher(trimmed)
-        def appendLineBreak = sb.append('\n').append(spaces).append('*')
-        sb.append("/**")
-        val sbLen = sb.length()
-        var prevWasBlank = style.docstrings.isAsterisk
-        while (matcher.find()) {
-          val contentBeg = matcher.start(2)
-          val contentEnd = matcher.end(2)
-          if (contentBeg == contentEnd) prevWasBlank = true
-          else {
-            if (sb.length() != sbLen) appendLineBreak
-            if (prevWasBlank) {
-              appendLineBreak
-              prevWasBlank = false
-            }
-            val leadSpaces = matcher.end(1) - matcher.start(1)
-            val minSpaces = if (isExtraSpace && sb.length() != sbLen) 2 else 1
-            sb.append(getIndentation(math.max(minSpaces, leadSpaces)))
-            sb.append(CharBuffer.wrap(trimmed, contentBeg, contentEnd))
-          }
-        }
-        if (!prevWasBlank) sb.append(" */")
-        else {
-          appendLineBreak
-          sb.append('/')
-        }
+        else if (!formatOnelineDocstring(text))
+          new FormatMlDoc(text).format
       }
 
       private abstract class FormatCommentBase(implicit sb: StringBuilder) {
@@ -614,6 +579,50 @@ class FormatWriter(formatOps: FormatOps) {
             iterParagraphs(iter.next(), 0)
           }
         }
+      }
+
+      private class FormatMlDoc(text: String)(implicit sb: StringBuilder)
+          extends FormatCommentBase {
+        private val spaces: String = {
+          val extraIndent = if (style.docstrings.isSpaceAsterisk) 2 else 1
+          getIndentation(prevState.indentation + extraIndent)
+        }
+        private val margin =
+          getIndentation(if (style.docstrings.isAsteriskSpace) 2 else 1)
+
+        def format: Unit = {
+          // remove "/**" and "*/"
+          val trimmed = CharBuffer.wrap(text, 3, text.length - 2)
+          val matcher = docstringLine.matcher(trimmed)
+          sb.append("/**")
+          val sbLen = sb.length()
+          var prevWasBlank = style.docstrings.isAsterisk
+          while (matcher.find()) {
+            val contentBeg = matcher.start(2)
+            val contentEnd = matcher.end(2)
+            if (contentBeg == contentEnd) prevWasBlank = true
+            else {
+              if (sb.length() != sbLen) appendBreak()
+              if (prevWasBlank) {
+                appendBreak
+                prevWasBlank = false
+              }
+              if (sb.length() == sbLen) sb.append(' ') else sb.append(margin)
+              val extraMargin =
+                matcher.end(1) - matcher.start(1) - margin.length
+              if (extraMargin > 0) sb.append(getIndentation(extraMargin))
+              sb.append(CharBuffer.wrap(trimmed, contentBeg, contentEnd))
+            }
+          }
+          if (!prevWasBlank) sb.append(" */")
+          else {
+            appendBreak
+            sb.append('/')
+          }
+        }
+
+        private def appendBreak(): Unit =
+          sb.append('\n').append(spaces).append('*')
       }
 
     }
