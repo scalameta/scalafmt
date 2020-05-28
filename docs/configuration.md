@@ -138,6 +138,44 @@ docstrings.oneline = unfold
 val a = 1
 ```
 
+#### `docstrings.wrap`
+
+Will parse scaladoc comments and reformat them.
+
+> This functionality is generally limited to
+> [standard scaladoc elements](https://docs.scala-lang.org/overviews/scaladoc/for-library-authors.html)
+> and might lead to undesirable results in corner cases;
+> for instance, the scaladoc parser doesn't have proper support of embedded HTML.
+
+```scala mdoc:defaults
+docstrings.wrap
+```
+
+```scala mdoc:scalafmt
+docstrings.wrap = yes
+maxColumn = 30
+---
+/**
+ * @param d the Double to square, meaning multiply by itself
+ * @return the result of squaring d
+ *
+ * Thus
+ * - if [[d]] represents a negative value:
+ *  a. the result will be positive
+ *  a. the value will be {{{d * d}}}
+ *  a. it will be the same as for `-d`
+ * - however, if [[d]] is positive
+ *  - the value will still be {{{d * d}}}
+ *    - i.e., the same as {{{(-d) * (-d)}}}
+ *
+ * In other words:
+ * {{{
+ *    res = d * d
+ *        = (-d) * (-d) }}}
+ */
+def pow2(d: Double): Double
+```
+
 ### `assumeStandardLibraryStripMargin`
 
 This parameter simply says the `.stripMargin` method was not redefined
