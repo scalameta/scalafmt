@@ -378,7 +378,7 @@ object a {
 }
 >>>
 object a {
-  /* * foo bar */
+  /* foo bar */
 }
 <<< wrap with empty first line 2
 comments.wrap = trailing
@@ -389,5 +389,5 @@ object a {
 }
 >>>
 object a {
-  /* * foo bar */
+  /* foo bar */
 }

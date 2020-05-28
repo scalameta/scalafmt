@@ -550,7 +550,9 @@ class FormatWriter(formatOps: FormatOps) {
           if (canRewrite && text.lastIndexOf("/*") == 0) {
             val sectionIter = new SectIter {
               private val lineIter = {
-                val contents = text.substring(2, text.length - 2).trim
+                val header = mlcHeader.matcher(text)
+                val beg = if (header.lookingAt()) header.end() else 2
+                val contents = text.substring(beg, text.length - 2)
                 splitAsIterator(mlcLineDelim)(contents).buffered
               }
               private def paraEnds: Boolean = lineIter.head.isEmpty
@@ -1141,6 +1143,7 @@ object FormatWriter {
   // "slc" stands for single-line comment
   private val slcDelim = Pattern.compile("\\h++")
   // "mlc" stands for multi-line comment
+  private val mlcHeader = Pattern.compile("^/\\*\\h*+(?:\n\\h*+[*]*+\\h*+)?")
   private val mlcLineDelim = Pattern.compile("\\h*+\n\\h*+[*]*+\\h*+")
   private val mlcParagraphEnd = Pattern.compile("[.:!?=]$")
   private val mlcParagraphBeg = Pattern.compile("^(?:[-*@=]|\\d++[.:])")
