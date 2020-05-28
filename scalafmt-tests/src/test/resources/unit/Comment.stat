@@ -368,3 +368,26 @@ object a {
      * does not because this feature is
      * not implemented yet */
 }
+<<< wrap with empty first line 1
+comments.wrap = trailing
+===
+object a {
+  /*
+   * foo bar
+   */
+}
+>>>
+object a {
+  /* * foo bar */
+}
+<<< wrap with empty first line 2
+comments.wrap = trailing
+===
+object a {
+  /*
+   * foo bar   */
+}
+>>>
+object a {
+  /* * foo bar */
+}
