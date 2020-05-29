@@ -215,15 +215,21 @@ code
 /**
  * Start the comment here
  *
- * @param d the Double to square, meaning multiply by itself
- * @returns the result of squaring d
+ * @param d
+ *   the Double to square,
+ *   meaning multiply by
+ *   itself
+ * @returns
+ *   the result of squaring d
  *
  * {{{
  * multi
  * line
  * code
  * }}}
- * @tparam t type, @see [[d]] ({{{single-line code}}})
+ * @tparam t
+ *   type, @see [[d]]
+ *   ({{{single-line code}}})
  */
 val a = 1
 <<< #1387 1 SpaceAsterisk
@@ -247,15 +253,21 @@ code
 >>>
 /** Start the comment here
   *
-  * @param d the Double to square, meaning multiply by itself
-  * @returns the result of squaring d
+  * @param d
+  *   the Double to square,
+  *   meaning multiply by
+  *   itself
+  * @returns
+  *   the result of squaring d
   *
   * {{{
   * multi
   * line
   * code
   * }}}
-  * @tparam t type, @see [[d]] ({{{single-line code}}})
+  * @tparam t
+  *   type, @see [[d]]
+  *   ({{{single-line code}}})
   */
 val a = 1
 <<< #1387 1 AsteriskSpace
@@ -279,15 +291,21 @@ code
 >>>
 /** Start the comment here
  *
- *  @param d the Double to square, meaning multiply by itself
- *  @returns the result of squaring d
+ *  @param d
+ *    the Double to square,
+ *    meaning multiply by
+ *    itself
+ *  @returns
+ *    the result of squaring d
  *
  *  {{{
  *  multi
  *  line
  *  code
  *  }}}
- *  @tparam t type, @see [[d]] ({{{single-line code}}})
+ *  @tparam t
+ *    type, @see [[d]]
+ *    ({{{single-line code}}})
  */
 val a = 1
 <<< #1887 1 Asterisk
@@ -311,12 +329,18 @@ maxColumn = 30
  * Start the comment here
  *
  * @inheritdoc
- * some text1 some text2 some text3 some text4
- *  1. list1 list2 list3 list4 list5
- *   - sublist1 sublist2 sublist3
- *    a. subsublist1 subsublist2
- *   - foolist1 foolist2 foolist3
- *  1. barlist1 barlist2 barlist3
+ * some text1 some text2 some
+ * text3 some text4
+ *   1. list1 list2 list3
+ *      list4 list5
+ *      - sublist1 sublist2
+ *        sublist3
+ *        a. subsublist1
+ *           subsublist2
+ *      - foolist1 foolist2
+ *        foolist3
+ *   1. barlist1 barlist2
+ *      barlist3
  */
 val a = 1
 <<< #1887 1 SpaceAsterisk
@@ -339,12 +363,18 @@ maxColumn = 30
 /** Start the comment here
   *
   * @inheritdoc
-  * some text1 some text2 some text3 some text4
-  *  1. list1 list2 list3 list4 list5
-  *   - sublist1 sublist2 sublist3
-  *    a. subsublist1 subsublist2
-  *   - foolist1 foolist2 foolist3
-  *  1. barlist1 barlist2 barlist3
+  * some text1 some text2 some
+  * text3 some text4
+  *   1. list1 list2 list3
+  *      list4 list5
+  *      - sublist1 sublist2
+  *        sublist3
+  *        a. subsublist1
+  *           subsublist2
+  *      - foolist1 foolist2
+  *        foolist3
+  *   1. barlist1 barlist2
+  *      barlist3
   */
 val a = 1
 <<< #1887 1 AsteriskSpace
@@ -367,12 +397,18 @@ maxColumn = 30
 /** Start the comment here
  *
  *  @inheritdoc
- *  some text1 some text2 some text3 some text4
- *  1. list1 list2 list3 list4 list5
- *   - sublist1 sublist2 sublist3
- *    a. subsublist1 subsublist2
- *   - foolist1 foolist2 foolist3
- *  1. barlist1 barlist2 barlist3
+ *  some text1 some text2 some
+ *  text3 some text4
+ *    1. list1 list2 list3
+ *       list4 list5
+ *       - sublist1 sublist2
+ *         sublist3
+ *         a. subsublist1
+ *            subsublist2
+ *       - foolist1 foolist2
+ *         foolist3
+ *    1. barlist1 barlist2
+ *       barlist3
  */
 val a = 1
 <<< #1887 2 Asterisk: first line max
@@ -389,7 +425,8 @@ object a {
 
   /**
    * Binds values which should
-   * be wrapped */
+   * be wrapped
+   */
 }
 <<< #1887 2 SpaceAsterisk: first line max
 docstrings.wrap = yes
@@ -403,8 +440,9 @@ object a {
 >>>
 object a {
 
-  /** Binds values which should
-    * be wrapped */
+  /** Binds values which
+    * should be wrapped
+    */
 }
 <<< #1887 2 AsteriskSpace: first line max
 docstrings.wrap = yes
@@ -418,8 +456,9 @@ object a {
 >>>
 object a {
 
-  /** Binds values which should
-   *  be wrapped */
+  /** Binds values which
+   *  should be wrapped
+   */
 }
 <<< #1887 3 Asterisk: markdown
 docstrings.wrap = yes
@@ -443,14 +482,22 @@ object a {
 object a {
 
   /**
-   *  `mono space`
-   *  ''italic text''
-   *  '''bold text'''
-   *  __under line__
-   *  ^super script^
-   *  ,,sub script,,
-   *  'single quoted'
-   *  "double quoted"
+   * `mono
+   * space`
+   * ''italic
+   * text''
+   * '''bold
+   * text'''
+   * __under
+   * line__
+   * ^super
+   * script^
+   * ,,sub
+   * script,,
+   * 'single
+   * quoted'
+   * "double
+   * quoted"
    */
 }
 <<< #1887 3 SpaceAsterisk: markdown
@@ -473,15 +520,22 @@ object a {
 >>>
 object a {
 
-  /**
-    *  `mono space`
-    *  ''italic text''
-    *  '''bold text'''
-    *  __under line__
-    *  ^super script^
-    *  ,,sub script,,
-    *  'single quoted'
-    *  "double quoted"
+  /** `mono
+    * space`
+    * ''italic
+    * text''
+    * '''bold
+    * text'''
+    * __under
+    * line__
+    * ^super
+    * script^
+    * ,,sub
+    * script,,
+    * 'single
+    * quoted'
+    * "double
+    * quoted"
     */
 }
 <<< #1887 3 AsteriskSpace: markdown
@@ -504,15 +558,22 @@ object a {
 >>>
 object a {
 
-  /**
-   *  `mono space`
-   *  ''italic text''
-   *  '''bold text'''
-   *  __under line__
-   *  ^super script^
-   *  ,,sub script,,
-   *  'single quoted'
-   *  "double quoted"
+  /** `mono
+   *  space`
+   *  ''italic
+   *  text''
+   *  '''bold
+   *  text'''
+   *  __under
+   *  line__
+   *  ^super
+   *  script^
+   *  ,,sub
+   *  script,,
+   *  'single
+   *  quoted'
+   *  "double
+   *  quoted"
    */
 }
 <<< #1887 4 Asterisk: urls
@@ -530,7 +591,8 @@ object a {
 
   /**
    * go to
-   *  http:/a.b.c/d . good luck.
+   * http:/a.b.c/d .
+   * good luck.
    */
 }
 <<< #1887 4 SpaceAsterisk: urls
@@ -547,7 +609,8 @@ object a {
 object a {
 
   /** go to
-    *  http:/a.b.c/d . good luck.
+    * http:/a.b.c/d .
+    * good luck.
     */
 }
 <<< #1887 4 AsteriskSpace: urls
@@ -564,7 +627,8 @@ object a {
 object a {
 
   /** go to
-   *  http:/a.b.c/d . good luck.
+   *  http:/a.b.c/d .
+   *  good luck.
    */
 }
 <<< #1887 5 Asterisk: html
@@ -580,7 +644,9 @@ object a {
 object a {
 
   /**
-   * go to <a href="http:/a.b.c/d">this url</a>
+   * go to <a
+   * href="http:/a.b.c/d">this
+   * url</a>
    */
 }
 <<< #1887 5 SpaceAsterisk: html
@@ -595,7 +661,9 @@ object a {
 >>>
 object a {
 
-  /** go to <a href="http:/a.b.c/d">this url</a>
+  /** go to <a
+    * href="http:/a.b.c/d">this
+    * url</a>
     */
 }
 <<< #1887 5 AsteriskSpace: html
@@ -610,6 +678,8 @@ object a {
 >>>
 object a {
 
-  /** go to <a href="http:/a.b.c/d">this url</a>
+  /** go to <a
+   *  href="http:/a.b.c/d">this
+   *  url</a>
    */
 }
