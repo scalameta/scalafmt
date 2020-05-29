@@ -690,6 +690,30 @@ object a {
       })(result)))))))
   }).getMessage should ===("Ur state be b0rked")
 }
+<<< 3.12.2 enclosed, followed by select
+maxColumn = 80
+danglingParentheses.preset = false
+===
+object a {
+  (intercept[java.lang.IllegalStateException] {
+    wrap(result ⇒
+      actorOf(Props(new OuterActor(actorOf(Props(
+        promiseIntercept({
+          throw new IllegalStateException("Ur state be b0rked");
+          new InnerActor
+        })(result)))))))
+  }).getMessage should ===("Ur state be b0rked")
+}
+>>>
+object a {
+  (intercept[java.lang.IllegalStateException] {
+    wrap(result ⇒
+      actorOf(Props(new OuterActor(actorOf(Props(promiseIntercept({
+        throw new IllegalStateException("Ur state be b0rked");
+        new InnerActor
+      })(result)))))))
+  }).getMessage should ===("Ur state be b0rked")
+}
 <<< 3.13 enclosed, followed by select and infix
 maxColumn = 80
 danglingParentheses.preset = false
@@ -2471,4 +2495,41 @@ object a {
 object a {
   trait Foo
     extends Bar with Baz
+}
+<<< #1989 1
+maxColumn = 80
+===
+object a {
+  val schema = StructType(
+    Seq(
+      StructField("fieldA", DataTypes.StringType),
+      StructField("fieldB", DataTypes.StringType)
+    ))
+}
+>>>
+object a {
+  val schema = StructType(
+    Seq(
+      StructField("fieldA", DataTypes.StringType),
+      StructField("fieldB", DataTypes.StringType)
+    )
+  )
+}
+<<< #1989 2
+maxColumn = 80
+===
+object a {
+  val schema = StructType(Seq(
+    StructField("fieldA", DataTypes.StringType),
+    StructField("fieldB", DataTypes.StringType)
+  ))
+}
+>>>
+object a {
+  val schema = StructType(
+    Seq(
+      StructField("fieldA", DataTypes.StringType),
+      StructField("fieldB", DataTypes.StringType)
+    )
+  )
 }
