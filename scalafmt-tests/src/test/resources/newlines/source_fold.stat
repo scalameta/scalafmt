@@ -2394,3 +2394,21 @@ object a {
   trait Foo
     extends Bar with Baz
 }
+<<< #1989
+maxColumn = 80
+===
+object a {
+  val schema = StructType(
+    Seq(
+      StructField("fieldA", DataTypes.StringType),
+      StructField("fieldB", DataTypes.StringType)
+    )
+  )
+}
+>>>
+object a {
+  val schema = StructType(Seq(
+    StructField("fieldA", DataTypes.StringType),
+    StructField("fieldB", DataTypes.StringType)
+  ))
+}
