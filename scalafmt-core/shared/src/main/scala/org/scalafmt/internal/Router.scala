@@ -898,6 +898,7 @@ class Router(formatOps: FormatOps) {
 
         val noSplitMod =
           if (
+            style.newlines.sourceIs(Newlines.keep) && tok.hasBreak ||
             handleImplicit &&
             style.newlines.forceBeforeImplicitParamListModifier
           )
@@ -940,8 +941,13 @@ class Router(formatOps: FormatOps) {
               )
             }
 
+        val preferNoSplit = singleArgument &&
+          style.newlines.sourceIs(Newlines.keep) && tok.noBreak
+        val nlPenalty = if (preferNoSplit) Constants.ExceedColumnPenalty else 0
+
         val noSplitPolicy =
-          if (wouldDangle || mustDangle && isBracket || useConfigStyle)
+          if (preferNoSplit) singleLine(2)
+          else if (wouldDangle || mustDangle && isBracket || useConfigStyle)
             SingleLineBlock(close, exclude = excludeRanges)
           else if (splitsForAssign.isDefined)
             singleLine(3)
@@ -957,7 +963,7 @@ class Router(formatOps: FormatOps) {
             .onlyIf(noSplitMod != null)
             .withOptimalToken(expirationToken)
             .withIndent(noSplitIndent, close, Before),
-          Split(newlineMod, (1 + nestedPenalty) * bracketCoef)
+          Split(newlineMod, (1 + nestedPenalty) * bracketCoef + nlPenalty)
             .withPolicy(newlinePolicy.andThen(singleLine(4)))
             .onlyIf(!multipleArgs && !alignTuple && splitsForAssign.isEmpty)
             .withOptimalToken(expirationToken)
@@ -970,7 +976,7 @@ class Router(formatOps: FormatOps) {
                 style.newlines.notBeforeImplicitParamListModifier)
             )
             .withIndent(if (align) StateColumn else indent, close, Before),
-          Split(Newline, (3 + nestedPenalty) * bracketCoef)
+          Split(Newline, (3 + nestedPenalty) * bracketCoef + nlPenalty)
             .withPolicy(oneArgOneLine)
             .onlyIf(!singleArgument && !alignTuple)
             .withIndent(indent, close, Before)

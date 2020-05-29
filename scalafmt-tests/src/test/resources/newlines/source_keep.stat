@@ -587,7 +587,11 @@ c,
  d,
   efgh)
 >>>
-val a = b(c, d, efgh)
+val a = b(
+  c,
+  d,
+  efgh
+)
 <<< 3.6: apply config-style, break on ( and )
 val a = b(
 c,
@@ -708,10 +712,11 @@ object a {
 object a {
   (intercept[java.lang.IllegalStateException] {
     wrap(result ⇒
-      actorOf(Props(new OuterActor(actorOf(Props(promiseIntercept({
-        throw new IllegalStateException("Ur state be b0rked");
-        new InnerActor
-      })(result)))))))
+      actorOf(Props(new OuterActor(actorOf(Props(
+        promiseIntercept({
+          throw new IllegalStateException("Ur state be b0rked");
+          new InnerActor
+        })(result)))))))
   }).getMessage should ===("Ur state be b0rked")
 }
 <<< 3.13 enclosed, followed by select and infix
@@ -928,9 +933,10 @@ maxColumn = 80
         case EndpointFailedToActivate(`endpoint`, cause) ⇒ throw cause
       })
 >>>
-def activationFutureFor(
-    endpoint: ActorRef
-)(implicit timeout: Timeout, executor: ExecutionContext): Future[ActorRef] =
+def activationFutureFor(endpoint: ActorRef)(implicit
+    timeout: Timeout,
+    executor: ExecutionContext
+): Future[ActorRef] =
   (supervisor
     .ask(AwaitActivation(endpoint))(timeout))
     .map[ActorRef]({
@@ -950,9 +956,10 @@ maxColumn = 80
         case EndpointFailedToActivate(`endpoint`, cause) ⇒ throw cause
       })
 >>>
-def activationFutureFor(
-    endpoint: ActorRef
-)(implicit timeout: Timeout, executor: ExecutionContext): Future[ActorRef] = {
+def activationFutureFor(endpoint: ActorRef)(implicit
+    timeout: Timeout,
+    executor: ExecutionContext
+): Future[ActorRef] = {
   supervisor
     .ask(AwaitActivation(endpoint))(timeout)
 }
@@ -1013,7 +1020,9 @@ object foo {
   val a = b(c =
     d
   )
-  val a = b(c = d)
+  val a = b(
+    c = d
+  )
   val a = b(
     c = d
   )
@@ -1077,10 +1086,8 @@ object WrapperToHaveStatTestCaseParserWorking {
         "foo",
       someInt = 5
     ) @annot3
-    @deprecated(
-      value =
-        "bar"
-    ) def bar2 = 1
+    @deprecated(value =
+      "bar") def bar2 = 1
   }
 
   @annot @annot2
@@ -1149,10 +1156,8 @@ object WrapperToHaveStatTestCaseParserWorking {
       someInt = 5
     )
     @annot3
-    @deprecated(
-      value =
-        "bar"
-    ) def bar2 = 1
+    @deprecated(value =
+      "bar") def bar2 = 1
   }
 
   @annot
@@ -1416,7 +1421,9 @@ object a {
     !ref.isTerminated && !ref
       .asInstanceOf[ActorRefWithCell]
       .underlying.isInstanceOf[UnstartedCell]
-  ) should ===(Seq.empty[ActorRef])
+  ) should ===(
+    Seq.empty[ActorRef]
+  )
 }
 <<< 6.5: chain with delayed indent after break
 maxColumn = 70
@@ -1474,9 +1481,8 @@ object a {
 }
 >>>
 object a {
-  def c(
-      b: List[Int]
-  ): List[Int] =
+  def c(b: List[Int])
+      : List[Int] =
     for {
       a <- b
       if (b ++ b).length >= 2
@@ -1939,15 +1945,12 @@ private lazy val subNode: Parser[SubNode] = rep(' ') ~>
 >>>
 private lazy val subNode: Parser[SubNode] = rep(' ') ~>
   ((opt('*') ~ '[' ~> attrName <~ '+' ~ ']' ^^ {
-    name =>
-      AttrAppendSubNode(name)
+    name => AttrAppendSubNode(name)
   }) |
     (opt('*') ~ '[' ~> attrName <~ '!' ~ ']' ^^ {
-      name =>
-        AttrRemoveSubNode(name)
+      name => AttrRemoveSubNode(name)
     }) | (opt('*') ~ '[' ~> attrName <~ ']' ^^ {
-    name =>
-      AttrSubNode(name)
+    name => AttrSubNode(name)
   }) |
 
     ('!' ~ '!' ^^ (a => DontMergeAttributes)) |
@@ -2526,10 +2529,8 @@ object a {
 }
 >>>
 object a {
-  val schema = StructType(
-    Seq(
-      StructField("fieldA", DataTypes.StringType),
-      StructField("fieldB", DataTypes.StringType)
-    )
-  )
+  val schema = StructType(Seq(
+    StructField("fieldA", DataTypes.StringType),
+    StructField("fieldB", DataTypes.StringType)
+  ))
 }
