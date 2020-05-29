@@ -20,8 +20,8 @@ object Dependencies {
 
   val scalametaTestkit = "org.scalameta" %% "testkit" % scalametaV
 
-  val scalacheck = "org.scalacheck"             %% "scalacheck" % scalacheckV
-  val scalatest  = Def.setting("org.scalatest" %%% "scalatest"  % scalatestV)
+  val scalacheck = "org.scalacheck" %% "scalacheck" % scalacheckV
+  val scalatest  = Def.setting("org.scalatest" %%% "scalatest" % scalatestV)
   val scalameta = Def.setting {
     scalaBinaryVersion.value match {
       case "2.11" =>
@@ -38,8 +38,8 @@ object Dependencies {
         "org.scalameta" %%% "scalameta" % scalametaV excludeAll scalapb.value
     }
   }
-  val metaconfig         = Def.setting("com.geirsson" %%% "metaconfig-core"            % metaconfigV)
+  val metaconfig         = Def.setting("com.geirsson" %%% "metaconfig-core" % metaconfigV)
   val metaconfigTypesafe = Def.setting("com.geirsson" %%% "metaconfig-typesafe-config" % metaconfigV)
-  val metaconfigHocon    = Def.setting("com.geirsson" %%% "metaconfig-hocon"           % metaconfigV)
+  val metaconfigHocon    = Def.setting("com.geirsson" %%% "metaconfig-hocon" % metaconfigV)
 
 }
