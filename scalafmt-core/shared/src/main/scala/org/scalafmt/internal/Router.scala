@@ -799,10 +799,10 @@ class Router(formatOps: FormatOps) {
         val bracketCoef = if (isBracket) Constants.BracketPenalty else 1
 
         val sourceIgnored = style.newlines.sourceIgnored
-        val notSingleEnclosedArgument =
-          sourceIgnored && !(singleArgument && isEnclosedInMatching(args(0)))
-        val useConfigStyle =
-          style.optIn.configStyleArguments && notSingleEnclosedArgument
+        val isSingleEnclosedArgument =
+          singleArgument && isEnclosedInMatching(args(0))
+        val useConfigStyle = sourceIgnored &&
+          style.optIn.configStyleArguments && !isSingleEnclosedArgument
 
         def isExcludedTree(tree: Tree): Boolean =
           tree match {
@@ -820,14 +820,15 @@ class Router(formatOps: FormatOps) {
           if (isBracket) insideBlockRanges[T.LeftBracket](tok, close)
           else if (
             style.activeForEdition_2020_03 && multipleArgs ||
-            notSingleEnclosedArgument &&
+            !isSingleEnclosedArgument &&
             style.newlines.sourceIs(Newlines.unfold)
           )
             Set.empty[Range]
           else if (
-            style.newlines.sourceIs(Newlines.fold) &&
-            singleArgument &&
-            (!notSingleEnclosedArgument || isExcludedTree(args(0)))
+            style.newlines.sourceIs(Newlines.fold) && {
+              isSingleEnclosedArgument ||
+              singleArgument && isExcludedTree(args(0))
+            }
           )
             parensRange(args(0).tokens.last).toSet
           else insideBlockRanges[T.LeftBrace](tok, close)
