@@ -12,6 +12,8 @@ import org.scalafmt.util.{LiteralOps, TreeOps}
 import scala.annotation.tailrec
 import scala.collection.AbstractIterator
 import scala.collection.mutable
+import scala.meta.internal.Scaladoc
+import scala.meta.internal.parsers.ScaladocParser
 import scala.meta.tokens.Token
 import scala.meta.tokens.{Token => T}
 import scala.meta.transversers.Traverser
@@ -430,13 +432,17 @@ class FormatWriter(formatOps: FormatOps) {
           new FormatMlDoc(text).format
       }
 
-      private abstract class FormatCommentBase(implicit sb: StringBuilder) {
+      private abstract class FormatCommentBase(
+          protected val extraIndent: Int = 1,
+          protected val leadingMargin: Int = 0
+      )(implicit sb: StringBuilder) {
         protected final val breakBefore = curr.hasBreakBefore
         protected final val indent =
           if (breakBefore) prevState.indentation
           else prevState.prev.indentation
-        // 2 is for "/*" or " *" or "//"
-        protected final val maxLength = style.maxColumn - indent - 2
+        // extra 1 is for "*" (in "/*" or " *") or "/" (in "//")
+        protected final val maxLength =
+          style.maxColumn - indent - extraIndent - 1
 
         protected final def getFirstLineLength =
           if (breakBefore) 0
@@ -462,7 +468,8 @@ class FormatWriter(formatOps: FormatOps) {
           if (iter.hasNext) {
             val word = iter.next()
             val length = word.length
-            val maybeNextLineLength = lineLength + length + 1
+            val maybeNextLineLength = 1 + length +
+              (if (lineLength == 0) leadingMargin else lineLength)
             val nextLineLength =
               if (
                 lineLength < extraMargin.length ||
@@ -584,15 +591,110 @@ class FormatWriter(formatOps: FormatOps) {
       }
 
       private class FormatMlDoc(text: String)(implicit sb: StringBuilder)
-          extends FormatCommentBase {
-        private val spaces: String = {
-          val extraIndent = if (style.docstrings.isSpaceAsterisk) 2 else 1
-          getIndentation(prevState.indentation + extraIndent)
-        }
-        private val margin =
-          getIndentation(if (style.docstrings.isAsteriskSpace) 2 else 1)
+          extends FormatCommentBase(
+            if (style.docstrings.isSpaceAsterisk) 2 else 1,
+            if (style.docstrings.isAsteriskSpace) 1 else 0
+          ) {
+        private val spaces: String = getIndentation(indent + extraIndent)
+        private val margin = getIndentation(1 + leadingMargin)
 
         def format: Unit = {
+          val docOpt =
+            if (
+              (style.docstrings.wrap eq Docstrings.Wrap.yes) &&
+              curr.isStandalone
+            )
+              ScaladocParser.parse(tok.left.syntax)
+            else None
+          docOpt.fold(formatNoWrap)(formatWithWrap)
+        }
+
+        private def formatWithWrap(doc: Scaladoc): Unit = {
+          sb.append("/**")
+          if (style.docstrings.isAsterisk) appendBreak()
+          sb.append(' ')
+          val sbLen = sb.length()
+          val paras = doc.para.iterator
+          paras.foreach { para =>
+            para.term.foreach { term =>
+              if (sb.length() != sbLen) sb.append(margin)
+              term match {
+                case t: Scaladoc.CodeBlock =>
+                  sb.append("{{{")
+                  appendBreak()
+                  t.code.foreach { x =>
+                    val matcher = docstringLeadingSpace.matcher(x)
+                    if (!matcher.lookingAt())
+                      sb.append(getIndentation(2 + margin.length)).append(x)
+                    else {
+                      val offset = matcher.end()
+                      val codeIndent =
+                        math.max(margin.length, offset - offset % 2)
+                      sb.append(getIndentation(codeIndent))
+                      sb.append(CharBuffer.wrap(x, offset, x.length))
+                    }
+                    appendBreak()
+                  }
+                  sb.append(margin).append("}}}")
+                  appendBreak()
+                case t: Scaladoc.Heading =>
+                  val delimiter = t.level * '='
+                  sb.append(delimiter).append(t.title).append(delimiter)
+                  appendBreak()
+                case t: Scaladoc.Tag =>
+                  sb.append(t.tag.tag)
+                  if (t.tag.hasLabel) sb.append(' ').append(t.label.syntax)
+                  if (t.tag.hasDesc) {
+                    val words = t.desc.parts.iterator.map(_.syntax)
+                    val tagMargin = getIndentation(2 + margin.length)
+                    // use maxLength to force a newline
+                    iterWords(words, appendBreak, maxLength, tagMargin)
+                  }
+                  appendBreak()
+                case t: Scaladoc.ListBlock =>
+                  // outputs margin space and appends new line, too
+                  // therefore, let's start by "rewinding"
+                  sb.setLength(sb.length() - margin.length)
+                  formatListBlock(getIndentation(margin.length + 2))(t)
+                case t: Scaladoc.Text =>
+                  formatTextAfterMargin(t.parts.iterator.map(_.syntax))
+                case Scaladoc.Unknown(t) =>
+                  formatTextAfterMargin(splitAsIterator(docstringSpace)(t))
+              }
+            }
+            if (paras.hasNext) appendBreak()
+          }
+          sb.append('/')
+        }
+
+        private def formatTextAfterMargin(words: WordIter): Unit = {
+          // remove space as iterWords adds it
+          sb.setLength(sb.length() - 1)
+          iterWords(words, appendBreak, 0, margin)
+          appendBreak()
+        }
+
+        private def formatListBlock(
+            listIndent: String
+        )(block: Scaladoc.ListBlock): Unit = {
+          val prefix = block.prefix
+          val itemIndent = getIndentation(listIndent.length + prefix.length + 1)
+          block.items.foreach { x =>
+            sb.append(listIndent).append(prefix)
+            formatListTerm(itemIndent)(x)
+          }
+        }
+
+        private def formatListTerm(
+            itemIndent: String
+        )(item: Scaladoc.ListItem): Unit = {
+          val words = item.text.parts.iterator.map(_.syntax)
+          iterWords(words, appendBreak, itemIndent.length - 1, itemIndent)
+          appendBreak()
+          item.nested.foreach(formatListBlock(itemIndent))
+        }
+
+        private def formatNoWrap: Unit = {
           // remove "/**" and "*/"
           val trimmed = CharBuffer.wrap(text, 3, text.length - 2)
           val matcher = docstringLine.matcher(trimmed)
@@ -1163,6 +1265,8 @@ object FormatWriter {
   private val onelineDocstring = Pattern.compile(
     "^/\\*\\*(?:\n\\h*+\\*?)?\\h*+([^*][^\n]*[^\n\\h])(?:\n\\h*+\\**?)?\\h*+\\*/$"
   )
+  private val docstringSpace = Pattern.compile("[\\h\n]++")
+  private val docstringLeadingSpace = Pattern.compile("^\\h*+")
 
   @inline
   private def getStripMarginPattern(pipe: Char) =
