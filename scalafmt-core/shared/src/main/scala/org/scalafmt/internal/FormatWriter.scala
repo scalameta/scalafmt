@@ -822,7 +822,7 @@ class FormatWriter(formatOps: FormatOps) {
         * ```
         * libraryDependencies ++= Seq(
         *   "org.scalacheck"  %% "scalacheck" % scalacheckV,
-        *   "io.get-coursier" % "interface"   % "0.0.17"
+        *   "io.get-coursier" % "interface"   % "0.0.22"
         * )
         * ```
         *
@@ -830,7 +830,7 @@ class FormatWriter(formatOps: FormatOps) {
         * ```
         * libraryDependencies ++= Seq(
         *   "org.scalacheck" %% "scalacheck" % scalacheckV,
-        *   "io.get-coursier" % "interface"  % "0.0.17"
+        *   "io.get-coursier" % "interface"  % "0.0.22"
         * )
         * ```
         * */
@@ -1098,12 +1098,12 @@ object FormatWriter {
     * For example:
     * ```
     * libraryDependencies ++= Seq(
-    *   "io.get-coursier" % "interface" % "0.0.17",
+    *   "io.get-coursier" % "interface" % "0.0.22",
     *   "org.scalacheck" %% "scalacheck" % scalacheckV
     * )
     * ```
     *
-    * `"io.get-coursier" % "interface" % "0.0.17"`
+    * `"io.get-coursier" % "interface" % "0.0.22"`
     *  |<--------------->|      => width
     *  hash("io.get-coursier")  => tokenHash
     *  length(%)                => separatorLength
