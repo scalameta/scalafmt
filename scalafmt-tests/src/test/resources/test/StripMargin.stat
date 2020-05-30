@@ -91,6 +91,22 @@ val x = s"""Formatter changed AST
            ?$diff
         """
   .stripMargin('?')
+<<< Align | margin 1 | interpolate, different char, starts string
+val x = s"""?Formatter changed AST
+      |=====================
+      |$diff
+      ?=====================
+      ?$diff
+        """
+        .stripMargin('?')
+>>>
+val x = s"""?Formatter changed AST
+      |=====================
+      |$diff
+           ?=====================
+           ?$diff
+        """
+  .stripMargin('?')
 <<< No align | margin 1 | interpolate, different char
 align.stripMargin = false
 ===
