@@ -703,15 +703,9 @@ object a {
 object a {
 
   /**
-   * head | hdr1 | hdr22
-   * | hdr333 | | :- |
-   * -: | :-: | -: | :-:
-   * | | r1 1 | r1 2 |
-   * r1 3 | r1 4 | | r22
-   * 1 | r22 2 | | r333
-   * 1 | r333 2 | r333 3
-   * | r333 4 | r333 5 |
-   * r333 6 | tail
+   * head
+   *
+   * tail
    */
 }
 <<< #1887 6 SpaceAsterisk: table
@@ -733,16 +727,9 @@ object a {
 >>>
 object a {
 
-  /** head | hdr1 |
-    * hdr22 | hdr333 | |
-    * :- | -: | :-: | -:
-    * | :-: | | r1 1 |
-    * r1 2 | r1 3 | r1 4
-    * | | r22 1 | r22 2
-    * | | r333 1 | r333
-    * 2 | r333 3 | r333
-    * 4 | r333 5 | r333
-    * 6 | tail
+  /** head
+    *
+    * tail
     */
 }
 <<< #1887 6 AsteriskSpace: table
@@ -764,15 +751,8 @@ object a {
 >>>
 object a {
 
-  /** head | hdr1 |
-   *  hdr22 | hdr333 | |
-   *  :- | -: | :-: | -:
-   *  | :-: | | r1 1 |
-   *  r1 2 | r1 3 | r1 4
-   *  | | r22 1 | r22 2
-   *  | | r333 1 | r333
-   *  2 | r333 3 | r333
-   *  4 | r333 5 | r333
-   *  6 | tail
+  /** head
+   *
+   *  tail
    */
 }

@@ -646,7 +646,7 @@ class FormatWriter(formatOps: FormatOps) {
                   sb.append(t.tag.tag)
                   if (t.tag.hasLabel) sb.append(' ').append(t.label.syntax)
                   if (t.tag.hasDesc) {
-                    val words = t.desc.parts.iterator.map(_.syntax)
+                    val words = t.desc.part.iterator.map(_.syntax)
                     val tagMargin = getIndentation(2 + margin.length)
                     // use maxLength to force a newline
                     iterWords(words, appendBreak, maxLength, tagMargin)
@@ -658,7 +658,10 @@ class FormatWriter(formatOps: FormatOps) {
                   sb.setLength(sb.length() - margin.length)
                   formatListBlock(getIndentation(margin.length + 2))(t)
                 case t: Scaladoc.Text =>
-                  formatTextAfterMargin(t.parts.iterator.map(_.syntax))
+                  formatTextAfterMargin(t.part.iterator.map(_.syntax))
+                case t: Scaladoc.Table => // we don't handle this yet
+                  sb.setLength(sb.length() - margin.length)
+                  appendBreak()
                 case Scaladoc.Unknown(t) =>
                   formatTextAfterMargin(splitAsIterator(docstringSpace)(t))
               }
@@ -680,7 +683,7 @@ class FormatWriter(formatOps: FormatOps) {
         )(block: Scaladoc.ListBlock): Unit = {
           val prefix = block.prefix
           val itemIndent = getIndentation(listIndent.length + prefix.length + 1)
-          block.items.foreach { x =>
+          block.item.foreach { x =>
             sb.append(listIndent).append(prefix)
             formatListTerm(itemIndent)(x)
           }
@@ -689,7 +692,7 @@ class FormatWriter(formatOps: FormatOps) {
         private def formatListTerm(
             itemIndent: String
         )(item: Scaladoc.ListItem): Unit = {
-          val words = item.text.parts.iterator.map(_.syntax)
+          val words = item.text.part.iterator.map(_.syntax)
           iterWords(words, appendBreak, itemIndent.length - 1, itemIndent)
           appendBreak()
           item.nested.foreach(formatListBlock(itemIndent))
