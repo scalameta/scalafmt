@@ -683,3 +683,96 @@ object a {
    *  url</a>
    */
 }
+<<< #1887 6 Asterisk: table
+docstrings.wrap = yes
+docstrings.style = Asterisk
+maxColumn = 24
+===
+object a {
+  /**
+   * head
+   * | hdr1 | hdr22 | hdr333 |
+   * | :- | -: | :-: | -: | :-: |
+   * | r1 1 | r1 2 | r1 3 | r1 4 |
+   * | r22 1 | r22 2 |
+   * | r333 1 | r333 2 | r333 3 | r333 4 | r333 5 | r333 6 |
+   * tail
+   */
+}
+>>>
+object a {
+
+  /**
+   * head | hdr1 | hdr22
+   * | hdr333 | | :- |
+   * -: | :-: | -: | :-:
+   * | | r1 1 | r1 2 |
+   * r1 3 | r1 4 | | r22
+   * 1 | r22 2 | | r333
+   * 1 | r333 2 | r333 3
+   * | r333 4 | r333 5 |
+   * r333 6 | tail
+   */
+}
+<<< #1887 6 SpaceAsterisk: table
+docstrings.wrap = yes
+docstrings.style = SpaceAsterisk
+maxColumn = 24
+===
+object a {
+  /**
+   * head
+   * | hdr1 | hdr22 | hdr333 |
+   * | :- | -: | :-: | -: | :-: |
+   * | r1 1 | r1 2 | r1 3 | r1 4 |
+   * | r22 1 | r22 2 |
+   * | r333 1 | r333 2 | r333 3 | r333 4 | r333 5 | r333 6 |
+   * tail
+   */
+}
+>>>
+object a {
+
+  /** head | hdr1 |
+    * hdr22 | hdr333 | |
+    * :- | -: | :-: | -:
+    * | :-: | | r1 1 |
+    * r1 2 | r1 3 | r1 4
+    * | | r22 1 | r22 2
+    * | | r333 1 | r333
+    * 2 | r333 3 | r333
+    * 4 | r333 5 | r333
+    * 6 | tail
+    */
+}
+<<< #1887 6 AsteriskSpace: table
+docstrings.wrap = yes
+docstrings.style = AsteriskSpace
+maxColumn = 24
+===
+object a {
+  /**
+   * head
+   * | hdr1 | hdr22 | hdr333 |
+   * | :- | -: | :-: | -: | :-: |
+   * | r1 1 | r1 2 | r1 3 | r1 4 |
+   * | r22 1 | r22 2 |
+   * | r333 1 | r333 2 | r333 3 | r333 4 | r333 5 | r333 6 |
+   * tail
+   */
+}
+>>>
+object a {
+
+  /** head | hdr1 |
+   *  hdr22 | hdr333 | |
+   *  :- | -: | :-: | -:
+   *  | :-: | | r1 1 |
+   *  r1 2 | r1 3 | r1 4
+   *  | | r22 1 | r22 2
+   *  | | r333 1 | r333
+   *  2 | r333 3 | r333
+   *  4 | r333 5 | r333
+   *  6 | tail
+   */
+}
