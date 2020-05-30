@@ -103,8 +103,8 @@ val x = s"""?Formatter changed AST
 val x = s"""?Formatter changed AST
       |=====================
       |$diff
-           ?=====================
-           ?$diff
+            ?=====================
+            ?$diff
         """
   .stripMargin('?')
 <<< No align | margin 1 | interpolate, different char

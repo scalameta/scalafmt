@@ -372,7 +372,7 @@ class FormatWriter(formatOps: FormatOps) {
                 val indent =
                   if (!style.align.stripMargin) tiState.indentation
                   else
-                    tiState.column + (ti.args.headOption match {
+                    tiState.column + (ti.parts.headOption match {
                       case Some(Lit.String(x)) if x(0) == pipe => 1
                       case _ => 0
                     })
