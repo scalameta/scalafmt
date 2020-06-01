@@ -27,155 +27,6 @@ maxColumn
   code on your phone.
 - Consider refactoring your code before of choosing a value above 100.
 
-### `comments`
-
-#### `comments.wrap`
-
-Allows wrapping comments exceeding `maxColumn`.
-
-```scala mdoc:defaults
-comments.wrap
-```
-
-##### `comments.wrap = standalone`
-
-A standalone comment is one which is surrounded by line breaks.
-
-```scala mdoc:scalafmt
-maxColumn = 20
-comments.wrap = standalone
----
-/* long multiline comment */
-// long singleline comment
-val a = 1 // short
-val b = 2 // long singleline comment
-```
-
-##### `comments.wrap = trailing`
-
-A trailing comment is one which is followed by a line break.
-
-```scala mdoc:scalafmt
-maxColumn = 20
-comments.wrap = trailing
----
-/* long multiline comment */
-// long singleline comment
-val a = 1 // short
-val b = 2 // long singleline comment
-```
-
-#### `comments.wrapStandaloneSlcAsSlc`
-
-This parameter allows formatting a standalone single-line comment (i.e., `//`)
-to be wrapped using the same type, not a multi-line comment (`/* ... */`).
-
-```scala mdoc:defaults
-comments.wrapStandaloneSlcAsSlc
-```
-
-```scala mdoc:scalafmt
-maxColumn = 20
-comments.wrap = trailing
-comments.wrapStandaloneSlcAsSlc = true
----
-// long singleline comment
-val b = 2 // long singleline comment
-```
-
-### `docstrings`
-
-#### `docstrings.style`
-
-```scala mdoc:defaults
-docstrings.style
-```
-
-```scala mdoc:scalafmt
-docstrings.style = SpaceAsterisk
----
-/** Format intermediate lines with a space and an asterisk,
- * both below the two asterisks of the first line
- */
-```
-
-```scala mdoc:scalafmt
-docstrings.style = Asterisk
----
-/** Skip first line, format intermediate lines with an asterisk
-  * below the first asterisk of the first line (aka JavaDoc)
-  */
-```
-
-```scala mdoc:scalafmt
-docstrings.style = AsteriskSpace
----
-/** Format intermediate lines with an asterisk and a space,
-  * both below the two asterisks of the first line
-  */
-```
-
-#### `docstrings.oneline`
-
-```scala mdoc:defaults
-docstrings.oneline
-```
-
-```scala mdoc:scalafmt
-docstrings.oneline = fold
----
-/**
-  * Align by second asterisk.
-  */
-val a = 1
-```
-
-```scala mdoc:scalafmt
-docstrings.style = Asterisk
-docstrings.oneline = unfold
----
-/** Align by first asterisk. */
-val a = 1
-```
-
-#### `docstrings.wrap`
-
-Will parse scaladoc comments and reformat them.
-
-> This functionality is generally limited to
-> [standard scaladoc elements](https://docs.scala-lang.org/overviews/scaladoc/for-library-authors.html)
-> and might lead to undesirable results in corner cases;
-> for instance, the scaladoc parser doesn't have proper support of embedded HTML.
-
-```scala mdoc:defaults
-docstrings.wrap
-```
-
-```scala mdoc:scalafmt
-docstrings.wrap = yes
-maxColumn = 30
----
-/**
- * @param d the Double to square, meaning multiply by itself
- * @return the result of squaring d
- *
- * Thus
- * - if [[d]] represents a negative value:
- *  a. the result will be positive
- *  a. the value will be {{{d * d}}}
- *  a. it will be the same as for `-d`
- * - however, if [[d]] is positive
- *  - the value will still be {{{d * d}}}
- *    - i.e., the same as {{{(-d) * (-d)}}}
- *
- * In other words:
- * {{{
- *    res = d * d
- *        = (-d) * (-d) }}}
- */
-def pow2(d: Double): Double
-```
-
 ### `assumeStandardLibraryStripMargin`
 
 This parameter simply says the `.stripMargin` method was not redefined
@@ -263,7 +114,7 @@ including top-level.
     binPack.preset = true
     align.ifWhileOpenParen = false
     continuationIndent.callSite = 4
-    docstrings = JavaDoc
+    docstrings.style = Asterisk
     importSelectors = binPack
     newlines {
       neverInResultType = true
@@ -1696,6 +1547,167 @@ verticalMultiline.atDefnSite = true
 newlines.implicitParamListModifierForce = [before,after]
 ---
 def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
+```
+
+## Comment processing
+
+### `comments`
+
+#### `comments.wrap`
+
+> Since v2.6.0.
+
+Allows wrapping comments exceeding `maxColumn`.
+
+```scala mdoc:defaults
+comments.wrap
+```
+
+##### `comments.wrap = standalone`
+
+A standalone comment is one which is surrounded by line breaks.
+
+```scala mdoc:scalafmt
+maxColumn = 20
+comments.wrap = standalone
+---
+/* long multiline comment */
+// long singleline comment
+val a = 1 // short
+val b = 2 // long singleline comment
+```
+
+##### `comments.wrap = trailing`
+
+A trailing comment is one which is followed by a line break.
+
+```scala mdoc:scalafmt
+maxColumn = 20
+comments.wrap = trailing
+---
+/* long multiline comment */
+// long singleline comment
+val a = 1 // short
+val b = 2 // long singleline comment
+```
+
+#### `comments.wrapStandaloneSlcAsSlc`
+
+> Since v2.6.0.
+
+This parameter allows formatting a standalone single-line comment (i.e., `//`)
+to be wrapped using the same type, not a multi-line comment (`/* ... */`).
+
+```scala mdoc:defaults
+comments.wrapStandaloneSlcAsSlc
+```
+
+```scala mdoc:scalafmt
+maxColumn = 20
+comments.wrap = trailing
+comments.wrapStandaloneSlcAsSlc = true
+---
+// long singleline comment
+val b = 2 // long singleline comment
+```
+
+### `docstrings`
+
+#### `docstrings.style`
+
+> Since v2.6.0.
+
+```scala mdoc:defaults
+docstrings.style
+```
+
+```scala mdoc:scalafmt
+docstrings.style = SpaceAsterisk
+---
+/** Format intermediate lines with a space and an asterisk,
+ * both below the two asterisks of the first line
+ */
+```
+
+```scala mdoc:scalafmt
+docstrings.style = Asterisk
+---
+/** Skip first line, format intermediate lines with an asterisk
+  * below the first asterisk of the first line (aka JavaDoc)
+  */
+```
+
+```scala mdoc:scalafmt
+docstrings.style = AsteriskSpace
+---
+/** Format intermediate lines with an asterisk and a space,
+  * both below the two asterisks of the first line
+  */
+```
+
+#### `docstrings.oneline`
+
+> Since v2.6.0.
+
+```scala mdoc:defaults
+docstrings.oneline
+```
+
+```scala mdoc:scalafmt
+docstrings.oneline = fold
+---
+/**
+  * Align by second asterisk.
+  */
+val a = 1
+```
+
+```scala mdoc:scalafmt
+docstrings.style = Asterisk
+docstrings.oneline = unfold
+---
+/** Align by first asterisk. */
+val a = 1
+```
+
+#### `docstrings.wrap`
+
+Will parse scaladoc comments and reformat them.
+
+> This functionality is generally limited to
+> [standard scaladoc elements](https://docs.scala-lang.org/overviews/scaladoc/for-library-authors.html)
+> and might lead to undesirable results in corner cases;
+> for instance, the scaladoc parser doesn't have proper support of embedded HTML.
+>
+> Since v2.6.0.
+
+```scala mdoc:defaults
+docstrings.wrap
+```
+
+```scala mdoc:scalafmt
+docstrings.wrap = yes
+maxColumn = 30
+---
+/**
+ * @param d the Double to square, meaning multiply by itself
+ * @return the result of squaring d
+ *
+ * Thus
+ * - if [[d]] represents a negative value:
+ *  a. the result will be positive
+ *  a. the value will be {{{d * d}}}
+ *  a. it will be the same as for `-d`
+ * - however, if [[d]] is positive
+ *  - the value will still be {{{d * d}}}
+ *    - i.e., the same as {{{(-d) * (-d)}}}
+ *
+ * In other words:
+ * {{{
+ *    res = d * d
+ *        = (-d) * (-d) }}}
+ */
+def pow2(d: Double): Double
 ```
 
 ## Disabling or customizing formatting
