@@ -18,6 +18,16 @@ val x =
   """Short line
   |Long line aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
               """
+<<< column limit 2
+val x =
+  """Short line
+  |Long line aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+              """
+>>>
+val x =
+  """Short line
+  |Long line aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+              """
 <<< Single line #285
 object Foo{
   assert( keywordTokens.length % 2 == 0,
@@ -64,4 +74,45 @@ object Foo {
         catch { case e: akka.parboiled2.Parser#TracingBubbleException ⇒ $bubbleUp }"""
       else renderInner(wrapped)
   }
+}
+<<< #1640 class with multiline parent ctor
+class A(a: Int, b: String) extends B("""
+foo""") with C
+>>>
+class A(a: Int, b: String) extends B("""
+foo""") with C
+<<< #1640 select chain with multiline arg
+object a {
+  foo.B("""
+        |foo""").bar
+}
+>>>
+object a {
+  foo.B("""
+        |foo""").bar
+}
+<<< #1640 single select with multiline arg
+object a {
+  foo.B("""
+        |foo""")
+}
+>>>
+object a {
+  foo.B("""
+        |foo""")
+}
+<<< #1640 yield with multiline arg
+object a {
+  for (n ← 1 to 30) yield """
+    test-dispatcher-%s {
+      type = "akka.actor.dispatch.DispatcherModelSpec$MessageDispatcherInterceptorConfigurator"
+    }""".format(n).mkString
+}
+>>>
+object a {
+  for (n ← 1 to 30)
+    yield """
+    test-dispatcher-%s {
+      type = "akka.actor.dispatch.DispatcherModelSpec$MessageDispatcherInterceptorConfigurator"
+    }""".format(n).mkString
 }

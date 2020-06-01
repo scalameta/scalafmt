@@ -56,3 +56,21 @@ private trait Iterator {
 +trait Invariant[F[_]] { self =>
 >>>
 x
+<<< #1640
+maxColumn = 120
+preset = intellij
+danglingParentheses.preset = true
+assumeStandardLibraryStripMargin = true
+===
+object a {
+@implicitNotFound("""Could not find an implicit Show for type ${T}, predicate ${P} and result ${R}.
+                    | You may want to define it as an implicit function that is polymorphic function over R.""".stripMargin)
+trait Show[T, P, R]
+}
+>>>
+Idempotency violated
+object a {
+  @implicitNotFound("""Could not find an implicit Show for type ${T}, predicate ${P} and result ${R}.
+                      | You may want to define it as an implicit function that is polymorphic function over R.""".stripMargin)
+  trait Show[T, P, R]
+}
