@@ -9,7 +9,6 @@ import metaconfig._
   * @param wrap
   *   if yes, allow reformatting/rewrapping the contents of the docstring
   * @param style
-  *        - preserve: keep existing formatting
   *        - Asterisk: format intermediate lines with an asterisk below the
   *          first asterisk of the first line (aka JavaDoc)
   *        - SpaceAsterisk: format intermediate lines with a space and
