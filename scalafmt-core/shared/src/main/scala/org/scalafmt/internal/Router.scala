@@ -668,113 +668,7 @@ class Router(formatOps: FormatOps) {
             .withIndent(extraIndent, right, After)
         )
 
-      case FormatToken(open @ LeftParenOrBracket(), right, between)
-          if style.binPack.unsafeDefnSite && isDefnSite(leftOwner) =>
-        val close = matching(open)
-        val isBracket = open.is[T.LeftBracket]
-        val indent = Num(style.continuationIndent.getDefnSite(leftOwner))
-        if (isTuple(leftOwner)) {
-          Seq(
-            Split(NoSplit, 0).withPolicy(
-              SingleLineBlock(close, disallowSingleLineComments = false)
-            )
-          )
-        } else {
-          def penalizeBrackets(penalty: Int): Policy =
-            if (isBracket)
-              penalizeAllNewlines(close, Constants.BracketPenalty * penalty + 3)
-            else NoPolicy
-          val bracketCoef = if (isBracket) Constants.BracketPenalty else 1
-          val bracketPenalty = if (isBracket) 1 else 0
-          val nestingPenalty = nestedApplies(leftOwner)
-
-          val noSplitPenalizeNewlines = penalizeBrackets(1 + bracketPenalty)
-          val mustDangle = style.newlines.sourceIgnored &&
-            style.danglingParentheses.defnSite
-          val noSplitPolicy: Policy =
-            if (mustDangle) SingleLineBlock(close)
-            else
-              argumentStarts.get(hash(right)) match {
-                case Some(arg) =>
-                  val singleLine = SingleLineBlock(arg.tokens.last)
-                  if (isBracket) {
-                    noSplitPenalizeNewlines.andThen(singleLine.f)
-                  } else {
-                    singleLine
-                  }
-                case _ => noSplitPenalizeNewlines
-              }
-          val noSplitModification =
-            if (right.is[T.Comment]) getMod(formatToken)
-            else NoSplit
-          val nlDanglePolicy =
-            if (mustDangle) newlinesOnlyBeforeClosePolicy(close) else NoPolicy
-
-          Seq(
-            Split(noSplitModification, 0 + (nestingPenalty * bracketCoef))
-              .withPolicy(noSplitPolicy)
-              .withIndent(indent, close, Before),
-            Split(Newline, (1 + nestingPenalty * nestingPenalty) * bracketCoef)
-              .notIf(right.is[T.RightParen])
-              .withPolicy(penalizeBrackets(1))
-              .andThenPolicy(nlDanglePolicy)
-              .withIndent(indent, close, Before)
-          )
-        }
-      case FormatToken(LeftParenOrBracket(), _, _)
-          if style.binPack.unsafeCallSite && isCallSite(leftOwner) =>
-        val open = formatToken.left
-        val close = matching(open)
-        val indent = getApplyIndent(leftOwner)
-        def baseNoSplit = Split(NoSplit, 0).withIndent(indent, close, Before)
-        val singleLineOnly = style.binPack.literalsSingleLine &&
-          styleMap.opensLiteralArgumentList(formatToken)
-
-        val noSplit =
-          if (singleLineOnly || style.newlines.sourceIgnored)
-            baseNoSplit.withSingleLine(close)
-          else {
-            val opt = leftOwner.tokens.find(_.is[T.Comma]).orElse(Some(close))
-            val isBracket = open.is[T.LeftBracket]
-            // TODO(olafur) DRY. Same logic as in default.
-            val exclude =
-              if (isBracket)
-                insideBlock[T.LeftBracket](formatToken, close)
-              else
-                insideBlock[T.LeftBrace](formatToken, close)
-            val excludeRanges: Set[Range] =
-              exclude.map((matchingParensRange _).tupled).toSet
-            val unindent = UnindentAtExclude(exclude.keySet, Num(-indent.n))
-            def ignoreBlocks(x: FormatToken): Boolean = {
-              excludeRanges.exists(_.contains(x.left.end))
-            }
-            val policy =
-              penalizeAllNewlines(close, 3, ignore = ignoreBlocks)
-                .andThen(unindent)
-            baseNoSplit.withOptimalTokenOpt(opt).withPolicy(policy)
-          }
-
-        val nlDanglePolicy =
-          if (
-            style.newlines.sourceIgnored &&
-            style.danglingParentheses.callSite
-          )
-            newlinesOnlyBeforeClosePolicy(close)
-          else NoPolicy
-        val nlIndent = if (style.activeForEdition_2020_03) indent else Num(4)
-        Seq(
-          noSplit,
-          Split(NewlineT(acceptNoSplit = singleLineOnly), 2)
-            .withIndent(nlIndent, close, Before)
-            .withSingleLineOpt(if (singleLineOnly) Some(close) else None)
-            .andThenPolicy(nlDanglePolicy)
-        )
       case FormatToken(T.LeftParen(), T.RightParen(), _) =>
-        Seq(Split(NoSplit, 0))
-
-      // If configured to skip the trailing space after `if` and other keywords, do so.
-      case FormatToken(T.KwIf() | T.KwFor() | T.KwWhile(), T.LeftParen(), _)
-          if !style.spaces.afterKeywordBeforeParen =>
         Seq(Split(NoSplit, 0))
 
       case tok @ FormatToken(open @ LeftParenOrBracket(), right, _)
@@ -978,6 +872,114 @@ class Router(formatOps: FormatOps) {
             .onlyIf(multipleArgs && !alignTuple)
             .withIndent(indent, close, Before)
         ) ++ splitsForAssign.getOrElse(Seq.empty)
+
+      case FormatToken(open @ LeftParenOrBracket(), right, between)
+          if style.binPack.unsafeDefnSite && isDefnSite(leftOwner) =>
+        val close = matching(open)
+        val isBracket = open.is[T.LeftBracket]
+        val indent = Num(style.continuationIndent.getDefnSite(leftOwner))
+        if (isTuple(leftOwner)) {
+          Seq(
+            Split(NoSplit, 0).withPolicy(
+              SingleLineBlock(close, disallowSingleLineComments = false)
+            )
+          )
+        } else {
+          def penalizeBrackets(penalty: Int): Policy =
+            if (isBracket)
+              penalizeAllNewlines(close, Constants.BracketPenalty * penalty + 3)
+            else NoPolicy
+          val bracketCoef = if (isBracket) Constants.BracketPenalty else 1
+          val bracketPenalty = if (isBracket) 1 else 0
+          val nestingPenalty = nestedApplies(leftOwner)
+
+          val noSplitPenalizeNewlines = penalizeBrackets(1 + bracketPenalty)
+          val mustDangle = style.newlines.sourceIgnored &&
+            style.danglingParentheses.defnSite
+          val noSplitPolicy: Policy =
+            if (mustDangle) SingleLineBlock(close)
+            else
+              argumentStarts.get(hash(right)) match {
+                case Some(arg) =>
+                  val singleLine = SingleLineBlock(arg.tokens.last)
+                  if (isBracket) {
+                    noSplitPenalizeNewlines.andThen(singleLine.f)
+                  } else {
+                    singleLine
+                  }
+                case _ => noSplitPenalizeNewlines
+              }
+          val noSplitModification =
+            if (right.is[T.Comment]) getMod(formatToken)
+            else NoSplit
+          val nlDanglePolicy =
+            if (mustDangle) newlinesOnlyBeforeClosePolicy(close) else NoPolicy
+
+          Seq(
+            Split(noSplitModification, 0 + (nestingPenalty * bracketCoef))
+              .withPolicy(noSplitPolicy)
+              .withIndent(indent, close, Before),
+            Split(Newline, (1 + nestingPenalty * nestingPenalty) * bracketCoef)
+              .notIf(right.is[T.RightParen])
+              .withPolicy(penalizeBrackets(1))
+              .andThenPolicy(nlDanglePolicy)
+              .withIndent(indent, close, Before)
+          )
+        }
+
+      case FormatToken(LeftParenOrBracket(), _, _)
+          if style.binPack.unsafeCallSite && isCallSite(leftOwner) =>
+        val open = formatToken.left
+        val close = matching(open)
+        val indent = getApplyIndent(leftOwner)
+        def baseNoSplit = Split(NoSplit, 0).withIndent(indent, close, Before)
+        val singleLineOnly = style.binPack.literalsSingleLine &&
+          styleMap.opensLiteralArgumentList(formatToken)
+
+        val noSplit =
+          if (singleLineOnly || style.newlines.sourceIgnored)
+            baseNoSplit.withSingleLine(close)
+          else {
+            val opt = leftOwner.tokens.find(_.is[T.Comma]).orElse(Some(close))
+            val isBracket = open.is[T.LeftBracket]
+            // TODO(olafur) DRY. Same logic as in default.
+            val exclude =
+              if (isBracket)
+                insideBlock[T.LeftBracket](formatToken, close)
+              else
+                insideBlock[T.LeftBrace](formatToken, close)
+            val excludeRanges: Set[Range] =
+              exclude.map((matchingParensRange _).tupled).toSet
+            val unindent = UnindentAtExclude(exclude.keySet, Num(-indent.n))
+            def ignoreBlocks(x: FormatToken): Boolean = {
+              excludeRanges.exists(_.contains(x.left.end))
+            }
+            val policy =
+              penalizeAllNewlines(close, 3, ignore = ignoreBlocks)
+                .andThen(unindent)
+            baseNoSplit.withOptimalTokenOpt(opt).withPolicy(policy)
+          }
+
+        val nlDanglePolicy =
+          if (
+            style.newlines.sourceIgnored &&
+            style.danglingParentheses.callSite
+          )
+            newlinesOnlyBeforeClosePolicy(close)
+          else NoPolicy
+        val nlIndent = if (style.activeForEdition_2020_03) indent else Num(4)
+        Seq(
+          noSplit,
+          Split(NewlineT(acceptNoSplit = singleLineOnly), 2)
+            .withIndent(nlIndent, close, Before)
+            .withSingleLineOpt(if (singleLineOnly) Some(close) else None)
+            .andThenPolicy(nlDanglePolicy)
+        )
+
+      // If configured to skip the trailing space after `if` and other keywords, do so.
+      case FormatToken(T.KwIf() | T.KwFor() | T.KwWhile(), T.LeftParen(), _)
+          if !style.spaces.afterKeywordBeforeParen =>
+        Seq(Split(NoSplit, 0))
 
       // Closing def site ): ReturnType
       case FormatToken(left, T.Colon(), _)
