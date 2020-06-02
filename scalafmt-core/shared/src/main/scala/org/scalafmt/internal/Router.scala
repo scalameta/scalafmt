@@ -706,7 +706,7 @@ class Router(formatOps: FormatOps) {
             case _ => false
           }
 
-        val nestedPenalty = nestedApplies(leftOwner) + lhsPenalty
+        val nestedPenalty = 1 + nestedApplies(leftOwner) + lhsPenalty
         val excludeRanges =
           if (isBracket) insideBlockRanges[T.LeftBracket](tok, close)
           else if (
@@ -818,13 +818,11 @@ class Router(formatOps: FormatOps) {
               val newlineAfterAssignDecision =
                 if (newlinePolicy.isEmpty) Policy.emptyPf
                 else decideNewlinesOnlyAfterToken(breakToken)
-              val noSplitCost = 1 + nestedPenalty
-              val newlineCost = Constants.ExceedColumnPenalty + noSplitCost
               Seq(
-                Split(Newline, newlineCost)
+                Split(Newline, nestedPenalty + Constants.ExceedColumnPenalty)
                   .withPolicy(newlinePolicy)
                   .withIndent(indent, close, Before),
-                Split(NoSplit, noSplitCost)
+                Split(NoSplit, nestedPenalty)
                   .withSingleLine(breakToken)
                   .andThenPolicy(
                     newlinePolicy.andThen(newlineAfterAssignDecision)
@@ -854,7 +852,7 @@ class Router(formatOps: FormatOps) {
             .onlyIf(noSplitMod != null)
             .withOptimalToken(expirationToken)
             .withIndent(noSplitIndent, close, Before),
-          Split(newlineMod, (1 + nestedPenalty) * bracketCoef + nlPenalty)
+          Split(newlineMod, nestedPenalty * bracketCoef + nlPenalty)
             .withPolicy(newlinePolicy.andThen(singleLine(4)))
             .onlyIf(!multipleArgs && !alignTuple && splitsForAssign.isEmpty)
             .withOptimalToken(expirationToken)
@@ -867,7 +865,7 @@ class Router(formatOps: FormatOps) {
                 style.newlines.notBeforeImplicitParamListModifier)
             )
             .withIndent(if (align) StateColumn else indent, close, Before),
-          Split(Newline, (3 + nestedPenalty) * bracketCoef + nlPenalty)
+          Split(Newline, (2 + nestedPenalty) * bracketCoef + nlPenalty)
             .withPolicy(oneArgOneLine)
             .onlyIf(multipleArgs && !alignTuple)
             .withIndent(indent, close, Before)
