@@ -819,3 +819,195 @@ pushInput(
       "This alien landing came quite unexpected. Communication has been garbled."
   )
 )
+<<< #1802
+preset = intellij
+danglingParentheses.preset = true
+optIn.configStyleArguments = true
+===
+`WWW-Authenticate`(
+          HttpChallenge("Digest",
+                        "testrealm@host.com",
+                        Map("qop" -> "auth,auth-int",
+                            "nonce" -> "dcd98b7102dd2f0e8b11d0f600bfb0c093",
+                            "opaque" -> "5ccc069c403ebaf9f0171e9517f40e41")))
+        .renderedTo(
+          "Digest realm=\"testrealm@host.com\",qop=\"auth,auth-int\",nonce=dcd98b7102dd2f0e8b11d0f600bfb0c093,opaque=5ccc069c403ebaf9f0171e9517f40e41")
+>>>
+Idempotency violated
+`WWW-Authenticate`(
+  HttpChallenge(
+    "Digest",
+    "testrealm@host.com",
+    Map(
+      "qop" -> "auth,auth-int",
+      "nonce" -> "dcd98b7102dd2f0e8b11d0f600bfb0c093",
+      "opaque" -> "5ccc069c403ebaf9f0171e9517f40e41"
+    )
+  )
+).renderedTo(
+  "Digest realm=\"testrealm@host.com\",qop=\"auth,auth-int\",nonce=dcd98b7102dd2f0e8b11d0f600bfb0c093,opaque=5ccc069c403ebaf9f0171e9517f40e41"
+)
+<<< #1803
+preset = intellij
+danglingParentheses.preset = true
+optIn.configStyleArguments = true
+optIn.breakChainOnFirstMethodDot = true
+===
+Await
+          .result(
+              Unmarshal(HttpEntity(
+                      `multipart/mixed` withBoundary "XYZABC" withCharset `UTF-8`,
+                      """this is
+            |just preamble text""".stripMarginWithNewline("\r\n")))
+                .to[Multipart.General]
+                .failed,
+              1.second)
+          .getMessage
+>>>
+Idempotency violated
+Await
+  .result(
+    Unmarshal(
+      HttpEntity(
+        `multipart/mixed` withBoundary "XYZABC" withCharset `UTF-8`,
+        """this is
+            |just preamble text""".stripMarginWithNewline("\r\n")
+      )
+    ).to[Multipart.General].failed,
+    1.second
+  )
+  .getMessage
+<<< #1803, no breakChainOnFirstMethodDot
+preset = intellij
+danglingParentheses.preset = true
+optIn.configStyleArguments = true
+optIn.breakChainOnFirstMethodDot = false
+===
+Await
+          .result(
+              Unmarshal(HttpEntity(
+                      `multipart/mixed` withBoundary "XYZABC" withCharset `UTF-8`,
+                      """this is
+            |just preamble text""".stripMarginWithNewline("\r\n")))
+                .to[Multipart.General]
+                .failed,
+              1.second)
+          .getMessage
+>>>
+Await
+  .result(
+    Unmarshal(
+      HttpEntity(
+        `multipart/mixed` withBoundary "XYZABC" withCharset `UTF-8`,
+        """this is
+            |just preamble text""".stripMarginWithNewline("\r\n")
+      )
+    ).to[Multipart.General].failed,
+    1.second
+  )
+  .getMessage
+<<< #1804
+preset = intellij
+danglingParentheses.preset = true
+optIn.configStyleArguments = true
+optIn.breakChainOnFirstMethodDot = true
+===
+object a {
+  lazy val mod = project(
+      "mod",
+      Seq(common, db, user, hub, security, game, analyse, evaluation, report))
+    .settings(
+      libraryDependencies ++= provided(play.api, play.test, RM, PRM)
+  )
+}
+>>>
+Idempotency violated
+object a {
+  lazy val mod = project(
+    "mod",
+    Seq(common, db, user, hub, security, game, analyse, evaluation, report)
+  ).settings(
+    libraryDependencies ++= provided(play.api, play.test, RM, PRM)
+  )
+}
+<<< #1804, no breakChainOnFirstMethodDot
+preset = intellij
+danglingParentheses.preset = true
+optIn.configStyleArguments = true
+optIn.breakChainOnFirstMethodDot = false
+===
+object a {
+  lazy val mod = project(
+      "mod",
+      Seq(common, db, user, hub, security, game, analyse, evaluation, report))
+    .settings(
+      libraryDependencies ++= provided(play.api, play.test, RM, PRM)
+  )
+}
+>>>
+object a {
+  lazy val mod = project(
+    "mod",
+    Seq(common, db, user, hub, security, game, analyse, evaluation, report)
+  ).settings(
+    libraryDependencies ++= provided(play.api, play.test, RM, PRM)
+  )
+}
+<<< #1804 bis
+preset = intellij
+danglingParentheses.preset = true
+optIn.configStyleArguments = true
+optIn.breakChainOnFirstMethodDot = true
+===
+object a {
+  lazy val mod = project(
+      "mod",
+      Seq(common, db, user, hub, security, game, analyse, evaluation, report))
+    .settings(
+      libraryDependencies ++= provided(play.api, play.test, RM, PRM)
+  )
+    .settings(
+      libraryDependencies ++= provided(play.api, play.test, RM, PRM)
+  )
+}
+>>>
+object a {
+  lazy val mod = project(
+    "mod",
+    Seq(common, db, user, hub, security, game, analyse, evaluation, report)
+  ).settings(
+      libraryDependencies ++= provided(play.api, play.test, RM, PRM)
+    )
+    .settings(
+      libraryDependencies ++= provided(play.api, play.test, RM, PRM)
+    )
+}
+<<< #1804 bis, no breakChainOnFirstMethodDot
+preset = intellij
+danglingParentheses.preset = true
+optIn.configStyleArguments = true
+optIn.breakChainOnFirstMethodDot = false
+===
+object a {
+  lazy val mod = project(
+      "mod",
+      Seq(common, db, user, hub, security, game, analyse, evaluation, report))
+    .settings(
+      libraryDependencies ++= provided(play.api, play.test, RM, PRM)
+  )
+    .settings(
+      libraryDependencies ++= provided(play.api, play.test, RM, PRM)
+  )
+}
+>>>
+object a {
+  lazy val mod = project(
+    "mod",
+    Seq(common, db, user, hub, security, game, analyse, evaluation, report)
+  ).settings(
+      libraryDependencies ++= provided(play.api, play.test, RM, PRM)
+    )
+    .settings(
+      libraryDependencies ++= provided(play.api, play.test, RM, PRM)
+    )
+}
