@@ -30,10 +30,9 @@ final case class State(
     * Calculates next State given split at tok.
     */
   def next(
-      style: ScalafmtConfig,
       split: Split,
       tok: FormatToken
-  ): State = {
+  )(implicit style: ScalafmtConfig): State = {
     val right = tok.right
     val tokRightSyntax = tok.meta.right.text
 
