@@ -551,11 +551,11 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
       isNewline: Boolean
   )(implicit style: ScalafmtConfig): Int = {
     if (style.verticalAlignMultilineOperators)
-      if (InfixApp.isAssignment(formatToken.left.syntax)) 2 else 0
+      if (InfixApp.isAssignment(formatToken.meta.left.text)) 2 else 0
     else if (
       !app.rhs.headOption.exists { x =>
         x.is[Term.Block] || x.is[Term.NewAnonymous]
-      } && isInfixTopLevelMatch(app.all, formatToken.left.syntax, false)
+      } && isInfixTopLevelMatch(app.all, formatToken.meta.left.text, false)
     ) 2
     else if (isInfixTopLevelMatch(app.all, app.op.value, true)) 0
     else if (!isNewline && !isSingleLineComment(formatToken.right)) 0

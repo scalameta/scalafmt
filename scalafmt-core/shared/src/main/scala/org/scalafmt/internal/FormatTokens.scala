@@ -44,7 +44,7 @@ object FormatTokens {
     */
   def apply(tokens: Tokens, owner: Token => Tree): FormatTokens = {
     var left = tokens.head
-    var lowner = owner(left)
+    var lmeta = FormatToken.TokenMeta(owner(left), left.syntax)
     val result = Array.newBuilder[FormatToken]
     var ftIdx = 0
     var wsIdx = 0
@@ -53,12 +53,12 @@ object FormatTokens {
     arr.foreach {
       case Whitespace() => tokIdx += 1
       case right =>
-        val rowner = owner(right)
+        val rmeta = FormatToken.TokenMeta(owner(right), right.syntax)
         val meta =
-          FormatToken.Meta(arr.slice(wsIdx, tokIdx), ftIdx, lowner, rowner)
+          FormatToken.Meta(arr.slice(wsIdx, tokIdx), ftIdx, lmeta, rmeta)
         result += FormatToken(left, right, meta)
         left = right
-        lowner = rowner
+        lmeta = rmeta
         ftIdx += 1
         tokIdx += 1
         wsIdx = tokIdx

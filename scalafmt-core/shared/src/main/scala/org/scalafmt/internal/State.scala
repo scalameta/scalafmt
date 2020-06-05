@@ -2,7 +2,6 @@ package org.scalafmt.internal
 
 import scala.annotation.tailrec
 import scala.meta.tokens.Token
-import scala.meta.tokens.Token.Comment
 
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.TokenOps
@@ -35,8 +34,11 @@ final case class State(
       split: Split,
       tok: FormatToken
   ): State = {
+    val right = tok.right
+    val tokRightSyntax = tok.meta.right.text
+
     val newIndents: Vector[ActualIndent] =
-      if (tok.right.is[Token.EOF]) Vector.empty
+      if (right.is[Token.EOF]) Vector.empty
       else {
         val offset = column - indentation
         val newPushes = split.indents.flatMap(_.withStateOffset(offset))
@@ -44,7 +46,6 @@ final case class State(
       }
     val newIndent = newIndents.foldLeft(0)(_ + _.length)
 
-    val tokRightSyntax = tok.right.syntax
     // Always account for the cost of the right token.
     val tokLength = tokRightSyntax.length
 
@@ -71,9 +72,8 @@ final case class State(
     val splitWithPenalty = {
       if (
         columnOnCurrentLine <= style.maxColumn || {
-          val commentExceedsLineLength =
-            tok.right.is[Comment] &&
-              tokRightSyntax.length >= (style.maxColumn - newIndent)
+          val commentExceedsLineLength = right.is[Token.Comment] &&
+            tokRightSyntax.length >= (style.maxColumn - newIndent)
           commentExceedsLineLength && split.modification.isNewline
         }
       ) {
@@ -85,10 +85,8 @@ final case class State(
       }
     }
 
-    val nextFormatOff =
-      if (TokenOps.isFormatOff(tok.right)) true
-      else if (TokenOps.isFormatOn(tok.right)) false
-      else formatOff
+    val nextFormatOff = TokenOps.isFormatOff(right, tokRightSyntax) ||
+      formatOff && !TokenOps.isFormatOn(right, tokRightSyntax)
 
     State(
       cost + splitWithPenalty.cost,

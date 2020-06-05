@@ -49,18 +49,17 @@ object TokenOps {
   }
 
   def blankLineBeforeDocstring(
-      left: Token,
-      right: Token
+      ft: FormatToken
   )(implicit style: ScalafmtConfig): Boolean =
-    right.is[Token.Comment] &&
-      blankLineBeforeDocstring(left, right.asInstanceOf[Token.Comment])
+    ft.right.is[Token.Comment] &&
+      blankLineBeforeDocstring(ft.left, ft.meta.right.text)
 
   def blankLineBeforeDocstring(
-      left: Token,
-      right: Token.Comment
+      left: => Token,
+      right: => String
   )(implicit style: ScalafmtConfig): Boolean =
     style.optIn.forceNewlineBeforeDocstringSummary &&
-      !left.is[Token.Comment] && right.syntax.startsWith("/**")
+      !left.is[Token.Comment] && right.startsWith("/**")
 
   // 2.13 implements SeqOps.findLast
   def findLast[A](seq: Seq[A])(cond: A => Boolean): Option[A] =
@@ -141,8 +140,11 @@ object TokenOps {
   def isSingleLineComment(c: String): Boolean = c.startsWith("//")
 
   @inline
-  def isSingleLineComment(c: Token.Comment): Boolean =
-    isSingleLineComment(c.syntax)
+  def isSingleLineComment(c: Token.Comment): Boolean = {
+    (c.end - c.start) >= 2 &&
+    c.input.chars(c.start) == '/' &&
+    c.input.chars(c.start + 1) == '/'
+  }
 
   def isSingleLineComment(token: Token): Boolean =
     token match {
@@ -211,22 +213,16 @@ object TokenOps {
         else firstNewline
     }
 
-  def isFormatOn(token: Token): Boolean =
-    token match {
-      case c: Comment if formatOnCode.contains(c.syntax.toLowerCase) => true
-      case _ => false
-    }
-
-  def isFormatOff(token: Token): Boolean =
-    token match {
-      case c: Comment if formatOffCode.contains(c.syntax.toLowerCase) => true
-      case _ => false
-    }
-
   val formatOffCode = Set(
     "// @formatter:off", // IntelliJ
     "// format: off" // scalariform
   )
+
+  def isFormatOn(token: Token, syntax: => String): Boolean =
+    token.is[Comment] && formatOnCode.contains(syntax.toLowerCase)
+
+  def isFormatOff(token: Token, syntax: => String): Boolean =
+    token.is[Comment] && formatOffCode.contains(syntax.toLowerCase)
 
   def endsWithSymbolIdent(tok: Token): Boolean =
     tok match {

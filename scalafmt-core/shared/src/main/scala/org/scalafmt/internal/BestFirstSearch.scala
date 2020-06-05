@@ -86,7 +86,7 @@ private class BestFirstSearch private (
 
   def provided(formatToken: FormatToken): Split = {
     // TODO(olafur) the indentation is not correctly set.
-    val split = Split(Provided(formatToken.between.map(_.syntax).mkString), 0)
+    val split = Split(Provided(formatToken), 0)
     val result =
       if (formatToken.left.is[LeftBrace])
         split.withIndent(Num(2), matching(formatToken.left), ExpiresOn.Before)

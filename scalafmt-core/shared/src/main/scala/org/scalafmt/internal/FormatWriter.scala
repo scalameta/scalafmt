@@ -52,21 +52,22 @@ class FormatWriter(formatOps: FormatOps) {
         // formatting flag fetches from the previous state because of
         // `formatToken.left` rendering. `FormatToken(x, // format: on)` will have
         // formatOff = false, but x still should not be formatted
-        case token if state.formatOff => sb.append(token.syntax)
+        case token if state.formatOff => sb.append(formatToken.meta.left.text)
         case _: T.Comment =>
           entry.formatComment
         case _: T.Interpolation.Part | _: T.Constant.String =>
           sb.append(entry.formatMarginized)
         case c: T.Constant.Int =>
-          sb.append(LiteralOps.prettyPrintInteger(c.syntax))
+          sb.append(LiteralOps.prettyPrintInteger(formatToken.meta.left.text))
         case c: T.Constant.Long =>
-          sb.append(LiteralOps.prettyPrintInteger(c.syntax))
+          sb.append(LiteralOps.prettyPrintInteger(formatToken.meta.left.text))
         case c: T.Constant.Float =>
-          sb.append(LiteralOps.prettyPrintFloat(c.syntax))
+          sb.append(LiteralOps.prettyPrintFloat(formatToken.meta.left.text))
         case c: T.Constant.Double =>
-          sb.append(LiteralOps.prettyPrintDouble(c.syntax))
+          sb.append(LiteralOps.prettyPrintDouble(formatToken.meta.left.text))
         case token =>
-          val syntax = Option(location.replace).getOrElse(token.syntax)
+          val syntax =
+            Option(location.replace).getOrElse(formatToken.meta.left.text)
           val rewrittenToken = style.rewriteTokens.getOrElse(syntax, syntax)
           sb.append(rewrittenToken)
       }
@@ -88,7 +89,7 @@ class FormatWriter(formatOps: FormatOps) {
         val prev = state.prev
         val idx = prev.depth
         val ft = toks(idx)
-        val breaks = ft.leftHasNewline || state.split.modification.isNewline
+        val breaks = state.split.modification.isNewline || ft.leftHasNewline
         val newLineId = lineId + (if (breaks) 1 else 0)
         result(idx) = FormatLocation(ft, state, styleMap.at(ft), newLineId)
         iter(prev, newLineId)
@@ -261,7 +262,7 @@ class FormatWriter(formatOps: FormatOps) {
             if (nl.noIndent) newline
             else newline + getIndentation(state.indentation)
 
-          case Provided(literal) => literal
+          case Provided(ft) => ft.betweenText
 
           case NoSplit => ""
         }
@@ -349,7 +350,7 @@ class FormatWriter(formatOps: FormatOps) {
       }
 
       def formatMarginized: String = {
-        val text = tok.left.syntax
+        val text = tok.meta.left.text
         val tupleOpt = tok.left match {
           case _ if !style.assumeStandardLibraryStripMargin => None
           case _: T.Constant.String =>
@@ -389,7 +390,7 @@ class FormatWriter(formatOps: FormatOps) {
       }
 
       def formatComment(implicit sb: StringBuilder): Unit = {
-        val text = tok.left.syntax
+        val text = tok.meta.left.text
         if (isSingleLineComment(text))
           new FormatSlc(text).format
         else if (text.startsWith("/**"))
@@ -604,7 +605,7 @@ class FormatWriter(formatOps: FormatOps) {
               (style.docstrings.wrap eq Docstrings.Wrap.yes) &&
               curr.isStandalone
             )
-              ScaladocParser.parse(tok.left.syntax)
+              ScaladocParser.parse(tok.meta.left.text)
             else None
           docOpt.fold(formatNoWrap)(formatWithWrap)
         }
@@ -903,7 +904,7 @@ class FormatWriter(formatOps: FormatOps) {
     def getAlignContainer(implicit location: FormatLocation): Option[Tree] = {
       val ft = location.formatToken
       val slc = isSingleLineComment(ft.right)
-      val code = if (slc) "//" else ft.right.syntax
+      val code = if (slc) "//" else ft.meta.right.text
 
       location.style.alignMap.get(code).flatMap { pattern =>
         val owner = getAlignOwner(ft)
@@ -1170,7 +1171,7 @@ class FormatWriter(formatOps: FormatOps) {
         val separatorLength =
           if (location.formatToken.right.is[Token.Comment]) 0
           else if (!initStyle.activeForEdition_2020_03) 0
-          else location.formatToken.right.syntax.length
+          else location.formatToken.meta.right.text.length
         units += AlignmentUnit(
           key + separatorLength,
           location.formatToken.meta.idx,
