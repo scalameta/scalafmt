@@ -721,4 +721,7 @@ object TreeOps {
       }
   }
 
+  @inline
+  def ifWithoutElse(t: Term.If) = t.elsep.is[Lit.Unit]
+
 }
