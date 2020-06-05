@@ -33,14 +33,13 @@ final case class State(
     * Calculates next State given split at tok.
     */
   def next(
-      initialNextSplit: Split,
-      tok: FormatToken
-  )(implicit style: ScalafmtConfig): State = {
+      initialNextSplit: Split
+  )(implicit style: ScalafmtConfig, fops: FormatOps): State = {
+    val tok = fops.tokens(depth)
     val right = tok.right
-    val tokRightSyntax = tok.meta.right.text
 
     val (nextSplit, nextIndent, nextIndents) =
-      if (tok.right.is[Token.EOF]) (initialNextSplit, 0, Seq.empty)
+      if (right.is[Token.EOF]) (initialNextSplit, 0, Seq.empty)
       else {
         val offset = column - indentation
         def getUnexpired(indents: Seq[ActualIndent]): Seq[ActualIndent] =
@@ -76,7 +75,7 @@ final case class State(
       if (
         columnOnCurrentLine <= style.maxColumn || {
           val commentExceedsLineLength = right.is[Token.Comment] &&
-            tokRightSyntax.length >= (style.maxColumn - nextIndent)
+            tok.meta.right.text.length >= (style.maxColumn - nextIndent)
           commentExceedsLineLength && nextSplit.isNL
         }
       ) {
