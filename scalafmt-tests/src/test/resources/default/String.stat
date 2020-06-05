@@ -90,8 +90,10 @@ object a {
 }
 >>>
 object a {
-  foo.B("""
-        |foo""").bar
+  foo
+    .B("""
+        |foo""")
+    .bar
 }
 <<< #1640 single select with multiline arg
 object a {

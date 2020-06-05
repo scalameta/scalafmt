@@ -1219,7 +1219,7 @@ class Router(formatOps: FormatOps) {
                 }
               }
               Seq(
-                Split(NoSplit, 0).withSingleLine(expire),
+                Split(NoSplit, 0).withSingleLine(expire, noSyntaxNL = true),
                 Split(NewlineT(acceptNoSplit = true), 1)
                   .withPolicyOpt(forcedBreakPolicy)
               )
@@ -1278,7 +1278,8 @@ class Router(formatOps: FormatOps) {
         // the newline is too cheap even it doesn't actually prevent other newlines.
         val penalizeNewlinesInApply = penalizeAllNewlines(expire, 2)
         val noSplitPolicy =
-          SingleLineBlock(expire, exclude).andThen(penalizeNewlinesInApply)
+          SingleLineBlock(expire, exclude, penaliseNewlinesInsideTokens = true)
+            .andThen(penalizeNewlinesInApply)
         val newlinePolicy = breakOnEveryDot.andThen(penalizeNewlinesInApply)
         val ignoreNoSplit =
           style.optIn.breakChainOnFirstMethodDot && tok.hasBreak
