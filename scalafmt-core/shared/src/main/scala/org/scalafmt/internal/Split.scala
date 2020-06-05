@@ -103,31 +103,41 @@ case class Split(
   def withSingleLine(
       expire: Token,
       exclude: => Set[Range] = Set.empty,
+      noSyntaxNL: Boolean = false,
       killOnFail: Boolean = false
   )(implicit line: sourcecode.Line): Split =
-    withSingleLineAndOptimal(expire, expire, exclude, killOnFail)
+    withSingleLineAndOptimal(expire, expire, exclude, noSyntaxNL, killOnFail)
 
   def withSingleLineOpt(
       expire: Option[Token],
       exclude: => Set[Range] = Set.empty,
+      noSyntaxNL: Boolean = false,
       killOnFail: Boolean = false
   )(implicit line: sourcecode.Line): Split =
-    expire.fold(this)(withSingleLine(_, exclude, killOnFail))
+    expire.fold(this)(withSingleLine(_, exclude, noSyntaxNL, killOnFail))
 
   def withSingleLineAndOptimal(
       expire: Token,
       optimal: Token,
       exclude: => Set[Range] = Set.empty,
+      noSyntaxNL: Boolean = false,
       killOnFail: Boolean = false
   )(implicit line: sourcecode.Line): Split =
     withOptimalToken(optimal, killOnFail)
-      .withSingleLineNoOptimal(expire, exclude)
+      .withSingleLineNoOptimal(expire, exclude, noSyntaxNL)
 
   def withSingleLineNoOptimal(
       expire: Token,
-      exclude: => Set[Range] = Set.empty
+      exclude: => Set[Range] = Set.empty,
+      noSyntaxNL: Boolean = false
   )(implicit line: sourcecode.Line): Split =
-    withPolicy(SingleLineBlock(expire, exclude))
+    withPolicy(
+      SingleLineBlock(
+        expire,
+        exclude,
+        penaliseNewlinesInsideTokens = noSyntaxNL
+      )
+    )
 
   def withPolicyOpt(
       newPolicy: => Option[Policy]

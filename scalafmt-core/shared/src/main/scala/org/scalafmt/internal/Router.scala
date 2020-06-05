@@ -284,11 +284,9 @@ class Router(formatOps: FormatOps) {
           singleLineDecisionOpt.fold(Split.ignored) { sld =>
             val useOpt = lambdaPolicy != null || style.activeForEdition_2020_03
             val expire = if (useOpt) endOfSingleLineBlock(closeFT) else close
-            val policy =
-              SingleLineBlock(expire, penaliseNewlinesInsideTokens = true)
-                .andThen(sld)
-            Split(xmlSpace(leftOwner), 0, policy = policy)
-              .withOptimalToken(expire, killOnFail = true)
+            Split(xmlSpace(leftOwner), 0)
+              .withSingleLine(expire, noSyntaxNL = true, killOnFail = true)
+              .andThenPolicy(Policy(expire)(sld))
           }
 
         Seq(
@@ -322,13 +320,10 @@ class Router(formatOps: FormatOps) {
             afterCurlySpace && style.activeForEdition_2020_01 &&
             (!rightOwner.is[Defn] || style.newlines.sourceIs(Newlines.fold))
           )
-            Split(Space, 0)
-              .withPolicy(
-                SingleLineBlock(
-                  getOptimalTokenFor(endOfFunction),
-                  penaliseNewlinesInsideTokens = true
-                )
-              )
+            Split(Space, 0).withSingleLineNoOptimal(
+              getOptimalTokenFor(endOfFunction),
+              noSyntaxNL = true
+            )
           else Split.ignored
         Seq(
           spaceSplit,
@@ -371,7 +366,7 @@ class Router(formatOps: FormatOps) {
         val singleLineSplit =
           Split(Space, 0)
             .notIf(hasSingleLineComment || noSingleLine)
-            .withPolicy(SingleLineBlock(endOfFunction))
+            .withSingleLineNoOptimal(endOfFunction)
         def newlineSplit =
           Split(Newline, 1 + nestedApplies(leftOwner))
             .withIndent(indent, endOfFunction, expiresOn)
@@ -1477,7 +1472,7 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(Space, 0)
             .notIf(noSpace)
-            .withPolicy(SingleLineBlock(expire, exclude = exclude)),
+            .withSingleLineNoOptimal(expire, exclude = exclude),
           Split(Newline, 1).withIndent(2, expire, After)
         )
       case FormatToken(T.RightBrace(), T.KwElse(), _) =>
@@ -1498,7 +1493,7 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(Space, 0)
             .notIf(noSpace)
-            .withPolicy(SingleLineBlock(expire, exclude = exclude)),
+            .withSingleLineNoOptimal(expire, exclude),
           Split(Newline, 1)
         )
       // Last else branch
@@ -1509,7 +1504,7 @@ class Router(formatOps: FormatOps) {
         val expire = leftOwner.asInstanceOf[Term.If].elsep.tokens.last
         val noSpace = shouldBreak(formatToken)
         Seq(
-          Split(Space, 0).notIf(noSpace).withPolicy(SingleLineBlock(expire)),
+          Split(Space, 0).notIf(noSpace).withSingleLineNoOptimal(expire),
           Split(Newline, 1).withIndent(2, expire, After)
         )
 
@@ -1618,10 +1613,9 @@ class Router(formatOps: FormatOps) {
       case tok @ FormatToken(_, cond @ T.KwIf(), _) if rightOwner.is[Case] =>
         val arrow = getCaseArrow(rightOwner.asInstanceOf[Case]).left
         val exclude = insideBlockRanges[T.LeftBrace](tok, arrow)
-        val singleLine = SingleLineBlock(arrow, exclude = exclude)
 
         Seq(
-          Split(Space, 0, policy = singleLine),
+          Split(Space, 0).withSingleLineNoOptimal(arrow, exclude = exclude),
           Split(Newline, 1).withPolicy(penalizeNewlineByNesting(cond, arrow))
         )
 
@@ -1758,7 +1752,7 @@ class Router(formatOps: FormatOps) {
           val lastToken = leftOwner.asInstanceOf[Term.ForYield].body.tokens.last
           Seq(
             // Either everything fits in one line or break on =>
-            Split(Space, 0).withPolicy(SingleLineBlock(lastToken)),
+            Split(Space, 0).withSingleLineNoOptimal(lastToken),
             Split(Newline, 1).withIndent(2, lastToken, After)
           )
         }
