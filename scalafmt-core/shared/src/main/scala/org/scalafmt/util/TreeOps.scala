@@ -689,14 +689,15 @@ object TreeOps {
     }
   }
 
-  def isTripleQuote(token: Token): Boolean = token.syntax.startsWith("\"\"\"")
+  @inline
+  def isTripleQuote(syntax: String): Boolean = syntax.startsWith("\"\"\"")
 
   def getStripMarginChar(ft: FormatToken): Option[Char] = {
     ft.left match {
       case _: Token.Interpolation.Start =>
         val ti = TreeOps.findInterpolate(ft.meta.leftOwner)
         ti.flatMap(TreeOps.getStripMarginChar)
-      case string: Token.Constant.String if isTripleQuote(string) =>
+      case _: Token.Constant.String if isTripleQuote(ft.meta.left.text) =>
         TreeOps.getStripMarginChar(ft.meta.leftOwner)
       case _ => None
     }

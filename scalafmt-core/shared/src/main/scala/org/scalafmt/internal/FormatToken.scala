@@ -19,7 +19,7 @@ import org.scalafmt.util.TokenOps._
 case class FormatToken(left: Token, right: Token, meta: FormatToken.Meta) {
 
   override def toString =
-    s"${left.syntax}∙${right.syntax}[${left.end}:${right.end}]"
+    s"${meta.left.text}∙${meta.right.text}[${left.end}:${right.end}]"
 
   def inside(range: Set[Range]): Boolean = {
     if (range.isEmpty) true
@@ -27,12 +27,13 @@ case class FormatToken(left: Token, right: Token, meta: FormatToken.Meta) {
   }
 
   def between = meta.between
+  lazy val betweenText: String = between.map(_.syntax).mkString
   lazy val newlinesBetween: Int = meta.between.count(_.is[Token.LF])
   @inline def noBreak: Boolean = FormatToken.noBreak(newlinesBetween)
   @inline def hasBreak: Boolean = newlinesBetween != 0
   @inline def hasBlankLine: Boolean = FormatToken.hasBlankLine(newlinesBetween)
 
-  val leftHasNewline = left.syntax.contains('\n')
+  @inline def leftHasNewline = meta.left.firstNL >= 0
 
   /**
     * A format token is uniquely identified by its left token.
@@ -52,8 +53,18 @@ object FormatToken {
   case class Meta(
       between: Array[Token],
       idx: Int,
-      leftOwner: Tree,
-      rightOwner: Tree
-  )
+      left: TokenMeta,
+      right: TokenMeta
+  ) {
+    @inline def leftOwner: Tree = left.owner
+    @inline def rightOwner: Tree = right.owner
+  }
+
+  case class TokenMeta(
+      owner: Tree,
+      text: String
+  ) {
+    lazy val firstNL = text.indexOf('\n')
+  }
 
 }

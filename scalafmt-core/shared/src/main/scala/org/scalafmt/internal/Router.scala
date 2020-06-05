@@ -83,7 +83,7 @@ class Router(formatOps: FormatOps) {
       case FormatToken(start: T.Interpolation.Start, _, _) =>
         val end = matching(start)
         val policy =
-          if (isTripleQuote(start)) NoPolicy
+          if (isTripleQuote(formatToken.meta.left.text)) NoPolicy
           else penalizeAllNewlines(end, BreakSingleLineInterpolatedString)
         val split = Split(NoSplit, 0).withPolicy(policy)
         Seq(
@@ -179,7 +179,7 @@ class Router(formatOps: FormatOps) {
           if (isSelfAnnotation)
             getModCheckIndent(formatToken, math.max(newlines, 1))
           else
-            NewlineT(tok.hasBlankLine || blankLineBeforeDocstring(open, right))
+            NewlineT(tok.hasBlankLine || blankLineBeforeDocstring(tok))
 
         val (lambdaExpire, lambdaArrow, lambdaIndent) =
           startsStatement(right) match {
@@ -550,14 +550,11 @@ class Router(formatOps: FormatOps) {
           // https://github.com/scalameta/scalafmt/issues/1528
           case init: Init if init.parent.forall(_.is[Mod.Annot]) => Space
           case t: Term.Name
-              if style.spaces.afterTripleEquals &&
-                t.tokens.map(_.syntax) == Seq("===") =>
+              if style.spaces.afterTripleEquals && t.value == "===" =>
             Space
           case name: Term.Name
-              if style.spaces.afterSymbolicDefs && isSymbolicName(
-                name.value
-              ) && name.parent
-                .exists(isDefDef) =>
+              if style.spaces.afterSymbolicDefs &&
+                isSymbolicName(name.value) && name.parent.exists(isDefDef) =>
             Space
           case _ => NoSplit
         }
@@ -1628,11 +1625,10 @@ class Router(formatOps: FormatOps) {
         }
 
       // Inline comment
-      case FormatToken(left, c: T.Comment, _) =>
-        val mod =
-          if (formatToken.hasBreak && blankLineBeforeDocstring(left, c))
-            Newline2x
-          else getMod(formatToken)
+      case FormatToken(left, _: T.Comment, _) =>
+        val forceBlankLine = formatToken.hasBreak &&
+          blankLineBeforeDocstring(left, formatToken.meta.right.text)
+        val mod = if (forceBlankLine) Newline2x else getMod(formatToken)
         Seq(Split(mod, 0))
       // Commented out code should stay to the left
       case FormatToken(c: T.Comment, _, _) if isSingleLineComment(c) =>
@@ -1769,7 +1765,7 @@ class Router(formatOps: FormatOps) {
         )
       // seq to var args foo(seq:_*)
       case FormatToken(T.Colon(), T.Underscore(), _)
-          if next(formatToken).right.syntax == "*" =>
+          if next(formatToken).meta.right.text == "*" =>
         Seq(
           Split(Space, 0)
         )

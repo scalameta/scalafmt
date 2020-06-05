@@ -6,13 +6,10 @@ sealed abstract class Modification {
   @inline final def isNewline: Boolean = newlines != 0
 }
 
-case class Provided(code: String) extends Modification {
-  override lazy val newlines: Int = code.count(_ == '\n')
-  override lazy val length: Int = {
-    val firstLine = code.indexOf('\n')
-    if (firstLine == -1) code.length
-    else firstLine
-  }
+case class Provided(ft: FormatToken) extends Modification {
+  override val newlines: Int = ft.newlinesBetween
+  override lazy val length: Int =
+    if (newlines == 0) ft.betweenText.length else ft.betweenText.indexOf('\n')
 }
 
 case object NoSplit extends Modification {
