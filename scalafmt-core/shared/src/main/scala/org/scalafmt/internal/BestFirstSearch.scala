@@ -19,10 +19,9 @@ import org.scalafmt.util.TreeOps
   * Implements best first search to find optimal formatting.
   */
 private class BestFirstSearch private (
-    val formatOps: FormatOps,
     range: Set[Range],
     formatWriter: FormatWriter
-) {
+)(implicit val formatOps: FormatOps) {
   import Token._
 
   import LoggerOps._
@@ -193,7 +192,7 @@ private class BestFirstSearch private (
 
           var optimalNotFound = true
           actualSplit.foreach { split =>
-            val nextState = curr.next(split, splitToken)
+            val nextState = curr.next(split)
             val updateBest = !keepSlowStates && depth == 0 &&
               split.isNL && !best.contains(curr.depth)
             if (updateBest) {
@@ -288,9 +287,8 @@ private class BestFirstSearch private (
         if (split.isNL) state
         else {
           runner.event(Enqueue(split))
-          val ft = tokens(state.depth)
-          implicit val style = styleMap.at(ft)
-          val nextState = state.next(split, ft)
+          implicit val style = styleMap.at(tokens(state.depth))
+          val nextState = state.next(split)
           traverseSameLine(nextState, depth)
         }
       }
@@ -344,6 +342,6 @@ object BestFirstSearch {
       range: Set[Range],
       formatWriter: FormatWriter
   ): SearchResult =
-    new BestFirstSearch(formatOps, range, formatWriter).getBestPath
+    new BestFirstSearch(range, formatWriter)(formatOps).getBestPath
 
 }
