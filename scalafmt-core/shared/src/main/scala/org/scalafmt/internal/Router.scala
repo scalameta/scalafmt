@@ -419,7 +419,7 @@ class Router(formatOps: FormatOps) {
                 Right(Split.ignored)
               case t if t.tokens.isEmpty || caseStat.cond.isDefined =>
                 Right(Split(Space, 0).withSingleLineOpt(t.tokens.lastOption))
-              case t: Term.If if t.elsep.tokens.isEmpty =>
+              case t: Term.If if ifWithoutElse(t) =>
                 // must not use optimal token here, will lead to column overflow
                 Right(
                   Split(Space, 0).withSingleLineNoOptimal(t.cond.tokens.last)
@@ -1974,7 +1974,7 @@ class Router(formatOps: FormatOps) {
             case _: Term.Try | _: Term.TryWithHandler =>
               SingleLineBlock(expire)
             case t: Term.If =>
-              if (t.elsep.tokens.isEmpty)
+              if (ifWithoutElse(t))
                 SingleLineBlock(t.cond.tokens.last)
               else
                 SingleLineBlock(expire)
@@ -2064,7 +2064,7 @@ class Router(formatOps: FormatOps) {
         body match {
           case t: Term.If =>
             Either.cond(
-              t.elsep.tokens.nonEmpty,
+              !ifWithoutElse(t),
               SingleLineBlock(expire),
               baseSpaceSplit.withSingleLine(t.cond.tokens.last)
             )
@@ -2153,7 +2153,7 @@ class Router(formatOps: FormatOps) {
         case Newlines.fold | Newlines.classic =>
           postCommentFT.meta.rightOwner match {
             case _: Term.Try | _: Term.TryWithHandler => Split.ignored
-            case t: Term.If if t.elsep.tokens.nonEmpty => Split.ignored
+            case t: Term.If if !ifWithoutElse(t) => Split.ignored
             case t: Term.If =>
               Split(Space, 1).withSingleLine(t.cond.tokens.last)
             case _ =>

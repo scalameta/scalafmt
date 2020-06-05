@@ -271,7 +271,6 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
           //   which would be equivalent to
           // if (a) { if (b) c else d }
           def insideIfThen = parentIf.thenp eq b
-          def ifWithoutElse(t: Term.If) = t.elsep.is[Lit.Unit]
           @tailrec
           def existsIfWithoutElse(t: Term.If): Boolean =
             t.elsep match {
