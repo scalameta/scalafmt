@@ -1348,7 +1348,7 @@ class Router(formatOps: FormatOps) {
           .orElse(template.map(_.tokens.last))
           .getOrElse(rightOwner.tokens.last)
         binPackParentConstructorSplits(
-          template.toSet,
+          template.toLeft(Seq.empty),
           lastToken,
           style.continuationIndent.extendSite
         )
@@ -1366,7 +1366,7 @@ class Router(formatOps: FormatOps) {
               } =>
             splitWithChain(
               isFirstWith(template),
-              Set(template),
+              Left(template),
               templateCurly(template).getOrElse(template.tokens.last)
             )
 
@@ -1400,7 +1400,7 @@ class Router(formatOps: FormatOps) {
           case t @ WithChain(top) =>
             splitWithChain(
               !t.lhs.is[Type.With],
-              withChain(top).toSet,
+              Right(withChain(top)),
               top.tokens.last
             )
 
@@ -1898,7 +1898,7 @@ class Router(formatOps: FormatOps) {
 
   private def splitWithChain(
       isFirstWith: Boolean,
-      chain: => Set[Tree],
+      chain: => Either[Template, Seq[Type.With]],
       lastToken: => Token
   )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] =
     if (isFirstWith) {
