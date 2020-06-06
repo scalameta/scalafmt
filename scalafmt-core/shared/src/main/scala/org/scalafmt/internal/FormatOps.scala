@@ -1032,6 +1032,7 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
       lastToken: Token
   )(implicit style: ScalafmtConfig): Policy =
     if (style.binPack.parentConstructors eq BinPack.ParentCtors.Always) NoPolicy
+    else if (ownerSet.isEmpty) NoPolicy
     else
       Policy(lastToken) {
         case d @ Decision(t @ FormatToken(_, _: T.KwWith, _), _)
@@ -1040,11 +1041,12 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
       }
 
   def binPackParentConstructorSplits(
-      owners: Set[Tree],
+      chain: Either[Template, Seq[Type.With]],
       lastToken: Token,
       indentLen: Int
   )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] = {
     val nlMod = NewlineT(acceptSpace = true)
+    val owners = chain.fold[Set[Tree]](Set(_), x => x.toSet)
     val nlPolicy = ctorWithChain(owners, lastToken)
     val nlOnelineTag = style.binPack.parentConstructors match {
       case BinPack.ParentCtors.Oneline => SplitTag.Active
@@ -1057,12 +1059,13 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
         if (isOneline) SplitTag.Active else SplitTag.Ignored
     }
     val indent = Indent(Num(indentLen), lastToken, ExpiresOn.After)
+    val extendsThenWith = chain.left.exists(_.inits.length > 1)
     Seq(
-      Split(Space, 0).withSingleLine(lastToken),
+      Split(Space, 0).withSingleLine(lastToken, noSyntaxNL = extendsThenWith),
       Split(nlMod, 0)
         .onlyFor(nlOnelineTag)
         .activateFor(nlOnelineTag)
-        .withSingleLine(lastToken)
+        .withSingleLine(lastToken, noSyntaxNL = extendsThenWith)
         .withIndent(indent),
       Split(nlMod, 1).withPolicy(nlPolicy).withIndent(indent)
     )
