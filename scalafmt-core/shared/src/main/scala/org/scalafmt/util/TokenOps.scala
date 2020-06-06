@@ -190,29 +190,6 @@ object TokenOps {
       case _ => None
     }
 
-  def tokenLength(token: Token): Int =
-    token match {
-      case lit: Constant.String =>
-        // Even if the literal is not strip margined, we use the longest line
-        // excluding margins. The will only affect is multiline string literals
-        // with a short first line but long lines inside, example:
-        //
-        // val x = """short
-        //  Long aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-        // """
-        //
-        // In this case, we would put a newline before """short and indent by
-        // two.
-        lit.syntax.linesIterator
-          .map(_.replaceFirst(" *|", "").length)
-          .max
-      case _ =>
-        val tokenSyntax = token.syntax
-        val firstNewline = tokenSyntax.indexOf('\n')
-        if (firstNewline == -1) tokenSyntax.length
-        else firstNewline
-    }
-
   val formatOffCode = Set(
     "// @formatter:off", // IntelliJ
     "// format: off" // scalariform

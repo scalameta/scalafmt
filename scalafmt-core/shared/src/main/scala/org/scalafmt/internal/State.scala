@@ -1,5 +1,8 @@
 package org.scalafmt.internal
 
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
 import scala.annotation.tailrec
 import scala.meta.tokens.Token
 
@@ -45,28 +48,12 @@ final case class State(
       }
     val newIndent = newIndents.foldLeft(0)(_ + _.length)
 
-    // Always account for the cost of the right token.
-    val tokLength = tokRightSyntax.length
-
     // Some tokens contain newline, like multiline strings/comments.
-    val lengthOnFirstLine = TokenOps.tokenLength(tok.right)
-    val columnOnCurrentLine =
-      lengthOnFirstLine + {
-        if (split.modification.isNewline) newIndent
-        else column + split.length
-      }
-    val lengthOnLastLine = {
-      val lastNewline = tokRightSyntax.lastIndexOf('\n')
-      if (lastNewline == -1) tokLength
-      else tokLength - lastNewline - 1
-    }
-    val nextStateColumn =
-      lengthOnLastLine + {
-        // Tokens with newlines get no indentation.
-        if (tokRightSyntax.contains('\n')) 0
-        else if (split.modification.isNewline) newIndent
-        else column + split.length
-      }
+    val (columnOnCurrentLine, nextStateColumn) = State.getColumns(
+      tok,
+      newIndent,
+      if (split.modification.isNewline) None else Some(column + split.length)
+    )
     val newPolicy: PolicySummary = policy.combine(split.policy, tok.left.end)
     val splitWithPenalty = {
       if (
@@ -151,6 +138,73 @@ object State {
       val r = Integer.compare(s1.split.line.value, s2.split.line.value)
       if (r != 0 || s1.prev.depth == 0) r
       else compareSplitOrigin(s1.prev, s2.prev)
+    }
+  }
+
+  private val stripMarginPattern =
+    Pattern.compile("\n(\\h*+\\|)?([^\n]*+)")
+
+  def getColumns(
+      ft: FormatToken,
+      indent: Int,
+      noBreakColumn: Option[Int]
+  )(implicit style: ScalafmtConfig): (Int, Int) = {
+    val firstLineOffset = noBreakColumn.getOrElse(indent)
+    val syntax = ft.meta.right.text
+    val firstNewline = ft.meta.right.firstNL
+    if (firstNewline == -1) {
+      val firstLineLength = firstLineOffset + syntax.length
+      (firstLineLength, firstLineLength)
+    } else
+      ft.right match {
+        case _: Token.Constant.String =>
+          getColumnsWithStripMargin(syntax, firstNewline, indent, noBreakColumn)
+        case _ =>
+          val lastNewline = syntax.length - syntax.lastIndexOf('\n') - 1
+          (firstLineOffset + firstNewline, lastNewline)
+      }
+  }
+
+  private def getColumnsWithStripMargin(
+      syntax: String,
+      firstNewline: Int,
+      indent: Int,
+      noBreakColumn: Option[Int]
+  )(implicit style: ScalafmtConfig): (Int, Int) = {
+    val column = noBreakColumn.getOrElse(indent)
+    val matcher = stripMarginPattern.matcher(syntax)
+    matcher.region(firstNewline, syntax.length)
+    val firstLineLength = column + firstNewline
+    if (!matcher.find()) (firstLineLength, firstLineLength)
+    else {
+      val matcherToLength = getMatcherToLength(column, indent, style)
+      @tailrec
+      def iter(prevMaxLength: Int): (Int, Int) = {
+        val length = matcherToLength(matcher)
+        val maxLength = math.max(prevMaxLength, length)
+        if (matcher.find()) iter(maxLength) else (maxLength, length)
+      }
+      iter(firstLineLength)
+    }
+  }
+
+  private def getMatcherToLength(
+      column: Int,
+      indent: Int,
+      style: ScalafmtConfig
+  ): Matcher => Int = {
+    val adjustMargin: Int => Int =
+      if (!style.assumeStandardLibraryStripMargin) identity[Int]
+      else {
+        // 3 for '|' + 2 spaces
+        val adjusted = 3 + (if (style.align.stripMargin) column else indent)
+        _ => adjusted
+      }
+    (matcher: Matcher) => {
+      val margin = matcher.end(1) - matcher.start(1)
+      val textLength = matcher.end(2) - matcher.start(2)
+      // if 0, has newline but no pipe
+      if (0 == margin) textLength else textLength + adjustMargin(margin)
     }
   }
 
