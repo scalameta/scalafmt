@@ -1470,10 +1470,11 @@ class Router(formatOps: FormatOps) {
         }
         val noSpace = isSingleLineComment(right) || shouldBreak(formatToken)
         def exclude = insideBlockRanges[T.LeftBrace](formatToken, expire)
+        val noSyntaxNL = leftOwner.is[Term.ForYield] && right.is[T.KwYield]
         Seq(
           Split(Space, 0)
             .notIf(noSpace)
-            .withSingleLineNoOptimal(expire, exclude = exclude),
+            .withSingleLineNoOptimal(expire, exclude, noSyntaxNL = noSyntaxNL),
           Split(Newline, 1).withIndent(2, expire, After)
         )
       case FormatToken(T.RightBrace(), T.KwElse(), _) =>
@@ -1491,10 +1492,11 @@ class Router(formatOps: FormatOps) {
         val expire = rhsOptimalToken(tokens(rightOwner.tokens.last))
         val noSpace = shouldBreak(formatToken)
         def exclude = insideBlockRanges[T.LeftBrace](formatToken, expire)
+        val noSyntaxNL = formatToken.right.is[T.KwYield]
         Seq(
           Split(Space, 0)
             .notIf(noSpace)
-            .withSingleLineNoOptimal(expire, exclude),
+            .withSingleLineNoOptimal(expire, exclude, noSyntaxNL = noSyntaxNL),
           Split(Newline, 1)
         )
       // Last else branch
