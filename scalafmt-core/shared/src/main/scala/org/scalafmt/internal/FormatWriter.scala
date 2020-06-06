@@ -659,9 +659,7 @@ class FormatWriter(formatOps: FormatOps) {
                   formatListBlock(getIndentation(margin.length + 2))(t)
                 case t: Scaladoc.Text =>
                   formatTextAfterMargin(t.part.iterator.map(_.syntax))
-                case t: Scaladoc.Table => // we don't handle this yet
-                  sb.setLength(sb.length() - margin.length)
-                  appendBreak()
+                case t: Scaladoc.Table => formatTable(t)
                 case Scaladoc.Unknown(t) =>
                   formatTextAfterMargin(splitAsIterator(docstringSpace)(t))
               }
@@ -696,6 +694,42 @@ class FormatWriter(formatOps: FormatOps) {
           iterWords(words, appendBreak, itemIndent.length - 1, itemIndent)
           appendBreak()
           item.nested.foreach(formatListBlock(itemIndent))
+        }
+
+        private def formatTable(table: Scaladoc.Table): Unit = {
+          val rows = table.row.view :+ table.header
+          val align = table.align
+          val maxCols = rows.map(_.col.length).max
+          val colsRange = 0 until maxCols
+          val maxLengths = colsRange.map { x =>
+            rows.collect { case r if r.col.length > x => r.col(x).length }.max
+          }
+
+          @inline def beforeAll: Unit = sb.append(margin)
+          @inline def beforeEach: Unit = sb.append('|')
+          @inline def afterAll: Unit = { sb.append('|'); appendBreak() }
+          @inline def getAlign(col: Int) =
+            if (col < align.length) align(col) else Scaladoc.Table.Left
+          def formatCols(useMargin: Boolean)(f: Int => Unit): Unit = {
+            if (useMargin) beforeAll
+            colsRange.foreach { x => beforeEach; f(x) }
+            afterAll
+          }
+
+          def formatRow(useMargin: Boolean)(row: Scaladoc.Table.Row): Unit =
+            formatCols(useMargin) { col =>
+              val cell = if (col < row.col.length) row.col(col) else ""
+              val pad = maxLengths(col) - cell.length
+              val lpad = getAlign(col).leftPad(pad)
+              sb.append(getIndentation(1 + lpad))
+                .append(cell)
+                .append(getIndentation(1 + pad - lpad))
+            }
+          formatRow(false)(table.header)
+          formatCols(true) { col =>
+            sb.append(getAlign(col).syntax(maxLengths(col)))
+          }
+          table.row.foreach(formatRow(true))
         }
 
         private def formatNoWrap: Unit = {
