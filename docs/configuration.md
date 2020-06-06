@@ -1674,11 +1674,13 @@ val a = 1
 
 Will parse scaladoc comments and reformat them.
 
-> This functionality is generally limited to
-> [standard scaladoc elements](https://docs.scala-lang.org/overviews/scaladoc/for-library-authors.html)
-> and might lead to undesirable results in corner cases;
-> for instance, the scaladoc parser doesn't have proper support of embedded HTML.
->
+This functionality is generally limited to
+[standard scaladoc elements](https://docs.scala-lang.org/overviews/scaladoc/for-library-authors.html)
+and might lead to undesirable results in corner cases;
+for instance, the scaladoc parser doesn't have proper support of embedded HTML.
+
+However, [tables are supported](https://www.scala-lang.org/blog/2018/10/04/scaladoc-tables.html).
+
 > Since v2.6.0.
 
 ```scala mdoc:defaults
