@@ -753,6 +753,29 @@ object a {
       // c1
   )
 }
+<<< #1798
+preset = intellij
+danglingParentheses.preset = true
+optIn.configStyleArguments = true
+===
+  commonConfig(
+      debugConfig(on = false)
+        .withFallback(ConfigFactory.parseString("""
+      akka.cluster.periodic-tasks-initial-delay = 300 s # turn off all periodic tasks
+      akka.cluster.publish-stats-interval = 0 s # always, when it happens
+      """))
+        .withFallback(
+            MultiNodeClusterSpec.clusterConfigWithFailureDetectorPuppet))
+>>>
+Idempotency violated
+commonConfig(
+  debugConfig(on = false)
+    .withFallback(ConfigFactory.parseString("""
+      akka.cluster.periodic-tasks-initial-delay = 300 s # turn off all periodic tasks
+      akka.cluster.publish-stats-interval = 0 s # always, when it happens
+      """))
+    .withFallback(MultiNodeClusterSpec.clusterConfigWithFailureDetectorPuppet)
+)
 <<< #1800
 preset = intellij
 danglingParentheses.preset = true
@@ -772,3 +795,21 @@ final case class StreamedEntityCreator[
     extends EntityCreator[A, B] {
   def apply(parts: Source[A, NotUsed]) = creator(parts)
 }
+<<< #1801
+preset = intellij
+danglingParentheses.preset = true
+optIn.configStyleArguments = true
+===
+pushInput(closeFrame(
+                Protocol.CloseCodes.UnexpectedCondition,
+                mask = true,
+                msg = "This alien landing came quite unexpected. Communication has been garbled."))
+>>>
+Idempotency violated
+pushInput(
+  closeFrame(
+    Protocol.CloseCodes.UnexpectedCondition,
+    mask = true,
+    msg = "This alien landing came quite unexpected. Communication has been garbled."
+  )
+)
