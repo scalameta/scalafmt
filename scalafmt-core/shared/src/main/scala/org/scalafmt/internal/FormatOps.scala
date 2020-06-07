@@ -1385,7 +1385,7 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
           (name, getArgs(paramss))
         else {
           // XXX: backwards-compatible hack
-          val useTParams = t.is[Defn.Def] ||
+          val useTParams = style.activeForEdition_2020_03 || t.is[Defn.Def] ||
             t.is[Type.Param] || t.is[Decl.Type] || t.is[Defn.Type]
           (name, if (useTParams) tparams else paramss.flatten)
         }
