@@ -756,8 +756,6 @@ class Router(formatOps: FormatOps) {
           baseSingleLinePolicy
         }
 
-        val newlineMod: Modification = NoSplit.orNL(right.is[T.LeftBrace])
-
         val defnSite = isDefnSite(leftOwner)
         val closeFormatToken = tokens(close)
         val expirationToken: Token =
@@ -832,44 +830,56 @@ class Router(formatOps: FormatOps) {
 
         val preferNoSplit = singleArgument &&
           style.newlines.sourceIs(Newlines.keep) && tok.noBreak
-        val nlPenalty = if (preferNoSplit) Constants.ExceedColumnPenalty else 0
-
-        val noSplitPolicy =
-          if (preferNoSplit) singleLine(2)
-          else if (wouldDangle || mustDangle && isBracket || useConfigStyle)
-            SingleLineBlock(close, exclude = excludeRanges)
-          else if (splitsForAssign.isDefined)
-            singleLine(3)
-          else
-            singleLine(10)
         val oneArgOneLine =
           newlinePolicy.andThen(OneArgOneLineSplit(formatToken))
         val (implicitPenalty, implicitPolicy) =
           if (!handleImplicit) (2, Policy.emptyPf)
           else (0, decideNewlinesOnlyAfterToken(right))
-        Seq(
-          Split(noSplitMod, 0, policy = noSplitPolicy)
-            .onlyIf(noSplitMod != null)
-            .withOptimalToken(expirationToken)
-            .withIndent(noSplitIndent, close, Before),
-          Split(newlineMod, nestedPenalty * bracketCoef + nlPenalty)
-            .withPolicy(newlinePolicy.andThen(singleLine(4)))
-            .onlyIf(!multipleArgs && !alignTuple && splitsForAssign.isEmpty)
-            .withOptimalToken(expirationToken)
-            .withIndent(indent, close, Before),
-          Split(noSplitMod, (implicitPenalty + lhsPenalty) * bracketCoef)
-            .withPolicy(oneArgOneLine.andThen(implicitPolicy))
-            .onlyIf(noSplitMod != null)
-            .onlyIf(
-              (notTooManyArgs && align) || (handleImplicit &&
-                style.newlines.notBeforeImplicitParamListModifier)
+
+        val splitsNoNL =
+          if (noSplitMod == null) Seq.empty
+          else {
+            val noSplitPolicy =
+              if (preferNoSplit) singleLine(2)
+              else if (wouldDangle || mustDangle && isBracket || useConfigStyle)
+                SingleLineBlock(close, exclude = excludeRanges)
+              else if (splitsForAssign.isDefined)
+                singleLine(3)
+              else
+                singleLine(10)
+            Seq(
+              Split(noSplitMod, 0, policy = noSplitPolicy)
+                .withOptimalToken(expirationToken)
+                .withIndent(noSplitIndent, close, Before),
+              Split(noSplitMod, (implicitPenalty + lhsPenalty) * bracketCoef)
+                .withPolicy(oneArgOneLine.andThen(implicitPolicy))
+                .onlyIf(
+                  (notTooManyArgs && align) || (handleImplicit &&
+                    style.newlines.notBeforeImplicitParamListModifier)
+                )
+                .withIndent(if (align) StateColumn else indent, close, Before)
             )
-            .withIndent(if (align) StateColumn else indent, close, Before),
-          Split(Newline, (2 + nestedPenalty) * bracketCoef + nlPenalty)
-            .withPolicy(oneArgOneLine)
-            .onlyIf(multipleArgs && !alignTuple)
-            .withIndent(indent, close, Before)
-        ) ++ splitsForAssign.getOrElse(Seq.empty)
+          }
+
+        val splitsNL =
+          if (alignTuple || !(multipleArgs || splitsForAssign.isEmpty))
+            Seq.empty
+          else {
+            val cost =
+              (if (preferNoSplit) Constants.ExceedColumnPenalty else 0) +
+                bracketCoef * (nestedPenalty + (if (multipleArgs) 2 else 0))
+            val split =
+              if (multipleArgs)
+                Split(Newline, cost, policy = oneArgOneLine)
+              else {
+                val noSplit = right.is[T.LeftBrace]
+                Split(NoSplit.orNL(noSplit), cost, policy = newlinePolicy)
+                  .andThenPolicy(singleLine(4))
+              }
+            Seq(split.withIndent(indent, close, Before))
+          }
+
+        splitsNoNL ++ splitsNL ++ splitsForAssign.getOrElse(Seq.empty)
 
       case FormatToken(open @ LeftParenOrBracket(), right, between)
           if style.binPack.unsafeDefnSite && isDefnSite(leftOwner) =>
@@ -891,12 +901,12 @@ class Router(formatOps: FormatOps) {
           val bracketPenalty = if (isBracket) 1 else 0
           val nestingPenalty = nestedApplies(leftOwner)
 
-          val noSplitPenalizeNewlines = penalizeBrackets(1 + bracketPenalty)
           val mustDangle = style.newlines.sourceIgnored &&
             style.danglingParentheses.defnSite
           val noSplitPolicy: Policy =
             if (mustDangle) SingleLineBlock(close)
-            else
+            else {
+              val noSplitPenalizeNewlines = penalizeBrackets(1 + bracketPenalty)
               argumentStarts.get(hash(right)) match {
                 case Some(arg) =>
                   val singleLine = SingleLineBlock(arg.tokens.last)
@@ -907,6 +917,7 @@ class Router(formatOps: FormatOps) {
                   }
                 case _ => noSplitPenalizeNewlines
               }
+            }
           val noSplitModification =
             if (right.is[T.Comment]) getMod(formatToken)
             else NoSplit
