@@ -144,6 +144,9 @@ case class Split(
     else if (policy.isEmpty) copy(policy = newPolicy)
     else copy(policy = policy.andThen(newPolicy))
 
+  def andThenPolicy(newPolicy: => Policy, ignore: Boolean): Split =
+    if (ignore) this else andThenPolicy(newPolicy)
+
   def andThenPolicyOpt(newPolicy: => Option[Policy]): Split =
     if (isIgnored) this
     else newPolicy.fold(this)(andThenPolicy)
