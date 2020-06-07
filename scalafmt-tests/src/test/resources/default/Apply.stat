@@ -635,9 +635,12 @@ SSLConfig(loose = SSLLooseConfig(allowLegacyHelloMessages = None)/*comment 123 c
 }
 >>>
 {
-  val config =
-    WSClientConfig(SSLConfig(loose = SSLLooseConfig(allowLegacyHelloMessages =
-      None) /*comment 123 comment 234*/ )) //comment 345 comment 456
+  val config = WSClientConfig(
+      SSLConfig(loose =
+        SSLLooseConfig(allowLegacyHelloMessages =
+          None) /*comment 123 comment 234*/
+      )
+  ) //comment 345 comment 456
 }
 <<< #1604 3: apply with assign and attached comments
 {
@@ -767,13 +770,16 @@ optIn.configStyleArguments = true
         .withFallback(
             MultiNodeClusterSpec.clusterConfigWithFailureDetectorPuppet))
 >>>
-Idempotency violated
 commonConfig(
   debugConfig(on = false)
-    .withFallback(ConfigFactory.parseString("""
+    .withFallback(
+      ConfigFactory.parseString(
+        """
       akka.cluster.periodic-tasks-initial-delay = 300 s # turn off all periodic tasks
       akka.cluster.publish-stats-interval = 0 s # always, when it happens
-      """))
+      """
+      )
+    )
     .withFallback(MultiNodeClusterSpec.clusterConfigWithFailureDetectorPuppet)
 )
 <<< #1800
@@ -805,11 +811,11 @@ pushInput(closeFrame(
                 mask = true,
                 msg = "This alien landing came quite unexpected. Communication has been garbled."))
 >>>
-Idempotency violated
 pushInput(
   closeFrame(
     Protocol.CloseCodes.UnexpectedCondition,
     mask = true,
-    msg = "This alien landing came quite unexpected. Communication has been garbled."
+    msg =
+      "This alien landing came quite unexpected. Communication has been garbled."
   )
 )

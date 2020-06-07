@@ -941,9 +941,21 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
     result.result()
   }
 
+  def mustUseConfigStyle(
+      ft: FormatToken,
+      allowForce: => Boolean = true
+  )(implicit style: ScalafmtConfig): Boolean =
+    style.optIn.configStyleArguments && couldUseConfigStyle(ft, allowForce)
+
+  def couldUseConfigStyle(
+      ft: FormatToken,
+      allowForce: => Boolean = true
+  )(implicit style: ScalafmtConfig): Boolean =
+    opensConfigStyle(ft) || allowForce && forceConfigStyle(ft.meta.leftOwner)
+
   def opensConfigStyle(
       ft: => FormatToken,
-      whenSourceIgnored: Boolean
+      whenSourceIgnored: Boolean = false
   )(implicit style: ScalafmtConfig): Boolean =
     if (style.newlines.sourceIgnored) whenSourceIgnored
     else opensConfigStyleClassic(ft)
