@@ -134,12 +134,12 @@ class FormatWriter(formatOps: FormatOps) {
               val inParentheses = loc.style.spaces.inParentheses
               // remove space before "{"
               val prevBegState =
-                if (0 == idx || (state.prev.split.modification ne Space))
+                if (0 == idx || (state.prev.split.modExt.mod ne Space))
                   state.prev
                 else {
                   val prevloc = locations(idx - 1)
-                  val prevState = state.prev
-                    .copy(split = state.prev.split.copy(modification = NoSplit))
+                  val prevState =
+                    state.prev.copy(split = state.prev.split.withMod(NoSplit))
                   locations(idx - 1) = prevloc.copy(
                     shift = prevloc.shift - 1,
                     state = prevState
@@ -156,7 +156,7 @@ class FormatWriter(formatOps: FormatOps) {
                   )
                 else {
                   // remove space after "{"
-                  val split = state.split.copy(modification = NoSplit)
+                  val split = state.split.withMod(NoSplit)
                   loc.copy(
                     replace = "(",
                     shift = loc.shift - 1,
@@ -170,7 +170,7 @@ class FormatWriter(formatOps: FormatOps) {
                 if (inParentheses) prevEndState
                 else {
                   // remove space before "}"
-                  val split = prevEndState.split.copy(modification = NoSplit)
+                  val split = prevEndState.split.withMod(NoSplit)
                   val newState = prevEndState.copy(split = split)
                   locations(end - 1) = prevEndLoc
                     .copy(shift = prevEndLoc.shift - 1, state = newState)
@@ -209,7 +209,7 @@ class FormatWriter(formatOps: FormatOps) {
       @inline def tok = curr.formatToken
       @inline def state = curr.state
       @inline def prevState = curr.state.prev
-      @inline def lastModification = prevState.split.modification
+      @inline def lastModification = prevState.split.modExt.mod
 
       def getWhitespace(alignOffset: Int): String = {
         // TODO this could get slow for really long comment blocks. If that
@@ -220,7 +220,7 @@ class FormatWriter(formatOps: FormatOps) {
           if (0 > nonCommentIdx) None else Some(locations(nonCommentIdx))
         }
 
-        state.split.modification match {
+        state.split.modExt.mod match {
           case Space =>
             val previousAlign =
               if (lastModification != NoSplit) 0
@@ -450,7 +450,7 @@ class FormatWriter(formatOps: FormatOps) {
           if (breakBefore) 0
           else
             prevState.prev.column - prevState.prev.indentation +
-              prevState.split.modification.length
+              prevState.split.length
 
         protected final def canRewrite =
           style.comments.wrap match {
@@ -829,7 +829,7 @@ class FormatWriter(formatOps: FormatOps) {
           }
 
           implicit val location = processLine
-          val doubleNewline = location.state.split.modification.newlines > 1
+          val doubleNewline = location.state.split.modExt.mod.newlines > 1
           if (alignContainer eq null) {
             getBlockToFlush(
               getAlignContainer(location.formatToken.meta.rightOwner),
@@ -1011,7 +1011,7 @@ class FormatWriter(formatOps: FormatOps) {
 
     private def shiftStateColumnIndent(startIdx: Int, offset: Int): Unit = {
       // look for StateColumn; it returns indent=0 for withStateOffset(0)
-      val stateIndentOpt = locations(startIdx).state.split.indents
+      val stateIndentOpt = locations(startIdx).state.split.modExt.indents
         .flatMap(_.withStateOffset(0).filter(_.length == 0))
       stateIndentOpt.headOption.foreach { indent =>
         @tailrec
