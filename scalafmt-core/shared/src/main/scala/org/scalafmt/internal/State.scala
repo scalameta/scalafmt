@@ -33,39 +33,41 @@ final case class State(
     * Calculates next State given split at tok.
     */
   def next(
-      split: Split,
+      nextSplit: Split,
       tok: FormatToken
   )(implicit style: ScalafmtConfig): State = {
     val right = tok.right
     val tokRightSyntax = tok.meta.right.text
 
-    val newIndents: Vector[ActualIndent] =
+    val nextIndents: Vector[ActualIndent] =
       if (right.is[Token.EOF]) Vector.empty
       else {
         val offset = column - indentation
-        val newPushes = split.modExt.indents.flatMap(_.withStateOffset(offset))
+        val newPushes =
+          nextSplit.modExt.indents.flatMap(_.withStateOffset(offset))
         (pushes ++ newPushes).filter(_.notExpiredBy(tok))
       }
-    val newIndent = newIndents.foldLeft(0)(_ + _.length)
+    val nextIndent = nextIndents.foldLeft(0)(_ + _.length)
 
     // Some tokens contain newline, like multiline strings/comments.
     val (columnOnCurrentLine, nextStateColumn) = State.getColumns(
       tok,
-      newIndent,
-      if (split.isNL) None else Some(column + split.length)
+      nextIndent,
+      if (nextSplit.isNL) None else Some(column + nextSplit.length)
     )
-    val newPolicy: PolicySummary = policy.combine(split.policy, tok.left.end)
+    val nextPolicy: PolicySummary =
+      policy.combine(nextSplit.policy, tok.left.end)
     val splitWithPenalty = {
       if (
         columnOnCurrentLine <= style.maxColumn || {
           val commentExceedsLineLength = right.is[Token.Comment] &&
-            tokRightSyntax.length >= (style.maxColumn - newIndent)
-          commentExceedsLineLength && split.isNL
+            tokRightSyntax.length >= (style.maxColumn - nextIndent)
+          commentExceedsLineLength && nextSplit.isNL
         }
       ) {
-        split // fits inside column
+        nextSplit // fits inside column
       } else {
-        split.withPenalty(
+        nextSplit.withPenalty(
           Constants.ExceedColumnPenalty + columnOnCurrentLine
         ) // overflow
       }
@@ -77,12 +79,12 @@ final case class State(
     State(
       cost + splitWithPenalty.cost,
       // TODO(olafur) expire policy, see #18.
-      newPolicy,
+      nextPolicy,
       splitWithPenalty,
       depth + 1,
       this,
-      newIndent,
-      newIndents,
+      nextIndent,
+      nextIndents,
       nextStateColumn,
       nextFormatOff
     )
