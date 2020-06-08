@@ -389,9 +389,7 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
     Policy(matching(tok.left)) {
       case Decision(t @ FormatToken(_, _: T.Comma, _), splits)
           if owner == t.meta.rightOwner && !next(t).right.is[T.Comment] =>
-        splits.map { x =>
-          if (x.modification != NoSplit) x else x.copy(modification = Newline)
-        }
+        splits.map(x => if (x.modExt.mod ne NoSplit) x else x.withMod(Newline))
 
       case Decision(t @ FormatToken(_: T.Comma, right, _), splits)
           if owner == t.meta.leftOwner &&
@@ -796,7 +794,7 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
             val exclude =
               if (breakMany) Set.empty[Range]
               else insideBlockRanges[LeftParenOrBrace](nextFT, expire)
-            Split(newStmtMod.getOrElse(Space), cost)
+            Split(ModExt(newStmtMod.getOrElse(Space)), cost)
               .withSingleLine(expire, exclude)
         }
       }

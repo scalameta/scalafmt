@@ -43,7 +43,7 @@ final case class State(
       if (right.is[Token.EOF]) Vector.empty
       else {
         val offset = column - indentation
-        val newPushes = split.indents.flatMap(_.withStateOffset(offset))
+        val newPushes = split.modExt.indents.flatMap(_.withStateOffset(offset))
         (pushes ++ newPushes).filter(_.notExpiredBy(tok))
       }
     val newIndent = newIndents.foldLeft(0)(_ + _.length)

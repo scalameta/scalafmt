@@ -26,39 +26,38 @@ case class OptimalToken(token: Token, killOnFail: Boolean = false)
   * even if it exceeds the maxColumn margins, because a secondary split
   * was deemed unlikely to win and moved to a backup priority queue.
   *
-  * @param modification Is this a space, no space, newline or 2 newlines?
+  * @param modExt whitespace and indents
   * @param cost How good is this output? Lower is better.
-  * @param indents Does this add indentation?
   * @param policy How does this split affect other later splits?
   * @param line For debugging, to retrace from which case in [[Router]]
   *             this split originates.
   *
   */
 case class Split(
-    modification: Modification,
+    modExt: ModExt,
     cost: Int,
     tag: SplitTag = SplitTag.Active,
     activeTag: SplitTag = SplitTag.Active,
-    indents: Seq[Indent] = Seq.empty,
     policy: Policy = NoPolicy,
     optimalAt: Option[OptimalToken] = None
 )(implicit val line: sourcecode.Line) {
   import TokenOps._
 
   def adapt(formatToken: FormatToken): Split =
-    modification match {
+    modExt.mod match {
       case n: NewlineT if !n.noIndent && rhsIsCommentedOut(formatToken) =>
-        copy(modification = NewlineT(n.isDouble, noIndent = true))
+        copy(modExt = modExt.copy(mod = NewlineT(n.isDouble, noIndent = true)))
       case _ => this
     }
 
-  val indentation = indents.mkString("[", ", ", "]")
+  @inline
+  def indentation: String = modExt.indentation
 
   @inline
-  def isNL: Boolean = modification.isNewline
+  def isNL: Boolean = modExt.mod.isNewline
 
   @inline
-  def length: Int = modification.length
+  def length: Int = modExt.mod.length
 
   @inline
   def isIgnored: Boolean = tag eq SplitTag.Ignored
@@ -168,42 +167,36 @@ case class Split(
     if (isIgnored) this else copy(cost = cost + penalty)
 
   def withIndent(length: => Length, expire: => Token, when: ExpiresOn): Split =
-    if (isIgnored) this
-    else
-      length match {
-        case Length.Num(0) => this
-        case x => withIndentImpl(Indent(x, expire, when))
-      }
+    withMod(modExt.withIndent(length, expire, when))
 
   def withIndentOpt(
       length: => Length,
       expire: Option[Token],
       when: ExpiresOn
   ): Split =
-    expire.fold(this)(withIndent(length, _, when))
+    withMod(modExt.withIndentOpt(length, expire, when))
 
   def withIndent(indent: => Indent): Split =
-    if (isIgnored) this
-    else
-      indent match {
-        case Indent.Empty => this
-        case x => withIndentImpl(x)
-      }
+    withMod(modExt.withIndent(indent))
 
   def withIndentOpt(indent: => Option[Indent]): Split =
-    if (isIgnored) this
-    else indent.fold(this)(withIndent(_))
+    withMod(modExt.withIndentOpt(indent))
 
   def withIndents(indents: Seq[Indent]): Split =
-    indents.foldLeft(this)(_ withIndent _)
+    withMod(modExt.withIndents(indents))
 
-  private def withIndentImpl(indent: Indent): Split =
-    copy(indents = indent +: indents)
+  def switch(switchObject: AnyRef): Split =
+    withMod(modExt.switch(switchObject))
 
-  def switch(switchObject: AnyRef): Split = {
-    val newIndents = indents.map(_.switch(switchObject))
-    copy(indents = newIndents.filter(_ ne Indent.Empty))
-  }
+  def withMod(mod: Modification): Split =
+    if (this.modExt.mod eq mod) this else withMod(modExt.copy(mod = mod))
+
+  def withMod(modExtByName: => ModExt): Split =
+    if (isIgnored) this
+    else {
+      val modExt = modExtByName
+      if (this.modExt eq modExt) this else copy(modExt = modExt)(line = line)
+    }
 
   override def toString = {
     val prefix = tag match {
@@ -211,13 +204,13 @@ case class Split(
       case SplitTag.Active => ""
       case _ => s"[$tag]"
     }
-    s"""$prefix$modification:${line.value}(cost=$cost, indents=$indentation, $policy)"""
+    s"""$prefix${modExt.mod}:${line.value}(cost=$cost, indents=$indentation, $policy)"""
   }
 }
 
 object Split {
 
   def ignored(implicit line: sourcecode.Line) =
-    Split(NoSplit, 0, tag = SplitTag.Ignored)
+    Split(ModExt(NoSplit), 0, tag = SplitTag.Ignored)
 
 }
