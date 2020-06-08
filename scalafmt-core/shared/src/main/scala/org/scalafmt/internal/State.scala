@@ -19,7 +19,7 @@ final case class State(
     depth: Int,
     prev: State,
     indentation: Int,
-    pushes: Vector[ActualIndent],
+    pushes: Seq[ActualIndent],
     column: Int,
     formatOff: Boolean
 ) {
@@ -39,15 +39,21 @@ final case class State(
     val right = tok.right
     val tokRightSyntax = tok.meta.right.text
 
-    val nextIndents: Vector[ActualIndent] =
-      if (right.is[Token.EOF]) Vector.empty
+    val (nextIndent, nextIndents) =
+      if (tok.right.is[Token.EOF]) (0, Seq.empty)
       else {
         val offset = column - indentation
-        val newPushes =
-          nextSplit.modExt.indents.flatMap(_.withStateOffset(offset))
-        (pushes ++ newPushes).filter(_.notExpiredBy(tok))
+        def getIndent(indents: Iterator[ActualIndent]): Int =
+          indents.foldLeft(0)(_ + _.length)
+        def getUnexpired(indents: Seq[ActualIndent]): Seq[ActualIndent] =
+          indents.filter(_.notExpiredBy(tok))
+        def getPushes(indents: Seq[Indent]): Seq[ActualIndent] =
+          getUnexpired(indents.flatMap(_.withStateOffset(offset)))
+        val indents = nextSplit.modExt.indents
+        val nextPushes = getUnexpired(pushes) ++ getPushes(indents)
+        val nextIndent = getIndent(nextPushes.iterator)
+        (nextIndent, nextPushes)
       }
-    val nextIndent = nextIndents.foldLeft(0)(_ + _.length)
 
     // Some tokens contain newline, like multiline strings/comments.
     val (columnOnCurrentLine, nextStateColumn) = State.getColumns(
@@ -101,7 +107,7 @@ object State {
     0,
     null,
     0,
-    Vector.empty[ActualIndent],
+    Seq.empty,
     0,
     formatOff = false
   )
