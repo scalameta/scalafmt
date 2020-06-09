@@ -768,3 +768,51 @@ object a {
    *  tail
    */
 }
+<<< keep inner asterisks, Asterisk
+docstrings.style = Asterisk
+===
+object a {
+  /** *************** tests ******************
+    * *************** tests ****************** */
+}
+>>>
+object a {
+
+  /**
+   * ************** tests ******************
+   * *************** tests ****************** */
+}
+<<< keep inner asterisks, SpaceAsterisk
+docstrings.style = SpaceAsterisk
+===
+object a {
+  /** *************** tests ******************
+   * *************** tests ****************** */
+}
+>>>
+Idempotency violated
+object a {
+
+  /** ************* tests ******************
+    * *************** tests ****************** */
+}
+<<< keep inner asterisks, AsteriskSpace
+docstrings.style = AsteriskSpace
+===
+object a {
+  /** *************** tests ******************
+    * *************** tests ****************** */
+}
+>>>
+Idempotency violated
+object a {
+
+  /** ************* tests ******************
+   *  *************** tests ****************** */
+}
+<<< empty comment
+object a {
+  /**//**/
+}
+>>>
+java.lang.IndexOutOfBoundsException was thrown.
