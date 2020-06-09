@@ -778,6 +778,28 @@ commonConfig(
       """))
     .withFallback(MultiNodeClusterSpec.clusterConfigWithFailureDetectorPuppet)
 )
+<<< #1799
+preset = intellij
+danglingParentheses.preset = true
+optIn.configStyleArguments = true
+===
+override final def next(): To =
+  if (hasNext) {
+    val ret = _next
+    _next = null.asInstanceOf[To] // Mark as consumed aaaaaaaaaaaaaaaaaa(nice to the GC, don't leak the last returned value)
+    _hasNext = false // Mark as consumed (we need to look for the next value)
+    ret
+  } else throw new java.util.NoSuchElementException("next")
+>>>
+Idempotency violated
+override final def next(): To =
+  if (hasNext) {
+    val ret = _next
+    _next = null
+        .asInstanceOf[To] // Mark as consumed aaaaaaaaaaaaaaaaaa(nice to the GC, don't leak the last returned value)
+    _hasNext = false // Mark as consumed (we need to look for the next value)
+    ret
+  } else throw new java.util.NoSuchElementException("next")
 <<< #1800
 preset = intellij
 danglingParentheses.preset = true
