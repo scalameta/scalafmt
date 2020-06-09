@@ -1009,3 +1009,225 @@ object a {
       libraryDependencies ++= provided(play.api, play.test, RM, PRM)
     )
 }
+<<< #1400, breaksInsideChains T, noBB
+preset = intellij
+danglingParentheses.preset = true
+optIn.configStyleArguments = true
+optIn.breakChainOnFirstMethodDot = false
+optIn.breaksInsideChains = true
+===
+object Test {
+  Try {
+    "something1"
+  }.recover { // no break
+      case NonFatal(_) => "something2"
+    }
+    .getOrElse{ // break
+      "something3"
+    }
+}
+>>>
+object Test {
+  Try {
+    "something1"
+  }.recover { // no break
+      case NonFatal(_) => "something2"
+    }
+    .getOrElse { // break
+      "something3"
+    }
+}
+<<< #1400, breaksInsideChains T, noBnoB
+preset = intellij
+danglingParentheses.preset = true
+optIn.configStyleArguments = true
+optIn.breakChainOnFirstMethodDot = false
+optIn.breaksInsideChains = true
+===
+object Test {
+  Try {
+    "something1"
+  }.recover { // no break
+      case NonFatal(_) => "something2"
+    }.getOrElse{ // no break
+      "something3"
+    }
+}
+>>>
+object Test {
+  Try {
+    "something1"
+  }.recover { // no break
+      case NonFatal(_) => "something2"
+    }.getOrElse { // no break
+      "something3"
+    }
+}
+<<< #1400, breaksInsideChains T, BB
+preset = intellij
+danglingParentheses.preset = true
+optIn.configStyleArguments = true
+optIn.breakChainOnFirstMethodDot = false
+optIn.breaksInsideChains = true
+===
+object Test {
+  Try {
+    "something1"
+  }
+    .recover { // break
+      case NonFatal(_) => "something2"
+    }
+    .getOrElse{ // break
+      "something3"
+    }
+}
+>>>
+object Test {
+  Try {
+    "something1"
+  }.recover { // break
+      case NonFatal(_) => "something2"
+    }
+    .getOrElse { // break
+      "something3"
+    }
+}
+<<< #1400, breaksInsideChains T, BnoB
+preset = intellij
+danglingParentheses.preset = true
+optIn.configStyleArguments = true
+optIn.breakChainOnFirstMethodDot = false
+optIn.breaksInsideChains = true
+===
+object Test {
+  Try {
+    "something1"
+  }
+    .recover { // break
+      case NonFatal(_) => "something2"
+    }.getOrElse{ // no break
+      "something3"
+    }
+}
+>>>
+object Test {
+  Try {
+    "something1"
+  }.recover { // break
+      case NonFatal(_) => "something2"
+    }.getOrElse { // no break
+      "something3"
+    }
+}
+<<< #1400, breaksInsideChains F, noBB
+preset = intellij
+danglingParentheses.preset = true
+optIn.configStyleArguments = true
+optIn.breakChainOnFirstMethodDot = false
+optIn.breaksInsideChains = false
+===
+object Test {
+  Try {
+    "something1"
+  }.recover { // no break
+      case NonFatal(_) => "something2"
+    }
+    .getOrElse{ // break
+      "something3"
+    }
+}
+>>>
+object Test {
+  Try {
+    "something1"
+  }.recover { // no break
+      case NonFatal(_) => "something2"
+    }
+    .getOrElse { // break
+      "something3"
+    }
+}
+<<< #1400, breaksInsideChains F, noBnoB
+preset = intellij
+danglingParentheses.preset = true
+optIn.configStyleArguments = true
+optIn.breakChainOnFirstMethodDot = false
+optIn.breaksInsideChains = false
+===
+object Test {
+  Try {
+    "something1"
+  }.recover { // no break
+      case NonFatal(_) => "something2"
+    }.getOrElse{ // no break
+      "something3"
+    }
+}
+>>>
+object Test {
+  Try {
+    "something1"
+  }.recover { // no break
+      case NonFatal(_) => "something2"
+    }
+    .getOrElse { // no break
+      "something3"
+    }
+}
+<<< #1400, breaksInsideChains F, BB
+preset = intellij
+danglingParentheses.preset = true
+optIn.configStyleArguments = true
+optIn.breakChainOnFirstMethodDot = false
+optIn.breaksInsideChains = false
+===
+object Test {
+  Try {
+    "something1"
+  }
+    .recover { // break
+      case NonFatal(_) => "something2"
+    }
+    .getOrElse{ // break
+      "something3"
+    }
+}
+>>>
+object Test {
+  Try {
+    "something1"
+  }.recover { // break
+      case NonFatal(_) => "something2"
+    }
+    .getOrElse { // break
+      "something3"
+    }
+}
+<<< #1400, breaksInsideChains F, BnoB
+preset = intellij
+danglingParentheses.preset = true
+optIn.configStyleArguments = true
+optIn.breakChainOnFirstMethodDot = false
+optIn.breaksInsideChains = false
+===
+object Test {
+    Try {
+      "something1"
+    }
+      .recover { // break
+        case NonFatal(_) => "something2"
+      }.getOrElse{ // no break
+        "something3"
+      }
+}
+>>>
+object Test {
+  Try {
+    "something1"
+  }.recover { // break
+      case NonFatal(_) => "something2"
+    }
+    .getOrElse { // no break
+      "something3"
+    }
+}
