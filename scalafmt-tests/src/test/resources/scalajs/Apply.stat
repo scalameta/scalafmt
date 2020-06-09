@@ -10,6 +10,8 @@ function(
     b
 )
 <<< penalty #248
+optIn.breakChainOnFirstMethodDot = false
+===
      def iterator(): Iterator[A] =
       toIterator(it
             .asInstanceOf[IteratorMethodAccess]

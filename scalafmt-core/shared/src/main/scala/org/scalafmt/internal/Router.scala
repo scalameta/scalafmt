@@ -1311,7 +1311,7 @@ class Router(formatOps: FormatOps) {
           Split(NoSplit, 0)
             .notIf(ignoreNoSplit)
             .withPolicy(noSplitPolicy),
-          Split(NewlineT(acceptNoSplit = true), nlCost)
+          Split(NewlineT(acceptNoSplit = !ignoreNoSplit), nlCost)
             .withPolicy(newlinePolicy)
             .withIndent(2, optimalToken, After)
         )
