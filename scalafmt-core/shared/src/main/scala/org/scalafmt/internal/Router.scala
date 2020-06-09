@@ -1302,7 +1302,11 @@ class Router(formatOps: FormatOps) {
               case _ => 0
             }
           } else 0
-        val nlCost = 2 + nestedPenalty + chainLengthPenalty
+        // when the flag is on, penalize break, to avoid idempotence issues;
+        // otherwise, after the break is chosen, the flag prohibits nosplit
+        val nlBaseCost =
+          if (style.optIn.breakChainOnFirstMethodDot && tok.noBreak) 3 else 2
+        val nlCost = nlBaseCost + nestedPenalty + chainLengthPenalty
         Seq(
           Split(NoSplit, 0)
             .notIf(ignoreNoSplit)
