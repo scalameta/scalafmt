@@ -24,15 +24,15 @@ case object NoSplit extends Modification {
   * @param isDouble Insert a blank line?
   * @param noIndent Should no indentation follow? For example in commented out
   *                 code.
-  * @param acceptNoSplit Is it ok to replace this newline with a [[NoSplit]]
-  *                      if the newline will indent beyond the current column?
-  *                      For example, used by select chains in [[Router]].
+  * @param alt
+  *   Is it ok to replace this newline with a [[NoSplit]] or [[Space]] (with
+  *   an optional additional set of indents) if the newline will indent beyond
+  *   the current column? For example, used by select chains in [[Router]].
   */
 case class NewlineT(
     isDouble: Boolean = false,
     noIndent: Boolean = false,
-    acceptSpace: Boolean = false,
-    acceptNoSplit: Boolean = false
+    alt: Option[ModExt] = None
 ) extends Modification {
   override def toString = {
     val double = if (isDouble) "Double" else ""

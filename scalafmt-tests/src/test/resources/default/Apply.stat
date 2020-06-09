@@ -1003,11 +1003,10 @@ object a {
     "mod",
     Seq(common, db, user, hub, security, game, analyse, evaluation, report)
   ).settings(
-      libraryDependencies ++= provided(play.api, play.test, RM, PRM)
-    )
-    .settings(
-      libraryDependencies ++= provided(play.api, play.test, RM, PRM)
-    )
+    libraryDependencies ++= provided(play.api, play.test, RM, PRM)
+  ).settings(
+    libraryDependencies ++= provided(play.api, play.test, RM, PRM)
+  )
 }
 <<< #1400, breaksInsideChains T, noBB
 preset = intellij
@@ -1031,8 +1030,8 @@ object Test {
   Try {
     "something1"
   }.recover { // no break
-      case NonFatal(_) => "something2"
-    }
+    case NonFatal(_) => "something2"
+  }
     .getOrElse { // break
       "something3"
     }
@@ -1058,8 +1057,8 @@ object Test {
   Try {
     "something1"
   }.recover { // no break
-      case NonFatal(_) => "something2"
-    }.getOrElse { // no break
+    case NonFatal(_) => "something2"
+  }.getOrElse { // no break
       "something3"
     }
 }
@@ -1086,8 +1085,8 @@ object Test {
   Try {
     "something1"
   }.recover { // break
-      case NonFatal(_) => "something2"
-    }
+    case NonFatal(_) => "something2"
+  }
     .getOrElse { // break
       "something3"
     }
@@ -1114,8 +1113,8 @@ object Test {
   Try {
     "something1"
   }.recover { // break
-      case NonFatal(_) => "something2"
-    }.getOrElse { // no break
+    case NonFatal(_) => "something2"
+  }.getOrElse { // no break
       "something3"
     }
 }
@@ -1141,11 +1140,10 @@ object Test {
   Try {
     "something1"
   }.recover { // no break
-      case NonFatal(_) => "something2"
-    }
-    .getOrElse { // break
-      "something3"
-    }
+    case NonFatal(_) => "something2"
+  }.getOrElse { // break
+    "something3"
+  }
 }
 <<< #1400, breaksInsideChains F, noBnoB
 preset = intellij
@@ -1168,11 +1166,10 @@ object Test {
   Try {
     "something1"
   }.recover { // no break
-      case NonFatal(_) => "something2"
-    }
-    .getOrElse { // no break
-      "something3"
-    }
+    case NonFatal(_) => "something2"
+  }.getOrElse { // no break
+    "something3"
+  }
 }
 <<< #1400, breaksInsideChains F, BB
 preset = intellij
@@ -1197,11 +1194,10 @@ object Test {
   Try {
     "something1"
   }.recover { // break
-      case NonFatal(_) => "something2"
-    }
-    .getOrElse { // break
-      "something3"
-    }
+    case NonFatal(_) => "something2"
+  }.getOrElse { // break
+    "something3"
+  }
 }
 <<< #1400, breaksInsideChains F, BnoB
 preset = intellij
@@ -1225,9 +1221,8 @@ object Test {
   Try {
     "something1"
   }.recover { // break
-      case NonFatal(_) => "something2"
-    }
-    .getOrElse { // no break
-      "something3"
-    }
+    case NonFatal(_) => "something2"
+  }.getOrElse { // no break
+    "something3"
+  }
 }
