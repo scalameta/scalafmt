@@ -238,7 +238,8 @@ object a {
   join(a, b)((x, y) =>
     where(
       (x.foo < maxRetry).and(y.retryCount === x.bar).and(task.status === Failed)
-    ).select(task)
+    )
+      .select(task)
       .on((x.id === key).and(y.id === key))
   ).toList
 }

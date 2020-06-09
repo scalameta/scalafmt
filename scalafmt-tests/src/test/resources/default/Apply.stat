@@ -833,7 +833,6 @@ optIn.configStyleArguments = true
         .renderedTo(
           "Digest realm=\"testrealm@host.com\",qop=\"auth,auth-int\",nonce=dcd98b7102dd2f0e8b11d0f600bfb0c093,opaque=5ccc069c403ebaf9f0171e9517f40e41")
 >>>
-Idempotency violated
 `WWW-Authenticate`(
   HttpChallenge(
     "Digest",
@@ -844,9 +843,10 @@ Idempotency violated
       "opaque" -> "5ccc069c403ebaf9f0171e9517f40e41"
     )
   )
-).renderedTo(
-  "Digest realm=\"testrealm@host.com\",qop=\"auth,auth-int\",nonce=dcd98b7102dd2f0e8b11d0f600bfb0c093,opaque=5ccc069c403ebaf9f0171e9517f40e41"
 )
+  .renderedTo(
+    "Digest realm=\"testrealm@host.com\",qop=\"auth,auth-int\",nonce=dcd98b7102dd2f0e8b11d0f600bfb0c093,opaque=5ccc069c403ebaf9f0171e9517f40e41"
+  )
 <<< #1803
 preset = intellij
 danglingParentheses.preset = true
@@ -864,7 +864,6 @@ Await
               1.second)
           .getMessage
 >>>
-Idempotency violated
 Await
   .result(
     Unmarshal(
@@ -873,7 +872,9 @@ Await
         """this is
             |just preamble text""".stripMarginWithNewline("\r\n")
       )
-    ).to[Multipart.General].failed,
+    )
+      .to[Multipart.General]
+      .failed,
     1.second
   )
   .getMessage
@@ -921,14 +922,14 @@ object a {
   )
 }
 >>>
-Idempotency violated
 object a {
   lazy val mod = project(
     "mod",
     Seq(common, db, user, hub, security, game, analyse, evaluation, report)
-  ).settings(
-    libraryDependencies ++= provided(play.api, play.test, RM, PRM)
   )
+    .settings(
+      libraryDependencies ++= provided(play.api, play.test, RM, PRM)
+    )
 }
 <<< #1804, no breakChainOnFirstMethodDot
 preset = intellij
@@ -975,7 +976,8 @@ object a {
   lazy val mod = project(
     "mod",
     Seq(common, db, user, hub, security, game, analyse, evaluation, report)
-  ).settings(
+  )
+    .settings(
       libraryDependencies ++= provided(play.api, play.test, RM, PRM)
     )
     .settings(
