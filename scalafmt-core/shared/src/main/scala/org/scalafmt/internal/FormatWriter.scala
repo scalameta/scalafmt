@@ -228,15 +228,6 @@ class FormatWriter(formatOps: FormatOps) {
             val currentAlign = getAlign(tok, alignOffset)
             getIndentation(1 + currentAlign + previousAlign)
 
-          case nl: NewlineT
-              if nl.acceptNoSplit && !tok.left.isInstanceOf[T.Comment] &&
-                state.indentation >= prevState.column =>
-            ""
-
-          case nl: NewlineT
-              if nl.acceptSpace && state.indentation >= prevState.column =>
-            " "
-
           case _: NewlineT
               if tok.right.isInstanceOf[T.Comment] &&
                 nextNonComment.exists(

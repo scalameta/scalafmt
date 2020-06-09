@@ -1040,7 +1040,7 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
       lastToken: Token,
       indentLen: Int
   )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] = {
-    val nlMod = NewlineT(acceptSpace = true)
+    val nlMod = NewlineT(alt = Some(Space))
     val owners = chain.fold[Set[Tree]](Set(_), x => x.toSet)
     val nlPolicy = ctorWithChain(owners, lastToken)
     val nlOnelineTag = style.binPack.parentConstructors match {

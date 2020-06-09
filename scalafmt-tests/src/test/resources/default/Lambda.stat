@@ -437,21 +437,20 @@ class A {
 class A {
   def foo: B =
     a.b() { c =>
-        val d = c.add(
-          D[E](
-            1,
-            {
-              case conditionNameShouldLongEnough =>
-                foo1(objectNameShouldLongEnough, objectNameShouldLongEnough)
-                0
-              case conditionNameShouldLongEnough =>
-                foo1(objectNameShouldLongEnough, objectNameShouldLongEnough)
-                1
-            }
-          )
+      val d = c.add(
+        D[E](
+          1,
+          {
+            case conditionNameShouldLongEnough =>
+              foo1(objectNameShouldLongEnough, objectNameShouldLongEnough)
+              0
+            case conditionNameShouldLongEnough =>
+              foo1(objectNameShouldLongEnough, objectNameShouldLongEnough)
+              1
+          }
         )
-      }
-      .f("f")
+      )
+    }.f("f")
 }
 <<< #1969
 object a {

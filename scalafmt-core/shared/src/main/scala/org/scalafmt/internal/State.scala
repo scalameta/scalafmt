@@ -33,14 +33,14 @@ final case class State(
     * Calculates next State given split at tok.
     */
   def next(
-      nextSplit: Split,
+      initialNextSplit: Split,
       tok: FormatToken
   )(implicit style: ScalafmtConfig): State = {
     val right = tok.right
     val tokRightSyntax = tok.meta.right.text
 
-    val (nextIndent, nextIndents) =
-      if (tok.right.is[Token.EOF]) (0, Seq.empty)
+    val (nextSplit, nextIndent, nextIndents) =
+      if (tok.right.is[Token.EOF]) (initialNextSplit, 0, Seq.empty)
       else {
         val offset = column - indentation
         def getIndent(indents: Iterator[ActualIndent]): Int =
@@ -49,10 +49,21 @@ final case class State(
           indents.filter(_.notExpiredBy(tok))
         def getPushes(indents: Seq[Indent]): Seq[ActualIndent] =
           getUnexpired(indents.flatMap(_.withStateOffset(offset)))
-        val indents = nextSplit.modExt.indents
+        val indents = initialNextSplit.modExt.indents
         val nextPushes = getUnexpired(pushes) ++ getPushes(indents)
         val nextIndent = getIndent(nextPushes.iterator)
-        (nextIndent, nextPushes)
+        initialNextSplit.modExt.mod match {
+          case m: NewlineT
+              if !tok.left.is[Token.Comment] && m.alt.isDefined &&
+                nextIndent >= m.alt.get.mod.length + column =>
+            val alt = m.alt.get
+            val altPushes = getPushes(alt.indents)
+            val altIndent = getIndent(altPushes.iterator)
+            val split = initialNextSplit.withMod(alt.withIndents(indents))
+            (split, nextIndent + altIndent, nextPushes ++ altPushes)
+          case _ =>
+            (initialNextSplit, nextIndent, nextPushes)
+        }
       }
 
     // Some tokens contain newline, like multiline strings/comments.

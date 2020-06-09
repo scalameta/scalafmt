@@ -979,7 +979,7 @@ class Router(formatOps: FormatOps) {
         val nlIndent = if (style.activeForEdition_2020_03) indent else Num(4)
         Seq(
           noSplit,
-          Split(NewlineT(acceptNoSplit = singleLineOnly), 2)
+          Split(NewlineT(alt = if (singleLineOnly) Some(NoSplit) else None), 2)
             .withIndent(nlIndent, close, Before)
             .withSingleLineOpt(if (singleLineOnly) Some(close) else None)
             .andThenPolicy(nlPolicy)
@@ -1217,7 +1217,7 @@ class Router(formatOps: FormatOps) {
               }
               Seq(
                 Split(NoSplit, 0).withSingleLine(expire, noSyntaxNL = true),
-                Split(NewlineT(acceptNoSplit = true), 1)
+                Split(NewlineT(alt = Some(NoSplit)), 1)
                   .withPolicyOpt(forcedBreakPolicy)
               )
             }
@@ -1227,7 +1227,7 @@ class Router(formatOps: FormatOps) {
             def exclude = insideBlockRanges[LeftParenOrBrace](t, end)
             Seq(
               Split(NoSplit, 0).withSingleLine(end, exclude),
-              Split(NewlineT(acceptNoSplit = true), 1)
+              Split(NewlineT(alt = Some(NoSplit)), 1)
             )
         }
 
@@ -1264,11 +1264,21 @@ class Router(formatOps: FormatOps) {
           if (chain.length == 1) lastToken(chain.last)
           else optimalToken
 
+        def getNewline(ft: FormatToken): NewlineT = {
+          val (_, nextSelect) = findLastApplyAndNextSelect(ft.meta.rightOwner)
+          val endSelect = nextSelect.fold(optimalToken)(x => lastToken(x.qual))
+          val nlAlt = ModExt(NoSplit).withIndent(-2, endSelect, After)
+          NewlineT(alt = Some(nlAlt))
+        }
+
         val breakOnEveryDot = Policy(expire) {
           case Decision(t @ FormatToken(_, _: T.Dot, _), _)
               if chain.contains(t.meta.rightOwner) =>
-            val noNL = style.optIn.breaksInsideChains && t.noBreak
-            Seq(Split(NoSplit.orNL(noNL), 1))
+            val mod =
+              if (style.optIn.breaksInsideChains)
+                NoSplit.orNL(t.noBreak)
+              else getNewline(t)
+            Seq(Split(mod, 1))
         }
         val exclude = getExcludeIf(expire)
         // This policy will apply to both the space and newline splits, otherwise
@@ -1308,7 +1318,7 @@ class Router(formatOps: FormatOps) {
           Split(NoSplit, 0)
             .notIf(ignoreNoSplit)
             .withPolicy(noSplitPolicy),
-          Split(NewlineT(acceptNoSplit = !ignoreNoSplit), nlCost)
+          Split(if (ignoreNoSplit) Newline else getNewline(tok), nlCost)
             .withPolicy(newlinePolicy)
             .withIndent(2, optimalToken, After)
         )
