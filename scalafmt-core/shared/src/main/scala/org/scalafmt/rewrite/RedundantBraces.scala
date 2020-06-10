@@ -232,11 +232,6 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
       case d: Defn.Def =>
         def disqualifiedByUnit =
           !settings.includeUnitMethods && d.decltpe.exists(_.syntax == "Unit")
-        def innerOk(s: Stat) =
-          s match {
-            case _: Term.Function | _: Defn => false
-            case _ => true
-          }
         settings.methodBodies &&
         getSingleStatIfLineSpanOk(b).exists(innerOk) &&
         !isProcedureSyntax(d) &&
@@ -251,6 +246,12 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
     }
   }
 
+  private def innerOk(s: Stat) =
+    s match {
+      case _: Term.Function | _: Defn => false
+      case _ => true
+    }
+
   private def okToRemoveBlockWithinApply(b: Term.Block): Boolean =
     getSingleStatIfLineSpanOk(b).exists {
       case f: Term.Function =>
@@ -263,7 +264,7 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
   /** Some blocks look redundant but aren't */
   private def shouldRemoveSingleStatBlock(b: Term.Block): Boolean =
     getSingleStatIfLineSpanOk(b).exists { stat =>
-      !b.parent.exists {
+      innerOk(stat) && !b.parent.exists {
         case parentIf: Term.If if stat.is[Term.If] =>
           // if (a) { if (b) c } else d
           //   ↑ cannot be replaced by ↓
