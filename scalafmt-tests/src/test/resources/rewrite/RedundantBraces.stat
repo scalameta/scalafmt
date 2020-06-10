@@ -845,10 +845,10 @@ object Issue {
   }
 }
 >>>
-test does not parse
-OUT: object Issue {
+object Issue {
   def f(): Int = ???
 
-  try {} finally
+  try {} finally {
     val _ = f()
   }
+}
