@@ -90,8 +90,9 @@ final case class State(
       }
     }
 
-    val nextFormatOff = TokenOps.isFormatOff(right, tokRightSyntax) ||
-      formatOff && !TokenOps.isFormatOn(right, tokRightSyntax)
+    val nextFormatOff =
+      if (formatOff) !TokenOps.isFormatOn(right)
+      else TokenOps.isFormatOff(right)
 
     State(
       cost + splitWithPenalty.cost,
