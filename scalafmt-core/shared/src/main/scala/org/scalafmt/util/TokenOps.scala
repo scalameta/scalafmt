@@ -190,16 +190,27 @@ object TokenOps {
       case _ => None
     }
 
-  val formatOffCode = Set(
-    "// @formatter:off", // IntelliJ
-    "// format: off" // scalariform
+  val formatOnCode = Set(
+    "@formatter:on", // IntelliJ
+    "format: on" // scalariform
   )
 
-  def isFormatOn(token: Token, syntax: => String): Boolean =
-    token.is[Comment] && formatOnCode.contains(syntax.toLowerCase)
+  val formatOffCode = Set(
+    "@formatter:off", // IntelliJ
+    "format: off" // scalariform
+  )
 
-  def isFormatOff(token: Token, syntax: => String): Boolean =
-    token.is[Comment] && formatOffCode.contains(syntax.toLowerCase)
+  @inline
+  def isFormatOn(token: Token): Boolean = isFormatIn(token, formatOnCode)
+
+  @inline
+  def isFormatOff(token: Token): Boolean = isFormatIn(token, formatOffCode)
+
+  private def isFormatIn(token: Token, set: Set[String]): Boolean =
+    token match {
+      case t: Comment => set.contains(t.value.trim.toLowerCase)
+      case _ => false
+    }
 
   def endsWithSymbolIdent(tok: Token): Boolean =
     tok match {
@@ -219,11 +230,6 @@ object TokenOps {
     // an `_`, operators cannot. This check should suffice.
     !head.isLetter && head != '_'
   }
-
-  val formatOnCode = Set(
-    "// @formatter:on", // IntelliJ
-    "// format: on" // scalariform
-  )
 
   def shouldBreak(ft: FormatToken)(implicit style: ScalafmtConfig): Boolean =
     style.newlines.source match {

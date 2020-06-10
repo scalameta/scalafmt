@@ -12,9 +12,9 @@ class TokenTraverser(tokens: Tokens) {
     var i = 0
     tokens.foreach { tok =>
       if (!formatOff) {
-        if (TokenOps.isFormatOff(tok, tok.syntax)) formatOff = true
+        if (TokenOps.isFormatOff(tok)) formatOff = true
       } else {
-        if (TokenOps.isFormatOn(tok, tok.syntax)) formatOff = false
+        if (TokenOps.isFormatOn(tok)) formatOff = false
         else excluded += TokenOps.hash(tok)
       }
       map += (tok -> i)
