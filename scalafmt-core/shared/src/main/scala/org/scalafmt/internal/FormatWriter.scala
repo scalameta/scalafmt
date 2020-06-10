@@ -393,6 +393,8 @@ class FormatWriter(formatOps: FormatOps) {
         val text = tok.meta.left.text
         if (isSingleLineComment(text))
           new FormatSlc(text).format
+        else if (text == "/**/")
+          sb.append(text)
         else if (text.startsWith("/**"))
           formatDocstring(text)
         else
@@ -733,8 +735,8 @@ class FormatWriter(formatOps: FormatOps) {
         }
 
         private def formatNoWrap: Unit = {
-          // remove "/**" and "*/"
-          val trimmed = CharBuffer.wrap(text, 3, text.length - 2)
+          // remove "/*" (keep one asterisk) and "*/"
+          val trimmed = CharBuffer.wrap(text, 2, text.length - 2)
           val matcher = docstringLine.matcher(trimmed)
           sb.append("/**")
           val sbLen = sb.length()

@@ -779,7 +779,7 @@ object a {
 object a {
 
   /**
-   * ************** tests ******************
+   * *************** tests ******************
    * *************** tests ****************** */
 }
 <<< keep inner asterisks, SpaceAsterisk
@@ -790,10 +790,9 @@ object a {
    * *************** tests ****************** */
 }
 >>>
-Idempotency violated
 object a {
 
-  /** ************* tests ******************
+  /** *************** tests ******************
     * *************** tests ****************** */
 }
 <<< keep inner asterisks, AsteriskSpace
@@ -804,10 +803,9 @@ object a {
     * *************** tests ****************** */
 }
 >>>
-Idempotency violated
 object a {
 
-  /** ************* tests ******************
+  /** *************** tests ******************
    *  *************** tests ****************** */
 }
 <<< empty comment
@@ -815,4 +813,7 @@ object a {
   /**//**/
 }
 >>>
-java.lang.IndexOutOfBoundsException was thrown.
+object a {
+
+  /**/ /**/
+}
