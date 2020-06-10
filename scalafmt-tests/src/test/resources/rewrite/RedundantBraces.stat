@@ -834,3 +834,21 @@ object a {
 object a {
   scalacOptions ~= { _ filterNot (_ startsWith "-Xlint") }
 }
+<<< #2012
+rewrite.redundantBraces.generalExpressions = true
+===
+object Issue {
+  def f(): Int = ???
+
+  try {} finally {
+    val _ = f()
+  }
+}
+>>>
+test does not parse
+OUT: object Issue {
+  def f(): Int = ???
+
+  try {} finally
+    val _ = f()
+  }
