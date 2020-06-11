@@ -234,8 +234,8 @@ multi
  * }}}
  * {{{
  * multi
- *  line
- *    code
+ *   line
+ *     code
  * }}}
  * @tparam t
  *   type, @see [[d]]
@@ -282,8 +282,8 @@ multi
   * }}}
   * {{{
   * multi
-  *  line
-  *    code
+  *   line
+  *     code
   * }}}
   * @tparam t
   *   type, @see [[d]]
