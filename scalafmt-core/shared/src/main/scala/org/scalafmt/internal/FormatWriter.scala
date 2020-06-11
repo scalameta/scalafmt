@@ -621,8 +621,8 @@ class FormatWriter(formatOps: FormatOps) {
                       sb.append(getIndentation(2 + margin.length)).append(x)
                     else {
                       val offset = matcher.end()
-                      val codeIndent =
-                        math.max(margin.length, offset - offset % 2)
+                      val extra = math.max(0, offset - margin.length)
+                      val codeIndent = margin.length + extra - extra % 2
                       sb.append(getIndentation(codeIndent))
                       sb.append(CharBuffer.wrap(x, offset, x.length))
                     }
