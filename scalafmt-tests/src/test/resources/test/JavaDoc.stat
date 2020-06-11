@@ -205,9 +205,14 @@ maxColumn = 30
 
 {{{
 multi
-line
-code
+  line
+    code
 }}}
+* {{{
+* multi
+*   line
+*     code
+* }}}
 @tparam t type, @see [[d]] ({{{single-line code}}})
   */
   val a = 1
@@ -227,6 +232,11 @@ code
  * line
  * code
  * }}}
+ * {{{
+ * multi
+ *  line
+ *    code
+ * }}}
  * @tparam t
  *   type, @see [[d]]
  *   ({{{single-line code}}})
@@ -244,9 +254,14 @@ maxColumn = 30
 
 {{{
 multi
-line
-code
+  line
+    code
 }}}
+* {{{
+* multi
+*   line
+*     code
+* }}}
 @tparam t type, @see [[d]] ({{{single-line code}}})
   */
   val a = 1
@@ -265,6 +280,11 @@ code
   * line
   * code
   * }}}
+  * {{{
+  * multi
+  *  line
+  *    code
+  * }}}
   * @tparam t
   *   type, @see [[d]]
   *   ({{{single-line code}}})
@@ -282,9 +302,14 @@ maxColumn = 30
 
 {{{
 multi
-line
-code
+  line
+    code
 }}}
+*  {{{
+*  multi
+*    line
+*      code
+*  }}}
 @tparam t type, @see [[d]] ({{{single-line code}}})
   */
   val a = 1
@@ -302,6 +327,11 @@ code
  *  multi
  *  line
  *  code
+ *  }}}
+ *  {{{
+ *  multi
+ *    line
+ *      code
  *  }}}
  *  @tparam t
  *    type, @see [[d]]
@@ -766,6 +796,100 @@ object a {
    *  | r22 1  |  r22 2 |        |        |        |        |
    *  | r333 1 | r333 2 | r333 3 | r333 4 | r333 5 | r333 6 |
    *  tail
+   */
+}
+<<< #1887 7 Asterisk: list only
+docstrings.wrap = yes
+docstrings.style = Asterisk
+maxColumn = 24
+===
+object a {
+  /** 1. foo
+    * 1. bar
+   */
+}
+>>>
+Idempotency violated
+object a {
+
+  /**
+   *   1. foo
+   *      1. bar
+   */
+}
+<<< #1887 7 SpaceAsterisk: list only
+docstrings.wrap = yes
+docstrings.style = SpaceAsterisk
+maxColumn = 24
+===
+object a {
+  /** 1. foo
+   * 1. bar
+   */
+}
+>>>
+object a {
+
+  /** 1. foo
+    *   1. bar
+    */
+}
+<<< #1887 7 AsteriskSpace: list only
+docstrings.wrap = yes
+docstrings.style = AsteriskSpace
+maxColumn = 24
+===
+object a {
+  /** 1. foo
+    * 1. bar
+   */
+}
+>>>
+object a {
+
+  /** 1. foo
+   *    1. bar
+   */
+}
+<<< #1887 8 Asterisk: punctuation after link/code
+docstrings.wrap = yes
+docstrings.style = Asterisk
+===
+object a {
+  /** [[ref]]!.. {{{foo}}}??? */
+}
+>>>
+Idempotency violated
+object a {
+
+  /**
+   *  [[ref]]!.. {{{foo}}}???
+   */
+}
+<<< #1887 8 SpaceAsterisk: punctuation after link/code
+docstrings.wrap = yes
+docstrings.style = SpaceAsterisk
+===
+object a {
+  /** [[ref]]!.. {{{foo}}}??? */
+}
+>>>
+object a {
+
+  /** [[ref]]!.. {{{foo}}}???
+    */
+}
+<<< #1887 8 AsteriskSpace: punctuation after link/code
+docstrings.wrap = yes
+docstrings.style = AsteriskSpace
+===
+object a {
+  /** [[ref]]!.. {{{foo}}}??? */
+}
+>>>
+object a {
+
+  /** [[ref]]!.. {{{foo}}}???
    */
 }
 <<< keep inner asterisks, Asterisk
