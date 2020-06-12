@@ -616,15 +616,17 @@ class FormatWriter(formatOps: FormatOps) {
                   sb.append("{{{")
                   appendBreak()
                   t.code.foreach { x =>
-                    val matcher = docstringLeadingSpace.matcher(x)
-                    if (!matcher.lookingAt())
-                      sb.append(getIndentation(2 + margin.length)).append(x)
-                    else {
-                      val offset = matcher.end()
-                      val extra = math.max(0, offset - margin.length)
-                      val codeIndent = margin.length + extra - extra % 2
-                      sb.append(getIndentation(codeIndent))
-                      sb.append(CharBuffer.wrap(x, offset, x.length))
+                    if (x.nonEmpty) {
+                      val matcher = docstringLeadingSpace.matcher(x)
+                      val minMargin = margin.length
+                      if (matcher.lookingAt()) {
+                        val offset = matcher.end()
+                        val extra = math.max(0, offset - minMargin)
+                        val codeIndent = minMargin + extra - extra % 2
+                        sb.append(getIndentation(codeIndent))
+                        sb.append(CharBuffer.wrap(x, offset, x.length))
+                      } else
+                        sb.append(getIndentation(minMargin)).append(x)
                     }
                     appendBreak()
                   }
@@ -647,13 +649,17 @@ class FormatWriter(formatOps: FormatOps) {
                 case t: Scaladoc.ListBlock =>
                   // outputs margin space and appends new line, too
                   // therefore, let's start by "rewinding"
-                  sb.setLength(sb.length() - margin.length)
+                  if (sb.length() != sbLen || leadingMargin == 0) {
+                    sb.setLength(sb.length() - margin.length)
+                  } else {
+                    // don't output on top line, lists are sensitive to margin
+                    sb.setLength(sb.length() - 1) // remove space
+                    appendBreak()
+                  }
                   formatListBlock(getIndentation(margin.length + 2))(t)
                 case t: Scaladoc.Text =>
                   formatTextAfterMargin(t.part.iterator.map(_.syntax))
                 case t: Scaladoc.Table => formatTable(t)
-                case Scaladoc.Unknown(t) =>
-                  formatTextAfterMargin(splitAsIterator(docstringSpace)(t))
               }
             }
             if (paras.hasNext) appendBreak()
@@ -1295,8 +1301,7 @@ object FormatWriter {
   private val onelineDocstring = Pattern.compile(
     "^/\\*\\*(?:\n\\h*+\\*?)?\\h*+([^*][^\n]*[^\n\\h])(?:\n\\h*+\\**?)?\\h*+\\*/$"
   )
-  private val docstringSpace = Pattern.compile("[\\h\n]++")
-  private val docstringLeadingSpace = Pattern.compile("^\\h*+")
+  private val docstringLeadingSpace = Pattern.compile("^\\h++")
 
   @inline
   private def getStripMarginPattern(pipe: Char) =
