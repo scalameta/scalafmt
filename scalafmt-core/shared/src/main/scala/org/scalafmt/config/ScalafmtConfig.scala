@@ -157,6 +157,7 @@ case class ScalafmtConfig(
     encoding: Codec = "UTF-8",
     project: ProjectFiles = ProjectFiles(),
     fileOverride: Conf.Obj = Conf.Obj.empty,
+    xmlLiterals: XmlLiterals = XmlLiterals(),
     edition: Edition = Edition.Latest
 ) {
   val allErrors = new mutable.ArrayBuffer[String]
@@ -199,6 +200,7 @@ case class ScalafmtConfig(
   private implicit def rewriteReader = rewrite.reader
   private implicit def spacesReader = spaces.reader
   private implicit def literalsReader = literals.reader
+  private implicit def xmlLiteralsDecoder = xmlLiterals.decoder
   private implicit def continuationIndentReader = continuationIndent.reader
   private implicit def binpackReader = binPack.decoder
   private implicit def newlinesReader = newlines.reader
