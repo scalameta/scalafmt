@@ -129,8 +129,7 @@ object a {
 }
 >>>
 object a {
-  foo_bar_baz(
-      "Qui et et consectetur atque. Ex blanditiis eius omnis id. Modi est quibusdam error inventore facere vero id. Inventore in sequi praesentium consequuntur ut. Ex mollitia recusandae.") {
+  foo_bar_baz("Qui et et consectetur atque. Ex blanditiis eius omnis id. Modi est quibusdam error inventore facere vero id. Inventore in sequi praesentium consequuntur ut. Ex mollitia recusandae.") {
     println("")
   }
 }
@@ -143,8 +142,7 @@ object a {
 }
 >>>
 object a {
-  system.log.warning(
-      "Replicator points to dead letters: Make sure the cluster node is not terminated and has the proper role!")
+  system.log.warning("Replicator points to dead letters: Make sure the cluster node is not terminated and has the proper role!")
 }
 <<< #1505 2
 newlines.avoidForSimpleOverflow = [toolong]
@@ -159,8 +157,7 @@ object a {
 object a {
   intercept[TestException] {
     val ct =
-      Thread
-        .currentThread() // Ensure that the thunk is executed in the tests thread
+      Thread.currentThread() // Ensure that the thunk is executed in the tests thread
   }
 }
 <<< #1505 3
@@ -174,9 +171,7 @@ object a {
 >>>
 object a {
   intercept[TestException] {
-    val ct =
-      Thread
-        .currentThread() // Ensure that the thunk is executed in the tests thread
+    val ct = Thread.currentThread() // Ensure that the thunk is executed in the tests thread
   }
 }
 <<< #1505 4

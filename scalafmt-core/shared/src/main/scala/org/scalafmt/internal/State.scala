@@ -8,6 +8,7 @@ import scala.meta.tokens.Token
 
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.TokenOps
+import org.scalafmt.util.TreeOps
 
 /**
   * A partial formatting solution up to splits.length number of tokens.
@@ -21,6 +22,7 @@ final case class State(
     indentation: Int,
     pushes: Seq[ActualIndent],
     column: Int,
+    delayedPenalty: Int, // apply if positive, ignore otherwise
     formatOff: Boolean
 ) {
 
@@ -69,23 +71,29 @@ final case class State(
       nextIndent,
       if (nextSplit.isNL) None else Some(column + nextSplit.length)
     )
+
+    val overflow = columnOnCurrentLine - style.maxColumn
     val nextPolicy: PolicySummary =
       policy.combine(nextSplit.policy, tok.left.end)
-    val splitWithPenalty = {
+
+    val (penalty, nextDelayedPenalty) =
       if (
-        columnOnCurrentLine <= style.maxColumn || {
+        overflow <= 0 || {
           val commentExceedsLineLength = right.is[Token.Comment] &&
             tok.meta.right.text.length >= (style.maxColumn - nextIndent)
           commentExceedsLineLength && nextSplit.isNL
         }
       ) {
-        nextSplit // fits inside column
+        (math.max(0, delayedPenalty), 0) // fits inside column
       } else {
-        nextSplit.withPenalty(
+        val defaultOverflowPenalty =
           Constants.ExceedColumnPenalty + columnOnCurrentLine
-        ) // overflow
+        if (style.newlines.avoidForSimpleOverflow.isEmpty)
+          (defaultOverflowPenalty, 0)
+        else
+          getOverflowPenalty(nextSplit, defaultOverflowPenalty)
       }
-    }
+    val splitWithPenalty = nextSplit.withPenalty(penalty)
 
     val nextFormatOff =
       if (formatOff) !TokenOps.isFormatOn(right)
@@ -101,8 +109,133 @@ final case class State(
       nextIndent,
       nextIndents,
       nextStateColumn,
+      nextDelayedPenalty,
       nextFormatOff
     )
+  }
+
+  /** Returns a penalty to be applied to the split and any delayed penalty.
+    * - if delayedPenalty is positive, it is considered activated and will be
+    *   applied at the end of a line unless deactivated earlier;
+    * - if delayedPenalty is negative, it is considered inactive but could be
+    *   converted to regular penalty if a disqualifying token/split is found
+    *   before the end of a line or document. */
+  @tailrec
+  private def getOverflowPenalty(
+      nextSplit: Split,
+      defaultOverflowPenalty: Int
+  )(implicit style: ScalafmtConfig, fops: FormatOps): (Int, Int) = {
+    val prevActive = delayedPenalty > 0
+    val fullPenalty = defaultOverflowPenalty +
+      (if (prevActive) delayedPenalty else -delayedPenalty)
+    def result(customPenalty: Int, nextActive: Boolean): (Int, Int) = {
+      val penalty = math.min(fullPenalty, customPenalty)
+      val nextDelayedPenalty = fullPenalty - penalty
+      (penalty, if (nextActive) nextDelayedPenalty else -nextDelayedPenalty)
+    }
+    val ft = fops.tokens(depth)
+    if (nextSplit.isNL || ft.right.is[Token.EOF]) {
+      result(if (prevActive) fullPenalty else defaultOverflowPenalty, false)
+    } else {
+      val tokLength = ft.meta.right.text.length
+      def getCustomPenalty: Int = {
+        val isComment = ft.right.is[Token.Comment]
+        /* we only delay penalty for overflow tokens which are part of a
+         * statement that started at the beginning of the current line */
+        val startFtOpt =
+          if (!State.allowSplitForLineStart(nextSplit, ft, isComment)) None
+          else lineStartsStatement(isComment)
+        val delay = startFtOpt.exists {
+          case FormatToken(_, t: Token.Interpolation.Start, _) =>
+            fops.matching(t) ne ft.right
+          case _ => true
+        }
+        // if delaying, estimate column if the split had been a newline
+        if (delay) 10 + indentation * 3 / 2 + tokLength else fullPenalty
+      }
+      if (ft.meta.right.firstNL >= 0) {
+        result(fullPenalty, true)
+      } else if (
+        style.newlines.avoidForSimpleOverflowTooLong &&
+        State.isWithinInterpolation(ft.meta.rightOwner)
+      ) {
+        if (ft.right.is[Token.Interpolation.End])
+          result(getCustomPenalty, false)
+        else // delay for intermediate interpolation tokens
+          result(tokLength, true)
+      } else if (
+        ft.right.isInstanceOf[Product] &&
+        tokLength == 1 && !ft.meta.right.text.head.isLetterOrDigit
+      ) { // delimiter
+        val ok = delayedPenalty != 0 || {
+          style.newlines.avoidForSimpleOverflowPunct &&
+          column >= style.maxColumn
+        }
+        if (ok) result(1, prevActive)
+        else prev.getOverflowPenalty(split, defaultOverflowPenalty + 1)
+      } else if (style.newlines.avoidForSimpleOverflowTooLong) {
+        result(getCustomPenalty, false)
+      } else {
+        result(fullPenalty, true)
+      }
+    }
+  }
+
+  /**
+    * Traverses back to the beginning of the line and returns the largest tree
+    * which starts with that token at the start of the line, if any.
+    * @see [[State.allowSplitForLineStart]] which tokens can be traversed.
+    */
+  @tailrec
+  private def getLineStartOwner(isComment: Boolean)(implicit
+      style: ScalafmtConfig,
+      fops: FormatOps
+  ): Option[(FormatToken, meta.Tree)] = {
+    val ft = fops.tokens(depth)
+    if (ft.meta.left.firstNL >= 0) None
+    else if (!split.isNL) {
+      val ok = (prev ne State.start) &&
+        State.allowSplitForLineStart(split, ft, isComment)
+      if (ok) prev.getLineStartOwner(isComment) else None
+    } else {
+      def startsWithLeft(tree: meta.Tree): Boolean =
+        tree.tokens.headOption.contains(ft.left)
+      val ro = ft.meta.rightOwner
+      val owner =
+        if (startsWithLeft(ro)) Some(ro)
+        else {
+          val lo = ft.meta.leftOwner
+          if (startsWithLeft(lo)) Some(lo) else None
+        }
+      owner.map { x =>
+        val y =
+          if (!x.parent.exists(startsWithLeft)) None
+          else TreeOps.findTreeWithParentSimple(x)(!startsWithLeft(_))
+        (ft, y.getOrElse(x))
+      }
+    }
+  }
+
+  /**
+    * Check that the current line starts a statement which also contains
+    * the current token.
+    */
+  private def lineStartsStatement(
+      isComment: Boolean
+  )(implicit style: ScalafmtConfig, fops: FormatOps): Option[FormatToken] = {
+    getLineStartOwner(isComment).flatMap {
+      case (lineFt, lineOwner) =>
+        val ft = fops.tokens(depth)
+        val ok = (ft.meta.leftOwner eq lineOwner) || {
+          // comment could be preceded by a comma
+          isComment && ft.left.is[Token.Comma] &&
+          (fops.prev(ft).meta.leftOwner eq lineOwner)
+        } ||
+          TreeOps
+            .findTreeWithParentSimple(ft.meta.leftOwner)(_ eq lineOwner)
+            .isDefined
+        if (ok) Some(lineFt) else None
+    }
   }
 
 }
@@ -117,6 +250,7 @@ object State {
     null,
     0,
     Seq.empty,
+    0,
     0,
     formatOff = false
   )
@@ -224,5 +358,29 @@ object State {
       if (0 == margin) textLength else textLength + adjustMargin(margin)
     }
   }
+
+  /**
+    * Checks whether a given token and split can be traversed while looking for
+    * the beginning of the line.
+    */
+  private def allowSplitForLineStart(
+      split: Split,
+      ft: FormatToken,
+      isComment: Boolean
+  ): Boolean = {
+    {
+      split.length == 0 || isComment ||
+      ft.meta.leftOwner.is[meta.Term.Assign]
+    } && !split.modExt.indents.exists(_.hasStateColumn)
+  }
+
+  @inline
+  private def isInterpolation(tree: meta.Tree): Boolean =
+    tree.is[meta.Term.Interpolate]
+
+  @inline
+  private def isWithinInterpolation(tree: meta.Tree): Boolean =
+    isInterpolation(tree) ||
+      TreeOps.findTreeWithParentSimple(tree)(isInterpolation).isDefined
 
 }
