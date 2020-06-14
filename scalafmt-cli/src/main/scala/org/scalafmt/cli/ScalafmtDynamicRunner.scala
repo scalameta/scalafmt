@@ -35,12 +35,15 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
       case _ => new MyInstanceSession(options, scalafmtInstance)
     }
 
-    val customMatcher = getFileMatcher(options.customFiles)
-    val inputMethods = getInputMethods(
-      options,
-      (x: AbsoluteFile) =>
-        customMatcher(x) && session.matchesProjectFilters(x.jfile.toPath)
-    )
+    def sessionMatcher(x: AbsoluteFile): Boolean =
+      session.matchesProjectFilters(x.jfile.toPath)
+    val filterMatcher: AbsoluteFile => Boolean =
+      if (options.customFiles.isEmpty) sessionMatcher
+      else {
+        val customMatcher = getFileMatcher(options.customFiles)
+        x => customMatcher(x) && sessionMatcher(x)
+      }
+    val inputMethods = getInputMethods(options, filterMatcher)
     if (inputMethods.isEmpty && options.mode.isEmpty && !options.stdIn)
       throw NoMatchingFiles
 
@@ -106,21 +109,19 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
   private def getFileMatcher(
       paths: Seq[AbsoluteFile]
   ): AbsoluteFile => Boolean = {
-    if (paths.isEmpty) _ => true
-    else {
-      val (files, dirs) = paths.partition(_.jfile.isFile)
-      (x: AbsoluteFile) =>
-        files.contains(x) || {
-          val filename = x.path
-          dirs.exists { dir =>
-            val dirname = dir.path
-            filename.startsWith(dirname) && (
-              filename.length == dirname.length ||
-              filename.charAt(dirname.length) == File.separatorChar
-            )
-          }
+    require(paths.nonEmpty)
+    val (files, dirs) = paths.partition(_.jfile.isFile)
+    (x: AbsoluteFile) =>
+      files.contains(x) || {
+        val filename = x.path
+        dirs.exists { dir =>
+          val dirname = dir.path
+          filename.startsWith(dirname) && (
+            filename.length == dirname.length ||
+            filename.charAt(dirname.length) == File.separatorChar
+          )
         }
-    }
+      }
   }
 
 }
