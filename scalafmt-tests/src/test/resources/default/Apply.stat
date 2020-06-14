@@ -564,19 +564,19 @@ newlines.avoidForSimpleOverflow = [punct]
                 "plugins" -> Map(
                     "outputblockers" -> pluginContext.outputBlockers.map {
                       case (n, p) =>
-                        n -> Map("name" -> p.pluginName,
-                                 "description" -> p.pluginDescription,
-                                 "class" -> p.getClass.getName,
-                                 "params" -> pluginContext.pluginParams(
-                                     p.pluginName))
+                        n -> Map(
+                            "name" -> p.pluginName,
+                            "description" -> p.pluginDescription,
+                            "class" -> p.getClass.getName,
+                            "params" -> pluginContext.pluginParams(p.pluginName))
                     },
                     "outputsniffers" -> pluginContext.outputSniffers.map {
                       case (n, p) =>
-                        n -> Map("name" -> p.pluginName,
-                                 "description" -> p.pluginDescription,
-                                 "class" -> p.getClass.getName,
-                                 "params" -> pluginContext.pluginParams(
-                                     p.pluginName))
+                        n -> Map(
+                            "name" -> p.pluginName,
+                            "description" -> p.pluginDescription,
+                            "class" -> p.getClass.getName,
+                            "params" -> pluginContext.pluginParams(p.pluginName))
                     }
                 ))
           }
@@ -595,8 +595,7 @@ opt[String]("json-extractor") action { (x, c) =>
 }
 >>>
 opt[String]("json-extractor") action { (x, c) =>
-  c.copy(common =
-    c.common.copy(jsonExtractor = JsonExtractorOption.withName(x)))
+  c.copy(common = c.common.copy(jsonExtractor = JsonExtractorOption.withName(x)))
 }
 <<< nested apply with assign 2
  {
@@ -715,8 +714,8 @@ newlines.avoidForSimpleOverflow = [punct]
  }
 >>>
 object ThreadPoolConfigDispatcherBuilder {
-  def conf_?[T](opt: Option[T])(fun: (
-      T) => ThreadPoolConfigDispatcherBuilder => ThreadPoolConfigDispatcherBuilder)
+  def conf_?[T](opt: Option[T])(
+      fun: (T) => ThreadPoolConfigDispatcherBuilder => ThreadPoolConfigDispatcherBuilder)
       : Option[(ThreadPoolConfigDispatcherBuilder) => ThreadPoolConfigDispatcherBuilder] =
     opt map fun
 }
@@ -839,8 +838,7 @@ pushInput(
   closeFrame(
     Protocol.CloseCodes.UnexpectedCondition,
     mask = true,
-    msg =
-      "This alien landing came quite unexpected. Communication has been garbled."
+    msg = "This alien landing came quite unexpected. Communication has been garbled."
   )
 )
 <<< #1802
@@ -1275,8 +1273,7 @@ object a {
       "90123456789012\r\n") should generalMultiParseTo(
       Left(MessageStartError(
           400: StatusCode,
-          ErrorInfo(
-              "Response reason phrase exceeds the configured limit of 21 characters"))))
+          ErrorInfo("Response reason phrase exceeds the configured limit of 21 characters"))))
 }
 <<< #1505 2 skip multiple args
 maxColumn = 75
@@ -1320,8 +1317,7 @@ object a {
   "allow mapping the response" in {
     val timeoutResponse = HttpResponse(
         StatusCodes.EnhanceYourCalm,
-        entity =
-          "Unable to serve response within time limit, please enchance your calm.")
+        entity = "Unable to serve response within time limit, please enchance your calm.")
   }
 }
 <<< #1505 4 short unchanged

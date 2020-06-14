@@ -400,8 +400,7 @@ def f = {
 >>>
 def f = {
   something.call(x =>
-    g.copy(a =
-      "some very very very very long string which we don't want to be split at all"))
+    g.copy(a = "some very very very very long string which we don't want to be split at all"))
 }
 <<< 13: single-arg single-stmt medium-splittable-body with multiple args lambda call
 def f = {
