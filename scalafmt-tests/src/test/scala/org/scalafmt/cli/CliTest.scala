@@ -467,25 +467,62 @@ trait CliTestBehavior { this: AbstractCliTest =>
       val root =
         string2dir(
           s"""
-            |/inner/file1.scala
+            |/inner1/file1.scala
             |$unformatted
             |/inner2/file2.scalahala
             |$unformatted
-            |/inner2/file3.scalahala
+            |/inner3/file1.scala
+            |$unformatted
+            |/inner3/file2.scalahala
             |$unformatted""".stripMargin
         )
-      val inner1 = root / "inner"
+      val inner1 = root / "inner1"
       val inner2 = root / "inner2"
-      val full = inner2 / "file3.scalahala"
+      val inner3 = root / "inner3"
+      val full1 = inner3 / "file1.scala"
+      val full2 = inner3 / "file2.scalahala"
 
-      runWith(
-        root,
-        s"""--config-str {version="$version"} $inner1 $inner2 $full"""
-      )
+      val opts = Seq(
+        s"""--config-str {version="$version"}"""
+      ) ++ Seq(inner1, inner2, full1, full2)
+      runWith(root, opts.mkString(" "))
 
       assertNoDiff(inner1 / "file1.scala", formatted)
       assertNoDiff(inner2 / "file2.scalahala", unformatted)
-      assertNoDiff(full, formatted)
+      assertNoDiff(full1, formatted)
+      assertNoDiff(full2, formatted)
+    }
+
+    test(
+      s"includeFilters are respected? for full paths but NOT test for passed directories: $label"
+    ) {
+      val root =
+        string2dir(
+          s"""
+            |/inner1/file1.scala
+            |$unformatted
+            |/inner2/file2.scalahala
+            |$unformatted
+            |/inner3/file1.scala
+            |$unformatted
+            |/inner3/file2.scalahala
+            |$unformatted""".stripMargin
+        )
+      val inner1 = root / "inner1"
+      val inner2 = root / "inner2"
+      val inner3 = root / "inner3"
+      val full1 = inner3 / "file1.scala"
+      val full2 = inner3 / "file2.scalahala"
+
+      val opts = Seq(
+        s"""--config-str {version="$version"}"""
+      ) ++ Seq(inner1, inner2, full1, full2)
+      runWith(root, opts.mkString(" "))
+
+      assertNoDiff(inner1 / "file1.scala", formatted)
+      assertNoDiff(inner2 / "file2.scalahala", unformatted)
+      assertNoDiff(full1, formatted)
+      assertNoDiff(full2, formatted)
     }
 
     test(s"--config accepts absolute paths: $label") {
