@@ -79,10 +79,13 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
 
   private final class MyInstanceSession(opts: CliOptions, instance: Scalafmt)
       extends ScalafmtSession {
-    private val customFiles = opts.customFiles.map(_.jfile.toPath)
+    private val customFiles =
+      if (opts.respectProjectFilters) Seq.empty
+      else opts.customFiles.filter(_.jfile.isFile).map(_.jfile.toPath)
     override def format(file: Path, code: String): String = {
       // DESNOTE(2017-05-19, pjrt): A plain, fully passed file will (try to) be
       // formatted regardless of what it is or where it is.
+      // NB: Unless respectProjectFilters is also specified.
       val formatter =
         if (customFiles.contains(file)) instance
         else instance.withRespectProjectFilters(true)

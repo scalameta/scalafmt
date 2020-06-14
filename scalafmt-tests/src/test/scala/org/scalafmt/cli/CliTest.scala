@@ -494,7 +494,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
     }
 
     test(
-      s"includeFilters are respected? for full paths but NOT test for passed directories: $label"
+      s"includeFilters are respected for full paths but NOT test for passed directories: $label"
     ) {
       val root =
         string2dir(
@@ -515,6 +515,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
       val full2 = inner3 / "file2.scalahala"
 
       val opts = Seq(
+        "--respect-project-filters",
         s"""--config-str {version="$version"}"""
       ) ++ Seq(inner1, inner2, full1, full2)
       runWith(root, opts.mkString(" "))
@@ -522,7 +523,7 @@ trait CliTestBehavior { this: AbstractCliTest =>
       assertNoDiff(inner1 / "file1.scala", formatted)
       assertNoDiff(inner2 / "file2.scalahala", unformatted)
       assertNoDiff(full1, formatted)
-      assertNoDiff(full2, formatted)
+      assertNoDiff(full2, unformatted)
     }
 
     test(s"--config accepts absolute paths: $label") {

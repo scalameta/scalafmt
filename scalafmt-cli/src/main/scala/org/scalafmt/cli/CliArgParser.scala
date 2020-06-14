@@ -105,6 +105,11 @@ object CliArgParser {
         .text(
           "file or directory, when missing all *.scala files are formatted."
         )
+      opt[Unit]("respect-project-filters")
+        .action((_, c) => c.copy(respectProjectFilters = true))
+        .text(
+          "use project filters even when specific files to format are provided"
+        )
       opt[String]('c', "config")
         .action(readConfigFromFile)
         .text("a file path to .scalafmt.conf.")
