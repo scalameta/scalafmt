@@ -5,7 +5,9 @@ import scala.meta.tokens.Token
 import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util.TokenOps
 
-case class OptimalToken(token: Token, killOnFail: Boolean = false)
+case class OptimalToken(token: Token, killOnFail: Boolean = false) {
+  override def toString: String = s"$token:${token.end}"
+}
 
 /**
   * A Split is the whitespace between two non-whitespace tokens.
@@ -164,7 +166,7 @@ case class Split(
     else newPolicy.fold(this)(andThenPolicy)
 
   def withPenalty(penalty: Int): Split =
-    if (isIgnored) this else copy(cost = cost + penalty)
+    if (isIgnored || penalty <= 0) this else copy(cost = cost + penalty)
 
   def withIndent(length: => Length, expire: => Token, when: ExpiresOn): Split =
     withMod(modExt.withIndent(length, expire, when))
@@ -204,7 +206,8 @@ case class Split(
       case SplitTag.Active => ""
       case _ => s"[$tag]"
     }
-    s"""$prefix${modExt.mod}:${line.value}(cost=$cost, indents=$indentation, $policy)"""
+    val opt = optimalAt.fold("")(", opt=" + _)
+    s"""$prefix${modExt.mod}:${line.value}(cost=$cost, indents=$indentation, $policy$opt)"""
   }
 }
 
