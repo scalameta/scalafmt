@@ -134,6 +134,10 @@ import metaconfig.generic.Surface
   * @param topLevelStatementsMinBreaks
   *   Minimum span (number of line breaks between first and last line)
   *   to start forcing blank lines.
+  * @param avoidForSimpleOverflow
+  *   - punct: don't force break if overflow is only due to trailing punctuation
+  *   - tooLong: don't force break if overflow is due to tokens which are too long
+  *     and would likely overflow even after a break
   */
 case class Newlines(
     source: Newlines.SourceHints = Newlines.classic,
@@ -159,6 +163,7 @@ case class Newlines(
     afterInfixBreakOnNested: Boolean = false,
     afterInfixMaxCountPerExprForSome: Int = 10,
     afterInfixMaxCountPerFile: Int = 500,
+    avoidForSimpleOverflow: Seq[Newlines.AvoidForSimpleOverflow] = Seq.empty,
     avoidAfterYield: Boolean = true
 ) {
   if (
@@ -225,6 +230,11 @@ case class Newlines(
       alwaysBeforeTopLevelStatements
   lazy val forceBlankAfterMultilineTopLevelStmt: Boolean =
     topLevelStatements.contains(Newlines.after)
+
+  lazy val avoidForSimpleOverflowPunct: Boolean =
+    avoidForSimpleOverflow.contains(Newlines.AvoidForSimpleOverflow.punct)
+  lazy val avoidForSimpleOverflowTooLong: Boolean =
+    avoidForSimpleOverflow.contains(Newlines.AvoidForSimpleOverflow.tooLong)
 }
 
 object Newlines {
@@ -265,6 +275,14 @@ object Newlines {
 
   implicit val beforeAfterReader: ConfCodec[BeforeAfter] =
     ReaderUtil.oneOf[BeforeAfter](before, after)
+
+  sealed abstract class AvoidForSimpleOverflow
+  object AvoidForSimpleOverflow {
+    case object punct extends AvoidForSimpleOverflow
+    case object tooLong extends AvoidForSimpleOverflow
+    implicit val codec: ConfCodec[AvoidForSimpleOverflow] =
+      ReaderUtil.oneOf[AvoidForSimpleOverflow](punct, tooLong)
+  }
 
 }
 
