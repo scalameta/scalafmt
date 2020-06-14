@@ -112,6 +112,7 @@ case class CliOptions(
     range: Set[Range] = Set.empty[Range],
     customFiles: Seq[AbsoluteFile] = Nil,
     customExcludes: Seq[String] = Nil,
+    respectProjectFilters: Boolean = false,
     git: Option[Boolean] = None,
     nonInteractive: Boolean = false,
     mode: Option[FileFetchMode] = None,
