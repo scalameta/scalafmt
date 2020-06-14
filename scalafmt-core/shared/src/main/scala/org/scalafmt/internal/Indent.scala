@@ -15,11 +15,12 @@ object ExpiresOn {
 
 sealed abstract class Length {
   def withStateOffset(offset: Int): Int
+  val reset: Boolean
 }
 
 object Length {
 
-  case class Num(n: Int) extends Length {
+  case class Num(n: Int, reset: Boolean = false) extends Length {
     override def withStateOffset(offset: Int): Int = n
     override def toString: String = n.toString
   }
@@ -34,10 +35,16 @@ object Length {
     */
   case object StateColumn extends Length {
     override def withStateOffset(offset: Int): Int = offset
+    override val reset: Boolean = false
   }
 }
 
-case class ActualIndent(length: Int, expire: Token, expiresAt: ExpiresOn) {
+case class ActualIndent(
+    length: Int,
+    expire: Token,
+    expiresAt: ExpiresOn,
+    reset: Boolean
+) {
   def notExpiredBy(ft: FormatToken): Boolean = {
     val expireToken: Token =
       if (expiresAt == ExpiresOn.After) ft.left else ft.right
@@ -68,7 +75,14 @@ private class IndentImpl(length: Length, expire: Token, expiresAt: ExpiresOn)
     extends Indent {
   override def switch(switchObject: AnyRef): Indent = this
   override def withStateOffset(offset: Int): Option[ActualIndent] =
-    Some(ActualIndent(length.withStateOffset(offset), expire, expiresAt))
+    Some(
+      ActualIndent(
+        length.withStateOffset(offset),
+        expire,
+        expiresAt,
+        length.reset
+      )
+    )
   override def toString: String = {
     val when = if (expiresAt == ExpiresOn.Before) '<' else '>'
     s"$length$when$expire:${expire.end}"
@@ -79,7 +93,7 @@ object Indent {
 
   def apply(length: Length, expire: Token, expiresAt: ExpiresOn): Indent =
     length match {
-      case Length.Num(0) => Empty
+      case Length.Num(0, _) => Empty
       case x => new IndentImpl(x, expire, expiresAt)
     }
 
@@ -102,5 +116,12 @@ object Indent {
     override def withStateOffset(offset: Int): Option[ActualIndent] = None
     override def toString: String = s"?<$indent"
   }
+
+  def getIndent(indents: Iterable[ActualIndent]): Int =
+    indents.foldLeft(0) {
+      case (res, elem) =>
+        if (elem.reset) elem.length
+        else res + elem.length
+    }
 
 }

@@ -15,7 +15,7 @@ case class ModExt(
 
   def withIndent(length: => Length, expire: => Token, when: ExpiresOn): ModExt =
     length match {
-      case Length.Num(0) => this
+      case Length.Num(0, _) => this
       case x => withIndentImpl(Indent(x, expire, when))
     }
 
@@ -39,7 +39,7 @@ case class ModExt(
     indents.foldLeft(this)(_ withIndent _)
 
   private def withIndentImpl(indent: Indent): ModExt =
-    copy(indents = indent +: indents)
+    copy(indents = indents :+ indent)
 
   def switch(switchObject: AnyRef): ModExt = {
     val newIndents = indents.map(_.switch(switchObject))
