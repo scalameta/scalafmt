@@ -29,3 +29,275 @@
 x match { case <lift>{ _* }</lift> => }
 >>>
 x match { case <lift>{_*}</lift> => }
+<<< #1882 1
+xmlLiterals.assumeFormatted = true
+===
+object Example2 {
+  def apply() = {
+      <foo>
+        <bar>{
+      1 + 2 + 3
+      }</bar>
+      </foo>
+  }
+}
+>>>
+object Example2 {
+  def apply() = {
+    <foo>
+        <bar>{
+      1 + 2 + 3
+    }</bar>
+      </foo>
+  }
+}
+<<< #1882 1 unformatted
+xmlLiterals.assumeFormatted = true
+===
+object Example2 {
+  def apply() = {
+      <foo>     <bar>{
+      1 + 2 + 3
+      }</bar>
+           </foo>
+  }
+}
+>>>
+object Example2 {
+  def apply() = {
+    <foo>     <bar>{
+      1 + 2 + 3
+    }</bar>
+           </foo>
+  }
+}
+<<< #1882 2
+xmlLiterals.assumeFormatted = true
+===
+object Example2 {
+  def apply() = {
+      <foo>
+        <bar>
+          {
+        1 + 2 + 3
+        }
+        </bar>
+      </foo>
+  }
+}
+>>>
+object Example2 {
+  def apply() = {
+    <foo>
+        <bar>
+          {
+      1 + 2 + 3
+    }
+        </bar>
+      </foo>
+  }
+}
+<<< #1882 2 unformatted
+xmlLiterals.assumeFormatted = true
+===
+object Example2 {
+  def apply() = {
+      <foo>
+           <bar>
+          {
+        1 + 2 + 3
+        }
+        </bar>       </foo>
+  }
+}
+>>>
+object Example2 {
+  def apply() = {
+    <foo>
+           <bar>
+          {
+      1 + 2 + 3
+    }
+        </bar>       </foo>
+  }
+}
+<<< #1882 3
+xmlLiterals.assumeFormatted = true
+===
+object Example2 {
+  def apply() = {
+      <foo>
+        <bar>
+        {
+      1 + 2 + 3
+      }
+        </bar>
+      </foo>
+  }
+}
+>>>
+object Example2 {
+  def apply() = {
+    <foo>
+        <bar>
+        {
+      1 + 2 + 3
+    }
+        </bar>
+      </foo>
+  }
+}
+<<< #1882 3 unformatted
+xmlLiterals.assumeFormatted = true
+===
+object Example2 {
+  def apply() = {
+      <foo>
+    <bar>
+        {
+      1 + 2 + 3
+      }
+        </bar>
+         </foo>
+  }
+}
+>>>
+object Example2 {
+  def apply() = {
+    <foo>
+    <bar>
+        {
+      1 + 2 + 3
+    }
+        </bar>
+         </foo>
+  }
+}
+<<< #1882 4
+xmlLiterals.assumeFormatted = true
+===
+object Example2 {
+  def apply() = {
+      <foo>
+        <bar baz={
+      1 + 2 + 3
+      }></bar>
+      </foo>
+  }
+}
+>>>
+object Example2 {
+  def apply() = {
+    <foo>
+        <bar baz={
+      1 + 2 + 3
+    }></bar>
+      </foo>
+  }
+}
+<<< #1882 4 unformatted
+xmlLiterals.assumeFormatted = true
+===
+object Example2 {
+  def apply() = {
+      <foo>
+           <bar baz={
+      1 + 2 + 3
+      }></bar>
+             </foo>
+  }
+}
+>>>
+object Example2 {
+  def apply() = {
+    <foo>
+           <bar baz={
+      1 + 2 + 3
+    }></bar>
+             </foo>
+  }
+}
+<<< #1882 5
+xmlLiterals.assumeFormatted = true
+===
+object Example2 {
+  def apply() = {
+      <foo>
+        <bar>{ (1 + 2 + 3).toString("some long format") }</bar>
+      </foo>
+  }
+}
+>>>
+object Example2 {
+  def apply() = {
+    <foo>
+        <bar>{
+      (1 + 2 + 3)
+        .toString("some long format")
+    }</bar>
+      </foo>
+  }
+}
+<<< #1882 5 unformatted
+xmlLiterals.assumeFormatted = true
+===
+object Example2 {
+  def apply() = {
+      <foo>
+          <bar>{ (1 + 2 + 3).toString("some long format") }</bar>
+         </foo>
+  }
+}
+>>>
+object Example2 {
+  def apply() = {
+    <foo>
+          <bar>{
+      (1 + 2 + 3)
+        .toString("some long format")
+    }</bar>
+         </foo>
+  }
+}
+<<< #1882 6
+xmlLiterals.assumeFormatted = true
+===
+object Example2 {
+  def apply() = {
+      <foo>
+        <bar baz={ (1 + 2 + 3).toString("some long format") }></bar>
+      </foo>
+  }
+}
+>>>
+object Example2 {
+  def apply() = {
+    <foo>
+        <bar baz={
+      (1 + 2 + 3)
+        .toString("some long format")
+    }></bar>
+      </foo>
+  }
+}
+<<< #1882 6 unformatted
+xmlLiterals.assumeFormatted = true
+===
+object Example2 {
+  def apply() = {
+        <foo>
+      <bar baz={ (1 + 2 + 3).toString("some long format") }></bar>
+   </foo>
+  }
+}
+>>>
+object Example2 {
+  def apply() = {
+    <foo>
+      <bar baz={
+      (1 + 2 + 3)
+        .toString("some long format")
+    }></bar>
+   </foo>
+  }
+}
