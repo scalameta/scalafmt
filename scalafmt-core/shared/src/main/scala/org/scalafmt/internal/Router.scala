@@ -94,6 +94,7 @@ class Router(formatOps: FormatOps) {
               .withIndent(StateColumn, end, After)
               .withIndent(-1, end, After)
         )
+      // Interpolation
       case FormatToken(
             _: T.Interpolation.Id | _: T.Interpolation.Part |
             _: T.Interpolation.Start | _: T.Interpolation.SpliceStart,
@@ -1771,13 +1772,9 @@ class Router(formatOps: FormatOps) {
           )
         }
       // Interpolation
-      case FormatToken(_, T.Interpolation.Id(_) | T.Xml.Start(), _) =>
+      case FormatToken(_, _: T.Interpolation.Id, _) =>
         Seq(
           Split(Space, 0)
-        )
-      case FormatToken(T.Interpolation.Id(_) | T.Xml.Start(), _, _) =>
-        Seq(
-          Split(NoSplit, 0)
         )
       // Throw exception
       case FormatToken(T.KwThrow(), _, _) =>
@@ -1801,7 +1798,16 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(NoSplit, 0)
         )
+
       // Xml
+      case FormatToken(_, _: T.Xml.Start, _) =>
+        Seq(
+          Split(Space, 0)
+        )
+      case FormatToken(open: T.Xml.Start, _, _) =>
+        Seq(
+          Split(NoSplit, 0)
+        )
       case FormatToken(T.Xml.Part(_), _, _) =>
         Seq(
           Split(NoSplit, 0)
@@ -1810,6 +1816,7 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(NoSplit, 0)
         )
+
       // Fallback
       case FormatToken(_, T.Dot(), _) =>
         Seq(
