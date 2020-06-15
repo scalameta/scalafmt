@@ -44,10 +44,10 @@ object Example2 {
 >>>
 object Example2 {
   def apply() = {
-    <foo>
+      <foo>
         <bar>{
-      1 + 2 + 3
-    }</bar>
+          1 + 2 + 3
+        }</bar>
       </foo>
   }
 }
@@ -65,9 +65,9 @@ object Example2 {
 >>>
 object Example2 {
   def apply() = {
-    <foo>     <bar>{
-      1 + 2 + 3
-    }</bar>
+           <foo>     <bar>{
+             1 + 2 + 3
+           }</bar>
            </foo>
   }
 }
@@ -88,11 +88,11 @@ object Example2 {
 >>>
 object Example2 {
   def apply() = {
-    <foo>
+      <foo>
         <bar>
           {
-      1 + 2 + 3
-    }
+            1 + 2 + 3
+          }
         </bar>
       </foo>
   }
@@ -113,11 +113,11 @@ object Example2 {
 >>>
 object Example2 {
   def apply() = {
-    <foo>
+        <foo>
            <bar>
           {
-      1 + 2 + 3
-    }
+            1 + 2 + 3
+          }
         </bar>       </foo>
   }
 }
@@ -138,11 +138,11 @@ object Example2 {
 >>>
 object Example2 {
   def apply() = {
-    <foo>
+      <foo>
         <bar>
         {
-      1 + 2 + 3
-    }
+          1 + 2 + 3
+        }
         </bar>
       </foo>
   }
@@ -164,11 +164,11 @@ object Example2 {
 >>>
 object Example2 {
   def apply() = {
-    <foo>
+         <foo>
     <bar>
         {
-      1 + 2 + 3
-    }
+          1 + 2 + 3
+        }
         </bar>
          </foo>
   }
@@ -188,10 +188,10 @@ object Example2 {
 >>>
 object Example2 {
   def apply() = {
-    <foo>
+      <foo>
         <bar baz={
-      1 + 2 + 3
-    }></bar>
+          1 + 2 + 3
+        }></bar>
       </foo>
   }
 }
@@ -210,10 +210,10 @@ object Example2 {
 >>>
 object Example2 {
   def apply() = {
-    <foo>
+             <foo>
            <bar baz={
-      1 + 2 + 3
-    }></bar>
+             1 + 2 + 3
+           }></bar>
              </foo>
   }
 }
@@ -230,11 +230,11 @@ object Example2 {
 >>>
 object Example2 {
   def apply() = {
-    <foo>
+      <foo>
         <bar>{
-      (1 + 2 + 3)
-        .toString("some long format")
-    }</bar>
+          (1 + 2 + 3).toString(
+              "some long format")
+        }</bar>
       </foo>
   }
 }
@@ -251,11 +251,11 @@ object Example2 {
 >>>
 object Example2 {
   def apply() = {
-    <foo>
+         <foo>
           <bar>{
-      (1 + 2 + 3)
-        .toString("some long format")
-    }</bar>
+            (1 + 2 + 3).toString(
+                "some long format")
+          }</bar>
          </foo>
   }
 }
@@ -272,11 +272,11 @@ object Example2 {
 >>>
 object Example2 {
   def apply() = {
-    <foo>
+      <foo>
         <bar baz={
-      (1 + 2 + 3)
-        .toString("some long format")
-    }></bar>
+          (1 + 2 + 3).toString(
+              "some long format")
+        }></bar>
       </foo>
   }
 }
@@ -293,11 +293,11 @@ object Example2 {
 >>>
 object Example2 {
   def apply() = {
-    <foo>
+   <foo>
       <bar baz={
-      (1 + 2 + 3)
-        .toString("some long format")
-    }></bar>
+        (1 + 2 + 3)
+          .toString("some long format")
+      }></bar>
    </foo>
   }
 }

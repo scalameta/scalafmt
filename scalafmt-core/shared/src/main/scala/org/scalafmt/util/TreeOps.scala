@@ -168,10 +168,10 @@ object TreeOps {
     var stack = List.empty[Token]
     tokens.foreach {
       case open @ (LeftBrace() | LeftBracket() | LeftParen() |
-          Interpolation.Start()) =>
+          Interpolation.Start() | Xml.Start() | Xml.SpliceStart()) =>
         stack = open :: stack
       case close @ (RightBrace() | RightBracket() | RightParen() |
-          Interpolation.End()) =>
+          Interpolation.End() | Xml.End() | Xml.SpliceEnd()) =>
         val open = stack.head
         assertValidParens(open, close)
         ret += hash(open) -> close
@@ -186,6 +186,8 @@ object TreeOps {
   def assertValidParens(open: Token, close: Token): Unit = {
     (open, close) match {
       case (Interpolation.Start(), Interpolation.End()) =>
+      case (Xml.Start(), Xml.End()) =>
+      case (Xml.SpliceStart(), Xml.SpliceEnd()) =>
       case (LeftBrace(), RightBrace()) =>
       case (LeftBracket(), RightBracket()) =>
       case (LeftParen(), RightParen()) =>
