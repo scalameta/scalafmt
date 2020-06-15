@@ -999,6 +999,56 @@ newlines.afterInfixBreakOnNested
 If enabled, will force line breaks around a nested parenthesized
 sub-expression in a multi-line infix expression.
 
+### `newlines.avoidForSimpleOverflow`
+
+A list parameter (of comma-separated flags), with possible flags described below.
+These flags relax formatting rules to allow occasional line overflow (i.e., when
+line exceeds `maxColumn`) in simple cases instead of introducing a newline.
+
+```scala mdoc:defaults
+newlines.avoidForSimpleOverflow
+```
+
+#### `newlines.avoidForSimpleOverflow=[tooLong]`
+
+> Since v2.6.0.
+
+This flag tries to avoid introducing a newline if the line would overflow even with a newline.
+
+```scala mdoc:scalafmt
+maxColumn = 50
+danglingParentheses.callSite = false
+newlines.avoidForSimpleOverflow = [tooLong]
+---
+object Example {
+  foo_bar_baz("the quick brown fox jumps over the lazy dog") {
+    println("")
+  }
+  foo_bar_baz("the quick brown fox jumps over a dog") {
+    println("")
+  }
+}
+```
+
+#### `newlines.avoidForSimpleOverflow=[punct]`
+
+> Since v2.6.0.
+
+This flag tries to avoid a newline if the line would overflow only because of
+trailing punctuation (non-alphanum symbols of length 1).
+
+With the flag set:
+
+```scala mdoc:scalafmt
+maxColumn = 80
+newlines.avoidForSimpleOverflow = [punct]
+---
+class Engine[TD, EI, PD, Q, P, A](
+    val dataSourceClassMap: Map[
+      String,
+      Class[_ <: BaseDataSource[TD, EI, Q, A]]]) {}
+```
+
 ## Rewrite Rules
 
 To enable a rewrite rule, add it to the config like this
