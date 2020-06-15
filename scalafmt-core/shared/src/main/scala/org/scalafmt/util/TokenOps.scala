@@ -254,4 +254,14 @@ object TokenOps {
         .filter(_.head.tokens.head.start <= math.max(token.end, other.end))
     }
 
+  def getXmlLastLineIndent(tok: Xml.Part): Option[Int] = {
+    val part = tok.value
+    val afterLastNL = part.lastIndexOf('\n') + 1
+    if (afterLastNL <= 0) None
+    else {
+      val nonWs = part.indexWhere(!_.isWhitespace, afterLastNL)
+      Some((if (nonWs < 0) part.length else nonWs) - afterLastNL)
+    }
+  }
+
 }

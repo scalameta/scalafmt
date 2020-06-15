@@ -290,7 +290,7 @@ class Router(formatOps: FormatOps) {
               .andThenPolicy(Policy(expire)(sld))
           }
 
-        Seq(
+        val splits = Seq(
           singleLineSplit,
           Split(Space, 0)
             .notIf(
@@ -305,6 +305,11 @@ class Router(formatOps: FormatOps) {
             .withPolicy(newlineBeforeClosingCurly)
             .withIndent(2, close, Before)
         )
+        right match {
+          case t: T.Xml.Start => withIndentOnXmlStart(t, splits)
+          case _ => splits
+        }
+
       case FormatToken(arrow @ T.RightArrow(), right, _)
           if startsStatement(right).isDefined &&
             leftOwner.isInstanceOf[Term.Function] =>
@@ -1024,9 +1029,11 @@ class Router(formatOps: FormatOps) {
         )
 
       case FormatToken(_, T.LeftBrace(), _) if isXmlBrace(rightOwner) =>
-        Seq(
-          Split(NoSplit, 0)
+        withIndentOnXmlSpliceStart(
+          formatToken,
+          Seq(Split(NoSplit, 0))
         )
+
       case FormatToken(T.RightBrace(), _, _) if isXmlBrace(leftOwner) =>
         Seq(
           Split(NoSplit, 0)
@@ -1805,8 +1812,16 @@ class Router(formatOps: FormatOps) {
           Split(Space, 0)
         )
       case FormatToken(open: T.Xml.Start, _, _) =>
-        Seq(
-          Split(NoSplit, 0)
+        val splits = Seq(Split(NoSplit, 0))
+        if (prev(formatToken).left.is[T.LeftBrace])
+          splits
+        else
+          withIndentOnXmlStart(open, splits)
+      case FormatToken(_: T.Xml.SpliceStart, _, _)
+          if style.xmlLiterals.assumeFormatted =>
+        withIndentOnXmlSpliceStart(
+          formatToken,
+          Seq(Split(NoSplit, 0))
         )
       case FormatToken(T.Xml.Part(_), _, _) =>
         Seq(

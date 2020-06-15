@@ -1480,4 +1480,41 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
   )(f: FormatToken => Boolean): Either[FormatToken, FormatToken] =
     findTokenWith(ft, iter)(Some(_).filter(f))
 
+  @tailrec
+  final def findXmlLastLineIndent(ft: FormatToken): Int =
+    ft.left match {
+      case _: Token.Xml.Start => 0
+      case t: Token.Xml.Part =>
+        TokenOps.getXmlLastLineIndent(t) match {
+          case Some(x) => x
+          case None => findXmlLastLineIndent(prev(ft))
+        }
+      case t: Token.Xml.SpliceEnd =>
+        findXmlLastLineIndent(tokens(matching(t), -1))
+      case _ =>
+        findXmlLastLineIndent(prev(ft))
+    }
+
+  def withIndentOnXmlStart(tok: T.Xml.Start, splits: Seq[Split])(implicit
+      style: ScalafmtConfig
+  ): Seq[Split] = {
+    if (style.xmlLiterals.assumeFormatted) {
+      val end = matching(tok)
+      val indent = Num(findXmlLastLineIndent(tokens(end, -1)), true)
+      splits.map(_.withIndent(indent, end, ExpiresOn.After))
+    } else splits
+  }
+
+  def withIndentOnXmlSpliceStart(ft: FormatToken, splits: Seq[Split])(implicit
+      style: ScalafmtConfig
+  ): Seq[Split] = {
+    ft.left match {
+      case t: T.Xml.SpliceStart if style.xmlLiterals.assumeFormatted =>
+        val end = matching(t)
+        val indent = Num(findXmlLastLineIndent(prev(ft)), true)
+        splits.map(_.withIndent(indent, end, ExpiresOn.After))
+      case _ => splits
+    }
+  }
+
 }
