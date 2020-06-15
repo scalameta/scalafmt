@@ -2008,6 +2008,48 @@ literals.float=Lower
 10e-1f
 ```
 
+## XML
+
+Controls formatting of Scala embedded within XML.
+
+### `xmlLiterals.assumeFormatted`
+
+> Since v2.6.0.
+
+If set, formats embedded Scala relative to containing XML, making the assumption
+that XML itself is properly formatted. Otherwise, formatting is relative to the
+outer Scala code which contains the XML literals.
+
+```scala mdoc:defaults
+xmlLiterals.assumeFormatted
+```
+
+```scala mdoc:scalafmt
+maxColumn = 40
+xmlLiterals.assumeFormatted = true
+---
+object Example2 {
+  def apply() = {
+      <foo>
+        <bar>{ (1 + 2 + 3).toString("some long format") }</bar>
+      </foo>
+  }
+}
+```
+
+```scala mdoc:scalafmt
+maxColumn = 40
+xmlLiterals.assumeFormatted = false
+---
+object Example2 {
+  def apply() = {
+      <foo>
+        <bar>{ (1 + 2 + 3).toString("some long format") }</bar>
+      </foo>
+  }
+}
+```
+
 ## Binpacking
 
 ### `binPack.literalArgumentLists`
