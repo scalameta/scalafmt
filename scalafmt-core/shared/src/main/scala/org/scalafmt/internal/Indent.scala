@@ -55,6 +55,7 @@ case class ActualIndent(
 abstract class Indent {
   def switch(switchObject: AnyRef): Indent
   def withStateOffset(offset: Int): Option[ActualIndent]
+  def hasStateColumn: Boolean
 }
 
 /**
@@ -73,6 +74,7 @@ abstract class Indent {
   */
 private class IndentImpl(length: Length, expire: Token, expiresAt: ExpiresOn)
     extends Indent {
+  override def hasStateColumn: Boolean = length eq Length.StateColumn
   override def switch(switchObject: AnyRef): Indent = this
   override def withStateOffset(offset: Int): Option[ActualIndent] =
     Some(
@@ -100,6 +102,7 @@ object Indent {
   case object Empty extends Indent {
     override def withStateOffset(offset: Int): Option[ActualIndent] = None
     override def switch(switchObject: AnyRef): Indent = this
+    override def hasStateColumn: Boolean = false
   }
 
   class Before(indent: Indent, before: AnyRef) extends Indent {
@@ -107,6 +110,7 @@ object Indent {
       if (before ne switchObject) this else Indent.Empty
     override def withStateOffset(offset: Int): Option[ActualIndent] =
       indent.withStateOffset(offset)
+    override def hasStateColumn: Boolean = indent.hasStateColumn
     override def toString: String = s"$indent>?"
   }
 
@@ -114,6 +118,7 @@ object Indent {
     override def switch(switchObject: AnyRef): Indent =
       if (after ne switchObject) this else indent
     override def withStateOffset(offset: Int): Option[ActualIndent] = None
+    override def hasStateColumn: Boolean = false
     override def toString: String = s"?<$indent"
   }
 
