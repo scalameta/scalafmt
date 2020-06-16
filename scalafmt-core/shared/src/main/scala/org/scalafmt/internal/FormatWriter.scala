@@ -1009,7 +1009,8 @@ class FormatWriter(formatOps: FormatOps) {
     private def shiftStateColumnIndent(startIdx: Int, offset: Int): Unit = {
       // look for StateColumn; it returns indent=0 for withStateOffset(0)
       val stateIndentOpt = locations(startIdx).state.split.modExt.indents
-        .flatMap(_.withStateOffset(0).filter(_.length == 0))
+        .filter(_.hasStateColumn)
+        .flatMap(_.withStateOffset(0))
       stateIndentOpt.headOption.foreach { indent =>
         @tailrec
         def updateLocation(idx: Int): Unit = {
