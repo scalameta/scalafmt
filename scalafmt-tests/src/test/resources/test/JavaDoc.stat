@@ -992,3 +992,193 @@ object a {
    */
   class QueueSequentialBenchmark {}
 }
+<<< #2028 Asterisk keep
+docstrings.style = Asterisk
+docstrings.oneline = keep
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /**
+   * alias for [[literal]] */
+  /**
+   * alias for [[literal]]
+   */
+}
+<<< #2028 Asterisk fold
+docstrings.style = Asterisk
+docstrings.oneline = fold
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+Idempotency violated
+object a {
+
+  /** alias for [[literal]] */
+  /**
+   * alias for [[literal]]
+   */
+}
+<<< #2028 Asterisk unfold
+docstrings.style = Asterisk
+docstrings.oneline = unfold
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /**
+   * alias for [[literal]]
+   */
+  /**
+   * alias for [[literal]]
+   */
+}
+<<< #2028 SpaceAsterisk keep
+docstrings.style = SpaceAsterisk
+docstrings.oneline = keep
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /** alias for [[literal]] */
+  /**
+    * alias for [[literal]]
+    */
+}
+<<< #2028 SpaceAsterisk fold
+docstrings.style = SpaceAsterisk
+docstrings.oneline = fold
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+Idempotency violated
+object a {
+
+  /** alias for [[literal]] */
+  /**
+    * alias for [[literal]]
+    */
+}
+<<< #2028 SpaceAsterisk unfold
+docstrings.style = SpaceAsterisk
+docstrings.oneline = unfold
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /**
+    * alias for [[literal]]
+    */
+  /**
+    * alias for [[literal]]
+    */
+}
+<<< #2028 AsteriskSpace keep
+docstrings.style = AsteriskSpace
+docstrings.oneline = keep
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /** alias for [[literal]] */
+  /**
+   *  alias for [[literal]]
+   */
+}
+<<< #2028 AsteriskSpace fold
+docstrings.style = AsteriskSpace
+docstrings.oneline = fold
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+Idempotency violated
+object a {
+
+  /** alias for [[literal]] */
+  /**
+   *  alias for [[literal]]
+   */
+}
+<<< #2028 AsteriskSpace unfold
+docstrings.style = AsteriskSpace
+docstrings.oneline = unfold
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /**
+   *  alias for [[literal]]
+   */
+  /**
+   *  alias for [[literal]]
+   */
+}
