@@ -953,12 +953,13 @@ object a {
   class QueueSequentialBenchmark {}
 }
 >>>
-Formatter output does not parse:
-
+object a {
+  @foo
   /**
    * scaladoc
    */
-   ^
+  class QueueSequentialBenchmark {}
+}
 <<< #2027 2
 object a {
   @foo(bar)
@@ -968,12 +969,13 @@ object a {
   class QueueSequentialBenchmark {}
 }
 >>>
-Formatter output does not parse:
-
+object a {
+  @foo(bar)
   /**
    * scaladoc
    */
-   ^
+  class QueueSequentialBenchmark {}
+}
 <<< #2027 3
 object a {
   private
@@ -985,7 +987,6 @@ object a {
 >>>
 object a {
   private
-
   /**
    * scaladoc
    */

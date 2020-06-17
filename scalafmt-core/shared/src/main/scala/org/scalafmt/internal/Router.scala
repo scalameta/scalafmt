@@ -1662,7 +1662,7 @@ class Router(formatOps: FormatOps) {
       // Inline comment
       case FormatToken(left, _: T.Comment, _) =>
         val forceBlankLine = formatToken.hasBreak &&
-          blankLineBeforeDocstring(left, formatToken.meta.right.text)
+          blankLineBeforeDocstring(formatToken)
         val mod = if (forceBlankLine) Newline2x else getMod(formatToken)
         Seq(Split(mod, 0))
       // Commented out code should stay to the left
