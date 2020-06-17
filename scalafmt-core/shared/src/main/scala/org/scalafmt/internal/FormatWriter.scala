@@ -344,6 +344,7 @@ class FormatWriter(formatOps: FormatOps) {
         val text = tok.meta.left.text
         val tupleOpt = tok.left match {
           case _ if !style.assumeStandardLibraryStripMargin => None
+          case _ if tok.meta.left.firstNL < 0 => None
           case _: T.Constant.String =>
             TreeOps.getStripMarginChar(tok.meta.leftOwner).map { pipe =>
               def isPipeFirstChar = text.find(_ != '"').contains(pipe)
@@ -364,7 +365,8 @@ class FormatWriter(formatOps: FormatOps) {
                   if (!style.align.stripMargin) tiState.indentation
                   else
                     tiState.column + (ti.parts.headOption match {
-                      case Some(Lit.String(x)) if x(0) == pipe => 1
+                      case Some(Lit.String(x)) if x.headOption.contains(pipe) =>
+                        1
                       case _ => 0
                     })
                 (pipe, 2 + indent)
