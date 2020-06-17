@@ -295,11 +295,16 @@ final class MyClass {
     println(s"${1}".stripMargin)
 }
 >>>
-java.lang.StringIndexOutOfBoundsException: String index out of range: 0
+final class MyClass {
+  println(s"${1}".stripMargin)
+}
 <<< #2025 2
 final class MyClass {
     println(s"""${1}
     """.stripMargin)
 }
 >>>
-java.lang.StringIndexOutOfBoundsException: String index out of range: 0
+final class MyClass {
+  println(s"""${1}
+    """.stripMargin)
+}
