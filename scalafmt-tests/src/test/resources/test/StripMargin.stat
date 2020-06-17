@@ -290,3 +290,16 @@ object a {
      \  updated_at = now()
      \  where id in (${audienceIds.mkString(",")})""".stripMargin('\\')
 }
+<<< #2025 1
+final class MyClass {
+    println(s"${1}".stripMargin)
+}
+>>>
+java.lang.StringIndexOutOfBoundsException: String index out of range: 0
+<<< #2025 2
+final class MyClass {
+    println(s"""${1}
+    """.stripMargin)
+}
+>>>
+java.lang.StringIndexOutOfBoundsException: String index out of range: 0
