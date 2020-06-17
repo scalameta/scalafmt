@@ -51,15 +51,11 @@ object TokenOps {
   def blankLineBeforeDocstring(
       ft: FormatToken
   )(implicit style: ScalafmtConfig): Boolean =
-    ft.right.is[Token.Comment] &&
-      blankLineBeforeDocstring(ft.left, ft.meta.right.text)
-
-  def blankLineBeforeDocstring(
-      left: => Token,
-      right: => String
-  )(implicit style: ScalafmtConfig): Boolean =
     style.optIn.forceNewlineBeforeDocstringSummary &&
-      !left.is[Token.Comment] && right.startsWith("/**")
+      ft.right.is[Token.Comment] && !ft.left.is[Token.Comment] &&
+      ft.meta.right.text.startsWith("/**") &&
+      !ft.meta.leftOwner.is[meta.Mod] &&
+      !TreeOps.existsParentOfType[meta.Mod](ft.meta.leftOwner)
 
   // 2.13 implements SeqOps.findLast
   def findLast[A](seq: Seq[A])(cond: A => Boolean): Option[A] =
