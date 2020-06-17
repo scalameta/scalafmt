@@ -944,3 +944,50 @@ object a {
 
   /**/ /**/
 }
+<<< #2027 1
+object a {
+  @foo
+  /**
+   * scaladoc
+   */
+  class QueueSequentialBenchmark {}
+}
+>>>
+Formatter output does not parse:
+
+  /**
+   * scaladoc
+   */
+   ^
+<<< #2027 2
+object a {
+  @foo(bar)
+  /**
+   * scaladoc
+   */
+  class QueueSequentialBenchmark {}
+}
+>>>
+Formatter output does not parse:
+
+  /**
+   * scaladoc
+   */
+   ^
+<<< #2027 3
+object a {
+  private
+  /**
+   * scaladoc
+   */
+  class QueueSequentialBenchmark {}
+}
+>>>
+object a {
+  private
+
+  /**
+   * scaladoc
+   */
+  class QueueSequentialBenchmark {}
+}
