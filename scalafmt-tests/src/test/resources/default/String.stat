@@ -276,3 +276,35 @@ object a {
     }
   }
 }
+<<< #2026 borrow example only; don't allow multiple delay
+newlines.avoidForSimpleOverflow = [ tooLong ]
+===
+object X {
+  def f(s: Any): X.type = this
+
+  def run: Unit = {
+
+    X
+      .f("  sldkfjdslkf sdlkfj dslkfjds flkdsjf lsdkjf dslkfjds sdklfjsd sdlkjfdskj")
+      .f {
+        X
+        .f("  sldkfjdslkf sdlkfj dslkfjds flkdsjf lsdkjf dslkfjds sdklfjsd sdlkjfdskj")
+        .f("  sldkfjdslkf sdlkfj dslkfjds flkdsjf lsdkjf dslkfjds sdklfjsd sdlkjfdskj")
+        .f("  sldkfjdslkf sdlkfj dslkfjds flkdsjf lsdkjf dslkfjds sdklfjsd sdlkjfdskj")
+      }
+      .f("  sldkfjdslkf sdlkfj dslkfjds flkdsjf lsdkjf dslkfjds sdklfjsd sdlkjfdskj")
+  }
+}
+>>>
+object X {
+  def f(s: Any): X.type = this
+
+  def run: Unit = {
+
+    X.f("  sldkfjdslkf sdlkfj dslkfjds flkdsjf lsdkjf dslkfjds sdklfjsd sdlkjfdskj")
+      .f {
+        X.f("  sldkfjdslkf sdlkfj dslkfjds flkdsjf lsdkjf dslkfjds sdklfjsd sdlkjfdskj").f("  sldkfjdslkf sdlkfj dslkfjds flkdsjf lsdkjf dslkfjds sdklfjsd sdlkjfdskj").f("  sldkfjdslkf sdlkfj dslkfjds flkdsjf lsdkjf dslkfjds sdklfjsd sdlkjfdskj")
+      }
+      .f("  sldkfjdslkf sdlkfj dslkfjds flkdsjf lsdkjf dslkfjds sdklfjsd sdlkjfdskj")
+  }
+}
