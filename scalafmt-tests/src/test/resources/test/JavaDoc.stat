@@ -1167,3 +1167,103 @@ object a {
    *  alias for [[literal]]
    */
 }
+<<< #2028 Asterisk long, fold, wrap
+docstrings.style = Asterisk
+docstrings.oneline = fold
+docstrings.wrap = yes
+maxColumn = 25
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /**
+   * alias for
+   * [[literal]]
+   */
+  /**
+   * alias for
+   * [[literal]]
+   */
+}
+<<< #2028 Asterisk long, keep, wrap
+docstrings.style = Asterisk
+docstrings.oneline = fold
+docstrings.wrap = yes
+maxColumn = 25
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /**
+   * alias for
+   * [[literal]]
+   */
+  /**
+   * alias for
+   * [[literal]]
+   */
+}
+<<< #2028 Asterisk long, fold, !wrap
+docstrings.style = Asterisk
+docstrings.oneline = fold
+docstrings.wrap = no
+maxColumn = 25
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /**
+   * alias for [[literal]]
+   */
+  /**
+   * alias for [[literal]]
+   */
+}
+<<< #2028 Asterisk long, keep, !wrap
+docstrings.style = Asterisk
+docstrings.oneline = fold
+docstrings.wrap = no
+maxColumn = 25
+===
+object a {
+  /** alias for [[literal]] */
+  /**
+   *
+   * alias for [[literal]]
+   *
+   */
+}
+>>>
+object a {
+
+  /**
+   * alias for [[literal]]
+   */
+  /**
+   * alias for [[literal]]
+   */
+}
