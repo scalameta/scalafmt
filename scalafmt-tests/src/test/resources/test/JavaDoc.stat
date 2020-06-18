@@ -1236,12 +1236,8 @@ object a {
 >>>
 object a {
 
-  /**
-   * alias for [[literal]]
-   */
-  /**
-   * alias for [[literal]]
-   */
+  /** alias for [[literal]] */
+  /** alias for [[literal]] */
 }
 <<< #2028 Asterisk long, keep, !wrap
 docstrings.style = Asterisk
@@ -1260,10 +1256,6 @@ object a {
 >>>
 object a {
 
-  /**
-   * alias for [[literal]]
-   */
-  /**
-   * alias for [[literal]]
-   */
+  /** alias for [[literal]] */
+  /** alias for [[literal]] */
 }
