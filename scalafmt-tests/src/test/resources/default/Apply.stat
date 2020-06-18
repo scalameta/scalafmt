@@ -1360,3 +1360,18 @@ object a {
       "Startup timed out. This is usually related to actor system host setting or host name resolution misconfiguration.",
       e)
 }
+<<< #2033
+align.openParenCallSite = true
+===
+class Test {
+  val testCases = List(
+    ("Old state", "Campaign data", "Expected state"),
+    (
+      1,
+      2,
+      3
+    )
+  )
+}
+>>>
+BestFirstSearch:327 Failed to format
