@@ -406,7 +406,8 @@ class FormatWriter(formatOps: FormatOps) {
           }) && {
             val content = matcher.group(2)
             val folding = // 7 is the length of "/** " and " */"
-              content.length <= style.maxColumn - prevState.indentation - 7
+              content.length <= style.maxColumn - prevState.indentation - 7 ||
+                (style.docstrings.wrap eq Docstrings.Wrap.no)
             if (folding) sb.append("/** ").append(content).append(" */")
             folding
           }
