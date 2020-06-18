@@ -178,8 +178,7 @@ docstrings.style = SpaceAsterisk
 /** Main entry-point. */
 class Main
 >>>
-/**
-  * Main entry-point.
+/** Main entry-point.
   */
 class Main
 <<< #1403 3: unfold AsteriskSpace
@@ -189,8 +188,7 @@ docstrings.style = AsteriskSpace
 /** Main entry-point. */
 class Main
 >>>
-/**
- *  Main entry-point.
+/** Main entry-point.
  */
 class Main
 <<< #1387 1 Asterisk
@@ -865,9 +863,7 @@ object a {
 >>>
 object a {
 
-  /**
-   * [[ref]]!.. {{{foo}}}???
-   */
+  /** [[ref]]!.. {{{foo}}}??? */
 }
 <<< #1887 8 SpaceAsterisk: punctuation after link/code
 docstrings.wrap = yes
@@ -879,8 +875,7 @@ object a {
 >>>
 object a {
 
-  /** [[ref]]!.. {{{foo}}}???
-    */
+  /** [[ref]]!.. {{{foo}}}??? */
 }
 <<< #1887 8 AsteriskSpace: punctuation after link/code
 docstrings.wrap = yes
@@ -892,8 +887,7 @@ object a {
 >>>
 object a {
 
-  /** [[ref]]!.. {{{foo}}}???
-   */
+  /** [[ref]]!.. {{{foo}}}??? */
 }
 <<< keep inner asterisks, Asterisk
 docstrings.style = Asterisk
@@ -907,7 +901,8 @@ object a {
 
   /**
    * *************** tests ******************
-   * *************** tests ****************** */
+   * *************** tests ******************
+   */
 }
 <<< keep inner asterisks, SpaceAsterisk
 docstrings.style = SpaceAsterisk
@@ -920,7 +915,8 @@ object a {
 object a {
 
   /** *************** tests ******************
-    * *************** tests ****************** */
+    * *************** tests ******************
+    */
 }
 <<< keep inner asterisks, AsteriskSpace
 docstrings.style = AsteriskSpace
@@ -933,7 +929,8 @@ object a {
 object a {
 
   /** *************** tests ******************
-   *  *************** tests ****************** */
+   *  *************** tests ******************
+   */
 }
 <<< empty comment
 object a {
@@ -1007,8 +1004,7 @@ object a {
 >>>
 object a {
 
-  /**
-   * alias for [[literal]] */
+  /** alias for [[literal]] */
   /**
    * alias for [[literal]]
    */
@@ -1026,13 +1022,10 @@ object a {
    */
 }
 >>>
-Idempotency violated
 object a {
 
   /** alias for [[literal]] */
-  /**
-   * alias for [[literal]]
-   */
+  /** alias for [[literal]] */
 }
 <<< #2028 Asterisk unfold
 docstrings.style = Asterisk
@@ -1089,13 +1082,10 @@ object a {
    */
 }
 >>>
-Idempotency violated
 object a {
 
   /** alias for [[literal]] */
-  /**
-    * alias for [[literal]]
-    */
+  /** alias for [[literal]] */
 }
 <<< #2028 SpaceAsterisk unfold
 docstrings.style = SpaceAsterisk
@@ -1112,8 +1102,7 @@ object a {
 >>>
 object a {
 
-  /**
-    * alias for [[literal]]
+  /** alias for [[literal]]
     */
   /**
     * alias for [[literal]]
@@ -1152,13 +1141,10 @@ object a {
    */
 }
 >>>
-Idempotency violated
 object a {
 
   /** alias for [[literal]] */
-  /**
-   *  alias for [[literal]]
-   */
+  /** alias for [[literal]] */
 }
 <<< #2028 AsteriskSpace unfold
 docstrings.style = AsteriskSpace
@@ -1175,8 +1161,7 @@ object a {
 >>>
 object a {
 
-  /**
-   *  alias for [[literal]]
+  /** alias for [[literal]]
    */
   /**
    *  alias for [[literal]]
