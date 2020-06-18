@@ -774,7 +774,7 @@ class Router(formatOps: FormatOps) {
           else style.align.openParenCallSite
         } && (!handleImplicit ||
           style.newlines.forceAfterImplicitParamListModifier)
-        val alignTuple = align && isTuple(leftOwner)
+        val alignTuple = align && isTuple(leftOwner) && !onlyConfigStyle
 
         val keepConfigStyleSplit = !sourceIgnored &&
           style.optIn.configStyleArguments && newlines != 0
