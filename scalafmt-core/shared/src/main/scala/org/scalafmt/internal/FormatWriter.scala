@@ -396,25 +396,19 @@ class FormatWriter(formatOps: FormatOps) {
       private def formatOnelineDocstring(
           text: String
       )(implicit sb: StringBuilder): Boolean = {
-        if (style.docstrings.oneline eq Docstrings.Oneline.keep) false
-        else if (!curr.isStandalone) false
-        else {
+        curr.isStandalone && {
           val matcher = onelineDocstring.matcher(text)
-          matcher.find() && {
-            style.docstrings.oneline match {
-              case Docstrings.Oneline.fold =>
-                sb.append("/** ").append(matcher.group(1)).append(" */")
-                true
-              case Docstrings.Oneline.unfold =>
-                val extraIndent = if (style.docstrings.isSpaceAsterisk) 2 else 1
-                val spaces = getIndentation(prevState.indentation + extraIndent)
-                sb.append("/**\n").append(spaces).append("* ")
-                if (style.docstrings.isAsteriskSpace) sb.append(' ')
-                sb.append(matcher.group(1))
-                sb.append('\n').append(spaces).append("*/")
-                true
-              case _ => false
-            }
+          matcher.matches() && (style.docstrings.oneline match {
+            case Docstrings.Oneline.fold => true
+            case Docstrings.Oneline.unfold => false
+            case Docstrings.Oneline.keep =>
+              matcher.start(1) == -1 && matcher.start(3) == -1
+          }) && {
+            val content = matcher.group(2)
+            val folding = // 7 is the length of "/** " and " */"
+              content.length <= style.maxColumn - prevState.indentation - 7
+            if (folding) sb.append("/** ").append(content).append(" */")
+            folding
           }
         }
       }
@@ -606,7 +600,7 @@ class FormatWriter(formatOps: FormatOps) {
 
         private def formatWithWrap(doc: Scaladoc): Unit = {
           sb.append("/**")
-          if (style.docstrings.isAsterisk) appendBreak()
+          if (style.docstrings.skipFirstLine) appendBreak()
           sb.append(' ')
           val sbLen = sb.length()
           val paras = doc.para.iterator
@@ -738,7 +732,7 @@ class FormatWriter(formatOps: FormatOps) {
           val matcher = docstringLine.matcher(trimmed)
           sb.append("/**")
           val sbLen = sb.length()
-          var prevWasBlank = style.docstrings.isAsterisk
+          var prevWasBlank = style.docstrings.skipFirstLine
           while (matcher.find()) {
             val contentBeg = matcher.start(2)
             val contentEnd = matcher.end(2)
@@ -756,11 +750,8 @@ class FormatWriter(formatOps: FormatOps) {
               sb.append(CharBuffer.wrap(trimmed, contentBeg, contentEnd))
             }
           }
-          if (!prevWasBlank) sb.append(" */")
-          else {
-            appendBreak
-            sb.append('/')
-          }
+          appendBreak
+          sb.append('/')
         }
 
         private def appendBreak(): Unit =
@@ -1301,9 +1292,10 @@ object FormatWriter {
   private val leadingAsteriskSpace = Pattern.compile("(?<=\n)\\h*+(?=[*][^*])")
   private val docstringLine =
     Pattern.compile("^(?:\\h*+\\*)?(\\h*+)(.*?)\\h*+$", Pattern.MULTILINE)
-  private val onelineDocstring = Pattern.compile(
-    "^/\\*\\*(?:\n\\h*+\\*?)?\\h*+([^*][^\n]*[^\n\\h])(?:\n\\h*+\\**?)?\\h*+\\*/$"
-  )
+  private val onelineDocstring = {
+    val empty = "\\h*+(\n\\h*+\\*?\\h*+)*"
+    Pattern.compile(s"^/\\*\\*$empty([^*][^\n]*[^\n\\h])$empty\\*/$$")
+  }
   private val docstringLeadingSpace = Pattern.compile("^\\h++")
 
   @inline

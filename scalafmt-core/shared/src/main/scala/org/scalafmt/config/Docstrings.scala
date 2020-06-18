@@ -6,6 +6,7 @@ import metaconfig._
   * @param oneline
   *        - if fold, try to fold short docstrings into a single line
   *        - if unfold, unfold a single-line docstring into multiple lines
+  *        - if keep, preserve the current formatting
   * @param wrap
   *   if yes, allow reformatting/rewrapping the contents of the docstring
   * @param style
@@ -23,7 +24,8 @@ case class Docstrings(
 ) {
   import Docstrings._
 
-  def isAsterisk: Boolean = style.contains(Asterisk)
+  @inline
+  def skipFirstLine: Boolean = style.exists(_.skipFirstLine)
   def isSpaceAsterisk: Boolean = style.contains(SpaceAsterisk)
   def isAsteriskSpace: Boolean = style.contains(AsteriskSpace)
 
@@ -53,10 +55,18 @@ object Docstrings {
     generic.deriveSurface[Docstrings]
   implicit val encoder = generic.deriveEncoder[Docstrings]
 
-  sealed abstract class Style
-  case object Asterisk extends Style
-  case object SpaceAsterisk extends Style
-  case object AsteriskSpace extends Style
+  sealed abstract class Style {
+    def skipFirstLine: Boolean
+  }
+  case object Asterisk extends Style {
+    override def skipFirstLine: Boolean = true
+  }
+  case object SpaceAsterisk extends Style {
+    override def skipFirstLine: Boolean = false
+  }
+  case object AsteriskSpace extends Style {
+    override def skipFirstLine: Boolean = false
+  }
 
   implicit val reader: ConfCodec[Style] =
     ReaderUtil.oneOf[Style](Asterisk, SpaceAsterisk, AsteriskSpace)
