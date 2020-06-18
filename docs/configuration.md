@@ -1703,20 +1703,42 @@ docstrings.style = AsteriskSpace
 docstrings.oneline
 ```
 
+- `fold`
+
 ```scala mdoc:scalafmt
+docstrings.style = Asterisk
 docstrings.oneline = fold
 ---
+/** Scaladoc oneline */
 /**
-  * Align by second asterisk.
+  * Scaladoc multiline
   */
 val a = 1
 ```
+
+- `unfold`
 
 ```scala mdoc:scalafmt
 docstrings.style = Asterisk
 docstrings.oneline = unfold
 ---
-/** Align by first asterisk. */
+/** Scaladoc oneline */
+/**
+  * Scaladoc multiline
+  */
+val a = 1
+```
+
+- `keep`
+
+```scala mdoc:scalafmt
+docstrings.style = Asterisk
+docstrings.oneline = keep
+---
+/** Scaladoc oneline */
+/**
+  * Scaladoc multiline
+  */
 val a = 1
 ```
 
