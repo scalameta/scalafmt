@@ -129,8 +129,10 @@ final case class State(
     val fullPenalty = defaultOverflowPenalty +
       (if (prevActive) delayedPenalty else -delayedPenalty)
     def result(customPenalty: Int, nextActive: Boolean): (Int, Int) = {
-      val penalty = math.min(fullPenalty, customPenalty)
-      val nextDelayedPenalty = fullPenalty - penalty
+      val delay = fullPenalty - customPenalty
+      val nextDelayedPenalty = // always preserve a little delayed penalty
+        if (delay > 0) delay else if (delayedPenalty == 0) 0 else 1
+      val penalty = fullPenalty - nextDelayedPenalty
       (penalty, if (nextActive) nextDelayedPenalty else -nextDelayedPenalty)
     }
     val ft = fops.tokens(depth)
@@ -138,7 +140,8 @@ final case class State(
       result(if (prevActive) fullPenalty else defaultOverflowPenalty, false)
     } else {
       val tokLength = ft.meta.right.text.length
-      def getCustomPenalty: Int = {
+      def getFullPenalty = result(fullPenalty, true)
+      def getCustomPenalty = {
         val isComment = ft.right.is[Token.Comment]
         /* we only delay penalty for overflow tokens which are part of a
          * statement that started at the beginning of the current line */
@@ -151,18 +154,21 @@ final case class State(
           case _ => true
         }
         // if delaying, estimate column if the split had been a newline
-        if (delay) 10 + indentation * 3 / 2 + tokLength else fullPenalty
+        if (!delay) getFullPenalty
+        else result(10 + indentation * 3 / 2 + tokLength, false)
       }
-      if (ft.meta.right.firstNL >= 0) {
-        result(fullPenalty, true)
-      } else if (
+      if (ft.meta.right.firstNL >= 0) getFullPenalty
+      else if (
         style.newlines.avoidForSimpleOverflowTooLong &&
         State.isWithinInterpolation(ft.meta.rightOwner)
       ) {
-        if (ft.right.is[Token.Interpolation.End])
-          result(getCustomPenalty, false)
-        else // delay for intermediate interpolation tokens
-          result(tokLength, true)
+        ft.right match {
+          case _: Token.Interpolation.End => getCustomPenalty
+          case _: Token.Interpolation.Id if delayedPenalty != 0 =>
+            getFullPenalty // can't delay multiple times
+          case _ => // delay for intermediate interpolation tokens
+            result(tokLength, true)
+        }
       } else if (
         ft.right.isInstanceOf[Product] &&
         tokLength == 1 && !ft.meta.right.text.head.isLetterOrDigit
@@ -173,10 +179,13 @@ final case class State(
         }
         if (ok) result(1, prevActive)
         else prev.getOverflowPenalty(split, defaultOverflowPenalty + 1)
-      } else if (style.newlines.avoidForSimpleOverflowTooLong) {
-        result(getCustomPenalty, false)
+      } else if (
+        style.newlines.avoidForSimpleOverflowTooLong &&
+        delayedPenalty == 0 // can't delay multiple times
+      ) {
+        getCustomPenalty
       } else {
-        result(fullPenalty, true)
+        getFullPenalty
       }
     }
   }
