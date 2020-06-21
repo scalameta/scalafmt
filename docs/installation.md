@@ -297,8 +297,8 @@ scalafmt-native --help # should show version @STABLE_VERSION@
 ```
 
 > The native image binaries have the limitation of working only with one version
-> of Scalafmt. > The native binaries fail when the `version` setting in
-> `.scalafmt.conf` does not match the version of the native binary. > It's
+> of Scalafmt. The native binaries fail when the `version` setting in
+> `.scalafmt.conf` does not match the version of the native binary. It's
 > recommended to use the JVM binary if you expect to use Scalafmt in multiple
 > projects with different Scalafmt versions.
 
