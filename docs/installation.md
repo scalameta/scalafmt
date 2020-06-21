@@ -255,8 +255,12 @@ coursier bootstrap org.scalameta:scalafmt-cli_2.13:@STABLE_VERSION@ \
 ./scalafmt --version # should be @STABLE_VERSION@
 ```
 
-It is **recommended** to put this bootstrap script in your code repository to
-make sure everyone on your team, as well as CI, uses the same scalafmt version.
+If a `version` is defined in `.scalafmt.conf`, the CLI binary will honor it
+by automatically resolving and downloading the corresponding artifacts if it
+does not match its own version. Otherwise, it is **recommended** to put this
+bootstrap script in your code repository to make sure everyone on your team,
+as well as CI, uses the same scalafmt version.
+
 To configure which files to format, see [project](configuration.md#project).
 
 To customize the JVM options, use the Coursier option `--java-opt`, more info
