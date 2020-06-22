@@ -238,9 +238,12 @@ scalafmt --version <span class="hljs-comment"># should be 2.6.1</span>
   -o scalafmt
 ./scalafmt --version <span class="hljs-comment"># should be 2.6.1</span>
 </code></pre>
-<p>It is <strong>recommended</strong> to put this bootstrap script in your code repository to
-make sure everyone on your team, as well as CI, uses the same scalafmt version.
-To configure which files to format, see <a href="/scalafmt/docs/configuration.html#project">project</a>.</p>
+<p>If a <code>version</code> is defined in <code>.scalafmt.conf</code>, the CLI binary will honor it
+by automatically resolving and downloading the corresponding artifacts if it
+does not match its own version. Otherwise, it is <strong>recommended</strong> to put this
+bootstrap script in your code repository to make sure everyone on your team,
+as well as CI, uses the same scalafmt version.</p>
+<p>To configure which files to format, see <a href="/scalafmt/docs/configuration.html#project">project</a>.</p>
 <p>To customize the JVM options, use the Coursier option <code>--java-opt</code>, more info
 with</p>
 <pre><code class="hljs css language-sh">coursier bootstrap --<span class="hljs-built_in">help</span> | grep -A 1 <span class="hljs-string">"\-\-java-opt"</span>
@@ -266,8 +269,8 @@ scalafmt-native --<span class="hljs-built_in">help</span> <span class="hljs-comm
 </code></pre>
 <blockquote>
 <p>The native image binaries have the limitation of working only with one version
-of Scalafmt. &gt; The native binaries fail when the <code>version</code> setting in
-<code>.scalafmt.conf</code> does not match the version of the native binary. &gt; It's
+of Scalafmt. The native binaries fail when the <code>version</code> setting in
+<code>.scalafmt.conf</code> does not match the version of the native binary. It's
 recommended to use the JVM binary if you expect to use Scalafmt in multiple
 projects with different Scalafmt versions.</p>
 </blockquote>
@@ -312,10 +315,10 @@ provides instant startup without Nailgun.</p>
 scalafmt --version // should be 2.6.1
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="--help"></a><a href="#--help" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>--help</h3>
-<pre><code class="hljs">build commit: <span class="hljs-number">3074f</span>3936a525823af181b21336d4dff4205e124
-build time: Fri Jun <span class="hljs-number">19</span> <span class="hljs-number">14</span>:<span class="hljs-number">10</span>:<span class="hljs-number">17</span> UTC <span class="hljs-number">2020</span>
+<pre><code class="hljs">build commit: <span class="hljs-number">3f</span>083c3dbaaea223b598d3c0080df1c3fa54c331
+build time: Mon Jun <span class="hljs-number">22</span> <span class="hljs-number">09</span>:<span class="hljs-number">21</span>:<span class="hljs-number">12</span> UTC <span class="hljs-number">2020</span>
 </code></pre>
-<pre><code class="hljs">scalafmt 2.6.1
+<pre><code class="hljs">scalafmt 2.6.1+1-3f083c3d-SNAPSHOT
 Usage: scalafmt [options] [&lt;<span class="hljs-keyword">file</span>&gt;...]
 
   -<span class="hljs-keyword">h</span>, --<span class="hljs-keyword">help</span>               prints this usage text
