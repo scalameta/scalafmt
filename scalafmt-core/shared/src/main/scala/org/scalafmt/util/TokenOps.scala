@@ -1,7 +1,7 @@
 package org.scalafmt.util
 
 import scala.meta.classifiers.Classifier
-import scala.meta.{Defn, Pkg, Template, Tree}
+import scala.meta.{Defn, Pkg, Source, Template, Term, Tree}
 import scala.meta.tokens.Token
 import scala.meta.tokens.Token._
 import scala.meta.tokens.Tokens
@@ -54,8 +54,13 @@ object TokenOps {
     style.optIn.forceNewlineBeforeDocstringSummary &&
       ft.right.is[Token.Comment] && !ft.left.is[Token.Comment] &&
       ft.meta.right.text.startsWith("/**") &&
-      !ft.meta.leftOwner.is[meta.Mod] &&
-      !TreeOps.existsParentOfType[meta.Mod](ft.meta.leftOwner)
+      TreeOps
+        .findTreeOrParent(ft.meta.leftOwner) {
+          case _: Pkg | _: Source | _: Template | _: Term.Block => Some(false)
+          case t if t.pos.end > ft.right.start => Some(true)
+          case _ => None
+        }
+        .isEmpty
 
   // 2.13 implements SeqOps.findLast
   def findLast[A](seq: Seq[A])(cond: A => Boolean): Option[A] =
