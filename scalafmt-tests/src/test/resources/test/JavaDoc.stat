@@ -1259,3 +1259,20 @@ object a {
   /** alias for [[literal]] */
   /** alias for [[literal]] */
 }
+<<< #2043
+object Day extends Enumeration {
+  type Day = Value
+
+  val
+  /** Monday */
+  MON = Value
+}
+>>>
+object Day extends Enumeration {
+  type Day = Value
+
+  val
+
+  /** Monday */
+  MON = Value
+}
