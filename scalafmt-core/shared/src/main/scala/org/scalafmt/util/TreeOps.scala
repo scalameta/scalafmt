@@ -230,6 +230,28 @@ object TreeOps {
     }
 
   /**
+    * Returns first ancestor which matches the given predicate.
+    */
+  @tailrec
+  def findTreeOrParent(
+      tree: Tree
+  )(pred: Tree => Option[Boolean]): Option[Tree] =
+    pred(tree) match {
+      case Some(true) => Some(tree)
+      case Some(false) => None
+      case None =>
+        tree.parent match {
+          case None => None
+          case Some(p) => findTreeOrParent(p)(pred)
+        }
+    }
+  def findTreeOrParentSimple(
+      tree: Tree,
+      flag: Boolean = true
+  )(pred: Tree => Boolean): Option[Tree] =
+    findTreeOrParent(tree)(x => if (pred(x) == flag) Some(true) else None)
+
+  /**
     * Returns first ancestor whose parent matches the given predicate.
     */
   @tailrec
@@ -246,9 +268,10 @@ object TreeOps {
         }
     }
   def findTreeWithParentSimple(
-      tree: Tree
+      tree: Tree,
+      flag: Boolean = true
   )(pred: Tree => Boolean): Option[Tree] =
-    findTreeWithParent(tree)(x => if (pred(x)) Some(true) else None)
+    findTreeWithParent(tree)(x => if (pred(x) == flag) Some(true) else None)
 
   /**
     * Returns first ancestor with a parent of a given type.

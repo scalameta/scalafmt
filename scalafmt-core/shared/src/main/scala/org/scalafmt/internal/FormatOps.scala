@@ -650,7 +650,8 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
       ft: FormatToken,
       newStmtModOrBody: Either[Modification, Tree]
   )(implicit style: ScalafmtConfig): Seq[Split] = {
-    val fullInfixTreeOpt = findTreeWithParentSimple(lhsApp.all)(!isInfixApp(_))
+    val fullInfixTreeOpt =
+      findTreeWithParentSimple(lhsApp.all, false)(isInfixApp)
     val fullInfix = fullInfixTreeOpt.flatMap(asInfixApp).getOrElse(lhsApp)
     val app = findLeftInfix(fullInfix)
     newStmtModOrBody.fold(

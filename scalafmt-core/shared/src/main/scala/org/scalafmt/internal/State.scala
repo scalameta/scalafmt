@@ -217,9 +217,10 @@ final case class State(
           if (startsWithLeft(lo)) Some(lo) else None
         }
       owner.map { x =>
-        val y =
-          if (!x.parent.exists(startsWithLeft)) None
-          else TreeOps.findTreeWithParentSimple(x)(!startsWithLeft(_))
+        val y = x.parent.flatMap { p =>
+          if (!startsWithLeft(p)) None
+          else TreeOps.findTreeWithParentSimple(p, false)(startsWithLeft)
+        }
         (ft, y.getOrElse(x))
       }
     }
@@ -235,13 +236,13 @@ final case class State(
     getLineStartOwner(isComment).flatMap {
       case (lineFt, lineOwner) =>
         val ft = fops.tokens(depth)
-        val ok = (ft.meta.leftOwner eq lineOwner) || {
+        val ok = {
           // comment could be preceded by a comma
           isComment && ft.left.is[Token.Comma] &&
           (fops.prev(ft).meta.leftOwner eq lineOwner)
         } ||
           TreeOps
-            .findTreeWithParentSimple(ft.meta.leftOwner)(_ eq lineOwner)
+            .findTreeOrParentSimple(ft.meta.leftOwner)(_ eq lineOwner)
             .isDefined
         if (ok) Some(lineFt) else None
     }
@@ -389,7 +390,6 @@ object State {
 
   @inline
   private def isWithinInterpolation(tree: meta.Tree): Boolean =
-    isInterpolation(tree) ||
-      TreeOps.findTreeWithParentSimple(tree)(isInterpolation).isDefined
+    TreeOps.findTreeOrParentSimple(tree)(isInterpolation).isDefined
 
 }
