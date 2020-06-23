@@ -391,3 +391,26 @@ object a {
 object a {
   /* foo bar */
 }
+<<< #2043
+object a {
+  val
+  MON,
+  /*
+   * Tuesday
+   */
+  TUE,
+  /*
+   * Wednesday
+   */
+  WED = Value
+}
+>>>
+object a {
+  val MON, /*
+   * Tuesday
+   */
+  TUE, /*
+   * Wednesday
+   */
+  WED = Value
+}
