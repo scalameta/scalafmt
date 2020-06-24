@@ -406,10 +406,12 @@ object a {
 }
 >>>
 object a {
-  val MON, /*
+  val MON,
+  /*
    * Tuesday
    */
-  TUE, /*
+  TUE,
+  /*
    * Wednesday
    */
   WED = Value

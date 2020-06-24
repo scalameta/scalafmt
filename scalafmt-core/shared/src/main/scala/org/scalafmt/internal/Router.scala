@@ -1086,6 +1086,7 @@ class Router(formatOps: FormatOps) {
       // These are mostly filtered out/modified by policies.
       case tok @ FormatToken(_: T.Comma, c: T.Comment, _) =>
         if (isSingleLineComment(c)) Seq(Split(Space.orNL(tok.noBreak), 0))
+        else if (tok.meta.right.firstNL >= 0) Seq(Split(Newline, 0))
         else {
           val noNewline = newlines == 0 && style.activeForEdition_2020_01 &&
             // perhaps left is a trailing comma
