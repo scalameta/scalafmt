@@ -1295,7 +1295,7 @@ object FormatWriter {
     Pattern.compile("^(?:\\h*+\\*)?(\\h*+)(.*?)\\h*+$", Pattern.MULTILINE)
   private val onelineDocstring = {
     val empty = "\\h*+(\n\\h*+\\*?\\h*+)*"
-    Pattern.compile(s"^/\\*\\*$empty([^*][^\n]*[^\n\\h])$empty\\*/$$")
+    Pattern.compile(s"^/\\*\\*$empty([^*\n\\h](?:[^\n]*[^\n\\h])?)$empty\\*/$$")
   }
   private val docstringLeadingSpace = Pattern.compile("^\\h++")
 
