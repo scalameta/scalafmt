@@ -405,15 +405,17 @@ class Router(formatOps: FormatOps) {
         singleLineSplit +: multiLineSplits
 
       // Case arrow
-      case tok @ FormatToken(arrow @ T.RightArrow(), right, between)
-          if leftOwner.isInstanceOf[Case] =>
+      case tok @ FormatToken(_: T.RightArrow, right, _) if leftOwner.is[Case] =>
         val caseStat = leftOwner.asInstanceOf[Case]
         if (right.is[T.LeftBrace] && (caseStat.body eq rightOwner))
           // Redundant {} block around case statements.
           Seq(Split(Space, 0).withIndent(-2, rightOwner.tokens.last, After))
         else {
-          def newlineSplit(cost: Int) =
-            Split(NewlineT(noIndent = rhsIsCommentedOut(tok)), cost)
+          def newlineSplit(cost: Int) = {
+            val noIndent = rhsIsCommentedOut(tok)
+            val isDouble = tok.hasBlankLine && caseStat.body.tokens.isEmpty
+            Split(NewlineT(isDouble = isDouble, noIndent = noIndent), cost)
+          }
           def foldedSplits =
             caseStat.body match {
               case _ if right.is[T.KwCase] || isSingleLineComment(right) =>

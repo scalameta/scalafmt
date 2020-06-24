@@ -212,6 +212,7 @@ object a {
 object a {
   val a = a match {
     case a =>
+
     case b =>
   }
 }
