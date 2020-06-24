@@ -156,9 +156,7 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
         }
 
       ft.meta.leftOwner match {
-        case t: Term.Select
-            if startsOpenApply &&
-              !existsParentOfType[Import](ft.meta.leftOwner) =>
+        case t: Term.Select if startsOpenApply =>
           val chain = getSelectChain(t, Vector(t))
           if (openApply.is[T.LeftBrace] && isShortCurlyChain(chain)) None
           else Some(tok -> chain)
