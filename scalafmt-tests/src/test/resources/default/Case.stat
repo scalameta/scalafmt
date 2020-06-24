@@ -200,3 +200,18 @@ x match {
     ) 0
     else 1
 }
+<<< blank line after empty case clause
+object a {
+  val a = a match {
+    case a =>
+
+    case b =>
+  }
+}
+>>>
+object a {
+  val a = a match {
+    case a =>
+    case b =>
+  }
+}
