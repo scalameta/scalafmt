@@ -1186,7 +1186,7 @@ class Router(formatOps: FormatOps) {
         }(getInfixSplitsBeforeLhs(_, formatToken, Right(rhs)))
 
       case FormatToken(_, _: T.Dot, _)
-          if style.newlines.sourceIgnored &&
+          if !style.newlines.sourceIs(Newlines.keep) &&
             rightOwner.is[Term.Select] && findTreeWithParent(rightOwner) {
             case _: Type.Select | _: Importer | _: Pkg => Some(true)
             case _: Term.Select | SplitCallIntoParts(_, _) => None
