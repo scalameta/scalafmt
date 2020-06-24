@@ -1084,11 +1084,18 @@ class Router(formatOps: FormatOps) {
           Split(NoSplit, 0)
         )
       // These are mostly filtered out/modified by policies.
+      case tok @ FormatToken(_: T.Comma, c: T.Comment, _) =>
+        if (isSingleLineComment(c)) Seq(Split(Space.orNL(tok.noBreak), 0))
+        else {
+          val noNewline = newlines == 0 && style.activeForEdition_2020_01 &&
+            // perhaps left is a trailing comma
+            nextNonComment(next(tok)).right.is[RightParenOrBracket]
+          Seq(Split(Space, 0), Split(Newline, 1).notIf(noNewline))
+        }
       case tok @ FormatToken(T.Comma(), right, _) =>
         // TODO(olafur) DRY, see OneArgOneLine.
-        val binPack = isBinPack(leftOwner)
         argumentStarts.get(hash(right)) match {
-          case Some(nextArg) if binPack =>
+          case Some(nextArg) if isBinPack(leftOwner) =>
             val lastFT = tokens(nextArg.tokens.last)
             Seq(
               Split(Space, 0).withSingleLine(rhsOptimalToken(lastFT)),
@@ -1108,19 +1115,9 @@ class Router(formatOps: FormatOps) {
               case _ =>
                 0
             }
-            val singleLineComment = isSingleLineComment(right)
-            val noNewline = newlines == 0 && {
-              singleLineComment || style.activeForEdition_2020_01 && {
-                val nextTok = nextNonComment(tok).right
-                // perhaps a trailing comma
-                (nextTok ne right) && nextTok.is[RightParenOrBracket]
-              }
-            }
             Seq(
-              Split(Space, 0).notIf(newlines != 0 && singleLineComment),
-              Split(Newline, 1)
-                .notIf(noNewline)
-                .withIndent(indent, right, After)
+              Split(Space, 0),
+              Split(Newline, 1).withIndent(indent, right, After)
             )
         }
       case FormatToken(_, T.Semicolon(), _) =>
