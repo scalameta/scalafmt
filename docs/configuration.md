@@ -2161,9 +2161,8 @@ See also:
 
 ### `binPack.parentConstructors`
 
-Parent constructors are `C` and `D` in `class A extends B with C and D`. If true,
-`scalafmt` will fit as many parent constructors on a single line. If false, each
-parent constructor gets its own line.
+Parent constructors are `C` and `D` in `class A extends B with C and D`.
+Changed from a boolean to a wider set of options in v2.6.0.
 
 ```scala mdoc:defaults
 binPack.parentConstructors
