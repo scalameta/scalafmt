@@ -1062,7 +1062,8 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
   }
 
   def delayedBreakPolicy(
-      leftCheck: Option[Token => Boolean]
+      tok: Token,
+      leftCheck: Option[Token => Boolean] = None
   )(onBreakPolicy: Policy)(implicit line: sourcecode.Line): Policy = {
     object OnBreakDecision {
       def unapply(d: Decision): Option[Seq[Split]] =
@@ -1080,8 +1081,11 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
         if (replaced) Some(splits) else None
       }
     }
-    if (onBreakPolicy.isEmpty) onBreakPolicy
-    else onBreakPolicy.copy(f = { case OnBreakDecision(d) => d })
+    if (onBreakPolicy.isEmpty) Policy.NoPolicy
+    else {
+      val f: Policy.Pf = { case OnBreakDecision(d) => d }
+      onBreakPolicy.copy(f = f, expire = tok.end)
+    }
   }
 
   def decideNewlinesOnlyBeforeClose(

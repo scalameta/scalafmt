@@ -575,8 +575,7 @@ class Router(formatOps: FormatOps) {
             s.filter(x => x.isNL && (x.activeTag ne SplitTag.OnelineWithChain))
         }
         val policyEnd = defnBeforeTemplate(leftOwner).fold(r)(_.tokens.last)
-        val policy = delayedBreakPolicy(None)(forceNewlineBeforeExtends)
-          .copy(expire = policyEnd.end)
+        val policy = delayedBreakPolicy(policyEnd)(forceNewlineBeforeExtends)
         Seq(Split(Space, 0).withPolicy(policy))
       // DefDef
       case tok @ FormatToken(T.KwDef(), name @ T.Ident(_), _) =>
@@ -618,7 +617,7 @@ class Router(formatOps: FormatOps) {
           if (lambdaIsABlock) None
           else
             newlinePolicy.map(
-              delayedBreakPolicy(lambdaLeft.map(open => _.end < open.end))
+              delayedBreakPolicy(close, lambdaLeft.map(x => _.end < x.end))
             )
         }
 
