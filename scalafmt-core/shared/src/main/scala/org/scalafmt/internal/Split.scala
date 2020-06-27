@@ -3,6 +3,7 @@ package org.scalafmt.internal
 import scala.meta.tokens.Token
 
 import org.scalafmt.internal.Policy.NoPolicy
+import org.scalafmt.util.PolicyOps
 import org.scalafmt.util.TokenOps
 
 case class OptimalToken(token: Token, killOnFail: Boolean = false) {
@@ -42,6 +43,7 @@ case class Split(
     policy: Policy = NoPolicy,
     optimalAt: Option[OptimalToken] = None
 )(implicit val line: sourcecode.Line) {
+  import PolicyOps._
   import TokenOps._
 
   def adapt(formatToken: FormatToken): Split =

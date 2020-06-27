@@ -35,4 +35,41 @@ object PolicyOps {
     new PenalizeAllNewlines(f, endPos)
   }
 
+  /**
+    * Forces allssplits up to including expire to be on a single line.
+    */
+  class SingleLineBlock private[PolicyOps] (
+      f: Policy.Pf,
+      endPos: Int,
+      exclude: Set[Range]
+  )(implicit line: sourcecode.Line)
+      extends Policy.Clause(f, endPos, true) {
+    override def toString: String =
+      super.toString + {
+        if (exclude.isEmpty) ""
+        else exclude.map(x => s"${x.start}:${x.end}").mkString("^{", ",", "}")
+      }
+  }
+
+  def SingleLineBlock(
+      expire: T,
+      exclude: Set[Range] = Set.empty,
+      disallowSingleLineComments: Boolean = true,
+      penaliseNewlinesInsideTokens: Boolean = false
+  )(implicit line: sourcecode.Line): Policy = {
+    import TokenOps.isSingleLineComment
+    val endPos = expire.end
+    val f: Policy.Pf = {
+      case Decision(tok, s)
+          if !tok.right.is[T.EOF] && tok.right.end <= endPos &&
+            exclude.forall(!_.contains(tok.left.start)) &&
+            (disallowSingleLineComments || !isSingleLineComment(tok.left)) =>
+        if (penaliseNewlinesInsideTokens && tok.leftHasNewline)
+          Seq.empty
+        else
+          s.filterNot(_.isNL)
+    }
+    new SingleLineBlock(f, endPos, exclude)
+  }
+
 }
