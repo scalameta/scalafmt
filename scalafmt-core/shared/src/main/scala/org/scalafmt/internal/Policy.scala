@@ -6,77 +6,106 @@ import scala.meta.tokens.Token
   * The decision made by [[Router]].
   *
   * Used by [[Policy]] to enforce non-local formatting.
-  *
-  * @param f is applied to every decision until expire
-  * @param expire The latest token offset.
   */
-case class Policy(
-    f: Policy.Pf,
-    expire: Int,
-    noDequeue: Boolean = false
-)(implicit val line: sourcecode.Line) {
+abstract class Policy {
 
-  def isEmpty: Boolean = Policy.isEmpty(f)
+  /** applied to every decision until expire */
+  def f: Policy.Pf
 
-  def orElse(other: Policy.Pf, minExpire: Int = 0): Policy =
-    if (Policy.isEmpty(other)) this
-    else
-      copy(
-        f = if (isEmpty) other else f.orElse(other),
-        expire = math.max(minExpire, expire)
-      )
-
-  def |(other: Policy): Policy =
-    orElse(other.f, other.expire)
-
-  def |(other: Option[Policy]): Policy =
-    other.fold(this)(|)
+  def exists(pred: Policy.Clause => Boolean): Boolean
+  def filter(pred: Policy.Clause => Boolean): Policy
+  def unexpired(pos: Int): Policy = filter(_.endPos > pos)
 
   def &(other: Policy): Policy =
-    if (isEmpty) other else andThen(other.f, other.expire)
+    if (other.isEmpty) this else new Policy.AndThen(this, other)
+  def |(other: Policy): Policy =
+    if (other.isEmpty) this else new Policy.OrElse(this, other)
 
-  /** Similar to PartialFunction.andThen, except applies second pf even if the
-    * first pf is not defined at argument.
-    */
-  def andThen(otherF: Policy.Pf, minExpire: Int = 0): Policy = {
-    if (Policy.isEmpty(otherF)) this
-    else if (isEmpty) copy(f = otherF)
-    else {
-      // TODO(olafur) optimize?
-      val newPf: Policy.Pf = {
-        case x =>
-          otherF.applyOrElse(
-            f.andThen(x.withSplits _).applyOrElse(x, identity[Decision]),
-            (x: Decision) => x.splits
-          )
-      }
-      copy(f = newPf, expire = math.max(minExpire, expire))
-    }
-  }
+  @inline
+  final def unexpiredOpt(pos: Int): Option[Policy] =
+    Some(unexpired(pos)).filter(_.nonEmpty)
 
-  override def toString = s"P:${line.value}(D=$noDequeue)E:$expire"
+  @inline
+  final def &(other: Option[Policy]): Policy = other.fold(this)(&)
+  @inline
+  final def |(other: Option[Policy]): Policy = other.fold(this)(|)
+
+  @inline
+  final def isEmpty: Boolean = this eq Policy.NoPolicy
+  @inline
+  final def nonEmpty: Boolean = this ne Policy.NoPolicy
+
 }
 
 object Policy {
 
   type Pf = PartialFunction[Decision, Seq[Split]]
 
-  val emptyPf: Pf = PartialFunction.empty
-
-  val NoPolicy = new Policy(emptyPf, Integer.MAX_VALUE)(sourcecode.Line(0)) {
+  object NoPolicy extends Policy {
     override def toString: String = "NoPolicy"
+    override def f: Pf = PartialFunction.empty
+    override def |(other: Policy): Policy = other
+    override def &(other: Policy): Policy = other
+
+    override def unexpired(pos: Int): Policy = this
+    override def filter(pred: Clause => Boolean): Policy = this
+    override def exists(pred: Clause => Boolean): Boolean = false
   }
 
-  def empty(token: Token)(implicit
-      line: sourcecode.Line
-  ): Policy = Policy(token)(emptyPf)
-
-  def map(func: Token => Pf)(token: Token)(implicit
-      line: sourcecode.Line
-  ): Policy = Policy(token)(func(token))
-
   def apply(token: Token)(f: Pf)(implicit line: sourcecode.Line): Policy =
-    new Policy(f, token.end)
+    apply(token.end)(f)
 
-  def isEmpty(pf: Pf): Boolean = pf == emptyPf
+  def apply(
+      endPos: Int,
+      noDequeue: Boolean = false
+  )(f: Pf)(implicit line: sourcecode.Line): Policy =
+    new Clause(f, endPos, noDequeue)
+
+  class Clause(
+      val f: Policy.Pf,
+      val endPos: Int,
+      val noDequeue: Boolean = false
+  )(implicit val line: sourcecode.Line)
+      extends Policy {
+    override def toString = {
+      val noDeqPrefix = if (noDequeue) "!" else ""
+      s"P:${line.value}<$endPos${noDeqPrefix}d"
+    }
+
+    override def filter(pred: Clause => Boolean): Policy =
+      if (pred(this)) this else NoPolicy
+
+    override def exists(pred: Clause => Boolean): Boolean = pred(this)
+  }
+
+  private class OrElse(p1: Policy, p2: Policy) extends Policy {
+    override lazy val f: Pf = p1.f.orElse(p2.f)
+
+    override def filter(pred: Clause => Boolean): Policy =
+      p1.filter(pred) | p2.filter(pred)
+
+    override def exists(pred: Clause => Boolean): Boolean =
+      p1.exists(pred) || p2.exists(pred)
+
+    override def toString: String = s"($p1 | $p2)"
+  }
+
+  private class AndThen(p1: Policy, p2: Policy) extends Policy {
+    override lazy val f: Pf = {
+      case x =>
+        p2.f.applyOrElse(
+          p1.f.andThen(x.withSplits _).applyOrElse(x, identity[Decision]),
+          (y: Decision) => y.splits
+        )
+    }
+
+    override def filter(pred: Clause => Boolean): Policy =
+      p1.filter(pred) & p2.filter(pred)
+
+    override def exists(pred: Clause => Boolean): Boolean =
+      p1.exists(pred) || p2.exists(pred)
+
+    override def toString: String = s"($p1 & $p2)"
+  }
+
 }

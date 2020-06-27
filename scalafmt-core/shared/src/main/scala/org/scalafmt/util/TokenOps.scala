@@ -113,21 +113,17 @@ object TokenOps {
       disallowSingleLineComments: Boolean = true,
       penaliseNewlinesInsideTokens: Boolean = false
   )(implicit line: sourcecode.Line): Policy = {
-    Policy(
-      {
-        case d @ Decision(tok, _)
-            if !tok.right.is[EOF] && tok.right.end <= expire.end &&
-              exclude.forall(!_.contains(tok.left.start)) &&
-              (disallowSingleLineComments || !isSingleLineComment(tok.left)) =>
-          if (penaliseNewlinesInsideTokens && tok.leftHasNewline) {
-            Seq.empty
-          } else {
-            d.noNewlines
-          }
-      },
-      expire.end,
-      noDequeue = true
-    )
+    Policy(expire.end, true) {
+      case d @ Decision(tok, _)
+          if !tok.right.is[EOF] && tok.right.end <= expire.end &&
+            exclude.forall(!_.contains(tok.left.start)) &&
+            (disallowSingleLineComments || !isSingleLineComment(tok.left)) =>
+        if (penaliseNewlinesInsideTokens && tok.leftHasNewline) {
+          Seq.empty
+        } else {
+          d.noNewlines
+        }
+    }
   }
 
   @inline

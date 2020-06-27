@@ -53,7 +53,7 @@ object a {
 object a {
   final class Dummy[F[+_, +_]: BIOMonad: BIOPrimitives: Clock2](
     log: LogBIO[F]
-  ) extends DIResource.LiftF(F
-          .mkRef(Map.empty[Key, Item])
-          .map(new Dummy.Impl(_)))
+  ) extends DIResource.LiftF(
+        F.mkRef(Map.empty[Key, Item]).map(new Dummy.Impl(_))
+      )
 }
