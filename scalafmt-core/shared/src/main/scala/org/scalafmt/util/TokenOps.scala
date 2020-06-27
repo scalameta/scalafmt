@@ -8,11 +8,9 @@ import scala.meta.tokens.Tokens
 
 import org.scalafmt.config.Newlines
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.internal.Decision
 import org.scalafmt.internal.FormatToken
 import org.scalafmt.internal.Modification
 import org.scalafmt.internal.NewlineT
-import org.scalafmt.internal.Policy
 import org.scalafmt.internal.Space
 
 /**
@@ -103,28 +101,6 @@ object TokenOps {
       case Dot() if includeNoParens => true
       case _ => false
     }
-
-  /**
-    * Forces allssplits up to including expire to be on a single line.
-    */
-  def SingleLineBlock(
-      expire: Token,
-      exclude: Set[Range] = Set.empty,
-      disallowSingleLineComments: Boolean = true,
-      penaliseNewlinesInsideTokens: Boolean = false
-  )(implicit line: sourcecode.Line): Policy = {
-    Policy(expire.end, true) {
-      case d @ Decision(tok, _)
-          if !tok.right.is[EOF] && tok.right.end <= expire.end &&
-            exclude.forall(!_.contains(tok.left.start)) &&
-            (disallowSingleLineComments || !isSingleLineComment(tok.left)) =>
-        if (penaliseNewlinesInsideTokens && tok.leftHasNewline) {
-          Seq.empty
-        } else {
-          d.noNewlines
-        }
-    }
-  }
 
   @inline
   def isSingleLineComment(c: String): Boolean = c.startsWith("//")

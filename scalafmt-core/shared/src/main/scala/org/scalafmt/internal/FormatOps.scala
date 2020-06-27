@@ -55,6 +55,7 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
     else baseStyle.copy(newlines = checkedNewlines)
   }
   val runner = initStyle.runner
+  import PolicyOps._
   import TokenOps._
   import TreeOps._
   implicit val dialect = initStyle.runner.dialect
