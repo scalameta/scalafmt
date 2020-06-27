@@ -371,56 +371,50 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
   }.getOrElse(tree.tokens.last)
 
   @inline
-  def OneArgOneLineSplit(tok: FormatToken)(implicit
-      line: sourcecode.Line,
-      style: ScalafmtConfig
-  ): Policy =
-    if (style.poorMansTrailingCommasInConfigStyle)
-      splitOneArgPerLineBeforeComma(tok)
-    else
-      splitOneArgPerLineAfterComma(tok)
-
-  def splitOneArgPerLineBeforeComma(tok: FormatToken)(implicit
+  def splitOneArgOneLine(close: Token, owner: Tree)(implicit
       line: sourcecode.Line,
       style: ScalafmtConfig
   ): Policy = {
-    val owner = tok.meta.leftOwner
-    // TODO(olafur) clear queue between arguments, they are independent.
-    Policy(matching(tok.left)) {
-      case Decision(t @ FormatToken(_, _: T.Comma, _), splits)
-          if owner == t.meta.rightOwner && !next(t).right.is[T.Comment] =>
-        splits.map(x => if (x.modExt.mod ne NoSplit) x else x.withMod(Newline))
-
-      case Decision(t @ FormatToken(_: T.Comma, right, _), splits)
-          if owner == t.meta.leftOwner &&
-            !right.is[T.LeftBrace] &&
-            // If comment is bound to comma, see unit/Comment.
-            (!right.is[T.Comment] || t.hasBreak) =>
-        val isNewline = right.is[T.Comment]
-        splits.filter(_.isNL == isNewline)
-    }
+    val pf =
+      if (style.poorMansTrailingCommasInConfigStyle)
+        splitOneArgPerLineBeforeComma(owner)
+      else
+        splitOneArgPerLineAfterComma(owner)
+    Policy(close)(pf)
   }
 
-  def splitOneArgPerLineAfterComma(tok: FormatToken)(implicit
-      line: sourcecode.Line,
-      style: ScalafmtConfig
-  ): Policy = {
-    val owner = tok.meta.leftOwner
+  def splitOneArgPerLineBeforeComma(
+      owner: Tree
+  )(implicit style: ScalafmtConfig): Policy.Pf = {
     // TODO(olafur) clear queue between arguments, they are independent.
-    Policy(matching(tok.left)) {
-      // Newline on every comma.
-      case Decision(t @ FormatToken(_: T.Comma, right, _), splits)
-          if owner == t.meta.leftOwner &&
-            // TODO(olafur) what the right { decides to be single line?
-            // If comment is bound to comma, see unit/Comment.
-            (!right.is[T.Comment] || t.hasBreak) =>
-        if (!right.is[T.LeftBrace])
-          splits.filter(_.isNL)
-        else if (!style.activeForEdition_2020_03)
-          splits
-        else
-          SplitTag.OneArgPerLine.activateOnly(splits)
-    }
+    case Decision(t @ FormatToken(_, _: T.Comma, _), splits)
+        if owner == t.meta.rightOwner && !next(t).right.is[T.Comment] =>
+      splits.map(x => if (x.modExt.mod ne NoSplit) x else x.withMod(Newline))
+
+    case Decision(t @ FormatToken(_: T.Comma, right, _), splits)
+        if owner == t.meta.leftOwner &&
+          !right.is[T.LeftBrace] &&
+          // If comment is bound to comma, see unit/Comment.
+          (!right.is[T.Comment] || t.hasBreak) =>
+      val isNewline = right.is[T.Comment]
+      splits.filter(_.isNL == isNewline)
+  }
+
+  def splitOneArgPerLineAfterComma(
+      owner: Tree
+  )(implicit style: ScalafmtConfig): Policy.Pf = {
+    // Newline on every comma.
+    case Decision(t @ FormatToken(_: T.Comma, right, _), splits)
+        if owner == t.meta.leftOwner &&
+          // TODO(olafur) what the right { decides to be single line?
+          // If comment is bound to comma, see unit/Comment.
+          (!right.is[T.Comment] || t.hasBreak) =>
+      if (!right.is[T.LeftBrace])
+        splits.filter(_.isNL)
+      else if (!style.activeForEdition_2020_03)
+        splits
+      else
+        SplitTag.OneArgPerLine.activateOnly(splits)
   }
 
   def UnindentAtExclude(
@@ -1152,33 +1146,24 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
     val isBracket = open.is[T.LeftBracket]
 
     @tailrec
-    def loop(token: Token): Option[FormatToken] = {
-      tokens(matching(token)) match {
-        case FormatToken(RightParenOrBracket(), l @ T.LeftParen(), _) =>
-          loop(l)
-        case f @ FormatToken(RightParenOrBracket(), right, _) =>
-          lazy val isCtorModifier =
-            f.meta.rightOwner.parent.exists(_.is[meta.Ctor])
-          right match {
-            // modifier for constructor if class definition has type parameters: [class A[T, K, C] private (a: Int)]
-            case Modifier() if isCtorModifier =>
-              // This case only applies to classes
-              next(f).right match {
-                case x @ (_: T.LeftParen | _: T.LeftBracket) =>
-                  loop(x)
-                case _ =>
-                  Some(f)
-              }
-            case _ =>
-              Some(f)
+    def loop(token: Token): FormatToken = {
+      val f = tokens(token)
+      f.right match {
+        case x: T.LeftParen => loop(matching(x))
+        // modifier for constructor if class definition has type parameters: [class A[T, K, C] private (a: Int)]
+        case Modifier() if f.meta.rightOwner.parent.exists(_.is[Ctor]) =>
+          // This case only applies to classes
+          next(f).right match {
+            case x @ LeftParenOrBracket() => loop(matching(x))
+            case _ => f
           }
-        case _ => None
+        case _ => f
       }
     }
 
     // find the last param on the defn so that we can apply our `policy`
     // till the end.
-    val lastParenFt = loop(open).get
+    val lastParenFt = loop(close)
     val lastParen = lastParenFt.left
 
     val mixedParams = {
@@ -1195,15 +1180,9 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
     // create two (2) OneArgOneLineSplit when dealing with classes. One
     // deals with the type params and the other with the value params.
     val oneLinePerArg = {
-      val base = OneArgOneLineSplit(ft)
-      if (mixedParams) {
-        val afterTypes = tokens(matching(open))
-        // Try to find the first paren. If found, then we are dealing with
-        // a class with type AND value params. Otherwise it is a class with
-        // just type params.
-        findFirst(afterTypes, lastParen)(t => t.left.is[T.LeftParen])
-          .fold(base)(t => base | OneArgOneLineSplit(t))
-      } else base
+      val base = splitOneArgOneLine(lastParen, ft.meta.leftOwner)
+      if (!mixedParams || (close eq lastParen)) base
+      else base | splitOneArgOneLine(lastParen, lastParenFt.meta.leftOwner)
     }
 
     // DESNOTE(2017-03-28, pjrt) Classes and defs aren't the same.

@@ -135,7 +135,7 @@ class Router(formatOps: FormatOps) {
 
         val newlinePolicy = style.importSelectors match {
           case ImportSelectors.noBinPack =>
-            newlineBeforeClosingCurly & OneArgOneLineSplit(formatToken)
+            newlineBeforeClosingCurly & splitOneArgOneLine(close, leftOwner)
           case ImportSelectors.binPack =>
             newlineBeforeClosingCurly
           case ImportSelectors.singleLine =>
@@ -804,8 +804,7 @@ class Router(formatOps: FormatOps) {
 
         val preferNoSplit = singleArgument &&
           style.newlines.sourceIs(Newlines.keep) && tok.noBreak
-        val oneArgOneLine =
-          newlinePolicy & OneArgOneLineSplit(formatToken)
+        val oneArgOneLine = newlinePolicy & splitOneArgOneLine(close, leftOwner)
         val extraOneArgPerLineIndent =
           if (multipleArgs && style.poorMansTrailingCommasInConfigStyle)
             Indent(Num(2), right, After)
@@ -974,7 +973,7 @@ class Router(formatOps: FormatOps) {
         val nlPolicy =
           if (onlyConfigStyle) {
             if (styleMap.forcedBinPack(leftOwner)) newlineBeforeClose
-            else OneArgOneLineSplit(formatToken) | newlineBeforeClose
+            else splitOneArgOneLine(close, leftOwner) | newlineBeforeClose
           } else if (
             style.newlines.sourceIgnored &&
             style.danglingParentheses.callSite
