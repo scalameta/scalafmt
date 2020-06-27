@@ -770,7 +770,7 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
       val breakAfterClose = endOfNextOp.flatMap { tok =>
         val end = nextNonCommentSameLine(tokens(tok))
         if (end.right.is[T.LeftBrace]) None
-        else Some(Policy.map(decideNewlinesOnlyAfterToken)(end.left))
+        else Some(decideNewlinesOnlyAfterToken(end.left))
       }
 
       val nlSplit = Split(nlMod, 0)
@@ -1090,25 +1090,34 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
     else onBreakPolicy.copy(f = { case OnBreakDecision(d) => d })
   }
 
-  def newlinesOnlyBeforeClosePolicy(close: Token)(implicit
-      line: sourcecode.Line
-  ): Policy =
-    Policy.map(decideNewlinesOnlyBeforeClose(Split(Newline, 0)))(close)
+  def decideNewlinesOnlyBeforeClose(
+      close: Token
+  )(implicit line: sourcecode.Line): Policy =
+    decideNewlinesOnlyBeforeClose(Split(Newline, 0))(close)
 
-  def decideNewlinesOnlyBeforeClose(split: Split)(close: Token): Policy.Pf = {
-    case d: Decision if d.formatToken.right eq close =>
-      d.onlyNewlinesWithFallback(split)
-  }
+  def decideNewlinesOnlyBeforeClose(
+      split: Split
+  )(close: Token)(implicit line: sourcecode.Line): Policy =
+    Policy(close) {
+      case d: Decision if d.formatToken.right eq close =>
+        d.onlyNewlinesWithFallback(split)
+    }
 
-  def decideNewlinesOnlyAfterClose(split: Split)(close: Token): Policy.Pf = {
-    case d: Decision if d.formatToken.left eq close =>
-      d.onlyNewlinesWithFallback(split)
-  }
+  def decideNewlinesOnlyAfterClose(
+      split: Split
+  )(close: Token)(implicit line: sourcecode.Line): Policy =
+    Policy(close) {
+      case d: Decision if d.formatToken.left eq close =>
+        d.onlyNewlinesWithFallback(split)
+    }
 
-  def decideNewlinesOnlyAfterToken(token: Token): Policy.Pf = {
-    case d: Decision if d.formatToken.left eq token =>
-      d.onlyNewlinesWithoutFallback
-  }
+  def decideNewlinesOnlyAfterToken(
+      token: Token
+  )(implicit line: sourcecode.Line): Policy =
+    Policy(token) {
+      case d: Decision if d.formatToken.left eq token =>
+        d.onlyNewlinesWithoutFallback
+    }
 
   def getForceConfigStyle: (Set[Tree], Set[TokenHash]) = {
     val maxDistance = runner.optimizer.forceConfigStyleOnOffset
@@ -1209,7 +1218,7 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
       rpOwner == owner || rpOwner == valueParamsOwner
     }
 
-    val paramGroupSplitter: Policy.Pf = {
+    val paramGroupSplitter = Policy(lastParen) {
       // If this is a class, then don't dangle the last paren unless the line ends with a comment
       case Decision(t @ FormatToken(previous, rp @ RightParenOrBracket(), _), _)
           if shouldNotDangle && rp == lastParen && !isSingleLineComment(
@@ -1250,7 +1259,7 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
 
     // Our policy is a combination of OneArgLineSplit and a custom splitter
     // for parameter groups.
-    val policy = oneLinePerArg.orElse(paramGroupSplitter, lastParen.end)
+    val policy = oneLinePerArg.orElse(paramGroupSplitter)
 
     val firstIndent =
       if (r.is[T.RightParen]) // An empty param group
