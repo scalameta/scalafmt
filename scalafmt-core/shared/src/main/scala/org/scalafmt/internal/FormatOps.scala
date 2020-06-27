@@ -1084,7 +1084,13 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
     if (onBreakPolicy.isEmpty) Policy.NoPolicy
     else {
       val f: Policy.Pf = { case OnBreakDecision(d) => d }
-      onBreakPolicy.copy(f = f, expire = tok.end)
+      new Policy.Clause(f, tok.end) {
+        override def filter(pred: Policy.Clause => Boolean): Policy = {
+          val filteredOnBreak = onBreakPolicy.filter(pred)
+          if (filteredOnBreak.isEmpty) Policy.NoPolicy
+          else delayedBreakPolicy(tok, leftCheck)(filteredOnBreak)
+        }
+      }
     }
   }
 

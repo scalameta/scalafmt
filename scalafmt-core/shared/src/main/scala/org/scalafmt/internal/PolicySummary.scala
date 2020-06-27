@@ -6,11 +6,11 @@ import org.scalafmt.util.LoggerOps
 class PolicySummary(val policies: Vector[Policy]) {
   import LoggerOps._
 
-  @inline def noDequeue = policies.exists(_.noDequeue)
+  @inline def noDequeue = policies.exists(_.exists(_.noDequeue))
 
   def combine(other: Policy, position: Int): PolicySummary = {
     // TODO(olafur) filter policies by expiration date
-    val activePolicies = policies.filter(_.expire > position)
+    val activePolicies = policies.flatMap(_.unexpiredOpt(position))
     val newPolicies =
       if (other == NoPolicy) activePolicies
       else other +: activePolicies
