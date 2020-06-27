@@ -426,26 +426,6 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
       s.map(_.withIndent(indent, close, ExpiresOn.After))
   }
 
-  def penalizeAllNewlines(
-      expire: Token,
-      penalty: Int,
-      penalizeLambdas: Boolean = true,
-      ignore: FormatToken => Boolean = _ => false,
-      penaliseNewlinesInsideTokens: Boolean = false
-  )(implicit line: sourcecode.Line): Policy =
-    Policy(expire) {
-      case Decision(tok, s)
-          if tok.right.end < expire.end &&
-            (penalizeLambdas || !tok.left.is[T.RightArrow]) && !ignore(tok) =>
-        s.map {
-          case split
-              if split.isNL ||
-                (penaliseNewlinesInsideTokens && tok.leftHasNewline) =>
-            split.withPenalty(penalty)
-          case x => x
-        }
-    }
-
   def penalizeNewlineByNesting(from: Token, to: Token)(implicit
       line: sourcecode.Line
   ): Policy = {

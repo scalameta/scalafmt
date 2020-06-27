@@ -61,6 +61,7 @@ class Router(formatOps: FormatOps) {
 
   import Constants._
   import LoggerOps._
+  import PolicyOps._
   import TokenOps._
   import TreeOps._
   import formatOps._
