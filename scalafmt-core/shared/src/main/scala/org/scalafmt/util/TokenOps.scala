@@ -84,15 +84,8 @@ object TokenOps {
 
   val booleanOperators = Set("&&", "||")
 
-  // TODO(olafur) more general solution?
-  val newlineOkOperators = Set("+", "-", "|")
-
   def isBoolOperator(token: Token): Boolean =
     booleanOperators.contains(token.syntax)
-
-  def newlineOkOperator(token: Token): Boolean =
-    booleanOperators.contains(token.syntax) ||
-      newlineOkOperators.contains(token.syntax)
 
   def identModification(ident: Ident): Modification = {
     val lastCharacter = ident.syntax.last

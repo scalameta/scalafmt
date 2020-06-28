@@ -211,16 +211,8 @@ object TreeOps {
     result.asScala
   }
 
-  @tailrec
-  final def childOf(child: Tree, tree: Tree): Boolean = {
-    child == tree || (child.parent match {
-      case Some(parent) => childOf(parent, tree)
-      case _ => false
-    })
-  }
-
-  def childOf(tok: Token, tree: Tree, owners: Map[TokenHash, Tree]): Boolean =
-    childOf(owners(hash(tok)), tree)
+  final def childOf(child: Tree, tree: Tree): Boolean =
+    findTreeOrParentSimple(child)(_ eq tree).isDefined
 
   @tailrec
   final def numParents(tree: Tree, cnt: Int = 0)(f: Tree => Boolean): Int =
@@ -289,12 +281,6 @@ object TreeOps {
       tree: Tree
   )(implicit classifier: Classifier[Tree, A]): Boolean =
     findTreeWithParentOfType[A](tree).isDefined
-
-  def isTopLevel(tree: Tree): Boolean =
-    tree match {
-      case _: Pkg | _: Source => true
-      case _ => false
-    }
 
   def isDefDef(tree: Tree): Boolean =
     tree match {
@@ -457,21 +443,6 @@ object TreeOps {
     }
   }
 
-  def startsSelectChain(tree: Tree): Boolean =
-    tree match {
-      case select: Term.Select =>
-        !(existsChild(_.is[Term.Select])(select) &&
-          existsChild(splitCallIntoParts.isDefinedAt)(select))
-      case _ => false
-    }
-
-  /**
-    * Returns true tree has a child for which f(child) is true.
-    */
-  def existsChild(f: Tree => Boolean)(tree: Tree): Boolean = {
-    tree.children.exists(f) || tree.children.exists(existsChild(f))
-  }
-
   /**
     * How many parents of tree are Term.Apply?
     */
@@ -482,32 +453,6 @@ object TreeOps {
     }
 
   def nestedSelect(tree: Tree): Int = numParents(tree)(_.is[Term.Select])
-
-  // TODO(olafur) scala.meta should make this easier.
-  def findSiblingGuard(
-      generator: Enumerator.Generator
-  ): Option[Enumerator.Guard] = {
-    for {
-      parent <- generator.parent if parent.is[Term.For] ||
-        parent.is[Term.ForYield]
-      sibling <- {
-        val enums = parent match {
-          case p: Term.For => p.enums
-          case p: Term.ForYield => p.enums
-        }
-        val i = enums.indexOf(generator)
-        if (i == -1)
-          throw new IllegalStateException(
-            s"Generator $generator is part of parents enums."
-          )
-        enums
-          .drop(i + 1)
-          .takeWhile(_.is[Enumerator.Guard])
-          .lastOption
-          .asInstanceOf[Option[Enumerator.Guard]]
-      }
-    } yield sibling
-  }
 
   /**
     * Calculates depth to deepest child in tree.
