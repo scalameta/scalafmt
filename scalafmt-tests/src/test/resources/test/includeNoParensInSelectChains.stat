@@ -9,6 +9,16 @@ List(1)
   .buffered
   .map(_ + 2)
   .filter(_ > 2)
+<<< include applications without parens in select chains 2
+List(1)
+  .toIterator.buffered
+  .map(_ + 2).filter(_ > 2)
+>>>
+List(1)
+  .toIterator
+  .buffered
+  .map(_ + 2)
+  .filter(_ > 2)
 <<< don't throw exception (#1407)
 object CirceWritable {
   implicit def contentTypeOf_CirceJson(): ContentTypeOf[io.circe.Json] =
