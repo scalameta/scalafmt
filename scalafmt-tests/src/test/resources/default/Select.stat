@@ -278,3 +278,490 @@ object a {
   keys.clear() // we need to remove the selected keys from the set, otherwise they remain selected
 >>>
 keys.clear() // we need to remove the selected keys from the set, otherwise they remain selected
+<<< #2061 1
+object a {
+@SerialVersionUID(1)
+ class VectorBuilder[@spec(Double, Int, Float, Long) E](
+     private var _index: Array[Int],
+     private var _data: Array[E],
+     private var used: Int,
+     var length: Int)(implicit
+     ring: Semiring[E],
+     zero: Zero[E])
+     extends NumericOps[VectorBuilder[E]]
+     with Serializable {
+
+     }
+}
+>>>
+object a {
+  @SerialVersionUID(1)
+  class VectorBuilder[@spec(Double, Int, Float, Long) E](
+      private var _index: Array[Int],
+      private var _data: Array[E],
+      private var used: Int,
+      var length: Int)(implicit
+      ring: Semiring[E],
+      zero: Zero[E])
+      extends NumericOps[VectorBuilder[E]]
+      with Serializable {}
+}
+<<< #2061 2
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+===
+object a {
+  object b {
+   val existingNamespace = client.admin.listNamespaceDescriptors()
+     .map(_.getName)
+    val existingNamespace = client.admin
+      .listNamespaceDescriptors()
+      .map(_.getName)
+  }
+  def insertAndGetEvents(eventClient: LEvents) = {
+    val insertedEvent: List[Option[Event]] = listOfEvents.zip(insertedEventId)
+      .map { case (e, id) => Some(e.copy(eventId = Some(id))) }
+  }
+}
+>>>
+object a {
+  object b {
+    val existingNamespace = client.admin
+      .listNamespaceDescriptors()
+      .map(_.getName)
+    val existingNamespace = client.admin
+      .listNamespaceDescriptors()
+      .map(_.getName)
+  }
+  def insertAndGetEvents(eventClient: LEvents) = {
+    val insertedEvent: List[Option[Event]] = listOfEvents
+      .zip(insertedEventId)
+      .map { case (e, id) => Some(e.copy(eventId = Some(id))) }
+  }
+}
+<<< #2061 3
+preset = default
+===
+object a {
+  val algoPredictsMap: Map[EX, RDD[(QX, Seq[P])]] = (0 until evalCount)
+    .map { ex => {
+      val unionAlgoPredicts: RDD[(QX, Seq[P])] = sc.union(algoPredicts)
+       .groupByKey()
+       .mapValues { ps => {
+         assert (ps.size == algoCount, "Must have same length as algoCount")
+         // TODO. Check size == algoCount
+         ps.toSeq.sortBy(_._1).map(_._2)
+       }}
+    }
+  }
+}
+>>>
+object a {
+  val algoPredictsMap: Map[EX, RDD[(QX, Seq[P])]] = (0 until evalCount)
+    .map { ex =>
+      {
+        val unionAlgoPredicts: RDD[(QX, Seq[P])] = sc
+          .union(algoPredicts)
+          .groupByKey()
+          .mapValues { ps =>
+            {
+              assert(ps.size == algoCount, "Must have same length as algoCount")
+              // TODO. Check size == algoCount
+              ps.toSeq.sortBy(_._1).map(_._2)
+            }
+          }
+      }
+    }
+}
+<<< #2061 4
+preset = default
+optIn.breakChainOnFirstMethodDot = false
+includeNoParensInSelectChains = false
+===
+object a {
+  override def extraTests(): Unit = {
+     "decode concatenated compressions" in {
+       ourDecode(
+         Seq(
+           encode("Hello, "),
+           encode("dear "),
+           encode("User!")).join) should readAs("Hello, dear User!")
+     }
+  }
+}
+>>>
+object a {
+  override def extraTests(): Unit = {
+    "decode concatenated compressions" in {
+      ourDecode(
+        Seq(encode("Hello, "), encode("dear "), encode("User!")).join
+      ) should readAs("Hello, dear User!")
+    }
+  }
+}
+<<< #2061 5
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+includeNoParensInSelectChains = false
+===
+object a {
+  def a = {
+    try {
+      pmmObject.instance
+        .asInstanceOf[PersistentModelLoader[AP, M]](runId, params, sc)
+      pmmObject.instance.asInstanceOf[PersistentModelLoader[AP, M]](
+              runId,
+              params,
+              sc)
+    }
+  }
+}
+>>>
+object a {
+  def a = {
+    try {
+      pmmObject.instance
+        .asInstanceOf[PersistentModelLoader[AP, M]](runId, params, sc)
+      pmmObject.instance
+        .asInstanceOf[PersistentModelLoader[AP, M]](runId, params, sc)
+    }
+  }
+}
+<<< #2061 6
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+includeNoParensInSelectChains = false
+===
+object a {
+  def a = {
+    try {
+    val a =
+          actorSystem.scheduler.schedule(
+            0.seconds,
+            1.days,
+            upgrade,
+            UpgradeCheck())
+    }
+  }
+}
+>>>
+object a {
+  def a = {
+    try {
+      val a =
+        actorSystem.scheduler.schedule(
+          0.seconds,
+          1.days,
+          upgrade,
+          UpgradeCheck()
+        )
+    }
+  }
+}
+<<< #2061 7
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+includeNoParensInSelectChains = false
+===
+object a {
+  def a = {
+    try {
+      val driver = extendedSystem.dynamicAccess
+        .createInstanceFor[Transport](fqn, args)
+        .recover({
+
+          case exception ⇒
+            throw new IllegalArgumentException(
+              s"Cannot instantiate transport [$fqn]. " +
+                "Make sure it extends [akka.remote.transport.Transport] and has constructor with " +
+                "[akka.actor.ExtendedActorSystem] and [com.typesafe.config.Config] parameters",
+              exception)
+
+        })
+        .get
+    }
+  }
+}
+>>>
+object a {
+  def a = {
+    try {
+      val driver = extendedSystem.dynamicAccess
+        .createInstanceFor[Transport](fqn, args)
+        .recover({
+
+          case exception ⇒
+            throw new IllegalArgumentException(
+              s"Cannot instantiate transport [$fqn]. " +
+                "Make sure it extends [akka.remote.transport.Transport] and has constructor with " +
+                "[akka.actor.ExtendedActorSystem] and [com.typesafe.config.Config] parameters",
+              exception
+            )
+
+        })
+        .get
+    }
+  }
+}
+<<< #2061 8
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+includeNoParensInSelectChains = false
+===
+object a {
+  val identifier: P[Ast.identifier] =
+    P((letter | "_") ~ (letter | digit | "_").rep).!.filter(
+      !keywordList.contains(_)).map(Ast.identifier)
+  def a = {
+    a match {
+      case (
+          com.twitter.finagle.exp.Address
+            .ServiceFactory(sf: ServiceFactory[Req, Rep], _),
+           _) =>
+       sf
+    }
+  }
+}
+>>>
+object a {
+  val identifier: P[Ast.identifier] =
+    P((letter | "_") ~ (letter | digit | "_").rep).!.filter(
+      !keywordList.contains(_)
+    ).map(Ast.identifier)
+  def a = {
+    a match {
+      case (
+            com.twitter.finagle.exp.Address
+              .ServiceFactory(sf: ServiceFactory[Req, Rep], _),
+            _
+          ) =>
+        sf
+    }
+  }
+}
+<<< #2061 9
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+includeNoParensInSelectChains = false
+===
+object a {
+  "produce one-to-several transformation as expected" in assertAllStagesStopped {
+      val p2 = Source
+        .fromPublisher(p)
+        .transform(() ⇒
+          new StatefulStage[Int, Int] {
+            var tot = 0
+
+            lazy val waitForNext = new State {
+            }
+          })
+  }
+}
+>>>
+object a {
+  "produce one-to-several transformation as expected" in assertAllStagesStopped {
+    val p2 = Source
+      .fromPublisher(p)
+      .transform(() ⇒
+        new StatefulStage[Int, Int] {
+          var tot = 0
+
+          lazy val waitForNext = new State {}
+        }
+      )
+  }
+}
+<<< #2061 10
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+includeNoParensInSelectChains = false
+===
+object a {
+  def a = {
+    try {
+      (r.param("args").map { args =>
+        <result>{args.split(",").map(_.toInt).reduceLeft(operation)}</result>
+      }) ?~ "Missing args"
+    }
+  }
+}
+>>>
+object a {
+  def a = {
+    try {
+      (r.param("args").map { args =>
+        <result>{args.split(",").map(_.toInt).reduceLeft(operation)}</result>
+      }) ?~ "Missing args"
+    }
+  }
+}
+<<< #2061 11
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+includeNoParensInSelectChains = false
+danglingParentheses.preset = false
+===
+object a {
+  def a = {
+    (BinaryFormat.clock(since).read(ByteArray.parseBytes(bytes), false, false))(
+      chess.White)
+  }
+}
+>>>
+object a {
+  def a = {
+    (BinaryFormat.clock(since).read(ByteArray.parseBytes(bytes), false, false))(
+      chess.White)
+  }
+}
+<<< #2061 12
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+includeNoParensInSelectChains = false
+danglingParentheses.preset = false
+===
+object a {
+  def a = {
+    try {
+      if (patt.getParent /*list of ids*/ .getParent
+              .isInstanceOf[ScVariable]) {
+        kinds contains VAR
+        val isNamedDynamic =
+          r.isDynamic && r.name == ResolvableReferenceExpression
+              .APPLY_DYNAMIC_NAMED
+        }
+       else kinds contains VAL
+    }
+  }
+}
+>>>
+object a {
+  def a = {
+    try {
+      if (patt.getParent /*list of ids*/ .getParent
+          .isInstanceOf[ScVariable]) {
+        kinds contains VAR
+        val isNamedDynamic =
+          r.isDynamic && r.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED
+      } else kinds contains VAL
+    }
+  }
+}
+<<< #2061 13
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+includeNoParensInSelectChains = false
+danglingParentheses.preset = false
+===
+object a {
+  def getReturnType: PsiType = {
+    if (DumbService
+        .getInstance(getProject)
+        .isDumb || !SyntheticClasses.get(getProject).isClassesRegistered) {
+       return null //no resolve during dumb mode or while synthetic classes is not registered
+    }
+  }
+}
+>>>
+object a {
+  def getReturnType: PsiType = {
+    if (DumbService
+        .getInstance(getProject)
+        .isDumb || !SyntheticClasses.get(getProject).isClassesRegistered) {
+      return null //no resolve during dumb mode or while synthetic classes is not registered
+    }
+  }
+}
+<<< #2061 14
+preset = default
+optIn.breakChainOnFirstMethodDot = false
+includeNoParensInSelectChains = false
+danglingParentheses.preset = false
+===
+object a {
+  class a {
+    def a = {
+      "zip" in {
+        intercept[IllegalStateException] {
+          Await.result(
+            Promise
+              .failed[String](f)
+              .future zip Promise.successful("foo").future,
+            timeout)
+        } should ===(f)
+      }
+    }
+  }
+}
+>>>
+object a {
+  class a {
+    def a = {
+      "zip" in {
+        intercept[IllegalStateException] {
+          Await.result(
+            Promise
+              .failed[String](f)
+              .future zip Promise.successful("foo").future,
+            timeout)
+        } should ===(f)
+      }
+    }
+  }
+}
+<<< #2061 15
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+includeNoParensInSelectChains = false
+danglingParentheses.preset = false
+===
+object a {
+  def a = {
+    try {
+      intercept[IllegalStateException] {
+        if (sqlSerDe == null || sqlSerDe._2 == null || !(sqlSerDe._2)(
+              dos,
+              value)) {
+          writeType(dos, "jobj")
+          writeJObj(dos, value)
+        }
+      } should ===(f)
+    }
+  }
+}
+>>>
+object a {
+  def a = {
+    try {
+      intercept[IllegalStateException] {
+        if (sqlSerDe == null || sqlSerDe._2 == null || !(sqlSerDe._2)(
+            dos,
+            value)) {
+          writeType(dos, "jobj")
+          writeJObj(dos, value)
+        }
+      } should ===(f)
+    }
+  }
+}
+<<< #2061 16
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+includeNoParensInSelectChains = false
+danglingParentheses.preset = false
+===
+object a {
+  def a = {
+    val paramFieldId: Box[String] = (stuff.collect {
+         case FormFieldId(id) => id
+    }).headOption
+  }
+}
+>>>
+object a {
+  def a = {
+    val paramFieldId: Box[String] = (stuff.collect {
+      case FormFieldId(id) => id
+    }).headOption
+  }
+}
