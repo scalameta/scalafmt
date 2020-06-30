@@ -3,7 +3,6 @@ package org.scalafmt.config
 import metaconfig._
 
 /**
-  *
   * @param unsafeCallSite      DO NOT USE! This option is buggy for complicated expressions.
   *                            The only reason this option exists is to support
   *                            the [[literalArgumentLists]] option, which enables callSite
@@ -27,7 +26,6 @@ import metaconfig._
   *                            scalafmt will fit as many parent constructors
   *                            on a single line. If "Never", each parent
   *                            constructor gets its own line.
-  *
   */
 case class BinPack(
     unsafeCallSite: Boolean = false,

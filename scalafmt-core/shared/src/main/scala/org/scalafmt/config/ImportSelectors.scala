@@ -38,7 +38,6 @@ import metaconfig._
   *   // max columns     |
   *   import org.{Aaaa, Bbbb, C, D, Eeee}
   * }}}
-  *
   */
 sealed abstract class ImportSelectors extends Decodable[ImportSelectors] {
   override protected[config] def baseDecoder = ImportSelectors.reader

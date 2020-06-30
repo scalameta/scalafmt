@@ -976,7 +976,7 @@ class FormatWriter(formatOps: FormatOps) {
         *   "io.get-coursier" % "interface"  % "0.0.17"
         * )
         * ```
-        * */
+        */
       val previousSeparatorLengthGaps = new Array[Int](block.length)
       while (column < columns) {
         val alignmentUnits = prepareAlignmentInfo(
@@ -1252,7 +1252,7 @@ object FormatWriter {
     *  hash("io.get-coursier")  => tokenHash
     *  length(%)                => separatorLength
     *  line number in block (1) => lineIndex
-    * */
+    */
   case class AlignmentUnit(
       width: Int,
       ftIndex: Int,

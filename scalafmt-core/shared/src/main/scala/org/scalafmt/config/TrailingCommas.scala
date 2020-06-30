@@ -17,7 +17,6 @@ import metaconfig._
   *
   * When [[org.scalafmt.config.TrailingCommas.preserve]] is selected, existing
   * trailing commas will be preserved, and no new ones will be added.
-  *
   */
 sealed abstract class TrailingCommas
 

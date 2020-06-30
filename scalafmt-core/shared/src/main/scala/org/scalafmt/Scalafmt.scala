@@ -115,7 +115,7 @@ object Scalafmt {
   /** Utility method to change dialect on ScalafmtConfig.
     *
     * Binary compatibility is guaranteed between releases, unlike with ScalafmtConfig.copy.
-    **/
+    */
   def configWithDialect(
       config: ScalafmtConfig,
       dialect: Dialect

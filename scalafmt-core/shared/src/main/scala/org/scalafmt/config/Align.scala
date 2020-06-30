@@ -4,7 +4,6 @@ import metaconfig._
 import metaconfig.generic.Surface
 
 /**
-  *
   * @param openParenCallSite
   *   If true AND bin-packing is true, then call-site
   *   arguments won't be aligned by the opening

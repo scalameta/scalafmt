@@ -4,7 +4,6 @@ import metaconfig._
 import metaconfig.generic.Surface
 
 /**
-  *
   * @param configStyleArguments Call-sites where there is a newline after
   *                             opening ( and newline before closing ).
   *                             If true, preserves the newlines and keeps one
@@ -109,7 +108,7 @@ case class OptIn(
     *   configured in .scalafmt.conf
     * if `forceBlankLineBeforeDocstring` configured to non-default value
     *   don't look at the old name
-    * */
+    */
   lazy val forceNewlineBeforeDocstringSummary: Boolean =
     forceBlankLineBeforeDocstring && !blankLineBeforeDocstring
 }

@@ -16,7 +16,7 @@ object LiteralOps {
     *
     * literals.hexPrefix applies prefix, literals.hexDigits applies to body
     * and literals.long applies to suffix
-    * */
+    */
   def prettyPrintInteger(
       str: String
   )(implicit style: ScalafmtConfig): String =
@@ -43,7 +43,7 @@ object LiteralOps {
     * f is a float/double suffix
     *
     * literals.scientific applies to body and literals.float/double applies to suffix
-    * */
+    */
   private def prettyPrintFloatingPoint(
       str: String,
       suffixUpper: Char,

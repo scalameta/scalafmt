@@ -46,19 +46,23 @@ class ScalafmtConfigTest extends AnyFunSuite {
   }
 
   test("align preset no override") {
-    val config = Scalafmt.parseHoconConfig("""
-      |align = none
-      |align.stripMargin = true
-      """.stripMargin).get
+    val config = Scalafmt
+      .parseHoconConfig("""
+        |align = none
+        |align.stripMargin = true
+      """.stripMargin)
+      .get
     // none was ignored
     assert(config.align == Align(stripMargin = true))
   }
 
   test("align preset with override") {
-    val config = Scalafmt.parseHoconConfig("""
-      |align.preset = none
-      |align.stripMargin = true
-      """.stripMargin).get
+    val config = Scalafmt
+      .parseHoconConfig("""
+        |align.preset = none
+        |align.stripMargin = true
+      """.stripMargin)
+      .get
     assert(config.align == Align.none.copy(stripMargin = true))
   }
 
