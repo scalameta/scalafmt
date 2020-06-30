@@ -24,7 +24,6 @@ object PreferCurlyFors extends Rewrite {
   *     a <- as
   *     b <- bs if b > 2
   *   } yield (a, b)
-  *
   */
 class PreferCurlyFors(implicit ctx: RewriteCtx) extends RewriteSession {
 

@@ -33,7 +33,6 @@ case class OptimalToken(token: Token, killOnFail: Boolean = false) {
   * @param policy How does this split affect other later splits?
   * @param line For debugging, to retrace from which case in [[Router]]
   *             this split originates.
-  *
   */
 case class Split(
     modExt: ModExt,

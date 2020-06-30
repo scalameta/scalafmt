@@ -119,7 +119,8 @@ final case class State(
     *   applied at the end of a line unless deactivated earlier;
     * - if delayedPenalty is negative, it is considered inactive but could be
     *   converted to regular penalty if a disqualifying token/split is found
-    *   before the end of a line or document. */
+    *   before the end of a line or document.
+    */
   @tailrec
   private def getOverflowPenalty(
       nextSplit: Split,

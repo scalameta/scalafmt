@@ -4,7 +4,6 @@ import metaconfig._
 import org.scalafmt.config.SpaceBeforeContextBound.Never
 
 /**
-  *
   * @param beforeContextBoundColon formats [A: T] as [A : T]
   * @param afterTripleEquals If true, formats ===( as === (
   * @param inImportCurlyBraces
