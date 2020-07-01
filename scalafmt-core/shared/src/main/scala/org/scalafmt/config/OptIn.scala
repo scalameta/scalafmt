@@ -45,6 +45,25 @@ import metaconfig.generic.Surface
   *     foo.map(_ + 1).filter( > 2)
   *   }}}
   *
+  * @param encloseClassicChains
+  *   NB: ignored unless newlines.source=classic.
+  *   Controls what happens if a chain enclosed in parentheses is followed by
+  *   additional selects. Those additional selects will be considered part of
+  *   the enclosed chain if and only if this flag is false.
+  *   {{{
+  *     // original
+  *     (foo.map(_ + 1).map(_ + 1))
+  *       .filter(_ > 2)
+  *     // if true
+  *     (foo.map(_ + 1).map(_ + 1))
+  *       .filter(_ > 2)
+  *     // if false
+  *     (foo
+  *       .map(_ + 1)
+  *       .map(_ + 1))
+  *       .filter(_ > 2)
+  *   }}}
+  *
   * @param annotationNewlines
   *   - if newlines.source is missing or keep:
   *     - if true, will keep existing line breaks around annotations
@@ -85,6 +104,7 @@ case class OptIn(
     configStyleArguments: Boolean = true,
     breaksInsideChains: Boolean = false,
     breakChainOnFirstMethodDot: Boolean = true,
+    encloseClassicChains: Boolean = false,
     selfAnnotationNewline: Boolean = true,
     annotationNewlines: Boolean = true,
     // Candidate to become default false at some point.

@@ -426,21 +426,21 @@ object TreeOps {
       splitDefnIntoParts.lift(tree)
   }
 
-  def isChainApplyParent(parent: Tree, child: Tree): Boolean =
-    splitCallIntoParts.lift(parent).exists(_._1 == child)
-
   @tailrec
-  final def getSelectChain(
+  def getSelectChain(
       child: Tree,
+      lastApply: Tree,
       accum: Vector[Term.Select]
   ): Vector[Term.Select] = {
-    child.parent match {
-      case Some(parent: Term.Select) =>
-        getSelectChain(parent, accum :+ parent)
-      case Some(parent) if isChainApplyParent(parent, child) =>
-        getSelectChain(parent, accum)
-      case els => accum
-    }
+    if (child eq lastApply) accum
+    else
+      child.parent match {
+        case Some(parent: Term.Select) =>
+          getSelectChain(parent, lastApply, accum :+ parent)
+        case Some(parent @ SplitCallIntoParts(`child`, _)) =>
+          getSelectChain(parent, lastApply, accum)
+        case els => accum
+      }
   }
 
   /**
@@ -693,5 +693,13 @@ object TreeOps {
 
   @inline
   def ifWithoutElse(t: Term.If) = t.elsep.is[Lit.Unit]
+
+  def cannotStartSelectChain(select: Term.Select): Boolean =
+    select.qual match {
+      case _: Term.Placeholder => true
+      case t: Term.Name => isSymbolicName(t.value)
+      case t: Term.Select => isSymbolicName(t.name.value)
+      case _ => false
+    }
 
 }
