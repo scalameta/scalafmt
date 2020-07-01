@@ -37,7 +37,8 @@ case class NewlineT(
   override def toString = {
     val double = if (isDouble) "Double" else ""
     val indent = if (noIndent) "NoIndent" else ""
-    double + indent + "Newline"
+    val altStr = alt.fold("")(x => "|" + x.mod.toString)
+    double + indent + "Newline" + altStr
   }
   override val newlines: Int = if (isDouble) 2 else 1
   override val length: Int = 0

@@ -1201,7 +1201,8 @@ class Router(formatOps: FormatOps) {
       case t @ FormatToken(left, _: T.Dot, _)
           if !style.newlines.sourceIs(Newlines.classic) &&
             rightOwner.is[Term.Select] =>
-        val (expireTree, nextSelect) = findLastApplyAndNextSelect(rightOwner)
+        val (expireTree, nextSelect) =
+          findLastApplyAndNextSelect(rightOwner, true)
         val prevSelect = findPrevSelect(rightOwner.asInstanceOf[Term.Select])
         val expire = lastToken(expireTree)
 
@@ -1249,8 +1250,7 @@ class Router(formatOps: FormatOps) {
 
         // trigger indent only on the first newline
         val indent = Indent(Num(2), expire, After)
-        val willBreak =
-          nextNonCommentSameLine(tokens(formatToken, 2)).right.is[T.Comment]
+        val willBreak = nextNonCommentSameLine(tokens(t, 2)).right.is[T.Comment]
         val splits = baseSplits.map { s =>
           if (willBreak || s.isNL) s.withIndent(indent)
           else s.andThenPolicyOpt(delayedBreakPolicy)
@@ -1273,7 +1273,10 @@ class Router(formatOps: FormatOps) {
           else optimalToken
 
         def getNewline(ft: FormatToken): NewlineT = {
-          val (_, nextSelect) = findLastApplyAndNextSelect(ft.meta.rightOwner)
+          val (_, nextSelect) = findLastApplyAndNextSelect(
+            ft.meta.rightOwner,
+            style.optIn.encloseClassicChains
+          )
           val endSelect = nextSelect.fold(optimalToken)(x => lastToken(x.qual))
           val nlAlt = ModExt(NoSplit).withIndent(-2, endSelect, After)
           NewlineT(alt = Some(nlAlt))

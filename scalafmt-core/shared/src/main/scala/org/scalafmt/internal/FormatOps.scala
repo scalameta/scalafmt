@@ -138,28 +138,19 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
   }
 
   object `:chain:` {
-    def unapply(tok: Token): Option[(Token, Vector[Term.Select])] = {
+    def unapply(
+        tok: Token
+    )(implicit style: ScalafmtConfig): Option[(Token, Vector[Term.Select])] = {
       val ft = tokens(tok)
-      val openApply = tokens(ft, 1).right
-      def startsOpenApply =
-        isOpenApply(
-          openApply,
-          includeCurly = initStyle.includeCurlyBraceInSelectChains,
-          includeNoParens = initStyle.includeNoParensInSelectChains
-        )
-      def isShortCurlyChain(chain: Vector[Term.Select]): Boolean =
-        chain.length == 2 && {
-          !(for {
-            child <- chain.lastOption
-            parent <- child.parent
-          } yield isChainApplyParent(parent, child)).getOrElse(false)
-        }
-
       ft.meta.leftOwner match {
-        case t: Term.Select if startsOpenApply =>
-          val chain = getSelectChain(t, Vector(t))
-          if (openApply.is[T.LeftBrace] && isShortCurlyChain(chain)) None
-          else Some(tok -> chain)
+        case t: Term.Select =>
+          val (expireTree, nextSelect) =
+            findLastApplyAndNextSelect(t, style.optIn.encloseClassicChains)
+          if (!canStartSelectChain(t, nextSelect, expireTree)) None
+          else {
+            val chain = getSelectChain(t, expireTree, Vector(t))
+            Some(tok -> chain)
+          }
         case _ => None
       }
     }
@@ -1447,18 +1438,64 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
     findPrevSelect(tree.qual)
 
   @tailrec
-  final def findLastApplyAndNextSelect(
+  private def findLastApplyAndNextSelectEnclosed(
       tree: Tree,
       select: Option[Term.Select] = None
   ): (Tree, Option[Term.Select]) =
+    if (isEnclosedInMatching(tree)) (tree, select)
+    else
+      tree.parent match {
+        case Some(p: Term.Select) =>
+          findLastApplyAndNextSelectEnclosed(p, select.orElse(Some(p)))
+        case Some(p @ SplitCallIntoParts(`tree`, _)) =>
+          findLastApplyAndNextSelectEnclosed(p, select)
+        case _ => (tree, select)
+      }
+
+  @tailrec
+  private def findLastApplyAndNextSelectPastEnclosed(
+      tree: Tree,
+      select: Option[Term.Select] = None,
+      prevEnclosed: Option[Tree] = None
+  ): (Tree, Option[Term.Select]) =
     tree.parent match {
       case Some(p: Term.Select) =>
-        findLastApplyAndNextSelect(p, select.orElse(Some(p)))
+        findLastApplyAndNextSelectPastEnclosed(p, select.orElse(Some(p)))
       case Some(p @ SplitCallIntoParts(`tree`, _)) =>
-        if (isEnclosedInMatching(p)) (p, select)
-        else findLastApplyAndNextSelect(p, select)
-      case _ => (tree, select)
+        prevEnclosed match {
+          case Some(t) => (t, select)
+          case _ =>
+            val nextEnclosed =
+              if (isEnclosedInMatching(tree)) Some(tree) else None
+            findLastApplyAndNextSelectPastEnclosed(p, select, nextEnclosed)
+        }
+      case _ => (prevEnclosed.getOrElse(tree), select)
     }
+
+  final def findLastApplyAndNextSelect(
+      tree: Tree,
+      enclosed: Boolean
+  ): (Tree, Option[Term.Select]) =
+    if (enclosed) findLastApplyAndNextSelectEnclosed(tree)
+    else findLastApplyAndNextSelectPastEnclosed(tree)
+
+  def canStartSelectChain(
+      thisSelect: Term.Select,
+      nextSelect: Option[Term.Select],
+      lastApply: Tree
+  )(implicit style: ScalafmtConfig): Boolean = {
+    val ok = (thisSelect ne lastApply) && !cannotStartSelectChain(thisSelect)
+    ok && (thisSelect.parent match {
+      case `nextSelect` => style.includeNoParensInSelectChains
+      case Some(ta: Term.Apply)
+          if ta.args.lengthCompare(1) == 0 &&
+            nextNonComment(tokens(ta.fun.tokens.last)).right.is[T.LeftBrace] =>
+        style.includeCurlyBraceInSelectChains &&
+          !nextSelect.contains(lastApply) // exclude short curly
+      case Some(SplitCallIntoParts(`thisSelect`, _)) => true
+      case _ => false
+    })
+  }
 
   @tailrec
   final def findTokenWith[A](

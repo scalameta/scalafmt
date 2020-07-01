@@ -2338,6 +2338,34 @@ foo.bar(_ + 1)
 foo.bar(_ + 1).baz(_ > 2).qux
 ```
 
+### `optIn.encloseClassicChains`
+
+Controls what happens if a chain enclosed in parentheses is followed by
+additional selects. Those additional selects will be considered part of
+the enclosed chain if and only if this flag is false.
+
+> Since 2.6.2.
+
+```scala mdoc:defaults
+optIn.encloseClassicChains
+```
+
+```scala mdoc:scalafmt
+optIn.encloseClassicChains = true
+maxColumn = 30
+---
+(foo.map(_ + 1).map(_ + 1))
+  .filter(_ > 2)
+```
+
+```scala mdoc:scalafmt
+optIn.encloseClassicChains = false
+maxColumn = 30
+---
+(foo.map(_ + 1).map(_ + 1))
+  .filter(_ > 2)
+```
+
 ## Miscellaneous
 
 ### `optIn.forceBlankLineBeforeDocstring`
