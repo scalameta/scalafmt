@@ -26,13 +26,13 @@ case class Policy(
         expire = math.max(minExpire, expire)
       )
 
-  def orElse(other: Policy): Policy =
+  def |(other: Policy): Policy =
     orElse(other.f, other.expire)
 
-  def orElse(other: Option[Policy]): Policy =
-    other.fold(this)(orElse)
+  def |(other: Option[Policy]): Policy =
+    other.fold(this)(|)
 
-  def andThen(other: Policy): Policy =
+  def &(other: Policy): Policy =
     if (isEmpty) other else andThen(other.f, other.expire)
 
   /** Similar to PartialFunction.andThen, except applies second pf even if the

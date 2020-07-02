@@ -741,11 +741,11 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
       .onlyIf(singleLinePolicy.isDefined && beforeLhs)
       .withIndent(nlIndentLength, singleLineExpire, ExpiresOn.After)
       .withSingleLine(singleLineExpire)
-      .andThenPolicyOpt(singleLinePolicy)
+      .andPolicyOpt(singleLinePolicy)
     val spaceSingleLine = Split(Space, 0)
       .onlyIf(newStmtMod.isEmpty)
       .withSingleLine(singleLineExpire)
-      .andThenPolicyOpt(singleLinePolicy)
+      .andPolicyOpt(singleLinePolicy)
     val singleLineSplits = Seq(
       spaceSingleLine.onlyFor(SplitTag.InfixChainNoNL),
       spaceSingleLine.onlyIf(singleLinePolicy.isDefined),
@@ -774,14 +774,14 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
       }
 
       val nlSplit = Split(nlMod, 0)
-        .andThenPolicyOpt(breakAfterClose)
+        .andPolicyOpt(breakAfterClose)
         .withIndent(nlIndent)
         .withPolicy(nlPolicy)
       val singleLineSplit = Split(Space, 0)
         .notIf(noSingleLine)
         .withSingleLine(endOfNextOp.getOrElse(close))
-        .andThenPolicyOpt(breakAfterClose)
-        .andThenPolicy(getSingleLineInfixPolicy(close))
+        .andPolicyOpt(breakAfterClose)
+        .andPolicy(getSingleLineInfixPolicy(close))
       Seq(singleLineSplit, nlSplit)
     }
 
@@ -1080,7 +1080,7 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
           if (!s.isNL) s
           else {
             replaced = true
-            s.orElsePolicy(onBreakPolicy)
+            s.orPolicy(onBreakPolicy)
           }
         val splits = d.splits.map(decisionPf)
         if (replaced) Some(splits) else None
@@ -1202,7 +1202,7 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
         // a class with type AND value params. Otherwise it is a class with
         // just type params.
         findFirst(afterTypes, lastParen)(t => t.left.is[T.LeftParen])
-          .fold(base)(t => base.orElse(OneArgOneLineSplit(t)))
+          .fold(base)(t => base | OneArgOneLineSplit(t))
       } else base
     }
 
@@ -1259,7 +1259,7 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
 
     // Our policy is a combination of OneArgLineSplit and a custom splitter
     // for parameter groups.
-    val policy = oneLinePerArg.orElse(paramGroupSplitter)
+    val policy = oneLinePerArg | paramGroupSplitter
 
     val firstIndent =
       if (r.is[T.RightParen]) // An empty param group
