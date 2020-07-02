@@ -98,8 +98,8 @@ case class Split(
       newPolicy: => Policy,
       ignore: Boolean = false
   )(implicit line: sourcecode.Line): Split = {
-    if (policy != NoPolicy)
-      throw new UnsupportedOperationException("Can't have two policies yet.")
+    if (!policy.isEmpty)
+      throw new UnsupportedOperationException("Use orPolicy or andPolicy")
     if (isIgnored || ignore) this else copy(policy = newPolicy)
   }
 
@@ -147,22 +147,26 @@ case class Split(
   )(implicit line: sourcecode.Line): Split =
     if (isIgnored) this else newPolicy.fold(this)(withPolicy(_))
 
-  def orElsePolicy(newPolicy: Policy): Split =
+  def orPolicy(newPolicy: Policy): Split =
     if (isIgnored || newPolicy.isEmpty) this
-    else if (policy.isEmpty) copy(policy = newPolicy)
-    else copy(policy = policy.orElse(newPolicy))
+    else copy(policy = policy | newPolicy)(line = line)
 
-  def andThenPolicy(newPolicy: Policy): Split =
+  def andPolicy(newPolicy: Policy): Split =
     if (isIgnored || newPolicy.isEmpty) this
-    else if (policy.isEmpty) copy(policy = newPolicy)
-    else copy(policy = policy.andThen(newPolicy))
+    else copy(policy = policy & newPolicy)(line = line)
 
-  def andThenPolicy(newPolicy: => Policy, ignore: Boolean): Split =
-    if (ignore) this else andThenPolicy(newPolicy)
+  def andPolicy(newPolicy: => Policy, ignore: Boolean): Split =
+    if (ignore) this else andPolicy(newPolicy)
 
-  def andThenPolicyOpt(newPolicy: => Option[Policy]): Split =
-    if (isIgnored) this
-    else newPolicy.fold(this)(andThenPolicy)
+  def andPolicyOpt(newPolicy: => Option[Policy]): Split =
+    if (isIgnored) this else newPolicy.fold(this)(andPolicy)
+
+  def andFirstPolicy(newPolicy: Policy): Split =
+    if (isIgnored || newPolicy.isEmpty) this
+    else copy(policy = newPolicy & policy)(line = line)
+
+  def andFirstPolicyOpt(newPolicy: => Option[Policy]): Split =
+    if (isIgnored) this else newPolicy.fold(this)(andFirstPolicy)
 
   def withPenalty(penalty: Int): Split =
     if (isIgnored || penalty <= 0) this else copy(cost = cost + penalty)
