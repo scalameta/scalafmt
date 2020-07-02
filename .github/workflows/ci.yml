@@ -81,6 +81,7 @@ jobs:
   dockerize:
     needs: [native-image,test]
     runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
     steps:
       - uses: actions/checkout@v2
       - run: git fetch --unshallow
