@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: olafurpg/setup-scala@v6
+      - uses: olafurpg/setup-scala@v7
         with:
           java-version: ${{ matrix.java }}
       - run: git fetch --tags
@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: olafurpg/setup-scala@v6
+      - uses: olafurpg/setup-scala@v7
       - run: ./scalafmt --test
       - run: yarn install
       - run: yarn format-check
@@ -47,17 +47,20 @@ jobs:
         include:
           - os: macOS-latest
             artifact: scalafmt-macos
+            env:
+              NATIVE_IMAGE_STATIC: false
           - os: ubuntu-latest
             libc: default
             artifact: scalafmt-linux-glibc
             env:
-              - NATIVE_IMAGE_STATIC: true
+              NATIVE_IMAGE_STATIC: true
           - os: ubuntu-latest
             libc: musl
             artifact: scalafmt-linux-musl
             env:
-              - NATIVE_IMAGE_STATIC: true
-              - NATIVE_IMAGE_MUSL: ${GITHUB_WORKSPACE}/bundle
+              NATIVE_IMAGE_STATIC: true
+              NATIVE_IMAGE_MUSL: /home/runner/work/scalafmt/scalafmt/bundle
+    env: ${{ matrix.env }}
     steps:
       - uses: actions/checkout@v2
       - uses: olafurpg/setup-scala@v7
@@ -68,7 +71,6 @@ jobs:
         run: |
           wget https://github.com/gradinac/musl-bundle-example/releases/download/v1.0/musl.tar.gz
           tar xvf musl.tar.gz
-
       - run: bin/build-native-image.sh
         env:
           CI: true
@@ -76,3 +78,20 @@ jobs:
         with:
           name: ${{ matrix.artifact }}
           path: scalafmt
+  dockerize:
+    needs: [native-image,test]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v2
+      - run: git fetch --unshallow
+      - uses: actions/download-artifact@v1
+        with:
+          name: scalafmt-linux-musl
+          path: tmp/scalafmt-linux-musl
+      - uses: docker/build-push-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: scalameta/scalafmt
+          tag_with_ref: true
