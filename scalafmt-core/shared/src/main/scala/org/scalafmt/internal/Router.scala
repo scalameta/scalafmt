@@ -573,7 +573,7 @@ class Router(formatOps: FormatOps) {
         val forceNewlineBeforeExtends = Policy(expire) {
           case Decision(t @ FormatToken(_, _: T.KwExtends, _), s)
               if t.meta.rightOwner == leftOwner =>
-            s.filter(x => x.isNL && (x.activeTag ne SplitTag.OnelineWithChain))
+            s.filter(x => x.isNL && !x.isActiveFor(SplitTag.OnelineWithChain))
         }
         val policyEnd = defnBeforeTemplate(leftOwner).fold(r)(_.tokens.last)
         val policy = delayedBreakPolicy(policyEnd)(forceNewlineBeforeExtends)
