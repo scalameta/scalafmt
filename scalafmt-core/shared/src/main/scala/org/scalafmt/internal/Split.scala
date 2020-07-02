@@ -38,8 +38,8 @@ case class OptimalToken(token: Token, killOnFail: Boolean = false) {
 case class Split(
     modExt: ModExt,
     cost: Int,
-    tag: SplitTag = SplitTag.Active,
-    activeTag: SplitTag = SplitTag.Active,
+    neededTags: Set[SplitTag] = Set.empty,
+    activeTags: Set[SplitTag] = Set.empty,
     policy: Policy = NoPolicy,
     optimalAt: Option[OptimalToken] = None
 )(implicit val line: sourcecode.Line) {
@@ -63,24 +63,44 @@ case class Split(
   def length: Int = modExt.mod.length
 
   @inline
-  def isIgnored: Boolean = tag eq SplitTag.Ignored
+  def isIgnored: Boolean = neededTags eq Split.ignoredTags
 
   @inline
-  def isActive: Boolean = tag eq activeTag
+  def isActive: Boolean = neededTags == activeTags
+
+  @inline
+  def isActiveFor(splitTag: SplitTag): Boolean = activeTags(splitTag)
+
+  @inline
+  def isNeededFor(splitTag: SplitTag): Boolean = neededTags(splitTag)
+
+  private def ignored: Split =
+    if (isIgnored) this else copy(neededTags = Split.ignoredTags)
 
   @inline
   def notIf(flag: Boolean): Split = onlyIf(!flag)
 
-  def onlyIf(flag: Boolean): Split =
-    if (flag || isIgnored) this else copy(tag = SplitTag.Ignored)
+  @inline
+  def onlyIf(flag: Boolean): Split = if (flag) this else ignored
 
-  def onlyFor(tag: SplitTag, ignore: Boolean = false): Split =
-    if (isIgnored || ignore || (this.tag eq tag)) this
-    else if (isActive) copy(tag = tag)
-    else throw new UnsupportedOperationException("Multiple tags unsupported")
+  def onlyFor(splitTag: SplitTag, ignore: Boolean = false): Split =
+    if (isIgnored || ignore || isNeededFor(splitTag)) this
+    else copy(neededTags = neededTags + splitTag)(line = line)
 
-  def activateFor(tag: SplitTag): Split =
-    if (isIgnored || (this.activeTag eq tag)) this else copy(activeTag = tag)
+  def activateFor(splitTag: SplitTag): Split =
+    if (isIgnored || isActiveFor(splitTag)) this
+    else copy(activeTags = activeTags + splitTag)(line = line)
+
+  def preActivateFor(splitTag: SplitTag): Split =
+    if (isIgnored) this
+    else
+      copy(
+        activeTags = activeTags + splitTag,
+        neededTags = neededTags + splitTag
+      )(line = line)
+
+  def preActivateFor(splitTag: Option[SplitTag]): Split =
+    if (isIgnored) this else splitTag.fold(this)(preActivateFor)
 
   def withOptimalTokenOpt(
       token: => Option[Token],
@@ -206,11 +226,15 @@ case class Split(
     }
 
   override def toString = {
-    val prefix = tag match {
-      case SplitTag.Ignored => "!"
-      case SplitTag.Active => ""
-      case _ => s"[$tag]"
-    }
+    val prefix =
+      if (isIgnored) "!"
+      else {
+        val wantedTags = neededTags.filterNot(activeTags).mkString(",")
+        val unusedTags = activeTags.filterNot(neededTags).mkString(",")
+        if (unusedTags.nonEmpty) s"[$wantedTags!$unusedTags]"
+        else if (wantedTags.nonEmpty) s"[$wantedTags]"
+        else ""
+      }
     val opt = optimalAt.fold("")(", opt=" + _)
     s"""$prefix${modExt.mod}:${line.value}(cost=$cost, indents=$indentation, $policy$opt)"""
   }
@@ -218,7 +242,14 @@ case class Split(
 
 object Split {
 
+  private val ignoredTags = Set[SplitTag](null)
+
   def ignored(implicit line: sourcecode.Line) =
-    Split(ModExt(NoSplit), 0, tag = SplitTag.Ignored)
+    Split(ModExt(NoSplit), 0).ignored
+
+  def apply(ignore: Boolean, cost: Int)(
+      modExt: ModExt
+  )(implicit line: sourcecode.Line): Split =
+    if (ignore) ignored else Split(modExt, cost)
 
 }

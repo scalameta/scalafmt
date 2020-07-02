@@ -1009,22 +1009,21 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
     val owners = chain.fold[Set[Tree]](Set(_), x => x.toSet)
     val nlPolicy = ctorWithChain(owners, lastToken)
     val nlOnelineTag = style.binPack.parentConstructors match {
-      case BinPack.ParentCtors.Oneline => SplitTag.Active
+      case BinPack.ParentCtors.Oneline => Right(true)
       case BinPack.ParentCtors.OnelineIfPrimaryOneline =>
-        SplitTag.OnelineWithChain
+        Left(SplitTag.OnelineWithChain)
       case BinPack.ParentCtors.Always | BinPack.ParentCtors.Never =>
-        SplitTag.Ignored
+        Right(false)
       case BinPack.ParentCtors.MaybeNever =>
-        val isOneline = style.newlines.sourceIs(Newlines.fold)
-        if (isOneline) SplitTag.Active else SplitTag.Ignored
+        Right(style.newlines.sourceIs(Newlines.fold))
     }
     val indent = Indent(Num(indentLen), lastToken, ExpiresOn.After)
     val extendsThenWith = chain.left.exists(_.inits.length > 1)
     Seq(
       Split(Space, 0).withSingleLine(lastToken, noSyntaxNL = extendsThenWith),
       Split(nlMod, 0)
-        .onlyFor(nlOnelineTag)
-        .activateFor(nlOnelineTag)
+        .onlyIf(nlOnelineTag != Right(false))
+        .preActivateFor(nlOnelineTag.left.toOption)
         .withSingleLine(lastToken, noSyntaxNL = extendsThenWith)
         .withIndent(indent),
       Split(nlMod, 1).withPolicy(nlPolicy).withIndent(indent)
