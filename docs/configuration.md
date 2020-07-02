@@ -2225,9 +2225,17 @@ object A {
 }
 ```
 
-## Miscellaneous
+## Classic select chains
+
+The parameters below control formatting of select chains when `newlines.source = classic`,
+and specifically which select expressions are included in a chain.
+
+Generally, a chain can either be formatted on one line up to the last select, or will
+have a break on the first select.
 
 ### `includeCurlyBraceInSelectChains`
+
+Controls if select followed by curly braces can _start_ a chain.
 
 ```scala mdoc:defaults
 includeCurlyBraceInSelectChains
@@ -2254,6 +2262,8 @@ List(1)
 
 ### `includeNoParensInSelectChains`
 
+Controls if select _not_ followed by an apply can _start_ a chain.
+
 ```scala mdoc:defaults
 includeNoParensInSelectChains
 ```
@@ -2274,6 +2284,9 @@ List(1).toIterator.buffered.map(_ + 2).filter(_ > 2)
 
 ### `optIn.breakChainOnFirstMethodDot`
 
+Keeps the break on the first select of the chain if the source contained one.
+Has no effect if there was no newline in the source.
+
 ```scala mdoc:defaults
 optIn.breakChainOnFirstMethodDot
 ```
@@ -2290,10 +2303,42 @@ foo
 ```scala mdoc:scalafmt
 optIn.breakChainOnFirstMethodDot = true
 ---
+// preserve break on first dot and break on subsequent dots
 foo
-  .map(_ + 1) // preserve existing newlines
-  .filter(_ > 2)
+  .map(_ + 1).filter(_ > 2)
 ```
+
+### `optIn.breaksInsideChains`
+
+If false, each subsequent select within the chain will behave exactly like the first,
+that is, either the entire chain will be formatted on one line, or will contain a break
+on every select.
+
+If true, preserves existence or lack of breaks on subsequent selects. If there's at
+least one break, that will force a break on the first select since the chain can't
+be formatted on one line.
+
+```scala mdoc:defaults
+optIn.breaksInsideChains
+```
+
+```scala mdoc:scalafmt
+optIn.breaksInsideChains = true
+---
+foo.bar(_ + 1)
+  .baz(_ > 2).qux
+foo.bar(_ + 1).baz(_ > 2).qux
+```
+
+```scala mdoc:scalafmt
+optIn.breaksInsideChains = false
+---
+foo.bar(_ + 1)
+  .baz(_ > 2).qux
+foo.bar(_ + 1).baz(_ > 2).qux
+```
+
+## Miscellaneous
 
 ### `optIn.forceBlankLineBeforeDocstring`
 
