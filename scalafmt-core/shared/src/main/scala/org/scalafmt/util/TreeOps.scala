@@ -426,23 +426,6 @@ object TreeOps {
       splitDefnIntoParts.lift(tree)
   }
 
-  @tailrec
-  def getSelectChain(
-      child: Tree,
-      lastApply: Tree,
-      accum: Vector[Term.Select]
-  ): Vector[Term.Select] = {
-    if (child eq lastApply) accum
-    else
-      child.parent match {
-        case Some(parent: Term.Select) =>
-          getSelectChain(parent, lastApply, accum :+ parent)
-        case Some(parent @ SplitCallIntoParts(`child`, _)) =>
-          getSelectChain(parent, lastApply, accum)
-        case els => accum
-      }
-  }
-
   /**
     * How many parents of tree are Term.Apply?
     */

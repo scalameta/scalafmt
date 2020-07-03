@@ -138,25 +138,6 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
       ownersMap.get(hash(tok)).map(tree => tok -> tree)
   }
 
-  object `:chain:` {
-    def unapply(
-        tok: Token
-    )(implicit style: ScalafmtConfig): Option[(Token, Vector[Term.Select])] = {
-      val ft = tokens(tok)
-      ft.meta.leftOwner match {
-        case t: Term.Select =>
-          val (expireTree, nextSelect) =
-            findLastApplyAndNextSelect(t, style.optIn.encloseClassicChains)
-          if (!canStartSelectChain(t, nextSelect, expireTree)) None
-          else {
-            val chain = getSelectChain(t, expireTree, Vector(t))
-            Some(tok -> chain)
-          }
-        case _ => None
-      }
-    }
-  }
-
   @inline def prev(tok: FormatToken): FormatToken = tokens(tok, -1)
   @inline def next(tok: FormatToken): FormatToken = tokens(tok, 1)
 
@@ -465,47 +446,11 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
     }
   }
 
-  /**
-    * Returns last token of select, handles case when select's parent is apply.
-    *
-    * For example, in:
-    * foo.bar[T](1, 2)
-    * the last token is the final )
-    *
-    * @param dot the dot owned by the select.
-    */
-  def getSelectsLastToken(dot: T.Dot): FormatToken = {
-    var curr = tokens(dot, 1)
-    while (
-      isOpenApply(
-        curr.right,
-        includeCurly = true,
-        includeNoParens = true
-      ) &&
-      !statementStarts.contains(hash(curr.right))
-    ) {
-      if (curr.right.is[T.Dot]) {
-        curr = tokens(curr, 2)
-      } else {
-        curr = tokens(matching(curr.right))
-      }
-    }
-    curr
-  }
-
   def getOptimalTokenFor(token: Token): Token =
     getOptimalTokenFor(tokens(token))
 
   def getOptimalTokenFor(ft: FormatToken): Token =
     if (isAttachedSingleLineComment(ft)) ft.right else ft.left
-
-  def getSelectOptimalToken(tree: Tree): Token = {
-    val lastDotOpt = findLast(tree.tokens)(_.is[T.Dot])
-    if (lastDotOpt.isEmpty)
-      throw new IllegalStateException(s"Missing . in select $tree")
-    val lastDot = lastDotOpt.get.asInstanceOf[T.Dot]
-    lastToken(getSelectsLastToken(lastDot).meta.leftOwner)
-  }
 
   def infixIndent(
       app: InfixApp,
@@ -1478,6 +1423,22 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
       case _ => false
     })
   }
+
+  /** Checks if an earlier select started the chain */
+  @tailrec
+  final def inSelectChain(
+      prevSelect: Option[Term.Select],
+      thisSelect: Term.Select,
+      lastApply: Tree
+  )(implicit style: ScalafmtConfig): Boolean =
+    prevSelect match {
+      case None => false
+      case Some(p) if canStartSelectChain(p, Some(thisSelect), lastApply) =>
+        true
+      case Some(p) =>
+        val prevPrevSelect = findPrevSelect(p, style.encloseSelectChains)
+        inSelectChain(prevPrevSelect, p, lastApply)
+    }
 
   @tailrec
   final def findTokenWith[A](

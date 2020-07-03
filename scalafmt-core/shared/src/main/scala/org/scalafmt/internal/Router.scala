@@ -1194,15 +1194,117 @@ class Router(formatOps: FormatOps) {
           }.isDefined =>
         Seq(Split(NoSplit, 0))
 
-      case t @ FormatToken(left, _: T.Dot, _)
-          if !style.newlines.sourceIs(Newlines.classic) &&
-            rightOwner.is[Term.Select] =>
+      case t @ FormatToken(left, _: T.Dot, _) if rightOwner.is[Term.Select] =>
+        val enclosed = style.encloseSelectChains
         val (expireTree, nextSelect) =
-          findLastApplyAndNextSelect(rightOwner, true)
-        val prevSelect = findPrevSelect(rightOwner.asInstanceOf[Term.Select])
+          findLastApplyAndNextSelect(rightOwner, enclosed)
+        val thisSelect = rightOwner.asInstanceOf[Term.Select]
+        val prevSelect = findPrevSelect(thisSelect, enclosed)
         val expire = lastToken(expireTree)
 
+        def breakOnNextDot: Policy =
+          nextSelect.fold[Policy](Policy.NoPolicy) { tree =>
+            val end = tree.name.tokens.head
+            Policy(end) {
+              case Decision(t @ FormatToken(_, _: T.Dot, _), s)
+                  if t.meta.rightOwner eq tree =>
+                val filtered = s.flatMap { x =>
+                  val y = x.activateFor(SplitTag.SelectChainSecondNL)
+                  if (y.isActive) Some(y) else None
+                }
+                if (filtered.isEmpty) Seq.empty
+                else {
+                  val minCost = math.max(0, filtered.map(_.cost).min - 1)
+                  filtered.map { x =>
+                    val p =
+                      x.policy.filter(!_.isInstanceOf[PenalizeAllNewlines])
+                    x.copy(cost = x.cost - minCost, policy = p)
+                  }
+                }
+            }
+          }
         val baseSplits = style.newlines.source match {
+          case Newlines.classic =>
+            def getNlMod = {
+              val endSelect = nextSelect.fold(expire)(x => lastToken(x.qual))
+              val nlAlt = ModExt(NoSplit).withIndent(-2, endSelect, After)
+              NewlineT(alt = Some(nlAlt))
+            }
+
+            val prevChain = inSelectChain(prevSelect, thisSelect, expireTree)
+            if (canStartSelectChain(thisSelect, nextSelect, expireTree)) {
+              val chainExpire =
+                if (nextSelect.isEmpty) lastToken(thisSelect)
+                else if (!isEnclosedInMatching(expireTree)) expire
+                else lastToken(expireTree.tokens.dropRight(1))
+              val nestedPenalty =
+                nestedSelect(rightOwner) + nestedApplies(leftOwner)
+              // This policy will apply to both the space and newline splits, otherwise
+              // the newline is too cheap even it doesn't actually prevent other newlines.
+              val penalizeBreaks = penalizeAllNewlines(chainExpire, 2)
+              def slbPolicy =
+                SingleLineBlock(
+                  chainExpire,
+                  getExcludeIf(chainExpire),
+                  penaliseNewlinesInsideTokens = true
+                )
+              val newlinePolicy = breakOnNextDot & penalizeBreaks
+              val ignoreNoSplit = t.hasBreak &&
+                (left.is[T.Comment] || style.optIn.breakChainOnFirstMethodDot)
+              val chainLengthPenalty =
+                if (
+                  style.newlines.penalizeSingleSelectMultiArgList &&
+                  nextSelect.isEmpty
+                ) {
+                  // penalize by the number of arguments in the rhs open apply.
+                  // I know, it's a bit arbitrary, but my manual experiments seem
+                  // to show that it produces OK output. The key insight is that
+                  // many arguments on the same line can be hard to read. By not
+                  // putting a newline before the dot, we force the argument list
+                  // to break into multiple lines.
+                  splitCallIntoParts.lift(tokens(t, 2).meta.rightOwner) match {
+                    case Some((_, Left(args))) =>
+                      Math.max(0, args.length - 1)
+                    case Some((_, Right(argss))) =>
+                      Math.max(0, argss.map(_.length).sum - 1)
+                    case _ => 0
+                  }
+                } else 0
+              // when the flag is on, penalize break, to avoid idempotence issues;
+              // otherwise, after the break is chosen, the flag prohibits nosplit
+              val nlBaseCost =
+                if (style.optIn.breakChainOnFirstMethodDot && t.noBreak) 3
+                else 2
+              val nlCost = nlBaseCost + nestedPenalty + chainLengthPenalty
+              val nlMod = getNlMod
+              Seq(
+                Split(!prevChain, 1) { // must come first, for backwards compat
+                  if (style.optIn.breaksInsideChains) NoSplit.orNL(t.noBreak)
+                  else nlMod
+                }
+                  .withPolicy(newlinePolicy)
+                  .onlyFor(SplitTag.SelectChainSecondNL),
+                Split(ignoreNoSplit, 0)(NoSplit)
+                  .withPolicy(slbPolicy, prevChain)
+                  .andPolicy(penalizeBreaks),
+                Split(if (ignoreNoSplit) Newline else nlMod, nlCost)
+                  .withPolicy(newlinePolicy)
+              )
+            } else {
+              val isComment = left.is[T.Comment]
+              val doBreak = isComment && t.hasBreak
+              Seq(
+                Split(!prevChain, 1) {
+                  if (style.optIn.breaksInsideChains) NoSplit.orNL(t.noBreak)
+                  else if (doBreak) Newline
+                  else getNlMod
+                }
+                  .withPolicy(breakOnNextDot)
+                  .onlyFor(SplitTag.SelectChainSecondNL),
+                Split(if (doBreak) Newline else Space(isComment), 0)
+              )
+            }
+
           case _ if left.is[T.Comment] =>
             Seq(Split(Space.orNL(t.noBreak), 0))
 
@@ -1236,7 +1338,7 @@ class Router(formatOps: FormatOps) {
             )
         }
 
-        val delayedBreakPolicy = nextSelect.map { tree =>
+        val delayedBreakPolicyOpt = nextSelect.map { tree =>
           Policy(tree.name.tokens.head) {
             case Decision(t @ FormatToken(_, _: T.Dot, _), s)
                 if t.meta.rightOwner eq tree =>
@@ -1249,89 +1351,11 @@ class Router(formatOps: FormatOps) {
         val willBreak = nextNonCommentSameLine(tokens(t, 2)).right.is[T.Comment]
         val splits = baseSplits.map { s =>
           if (willBreak || s.isNL) s.withIndent(indent)
-          else s.andPolicyOpt(delayedBreakPolicy)
+          else s.andFirstPolicyOpt(delayedBreakPolicyOpt)
         }
 
         if (prevSelect.isEmpty) splits
         else baseSplits ++ splits.map(_.onlyFor(SplitTag.SelectChainFirstNL))
-
-      case FormatToken(T.Ident(name), _: T.Dot, _) if isSymbolicName(name) =>
-        Seq(Split(NoSplit, 0))
-
-      case FormatToken(_: T.Underscore, _: T.Dot, _) =>
-        Seq(Split(NoSplit, 0))
-
-      case tok @ FormatToken(left, dot @ T.Dot() `:chain:` chain, _) =>
-        val nestedPenalty = nestedSelect(rightOwner) + nestedApplies(leftOwner)
-        val optimalToken = getSelectOptimalToken(chain.last)
-        val expire =
-          if (chain.length == 1) lastToken(chain.last)
-          else optimalToken
-
-        def getNewline(ft: FormatToken): NewlineT = {
-          val (_, nextSelect) = findLastApplyAndNextSelect(
-            ft.meta.rightOwner,
-            style.optIn.encloseClassicChains
-          )
-          val endSelect = nextSelect.fold(optimalToken)(x => lastToken(x.qual))
-          val nlAlt = ModExt(NoSplit).withIndent(-2, endSelect, After)
-          NewlineT(alt = Some(nlAlt))
-        }
-
-        val breakOnEveryDot = Policy(expire) {
-          case Decision(t @ FormatToken(_, _: T.Dot, _), _)
-              if chain.contains(t.meta.rightOwner) =>
-            val mod =
-              if (style.optIn.breaksInsideChains)
-                NoSplit.orNL(t.noBreak)
-              else getNewline(t)
-            Seq(Split(mod, 1))
-        }
-        val exclude = getExcludeIf(expire)
-        // This policy will apply to both the space and newline splits, otherwise
-        // the newline is too cheap even it doesn't actually prevent other newlines.
-        val penalizeNewlinesInApply = penalizeAllNewlines(expire, 2)
-        val noSplitPolicy =
-          SingleLineBlock(
-            expire,
-            exclude,
-            penaliseNewlinesInsideTokens = true
-          ) & penalizeNewlinesInApply
-        val newlinePolicy = breakOnEveryDot & penalizeNewlinesInApply
-        val ignoreNoSplit =
-          style.optIn.breakChainOnFirstMethodDot && tok.hasBreak
-        val chainLengthPenalty =
-          if (
-            style.newlines.penalizeSingleSelectMultiArgList &&
-            chain.length < 2
-          ) {
-            // penalize by the number of arguments in the rhs open apply.
-            // I know, it's a bit arbitrary, but my manual experiments seem
-            // to show that it produces OK output. The key insight is that
-            // many arguments on the same line can be hard to read. By not
-            // putting a newline before the dot, we force the argument list
-            // to break into multiple lines.
-            splitCallIntoParts.lift(tokens(tok, 2).meta.rightOwner) match {
-              case Some((_, Left(args))) =>
-                Math.max(0, args.length - 1)
-              case Some((_, Right(argss))) =>
-                Math.max(0, argss.map(_.length).sum - 1)
-              case _ => 0
-            }
-          } else 0
-        // when the flag is on, penalize break, to avoid idempotence issues;
-        // otherwise, after the break is chosen, the flag prohibits nosplit
-        val nlBaseCost =
-          if (style.optIn.breakChainOnFirstMethodDot && tok.noBreak) 3 else 2
-        val nlCost = nlBaseCost + nestedPenalty + chainLengthPenalty
-        Seq(
-          Split(NoSplit, 0)
-            .notIf(ignoreNoSplit)
-            .withPolicy(noSplitPolicy),
-          Split(if (ignoreNoSplit) Newline else getNewline(tok), nlCost)
-            .withPolicy(newlinePolicy)
-            .withIndent(2, optimalToken, After)
-        )
 
       // ApplyUnary
       case tok @ FormatToken(T.Ident(_), Literal(), _)

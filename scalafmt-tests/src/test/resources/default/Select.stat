@@ -62,7 +62,7 @@ val lastToken = owner.body.tokens.filter {
   case _: Whitespace | _: Comment => false
   case _ => true
 } // edge case, if body is empty expire on arrow.
-.lastOption.getOrElse(arrow)
+  .lastOption.getOrElse(arrow)
 <<< apply infix has indent
 val expireAAAAAAAAAAAAAAAAAAAAA = owner.tokens.
   find(t => t.isInstanceOf[`=`] && owners(t) == owner)
@@ -310,7 +310,7 @@ object a {
   (TypedPipe.from[(Int, Int)](Tsv("in0", (0, 1)), (0, 1))
     joinBy TypedPipe.from[(Int, Int)](Tsv("in1", (0, 1)), (0, 1)))(_._1, _._1)
     //Flatten out to three values:
-  .toTypedPipe
+    .toTypedPipe
     .map { kvw => (kvw._1, kvw._2._1._2, kvw._2._2._2) }
     .write(TypedText.tsv[(Int, Int, Int)]("out2"))
 }
@@ -875,5 +875,5 @@ object a {
   val reduces = node
     .foldDown[List[dag.Reduce]](true) {
       case r: dag.Reduce => List(r)
-  } distinct
+    } distinct
 }

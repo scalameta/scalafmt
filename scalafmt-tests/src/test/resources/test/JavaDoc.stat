@@ -1288,7 +1288,7 @@ object a {
 >>>
 object a {
   input.read
-  /** foo */
+    /** foo */
     .foo { bar }
     /** baz */
     .baz(qux)
