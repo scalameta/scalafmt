@@ -8,6 +8,7 @@ import java.util.function.UnaryOperator
 
 import org.scalafmt.CompatCollections.ParConverters._
 import org.scalafmt.Error.{MisformattedFile, NoMatchingFiles}
+import org.scalafmt.dynamic.ScalafmtDynamicError
 import org.scalafmt.interfaces.Scalafmt
 import org.scalafmt.interfaces.ScalafmtSession
 import org.scalafmt.interfaces.ScalafmtSessionFactory
@@ -27,13 +28,17 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
       .withReporter(reporter)
       .withRespectProjectFilters(false)
 
-    val session = scalafmtInstance match {
-      case t: ScalafmtSessionFactory =>
-        val session = t.createSession(options.configPath)
-        if (session == null) return reporter.getExitCode // XXX: returning
-        session
-      case _ => new MyInstanceSession(options, scalafmtInstance)
-    }
+    val session =
+      try {
+        scalafmtInstance match {
+          case t: ScalafmtSessionFactory =>
+            t.createSession(options.configPath)
+          case _ => new MyInstanceSession(options, scalafmtInstance)
+        }
+      } catch {
+        case _: ScalafmtDynamicError.ConfigError =>
+          return reporter.getExitCode // XXX: returning
+      }
 
     def sessionMatcher(x: AbsoluteFile): Boolean =
       session.matchesProjectFilters(x.jfile.toPath)
@@ -79,6 +84,8 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
 
   private final class MyInstanceSession(opts: CliOptions, instance: Scalafmt)
       extends ScalafmtSession {
+    // check config first
+    instance.format(opts.configPath, opts.configPath, "")
     private val customFiles =
       if (opts.respectProjectFilters) Seq.empty
       else opts.customFiles.filter(_.jfile.isFile).map(_.jfile.toPath)

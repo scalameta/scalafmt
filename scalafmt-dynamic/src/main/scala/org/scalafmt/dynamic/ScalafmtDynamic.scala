@@ -75,6 +75,7 @@ final case class ScalafmtDynamic(
         codeFormatted
       case Left(error) =>
         reportError(file, error)
+        if (error.isInstanceOf[ConfigError]) throw error
         code
     }
   }
@@ -235,7 +236,7 @@ final case class ScalafmtDynamic(
 
   override def createSession(config: Path): ScalafmtSession =
     resolveConfig(config).fold(
-      error => { reportError(config, error); null },
+      error => { reportError(config, error); throw error },
       config => new MySession(config)
     )
 

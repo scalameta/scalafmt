@@ -11,9 +11,10 @@ import PositionSyntax._
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
+import scala.reflect.ClassTag
 import scala.{meta => m}
-import org.scalatest.funsuite.AnyFunSuite
 
+import org.scalatest.funsuite.AnyFunSuite
 import org.scalafmt.util.DiffAssertions
 
 class DynamicSuite extends AnyFunSuite with DiffAssertions {
@@ -136,11 +137,19 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
     def assertMissingVersion()(implicit pos: Position): Unit = {
       out.reset()
       missingVersions.clear()
-      val original = "object  A"
-      val obtained = dynamic.format(config, filename, original)
+      intercept[ScalafmtDynamicError.ConfigMissingVersion] {
+        dynamic.format(config, filename, "object  A")
+      }
       assert(out.toString().isEmpty)
       assert(missingVersions.nonEmpty)
-      assertNoDiff(obtained, original, "Formatter did not error")
+    }
+    def assertThrows[A <: AnyRef: ClassTag](
+        code: String = "object A  {  }"
+    )(implicit pos: Position): A = {
+      out.reset()
+      intercept[A] {
+        dynamic.format(config, filename, code)
+      }
     }
     def assertError(expected: String)(implicit pos: Position): Unit = {
       assertError("object A  {  }", expected)
@@ -278,7 +287,7 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
         |version=$latest
         |""".stripMargin
     )
-    f.assertError(
+    f.assertThrows[ScalafmtDynamicError.ConfigParseError](
       """|error: path/.scalafmt.conf: Invalid config: Invalid field: max. Expected one of version, maxColumn, docstrings, optIn, binPack, continuationIndent, align, spaces, literals, lineEndings, rewriteTokens, rewrite, indentOperator, newlines, runner, indentYieldKeyword, importSelectors, unindentTopLevelOperators, includeCurlyBraceInSelectChains, includeNoParensInSelectChains, assumeStandardLibraryStripMargin, danglingParentheses, poorMansTrailingCommasInConfigStyle, trailingCommas, verticalMultilineAtDefinitionSite, verticalMultilineAtDefinitionSiteArityThreshold, verticalMultiline, onTestFailure, encoding, project
         |""".stripMargin
     )
@@ -318,7 +327,7 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
 
   check("wrong-version") { f =>
     f.setVersion("1.0")
-    f.assertError(
+    f.assertThrows[ScalafmtDynamicError.CannotDownload](
       """|error: path/.scalafmt.conf: org.scalafmt.dynamic.exceptions.ScalafmtException: failed to download v=1.0
         |Caused by: org.scalafmt.dynamic.ScalafmtVersion$InvalidVersionException: Invalid scalafmt version 1.0
         |""".stripMargin
@@ -354,8 +363,10 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
 
   check("no-config") { f =>
     Files.delete(f.config)
-    f.assertError("""|error: path/.scalafmt.conf: Missing config
-      |""".stripMargin)
+    f.assertThrows[ScalafmtDynamicError.ConfigDoesNotExist](
+      """|error: path/.scalafmt.conf: Missing config
+        |""".stripMargin
+    )
   }
 
   check("intellij-default-config") { f: Format =>
