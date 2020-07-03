@@ -278,6 +278,10 @@ case class ScalafmtConfig(
 
   // Edition 2020-03
   val activeForEdition_2020_03: Boolean = activeFor(Edition(2020, 3))
+
+  lazy val encloseSelectChains =
+    optIn.encloseClassicChains || !newlines.sourceIs(Newlines.classic)
+
 }
 
 object ScalafmtConfig {

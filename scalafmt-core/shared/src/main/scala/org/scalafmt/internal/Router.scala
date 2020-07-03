@@ -1666,7 +1666,14 @@ class Router(formatOps: FormatOps) {
         val forceBlankLine = formatToken.hasBreak &&
           blankLineBeforeDocstring(formatToken)
         val mod = if (forceBlankLine) Newline2x else getMod(formatToken)
-        Seq(Split(mod, 0))
+        val indent = formatToken.meta.rightOwner match {
+          case ts: Term.Select
+              if !left.is[T.Comment] &&
+                findPrevSelect(ts, style.encloseSelectChains).isEmpty =>
+            Indent(2, nextNonComment(next(formatToken)).left, ExpiresOn.After)
+          case _ => Indent.Empty
+        }
+        Seq(Split(mod, 0).withIndent(indent))
       // Commented out code should stay to the left
       case FormatToken(c: T.Comment, _, _) if isSingleLineComment(c) =>
         Seq(Split(Newline, 0))

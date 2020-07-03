@@ -212,14 +212,6 @@ class FormatWriter(formatOps: FormatOps) {
       @inline def lastModification = prevState.split.modExt.mod
 
       def getWhitespace(alignOffset: Int): String = {
-        // TODO this could get slow for really long comment blocks. If that
-        //   becomes a problem, we could also precompute these locations.
-        def nextNonComment = {
-          val nonCommentIdx =
-            locations.indexWhere(!_.formatToken.right.is[T.Comment], i + 1)
-          if (0 > nonCommentIdx) None else Some(locations(nonCommentIdx))
-        }
-
         state.split.modExt.mod match {
           case Space =>
             val previousAlign =
@@ -227,18 +219,6 @@ class FormatWriter(formatOps: FormatOps) {
               else getAlign(previous.formatToken)
             val currentAlign = getAlign(tok, alignOffset)
             getIndentation(1 + currentAlign + previousAlign)
-
-          case _: NewlineT
-              if tok.right.isInstanceOf[T.Comment] &&
-                nextNonComment.exists(
-                  _.formatToken.right.isInstanceOf[T.Dot]
-                ) =>
-            // TODO this could slow for really long chains and could be indexed if necessary.
-            val prevDotIdx =
-              locations.lastIndexWhere(_.formatToken.right.is[T.Dot], i - 1)
-            // TODO should this 2 be hard-coded, set to some other existing configurable parameter, or configurable?
-            val extraIndent = if (0 <= prevDotIdx) 0 else 2
-            "\n" + getIndentation(state.indentation + extraIndent)
 
           case nl: NewlineT =>
             val isDouble = nl.isDouble ||

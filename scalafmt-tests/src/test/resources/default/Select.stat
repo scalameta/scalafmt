@@ -309,7 +309,7 @@ object a {
 object a {
   (TypedPipe.from[(Int, Int)](Tsv("in0", (0, 1)), (0, 1))
     joinBy TypedPipe.from[(Int, Int)](Tsv("in1", (0, 1)), (0, 1)))(_._1, _._1)
-  //Flatten out to three values:
+    //Flatten out to three values:
   .toTypedPipe
     .map { kvw => (kvw._1, kvw._2._1._2, kvw._2._2._2) }
     .write(TypedText.tsv[(Int, Int, Int)]("out2"))
