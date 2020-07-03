@@ -1406,15 +1406,19 @@ class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
     getClosingIfEnclosedInMatching(tree).isDefined
 
   @tailrec
-  final def findPrevSelect(tree: Tree): Option[Term.Select] =
+  final def findPrevSelect(tree: Tree, enclosed: Boolean): Option[Term.Select] =
     tree match {
       case t: Term.Select => Some(t)
       case t @ SplitCallIntoParts(fun, _) if t ne fun =>
-        if (isEnclosedInMatching(t)) None else findPrevSelect(fun)
+        if (enclosed && isEnclosedInMatching(t)) None
+        else findPrevSelect(fun, enclosed)
       case _ => None
     }
-  def findPrevSelect(tree: Term.Select): Option[Term.Select] =
-    findPrevSelect(tree.qual)
+  def findPrevSelect(
+      tree: Term.Select,
+      enclosed: Boolean = true
+  ): Option[Term.Select] =
+    findPrevSelect(tree.qual, enclosed)
 
   @tailrec
   private def findLastApplyAndNextSelectEnclosed(
