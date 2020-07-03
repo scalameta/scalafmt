@@ -3,30 +3,40 @@ package org.scalafmt.dynamic
 import java.net.URL
 import java.nio.file.Path
 
-import org.scalafmt.dynamic.exceptions.ScalafmtConfigException
-
-sealed trait ScalafmtDynamicError
+sealed abstract class ScalafmtDynamicError(
+    msg: String,
+    cause: Throwable = null
+) extends Error(msg, cause)
 
 object ScalafmtDynamicError {
-  case class ConfigDoesNotExist(configPath: Path) extends ScalafmtDynamicError
+  sealed abstract class ConfigError(
+      val configPath: Path,
+      val msg: String,
+      cause: Throwable = null
+  ) extends ScalafmtDynamicError(msg, cause)
 
-  case class ConfigMissingVersion(configPath: Path) extends ScalafmtDynamicError
+  class ConfigDoesNotExist(configPath: Path)
+      extends ConfigError(configPath, "Missing config")
 
-  case class ConfigParseError(configPath: Path, cause: ScalafmtConfigException)
-      extends ScalafmtDynamicError
+  class ConfigMissingVersion(configPath: Path)
+      extends ConfigError(configPath, "Missing version")
 
-  case class CannotDownload(
+  class ConfigParseError(configPath: Path, why: String)
+      extends ConfigError(configPath, s"Invalid config: $why")
+
+  class CannotDownload(
       configPath: Path,
-      version: String,
-      cause: Option[Throwable]
-  ) extends ScalafmtDynamicError
+      val version: String,
+      cause: Throwable = null
+  ) extends ConfigError(configPath, s"failed to download v=$version", cause)
 
-  case class CorruptedClassPath(
+  class CorruptedClassPath(
       configPath: Path,
-      version: String,
-      urls: Seq[URL],
+      val version: String,
+      val urls: Seq[URL],
       cause: Throwable
-  ) extends ScalafmtDynamicError
+  ) extends ConfigError(configPath, s"corrupted class path v=$version", cause)
 
-  case class UnknownError(cause: Throwable) extends ScalafmtDynamicError
+  case class UnknownError(cause: Throwable)
+      extends ScalafmtDynamicError("unknown error", cause)
 }

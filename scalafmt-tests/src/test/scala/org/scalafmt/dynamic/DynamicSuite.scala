@@ -279,7 +279,7 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
         |""".stripMargin
     )
     f.assertError(
-      """|error: path/.scalafmt.conf: Invalid field: max. Expected one of version, maxColumn, docstrings, optIn, binPack, continuationIndent, align, spaces, literals, lineEndings, rewriteTokens, rewrite, indentOperator, newlines, runner, indentYieldKeyword, importSelectors, unindentTopLevelOperators, includeCurlyBraceInSelectChains, includeNoParensInSelectChains, assumeStandardLibraryStripMargin, danglingParentheses, poorMansTrailingCommasInConfigStyle, trailingCommas, verticalMultilineAtDefinitionSite, verticalMultilineAtDefinitionSiteArityThreshold, verticalMultiline, onTestFailure, encoding, project
+      """|error: path/.scalafmt.conf: Invalid config: Invalid field: max. Expected one of version, maxColumn, docstrings, optIn, binPack, continuationIndent, align, spaces, literals, lineEndings, rewriteTokens, rewrite, indentOperator, newlines, runner, indentYieldKeyword, importSelectors, unindentTopLevelOperators, includeCurlyBraceInSelectChains, includeNoParensInSelectChains, assumeStandardLibraryStripMargin, danglingParentheses, poorMansTrailingCommasInConfigStyle, trailingCommas, verticalMultilineAtDefinitionSite, verticalMultilineAtDefinitionSiteArityThreshold, verticalMultiline, onTestFailure, encoding, project
         |""".stripMargin
     )
   }
@@ -319,7 +319,7 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
   check("wrong-version") { f =>
     f.setVersion("1.0")
     f.assertError(
-      """|error: path/.scalafmt.conf: org.scalafmt.dynamic.exceptions.ScalafmtException: failed to resolve Scalafmt version '1.0'
+      """|error: path/.scalafmt.conf: org.scalafmt.dynamic.exceptions.ScalafmtException: failed to download v=1.0
         |Caused by: org.scalafmt.dynamic.ScalafmtVersion$InvalidVersionException: Invalid scalafmt version 1.0
         |""".stripMargin
     )
@@ -354,7 +354,7 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
 
   check("no-config") { f =>
     Files.delete(f.config)
-    f.assertError("""|error: path/.scalafmt.conf: file does not exist
+    f.assertError("""|error: path/.scalafmt.conf: Missing config
       |""".stripMargin)
   }
 
