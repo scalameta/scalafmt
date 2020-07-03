@@ -1275,3 +1275,21 @@ object Day extends Enumeration {
   /** Monday */
   MON = Value
 }
+<<< docstring after block
+preset = default
+===
+object a {
+  input.read
+     /** foo */
+     .foo { bar }
+     /** baz */
+     .baz(qux)
+}
+>>>
+object a {
+  input.read
+  /** foo */
+    .foo { bar }
+    /** baz */
+    .baz(qux)
+}

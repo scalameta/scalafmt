@@ -278,6 +278,42 @@ object a {
   keys.clear() // we need to remove the selected keys from the set, otherwise they remain selected
 >>>
 keys.clear() // we need to remove the selected keys from the set, otherwise they remain selected
+<<< #2042 1
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+===
+object a {
+  val res = Seq(1, 2, 3)
+    // Keep odd numbers
+    .filter(_ % 2 == 1)
+}
+>>>
+object a {
+  val res = Seq(1, 2, 3)
+    // Keep odd numbers
+    .filter(_ % 2 == 1)
+}
+<<< #2042 2
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+===
+object a {
+  (TypedPipe.from[(Int, Int)](Tsv("in0", (0, 1)), (0, 1))
+     joinBy TypedPipe.from[(Int, Int)](Tsv("in1", (0, 1)), (0, 1)))(_._1, _._1)
+   //Flatten out to three values:
+  .toTypedPipe
+     .map { kvw => (kvw._1, kvw._2._1._2, kvw._2._2._2) }
+     .write(TypedText.tsv[(Int, Int, Int)]("out2"))
+}
+>>>
+object a {
+  (TypedPipe.from[(Int, Int)](Tsv("in0", (0, 1)), (0, 1))
+    joinBy TypedPipe.from[(Int, Int)](Tsv("in1", (0, 1)), (0, 1)))(_._1, _._1)
+  //Flatten out to three values:
+  .toTypedPipe
+    .map { kvw => (kvw._1, kvw._2._1._2, kvw._2._2._2) }
+    .write(TypedText.tsv[(Int, Int, Int)]("out2"))
+}
 <<< #2061 1
 object a {
 @SerialVersionUID(1)
