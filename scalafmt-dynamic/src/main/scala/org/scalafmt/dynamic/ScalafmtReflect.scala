@@ -62,10 +62,6 @@ case class ScalafmtReflect(
 
   def parseConfig(configPath: Path): ScalafmtReflectConfig = {
     val configText = ConfigFactory.parseFile(configPath.toFile).root.render()
-    parseConfigFromString(configText)
-  }
-
-  def parseConfigFromString(configText: String): ScalafmtReflectConfig = {
     val configured: Object =
       try { // scalafmt >= 1.6.0
         scalafmtCls.invokeStatic("parseHoconConfig", configText.asParam)
@@ -85,7 +81,10 @@ case class ScalafmtReflect(
       new ScalafmtReflectConfig(this, configured.invoke("get"), classLoader)
     } catch {
       case ReflectionException(e) =>
-        throw ScalafmtConfigException(e.getMessage)
+        throw new ScalafmtDynamicError.ConfigParseError(
+          configPath,
+          e.getMessage
+        )
     }
   }
 

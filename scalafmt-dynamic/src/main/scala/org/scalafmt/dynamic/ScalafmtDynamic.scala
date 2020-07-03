@@ -8,6 +8,7 @@ import com.typesafe.config.{ConfigException, ConfigFactory}
 import coursierapi.{MavenRepository, Repository}
 import org.scalafmt.dynamic.ScalafmtDynamic.{FormatEval, FormatResult}
 import org.scalafmt.dynamic.ScalafmtDynamicDownloader._
+import org.scalafmt.dynamic.ScalafmtDynamicError._
 import org.scalafmt.dynamic.exceptions._
 import org.scalafmt.dynamic.utils.ReentrantCache
 import org.scalafmt.interfaces._
@@ -79,23 +80,14 @@ final case class ScalafmtDynamic(
   }
 
   private def reportError(file: Path, error: ScalafmtDynamicError): Unit = {
-    import ScalafmtDynamicError._
     error match {
-      case ConfigParseError(configPath, cause) =>
-        reporter.error(configPath, cause.getMessage)
-      case ConfigDoesNotExist(configPath) =>
-        reporter.error(configPath, "file does not exist")
-      case ConfigMissingVersion(configPath) =>
-        reporter.missingVersion(configPath, defaultVersion)
-      case CannotDownload(configPath, version, cause) =>
-        val message = s"failed to resolve Scalafmt version '$version'"
-        cause match {
-          case Some(e) => reporter.error(configPath, message, e)
-          case None => reporter.error(configPath, message)
+      case e: ConfigMissingVersion =>
+        reporter.missingVersion(e.configPath, defaultVersion)
+      case e: ConfigError =>
+        Option(e.getCause) match {
+          case Some(cause) => reporter.error(e.configPath, e.msg, cause)
+          case None => reporter.error(e.configPath, e.msg)
         }
-      case CorruptedClassPath(configPath, version, _, cause) =>
-        val message = s"scalafmt version $version classpath is corrupted"
-        reporter.error(configPath, message, cause)
       case UnknownError(cause) =>
         reporter.error(file, cause)
     }
@@ -116,7 +108,7 @@ final case class ScalafmtDynamic(
       configPath: Path
   ): Either[ScalafmtDynamicError, ScalafmtReflectConfig] = {
     if (!Files.exists(configPath)) {
-      Left(ScalafmtDynamicError.ConfigDoesNotExist(configPath))
+      Left(new ConfigDoesNotExist(configPath))
     } else if (cacheConfigs) {
       val currentTimestamp: FileTime = Files.getLastModifiedTime(configPath)
       configsCache
@@ -139,7 +131,7 @@ final case class ScalafmtDynamic(
   ): FormatEval[ScalafmtReflectConfig] = {
     for {
       version <- readVersion(configPath).toRight(
-        ScalafmtDynamicError.ConfigMissingVersion(configPath)
+        new ConfigMissingVersion(configPath)
       )
       fmtReflect <- resolveFormatter(configPath, version)
       config <- parseConfig(configPath, fmtReflect)
@@ -151,10 +143,8 @@ final case class ScalafmtDynamic(
       fmtReflect: ScalafmtReflect
   ): FormatEval[ScalafmtReflectConfig] = {
     Try(fmtReflect.parseConfig(configPath)).toEither.left.map {
-      case ex: ScalafmtConfigException =>
-        ScalafmtDynamicError.ConfigParseError(configPath, ex)
-      case ex =>
-        ScalafmtDynamicError.UnknownError(ex)
+      case ex: ScalafmtDynamicError => ex
+      case ex => UnknownError(ex)
     }
   }
 
@@ -170,11 +160,11 @@ final case class ScalafmtDynamic(
         .left
         .map {
           case DownloadResolutionError(v, _) =>
-            ScalafmtDynamicError.CannotDownload(configPath, v, None)
+            new CannotDownload(configPath, v)
           case DownloadUnknownError(v, cause) =>
-            ScalafmtDynamicError.CannotDownload(configPath, v, Option(cause))
+            new CannotDownload(configPath, v, cause)
           case InvalidVersionError(v, cause) =>
-            ScalafmtDynamicError.CannotDownload(configPath, v, Option(cause))
+            new CannotDownload(configPath, v, cause)
         }
         .flatMap(resolveClassPath(configPath, _))
     }
@@ -190,9 +180,9 @@ final case class ScalafmtDynamic(
       ScalafmtReflect(classloader, version, respectVersion)
     }.toEither.left.map {
       case e: ReflectiveOperationException =>
-        ScalafmtDynamicError.CorruptedClassPath(configPath, version, urls, e)
+        new CorruptedClassPath(configPath, version, urls, e)
       case e =>
-        ScalafmtDynamicError.UnknownError(e)
+        UnknownError(e)
     }
   }
 
@@ -217,8 +207,8 @@ final case class ScalafmtDynamic(
         reflect.format(code, configWithDialect, Some(file))
       }
     }.toEither.left.map {
-      case ReflectionException(e) => ScalafmtDynamicError.UnknownError(e)
-      case e => ScalafmtDynamicError.UnknownError(e)
+      case ReflectionException(e) => UnknownError(e)
+      case e => UnknownError(e)
     }
   }
 
