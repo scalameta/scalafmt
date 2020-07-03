@@ -743,6 +743,67 @@ object a {
     }
   }
 }
+<<< #2061 14.1
+preset = default
+optIn.breakChainOnFirstMethodDot = false
+includeNoParensInSelectChains = true
+optIn.breaksInsideChains = true
+danglingParentheses.preset = false
+===
+object a {
+  class a {
+    def a = {
+      "zip" in {
+        intercept[IllegalStateException] {
+          Await.result(Promise.failed[String](f).future zip Promise.successful("foo").future, timeout)
+        } should ===(f)
+      }
+    }
+  }
+}
+>>>
+object a {
+  class a {
+    def a = {
+      "zip" in {
+        intercept[IllegalStateException] {
+          Await.result(
+            Promise
+              .failed[String](f).future zip Promise.successful("foo").future,
+            timeout)
+        } should ===(f)
+      }
+    }
+  }
+}
+<<< #2061 14.2
+preset = default
+optIn.breakChainOnFirstMethodDot = false
+includeNoParensInSelectChains = true
+optIn.breaksInsideChains = false
+danglingParentheses.preset = false
+===
+object a {
+  class a {
+   if (!cell
+       .routerConfig
+       .isInstanceOf[Pool] && !cell.routerConfig.isInstanceOf[Group])
+     throw ActorInitializationException(
+       "Cluster router actor can only be used with Pool or Group, not with " +
+         cell.routerConfig.getClass)
+  }
+}
+>>>
+object a {
+  class a {
+    if (!cell
+        .routerConfig
+        .isInstanceOf[Pool] && !cell.routerConfig.isInstanceOf[Group])
+      throw ActorInitializationException(
+        "Cluster router actor can only be used with Pool or Group, not with " +
+          cell.routerConfig.getClass)
+  }
+}
 <<< #2061 15
 preset = default
 optIn.breakChainOnFirstMethodDot = true
@@ -798,4 +859,21 @@ object a {
       case FormFieldId(id) => id
     }).headOption
   }
+}
+<<< curly select chain followed by infix
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+===
+object a {
+  val reduces = node
+    .foldDown[List[dag.Reduce]](true) {
+       case r: dag.Reduce => List(r)
+    } distinct
+}
+>>>
+object a {
+  val reduces = node
+    .foldDown[List[dag.Reduce]](true) {
+      case r: dag.Reduce => List(r)
+  } distinct
 }
