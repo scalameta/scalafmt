@@ -90,18 +90,6 @@ object TokenOps {
     Space(!Character.isLetterOrDigit(lastCharacter) && lastCharacter != '`')
   }
 
-  def isOpenApply(
-      token: Token,
-      includeCurly: Boolean = false,
-      includeNoParens: Boolean = false
-  ): Boolean =
-    token match {
-      case LeftParen() | LeftBracket() => true
-      case LeftBrace() if includeCurly => true
-      case Dot() if includeNoParens => true
-      case _ => false
-    }
-
   @inline
   def isSingleLineComment(c: String): Boolean = c.startsWith("//")
 

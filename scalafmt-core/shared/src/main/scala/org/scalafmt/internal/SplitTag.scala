@@ -11,6 +11,7 @@ object SplitTag {
 
   case object OneArgPerLine extends SplitTag
   case object SelectChainFirstNL extends SplitTag
+  case object SelectChainSecondNL extends SplitTag
   case object InfixChainNoNL extends SplitTag
   case object OnelineWithChain extends SplitTag
 
