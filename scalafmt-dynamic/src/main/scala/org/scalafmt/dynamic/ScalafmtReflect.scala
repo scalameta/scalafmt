@@ -75,6 +75,11 @@ case class ScalafmtReflect(
             configText.asParam,
             fromHoconEmptyPath.asParam(optionCls)
           )
+        case ReflectionException(e) =>
+          throw new ScalafmtDynamicError.ConfigParseError(
+            configPath,
+            e.getMessage
+          )
       }
 
     try {
