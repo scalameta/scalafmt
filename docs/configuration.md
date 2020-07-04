@@ -540,6 +540,83 @@ or horizontally compact look.
 Both settings attempt to play nice with other parameters, but some combinations
 are prohibited and will result in an error.
 
+### Config-style formatting
+
+This formatting applies to argument lists in class definitions and method calls. It
+normally involves a newline after the opening parenthesis (or after the `implicit` keyword)
+and a newline before the closing parenthesis.
+
+As part of the formatting output, arguments are output one per line (but this is not used in
+determining whether the source uses config-style formatting).
+
+While this parameter is not technically under the `newlines` section, it
+logically belongs there.
+
+#### `optIn.configStyleArguments`
+
+If true, applies config-style formatting:
+
+- if single-line formatting is impossible
+- if the source uses config-style and `newlines.source = classic/keep`
+- if other parameters force config-style (see below)
+
+```scala mdoc:defaults
+optIn.configStyleArguments
+```
+
+```scala mdoc:scalafmt
+optIn.configStyleArguments = true
+maxColumn=45
+---
+object a {
+  // keeps single line
+  def method1(a: Int, b: String): Boolean
+
+  // forces config style
+  def method2(a: Int, b: String, c: String): Boolean
+
+  // preserves config style
+  def method3(
+    a: Int, b: String, c: String
+  ): Boolean
+}
+```
+
+#### Forcing config style
+
+Controls parameters which trigger forced config-style formatting.
+All conditions must be satisfied in order for this rule to apply.
+
+```scala mdoc:defaults
+runner.optimizer.forceConfigStyleOnOffset
+runner.optimizer.forceConfigStyleMinArgCount
+```
+
+- `runner.optimizer.forceConfigStyleOnOffset`: applies to method calls; if positive, specifies the
+  minimum character distance between the matching parentheses, excluding any whitespace
+- `runner.optimizer.forceConfigStyleMinArgCount` applies to method calls; specifies the minimum number of arguments
+
+```scala mdoc:scalafmt
+optIn.configStyleArguments = true
+runner.optimizer.forceConfigStyleOnOffset = 5
+runner.optimizer.forceConfigStyleMinArgCount = 2
+maxColumn = 60
+---
+object a {
+  // this is a definition, not a method call
+  def method(a: String, b: String = null): Boolean
+
+  // keeps single line; min offset not satisfied
+  method(a, b)
+
+  // keeps single line; min arg not satisfied
+  method(SomeVeryVeryVeryVeryLongArgument)
+
+  // forces config style
+  method(foo, bar)
+}
+```
+
 ### `danglingParentheses`
 
 While this parameter is not technically under the `newlines` section, it
@@ -929,17 +1006,14 @@ newlines.implicitParamListModifierForce = [before,after]
 def format(code: String, age: Int)(implicit ev: Parser, c: Context): String
 ```
 
-#### With `optIn.configStyleArguments`
+#### Implicit with `optIn.configStyleArguments`
 
-```scala mdoc:scalafmt
-maxColumn = 60
-optIn.configStyleArguments = true
-newlines.implicitParamListModifierForce = [after]
----
-def format(code: String, age: Int)(
-   implicit ev: Parser, c: Context
-): String
-```
+While config-style normally requires a newline after the opening parenthesis, postponing
+that break until after the `implicit` keyword is allowed if other parameters require
+keeping this keyword attached to the opening brace.
+
+Therefore, any of the parameters described in this section will take precedence
+even when `optIn.configStyleArguments = true` is used.
 
 ### `newlines.afterInfix`
 
