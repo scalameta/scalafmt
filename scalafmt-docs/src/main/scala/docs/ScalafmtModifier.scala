@@ -37,8 +37,7 @@ class ScalafmtModifier extends StringModifier {
       val program = Input.Slice(code, i + separator.length, code.chars.length)
       Config.fromHoconString(config.text, None, base) match {
         case Configured.Ok(c) =>
-          val parsedConfig = c.copy(runner = runner)
-          Scalafmt.format(program.text, parsedConfig).toEither match {
+          Scalafmt.format(program.text, c).toEither match {
             case Right(formatted) =>
               val configText = config.text.trim
               val configBlock =
