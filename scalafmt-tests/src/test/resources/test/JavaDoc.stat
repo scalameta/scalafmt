@@ -1290,7 +1290,6 @@ object a {
   input.read
   /** foo */
     .foo { bar }
-
     /** baz */
     .baz(qux)
 }

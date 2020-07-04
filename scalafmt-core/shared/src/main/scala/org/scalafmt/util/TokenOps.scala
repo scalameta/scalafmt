@@ -54,9 +54,9 @@ object TokenOps {
       ft.meta.right.text.startsWith("/**") &&
       TreeOps
         .findTreeOrParent(ft.meta.leftOwner) {
+          case t if t.pos.end <= ft.right.start => None
           case _: Pkg | _: Source | _: Template | _: Term.Block => Some(false)
-          case t if t.pos.end > ft.right.start => Some(true)
-          case _ => None
+          case _ => Some(true)
         }
         .isEmpty
 
