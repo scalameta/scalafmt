@@ -2310,13 +2310,16 @@ foo
 
 ### `optIn.breaksInsideChains`
 
+Controls whether to preserve a newline before each subsequent select when the
+very first one used a line break; that is, this parameter doesn't prohibit
+single-line formatting even if there are source breaks down the chain.
+
 If false, each subsequent select within the chain will behave exactly like the first,
 that is, either the entire chain will be formatted on one line, or will contain a break
 on every select.
 
-If true, preserves existence or lack of breaks on subsequent selects. If there's at
-least one break, that will force a break on the first select since the chain can't
-be formatted on one line.
+If true, preserves existence or lack of breaks on subsequent selects if the first
+select was formatted with a newline.
 
 ```scala mdoc:defaults
 optIn.breaksInsideChains
@@ -2324,18 +2327,28 @@ optIn.breaksInsideChains
 
 ```scala mdoc:scalafmt
 optIn.breaksInsideChains = true
+maxColumn = 35
 ---
 foo.bar(_ + 1)
   .baz(_ > 2).qux
 foo.bar(_ + 1).baz(_ > 2).qux
+foo.bar(_ + 1).baz(_ > 2).qux(_ * 12)
+foo.bar(_ + 1).baz(_ > 2).qux { _ * 12 }
+foo.bar(_ + 1)
+  .baz(_ > 2).qux(_ * 12)
 ```
 
 ```scala mdoc:scalafmt
 optIn.breaksInsideChains = false
+maxColumn = 35
 ---
 foo.bar(_ + 1)
   .baz(_ > 2).qux
 foo.bar(_ + 1).baz(_ > 2).qux
+foo.bar(_ + 1).baz(_ > 2).qux(_ * 12)
+foo.bar(_ + 1).baz(_ > 2).qux { _ * 12 }
+foo.bar(_ + 1)
+  .baz(_ > 2).qux(_ * 12)
 ```
 
 ### `optIn.encloseClassicChains`
