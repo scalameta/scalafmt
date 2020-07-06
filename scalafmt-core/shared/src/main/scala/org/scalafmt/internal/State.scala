@@ -74,7 +74,7 @@ final case class State(
 
     val overflow = columnOnCurrentLine - style.maxColumn
     val nextPolicy: PolicySummary =
-      policy.combine(nextSplit.policy, tok)
+      policy.combine(nextSplit.policy, fops.next(tok))
 
     val (penalty, nextDelayedPenalty) =
       if (
