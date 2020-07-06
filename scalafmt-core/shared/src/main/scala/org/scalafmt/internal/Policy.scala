@@ -15,6 +15,7 @@ abstract class Policy {
   def exists(pred: Policy.Clause => Boolean): Boolean
   def filter(pred: Policy.Clause => Boolean): Policy
   def unexpired(ft: FormatToken): Policy
+  def noDequeue: Boolean
 
   def &(other: Policy): Policy =
     if (other.isEmpty) this else new Policy.AndThen(this, other)
@@ -50,26 +51,22 @@ object Policy {
     override def unexpired(ft: FormatToken): Policy = this
     override def filter(pred: Clause => Boolean): Policy = this
     override def exists(pred: Clause => Boolean): Boolean = false
+    override def noDequeue: Boolean = false
   }
 
-  def apply(token: Token)(f: Pf)(implicit line: sourcecode.Line): Policy =
-    apply(token.end)(f)
-
   def apply(
-      endPos: Int,
+      expire: Token,
       noDequeue: Boolean = false
   )(f: Pf)(implicit line: sourcecode.Line): Policy =
-    new Clause(f, endPos, noDequeue)
+    new ClauseImpl(f, expire.end, noDequeue)
 
-  class Clause(
-      val f: Policy.Pf,
-      val endPos: Int,
-      val noDequeue: Boolean = false
-  )(implicit val line: sourcecode.Line)
-      extends Policy {
+  abstract class Clause(implicit val line: sourcecode.Line) extends Policy {
+    val f: Policy.Pf
+    val endPos: Int
+
     override def toString = {
       val noDeqPrefix = if (noDequeue) "!" else ""
-      s"P:${line.value}<$endPos${noDeqPrefix}d"
+      s"${line.value}<$endPos${noDeqPrefix}d"
     }
 
     override def unexpired(ft: FormatToken): Policy =
@@ -80,6 +77,13 @@ object Policy {
 
     override def exists(pred: Clause => Boolean): Boolean = pred(this)
   }
+
+  private class ClauseImpl(
+      val f: Policy.Pf,
+      val endPos: Int,
+      val noDequeue: Boolean
+  )(implicit line: sourcecode.Line)
+      extends Clause
 
   private class OrElse(p1: Policy, p2: Policy) extends Policy {
     override lazy val f: Pf = p1.f.orElse(p2.f)
@@ -92,6 +96,9 @@ object Policy {
 
     override def exists(pred: Clause => Boolean): Boolean =
       p1.exists(pred) || p2.exists(pred)
+
+    override def noDequeue: Boolean =
+      p1.noDequeue || p2.noDequeue
 
     override def toString: String = s"($p1 | $p2)"
   }
@@ -114,7 +121,37 @@ object Policy {
     override def exists(pred: Clause => Boolean): Boolean =
       p1.exists(pred) || p2.exists(pred)
 
+    override def noDequeue: Boolean =
+      p1.noDequeue || p2.noDequeue
+
     override def toString: String = s"($p1 & $p2)"
+  }
+
+  object Proxy {
+    def apply(
+        policy: Policy
+    )(factory: Policy => Pf)(implicit line: sourcecode.Line): Policy =
+      if (policy.isEmpty) NoPolicy
+      else new Proxy(policy, factory)
+  }
+
+  private class Proxy(
+      policy: Policy,
+      factory: Policy => Policy.Pf
+  )(implicit line: sourcecode.Line)
+      extends Policy {
+    override val f: Pf = factory(policy)
+
+    override def exists(pred: Clause => Boolean): Boolean = policy.exists(pred)
+
+    override def filter(pred: Clause => Boolean): Policy =
+      Proxy(policy.filter(pred))(factory)
+
+    override def unexpired(ft: FormatToken): Policy =
+      Proxy(policy.unexpired(ft))(factory)
+
+    override def noDequeue: Boolean = policy.noDequeue
+
   }
 
 }

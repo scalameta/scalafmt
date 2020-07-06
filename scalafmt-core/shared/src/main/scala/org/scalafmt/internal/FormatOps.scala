@@ -989,10 +989,9 @@ class FormatOps(
     )
   }
 
-  def delayedBreakPolicy(
-      tok: Token,
+  def delayedBreakPolicyFactory(
       leftCheck: Option[Token => Boolean] = None
-  )(onBreakPolicy: Policy)(implicit line: sourcecode.Line): Policy = {
+  )(onBreakPolicy: Policy): Policy.Pf = {
     object OnBreakDecision {
       def unapply(d: Decision): Option[Seq[Split]] =
         if (leftCheck.exists(!_(d.formatToken.left))) None
@@ -1009,18 +1008,15 @@ class FormatOps(
         if (replaced) Some(splits) else None
       }
     }
-    if (onBreakPolicy.isEmpty) Policy.NoPolicy
-    else {
-      val f: Policy.Pf = { case OnBreakDecision(d) => d }
-      new Policy.Clause(f, tok.end) {
-        override def filter(pred: Policy.Clause => Boolean): Policy = {
-          val filteredOnBreak = onBreakPolicy.filter(pred)
-          if (filteredOnBreak.isEmpty) Policy.NoPolicy
-          else delayedBreakPolicy(tok, leftCheck)(filteredOnBreak)
-        }
-      }
+    {
+      case OnBreakDecision(d) => d
     }
   }
+
+  def delayedBreakPolicy(
+      leftCheck: Option[Token => Boolean] = None
+  )(onBreakPolicy: Policy)(implicit line: sourcecode.Line): Policy =
+    Policy.Proxy(onBreakPolicy)(delayedBreakPolicyFactory(leftCheck))
 
   def decideNewlinesOnlyBeforeClose(
       close: Token

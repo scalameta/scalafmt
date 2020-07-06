@@ -8,19 +8,17 @@ import org.scalafmt.internal.Policy
 
 object PolicyOps {
 
-  class PenalizeAllNewlines private[PolicyOps] (f: Policy.Pf, endPos: Int)(
-      implicit line: sourcecode.Line
-  ) extends Policy.Clause(f, endPos)
-
-  def penalizeAllNewlines(
+  case class penalizeAllNewlines(
       expire: T,
       penalty: Int,
       penalizeLambdas: Boolean = true,
       ignore: FormatToken => Boolean = _ => false,
       penaliseNewlinesInsideTokens: Boolean = false
-  )(implicit line: sourcecode.Line): PenalizeAllNewlines = {
-    val endPos = expire.end
-    val f: Policy.Pf = {
+  )(implicit line: sourcecode.Line)
+      extends Policy.Clause {
+    override val endPos = expire.end
+    override val noDequeue: Boolean = false
+    override val f: Policy.Pf = {
       case Decision(tok, s)
           if tok.right.end < endPos &&
             (penalizeLambdas || !tok.left.is[T.RightArrow]) && !ignore(tok) =>
@@ -32,34 +30,28 @@ object PolicyOps {
           case x => x
         }
     }
-    new PenalizeAllNewlines(f, endPos)
+    override def toString: String = s"PNL:${super.toString}+$penalty"
   }
 
   /**
     * Forces allssplits up to including expire to be on a single line.
     */
-  class SingleLineBlock private[PolicyOps] (
-      f: Policy.Pf,
-      endPos: Int,
-      exclude: Set[Range]
-  )(implicit line: sourcecode.Line)
-      extends Policy.Clause(f, endPos, true) {
-    override def toString: String =
-      super.toString + {
-        if (exclude.isEmpty) ""
-        else exclude.map(x => s"${x.start}:${x.end}").mkString("^{", ",", "}")
-      }
-  }
-
-  def SingleLineBlock(
+  case class SingleLineBlock(
       expire: T,
       exclude: Set[Range] = Set.empty,
       disallowSingleLineComments: Boolean = true,
       penaliseNewlinesInsideTokens: Boolean = false
-  )(implicit line: sourcecode.Line): Policy = {
+  )(implicit line: sourcecode.Line)
+      extends Policy.Clause {
     import TokenOps.isSingleLineComment
-    val endPos = expire.end
-    val f: Policy.Pf = {
+    override val endPos = expire.end
+    override val noDequeue: Boolean = true
+    override def toString: String =
+      "SLB:" + super.toString + {
+        if (exclude.isEmpty) ""
+        else exclude.map(x => s"${x.start}:${x.end}").mkString("^{", ",", "}")
+      }
+    override val f: Policy.Pf = {
       case Decision(tok, s)
           if !tok.right.is[T.EOF] && tok.right.end <= endPos &&
             exclude.forall(!_.contains(tok.left.start)) &&
@@ -69,7 +61,6 @@ object PolicyOps {
         else
           s.filterNot(_.isNL)
     }
-    new SingleLineBlock(f, endPos, exclude)
   }
 
 }
