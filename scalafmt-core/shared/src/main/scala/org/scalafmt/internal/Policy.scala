@@ -14,7 +14,7 @@ abstract class Policy {
 
   def exists(pred: Policy.Clause => Boolean): Boolean
   def filter(pred: Policy.Clause => Boolean): Policy
-  def unexpired(pos: Int): Policy = filter(_.endPos > pos)
+  def unexpired(ft: FormatToken): Policy
 
   def &(other: Policy): Policy =
     if (other.isEmpty) this else new Policy.AndThen(this, other)
@@ -22,8 +22,8 @@ abstract class Policy {
     if (other.isEmpty) this else new Policy.OrElse(this, other)
 
   @inline
-  final def unexpiredOpt(pos: Int): Option[Policy] =
-    Some(unexpired(pos)).filter(_.nonEmpty)
+  final def unexpiredOpt(ft: FormatToken): Option[Policy] =
+    Some(unexpired(ft)).filter(_.nonEmpty)
 
   @inline
   final def &(other: Option[Policy]): Policy = other.fold(this)(&)
@@ -47,7 +47,7 @@ object Policy {
     override def |(other: Policy): Policy = other
     override def &(other: Policy): Policy = other
 
-    override def unexpired(pos: Int): Policy = this
+    override def unexpired(ft: FormatToken): Policy = this
     override def filter(pred: Clause => Boolean): Policy = this
     override def exists(pred: Clause => Boolean): Boolean = false
   }
@@ -72,6 +72,9 @@ object Policy {
       s"P:${line.value}<$endPos${noDeqPrefix}d"
     }
 
+    override def unexpired(ft: FormatToken): Policy =
+      if (ft.left.end < endPos) this else NoPolicy
+
     override def filter(pred: Clause => Boolean): Policy =
       if (pred(this)) this else NoPolicy
 
@@ -80,6 +83,9 @@ object Policy {
 
   private class OrElse(p1: Policy, p2: Policy) extends Policy {
     override lazy val f: Pf = p1.f.orElse(p2.f)
+
+    override def unexpired(ft: FormatToken): Policy =
+      p1.unexpired(ft) | p2.unexpired(ft)
 
     override def filter(pred: Clause => Boolean): Policy =
       p1.filter(pred) | p2.filter(pred)
@@ -98,6 +104,9 @@ object Policy {
           (y: Decision) => y.splits
         )
     }
+
+    override def unexpired(ft: FormatToken): Policy =
+      p1.unexpired(ft) & p2.unexpired(ft)
 
     override def filter(pred: Clause => Boolean): Policy =
       p1.filter(pred) & p2.filter(pred)

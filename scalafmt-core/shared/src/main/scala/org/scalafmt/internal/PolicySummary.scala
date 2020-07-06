@@ -8,9 +8,9 @@ class PolicySummary(val policies: Vector[Policy]) {
 
   @inline def noDequeue = policies.exists(_.exists(_.noDequeue))
 
-  def combine(other: Policy, position: Int): PolicySummary = {
+  def combine(other: Policy, ft: FormatToken): PolicySummary = {
     // TODO(olafur) filter policies by expiration date
-    val activePolicies = policies.flatMap(_.unexpiredOpt(position))
+    val activePolicies = policies.flatMap(_.unexpiredOpt(ft))
     val newPolicies =
       if (other == NoPolicy) activePolicies
       else other +: activePolicies
