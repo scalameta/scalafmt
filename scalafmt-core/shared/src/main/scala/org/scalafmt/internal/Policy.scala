@@ -73,7 +73,7 @@ object Policy {
     }
 
     override def unexpired(ft: FormatToken): Policy =
-      if (ft.left.end < endPos) this else NoPolicy
+      if (ft.left.end <= endPos) this else NoPolicy
 
     override def filter(pred: Clause => Boolean): Policy =
       if (pred(this)) this else NoPolicy
