@@ -496,7 +496,7 @@ class FormatOps(
   def beforeInfixSplit(
       owner: Term.ApplyInfix,
       formatToken: FormatToken
-  )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] = {
+  )(implicit style: ScalafmtConfig): Seq[Split] = {
     val InfixApp(app) = owner
     infixSplitImpl(app, formatToken, true)
   }
@@ -505,7 +505,7 @@ class FormatOps(
       app: InfixApp,
       formatToken: FormatToken,
       beforeLhs: Boolean
-  )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] = {
+  )(implicit style: ScalafmtConfig): Seq[Split] = {
     // NOTE. Silly workaround because we call infixSplit from assignment =, see #798
     val treeOpt =
       if (!beforeLhs && app.isRightAssoc)
@@ -546,7 +546,7 @@ class FormatOps(
   def insideInfixSplit(
       app: InfixApp,
       ft: FormatToken
-  )(implicit line: sourcecode.Line, style: ScalafmtConfig): Seq[Split] =
+  )(implicit style: ScalafmtConfig): Seq[Split] =
     app.all match {
       case t: Type.ApplyInfix
           if style.spaces.neverAroundInfixTypes.contains(t.op.value) =>
