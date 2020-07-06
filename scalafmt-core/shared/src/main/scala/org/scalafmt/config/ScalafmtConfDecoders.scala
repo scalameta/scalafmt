@@ -1,8 +1,6 @@
 package org.scalafmt.config
 
 import scala.io.Codec
-import scala.meta.Dialect
-import scala.meta.dialects._
 import scala.meta.parsers.Parse._
 import scala.util.control.NonFatal
 
@@ -23,17 +21,6 @@ trait ScalafmtConfDecoders {
   implicit lazy val parseReader: ConfDecoder[MetaParser] = {
     ReaderUtil.oneOf[MetaParser](parseSource, parseStat, parseCase)
   }
-
-  implicit lazy val dialectReader: ConfDecoder[Dialect] =
-    ReaderUtil.oneOf[Dialect](
-      Scala211,
-      Scala212,
-      Sbt0137,
-      Sbt1,
-      Dotty,
-      Paradise211,
-      Paradise212
-    )
 
   implicit lazy val codecReader: ConfDecoder[Codec] =
     ConfDecoder.instance[Codec] {
