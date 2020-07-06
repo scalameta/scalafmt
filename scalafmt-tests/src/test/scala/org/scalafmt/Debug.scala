@@ -83,7 +83,7 @@ class Debug(val verbose: Boolean) {
           val clean = LoggerOps.cleanup(tok).slice(0, 15).formatted("%-15s")
           stack.prepend(
             s"${tok.end.formatted(posWidth)}: $clean" +
-              s" ${state.split} ${prev.indentation} ${prev.column} [${prev.cost}]"
+              s" ${state.split} ${prev.indentation} ${prev.column} [${state.cost}]"
           )
           iter(prev)
         }
