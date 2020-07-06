@@ -588,7 +588,7 @@ class Router(formatOps: FormatOps) {
             s.filter(x => x.isNL && !x.isActiveFor(SplitTag.OnelineWithChain))
         }
         val policyEnd = defnBeforeTemplate(leftOwner).fold(r)(_.tokens.last)
-        val policy = delayedBreakPolicy(policyEnd)(forceNewlineBeforeExtends)
+        val policy = delayedBreakPolicy()(forceNewlineBeforeExtends)
         Seq(Split(Space, 0).withPolicy(policy))
       // DefDef
       case tok @ FormatToken(T.KwDef(), name @ T.Ident(_), _) =>
@@ -630,7 +630,7 @@ class Router(formatOps: FormatOps) {
           if (lambdaIsABlock) None
           else
             newlinePolicy.map(
-              delayedBreakPolicy(close, lambdaLeft.map(x => _.end < x.end))
+              delayedBreakPolicy(lambdaLeft.map(x => _.end < x.end))
             )
         }
 
@@ -1229,7 +1229,7 @@ class Router(formatOps: FormatOps) {
                   val minCost = math.max(0, filtered.map(_.cost).min - 1)
                   filtered.map { x =>
                     val p =
-                      x.policy.filter(!_.isInstanceOf[PenalizeAllNewlines])
+                      x.policy.filter(!_.isInstanceOf[penalizeAllNewlines])
                     x.copy(cost = x.cost - minCost, policy = p)
                   }
                 }

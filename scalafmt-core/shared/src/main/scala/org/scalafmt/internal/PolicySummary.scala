@@ -6,7 +6,7 @@ import org.scalafmt.util.LoggerOps
 class PolicySummary(val policies: Vector[Policy]) {
   import LoggerOps._
 
-  @inline def noDequeue = policies.exists(_.exists(_.noDequeue))
+  @inline def noDequeue = policies.exists(_.noDequeue)
 
   def combine(other: Policy, ft: FormatToken): PolicySummary = {
     // TODO(olafur) filter policies by expiration date

@@ -23,8 +23,8 @@ object LoggerOps {
     styles.map(x => x.source -> x.value).toMap
 
   def log(s: State): String = {
-    val policies = s.policy.policies.map(_.toString).mkString(",")
-    s"d=${s.depth} w=${s.cost} i=${s.indentation} col=${s.column}; p=$policies; s=${log(s.split)}"
+    val policies = s.policy.policies.map(_.toString).mkString("P[", ",", "]")
+    s"d=${s.depth} w=${s.cost} i=${s.indentation} col=${s.column}; $policies; s=${log(s.split)}"
   }
   def log(split: Split): String = s"$split"
 
