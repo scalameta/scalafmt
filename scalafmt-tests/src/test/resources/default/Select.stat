@@ -890,4 +890,11 @@ object Dummy {
       // format: on
 }
 >>>
-BestFirstSearch:327 Failed to format
+object Dummy {
+  def dummy(list: List[Int]): List[Int] =
+    list
+      .map(_ + 1)
+      // format: off
+      .map(_ * 2)
+      // format: on
+}
