@@ -37,3 +37,12 @@ val x = 1_000_000
 def foo(implicit   x: => Int) = x
 >>>
 def foo(implicit x: => Int) = x
+<<< #2071 given not kw
+object Main {
+  val given = 42
+}
+>>>
+test does not parse
+object Main {
+  val given = 42
+    ^
