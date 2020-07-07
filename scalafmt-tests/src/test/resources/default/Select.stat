@@ -877,3 +877,17 @@ object a {
       case r: dag.Reduce => List(r)
     } distinct
 }
+<<< #2070
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+===
+object Dummy {
+  def dummy(list: List[Int]): List[Int] =
+    list
+      .map(_ + 1)
+      // format: off
+      .map(_ * 2)
+      // format: on
+}
+>>>
+BestFirstSearch:327 Failed to format
