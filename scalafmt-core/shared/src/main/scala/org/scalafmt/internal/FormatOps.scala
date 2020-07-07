@@ -410,9 +410,8 @@ class FormatOps(
   def penalizeNewlineByNesting(from: Token, to: Token)(implicit
       line: sourcecode.Line
   ): Policy = {
-    val range = Range(from.start, to.end).inclusive
-    Policy(to) {
-      case Decision(t, s) if range.contains(t.right.start) =>
+    Policy(to, Policy.End.Before) {
+      case Decision(t, s) if t.right.start >= from.start =>
         val nonBoolPenalty =
           if (isBoolOperator(t.left)) 0
           else 5
