@@ -173,6 +173,7 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
   }
 
   private val testedVersions = Seq(
+    "2.5.3",
     "2.0.0-RC4",
     "1.6.0-RC4",
     "1.5.1",
@@ -195,7 +196,7 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
     }
   }
 
-  def latest = "2.0.0-RC1"
+  def latest = "2.5.3"
 
   def checkVersion(version: String): Unit = {
     check(s"v$version") { f =>
