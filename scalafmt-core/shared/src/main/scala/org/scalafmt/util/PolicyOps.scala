@@ -18,6 +18,7 @@ object PolicyOps {
       extends Policy.Clause {
     override val endPos = expire.end
     override val noDequeue: Boolean = false
+    override val endPolicy: Policy.End = Policy.End.After
     override val f: Policy.Pf = {
       case Decision(tok, s)
           if tok.right.end < endPos &&
@@ -46,6 +47,7 @@ object PolicyOps {
     import TokenOps.isSingleLineComment
     override val endPos = expire.end
     override val noDequeue: Boolean = true
+    override val endPolicy: Policy.End = Policy.End.After
     override def toString: String =
       "SLB:" + super.toString + {
         if (exclude.isEmpty) ""

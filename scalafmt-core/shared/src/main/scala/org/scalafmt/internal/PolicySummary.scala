@@ -1,6 +1,5 @@
 package org.scalafmt.internal
 
-import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util.LoggerOps
 
 class PolicySummary(val policies: Vector[Policy]) {
@@ -11,9 +10,10 @@ class PolicySummary(val policies: Vector[Policy]) {
   def combine(other: Policy, ft: FormatToken): PolicySummary = {
     // TODO(olafur) filter policies by expiration date
     val activePolicies = policies.flatMap(_.unexpiredOpt(ft))
+    val activeOther = other.unexpired(ft)
     val newPolicies =
-      if (other == NoPolicy) activePolicies
-      else other +: activePolicies
+      if (activeOther.isEmpty) activePolicies
+      else activeOther +: activePolicies
     new PolicySummary(newPolicies)
   }
 
