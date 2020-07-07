@@ -18,7 +18,7 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalafmt.util.DiffAssertions
 
 class DynamicSuite extends AnyFunSuite with DiffAssertions {
-  class Format(name: String) {
+  class Format(name: String, cfgFunc: ScalafmtDynamic => ScalafmtDynamic) {
     val download = new ByteArrayOutputStream()
     def downloadLogs: String = download.toString()
     val out = new ByteArrayOutputStream()
@@ -65,17 +65,13 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
           )
         }
       }
-    var dynamic: ScalafmtDynamic = Scalafmt
-      .create(this.getClass.getClassLoader)
-      .withReporter(reporter)
-      .withDefaultVersion(latest)
-      .asInstanceOf[ScalafmtDynamic]
-    def ignoreVersion(): Unit = {
-      dynamic = dynamic.withRespectVersion(false)
-    }
-    def ignoreExcludeFilters(): Unit = {
-      dynamic = dynamic.withRespectProjectFilters(false)
-    }
+    val dynamic: ScalafmtDynamic = cfgFunc(
+      Scalafmt
+        .create(this.getClass.getClassLoader)
+        .withReporter(reporter)
+        .withDefaultVersion(latest)
+        .asInstanceOf[ScalafmtDynamic]
+    )
     val config = Files.createTempFile("scalafmt", ".scalafmt.conf")
     val filename = Paths.get(name + ".scala")
     var timestamps = 100L
@@ -98,7 +94,6 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
       out.toString.replaceAllLiterally(config.toString, "path/.scalafmt.conf")
     }
     def errors: String = {
-      // work around scala/bug#11125
       out.toString.linesIterator
         .filter(_.startsWith("error"))
         .mkString("\n")
@@ -164,9 +159,12 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
     }
   }
 
-  def check(name: String)(fn: Format => Unit): Unit = {
+  def check(
+      name: String,
+      cfgFunc: ScalafmtDynamic => ScalafmtDynamic = identity
+  )(fn: Format => Unit): Unit = {
     test(name) {
-      val format = new Format(name)
+      val format = new Format(name, cfgFunc)
       try fn(format)
       finally format.dynamic.clear()
     }
@@ -189,7 +187,7 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
   def checkExhaustive(name: String)(fn: (Format, String) => Unit): Unit = {
     testedVersions.foreach { version =>
       test(s"$name (version: $version)") {
-        val format = new Format(name)
+        val format = new Format(name, identity)
         try fn(format, version)
         finally format.dynamic.clear()
       }
@@ -229,8 +227,7 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
 
   check("missing-version") { f => f.assertMissingVersion() }
 
-  check("ignore-version") { f =>
-    f.ignoreVersion()
+  check("ignore-version", _.withRespectVersion(false)) { f =>
     f.assertFormat(
       "object A  { }",
       "object A {}\n"
@@ -258,7 +255,7 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
     check("1.0.0")
   }
 
-  check("ignore-exclude-filters") { f =>
+  check("ignore-exclude-filters", _.withRespectProjectFilters(false)) { f =>
     f.setConfig(
       """
         |project.includeFilters = [
@@ -275,7 +272,6 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
       f.assertNotIgnored("path/App.scala")
       f.assertNotIgnored("path/UserSpec.scala")
     }
-    f.ignoreExcludeFilters()
     check(latest)
   }
 
