@@ -269,5 +269,5 @@ object a {
 }
 >>>
 object a {
-  print("") shouldBe ()
+  print("") shouldBe (())
 }
