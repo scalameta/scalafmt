@@ -1931,19 +1931,16 @@ private lazy val subNode
   ((opt(
     '*'
   ) ~ '[' ~> attrName <~ '+' ~ ']' ^^ {
-    name =>
-      AttrAppendSubNode(name)
+    name => AttrAppendSubNode(name)
   }) |
     (opt(
       '*'
     ) ~ '[' ~> attrName <~ '!' ~ ']' ^^ {
-      name =>
-        AttrRemoveSubNode(name)
+      name => AttrRemoveSubNode(name)
     }) | (opt(
     '*'
   ) ~ '[' ~> attrName <~ ']' ^^ {
-    name =>
-      AttrSubNode(name)
+    name => AttrSubNode(name)
   }) |
 
     ('!' ~ '!' ^^ (a =>
