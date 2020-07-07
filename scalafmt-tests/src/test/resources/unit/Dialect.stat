@@ -42,7 +42,6 @@ object Main {
   val given = 42
 }
 >>>
-test does not parse
 object Main {
   val given = 42
-    ^
+}
