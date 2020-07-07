@@ -56,21 +56,23 @@ object Policy {
 
   def apply(
       expire: Token,
+      endPolicy: End = End.After,
       noDequeue: Boolean = false
   )(f: Pf)(implicit line: sourcecode.Line): Policy =
-    new ClauseImpl(f, expire.end, noDequeue)
+    new ClauseImpl(f, expire.end, endPolicy, noDequeue)
 
   abstract class Clause(implicit val line: sourcecode.Line) extends Policy {
     val f: Policy.Pf
     val endPos: Int
+    val endPolicy: End
 
     override def toString = {
       val noDeqPrefix = if (noDequeue) "!" else ""
-      s"${line.value}<$endPos${noDeqPrefix}d"
+      s"${line.value}$endPolicy$endPos${noDeqPrefix}d"
     }
 
     override def unexpired(ft: FormatToken): Policy =
-      if (ft.left.end <= endPos) this else NoPolicy
+      if (endPolicy.notExpiredBy(ft, endPos)) this else NoPolicy
 
     override def filter(pred: Clause => Boolean): Policy =
       if (pred(this)) this else NoPolicy
@@ -81,6 +83,7 @@ object Policy {
   private class ClauseImpl(
       val f: Policy.Pf,
       val endPos: Int,
+      val endPolicy: End,
       val noDequeue: Boolean
   )(implicit line: sourcecode.Line)
       extends Clause
@@ -152,6 +155,17 @@ object Policy {
 
     override def noDequeue: Boolean = policy.noDequeue
 
+  }
+
+  sealed trait End {
+    def notExpiredBy(ft: FormatToken, endPos: Int): Boolean
+  }
+  object End {
+    case object After extends End {
+      def notExpiredBy(ft: FormatToken, endPos: Int): Boolean =
+        ft.left.end <= endPos
+      override def toString: String = ">"
+    }
   }
 
 }
