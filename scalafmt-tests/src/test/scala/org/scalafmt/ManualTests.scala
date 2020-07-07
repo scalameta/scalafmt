@@ -23,6 +23,7 @@ object ManualTests extends HasTests {
             val testFile = testPath.stripPrefix(testPrefix)
             DiffTest(
               testFile,
+              testFile,
               new Position(testFile, testPath, 1),
               original,
               original,
@@ -38,6 +39,7 @@ object ManualTests extends HasTests {
     } yield {
       val content = readFile(filename)
       DiffTest(
+        filename,
         filename,
         new Position(filename, filename, 1),
         content,
