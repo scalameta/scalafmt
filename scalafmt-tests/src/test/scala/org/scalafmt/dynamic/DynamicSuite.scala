@@ -213,7 +213,8 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
   //checkVersion("0.2.8") // fails for now
 
   check("parse-error") { f =>
-    def check(): Unit = {
+    def check(version: String): Unit = {
+      f.setVersion(version)
       f.assertError(
         "object object A",
         """|parse-error.scala:1:8: error: identifier expected but object found
@@ -221,10 +222,8 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
           |       ^^^^^^""".stripMargin
       )
     }
-    f.setVersion(latest)
-    check()
-    f.setVersion("1.0.0")
-    check()
+    check(latest)
+    check("1.0.0")
   }
 
   check("missing-version") { f => f.assertMissingVersion() }
@@ -248,16 +247,14 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
         |]
         |""".stripMargin
     )
-    def check(): Unit = {
+    def check(version: String): Unit = {
+      f.setVersion(version)
       f.assertNotIgnored("path/FooSpec.scala")
       f.assertIgnored("path/App.scala")
       f.assertIgnored("path/UserSpec.scala")
     }
-    f.setVersion(latest)
-    check()
-    f.setVersion("1.0.0")
-    check()
-    f.ignoreExcludeFilters()
+    check(latest)
+    check("1.0.0")
   }
 
   check("ignore-exclude-filters") { f =>
@@ -271,14 +268,14 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
         |]
         |""".stripMargin
     )
-    def check(): Unit = {
+    def check(version: String): Unit = {
+      f.setVersion(version)
       f.assertNotIgnored("path/App.pm")
       f.assertNotIgnored("path/App.scala")
       f.assertNotIgnored("path/UserSpec.scala")
     }
-    f.setVersion(latest)
     f.ignoreExcludeFilters()
-    check()
+    check(latest)
   }
 
   check("config-error") { f =>
@@ -336,7 +333,8 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
   }
 
   check("sbt") { f =>
-    def check(): Unit = {
+    def check(version: String): Unit = {
+      f.setVersion(version)
       List("build.sbt", "build.sc").foreach { filename =>
         f.assertFormat(
           "lazy   val   x =  project",
@@ -355,10 +353,8 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
       """|project.includeFilters = [ ".*" ]
         |""".stripMargin
     )
-    f.setVersion(latest)
-    check()
-    f.setVersion("1.2.0")
-    check()
+    check(latest)
+    check("1.2.0")
   }
 
   check("no-config") { f =>
