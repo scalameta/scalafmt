@@ -46,7 +46,7 @@ object PolicyOps {
     import TokenOps.isSingleLineComment
     override val endPos = expire.end
     override val noDequeue: Boolean = true
-    override val endPolicy: Policy.End = Policy.End.After
+    override val endPolicy: Policy.End = Policy.End.On
     override def toString: String =
       "SLB:" + super.toString + {
         if (exclude.isEmpty) ""

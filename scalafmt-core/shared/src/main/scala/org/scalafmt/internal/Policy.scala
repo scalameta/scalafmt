@@ -171,6 +171,11 @@ object Policy {
         ft.right.end < endPos
       override def toString: String = "<"
     }
+    case object On extends End {
+      def notExpiredBy(ft: FormatToken, endPos: Int): Boolean =
+        ft.right.end <= endPos
+      override def toString: String = "@"
+    }
   }
 
 }
