@@ -73,9 +73,21 @@ class Router(formatOps: FormatOps) {
     val newlines = formatToken.newlinesBetween
 
     formatToken match {
-      case FormatToken(_: T.BOF, _, _) =>
+      case FormatToken(_: T.BOF, right, _) =>
+        val policy = right match {
+          case T.Ident(name) // shebang in .sc files
+              if filename.endsWith(".sc") && name.startsWith("#!") =>
+            val nl = findFirst(next(formatToken), Int.MaxValue)(_.hasBreak)
+            nl.fold[Policy](Policy.NoPolicy) { ft =>
+              Policy(ft.left) {
+                case Decision(t, _) if t.noBreak =>
+                  Seq(Split(Space(t.between.nonEmpty), 0))
+              }
+            }
+          case _ => Policy.NoPolicy
+        }
         Seq(
-          Split(NoSplit, 0)
+          Split(NoSplit, 0).withPolicy(policy)
         )
       case FormatToken(_, _: T.EOF, _) =>
         Seq(
