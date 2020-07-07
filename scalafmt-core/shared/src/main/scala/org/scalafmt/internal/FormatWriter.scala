@@ -52,7 +52,7 @@ class FormatWriter(formatOps: FormatOps) {
         // formatting flag fetches from the previous state because of
         // `formatToken.left` rendering. `FormatToken(x, // format: on)` will have
         // formatOff = false, but x still should not be formatted
-        case token if state.formatOff => sb.append(formatToken.meta.left.text)
+        case _ if state.formatOff => sb.append(formatToken.meta.left.text)
         case _: T.Comment =>
           entry.formatComment
         case _: T.Interpolation.Part | _: T.Constant.String =>
