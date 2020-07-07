@@ -359,7 +359,16 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
               |                           ^""".stripMargin,
             path
           )
-        isWrappedLiteralFailure
+        def isWrappedLiteralSuccess: Unit =
+          f.assertFormat(
+            wrappedLiteral,
+            wrappedLiteral.replaceAll("  +", " ").trim + "\n",
+            path
+          )
+        if (version > "2.0")
+          isWrappedLiteralSuccess
+        else
+          isWrappedLiteralFailure
       }
     }
     f.setConfig(

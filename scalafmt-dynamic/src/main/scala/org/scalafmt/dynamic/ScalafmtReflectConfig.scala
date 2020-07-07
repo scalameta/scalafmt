@@ -44,7 +44,7 @@ class ScalafmtReflectConfig private[dynamic] (
     matcher.invokeAs[java.lang.Boolean]("matches", filename.asParam)
   }
 
-  private val sbtDialect: Object = {
+  private def sbtDialect: Object = {
     try dialectsCls.invokeStatic("Sbt")
     catch {
       case ReflectionException(_: NoSuchMethodException) =>
@@ -52,9 +52,13 @@ class ScalafmtReflectConfig private[dynamic] (
     }
   }
 
-  def withSbtDialect: ScalafmtReflectConfig = {
-    // TODO: maybe hold loaded classes in some helper class not to reload them each time during copy?
-    val newTarget = target.invoke("withDialect", (dialectCls, sbtDialect))
+  lazy val withSbtDialect: ScalafmtReflectConfig = {
+    val newTarget =
+      try target.invoke("forSbt")
+      catch {
+        case ReflectionException(_: NoSuchMethodException) =>
+          target.invoke("withDialect", (dialectCls, sbtDialect))
+      }
     new ScalafmtReflectConfig(fmtReflect, newTarget, classLoader)
   }
 
