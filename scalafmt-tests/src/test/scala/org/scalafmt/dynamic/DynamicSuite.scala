@@ -149,11 +149,13 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
     def assertError(expected: String)(implicit pos: Position): Unit = {
       assertError("object A  {  }", expected)
     }
-    def assertError(code: String, expected: String)(implicit
-        pos: Position
-    ): Unit = {
+    def assertError(
+        code: String,
+        expected: String,
+        path: Path = filename
+    )(implicit pos: Position): Unit = {
       out.reset()
-      val obtained = dynamic.format(config, filename, code)
+      val obtained = dynamic.format(config, path, code)
       assertNoDiff(relevant, expected)
       assertNoDiff(obtained, obtained, "Formatter did not error")
     }
@@ -333,17 +335,31 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
     def check(version: String): Unit = {
       f.setVersion(version)
       List("build.sbt", "build.sc").foreach { filename =>
+        val path = Paths.get(filename)
+        // test sbt allows top-level terms
         f.assertFormat(
           "lazy   val   x =  project",
           "lazy val x = project\n",
-          Paths.get(filename)
+          path
         )
+        // test scala doesn't allow top-level terms (not passing path here)
         f.assertError(
           "lazy   val   x =  project",
           """|sbt.scala:1:1: error: classes cannot be lazy
             |lazy   val   x =  project
             |^^^^""".stripMargin
         )
+        // check wrapped literals, supported in sbt using scala 2.13+
+        val wrappedLiteral = "object a { val  x:  Option[0]  =  Some(0) }"
+        def isWrappedLiteralFailure: Unit =
+          f.assertError(
+            wrappedLiteral,
+            s"""$filename:1:28: error: identifier expected but integer constant found
+              |$wrappedLiteral
+              |                           ^""".stripMargin,
+            path
+          )
+        isWrappedLiteralFailure
       }
     }
     f.setConfig(
