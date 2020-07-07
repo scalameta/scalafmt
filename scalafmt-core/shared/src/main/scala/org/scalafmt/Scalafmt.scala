@@ -60,7 +60,11 @@ object Scalafmt {
   ): Formatted.Result = {
     val style =
       if (filename == defaultFilename) baseStyle
-      else baseStyle.getConfigFor(filename) // might throw for invalid conf
+      else { // might throw for invalid conf
+        val style = baseStyle.getConfigFor(filename)
+        val isSbt = filename.endsWith(".sc") || filename.endsWith(".sbt")
+        if (isSbt) style.forSbt else style
+      }
     val runner = style.runner
     Try {
       if (code.matches("\\s*")) System.lineSeparator()

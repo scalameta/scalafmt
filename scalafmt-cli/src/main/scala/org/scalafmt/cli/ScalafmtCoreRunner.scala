@@ -78,12 +78,9 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
   private[this] def unsafeHandleFile(
       inputMethod: InputMethod,
       options: CliOptions,
-      config: ScalafmtConfig
+      scalafmtConfig: ScalafmtConfig
   ): ExitCode = {
     val input = inputMethod.readInput(options)
-    val scalafmtConfig =
-      if (inputMethod.isSbt || inputMethod.isSc) config.forSbt
-      else config
     val formatResult = Scalafmt.formatCode(
       input,
       scalafmtConfig,

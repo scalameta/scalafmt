@@ -10,8 +10,6 @@ import org.scalafmt.util.AbsoluteFile
 import org.scalafmt.util.FileOps
 
 sealed abstract class InputMethod {
-  def isSbt: Boolean = filename.endsWith(".sbt")
-  def isSc: Boolean = filename.endsWith(".sc")
   def readInput(options: CliOptions): String
   def filename: String
   def write(formatted: String, original: String, options: CliOptions): ExitCode
