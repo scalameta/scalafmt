@@ -5,6 +5,7 @@ import org.scalafmt.config.ScalafmtConfig
 
 case class DiffTest(
     name: String,
+    filename: String,
     loc: Position,
     original: String,
     expected: String,

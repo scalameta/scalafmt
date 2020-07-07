@@ -46,7 +46,7 @@ class FormatTests
     val formatted = Scalafmt.formatCode(
       t.original,
       t.style.copy(runner = scalafmtRunner(runner, debug)),
-      filename = loc.filePathname
+      filename = t.filename
     )
     debug.printTest()
     val obtained = formatted match {
@@ -76,7 +76,7 @@ class FormatTests
       .formatCode(
         obtained,
         t.style.copy(runner = scalafmtRunner(runner, debug2)),
-        filename = loc.filePathname
+        filename = t.filename
       )
       .get
     debug2.printTest()

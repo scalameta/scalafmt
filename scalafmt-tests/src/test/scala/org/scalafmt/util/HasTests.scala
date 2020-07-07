@@ -1,6 +1,7 @@
 package org.scalafmt.util
 
 import java.io.File
+import java.util.regex.Pattern
 
 import scala.annotation.tailrec
 
@@ -108,21 +109,26 @@ trait HasTests extends FormatAssertions {
       if (idx < 0) cnt else numLines(str, cnt + 1, idx + sep.length)
     }
     var linenum = numLines(split.head, 2)
+    val inputOutputRegex = Pattern.compile(
+      s"(.+?)$sep(?:(.+)$sep===$sep)?(.+)$sep>>>(?: +(.+?))?$sep(.*)",
+      Pattern.DOTALL
+    )
     split.tail.map { t =>
-      val before :: expected :: Nil = t.split(s"$sep>>>$sep", 2).toList
-      val extraConfig = before.split(s"$sep===$sep", 2).toList
-      val (testStyle, name :: original :: Nil) = extraConfig match {
-        case nameAndOriginal :: Nil =>
-          (style, nameAndOriginal.split(sep, 2).toList)
-        case nameAndConfig :: original :: Nil =>
-          val name :: config :: Nil = nameAndConfig.split(sep, 2).toList
-          (loadStyle(config, style), name :: original :: Nil)
-        case other =>
-          throw new IllegalStateException(s"invalid extraConfig: ${other}")
-      }
+      val matcher = inputOutputRegex.matcher(t)
+      if (!matcher.matches())
+        throw new IllegalStateException(
+          s"invalid test, missing delimiters:\n$t"
+        )
+      val name = matcher.group(1)
+      val extraConfig = Option(matcher.group(2))
+      val original = matcher.group(3)
+      val altFilename = Option(matcher.group(4))
+      val expected = matcher.group(5)
+      val testStyle = extraConfig.fold(style)(loadStyle(_, style))
       val actualName = stripPrefix(name)
       val test = DiffTest(
         actualName,
+        altFilename.getOrElse(filename),
         new Position(spec, filename, linenum),
         original,
         trimmed(expected),
@@ -167,7 +173,7 @@ trait HasTests extends FormatAssertions {
       .formatCode(
         t.original,
         t.style.copy(runner = runner),
-        filename = loc.filePathname
+        filename = t.filename
       )
       .get
     if (t.style.rewrite.rules.isEmpty) {
