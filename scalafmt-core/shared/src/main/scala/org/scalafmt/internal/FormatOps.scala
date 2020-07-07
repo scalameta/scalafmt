@@ -145,11 +145,17 @@ class FormatOps(
   @inline def prev(tok: FormatToken): FormatToken = tokens(tok, -1)
   @inline def next(tok: FormatToken): FormatToken = tokens(tok, 1)
 
-  @tailrec
   final def findFirst(start: FormatToken, end: Token)(
       f: FormatToken => Boolean
   ): Option[FormatToken] = {
-    if (start.left.start > end.start) None
+    findFirst(start, end.start)(f)
+  }
+
+  @tailrec
+  final def findFirst(start: FormatToken, end: Int)(
+      f: FormatToken => Boolean
+  ): Option[FormatToken] = {
+    if (start.left.start > end) None
     else if (f(start)) Some(start)
     else {
       val next_ = next(start)
