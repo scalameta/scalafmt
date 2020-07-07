@@ -97,7 +97,7 @@ class Router(formatOps: FormatOps) {
         val end = matching(start)
         val policy =
           if (isTripleQuote(formatToken.meta.left.text)) NoPolicy
-          else penalizeAllNewlines(end, BreakSingleLineInterpolatedString)
+          else PenalizeAllNewlines(end, BreakSingleLineInterpolatedString)
         val split = Split(NoSplit, 0).withPolicy(policy)
         Seq(
           if (getStripMarginChar(formatToken).isEmpty) split
@@ -449,7 +449,7 @@ class Router(formatOps: FormatOps) {
                 val exclude = insideBlockRanges[LeftParenOrBrace](tok, end)
                 val splits = Seq(
                   Split(Space, 0).withSingleLine(end, exclude),
-                  newlineSplit(1).withPolicy(penalizeAllNewlines(end, 1))
+                  newlineSplit(1).withPolicy(PenalizeAllNewlines(end, 1))
                 )
                 Left(splits)
               case t =>
@@ -718,7 +718,7 @@ class Router(formatOps: FormatOps) {
         )(implicit line: sourcecode.Line): Policy = {
           val baseSingleLinePolicy = if (isBracket) {
             if (!multipleArgs)
-              penalizeAllNewlines(
+              PenalizeAllNewlines(
                 close,
                 newlinePenalty,
                 penalizeLambdas = false
@@ -728,7 +728,7 @@ class Router(formatOps: FormatOps) {
             val penalty =
               if (!multipleArgs) newlinePenalty
               else Constants.ShouldBeNewline
-            penalizeAllNewlines(
+            PenalizeAllNewlines(
               close,
               penalty = penalty,
               ignore = insideBraces,
@@ -901,7 +901,7 @@ class Router(formatOps: FormatOps) {
         } else {
           def penalizeBrackets(penalty: Int): Policy =
             if (isBracket)
-              penalizeAllNewlines(close, Constants.BracketPenalty * penalty + 3)
+              PenalizeAllNewlines(close, Constants.BracketPenalty * penalty + 3)
             else NoPolicy
           val bracketCoef = if (isBracket) Constants.BracketPenalty else 1
           val bracketPenalty = if (isBracket) 1 else 0
@@ -976,7 +976,7 @@ class Router(formatOps: FormatOps) {
               excludeRanges.exists(_.contains(x.left.end))
             }
             val policy =
-              penalizeAllNewlines(close, 3, ignore = ignoreBlocks) &
+              PenalizeAllNewlines(close, 3, ignore = ignoreBlocks) &
                 Policy(close)(UnindentAtExclude(exclude.keySet, Num(-indent.n)))
             baseNoSplit.withOptimalTokenOpt(opt).withPolicy(policy)
           }
@@ -1012,7 +1012,7 @@ class Router(formatOps: FormatOps) {
             defDefReturnType(leftOwner).isDefined =>
         val expire = lastToken(defDefReturnType(rightOwner).get)
         val penalizeNewlines =
-          penalizeAllNewlines(expire, Constants.BracketPenalty)
+          PenalizeAllNewlines(expire, Constants.BracketPenalty)
         val sameLineSplit = Space(endsWithSymbolIdent(left))
         val indent = style.continuationIndent.getDefnSite(leftOwner)
         Seq(
@@ -1229,7 +1229,7 @@ class Router(formatOps: FormatOps) {
                   val minCost = math.max(0, filtered.map(_.cost).min - 1)
                   filtered.map { x =>
                     val p =
-                      x.policy.filter(!_.isInstanceOf[penalizeAllNewlines])
+                      x.policy.filter(!_.isInstanceOf[PenalizeAllNewlines])
                     x.copy(cost = x.cost - minCost, policy = p)
                   }
                 }
@@ -1253,7 +1253,7 @@ class Router(formatOps: FormatOps) {
                 nestedSelect(rightOwner) + nestedApplies(leftOwner)
               // This policy will apply to both the space and newline splits, otherwise
               // the newline is too cheap even it doesn't actually prevent other newlines.
-              val penalizeBreaks = penalizeAllNewlines(chainExpire, 2)
+              val penalizeBreaks = PenalizeAllNewlines(chainExpire, 2)
               def slbPolicy =
                 SingleLineBlock(
                   chainExpire,
@@ -1594,7 +1594,7 @@ class Router(formatOps: FormatOps) {
           Split(Space(useSpace), 0).withIndent(indent, close, After)
         }
         def spaceSplit =
-          spaceSplitWithoutPolicy.withPolicy(penalizeAllNewlines(close, 1))
+          spaceSplitWithoutPolicy.withPolicy(PenalizeAllNewlines(close, 1))
         def newlineSplit(cost: Int, forceDangle: Boolean) = {
           val shouldDangle = forceDangle ||
             editionActive && style.danglingParentheses.callSite
@@ -2050,7 +2050,7 @@ class Router(formatOps: FormatOps) {
                 SingleLineBlock(t.cond.tokens.last)
               else
                 SingleLineBlock(expire)
-            case _ => penalizeAllNewlines(expire, 1)
+            case _ => PenalizeAllNewlines(expire, 1)
           }
       }
       Seq(
@@ -2058,7 +2058,7 @@ class Router(formatOps: FormatOps) {
         Split(Newline, 1)
           .withIndent(2, expire, After)
           .withPolicy(
-            penalizeAllNewlines(expire, 1),
+            PenalizeAllNewlines(expire, 1),
             !style.newlines.sourceIgnored
           )
       )
@@ -2099,7 +2099,7 @@ class Router(formatOps: FormatOps) {
           .withPolicy {
             val excludeRanges =
               insideBlockRanges[T.LeftBrace](ft, expire)
-            penalizeAllNewlines(
+            PenalizeAllNewlines(
               expire,
               Constants.ShouldBeSingleLine,
               ignore = x => excludeRanges.exists(_.contains(x.left.start))
@@ -2148,7 +2148,7 @@ class Router(formatOps: FormatOps) {
             val exclude = insideBlockRanges[LeftParenOrBrace](ft, end)
             Right(SingleLineBlock(end, exclude = exclude))
           case _ =>
-            val policy = penalizeAllNewlines(expire, 1)
+            val policy = PenalizeAllNewlines(expire, 1)
             Left(baseSpaceSplit.withOptimalToken(optimal).withPolicy(policy))
         }
 
@@ -2186,7 +2186,7 @@ class Router(formatOps: FormatOps) {
         .onlyIf(okNewline || spaceSplit.isIgnored)
         .withIndent(2, expire, After)
         .withPolicy(
-          penalizeAllNewlines(expire, 1),
+          PenalizeAllNewlines(expire, 1),
           !style.newlines.sourceIgnored
         )
     )

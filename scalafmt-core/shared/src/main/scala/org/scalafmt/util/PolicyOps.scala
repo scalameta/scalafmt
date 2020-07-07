@@ -8,7 +8,7 @@ import org.scalafmt.internal.Policy
 
 object PolicyOps {
 
-  case class penalizeAllNewlines(
+  case class PenalizeAllNewlines(
       expire: T,
       penalty: Int,
       penalizeLambdas: Boolean = true,
@@ -18,11 +18,10 @@ object PolicyOps {
       extends Policy.Clause {
     override val endPos = expire.end
     override val noDequeue: Boolean = false
-    override val endPolicy: Policy.End = Policy.End.After
+    override val endPolicy: Policy.End = Policy.End.Before
     override val f: Policy.Pf = {
       case Decision(tok, s)
-          if tok.right.end < endPos &&
-            (penalizeLambdas || !tok.left.is[T.RightArrow]) && !ignore(tok) =>
+          if (penalizeLambdas || !tok.left.is[T.RightArrow]) && !ignore(tok) =>
         s.map {
           case split
               if split.isNL ||
