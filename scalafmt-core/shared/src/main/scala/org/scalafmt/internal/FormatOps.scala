@@ -40,7 +40,11 @@ import scala.meta.tokens.{Token => T}
 /**
   * Helper functions for generating splits/policies for a given tree.
   */
-class FormatOps(val tree: Tree, baseStyle: ScalafmtConfig) {
+class FormatOps(
+    val tree: Tree,
+    baseStyle: ScalafmtConfig,
+    val filename: String = ""
+) {
   val initStyle = {
     val queue = new mutable.Queue[Tree]
     queue += tree
