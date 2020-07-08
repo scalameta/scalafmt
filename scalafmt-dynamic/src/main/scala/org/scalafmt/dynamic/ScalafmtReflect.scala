@@ -9,7 +9,7 @@ import scala.util.Try
 
 case class ScalafmtReflect(
     classLoader: URLClassLoader,
-    version: String,
+    version: ScalafmtVersion,
     respectVersion: Boolean
 ) {
   import classLoader.loadClass
@@ -50,7 +50,7 @@ case class ScalafmtReflect(
 
   // TODO: see implementation details for other versions of scalafmt, find where intellij config is kept
   lazy val intellijScalaFmtConfig: Option[ScalafmtReflectConfig] = {
-    if (version == "1.5.1") {
+    if (version == ScalafmtVersion(1, 5, 1)) {
       val scalaFmtConfigCls =
         classLoader.loadClass("org.scalafmt.config.ScalafmtConfig")
       val configTarget = scalaFmtConfigCls.invokeStatic("intellij")
@@ -163,9 +163,10 @@ case class ScalafmtReflect(
 
   private def checkVersionMismatch(config: ScalafmtReflectConfig): Unit = {
     if (respectVersion) {
+      val expected = version.toString
       val obtained = config.version
-      if (obtained != version) {
-        throw VersionMismatch(obtained, version)
+      if (obtained != expected) {
+        throw VersionMismatch(obtained, expected)
       }
     }
   }

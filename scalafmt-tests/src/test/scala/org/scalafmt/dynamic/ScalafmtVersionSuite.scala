@@ -1,99 +1,66 @@
 package org.scalafmt.dynamic
 
-import org.scalafmt.dynamic.ScalafmtVersion.InvalidVersionException
 import org.scalatest.funsuite.AnyFunSuite
 
 class ScalafmtVersionSuite extends AnyFunSuite {
   test("parse valid versions") {
     assert(
-      ScalafmtVersion.parse("2.0.0") == Right(ScalafmtVersion(2, 0, 0, 0))
+      ScalafmtVersion.parse("2.0.0") == Some(ScalafmtVersion(2, 0, 0))
     )
     assert(
-      ScalafmtVersion.parse("0.1.3") == Right(ScalafmtVersion(0, 1, 3, 0))
+      ScalafmtVersion.parse("0.1.3") == Some(ScalafmtVersion(0, 1, 3))
     )
     assert(
-      ScalafmtVersion.parse("2.0.0-RC4") == Right(ScalafmtVersion(2, 0, 0, 4))
+      ScalafmtVersion.parse("2.0.0-RC4") == Some(ScalafmtVersion(2, 0, 0, 4))
     )
     assert(
-      ScalafmtVersion.parse("2.1.1") == Right(ScalafmtVersion(2, 1, 1, 0))
+      ScalafmtVersion.parse("2.1.1") == Some(ScalafmtVersion(2, 1, 1))
     )
     assert(
-      ScalafmtVersion
-        .parse("2.2.3-SNAPSHOT") == Right(ScalafmtVersion(2, 2, 3, 0, true))
+      ScalafmtVersion.parse("2.2.3-SNAPSHOT") ==
+        Some(ScalafmtVersion(2, 2, 3, 0, true))
     )
     assert(
-      ScalafmtVersion.parse("2.0.0-RC1-SNAPSHOT") == Right(
-        ScalafmtVersion(2, 0, 0, 1, true)
-      )
+      ScalafmtVersion.parse("2.0.0-RC1-SNAPSHOT") ==
+        Some(ScalafmtVersion(2, 0, 0, 1, true))
     )
     assert(
-      ScalafmtVersion.parse("2.2.2-SNAPSHOT") == Right(
-        ScalafmtVersion(2, 2, 2, 0, true)
-      )
+      ScalafmtVersion.parse("2.2.2-SNAPSHOT") ==
+        Some(ScalafmtVersion(2, 2, 2, 0, true))
     )
   }
 
   test("toString") {
-    assert(ScalafmtVersion.parse("2.2.2-RC2").right.get.toString == "2.2.2-RC2")
-    assert(ScalafmtVersion.parse("2.2.2").right.get.toString == "2.2.2")
+    assert(ScalafmtVersion.parse("2.2.2-RC2").get.toString == "2.2.2-RC2")
+    assert(ScalafmtVersion.parse("2.2.2").get.toString == "2.2.2")
     assert(
       ScalafmtVersion
         .parse("2.2.2-SNAPSHOT")
-        .right
         .get
         .toString == "2.2.2-SNAPSHOT"
     )
     assert(
       ScalafmtVersion
         .parse("2.2.2-RC2-SNAPSHOT")
-        .right
         .get
         .toString == "2.2.2-RC2-SNAPSHOT"
     )
   }
 
   test("fail on invalid versions") {
-    assert(ScalafmtVersion.parse("2.0") == Left(InvalidVersionException("2.0")))
-    assert(
-      ScalafmtVersion.parse("v2.0.0") == Left(InvalidVersionException("v2.0.0"))
-    )
-    assert(ScalafmtVersion.parse("avs") == Left(InvalidVersionException("avs")))
-    assert(
-      ScalafmtVersion
-        .parse("1.2.3-M14") == Left(InvalidVersionException("1.2.3-M14"))
-    )
-    assert(
-      ScalafmtVersion
-        .parse("1.1.1.1") == Left(InvalidVersionException("1.1.1.1"))
-    )
-    assert(
-      ScalafmtVersion.parse("2.-1.0") == Left(InvalidVersionException("2.-1.0"))
-    )
-    assert(
-      ScalafmtVersion.parse("2.1.0.") == Left(InvalidVersionException("2.1.0."))
-    )
-    assert(
-      ScalafmtVersion.parse(",2.1.0") == Left(InvalidVersionException(",2.1.0"))
-    )
-    assert(
-      ScalafmtVersion.parse("2.1a.0") == Left(InvalidVersionException("2.1a.0"))
-    )
-    assert(
-      ScalafmtVersion.parse("2.1.0-") == Left(InvalidVersionException("2.1.0-"))
-    )
-    assert(
-      ScalafmtVersion
-        .parse("2.1.0-rc1") == Left(InvalidVersionException("2.1.0-rc1"))
-    )
-    assert(
-      ScalafmtVersion
-        .parse("2.1.0-RC1-M4") == Left(InvalidVersionException("2.1.0-RC1-M4"))
-    )
-    assert(
-      ScalafmtVersion.parse("2.0.0-RC1+metadata") == Left(
-        InvalidVersionException("2.0.0-RC1+metadata")
-      )
-    )
+    assert(ScalafmtVersion.parse("2.0") eq None)
+    assert(ScalafmtVersion.parse("v2.0.0") eq None)
+    assert(ScalafmtVersion.parse("avs") eq None)
+    assert(ScalafmtVersion.parse("1.2.3-M14") eq None)
+    assert(ScalafmtVersion.parse("1.1.1.1") eq None)
+    assert(ScalafmtVersion.parse("2.-1.0") eq None)
+    assert(ScalafmtVersion.parse("2.1.0.") eq None)
+    assert(ScalafmtVersion.parse(",2.1.0") eq None)
+    assert(ScalafmtVersion.parse("2.1a.0") eq None)
+    assert(ScalafmtVersion.parse("2.1.0-") eq None)
+    assert(ScalafmtVersion.parse("2.1.0-rc1") eq None)
+    assert(ScalafmtVersion.parse("2.1.0-RC1-M4") eq None)
+    assert(ScalafmtVersion.parse("2.0.0-RC1+metadata") eq None)
   }
 
   test("order versions") {
