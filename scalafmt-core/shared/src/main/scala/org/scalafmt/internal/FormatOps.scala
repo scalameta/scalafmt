@@ -521,20 +521,24 @@ class FormatOps(
     // TODO: if that ever changes, modify how rewrite rules handle infix
     val modification = getModCheckIndent(formatToken)
     val isNewline = modification.isNewline
-    val indent = infixIndent(app, formatToken, isNewline)
-    val split =
-      Split(modification, 0).withIndent(Num(indent), expire, ExpiresOn.After)
-
-    if (
-      !style.activeForEdition_2020_01 || !beforeLhs ||
-      isNewline || formatToken.right.is[T.Comment]
-    )
-      Seq(split)
-    else {
-      val altIndent = infixIndent(app, formatToken, true)
+    val asIs = !style.activeForEdition_2020_01 || !beforeLhs ||
+      (isNewline && !style.newlines.sourceIgnored) ||
+      formatToken.right.is[T.Comment]
+    if (asIs) {
+      val indent = infixIndent(app, formatToken, isNewline)
       Seq(
-        split,
-        Split(Newline, 1).withIndent(Num(altIndent), expire, ExpiresOn.After)
+        Split(modification, 0).withIndent(Num(indent), expire, ExpiresOn.After)
+      )
+    } else {
+      val spcIndent = infixIndent(app, formatToken, false)
+      val nlIndent = infixIndent(app, formatToken, true)
+      val nlCost = if (style.newlines.formatInfix) 2 else 1
+      val (spcMod, nlMod) =
+        if (isNewline) (Space, modification)
+        else (modification, Newline)
+      Seq(
+        Split(spcMod, 0).withIndent(Num(spcIndent), expire, ExpiresOn.After),
+        Split(nlMod, nlCost).withIndent(Num(nlIndent), expire, ExpiresOn.After)
       )
     }
   }

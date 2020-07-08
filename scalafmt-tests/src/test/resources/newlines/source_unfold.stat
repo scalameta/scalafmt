@@ -1747,15 +1747,15 @@ val a =
       8 % 9
     }
 >>>
-val a =
-  1 + 2 * 3 && 4 ^ 5 || 6 op 7 map {
+val a = 1 + 2 * 3 && 4 ^ 5 || 6 op
+  7 map {
     8 % 9
   }
 <<< 8.2: infix with shorter left ||
 val a = 1 + 2 * 3 || 4 ^ 5 && 6 op 7 map { 8 % 9 }
 >>>
-val a =
-  1 + 2 * 3 || 4 ^ 5 && 6 op 7 map {
+val a = 1 + 2 * 3 || 4 ^ 5 && 6 op
+  7 map {
     8 % 9
   }
 <<< 8.3: infix with longer left ||, narrow
