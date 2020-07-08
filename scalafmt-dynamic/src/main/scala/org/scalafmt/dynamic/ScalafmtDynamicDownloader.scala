@@ -4,8 +4,6 @@ import java.io.OutputStreamWriter
 import java.net.URL
 
 import coursierapi._
-import org.scalafmt.dynamic.ScalafmtDynamicDownloader._
-import org.scalafmt.dynamic.ScalafmtVersion.InvalidVersionException
 
 import scala.collection.JavaConverters._
 import scala.concurrent.duration.Duration
@@ -16,13 +14,7 @@ class ScalafmtDynamicDownloader(
     customRepositories: List[Repository],
     ttl: Option[Duration] = None
 ) {
-
-  def download(version: String): Either[DownloadFailure, DownloadSuccess] =
-    ScalafmtVersion
-      .parse(version)
-      .left
-      .map(InvalidVersionError(version, _))
-      .flatMap(download)
+  import ScalafmtDynamicDownloader._
 
   def download(
       version: ScalafmtVersion
@@ -42,12 +34,12 @@ class ScalafmtDynamicDownloader(
         .withCache(Cache.create())
       val urls: Array[URL] =
         settings.fetch().asScala.iterator.map(_.toURI.toURL).toArray
-      DownloadSuccess(version.toString, urls)
+      DownloadSuccess(version, urls)
     }.toEither.left.map {
       case e: error.ResolutionError =>
-        DownloadResolutionError(version.toString, e)
+        DownloadResolutionError(e)
       case e =>
-        DownloadUnknownError(version.toString, e)
+        DownloadUnknownError(e)
     }
   }
 
@@ -100,22 +92,12 @@ class ScalafmtDynamicDownloader(
 }
 
 object ScalafmtDynamicDownloader {
-  sealed trait DownloadResult {
-    def version: String
-  }
-  case class DownloadSuccess(version: String, jarUrls: Seq[URL])
-      extends DownloadResult
-  sealed trait DownloadFailure extends DownloadResult {
+  case class DownloadSuccess(version: ScalafmtVersion, jarUrls: Seq[URL])
+
+  sealed trait DownloadFailure {
     def cause: Throwable
   }
-  case class DownloadResolutionError(
-      version: String,
-      cause: error.ResolutionError
-  ) extends DownloadFailure
-  case class DownloadUnknownError(version: String, cause: Throwable)
+  case class DownloadResolutionError(cause: error.ResolutionError)
       extends DownloadFailure
-  case class InvalidVersionError(
-      version: String,
-      cause: InvalidVersionException
-  ) extends DownloadFailure
+  case class DownloadUnknownError(cause: Throwable) extends DownloadFailure
 }

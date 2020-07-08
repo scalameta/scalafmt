@@ -296,6 +296,13 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
     assert(f.parsedCount == 1, f.parsed)
 
     f.setConfig("invalid")
+    val parseError = f.assertThrows[ScalafmtDynamicError.ConfigParseError]()
+    assert(
+      parseError.getMessage
+        .contains("Key 'invalid' may not be followed by token: end of file")
+    )
+
+    f.setConfig("maxColumn = 40")
     f.assertMissingVersion()
 
     f.setConfig(
@@ -323,11 +330,8 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
 
   check("wrong-version") { f =>
     f.setVersion("1.0")
-    f.assertThrows[ScalafmtDynamicError.CannotDownload](
-      """|error: path/.scalafmt.conf: org.scalafmt.dynamic.exceptions.ScalafmtException: failed to download v=1.0
-        |Caused by: org.scalafmt.dynamic.ScalafmtVersion$InvalidVersionException: Invalid scalafmt version 1.0
-        |""".stripMargin
-    )
+    val error = f.assertThrows[ScalafmtDynamicError.ConfigInvalidVersion]()
+    assert(error.getMessage == "Invalid version: 1.0")
     assert(f.downloadLogs.isEmpty)
   }
 
@@ -388,8 +392,8 @@ class DynamicSuite extends AnyFunSuite with DiffAssertions {
   }
 
   check("intellij-default-config") { f: Format =>
-    val version = "1.5.1"
-    f.setVersion(version)
+    val version = ScalafmtVersion(1, 5, 1)
+    f.setVersion(version.toString)
     f.assertFormat()
 
     val reflect = f.dynamic.formatCache.getFromCache(version)

@@ -15,7 +15,6 @@ import org.scalafmt.interfaces._
 
 import scala.concurrent.ExecutionContext
 import scala.util.Try
-import scala.util.control.NonFatal
 
 final case class ScalafmtDynamic(
     reporter: ScalafmtReporter,
@@ -23,7 +22,7 @@ final case class ScalafmtDynamic(
     respectVersion: Boolean,
     respectExcludeFilters: Boolean,
     defaultVersion: String,
-    formatCache: ReentrantCache[String, FormatEval[ScalafmtReflect]],
+    formatCache: ReentrantCache[ScalafmtVersion, FormatEval[ScalafmtReflect]],
     cacheConfigs: Boolean,
     configsCache: ReentrantCache[Path, FormatEval[
       (ScalafmtReflectConfig, FileTime)
@@ -86,8 +85,8 @@ final case class ScalafmtDynamic(
         reporter.missingVersion(e.configPath, defaultVersion)
       case e: ConfigError =>
         Option(e.getCause) match {
-          case Some(cause) => reporter.error(e.configPath, e.msg, cause)
-          case None => reporter.error(e.configPath, e.msg)
+          case Some(cause) => reporter.error(e.configPath, e.getMessage, cause)
+          case None => reporter.error(e.configPath, e.getMessage)
         }
       case UnknownError(cause) =>
         reporter.error(file, cause)
@@ -131,9 +130,7 @@ final case class ScalafmtDynamic(
       configPath: Path
   ): FormatEval[ScalafmtReflectConfig] = {
     for {
-      version <- readVersion(configPath).toRight(
-        new ConfigMissingVersion(configPath)
-      )
+      version <- readVersion(configPath)
       fmtReflect <- resolveFormatter(configPath, version)
       config <- parseConfig(configPath, fmtReflect)
     } yield config
@@ -151,28 +148,24 @@ final case class ScalafmtDynamic(
 
   private def resolveFormatter(
       configPath: Path,
-      version: String
+      version: ScalafmtVersion
   ): FormatEval[ScalafmtReflect] = {
     formatCache.getOrAddToCache(version) { () =>
       val writer = reporter.downloadOutputStreamWriter()
-      val downloader = new ScalafmtDynamicDownloader(writer, repositories)
-      downloader
+      new ScalafmtDynamicDownloader(writer, repositories)
         .download(version)
         .left
         .map {
-          case DownloadResolutionError(v, _) =>
-            new CannotDownload(configPath, v)
-          case DownloadUnknownError(v, cause) =>
-            new CannotDownload(configPath, v, cause)
-          case InvalidVersionError(v, cause) =>
-            new CannotDownload(configPath, v, cause)
+          case _: DownloadResolutionError =>
+            new CannotDownload(configPath, version)
+          case DownloadUnknownError(cause) =>
+            new CannotDownload(configPath, version, cause)
         }
-        .flatMap(resolveClassPath(configPath, _))
+        .flatMap(resolveClassPath(configPath))
     }
   }
 
-  private def resolveClassPath(
-      configPath: Path,
+  private def resolveClassPath(configPath: Path)(
       downloadSuccess: DownloadSuccess
   ): FormatEval[ScalafmtReflect] = {
     val DownloadSuccess(version, urls) = downloadSuccess
@@ -219,15 +212,20 @@ final case class ScalafmtDynamic(
     respectExcludeFilters && !config.isIncludedInProject(filename)
   }
 
-  private def readVersion(config: Path): Option[String] = {
-    try {
-      Some(ConfigFactory.parseFile(config.toFile).getString("version"))
-    } catch {
-      case _: ConfigException.Missing if !respectVersion =>
-        Some(defaultVersion)
-      case NonFatal(_) =>
-        None
-    }
+  private def readVersion(config: Path): FormatEval[ScalafmtVersion] = {
+    Try {
+      ConfigFactory.parseFile(config.toFile).getString("version")
+    }.toEither.left
+      .flatMap {
+        case e: ConfigException.Parse =>
+          Left(new ConfigParseError(config, e.getMessage))
+        case _: ConfigException.Missing =>
+          if (respectVersion) Left(new ConfigMissingVersion(config))
+          else Right(defaultVersion)
+      }
+      .flatMap { v =>
+        ScalafmtVersion.parse(v).toRight(new ConfigInvalidVersion(config, v))
+      }
   }
 
   override def withMavenRepositories(repositories: String*): Scalafmt =

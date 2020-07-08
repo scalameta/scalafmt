@@ -1,12 +1,12 @@
 package org.scalafmt.dynamic
 
-import scala.util.control.{NonFatal, NoStackTrace}
+import scala.util.control.NonFatal
 
 case class ScalafmtVersion(
     major: Int,
     minor: Int,
     patch: Int,
-    rc: Int,
+    rc: Int = 0,
     snapshot: Boolean = false
 ) {
   private val integerRepr: Int =
@@ -17,7 +17,7 @@ case class ScalafmtVersion(
       rc != 0 && (other.rc == 0 || rc < other.rc)
     else integerRepr < other.integerRepr
 
-  def >(other: ScalafmtVersion): Boolean = this != other && !(this < other)
+  def >(other: ScalafmtVersion): Boolean = other < this
 
   override def toString: String =
     s"$major.$minor.$patch" +
@@ -26,17 +26,14 @@ case class ScalafmtVersion(
 }
 
 object ScalafmtVersion {
-  case class InvalidVersionException(version: String)
-      extends Exception(s"Invalid scalafmt version $version")
-      with NoStackTrace
 
   private val versionRegex = """(\d)\.(\d)\.(\d)(-RC(\d))?(-SNAPSHOT)?""".r
 
-  def parse(version: String): Either[InvalidVersionException, ScalafmtVersion] =
+  def parse(version: String): Option[ScalafmtVersion] =
     try {
       version match {
         case versionRegex(major, minor, patch, null, null, snapshot) =>
-          Right(
+          Some(
             ScalafmtVersion(
               positiveInt(major),
               positiveInt(minor),
@@ -46,7 +43,7 @@ object ScalafmtVersion {
             )
           )
         case versionRegex(major, minor, patch, _, rc, snapshot) =>
-          Right(
+          Some(
             ScalafmtVersion(
               positiveInt(major),
               positiveInt(minor),
@@ -55,10 +52,10 @@ object ScalafmtVersion {
               snapshot != null
             )
           )
-        case _ => Left(InvalidVersionException(version))
+        case _ => None
       }
     } catch {
-      case e if NonFatal(e) => Left(InvalidVersionException(version))
+      case e if NonFatal(e) => None
     }
 
   private def positiveInt(s: String): Int = {
