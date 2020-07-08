@@ -101,7 +101,7 @@ final case class ScalafmtDynamic(
   ): FormatResult = {
     for {
       config <- resolveConfig(configPath)
-      codeFormatted <- tryFormat(file, code, config.fmtReflect, config)
+      codeFormatted <- tryFormat(file, code, config)
     } yield codeFormatted
   }
 
@@ -190,7 +190,6 @@ final case class ScalafmtDynamic(
   private def tryFormat(
       file: Path,
       code: String,
-      reflect: ScalafmtReflect,
       config: ScalafmtReflectConfig
   ): FormatResult = {
     Try {
@@ -205,7 +204,7 @@ final case class ScalafmtDynamic(
         reporter.excluded(file)
         code
       } else {
-        reflect.format(code, configWithDialect, Some(file))
+        configWithDialect.format(code, Some(file))
       }
     }.toEither.left.map {
       case ReflectionException(e) => UnknownError(e)
@@ -242,7 +241,7 @@ final case class ScalafmtDynamic(
 
   private class MySession(cfg: ScalafmtReflectConfig) extends ScalafmtSession {
     override def format(file: Path, code: String): String =
-      tryFormat(file, code, cfg.fmtReflect, cfg).fold(
+      tryFormat(file, code, cfg).fold(
         error => { reportError(file, error); code },
         formatted => formatted
       )
