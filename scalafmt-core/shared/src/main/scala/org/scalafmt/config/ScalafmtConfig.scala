@@ -182,13 +182,21 @@ case class ScalafmtConfig(
     }
   }
   locally {
+    import ValidationOps._
     implicit val errors = allErrors
-    ValidationOps.addIf(align.ifWhileOpenParen && danglingParentheses.ctrlSite)
+    addIf(align.ifWhileOpenParen && danglingParentheses.ctrlSite)
     if (!runner.dialect.allowTrailingCommas) {
       def err = " (no support in Scala dialect)"
-      ValidationOps.addIf(trailingCommas == TrailingCommas.always, err)
-      ValidationOps.addIf(trailingCommas == TrailingCommas.multiple, err)
+      addIf(trailingCommas == TrailingCommas.always, err)
+      addIf(trailingCommas == TrailingCommas.multiple, err)
     }
+    addIf(
+      (binPack.unsafeCallSite || binPack.unsafeDefnSite) && {
+        newlines.implicitParamListModifierForce.nonEmpty ||
+        newlines.implicitParamListModifierPrefer.nonEmpty
+      },
+      " (not implemented)"
+    )
   }
   if (allErrors.nonEmpty) {
     val msg = allErrors.mkString("can't use: [\n\t", "\n\t", "\n]")
