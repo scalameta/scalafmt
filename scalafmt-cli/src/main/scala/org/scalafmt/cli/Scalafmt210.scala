@@ -50,7 +50,7 @@ class Scalafmt210 {
       if (filename.endsWith(".sbt")) SRunner.sbt
       else SRunner.default
     val style = scalafmtStyle.copy(runner = runner)
-    Scalafmt.formatCode(code, style, filename = filename) match {
+    Scalafmt.formatCode(code, style, filename = filename).formatted match {
       case Formatted.Success(formattedCode) => formattedCode
       case error =>
         error match {

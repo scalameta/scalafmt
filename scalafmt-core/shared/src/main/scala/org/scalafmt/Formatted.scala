@@ -1,5 +1,7 @@
 package org.scalafmt
 
+import org.scalafmt.config.ScalafmtConfig
+
 sealed abstract class Formatted {
 
   def toEither: Either[Throwable, String] =
@@ -18,4 +20,12 @@ sealed abstract class Formatted {
 object Formatted {
   case class Success(formattedCode: String) extends Formatted
   case class Failure(e: Throwable) extends Formatted
+
+  private[scalafmt] case class Result(
+      formatted: Formatted,
+      config: ScalafmtConfig
+  ) {
+    def get: String = formatted.get
+  }
+
 }

@@ -169,17 +169,17 @@ trait HasTests extends FormatAssertions {
     implicit val loc: Position = t.loc
     val debug = new Debug(false)
     val runner = scalafmtRunner(t.style.runner, debug).copy(parser = parse)
-    val obtained = Scalafmt
+    val result = Scalafmt
       .formatCode(
         t.original,
         t.style.copy(runner = runner),
         filename = t.filename
       )
-      .get
+    val obtained = result.formatted.get
     if (t.style.rewrite.rules.isEmpty) {
       assertFormatPreservesAst(t.original, obtained)(
         parse,
-        t.style.runner.dialect
+        result.config.runner.dialect
       )
     }
     assertNoDiff(obtained, t.expected)
