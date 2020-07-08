@@ -361,7 +361,7 @@ class FormatOps(
         splitOneArgPerLineBeforeComma(owner)
       else
         splitOneArgPerLineAfterComma(owner)
-    Policy(close)(pf)
+    Policy(close, Policy.End.Before)(pf)
   }
 
   def splitOneArgPerLineBeforeComma(
@@ -647,7 +647,7 @@ class FormatOps(
     val nlPolicy =
       if (nlIndent eq Indent.Empty) NoPolicy
       else
-        Policy(fullExpire) {
+        Policy(fullExpire, Policy.End.On) {
           case Decision(t: FormatToken, s) if isInfixOp(t.meta.leftOwner) =>
             if (isSingleLineComment(t.right)) // will break
               s.map(_.switch(firstInfixOp))
@@ -726,7 +726,7 @@ class FormatOps(
   }
 
   def getSingleLineInfixPolicy(end: Token) =
-    Policy(end) {
+    Policy(end, Policy.End.On) {
       case Decision(t: FormatToken, s) if isInfixOp(t.meta.leftOwner) =>
         SplitTag.InfixChainNoNL.activateOnly(s)
     }
@@ -952,7 +952,7 @@ class FormatOps(
     if (style.binPack.parentConstructors eq BinPack.ParentCtors.Always) NoPolicy
     else if (ownerSet.isEmpty) NoPolicy
     else
-      Policy(lastToken) {
+      Policy(lastToken, Policy.End.Before) {
         case d @ Decision(t @ FormatToken(_, _: T.KwWith, _), _)
             if ownerSet.contains(t.meta.rightOwner) =>
           d.onlyNewlinesWithoutFallback
@@ -1025,7 +1025,7 @@ class FormatOps(
   def decideNewlinesOnlyBeforeClose(
       split: Split
   )(close: Token)(implicit line: sourcecode.Line): Policy =
-    Policy(close) {
+    Policy(close, Policy.End.On) {
       case d: Decision if d.formatToken.right eq close =>
         d.onlyNewlinesWithFallback(split)
     }
@@ -1033,7 +1033,7 @@ class FormatOps(
   def decideNewlinesOnlyAfterClose(
       split: Split
   )(close: Token)(implicit line: sourcecode.Line): Policy =
-    Policy(close) {
+    Policy(close, Policy.End.After) {
       case d: Decision if d.formatToken.left eq close =>
         d.onlyNewlinesWithFallback(split)
     }
@@ -1041,7 +1041,7 @@ class FormatOps(
   def decideNewlinesOnlyAfterToken(
       token: Token
   )(implicit line: sourcecode.Line): Policy =
-    Policy(token) {
+    Policy(token, Policy.End.After) {
       case d: Decision if d.formatToken.left eq token =>
         d.onlyNewlinesWithoutFallback
     }
@@ -1130,12 +1130,10 @@ class FormatOps(
       rpOwner == owner || rpOwner == valueParamsOwner
     }
 
-    val paramGroupSplitter = Policy(lastParen) {
+    val paramGroupSplitter = Policy(lastParen, Policy.End.On) {
       // If this is a class, then don't dangle the last paren unless the line ends with a comment
-      case Decision(t @ FormatToken(previous, rp @ RightParenOrBracket(), _), _)
-          if shouldNotDangle && rp == lastParen && !isSingleLineComment(
-            previous
-          ) =>
+      case Decision(FormatToken(previous, `lastParen`, _), _)
+          if shouldNotDangle && !isSingleLineComment(previous) =>
         Seq(Split(NoSplit, 0))
       // Indent seperators `)(` and `](` by `indentSep`
       case Decision(t @ FormatToken(_, rp @ RightParenOrBracket(), _), _)

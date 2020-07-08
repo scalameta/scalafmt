@@ -56,7 +56,7 @@ object Policy {
 
   def apply(
       expire: Token,
-      endPolicy: End = End.After,
+      endPolicy: End,
       noDequeue: Boolean = false
   )(f: Pf)(implicit line: sourcecode.Line): Policy =
     new ClauseImpl(f, expire.end, endPolicy, noDequeue)
