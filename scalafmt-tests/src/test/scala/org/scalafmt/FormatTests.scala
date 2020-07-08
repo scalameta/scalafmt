@@ -43,13 +43,13 @@ class FormatTests
     implicit val loc: Position = t.loc
     val debug = new Debug(onlyOne)
     val runner = t.style.runner.copy(parser = parse)
-    val formatted = Scalafmt.formatCode(
+    val result = Scalafmt.formatCode(
       t.original,
       t.style.copy(runner = scalafmtRunner(runner, debug)),
       filename = t.filename
     )
     debug.printTest()
-    val obtained = formatted match {
+    val obtained = result.formatted match {
       case Formatted.Failure(e)
           if t.style.onTestFailure.nonEmpty &&
             e.getMessage.contains(t.style.onTestFailure) =>
@@ -68,7 +68,7 @@ class FormatTests
     ) {
       assertFormatPreservesAst(t.original, obtained)(
         parse,
-        t.style.runner.dialect
+        result.config.runner.dialect
       )
     }
     val debug2 = new Debug(onlyOne)

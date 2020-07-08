@@ -90,7 +90,7 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
       options.range,
       inputMethod.filename
     )
-    formatResult match {
+    formatResult.formatted match {
       case Formatted.Success(formatted) =>
         inputMethod.write(formatted, input, options)
       case Formatted.Failure(e) =>

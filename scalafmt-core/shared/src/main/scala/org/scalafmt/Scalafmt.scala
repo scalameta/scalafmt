@@ -3,7 +3,10 @@ package org.scalafmt
 import metaconfig.Configured
 import scala.meta.Dialect
 import scala.meta.inputs.Input
-import scala.util.control.NonFatal
+import scala.util.Failure
+import scala.util.Success
+import scala.util.Try
+
 import org.scalafmt.config.Config
 import org.scalafmt.Error.PreciseIncomplete
 import org.scalafmt.config.FormatEvent.CreateFormatOps
@@ -46,7 +49,7 @@ object Scalafmt {
       range: Set[Range],
       filename: String
   ): Formatted = {
-    formatCode(code, style, range, filename)
+    formatCode(code, style, range, filename).formatted
   }
 
   private[scalafmt] def formatCode(
@@ -54,13 +57,13 @@ object Scalafmt {
       baseStyle: ScalafmtConfig = ScalafmtConfig.default,
       range: Set[Range] = Set.empty,
       filename: String = defaultFilename
-  ): Formatted = {
+  ): Formatted.Result = {
     val style =
       if (filename == defaultFilename) baseStyle
       else baseStyle.getConfigFor(filename) // might throw for invalid conf
     val runner = style.runner
-    try {
-      if (code.matches("\\s*")) Formatted.Success(System.lineSeparator())
+    Try {
+      if (code.matches("\\s*")) System.lineSeparator()
       else {
         val isWindows = containsWindowsLineEndings(code)
         val unixCode = if (isWindows) {
@@ -85,15 +88,15 @@ object Scalafmt {
             formattedString
           }
         if (partial.reachedEOF) {
-          Formatted.Success(correctedFormattedString)
+          correctedFormattedString
         } else {
           val pos = formatOps.tokens(partial.state.depth).left.pos
           throw PreciseIncomplete(pos, correctedFormattedString)
         }
       }
-    } catch {
-      // TODO(olafur) add more fine grained errors.
-      case NonFatal(e) => Formatted.Failure(e)
+    } match {
+      case Failure(e) => Formatted.Result(Formatted.Failure(e), style)
+      case Success(s) => Formatted.Result(Formatted.Success(s), style)
     }
   }
 
@@ -103,7 +106,7 @@ object Scalafmt {
       style: ScalafmtConfig = ScalafmtConfig.default,
       range: Set[Range] = Set.empty[Range]
   ): Formatted = {
-    formatCode(code, style, range)
+    formatCode(code, style, range).formatted
   }
 
   def parseHoconConfig(configString: String): Configured[ScalafmtConfig] =
