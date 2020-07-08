@@ -98,6 +98,7 @@ case class ScalafmtReflect(
       config: ScalafmtReflectConfig,
       fileOpt: Option[Path] = None
   ): String = {
+    require(this eq config.fmtReflect)
     checkVersionMismatch(config)
 
     val formatted = (formatMethodWithFilename, fileOpt) match {
