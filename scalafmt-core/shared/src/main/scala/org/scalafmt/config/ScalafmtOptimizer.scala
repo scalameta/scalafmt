@@ -63,7 +63,7 @@ import metaconfig._
 case class ScalafmtOptimizer(
     dequeueOnNewStatements: Boolean = true,
     escapeInPathologicalCases: Boolean = true,
-    maxVisitsPerToken: Int = 513,
+    maxVisitsPerToken: Int = 10000,
     maxEscapes: Int = 16,
     maxDepth: Int = 100,
     acceptOptimalAtHints: Boolean = true,
