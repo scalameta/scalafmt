@@ -184,12 +184,10 @@ class FormatOps(
           None
         case _: T.RightBracket if start.left.is[T.RightBracket] => None
         case _: T.Comma | _: T.LeftParen | _: T.Semicolon | _: T.RightArrow |
-            _: T.Equals
-            if (style.activeForEdition_2020_03 && isInfixRhs(start) ||
-              !startsNewBlockOnRight(start)) =>
+            _: T.Equals if isInfixRhs(start) || !startsNewBlockOnRight(start) =>
           None
         case c: T.Comment
-            if style.activeForEdition_2020_01 && start.noBreak &&
+            if start.noBreak &&
               (style.comments.wrap ne Comments.Wrap.trailing) &&
               (!start.left.is[T.LeftParen] || isSingleLineComment(c)) =>
           Some(c)
@@ -201,7 +199,7 @@ class FormatOps(
   final def endOfSingleLineBlock(
       start: FormatToken
   )(implicit style: ScalafmtConfig): Token = {
-    lazy val isInfix = style.activeForEdition_2020_03 && isInfixRhs(start)
+    lazy val isInfix = isInfixRhs(start)
     val endFound = start.right match {
       case _: T.Comma | _: T.LeftParen | _: T.Semicolon | _: T.RightArrow |
           _: T.Equals =>
@@ -382,8 +380,6 @@ class FormatOps(
           (!right.is[T.Comment] || t.hasBreak) =>
       if (!right.is[T.LeftBrace])
         splits.filter(_.isNL)
-      else if (!style.activeForEdition_2020_03)
-        splits
       else
         SplitTag.OneArgPerLine.activateOnly(splits)
   }
@@ -465,10 +461,7 @@ class FormatOps(
     ) 2
     else if (isInfixTopLevelMatch(app.all, app.op.value, true)) 0
     else if (!isNewline && !isSingleLineComment(formatToken.right)) 0
-    else if (
-      (style.activeForEdition_2020_03 || style.newlines.formatInfix) &&
-      app.all.is[Pat] && isChildOfCaseClause(app.all)
-    ) 0
+    else if (app.all.is[Pat] && isChildOfCaseClause(app.all)) 0
     else 2
   }
 
@@ -510,7 +503,7 @@ class FormatOps(
     // TODO: if that ever changes, modify how rewrite rules handle infix
     val modification = getModCheckIndent(formatToken)
     val isNewline = modification.isNewline
-    val asIs = !style.activeForEdition_2020_01 || !beforeLhs ||
+    val asIs = !beforeLhs ||
       (isNewline && !style.newlines.sourceIgnored) ||
       formatToken.right.is[T.Comment]
     if (asIs) {
@@ -883,8 +876,7 @@ class FormatOps(
   def opensConfigStyleImplicitParamList(
       formatToken: FormatToken
   )(implicit style: ScalafmtConfig): Boolean =
-    style.activeForEdition_2020_03 &&
-      formatToken.right.is[T.KwImplicit] &&
+    formatToken.right.is[T.KwImplicit] &&
       style.newlines.notBeforeImplicitParamListModifier &&
       opensImplicitParamList(formatToken).isDefined
 
@@ -900,12 +892,6 @@ class FormatOps(
       isConfigStyle: Boolean = false
   )(implicit style: ScalafmtConfig): Num =
     leftOwner match {
-      case _: Pat
-          if !style.activeForEdition_2020_03 &&
-            leftOwner.parent.exists(_.is[Case]) =>
-        // The first layer of indentation is provided by the case ensure
-        // orpan comments and the case cond is indented correctly.
-        Num(0)
       case x if isDefnSite(x) && !x.isInstanceOf[Type.Apply] =>
         if (style.binPack.unsafeDefnSite && !isConfigStyle) Num(0)
         else Num(style.continuationIndent.getDefnSite(x))
@@ -1182,9 +1168,7 @@ class FormatOps(
         case _ => 0
       }
 
-    def configStyle =
-      style.optIn.configStyleArguments &&
-        style.activeForEdition_2020_03 && ft.hasBreak
+    def configStyle = style.optIn.configStyleArguments && ft.hasBreak
 
     def belowArityThreshold =
       maxArity < style.verticalMultiline.arityThreshold
@@ -1255,7 +1239,7 @@ class FormatOps(
             case _ => false
           }) =>
         Some(fun)
-      case t: Init if style.activeForEdition_2020_01 =>
+      case t: Init =>
         findArgsFor(ft.left, t.argss).collect {
           case List(f: Term.Function) => f
         }
@@ -1301,19 +1285,14 @@ class FormatOps(
     val paren = if (isRight) ft.right else ft.left
     val owner = if (isRight) ft.meta.rightOwner else ft.meta.leftOwner
     def getArgs(argss: Seq[Seq[Tree]]): Seq[Tree] =
-      if (!style.activeForEdition_2020_03) argss.flatten
-      else findArgsFor(paren, argss).getOrElse(Seq.empty)
+      findArgsFor(paren, argss).getOrElse(Seq.empty)
     owner match {
       case InfixApp(ia) if style.newlines.formatInfix => (ia.op, ia.rhs)
       case t @ SplitDefnIntoParts(_, name, tparams, paramss) =>
         if (if (isRight) paren.is[T.RightParen] else paren.is[T.LeftParen])
           (name, getArgs(paramss))
-        else {
-          // XXX: backwards-compatible hack
-          val useTParams = style.activeForEdition_2020_03 || t.is[Defn.Def] ||
-            t.is[Type.Param] || t.is[Decl.Type] || t.is[Defn.Type]
-          (name, if (useTParams) tparams else paramss.flatten)
-        }
+        else
+          (name, tparams)
       case SplitCallIntoParts(tree, either) =>
         either match {
           case Left(args) => (tree, args)

@@ -190,7 +190,6 @@ case class Newlines(
   }
 
   val reader: ConfDecoder[Newlines] = generic.deriveDecoder(this).noTypos
-  if (source != Newlines.classic) warnSourceIsExperimental
 
   @inline
   def sourceIs(hint: SourceHints): Boolean =
@@ -273,11 +272,6 @@ object Newlines {
 
   implicit val sourceHintsReader: ConfCodec[SourceHints] =
     ReaderUtil.oneOf[SourceHints](keep, fold, unfold)
-
-  private lazy val warnSourceIsExperimental: Unit =
-    Console.err.println(
-      "newlines.source is experimental, will change ignoring edition setting"
-    )
 
   sealed abstract class AfterInfix
   object AfterInfix {

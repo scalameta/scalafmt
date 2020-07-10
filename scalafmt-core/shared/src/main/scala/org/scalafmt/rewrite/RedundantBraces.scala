@@ -96,10 +96,10 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
 
   override def rewrite(tree: Tree): Unit =
     tree match {
-      case t: Term.Apply if ctx.style.activeForEdition_2019_11 =>
+      case t: Term.Apply =>
         processApply(t)
 
-      case t: Init if ctx.style.activeForEdition_2020_01 =>
+      case t: Init =>
         processInit(t)
 
       case b: Term.Block =>
@@ -131,8 +131,7 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
       // a(b => { c; d }) change to a { b => c; d }
       case f: Term.Function
           if okToRemoveAroundFunctionBody(f.body, true) &&
-            f.tokens.last.is[Token.RightBrace] &&
-            (ctx.style.activeForEdition_2020_01 || getTermLineSpan(f) > 0) =>
+            f.tokens.last.is[Token.RightBrace] =>
         val rbrace = f.tokens.last
         val lbrace = ctx.getMatching(rbrace)
         // we really wanted the first token of body but Block usually
@@ -167,7 +166,7 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
           ctx.removeLFToAvoidEmptyLine(rbrace)
           ctx.addPatchSet(builder.result(): _*)
         }
-      case b: Term.Block if ctx.style.activeForEdition_2020_01 =>
+      case b: Term.Block =>
         processBlock(b, okToRemoveBlockWithinApply)
       case _ =>
     }
@@ -237,8 +236,7 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
         !isProcedureSyntax(d) &&
         !disqualifiedByUnit
 
-      case p: Term.Function
-          if ctx.style.activeForEdition_2019_11 && isFunctionWithBraces(p) =>
+      case p: Term.Function if isFunctionWithBraces(p) =>
         okToRemoveAroundFunctionBody(b, true)
 
       case _ =>

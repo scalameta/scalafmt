@@ -157,8 +157,7 @@ case class ScalafmtConfig(
     encoding: Codec = "UTF-8",
     project: ProjectFiles = ProjectFiles(),
     fileOverride: Conf.Obj = Conf.Obj.empty,
-    xmlLiterals: XmlLiterals = XmlLiterals(),
-    edition: Edition = Edition.Latest
+    xmlLiterals: XmlLiterals = XmlLiterals()
 ) {
 
   private implicit def runnerReader = runner.reader
@@ -226,22 +225,6 @@ case class ScalafmtConfig(
       .collectFirst { case (pm, style) if pm.matches(path) => style }
       .getOrElse(this)
   }
-
-  // Edition-specific settings below
-  def activeFor(edition: Edition): Boolean = this.edition >= edition
-
-  // Edition 2019-11
-  val activeForEdition_2019_11: Boolean = activeFor(Edition(2019, 11))
-  val newlinesBeforeSingleArgParenLambdaParams =
-    newlines.alwaysBeforeCurlyLambdaParams || !activeForEdition_2019_11
-  val newlinesBetweenCurlyAndCatchFinally: Boolean =
-    newlines.alwaysBeforeElseAfterCurlyIf && activeForEdition_2019_11
-
-  // Edition 2020-01
-  val activeForEdition_2020_01: Boolean = activeFor(Edition(2020, 1))
-
-  // Edition 2020-03
-  val activeForEdition_2020_03: Boolean = activeFor(Edition(2020, 3))
 
   lazy val encloseSelectChains =
     optIn.encloseClassicChains || !newlines.sourceIs(Newlines.classic)

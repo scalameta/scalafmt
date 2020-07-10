@@ -97,9 +97,8 @@ class FormatWriter(formatOps: FormatOps) {
     iter(state, 0)
 
     if (
-      initStyle.rewrite.redundantBraces.parensForOneLineApply
-        .getOrElse(initStyle.activeForEdition_2020_01) &&
-      initStyle.rewrite.rules.contains(RedundantBraces)
+      initStyle.rewrite.rules.contains(RedundantBraces) &&
+      !initStyle.rewrite.redundantBraces.parensForOneLineApply.contains(false)
     )
       replaceRedundantBraces(result)
 
@@ -1057,27 +1056,25 @@ class FormatWriter(formatOps: FormatOps) {
     val formatToken = toks(i).formatToken
 
     def checkPackage: Option[Boolean] =
-      if (!initStyle.activeForEdition_2019_11) None
-      else
-        Some(formatToken.meta.leftOwner)
-          .collect { case term: Term.Name => term.parent }
-          .flatten
-          .collect {
-            // package a
-            case pkg: Pkg =>
-              pkg.stats.headOption
+      Some(formatToken.meta.leftOwner)
+        .collect { case term: Term.Name => term.parent }
+        .flatten
+        .collect {
+          // package a
+          case pkg: Pkg =>
+            pkg.stats.headOption
 
-            // package a.b.c
-            case select: Term.Select =>
-              select.parent.collect {
-                case pkg: Pkg => pkg.stats.headOption
-              }.flatten
-          }
-          .flatten
-          .map {
-            case pkg: Pkg => tokens(pkg.ref.tokens.last).right.is[T.LeftBrace]
-            case _ => true
-          }
+          // package a.b.c
+          case select: Term.Select =>
+            select.parent.collect {
+              case pkg: Pkg => pkg.stats.headOption
+            }.flatten
+        }
+        .flatten
+        .map {
+          case pkg: Pkg => tokens(pkg.ref.tokens.last).right.is[T.LeftBrace]
+          case _ => true
+        }
 
     def checkTopLevelStatement: Boolean =
       topLevelHeadTokens.contains(formatToken.meta.idx) && {
@@ -1180,7 +1177,6 @@ class FormatWriter(formatOps: FormatOps) {
         val key = location.shift - previousWidth + separatorLengthGaps(i)
         val separatorLength =
           if (location.formatToken.right.is[Token.Comment]) 0
-          else if (!initStyle.activeForEdition_2020_03) 0
           else location.formatToken.meta.right.text.length
         units += AlignmentUnit(
           key + separatorLength,
