@@ -2564,7 +2564,9 @@ for {
 
 ## Edition
 
-Editions are no longer used. They're kept for backwards compatibility with old
+> Removed in 2.7.0
+
+Editions are no longer used. They were kept for backwards compatibility with old
 configuration files but new changes to the default Scalafmt formatting behavior
 will not respect the `edition` setting.
 

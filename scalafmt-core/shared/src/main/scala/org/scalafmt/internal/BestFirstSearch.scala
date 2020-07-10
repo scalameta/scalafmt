@@ -210,9 +210,8 @@ private class BestFirstSearch private (
                 val nextNextState =
                   shortestPath(nextState, token, depth + 1, maxCost = 0)
                 val furtherState =
-                  if (null != nextNextState && style.activeForEdition_2020_03)
-                    traverseSameLine(nextNextState, depth)
-                  else nextNextState
+                  if (null == nextNextState) null
+                  else traverseSameLine(nextNextState, depth)
                 if (null != furtherState) {
                   if (furtherState.column > style.maxColumn)
                     Q.enqueue(nextNextState)
