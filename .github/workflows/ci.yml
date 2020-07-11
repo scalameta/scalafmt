@@ -19,7 +19,7 @@ jobs:
       - uses: olafurpg/setup-scala@v7
         with:
           java-version: ${{ matrix.java }}
-      - run: git fetch --tags
+      - run: git fetch --tags -f
       - run:
           # for GitOps tests	
           git config --global user.email "scalafmt@scalameta.org" && git config --global user.name "scalafmt"
