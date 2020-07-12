@@ -89,13 +89,12 @@ object a {
     )(implicit
         c1: SomeType1,
         c2: SomeType2 // comment
-    ) =
-      this(
-        a1,
-        a2 // comment
-      )(
-        b1,
-        b2 // comment
-      )
+    ) = this(
+      a1,
+      a2 // comment
+    )(
+      b1,
+      b2 // comment
+    )
   }
 }

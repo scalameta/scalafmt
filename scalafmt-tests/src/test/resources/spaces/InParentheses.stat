@@ -20,27 +20,24 @@ def x = ( 1, 2 )
 <<< maxColumn
 def x = (1, 2, aaaaaaaaaaaaaawwwwsssssssssswa)
 >>>
-def x =
-  (
-    1,
-    2,
-    aaaaaaaaaaaaaawwwwsssssssssswa )
+def x = (
+  1,
+  2,
+  aaaaaaaaaaaaaawwwwsssssssssswa )
 <<< maxColumn apply
 def foo = bar(aaaaaaaaaaaaa, bbbbbbbbbbbbbb, cccccccccc)
 >>>
-def foo =
-  bar(
-    aaaaaaaaaaaaa,
-    bbbbbbbbbbbbbb,
-    cccccccccc )
+def foo = bar(
+  aaaaaaaaaaaaa,
+  bbbbbbbbbbbbbb,
+  cccccccccc )
 <<< maxColumn apply 2
 def foo = bar(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, bbbbbbbbbbbbbb, cccccccccc)
 >>>
-def foo =
-  bar(
-    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,
-    bbbbbbbbbbbbbb,
-    cccccccccc )
+def foo = bar(
+  aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,
+  bbbbbbbbbbbbbb,
+  cccccccccc )
 <<< brackets
 function[A](a, b, c)
 >>>
