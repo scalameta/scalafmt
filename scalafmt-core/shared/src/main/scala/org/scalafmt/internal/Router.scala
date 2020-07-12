@@ -2020,12 +2020,9 @@ class Router(formatOps: FormatOps) {
       Seq(Split(Space, 0))
     else if (isSingleLineComment(ft.right))
       Seq(Split(Newline, 0).withIndent(2, expire, After))
-    else if (isJsNative(ft.right)) {
-      val spacePolicy =
-        if (!style.newlines.alwaysBeforeMultilineDef) Policy.NoPolicy
-        else SingleLineBlock(expire, exclude = exclude)
-      Seq(Split(Space, 0, policy = spacePolicy))
-    } else {
+    else if (isJsNative(body))
+      Seq(Split(Space, 0).withSingleLine(expire))
+    else {
       val spacePolicy = style.newlines.source match {
         case Newlines.classic =>
           if (ft.hasBreak) null
@@ -2108,7 +2105,7 @@ class Router(formatOps: FormatOps) {
             )
           }
       )
-    val okNewline = !isJsNative(ft.right)
+    val okNewline = !isJsNative(body)
     val spaceSplit = (style.newlines.source match {
       case Newlines.classic
           if okNewline && ft.hasBreak && ft.meta.leftOwner.is[Defn] =>
