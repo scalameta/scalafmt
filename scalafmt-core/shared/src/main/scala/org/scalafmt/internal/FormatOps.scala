@@ -33,7 +33,6 @@ import scala.meta.{
   Tree,
   Type
 }
-import scala.meta.prettyprinters.Structure
 import scala.meta.tokens.Token
 import scala.meta.tokens.{Token => T}
 
@@ -250,14 +249,11 @@ class FormatOps(
     *
     * Context: https://github.com/scalameta/scalafmt/issues/108
     */
-  def isJsNative(jsToken: Token): Boolean = {
-    initStyle.newlines.neverBeforeJsNative && jsToken.syntax == "js" &&
-    owners(jsToken).parent.exists(
-      _.show[
-        Structure
-      ].trim == """Term.Select(Term.Name("js"), Term.Name("native"))"""
-    )
-  }
+  def isJsNative(body: Tree): Boolean =
+    initStyle.newlines.neverBeforeJsNative && (body match {
+      case Term.Select(Term.Name("js"), Term.Name("native")) => true
+      case _ => false
+    })
 
   @inline
   final def startsStatement(tok: FormatToken): Option[Tree] =
