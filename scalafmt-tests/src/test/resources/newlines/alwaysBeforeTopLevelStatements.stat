@@ -49,11 +49,10 @@ package a {
         3
       }
 
-      def e =
-        a match {
-          case 1 => true
-          case 2 => false
-        }
+      def e = a match {
+        case 1 => true
+        case 2 => false
+      }
     }
   }
 }
@@ -320,15 +319,14 @@ object hello {
 >>>
 object hello {
 
-  def x =
-    for {
-      _ <- {
-        val testObject = Constructor(
-          fieldOne = valueOne,
-          fieldTwo = None
-        )
-      }
-    } yield ()
+  def x = for {
+    _ <- {
+      val testObject = Constructor(
+        fieldOne = valueOne,
+        fieldTwo = None
+      )
+    }
+  } yield ()
 }
 <<< consider multiline private defs as top level statements
 object Test {

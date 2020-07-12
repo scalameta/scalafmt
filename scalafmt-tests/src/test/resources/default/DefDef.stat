@@ -13,9 +13,8 @@ object a {
   /**
     * Returns True is this state will always return better formatting than other.
     */
-  def alwaysBetter(other: State): Boolean =
-    this.cost <= other.cost &&
-      this.indentation <= other.indentation
+  def alwaysBetter(other: State): Boolean = this.cost <= other.cost &&
+    this.indentation <= other.indentation
 }
 <<< context bound
 def addDefn[T <: Keyword: ClassTag](mods: Seq[Mod], tree: Tree): Unit
@@ -151,12 +150,11 @@ def viewMethod: Gen[ViewClass.Op] = oneOf(
   chooseRange ^^ lop(r => s"slice $r"  -> (_ slice r))
 )
 >>>
-def viewMethod: Gen[ViewClass.Op] =
-  oneOf(
-      lowHalf ^^ lop(n => s"drop $n" -> (_ drop n)),
-      highHalf ^^ lop(n => s"take $n" -> (_ take n)),
-      chooseRange ^^ lop(r => s"slice $r" -> (_ slice r))
-  )
+def viewMethod: Gen[ViewClass.Op] = oneOf(
+    lowHalf ^^ lop(n => s"drop $n" -> (_ drop n)),
+    highHalf ^^ lop(n => s"take $n" -> (_ take n)),
+    chooseRange ^^ lop(r => s"slice $r" -> (_ slice r))
+)
 <<< typelevel/cats
   implicit def validatedInstances[E](implicit E: Semigroup[E]): Traverse[Validated[E, ?]] with ApplicativeError[Validated[E, ?], E] = 2
 >>>
@@ -287,22 +285,20 @@ def zip[C](x: A =>? C): A =>? (B, C) = 2
 def foo = bar.flatMap(x => f(x))
   .flatMap(y => g(y)).map(z => veryLongFunctionNameFor80Characters(z))
 >>>
-def foo =
-  bar
-    .flatMap(x => f(x))
-    .flatMap(y => g(y))
-    .map(z => veryLongFunctionNameFor80Characters(z))
+def foo = bar
+  .flatMap(x => f(x))
+  .flatMap(y => g(y))
+  .map(z => veryLongFunctionNameFor80Characters(z))
 <<< #1126
 def foo = Future({
   val bar = fetchBar()
   bar.map(_ + 10)
 })
 >>>
-def foo =
-  Future({
-    val bar = fetchBar()
-    bar.map(_ + 10)
-  })
+def foo = Future({
+  val bar = fetchBar()
+  bar.map(_ + 10)
+})
 <<< #915 No space on both sides of operator method definition by default
 trait Test[A] {
   def <=>[B](that: Test[B]): Int

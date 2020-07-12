@@ -1362,10 +1362,9 @@ object a {
 }
 >>>
 object a {
-  def c(b: List[Int]): List[Int] =
-    for {
-      a <- b if (b ++ b).length >= 2
-    } yield a
+  def c(b: List[Int]): List[Int] = for {
+    a <- b if (b ++ b).length >= 2
+  } yield a
 }
 <<< 7.1.2: enumerators and guard short, for long, parens
 object a {
@@ -1402,11 +1401,10 @@ object a {
 object a {
   def c(
       b: List[Int]
-  ): List[Int] =
-    for {
-      a <- b if (b ++ b)
-        .length >= 2
-    } yield a
+  ): List[Int] = for {
+    a <- b if (b ++ b)
+      .length >= 2
+  } yield a
 }
 <<< 7.3: enumerator and guard short, for short
 for (a <- b.sortBy(c)
@@ -1943,12 +1941,11 @@ object a {
 }
 >>>
 object a {
-  def `media-range-def` =
-    rule {
-      "*/*" ~ push("*") ~ push("*") |
-        `type` ~ '/' ~
-        ('*' ~ !tchar ~ push("*") | subtype) | '*' ~ push("*") ~ push("*")
-    }
+  def `media-range-def` = rule {
+    "*/*" ~ push("*") ~ push("*") |
+      `type` ~ '/' ~
+      ('*' ~ !tchar ~ push("*") | subtype) | '*' ~ push("*") ~ push("*")
+  }
 }
 <<< 8.18
 maxColumn = 80
@@ -1977,11 +1974,10 @@ def `day-name` =
        "Sun" ~ push(0) | "Mon" ~ push(1) | "Tue" ~ push(2) | "Wed" ~ push(3) |
         "Thu" ~ push(4) | "Fri" ~ push(5) | "Sat" ~ push(6))
 >>>
-def `day-name` =
-  rule(
-    "Sun" ~ push(0) | "Mon" ~ push(1) | "Tue" ~ push(2) | "Wed" ~ push(3) |
-      "Thu" ~ push(4) | "Fri" ~ push(5) | "Sat" ~ push(6)
-  )
+def `day-name` = rule(
+  "Sun" ~ push(0) | "Mon" ~ push(1) | "Tue" ~ push(2) | "Wed" ~ push(3) |
+    "Thu" ~ push(4) | "Fri" ~ push(5) | "Sat" ~ push(6)
+)
 <<< 8.20
 maxColumn = 80
 ===
@@ -2091,11 +2087,10 @@ def receiveClusterEvent(evt: ClusterDomainEvent): Unit =
       if (matchingRole(m)) changeMembers(membersByAge - m + m) // replace
   }
 >>>
-def receiveClusterEvent(evt: ClusterDomainEvent): Unit =
-  evt match {
-    case MemberUp(m) =>
-      if (matchingRole(m)) changeMembers(membersByAge - m + m) // replace
-  }
+def receiveClusterEvent(evt: ClusterDomainEvent): Unit = evt match {
+  case MemberUp(m) =>
+    if (matchingRole(m)) changeMembers(membersByAge - m + m) // replace
+}
 <<< 8.27
 maxColumn = 80
 ===
@@ -2343,8 +2338,6 @@ object a {
   )(f: HttpResponse => U): U = qux
 }
 <<< val formatting
-newlines.alwaysBeforeMultilineDef = false
-===
 object a {
   val b = throw new Exception("blah blah")
   val b = foo_bar_baz_qux("blah blah blah")
@@ -2360,8 +2353,6 @@ object a {
     foo.bar.baz.qux("blah blah blah")
 }
 <<< def formatting
-newlines.alwaysBeforeMultilineDef = false
-===
 object a {
   def b = throw new Exception("blah blah")
   def b = foo_bar_baz_qux("blah blah blah")
@@ -2465,7 +2456,6 @@ object a {
 <<< def followed by comment, break, wrap
 maxColumn = 100
 comments.wrap = trailing
-newlines.alwaysBeforeMultilineDef = false
 ===
 object a {
   def foo(bar: Int): Int =
@@ -2482,7 +2472,6 @@ object a {
 <<< def followed by comment, break, no wrap
 maxColumn = 100
 comments.wrap = no
-newlines.alwaysBeforeMultilineDef = false
 ===
 object a {
   def foo(bar: Int): Int =
@@ -2500,7 +2489,6 @@ object a {
 <<< def followed by comment, no break
 maxColumn = 100
 comments.wrap = trailing
-newlines.alwaysBeforeMultilineDef = false
 ===
 object a {
   def foo(bar: Int): Int = /* comment */
@@ -2514,7 +2502,6 @@ object a {
 <<< val followed by comment, break, wrap
 maxColumn = 100
 comments.wrap = trailing
-newlines.alwaysBeforeMultilineDef = false
 ===
 object a {
   val foo: Int =
@@ -2531,7 +2518,6 @@ object a {
 <<< val followed by comment, break, no wrap
 maxColumn = 100
 comments.wrap = no
-newlines.alwaysBeforeMultilineDef = false
 ===
 object a {
   val foo: Int =
@@ -2549,7 +2535,6 @@ object a {
 <<< val followed by comment, no break
 maxColumn = 100
 comments.wrap = trailing
-newlines.alwaysBeforeMultilineDef = false
 ===
 object a {
   val foo: Int = /* comment */
@@ -2561,8 +2546,6 @@ object a {
     baz
 }
 <<< prefer no break before lambda parameters
-newlines.alwaysBeforeMultilineDef = false
-===
 object a {
   def a(b: Int, d: Range): Set[Int] =
     // comment 1
@@ -2663,9 +2646,8 @@ object a {
 }
 >>>
 object a {
-  def validate(d: DirectoryProxy, step: Int): Unit =
-    if (step != 0) // c1
-      d.name should be("dir" + step)
+  def validate(d: DirectoryProxy, step: Int): Unit = if (step != 0) // c1
+    d.name should be("dir" + step)
 }
 <<< #2113 def 3
 maxColumn = 70
@@ -2676,10 +2658,9 @@ object a {
 }
 >>>
 object a {
-  def validate(d: DirectoryProxy, step: Int): Unit =
-    if (step != 0)
-      /* c1 */
-      d.name should be("dir" + step)
+  def validate(d: DirectoryProxy, step: Int): Unit = if (step != 0)
+    /* c1 */
+    d.name should be("dir" + step)
 }
 <<< #2113 def 4
 object a {
@@ -2702,8 +2683,8 @@ object a {
 }
 >>>
 object a {
-  def validate(d: DirectoryProxy, step: Int): Unit =
-    if (step != 0) /* c1 */ { /* c2 */
+  def validate(d: DirectoryProxy, step: Int): Unit = if (step != 0)
+    /* c1 */ { /* c2 */
       d.name should be("dir" + step)
     }
 }

@@ -1500,8 +1500,8 @@ object a {
 }
 >>>
 object a {
-  def a =
-    for (a <- b; if cc < dd) yield a
+  def a = for (a <- b; if cc < dd)
+    yield a
 }
 <<< 7.2: enumerator shoft, guard long
 maxColumn = 30
@@ -2548,7 +2548,6 @@ object a {
 <<< def followed by comment, break, wrap
 maxColumn = 100
 comments.wrap = trailing
-newlines.alwaysBeforeMultilineDef = false
 ===
 object a {
   def foo(bar: Int): Int =
@@ -2565,7 +2564,6 @@ object a {
 <<< def followed by comment, break, no wrap
 maxColumn = 100
 comments.wrap = no
-newlines.alwaysBeforeMultilineDef = false
 ===
 object a {
   def foo(bar: Int): Int =
@@ -2583,7 +2581,6 @@ object a {
 <<< def followed by comment, no break
 maxColumn = 100
 comments.wrap = trailing
-newlines.alwaysBeforeMultilineDef = false
 ===
 object a {
   def foo(bar: Int): Int = /* comment */
@@ -2597,7 +2594,6 @@ object a {
 <<< val followed by comment, break, wrap
 maxColumn = 100
 comments.wrap = trailing
-newlines.alwaysBeforeMultilineDef = false
 ===
 object a {
   val foo: Int =
@@ -2614,7 +2610,6 @@ object a {
 <<< val followed by comment, break, no wrap
 maxColumn = 100
 comments.wrap = no
-newlines.alwaysBeforeMultilineDef = false
 ===
 object a {
   val foo: Int =
@@ -2632,7 +2627,6 @@ object a {
 <<< val followed by comment, no break
 maxColumn = 100
 comments.wrap = trailing
-newlines.alwaysBeforeMultilineDef = false
 ===
 object a {
   val foo: Int = /* comment */
@@ -2717,9 +2711,8 @@ object a {
 }
 >>>
 object a {
-  def validate(d: DirectoryProxy, step: Int): Unit =
-    if (step != 0) // c1
-      d.name should be("dir" + step)
+  def validate(d: DirectoryProxy, step: Int): Unit = if (step != 0) // c1
+    d.name should be("dir" + step)
 }
 <<< #2113 def 3
 maxColumn = 70
@@ -2730,10 +2723,9 @@ object a {
 }
 >>>
 object a {
-  def validate(d: DirectoryProxy, step: Int): Unit =
-    if (step != 0)
-      /* c1 */
-      d.name should be("dir" + step)
+  def validate(d: DirectoryProxy, step: Int): Unit = if (step != 0)
+    /* c1 */
+    d.name should be("dir" + step)
 }
 <<< #2113 def 4
 object a {
@@ -2756,8 +2748,8 @@ object a {
 }
 >>>
 object a {
-  def validate(d: DirectoryProxy, step: Int): Unit =
-    if (step != 0) /* c1 */ { /* c2 */
+  def validate(d: DirectoryProxy, step: Int): Unit = if (step != 0)
+    /* c1 */ { /* c2 */
       d.name should be("dir" + step)
     }
 }

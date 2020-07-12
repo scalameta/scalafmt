@@ -15,16 +15,15 @@ object a {
 >>>
 object a {
   @tailrec
-  final def rhsOptimalToken(start: FormatToken): Token =
-    start.right match {
-      case T.Comma() | T.LeftParen() | T.RightParen() | T.RightBracket() |
-          T.Semicolon() | T.RightArrow() | T.Equals()
-          if next(start) != start &&
-            !startsNewBlock(start.right) &&
-            newlinesBetween(start.between) == 0 =>
-        rhsOptimalToken(next(start))
-      case _ => start.left
-    }
+  final def rhsOptimalToken(start: FormatToken): Token = start.right match {
+    case T.Comma() | T.LeftParen() | T.RightParen() | T.RightBracket() |
+        T.Semicolon() | T.RightArrow() | T.Equals()
+        if next(start) != start &&
+          !startsNewBlock(start.right) &&
+          newlinesBetween(start.between) == 0 =>
+      rhsOptimalToken(next(start))
+    case _ => start.left
+  }
 }
 <<< scala-native
 def genCQuoteOp(app: Apply): Val = {

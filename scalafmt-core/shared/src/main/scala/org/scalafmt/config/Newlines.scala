@@ -173,7 +173,7 @@ case class Newlines(
     implicitParamListModifierForce: Seq[BeforeAfter] = Seq.empty,
     implicitParamListModifierPrefer: Option[BeforeAfter] = None,
     alwaysBeforeElseAfterCurlyIf: Boolean = false,
-    alwaysBeforeMultilineDef: Boolean = true,
+    alwaysBeforeMultilineDef: Boolean = false,
     afterInfix: Option[AfterInfix] = None,
     afterInfixBreakOnNested: Boolean = false,
     afterInfixMaxCountPerExprForSome: Int = 10,

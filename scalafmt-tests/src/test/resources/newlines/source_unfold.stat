@@ -2650,7 +2650,6 @@ object a {
 <<< def followed by comment, break, wrap
 maxColumn = 100
 comments.wrap = trailing
-newlines.alwaysBeforeMultilineDef = false
 ===
 object a {
   def foo(bar: Int): Int =
@@ -2667,7 +2666,6 @@ object a {
 <<< def followed by comment, break, no wrap
 maxColumn = 100
 comments.wrap = no
-newlines.alwaysBeforeMultilineDef = false
 ===
 object a {
   def foo(bar: Int): Int =
@@ -2685,7 +2683,6 @@ object a {
 <<< def followed by comment, no break
 maxColumn = 100
 comments.wrap = trailing
-newlines.alwaysBeforeMultilineDef = false
 ===
 object a {
   def foo(bar: Int): Int = /* comment */
@@ -2699,7 +2696,6 @@ object a {
 <<< val followed by comment, break, wrap
 maxColumn = 100
 comments.wrap = trailing
-newlines.alwaysBeforeMultilineDef = false
 ===
 object a {
   val foo: Int =
@@ -2716,7 +2712,6 @@ object a {
 <<< val followed by comment, break, no wrap
 maxColumn = 100
 comments.wrap = no
-newlines.alwaysBeforeMultilineDef = false
 ===
 object a {
   val foo: Int =
@@ -2734,7 +2729,6 @@ object a {
 <<< val followed by comment, no break
 maxColumn = 100
 comments.wrap = trailing
-newlines.alwaysBeforeMultilineDef = false
 ===
 object a {
   val foo: Int = /* comment */
