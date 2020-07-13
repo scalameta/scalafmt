@@ -155,6 +155,7 @@ object Policy {
 
     override def noDequeue: Boolean = policy.noDequeue
 
+    override def toString: String = s"*($policy)"
   }
 
   sealed trait End {
