@@ -6,6 +6,8 @@ import java.util.regex.Pattern
 import scala.annotation.tailrec
 import scala.meta.tokens.Token
 
+import org.scalafmt.config.Comments
+import org.scalafmt.config.Docstrings
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.util.TokenOps
 import org.scalafmt.util.TreeOps
@@ -78,10 +80,16 @@ final case class State(
 
     val (penalty, nextDelayedPenalty) =
       if (
-        overflow <= 0 || {
-          val commentExceedsLineLength = right.is[Token.Comment] &&
-            tok.meta.right.text.length >= (style.maxColumn - nextIndent)
-          commentExceedsLineLength && nextSplit.isNL
+        overflow <= 0 || right.is[Token.Comment] && {
+          val rtext = tok.meta.right.text
+          nextSplit.isNL && rtext.length >= (style.maxColumn - nextIndent) ||
+          fops.next(tok).hasBreak && {
+            if (TokenOps.isDocstring(rtext))
+              (style.docstrings.wrap ne Docstrings.Wrap.no) && nextSplit.isNL
+            else
+              (style.comments.wrap eq Comments.Wrap.trailing) ||
+              (style.comments.wrap ne Comments.Wrap.no) && nextSplit.isNL
+          }
         }
       ) {
         (math.max(0, delayedPenalty), 0) // fits inside column

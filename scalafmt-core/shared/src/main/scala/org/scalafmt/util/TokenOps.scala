@@ -46,12 +46,15 @@ object TokenOps {
     longHash
   }
 
+  def isDocstring(text: String): Boolean =
+    text.startsWith("/**")
+
   def blankLineBeforeDocstring(
       ft: FormatToken
   )(implicit style: ScalafmtConfig): Boolean =
     style.optIn.forceNewlineBeforeDocstringSummary &&
       ft.right.is[Token.Comment] && !ft.left.is[Token.Comment] &&
-      ft.meta.right.text.startsWith("/**") &&
+      isDocstring(ft.meta.right.text) &&
       TreeOps
         .findTreeOrParent(ft.meta.leftOwner) {
           case t if t.pos.end <= ft.right.start => None
