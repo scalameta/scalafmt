@@ -367,7 +367,7 @@ class FormatWriter(formatOps: FormatOps) {
           new FormatSlc(text).format
         else if (text == "/**/")
           sb.append(text)
-        else if (text.startsWith("/**"))
+        else if (isDocstring(text))
           formatDocstring(text)
         else
           new FormatMlc(text).format

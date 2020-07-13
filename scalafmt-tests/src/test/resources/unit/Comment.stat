@@ -329,11 +329,10 @@ object a {
 }
 >>>
 object a {
-  def a =
-    b(c) /* A really long comment that
-     * scalafmt should break up but
-     * does not because this feature is
-     * not implemented yet */
+  def a = b(c) /* A really long comment
+   * that scalafmt should break up but
+   * does not because this feature is
+   * not implemented yet */
 }
 <<< #1234 6: trailing
 comments.wrap = trailing
@@ -343,11 +342,10 @@ object a {
 }
 >>>
 object a {
-  val a =
-    b(c) /* A really long comment that
-     * scalafmt should break up but
-     * does not because this feature is
-     * not implemented yet */
+  val a = b(c) /* A really long comment
+   * that scalafmt should break up but
+   * does not because this feature is
+   * not implemented yet */
 }
 <<< #1234 7: trailing, use slc
 comments.wrap = trailing
@@ -362,11 +360,10 @@ object a {
 // should break up but does not because
 // this feature is not implemented yet
 object a {
-  val a =
-    b(c) /* A really long comment that
-     * scalafmt should break up but
-     * does not because this feature is
-     * not implemented yet */
+  val a = b(c) /* A really long comment
+   * that scalafmt should break up but
+   * does not because this feature is
+   * not implemented yet */
 }
 <<< wrap with empty first line 1
 comments.wrap = trailing
