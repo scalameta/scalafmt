@@ -254,3 +254,37 @@ def permissionState(
   def permissionState(
       options: PushSubscriptionOptions = js.native): js.Promise[PushPermissionState] = js.native
 }
+<<< #2078
+object a {
+  def print(optimizerHints: OptimizerHints)(
+      implicit dummy: DummyImplicit): Unit = {
+    if (optimizerHints != OptimizerHints.empty) {
+      print("@hints(")
+      print(OptimizerHints.toBits(optimizerHints).toString)
+      print(") ")
+    }
+  }
+
+  def print(flags: ApplyFlags)(
+      implicit dummy1: DummyImplicit, dummy2: DummyImplicit): Unit = {
+    if (flags.isPrivate)
+      print("private::")
+  }
+}
+>>>
+object a {
+  def print(optimizerHints: OptimizerHints)(implicit
+      dummy: DummyImplicit): Unit = {
+    if (optimizerHints != OptimizerHints.empty) {
+      print("@hints(")
+      print(OptimizerHints.toBits(optimizerHints).toString)
+      print(") ")
+    }
+  }
+
+  def print(flags: ApplyFlags)(implicit
+      dummy1: DummyImplicit, dummy2: DummyImplicit): Unit = {
+    if (flags.isPrivate)
+      print("private::")
+  }
+}
