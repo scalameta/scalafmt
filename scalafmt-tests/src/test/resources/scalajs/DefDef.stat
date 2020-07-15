@@ -273,8 +273,8 @@ object a {
 }
 >>>
 object a {
-  def print(optimizerHints: OptimizerHints)(implicit
-      dummy: DummyImplicit): Unit = {
+  def print(optimizerHints: OptimizerHints)(
+      implicit dummy: DummyImplicit): Unit = {
     if (optimizerHints != OptimizerHints.empty) {
       print("@hints(")
       print(OptimizerHints.toBits(optimizerHints).toString)
@@ -282,8 +282,8 @@ object a {
     }
   }
 
-  def print(flags: ApplyFlags)(implicit
-      dummy1: DummyImplicit, dummy2: DummyImplicit): Unit = {
+  def print(flags: ApplyFlags)(implicit dummy1: DummyImplicit,
+      dummy2: DummyImplicit): Unit = {
     if (flags.isPrivate)
       print("private::")
   }

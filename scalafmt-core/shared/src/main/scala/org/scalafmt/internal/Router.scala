@@ -1720,6 +1720,7 @@ class Router(formatOps: FormatOps) {
 
       case FormatToken(_: T.KwImplicit, _, _)
           if style.activeForEdition_2020_03 &&
+            !style.binPack.unsafeDefnSite &&
             !style.verticalMultiline.atDefnSite =>
         opensImplicitParamList(prevNonComment(prev(formatToken))).fold {
           Seq(Split(Space, 0))
