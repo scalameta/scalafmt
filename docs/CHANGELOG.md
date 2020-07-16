@@ -3,6 +3,153 @@ id: changelog
 title: Changelog
 ---
 
+## [v2.6.3](https://github.com/scalameta/scalafmt/tree/v2.6.3) (2020-07-10)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.6.2...v2.6.3)
+
+**Merged pull requests:**
+
+- Dependencies: upgrade scalameta to 4.3.19 [\#2087](https://github.com/scalameta/scalafmt/pull/2087) ([kitbellew](https://github.com/kitbellew))
+- Increased maxVisitsPerToken limit [\#2086](https://github.com/scalameta/scalafmt/pull/2086) ([poslegm](https://github.com/poslegm))
+- ScalafmtConfig: implicit with binpack unsupported [\#2084](https://github.com/scalameta/scalafmt/pull/2084) ([kitbellew](https://github.com/kitbellew))
+- Policy: introduce more specific expire strategies [\#2083](https://github.com/scalameta/scalafmt/pull/2083) ([kitbellew](https://github.com/kitbellew))
+- \#1627 \[24\]: FormatOps bugfix: ignore NL before infix for fold/unfold [\#2082](https://github.com/scalameta/scalafmt/pull/2082) ([kitbellew](https://github.com/kitbellew))
+- Router: don't format \#! lines in sbt files [\#2077](https://github.com/scalameta/scalafmt/pull/2077) ([kitbellew](https://github.com/kitbellew))
+- RedundantParens: don't rewrite \(\(\)\), aka Lit.Unit [\#2076](https://github.com/scalameta/scalafmt/pull/2076) ([kitbellew](https://github.com/kitbellew))
+- ScalafmtReflectConfig: invoked .forSbt, not legacy dialect [\#2075](https://github.com/scalameta/scalafmt/pull/2075) ([kitbellew](https://github.com/kitbellew))
+- BestFirstSearch: make the Provided split active [\#2074](https://github.com/scalameta/scalafmt/pull/2074) ([kitbellew](https://github.com/kitbellew))
+- Dependency: upgrade scalameta to 4.3.18 [\#2072](https://github.com/scalameta/scalafmt/pull/2072) ([kitbellew](https://github.com/kitbellew))
+
+## [v2.6.2](https://github.com/scalameta/scalafmt/tree/v2.6.2) (2020-07-05)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.6.1...v2.6.2)
+
+**Merged pull requests:**
+
+- Documentation: describe optIn.configStyleArguments, clarify optIn.breaksInsideChains [\#2068](https://github.com/scalameta/scalafmt/pull/2068) ([kitbellew](https://github.com/kitbellew))
+- Router: merge classic select chain rule with other [\#2067](https://github.com/scalameta/scalafmt/pull/2067) ([kitbellew](https://github.com/kitbellew))
+- Router: indent comment before first select [\#2066](https://github.com/scalameta/scalafmt/pull/2066) ([kitbellew](https://github.com/kitbellew))
+- ScalafmtDynamic: throw once if can't resolve config [\#2065](https://github.com/scalameta/scalafmt/pull/2065) ([kitbellew](https://github.com/kitbellew))
+- Upgrade the scalafmt binary to 2.6.1 [\#2064](https://github.com/scalameta/scalafmt/pull/2064) ([kitbellew](https://github.com/kitbellew))
+- PR conflict: fix test from \#2061 affected by \#2060 [\#2063](https://github.com/scalameta/scalafmt/pull/2063) ([kitbellew](https://github.com/kitbellew))
+- {Token,Tree}Ops: remove unused methods [\#2062](https://github.com/scalameta/scalafmt/pull/2062) ([kitbellew](https://github.com/kitbellew))
+- FormatOps: method to check classic select chain [\#2061](https://github.com/scalameta/scalafmt/pull/2061) ([kitbellew](https://github.com/kitbellew))
+- Policy: preserve original policies and ranges for control [\#2060](https://github.com/scalameta/scalafmt/pull/2060) ([kitbellew](https://github.com/kitbellew))
+- Dockerize [\#2059](https://github.com/scalameta/scalafmt/pull/2059) ([gurinderu](https://github.com/gurinderu))
+- Dependency updates [\#2057](https://github.com/scalameta/scalafmt/pull/2057) ([poslegm](https://github.com/poslegm))
+- Update scalameta, testkit to 4.3.17 [\#2055](https://github.com/scalameta/scalafmt/pull/2055) ([scala-steward](https://github.com/scala-steward))
+- Update sbt-mdoc to 2.2.3 [\#2053](https://github.com/scalameta/scalafmt/pull/2053) ([scala-steward](https://github.com/scala-steward))
+- Update sbt to 1.3.13 [\#2052](https://github.com/scalameta/scalafmt/pull/2052) ([scala-steward](https://github.com/scala-steward))
+- Update sbt-native-packager to 1.7.3 [\#2051](https://github.com/scalameta/scalafmt/pull/2051) ([scala-steward](https://github.com/scala-steward))
+- Update sbt-assembly to 0.15.0 [\#2050](https://github.com/scalameta/scalafmt/pull/2050) ([scala-steward](https://github.com/scala-steward))
+- Remove reference to binPack.parentConstructors being a boolean [\#2049](https://github.com/scalameta/scalafmt/pull/2049) ([emma-burrows](https://github.com/emma-burrows))
+- Router: break between comma and multiline comments [\#2048](https://github.com/scalameta/scalafmt/pull/2048) ([kitbellew](https://github.com/kitbellew))
+- TokenOps: no blank line for scaladoc in expression [\#2047](https://github.com/scalameta/scalafmt/pull/2047) ([kitbellew](https://github.com/kitbellew))
+- FormatWriter: single-character one-line scaladoc [\#2046](https://github.com/scalameta/scalafmt/pull/2046) ([kitbellew](https://github.com/kitbellew))
+- Router: keep blank line in empty case clause body [\#2045](https://github.com/scalameta/scalafmt/pull/2045) ([kitbellew](https://github.com/kitbellew))
+- Add build with musl libc [\#2041](https://github.com/scalameta/scalafmt/pull/2041) ([gurinderu](https://github.com/gurinderu))
+- clarify how `.scalafix.conf` & the CLI binary versions relate [\#2040](https://github.com/scalameta/scalafmt/pull/2040) ([bjaglin](https://github.com/bjaglin))
+
+## [v2.6.1](https://github.com/scalameta/scalafmt/tree/v2.6.1) (2020-06-18)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.6.0...v2.6.1)
+
+**Merged pull requests:**
+
+- FormatWriter: fold long oneline javadoc if no wrap [\#2036](https://github.com/scalameta/scalafmt/pull/2036) ([kitbellew](https://github.com/kitbellew))
+- State: for overflow delay, apply no more than once [\#2035](https://github.com/scalameta/scalafmt/pull/2035) ([kitbellew](https://github.com/kitbellew))
+- Router bugfix: respect config style for tuples [\#2034](https://github.com/scalameta/scalafmt/pull/2034) ([kitbellew](https://github.com/kitbellew))
+- FormatWriter: fix handling of one-line docstrings [\#2031](https://github.com/scalameta/scalafmt/pull/2031) ([kitbellew](https://github.com/kitbellew))
+- TokenOps fix: blank line between mod and scaladoc [\#2030](https://github.com/scalameta/scalafmt/pull/2030) ([kitbellew](https://github.com/kitbellew))
+- FormatWriter: fix empty 1st part of interpolation [\#2029](https://github.com/scalameta/scalafmt/pull/2029) ([kitbellew](https://github.com/kitbellew))
+
+## [v2.6.0](https://github.com/scalameta/scalafmt/tree/v2.6.0) (2020-06-16)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.5.3...v2.6.0)
+
+**Merged pull requests:**
+
+- State: don't penalize strings that always overflow [\#2024](https://github.com/scalameta/scalafmt/pull/2024) ([kitbellew](https://github.com/kitbellew))
+- Router: allow relative formatting of spliced XML [\#2021](https://github.com/scalameta/scalafmt/pull/2021) ([kitbellew](https://github.com/kitbellew))
+- ScalafmtRunner: respect filters with custom files [\#2020](https://github.com/scalameta/scalafmt/pull/2020) ([kitbellew](https://github.com/kitbellew))
+- Scaladoc: support gaps in code, refs with punctuation [\#2018](https://github.com/scalameta/scalafmt/pull/2018) ([kitbellew](https://github.com/kitbellew))
+- TokenOps: look for "format: off" in any comment [\#2017](https://github.com/scalameta/scalafmt/pull/2017) ([kitbellew](https://github.com/kitbellew))
+- Router: penalize NL on breakChainOnFirstMethodDot [\#2016](https://github.com/scalameta/scalafmt/pull/2016) ([kitbellew](https://github.com/kitbellew))
+- RedundantBraces: don't rewrite nested Defn [\#2015](https://github.com/scalameta/scalafmt/pull/2015) ([kitbellew](https://github.com/kitbellew))
+- FormatWriter bugfix: handle asterisks in docstring [\#2014](https://github.com/scalameta/scalafmt/pull/2014) ([kitbellew](https://github.com/kitbellew))
+- Split: represent a newline alternative differently [\#2011](https://github.com/scalameta/scalafmt/pull/2011) ([kitbellew](https://github.com/kitbellew))
+- Router: idempotence of breakChainOnFirstMethodDot [\#2010](https://github.com/scalameta/scalafmt/pull/2010) ([kitbellew](https://github.com/kitbellew))
+- State: fix column positions for multiline strings [\#2009](https://github.com/scalameta/scalafmt/pull/2009) ([kitbellew](https://github.com/kitbellew))
+- Router: merge config-style rule into others [\#2008](https://github.com/scalameta/scalafmt/pull/2008) ([kitbellew](https://github.com/kitbellew))
+- FormatOps bugfix: get TParams correctly, not the Paramss [\#2007](https://github.com/scalameta/scalafmt/pull/2007) ([kitbellew](https://github.com/kitbellew))
+- Scaladoc: support table formatting in FormatWriter [\#2006](https://github.com/scalameta/scalafmt/pull/2006) ([kitbellew](https://github.com/kitbellew))
+- FormatToken: store the syntax of tokens in meta [\#2005](https://github.com/scalameta/scalafmt/pull/2005) ([kitbellew](https://github.com/kitbellew))
+- Documentation: move comments section, add release [\#2002](https://github.com/scalameta/scalafmt/pull/2002) ([kitbellew](https://github.com/kitbellew))
+- FormatWriter bugfix: align strip margin in `s"""|` [\#2001](https://github.com/scalameta/scalafmt/pull/2001) ([kitbellew](https://github.com/kitbellew))
+- \#1627 \[23\]: Router: source=keep try keep NL/noNL in apply\(... [\#2000](https://github.com/scalameta/scalafmt/pull/2000) ([kitbellew](https://github.com/kitbellew))
+- Self formatting with 2.5.3 [\#1999](https://github.com/scalameta/scalafmt/pull/1999) ([poslegm](https://github.com/poslegm))
+- Update scalatest to 3.1.2 [\#1997](https://github.com/scalameta/scalafmt/pull/1997) ([scala-steward](https://github.com/scala-steward))
+- Update sbt-mdoc to 2.2.0 [\#1995](https://github.com/scalameta/scalafmt/pull/1995) ([scala-steward](https://github.com/scala-steward))
+- Update sbt-scalajs to 1.1.0 [\#1994](https://github.com/scalameta/scalafmt/pull/1994) ([scala-steward](https://github.com/scala-steward))
+- Update sbt-native-packager to 1.7.2 [\#1992](https://github.com/scalameta/scalafmt/pull/1992) ([scala-steward](https://github.com/scala-steward))
+- Update scalatags to 0.9.1 [\#1991](https://github.com/scalameta/scalafmt/pull/1991) ([scala-steward](https://github.com/scala-steward))
+- FormatWriter bugfix: comment with empty first line [\#1990](https://github.com/scalameta/scalafmt/pull/1990) ([kitbellew](https://github.com/kitbellew))
+- FormatWriter: format multiline docstrings [\#1987](https://github.com/scalameta/scalafmt/pull/1987) ([kitbellew](https://github.com/kitbellew))
+- Dependency: upgrade scalameta to 4.3.13 [\#1986](https://github.com/scalameta/scalafmt/pull/1986) ([kitbellew](https://github.com/kitbellew))
+- FormatWriter: fix off-by-one bug in comment wrap [\#1985](https://github.com/scalameta/scalafmt/pull/1985) ([kitbellew](https://github.com/kitbellew))
+- FormatOps: fix finding `=\>` in lambda without args [\#1983](https://github.com/scalameta/scalafmt/pull/1983) ([kitbellew](https://github.com/kitbellew))
+- Docstrings: rename styles, clean up text after `\*` [\#1982](https://github.com/scalameta/scalafmt/pull/1982) ([kitbellew](https://github.com/kitbellew))
+- FormatWriter: minor refactoring of comment formatting code [\#1981](https://github.com/scalameta/scalafmt/pull/1981) ([kitbellew](https://github.com/kitbellew))
+- Router: allow folded `extends` if ctor is folded [\#1980](https://github.com/scalameta/scalafmt/pull/1980) ([kitbellew](https://github.com/kitbellew))
+- FormatOps: for source=fold, compact extends/with [\#1979](https://github.com/scalameta/scalafmt/pull/1979) ([kitbellew](https://github.com/kitbellew))
+- Spaces configuration documented [\#1977](https://github.com/scalameta/scalafmt/pull/1977) ([poslegm](https://github.com/poslegm))
+- Documentation: expand docstrings [\#1972](https://github.com/scalameta/scalafmt/pull/1972) ([kitbellew](https://github.com/kitbellew))
+- sbt plugin update [\#1971](https://github.com/scalameta/scalafmt/pull/1971) ([poslegm](https://github.com/poslegm))
+- FormatWriter: implement wrapping of long comments [\#1970](https://github.com/scalameta/scalafmt/pull/1970) ([kitbellew](https://github.com/kitbellew))
+- FormatWriter bugfix: comment format on lookaround [\#1968](https://github.com/scalameta/scalafmt/pull/1968) ([kitbellew](https://github.com/kitbellew))
+- mdoc DefaultsModifier: allow multiple defaults [\#1967](https://github.com/scalameta/scalafmt/pull/1967) ([kitbellew](https://github.com/kitbellew))
+- FormatWriter: allow folding scaladoc to one line [\#1965](https://github.com/scalameta/scalafmt/pull/1965) ([kitbellew](https://github.com/kitbellew))
+
+## [v2.5.3](https://github.com/scalameta/scalafmt/tree/v2.5.3) (2020-05-11)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.5.2...v2.5.3)
+
+**Merged pull requests:**
+
+- \#1627 \[22\]: Router: preserve split after `=\>` in source=keep [\#1963](https://github.com/scalameta/scalafmt/pull/1963) ([kitbellew](https://github.com/kitbellew))
+- FormatWriter: shift lines after StateColumn align [\#1962](https://github.com/scalameta/scalafmt/pull/1962) ([kitbellew](https://github.com/kitbellew))
+
+## [v2.5.2](https://github.com/scalameta/scalafmt/tree/v2.5.2) (2020-05-09)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.5.1...v2.5.2)
+
+**Merged pull requests:**
+
+- interface ScalafmtSessionFactory shouldn't extend Scalafmt interface [\#1961](https://github.com/scalameta/scalafmt/pull/1961) ([unkarjedy](https://github.com/unkarjedy))
+- Documentation: retire Homebrew, point to coursier [\#1960](https://github.com/scalameta/scalafmt/pull/1960) ([kitbellew](https://github.com/kitbellew))
+- Documentation: old scalafmt plugin is deprecated [\#1959](https://github.com/scalameta/scalafmt/pull/1959) ([kitbellew](https://github.com/kitbellew))
+- RedundantBraces bugfix: skip deep if without else [\#1958](https://github.com/scalameta/scalafmt/pull/1958) ([kitbellew](https://github.com/kitbellew))
+- When using in pipeline don't print info to stderr [\#1957](https://github.com/scalameta/scalafmt/pull/1957) ([sideshowcoder](https://github.com/sideshowcoder))
+- RedundantBraces: don't rewrite anon infix funcs [\#1954](https://github.com/scalameta/scalafmt/pull/1954) ([kitbellew](https://github.com/kitbellew))
+- FormatWriter: use getAlignContainer to flush on comments [\#1951](https://github.com/scalameta/scalafmt/pull/1951) ([kitbellew](https://github.com/kitbellew))
+- FormatWriter: don't align `Defn` with `Block` as body [\#1947](https://github.com/scalameta/scalafmt/pull/1947) ([kitbellew](https://github.com/kitbellew))
+- Documentation for RedundantBraces settings [\#1945](https://github.com/scalameta/scalafmt/pull/1945) ([poslegm](https://github.com/poslegm))
+
+## [v2.5.1](https://github.com/scalameta/scalafmt/tree/v2.5.1) (2020-05-03)
+
+[Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.5.0...v2.5.1)
+
+**Merged pull requests:**
+
+- Discord link fixed \(\#1942\) [\#1946](https://github.com/scalameta/scalafmt/pull/1946) ([poslegm](https://github.com/poslegm))
+- TreeOps: require space before `\(` in function [\#1944](https://github.com/scalameta/scalafmt/pull/1944) ([kitbellew](https://github.com/kitbellew))
+- FormatWriter: flush alignment blocks on blank line [\#1943](https://github.com/scalameta/scalafmt/pull/1943) ([kitbellew](https://github.com/kitbellew))
+- Changelog for 2.5.0 [\#1941](https://github.com/scalameta/scalafmt/pull/1941) ([poslegm](https://github.com/poslegm))
+- ScalafmtRunner: fix handling of trait "extends" [\#1940](https://github.com/scalameta/scalafmt/pull/1940) ([kitbellew](https://github.com/kitbellew))
+- ScalafmtConfig: see if dialect has trailing commas [\#1939](https://github.com/scalameta/scalafmt/pull/1939) ([kitbellew](https://github.com/kitbellew))
+- RedundantParens: may not be redundant around infix [\#1938](https://github.com/scalameta/scalafmt/pull/1938) ([kitbellew](https://github.com/kitbellew))
+- FormatWriter: simplify two regular expressions; fix pipe char bug [\#1936](https://github.com/scalameta/scalafmt/pull/1936) ([LeeTibbert](https://github.com/LeeTibbert))
+
 ## [v2.5.0](https://github.com/scalameta/scalafmt/tree/v2.5.0) (2020-04-30)
 
 [Full Changelog](https://github.com/scalameta/scalafmt/compare/v2.5.0-RC3...v2.5.0)
