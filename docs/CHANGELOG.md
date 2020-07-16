@@ -10,7 +10,7 @@ title: Changelog
 **Merged pull requests:**
 
 - Dependencies: upgrade scalameta to 4.3.19 [\#2087](https://github.com/scalameta/scalafmt/pull/2087) ([kitbellew](https://github.com/kitbellew))
-- Increased maxVisitsPerToken limit  [\#2086](https://github.com/scalameta/scalafmt/pull/2086) ([poslegm](https://github.com/poslegm))
+- Increased maxVisitsPerToken limit [\#2086](https://github.com/scalameta/scalafmt/pull/2086) ([poslegm](https://github.com/poslegm))
 - ScalafmtConfig: implicit with binpack unsupported [\#2084](https://github.com/scalameta/scalafmt/pull/2084) ([kitbellew](https://github.com/kitbellew))
 - Policy: introduce more specific expire strategies [\#2083](https://github.com/scalameta/scalafmt/pull/2083) ([kitbellew](https://github.com/kitbellew))
 - \#1627 \[24\]: FormatOps bugfix: ignore NL before infix for fold/unfold [\#2082](https://github.com/scalameta/scalafmt/pull/2082) ([kitbellew](https://github.com/kitbellew))
@@ -48,7 +48,7 @@ title: Changelog
 - FormatWriter: single-character one-line scaladoc [\#2046](https://github.com/scalameta/scalafmt/pull/2046) ([kitbellew](https://github.com/kitbellew))
 - Router: keep blank line in empty case clause body [\#2045](https://github.com/scalameta/scalafmt/pull/2045) ([kitbellew](https://github.com/kitbellew))
 - Add build with musl libc [\#2041](https://github.com/scalameta/scalafmt/pull/2041) ([gurinderu](https://github.com/gurinderu))
-- clarify how `.scalafix.conf` & the CLI binary versions relate  [\#2040](https://github.com/scalameta/scalafmt/pull/2040) ([bjaglin](https://github.com/bjaglin))
+- clarify how `.scalafix.conf` & the CLI binary versions relate [\#2040](https://github.com/scalameta/scalafmt/pull/2040) ([bjaglin](https://github.com/bjaglin))
 
 ## [v2.6.1](https://github.com/scalameta/scalafmt/tree/v2.6.1) (2020-06-18)
 
