@@ -582,8 +582,9 @@ class Router(formatOps: FormatOps) {
               if t.meta.rightOwner == leftOwner =>
             s.filter(x => x.isNL && !x.isActiveFor(SplitTag.OnelineWithChain))
         }
-        val policyEnd = defnBeforeTemplate(leftOwner).fold(r)(_.tokens.last)
-        val policy = delayedBreakPolicy()(forceNewlineBeforeExtends)
+        val policyExpire = defnBeforeTemplate(leftOwner).fold(r)(_.tokens.last)
+        val policyEnd = Policy.End.After(policyExpire)
+        val policy = delayedBreakPolicy(policyEnd)(forceNewlineBeforeExtends)
         Seq(Split(Space, 0).withPolicy(policy))
       // DefDef
       case tok @ FormatToken(T.KwDef(), name @ T.Ident(_), _) =>
@@ -624,9 +625,7 @@ class Router(formatOps: FormatOps) {
         val spacePolicy = SingleLineBlock(lambdaToken) | {
           if (lambdaIsABlock) None
           else
-            newlinePolicy.map(
-              delayedBreakPolicy(lambdaLeft.map(x => _.end < x.end))
-            )
+            newlinePolicy.map(delayedBreakPolicy(lambdaLeft.map(Policy.End.On)))
         }
 
         val noSplitMod = getNoSplit(formatToken, true)
