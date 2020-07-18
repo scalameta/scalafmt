@@ -424,8 +424,7 @@ class Router(formatOps: FormatOps) {
           }
           def foldedSplits =
             caseStat.body match {
-              case _ if right.is[T.KwCase] || isSingleLineComment(right) =>
-                Right(Split.ignored)
+              case _ if isSingleLineComment(right) => Right(Split.ignored)
               case t if t.tokens.isEmpty || caseStat.cond.isDefined =>
                 Right(Split(Space, 0).withSingleLineOpt(t.tokens.lastOption))
               case t: Term.If if ifWithoutElse(t) =>
@@ -448,12 +447,17 @@ class Router(formatOps: FormatOps) {
               case t =>
                 Right(Split(Space, 0).withSingleLine(t.tokens.last))
             }
+          def endOfBody = lastToken(caseStat.body)
           val result = style.newlines.source match {
+            case _ if right.is[T.KwCase] => Right(Split.ignored)
             case Newlines.fold => foldedSplits
             case Newlines.unfold =>
               Right(Split(Space, 0).onlyIf(right.is[T.Semicolon]))
+            case _ if tok.hasBreak => Right(Split.ignored)
+            case Newlines.keep =>
+              Right(Split(Space, 0).withOptimalToken(endOfBody))
             case _ =>
-              Right(Split(Space, 0).notIf(formatToken.hasBreak))
+              Right(Split(Space, 0).withSingleLine(endOfBody))
           }
           result.fold(
             identity,
@@ -1645,7 +1649,7 @@ class Router(formatOps: FormatOps) {
         val expire = lastTokenOpt(owner.body.tokens).getOrElse(arrow)
 
         val bodyBlock = isCaseBodyABlock(arrowFt, owner)
-        val noDelayedBreak = arrowFt.right.is[T.LeftBrace] ||
+        val noDelayedBreak = bodyBlock ||
           isAttachedSingleLineComment(arrowFt) ||
           style.newlines.sourceIn(Newlines.fold, Newlines.keep)
 
