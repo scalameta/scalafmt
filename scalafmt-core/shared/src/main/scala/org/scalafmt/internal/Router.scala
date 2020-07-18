@@ -1645,18 +1645,16 @@ class Router(formatOps: FormatOps) {
         val expire = lastTokenOpt(owner.body.tokens).getOrElse(arrow)
 
         val bodyBlock = isCaseBodyABlock(arrowFt, owner)
+        val noDelayedBreak = arrowFt.right.is[T.LeftBrace] ||
+          isAttachedSingleLineComment(arrowFt) ||
+          style.newlines.sourceIn(Newlines.fold, Newlines.keep)
+
         Seq(
           Split(Space, 0).withSingleLine(expire, killOnFail = true),
           Split(Space, 1)
             .withPolicy(
-              Policy.on(expire) {
-                case d @ Decision(t @ FormatToken(`arrow`, right, _), _)
-                    // TODO(olafur) any other corner cases?
-                    if !right.isInstanceOf[T.LeftBrace] &&
-                      !isAttachedSingleLineComment(t) =>
-                  d.onlyNewlinesWithoutFallback
-              },
-              ignore = style.newlines.sourceIn(Newlines.fold, Newlines.keep)
+              decideNewlinesOnlyAfterToken(arrow),
+              ignore = noDelayedBreak
             )
             .withIndent(if (bodyBlock) 0 else 2, expire, After)
             .withIndent(if (bodyBlock) 4 else 2, arrow, After)
