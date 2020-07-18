@@ -24,6 +24,7 @@ final case class State(
     indentation: Int,
     pushes: Seq[ActualIndent],
     column: Int,
+    allAltAreNL: Boolean,
     delayedPenalty: Int, // apply if positive, ignore otherwise
     formatOff: Boolean
 ) {
@@ -37,7 +38,8 @@ final case class State(
     * Calculates next State given split at tok.
     */
   def next(
-      initialNextSplit: Split
+      initialNextSplit: Split,
+      nextAllAltAreNL: Boolean
   )(implicit style: ScalafmtConfig, fops: FormatOps): State = {
     val tok = fops.tokens(depth)
     val right = tok.right
@@ -117,6 +119,7 @@ final case class State(
       nextIndent,
       nextIndents,
       nextStateColumn,
+      nextAllAltAreNL,
       nextDelayedPenalty,
       nextFormatOff
     )
@@ -270,6 +273,7 @@ object State {
     0,
     Seq.empty,
     0,
+    false,
     0,
     formatOff = false
   )

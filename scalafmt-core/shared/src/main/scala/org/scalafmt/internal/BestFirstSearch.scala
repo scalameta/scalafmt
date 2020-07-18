@@ -167,7 +167,7 @@ private class BestFirstSearch private (
           val tokenHash = hash(splitToken.left)
           if (
             emptyQueueSpots.contains(tokenHash) ||
-            dequeueOnNewStatements &&
+            dequeueOnNewStatements && curr.allAltAreNL &&
             dequeueSpots.contains(tokenHash) &&
             (depth > 0 || !isInsideNoOptZone(splitToken))
           )
@@ -191,10 +191,11 @@ private class BestFirstSearch private (
           )
         } else {
           val actualSplit = getActiveSplits(curr, maxCost)
+          val allAltAreNL = actualSplit.forall(_.isNL)
 
           var optimalNotFound = true
           actualSplit.foreach { split =>
-            val nextState = curr.next(split)
+            val nextState = curr.next(split, allAltAreNL)
             val updateBest = !keepSlowStates && depth == 0 &&
               split.isNL && !best.contains(curr.depth)
             if (updateBest) {
@@ -290,7 +291,7 @@ private class BestFirstSearch private (
         else {
           runner.event(Enqueue(split))
           implicit val style = styleMap.at(tokens(state.depth))
-          val nextState = state.next(split)
+          val nextState = state.next(split, false)
           traverseSameLine(nextState, depth)
         }
       }
