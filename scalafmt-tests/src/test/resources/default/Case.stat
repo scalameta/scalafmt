@@ -112,9 +112,11 @@ object a {
 >>>
 object a {
   b match {
-    case c => {}
+    case c =>
+      {}
       d
-    case e => {
+    case e =>
+      {
         f
       }
       g
