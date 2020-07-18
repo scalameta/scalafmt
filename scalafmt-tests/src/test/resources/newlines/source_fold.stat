@@ -1768,8 +1768,7 @@ val a = b match {
 }
 >>>
 val a = b match {
-  case i: EngineInstance =>
-    JObject(
+  case i: EngineInstance => JObject(
       JField("id", JString(i.id)) :: JField("status", JString(i.status)) ::
         JField("startTime", JString(i.startTime.toString)) ::
         JField("endTime", JString(i.endTime.toString)) ::
