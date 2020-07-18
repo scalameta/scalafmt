@@ -147,15 +147,17 @@ object Policy {
 
   object Proxy {
     def apply(
-        policy: Policy
+        policy: Policy,
+        end: Option[End.WithPos] = None
     )(factory: Policy => Pf)(implicit line: sourcecode.Line): Policy =
       if (policy.isEmpty) NoPolicy
-      else new Proxy(policy, factory)
+      else new Proxy(policy, factory, end)
   }
 
   private class Proxy(
       policy: Policy,
-      factory: Policy => Policy.Pf
+      factory: Policy => Policy.Pf,
+      end: Option[End.WithPos] = None
   )(implicit line: sourcecode.Line)
       extends Policy {
     override val f: Pf = factory(policy)
@@ -166,11 +168,12 @@ object Policy {
       Proxy(policy.filter(pred))(factory)
 
     override def unexpired(ft: FormatToken): Policy =
-      Proxy(policy.unexpired(ft))(factory)
+      if (!end.forall(_.notExpiredBy(ft))) NoPolicy
+      else Proxy(policy.unexpired(ft), end)(factory)
 
     override def noDequeue: Boolean = policy.noDequeue
 
-    override def toString: String = s"*($policy)"
+    override def toString: String = s"*($policy)${end.getOrElse("")}"
   }
 
   sealed trait End extends (Token => End.WithPos) {
