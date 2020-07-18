@@ -55,24 +55,40 @@ object Policy {
   }
 
   def apply(
-      expire: Token,
-      endPolicy: End,
+      endPolicy: End.WithPos,
       noDequeue: Boolean = false
   )(f: Pf)(implicit line: sourcecode.Line): Policy =
-    new ClauseImpl(f, expire.end, endPolicy, noDequeue)
+    new ClauseImpl(f, endPolicy, noDequeue)
+
+  def after(
+      token: Token,
+      noDequeue: Boolean = false
+  )(f: Pf)(implicit line: sourcecode.Line): Policy =
+    apply(End.After(token), noDequeue)(f)
+
+  def before(
+      token: Token,
+      noDequeue: Boolean = false
+  )(f: Pf)(implicit line: sourcecode.Line): Policy =
+    apply(End.Before(token), noDequeue)(f)
+
+  def on(
+      token: Token,
+      noDequeue: Boolean = false
+  )(f: Pf)(implicit line: sourcecode.Line): Policy =
+    apply(End.On(token), noDequeue)(f)
 
   abstract class Clause(implicit val line: sourcecode.Line) extends Policy {
     val f: Policy.Pf
-    val endPos: Int
-    val endPolicy: End
+    val endPolicy: End.WithPos
 
     override def toString = {
       val noDeqPrefix = if (noDequeue) "!" else ""
-      s"${line.value}$endPolicy$endPos${noDeqPrefix}d"
+      s"${line.value}$endPolicy${noDeqPrefix}d"
     }
 
     override def unexpired(ft: FormatToken): Policy =
-      if (endPolicy.notExpiredBy(ft, endPos)) this else NoPolicy
+      if (endPolicy.notExpiredBy(ft)) this else NoPolicy
 
     override def filter(pred: Clause => Boolean): Policy =
       if (pred(this)) this else NoPolicy
@@ -82,8 +98,7 @@ object Policy {
 
   private class ClauseImpl(
       val f: Policy.Pf,
-      val endPos: Int,
-      val endPolicy: End,
+      val endPolicy: End.WithPos,
       val noDequeue: Boolean
   )(implicit line: sourcecode.Line)
       extends Clause
@@ -158,24 +173,34 @@ object Policy {
     override def toString: String = s"*($policy)"
   }
 
-  sealed trait End {
-    def notExpiredBy(ft: FormatToken, endPos: Int): Boolean
+  sealed trait End extends (Token => End.WithPos) {
+    def apply(endPos: Int): End.WithPos
+    final def apply(token: Token): End.WithPos = apply(token.end)
   }
   object End {
+    sealed trait WithPos {
+      def notExpiredBy(ft: FormatToken): Boolean
+    }
     case object After extends End {
-      def notExpiredBy(ft: FormatToken, endPos: Int): Boolean =
-        ft.left.end <= endPos
-      override def toString: String = ">"
+      def apply(endPos: Int): WithPos =
+        new End.WithPos {
+          def notExpiredBy(ft: FormatToken): Boolean = ft.left.end <= endPos
+          override def toString: String = s">$endPos"
+        }
     }
     case object Before extends End {
-      def notExpiredBy(ft: FormatToken, endPos: Int): Boolean =
-        ft.right.end < endPos
-      override def toString: String = "<"
+      def apply(endPos: Int): WithPos =
+        new End.WithPos {
+          def notExpiredBy(ft: FormatToken): Boolean = ft.right.end < endPos
+          override def toString: String = s"<$endPos"
+        }
     }
     case object On extends End {
-      def notExpiredBy(ft: FormatToken, endPos: Int): Boolean =
-        ft.right.end <= endPos
-      override def toString: String = "@"
+      def apply(endPos: Int): WithPos =
+        new End.WithPos {
+          def notExpiredBy(ft: FormatToken): Boolean = ft.right.end <= endPos
+          override def toString: String = s"@$endPos"
+        }
     }
   }
 

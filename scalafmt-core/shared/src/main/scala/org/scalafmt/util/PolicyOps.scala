@@ -16,9 +16,8 @@ object PolicyOps {
       penaliseNewlinesInsideTokens: Boolean = false
   )(implicit line: sourcecode.Line)
       extends Policy.Clause {
-    override val endPos = expire.end
     override val noDequeue: Boolean = false
-    override val endPolicy: Policy.End = Policy.End.Before
+    override val endPolicy: Policy.End.WithPos = Policy.End.Before(expire.end)
     override val f: Policy.Pf = {
       case Decision(tok, s)
           if (penalizeLambdas || !tok.left.is[T.RightArrow]) && !ignore(tok) =>
@@ -44,9 +43,9 @@ object PolicyOps {
   )(implicit line: sourcecode.Line)
       extends Policy.Clause {
     import TokenOps.isSingleLineComment
-    override val endPos = expire.end
+    private val endPos = expire.end
     override val noDequeue: Boolean = true
-    override val endPolicy: Policy.End = Policy.End.On
+    override val endPolicy: Policy.End.WithPos = Policy.End.On(endPos)
     override def toString: String =
       "SLB:" + super.toString + {
         if (exclude.isEmpty) ""
