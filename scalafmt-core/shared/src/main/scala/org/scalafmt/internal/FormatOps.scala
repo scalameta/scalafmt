@@ -834,22 +834,22 @@ class FormatOps(
 
   def noOptimizationZones(tree: Tree): Set[Token] = {
     val result = Set.newBuilder[Token]
-    var inside = false
-    var expire = tree.tokens.head
+    var expire: Token = null
     tree.tokens.foreach {
-      case t if !inside && ((t, ownersMap(hash(t))) match {
-            case (T.LeftParen(), _: Term.Apply | _: Init) =>
-              // TODO(olafur) https://github.com/scalameta/scalameta/issues/345
-              val x = true
-              x
-            // Type compounds can be inside defn.defs
-            case (T.LeftBrace(), Type.Refine(_, _)) => true
-            case _ => false
-          }) =>
-        inside = true
-        expire = matching(t)
-      case x if x == expire => inside = false
-      case x if inside => result += x
+      case x if expire ne null =>
+        if (x eq expire) expire = null else result += x
+      case t: T.LeftParen =>
+        owners(t) match {
+          // TODO(olafur) https://github.com/scalameta/scalameta/issues/345
+          case _: Term.Apply | _: Init => expire = matching(t)
+          case _ =>
+        }
+      case t: T.LeftBrace =>
+        owners(t) match {
+          // Type compounds can be inside defn.defs
+          case _: Type.Refine => expire = matching(t)
+          case _ =>
+        }
       case _ =>
     }
     result.result()
