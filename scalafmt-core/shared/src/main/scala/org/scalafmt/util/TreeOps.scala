@@ -685,4 +685,8 @@ object TreeOps {
       case _ => false
     }
 
+  // Redundant {} block around case statements
+  def isCaseBodyABlock(ft: FormatToken, caseStat: Case): Boolean =
+    ft.right.is[Token.LeftBrace] && (caseStat.body eq ft.meta.rightOwner)
+
 }

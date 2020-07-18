@@ -415,9 +415,7 @@ class Router(formatOps: FormatOps) {
       // Case arrow
       case tok @ FormatToken(_: T.RightArrow, right, _) if leftOwner.is[Case] =>
         val caseStat = leftOwner.asInstanceOf[Case]
-        if (right.is[T.LeftBrace] && (caseStat.body eq rightOwner))
-          // Redundant {} block around case statements.
-          Seq(Split(Space, 0).withIndent(-2, rightOwner.tokens.last, After))
+        if (isCaseBodyABlock(tok, caseStat)) Seq(Split(Space, 0))
         else {
           def newlineSplit(cost: Int) = {
             val noIndent = rhsIsCommentedOut(tok)
@@ -1642,13 +1640,11 @@ class Router(formatOps: FormatOps) {
       // Case
       case tok @ FormatToken(cs @ T.KwCase(), _, _) if leftOwner.is[Case] =>
         val owner = leftOwner.asInstanceOf[Case]
-        val arrow = getCaseArrow(owner).left
-        // TODO(olafur) expire on token.end to avoid this bug.
-        val expire = Option(owner.body)
-          .filter(_.tokens.exists(!_.is[Trivia]))
-          // edge case, if body is empty expire on arrow
-          .fold(arrow)(t => getOptimalTokenFor(lastToken(t)))
+        val arrowFt = getCaseArrow(owner)
+        val arrow = arrowFt.left
+        val expire = lastTokenOpt(owner.body.tokens).getOrElse(arrow)
 
+        val bodyBlock = isCaseBodyABlock(arrowFt, owner)
         Seq(
           Split(Space, 0).withSingleLine(expire, killOnFail = true),
           Split(Space, 1)
@@ -1662,8 +1658,8 @@ class Router(formatOps: FormatOps) {
               },
               ignore = style.newlines.sourceIn(Newlines.fold, Newlines.keep)
             )
-            .withIndent(2, expire, After) // case body indented by 2.
-            .withIndent(2, arrow, After) // cond body indented by 4.
+            .withIndent(if (bodyBlock) 0 else 2, expire, After)
+            .withIndent(if (bodyBlock) 4 else 2, arrow, After)
         )
 
       case tok @ FormatToken(_, cond @ T.KwIf(), _) if rightOwner.is[Case] =>

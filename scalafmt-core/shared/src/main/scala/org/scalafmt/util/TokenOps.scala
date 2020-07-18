@@ -67,12 +67,14 @@ object TokenOps {
   def findLast[A](seq: Seq[A])(cond: A => Boolean): Option[A] =
     seq.reverseIterator.find(cond)
 
-  def lastToken(tokens: Tokens): Token = {
+  def lastTokenOpt(tokens: Tokens): Option[Token] =
     findLast(tokens) {
       case Trivia() | _: EOF => false
       case _ => true
-    }.getOrElse(tokens.last)
-  }
+    }
+
+  def lastToken(tokens: Tokens): Token =
+    lastTokenOpt(tokens).getOrElse(tokens.last)
 
   def lastToken(tree: Tree): Token = lastToken(tree.tokens)
 
