@@ -74,7 +74,7 @@ class Router(formatOps: FormatOps) {
               if filename.endsWith(".sc") && name.startsWith("#!") =>
             val nl = findFirst(next(formatToken), Int.MaxValue)(_.hasBreak)
             nl.fold[Policy](Policy.NoPolicy) { ft =>
-              Policy(ft.left, Policy.End.On) {
+              Policy.on(ft.left) {
                 case Decision(t, _) =>
                   Seq(Split(Space(t.between.nonEmpty), 0))
               }
@@ -577,7 +577,7 @@ class Router(formatOps: FormatOps) {
         val expire = defnTemplate(leftOwner)
           .flatMap(templateCurly)
           .getOrElse(leftOwner.tokens.last)
-        val forceNewlineBeforeExtends = Policy(expire, Policy.End.Before) {
+        val forceNewlineBeforeExtends = Policy.before(expire) {
           case Decision(t @ FormatToken(_, _: T.KwExtends, _), s)
               if t.meta.rightOwner == leftOwner =>
             s.filter(x => x.isNL && !x.isActiveFor(SplitTag.OnelineWithChain))
@@ -972,7 +972,7 @@ class Router(formatOps: FormatOps) {
             }
             val policy =
               PenalizeAllNewlines(close, 3, ignore = ignoreBlocks) &
-                Policy(close, Policy.End.On) {
+                Policy.on(close) {
                   UnindentAtExclude(exclude.keySet, Num(-indent.n))
                 }
             baseNoSplit.withOptimalTokenOpt(opt).withPolicy(policy)
@@ -1214,7 +1214,7 @@ class Router(formatOps: FormatOps) {
         def breakOnNextDot: Policy =
           nextSelect.fold[Policy](Policy.NoPolicy) { tree =>
             val end = tree.name.tokens.head
-            Policy(end, Policy.End.Before) {
+            Policy.before(end) {
               case Decision(t @ FormatToken(_, _: T.Dot, _), s)
                   if t.meta.rightOwner eq tree =>
                 val filtered = s.flatMap { x =>
@@ -1325,7 +1325,7 @@ class Router(formatOps: FormatOps) {
               Seq(Split(NoSplit, 0), Split(Newline, 1))
             else {
               val forcedBreakPolicy = nextSelect.map { tree =>
-                Policy(tree.name.tokens.head, Policy.End.Before) {
+                Policy.before(tree.name.tokens.head) {
                   case Decision(t @ FormatToken(_, _: T.Dot, _), s)
                       if t.meta.rightOwner eq tree =>
                     s.filter(_.isNL)
@@ -1348,7 +1348,7 @@ class Router(formatOps: FormatOps) {
         }
 
         val delayedBreakPolicyOpt = nextSelect.map { tree =>
-          Policy(tree.name.tokens.head, Policy.End.Before) {
+          Policy.before(tree.name.tokens.head) {
             case Decision(t @ FormatToken(_, _: T.Dot, _), s)
                 if t.meta.rightOwner eq tree =>
               SplitTag.SelectChainFirstNL.activateOnly(s)
@@ -1434,7 +1434,7 @@ class Router(formatOps: FormatOps) {
             val policy =
               if (hasSelfAnnotation) NoPolicy
               else
-                Policy(expire, Policy.End.After) {
+                Policy.after(expire) {
                   // Force template to be multiline.
                   case d @ Decision(
                         t @ FormatToken(_: T.LeftBrace, right, _),
@@ -1501,7 +1501,7 @@ class Router(formatOps: FormatOps) {
         val breakOnlyBeforeElse =
           if (elses.isEmpty) Policy.NoPolicy
           else
-            Policy(elses.last, Policy.End.On) {
+            Policy.on(elses.last) {
               case d @ Decision(FormatToken(_, r: T.KwElse, _), _)
                   if elses.contains(r) =>
                 d.onlyNewlinesWithFallback(Split(Newline, 0))
@@ -1654,7 +1654,7 @@ class Router(formatOps: FormatOps) {
           Split(Space, 0).withSingleLine(expire, killOnFail = true),
           Split(Space, 1)
             .withPolicy(
-              Policy(expire, Policy.End.On) {
+              Policy.on(expire) {
                 case d @ Decision(t @ FormatToken(`arrow`, right, _), _)
                     // TODO(olafur) any other corner cases?
                     if !right.isInstanceOf[T.LeftBrace] &&
@@ -2157,7 +2157,7 @@ class Router(formatOps: FormatOps) {
           case _: Term.ForYield =>
             // unfold policy on yield forces a break
             // revert it if we are attempting a single line
-            val noBreakOnYield = Policy(expire, Policy.End.Before) {
+            val noBreakOnYield = Policy.before(expire) {
               case Decision(ft, s) if s.isEmpty && ft.right.is[Token.KwYield] =>
                 Seq(Split(Space, 0))
             }
