@@ -31,14 +31,20 @@ import metaconfig.generic.Surface
   * @param sometimesBeforeColonInMethodReturnType If true, scalafmt
   *                                               may choose to put a newline
   *                                               before colon : at defs.
-  * @param alwaysBeforeCurlyBraceLambdaParams
-  *   If true, puts a newline after the open brace
-  *   and the parameters list of an anonymous function.
-  *   For example
+  * @param beforeCurlyLambdaParams
+  *   - if Never, tries to use a space between the opening curly brace and the
+  *     list of parameters of anonymous functions, and some partial functions
+  *     (those with a single case clause and no conditions)
+  *   - if MultilineWithCaseOnly, forces a newline in partial functions (see above)
+  *     which can't be formatted on a single line
+  *   - if Always, forces a newline in lambda and partial functions.
+  *   For example:
+  *   {{{
   *   something.map {
   *     n =>
   *       consume(n)
   *   }
+  *   }}}
   * @param afterCurlyLambda
   *   If `never` (default), it will remove any extra lines below curly lambdas
   *   {{{
@@ -145,7 +151,14 @@ case class Newlines(
     neverBeforeJsNative: Boolean = false,
     sometimesBeforeColonInMethodReturnType: Boolean = true,
     penalizeSingleSelectMultiArgList: Boolean = true,
-    alwaysBeforeCurlyBraceLambdaParams: Boolean = false,
+    @annotation.DeprecatedName(
+      "alwaysBeforeCurlyBraceLambdaParams",
+      "Use newlines.beforeCurlyLambdaParams instead",
+      "2.7.0"
+    )
+    private val alwaysBeforeCurlyBraceLambdaParams: Boolean = false,
+    beforeCurlyLambdaParams: BeforeCurlyLambdaParams =
+      BeforeCurlyLambdaParams.never,
     topLevelStatementsMinBreaks: Int = 1,
     topLevelStatements: Seq[BeforeAfter] = Seq.empty,
     @annotation.DeprecatedName(
@@ -153,7 +166,7 @@ case class Newlines(
       "Use newlines.topLevelStatements instead",
       "2.5.0"
     )
-    alwaysBeforeTopLevelStatements: Boolean = false,
+    private val alwaysBeforeTopLevelStatements: Boolean = false,
     afterCurlyLambda: AfterCurlyLambdaParams = AfterCurlyLambdaParams.never,
     implicitParamListModifierForce: Seq[BeforeAfter] = Seq.empty,
     implicitParamListModifierPrefer: Option[BeforeAfter] = None,
@@ -235,6 +248,13 @@ case class Newlines(
     avoidForSimpleOverflow.contains(AvoidForSimpleOverflow.punct)
   lazy val avoidForSimpleOverflowTooLong: Boolean =
     avoidForSimpleOverflow.contains(AvoidForSimpleOverflow.tooLong)
+
+  lazy val neverBeforeCurlyLambdaParams = !alwaysBeforeCurlyBraceLambdaParams &&
+    (beforeCurlyLambdaParams eq BeforeCurlyLambdaParams.never)
+
+  lazy val alwaysBeforeCurlyLambdaParams = alwaysBeforeCurlyBraceLambdaParams ||
+    (beforeCurlyLambdaParams eq BeforeCurlyLambdaParams.always)
+
 }
 
 object Newlines {
@@ -292,6 +312,22 @@ object Newlines {
     case object squash extends AfterCurlyLambdaParams
     implicit val codec: ConfCodec[AfterCurlyLambdaParams] =
       ReaderUtil.oneOf[AfterCurlyLambdaParams](preserve, always, never, squash)
+  }
+
+  sealed abstract class BeforeCurlyLambdaParams
+  object BeforeCurlyLambdaParams {
+    case object always extends BeforeCurlyLambdaParams
+    case object never extends BeforeCurlyLambdaParams
+    case object multilineWithCaseOnly extends BeforeCurlyLambdaParams
+    implicit val codec: ConfCodec[BeforeCurlyLambdaParams] =
+      ReaderUtil.oneOfCustom[BeforeCurlyLambdaParams](
+        never,
+        always,
+        multilineWithCaseOnly
+      ) {
+        case Conf.Bool(true) => Configured.Ok(always)
+        case Conf.Bool(false) => Configured.Ok(never)
+      }
   }
 
 }
