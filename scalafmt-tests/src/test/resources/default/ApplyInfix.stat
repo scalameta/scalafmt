@@ -239,17 +239,15 @@ if (other == null) {
 >>>
 {
   {
-    phrase(a ^^ {
-      case p1 =>
-        Rowset(
-            p1.toSeq map {
-              fromXML[eveapi.xml.char.ContactList.Row](_,
-                                                       scalaxb.ElemName(node))
-            },
-            ListMap(
-                List(
-                    (node \ "@name").headOption.map(x => DataRecord())
-                ).flatten: _*))
+    phrase(a ^^ { case p1 =>
+      Rowset(
+          p1.toSeq map {
+            fromXML[eveapi.xml.char.ContactList.Row](_, scalaxb.ElemName(node))
+          },
+          ListMap(
+              List(
+                  (node \ "@name").headOption.map(x => DataRecord())
+              ).flatten: _*))
     })
   }
 }
@@ -274,8 +272,8 @@ object ExternForwarder {
       case DefDef()
           if isExternModule(from.symbol)
             && params.length == args.length
-            && params.zip(args).forall {
-              case _ => false
+            && params.zip(args).forall { case _ =>
+              false
             } =>
         Some(sel.symbol)
       case _ =>

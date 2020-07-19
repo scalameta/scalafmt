@@ -332,13 +332,12 @@ assertEquals(1,
 }
 >>>
 {
-  val sourceToBuffer: Map[ScaldingSource, Buffer[Tuple]] = (lasts.map {
-    case (b, it) =>
+  val sourceToBuffer: Map[ScaldingSource, Buffer[Tuple]] =
+    (lasts.map { case (b, it) =>
       lastMappable(b) -> toBuffer(it)
-  } ++ streams.map {
-    case (b, it) =>
+    } ++ streams.map { case (b, it) =>
       streamMappable(b) -> toBuffer(it)
-  }).toMap
+    }).toMap
 }
 <<< nullDF
 {
