@@ -884,6 +884,47 @@ else {
 }
 ```
 
+### `newlines.beforeCurlyLambdaParams`
+
+This parameter controls whether a newline is forced between the opening curly brace
+and the parameters of a lambda or partial function. Added in 2.7.0, replacing
+boolean `alwaysBeforeCurlyBraceLambdaParams`.
+
+```scala mdoc:defaults
+newlines.beforeCurlyLambdaParams
+```
+
+```scala mdoc:scalafmt
+newlines.beforeCurlyLambdaParams = never
+---
+// should keep one-line
+x.map { x => s"${x._1} -> ${x._2}" }
+x.map { case (c, i) => s"$c -> $i" }
+// should unfold, break on { since case fits on a line but lambda doesn't
+x.zipWithIndex.map { case (c, i) => s"$c -> $i" }
+// should unfold, break on => since case doesn't fit on a line
+x.zipWithIndex.map { case (c, i) => s"$c -> $i (long comment)" }
+```
+
+```scala mdoc:scalafmt
+newlines.beforeCurlyLambdaParams = always
+---
+// should unfold, break on {, though fits on a line
+x.map { x => s"${x._1} -> ${x._2}" }
+x.map { case (c, i) => s"$c -> $i" }
+```
+
+```scala mdoc:scalafmt
+newlines.beforeCurlyLambdaParams = multilineWithCaseOnly
+---
+// should keep one-line
+x.map { x => s"${x._1} -> ${x._2}" }
+x.map { case (c, i) => s"$c -> $i" }
+// should unfold, break on { as lambda doesn't fit on a line
+x.zipWithIndex.map { case (c, i) => s"$c -> $i" }
+x.zipWithIndex.map { case (c, i) => s"$c -> $i (long comment)" }
+```
+
 ### `newlines.afterCurlyLambda`
 
 This parameter controls handling of newlines after the arrow following the
