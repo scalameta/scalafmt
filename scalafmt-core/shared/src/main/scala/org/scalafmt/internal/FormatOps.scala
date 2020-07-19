@@ -4,13 +4,7 @@ import java.{util => ju}
 
 import org.scalafmt.CompatCollections.JavaConverters._
 import org.scalafmt.Error.UnexpectedTree
-import org.scalafmt.config.{
-  BinPack,
-  Comments,
-  NewlineCurlyLambda,
-  Newlines,
-  ScalafmtConfig
-}
+import org.scalafmt.config.{BinPack, Comments, Newlines, ScalafmtConfig}
 import org.scalafmt.internal.Length.Num
 import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util._
@@ -1221,16 +1215,16 @@ class FormatOps(
       newlines: Int
   )(implicit style: ScalafmtConfig): (Boolean, NewlineT) =
     style.newlines.afterCurlyLambda match {
-      case NewlineCurlyLambda.squash => (true, Newline)
-      case NewlineCurlyLambda.never =>
+      case Newlines.AfterCurlyLambdaParams.squash => (true, Newline)
+      case Newlines.AfterCurlyLambdaParams.never =>
         val space = style.newlines.source match {
           case Newlines.fold => true
           case Newlines.unfold => false
           case _ => newlines == 0
         }
         (space, Newline)
-      case NewlineCurlyLambda.always => (false, Newline2x)
-      case NewlineCurlyLambda.preserve =>
+      case Newlines.AfterCurlyLambdaParams.always => (false, Newline2x)
+      case Newlines.AfterCurlyLambdaParams.preserve =>
         (newlines == 0, if (newlines >= 2) Newline2x else Newline)
     }
 

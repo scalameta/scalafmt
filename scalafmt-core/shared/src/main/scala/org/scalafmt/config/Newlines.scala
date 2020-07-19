@@ -154,7 +154,7 @@ case class Newlines(
       "2.5.0"
     )
     alwaysBeforeTopLevelStatements: Boolean = false,
-    afterCurlyLambda: NewlineCurlyLambda = NewlineCurlyLambda.never,
+    afterCurlyLambda: AfterCurlyLambdaParams = AfterCurlyLambdaParams.never,
     implicitParamListModifierForce: Seq[BeforeAfter] = Seq.empty,
     implicitParamListModifierPrefer: Option[BeforeAfter] = None,
     alwaysBeforeElseAfterCurlyIf: Boolean = false,
@@ -284,17 +284,14 @@ object Newlines {
       ReaderUtil.oneOf[AvoidForSimpleOverflow](punct, tooLong)
   }
 
-}
+  sealed abstract class AfterCurlyLambdaParams
+  object AfterCurlyLambdaParams {
+    case object preserve extends AfterCurlyLambdaParams
+    case object always extends AfterCurlyLambdaParams
+    case object never extends AfterCurlyLambdaParams
+    case object squash extends AfterCurlyLambdaParams
+    implicit val codec: ConfCodec[AfterCurlyLambdaParams] =
+      ReaderUtil.oneOf[AfterCurlyLambdaParams](preserve, always, never, squash)
+  }
 
-sealed abstract class NewlineCurlyLambda
-
-object NewlineCurlyLambda {
-
-  case object preserve extends NewlineCurlyLambda
-  case object always extends NewlineCurlyLambda
-  case object never extends NewlineCurlyLambda
-  case object squash extends NewlineCurlyLambda
-
-  implicit val newlineCurlyLambdaReader: ConfCodec[NewlineCurlyLambda] =
-    ReaderUtil.oneOf[NewlineCurlyLambda](preserve, always, never, squash)
 }

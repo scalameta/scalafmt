@@ -160,12 +160,13 @@ case class ScalafmtConfig(
     xmlLiterals: XmlLiterals = XmlLiterals(),
     edition: Edition = Edition.Latest
 ) {
+  import Newlines._
   val allErrors = new mutable.ArrayBuffer[String]
   locally {
     import ValidationOps._
     implicit val errors = new mutable.ArrayBuffer[String]
     if (newlines.sourceIgnored) {
-      addIf(newlines.afterCurlyLambda == NewlineCurlyLambda.preserve)
+      addIf(newlines.afterCurlyLambda == AfterCurlyLambdaParams.preserve)
       addIf(optIn.configStyleArguments && align.openParenCallSite)
       addIf(optIn.configStyleArguments && align.openParenDefnSite)
     }
