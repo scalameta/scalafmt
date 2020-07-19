@@ -91,3 +91,20 @@ parens.foreach {
   case (_: `{`, _: `}`) =>
   case (_: `}`, _: `{`) =>
 }
+<<< multiple case clauses on a line
+object a {
+  try {
+    foo
+  } catch {
+    case e: Throwable => case e: Exception => bar; baz
+  }
+}
+>>>
+object a {
+  try {
+    foo
+  } catch {
+    case e: Throwable =>
+    case e: Exception => bar; baz
+  }
+}
