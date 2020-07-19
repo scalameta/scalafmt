@@ -1529,7 +1529,9 @@ val foo = new Bar { _ =>
   println("a")
 }
 >>>
-val foo = new Bar { _ => println("a") }
+val foo = new Bar {
+  _ => println("a")
+}
 <<< fold ctor body with wildcard arg, selfAnnotationNewline = false
 optIn.selfAnnotationNewline = false
 ===

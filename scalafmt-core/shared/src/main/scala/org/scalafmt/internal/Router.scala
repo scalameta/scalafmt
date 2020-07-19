@@ -180,30 +180,32 @@ class Router(formatOps: FormatOps) {
           case t: Template => Some(t.self.name.tokens).filter(_.nonEmpty)
           case _ => None
         }
-        val isSelfAnnotation =
+        val isSelfAnnotationNL =
           style.optIn.selfAnnotationNewline && selfAnnotation.nonEmpty && (
             formatToken.hasBreak || style.newlines.sourceIgnored
           )
         val nl: Modification =
-          if (isSelfAnnotation)
+          if (isSelfAnnotationNL)
             getModCheckIndent(formatToken, math.max(newlines, 1))
           else
             NewlineT(tok.hasBlankLine || blankLineBeforeDocstring(tok))
 
-        val (lambdaExpire, lambdaArrow, lambdaIndent) =
+        val (lambdaExpire, lambdaArrow, lambdaIndent, lambdaNLOnly) =
           startsStatement(right) match {
             case Some(owner: Term.Function) =>
               val arrow = getFuncArrow(lastLambda(owner))
               val expire = arrow.getOrElse(tokens(owner.tokens.last))
-              (expire, arrow.map(_.left), 0)
+              val nlOnly =
+                style.newlines.alwaysBeforeCurlyBraceLambdaParams
+              (expire, arrow.map(_.left), 0, nlOnly)
             case _ =>
               selfAnnotation match {
                 case Some(anno) =>
                   val arrow = leftOwner.tokens.find(_.is[T.RightArrow])
                   val expire = arrow.getOrElse(anno.last)
-                  (tokens(expire), arrow, 2)
+                  (tokens(expire), arrow, 2, isSelfAnnotationNL)
                 case _ =>
-                  (null, None, 0)
+                  (null, None, 0, true)
               }
           }
         val lambdaPolicy =
@@ -252,7 +254,7 @@ class Router(formatOps: FormatOps) {
             getSingleLineDecisionPre2019NovOpt
 
         def getSingleLineLambdaDecisionOpt = {
-          val ok = !style.newlines.alwaysBeforeCurlyBraceLambdaParams &&
+          val ok = !lambdaNLOnly &&
             getSpaceAndNewlineAfterCurlyLambda(newlines)._1
           if (ok) Some(getSingleLineDecisionFor2019Nov) else None
         }
@@ -301,11 +303,8 @@ class Router(formatOps: FormatOps) {
         val splits = Seq(
           singleLineSplit,
           Split(Space, 0)
-            .notIf(
-              style.newlines.alwaysBeforeCurlyBraceLambdaParams ||
-                isSelfAnnotation || lambdaPolicy == null ||
-                style.newlines.sourceIs(Newlines.keep) && newlines != 0
-            )
+            .notIf(lambdaNLOnly || lambdaPolicy == null)
+            .notIf(style.newlines.sourceIs(Newlines.keep) && newlines != 0)
             .withOptimalTokenOpt(lambdaArrow)
             .withIndent(lambdaIndent, close, Before)
             .withPolicy(lambdaPolicy),
