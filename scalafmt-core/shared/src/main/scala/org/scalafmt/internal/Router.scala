@@ -1,12 +1,7 @@
 package org.scalafmt.internal
 
 import org.scalafmt.Error.UnexpectedTree
-import org.scalafmt.config.{
-  ImportSelectors,
-  NewlineCurlyLambda,
-  Newlines,
-  ScalafmtConfig
-}
+import org.scalafmt.config.{ImportSelectors, Newlines, ScalafmtConfig}
 import org.scalafmt.internal.ExpiresOn.{After, Before}
 import org.scalafmt.internal.Length.{Num, StateColumn}
 import org.scalafmt.internal.Policy.NoPolicy
@@ -373,7 +368,8 @@ class Router(formatOps: FormatOps) {
             leftOwner.is[Template] || leftOwner.parent.exists(_.is[Template])
 
           def noSquash =
-            style.newlines.afterCurlyLambda != NewlineCurlyLambda.squash
+            style.newlines.afterCurlyLambda ne
+              Newlines.AfterCurlyLambdaParams.squash
 
           isCurlyLambda && (style.newlines.source match {
             case Newlines.fold => false
