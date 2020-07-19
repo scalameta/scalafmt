@@ -9,7 +9,7 @@ case class SortSettings(
 object SortSettings {
 
   implicit val SortSettingsModKeyReader: ConfCodec[ModKey] =
-    ReaderUtil.oneOfIgnoreBackticks[ModKey](
+    ReaderUtil.oneOf[ModKey](
       `implicit`,
       `final`,
       `sealed`,
