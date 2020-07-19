@@ -886,13 +886,20 @@ else {
 
 ### `newlines.afterCurlyLambda`
 
+This parameter controls handling of newlines after the arrow following the
+parameters of a curly brace lambda or partial function, and whether a space
+can be used for one-line formatting of the entire function body (if allowed
+but the body doesn't fit, a break is always forced).
+
 ```scala mdoc:defaults
 newlines.afterCurlyLambda
 ```
 
 ```scala mdoc:scalafmt
-newlines.afterCurlyLambda = never
+newlines.afterCurlyLambda = squash
 ---
+// remove all blank lines if any
+// one-line formatting is allowed
 something.map { x =>
 
 
@@ -904,8 +911,11 @@ something.map { x => f(x) }
 ```
 
 ```scala mdoc:scalafmt
-newlines.afterCurlyLambda = always
+newlines.afterCurlyLambda = never
 ---
+// remove all blank lines if any
+// one-line formatting depends on newlines.source:
+// yes for fold; no for unfold; otherwise, only if there was no break
 something.map { x =>
 
 
@@ -919,6 +929,9 @@ something.map { x => f(x) }
 ```scala mdoc:scalafmt
 newlines.afterCurlyLambda = preserve
 ---
+// if blank lines are present, keep only one
+// one-line formatting depends on newlines.source:
+// yes for fold; no for unfold; otherwise, only if there was no break
 something.map { x =>
 
 
@@ -930,8 +943,10 @@ something.map { x => f(x) }
 ```
 
 ```scala mdoc:scalafmt
-newlines.afterCurlyLambda = squash
+newlines.afterCurlyLambda = always
 ---
+// ensure a single blank line
+// one-line formatting is not allowed
 something.map { x =>
 
 
