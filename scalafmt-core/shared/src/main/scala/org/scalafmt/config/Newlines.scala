@@ -1,6 +1,6 @@
 package org.scalafmt.config
 
-import org.scalafmt.config.Newlines.AfterInfix
+import org.scalafmt.config.Newlines._
 
 import metaconfig._
 import metaconfig.generic.Surface
@@ -140,14 +140,14 @@ import metaconfig.generic.Surface
   *     and would likely overflow even after a break
   */
 case class Newlines(
-    source: Newlines.SourceHints = Newlines.classic,
+    source: SourceHints = Newlines.classic,
     neverInResultType: Boolean = false,
     neverBeforeJsNative: Boolean = false,
     sometimesBeforeColonInMethodReturnType: Boolean = true,
     penalizeSingleSelectMultiArgList: Boolean = true,
     alwaysBeforeCurlyBraceLambdaParams: Boolean = false,
     topLevelStatementsMinBreaks: Int = 1,
-    topLevelStatements: Seq[Newlines.BeforeAfter] = Seq.empty,
+    topLevelStatements: Seq[BeforeAfter] = Seq.empty,
     @annotation.DeprecatedName(
       "alwaysBeforeTopLevelStatements",
       "Use newlines.topLevelStatements instead",
@@ -155,15 +155,15 @@ case class Newlines(
     )
     alwaysBeforeTopLevelStatements: Boolean = false,
     afterCurlyLambda: NewlineCurlyLambda = NewlineCurlyLambda.never,
-    implicitParamListModifierForce: Seq[Newlines.BeforeAfter] = Seq.empty,
-    implicitParamListModifierPrefer: Option[Newlines.BeforeAfter] = None,
+    implicitParamListModifierForce: Seq[BeforeAfter] = Seq.empty,
+    implicitParamListModifierPrefer: Option[BeforeAfter] = None,
     alwaysBeforeElseAfterCurlyIf: Boolean = false,
     alwaysBeforeMultilineDef: Boolean = true,
     afterInfix: Option[AfterInfix] = None,
     afterInfixBreakOnNested: Boolean = false,
     afterInfixMaxCountPerExprForSome: Int = 10,
     afterInfixMaxCountPerFile: Int = 500,
-    avoidForSimpleOverflow: Seq[Newlines.AvoidForSimpleOverflow] = Seq.empty,
+    avoidForSimpleOverflow: Seq[AvoidForSimpleOverflow] = Seq.empty,
     avoidAfterYield: Boolean = true
 ) {
   if (
@@ -177,14 +177,14 @@ case class Newlines(
   }
 
   val reader: ConfDecoder[Newlines] = generic.deriveDecoder(this).noTypos
-  if (source != Newlines.classic) Newlines.warnSourceIsExperimental
+  if (source != Newlines.classic) warnSourceIsExperimental
 
   @inline
-  def sourceIs(hint: Newlines.SourceHints): Boolean =
+  def sourceIs(hint: SourceHints): Boolean =
     hint eq source
 
   @inline
-  def sourceIn(hints: Newlines.SourceHints*): Boolean =
+  def sourceIn(hints: SourceHints*): Boolean =
     hints.contains(source)
 
   val sourceIgnored: Boolean =
@@ -210,12 +210,12 @@ case class Newlines(
   }
 
   lazy val forceBeforeImplicitParamListModifier: Boolean =
-    implicitParamListModifierForce.contains(Newlines.before)
+    implicitParamListModifierForce.contains(before)
   lazy val forceAfterImplicitParamListModifier: Boolean =
-    implicitParamListModifierForce.contains(Newlines.after)
+    implicitParamListModifierForce.contains(after)
 
   private def preferBeforeImplicitParamListModifier: Boolean =
-    implicitParamListModifierPrefer.contains(Newlines.before)
+    implicitParamListModifierPrefer.contains(before)
   lazy val notPreferAfterImplicitParamListModifier: Boolean =
     implicitParamListModifierForce.nonEmpty ||
       preferBeforeImplicitParamListModifier
@@ -226,15 +226,15 @@ case class Newlines(
       !forceBeforeImplicitParamListModifier
 
   lazy val forceBlankBeforeMultilineTopLevelStmt: Boolean =
-    topLevelStatements.contains(Newlines.before) ||
+    topLevelStatements.contains(before) ||
       alwaysBeforeTopLevelStatements
   lazy val forceBlankAfterMultilineTopLevelStmt: Boolean =
-    topLevelStatements.contains(Newlines.after)
+    topLevelStatements.contains(after)
 
   lazy val avoidForSimpleOverflowPunct: Boolean =
-    avoidForSimpleOverflow.contains(Newlines.AvoidForSimpleOverflow.punct)
+    avoidForSimpleOverflow.contains(AvoidForSimpleOverflow.punct)
   lazy val avoidForSimpleOverflowTooLong: Boolean =
-    avoidForSimpleOverflow.contains(Newlines.AvoidForSimpleOverflow.tooLong)
+    avoidForSimpleOverflow.contains(AvoidForSimpleOverflow.tooLong)
 }
 
 object Newlines {
