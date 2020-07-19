@@ -508,8 +508,7 @@ val nested =
 >>>
 val nested =
   promiseIntercept(new Actor {
-    def receive = {
-      case _ ⇒
+    def receive = { case _ ⇒
     }
   })(result)
 <<< 2.21 val with apply type

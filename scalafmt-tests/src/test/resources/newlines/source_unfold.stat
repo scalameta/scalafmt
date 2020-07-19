@@ -560,8 +560,7 @@ val nested =
 val nested =
   promiseIntercept(
     new Actor {
-      def receive = {
-        case _ ⇒
+      def receive = { case _ ⇒
       }
     }
   )(result)
@@ -1825,9 +1824,8 @@ val strings = Seq(
   ) ++
   otherMetricHeaders
     .zip(bestScore.otherScores)
-    .map {
-      case (h, s) =>
-        s"  $h: $s"
+    .map { case (h, s) =>
+      s"  $h: $s"
     } ++
   outputPath
     .toSeq
@@ -2505,9 +2503,8 @@ object a {
           x.tree
             .children
             .tail
-            .map {
-              case E(F(g)) =>
-                g.asInstanceOf[String]
+            .map { case E(F(g)) =>
+              g.asInstanceOf[String]
             }
         }
         .headOption

@@ -522,15 +522,13 @@ object a {
     try {
       val driver = extendedSystem.dynamicAccess
         .createInstanceFor[Transport](fqn, args)
-        .recover({
-
-          case exception ⇒
-            throw new IllegalArgumentException(
-              s"Cannot instantiate transport [$fqn]. " +
-                "Make sure it extends [akka.remote.transport.Transport] and has constructor with " +
-                "[akka.actor.ExtendedActorSystem] and [com.typesafe.config.Config] parameters",
-              exception
-            )
+        .recover({ case exception ⇒
+          throw new IllegalArgumentException(
+            s"Cannot instantiate transport [$fqn]. " +
+              "Make sure it extends [akka.remote.transport.Transport] and has constructor with " +
+              "[akka.actor.ExtendedActorSystem] and [com.typesafe.config.Config] parameters",
+            exception
+          )
 
         })
         .get
@@ -873,8 +871,8 @@ object a {
 >>>
 object a {
   val reduces = node
-    .foldDown[List[dag.Reduce]](true) {
-      case r: dag.Reduce => List(r)
+    .foldDown[List[dag.Reduce]](true) { case r: dag.Reduce =>
+      List(r)
     } distinct
 }
 <<< #2070

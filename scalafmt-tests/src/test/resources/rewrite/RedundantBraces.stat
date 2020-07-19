@@ -528,9 +528,8 @@ object a {
   def findAccountByAPIKey(apiKey: APIKey) =
     byKeyCache.get(apiKey) match {
       case None =>
-        delegate.findAccountByAPIKey(apiKey) map {
-          case (x, y) =>
-            x map y tap (add(apiKey, _)) unsafePerformIO
+        delegate.findAccountByAPIKey(apiKey) map { case (x, y) =>
+          x map y tap (add(apiKey, _)) unsafePerformIO
         }
     }
 }
