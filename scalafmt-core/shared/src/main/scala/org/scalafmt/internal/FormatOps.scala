@@ -1225,7 +1225,12 @@ class FormatOps(
         (space, Newline)
       case Newlines.AfterCurlyLambdaParams.always => (false, Newline2x)
       case Newlines.AfterCurlyLambdaParams.preserve =>
-        (newlines == 0, if (newlines >= 2) Newline2x else Newline)
+        val space = style.newlines.source match {
+          case Newlines.fold => true
+          case Newlines.unfold => false
+          case _ => newlines == 0
+        }
+        (space, if (newlines >= 2) Newline2x else Newline)
     }
 
   def getNoSplit(
