@@ -195,8 +195,7 @@ class Router(formatOps: FormatOps) {
             case Some(owner: Term.Function) =>
               val arrow = getFuncArrow(lastLambda(owner))
               val expire = arrow.getOrElse(tokens(owner.tokens.last))
-              val nlOnly =
-                style.newlines.alwaysBeforeCurlyBraceLambdaParams
+              val nlOnly = style.newlines.alwaysBeforeCurlyLambdaParams
               (expire, arrow.map(_.left), 0, nlOnly)
             case _ =>
               selfAnnotation match {
