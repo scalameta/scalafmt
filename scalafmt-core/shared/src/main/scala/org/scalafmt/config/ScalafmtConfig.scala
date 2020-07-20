@@ -160,7 +160,6 @@ case class ScalafmtConfig(
     xmlLiterals: XmlLiterals = XmlLiterals(),
     edition: Edition = Edition.Latest
 ) {
-  ScalafmtConfig.validate(this)
 
   private implicit def runnerReader = runner.reader
   private implicit def projectReader = project.reader
@@ -186,8 +185,8 @@ case class ScalafmtConfig(
 
   implicit final lazy val decoder: ConfDecoder[ScalafmtConfig] =
     new ConfDecoder[ScalafmtConfig] {
-      override def read(conf: Conf): Configured[ScalafmtConfig] =
-        (conf match {
+      override def read(conf: Conf): Configured[ScalafmtConfig] = {
+        val stylePreset = conf match {
           case x: Conf.Obj =>
             val section = Seq(Decodable.presetKey, "style").flatMap { y =>
               x.field(y).map(y -> _)
@@ -196,24 +195,22 @@ case class ScalafmtConfig(
               case (field, obj) => obj -> Conf.Obj((x.map - field).toList)
             }
           case _ => None
-        }) match {
+        }
+        val parsed = stylePreset match {
           case Some((styleConf, restConf)) =>
             ScalafmtConfig
               .readActiveStylePresets(styleConf)
               .andThen(_.baseDecoder.read(restConf))
           case _ => baseDecoder.read(conf)
         }
+        parsed.andThen(ScalafmtConfig.validate)
+      }
     }
 
   def withDialect(dialect: Dialect): ScalafmtConfig =
     copy(runner = runner.copy(dialect = dialect))
 
   def forSbt: ScalafmtConfig = copy(runner = runner.forSbt)
-
-  ValidationOps.assertNonNegative(
-    continuationIndent.callSite,
-    continuationIndent.defnSite
-  )
 
   private lazy val expandedFileOverride = Try {
     val fs = file.FileSystems.getDefault
@@ -386,13 +383,14 @@ object ScalafmtConfig {
         addIf(trailingCommas == TrailingCommas.always, err)
         addIf(trailingCommas == TrailingCommas.multiple, err)
       }
-      addIf(
+      addIfDirect( // can't use addIf on multiline conditions
         (binPack.unsafeCallSite || binPack.unsafeDefnSite) && {
           newlines.implicitParamListModifierForce.nonEmpty ||
           newlines.implicitParamListModifierPrefer.nonEmpty
         },
-        " (not implemented)"
+        "binPack.unsafeXXX && newlines.implicitParamListModifierXXX (not implemented)"
       )
+      addIfNegative(continuationIndent.callSite, continuationIndent.defnSite)
     }
     if (allErrors.isEmpty) Configured.ok(cfg)
     else {
