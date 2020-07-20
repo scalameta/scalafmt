@@ -719,7 +719,7 @@ class Router(formatOps: FormatOps) {
                 newlinePenalty,
                 penalizeLambdas = false
               )
-            else SingleLineBlock(close)
+            else SingleLineBlock(close, penaliseNewlinesInsideTokens = true)
           } else {
             val penalty =
               if (!multipleArgs) newlinePenalty
@@ -835,7 +835,11 @@ class Router(formatOps: FormatOps) {
             val noSplitPolicy =
               if (preferNoSplit) singleLine(2)
               else if (wouldDangle || mustDangle && isBracket || useConfigStyle)
-                SingleLineBlock(close, exclude = excludeRanges)
+                SingleLineBlock(
+                  close,
+                  exclude = excludeRanges,
+                  penaliseNewlinesInsideTokens = multipleArgs
+                )
               else if (splitsForAssign.isDefined)
                 singleLine(3)
               else
