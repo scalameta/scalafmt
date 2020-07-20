@@ -146,3 +146,95 @@ call(1) { x => // nothing
 >>>
 call(1) { x => // nothing
 }
+<<< #2099 beforeCurlyLambdaParams = false
+newlines.beforeCurlyLambdaParams = false
+===
+object a {
+  x.map { x => s"${x._1} -> ${x._2}" }
+  x.map { case (c, i) => s"$c -> $i" }
+  x.zipWithIndex.map { x => s"${x._1} -> ${x._2}" }
+  x.zipWithIndex.map { case (c, i) => s"$c -> $i" }
+  x.zipWithIndex.map { case (c, i) => s"$c -> $i (long comment)" }
+  x.zipWithIndex.map { case (c, i) if c != i => s"$c -> $i" }
+}
+>>>
+object a {
+  x.map { x => s"${x._1} -> ${x._2}" }
+  x.map { case (c, i) => s"$c -> $i" }
+  x.zipWithIndex.map { x =>
+    s"${x._1} -> ${x._2}"
+  }
+  x.zipWithIndex.map {
+    case (c, i) => s"$c -> $i"
+  }
+  x.zipWithIndex.map {
+    case (c, i) =>
+      s"$c -> $i (long comment)"
+  }
+  x.zipWithIndex.map {
+    case (c, i) if c != i =>
+      s"$c -> $i"
+  }
+}
+<<< #2099 beforeCurlyLambdaParams = true
+newlines.beforeCurlyLambdaParams = true
+===
+object a {
+  x.map { x => s"${x._1} -> ${x._2}" }
+  x.map { case (c, i) => s"$c -> $i" }
+  x.zipWithIndex.map { x => s"${x._1} -> ${x._2}" }
+  x.zipWithIndex.map { case (c, i) => s"$c -> $i" }
+  x.zipWithIndex.map { case (c, i) => s"$c -> $i (long comment)" }
+  x.zipWithIndex.map { case (c, i) if c != i => s"$c -> $i" }
+}
+>>>
+object a {
+  x.map {
+    x => s"${x._1} -> ${x._2}"
+  }
+  x.map { case (c, i) => s"$c -> $i" }
+  x.zipWithIndex.map {
+    x => s"${x._1} -> ${x._2}"
+  }
+  x.zipWithIndex.map {
+    case (c, i) => s"$c -> $i"
+  }
+  x.zipWithIndex.map {
+    case (c, i) =>
+      s"$c -> $i (long comment)"
+  }
+  x.zipWithIndex.map {
+    case (c, i) if c != i =>
+      s"$c -> $i"
+  }
+}
+<<< #2099 beforeCurlyLambdaParams = multilineCaseOnly
+newlines.beforeCurlyLambdaParams = multilineCaseOnly
+===
+object a {
+  x.map { x => s"${x._1} -> ${x._2}" }
+  x.map { case (c, i) => s"$c -> $i" }
+  x.zipWithIndex.map { x => s"${x._1} -> ${x._2}" }
+  x.zipWithIndex.map { case (c, i) => s"$c -> $i" }
+  x.zipWithIndex.map { case (c, i) => s"$c -> $i (long comment)" }
+  x.zipWithIndex.map { case (c, i) if c != i => s"$c -> $i" }
+}
+>>>
+object a {
+  x.map { x => s"${x._1} -> ${x._2}" }
+  x.map { case (c, i) => s"$c -> $i" }
+  x.zipWithIndex.map { x =>
+    s"${x._1} -> ${x._2}"
+  }
+  x.zipWithIndex.map {
+    case (c, i) => s"$c -> $i"
+  }
+  x.zipWithIndex.map {
+    case (c, i) =>
+      s"$c -> $i (long comment)"
+  }
+  x.zipWithIndex.map {
+    case (c, i) if c != i =>
+      s"$c -> $i"
+  }
+}
