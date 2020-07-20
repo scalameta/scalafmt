@@ -160,49 +160,7 @@ case class ScalafmtConfig(
     xmlLiterals: XmlLiterals = XmlLiterals(),
     edition: Edition = Edition.Latest
 ) {
-  import Newlines._
-  val allErrors = new mutable.ArrayBuffer[String]
-  locally {
-    import ValidationOps._
-    implicit val errors = new mutable.ArrayBuffer[String]
-    if (newlines.sourceIgnored) {
-      addIf(newlines.afterCurlyLambda == AfterCurlyLambdaParams.preserve)
-      addIf(optIn.configStyleArguments && align.openParenCallSite)
-      addIf(optIn.configStyleArguments && align.openParenDefnSite)
-    }
-    if (newlines.source == Newlines.unfold) {
-      addIf(align.arrowEnumeratorGenerator)
-    }
-    if (newlines.source != Newlines.classic) {
-      addIf(optIn.breaksInsideChains)
-      addIf(!includeCurlyBraceInSelectChains)
-    }
-    if (errors.nonEmpty) {
-      val prefix = s"newlines.source=${newlines.source} and ["
-      allErrors += errors.mkString(prefix, ",", "]")
-    }
-  }
-  locally {
-    import ValidationOps._
-    implicit val errors = allErrors
-    addIf(align.ifWhileOpenParen && danglingParentheses.ctrlSite)
-    if (!runner.dialect.allowTrailingCommas) {
-      def err = " (no support in Scala dialect)"
-      addIf(trailingCommas == TrailingCommas.always, err)
-      addIf(trailingCommas == TrailingCommas.multiple, err)
-    }
-    addIf(
-      (binPack.unsafeCallSite || binPack.unsafeDefnSite) && {
-        newlines.implicitParamListModifierForce.nonEmpty ||
-        newlines.implicitParamListModifierPrefer.nonEmpty
-      },
-      " (not implemented)"
-    )
-  }
-  if (allErrors.nonEmpty) {
-    val msg = allErrors.mkString("can't use: [\n\t", "\n\t", "\n]")
-    throw new ScalafmtConfigException(msg)
-  }
+  ScalafmtConfig.validate(this)
 
   private implicit def runnerReader = runner.reader
   private implicit def projectReader = project.reader
@@ -395,5 +353,52 @@ object ScalafmtConfig {
       val err = s"Unknown style $conf. Expected one of: $alternatives"
       ConfError.message(err).notOk
     }
+
+  private def validate(cfg: ScalafmtConfig): Configured[ScalafmtConfig] = {
+    import cfg._
+    import Newlines._
+    import ValidationOps._
+    val allErrors = new mutable.ArrayBuffer[String]
+    locally {
+      implicit val errors = new mutable.ArrayBuffer[String]
+      if (newlines.sourceIgnored) {
+        addIf(newlines.afterCurlyLambda == AfterCurlyLambdaParams.preserve)
+        addIf(optIn.configStyleArguments && align.openParenCallSite)
+        addIf(optIn.configStyleArguments && align.openParenDefnSite)
+      }
+      if (newlines.source == Newlines.unfold) {
+        addIf(align.arrowEnumeratorGenerator)
+      }
+      if (newlines.source != Newlines.classic) {
+        addIf(optIn.breaksInsideChains)
+        addIf(!includeCurlyBraceInSelectChains)
+      }
+      if (errors.nonEmpty) {
+        val prefix = s"newlines.source=${newlines.source} and ["
+        allErrors += errors.mkString(prefix, ",", "]")
+      }
+    }
+    locally {
+      implicit val errors = allErrors
+      addIf(align.ifWhileOpenParen && danglingParentheses.ctrlSite)
+      if (!runner.dialect.allowTrailingCommas) {
+        def err = " (no support in Scala dialect)"
+        addIf(trailingCommas == TrailingCommas.always, err)
+        addIf(trailingCommas == TrailingCommas.multiple, err)
+      }
+      addIf(
+        (binPack.unsafeCallSite || binPack.unsafeDefnSite) && {
+          newlines.implicitParamListModifierForce.nonEmpty ||
+          newlines.implicitParamListModifierPrefer.nonEmpty
+        },
+        " (not implemented)"
+      )
+    }
+    if (allErrors.isEmpty) Configured.ok(cfg)
+    else {
+      val msg = allErrors.mkString("can't use: [\n\t", "\n\t", "\n]")
+      Configured.notOk(ConfError.message(msg))
+    }
+  }
 
 }
