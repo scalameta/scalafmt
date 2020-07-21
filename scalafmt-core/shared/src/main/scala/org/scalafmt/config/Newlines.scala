@@ -45,7 +45,7 @@ import metaconfig.generic.Surface
   *       consume(n)
   *   }
   *   }}}
-  * @param afterCurlyLambda
+  * @param afterCurlyLambdaParams
   *   If `never` (default), it will remove any extra lines below curly lambdas
   *   {{{
   *   something.map { x =>
@@ -167,7 +167,9 @@ case class Newlines(
       "2.5.0"
     )
     private val alwaysBeforeTopLevelStatements: Boolean = false,
-    afterCurlyLambda: AfterCurlyLambdaParams = AfterCurlyLambdaParams.never,
+    @annotation.ExtraName("afterCurlyLambda")
+    afterCurlyLambdaParams: AfterCurlyLambdaParams =
+      AfterCurlyLambdaParams.never,
     implicitParamListModifierForce: Seq[BeforeAfter] = Seq.empty,
     implicitParamListModifierPrefer: Option[BeforeAfter] = None,
     alwaysBeforeElseAfterCurlyIf: Boolean = false,

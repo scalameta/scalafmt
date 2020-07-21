@@ -1198,7 +1198,7 @@ class FormatOps(
   def getSpaceAndNewlineAfterCurlyLambda(
       newlines: Int
   )(implicit style: ScalafmtConfig): (Boolean, NewlineT) =
-    style.newlines.afterCurlyLambda match {
+    style.newlines.afterCurlyLambdaParams match {
       case Newlines.AfterCurlyLambdaParams.squash => (true, Newline)
       case Newlines.AfterCurlyLambdaParams.never =>
         val space = style.newlines.source match {

@@ -342,7 +342,9 @@ object ScalafmtConfig {
     locally {
       implicit val errors = new mutable.ArrayBuffer[String]
       if (newlines.sourceIgnored) {
-        addIf(newlines.afterCurlyLambda == AfterCurlyLambdaParams.preserve)
+        addIf(
+          newlines.afterCurlyLambdaParams == AfterCurlyLambdaParams.preserve
+        )
         addIf(optIn.configStyleArguments && align.openParenCallSite)
         addIf(optIn.configStyleArguments && align.openParenDefnSite)
       }

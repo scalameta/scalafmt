@@ -925,19 +925,22 @@ x.zipWithIndex.map { case (c, i) => s"$c -> $i" }
 x.zipWithIndex.map { case (c, i) => s"$c -> $i (long comment)" }
 ```
 
-### `newlines.afterCurlyLambda`
+### `newlines.afterCurlyLambdaParams`
 
 This parameter controls handling of newlines after the arrow following the
 parameters of a curly brace lambda or partial function, and whether a space
 can be used for one-line formatting of the entire function body (if allowed
 but the body doesn't fit, a break is always forced).
 
+This parameter was renamed in 2.7.0 from `afterCurlyLambda`, for clarity and
+consistency with `beforeCurlyLambdaParams` defined above.
+
 ```scala mdoc:defaults
-newlines.afterCurlyLambda
+newlines.afterCurlyLambdaParams
 ```
 
 ```scala mdoc:scalafmt
-newlines.afterCurlyLambda = squash
+newlines.afterCurlyLambdaParams = squash
 ---
 // remove all blank lines if any
 // one-line formatting is allowed
@@ -952,7 +955,7 @@ something.map { x => f(x) }
 ```
 
 ```scala mdoc:scalafmt
-newlines.afterCurlyLambda = never
+newlines.afterCurlyLambdaParams = never
 ---
 // remove all blank lines if any
 // one-line formatting depends on newlines.source:
@@ -968,7 +971,7 @@ something.map { x => f(x) }
 ```
 
 ```scala mdoc:scalafmt
-newlines.afterCurlyLambda = preserve
+newlines.afterCurlyLambdaParams = preserve
 ---
 // if blank lines are present, keep only one
 // one-line formatting depends on newlines.source:
@@ -984,7 +987,7 @@ something.map { x => f(x) }
 ```
 
 ```scala mdoc:scalafmt
-newlines.afterCurlyLambda = always
+newlines.afterCurlyLambdaParams = always
 ---
 // ensure a single blank line
 // one-line formatting is not allowed
@@ -1246,12 +1249,12 @@ List(1, 2, 3).map { x => x + 1 }
 ```
 
 Entire power of `RedundantBraces` can be accessed with
-`newlines.afterCurlyLambda=squash`. It will try to squash lambda body in one
+`newlines.afterCurlyLambdaParams=squash`. It will try to squash lambda body in one
 line and then replace braces with parens:
 
 ```scala mdoc:scalafmt
 rewrite.rules = [RedundantBraces]
-newlines.afterCurlyLambda=squash
+newlines.afterCurlyLambdaParams=squash
 ---
 List(1, 2, 3).map { x =>
   x + 1
@@ -1339,7 +1342,7 @@ s"user id is ${id}"
 ```
 
 `rewrite.redundantBraces.parensForOneLineApply` is `true` by default for `edition` >= 2020-01.
-See also [newlines.afterCurlyLambda = squash](#newlinesaftercurlylambda).
+See also [newlines.afterCurlyLambdaParams = squash](#newlinesaftercurlylambdaparams).
 
 ```scala mdoc:scalafmt
 rewrite.rules = [RedundantBraces]
