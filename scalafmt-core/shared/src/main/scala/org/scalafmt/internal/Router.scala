@@ -369,7 +369,7 @@ class Router(formatOps: FormatOps) {
             leftOwner.is[Template] || leftOwner.parent.exists(_.is[Template])
 
           def noSquash =
-            style.newlines.afterCurlyLambda ne
+            style.newlines.afterCurlyLambdaParams ne
               Newlines.AfterCurlyLambdaParams.squash
 
           isCurlyLambda && (style.newlines.source match {
