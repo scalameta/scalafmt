@@ -162,16 +162,10 @@ class FormatOps(
       .fold(identity, identity)
 
   final def nextNonComment(curr: FormatToken): FormatToken =
-    findToken(curr, next) {
-      case FormatToken(_, _: T.Comment, _) => false
-      case _ => true
-    }.fold(identity, identity)
+    findToken(curr, next)(!_.right.is[T.Comment]).fold(identity, identity)
 
   final def prevNonComment(curr: FormatToken): FormatToken =
-    findToken(curr, prev) {
-      case FormatToken(_: T.Comment, _, _) => false
-      case _ => true
-    }.fold(identity, identity)
+    findToken(curr, prev)(!_.left.is[T.Comment]).fold(identity, identity)
 
   final def rhsOptimalToken(
       start: FormatToken
