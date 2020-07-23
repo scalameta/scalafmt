@@ -375,7 +375,7 @@ println(website.plaintext(org.scalafmt.cli.CliArgParser.scoptParser.usage))
 It is possible to use scalafmt in gradle with the following externally
 maintained plugins:
 
-- [Spotless](https://github.com/diffplug/spotless/tree/master/plugin-gradle#applying-scalafmt-to-scala-files)
+- [spotless](https://github.com/diffplug/spotless/tree/main/plugin-gradle#scalafmt)
 - [gradle-scalafmt](https://github.com/alenkacz/gradle-scalafmt)
 
 ## Maven
@@ -383,6 +383,7 @@ maintained plugins:
 It is possible to use scalafmt in Maven with the following externally maintained
 plugin:
 
+- [spotless](https://github.com/diffplug/spotless/tree/main/plugin-maven#scalafmt)
 - [mvn_scalafmt](https://github.com/SimonJPegg/mvn_scalafmt)
 
 ## Mill
