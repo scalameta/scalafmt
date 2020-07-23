@@ -35,17 +35,15 @@ object PolicyOps {
   /**
     * Forces allssplits up to including expire to be on a single line.
     */
-  case class SingleLineBlock(
-      expire: T,
+  class SingleLineBlock(
+      val endPolicy: Policy.End.WithPos,
       exclude: Set[Range] = Set.empty,
       disallowSingleLineComments: Boolean = true,
       penaliseNewlinesInsideTokens: Boolean = false
   )(implicit line: sourcecode.Line)
       extends Policy.Clause {
     import TokenOps.isSingleLineComment
-    private val endPos = expire.end
     override val noDequeue: Boolean = true
-    override val endPolicy: Policy.End.WithPos = Policy.End.On(endPos)
     override def toString: String =
       "SLB:" + super.toString + {
         if (exclude.isEmpty) ""
@@ -53,7 +51,7 @@ object PolicyOps {
       }
     override val f: Policy.Pf = {
       case Decision(tok, s)
-          if !tok.right.is[T.EOF] && tok.right.end <= endPos &&
+          if !tok.right.is[T.EOF] &&
             exclude.forall(!_.contains(tok.left.start)) &&
             (disallowSingleLineComments || !isSingleLineComment(tok.left)) =>
         if (penaliseNewlinesInsideTokens && tok.leftHasNewline)
@@ -61,6 +59,23 @@ object PolicyOps {
         else
           s.filterNot(_.isNL)
     }
+  }
+
+  object SingleLineBlock {
+
+    def apply(
+        expire: T,
+        exclude: Set[Range] = Set.empty,
+        disallowSingleLineComments: Boolean = true,
+        penaliseNewlinesInsideTokens: Boolean = false
+    )(implicit line: sourcecode.Line): SingleLineBlock =
+      new SingleLineBlock(
+        Policy.End.On(expire),
+        exclude,
+        disallowSingleLineComments,
+        penaliseNewlinesInsideTokens
+      )
+
   }
 
 }
