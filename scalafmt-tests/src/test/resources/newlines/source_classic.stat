@@ -2569,7 +2569,7 @@ object a {
 >>>
 object a {
   def foo(bar: Int): Int = /* comment */
-  baz
+    baz
 }
 <<< val followed by comment, break, wrap
 maxColumn = 100
@@ -2618,5 +2618,5 @@ object a {
 >>>
 object a {
   val foo: Int = /* comment */
-  baz
+    baz
 }
