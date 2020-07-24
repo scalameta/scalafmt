@@ -2421,3 +2421,22 @@ object a {
     StructField("fieldB", DataTypes.StringType)
   ))
 }
+<<< prefer break after =>, not before `if`
+maxColumn = 74
+===
+object a {
+  val a = partitions.map { p =>
+    a match {
+      case Some(dstPartition) if dstPartition.location != p.location => updateBuilder += p
+    }
+  }
+}
+>>>
+object a {
+  val a = partitions.map { p =>
+    a match {
+      case Some(dstPartition)
+          if dstPartition.location != p.location => updateBuilder += p
+    }
+  }
+}
