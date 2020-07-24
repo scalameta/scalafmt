@@ -2453,8 +2453,9 @@ object a {
 }
 >>>
 object a {
-  def foo(bar: Int): Int = /* comment line 1 comment line 2 */
-  baz
+  def foo(bar: Int): Int =
+    /* comment line 1 comment line 2 */
+    baz
 }
 <<< def followed by comment, break, no wrap
 maxColumn = 100
@@ -2469,9 +2470,10 @@ object a {
 }
 >>>
 object a {
-  def foo(bar: Int): Int = /* comment line 1
-   * comment line 2 */
-  baz
+  def foo(bar: Int): Int =
+    /* comment line 1
+     * comment line 2 */
+    baz
 }
 <<< def followed by comment, no break
 maxColumn = 100
@@ -2485,7 +2487,7 @@ object a {
 >>>
 object a {
   def foo(bar: Int): Int = /* comment */
-  baz
+    baz
 }
 <<< val followed by comment, break, wrap
 maxColumn = 100
@@ -2500,8 +2502,9 @@ object a {
 }
 >>>
 object a {
-  val foo: Int = /* comment line 1 comment line 2 */
-  baz
+  val foo: Int =
+    /* comment line 1 comment line 2 */
+    baz
 }
 <<< val followed by comment, break, no wrap
 maxColumn = 100
@@ -2516,9 +2519,10 @@ object a {
 }
 >>>
 object a {
-  val foo: Int = /* comment line 1
-   * comment line 2 */
-  baz
+  val foo: Int =
+    /* comment line 1
+     * comment line 2 */
+    baz
 }
 <<< val followed by comment, no break
 maxColumn = 100
@@ -2532,5 +2536,5 @@ object a {
 >>>
 object a {
   val foo: Int = /* comment */
-  baz
+    baz
 }

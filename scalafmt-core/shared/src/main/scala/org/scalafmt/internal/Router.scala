@@ -1164,7 +1164,7 @@ class Router(formatOps: FormatOps) {
       // an infix application or an if. For example, this is allowed:
       // val x = function(a,
       //                  b)
-      case FormatToken(_: T.Equals, right, _) if (leftOwner match {
+      case ft @ FormatToken(_: T.Equals, right, _) if (leftOwner match {
             case _: Defn.Type | _: Defn.Val | _: Defn.Var => true
             case _: Term.Assign => true
             case t: Term.Param => t.default.isDefined
@@ -1185,6 +1185,14 @@ class Router(formatOps: FormatOps) {
         asInfixApp(rightOwner, style.newlines.formatInfix).fold {
           if (rhs.is[Term.ApplyInfix])
             beforeInfixSplit(rhs.asInstanceOf[Term.ApplyInfix], formatToken)
+          else if (
+            ft.right.is[T.Comment] &&
+            (ft.hasBreak || nextNonCommentSameLine(next(ft)).hasBreak)
+          )
+            Seq(
+              Split(Space.orNL(ft.noBreak), 0)
+                .withIndent(2, rhs.tokens.last, After)
+            )
           else
             getSplitsValEquals(formatToken, rhs)
         }(getInfixSplitsBeforeLhs(_, formatToken, Right(rhs)))
@@ -1976,8 +1984,11 @@ class Router(formatOps: FormatOps) {
     if (ft.right.is[T.LeftBrace])
       // The block will take care of indenting by 2.
       Seq(Split(Space, 0))
-    else if (isSingleLineComment(ft.right))
-      Seq(Split(Newline, 0).withIndent(2, expire, After))
+    else if (
+      ft.right.is[T.Comment] &&
+      (ft.hasBreak || nextNonCommentSameLine(next(ft)).hasBreak)
+    )
+      Seq(Split(Space.orNL(ft.noBreak), 0).withIndent(2, expire, After))
     else if (isJsNative(body))
       Seq(Split(Space, 0).withSingleLine(expire))
     else {
