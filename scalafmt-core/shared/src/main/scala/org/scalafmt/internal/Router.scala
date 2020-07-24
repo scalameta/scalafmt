@@ -415,7 +415,7 @@ class Router(formatOps: FormatOps) {
         val caseStat = leftOwner.asInstanceOf[Case]
         if (isCaseBodyABlock(tok, caseStat)) Seq(Split(Space, 0))
         else {
-          def newlineSplit(cost: Int) = {
+          def newlineSplit(cost: Int)(implicit line: sourcecode.Line) = {
             val noIndent = rhsIsCommentedOut(tok)
             val isDouble = tok.hasBlankLine && caseStat.body.tokens.isEmpty
             Split(NewlineT(isDouble = isDouble, noIndent = noIndent), cost)
