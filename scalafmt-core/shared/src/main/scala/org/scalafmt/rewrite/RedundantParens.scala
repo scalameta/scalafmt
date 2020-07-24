@@ -99,6 +99,15 @@ class RedundantParens(implicit ctx: RewriteCtx) extends RewriteSession {
         }
         ctx.removeLFToAvoidEmptyLine(toks(beg + offBeg), toks(beg + offEnd))
         ctx.removeLFToAvoidEmptyLine(toks(end - offEnd), toks(end - offBeg))
+
+        if (beg > 0) {
+          toks(beg - 1) match {
+            case t: Token.KwYield =>
+              builder += TokenPatch.AddRight(t, " ", keepTok = true)
+            case _ => ()
+          }
+        }
+
         ctx.addPatchSet(builder.result(): _*)
       }
     }

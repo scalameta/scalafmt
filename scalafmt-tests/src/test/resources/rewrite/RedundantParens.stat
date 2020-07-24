@@ -271,3 +271,15 @@ object a {
 object a {
   print("") shouldBe (())
 }
+<<< yield without a space
+object a {
+  val x = for {
+    a <- b
+  } yield(a)
+}
+>>>
+object a {
+  val x = for {
+    a <- b
+  } yield a
+}
