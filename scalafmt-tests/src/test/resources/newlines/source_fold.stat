@@ -2435,8 +2435,8 @@ object a {
 object a {
   val a = partitions.map { p =>
     a match {
-      case Some(dstPartition)
-          if dstPartition.location != p.location => updateBuilder += p
+      case Some(dstPartition) if dstPartition.location != p.location =>
+        updateBuilder += p
     }
   }
 }
