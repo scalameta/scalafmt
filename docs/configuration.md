@@ -1277,12 +1277,6 @@ rewrite.rules = [RedundantBraces]
 rewrite.redundantBraces.generalExpressions = true
 ---
 
-if (a > b) {
-  doSomething()
-} else {
-  doAnything()
-}
-
 while (x < 10) {
   x += 1
 }
@@ -1294,6 +1288,22 @@ str match {
   case _ => {
     println("not ok")
   }
+}
+```
+
+```scala mdoc:defaults
+rewrite.redundantBraces.ifElseExpressions
+```
+
+```scala mdoc:scalafmt
+rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.ifElseExpressions = true
+---
+
+if (a > b) {
+  doSomething()
+} else {
+  doAnything()
 }
 ```
 

@@ -1,5 +1,5 @@
 rewrite.rules = [RedundantBraces]
-rewrite.redundantBraces.generalExpressions = true
+rewrite.redundantBraces.ifElseExpressions = true
 <<< if-else simple
 object a {
 
@@ -249,3 +249,42 @@ object a {
   } else if (d)
     println("d!")
 }
+<<< don't rewrite on disabled flag
+rewrite.redundantBraces.ifElseExpressions = false
+rewrite.redundantBraces.generalExpressions = true
+===
+object a {
+
+  def x(i: Int): String =
+    if (i == 0) {
+      "zero"
+    } else if (i < 0) {
+      "sub-zero"
+    } else {
+      "other"
+    }
+
+}
+>>>
+object a {
+
+  def x(i: Int): String =
+    if (i == 0) {
+      "zero"
+    } else if (i < 0) {
+      "sub-zero"
+    } else {
+      "other"
+    }
+
+}
+<<< rewrite general expression on disabled flag
+rewrite.redundantBraces.generalExpressions = true
+rewrite.redundantBraces.ifElseExpressions = false
+===
+while (x < 10) {
+  x += 1
+}
+>>>
+while (x < 10)
+  x += 1

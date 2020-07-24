@@ -239,6 +239,9 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
       case p: Term.Function if isFunctionWithBraces(p) =>
         okToRemoveAroundFunctionBody(b, true)
 
+      case _: Term.If =>
+        settings.ifElseExpressions && shouldRemoveSingleStatBlock(b)
+
       case _ =>
         settings.generalExpressions && shouldRemoveSingleStatBlock(b)
     }
