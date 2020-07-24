@@ -251,6 +251,7 @@ object a {
 }
 <<< don't rewrite on disabled flag
 rewrite.redundantBraces.ifElseExpressions = false
+rewrite.redundantBraces.generalExpressions = true
 ===
 object a {
 
