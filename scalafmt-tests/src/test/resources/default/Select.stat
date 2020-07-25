@@ -461,7 +461,7 @@ object a {
     }
   }
 }
-<<< #2061 6
+<<< #2061 6.1 with break
 preset = default
 optIn.breakChainOnFirstMethodDot = true
 includeNoParensInSelectChains = false
@@ -489,6 +489,35 @@ object a {
           upgrade,
           UpgradeCheck()
         )
+    }
+  }
+}
+<<< #2061 6.1 without break
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+includeNoParensInSelectChains = false
+===
+object a {
+  def a = {
+    try {
+    val a = actorSystem.scheduler.schedule(
+      0.seconds,
+      1.days,
+      upgrade,
+      UpgradeCheck())
+    }
+  }
+}
+>>>
+object a {
+  def a = {
+    try {
+      val a = actorSystem.scheduler.schedule(
+        0.seconds,
+        1.days,
+        upgrade,
+        UpgradeCheck()
+      )
     }
   }
 }
@@ -856,6 +885,44 @@ object a {
     val paramFieldId: Box[String] = (stuff.collect { case FormFieldId(id) =>
       id
     }).headOption
+  }
+}
+<<< #2061 16.1 no break before case, break after arrow
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+includeNoParensInSelectChains = false
+danglingParentheses.preset = false
+===
+object a {
+  def a = {
+    val paramFieldId: Box[String] = (stuff.collect { case FormFieldId(id) =>
+     id }).headOption
+  }
+}
+>>>
+object a {
+  def a = {
+    val paramFieldId: Box[String] = (stuff.collect { case FormFieldId(id) =>
+      id
+    }).headOption
+  }
+}
+<<< #2061 16.1 no break before case, no break after arrow
+preset = default
+optIn.breakChainOnFirstMethodDot = true
+includeNoParensInSelectChains = false
+danglingParentheses.preset = false
+===
+object a {
+  def a = {
+    val paramFieldId: Box[String] = (stuff.collect { case FormFieldId(id) => id }).headOption
+  }
+}
+>>>
+object a {
+  def a = {
+    val paramFieldId: Box[String] =
+      (stuff.collect { case FormFieldId(id) => id }).headOption
   }
 }
 <<< curly select chain followed by infix
