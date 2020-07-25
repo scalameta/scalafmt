@@ -1454,7 +1454,7 @@ object a {
       }
     }
 }
-<<< 7.1: enumerator and guard short, for long
+<<< 7.1.1: enumerator and guard short, for long
 object a {
   def c(b: List[Int]): List[Int] =
     for {
@@ -1469,6 +1469,29 @@ object a {
       a <- b
       if (b ++ b).length >= 2
     } yield a
+}
+<<< 7.1.2: enumerators and guard short, for long, parens
+object a {
+  for (i <- 0 until n;
+        j <- 0 until n if i + j == v)
+   yield (i, j)
+}
+>>>
+object a {
+  for (
+    i <- 0 until n;
+    j <- 0 until n if i + j == v
+  )
+    yield (i, j)
+}
+<<< 7.1.2: enumerator and guard short, for long, parens
+object a {
+  def a = for (a <- b; if cc < dd) yield a
+}
+>>>
+object a {
+  def a =
+    for (a <- b; if cc < dd) yield a
 }
 <<< 7.2: enumerator shoft, guard long
 maxColumn = 30
@@ -2631,4 +2654,267 @@ object a {
 object a {
   val foo: Int = /* comment */
     baz
+}
+<<< #2113 if-apply 1
+object a {
+  if (a) Seq(a,
+    b
+  )
+  else Seq(
+    a,
+    b
+  )
+}
+>>>
+object a {
+  if (a) Seq(a, b)
+  else
+    Seq(
+      a,
+      b
+    )
+}
+<<< #2113 if-apply 2
+maxColumn = 30
+===
+object a {
+  if (a) Seq(
+    aaaaaaaaaa, bbbbbbbbbb)
+  else Seq(
+    aaaaaaaaaa, bbbbbbbbbb)
+}
+>>>
+object a {
+  if (a)
+    Seq(
+      aaaaaaaaaa,
+      bbbbbbbbbb
+    )
+  else
+    Seq(
+      aaaaaaaaaa,
+      bbbbbbbbbb
+    )
+}
+<<< #2113 def 1
+maxColumn = 72
+===
+object a {
+  def validate(d: DirectoryProxy, step: Int): Unit = if (step != 0) { // c1
+      d.name should be("dir" + step)
+      validate(d.parent, step - 1)
+    }
+}
+>>>
+object a {
+  def validate(d: DirectoryProxy, step: Int): Unit =
+    if (step != 0) { // c1
+      d.name should be("dir" + step)
+      validate(d.parent, step - 1)
+    }
+}
+<<< #2113 def 2
+maxColumn = 100
+===
+object a {
+  def validate(d: DirectoryProxy, step: Int): Unit = if (step != 0) // c1
+    d.name should be("dir" + step)
+}
+>>>
+object a {
+  def validate(d: DirectoryProxy, step: Int): Unit =
+    if (step != 0) // c1
+      d.name should be("dir" + step)
+}
+<<< #2113 def 3
+maxColumn = 70
+===
+object a {
+  def validate(d: DirectoryProxy, step: Int): Unit = if (step != 0) /* c1 */
+    d.name should be("dir" + step)
+}
+>>>
+object a {
+  def validate(d: DirectoryProxy, step: Int): Unit =
+    if (step != 0)
+      /* c1 */
+      d.name should be("dir" + step)
+}
+<<< #2113 def 4
+object a {
+  def validate(d: Directory): Unit = if (step != 0)
+    d.name should be("dir" + step)
+}
+>>>
+object a {
+  def validate(d: Directory): Unit =
+    if (step != 0)
+      d.name should be("dir" + step)
+}
+<<< #2113 def 5
+maxColumn = 80
+===
+object a {
+  def validate(d: DirectoryProxy, step: Int): Unit = if (step != 0) /* c1 */ { /* c2 */
+    d.name should be("dir" + step)
+  }
+}
+>>>
+object a {
+  def validate(d: DirectoryProxy, step: Int): Unit =
+    if (step != 0) /* c1 */ { /* c2 */
+      d.name should be("dir" + step)
+    }
+}
+<<< #2113 case 1
+object a {
+  a match {
+    case a => d.name.should.be_dir("step1", "step2")
+  }
+}
+>>>
+object a {
+  a match {
+    case a => d.name.should.be_dir(
+        "step1",
+        "step2"
+      )
+  }
+}
+<<< #2113 case 2
+object a {
+  a match {
+    case a => d.name.should.be_dir("step1", "plus", "step2")
+  }
+}
+>>>
+object a {
+  a match {
+    case a => d.name.should.be_dir(
+        "step1",
+        "plus",
+        "step2"
+      )
+  }
+}
+<<< #2113 case 3
+object a {
+  a match {
+    case a => d.name.should.be("dir").plus("step1", "step2")
+  }
+}
+>>>
+object a {
+  a match {
+    case a =>
+      d.name.should.be("dir").plus(
+        "step1",
+        "step2"
+      )
+  }
+}
+<<< #2113 case 4
+object a {
+  a match {
+    case a => d.name should be("dir")
+  }
+}
+>>>
+object a {
+  a match {
+    case a => d.name should be("dir")
+  }
+}
+<<< #2113 case 5
+object a {
+  a match {
+    case a => d.name should be("dir" + step)
+  }
+}
+>>>
+object a {
+  a match {
+    case a =>
+      d.name should be("dir" + step)
+  }
+}
+<<< #2113 case 6
+object a {
+  a match {
+    case a => if (step != 0) /* c1 */ { /* c2 */
+      d.name should be("dir" + step)
+    }
+  }
+}
+>>>
+object a {
+  a match {
+    case a => if (step != 0)
+        /* c1 */ { /* c2 */
+          d.name should be("dir" + step)
+        }
+  }
+}
+<<< #2113 case 7
+object a {
+  a match {
+    case a => if (step != 0) /* c1 */
+      d.name should be("dir" + step)
+    case a => if (step != 0 /* c1 */)
+      d.name should be("dir" + step)
+    case a => if (step != 0) { /* c1 */
+      d.name should be("dir" + step)
+    }
+    case a => if (step != 0) /* c1 */ {
+      d.name should be("dir" + step)
+    }
+    case a => if (step != 0) /* c1 */ { /* c2 */
+      d.name should be("dir" + step)
+    }
+  }
+}
+>>>
+object a {
+  a match {
+    case a => if (step != 0)
+        /* c1 */
+        d.name should be("dir" + step)
+    case a => if (step != 0 /* c1 */ )
+        d.name should be("dir" + step)
+    case a => if (step != 0) { /* c1 */
+        d.name should be("dir" + step)
+      }
+    case a => if (step != 0) /* c1 */ {
+        d.name should be("dir" + step)
+      }
+    case a => if (step != 0)
+        /* c1 */ { /* c2 */
+          d.name should be("dir" + step)
+        }
+  }
+}
+<<< #2113 original
+maxColumn = 80
+===
+object a {
+  if (!someBooleanValue) Command.invalid
+  else if (someIntValue != 1) Command.invalid
+  else someCollection.get(args.head) match {
+      case it @ Some(_) =>
+        someService.setSomeValue(it)
+        Command.success
+      case None => Command.invalid
+    }
+}
+>>>
+object a {
+  if (!someBooleanValue) Command.invalid
+  else if (someIntValue != 1) Command.invalid
+  else
+    someCollection.get(args.head) match {
+      case it @ Some(_) =>
+        someService.setSomeValue(it)
+        Command.success
+      case None => Command.invalid
+    }
 }
