@@ -89,3 +89,15 @@ val a = b.c(d =>
 val a = b.c(d => {e}, f =>g match {  case h =>})
 >>>
 val a = b.c(d => e, f => g match { case h => })
+<<< #2117 if without a space
+object a {
+  a match {
+    case a if{a} =>
+  }
+}
+>>>
+test does not parse
+object a {
+  a match {
+    case a ifa =>
+               ^
