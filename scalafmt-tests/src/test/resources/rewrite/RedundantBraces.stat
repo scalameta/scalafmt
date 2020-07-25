@@ -851,3 +851,9 @@ object Issue {
     val _ = f()
   }
 }
+<<< #2117 maintain delimiter after removing newline in infix
+1 op1{
+2
+}op2 3
+>>>
+1 op12op2 3

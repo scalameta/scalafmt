@@ -283,3 +283,15 @@ object a {
     a <- b
   } yield a
 }
+<<< #2117 if without a space
+object a {
+  a match {
+    case a if(((a))) =>
+  }
+}
+>>>
+test does not parse
+object a {
+  a match {
+    case a ifa =>
+               ^
