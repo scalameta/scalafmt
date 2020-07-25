@@ -78,17 +78,13 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
       arg.value.head == '_' || isLiteralIdentifier(arg)
 
     t.parts.tail.zip(t.args).foreach {
-      case (Lit(value: String), arg @ Term.Name(_))
+      case (Lit.String(value), arg: Term.Name)
           if !isIdentifierAtStart(value) && !shouldTermBeEscaped(arg) =>
-        val openBrace = prevToken(arg.tokens.head)
-        val closeBrace = nextToken(arg.tokens.head)
-        (openBrace, closeBrace) match {
-          case (LeftBrace(), RightBrace()) =>
-            ctx.addPatchSet(
-              TokenPatch.Remove(openBrace),
-              TokenPatch.Remove(closeBrace)
-            )
-          case _ =>
+        val open = prevToken(arg.tokens.head)
+        if (open.is[LeftBrace]) {
+          val close = nextToken(arg.tokens.head)
+          if (close.is[RightBrace])
+            ctx.addPatchSet(TokenPatch.Remove(open), TokenPatch.Remove(close))
         }
       case _ =>
     }
@@ -140,8 +136,7 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
           val lparen = ctx.getMatching(rparen)
           implicit val builder = Seq.newBuilder[TokenPatch]
           builder += TokenPatch.Replace(lparen, lbrace.text)
-          builder += TokenPatch.Remove(lbrace)
-          builder += TokenPatch.Remove(rparen)
+          removeBraces(lbrace, rparen)
           ctx.removeLFToAvoidEmptyLine(rparen)
           ctx.addPatchSet(builder.result(): _*)
         }
@@ -161,8 +156,7 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
         val lbrace = ctx.getMatching(rbrace)
         if (lbrace.start <= body.tokens.head.start) {
           implicit val builder = Seq.newBuilder[TokenPatch]
-          builder += TokenPatch.Remove(lbrace)
-          builder += TokenPatch.Remove(rbrace)
+          removeBraces(lbrace, rbrace)
           ctx.removeLFToAvoidEmptyLine(rbrace)
           ctx.addPatchSet(builder.result(): _*)
         }
@@ -207,8 +201,7 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
             true
         }
         if (ok) {
-          builder += TokenPatch.Remove(open)
-          builder += TokenPatch.Remove(close)
+          removeBraces(open, close)
           ctx.addPatchSet(builder.result(): _*)
         }
       }
@@ -342,5 +335,12 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
 
   private def getSingleStatIfLineSpanOk(b: Term.Block): Option[Stat] =
     getBlockSingleStat(b).filter(getTermLineSpan(_) <= settings.maxLines)
+
+  private def removeBraces(lbrace: Token, rbrace: Token)(implicit
+      builder: Rewrite.PatchBuilder
+  ): Unit = {
+    builder += TokenPatch.AddLeft(lbrace, " ", keepTok = false)
+    builder += TokenPatch.AddRight(rbrace, " ", keepTok = false)
+  }
 
 }

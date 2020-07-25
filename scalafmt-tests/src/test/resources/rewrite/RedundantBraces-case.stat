@@ -96,8 +96,8 @@ object a {
   }
 }
 >>>
-test does not parse
 object a {
   a match {
-    case a ifa =>
-               ^
+    case a if a =>
+  }
+}

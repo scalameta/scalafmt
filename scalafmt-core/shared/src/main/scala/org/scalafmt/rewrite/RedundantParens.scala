@@ -93,21 +93,15 @@ class RedundantParens(implicit ctx: RewriteCtx) extends RewriteSession {
       val offBeg = minToKeep
       if (offBeg <= offEnd) {
         implicit val builder = Seq.newBuilder[TokenPatch]
-        (offBeg to offEnd).foreach { x =>
+        // replace outer with space, to avoid joining with an adjacent keyword
+        builder += TokenPatch.AddLeft(toks(beg + offBeg), " ", keepTok = false)
+        builder += TokenPatch.AddRight(toks(end - offBeg), " ", keepTok = false)
+        ((offBeg + 1) to offEnd).foreach { x =>
           builder += TokenPatch.Remove(toks(beg + x))
           builder += TokenPatch.Remove(toks(end - x))
         }
         ctx.removeLFToAvoidEmptyLine(toks(beg + offBeg), toks(beg + offEnd))
         ctx.removeLFToAvoidEmptyLine(toks(end - offEnd), toks(end - offBeg))
-
-        if (beg > 0) {
-          toks(beg - 1) match {
-            case t: Token.KwYield =>
-              builder += TokenPatch.AddRight(t, " ", keepTok = true)
-            case _ => ()
-          }
-        }
-
         ctx.addPatchSet(builder.result(): _*)
       }
     }
