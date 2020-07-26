@@ -133,11 +133,9 @@ class Router(formatOps: FormatOps) {
       case FormatToken(open: T.LeftBrace, _, _)
           if existsParentOfType[Import](leftOwner) =>
         val close = matching(open)
-        val disallowSingleLineComments =
-          style.importSelectors != ImportSelectors.singleLine
         val policy = SingleLineBlock(
           close,
-          disallowSingleLineComments = disallowSingleLineComments
+          okSLC = style.importSelectors eq ImportSelectors.singleLine
         )
         val newlineBeforeClosingCurly = decideNewlinesOnlyBeforeClose(close)
 
@@ -717,7 +715,7 @@ class Router(formatOps: FormatOps) {
                 newlinePenalty,
                 penalizeLambdas = false
               )
-            else SingleLineBlock(close, penaliseNewlinesInsideTokens = true)
+            else SingleLineBlock(close, noSyntaxNL = true)
           } else {
             val penalty =
               if (!multipleArgs) newlinePenalty
@@ -727,7 +725,7 @@ class Router(formatOps: FormatOps) {
               penalty = penalty,
               ignore = insideBraces,
               penalizeLambdas = multipleArgs,
-              penaliseNewlinesInsideTokens = multipleArgs
+              noSyntaxNL = multipleArgs
             )
           }
 
@@ -832,7 +830,7 @@ class Router(formatOps: FormatOps) {
                 SingleLineBlock(
                   close,
                   exclude = excludeRanges,
-                  penaliseNewlinesInsideTokens = multipleArgs
+                  noSyntaxNL = multipleArgs
                 )
               else if (splitsForAssign.isDefined)
                 singleLine(3)
@@ -888,9 +886,7 @@ class Router(formatOps: FormatOps) {
         val indent = Num(style.continuationIndent.getDefnSite(leftOwner))
         if (isTuple(leftOwner)) {
           Seq(
-            Split(NoSplit, 0).withPolicy(
-              SingleLineBlock(close, disallowSingleLineComments = false)
-            )
+            Split(NoSplit, 0).withPolicy(SingleLineBlock(close, okSLC = true))
           )
         } else {
           def penalizeBrackets(penalty: Int): Policy =
@@ -1022,11 +1018,7 @@ class Router(formatOps: FormatOps) {
           if style.newlines.neverInResultType &&
             defDefReturnType(leftOwner).isDefined =>
         val expire = lastToken(defDefReturnType(leftOwner).get)
-        Seq(
-          Split(Space, 0).withPolicy(
-            SingleLineBlock(expire, disallowSingleLineComments = false)
-          )
-        )
+        Seq(Split(Space, 0).withPolicy(SingleLineBlock(expire, okSLC = true)))
 
       case FormatToken(T.LeftParen(), T.LeftBrace(), between) =>
         Seq(
@@ -1258,7 +1250,7 @@ class Router(formatOps: FormatOps) {
                 SingleLineBlock(
                   chainExpire,
                   getExcludeIf(chainExpire),
-                  penaliseNewlinesInsideTokens = true
+                  noSyntaxNL = true
                 )
               val newlinePolicy = breakOnNextDot & penalizeBreaks
               val ignoreNoSplit = t.hasBreak &&
