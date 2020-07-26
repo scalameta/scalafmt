@@ -8,12 +8,15 @@ import org.scalafmt.internal.Policy
 
 object PolicyOps {
 
+  /**
+    * @param noSyntaxNL do not allow newlines in token syntax
+    */
   case class PenalizeAllNewlines(
       expire: T,
       penalty: Int,
       penalizeLambdas: Boolean = true,
       ignore: FormatToken => Boolean = _ => false,
-      penaliseNewlinesInsideTokens: Boolean = false
+      noSyntaxNL: Boolean = false
   )(implicit line: sourcecode.Line)
       extends Policy.Clause {
     override val noDequeue: Boolean = false
@@ -24,7 +27,7 @@ object PolicyOps {
         s.map {
           case split
               if split.isNL ||
-                (penaliseNewlinesInsideTokens && tok.leftHasNewline) =>
+                (noSyntaxNL && tok.leftHasNewline) =>
             split.withPenalty(penalty)
           case x => x
         }
@@ -33,13 +36,15 @@ object PolicyOps {
   }
 
   /**
-    * Forces allssplits up to including expire to be on a single line.
+    * Forces all splits up to including expire to be on a single line.
+    * @param okSLC if true, allow single-line comments
+    * @param noSyntaxNL if false, allow newlines in token syntax
     */
   class SingleLineBlock(
       val endPolicy: Policy.End.WithPos,
       exclude: Set[Range] = Set.empty,
-      disallowSingleLineComments: Boolean = true,
-      penaliseNewlinesInsideTokens: Boolean = false
+      okSLC: Boolean = false,
+      noSyntaxNL: Boolean = false
   )(implicit line: sourcecode.Line)
       extends Policy.Clause {
     import TokenOps.isSingleLineComment
@@ -53,11 +58,8 @@ object PolicyOps {
       case Decision(tok, s)
           if !tok.right.is[T.EOF] &&
             exclude.forall(!_.contains(tok.left.start)) &&
-            (disallowSingleLineComments || !isSingleLineComment(tok.left)) =>
-        if (penaliseNewlinesInsideTokens && tok.leftHasNewline)
-          Seq.empty
-        else
-          s.filterNot(_.isNL)
+            !(okSLC && isSingleLineComment(tok.left)) =>
+        if (noSyntaxNL && tok.leftHasNewline) Seq.empty else s.filterNot(_.isNL)
     }
   }
 
@@ -66,15 +68,10 @@ object PolicyOps {
     def apply(
         expire: T,
         exclude: Set[Range] = Set.empty,
-        disallowSingleLineComments: Boolean = true,
-        penaliseNewlinesInsideTokens: Boolean = false
+        okSLC: Boolean = false,
+        noSyntaxNL: Boolean = false
     )(implicit line: sourcecode.Line): SingleLineBlock =
-      new SingleLineBlock(
-        Policy.End.On(expire),
-        exclude,
-        disallowSingleLineComments,
-        penaliseNewlinesInsideTokens
-      )
+      new SingleLineBlock(Policy.End.On(expire), exclude, okSLC, noSyntaxNL)
 
   }
 

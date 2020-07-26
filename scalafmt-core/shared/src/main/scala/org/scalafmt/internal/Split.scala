@@ -173,7 +173,7 @@ case class Split(
       new SingleLineBlock(
         endPolicy(expire),
         exclude,
-        penaliseNewlinesInsideTokens = noSyntaxNL
+        noSyntaxNL = noSyntaxNL
       )
     )
 
