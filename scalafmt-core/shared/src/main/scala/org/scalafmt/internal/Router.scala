@@ -623,7 +623,9 @@ class Router(formatOps: FormatOps) {
         val spacePolicy = SingleLineBlock(lambdaToken) | {
           if (lambdaIsABlock) None
           else
-            newlinePolicy.map(delayedBreakPolicy(lambdaLeft.map(Policy.End.On)))
+            newlinePolicy.map(
+              delayedBreakPolicy(Policy.End.On(lambdaLeft.getOrElse(close)))
+            )
         }
 
         val noSplitMod = getNoSplit(formatToken, true)
