@@ -980,11 +980,6 @@ class FormatOps(
   def delayedBreakPolicy(
       end: Policy.End.WithPos
   )(onBreakPolicy: Policy)(implicit line: sourcecode.Line): Policy =
-    delayedBreakPolicy(Option(end))(onBreakPolicy)
-
-  def delayedBreakPolicy(
-      end: Option[Policy.End.WithPos] = None
-  )(onBreakPolicy: Policy)(implicit line: sourcecode.Line): Policy =
     Policy.Proxy(onBreakPolicy, end)(delayedBreakPolicyFactory)
 
   def decideNewlinesOnlyBeforeClose(

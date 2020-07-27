@@ -148,7 +148,7 @@ object Policy {
   object Proxy {
     def apply(
         policy: Policy,
-        end: Option[End.WithPos] = None
+        end: End.WithPos
     )(factory: Policy => Pf)(implicit line: sourcecode.Line): Policy =
       if (policy.isEmpty) NoPolicy
       else new Proxy(policy, factory, end)
@@ -157,23 +157,25 @@ object Policy {
   private class Proxy(
       policy: Policy,
       factory: Policy => Policy.Pf,
-      end: Option[End.WithPos] = None
+      override val endPolicy: End.WithPos
   )(implicit line: sourcecode.Line)
-      extends Policy {
+      extends Policy.Clause {
     override val f: Pf = factory(policy)
 
-    override def exists(pred: Clause => Boolean): Boolean = policy.exists(pred)
+    override def exists(pred: Clause => Boolean): Boolean =
+      pred(this) || policy.exists(pred)
 
     override def filter(pred: Clause => Boolean): Policy =
-      Proxy(policy.filter(pred))(factory)
+      if (!pred(this)) NoPolicy
+      else Proxy(policy.filter(pred), endPolicy)(factory)
 
     override def unexpired(ft: FormatToken): Policy =
-      if (!end.forall(_.notExpiredBy(ft))) NoPolicy
-      else Proxy(policy.unexpired(ft), end)(factory)
+      if (!endPolicy.notExpiredBy(ft)) NoPolicy
+      else Proxy(policy.unexpired(ft), endPolicy)(factory)
 
     override def noDequeue: Boolean = policy.noDequeue
 
-    override def toString: String = s"*($policy)${end.getOrElse("")}"
+    override def toString: String = s"*($policy)$endPolicy"
   }
 
   sealed trait End extends (Token => End.WithPos) {
