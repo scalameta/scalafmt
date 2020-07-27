@@ -28,7 +28,14 @@ case class FormatToken(left: Token, right: Token, meta: FormatToken.Meta) {
 
   def between = meta.between
   lazy val betweenText: String = between.map(_.syntax).mkString
-  lazy val newlinesBetween: Int = meta.between.count(_.is[Token.LF])
+  lazy val newlinesBetween: Int = {
+    val nl = meta.between.count(_.is[Token.LF])
+    // make sure to break before/after docstring
+    if (nl != 0) nl
+    else if (left.is[Token.Comment] && isDocstring(meta.left.text)) 1
+    else if (right.is[Token.Comment] && isDocstring(meta.right.text)) 1
+    else 0
+  }
   @inline def noBreak: Boolean = FormatToken.noBreak(newlinesBetween)
   @inline def hasBreak: Boolean = newlinesBetween != 0
   @inline def hasBlankLine: Boolean = FormatToken.hasBlankLine(newlinesBetween)
