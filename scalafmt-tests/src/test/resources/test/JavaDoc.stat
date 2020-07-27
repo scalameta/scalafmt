@@ -1293,3 +1293,26 @@ object a {
     /** baz */
     .baz(qux)
 }
+<<< must break before/after docstring
+object a {
+  /** a */ /* b */ foo /** a */ /* b */
+
+  /* a */ /** b */ bar /* a */ /** b */
+}
+>>>
+object a {
+
+  /**
+   * a
+   */ /* b */
+  foo /**
+   * a
+   */ /* b */
+
+  /* a */ /**
+   * b
+   */
+  bar /* a */ /**
+   * b
+   */
+}
