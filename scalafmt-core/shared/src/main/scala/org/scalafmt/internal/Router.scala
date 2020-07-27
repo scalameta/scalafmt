@@ -302,15 +302,15 @@ class Router(formatOps: FormatOps) {
 
         val splits = Seq(
           singleLineSplit,
+          Split(nl, 1)
+            .withPolicy(newlineBeforeClosingCurly)
+            .withIndent(2, close, Before),
           Split(Space, 0)
             .onlyIf(lambdaNLOnly.contains(false) && lambdaPolicy != null)
             .notIf(style.newlines.sourceIs(Newlines.keep) && newlines != 0)
             .withOptimalTokenOpt(lambdaArrow)
             .withIndent(lambdaIndent, close, Before)
-            .withPolicy(lambdaPolicy),
-          Split(nl, 1)
-            .withPolicy(newlineBeforeClosingCurly)
-            .withIndent(2, close, Before)
+            .withPolicy(lambdaPolicy)
         )
         right match {
           case t: T.Xml.Start => withIndentOnXmlStart(t, splits)

@@ -2563,16 +2563,16 @@ object a {
   def a(b: Int, d: Range): Set[Int] =
     // comment 1
     d.map(x => Foo.bar.baz(Bar.baz(x)))
-      .bar.baz.qux(foo(b, c)).flatMap {
-        y =>
-          // comment 2
-          val a: Int = y.getOrElse(
-            foo.bar,
-            throw new Exception(
-              "missing " + foo(y)
-            )
-          ).toInt
-          // comment 3
-          Some(a).filter(d.contains)
+      .bar.baz.qux(foo(b, c))
+      .flatMap { y =>
+        // comment 2
+        val a: Int = y.getOrElse(
+          foo.bar,
+          throw new Exception(
+            "missing " + foo(y)
+          )
+        ).toInt
+        // comment 3
+        Some(a).filter(d.contains)
       }
 }
