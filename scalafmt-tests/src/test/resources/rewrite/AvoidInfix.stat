@@ -126,8 +126,7 @@ seq should have length 5
   perform(_ + 1)
 }
 >>>
-(1 to total).foreach {
-  /* c1 */
+(1 to total).foreach { /* c1 */
   _ =>
     perform(_ + 1)
 }

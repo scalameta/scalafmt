@@ -183,7 +183,8 @@ class Router(formatOps: FormatOps) {
             formatToken.hasBreak || style.newlines.sourceIgnored
           )
         val nl: Modification =
-          if (isSelfAnnotationNL)
+          if (right.is[T.Comment] && tok.noBreak) Space
+          else if (isSelfAnnotationNL)
             getModCheckIndent(formatToken, math.max(newlines, 1))
           else
             NewlineT(tok.hasBlankLine || blankLineBeforeDocstring(tok))

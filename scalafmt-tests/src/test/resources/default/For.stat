@@ -55,8 +55,7 @@ for ((l, r) ← /* c1 */ { /* c2 */ Seq(
 ) checkOne(looker, l, r)
 >>>
 for (
-    (l, r) ← /* c1 */ {
-        /* c2 */
+    (l, r) ← /* c1 */ { /* c2 */
         Seq(
             SelectString("a/b/c") -> None,
             SelectString("akka://all-systems/Nobody") -> None,
