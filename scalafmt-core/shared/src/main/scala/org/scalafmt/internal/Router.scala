@@ -415,15 +415,16 @@ class Router(formatOps: FormatOps) {
         val caseStat = leftOwner.asInstanceOf[Case]
         if (isCaseBodyABlock(tok, caseStat)) Seq(Split(Space, 0))
         else {
+          val bodyIsEmpty = caseStat.body.tokens.isEmpty
           def newlineSplit(cost: Int)(implicit line: sourcecode.Line) = {
             val noIndent = rhsIsCommentedOut(tok)
-            val isDouble = tok.hasBlankLine && caseStat.body.tokens.isEmpty
+            val isDouble = tok.hasBlankLine && bodyIsEmpty
             Split(NewlineT(isDouble = isDouble, noIndent = noIndent), cost)
           }
           def foldedSplits =
             caseStat.body match {
               case _ if isSingleLineComment(right) => Right(Split.ignored)
-              case t if t.tokens.isEmpty || caseStat.cond.isDefined =>
+              case t if bodyIsEmpty || caseStat.cond.isDefined =>
                 Right(Split(Space, 0).withSingleLineOpt(t.tokens.lastOption))
               case t: Term.If if ifWithoutElse(t) =>
                 // must not use optimal token here, will lead to column overflow
@@ -1511,12 +1512,13 @@ class Router(formatOps: FormatOps) {
             case _: Term.While => true
             case _ => false
           }) && !isFirstOrLastToken(close, leftOwner) =>
-        val expire = leftOwner match {
-          case t: Term.If => t.thenp.tokens.last
-          case t: Term.For => t.body.tokens.last
-          case t: Term.ForYield => t.body.tokens.last
-          case t: Term.While => t.body.tokens.last
+        val body = leftOwner match {
+          case t: Term.If => t.thenp
+          case t: Term.For => t.body
+          case t: Term.ForYield => t.body
+          case t: Term.While => t.body
         }
+        val expire = body.tokens.last
         val noSpace = isSingleLineComment(right) || shouldBreak(formatToken)
         def exclude = insideBlock[T.LeftBrace](formatToken, expire)
         val noSyntaxNL = leftOwner.is[Term.ForYield] && right.is[T.KwYield]
@@ -1553,7 +1555,8 @@ class Router(formatOps: FormatOps) {
             case t: Term.If => !t.elsep.is[Term.If]
             case x => throw new UnexpectedTree[Term.If](x)
           }) =>
-        val expire = leftOwner.asInstanceOf[Term.If].elsep.tokens.last
+        val body = leftOwner.asInstanceOf[Term.If].elsep
+        val expire = body.tokens.last
         val noSpace = shouldBreak(formatToken)
         Seq(
           Split(Space, 0).notIf(noSpace).withSingleLineNoOptimal(expire),
