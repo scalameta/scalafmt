@@ -47,7 +47,7 @@ object TokenOps {
   }
 
   def isDocstring(text: String): Boolean =
-    text.startsWith("/**")
+    text.lengthCompare(4) > 0 && text.startsWith("/**") // excludes /**/
 
   def blankLineBeforeDocstring(
       ft: FormatToken
