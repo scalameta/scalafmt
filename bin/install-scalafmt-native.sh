@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eux
 
-RAW_VERSION=${1:-2.3.0-RC2}
+RAW_VERSION=${1:-2.6.4}
 VERSION="v$RAW_VERSION"
 INSTALL_LOCATION=${2:-/usr/local/bin/scalafmt-native}
 
