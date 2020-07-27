@@ -63,15 +63,16 @@ semver_compare() {
 }
 
 NAME=scalafmt-linux
+VERSION_COMPARE=$(semver_compare 2.7.0 "$RAW_VERSION")
 if [ "$(uname)" == "Darwin" ]; then
   NAME=scalafmt-macos
-elif [ "$(semver_compare 2.7.0 "$RAW_VERSION")" -le 0 ]; then
+elif [ "$VERSION_COMPARE" -le 0 ]; then
   NAME=scalafmt-linux-musl
 fi
 
 TMP=$(mktemp -d)
 cd $TMP
-if [ "$(semver_compare 2.7.0 "$RAW_VERSION")" -le 0 ]; then
+if [ "$VERSION_COMPARE" -le 0 ]; then
 curl --fail -Lo $NAME https://github.com/scalameta/scalafmt/releases/download/$VERSION/$NAME
 cp $NAME $INSTALL_LOCATION
 else
