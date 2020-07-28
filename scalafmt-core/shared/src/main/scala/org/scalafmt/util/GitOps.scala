@@ -105,7 +105,7 @@ class GitOpsImpl(private[util] val workingDirectory: AbsoluteFile)
   private def extractPathPart(s: String): Try[String] =
     Try(
       Option(s)
-      // Checks if the line status states the file was renamed (E.g: `R  ORIG_PATH -> PATH`)
+        // Checks if the line status states the file was renamed (E.g: `R  ORIG_PATH -> PATH`)
         .filter(_.substring(0, 2).contains(renameStatusCode))
         // takes the part of the string after the `-> ` character sequence
         .map(_.split(renameStatusArrowDelimiter).last)
