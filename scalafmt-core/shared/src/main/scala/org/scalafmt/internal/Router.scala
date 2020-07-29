@@ -965,7 +965,7 @@ class Router(formatOps: FormatOps) {
               else
                 insideBlock[T.LeftBrace](formatToken, close)
             val excludeRanges: Set[Range] =
-              exclude.map(matchingParensRangeTupled).toSet
+              exclude.map(matchingParensRangeTupled(false)).toSet
             def ignoreBlocks(x: FormatToken): Boolean = {
               excludeRanges.exists(_.contains(x.left.end))
             }

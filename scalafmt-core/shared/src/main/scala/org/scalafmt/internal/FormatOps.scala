@@ -248,17 +248,17 @@ class FormatOps(
   final def startsStatement(token: Token): Option[Tree] =
     statementStarts.get(hash(token))
 
-  def parensRange(token: Token): Option[Range] =
-    matchingOpt(token).map(matchingParensRange(token, _))
+  def parensRange(token: Token, exclusive: Boolean = true): Option[Range] =
+    matchingOpt(token).map(matchingParensRange(exclusive)(token, _))
 
-  def matchingParensRange(a: Token, b: Token): Range = {
+  def matchingParensRange(exclusive: Boolean)(a: Token, b: Token): Range = {
     def eval(lt: Token, rt: Token): Range =
-      Range(lt.start, rt.end)
+      Range(lt.start, if (exclusive) rt.start else rt.end)
     if (a.start < b.end) eval(a, b) else eval(b, a)
   }
 
-  def matchingParensRangeTupled: ((Token, Token)) => Range =
-    (matchingParensRange _).tupled
+  def matchingParensRangeTupled(exclusive: Boolean): ((Token, Token)) => Range =
+    (matchingParensRange(exclusive) _).tupled
 
   def getExcludeIf(
       end: Token,
@@ -279,7 +279,7 @@ class FormatOps(
       end: Token,
       matches: FormatToken => Boolean
   ): Set[Range] =
-    insideBlock(start, end, matches).map(matchingParensRangeTupled).toSet
+    insideBlock(start, end, matches).map(matchingParensRangeTupled(false)).toSet
 
   def insideBlock[A](start: FormatToken, end: Token)(implicit
       classifier: Classifier[Token, A]
