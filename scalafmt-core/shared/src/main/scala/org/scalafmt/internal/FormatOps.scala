@@ -251,11 +251,14 @@ class FormatOps(
   def parensRange(token: Token): Option[Range] =
     matchingOpt(token).map(matchingParensRange(token, _))
 
-  def matchingParensRange(token: Token, other: Token): Range =
-    if (token.start < other.end)
-      Range(token.start, other.end)
-    else
-      Range(other.start, token.end)
+  def matchingParensRange(a: Token, b: Token): Range = {
+    def eval(lt: Token, rt: Token): Range =
+      Range(lt.start, rt.end)
+    if (a.start < b.end) eval(a, b) else eval(b, a)
+  }
+
+  def matchingParensRangeTupled: ((Token, Token)) => Range =
+    (matchingParensRange _).tupled
 
   def getExcludeIf(
       end: Token,
@@ -276,7 +279,7 @@ class FormatOps(
       end: Token,
       matches: FormatToken => Boolean
   ): Set[Range] =
-    insideBlock(start, end, matches).map((matchingParensRange _).tupled).toSet
+    insideBlock(start, end, matches).map(matchingParensRangeTupled).toSet
 
   def insideBlock[A](start: FormatToken, end: Token)(implicit
       classifier: Classifier[Token, A]
