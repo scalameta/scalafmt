@@ -102,6 +102,9 @@ case class Split(
   def preActivateFor(splitTag: Option[SplitTag]): Split =
     if (isIgnored) this else splitTag.fold(this)(preActivateFor)
 
+  def forThisLine(implicit line: sourcecode.Line): Split =
+    if (isIgnored) this else copy()(line = line)
+
   def withOptimalTokenOpt(
       token: => Option[Token],
       killOnFail: Boolean = false
@@ -116,10 +119,7 @@ case class Split(
     if (isIgnored) this else copy(optimalAt = optimalAt)
   }
 
-  def withPolicy(
-      newPolicy: => Policy,
-      ignore: Boolean = false
-  )(implicit line: sourcecode.Line): Split = {
+  def withPolicy(newPolicy: => Policy, ignore: Boolean = false): Split = {
     if (!policy.isEmpty)
       throw new UnsupportedOperationException("Use orPolicy or andPolicy")
     if (isIgnored || ignore) this else copy(policy = newPolicy)
@@ -131,7 +131,7 @@ case class Split(
       endPolicy: Policy.End = Policy.End.On,
       noSyntaxNL: Boolean = false,
       killOnFail: Boolean = false
-  )(implicit line: sourcecode.Line): Split =
+  ): Split =
     withSingleLineAndOptimal(
       expire,
       expire,
@@ -147,7 +147,7 @@ case class Split(
       endPolicy: Policy.End = Policy.End.On,
       noSyntaxNL: Boolean = false,
       killOnFail: Boolean = false
-  )(implicit line: sourcecode.Line): Split =
+  ): Split =
     expire.fold(this)(
       withSingleLine(_, exclude, endPolicy, noSyntaxNL, killOnFail)
     )
@@ -159,7 +159,7 @@ case class Split(
       endPolicy: Policy.End = Policy.End.On,
       noSyntaxNL: Boolean = false,
       killOnFail: Boolean = false
-  )(implicit line: sourcecode.Line): Split =
+  ): Split =
     withOptimalToken(optimal, killOnFail)
       .withSingleLineNoOptimal(expire, exclude, endPolicy, noSyntaxNL)
 
@@ -168,7 +168,7 @@ case class Split(
       exclude: => Set[Range] = Set.empty,
       endPolicy: Policy.End = Policy.End.On,
       noSyntaxNL: Boolean = false
-  )(implicit line: sourcecode.Line): Split =
+  ): Split =
     withPolicy(
       new SingleLineBlock(
         endPolicy(expire),
@@ -177,9 +177,7 @@ case class Split(
       )
     )
 
-  def withPolicyOpt(
-      newPolicy: => Option[Policy]
-  )(implicit line: sourcecode.Line): Split =
+  def withPolicyOpt(newPolicy: => Option[Policy]): Split =
     if (isIgnored) this else newPolicy.fold(this)(withPolicy(_))
 
   def orPolicy(newPolicy: Policy): Split =
