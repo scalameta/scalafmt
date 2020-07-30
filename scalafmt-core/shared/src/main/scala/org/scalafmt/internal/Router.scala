@@ -942,7 +942,8 @@ class Router(formatOps: FormatOps) {
         val open = formatToken.left
         val close = matching(open)
         val indent = getApplyIndent(leftOwner)
-        def baseNoSplit = Split(NoSplit, 0).withIndent(indent, close, Before)
+        def baseNoSplit(implicit line: sourcecode.Line) =
+          Split(NoSplit, 0).withIndent(indent, close, Before)
         val opensLiteralArgumentList =
           styleMap.opensLiteralArgumentList(formatToken)
         val singleLineOnly =
@@ -1575,7 +1576,7 @@ class Router(formatOps: FormatOps) {
       case FormatToken(open: T.LeftParen, right, _) =>
         val isConfig = couldUseConfigStyle(formatToken)
         val close = matching(open)
-        def spaceSplitWithoutPolicy = {
+        def spaceSplitWithoutPolicy(implicit line: sourcecode.Line) = {
           val indent: Length = right match {
             case T.KwIf() => StateColumn
             case T.KwFor() if !style.indentYieldKeyword => StateColumn
@@ -1584,9 +1585,12 @@ class Router(formatOps: FormatOps) {
           val useSpace = style.spaces.inParentheses
           Split(Space(useSpace), 0).withIndent(indent, close, After)
         }
-        def spaceSplit =
+        def spaceSplit(implicit line: sourcecode.Line) =
           spaceSplitWithoutPolicy.withPolicy(PenalizeAllNewlines(close, 1))
-        def newlineSplit(cost: Int, forceDangle: Boolean) = {
+        def newlineSplit(
+            cost: Int,
+            forceDangle: Boolean
+        )(implicit line: sourcecode.Line) = {
           val shouldDangle = forceDangle ||
             style.danglingParentheses.callSite
           val policy =
@@ -2047,9 +2051,9 @@ class Router(formatOps: FormatOps) {
       case _ => 0
     }
 
-    def baseSpaceSplit =
+    def baseSpaceSplit(implicit line: sourcecode.Line) =
       Split(Space, 0).notIf(isSingleLineComment(ft.right))
-    def twoBranches =
+    def twoBranches(implicit line: sourcecode.Line) =
       Left(
         baseSpaceSplit
           .withOptimalToken(optimal)
