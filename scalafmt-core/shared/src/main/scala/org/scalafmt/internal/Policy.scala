@@ -138,6 +138,33 @@ object Policy {
     override def toString: String = s"($p1 & $p2)"
   }
 
+  class Delay(policy: Policy, begPolicy: End.WithPos)(implicit
+      line: sourcecode.Line
+  ) extends Policy {
+    override def f: Pf = PartialFunction.empty
+    override def filter(pred: Clause => Boolean): Policy = this
+    override def unexpired(ft: FormatToken): Policy =
+      if (begPolicy.notExpiredBy(ft)) this else policy.unexpired(ft)
+    override def noDequeue: Boolean = policy.noDequeue
+    override def toString: String = s"$begPolicy:$policy"
+  }
+
+  class Relay(policy: Policy, nextPolicy: Policy)(implicit
+      line: sourcecode.Line
+  ) extends Policy {
+    override def f: Pf = policy.f
+    override def filter(pred: Clause => Boolean): Policy = conv(_.filter(pred))
+    override def unexpired(ft: FormatToken): Policy = conv(_.unexpired(ft))
+    override def noDequeue: Boolean = policy.noDequeue
+    override def toString: String = s"REL($policy,$nextPolicy)"
+
+    private def conv(func: Policy => Policy): Policy = {
+      val filtered = func(policy)
+      if (filtered.isEmpty) func(nextPolicy)
+      else new Relay(filtered, nextPolicy)
+    }
+  }
+
   object Proxy {
     def apply(
         policy: Policy,
