@@ -46,6 +46,24 @@ object PolicyOps {
       )
   }
 
+  case class PenalizeNewlinesInRange(
+      startTok: T,
+      endPolicy: Policy.End.WithPos,
+      penalty: Int,
+      noSyntaxNL: Boolean = false,
+      noDequeue: Boolean = false
+  )(implicit line: sourcecode.Line)
+      extends Policy.Clause {
+    private val startPos: Int = startTok.start
+    override val f: Policy.Pf = {
+      case Decision(ft, s) if ft.right.start >= startPos =>
+        if (noSyntaxNL && ft.leftHasNewline) s.map(_.withPenalty(penalty))
+        else s.map(x => if (x.isNL) x.withPenalty(penalty) else x)
+    }
+    override def toString: String =
+      s"PNLR[$startTok:$startPos]:${super.toString}+$penalty"
+  }
+
   /**
     * Forces all splits up to including expire to be on a single line.
     * @param okSLC if true, allow single-line comments
