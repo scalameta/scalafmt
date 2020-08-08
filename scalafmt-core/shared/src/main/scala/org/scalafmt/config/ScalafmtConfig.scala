@@ -227,7 +227,7 @@ case class ScalafmtConfig(
   }
 
   lazy val encloseSelectChains =
-    optIn.encloseClassicChains || !newlines.sourceIs(Newlines.classic)
+    optIn.encloseClassicChains || newlines.source.ne(Newlines.classic)
 
 }
 

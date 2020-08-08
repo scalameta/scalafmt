@@ -943,7 +943,7 @@ class FormatOps(
       case BinPack.ParentCtors.Always | BinPack.ParentCtors.Never =>
         Right(false)
       case BinPack.ParentCtors.MaybeNever =>
-        Right(style.newlines.sourceIs(Newlines.fold))
+        Right(style.newlines.source eq Newlines.fold)
     }
     val indent = Indent(Num(indentLen), lastToken, ExpiresOn.After)
     val extendsThenWith = chain.left.exists(_.inits.length > 1)

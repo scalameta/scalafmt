@@ -193,16 +193,7 @@ case class Newlines(
 
   val reader: ConfDecoder[Newlines] = generic.deriveDecoder(this).noTypos
 
-  @inline
-  def sourceIs(hint: SourceHints): Boolean =
-    hint eq source
-
-  @inline
-  def sourceIn(hints: SourceHints*): Boolean =
-    hints.contains(source)
-
-  val sourceIgnored: Boolean =
-    sourceIn(Newlines.fold, Newlines.unfold)
+  val sourceIgnored: Boolean = source.in(Newlines.fold, Newlines.unfold)
 
   val breakAfterInfix: AfterInfix =
     afterInfix.getOrElse {
@@ -262,7 +253,10 @@ object Newlines {
   implicit lazy val surface: Surface[Newlines] = generic.deriveSurface
   implicit lazy val encoder: ConfEncoder[Newlines] = generic.deriveEncoder
 
-  sealed abstract class SourceHints
+  sealed abstract class SourceHints {
+    @inline
+    final def in(hints: SourceHints*): Boolean = hints.contains(this)
+  }
   // the classic handler of source newlines
   case object classic extends SourceHints
   // try to keep newlines
@@ -272,8 +266,14 @@ object Newlines {
   // try to turn spaces and semicolons into newlines
   case object unfold extends SourceHints
 
-  implicit val sourceHintsReader: ConfCodec[SourceHints] =
-    ReaderUtil.oneOf[SourceHints](keep, fold, unfold)
+  object SourceHints {
+    // NB: don't allow specifying classic, only by default
+    implicit val codec: ConfCodec[SourceHints] =
+      ReaderUtil.oneOfCustom[SourceHints](keep, fold, unfold) {
+        case Conf.Bool(true) => Configured.Ok(unfold)
+        case Conf.Bool(false) => Configured.Ok(fold)
+      }
+  }
 
   sealed abstract class AfterInfix
   object AfterInfix {
