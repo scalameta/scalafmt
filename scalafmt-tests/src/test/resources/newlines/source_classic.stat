@@ -963,7 +963,7 @@ def activationFutureFor(
       case EndpointActivated(`endpoint`) ⇒ endpoint
       case EndpointFailedToActivate(`endpoint`, cause) ⇒ throw cause
     })
-<<< SKIP 3.27 enclosed in block, def, chain follows (can't be fixed due to acceptNoSplit)
+<<< 3.27 enclosed in block, def, chain follows (can't be fixed due to acceptNoSplit)
 maxColumn = 80
 ===
   def activationFutureFor(endpoint: ActorRef)(implicit
@@ -976,13 +976,13 @@ maxColumn = 80
         case EndpointFailedToActivate(`endpoint`, cause) ⇒ throw cause
       })
 >>>
-Idempotency violated
 def activationFutureFor(
     endpoint: ActorRef
 )(implicit timeout: Timeout, executor: ExecutionContext): Future[ActorRef] = {
   supervisor
     .ask(AwaitActivation(endpoint))(timeout)
-}.map[ActorRef]({
+}
+  .map[ActorRef]({
     case EndpointActivated(`endpoint`) ⇒ endpoint
     case EndpointFailedToActivate(`endpoint`, cause) ⇒ throw cause
   })
