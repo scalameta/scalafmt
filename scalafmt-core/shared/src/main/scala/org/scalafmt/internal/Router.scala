@@ -592,11 +592,12 @@ class Router(formatOps: FormatOps) {
         Seq(
           Split(Space, 0)
         )
-      case FormatToken(_: T.Equals, _, _) if defBody(leftOwner).isDefined =>
+      case ft @ FormatToken(_: T.Equals, _, _)
+          if defBody(leftOwner).isDefined =>
         val body = defBody(leftOwner).get
         asInfixApp(rightOwner, style.newlines.formatInfix).fold {
-          getSplitsDefEquals(formatToken, body)
-        }(getInfixSplitsBeforeLhs(_, formatToken, Right(body)))
+          getSplitsDefValEquals(ft, body)(getSplitsDefEquals(ft, body))
+        }(getInfixSplitsBeforeLhs(_, ft, Right(body)))
 
       // Parameter opening for one parameter group. This format works
       // on the WHOLE defnSite (via policies)
@@ -1179,18 +1180,10 @@ class Router(formatOps: FormatOps) {
 
         asInfixApp(rightOwner, style.newlines.formatInfix).fold {
           if (rhs.is[Term.ApplyInfix])
-            beforeInfixSplit(rhs.asInstanceOf[Term.ApplyInfix], formatToken)
-          else if (
-            ft.right.is[T.Comment] &&
-            (ft.hasBreak || nextNonCommentSameLine(next(ft)).hasBreak)
-          )
-            Seq(
-              Split(Space.orNL(ft.noBreak), 0)
-                .withIndent(2, rhs.tokens.last, After)
-            )
+            beforeInfixSplit(rhs.asInstanceOf[Term.ApplyInfix], ft)
           else
-            getSplitsValEquals(formatToken, rhs)
-        }(getInfixSplitsBeforeLhs(_, formatToken, Right(rhs)))
+            getSplitsDefValEquals(ft, rhs)(getSplitsValEquals(ft, rhs))
+        }(getInfixSplitsBeforeLhs(_, ft, Right(rhs)))
 
       case FormatToken(_, _: T.Dot, _)
           if style.newlines.source.ne(Newlines.keep) &&
@@ -1977,13 +1970,15 @@ class Router(formatOps: FormatOps) {
       Seq(Split(Space, 0), Split(Newline, 1))
     }
 
-  private def getSplitsDefEquals(ft: FormatToken, body: Tree)(implicit
+  private def getSplitsDefValEquals(
+      ft: FormatToken,
+      body: Tree
+  )(splits: => Seq[Split])(implicit
       style: ScalafmtConfig
   ): Seq[Split] = {
-    val expire = body.tokens.last
+    def expire = body.tokens.last
     if (ft.right.is[T.LeftBrace])
-      // The block will take care of indenting by 2.
-      Seq(Split(Space, 0))
+      Seq(Split(Space, 0)) // The block will take care of indenting by 2
     else if (
       ft.right.is[T.Comment] &&
       (ft.hasBreak || nextNonCommentSameLine(next(ft)).hasBreak)
@@ -1991,39 +1986,45 @@ class Router(formatOps: FormatOps) {
       Seq(Split(Space.orNL(ft.noBreak), 0).withIndent(2, expire, After))
     else if (isJsNative(body))
       Seq(Split(Space, 0).withSingleLine(expire))
-    else {
-      val beforeMultiline = style.newlines.getBeforeMultilineDef
-      val spacePolicy = beforeMultiline match {
-        case Newlines.classic | Newlines.keep if ft.hasBreak =>
-          null
+    else
+      splits
+  }
 
-        case Newlines.classic | Newlines.keep =>
-          Policy.NoPolicy
+  private def getSplitsDefEquals(ft: FormatToken, body: Tree)(implicit
+      style: ScalafmtConfig
+  ): Seq[Split] = {
+    val expire = body.tokens.last
+    val beforeMultiline = style.newlines.getBeforeMultilineDef
+    val spacePolicy = beforeMultiline match {
+      case Newlines.classic | Newlines.keep if ft.hasBreak =>
+        null
 
-        case Newlines.unfold => SingleLineBlock(expire)
+      case Newlines.classic | Newlines.keep =>
+        Policy.NoPolicy
 
-        case Newlines.fold =>
-          body match {
-            case _: Term.Try | _: Term.TryWithHandler =>
+      case Newlines.unfold => SingleLineBlock(expire)
+
+      case Newlines.fold =>
+        body match {
+          case _: Term.Try | _: Term.TryWithHandler =>
+            SingleLineBlock(expire)
+          case t: Term.If =>
+            if (ifWithoutElse(t))
+              SingleLineBlock(t.cond.tokens.last)
+            else
               SingleLineBlock(expire)
-            case t: Term.If =>
-              if (ifWithoutElse(t))
-                SingleLineBlock(t.cond.tokens.last)
-              else
-                SingleLineBlock(expire)
-            case _ => PenalizeAllNewlines(expire, 1)
-          }
-      }
-      Seq(
-        Split(Space, 0, policy = spacePolicy).notIf(spacePolicy == null),
-        Split(Newline, 1)
-          .withIndent(2, expire, After)
-          .withPolicy(
-            PenalizeAllNewlines(expire, 1),
-            beforeMultiline.in(Newlines.keep, Newlines.classic)
-          )
-      )
+          case _ => PenalizeAllNewlines(expire, 1)
+        }
     }
+    Seq(
+      Split(Space, 0, policy = spacePolicy).notIf(spacePolicy == null),
+      Split(Newline, 1)
+        .withIndent(2, expire, After)
+        .withPolicy(
+          PenalizeAllNewlines(expire, 1),
+          beforeMultiline.in(Newlines.keep, Newlines.classic)
+        )
+    )
   }
 
   private def getSplitsValEquals(ft: FormatToken, body: Tree)(implicit
@@ -2065,22 +2066,20 @@ class Router(formatOps: FormatOps) {
             )
           }
       )
-    val okNewline = !isJsNative(body)
     val spaceSplit = (style.newlines.source match {
-      case Newlines.classic
-          if okNewline && ft.hasBreak && ft.meta.leftOwner.is[Defn] =>
+      case Newlines.classic if ft.hasBreak && ft.meta.leftOwner.is[Defn] =>
         Left(Split.ignored)
       case Newlines.classic =>
         body match {
           case _: Term.If => twoBranches
           case _: Term.ForYield => twoBranches
-          case _: Term.Try | _: Term.TryWithHandler if okNewline =>
+          case _: Term.Try | _: Term.TryWithHandler =>
             // we force newlines in try/catch/finally
             Left(Split.ignored)
           case _ => Right(NoPolicy)
         }
 
-      case Newlines.keep if okNewline && ft.hasBreak => Left(Split.ignored)
+      case Newlines.keep if ft.hasBreak => Left(Split.ignored)
       case Newlines.keep =>
         body match {
           case _: Term.If => twoBranches
@@ -2130,7 +2129,7 @@ class Router(formatOps: FormatOps) {
           // don't tuck curried apply
           case Term.Apply(_: Term.Apply, _) => Right(SingleLineBlock(expire))
           case EndOfFirstCall(end) => Left(baseSpaceSplit.withSingleLine(end))
-          case _ if okNewline && ft.meta.leftOwner.is[Defn] =>
+          case _ if ft.meta.leftOwner.is[Defn] =>
             Right(SingleLineBlock(expire))
           case _ => Right(NoPolicy)
         }
@@ -2141,7 +2140,6 @@ class Router(formatOps: FormatOps) {
     Seq(
       spaceSplit,
       Split(Newline, 1 + penalty)
-        .onlyIf(okNewline || spaceSplit.isIgnored)
         .withIndent(2, expire, After)
         .withPolicy(
           PenalizeAllNewlines(expire, 1),
