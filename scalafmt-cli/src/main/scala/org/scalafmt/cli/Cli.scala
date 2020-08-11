@@ -2,9 +2,11 @@ package org.scalafmt.cli
 
 import com.martiansoftware.nailgun.NGContext
 import java.io.{InputStream, PrintStream}
+import java.nio.file.{Paths, Files}
 import org.scalafmt.Versions
 import org.scalafmt.util.AbsoluteFile
 
+import scala.collection.JavaConverters._
 import scala.util.control.NoStackTrace
 
 object Cli {
@@ -72,7 +74,31 @@ object Cli {
   }
 
   def getConfig(args: Array[String], init: CliOptions): Option[CliOptions] = {
-    CliArgParser.scoptParser.parse(args, init).map(CliOptions.auto(args, init))
+    val expandedArguments = expandArguments(args)
+    CliArgParser.scoptParser
+      .parse(expandedArguments, init)
+      .map(CliOptions.auto(expandedArguments, init))
+  }
+
+  private def expandArguments(args: Array[String]): Array[String] = {
+    args.flatMap {
+      case FileArgument(xs) => xs
+      case x => List(x)
+    }
+  }
+  private object FileArgument {
+    def unapply(arg: String): Option[collection.Seq[String]] = {
+      if (arg.startsWith("@")) {
+        val file = Paths.get(arg.stripPrefix("@"))
+        if (Files.isRegularFile(file)) {
+          Some(Files.readAllLines(file).asScala)
+        } else {
+          None
+        }
+      } else {
+        None
+      }
+    }
   }
 
   private[cli] def run(options: CliOptions): ExitCode = {
