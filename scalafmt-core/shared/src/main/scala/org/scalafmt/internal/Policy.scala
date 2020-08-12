@@ -41,6 +41,9 @@ object Policy {
 
   type Pf = PartialFunction[Decision, Seq[Split]]
 
+  @inline
+  def noPolicy: Policy = NoPolicy
+
   object NoPolicy extends Policy {
     override def toString: String = "NoPolicy"
     override def f: Pf = PartialFunction.empty

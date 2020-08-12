@@ -73,10 +73,9 @@ class Router(formatOps: FormatOps) {
           case T.Ident(name) // shebang in .sc files
               if filename.endsWith(".sc") && name.startsWith("#!") =>
             val nl = findFirst(next(formatToken), Int.MaxValue)(_.hasBreak)
-            nl.fold[Policy](Policy.NoPolicy) { ft =>
+            nl.fold(Policy.noPolicy) { ft =>
               Policy.on(ft.left) {
-                case Decision(t, _) =>
-                  Seq(Split(Space(t.between.nonEmpty), 0))
+                case Decision(t, _) => Seq(Split(Space(t.between.nonEmpty), 0))
               }
             }
           case _ => Policy.NoPolicy
@@ -1211,7 +1210,7 @@ class Router(formatOps: FormatOps) {
         val expire = lastToken(expireTree)
 
         def breakOnNextDot: Policy =
-          nextSelect.fold[Policy](Policy.NoPolicy) { tree =>
+          nextSelect.fold(Policy.noPolicy) { tree =>
             val end = tree.name.tokens.head
             Policy.before(end) {
               case Decision(t @ FormatToken(_, _: T.Dot, _), s)
