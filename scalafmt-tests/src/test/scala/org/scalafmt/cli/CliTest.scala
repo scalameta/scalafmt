@@ -9,6 +9,7 @@ import java.io.{
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 
+import scala.collection.JavaConverters._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalafmt.Error.NoMatchingFiles
 import org.scalafmt.Versions
@@ -832,5 +833,18 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
         assert(out.contains(Versions.version))
       }
     )
+  }
+
+  test("arguments starting with @ are expanded from a file") {
+    val argumentsFile = Files.createTempFile("scalafmt", "arguments")
+    val configFile = Files.createTempFile("scalafmt", ".scalafmt.conf")
+    val arguments = List("--config", configFile.toString(), "foobar.scala")
+    Files.write(argumentsFile, arguments.asJava)
+    Files.write(configFile, List("maxColumn=40").asJava)
+    val obtained =
+      Cli.getConfig(Array(s"@$argumentsFile"), CliOptions.default).get
+    val config = obtained.scalafmtConfig.get
+    assert(config.maxColumn == 40)
+    assert(obtained.files.head.jfile.getName() == "foobar.scala")
   }
 }
