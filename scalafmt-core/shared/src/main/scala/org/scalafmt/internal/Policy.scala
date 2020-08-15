@@ -12,7 +12,6 @@ abstract class Policy {
   /** applied to every decision until expire */
   def f: Policy.Pf
 
-  def exists(pred: Policy.Clause => Boolean): Boolean
   def filter(pred: Policy.Clause => Boolean): Policy
   def unexpired(ft: FormatToken): Policy
   def noDequeue: Boolean
@@ -50,7 +49,6 @@ object Policy {
 
     override def unexpired(ft: FormatToken): Policy = this
     override def filter(pred: Clause => Boolean): Policy = this
-    override def exists(pred: Clause => Boolean): Boolean = false
     override def noDequeue: Boolean = false
   }
 
@@ -92,8 +90,6 @@ object Policy {
 
     override def filter(pred: Clause => Boolean): Policy =
       if (pred(this)) this else NoPolicy
-
-    override def exists(pred: Clause => Boolean): Boolean = pred(this)
   }
 
   private class ClauseImpl(
@@ -111,9 +107,6 @@ object Policy {
 
     override def filter(pred: Clause => Boolean): Policy =
       p1.filter(pred) | p2.filter(pred)
-
-    override def exists(pred: Clause => Boolean): Boolean =
-      p1.exists(pred) || p2.exists(pred)
 
     override def noDequeue: Boolean =
       p1.noDequeue || p2.noDequeue
@@ -135,9 +128,6 @@ object Policy {
 
     override def filter(pred: Clause => Boolean): Policy =
       p1.filter(pred) & p2.filter(pred)
-
-    override def exists(pred: Clause => Boolean): Boolean =
-      p1.exists(pred) || p2.exists(pred)
 
     override def noDequeue: Boolean =
       p1.noDequeue || p2.noDequeue
@@ -161,9 +151,6 @@ object Policy {
   )(implicit line: sourcecode.Line)
       extends Policy.Clause {
     override val f: Pf = factory(policy)
-
-    override def exists(pred: Clause => Boolean): Boolean =
-      pred(this) || policy.exists(pred)
 
     override def filter(pred: Clause => Boolean): Policy =
       if (!pred(this)) NoPolicy
