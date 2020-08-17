@@ -1,21 +1,17 @@
 package org.scalafmt.internal
 
+import scala.meta.tokens.Token
+
 import org.scalafmt.util.LoggerOps
 
-class PolicySummary(val policies: Vector[Policy]) {
+class PolicySummary(val policies: Seq[Policy]) {
   import LoggerOps._
 
   @inline def noDequeue = policies.exists(_.noDequeue)
 
-  def combine(other: Policy, ft: FormatToken): PolicySummary = {
-    // TODO(olafur) filter policies by expiration date
-    val activePolicies = policies.flatMap(_.unexpiredOpt(ft))
-    val activeOther = other.unexpired(ft)
-    val newPolicies =
-      if (activeOther.isEmpty) activePolicies
-      else activeOther +: activePolicies
-    new PolicySummary(newPolicies)
-  }
+  def combine(other: Policy, ft: FormatToken): PolicySummary =
+    if (ft.right.is[Token.EOF]) PolicySummary.empty
+    else new PolicySummary((other +: policies).flatMap(_.unexpiredOpt(ft)))
 
   def execute(decision: Decision, debug: Boolean = false): Decision =
     policies.foldLeft(decision) {
@@ -32,5 +28,5 @@ class PolicySummary(val policies: Vector[Policy]) {
 }
 
 object PolicySummary {
-  val empty = new PolicySummary(Vector.empty[Policy])
+  val empty = new PolicySummary(Seq.empty)
 }
