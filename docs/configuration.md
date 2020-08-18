@@ -833,28 +833,139 @@ package core {
 }
 ```
 
-### `newlines.alwaysBeforeMultilineDef`
+### `newlines.beforeMultiline`
 
-This parameter forces a new line before the method body on multiline defs:
+> Since 2.7.0
 
-```scala mdoc:defaults
-newlines.alwaysBeforeMultilineDef
-```
+This parameter controls whether to force a new line before a multi-line body of
+`case/if/val` and how to format it if the space is allowed. (For multi-line bodies
+of method definitions, please see [`newlines.beforeMultilineDef`](#newlinesbeforemultilinedef)
+below.)
+
+It accepts the same values as [`newlines.source`](#newlinessource)
+(and defaults to that parameter's setting).
 
 ```scala mdoc:scalafmt
-newlines.alwaysBeforeMultilineDef = true
+newlines.beforeMultiline = unfold
 ---
-def foo: String = "123".map { x =>
-  x.toUpper
+a match {
+  // had space after "=>"
+  case a => if (step != 0)
+      d.name should be("dir" + step)
+  // had newline after "=>"
+  case a =>
+    if (step != 0)
+      d.name should be("dir" + step)
 }
 ```
 
 ```scala mdoc:scalafmt
-newlines.alwaysBeforeMultilineDef = false
+newlines.beforeMultiline = fold
 ---
+a match {
+  // had space after "=>"
+  case a => if (step != 0)
+      d.name should be("dir" + step)
+  // had newline after "=>"
+  case a =>
+    if (step != 0)
+      d.name should be("dir" + step)
+}
+```
+
+```scala mdoc:scalafmt
+newlines.beforeMultiline = keep
+---
+a match {
+  // had space after "=>"
+  case a => if (step != 0)
+      d.name should be("dir" + step)
+  // had newline after "=>"
+  case a =>
+    if (step != 0)
+      d.name should be("dir" + step)
+}
+```
+
+```scala mdoc:scalafmt
+# newlines.beforeMultiline = classic
+---
+a match {
+  // had space after "=>"
+  case a => if (step != 0)
+      d.name should be("dir" + step)
+  // had newline after "=>"
+  case a =>
+    if (step != 0)
+      d.name should be("dir" + step)
+}
+```
+
+### `newlines.beforeMultilineDef`
+
+> Since 2.7.0
+
+This parameter applies to multi-line definitions only. It accepts the same values
+as [`newlines.beforeMultiline`](#newlinesbeforemultiline) (and defaults to that
+parameter's setting).
+
+It replaced deprecated boolean `newlines.alwaysBeforeMultilineDef` (with `false`
+mapped to `fold` and `true` to `unfold`).
+
+```scala mdoc:scalafmt
+newlines.beforeMultilineDef = unfold
+---
+// had space after "="
 def foo: String = "123".map { x =>
   x.toUpper
 }
+// had newline after "="
+def foo: String =
+  "123".map { x =>
+    x.toUpper
+  }
+```
+
+```scala mdoc:scalafmt
+newlines.beforeMultilineDef = fold
+---
+// had space after "="
+def foo: String = "123".map { x =>
+  x.toUpper
+}
+// had newline after "="
+def foo: String =
+  "123".map { x =>
+    x.toUpper
+  }
+```
+
+```scala mdoc:scalafmt
+newlines.beforeMultilineDef = keep
+---
+// had space after "="
+def foo: String = "123".map { x =>
+  x.toUpper
+}
+// had newline after "="
+def foo: String =
+  "123".map { x =>
+    x.toUpper
+  }
+```
+
+```scala mdoc:scalafmt
+# newlines.beforeMultilineDef = classic
+---
+// had space after "="
+def foo: String = "123".map { x =>
+  x.toUpper
+}
+// had newline after "="
+def foo: String =
+  "123".map { x =>
+    x.toUpper
+  }
 ```
 
 ### `newlines.alwaysBeforeElseAfterCurlyIf`
