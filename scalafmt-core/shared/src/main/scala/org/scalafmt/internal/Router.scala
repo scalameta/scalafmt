@@ -430,11 +430,11 @@ class Router(formatOps: FormatOps) {
                 )
               case t @ (_: Term.ForYield | _: Term.Match) =>
                 val end = t.tokens.last
-                val exclude = insideBlockRanges[T.LeftBrace](tok, end)
+                val exclude = insideBlock[T.LeftBrace](tok, end)
                 Right(Split(Space, 0).withSingleLine(end, exclude = exclude))
               case t @ SplitCallIntoParts(fun, _) if fun ne t =>
                 val end = t.tokens.last
-                val exclude = insideBlockRanges[LeftParenOrBrace](tok, end)
+                val exclude = insideBlock[LeftParenOrBrace](tok, end)
                 val splits = Seq(
                   Split(Space, 0).withSingleLine(end, exclude),
                   newlineSplit(1).withPolicy(PenalizeAllNewlines(end, 1))
@@ -685,27 +685,24 @@ class Router(formatOps: FormatOps) {
           }
 
         val nestedPenalty = 1 + nestedApplies(leftOwner) + lhsPenalty
-        val excludeRanges =
-          if (isBracket) insideBlockRanges[T.LeftBracket](tok, close)
+        val excludeBlocks =
+          if (isBracket) insideBlock[T.LeftBracket](tok, close)
           else if (
             multipleArgs ||
             !isSingleEnclosedArgument &&
             style.newlines.source.eq(Newlines.unfold)
           )
-            Set.empty[Range]
+            TokenRanges.empty
           else if (
             style.newlines.source.eq(Newlines.fold) && {
               isSingleEnclosedArgument ||
               singleArgument && isExcludedTree(args(0))
             }
           )
-            parensRange(args(0).tokens.last).toSet
-          else insideBlockRanges[T.LeftBrace](tok, close)
+            parensTuple(args(0).tokens.last)
+          else insideBlock[T.LeftBrace](tok, close)
 
         val indent = getApplyIndent(leftOwner, onlyConfigStyle)
-
-        def insideBraces(t: FormatToken): Boolean =
-          excludeRanges.exists(_.contains(t.left.start))
 
         def singleLine(
             newlinePenalty: Int
@@ -722,12 +719,14 @@ class Router(formatOps: FormatOps) {
             val penalty =
               if (!multipleArgs) newlinePenalty
               else Constants.ShouldBeNewline
-            PenalizeAllNewlines(
-              close,
-              penalty = penalty,
-              ignore = insideBraces,
-              penalizeLambdas = multipleArgs,
-              noSyntaxNL = multipleArgs
+            policyWithExclude(excludeBlocks, Policy.End.On, Policy.End.On)(
+              Policy.End.Before(close),
+              new PenalizeAllNewlines(
+                _,
+                penalty = penalty,
+                penalizeLambdas = multipleArgs,
+                noSyntaxNL = multipleArgs
+              )
             )
           }
 
@@ -831,7 +830,7 @@ class Router(formatOps: FormatOps) {
               else if (wouldDangle || mustDangle && isBracket || useConfigStyle)
                 SingleLineBlock(
                   close,
-                  exclude = excludeRanges,
+                  exclude = excludeBlocks,
                   noSyntaxNL = multipleArgs
                 )
               else if (splitsForAssign.isDefined)
@@ -963,16 +962,14 @@ class Router(formatOps: FormatOps) {
                 insideBlock[T.LeftBracket](formatToken, close)
               else
                 insideBlock[T.LeftBrace](formatToken, close)
-            val excludeRanges: Set[Range] =
-              exclude.map(matchingParensRangeTupled(false)).toSet
-            def ignoreBlocks(x: FormatToken): Boolean = {
-              excludeRanges.exists(_.contains(x.left.end))
-            }
             val policy =
-              PenalizeAllNewlines(close, 3, ignore = ignoreBlocks) &
-                Policy.on(close) {
-                  UnindentAtExclude(exclude.keySet, Num(-indent.n))
-                }
+              policyWithExclude(exclude, Policy.End.Before, Policy.End.On)(
+                Policy.End.Before(close),
+                new PenalizeAllNewlines(_, 3)
+              ) & Policy.on(close) {
+                val excludeOpen = exclude.ranges.map(_.lt).toSet
+                UnindentAtExclude(excludeOpen, Num(-indent.n))
+              }
             baseNoSplit.withOptimalTokenOpt(opt).withPolicy(policy)
           }
 
@@ -1338,7 +1335,7 @@ class Router(formatOps: FormatOps) {
 
           case Newlines.fold =>
             val end = nextSelect.fold(expire)(x => lastToken(x.qual))
-            def exclude = insideBlockRanges[LeftParenOrBrace](t, end)
+            def exclude = insideBlock[LeftParenOrBrace](t, end)
             Seq(
               Split(NoSplit, 0).withSingleLine(end, exclude),
               Split(NewlineT(alt = Some(NoSplit)), 1)
@@ -1519,7 +1516,7 @@ class Router(formatOps: FormatOps) {
           case t: Term.While => t.body.tokens.last
         }
         val noSpace = isSingleLineComment(right) || shouldBreak(formatToken)
-        def exclude = insideBlockRanges[T.LeftBrace](formatToken, expire)
+        def exclude = insideBlock[T.LeftBrace](formatToken, expire)
         val noSyntaxNL = leftOwner.is[Term.ForYield] && right.is[T.KwYield]
         Seq(
           Split(Space, 0)
@@ -1541,7 +1538,7 @@ class Router(formatOps: FormatOps) {
       case FormatToken(_, T.KwElse() | T.KwYield(), _) =>
         val expire = rhsOptimalToken(tokens(rightOwner.tokens.last))
         val noSpace = shouldBreak(formatToken)
-        def exclude = insideBlockRanges[T.LeftBrace](formatToken, expire)
+        def exclude = insideBlock[T.LeftBrace](formatToken, expire)
         val noSyntaxNL = formatToken.right.is[T.KwYield]
         Seq(
           Split(Space, 0)
@@ -1662,7 +1659,7 @@ class Router(formatOps: FormatOps) {
 
       case tok @ FormatToken(_, cond @ T.KwIf(), _) if rightOwner.is[Case] =>
         val arrow = getCaseArrow(rightOwner.asInstanceOf[Case]).left
-        val exclude = insideBlockRanges[T.LeftBrace](tok, arrow)
+        val exclude = insideBlock[T.LeftBrace](tok, arrow)
 
         Seq(
           Split(Space, 0).withSingleLineNoOptimal(arrow, exclude = exclude),
@@ -1789,7 +1786,7 @@ class Router(formatOps: FormatOps) {
           case Newlines.fold =>
             val endOfGuard = rightOwner.tokens.last
             val exclude =
-              insideBlockRanges[LeftParenOrBrace](formatToken, endOfGuard)
+              insideBlock[LeftParenOrBrace](formatToken, endOfGuard)
             Seq(
               Split(Space, 0).withSingleLine(endOfGuard, exclude = exclude),
               Split(Newline, 1)
@@ -2057,12 +2054,10 @@ class Router(formatOps: FormatOps) {
         baseSpaceSplit
           .withOptimalToken(optimal)
           .withPolicy {
-            val excludeRanges =
-              insideBlockRanges[T.LeftBrace](ft, expire)
-            PenalizeAllNewlines(
-              expire,
-              Constants.ShouldBeSingleLine,
-              ignore = x => excludeRanges.exists(_.contains(x.left.start))
+            val exclude = insideBlock[T.LeftBrace](ft, expire)
+            policyWithExclude(exclude, Policy.End.On, Policy.End.After)(
+              Policy.End.Before(expire),
+              new PenalizeAllNewlines(_, Constants.ShouldBeSingleLine)
             )
           }
       )
@@ -2104,7 +2099,7 @@ class Router(formatOps: FormatOps) {
             Right(SingleLineBlock(expire))
           case InfixApp(ia) if style.newlines.formatInfix =>
             val end = getMidInfixToken(findLeftInfix(ia))
-            val exclude = insideBlockRanges[LeftParenOrBrace](ft, end)
+            val exclude = insideBlock[LeftParenOrBrace](ft, end)
             Right(SingleLineBlock(end, exclude = exclude))
           case _ =>
             val policy = PenalizeAllNewlines(expire, 1)
@@ -2183,8 +2178,7 @@ class Router(formatOps: FormatOps) {
             case t: Term.If =>
               Split(Space, 1).withSingleLine(t.cond.tokens.last)
             case _ =>
-              def exclude =
-                insideBlockRanges[LeftParenOrBrace](postCommentFT, expire)
+              def exclude = insideBlock[LeftParenOrBrace](postCommentFT, expire)
               Split(Space, 0).withSingleLine(expire, exclude = exclude)
           }
       }

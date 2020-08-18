@@ -248,50 +248,30 @@ class FormatOps(
   final def startsStatement(token: Token): Option[Tree] =
     statementStarts.get(hash(token))
 
-  def parensRange(token: Token, exclusive: Boolean = true): Option[Range] =
-    matchingOpt(token).map(matchingParensRange(exclusive)(token, _))
-
-  def matchingParensRange(exclusive: Boolean)(a: Token, b: Token): Range = {
-    def eval(lt: Token, rt: Token): Range =
-      Range(lt.start, if (exclusive) rt.start else rt.end)
-    if (a.start < b.end) eval(a, b) else eval(b, a)
-  }
-
-  def matchingParensRangeTupled(exclusive: Boolean): ((Token, Token)) => Range =
-    (matchingParensRange(exclusive) _).tupled
+  def parensTuple(token: Token): TokenRanges =
+    matchingOpt(token).fold(TokenRanges.empty) { other =>
+      TokenRanges(TokenRange(token, other))
+    }
 
   def getExcludeIf(
       end: Token,
       cond: Token => Boolean = _.is[T.RightBrace]
-  ): Set[Range] = {
+  ): TokenRanges =
     if (cond(end)) // allow newlines in final {} block
-      parensRange(end)
-    else None
-  }.toSet
-
-  def insideBlockRanges[A](start: FormatToken, end: Token)(implicit
-      classifier: Classifier[Token, A]
-  ): Set[Range] =
-    insideBlockRanges(start, end, classifyOnRight(classifier))
-
-  def insideBlockRanges(
-      start: FormatToken,
-      end: Token,
-      matches: FormatToken => Boolean
-  ): Set[Range] =
-    insideBlock(start, end, matches).map(matchingParensRangeTupled(false)).toSet
+      parensTuple(end)
+    else TokenRanges.empty
 
   def insideBlock[A](start: FormatToken, end: Token)(implicit
       classifier: Classifier[Token, A]
-  ): Map[Token, Token] =
+  ): TokenRanges =
     insideBlock(start, end, classifyOnRight(classifier))
 
   def insideBlock(
       start: FormatToken,
-      end: Token,
+      end: T,
       matches: FormatToken => Boolean
-  ): Map[Token, Token] = {
-    val result = Map.newBuilder[Token, Token]
+  ): TokenRanges = {
+    val result = Seq.newBuilder[TokenRange]
 
     @tailrec
     def run(tok: FormatToken): Unit =
@@ -301,7 +281,7 @@ class FormatOps(
           matchingOpt(open).flatMap { close =>
             if (open.start >= close.end) None
             else {
-              result += open -> close
+              result += TokenRange(open, close)
               Some(tokens(close))
             }
           }
@@ -311,7 +291,7 @@ class FormatOps(
       }
 
     run(start)
-    result.result()
+    TokenRanges(result.result())
   }
 
   def defnSiteLastToken(close: FormatToken, tree: Tree): Token = {
@@ -695,8 +675,8 @@ class FormatOps(
         expires.filter(_._2 <= breakPenalty).takeRight(3).map {
           case (expire, cost) =>
             val exclude =
-              if (breakMany) Set.empty[Range]
-              else insideBlockRanges[LeftParenOrBrace](nextFT, expire)
+              if (breakMany) TokenRanges.empty
+              else insideBlock[LeftParenOrBrace](nextFT, expire)
             Split(ModExt(newStmtMod.getOrElse(Space)), cost)
               .withSingleLine(expire, exclude)
         }
