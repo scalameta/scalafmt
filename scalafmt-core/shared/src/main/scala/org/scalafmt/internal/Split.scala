@@ -128,7 +128,6 @@ case class Split(
   def withSingleLine(
       expire: Token,
       exclude: => Set[Range] = Set.empty,
-      endPolicy: Policy.End = Policy.End.On,
       noSyntaxNL: Boolean = false,
       killOnFail: Boolean = false
   ): Split =
@@ -136,7 +135,6 @@ case class Split(
       expire,
       expire,
       exclude,
-      endPolicy,
       noSyntaxNL,
       killOnFail
     )
@@ -144,38 +142,29 @@ case class Split(
   def withSingleLineOpt(
       expire: Option[Token],
       exclude: => Set[Range] = Set.empty,
-      endPolicy: Policy.End = Policy.End.On,
       noSyntaxNL: Boolean = false,
       killOnFail: Boolean = false
   ): Split =
     expire.fold(this)(
-      withSingleLine(_, exclude, endPolicy, noSyntaxNL, killOnFail)
+      withSingleLine(_, exclude, noSyntaxNL, killOnFail)
     )
 
   def withSingleLineAndOptimal(
       expire: Token,
       optimal: Token,
       exclude: => Set[Range] = Set.empty,
-      endPolicy: Policy.End = Policy.End.On,
       noSyntaxNL: Boolean = false,
       killOnFail: Boolean = false
   ): Split =
     withOptimalToken(optimal, killOnFail)
-      .withSingleLineNoOptimal(expire, exclude, endPolicy, noSyntaxNL)
+      .withSingleLineNoOptimal(expire, exclude, noSyntaxNL)
 
   def withSingleLineNoOptimal(
       expire: Token,
       exclude: => Set[Range] = Set.empty,
-      endPolicy: Policy.End = Policy.End.On,
       noSyntaxNL: Boolean = false
   ): Split =
-    withPolicy(
-      new SingleLineBlock(
-        endPolicy(expire),
-        exclude,
-        noSyntaxNL = noSyntaxNL
-      )
-    )
+    withPolicy(SingleLineBlock(expire, exclude, noSyntaxNL = noSyntaxNL))
 
   def withPolicyOpt(newPolicy: => Option[Policy]): Split =
     if (isIgnored) this else newPolicy.fold(this)(withPolicy(_))
