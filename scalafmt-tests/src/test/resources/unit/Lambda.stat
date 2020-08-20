@@ -164,8 +164,8 @@ object a {
   x.zipWithIndex.map { x =>
     s"${x._1} -> ${x._2}"
   }
-  x.zipWithIndex.map {
-    case (c, i) => s"$c -> $i"
+  x.zipWithIndex.map { case (c, i) =>
+    s"$c -> $i"
   }
   x.zipWithIndex.map { case (c, i) =>
     s"$c -> $i (long comment)"

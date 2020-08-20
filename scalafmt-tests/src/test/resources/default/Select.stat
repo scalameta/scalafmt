@@ -853,8 +853,8 @@ object a {
 >>>
 object a {
   def a = {
-    val paramFieldId: Box[String] = (stuff.collect {
-      case FormFieldId(id) => id
+    val paramFieldId: Box[String] = (stuff.collect { case FormFieldId(id) =>
+      id
     }).headOption
   }
 }

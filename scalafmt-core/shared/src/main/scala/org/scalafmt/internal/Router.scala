@@ -1648,7 +1648,7 @@ class Router(formatOps: FormatOps) {
 
         Seq(
           Split(Space, 0).withSingleLine(expire, killOnFail = true),
-          Split(Space, 1)
+          Split(Space, 0)
             .withPolicy(
               decideNewlinesOnlyAfterToken(arrow),
               ignore = noDelayedBreak
