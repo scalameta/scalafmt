@@ -157,7 +157,7 @@ trait HasTests extends FormatAssertions {
       obtained,
       obtainedHtml,
       output,
-      debug.formatTokenExplored.max,
+      Option(debug.formatTokenExplored).fold(0)(_.max),
       debug.explored,
       debug.elapsedNs
     )
