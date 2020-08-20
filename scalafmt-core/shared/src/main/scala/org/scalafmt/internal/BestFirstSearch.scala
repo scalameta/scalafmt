@@ -181,6 +181,7 @@ private class BestFirstSearch private (
             .foreach(Q.enqueue(_))
         else if (
           escapeInPathologicalCases &&
+          routes(curr.depth).lengthCompare(1) != 0 &&
           visits(curr.depth) > maxVisitsPerToken
         ) {
           complete(deepestYet)
