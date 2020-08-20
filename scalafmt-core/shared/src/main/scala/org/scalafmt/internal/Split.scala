@@ -130,7 +130,7 @@ case class Split(
       exclude: => TokenRanges = TokenRanges.empty,
       noSyntaxNL: Boolean = false,
       killOnFail: Boolean = false
-  ): Split =
+  )(implicit line: sourcecode.Line): Split =
     withSingleLineAndOptimal(
       expire,
       expire,
@@ -144,7 +144,7 @@ case class Split(
       exclude: => TokenRanges = TokenRanges.empty,
       noSyntaxNL: Boolean = false,
       killOnFail: Boolean = false
-  ): Split =
+  )(implicit line: sourcecode.Line): Split =
     expire.fold(this)(
       withSingleLine(_, exclude, noSyntaxNL, killOnFail)
     )
@@ -155,7 +155,7 @@ case class Split(
       exclude: => TokenRanges = TokenRanges.empty,
       noSyntaxNL: Boolean = false,
       killOnFail: Boolean = false
-  ): Split =
+  )(implicit line: sourcecode.Line): Split =
     withOptimalToken(optimal, killOnFail)
       .withSingleLineNoOptimal(expire, exclude, noSyntaxNL)
 
@@ -163,7 +163,7 @@ case class Split(
       expire: Token,
       exclude: => TokenRanges = TokenRanges.empty,
       noSyntaxNL: Boolean = false
-  ): Split =
+  )(implicit line: sourcecode.Line): Split =
     withPolicy(SingleLineBlock(expire, exclude, noSyntaxNL = noSyntaxNL))
 
   def withPolicyOpt(newPolicy: => Option[Policy]): Split =
