@@ -8,6 +8,6 @@ scrut.branchSwitch(scrut.value,
 >>>
 scrut.branchSwitch(scrut.value,
                    casevals = normalcases.map { case (v, _) => v },
-                   casefs = normalcases.map {
-                     case (_, body) => genExpr(body, _: Focus)
+                   casefs = normalcases.map { case (_, body) =>
+                     genExpr(body, _: Focus)
                    })

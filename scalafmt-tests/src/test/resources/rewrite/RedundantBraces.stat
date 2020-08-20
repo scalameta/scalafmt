@@ -757,8 +757,8 @@ function { implicit c =>
 }
 >>>
 function { implicit c =>
-  {
-    case bar => foo
+  { case bar =>
+    foo
   }
 }
 <<< #1888 nested partial function in parens
@@ -771,8 +771,8 @@ object a {
 }
 >>>
 object a {
-  function(c => {
-    case bar => foo
+  function(c => { case bar =>
+    foo
   })
 }
 <<< try with partially enclosed 1: paren kept
