@@ -1206,8 +1206,8 @@ boolean <code>alwaysBeforeCurlyBraceLambdaParams</code>.</p>
 x.map { x =&gt; <span class="hljs-string">s"<span class="hljs-subst">${x._1}</span> -&gt; <span class="hljs-subst">${x._2}</span>"</span> }
 x.map { <span class="hljs-keyword">case</span> (c, i) =&gt; <span class="hljs-string">s"<span class="hljs-subst">$c</span> -&gt; <span class="hljs-subst">$i</span>"</span> }
 <span class="hljs-comment">// should unfold, break on { since case fits on a line but lambda doesn't</span>
-x.zipWithIndex.map {
-  <span class="hljs-keyword">case</span> (c, i) =&gt; <span class="hljs-string">s"<span class="hljs-subst">$c</span> -&gt; <span class="hljs-subst">$i</span>"</span>
+x.zipWithIndex.map { <span class="hljs-keyword">case</span> (c, i) =&gt;
+  <span class="hljs-string">s"<span class="hljs-subst">$c</span> -&gt; <span class="hljs-subst">$i</span>"</span>
 }
 <span class="hljs-comment">// should unfold, break on =&gt; since case doesn't fit on a line</span>
 x.zipWithIndex.map { <span class="hljs-keyword">case</span> (c, i) =&gt;
