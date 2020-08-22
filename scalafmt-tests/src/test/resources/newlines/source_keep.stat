@@ -2992,3 +2992,40 @@ object a {
     case None => Command.invalid
   }
 }
+<<< #2137
+pubSubMessage match {
+  case message: IngestionMessage => (
+    foo.bar.baz
+  ) /* very long winded comment */
+  case message: IngestionMessage =>
+    (foo) /* comment */
+  case message: IngestionMessage => (foo.bar.baz)
+  case message: UploadMessage => {
+    val services = makeUploadServices()
+
+    UploadSubscriber(services).processEff(message)
+  }
+  case message: IngestionMessage => (
+      IngestionSubscriber.defaultServices
+    ).processEff.message()
+}
+>>>
+pubSubMessage match {
+  case message: IngestionMessage => (
+      foo.bar.baz
+    ) /* very long winded comment */
+  case message: IngestionMessage =>
+    (foo) /* comment */
+  case message: IngestionMessage =>
+    (foo.bar.baz)
+  case message: UploadMessage => {
+    val services = makeUploadServices()
+
+    UploadSubscriber(
+      services
+    ).processEff(message)
+  }
+  case message: IngestionMessage => (
+      IngestionSubscriber.defaultServices
+    ).processEff.message()
+}
