@@ -15,6 +15,7 @@ import org.scalafmt.util.{TokenOps, TokenTraverser, TreeOps, Whitespace}
 
 case class RewriteCtx(
     style: ScalafmtConfig,
+    fileName: String,
     tree: Tree
 ) {
   implicit val dialect = style.runner.dialect
@@ -22,7 +23,7 @@ case class RewriteCtx(
   private val patchBuilder = mutable.Map.empty[(Int, Int), TokenPatch]
 
   val tokens = tree.tokens
-  val tokenTraverser = new TokenTraverser(tokens)
+  val tokenTraverser = new TokenTraverser(tokens, fileName)
   val matchingParens = TreeOps.getMatchingParentheses(tokens)
 
   @inline def getMatching(a: Token): Token =
