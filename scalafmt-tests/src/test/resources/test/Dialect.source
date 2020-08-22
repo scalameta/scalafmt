@@ -48,4 +48,4 @@ rewrite.rules = [AvoidInfix]
 ===
 #!/usr/bin/env   amm
 >>> foo.sc
-#!/ usr / bin / env amm
+#!/usr/bin/env amm
