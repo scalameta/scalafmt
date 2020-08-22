@@ -124,12 +124,12 @@ class FormatWriter(formatOps: FormatOps) {
                   case _ => false
                 } && RedundantBraces.canRewriteWithParens(b) =>
               val beg = tokens(matching(rb))
-              lookup.update(beg.meta.idx, tok.meta.idx -> loc.lineId)
+              lookup.update(beg.meta.idx, tok.meta.idx -> loc.leftLineId)
             case _ =>
           }
         case _: T.LeftBrace =>
           lookup.remove(idx).foreach {
-            case (end, endOffset) if endOffset == loc.lineId =>
+            case (end, endOffset) if endOffset == loc.leftLineId =>
               val inParentheses = loc.style.spaces.inParentheses
               // remove space before "{"
               val prevBegState =
@@ -799,17 +799,17 @@ class FormatWriter(formatOps: FormatOps) {
           }
 
           implicit val location = processLine
-          val doubleNewline = location.state.split.modExt.mod.newlines > 1
+          val isBlankLine = location.state.split.modExt.mod.newlines > 1
           if (alignContainer eq null) {
             getBlockToFlush(
               getAlignContainer(location.formatToken.meta.rightOwner),
-              doubleNewline
+              isBlankLine
             ).foreach(flushAlignBlock)
           } else {
             val candidates = columnCandidates.result()
             val block = getOrCreateBlock(alignContainer)
             if (block.isEmpty) {
-              if (!doubleNewline) block += candidates
+              if (!isBlankLine) block += candidates
             } else {
               val prev = block.last
               val matches =
@@ -823,11 +823,9 @@ class FormatWriter(formatOps: FormatOps) {
                   block += candidates.take(matches)
                 } else block += candidates
               }
-              if (
-                doubleNewline || matches == 0 && shouldFlush(alignContainer)
-              ) {
+              if (isBlankLine || matches == 0 && shouldFlush(alignContainer)) {
                 flushAlignBlock(block)
-                if (!doubleNewline && matches == 0) block += candidates
+                if (!isBlankLine && matches == 0) block += candidates
               }
             }
 
@@ -840,8 +838,8 @@ class FormatWriter(formatOps: FormatOps) {
       }
     }
 
-    private def isSameLine(t: Tree)(implicit floc: FormatLocation): Boolean =
-      locations(tokens(t.tokens.head).meta.idx).lineId == floc.lineId
+    private def isSameLine(t: Tree)(implicit fl: FormatLocation): Boolean =
+      locations(tokens(t.tokens.head).meta.idx).leftLineId == fl.leftLineId
 
     object AlignContainer {
       def unapply(tree: Tree): Option[Tree] =
@@ -869,7 +867,7 @@ class FormatWriter(formatOps: FormatOps) {
     private def getAlignContainerParent(
         child: Tree,
         maybeParent: Option[Tree] = None
-    )(implicit floc: FormatLocation): Tree =
+    )(implicit fl: FormatLocation): Tree =
       maybeParent.orElse(child.parent) match {
         case Some(AlignContainer(p)) => p
         case Some(p: Term.Select) => getAlignContainerParent(p)
@@ -888,9 +886,7 @@ class FormatWriter(formatOps: FormatOps) {
         case _ => child
       }
 
-    private def getAlignContainer(
-        t: Tree
-    )(implicit floc: FormatLocation): Tree =
+    private def getAlignContainer(t: Tree)(implicit fl: FormatLocation): Tree =
       t match {
         case _: Term.ApplyInfix =>
           TreeOps
@@ -902,19 +898,19 @@ class FormatWriter(formatOps: FormatOps) {
             }
             .getOrElse(t)
 
-        case AlignContainer(t) if floc.formatToken.right.is[T.Comment] => t
+        case AlignContainer(t) if fl.formatToken.right.is[T.Comment] => t
 
         case _: Defn | _: Case => getAlignContainerParent(t, Some(t))
 
         case _ => getAlignContainerParent(t)
       }
 
-    def getAlignContainer(implicit location: FormatLocation): Option[Tree] = {
-      val ft = location.formatToken
+    def getAlignContainer(implicit fl: FormatLocation): Option[Tree] = {
+      val ft = fl.formatToken
       val slc = isSingleLineComment(ft.right)
       val code = if (slc) "//" else ft.meta.right.text
 
-      location.style.alignMap.get(code).flatMap { pattern =>
+      fl.style.alignMap.get(code).flatMap { pattern =>
         val owner = getAlignOwner(ft)
         if (!pattern.matcher(owner.getClass.getName).find()) None
         else if (!slc) Some(getAlignContainer(owner))
@@ -1108,13 +1104,11 @@ class FormatWriter(formatOps: FormatOps) {
     (tokenKey, ownerKey).hashCode()
   }
 
-  private def getAlignOwner(formatToken: FormatToken): Tree =
+  private def getAlignOwner(ft: FormatToken): Tree =
     // Corner case when line ends with comment
-    // TODO(olafur) should this be part of owners?
-    if (isSingleLineComment(formatToken.right))
-      formatToken.meta.leftOwner
+    if (isSingleLineComment(ft.right)) ft.meta.leftOwner
     else
-      formatToken.meta.rightOwner match {
+      ft.meta.rightOwner match {
         case name: Term.Name =>
           name.parent match {
             case Some(p: Term.ApplyInfix) => p
@@ -1201,7 +1195,7 @@ object FormatWriter {
       formatToken: FormatToken,
       state: State,
       style: ScalafmtConfig,
-      lineId: Int, // only guaranteed to match for toks on the same line
+      leftLineId: Int, // only guaranteed to match for toks on the same line
       shift: Int = 0,
       alignContainer: Tree = null,
       alignHashKey: Int = 0,
