@@ -4,7 +4,7 @@ import scala.annotation.tailrec
 import scala.meta.tokens.Token
 import scala.meta.tokens.Tokens
 
-class TokenTraverser(tokens: Tokens) {
+class TokenTraverser(tokens: Tokens, filename: String) {
   private[this] val (tok2idx, excludedTokens) = {
     val map = Map.newBuilder[Token, Int]
     val excluded = Set.newBuilder[TokenOps.TokenHash]
@@ -20,6 +20,18 @@ class TokenTraverser(tokens: Tokens) {
       map += (tok -> i)
       i += 1
     }
+    if (filename.endsWith(".sc")) {
+      val realTokens = tokens.dropWhile(_.is[Token.BOF])
+      realTokens.headOption.foreach {
+        // shebang in .sc files
+        case t: Token.Ident if t.value.startsWith("#!") =>
+          realTokens.iterator.takeWhile(!_.is[Token.LF]).foreach { tok =>
+            excluded += TokenOps.hash(tok)
+          }
+        case _ =>
+      }
+    }
+
     (map.result(), excluded.result())
   }
 
