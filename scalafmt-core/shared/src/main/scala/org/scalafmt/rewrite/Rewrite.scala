@@ -4,6 +4,7 @@ import scala.collection.mutable
 
 import metaconfig.ConfCodec
 import scala.meta._
+import scala.meta.Input.VirtualFile
 import scala.meta.tokens.Token.LF
 import scala.meta.transversers.SimpleTraverser
 
@@ -138,7 +139,7 @@ object Rewrite {
     }
   }
 
-  def apply(input: Input, style: ScalafmtConfig): Input = {
+  def apply(input: VirtualFile, style: ScalafmtConfig): VirtualFile = {
     val trailingCommaRewrite =
       if (
         !style.runner.dialect.allowTrailingCommas ||
@@ -152,7 +153,7 @@ object Rewrite {
     } else {
       style.runner.parse(input) match {
         case Parsed.Success(ast) =>
-          val ctx = RewriteCtx(style, ast)
+          val ctx = RewriteCtx(style, input.path, ast)
           val rewriteSessions = rewrites.map(_.create(ctx)).toList
           val traverser = new SimpleTraverser {
             override def apply(tree: Tree): Unit = {
@@ -161,13 +162,7 @@ object Rewrite {
             }
           }
           traverser(ast)
-          val out = ctx.applyPatches
-          input match {
-            case Input.File(path, _) =>
-              Input.VirtualFile(path.toString(), out)
-            case Input.VirtualFile(path, _) => Input.VirtualFile(path, out)
-            case _ => Input.String(out)
-          }
+          input.copy(value = ctx.applyPatches)
         case _ => input
       }
     }
