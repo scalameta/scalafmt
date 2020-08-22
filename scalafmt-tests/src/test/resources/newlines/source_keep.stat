@@ -3012,12 +3012,13 @@ pubSubMessage match {
 >>>
 pubSubMessage match {
   case message: IngestionMessage => (
-      foo.bar.baz
-    ) /* very long winded comment */
+    foo.bar.baz
+  ) /* very long winded comment */
   case message: IngestionMessage =>
     (foo) /* comment */
-  case message: IngestionMessage =>
-    (foo.bar.baz)
+  case message: IngestionMessage => (
+    foo.bar.baz
+  )
   case message: UploadMessage => {
     val services = makeUploadServices()
 

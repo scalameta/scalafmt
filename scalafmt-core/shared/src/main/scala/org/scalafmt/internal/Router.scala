@@ -424,6 +424,7 @@ class Router(formatOps: FormatOps) {
         CtrlBodySplits.checkComment(tok, nlSplit(tok)) { ft =>
           val beforeMultiline = style.newlines.getBeforeMultiline
           if (isCaseBodyABlock(ft, caseStat)) Seq(baseSplit)
+          else if (isCaseBodyEnclosedAsBlock(ft, caseStat)) Seq(baseSplit)
           else if (ft.right.is[T.KwCase]) Seq(nlSplit(ft)(0))
           else if (beforeMultiline eq Newlines.unfold) {
             if (ft.right.is[T.Semicolon]) Seq(baseSplit, nlSplit(ft)(1))
@@ -1636,20 +1637,43 @@ class Router(formatOps: FormatOps) {
         val arrowFt = getCaseArrow(owner)
         val arrow = arrowFt.left
         val postArrowFt = nextNonCommentSameLine(arrowFt)
-        val expire = lastTokenOpt(owner.body.tokens).getOrElse(arrow)
+        val expire = lastTokenOpt(owner.body.tokens)
+          .fold(postArrowFt)(x => nextNonCommentSameLine(tokens(x)))
+          .left
 
         val bodyBlock = isCaseBodyABlock(arrowFt, owner)
-        val noDelayedBreak = bodyBlock ||
-          isAttachedSingleLineComment(arrowFt) ||
-          style.newlines.getBeforeMultiline.in(Newlines.fold, Newlines.keep)
+        def defaultPolicy = decideNewlinesOnlyAfterToken(postArrowFt.left)
+        val policy =
+          if (bodyBlock || isAttachedSingleLineComment(arrowFt)) NoPolicy
+          else if (isCaseBodyEnclosedAsBlock(postArrowFt, owner)) {
+            val postParenFt = nextNonCommentSameLine(next(postArrowFt))
+            val lparen = postParenFt.left
+            val rparen = matching(lparen)
+            if (postParenFt.right.start >= rparen.start) defaultPolicy
+            else {
+              val lindents = Seq(
+                Indent(2, rparen, Before),
+                Indent(-2, expire, After)
+              )
+              val split = Split(Newline, 0)
+              val lsplit = Seq(split.withIndents(lindents))
+              val rsplit = Seq(split)
+              val open = Policy.after(lparen) {
+                case d: Decision if d.formatToken eq postParenFt => lsplit
+              }
+              val close = Policy.on(rparen) {
+                case d: Decision if d.formatToken.right eq rparen => rsplit
+              }
+              new Policy.Relay(open, close)
+            }
+          } else if (
+            style.newlines.getBeforeMultiline.in(Newlines.fold, Newlines.keep)
+          ) NoPolicy
+          else defaultPolicy
 
         Seq(
           Split(Space, 0).withSingleLine(expire, killOnFail = true),
-          Split(Space, 0)
-            .withPolicy(
-              decideNewlinesOnlyAfterToken(postArrowFt.left),
-              ignore = noDelayedBreak
-            )
+          Split(Space, 0, policy = policy)
             .withIndent(if (bodyBlock) 0 else 2, expire, After)
             .withIndent(if (bodyBlock) 4 else 2, arrow, After)
         )
