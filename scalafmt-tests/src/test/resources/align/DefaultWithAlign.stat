@@ -690,7 +690,7 @@ object a {
       )
   }
 }
-<<< #1811 1
+<<< #1811 1 no blanks
 align.multiline = true
 ===
 object a {
@@ -711,6 +711,34 @@ object a {
     cccccc <- Option {
       3
     }
+    dd     <- Option(4)
+  } yield ()
+}
+<<< #1811 1 with blanks
+align.multiline = true
+===
+object a {
+  for {
+    a   <- Option(1)
+    bbb <- Option(2)
+
+    cccccc <- Option {
+      3
+    }
+
+    dd <- Option(4)
+  } yield ()
+}
+>>>
+object a {
+  for {
+    a   <- Option(1)
+    bbb <- Option(2)
+
+    cccccc <- Option {
+      3
+    }
+
     dd     <- Option(4)
   } yield ()
 }
@@ -739,7 +767,7 @@ object a {
     dd     <- Option(4)
   } yield ()
 }
-<<< #1841
+<<< #1841 no blanks
 align.multiline = true
 ===
 object a {
@@ -749,6 +777,21 @@ object a {
 >>>
 object a {
   private[this] val pbClass       = Class.forName("java.lang.ProcessBuilder")
+  private[this] val redirectClass =
+    pbClass.getClasses find (_.getSimpleName == "Redirect")
+}
+<<< #1841 with blanks
+align.multiline = true
+===
+object a {
+  private[this] val pbClass       = Class.forName("java.lang.ProcessBuilder")
+
+  private[this] val redirectClass = pbClass.getClasses find (_.getSimpleName == "Redirect")
+}
+>>>
+object a {
+  private[this] val pbClass = Class.forName("java.lang.ProcessBuilder")
+
   private[this] val redirectClass =
     pbClass.getClasses find (_.getSimpleName == "Redirect")
 }
@@ -930,3 +973,33 @@ for {
            x * x
          }
 } yield (a, aaa)
+<<< #2151 with blank line
+align.multiline = true
+===
+val x = blar match {
+  case a  =>
+    ???
+
+  case aaaaaaaaaa => ???
+}
+>>>
+val x = blar match {
+  case a          =>
+    ???
+
+  case aaaaaaaaaa => ???
+}
+<<< #2151 without blank line
+align.multiline = true
+===
+val x = blar match {
+  case a  =>
+    ???
+  case aaaaaaaaaa => ???
+}
+>>>
+val x = blar match {
+  case a          =>
+    ???
+  case aaaaaaaaaa => ???
+}
