@@ -838,8 +838,11 @@ class FormatWriter(formatOps: FormatOps) {
       }
     }
 
-    private def isSameLine(t: Tree)(implicit fl: FormatLocation): Boolean =
-      locations(tokens(t.tokens.head).meta.idx).leftLineId == fl.leftLineId
+    private def isEarlierLine(t: Tree)(implicit fl: FormatLocation): Boolean = {
+      val idx = tokens(t.tokens.head).meta.idx + 1
+      idx <= fl.formatToken.meta.idx && // e.g., leading comments
+      locations(idx).leftLineId != fl.leftLineId
+    }
 
     object AlignContainer {
       def unapply(tree: Tree): Option[Tree] =
@@ -878,7 +881,7 @@ class FormatWriter(formatOps: FormatOps) {
           getAlignContainerParent(p)
         // containers that can be traversed further if on same line
         case Some(p @ (_: Case)) =>
-          if (isSameLine(p)) getAlignContainerParent(p) else p
+          if (isEarlierLine(p)) p else getAlignContainerParent(p)
         // containers that can be traversed further if single-stat
         case Some(p @ AlignContainer.WithBody(b)) =>
           if (b.is[Term.Block]) p else getAlignContainerParent(p)

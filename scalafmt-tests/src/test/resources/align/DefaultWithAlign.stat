@@ -984,7 +984,7 @@ val x = blar match {
 }
 >>>
 val x = blar match {
-  case a          =>
+  case a =>
     ???
 
   case aaaaaaaaaa => ???
