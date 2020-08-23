@@ -20,9 +20,11 @@ import scala.meta.transversers.Traverser
 import scala.meta.{
   Case,
   Defn,
+  Enumerator,
   Importer,
   Lit,
   Mod,
+  Pat,
   Pkg,
   Source,
   Template,
@@ -873,18 +875,20 @@ class FormatWriter(formatOps: FormatOps) {
     )(implicit fl: FormatLocation): Tree =
       maybeParent.orElse(child.parent) match {
         case Some(AlignContainer(p)) => p
-        case Some(p: Term.Select) => getAlignContainerParent(p)
+        case Some(p @ (_: Term.Select | _: Pat.Var)) =>
+          getAlignContainerParent(p)
         case Some(p: Term.Apply) if p.fun eq child =>
           getAlignContainerParent(p)
         case Some(p: Term.Apply)
             if p.args.length == 1 && child.is[Term.Apply] =>
           getAlignContainerParent(p)
         // containers that can be traversed further if on same line
-        case Some(p @ (_: Case)) =>
+        case Some(p @ (_: Case | _: Enumerator)) =>
           if (isEarlierLine(p)) p else getAlignContainerParent(p)
         // containers that can be traversed further if single-stat
         case Some(p @ AlignContainer.WithBody(b)) =>
           if (b.is[Term.Block]) p else getAlignContainerParent(p)
+        case Some(p: Term.ForYield) if child ne p.body => p
         case Some(p) => p.parent.getOrElse(p)
         case _ => child
       }

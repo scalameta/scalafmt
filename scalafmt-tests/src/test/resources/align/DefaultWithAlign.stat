@@ -739,7 +739,7 @@ object a {
       3
     }
 
-    dd     <- Option(4)
+    dd <- Option(4)
   } yield ()
 }
 <<< #1811 2

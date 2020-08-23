@@ -37,7 +37,7 @@ import metaconfig.generic.Surface
   *               NOTE. Adding more alignment tokens may potentially decrease the
   *               vertical alignment in formatted output. Customize at your own
   *               risk, I recommend you try and stick to the default settings.
-  * @param arrowEnumeratorGenerator If true, aligns by <- in for comprehensions.
+  * @param arrowEnumeratorGenerator If true, aligns by `<-` in for comprehensions.
   * @param ifWhileOpenParen
   *   If true, aligns by ( in if/while/for. If false,
   *   indents by continuation indent at call site.
