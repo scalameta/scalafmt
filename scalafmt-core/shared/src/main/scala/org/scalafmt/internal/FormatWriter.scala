@@ -1107,38 +1107,40 @@ class FormatWriter(formatOps: FormatOps) {
   private def getAlignOwner(ft: FormatToken): Tree =
     // Corner case when line ends with comment
     if (isSingleLineComment(ft.right)) ft.meta.leftOwner
-    else
-      ft.meta.rightOwner match {
-        case name: Term.Name =>
-          name.parent match {
-            case Some(p: Term.ApplyInfix) => p
-            case _ => name
-          }
-        case x => x
-      }
+    else getAlignOwnerNonComment(ft)
+
+  private def getAlignOwnerNonComment(ft: FormatToken): Tree =
+    ft.meta.rightOwner match {
+      case name: Term.Name =>
+        name.parent match {
+          case Some(p: Term.ApplyInfix) => p
+          case _ => name
+        }
+      case x => x
+    }
 
   private def columnsMatch(
       row1: FormatLocation,
       row2: FormatLocation,
       eolTree: Tree
-  ): Boolean =
+  ): Boolean = {
     // skip checking if row1 and row2 matches if both of them continues to a single line of comment
     // in order to vertical align adjacent single lines of comment.
     // see: https://github.com/scalameta/scalafmt/issues/1242
-    if (
-      isSingleLineComment(row1.formatToken.right) &&
-      isSingleLineComment(row2.formatToken.right)
-    ) true
+    val slc1 = isSingleLineComment(row1.formatToken.right)
+    val slc2 = isSingleLineComment(row2.formatToken.right)
+    if (slc1 || slc2) slc1 && slc2
     else
       (row1.alignContainer eq row2.alignContainer) &&
       (row1.alignHashKey == row2.alignHashKey) && {
         row1.style.align.multiline || {
-          val row2Owner = getAlignOwner(row2.formatToken)
-          val row1Owner = getAlignOwner(row1.formatToken)
+          val row2Owner = getAlignOwnerNonComment(row2.formatToken)
+          val row1Owner = getAlignOwnerNonComment(row1.formatToken)
           def isRowOwner(x: Tree) = (x eq row1Owner) || (x eq row2Owner)
           TreeOps.findTreeWithParentSimple(eolTree)(isRowOwner).isEmpty
         }
       }
+  }
 
   private def columnMatches(
       a: Seq[FormatLocation],
