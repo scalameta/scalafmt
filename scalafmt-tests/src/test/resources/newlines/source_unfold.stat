@@ -2990,6 +2990,52 @@ object a {
         }
   }
 }
+<<< #2113 case 7, beforeMultiline = fold
+newlines.beforeMultiline = fold
+===
+object a {
+  a match {
+    case a => if (step != 0) /* c1 */
+      d.name should be("dir" + step)
+    case a => if (step != 0 /* c1 */)
+      d.name should be("dir" + step)
+    case a => if (step != 0) { /* c1 */
+      d.name should be("dir" + step)
+    }
+    case a => if (step != 0) /* c1 */ {
+      d.name should be("dir" + step)
+    }
+    case a => if (step != 0) /* c1 */ { /* c2 */
+      d.name should be("dir" + step)
+    }
+  }
+}
+>>>
+object a {
+  a match {
+    case a =>
+      if (step != 0)
+        /* c1 */
+        d.name should be("dir" + step)
+    case a =>
+      if (step != 0 /* c1 */ )
+        d.name should be("dir" + step)
+    case a =>
+      if (step != 0) { /* c1 */
+        d.name should be("dir" + step)
+      }
+    case a =>
+      if (step != 0)
+        /* c1 */ {
+          d.name should be("dir" + step)
+        }
+    case a =>
+      if (step != 0)
+        /* c1 */ { /* c2 */
+          d.name should be("dir" + step)
+        }
+  }
+}
 <<< #2113 original
 maxColumn = 80
 ===

@@ -1989,17 +1989,16 @@ class Router(formatOps: FormatOps) {
     else if (isJsNative(body))
       Seq(Split(Space, 0).withSingleLine(expire))
     else {
-      val spacePolicy = style.newlines.source match {
+      val beforeMultiline = style.newlines.getBeforeMultilineDef
+      val spacePolicy = beforeMultiline match {
+        case Newlines.classic | Newlines.keep if ft.hasBreak =>
+          null
+
         case Newlines.classic | Newlines.keep =>
-          if (ft.hasBreak) null
-          else if (style.newlines.alwaysBeforeMultilineDef)
-            SingleLineBlock(expire)
-          else Policy.NoPolicy
+          Policy.NoPolicy
 
         case Newlines.unfold => SingleLineBlock(expire)
 
-        case Newlines.fold if style.newlines.alwaysBeforeMultilineDef =>
-          SingleLineBlock(expire)
         case Newlines.fold =>
           body match {
             case _: Term.Try | _: Term.TryWithHandler =>
@@ -2018,7 +2017,7 @@ class Router(formatOps: FormatOps) {
           .withIndent(2, expire, After)
           .withPolicy(
             PenalizeAllNewlines(expire, 1),
-            !style.newlines.sourceIgnored
+            beforeMultiline.in(Newlines.keep, Newlines.classic)
           )
       )
     }

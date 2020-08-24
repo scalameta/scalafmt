@@ -1,11 +1,8 @@
 package org.scalafmt.config
 
-import metaconfig._
 import java.io.File
-import metaconfig.Conf
-import metaconfig.ConfError
-import metaconfig.Configured
-import metaconfig.Configured.Ok
+
+import metaconfig._
 import org.scalafmt.config.PlatformConfig._
 
 // NOTE: these methods are intended for internal usage and are subject to
@@ -53,12 +50,12 @@ object Config {
   ): Configured[ScalafmtConfig] =
     conf.andThen { baseConf =>
       val next = path match {
-        case None => Ok(baseConf)
+        case None => Configured.Ok(baseConf)
         case Some(p) =>
           baseConf match {
             case Conf.Obj(values) =>
               values
-                .collectFirst { case (`p`, value) => Ok(value) }
+                .collectFirst { case (`p`, value) => Configured.Ok(value) }
                 .getOrElse(
                   ConfError.message(s"Config $baseConf has no field $p").notOk
                 )
