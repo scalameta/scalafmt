@@ -70,7 +70,9 @@ object CliArgParser {
         .unbounded()
         .action((file, c) => addFile(file, c))
         .text(
-          "file or directory, in which case all *.scala files are formatted."
+          """file, or directory (in which all *.scala files are to be formatted);
+            |if starts with '@', refers to path listing files to be formatted
+            |(with "@-" referring to standard input as a special case)""".stripMargin
         )
 
       opt[Seq[File]]('f', "files")
