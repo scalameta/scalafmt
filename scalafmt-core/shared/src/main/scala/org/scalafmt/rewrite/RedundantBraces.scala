@@ -53,6 +53,8 @@ object RedundantBraces extends Rewrite {
   */
 class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
 
+  import RedundantBraces._
+
   private val settings: RedundantBracesSettings =
     ctx.style.rewrite.redundantBraces
 
@@ -248,10 +250,12 @@ class RedundantBraces(implicit ctx: RewriteCtx) extends RewriteSession {
 
   private def okToRemoveBlockWithinApply(b: Term.Block): Boolean =
     getSingleStatIfLineSpanOk(b).exists {
-      case f: Term.Function =>
+      case f: Term.Function if needParensAroundParams(f) => false
+      case Term.Function(_, fb: Term.Block) =>
         // don't rewrite block if the inner block will be rewritten, too
-        !(f.body.is[Term.Block] && settings.methodBodies) &&
-          !RedundantBraces.needParensAroundParams(f)
+        // sometimes a function body block doesn't have braces
+        fb.tokens.headOption.exists(_.is[Token.LeftBrace]) &&
+          !okToRemoveAroundFunctionBody(fb, true)
       case _ => true
     }
 

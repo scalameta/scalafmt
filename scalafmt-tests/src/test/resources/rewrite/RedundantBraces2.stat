@@ -87,8 +87,12 @@ object a {
     })
 }
 >>>
-test does not parse
 object a {
-  foo(0, { x =>
+  foo(
+    0,
+    { x =>
       val y = x
-    ^
+      y
+    }
+  )
+}
