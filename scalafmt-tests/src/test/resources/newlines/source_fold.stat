@@ -467,10 +467,10 @@ val nested =
     .deployer
     .lookup(service.split("/").drop(1))
 >>>
-val deployment =
-  system.asInstanceOf[ActorSystemImpl]
-    .provider.deployer
-    .lookup(service.split("/").drop(1))
+val deployment = system
+  .asInstanceOf[ActorSystemImpl]
+  .provider.deployer
+  .lookup(service.split("/").drop(1))
 <<< 2.22
 maxColumn = 80
 ===
@@ -867,10 +867,11 @@ maxColumn = 80
         case EndpointFailedToActivate(`endpoint`, cause) ⇒ throw cause
       })
 >>>
-def activationFutureFor(
-    endpoint: ActorRef
-)(implicit timeout: Timeout, executor: ExecutionContext): Future[ActorRef] =
-  (supervisor.ask(AwaitActivation(endpoint))(timeout)).map[ActorRef]({
+def activationFutureFor(endpoint: ActorRef)(implicit
+    timeout: Timeout,
+    executor: ExecutionContext
+): Future[ActorRef] = (supervisor.ask(AwaitActivation(endpoint))(timeout))
+  .map[ActorRef]({
     case EndpointActivated(`endpoint`) ⇒ endpoint
     case EndpointFailedToActivate(`endpoint`, cause) ⇒ throw cause
   })
@@ -1340,8 +1341,8 @@ object a {
 }
 >>>
 object a {
-  val unionAlgoPredicts: RDD[(QX, Seq[P])] =
-    sc.union(algoPredicts).groupByKey().mapValues { ps =>
+  val unionAlgoPredicts: RDD[(QX, Seq[P])] = sc.union(algoPredicts)
+    .groupByKey().mapValues { ps =>
       {
         assert(
           ps.size == algoCount,
@@ -1385,8 +1386,8 @@ object a {
 }
 >>>
 object a {
-  def a =
-    for (a <- b; if cc < dd) yield a
+  def a = for (a <- b; if cc < dd)
+    yield a
 }
 <<< 7.2: enumerator short, guard long
 maxColumn = 28
@@ -2349,8 +2350,8 @@ object a {
     throw new Exception("blah blah")
   val b =
     foo_bar_baz_qux("blah blah blah")
-  val b =
-    foo.bar.baz.qux("blah blah blah")
+  val b = foo.bar.baz
+    .qux("blah blah blah")
 }
 <<< def formatting
 object a {
@@ -2364,8 +2365,8 @@ object a {
     throw new Exception("blah blah")
   def b =
     foo_bar_baz_qux("blah blah blah")
-  def b =
-    foo.bar.baz.qux("blah blah blah")
+  def b = foo.bar.baz
+    .qux("blah blah blah")
 }
 <<< #1973 1
 maxColumn = 25
@@ -2609,16 +2610,14 @@ object a {
 }
 >>>
 object a {
-  if (a)
-    Seq(
-      aaaaaaaaaa,
-      bbbbbbbbbb
-    )
-  else
-    Seq(
-      aaaaaaaaaa,
-      bbbbbbbbbb
-    )
+  if (a) Seq(
+    aaaaaaaaaa,
+    bbbbbbbbbb
+  )
+  else Seq(
+    aaaaaaaaaa,
+    bbbbbbbbbb
+  )
 }
 <<< #2113 def 1
 maxColumn = 72
@@ -2658,9 +2657,8 @@ object a {
 }
 >>>
 object a {
-  def validate(d: DirectoryProxy, step: Int): Unit = if (step != 0)
-    /* c1 */
-    d.name should be("dir" + step)
+  def validate(d: DirectoryProxy, step: Int): Unit =
+    if (step != 0) /* c1 */ d.name should be("dir" + step)
 }
 <<< #2113 def 4
 object a {
@@ -2683,8 +2681,8 @@ object a {
 }
 >>>
 object a {
-  def validate(d: DirectoryProxy, step: Int): Unit = if (step != 0)
-    /* c1 */ { /* c2 */
+  def validate(d: DirectoryProxy, step: Int): Unit =
+    if (step != 0) /* c1 */ { /* c2 */
       d.name should be("dir" + step)
     }
 }
@@ -2697,8 +2695,7 @@ object a {
 >>>
 object a {
   a match {
-    case a =>
-      d.name.should
+    case a => d.name.should
         .be_dir("step1", "step2")
   }
 }
@@ -2767,10 +2764,10 @@ object a {
 >>>
 object a {
   a match {
-    case a => if (step != 0)
-        /* c1 */ { /* c2 */
-          d.name should be("dir" + step)
-        }
+    case a =>
+      if (step != 0) /* c1 */ { /* c2 */
+        d.name should be("dir" + step)
+      }
   }
 }
 <<< #2113 case 7
@@ -2794,8 +2791,7 @@ object a {
 >>>
 object a {
   a match {
-    case a => if (step != 0)
-        /* c1 */
+    case a => if (step != 0) /* c1 */
         d.name should be("dir" + step)
     case a => if (step != 0 /* c1 */ )
         d.name should be("dir" + step)
@@ -2805,10 +2801,10 @@ object a {
     case a => if (step != 0) /* c1 */ {
         d.name should be("dir" + step)
       }
-    case a => if (step != 0)
-        /* c1 */ { /* c2 */
-          d.name should be("dir" + step)
-        }
+    case a =>
+      if (step != 0) /* c1 */ { /* c2 */
+        d.name should be("dir" + step)
+      }
   }
 }
 <<< #2113 case 7, beforeMultiline = unfold
@@ -2834,21 +2830,24 @@ object a {
 >>>
 object a {
   a match {
-    case a => if (step != 0)
-        /* c1 */
+    case a =>
+      if (step != 0) /* c1 */
         d.name should be("dir" + step)
-    case a => if (step != 0 /* c1 */ )
+    case a =>
+      if (step != 0 /* c1 */ )
         d.name should be("dir" + step)
-    case a => if (step != 0) { /* c1 */
+    case a =>
+      if (step != 0) { /* c1 */
         d.name should be("dir" + step)
       }
-    case a => if (step != 0) /* c1 */ {
+    case a =>
+      if (step != 0) /* c1 */ {
         d.name should be("dir" + step)
       }
-    case a => if (step != 0)
-        /* c1 */ { /* c2 */
-          d.name should be("dir" + step)
-        }
+    case a =>
+      if (step != 0) /* c1 */ { /* c2 */
+        d.name should be("dir" + step)
+      }
   }
 }
 <<< #2113 case, multiple stats
@@ -2864,11 +2863,9 @@ object a {
 object a {
   a match {
     case a =>
-      if (step != 0)
-        /* c1 */
+      if (step != 0) /* c1 */
         d.name should be("dir" + step)
-      if (step != 0)
-        /* c1 */
+      if (step != 0) /* c1 */
         d.name should be("dir" + step)
   }
 }
@@ -2889,11 +2886,10 @@ object a {
 object a {
   if (!someBooleanValue) Command.invalid
   else if (someIntValue != 1) Command.invalid
-  else
-    someCollection.get(args.head) match {
-      case it @ Some(_) =>
-        someService.setSomeValue(it)
-        Command.success
-      case None => Command.invalid
-    }
+  else someCollection.get(args.head) match {
+    case it @ Some(_) =>
+      someService.setSomeValue(it)
+      Command.success
+    case None => Command.invalid
+  }
 }

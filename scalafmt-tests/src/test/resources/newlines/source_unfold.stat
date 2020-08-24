@@ -921,10 +921,11 @@ object a {
 }
 >>>
 object a {
-  val a = (intercept[
-    java.lang.IllegalStateException] {
-    in.readObject
-  })
+  val a =
+    (intercept[
+      java.lang.IllegalStateException] {
+      in.readObject
+    })
 }
 <<< 3.23 enclosed, assignment, infix on left, narrow
 maxColumn = 40
@@ -2261,13 +2262,14 @@ val ret = (if (dailyStats.isEmpty)
                      yestNav) / nav - 1
                  })
 >>>
-val ret = (if (dailyStats.isEmpty)
-             0
-           else {
-             val yestStats = dailyStats.last
-             val yestNav = yestStats.nav
-             (nav - yestNav) / nav - 1
-           })
+val ret =
+  (if (dailyStats.isEmpty)
+     0
+   else {
+     val yestStats = dailyStats.last
+     val yestNav = yestStats.nav
+     (nav - yestNav) / nav - 1
+   })
 <<< 8.24
 maxColumn = 80
 ===
@@ -2821,8 +2823,7 @@ object a {
 >>>
 object a {
   def validate(d: DirectoryProxy, step: Int): Unit =
-    if (step != 0)
-      /* c1 */
+    if (step != 0) /* c1 */
       d.name should be("dir" + step)
 }
 <<< #2113 def 4
@@ -2847,10 +2848,9 @@ object a {
 >>>
 object a {
   def validate(d: DirectoryProxy, step: Int): Unit =
-    if (step != 0)
-      /* c1 */ { /* c2 */
-        d.name should be("dir" + step)
-      }
+    if (step != 0) /* c1 */ { /* c2 */
+      d.name should be("dir" + step)
+    }
 }
 <<< #2113 case 1
 object a {
@@ -2940,10 +2940,9 @@ object a {
 object a {
   a match {
     case a =>
-      if (step != 0)
-        /* c1 */ { /* c2 */
-          d.name should be("dir" + step)
-        }
+      if (step != 0) /* c1 */ { /* c2 */
+        d.name should be("dir" + step)
+      }
   }
 }
 <<< #2113 case 7
@@ -2968,8 +2967,7 @@ object a {
 object a {
   a match {
     case a =>
-      if (step != 0)
-        /* c1 */
+      if (step != 0) /* c1 */
         d.name should be("dir" + step)
     case a =>
       if (step != 0 /* c1 */ )
@@ -2979,15 +2977,13 @@ object a {
         d.name should be("dir" + step)
       }
     case a =>
-      if (step != 0)
-        /* c1 */ {
-          d.name should be("dir" + step)
-        }
+      if (step != 0) /* c1 */ {
+        d.name should be("dir" + step)
+      }
     case a =>
-      if (step != 0)
-        /* c1 */ { /* c2 */
-          d.name should be("dir" + step)
-        }
+      if (step != 0) /* c1 */ { /* c2 */
+        d.name should be("dir" + step)
+      }
   }
 }
 <<< #2113 case 7, beforeMultiline = fold
@@ -3013,27 +3009,20 @@ object a {
 >>>
 object a {
   a match {
-    case a =>
-      if (step != 0)
-        /* c1 */
+    case a => if (step != 0) /* c1 */
         d.name should be("dir" + step)
-    case a =>
-      if (step != 0 /* c1 */ )
+    case a => if (step != 0 /* c1 */ )
         d.name should be("dir" + step)
-    case a =>
-      if (step != 0) { /* c1 */
+    case a => if (step != 0) { /* c1 */
+        d.name should be("dir" + step)
+      }
+    case a => if (step != 0) /* c1 */ {
         d.name should be("dir" + step)
       }
     case a =>
-      if (step != 0)
-        /* c1 */ {
-          d.name should be("dir" + step)
-        }
-    case a =>
-      if (step != 0)
-        /* c1 */ { /* c2 */
-          d.name should be("dir" + step)
-        }
+      if (step != 0) /* c1 */ { /* c2 */
+        d.name should be("dir" + step)
+      }
   }
 }
 <<< #2113 original

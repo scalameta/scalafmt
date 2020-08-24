@@ -231,10 +231,12 @@ object a {
 >>>
 object a {
   val ok1 = if (a > 10) Some(a) else None
-  val ok2 = if (a > 10) { Some(a) }
-  else { None }
-  val ok3 = if (aaaa > 10000) { Some(aaaa) }
-  else { None }
+  val ok2 =
+    if (a > 10) { Some(a) }
+    else { None }
+  val ok3 =
+    if (aaaa > 10000) { Some(aaaa) }
+    else { None }
 }
 <<< 2.7 #1747: one line without else
 maxColumn = 60
@@ -277,16 +279,18 @@ object a {
       Some(a)
     else
       None
-  val ok2 = if (a > 10) {
-    Some(a)
-  } else {
-    None
-  }
-  val ok3 = if (aaaa > 10000) {
-    Some(aaaa)
-  } else {
-    None
-  }
+  val ok2 =
+    if (a > 10) {
+      Some(a)
+    } else {
+      None
+    }
+  val ok3 =
+    if (aaaa > 10000) {
+      Some(aaaa)
+    } else {
+      None
+    }
 }
 <<< 2.9 #1747: split on else
 maxColumn = 60
@@ -307,14 +311,16 @@ object a {
     if (a > 10) Some(a)
     else
       None
-  val ok2 = if (a > 10) { Some(a) }
-  else {
-    None
-  }
-  val ok3 = if (aaaa > 10000) { Some(aaaa) }
-  else {
-    None
-  }
+  val ok2 =
+    if (a > 10) { Some(a) }
+    else {
+      None
+    }
+  val ok3 =
+    if (aaaa > 10000) { Some(aaaa) }
+    else {
+      None
+    }
 }
 <<< 2.10 #1747: split on then without else
 maxColumn = 60
@@ -329,9 +335,8 @@ object a {
 }
 >>>
 object a {
-  val ok1 =
-    if (a > 10)
-      Some(a)
+  val ok1 = if (a > 10)
+    Some(a)
   val ok2 = if (a > 10) {
     Some(a)
   }
@@ -419,9 +424,8 @@ maxColumn = 80
 val attributes = for (i ← 1 to count)
  yield i
 >>>
-val attributes =
-  for (i ← 1 to count)
-    yield i
+val attributes = for (i ← 1 to count)
+  yield i
 <<< 2.15 val with literal apply
 object a {
    val a =
@@ -1360,7 +1364,8 @@ a match {
 a match {
   case b =>
     bb
-  case c => cc
+  case c =>
+    cc
     ccc
   case d =>
     dd
@@ -2662,11 +2667,10 @@ object a {
 >>>
 object a {
   if (a) Seq(a, b)
-  else
-    Seq(
-      a,
-      b
-    )
+  else Seq(
+    a,
+    b
+  )
 }
 <<< #2113 if-apply 2
 maxColumn = 30
@@ -2679,16 +2683,14 @@ object a {
 }
 >>>
 object a {
-  if (a)
-    Seq(
-      aaaaaaaaaa,
-      bbbbbbbbbb
-    )
-  else
-    Seq(
-      aaaaaaaaaa,
-      bbbbbbbbbb
-    )
+  if (a) Seq(
+    aaaaaaaaaa,
+    bbbbbbbbbb
+  )
+  else Seq(
+    aaaaaaaaaa,
+    bbbbbbbbbb
+  )
 }
 <<< #2113 def 1
 maxColumn = 72
@@ -2728,9 +2730,9 @@ object a {
 }
 >>>
 object a {
-  def validate(d: DirectoryProxy, step: Int): Unit = if (step != 0)
-    /* c1 */
-    d.name should be("dir" + step)
+  def validate(d: DirectoryProxy, step: Int): Unit =
+    if (step != 0) /* c1 */
+      d.name should be("dir" + step)
 }
 <<< #2113 def 4
 object a {
@@ -2753,8 +2755,8 @@ object a {
 }
 >>>
 object a {
-  def validate(d: DirectoryProxy, step: Int): Unit = if (step != 0)
-    /* c1 */ { /* c2 */
+  def validate(d: DirectoryProxy, step: Int): Unit =
+    if (step != 0) /* c1 */ { /* c2 */
       d.name should be("dir" + step)
     }
 }
@@ -2841,10 +2843,10 @@ object a {
 >>>
 object a {
   a match {
-    case a => if (step != 0)
-        /* c1 */ { /* c2 */
-          d.name should be("dir" + step)
-        }
+    case a =>
+      if (step != 0) /* c1 */ { /* c2 */
+        d.name should be("dir" + step)
+      }
   }
 }
 <<< #2113 case 7
@@ -2868,8 +2870,7 @@ object a {
 >>>
 object a {
   a match {
-    case a => if (step != 0)
-        /* c1 */
+    case a => if (step != 0) /* c1 */
         d.name should be("dir" + step)
     case a => if (step != 0 /* c1 */ )
         d.name should be("dir" + step)
@@ -2879,10 +2880,10 @@ object a {
     case a => if (step != 0) /* c1 */ {
         d.name should be("dir" + step)
       }
-    case a => if (step != 0)
-        /* c1 */ { /* c2 */
-          d.name should be("dir" + step)
-        }
+    case a =>
+      if (step != 0) /* c1 */ { /* c2 */
+        d.name should be("dir" + step)
+      }
   }
 }
 <<< #2113 case 7, beforeMultiline = fold
@@ -2908,8 +2909,7 @@ object a {
 >>>
 object a {
   a match {
-    case a => if (step != 0)
-        /* c1 */
+    case a => if (step != 0) /* c1 */
         d.name should be("dir" + step)
     case a => if (step != 0 /* c1 */ )
         d.name should be("dir" + step)
@@ -2919,10 +2919,10 @@ object a {
     case a => if (step != 0) /* c1 */ {
         d.name should be("dir" + step)
       }
-    case a => if (step != 0)
-        /* c1 */ { /* c2 */
-          d.name should be("dir" + step)
-        }
+    case a =>
+      if (step != 0) /* c1 */ { /* c2 */
+        d.name should be("dir" + step)
+      }
   }
 }
 <<< #2113 case 7, beforeMultiline = unfold
@@ -2948,21 +2948,24 @@ object a {
 >>>
 object a {
   a match {
-    case a => if (step != 0)
-        /* c1 */
+    case a =>
+      if (step != 0) /* c1 */
         d.name should be("dir" + step)
-    case a => if (step != 0 /* c1 */ )
+    case a =>
+      if (step != 0 /* c1 */ )
         d.name should be("dir" + step)
-    case a => if (step != 0) { /* c1 */
+    case a =>
+      if (step != 0) { /* c1 */
         d.name should be("dir" + step)
       }
-    case a => if (step != 0) /* c1 */ {
+    case a =>
+      if (step != 0) /* c1 */ {
         d.name should be("dir" + step)
       }
-    case a => if (step != 0)
-        /* c1 */ { /* c2 */
-          d.name should be("dir" + step)
-        }
+    case a =>
+      if (step != 0) /* c1 */ { /* c2 */
+        d.name should be("dir" + step)
+      }
   }
 }
 <<< #2113 original
@@ -2982,11 +2985,10 @@ object a {
 object a {
   if (!someBooleanValue) Command.invalid
   else if (someIntValue != 1) Command.invalid
-  else
-    someCollection.get(args.head) match {
-      case it @ Some(_) =>
-        someService.setSomeValue(it)
-        Command.success
-      case None => Command.invalid
-    }
+  else someCollection.get(args.head) match {
+    case it @ Some(_) =>
+      someService.setSomeValue(it)
+      Command.success
+    case None => Command.invalid
+  }
 }

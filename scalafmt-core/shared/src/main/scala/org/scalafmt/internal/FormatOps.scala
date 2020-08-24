@@ -8,7 +8,7 @@ import org.scalafmt.config.{BinPack, Comments, Newlines, ScalafmtConfig}
 import org.scalafmt.internal.Length.Num
 import org.scalafmt.internal.Policy.NoPolicy
 import org.scalafmt.util._
-import org.scalafmt.util.LoggerOps.{log, logger}
+import org.scalafmt.util.LoggerOps._
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -84,6 +84,8 @@ class FormatOps(
   @inline def matching(token: Token): Token = matchingParentheses(hash(token))
   @inline def matchingOpt(token: Token): Option[Token] =
     matchingParentheses.get(hash(token))
+  @inline def hasMatching(token: Token): Boolean =
+    matchingParentheses.contains(hash(token))
 
   @inline
   def owners(token: Token): Tree = ownersMap(hash(token))
@@ -1447,6 +1449,248 @@ class FormatOps(
         splits.map(_.withIndent(indent, end, ExpiresOn.After))
       case _ => splits
     }
+  }
+
+  object CtrlBodySplits {
+
+    private object CallSite {
+
+      @tailrec
+      private def getOpenNLByArgs(
+          ft: FormatToken,
+          argss: Seq[Seq[Tree]],
+          penalty: Int,
+          policies: Seq[Policy] = Seq.empty
+      ): Seq[Policy] = {
+        if (argss.isEmpty) policies
+        else {
+          val args = argss.head
+          val openFt = nextNonComment(ft)
+          if (args.isEmpty) {
+            val nextFt = next(nextNonComment(next(openFt)))
+            getOpenNLByArgs(nextFt, argss.tail, penalty, policies)
+          } else {
+            val endPolicy = args.head.tokens.head match {
+              case t: T.LeftBrace => Policy.End.After(t)
+              case t => Policy.End.On(t)
+            }
+            val argLastFt = tokens(args.last.tokens.last)
+            val pnlPolicy = new Policy.Delay(
+              new PenalizeAllNewlines(endPolicy, penalty, noSyntaxNL = true),
+              Policy.End.On(openFt.right)
+            )
+            val nestedPolicies = args match {
+              case Seq(SplitCallIntoParts(f, a)) =>
+                getOpenNLByTree(f, a, penalty)
+              case _ => Seq.empty
+            }
+            val nextPolicies = (policies :+ pnlPolicy) ++ nestedPolicies
+            getOpenNLByArgs(argLastFt, argss.tail, penalty, nextPolicies)
+          }
+        }
+      }
+
+      private def getOpenNLByTree(
+          fun: Tree,
+          argsOrArgss: Either[Seq[Tree], Seq[Seq[Tree]]],
+          penalty: Int
+      ): Seq[Policy] = {
+        val argss = argsOrArgss match {
+          case Left(args) => Seq(args)
+          case Right(argss) => argss
+        }
+        val funLastFt = tokens(fun.tokens.last)
+        getOpenNLByArgs(funLastFt, argss, penalty)
+      }
+
+      @tailrec
+      def getFoldedPolicies(
+          body: Tree,
+          policies: Seq[Policy] = Seq.empty
+      ): (Policy, Boolean) =
+        body match {
+          case SplitCallIntoParts(fun, args) if fun ne body =>
+            val newPolicies = getOpenNLByTree(fun, args, 1)
+            getFoldedPolicies(fun, newPolicies ++ policies)
+          case t: Term.Select => getFoldedPolicies(t.qual, policies)
+          case _ if policies.isEmpty => (Policy.NoPolicy, false)
+          case _ =>
+            val policy = policies.reduceRight(new Policy.Relay(_, _))
+            (policy, true)
+        }
+
+    }
+
+    private def foldedNonEmptyNonComment(
+        ft: FormatToken,
+        body: Tree,
+        nlSplitFunc: Int => Split
+    )(implicit style: ScalafmtConfig): Seq[Split] = {
+      val bhead = body.tokens.head
+      val blast = lastToken(body)
+      val expire = nextNonCommentSameLine(tokens(blast)).left
+      def penalize(penalty: Int) =
+        if (penalty <= 0) Policy.NoPolicy
+        else new PolicyOps.PenalizeAllNewlines(Policy.End.On(blast), penalty)
+      def getNlSplit(penalty: Int)(implicit line: sourcecode.Line): Split = {
+        val nlLine = line.copy(value = line.value + 1)
+        nlSplitFunc(1).andPolicy(penalize(penalty)).forThisLine(nlLine)
+      }
+      def getSplits(spaceSplit: Split, noIndent: Boolean) = {
+        val nlSplit = getNlSplit(1)(spaceSplit.line)
+        (spaceSplit.withIndents(nlSplit.modExt.indents, noIndent), nlSplit)
+      }
+      def getSlb(end: Token, excl: TokenRanges)(implicit l: sourcecode.Line) =
+        SingleLineBlock(end, exclude = excl, noSyntaxNL = true)
+      def getSlbSplit(
+          end: Token,
+          exclude: TokenRanges = TokenRanges.empty,
+          policy: Policy = Policy.NoPolicy
+      )(implicit line: sourcecode.Line) =
+        Split(Space, 0)
+          .withPolicy(policy | getSlb(end, exclude))
+          .withOptimalToken(end, ignore = blast.start > end.start)
+      def getSpaceSplit(
+          penalty: Int,
+          policy: Policy = Policy.NoPolicy
+      )(implicit line: sourcecode.Line) = {
+        val spacePolicy = policy | penalize(penalty)
+        Split(Space, 0).withPolicy(spacePolicy).withOptimalToken(blast)
+      }
+      def getPolicySplits(
+          penalty: Int,
+          policy: Policy = Policy.NoPolicy
+      )(implicit line: sourcecode.Line) =
+        getSplits(getSpaceSplit(penalty, policy), !ft.left.is[T.Comment])
+      def getSlbSplits(
+          exclude: TokenRanges = TokenRanges.empty,
+          policy: Policy = Policy.NoPolicy
+      )(implicit line: sourcecode.Line) =
+        (
+          getSlbSplit(expire, exclude, policy),
+          getNlSplit(if (policy.isEmpty) 0 else 1)
+        )
+      val (spaceSplit, nlSplit) = body match {
+        case t: Term.If if ifWithoutElse(t) =>
+          val thenIsBlock = t.thenp.is[Term.Block]
+          val thenBeg = tokens(t.thenp.tokens.head)
+          val end = if (thenIsBlock) thenBeg else prevNonComment(prev(thenBeg))
+          getSplits(getSlbSplit(end.left), true)
+        case _: Term.Try | _: Term.TryWithHandler | _: Term.If => getSlbSplits()
+        case _: Term.Block | _: Term.Match | _: Term.NewAnonymous =>
+          if (!hasMatching(blast)) getSlbSplits()
+          else getSplits(getSpaceSplit(1), true)
+        case Term.ForYield(_, b) =>
+          nextNonComment(tokens(bhead)).right match {
+            case x @ LeftParenOrBrace() =>
+              val exclude = TokenRanges(TokenRange(x, matching(x)))
+              if (b.is[Term.Block])
+                getPolicySplits(1, getSlb(b.tokens.head, exclude))
+              else getSlbSplits(exclude)
+            case _ => getSlbSplits()
+          }
+        case _ =>
+          val (callPolicy, isCallSite) = CallSite.getFoldedPolicies(body)
+          getPolicySplits(if (isCallSite) 0 else 1, callPolicy)
+      }
+
+      Seq(spaceSplit, nlSplit)
+    }
+
+    def foldedNonComment(
+        ft: FormatToken,
+        body: Tree,
+        nlSplitFunc: Int => Split
+    )(implicit style: ScalafmtConfig): Seq[Split] =
+      if (body.tokens.isEmpty) Seq(Split(Space, 0))
+      else foldedNonEmptyNonComment(ft, body, nlSplitFunc)
+
+    def unfoldedSpaceNonEmptyNonComment(ft: FormatToken, body: Tree): Split = {
+      val expire = nextNonCommentSameLine(tokens(lastToken(body))).left
+      body match {
+        case _: Term.If =>
+          Split(Space, 0).withSingleLine(expire, noSyntaxNL = true)
+        case _: Term.ForYield =>
+          // unfold policy on yield forces a break
+          // revert it if we are attempting a single line
+          val noBreakOnYield = Policy.before(expire) {
+            case Decision(ft, s) if s.isEmpty && ft.right.is[Token.KwYield] =>
+              Seq(Split(Space, 0))
+          }
+          Split(Space, 0)
+            .withSingleLine(expire, noSyntaxNL = true)
+            .andPolicy(noBreakOnYield)
+        // we force newlines in try/catch/finally
+        case _: Term.Try | _: Term.TryWithHandler => Split.ignored
+        // don't tuck curried apply
+        case Term.Apply(_: Term.Apply, _) =>
+          Split(Space, 0).withSingleLine(expire, noSyntaxNL = true)
+        case EndOfFirstCall(end) =>
+          Split(Space, 0).withSingleLine(end, noSyntaxNL = true)
+        case _ if ft.meta.leftOwner.is[Defn] =>
+          Split(Space, 0).withSingleLine(expire, noSyntaxNL = true)
+        case _ => Split(Space, 0)
+      }
+    }
+
+    def unfoldedNonComment(
+        ft: FormatToken,
+        body: Tree,
+        nlSplitFunc: Int => Split
+    )(implicit style: ScalafmtConfig): Seq[Split] =
+      if (body.tokens.isEmpty) Seq(Split(Space, 0))
+      else {
+        val spaceSplit = unfoldedSpaceNonEmptyNonComment(ft, body)
+        Seq(spaceSplit, nlSplitFunc(1).forThisLine)
+      }
+
+    def checkComment(
+        ft: FormatToken,
+        nlSplitFunc: Int => Split
+    )(splitsFunc: FormatToken => Seq[Split]): Seq[Split] =
+      if (!ft.right.is[T.Comment]) splitsFunc(ft)
+      else if (ft.hasBreak || isSingleLineComment(ft.right))
+        Seq(nlSplitFunc(0).forThisLine)
+      else {
+        val nextFt = nextNonCommentSameLine(next(ft))
+        val splits = splitsFunc(nextFt)
+        val policy = Policy.on(nextFt.right) {
+          case Decision(`nextFt`, _) => splits
+        }
+        Seq(Split(Space, 0, policy = policy))
+      }
+
+    def folded(
+        ft: FormatToken,
+        body: Tree
+    )(nlSplitFunc: Int => Split)(implicit style: ScalafmtConfig): Seq[Split] =
+      checkComment(ft, nlSplitFunc) { x =>
+        foldedNonComment(x, body, nlSplitFunc)
+      }
+
+    def get(
+        ft: FormatToken,
+        body: Tree
+    )(classicNoBreakFunc: => Split)(nlSplitFunc: Int => Split)(implicit
+        style: ScalafmtConfig
+    ): Seq[Split] =
+      checkComment(ft, nlSplitFunc) { x =>
+        style.newlines.getBeforeMultiline match {
+          case Newlines.unfold => unfoldedNonComment(x, body, nlSplitFunc)
+          case Newlines.classic | Newlines.keep if x.hasBreak =>
+            Seq(nlSplitFunc(0).forThisLine)
+          case Newlines.classic =>
+            Option(classicNoBreakFunc).fold {
+              foldedNonComment(x, body, nlSplitFunc)
+            } { func =>
+              val spcSplit = func.forThisLine
+              val nlSplit = nlSplitFunc(spcSplit.getCost(_ + 1, 0)).forThisLine
+              Seq(spcSplit, nlSplit)
+            }
+          case _ => // fold or keep without break
+            foldedNonComment(x, body, nlSplitFunc)
+        }
+      }
   }
 
 }
