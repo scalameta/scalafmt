@@ -81,17 +81,17 @@ import metaconfig.generic.Surface
   *     // ...
   *   }
   *   else //...
-  * @param alwaysBeforeMultilineDef
-  *   If true, add a newline before the body of a multiline def without
+  * @param beforeMultilineDef
+  *   If unfold (or true), add a newline before the body of a multiline def without
   *   curly braces. See #1126 for discussion.
   *   For example,
   *   {{{
-  *     // newlines.alwaysBeforeMultilineDef = false
+  *     // newlines.beforeMultilineDef = fold
   *     def foo(bar: Bar): Foo = bar
   *       .flatMap(f)
   *       .map(g)
   *
-  *     // newlines.alwaysBeforeMultilineDef = true
+  *     // newlines.beforeMultilineDef = unfold
   *     def foo(bar: Bar): Foo =
   *       bar
   *         .flatMap(f)
@@ -173,7 +173,14 @@ case class Newlines(
     implicitParamListModifierForce: Seq[BeforeAfter] = Seq.empty,
     implicitParamListModifierPrefer: Option[BeforeAfter] = None,
     alwaysBeforeElseAfterCurlyIf: Boolean = false,
-    alwaysBeforeMultilineDef: Boolean = false,
+    @annotation.DeprecatedName(
+      "alwaysBeforeMultilineDef",
+      "Use newlines.beforeMultilineDef instead",
+      "2.7.0"
+    )
+    private val alwaysBeforeMultilineDef: Boolean = false,
+    private[config] val beforeMultiline: Option[SourceHints] = None,
+    private[config] val beforeMultilineDef: Option[SourceHints] = None,
     afterInfix: Option[AfterInfix] = None,
     afterInfixBreakOnNested: Boolean = false,
     afterInfixMaxCountPerExprForSome: Int = 10,
@@ -246,6 +253,11 @@ case class Newlines(
 
   lazy val alwaysBeforeCurlyLambdaParams = alwaysBeforeCurlyBraceLambdaParams ||
     (beforeCurlyLambdaParams eq BeforeCurlyLambdaParams.always)
+
+  lazy val getBeforeMultiline = beforeMultiline.getOrElse(source)
+  lazy val getBeforeMultilineDef = beforeMultilineDef.getOrElse {
+    if (alwaysBeforeMultilineDef) Newlines.unfold else getBeforeMultiline
+  }
 
 }
 

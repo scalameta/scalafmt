@@ -347,6 +347,18 @@ object ScalafmtConfig {
         )
         addIf(optIn.configStyleArguments && align.openParenCallSite)
         addIf(optIn.configStyleArguments && align.openParenDefnSite)
+        newlines.beforeMultiline.foreach { x =>
+          addIfDirect(
+            x.eq(Newlines.classic) || x.eq(Newlines.keep),
+            s"newlines.beforeMultiline=$x"
+          )
+        }
+        newlines.beforeMultilineDef.foreach { x =>
+          addIfDirect(
+            x.eq(Newlines.classic) || x.eq(Newlines.keep),
+            s"newlines.beforeMultilineDef=$x"
+          )
+        }
       }
       if (newlines.source == Newlines.unfold) {
         addIf(align.arrowEnumeratorGenerator)
