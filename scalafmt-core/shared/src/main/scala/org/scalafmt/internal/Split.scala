@@ -105,14 +105,21 @@ case class Split(
   def forThisLine(implicit line: sourcecode.Line): Split =
     if (isIgnored) this else copy()(line = line)
 
+  def getCost(ifActive: Int => Int, ifIgnored: => Int): Int =
+    if (isIgnored) ifIgnored else ifActive(cost)
+
   def withOptimalTokenOpt(
       token: => Option[Token],
       killOnFail: Boolean = false
   ): Split =
     withOptimalAt(token.map(OptimalToken(_, killOnFail)))
 
-  def withOptimalToken(token: => Token, killOnFail: Boolean = false): Split =
-    withOptimalAt(Some(OptimalToken(token, killOnFail)))
+  def withOptimalToken(
+      token: => Token,
+      killOnFail: Boolean = false,
+      ignore: Boolean = false
+  ): Split =
+    if (ignore) this else withOptimalAt(Some(OptimalToken(token, killOnFail)))
 
   def withOptimalAt(optimalAt: => Option[OptimalToken]): Split = {
     require(this.optimalAt.isEmpty)
@@ -203,23 +210,23 @@ case class Split(
   ): Split =
     withMod(modExt.withIndentOpt(length, expire, when))
 
-  def withIndent(indent: => Indent): Split =
-    withMod(modExt.withIndent(indent))
+  def withIndent(indent: => Indent, ignore: Boolean = false): Split =
+    withMod(modExt.withIndent(indent), ignore)
 
   def withIndentOpt(indent: => Option[Indent]): Split =
     withMod(modExt.withIndentOpt(indent))
 
-  def withIndents(indents: Seq[Indent]): Split =
-    withMod(modExt.withIndents(indents))
+  def withIndents(indents: Seq[Indent], ignore: Boolean = false): Split =
+    withMod(modExt.withIndents(indents), ignore)
 
   def switch(switchObject: AnyRef): Split =
     withMod(modExt.switch(switchObject))
 
   def withMod(mod: Modification): Split =
-    if (this.modExt.mod eq mod) this else withMod(modExt.copy(mod = mod))
+    withMod(modExt.copy(mod = mod), this.modExt.mod eq mod)
 
-  def withMod(modExtByName: => ModExt): Split =
-    if (isIgnored) this
+  def withMod(modExtByName: => ModExt, ignore: Boolean = false): Split =
+    if (ignore || isIgnored) this
     else {
       val modExt = modExtByName
       if (this.modExt eq modExt) this else copy(modExt = modExt)(line = line)

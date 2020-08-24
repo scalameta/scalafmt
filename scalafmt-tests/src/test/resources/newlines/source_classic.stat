@@ -2723,8 +2723,9 @@ object a {
 }
 >>>
 object a {
-  def validate(d: DirectoryProxy, step: Int): Unit = if (step != 0)
-    /* c1 */
+  def validate(d: DirectoryProxy, step: Int): Unit = if (
+    step != 0
+  ) /* c1 */
     d.name should be("dir" + step)
 }
 <<< #2113 def 4
@@ -2748,8 +2749,8 @@ object a {
 }
 >>>
 object a {
-  def validate(d: DirectoryProxy, step: Int): Unit = if (step != 0)
-    /* c1 */ { /* c2 */
+  def validate(d: DirectoryProxy, step: Int): Unit = if (step != 0) /* c1 */
+    { /* c2 */
       d.name should be("dir" + step)
     }
 }
@@ -2863,8 +2864,7 @@ object a {
 object a {
   a match {
     case a =>
-      if (step != 0)
-        /* c1 */
+      if (step != 0) /* c1 */
         d.name should be("dir" + step)
     case a =>
       if (step != 0 /* c1 */ )
@@ -2906,19 +2906,14 @@ object a {
 >>>
 object a {
   a match {
-    case a =>
-      if (step != 0)
-        /* c1 */
+    case a => if (step != 0) /* c1 */
         d.name should be("dir" + step)
-    case a =>
-      if (step != 0 /* c1 */ )
+    case a => if (step != 0 /* c1 */ )
         d.name should be("dir" + step)
-    case a =>
-      if (step != 0) { /* c1 */
+    case a => if (step != 0) { /* c1 */
         d.name should be("dir" + step)
       }
-    case a =>
-      if (step != 0) /* c1 */ {
+    case a => if (step != 0) /* c1 */ {
         d.name should be("dir" + step)
       }
     case a =>
@@ -2951,8 +2946,7 @@ object a {
 object a {
   a match {
     case a =>
-      if (step != 0)
-        /* c1 */
+      if (step != 0) /* c1 */
         d.name should be("dir" + step)
     case a =>
       if (step != 0 /* c1 */ )
@@ -2994,19 +2988,14 @@ object a {
 >>>
 object a {
   a match {
-    case a =>
-      if (step != 0)
-        /* c1 */
+    case a => if (step != 0) /* c1 */
         d.name should be("dir" + step)
-    case a =>
-      if (step != 0 /* c1 */ )
+    case a => if (step != 0 /* c1 */ )
         d.name should be("dir" + step)
-    case a =>
-      if (step != 0) { /* c1 */
+    case a => if (step != 0) { /* c1 */
         d.name should be("dir" + step)
       }
-    case a =>
-      if (step != 0) /* c1 */ {
+    case a => if (step != 0) /* c1 */ {
         d.name should be("dir" + step)
       }
     case a =>
