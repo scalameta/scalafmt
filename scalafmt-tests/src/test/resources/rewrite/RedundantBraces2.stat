@@ -77,3 +77,18 @@ object A {
   }
   def x = 2
 }
+<<< #2138
+rewrite.redundantBraces.methodBodies = false
+===
+object a {
+  foo(0, { x =>
+      val y = x
+      y
+    })
+}
+>>>
+test does not parse
+object a {
+  foo(0, { x =>
+      val y = x
+    ^
