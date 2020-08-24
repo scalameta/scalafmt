@@ -2,11 +2,12 @@ package org.scalafmt.cli
 
 import com.martiansoftware.nailgun.NGContext
 import java.io.{InputStream, PrintStream}
-import java.nio.file.{Paths, Files}
+import java.nio.file.{Files, Paths}
+
 import org.scalafmt.Versions
 import org.scalafmt.util.AbsoluteFile
 
-import scala.collection.JavaConverters._
+import scala.io.Source
 import scala.util.control.NoStackTrace
 
 object Cli {
@@ -87,17 +88,11 @@ object Cli {
     }
   }
   private object FileArgument {
-    def unapply(arg: String): Option[collection.Seq[String]] = {
-      if (arg.startsWith("@")) {
-        val file = Paths.get(arg.stripPrefix("@"))
-        if (Files.isRegularFile(file)) {
-          Some(Files.readAllLines(file).asScala)
-        } else {
-          None
-        }
-      } else {
-        None
-      }
+    def unapply(arg: String): Option[Iterator[String]] = {
+      val atFile = arg.stripPrefix("@")
+      if (atFile eq arg) None // doesn't start with @
+      else if (!Files.isRegularFile(Paths.get(atFile))) None
+      else Some(Source.fromFile(atFile).getLines())
     }
   }
 
