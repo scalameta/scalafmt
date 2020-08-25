@@ -295,3 +295,11 @@ object a {
     case a if a =>
   }
 }
+<<< #2163
+val map = (Map("A" -> 1) - "Test" - "Test" - "Test" - "Test" - "Test"
+    - "Test" - "Test" - "Test" - "Test" - "Test" - "Test" - "Test" + "B" -> 2)
+>>>
+test does not parse
+val map = Map("A" -> 1) - "Test" - "Test" - "Test" - "Test" - "Test"
+    - "Test" - "Test" - "Test" - "Test" - "Test" - "Test" - "Test" + "B" -> 2
+    ^
