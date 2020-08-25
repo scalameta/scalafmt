@@ -3,6 +3,8 @@ package org.scalafmt.rewrite
 import scala.annotation.tailrec
 import scala.meta._
 
+import org.scalafmt.util.InfixApp
+
 object RedundantParens extends Rewrite {
   override def create(implicit ctx: RewriteCtx): RewriteSession =
     new RedundantParens
@@ -43,17 +45,33 @@ class RedundantParens(implicit ctx: RewriteCtx) extends RewriteSession {
       ctx.getMatchingOpt(lastTok).foreach(removeBetween(_, lastTok))
   }
 
+  private def breaksBeforeOpAndNotEnclosed(ia: InfixApp): Boolean = {
+    val allToks = ia.all.tokens
+    !ctx.isMatching(allToks.head, allToks.last) && breaksBeforeOp(ia)
+  }
+
+  private def breaksBeforeOp(ia: InfixApp): Boolean = {
+    val lhs = ia.lhs
+    val lhsLastTok = lhs.tokens.last
+    val hasPreOpLF = ctx.tokenTraverser.findBefore(ia.op.tokens.head) {
+      case _: Token.LF => Some(true)
+      case `lhsLastTok` => Some(false)
+      case _ => None
+    }
+    hasPreOpLF.isDefined || (lhs match {
+      case InfixApp(lhsApp) if breaksBeforeOpAndNotEnclosed(lhsApp) => true
+      case _ =>
+        ia.rhs match {
+          case Seq(InfixApp(rhsApp)) => breaksBeforeOpAndNotEnclosed(rhsApp)
+          case _ => false
+        }
+    })
+  }
+
   private def maybeRemove(tree: Tree, minToKeep: Int = 0): Unit =
     tree match {
       case _ if rewriteFunc.isDefinedAt(tree) =>
-      case t: Term.ApplyInfix => // it might have breaks before infix op
-        val lastLhsTok = t.lhs.tokens.last
-        val hasPreOpLF = ctx.tokenTraverser.findBefore(t.op.tokens.head) {
-          case _: Token.LF => Some(true)
-          case `lastLhsTok` => Some(false)
-          case _ => None
-        }
-        if (hasPreOpLF.isEmpty) remove(tree, minToKeep)
+      case InfixApp(ia) if breaksBeforeOp(ia) => // can't rewrite
       case _ => remove(tree, minToKeep)
     }
 
