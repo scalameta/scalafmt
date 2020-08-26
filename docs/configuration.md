@@ -199,6 +199,72 @@ trait Foo extends A with B with C with D with E {
 }
 ```
 
+### `indentOperator`
+
+Normally, breaks in infix operators are indented by 2. This group of parameters
+allows overriding this rule and controls when indentation is _omitted_.
+
+#### `indentOperator.topLevelOnly`
+
+If true, only top-level infix operators are eligible for to be exempted from
+the default indentation rule.
+
+```scala mdoc:defaults
+indentOperator.topLevelOnly
+```
+
+```scala mdoc:scalafmt
+indentOperator.topLevelOnly = true
+---
+function(
+  a &&
+    b
+)
+function {
+  a &&
+    b
+}
+```
+
+```scala mdoc:scalafmt
+indentOperator.topLevelOnly = false
+---
+function(
+  a &&
+    b
+)
+function {
+  a &&
+    b
+}
+```
+
+#### `indentOperator.exclude`
+
+Defines a regular expression for excluded infix operators. If an eligible
+operator matches, it will not be indented.
+
+```scala mdoc:defaults
+indentOperator.exclude
+```
+
+#### `indentOperator.include`
+
+Defines a regular expression for included infix operators. If an eligible
+operator matches and is not excluded explicitly by
+[indentOperator.exclude](#indentoperatorexclude), it be will indented.
+
+```scala mdoc:defaults
+indentOperator.include
+```
+
+#### `indentOperator.preset`
+
+- `default`
+  - use defaults for all fields
+- `spray` (also `akka`)
+  - set `include = "^.*=$"`, `exclude = "^$"`
+
 ## Alignment
 
 Default: **some**

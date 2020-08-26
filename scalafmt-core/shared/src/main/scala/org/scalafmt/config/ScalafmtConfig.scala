@@ -7,7 +7,6 @@ import scala.collection.mutable
 import scala.io.Codec
 import scala.meta.Dialect
 import scala.util.Try
-import metaconfig.annotation._
 import metaconfig._
 import metaconfig.Configured._
 import org.scalafmt.util.LoggerOps
@@ -36,25 +35,6 @@ import org.scalafmt.util.ValidationOps
   *                                longerArg1,
   *                                longerArg3
   *                            )
-  * @param unindentTopLevelOperators If true, allows no indentation on infix operators
-  *                                  in non-top-level functions. For example,
-  *
-  *                                  function(
-  *                                      a &&
-  *                                      b
-  *                                  )
-  *
-  *                                  If false, only allows 0 space indentation for
-  *                                  top-level statements
-  *
-  *                                  a &&
-  *                                  b
-  *                                  function(
-  *                                      a &&
-  *                                        b
-  *                                  )
-  *
-  *                                  Context: https://github.com/scala-js/scala-js/blob/master/CODINGSTYLE.md#long-expressions-with-binary-operators
   * @param rewriteTokens Map of tokens to rewrite. For example, Map("⇒" -> "=>")
   *                      will rewrite unicode arrows to regular ascii arrows.
   * @param importSelectors Controls formatting of import selectors with multiple names from the
@@ -137,9 +117,14 @@ case class ScalafmtConfig(
     runner: ScalafmtRunner = ScalafmtRunner.default,
     // Settings which belong to no group
     indentYieldKeyword: Boolean = true,
-    @ExtraName("binPackImportSelectors")
+    @annotation.ExtraName("binPackImportSelectors")
     importSelectors: ImportSelectors = ImportSelectors.noBinPack,
-    unindentTopLevelOperators: Boolean = false,
+    @annotation.DeprecatedName(
+      "unindentTopLevelOperators",
+      "Use indentOperator.topLevelOnly instead",
+      "2.7.0"
+    )
+    private val unindentTopLevelOperators: Boolean = false,
     includeCurlyBraceInSelectChains: Boolean = true,
     includeNoParensInSelectChains: Boolean = false,
     assumeStandardLibraryStripMargin: Boolean = false,
@@ -228,6 +213,9 @@ case class ScalafmtConfig(
 
   lazy val encloseSelectChains =
     optIn.encloseClassicChains || newlines.source.ne(Newlines.classic)
+
+  def indentOperatorTopLevelOnly =
+    indentOperator.topLevelOnly && !unindentTopLevelOperators
 
 }
 
