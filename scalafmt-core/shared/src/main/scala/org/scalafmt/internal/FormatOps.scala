@@ -451,7 +451,7 @@ class FormatOps(
   )(implicit style: ScalafmtConfig) = {
     def isTopLevel = isTopLevelInfixApplication(tree)
     noindent == style.indentOperator.noindent(op) &&
-    noindent == (noindent == style.unindentTopLevelOperators || isTopLevel)
+    noindent == (noindent != style.indentOperatorTopLevelOnly || isTopLevel)
   }
 
   def beforeInfixSplit(
